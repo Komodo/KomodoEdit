@@ -268,7 +268,7 @@ this.ext = function(file) {
  /**
  * Return the common URI prefix of the given list of URIs.
  *
- * @param uris {array}
+ * @param {array} uris
  * @returns string
  */
 this.commonURIPrefixFromURIs = function(uris) {
@@ -302,7 +302,7 @@ this.commonURIPrefixFromURIs = function(uris) {
  * Return an array, holding the the common URI prefix as the first element of
  * the array and an array of the relative paths as the second array entry.
  *
- * @param uris {array}
+ * @param {array} uris
  * @returns {array} - Prefix and array of the relative paths.
  */
 this.commonURIPrefixAndPathsFromURIs = function(uris) {
@@ -327,8 +327,8 @@ this.commonURIPrefixAndPathsFromURIs = function(uris) {
 /**
  * Return the relative path from 'fromPath' to 'toPath'.
  *
- * @param fromPath {string}  The local path to work from.
- * @param fromPath {string}  The local path to get to.
+ * @param {string} fromPath  The local path to work from.
+ * @param {string} fromPath  The local path to get to.
  * @returns {string}  Relative path.
  */
 this.relativePath = function ko_uriparse_relativePath(fromPath, toPath)
@@ -347,7 +347,7 @@ this.relativePath = function ko_uriparse_relativePath(fromPath, toPath)
  * in order to change this URI into another location. If there is a match,
  * return the new URI, else return the original URI.
  * 
- * @param uri {string}  The URI to check.
+ * @param {string} uri  The URI to check.
  * @param prefs {Components.interfaces.koIPreferenceSet}
  *        Optional. The preference set to check against.
  * @returns {string}  The mapped URI or the original if there was no match.
@@ -400,8 +400,8 @@ this.getMappedURI = function(uri, prefs)
  * Show the dialog for creating a new mapped URI with the supplied uri and
  * path arguments.
  * 
- * @param uri {string}  The URI to add a mapping for.
- * @param path {string}  The path the URI will be mapped to.
+ * @param {string} uri  The URI to add a mapping for.
+ * @param {string} path  The path the URI will be mapped to.
  * @returns {boolean}  Returns true if a URI mapping was made, false if not.
  */
 this.addMappedURI = function(uri, path)
@@ -432,7 +432,7 @@ this.addMappedURI = function(uri, path)
  * pref setup to match the given path, else return whatever was passed in.
  * Note: If a mapping existed, the return result is *always* a URI.
  * 
- * @param path {string}  The path or URI to check for uri mappings.
+ * @param {string} path  The path or URI to check for uri mappings.
  * @param prefs {Components.interfaces.koIPreferenceSet}
  *        Optional. The preference set to check against.
  * @returns {string}  The unmapped URI or the original path when

@@ -117,7 +117,7 @@ function on_focus(event) {
 /**
  * Update as appropriate for some change in the dialog.
  *
- * @param changed {string} The name of the thing that changed. If
+ * @param {string} changed The name of the thing that changed. If
  *      null or not specified *everything* is updated (used for dialog
  *      initialization).
  */
@@ -1235,7 +1235,7 @@ function _update_mode_ui() {
  * Determine an appropriate koIFindContext instance for
  * searching/replacing, and set it to the `_g_find_context` global.
  *
- * @param reason {string} gives the reason for resetting the find context.
+ * @param {string} reason gives the reason for resetting the find context.
  *      This is only used for debugging.
  * 
  * Can return null if an appropriate context could not be determined.

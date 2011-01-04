@@ -56,11 +56,11 @@ var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
 /**
  * Expands the abbreviation, if any, at the current cursor position.
  *
- * @param abbrev {String} Optional. The abbreviation to expand. If not
+ * @param {String} abbrev Optional. The abbreviation to expand. If not
  *      given, then the current selection or word before the cursor is
  *      used.
- * @param lang {String} The language name to scope the search. Optional.
- * @param sublang {String} The sub-language name top scope the search.
+ * @param {String} lang The language name to scope the search. Optional.
+ * @param {String} sublang The sub-language name top scope the search.
  *      Optional.
  * @returns {Boolean} True if the snippet was found and inserted, false
  *      otherwise.
@@ -134,12 +134,12 @@ this.expandAbbrev = function expandAbbrev(abbrev /* =null */,
  * B. the current buffer lang (if different than A)
  * C. the "General" lang (i.e. not language-specific)
  *
- * @param abbrev {String} The abbreviation name.
- * @param lang {String} The language name to scope the search. Optional.
+ * @param {String} abbrev The abbreviation name.
+ * @param {String} lang The language name to scope the search. Optional.
  *      If not given, then the language of the current view is used.
  *      Specify "General" to *not* search for a lang-specific
  *      abbreviation.
- * @param sublang {String} The sub-language name top scope the search.
+ * @param {String} sublang The sub-language name top scope the search.
  *      This can be relevant for multi-language files (e.g. HTML can have
  *      HTML and JavaScript and CSS). Optional. If not given, then
  *      the sub-lang of the current cursor position in the current view is

@@ -305,7 +305,7 @@ projectManager.prototype.notifiedIsAlreadySetForProject = function(project) {
  * not found this will return null. The search is done on all other Komodo
  * window instances.
  *
- * @param projectUrl {string}  The URL of the project to check for.
+ * @param {string} projectUrl  The URL of the project to check for.
  * @returns {Components.interfaces.koIProject}  The project found, else null.
  */
 projectManager.prototype.findOtherWindowProjectInstanceForUrl = function(projectUrl) {
@@ -327,7 +327,7 @@ projectManager.prototype.findOtherWindowProjectInstanceForUrl = function(project
 /**
  * Save the given project.
  * @param project {Components.interfaces.koIProject}
- * @param skip_scc_check {boolean}
+ * @param {boolean} skip_scc_check
  *        Optional (default is false). Whether to skip the file scc edit step.
  */
 projectManager.prototype.saveProject = function(project, skip_scc_check) {

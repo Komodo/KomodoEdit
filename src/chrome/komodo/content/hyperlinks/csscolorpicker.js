@@ -83,11 +83,11 @@ ko.hyperlinks.ColorPickerHandler.named_css_colors = [
  *
  * @param view {Components.interfaces.koIScintillaView}  View to check.
  * @param scimoz {Components.interfaces.ISciMoz}  Scimoz for the view.
- * @param pos {int}  Position in the scimoz editor.
- * @param line {string}  The current line from the editor.
- * @param lineStartPos {int} Scimoz position for the start of the line.
- * @param lineEndPos {int}   Scimoz position for the end of the line.
- * @param reason {string}  What the triggering event reason was, can be one
+ * @param {int} pos  Position in the scimoz editor.
+ * @param {string} line  The current line from the editor.
+ * @param {int} lineStartPos Scimoz position for the start of the line.
+ * @param {int} lineEndPos   Scimoz position for the end of the line.
+ * @param {string} reason  What the triggering event reason was, can be one
  *        of "keypress" or "mousemove".
  * @returns {ko.hyperlinks.Hyperlink} - The hyperlink instance shown.
  */
@@ -152,7 +152,7 @@ ko.hyperlinks.ColorPickerHandler.prototype.show = function(
  *
  * @param view {Components.interfaces.koIScintillaView}  The view instance.
  * @param hyperlink {ko.hyperlinks.Hyperlink} The hyperlink instance.
- * @param reason {string}  What the triggering event reason was, can be one
+ * @param {string} reason  What the triggering event reason was, can be one
  *        of "keyup", "mousemove", "mouseup" or "blur".
  */
 ko.hyperlinks.ColorPickerHandler.prototype.remove = function(view, hyperlink, reason)

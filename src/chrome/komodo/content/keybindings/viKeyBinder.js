@@ -607,9 +607,9 @@ VimController.prototype.updateViInternals = function() {
 
 /**
  * Set the vi statusbar message.
- * @param message {string}  The message to be displayed in the statusbar
- * @param timeout {int}  If > 0, the milliseconds until message disappears
- * @param highlight {boolean}  Highlight the statusbar message.
+ * @param {string} message  The message to be displayed in the statusbar
+ * @param {int} timeout  If > 0, the milliseconds until message disappears
+ * @param {boolean} highlight  Highlight the statusbar message.
  */
 VimController.prototype.setStatusBarMessage = function(message, timeout,
                                                        highlight)
@@ -1084,8 +1084,8 @@ VimController.prototype.handleKeypress = function(event) {
 
 /**
  * Setup and show the vi command input buffer.
- * @param commandHistory {array}  Items to be shown though up arrow usage.
- * @param initialText {string}  Initial text to be displayed in the buffer.
+ * @param {array} commandHistory  Items to be shown though up arrow usage.
+ * @param {string} initialText  Initial text to be displayed in the buffer.
  */
 VimController.prototype.inputBufferStart = function (commandHistory,
                                                      label,
@@ -1232,8 +1232,8 @@ VimController.prototype._dumpRegisters = function () {
 /**
  * Handling the update of register information.
  *
- * @param text {string} the text that is copied/changed or deleted)
- * @param isDeleted {bool} if the text was deleted (by a change or delete command)
+ * @param {string} text the text that is copied/changed or deleted)
+ * @param {bool} isDeleted if the text was deleted (by a change or delete command)
  * @private
  */
 VimController.prototype.updateRegisters = function (text, isDeleted) {
@@ -1285,10 +1285,10 @@ VimController.prototype.updateRegisters = function (text, isDeleted) {
  * Handling copy and paste (now handled internally, this._internalBuffer)
  *
  * @param scimoz {Components.interfaces.ISciMoz} Scintilla xpcom object
- * @param start {int} start position in buffer
- * @param end {int} end position in buffer
- * @param deleteRange {boolean} remove this range once copied
- * @param ensureEndsWithNewline {boolean}
+ * @param {int} start start position in buffer
+ * @param {int} end end position in buffer
+ * @param {boolean} deleteRange remove this range once copied
+ * @param {boolean} ensureEndsWithNewline
  *        ensure the copied text ends with a newline
  */
 VimController.prototype.copyInternal = function (scimoz, start, end,
@@ -1461,10 +1461,10 @@ VimController._find_msg_callback = function (level, context, msg) {
 /**
  * Perform a search on the current buffer
  * @param scimoz - Scintilla object
- * @param searchString {string} String to search for.
- * @param reverseDirection {bool} Reverse the current search direction.
+ * @param {string} searchString String to search for.
+ * @param {bool} reverseDirection Reverse the current search direction.
  *      Optional. False by default.
- * @param matchWord {bool} Match a whole word. Optional. If not specified,
+ * @param {bool} matchWord Match a whole word. Optional. If not specified,
  *      then the value for the last search is used.
  */
 VimController.prototype.performSearch = function (scimoz, searchString,
@@ -1997,7 +1997,7 @@ VimController.special_command_mappings = {
  * Execute the supplied command details. Will search the special command
  * mapping table for a match first, then checks for a match in the toolbox.
  * An alert is shown if no matched command is found.
- * @param command_details {koICommandDetail} Details of the command to run
+ * @param {koICommandDetail} command_details Details of the command to run
  */
 VimController.prototype.runCommandDetails = function(command_details) {
     var commandName = command_details.commandName;

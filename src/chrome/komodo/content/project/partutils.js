@@ -231,9 +231,9 @@ this.reimportFromFileSystem = function part_ReImportFromFS(part) {
 /**
  * Import a Komodo package (filename) into the given part.
  *
- * @param viewMgr {Object} - The project view manager.
+ * @param {Object} viewMgr - The project view manager.
  * @param part {Components.interfaces.koIPart} - The part to import into.
- * @param uri {string} - The URI of the package to import.
+ * @param {string} uri - The URI of the package to import.
  */
 this.importFromPackage = function part_ImportFromPackage(viewMgr, part, uri) {
     if (!uri) {
@@ -279,10 +279,10 @@ this.importFromPackage = function part_ImportFromPackage(viewMgr, part, uri) {
  * Import a Komodo package (filename) into the given part.
  *
  * @private
- * @param viewMgr {Object} - The project view manager.
+ * @param {Object} viewMgr - The project view manager.
  * @param part {Components.interfaces.koIPart} - The part to import into.
- * @param filename {string} - The local path of the package file to import.
- * @param kpzExtractFolder {string} - Where the kpz-extraction takes place.
+ * @param {string} filename - The local path of the package file to import.
+ * @param {string} kpzExtractFolder - Where the kpz-extraction takes place.
  */
 this._importFromPackage = function part__ImportFromPackage(viewMgr, part, filename, kpzExtractFolder) {
     // Use the default toolbox package extraction folder. The importPackage
@@ -323,10 +323,10 @@ this._importFromPackage = function part__ImportFromPackage(viewMgr, part, filena
  * to the package extraction service to unpack.
  *
  * @private
- * @param viewMgr {Object} - The project view manager.
+ * @param {Object} viewMgr - The project view manager.
  * @param part {Components.interfaces.koIPart} - The part to import into.
- * @param uri {string} - The URI of the package to import.
- * @param kpzExtractFolder {string} - Where the kpz-extraction takes place.
+ * @param {string} uri - The URI of the package to import.
+ * @param {string} kpzExtractFolder - Where the kpz-extraction takes place.
  */
 this._importPackageViaHttp = function part__ImportPackageViaHttp(viewMgr, part, uri, kpzExtractFolder) {
     // Download the binary kpz data to save into a local filename.

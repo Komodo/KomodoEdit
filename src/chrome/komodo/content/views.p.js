@@ -254,7 +254,7 @@ viewManager.prototype._getDefaultDirectory = function() {
  * user to select a template.
  *
  * @private
- * @param defaultDir {string} optional, current directory
+ * @param {string} defaultDir optional, current directory
  * @return {Components.interfaces.koIView} the buffer view that is opened
  */
 viewManager.prototype._newTemplate = function(defaultDir) {
@@ -307,8 +307,8 @@ viewManager.prototype._newTemplate = function(defaultDir) {
  * will prompt the user to select a template.
  *
  * @public
- * @param defaultDir {string} optional, current directory
- * @param callback {function} optional, to be called when the asynchronous load
+ * @param {string} defaultDir optional, current directory
+ * @param {function} callback optional, to be called when the asynchronous load
  *        is complete. The view will be passed as an argument to the function.
  */
 viewManager.prototype.newTemplateAsync = function(defaultDir /*=null*/,
@@ -329,9 +329,9 @@ viewManager.prototype.newTemplateAsync = function(defaultDir /*=null*/,
  * Create a new file from the given template URI.
  *
  * @private
- * @param uri {string} optional, uri pointing to a template file
- * @param saveto {string} optional, where to save the new file
- * @param viewType {string} optional, type of buffer to open, default "editor"
+ * @param {string} uri optional, uri pointing to a template file
+ * @param {string} saveto optional, where to save the new file
+ * @param {string} viewType optional, type of buffer to open, default "editor"
  * @param viewList {Components.interfaces.koIViewList}
  *        optional, what pane to open the buffer in
  *
@@ -457,12 +457,12 @@ viewManager.prototype._doFileNewFromTemplate = function(uri,
 /**
  * Asynchronously create a new file based on the given template URI.
  *
- * @param uri {string} optional, uri pointing to a template file
- * @param saveto {string} optional, where to save the new file
- * @param viewType {string} optional, type of buffer to open, default "editor"
+ * @param {string} uri optional, uri pointing to a template file
+ * @param {string} saveto optional, where to save the new file
+ * @param {string} viewType optional, type of buffer to open, default "editor"
  * @param viewList {Components.interfaces.koIViewList}
  *        optional, what pane to open the buffer in
- * @param callback {function} optional, to be called when the asynchronous load
+ * @param {function} callback optional, to be called when the asynchronous load
  *        is complete. The view will be passed as an argument to the function.
  */
 viewManager.prototype.doFileNewFromTemplateAsync = function(uri,
@@ -484,8 +484,8 @@ viewManager.prototype.doFileNewFromTemplateAsync = function(uri,
  *
  * @private
  *
- * @param language {string} optional, language of the buffer (eg. python)
- * @param viewType {string} optional, type of buffer to open, default "editor"
+ * @param {string} language optional, language of the buffer (eg. python)
+ * @param {string} viewType optional, type of buffer to open, default "editor"
  *
  * @return {Components.interfaces.koIView} the buffer view that is opened
  */
@@ -511,9 +511,9 @@ viewManager.prototype._doNewView = function(language /*= prefs.fileDefaultNew*/,
 /**
  * Asynchronously create a new empty, unsaved editor buffer.
  *
- * @param language {string} optional, language of the buffer (eg. python)
- * @param viewType {string} optional, type of buffer to open, default "editor"
- * @param callback {function} optional, to be called when the asynchronous load
+ * @param {string} language optional, language of the buffer (eg. python)
+ * @param {string} viewType optional, type of buffer to open, default "editor"
+ * @param {function} callback optional, to be called when the asynchronous load
  *        is complete. The view will be passed as an argument to the function.
  */
 viewManager.prototype.doNewViewAsync = function(language /*= prefs.fileDefaultNew*/,
@@ -535,11 +535,11 @@ viewManager.prototype.doNewViewAsync = function(language /*= prefs.fileDefaultNe
  *
  * @private
  *
- * @param uri {string} uri to file
- * @param viewType {string} optional, type of buffer to open, default "editor"
+ * @param {string} uri uri to file
+ * @param {string} viewType optional, type of buffer to open, default "editor"
  * @param viewList {Components.interfaces.koIViewList}
  *        optional, what pane to open the buffer in
- * @param index {integer} optional index in the `viewList` at which to insert
+ * @param {integer} index optional index in the `viewList` at which to insert
  *        the new view. If not given, or -1, then the new view is appended.
  *        If there is already a view open for this `uri`, then index is ignored.
  *
@@ -636,14 +636,14 @@ viewManager.prototype._newViewFromURI = function(uri,
  * Create a new buffer and open a file into it.
  * Note: The "uri" will *not* be translated by the mapped URI functionality.
  *
- * @param uri {string} uri to file
- * @param viewType {string} optional, type of buffer to open, default "editor"
+ * @param {string} uri uri to file
+ * @param {string} viewType optional, type of buffer to open, default "editor"
  * @param viewList {Components.interfaces.koIViewList}
  *        optional, what pane to open the buffer in
- * @param index {integer} optional index in the `viewList` at which to insert
+ * @param {integer} index optional index in the `viewList` at which to insert
  *        the new view. If not given, or -1, then the new view is appended.
  *        If there is already a view open for this `uri`, then index is ignored.
- * @param callback {function} optional, to be called when the asynchronous load
+ * @param {function} callback optional, to be called when the asynchronous load
  *        is complete. The view will be passed as an argument to the function.
  */
 viewManager.prototype.newViewFromURIAsync = function(uri,
@@ -693,11 +693,11 @@ viewManager.prototype._openPreferredView = function(views, viewList) {
  *
  * @private
  *
- * @param uri {string} uri to file
- * @param viewType {string} optional, type of buffer to open, default "editor"
+ * @param {string} uri uri to file
+ * @param {string} viewType optional, type of buffer to open, default "editor"
  * @param viewList {Components.interfaces.koIViewList}
  *      optional, what pane to open the buffer in
- * @param index {integer} optional index in the `viewList` at which to insert
+ * @param {integer} index optional index in the `viewList` at which to insert
  *      the new view. If not given, or -1, then the new view is appended.
  *      If there is already a view open for this `uri`, then index is ignored.
  * @return {Components.interfaces.koIView} the buffer view that is opened
@@ -732,14 +732,14 @@ viewManager.prototype._doFileOpen = function(uri,
  * else create a new buffer for the file.
  * Note: The "uri" will be translated using the mapped URI functionality.
  *
- * @param uri {string} uri to file
- * @param viewType {string} optional, type of buffer to open, default "editor"
+ * @param {string} uri uri to file
+ * @param {string} viewType optional, type of buffer to open, default "editor"
  * @param viewList {Components.interfaces.koIViewList}
  *      optional, what pane to open the buffer in
- * @param index {integer} optional index in the `viewList` at which to insert
+ * @param {integer} index optional index in the `viewList` at which to insert
  *      the new view. If not given, or -1, then the new view is appended.
  *      If there is already a view open for this `uri`, then index is ignored.
- * @param callback {function} optional, to be called when the asynchronous load
+ * @param {function} callback optional, to be called when the asynchronous load
  *        is complete. The view will be passed as an argument to the function.
  */
 viewManager.prototype.doFileOpenAsync = function(uri,
@@ -762,12 +762,12 @@ viewManager.prototype.doFileOpenAsync = function(uri,
  *
  * @private
  *
- * @param uri {string} uri to file
- * @param lineno {integer} line number
- * @param viewType {string} optional, type of buffer to open, default "editor"
+ * @param {string} uri uri to file
+ * @param {integer} lineno line number
+ * @param {string} viewType optional, type of buffer to open, default "editor"
  * @param viewList {Components.interfaces.koIViewList}
  *        optional, what pane to open the buffer in
- * @param index {integer} optional index in the `viewList` at which to insert
+ * @param {integer} index optional index in the `viewList` at which to insert
  *        the new view. If not given, or -1, then the new view is appended.
  *        If there is already a view open for this `uri`, then index is ignored.
  * @return {Components.interfaces.koIView} the buffer view that is opened
@@ -795,12 +795,12 @@ viewManager.prototype._doFileOpenAtLine = function(uri,
  * Asyncronously open a file at the given line number. If it is already open,
  * then select that buffer, else create a new buffer for the file.
  *
- * @param uri {string} uri to file
- * @param lineno {integer} line number
- * @param viewType {string} optional, type of buffer to open, default "editor"
+ * @param {string} uri uri to file
+ * @param {integer} lineno line number
+ * @param {string} viewType optional, type of buffer to open, default "editor"
  * @param viewList {Components.interfaces.koIViewList}
  *        optional, what pane to open the buffer in
- * @param index {integer} optional index in the `viewList` at which to insert
+ * @param {integer} index optional index in the `viewList` at which to insert
  *        the new view. If not given, or -1, then the new view is appended.
  *        If there is already a view open for this `uri`, then index is ignored.
  */
@@ -824,13 +824,13 @@ viewManager.prototype.doFileOpenAtLineAsync = function(uri,
  * Asynchronously open a view, optionally in the specified tabbed list
  * and at the specified tab position.
  *
- * @param uri {string} uri to file
- * @param viewType {string} optional, type of buffer to open, default "editor"
- * @param tabGroup {string} optional, which tab group to open the buffer in
- * @param index {integer} optional index in the `viewList` at which to insert
+ * @param {string} uri uri to file
+ * @param {string} viewType optional, type of buffer to open, default "editor"
+ * @param {string} tabGroup optional, which tab group to open the buffer in
+ * @param {integer} index optional index in the `viewList` at which to insert
  *        the new view. If not given, or -1, then the new view is appended.
  *        If there is already a view open for this `uri`, then index is ignored.
- * @param callback {function} optional, to be called when the asynchronous load
+ * @param {function} callback optional, to be called when the asynchronous load
  *        is complete. The view will be passed as an argument to the function.
  *
  * @return null
@@ -876,7 +876,7 @@ viewManager.prototype.openViewAsync = function(viewType, uri, tabGroup, tabIndex
  * @public
  * @since Komodo 5.2.0
  * 
- * @param viewType {string} optional, type of views to return, default is all
+ * @param {string} viewType optional, type of views to return, default is all
  * @return {array}  The array of views.
  */
 viewManager.prototype.getAllViews = function(viewType /* all */) {
@@ -893,8 +893,8 @@ viewManager.prototype.getAllViews = function(viewType /* all */) {
  * @public
  * @since Komodo 4.3.0
  * 
- * @param uri {string} URI to file
- * @param viewType {string} optional, type of view to find, default is any
+ * @param {string} uri URI to file
+ * @param {string} viewType optional, type of view to find, default is any
  * @return {Components.interfaces.koIView} the buffer view that is opened
  */
 viewManager.prototype.getViewForURI = function(uri, viewType) {
@@ -915,7 +915,7 @@ viewManager.prototype.getViewForURI = function(uri, viewType) {
  * @public
  * @since Komodo 5.2.0
  * 
- * @param uri {string} URI to file
+ * @param {string} uri URI to file
  * @return list of {Components.interfaces.koIView} (open buffer views)
  */
 viewManager.prototype.getAllViewsForURI = function(uri) {
@@ -926,7 +926,7 @@ viewManager.prototype.getAllViewsForURI = function(uri) {
  * get a reference to a new and unsaved buffer view
  *
  * @public
- * @param name {string} name of the buffer
+ * @param {string} name name of the buffer
  * @return {Components.interfaces.koIView} the buffer view that is opened
  */
 viewManager.prototype.getUntitledView = function(name) {
@@ -1294,11 +1294,11 @@ viewManager.prototype.do_cmd_closeAll = function() {
 
 /**
  * Close the list of views provided.
- * @param views {koIView} - Views to close - when no views are provided, then
+ * @param {koIView} views - Views to close - when no views are provided, then
  *                          the list of all views will be used.
- * @param ignoreFailures {boolean} - ignore any failures when closing files
- * @param closeStartPage {boolean} - close the start page?
- * @param doNotOfferToSave {boolean} - whether to offer to save dirty files
+ * @param {boolean} ignoreFailures - ignore any failures when closing files
+ * @param {boolean} closeStartPage - close the start page?
+ * @param {boolean} doNotOfferToSave - whether to offer to save dirty files
  */
 viewManager.prototype._doCloseViews = function(views, ignoreFailures, closeStartPage, doNotOfferToSave) {
     if (!views) views = this.topView.getDocumentViews(true);
@@ -1562,7 +1562,7 @@ viewManager.prototype.offerToSave = function(urls, /* default is null meaning al
  * revert files to the version saved on disk
  * 
  * @public
- * @param urls {array} list of files to revert
+ * @param {array} urls list of files to revert
  */
 viewManager.prototype.revertViewsByURL = function(urls) {
     var i, j, view, views;
@@ -1579,7 +1579,7 @@ viewManager.prototype.revertViewsByURL = function(urls) {
  * close a set of files
  * 
  * @public
- * @param urls {array} list of files to close
+ * @param {array} urls list of files to close
  */
 viewManager.prototype.closeViewsByURL = function(urls) {
     var i, j, view, views;

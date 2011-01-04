@@ -318,7 +318,7 @@ if (typeof(ko.dragdrop)=='undefined') {
 
     /**
      * Add alternative KomodoDropData flavours.
-     * @param alternatives {object} - a map of flavour to the alt KomodoDropData.
+     * @param {object} alternatives - a map of flavour to the alt KomodoDropData.
      */
     KomodoDropData.prototype.addAlternatives = function KomodoDropData_addAlternatives(alternatives) {
         this.alternatives = alternatives;
@@ -327,8 +327,8 @@ if (typeof(ko.dragdrop)=='undefined') {
     /**
      * Unpack the dropped data into something Komodo can use.
      *
-     * @param dragType {string} - The type of data.
-     * @param dragData {object} - The dropped Mozilla data.
+     * @param {string} dragType - The type of data.
+     * @param {object} dragData - The dropped Mozilla data.
      */
     KomodoDropData.prototype.unpack = function KoDropData_unpack(dragType, dragData) {
         switch(dragType) {
@@ -441,7 +441,7 @@ if (typeof(ko.dragdrop)=='undefined') {
      * Unpack the dropped data into a Komodo specific data structure.
      * 
      * @param dataTransfer {Components.interfaces.nsIDOMDataTransfer} - The data.
-     * @param acceptedFlavours {array} - Optional - list of supported data types.
+     * @param {array} acceptedFlavours - Optional - list of supported data types.
      * @returns {array} - Returns an array of {ko.dragdrop.KoDropData}
      */
     this.unpackDropData = function unpackDropData(dataTransfer, acceptedFlavours) {
@@ -502,7 +502,7 @@ if (typeof(ko.dragdrop)=='undefined') {
      *   o converting mapped urls
      *   o treating dropped URLs as text
      *
-     * @param koDropDataList {array} - Array of KomodoDropData items.
+     * @param {array} koDropDataList - Array of KomodoDropData items.
      * @returns {array} - Array of converted KomodoDropData items.
      */
     this.convertKoDropData = function convertKoDropData(koDropDataList) {
@@ -580,7 +580,7 @@ if (typeof(ko.dragdrop)=='undefined') {
      * Open all Komodo dropped files or URLs and then return the unhandled
      * list of koDropData items.
      *
-     * @param koDropDataList {array} - Array of KomodoDropData items.
+     * @param {array} koDropDataList - Array of KomodoDropData items.
      * @returns {array} - Array of unhandled (unopened) KomodoDropData items.
      */
     this.openDroppedUrls = function openDroppedUrls(koDropDataList) {

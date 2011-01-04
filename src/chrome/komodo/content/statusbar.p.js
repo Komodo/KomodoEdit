@@ -698,7 +698,7 @@ var _encodingMenuInitialized = false;
 
 /**
  * Set the encoding menu for the current view.
- * @param menupopup {DOMElement}
+ * @param {DOMElement} menupopup
  */
 this.setupEncodingMenu = function(menupopup)
 {
@@ -725,7 +725,7 @@ this.setupEncodingMenu = function(menupopup)
 
 /**
  * Set the encoding menu for the current view.
- * @param menupopup {DOMElement}
+ * @param {DOMElement} menupopup
  */
 this.changeEncoding = function(menuitem)
 {

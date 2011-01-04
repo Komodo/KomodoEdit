@@ -232,9 +232,9 @@ this.add = function MRU_add(prefName, entry, caseSensitive)
 /**
  * Remove the given "entry" (a string) from the given MRU if it exists.
  *
- * @param prefName {string}  The mru preference with which it is associated.
- * @param entry {string}  The entry to remove from the mru.
- * @param caseSensitive {boolean}  How to match the entry.
+ * @param {string} prefName  The mru preference with which it is associated.
+ * @param {string} entry  The entry to remove from the mru.
+ * @param {boolean} caseSensitive  How to match the entry.
  */
 this.remove = function MRU_remove(prefName, entry, caseSensitive)
 {
@@ -294,8 +294,8 @@ this.addURL = function MRU_addURL(prefName, url)
 /**
  * Remove the given URL from the mru preference (if it exists).
  *
- * @param prefName {string}  The mru preference with which it is associated.
- * @param url {string}  The URL to remove from the mru.
+ * @param {string} prefName  The mru preference with which it is associated.
+ * @param {string} url  The URL to remove from the mru.
  */
 this.removeURL = function MRU_removeURL(prefName, url)
 {
@@ -409,8 +409,8 @@ this.reset = function MRU_reset(prefName)
  * Returns an array of strings set in the given mru.
  * The order is from most recently used to least frequently used.
  * @public
- * @param prefName {string} name of the mru
- * @param maxLength {int} maximum number of entries to return, default is all.
+ * @param {string} prefName name of the mru
+ * @param {int} maxLength maximum number of entries to return, default is all.
  */
 this.getAll = function MRU_getAll(prefName, maxLength /* all */)
 {

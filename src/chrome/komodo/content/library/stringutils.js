@@ -181,7 +181,7 @@ this.strip = function(s) {
 /**
  * Use koIOs.expanduser to expand a leading "~".  This contracts it.
  *
- * @param path {string}
+ * @param {string} path
  * @returns one of ~/..., ~name/..., or path
  */
 

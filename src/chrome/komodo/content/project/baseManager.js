@@ -445,12 +445,12 @@ this.addItem = function(item, parent) {
  *
  * find a part in the toolboxes and/or a specifid part's project
  *
- * @param type {string}
- * @param name {string}
- * @param where {string} one of "container", "toolbox", "shared toolbox",
+ * @param {string} type
+ * @param {string} name
+ * @param {string} where one of "container", "toolbox", "shared toolbox",
  *                       "toolboxes" or "*" where "*" means
  *                       "current part project, toolbox, shared toolbox"
- * @param part {koIPart} defaults to the running macro if available
+ * @param {koIPart} part defaults to the running macro if available
  * @returns {koIPart}
  */
 this.findPart = function macro_findPart(type, name, where, /*koIPart*/ part) {

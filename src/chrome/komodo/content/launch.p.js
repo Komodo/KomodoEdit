@@ -101,7 +101,7 @@ function locateHelpWindow(contentPack) {
 /**
  * Open the Komodo help window.
  *
- * @param page {String} A page tag as defined in toc.xml
+ * @param {String} page A page tag as defined in toc.xml
  */
 this.open = function(page) {
     openHelp(page, 'chrome://komododoc/locale/komodohelp.rdf');
@@ -110,7 +110,7 @@ this.open = function(page) {
 /**
  * Opens language specific help for the current buffer.
  *
- * @param searchTerm {string}  Open language help for this search term.
+ * @param {string} searchTerm  Open language help for this search term.
  */
 this.language = function(searchTerm) {
     // Get the current document's language.
@@ -240,7 +240,7 @@ this.find2_dialog_args = null;
 /**
  * Open the Find dialog.
  *
- * @param pattern {String} The pattern to search for.
+ * @param {String} pattern The pattern to search for.
  */
 this.find = function(pattern /* =null */) {
     if (typeof(pattern) == 'undefined') pattern = null;
@@ -274,8 +274,8 @@ this.find = function(pattern /* =null */) {
 /**
  * Open the Find/Replace dialog.
  *
- * @param pattern {String} The pattern to search for.
- * @param repl {String} The replacement pattern.
+ * @param {String} pattern The pattern to search for.
+ * @param {String} repl The replacement pattern.
  */
 this.replace = function(pattern /* =null */, repl /* =null */) {
     // Transfer focus to the hidden input buffer to capture keystrokes
@@ -302,8 +302,8 @@ this.replace = function(pattern /* =null */, repl /* =null */) {
 /**
  * Open the find dialog for searching in a "collection" find context.
  *
- * @param collection {koICollectionFindContext} defines in what to search.
- * @param pattern {string} is the pattern to search for. Optional.
+ * @param {koICollectionFindContext} collection defines in what to search.
+ * @param {string} pattern is the pattern to search for. Optional.
  */
 this.findInCollection = function(collection, pattern /* =null */) {
     // Transfer focus to the hidden input buffer to capture keystrokes
@@ -330,9 +330,9 @@ this.findInCollection = function(collection, pattern /* =null */) {
 /**
  * Open the find dialog to find & replace in a "collection" of files.
  *
- * @param collection {koICollectionFindContext} defines in what to search.
- * @param pattern {String} The pattern to search for.
- * @param repl {String} The replacement pattern.
+ * @param {koICollectionFindContext} collection defines in what to search.
+ * @param {String} pattern The pattern to search for.
+ * @param {String} repl The replacement pattern.
  */
 this.replaceInCollection = function(collection, pattern /* =null */,
                                     repl /* =null */) {
@@ -361,7 +361,7 @@ this.replaceInCollection = function(collection, pattern /* =null */,
 /**
  * Open Find dialog to search in the current project.
  *
- * @param pattern {String}
+ * @param {String} pattern
  */
 this.findInCurrProject = function(pattern /* =null */) {
     // Transfer focus to the hidden input buffer to capture keystrokes
@@ -388,8 +388,8 @@ this.findInCurrProject = function(pattern /* =null */) {
 /**
  * Open Find dialog to find & replace in the current project.
  *
- * @param pattern {String} The pattern to search for.
- * @param repl {String} The replacement pattern.
+ * @param {String} pattern The pattern to search for.
+ * @param {String} repl The replacement pattern.
  */
 this.replaceInCurrProject = function(pattern /* =null */, repl /* =null */) {
     // Transfer focus to the hidden input buffer to capture keystrokes
@@ -416,10 +416,10 @@ this.replaceInCurrProject = function(pattern /* =null */, repl /* =null */) {
 /**
  * Open Find dialog to search in files.
  *
- * @param pattern {String}
- * @param dirs {String}
- * @param includes {Array}
- * @param excludes {Array}
+ * @param {String} pattern
+ * @param {String} dirs
+ * @param {Array} includes
+ * @param {Array} excludes
  */
 this.findInFiles = function(pattern /* =null */, dirs /* =null */,
                             includes /* =null */, excludes /* =null */) {
@@ -461,11 +461,11 @@ this.findInFiles = function(pattern /* =null */, dirs /* =null */,
 /**
  * Open Find dialog to make replacements in files.
  *
- * @param pattern {String}
- * @param repl {String}
- * @param dirs {String}
- * @param includes {Array}
- * @param excludes {Array}
+ * @param {String} pattern
+ * @param {String} repl
+ * @param {String} dirs
+ * @param {Array} includes
+ * @param {Array} excludes
  */
 this.replaceInFiles = function(pattern /* =null */, repl /* =null */,
                                dirs /* =null */, includes /* =null */,

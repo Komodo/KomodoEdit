@@ -57,7 +57,7 @@ koColorPicker.prototype = {
     /**
      * Select a color from the Komodo color picker dialog.
      * 
-     * @param hexColor {string} - The initial color.
+     * @param {string} hexColor - The initial color.
      */
     pickColor: function(hexColor) {
         return this.pickColorWithPositioning(hexColor, -1, -1);

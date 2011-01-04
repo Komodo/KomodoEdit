@@ -39,9 +39,9 @@
  *
  * @class
  * @base ko.hyperlinks.BaseHandler
- * @param name {string} A unique name of the hyperlink handler.
- * @param findRegex {regexp} Regular expression used to find the hyperlink.
- * @param fn {function} Will be called when the user clicks on the jump
+ * @param {string} name A unique name of the hyperlink handler.
+ * @param {regexp} findRegex Regular expression used to find the hyperlink.
+ * @param {function} fn Will be called when the user clicks on the jump
  *        point. The matching (or replaced) hyperlink value is the only
  *        argument passed to this function.
  * @param replace_str {string|null} Optional - If set, will be used to
@@ -51,8 +51,8 @@
  * @param lang_names {array|null} Optional - If set, the handler will
  *        only show hyperlinks when the editor language is one of these
  *        language names.
- * @param indic_style {int} Optional - Indicator style, see scimoz.INDIC_*
- * @param indic_color {int} Optional - Indicator color (BGR), i.e. 0xFFCC33
+ * @param {int} indic_style Optional - Indicator style, see scimoz.INDIC_*
+ * @param {int} indic_color Optional - Indicator color (BGR), i.e. 0xFFCC33
  */
 ko.hyperlinks.RegexHandler = function(name, findRegex, fn, replace_str, lang_names,
                                       indic_style, indic_color)
@@ -73,7 +73,7 @@ ko.hyperlinks.RegexHandler.prototype.constructor = ko.hyperlinks.RegexHandler;
  * When checking for a hgyperlink match, the style at the cursor position must
  * match one one of these values.
  *
- * @param styleNumbers {array} - List of style numbers.
+ * @param {array} styleNumbers - List of style numbers.
  */
 ko.hyperlinks.RegexHandler.prototype.limitToTheseStyles = function(styleNumbers)
 {
@@ -85,11 +85,11 @@ ko.hyperlinks.RegexHandler.prototype.limitToTheseStyles = function(styleNumbers)
  *
  * @param view {Components.interfaces.koIScintillaView}  View to check.
  * @param scimoz {Components.interfaces.ISciMoz}  Scimoz for the view.
- * @param position {int}  Position in the scimoz editor.
- * @param line {string}  The current line from the editor.
- * @param lineStartPos {int} Scimoz position for the start of the line.
- * @param lineEndPos {int}   Scimoz position for the end of the line.
- * @param reason {string}  What the triggering event reason was, can be one
+ * @param {int} position  Position in the scimoz editor.
+ * @param {string} line  The current line from the editor.
+ * @param {int} lineStartPos Scimoz position for the start of the line.
+ * @param {int} lineEndPos   Scimoz position for the end of the line.
+ * @param {string} reason  What the triggering event reason was, can be one
  *        of "keypress" or "mousemove".
  * @returns {ko.hyperlinks.Hyperlink} - The hyperlink instance shown.
  */
@@ -153,7 +153,7 @@ ko.hyperlinks.ImagePreviewHandler.prototype.constructor = ko.hyperlinks.ImagePre
  *
  * @param view {Components.interfaces.koIScintillaView}  The view instance.
  * @param hyperlink {ko.hyperlinks.Hyperlink} The hyperlink instance.
- * @param reason {string}  What the triggering event reason was, can be one
+ * @param {string} reason  What the triggering event reason was, can be one
  *        of "keyup", "mousemove", "mouseup" or "blur".
  */
 ko.hyperlinks.ImagePreviewHandler.prototype.remove = function(view, hyperlink, reason)

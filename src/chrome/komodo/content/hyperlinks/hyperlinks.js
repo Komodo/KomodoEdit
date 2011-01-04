@@ -107,9 +107,9 @@ ko.hyperlinks = {};
      * A hyperlink instance created by a handler and set on the view.
      *
      * @param handler {ko.hyperlinks.BaseHandler} - Handler that made it.
-     * @param startPos {int} Scimoz position for the start of the hyperlink.
-     * @param endPos {int}   Scimoz position for the end of the hyperlink.
-     * @param args {array}   Optional - Array of args to pass to the function.
+     * @param {int} startPos Scimoz position for the start of the hyperlink.
+     * @param {int} endPos   Scimoz position for the end of the hyperlink.
+     * @param {array} args   Optional - Array of args to pass to the function.
      */
     this.Hyperlink = function(handler, startPos, endPos, args)
     {
@@ -143,7 +143,7 @@ ko.hyperlinks = {};
      * Remove this hyperlink.
      *
      * @param view {Components.interfaces.koIScintillaView}  The view instance.
-     * @param reason {string}  What the triggering event reason was, can be one
+     * @param {string} reason  What the triggering event reason was, can be one
      *        of "keyup", "mousemove", "mouseup" or "blur".
      * @returns {Boolean} True if the hyperlink was removed, false otherwise.
      */
@@ -159,15 +159,15 @@ ko.hyperlinks = {};
      * hyperlink within the editor.
      *
      * @class
-     * @param name {string} A unique name of the hyperlink handler.
-     * @param jump_fn {function} Will be called when the user clicks on the jump
+     * @param {string} name A unique name of the hyperlink handler.
+     * @param {function} jump_fn Will be called when the user clicks on the jump
      *        point. The matching (or replaced) hyperlink value is the only
      *        argument passed to this function.
      * @param lang_names {array|null} Optional - If set, the handler will
      *        only show hyperlinks when the editor language is one of these
      *        language names.
-     * @param indic_style {int} Optional - Indicator style, see scimoz.INDIC_*
-     * @param indic_color {int} Optional - Indicator color (BGR), i.e. 0xFFCC33
+     * @param {int} indic_style Optional - Indicator style, see scimoz.INDIC_*
+     * @param {int} indic_color Optional - Indicator color (BGR), i.e. 0xFFCC33
      */
     this.BaseHandler = function(name, jump_fn, lang_names, indic_style, indic_color)
     {
@@ -193,11 +193,11 @@ ko.hyperlinks = {};
      *
      * @param view {Components.interfaces.koIScintillaView}  View to check.
      * @param scimoz {Components.interfaces.ISciMoz}  Scimoz for the view.
-     * @param position {int}  Position in the scimoz editor.
-     * @param line {string}  The current line from the editor.
-     * @param lineStartPos {int} Scimoz position for the start of the line.
-     * @param lineEndPos {int}   Scimoz position for the end of the line.
-     * @param reason {string}  What the triggering event reason was, can be one
+     * @param {int} position  Position in the scimoz editor.
+     * @param {string} line  The current line from the editor.
+     * @param {int} lineStartPos Scimoz position for the start of the line.
+     * @param {int} lineEndPos   Scimoz position for the end of the line.
+     * @param {string} reason  What the triggering event reason was, can be one
      *        of "keypress" or "mousemove".
      * @returns {boolean} Whether this handler added a hyperlink here.
      */
@@ -223,7 +223,7 @@ ko.hyperlinks = {};
      *
      * @param view {Components.interfaces.koIScintillaView}  The view instance.
      * @param hyperlink {ko.hyperlinks.Hyperlink} The hyperlink instance.
-     * @param reason {string}  What the triggering event reason was, can be one
+     * @param {string} reason  What the triggering event reason was, can be one
      *        of "keyup", "mousemove", "mouseup" or "blur".
      * @returns {Boolean} True if the hyperlink was removed, false otherwise.
      */
@@ -237,9 +237,9 @@ ko.hyperlinks = {};
      * Set a hyperlink at this position.
      *
      * @param view {Components.interfaces.koIScintillaView}  View to mark.
-     * @param startPos {int} Scimoz position for the start of the hyperlink.
-     * @param endPos {int}   Scimoz position for the end of the hyperlink.
-     * @param args {array}   Optional - Array of args to pass to the function.
+     * @param {int} startPos Scimoz position for the start of the hyperlink.
+     * @param {int} endPos   Scimoz position for the end of the hyperlink.
+     * @param {array} args   Optional - Array of args to pass to the function.
      * @returns {ko.hyperlinks.Hyperlink} - The hyperlink instance shown.
      */
     this.BaseHandler.prototype.setHyperlink = function(view, startPos, endPos,
@@ -295,7 +295,7 @@ ko.hyperlinks = {};
      * Return the handler with this name from the list of known hyperlink
      * handlers.
      * 
-     * @param name {string} - The handler name to find.
+     * @param {string} name - The handler name to find.
      * @returns {ko.hyperlinks.BaseHandler} - A Handler instance.
      */
     this.getHandlerWithName = function(name)
@@ -322,7 +322,7 @@ ko.hyperlinks = {};
      * Get the available hyperlink handlers for the given language name, or all
      * hyperlink handlers when lang is not set.
      *
-     * @param lang {string} Optional - Language the handler must be valid for.
+     * @param {string} lang Optional - Language the handler must be valid for.
      * @returns {array} Array of the available hyperlink handlers.
      */
     this.getHandlersForLang = function(lang_name)
@@ -345,8 +345,8 @@ ko.hyperlinks = {};
      * Show any available hyperlink at the position in the view.
      *
      * @param view {Components.interfaces.koIScintillaView}  View to check.
-     * @param position {int}  Position in the scimoz editor.
-     * @param reason {string}  What the triggering event reason was, can be one
+     * @param {int} position  Position in the scimoz editor.
+     * @param {string} reason  What the triggering event reason was, can be one
      *        of "keypress" or "mousemove".
      * @returns {ko.hyperlinks.BaseHandler} - The handler for the hyperlink
      *          that was shown, or null if no hyperlink was shown.

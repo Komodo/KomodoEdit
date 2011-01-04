@@ -141,8 +141,8 @@ this.Logger.prototype.warn = function(message) {
  * Note: This is not a core Python logging function, it's just used from
  *       JavaScript code to warn about Komodo JavaScript API deprecations.
  *
- * @param message {string}  The deprecation warning message.
- * @param reportDuplicates {boolean}  Optional, when set to false it only logs
+ * @param {string} message  The deprecation warning message.
+ * @param {boolean} reportDuplicates  Optional, when set to false it only logs
  *        the first occurance of the deprecation message.
  */
 this.Logger.prototype.deprecated = function(message, reportDuplicates /* false */) {

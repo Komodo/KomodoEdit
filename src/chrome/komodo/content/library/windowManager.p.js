@@ -49,7 +49,7 @@ ko.windowManager = {
      * window.openDialog(). This tweaks the string on Mac OS X to ensure
      * the dialog is *not* opened as a sheet.
      *
-     * @param features {String} The features string to fixup. Pass in
+     * @param {String} features The features string to fixup. Pass in
      *      null to get a reasonable default.
      */
     fixupOpenDialogFeatures: function(features /* ="" */) {
@@ -163,7 +163,7 @@ ko.windowManager = {
      * to prevent quitting if one of the dialogs prevents shutdown by not
      * closing.
      *
-     * @param parent {Window} An optional argument to only close windows
+     * @param {Window} parent An optional argument to only close windows
      *      that are children of this window.
      * @return {Boolean} True if windows were successful closed.
      */

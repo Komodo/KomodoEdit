@@ -331,10 +331,10 @@ this.interpolate = function Interpolate_interpolate(editor, strings, bracketedSt
 /**
  * Interpolate '%'-escape codes in the given string.
  *
- * @param s {string}  The string to interpolate.
- * @param bracketed {bool} (optional) Whether "s" uses the bracketed
+ * @param {string} s  The string to interpolate.
+ * @param {bool} bracketed (optional) Whether "s" uses the bracketed
  *        interpolate format
- * @param queryTitle {string} (optional) Title for any query dialogs raised
+ * @param {string} queryTitle (optional) Title for any query dialogs raised
  *        during interpolation.
  * @returns {string} The resulting interpolated string.
  */

@@ -76,8 +76,8 @@ ko.markers =  function markers_module() {
     /**
      * Read a file from disk, cache and return the contents.
      *
-     * @param uri {String} file uri
-     * @param force {boolean} force read from file
+     * @param {String} uri file uri
+     * @param {boolean} force force read from file
      * 
      * Note: The file contents are cached by URI.
      * This is used to load pixmaps for scintilla markers.
@@ -99,7 +99,7 @@ ko.markers =  function markers_module() {
      * Setup the standard Komodo markers in the given SciMoz instance and
      * return an appropriate mask for ISciMoz.setMarginMaskN(<n>, <mask>).
      * 
-     * @param scimoz {iSciMoz} scimoz plugin instsance
+     * @param {iSciMoz} scimoz scimoz plugin instsance
      */
     setup: function(scimoz) {
         scimoz.markerDefine(ko.markers.MARKNUM_BOOKMARK, scimoz.SC_MARK_ARROWDOWN);

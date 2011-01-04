@@ -696,10 +696,10 @@ FindResultsTabManager.prototype._getBaseDescription = function(tense)
  * Configure the find results tab with information about the find/replace
  * operation.
  *
- * @param pattern {String} the pattern searched for
- * @param patternAlias {String} A more user-friendly name for the
+ * @param {String} pattern the pattern searched for
+ * @param {String} patternAlias A more user-friendly name for the
  *      pattern. Optional, null if no alias.
- * @param repl {String} the replacement pattern. Null if this is just
+ * @param {String} repl the replacement pattern. Null if this is just
  *      a find operation.
  * @param context {Components.interfaces.koIFindContext} The search
  *      context for this op. (Dev Note: this is reference to a context
@@ -707,7 +707,7 @@ FindResultsTabManager.prototype._getBaseDescription = function(tense)
  * @param options {Components.interfaces.koIFindOptions} Holds the find
  *      options. (Dev Note: this is reference to a context
  *      that can change, so this isn't reliable for 'redo' operations)
- * @param opSupportsUndo {Boolean} Indicates in this find/replace
+ * @param {Boolean} opSupportsUndo Indicates in this find/replace
  *      operation supports undo. Optional, default false.
  */
 FindResultsTabManager.prototype.configure = function(
@@ -796,14 +796,14 @@ FindResultsTabManager.prototype.isBusy = function()
 /**
  * Called to indicated that the search operation has completed.
  *
- * @param success {Boolean} Indicates if the find/replace was successful.
- * @param numResults {Number} The number of find/replace hits.
+ * @param {Boolean} success Indicates if the find/replace was successful.
+ * @param {Number} numResults The number of find/replace hits.
  *      Optional, typically only provided for a successful completion.
- * @param numFiles {Number} The number of paths in which there were hits.
+ * @param {Number} numFiles The number of paths in which there were hits.
  *      Optional, typically only provided for a successful completion.
- * @param numFilesSearched {Number} The number of paths searched.
+ * @param {Number} numFilesSearched The number of paths searched.
  *      Optional, typically only provided for a successful completion.
- * @param journalId {String} The identifier for the journal for a
+ * @param {String} journalId The identifier for the journal for a
  *      "Replace All in Files" operation. This is used to support undo.
  *      Null if not applicable.
  */

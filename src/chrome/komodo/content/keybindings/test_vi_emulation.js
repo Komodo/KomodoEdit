@@ -152,8 +152,8 @@ test_vi_emulation.prototype.logKnownFailure = function(cmd, ex) {
 /**
  * Reset the vi controller. Updates internal buffer, current pos, repeat count
  * mode, operation flags, anchor.
- * @param text {string}  Buffer text to be reset with
- * @param linePos {int}  Line to place the cursor at
+ * @param {string} text  Buffer text to be reset with
+ * @param {int} linePos  Line to place the cursor at
  */
 test_vi_emulation.prototype._reset = function(text, /* "" */
                                               linePos /* 0 */) {
@@ -180,13 +180,13 @@ test_vi_emulation.prototype._reset = function(text, /* "" */
 
 /**
  * Test commands that use the find char with an operation mode.
- * @param cmd {string}  The command to be run
- * @param repeatCount {int}  Number of times to repeat this command
- * @param bufferOrig {string}  Starting text with caret position marked as <|>
- * @param bufferNew {string}  Resulting text with caret position marked as <|>
- * @param operationFlags {array}  The operations to run the command with
- * @param register {string}  The register to be used for the command
- * @param tags {array}  List of specific test tag names
+ * @param {string} cmd  The command to be run
+ * @param {int} repeatCount  Number of times to repeat this command
+ * @param {string} bufferOrig  Starting text with caret position marked as <|>
+ * @param {string} bufferNew  Resulting text with caret position marked as <|>
+ * @param {array} operationFlags  The operations to run the command with
+ * @param {string} register  The register to be used for the command
+ * @param {array} tags  List of specific test tag names
  */
 test_vi_emulation.prototype._repeatCommand = function(cmd, repeatCount,
                                                       bufferOrig, bufferNew,
@@ -271,10 +271,10 @@ test_vi_emulation.prototype._markBuffer = function(buffer, currentPos, anchor) {
 
 /**
  * Test commands that use the find char with an operation mode.
- * @param cmd {string}  The command to be run
- * @param buffers {array}  Contains the text and caret positions
- * @param register {string}  The register to be used for the command
- * @param options {object}  Options can have any of these values:
+ * @param {string} cmd  The command to be run
+ * @param {array} buffers  Contains the text and caret positions
+ * @param {string} register  The register to be used for the command
+ * @param {object} options  Options can have any of these values:
  *        testRepeat {boolean}  Test the command using a repeat count.
  *        operationFlags {array}  The operations to run the command with
  *        tags {array}  List of specific test tag names
@@ -389,9 +389,9 @@ test_vi_emulation.prototype._runRegisterCommand = function(cmd,
 
 /**
  * Test commands that use the find char with an operation mode.
- * @param cmd {string}  The command to be run
- * @param buffers {array}  Contains the text and caret positions
- * @param options {object}  Options can have any of these values:
+ * @param {string} cmd  The command to be run
+ * @param {array} buffers  Contains the text and caret positions
+ * @param {object} options  Options can have any of these values:
  *        testRepeat {boolean}  Test the command using a repeat count.
  *        operationFlags {array}  The operations to run the command with
  *        tags {array}  List of specific test tag names
@@ -407,9 +407,9 @@ test_vi_emulation.prototype._runCommand = function(cmd,
 
 /**
  * Test commands that use the find char with an operation mode.
- * @param cmd {string}  The command to be run
- * @param buffers {array}  Contains the text and caret positions
- * @param tags {array}  List of specific test tag names
+ * @param {string} cmd  The command to be run
+ * @param {array} buffers  Contains the text and caret positions
+ * @param {array} tags  List of specific test tag names
  */
 test_vi_emulation.prototype._runTextCommand = function(cmd, buffers, tags) {
     //log.setLevel(Casper.Logging.DEBUG);
@@ -477,14 +477,14 @@ test_vi_emulation.prototype._runTextCommand = function(cmd, buffers, tags) {
 
 /**
  * Test commands that use the find char with an operation mode.
- * @param cmd {string}  The command to be run
- * @param buffer {string}  Contains the text and caret positions
- * @param register {string}  The register to be used for the command
- * @param testRepeat {boolean}  Test the command using a repeat count.
- * @param operations {array}  The operations to run the command with
- * @param tags {array}  List of specific test tag names
- * @param resetMode {boolean}  Perform a vi basic reset before running.
- * @param forcedRepeatCount {int}  Set repeat count to this value on every op
+ * @param {string} cmd  The command to be run
+ * @param {string} buffer  Contains the text and caret positions
+ * @param {string} register  The register to be used for the command
+ * @param {boolean} testRepeat  Test the command using a repeat count.
+ * @param {array} operations  The operations to run the command with
+ * @param {array} tags  List of specific test tag names
+ * @param {boolean} resetMode  Perform a vi basic reset before running.
+ * @param {int} forcedRepeatCount  Set repeat count to this value on every op
  */
 test_vi_emulation.prototype._runRegisterOperationCommands = function(cmd, buffer,
                                                              register /* null */,
@@ -676,11 +676,11 @@ test_vi_emulation.prototype._runRegisterOperationCommands = function(cmd, buffer
 
 /**
  * Test commands that use specific operation modes.
- * @param cmd {string}  The command to be run
- * @param buffer {string}  Contains the text and caret positions
- * @param testRepeat {boolean}  Test the command using a repeat count.
- * @param operations {array}  The operations to run the command with
- * @param tags {array}  List of specific test tag names
+ * @param {string} cmd  The command to be run
+ * @param {string} buffer  Contains the text and caret positions
+ * @param {boolean} testRepeat  Test the command using a repeat count.
+ * @param {array} operations  The operations to run the command with
+ * @param {array} tags  List of specific test tag names
  */
 test_vi_emulation.prototype._runOperationCommands = function(cmd, buffer,
                                                              testRepeat /* false */,
@@ -692,16 +692,16 @@ test_vi_emulation.prototype._runOperationCommands = function(cmd, buffer,
 
 /**
  * Test commands that use the find char with an operation mode.
- * @param cmd {string}  The command to be run
- * @param buffer {string}  Contains the text and caret positions
- * @param charToFind {string}  The character to search for
- * @param searchDirection {int}  Direction to search in
- * @param t_style {boolean}  Use the position before|after "t" command semantics
- * @param register {string}  The register to be used for the command
- * @param testRepeat {boolean}  Test the command using a repeat count.
- * @param operations {array}  The operations to run the command with
- * @param tags {array}  List of specific test tag names
- * @param forcedRepeatCount {int}  Set repeat count to this value on every op
+ * @param {string} cmd  The command to be run
+ * @param {string} buffer  Contains the text and caret positions
+ * @param {string} charToFind  The character to search for
+ * @param {int} searchDirection  Direction to search in
+ * @param {boolean} t_style  Use the position before|after "t" command semantics
+ * @param {string} register  The register to be used for the command
+ * @param {boolean} testRepeat  Test the command using a repeat count.
+ * @param {array} operations  The operations to run the command with
+ * @param {array} tags  List of specific test tag names
+ * @param {int} forcedRepeatCount  Set repeat count to this value on every op
  */
 test_vi_emulation.prototype._runFindCharOperation = function(cmd, buffer,
                                                              charToFind,
@@ -732,15 +732,15 @@ test_vi_emulation.prototype._runFindCharOperation = function(cmd, buffer,
 
 /**
  * Test commands that use searching commands combined with an operation mode.
- * @param cmd {string}  The search command to be run.
- * @param buffer {string}  Contains the text and caret positions
- * @param searchText {string}  The text to search for
- * @param searchDirection {int}  Direction to search in
- * @param register {string}  The register to be used for the command
- * @param testRepeat {boolean}  Test the command using a repeat count.
- * @param operations {array}  The operations to run the command with
- * @param tags {array}  List of specific test tag names
- * @param forcedRepeatCount {int}  Set repeat count to this value on every op
+ * @param {string} cmd  The search command to be run.
+ * @param {string} buffer  Contains the text and caret positions
+ * @param {string} searchText  The text to search for
+ * @param {int} searchDirection  Direction to search in
+ * @param {string} register  The register to be used for the command
+ * @param {boolean} testRepeat  Test the command using a repeat count.
+ * @param {array} operations  The operations to run the command with
+ * @param {array} tags  List of specific test tag names
+ * @param {int} forcedRepeatCount  Set repeat count to this value on every op
  */
 test_vi_emulation.prototype._runSearchCommandWithOperation = function(
                             cmd,

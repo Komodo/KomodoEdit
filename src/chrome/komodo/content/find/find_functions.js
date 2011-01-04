@@ -220,14 +220,14 @@ function _GetViewFromViewId(editor, displayPath)
  * Setup (i.e. do all the right things for find-session maintenance) and
  * find the next occurrence of "pattern".
  *
- * @param editor {DOMWindow} the main Komodo window in which to work
- * @param context {koIFindContext} defines the scope in which to search,
+ * @param {DOMWindow} editor the main Komodo window in which to work
+ * @param {koIFindContext} context defines the scope in which to search,
  *      e.g., in a selection, just the current doc, all open docs.
- * @param pattern {string} the pattern to search for.
- * @param mode {string} either 'find' or 'replace'. The maintenance of a
+ * @param {string} pattern the pattern to search for.
+ * @param {string} mode either 'find' or 'replace'. The maintenance of a
  *      find session needs to know if a find-next operation is in the
  *      context of finding or replacing.
- * @param check_selection_only {boolean} can be set true to have only
+ * @param {boolean} check_selection_only can be set true to have only
  *      consider the current selection in the document. This is used to
  *      handle the special case of priming a find-session for "Replace"
  *      when the current selection *is* the first hit. By default this
@@ -877,8 +877,8 @@ function _MarkLinesForViewId(editor, viewId, lines)
 
 /** Report the completion of a find session to the user.
  *
- * @param context {DOMWindow} is the koIFindContext for the find session.
- * @param msgHandler {callback} is a callback for displaying a
+ * @param {DOMWindow} context is the koIFindContext for the find session.
+ * @param {callback} msgHandler is a callback for displaying a
  *      message to the user. See Find_FindNext documentation for details.
  */
 function _UiForCompletedFindSession(context, msgHandler)
@@ -904,11 +904,11 @@ function _UiForCompletedFindSession(context, msgHandler)
 
 /** Report an error in the find service to the user.
  *
- * @param context {string} A short string giving context for the error,
+ * @param {string} context A short string giving context for the error,
  *      e.g. "find", "find all", "replace", ...
- * @param exc {exception} is an optional exception, if the error
+ * @param {exception} exc is an optional exception, if the error
  *      was trapped via try/catch. May be null.
- * @param msgHandler {callback} is a callback for displaying a
+ * @param {callback} msgHandler is a callback for displaying a
  *      message to the user. See Find_FindNext documentation for details.
  *
  * The actual error message is pulled from the koILastErrorService.
@@ -1158,8 +1158,8 @@ function Find_HighlightClearAll(scimoz) {
  * Clear any find highlights in the edited region.
  *
  * @param scimoz {Components.interfaces.ISciMoz} - Scintilla instance.
- * @param position {int} - The scimoz position (byte position)
- * @param length {int} - The number of affected bytes at this position.
+ * @param {int} position - The scimoz position (byte position)
+ * @param {int} length - The number of affected bytes at this position.
  */
 function Find_HighlightClearPosition(scimoz, position, length) {
     var DECORATOR_FIND_HIGHLIGHT = Components.interfaces.koILintResult.DECORATOR_FIND_HIGHLIGHT;
@@ -1562,10 +1562,10 @@ function Find_Replace(editor, context, pattern, replacement,
 /**
  * TODO: add other params
  * ...
- * @param firstOnLine {boolean} A boolean indicating, if true, that only
+ * @param {boolean} firstOnLine A boolean indicating, if true, that only
  *      the first hit on a line should be replaced. Default is false. (This
  *      is to support Vi's replace with the 'g' flag.)
- * @param highlightReplacements {boolean} To highlight the replacements made.
+ * @param {boolean} highlightReplacements To highlight the replacements made.
  * ...
  */
 function Find_ReplaceAll(editor, context, pattern, replacement,
@@ -1714,12 +1714,12 @@ function Find_ReplaceAll(editor, context, pattern, replacement,
 /**
  * Find all hits in files.
  *
- * @param editor {DOMWindow} the main Komodo window in which to work
+ * @param {DOMWindow} editor the main Komodo window in which to work
  * @param context {Components.interfaces.koIFindContext}
- * @param pattern {string} the pattern to search for.
- * @param patternAlias {string} a name for the pattern (for display to
+ * @param {string} pattern the pattern to search for.
+ * @param {string} patternAlias a name for the pattern (for display to
  *      the user)
- * @param msgHandler {callback} is an optional callback for displaying a
+ * @param {callback} msgHandler is an optional callback for displaying a
  *      message to the user. See Find_FindNext documentation for details.
  */
 function Find_FindAllInFiles(editor, context, pattern, patternAlias,
@@ -1755,15 +1755,15 @@ function Find_FindAllInFiles(editor, context, pattern, patternAlias,
 /**
  * Replace all hits in files.
  *
- * @param editor {DOMWindow} the main Komodo window in which to work
+ * @param {DOMWindow} editor the main Komodo window in which to work
  * @param context {Components.interfaces.koIFindContext} defines the
  *      scope in which to search, e.g., in a selection, just the current
  *      doc, all open docs.
- * @param pattern {string} the pattern to search for.
- * @param repl {string} the replacement string.
- * @param confirm {boolean} Whether to confirm replacements. Optional,
+ * @param {string} pattern the pattern to search for.
+ * @param {string} repl the replacement string.
+ * @param {boolean} confirm Whether to confirm replacements. Optional,
  *      true by default.
- * @param msgHandler {callback} is an optional callback for displaying a
+ * @param {callback} msgHandler is an optional callback for displaying a
  *      message to the user. See Find_FindNext documentation for details.
  * @returns {boolean} True if the operation was successful. False if there
  *      was an error or replacement was aborted.

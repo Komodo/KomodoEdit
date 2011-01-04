@@ -51,7 +51,7 @@
      * Jump to the given id in the supplied view.
      * 
      * @param view {Components.interfaces.koIScintillaView} - View to look in.
-     * @param id {string} - The string id to locate.
+     * @param {string} id - The string id to locate.
      *
      * @returns {boolean} True when found, false otherwise.
      */

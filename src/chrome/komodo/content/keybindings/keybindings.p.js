@@ -429,8 +429,8 @@ this.manager.prototype._add_keybinding_sequences = function (command_to_key_sequ
 /**
  * Upgrade the keybindings between Komodo versions.
  * @private
- * @param from_version {int}  the version to upgrade from
- * @param vi_enabled {boolean} whether uses vi key keybindings
+ * @param {int} from_version  the version to upgrade from
+ * @param {boolean} vi_enabled whether uses vi key keybindings
  */
 this.manager.prototype._upgradeKeybingings = function (from_version,
                                                        vi_enabled) {

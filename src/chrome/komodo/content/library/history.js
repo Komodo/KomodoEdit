@@ -178,9 +178,9 @@ this.curr_session_name = function() {
 /**
  * Get the current location.
  *
- * @param view {view} An optional view in which to get the current location.
+ * @param {view} view An optional view in which to get the current location.
  *      If not given the current view is used.
- * @param pos {Integer} An optional position to set the location at,
+ * @param {Integer} pos An optional position to set the location at,
  *      default is the view's currentPos
  * @returns {koILocation} The noted location (or null if could not determine
  *      a current loc).
@@ -241,7 +241,7 @@ function _mark_pos_info(view) {
 /**
  * Note the current location.
  *
- * @param view {view} An optional view in which to get the current location.
+ * @param {view} view An optional view in which to get the current location.
  *      If not given the current view is used.
  * @returns {koILocation} The noted location (or null if could not determine
  *      a current loc).
@@ -266,7 +266,7 @@ this.note_curr_loc = function note_curr_loc(view, /* = currentView */
 /**
  * Note the current location from functions like
  * view.history.setMostRecentView
- * @param view {view} An optional view in which to get the current location.
+ * @param {view} view An optional view in which to get the current location.
  *      If not given the current view is used.
  * @returns {koILocation} The noted location (or null if could not determine
  *      a current loc).
@@ -305,10 +305,10 @@ function _view_from_uri(uri, viewType) {
 /** 
  * Returns the view and line # based on the loc.
  *
- * @param loc {Location}.
- * @param on_load_success {Function} -- call if view is found
- * @param on_load_failure {Function} -- call if view is not found
- * @param open_if_needed {Boolean} -- true if we're moving, false if we're building a menu.
+ * @param {Location} loc.
+ * @param {Function} on_load_success -- call if view is found
+ * @param {Function} on_load_failure -- call if view is not found
+ * @param {Boolean} open_if_needed -- true if we're moving, false if we're building a menu.
  *
  * This function might open a file asynchronously, so it invokes
  * on_load_success to do the rest of the work.
@@ -528,12 +528,12 @@ function _on_load_failure(loc, is_moving_back, delta) {
 }
 
 /** Common function for moving forward or back
- * @param go_method_name {String} either 'go_back' or 'go_forward',
+ * @param {String} go_method_name either 'go_back' or 'go_forward',
  *        used to make this routine work for both directins.
- * @param check_method_name {String} either 'can_go_back' or 'can_go_forward',
+ * @param {String} check_method_name either 'can_go_back' or 'can_go_forward',
  *        Same rationale as go_method_name
- * @param delta {Integer} # of hops to make
- * @param explicit {Boolean} if true, the user pressed the "Recent
+ * @param {Integer} delta # of hops to make
+ * @param {Boolean} explicit if true, the user pressed the "Recent
  *        Locations" button.  Otherwise they hit the go_back
  *        or go_forward command.
  */
