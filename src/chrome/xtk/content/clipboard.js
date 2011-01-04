@@ -149,7 +149,7 @@ this.containsHtml = function() {
  * Check if clipboard contains at least one of passed formats (ie flavor).
  * Returns true if clipboard contains one of passed flavor, false otherwise.
  *
- * @param flavors {array}  Mime-type strings (eg ["text/html", "text/unicode"])
+ * @param {array} flavors  Mime-type strings (eg ["text/html", "text/unicode"])
  * @returns {boolean}
  */
 this.containsFlavors = function(flavors) {
@@ -201,8 +201,8 @@ this.createTransferable = function() {
  * passed transferable is null or not defined a new one is created.
  * Returns the tranferable object.
  *
- * @param flavor {string}  The mime-type flavor (eg "text/html").
- * @param text {string}  The text to add.
+ * @param {string} flavor  The mime-type flavor (eg "text/html").
+ * @param {string} text  The text to add.
  * @param transferable {Components.interfaces.nsITransferable}
  *        (Optional)  The tranferable to use, if null a new object is created.
  *
@@ -239,7 +239,7 @@ this.copyFromTransferable = function(transferable) {
 /**
  * Set the clipboard to contain the plain text provided.
  *
- * @param text {string}  The text to copy to clipboard.
+ * @param {string} text  The text to copy to clipboard.
  */
 this.setText = function(text) {
     var transferable = this.addTextDataFlavor("text/unicode", text);

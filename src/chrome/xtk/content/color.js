@@ -178,7 +178,7 @@ this.scaler.prototype.scaleToRGB = function(w) {
 
 /**
  * Return whether this is a dark color.
- * @param hexstring {string} - Hexadecimal string of the color.
+ * @param {string} hexstring - Hexadecimal string of the color.
  * @returns {Boolean}
  */
 this.isDark = function xtk_isDark(hexstring) {
@@ -203,7 +203,7 @@ this.isDark = function xtk_isDark(hexstring) {
 
 /**
  * Return whether this is a light color.
- * @param hexstring {string} - Hexadecimal string of the color.
+ * @param {string} hexstring - Hexadecimal string of the color.
  * @returns {Boolean}
  */
 this.isLight = function xtk_isLight(hexstring) {

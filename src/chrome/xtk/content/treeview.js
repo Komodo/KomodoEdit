@@ -355,8 +355,8 @@ xtk.dataTreeView.prototype = {
      * Function for updating the tree rows, must be called to set what the
      * tree contains in order to then display tree information.
      * 
-     * @param rows {Array} The array of items/rows for the tree.
-     * @param doReSort {bool} Whether to sort the data after it's set.
+     * @param {Array} rows The array of items/rows for the tree.
+     * @param {bool} doReSort Whether to sort the data after it's set.
      */
     setTreeRows : function(rows, doReSort /* false */) {
         this._unfilteredRows = rows;

@@ -55,8 +55,8 @@ const CI = Components.interfaces;
 /**
  * get a reference to an XPCOM service
  *
- * @param cName {String} Components.classes string
- * @param ifaceName {String} Components.interfaces name as a string
+ * @param {String} cName Components.classes string
+ * @param {String} ifaceName Components.interfaces name as a string
  * @returns reference to service
  */
 function CCSV(cName, ifaceName)
@@ -67,8 +67,8 @@ function CCSV(cName, ifaceName)
 /**
  * create an XPCOM instance
  *
- * @param cName {String} Components.classes string
- * @param ifaceName {String} Components.interfaces name as a string
+ * @param {String} cName Components.classes string
+ * @param {String} ifaceName Components.interfaces name as a string
  * @returns reference to instance
  */
 function CCIN(cName, ifaceName)
@@ -79,8 +79,8 @@ function CCIN(cName, ifaceName)
 /**
  * query an XPCOM reference for an interface
  *
- * @param cName {Object} reference to XPCOM object
- * @param iface {long} Components.interfaces element
+ * @param {Object} cName reference to XPCOM object
+ * @param {long} iface Components.interfaces element
  * @returns reference to instance with the specified interface
  */
 function QI(obj, iface)
@@ -93,8 +93,8 @@ function QI(obj, iface)
  * 
  * load a JavaScript file into the global namespace or a defined namespace
  *
- * @param uri {String} uri to a JavaScript File
- * @param obj {Object} object to load the JavaScript into, if undefined loads into global namespace
+ * @param {String} uri uri to a JavaScript File
+ * @param {Object} obj object to load the JavaScript into, if undefined loads into global namespace
  */
 xtk.load = function(uri, obj) {
     const loader = CCSV("@mozilla.org/moz/jssubscript-loader;1", "mozIJSSubScriptLoader");
@@ -106,7 +106,7 @@ xtk.load = function(uri, obj) {
  * 
  * include an xtk namespace
  *
- * @param uri {String} namespace to import
+ * @param {String} uri namespace to import
  */
 xtk.include = function(ns) {
     if (typeof(xtk[ns]) == "undefined") {
@@ -121,8 +121,8 @@ xtk.include("logging");
  * 
  * import one namespace into another
  *
- * @param ns {Object} namespace to import INTO
- * @param ns {Object} namespace to import FROM
+ * @param {Object} ns namespace to import INTO
+ * @param {Object} ns namespace to import FROM
  */
 xtk.importNS = function(to, from) {
     for (var i in from) {

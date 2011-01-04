@@ -95,8 +95,8 @@ fireEvent : function(target, eventName) {
  * Helper method to easily create a new DOM element with a bunch of (optional)
  * attributes set.
  *
- * @param name {string} - The element name to create.
- * @param attributes {object} - (Optional) A map object containing attributes
+ * @param {string} name - The element name to create.
+ * @param {object} attributes - (Optional) A map object containing attributes
                                 names to values.
  * @returns {domnode}
  */
@@ -134,10 +134,10 @@ function() {
 
 /**
  * Show the tooltip on this element.
- * @param parentElement {DomElement} - The element to show the tooltip above.
- * @param  x {int} - The x co-ordinate.
- * @param  y {int} - The y co-ordinate.
- * @param  timeout {int} - Remove the tooltip after this number of milliseconds,
+ * @param {DomElement} parentElement - The element to show the tooltip above.
+ * @param {int} x - The x co-ordinate.
+ * @param {int} y - The y co-ordinate.
+ * @param {int} timeout - Remove the tooltip after this number of milliseconds,
  *                         if this value is <= 0, then there is no timeout.
  */
 tooltipHandler.prototype.show = function(parentElement, x, y, timeout /* 5000 ms */) {
