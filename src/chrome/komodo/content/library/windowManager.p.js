@@ -139,6 +139,24 @@ ko.windowManager = {
     },
 
     /**
+     * Return the last opened window - of any window type.
+     *
+     * @return <Window>
+     */
+    getLastAnyWindow: function() {
+        var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"].
+                    getService(Components.interfaces.nsIWindowMediator);
+        var openWindows = wm.getEnumerator(null);
+        var lastWindow = openWindows.getNext();
+        var currentWindow = lastWindow;
+        while (currentWindow) {
+            lastWindow = currentWindow;
+            currentWindow = openWindows.getNext();
+        }
+        return lastWindow;
+    },
+
+    /**
      * Close all open windows (or just children of a given parent window).
      *
      * The normal goQuitApplication function in toolkit does this, but we want

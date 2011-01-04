@@ -619,7 +619,7 @@ this.newWindow = function newWindow(uri /* =null */)
     if (typeof(uri) != "undefined") {
         args.uris = [uri];
     }
-    ko.windowManager.openDialog("chrome://komodo/content",
+    return ko.windowManager.openDialog("chrome://komodo/content",
                                 "_blank",
                                 "chrome,all,dialog=no",
                                 args);

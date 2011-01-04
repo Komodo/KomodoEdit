@@ -1930,6 +1930,7 @@ Options:\n\
     -V, --version\tprint the Komodo version and exit\n\
     -v, --verbose\tshow verbose startup and runtime info\n\
 \n\
+    -n, --new-window\topen a new Komodo window\n\
     -l <line>, --line=<line>\n\
         Open the given file(s) at a specific line; use\n\
         <line>,<column> to open at a specific line and column.\n\
@@ -1964,7 +1965,7 @@ Options:\n\
 int KoStart_HandleArgV(int argc, char** argv, KoStartOptions* pOptions)
 {
     /* Variables for option processing. */
-    char *shortopts = "hVvl:s:";
+    char *shortopts = "hVvnXl:s:";
     struct option longopts[] = {
         /* name,        has_arg,           flag, val */ /* longind */
         { "version",    no_argument,       0,    'V' }, /*       0 */
@@ -1973,6 +1974,7 @@ int KoStart_HandleArgV(int argc, char** argv, KoStartOptions* pOptions)
         { "line",       required_argument, 0,    'l' }, /*       3 */
         { "selection",  required_argument, 0,    's' }, /*       4 */
         { "xml-version",no_argument,       0,    'X' }, /*       5 */
+        { "new-window", no_argument,       0,    'n' }, /*       6 */
         { 0, 0, 0, 0 } /* sentinel */
     };
     int longind = 0;
@@ -2054,6 +2056,9 @@ int KoStart_HandleArgV(int argc, char** argv, KoStartOptions* pOptions)
                 return KS_ERROR;
             }
             pOptions->selection = optarg;
+            break;
+        case 'n':
+            pOptions->newWindow = 1;
             break;
         default:
             _LogError("unknown option '%c', aborting\n", optopt);
@@ -2397,7 +2402,7 @@ void KoStart_IssueCommandments(const KoStartOptions* pOptions,
     int rv;
 #endif
 
-    if (pOptions->nFiles == 0) return;
+    if (pOptions->nFiles == 0 && !pOptions->newWindow) return;
     _LogDebug("issuing commandments\n");
 
 #ifdef WIN32
@@ -2432,6 +2437,16 @@ void KoStart_IssueCommandments(const KoStartOptions* pOptions,
         _LogError("could not open '%s' for writing\n",
                   commandmentsFileName);
         exit(1);
+    }
+
+    if (pOptions->newWindow) {
+        rv = fprintf(commandmentsFile, "new_window\n");
+        if (rv != 11) {
+            _LogError("error writing new_window commandment to '%s': [rv %d, errno %d] %s",
+                      commandmentsFileName, rv, errno, strerror(errno));
+            exit(1);
+        }
+        _LogDebug("issued commandment: new_window\n");
     }
 
     /* Append the new commandments. */

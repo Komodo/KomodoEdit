@@ -149,6 +149,12 @@ def _handleCommandment(commandment):
             except COMException, e:
                 log.warn("No one observing 'open_file' notification.")
 
+    elif name == 'new_window':
+        try:
+            _gObserverSvc.notifyObservers(None, "new_window", '')
+        except COMException, e:
+            log.warn("No one observing 'quit' notification.")
+
     elif name == 'quit':
         try:
             _gObserverSvc.notifyObservers(None, "quit", '')

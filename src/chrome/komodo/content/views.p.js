@@ -106,6 +106,7 @@ function viewManager() {
     _observerSvc.addObserver(this, "open-url",false);
     _observerSvc.addObserver(this, "file_status", false);
     _observerSvc.addObserver(this, "select", false);
+    _observerSvc.addObserver(this, "new_window",false);
     var self = this;
     this.handle_current_view_changed_setup = function(event) {
         self.handle_current_view_changed(event);
@@ -145,6 +146,7 @@ viewManager.prototype.shutdown = function()
         _observerSvc.removeObserver(this, "open-url");
         _observerSvc.removeObserver(this, "file_status");
         _observerSvc.removeObserver(this, "select");
+        _observerSvc.removeObserver(this, "new_window");
         window.removeEventListener('current_view_changed',
                                 this.handle_current_view_changed_setup, false);
         window.removeEventListener('view_list_closed',
@@ -1083,6 +1085,23 @@ viewManager.prototype.observe = function(subject, topic, data)
         case 'open-url': // see nsCommandLineServiceMac.cpp, bug 37787
             // This is also used by komodo macro API to open files from python
             if (ko.windowManager.getMainWindow() == window) {
+                // Check if there is a new Komodo window being opened. If there
+                // is one - then any new opened files should go to that window.
+                var lastWindow = ko.windowManager.getLastAnyWindow();
+                if (lastWindow && lastWindow.isStillLoading && 'arguments' in lastWindow) {
+                    if (lastWindow.arguments && lastWindow.arguments[0]) {
+                        // Add to the Window's uris argument.
+                        var arg = lastWindow.arguments[0];
+                        if ('uris' in arg) {
+                            urllist = arg.uris; // Called from ko.launch.newWindow(uri)
+                        } else {
+                            urllist = [];
+                        }
+                        urllist.push(data);
+                        arg['uris'] = urllist;
+                        break;
+                    }
+                }
                 this.handle_open_file(topic, data);
             }
             break;
@@ -1103,7 +1122,15 @@ viewManager.prototype.observe = function(subject, topic, data)
             }
             break;
         case 'select':
-         window.updateCommands('select');
+            window.updateCommands('select');
+            break;
+        case 'new_window':
+            if (ko.windowManager.getMainWindow() == window) {
+                var new_window = ko.launch.newWindow();
+                new_window.isStillLoading = true;
+                new_window.addEventListener("load", function() { new_window.isStillLoading = false; }, true);
+            }
+            break;
     }
 }
 

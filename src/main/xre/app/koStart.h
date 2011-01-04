@@ -51,6 +51,7 @@ extern "C" {
 
 /* Komodo command-line options struct. */
 typedef struct {
+    int newWindow;
     int nFiles;
     char** files;       // generally these are pointers into argv
     char* line;         // --line string argument
