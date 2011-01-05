@@ -1846,8 +1846,28 @@ ManagerClass.prototype = {
     initialize: function() {
         var uri = null;
         try {
-            uri = _globalPrefs.getPref("places").getStringPref(window._koNum);
+            if (_globalPrefs.getPref("places").hasPref(window._koNum)) {
+                uri = _globalPrefs.getPref("places").getStringPref(window._koNum);
+                var file = Components.classes["@activestate.com/koFileEx;1"].
+                    createInstance(Components.interfaces.koIFileEx);
+                try {
+                    file.URI = uri;
+                    if (!file.exists) {
+                        var msg = _bundle.formatStringFromName
+                            ("Directory X no longer exists",
+                             [ko.uriparse.baseName(uri)], 1);
+                        //log.info(msg);
+                        ko.statusBar.AddMessage(msg, "editor", 10 * 1000, true);
+                        _globalPrefs.getPref("places").deletePref(window._koNum);
+                        uri = null;
+                    }
+                } catch(ex2) {
+                    log.exception("places.js:init: inner failure: " + ex2);
+                    uri = null;
+                }
+            }
         } catch(ex) {
+           log.exception("places.js:init: failure: " + ex);
         }
         if (!uri) {
             const nsIDirectoryServiceProvider = Components.interfaces.nsIDirectoryServiceProvider;
