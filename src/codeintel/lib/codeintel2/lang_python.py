@@ -276,13 +276,9 @@ class PythonLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                                       "Python '%s' trigger" % trg.name)
 
     # Note: Python 1.5.2 does not support sys.version_info.
-    # Note: Overridden in "lang_python3.py".
     info_cmd = (
         r"import sys;"
-        r"import string;"
-        r"paren = string.find(sys.version, '(');"
-        r"version = string.strip(sys.version[:paren]);"
-        r"sys.stdout.write(version+'\n');"
+        r"sys.stdout.write('.'.join(map(str, sys.version_info))+'\n');"
         r"sys.stdout.write(sys.prefix+'\n');"
         r"sys.stdout.write('\n'.join(sys.path));")
 

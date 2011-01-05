@@ -28,13 +28,6 @@ class Python3LangIntel(PythonLangIntel):
     interpreterPrefName = "python3"
     extraPathsPrefName = "python3ExtraPaths"
 
-    # Info cmd, used in "_python_info_from_python" function.
-    info_cmd = (
-            r"import sys;"
-            r"sys.stdout.write('.'.join(map(str, sys.version_info))+'\n');"
-            r"sys.stdout.write(sys.prefix+'\n');"
-            r"sys.stdout.write('\n'.join(sys.path));")
-
 class Python3Buffer(PythonBuffer):
     lang = lang
 
