@@ -302,6 +302,18 @@ PlacesController.prototype.is_cmd_placeView_sortDescending_enabled = function() 
 PlacesController.prototype.do_cmd_placeView_sortDescending = function() {
     ko.places.manager.sortDescending();
 }
+
+PlacesController.prototype.is_cmd_placeView_showCurrent_TabInPlaces_enabled = function() {
+    var view = ko.views.manager.currentView;
+    return (view
+            && view.getAttribute('type') == 'editor'
+            && view.koDoc
+            && view.koDoc.file);
+}
+
+PlacesController.prototype.do_cmd_placeView_showCurrent_TabInPlaces = function() {
+    ko.places.manager.showCurrentEditorTab();
+}
           
 PlacesController.prototype.supportsCommand = function(command) {
     return ("is_" + command + "_enabled") in this;

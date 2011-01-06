@@ -1292,6 +1292,8 @@ function ManagerClass() {
                             this.handle_project_opened_setup, false);
     window.addEventListener('visit_directory_proposed',
                             this.handle_visit_directory_proposed, false);
+    window.addEventListener('current_view_changed',
+                            this.handle_current_view_changed, false);
     
     document.getElementById("places-files-tree").addEventListener('keypress',
                             this.handle_keypress_setup, true);
@@ -1380,12 +1382,57 @@ ManagerClass.prototype = {
      * @param {String} baseName Optional file base name in the directory
      *      to select.
      */
-    openDirURI: function(dirURI, baseName) {
+    openDirURI: function(dirURI, baseName, successFunc) {
+        if (typeof(successFunc) == "undefined") successFunc = this._setDirURI_successFunc_show_tab;
         this._enterMRU_Place(dirURI);
         this._setDirURI(dirURI,
                         {save:true,
                                 baseName:baseName,
-                                onSuccess:this._setDirURI_successFunc_show_tab});
+                                onSuccess:successFunc});
+    },
+    
+    showCurrentEditorTab: function() {
+        var view = ko.views.manager.currentView;
+        if (!view
+            || view.getAttribute("type") != "editor"
+            || !view.koDoc) {
+            return;
+        }
+        var file = view.koDoc.file;
+        if (!file) {
+            return;
+        }
+        var successFunc = function() {
+            ko.uilayout.ensureTabShown("places_tab", true);
+            var index = gPlacesViewMgr.view.getRowIndexForURI(file.URI);
+            if (index > -1) {
+                var treeSelection = gPlacesViewMgr.view.selection;
+                treeSelection.currentIndex = index;
+                treeSelection.select(index);
+                gPlacesViewMgr.tree.treeBoxObject.ensureRowIsVisible(index);
+            }
+            // And make sure the tab keeps the focus.
+            view.setFocus();
+            // view.scintilla.focus();
+        };
+        try {
+            var uri = file.URI;
+            var index = uri.lastIndexOf("/");
+            if (index == -1) {
+                log.error("Can't find a '/' in uri [" + uri + "]\n");
+                return;
+            }
+            var parentURI = uri.substr(0, index);
+            if (this.currentPlace != parentURI) {
+                // Don't bother loading the URI, if we're currently looking at it.
+                this.openDirURI(parentURI, uri.substr(index + 1), successFunc);
+            } else {
+                successFunc();
+            }
+        } catch(ex) {
+            log.exception("openCurrentFile: failed to open "
+                               + file.URI + ": " + ex)
+        }
     },
  
     _checkForExistenceByURI: function(uri) {
@@ -1934,6 +1981,13 @@ ManagerClass.prototype = {
                 }
                 setTimeout(window.updateCommands, 100, 'place_history_changed');
             }
+            if (placesPrefs.hasPref('trackCurrentTab')) {
+                this.trackCurrentTab_pref = placesPrefs.getBooleanPref('trackCurrentTab');
+            } else {
+                this.trackCurrentTab_pref = false;
+            }
+            document.getElementById("places_trackCurrentTab").
+                    setAttribute('checked', this.trackCurrentTab_pref);
         } catch(ex) {
             dump("Error init'ing the viewMgrClass (2): " + ex + "\n");
         }
@@ -1941,6 +1995,7 @@ ManagerClass.prototype = {
     
     finalize: function() {
         var placesPrefs = _globalPrefs.getPref("places");
+        placesPrefs.setBooleanPref('trackCurrentTab', this.trackCurrentTab_pref);
         var prevPlace_prefs = Components.classes["@activestate.com/koOrderedPreference;1"].
             createInstance(Components.interfaces.koIOrderedPreference);
         this.history_prevPlaces.map(function(uri) {
@@ -1972,6 +2027,8 @@ ManagerClass.prototype = {
         gObserverSvc.removeObserver(this, 'visit_directory_proposed');
         gObserverSvc.removeObserver(this, 'current_project_changed');
         gObserverSvc.removeObserver(this, 'file_changed');
+        window.removeEventListener('current_view_changed',
+                                   this.handle_current_view_changed, false);
         window.removeEventListener('project_opened',
                                    this.handle_project_opened_setup, false);
         window.removeEventListener('visit_directory_proposed',
@@ -2065,6 +2122,10 @@ ManagerClass.prototype = {
         this._setDirURI(targetURI,
                         {save:false, onSuccess:this._setDirURI_successFunc_history_changed,
                          onFailure:failureFunc});
+    },
+    
+    trackCurrentTab : function(menuitem) {
+        this.trackCurrentTab_pref = menuitem.getAttribute('checked');
     },
 
     can_undoTreeOperation: function() {
@@ -2461,6 +2522,13 @@ ManagerClass.prototype = {
     
     handle_project_opened_setup: function(event) {
         ko.places.manager.handle_project_opened(event);
+    },
+    
+    handle_current_view_changed: function(event) {
+        var manager = ko.places.manager;
+        if (manager.trackCurrentTab_pref) {
+            manager.showCurrentEditorTab();
+        }
     },
     
     handle_visit_directory_proposed: function(event) {

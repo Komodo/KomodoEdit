@@ -107,4 +107,7 @@
 <!ENTITY dblClickToRebase.label "Double-Click or Return Makes Folder Root">
 <!ENTITY showProjectPathExtension.label "Show Project Path Extension">
 <!ENTITY showProjectPath.label "Show Full Project Path">
+<!ENTITY showInPlaces.label "Show In Places">
+<!ENTITY trackCurrentTab.label "Synchronize Current File In Places">
+
 <!ENTITY options.label "Options">
