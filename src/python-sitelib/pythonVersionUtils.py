@@ -176,8 +176,8 @@ def _calc_py2_py3_scores(textWrapper):
                                 sk.inc_2()
                         elif curr_token[0] == tokenize.NAME and curr_token[1] == 'as':
                             # Do nothing here, since 'except ... as' is in
-			    # Python 2.6, although not earlier versions.
-			    pass
+                            # Python 2.6, although not earlier versions.
+                            pass
                             #log.debug("3-3: except at line %d", curr_token[2][0])
                         else:
                             log.debug("In except(3), can't deal with token %s", curr_token[4])
