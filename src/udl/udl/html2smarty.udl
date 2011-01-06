@@ -66,6 +66,11 @@ state IN_M_STAG_ATTR_SSTRING:
 	spush_check(IN_M_STAG_ATTR_SSTRING), \
 	=> IN_TPL_DEFAULT 
 
+state IN_M_STAG_POST_TAGNAME:
+'{' : paint(upto, M_TAGSPACE), paint(include, TPL_OPERATOR), \
+	spush_check(IN_M_STAG_POST_TAGNAME), \
+	=> IN_TPL_DEFAULT 
+
 # Tentative comments
 
 #XXX Push something on the fallback
