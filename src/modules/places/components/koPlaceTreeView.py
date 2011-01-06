@@ -987,7 +987,7 @@ class KoPlaceTreeView(TreeView):
 
         #srcNode.show_busy()
         #self._tree.invalidateRow(srcIndex)
-        self._busyRow(rowIndex, targetNode)
+        self._busyRow(targetIndex, targetNode)
         #log.debug("%s %s %s", copying and "copy" or "move", srcPath, targetDirPath)
         self.workerThread.put(('doTreeOperation_WorkerThread',
                                {'requestID':requestID,
