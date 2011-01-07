@@ -80,6 +80,7 @@ spaceless
 ssi
 templatetag
 url
+with
 widthratio
 
 # end tags
@@ -93,6 +94,7 @@ endifchanged
 endifequal
 endifnotequal
 endspaceless
+endwith
 
 # Escape keywords
 
