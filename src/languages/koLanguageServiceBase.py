@@ -47,6 +47,7 @@ import scimozindent
 import timeline
 from xpcom import components
 from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC, getProxyForObject
+from xpcom.server import WrapObject
 
 #---- globals
 
@@ -864,7 +865,8 @@ class _NextLineException(Exception):
     pass
 
 class KoLanguageBase:
-    _com_interfaces_ = [components.interfaces.koILanguage]
+    _com_interfaces_ = [components.interfaces.koILanguage,
+			components.interfaces.nsIObserverService]
 
     _lexer = None
     _style = None
@@ -1005,6 +1007,25 @@ class KoLanguageBase:
                                   '"': ('"', self.softchar_accept_matching_double_quote),
                                   "'": ("'", self.softchar_accept_matching_single_quote),
                                   }
+        obsSvc = components.classes["@mozilla.org/observer-service;1"].\
+                       getService(components.interfaces.nsIObserverService)
+        self._wrappedSelf = WrapObject(self,components.interfaces.nsIObserver)
+        obsSvc.addObserver(self._wrappedSelf, 'xpcom-shutdown', 1)
+        prefObserver = self.prefset.prefObserverService
+        prefObserver.addObserver(self, 'indentStringsAfterParens', True)
+        prefObserver.addObserver(self, 'editSmartSoftCharacters', True)
+        self._indentStringsAfterParens = self.prefset.getBooleanPref("indentStringsAfterParens")
+        self._editSmartSoftCharacters = self.prefset.getBooleanPref("editSmartSoftCharacters")
+
+    def observe(self, subject, topic, data):
+        if topic == 'xpcom-shutdown':
+            prefObserver = self.prefset.prefObserverService
+            prefObserver.removeObserver(self, 'indentStringsAfterParens')
+            prefObserver.removeObserver(self, 'editSmartSoftCharacters')
+        elif topic == 'indentStringsAfterParens':
+            self._indentStringsAfterParens = self.prefset.getBooleanPref("indentStringsAfterParens")
+        elif topic == 'editSmartSoftCharacters':
+            self._editSmartSoftCharacters = self.prefset.getBooleanPref("editSmartSoftCharacters")	
 
     def getSubLanguages(self):
         return [self.name]
@@ -1465,7 +1486,7 @@ class KoLanguageBase:
                 return inLineCommentIndent
             
             # Bug 85020 special-case indendation after [op|opener str-open-delim return]
-            if self.prefset.getBooleanPref("indentStringsAfterParens"):
+            if self._indentStringsAfterParens:
                 res = self._atOpeningStringDelimiter(scimoz, pos, style_info)
                 if res:
                     return 1
@@ -2427,10 +2448,7 @@ class KoLanguageBase:
                     charPos = charPos + 1 - len(blockCommentEndMarker)
                     # Fix bug 42792 -- do this in one place
 
-        #XXX Observe this pref instead of getting it each time
-        #XXX EP Note: I tried, but an observer doesn't work for UDL languages,
-        # as it looks like the sub-languages weren't getting notifications.
-        if ch in self.matchingSoftChars and self.prefset.getBooleanPref("editSmartSoftCharacters"):
+        if self._editSmartSoftCharacters and ch in self.matchingSoftChars:
             soft_chars = self.determine_soft_char(ch, scimoz, charPos, style_info)
         else:
             soft_chars = None

@@ -128,6 +128,8 @@ echo $foo1->mul()."";
         if topic == "phpCommentStyle":
             self.commentDelimiterInfo['line'] = self.__prefs.getStringPref("phpCommentStyle").split(",")
             self._commenter = None
+	else:
+	    KoUDLLanguage.observe(self, subject, topic, data)
             
     def get_linter(self):
         return self._get_linter_from_lang("PHP")
