@@ -38,8 +38,9 @@
 
 """ Utility class used for the parsing of Javascript comments.
 
-This uses the JavaSciptDoc style (JSDoc) "http://jsdoc.sourceforge.net/" for
-allowing comments to specify specific information about the file structure.
+This uses the JavaSciptDoc style (JSDoc 2)
+"http://code.google.com/p/jsdoc-toolkit/" for allowing comments to specify
+specific information about the file structure.
 
 The TAGS we use for JavaScript is based upon what JSDoc
 supplies and what YAHOO has done. A YAHOO example is:
@@ -48,11 +49,11 @@ supplies and what YAHOO has done. A YAHOO example is:
  * Method for creating a slider
  *
  * @private
- * @param s {String} the name of the slider.
- * @param id {String} element id to place the silder within
+ * @param {String} s the name of the slider.
+ * @param {String} id element id to place the silder within
  * @param {int} leftPadding is the size of the padding field on the left
- * @param rightPadding {int} optional field for setting the size of the padding
- * field on the right.
+ * @param {int} rightPadding optional field for setting the size of the padding
+ *              field on the right.
  * @return {Slider} a horizontal slider control
  */
 
@@ -65,83 +66,128 @@ Notes:
 # JSDoc tags and the help (calltip) for the tag.
 # Note: Not all of these have a meaning for the javascript ciler.
 jsdoc_tags = {
-    "addon":        "This is an addon to an external JS class or component.\n"
-                    "Example: /** @addon */",
+    "augments":     "Extends another class and adds methods or properties of its own.\n"
+                    "Note: Same as @extends.\n"
+                    "Example: /** @augments SomeClass */",
 
     "argument":     "Provide information about a function parameter.\n"
-                    "Note: Same as @param.\n"
-                    "Example: /** @argument {string} arg1  The first argument */",
+                    "Note: Deprecated - use @param.\n"
+                    "Example: /** @argument {String} arg1  The first argument */",
 
     "author":       "The author of this component.\n"
                     "Example: /** @author John Smith jsmith@jsmith.com.mars */",
 
-    "base":         "The base class this class extends.\n"
-                    "Note: Same as @extends.\n"
-                    "Example: /** @base MyParentClass */",
+    "borrows":      "Uses a method or property defined in another class.\n"
+                    "Example: /** @borrows Remote#transfer as this.send */",
 
     "class":        "This tag is used in a constructor's documentation block\n"
                     "to provide information about the actual class.\n"
                     "Example: /** @class MyClass */",
 
-    "constructor":  "The constructor for the class.\n"
-                    "Example: /** @constructor MyClass */",
+    "constant":     "Marks a variable as being constant.\n"
+                    "Example: /** @constant */",
+
+    "constructor":  "Mark as being the constructor for the class.\n"
+                    "Example: /** @constructor */",
+
+    "constructs":   "Used with @lends tag - indicates this is used to create\n"
+                    "instances of the class.\n"
+                    "Example: /** @constructs */",
+
+    "default":      "Documents the default value of an object.\n"
+                    'Example: /** @default "bright" */',
 
     "deprecated":   "Mark as not being supported anymore.\n"
                     "Deprecated components should not be used, as they\n"
                     "will usually be removed in some future version.\n"
-                    "Example: /** @deprecated */",
+                    "Example: /** @deprecated since 5.2 - use Other instead */",
 
-    "exception":    "Method call may throw this type of exception.\n"
-                    "Note: Same as @throws.\n"
-                    "Example: /** @exception MyException  Text of when thrown */",
+    "description":  "Sets this as the main description line to be used.\n"
+                    "Example: /** @description Use this line for describing */",
+
+    "event":        "Tag a function that can be fired as an Event.\n"
+                    "Example: /** @event */",
+
+    "example":      "Used to show an example code usage snippet.\n"
+                    "Example: /** @example\n"
+                    "           * var field = forceField(10);\n"
+                    "           */",
+
+    "exports":      "Document as using a different name.\n"
+                    "Example: /** @exports MyClass as ns.OtherClass */",
 
     "extends":      "The base class this class extends.\n"
-                    "Note: Same as @base.\n"
+                    "Note: Same as @augments.\n"
                     "Example: /** @extends ParentClass */",
+
+    "field":        "Document as a property field - not as a function.\n"
+                    "Example: /** @field */",
 
     "fileoverview": "This documentation block will be used to provide\n"
                     "an overview for the current file.\n"
                     "Example: /** @fileoverview */",
 
-    "final":        "Constant variable.\n"
-                    "Example: /** @final */",
+    "function":     "Document a property as being a function.\n"
+                    "Example: /** @function */",
 
     "ignore":       "Item will be ignored by JSDoc.\n"
                     "Example: /** @ignore */",
 
-    "member":       "This is a member of the named class.\n"
-                    "Example: /** @member MyClass */",
+    "inner":        "Mark a inner function as not being externally accessible.\n"
+                    "Example: /** @inner */",
+
+    "lends":        "Document all object properties as belonging to\n"
+                    "another namespace.\n"
+                    "Example: /** @lends OtherClass */",
+
+    "link":         "Create a documentation link to another symbol.\n"
+                    "Example: /** @sometag See here {@link MyClass}. */",
+
+    "memberOf":     "Marks as being a member of the supplied namespace.\n"
+                    "Example: /** @memberOf MyClass */",
+
+    "name":         "Use the supplied name for the following object.\n"
+                    "Example: /** @name MyProperty */",
 
     "namespace":    "Namespace where the element resides.\n"
-                    "Example: /** @namespace code.util */",
+                    "Example: /** @namespace Can be used to do stuff. */",
 
     "param":        "Provide information about a function parameter.\n"
-                    "Note: Same as @argument.\n"
-                    "Example: /** @param {string} arg1  The first argument */",
+                    "Note: The type field {} is optional."
+                    "Example: /** @param {String} arg1  The first argument */",
 
     "private":      "Member is private.\n"
                     "This means it will not be shown in any documentation.\n"
                     "Komodo's Code Browser shows this with a locked image.\n"
                     "Example: /** @private */",
 
+    "property":     "Document a member variable.\n"
+                    "Note: The type field {} is optional."
+                    "Example: /** @property {String} name  The description */",
+
+    "public":       "Causes object to be documented as exposed.\n"
+                    "Example: /** @public */",
+
     "requires":     "Define a dependency upon another class.\n"
                     "Example: /** @requires OtherClass  Because it does! */",
 
     "returns":      "Provide information about the return value of a function.\n"
-                    "Example: /** @returns {array} An array of items. */",
-
-    "static":       "Static member, only one instance ever defined.\n"
-                    "Example: /** @static */",
+                    "Example: /** @returns {Array} An array of items. */",
 
     "see":          "Link to another class or function.\n"
                     "Example: /** @see ClassName#methodName */",
 
-    "tags":         "User defined tag names.\n"
+    "since":        "Specify the version that this item was added in.\n"
+                    "Example: /** @since version 5.0.2 */",
+
+    "static":       "Static member, only one instance ever defined.\n"
+                    "Example: /** @static */",
+
+    "tags":         "User defined tag names - comma separated.\n"
                     "Example: /** @tags testcase,knownfailure */",
 
     "throws":       "Method call may throw this type of exception.\n"
-                    "Note: Same as @exception.\n"
-                    "Example: /** @throws MyException  Text of when thrown */",
+                    "Example: /** @throws {OutOfMemeory} Text of when thrown */",
 
     "type":         "Variable type.\n"
                     "Example: /** @type String */",
