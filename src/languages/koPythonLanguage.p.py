@@ -171,6 +171,42 @@ class Class:
                 .getService(components.interfaces.koIAppInfoEx)
         return self._interpreter
 
+    def _atOpeningStringDelimiter(self, scimoz, pos, style_info):
+        #Walk backwards looking for three quotes, an optional
+        #leading r or u, and an opener.
+        # If we only have one quote, it's a single-line string.
+        if pos < 6:
+            return False
+        # Look for a delim after the q-part
+        prevPos = scimoz.positionBefore(pos)
+        prevStyle = scimoz.getStyleAt(prevPos)
+        if prevStyle not in style_info._string_styles:
+            return False
+        quoteChar = scimoz.getWCharAt(prevPos)
+        if quoteChar not in "\'\"":
+            return False
+
+        # Allow for two more quoteChars before
+        for i in range(2):
+            prevPos = scimoz.positionBefore(prevPos)
+            prevStyle = scimoz.getStyleAt(prevPos)
+            if prevStyle not in style_info._string_styles:
+                return False
+            prevChar = scimoz.getWCharAt(prevPos)
+            if prevChar != quoteChar:
+                return False
+            
+        prevPos = scimoz.positionBefore(prevPos)
+        prevStyle = scimoz.getStyleAt(prevPos)
+        # Look for an 'r' or 'u' before three quotes
+        if prevStyle in style_info._string_styles:
+            prevChar = scimoz.getWCharAt(prevPos)
+            if prevChar not in "ru":
+                return False
+            prevPos = scimoz.positionBefore(prevPos)
+            
+        return self._atOpeningIndenter(scimoz, prevPos, style_info)
+        
     def test_scimoz(self, scimoz):
         CommenterTestCase.lang = self
         testCases = [

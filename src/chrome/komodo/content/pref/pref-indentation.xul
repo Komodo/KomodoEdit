@@ -197,7 +197,11 @@ function changeNewLanguage(item, name)  {
                   <checkbox id="useSmartTabs" label="&allowFileContentsToOverrideTabSettings.label;"
                       pref="true" prefstring="useSmartTabs"
                       prefattribute="checked"/>
+		  
             <!-- space helps re-inforce "smart-tabs" may override the rest -->
+                  <checkbox id="indentStringsAfterParens" label="&indentStringsAfterParens.label;"
+                      pref="true" prefstring="indentStringsAfterParens"
+                      prefattribute="checked"/>
       
             <checkbox id="useTabs"
                       label="&preferTabCharactersOverSpaces.label;"

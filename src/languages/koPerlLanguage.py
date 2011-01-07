@@ -481,6 +481,44 @@ oranges 3
                                      self.isUDL() and scimoz.SCE_UDL_SSL_VARIABLE or scimoz.SCE_PL_SCALAR):
             return None
         return candidate
+    
+    _is_alpha_re = re.compile(r'\w')
+    def _atOpeningStringDelimiter(self, scimoz, pos, style_info):
+        res = KoLanguageBase._atOpeningStringDelimiter(self, scimoz, pos, style_info)
+        if res:
+            return res
+        # Look at Perl's special cases
+        if pos < 4:
+            return False
+        # Look for a delim after the q-part
+        prevPos = scimoz.positionBefore(pos)
+        prevStyle = scimoz.getStyleAt(prevPos)
+        if prevStyle not in style_info._string_styles:
+            return False
+        prevChar = scimoz.getWCharAt(prevPos)
+        if self._is_alpha_re.match(prevChar):
+            return False
+        # Look for a char like rxw before delim
+        prevPos = scimoz.positionBefore(prevPos)
+        prevStyle = scimoz.getStyleAt(prevPos)
+        if prevStyle not in style_info._string_styles:
+            return False
+        prevChar = scimoz.getWCharAt(prevPos)
+        if prevChar not in "qwrx":
+            return False
+        
+        # Look for a q
+        prevPos = scimoz.positionBefore(prevPos)
+        prevStyle = scimoz.getStyleAt(prevPos)
+        if prevStyle in style_info._indent_open_styles:
+            return prevChar == 'q'
+        elif prevStyle not in style_info._string_styles:
+            return False
+        prev2Char = scimoz.getWCharAt(prevPos)
+        if prev2Char != 'q':
+            return False
+        
+        return self._atOpeningIndenter(scimoz, scimoz.positionBefore(prevPos), style_info)
 
 class KoPerlCodeIntelCompletionLanguageService(KoCodeIntelCompletionLanguageService):
     _com_interfaces_ = [components.interfaces.koICodeIntelCompletionLanguageService]

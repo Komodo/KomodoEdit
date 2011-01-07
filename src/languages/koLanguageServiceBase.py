@@ -1463,6 +1463,12 @@ class KoLanguageBase:
                 return inBlockCommentIndent
             if continueComments and inLineCommentIndent is not None:
                 return inLineCommentIndent
+            
+            # Bug 85020 special-case indendation after [op|opener str-open-delim return]
+            if self.prefset.getBooleanPref("indentStringsAfterParens"):
+                res = self._atOpeningStringDelimiter(scimoz, pos, style_info)
+                if res:
+                    return 1
 
             shouldIndent = self._shouldIndent(scimoz, pos, style_info)
             if shouldIndent is not None:
@@ -1533,6 +1539,25 @@ class KoLanguageBase:
             return None
         finally:
             timeline.leave('_analyzeIndentNeededAtPos')
+            
+    def _atOpeningStringDelimiter(self, scimoz, pos, style_info):
+        if pos < 3:
+            return False
+        prevPos = scimoz.positionBefore(pos)
+        prevStyle = scimoz.getStyleAt(prevPos)
+        if prevStyle not in style_info._string_styles:
+            return False
+        prevChar = scimoz.getWCharAt(prevPos)
+        if prevChar not in "\"\'":
+            return False
+        return self._atOpeningIndenter(scimoz, scimoz.positionBefore(prevPos), style_info)
+        
+    def _atOpeningIndenter(self, scimoz, pos, style_info):
+        prevStyle = scimoz.getStyleAt(pos)
+        if prevStyle not in style_info._indent_open_styles:
+            return False
+        prevChar = scimoz.getWCharAt(pos)
+        return prevChar in self._lineup_open_chars
 
     def _continuationLineIndent(self, scimoz, pos):
         """ This function looks to see if the line we just ended ends

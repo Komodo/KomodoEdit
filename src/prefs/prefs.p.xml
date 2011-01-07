@@ -52,6 +52,7 @@
   <long id="indentWidth" validate="value > 0">4</long>
   <boolean id="useTabs">0</boolean>
   <boolean id="useSmartTabs">1</boolean>
+  <boolean id="indentStringsAfterParens">0</boolean>
   <boolean id="showWhitespace">0</boolean>
   <boolean id="showEOL">0</boolean>
 <!-- #if PLATFORM == "win" -->

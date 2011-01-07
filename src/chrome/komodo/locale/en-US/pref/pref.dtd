@@ -284,6 +284,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY importFromFileSystem.title "Import from File System">
 <!ENTITY importSubdirectoriesRecursively.label "Import Subdirectories Recursively">
 <!ENTITY incrementalSearch.label "Incremental Search">
+<!ENTITY indentStringsAfterParens.label "Force Shallow Indent At String Start">
 <!ENTITY indentToFirstNonEmptyColumn.label "Indent to first non-empty column">
 <!ENTITY indentation.label "Indentation">
 <!ENTITY indentationGlobalSettings.label "Global Indentation Settings">
