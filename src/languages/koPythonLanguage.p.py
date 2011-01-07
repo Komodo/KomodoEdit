@@ -171,6 +171,62 @@ class Class:
                 .getService(components.interfaces.koIAppInfoEx)
         return self._interpreter
 
+    def _keyPressed(self, ch, scimoz, style_info):
+	res = self._handledKeyPressed(ch, scimoz, style_info)
+	if not res:
+	    KoLanguageBase._keyPressed(self, ch, scimoz, style_info)
+
+    _slidingKeywords = ('else', 'elif', 'except', 'finally')
+    _firstWordRE = re.compile(r'(\s+)(\w+)')
+    def _handledKeyPressed(self, ch, scimoz, style_info):
+	"""
+	If the user types an operator ":" at the end of the line,
+	and the line starts with one of
+    	    else elif except finally
+	and it has the same indent as the previous non-empty line,
+	dedent it.	
+	"""
+	if ch != ":" or not self._dedentOnColon:
+	    return False
+	pos = scimoz.positionBefore(scimoz.currentPos)
+        style = scimoz.getStyleAt(pos)
+	ch_pos = scimoz.getWCharAt(pos)
+        if style not in style_info._indent_open_styles:
+	    return False
+	lineNo = scimoz.lineFromPosition(pos)
+	if lineNo == 0:
+	    #log.debug("no point working on first line")
+	    return False
+	thisLinesIndent = scimoz.getLineIndentation(lineNo)
+	prevLinesIndent = scimoz.getLineIndentation(lineNo - 1)
+	if thisLinesIndent < prevLinesIndent:
+	    #log.debug("current line %d is already dedented", lineNo)
+	    return False
+        lineStartPos = scimoz.positionFromLine(lineNo)
+	if scimoz.getStyleAt(lineStartPos) != components.interfaces.ISciMoz.SCE_P_DEFAULT:
+	    #log.debug("line %d doesn't start with a whitespace char", lineNo)
+	    return False
+        lineEndPos = scimoz.getLineEndPosition(lineNo)
+	if lineEndPos <= lineStartPos + 1:
+	    #log.debug("line %d too short", lineNo)
+	    return False
+	text = scimoz.getTextRange(lineStartPos, lineEndPos)
+	m = self._firstWordRE.match(text)
+	if not m or m.group(2) not in self._slidingKeywords:
+	    return False
+	leadingWS = m.group(1)
+	tabFreeLeadingWS = leadingWS.expandtabs(scimoz.tabWidth)
+	currWidth = len(tabFreeLeadingWS)
+	targetWidth = currWidth - scimoz.indent
+	if targetWidth < 0:
+	    fixedLeadingWS = ""
+	else:
+	    fixedLeadingWS = scimozindent.makeIndentFromWidth(scimoz, targetWidth)
+	scimoz.targetStart = lineStartPos
+	scimoz.targetEnd = lineStartPos + len(leadingWS)
+	scimoz.replaceTarget(len(fixedLeadingWS), fixedLeadingWS)
+	return True
+
     def _atOpeningStringDelimiter(self, scimoz, pos, style_info):
         #Walk backwards looking for three quotes, an optional
         #leading r or u, and an opener.

@@ -1014,18 +1014,21 @@ class KoLanguageBase:
         prefObserver = self.prefset.prefObserverService
         prefObserver.addObserver(self, 'indentStringsAfterParens', True)
         prefObserver.addObserver(self, 'editSmartSoftCharacters', True)
+        prefObserver.addObserver(self, 'dedentOnColon', True)
         self._indentStringsAfterParens = self.prefset.getBooleanPref("indentStringsAfterParens")
         self._editSmartSoftCharacters = self.prefset.getBooleanPref("editSmartSoftCharacters")
+        self._dedentOnColon = self.prefset.getBooleanPref("dedentOnColon")
 
     def observe(self, subject, topic, data):
         if topic == 'xpcom-shutdown':
             prefObserver = self.prefset.prefObserverService
             prefObserver.removeObserver(self, 'indentStringsAfterParens')
             prefObserver.removeObserver(self, 'editSmartSoftCharacters')
-        elif topic == 'indentStringsAfterParens':
-            self._indentStringsAfterParens = self.prefset.getBooleanPref("indentStringsAfterParens")
-        elif topic == 'editSmartSoftCharacters':
-            self._editSmartSoftCharacters = self.prefset.getBooleanPref("editSmartSoftCharacters")	
+            prefObserver.removeObserver(self, 'dedentOnColon')
+        elif topic in ('indentStringsAfterParens',
+		       'editSmartSoftCharacters', 'dedentOnColon'):
+	    setattr(self, "_" + topic,
+		    self.prefset.getBooleanPref(topic))
 
     def getSubLanguages(self):
         return [self.name]

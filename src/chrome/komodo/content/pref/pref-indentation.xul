@@ -203,6 +203,10 @@ function changeNewLanguage(item, name)  {
                       pref="true" prefstring="indentStringsAfterParens"
                       prefattribute="checked"/>
       
+                  <checkbox id="dedentOnColon" label="&dedentOnColon.label;"
+                      pref="true" prefstring="dedentOnColon"
+                      prefattribute="checked"/>
+      
             <checkbox id="useTabs"
                       label="&preferTabCharactersOverSpaces.label;"
                       pref="true"
