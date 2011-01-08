@@ -232,7 +232,10 @@ class ImplicitLangIntel(LangIntel):
     def __init__(self, lang, mgr):
         self.lang = lang
         LangIntel.__init__(self, mgr)
-
+    def trg_from_pos(self, buf, pos, implicit=True):
+        return None
+    def preceding_trg_from_pos(self, buf, pos, curr_pos):
+        return None
 
 class ParenStyleCalltipIntelMixin(object):
     """A mixin class to implement `curr_calltip_arg_range' for languages
