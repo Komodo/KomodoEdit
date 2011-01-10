@@ -43,6 +43,8 @@ import logging
 from koXMLLanguageBase import koHTMLLanguageBase
 
 
+import scimozindent
+
 log = logging.getLogger("koMasonLanguage")
 # log.setLevel(logging.DEBUG)
 
@@ -79,3 +81,71 @@ class KoMasonLanguage(koHTMLLanguageBase):
                     (scimoz.SCE_UDL_TPL_OPERATOR, ord("<"))
                 ]
             })
+
+    def computeIndent(self, scimoz, indentStyle, continueComments):
+        return self._computeIndent(scimoz, indentStyle, continueComments, self._style_info)
+
+    def _computeIndent(self, scimoz, indentStyle, continueComments, style_info):
+	res = self._doIndentHere(scimoz, indentStyle, continueComments, style_info)
+	if res is None:
+	    return koHTMLLanguageBase._computeIndent(self, scimoz, indentStyle, continueComments, self._style_info)
+	return res
+
+    _startWords = "init perl args".split(" ")
+    def _doIndentHere(self, scimoz, indentStyle, continueComments, style_info):
+	#
+	# Returns either None or an indent string
+	pos = scimoz.positionBefore(scimoz.currentPos)
+	startPos = scimoz.currentPos
+	style = scimoz.getStyleAt(pos)
+	if style != scimoz.SCE_UDL_TPL_OPERATOR:
+	    return None
+	if scimoz.getWCharAt(pos) != ">":
+	    return None
+	pos -= 1
+	curLineNo = scimoz.lineFromPosition(pos)
+	lineStartPos = scimoz.positionFromLine(curLineNo)
+	data = scimoz.getStyledText(lineStartPos, startPos)
+	chars = data[0::2]
+	styles = [ord(x) for x in data[1::2]]
+	lim = len(styles)
+	delta = 0
+	i = 0
+	limSub1 = lim - 1
+	sawSlash = False
+	while i < limSub1:
+	    if styles[i] == scimoz.SCE_UDL_TPL_OPERATOR and chars[i] == '<':
+		i += 1
+		if styles[i] == scimoz.SCE_UDL_TPL_OPERATOR:
+		    if chars[i] == '/':
+			sawSlash = True
+			i += 1
+		if styles[i] != scimoz.SCE_UDL_TPL_OPERATOR or chars[i] != '%':
+		    i += 1
+		    continue
+		i += 1
+		while (i < lim
+		       and styles[i] == scimoz.SCE_UDL_TPL_DEFAULT):
+		    i += 1
+		if styles[i] != scimoz.SCE_UDL_TPL_WORD:
+		    return None
+		wordStart = i
+		while (i < lim
+		       and styles[i] == scimoz.SCE_UDL_TPL_WORD):
+		    i += 1
+		word = chars[wordStart:i]
+		if word in self._startWords:
+		    if sawSlash:
+			delta -= 1
+		    else:
+			delta += 1
+	    else:
+		i += 1
+	indentWidth = self._getIndentWidthForLine(scimoz, curLineNo)
+	indent = scimoz.indent
+	newIndentWidth = indentWidth + delta * indent
+	if newIndentWidth < 0:
+	    newIndentWidth = 0
+	return scimozindent.makeIndentFromWidth(scimoz, newIndentWidth)
+
+	
