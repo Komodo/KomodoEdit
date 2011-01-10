@@ -1565,12 +1565,20 @@
                 var y = event.clientY - this.boxObject.y;
                 var scimoz = this.scimoz;
                 var pos = scimoz.positionFromPointClose(x, y);
+                var anchor = scimoz.anchor;
+                var currentPos = scimoz.currentPos;
+                if (anchor > currentPos) {
+                    // Swap them around - we want (anchor < currentPos).
+                    var temp = anchor;
+                    anchor = currentPos;
+                    currentPos = temp;
+                }
                 // Make sure that if there's a selection, we aren't clicking on it:
                 // Ctrl-click can be used to drag-copy a selection.
                 if (pos >= 0 &&
-                    ((scimoz.selectionStart == scimoz.selectionEnd) ||
-                     (pos < scimoz.selectionStart) ||
-                     (pos > scimoz.selectionEnd))) {
+                    ((anchor == currentPos) ||
+                     (pos < anchor) ||
+                     (pos > currentPos))) {
                     scimoz.anchor = pos;
                     scimoz.currentPos = pos;
                     this._hyperlink.jump(this);
