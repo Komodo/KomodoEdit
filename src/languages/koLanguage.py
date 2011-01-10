@@ -289,6 +289,27 @@ class KoLanguageRegistryService:
         elif '*' not in pattern:  # e.g. "Conscript", "Makefile"
             self.__languageNameFromExtOrBasename[pattern.lower()] = languageName
 
+    _addonsEnabled = {}
+
+    def addonIsEnabled(self, id):
+        result = self._addonsEnabled.get(id)
+        if result is None:
+            result = False
+            extMgr = components.classes["@mozilla.org/extensions/manager;1"]. \
+                        getService(components.interfaces.nsIExtensionManager)
+            item = extMgr.getItemForID(id)
+            if item:
+                extMgrDs = extMgr.datasource
+                rdfSvc = components.classes["@mozilla.org/rdf/rdf-service;1"].getService(components.interfaces.nsIRDFService)
+                if extMgrDs and rdfSvc:
+                    source = rdfSvc.GetResource("urn:mozilla:item:" + id)
+                    property = rdfSvc.GetResource("http://www.mozilla.org/2004/em-rdf#isDisabled")
+                    target = rdfSvc.GetLiteral("true")
+                    disabled = extMgrDs.HasAssertion(source, property, target, True)
+                    result = not disabled
+            self._addonsEnabled[id] = result
+        return result
+
     def getLanguageHierarchy(self):
         """Return the structure used to define the language name menulist
         used in various places in the Komodo UI.
@@ -682,17 +703,17 @@ class KoLanguageRegistryService:
             langs.reverse()
             #print "languages are %r"%langs
 
-        # Detect Django content.
-        #if (not langs or langs[0] in "HTML", "HTML5", "XHTML")) and \
-        #   self._globalPrefs.getBooleanPref('allowDjangoContentDetection'):
-        #    # Sniff the html contents for Django tags.
-        #    if "{%" in head and "%}" in head:
-        #        if "{{" in head or "}}" in head:
-        #            # Multiple tag styles - it's Django.
-        #            langs.insert(0, "Django")
-        #        elif head.count("{%") >= 2 and head.count("%}") >= 2:
-        #            # Multiple tag usage - it's Django.
-        #            langs.insert(0, "Django")
+        # Detect Django content - ensuring the add-on is enabled.
+        if (not langs or langs[0] in ("HTML", "HTML5", "XHTML")) and \
+           self.addonIsEnabled("django_language@ActiveState.com"):
+            # Sniff the html contents for Django tags.
+            if "{%" in head and "%}" in head:
+                if "{{" in head or "}}" in head:
+                    # Multiple tag styles - it's Django.
+                    langs.insert(0, "Django")
+                elif head.count("{%") >= 2 and head.count("%}") >= 2:
+                    # Multiple tag usage - it's Django.
+                    langs.insert(0, "Django")
 
         # Detect the type from a possible shebang line.
         if (self._globalPrefs.getBooleanPref('shebangDetection') and
