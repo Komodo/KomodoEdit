@@ -682,6 +682,18 @@ class KoLanguageRegistryService:
             langs.reverse()
             #print "languages are %r"%langs
 
+        # Detect Django content.
+        #if (not langs or langs[0] in "HTML", "HTML5", "XHTML")) and \
+        #   self._globalPrefs.getBooleanPref('allowDjangoContentDetection'):
+        #    # Sniff the html contents for Django tags.
+        #    if "{%" in head and "%}" in head:
+        #        if "{{" in head or "}}" in head:
+        #            # Multiple tag styles - it's Django.
+        #            langs.insert(0, "Django")
+        #        elif head.count("{%") >= 2 and head.count("%}") >= 2:
+        #            # Multiple tag usage - it's Django.
+        #            langs.insert(0, "Django")
+
         # Detect the type from a possible shebang line.
         if (self._globalPrefs.getBooleanPref('shebangDetection') and
             not langs and head.startswith(u'#!')):
