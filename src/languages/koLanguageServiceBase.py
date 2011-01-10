@@ -866,7 +866,7 @@ class _NextLineException(Exception):
 
 class KoLanguageBase:
     _com_interfaces_ = [components.interfaces.koILanguage,
-			components.interfaces.nsIObserverService]
+    			components.interfaces.nsIObserver]
 
     _lexer = None
     _style = None
