@@ -37,6 +37,7 @@
 import xpcom, xpcom.server
 #import hotshot
 import cProfile as profile
+import time
 import threading
 
 class koProfile:
@@ -78,7 +79,14 @@ class XPCOMRecorder:
         self.setters = {}
 
     def recordCall(self, attr):
-        self.calls[attr] = self.calls.get(attr, 0) + 1
+        # [timespent, numcalls]
+        value = self.calls.get(attr)
+        if value is None:
+            value = [0, 1]
+            self.calls[attr] = value
+        else:
+            value[1] += 1
+        return value
 
     def recordGetter(self, attr):
         self.getters[attr] = self.getters.get(attr, 0) + 1
@@ -86,15 +94,21 @@ class XPCOMRecorder:
     def recordSetter(self, attr):
         self.setters[attr] = self.setters.get(attr, 0) + 1
 
+    def totalcalltime(self):
+        return sum([x[0] for x in self.calls.values()])
+
+    def totalcallcount(self):
+        return sum([x[1] for x in self.calls.values()])
+
     def __len__(self):
-        return sum(self.calls.values()) + sum(self.getters.values()) + sum(self.setters.values())
+        return self.totalcallcount() + sum(self.getters.values()) + sum(self.setters.values())
 
     def print_stats(self):
         print "%s" % (self.name)
         if self.calls:
-            print "  Calls: %d" % (sum(self.calls.values()))
-            for name, num in sorted(self.calls.items(), key=lambda (k,v): (v,k), reverse=True):
-                print "      %-30s%d" % (name, num)
+            print "  Calls: %d, Time: %f" % (self.totalcallcount(), self.totalcalltime())
+            for name, recorder in sorted(self.calls.items(), key=lambda (k,v): (v,k), reverse=True):
+                print "      %-30s%5d %f" % (name, recorder[1], recorder[0])
         if self.getters:
             print "  Getters: %d" % (sum(self.getters.values()))
             for name, num in sorted(self.getters.items(), key=lambda (k,v): (v,k), reverse=True):
@@ -134,14 +148,19 @@ def getXPCOMRecorder(xpcomObject):
 # A wrapper around a function - looks like a function,
 # but actually profiles the delegate.
 class TracerDelegate:
-    def __init__(self, callme):
+    def __init__(self, callme, callstats=None):
         self.callme = callme
+        self.callstats = callstats
     def __call__(self, *args):
         if not xpcom._koprofiler.acquire():
             return apply(self.callme, args)
         try:
+            if self.callstats:
+                t1 = time.time()
             return xpcom._koprofiler.prof.runcall(self.callme, *args)
         finally:
+            if self.callstats:
+                self.callstats[0] += time.time() - t1
             xpcom._koprofiler.release()
 
 # A wrapper around each of our XPCOM objects.  All PyXPCOM calls
@@ -158,9 +177,10 @@ class Tracer:
     def __getattr__(self, attr):
         ret = getattr(self._ob, attr) # Attribute error just goes up
         if callable(ret):
+            callstats = None
             if not attr.startswith("_com_") and not attr.startswith("_reg_"):
-                self.__dict__['_recorder'].recordCall(attr)
-            return TracerDelegate(ret)
+                callstats = self.__dict__['_recorder'].recordCall(attr)
+            return TracerDelegate(ret, callstats)
         else:
             if not attr.startswith("_com_") and not attr.startswith("_reg_"):
                 self.__dict__['_recorder'].recordGetter(attr)
@@ -176,7 +196,7 @@ class Tracer:
 def print_stats():
     """Print out the pyXPCOM stats and the python main thread profiler stats"""
     def recorder_cmp(a, b):
-        return cmp(len(a[0]), len(b[0]))
+        return cmp(a[0].totalcalltime(), b[0].totalcalltime())
     for name, recorder in sorted(xpcom_recordings.items(),
                                  cmp=recorder_cmp,
                                  key=lambda (k,v): (v,k), reverse=True):
