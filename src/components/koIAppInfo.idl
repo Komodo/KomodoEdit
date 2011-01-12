@@ -80,6 +80,7 @@ interface koIPerlInfoEx : koIAppInfoEx {
                         [array, size_is(count)] in wstring modules);
     wstring getVersionForBinary(in wstring binaryPath);
     boolean isPerlCriticInstalled(in boolean forceCheck);
+    double getPerlCriticVersion();
 };
 
 

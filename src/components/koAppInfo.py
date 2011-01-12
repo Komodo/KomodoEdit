@@ -98,6 +98,7 @@ class KoPerlInfoEx(KoAppInfoEx):
         KoAppInfoEx.__init__(self)
         self._userPath = koprocessutils.getUserEnv()["PATH"].split(os.pathsep)
         self._havePerlCritic = None
+        self._perlCriticVersion = None
         try:
             self._wrapped = WrapObject(self,components.interfaces.nsIObserver)
             self._prefSvc.prefs.prefObserverService.addObserver(self._wrapped, "perlDefaultInterpreter", 0)
@@ -108,6 +109,7 @@ class KoPerlInfoEx(KoAppInfoEx):
         if topic == "perlDefaultInterpreter":
             self.installationPath = None
             self._havePerlCritic = None
+            self._perlCriticVersion = None
 
     def _GetPerlExeName(self):
         if not self.installationPath:
@@ -229,6 +231,23 @@ class KoPerlInfoEx(KoAppInfoEx):
         if self._havePerlCritic is None or forceCheck:
             self._havePerlCritic = bool(self.haveModules(["criticism", "Perl::Critic"]))
         return self._havePerlCritic
+
+    def getPerlCriticVersion(self):
+        if self._perlCriticVersion is not None or not self.isPerlCriticInstalled():
+            return self._perlCriticVersion
+        perlExe = self.get_executablePath()
+        argv = [perlExe, "-MPerl::Critic", '-e', 'print $Perl::Critic::VERSION']
+        p = process.ProcessOpen(argv, stdin=None)
+        stdout, stderr = p.communicate()
+        retval = p.wait()
+        m = re.compile(r'^(\d+(?:\.\d*)?)').match(stdout)
+        if m:
+            self._perlCriticVersion = float(m.group(1))
+        else:
+            log.error("Can't find a version # in %s", stdout)
+        return self._perlCriticVersion
+        
+        
 
 class KoPythonCommonInfoEx(KoAppInfoEx):
     def __init__(self):
