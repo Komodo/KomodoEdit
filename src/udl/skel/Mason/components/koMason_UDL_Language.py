@@ -91,9 +91,14 @@ class KoMasonLanguage(koHTMLLanguageBase):
 	    return koHTMLLanguageBase._computeIndent(self, scimoz, indentStyle, continueComments, self._style_info)
 	return res
 
+    def _keyPressed(self, ch, scimoz, style_info):
+	res = self._doKeyPressHere(ch, scimoz, style_info)
+	if res is None:
+	    return koHTMLLanguageBase._keyPressed(self, ch, scimoz, style_info)
+	return res
+
     _startWords = "init perl args".split(" ")
     def _doIndentHere(self, scimoz, indentStyle, continueComments, style_info):
-	#
 	# Returns either None or an indent string
 	pos = scimoz.positionBefore(scimoz.currentPos)
 	startPos = scimoz.currentPos
@@ -105,11 +110,29 @@ class KoMasonLanguage(koHTMLLanguageBase):
 	pos -= 1
 	curLineNo = scimoz.lineFromPosition(pos)
 	lineStartPos = scimoz.positionFromLine(curLineNo)
+        delta, numTags = self._getTagDiffDelta(scimoz, lineStartPos, startPos)
+        if delta < 0 and numTags == 1 and curLineNo > 0:
+            didDedent, dedentAmt = self.dedentThisLine(scimoz, curLineNo, startPos)
+            if didDedent:
+                return dedentAmt
+            else:
+                # Since Mason tags end with a ">", keep the
+                # HTML auto-indenter out of here.
+                return self._getRawIndentForLine(scimoz, curLineNo)
+	indentWidth = self._getIndentWidthForLine(scimoz, curLineNo)
+	indent = scimoz.indent
+	newIndentWidth = indentWidth + delta * indent
+	if newIndentWidth < 0:
+	    newIndentWidth = 0
+	return scimozindent.makeIndentFromWidth(scimoz, newIndentWidth)
+
+    def _getTagDiffDelta(self, scimoz, lineStartPos, startPos):
 	data = scimoz.getStyledText(lineStartPos, startPos)
 	chars = data[0::2]
 	styles = [ord(x) for x in data[1::2]]
 	lim = len(styles)
 	delta = 0
+        numTags = 0
 	i = 0
 	limSub1 = lim - 1
 	sawSlash = False
@@ -135,17 +158,32 @@ class KoMasonLanguage(koHTMLLanguageBase):
 		    i += 1
 		word = chars[wordStart:i]
 		if word in self._startWords:
+                    numTags += 1
 		    if sawSlash:
 			delta -= 1
 		    else:
 			delta += 1
 	    else:
 		i += 1
-	indentWidth = self._getIndentWidthForLine(scimoz, curLineNo)
-	indent = scimoz.indent
-	newIndentWidth = indentWidth + delta * indent
-	if newIndentWidth < 0:
-	    newIndentWidth = 0
-	return scimozindent.makeIndentFromWidth(scimoz, newIndentWidth)
+        return delta, numTags
 
-	
+    def _doKeyPressHere(self, ch, scimoz, style_info):
+	# Returns either None or an indent string
+	pos = scimoz.positionBefore(scimoz.currentPos)
+	startPos = scimoz.currentPos
+	style = scimoz.getStyleAt(pos)
+	if style != scimoz.SCE_UDL_TPL_OPERATOR:
+	    return None
+	if scimoz.getWCharAt(pos) != ">":
+	    return None
+	pos -= 1
+	curLineNo = scimoz.lineFromPosition(pos)
+	lineStartPos = scimoz.positionFromLine(curLineNo)
+        delta, numTags = self._getTagDiffDelta(scimoz, lineStartPos, startPos)
+        if delta < 0 and numTags == 1 and curLineNo > 0:
+            didDedent, dedentAmt = self.dedentThisLine(scimoz, curLineNo, startPos)
+            if didDedent:
+                return dedentAmt
+        # Assume the tag's indent level is fine, so don't let the
+        # HTML auto-indenter botch things up.
+        return self._getRawIndentForLine(scimoz, curLineNo)
