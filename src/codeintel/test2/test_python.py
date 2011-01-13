@@ -419,6 +419,18 @@ class TrgTestCase(CodeIntelTestCase):
         #self.assertTriggerMatches("\texcept Ex<|>",
         #                          name=name, implicit=False)
 
+    def test_complete_magic_symbols(self):
+        name = "python-complete-magic-symbols"
+        self.assertTriggerMatches("__<|>", name=name, symbolstype="global")
+        self.assertNoTrigger("_<|>_", None)
+        self.assertNoTrigger("___<|>", None)
+
+        self.assertTriggerMatches("def __<|>", name=name, symbolstype="def")
+        self.assertTriggerMatches("myobject.__<|>", name=name,
+                                  symbolstype="object")
+        self.assertTriggerMatches("if __<|>", name=name, symbolstype="global",
+                                  text="if")
+
 
 class CplnTestCase(CodeIntelTestCase):
     lang = "Python"
@@ -1688,6 +1700,35 @@ class CplnTestCase(CodeIntelTestCase):
                  ('class', 'ValueError'),
                  ]
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]), cplns)
+
+    def test_complete_magic_symbols(self):
+        content, positions = unmark_text(dedent("""\
+            class myclass(object):
+                def __<1>init__(self):
+                    pass
+            def main():
+                name = __<2>file__
+                myclass.__<3>foo()
+            if __<4>name__ == '__main__':
+                main()
+        """))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+            [('function', '__init__(self'),
+             ('function', '__eq__(self'),
+             ('function', '__repr__(self')])
+        self.assertCompletionsAre(markup_text(content, pos=positions[2]),
+            [('variable', '__file__'),
+             ('variable', '__loader__'),
+             ('variable', '__name__'),
+             ('variable', '__package__')])
+        self.assertCompletionsAre(markup_text(content, pos=positions[3]),
+            [('variable', '__class__'),
+             ('variable', '__doc__')])
+        self.assertCompletionsAre(markup_text(content, pos=positions[4]),
+            [('variable', '__file__'),
+             ('variable', '__loader__'),
+             ('variable', "__name__ == '__main__':"),
+             ('variable', '__package__')])
 
 
 class OldCodeIntelTestCase(CodeIntelTestCase):

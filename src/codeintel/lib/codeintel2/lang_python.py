@@ -89,7 +89,104 @@ CACHING = True #DEPRECATED: kill it
 _g_pythondoc_tags = list(sorted("param keyparam return exception def "
                                 "defreturn see link linkplain".split()))
 
+_g_python_magic_method_names = sorted([
+    '__init__',
+    '__new__',
+    '__del__',
+    '__repr__',
+    '__str__',
+    '__lt__',
+    '__le__',
+    '__eq__',
+    '__ne__',
+    '__gt__',
+    '__ge__',
+    '__cmp__',
+    '__rcmp__',
+    '__hash__',
+    '__nonzero__',
+    '__unicode__',
+    # Attribute access
+    '__getattr__',
+    '__setattr__',
+    '__delattr__',
+    # New style classes
+    '__getattribute__',
+    '__call__',
+    # Sequence classes
+    '__len__',
+    '__getitem__',
+    '__setitem__',
+    '__delitem__',
+    '__iter__',
+    '__reversed__',
+    '__contains__',
+    '__getslice__',
+    '__setslice__',
+    '__delslice__',
+    # Integer like operators
+    '__add__',
+    '__sub__',
+    '__mul__',
+    '__floordiv__',
+    '__mod__',
+    '__divmod__',
+    '__pow__',
+    '__lshift__',
+    '__rshift__',
+    '__and__',
+    '__xor__',
+    '__or__',
+    '__div__',
+    '__truediv__',
+    '__radd__',
+    '__rsub__',
+    '__rmul__',
+    '__rdiv__',
+    '__rtruediv__',
+    '__rfloordiv__',
+    '__rmod__',
+    '__rdivmod__',
+    '__rpow__',
+    '__rlshift__',
+    '__rrshift__',
+    '__rand__',
+    '__rxor__',
+    '__ror__',
+    '__iadd__',
+    '__isub__',
+    '__imul__',
+    '__idiv__',
+    '__itruediv__',
+    '__ifloordiv__',
+    '__imod__',
+    '__ipow__',
+    '__ilshift__',
+    '__irshift__',
+    '__iand__',
+    '__ixor__',
+    '__ior__',
+    '__neg__',
+    '__pos__',
+    '__abs__',
+    '__invert__',
+    '__complex__',
+    '__int__',
+    '__long__',
+    '__float__',
+    '__oct__',
+    '__hex__',
+    '__index__',
+    '__coerce__',
+    # Context managers
+    '__enter__',
+    '__exit__',
+])
 
+_g_python_magic_object_names = sorted([
+    '__class__',
+    '__doc__',
+])
 
 #---- language support
 
@@ -260,6 +357,24 @@ class PythonLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                     return
             evalr = PythonTreeEvaluator(ctlr, buf, trg, citdl_expr, line)
             buf.mgr.request_eval(evalr)
+        elif trg.id == (self.lang, TRG_FORM_CPLN, "magic-symbols"):
+            symbolstype = trg.extra.get("symbolstype")
+            cplns = []
+            if symbolstype == "string":
+                cplns = [("variable", "__main__")]
+            elif symbolstype == "def":
+                cplns = [("function", t + "(self") for t in _g_python_magic_method_names]
+            elif symbolstype == "object":
+                cplns = [("variable", t) for t in _g_python_magic_object_names]
+            elif symbolstype == "global":
+                text = trg.extra.get("text")
+                if text.endswith("if"):
+                    # Add the extended name version.
+                    cplns = [("variable", t) for t in ("__file__", "__loader__", "__name__ == '__main__':", "__package__")]
+                else:
+                    cplns = [("variable", t) for t in ("__file__", "__loader__", "__name__", "__package__")]
+            ctlr.set_cplns(cplns)
+            ctlr.done("success")
         elif trg.id == (self.lang, TRG_FORM_CPLN, "pythondoc-tags"):
             #TODO: Would like a "tag" completion image name.
             cplns = [("variable", t) for t in _g_pythondoc_tags]
@@ -579,9 +694,9 @@ class PythonBuffer(CitadelBuffer):
             print "  last_char: %r" % last_char
 
         # Quick out if the preceding char isn't a trigger char.
-        if last_char not in " .(@":
+        if last_char not in " .(@_":
             if DEBUG:
-                print "trg_from_pos: no: %r is not in ' .(@'" % last_char
+                print "trg_from_pos: no: %r is not in ' .(@'_" % last_char
             return None
 
         style = accessor.style_at_pos(last_pos)
@@ -617,7 +732,7 @@ class PythonBuffer(CitadelBuffer):
             return None
 
         # Remaing triggers should never trigger in some styles.
-        if (implicit and style in self.implicit_completion_skip_styles
+        if (implicit and style in self.implicit_completion_skip_styles and last_char != '_'
             or style in self.completion_skip_styles):
             if DEBUG:
                 print "trg_from_pos: no: completion is suppressed "\
@@ -742,6 +857,58 @@ class PythonBuffer(CitadelBuffer):
                 print "trg_from_pos: no: non-ws char preceding '.' is not "\
                       "an identifier char or ')': %r" % ch
             return None
+
+        elif last_char == "_":
+            # used for:
+            #    * complete-magic-symbols
+
+            # Triggering examples:
+            #   def __<|>init__
+            #   if __<|>name__ == '__main__':
+            #   __<|>file__
+
+            # Ensure double "__".
+            if last_pos-1 < 0 or accessor.char_at_pos(last_pos-1) != "_":
+                return None
+
+            beforeChar = None
+            beforeStyle = None
+            if last_pos-2 >= 0:
+                beforeChar = accessor.char_at_pos(last_pos-2)
+                beforeStyle = accessor.style_at_pos(last_pos-2)
+
+            if DEBUG:
+                print "trg_from_pos:: checking magic symbol, beforeChar: %r" % (beforeChar)
+            if beforeChar and beforeChar in "\"'" and beforeStyle in self.string_styles():
+                if DEBUG:
+                    print "trg_from_pos:: magic-symbols - string"
+                return Trigger(self.lang, TRG_FORM_CPLN,
+                               "magic-symbols", last_pos-1, implicit,
+                               symbolstype="string")
+            elif beforeChar == "." and beforeStyle != style:
+                if DEBUG:
+                    print "trg_from_pos:: magic-symbols - object"
+                return Trigger(self.lang, TRG_FORM_CPLN,
+                               "magic-symbols", last_pos-1, implicit,
+                               symbolstype="object")
+
+            if beforeStyle == style:
+                # No change in styles between the characters -- abort.
+                return None
+
+            text = accessor.text_range(max(0,last_pos-20), last_pos-1).strip()
+            if beforeChar and beforeChar in " \t":
+                if text.endswith("def"):
+                    if DEBUG:
+                        print "trg_from_pos:: magic-symbols - def"
+                    return Trigger(self.lang, TRG_FORM_CPLN,
+                                   "magic-symbols", last_pos-1, implicit,
+                                   symbolstype="def")
+            if DEBUG:
+                print "trg_from_pos:: magic-symbols - global"
+            return Trigger(self.lang, TRG_FORM_CPLN,
+                           "magic-symbols", last_pos-1, implicit,
+                           symbolstype="global", text=text)
 
         elif last_char == '(':
             # If the first non-whitespace character preceding the '(' in the
