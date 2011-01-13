@@ -428,7 +428,7 @@ class CSSLangIntel(LangIntel, ParenStyleCalltipIntelMixin):
     CSS_PROPERTY_ATTRIBUTE_CALLTIPS_DICT.update(constants_css_webkit_extensions.CSS_WEBKIT_SPECIFIC_CALLTIP_DICT)
 
     # Tag names
-    CSS_HTML_TAG_NAMES = Keywords.hypertext_elements.split()
+    CSS_HTML_TAG_NAMES = sorted(Keywords.hypertext_elements.split())
 
     # pseudo-class-names
     CSS_PSEUDO_CLASS_NAMES = constants_css.CSS_PSEUDO_CLASS_NAMES

@@ -149,6 +149,7 @@ html5_elements=\
     "meter nav output progress rp rt ruby section source summary " \
     "time video"
 
+# Note: There hypertext_elements are not sorted!
 hypertext_elements = html4_elements + " " + html5_elements
 
 hypertext_attributes=\
