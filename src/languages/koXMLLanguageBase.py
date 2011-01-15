@@ -269,6 +269,35 @@ class koHTMLLanguageBase(koXMLLanguageBase):
                 return None
         return candidate
 
+    _leadingWSRE = re.compile(r'^(\s+)')
+    def dedentThisLine(self, scimoz, curLineNo, startPos):
+        # Used by UDL template languages
+        # Returns a tuple:
+        # First item: whether the current line needed to be dedented
+        # Second item: the new indentation for the current line
+        
+        thisLinesIndent = scimoz.getLineIndentation(curLineNo)
+        prevLinesIndent = scimoz.getLineIndentation(curLineNo - 1)
+        if prevLinesIndent == thisLinesIndent:
+            # We need to dedent this line
+            lineStartPos = scimoz.positionFromLine(curLineNo)
+            text = scimoz.getTextRange(lineStartPos, startPos)
+            m = self._leadingWSRE.match(text)
+            if m:
+                leadingWS = m.group(1)
+                tabFreeLeadingWS = leadingWS.expandtabs(scimoz.tabWidth)
+                currWidth = len(tabFreeLeadingWS)
+                targetWidth = currWidth - scimoz.indent
+                if targetWidth < 0:
+                    fixedLeadingWS = ""
+                else:
+                    fixedLeadingWS = scimozindent.makeIndentFromWidth(scimoz, targetWidth)
+                scimoz.targetStart = lineStartPos
+                scimoz.targetEnd = lineStartPos + len(leadingWS)
+                scimoz.replaceTarget(len(fixedLeadingWS), fixedLeadingWS)
+                return (True, fixedLeadingWS)
+        return (False, None)
+
 
 def _findIndent(scimoz, bitmask, chars, styles, comment_styles, opening_styles):
     indenting = None
