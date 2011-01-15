@@ -40,13 +40,22 @@
 # Then put into skel/ on Fri Jul  6 14:28:38 PDT 2007
 
 import logging
-from xpcom import components
+import os, sys, re
+from os.path import join, dirname, exists
+import tempfile
+import process
+import koprocessutils
+
+from xpcom import components, nsError, ServerException
 from koXMLLanguageBase import koHTMLLanguageBase
+
+from koLintResult import KoLintResult
+from koLintResults import koLintResults
 
 import scimozindent
 
 log = logging.getLogger("koDjangoLanguage")
-# log.setLevel(logging.DEBUG)
+#log.setLevel(logging.DEBUG)
 
 def registerLanguage(registry):
     log.debug("Registering language Django")
@@ -191,3 +200,203 @@ class KoDjangoLanguage(koHTMLLanguageBase):
 	    else:
 		i += 1
         return delta, numTags
+
+    def get_linter(self):
+        if not hasattr(self, "_linter"):
+            self._linter = self._get_linter_from_lang(self.name)
+        return self._linter
+
+class KoDjangoLinter(object):
+    _com_interfaces_ = [components.interfaces.koILinter]
+    _reg_desc_ = "Django Template Linter"
+    _reg_clsid_ = "{c30d9ea6-bb99-474d-9488-4d92dd833acb}"
+    _reg_contractid_ = "@activestate.com/koLinter?language=Django;1"
+    _reg_categories_ = [
+        ("category-komodo-linter", 'Django'),
+    ]
+
+    def __init__(self):
+        self._sysUtils = components.classes["@activestate.com/koSysUtils;1"].\
+            getService(components.interfaces.koISysUtils)
+        self._koDirSvc = components.classes["@activestate.com/koDirs;1"].\
+            getService(components.interfaces.koIDirs)
+        self._userPath = koprocessutils.getUserEnv()["PATH"].split(os.pathsep)
+        self._koPythonInfoEx = components.classes["@activestate.com/koAppInfoEx?app=Python;1"].\
+            getService(components.interfaces.koIAppInfoEx)
+        #TODO: Observe pref changes affecting self.pythonExecutable
+        self.pythonExecutable = self._koPythonInfoEx.executablePath
+        if not self.pythonExecutable:
+            self.pythonExecutable = koDirSvc.pythonExe
+        self.djangoLinterPath = join(dirname(dirname(__file__)),
+                                     "pylib",
+                                     "djangoLinter.py")
+        self._settingsForDirs = {}
+        self._lineSplitterRE = re.compile(r'\r?\n')
+
+    def _walkUpDir(self, directory):
+        count = 10 # Look up at most 10 levels.
+        while True:
+            if exists(join(directory, "settings.py")):
+                return directory
+            parent = dirname(directory)
+            if not parent or parent == directory:
+                return None
+            directory = parent
+            # In case the dirname logic fails...
+            count -= 1
+            if count <= 0:
+                return None
+    
+    def _getSettingsDir(self, directory):
+        dir = self._settingsForDirs.get(directory, None)
+        if dir and exists(join(dir, "settings.py")):
+            return dir
+        fileDir = self._walkUpDir(directory)
+        if fileDir:
+            self._settingsForDirs[directory] = fileDir
+            return fileDir
+        # Try the current project
+        partSvc = components.classes["@activestate.com/koPartService;1"]\
+                   .getService(components.interfaces.koIPartService)
+        currentProject = partSvc.currentProject
+        if currentProject is None:
+            return None
+        projDir = self._walkUpDir(currentProject.getFile().dirName)
+        if projDir:
+            self._settingsForDirs[directory] = projDir
+        return projDir
+        
+    _extends_block_tag_re = re.compile(r"\s*\{\%\s*extends\b.*?\%\}", re.DOTALL)
+    def lint(self, request):
+        # Find the base of the django project: first parent that contains settings.py
+        # If not found, check the current project for a file that contains it
+        cwd = request.cwd
+        koDoc = request.koDoc
+        settingsDir = self._getSettingsDir(cwd)
+        if not settingsDir:
+            errmsg = "Can't find settings.py associated with file %s" % koDoc.displayPath
+            raise ServerException(nsError.NS_ERROR_UNEXPECTED, errmsg)
+        # Save the current buffer to a temporary file.
+        tmpFileName = tempfile.mktemp()
+        fout = open(tmpFileName, 'wb')
+        try:
+            text = request.content.encode(request.encoding.python_encoding_name)
+            # If the template starts with an extends block tag, the django
+            # parser will complain about it.  Don't know why...
+            m = self._extends_block_tag_re.match(text)
+            if m:
+                idx = m.span(0)[1]
+                fixedText = ' ' * idx + text[idx:]
+            else:
+                fixedText = text
+            fout.write(fixedText)
+            fout.close()
+        
+            results = koLintResults()
+            argv = [self.pythonExecutable, self.djangoLinterPath,
+                    tmpFileName, settingsDir]
+            env = koprocessutils.getUserEnv()
+            p = process.ProcessOpen(argv, cwd=cwd, env=env, stdin=None)
+            output, error = p.communicate()
+            retval = p.returncode
+        finally:
+            os.unlink(tmpFileName)
+        if retval == 1:
+            if error:
+                results.addResult(self._buildResult(text, error))
+            else:
+                results.addResult(self._buildResult(text, "Unexpected error"))
+        return results
+            
+    _simple_matchers = {
+        "Empty block tag": r"\{\%\s*\%\}",
+        "Empty variable tag":  r"\{\{\s*\}\}",
+    }
+    _contextual_matchers = {
+        r"Invalid block tag:\s*'(.*?)'"               : r"\{\%%\s*(%s).*?\%%\}",
+        r"Invalid filter:\s+'(.*?)'"                  : r"\|(%s)",
+        r"(\S+) requires \d+ arguments?, \d+ provided" : r"\{\{\s*(.*?\|%s)",
+        r"Variables and attributes may not begin with underscores: '(.*?)'"
+                                                      : r"\{\{\s*(%s)",
+    }
+    _compiled_ptns = {}
+
+    def _do_simple_matcher(self, ptn, text, lintResult):
+        if not self._compiled_ptns.has_key(ptn):
+            self._compiled_ptns[ptn] = re.compile(ptn)
+        regex = self._compiled_ptns[ptn]
+        m = regex.search(text)
+        if not m:
+            return False
+        endPos = m.end()
+        lines = self._lineSplitterRE.split(text[:endPos])
+        lastLine = lines[-1]
+        lintResult.lineStart = lintResult.lineEnd = len(lines)
+        m = regex.search(lastLine)
+        lintResult.columnStart = m.start() + 1
+        lintResult.columnEnd = m.end() + 1
+        return True
+
+    def _do_contextual_matcher(self, ptnTemplate, arg, text, lintResult):
+        ptn = ptnTemplate % (re.escape(arg),)
+        if not self._compiled_ptns.has_key(ptn):
+            self._compiled_ptns[ptn] = re.compile(ptn)
+        regex = self._compiled_ptns[ptn]
+        m = regex.search(text)
+        if not m:
+            return False
+        endPos = m.end()
+        lines = self._lineSplitterRE.split(text[:endPos])
+        lastLine = lines[-1]
+        lintResult.lineStart = lintResult.lineEnd = len(lines)
+        m = regex.search(lastLine)
+        lintResult.columnStart = m.span(1)[0] + 1
+        lintResult.columnEnd = m.span(1)[1] + 1
+        return True
+        
+    def _buildResult(self, text, message):
+        inputLines = self._lineSplitterRE.split(text)
+        r = KoLintResult()
+        r.severity = r.SEV_ERROR
+        r.description = message
+        m = re.compile(r'TemplateSyntaxError:\s*(.*)\n').match(message)
+        if m:
+            message = m.group(1)
+            for errorType in self._simple_matchers:
+                if errorType in message:
+                    if self._do_simple_matcher(self._simple_matchers[errorType],
+                                               text, r):
+                        return r
+            for raw_ptn in self._contextual_matchers:
+                if not self._compiled_ptns.has_key(raw_ptn):
+                    self._compiled_ptns[raw_ptn] = re.compile(raw_ptn)
+                ptn = self._compiled_ptns[raw_ptn]
+                m = ptn.search(message)
+                if m:
+                    if self._do_contextual_matcher(self._contextual_matchers[raw_ptn], m.group(1), text, r):
+                        return r
+                    
+            # Special-case contextual pattern has two parts
+            m = re.compile(r"Could not parse the remainder: '(.*?)' from '(.*?)'").search(message)
+            if m:
+                part2 = m.group(1)
+                part1 = m.group(2)[:-1 * len(part2)]
+                ptn = r'%s(%%s)' %  (re.escape(part1),)
+                res = self._do_contextual_matcher(ptn, part2, text, r)
+                if res:
+                    return r
+        # Let the Unclosed Block Tag message fall through, and highlight
+        # last line, since we don't know which open-tag it's referring to
+        # Underline the last line for all other unrecognized syntax errors.
+
+        r.columnStart = 1
+        problemLineIdx = len(inputLines) - 1
+        while problemLineIdx >= 0 and not inputLines[problemLineIdx].strip():
+            problemLineIdx -= 1
+        if problemLineIdx == -1:
+            r.lineStart = r.lineEnd = 1
+            r.columnEnd = 1
+        else:
+            r.lineStart = r.lineEnd = problemLineIdx + 1
+            r.columnEnd = len(inputLines[problemLineIdx])
+        return r
