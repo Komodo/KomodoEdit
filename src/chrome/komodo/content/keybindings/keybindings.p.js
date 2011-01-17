@@ -321,6 +321,8 @@ function cloneObject(what) {
  * the keybinding files in sync as the keybinding system gets changed.
  *
  * Version history:
+ * 26: Komodo 6.1.0a1 - add cmd_tabAwarePaste (meta+ctrl+v, ctrl+alt+v)
+ * 25: Komodo 6.0.0 - drop scc folder commands (IDE-only)
  * 24: Komodo 6.0.0rc1 - additional keybindings for zoom in/out commands
  * 23: Komodo 6.0.0rc1 - add keybinding for cmd_invokeTool
  * 22: Komodo 6.0.0rc1 - remapped 'cmd_viewProjects' => 'cmd_viewPlaces'
@@ -347,7 +349,7 @@ function cloneObject(what) {
  * 2: Komodo 4.2.0-beta2 and above
  * 1: Komodo 4.2.0-beta1 and before
  */
-const currentKeybindingVersionNumber = 24;
+const currentKeybindingVersionNumber = 26;
 
 /**
  * Remove this dictionary of keybinds.
@@ -798,6 +800,15 @@ this.manager.prototype._upgradeKeybingings = function (from_version,
                 'cmd_fontZoomIn' : ["Ctrl+="]
             });
 // #endif
+            break;
+        case 25:
+            this._add_keybinding_sequences({
+// #if PLATFORM == 'darwin'
+                'cmd_tabAwarePaste' : ["Meta+Ctrl+V"]
+// #else
+                'cmd_tabAwarePaste' : ["Ctrl+Alt+V"]
+// #endif
+            });
             break;
         }
         from_version += 1;

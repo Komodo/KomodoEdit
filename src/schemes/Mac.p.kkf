@@ -1,4 +1,4 @@
-version 24
+version 26
 
 binding cmd_back  Shift+Backspace
 binding cmd_backSmart  Backspace
@@ -101,6 +101,7 @@ binding cmd_pageDown  Page_Down
 binding cmd_pageUp  Page_Up 
 binding cmd_paste Meta+V
 binding cmd_pasteAndSelect Meta+Shift+V
+binding cmd_tabAwarePaste Meta+Ctrl+V
 binding cmd_quit Meta+Q
 binding cmd_rawKey Meta+M
 binding cmd_redo Meta+Shift+Z

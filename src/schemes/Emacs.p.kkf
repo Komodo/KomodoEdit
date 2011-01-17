@@ -1,4 +1,4 @@
-version 24
+version 26
 
 # Needs a few things to be finished
 #  - ?? insert forward tab / insert backward tab
@@ -68,6 +68,7 @@ binding cmd_cut Shift+Delete
 binding cmd_paste Shift+Insert
 binding cmd_paste Ctrl+Y
 binding cmd_pasteAndSelect Ctrl+Shift+V
+binding cmd_tabAwarePaste Alt+Ctrl+V
 #binding cmd_blockSelect Ctrl+B
 binding cmd_toggleButtonText Ctrl+Shift+B
 # Emacs-only keybinding, moves to column zero

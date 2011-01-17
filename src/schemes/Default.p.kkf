@@ -1,4 +1,4 @@
-version 24
+version 26
 
 # Movement and selection
 binding cmd_left  Left
@@ -49,6 +49,7 @@ binding cmd_cut Shift+Delete
 binding cmd_paste Ctrl+V
 binding cmd_paste Shift+Insert
 binding cmd_pasteAndSelect Ctrl+Shift+V
+binding cmd_tabAwarePaste Ctrl+Alt+V
 binding cmd_delete Delete
 binding cmd_deleteWordLeft  Ctrl+Backspace
 binding cmd_deleteWordRight  Ctrl+Delete
