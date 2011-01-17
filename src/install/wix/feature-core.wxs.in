@@ -218,6 +218,7 @@
       <ComponentRef Id="component184"/>
       <ComponentRef Id="component187"/>
       <ComponentRef Id="component190"/>
+      <ComponentRef Id="component47"/>
       <ComponentRef Id="component196"/>
       <ComponentRef Id="component216"/>
       <ComponentRef Id="component252"/>
@@ -1346,6 +1347,11 @@
                   <File Id="file63" Name="DJANGO_0.LEX" LongName="Django.lexres" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\django_language@ActiveState.com\lexers\Django.lexres"/>
                 </Component>
               </Directory> <!-- lib\mozilla\extensions\django_language@ActiveState.com\lexers -->
+              <Directory Id="directory51" Name="pylib">
+                <Component Id="component47" DiskId="1" Guid="$(autowix.guid)">
+                  <File Id="file390" Name="DJANGO_0.PY" LongName="djangoLinter.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\django_language@ActiveState.com\pylib\djangoLinter.py"/>
+                </Component>
+              </Directory> <!-- lib\mozilla\extensions\django_language@ActiveState.com\pylib -->
               <Directory Id="directory228" Name="TEMPLA_4" LongName="templates">
                 <Directory Id="directory231" Name="ALLLAN_3" LongName="All Languages">
                   <Component Id="component196" DiskId="1" Guid="$(autowix.guid)">
