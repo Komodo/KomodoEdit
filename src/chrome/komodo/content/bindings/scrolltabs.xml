@@ -171,7 +171,8 @@
                                               'event.target.setAttribute("checked", "true");');
                     } else {
                         menuitem.setAttribute('checked', 'false');
-                        menuitem.setAttribute('oncommand', 'this.tab.control.selectedItem = this.tab;');
+                        // Command also requires a setFocus - see bug 89163.
+                        menuitem.setAttribute('oncommand', 'this.tab.control.selectedItem = this.tab; ko.views.manager.currentView.setFocus();');
                     }
                     menuitem.tab = tab;
                     return menuitem;
@@ -312,7 +313,8 @@
                         menuitem.setAttribute('type', 'checkbox');
                         menuitem.setAttribute('checked', 'true');
                     } else {
-                        menuitem.setAttribute('oncommand', 'this.tab.control.selectedItem = this.tab;');
+                        // Command also requires a setFocus - see bug 89163.
+                        menuitem.setAttribute('oncommand', 'this.tab.control.selectedItem = this.tab; ko.views.manager.currentView.setFocus();');
                     }
 
                     menuitem.tab = tab;
