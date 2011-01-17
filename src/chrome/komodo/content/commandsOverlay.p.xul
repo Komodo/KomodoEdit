@@ -1365,6 +1365,11 @@
             oncommand="ko.commands.doCommandAsync('cmd_pasteAndSelect', event)"
             disabled="true"
             desc="&editorPasteAndSelect.desc;"/>
+        <command
+            id="cmd_tabAwarePaste" key="key_cmd_tabAwarePaste"
+            oncommand="ko.commands.doCommandAsync('cmd_tabAwarePaste', event)"
+            disabled="true"
+            desc="&editorTabAwarePaste.desc;"/>
     </commandset>
 
     <!-- Commands that are enabled when the editor has focus and

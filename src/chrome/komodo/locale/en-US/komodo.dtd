@@ -155,6 +155,7 @@
 <!ENTITY editorParaDown.desc "Editor: Paragraph Down">
 <!ENTITY editorPaste.desc "Editor: Paste">
 <!ENTITY editorPasteAndSelect.desc "Editor: Paste and Select">
+<!ENTITY editorTabAwarePaste.desc "Editor: Tab-Aware Paste">
 <!ENTITY editorRedo.desc "Editor: Redo">
 <!ENTITY editorReflowParagraphS.desc "Editor: Reflow paragraph(s)">
 <!ENTITY editorRemoveAllBookmarks.desc "Editor: Remove All Bookmarks">

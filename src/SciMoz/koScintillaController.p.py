@@ -34,12 +34,13 @@
 # 
 # ***** END LICENSE BLOCK *****
 
-from xpcom import components
+from xpcom import components, COMException
 from xpcom.client import WeakReference
 import string
 import re
 import logging
-
+import eollib
+                
 
 log = logging.getLogger("koScintillaController")
 #log.setLevel(logging.DEBUG)
@@ -97,6 +98,24 @@ command_map = {
     'cmd_copyLine' : 'lineCopy',
     'cmd_homeAbsolute' : 'home',
 }
+
+class ClipboardWrapper():
+    def __init__(self):
+        self.clipboard = components.classes["@mozilla.org/widget/clipboard;1"].getService(components.interfaces.nsIClipboard)
+        self.transferable = components.classes["@mozilla.org/widget/transferable;1"].createInstance(components.interfaces.nsITransferable)
+        self.transferable.addDataFlavor("text/unicode")
+        
+    def _getTextFromClipboard(self):
+        self.clipboard.getData(self.transferable, self.clipboard.kGlobalClipboard)
+        try:
+            (str, strLength) = self.transferable.getTransferData("text/unicode")
+            return str.QueryInterface(components.interfaces.nsISupportsString).data[:strLength/2]
+        except COMException as ex:
+            log.error("ClipboardWrapper._getTextFromClipboard: Nothing on the clipboard to get?")
+            return ""
+        except:
+            log.exception("_getTextFromClipboard: unknown")
+            raise
 
 class koScintillaController:
     _com_interfaces_ = components.interfaces.ISciMozController
@@ -204,7 +223,6 @@ class koScintillaController:
             if sm.getLineEndPosition(lineStart) == nextLineStartPos:
                 # At last line of doc, buffer doesn't end with an EOL
                 line = sm.getTextRange(lineStartPos, nextLineStartPos)
-                import eollib
                 eol = eollib.eol2eolStr[eollib.scimozEOL2eol[sm.eOLMode]]
                 finalLine = line + eol
                 finalLineLength = self._koSysUtils.byteLength(finalLine)
@@ -375,6 +393,62 @@ class koScintillaController:
         start = sm.currentPos
         sm.paste()
         sm.anchor = start
+
+    def _is_cmd_tabAwarePaste_enabled(self):
+        return self.scimoz().canPaste()
+
+    _wsRE = re.compile(r'(\s+)')
+    def _do_cmd_tabAwarePaste(self):
+        scimoz = self.scimoz()
+        text = self._getClipboardText()
+        if len(text) == 0:
+            # Nothing to do
+            return
+        eol = eollib.eol2eolStr[eollib.scimozEOL2eol[scimoz.eOLMode]]
+        lines = text.splitlines()
+        currentPos = scimoz.currentPos
+        currentLineNo = scimoz.lineFromPosition(currentPos)
+        lineStartPos = scimoz.positionFromLine(currentLineNo)
+        leadingText = scimoz.getTextRange(lineStartPos, currentPos)
+        if len(leadingText) == 0:
+            scimoz.paste()
+        else:
+            m = self._wsRE.match(leadingText)
+            if not m:
+                scimoz.paste()
+            else:
+                leadingWS = m.group(1)
+                # Find the leading white-space in this block:
+                # use the first line if it has it, otherwise the second,
+                # but set to empty string if not all remaining lines start
+                # with that first line's leading white-space.
+                if lines[0] and lines[0][0] in " \t":
+                    leading_ws_m = self._wsRE.match(lines[0])
+                    contLine = 1
+                elif len(lines) > 1:
+                    leading_ws_m = self._wsRE.match(lines[1])
+                    contLine = 2
+                else:
+                    leading_ws_m = None
+                fixedLines = None
+                if leading_ws_m:
+                    initWS = leading_ws_m.group(1)
+                    if all([x.startswith(initWS) for x in lines[contLine:]]):
+                        prefixLen = len(initWS)
+                        if contLine == 2:
+                            fixedLines = [lines[0]]
+                        else:
+                            fixedLines = [lines[0][prefixLen:]]
+                        fixedLines += [leadingWS + line[prefixLen:]
+                                       for line in lines[1:]]
+                if fixedLines is None:
+                    fixedLines = lines
+                fixedText = eol.join(fixedLines)
+                scimoz.insertText(currentPos, fixedText)
+        scimoz.anchor = scimoz.currentPos = currentPos
+
+    def _getClipboardText(self):
+        return str(ClipboardWrapper()._getTextFromClipboard())
 
     def _do_cmd_endOfWord(self):
         sm = self.scimoz()
