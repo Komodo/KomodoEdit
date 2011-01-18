@@ -2293,6 +2293,7 @@
                           closecollapsed="false">
                         <tab id="toolbox2_tab" label="&toolbox2.label;"
                              locktip="&thisToolboxIsReadOnly.locktip;"
+                             linkedpanel="toolbox2viewbox"
                              onmovetab_unload="ko.toolbox2.onUnload();"
                              onmovetab_load="ko.toolbox2.onload();"
                              accesskey="&toolboxTab.accesskey;"/>
@@ -2410,16 +2411,19 @@
                     <!-- Need both onmousedown and onfocus to catch selection
                          by mouse and Ctrl[+Shift]+Tab -->
                     <tab id="runoutput_tab" label="&commandOutput.label;"
+                        linkedpanel="runoutput-desc-tabpanel"
                         onmousedown="document.getElementById('runoutput-deck').focus();"
                         onfocus="document.getElementById('runoutput-deck').focus();"
                         onmovetab_unload="ko.run.output.finalize();"
                         onmovetab_load="ko.run.output.initialize();"
                         />
                     <tab id="findresults1_tab" label="&findResults1.label;"
+                         linkedpanel="findresults1_tabpanel"
                          collapsed="true" hidden="true"
                          onmousedown="document.getElementById('findresults1-body').focus();"
                          onfocus="document.getElementById('findresults1-body').focus();"/>
                     <tab id="findresults2_tab" label="&findResults2.label;"
+                         linkedpanel="findresults2_tabpanel"
                          collapsed="true" hidden="true"
                          onmousedown="document.getElementById('findresults2-body').focus();"
                          onfocus="document.getElementById('findresults2-body').focus();"/>
