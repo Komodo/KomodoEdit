@@ -617,7 +617,7 @@
 
   <tabs id="project_toolbox_tabs">
     <tab id="places_tab" label="&Places.label;" insertbefore="codebrowser_tab"
-         position="1"
+         position="1" linkedpanel="placesViewbox"
         oncommand="ko.places.viewMgr.focus(); ko.places.viewMgr.updateView();"
         onfocus="ko.places.viewMgr.focus(); ko.places.viewMgr.updateView();"
         onmovetab_unload="ko.places.onUnload();"
@@ -625,9 +625,7 @@
          />
   </tabs>
   <tabpanels id="project_toolbox_tabpanels">
-    <tabpanel flex="1" id="placesViewbox"
-              insertbefore="codebrowserviewbox"
-              position="0">
+    <tabpanel flex="1" id="placesViewbox">
      <vbox flex="1" id="placesViewbox_placesWrapper">
       <vbox flex="99" id="placesViewbox_places">
         <hbox align="center" id="placesToolbar" class="toolbar-box">
