@@ -441,8 +441,16 @@ class koScintillaController:
                             fixedLines = [lines[0][prefixLen:]]
                         fixedLines += [leadingWS + line[prefixLen:]
                                        for line in lines[1:]]
-                if fixedLines is None:
-                    fixedLines = lines
+                    else:
+                        # Do nothing -- the white-space in the text we
+                        # copied is irregular, so preserve it
+                        fixedLines = lines
+                else:
+                    # The copied block has no predictable white-space, 
+                    # so just add the target WS to it, but don't take any
+                    # of the source white-space off.
+                    fixedLines = ([lines[0]]
+                                  + [leadingWS + line for line in lines[1:]])
                 fixedText = eol.join(fixedLines)
                 scimoz.insertText(currentPos, fixedText)
         scimoz.anchor = scimoz.currentPos = currentPos
