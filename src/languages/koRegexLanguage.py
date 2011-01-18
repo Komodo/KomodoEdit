@@ -48,7 +48,6 @@ class koRegexLanguage(KoLanguageBase):
     _reg_clsid_ = "{806CA851-3B1A-4112-9601-DCBF72895B31}"
 
     styleBits = 5
-    internal = 1
     
     def __init__(self):
         KoLanguageBase.__init__(self)
