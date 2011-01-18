@@ -687,6 +687,40 @@ class KoCommenterLanguageService:
             scimoz.xOffset = xOffset
             break
 
+    _val_sp = ord(' ')
+    _val_tab = ord('\t')
+    def _inLeadingWhiteSpace(self, scimoz, pos, lineStartPos, lineEndPos):
+        firstVisiblePosn = lineStartPos
+        while firstVisiblePosn < lineEndPos:
+            ch = scimoz.getCharAt(firstVisiblePosn)
+            if ch != self._val_sp and ch != self._val_tab:
+                break
+            # No need to use positionAfter, as we're looking for ascii chars
+            firstVisiblePosn += 1
+        if firstVisiblePosn == lineEndPos:
+            return True # It's all whitespace
+        else:
+            return lineStartPos <= pos <= firstVisiblePosn
+    
+    def _inTrailingWhiteSpace(self, scimoz, pos, lineStartPos, lineEndPos):
+        lastVisiblePosn = lineEndPos - 1
+        while lastVisiblePosn >= lineStartPos:
+            ch = scimoz.getCharAt(lastVisiblePosn)
+            if ch != self._val_sp and ch != self._val_tab:
+                break
+            # No need to use positionAfter, as we're looking for ascii chars
+            lastVisiblePosn -= 1
+        if lastVisiblePosn < lineStartPos:
+            return True  # It's all white space
+        else:
+            return lastVisiblePosn < pos <= lineEndPos
+
+    def _inOuterWhiteSpace(self, scimoz, pos, lineNo):
+        lineStartPosn = scimoz.positionFromLine(lineNo)
+        lineEndPosition = scimoz.getLineEndPosition(lineNo)
+        return (self._inLeadingWhiteSpace(scimoz, pos, lineStartPosn, lineEndPosition)
+                or self._inTrailingWhiteSpace(scimoz, pos, lineStartPosn, lineEndPosition))
+
     def _determineMethodAndDispatch(self, scimoz, workers, commenting=True):
         selStart = scimoz.selectionStart
         selEnd = scimoz.selectionEnd
@@ -705,34 +739,21 @@ class KoCommenterLanguageService:
         # Handle line selection mode (as used by vi).
         if scimoz.selectionMode == scimoz.SC_SEL_LINES:
             selStart = scimoz.getLineSelStartPosition(selStartLine)
-            selEnd = scimoz.getLineSelEndPosition(selEndLine)
-        selStartColumn = scimoz.getColumn(selStart)
-        selStartLineEndPosition = scimoz.getLineEndPosition(selStartLine)
-        selEndColumn = scimoz.getColumn(selEnd)
-        selEndLineEndPosition = scimoz.getLineEndPosition(selEndLine)
+            selEnd = scimoz.getLineSelEndPosition(selEndLine)                   
 
-        # determine preferred commenting method (if the selection is _within_
-        # a line then block commenting is preferred)
+        # determine preferred commenting method (if the selection starts or ends
+        # _within_ a line (ignoring leading and trailing white-space)
+        # then block commenting is preferred)
+        #
+        # Otherwise go with block commenting whenever possible.
         if scimoz.selectionMode == scimoz.SC_SEL_LINES or selStart == selEnd:
             preferBlockCommenting = 0
-        elif selEndColumn != 0 and selEnd != selEndLineEndPosition:
-            preferBlockCommenting = 1
-        elif selStartColumn == 0 or selStart == selStartLineEndPosition:
+        elif self._inOuterWhiteSpace(scimoz, selStart, selStartLine)\
+              and self._inOuterWhiteSpace(scimoz, selEnd, selEndLine):
             preferBlockCommenting = 0
         else:
-            startLineFirstVisiblePosn = scimoz.positionFromLine(selStartLine)
-            val_sp = ord(' ')
-            val_tab = ord('\t')
-            while startLineFirstVisiblePosn < selStart:
-                ch = scimoz.getCharAt(startLineFirstVisiblePosn)
-                if ch != val_sp and ch != val_tab:
-                    break
-                # No need to use positionAfter, as we're looking for ascii chars
-                startLineFirstVisiblePosn += 1
-            if selStart == startLineFirstVisiblePosn:
-                preferBlockCommenting = 0
-            else:
-                preferBlockCommenting = 1
+            preferBlockCommenting = 1
+
         if self.DEBUG:
             print "prefer block commenting? %s"\
                   % (preferBlockCommenting and "yes" or "no")
