@@ -286,13 +286,26 @@ class KPFTreeView(TreeView):
             self._tree.invalidate()
 
     def addProject(self, kpf):
-        self._partSvc.addProject(kpf)
-        kpf = UnwrapObject(kpf)
-        self.restorePrefs(kpf)
-        self._partSvc.currentProject = kpf
+        unwrapped_kpf = self._addProjectPrologue(kpf)
         newProjectIndex = len(self._rows)
-        self._rows.append(_ProjectNode(kpf, 0, kpf))
+        self._rows.append(_ProjectNode(unwrapped_kpf, 0, unwrapped_kpf))
         self._tree.rowCountChanged(newProjectIndex, 1)
+        self._addProjectEpilogue(unwrapped_kpf, newProjectIndex)
+
+    def addProjectAtPosition(self, kpf, newProjectIndex):
+        unwrapped_kpf = self._addProjectPrologue(kpf)
+        self._rows.insert(newProjectIndex, _ProjectNode(unwrapped_kpf, 0, unwrapped_kpf))
+        self._tree.rowCountChanged(newProjectIndex, 1)
+        self._addProjectEpilogue(unwrapped_kpf, newProjectIndex)
+        
+    def _addProjectPrologue(self, kpf):
+        self._partSvc.addProject(kpf)
+        unwrapped_kpf = UnwrapObject(kpf)
+        self.restorePrefs(unwrapped_kpf)
+        self._partSvc.currentProject = unwrapped_kpf
+        return unwrapped_kpf
+
+    def _addProjectEpilogue(self, kpf, newProjectIndex):
         if kpf.id not in self._nodeIsOpen:
             self._nodeIsOpen[kpf.id] = False
         elif (self._nodeIsOpen[kpf.id]

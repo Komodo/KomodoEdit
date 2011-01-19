@@ -107,8 +107,12 @@ function PlacesProjectManager(owner) {
 }
 
 PlacesProjectManager.prototype = {
-  addProject: function(project) {
-        this.owner.projectsTreeView.addProject(project);
+  addProject: function(project, position) {
+        if (typeof(position) == "undefined" || position === null) {
+            this.owner.projectsTreeView.addProject(project);
+        } else {
+            this.owner.projectsTreeView.addProjectAtPosition(project, 0);
+        }
     },
   getSelectedItem: function() {
         return this.owner.projectsTreeView.getSelectedItem();

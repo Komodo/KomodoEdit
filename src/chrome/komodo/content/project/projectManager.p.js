@@ -702,7 +702,7 @@ projectManager.prototype._addProject = function(project, inTimeout/*=false*/) {
     this._projects.push(project);
     // add project to project tree
     if (this.viewMgr) {
-        this.viewMgr.addProject(project);
+        this.viewMgr.addProject(project, 0);
         this.viewMgr.refresh(project);
     }
     this.setCurrentProject(project);
