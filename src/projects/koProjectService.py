@@ -76,13 +76,11 @@ class KomodoWindowData(object):
         if not self._currentProject:
             return None
         part = self._currentProject.getChildByURL(url)
-        if not part:
-            for p in self._projects:
-                part = p.getChildByURL(url)
-                if part:
-                    break
         if part:
-            return part.prefset
+            try:
+                return part.prefset
+            except:
+                log.exception("No prefset for part %s", part)
         return None
 
     def getPartById(self, id):
