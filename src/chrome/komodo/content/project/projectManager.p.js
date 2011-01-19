@@ -781,6 +781,7 @@ projectManager.prototype.getSelectedProject = function() {
 projectManager.prototype.registerCommands = function() {
     var em = ko.projects.extensionManager;
     em.registerCommand("cmd_closeProject",this);
+    em.registerCommand("cmd_closeAllProjects",this);
     em.registerCommand("cmd_findInCurrProject",this);
     em.registerCommand("cmd_importPackageToToolbox",this);
     em.registerCommand("cmd_newProject",this);
@@ -801,6 +802,7 @@ projectManager.prototype.registerCommands = function() {
 projectManager.prototype.supportsCommand = function(command, item) {
     switch(command) {
     case "cmd_closeProject":
+    case "cmd_closeAllProjects":
     case "cmd_findInCurrProject":
     case "cmd_importPackageToToolbox":
     case "cmd_newProject":
@@ -851,6 +853,8 @@ projectManager.prototype.isCommandEnabled = function(command) {
     case "cmd_revertProject":
         var project = this.getSelectedProject();
         return (project && project.isDirty);
+    case "cmd_closeAllProjects":
+        return this._projects.length > 0;
     }
     } catch(e) {
         this.log.exception(e);
@@ -902,6 +906,9 @@ projectManager.prototype.doCommand = function(command) {
         break;
     case "cmd_closeProject":
         this.closeProject(this.getSelectedProject());
+        break;
+    case "cmd_closeAllProjects":
+        this.closeAllProjects();
         break;
     case "cmd_saveProject":
         this.saveProject(this.getSelectedProject());

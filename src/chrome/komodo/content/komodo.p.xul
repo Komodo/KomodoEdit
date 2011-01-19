@@ -1536,6 +1536,10 @@
                                       observes="cmd_closeProject"
                                       addProjectName="true"
                                       />
+                            <menuitem label="&closeAllProjects.label;"
+                                      id="menu_closeAllProjects"
+                                      observes="cmd_closeAllProjects"
+                                      />
                             <menuitem label="&showProjectInPlaces.label;"
                                       id="menu_showProjectInPlaces"
                                       observes="cmd_showProjectInPlaces"

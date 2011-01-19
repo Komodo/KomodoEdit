@@ -64,6 +64,7 @@
 <!ENTITY closeTab.menuitem.accesskey "T">
 <!ENTITY closeTab.menuitem.label "Current Tab">
 <!ENTITY closeProject.label "Close Project">
+<!ENTITY closeAllProjects.label "Close All Projects">
 <!ENTITY code.label "Code">
 <!ENTITY codeConvertFromHexMenu.label "From Hexadecimal">
 <!ENTITY codeConvertToHexMenu.label "To Hexadecimal">
@@ -270,6 +271,7 @@
 <!ENTITY fullScreen.accesskey "F">
 <!ENTITY fullScreen.label "Full Screen">
 <!ENTITY generalCloseProject.desc "General: Close Project">
+<!ENTITY generalCloseAllProjects.desc "General: Close All Projects">
 <!ENTITY generalCreateTemplateFromProject.desc "General: Create Template From Project...">
 <!ENTITY generalEditProperties.desc "General: Edit Properties">
 <!ENTITY generalExportAsHTML.desc "General: Export as HTML...">
