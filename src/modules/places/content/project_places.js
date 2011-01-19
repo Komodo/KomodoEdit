@@ -734,7 +734,17 @@ this._openProject = function(inNewWindow) {
 };
 
 this.editProjectProperties = function() {
-    this._getProjectItemAndOperate("fileProperties", ko.projects);
+    var items = this.manager.getSelectedItems();
+    var filtered_items = items.filter(function(item) item.type != "project");
+    if (filtered_items.length) {
+        log.warn("Function editProjectProperties is intended only for projects");
+        return;
+    } else if (items.length != 1) {
+        log.warn("Function editProjectProperties is intended for only one project");
+        return;
+    }
+    var item = ko.places.getItemWrapper(items[0].url, 'project');
+    ko.projects.fileProperties(item, null, true);
 };
 
 this.toggleSubpanel = function() {
