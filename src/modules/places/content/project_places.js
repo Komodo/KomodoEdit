@@ -370,6 +370,10 @@ this.initProjectsContextMenu = function(event, menupopup) {
     var selectedIndices = ko.treeutils.getSelectedIndices(treeView,
                                                           false /*rootsOnly*/);
     var selectedItems = selectedIndices.map(function(i) treeView.getRowItem(i));
+    var currentProject = ko.projects.manager.currentProject;
+    if (!selectedItems.length && currentProject) {
+        selectedItems = [currentProject];
+    }
     var selectedUrls = selectedItems ? selectedItems.map(function(item) item.url) : [];
     var isRootNode = !selectedItems.length && index == -1;
     var itemTypes;
@@ -378,7 +382,6 @@ this.initProjectsContextMenu = function(event, menupopup) {
     } else {
         itemTypes = selectedItems.map(function(item) item.type);
     }
-    var currentProject = ko.projects.manager.currentProject;
     this._selectionInfo = {
       currentProject: (selectedUrls.length == 1
                        && currentProject
@@ -390,7 +393,8 @@ this.initProjectsContextMenu = function(event, menupopup) {
       needSeparator: [false],
       lastVisibleNode: null,
       selectedUrls: selectedUrls,
-      isLocal: selectedUrls[0].indexOf("file://") == 0,
+      noneSelected: selectedUrls.length == 0,
+      isLocal: selectedUrls.length > 0 && selectedUrls[0].indexOf("file://") == 0,
       __END__:null
     };
     this._processProjectsMenu_TopLevel(menupopup);
@@ -426,7 +430,9 @@ this._processProjectsMenu_TopLevel = function(menuNode) {
     selectionInfo.lastVisibleNode = menuNode;
     menuNode.removeAttribute('collapsed');
     var disableNode = false;
-    if (ko.places.matchAnyType(menuNode.getAttribute('disableIf'), itemTypes)) {
+    if (selectionInfo.noneSelected) {
+        disableNode = true;
+    } else if (ko.places.matchAnyType(menuNode.getAttribute('disableIf'), itemTypes)) {
         disableNode = true;
     } else if (!ko.places.matchAllTypes(menuNode.getAttribute('disableUnless'), itemTypes)) {
         disableNode = true;
