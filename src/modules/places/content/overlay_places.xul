@@ -838,6 +838,9 @@
             hidecolumnpicker="true"
             context="places-projects-popup"
             class="projectPlacesTree"
+	    ondragstart="ko.places.projects.stopEvent(event);"
+	    ondragenter="ko.places.projects.stopEvent(event);"
+	    ondrop="return ko.places.projects.stopEvent(event);"
             seltype="multiple">
           <treecols id="placesSubpanelProjectsTreecols">
             <treecol id="placesSubpanelProjectNameTreecol"

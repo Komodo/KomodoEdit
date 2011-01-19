@@ -777,6 +777,12 @@ this._updateSubpanelFromState = function() {
     }
 }
 
+this.stopEvent = function(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    return false;
+};
+
 xtk.include("treeview");
 this.PlaceProjectsTreeView = function() {
     xtk.dataTreeView.apply(this, []);
