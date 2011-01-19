@@ -7,11 +7,10 @@ var dirname, include, exclude, importLive, project;
 var last_local_directory;
 var last_remote_directory;
 
-function PrefFolderImport_OnLoad() {
-    parent.hPrefWindow.onpageload();
-}
+// "pfi" : project-folderImport prefix for global functions
+//         that might collide with function names in file-properties.p.js
 
-function OnPreferencePageLoading(prefset) {
+function pfi_OnPreferencePageLoading(prefset) {
     dirname = document.getElementById('import_dirname');
     include = document.getElementById('import_include_matches');
     exclude = document.getElementById('import_exclude_matches');
@@ -34,7 +33,7 @@ function OnPreferencePageLoading(prefset) {
                      || "");
 }
 
-function OnPreferencePageOK(prefset) {
+function pfi_OnPreferencePageOK(prefset) {
     prefset.setStringPref('last_local_directory', last_local_directory);
     prefset.setStringPref('last_remote_directory', last_remote_directory);
     return true;

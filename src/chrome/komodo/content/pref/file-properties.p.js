@@ -1,0 +1,576 @@
+/* Copyright (c) 2000-2011 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+
+var bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+        .getService(Components.interfaces.nsIStringBundleService)
+        .createBundle("chrome://komodo/locale/pref/file-properties.properties");
+var data = {};
+var gEncodingSvc = Components.classes["@activestate.com/koEncodingServices;1"].
+                   getService(Components.interfaces.koIEncodingServices);
+var g_isProject;
+xtk.include("domutils");
+
+function OnPreferencePageLoading(prefset) {
+    try {
+        data.importFrame = document.getElementById("importFrame");
+        g_isProject = parent.part.type == "project";
+        data.importFrame.setAttribute("collapsed", !g_isProject);
+        data.readonly = document.getElementById("readonly");
+        data.permissions_label = document.getElementById("file_permissions_label");
+        data.permissions_button = document.getElementById("file_permissions_button");
+        data.encoding = document.getElementById("encoding");
+        data.language = document.getElementById("language");
+        data.lineEndings = document.getElementById("lineEndings");
+        data.bom = document.getElementById("bom");
+        data.preserveLineEndings = document.getElementById("preserveLineEndings");
+        data.mixedLineEndings = document.getElementById("mixedLineEndings");
+        data.resetButton = document.getElementById("btn-reset");
+        data.changedFields = {};
+    
+        if (parent.part) {
+            /**
+             * @type {Components.interfaces.koIFileEx}
+             */
+            data.file = parent.part.getFile();
+        } else {
+            data.file = parent.view.koDoc.file;
+        }
+        if (data.file && !data.file_permissions && data.file.isRemoteFile) {
+            // This is a bit of a hack for remote files. Forces the file to update
+            // it's stats, otherwise the permissions will not have yet been loaded,
+            // making the file incorrectly look as if it has no permissions set.
+            // This is occurs when the file contents have not been loaded, such as
+            // for a remote file in the project tree.
+            data.file.open("r");
+            data.file.close();
+        }
+        data.file_permissions = data.file ? data.file.permissions : 0;
+    
+        data.prefset = prefset;
+    
+        initViewDependentUI();
+        initFileProperties();
+    
+        var lang = null;
+        if (parent.view) {
+            lang = _getMarkupLanguage();
+            if (lang) {
+                data.declPrefName = "default"+lang+"Decl";
+                data.nsPrefName = "default"+lang+"Namespace";
+                initDocumentType(prefset);
+            }
+        }
+        if (!lang) {
+            var el = document.getElementById("markupSettings");
+            el.parentNode.removeChild(el);
+        }
+        if (g_isProject) {
+            pfi_OnPreferencePageLoading(prefset);
+        }
+    } catch (e) {
+        log.exception(e);
+    }
+}
+
+function _getMarkupLanguage() {
+    var domLanguages = ["XML", "HTML", "XHTML", "XSLT"];
+    var langSvc = parent.view.koDoc.languageObj;
+    var found = domLanguages.indexOf(langSvc.name) >= 0 ? langSvc.name:null;
+    if (!found) {
+        var languages = langSvc.getSubLanguages(new Object());
+        for (var i=0; i < languages.length; i++) {
+            if (domLanguages.indexOf(languages[i]) >= 0) {
+                found = languages[i];
+                break;
+            }
+        }
+        if (!found) return null;
+    }
+    return found;
+}
+
+function initDocumentType(prefset) {
+    try {
+        var catSvc = Components.classes["@activestate.com/koXMLCatalogService;1"].
+                           getService(Components.interfaces.koIXMLCatalogService);
+        var decl = null;
+        var idlist;
+        if (prefset.hasPrefHere(data.declPrefName)) {
+            decl = prefset.getStringPref(data.declPrefName);
+        }
+        idlist = catSvc.getPublicIDList(new Object());
+        _initTypePopup(idlist, "doctypePopup", decl, /\/\/DTD/);
+        
+        decl = null;
+        if (prefset.hasPrefHere(data.nsPrefName)) {
+            decl = prefset.getStringPref(data.nsPrefName);
+        }
+        idlist = catSvc.getNamespaceList(new Object());
+        _initTypePopup(idlist, "namespacePopup", decl, null);
+    } catch(e) {
+        log.exception(e);
+    }
+}
+
+function _initTypePopup(list, popupId, defaultSetting, matchRx) {
+    var popup = document.getElementById(popupId);
+    var selected = popup.firstChild;
+    for (var i =0 ; i < list.length; i++) {
+        if (matchRx && !list[i].match(matchRx)) continue;
+        var el = document.createElement("menuitem");
+        el.setAttribute("label", list[i]);
+        popup.appendChild(el);
+        if (list[i] == defaultSetting) selected = el;
+    }
+    popup.parentNode.selectedItem = selected;
+}
+
+function OnPreferencePageOK(prefset) {
+    if (g_isProject) {
+        pfi_OnPreferencePageOK(prefset);
+    }
+    return true;
+}
+
+function OnPreferencePageClosing(prefset, ok) {
+    if (!ok) return ok;
+    try {
+        var lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"].
+                           getService(Components.interfaces.koILastErrorService);
+        var observerSvc = Components.classes["@mozilla.org/observer-service;1"].
+                          getService(Components.interfaces.nsIObserverService);
+
+        var field, value;
+        for (field in data.changedFields) {
+            value = data.changedFields[field];
+            log.info("updating changed field '"+field+"' to '"+value+"'\n");
+            switch(field) {
+            case "readonly":
+                if (value != data.file.isReadOnly) {
+                    var osSvc = Components.classes["@activestate.com/koOs;1"].
+                                 getService(Components.interfaces.koIOs);
+                    var path = data.file.displayPath;
+                    try {
+                        osSvc.setWriteability(path, !value);
+                    } catch(ex) {
+                        ko.dialogs.alert(
+                            bundle.formatStringFromName("errorSettingReadonlyModeFor.message",
+                            [parent.view.title, lastErrorSvc.getLastErrorMessage()], 2));
+                        data.readonly.focus();
+                        return false;
+                    }
+                    observerSvc.notifyObservers(null, "file_status_now",
+                                                data.file.URI);
+                }
+                break;
+
+            case "file_permissions":
+                if (value != data.file.permissions) {
+                    data.file.chmod(value);
+                    observerSvc.notifyObservers(null, "file_status_now",
+                                                data.file.URI);
+                }
+                break;
+
+            case "language":
+                if (value == "" || value != parent.view.koDoc.language) {
+                    parent.view.koDoc.language = value;
+                    xtk.domutils.fireEvent(parent.view, 'current_view_language_changed');
+                }
+                break;
+
+            case "lineEndings":
+                var le;
+                if (value == "EOL_LF") {
+                    le = parent.view.koDoc.EOL_LF;
+                } else if (value == "EOL_CR") {
+                    le = parent.view.koDoc.EOL_CR;
+                } else if (value == "EOL_CRLF") {
+                    le = parent.view.koDoc.EOL_CRLF;
+                }
+                // If we've changed things, save it as a pref.
+                if (parent.view.koDoc.new_line_endings != le) {
+                    var eolpref = '';
+                    switch (le) {
+                        case parent.view.koDoc.EOL_LF: eolpref = 'LF'; break;
+                        case parent.view.koDoc.EOL_CR: eolpref = 'CR'; break;
+                        case parent.view.koDoc.EOL_CRLF: eolpref = 'CRLF'; break;
+                        default:
+                            log.error("unknown line ending: " + le);
+                    }
+                    if (eolpref) {
+                        parent.view.prefs.setStringPref('endOfLine', eolpref);
+                    }
+                }
+                // Make the change even if 'le' is unchanged to allow a
+                // change to "Preserve Line Endings" on EOL_MIXED files to
+                // correct the file.
+                parent.view.koDoc.new_line_endings = le;
+                if (! data.preserveLineEndings.checked) {
+                    // This changes the current document's line endings.
+                    parent.view.koDoc.existing_line_endings = le;
+                }
+                break;
+
+            case "encoding_and_or_bom":
+                var encodingName = data.encoding.getAttribute("data");
+                var bom = ((!data.bom.getAttribute("disabled") || data.bom.getAttribute("disabled") == "false")
+                           && data.bom.checked);
+                if (!applyEncodingAndBOM(encodingName, bom)) return false;
+                xtk.domutils.fireEvent(window, 'current_view_encoding_changed');
+                break;
+
+            default:
+                log.error("Don't know how to update changed field '"+field+"'.");
+            }
+        }
+
+        var popup = document.getElementById("doctypePopup");
+        if (popup) {
+            var decl;
+            if (popup.parentNode.selectedItem != popup.firstChild) {
+                decl = popup.parentNode.selectedItem.getAttribute("label");
+                prefset.setStringPref(data.declPrefName, decl);
+            } else if (prefset.hasPrefHere(data.declPrefName)) {
+                prefset.deletePref(data.declPrefName);
+                if (parent.view.prefs.hasPrefHere(parent.view.prefs))
+                    parent.view.prefs.deletePref(data.declPrefName);
+            }
+        }
+        popup = document.getElementById("namespacePopup");
+        if (popup) {
+            if (popup.parentNode.selectedItem != popup.firstChild) {
+                decl = popup.parentNode.selectedItem.getAttribute("label");
+                prefset.setStringPref(data.nsPrefName, decl);
+            } else if (prefset.hasPrefHere(data.nsPrefName)) {
+                prefset.deletePref(data.nsPrefName);
+                if (parent.view.prefs.hasPrefHere(parent.view.prefs))
+                    parent.view.prefs.deletePref(data.nsPrefName);
+            }
+        }
+        return true;
+    } catch (ex) {
+        log.exception(ex, "Error OK'ing dialog.");
+    }
+    return false;
+}
+
+function setField(name, value)
+{
+    data.changedFields[name] = value;
+}
+
+// This function handles the disabled/enabled state of UI elements
+// depending on the language (or other view attributes).
+function initViewDependentUI()  {
+    if (!parent.view) {
+        var el = document.getElementById("file-settings");
+        el.parentNode.removeChild(el);
+    } else {
+        initDocumentSettings();
+    }
+}
+
+function initFileProperties()
+{
+    try {
+        var name, dirname, size, ctime, mtime, atime, readonly;
+
+        if (!data.file) {
+            name = parent.view.title;
+            dirname = size = ctime = mtime = atime = "N/A";
+            readonly = null; // means disabled (N/A)
+        } else {
+            name = data.file.baseName;
+
+            dirname = data.file.dirName;
+            size = bundle.formatStringFromName("bytes.message", [data.file.fileSize], 1);
+
+            // Time info.
+            var timeSvc = Components.classes["@activestate.com/koTime;1"].
+                            getService(Components.interfaces.koITime);
+            var prefSvc = Components.classes['@activestate.com/koPrefService;1'].
+                            getService(Components.interfaces.koIPrefService);
+            var format = data.prefset.getStringPref("defaultDateFormat");
+            var timeTuple;
+            timeTuple = timeSvc.localtime(data.file.createdTime, new Object());
+            ctime = timeSvc.strftime(format, timeTuple.length, timeTuple);
+            timeTuple = timeSvc.localtime(data.file.lastModifiedTime, new Object());
+            mtime = timeSvc.strftime(format, timeTuple.length, timeTuple);
+            timeTuple = timeSvc.localtime(data.file.lastAccessedTime, new Object());
+            atime = timeSvc.strftime(format, timeTuple.length, timeTuple);
+
+            // Determine read-only status.
+            readonly = data.file.isReadOnly;
+        }
+
+        // Update UI with data.
+        document.getElementById("properties-name").value = name;
+        document.getElementById("location").value = dirname;
+        document.getElementById("size").value = size;
+// #if PLATFORM == "win"
+        document.getElementById("created").value = ctime;
+// #endif
+        document.getElementById("modified").value = mtime;
+        document.getElementById("accessed").value = atime;
+        if (readonly == null) { // i.e. N/A
+            data.readonly.checked = false;
+            data.readonly.setAttribute("tooltiptext",
+                    bundle.GetStringFromName("notApplicable.message"));
+            data.readonly.setAttribute("disabled", "true");
+            data.permissions_label.setAttribute("hidden", "true");
+            data.permissions_button.setAttribute("hidden", "true");
+        } else {
+            if (!data.file.isRemoteFile && navigator.platform.substr(0, 3).toLowerCase() == "win") {
+                /* Windows only gets to change the readonly attribute. */
+                data.readonly.setAttribute("hidden", "false");
+                data.permissions_label.setAttribute("hidden", "true");
+                data.permissions_button.setAttribute("hidden", "true");
+                data.readonly.checked = readonly;
+                if (data.readonly.hasAttribute("disabled"))
+                    data.readonly.removeAttribute("disabled");
+                if (data.readonly.hasAttribute("tooltiptext"))
+                    data.readonly.removeAttribute("tooltiptext");
+            } else {
+                /* Linux/Mac and remote files get to change all permissions. */
+                data.readonly.setAttribute("hidden", "true");
+                data.permissions_label.setAttribute("hidden", "false");
+                data.permissions_button.setAttribute("hidden", "false");
+                displayFilePermissions();
+            }
+        }
+    } catch(ex) {
+        log.exception(ex, "Error updating file properties.");
+    }
+}
+
+
+function displayFilePermissions()
+{
+    try {
+        var koIFileEx = Components.interfaces.koIFileEx;
+        var label = "";
+        var mode = data.file_permissions;
+        label += koIFileEx.isDirectory ? "d" : "-";
+
+        /* User permissions */
+        label += mode & koIFileEx.PERM_IRUSR ? "r" : "-";
+        label += mode & koIFileEx.PERM_IWUSR ? "w" : "-";
+        if (mode & koIFileEx.PERM_ISUID) {
+            label += mode & koIFileEx.PERM_IXUSR ? "s" : "S";
+        } else {
+            label += mode & koIFileEx.PERM_IXUSR ? "x" : "-";
+        }
+
+        /* Group permissions */
+        label += mode & koIFileEx.PERM_IRGRP ? "r" : "-";
+        label += mode & koIFileEx.PERM_IWGRP ? "w" : "-";
+        if (mode & koIFileEx.PERM_ISGID) {
+            label += mode & koIFileEx.PERM_IXGRP ? "s" : "S";
+        } else {
+            label += mode & koIFileEx.PERM_IXGRP ? "x" : "-";
+        }
+
+        /* Other permissions */
+        label += mode & koIFileEx.PERM_IROTH ? "r" : "-";
+        label += mode & koIFileEx.PERM_IWOTH ? "w" : "-";
+        if (mode & koIFileEx.PERM_ISVTX) {
+            label += mode & koIFileEx.PERM_IXOTH ? "t" : "T";
+        } else {
+            label += mode & koIFileEx.PERM_IXOTH ? "x" : "-";
+        }
+        data.permissions_label.setAttribute("value", label);
+    } catch(ex) {
+        log.exception(ex, "Error updating file attributes.");
+    }
+}
+
+
+function changeFilePermissions()
+{
+    try {
+        var args = {
+            "permissions": data.file_permissions,
+            "retval": 0
+        };
+        ko.windowManager.openDialog(
+                "chrome://komodo/content/pref/file-permissions.xul",
+                "Komodo:FilePermissions",
+                "chrome,modal,resizable,close,centerscreen",
+                args);
+        if (args.retval == Components.interfaces.nsIFilePicker.returnOK) {
+            setField('file_permissions', args.permissions);
+            data.file_permissions = args.permissions;
+            displayFilePermissions();
+        }
+    } catch(ex) {
+        log.exception(ex, "Error updating file attributes.");
+    }
+}
+
+
+function initDocumentSettings()
+{
+    if (!parent.view) return;
+    try {
+        // Language
+        data.language.selection = parent.view.koDoc.language;
+
+        // Encoding
+        initEncoding();
+
+        // Line endings
+        var nle = parent.view.koDoc.new_line_endings;
+        if (nle == parent.view.koDoc.EOL_LF) {
+            data.lineEndings.value = "EOL_LF";
+        } else if (nle == parent.view.koDoc.EOL_CR) {
+            data.lineEndings.value = "EOL_CR";
+        } else if (nle == parent.view.koDoc.EOL_CRLF) {
+            data.lineEndings.value = "EOL_CRLF";
+        }
+
+        if (parent.view.koDoc.existing_line_endings == parent.view.koDoc.EOL_MIXED) {
+            if (data.mixedLineEndings.hasAttribute("collapsed"))
+                data.mixedLineEndings.removeAttribute("collapsed");
+        } else {
+            data.mixedLineEndings.setAttribute("collapsed", "true");
+        }
+        // Always preserve the current document by default.
+        data.preserveLineEndings.checked = true;
+
+    } catch(ex) {
+        log.exception(ex, "Error updating settings.");
+    }
+}
+
+
+function resetLanguage() {
+    try {
+        var registry = Components.classes["@activestate.com/koLanguageRegistryService;1"].
+                       getService(Components.interfaces.koILanguageRegistryService);
+        var language = registry.suggestLanguageForFile(parent.view.title);
+        data.language.selection = language;
+        setField("language", "");  // empty string means to reset
+    } catch(ex) {
+        log.exception(ex, "Error resetting language.");
+    }
+}
+
+
+function initEncoding()  {
+    var enc = parent.view.koDoc.encoding;  // koIEncoding object
+    var encIndex = gEncodingSvc.get_encoding_index(enc.python_encoding_name);
+
+    // Build the menupopup.
+    var menupopup = ko.widgets.getEncodingPopup(gEncodingSvc.encoding_hierarchy,
+                                                true,
+                                                'changeEncoding(this)'); // action
+    if (encIndex == -1) {
+        // Current encoding is not in the std encoding list -- prepend it.
+        var menuitem = document.createElementNS(XUL_NS, 'menuitem');
+        menuitem.setAttribute('data', enc.python_encoding_name);
+        menuitem.setAttribute('label', enc.friendly_encoding_name);
+        menuitem.setAttribute('oncommand', 'changeEncoding(this)');
+        menupopup.insertBefore(menuitem, menupopup.childNodes[0]);
+    }
+    data.encoding.appendChild(menupopup);
+
+    // Make sure current is selected.
+    var currentItem = (encIndex == -1
+                       ? menupopup.childNodes[0]
+                       : document.getElementsByAttribute('data', enc.python_encoding_name)[0]);
+    data.encoding.setAttribute('label', currentItem.getAttribute('label'));
+    data.encoding.setAttribute('data', currentItem.getAttribute('data'));
+
+    // Init BOM checkbox.
+    data.bom.checked = enc.use_byte_order_marker;
+    updateBOM(enc.encoding_info);
+}
+
+
+function updateBOM(encodingInfo)
+{
+    if (encodingInfo.byte_order_marker) {
+        if (data.bom.hasAttribute("disabled"))
+            data.bom.removeAttribute("disabled");
+    } else {
+        data.bom.setAttribute('disabled', 'true');
+        data.bom.checked = false;
+    }
+}
+
+
+function changeEncoding(item)
+{
+    data.encoding.setAttribute('label', item.getAttribute('label'));
+    data.encoding.setAttribute('data', item.getAttribute('data'));
+    var encodingName = item.getAttribute("data");
+    updateBOM(gEncodingSvc.get_encoding_info(encodingName));
+    setField("encoding_and_or_bom", encodingName);
+}
+
+
+// Apply the given encoding and BOM changes to the current document.
+//
+// Returns true iff any changes were successfully made.
+//
+function applyEncodingAndBOM(encodingName, bom)
+{
+    // Short-circuit if the encoding name is the same.
+    if (encodingName == parent.view.koDoc.encoding.python_encoding_name) {
+        parent.view.koDoc.encoding.use_byte_order_marker = bom;
+        parent.view.koDoc.isDirty = true;
+        return true;
+    }
+
+    var enc = Components.classes["@activestate.com/koEncoding;1"].
+                     createInstance(Components.interfaces.koIEncoding);
+    enc.python_encoding_name = encodingName;
+    enc.use_byte_order_marker = bom;
+
+    var warning = parent.view.koDoc.languageObj.getEncodingWarning(enc);
+    var question = bundle.formatStringFromName(
+        "areYouSureThatYouWantToChangeTheEncoding.message", [warning], 1);
+    if (warning == "" || ko.dialogs.yesNo(question, "No") == "Yes") {
+        try {
+            parent.view.koDoc.encoding = enc;
+            // and reset the linting
+            parent.view.lintBuffer.request();
+        } catch(ex) {
+            var err;
+            var lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"].
+                               getService(Components.interfaces.koILastErrorService);
+            var errno = lastErrorSvc.getLastErrorCode();
+            var errmsg = lastErrorSvc.getLastErrorMessage();
+            if (errno == 0) {
+                // koDocument.set_encoding() says this is an internal error
+                err = this._bundle.formatStringFromName("internalErrorSettingTheEncoding.message",
+                        [parent.view.koDoc.displayPath, encodingName], 2);
+                ko.dialogs.internalError(err, err+"\n\n"+errmsg, ex);
+            } else {
+                question = bundle.formatStringFromName("force.conversion.message", [errmsg], 1);
+                var choice = ko.dialogs.customButtons(question,
+                        [bundle.GetStringFromName("force.message.one"),
+                         bundle.GetStringFromName("cancel.message")],
+                        bundle.GetStringFromName("cancel.message")); // default
+                if (choice == bundle.GetStringFromName("force.message.two")) {
+                    try {
+                        parent.view.koDoc.forceEncodingFromEncodingName(encodingName);
+                    } catch (ex2) {
+                        err = this._bundle.formatStringFromName(
+                                "theSampleProjectCouldNotBeFound.message",
+                                [parent.view.koDoc.baseName, encodingName], 2);
+                        ko.dialogs.internalError(err, err+"\n\n"+errmsg, ex);
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    return false;
+}
