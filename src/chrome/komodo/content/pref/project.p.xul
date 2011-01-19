@@ -114,30 +114,30 @@
         // figure out what nodes we want to remove based on what kind of
         // item we're view prefs for
         var isProject = part && part.type == "project";
-        var nodes = [];
+        var nodesToDrop = [];
         if (!view) {
             // XXX until prefs are more worked out, don't do editor prefs
             // on project parts
-            nodes = nodes.concat(["advancedFileProperties",
-                                  "editorProperties",
-                                  "previewProperties"]);
+            nodesToDrop = nodesToDrop.concat(["advancedFileProperties",
+                                              "editorProperties",
+                                              "previewProperties"]);
         }
         if (!isfolder) {
             // stuff that should only show up on folders
-            nodes = nodes.concat(["folderImport"]);
+            nodesToDrop = nodesToDrop.concat(["folderImport"]);
         }
         if (!isProject) {
             // stuff that should ONLY show up on project prefs
-            nodes = nodes.concat(["mappedURIsItem", "newFilesItem",
-                                  "environItem", "languagesItem",
-                                  "debugProperties"]);
+            nodesToDrop = nodesToDrop.concat(["mappedURIsItem", "newFilesItem",
+                                              "environItem", "languagesItem",
+                                              "debugProperties"]);
             if (isfolder) {
                 // stuff that should NOT show up on non-project folders
-                nodes = nodes.concat(["fileProperties",
-                                      "editorProperties"]);
+                nodesToDrop = nodesToDrop.concat(["fileProperties",
+                                                  "editorProperties"]);
             }        
         }
-        removeTreeNodes(nodes);
+        removeTreeNodes(nodesToDrop);
         
         //dump("part "+part+" name "+part.name+"\n");
         //part.prefset.dump(0);
@@ -239,7 +239,7 @@
                          label="&category.label;" flex="1"/>
             </treecols>
 
-            <treechildren id="panelChildren" flex="1">
+            <treechildren id="panelChildren" flex="1">                
                 <treeitem container="false" id="fileProperties">
                     <treerow>
                         <treecell class="treecell-indent"
@@ -248,14 +248,6 @@
                     </treerow>
                 </treeitem>
 
-                <treeitem container="false" id="folderImport">
-                    <treerow>
-                        <treecell class="treecell-indent"
-                                  url="chrome://komodo/content/pref/project-folderImport.xul"
-                                  label="&directoryAndPlaceViews.label;"
-                                  helptag="directory_import"/>
-                    </treerow>
-                </treeitem>
 
                 <treeitem container="true" id="editorProperties">
                     <treerow>

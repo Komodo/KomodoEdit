@@ -8,6 +8,7 @@ var bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
 var data = {};
 var gEncodingSvc = Components.classes["@activestate.com/koEncodingServices;1"].
                    getService(Components.interfaces.koIEncodingServices);
+const XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
 var g_isProject;
 xtk.include("domutils");
 
