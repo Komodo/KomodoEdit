@@ -295,18 +295,23 @@ class KoLanguageRegistryService:
         result = self._addonsEnabled.get(id)
         if result is None:
             result = False
-            extMgr = components.classes["@mozilla.org/extensions/manager;1"]. \
-                        getService(components.interfaces.nsIExtensionManager)
-            item = extMgr.getItemForID(id)
-            if item:
-                extMgrDs = extMgr.datasource
-                rdfSvc = components.classes["@mozilla.org/rdf/rdf-service;1"].getService(components.interfaces.nsIRDFService)
-                if extMgrDs and rdfSvc:
-                    source = rdfSvc.GetResource("urn:mozilla:item:" + id)
-                    property = rdfSvc.GetResource("http://www.mozilla.org/2004/em-rdf#isDisabled")
-                    target = rdfSvc.GetLiteral("true")
-                    disabled = extMgrDs.HasAssertion(source, property, target, True)
-                    result = not disabled
+            try:
+                extMgr = components.classes["@mozilla.org/extensions/manager;1"]. \
+                            getService(components.interfaces.nsIExtensionManager)
+                item = extMgr.getItemForID(id)
+                if item:
+                    extMgrDs = extMgr.datasource
+                    rdfSvc = components.classes["@mozilla.org/rdf/rdf-service;1"].getService(components.interfaces.nsIRDFService)
+                    if extMgrDs and rdfSvc:
+                        source = rdfSvc.GetResource("urn:mozilla:item:" + id)
+                        property = rdfSvc.GetResource("http://www.mozilla.org/2004/em-rdf#isDisabled")
+                        target = rdfSvc.GetLiteral("true")
+                        disabled = extMgrDs.HasAssertion(source, property, target, True)
+                        result = not disabled
+            except COMException:
+                log.warn("addonIsEnabled:: unable to obtain the nsIExtensionManager service")
+                # Not available in the test environment.
+                result = False
             self._addonsEnabled[id] = result
         return result
 
