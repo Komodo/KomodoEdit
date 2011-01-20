@@ -98,6 +98,8 @@
 <!ENTITY placeView_sortNatural.desc "Places: Sort items by natural order" >
 <!ENTITY placeView_sortAscending.desc "Places: Sort items by ascending order">
 <!ENTITY placeView_sortDescending.desc "Places: Sort items by descending order">
+<!ENTITY sortProjectsDescending.desc "Places: Sort projects by descending order">
+<!ENTITY sortProjectsAscending.desc "Places: Sort projects by ascending order">
 
 <!-- manageViewFilters.xul -->
 <!ENTITY manageViewFilters.caption "Specify Files and Directories to Exclude">

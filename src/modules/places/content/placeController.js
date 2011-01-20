@@ -314,6 +314,43 @@ PlacesController.prototype.is_cmd_placeView_showCurrent_TabInPlaces_enabled = fu
 PlacesController.prototype.do_cmd_placeView_showCurrent_TabInPlaces = function() {
     ko.places.manager.showCurrentEditorTab();
 }
+
+PlacesController.prototype._haveProjects = function() {
+    try {
+        var obj = ko.places;
+        if (!obj) return False;
+        obj = obj.projects;
+        if (!obj) return False;
+        obj = obj.projectsTreeView;
+        if (!obj) return False;
+        return obj.rowCount > 0;
+    } catch(ex) {
+        // ko.places.projects.projectsTreeView might not be defined yet.
+        return false;
+    }
+};
+
+PlacesController.prototype.is_cmd_sortProjectsDescending_enabled = function() {
+    return this._haveProjects();
+}
+
+PlacesController.prototype.do_cmd_sortProjectsDescending = function() {
+    if (this._haveProjects()) {
+        var mgr = ko.places.projects.manager;
+        mgr.sortProjects(mgr.sortDescending);
+    }
+}
+
+PlacesController.prototype.is_cmd_sortProjectsAscending_enabled = function() {
+    return this._haveProjects();
+}
+
+PlacesController.prototype.do_cmd_sortProjectsAscending = function() {
+    if (this._haveProjects()) {
+        var mgr = ko.places.projects.manager;
+        mgr.sortProjects(mgr.sortAscending);
+    }
+}
           
 PlacesController.prototype.supportsCommand = function(command) {
     return ("is_" + command + "_enabled") in this;

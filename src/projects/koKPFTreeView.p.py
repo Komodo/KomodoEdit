@@ -44,7 +44,7 @@ import koToolbox2
 import logging
 
 log = logging.getLogger("ProjectTreeView")
-log.setLevel(logging.DEBUG)
+#log.setLevel(logging.DEBUG)
 
 # some constants used for live folders
 _rebuildDirFlags = \
@@ -97,6 +97,22 @@ class _FileNode(_Node):
 
 class _RemoteFileNode(_Node):
     pass
+
+def compareNodeFolder(a, b, field):
+    a_c = hasattr(a, 'children')
+    b_c = hasattr(b, 'children')
+    if a_c and not b_c:
+        return -1
+    elif b_c and not a_c:
+        return 1
+    return compareNode(a,b,field)
+
+def compareNode(a, b, field):
+    aval = a.getFieldValue(field)
+    bval = b.getFieldValue(field)
+    if isinstance(aval, types.StringTypes):
+        return cmp(aval.lower(), bval.lower())
+    return cmp(aval, bval)
 
 class KPFTreeView(TreeView):
     _com_interfaces_ = [components.interfaces.nsIObserver,
@@ -154,7 +170,6 @@ class KPFTreeView(TreeView):
                                 getService(components.interfaces.nsIAtomService)
         self._prefs = components.classes["@activestate.com/koPrefService;1"].\
             getService(components.interfaces.koIPrefService).prefs
-
         self._observerSvc = components.classes["@mozilla.org/observer-service;1"].\
             getService(components.interfaces.nsIObserverService)
 
@@ -180,7 +195,6 @@ class KPFTreeView(TreeView):
             self._placePrefs = None
 
     def terminate(self):
-        log.debug("terminate...")
         if self._placePrefs:
             self._placePrefs.prefObserverService.removeObserverForTopics(self,
                                  ["showProjectPath",
@@ -297,6 +311,11 @@ class KPFTreeView(TreeView):
         self._rows.insert(newProjectIndex, _ProjectNode(unwrapped_kpf, 0, unwrapped_kpf))
         self._tree.rowCountChanged(newProjectIndex, 1)
         self._addProjectEpilogue(unwrapped_kpf, newProjectIndex)
+
+    def moveProjectToEnd(self, kpf):
+        unwrapped_kpf = UnwrapObject(kpf)
+        self._rows.append(_ProjectNode(unwrapped_kpf, 0, unwrapped_kpf))
+        self._addProjectEpilogue(unwrapped_kpf, len(self._rows) - 1)
         
     def _addProjectPrologue(self, kpf):
         self._partSvc.addProject(kpf)
@@ -613,6 +632,39 @@ class KPFTreeView(TreeView):
         if self._sortedBy != key or self._sortDir != direction:
             self._sortedBy = key
             self._sortDir = direction
+
+    def get_sortDirection(self):
+        return self._sortDir
+
+    def sortRows(self):
+        if self._sortDir == 0:
+            # There is no "natural order" in v6.1+
+            return
+        projects = [UnwrapObject(x) for x in self._partSvc.getProjects()]
+        self._sortNodes(projects, self._sortedBy, self._sortDir, force=True)
+        olen = len(self._rows)
+        self._rows = []
+        self._tree.beginUpdateBatch()
+        try:
+            for p in projects:
+                self.moveProjectToEnd(p)
+        finally:
+            self._tree.endUpdateBatch()
+        nlen = len(self._rows)
+        self._tree.rowCountChanged(nlen - olen, 0)
+        
+    def _sortNodes(self, nodes, sortBy, sortDir, force=False):
+        if force or self._sortedBy != sortBy or self._sortDir != sortDir:
+            log.debug("KPFTree::_sortNodes()")
+            if sortDir != 0:
+                nodes.sort(lambda a,b: compareNodeFolder(a, b, sortBy) * sortDir)
+            else:
+                nodes.sort(lambda a,b: compareNode(a, b, sortBy))
+            self._sortDir = sortDir # cache sort order
+            self._sortedBy = sortBy # cache sort order
+        else:
+            log.debug("KPFTree::_sortNodes:: already sorted")
+
 
     _nodeTypeName_from_partTypeName = { 'part' : _Node,
                                         'file' : _FileNode,

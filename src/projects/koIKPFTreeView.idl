@@ -57,6 +57,8 @@ interface koIKPFTreeView : nsITreeView {
     //  1 = normal
     //  -1 = reverse
     void sortBy(in wstring key, in long direction);
+    readonly attribute long sortDirection;
+    void sortRows();
 
     void addProject(in koIProject prj);
     void addProjectAtPosition(in koIProject prj, in long newProjectIndex);

@@ -67,6 +67,17 @@
   <popupset>
     <popup id="placesSubpanelProjectsToolsPopup"
         onpopupshowing="ko.projects.manager.updateProjectMenu(event, this);"/>
+    <menupopup id="projectPlacesCog_SortMenu">
+        <menuitem id="projectPlacesSortAscending"
+                  observes="cmd_sortProjectsAscending"
+		  label="&sortAscending.label;"
+		  />
+        <menuitem id="projectPlacesSortDescending"
+                  observes="cmd_sortProjectsDescending"
+		  label="&sortDescending.label;"
+		  />
+        <menuseparator id="placesContextMenu_separatorSort" />
+    </menupopup>
   </popupset>
 
   <!-- ****************    Commands    ****************** -->
@@ -175,6 +186,18 @@
           oncommand="ko.commands.doCommandAsync('cmd_placeView_sortDescending', event)"
           disabled="true"
           desc="&placeView_sortDescending.desc;"/>
+      <command
+          id="cmd_sortProjectsDescending"
+          key="key_cmd_sortProjectsDescending"
+          oncommand="ko.commands.doCommandAsync('cmd_sortProjectsDescending', event)"
+          disabled="true"
+          desc="&sortProjectsDescending.desc;"/>
+      <command
+          id="cmd_sortProjectsAscending"
+          key="key_cmd_sortProjectsAscending"
+          oncommand="ko.commands.doCommandAsync('cmd_sortProjectsAscending', event)"
+          disabled="true"
+          desc="&sortProjectsAscending.desc;"/>
     </commandset>
     <commandset
         id="cmdset_place_contextMenu"

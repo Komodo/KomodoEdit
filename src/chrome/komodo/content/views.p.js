@@ -2890,14 +2890,31 @@ this._restoreWindowWorkspace = function(workspace, currentWindow, checkWindowBou
         // Now projects depends on places, so open it after
         if (workspace.hasPref('opened_projects')) {
             pref = workspace.getPref('opened_projects');
-            wko.projects.manager.setState(pref);
+            var currentProjectURI;
             if (workspace.hasPref('current_project')) {
-                var url = workspace.getStringPref('current_project');
-                // If a project with that url is loaded, make it current
-                var proj = wko.projects.manager.getProjectByURL(url);
-                if (proj) {
-                    wko.projects.manager.currentProject = proj;
-                }
+                currentProjectURI = workspace.getStringPref('current_project');
+            } else {
+                currentProjectURI = null;
+            }
+            wko.projects.manager.setState(pref);
+            if (currentProjectURI) {
+                setTimeout(function() {
+                        // If a project with that url is loaded, make it current
+                        var proj = wko.projects.manager.getProjectByURL(currentProjectURI);
+                        if (proj) {
+                            wko.projects.manager.currentProject = proj;
+                        }
+                    }, 1000);
+            }
+            if (workspace.hasPref('project_sort_direction')) {
+                setTimeout(function() {
+                        try {
+                            ko.places.projects.manager.
+                                sortProjects(workspace.getLongPref('project_sort_direction'));
+                        } catch(ex) {
+                            log.exception("WorkspaceRestore: Can't sort rows: " + ex + "\n");
+                        }
+                    }, 1000);
             }
         }
         wko._hasFocus = (workspace.hasBooleanPref('hasFocus')
@@ -2983,6 +3000,12 @@ this.saveWorkspace = function view_saveWorkspace()
                 if (currentProject) {
                     workspace.setStringPref('current_project', currentProject.url);
                 }
+            }
+            try {
+                workspace.setLongPref("project_sort_direction", 
+                        ko.places.projects.projectsTreeView.sortDirection);
+            } catch(ex) {
+                log.exception("Can't set project tree view sort direction: " + ex);
             }
             var ids = ['topview'];
             var i, elt, id, pref;

@@ -255,6 +255,15 @@ PlacesProjectManager.prototype = {
         }
         part.name = newname;
     },
+
+  sortAscending: 1,
+  sortDescending: -1,
+  sortProjects: function(direction) {
+        var treeview = this.owner.projectsTreeView;
+        treeview.sortBy("name", direction);
+        treeview.sortRows();
+        treeview.invalidate();
+    },
   
   _EOF_ : null
 };
@@ -272,6 +281,20 @@ this.initProjectMRUCogMenu = function() {
             newNode.id = node.id + "_places_projects_cog";
             destMenu.appendChild(newNode);
         }
+    }
+    try {
+    srcMenu = document.getElementById("projectPlacesCog_SortMenu");
+    var firstChild = destMenu.firstChild;
+    srcNodes = srcMenu.childNodes;
+    len = srcNodes.length;
+    for (i = 0; i < len; i++) {
+        node = srcNodes[i];
+        newNode = node.cloneNode(false);
+        newNode.id = node.id + "_places_projects_cog";
+        destMenu.insertBefore(newNode, firstChild);
+    }
+    } catch(ex) {
+        log.exception("initProjectMRUCogMenu: error: " + ex + "\n");
     }
 };
 
