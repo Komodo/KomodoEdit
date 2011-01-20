@@ -280,14 +280,12 @@ function OnPreferencePageOK(prefset)  {
             observerSvc.notifyObservers(this, 'scheme-changed', schemeName);
         }
         return true;
-    } catch (e) {
+    } catch(e) {
         log.exception(e);
-        ko.dialogs.alert("Attempt to save scheme '"
-                         + schemeName
-                         + "' failed: "
-                         + e);
+        var message = _bundle.formatStringFromName("attemptToSaveSchemeFailed.format",
+                                                   [schemeName], 1);
+        return ignorePrefPageOKFailure(prefset, message, e.toString());
     }
-    return false;
 }
 
 function OnPreferencePageCancel(prefset)  {

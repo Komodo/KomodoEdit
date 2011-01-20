@@ -128,8 +128,12 @@ function OnPreferencePageOK(prefset)  {
         if (!defaultDateFormat) {
             //XXX Would like to check defaultDateFormat.strip() but JavaScript does
             //    not have this method.
-            ko.dialogs.alert("Internationalization: You must enter some non-empty date format.");
-            return false;
+            var bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+                .getService(Components.interfaces.nsIStringBundleService)
+                .createBundle("chrome://komodo/locale/pref/pref-languages.properties");
+            return ignorePrefPageOKFailure(prefset,
+                bundle.GetStringFromName("InternationalizationInvalidDateTimeFormat"),
+                bundle.GetStringFromName("i18nDateFormatShouldNotBeEmpty"));
         }
 
         return true;

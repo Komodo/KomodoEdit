@@ -97,8 +97,13 @@ function OnPreferencePageOK(prefset) {
         return true;
     } catch (e) {
         parent.prefLog.exception(e);
+        var bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+            .getService(Components.interfaces.nsIStringBundleService)
+            .createBundle("chrome://komodo/locale/pref/pref-languages.properties");
+        return ignorePrefPageOKFailure(prefset,
+                bundle.GetStringFromName("savingKeyBindingsFailed"),
+                                       e.toString());
     }
-    return false;
 }
 
 // Callbacks and global functions having to do with configuration handling

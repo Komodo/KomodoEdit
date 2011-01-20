@@ -124,7 +124,12 @@ function OnPreferencePageOK(prefset)
         return true;
     } catch(ex) {
         log.exception(ex);
-        return false;
+        var bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+            .getService(Components.interfaces.nsIStringBundleService)
+            .createBundle("chrome://komodo/locale/pref/pref-languages.properties");
+        return ignorePrefPageOKFailure(prefset,
+                                       bundle.GetStringFromName("savingCodeintelPrefsFailed"),
+                                       ex.toString());
     }
 }
 

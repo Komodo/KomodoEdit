@@ -53,6 +53,7 @@
 
     <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/pref/koPrefUtils.js" type="application/x-javascript;version=1.7" />
     <script type="application/x-javascript;version=1.7">
     <![CDATA[
 var log = ko.logging.getLogger("pref-indent");
@@ -101,8 +102,10 @@ function OnPreferencePageOK(prefset)  {
         return true;
     } catch(e) {
         log.exception(e);
+        return ignorePrefPageOKFailure(prefset,
+                                       "Trying to save global indentation settings triggered an exception",
+                                       e.toString());
     }
-    return false;
 }
 
 function _getCurrentLangPrefs(language) {

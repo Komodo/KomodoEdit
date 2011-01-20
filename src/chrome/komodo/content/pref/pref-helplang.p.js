@@ -154,9 +154,11 @@ function OnPreferencePageOK(prefset)  {
         
         return true;
     } catch (ex) {
-        log.error(ex);
+        log.exception(ex);
+        return ignorePrefPageOKFailure(prefset,
+                                       _bundle.GetStringFromName("SavingLanguageHelpPrefsFailed"),
+                                       ex.toString());
     }
-    return false;
 }
 
 // Start up & returning to this panel in a session

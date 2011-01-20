@@ -34,6 +34,10 @@
  * 
  * ***** END LICENSE BLOCK ***** */
 
+var bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+    .getService(Components.interfaces.nsIStringBundleService)
+    .createBundle("chrome://komodo/locale/pref/pref-languages.properties");
+
 function getDirectoryFromTextObject(textlikeObject) {
     // textlikeObject has a 'value' property -- could be a menulist or text field
     var currentFileName = textlikeObject.value;
@@ -51,6 +55,23 @@ function loadExecutableIntoInterpreterList(availInterpListID) {
         return true;
     }
     return false;
+}
+
+
+function ignorePrefPageOKFailure(prefset, context, message) {
+    var title = bundle.GetStringFromName("ErrorWhileSavingPreferences.label");
+    var prompt = bundle.GetStringFromName("pressIgnoreOrFix.prompt");
+    var text = context + ": \n" + message;
+    var fixText = bundle.GetStringFromName("fix.buttonText");
+    var ignoreText = bundle.GetStringFromName("ignore.buttonText");
+    var buttons = [fixText, ignoreText];
+    var response = fixText;
+    var res = ko.dialogs.customButtons(prompt,
+                                       buttons,
+                                       response,
+                                       text,
+                                       title);
+    return res == ignoreText;
 }
 
 /**
@@ -82,9 +103,6 @@ function checkValidInterpreterSetting(prefset,
     if (koSysUtils.IsFile(defaultInterp)) {
         return true;
     }
-    var bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
-            .getService(Components.interfaces.nsIStringBundleService)
-            .createBundle("chrome://komodo/locale/pref/pref-languages.properties");
     var prompt = bundle.formatStringFromName("noLangInterpreterFound.template",
                                               [programmingLanguage,
                                                defaultInterp], 2);
