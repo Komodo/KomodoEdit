@@ -797,23 +797,6 @@
               orient="horizontal"
               class="project-tools-icon"
               popup="placesSubpanelProjectsToolsPopup"/>
-          <toolbarbutton
-              id="projectView_AddItem"
-              tooltiptext="&addItemToCurrentProject.tooltiptext;"
-              buttonstyle="pictures"
-              label="&add.label;"
-              type="menu"
-              orient="horizontal"
-              class="rightarrow-button-a addToolboxItemButton"
-              context=""
-              >
-              <menupopup id="projectView_AddItemPopup"
-                         ondblclick="event.stopPropagation();"
-                         XXXX_menupopup="placesSubpanelProjects_AddItemsMenu"
-                         xxx_popup="placesSubpanelProjects_AddItemsMenu"
-                         onpopupshowing="ko.places.projects.initProjectsContextMenu(event, this);"
-                         xxxonpopupshowing="ko.places.projects.adjustProjectsContextMenu(event, this);"/>
-          </toolbarbutton>
           <toolbarbutton id="placesSubpanelToggle"
               buttonstyle="pictures"
               oncommand="ko.places.projects.toggleSubpanel()"

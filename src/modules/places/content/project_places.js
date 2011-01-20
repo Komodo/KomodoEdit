@@ -78,8 +78,6 @@ this.createPlacesProjectView = function() {
                         .view = this.projectsTreeView;
     this.projectsTreeView.initialize();
     this.initProjectMRUCogMenu();
-    this.copyNewItemMenu(document.getElementById("projectView_AddItemPopup"),
-                         "projCtxt_");
     this.manager = new PlacesProjectManager(this);
     ko.projects.manager.setViewMgr(this.manager);
 };
