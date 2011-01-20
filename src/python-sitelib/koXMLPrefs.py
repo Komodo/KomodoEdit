@@ -204,6 +204,13 @@ def _dispatch_deserializer(ds, node, parentPref, prefFactory, basedir=None, chai
         pref = prefFactory.deserializeNode(node, parentPref, basedir, chainNotifications)
         return pref
 
+_pct_re = re.compile('%([0-9a-fA-F][0-9a-fA-F])')
+def dePercent(m):
+    return chr(int(m.group(1), 16))
+def _depercent_unicode(s):
+    return unicode(_pct_re.sub(dePercent, s))
+
+
 class koPreferenceSetDeserializer:
     """
     Creates preference sets from minidom nodes.
@@ -280,7 +287,7 @@ class koPreferenceSetDeserializer:
                                convertFunction(childtext))
 
     def _ds_string(self, node, prefSet, basedir=None):
-        self._ds_helper(node, prefSet.setStringPref, unicode, basedir)
+        self._ds_helper(node, prefSet.setStringPref, _depercent_unicode, basedir)
 
     def _ds_long(self, node, prefSet, basedir=None):
         self._ds_helper(node, prefSet.setLongPref, int, basedir)
@@ -324,7 +331,7 @@ class koOrderedPreferenceDeserializer:
         insertFunction(convertFunction(childtext))
 
     def _ds_string(self, node, orderedPref, basedir=None):
-        self._ds_helper(node, orderedPref.appendStringPref, unicode)
+        self._ds_helper(node, orderedPref.appendStringPref, _depercent_unicode)
 
     def _ds_long(self, node, orderedPref, basedir=None):
         self._ds_helper(node, orderedPref.appendLongPref, int)
@@ -339,9 +346,19 @@ _encre = re.compile('([^\x00-\x7f])')
 def _makeCharRef(m):
     # replace with XML decimal char entity, e.g. '&#7;'
     return '&#%d;' % ord(m.group(1))
+
+pct_chars = re.compile('([\x00-\x08\x0b\x0c\x0e\x0f\x10-\x1f%])')
+def _pctEscape(m):
+    return '%%%02x' % ord(m.group(1))
+
 def _xmlencode(s):
-    """ Taken from codeintel2/parseutil.py """
-    return _encre.sub(_makeCharRef, cgi.escape(s))
+    """ Make the input valid XML: entify markup characters,
+        %-escape low-byte characters,
+        and convert other non-ascii characters into char ref entities.
+        Read this from the bottom-left towards top-right """
+    return _encre.sub(_makeCharRef,
+                      pct_chars.sub(_pctEscape,
+                                    cgi.escape(s)))
  
 def serializePref(stream, pref, prefType, prefName=None, basedir=None):
     """Serialize one preference to a stream as appropriate for its type.
@@ -366,6 +383,9 @@ def serializePref(stream, pref, prefType, prefName=None, basedir=None):
                 # XXX quick fix bug 65913
                 log.exception(e)
                 pass # pass and use original value
+        # This line causes multiple-entification, as _xmlencode
+        # will also call cgi.escape
+        #pref = cgi.escape(pref)
         data = u'  <string'
         for a,v in attrs.items():
             data += ' %s="%s"' % (a,v)

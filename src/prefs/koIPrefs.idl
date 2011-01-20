@@ -146,7 +146,7 @@ interface koIPreferenceSet : koIPreference {
   
   // If any of these fail, use the lastErrorSvc to find out why
   void setPref(in string prefName, in koIPreference pref);
-  void setStringPref(in string prefName, in wstring pref);
+  void setStringPref(in string prefName, in AString pref);
   void setLongPref(in string prefName, in long pref);
   void setDoublePref(in string prefName, in double pref);
   void setBooleanPref(in string prefName, in boolean pref);
@@ -156,7 +156,7 @@ interface koIPreferenceSet : koIPreference {
   // wrong type. Use "has*Pref" to ensure the pref exists.
   koIPreference getPref(in string prefName);
   wstring getPrefType(in string prefName);
-  wstring getStringPref(in string prefName);
+  AString getStringPref(in string prefName);
   long getLongPref(in string prefName);
   double getDoublePref(in string prefName);
   boolean getBooleanPref(in string prefName);
@@ -189,7 +189,7 @@ interface koIPreferenceSet : koIPreference {
   // These return true if the proposed value is valid for the 
   // specified preference.  No preference change occurs.
   boolean validateLong(in wstring prefName, in long value);
-  boolean validateString(in wstring prefName, in wstring value);
+  boolean validateString(in wstring prefName, in AString value);
 };
 
 [scriptable, uuid(022e7c64-5097-4aa7-9270-a27bfc858937)]
