@@ -1,0 +1,43 @@
+Komodo Notifications Plugin
+===========================
+
+This plugin provides a user notification service for Komodo.
+
+
+Using the Notification Service
+------------------------------
+
+Examples:
+
+1. Adding a notification
+
+    var foo = new ko.notifications.Notification("My title", "My text");
+    ko.notifications.add(foo);
+
+A blue icon and the text "My title" should appear in the right-hand corner of
+the statusbar. When you click it, the notifications list opens and shows the
+notification you just added.
+
+2. Adding a button
+
+    var button = new ko.notifications.NotificationButton("Click me!", "c",
+                                        function() {alert("rickroll'd!");});
+    var bar = new ko.notifications.Notification("Other title", "more text",
+                                                  null, null, [button]);
+    ko.notifications.add(bar);
+
+This notification has a button attached to it, that executes a callback when
+you click it.
+
+3. Adding a simple notification (shortcut)
+
+    var notification = ko.notifications.notify('spam', 'eggs');
+
+This creates a simple notification without any buttons, the title is 'spam'
+and the text is 'eggs'. There are two more optional parameters for an icon url
+and a priority.
+
+4. Using from non-Chrome Javascript code
+
+    Components.utils.import('resource://gre/notifications.js');
+    NotifcationSvc.notify('monty', 'python');

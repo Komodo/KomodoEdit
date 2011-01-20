@@ -369,6 +369,7 @@ Build(
     "$build/chrome/komodo/content/run/Conscript",
     "$build/chrome/komodo/content/hyperlinks/Conscript",
     "$build/chrome/komodo/content/morekomodo/Conscript",
+    "$build/chrome/komodo/content/notifications/Conscript",
 
     "$build/commandments/Conscript",
 

@@ -1,0 +1,30 @@
+#komodo-notifications-box {
+  -moz-binding: url("chrome://komodo/content/notifications/notification.xml#notificationbox");
+  width: 30em;
+  height: 30em;
+  overflow: auto;
+}
+
+#komodo-notifications-box notification {
+  -moz-binding: url("chrome://komodo/content/notifications/notification.xml#notification");
+}
+
+#komodo-notifications-box .messageImage {
+  width: 24px;
+  height: 24px;
+  padding: 3px;
+}
+
+/* Default icons for notifications */
+
+#komodo-notifications-box notification[type="info"] .messageImage {
+  list-style-image: url("chrome://global/skin/icons/information-24.png");
+}
+
+#komodo-notifications-box notification[type="warning"] .messageImage {
+  list-style-image: url("chrome://global/skin/icons/warning-24.png");
+}
+
+#komodo-notifications-box notification[type="critical"] .messageImage {
+  list-style-image: url("chrome://global/skin/icons/error-24.png");
+}
