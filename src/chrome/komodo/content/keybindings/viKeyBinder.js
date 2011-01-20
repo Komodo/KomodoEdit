@@ -230,6 +230,11 @@ var gVim_onEditorModified = function(event) {
     //dump('gVim_onEditorModified:: event.data.modificationType: ' + event.data.modificationType + '\n');
     //ko.logging.dumpObject(data);
 
+    if ((gVimController._lastMode == VimController.MODE_REPLACE_CHAR) &&
+        (gVimController._lastModifyCommand == "cmd_vim_replaceChar")) {
+        // The replace command works a little differently than normal input.
+        return;
+    }
     var insertedText = gVimController._lastInsertedText;
 
     try {
@@ -3594,6 +3599,7 @@ function cmd_vim_doReplaceChar(scimoz, repeatCount) {
         }
     }
     gVimController._lastModifyCommand = 'cmd_vim_doReplaceChar';
+    gVimController._lastInsertedText = '';
 }
 
 function cmd_vim_replaceChar(scimoz) {
