@@ -283,16 +283,16 @@ this.initProjectMRUCogMenu = function() {
         }
     }
     try {
-    srcMenu = document.getElementById("projectPlacesCog_SortMenu");
-    var firstChild = destMenu.firstChild;
-    srcNodes = srcMenu.childNodes;
-    len = srcNodes.length;
-    for (i = 0; i < len; i++) {
-        node = srcNodes[i];
-        newNode = node.cloneNode(false);
-        newNode.id = node.id + "_places_projects_cog";
-        destMenu.insertBefore(newNode, firstChild);
-    }
+        srcMenu = document.getElementById("projectPlacesCog_SortMenu");
+        var firstChild = destMenu.firstChild;
+        srcNodes = srcMenu.childNodes;
+        len = srcNodes.length;
+        for (i = 0; i < len; i++) {
+            node = srcNodes[i];
+            newNode = node.cloneNode(false);
+            newNode.id = node.id + "_places_projects_cog";
+            destMenu.insertBefore(newNode, firstChild);
+        }
     } catch(ex) {
         log.exception("initProjectMRUCogMenu: error: " + ex + "\n");
     }
