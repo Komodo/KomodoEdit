@@ -207,7 +207,7 @@ class KoFastOpenTreeView(TreeView):
         else:
             if hit.type == "go":
                 return "chrome://famfamfamsilk/skin/icons/folder_go.png"
-            elif hit.type == "path" and hit.isdir:
+            elif hit.type in ("path", "project-path") and hit.isdir:
                 #TODO: How to get native *directory* icon from moz-icon?
                 return "chrome://komodo/skin/images/folder-open.png"
             else:
