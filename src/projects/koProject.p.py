@@ -993,7 +993,7 @@ class koLiveFolderPart(koFolderPart):
     def getChildren(self):
         return self.children
 
-    def genLocalPaths(self):
+    def genLocalPaths(self, gatherDirs=False):
         """Generate all contained local paths."""
         from os.path import join
         
@@ -1008,6 +1008,7 @@ class koLiveFolderPart(koFolderPart):
         base_dir_length = len(base_dir)
         for path in paths_from_path_patterns(
                 path_patterns,
+                dirs=(gatherDirs and "always" or "never"),
                 recursive=True,
                 includes=includes,
                 excludes=excludes,
