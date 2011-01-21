@@ -183,11 +183,6 @@ _g_python_magic_method_names = sorted([
     '__exit__',
 ])
 
-_g_python_magic_object_names = sorted([
-    '__class__',
-    '__doc__',
-])
-
 #---- language support
 
 class PythonLexer(Lexer):
@@ -364,8 +359,6 @@ class PythonLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                 cplns = [("variable", "__main__")]
             elif symbolstype == "def":
                 cplns = [("function", t + "(self") for t in _g_python_magic_method_names]
-            elif symbolstype == "object":
-                cplns = [("variable", t) for t in _g_python_magic_object_names]
             elif symbolstype == "global":
                 text = trg.extra.get("text")
                 if text.endswith("if"):
@@ -885,12 +878,11 @@ class PythonBuffer(CitadelBuffer):
                 return Trigger(self.lang, TRG_FORM_CPLN,
                                "magic-symbols", last_pos-1, implicit,
                                symbolstype="string")
+
             elif beforeChar == "." and beforeStyle != style:
-                if DEBUG:
-                    print "trg_from_pos:: magic-symbols - object"
-                return Trigger(self.lang, TRG_FORM_CPLN,
-                               "magic-symbols", last_pos-1, implicit,
-                               symbolstype="object")
+                # Turned this off, as it interferes with regular "xxx." object
+                # completions.
+                return None
 
             if beforeStyle == style:
                 # No change in styles between the characters -- abort.

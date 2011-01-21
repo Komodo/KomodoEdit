@@ -426,8 +426,6 @@ class TrgTestCase(CodeIntelTestCase):
         self.assertNoTrigger("___<|>", None)
 
         self.assertTriggerMatches("def __<|>", name=name, symbolstype="def")
-        self.assertTriggerMatches("myobject.__<|>", name=name,
-                                  symbolstype="object")
         self.assertTriggerMatches("if __<|>", name=name, symbolstype="global",
                                   text="if")
 
@@ -1708,7 +1706,7 @@ class CplnTestCase(CodeIntelTestCase):
                     pass
             def main():
                 name = __<2>file__
-                myclass.__<3>foo()
+                myclass.<3>__foo()
             if __<4>name__ == '__main__':
                 main()
         """))
@@ -1721,7 +1719,7 @@ class CplnTestCase(CodeIntelTestCase):
              ('variable', '__loader__'),
              ('variable', '__name__'),
              ('variable', '__package__')])
-        self.assertCompletionsAre(markup_text(content, pos=positions[3]),
+        self.assertCompletionsInclude(markup_text(content, pos=positions[3]),
             [('variable', '__class__'),
              ('variable', '__doc__')])
         self.assertCompletionsAre(markup_text(content, pos=positions[4]),

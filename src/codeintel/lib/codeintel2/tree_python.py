@@ -352,6 +352,10 @@ class PythonTreeEvaluator(TreeEvaluator):
                     self.warn(str(ex))
                 else:
                     members.update(self._members_from_hit(subhit))
+            # Add special __class__ attribute.
+            members.add(("variable", "__class__"))
+        # Add special __doc__ attribute.
+        members.add(("variable", "__doc__"))
         return members
 
     def _hit_from_citdl(self, expr, scoperef, defn_only=False):
@@ -672,6 +676,12 @@ class PythonTreeEvaluator(TreeEvaluator):
                 # update the scoperef, we are now inside the class.
                 scoperef = (scoperef[0], scoperef[1] + [elem.get("name")])
                 return (attr, scoperef), 1
+
+            # When looking for a __class__ on a class instance, we match the
+            # class itself - bug .
+            if first_token == "__class__":
+                self.log("attr is class %r", elem)
+                return (elem, scoperef), 1
 
             self.debug("look for %r from imports in %r", tokens, elem)
             hit, nconsumed \
