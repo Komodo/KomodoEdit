@@ -82,6 +82,8 @@
 <!ENTITY ShowInExplorer.label "Show in Explorer">
 <!ENTITY rename.label "Rename">
 <!ENTITY recentPlaces.accesskey "R">
+<!ENTITY placesDirectoryMenu.tooltiptext "Directory-related functions">
+<!ENTITY placesProjectMenu.tooltiptext "Project-related functions">
 <!ENTITY placesBack.tooltiptext "Previous directory in history">
 <!ENTITY placesForward.tooltiptext "Next directory in history">
 <!ENTITY placesRecentPlaces.tooltiptext "Pick a recent place...">

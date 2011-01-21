@@ -800,10 +800,14 @@ this._updateSubpanelFromState = function() {
     switch(state) {
     case "collapsed":
         deck.collapsed = true;
+        button.setAttribute("tooltiptext",
+                            _bundle.GetStringFromName("Open the Projects Subpanel"));
         break;
     case "open":
     default:
         deck.collapsed = false;
+        button.setAttribute("tooltiptext",
+                            _bundle.GetStringFromName("Close the Projects Subpanel"));
         break;
     }
 }

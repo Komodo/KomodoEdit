@@ -671,6 +671,7 @@
           <toolbarbutton id="placeView_tools"
                   buttonstyle="pictures"
                   type="menu"
+                  tooltiptext="&placesDirectoryMenu.tooltiptext;"
                   orient="horizontal"
                   class="project-tools-icon">
             <menupopup id="placeView_toolsPopup">
@@ -817,6 +818,7 @@
           <toolbarbutton id="placesSubpanelProjectsTools"
               buttonstyle="pictures"
               type="menu"
+              tooltiptext="&placesProjectMenu.tooltiptext;"
               orient="horizontal"
               class="project-tools-icon"
               popup="placesSubpanelProjectsToolsPopup"/>
@@ -825,6 +827,9 @@
               oncommand="ko.places.projects.toggleSubpanel()"
               persist="state"
               state="open" />
+	      <!-- tooltiptext attr set dynamically in
+	      project_places.js._updateSubpanelFromState
+	      -->
         </hbox>
       </splitter>
 
