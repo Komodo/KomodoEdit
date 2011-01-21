@@ -8,7 +8,7 @@
 
 import os
 from os.path import (expanduser, basename, split, dirname, splitext, join,
-    abspath)
+    abspath, isabs)
 import sys
 import string
 import re
@@ -392,6 +392,31 @@ class KoFastOpenSession(object):
     def abortSearch(self):
         self.driver.abortSearch()
 
+    def relavatizePath(self, path):
+        """Return the shortest path based on the enabled gathers."""
+        if not isabs(path):
+            return path
+        possibile_paths = []
+        gatherers, cwds, dirShortcuts = self.gatherersAndCwds
+
+        if "HOME" in os.environ:
+            home = os.environ["HOME"]
+            if path.startswith(home):
+                possibile_paths.append("~" + path[len(home):])
+        for alias, dirpath in dirShortcuts.items():
+            if path.startswith(dirpath):
+                possibile_paths.append(alias + path[len(dirpath):])
+        for gatherer in gatherers:
+            if isinstance(gatherer, fastopen.CachingKomodoProjectGatherer):
+                if path.startswith(gatherer.base_dir):
+                    possibile_paths.append("{%s}%s" % (gatherer.project_name,
+                                            path[len(gatherer.base_dir):]))
+
+        bestpath = path
+        for path in possibile_paths:
+            if len(path) < len(bestpath):
+                bestpath = path
+        return bestpath
 
 class KoFastOpenService(object):
     _com_interfaces_ = [components.interfaces.koIFastOpenService,

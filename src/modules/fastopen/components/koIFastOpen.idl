@@ -82,6 +82,10 @@ interface koIFastOpenSession: nsISupports {
 
     // Abort a current search (if any).
     void abortSearch();
+
+    // Truncate the path as best as possible, such as relavatizing from the
+    // home directory or relavatizing from the base project directory.
+    AString relavatizePath(in AString path);
 };
 
 [scriptable, uuid(6c8c66cb-f1c3-834e-86ac-905cb155d595)]
