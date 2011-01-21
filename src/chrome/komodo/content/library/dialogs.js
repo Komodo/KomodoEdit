@@ -680,6 +680,8 @@ this.authenticate2 = function dialog_authenticate2(prompt, server, username, all
 //              selected. By default all items will be selected.
 //          "zero-or-more" allows any number of items to be selected. By
 //              default all items will be selected.
+//          "zero-or-more-default-none" allows any number of items to be
+//              selected. No items are selected initially.
 //          "one" only allows exactly one to be selected. By default the first
 //              item will be selected.
 //  "stringifier" is a function that, if non-null, will be called to stringify

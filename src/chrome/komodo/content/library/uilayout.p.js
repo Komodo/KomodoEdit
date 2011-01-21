@@ -577,7 +577,19 @@ var FullScreen =
   
 };
 
-function _updateMRUMenu(prefName, limit)
+function _addManageMRUMenuItem(prefName, parentNode) {
+    var menuitem = document.createElementNS(XUL_NS, 'menuseparator');
+    parentNode.appendChild(menuitem);
+    menuitem = document.createElementNS(XUL_NS, "menuitem");
+    var manageLabel = _bundle.formatStringFromName("Manage X MRU List",
+                                                   [prefName], 1);
+    menuitem.setAttribute("label", manageLabel);
+    menuitem.setAttribute("accesskey", _bundle.GetStringFromName("mruManageAccessKey"));
+    menuitem.setAttribute("oncommand", "ko.mru.manageMRUList('" + prefName + "');");
+    parentNode.appendChild(menuitem);
+}
+
+function _updateMRUMenu(prefName, limit, addManageItem)
 {
     // Update a MRU menu popup under the file menu.
     //    "prefName" indicate which MRU menu to update.
@@ -585,6 +597,7 @@ function _updateMRUMenu(prefName, limit)
     // XXX This code was significantly complitcated just for the special
     //     template MRU menu under File->New. Perhaps that should be
     //     factored out.
+    if (typeof(addManageItem) == "undefined") addManageItem = false;
     var popupId, separatorId, prettyName;
     if (prefName == "mruProjectList") {
         popupId = "recentProjects_menupopup";
@@ -645,6 +658,10 @@ function _updateMRUMenu(prefName, limit)
                 m2.setAttribute("onpopupshowing", "event.stopPropagation();");
                 m1.appendChild(m2);
                 menupopup.appendChild(m1);
+                if (addManageItem) {
+                    _addManageMRUMenuItem(prefName, menupopup);
+                    addManageItem = false;
+                }
                 menupopup = m2;
                 labelNum = 1;
             }
@@ -677,6 +694,11 @@ function _updateMRUMenu(prefName, limit)
             }
 
             menupopup.appendChild(menuitem);
+        }
+        if (addManageItem) {
+            // We didn't need a "more" item
+            _addManageMRUMenuItem(prefName, menupopup);
+            addManageItem = false;
         }
     }
 
@@ -740,7 +762,7 @@ this.updateMRUMenuIfNecessary = function uilayout_UpdateMRUMenuIfNecessary(mru, 
     //    "mru" is either "project" or "file", indicating which MRU menu
     //        to update.
     if (mru == "project" && _gNeedToUpdateProjectMRUMenu) {
-        _updateMRUMenu("mruProjectList", limit);
+        _updateMRUMenu("mruProjectList", limit, true /* addManageItem */);
         _gNeedToUpdateProjectMRUMenu = false;
     } else if (mru == "file" && _gNeedToUpdateFileMRUMenu) {
         _updateMRUMenu("mruFileList", limit);

@@ -63,6 +63,9 @@ var gMRUPrefObserver = null;
 var _log = ko.logging.getLogger('ko.mru');
 var _os_case_sensitive = navigator.platform.toLowerCase().substr(0, 3) != "win";
 
+var bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+                .getService(Components.interfaces.nsIStringBundleService)
+                .createBundle("chrome://komodo/locale/library.properties");
 //_log.setLevel(ko.logging.LOG_DEBUG);
 
 
@@ -439,6 +442,40 @@ this.getAll = function MRU_getAll(prefName, maxLength /* all */)
     }
     _log.info("Returning: " + retval);
     return retval;
+}
+
+this._prettyPrefNamePlural_From_PrefName = {
+    mruProjectList: 'projects',
+    mruFileList: 'files',
+    mruTemplateList: 'templates',
+    __XXZZ__: null
+};
+this.manageMRUList = function(prefName) {
+    var prettyPrefNamePlural = this._prettyPrefNamePlural_From_PrefName[prefName];
+    if (!prettyPrefNamePlural) {
+        prettyPrefNamePlural = prefName;
+    }
+    var title = bundle.formatStringFromName("Manage the X MRU List",
+                                            [prettyPrefNamePlural], 1);
+    var prompt = bundle.formatStringFromName("Select the X to remove from the Most-Recently-Used list",
+                                            [prettyPrefNamePlural], 1);
+    var items = this.getAll(prefName);
+    var selectionCondition = "zero-or-more-default-none";
+    var stringifier = function(uri) {
+        try {
+            return ko.uriparse.displayPath(uri);
+        } catch(ex) {
+        }
+        return uri;
+    };
+    var res = ko.dialogs.selectFromList(title, prompt, items,
+                                        selectionCondition, stringifier);
+    if (res) {
+        for (var i = res.length; i >= 0; i--) {
+            var uri = res[i];
+            this.removeURL(prefName, uri);
+        }
+    }
 }
 
 }).apply(ko.mru);

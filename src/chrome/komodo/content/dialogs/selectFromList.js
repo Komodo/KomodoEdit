@@ -169,6 +169,8 @@ function OnLoad()
     case "zero-or-more":
         SelectAll();
         break;
+    case "zero-or-more-default-none":
+        break;
     case "one":
         itemsTree.setAttribute("seltype", "single");
         gItemsTreeView.selection.select(0);
@@ -215,7 +217,7 @@ function OnLoad()
         }
     }
     if (yesNoCancel) {
-        if (gSelectionCondition != "zero-or-more") {
+        if (gSelectionCondition.indexOf("zero-or-more") == -1) {
             msg = "Internal Error: Attempted to use yesNoCancel=true "+
                       "and selectionCondition='"+gSelectionCondition+
                       "' for a Select From List dialog. This does not make "+
