@@ -574,6 +574,12 @@
       <menuseparator id="menu_projCtxt_project_save_separator_2"
                      hideUnless="folder project" />
       
+      <!-- Init code puts in the platform-specific label. -->
+      <menuitem id="menu_projCtxt_showInFinder"
+                label="&ShowInExplorer.label;"
+                class="menuitem-iconic"
+                testDisableIf="t:multipleSelection t:isRemote"
+                oncommand="ko.places.projects.manager.showInFinder(event, this);" />
       <menuitem label="&remove.label;"
                 id="menu_projCtxt_removeItem"
                 class="menuitem-iconic"

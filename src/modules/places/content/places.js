@@ -38,7 +38,6 @@
  *
  * Defines the "ko.places" namespace.
  */
-
 if (typeof(ko) == 'undefined') {
     var ko = {};
 }
@@ -2754,6 +2753,7 @@ this.onLoad_aux = function places_onLoad_aux() {
     }
 
     var showInFinderMenuItem = document.getElementById("placesContextMenu_showInFinder");
+    var showInFinderProjectMenuItem = document.getElementById("menu_projCtxt_showInFinder");
     var platform = navigator.platform.toLowerCase();
     var bundle_id;
     if (platform.substring(0, 3) == "win") {
@@ -2763,8 +2763,10 @@ this.onLoad_aux = function places_onLoad_aux() {
     } else {
         bundle_id = "ShowInFinder.label";
     }
-    showInFinderMenuItem.setAttribute("label",
-                                      _bundle.GetStringFromName(bundle_id));
+    [showInFinderMenuItem, showInFinderProjectMenuItem].map(function(elt) {
+            elt.setAttribute("label",
+                             _bundle.GetStringFromName(bundle_id));
+        });
     
     ko.places._instantiateRemoteConnectionService();
     ko.places.viewMgr = gPlacesViewMgr = new viewMgrClass();

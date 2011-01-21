@@ -256,6 +256,24 @@ PlacesProjectManager.prototype = {
         part.name = newname;
     },
 
+  showInFinder: function(event, sender) {
+        var part = this._getSelectedItem("showInFinder");
+        if (!part) {
+            return;
+        }
+        var path = ko.uriparse.displayPath(part.url);
+        if (!path) {
+            log.error("showInFinder: no path for url " + path.url);
+            return;
+        }
+        if (part.type == "livefolder") {
+            path = ko.uriparse.dirName(path);
+        }
+        var sysUtilsSvc = Components.classes["@activestate.com/koSysUtils;1"].
+                    getService(Components.interfaces.koISysUtils);
+        sysUtilsSvc.ShowFileInFileManager(path);
+    },
+  
   sortAscending: 1,
   sortDescending: -1,
   sortProjects: function(direction) {
@@ -492,6 +510,7 @@ this._processProjectsMenu_TopLevel = function(menuNode) {
     if (menuNode.id == "menu_projCtxt_SCCmenu") {
         selectionInfo.isFolder = (selectionInfo.itemTypes[0] == 'project'
                                   || selectionInfo.itemTypes[0] == 'folder'
+                                  || selectionInfo.itemTypes[0] == 'file'
                                   || gPlacesViewMgr.view.isContainer(selectionInfo.index));
         this.initProject_SCC_ContextMenu(menuNode);
         return;
@@ -536,7 +555,7 @@ this.initProject_SCC_ContextMenu = function(menuNode) {
                    getService(Components.interfaces.koIFileService).
                    getFileFromURI(uri));
     var sccObj = {};
-    var isFolder = false;
+    var isFolder = selectionInfo.itemTypes[0] == "livefolder";
     if (!ko.places.viewMgr._determineItemSCCSupport(fileObj, sccObj, isFolder)) {
         // use this function to disable everything
         ko.places.viewMgr._disable_all_items(popupmenu);
