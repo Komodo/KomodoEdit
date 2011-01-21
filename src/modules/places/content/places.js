@@ -2735,6 +2735,9 @@ this.onLoad_aux = function places_onLoad_aux() {
     } else {
         //Fix a pre-6.0.0 mistake, making this readonly.
         filterPrefs.getPref(DEFAULT_FILTER_NAME).setBooleanPref("readonly", false);
+        // Going into 6.1.0, make the CURRENT_PROJECT_FILTER_NAME filter
+        // writable from the places filter as well.
+        filterPrefs.getPref(CURRENT_PROJECT_FILTER_NAME).setBooleanPref("readonly", false);
     }
     
     if (!_placePrefs.hasPref('current_filter_by_uri')) {

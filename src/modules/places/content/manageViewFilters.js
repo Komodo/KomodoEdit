@@ -46,6 +46,7 @@ var log = ko.logging.getLogger("manageViewFilters");
 var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
     .getService(Components.interfaces.nsIStringBundleService)
     .createBundle("chrome://places/locale/places.properties");
+const CURRENT_PROJECT_FILTER_NAME = _bundle.GetStringFromName("currentProject.filterName");
     
 function onLoad() {
     try { wrapOnLoad(); } catch(ex) { dump(ex + "\n"); }
@@ -263,7 +264,16 @@ function wrap_OK() {
         prefSet.setLongPref("version", g_ResultObj.version);
         if (isNew) {
             filterPrefs.setPref(currentFilterName, prefSet);
+        } else if (currentFilterName == CURRENT_PROJECT_FILTER_NAME) {
+            try {
+                var projectPrefs = opener.ko.projects.manager.currentProject.prefset;
+                projectPrefs.setStringPref("import_exclude_matches", currentFilter.exclude_matches);
+                projectPrefs.setStringPref("import_include_matches", currentFilter.include_matches);
+            } catch(ex) {
+                log.exception("manageViewFilters.js: wrap_OK: Can't set proj prefs: " + ex + "\n");
+            }
         }
+                
         madeChange = true;
     }
     prefsToDelete.map(function(filterName) {
