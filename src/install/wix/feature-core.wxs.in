@@ -1648,6 +1648,7 @@
               <File Id="file591" Name="MICROF_0.JS" LongName="Microformats.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\modules\Microformats.js"/>
               <File Id="file592" Name="PLURAL_0.JSM" LongName="PluralForm.jsm" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\modules\PluralForm.jsm"/>
               <File Id="file593" Name="XPCOMU_0.JSM" LongName="XPCOMUtils.jsm" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\modules\XPCOMUtils.jsm"/>
+              <File Id="file425" LongName="notifications.js" Name="NOTIFI_0.JS" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\modules\notifications.js" />
               <File Id="file921" LongName="DownloadLastDir.jsm" Name="DOWNLO_1.JSM" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\modules\DownloadLastDir.jsm" />
               <File Id="file922" LongName="SpatialNavigation.js" Name="SPATIA_0.JS" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\modules\SpatialNavigation.js" />
               <File Id="file923" LongName="WindowDraggingUtils.jsm" Name="WINDOW_0.JSM" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\modules\WindowDraggingUtils.jsm" />
