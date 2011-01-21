@@ -12,6 +12,7 @@
 <!ENTITY enableHistoryGatherer.label "Enable 'History' gatherer. Max number of entries:">
 <!ENTITY enableOpenFilesGatherer.label "Enable 'Open Files' gatherer">
 <!ENTITY enableProjectGatherer.label "Enable 'Current Project' gatherer">
+<!ENTITY enableProjectDirectoryGatherer.label "Include project directory names">
 <!ENTITY goToolIntegration.description "'Go' is a small command-line tool for changing directories quickly.">
 <!ENTITY invokeTool.accesskey "K">
 <!ENTITY invokeTool.menuitem "Invoke Tool">

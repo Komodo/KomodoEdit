@@ -40,6 +40,11 @@
                   label="&enableProjectGatherer.label;"
                   pref="true" prefattribute="checked"
                   preftype="boolean" />
+        <checkbox id="fastopen_enable_project_dir_gatherer"
+                  label="&enableProjectDirectoryGatherer.label;"
+                  style="margin-left: 22px;"
+                  pref="true" prefattribute="checked"
+                  preftype="boolean" />
         <checkbox id="fastopen_enable_cwd_gatherer"
                   label="&enableCwdGatherer.label;"
                   pref="true" prefattribute="checked"
