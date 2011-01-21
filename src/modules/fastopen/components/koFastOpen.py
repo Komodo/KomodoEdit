@@ -300,6 +300,13 @@ class KoFastOpenSession(object):
         return enable
 
     @property
+    def pref_enable_project_dir_gatherer(self):
+        enable = True
+        if self._globalPrefs.hasBooleanPref("fastopen_enable_project_dir_gatherer"):
+            enable = self._globalPrefs.getBooleanPref("fastopen_enable_project_dir_gatherer")
+        return enable
+
+    @property
     def pref_history_num_entries(self):
         value = 50
         if self._globalPrefs.hasLongPref("fastopen_history_num_entries"):
@@ -356,7 +363,8 @@ class KoFastOpenSession(object):
                 cwds = list(kovg.cwds)
             if self.pref_enable_project_gatherer and self.project:
                 g.append(fastopen.CachingKomodoProjectGatherer(
-                    UnwrapObject(self.project)))
+                    UnwrapObject(self.project),
+                    self.pref_enable_project_dir_gatherer))
             if self.pref_enable_cwd_gatherer and cwds:
                 g.append(fastopen.DirGatherer("cwd", cwds, True,
                     self.pref_path_excludes))

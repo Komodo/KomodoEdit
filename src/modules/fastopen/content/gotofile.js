@@ -326,7 +326,7 @@ function _openHits(hits) {
     for (var i in hits) {
         var hit = hits[i];
         if (hit.isdir) {
-            dirsToOpen.push(hit.base);
+            dirsToOpen.push(gSession.relavatizePath(hit.path));
         } else if (hit.type == "open-view") {
             hit.view.makeCurrent();
         } else {
@@ -339,8 +339,7 @@ function _openHits(hits) {
         opener.ko.open.multipleURIs(fileUrlsToOpen);
     } else if (dirsToOpen.length) {
         // Selecting a dir should just enter that dir into the filter box.
-        gWidgets.query.value = gOsPath.join(
-            gOsPath.dirname(gWidgets.query.value), dirsToOpen[0]) + gSep;
+        gWidgets.query.value = dirsToOpen[0] + gSep;
         findFiles(gWidgets.query.value);
         return false;
     }
@@ -372,7 +371,7 @@ function _completeSelectionOrMove(moveForward, allowAdvance) {
             gOsPath.dirname(gWidgets.query.value), hit.base);
     if (hit.isdir) {
         // Selecting a dir should just enter that dir into the filter box.
-        newValue += gSep;
+        newValue = gSession.relavatizePath(hit.path) + gSep;
     }
 
     // If the new value we'd complete to is already the selected value then

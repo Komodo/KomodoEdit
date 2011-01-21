@@ -43,6 +43,7 @@ import os
 from os.path import (exists, expanduser, join, isdir, dirname, abspath,
     splitext, split, isabs, normcase, normpath)
 import sys
+import re
 import logging
 import threading
 from pprint import pprint, pformat
@@ -260,6 +261,16 @@ class SearchRequest(Request):
         self._event.wait(timeout)
     def complete(self):
         self._event.set()
+    def expandProjectPath(self, path):
+        m = re.match("^\{(.*?)\}(.*)$", path)
+        if m is not None:
+            project_name, relpath = m.groups()
+            relpath = relpath.lstrip(os.sep)
+            for gather in self.gatherers:
+                if isinstance(gather, CachingKomodoProjectGatherer):
+                    if gather.project_name == project_name:
+                        return join(gather.base_dir, relpath)
+        return path
 
 class AbortSearchRequest(Request):
     """Request to abort a running search."""
@@ -392,6 +403,10 @@ class Driver(threading.Thread):
             elif query.startswith("~"):
                 expandedQuery = expanduser(query)
                 if isabs(expandedQuery):
+                    dirQueries.append(expandedQuery)
+            elif query.startswith("{") and "}" in query:
+                expandedQuery = request.expandProjectPath(query)
+                if expandedQuery != query:
                     dirQueries.append(expandedQuery)
             elif '/' in query:
                 dirQueries += [join(d, query) for d in request.cwds]
@@ -631,8 +646,9 @@ class KomodoProjectGatherer(Gatherer):
 
 class CachingKomodoProjectGatherer(Gatherer):
     """A gatherer of files in a Komodo project."""
-    def __init__(self, project):
+    def __init__(self, project, gatherDirs=False):
         self.project = project
+        self.gatherDirs = gatherDirs
         self.name = "project '%s'" % project.get_name()
         self.base_dir = project.get_importDirectoryLocalPath()
         project_name = self.project.get_name()
@@ -649,7 +665,7 @@ class CachingKomodoProjectGatherer(Gatherer):
         
         # Then, yield and cache any remaining ones.
         if self._raw_generator is None:
-            self._raw_generator = self.project.genLocalPaths()
+            self._raw_generator = self.project.genLocalPaths(self.gatherDirs)
         project_name = self.project_name
         base_dir = self.base_dir
         for path in self._raw_generator:
@@ -751,7 +767,7 @@ class MockKomodoProject(object):
             raise AttributeError("no 'liveDirectory' attribute (project "
                 "isn't a live folder)")
 
-    def genLocalPaths(self):
+    def genLocalPaths(self, gatherDirs=False):
         sys.path.insert(0, join(dirname(dirname(dirname(dirname(
             abspath(__file__))))), "find"))
         try:
@@ -760,6 +776,7 @@ class MockKomodoProject(object):
             del sys.path[0]
         paths = findlib2.paths_from_path_patterns(
             [self._base_dir],
+            dirs=(gatherDirs and "always" or "never"),
             recursive=True,
             includes=self._includes,
             excludes=self._excludes,
