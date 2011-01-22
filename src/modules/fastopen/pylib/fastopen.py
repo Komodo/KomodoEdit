@@ -118,18 +118,23 @@ class PathHit(Hit):
     def __repr__(self):
         return "<%s: %s>" % (self.__class__.__name__,
             self.label.replace(MDASH, "--"))
+    _labelCache = None
     @property
     def label(self):
-        return u"%s %s %s" % (self.base, MDASH, self.nicedir)
+        if self._labelCache is None:
+            self._labelCache = u"%s %s %s" % (self.base, MDASH, self.nicedir)
+        return self._labelCache
+    _nicedirCache = None
     @property
     def nicedir(self):
-        d = self.dir
-        if isabs(d) and "HOME" in os.environ:
-            home = os.environ["HOME"]
-            if self.dir_normcase.startswith(home):
-                d = "~" + d[len(home):]
-        return d
-    _isdirCache = None
+        if self._nicedirCache is None:
+            d = self.dir
+            if isabs(d) and "HOME" in os.environ:
+                home = os.environ["HOME"]
+                if self.dir_normcase.startswith(home):
+                    d = "~" + d[len(home):]
+            self._nicedirCache = d
+        return self._nicedirCache
     @property
     def isdir(self):
         if self._isdirCache is None:
@@ -143,20 +148,12 @@ class PathHit(Hit):
             word.
         """
         for word, caseSensitive, startswith in queryWords:
+            path = caseSensitive and self.label or self.label.lower()
             if startswith:
-                if caseSensitive:
-                    if not self.base.startswith(word):
-                        return False
-                else:
-                    if not self.ibase.startswith(word):
-                        return False
-            else:
-                if caseSensitive:
-                    if word not in self.base:
-                        return False
-                else:
-                    if word not in self.ibase:
-                        return False
+                if not path.startswith(word):
+                    return False
+            elif word not in path:
+                return False
         return True
 
 class GoHit(PathHit):
@@ -177,16 +174,21 @@ class ProjectHit(PathHit):
         self.project_name = project_name
         self.project_base_dir = project_base_dir
         super(ProjectHit, self).__init__(path)
+    _labelCache = None
     @property
     def label(self):
-        if self.project_base_dir:
-            if self.dir == self.project_base_dir:
-                return u"%s %s {%s}%s" % (self.base, MDASH, self.project_name, os.sep)
+        if self._labelCache is None:
+            if self.project_base_dir:
+                if self.dir == self.project_base_dir:
+                    self._labelCache = u"%s %s {%s}%s" % (self.base, MDASH,
+                            self.project_name, os.sep)
+                else:
+                    self._labelCache = u"%s %s {%s}%s%s" % (self.base, MDASH,
+                            self.project_name, os.sep,
+                            self.dir[len(self.project_base_dir)+1:])
             else:
-                return u"%s %s {%s}%s%s" % (self.base, MDASH, self.project_name,
-                    os.sep, self.dir[len(self.project_base_dir)+1:])
-        else:
-            return u"%s %s %s" % (self.base, MDASH, self.nicedir)
+                self._labelCache = u"%s %s %s" % (self.base, MDASH, self.nicedir)
+        return self._labelCache
 
 
 class ResultsView(object):
