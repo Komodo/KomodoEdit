@@ -1454,7 +1454,9 @@ ManagerClass.prototype = {
         if (!this.currentPlace) {
             return;
         }
-        this.pushHistoryInfo(this.currentPlace, destination_uri);
+        if (this.currentPlace != destination_uri) {
+            this.pushHistoryInfo(this.currentPlace, destination_uri);
+        }
     },
 
     _recordLastHomePlace: function() {
