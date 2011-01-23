@@ -115,7 +115,7 @@ class CatalogTestCase(CodeIntelTestCase):
             Blam.<|>pow
         """)
         for foo_py in (foo_py_a, foo_py_b, foo_py_c):
-            self.assertCompletionsAre(foo_py,
+            self.assertCompletionsInclude(foo_py,
                 [("function", "pif"), ("function", "pow")],
                 env=env)
 
@@ -581,7 +581,7 @@ class CplnTestCase(CodeIntelTestCase):
             f = Foo()
             f.<|>
         """)
-        self.assertCompletionsAre(markedup_content, [("function", "bar")])
+        self.assertCompletionsInclude(markedup_content, [("function", "bar")])
 
     def test_negative_cpln_assertion(self):
         self.assertCompletionsDoNotInclude(
@@ -1451,7 +1451,7 @@ class CplnTestCase(CodeIntelTestCase):
             writefile(path, c)
 
         buf = self.mgr.buf_from_path(join(test_dir, "test_extlib.py"), lang="Python")
-        self.assertCompletionsAre2(buf, positions[1],
+        self.assertCompletionsInclude2(buf, positions[1],
             [("class", "cZip")])
         self.assertCompletionsInclude2(buf, positions[2],
             [("function", "createZip")])
@@ -1776,13 +1776,13 @@ class OldCodeIntelTestCase(CodeIntelTestCase):
         self.assertCompletionsInclude(
             markup_text(content, pos=positions[1]),
             [("class", "Eggs"), ("function", "cook")])
-        self.assertCompletionsAre(
+        self.assertCompletionsInclude(
             markup_text(content, pos=positions[2]),
             [("function", "cook")])
         self.assertCalltipIs(
             markup_text(content, pos=positions[3]),
             "takeOrder(<the table number>) -> None\ntake an order")
-        self.assertCompletionsAre(
+        self.assertCompletionsInclude(
             markup_text(content, pos=positions[4]),
             [("function", "cook"), ("function", "crack")])
         #TODO: these two currently returns internal function vars
@@ -1795,7 +1795,7 @@ class OldCodeIntelTestCase(CodeIntelTestCase):
         self.assertCompletionsAre(
             markup_text(content, pos=positions[7]),
             None)
-        self.assertCompletionsAre(
+        self.assertCompletionsInclude(
             markup_text(content, pos=positions[8]),
             [('function', 'cook'), ('class', 'Eggs'), ('variable', 'items'),
              ('function', 'serve'), ('function', '__init__')])
@@ -1992,12 +1992,12 @@ class OldCodeIntelTestCase(CodeIntelTestCase):
                 print "hello from hi.py"
             hello(<12>)
         '''))
-        self.assertCompletionsAre(markup_text(content, pos=positions[1]),
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
             [("function", "bar"), ("function", "foo"),
              ("variable", "ivar"), ("function", "__init__")])
         self.assertCalltipIs(markup_text(content, pos=positions[2]),
                              "foo(c)\nfoo baby, yeah!")
-        self.assertCompletionsAre(markup_text(content, pos=positions[3]),
+        self.assertCompletionsInclude(markup_text(content, pos=positions[3]),
             [("function", "bar"), ("function", "foo"),
              ("variable", "ivar"), ("function", "__init__")])
         self.assertCalltipIs(markup_text(content, pos=positions[4]),
@@ -2008,12 +2008,12 @@ class OldCodeIntelTestCase(CodeIntelTestCase):
                              "ContrivedDummy(a, b)\ncreate a contrived dummy")
         self.assertCalltipIs(markup_text(content, pos=positions[7]),
                              "ContrivedDummy(a, b)\ncreate a contrived dummy")
-        self.assertCompletionsAre(markup_text(content, pos=positions[8]),
+        self.assertCompletionsInclude(markup_text(content, pos=positions[8]),
             [("function", "bar"), ("function", "foo"),
              ("variable", "ivar"), ("function", "__init__")])
         self.assertCalltipIs(markup_text(content, pos=positions[9]),
                              "foo(c)\nfoo baby, yeah!")
-        self.assertCompletionsAre(markup_text(content, pos=positions[10]),
+        self.assertCompletionsInclude(markup_text(content, pos=positions[10]),
             [
                 ('variable', 'BAR'),
                 ('variable', 'Bar'),
@@ -2027,7 +2027,7 @@ class OldCodeIntelTestCase(CodeIntelTestCase):
                 ('variable', '__Bar'),
                 ('variable', '__BAR'),
             ])
-        self.assertCompletionsAre(markup_text(content, pos=positions[11]),
+        self.assertCompletionsInclude(markup_text(content, pos=positions[11]),
             [("function", "bar"), ("function", "foo"),
              ("variable", "ivar"), ("function", "__init__")])
         self.assertCalltipIs(markup_text(content, pos=positions[12]),
@@ -2201,23 +2201,23 @@ class OldCodeIntelTestCase(CodeIntelTestCase):
             writefile(path, c)
 
         buf = self.mgr.buf_from_path(join(test_dir, "foo.py"), lang="Python")
-        self.assertCompletionsAre2(buf, positions[1],
+        self.assertCompletionsInclude2(buf, positions[1],
                               [("function", "basemethod1"),
                                ("function", "basemethod2"),
                                ("function", "submethod1")])
-        self.assertCompletionsAre2(buf, positions[2],
+        self.assertCompletionsInclude2(buf, positions[2],
                               [("function", "basemethod1"),
                                ("function", "basemethod2"),
                                ("function", "doYouLikeFruit"),
                                ("function", "isRipe"),
                                ("function", "isRotten")])
-        self.assertCompletionsAre2(buf, positions[3],
+        self.assertCompletionsInclude2(buf, positions[3],
                               [("function", "basemethod1"),
                                ("function", "basemethod2"),
                                ("function", "submethod1")])
         #TODO: this one isn't picking up on fruit.Fruit methods. It is a
         #      scoperef issue.
-        self.assertCompletionsAre2(buf, positions[4],
+        self.assertCompletionsInclude2(buf, positions[4],
                               [("function", "basemethod1"),
                                ("function", "basemethod2"),
                                ("function", "doYouLikeFruit"),
