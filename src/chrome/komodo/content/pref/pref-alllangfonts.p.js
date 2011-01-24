@@ -1336,6 +1336,12 @@ listElement.prototype =
               this.listElement.appendChild( popupNode );
           }
 
+          // Be sure to add the current font
+          var isFixed = (faces == gFontsFixed) ? 1 : 0;
+          var currFont = gDialog.currentScheme.getFont(faceIdentifier(gDialog.currentEncoding, isFixed));
+          if (faces.indexOf(currFont) == -1) {
+              faces.push(currFont);
+          }
           faces.sort();
           for( var i = 0; i < faces.length; i++ )
             {
