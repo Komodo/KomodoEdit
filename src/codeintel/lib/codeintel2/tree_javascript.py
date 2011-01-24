@@ -344,7 +344,9 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
         for elem, scoperef in hits:
             #self.log("calltip for hit: %r", hit)
             if elem.tag == "variable":
-                XXX
+                # Ignore variable hits.
+                self.debug("_calltips_from_hits:: ignoring variable: %r", elem)
+                continue
             elif elem.tag == "scope":
                 ilk = elem.get("ilk")
                 if ilk == "function":
