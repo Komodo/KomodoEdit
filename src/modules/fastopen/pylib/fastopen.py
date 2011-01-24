@@ -118,12 +118,14 @@ class PathHit(Hit):
     def __repr__(self):
         return "<%s: %s>" % (self.__class__.__name__,
             self.label.replace(MDASH, "--"))
+
     _labelCache = None
     @property
     def label(self):
         if self._labelCache is None:
             self._labelCache = u"%s %s %s" % (self.base, MDASH, self.nicedir)
         return self._labelCache
+
     _nicedirCache = None
     @property
     def nicedir(self):
@@ -135,11 +137,14 @@ class PathHit(Hit):
                     d = "~" + d[len(home):]
             self._nicedirCache = d
         return self._nicedirCache
+
+    _isdirCache = None
     @property
     def isdir(self):
         if self._isdirCache is None:
             self._isdirCache = isdir(self.path)
         return self._isdirCache
+
     def match(self, queryWords):
         """Return true if the given query matches this hit.
         
@@ -174,6 +179,7 @@ class ProjectHit(PathHit):
         self.project_name = project_name
         self.project_base_dir = project_base_dir
         super(ProjectHit, self).__init__(path)
+
     _labelCache = None
     @property
     def label(self):
