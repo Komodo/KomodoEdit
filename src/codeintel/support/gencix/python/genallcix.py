@@ -81,11 +81,15 @@ except ImportError:
             from ElementTree import Element, SubElement, ElementTree, parse
 
 major, minor = sys.version_info[:2]
+lang = "Python"
+if major >= 3:
+    lang += str(major)
+
 if sys.platform == 'win32':
     EXTENSIONS = [".py", ".pyd", ".dll"]
 else:
     EXTENSIONS = [".py", ".so"]
-    
+
 # modules that we want to skip, usually because they have side effects
 # or just because they're not seen as providing enough value for the size
 # XXX: move the mac ones to a pymac.cix?
@@ -105,7 +109,8 @@ skip_regexen = ['test\.', '.*Mozilla', '__phello__',
             '_OSA', '_Qd', '_Qdoffs', '_Qt', '_Res', '_Scrap', '_Snd', '_TE',
             '_Win', '_codecs_cn', '_codecs_hk', '_codecs_iso2022', '_codecs_jp',
             '_codecs_kr', '_codecs_tw', '_LWPCookieJar', 'idlelib\.ToolTip',
-            'idlelib\.\.*', 'antigravity']
+            'idlelib\.\.*', 'antigravity', 'turtledemo.*', 'tkinter.__main__',
+            'unittest.__main__']
 
 if sys.platform.startswith("linux"):
     skip_regexen += ["CDROM", "DLFCN", "TYPES"]
@@ -430,7 +435,7 @@ def process_module_list(module_list, fname, catalog_name=None,
     if catalog_description:
         root.set("description", catalog_description)
     cixfile = SubElement(root, "file",
-                      lang="Python",
+                      lang=lang,
                       mtime=str(0),
                       path=os.path.basename(fname))
 
@@ -474,7 +479,7 @@ def process_module_list(module_list, fname, catalog_name=None,
     print("done writing generic bits: %r." % fname)
 
 
-fname = '../../../lib/codeintel2/stdlibs/python-%d.%d.cix' % (major, minor)
+fname = '../../../lib/codeintel2/stdlibs/%s-%d.%d.cix' % (lang.lower(), major, minor)
 pywin32fname = '../../../lib/codeintel2/catalogs/pywin32.cix' 
 
 # Remember the original cix, we'll merge with it after the current scan.
@@ -483,7 +488,7 @@ try:
 except (IOError, SyntaxError):
     # When the CIX file does not yet exist (new scan), create an empty root.
     orig_root = Element("codeintel", version="2.0")
-    SubElement(orig_root, "file", lang="Python", mtime=str(0),
+    SubElement(orig_root, "file", lang=lang, mtime=str(0),
                path=os.path.basename(fname))
 
 process_module_list(module_names, fname)
