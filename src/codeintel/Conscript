@@ -168,6 +168,7 @@ my @stdlibs_files = (
     "lib/codeintel2/stdlibs/python-2.6.cix",
     "lib/codeintel2/stdlibs/python-2.7.cix",
     "lib/codeintel2/stdlibs/python3-3.1.cix",
+    "lib/codeintel2/stdlibs/python3-3.2.cix",
     "lib/codeintel2/stdlibs/perl-5.8.cix",
     "lib/codeintel2/stdlibs/perl-5.10.cix",
     "lib/codeintel2/stdlibs/perl-5.12.cix",
