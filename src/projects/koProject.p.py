@@ -839,7 +839,7 @@ class koFolderPart(koContainer):
     _com_interfaces_ = [components.interfaces.koIPart_folder]
     type = 'folder'
     prettytype = 'Folder'
-    _iconurl = 'chrome://komodo/skin/images/folder-closed.png'
+    _iconurl = 'chrome://fugue/skin/icons/folders-stack.png'
     primaryInterface = 'koIPart_folder'
 
     def __repr__(self):

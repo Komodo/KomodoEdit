@@ -35,15 +35,7 @@
 }
 
 .projectTree:-moz-tree-image(folder) {
-  list-style-image: url('chrome://komodo/skin/images/folder-closed-pink.png');
-}
-
-.projectTree:-moz-tree-image(folder, open) {
-  list-style-image: url('chrome://komodo/skin/images/folder-open-pink.png');
-}
-
-.projectTree:-moz-tree-image(folder, closed) {
-  list-style-image: url('chrome://komodo/skin/images/folder-closed-pink.png');
+  list-style-image: url('chrome://fugue/skin/icons/folders-stack.png');
 }
 
 .projectTree:-moz-tree-image(livefolder) {
