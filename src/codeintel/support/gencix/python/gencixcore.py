@@ -391,8 +391,8 @@ def docmodule(modname, root, force=False, usefile=False, dir=None):
             process_class_using_instance(moduleElt, var, name, callables)
 
 def writeCixFileForElement(filename, root):
-    stream = open(filename, 'w')
-    stream.write('<?xml version="1.0" encoding="UTF-8"?>\n')
+    stream = open(filename, 'wb')
+    stream.write('<?xml version="1.0" encoding="UTF-8"?>\n'.encode('ascii'))
     prettify(root)
     tree = ElementTree(root)
     tree.write(stream)
