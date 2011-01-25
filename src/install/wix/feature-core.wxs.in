@@ -1858,6 +1858,7 @@
                     <File Id="file897" LongName="python-2.6.cix" Name="PYTHON_2.CIX" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\stdlibs\python-2.6.cix" />
                     <File Id="file382" LongName="python-2.7.cix" Name="PYTHON_5.CIX" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\stdlibs\python-2.7.cix" />
                     <File Id="file1070" LongName="python3-3.1.cix" Name="PYTHON_3.CIX" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\stdlibs\python3-3.1.cix" />
+                    <File Id="file553" LongName="python3-3.2.cix" Name="PYTHON_6.CIX" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\stdlibs\python3-3.2.cix" />
                     <File Id="file130" Name="ruby.cix" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\stdlibs\ruby.cix"/>
                     <File Id="file155" LongName="php-4.3.cix" Name="PHP43_0.CIX" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\stdlibs\php-4.3.cix" />
                     <File Id="file157" LongName="php-4.4.cix" Name="PHP44_0.CIX" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\stdlibs\php-4.4.cix" />
