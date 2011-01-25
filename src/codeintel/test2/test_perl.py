@@ -1314,7 +1314,7 @@ class CplnTestCase(CodeIntelTestCase):
             markup_text(content, pos=positions[5]),
             None)
 
-    @tag("import", "knownfailure", "bug88826")
+    @tag("import", "bug88826")
     def test_multi_level_import(self):
         test_dir = join(self.test_dir, "test_multi_level_import")
         foo_path = join(test_dir, "foo.pl")
