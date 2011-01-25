@@ -49,6 +49,7 @@ import stat, os, time
 import eollib
 import difflibex
 import langinfo
+import which
 from koLanguageServiceBase import getActualStyle
 from koUDLLanguageBase import udl_family_from_style
 import koUnicodeEncoding, codecs, types
@@ -328,12 +329,12 @@ class koDocumentBase:
         #   end of the document. [Is this a necessary opt? --TM]
         contentLanguages = []
         buffer = self.get_buffer()
+        if fileNameLanguage == "Python":
+            contentLanguages = self._distinguishPythonVersion(buffer)
+        elif buffer:
+            contentLanguages = langRegistrySvc.guessLanguageFromContents(
+                buffer[:1000], buffer[-1000:])
         if buffer:
-            if fileNameLanguage == "Python":
-                contentLanguages = self._distinguishPythonVersion(buffer)
-            else:
-                contentLanguages = langRegistrySvc.guessLanguageFromContents(
-                    buffer[:1000], buffer[-1000:])
             log.info("_guessLanguage: possible languages from content: %s",
                      contentLanguages)
 
@@ -1685,17 +1686,56 @@ class koDocumentBase:
     def get_hasTabstopInsertionTable(self):
         return self._tabstopInsertionNodes is not None
 
+    def _getPython2Path(self):
+        python2Info = components.classes["@activestate.com/koAppInfoEx?app=%s;1"
+                                        % 'Python'] \
+                        .getService(components.interfaces.koIAppInfoEx)
+        python2Path = python2Info.executablePath
+        if not python2Path or not os.path.exists(python2Path):
+            try:
+                python2Path = which.which("python")
+            except which.WhichError:
+                python2Path = None
+        return python2Path
+
+    def _getPython3Path(self):
+        python3Info = components.classes["@activestate.com/koAppInfoEx?app=%s;1"
+                                        % 'Python3'] \
+                        .getService(components.interfaces.koIAppInfoEx)
+        python3Path = python3Info.executablePath
+        if not python3Path or not os.path.exists(python3Path):
+            try:
+                python3Path = which.which("python3")
+            except which.WhichError:
+                python3Path = None
+        return python3Path
+
+    _languageNameByVersion = [None, None, "Python", "Python3"]
     def _distinguishPythonVersion(self, buffer):
         """
-        Look for python-3 markers first
+        If the user has an installation for only one of the Python
+        versions, favor that.  Otherwise, analyze the buffer.
         """
         import pythonVersionUtils
-        isPython3 = pythonVersionUtils.isPython3(buffer)
-        if isPython3:
-            return ["Python3"]
+        python2 = self._getPython2Path()
+        python3 = self._getPython3Path()
+        # If the buffer's empty, favor v2 over v3.
+        if (not python2) == (not python3):
+            # Either we have both, or neither, so we need to do
+            # further analysis.
+            if not buffer:
+                versionNo = 2
+            else:
+                isPython3 = pythonVersionUtils.isPython3(buffer)
+                if isPython3:
+                    versionNo = 3
+                else:
+                    versionNo = 2
+        elif python2:
+            versionNo = 2
         else:
-            return ["Python"]
-
+            versionNo = 3
+        return [self._languageNameByVersion[versionNo]]
 
     #---- internal general support methods
     
