@@ -457,6 +457,16 @@ class LangDirsLib(object):
                     buf.scan_if_necessary()
 
                     dbfile_from_blobname = lang_zone.dfb_from_dir(blobdir, {})
+                    if self.lang == "Perl":
+                        # Perl uses the full blob name - not just the blob base,
+                        # see bug 89106 for details.
+                        if blobname in dbfile_from_blobname:
+                            self._dir_and_blobbase_from_blobname[blobname] \
+                                = (blobdir, blobname)
+                            log.debug("have blob '%s' in '%s'? yes (in dir index)", 
+                                      blobname, blobdir)
+                            return join(lang_zone.dhash_from_dir(blobdir),
+                                        dbfile_from_blobname[blobname])
                     if blobbase in dbfile_from_blobname:
                         self._dir_and_blobbase_from_blobname[blobname] \
                             = (blobdir, blobbase)
