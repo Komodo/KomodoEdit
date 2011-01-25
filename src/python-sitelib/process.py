@@ -71,9 +71,20 @@ class ProcessError(Exception):
 if sys.platform == "win32" and sys.getwindowsversion()[3] == 2:
 
     import winprocess
-    from subprocess import (pywintypes, list2cmdline, STARTUPINFO, SW_HIDE,
-                            STARTF_USESTDHANDLES, STARTF_USESHOWWINDOW,
-                            GetVersion, CreateProcess, TerminateProcess)
+    from subprocess import pywintypes, list2cmdline, STARTUPINFO
+    try:
+        # These subprocess variables have moved around between Python versions.
+        from subprocess import (SW_HIDE,
+                                STARTF_USESTDHANDLES, STARTF_USESHOWWINDOW,
+                                GetVersion, CreateProcess, TerminateProcess)
+    except ImportError:
+        import subprocess
+        SW_HIDE = subprocess._subprocess.SW_HIDE
+        STARTF_USESTDHANDLES = subprocess._subprocess.STARTF_USESTDHANDLES
+        STARTF_USESHOWWINDOW = subprocess._subprocess.STARTF_USESHOWWINDOW
+        GetVersion = subprocess._subprocess.GetVersion
+        CreateProcess = subprocess._subprocess.CreateProcess
+        TerminateProcess = subprocess._subprocess.TerminateProcess
 
     # This fix is for killing child processes on windows, based on:
     #   http://www.microsoft.com/msj/0698/win320698.aspx
