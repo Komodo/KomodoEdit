@@ -124,8 +124,11 @@ class _PerlPkgTable(object):
         """
         if pkg_name in self._mod_from_pkg_name:
             mod = self._mod_from_pkg_name[pkg_name]
-            return mod.names.get(pkg_name)
+            if mod is not None:
+                return mod.names.get(pkg_name)
         for mod, pkg_names in self._generator:
+            if mod is None:
+                continue
             if pkg_name in pkg_names:
                 return mod.names.get(pkg_name)
         return None
@@ -138,7 +141,8 @@ class _PerlPkgTable(object):
         """
         if pkg_name in self._mod_from_pkg_name:
             mod = self._mod_from_pkg_name[pkg_name]
-            return mod, mod.names.get(pkg_name)
+            if mod is not None:
+                return mod, mod.names.get(pkg_name)
         for mod, pkg_names in self._generator:
             if mod is None:
                 continue
