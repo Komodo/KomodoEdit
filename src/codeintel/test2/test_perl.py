@@ -564,7 +564,26 @@ class CplnTestCase(CodeIntelTestCase):
              ('function', 'protocol'),
              ('function', 'headers_as_string')]
         )
+        
+    @tag("bug81788")
+    def test_bug81788a(self):
+        self.assertTriggerMatches("$req-><|>", name="perl-complete-*-subs")
+        self.assertTriggerMatches("$req1-><|>", name="perl-complete-*-subs")
 
+    @tag("bug81788")
+    def test_bug81788b(self):
+        """ test_bug81788b fails as long as test_bug817881 fails"""
+        content, positions = unmark_text(dedent("""
+            use HTTP::Request;
+            my $req1 = HTTP::Request->new(GET => "http://www.example.com");
+            $req1-><1>blah();
+        """))
+        self.assertCompletionsInclude(
+            markup_text(content, pos=positions[1]),
+            [# methods from HTTP::Request
+             ('function', 'as_string'),]
+        )
+        
     @tag("bug68900b")
     def test_my_vars(self):
         test_dir = join(self.test_dir, "test_myvars")
