@@ -267,4 +267,32 @@
             RGB(0x60,0x90,0xff));
     ko.hyperlinks.addHandler(django_view_handler);
 
+    /**
+     * A Django view/template handler - to help in opening files. Examples:
+     *    render_to_response('komodo/index.html', ...)
+     */
+    function django_extends_jump_handler() {
+        var match = django_extends_handler.regex_match;
+        var filepath = match[1];
+        var osPathSvc = Components.classes["@activestate.com/koOsPath;1"].getService(Components.interfaces.koIOsPath);
+        // Try current directory templates.
+        // XXX: The "templates" name should come from the settings.py file.
+        var templatepath = osPathSvc.join("templates", filepath);
+        var alternativePaths = [osPathSvc.join("..", templatepath)];
+        // Also try parent directory templates, seeing if there is a match there.
+        for (var i=1; i < 5; i++) {
+            alternativePaths.push(osPathSvc.join("..", alternativePaths[i-1]));
+        }
+        filename_jump_handler(templatepath, alternativePaths);
+    }
+    var django_extends_handler = new ko.hyperlinks.RegexHandler(
+            "Django render_to_response handler",
+            new RegExp("\\{\\%\\s*extends\\s+[\"'](.*?)[\"']", "i"),
+            django_extends_jump_handler,
+            null,  /* Use the found string instead of a replacement. */
+            ["Django"],  /* Django files only */
+            Components.interfaces.ISciMoz.INDIC_PLAIN,
+            RGB(0x60,0x90,0xff));
+    ko.hyperlinks.addHandler(django_extends_handler);
+
 })();
