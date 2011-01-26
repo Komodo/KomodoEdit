@@ -1110,6 +1110,24 @@ function Find_ReplaceInMacro(editor, contexttype, pattern, replacement,
 }
 
 
+/** Find_ReplaceAllInMacro
+ * @param {object} editor -- global window object
+ * @param {int} contexttype -- one of the following koIFindContext values:
+    FCT_CURRENT_DOC = 0, FCT_SELECTION, FCT_ALL_OPEN_DOCS,
+    FCT_IN_FILES, FCT_IN_COLLECTION
+ * @param {string} pattern
+ * @param {string} replacement
+ * @param {boolean} quiet
+ * @param {int} patternType - one of the following koIFindOptions values:
+    FOT_SIMPLE = 0, FOT_WILDCARD, FOT_REGEX_PYTHON
+ * @param {int} caseSensitivity - one of the following koIFindOptions values:
+    FOC_INSENSITIVE = 0, FOC_SENSITIVE, FOC_SMART
+ * @param {boolean} searchBackward
+ * @param {boolean} matchWord
+ * 
+ * @returns void    
+ */   
+
 function Find_ReplaceAllInMacro(editor, contexttype, pattern, replacement, quiet,
                                 patternType, caseSensitivity, searchBackward, matchWord)
 {
