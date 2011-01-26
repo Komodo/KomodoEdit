@@ -260,7 +260,6 @@ class koScintillaController:
                 if sm.getLineEndPosition(lineNo) == nextLineStartPos:
                     # At last line of doc, buffer doesn't end with an EOL
                     # Unlike copy, here we can append a newline
-                    import eollib
                     eol = eollib.eol2eolStr[eollib.scimozEOL2eol[sm.eOLMode]]
                     sm.insertText(sm.length, eol)
                     nextLineStartPos += len(eol)
