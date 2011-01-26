@@ -1,6 +1,6 @@
 {
   "keyboard_shortcut": "", 
-  "name": "tx", 
+  "name": "try", 
   "value": [
     "try:", 
     "\t[[%tabstop:your code here]]", 
