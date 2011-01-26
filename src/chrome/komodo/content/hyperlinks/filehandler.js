@@ -70,9 +70,59 @@
     }
 
     /**
-     * Open the href location.
+     * Expand and return the absolute path of the given relative path.
+     *
+     * @param {koIView} view - The editor view.
+     * @param {String} filepath - The path to expand.
+     * @param {array} alternativePaths - Other possible filepaths (when filepath doesn't exist).
+     *
+     * @returns {String}
      */
-    function filename_jump_handler(filepath) {
+    function getAbsFilepath(view, filepath, alternativePaths /* [] */) {
+        var absFilepath = null;
+        if (filepath[0] == "\\" || filepath[0] == "/") {
+            // It's an absolute path already.
+            absFilepath = filepath;
+        } else if (filepath.search(/^\w+:\/\//) == 0) {
+            // It's in a URI format - convert to local path.
+            // XXX: Need a way to deal with remote paths.
+            absFilepath = ko.uriparse.URIToLocalPath(filepath);
+        } else {
+            // It's a relative path.
+
+            // #1 - TODO: Check mapped URIs for this path.
+
+            // #2 - TODO: check against a list of known places (images, css,
+            //            etc...).
+
+            // #3 - default to the current directory.
+            var osPathSvc = Components.classes["@activestate.com/koOsPath;1"].getService(Components.interfaces.koIOsPath);
+            var view_filepath = view.koDoc.file.path;
+            var view_dirpath = ko.uriparse.dirName(view_filepath);
+            absFilepath = osPathSvc.join(view_dirpath, filepath);
+            if (alternativePaths && !osPathSvc.exists(absFilepath)) {
+                // Check other possible locations
+                var altPath = "";
+                for (var i=0; i < alternativePaths.length; i++) {
+                    altPath = osPathSvc.join(view_dirpath, alternativePaths[i]);
+                    altPath = osPathSvc.normpath(altPath);
+                    if (osPathSvc.exists(altPath)) {
+                        absFilepath = altPath;
+                        break;
+                    }
+                }
+            }
+        }
+        return absFilepath;
+    }
+
+    /**
+     * Open the filepath/href location.
+     *
+     * @param {String} filepath - The (relative, href, absolute) path to open.
+     * @param {array} alternativePaths - Other possible filepaths (when filepath doesn't exist).
+     */
+    function filename_jump_handler(filepath, alternativePaths) {
         if (typeof(filepath) == 'undefined') {
             var match = src_href_handler.regex_match;
             filepath = match[2];
@@ -98,25 +148,8 @@
                     ko.statusBar.AddMessage(_bundle.formatStringFromName("noAnchorFound.message", [filepath], 1),
                                             "hyperlinks", 3000, true);
                 }
-            } else if (filepath[0] == "\\" || filepath[0] == "/") {
-                // It's an absolute path.
-                ko.open.URI(filepath);
-            } else if (filepath.search(/^\w+:\/\//) == 0) {
-                // It's in a URI format - leave as is.
-                ko.open.URI(filepath);
             } else {
-                // It's a relative path.
-
-                // #1 - TODO: Check mapped URIs for this path.
-
-                // #2 - TODO: check against a list of known places (images, css,
-                //            etc...).
-
-                // #3 - default to the current directory.
-                var osPathSvc = Components.classes["@activestate.com/koOsPath;1"].getService(Components.interfaces.koIOsPath);
-                var view_filepath = view.koDoc.file.path;
-                filepath = osPathSvc.join(ko.uriparse.dirName(view_filepath), filepath);
-                ko.open.URI(filepath);
+                ko.open.URI(getAbsFilepath(view, filepath, alternativePaths));
             }
         }
     }
@@ -205,5 +238,32 @@
             Components.interfaces.ISciMoz.INDIC_PLAIN,
             RGB(0x60,0x90,0xff));
     ko.hyperlinks.addHandler(php_include_handler);
+
+    /**
+     * A Django view/template handler - to help in opening files. Examples:
+     *    render_to_response('komodo/index.html', ...)
+     */
+    function django_view_jump_handler() {
+        var match = django_view_handler.regex_match;
+        var filepath = match[2];
+        var osPathSvc = Components.classes["@activestate.com/koOsPath;1"].getService(Components.interfaces.koIOsPath);
+        // Try current directory templates.
+        var templatepath = osPathSvc.join("templates", filepath);
+        var alternativePaths = [osPathSvc.join("..", templatepath)];
+        // Also try parent directory templates, seeing if there is a match there.
+        for (var i=1; i < 5; i++) {
+            alternativePaths.push(osPathSvc.join("..", alternativePaths[i-1]));
+        }
+        filename_jump_handler(templatepath, alternativePaths);
+    }
+    var django_view_handler = new ko.hyperlinks.RegexHandler(
+            "Django render_to_response handler",
+            new RegExp("render_to_response\\s*(\\(\\s*)?[\"'](.*?)[\"']", "i"),
+            django_view_jump_handler,
+            null,  /* Use the found string instead of a replacement. */
+            ["Python", "Python3"],  /* Python files only */
+            Components.interfaces.ISciMoz.INDIC_PLAIN,
+            RGB(0x60,0x90,0xff));
+    ko.hyperlinks.addHandler(django_view_handler);
 
 })();
