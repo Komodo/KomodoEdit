@@ -417,7 +417,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY signs.label "+/- signs">
 <!ENTITY smartEditing.label "Smart Editing">
 <!ENTITY sourceCodeControlProperties.label "Source Code Control Properties">
-<!ENTITY specifyTheProjectsActualLocation.label "Specify the folder associated with this project.">
+<!ENTITY specifyTheProjectsActualLocation.label "Project base directory">
 <!ENTITY squareTrees.label "Square Trees">
 <!ENTITY startOfLine.label "Start of line">
 <!ENTITY startPage.label "Start Page">
