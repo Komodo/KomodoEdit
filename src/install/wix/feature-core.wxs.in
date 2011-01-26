@@ -4895,12 +4895,13 @@
                     <File Id="file1139" Name="CLASS_2.KOM" LongName="class.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\Python\class.komodotool"/>
                     <File Id="file1140" Name="DOC_2.KOM" LongName="doc.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\Python\doc.komodotool"/>
                     <File Id="file1239" Name="FOR_2.KOM" LongName="for.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\Python\for.komodotool" />
-                    <File Id="file1141" Name="FUNC_2.KOM" LongName="func.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\Python\func.komodotool"/>
                     <File Id="file1142" Name="MAIN_2.KOM" LongName="main.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\Python\main.komodotool"/>
                     <File Id="file1143" Name="METH_1.KOM" LongName="meth.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\Python\meth.komodotool"/>
                     <File Id="file1144" Name="OPTS_0.KOM" LongName="opts.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\Python\opts.komodotool"/>
                     <File Id="file1145" Name="SHEBAN_0.KOM" LongName="shebang.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\Python\shebang.komodotool"/>
                     <File Id="file1146" Name="WALK_0.KOM" LongName="walk.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\Python\walk.komodotool"/>
+                    <File Id="NEWFILE" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\Python\def.komodotool"/>
+                    <File Id="NEWFILE" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\Python\try.komodotool"/>
                   </Component>
                 </Directory> <!-- lib\support\samples\tools\Abbreviations\Python -->
 
@@ -4909,12 +4910,13 @@
                     <File Id="file1257" Name="CLASS_4.KOM" LongName="class.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\Python3\class.komodotool"/>
                     <File Id="file1258" Name="DOC_3.KOM" LongName="doc.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\Python3\doc.komodotool"/>
                     <File Id="file1259" Name="FOR_3.KOM" LongName="for.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\Python3\for.komodotool"/>
-                    <File Id="file1260" Name="FUNC_3.KOM" LongName="func.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\Python3\func.komodotool"/>
                     <File Id="file1261" Name="MAIN_4.KOM" LongName="main.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\Python3\main.komodotool"/>
                     <File Id="file1262" Name="METH_2.KOM" LongName="meth.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\Python3\meth.komodotool"/>
                     <File Id="file1263" Name="OPTS_1.KOM" LongName="opts.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\Python3\opts.komodotool"/>
                     <File Id="file1264" Name="SHEBAN_1.KOM" LongName="shebang.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\Python3\shebang.komodotool"/>
                     <File Id="file1265" Name="WALK_1.KOM" LongName="walk.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\Python3\walk.komodotool"/>
+                    <File Id="NEWFILE" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\Python3\def.komodotool"/>
+                    <File Id="NEWFILE" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\Python3\try.komodotool"/>
                   </Component>
                 </Directory> <!-- lib\support\samples\tools\Abbreviations\Python3 -->
 
