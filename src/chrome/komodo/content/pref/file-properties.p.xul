@@ -55,7 +55,6 @@
     <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/dialogs.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/otherdialogs.js" type="application/x-javascript;version=1.7"/>
-    <script src="chrome://komodo/content/library/filepickers.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/uriparse.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/encodingmenu.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/windowManager.js" type="application/x-javascript;version=1.7"/>
@@ -67,7 +66,7 @@
          as it adds a scrollbar when the contents are too long. -->
     <vbox id="file-properties-prefs-vbox" flex="1" class="autoscroll">
 
-        <groupbox id="importFrame" name="importFrame" orient="vertical" flex="1">
+        <groupbox id="importFrame" name="importFrame" orient="vertical" >
             <caption label="&specifyTheProjectsActualLocation.label;" class="kopadded"/>
             <vbox flex="1">
                <grid align="center" id="baseDirPickerGrid">
