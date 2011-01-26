@@ -230,6 +230,7 @@ class KoFastOpenSession(object):
     # by `gatherers`, i.e. the sources for the list of files.
     project = None
     views = None
+    currentPlace = None
 
     def __init__(self, driver, uiDriver):
         self.driver = driver
@@ -346,6 +347,9 @@ class KoFastOpenSession(object):
     def setOpenViews(self, views):
         self.views = views
         self._gatherers_cache = None
+    def setCurrentPlace(self, currentPlace):
+        self.currentPlace = currentPlace
+        self._gatherers_cache = None
     def setCurrHistorySession(self, sessionName):
         self.historySessionName = sessionName
         self._gatherers_cache = None
@@ -361,6 +365,9 @@ class KoFastOpenSession(object):
                 if self.pref_enable_open_views_gatherer:
                     g.append(kovg)
                 cwds = list(kovg.cwds)
+            if self.currentPlace and self.currentPlace.startswith("file://"):
+                from uriparse import URIToLocalPath
+                cwds.append(URIToLocalPath(self.currentPlace))
             if self.pref_enable_project_gatherer and self.project:
                 g.append(fastopen.CachingKomodoProjectGatherer(
                     UnwrapObject(self.project),

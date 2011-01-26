@@ -52,6 +52,9 @@ function onLoad()
         for (view in hist.genRecentViews()) {
             openViews.push(view);
         }
+        if (opener.ko.places) {
+            gSession.setCurrentPlace(opener.ko.places.manager.currentPlace);
+        }
         gSession.setOpenViews(openViews.length, openViews);
         gSession.setCurrHistorySession(opener.ko.history.curr_session_name());
 
