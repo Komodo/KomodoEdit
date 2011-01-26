@@ -248,6 +248,7 @@
         var filepath = match[3];
         var osPathSvc = Components.classes["@activestate.com/koOsPath;1"].getService(Components.interfaces.koIOsPath);
         // Try current directory templates.
+        // XXX: The "templates" name should come from the settings.py file.
         var templatepath = osPathSvc.join("templates", filepath);
         var alternativePaths = [osPathSvc.join("..", templatepath)];
         // Also try parent directory templates, seeing if there is a match there.
@@ -258,7 +259,7 @@
     }
     var django_view_handler = new ko.hyperlinks.RegexHandler(
             "Django render_to_response handler",
-            new RegExp("(render_to_response|template)\\s*(\\(\\s*)?[\"'](.*?)[\"']", "i"),
+            new RegExp("(render_to_response|render_to_string|template)\\s*(\\(\\s*)?[\"'](.*?)[\"']", "i"),
             django_view_jump_handler,
             null,  /* Use the found string instead of a replacement. */
             ["Python", "Python3"],  /* Python files only */
