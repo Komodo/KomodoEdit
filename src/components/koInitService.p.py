@@ -930,6 +930,8 @@ class KoInitService(object):
             "project-templates": "project-templates",
             "schemes": "schemes",
             "toolbox.kpf": "toolbox.kpf",
+            "toolbox.sqlite": "toolbox.sqlite",
+            "tools": "tools",
             "doc-state.xmlc": "doc-state.xmlc", 
             "view-state.xmlc": "view-state.xmlc", 
             "apicatalogs": "apicatalogs",
