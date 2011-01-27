@@ -418,9 +418,10 @@ class KoFastOpenSession(object):
             home = os.environ["HOME"]
             if path.startswith(home):
                 possibile_paths.append("~" + path[len(home):])
-        for alias, dirpath in dirShortcuts.items():
-            if path.startswith(dirpath):
-                possibile_paths.append(alias + path[len(dirpath):])
+        if dirShortcuts:
+            for alias, dirpath in dirShortcuts.items():
+                if path.startswith(dirpath):
+                    possibile_paths.append(alias + path[len(dirpath):])
         for gatherer in gatherers:
             if isinstance(gatherer, fastopen.CachingKomodoProjectGatherer):
                 if path.startswith(gatherer.base_dir):
