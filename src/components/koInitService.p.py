@@ -957,18 +957,6 @@ class KoInitService(object):
                 pass
         currVer = tuple(currVer) # e.g. (6,0)
 
-        # Upgrade handling - just for people using 6.0.0 nightlies - can be
-        # removed once we release the first 6.0.0-alpha1.
-        if currVer == (6, 0):
-            host_xre = join(self._hostUserDataDir(currUserDataDir), "XRE")
-            if exists(host_xre):
-                current_xre = join(currUserDataDir, "XRE")
-                if exists(current_xre):
-                    _rmtree(current_xre)
-                os.rename(host_xre, join(currUserDataDir, "XRE"))
-                log.info("moving the host-$HOSTNAME/XRE dir")
-                return
-
         # First determine if we need to upgrade at all.
         # If any of the above exist in the current version's user data
         # dir then do NOT upgrade.
