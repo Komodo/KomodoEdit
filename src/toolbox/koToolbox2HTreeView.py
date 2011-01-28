@@ -63,7 +63,7 @@ import koToolbox2
 #---- globals
 
 log = logging.getLogger("Toolbox2HTreeView")
-log.setLevel(logging.DEBUG)
+#log.setLevel(logging.DEBUG)
 
 _tbdbSvc = None  # module-global handle to the database service
 _view = None     # module-global handle to the tree-view (needs refactoring)
