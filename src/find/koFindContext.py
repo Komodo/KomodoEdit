@@ -41,6 +41,7 @@ from os.path import basename
 import logging
 
 from xpcom import components, ServerException, nsError
+from xpcom.server import UnwrapObject
 import uriparse
 
 
