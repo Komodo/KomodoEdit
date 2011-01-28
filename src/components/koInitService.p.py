@@ -198,12 +198,14 @@ def _mkdir(newdir):
             os.mkdir(newdir)
 
 
-def _copy(src, dst):
+def _copy(src, dst, overwriteExistingFiles=True):
     """works the way a good copy should :)
         - no source, raise an exception
         - destination directory, make a file in that dir named after src
         - source directory, recursively copy the directory to the destination
         - filename wildcarding allowed
+        - when overwriteExistingFiles is False, if the destination file already
+          exists it won't overwrite it.
     NOTE:
         - This copy CHANGES THE FILE ATTRIBUTES.
     """
@@ -242,6 +244,8 @@ def _copy(src, dst):
             #print "copy %s %s" % (srcFile, dstFile)
             mode = (os.access(srcFile, os.X_OK) and 0755 or 0644)
             if os.path.isfile(dstFile):
+                if not overwriteExistingFiles:
+                    continue
                 # make sure 'dstFile' is writeable
                 os.chmod(dstFile, mode)
             shutil.copy(srcFile, dstFile)
@@ -899,6 +903,11 @@ class KoInitService(object):
             hostname = socket.gethostname()
         return os.path.join(userDataDir, "host-"+hostname)
 
+    def _upgradeXREDir(self, prevXREDir, currXREDir):
+        if os.path.exists(prevXREDir):
+            log.debug("upgrading XRE directory")
+            _copy(prevXREDir, currXREDir, overwriteExistingFiles=False)
+
     def _upgradeUserDataDirFiles(self):
         """Upgrade files under the USERDATADIR if necessary.
 
@@ -936,17 +945,15 @@ class KoInitService(object):
             "view-state.xmlc": "view-state.xmlc", 
             "apicatalogs": "apicatalogs",
             "dictionaries": "dictionaries",
+            "publishing": "publishing",
         }
         # Files under "host-$HOST" dir to upgrade:
         # Note: Prior to Komodo 6, some files were stored in a host-$HOST folder
         #       inside the Komodo profile directory.
         hostFilesToUpgrade = {
             "breakpoints.pickle": "breakpoints.pickle",
-            # Remote file server preferences.
-            join("XRE", "key3.db"): join("XRE", "key3.db"),
-            join("XRE", "cert8.db"): join("XRE", "cert8.db"),
-            join("XRE", "secmod.db"): join("XRE", "secmod.db"),
-            join("XRE", "extensions.rdf"): join("XRE", "extensions.rdf"),
+            "history.sqlite": "history.sqlite",
+            "autosave": "autosave",
         }
 
         # Get the current version.
@@ -1024,41 +1031,20 @@ class KoInitService(object):
             return
         prevVer, _, prevUserDataDir = vers_and_userdatadirs[-1]
 
-        # Upgrade.
-        log.info("upgrading user settings from '%s'" % prevUserDataDir)
-        self._upgradeFiles(filesToUpgrade, prevUserDataDir, currUserDataDir)
-
         if prevVer < (6,0):
             # Uses a separate host-$HOST directory.
             prevHostUserDataDir = self._hostUserDataDir(prevUserDataDir)
         else:
             # Host dir is the same directory as userDataDir.
             prevHostUserDataDir = prevUserDataDir
-        if prevVer >= (4,1):
-            if prevVer >= (5,0):
-                # In Komodo 5.0, the Mozilla LoginManager changed the
-                # filename and format of the signons2.txt, now calling it
-                # "signons3.txt".
-                hostFilesToUpgrade.update({
-                    join("XRE", "signons3.txt"): join("XRE", "signons3.txt"),
-                })
-            elif prevVer >= (4,1):
-                # In Komodo 4.1, the Mozilla nsIPasswordManager changed the
-                # filename and format of the signons.txt, now calling it
-                # "signons2.txt".
-                hostFilesToUpgrade.update({
-                    join("XRE", "signons2.txt"): join("XRE", "signons2.txt"),
-                })
-            else:
-                hostFilesToUpgrade.update({
-                    join("XRE", "signons.txt"): join("XRE", "signons.txt"),
-                })
+
+        # Upgrade.
+        log.info("upgrading user settings from '%s'" % prevUserDataDir)
+        self._upgradeFiles(filesToUpgrade, prevUserDataDir, currUserDataDir)
         self._upgradeFiles(hostFilesToUpgrade, prevHostUserDataDir,
                            currHostUserDataDir)
-        self._upgradeExtensions(".".join([str(x) for x in prevVer]),
-                                infoSvc.version,
-                                prevHostUserDataDir, currHostUserDataDir)
-        self._upgradeUserChrome(prevHostUserDataDir, currHostUserDataDir)
+        self._upgradeXREDir(join(prevHostUserDataDir, "XRE"),
+                            join(currHostUserDataDir, "XRE"))
 
     def upgradeUserSettings(self):
         """Called every time Komodo starts up to initialize the user profile."""
@@ -1067,40 +1053,6 @@ class KoInitService(object):
             self._upgradeUserPrefs()
         except Exception:
             log.exception("upgradeUserSettings")
-
-    def _upgradeExtensions(self, prevVersion, currentVersion,
-                           prevHostUserDataDir, currHostUserDataDir):
-        # Bug 77198 -- check for new extensions
-        from os.path import join
-        prevExtensionsDir = join(prevHostUserDataDir, "XRE", "extensions")
-        if not os.path.exists(prevExtensionsDir):
-            log.debug("_upgradeExtensions: no previous extension folder: %r",
-                      prevExtensionsDir)
-            return
-        prevExtensions = os.listdir(prevExtensionsDir)
-        if not prevExtensions:
-            log.debug("_upgradeExtensions: no extensions in %r",
-                      prevExtensionsDir)
-            return
-        currExtensionsDir = join(currHostUserDataDir, "XRE", "extensions")
-        if not os.path.exists(currExtensionsDir):
-            _mkdir(currExtensionsDir)
-            neededExtensions = prevExtensions
-        else:
-            neededExtensions = list(set(prevExtensions) - set(os.listdir(currExtensionsDir)))
-            if not neededExtensions:
-                return
-        for ext in neededExtensions:
-            log.debug("_upgradeExtensions: copying extension %r", ext)
-            _copy(join(prevExtensionsDir, ext), join(currExtensionsDir, ext))
-
-    def _upgradeUserChrome(self, prevHostUserDataDir, currHostUserDataDir):
-        from os.path import join
-        chrome_dir = join(prevHostUserDataDir, "XRE", "chrome")
-        if os.path.exists(chrome_dir):
-            # __copy(src-dir, target-dir) first copies contents of
-            # src-dir to target-dir, but not src-dir itself.
-            _copy(chrome_dir, join(currHostUserDataDir, "XRE", "chrome"))
 
     def _isMozDictionaryDir(self, dictionaryDir):
         # Return true if dictionaryDir contains at least one pair of files
