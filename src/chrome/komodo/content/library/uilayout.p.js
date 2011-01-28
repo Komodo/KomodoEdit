@@ -577,19 +577,20 @@ var FullScreen =
   
 };
 
-function _addManageMRUMenuItem(prefName, parentNode) {
+function _addManageMRUMenuItem(prefName, parentNode, MRUName) {
     var menuitem = document.createElementNS(XUL_NS, 'menuseparator');
     parentNode.appendChild(menuitem);
     menuitem = document.createElementNS(XUL_NS, "menuitem");
-    var manageLabel = _bundle.formatStringFromName("Manage X MRU List",
-                                                   [prefName], 1);
+    var MRUString = _bundle.GetStringFromName(MRUName);
+    var manageLabel = _bundle.formatStringFromName("Manage the X List",
+                                                   [MRUString], 1);
     menuitem.setAttribute("label", manageLabel);
     menuitem.setAttribute("accesskey", _bundle.GetStringFromName("mruManageAccessKey"));
     menuitem.setAttribute("oncommand", "ko.mru.manageMRUList('" + prefName + "');");
     parentNode.appendChild(menuitem);
 }
 
-function _updateMRUMenu(prefName, limit, addManageItem)
+function _updateMRUMenu(prefName, limit, addManageItem, MRUName)
 {
     // Update a MRU menu popup under the file menu.
     //    "prefName" indicate which MRU menu to update.
@@ -659,7 +660,7 @@ function _updateMRUMenu(prefName, limit, addManageItem)
                 m1.appendChild(m2);
                 menupopup.appendChild(m1);
                 if (addManageItem) {
-                    _addManageMRUMenuItem(prefName, menupopup);
+                    _addManageMRUMenuItem(prefName, menupopup, MRUName);
                     addManageItem = false;
                 }
                 menupopup = m2;
@@ -697,7 +698,7 @@ function _updateMRUMenu(prefName, limit, addManageItem)
         }
         if (addManageItem) {
             // We didn't need a "more" item
-            _addManageMRUMenuItem(prefName, menupopup);
+            _addManageMRUMenuItem(prefName, menupopup, MRUName);
             addManageItem = false;
         }
     }
@@ -762,7 +763,10 @@ this.updateMRUMenuIfNecessary = function uilayout_UpdateMRUMenuIfNecessary(mru, 
     //    "mru" is either "project" or "file", indicating which MRU menu
     //        to update.
     if (mru == "project" && _gNeedToUpdateProjectMRUMenu) {
-        _updateMRUMenu("mruProjectList", limit, true /* addManageItem */);
+        _updateMRUMenu("mruProjectList", limit,
+                       true /* addManageItem */,
+                       "Most Recent Projects");
+        /*Note: "Most Recent Projects" is a bundle key in library.properties */
         _gNeedToUpdateProjectMRUMenu = false;
     } else if (mru == "file" && _gNeedToUpdateFileMRUMenu) {
         _updateMRUMenu("mruFileList", limit);
