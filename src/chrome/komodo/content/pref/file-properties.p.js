@@ -48,7 +48,7 @@ xtk.include("domutils");
 function OnPreferencePageLoading(prefset) {
     try {
         data.importFrame = document.getElementById("importFrame");
-        g_isProject = parent.part.type == "project";
+        g_isProject = (parent.part && parent.part.type == "project");
         data.importFrame.setAttribute("collapsed", !g_isProject);
         data.readonly = document.getElementById("readonly");
         data.permissions_label = document.getElementById("file_permissions_label");
