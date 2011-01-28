@@ -938,7 +938,6 @@ class KoInitService(object):
             "templates": "templates",
             "project-templates": "project-templates",
             "schemes": "schemes",
-            "toolbox.kpf": "toolbox.kpf",
             "toolbox.sqlite": "toolbox.sqlite",
             "tools": "tools",
             "doc-state.xmlc": "doc-state.xmlc", 
@@ -1034,6 +1033,7 @@ class KoInitService(object):
         if prevVer < (6,0):
             # Uses a separate host-$HOST directory.
             prevHostUserDataDir = self._hostUserDataDir(prevUserDataDir)
+            filesToUpgrade["toolbox.kpf"] = "toolbox.kpf"
         else:
             # Host dir is the same directory as userDataDir.
             prevHostUserDataDir = prevUserDataDir
