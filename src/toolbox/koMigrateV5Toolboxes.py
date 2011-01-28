@@ -108,7 +108,7 @@ def expand_toolbox(toolboxFile, outdir, toolboxDirName=None, force=0):
     TreeWalker(obsoleteItems, force).expandTree(dirTree)
     #todo: Write out the misc parts
     if obsoleteItems:
-        log.error("The following items weren't converted: %s", obsoleteItems)
+        log.warn("The following items weren't converted: %s\n", obsoleteItems)
                   # "\n".join(["%s: %s" % (x[0], x[1]) for x in obsoleteItems]))
     return 0
     
