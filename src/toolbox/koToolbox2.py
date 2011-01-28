@@ -354,12 +354,25 @@ class Database(object):
         """
         Return (path_id, name, nodeType of each top-level item)
         """
+        koDirSvc = components.classes["@activestate.com/koDirs;1"].getService()
+        stdToolboxDir = join(koDirSvc.userDataDir,
+                             DEFAULT_TARGET_DIRECTORY)
         with self.connect() as cu:
-            cu.execute('''select cd.path_id, cd.name, cd.type
-                from common_details as cd, hierarchy as h
+            cu.execute('''select p.path, cd.path_id, cd.name, cd.type
+                from common_details as cd, hierarchy as h, paths as p
                 where h.parent_path_id is null
-                      and h.path_id == cd.path_id''')
-            return cu.fetchall()
+                      and h.path_id == cd.path_id
+                      and h.path_id == p.id''')
+            items = cu.fetchall()
+        # Make sure the std toolbox shows up first
+        final_items = []
+        for i in range(len(items)):
+            if items[i][0] == stdToolboxDir:
+                final_items.append(items[i][1:])
+                del items[i]
+                break
+        final_items += [item[1:] for item in items]
+        return final_items
 
     def getRootIDInfo(self, id):
         with self.connect() as cu:

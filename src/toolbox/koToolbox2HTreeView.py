@@ -63,7 +63,7 @@ import koToolbox2
 #---- globals
 
 log = logging.getLogger("Toolbox2HTreeView")
-#log.setLevel(logging.DEBUG)
+log.setLevel(logging.DEBUG)
 
 _tbdbSvc = None  # module-global handle to the database service
 _view = None     # module-global handle to the tree-view (needs refactoring)
@@ -423,6 +423,7 @@ class KoToolbox2HTreeView(TreeView):
                                   ("Can't find parent %s/%s in the tree" %
                                    (parent.type, parent.name)))
         view_before_len = len(self._rows_view)
+        log.debug("addNewItemToParent: add tool %s to _rows_model[%d] ", item.name, index)
         self._rows_model[index].addChild(item)
         firstVisibleRow = self._tree.getFirstVisibleRow()
         if self.isContainerOpenModel(index):
@@ -474,6 +475,7 @@ class KoToolbox2HTreeView(TreeView):
             del self._nodeOpenStatusFromName[path]
         except KeyError:
             pass
+        log.debug("deleteToolAt: del tool %s at _rows_model[%d] ", self._rows_model[model_index].name, model_index)
         del self._rows_model[model_index]
         self._filter_std_toolbox()
         after_len = len(self._rows_view)
@@ -886,6 +888,7 @@ class KoToolbox2HTreeView(TreeView):
             toolPart = self._toolsManager.getOrCreateTool(node_type, name, path_id)
             toolView = _koToolHViewFromTool(toolPart) 
             toolView.level = 0
+            log.debug("_redoTreeView1_aux: append tool %s at _rows_model[%d] ", toolView.name, len(self._rows_model))
             self._rows_model.append(toolView)
         
     def _restoreView(self):
@@ -1251,6 +1254,7 @@ class KoToolbox2HTreeView(TreeView):
             self.selection.select(index)
 
     def toggleOpenStateModel(self, index):
+        log.debug("toggleOpenStateModel: index:%d, node:%s", index, self._rows_model[index].name)
         rowNode = self._rows_model[index]
         if rowNode.isOpen:
             try:
