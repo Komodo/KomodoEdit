@@ -542,7 +542,7 @@
       
       <menu label="&add.label;"
             id="menu_projCtxt_addMenu"
-            class="menuitem-iconic"
+            class="menu-iconic"
             testDisableIf="t:multipleSelection"
             hideUnless="folder project">
         <menupopup id="menu_projCtxt_addMenu_Popup" />
