@@ -410,6 +410,8 @@ else {
     if ($buildType eq 'debug') {
         $consLocal{'CXXFLAGS'} .= " -g";
         $consLocal{'CXXFLAGS'} .= " -DNS_DEBUG "; # for debugging
+    } elsif ($buildFlavour eq 'dev') {
+        $consLocal{'CXXFLAGS'} .= " -g";
     } else {
         $consLocal{'CXXFLAGS'} .= " -O2";
     }

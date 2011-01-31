@@ -46,6 +46,7 @@
 Import(
     'cons',
     'buildType',
+    'buildFlavour',
     'mozPluginsDir',
     'unsiloedPythonExe',
     'scintillaBuildDir',
@@ -242,6 +243,8 @@ map { _addLexer($cons, $_); } @lexers;
 my $cxxFlags = " -DCONTAINER_HANDLES_EVENTS=1 -DINCLUDE_DEPRECATED_FEATURES";
 if ($buildType eq 'debug') {
     $cxxFlags .= " -g -DDEBUG=1";
+} elsif ($buildFlavour eq 'dev') {
+    $cxxFlags .= " -g";
 }
 
 %consLocal = $cons->copy();
