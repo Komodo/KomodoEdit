@@ -359,7 +359,7 @@ class KoFastOpenSession(object):
     def gatherersAndCwds(self):
         if self._gatherers_cache is None:
             g = fastopen.Gatherers()
-            cwds = None
+            cwds = []
             if self.views:
                 kovg = KomodoOpenViewsGatherer(self.views)
                 if self.pref_enable_open_views_gatherer:
