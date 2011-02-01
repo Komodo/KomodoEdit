@@ -239,7 +239,7 @@
                          label="&category.label;" flex="1"/>
             </treecols>
 
-            <treechildren id="panelChildren" flex="1">                
+            <treechildren id="panelChildren" flex="1">
                 <treeitem container="false" id="fileProperties">
                     <treerow>
                         <treecell class="treecell-indent"
