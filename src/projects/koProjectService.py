@@ -204,7 +204,7 @@ class KoPartService(object):
 
     def _deprecate_runningMacro(self):
         if getattr(self, '_deprecated_runningMacro', None) is None:
-            self.deprecated_runningMacro = True
+            self._deprecated_runningMacro = True
             log.warn("koIPartService.runningMacro is deprecated.  Please use koIToolbox2Service.runningMacro instead.")
 
     @property
