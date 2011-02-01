@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# coding=utf-8
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
 # 
@@ -41,6 +42,7 @@ import sys
 import os
 from os.path import dirname, join, abspath, basename, splitext, exists
 import unittest
+import codecs
 from pprint import pprint, pformat
 from glob import glob
 
@@ -85,6 +87,24 @@ class ManualTestCase(unittest.TestCase):
         self.assertRaises(langinfo.LangInfoError,
                           lidb.langinfo_from_komodo_lang,
                           "Nada")
+        
+    # bug88698
+    def hide_test_komodo_utf8_perl_without_bom(self):
+        #XXX: langinfo.Database().langinfo_from_filename(fname)
+        #     returns None, so the test is hidden.
+        lidb = langinfo.Database()
+        text = u"""\
+use strict;
+use warnings;
+print "Vyváženě prožitý čas přeji.\n";
+""".encode("utf-8")
+        fname = "bug88698-without-bom.pl"
+        f = open(fname, "w")
+        #f.write(codecs.BOM_UTF8)
+        f.write(text)
+        f.close()
+        li = lidb.langinfo_from_filename(fname)
+        self.assertEqual(li.encoding, "utf-8")
 
 
 #---- mainline
