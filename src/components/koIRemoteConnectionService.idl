@@ -122,6 +122,11 @@ interface koIRemoteConnectionService : nsISupports {
     void getConnectionUsingUri(in wstring uri,
                                [retval] out koIRemoteConnection connection);
 
+    // Like getConnectionUsingUri, but does not cache or re-use a cahce
+    // connection. Used when threaded access can be contentous.
+    void getConnectionUsingUriNoCache(in wstring uri,
+                                      [retval] out koIRemoteConnection connection);
+
     /**
      * Return the connection object for the given server alias.
      * @since Komodo 4.4.0

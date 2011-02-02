@@ -294,7 +294,7 @@ class koRemoteConnectionService:
 
     # We have the lock already
     def _getConnection(self, protocol, server, port, username, password, path,
-                       passive=True):
+                       passive=True, useConnectionCache=True):
         if password:
             log.debug("getConnection: %s %s:%s@%s:%r '%s'", 
                            protocol, username, '*' * len(password), server, port, path)
@@ -312,11 +312,12 @@ class koRemoteConnectionService:
         protocol = protocol.lower()
         if port < 0:
             port = remotefilelib.koRFProtocolDefaultPort[protocol]
-        conn_key = self._generateCachekey(protocol, server, port, username)
-        c = self._connection_cache.getConnection(conn_key)
-        if c is not None:
-            log.debug("getConnection, found cached connection")
-            return c
+        if useConnectionCache:
+            conn_key = self._generateCachekey(protocol, server, port, username)
+            c = self._connection_cache.getConnection(conn_key)
+            if c is not None:
+                log.debug("getConnection, found cached connection")
+                return c
         log.debug("getConnection, no cached connection found")
 
         sessionkey = "%s:%s:%s" % (server, port, username)
@@ -331,7 +332,8 @@ class koRemoteConnectionService:
         log.debug("getConnection: Opening %s %s@%s:%r", protocol, username, server, port)
         try:
             c.open(server, port, username, password, path, passive)
-            self._connection_cache.addConnection(conn_key, c)
+            if useConnectionCache:
+                self._connection_cache.addConnection(conn_key, c)
             # Update sessionkey to contain any changes to the username, which
             # can happen if/when prompted for a username/password. Fix for bug:
             # http://bugs.activestate.com/show_bug.cgi?id=65529
@@ -417,7 +419,7 @@ class koRemoteConnectionService:
                  password, path, str(passive) ]
 
     # We have the lock already
-    def _getConnectionUsingUri(self, uri):
+    def _getConnectionUsingUri(self, uri, useConnectionCache=True):
         protocol, server_alias, hostname, port, username, password, \
                     path, passive = self._getServerDetailsFromUri(uri)
         # We want the port as an integer
@@ -438,7 +440,8 @@ class koRemoteConnectionService:
 
         # Now we have all the info, lets go make the connection
         connection = self._getConnection(protocol, hostname, port, username,
-                                         password, path, passive);
+                                         password, path, passive,
+                                         useConnectionCache=useConnectionCache)
         if connection:
             # Set the alias used to get the connection (if there was one)
             connection.alias = server_alias;
@@ -590,6 +593,16 @@ class koRemoteConnectionService:
         self._lock.acquire()
         try:
             return self._getConnectionUsingUri(uri)
+        finally:
+            self._lock.release()
+
+    # Return the connection object for the given URI, all the connection
+    # details should be included in the URI. Will not cache the connection or
+    # re-use any existing cached connection.
+    def getConnectionUsingUriNoCache(self, uri):
+        self._lock.acquire()
+        try:
+            return self._getConnectionUsingUri(uri, useConnectionCache=False)
         finally:
             self._lock.release()
 
