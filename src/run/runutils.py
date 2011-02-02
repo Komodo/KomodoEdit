@@ -280,7 +280,9 @@ class KoTerminalProcess(KoRunProcess):
             # Need to wait until the IO is fully synchronized (due to threads)
             # before returning. Otherwise additional data could arrive after
             # this call returns.
-            self._terminal.waitForIOToFinish(timeout)
+            # 
+            # Set timeout to 5 seconds due to bugs 89280 and 88439
+            self._terminal.waitForIOToFinish(timeout=5)
             self._terminal = None
         return retval
 
