@@ -198,7 +198,7 @@ def _mkdir(newdir):
             os.mkdir(newdir)
 
 
-def _copy(src, dst, overwriteExistingFiles=True):
+def _copy(src, dst, overwriteExistingFiles=True, ignoreErrors=False):
     """works the way a good copy should :)
         - no source, raise an exception
         - destination directory, make a file in that dir named after src
@@ -206,6 +206,8 @@ def _copy(src, dst, overwriteExistingFiles=True):
         - filename wildcarding allowed
         - when overwriteExistingFiles is False, if the destination file already
           exists it won't overwrite it.
+        - when ignoreErrors is True, will log any exceptions when trying to
+          copy files and then continue on.
     NOTE:
         - This copy CHANGES THE FILE ATTRIBUTES.
     """
@@ -259,10 +261,15 @@ def _copy(src, dst, overwriteExistingFiles=True):
                 s = os.path.join(srcFile, f)
                 d = os.path.join(dst, f)
                 try:
-                    _copy(s, d)
+                    _copy(s, d, overwriteExistingFiles=overwriteExistingFiles,
+                          ignoreErrors=ignoreErrors)
                 except (IOError, os.error), why:
-                    raise OSError("Can't copy %s to %s: %s"\
-                          % (repr(s), repr(d), str(why)))
+                    if ignoreErrors:
+                        log.warn("Failed to copy %r to %r - %r", s, d, why)
+                    else:
+                        raise OSError("Can't copy %s to %s: %s"\
+                              % (repr(s), repr(d), str(why)))
+                    
         elif not usingWildcards:
             raise OSError("Source file %s does not exist" % repr(srcFile))
 
@@ -790,7 +797,7 @@ class KoInitService(object):
                 continue
             try:
                 log.info("upgrading '%s' from '%s'" % (dst, src))
-                _copy(src, dst)
+                _copy(src, dst, ignoreErrors=True)
             except OSError, ex:
                 log.error("Could not upgrade '%s' from '%s': %s"\
                          % (dst, src, ex))
@@ -906,7 +913,8 @@ class KoInitService(object):
     def _upgradeXREDir(self, prevXREDir, currXREDir):
         if os.path.exists(prevXREDir):
             log.debug("upgrading XRE directory")
-            _copy(prevXREDir, currXREDir, overwriteExistingFiles=False)
+            _copy(prevXREDir, currXREDir, overwriteExistingFiles=False,
+                  ignoreErrors=True)
 
     def _upgradeUserDataDirFiles(self):
         """Upgrade files under the USERDATADIR if necessary.
