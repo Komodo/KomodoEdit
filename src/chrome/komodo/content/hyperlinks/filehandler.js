@@ -43,6 +43,7 @@
      *    href="script.js"
      */
 
+    var _is_windows = (navigator.platform == 'Win32');
     var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
         .getService(Components.interfaces.nsIStringBundleService)
         .createBundle("chrome://komodo/locale/hyperlinks/hyperlinks.properties");
@@ -179,7 +180,9 @@
     ko.hyperlinks.addHandler(
         new ko.hyperlinks.RegexHandler(
             "File handler",
-            new RegExp("(file:|[\.]{1,2}/|\\[A-Z]:\\\\|\\\\)[^'\"<>()[\\]\\s]+", "i"),
+            new RegExp(_is_windows ? "(file:|[\\.]{1,2}/|/|[A-Z]:\\\\|\\\\\\\\)[^'\"<>()[\\]\\s]+"
+                                   : "(file:|[\\.]{1,2}/|/)[^'\"<>()[\\]\\s]+",
+                       "i"),
             filename_jump_handler,
             null,  /* Use the found string instead of a replacement. */
             null,  /* All language types */
