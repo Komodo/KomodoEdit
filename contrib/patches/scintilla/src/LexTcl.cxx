@@ -351,7 +351,9 @@ static void ColouriseTclDoc(unsigned int startPos,
 			    ++levelCurrent;
 			    cmdStart = true;
 			} else if  (ch == ']' || ch == '}') {
-			    --levelCurrent;
+			    if ((levelCurrent & SC_FOLDLEVELNUMBERMASK) > SC_FOLDLEVELBASE) {
+				--levelCurrent;
+			    }
 			}
 		    }
 		}
