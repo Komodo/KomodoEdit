@@ -3003,8 +3003,10 @@ this.saveWorkspace = function view_saveWorkspace()
                 }
             }
             try {
-                workspace.setLongPref("project_sort_direction", 
-                        ko.places.projects.projectsTreeView.sortDirection);
+                if (ko.places.projects.projectsTreeView) {
+                    workspace.setLongPref("project_sort_direction", 
+                                          ko.places.projects.projectsTreeView.sortDirection);
+                }
             } catch(ex) {
                 log.exception("Can't set project tree view sort direction: " + ex);
             }
