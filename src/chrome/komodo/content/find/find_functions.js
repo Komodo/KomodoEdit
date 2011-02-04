@@ -895,7 +895,7 @@ function _UiForCompletedFindSession(context, msgHandler)
                                            [numReplacements, numFinds], 2);
     } else {
         msg = _ffBundle.formatStringFromName("X occurrence(s) were found.",
-                                           [numReplacements, numFinds], 2);
+                                           [numFinds], 1);
     }
 
     msgHandler("info", "find", msg);
