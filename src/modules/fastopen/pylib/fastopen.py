@@ -118,6 +118,30 @@ class PathHit(Hit):
     def __repr__(self):
         return "<%s: %s>" % (self.__class__.__name__,
             self.label.replace(MDASH, "--"))
+    def __cmp__(self, other):
+        """Comparison for path hits.
+        
+        We want to have:
+            1) directories listed before files
+            2) ".xxx" names listed after regular names
+            3) case-insensitive sorting
+        """
+        # Compare by directory/file.
+        if self.isdir:
+            if not other.isdir:
+                return -1
+        elif other.isdir:
+            return 1
+        if self.dir != other.dir:
+            return cmp(self.path, other.path)
+        # Compare by base path then.
+        if self.base.startswith("."):
+            if not other.base.startswith("."):
+                return 1
+        elif other.base.startswith("."):
+            return -1
+        # Regular case-insensitive comparison.
+        return cmp(self.ibase, other.ibase)
 
     _labelCache = None
     @property
@@ -465,7 +489,7 @@ class Driver(threading.Thread):
                                 hitPaths.add(path)
                         #log.debug("adding %d hits from %r (path mode)", len(hits), dirQuery)
                         if hits:
-                            resultsView.addHits(hits)
+                            resultsView.addHits(sorted(hits))
                             if stopAtNHits and len(hitPaths) >= stopAtNHits:
                                 aborted = False
                                 return
@@ -565,13 +589,14 @@ class DirGatherer(Gatherer):
         self.excludes = excludes or DEFAULT_PATH_EXCLUDES
     def gather(self):
         from fnmatch import fnmatch
+        from operator import methodcaller
         for dir in self.dirs:
             try:
                 names = os.listdir(dir)
             except EnvironmentError, ex:
                 log.warn("couldn't read `%s' dir: %s", dir, ex)
             else:
-                for name in names:
+                for name in sorted(names, key=methodcaller('lower')):
                     try:
                         path = join(dir, name)
                     except UnicodeDecodeError:
