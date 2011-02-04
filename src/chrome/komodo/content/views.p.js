@@ -1343,24 +1343,25 @@ viewManager.prototype.do_cmd_bufferCloseOthers = function() {
     // Offer to close/save any "other" dirty files first.
     var currView = ko.views.manager.currentView;
     var views = this.topView.getViews(true);
-    // We just want the other views.
-    views = views.filter(function(elem, index, array) {
-                                return elem != currView;
-                             });
-    var editorViews = views.filter(function(elem, index, array) {
-                                       return elem.getAttribute("type") == "editor";
-                                   });
-    var urls = editorViews.map(function(elem) {
-                                    return elem.document.displayPath;
-                               });
+    // Get the other editor views.
+    var view, filtered_views = [], urls = [];
+    for (var i = 0; i < views.length; i++) {
+        if ((view = views[i]) == currView) {
+            continue;
+        } else if (view.getAttribute("type") != "editor") {
+            continue;
+        } else {
+            filtered_views.push(view);
+            urls.push(view.document.file.URI);
+        }
+    }
     var retval = this.offerToSave(urls);
     if (retval === false) {
         // User cancelled the operation.
         return;
     }
-
     // Now close the "other" files, the offering to save is already done.
-    this._doCloseViews(views, false /* ignoreFailures */,
+    this._doCloseViews(filtered_views, false /* ignoreFailures */,
                        true /* closeStartPage */,
                        true /* doNotOfferToSave */);
 }
