@@ -387,7 +387,7 @@ def py_expr_grammar():
         if self.second:
             return "%s(%s)" % (self.first.py(), call_list_py(self.second))
         else:
-            return "(%s)" % ", ".join(i.py() for i in alist)
+            return "(%s)" % ", ".join(i.py() for i in self.first)
             
     @self.method("if")
     def led(self, left):
