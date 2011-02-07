@@ -333,7 +333,9 @@ function OnPreferencePageOK(prefset)
         } catch (ex) {
             var lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"]
                                .getService(Components.interfaces.koILastErrorService);
-            ko.dialogs.alert(bundle.formatStringFromName("thereWasAnErrorCreatingOrRemovingWindowsFileAssociations")+" "+lastErrorSvc.getLastErrorMessage());
+            var errorMessage = bundle.formatStringFromName("thereWasAnErrorCreatingOrRemovingWindowsFileAssociations",
+                                                           [lastErrorSvc.getLastErrorMessage()], 1);
+            ko.dialogs.alert(errorMessage);
             // We still return "ok" because we don't want a lack of system
             // permissions to hold up closing prefs.
         }
@@ -364,7 +366,9 @@ function PrefWinInteg_ApplyAssociations()
         } catch (ex1) {
             var lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"]
                                .getService(Components.interfaces.koILastErrorService);
-            ko.dialogs.alert(bundle.GetStringFromName("thereWasAnErrorCreatingOrRemovingWindowsFileAssociations"+" "+lastErrorSvc.getLastErrorMessage());
+            var errorMessage = bundle.formatStringFromName("thereWasAnErrorCreatingOrRemovingWindowsFileAssociations",
+                                                           [lastErrorSvc.getLastErrorMessage()], 1);
+            ko.dialogs.alert(errorMessage);
             // We still return "ok" because we don't want a lack of system
             // permissions to hold up closing prefs.
         }
