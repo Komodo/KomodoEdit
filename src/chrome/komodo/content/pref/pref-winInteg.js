@@ -37,6 +37,10 @@
 
 //---- globals
 
+var bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+        .getService(Components.interfaces.nsIStringBundleService)
+        .createBundle("chrome://komodo/locale/pref/pref-winInteg.properties");
+
 var log = ko.logging.getLogger("pref-winInteg");
 //log.setLevel(ko.logging.LOG_DEBUG);
 
@@ -53,14 +57,13 @@ function _ValidateExtensions(window, extsStr) {
             if (!ext) {
                 continue
             } else if (ext.match(/^\.[\w\+_-]+$/) == null) {
-                ko.dialogs.alert("Invalid extension: '"+ext+"'. It must be "
-                             +"a period followed by one or more word (or "
-                             +"'+', '_', '-') characters.");
+                ko.dialogs.alert(bundle.formatStringFromName("invalidExtension", [ext], 1));
+                
                 return false;
             }
         }
     } else {
-        ko.dialogs.alert("You must enter an extension.");
+        ko.dialogs.alert(bundle.GetStringFromName("youMustEnterAnExtension"));
         return false;
     }
     return true;
@@ -190,11 +193,11 @@ function EditAssoc_Add()
     log.info("EditAssoc_Add()");
     try {
         var extsStr = ko.dialogs.prompt(
-                "Specify extension to use (e.g., '.pl;.pm'):",
+                bundle.GetStringFromName("specifyExtensionToUse"),
                 null, // label
                 null, // value
-                "Add Extension", // title
-                "extension", // mruName
+                bundle.GetStringFromName("addExtension"), // title
+                bundle.GetStringFromName("extension"), // mruName
                 _ValidateExtensions); // validator
         if (extsStr) {
             var exts = extsStr.split(/[;:,]/);
@@ -226,7 +229,7 @@ function EditAssoc_Delete()
             _gData.editAssocsCache = _gData.editAssocView.GetExtensions();
             EditAssoc_UpdateDeleteButton();
         } else {
-            ko.dialogs.alert("You must first select a row to delete.");
+            ko.dialogs.alert(bundle.GetStringFromName("youMustFirstSelectARowToDelete"));
         }
     } catch(ex) {
         log.exception(ex);
@@ -256,11 +259,11 @@ function EditWithAssoc_Add()
     log.info("EditWithAssoc_Add()");
     try {
         var extsStr = ko.dialogs.prompt(
-                "Specify extension to use (e.g., '.pl;.pm'):",
+                bundle.GetStringFromName("specifyExtensionToUse"),
                 null, // label
                 null, // value
-                "Add Extension", // title
-                "extension", // mruName
+                bundle.GetStringFromName("addExtension"), // title
+                bundle.GetStringFromName("extension"), // mruName
                 _ValidateExtensions); // validator
         if (extsStr) {
             var exts = extsStr.split(/[;:,]/);
@@ -292,7 +295,7 @@ function EditWithAssoc_Delete()
             _gData.editWithAssocsCache = _gData.editWithAssocView.GetExtensions();
             EditWithAssoc_UpdateDeleteButton();
         } else {
-            ko.dialogs.alert("You must first select a row to delete.");
+            ko.dialogs.alert(bundle.GetStringFromName("youMustFirstSelectARowToDelete"));
         }
     } catch(ex) {
         log.exception(ex);
@@ -330,8 +333,7 @@ function OnPreferencePageOK(prefset)
         } catch (ex) {
             var lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"]
                                .getService(Components.interfaces.koILastErrorService);
-            ko.dialogs.alert("There was an error creating or removing Windows file "+
-                         "associations: "+lastErrorSvc.getLastErrorMessage());
+            ko.dialogs.alert(bundle.formatStringFromName("thereWasAnErrorCreatingOrRemovingWindowsFileAssociations")+" "+lastErrorSvc.getLastErrorMessage());
             // We still return "ok" because we don't want a lack of system
             // permissions to hold up closing prefs.
         }
@@ -362,8 +364,7 @@ function PrefWinInteg_ApplyAssociations()
         } catch (ex1) {
             var lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"]
                                .getService(Components.interfaces.koILastErrorService);
-            ko.dialogs.alert("There was an error creating or removing Windows file "+
-                         "associations: "+lastErrorSvc.getLastErrorMessage());
+            ko.dialogs.alert(bundle.GetStringFromName("thereWasAnErrorCreatingOrRemovingWindowsFileAssociations"+" "+lastErrorSvc.getLastErrorMessage());
             // We still return "ok" because we don't want a lack of system
             // permissions to hold up closing prefs.
         }
