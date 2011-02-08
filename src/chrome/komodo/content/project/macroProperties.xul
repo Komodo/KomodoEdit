@@ -83,10 +83,8 @@
     <tabbox id="macroProperties" orient="vertical" flex="1">
         <tabs id="tabs" orient="horizontal">
             <tab id="macro_tab" label="&macro.label;"/>
-            <tab id="shortcut_tab" label="&keyBinding.label;"
-                 onfocus="macronamelabel.value=macroname.value;"/>
-            <tab id="trigger_tab" label="&triggers.label;"
-                 onfocus="macronamelabel2.value=macroname.value;"/>
+            <tab id="shortcut_tab" label="&keyBinding.label;" />
+            <tab id="trigger_tab" label="&triggers.label;" />
         </tabs>
         <tabpanels flex="1">
             <vbox id="macro_tabpanel" flex="1">
