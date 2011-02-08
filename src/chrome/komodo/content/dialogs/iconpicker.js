@@ -42,7 +42,10 @@
     - retval: if "OK", then icon was picked.
     - value: if retval is "OK", then the URL of the selected file.
  */
-
+var bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+        .getService(Components.interfaces.nsIStringBundleService)
+        .createBundle("chrome://komodo/locale/dialogs/iconpicker.properties");
+        
 var log = ko.logging.getLogger("dialogs.iconpicker");
 //log.setLevel(ko.logging.LOG_DEBUG);
 
@@ -57,9 +60,9 @@ function OnLoad()
         obj = window.arguments[0];
         var dialog = document.getElementById("dialog-iconpicker");
         var okButton = dialog.getButton("accept");
-        okButton.setAttribute("accesskey", "o");
+        okButton.setAttribute("accesskey", bundle.GetStringFromName("okButton.accessKey"));
         var customButton = dialog.getButton("extra1");
-        customButton.setAttribute("label", "Choose Other...");
+        customButton.setAttribute("label", bundle.GetStringFromName("chooseOther"));
         var menulist = document.getElementById("icon-families");
         var lastSelectedIndex = parseInt(menulist.getAttribute("lastSelectedIndex"));
         menulist.selectedIndex = lastSelectedIndex;
@@ -154,7 +157,7 @@ function OK()
 
 function PickCustom()
 {
-    var path = ko.filepicker.browseForFile(null, null, 'Select an Icon File',
+    var path = ko.filepicker.browseForFile(null, null, bundle.GetStringFromName("Select an Icon File"),
                                    'Icon', ['Icon', 'All']);
     if (!path) return;
     Pick_Icon(ko.uriparse.localPathToURI(path));

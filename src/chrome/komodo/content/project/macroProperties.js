@@ -33,6 +33,9 @@
  * the terms of any one of the MPL, the GPL or the LGPL.
  * 
  * ***** END LICENSE BLOCK ***** */
+var bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+        .getService(Components.interfaces.nsIStringBundleService)
+        .createBundle("chrome://komodo/locale/project/macro.properties");
 
 xtk.include('domutils');
         
@@ -86,8 +89,8 @@ function onLoad() {
 
         gOKButton = dialog.getButton("accept");
         gApplyButton = dialog.getButton("extra1");
-        gApplyButton.setAttribute('label', 'Apply');
-        gApplyButton.setAttribute('accesskey', 'A');
+        gApplyButton.setAttribute('label', bundle.GetStringFromName("apply"));
+        gApplyButton.setAttribute('accesskey', bundle.GetStringFromName("applyAccessKey"));
 
         gItem = window.arguments[0].item;
         gPart = gItem;
@@ -101,10 +104,10 @@ function onLoad() {
         gRank = document.getElementById('rank');
         gRunInBackground = document.getElementById('async');
         if (window.arguments[0].task == 'new') {
-            document.title = "Create New Macro";
+            document.title = bundle.GetStringFromName("Create New Macro");
             gApplyButton.setAttribute('collapsed', 'true');
         } else {
-            document.title = "Macro Properties";
+            document.title = bundle.GetStringFromName("Macro Properties");
         }
 
         gKeybinding = document.getElementById('keybindings');
@@ -150,7 +153,7 @@ function onLoad() {
 
         if (! _gPrefSvc.prefs.getBooleanPref("triggering_macros_enabled")) {
             gTriggerCheckbox.setAttribute('disabled', 'true');
-            gTriggerCheckbox.setAttribute('tooltiptext', "Triggering of macros on events has been disabled in Edit/Preferences/Workspace...");
+            gTriggerCheckbox.setAttribute('tooltiptext', bundle.GetStringFromName("Triggering of macros on events has been disabled"));
         }
         if (gPart.hasAttribute('trigger_enabled') &&
             gPart.getBooleanAttribute('trigger_enabled')) {
@@ -284,10 +287,10 @@ function updateOK() {
 
 function Cancel()  {
     if (gScintilla.modify) {
-        var resp = ko.dialogs.yesNoCancel("Do you wish to save your changes?",
+        var resp = ko.dialogs.yesNoCancel(bundle.GetStringFromName("Do you wish to save your changes"),
                                "No", // default response
                                null, // text
-                               "Macro was modified" //title
+                               bundle.GetStringFromName("Macro was modified") //title
                                );
         if (resp == "Cancel") {
             return false;
@@ -325,9 +328,9 @@ function UpdateField(field, initializing /* =false */)
             case 'name':
                 var name = gPartname.value;
                 if (name) {
-                    document.title = "'"+name+"' Properties";
+                    document.title = bundle.formatStringFromName("namedProperties", [name], 1);
                 } else {
-                    document.title = "Unnamed " + gPart.prettytype + " Properties";
+                    document.title = bundle.formatStringFromName("unnamedProperties", [gPart.prettytype], 1);
                 }
                 gPartNameLabelKeybinding.value = name;
                 gPartNameLabelTrigger.value = name;
@@ -415,7 +418,7 @@ function update_icon(URI)
         document.getElementById('propertiestab_icon').setAttribute('src', URI);
         document.getElementById('triggertab_icon').setAttribute('src', URI);
         if (URI.indexOf('_missing.png') != -1) {
-            document.getElementById('propertiestab_icon').setAttribute('tooltiptext', "The custom icon specified for this " + gPart.prettytype + " is missing. Please choose another.");
+            document.getElementById('propertiestab_icon').setAttribute('tooltiptext', bundle.GetStringFromName("The custom icon specified for this X is missing", [gPart.prettytype], 1));
         } else {
             document.getElementById('propertiestab_icon').removeAttribute('tooltiptext');
         }
