@@ -70,6 +70,8 @@ _leading_ws_re = re.compile(r'(\s*)')
 
 
 class KoPythonCommonLinter(object):
+    _stringType = type("")
+    _simple_python3_string_encodings = ("utf-8", "ascii")
     def __init__(self):
         self._sysUtils = components.classes["@activestate.com/koSysUtils;1"].\
             getService(components.interfaces.koISysUtils)
@@ -195,7 +197,8 @@ class KoPythonCommonLinter(object):
         return results
 
     def lint(self, request):
-        text = request.content.encode(request.encoding.python_encoding_name)
+        encoding_name = request.encoding.python_encoding_name
+        text = request.content.encode(encoding_name)
         cwd = request.cwd
         prefset = request.koDoc.getEffectivePrefs()
 
@@ -204,6 +207,12 @@ class KoPythonCommonLinter(object):
             if pyver and pyver >= (3,0):
                 compilePy = os.path.join(self._koDirSvc.supportDir, "python",
                                          "py3compile.py")
+                if encoding_name not in self._simple_python3_string_encodings:
+                    # First, make sure the text is Unicode
+                    if type(text) == self._stringType:
+                        text = text.decode(encoding_name)
+                    # Now save it as utf-8 -- python3 knows how to read utf-8
+                    text = text.encode("utf-8")
             else:
                 compilePy = os.path.join(self._koDirSvc.supportDir, "python",
                                          "pycompile.py")
