@@ -131,6 +131,16 @@ class KoCSSLinter:
             if len(sp) >= 2 and sp[1].lower() in known_css_prop_names:
                 # It really is a known css property (according to codeintel).
                 return
+        elif desc.startswith("Unrecognized at-rule "):
+            known_css_atrule_names = CSSLangIntel.CSS_AT_RULE_NAMES
+            sp = desc.split("'")
+            if len(sp) >= 2:
+                name = sp[1].lower()
+                if name.startswith("@"):
+                    name = name[1:]
+                if name in known_css_atrule_names:
+                    # It really is a known css at-rule (according to codeintel).
+                    return
 
         # XXX TODO a better match between sourceName and self.fn
         uri = URIlib.URIParser(message.sourceName)
