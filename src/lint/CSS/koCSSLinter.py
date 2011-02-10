@@ -43,6 +43,8 @@ import eollib, tempfile
 import logging
 import URIlib
 
+from codeintel2.lang_css import CSSLangIntel
+
 log = logging.getLogger("koCSSLinter")
 
 
@@ -120,11 +122,21 @@ class KoCSSLinter:
         #                             message.lineNumber,
         #                             message.flags)
 
+        desc = message.errorMessage
+
+        # Filter out bogus CSS warnings about unknown properties - bug 87425.
+        if desc.startswith("Unknown property "):
+            known_css_prop_names = CSSLangIntel.CSS_PROPERTY_NAMES
+            sp = desc.split("'")
+            if len(sp) >= 2 and sp[1].lower() in known_css_prop_names:
+                # It really is a known css property (according to codeintel).
+                return
+
         # XXX TODO a better match between sourceName and self.fn
         uri = URIlib.URIParser(message.sourceName)
         if self.uri.path == uri.path:
             result = KoLintResult()
-            result.description = message.errorMessage
+            result.description = desc
             result.lineStart = result.lineEnd = message.lineNumber
             result.columnStart = 1
             result.columnEnd = len(self.datalines[result.lineEnd-1]) + 1
