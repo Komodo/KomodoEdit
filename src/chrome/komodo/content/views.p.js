@@ -584,9 +584,7 @@ viewManager.prototype._newViewFromURI = function(uri,
         }
     }
     if (doc.file.isDirectory) {
-        if (!this.notify_visited_directory(doc.file.path)) {
-            ko.dialogs.alert(_bundle.formatStringFromName("komodoCannotOpenDirectories.alert", [doc.file.path], 1));
-        }
+        this.notify_visited_directory(doc.file.path);
         return null;
     }
     try {
