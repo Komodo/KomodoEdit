@@ -290,6 +290,8 @@ class KoUserEnviron:
         return self.__isDevTreeCache
 
     def _removeProtectedVars(self):
+        from uriparse import UnRelativizePath
+
         fullname = ['_']
         startingwith = ['MOZILLA_', 'XRE_', 'MRE_', 'MOZ_', 'KOMODO_']
         dangerouspaths = ['PATH', 'LD_LIBRARY_PATH', 'DYLD_LIBRARY_PATH',
@@ -315,16 +317,21 @@ class KoUserEnviron:
             installDir = installDir.upper()
         else:
             installDir = koDirs.installDir.upper()
+        cwd = os.getcwd().upper()
         for item in dangerouspaths:
-            if item in self._userEnviron.keys() and \
-                self._userEnviron[item].upper().find(installDir) >= 0:
-                    dirs = self._userEnviron[item].split(os.pathsep)
-                    dirs = [d for d in dirs if not d.upper().startswith(installDir)]
-                    p = os.pathsep.join(dirs)
-                    if p:
-                        self._userEnviron[item] = os.pathsep.join(dirs)
-                    else:
-                        del self._userEnviron[item]
+            value = self._userEnviron.get(item)
+            if value:
+                paths = value.split(os.pathsep)
+                # The paths may be relative, so we must get the absolute path
+                # in order to properly check these values - bug 89345.
+                for i, path in reversed(list(enumerate(paths))):
+                    fullpath = UnRelativizePath(cwd, path.upper())
+                    if fullpath.find(installDir) >= 0:
+                        del paths[i]
+                if paths:
+                    self._userEnviron[item] = os.pathsep.join(paths)
+                else:
+                    del self._userEnviron[item]
 
     def _updateWithUserOverrides(self):
         self._userEnviron = self._origStartupEnv.copy()
