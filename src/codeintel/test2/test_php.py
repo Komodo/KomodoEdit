@@ -2563,6 +2563,16 @@ EOD;
         self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[1]),
             [("function", "getMessage"), ("function", "getLine")])
 
+    @tag("bug89356", "knownfailure")
+    def test_function_closure(self):
+        content, positions = unmark_text(php_markup(dedent(r"""
+            $var = function( PDO $pdo ) {
+                $pdo-><1>xxx;
+            };
+        """)))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+            [("function", "beginTransaction"), ("function", "commit")])
+
 
 class IncludeEverythingTestCase(CodeIntelTestCase):
     lang = "PHP"
