@@ -142,6 +142,10 @@ class KoCSSLinter:
                     # It really is a known css at-rule (according to codeintel).
                     return
 
+        if desc.endswith(" Declaration dropped."):
+            # We are just a syntax checker - not actually applying.
+            desc = desc[:-21]
+
         # XXX TODO a better match between sourceName and self.fn
         uri = URIlib.URIParser(message.sourceName)
         if self.uri.path == uri.path:
