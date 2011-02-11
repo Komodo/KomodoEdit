@@ -64,6 +64,8 @@ from codeintel2.common import *
 from codeintel2.util import banner, indent, markup_text, isident, isdigit
 import langinfo
 
+if _xpcom_:
+    from xpcom.server import UnwrapObject
 
 log = logging.getLogger("codeintel.langintel")
 
@@ -236,6 +238,12 @@ class ImplicitLangIntel(LangIntel):
         return None
     def preceding_trg_from_pos(self, buf, pos, curr_pos):
         return None
+    def async_eval_at_trg(self, buf, trg, ctlr):
+        if _xpcom_:
+            trg = UnwrapObject(trg)
+            ctlr = UnwrapObject(ctlr)
+        ctlr.start(buf, trg)
+        ctlr.done("success")
 
 class ParenStyleCalltipIntelMixin(object):
     """A mixin class to implement `curr_calltip_arg_range' for languages
