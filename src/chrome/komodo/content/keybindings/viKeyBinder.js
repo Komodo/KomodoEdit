@@ -235,6 +235,11 @@ var gVim_onEditorModified = function(event) {
         // The replace command works a little differently than normal input.
         return;
     }
+    if (gVimController.operationFlags == VimController.OPERATION_INDENT ||
+        gVimController.operationFlags == VimController.OPERATION_DEDENT) {
+        // Don't need to capture indentation changes - bug 89370.
+        return;
+    }
     var insertedText = gVimController._lastInsertedText;
 
     try {
