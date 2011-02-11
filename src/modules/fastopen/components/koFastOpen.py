@@ -421,7 +421,10 @@ class KoFastOpenSession(object):
         if dirShortcuts:
             for alias, dirpath in dirShortcuts.items():
                 if path.startswith(dirpath):
-                    possibile_paths.append(alias + path[len(dirpath):])
+                    # Ensure the path matches against a directory boundary,
+                    # bug 89371.
+                    if len(path) == len(dirpath) or path[len(dirpath)] in "/\\":
+                        possibile_paths.append(alias + path[len(dirpath):])
         for gatherer in gatherers:
             if isinstance(gatherer, fastopen.CachingKomodoProjectGatherer):
                 if path.startswith(gatherer.base_dir):
