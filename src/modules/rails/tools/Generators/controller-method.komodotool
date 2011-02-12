@@ -7,9 +7,6 @@
   "trigger": "trigger_postopen", 
   "value": [
     "try {", 
-    "    var project = (Components.classes[\"@activestate.com/koPartService;1\"].getService().", 
-    "                       runningMacro.project);", 
-    "    macro_executeMacro(project.getChildWithTypeAndStringAttribute('macro', 'name', 'rails_init', 1));", 
     "    ko.extensions.rails.generateRailsObject(this,", 
     "                                        {'.rb':null, '.rhtml':null}, // extensions", 
     "                                        'controller',", 
