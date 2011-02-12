@@ -2,8 +2,8 @@
   "keyboard_shortcut": "", 
   "name": "for-x-in-obj.xs", 
   "value": [
-    "<% for [[%tabstop:name]] in [[%tabstop:object]].[[%tabstop:name]]s %>", 
-    "  <%= !@#_currentPos!@#_anchor [[%tabstop:name]].[[%tabstop:attribute]] %>", 
+    "<% for [[%tabstop1:name]] in [[%tabstop:object]].[[%tabstop1]]s %>", 
+    "  <%= !@#_currentPos!@#_anchor [[%tabstop1]].[[%tabstop:attribute]] %>", 
     "<% end %>"
   ], 
   "set_selection": "true", 
