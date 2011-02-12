@@ -1,0 +1,19 @@
+{
+  "keyboard_shortcut": "", 
+  "name": "autocomplete", 
+  "language": "JavaScript", 
+  "trigger_enabled": 0, 
+  "rank": 100, 
+  "trigger": "trigger_postopen", 
+  "value": [
+    "try {", 
+    "    ko.extensions.rails.installPlugin(this, 'http://svn.rubyonrails.org/rails/plugins/auto_complete');", 
+    "} catch(ex) {", 
+    "    alert(ex + \"\\n\");", 
+    "}"
+  ], 
+  "version": "1.0.7", 
+  "async": 0, 
+  "type": "macro", 
+  "icon": "chrome://famfamfamsilk/skin/icons/plugin.png"
+}
