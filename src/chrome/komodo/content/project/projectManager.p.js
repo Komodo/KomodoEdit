@@ -394,7 +394,7 @@ projectManager.prototype.newProject = function(url) {
                                         .createInstance(Components.interfaces.koIProject);
     project.create();
     project.url = url;
-    return this._saveNewProject(project);
+    return this._saveNewProject(project) ? project : null;
 }
     
 projectManager.prototype._saveNewProject = function(project) {
@@ -866,6 +866,13 @@ projectManager.prototype._parentURI = function(uri) {
     return uri.substr(0, uri.lastIndexOf("/"));
 };
 
+projectManager.prototype.createNewProject = function() {
+    var filename = this._getNewProjectPath();
+    if (filename == null) return null;
+    var uri = ko.uriparse.localPathToURI(filename);
+    return this.newProject(uri);
+};
+
 projectManager.prototype.doCommand = function(command) {
     var filename, uri;
     var project;
@@ -877,10 +884,7 @@ projectManager.prototype.doCommand = function(command) {
         this.currentProject = this.getSelectedProject();
         break;
     case "cmd_newProject":
-        filename = this._getNewProjectPath();
-        if (filename == null) return;
-        uri = ko.uriparse.localPathToURI(filename);
-        this.newProject(uri);
+        this.createNewProject();
         break;
     case "cmd_openProject":
     case "cmd_openProjectNewWindow":
