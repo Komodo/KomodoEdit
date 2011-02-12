@@ -429,6 +429,10 @@ if ($withCasper) {
     );
 }
 
+Build(
+    "$build/modules/rails/Conscript",
+);
+
 if ($buildFlavour ne "full") {
     # for now these will only be in dev builds
     Build(

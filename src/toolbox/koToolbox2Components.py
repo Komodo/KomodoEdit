@@ -545,6 +545,20 @@ class KoToolbox2Service(object):
         toolsDir = join(extensionRootDir, koToolbox2.DEFAULT_TARGET_DIRECTORY)
         if exists(toolsDir) and os.path.isdir(toolsDir):
             name = os.path.basename(extensionRootDir)
+            folderDataPath = join(toolsDir, ".folderdata")
+            if exists(folderDataPath):
+                try:
+                    f = open(folderDataPath)
+                    data = json.load(f, encoding="utf-8")
+                    f.close()
+                    explicitName = data["name"]
+                    if explicitName:
+                        name = explicitName
+                        idx = name.find(koToolbox2.PROJECT_FILE_EXTENSION)
+                        if idx > 0:
+                            name = name[:idx]
+                except:
+                    log.exception("Failed to find a name for toolbox %s", name)
             toolbox_id = self.toolboxLoader.loadToolboxDirectory(name,
                                                                  extensionRootDir,
                                                                  koToolbox2.DEFAULT_TARGET_DIRECTORY)
