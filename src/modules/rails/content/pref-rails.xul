@@ -1,0 +1,238 @@
+<?xml version="1.0"?> 
+<!DOCTYPE window SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % prefDTD SYSTEM "chrome://komodo/locale/pref/pref.dtd">
+  %prefDTD;
+  <!ENTITY % dbexplorerDTD SYSTEM "chrome://rails/locale/rails.dtd">
+  %railsDTD;
+]>
+<!-- Copyright (c) 2000-2011 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<?xml-stylesheet href="chrome://global/skin" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/listbox.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/prefs/prefs.css" type="text/css"?>
+<?xml-stylesheet href="chrome://railsTools/skin/rails.css" type="text/css"?>
+
+<window xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        class="kodialog"
+        orient="vertical"
+        onload="PrefRails_OnLoad();">
+
+  <script src="chrome://komodo/content/library/trace.js" type="application/x-javascript"/>
+  <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript"/>
+  <script src="chrome://komodo/content/library/dialogs.js" type="application/x-javascript"/>
+  <script src="chrome://komodo/content/library/uriparse.js" type="application/x-javascript;version=1.7"/>
+  <script src="chrome://komodo/content/library/filepickers.js" type="application/x-javascript;version=1.7"/>
+  <script src="chrome://komodo/content/pref/koPrefUtils.js" type="application/x-javascript;version=1.7" />
+  <script src="chrome://komodo/content/library/filepickers.js" type="application/x-javascript;version=1.7" />
+  <script src="chrome://railsTools/content/pref-rails.js" type="application/x-javascript"/>
+
+  <vbox id="rails-prefs-vbox" flex="1" class="autoscroll">
+
+    <box class="kobox-smallheader" title="Ruby on Rails"/>
+    
+    <groupbox orient="vertical">
+      <caption label="rails Install Locations"/>
+      <vbox flex="1" align="center" id="no-avail-interps-message" collapsed="true">
+        <description style="font-weight: bold;">
+                    rails was not found on your system.
+        </description>
+      </vbox>
+      <text value="Rails location" style="padding: 2px 6px 2px 6px"/>
+      <hbox align="center">
+          <textbox id="rails.location"
+                   style="margin-left: 26px; min-height: 2em;"
+                   pref="true"
+                   prefstring="rails.location"
+                   onfocus="this.setSelectionRange(0, this.value.length);"
+		   oninput="timeout_checkRubyRailsAlignment(this.value)"
+                   width="1000" flex="1"/>
+        <button label="&browse.label;" oncommand="locateRails();"/>
+      </hbox>
+      <hbox id="railsLocationEcho">
+        <label id="railsLocationVersionLabel" value="Version: " />
+        <label id="railsVersion" value="?" />
+      </hbox>
+
+      <hbox align="center" collapsed="true" id="rails-ruby-conflict-box" >
+               <vbox pack="center">
+                   <image id="rails-ruby-conflict-image" />
+               </vbox>
+               <description id="ruby-rails-conflict-message"
+                            flex="1"/>
+      </hbox>
+     <separator class="thin"/>
+     <vbox>
+        <description>
+                    Which type of database to use?
+        </description>
+        <hbox pack="start">
+         <menulist id="rails.database"
+                   pref="true"
+                   prefattribute="data"
+                   prefstring="rails.database"
+                   oncommand="handleRailsDBMenuPopup(this)">
+            <menupopup id="rails.Database.menupopup">
+             <menuitem data="mysql" label="MySQL" value="0"/>
+             <menuitem data="oracle" label="Oracle" value="1"/>
+             <menuitem data="postgresql" label="PostgreSQL" value="2"/>
+             <menuitem data="sqlite2" label="SQLite2" value="3"/>
+             <menuitem data="sqlite3" label="SQLite3" value="4"/>
+            </menupopup>
+         </menulist>
+        </hbox>
+        <deck id="railsDBDeck" style="margin-top: 10px;">
+          <vbox id="railsDBDeck_mysql">
+            <vbox id="railsDBDeck_mysql.vbox.1">
+              <label value="Location of MySQL:" />
+              <hbox id="railsDBDeck_mysql.hbox.1">
+                <textbox id="mysqlPath" flex="1"
+                         type="autocomplete"
+                         style="min-height: 16px;"
+                         maxrows="10"
+                         size="30"
+                         pref="true"
+                         prefstring="rails.mysqlPath"
+                         enablehistory="false"
+                         autocompletesearch="filepath"
+                         autocompletesearchparam="mru:rails_mysql; cwd:/;"
+                         autocompletepopup="popupTextboxAutoComplete"
+                         tabscrolling="true"
+                         completeselectedindex="true"
+                         onchange="checkMysqlValues(this);"
+                         ontextentered="this.focus();
+                                            this.setSelectionRange(this.textLength, this.textLength);"
+                             />
+                <button label="&browse.label;" oncommand="browseToFile('mysqlPath');"/>
+              </hbox>
+            </vbox>
+            <vbox id="railsDBDeck_mysql.vbox.2">
+              <label value="Location of MySQLadmin:" />
+              <hbox id="railsDBDeck_mysql.hbox.2">
+                <textbox id="mysqladminPath" flex="1"
+                         type="autocomplete"
+                         style="min-height: 16px;"
+                         maxrows="10"
+                         size="30"
+                         pref="true"
+                         prefstring="rails.mysqladminPath"
+                         enablehistory="false"
+                         autocompletesearch="filepath"
+                         autocompletesearchparam="mru:rails_mysqladmin; cwd:/;"
+                         autocompletepopup="popupTextboxAutoComplete"
+                         tabscrolling="true"
+                         onchange="checkMysqlValues(this);"
+                         completeselectedindex="true"
+                         ontextentered="this.focus();
+                                this.setSelectionRange(this.textLength, this.textLength);"
+                            />
+                <button label="&browse.label;" oncommand="browseToFile('mysqladminPath');"/>
+              </hbox>
+            </vbox>
+          </vbox>
+          <vbox id="railsDBDeck_oracle">
+            <vbox id="railsDBDeck_oracle.vbox.1">
+              <label value="Location of oracle:" />
+              <hbox id="railsDBDeck_oracle.hbox.1">
+                <textbox id="oraclePath" flex="1"
+                                     type="autocomplete"
+                                     style="min-height: 16px;"
+                                     maxrows="10"
+                                     size="30"
+                                     pref="true"
+                                     prefstring="rails.oraclePath"
+                                     enablehistory="false"
+                                     autocompletesearch="filepath"
+                                     autocompletesearchparam="mru:rails_oracle; cwd:/;"
+                                     autocompletepopup="popupTextboxAutoComplete"
+                                     tabscrolling="true"
+                                     completeselectedindex="true"
+                                     ontextentered="this.focus();
+                                            this.setSelectionRange(this.textLength, this.textLength);"
+                             />
+                <button label="&browse.label;" oncommand="browseToFile('oraclePath');"/>
+              </hbox>
+            </vbox>
+          </vbox>
+          <vbox id="railsDBDeck_postgresql">
+            <vbox id="railsDBDeck_postgresql.vbox.1">
+              <label value="Location of postgresql:" />
+              <hbox id="railsDBDeck_postgresql.hbox.1">
+                <textbox id="postgresqlPath" flex="1"
+                                     type="autocomplete"
+                                     style="min-height: 16px;"
+                                     maxrows="10"
+                                     size="30"
+                                     pref="true"
+                                     prefstring="rails.postgresqlPath"
+                                     enablehistory="false"
+                                     autocompletesearch="filepath"
+                                     autocompletesearchparam="mru:rails_postgresql; cwd:/;"
+                                     autocompletepopup="popupTextboxAutoComplete"
+                                     tabscrolling="true"
+                                     completeselectedindex="true"
+                                     ontextentered="this.focus();
+                                            this.setSelectionRange(this.textLength, this.textLength);"
+                             />
+                <button label="&browse.label;" oncommand="browseToFile('postgreSQLPath');"/>
+              </hbox>
+            </vbox>
+          </vbox>
+          <vbox id="railsDBDeck_sqlite2">
+            <vbox id="railsDBDeck_sqlite2.vbox.1">
+              <label value="Location of Sqlite2:" />
+              <hbox id="railsDBDeck_sqlite2.hbox.1">
+                <textbox id="sqlite2Path" flex="1"
+                                     type="autocomplete"
+                                     style="min-height: 16px;"
+                                     maxrows="10"
+                                     size="30"
+                                     pref="true"
+                                     prefstring="rails.sqlite2Path"
+                                     enablehistory="false"
+                                     autocompletesearch="filepath"
+                                     autocompletesearchparam="mru:rails_sqlite2; cwd:/;"
+                                     autocompletepopup="popupTextboxAutoComplete"
+                                     tabscrolling="true"
+                                     completeselectedindex="true"
+                                     ontextentered="this.focus();
+                                            this.setSelectionRange(this.textLength, this.textLength);"
+                             />
+                <button label="&browse.label;" oncommand="browseToFile('sqlite2Path');"/>
+              </hbox>
+            </vbox>
+          </vbox>
+          <vbox id="railsDBDeck_sqlite3">
+            <vbox id="railsDBDeck_sqlite3.vbox.1">
+              <label value="Location of Sqlite3:" />
+              <hbox id="railsDBDeck_sqlite3.hbox.1">
+                <textbox id="sqlite3Path" flex="1"
+                                     type="autocomplete"
+                                     style="min-height: 16px;"
+                                     maxrows="10"
+                                     size="30"
+                                     pref="true"
+                                     prefstring="rails.sqlite3Path"
+                                     enablehistory="false"
+                                     autocompletesearch="filepath"
+                                     autocompletesearchparam="mru:rails_sqlite3; cwd:/;"
+                                     autocompletepopup="popupTextboxAutoComplete"
+                                     tabscrolling="true"
+                                     completeselectedindex="true"
+                                     ontextentered="this.focus();
+                                            this.setSelectionRange(this.textLength, this.textLength);"
+                             />
+                <button label="&browse.label;" oncommand="browseToFile('sqlite3Path');"/>
+              </hbox>
+            </vbox>
+          </vbox>
+        </deck>
+     </vbox>
+    </groupbox>
+  </vbox>
+</window>

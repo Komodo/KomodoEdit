@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!DOCTYPE overlay PUBLIC "-//MOZILLA//DTD XUL V1.0//EN" "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+
+<overlay id="railsOverlay"
+         xmlns:html="http://www.w3.org/1999/xhtml"
+         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+  <script src="chrome://railsTools/content/rails_init.js" type="application/x-javascript"/>
+  <script src="chrome://railsTools/content/createRailsProject.js" type="application/x-javascript"/>
+
+  <menupopup id="popup_project">
+    <menuitem id="createRailsProject"
+              label="Create Ruby on Rails Project"
+              
+	      oncommand="ko.extensions.rails.createRailsProject();"
+              class="menu-iconic-wide"
+	      insertafter="menu_project_templates" />
+  </menupopup>
+    
+</overlay>
