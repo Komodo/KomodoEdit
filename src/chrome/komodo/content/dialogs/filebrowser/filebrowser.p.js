@@ -885,7 +885,13 @@ function onOK()
       log.debug("checking input "+inputFiles[i]);
       input = inputFiles[i];
       // Sanitize the input
-      if (!input) continue;
+      if (!input) {
+          if (filePickerMode == modeGetFolder) {
+              // Use the current directory then.
+              files.push(sfile);
+          }
+          continue;
+      }
       if (input[0] == '~' || input[0] == '/') { // XXX XP?
           file_path = input;
       } else {
@@ -1385,6 +1391,7 @@ function gotoDirectory(remoteDir) {
     window.setCursor("wait");
     try {
         treeView.setDirectory(path);
+        textInput.value = "";
         addToHistory(path);
     
         sfile = remoteDir;
