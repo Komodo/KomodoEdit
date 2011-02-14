@@ -94,6 +94,9 @@ function filebrowseview() {
   this.mDirList = [];
   this.mFilteredFiles = [];
   this.mCurrentFilter = ".*";
+  /* mNotifySelectionChanges - internal variable to allow the tree to       */
+  /*                           temporarily disable selection notifications. */
+  this.mNotifySelectionChanges = true;
   this.mSelectionCallback = null;
   this.mTree = null;
   this.mReverseSort = false;
@@ -248,7 +251,7 @@ filebrowseview.prototype = {
 
   /* void selectionChanged(); */
   selectionChanged: function() {
-    if (this.mSelectionCallback) {
+    if (this.mNotifySelectionChanges && this.mSelectionCallback) {
         var fileList = this.getSelectedFiles();
         this.mSelectionCallback(fileList);
     }
@@ -419,6 +422,9 @@ filebrowseview.prototype = {
   
       //time = new Date() - time;
       //dump("sort time: " + time/1000 + " seconds\n");
+
+      this.unSelectAll();
+      this.mTree.scrollToRow(0);
     }
   },
 
@@ -545,16 +551,14 @@ filebrowseview.prototype = {
     return fileList;
   },
   unSelectAll: function() {
-    // This function is used to make sure all tree items are unselected.
-    // Just setting the currentIndex to -1 does not work, as some items
-    // will still be highlighted.
-    // XXX - I think this tree view is a little buggy - ToddW.
-    for (var index=0; index < this.mTotalRows; index++) {
-        if (this.mSelection.isSelected(index)) {
-            this.mSelection.toggleSelect(index);
-        }
+    this.mNotifySelectionChanges = false;
+    try {
+        this.mSelection.clearSelection();
+        // Need to also reset the currentIndex.
+        this.mSelection.currentIndex = -1;
+    } finally {
+        this.mNotifySelectionChanges = true;
     }
-    this.mSelection.currentIndex = -1;
   }
 }
 
