@@ -1328,7 +1328,6 @@
                 <Directory Id="directory236" Name="Run">
                   <Component Id="component221" DiskId="1" Guid="$(autowix.guid)">
                     <File Id="file1288" Name="FILE_4.FOL" LongName=".folderdata" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\railsTools@activestate.com\tools\Run\.folderdata"/>
-                    <File Id="file1289" Name="DEBUG__0.KOM" LongName="debug_rails_app.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\railsTools@activestate.com\tools\Run\debug_rails_app.komodotool"/>
                     <File Id="file1290" Name="RAILS__0.KOM" LongName="rails_console.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\railsTools@activestate.com\tools\Run\rails_console.komodotool"/>
                     <File Id="file1291" Name="RUN_SE_0.KOM" LongName="run_server.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\railsTools@activestate.com\tools\Run\run_server.komodotool"/>
                   </Component>
