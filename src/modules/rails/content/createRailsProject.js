@@ -129,25 +129,6 @@ this.runRailsCommand = function runRailsCommand() {
     var databaseYamlPath = ospath.joinlist(3, [projectDirPath, "config", "database.yml"]);
     var ok = true;
 
-    function removeThisMacro(project, macro_name) {
-        try {
-            var toolbox = ko.toolbox2.toolbox2Svc.getExtensionToolbox("railsTools@activestate.com");
-            var macro = toolbox.getChildByTypeNameName("macro", "debug rails app", 1);
-            macro.parent.removeChild(macro);
-        } catch(ex) {
-            dump("removeThisMacro: " + ex + "\n");
-        }
-    }
-
-    //TODO: Remove the debugger macro on Komodo Edit
-    if (Components.classes['@activestate.com/koInfoService;1'].
-              getService(Components.interfaces.koIInfoService).productType != 'ide') {
-        if (ko.toolbox2.manager.toolbox2Svc.getExtensionToolbox) {
-            // Hasn't been implemented yet.
-            setTimeout(removeThisMacro, 1000, project, 'debug rails app');
-        }
-    }
-
     if (ospath.exists(databaseYamlPath)) {
         var title = bundle.GetStringFromName("Doing a partial install in a nonempty directory");
         var info = bundle.formatStringFromName("The directory X isnt empty",
