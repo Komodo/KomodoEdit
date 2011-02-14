@@ -198,6 +198,7 @@ filebrowseview.prototype = {
 
   /* wstring getCellText(in long row, in wstring colID); */
   getCellText: function(row, column) {
+    var colID = column.id;
     /* we cache the file size and last modified dates -
        this function must be very fast since it's called
        whenever the cell needs repainted */
@@ -211,19 +212,19 @@ filebrowseview.prototype = {
       return "";
     }
 
-    if (column.id == "FilenameColumn") {
+    if (colID == "FilenameColumn") {
       if (!("cachedName" in file)) {
         file.cachedName = file.file.leafName;
       }
       return file.cachedName;
-    } else if (column.id == "LastModifiedColumn") {
+    } else if (colID == "LastModifiedColumn") {
       if (!("cachedDate" in file)) {
         // perhaps overkill, but lets get the right locale handling
         file.cachedDate = file.file.lastModifiedTime;
         file.cachedDateText = formatDate(file.cachedDate);
       }
       return file.cachedDateText;
-    } else if (column.id == "FileSizeColumn") {
+    } else if (colID == "FileSizeColumn") {
       if (isdir) {
         return "";
       } else {
