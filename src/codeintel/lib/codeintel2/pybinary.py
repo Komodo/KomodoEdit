@@ -5,10 +5,6 @@
 """Python binary file scanner for CodeIntel"""
 
 import os
-import types
-import itertools
-import imp
-import subprocess
 import sys
 import cStringIO as io
 import optparse
