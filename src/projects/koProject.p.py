@@ -1395,7 +1395,24 @@ class koProject(koLiveFolderPart):
                             values.append(".komodotools")
                             value = ";".join(values)
                             prefset.setStringPref("import_exclude_matches", value)
-                    self.set_prefset(prefset)
+                    idref = prefset.idref
+                    _owning_part = idmap[idref]
+                    if _owning_part.type not in ("folder", "livefolder", "group", "file"):
+                        _owning_part.set_prefset(prefset)
+                    else:
+                        projectName = "project " + basename
+                        if not projectName:
+                            projectName = "the current project"
+                        try:
+                            typeName = _owning_part.type
+                        except:
+                            typeName = "<?unknown type>"
+                        try:
+                            partName = _owning_part.get_name()
+                        except:
+                            partName = "<?unknown name>"
+                        log.warn("While loading %s, skipping assigning legacy prefset to type %s %s",
+                                   projectName, typeName, partName)
 
                 elif node.tagName == 'files':
                     # ignore the obsolete 'files' nodes, we'll grab the children
@@ -1528,7 +1545,8 @@ class koProject(koLiveFolderPart):
                     part = partstack[-1]
                 else:
                     part = None
-
+        # end for (event, node) in events:
+        
         # create an empty prefset if we don't have one
         self.get_prefset()
 
@@ -1546,8 +1564,6 @@ class koProject(koLiveFolderPart):
         self._loaded_from_url = self._url
         self.set_url(url)
 
-        # now figure out if we're a live project.  In a load, we're only live
-        # if the project has prefs that says we are.
         prefs = self.get_prefset()
         
         #self.validateParts()
