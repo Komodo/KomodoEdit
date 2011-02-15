@@ -436,6 +436,7 @@ class KoPlaceTreeView(TreeView):
 
     def observe(self, subject, topic, data):
         # Taken from koKPFTreeView
+        # File Notification Handling is in fileNotification
         #qlog.debug("observe: subject:%r, topic:%r, data:%r", subject, topic, data)
         if not self._tree:
             # No tree, Komodo is likely shutting down.
@@ -621,23 +622,26 @@ class KoPlaceTreeView(TreeView):
         koFileEx = components.classes["@activestate.com/koFileEx;1"].\
                 createInstance(components.interfaces.koIFileEx)
         koFileEx.URI = uri
-        matching_parts = []
         #print "   path is [%r] dirname [%r]"%(koFileEx.path, koFileEx.dirName)
 
         dirname = koFileEx.dirName
         #log.debug("fileNotification: uri:%s, flags:0x%02x", uri, flags)
+        # If we're filtering it out, do nothing.
+        if not self._namePassesFilter(koFileEx.baseName, _PLACE_FILE):
+            return
         if flags & _createdFlags:
             parent_uri = self._getURIParent(uri)
             index = self.getRowIndexForURI(parent_uri)
             if index != -1:
-                # Refresh this directory.
-                # TODO: We know a file or directory has been added here,
-                #       why not just add this one new entry into the
-                #       tree and invalidate?
+                # Refresh this directory.  refreshView will rebuild
+                # the list of children and child view only if the
+                # parent node is open.
                 self.refreshView(index)
-            else:
+            elif parent_uri == self._currentPlace_uri:
+                # Insert in self._rows top-level
                 self.refreshFullTreeView()  # partly async
-                return
+            else:
+                log.warn("**** Places: Can't find parent for created file %s", uri)
         elif flags & _deletedFlags:
             index = self.getRowIndexForURI(uri)
             if index != -1:
@@ -654,8 +658,6 @@ class KoPlaceTreeView(TreeView):
             index = self.getRowIndexForURI(uri)
             if index >= 0:
                 self._invalidateRow(index)
-            else:
-                self.refreshFullTreeView()
 
     def _invalidateRow(self, rowIndex):
         self._updateFileProperties(rowIndex)
