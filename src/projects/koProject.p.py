@@ -1396,23 +1396,27 @@ class koProject(koLiveFolderPart):
                             value = ";".join(values)
                             prefset.setStringPref("import_exclude_matches", value)
                     idref = prefset.idref
-                    _owning_part = idmap[idref]
-                    if _owning_part.type not in ("folder", "livefolder", "group", "file"):
-                        _owning_part.set_prefset(prefset)
+                    try:
+                        _owning_part = idmap[idref]
+                    except KeyError:
+                        _owning_part = None
                     else:
-                        projectName = "project " + basename
-                        if not projectName:
-                            projectName = "the current project"
-                        try:
-                            typeName = _owning_part.type
-                        except:
-                            typeName = "<?unknown type>"
-                        try:
-                            partName = _owning_part.get_name()
-                        except:
-                            partName = "<?unknown name>"
-                        log.warn("While loading %s, skipping assigning legacy prefset to type %s %s",
-                                   projectName, typeName, partName)
+                        if _owning_part.type not in ("folder", "livefolder", "group", "file"):
+                            _owning_part.set_prefset(prefset)
+                        else:
+                            projectName = "project " + basename
+                            if not projectName:
+                                projectName = "the current project"
+                            try:
+                                typeName = _owning_part.type
+                            except:
+                                typeName = "<?unknown type>"
+                            try:
+                                partName = _owning_part.get_name()
+                            except:
+                                partName = "<?unknown name>"
+                            log.warn("While loading %s, skipping assigning legacy prefset to type %s %s",
+                                       projectName, typeName, partName)
 
                 elif node.tagName == 'files':
                     # ignore the obsolete 'files' nodes, we'll grab the children
