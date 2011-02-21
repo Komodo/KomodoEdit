@@ -209,8 +209,8 @@ class KoRunProcess(object):
                              getService(components.interfaces.koIEncodingServices)
             # Set our internal stdout, stderr objects, so the caller can get the
             # results through the getStdout and getStderr methods below.
-            self._stdoutData, enc, bom = encodingSvc.getUnicodeEncodedString(stdoutData)
-            self._stderrData, enc, bom = encodingSvc.getUnicodeEncodedString(stderrData)
+            self._stdoutData, enc, bom = encodingSvc.getUnicodeEncodedStringUsingOSDefault(stdoutData)
+            self._stderrData, enc, bom = encodingSvc.getUnicodeEncodedStringUsingOSDefault(stderrData)
             return self._stdoutData, self._stderrData
         finally:
             self.__communicating_event.set()

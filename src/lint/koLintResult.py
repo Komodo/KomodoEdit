@@ -77,7 +77,7 @@ class KoLintResult:
                      getService(components.interfaces.koIEncodingServices)
             try:
                 unicodebuffer, encoding, bom = _gEncodingServices.\
-                                                 getUnicodeEncodedString(self.description)
+                                                 getUnicodeEncodedStringUsingOSDefault(self.description)
                 self.encodedDescription  = self._encode_string(unicodebuffer)
             except Exception, e:
                 self.encodedDescription  = repr(self.description)[1:-1] # remove quotes

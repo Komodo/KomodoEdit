@@ -751,7 +751,7 @@ class _TerminalReader(threading.Thread):
                 # the default system encoding.
                 try:
                     data, enc, bom = encodingServices.\
-                                        getUnicodeEncodedString(data)
+                                        getUnicodeEncodedStringUsingOSDefault(data)
                     l = len(data.encode('utf-8'))
                 except:
                     l = len(data)

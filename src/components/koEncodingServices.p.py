@@ -281,3 +281,10 @@ class koEncodingServices:
         unicodebuffer, encoding, bom =\
             koUnicodeEncoding.autoDetectEncoding(s, defaultEncoding=encoding)
         return unicodebuffer, encoding, bom
+
+    def getUnicodeEncodedStringUsingOSDefault(self, s):
+        encoding_name = sys.getfilesystemencoding()
+        encoding = self.get_encoding_info(encoding_name).python_encoding_name
+        unicodebuffer, encoding, bom =\
+            koUnicodeEncoding.autoDetectEncoding(s, defaultEncoding=encoding)
+        return unicodebuffer, encoding, bom
