@@ -218,6 +218,7 @@ class KoInterpolationService:
             'perl':   lambda interp='perl',   lang='Perl':   self._GetInterpreter(interp, lang),
             'php':    lambda interp='php',    lang='PHP':    self._GetInterpreter(interp, lang),
             'python': lambda interp='python', lang='Python': self._GetInterpreter(interp, lang),
+            'python3': lambda interp='python3', lang='Python3': self._GetInterpreter(interp, lang),
 # #if PLATFORM == 'win' or PLATFORM == 'darwin'
             'pythonw': lambda interp='pythonw', lang='Python': self._GetInterpreter(interp, lang),
 # #endif
