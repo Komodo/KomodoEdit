@@ -55,16 +55,16 @@ class koFortran77Language(KoLanguageBase):
     supportsSmartIndent = "brace"
 
     _keywords1 = """
-    allocatable allocate assignment backspace block 
-    blockdata call case character close common complex contains continue 
+    allocatable allocate assignment associate backspace block 
+    blockdata call case character class close common complex contains continue 
     cycle data deallocate default dimension direct do double doubleprecision 
-    elemental else elseif elsewhere end endblock endblockdata enddo endfile 
+    elemental else elseif elsewhere end endassociate endblock endblockdata enddo endfile 
     endforall endfunction endif endinterface endmodule endprogram endselect 
-    endsubroutine endtype endwhere entry equivalence err exist exit external forall 
-    format formatted function go goto if implicit in inout include 
+    endsubroutine endtype endwhere entry equivalence err exist exit external final forall 
+    format formatted function generic go goto if implicit in inout include 
     inquire integer intent interface intrinsic iolength iostat kind 
-    len logical module namelist none null nullify only open operator optional 
-    parameter pointer position precision print private procedure program public pure 
+    len logical module namelist none nopass null nullify only open operator optional 
+    parameter pass pointer position precision print private procedure program public pure 
     out read readwrite real rec recursive result return rewind save select selectcase 
     sequence sequential stat status
     stop subroutine target then to type unformatted unit use where while write
