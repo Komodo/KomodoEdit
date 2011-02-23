@@ -36,18 +36,20 @@
 # ***** END LICENSE BLOCK *****
 
 
-from xpcom import components
+from xpcom import components, ServerException
 from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC
-
 from koLintResult import KoLintResult
 from koLintResults import koLintResults
 from xpcom.server.enumerator import *
 import os, sys, re
+import cStringIO
 import eollib
+import html5lib
 import process
 
 import logging
 log = logging.getLogger("KoHTMLLinter")
+#log.setLevel(logging.DEBUG)
 
 #---- component implementation
 
@@ -233,20 +235,57 @@ class KoHTML5CompileLinter(KoHTMLCompileLinter):
          ("category-komodo-linter", 'HTML5'),
          ]
 
-    
-    html5_tidy_argv_additions = [
-        "--new-blocklevel-tags", "section,header,footer,hgroup,nav,dialog,datalist,details,figcaption,figure,meter,output,progress",
-        "--new-pre-tags", "article,aside,summary,mark",
-        "--new-inline-tags", "video,audio,canvas,source,embed,ruby,rt,rp,keygen,menu,command,time",
-    ]
-
+    problem_word_ptn = re.compile(r'([ &<]?\w+\W*)$')
+    leading_ws_ptn = re.compile(r'(\s+)')
     def lint(self, request):
-        return KoHTMLCompileLinter.lint(self, request, self.html5_tidy_argv_additions)
-
-    def filterLines(self, lines):
-        newlines = []
-        for line in lines:
-            if "is not approved by W3C" in line:
-                continue
-            newlines.append(line)
-        return newlines
+        encoding_name = request.encoding.python_encoding_name
+        text = request.content.encode(encoding_name)
+        textLines = text.splitlines()
+        try:
+            inputStream = cStringIO.StringIO(text)
+            parser = html5lib.HTMLParser()
+            try:
+                doc = parser.parse(inputStream)
+            finally:
+                inputStream.close()
+            errors = parser.errors
+            results = koLintResults()
+            duplicates = {}
+            for posnTuple, errorName, params in parser.errors:
+                lineNo = int(posnTuple[0]) - 1
+                endColNo = int(posnTuple[1])
+                key = "%d:%d:%s" % (lineNo, endColNo, errorName)
+                if key in duplicates:
+                    continue
+                duplicates[key] = None
+                #print "KoHTMLLinter: %r -> %r" % (line, resultMatch.groupdict())
+                probText = textLines[lineNo]
+                probTextToHere = probText[:endColNo]
+                #log.debug("Line %d, probText:%s, probTextToHere:%s",
+                #          lineNo, probText, probTextToHere)
+                m = self.problem_word_ptn.search(probTextToHere)
+                if m:
+                    startColNo = m.span(1)[0]
+                else:
+                    m = self.leading_ws_ptn.match(probText)
+                    if m:
+                        startColNo = m.span(1)[1]
+                    else:
+                        startColNo = 0
+                result = KoLintResult()
+                result.lineStart = result.lineEnd = lineNo + 1
+                result.columnEnd = endColNo
+                result.columnStart = startColNo
+                result.description = errorName
+                #TODO: Distinguish errors from warnings...
+                result.severity = result.SEV_ERROR
+                
+                results.addResult(result)
+        except ServerException:
+            log.exception("ServerException")
+            raise
+        except:
+            # non-ServerException's are unexpected internal errors
+            log.exception("unexpected internal error")
+            raise
+        return results

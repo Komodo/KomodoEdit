@@ -408,6 +408,14 @@ $consLocal->Command($exeName,
 $consLocal->Install("$supportDir/html", $exeName);
 }
 
+my $landmark = "$komodoPythonUtilsDir/html5lib";
+$cons->Command($landmark,
+	       "html5lib/setup.py",
+	       qq(
+                    cd %1:d && $siloedPython %1:f install --install-lib=$komodoPythonUtilsDir --prefix=html5lib
+                   ));
+$cons->DependsRecursive($landmark, "html5lib", ("build", '\.svn'));
+
 
 #---- komododoc
 # The Komodo documentation project.
