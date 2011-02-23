@@ -1350,7 +1350,7 @@ viewManager.prototype.do_cmd_bufferCloseOthers = function() {
             continue;
         } else {
             filtered_views.push(view);
-            urls.push(view.document.file.URI);
+            urls.push(view.koDoc.file.URI);
         }
     }
     var retval = this.offerToSave(urls);
