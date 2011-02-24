@@ -45,6 +45,7 @@ import os, sys, re
 import cStringIO
 import eollib
 import html5lib
+from html5lib.constants import E as html5libErrorDict
 import process
 
 import logging
@@ -237,9 +238,12 @@ class KoHTML5CompileLinter(KoHTMLCompileLinter):
 
     problem_word_ptn = re.compile(r'([ &<]?\w+\W*)$')
     leading_ws_ptn = re.compile(r'(\s+)')
+    dictType = type({})
     def lint(self, request):
         encoding_name = request.encoding.python_encoding_name
         text = request.content.encode(encoding_name)
+        if not text.strip():
+            return koLintResults()
         textLines = text.splitlines()
         try:
             inputStream = cStringIO.StringIO(text)
@@ -249,34 +253,49 @@ class KoHTML5CompileLinter(KoHTMLCompileLinter):
             finally:
                 inputStream.close()
             errors = parser.errors
+            #log.debug("**** Errors: \n%s\n", errors)
             results = koLintResults()
-            duplicates = {}
+            groupedErrors = {}
+            # Gather the grouped results by line/col/errorName, favoring dicts
             for posnTuple, errorName, params in parser.errors:
                 lineNo = int(posnTuple[0]) - 1
-                endColNo = int(posnTuple[1])
+                endColNo = int(posnTuple[1]) + 1
                 key = "%d:%d:%s" % (lineNo, endColNo, errorName)
-                if key in duplicates:
-                    continue
-                duplicates[key] = None
+                if key not in groupedErrors:
+                    groupedErrors[key] = [lineNo, endColNo, errorName, params]
+                elif type(params) == self.dictType:
+                    groupedErrors[key][3] = params
+                else:
+                    #log.debug("Ignoring additional params: %s", params)
+                    pass
+            for lineNo, endColNo, errorName, params in groupedErrors.values():
                 #print "KoHTMLLinter: %r -> %r" % (line, resultMatch.groupdict())
+                if lineNo >= len(textLines):
+                    lineNo = len(textLines) - 1
+                    while lineNo >= 0 and len(textLines[lineNo]) == 0:
+                        lineNo -= 1
+                    if lineNo < 0:
+                        log.warn("No text to display for bug %s", errorName)
+                        continue
+                    endColNo = len(textLines[lineNo]) + 1
                 probText = textLines[lineNo]
                 probTextToHere = probText[:endColNo]
                 #log.debug("Line %d, probText:%s, probTextToHere:%s",
                 #          lineNo, probText, probTextToHere)
                 m = self.problem_word_ptn.search(probTextToHere)
                 if m:
-                    startColNo = m.span(1)[0]
+                    startColNo = m.span(1)[0] + 1
                 else:
                     m = self.leading_ws_ptn.match(probText)
                     if m:
-                        startColNo = m.span(1)[1]
+                        startColNo = m.span(1)[1] + 1
                     else:
-                        startColNo = 0
+                        startColNo = 1
                 result = KoLintResult()
                 result.lineStart = result.lineEnd = lineNo + 1
                 result.columnEnd = endColNo
                 result.columnStart = startColNo
-                result.description = errorName
+                result.description = self._buildErrorMessage(errorName, params)
                 #TODO: Distinguish errors from warnings...
                 result.severity = result.SEV_ERROR
                 
@@ -289,3 +308,28 @@ class KoHTML5CompileLinter(KoHTMLCompileLinter):
             log.exception("unexpected internal error")
             raise
         return results
+    
+    def _buildErrorMessage(self, errorName, params):
+        if type(params) != self.dictType:
+            if errorName in html5libErrorDict:
+                return "%s: %s" % (html5libErrorDict[errorName], params)
+            return "%s: %s" % (errorName, params)
+        if errorName in html5libErrorDict:
+            return html5libErrorDict[errorName] % params
+        if len(items) == 0:
+            if errorName[-1] == ":":
+                return errorName[:-1]
+            else:
+                return errorName
+        if len(items) == 1:
+            k, v = items[0]
+            if k == 'name':
+                return "%s: %s" % (errorName, v)
+            else:
+                return "%s: for %s:%s" % (errorName, k, v)
+        elif len(items) == 2:
+            k1, v1 = items[0]
+            k2, v2 = items[1]
+            if k1 == "expectedName" and k2 == "gotName":
+                return "%s: expected %s, got %s" % (errorName, v1, v2)
+        return "%s: %s" % (errorName, " ;".join(["%s:%s" for k,v in items]))
