@@ -284,6 +284,8 @@ class KoHTML5CompileLinter(KoHTMLCompileLinter):
                 #          lineNo, probText, probTextToHere)
                 if errorName == 'non-void-element-with-trailing-solidus':
                     startColNo = probTextToHere.rfind("/") + 1
+                elif errorName == 'expected-tag-name':
+                    startColNo = probTextToHere.rfind("<") + 1
                 else:
                     m = self.problem_word_ptn.search(probTextToHere)
                     if m:
