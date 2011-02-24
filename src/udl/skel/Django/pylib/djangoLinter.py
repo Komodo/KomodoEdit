@@ -27,6 +27,8 @@ def main(argv):
     pathname, projectPath = argv[1:3]
     sys.path.append(os.path.dirname(projectPath))
     os.environ["DJANGO_SETTINGS_MODULE"] = "%s.settings" % os.path.basename(projectPath)
+    from django.utils import translation
+    translation.activate('en-us')
     return loadTemplate(pathname)
     
 if __name__ == "__main__":
