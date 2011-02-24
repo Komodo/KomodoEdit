@@ -282,15 +282,18 @@ class KoHTML5CompileLinter(KoHTMLCompileLinter):
                 probTextToHere = probText[:endColNo]
                 #log.debug("Line %d, probText:%s, probTextToHere:%s",
                 #          lineNo, probText, probTextToHere)
-                m = self.problem_word_ptn.search(probTextToHere)
-                if m:
-                    startColNo = m.span(1)[0] + 1
+                if errorName == 'non-void-element-with-trailing-solidus':
+                    startColNo = probTextToHere.rfind("/") + 1
                 else:
-                    m = self.leading_ws_ptn.match(probText)
+                    m = self.problem_word_ptn.search(probTextToHere)
                     if m:
-                        startColNo = m.span(1)[1] + 1
+                        startColNo = m.span(1)[0] + 1
                     else:
-                        startColNo = 1
+                        m = self.leading_ws_ptn.match(probText)
+                        if m:
+                            startColNo = m.span(1)[1] + 1
+                        else:
+                            startColNo = 1
                 result = KoLintResult()
                 result.lineStart = result.lineEnd = lineNo + 1
                 result.columnEnd = endColNo
