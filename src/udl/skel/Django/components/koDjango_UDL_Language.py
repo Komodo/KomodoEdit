@@ -277,7 +277,6 @@ class KoDjangoLinter(object):
             self._settingsForDirs[directory] = projDir
         return projDir
         
-    _extends_block_tag_re = re.compile(r"\s*\{\%\s*extends\b.*?\%\}", re.DOTALL)
     def lint(self, request):
         # Find the base of the django project: first parent that contains settings.py
         # If not found, check the current project for a file that contains it
@@ -292,15 +291,7 @@ class KoDjangoLinter(object):
         fout = open(tmpFileName, 'wb')
         try:
             text = request.content.encode(request.encoding.python_encoding_name)
-            # If the template starts with an extends block tag, the django
-            # parser will complain about it.  Don't know why...
-            m = self._extends_block_tag_re.match(text)
-            if m:
-                idx = m.span(0)[1]
-                fixedText = ' ' * idx + text[idx:]
-            else:
-                fixedText = text
-            fout.write(fixedText)
+            fout.write(text)
             fout.close()
         
             results = koLintResults()
@@ -329,6 +320,8 @@ class KoDjangoLinter(object):
         r"(\S+) requires \d+ arguments?, \d+ provided" : r"\{\{\s*(.*?\|%s)",
         r"Variables and attributes may not begin with underscores: '(.*?)'"
                                                       : r"\{\{\s*(%s)",
+        r"<ExtendsNode: extends \"(.*?)\"> must be the first tag in the template"
+                    : r"""(\{%%\s*extends\s*["']%s["'])""",
     }
     _compiled_ptns = {}
 
@@ -357,7 +350,7 @@ class KoDjangoLinter(object):
         if not m:
             return False
         endPos = m.end()
-        lines = self._lineSplitterRE.split(text[:endPos])
+        lines = text[:endPos].splitlines()
         lastLine = lines[-1]
         lintResult.lineStart = lintResult.lineEnd = len(lines)
         m = regex.search(lastLine)
@@ -365,8 +358,33 @@ class KoDjangoLinter(object):
         lintResult.columnEnd = m.span(1)[1] + 1
         return True
         
+    def _test_for_duplicate_extends(self, message, text, lintResult):
+        # Special case: find the second occurrence, and underline it
+        if "'extends' cannot appear more than once in the same template" not in message:
+            return
+        ptn = r"\{\%\s*extends\b.*?\%\}.*?(\{\%\s*extends\b)"
+        if not self._compiled_ptns.has_key(ptn):
+            self._compiled_ptns[ptn] = re.compile(ptn, re.DOTALL)
+        m = self._compiled_ptns[ptn].search(text)
+        if not m:
+            return
+        span = m.span(1)
+        before_lines = text[:span[0]].splitlines()
+        num_before_lines = len(before_lines)
+        lines = text.splitlines()
+        if len(before_lines[-1]) < len(lines[num_before_lines - 1]):
+            #log.debug("Second extend starts in the middle of a line")
+            lintResult.lineStart = lintResult.lineEnd = num_before_lines
+            lintResult.columnStart = len(before_lines[-1]) + 1
+        else:
+            #log.debug("Second extend starts at the start of a line")
+            lintResult.lineStart = lintResult.lineEnd = num_before_lines + 1
+            lintResult.columnStart = 1
+        lintResult.columnEnd = lintResult.columnStart + span[1] - span[0]
+        return lintResult
+                
     def _buildResult(self, text, message):
-        inputLines = self._lineSplitterRE.split(text)
+        inputLines = text.splitlines()
         r = KoLintResult()
         r.severity = r.SEV_ERROR
         r.description = message

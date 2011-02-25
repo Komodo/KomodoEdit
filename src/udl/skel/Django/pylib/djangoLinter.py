@@ -21,6 +21,8 @@ def loadTemplate(pathname):
     except TemplateSyntaxError, ex:
         sys.stderr.write("TemplateSyntaxError: %s\n" % ex[0])
         return 1
+    except ex:
+        sys.stdout.write("Unexpected error: %s\n" % ex[0])
     return 0
 
 def main(argv):
