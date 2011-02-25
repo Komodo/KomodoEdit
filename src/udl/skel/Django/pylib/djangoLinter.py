@@ -27,7 +27,8 @@ def loadTemplate(pathname):
 
 def main(argv):
     pathname, projectPath = argv[1:3]
-    sys.path.append(os.path.dirname(projectPath))
+    sys.path.insert(0, os.path.dirname(projectPath))
+    sys.path.insert(0, projectPath)
     os.environ["DJANGO_SETTINGS_MODULE"] = "%s.settings" % os.path.basename(projectPath)
     from django.utils import translation
     translation.activate('en-us')
