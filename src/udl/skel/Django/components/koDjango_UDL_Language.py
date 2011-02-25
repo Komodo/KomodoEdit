@@ -404,6 +404,8 @@ class KoDjangoLinter(object):
                 if m:
                     if self._do_contextual_matcher(self._contextual_matchers[raw_ptn], m.group(1), text, r):
                         return r
+            if self._test_for_duplicate_extends(message, text, r):
+                return r
                     
             # Special-case contextual pattern has two parts
             m = re.compile(r"Could not parse the remainder: '(.*?)' from '(.*?)'").search(message)
