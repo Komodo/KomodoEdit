@@ -80,27 +80,35 @@ def PerlWarnsToLintResults(warns, perlfilename, perlcode):
     warnRe = re.compile(r'(?P<description>.*) at (?P<fileName>.*?) line (?P<lineNum>\d+)(?P<hint>.*)')
     successRe = re.compile(r'syntax OK')
     failureRe = re.compile(r'had compilation errors')
+    pendingMessage = None
     for warn in warns:
         match = warnRe.search(warn)
-        if match and match.group('fileName') == perlfilename:
-            lineNum = int(match.group('lineNum'))
-            varName = match.groupdict().get('varName', None)
-            lr = KoLintResult()
-            
-            lr.description = match.group('description') + match.group('hint')
-            lr.lineStart = lineNum 
-            lr.lineEnd = lineNum
-            if varName:
-                lr.columnStart = perllines[lr.lineStart-1].find(varName) + 1
-                if lr.columnStart == -1:
-                    lr.columnEnd = -1
+        if match:
+            if match.group('fileName') == perlfilename:
+                lineNum = int(match.group('lineNum'))
+                varName = match.groupdict().get('varName', None)
+                lr = KoLintResult()
+                
+                lr.description = match.group('description') + match.group('hint')
+                lr.lineStart = lineNum 
+                lr.lineEnd = lineNum
+                if varName:
+                    lr.columnStart = perllines[lr.lineStart-1].find(varName) + 1
+                    if lr.columnStart == -1:
+                        lr.columnEnd = -1
+                    else:
+                        lr.columnEnd = lr.columnStart + len(varName) + 1
                 else:
-                    lr.columnEnd = lr.columnStart + len(varName) + 1
-            else:
-                lr.columnStart = 1
-                lr.columnEnd = len(perllines[lr.lineStart-1]) + 1
-            
-            results.append(lr)
+                    lr.columnStart = 1
+                    lr.columnEnd = len(perllines[lr.lineStart-1]) + 1
+                
+                results.append(lr)
+            elif pendingMessage is None:
+                pendingMessage = warn
+    if (len(results) == 1
+        and results[0].description == "BEGIN failed--compilation aborted."
+        and pendingMessage):
+        results[0].description = pendingMessage
 
 # XXX
 #
