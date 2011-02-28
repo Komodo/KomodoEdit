@@ -114,6 +114,13 @@ my @lexers = (
                skel => "skel/Mason",
               },
               {
+               language_name => "EPerl",
+               codename => "eperl_language",
+               udl_path => "eperl-mainlex.udl",
+               ext => ".ep",
+               skel => "skel/EPerl",
+              },
+              {
                language_name => "TemplateToolkit",
                codename => "templatetoolkit_language",
                udl_path => "template-toolkit-mainlex.udl",

@@ -1,0 +1,320 @@
+# Lexer for Mojo::Template -- a perl-based (sort of) template language
+
+# This is for single-line mode
+
+family tpl
+sublanguage EPerl
+
+start_style TPL_DEFAULT
+end_style TPL_VARIABLE
+keyword_style SSL_IDENTIFIER => SSL_WORD
+keywords ["abs",
+#{{
+"accept", "alarm", "and", "atan2", "BEGIN", "bind", "binmode", "bless",
+"caller", "chdir", "chmod", "chomp", "chop", "chown", "chr", "chroot", "close",
+"closedir", "cmp", "connect", "continue", "cos", "crypt", "DATA", "dbmclose",
+"dbmopen", "define", "defined", "delete", "die", "do", "dump", "each", "else",
+"elsif", "END", "endgrent", "endhostent", "endnetent", "endprotoent",
+"endpwent", "endservent", "eof", "eq", "eval", "exec", "exists", "exit", "exp",
+"fcntl", "fileno", "flock", "for", "foreach", "fork", "format", "formline",
+"ge", "getc", "getgrent", "getgrgid", "getgrnam", "gethostbyaddr",
+"gethostbyname", "gethostent", "getlogin", "getnetbyaddr", "getnetbyname",
+"getnetent", "getpeername", "getpgrp", "getppid", "getpriority",
+"getprotobyname", "getprotobynumber", "getprotoent", "getpwent", "getpwnam",
+"getpwuid", "getservbyname", "getservbyport", "getservent", "getsockname",
+"getsockopt", "glob", "gmtime", "goto", "grep", "gt", "hex", "if", "import",
+"include", "index", "int", "ioctl", "join", "keys", "kill", "last", "lc",
+"lcfirst", "le", "length", "link", "listen", "local", "localtime", "lock",
+"log", "lstat", "lt", "m", "map", "mkdir", "msgctl", "msgget", "msgrcv",
+"msgsnd", "my", "ne", "new", "next", "no", "not", "oct", "open", "opendir",
+"or", "ord", "our", "pack", "package", "pipe", "pop", "pos", "print", "printf",
+"prototype", "push", "q", "qq", "qr", "qx", "qw", "quotemeta", "rand", "read",
+"readdir", "readline", "readlink", "readpipe", "recv", "redo", "ref", "rename",
+"require", "reset", "return", "reverse", "rewinddir", "rindex", "rmdir", "s",
+"scalar", "seek", "seekdir", "select", "semctl", "semget", "semop", "send",
+"setgrent", "sethostent", "setnetent", "setpgrp", "setpriority", "setprotoent",
+"setpwent", "setservent", "setsockopt", "shift", "shmctl", "shmget", "shmread",
+"shmwrite", "shutdown", "sin", "sleep", "socket", "socketpair", "sort",
+"splice", "split", "sprintf", "sqrt", "srand", "stat", "study", "sub", "substr",
+"symlink", "syscall", "sysopen", "sysread", "sysseek", "system", "syswrite",
+"tell" "telldir", "tie", "tied", "time", "times", "tr", "truncate", "uc",
+"ucfirst", "umask", "undef", "unless", "unlink", "unpack", "unshift", "untie",
+"until", "use", "utime", "values", "vec", "wait", "waitpid", "wantarray",
+"warn", "while", "write", "xor", "y" ]
+#}}
+
+# Some info on the styles we're using here
+
+pattern NMSTART = '_\w\x80-\xff'   # inside cset
+pattern CS = '$NMSTART\d'   # inside cset
+pattern VARNAME = '[$NMSTART][$CS]*'
+pattern WS = '\s\t\r\n'           # inside cset
+pattern OP = '~!%#^&*()-=+\[\]\{\}\\\|;:,<.>\/\?' # Every char
+
+start_style TPL_DEFAULT
+end_style TPL_VARIABLE
+
+state IN_TPL_DEFAULT:
+/\r?\n/: paint(upto, SSL_DEFAULT),  spop_check, => IN_M_DEFAULT
+/#.*/ : paint(upto, TPL_DEFAULT),  => IN_TPL_COMMENT
+/[$WS]+/  : #stay
+'"' : paint(upto, TPL_DEFAULT), => IN_TPL_DSTRING
+'\'' : paint(upto, TPL_DEFAULT), => IN_TPL_SSTRING
+'`' : paint(upto, TPL_DEFAULT), => IN_TPL_XSTRING
+
+# Go process a number, try to do it in regexes
+# octal and hex first
+/0x[0-9a-fA-F_]*/ : paint(upto, TPL_DEFAULT), paint(include, TPL_NUMBER)
+/0b[01_]*/ : paint(upto, TPL_DEFAULT), paint(include, TPL_NUMBER)
+/0[0-7_]*/ : paint(upto, TPL_DEFAULT), paint(include, TPL_NUMBER)
+/[1-9]/ : paint(upto, TPL_DEFAULT), => IN_TPL_NUMBER_1
+/\.(?=\d)/ : paint(upto, TPL_DEFAULT), => IN_TPL_NUMBER_2
+
+# In Perl two things can precede names and turn off their keywordness
+/::(?=[$NMSTART])/ : paint(upto, TPL_DEFAULT), paint(include, TPL_OPERATOR), \
+=> IN_TPL_NON_KEYWORD_IDENTIFIER_1
+/->(?=\s*[$NMSTART])/ : paint(upto, TPL_DEFAULT), paint(include, TPL_OPERATOR), \
+=> IN_TPL_NON_KEYWORD_IDENTIFIER_1
+
+'$' : paint(upto, TPL_DEFAULT), => IN_TPL_FINISH_DOLLAR
+'@' : paint(upto, TPL_DEFAULT), => IN_TPL_FINISH_AT_SIGN
+'%' : paint(upto, TPL_DEFAULT), paint(include, TPL_OPERATOR) => IN_TPL_FINISH_PERCENT
+
+/(?:m|qr)([\{\[\(\<])/ : paint(upto, TPL_DEFAULT), set_opposite_delimiter(1), => IN_TPL_REGEX1_TARGET
+/(?:m|qr)([^\w\d])/ : paint(upto, TPL_DEFAULT), set_delimiter(1), => IN_TPL_REGEX1_TARGET
+'/' token_check : paint(upto, TPL_DEFAULT) => IN_TPL_REGEX_1
+
+/s([\{\[\(\<])/ : paint(upto, TPL_DEFAULT), set_opposite_delimiter(1), => IN_TPL_REGEX2_TARGET1_OPPOSITE_1
+/s([^\w\d])/ : paint(upto, TPL_DEFAULT), set_delimiter(1), => IN_TPL_REGEX2_TARGET1_SAME
+
+/q[qwx]?([\{\[\(\<])/ : paint(upto, TPL_DEFAULT), set_opposite_delimiter(1), => IN_TPL_QSTRING
+/q[qwx]?([^\w\d])/ : paint(upto, TPL_DEFAULT), set_delimiter(1), => IN_TPL_QSTRING
+
+'=~' : paint(upto, TPL_DEFAULT), paint(include, TPL_OPERATOR) => IN_TPL_PRE_REGEX_1
+
+# We set up a microstate for recognizing barewords in function calls
+# and hash assignments
+/[\(,\{]/ : paint(upto, TPL_DEFAULT), paint(include, TPL_OPERATOR) => IN_TPL_DEFAULT_HANDLE_ARROW_BAREWORDS_1
+
+/$VARNAME/: paint(upto, TPL_DEFAULT), paint(include, TPL_IDENTIFIER)
+
+'->' : paint(upto, TPL_DEFAULT), paint(include, TPL_OPERATOR), => IN_TPL_BRACE_IS_INDEXER
+/[$OP]/ : paint(upto, TPL_DEFAULT), paint(include, TPL_OPERATOR)
+
+################ Allowing for barewords ################
+
+state IN_TPL_DEFAULT_HANDLE_ARROW_BAREWORDS_1:
+/[$WS]/ #stay
+/[-+]?$VARNAME(?=\s*=>)/ : paint(upto, TPL_DEFAULT), paint(include, TPL_STRING) => IN_TPL_DEFAULT
+/./ : paint(upto, TPL_DEFAULT), redo, => IN_TPL_DEFAULT
+
+################ Comments ################
+
+state IN_TPL_COMMENT : 
+/\r?\n/ : paint(upto, TPL_COMMENT), redo => IN_TPL_DEFAULT
+/\z/ : paint(include, TPL_COMMENT), => IN_TPL_DEFAULT
+
+#{{
+################ Strings ################
+
+#XXX Add quoted delimiters, including a rules block, for ruby and perl
+
+state IN_TPL_DSTRING:
+'"' : paint(include, TPL_STRING), => IN_TPL_DEFAULT
+/\\./ : #backslash-escape
+
+state IN_TPL_SSTRING:
+'\'' : paint(include, TPL_STRING), => IN_TPL_DEFAULT
+/\\./ : #backslash-escape
+
+state IN_TPL_XSTRING:
+'`' : paint(include, TPL_STRING), => IN_TPL_DEFAULT
+/\\./ : #backslash-escape
+
+# qr/.../ goes to regex
+state IN_TPL_QSTRING:
+delimiter: paint(include, TPL_STRING), => IN_TPL_DEFAULT
+/\\./ #stay
+
+################ Numbers ##############
+
+state IN_TPL_NUMBER_1 :
+/$/ : paint(upto, TPL_NUMBER), => IN_TPL_DEFAULT
+'.' : => IN_TPL_NUMBER_2
+/[\d]/ : #stay
+/[Ee][-+]?/ : => IN_TPL_NUMBER_3
+/./ : paint(upto, TPL_NUMBER), redo, => IN_TPL_DEFAULT
+
+state IN_TPL_NUMBER_2:
+/$/ : paint(upto, TPL_NUMBER), => IN_TPL_DEFAULT
+/[\d]/ : #stay
+/[Ee][-+]?/ : => IN_TPL_NUMBER_3
+'.' : paint(upto, TPL_NUMBER), paint(include, TPL_OPERATOR),  => IN_TPL_DEFAULT
+/./ : paint(upto, TPL_NUMBER), redo, => IN_TPL_DEFAULT
+
+state IN_TPL_NUMBER_3:
+/$/ : paint(upto, TPL_NUMBER), => IN_TPL_DEFAULT
+/[^\d]/ : paint(upto, TPL_NUMBER), redo, => IN_TPL_DEFAULT
+
+################ Names ################
+#}}
+
+state IN_TPL_FINISH_DOLLAR:
+/\d+/ : paint(upto, TPL_VARIABLE), => IN_TPL_DEFAULT
+'::' : => IN_TPL_VARIABLE_1
+/\$+(?=#?[$NMSTART]|::)/ : #stay
+/[-&`'+*.\/|,\\";%=~\^:?!@$<>()\[\]]/ : paint(upto, TPL_VARIABLE), => IN_TPL_DEFAULT
+/\^[A-Z]/ : paint(upto, TPL_VARIABLE), => IN_TPL_DEFAULT
+/\{\^[A-Z_]+/ : => IN_TPL_FINISH_DOLLAR_EXTENDED
+/#?[$NMSTART]/ : => IN_TPL_VARIABLE_1
+/./ : redo, paint(upto, TPL_DEFAULT), => IN_TPL_DEFAULT
+
+state IN_TPL_FINISH_DOLLAR_EXTENDED:
+'}' : paint(upto, TPL_VARIABLE), => IN_TPL_DEFAULT
+/./ : redo, paint(upto, TPL_VARIABLE), => IN_TPL_DEFAULT
+
+state IN_TPL_FINISH_AT_SIGN:
+/[-+]/ : paint(upto, TPL_VARIABLE), => IN_TPL_DEFAULT
+'::' : => IN_TPL_VARIABLE_1
+/[$NMSTART]/ : => IN_TPL_VARIABLE_1
+/\$+(?=[$NMSTART]|::)/ : #stay
+/./ : redo, paint(upto, TPL_DEFAULT), => IN_TPL_DEFAULT
+
+state IN_TPL_FINISH_PERCENT:
+'::' : => IN_TPL_VARIABLE_1
+/[_!]/ : paint(upto, TPL_VARIABLE), => IN_TPL_DEFAULT
+/^[H]/ : paint(upto, TPL_VARIABLE), => IN_TPL_DEFAULT
+/[$NMSTART]/ : => IN_TPL_VARIABLE_1
+/\$+(?=[$NMSTART]|::)/ : #stay
+/./ : redo, paint(upto, TPL_OPERATOR), => IN_TPL_DEFAULT
+
+state IN_TPL_VARIABLE_1:
+/[$CS]+/ : #stay, check for one of those ruby prefix things
+/::/ : paint(upto, TPL_VARIABLE), paint(include, TPL_OPERATOR) #stay
+'{' : paint(upto, TPL_VARIABLE), paint(include, TPL_OPERATOR), => IN_TPL_INDEXER_1
+/[$WS]/: paint(upto, TPL_VARIABLE) => IN_TPL_BRACE_IS_INDEXER
+/./ : redo, paint(upto, TPL_VARIABLE), => IN_TPL_DEFAULT
+
+state IN_TPL_IDENTIFIER_1:
+/[$CS]+/ #stay, check for one of those ruby prefix things
+/::(?=[$NMSTART])/ : paint(upto, TPL_IDENTIFIER), paint(include, TPL_OPERATOR), \
+=> IN_TPL_NON_KEYWORD_IDENTIFIER_1
+'::' : paint(upto, TPL_IDENTIFIER), paint(include, TPL_OPERATOR), => IN_TPL_DEFAULT
+'{' : paint(upto, TPL_IDENTIFIER), paint(include, TPL_OPERATOR), no_keyword, => IN_TPL_INDEXER_1
+/[$WS]/ : paint(upto, TPL_VARIABLE), => IN_TPL_NON_KEYWORD_IDENTIFIER_2
+/./ : redo, paint(upto, TPL_VARIABLE), => IN_TPL_DEFAULT
+
+################ Non-keyword identifiers ################
+
+state IN_TPL_NON_KEYWORD_IDENTIFIER_1:
+# Match anything since we know how we got here.  Don't color single-char keywords
+/./ : no_keyword, paint(include, TPL_IDENTIFIER), => IN_TPL_NON_KEYWORD_IDENTIFIER_2
+
+state IN_TPL_NON_KEYWORD_IDENTIFIER_2:
+/[$WS]/  : no_keyword, paint(upto, TPL_IDENTIFIER), => IN_TPL_NON_KEYWORD_IDENTIFIER_3
+'{' : paint(upto, TPL_IDENTIFIER), paint(include, TPL_OPERATOR), no_keyword, => IN_TPL_INDEXER_1
+/[^$CS]/ : paint(upto, TPL_IDENTIFIER), redo, no_keyword, => IN_TPL_DEFAULT
+
+state IN_TPL_NON_KEYWORD_IDENTIFIER_3:
+/[$WS]/ : #stay
+'{' : paint(upto, TPL_DEFAULT), paint(include, TPL_OPERATOR), => IN_TPL_INDEXER_1
+/./ : paint(upto, TPL_DEFAULT), redo, => IN_TPL_DEFAULT
+
+################ Moved here on -> ################
+
+state IN_TPL_BRACE_IS_INDEXER:
+/[$WS]+/ : #stay
+'{' : paint(upto, TPL_DEFAULT), paint(include, TPL_OPERATOR), => IN_TPL_INDEXER_1
+/./ : paint(upto, TPL_DEFAULT), redo, => IN_TPL_DEFAULT
+
+
+state IN_TPL_INDEXER_1:
+/\s+/ : #stay
+/[$NMSTART]/ : paint(upto, TPL_DEFAULT), => IN_TPL_INDEXER_2
+/./ : paint(upto, TPL_DEFAULT), redo, => IN_TPL_DEFAULT
+
+#Bareword
+state IN_TPL_INDEXER_2:
+/[$CS]+/ : #stay, check for one of those ruby prefix things
+/ *(?=\})/ : paint(upto, TPL_STRING), paint(include, TPL_DEFAULT), => IN_TPL_DEFAULT
+/./ : paint(upto, TPL_IDENTIFIER), redo, => IN_TPL_DEFAULT
+
+################ Regexes ################
+
+state IN_TPL_PRE_REGEX_1:
+/[$WS]+/  : #stay
+/m?([\{\[\(\<])/ : paint(upto, TPL_DEFAULT), set_opposite_delimiter(1), => IN_TPL_REGEX1_TARGET
+/m?([^\w\d])/ : paint(upto, TPL_DEFAULT), set_delimiter(1), => IN_TPL_REGEX1_TARGET
+
+/s([\{\[\(\<])/ : paint(upto, TPL_DEFAULT), set_opposite_delimiter(1), => IN_TPL_REGEX2_TARGET1_OPPOSITE_1
+/s([^\w\d])/ : paint(upto, TPL_DEFAULT), set_delimiter(1), => IN_TPL_REGEX2_TARGET1_SAME
+
+/./ : paint(upto, TPL_DEFAULT), redo, => IN_TPL_DEFAULT
+
+# Will be used for things like split(/.../, split /, etc etc
+state IN_TPL_REGEX_1:
+/\\./ : #stay
+/\/[\w]*/ : paint(include, TPL_STRING), => IN_TPL_DEFAULT
+# Assume a # is in an x-type regex
+/#[^\/]*$/ : paint(upto, TPL_STRING), paint(include, TPL_COMMENT) # stay
+/[\r\n]/ : #stay
+
+# m{...}, m/.../, and second part of s*...*...*
+state IN_TPL_REGEX1_TARGET:
+delimiter: paint(include, TPL_STRING), => IN_TPL_REGEX_POST
+/\\./ #stay
+# Assume a # is in an x-type regex, with hardwired slashes to get 90% cases.
+/\#[^\/]*$/ : paint(upto, TPL_STRING), paint(include, TPL_COMMENT) # stay
+
+state IN_TPL_REGEX_POST:
+/\w+/ : paint(include, TPL_STRING), => IN_TPL_DEFAULT
+// : => IN_TPL_DEFAULT
+
+state IN_TPL_REGEX2_TARGET1_OPPOSITE_1:
+/\r?\n/: paint(upto, TPL_STRING), redo, => IN_TPL_DEFAULT
+/\\./ : #stay
+delimiter: paint(include, TPL_STRING), => IN_TPL_REGEX2_TARGET1_OPPOSITE_2
+/\z/ : paint(upto, TPL_STRING)
+
+# s[...]/.../
+state IN_TPL_REGEX2_TARGET1_OPPOSITE_2:
+/\r?\n/: paint(upto, TPL_STRING), redo, => IN_TPL_DEFAULT
+/\\./ : #stay
+/[$WS]/ : #stay -- assume we're in {...} [ ... ]x
+/\#.*$/ paint(upto, TPL_DEFAULT), paint(include, TPL_COMMENT) #stay
+/([\{\[\(\<])/ : paint(upto, TPL_DEFAULT), set_opposite_delimiter(1), => IN_TPL_REGEX1_TARGET
+/([^\w\d])/ : paint(upto, TPL_DEFAULT), set_delimiter(1), => IN_TPL_REGEX1_TARGET
+/\z/ : paint(upto, TPL_DEFAULT)
+
+# s/.../.../
+state IN_TPL_REGEX2_TARGET1_SAME
+/\r?\n/: paint(upto, TPL_STRING), redo, => IN_TPL_DEFAULT
+/\\./ : #stay
+delimiter: keep_delimiter, => IN_TPL_REGEX1_TARGET
+/\z/ : paint(upto, TPL_STRING)
+
+################ End States ################
+
+# token-checking on '/' as start of a regex
+token_check:
+TPL_OPERATOR: accept ['(', '{', '[', ';', '..', '...']
+TPL_WORD: accept [split, grep, map, print while, if unless until and or not xor]
+TPL_DEFAULT: skip all
+TPL_COMMENT: skip all
+
+################ Fold Info ################
+
+fold "{" TPL_OPERATOR +
+fold "}" TPL_OPERATOR -
+fold "[" TPL_OPERATOR +
+fold "]" TPL_OPERATOR -
+fold "(" TPL_OPERATOR +
+fold ")" TPL_OPERATOR -
+
+fold "{{{" TPL_COMMENT +
+fold "}}}" TPL_COMMENT -
+
+fold "{{{" TPL_COMMENTBLOCK +
+fold "}}}" TPL_COMMENTBLOCK -
+
+
