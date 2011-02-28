@@ -408,7 +408,7 @@ $consLocal->Command($exeName,
 $consLocal->Install("$supportDir/html", $exeName);
 }
 
-my $landmark = "$komodoPythonUtilsDir/html5lib";
+my $landmark = "$komodoPythonUtilsDir/html5lib/__init__.py";
 $cons->Command($landmark,
 	       "html5lib/setup.py",
 	       qq(
