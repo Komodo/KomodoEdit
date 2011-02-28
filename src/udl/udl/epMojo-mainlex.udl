@@ -22,18 +22,18 @@ include "html2js.udl"
 
 include "html2css.udl"
 
-include "eperl/html2eperl.udl"
+include "epMojo/html2epMojo.udl"
 
 include "css2html.udl"
 
 include "js2html.udl"
 
-include "eperl/eperl2html.udl"
+include "epMojo/epMojo2html.udl"
 
-language EPerl
+language epMojo
 
 include "html.udl"
 include "csslex.udl"
 include "jslex.udl"
 include "perllex.udl"
-include "eperl/eperllex.udl"
+include "epMojo/epMojolex.udl"
