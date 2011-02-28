@@ -1,0 +1,39 @@
+# See php-smarty-lex.udl for an explanation of how to build a
+# multi-language Luddite file
+
+# The top-level file for the embedded Perl used by mojolicious
+
+# <% perl code...
+#  %>
+
+# <%= perl expn ...
+#  %>
+
+# <%== perl expn ... %>
+# <%# comment ... %>
+# % perl line
+# %= perl expn on line
+# %== perl expn on line
+# %# comment on line
+
+# ... =%> : trim whitespace
+
+include "html2js.udl"
+
+include "html2css.udl"
+
+include "eperl/html2eperl.udl"
+
+include "css2html.udl"
+
+include "js2html.udl"
+
+include "eperl/eperl2html.udl"
+
+language Eperl
+
+include "html.udl"
+include "csslex.udl"
+include "jslex.udl"
+include "perllex.udl"
+include "eperl/eperllex.udl"
