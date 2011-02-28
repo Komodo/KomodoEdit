@@ -53,14 +53,13 @@ from koLintResults import koLintResults
 import scimozindent
 
 log = logging.getLogger("koEpMojoLanguage")
-log.setLevel(logging.DEBUG)
+#log.setLevel(logging.DEBUG)
 
 def registerLanguage(registry):
     log.debug("Registering language epMojo")
     registry.registerLanguage(koEpMojoLanguage())
 
 class koEpMojoLanguage(koHTMLLanguageBase):
-    log.debug("**************** Define epMojo class")
     name = "epMojo"
     lexresLangName = "epMojo"
     _reg_desc_ = "%s Language" % name
@@ -91,7 +90,6 @@ Inline perl:   <% Inline Perl %>, and continue...
 """
 
     def __init__(self):
-        log.debug("**************** Instantiate epMojo class")
         koHTMLLanguageBase.__init__(self)
         self.matchingSoftChars["`"] = ("`", self.softchar_accept_matching_backquote)
         self._style_info.update(
