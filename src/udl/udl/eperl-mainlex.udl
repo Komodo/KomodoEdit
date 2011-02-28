@@ -30,7 +30,7 @@ include "js2html.udl"
 
 include "eperl/eperl2html.udl"
 
-language Eperl
+language EPerl
 
 include "html.udl"
 include "csslex.udl"
