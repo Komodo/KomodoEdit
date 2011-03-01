@@ -340,6 +340,9 @@ class KoPerlCompileLinter:
         Raise an exception if there is a problem.
         """
         text = request.content.encode(request.encoding.python_encoding_name)
+        return self.lint_with_text(request, text)
+
+    def lint_with_text(self, request, text):
         cwd = request.cwd
         prefset = request.koDoc.getEffectivePrefs()
         # Remove a possible "-d" in the shebang line, this will tell Perl to

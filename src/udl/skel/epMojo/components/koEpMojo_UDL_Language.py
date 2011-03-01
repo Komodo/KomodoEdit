@@ -98,3 +98,98 @@ Inline perl:   <% Inline Perl %>, and continue...
         self._indent_chars = u'{}'
         self._indent_open_chars = u'{'
         self._indent_close_chars = u'}'
+
+    def get_linter(self):
+        if not hasattr(self, "_linter"):
+            self._linter = self._get_linter_from_lang(self.name)
+        return self._linter
+
+class KoEpMojoLinter(object):
+    _com_interfaces_ = [components.interfaces.koILinter]
+    _reg_desc_ = "epMojo Template Linter"
+    _reg_clsid_ = "{3b69f94f-4fb6-47bb-a387-9d3ac372195a}"
+    _reg_contractid_ = "@activestate.com/koLinter?language=epMojo;1"
+    _reg_categories_ = [
+        ("category-komodo-linter", 'epMojo'),
+    ]
+
+
+    def __init__(self):
+        self._perl_linter = components.classes["@activestate.com/koLinter?language=Perl;1"].\
+                            getService(components.interfaces.koILinter);
+        
+    def _extractPerlCode(self, text):
+        # Lint only the Perl code
+        if not text.endswith("\n"):
+            text += "\n";
+        newTextBlocks = []
+        skip_ptn = re.compile(r'[^\r\n<%]+')
+        leading_name = re.compile(r'\s+(\w+)')
+        neededSubs = {}
+        # Now save only the Perl code.
+        c = None
+        while text:
+            m = skip_ptn.match(text)
+            if m:
+                amtToSkip = m.span(0)[1]
+                newTextBlocks.append(amtToSkip * " ")
+                text = text[amtToSkip:]
+                prev_c = None
+                continue
+            prev_c = c
+            c = text[0]
+            if c in ('\r', '\n'):
+                newTextBlocks.append(c)
+                text = text[1:]
+            elif c == '%' and prev_c in ('\n', None):
+                if len(text) == 1:
+                    break
+                text = text[1:]
+                while text[0] == '=':
+                    text = text[1:]
+                idx = text.find("\n")
+                newText = text[:idx + 1]
+                m = leading_name.match(newText)
+                if m:
+                    term = m.group(1)
+                    if term not in neededSubs:
+                        neededSubs[term] = None
+                        newTextBlocks.append("sub %s; " % (term,))
+                newTextBlocks.append(text[:idx + 1])
+                text = text[idx + 1:]
+                c = '\n'
+            elif text.startswith("<%"):
+                text = text[2:]
+                endPos = text.find("%>")
+                if endPos == -1:
+                    endPos = len(text)
+                    skipAmt = 0
+                else:
+                    skipAmt = 2
+                if text.startswith("#"):
+                    # Multi-line comment
+                    eolsOnly = re.compile(r'[^\r\n]').subn(text[:endPos + 1  - skipAmt])
+                    newTextBlocks.append(eolsOnly)
+                else:
+                    if text.startswith("="):
+                        text = text[1:]
+                        endPos -= 1
+                        newTextBlocks.append("print ")
+                    if text.startswith("="):
+                        text = text[1:]
+                        endPos -= 1
+                    newTextBlocks.append(text[:endPos + 1 - skipAmt] + ";")
+                text = text[endPos + 1:]
+                c = '>'
+            else:
+                #print("No match at %s..." % text[:24])
+                newTextBlocks.append(' ')
+                text = text[1:]
+        # end while
+        return "".join(newTextBlocks)
+        
+    def lint(self, request):
+        # Lint only the Perl code
+        text = request.content.encode(request.encoding.python_encoding_name)
+        newText = self._extractPerlCode(text)
+        return self._perl_linter.lint_with_text(request, newText)

@@ -130,6 +130,7 @@ interface koILinter : nsISupports
     // used to ensure that subsequent errors of the same errno are suppressed
     // (so the user is not unnecessarily innudated).
     koILintResults lint(in koILintRequest request);
+    koILintResults lint_with_text(in koILintRequest request, in AString text);
 };
 
 
