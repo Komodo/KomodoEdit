@@ -866,13 +866,23 @@ class AST2CIXVisitor:
                         self._visitSimpleAssign(lhsNode.nodes[i],
                                                 rhsNode.items[i][0],
                                                 node.lineno)
+            elif isinstance(rhsNode, ast.CallFunc):
+                for i in range(len(lhsNode.nodes)):
+                    self._visitSimpleAssign(lhsNode.nodes[i],
+                                            None, # we don't have a good type.
+                                            node.lineno)
+            else:
+                log.info("visitAssign:: skipping unknown rhsNode type: %r - %r",
+                         type(rhsNode), rhsNode)
         elif isinstance(lhsNode, ast.Slice):
             # E.g.:  bar[1:2] = "foo"
             # We don't bother with these: too hard.
+            log.info("visitAssign:: skipping slice - too hard")
             pass
         elif isinstance(lhsNode, ast.Subscript):
             # E.g.:  bar[1] = "foo"
             # We don't bother with these: too hard.
+            log.info("visitAssign:: skipping subscript - too hard")
             pass
         else:
             raise PythonCILEError("unexpected type of LHS of assignment: %r"

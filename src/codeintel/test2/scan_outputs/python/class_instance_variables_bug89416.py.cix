@@ -1,0 +1,20 @@
+<codeintel version="2.0">
+  <file lang="Python" mtime="42" path="scan_inputs/python/class_instance_variables_bug89416.py">
+    <scope ilk="blob" lang="Python" name="class_instance_variables_bug89416" src="scan_inputs/python/class_instance_variables_bug89416.py">
+      <scope classrefs="object" ilk="class" line="1" lineend="9" name="AClass">
+        <scope attributes="__ctor__" ilk="function" line="2" lineend="6" name="__init__" signature="AClass()">
+          <variable citdl="AClass" ilk="argument" name="self" />
+        </scope>
+        <variable attributes="__instancevar__" line="3" name="three" />
+        <variable attributes="__instancevar__" line="3" name="two" />
+        <variable attributes="__instancevar__" line="3" name="one" />
+        <variable attributes="__instancevar__" citdl="int" line="4" name="four" />
+        <variable attributes="__instancevar__" citdl="int" line="4" name="five" />
+        <variable attributes="__instancevar__" citdl="gimme()" line="5" name="six" />
+        <variable attributes="__instancevar__" citdl="gimme()" line="6" name="seven" />
+        <variable attributes="__instancevar__" citdl="gimme()" line="6" name="eight" />
+        <scope ilk="function" line="8" lineend="9" name="gimme" returns="tuple" signature="gimme()" />
+      </scope>
+    </scope>
+  </file>
+</codeintel>
