@@ -1489,9 +1489,9 @@ class GenericCommandHandler:
             return value
 
     def _do_cmd_tabify(self):
-        if sm.selectionMode == scimoz.SC_SEL_RECTANGLE:
-            raise ServerException(nsError.NS_ERROR_NOT_IMPLEMENTED, "Not implemented: tabify rectangular selections")
         sm = self._view.scimoz
+        if sm.selectionMode == sm.SC_SEL_RECTANGLE:
+            raise ServerException(nsError.NS_ERROR_NOT_IMPLEMENTED, "Not implemented: tabify rectangular selections")
         selection = sm.selText
         tabwidth = self._asktabwidth()
         if tabwidth is None: return
@@ -1505,9 +1505,9 @@ class GenericCommandHandler:
         sm.replaceSel(''.join(lines))
 
     def _do_cmd_untabify(self):
-        if sm.selectionMode == scimoz.SC_SEL_RECTANGLE:
-            raise ServerException(nsError.NS_ERROR_NOT_IMPLEMENTED, "Not implemented: untabify rectangular selections")
         sm = self._view.scimoz
+        if sm.selectionMode == sm.SC_SEL_RECTANGLE:
+            raise ServerException(nsError.NS_ERROR_NOT_IMPLEMENTED, "Not implemented: untabify rectangular selections")
         selection = sm.selText
         lines = selection.splitlines(1)
         tabwidth = self._asktabwidth()
