@@ -35,7 +35,7 @@
 # ***** END LICENSE BLOCK *****
 
 import os
-from xpcom import components, COMException
+from xpcom import components, nsError, ServerException, COMException
 sci_constants = components.interfaces.ISciMoz
 from xpcom.server import WrapObject, UnwrapObject
 import scimozindent
@@ -1126,20 +1126,87 @@ class GenericCommandHandler:
             sm.endUndoAction()
         sm.selectionStart = selStart
         sm.selectionEnd = selEnd
+        
+    def _convertCaseOfRectangularBlock(self, scimoz, converter):
+        actualSelStart = scimoz.anchor
+        actualSelEnd = scimoz.currentPos
+        if actualSelStart > actualSelEnd:
+            (actualSelStart, actualSelEnd) = (actualSelEnd, actualSelStart)
+        startLine = scimoz.lineFromPosition(actualSelStart)
+        endLine = scimoz.lineFromPosition(actualSelEnd)
+        scimoz.selectionMode = scimoz.SC_SEL_STREAM
+        import inspect
+        converter_fn = None
+        if inspect.isfunction(converter) or inspect.isbuiltin(converter):
+            converter_fn = converter
+        scimoz.beginUndoAction()
+        try:
+            finalSelStart = finalSelEnd = None
+            for i in range(startLine, endLine + 1):
+                selStart = scimoz.getLineSelStartPosition(i)
+                selEnd = scimoz.getLineSelEndPosition(i)
+                if selStart == -1 or selEnd == -1:
+                    # Do nothing
+                    pass
+                else:
+                    if finalSelStart is None:
+                        finalSelStart = selStart
+                    finalSelEnd = selEnd
+                    text = scimoz.getTextRange(selStart, selEnd)
+                    if converter_fn is not None:
+                        fixedText = converter_fn(text)
+                    else:
+                        fixedText = getattr(text, converter)()
+                    scimoz.targetStart = selStart
+                    scimoz.targetEnd = selEnd
+                    scimoz.replaceTarget(len(fixedText), fixedText) # Length in chars, not bytes
+                    # Adjust the selection position according to how many bytes
+                    # were added or removed.
+                    finalSelEnd += (self.sysUtils.byteLength(fixedText)
+                                    - self.sysUtils.byteLength(text))
+        finally:
+            scimoz.endUndoAction()
+            if finalSelStart is not None and finalSelEnd is not None:
+                scimoz.selectionMode = scimoz.SC_SEL_RECTANGLE
+                scimoz.rectangularSelectionCaret = finalSelStart
+                scimoz.rectangularSelectionAnchor = finalSelEnd
+            else:
+                scimoz.selectionMode = scimoz.SC_SEL_STREAM
+                if currentPos != finalSelStart:
+                    # Give up, move to start of that line
+                    currentPos = scimoz.positionFromLine(startLine)
+                scimoz.currentPos = scimoz.anchor = currentPos
+
 
     def _do_cmd_convertUpperCase(self):
-        self._do_cmd_convertCaseByLine("upper")
+        scimoz = self._view.scimoz
+        if scimoz.selectionMode == scimoz.SC_SEL_RECTANGLE:
+            self._convertCaseOfRectangularBlock(scimoz, "upper")
+        else:
+            self._do_cmd_convertCaseByLine("upper")
 
     def _do_cmd_convertLowerCase(self):
-        self._do_cmd_convertCaseByLine("lower")
+        scimoz = self._view.scimoz
+        if scimoz.selectionMode == scimoz.SC_SEL_RECTANGLE:
+            self._convertCaseOfRectangularBlock(scimoz, "lower")
+        else:
+            self._do_cmd_convertCaseByLine("lower")
 
     def _do_cmd_convertFromHex(self):
         from binascii import unhexlify
-        self._do_cmd_convertCaseByLine(unhexlify)
+        scimoz = self._view.scimoz
+        if scimoz.selectionMode == scimoz.SC_SEL_RECTANGLE:
+            self._convertCaseOfRectangularBlock(scimoz, unhexlify)
+        else:
+            self._do_cmd_convertCaseByLine(unhexlify)
 
     def _do_cmd_convertToHex(self):
         from binascii import hexlify
-        self._do_cmd_convertCaseByLine(hexlify)
+        scimoz = self._view.scimoz
+        if scimoz.selectionMode == scimoz.SC_SEL_RECTANGLE:
+            self._convertCaseOfRectangularBlock(scimoz, hexlify)
+        else:
+            self._do_cmd_convertCaseByLine(hexlify)
 
     def _is_cmd_selectToMatchingBrace_enabled(self):
         sm = self._view.scimoz
@@ -1422,6 +1489,8 @@ class GenericCommandHandler:
             return value
 
     def _do_cmd_tabify(self):
+        if sm.selectionMode == scimoz.SC_SEL_RECTANGLE:
+            raise ServerException(nsError.NS_ERROR_NOT_IMPLEMENTED, "Not implemented: tabify rectangular selections")
         sm = self._view.scimoz
         selection = sm.selText
         tabwidth = self._asktabwidth()
@@ -1436,6 +1505,8 @@ class GenericCommandHandler:
         sm.replaceSel(''.join(lines))
 
     def _do_cmd_untabify(self):
+        if sm.selectionMode == scimoz.SC_SEL_RECTANGLE:
+            raise ServerException(nsError.NS_ERROR_NOT_IMPLEMENTED, "Not implemented: untabify rectangular selections")
         sm = self._view.scimoz
         selection = sm.selText
         lines = selection.splitlines(1)

@@ -328,9 +328,76 @@ class KoCommenterLanguageService:
         self.delimiterInfo = delimiterInfo
         self._sysUtilsSvc = components.classes["@activestate.com/koSysUtils;1"].\
                 getService(components.interfaces.koISysUtils)
+        
+    def _commentLinesInRectangleSelection(self, scimoz, delimiterInfo):
+        actualSelStart = scimoz.anchor
+        actualSelEnd = scimoz.currentPos
+        if actualSelStart > actualSelEnd:
+            (actualSelStart, actualSelEnd) = (actualSelEnd, actualSelStart)
+
+        startLine = scimoz.lineFromPosition(actualSelStart)
+        endLine = scimoz.lineFromPosition(actualSelEnd)
+        scimoz.selectionMode = scimoz.SC_SEL_STREAM
+        scimoz.beginUndoAction()
+        currentPos = scimoz.currentPos
+        finalSelStart = finalSelEnd = None
+        if scimoz.anchor < currentPos:
+            currentPos = scimoz.anchor
+        try:
+            posns = []
+            for i in range(startLine, endLine + 1):
+                selStart = scimoz.getLineSelStartPosition(i)
+                selEnd = scimoz.getLineSelEndPosition(i)
+                lineEndPos = scimoz.getLineEndPosition(i)
+                if selEnd > lineEndPos:
+                    selEnd = lineEndPos
+                if selStart == -1 or selEnd == -1:
+                    pass # skip these
+                else:
+                    if finalSelStart is None:
+                        finalSelStart = selStart
+                    finalSelEnd = selEnd
+                    posns.append((selStart, selEnd))
+            posns.reverse()
+            prefix = delimiterInfo[0]
+            if type(prefix) == types.TupleType:
+                prefix, suffix = prefix
+            else:
+                suffix = ''
+            for startPos, endPos in posns:
+                if suffix:
+                    scimoz.targetStart = endPos
+                    scimoz.targetEnd = endPos
+                    scimoz.replaceTarget(len(suffix), suffix)
+                    finalSelEnd += len(suffix)
+                if prefix:
+                    scimoz.targetStart = startPos
+                    scimoz.targetEnd = startPos
+                    scimoz.replaceTarget(len(prefix), prefix)
+                    finalSelEnd += len(prefix)
+        finally:
+            scimoz.endUndoAction()
+            self._adjustNewRectangularSelection(scimoz, finalSelStart, finalSelEnd,
+                                                currentPos, startLine)
+            
+    def _adjustNewRectangularSelection(self, scimoz, finalSelStart, finalSelEnd,
+                                       currentPos, startLine):
+        if finalSelStart is not None and finalSelEnd is not None:
+            scimoz.selectionMode = scimoz.SC_SEL_RECTANGLE
+            scimoz.rectangularSelectionCaret = finalSelStart
+            scimoz.rectangularSelectionAnchor = finalSelEnd
+        else:
+            scimoz.selectionMode = scimoz.SC_SEL_STREAM
+            if currentPos != finalSelStart:
+                # Give up, move to start of that line
+                currentPos = scimoz.positionFromLine(startLine)
+            scimoz.currentPos = scimoz.anchor = currentPos
 
     def _commentLines(self, scimoz, startIndex, endIndex):
         """Comment the indexed lines."""
+        if scimoz.selectionMode == scimoz.SC_SEL_RECTANGLE:
+            self._commentLinesInRectangleSelection(scimoz, self.delimiterInfo["line"])
+            return
         if self.DEBUG:
             print "'line' autocomment: %s-%s" % (startIndex, endIndex)
         xOffset = scimoz.xOffset
@@ -474,6 +541,9 @@ class KoCommenterLanguageService:
 
     def _commentBlock(self, scimoz, startIndex, endIndex):
         """Comment the indexed block."""
+        if scimoz.selectionMode == scimoz.SC_SEL_RECTANGLE:
+            self._commentLinesInRectangleSelection(scimoz, self.delimiterInfo["block"])
+            return
         if self.DEBUG:
             print "'block' autocomment: %s-%s" % (startIndex, endIndex)
         xOffset = scimoz.xOffset
@@ -499,7 +569,45 @@ class KoCommenterLanguageService:
             scimoz.hideSelection(0)
             scimoz.xOffset = xOffset
 
+    def _uncommentLinesInRectangleSelection(self, scimoz, uncommenter):
+        actualSelStart = scimoz.anchor
+        actualSelEnd = scimoz.currentPos
+        if actualSelStart > actualSelEnd:
+            (actualSelStart, actualSelEnd) = (actualSelEnd, actualSelStart)
+        startLine = scimoz.lineFromPosition(actualSelStart)
+        endLine = scimoz.lineFromPosition(actualSelEnd)
+        scimoz.selectionMode = scimoz.SC_SEL_STREAM
+        scimoz.beginUndoAction()
+        currentPos = scimoz.currentPos
+        if scimoz.anchor < currentPos:
+            currentPos = scimoz.anchor
+        try:
+            posns = []
+            finalSelStart = finalSelEnd = None
+            for i in range(startLine, endLine + 1):
+                selStart = scimoz.getLineSelStartPosition(i)
+                selEnd = scimoz.getLineSelEndPosition(i)
+                if selStart == -1 or selEnd == -1:
+                    pass # Do nothing on a blank line.
+                else:
+                    if finalSelStart is None:
+                        finalSelStart = selStart
+                    finalSelEnd = selEnd
+                    posns.append((selStart, selEnd))
+            posns.reverse()
+            for startPos, endPos in posns:
+                # All uncommenters return a non-positive number, giving
+                # the change in the size of the document
+                finalSelEnd += uncommenter(scimoz, startPos, endPos)
+        finally:
+            scimoz.endUndoAction()
+            self._adjustNewRectangularSelection(scimoz, finalSelStart, finalSelEnd,
+                                                currentPos, startLine)
+
     def _uncommentLines(self, scimoz, startIndex, endIndex):
+        if scimoz.selectionMode == scimoz.SC_SEL_RECTANGLE:
+            self._uncommentLinesInRectangleSelection(scimoz, self._uncommentLines)
+            return
         xOffset = scimoz.xOffset
         selStart = scimoz.selectionStart
         selEnd = scimoz.selectionEnd
@@ -585,6 +693,7 @@ class KoCommenterLanguageService:
             scimoz.targetStart = startIndex
             scimoz.targetEnd = workingEndIndex
             scimoz.replaceTarget(len(replacement), replacement)
+            delta = len(replacement) - (workingEndIndex - startIndex)
 
             # restore the selection and cursor position
             if scimoz.selectionMode == scimoz.SC_SEL_LINES:
@@ -615,6 +724,9 @@ class KoCommenterLanguageService:
                     scimoz.selectionEnd = selEnd - len(lastPrefix)
             scimoz.hideSelection(0)
             scimoz.xOffset = xOffset
+        else:
+            delta = 0
+        return delta
             
     def _getSelectionDelimiterPositions(self, scimoz, startIndex, endIndex,
                                         prefix, suffix):
@@ -656,8 +768,12 @@ class KoCommenterLanguageService:
         return pStart, pEnd, sStart, sEnd
 
     def _uncommentBlock(self, scimoz, startIndex, endIndex):
+        if scimoz.selectionMode == scimoz.SC_SEL_RECTANGLE:
+            self._uncommentLinesInRectangleSelection(scimoz, self._uncommentBlock)
+            return
         delimiters = self.delimiterInfo["block"]
 
+        delta = 0
         for prefix, suffix in delimiters:
             coordinates = self._getSelectionDelimiterPositions(scimoz,
                                 startIndex, endIndex, prefix, suffix)
@@ -678,6 +794,8 @@ class KoCommenterLanguageService:
                 scimoz.targetStart = pStart
                 scimoz.targetEnd = pEnd
                 scimoz.replaceTarget(0, "")
+                # delta should be negative
+                delta += (sStart - sEnd) + (pStart - pEnd)
             finally:
                 scimoz.endUndoAction()
             # restore the selection and cursor position
@@ -686,6 +804,7 @@ class KoCommenterLanguageService:
             scimoz.hideSelection(0)
             scimoz.xOffset = xOffset
             break
+        return delta
 
     _val_sp = ord(' ')
     _val_tab = ord('\t')
