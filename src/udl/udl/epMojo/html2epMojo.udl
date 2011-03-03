@@ -4,29 +4,36 @@ family markup
 # Use the TPL state for in-line stuff
 
 state IN_M_DEFAULT:
-/<%=#/ : paint(upto, M_DEFAULT), paint(include, TPL_OPERATOR), \
-      at_eol(IN_M_DEFAULT), spush_check(IN_M_DEFAULT) => IN_SSL_TAGGED_COMMENT
+/<%(?=#)/ : paint(upto, M_DEFAULT), paint(include, TPL_OPERATOR), \
+      spush_check(IN_M_DEFAULT),  => TRANSITION_TO_SSL_TAGGED_COMMENT
 
 /<%={0,2}/ : paint(upto, M_DEFAULT), paint(include, TPL_OPERATOR), \
-      at_eol(IN_M_DEFAULT), spush_check(IN_M_DEFAULT) => IN_SSL_DEFAULT
+      spush_check(IN_M_DEFAULT) => IN_SSL_DEFAULT
 
 # One-liners...
-/^%={0,2}/: paint(upto, M_DEFAULT), paint(include, TPL_OPERATOR), \
-        spush_check(IN_M_DEFAULT), => IN_TPL_DEFAULT
+/^%(?=#)/: paint(upto, M_DEFAULT), paint(include, TPL_OPERATOR), \
+      spush_check(IN_M_DEFAULT), at_eol(IN_M_DEFAULT), => TRANSITION_TO_TPL_INLINE_COMMENT
 
-/^%#/: paint(upto, M_DEFAULT), paint(include, TPL_OPERATOR), \
-        spush_check(IN_M_DEFAULT), => IN_TPL_COMMENT
+/^%={0,2}/: paint(upto, M_DEFAULT), paint(include, TPL_OPERATOR), \
+      spush_check(IN_M_DEFAULT), at_eol(IN_M_DEFAULT), => IN_TPL_DEFAULT
 
 state IN_M_STAG_ATTR_DSTRING:
+/<%(?=#)/ : paint(upto, M_STRING), paint(include, TPL_OPERATOR), \
+      spush_check(IN_M_STAG_ATTR_DSTRING) => \
+      TRANSITION_TO_SSL_TAGGED_COMMENT
+
 /<%={0,2}/ : paint(upto, M_STRING), paint(include, TPL_OPERATOR), \
         spush_check(IN_M_STAG_ATTR_DSTRING), => IN_SSL_DEFAULT
 
-/<%=#/ : paint(upto, M_STRING), paint(include, TPL_OPERATOR), \
-      at_eol(IN_M_DEFAULT), spush_check(IN_M_STAG_ATTR_DSTRING) => IN_SSL_TAGGED_COMMENT
-
 state IN_M_STAG_ATTR_SSTRING:
+/<%(?=#)/ : paint(upto, M_STRING), paint(include, TPL_OPERATOR), \
+      spush_check(IN_M_STAG_ATTR_SSTRING) => TRANSITION_TO_SSL_TAGGED_COMMENT
 /<%={0,2}/ : paint(upto, M_STRING), paint(include, TPL_OPERATOR), \
         spush_check(IN_M_STAG_ATTR_SSTRING), => IN_SSL_DEFAULT
 
-/<%=#/ : paint(upto, M_STRING), paint(include, TPL_OPERATOR), \
-      at_eol(IN_M_STAG_ATTR_SSTRING), spush_check(IN_M_STAG_ATTR_SSTRING) => IN_SSL_TAGGED_COMMENT
+state TRANSITION_TO_SSL_TAGGED_COMMENT:
+'#' : paint(include, SSL_COMMENT), => IN_SSL_TAGGED_COMMENT
+
+state TRANSITION_TO_TPL_INLINE_COMMENT:
+'#' : paint(include, TPL_COMMENT), => IN_TPL_COMMENT
+
