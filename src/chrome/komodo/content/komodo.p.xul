@@ -614,6 +614,11 @@
         <menuitem id="menu_showUnsavedChanges2"
                   label="&showUnsavedChanges.label;"
                   observes="cmd_showUnsavedChanges"/>
+        <menuitem id="menu_tab_revert"
+                  label="&revert.label;"
+                  accesskey="&menuRevert.accesskey;"
+                  observes="cmd_revert"
+                  />
 
         <menuseparator id="tabContextMenu_separator_2" />
 
