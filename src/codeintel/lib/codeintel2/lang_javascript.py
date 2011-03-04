@@ -2486,7 +2486,13 @@ class JavaScriptCiler:
                     style = last_style
                 elif text[p] == "(":
                     paren_pos = p
-                    p = self._skipOverParenArguments(styles, text, p)
+                    if citdl == ['require']:
+                        # Deal with CommonJS (NodeJS) require statements.
+                        args, p = self._getParenArguments(styles, text, p)
+                        if len(args) >= 3 and styles[paren_pos+1] in self.JS_STRINGS:
+                            self._metadata['required_library_name'] = self._unquoteJsString(args[1])
+                    else:
+                        p = self._skipOverParenArguments(styles, text, p)
                     if citdl:
                         if len(citdl) > 1 and 'QueryInterface' == citdl[-1]:
                             # QueryInterface is specific to xpcom interfaces.
