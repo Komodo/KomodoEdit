@@ -209,7 +209,7 @@ def process_class(rootElt, obj, name, callables, __hidden__=False):
         return True
 
     #attrs = inspect.getmembers(object, attrfilter) # should I be using getmembers or class attr's?
-    attrs = [(name, getattr(obj, name)) for name in obj.__dict__ if attrfilter(name)]
+    attrs = filter(attrfilter, [(name, getattr(obj, name)) for name in obj.__dict__])
     for (key, value) in attrs:
         if inspect.isfunction(value) or inspect.ismethod(value) or inspect.ismethoddescriptor(value):
             process_routine(classElt, value, key, callables)
