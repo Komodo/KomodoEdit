@@ -175,12 +175,9 @@
               <Component Id="component556" DiskId="1" Guid="$(autowix.guid)">
                 <File Id="file278" Name="komodo.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\komodo.png" />
                 <File Id="file279" Name="ribbons.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\ribbons.png" />
-                <File Id="file1391" LongName="greysmallbullet.png" Name="GREYSM_0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\greysmallbullet.png" />
                 <File Id="file1393" LongName="cc_attr_noncom_sharealike.png" Name="CC_ATT_0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\cc_attr_noncom_sharealike.png" />
                 <File Id="file4404" Name="BOTTOM_1.GIF" LongName="bottom_pane.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\bottom_pane.gif"/>
                 <File Id="file4405" Name="button.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\button.gif"/>
-                <File Id="file4407" Name="BUTTON_5.GIF" LongName="button_showhide_TOC.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\button_showhide_TOC.gif"/>
-                <File Id="file4408" Name="BUTTON_6.GIF" LongName="button_sync_TOC.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\button_sync_TOC.gif"/>
                 <File Id="file4413" Name="CODEI_21.GIF" LongName="codeintel_code_browser_context.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\codeintel_code_browser_context.gif"/>
                 <File Id="file4415" Name="CODEI_23.GIF" LongName="codeintel_filter.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\codeintel_filter.gif"/>
                 <File Id="file4420" Name="CODEI_28.GIF" LongName="codeintel_scope.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\codeintel_scope.gif"/>
@@ -199,7 +196,6 @@
                 <File Id="file4705" Name="INTSHE_7.GIF" LongName="intshell_hidden_variables.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\intshell_hidden_variables.gif"/>
                 <File Id="file229" LongName="icon_check_error.png" Name="ICON_C_5.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\icon_check_error.png" />
                 <File Id="file231" LongName="icon_check_ok.png" Name="ICON_C_7.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\icon_check_ok.png" />
-                <File Id="file266" LongName="main_menu.png" Name="MAIN_M_0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\main_menu.png" />
                 <File Id="file4723" Name="MULTIP_1.GIF" LongName="multiple_line.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\multiple_line.gif"/>
                 <File Id="file4724" Name="MULTI__1.GIF" LongName="multi_single.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\multi_single.gif"/>
                 <File Id="file1237" LongName="publish_sync.png" Name="PUBLIS_0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\publish_sync.png" />
@@ -246,7 +242,6 @@
                 <File Id="file265" LongName="toolbar_wkspc.png" Name="TOOLBA_7.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\toolbar_wkspc.png" />
                 <File Id="file856" LongName="sidebar_code.png" Name="SIDEBA_1.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\sidebar_code.png" />
                 <File Id="file857" LongName="sidebar_dom.png" Name="SIDEBA_2.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\sidebar_dom.png" />
-                <File Id="file858" LongName="sidebar_projects.png" Name="SIDEBA_3.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\sidebar_projects.png" />
                 <File Id="file859" LongName="sidebar_toolbox.png" Name="SIDEBA_4.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\sidebar_toolbox.png" />
                 <File Id="file268" LongName="FilterBuilder-16-16-8.png" Name="FILTE_13.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\FilterBuilder-16-16-8.png" />
                 <File Id="file269" LongName="PerlApp-16-16-8.gif" Name="PERLAP_0.GIF" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\PerlApp-16-16-8.gif" />
@@ -343,7 +338,6 @@
                 <File Id="file0" LongName="places_projects.png" Name="PLACES_0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\places_projects.png" />
                 <File Id="file239" LongName="places_view.png" Name="PLACES_1.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\places_view.png" />
                 <File Id="file1" LongName="projects_pane.png" Name="PROJEC_0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\projects_pane.png" />
-                <File Id="file30" Name="PROJTB_0.PNG" LongName="projtb_add_butt.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\projtb_add_butt.png"/>
                 <File Id="file251" LongName="break_request.png" Name="BREAK__0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\break_request.png" />
                 <File Id="file252" LongName="break_response.png" Name="BREAK__1.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\break_response.png" />
                 <File Id="file314" LongName="abbreviations.png" Name="ABBREV_0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\abbreviations.png" />
