@@ -385,7 +385,7 @@ def get_pythoncile_cix_tree_for_path(mod_path):
         from codeintel2 import pythoncile
         # In process ciling.
         return pythoncile.scan_et(file(mod_path, "r").read(), mod_path)
-    except ImportError:
+    except (ImportError, SyntaxError):
         # Need to perform the ciling using a Python 2.6 interpreter.
         from os.path import abspath, dirname, join
         import subprocess
