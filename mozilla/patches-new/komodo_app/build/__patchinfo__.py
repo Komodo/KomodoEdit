@@ -43,14 +43,13 @@ def applicable(config):
 
 def add(config):
     base = os.path.dirname(__file__)
-    if float(config.mozVer) >= 1.9:
-        src = os.path.join(base, "Makefile-trunk.in")
-    else:
-        src = os.path.join(base, "Makefile-18.in")
+    mozVer = hasattr(config, "mozVer") and config.mozVer or None
+    name = { 1.91: "Makefile-191.in",
+           }.get(mozVer, "Makefile-trunk.in")
+    src = os.path.join(base, name)
     shutil.copy(src, os.path.join(base, "Makefile.in"))
         
     return [
         # Copy the "komodo/..." tree to the top-level mozilla dir.
         ("Makefile.in", os.path.join("komodo","app")),
     ]
-

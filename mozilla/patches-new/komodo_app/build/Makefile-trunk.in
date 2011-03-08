@@ -79,9 +79,7 @@ include $(topsrcdir)/config/rules.mk
 else
 # Build a binary bootstrapping with XRE_main
 
-MOZILLA_INTERNAL_API = 1
-
-ifeq ($(USE_SHORT_LIBNAME), 1)
+ifeq ($(OS_TARGET), WINNT)
 PROGRAM = $(MOZ_APP_NAME)$(BIN_SUFFIX)
 else
 PROGRAM = $(MOZ_APP_NAME)-bin$(BIN_SUFFIX)
@@ -119,6 +117,7 @@ TK_LIBS := -framework Cocoa $(TK_LIBS)
 endif
 
 LIBS += \
+	$(XPCOM_GLUE_LDOPTS) \
 	$(STATIC_COMPONENTS_LINKER_PATH) \
 	$(EXTRA_DSO_LIBS) \
 	$(MOZ_JS_LIBS) \
@@ -356,8 +355,6 @@ libs repackage:: $(PROGRAM) application.ini
 	rsync -a $(DIST)/bin/ $(DIST)/$(APP_NAME).app/Contents/MacOS
 	rm -f $(DIST)/$(APP_NAME).app/Contents/MacOS/$(PROGRAM) $(DIST)/$(APP_NAME).app/Contents/MacOS/mangle $(DIST)/$(APP_NAME).app/Contents/MacOS/shlibsign
 	rsync -aL $(PROGRAM) $(DIST)/$(APP_NAME).app/Contents/MacOS
-	mkdir -p $(DIST)/$(APP_NAME).app/Contents/Plug-Ins
-	rsync -a --copy-unsafe-links $(DIST)/package/PrintPDE.plugin $(DIST)/$(APP_NAME).app/Contents/Plug-Ins
 	-cp -L $(DIST)/bin/mangle $(DIST)/bin/shlibsign $(DIST)/$(APP_NAME).app/Contents/MacOS
 	cp -RL $(DIST)/branding/komodo.icns $(DIST)/$(APP_NAME).app/Contents/Resources/komodo.icns
 	echo -n APPLKOMO > $(DIST)/$(APP_NAME).app/Contents/PkgInfo

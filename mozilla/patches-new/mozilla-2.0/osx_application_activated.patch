@@ -1,0 +1,154 @@
+# HG changeset patch
+# Parent ca656b764b8d933a6b29403b436fdf4d22435e0d
+bug 46101 - add application-activated notification for osx to deal with checkDiskFiles properly
+
+
+
+diff --git a/widget/src/cocoa/nsToolkit.h b/widget/src/cocoa/nsToolkit.h
+--- a/widget/src/cocoa/nsToolkit.h
++++ b/widget/src/cocoa/nsToolkit.h
+@@ -74,6 +74,9 @@ protected:
+   void               RegisterForAllProcessMouseEvents();
+   void               UnregisterAllProcessMouseEventHandlers();
+ 
++  void               RegisterForAppFrontEvents();
++  void               UnregisterAppFrontEventHandlers();
++
+ protected:
+ 
+   bool               mInited;
+@@ -81,6 +84,8 @@ protected:
+   CFRunLoopSourceRef mSleepWakeNotificationRLS;
+   io_object_t        mPowerNotifier;
+ 
++  EventHandlerRef    mAppEventHandler;
++
+   EventHandlerRef    mEventMonitorHandler;
+   CFMachPortRef      mEventTapPort;
+   CFRunLoopSourceRef mEventTapRLS;
+diff --git a/widget/src/cocoa/nsToolkit.mm b/widget/src/cocoa/nsToolkit.mm
+--- a/widget/src/cocoa/nsToolkit.mm
++++ b/widget/src/cocoa/nsToolkit.mm
+@@ -72,6 +72,8 @@ extern "C" {
+ #include "nsIPrefService.h"
+ #include "nsIPrefBranch.h"
+ 
++#include "nsISupportsPrimitives.h"
++
+ // defined in nsChildView.mm
+ extern nsIRollupListener * gRollupListener;
+ extern nsIWidget         * gRollupWidget;
+@@ -85,6 +87,7 @@ static PRUintn gToolkitTLSIndex = 0;
+ nsToolkit::nsToolkit()
+ : mInited(false)
+ , mSleepWakeNotificationRLS(nsnull)
++, mAppEventHandler(nsnull)
+ , mEventMonitorHandler(nsnull)
+ , mEventTapPort(nsnull)
+ , mEventTapRLS(nsnull)
+@@ -95,6 +98,7 @@ nsToolkit::~nsToolkit()
+ {
+   RemoveSleepWakeNotifcations();
+   UnregisterAllProcessMouseEventHandlers();
++  UnregisterAppFrontEventHandlers();
+   // Remove the TLS reference to the toolkit...
+   PR_SetThreadPrivate(gToolkitTLSIndex, nsnull);
+ }
+@@ -110,6 +114,7 @@ nsToolkit::Init(PRThread * aThread)
+   
+   RegisterForSleepWakeNotifcations();
+   RegisterForAllProcessMouseEvents();
++  RegisterForAppFrontEvents();
+ 
+   return NS_OK;
+ }
+@@ -344,6 +349,89 @@ nsToolkit::UnregisterAllProcessMouseEven
+   NS_OBJC_END_TRY_ABORT_BLOCK;
+ }
+ 
++static OSStatus AppEventHandler(EventHandlerCallRef inHandlerCallRef, EventRef inEvent, void* inUserData)
++{
++  OSStatus result = eventNotHandledErr;
++
++  NS_OBJC_BEGIN_TRY_ABORT_BLOCK;
++
++  UInt32 eventClass = GetEventClass(inEvent);
++  UInt32 eventKind = GetEventKind(inEvent);
++
++  // We only handle active app chnaged events...
++  if ((eventClass == kEventClassApplication) && (eventKind == kEventAppFrontSwitched))
++  {
++    ProcessSerialNumber fp;
++    ProcessSerialNumber psn;
++    result = ::GetCurrentProcess(&psn);
++    if (result != noErr)
++        return result;
++
++    // Get the new process ID out
++    if (GetEventParameter(inEvent, kEventParamProcessID,
++                          typeProcessSerialNumber, NULL,
++                          sizeof(ProcessSerialNumber), NULL,
++                          &fp) == noErr)
++    {
++      bool samePsn = psn.lowLongOfPSN == fp.lowLongOfPSN &&
++                      psn.highLongOfPSN == fp.highLongOfPSN;
++      nsCOMPtr<nsISupportsPRBool> focusing =
++        do_CreateInstance(NS_SUPPORTS_PRBOOL_CONTRACTID);
++      focusing->SetData(samePsn);
++
++      nsCOMPtr<nsIObserverService> obsServ =
++        do_GetService("@mozilla.org/observer-service;1");
++
++      if (!obsServ)
++        return result;
++      obsServ->NotifyObservers(focusing, "application-activated", nsnull);
++    }
++    
++    // Tell the dispatcher that we handled the event...
++    result = noErr;
++  }
++  NS_OBJC_END_TRY_ABORT_BLOCK;
++
++  return result;
++}
++
++
++void
++nsToolkit::RegisterForAppFrontEvents()
++{
++  NS_OBJC_BEGIN_TRY_ABORT_BLOCK;
++
++  if (!mAppEventHandler) {
++    EventTypeSpec kAppEventList[] = {
++      { kEventClassApplication, kEventAppFrontSwitched },
++    };
++    
++    InstallApplicationEventHandler(
++            NewEventHandlerUPP(AppEventHandler),
++            GetEventTypeCount(kAppEventList),
++            kAppEventList,
++            0,
++            &mAppEventHandler);
++    
++  }
++
++  NS_OBJC_END_TRY_ABORT_BLOCK;
++}
++
++
++void
++nsToolkit::UnregisterAppFrontEventHandlers()
++{
++  NS_OBJC_BEGIN_TRY_ABORT_BLOCK;
++
++  if (mAppEventHandler) {
++    ::RemoveEventHandler(mAppEventHandler);
++    mAppEventHandler = nsnull;
++  }
++
++  NS_OBJC_END_TRY_ABORT_BLOCK;
++}
++
+ // Return the nsIToolkit for the current thread.  If a toolkit does not
+ // yet exist, then one will be created...
+ NS_IMETHODIMP NS_GetCurrentToolkit(nsIToolkit* *aResult)

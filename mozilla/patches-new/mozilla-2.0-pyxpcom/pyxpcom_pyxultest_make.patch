@@ -1,0 +1,51 @@
+# HG changeset patch
+# Parent 1fd83c3d8b3e37c716d76f079813e8267932952b
+importing patch pyxpcom_pyxultest_make.patch
+
+diff --git a/dom/test/pyxultest/Makefile.in b/dom/test/pyxultest/Makefile.in
+--- a/dom/test/pyxultest/Makefile.in
++++ b/dom/test/pyxultest/Makefile.in
+@@ -42,16 +42,21 @@ DEPTH		= ../../..
+ topsrcdir	= @top_srcdir@
+ srcdir		= @srcdir@
+ VPATH		= @srcdir@
+ 
+ include $(DEPTH)/config/autoconf.mk
+ 
+ MODULE          = pyxultest
+ 
++GRE_MILESTONE = $(shell $(PYTHON) $(topsrcdir)/config/printconfigsetting.py $(LIBXUL_DIST)/bin/platform.ini Build Milestone)
++GRE_BUILDID = $(shell $(PYTHON) $(topsrcdir)/config/printconfigsetting.py $(LIBXUL_DIST)/bin/platform.ini Build BuildID)
++
++DEFINES += -DGRE_MILESTONE=$(GRE_MILESTONE) -DGRE_BUILDID=$(GRE_BUILDID)
++
+ ifdef MOZ_XULRUNNER
+ XPI_NAME               = pyxultest
+ # Do I really want these?
+ #USE_EXTENSION_MANIFEST = 1
+ #NO_JAR_AUTO_REG        = 1
+ #INSTALL_EXTENSION_ID   = pyxultest@mozilla.org
+ #XPI_PKGNAME            = pyxultest-$(MOZ_APP_VERSION)
+ DIST_FILES      = application.ini
+diff --git a/dom/test/pyxultest/application.ini b/dom/test/pyxultest/application.ini
+--- a/dom/test/pyxultest/application.ini
++++ b/dom/test/pyxultest/application.ini
+@@ -10,17 +10,17 @@ Vendor=mozilla.org
+ ; This field specifies your application's name.  This field is required.
+ Name=pyxultest
+ 
+ ; This field specifies your application's version.  This field is required.
+ Version=1.0
+ 
+ ; This field specifies your application's build ID (timestamp).  This field is
+ ; required.
+-BuildID=@BUILD_ID@
++BuildID=@GRE_BUILDID@
+ 
+ ; This field specifies a compact copyright notice for your application.  This
+ ; field is optional.
+ Copyright=Copyright (c) 2006 Mozilla.org
+ 
+ ; This ID is just an example.  Every XUL app ought to have it's own unique ID.
+ ID={67da7954-ecd3-4153-be0f-1c02284296ce}
+ 

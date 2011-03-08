@@ -1,0 +1,31 @@
+# HG changeset patch
+# Parent ae90b7b56136066a780349769bc03b97c590575b
+Crop the left side of the textbox autocomplete popup results.
+
+This is useful for Komodo's textbox autocomplete handling, as commonly
+this widget is used to display file paths - when it's too long it would
+normally be cropped on the right, but that is the part the user is most
+interested in!
+
+diff --git a/toolkit/content/widgets/autocomplete.xml b/toolkit/content/widgets/autocomplete.xml
+--- a/toolkit/content/widgets/autocomplete.xml
++++ b/toolkit/content/widgets/autocomplete.xml
+@@ -574,17 +574,17 @@
+     <resources>
+       <stylesheet src="chrome://global/skin/tree.css"/>
+       <stylesheet src="chrome://global/skin/autocomplete.css"/>
+     </resources>
+ 
+     <content ignorekeys="true" level="top">
+       <xul:tree anonid="tree" class="autocomplete-tree plain" hidecolumnpicker="true" flex="1" seltype="single">
+         <xul:treecols anonid="treecols">
+-          <xul:treecol id="treecolAutoCompleteValue" class="autocomplete-treecol" flex="1" overflow="true"/>
++          <xul:treecol id="treecolAutoCompleteValue" class="autocomplete-treecol" flex="1" overflow="true" xbl:inherits="crop"/>
+         </xul:treecols>
+         <xul:treechildren class="autocomplete-treebody"/>
+       </xul:tree>
+     </content>
+ 
+     <implementation>
+       <field name="mShowCommentColumn">false</field>
+       <field name="mShowImageColumn">false</field>

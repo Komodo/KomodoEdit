@@ -1,0 +1,27 @@
+# HG changeset patch
+# Parent de796d2cf42975b80cf8c81bf23c6d8a5f3b5359
+importing patch pyxpcom_disable_threads_in_safe_release.patch
+
+diff --git a/xpcom/src/PyISupports.cpp b/xpcom/src/PyISupports.cpp
+--- a/xpcom/src/PyISupports.cpp
++++ b/xpcom/src/PyISupports.cpp
+@@ -102,19 +102,17 @@ Py_nsISupports::GetI(PyObject *self, nsI
+ 
+ /*static*/ void
+ Py_nsISupports::SafeRelease(Py_nsISupports *ob)
+ {
+ 	if (!ob)
+ 		return;
+ 	if (ob->m_obj)
+ 	{
+-		Py_BEGIN_ALLOW_THREADS;
+ 		ob->m_obj = nsnull;
+-		Py_END_ALLOW_THREADS;
+ 	}
+ }
+ 
+ /* virtual */ PyObject *
+ Py_nsISupports::getattr(const char *name)
+ {
+ 	if (strcmp(name, "IID")==0)
+ 		return Py_nsIID::PyObjectFromIID( m_iid );

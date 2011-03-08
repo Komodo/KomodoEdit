@@ -1,0 +1,28 @@
+# HG changeset patch
+# Parent aabb24cd64a1f6f9d270b8929ea251c968901d3d
+C.f. the "MOZ_NO_REMOTE" discussion in src/main/xre/app/koStart.p.c
+(in _KoStart_SetupEnvironment)
+
+diff --git a/toolkit/xre/nsNativeAppSupportWin.cpp b/toolkit/xre/nsNativeAppSupportWin.cpp
+--- a/toolkit/xre/nsNativeAppSupportWin.cpp
++++ b/toolkit/xre/nsNativeAppSupportWin.cpp
+@@ -668,17 +668,18 @@ private:
+  *        be protected by use of a mutex semaphore.
+  */
+ NS_IMETHODIMP
+ nsNativeAppSupportWin::Start( PRBool *aResult ) {
+     NS_ENSURE_ARG( aResult );
+     NS_ENSURE_TRUE( mInstance == 0, NS_ERROR_NOT_INITIALIZED );
+     NS_ENSURE_STATE( gAppData );
+ 
+-    if (getenv("MOZ_NO_REMOTE"))
++    if (true  /* never want the DDE server, it causes Komodo cross-talk */
++        || getenv("MOZ_NO_REMOTE"))
+     {
+         *aResult = PR_TRUE;
+         return NS_OK;
+     }
+ 
+     nsresult rv = NS_ERROR_FAILURE;
+     *aResult = PR_FALSE;
+ 

@@ -1,0 +1,25 @@
+Bug 535685 - Make xpcwrappedjs deal with dipper parameter properly.
+XXX patch pulled directly from bugzilla.m.o, fixed on mozilla-central for Gecko 2.0 (post-1.9.2)
+
+diff --git a/js/src/xpconnect/src/xpcwrappedjsclass.cpp b/js/src/xpconnect/src/xpcwrappedjsclass.cpp
+--- js/src/xpconnect/src/xpcwrappedjsclass.cpp
++++ js/src/xpconnect/src/xpcwrappedjsclass.cpp
+@@ -1569,17 +1569,17 @@ nsXPCWrappedJSClass::CallMethod(nsXPCWra
+             else
+             {
+                 if(!XPCConvert::NativeData2JS(ccx, &val, &pv->val, type,
+                                               &param_iid, obj, nsnull))
+                     goto pre_call_clean_up;
+             }
+         }
+ 
+-        if(param.IsOut())
++        if(param.IsOut() || param.IsDipper())
+         {
+             // create an 'out' object
+             JSObject* out_obj = NewOutObject(cx, obj);
+             if(!out_obj)
+             {
+                 retval = NS_ERROR_OUT_OF_MEMORY;
+                 goto pre_call_clean_up;
+             }

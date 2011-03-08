@@ -1,0 +1,59 @@
+# HG changeset patch
+# Parent 53aabb4cee82165efba9edc986436a74f81d2bf3
+importing patch pydom_make.patch
+
+diff --git a/dom/src/Makefile.in b/dom/src/Makefile.in
+--- a/dom/src/Makefile.in
++++ b/dom/src/Makefile.in
+@@ -17,19 +17,25 @@ REQUIRES	= pyxpcom xpcom string xpcom_ob
+ 
+ FORCE_SHARED_LIB = 1 
+ FORCE_USE_PIC = 1
+ USE_STATIC_LIBS = 1
+ 
+ 
+ # We always need the Python and pyxpcom includes and libs.
+ LOCAL_INCLUDES = $(MOZ_PYTHON_INCLUDES)
++
++ifeq ($(OS_ARCH),Darwin)
++EXTRA_LIBS += $(MOZ_PYTHON_LIBS) \
++              $(NULL)
++else
+ EXTRA_LIBS += $(MOZ_PYTHON_LIBS) \
+               $(call EXPAND_LIBNAME_PATH,pyxpcom,$(DIST)/lib) \
+               $(NULL)
++endif
+ 
+ # In the shorter term we need JS too.
+ EXTRA_LIBS += $(MOZ_JS_LIBS)
+ 
+ CPPSRCS		=                   \
+ 		nsPyArgArray.cpp    \
+ 		nsPyContext.cpp     \
+ 		nsPyRuntime.cpp     \
+@@ -37,16 +43,25 @@ CPPSRCS		=                   \
+                 nsPyDOMISupports.cpp \
+                 nsPyTimeout.cpp \
+ 		$(NULL)
+ 
+ include $(topsrcdir)/config/config.mk
+ 
+ CXXFLAGS += -DPYTHON_SO=\"libpython$(MOZ_PYTHON_VER_DOTTED).so\"
+ 
++ifeq ($(OS_ARCH),Darwin)
++EXTRA_DSO_LDOPTS = -bundle $(XPCOM_LIBS) \
++                    $(MOZ_COMPONENT_NSPR_LIBS) \
++                    $(XPCOM_STANDALONE_GLUE_LDOPTS) \
++                    -lpyxpcom \
++                    $(NULL)
++  
++else
+ EXTRA_DSO_LDOPTS += $(XPCOM_GLUE_LDOPTS) \
+                     $(MOZ_COMPONENT_LIBS) \
+                     $(NULL)
++endif
+ 
+ include $(topsrcdir)/config/rules.mk
+ 
+ clobber::
+ 	rm -f *.ilk

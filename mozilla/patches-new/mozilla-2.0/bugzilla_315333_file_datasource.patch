@@ -1,0 +1,174 @@
+# HG changeset patch
+# Parent 1c9cd44cff88310a3303844476a9adea88c52fd8
+importing patch bugzilla_315333_file_datasource.patch
+
+diff --git a/rdf/build/Makefile.in b/rdf/build/Makefile.in
+--- a/rdf/build/Makefile.in
++++ b/rdf/build/Makefile.in
+@@ -77,6 +77,13 @@ EXTRA_DSO_LDOPTS = \
+ 		$(MOZ_COMPONENT_LIBS) \
+ 		$(NULL)
+ 
++ifneq (,$(filter mac cocoa,$(MOZ_WIDGET_TOOLKIT)))
++CXXFLAGS        += $(TK_CFLAGS)
++EXTRA_DSO_LDOPTS += \
++        $(TK_LIBS) \
++        $(NULL)
++endif
++
+ EXPORTS		= nsRDFCID.h
+ 
+ include $(topsrcdir)/config/rules.mk
+diff --git a/rdf/datasource/src/nsFileSystemDataSource.cpp b/rdf/datasource/src/nsFileSystemDataSource.cpp
+--- a/rdf/datasource/src/nsFileSystemDataSource.cpp
++++ b/rdf/datasource/src/nsFileSystemDataSource.cpp
+@@ -69,6 +69,10 @@
+ #include "nsCRTGlue.h"
+ #include "nsAutoPtr.h"
+ 
++#ifdef XP_MACOSX
++#include "nsILocalFileMac.h"
++#endif
++
+ #ifdef  XP_WIN
+ #include "windef.h"
+ #include "winbase.h"
+@@ -132,7 +136,7 @@ FileSystemDataSource::isDirURI(nsIRDFRes
+     rv = aDir->IsDirectory(&isDirFlag);
+     if (NS_FAILED(rv)) return(PR_FALSE);
+ 
+-#ifdef  XP_MAC
++#ifdef XP_MACOSX
+     // Hide directory structure of packages under Mac OS 9/X
+     nsCOMPtr<nsILocalFileMac>   aMacFile = do_QueryInterface(aDir);
+     if (aMacFile)
+@@ -460,7 +464,8 @@ FileSystemDataSource::GetTarget(nsIRDFRe
+         {
+             // Oh this is evil. Somebody kill me now.
+             nsCOMPtr<nsISimpleEnumerator> children;
+-            rv = GetFolderList(source, PR_FALSE, PR_TRUE, getter_AddRefs(children));
++            // XXX ActiveState, force hidden files to be shown
++            rv = GetFolderList(source, PR_TRUE, PR_TRUE, getter_AddRefs(children));
+             if (NS_FAILED(rv) || (rv == NS_RDF_NO_VALUE)) return(rv);
+ 
+             PRBool hasMore;
+@@ -537,7 +542,8 @@ FileSystemDataSource::GetTargets(nsIRDFR
+     {
+         if (property == mNC_Child)
+         {
+-            return GetFolderList(source, PR_FALSE, PR_FALSE, targets);
++            // XXX ActiveState, force hidden files to be shown
++            return GetFolderList(source, PR_TRUE, PR_FALSE, targets);
+         }
+         else if (property == mNC_Name)
+         {
+@@ -898,7 +904,62 @@ FileSystemDataSource::GetVolumeList(nsIS
+ 
+     nsCOMPtr<nsIRDFResource> vol;
+ 
+-#if defined (XP_WIN) && !defined (WINCE)
++#ifdef XP_MACOSX
++    /* Call FSGetVolumeInfo in loop to get all volumes starting with the first */
++    ItemCount volumeIndex = 1;
++    OSErr err;
++    FSRef ref;
++    FSSpec fss;
++    HFSUniStr255 volumeName;
++    do
++    {
++        err = FSGetVolumeInfo(0, volumeIndex, NULL, kFSVolInfoNone, NULL, &volumeName, &ref);
++        if ( noErr == err )
++        {
++    
++            UInt8 path[256];
++            int pathSize = 255;
++            FSRefMakePath(&ref, (UInt8 *)&path, pathSize);
++            if (path[1] == NULL && path[0] == '/') {
++                /* turn file:/// into file:///Volumes/Volume Name */
++                volumeName.unicode[volumeName.length] = 0;
++                char *volname = nsEscape(NS_ConvertUTF16toUTF8(
++                                            Substring((PRUnichar *)volumeName.unicode,
++                                                      (PRUnichar *)volumeName.unicode + volumeName.length)).get(),
++                                         url_Path);
++                char *url;
++                if (nsnull != (url = PR_smprintf("file:///Volumes/%s/", volname)))
++                {
++                    rv = mRDFService->GetResource(nsDependentCString(url),
++                                                  getter_AddRefs(vol));
++                    PR_Free(url);
++    
++                    if (NS_FAILED(rv)) return rv;
++                }
++                Recycle(volname);
++                volname = nsnull;
++            } else {
++                nsCOMPtr<nsILocalFileMac> lf = do_CreateInstance("@mozilla.org/file/local;1");
++                if (!lf) return NS_ERROR_OUT_OF_MEMORY;
++                rv = lf->InitWithFSRef(&ref);
++                if (NS_FAILED(rv)) return rv;
++        
++                nsCAutoString spec;
++                rv = NS_GetURLSpecFromFile(lf, spec);
++                if (NS_FAILED(rv))
++                  return rv;
++        
++                rv = mRDFService->GetResource(spec, getter_AddRefs(vol));
++                if (NS_FAILED(rv)) return rv;
++            }
++    
++            volumes->AppendElement(vol);
++            
++            ++volumeIndex;          /* and the volumeIndex to get the next volume*/
++        }
++    } while ( noErr == err );
++
++#elif defined (XP_WIN) && !defined (WINCE)
+ 
+     PRInt32         driveType;
+     PRUnichar       drive[32];
+@@ -923,14 +984,14 @@ FileSystemDataSource::GetVolumeList(nsIS
+             }
+         }
+     }
+-#endif
+ 
+-#if defined(XP_UNIX) || defined(XP_BEOS) || defined(WINCE)
++#elif defined(XP_UNIX) || defined(XP_BEOS) || defined(WINCE)
++
+     mRDFService->GetResource(NS_LITERAL_CSTRING("file:///"), getter_AddRefs(vol));
+     volumes->AppendElement(vol);
+-#endif
+ 
+-#ifdef XP_OS2
++#elif defined(XP_OS2)
++
+     ULONG ulDriveNo = 0;
+     ULONG ulDriveMap = 0;
+     char *url;
+@@ -1079,7 +1140,7 @@ FileSystemDataSource::GetFolderList(nsIR
+         {
+             PRBool          hiddenFlag = PR_FALSE;
+             if (NS_FAILED(rv = aFile->IsHidden(&hiddenFlag)))
+-                break;
++                continue;
+             if (hiddenFlag)
+                 continue;
+         }
+@@ -1226,7 +1287,7 @@ FileSystemDataSource::GetFileSize(nsIRDF
+         return(NS_RDF_NO_VALUE);
+ 
+     PRInt64     aFileSize64;
+-#ifdef  XP_MAC
++#ifdef XP_MACOSX
+     // on Mac, get total file size (data + resource fork)
+     nsCOMPtr<nsILocalFileMac>   aMacFile = do_QueryInterface(aFile);
+     if (!aMacFile)
+@@ -1286,7 +1347,7 @@ FileSystemDataSource::GetName(nsIRDFReso
+     if (name.IsEmpty())
+         return(NS_ERROR_UNEXPECTED);
+ 
+-#ifdef  XP_MAC
++#ifdef XP_MACOSX
+     nsCOMPtr<nsILocalFileMac>   aMacFile = do_QueryInterface(aFile);
+     if (aMacFile)
+     {

@@ -255,7 +255,7 @@ def _shouldBeApplied((base, actions, config), dirname, names):
     if patchinfo: log.debug("    patchinfo: %r", patchinfo)
     
     # Always skip SCC control dirs.
-    for exclude_dir in (".svn", ".hg", "CVS"):
+    for exclude_dir in (".svn", ".hg", ".git", "CVS"):
         if exclude_dir in names and isdir(join(dirname, exclude_dir)):
             names.remove(exclude_dir)
     
@@ -510,6 +510,8 @@ def _applyPatch(patchExe, baseDir, patchRelPath, sourceDir, reverse=0,
     """
     inReverse = (reverse and " in reverse" or "")
     baseArgv = [patchExe, "-f", "-p0", "-g0"] + patchArgs
+    if sys.platform.startswith("win"):
+        baseArgv.insert(1, "--binary")
     patchFile = os.path.join(baseDir, patchRelPath)
     patchContent = open(patchFile, 'r').read()
 
@@ -589,7 +591,8 @@ def unpatch(sourceDir, logDir, dryRun=0, patchExe=None):
             _assertCanApplyPatch(patchExe,
                                  os.path.join(logDir, action[2]),
                                  sourceDir,
-                                 reverse=1)
+                                 reverse=1,
+                                 patchArgs=action[3])
         elif action[0] == "add":
             # Should always just be able to remove the file.
             pass
@@ -1010,7 +1013,7 @@ def main(argv):
     if action == "patch":
         patch(patches, src, config=config, logDir=logDir, dryRun=dryRun)
     elif action == "unpatch":
-        unpatch(patches, src, config=config, logDir=logDir, dryRun=dryRun)
+        unpatch(src, logDir=logDir, dryRun=dryRun)
     else:
         raise Error("unknown action: '%s'" % action)
 

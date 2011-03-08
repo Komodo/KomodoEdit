@@ -145,131 +145,6 @@ del sys.path[0]
 class BuildError(Exception):
     pass
 
-#---- library code used by komodo bk configure
-
-def _getLinuxDistro():
-    assert sys.platform.startswith("linux")
-    # It would be nice to keep this in sync with
-    #   ../Komodo-devel/bklocal.py::LinuxDistribution._getDistroName()
-    redhatRelease = "/etc/redhat-release"
-    debianVersion = "/etc/debian_version"
-    suseRelease = "/etc/SuSE-release"
-    if os.path.exists(redhatRelease):
-        content = open(redhatRelease).read()
-        pattern = re.compile("^Red Hat Linux release ([\d\.]+)")
-        fedoraPattern = re.compile("^Fedora Core release ([\d\.]+)")
-        match = pattern.search(content)
-        fedoraMatch = fedoraPattern.search(content)
-        if match:
-            ver = match.group(1).split('.')[0]
-            return "redhat"+ver
-        elif fedoraMatch:
-            ver = fedoraMatch.group(1).split('.')[0]
-            return "fedoracore"+ver
-        else:            
-            raise BuildError(
-                "Could not determine RedHat release from first "
-                "line of '%s': '%s'" % (redhatRelease, content))
-    elif os.path.exists(debianVersion):
-        content = open(debianVersion).read()
-        return content.strip().replace('.', '')
-    elif os.path.exists(suseRelease):
-        content = open(suseRelease).read()
-        pattern = re.compile("^SuSE Linux ([\d\.]+)")
-        match = pattern.search(content)
-        if match:
-            ver = match.group(1).split('.')[0]
-            return "suse"+ver
-        else:
-            raise BuildError(
-                "Could not determine SuSE release from first "
-                "line of '%s': '%s'" % (suseRelease, content))
-    else:
-        raise BuildError("unknown Linux distro")
-
-
-def _getValidPlatforms():
-    """Return a list of platforms for which Mozilla can be built from
-    the current machine.
-    """
-    validPlats = []
-    if sys.platform == "win32":
-        validPlats = ["win32-ix86"]
-    elif sys.platform.startswith("linux"):
-        uname = os.uname()
-        if uname[4] == "ia64":
-            validPlats = []
-        elif re.match("i\d86", uname[4]):
-            distro = _getLinuxDistro()
-            validPlats = ["linux-%s-ix86" % distro]
-        else:
-            raise BuildError("unknown Linux architecture: '%s'" % uname[4])
-    elif sys.platform.startswith("sunos"):
-        #XXX Note that we don't really support Solaris builds yet.
-        uname = os.uname()
-        if uname[4].startswith("sun4"):
-            if uname[2] == "5.6":
-                validPlats = ["solaris-sparc"]
-            elif uname[2] == "5.8":
-                validPlats = ["solaris8-sparc", "solaris8-sparc64"]
-            else:
-                raise BuildError("unknown Solaris version: '%s'" % uname[2])
-        else:
-            raise BuildError("unknown Solaris architecture: '%s'" % uname[4])
-    elif sys.platform == "darwin":
-        validPlats = ['macosx-powerpc', 'macosx-x86']
-    elif sys.platform.startswith("freebsd"):
-        arch = os.uname()[-1]
-        if re.match("i\d86", arch):
-            validPlats = ['freebsd-x86']
-        else:
-            raise BuildError("unknown FreeBSD architecture: '%s'" % uname[4])
-    return validPlats
-
-
-def _getDefaultPlatform():
-    """Return an appropriate default target platform for the current machine.
-    
-    A "platform" is a string of the form "<os>-<arch>".
-    """
-    try:
-        return _getValidPlatforms()[0]
-    except IndexError, ex:
-        raise BuildError("cannot build mozilla on this platform: '%s'"
-                         % sys.platform)
-
-def _updateMd5sums(newfilename):
-    """Add (or update) an entry to the MD5SUMS file for the given file.
-    
-    The MD5SUMS file is in the package dir and has an entry for each
-    released package:
-        <hexdigest> <filename>
-    """
-    md5sums = os.path.join(gPackagesDir, "MD5SUMS")
-    
-    md5sumsDict = {}
-    if os.path.exists(md5sums):  # get the existing entries
-        fin = open(md5sums, 'r')
-        for line in fin.readlines():
-            if not line.strip(): continue
-            hexdigest, filename = line.strip().split(None, 1)
-            md5sumsDict[filename] = hexdigest
-        fin.close()
-    elif not os.path.isdir(gPackagesDir):
-        os.makedirs(gPackagesDir)
-    
-    # Determine hexdigest for the new file.
-    import md5
-    md5obj = md5.new()
-    md5obj.update( open(newfilename, 'r').read() )
-    md5sumsDict[ os.path.basename(newfilename) ] = md5obj.hexdigest()
-
-    # Write out the new MD5SUMS file
-    fout = open(md5sums, 'w')
-    for filename, hexdigest in md5sumsDict.items():
-        fout.write("%s %s\n" % (hexdigest, filename))
-    fout.close()
-
 def _getChangeNum():
     # Note that this can be a fairly complex string (perhaps not
     # suitable for inclusion in a filename if ':' is in it). See
@@ -429,7 +304,8 @@ def _validateEnv():
                              "that's weird, you should have it after "
                              "having run the appropriate 'setenv-moz-msvc?.bat'")
         else:
-            if not nsinstall_path.startswith(mozilla_build_dir):
+            # on Windows, paths are normally case-insensitive
+            if not nsinstall_path.lower().startswith(mozilla_build_dir.lower()):
                 raise BuildError("the first 'nsinstall' on your PATH, '%s', "
                                  "is not from the new MozillaBuild package "
                                  "(%s): your old MOZ_TOOLS directory "
@@ -640,6 +516,12 @@ def _setupMozillaEnv():
         # The Python Framework is used on OSX
         if sys.platform == "darwin":
             return
+    else:
+        # Mozilla requires using Msys perl rather than AS perl; use the one
+        # bundled with MozillaBuild
+        if not "PERL" in os.environ:
+            os.environ["PERL"] = os.path.join(os.environ["MOZILLABUILD"],
+                                              "msys", "bin", "perl.exe").replace("\\", "/")
 
 
 def _applyMozillaPatch(patchFile, mozSrcDir):
@@ -724,15 +606,6 @@ Patch '%s' will not apply cleanly:
     if retval:
         raise BuildError("Error applying patch '%s': argv=%r, cwd=%r"\
                          "retval=%r" % (patchFile, argv, cwd, retval))
-
-def _cygpathFromWinPath(path):
-    assert sys.platform == "win32"
-    if not os.path.isabs(path):
-        path = os.path.abspath(path)
-    drive, tail = os.path.splitdrive(path)
-    path = "/cygdrive/%s%s"\
-           % (drive.strip(':').lower(), tail.replace(os.sep, '/'))
-    return path
 
 def _getMozSrcInfo(scheme, mozApp):
     """Return information about how to get the Mozilla source to use for
@@ -1157,16 +1030,9 @@ def target_configure(argv):
             specify a full path to a Python executable to use. No guarantees
             that this is going to work, though.
 
-        --gtk, --gtk2
-            Build for GTK version 1 or 2. The default on Linux and
-            Solaris is for GTK 2. (These options really only make sense
-            on Linux and Solaris.)
-
         --no-mar
             Do not build the bsdiff and mar modules.
 
-        --xft
-        --xinerama
         --perf      build with timeline and profiling support
         --tools     build with venkman, inspector and cview
         --jssh      extract and build JS Telnet Server to rebuild with a
@@ -1260,23 +1126,9 @@ def target_configure(argv):
         "universal": False,
         "patchesDirs": ["patches-new"],
     }
-    if sys.platform.startswith("linux") or sys.platform.startswith("sunos"):
-        config["buildOpt"].append("gtk2")
     mozBuildOptions = [
-       'enable-canvas',
-       'enable-svg',
-       # stuff we don't want in komodo
-       'disable-ldap',
-       'disable-composer',
-       'disable-installer',
-       'disable-activex',
-       'disable-activex-scripting',
        # prevents a "C++ compiler has -pedantic long long bug" configure error
        'disable-pedantic',
-       # i'd like to be doing these
-       # 'enable-plaintext-editor-only',
-       # 'enable-single-profile',
-       'disable-oji',
 
        # suggested by http://www.mozilla.org/build/distribution.html
        'without-system-nspr',
@@ -1284,8 +1136,6 @@ def target_configure(argv):
        'without-system-jpeg',
        'without-system-png',
        'without-system-mng',
-       
-       'enable-updater',
     ]
     mozMakeOptions = []
     mozBuildExtensions = []
@@ -1293,7 +1143,7 @@ def target_configure(argv):
        
     # Process options.
     try:
-        optlist, remainder = getopt.getopt(argv[1:], "rk:P:",
+        optlist, remainder = getopt.getopt(argv[1:], "rk:P:j:",
             ["reconfigure",
              "debug", "release", "symbols",
              "komodo-version=", "python=", "python-version=",
@@ -1303,10 +1153,9 @@ def target_configure(argv):
              "with-crashreport-symbols",
              "strip", "no-strip",
              "g4", "no-g4",
-             "gtk2", "gtk",
              "no-mar",
              "with-tests", "without-tests", 
-             "perf", "tools", "xft", "xinerama", "jssh", "js",
+             "perf", "tools", "jssh", "js",
              "options=", "extensions=", "moz-config=",
              "build-dir=",
              "src-tree-name=",
@@ -1336,6 +1185,8 @@ def target_configure(argv):
         elif opt == "--blessed":
             config["blessed"] = True
         elif opt == "--universal":
+            if sys.platform != "darwin":
+                raise BuildError("Universal builds are only supported on Mac OSX")
             config["universal"] = True
         elif opt == "--komodo":
             config["mozApp"] = "komodo"
@@ -1352,21 +1203,8 @@ def target_configure(argv):
         elif opt == "--official":
             config["official"] = True
             config["komodoVersion"] = None
-        elif opt == "--gtk":
-            config["buildOpt"].append("gtk")
-            if "gtk2" in config["buildOpt"]:
-                config["buildOpt"].remove("gtk2")
         elif opt == "--no-mar":
             config["enableMar"] = False
-        elif opt == "--xft":
-            config["buildOpt"].append("xft")
-        elif opt == "--xinerama":
-            config["buildOpt"].append("xinerama")
-        elif opt == "--gtk2":
-            if "gtk2" not in config["buildOpt"]:
-                config["buildOpt"].append("gtk2")
-            if "gtk" in config["buildOpt"]:
-                config["buildOpt"].remove("gtk")
         elif opt == "--jssh":
             config["buildOpt"].append("jssh")
             mozBuildExtensions.append('jssh')
@@ -1433,6 +1271,11 @@ def target_configure(argv):
             config["compiler"] = optarg
         elif opt == "--moz-objdir":
             config["mozObjDir"] = optarg
+        elif opt == "-j":
+            if not re.match(r"^\d+$", optarg):
+                raise BuildError("Invalid value for -j, integer expected: %r" %
+                                 optarg)
+            config["parallel"] = int(optarg)
 
     # Ensure all require information was specified.
     for name, value in config.items():
@@ -1482,11 +1325,6 @@ def target_configure(argv):
         else:
             sdk_ver = "10.3"
 
-        if not sdk_ver:
-            raise BuildError("You cannot build Mozilla without a platform "
-                             "sdk installed. Install Xcode 1.5 and be sure "
-                             "to select the 'Cross-Platform SDKs' option in "
-                             "the installer.")
         sdk = "/Developer/SDKs/MacOSX%s.sdk" % ({"10.3": "10.3.9",
                                                  "10.4": "10.4u"}.get(sdk_ver, sdk_ver))
         if not os.path.exists("%s/Library" % sdk):
@@ -1513,6 +1351,7 @@ def target_configure(argv):
                 # Mozilla 1.9.2 must use gcc 4.2, specify that now.
                 mozRawOptions.append('CC="gcc-4.2 -arch i386"')
                 mozRawOptions.append('CXX="g++-4.2 -arch i386"')
+            mozBuildOptions.append("target=i386-apple-darwin%i" % (osx_major_ver))
         if mozVer >= 1.91:
             mozRawOptions.append("mk_add_options AUTOCONF=autoconf213")
 
@@ -1650,6 +1489,8 @@ def target_configure(argv):
         elif buildType == "debug":
             mozBuildOptions.append('enable-debug')
             mozBuildOptions.append('disable-optimize')
+            mozBuildOptions.append('disable-jemalloc')
+            mozBuildOptions.append('disable-crashreporter')
 
         if config.get("withCrashReportSymbols"):
             mozRawOptions.append('# Debug Symbols')
@@ -1680,17 +1521,8 @@ def target_configure(argv):
                 mozBuildExtensions.append('cview')
         
         if config["mozApp"] in ("browser", "komodo"):
-            # based on build options from the standard firefox distro, there
-            # are likely changes we will want to make
-            mozBuildOptions.append('disable-mailnews')
-            mozBuildOptions.append('disable-composer')
-
             # Needed for building update-service packages.
             mozBuildOptions.append('enable-update-packaging')
-            
-            # XXX not sure if we want to do this, need to understand the options
-            mozBuildOptions.append('enable-single-profile')
-            mozBuildOptions.append('disable-profilesharing')
             
             # these extensions are built into firefox, we need to figure out
             # what we dont want or need.
@@ -1700,7 +1532,6 @@ def target_configure(argv):
                 mozBuildExtensions.append('inspector')
             
             mozBuildExtensions.append('spellcheck')
-            #mozBuildExtensions.append('typeaheadfind')
             
             # XXX these fail, but we probably dont care
             #mozBuildExtensions.append('gnomevfs')
@@ -1709,13 +1540,9 @@ def target_configure(argv):
             # XXX necessary to complete the build for now...need to find the
             # dependency so we dont build with them
             mozBuildOptions.append('enable-xsl')
-            
-            # in 1.9, these are no longer extensions, and need to be removed
-            mozBuildExtensions.append('xmlextras')
-            mozBuildExtensions.append('pref')
-            mozBuildExtensions.append('universalchardet')
-            mozBuildExtensions.append('webservices')
-            mozBuildExtensions.append('transformiix')
+
+            # not needed
+            mozBuildOptions.append('disable-webm')
 
         elif config["mozApp"] == "xulrunner":
             mozBuildOptions.append('enable-application=xulrunner')
@@ -1725,31 +1552,18 @@ def target_configure(argv):
             mozBuildOptions.append('enable-mailnews') 
 
         mozMakeOptions.append('MOZ_OBJDIR=@TOPSRCDIR@/%s' % config["mozObjDir"])
-            
-        if "gtk" in config["buildOpt"]:
-            mozBuildOptions.append('enable-default-toolkit=gtk')
-        elif "gtk2" in config["buildOpt"]:
-            # Note: "mozVer" can be None
-            if mozVer is None or mozVer >= 1.9:
-                # Assume at least mozilla 1.9 then, use cairo gtk builds.
-                mozBuildOptions.append('enable-default-toolkit=cairo-gtk2')
-            else:
-                # A pre 1.9 mozilla source
-                mozBuildOptions.append('enable-default-toolkit=gtk2')
-
-            mozBuildOptions.append('enable-xft')
-        if "xft" in config["buildOpt"]:
-            mozBuildOptions.append('enable-xft')
-        if "xinerama" in config["buildOpt"]:
-            mozBuildOptions.append('enable-xinerama')
         
+        if "parallel" in config:
+            mozMakeOptions.append('MOZ_MAKE_FLAGS=-j%i' % config["parallel"])
+        elif sys.platform.startswith("sunos") or sys.platform == 'darwin':
+            # default -j2 for sunos and darwin
+            mozMakeOptions.append('MOZ_MAKE_FLAGS=-j2')
+
         # Platform options
         if sys.platform.startswith("sunos"):
-            mozMakeOptions.append('MOZ_MAKE_FLAGS=-j2')
             mozBuildOptions.append('disable-gnomevfs')
             mozBuildOptions.append('disable-gnomeui')
         if sys.platform == 'darwin':
-            mozMakeOptions.append('MOZ_MAKE_FLAGS=-j2')
             mozBuildOptions.append('enable-prebinding')
 
         config["mozconfig"] = "# Options for 'configure' (same as command-line options).\n"
@@ -1798,6 +1612,13 @@ def target_configure(argv):
     # Error out if it looks like we will hit the subtle limitation on
     # PATH length on Windows.
     if sys.platform == "win32":
+        # check if nsinstall is the obsolete version that came with
+        # MozillaBuild, which 1) is ANSI, and 2) has a path lenth limitation
+        badNsinstall = not _capture_status(["grep",
+                                            "-q",
+                                            "GetOEMCP",
+                                            which.which("nsinstall")])
+    if sys.platform == "win32" and badNsinstall:
         # This guy is 192 chars long and fails:
         #   C:\trentm\as\openkomodo-moz19\mozilla\build\cvs-ko5.19-okmoz19\mozilla\ko-rel-ns\_tests\testing\mochitest\tests\dom\tests\mochitest\ajax\scriptaculous\test\unit\_ajax_inplaceeditor_result.html
         # This guy (tweaked) is 189 chars and works:
@@ -1868,6 +1689,9 @@ You need to do one or more of the following to work around this problem
 
 3. Change where you check out your Komodo source tree to a shorter
    path. For example, I check out mine to "$HOME/as/komodo".
+
+4. Grab nsinstall.exe from a new XULRunner SDK and replace the one shipped
+   in MozillaBuild (%s).
 **************************************************************************
 """ % (PATH_LEN_LIMIT,
        LONGEST_SUB_PATH, len(LONGEST_SUB_PATH),
@@ -1875,6 +1699,7 @@ You need to do one or more of the following to work around this problem
        mozObjPathGuess, len(mozObjPathGuess),
        config["srcTreeName"], len(config["srcTreeName"]),
        mozObjDirGuess, len(mozObjDirGuess),
+       which.which("nsinstall")
       ))
 
     # Write out configuration.
@@ -2174,18 +1999,25 @@ def target_pyxpcom(argv=["pyxpcom"]):
         if sys.platform.startswith("linux"):
             configure_flags += 'PYTHON="%s"' % (config.python, )
             configure_flags += " ac_cv_visibility_pragma=no"
-        elif system.platform == "darwin":
+        elif sys.platform == "darwin":
             configure_flags += 'PYTHON="%s"' % (config.python, )
             configure_flags += ' CC="gcc -arch i386" CXX="g++ -arch i386"'
-        cmds = ["%s %s --with-libxul-sdk=%s --disable-tests" % (configure_flags, join(pyxpcom_src_dir, "configure"), join(moz_obj_dir, "dist")),
+        configure_options = []
+        if config.buildType == "debug":
+            configure_options.append("--enable-debug")
+        configure_path = join(pyxpcom_src_dir, "configure")
+        cmds = ["%s %s --with-libxul-sdk=%s --disable-tests %s" % (configure_flags, _msys_path_from_path(configure_path), _msys_path_from_path(join(moz_obj_dir, "dist")), " ".join(configure_options)),
                 "make"]
+        if sys.platform.startswith("win"):
+            # on Windows, we must run configure (a shell script) via /bin/sh, with quoting to pass args
+            cmds[0] = "sh -c '%s'" % (cmds[0])
         _run_in_dir(" && ".join(cmds), pyxpcom_obj_dir, log.info)
 
         # The above pyxpcom build creates a "dist" directory in the
         # "extensions/python" directory, we must copy over the details to the
         # Komodo dist directory.
         if sys.platform.startswith("win"):
-            copy_cmd = 'copy %s %s' % (join(pyxpcom_obj_dir, "dist"), join(moz_obj_dir, "dist"))
+            copy_cmd = 'xcopy "%s" "%s" /E /K /Y' % (join(pyxpcom_obj_dir, "dist"), join(moz_obj_dir, "dist"))
         else:
             copy_cmd = 'cp -r %s %s' % (join(pyxpcom_obj_dir, "dist"), join(moz_obj_dir))
         _run(copy_cmd, log.info)
@@ -2411,8 +2243,10 @@ def target_src(argv=["src"]):
     elif mozSrcType == "hg":
         if config.mozVer <= 1.91:
             repo_url = "http://hg.mozilla.org/releases/mozilla-1.9.1/"
-        else:
+        elif config.mozVer <= 1.92:
             repo_url = "http://hg.mozilla.org/releases/mozilla-1.9.2/"
+        else:
+            repo_url = "http://hg.mozilla.org/mozilla-central/"
         revision_arg = ""
         if config.mozSrcHgTag:
             revision_arg = "--rev=%s" % (config.mozSrcHgTag)
@@ -2519,6 +2353,8 @@ def _get_mozilla_objdir(convert_to_native_win_path=False, force_echo_variable=Fa
 
     
 def _msys_path_from_path(path):
+    if not sys.platform.startswith("win"):
+        return path
     drive, subpath = os.path.splitdrive(path)
     msys_path = "/%s%s" % (drive[0].lower(),
                            subpath.replace('\\', '/'))
