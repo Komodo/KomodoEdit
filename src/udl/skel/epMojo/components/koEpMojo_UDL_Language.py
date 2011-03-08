@@ -192,7 +192,8 @@ class KoEpMojoLinter(object):
         perlText, htmlText = self._extractPerlPart(text)
         if perlText.strip():
             log.debug("Go perl lint {%s}", perlText)
-            lintResults1 = self._perl_linter.lint_with_text(request, perlText)
+            lintResults1 = self._resetLines(self._perl_linter.lint_with_text(request, perlText),
+                                            text)
         else:
             lintResults1 = None
         if htmlText.strip():
@@ -206,3 +207,18 @@ class KoEpMojoLinter(object):
         else:
             #return UnwrapObject(lintResults1).addResults(UnwrapObject(lintResults2))
             return lintResults1.addResults(lintResults2)
+
+    def _resetLines(self, lintResults, text):
+        lines = text.splitlines()
+        fixedResults = koLintResults()
+        for res in lintResults.getResults():
+            try:
+                targetLine = lines[res.lineEnd - 1]
+            except IndexError:
+                log.exception("can't index %d lines at %d", len(lines), res.lineEnd - 1)
+                pass # Keep the original lintResult
+            else:
+                if res.columnEnd > len(targetLine):
+                    res.columnEnd = len(targetLine)
+            fixedResults.addResult(res)
+        return fixedResults
