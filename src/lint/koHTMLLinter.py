@@ -82,6 +82,9 @@ class KoHTMLCompileLinter:
 
     def lint(self, request, argv_additions=None):
         text = request.content.encode(request.encoding.python_encoding_name)
+        return self.lint_with_text(request, text, argv_additions)
+
+    def lint_with_text(self, request, text, argv_additions=None):
         cwd = request.cwd
 
         text = eollib.convertToEOLFormat(text, eollib.EOL_LF)
@@ -241,7 +244,9 @@ class KoHTML5CompileLinter(KoHTMLCompileLinter):
     dictType = type({})
     def lint(self, request):
         encoding_name = request.encoding.python_encoding_name
-        text = request.content.encode(encoding_name)
+        return self.lint_with_text(request, request.content.encode(encoding_name))
+
+    def lint_with_text(self, request, text):
         if not text.strip():
             return koLintResults()
         textLines = text.splitlines()

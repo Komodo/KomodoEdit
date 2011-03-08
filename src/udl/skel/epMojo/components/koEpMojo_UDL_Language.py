@@ -45,6 +45,8 @@ import process
 import koprocessutils
 
 from xpcom import components, nsError, ServerException
+from xpcom.server import UnwrapObject, WrapObject
+
 from koXMLLanguageBase import koHTMLLanguageBase
 
 from koLintResult import KoLintResult
@@ -116,80 +118,91 @@ class KoEpMojoLinter(object):
 
     def __init__(self):
         self._perl_linter = components.classes["@activestate.com/koLinter?language=Perl;1"].\
-                            getService(components.interfaces.koILinter);
+                            getService(components.interfaces.koILinter)
+        self._html_linter = components.classes["@activestate.com/koLinter?language=HTML;1"].\
+                            getService(components.interfaces.koILinter)
         
-    def _extractPerlCode(self, text):
-        # Lint only the Perl code
-        if not text.endswith("\n"):
-            text += "\n";
-        newTextBlocks = []
-        skip_ptn = re.compile(r'[^\r\n<%]+')
-        leading_name = re.compile(r'\s+(\w+)')
+    epMatcher = re.compile(r'''(
+                                (?:<%(?:.|[\r\n])*?%>)   # Anything in <%...%>
+                                |(?:^%.*)                # % to eol is one-line of Perl
+                                |(?:\r?\n)               # Newline
+                                |(?:(?:<(?!%)|[^<\n]+)+) # Most other non-Perl
+                                |.)''',                  # Catchall
+                                re.MULTILINE|re.VERBOSE)
+    _leading_name = re.compile(r'\s+(\w+)')
+    def _extractPerlPart(self, text):
+        parts = self.epMatcher.findall(text)
+        if not parts:
+            return "", text
+        i = 0
+        lim = len(parts)
+        perlTextParts = []
+        htmlTextParts = []
+        eols = ("\n", "\r\n")
         neededSubs = {}
-        # Now save only the Perl code.
-        c = None
-        while text:
-            m = skip_ptn.match(text)
-            if m:
-                amtToSkip = m.span(0)[1]
-                newTextBlocks.append(amtToSkip * " ")
-                text = text[amtToSkip:]
-                prev_c = None
-                continue
-            prev_c = c
-            c = text[0]
-            if c in ('\r', '\n'):
-                newTextBlocks.append(c)
-                text = text[1:]
-            elif c == '%' and prev_c in ('\n', None):
-                if len(text) == 1:
-                    break
-                text = text[1:]
-                while text[0] == '=':
-                    text = text[1:]
-                idx = text.find("\n")
-                newText = text[:idx + 1]
-                m = leading_name.match(newText)
+        while i < lim:
+            part = parts[i]
+            if part in eols:
+                perlTextParts.append(part)
+                htmlTextParts.append(part)
+            elif part.startswith("<%"):
+                # Watch out for block comments
+                perlTextParts.append(self._fixTemplateMarkup(part))
+                htmlTextParts.append(self._spaceOutNonNewlines(part))
+            elif part.startswith("%") and (i == 0 or parts[i - 1].endswith("\n")):
+                part = part[1:]
+                m = self._leading_name.match(part)
                 if m:
                     term = m.group(1)
                     if term not in neededSubs:
                         neededSubs[term] = None
-                        newTextBlocks.append("sub %s; " % (term,))
-                newTextBlocks.append(text[:idx + 1])
-                text = text[idx + 1:]
-                c = '\n'
-            elif text.startswith("<%"):
-                text = text[2:]
-                endPos = text.find("%>")
-                if endPos == -1:
-                    endPos = len(text)
-                    skipAmt = 0
-                else:
-                    skipAmt = 2
-                if text.startswith("#"):
-                    # Multi-line comment
-                    eolsOnly = re.compile(r'[^\r\n]').subn(text[:endPos + 1  - skipAmt])
-                    newTextBlocks.append(eolsOnly)
-                else:
-                    if text.startswith("="):
-                        text = text[1:]
-                        endPos -= 1
-                        newTextBlocks.append("print ")
-                    if text.startswith("="):
-                        text = text[1:]
-                        endPos -= 1
-                    newTextBlocks.append(text[:endPos + 1 - skipAmt] + ";")
-                text = text[endPos + 1:]
-                c = '>'
+                        perlTextParts.append("sub %s; " % (term,))
+                perlTextParts.append(' ' + part + ";")
+                htmlTextParts.append(' ' + self._spaceOutNonNewlines(part))
             else:
-                #print("No match at %s..." % text[:24])
-                newTextBlocks.append(' ')
-                text = text[1:]
-        # end while
-        return "".join(newTextBlocks)
+                perlTextParts.append(self._spaceOutNonNewlines(part))
+                htmlTextParts.append(part)
+            i += 1
+        return "".join(perlTextParts), "".join(htmlTextParts)
+        
+    _nonNewlineMatcher = re.compile(r'[^\r\n]')
+    def _spaceOutNonNewlines(self, markup):
+        return self._nonNewlineMatcher.sub(' ', markup)
+
+    _markupMatcher = re.compile(r'\A<%(#|={0,2})(.*?)(=?)(?:%>)?\Z', re.DOTALL)
+    def _fixTemplateMarkup(self, markup):
+        m = self._markupMatcher.match(markup)
+        if not m:
+            return markup
+        finalText = '  '
+        leadingControlText = m.group(1)
+        payload = m.group(2)
+        trailingControlText = m.group(3)
+        if leadingControlText == '#':
+            finalText += '#' + payload.replace("\n", "\n#")
+        elif leadingControlText.startswith("="):
+            finalText += "print " + payload + ";"
+        else:
+            finalText += payload + ";"
+        return finalText
         
     def lint(self, request):
         # Lint only the Perl code
         text = request.content.encode(request.encoding.python_encoding_name)
-        newText = self._extractPerlCode(text)
-        return self._perl_linter.lint_with_text(request, newText)
+        perlText, htmlText = self._extractPerlPart(text)
+        if perlText.strip():
+            log.debug("Go perl lint {%s}", perlText)
+            lintResults1 = self._perl_linter.lint_with_text(request, perlText)
+        else:
+            lintResults1 = None
+        if htmlText.strip():
+            lintResults2 = self._html_linter.lint_with_text(request, htmlText)
+        else:
+            lintResults2 = None
+        if lintResults1 is None or lintResults1.getNumResults() == 0:
+            return lintResults2
+        elif lintResults2 is None or lintResults2.getNumResults() == 0:
+            return lintResults1
+        else:
+            #return UnwrapObject(lintResults1).addResults(UnwrapObject(lintResults2))
+            return lintResults1.addResults(lintResults2)

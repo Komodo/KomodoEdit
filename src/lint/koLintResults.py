@@ -39,6 +39,7 @@ a file.
 """
 
 from xpcom import components
+from xpcom.server import WrapObject, UnwrapObject
 
 
 #---- internal support routines
@@ -112,6 +113,18 @@ class koLintResults:
                 self._resultMap[lineNum].append(result)
             else:
                 self._resultMap[lineNum] = [result]
+
+    def addResults(self, other):
+        # Returns a new object
+        newLintResults = koLintResults()
+        try:
+            other_results = other._results
+        except AttributeError:
+            other_results = UnwrapObject(other)._results
+        newLintResults._results = self._results
+        for result in other_results:
+            newLintResults.addResult(result)
+        return newLintResults
 
     # Convenience methods (for status bar UI).
     def getNumResults(self):

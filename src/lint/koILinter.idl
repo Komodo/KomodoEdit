@@ -98,6 +98,7 @@ interface koILintResult : nsISupports
 [scriptable, uuid(D990E18E-807F-47f9-8C9D-5D2AC5D9A4CF)]
 interface koILintResults : nsISupports {
     void addResult(in koILintResult result);
+    koILintResults addResults(in koILintResults results);
     void getResults([array, size_is(count)] out koILintResult results,
                     out unsigned long count);
     // This one _was_ used by the old kombo.js for displaying a tooltip.

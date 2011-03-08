@@ -47,6 +47,7 @@ import process
 import koprocessutils
 
 from xpcom import components, nsError, ServerException
+from xpcom.server import WrapObject, UnwrapObject
 from koXMLLanguageBase import koHTMLLanguageBase
 
 from koLintResult import KoLintResult
@@ -234,15 +235,21 @@ class KoDjangoLinter(object):
         self._userPath = koprocessutils.getUserEnv()["PATH"].split(os.pathsep)
         self._koPythonInfoEx = components.classes["@activestate.com/koAppInfoEx?app=Python;1"].\
             getService(components.interfaces.koIAppInfoEx)
-        #TODO: Observe pref changes affecting self.pythonExecutable
-        self.pythonExecutable = self._koPythonInfoEx.executablePath
-        if not self.pythonExecutable:
-            self.pythonExecutable = koDirSvc.pythonExe
-        self.djangoLinterPath = join(dirname(dirname(__file__)),
+        #TODO: Observe pref changes affecting self._pythonExecutable
+        self._pythonExecutable = self._koPythonInfoEx.executablePath
+        if not self._pythonExecutable:
+            self._pythonExecutable = koDirSvc.pythonExe
+        self._djangoLinterPath = join(dirname(dirname(__file__)),
                                      "pylib",
                                      "djangoLinter.py")
         self._settingsForDirs = {}
         self._lineSplitterRE = re.compile(r'\r?\n')
+        self._html_linter = components.classes["@activestate.com/koLinter?language=HTML;1"].\
+                            getService(components.interfaces.koILinter)
+        self._nonNewline = re.compile(r'[^\r\n]')
+
+    def _blankMatchedText(self, m):
+        return self._nonNewline.sub(" ", m.group(1))
 
     def _walkUpDir(self, directory):
         count = 10 # Look up at most 10 levels.
@@ -259,10 +266,13 @@ class KoDjangoLinter(object):
                 return None
     
     def _getSettingsDir(self, directory):
+        log.debug("cur dir: %s", directory)
         dir = self._settingsForDirs.get(directory, None)
         if dir and exists(join(dir, "settings.py")):
+            log.debug("Found it in directory at %s", dir)
             return dir
         fileDir = self._walkUpDir(directory)
+        log.debug("_walkUpDir(%s) -> %r", directory, fileDir)
         if fileDir:
             self._settingsForDirs[directory] = fileDir
             return fileDir
@@ -276,38 +286,82 @@ class KoDjangoLinter(object):
         if projDir:
             self._settingsForDirs[directory] = projDir
         return projDir
-        
+
+    _djangoMatcher = re.compile(r'''(
+                     (?:\{\{.*?\}\})   # Anything in {{...}}
+                    |(?:\{\%.*?\%\})   # Anything in {%...%}
+                    |(?:\{\#.*?\#\})   # Anything in {#...#}
+                    |(?:[^\{]+)        # Anything but a {
+                    |.)''',                  # Catchall
+                                re.DOTALL|re.VERBOSE)
+    def _extractHTMLPart(self, text):
+        parts = self._djangoMatcher.findall(text)
+        if not parts:
+            return text
+        htmlTextParts = []
+        for part in parts:
+            if part.startswith("{"):
+                if len(part) == 1:
+                    htmlTextParts.append(part)
+                else:
+                    htmlTextParts.append(self._spaceOutNonNewlines(part))
+            else:
+                htmlTextParts.append(part)
+        return "".join(htmlTextParts)
+    
+    _nonNewlineMatcher = re.compile(r'[^\r\n]')
+    def _spaceOutNonNewlines(self, markup):
+        return self._nonNewlineMatcher.sub(' ', markup)
+
     def lint(self, request):
         # Find the base of the django project: first parent that contains settings.py
         # If not found, check the current project for a file that contains it
         cwd = request.cwd
-        koDoc = request.koDoc
+        text = request.content.encode(request.encoding.python_encoding_name)
         settingsDir = self._getSettingsDir(cwd)
-        if not settingsDir:
-            errmsg = "Can't find settings.py associated with file %s" % koDoc.displayPath
-            raise ServerException(nsError.NS_ERROR_UNEXPECTED, errmsg)
-        # Save the current buffer to a temporary file.
-        tmpFileName = tempfile.mktemp()
-        fout = open(tmpFileName, 'wb')
-        try:
-            text = request.content.encode(request.encoding.python_encoding_name)
-            fout.write(text)
-            fout.close()
-        
+        if settingsDir:
+            # Save the current buffer to a temporary file.
+            tmpFileName = tempfile.mktemp()
+            fout = open(tmpFileName, 'wb')
+            try:
+                fout.write(text)
+                fout.close()
+            
+                results = koLintResults()
+                argv = [self._pythonExecutable, self._djangoLinterPath,
+                        tmpFileName, settingsDir]
+                env = koprocessutils.getUserEnv()
+                p = process.ProcessOpen(argv, cwd=cwd, env=env, stdin=None)
+                output, error = p.communicate()
+                #log.debug("Django output: output:[%s], error:[%s]", output, error)
+                retval = p.returncode
+            finally:
+                os.unlink(tmpFileName)
+            if retval == 1:
+                if error:
+                    results.addResult(self._buildResult(text, error))
+                else:
+                    results.addResult(self._buildResult(text, "Unexpected error"))
+        else:
+            result = KoLintResult()
+            result.lineStart = 1
+            result.lineEnd = 1
+            result.columnStart = 1
+            result.columnEnd = 1 + len(text.splitlines(1)[0])
+            result.description = "Can't find settings.py for this Django file"
+            result.encodedDescription = result.description
+            result.severity = result.SEV_ERROR
             results = koLintResults()
-            argv = [self.pythonExecutable, self.djangoLinterPath,
-                    tmpFileName, settingsDir]
-            env = koprocessutils.getUserEnv()
-            p = process.ProcessOpen(argv, cwd=cwd, env=env, stdin=None)
-            output, error = p.communicate()
-            retval = p.returncode
-        finally:
-            os.unlink(tmpFileName)
-        if retval == 1:
-            if error:
-                results.addResult(self._buildResult(text, error))
+            results.addResult(result)
+        htmlText = self._extractHTMLPart(text)
+        if htmlText.strip():
+            htmlResults = self._html_linter.lint_with_text(request, htmlText)
+            if results is None or results.getNumResults() == 0:
+                return htmlResults
+            elif htmlResults is None or htmlResults.getNumResults() == 0:
+                return results
             else:
-                results.addResult(self._buildResult(text, "Unexpected error"))
+                return results.addResults(htmlResults)
         return results
             
     _simple_matchers = {
