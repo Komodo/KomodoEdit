@@ -159,15 +159,17 @@ def getsdoc(obj):
     #doclines = parseDocSummary(doclines)
     doc = '\n'.join(doclines[index:index+3])
 
-    # Try encoding the docs, otherwise we'll run into problems when we want to
-    # write out the tree data.
-    try:
-        doc = doc.decode("utf-8")
-    except UnicodeDecodeError:
+    if not _gIsPy3:
+        # Try encoding the docs, otherwise we'll run into problems when we want to
+        # write out the tree data.
         try:
-            doc = doc.decode(sys.getfilesystemencoding())
+            doc = doc.decode("utf-8")
         except UnicodeDecodeError:
-            doc = doc.decode("latin-1")
+            try:
+                doc = doc.decode(sys.getfilesystemencoding())
+            except UnicodeDecodeError:
+                doc = doc.decode("latin-1")
+
     return doc
 
 def process_class_using_instance(rootElt, obj, name, callables):
@@ -406,6 +408,6 @@ def writeCixFileForElement(filename, root):
     stream.write('<?xml version="1.0" encoding="UTF-8"?>\n'.encode('ascii'))
     prettify(root)
     tree = ElementTree(root)
-    tree.write(stream)
+    tree.write(stream, encoding="utf-8")
     stream.close()
 
