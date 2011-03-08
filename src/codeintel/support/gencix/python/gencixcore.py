@@ -158,6 +158,16 @@ def getsdoc(obj):
         index += 1
     #doclines = parseDocSummary(doclines)
     doc = '\n'.join(doclines[index:index+3])
+
+    # Try encoding the docs, otherwise we'll run into problems when we want to
+    # write out the tree data.
+    try:
+        doc = doc.decode("utf-8")
+    except UnicodeDecodeError:
+        try:
+            doc = doc.decode(sys.getfilesystemencoding())
+        except UnicodeDecodeError:
+            doc = doc.decode("latin-1")
     return doc
 
 def process_class_using_instance(rootElt, obj, name, callables):

@@ -463,19 +463,6 @@ def process_module_list(module_list, fname, catalog_name=None,
 
     gencix.writeCixFileForElement(fname, root)
 
-    print('Removing references to 0xF...')
-    f = open(fname, 'rb')
-    data = f.read()
-    f.close()
-    if major < 3:
-        data = re.sub(r"&lt;(.*?) at 0x[0-9a-fA-F]+&gt;", "&lt;\\1&gt;", data)
-    else:
-        # Remove the \xF6 char.
-        data = data.replace(bytes("\xF6", "latin-1"), bytes("", "ascii"))
-    f = open(fname, 'wb')
-    f.write(data)
-    f.close()
-
     print("done writing generic bits: %r." % fname)
 
 
