@@ -1127,6 +1127,7 @@ def target_configure(argv):
         "patchesDirs": ["patches-new"],
     }
     mozBuildOptions = [
+       'disable-installer',
        # prevents a "C++ compiler has -pedantic long long bug" configure error
        'disable-pedantic',
 

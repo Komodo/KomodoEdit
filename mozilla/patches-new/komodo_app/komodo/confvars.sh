@@ -1,6 +1,5 @@
 # confvars.sh - configure defaults for komodo, Gecko 1.9.1
 MOZ_OJI=
-MOZ_INSTALLER=
 XPC_IDISPATCH_SUPPORT=
 MOZ_NO_ACTIVEX_SUPPORT=1
 MOZ_ACTIVEX_SCRIPTING_SUPPORT=
