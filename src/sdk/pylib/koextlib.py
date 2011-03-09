@@ -750,7 +750,7 @@ def komodo_unpack_xpi(xpi_path, log=None):
     try:
         _run('"%s" -q "%s" -d "%s"' % (unzip_exe, xpi_path, tmp_dir), log.info)
         ext_info = ExtensionInfo(tmp_dir)
-    except (OSError, KoExtError) as e:
+    except (OSError, KoExtError), e:
         _rm(tmp_dir, logstream=log.info)
         log.error(e)
         raise KoExtError("%s xpi_path is not a valid .xpi file" % xpi_path)
