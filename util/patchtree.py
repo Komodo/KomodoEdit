@@ -510,8 +510,9 @@ def _applyPatch(patchExe, baseDir, patchRelPath, sourceDir, reverse=0,
     """
     inReverse = (reverse and " in reverse" or "")
     baseArgv = [patchExe, "-f", "-p0", "-g0"] + patchArgs
-    if sys.platform.startswith("win"):
-        baseArgv.insert(1, "--binary")
+    # ToddW: "--binary" breaks patching of Scintilla.
+    #if sys.platform.startswith("win"):
+    #    baseArgv.insert(1, "--binary")
     patchFile = os.path.join(baseDir, patchRelPath)
     patchContent = open(patchFile, 'r').read()
 
