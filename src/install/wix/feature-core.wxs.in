@@ -71,6 +71,7 @@
       <ComponentRef Id="component245"/>
       <ComponentRef Id="component368"/>
       <ComponentRef Id="component66"/>
+      <ComponentRef Id="component68"/>
       <ComponentRef Id="component69"/>
       <ComponentRef Id="component70"/>
       <ComponentRef Id="component71"/>
@@ -80,6 +81,9 @@
       <ComponentRef Id="component75"/>
       <ComponentRef Id="component76"/>
       <ComponentRef Id="component77"/>
+      <ComponentRef Id="component78"/>
+      <ComponentRef Id="component79"/>
+      <ComponentRef Id="component80"/>
       <ComponentRef Id="component82"/>
       <ComponentRef Id="component83"/>
       <ComponentRef Id="component84"/>
@@ -87,6 +91,7 @@
       <ComponentRef Id="component86"/>
       <ComponentRef Id="component87"/>
       <ComponentRef Id="component88"/>
+      <ComponentRef Id="component89"/>
       <ComponentRef Id="component90"/>
       <ComponentRef Id="component91"/>
       <ComponentRef Id="component93"/>
@@ -96,6 +101,7 @@
       <ComponentRef Id="component97"/>
       <ComponentRef Id="component98"/>
       <ComponentRef Id="component99"/>
+      <ComponentRef Id="component100"/>
       <ComponentRef Id="component102"/>
       <ComponentRef Id="component103"/>
       <ComponentRef Id="component104"/>
@@ -185,8 +191,14 @@
       <ComponentRef Id="component324"/>
       <ComponentRef Id="component325"/>
       <ComponentRef Id="component311"/>
+      <ComponentRef Id="component379"/>
       <ComponentRef Id="component404"/>
       <ComponentRef Id="component419"/>
+      <ComponentRef Id="component423"/>
+      <ComponentRef Id="component424"/>
+      <ComponentRef Id="component425"/>
+      <ComponentRef Id="component426"/>
+      <ComponentRef Id="component427"/>
       <ComponentRef Id="component445"/>
       <ComponentRef Id="component446"/>
       <ComponentRef Id="component447"/>
@@ -296,6 +308,8 @@
       <ComponentRef Id="component520"/>
       <ComponentRef Id="component521"/>
       <ComponentRef Id="component513"/>
+      <ComponentRef Id="component586"/>
+      <ComponentRef Id="component587"/>
       <ComponentRef Id="component26"/>
       <ComponentRef Id="component43"/>
       <ComponentRef Id="component208"/>
@@ -1055,6 +1069,39 @@
                 <File Id="file1066" Name="install.rdf" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\crystal@everaldo.com\install.rdf"/>
               </Component>
             </Directory> <!-- lib\mozilla\extensions\crystal@everaldo.com -->
+            <Directory Id="directory74" Name="EPMOJO_0.COM" LongName="epmojo_language@ActiveState.com">
+              <Component Id="component68" DiskId="1" Guid="$(autowix.guid)">
+                <File Id="file30" Name="CHROM_25.MAN" LongName="chrome.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\epmojo_language@ActiveState.com\chrome.manifest"/>
+                <File Id="file266" Name="install.rdf" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\epmojo_language@ActiveState.com\install.rdf"/>
+              </Component>
+              <Directory Id="directory84" Name="COMPO_15" LongName="components">
+                <Component Id="component78" DiskId="1" Guid="$(autowix.guid)">
+                  <File Id="file858" Name="KOEPMO_0.PY" LongName="koEpMojo_UDL_Language.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\epmojo_language@ActiveState.com\components\koEpMojo_UDL_Language.py"/>
+                </Component>
+              </Directory> <!-- lib\mozilla\extensions\epmojo_language@ActiveState.com\components -->
+              <Directory Id="directory85" Name="LEXERS_6" LongName="lexers">
+                <Component Id="component79" DiskId="1" Guid="$(autowix.guid)">
+                  <File Id="file1289" Name="EPMOJO_0.LEX" LongName="epMojo.lexres" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\epmojo_language@ActiveState.com\lexers\epMojo.lexres"/>
+                </Component>
+              </Directory> <!-- lib\mozilla\extensions\epmojo_language@ActiveState.com\lexers -->
+              <Directory Id="directory98" Name="TEMPL_12" LongName="templates">
+                <Directory Id="directory106" Name="ALLLA_15" LongName="All Languages">
+                  <Component Id="component80" DiskId="1" Guid="$(autowix.guid)">
+                    <File Id="file1303" Name="epMojo.ep" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\epmojo_language@ActiveState.com\templates\All Languages\epMojo.ep"/>
+                  </Component>
+                </Directory> <!-- lib\mozilla\extensions\epmojo_language@ActiveState.com\templates\All Languages -->
+                <Directory Id="directory111" Name="COMMON_0" LongName="Common">
+                  <Component Id="component89" DiskId="1" Guid="$(autowix.guid)">
+                    <File Id="file1304" Name="EPMOJO_0.EP" LongName="epMojo.ep" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\epmojo_language@ActiveState.com\templates\Common\epMojo.ep"/>
+                  </Component>
+                </Directory> <!-- lib\mozilla\extensions\epmojo_language@ActiveState.com\templates\Common -->
+                <Directory Id="directory112" Name="WEB_0" LongName="Web">
+                  <Component Id="component100" DiskId="1" Guid="$(autowix.guid)">
+                    <File Id="file1305" Name="EPMOJO_1.EP" LongName="epMojo.ep" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\epmojo_language@ActiveState.com\templates\Web\epMojo.ep"/>
+                  </Component>
+                </Directory> <!-- lib\mozilla\extensions\epmojo_language@ActiveState.com\templates\Web -->
+              </Directory> <!-- lib\mozilla\extensions\epmojo_language@ActiveState.com\templates -->
+            </Directory> <!-- lib\mozilla\extensions\epmojo_language@ActiveState.com -->
             <Directory Id="directory37" Name="FASTOP_0.COM" LongName="fastopen@activestate.com">
               <Component Id="component35" DiskId="1" Guid="$(autowix.guid)">
                 <File Id="file855" LongName="chrome.manifest" Name="CHROME_5.MAN" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\fastopen@activestate.com\chrome.manifest" />
@@ -1770,6 +1817,7 @@
                 <File Id="file2307" Name="KOXMLP_0.PY" LongName="koXMLPrefs.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\koXMLPrefs.py"/>
                 <File Id="file37" Name="KOXMLD_0.PY" LongName="koXMLDatasetInfo.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\koXMLDatasetInfo.py"/>
                 <File Id="file38" Name="KOXMLT_0.PY" LongName="koXMLTreeService.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\koXMLTreeService.py"/>
+                <File Id="file1306" Name="HTML5L_0.EGG" LongName="html5lib-0.90-py2.6.egg-info" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\html5lib-0.90-py2.6.egg-info"/>
                 <File Id="file82" LongName="HTMLTreeParser.py" Name="HTMLTR_1.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\HTMLTreeParser.py" />
                 <File Id="file2312" Name="process.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\process.py"/>
                 <File Id="file866" Name="WINPRO_0.PY" LongName="winprocess.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\winprocess.py" />
@@ -1965,6 +2013,64 @@
                   <File Id="file4446" Name="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\elementtree\__init__.py"/>
                 </Component>
               </Directory> <!-- lib\mozilla\python\komodo\elementtree -->
+
+              <Directory Id="directory465" Name="html5lib">
+                <Component Id="component423" DiskId="1" Guid="$(autowix.guid)">
+                  <File Id="file1307" Name="CONSTA_7.PY" LongName="constants.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\html5lib\constants.py"/>
+                  <File Id="file1308" Name="HTML5P_0.PY" LongName="html5parser.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\html5lib\html5parser.py"/>
+                  <File Id="file1309" Name="ihatexml.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\html5lib\ihatexml.py"/>
+                  <File Id="file1310" Name="INPUTS_0.PY" LongName="inputstream.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\html5lib\inputstream.py"/>
+                  <File Id="file1312" Name="SANITI_0.PY" LongName="sanitizer.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\html5lib\sanitizer.py"/>
+                  <File Id="file1313" Name="TOKENI_0.PY" LongName="tokenizer.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\html5lib\tokenizer.py"/>
+                  <File Id="file1314" Name="TOKENI_1.PY" LongName="tokenizer_old.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\html5lib\tokenizer_old.py"/>
+                  <File Id="file1315" Name="utils.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\html5lib\utils.py"/>
+                  <File Id="file1316" Name="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\html5lib\__init__.py"/>
+                </Component>
+                <Directory Id="directory466" Name="filters">
+                  <Component Id="component424" DiskId="1" Guid="$(autowix.guid)">
+                    <File Id="file1317" Name="FORMFI_0.PY" LongName="formfiller.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\html5lib\filters\formfiller.py"/>
+                    <File Id="file1318" Name="INJECT_0.PY" LongName="inject_meta_charset.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\html5lib\filters\inject_meta_charset.py"/>
+                    <File Id="file1319" Name="lint.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\html5lib\filters\lint.py"/>
+                    <File Id="file1320" Name="OPTION_0.PY" LongName="optionaltags.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\html5lib\filters\optionaltags.py"/>
+                    <File Id="file1321" Name="SANITI_1.PY" LongName="sanitizer.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\html5lib\filters\sanitizer.py"/>
+                    <File Id="file1322" Name="WHITES_0.PY" LongName="whitespace.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\html5lib\filters\whitespace.py"/>
+                    <File Id="file1323" Name="_base.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\html5lib\filters\_base.py"/>
+                    <File Id="file1324" Name="__INI_88.PY" LongName="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\html5lib\filters\__init__.py"/>
+                  </Component>
+                </Directory> <!-- lib\mozilla\python\komodo\html5lib\filters -->
+                <Directory Id="directory467" Name="SERIAL_0" LongName="serializer">
+                  <Component Id="component425" DiskId="1" Guid="$(autowix.guid)">
+                    <File Id="file1325" Name="HTMLSE_0.PY" LongName="htmlserializer.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\html5lib\serializer\htmlserializer.py"/>
+                    <File Id="file1326" Name="XHTMLS_0.PY" LongName="xhtmlserializer.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\html5lib\serializer\xhtmlserializer.py"/>
+                    <File Id="file1327" Name="__INI_90.PY" LongName="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\html5lib\serializer\__init__.py"/>
+                  </Component>
+                </Directory> <!-- lib\mozilla\python\komodo\html5lib\serializer -->
+                <Directory Id="directory468" Name="TREEBU_0" LongName="treebuilders">
+                  <Component Id="component426" DiskId="1" Guid="$(autowix.guid)">
+                    <File Id="file1328" Name="dom.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\html5lib\treebuilders\dom.py"/>
+                    <File Id="file1329" Name="etree.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\html5lib\treebuilders\etree.py"/>
+                    <File Id="file1330" Name="ETREE__0.PY" LongName="etree_lxml.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\html5lib\treebuilders\etree_lxml.py"/>
+                    <File Id="file1331" Name="SIMPLE_2.PY" LongName="simpletree.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\html5lib\treebuilders\simpletree.py"/>
+                    <File Id="file1332" Name="soup.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\html5lib\treebuilders\soup.py"/>
+                    <File Id="file1333" Name="_BASE_0.PY" LongName="_base.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\html5lib\treebuilders\_base.py"/>
+                    <File Id="file1334" Name="__INI_91.PY" LongName="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\html5lib\treebuilders\__init__.py"/>
+                  </Component>
+                </Directory> <!-- lib\mozilla\python\komodo\html5lib\treebuilders -->
+                <Directory Id="directory469" Name="TREEWA_0" LongName="treewalkers">
+                  <Component Id="component427" DiskId="1" Guid="$(autowix.guid)">
+                    <File Id="file1335" Name="DOM_0.PY" LongName="dom.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\html5lib\treewalkers\dom.py"/>
+                    <File Id="file1336" Name="ETREE_0.PY" LongName="etree.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\html5lib\treewalkers\etree.py"/>
+                    <File Id="file1337" Name="GENSHI_0.PY" LongName="genshistream.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\html5lib\treewalkers\genshistream.py"/>
+                    <File Id="file1338" Name="LXMLET_0.PY" LongName="lxmletree.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\html5lib\treewalkers\lxmletree.py"/>
+                    <File Id="file1339" Name="pulldom.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\html5lib\treewalkers\pulldom.py"/>
+                    <File Id="file1340" Name="SIMPLE_6.PY" LongName="simpletree.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\html5lib\treewalkers\simpletree.py"/>
+                    <File Id="file1341" Name="SOUP_0.PY" LongName="soup.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\html5lib\treewalkers\soup.py"/>
+                    <File Id="file1342" Name="_BASE_1.PY" LongName="_base.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\html5lib\treewalkers\_base.py"/>
+                    <File Id="file1343" Name="__INI_92.PY" LongName="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\html5lib\treewalkers\__init__.py"/>
+                  </Component>
+                </Directory> <!-- lib\mozilla\python\komodo\html5lib\treewalkers -->
+              </Directory> <!-- lib\mozilla\python\komodo\html5lib -->
+
               <Directory Id="directory4" Name="INFLEC_0" LongName="inflector">
                 <Component DiskId="1" Guid="$(autowix.guid)" Id="component10">
                   <RemoveFile Id="removefile17" Name="*.pyo" On="uninstall" />
@@ -4252,6 +4358,7 @@
               <File Id="file49" Name="DJANGO_1.UDL" LongName="django2html.udl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\udl\django2html.udl"/>
               <File Id="file50" Name="DJANGO_2.UDL" LongName="djangolex.udl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\udl\djangolex.udl"/>
               <File Id="file51" Name="ECMASC_0.UDL" LongName="ecmascript_262.udl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\udl\ecmascript_262.udl"/>
+              <File Id="file1344" Name="EPMOJO_0.UDL" LongName="epMojo-mainlex.udl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\udl\epMojo-mainlex.udl"/>
               <File Id="file52" Name="HAMLMA_0.UDL" LongName="haml-mainlex.udl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\udl\haml-mainlex.udl"/>
               <File Id="file53" Name="HTMLMA_0.UDL" LongName="html-mainlex.udl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\udl\html-mainlex.udl"/>
               <File Id="file54" Name="html.udl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\udl\html.udl"/>
@@ -4301,6 +4408,14 @@
               <File Id="file241" Name="XSLTMA_0.UDL" LongName="xslt-mainlex.udl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\udl\xslt-mainlex.udl"/>
               <File Id="file242" Name="XULMAI_0.UDL" LongName="xul-mainlex.udl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\udl\xul-mainlex.udl"/>
             </Component>
+
+            <Directory Id="directory633" Name="epMojo">
+              <Component Id="component587" DiskId="1" Guid="$(autowix.guid)">
+                <File Id="file1345" Name="EPMOJO_1.UDL" LongName="epMojo2html.udl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\udl\epMojo\epMojo2html.udl"/>
+                <File Id="file1387" Name="EPMOJO_2.UDL" LongName="epMojolex.udl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\udl\epMojo\epMojolex.udl"/>
+                <File Id="file1391" Name="HTML2E_0.UDL" LongName="html2epMojo.udl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\udl\epMojo\html2epMojo.udl"/>
+              </Component>
+            </Directory> <!-- lib\sdk\udl\epMojo -->
             <Directory Id="directory561" Name="haml">
               <Component Id="component519" DiskId="1" Guid="$(autowix.guid)">
                 <File Id="file244" Name="HAML2R_0.UDL" LongName="haml2ruby.udl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\udl\haml\haml2ruby.udl"/>
