@@ -921,8 +921,7 @@ class SVNBranch(Branch):
                             df = None
                         
                         if df is None: # 'svn cp'
-                            dst_branch.copy(f["copyfrom-relpath"], rel_path,
-                                isdir=(f["kind"] == "directory"))
+                            dst_branch.copy(f["copyfrom-relpath"], rel_path)
                             changes_made.append("cp `%s' `%s' (%s)" % (
                                 f["copyfrom-relpath"], rel_path, dst_branch.name))
                         else: # 'svn mv'
