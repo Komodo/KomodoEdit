@@ -191,7 +191,6 @@
       <ComponentRef Id="component324"/>
       <ComponentRef Id="component325"/>
       <ComponentRef Id="component311"/>
-      <ComponentRef Id="component379"/>
       <ComponentRef Id="component404"/>
       <ComponentRef Id="component419"/>
       <ComponentRef Id="component423"/>
@@ -308,7 +307,6 @@
       <ComponentRef Id="component520"/>
       <ComponentRef Id="component521"/>
       <ComponentRef Id="component513"/>
-      <ComponentRef Id="component586"/>
       <ComponentRef Id="component587"/>
       <ComponentRef Id="component26"/>
       <ComponentRef Id="component43"/>
