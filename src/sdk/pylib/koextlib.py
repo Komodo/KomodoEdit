@@ -718,28 +718,48 @@ def komodo_build_install(base_dir, ppdefines=None, dry_run=False, log=None):
                          "'install.rdf' file (run `koext startext' first)"
                          % base_dir)
 
-    ext_info = ExtensionInfo(base_dir)
-    ko_info = KomodoInfo()
-            
     src_dir = abspath(base_dir)
-    install_dir = join(ko_info.ext_base_dir, ext_info.id)
     
     # `build_ext` knows how to build the extension. We just call it and
     # use the .xpi it produces.
     xpi_path = build_ext(base_dir, ppdefines=ppdefines, log=log)
     
-    # Make sure the target install dir is clear.
+    # Unzip the .xpi into that dir.
+    komodo_unpack_xpi(xpi_path)
+
+
+def komodo_unpack_xpi(xpi_path, log=None):
+    """Unpack an extension .xpi file into a Komodo build.
+    
+    This command is for installing *core* Komodo extensions into a Komodo
+    build. This is *not* a command for installing an extension into a
+    Komodo installation.
+    
+    @param xpi_path {str} Path to the .xpi file.
+    @param log {logging.Logger} Optional.
+   """
+    if log is None: log = _log
+    if not isfile(xpi_path):
+        raise KoExtError('%s is not a file' % xpi_path)
+    ko_info = KomodoInfo()
+    tmp_dir = join(ko_info.ext_base_dir, '__', basename(xpi_path))
+    if exists(tmp_dir):
+        _rm(tmp_dir, logstream=log.info)
+    _mkdir(tmp_dir, logstream=log.info)
+    unzip_exe = _get_unzip_exe()
+    try:
+        _run('"%s" -q "%s" -d "%s"' % (unzip_exe, xpi_path, tmp_dir), log.info)
+        ext_info = ExtensionInfo(tmp_dir)
+    except (OSError, KoExtError) as e:
+        _rm(tmp_dir, logstream=log.info)
+        log.error(e)
+        raise KoExtError("%s xpi_path is not a valid .xpi file" % xpi_path)
     install_dir = join(ko_info.ext_base_dir, ext_info.id)
     if exists(install_dir):
         _rm(install_dir, logstream=log.info)
-    
-    # Unzip the .xpi into that dir.
-    _mkdir(install_dir, logstream=log.info)
-    unzip_exe = _get_unzip_exe()
-    _run('"%s" -q "%s" -d "%s"' % (unzip_exe, xpi_path, install_dir), log.info)
+    _mv(tmp_dir, install_dir)
     
     print "installed to `%s'" % install_dir
-
 
 
 #---- internal support routines
