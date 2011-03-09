@@ -535,6 +535,38 @@ sub cons::KoExt {
     $cons->DependsRecursive("koext.consjunk", ".", @toSkip);
 }
 
+sub cons::KoExtUnpack {
+    # Run "koext unpack <xpiPath>" to unpack and install an xpi file into the
+    # Komodo build.
+    my ($env, $xpiFile, @toSkip) = @_;
+    if (! scalar(@toSkip)) {
+        @toSkip = (".svn", "*.xpi", "build");  # default skips
+    }
+    
+    # Die if required elements are not defined.
+    defined($sdkDir) or die "*** sdkDir is not defined for KoExtSourceDevInstall\n";
+    defined($build) or die "*** build is not defined for KoExtSourceDevInstall\n";
+    defined($mozBin) or die "*** mozBin is not defined for KoExt\n";
+    defined($unsiloedPythonExe) or die "*** unsiloedPythonExe is not defined for KoExt\n";
+
+    my $scriptExt = ($^O eq "MSWin32" ? ".py" : "");
+    my $exeExt = ($^O eq "MSWin32" ? ".exe" : "");
+    $cons->Command(
+        "koext.consjunk", # fake target to make Cons happy
+        "$sdkDir/bin/koext$scriptExt",
+        "$sdkDir/bin/xpidl$exeExt",
+        "$sdkDir/pylib/koextlib.py",
+        "$sdkDir/pylib/cmdln.py",
+        "$sdkDir/pylib/preprocess.py",
+        "$build/ranregxpcom.consjunk",
+        "$mozBin/is_dev_tree.txt",
+        qq(
+            $unsiloedPythonExe $sdkDir/bin/koext$scriptExt -v kounpack $xpiFile
+        )
+    );
+    $cons->DependsRecursive("koext.consjunk", ".", @toSkip);
+}
+
 sub cons::KoExtSourceDevInstall {
     # Run "koext devinstall -f -d $extensionDirInSourceArea" to setup a link for
     # quick dev of a Komodo extension. Note that this will not work if there are
