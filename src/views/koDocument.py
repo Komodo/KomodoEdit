@@ -603,6 +603,50 @@ class koDocumentBase:
         family = udl_family_from_style(style)
         return self.get_languageObj().getLanguageForFamily(family)
 
+    DECORATOR_UDL_FAMILY_TRANSITION = components.interfaces.koILintResult.DECORATOR_UDL_FAMILY_TRANSITION
+
+    def getLanguageTransitionPoints(self, start_pos, end_pos):
+        scimoz = self._views[0].scimoz
+        if not self._language or not self._docPointer:
+            return [0, scimoz.length]
+        languages = self.get_languageObj().getSubLanguages()
+        if len(languages) < 2:
+            return [0, scimoz.length]
+        # Check the region for UDL transition markers. LexUDL sets indicator 18
+        # on the start char (or set of chars) beginning a new UDL family
+        # section.
+        transition_points = []
+        pos = start_pos
+        length = scimoz.length
+        end_pos = min(end_pos, length)
+        while pos <= end_pos:
+            indic_start = scimoz.indicatorStart(self.DECORATOR_UDL_FAMILY_TRANSITION, pos)
+            indic_end = scimoz.indicatorEnd(self.DECORATOR_UDL_FAMILY_TRANSITION, indic_start+1)
+            if indic_start == indic_end == 0: # No indicators found.
+                break
+            if not transition_points:
+                transition_points.append(indic_start)
+            # Sanity check: scintilla collapses a run of
+            # single-char indicators to one indicator, and we would lose
+            # boundary info for all but the first indicator in this run.
+            current_run_pos = indic_start
+            family_next = udl_family_from_style(scimoz.getStyleAt(current_run_pos))
+            while current_run_pos < indic_end - 1:
+                family_start = family_next
+                family_next = udl_family_from_style(scimoz.getStyleAt(current_run_pos + 1))
+                if family_start != family_next:
+                    transition_points.append(current_run_pos + 1)
+                else:
+                    break
+            transition_points.append(indic_end)
+            if indic_end >= end_pos:  # Past the end of the region specified.
+                break
+            pos = indic_end + 1
+        if len(transition_points) < 2:
+            return [0, length]
+        transition_points.append(length)
+        return transition_points
+
     def get_codePage(self):
         return self._codePage
     

@@ -122,6 +122,27 @@ interface koIDocument : nsISupports
     // Return the language (or sub-language in the UDL case) for the given pos.
     string languageForPosition(in long position);
 
+    /**
+     * Return the positions in the provided region where the language changes.
+     * At a minimum, two values will always be returned (0, text.length).
+     * This will only ever return additional array results for multi-language
+     * UDL documents, in which case these additional positions mark where the
+     * language changes inside the document.
+     *
+     * Note: The first and last positions returned can be outside of the
+     *       provided start_position,end_position range, all other points
+     *       will *always* be positions within the provided range.
+     *
+     * @param start_position - The position to start searching from.
+     * @param end_position - The position to finish searching at.
+     *
+     * @returns array
+     */
+    void getLanguageTransitionPoints(in long start_position,
+                                     in long end_position,
+                                     [array, size_is(count)] out long positions,
+                                     out unsigned long count);
+
     //---- Encoding support
     // Komodo always uses code page 65001, i.e. put scintilla in
     // Unicode/UTF-8 mode. Setting `codePage` is DEPRECATED in
