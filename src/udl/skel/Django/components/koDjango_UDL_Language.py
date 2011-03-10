@@ -314,10 +314,10 @@ class KoDjangoLinter(object):
         return self._nonNewlineMatcher.sub(' ', markup)
 
     def lint(self, request):
-        # Find the base of the django project: first parent that contains settings.py
-        # If not found, check the current project for a file that contains it
+        return self._html_linter.lint(request)
+
+    def lint_with_text(self, request, text):
         cwd = request.cwd
-        text = request.content.encode(request.encoding.python_encoding_name)
         settingsDir = self._getSettingsDir(cwd)
         if settingsDir:
             # Save the current buffer to a temporary file.
@@ -353,15 +353,6 @@ class KoDjangoLinter(object):
             result.severity = result.SEV_ERROR
             results = koLintResults()
             results.addResult(result)
-        htmlText = self._extractHTMLPart(text)
-        if htmlText.strip():
-            htmlResults = self._html_linter.lint_with_text(request, htmlText)
-            if results is None or results.getNumResults() == 0:
-                return htmlResults
-            elif htmlResults is None or htmlResults.getNumResults() == 0:
-                return results
-            else:
-                return results.addResults(htmlResults)
         return results
             
     _simple_matchers = {

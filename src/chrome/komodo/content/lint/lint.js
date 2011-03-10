@@ -445,6 +445,7 @@ this.lintBuffer.prototype._createLintRequest = function(linterType)
                     createInstance(Components.interfaces.koILintRequest);
         lr.rid = this._lastRequestId;
         lr.koDoc = this.view.koDoc;
+        this._colouriseIfNecessary(this.view);
         lr.linterType = linterType;
         lr.uid = this.view.uid;
         lr.cwd = cwd;
@@ -457,6 +458,57 @@ this.lintBuffer.prototype._createLintRequest = function(linterType)
     return null;
 }
 
+this.lintBuffer.prototype._colouriseIfNecessary = function(view) {
+    // We have to finish lexing the doc in the main thread, because
+    // if the linter is relying on styles to determine the segments,
+    // it can't get scimoz to finish colourising on a background thread.
+    if (this.view.koDoc.languageObj.supportsSmartIndent != "XML") {
+        // non-HTML linters don't use sub-language styles
+        return;
+    }
+    // Do we need to colourise from the last line down?
+    // First, are there lines after the last visible line?
+    var koDoc = this.view.koDoc;
+    var scimoz = this.view.scimoz;
+    var bufferLength = scimoz.length;
+    var lineCount = scimoz.lineCount;
+    var nextActualLine = scimoz.docLineFromVisible(scimoz.firstVisibleLine
+                                                   + scimoz.linesOnScreen) + 2;
+    if (nextActualLine >= lineCount) {
+        // All text has been colourised.
+        return;
+    }
+    // Is there unstyled text starting on the next page?
+    var pos = scimoz.positionFromLine(nextActualLine);
+    var transitionPts = {}, numTransitionPts = {};
+    koDoc.getLanguageTransitionPoints(pos, bufferLength, transitionPts, numTransitionPts);
+    transitionPts = transitionPts.value;
+    numTransitionPts = numTransitionPts.value;
+    if (numTransitionPts > 3 ||
+        (numTransitionPts == 3 && transitionPts[1] <  transitionPts[2])) {
+        // lots of numTransitionPts below
+        return;
+    }
+    // Are they all zero bytes?
+    var stopPoint = Math.min(transitionPts[1], pos + 1000);
+    if (stopPoint < pos) {
+        // Not enough chars left to colourise
+        return;
+    }
+    var styledBytes = scimoz.getStyledText(pos, stopPoint, {});
+    if (styledBytes.indexOf("<".charCodeAt(0)) == -1) {
+        // There are no "<" chars (or styles with that num below, so leave
+        return;
+    }
+    // At least there's a "<" (or a non-zero style)
+    // in the text we found.
+    for (var i = 1; i < styledBytes.length; i += 2) {
+        if (styledBytes[i] != 0) {
+            return;
+        }
+    }
+    scimoz.colourise(pos, bufferLength);
+}
 
 // Return an appropriate koILinter contract ID for the current language.
 // If there isn't one, return null.

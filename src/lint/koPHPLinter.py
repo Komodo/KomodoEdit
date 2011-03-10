@@ -40,10 +40,14 @@ from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC
 from koLintResult import *
 from koLintResults import koLintResults
 import os, sys, re
+import logging
 import tempfile
 import string
 import process
 import koprocessutils
+
+log = logging.getLogger("koPHPLinter")
+#log.setLevel(logging.DEBUG)
 
 # PHP error line format
 # \nPHP ERROR NAME: error text in filename.php on line ##\n
@@ -64,6 +68,8 @@ class KoPHPCompileLinter:
     def __init__(self):
         self.phpInfoEx = components.classes["@activestate.com/koAppInfoEx?app=PHP;1"].\
                     getService(components.interfaces.koIPHPInfoEx)
+        self._html_linter = components.classes["@activestate.com/koLinter?language=HTML;1"].\
+                            getService(components.interfaces.koILinter)
     
     # linting versions are different than what is required for xdebug
     # debugging, so we have our own version checking
@@ -82,12 +88,13 @@ class KoPHPCompileLinter:
             raise COMException(nsError.NS_ERROR_NOT_AVAILABLE, errmsg)
         
     def lint(self, request):
+        return self._html_linter.lint(request)
+    
+    def lint_with_text(self, request, text):
         """Lint the given PHP content.
         
         Raise an exception if there is a problem.
         """
-        
-        text = request.content.encode(request.encoding.python_encoding_name)
         cwd = request.cwd
         
         #print "----------------------------"

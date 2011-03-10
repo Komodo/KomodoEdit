@@ -299,6 +299,9 @@ class KoLinterLanguageService:
         # not portable to other languages.
         self._linterCID = linterCID
 
+    def __str__(self):
+        return "<koLanguageServiceBase.KoLinterLanguageService instance:%s>" % self._linterCID
+
     def get_linterCID(self):
         return self._linterCID
 

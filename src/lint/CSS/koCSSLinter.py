@@ -75,13 +75,16 @@ class KoCSSLinter:
         Raise an exception  if there is a problem.
         """
 
-        fn = None
         text = request.content.encode(request.encoding.python_encoding_name)
+        return self.lint_with_text(request, text)
+        
+    def lint_with_text(self, request, text):
         self.datalines = re.split('\r\n|\r|\n',text)
         cwd = request.cwd
 
         self.results = koLintResults()
 
+        fn = None
         # save buffer to a temporary file
         try:
             self.fn = fn = tempfile.mktemp()

@@ -106,7 +106,7 @@ Inline perl:   <% Inline Perl %>, and continue...
             self._linter = self._get_linter_from_lang(self.name)
         return self._linter
 
-class KoEpMojoLinter(object):
+class KoEpMojoLinter():
     _com_interfaces_ = [components.interfaces.koILinter]
     _reg_desc_ = "epMojo Template Linter"
     _reg_clsid_ = "{3b69f94f-4fb6-47bb-a387-9d3ac372195a}"
@@ -129,26 +129,24 @@ class KoEpMojoLinter(object):
                                 |(?:(?:<(?!%)|[^<\n]+)+) # Most other non-Perl
                                 |.)''',                  # Catchall
                                 re.MULTILINE|re.VERBOSE)
+
     _leading_name = re.compile(r'\s+(\w+)')
-    def _extractPerlPart(self, text):
+    def _fixPerlPart(self, text):
         parts = self.epMatcher.findall(text)
         if not parts:
             return "", text
         i = 0
         lim = len(parts)
         perlTextParts = []
-        htmlTextParts = []
         eols = ("\n", "\r\n")
         neededSubs = {}
         while i < lim:
             part = parts[i]
             if part in eols:
                 perlTextParts.append(part)
-                htmlTextParts.append(part)
             elif part.startswith("<%"):
                 # Watch out for block comments
                 perlTextParts.append(self._fixTemplateMarkup(part))
-                htmlTextParts.append(self._spaceOutNonNewlines(part))
             elif part.startswith("%") and (i == 0 or parts[i - 1].endswith("\n")):
                 part = part[1:]
                 m = self._leading_name.match(part)
@@ -158,12 +156,10 @@ class KoEpMojoLinter(object):
                         neededSubs[term] = None
                         perlTextParts.append("sub %s; " % (term,))
                 perlTextParts.append(' ' + part + ";")
-                htmlTextParts.append(' ' + self._spaceOutNonNewlines(part))
             else:
-                perlTextParts.append(self._spaceOutNonNewlines(part))
-                htmlTextParts.append(part)
+                perlTextParts.append(part)
             i += 1
-        return "".join(perlTextParts), "".join(htmlTextParts)
+        return "".join(perlTextParts)
         
     _nonNewlineMatcher = re.compile(r'[^\r\n]')
     def _spaceOutNonNewlines(self, markup):
@@ -185,28 +181,16 @@ class KoEpMojoLinter(object):
         else:
             finalText += payload + ";"
         return finalText
-        
+
     def lint(self, request):
-        # Lint only the Perl code
-        text = request.content.encode(request.encoding.python_encoding_name)
-        perlText, htmlText = self._extractPerlPart(text)
-        if perlText.strip():
-            log.debug("Go perl lint {%s}", perlText)
-            lintResults1 = self._resetLines(self._perl_linter.lint_with_text(request, perlText),
+        return self._html_linter.lint(request)
+
+    def lint_with_text(self, request, text):
+        perlText = self._fixPerlPart(text)
+        if not perlText.strip():
+            return
+        return self._resetLines(self._perl_linter.lint_with_text(request, perlText),
                                             text)
-        else:
-            lintResults1 = None
-        if htmlText.strip():
-            lintResults2 = self._html_linter.lint_with_text(request, htmlText)
-        else:
-            lintResults2 = None
-        if lintResults1 is None or lintResults1.getNumResults() == 0:
-            return lintResults2
-        elif lintResults2 is None or lintResults2.getNumResults() == 0:
-            return lintResults1
-        else:
-            #return UnwrapObject(lintResults1).addResults(UnwrapObject(lintResults2))
-            return lintResults1.addResults(lintResults2)
 
     def _resetLines(self, lintResults, text):
         lines = text.splitlines()

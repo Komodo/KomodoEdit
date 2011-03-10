@@ -73,6 +73,9 @@ class KoXPCShellLinter:
     def lint(self, request, text=None):
         if text is None:
             text = request.content.encode(request.encoding.python_encoding_name)
+        return self.lint_with_text(request, text)
+
+    def lint_with_text(self, request, text):
         cwd = request.cwd
 
         # copy file-to-lint to a temp file

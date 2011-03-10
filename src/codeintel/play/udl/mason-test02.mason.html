@@ -1,10 +1,17 @@
- % my $var;
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+    "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+    <title><!-- Insert your title here --></title>
+</head>
+<body>
+% my $var;
 <ol>
 <&| list_items , list => \@items, var => \$var, 'zigmatx' &>
 <li> <% $var %>
 </&>
 </ol>
-
+    <p>tag</moo>
 # relative component paths
 <& topimage &>
 </&>
@@ -55,7 +62,7 @@ my ($text) = m{<$lang>(.*?)</$lang>};
 
 Here is a simple example using the second method:
 
-% my $var;
+% my $var2;
 <ol>
 <&| list_items , list => \@items, var => \$var &>
 <li> <% $var %>
@@ -67,7 +74,7 @@ list_items component:
 <%args>
 @list
 $var
-</%args>
+</%argsx>
 % foreach (@list) {
 % $$var = $_;  # $var is a reference
 <% $m->content %>
@@ -91,10 +98,10 @@ $req->exec;
 
 <%perl>
 my $buffer;
-my $req =
+my $req2 =
     $m->make_subrequest
         ( comp => '/some/comp', args => [ id => 172 ], out_method => \$buffer );
-$req->exec;
+$req2->exec;
 </%perl>
 
 <& header &>
@@ -107,9 +114,9 @@ my $arg = $m->dhandler_arg;                # get rest of path
 my ($section, $story) = split("/", $arg);  # split out pieces
 my $sth = $DBH->prepare
     ("{SELECT headline,body FROM news
-        WHERE section = ? AND story = ?)";
+        WHERE section = ? AND story = ?)",
     (qq({SELECT headline,body FROM news
-        WHERE section = ? AND story = ?));
+        WHERE section = ? AND story = ?)));
 $sth->execute($section, $story);
 my ($headline, $body) = $sth->fetchrow_array;
 return 404 if !$headline;                  # return "not found" if no such story

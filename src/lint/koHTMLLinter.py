@@ -37,7 +37,7 @@
 
 
 from xpcom import components, ServerException
-from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC
+from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC, getProxyForObject
 from koLintResult import KoLintResult
 from koLintResults import koLintResults
 from xpcom.server.enumerator import *
@@ -50,19 +50,13 @@ import process
 
 import logging
 log = logging.getLogger("KoHTMLLinter")
-#log.setLevel(logging.DEBUG)
+log.setLevel(logging.DEBUG)
 
 #---- component implementation
 
-class KoHTMLCompileLinter:
+class _CommonHTMLLinter(object):
     _com_interfaces_ = [components.interfaces.koILinter]
-    _reg_desc_ = "Komodo HTML Tidy Linter"
-    _reg_clsid_ = "{DBF1E5E0-91C7-43da-870B-DB1859017102}"
-    _reg_contractid_ = "@activestate.com/koLinter?language=HTML;1"
-    _reg_categories_ = [
-         ("category-komodo-linter", 'HTML'),
-         ]
-
+    
     def __init__(self):
         self.koDirs = components.classes["@activestate.com/koDirs;1"].\
                       getService(components.interfaces.koIDirs)
@@ -76,15 +70,106 @@ class KoHTMLCompileLinter:
         self._prefProxy = self._proxyMgr.getProxyForObject(None,
             components.interfaces.koIPrefService, self._prefSvc,
             PROXY_ALWAYS | PROXY_SYNC)
+        self._lintersByLangName = {
+            "CSS": components.classes["@activestate.com/koLinter?language=CSS;1"].\
+                            getService(components.interfaces.koILinter),
+            "JavaScript": components.classes["@activestate.com/koLinter?language=JavaScript;1"].\
+                            getService(components.interfaces.koILinter)
+            }
+     
+    _nonNewlineMatcher = re.compile(r'[^\r\n]')
+    def _spaceOutNonNewlines(self, markup):
+        return self._nonNewlineMatcher.sub(' ', markup)
+        
+    def _linterByName(self, langName):
+        if langName not in self._lintersByLangName:
+            try:
+                linter = components.classes["@activestate.com/koLinter?language=%s;1" % langName].\
+                            getService(components.interfaces.koILinter)
+                self._lintersByLangName[langName] = linter
+            except:
+                linter = None
+            self._lintersByLangName[langName] = linter
+        return self._lintersByLangName[langName]
+
+    def _getMappedName(self, name):
+        return self._mappedNames and self._mappedNames.get(name, name) or name
+
+    def _lint_common_html_request(self, request, udlMapping=None):
+        log.debug("udlMapping:%s", udlMapping or "<None>")
+        self._mappedNames = udlMapping
+        koDoc = request.koDoc  # koDoc is a proxied object
+        transitionPoints = koDoc.getLanguageTransitionPoints(0, koDoc.bufferLength)
+        languageNamesAtTransitionPoints = [koDoc.languageForPosition(pt)
+                                           for pt in transitionPoints[:-2]]
+        scimozProxy = getProxyForObject(1,
+                                        components.interfaces.ISciMoz,
+                                        koDoc.getView().scimoz,
+                                        PROXY_ALWAYS | PROXY_SYNC)
+        textAsBytes = scimozProxy.getStyledText(0, koDoc.bufferLength)[0:-1:2]
+        uniqueLanguageNames = dict([(k, None) for k in languageNamesAtTransitionPoints]).keys()
+        log.debug("transitionPoints:%s", transitionPoints)
+        log.debug("uniqueLanguageNames:%s", uniqueLanguageNames)
+        bytesByLang = dict([(k, []) for k in uniqueLanguageNames])
+        lim = len(transitionPoints)
+        endPt = 0
+        htmlAllowedNames = ("HTML", "HTML5", "CSS", "JavaScript")
+        for i in range(1, lim):
+            startPt = endPt
+            endPt = transitionPoints[i]
+            if startPt == endPt:
+                continue
+            currText = textAsBytes[startPt:endPt]
+            langName = self._getMappedName(koDoc.languageForPosition(startPt))
+            log.debug("segment: raw lang name: %s, lang:%s, %d:%d [[%s]]",
+                      koDoc.languageForPosition(startPt),
+                      langName, startPt, endPt, currText)
+            for name in bytesByLang.keys():
+                if (name == langName
+                    or (name.startswith("HTML")
+                        and langName in htmlAllowedNames)):
+                    bytesByLang[name].append(currText)
+                else:
+                    bytesByLang[name].append(self._spaceOutNonNewlines(currText))
+        
+        for name in bytesByLang.keys():
+            bytesByLang[name] = "".join(bytesByLang[name]).rstrip()
+            log.debug("Lint doc(%s):[\n%s\n]", name, bytesByLang[name])
+
+        finalLintResults = koLintResults()
+        for langName, textSubset in bytesByLang.items():
+            linter = self._linterByName(langName)
+            if linter:
+                newLintResults = linter.lint_with_text(request, textSubset)
+                if newLintResults and newLintResults.getNumResults():
+                    if finalLintResults.getNumResults():
+                        finalLintResults = finalLintResults.addResults(newLintResults)
+                    else:
+                        finalLintResults = newLintResults
+            else:
+                pass
+                #log.debug("no linter for %s", langName)
+        return finalLintResults
+            
+
+class KoHTMLCompileLinter(_CommonHTMLLinter):
+    _reg_desc_ = "Komodo HTML Tidy Linter"
+    _reg_clsid_ = "{DBF1E5E0-91C7-43da-870B-DB1859017102}"
+    _reg_contractid_ = "@activestate.com/koLinter?language=HTML;1"
+    _reg_categories_ = [
+         ("category-komodo-linter", 'HTML'),
+         ]
 
     def filterLines(self, lines):
         return lines
 
-    def lint(self, request, argv_additions=None):
-        text = request.content.encode(request.encoding.python_encoding_name)
-        return self.lint_with_text(request, text, argv_additions)
+    def lint(self, request, argv_additions=None, udlMapping=None):
+        #XXX Is the argv_additions ever used?
+        self._argv_additions = argv_additions
+        return self._lint_common_html_request(request, udlMapping)
 
-    def lint_with_text(self, request, text, argv_additions=None):
+    def lint_with_text(self, request, text):
+        argv_additions = getattr(self, '_argv_additions', None)
         cwd = request.cwd
 
         text = eollib.convertToEOLFormat(text, eollib.EOL_LF)
@@ -131,7 +216,7 @@ class KoHTMLCompileLinter:
         cwd = cwd or None
         # Ignore stdout, as tidy dumps a cleaned up version of the input
         # file on it, which we don't care about.
-        log.debug("Running tidy argv: %r", argv)
+        #log.debug("Running tidy argv: %r", argv)
         #print ("Running tidy argv: %s" % (" ".join(argv)))
         p = process.ProcessOpen(argv, cwd=cwd)
         stdout, stderr = p.communicate(text)
@@ -230,8 +315,7 @@ class KoHTMLCompileLinter:
         return results
 
 
-class KoHTML5CompileLinter(KoHTMLCompileLinter):
-    _com_interfaces_ = [components.interfaces.koILinter]
+class KoHTML5CompileLinter(_CommonHTMLLinter):
     _reg_desc_ = "Komodo HTML 5 Tidy Linter"
     _reg_clsid_ = "{06b2f705-849d-462f-aafb-bb2e4dfd6d37}"
     _reg_contractid_ = "@activestate.com/koLinter?language=HTML5;1"
@@ -242,13 +326,11 @@ class KoHTML5CompileLinter(KoHTMLCompileLinter):
     problem_word_ptn = re.compile(r'([ &<]?\w+\W*)$')
     leading_ws_ptn = re.compile(r'(\s+)')
     dictType = type({})
-    def lint(self, request):
-        encoding_name = request.encoding.python_encoding_name
-        return self.lint_with_text(request, request.content.encode(encoding_name))
+
+    def lint(self, request, udlMapping=None):
+        return self._lint_common_html_request(request, udlMapping)
 
     def lint_with_text(self, request, text):
-        if not text.strip():
-            return koLintResults()
         textLines = text.splitlines()
         try:
             inputStream = cStringIO.StringIO(text)
