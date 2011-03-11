@@ -40,8 +40,10 @@
 #
 
 import logging
+from xpcom import components
+from xpcom.server import UnwrapObject
 from koXMLLanguageBase import koXMLLanguageBase
-
+from koLintResults import koLintResults
 
 log = logging.getLogger("koXBLLanguage")
 #log.setLevel(logging.DEBUG)
@@ -67,3 +69,44 @@ class KoXBLLanguage(koXMLLanguageBase):
     namespaces = ["http://www.mozilla.org/xbl"]
 
     searchURL = "http://www.google.com/search?q=site%3Ahttp%3A%2F%2Fdeveloper.mozilla.org%2Fen%2Fdocs%2FXBL%3AXBL_1.0_Reference+%W"
+    
+    def get_linter(self):
+        if not hasattr(self, "_linter"):
+            try:
+                self._linter = self._get_linter_from_lang("XBL")
+            except KeyError:
+                self._linter = None
+        return self._linter
+    
+class KoXBLCompileLinter(object):
+    _com_interfaces_ = [components.interfaces.koILinter]
+    _reg_desc_ = "Komodo XBL Compile Linter"
+    _reg_clsid_ = "{4e023df3-4fda-4c74-abe0-b6623d72862e}"
+    _reg_contractid_ = "@activestate.com/koLinter?language=XBL;1"
+
+    def __init__(self):
+        self._html_linter = components.classes["@activestate.com/koLinter?language=HTML;1"].\
+                            getService(components.interfaces.koILinter)
+        self._js_linter = components.classes["@activestate.com/koLinter?language=JavaScript;1"].\
+                            getService(components.interfaces.koILinter)
+
+    def lint(self, request):
+        try:
+            return UnwrapObject(self._html_linter).lint(request,
+                                                        linters={"JavaScript":self})
+        except:
+            log.exception("Error linting XBL")
+
+    # We can't use standard JS linting to handle XBL methods,
+    # so wrap the JSLinter, and filter out results complaining
+    # about return stmts outside functions.
+    def lint_with_text(self, request, text):
+        #log.debug("XBL text: %s", text)
+        jsResults = self._js_linter.lint_with_text(request, text)
+        #log.debug("XBL lint results: %s",
+        #          [str(x) for x in jsResults.getResults()])
+        fixedResults = koLintResults()
+        for res in jsResults.getResults():
+            if 'return not in function' not in res.description:
+                fixedResults.addResult(res)
+        return fixedResults

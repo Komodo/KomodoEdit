@@ -130,7 +130,19 @@ interface koILinter : nsISupports
     // How the error is handled is up to the caller but the errno may be
     // used to ensure that subsequent errors of the same errno are suppressed
     // (so the user is not unnecessarily innudated).
+
+    // Most linters will call the lint method.
+    // Python code accessing the unwrapped object has three keyword args:
+    // koILintResults lint(in koILintRequest request,
+    //                     in string[] argv_additions, # for htmltidy
+    //                     in dict udlMapping, # eg treat all Ruby code as RHTML
+    //                     # next arg lets us wrap or replace std linters
+    //                     # for sublanguages.
+    //                     in dict {langName => koILinter});
     koILintResults lint(in koILintRequest request);
+
+    // Most linters should also implement a lint_with_text method to do
+    // the actual linting.  This is expected by multi-language document linters.
     koILintResults lint_with_text(in koILintRequest request, in AString text);
 };
 

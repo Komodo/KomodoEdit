@@ -81,7 +81,9 @@ class _CommonHTMLLinter(object):
     def _spaceOutNonNewlines(self, markup):
         return self._nonNewlineMatcher.sub(' ', markup)
         
-    def _linterByName(self, langName):
+    def _linterByName(self, langName, currentLinters):
+        if langName in currentLinters:
+            return currentLinters[langName]
         if langName not in self._lintersByLangName:
             try:
                 linter = components.classes["@activestate.com/koLinter?language=%s;1" % langName].\
@@ -91,13 +93,20 @@ class _CommonHTMLLinter(object):
                 log.error("No linter for language %s", langName)
                 linter = None
             self._lintersByLangName[langName] = linter
+            currentLinters[langName] = linter
         return self._lintersByLangName[langName]
 
     def _getMappedName(self, name):
         return self._mappedNames and self._mappedNames.get(name, name) or name
 
-    def _lint_common_html_request(self, request, udlMapping=None):
+    _cdata_ms_re = re.compile(r'\A(\s*)(<!\[CDATA\[)?(.*?)(\]\]>)?(\s*)\Z', re.DOTALL)
+    def _lint_common_html_request(self, request, udlMapping=None, linters=None):
         self._mappedNames = udlMapping
+        lintersByName = {}
+        # Copy working set of linters into a local var
+        lintersByName.update(self._lintersByLangName)
+        if linters:
+            lintersByName.update(linters)
         koDoc = request.koDoc  # koDoc is a proxied object
         transitionPoints = koDoc.getLanguageTransitionPoints(0, koDoc.bufferLength)
         languageNamesAtTransitionPoints = [koDoc.languageForPosition(pt)
@@ -107,13 +116,20 @@ class _CommonHTMLLinter(object):
                                         koDoc.getView().scimoz,
                                         PROXY_ALWAYS | PROXY_SYNC)
         textAsBytes = scimozProxy.getStyledText(0, koDoc.bufferLength)[0:-1:2]
-        uniqueLanguageNames = dict([(k, None) for k in languageNamesAtTransitionPoints]).keys()
+        uniqueLanguageNames = dict([(k, None) for k in languageNamesAtTransitionPoints])
+        if udlMapping:
+            for targetName in udlMapping.values():
+                try:
+                    uniqueLanguageNames[targetName] = []
+                except TypeError:
+                    log.debug("udlMapping:%s, targetName:%r", udlMapping, targetName)
+        uniqueLanguageNames = uniqueLanguageNames.keys()
         #log.debug("transitionPoints:%s", transitionPoints)
         #log.debug("uniqueLanguageNames:%s", uniqueLanguageNames)
         bytesByLang = dict([(k, []) for k in uniqueLanguageNames])
         lim = len(transitionPoints)
         endPt = 0
-        htmlAllowedNames = ("HTML", "HTML5", "CSS", "JavaScript")
+        htmlAllowedNames = ("HTML", "HTML5", "CSS", "JavaScript", "XML")
         currStartTag = None
         for i in range(1, lim):
             startPt = endPt
@@ -121,13 +137,14 @@ class _CommonHTMLLinter(object):
             if startPt == endPt:
                 continue
             currText = textAsBytes[startPt:endPt]
-            langName = self._getMappedName(koDoc.languageForPosition(startPt))
+            origLangName = koDoc.languageForPosition(startPt)
+            langName = self._getMappedName(origLangName)
             #log.debug("segment: raw lang name: %s, lang:%s, %d:%d [[%s]]",
             #          koDoc.languageForPosition(startPt),
             #          langName, startPt, endPt, currText)
             for name in bytesByLang.keys():
-                if (name == "CSS"
-                    and langName == "CSS"
+                if (origLangName == "CSS"
+                    and langName == name
                     and "{" not in currText):
                     if (i > 0
                         and i < lim - 1
@@ -136,8 +153,21 @@ class _CommonHTMLLinter(object):
                         bytesByLang[name].append("bogusTag { %s }" % currText)
                     else:
                         bytesByLang[name].append(self._spaceOutNonNewlines(currText))
+                elif origLangName == "JavaScript" and langName == name:
+                    # Convert uncommented cdata marked section markers
+                    # into spaces.
+                    # 
+                    m = self._cdata_ms_re.match(currText)
+                    subparts = m.groups()
+                    bytesByLang[name].append(subparts[0])
+                    if subparts[1]:
+                        bytesByLang[name].append(self._spaceOutNonNewlines(subparts[1]))
+                    bytesByLang[name].append(subparts[2])
+                    if subparts[3]:
+                        bytesByLang[name].append(self._spaceOutNonNewlines(subparts[3]))
+                    bytesByLang[name].append(subparts[4])
                 elif (name == langName
-                    or (name.startswith("HTML")
+                    or ((name.startswith("HTML") or name == "XML")
                         and langName in htmlAllowedNames)):
                     bytesByLang[name].append(currText)
                 else:
@@ -149,7 +179,7 @@ class _CommonHTMLLinter(object):
 
         finalLintResults = koLintResults()
         for langName, textSubset in bytesByLang.items():
-            linter = self._linterByName(langName)
+            linter = self._linterByName(langName, lintersByName)
             if linter:
                 try:
                     newLintResults = linter.lint_with_text(request, textSubset)
@@ -159,7 +189,7 @@ class _CommonHTMLLinter(object):
                         else:
                             finalLintResults = newLintResults
                 except AttributeError:
-                    log.error("No lint_with_text method for linter for language %s", langName)
+                    log.exception("No lint_with_text method for linter for language %s", langName)
             else:
                 pass
                 #log.debug("no linter for %s", langName)
@@ -177,10 +207,10 @@ class KoHTMLCompileLinter(_CommonHTMLLinter):
     def filterLines(self, lines):
         return lines
 
-    def lint(self, request, argv_additions=None, udlMapping=None):
+    def lint(self, request, argv_additions=None, udlMapping=None, linters=None):
         #XXX Is the argv_additions ever used?
         self._argv_additions = argv_additions
-        return self._lint_common_html_request(request, udlMapping)
+        return self._lint_common_html_request(request, udlMapping, linters)
 
     def lint_with_text(self, request, text):
         argv_additions = getattr(self, '_argv_additions', None)
@@ -341,8 +371,8 @@ class KoHTML5CompileLinter(_CommonHTMLLinter):
     leading_ws_ptn = re.compile(r'(\s+)')
     dictType = type({})
 
-    def lint(self, request, udlMapping=None):
-        return self._lint_common_html_request(request, udlMapping)
+    def lint(self, request, udlMapping=None, linters=None):
+        return self._lint_common_html_request(request, udlMapping, linters)
 
     def lint_with_text(self, request, text):
         textLines = text.splitlines()

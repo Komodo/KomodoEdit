@@ -199,9 +199,12 @@ class KoPythonCommonLinter(object):
     def lint(self, request):
         encoding_name = request.encoding.python_encoding_name
         text = request.content.encode(encoding_name)
+        return self.lint_with_text(request, text)
+
+    def lint_with_text(self, request, text):
+        encoding_name = request.encoding.python_encoding_name
         cwd = request.cwd
         prefset = request.koDoc.getEffectivePrefs()
-
         try:
             python, pyver = self._getInterpreterAndPyver(prefset)
             if pyver and pyver >= (3,0):

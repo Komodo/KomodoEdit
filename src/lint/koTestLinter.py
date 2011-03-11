@@ -54,8 +54,11 @@ class KoTestLinter:
         pass
 
     def lint(self, request):
-        """Return a list of koILintResult's given a ISciMoz object."""
         text = request.content.encode(request.encoding.python_encoding_name)
+        return self.lint_with_text(request, text)
+        
+    def lint_with_text(self, request, text):
+        """Return a list of koILintResult's given a ISciMoz object."""
         cwd = request.cwd
 
         import re

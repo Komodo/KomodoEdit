@@ -53,14 +53,21 @@ class KoXMLCompileLinter:
     _reg_clsid_ = "{03d1177b-1f08-4218-8f43-ccb88f00f308}"
     _reg_contractid_ = "@activestate.com/koLinter?language=XML;1"
 
+    def __init__(self):
+        self._html_linter = components.classes["@activestate.com/koLinter?language=HTML;1"].\
+                            getService(components.interfaces.koILinter)
+
     def lint(self, request):
+        return self._html_linter.lint(request)
+    
+    def lint_with_text(self, request, text):
         """Lint the given XML content.
         
         Raise an exception and set an error on koLastErrorService if there
         is a problem.
         """
 
-        text = eollib.convertToEOLFormat(request.content, eollib.EOL_LF)
+        text = eollib.convertToEOLFormat(text, eollib.EOL_LF)
         text = text.encode(request.encoding.python_encoding_name)
         cwd = request.cwd
 
@@ -113,4 +120,3 @@ class KoXMLCompileLinter:
             result.severity = result.SEV_ERROR
             results.addResult(result)
         return results
-
