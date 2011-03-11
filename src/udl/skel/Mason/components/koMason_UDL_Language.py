@@ -42,7 +42,6 @@
 import re
 import logging
 from xpcom import components
-from koXMLLanguageBase import koHTMLLanguageBase
 from xpcom.server import UnwrapObject
 from koXMLLanguageBase import koHTMLLanguageBase
 

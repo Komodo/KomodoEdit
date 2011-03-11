@@ -50,7 +50,7 @@ import process
 
 import logging
 log = logging.getLogger("KoHTMLLinter")
-log.setLevel(logging.DEBUG)
+#log.setLevel(logging.DEBUG)
 
 #---- component implementation
 
@@ -88,6 +88,7 @@ class _CommonHTMLLinter(object):
                             getService(components.interfaces.koILinter)
                 self._lintersByLangName[langName] = linter
             except:
+                log.error("No linter for language %s", langName)
                 linter = None
             self._lintersByLangName[langName] = linter
         return self._lintersByLangName[langName]
@@ -96,7 +97,6 @@ class _CommonHTMLLinter(object):
         return self._mappedNames and self._mappedNames.get(name, name) or name
 
     def _lint_common_html_request(self, request, udlMapping=None):
-        log.debug("udlMapping:%s", udlMapping or "<None>")
         self._mappedNames = udlMapping
         koDoc = request.koDoc  # koDoc is a proxied object
         transitionPoints = koDoc.getLanguageTransitionPoints(0, koDoc.bufferLength)
@@ -108,12 +108,13 @@ class _CommonHTMLLinter(object):
                                         PROXY_ALWAYS | PROXY_SYNC)
         textAsBytes = scimozProxy.getStyledText(0, koDoc.bufferLength)[0:-1:2]
         uniqueLanguageNames = dict([(k, None) for k in languageNamesAtTransitionPoints]).keys()
-        log.debug("transitionPoints:%s", transitionPoints)
-        log.debug("uniqueLanguageNames:%s", uniqueLanguageNames)
+        #log.debug("transitionPoints:%s", transitionPoints)
+        #log.debug("uniqueLanguageNames:%s", uniqueLanguageNames)
         bytesByLang = dict([(k, []) for k in uniqueLanguageNames])
         lim = len(transitionPoints)
         endPt = 0
         htmlAllowedNames = ("HTML", "HTML5", "CSS", "JavaScript")
+        currStartTag = None
         for i in range(1, lim):
             startPt = endPt
             endPt = transitionPoints[i]
@@ -121,11 +122,21 @@ class _CommonHTMLLinter(object):
                 continue
             currText = textAsBytes[startPt:endPt]
             langName = self._getMappedName(koDoc.languageForPosition(startPt))
-            log.debug("segment: raw lang name: %s, lang:%s, %d:%d [[%s]]",
-                      koDoc.languageForPosition(startPt),
-                      langName, startPt, endPt, currText)
+            #log.debug("segment: raw lang name: %s, lang:%s, %d:%d [[%s]]",
+            #          koDoc.languageForPosition(startPt),
+            #          langName, startPt, endPt, currText)
             for name in bytesByLang.keys():
-                if (name == langName
+                if (name == "CSS"
+                    and langName == "CSS"
+                    and "{" not in currText):
+                    if (i > 0
+                        and i < lim - 1
+                        and koDoc.languageForPosition(startPt - 1).startswith("HTML")
+                        and koDoc.languageForPosition(endPt).startswith("HTML")):
+                        bytesByLang[name].append("bogusTag { %s }" % currText)
+                    else:
+                        bytesByLang[name].append(self._spaceOutNonNewlines(currText))
+                elif (name == langName
                     or (name.startswith("HTML")
                         and langName in htmlAllowedNames)):
                     bytesByLang[name].append(currText)
@@ -134,18 +145,21 @@ class _CommonHTMLLinter(object):
         
         for name in bytesByLang.keys():
             bytesByLang[name] = "".join(bytesByLang[name]).rstrip()
-            log.debug("Lint doc(%s):[\n%s\n]", name, bytesByLang[name])
+            #log.debug("Lint doc(%s):[\n%s\n]", name, bytesByLang[name])
 
         finalLintResults = koLintResults()
         for langName, textSubset in bytesByLang.items():
             linter = self._linterByName(langName)
             if linter:
-                newLintResults = linter.lint_with_text(request, textSubset)
-                if newLintResults and newLintResults.getNumResults():
-                    if finalLintResults.getNumResults():
-                        finalLintResults = finalLintResults.addResults(newLintResults)
-                    else:
-                        finalLintResults = newLintResults
+                try:
+                    newLintResults = linter.lint_with_text(request, textSubset)
+                    if newLintResults and newLintResults.getNumResults():
+                        if finalLintResults.getNumResults():
+                            finalLintResults = finalLintResults.addResults(newLintResults)
+                        else:
+                            finalLintResults = newLintResults
+                except AttributeError:
+                    log.error("No lint_with_text method for linter for language %s", langName)
             else:
                 pass
                 #log.debug("no linter for %s", langName)

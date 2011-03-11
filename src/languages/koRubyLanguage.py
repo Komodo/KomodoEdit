@@ -1039,6 +1039,10 @@ class KoRubyCompileLinter:
         self.trailing_res['s'] = re.compile(r'(\S?\s*)$')
         
     def lint(self, request):
+        text = request.content.encode(request.encoding.python_encoding_name)
+        return self.lint_with_text(request, text)
+        
+    def lint_with_text(self, request, text):
         """Lint the given Ruby file.
         
         Raise an exception and set an error on koLastErrorService if there
@@ -1046,7 +1050,6 @@ class KoRubyCompileLinter:
         """
         
         prefset = request.koDoc.getEffectivePrefs()
-        text = request.content.encode(request.encoding.python_encoding_name)
         cwd = request.cwd
         
         # Remove a possible "-d" in the shebang line, this will tell Ruby to
