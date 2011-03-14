@@ -1346,8 +1346,21 @@ viewManager.prototype.do_cmd_bufferCloseOthers = function() {
     for (var i = 0; i < views.length; i++) {
         if ((view = views[i]) == currView) {
             continue;
-        } else if (view.getAttribute("type") != "editor") {
+        } else if (view.getAttribute("type") != "editor" || !view.koDoc) {
             continue;
+        } else if (view.koDoc.isUntitled) {
+            if (view.isDirty) {
+                var res = ko.dialogs.yesNoCancel("Save changes to " + view.koDoc.baseName +
+                                                "?");
+                if (res == "Cancel") {
+                    return;
+                } else if (res == "Yes" && ! this.saveAs()) {
+                    return;
+                }
+                view.close(true);
+            } else {
+                view.close();
+            }
         } else {
             filtered_views.push(view);
             urls.push(view.koDoc.file.URI);
