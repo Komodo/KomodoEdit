@@ -208,7 +208,8 @@ this.lintBuffer.prototype.observe = function(subject, topic, data)
         case "python3DefaultInterpreter":
             _log.info("LintBuffer["+this.view.title+
                            "].observed Python pref change, re-linting");
-            if (lintingEnabled && this.view.languageObj.getSubLanguages(count).indexOf("Python") >= 0) {
+            if (lintingEnabled && ((this.view.languageObj.getSubLanguages(count).indexOf("Python") >= 0) ||
+                                   (this.view.languageObj.getSubLanguages(count).indexOf("Django") >= 0))) {
                 this.request();
             }
             break;
