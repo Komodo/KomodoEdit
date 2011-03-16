@@ -798,6 +798,19 @@
                                                     in the file MRU -->
                                     </menupopup>
                             </menu>
+                            <menu
+                                id="menu_mruWindows"
+                                accesskey="&menuMruWindows.accesskey;"
+                                class="menu_mru"
+                                label="&recentWindows.label;">
+                                <menupopup
+                                    id="popup_mruWindows"
+                                    class="popup_mru"
+                                    onpopupshowing="ko.uilayout.updateMRUMenuIfNecessary('window');">
+                                    <!-- menuitems are added dynamically for each entry
+                                                    in the window MRU -->
+                                 </menupopup>
+                            </menu>
 
                             <menuseparator id="file_save_menuseparator"/>
 

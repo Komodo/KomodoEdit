@@ -96,6 +96,7 @@ this._onClose = function(event) {
         return;
     }
     
+    ko.workspace.saveWorkspaceForIdx(ko.main.__koNum);
     // Otherwise, this isn't the last Komodo window, just handle closing
     // this window.
     if (!ko.main.runCanCloseHandlers()) {
@@ -336,7 +337,9 @@ function onloadDelay() {
         if ('arguments' in window && window.arguments && window.arguments[0]) {
             var arg = window.arguments[0];
             if ('workspaceIndex' in arg) {
-                ko.workspace.restoreWorkspaceByIndex(window, arg.workspaceIndex);
+                var thisIndexOnly = ('thisIndexOnly' in arg && arg.thisIndexOnly);
+                ko.workspace.restoreWorkspaceByIndex(window, arg.workspaceIndex,
+                                                     thisIndexOnly);
             } else {
                 // There is no workspace to restore, but init window essentials
                 ko.workspace.initializeEssentials(window);

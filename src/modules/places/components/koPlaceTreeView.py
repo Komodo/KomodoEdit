@@ -1272,6 +1272,10 @@ class KoPlaceTreeView(TreeView):
             return targetNodeLastChildIndex
 
     def closePlace(self):
+        if self._tree is None:
+            # We're closing a window, no point updating the tree,
+            # as it no longer exists.
+            return
         lenBefore = len(self._rows)
         self._rows = []
         self.resetDirectoryWatches()
@@ -1952,8 +1956,9 @@ class KoPlaceTreeView(TreeView):
         else:
             self._refreshTreeOnOpen_buildTree(0, 0, topModelNode)
         after_len = len(self._rows)
-        self._tree.rowCountChanged(0, after_len - before_len)
-        self.invalidateTree()
+        if self._tree:
+            self._tree.rowCountChanged(0, after_len - before_len)
+            self.invalidateTree()
         self.resetDirectoryWatches()
 
     def sortRows(self):

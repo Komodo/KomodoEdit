@@ -434,6 +434,7 @@
 <!ENTITY menuMoveTab.accesskey "M">
 <!ENTITY menuMruFiles.accesskey "F">
 <!ENTITY menuMruProjects.accesskey "t">
+<!ENTITY menuMruWindows.accesskey "w">
 <!ENTITY menuOpenStartPage.accesskey "t">
 <!ENTITY menuPreferences.accesskey "e">
 <!ENTITY menuPrint.accesskey "P">
@@ -562,6 +563,7 @@
 <!ENTITY recentCommands.label "Recent Commands">
 <!ENTITY recentFiles.label "Recent Files">
 <!ENTITY recentProjects.label "Recent Projects">
+<!ENTITY recentWindows.label "Recent Windows">
 <!ENTITY record.label "Record">
 <!ENTITY recordMacro.tooltiptext "Record Macro">
 <!ENTITY redo.label "Redo">

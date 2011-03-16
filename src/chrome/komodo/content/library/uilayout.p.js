@@ -760,8 +760,8 @@ this.updateMRUMenuIfNecessary = function uilayout_UpdateMRUMenuIfNecessary(mru, 
         limit = 0;
     }
     // (Re)build the identified MRU menu if necessary.
-    //    "mru" is either "project" or "file", indicating which MRU menu
-    //        to update.
+    //    "mru" is indicates which MRU menu to update.
+    // Current possible values: project, file, template, window
     if (mru == "project" && _gNeedToUpdateProjectMRUMenu) {
         _updateMRUMenu("mruProjectList", limit,
                        true /* addManageItem */,
@@ -774,8 +774,49 @@ this.updateMRUMenuIfNecessary = function uilayout_UpdateMRUMenuIfNecessary(mru, 
     } else if (mru == "template" && _gNeedToUpdateTemplateMRUMenu) {
         _updateMRUMenu("mruTemplateList", limit);
         _gNeedToUpdateTemplateMRUMenu = false;
+    } else if (mru == "window") { // && _gNeedToUpdateTemplateMRUMenu) {
+        this._updateMRUClosedWindowMenu(limit);
     }
 }
+
+this._updateMRUClosedWindowMenu = function(limit) {
+    var menupopup = document.getElementById('popup_mruWindows');
+    // Wipe out existing menuitems.
+    while (menupopup.firstChild) {
+        menupopup.removeChild(menupopup.firstChild);
+    }
+    this._windowInfoList = ko.workspace.getRecentClosedWindowList();
+    var menuitem;
+    for (var windowNum in this._windowInfoList) {
+        //dump("Found windowNum " + windowNum + " in this._windowInfoList\n");
+        menuitem = document.createElement("menuitem");
+        menuitem.setAttribute("label", ko.uriparse.URIToPath(this._windowInfoList[windowNum].currentFile))
+            menuitem.setAttribute("class", "menuitem_mru");
+        menuitem.setAttribute("crop", "center");
+        menuitem.setAttribute("oncommand",
+                              "ko.uilayout._loadRecentWindow(" + windowNum + ");");
+        menupopup.appendChild(menuitem);
+    }
+    if (menupopup.childNodes.length === 0) {
+        // MRU is empty or does not exist
+        // Add an empty one like this:
+        //    <menuitem label="No Recent Files" disabled="true"/>
+        menuitem = document.createElement("menuitem");
+        menuitem.setAttribute("label", _bundle.formatStringFromName("No Recent.menuitem", [_bundle.GetStringFromName("Windows")], 1));
+        menuitem.setAttribute("disabled", true);
+        menupopup.appendChild(menuitem);
+    }
+}
+
+this._loadRecentWindow = function(window_MRU_Num) {
+    var windowState = this._windowInfoList[window_MRU_Num];
+    delete this._windowInfoList;
+    if (!windowState) {
+        _log.error("_loadRecentWindow: Can't find windowItem " + window_MRU_Num + "\n");
+        return;
+    }
+    ko.launch.newWindowForIndex(windowState.windowNum);
+};
 
 var gUilayout_Observer = null;
 function _Observer ()

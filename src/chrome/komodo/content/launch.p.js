@@ -633,6 +633,15 @@ this.newWindowFromWorkspace = function newWindow(workspaceIndex)
                                 {workspaceIndex: workspaceIndex});
 }
 
+this.newWindowForIndex = function newWindowForIndex(workspaceIndex)
+{
+    ko.windowManager.openDialog("chrome://komodo/content",
+                                "_blank",
+                                "chrome,all,dialog=no",
+                                {workspaceIndex: workspaceIndex,
+                                 thisIndexOnly:true});
+}
+
 this.newTemplate = function newTemplate(obj)
 {
     window.openDialog("chrome://komodo/content/templates/new.xul",

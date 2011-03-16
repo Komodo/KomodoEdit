@@ -2742,7 +2742,7 @@ this.restoreWorkspace = function view_restoreWorkspace(currentWindow)
     // to restore it.
     if (!gPrefs.hasPref(multiWindowWorkspacePrefName) && !gPrefs.hasPref('workspace')) {
         return;
-    } else if (!was_normal_shutdown) {   // Komodo crashed
+    } else if (0 && !was_normal_shutdown) {   // Komodo crashed
         if (gPrefs.getBooleanPref("donotask_restore_workspace") &&
             gPrefs.getStringPref("donotask_action_restore_workspace") == "No") {
             // The user has explictly asked never to restore the workspace.
@@ -2769,12 +2769,49 @@ this.restoreWorkspace = function view_restoreWorkspace(currentWindow)
     var windowWorkspacePref = gPrefs.getPref(multiWindowWorkspacePrefName);
     var checkWindowBounds = _mozPersistPositionDoesNotWork || windowWorkspacePref.hasPref(1);
     this._restoreWindowWorkspace(windowWorkspacePref.getPref(0), currentWindow, checkWindowBounds);
-    if (windowWorkspacePref.hasPref(1)) {
-        ko.launch.newWindowFromWorkspace(1);
+    var nextIdx = this._getNextWorkspaceIndexToRestore(0);
+    if (nextIdx != -1) {
+        ko.launch.newWindowFromWorkspace(nextIdx);
     }
 };
 
-this.restoreWorkspaceByIndex = function(currentWindow, idx)
+this._getNextWorkspaceIndexToRestore = function(currIdx) {
+    var windowWorkspacePref = gPrefs.getPref(multiWindowWorkspacePrefName);
+    var prefIds = {};
+    windowWorkspacePref.getPrefIds(prefIds, {});
+    prefIds = prefIds.value.filter(function(i) i > currIdx);
+    prefIds.sort(function(a, b) { return a - b });
+    //dump("_getNextWorkspaceIndexToRestore(" + currIdx +"): prefIds:" + prefIds + "\n");
+    var lim = prefIds.length;
+    for (var i = 0; i < lim; i++) {
+        var newIdx = prefIds[i];
+        //dump("Try windowWorkspacePref[" + newIdx + "]\n");
+        if (windowWorkspacePref.hasPref(newIdx)) {
+            var workspace = windowWorkspacePref.getPref(newIdx);
+            /*
+            if (!workspace.hasPref('restoreOnRestart')) {
+                dump("!workspace.hasPref('restoreOnRestart')) {\n");
+            } else {
+                dump("workspace.getBooleanPref('restoreOnRestart'): "
+                     + workspace.getBooleanPref('restoreOnRestart')
+                     + ") {\n");
+            }
+            */
+            if (!workspace.hasPref('restoreOnRestart')
+                || workspace.getBooleanPref('restoreOnRestart')) {
+                // dump("**************** Go launch workspace " + newIdx + "\n");
+                return newIdx;
+            }/* else {
+                dump("**************** Don't launch workspace " + newIdx + "\n");
+                }*/
+        }/* else {
+            dump("Not found: windowWorkspacePref.hasPref(" + newIdx + ")\n");
+            }*/
+    }
+    return -1;
+};
+
+this.restoreWorkspaceByIndex = function(currentWindow, idx, thisIndexOnly)
 {
     if (!gPrefs.hasPref(multiWindowWorkspacePrefName)) {
         ko.dialogs.alert("Internal error: \n"
@@ -2785,19 +2822,72 @@ this.restoreWorkspaceByIndex = function(currentWindow, idx)
         return;
     }
     idx = parseInt(idx);
+    //dump("restoreWorkspaceByIndex: set this workspace _koNum to " + idx + "\n");
+    currentWindow._koNum = idx;
     var windowWorkspacePref = gPrefs.getPref('windowWorkspace');
     try {
         this._restoreWindowWorkspace(windowWorkspacePref.getPref(idx), currentWindow, idx > 0 || _mozPersistPositionDoesNotWork);
     } catch(ex) {
         log.exception("Can't restore workspace for window " + idx + ", exception: " + ex);
     }
-    var windowWorkspacePref = gPrefs.getPref(multiWindowWorkspacePrefName);
-    if (windowWorkspacePref.hasPref(idx + 1)) {
-        ko.launch.newWindowFromWorkspace(idx + 1);
+    if (thisIndexOnly) {
+        // _restoreFocusToMainWindow();
+        //dump("**************** restoreWorkspaceByIndex: Don't restore any other windows\n");
     } else {
-        _restoreFocusToMainWindow();
+        var nextIdx = this._getNextWorkspaceIndexToRestore(idx);
+        if (nextIdx != -1) {
+            ko.launch.newWindowFromWorkspace(nextIdx);
+        } else {
+            _restoreFocusToMainWindow();
+        }
     }
 };
+
+this.getRecentClosedWindowList = function() {
+    var windowWorkspacePref = gPrefs.getPref(multiWindowWorkspacePrefName);
+    var prefIds = {};
+    windowWorkspacePref.getPrefIds(prefIds, {});
+    prefIds = prefIds.value.map(function(x) parseInt(x));
+    var loadedWindows = ko.windowManager.getWindows();
+    var loadedIDs = loadedWindows.map(function(w) parseInt(w._koNum));
+    var mruList = [];
+    for (var i = 0; i < prefIds.length; i++) {
+        try {
+            var idx  = prefIds[i];
+            if (loadedIDs.indexOf(idx) != -1) {
+                //dump("Skip window " + idx + " -- it's already loaded\n");
+                continue;
+            }
+            var workspace = windowWorkspacePref.getPref(idx);
+            if (! workspace.hasPref('restoreOnRestart')) {
+                continue;
+            }
+            var restoreOnRestart = workspace.getBooleanPref('restoreOnRestart');
+            if (restoreOnRestart) {
+                continue;
+            }
+            var topview = workspace.getPref("topview");
+            var childState = topview.getPref("childState");
+            var current_view_index = childState.getPref(0).getLongPref("current_view_index");
+            var view_prefs = childState.getPref(0).getPref('view_prefs');
+            var currentFile = view_prefs.getPref(current_view_index).getStringPref("URI");
+            var mru = {
+              windowNum: idx,
+              currentFile: currentFile
+            };
+            if (workspace.hasPref("current_project")) {
+                var current_project = workspace.getStringPref("current_project");
+                if (current_project) {
+                    mru.current_project = current_project;
+                }
+            }
+            mruList.push(mru);
+        } catch(ex) {
+            dump("getRecentClosedWindowList error: " + ex + "\n");
+        }
+    }
+    return mruList;
+}
 
 function _restoreFocusToMainWindow() {
     var windows = ko.windowManager.getWindows();
@@ -2975,6 +3065,96 @@ this.initializeEssentials = function(currentWindow, workspace /*=null*/,
  * uilayout_rightTabBoxSelectedTabId
  */
 
+this._saveWorkspaceForIdx_aux =
+    function _saveWorkspaceForIdx_aux(idx, restoreOnRestart,
+                                      thisWindow, mainWindow,
+                                      windowWorkspace, saveCoordinates) {
+    var workspace = Components.classes['@activestate.com/koPreferenceSet;1'].createInstance();
+    windowWorkspace.setPref(idx, workspace);
+    if (saveCoordinates) {
+        var coordinates = Components.classes['@activestate.com/koPreferenceSet;1'].createInstance();
+        workspace.setPref('coordinates', coordinates);
+        coordinates.setLongPref('windowState', thisWindow.windowState);
+        var docElement = thisWindow.document.documentElement;
+        coordinates.setLongPref('screenX', docElement.getAttribute('screenX'));
+        coordinates.setLongPref('screenY', docElement.getAttribute('screenY'));
+        coordinates.setLongPref('outerHeight', docElement.height);
+        coordinates.setLongPref('outerWidth', docElement.width);
+    }
+    if (restoreOnRestart && thisWindow == mainWindow) {
+        workspace.setBooleanPref('hasFocus', true);
+    }
+    var wko = thisWindow.ko;
+    var pref = wko.projects.manager.getState();
+    if (pref) {
+        workspace.setPref(pref.id, pref);
+        var currentProject = wko.projects.manager.currentProject;
+        if (currentProject) {
+            workspace.setStringPref('current_project', currentProject.url);
+        }
+    }
+    try {
+        if (ko.places.projects.projectsTreeView) {
+            workspace.setLongPref("project_sort_direction", 
+                                  ko.places.projects.projectsTreeView.sortDirection);
+        }
+    } catch(ex) {
+        log.exception("Can't set project tree view sort direction: " + ex);
+    }
+    var ids = ['topview'];
+    var i, elt, id, pref;
+    for (i = 0; i < ids.length; i++) {
+        id = ids[i];
+        elt = thisWindow.document.getElementById(id);
+        if (!elt) {
+            alert(_bundle.formatStringFromName("couldNotFind.alert", [id], 1) );
+        }
+        pref = elt.getState();
+        if (pref) {
+            pref.id = id;
+            workspace.setPref(id, pref);
+        }
+    }
+    wko.uilayout.saveTabSelections(workspace);
+    workspace.setLongPref('windowNum', thisWindow._koNum);
+    workspace.setBooleanPref('restoreOnRestart', restoreOnRestart);
+    // Divide the # of millisec by 1000, or we'll overflow on the setLongPref
+    // conversion to an int.
+    workspace.setLongPref('timestamp', (new Date()).valueOf() / 1000);
+    if (wko.history) {
+        wko.history.save_prefs(workspace);
+    }
+};
+
+this._getWindowWorkspace = function() {
+    if (gPrefs.hasPref(multiWindowWorkspacePrefName)) {
+        return gPrefs.getPref(multiWindowWorkspacePrefName);
+    }
+    var windowWorkspace = Components.classes['@activestate.com/koPreferenceSet;1'].createInstance();
+    gPrefs.setPref(multiWindowWorkspacePrefName, windowWorkspace);
+    return windowWorkspace;    
+}
+
+this.saveWorkspaceForIdx = function saveWorkspaceForIdx(idx) {
+    var mainWindow = ko.windowManager.getMainWindow();
+    var windows = ko.windowManager.getWindows();
+    var windowWorkspace = this._getWindowWorkspace();
+    var saveCoordinates = _mozPersistPositionDoesNotWork || windows.length > 1;
+    try {
+        _saveInProgress = true;
+        var restoreOnRestart = false;
+        var thisWindow = window; // the current window
+        this._saveWorkspaceForIdx_aux(idx, restoreOnRestart,
+                                      thisWindow, mainWindow,
+                                      windowWorkspace, saveCoordinates);
+        gPrefSvc.saveState();
+    } catch (e) {
+        log.exception(e,"Error saving workspace: ");
+    } finally {
+        _saveInProgress = false;
+    }
+};
+
 /**
  * save all workspace preferences and state
  */
@@ -2985,61 +3165,14 @@ this.saveWorkspace = function view_saveWorkspace()
     try {
         var mainWindow = ko.windowManager.getMainWindow();
         var windows = ko.windowManager.getWindows();
-        var windowWorkspace = Components.classes['@activestate.com/koPreferenceSet;1'].createInstance();
-        gPrefs.setPref(multiWindowWorkspacePrefName, windowWorkspace);
+        var that = ko.workspace;
+        var windowWorkspace = that._getWindowWorkspace();
         var saveCoordinates = _mozPersistPositionDoesNotWork || windows.length > 1;
+        var restoreOnRestart = true;
         for (var thisWindow, idx = 0; thisWindow = windows[idx]; idx++) {
-            var workspace = Components.classes['@activestate.com/koPreferenceSet;1'].createInstance();
-            windowWorkspace.setPref(idx, workspace);
-            if (saveCoordinates) {
-                var coordinates = Components.classes['@activestate.com/koPreferenceSet;1'].createInstance();
-                workspace.setPref('coordinates', coordinates);
-                coordinates.setLongPref('windowState', thisWindow.windowState);
-                var docElement = thisWindow.document.documentElement;
-                coordinates.setLongPref('screenX', docElement.getAttribute('screenX'));
-                coordinates.setLongPref('screenY', docElement.getAttribute('screenY'));
-                coordinates.setLongPref('outerHeight', docElement.height);
-                coordinates.setLongPref('outerWidth', docElement.width);
-            }
-            if (thisWindow == mainWindow) {
-                workspace.setBooleanPref('hasFocus', true);
-            }
-            var wko = thisWindow.ko;
-            var pref = wko.projects.manager.getState();
-            if (pref) {
-                workspace.setPref(pref.id, pref);
-                var currentProject = wko.projects.manager.currentProject;
-                if (currentProject) {
-                    workspace.setStringPref('current_project', currentProject.url);
-                }
-            }
-            try {
-                if (ko.places.projects.projectsTreeView) {
-                    workspace.setLongPref("project_sort_direction", 
-                                          ko.places.projects.projectsTreeView.sortDirection);
-                }
-            } catch(ex) {
-                log.exception("Can't set project tree view sort direction: " + ex);
-            }
-            var ids = ['topview'];
-            var i, elt, id, pref;
-            for (i = 0; i < ids.length; i++) {
-                id = ids[i];
-                elt = thisWindow.document.getElementById(id);
-                if (!elt) {
-                    alert(_bundle.formatStringFromName("couldNotFind.alert", [id], 1) );
-                }
-                pref = elt.getState();
-                if (pref) {
-                    pref.id = id;
-                    workspace.setPref(id, pref);
-                }
-            }
-            wko.uilayout.saveTabSelections(workspace);
-            workspace.setLongPref('windowNum', thisWindow._koNum);
-            if (wko.history) {
-                wko.history.save_prefs(workspace);
-            }
+            that._saveWorkspaceForIdx_aux(idx, restoreOnRestart,
+                                          thisWindow, mainWindow,
+                                          windowWorkspace, saveCoordinates);
         }
         // Save prefs
         gPrefSvc.saveState();
