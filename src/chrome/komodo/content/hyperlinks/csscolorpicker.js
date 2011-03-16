@@ -250,4 +250,5 @@ ko.hyperlinks.ColorPickerHandler.rgb2hex = function(rgb_color)
     return match.join('');
 }
 
-ko.hyperlinks.addHandler(new ko.hyperlinks.ColorPickerHandler());
+ko.hyperlinks.handlers.colorPreviewHandler = new ko.hyperlinks.ColorPickerHandler();
+ko.hyperlinks.addHandler(ko.hyperlinks.handlers.colorPreviewHandler);

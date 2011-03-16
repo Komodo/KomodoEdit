@@ -209,7 +209,7 @@ ko.hyperlinks.ImagePreviewHandler.prototype.dwell = function(view, hyperlink)
 
 // XXX: These regex handlers need to become Komodo preference settings.
 
-ko.hyperlinks.addHandler(
+ko.hyperlinks.handlers.imagePreviewHandler = 
     new ko.hyperlinks.ImagePreviewHandler(
         "Image Previewer",
         new RegExp("https?://[^'\"<>()[\\]\\s]+", "i"),
@@ -217,10 +217,12 @@ ko.hyperlinks.addHandler(
         null,  /* Use the found string instead of a replacement. */
         null   /* All language types */,
         Components.interfaces.ISciMoz.INDIC_PLAIN,
-        RGB(0x60,0x90,0xff))
-);
+        RGB(0x60,0x90,0xff));
+ko.hyperlinks.addHandler(ko.hyperlinks.handlers.imagePreviewHandler);
 
-ko.hyperlinks.addHandler(
+
+// Komodo chrome handler - to preview chrome URLs inside of Komodo.
+ko.hyperlinks.handlers.chromePreviewHandler = 
     new ko.hyperlinks.ImagePreviewHandler(
         "Chrome Previewer",
         new RegExp("chrome://[^'\"<>()[\\]\\s]+", "i"),
@@ -228,11 +230,12 @@ ko.hyperlinks.addHandler(
         null,  /* Use the found string instead of a replacement. */
         null   /* All language types */,
         Components.interfaces.ISciMoz.INDIC_PLAIN,
-        RGB(0x60,0x90,0xff))
-);
+        RGB(0x60,0x90,0xff));
+ko.hyperlinks.addHandler(ko.hyperlinks.handlers.chromePreviewHandler);
 
 
-ko.hyperlinks.addHandler(
+// Network protocol handler - opens remote location in Komodo.
+ko.hyperlinks.handlers.networkURIHandler = 
     new ko.hyperlinks.RegexHandler(
         "Other File URIs",
         new RegExp("(ftp?|sftp|scp)://[^'\"<>()[\\]\\s]+", "i"),
@@ -240,10 +243,12 @@ ko.hyperlinks.addHandler(
         null,  /* Use the found string instead of a replacement. */
         null   /* All language types */,
         Components.interfaces.ISciMoz.INDIC_PLAIN,
-        RGB(0x60,0x90,0xff))
-);
+        RGB(0x60,0x90,0xff));
+ko.hyperlinks.addHandler(ko.hyperlinks.handlers.networkURIHandler);
 
-ko.hyperlinks.addHandler(
+
+// Jump to ActiveState bug reference.
+ko.hyperlinks.handlers.activestateBugHandler = 
     new ko.hyperlinks.RegexHandler(
         "ActiveState bugs",
         new RegExp("bug\\s+(\\d{4,5})", "i"),
@@ -251,5 +256,5 @@ ko.hyperlinks.addHandler(
         "http://bugs.activestate.com/show_bug.cgi?id=$1",
         null   /* All language types */,
         Components.interfaces.ISciMoz.INDIC_PLAIN,
-        RGB(0x60,0x90,0xff))
-);
+        RGB(0x60,0x90,0xff));
+ko.hyperlinks.addHandler(ko.hyperlinks.handlers.activestateBugHandler);

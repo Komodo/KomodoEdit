@@ -374,3 +374,8 @@ ko.hyperlinks = {};
     }
 
 }).apply(ko.hyperlinks);
+
+
+// A namespace for handlers to use.
+ko.hyperlinks.handlers = {};
+

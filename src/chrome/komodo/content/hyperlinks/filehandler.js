@@ -159,7 +159,8 @@
         var filepath = match[2];
         filename_jump_handler(filepath);
     }
-    var src_href_handler = new ko.hyperlinks.RegexHandler(
+    ko.hyperlinks.handlers.srcHrefHandler =
+        new ko.hyperlinks.RegexHandler(
                             "Src and Href handler",
                             new RegExp("\\b(src|href)=[\\\"'](.*?)[\\\"']", "i"),
                             src_href_jump_fn,
@@ -167,7 +168,7 @@
                             null,  /* All language types */
                             Components.interfaces.ISciMoz.INDIC_PLAIN,
                             RGB(0x60,0x90,0xff));
-    ko.hyperlinks.addHandler(src_href_handler);
+    ko.hyperlinks.addHandler(ko.hyperlinks.handlers.srcHrefHandler);
 
 
     /**
@@ -177,7 +178,7 @@
      *    C:\foo\bar.txt
      *    \\foo\bar.txt
      */
-    ko.hyperlinks.addHandler(
+    ko.hyperlinks.handlers.fileHandler =
         new ko.hyperlinks.RegexHandler(
             "File handler",
             new RegExp(_is_windows ? "(file:|[\\.]{1,2}/|/|[A-Z]:\\\\|\\\\\\\\)[^'\"<>()[\\]\\s]+"
@@ -187,8 +188,8 @@
             null,  /* Use the found string instead of a replacement. */
             null,  /* All language types */
             Components.interfaces.ISciMoz.INDIC_PLAIN,
-            RGB(0x60,0x90,0xff))
-    );
+            RGB(0x60,0x90,0xff));
+    ko.hyperlinks.addHandler(ko.hyperlinks.handlers.fileHandler);
 
 
     /**
@@ -209,7 +210,8 @@
             jump_to_html_id(ko.views.manager.currentView, id);
         }
     }
-    var javascript_getelementbyid_handler = new ko.hyperlinks.RegexHandler(
+    ko.hyperlinks.handlers.jsGetElementByIdHandler =
+        new ko.hyperlinks.RegexHandler(
             "getElementById handler",
             new RegExp("(getElementById|\\$)\\s*\\(\\s*[\"'](.*?)[\"']", "i"),
             getelementbyid_jump_handler,
@@ -217,9 +219,9 @@
             ["JavaScript"],  /* Just javascript. */
             Components.interfaces.ISciMoz.INDIC_PLAIN,
             RGB(0x60,0x90,0xff));
+    ko.hyperlinks.addHandler(ko.hyperlinks.handlers.jsGetElementByIdHandler);
     // Limit to JavaScript string styles.
-    javascript_getelementbyid_handler.limitToTheseStyles([Components.interfaces.ISciMoz.SCE_UDL_CSL_STRING]);
-    ko.hyperlinks.addHandler(javascript_getelementbyid_handler);
+    ko.hyperlinks.handlers.jsGetElementByIdHandler.limitToTheseStyles([Components.interfaces.ISciMoz.SCE_UDL_CSL_STRING]);
 
 
     /**
@@ -232,7 +234,8 @@
         var filepath = match[3];
         filename_jump_handler(filepath);
     }
-    var php_include_handler = new ko.hyperlinks.RegexHandler(
+    ko.hyperlinks.handlers.phpIncludeHandler =
+        new ko.hyperlinks.RegexHandler(
             "File handler",
             new RegExp("(include|require|include_once|require_once)\\s*(\\(\\s*)?[\"'](.*?)[\"']\\s*\\)?", "i"),
             php_jump_handler,
@@ -240,7 +243,8 @@
             null,  /* All language types */
             Components.interfaces.ISciMoz.INDIC_PLAIN,
             RGB(0x60,0x90,0xff));
-    ko.hyperlinks.addHandler(php_include_handler);
+    ko.hyperlinks.addHandler(ko.hyperlinks.handlers.phpIncludeHandler);
+
 
     /**
      * A Django view/template handler - to help in opening files. Examples:
@@ -260,7 +264,8 @@
         }
         filename_jump_handler(templatepath, alternativePaths);
     }
-    var django_view_handler = new ko.hyperlinks.RegexHandler(
+    ko.hyperlinks.handlers.djangoRenderViewHandler =
+        new ko.hyperlinks.RegexHandler(
             "Django render_to_response handler",
             new RegExp("(render_to_response|render_to_string|template)\\s*(\\(\\s*)?[\"'](.*?)[\"']", "i"),
             django_view_jump_handler,
@@ -268,7 +273,8 @@
             ["Python", "Python3"],  /* Python files only */
             Components.interfaces.ISciMoz.INDIC_PLAIN,
             RGB(0x60,0x90,0xff));
-    ko.hyperlinks.addHandler(django_view_handler);
+    ko.hyperlinks.addHandler(ko.hyperlinks.handlers.djangoRenderViewHandler);
+
 
     /**
      * A Django view/template handler - to help in opening files. Examples:
@@ -288,7 +294,8 @@
         }
         filename_jump_handler(templatepath, alternativePaths);
     }
-    var django_extends_handler = new ko.hyperlinks.RegexHandler(
+    ko.hyperlinks.handlers.djangoExtendsHandler =
+        new ko.hyperlinks.RegexHandler(
             "Django render_to_response handler",
             new RegExp("\\{\\%\\s*extends\\s+[\"'](.*?)[\"']", "i"),
             django_extends_jump_handler,
@@ -296,6 +303,6 @@
             ["Django"],  /* Django files only */
             Components.interfaces.ISciMoz.INDIC_PLAIN,
             RGB(0x60,0x90,0xff));
-    ko.hyperlinks.addHandler(django_extends_handler);
+    ko.hyperlinks.addHandler(ko.hyperlinks.handlers.djangoExtendsHandler);
 
 })();

@@ -434,4 +434,5 @@
 }).apply(ko.hyperlinks);
 
 
-ko.hyperlinks.addHandler(new ko.hyperlinks.GotoDefinitionHandler());
+ko.hyperlinks.handlers.gotoDefinitionHandler = new ko.hyperlinks.GotoDefinitionHandler();
+ko.hyperlinks.addHandler(ko.hyperlinks.handlers.gotoDefinitionHandler);
