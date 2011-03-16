@@ -247,6 +247,19 @@ ko.hyperlinks.handlers.networkURIHandler =
 ko.hyperlinks.addHandler(ko.hyperlinks.handlers.networkURIHandler);
 
 
+// IP address handler - contributed by Trent Mick (Mar 2011).
+ko.hyperlinks.handlers.ipAddressHandler =
+    new ko.hyperlinks.RegexHandler(
+      "IP address",
+      new RegExp("(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})"),
+      ko.browse.openUrlInDefaultBrowser,
+      "http://$1",
+      null,
+      Components.interfaces.ISciMoz.INDIC_PLAIN,
+      RGB(0x60,0x90,0xff));
+ko.hyperlinks.addHandler(ko.hyperlinks.handlers.ipAddressHandler);
+
+
 // Jump to ActiveState bug reference.
 ko.hyperlinks.handlers.activestateBugHandler = 
     new ko.hyperlinks.RegexHandler(
