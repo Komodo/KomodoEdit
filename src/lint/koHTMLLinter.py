@@ -465,26 +465,12 @@ class KoHTML5CompileLinter(_CommonHTMLLinter):
         return results
     
     def _buildErrorMessage(self, errorName, params):
-        if type(params) != self.dictType:
-            if errorName in html5libErrorDict:
-                return "%s: %s" % (html5libErrorDict[errorName], params)
-            return "%s: %s" % (errorName, params)
         if errorName in html5libErrorDict:
-            return html5libErrorDict[errorName] % params
-        if len(items) == 0:
-            if errorName[-1] == ":":
-                return errorName[:-1]
-            else:
-                return errorName
-        if len(items) == 1:
-            k, v = items[0]
-            if k == 'name':
-                return "%s: %s" % (errorName, v)
-            else:
-                return "%s: for %s:%s" % (errorName, k, v)
-        elif len(items) == 2:
-            k1, v1 = items[0]
-            k2, v2 = items[1]
-            if k1 == "expectedName" and k2 == "gotName":
-                return "%s: expected %s, got %s" % (errorName, v1, v2)
-        return "%s: %s" % (errorName, " ;".join(["%s:%s" for k,v in items]))
+            errorTemplate = html5libErrorDict[errorName]
+            try:
+                return errorTemplate % params
+            except (TypeError, KeyError):
+                pass
+        else:
+            errorTemplate = errorName
+        return "%s: %s" % (errorTemplate, params)
