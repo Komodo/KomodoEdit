@@ -38,11 +38,12 @@
 
 from xpcom import components, ServerException
 from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC, getProxyForObject
+from xpcom.server import UnwrapObject
 from koLintResult import KoLintResult
 from koLintResults import koLintResults
 from xpcom.server.enumerator import *
 import os, sys, re
-import cStringIO
+import StringIO  # Do not use cStringIO!  See html5 class for an explanation
 import eollib
 import html5lib
 from html5lib.constants import E as html5libErrorDict
@@ -177,12 +178,26 @@ class _CommonHTMLLinter(object):
             bytesByLang[name] = "".join(bytesByLang[name]).rstrip()
             #log.debug("Lint doc(%s):[\n%s\n]", name, bytesByLang[name])
 
+        python_encoding_name = request.encoding.python_encoding_name
+        if python_encoding_name not in ('ascii', 'utf-8'):
+            charsByLang = {}
+            for name, byteSubset in bytesByLang.items():
+                try:
+                    charsByLang[name] = byteSubset.decode("utf-8").encode(python_encoding_name)
+                except:
+                    log.exception("Can't encode into encoding %s", python_encoding_name)
+                    charsByLang[name] = byteSubset
+        else:
+            charsByLang = bytesByLang
+
         finalLintResults = koLintResults()
-        for langName, textSubset in bytesByLang.items():
+        for langName, textSubset in charsByLang.items():
             linter = self._linterByName(langName, lintersByName)
             if linter:
                 try:
-                    newLintResults = linter.lint_with_text(request, textSubset)
+                    # UnwrapObject so we don't run the textSubset text
+                    # through another xpcom decoder/encoder
+                    newLintResults = UnwrapObject(linter).lint_with_text(request, textSubset)
                     if newLintResults and newLintResults.getNumResults():
                         if finalLintResults.getNumResults():
                             finalLintResults = finalLintResults.addResults(newLintResults)
@@ -377,10 +392,14 @@ class KoHTML5CompileLinter(_CommonHTMLLinter):
     def lint_with_text(self, request, text):
         textLines = text.splitlines()
         try:
-            inputStream = cStringIO.StringIO(text)
+            # Use StringIO, not CStringIO!
+            # CStringIO.StringIO(latin1 str).read() => ucs2 string 
+            # StringIO.StringIO(latin1 str).read() => latin1 string 
+            inputStream = StringIO.StringIO(text)
             parser = html5lib.HTMLParser()
             try:
-                doc = parser.parse(inputStream)
+                doc = parser.parse(inputStream,
+                                   encoding=request.encoding.python_encoding_name)
             finally:
                 inputStream.close()
             errors = parser.errors
