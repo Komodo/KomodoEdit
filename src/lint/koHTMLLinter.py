@@ -111,11 +111,11 @@ class _CommonHTMLLinter(object):
         transitionPoints = koDoc.getLanguageTransitionPoints(0, koDoc.bufferLength)
         languageNamesAtTransitionPoints = [koDoc.languageForPosition(pt)
                                            for pt in transitionPoints[:-2]]
-        scimozProxy = getProxyForObject(1,
-                                        components.interfaces.ISciMoz,
-                                        koDoc.getView().scimoz,
-                                        PROXY_ALWAYS | PROXY_SYNC)
-        textAsBytes = scimozProxy.getStyledText(0, koDoc.bufferLength)[0:-1:2]
+        # We need to lint the utf-8 representation to keep coordinates
+        # in sync with Scintilla
+        # request.content contains a Unicode representation, even if the
+        # buffer's encoding is utf-8 -- content is an AString
+        textAsBytes = request.content.encode("utf-8")
         uniqueLanguageNames = dict([(k, None) for k in languageNamesAtTransitionPoints])
         if udlMapping:
             for targetName in udlMapping.values():
