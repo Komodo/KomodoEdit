@@ -1884,6 +1884,14 @@ class KoPlaceTreeView(TreeView):
             self._addWatchForChanges(dir)
         self._watchedDirectories = openedDirs
 
+    def _sameFiles(self, path1, path2):
+        if os.path.normcase(oldBaseName) == os.path.normcase(newBaseName):
+            return True
+        else:
+            st1 = os.stat(path1)
+            st2 = os.stat(path2)
+            return st1.st_ino != 0 and st1.st_ino == st2.st_ino
+
     def renameItem(self, index, newBaseName, forceClobber):
         rowNode = self._rows[index]
         koFile = rowNode.koFile
@@ -1893,11 +1901,18 @@ class KoPlaceTreeView(TreeView):
         if self.safe_isLocal():
             newPath = os.path.join(dirName, newBaseName)
             if not os.path.exists(newPath):
-                os.rename(path, newPath)
+                shutil.move(path, newPath)
             elif os.path.isdir(newPath):
                 raise ServerException(nsError.NS_ERROR_INVALID_ARG, "renameItem: invalid operation: you can't rename existing directory: %s" % (newPath))
             elif not forceClobber:
                 raise ServerException(nsError.NS_ERROR_INVALID_ARG, "renameItem failure: file %s exists" % newPath)
+            elif os.path.islink(path):
+                raise ServerException(nsError.NS_ERROR_INVALID_ARG,
+                                      "renameItem failure: source file %s is a symbolic link" % (oldBaseName,))
+            elif self._sameFiles(path, newPath):
+                log.debug("Don't rename(%s) => %s", path, newPath)
+                raise ServerException(nsError.NS_ERROR_INVALID_ARG,
+                                      "renameItem failure: file names %s, %s indicate the same file" % (oldBaseName, newBaseName))
             else:
                 try:
                     # Two cases:
@@ -2139,7 +2154,12 @@ class KoPlaceTreeView(TreeView):
 #        RCService = components.classes["@activestate.com/koRemoteConnectionService;1"].\
 #                  getService(components.interfaces.koIRemoteConnectionService)
 #        conn = RCService.getConnectionUsingUri(self._currentPlace_uri)
-        conn = self._RCService.getConnectionUsingUri(self._currentPlace_uri)
+        try:
+            conn = self._RCService.getConnectionUsingUri(self._currentPlace_uri)
+        except COMException:
+            msg = "Failed to connect to %s" % self._currentPlace_uri
+            log.exception("%s", msg)
+            raise Exception(msg)
         try:
             path = uriparse.URIToPath(uri)
             rfi = conn.list(path, True) # Really a stat
