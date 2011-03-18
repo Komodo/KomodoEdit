@@ -440,6 +440,10 @@ class KoPython3InfoEx(KoPythonCommonInfoEx):
     def __init__(self):
         KoPythonCommonInfoEx.__init__(self)
 
+    def get_webHelpURL(self):
+        """Return a web URL for help on this app, else return None."""
+        return "http://docs.activestate.com/activepython/3.1/"
+
 #---- components
 
 class KoRubyInfoEx(KoAppInfoEx):
