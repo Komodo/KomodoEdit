@@ -92,6 +92,17 @@ class DjangoXMLTemplateLangInfo(DjangoTemplateLangInfo):
     }
 
 
+class EpMojoHTMLTemplateLangInfo(LangInfo):
+    #TODO: How to best handle relationship with HTML?
+    #TODO: How to enable detection?
+    name = "ep (Mojo) HTML Template"
+    komodo_name = "EpMojo"
+    conforms_to_bases = ["Text"]
+    # This ext is a Komodo-ism, but helpful for getting codeintel tests
+    # working for Template Toolkit.
+    exts = [".ep"]
+
+
 class MasonHTMLTemplateLangInfo(LangInfo):
     #TODO: How to best handle relationship with HTML?
     #TODO: How to enable detection?
