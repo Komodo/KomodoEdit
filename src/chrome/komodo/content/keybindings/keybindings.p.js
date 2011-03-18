@@ -321,6 +321,8 @@ function cloneObject(what) {
  * the keybinding files in sync as the keybinding system gets changed.
  *
  * Version history:
+ * 28: Komodo 7.0.0a1 - Mac: add "Cmd+Shift+{" and "Cmd+Shift+}" for buffer prev/next.
+ * 27: Komodo 6.1.1 - IDE only change - ignored.
  * 26: Komodo 6.1.0a1 - add cmd_tabAwarePaste (meta+ctrl+v, ctrl+alt+v)
  * 25: Komodo 6.0.0 - drop scc folder commands (IDE-only)
  * 24: Komodo 6.0.0rc1 - additional keybindings for zoom in/out commands
@@ -349,7 +351,7 @@ function cloneObject(what) {
  * 2: Komodo 4.2.0-beta2 and above
  * 1: Komodo 4.2.0-beta1 and before
  */
-const currentKeybindingVersionNumber = 26;
+const currentKeybindingVersionNumber = 28;
 
 /**
  * Remove this dictionary of keybinds.
@@ -809,6 +811,14 @@ this.manager.prototype._upgradeKeybingings = function (from_version,
                 'cmd_tabAwarePaste' : ["Ctrl+Alt+V"]
 // #endif
             });
+            break;
+        case 27:
+// #if PLATFORM == 'darwin'
+            this._add_keybinding_sequences({
+                'cmd_bufferPrevious' : ["Meta+Shift+{"],
+                'cmd_bufferNext' : ["Meta+Shift+}"]
+            });
+// #endif
             break;
         }
         from_version += 1;

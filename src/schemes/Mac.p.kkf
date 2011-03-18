@@ -1,4 +1,4 @@
-version 26
+version 28
 
 binding cmd_back  Shift+Backspace
 binding cmd_backSmart  Backspace
@@ -10,11 +10,13 @@ binding cmd_bookmarkToggle  Meta+F2
 binding cmd_browserPreview Ctrl+K Ctrl+V
 binding cmd_bufferClose Meta+W
 binding cmd_bufferNext  Meta+Page_Down
+binding cmd_bufferNext  Meta+Shift+}
 binding cmd_bufferNextLeastRecent Meta+Shift+F6
 binding cmd_bufferNextMostRecent  Meta+F6
 binding cmd_bufferNextMostRecent  Ctrl+Tab
 binding cmd_bufferNextLeastRecent Ctrl+Shift+Tab
 binding cmd_bufferPrevious Meta+Page_Up
+binding cmd_bufferPrevious Meta+Shift+{
 binding cmd_buffer1 Meta+1
 binding cmd_buffer2 Meta+2
 binding cmd_buffer3 Meta+3

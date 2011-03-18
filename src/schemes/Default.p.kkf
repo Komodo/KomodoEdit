@@ -1,4 +1,4 @@
-version 26
+version 28
 
 # Movement and selection
 binding cmd_left  Left
