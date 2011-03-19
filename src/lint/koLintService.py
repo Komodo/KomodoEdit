@@ -251,6 +251,41 @@ class KoLintService:
         self._prefs = components.classes["@activestate.com/koPrefService;1"].\
             getService(components.interfaces.koIPrefService).prefs
 
+        # dict of { 'terminals' => array of linters, 'aggregators' => array of linters }
+        self._lintersByLanguageName = {}
+        # Init it now, pay the price of walking through the categories now...
+        catman = components.classes["@mozilla.org/categorymanager;1"].\
+            getService(components.interfaces.nsICategoryManager)
+        categoryName = 'category-komodo-linter-aggregator'
+        names = catman.enumerateCategory(categoryName)
+        while names.hasMoreElements():
+            nameObj = names.getNext()
+            nameObj.QueryInterface(components.interfaces.nsISupportsCString)
+            name = nameObj.data
+            cid = catman.getCategoryEntry(categoryName, name)
+            if not self._lintersByLanguageName.has_key(name):
+                self._lintersByLanguageName[name] = {'terminals':[],
+                                                     'aggregator':cid}
+            else:
+                log.warn("Possible Problem: more than one entry for linter aggregator %s (was %s), now %s",
+                         name,
+                         self._lintersByLanguageName[name]['aggregator'],
+                         cid)
+                self._lintersByLanguageName[name]['aggregator'] = cid
+            
+        categoryName = 'category-komodo-linter'
+        names = catman.enumerateCategory(categoryName)
+        while names.hasMoreElements():
+            nameObj = names.getNext()
+            nameObj.QueryInterface(components.interfaces.nsISupportsCString)
+            name = nameObj.data
+            cid = catman.getCategoryEntry(categoryName, name)
+            if not self._lintersByLanguageName.has_key(name):
+                self._lintersByLanguageName[name] = {'terminals':[],
+                                                     'aggregator':None}
+            self._lintersByLanguageName[name]['terminals'].append(cid)
+        
+
     def observe(self, subject, topic, data):
         #print "file status service observed %r %s %s" % (subject, topic, data)
         if topic == 'xpcom-shutdown':
@@ -264,12 +299,26 @@ class KoLintService:
         # Do NOT attempt to .join() the manager thread because it is nigh on
         # impossible to avoid all possible deadlocks.
 
-    def _getLinter(self, linterCID):
+    def _getLinterByLanguageName(self, languageName):
+        try:
+            linters = self._lintersByLanguageName[languageName]
+        except KeyError:
+            self._lintersByLanguageName[languageName] = {'aggregator':None,
+                                                         'terminals':[None]}
+            return None
+        return linters['aggregator'] or linters['terminals'][0]
+        # There's no explicit aggregator, so just return the first item
+        # If there isn't one, throw the ItemError all the way to top-level
+
+    def _getLinter(self, languageName):
         """Return a koILinter XPCOM component of the given linterCID.
         
         This method cache's linter instances. If there is no such linter
         then an exception is raised.
+
+        Note that aggregators are favored over terminal linters.
         """
+        linterCID = self._getLinterByLanguageName(languageName)
         if linterCID not in self._linterCache:
             if linterCID not in components.classes.keys():
                 linter = None
@@ -435,6 +484,11 @@ class KoLintService:
                         #    be passed in, but linters don't support this yet.
                         log.debug("manager thread: call linter.lint(request)")
                         results = request.linter.lint(request)
+                        # This makes a red statusbar icon go green, but it
+                        # might not be what we always want.
+                        # Needs more investigation.
+                        #if results is None:
+                        #   results = koLintResults() 
                         log.debug("manager thread: linter.lint(request) returned")
                     if TIME_LINTS: endlintlint = time.clock()
 

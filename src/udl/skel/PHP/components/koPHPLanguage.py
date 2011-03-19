@@ -130,9 +130,6 @@ echo $foo1->mul()."";
             self._commenter = None
 	else:
 	    KoUDLLanguage.observe(self, subject, topic, data)
-            
-    def get_linter(self):
-        return self._get_linter_from_lang("PHP")
 
     def get_interpreter(self):
         if self._interpreter is None:

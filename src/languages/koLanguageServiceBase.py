@@ -289,22 +289,6 @@ class KoLexerLanguageService:
 
         for prop in self._properties.keys():
             scimoz.setProperty(prop, self._properties[prop])
-    
-class KoLinterLanguageService:
-    """Just a way to get the contract IDs used by koLintService"""
-    _com_interfaces_ = [components.interfaces.koILinterLanguageService]
-
-    def __init__(self, linterCID):
-        # this argument-laden constructor should go away --
-        # not portable to other languages.
-        self._linterCID = linterCID
-
-    def __str__(self):
-        return "<koLanguageServiceBase.KoLinterLanguageService instance:%s>" % self._linterCID
-
-    def get_linterCID(self):
-        return self._linterCID
-
 
 #---- base commenting language service classes
 def getActualStyle(scimoz, pos):
@@ -1065,7 +1049,6 @@ class KoLanguageBase:
     
     _svcdict = {
         components.interfaces.koILexerLanguageService: 'get_lexer',
-        components.interfaces.koILinterLanguageService: 'get_linter',
         components.interfaces.koICompletionLanguageService: 'get_completer',
         components.interfaces.koICodeIntelCompletionLanguageService: 'get_codeintelcompleter',
         components.interfaces.koICommenterLanguageService: 'get_commenter',
@@ -1217,18 +1200,6 @@ class KoLanguageBase:
             self._lexer = KoLexerLanguageService()
             self._lexer.setLexer(components.interfaces.ISciMoz.SCLEX_NULL)
         return self._lexer
-
-    # protected
-    def _get_linter_from_lang(self, language):
-        if not hasattr(self, "_linter"):
-            try:
-                self._linter = KoLinterLanguageService("@activestate.com/koLinter?language=%s;1" % language)
-            except ServerException:
-                self._linter = None
-        return self._linter
-
-    def get_linter(self):
-        return self._get_linter_from_lang(self.name)
 
     def get_foldable(self):
         lexer = self.get_lexer()

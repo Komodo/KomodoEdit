@@ -195,17 +195,6 @@ class KoTemplateToolkitLanguage(koHTMLLanguageBase):
                 i += 1
         return delta, numTags
 
-    def get_linter(self):
-        # Maybe I can get the ttkt processor to process a template,
-        # but for now, treat everything like HTML
-        if not hasattr(self, "_linter"):
-            try:
-                self._linter = self._get_linter_from_lang(self.name)
-            except:
-                log.exception("problem getting linter")
-                self._linter = None
-        return self._linter
-
 class KoTemplateToolkitLinter(object):
     _com_interfaces_ = [components.interfaces.koILinter]
     _reg_desc_ = "TemplateToolkit Template Linter"

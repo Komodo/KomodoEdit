@@ -62,9 +62,6 @@ class koXMLLanguageBase(KoUDLLanguage):
         KoUDLLanguage.__init__(self)
         self.softchar_accept_matching_single_quote = self._filter_quotes_in_plaintext_context
         self.softchar_accept_matching_double_quote = self._filter_quotes_in_plaintext_context
-        
-    def get_linter(self):
-        return self._get_linter_from_lang("XML")
 
     def getEncodingWarning(self, encoding):
         if not encoding.use_byte_order_marker:
@@ -250,9 +247,6 @@ class koXMLLanguageBase(KoUDLLanguage):
 class koHTMLLanguageBase(koXMLLanguageBase):
     isHTMLLanguage = True
     
-    def get_linter(self):
-        return self._get_linter_from_lang("HTML")
-    
     def softchar_accept_styled_chars(self, scimoz, pos, style_info, candidate, constraints):
         """This method is used by some of the UDL languages to figure out
         when to generate a soft character based on typed text. Typical examples
@@ -400,4 +394,22 @@ def classifyws(s, tabwidth):
         else:
             break
     return raw, effective, foundTabs
+
+class KoGenericXMLLinter(object):
+    """
+    Moving from the get_linter mechanism to categories means that
+    we can't delegate any more.  Instead, XML-based linters define
+    their own XPCOM stuff, but subclass this class, and work fine.
+    """
+    _com_interfaces_ = [components.interfaces.koILinter]
+    
+    def __init__(self):
+        self._xml_linter = components.classes["@activestate.com/koLinter?language=XML;1"].\
+                           getService(components.interfaces.koILinter)
+    
+    def lint(self, request):
+        return self._xml_linter.lint(request)
+
+    def lint_with_text(self, request, text):
+        return self._xml_linter.lint_with_text(request, text)
 

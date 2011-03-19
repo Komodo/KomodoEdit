@@ -193,11 +193,6 @@ class KoMasonLanguage(koHTMLLanguageBase):
         # HTML auto-indenter botch things up.
         return self._getRawIndentForLine(scimoz, curLineNo)
 
-    def get_linter(self):
-        if not hasattr(self, "_linter"):
-            self._linter = self._get_linter_from_lang(self.name)
-        return self._linter
-
 class KoMasonLinter(object):
     _com_interfaces_ = [components.interfaces.koILinter]
     _reg_desc_ = "Mason Template Linter"

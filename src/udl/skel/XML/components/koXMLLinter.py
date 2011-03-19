@@ -52,6 +52,9 @@ class KoXMLCompileLinter:
     _reg_desc_ = "Komodo XML Compile Linter"
     _reg_clsid_ = "{03d1177b-1f08-4218-8f43-ccb88f00f308}"
     _reg_contractid_ = "@activestate.com/koLinter?language=XML;1"
+    _reg_categories_ = [
+         ("category-komodo-linter", 'XML'),
+         ]
 
     def __init__(self):
         self._html_linter = components.classes["@activestate.com/koLinter?language=HTML;1"].\

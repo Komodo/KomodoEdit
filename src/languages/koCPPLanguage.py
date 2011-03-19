@@ -247,6 +247,9 @@ class KoCPPCompileLinter:
     _reg_desc_ = "Komodo CPP Linter"
     _reg_clsid_ = "{e9046284-6db1-4e17-8d28-4c5f0c688dd8}"
     _reg_contractid_ = "@activestate.com/koLinter?language=CPP;1"
+    _reg_categories_ = [
+         ("category-komodo-linter", 'CPP'),
+         ]
 
     def __init__(self):
         self.appInfoEx = components.classes["@activestate.com/koAppInfoEx?app=CPP;1"].\

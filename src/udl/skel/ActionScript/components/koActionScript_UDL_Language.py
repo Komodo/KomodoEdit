@@ -75,11 +75,6 @@ class KoActionScriptLanguage(KoUDLLanguage):
     namedBlockRE = r'^[ |\t]*?(?:([\w|\.|_]*?)\s*=\s*function|function\s*([\w|\_]*?)|([\w|\_]*?)\s*:\s*function).*?$'
     supportsSmartIndent = "brace"
     
-    # Bypass KoUDLLanguage.get_linter, which doesn't know how to find
-    # the ActionScript linter.  The base class does.
-    # Fixes Bug 74835
-    get_linter = KoLanguageBase.get_linter
-
     sample = """function chkrange(elem,minval,maxval) {
     // Comment
     if (elem.value < minval - 1 ||
@@ -131,7 +126,9 @@ class koActionScriptLinter:
     _reg_desc_ = "Komodo ActionScript MTASC Linter"
     _reg_clsid_ = "{50bc6a5c-950f-4b94-8d5a-194524d41f85}"
     _reg_contractid_ = "@activestate.com/koLinter?language=ActionScript;1"
-    _reg_categories_ = [ ("komodo-linter", "ActionScript MTASC Linter"), ]
+    _reg_categories_ = [ 
+         ("category-komodo-linter", 'ActionScript'),
+         ("komodo-linter", "ActionScript MTASC Linter"), ]
 
     def __init__(self):
         log.debug("Created the ActionScript Linter object")
@@ -152,13 +149,21 @@ class koActionScriptLinter:
 
     def lint(self, request):
         text = request.content.encode(request.encoding.python_encoding_name)
-        cwd = request.cwd
         prefset = request.koDoc.getEffectivePrefs()
         ascExe = self._getInterpreter(prefset)
         if ascExe is None:
+            lintResults = koLintResults()
+            lr = KoLintResult()
+            lr.description = "Can't find an ActionScript interpreter"
+            lr.lineStart = lr.lineEnd = 1
+            lr.columnStart = 1
+            lr.columnEnd = 1 + len(text.splitlines()[0])
+            lr.severity = KoLintResult.SEV_WARNING
+            lintResults.addResult(lr)
             log.debug('no interpreter')
-            return
+            return lintResults
         tmpFileName = None
+        cwd = request.cwd
         if cwd:
             tmpFileName = os.path.join(cwd,
                                        "tmp_ko_aslint_ko%s.as" % (self._koVer.replace(".","_").replace("-","_")))

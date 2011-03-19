@@ -1008,6 +1008,9 @@ class KoRubyCompileLinter:
     _reg_desc_ = "Komodo Ruby Linter"
     _reg_clsid_ = "{9efff282-9919-4575-8c89-4a1e57512c97}"
     _reg_contractid_ = "@activestate.com/koLinter?language=Ruby;1"
+    _reg_categories_ = [
+         ("category-komodo-linter", 'Ruby'),
+         ]
 
     def __init__(self):
         # From the Perl Linter

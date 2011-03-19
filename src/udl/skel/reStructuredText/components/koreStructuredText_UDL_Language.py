@@ -26,9 +26,6 @@ class KoReStructuredTextLanguage(KoUDLLanguage):
     lang_from_udl_family = {'CSL': name, 'TPL': name, 'M': 'HTML', 'CSS': 'CSS', 'SSL': 'Python'}
     _total_string_styles = None
     
-    def get_linter(self):
-        return None
-
     def getStringStyles(self):
         if self._total_string_styles is None:
             scin = components.interfaces.ISciMoz

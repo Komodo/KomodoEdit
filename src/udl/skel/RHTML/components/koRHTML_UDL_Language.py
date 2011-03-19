@@ -237,11 +237,6 @@ class KoRHTMLLanguage(koHTMLLanguageBase):
 		i += 1
         return delta, numTags
 
-    def get_linter(self):
-        if not hasattr(self, "_linter"):
-            self._linter = self._get_linter_from_lang(self.name)
-        return self._linter
-
 class KoRHTMLLinter(object):
     _com_interfaces_ = [components.interfaces.koILinter]
     _reg_desc_ = "RHTML Template Linter"

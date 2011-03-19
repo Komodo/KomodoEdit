@@ -37,7 +37,7 @@
 
 from xpcom import components
 from koLanguageServiceBase import *
-from koXMLLanguageBase import koXMLLanguageBase
+from koXMLLanguageBase import koXMLLanguageBase, KoGenericXMLLinter
 
 import os
 import logging
@@ -85,3 +85,11 @@ class koXSLTLanguage(koXMLLanguageBase):
 
 """
 
+
+class KoXSLTCompileLinter(KoGenericXMLLinter):
+    _reg_desc_ = "Komodo XSLT Compile Linter"
+    _reg_clsid_ = "{390b2ce2-9df8-41a7-8e35-d2a4d76618d6}"
+    _reg_contractid_ = "@activestate.com/koLinter?language=XSLT;1"
+    _reg_categories_ = [
+         ("category-komodo-linter", 'XSLT'),
+         ]

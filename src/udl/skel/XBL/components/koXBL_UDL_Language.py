@@ -70,19 +70,14 @@ class KoXBLLanguage(koXMLLanguageBase):
 
     searchURL = "http://www.google.com/search?q=site%3Ahttp%3A%2F%2Fdeveloper.mozilla.org%2Fen%2Fdocs%2FXBL%3AXBL_1.0_Reference+%W"
     
-    def get_linter(self):
-        if not hasattr(self, "_linter"):
-            try:
-                self._linter = self._get_linter_from_lang("XBL")
-            except KeyError:
-                self._linter = None
-        return self._linter
-    
 class KoXBLCompileLinter(object):
     _com_interfaces_ = [components.interfaces.koILinter]
     _reg_desc_ = "Komodo XBL Compile Linter"
     _reg_clsid_ = "{4e023df3-4fda-4c74-abe0-b6623d72862e}"
     _reg_contractid_ = "@activestate.com/koLinter?language=XBL;1"
+    _reg_categories_ = [
+         ("category-komodo-linter", 'XBL'),
+         ]
 
     def __init__(self):
         self._html_linter = components.classes["@activestate.com/koLinter?language=HTML;1"].\

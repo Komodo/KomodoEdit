@@ -339,8 +339,9 @@ try {
     var checkWidget = document.getElementById('statusbar-check');
 
     // Only have linting for some view types (currently only 'editor').
-    if (typeof(view.lintBuffer) == "undefined" || !view.lintBuffer)
-    {
+    if (typeof(view.lintBuffer) == "undefined"
+        || !view.lintBuffer
+        || !view.lintBuffer.canLintLanguage()) {
         checkWidget.setAttribute('collapsed', 'true');
         checkWidget.setAttribute("tooltiptext",
                 _bundle.GetStringFromName("syntaxCheckingStatus.tooltip"));

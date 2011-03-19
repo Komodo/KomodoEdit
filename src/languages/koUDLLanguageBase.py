@@ -420,14 +420,6 @@ class KoUDLLanguage(KoLanguageBase):
                 # continue to next language
                 log.exception(e)
         return None
-        
-    def get_linter(self):
-        # default linter is always markup language linter, followed by ssl
-        if not hasattr(self, "_linter"):
-            lang_to_try = [self.lang_from_udl_family.get("M", None),
-                           self.lang_from_udl_family.get("SSL", None)]
-            self._linter = self.getDefaultService(lang_to_try, components.interfaces.koILinterLanguageService)
-        return self._linter
 
     def get_interpreter(self):
         if self._interpreter is None:

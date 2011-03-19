@@ -26,9 +26,6 @@ class KoTracWikiLanguage(KoUDLLanguage):
 
     lang_from_udl_family = {'CSS': name, 'TPL': name, 'M': 'HTML', 'CSL': 'JavaScript', 'SSL': 'Python'}
     
-    def get_linter(self):
-        return None
-
     def getStringStyles(self):
         if self._total_string_styles is None:
             scin = components.interfaces.ISciMoz

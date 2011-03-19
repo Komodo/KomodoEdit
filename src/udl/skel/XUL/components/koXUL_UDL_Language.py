@@ -40,7 +40,7 @@
 #
 
 import logging
-from koXMLLanguageBase import koXMLLanguageBase
+from koXMLLanguageBase import koXMLLanguageBase, KoGenericXMLLinter
 
 
 log = logging.getLogger("koXULLanguage")
@@ -67,3 +67,11 @@ class KoXULLanguage(koXMLLanguageBase):
     namespaces = ["http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"]
 
     searchURL = "http://www.google.com/search?q=site%3Ahttp%3A%2F%2Fdeveloper.mozilla.org%2Fen%2Fdocs%2FXUL+%W"
+
+class KoXULCompileLinter(KoGenericXMLLinter):
+    _reg_desc_ = "Komodo XUL Compile Linter"
+    _reg_clsid_ = "{c097c54e-847b-42aa-81c0-3de0a71bcd08}"
+    _reg_contractid_ = "@activestate.com/koLinter?language=XUL;1"
+    _reg_categories_ = [
+         ("category-komodo-linter", 'XUL'),
+         ]

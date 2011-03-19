@@ -112,6 +112,8 @@ class _CommonHTMLLinter(object):
         transitionPoints = koDoc.getLanguageTransitionPoints(0, koDoc.bufferLength)
         languageNamesAtTransitionPoints = [koDoc.languageForPosition(pt)
                                            for pt in transitionPoints[:-2]]
+        if not languageNamesAtTransitionPoints:
+            languageNamesAtTransitionPoints = [koDoc.languageForPosition(0)]
         # We need to lint the utf-8 representation to keep coordinates
         # in sync with Scintilla
         # request.content contains a Unicode representation, even if the

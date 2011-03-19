@@ -85,7 +85,7 @@ var _log = ko.logging.getLogger("lint");
 var _prefs = Components.classes["@activestate.com/koPrefService;1"].
                         getService(Components.interfaces.koIPrefService).prefs;
 
-
+var _linterLanguageNames = {};
 //---- The new LintBuffer class (replacement for jsLintBuffer)
 //
 // There is one of these for each Komodo 'editor' view. It is responsible
@@ -355,13 +355,17 @@ this.lintBuffer.prototype._issueRequest = function()
 {
     _log.info("LintBuffer["+this.view.title+"]._issueRequest()");
     try {
-        var linterCID = this._getLinterCID();
-        var lr = this._createLintRequest(linterCID);
+        var linterLanguageName = this._getLinterLanguageName();
+        if (linterLanguageName === null) {
+            // No linter for this language.
+            return;
+        }
+        var lr = this._createLintRequest(linterLanguageName);
         _lintSvc.addRequest(lr);
         this._cancelDelayedRequest();
     } catch(ex) {
         if (ex.message.indexOf("Internal Error creating a linter with CID") >= 0) {
-            _log.debug("No linter for component " + linterCID);
+            _log.debug("No linter for component " + linterLanguageName);
         } else {
             _log.exception(ex);
         }
@@ -511,25 +515,31 @@ this.lintBuffer.prototype._colouriseIfNecessary = function(view) {
     scimoz.colourise(pos, bufferLength);
 }
 
-// Return an appropriate koILinter contract ID for the current language.
-// If there isn't one, return null.
-this.lintBuffer.prototype._getLinterCID = function()
+// If the current doc's language defines a terminal linter, return the
+// name of the language.  Otherwise return null.
+this.lintBuffer.prototype._getLinterLanguageName = function()
 {
-    _log.debug("LintBuffer["+this.view.title+"]._getLinterCID()");
-    try {
-        var cid = null;
-        var linterLanguageService = this.view.koDoc.languageObj.
-            getLanguageService(Components.interfaces.koILinterLanguageService);
-        if (linterLanguageService) {
-            cid = linterLanguageService.linterCID;
-        }
-        return cid;
-    } catch(ex) {
-        _log.exception(ex);
+    var languageName = this.view.koDoc.language;
+    if (!(languageName in _linterLanguageNames)) {
+        var catman = Components.classes["@mozilla.org/categorymanager;1"].
+            getService(Components.interfaces.nsICategoryManager);
+        var res = null;
+        try {
+            var cid = catman.getCategoryEntry('category-komodo-linter', languageName);
+            if (cid) {
+                res = languageName;
+            }
+        } catch(ex) {}
+        _linterLanguageNames[languageName] = res;
     }
-    return null;
+    return _linterLanguageNames[languageName];
 }
 
+this.lintBuffer.prototype.canLintLanguage = function() {
+    var languageName = this.view.koDoc.language;
+    return (languageName in _linterLanguageNames
+            && _linterLanguageNames[languageName] !== null);
+}
 
 
 //---- public lint interface

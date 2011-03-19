@@ -101,11 +101,6 @@ Inline perl:   <% Inline Perl %>, and continue...
         self._indent_open_chars = u'{'
         self._indent_close_chars = u'}'
 
-    def get_linter(self):
-        if not hasattr(self, "_linter"):
-            self._linter = self._get_linter_from_lang(self.name)
-        return self._linter
-
 class KoEpMojoLinter():
     _com_interfaces_ = [components.interfaces.koILinter]
     _reg_desc_ = "epMojo Template Linter"

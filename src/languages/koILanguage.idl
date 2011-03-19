@@ -231,13 +231,6 @@ interface koILexerLanguageService : koILanguageService {
     attribute boolean supportsFolding;
 };
 
-[scriptable, uuid(05EF3D38-FB71-4a98-ABB8-7348582F277A)]
-interface koILinterLanguageService : koILanguageService {
-    // The contract ID of an XPCOM component implementing koILinter for this
-    // language.
-    readonly attribute string linterCID;
-};
-
 [scriptable, uuid(8741C2BB-3FA2-4fc1-B737-60447CE8AD6D)]
 interface koICompletionLanguageService : koILanguageService {
     readonly attribute wstring triggers; // actually a set of characters

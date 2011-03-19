@@ -48,15 +48,7 @@ import logging
 log = logging.getLogger("koXPCShellLinter")
 #log.setLevel(logging.DEBUG)
 
-class KoXPCShellLinter:
-    _com_interfaces_ = [components.interfaces.koILinter]
-    _reg_desc_ = "Komodo XPCShell JavaScript Linter"
-    _reg_clsid_ = "{111FBEA1-7CA3-4858-B040-E51CF5A20CE9}"
-    _reg_contractid_ = "@activestate.com/koLinter?language=JavaScript;1"
-    _reg_categories_ = [
-         ("category-komodo-linter", 'JavaScript'),
-         ]
-
+class CommonJSLinter(object):
     _is_macro_re = re.compile("macro2?://")
     def __init__(self):
         self.infoSvc = components.classes["@activestate.com/koInfoService;1"].\
@@ -70,9 +62,8 @@ class KoXPCShellLinter:
                     components.interfaces.koIPrefService, prefSvc,
                     PROXY_ALWAYS | PROXY_SYNC)
 
-    def lint(self, request, text=None):
-        if text is None:
-            text = request.content.encode(request.encoding.python_encoding_name)
+    def lint(self, request):
+        text = request.content.encode(request.encoding.python_encoding_name)
         return self.lint_with_text(request, text)
 
     def lint_with_text(self, request, text):
@@ -223,6 +214,15 @@ class KoXPCShellLinter:
         return results
 
 
+class KoXPCShellLinter(CommonJSLinter):
+    _com_interfaces_ = [components.interfaces.koILinter]
+    _reg_desc_ = "Komodo XPCShell JavaScript Linter"
+    _reg_clsid_ = "{111FBEA1-7CA3-4858-B040-E51CF5A20CE9}"
+    _reg_contractid_ = "@activestate.com/koLinter?language=JavaScript;1"
+    _reg_categories_ = [
+         ("category-komodo-linter", 'JavaScript'),
+         ]
+
 class KoJSONLinter(KoXPCShellLinter):
     language = "JSON"
     _com_interfaces_ = [components.interfaces.koILinter]
@@ -233,6 +233,5 @@ class KoJSONLinter(KoXPCShellLinter):
          ("category-komodo-linter", language),
          ]
 
-    def lint(self, request):
-        text = "var x = " + request.content.encode(request.encoding.python_encoding_name)
-        return KoXPCShellLinter.lint(self, request, text)
+    def lint_with_text(self, request, text):
+        return KoXPCShellLinter.lint_with_text(self, request, "var x = " + text)

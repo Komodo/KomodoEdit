@@ -40,7 +40,8 @@
 #
 
 import logging
-from koXMLLanguageBase import koXMLLanguageBase
+from xpcom import components
+from koXMLLanguageBase import koXMLLanguageBase, KoGenericXMLLinter
 
 
 log = logging.getLogger("koMXMLLanguage")
@@ -66,3 +67,11 @@ class KoMXMLLanguage(koXMLLanguageBase):
                   "http://www.macromedia.com/2003/mxml"]
     namespaces = ["http://www.adobe.com/2006/mxml",
                   "http://www.macromedia.com/2003/mxml"]
+
+class KoMXMLCompileLinter(KoGenericXMLLinter):
+    _reg_desc_ = "Komodo MXML Compile Linter"
+    _reg_clsid_ = "{85d92de0-f7d6-4c33-8736-dcb8ea9b6a41}"
+    _reg_contractid_ = "@activestate.com/koLinter?language=MXML;1"
+    _reg_categories_ = [
+         ("category-komodo-linter", 'MXML'),
+         ]
