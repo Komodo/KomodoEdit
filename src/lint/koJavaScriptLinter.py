@@ -45,7 +45,7 @@ import tempfile
 import process
 
 import logging
-log = logging.getLogger("koXPCShellLinter")
+log = logging.getLogger("koJavaScriptLinter")
 #log.setLevel(logging.DEBUG)
 
 class CommonJSLinter(object):
