@@ -1507,7 +1507,7 @@ class TextPhase(Phase):
     
     def processEOF(self):
         self.parser.parseError("expected-named-closing-tag-but-got-eof", 
-                               self.tree.openElements[-1].name)
+                               {'name' : self.tree.openElements[-1].name})
         self.tree.openElements.pop()
         self.parser.phase = self.parser.originalPhase
         self.parser.phase.processEOF()
