@@ -194,3 +194,32 @@ class remoteInfoTests(unittest.TestCase):
                     "Incorrect isFile: '%r'" % (fileinfo.isFile(),))
 
 
+    @tag("bug88866")
+    def test_french_format(self):
+        # French file listing
+        folder_listing   = 'drwxr-xr-x   3 root root  4096 26 fév 22:00 boot'
+        fileinfo = self._makeKoRemoteFileInfo()
+        self.failIf(fileinfo.initFromDirectoryListing("testingdir", folder_listing) != True,
+                    "Could not parse directory listing: %r" % (folder_listing, ))
+        self.failIf(fileinfo.getFilename() != 'boot',
+                    "Incorrect filename: %r != 'boot'" % (fileinfo.getFilename(), ))
+        self.failIf(fileinfo.isDirectory() != True,
+                    "Incorrect isDirectory: '%r'" % (fileinfo.isDirectory(),))
+        self.failIf(fileinfo.isExecutable() != True,
+                    "Incorrect isExecutable: '%r'" % (fileinfo.isExecutable(),))
+        self.failIf(fileinfo.isFile() != False,
+                    "Incorrect isFile: '%r'" % (fileinfo.isFile(),))
+
+        symlink_listing   = 'lrwxrwxrwx   1 root root    25 17 sep  2009 vmlinuz.old -> boot/vmlinuz-2.6.26-2-686'
+        fileinfo = self._makeKoRemoteFileInfo()
+        self.failIf(fileinfo.initFromDirectoryListing("testingdir", symlink_listing) != True,
+                    "Could not parse symlink listing: %r" % (symlink_listing, ))
+        self.failIf(fileinfo.getFilename() != 'vmlinuz.old',
+                    "Incorrect filename: %r != 'vmlinuz.old'" % (fileinfo.getFilename(), ))
+        self.failIf(fileinfo.isDirectory() != False,
+                    "Incorrect isDirectory: '%r'" % (fileinfo.isDirectory(),))
+        self.failIf(fileinfo.isExecutable() != True,
+                    "Incorrect isExecutable: '%r'" % (fileinfo.isExecutable(),))
+        self.failIf(fileinfo.isFile() != False,
+                    "Incorrect isFile: '%r'" % (fileinfo.isFile(),))
+

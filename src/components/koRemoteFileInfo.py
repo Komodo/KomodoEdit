@@ -280,16 +280,27 @@ class koRemoteFileInfo:
 
             # Work out the date
             try:
-                # Date is in fi[5], I.e Nov 30 or 2005-11-30 format
-                # do we have time, or year?
+                # Date is in fi[5], check it's format. I.e
+                #   "Nov 30"
+                #   "2005-11-30"
+                #   "26 fev"
+                # to see if we have a time, or a year?
                 guessedYear = False
-                if fi[5] and not fi[5][0] in string_digits:
+                if fi[5] and (fi[5][0] not in string_digits or
+                              (len(fi[6]) == 3 and fi[6][0] not in string_digits)):
                     if " " in fi[7] and fi[7][0] in string_digits:
                         # Requires the filename field to be split up:
                         fi = fi[:1] + fi[2:7] + fi[7].split(None, 1)
                     if len(fi) == 9:
                         fi.pop(1)
                     month,day,year = fi[4:7]
+
+                    # Some locales swap the day and the month, i.e. french:
+                    #   "26 fev 22:00", bug 88866.
+                    if month and month[0] in string_digits and \
+                       day and day not in string_digits:
+                        day, month = month, day
+
                     if year.find(":") > -1:
                         hour = year
                         # fix time to be 5 digit always
