@@ -63,11 +63,11 @@ if ($havePy2to3) {
 }
 $cons->InstallXpcomComponent('koHTMLLinter.py');
 $cons->InstallXpcomComponent('koPHPLinter.py');
-$cons->InstallXpcomComponent('koXPCShellLinter.py');
+$cons->InstallXpcomComponent('koJavaScriptLinter.py');
 $cons->InstallXpcomComponent('koLintService.py');
 $cons->InstallPythonUtility('koLintResults.py');
 
 if ($platform eq "win") {
     $cons->Install("$supportDir/perl/perltray", 'PerlTray.pm');
 }
-    
+
