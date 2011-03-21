@@ -60,6 +60,14 @@ class KoLintResult:
         self.encodedDescription = None
         self.severity = None
 
+    def __str__(self):
+        return "%d:%d (%d-%d) %s" % (
+            self.lineStart,
+            self.lineEnd,
+            self.columnStart,
+            self.columnEnd,
+        self.description)
+
     def _encode_string(self, s):
         return re.sub(# match 0x00-0x1f except TAB(0x09), LF(0x0A), and CR(0x0D)
                    '([\x00-\x08\x0b\x0c\x0e-\x1f])',
