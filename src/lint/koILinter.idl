@@ -209,6 +209,8 @@ interface koILintService : nsISupports {
     // Note that if there is a request currently being processed (whether
     // for this "uid" or not, it is NOT cancelled).
     void cancelPendingRequests(in string uid);
+
+    wstring getLinter_CID_ForLanguage(in wstring languageName);
 };
 
 

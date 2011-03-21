@@ -36,6 +36,7 @@
 # ***** END LICENSE BLOCK *****
 
 from xpcom import components, nsError, ServerException
+from xpcom.server import UnwrapObject
 from koLintResult import *
 from koLintResults import koLintResults
 import os, re, sys, string
@@ -47,7 +48,6 @@ import logging
 
 log = logging.getLogger("koPerlCompileLinter")
 #log.setLevel(logging.DEBUG)
-
 
 
 def PerlWarnsToLintResults(warns, perlfilename, perlcode):
@@ -268,31 +268,55 @@ def RemoveDashDFromShebangLine(line):
 
     return result
 
-# PerlNET requires a 'use namespace...' directive as well,
-# which we don't want to remove because it's too generic a name.
-# So don't bother removing 'use PerlNET'
-_use_perltray_module = re.compile(r"\buse PerlTray\b")
-
-class KoPerlCompileLinter:
-    _com_interfaces_ = [components.interfaces.koILinter]
-    _reg_desc_ = "Komodo Perl Compile Linter"
-    _reg_clsid_ = "{8C9C11E9-528C-11d4-AC25-0090273E6A60}"
-    _reg_contractid_ = "@activestate.com/koLinter?language=Perl;1"
-    _reg_categories_ = [
-         ("category-komodo-linter", 'Perl'),
-         ]
-
+class _CommonPerlLinter(object):
     def __init__(self):
         self.sysUtils = components.classes["@activestate.com/koSysUtils;1"].\
             getService(components.interfaces.koISysUtils)
-        self.infoSvc = components.classes["@activestate.com/koInfoService;1"].\
-                       getService()
-        self._koVer = self.infoSvc.version
+        self._koVer = components.classes["@activestate.com/koInfoService;1"].\
+                       getService().version
         supportDir = components.classes["@activestate.com/koDirs;1"].\
                     getService(components.interfaces.koIDirs).supportDir
         self._perlTrayDir = os.path.join(supportDir, "perl", "perltray").replace('\\', '/')
         self._appInfoEx = components.classes["@activestate.com/koAppInfoEx?app=Perl;1"].\
             createInstance(components.interfaces.koIPerlInfoEx)
+
+    def _writeTempFile(self, cwd, text):
+        tmpFileName = None
+        if cwd:
+            # Try to create the tempfile in the same directory as the perl
+            # file so that @INC additions using FindBin::$Bin work as
+            # expected.
+            # XXX Would really prefer to build tmpFileName from the name of
+            #     the file being linted but the Linting system does not
+            #     pass the file name through.
+            tmpFileName = os.path.join(cwd, ".~ko-%s-perllint~" % self._koVer)
+            try:
+                fout = open(tmpFileName, 'wb')
+                fout.write(text)
+                fout.close()
+            except (OSError, IOError), ex:
+                tmpFileName = None
+        if not tmpFileName:
+            # Fallback to using a tmp dir if cannot write in cwd.
+            try:
+                tmpFileName = tempfile.mktemp()
+            except OSError, ex:
+                # Sometimes get this error but don't know why:
+                # OSError: [Errno 13] Permission denied: 'C:\\DOCUME~1\\trentm\\LOCALS~1\\Temp\\~1324-test'
+                errmsg = "error determining temporary filename for "\
+                         "Perl content: %s" % ex
+                raise ServerException(nsError.NS_ERROR_UNEXPECTED)
+            fout = open(tmpFileName, 'wb')
+            fout.write(text)
+            fout.close()
+        return tmpFileName
+    
+    # PerlNET requires a 'use namespace...' directive as well,
+    # which we don't want to remove because it's too generic a name.
+    # So don't bother removing 'use PerlNET'
+    _use_perltray_module = re.compile(r"\buse PerlTray\b")
+
+
 
     def _selectPerlExe(self, prefset):
         """Determine the Perl interpreter to use.
@@ -328,12 +352,16 @@ class KoPerlCompileLinter:
             raise ServerException(nsError.NS_ERROR_NOT_AVAILABLE, errmsg)
 
         return perlExe
-
-    def _insertPerlCriticFilenameMatchInhibitor(self, matchObj):
-        dict = matchObj.groupdict()
-        dict['moduleOff'] = ' ##no critic(RequireFilenameMatchesPackage)'
-        return "%(package1)s%(baseFileName)s%(space1)s%(moduleOff)s%(space2)s" % dict
     
+class KoPerlCompileLinter(_CommonPerlLinter):
+    _com_interfaces_ = [components.interfaces.koILinter]
+    _reg_desc_ = "Komodo Perl Compile Linter"
+    _reg_clsid_ = "{8C9C11E9-528C-11d4-AC25-0090273E6A60}"
+    _reg_contractid_ = "@activestate.com/koLinter?language=Perl;1"
+    _reg_categories_ = [
+         ("category-komodo-linter", 'Perl&type=Standard'), #
+         ]
+
     def lint(self, request):
         """Lint the given Perl content.
         
@@ -355,75 +383,12 @@ class KoPerlCompileLinter:
         else:
             text = firstLine
         # Save perl buffer to a temporary file.
-        
-        criticLevel = prefset.getStringPref('perl_lintOption_perlCriticLevel')
-        if criticLevel != 'off':
-            if not self._appInfoEx.isPerlCriticInstalled(False):
-                # This check is necessary in case Perl::Critic and/or criticism were uninstalled
-                # between Komodo sessions.  appInfoEx.isPerlCriticInstalled caches the state
-                # until the pref is changed.
-                criticLevel = 'off'
-            else:
-                # Bug 82713: Since linting isn't done on the actual file, but a copy,
-                # Perl-Critic will complain about legitimate package declarations.
-                # Find them, and append an annotation to turn the Perl-Critic feature off.
-                # This will also tag comments, strings, and POD, but that won't affect
-                # lint results.
-                # This is no longer needed with Perl-Critic 1.5, which
-                # goes by the filename given in any #line directives
-                perlCriticVersion = self._appInfoEx.getPerlCriticVersion();
-                file = request.koDoc.file
-                if file:
-                    baseFileName = file.baseName[0:-len(file.ext)]
-                if perlCriticVersion < 1.500:
-                        munger = re.compile(r'''^\s*(?P<package1>package \s+ (?:[\w\d_]+::)*) 
-                                             (?P<baseFileName>%s)
-                                             (?P<space1>\s*;)
-                                             (?P<space2>\s*)
-                                             (?P<rest>(?:\#.*)?)$''' % (baseFileName,),
-                                            re.MULTILINE|re.VERBOSE)
-                        text = munger.sub(self._insertPerlCriticFilenameMatchInhibitor, text)
-                elif perlCriticVersion >= 1.500 and file:
-                    text = "#line 1 " + file.baseName + "\n" + text
-        tmpFileName = None
-        if cwd:
-            # Try to create the tempfile in the same directory as the perl
-            # file so that @INC additions using FindBin::$Bin work as
-            # expected.
-            # XXX Would really prefer to build tmpFileName from the name of
-            #     the file being linted but the Linting system does not
-            #     pass the file name through.
-            tmpFileName = os.path.join(cwd, ".~ko-%s-perllint~" % self._koVer)
-            try:
-                fout = open(tmpFileName, 'wb')
-                fout.write(text)
-                fout.close()
-            except (OSError, IOError), ex:
-                tmpFileName = None
-        if not tmpFileName:
-            # Fallback to using a tmp dir if cannot write in cwd.
-            try:
-                tmpFileName = tempfile.mktemp()
-            except OSError, ex:
-                # Sometimes get this error but don't know why:
-                # OSError: [Errno 13] Permission denied: 'C:\\DOCUME~1\\trentm\\LOCALS~1\\Temp\\~1324-test'
-                errmsg = "error determining temporary filename for "\
-                         "Perl content: %s" % ex
-                raise ServerException(nsError.NS_ERROR_UNEXPECTED)
-            fout = open(tmpFileName, 'wb')
-            fout.write(text)
-            fout.close()
 
+        tmpFileName = self._writeTempFile(cwd, text)
         try:
             perlExe = self._selectPerlExe(prefset)
             lintOptions = prefset.getStringPref("perl_lintOption")
             option = '-' + lintOptions
-            pcOption = None
-            if criticLevel != 'off':
-                if perlCriticVersion <= 1.100:
-                    pcOption = '-Mcriticism=' + criticLevel
-                else:
-                    pcOption = '''-Mcriticism (-severity => '%s', 'as-filename' => '%s')''' % (criticLevel, baseFileName)
             perlExtraPaths = prefset.getStringPref("perlExtraPaths")
             if perlExtraPaths:
                 if sys.platform.startswith("win"):
@@ -438,12 +403,10 @@ class KoPerlCompileLinter:
             # bug 27963: Fix instances of <<use PerlTray>> from code
             # to make them innocuous for the syntax checker.
             # 'use PerlTray' in comments or strings will trigger a false positive
-            if sys.platform.startswith("win") and _use_perltray_module.search(text):
+            if sys.platform.startswith("win") and self._use_perltray_module.search(text):
                 argv += ['-I', self._perlTrayDir]
 
             argv.append(option)
-            if pcOption is not None:
-                argv.append(pcOption)
             argv.append(tmpFileName)
             cwd = cwd or None # convert '' to None (cwd=='' for new files)
             env = koprocessutils.getUserEnv()
@@ -457,6 +420,136 @@ class KoPerlCompileLinter:
             os.unlink(tmpFileName)
 
         return lintResults
+
+class KoPerlCriticLinter(_CommonPerlLinter):
+    _com_interfaces_ = [components.interfaces.koILinter]
+    _reg_desc_ = "Komodo Perl Critic Linter"
+    _reg_clsid_ = "{3a940bcc-1cee-4345-92d3-cbf6f746dceb}"
+    _reg_contractid_ = "@activestate.com/koLinter?language=Perl&type=PerlCritic;1"
+    _reg_categories_ = [
+         ("category-komodo-linter", 'Perl&type=Critic'),
+         ]
+
+    def lint(self):
+        text = request.content.encode(request.encoding.python_encoding_name)
+        return self.lint_with_text(request, text)        
+        
+    def lint_with_text(self, request, text):
+        prefset = request.koDoc.getEffectivePrefs()
+        criticLevel = prefset.getStringPref('perl_lintOption_perlCriticLevel')
+        if criticLevel == 'off':
+            return
+        
+        if not self._appInfoEx.isPerlCriticInstalled(False):
+            # This check is necessary in case Perl::Critic and/or criticism were uninstalled
+            # between Komodo sessions.  appInfoEx.isPerlCriticInstalled caches the state
+            # until the pref is changed.
+            return
+        
+        # Bug 82713: Since linting isn't done on the actual file, but a copy,
+        # Perl-Critic will complain about legitimate package declarations.
+        # Find them, and append an annotation to turn the Perl-Critic feature off.
+        # This will also tag comments, strings, and POD, but that won't affect
+        # lint results.
+        # This is no longer needed with Perl-Critic 1.5, which
+        # goes by the filename given in any #line directives
+        perlCriticVersion = self._appInfoEx.getPerlCriticVersion();
+        file = request.koDoc.file
+        if file:
+            baseFileName = file.baseName[0:-len(file.ext)]
+        if perlCriticVersion < 1.500:
+            munger = re.compile(r'''^\s*(?P<package1>package \s+ (?:[\w\d_]+::)*) 
+                                         (?P<baseFileName>%s)
+                                         (?P<space1>\s*;)
+                                         (?P<space2>\s*)
+                                         (?P<rest>(?:\#.*)?)$''' % (baseFileName,),
+                                re.MULTILINE|re.VERBOSE)
+            text = munger.sub(self._insertPerlCriticFilenameMatchInhibitor, text)
+        elif perlCriticVersion >= 1.500 and file:
+            text = "#line 1 " + file.baseName + "\n" + text
+
+        cwd = request.cwd or None # convert '' to None (cwd=='' for new files)
+        tmpFileName = self._writeTempFile(cwd, text)
+        try:
+            perlExe = self._selectPerlExe(prefset)
+            lintOptions = prefset.getStringPref("perl_lintOption")
+            option = '-' + lintOptions
+            if perlCriticVersion <= 1.100:
+                pcOption = '-Mcriticism=' + criticLevel
+            else:
+                pcOption = '''-Mcriticism (-severity => '%s', 'as-filename' => '%s')''' % (criticLevel, baseFileName)
+            perlExtraPaths = prefset.getStringPref("perlExtraPaths")
+            if perlExtraPaths:
+                if sys.platform.startswith("win"):
+                    perlExtraPaths = string.replace(perlExtraPaths, '\\', '/')
+                perlExtraPaths = [x for x in perlExtraPaths.split(os.pathsep) if x.strip()]
+            argv = [perlExe]
+            for incpath in perlExtraPaths:
+                argv += ['-I', incpath]
+            if 'T' in lintOptions and prefset.getBooleanPref("perl_lintOption_includeCurrentDirForLinter"):
+                argv += ['-I', '.']
+                
+            # bug 27963: Fix instances of <<use PerlTray>> from code
+            # to make them innocuous for the syntax checker.
+            # 'use PerlTray' in comments or strings will trigger a false positive
+            if sys.platform.startswith("win") and self._use_perltray_module.search(text):
+                argv += ['-I', self._perlTrayDir]
+
+            argv.append(option)
+            argv.append(pcOption)
+            argv.append(tmpFileName)
+            env = koprocessutils.getUserEnv()
+            # We only need stderr output.
+
+            p = process.ProcessOpen(argv, cwd=cwd, env=env, stdin=None)
+            stdout, stderr = p.communicate()
+            lintResults = PerlWarnsToLintResults(stderr.splitlines(1),
+                                                 tmpFileName, text)
+        finally:
+            os.unlink(tmpFileName)
+
+        return lintResults
+            
+    def _insertPerlCriticFilenameMatchInhibitor(self, matchObj):
+        dict = matchObj.groupdict()
+        dict['moduleOff'] = ' ##no critic(RequireFilenameMatchesPackage)'
+        return "%(package1)s%(baseFileName)s%(space1)s%(moduleOff)s%(space2)s" % dict
+
+
+class KoPerlAggregatorLinter:
+    _com_interfaces_ = [components.interfaces.koILinter]
+    _reg_desc_ = "Komodo Perl Aggregate Linter"
+    _reg_clsid_ = "{2b0763b5-fae6-4fec-81de-7140f85fcfff}"
+    _reg_contractid_ = "@activestate.com/koLinter?language=Perl&type=Aggregator;1"
+    _reg_categories_ = [
+         ("category-komodo-linter-aggregator", 'Perl'),
+         ]
+
+    def __init__(self):
+        self._koLintService = None
+
+    @property
+    def koLintService(self):
+        if self._koLintService is None:
+            self._koLintService = UnwrapObject(components.classes["@activestate.com/koLintService;1"].getService(components.interfaces.koILintService))
+        return self._koLintService
+
+    def lint(self, request):
+        text = request.content.encode(request.encoding.python_encoding_name)
+        return self.lint_with_text(request, text)        
+        
+    def lint_with_text(self, request, text):
+        linters = self.koLintService.getTerminalLintersForLanguage("Perl")
+        finalLintResults = koLintResults()
+        for linter in linters:
+            newLintResults = UnwrapObject(linter).lint_with_text(request, text)
+            if newLintResults and newLintResults.getNumResults():
+                if finalLintResults.getNumResults():
+                    finalLintResults = finalLintResults.addResults(newLintResults)
+                else:
+                    finalLintResults = newLintResults
+        return finalLintResults
+            
 
 
 #---- script mainline testing 

@@ -521,15 +521,15 @@ this.lintBuffer.prototype._getLinterLanguageName = function()
 {
     var languageName = this.view.koDoc.language;
     if (!(languageName in _linterLanguageNames)) {
-        var catman = Components.classes["@mozilla.org/categorymanager;1"].
-            getService(Components.interfaces.nsICategoryManager);
         var res = null;
         try {
-            var cid = catman.getCategoryEntry('category-komodo-linter', languageName);
+            var cid = _lintSvc.getLinter_CID_ForLanguage(languageName);
             if (cid) {
                 res = languageName;
             }
-        } catch(ex) {}
+        } catch(ex) {
+            dump("_getLinterLanguageName: " + ex + "\n");
+        }
         _linterLanguageNames[languageName] = res;
     }
     return _linterLanguageNames[languageName];

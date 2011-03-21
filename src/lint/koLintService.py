@@ -279,13 +279,20 @@ class KoLintService:
             nameObj = names.getNext()
             nameObj.QueryInterface(components.interfaces.nsISupportsCString)
             name = nameObj.data
+            idx = name.find("&type=")
+            if idx == -1:
+                languageName = name
+            else:
+                languageName = name[:idx]
             cid = catman.getCategoryEntry(categoryName, name)
-            if not self._lintersByLanguageName.has_key(name):
-                self._lintersByLanguageName[name] = {'terminals':[],
-                                                     'aggregator':None}
-            self._lintersByLanguageName[name]['terminals'].append(cid)
-        
+            if not self._lintersByLanguageName.has_key(languageName):
+                self._lintersByLanguageName[languageName] = {'terminals':[],
+                                                             'aggregator':None}
+            self._lintersByLanguageName[languageName]['terminals'].append(cid)
 
+    def getLinter_CID_ForLanguage(self, languageName):
+        return self._getLinterByLanguageName(languageName)
+        
     def observe(self, subject, topic, data):
         #print "file status service observed %r %s %s" % (subject, topic, data)
         if topic == 'xpcom-shutdown':
@@ -299,6 +306,11 @@ class KoLintService:
         # Do NOT attempt to .join() the manager thread because it is nigh on
         # impossible to avoid all possible deadlocks.
 
+    def getTerminalLintersForLanguage(self, languageName):
+        return [self._getLinterByCID(cid)
+                for cid in self._lintersByLanguageName[languageName]['terminals']]
+        
+
     def _getLinterByLanguageName(self, languageName):
         try:
             linters = self._lintersByLanguageName[languageName]
@@ -306,9 +318,9 @@ class KoLintService:
             self._lintersByLanguageName[languageName] = {'aggregator':None,
                                                          'terminals':[None]}
             return None
-        return linters['aggregator'] or linters['terminals'][0]
-        # There's no explicit aggregator, so just return the first item
+        # If there's no explicit aggregator, return the first terminal linter.
         # If there isn't one, throw the ItemError all the way to top-level
+        return linters['aggregator'] or linters['terminals'][0]
 
     def _getLinter(self, languageName):
         """Return a koILinter XPCOM component of the given linterCID.
@@ -319,6 +331,9 @@ class KoLintService:
         Note that aggregators are favored over terminal linters.
         """
         linterCID = self._getLinterByLanguageName(languageName)
+        return self._getLinterByCID(linterCID)
+
+    def _getLinterByCID(self, linterCID):
         if linterCID not in self._linterCache:
             if linterCID not in components.classes.keys():
                 linter = None
