@@ -349,8 +349,8 @@
  '*.xsl': 'XSLT',
  '*.xslt': 'XSLT',
  '*.yaml': 'YAML',
- '*.yml': 'YAML'
- '*.zcml': 'XML',,
+ '*.yml': 'YAML',
+ '*.zcml': 'XML',
  'Conscript': 'Perl',
  'Construct': 'Perl',
  'Makefile': 'Makefile',
