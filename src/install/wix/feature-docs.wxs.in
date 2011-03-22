@@ -105,6 +105,7 @@
               <File Id="file2335" Name="HELPTO_0.RDF" LongName="help-toc.rdf" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\help-toc.rdf"/>
               <File Id="file2336" Name="HELP_H_0.XHT" LongName="help_help.xhtml" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\help_help.xhtml"/>
               <File Id="file307" LongName="codeintel.html" Name="CODEIN_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\codeintel.html" />
+              <File Id="file1073" LongName="collab.html" Name="COLLAB_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\collab.html" />
               <File Id="file363" LongName="commandid.html" Name="COMMAN_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\commandid.html" />
               <File Id="file368" LongName="custtbi.html" Name="CUSTTB_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\custtbi.html" />
               <File Id="file377" LongName="defkeybind.html" Name="DEFKEY_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\defkeybind.html" />
@@ -130,6 +131,7 @@
               <File Id="file452" LongName="sections_list.html" Name="SECTIO_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\sections_list.html" />
               <File Id="file441" LongName="shortcuts.html" Name="SHORTC_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\shortcuts.html" />
               <File Id="file442" LongName="snippets.html" Name="SNIPPE_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\snippets.html" />
+              <File Id="file1266" LongName="sync.html" Name="SYNC_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\sync.html" />
               <File Id="file551" Name="TABSTO_0.HTM" LongName="tabstops.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\tabstops.html"/>
               <File Id="file443" LongName="templates.html" Name="TEMPLA_2.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\templates.html" />
               <File Id="file444" LongName="toolbox.html" Name="TOOLBO_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\toolbox.html" />
