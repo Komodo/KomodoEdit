@@ -416,6 +416,9 @@ $cons->Command($landmark,
                    ));
 $cons->DependsRecursive($landmark, "html5lib", ("build", '\.svn'));
 
+# jslint
+$cons->Install("$supportDir/lint/javascript", "jslint/fulljslint.js");
+
 
 #---- komododoc
 # The Komodo documentation project.

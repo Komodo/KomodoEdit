@@ -37,6 +37,7 @@
 
 
 from xpcom import components, nsError, ServerException
+from xpcom.server import UnwrapObject
 from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC
 from koLintResult import *
 from koLintResults import koLintResults
@@ -61,14 +62,11 @@ class CommonJSLinter(object):
         self._prefProxy = proxyMgr.getProxyForObject(None,
                     components.interfaces.koIPrefService, prefSvc,
                     PROXY_ALWAYS | PROXY_SYNC)
-
-    def lint(self, request):
-        text = request.content.encode(request.encoding.python_encoding_name)
-        return self.lint_with_text(request, text)
-
-    def lint_with_text(self, request, text):
-        cwd = request.cwd
-
+        
+        self.koDirs = components.classes["@activestate.com/koDirs;1"].\
+                              getService(components.interfaces.koIDirs)
+        
+    def _make_tempfile_from_text(self, request, text):
         # copy file-to-lint to a temp file
         jsfilename = tempfile.mktemp() + '.js'
         # convert to UNIX line terminators before splitting
@@ -83,17 +81,27 @@ class CommonJSLinter(object):
             textToAnalyze = "function " + funcName + "() {\n" + text + "\n}";
         else:
             textToAnalyze = text
-        datalines = re.sub("\r\n|\r", "\n", text).split("\n")
+        datalines = text.splitlines()
         fout = open(jsfilename, 'w')
         fout.write(textToAnalyze)
         fout.close()
-
-        koDirs = components.classes["@activestate.com/koDirs;1"].\
-                              getService(components.interfaces.koIDirs)
+        return jsfilename, isMacro, datalines
+    
+    def _get_js_interp_path(self):
         if sys.platform.startswith("win"):
-            jsInterp = os.path.join(koDirs.mozBinDir, "js.exe")
+            return os.path.join(self.koDirs.mozBinDir, "js.exe")
         else:
-            jsInterp = os.path.join(koDirs.mozBinDir, "js")
+            return os.path.join(self.koDirs.mozBinDir, "js")
+
+
+    def lint(self, request):
+        text = request.content.encode(request.encoding.python_encoding_name)
+        return self.lint_with_text(request, text)
+
+    def lint_with_text(self, request, text):
+        jsfilename, isMacro, datalines = self._make_tempfile_from_text(request, text)
+        cwd = request.cwd
+        jsInterp = self._get_js_interp_path()
 
         # Lint the temp file, the jsInterp options are described here:
         # https://developer.mozilla.org/en/Introduction_to_the_JavaScript_shell
@@ -214,24 +222,148 @@ class CommonJSLinter(object):
         return results
 
 
-class KoXPCShellLinter(CommonJSLinter):
+class KoJavaScriptLinter(CommonJSLinter):
     _com_interfaces_ = [components.interfaces.koILinter]
     _reg_desc_ = "Komodo XPCShell JavaScript Linter"
     _reg_clsid_ = "{111FBEA1-7CA3-4858-B040-E51CF5A20CE9}"
     _reg_contractid_ = "@activestate.com/koLinter?language=JavaScript;1"
     _reg_categories_ = [
-         ("category-komodo-linter", 'JavaScript'),
+         ("category-komodo-linter", 'JavaScript&type=jsShell'),
          ]
 
-class KoJSONLinter(KoXPCShellLinter):
-    language = "JSON"
+class KoJSONLinter(CommonJSLinter):
     _com_interfaces_ = [components.interfaces.koILinter]
-    _reg_desc_ = "Komodo XPCShell %s Linter" % (language, )
+    _reg_desc_ = "Komodo XPCShell JSON Linter"
     _reg_clsid_ = "{bcd7d132-734c-4d06-811c-383705ccb514}"
-    _reg_contractid_ = "@activestate.com/koLinter?language=%s;1" % (language, )
+    _reg_contractid_ = "@activestate.com/koLinter?language=JSON;1"
     _reg_categories_ = [
-         ("category-komodo-linter", language),
+         ("category-komodo-linter", "JSON"),
          ]
 
     def lint_with_text(self, request, text):
         return KoXPCShellLinter.lint_with_text(self, request, "var x = " + text)
+        
+        
+class KoJSLintLinter(CommonJSLinter):
+    _com_interfaces_ = [components.interfaces.koILinter]
+    _reg_desc_ = "Komodo JSLint Linter"
+    _reg_clsid_ = "{6048c9c2-b197-4fca-a718-c0a73d252876}"
+    _reg_contractid_ = "@activestate.com/koLinter?language=JavaScript&type=JSLint;1"
+    _reg_categories_ = [
+         ("category-komodo-linter", 'JavaScript&type=jslint'),
+         ]
+
+    def lint(self):
+        text = request.content.encode(request.encoding.python_encoding_name)
+        return self.lint_with_text(request, text)
+        
+    def lint_with_text(self, request, text):
+        if not text:
+            return
+        prefset = request.koDoc.getEffectivePrefs()
+        if not prefset.getBooleanPref('lintWithJSLint'):
+            return
+        jsfilename, isMacro, datalines = self._make_tempfile_from_text(request, text)
+        jsInterp = self._get_js_interp_path()
+        jsLintDir = os.path.join(self.koDirs.supportDir, "lint", "javascript")
+        jsLintApp = os.path.join(jsLintDir, "lintWrapper.js")
+        options = prefset.getStringPref("jslintOptions").strip()
+        # Lint the temp file, the jsInterp options are described here:
+        # https://developer.mozilla.org/en/Introduction_to_the_JavaScript_shell
+        cmd = [jsInterp, jsLintApp, "--include=" + jsLintDir]
+        if options:
+            cmd += re.compile(r'\s+').split(options)
+
+        fd = open(jsfilename)
+        cwd = request.cwd or None
+        # We only need the stderr result.
+        try:
+            p = process.ProcessOpen(cmd, cwd=cwd, stdin=fd)
+            stdout, stderr = p.communicate()
+            #log.debug("jslint: stdout: %s, stderr: %s", stdout, stderr)
+            warnLines = stdout.splitlines() # Don't need the newlines.
+            i = 0
+            while i < len(warnLines):
+                if "++++JSLINT OUTPUT:" in warnLines[i]:
+                    warnLines = warnLines[i + 1:]
+                    break
+                i += 1
+        finally:
+            os.unlink(jsfilename)
+            fd.close()
+        
+        # 'jslint' error reports come in this form:
+        # jslint error: at line \d+ column \d+: explanation
+        results = koLintResults()
+        msgRe = re.compile("^jslint error: at line (?P<lineNo>\d+) column (?P<columnNo>\d+):\s*(?P<desc>.*?)$")
+        numDataLines = len(datalines)
+        if len(warnLines) % 2 == 1:
+            warnLines.append("")
+        for i in range(0, len(warnLines), 2):
+            msgLine = warnLines[i]
+            evidenceLine = warnLines[i + 1]
+            m = msgRe.match(msgLine)
+            if m:
+                lineNo = int(m.group("lineNo"))
+                #columnNo = int(m.group("columnNo"))
+                # build lint result object
+                result = KoLintResult()
+                evidenceLineNo = lineNo
+                if evidenceLineNo >= numDataLines:
+                    evidenceLineNo = numDataLines - 1
+                if evidenceLine in datalines[evidenceLineNo]:
+                    lineNo = evidenceLineNo
+                    pass
+                elif evidenceLineNo > 0 and evidenceLine in datalines[evidenceLineNo - 1]:
+                    lineNo = evidenceLineNo - 1
+                elif lineNo >= numDataLines:
+                    lineNo = numDataLines - 1
+                # if the error is on the last line, work back to the last
+                # character of the first nonblank line so we can display
+                # the error somewhere
+                if len(datalines[lineNo]) == 0:
+                    while lineNo > 0 and len(datalines[lineNo - 1]) == 0:
+                        lineNo -= 1
+                result.columnStart =  1
+                result.columnEnd = len(datalines[lineNo]) + 1
+                result.lineStart = result.lineEnd = lineNo + 1
+                result.severity = result.SEV_WARNING
+                result.description = m.group("desc")
+                results.addResult(result)
+
+        return results
+
+class KoJavaScriptAggregatorLinter(object):
+    _com_interfaces_ = [components.interfaces.koILinter]
+    _reg_desc_ = "Komodo JavaScript Aggregate Linter"
+    _reg_clsid_ = "{f9dda89c-68dc-4a7e-85a4-694ad0cf2d87}"
+    _reg_contractid_ = "@activestate.com/koLinter?language=JavaScript&type=Aggregator;1"
+    _reg_categories_ = [
+         ("category-komodo-linter-aggregator", 'JavaScript'),
+         ]
+
+    def __init__(self):
+        self._koLintService = None
+
+    @property
+    def koLintService(self):
+        if self._koLintService is None:
+            self._koLintService = UnwrapObject(components.classes["@activestate.com/koLintService;1"].getService(components.interfaces.koILintService))
+        return self._koLintService
+
+    def lint(self, request):
+        text = request.content.encode(request.encoding.python_encoding_name)
+        return self.lint_with_text(request, text)        
+        
+    def lint_with_text(self, request, text):
+        linters = self.koLintService.getTerminalLintersForLanguage("JavaScript")
+        finalLintResults = koLintResults()
+        for linter in linters:
+            newLintResults = UnwrapObject(linter).lint_with_text(request, text)
+            if newLintResults and newLintResults.getNumResults():
+                if finalLintResults.getNumResults():
+                    finalLintResults = finalLintResults.addResults(newLintResults)
+                else:
+                    finalLintResults = newLintResults
+        return finalLintResults
+            

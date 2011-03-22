@@ -188,6 +188,10 @@
   <!-- JavaScript linting options -->
   <boolean id="lintJavaScriptEnableWarnings">1</boolean>
   <boolean id="lintJavaScriptEnableStrict">1</boolean>
+  <!-- JSLine linting options -->
+  <boolean id="lintWithJSLint">false</boolean>
+  <string id="jslintOptions"></string> <!-- initially use all jslint defaults -->
+  
 
 <!-- ruby start -->
   <!-- Ruby strings -->

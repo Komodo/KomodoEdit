@@ -107,6 +107,8 @@ var global_pref_observer_topics = [
     "ruby_lintOption",
     "lintJavaScriptEnableWarnings",
     "lintJavaScriptEnableStrict",
+    "lintWithJSLint",
+    "jslintOptions",
     "tidy_errorlevel",
     "tidy_accessibility",
     "tidy_configpath",
@@ -234,6 +236,8 @@ this.lintBuffer.prototype.observe = function(subject, topic, data)
         // JavaScript
         case "lintJavaScriptEnableWarnings":
         case "lintJavaScriptEnableStrict":
+        case "lintWithJSLint":
+        case "jslintOptions":
             _log.info("LintBuffer["+this.view.title+
                            "].observed JavaScript pref change, re-linting");
             if (lintingEnabled && this.view.languageObj.getSubLanguages(count).indexOf("JavaScript") >= 0) {

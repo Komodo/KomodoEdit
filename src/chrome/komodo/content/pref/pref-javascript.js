@@ -37,15 +37,13 @@
 var log = ko.logging.getLogger("pref-javascript");
 //log.setLevel(ko.logging.LOG_INFO);
 
-
-function PrefJavaScript_OnLoad()
-{
+function PrefJavaScript_OnLoad() {
     parent.initPanel();
 }
 
 function OnPreferencePageLoading() {
     var extraPaths = document.getElementById("javascriptExtraPaths");
-    extraPaths.init() // must happen after onpageload
+    extraPaths.init(); // must happen after onpageload
 }
 
 // Find the user's Firefox installation and install the Komodo JavaScript
@@ -124,4 +122,104 @@ function pref_lint_doWarningEnabling() {
     var strictEnabledCheckbox = document.getElementById('lintJavaScriptEnableStrict');
     var enabled = warningsEnabledCheckbox.checked;
     _pref_lint_setElementEnabledState(strictEnabledCheckbox, enabled);
+}
+    
+var goodPartsFactorySettings = {
+    white: "true",
+    indent: "4",
+    onevar: "true",
+    'undef': "true",
+    cap: "true",
+    nomen: "true",
+    regexp: "true",
+    plusplus: "true",
+    bitwise: "true"
+};
+
+var otherStrictSettings = {
+    strict: "true",
+    passfail: "true",
+    browser: "false",
+    devel: "false",
+    rhino: "false",
+    widget: "false",
+    windows: "false",
+    'debug': "false",
+    evil: "false",
+    forin: "false",
+    subscript: "false",
+    'continue': "false",
+    css: "false",
+    htmlCase: "false",
+    on: "false",
+    fragment: "false",
+    es5: "false" 
+};
+
+function updateSettings(optName, optValue, settingNames, settings) {
+    if (settingNames.indexOf(optName) === -1) {
+        settingNames.push(optName);
+    }
+    settings[optName] = optValue;
+}
+
+function setCurrentSettings(text, settingNames, settings) {
+    var i, idx, opt, optName, optValue;
+    var options = text.split(/\s+/);
+    for (i = 0; i < options.length; i++) {
+        opt = options[i];
+        idx = opt.indexOf("=");
+        if (idx >= 0) {
+            optName = opt.substr(0, idx);
+            optValue = opt.substr(idx + 1);
+            updateSettings(optName, optValue, settingNames, settings);
+        } else {
+            settingNames.push(opt);
+        }
+    }
+}
+
+function addSettings(factorySettings, settingNames, settings) {
+    var optName, optValue;
+    for (optName in factorySettings) {
+        optValue = factorySettings[optName].toString();
+        updateSettings(optName, optValue, settingNames, settings);
+    }
+}
+
+function addParts(includeOtherStrictSettings) {
+    var optName, i, idx, name, newTextParts;
+    var textField = document.getElementById("jslintOptions");
+    var currentSettings = {};
+    var currentSettingNames = [];
+    var text = textField.value;
+    setCurrentSettings(text, currentSettingNames, currentSettings);
+    addSettings(goodPartsFactorySettings, currentSettingNames, currentSettings);
+    if (includeOtherStrictSettings) {
+        addSettings(otherStrictSettings, currentSettingNames, currentSettings);
+    } else {
+        // Remove any factory strict settings from the text view
+        for (optName in otherStrictSettings) {
+            idx = currentSettingNames.indexOf(optName);
+            if (idx > -1 && currentSettings[optName] === otherStrictSettings[optName]) {
+                currentSettingNames.splice(idx, 1);
+            }
+        }
+    }
+    newTextParts = currentSettingNames.map(function (name) {
+        if (name in currentSettings) {
+            return name + "=" + currentSettings[name];
+        } else {
+            return name;
+        }
+    });
+    textField.value = newTextParts.join(" ");
+}
+
+function addGoodParts() {
+    addParts(false);
+}
+
+function addAllOptions() {
+    addParts(true);
 }

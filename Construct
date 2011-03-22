@@ -387,6 +387,7 @@ Build(
     "$build/languages/Conscript",
     "$build/lint/Conscript",
     "$build/lint/CSS/Conscript",
+    "$build/lint/javascript/Conscript",
     "$build/main/Conscript",
     "$build/components/Conscript",
     "$build/components/contentUtils/Conscript",
