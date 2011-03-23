@@ -286,9 +286,15 @@ class GenericJSLinter(CommonJSLinter):
                     break
                 i += 1
         finally:
-            os.unlink(jsfilename)
-            fd.close()
-        
+            try:
+                fd.close()
+            except:
+                log.error("Problem closing file des(%s)", jsfilename)
+            try:
+                os.unlink(jsfilename)
+            except:
+                log.error("Problem deleting file des(%s)", jsfilename)
+                
         # 'jslint' error reports come in this form:
         # jslint error: at line \d+ column \d+: explanation
         results = koLintResults()
