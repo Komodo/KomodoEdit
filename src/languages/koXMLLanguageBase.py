@@ -404,8 +404,8 @@ class KoGenericXMLLinter(object):
     _com_interfaces_ = [components.interfaces.koILinter]
     
     def __init__(self):
-        self._xml_linter = components.classes["@activestate.com/koLinter?language=XML;1"].\
-                           getService(components.interfaces.koILinter)
+        koLintService = components.classes["@activestate.com/koLintService;1"].getService(components.interfaces.koILintService)
+        self._xml_linter = koLintService.getLinterForLanguage("XML")
     
     def lint(self, request):
         return self._xml_linter.lint(request)

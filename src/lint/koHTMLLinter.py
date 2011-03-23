@@ -71,11 +71,10 @@ class _CommonHTMLLinter(object):
         self._prefProxy = self._proxyMgr.getProxyForObject(None,
             components.interfaces.koIPrefService, self._prefSvc,
             PROXY_ALWAYS | PROXY_SYNC)
+        self._koLintService = components.classes["@activestate.com/koLintService;1"].getService(components.interfaces.koILintService)
         self._lintersByLangName = {
-            "CSS": components.classes["@activestate.com/koLinter?language=CSS;1"].\
-                            getService(components.interfaces.koILinter),
-            "JavaScript": components.classes["@activestate.com/koLinter?language=JavaScript;1"].\
-                            getService(components.interfaces.koILinter)
+            "CSS": self._koLintService.getLinterForLanguage("CSS"),
+            "JavaScript": self._koLintService.getLinterForLanguage("JavaScript"),
             }
      
     _nonNewlineMatcher = re.compile(r'[^\r\n]')
@@ -87,8 +86,7 @@ class _CommonHTMLLinter(object):
             return currentLinters[langName]
         if langName not in self._lintersByLangName:
             try:
-                linter = components.classes["@activestate.com/koLinter?language=%s;1" % langName].\
-                            getService(components.interfaces.koILinter)
+                linter = self._koLintService.getLinterForLanguage(langName)
                 self._lintersByLangName[langName] = linter
             except:
                 log.error("No linter for language %s", langName)

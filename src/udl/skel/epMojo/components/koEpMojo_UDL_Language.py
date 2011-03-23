@@ -112,10 +112,9 @@ class KoEpMojoLinter():
 
 
     def __init__(self):
-        self._perl_linter = components.classes["@activestate.com/koLinter?language=Perl;1"].\
-                            getService(components.interfaces.koILinter)
-        self._html_linter = components.classes["@activestate.com/koLinter?language=HTML;1"].\
-                            getService(components.interfaces.koILinter)
+        koLintService = components.classes["@activestate.com/koLintService;1"].getService(components.interfaces.koILintService)
+        self._perl_linter = koLintService.getLinterForLanguage("Perl")
+        self._html_linter = koLintService.getLinterForLanguage("HTML")
         
     epMatcher = re.compile(r'''(
                                 (?:<%(?:.|[\r\n])*?%>)   # Anything in <%...%>

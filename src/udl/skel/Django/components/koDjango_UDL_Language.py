@@ -227,6 +227,7 @@ class KoDjangoLinter(object):
             getService(components.interfaces.koISysUtils)
         self._koDirSvc = components.classes["@activestate.com/koDirs;1"].\
             getService(components.interfaces.koIDirs)
+        koLintService = components.classes["@activestate.com/koLintService;1"].getService(components.interfaces.koILintService)
         self._userPath = koprocessutils.getUserEnv()["PATH"].split(os.pathsep)
         self._koPythonInfoEx = components.classes["@activestate.com/koAppInfoEx?app=Python;1"].\
             getService(components.interfaces.koIAppInfoEx)
@@ -239,8 +240,7 @@ class KoDjangoLinter(object):
                                      "djangoLinter.py")
         self._settingsForDirs = {}
         self._lineSplitterRE = re.compile(r'\r?\n')
-        self._html_linter = components.classes["@activestate.com/koLinter?language=HTML;1"].\
-                            getService(components.interfaces.koILinter)
+        self._html_linter = koLintService.getLinterForLanguage("HTML")
         self._nonNewline = re.compile(r'[^\r\n]')
 
     def _blankMatchedText(self, m):

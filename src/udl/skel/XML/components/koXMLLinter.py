@@ -57,8 +57,8 @@ class KoXMLCompileLinter:
          ]
 
     def __init__(self):
-        self._html_linter = components.classes["@activestate.com/koLinter?language=HTML;1"].\
-                            getService(components.interfaces.koILinter)
+        koLintService = components.classes["@activestate.com/koLintService;1"].getService(components.interfaces.koILintService)
+        self._html_linter = koLintService.getLinterForLanguage("HTML")
 
     def lint(self, request):
         return self._html_linter.lint(request)

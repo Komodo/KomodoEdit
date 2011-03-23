@@ -252,7 +252,7 @@ class KoLintService:
             getService(components.interfaces.koIPrefService).prefs
 
         # dict of { 'terminals' => array of linters, 'aggregators' => array of linters }
-        self._lintersByLanguageName = {}
+        self._linterCIDsByLanguageName = {}
         # Init it now, pay the price of walking through the categories now...
         catman = components.classes["@mozilla.org/categorymanager;1"].\
             getService(components.interfaces.nsICategoryManager)
@@ -263,15 +263,15 @@ class KoLintService:
             nameObj.QueryInterface(components.interfaces.nsISupportsCString)
             name = nameObj.data
             cid = catman.getCategoryEntry(categoryName, name)
-            if not self._lintersByLanguageName.has_key(name):
-                self._lintersByLanguageName[name] = {'terminals':[],
+            if not self._linterCIDsByLanguageName.has_key(name):
+                self._linterCIDsByLanguageName[name] = {'terminals':[],
                                                      'aggregator':cid}
             else:
                 log.warn("Possible Problem: more than one entry for linter aggregator %s (was %s), now %s",
                          name,
-                         self._lintersByLanguageName[name]['aggregator'],
+                         self._linterCIDsByLanguageName[name]['aggregator'],
                          cid)
-                self._lintersByLanguageName[name]['aggregator'] = cid
+                self._linterCIDsByLanguageName[name]['aggregator'] = cid
             
         categoryName = 'category-komodo-linter'
         names = catman.enumerateCategory(categoryName)
@@ -285,13 +285,14 @@ class KoLintService:
             else:
                 languageName = name[:idx]
             cid = catman.getCategoryEntry(categoryName, name)
-            if not self._lintersByLanguageName.has_key(languageName):
-                self._lintersByLanguageName[languageName] = {'terminals':[],
+            if not self._linterCIDsByLanguageName.has_key(languageName):
+                self._linterCIDsByLanguageName[languageName] = {'terminals':[],
                                                              'aggregator':None}
-            self._lintersByLanguageName[languageName]['terminals'].append(cid)
+            self._linterCIDsByLanguageName[languageName]['terminals'].append(cid)
+        #log.debug("Loaded these linters: %s", self._linterCIDsByLanguageName)
 
     def getLinter_CID_ForLanguage(self, languageName):
-        return self._getLinterByLanguageName(languageName)
+        return self._getLinterCIDByLanguageName(languageName)
         
     def observe(self, subject, topic, data):
         #print "file status service observed %r %s %s" % (subject, topic, data)
@@ -308,21 +309,21 @@ class KoLintService:
 
     def getTerminalLintersForLanguage(self, languageName):
         return [self._getLinterByCID(cid)
-                for cid in self._lintersByLanguageName[languageName]['terminals']]
+                for cid in self._linterCIDsByLanguageName[languageName]['terminals']]
         
 
-    def _getLinterByLanguageName(self, languageName):
+    def _getLinterCIDByLanguageName(self, languageName):
         try:
-            linters = self._lintersByLanguageName[languageName]
+            linters = self._linterCIDsByLanguageName[languageName]
         except KeyError:
-            self._lintersByLanguageName[languageName] = {'aggregator':None,
+            self._linterCIDsByLanguageName[languageName] = {'aggregator':None,
                                                          'terminals':[None]}
             return None
         # If there's no explicit aggregator, return the first terminal linter.
         # If there isn't one, throw the ItemError all the way to top-level
         return linters['aggregator'] or linters['terminals'][0]
 
-    def _getLinter(self, languageName):
+    def getLinterForLanguage(self, languageName):
         """Return a koILinter XPCOM component of the given linterCID.
         
         This method cache's linter instances. If there is no such linter
@@ -330,7 +331,7 @@ class KoLintService:
 
         Note that aggregators are favored over terminal linters.
         """
-        linterCID = self._getLinterByLanguageName(languageName)
+        linterCID = self._getLinterCIDByLanguageName(languageName)
         return self._getLinterByCID(linterCID)
 
     def _getLinterByCID(self, linterCID):
@@ -360,7 +361,7 @@ class KoLintService:
         request.content = request.koDoc.buffer
         request.encoding = request.koDoc.encoding
         if request.linterType:
-            request.linter = self._getLinter(request.linterType)
+            request.linter = self.getLinterForLanguage(request.linterType)
         # Proxy this so the worker thread can report results on this iface.
         request.lintBuffer = getProxyForObject(None,
             components.interfaces.koILintBuffer, request.lintBuffer,

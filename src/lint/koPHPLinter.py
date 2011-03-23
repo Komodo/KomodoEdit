@@ -68,8 +68,8 @@ class KoPHPCompileLinter:
     def __init__(self):
         self.phpInfoEx = components.classes["@activestate.com/koAppInfoEx?app=PHP;1"].\
                     getService(components.interfaces.koIPHPInfoEx)
-        self._html_linter = components.classes["@activestate.com/koLinter?language=HTML;1"].\
-                            getService(components.interfaces.koILinter)
+        koLintService = components.classes["@activestate.com/koLintService;1"].getService(components.interfaces.koILintService)
+        self._html_linter = koLintService.getLinterForLanguage("HTML")
     
     # linting versions are different than what is required for xdebug
     # debugging, so we have our own version checking

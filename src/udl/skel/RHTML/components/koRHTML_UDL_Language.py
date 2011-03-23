@@ -248,10 +248,9 @@ class KoRHTMLLinter(object):
 
 
     def __init__(self):
-        self._ruby_linter = components.classes["@activestate.com/koLinter?language=Ruby;1"].\
-                            getService(components.interfaces.koILinter)
-        self._html_linter = components.classes["@activestate.com/koLinter?language=HTML;1"].\
-                            getService(components.interfaces.koILinter)
+        koLintService = components.classes["@activestate.com/koLintService;1"].getService(components.interfaces.koILintService)
+        self._ruby_linter = koLintService.getLinterForLanguage("Ruby")
+        self._html_linter = koLintService.getLinterForLanguage("HTML")
         
     _RHTMLMatcher = re.compile(r'''(
                                 (?:<%=?.*?(?:-?%>|$))
@@ -263,7 +262,7 @@ class KoRHTMLLinter(object):
     def _fixRubyPart(self, text):
         parts = self._RHTMLMatcher.findall(text)
         if not parts:
-            return "", []
+            return ""
         i = 0
         lim = len(parts)
         rubyTextParts = []

@@ -211,6 +211,7 @@ interface koILintService : nsISupports {
     void cancelPendingRequests(in string uid);
 
     wstring getLinter_CID_ForLanguage(in wstring languageName);
+    koILinter getLinterForLanguage(in wstring languageName);
 };
 
 
