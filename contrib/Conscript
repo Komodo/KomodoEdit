@@ -418,6 +418,7 @@ $cons->DependsRecursive($landmark, "html5lib", ("build", '\.svn'));
 
 # jslint
 $cons->Install("$supportDir/lint/javascript", "jslint/fulljslint.js");
+$cons->Install("$supportDir/lint/javascript", "jslint/jshint.js");
 
 
 #---- komododoc

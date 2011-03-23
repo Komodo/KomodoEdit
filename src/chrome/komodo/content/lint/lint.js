@@ -107,6 +107,8 @@ var global_pref_observer_topics = [
     "ruby_lintOption",
     "lintJavaScriptEnableWarnings",
     "lintJavaScriptEnableStrict",
+    "lintWithJSHint",
+    "jshintOptions",
     "lintWithJSLint",
     "jslintOptions",
     "tidy_errorlevel",
@@ -236,6 +238,8 @@ this.lintBuffer.prototype.observe = function(subject, topic, data)
         // JavaScript
         case "lintJavaScriptEnableWarnings":
         case "lintJavaScriptEnableStrict":
+        case "lintWithJSHint":
+        case "jshintOptions":
         case "lintWithJSLint":
         case "jslintOptions":
             _log.info("LintBuffer["+this.view.title+

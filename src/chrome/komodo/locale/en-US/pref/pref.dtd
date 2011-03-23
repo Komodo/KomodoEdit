@@ -634,11 +634,21 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY lintJavaScriptEnableStrict.label "Enable strict warning messages.">
 <!ENTITY javascriptFolder.description "Specify any directories that you want Komodo to use for autocomplete and calltips. Komodo will recursively scan these directories for information.">
 <!ENTITY lintJavaScriptWithJSLint.label "Check Code With JSLint">
+<!ENTITY JSLint.label "JSLint">
 <!ENTITY lintJSLintOptions.label "JSLint Options">
 <!ENTITY lintJSLint_ActivateGoodPartsOptions.label "&quot;Good Parts&quot; Options">
 <!ENTITY lintJSLint_ActivateAllOptions.label "All Options">
 <!ENTITY lintJSLint_Explanation.descr "Use a format like bitwise=false debug=true maxerr=5">
 <!ENTITY lintJSLint_WebSiteLabel.label "See all allowed options at: ">
+
+<!-- JSHint, a fork of jshint -->
+<!ENTITY JSHint.label "JSHint">
+<!ENTITY lintJavaScriptWithJSHint.label "Check Code With JSHint">
+<!ENTITY lintJSHintOptions.label "JSHint Options">
+<!ENTITY lintJSHint_ActivateGoodPartsOptions.label "&quot;Good Parts&quot; Options">
+<!ENTITY lintJSHint_ActivateAllOptions.label "All Options">
+<!ENTITY lintJSHint_Explanation.descr "Use a format like bitwise=false debug=true maxerr=5">
+<!ENTITY lintJSHint_WebSiteLabel.label "See all allowed options at: ">
 
 <!--pref-keys.xul-->
 <!ENTITY keyBindingsConfiguration.description "Key bindings determine what key shortcuts will start what command. Click on a command to see and modify its key configuration.">

@@ -243,34 +243,29 @@ class KoJSONLinter(CommonJSLinter):
     def lint_with_text(self, request, text):
         return KoXPCShellLinter.lint_with_text(self, request, "var x = " + text)
         
-        
-class KoJSLintLinter(CommonJSLinter):
-    _com_interfaces_ = [components.interfaces.koILinter]
-    _reg_desc_ = "Komodo JSLint Linter"
-    _reg_clsid_ = "{6048c9c2-b197-4fca-a718-c0a73d252876}"
-    _reg_contractid_ = "@activestate.com/koLinter?language=JavaScript&type=JSLint;1"
-    _reg_categories_ = [
-         ("category-komodo-linter", 'JavaScript&type=jslint'),
-         ]
+class GenericJSLinter(CommonJSLinter):
 
     def lint(self):
         text = request.content.encode(request.encoding.python_encoding_name)
         return self.lint_with_text(request, text)
-        
-    def lint_with_text(self, request, text):
+
+    def _jslint_with_text(self, request, text, prefSwitchName, prefOptionsName):
         if not text:
+            #log.debug("<< no text")
             return
         prefset = request.koDoc.getEffectivePrefs()
-        if not prefset.getBooleanPref('lintWithJSLint'):
+        if not prefset.getBooleanPref(prefSwitchName):
             return
         jsfilename, isMacro, datalines = self._make_tempfile_from_text(request, text)
         jsInterp = self._get_js_interp_path()
         jsLintDir = os.path.join(self.koDirs.supportDir, "lint", "javascript")
         jsLintApp = os.path.join(jsLintDir, "lintWrapper.js")
-        options = prefset.getStringPref("jslintOptions").strip()
+        options = prefset.getStringPref(prefOptionsName).strip()
         # Lint the temp file, the jsInterp options are described here:
         # https://developer.mozilla.org/en/Introduction_to_the_JavaScript_shell
         cmd = [jsInterp, jsLintApp, "--include=" + jsLintDir]
+        if prefSwitchName == "lintWithJSHint":
+            cmd.append("--jshint")
         if options:
             cmd += re.compile(r'\s+').split(options)
 
@@ -278,13 +273,15 @@ class KoJSLintLinter(CommonJSLinter):
         cwd = request.cwd or None
         # We only need the stderr result.
         try:
+            #log.debug("linting... %s", cmd)
             p = process.ProcessOpen(cmd, cwd=cwd, stdin=fd)
             stdout, stderr = p.communicate()
-            #log.debug("jslint: stdout: %s, stderr: %s", stdout, stderr)
+            #log.debug("jslint(%s): stdout: %s, stderr: %s", prefSwitchName, stdout, stderr)
             warnLines = stdout.splitlines() # Don't need the newlines.
             i = 0
+            outputStart = "++++JSLINT OUTPUT:"
             while i < len(warnLines):
-                if "++++JSLINT OUTPUT:" in warnLines[i]:
+                if outputStart in warnLines[i]:
                     warnLines = warnLines[i + 1:]
                     break
                 i += 1
@@ -332,6 +329,39 @@ class KoJSLintLinter(CommonJSLinter):
                 results.addResult(result)
 
         return results
+
+
+class KoJSLintLinter(GenericJSLinter):
+    _com_interfaces_ = [components.interfaces.koILinter]
+    _reg_desc_ = "Komodo JSLint Linter"
+    _reg_clsid_ = "{6048c9c2-b197-4fca-a718-c0a73d252876}"
+    _reg_contractid_ = "@activestate.com/koLinter?language=JavaScript&type=JSLint;1"
+    _reg_categories_ = [
+         ("category-komodo-linter", 'JavaScript&type=jslint'),
+         ]
+        
+    def lint_with_text(self, request, text):
+        return self._jslint_with_text(request, text,
+                                      prefSwitchName="lintWithJSLint",
+                                      prefOptionsName="jslintOptions")
+
+class KoJSHintLinter(GenericJSLinter):
+    """
+    JSHint is a fork of JSLint.  It's supposedly more flexible, and
+    supports a different set of options.
+    """
+    _com_interfaces_ = [components.interfaces.koILinter]
+    _reg_desc_ = "Komodo JSHint Linter"
+    _reg_clsid_ = "{41491bd5-a68f-4397-a66d-22eda3aa8314}"
+    _reg_contractid_ = "@activestate.com/koLinter?language=JavaScript&type=JSHint;1"
+    _reg_categories_ = [
+         ("category-komodo-linter", 'JavaScript&type=jshint'),
+         ]
+        
+    def lint_with_text(self, request, text):
+        return self._jslint_with_text(request, text,
+                                      prefSwitchName="lintWithJSHint",
+                                      prefOptionsName="jshintOptions")
 
 class KoJavaScriptAggregatorLinter(object):
     _com_interfaces_ = [components.interfaces.koILinter]
