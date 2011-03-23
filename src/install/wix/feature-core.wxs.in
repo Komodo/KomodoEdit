@@ -368,6 +368,7 @@
       <ComponentRef Id="component630"/>
       <ComponentRef Id="component638"/>
       <ComponentRef Id="component645"/>
+      <ComponentRef Id="component655"/>
 
 <?if $(var.WithCrypto) = "yes" ?>
       <!-- Crypto and paramiko Python packages -->
@@ -4501,6 +4502,15 @@
               <File Id="file3811" Name="newline.gif" Vital="yes" src="feature-core\INSTALLDIR\lib\support\images\newline.gif"/>
             </Component>
           </Directory> <!-- lib\support\images -->
+          <Directory Id="directory707" Name="lint">
+              <Directory Id="directory708" Name="JAVASC_1" LongName="javascript">
+                <Component Id="component655" DiskId="1" Guid="$(autowix.guid)">
+                  <File Id="file1267" Name="FULLJS_0.JS" LongName="fulljslint.js" Vital="yes" src="feature-core\INSTALLDIR\lib\support\lint\javascript\fulljslint.js"/>
+                  <File Id="file1268" Name="jshint.js" Vital="yes" src="feature-core\INSTALLDIR\lib\support\lint\javascript\jshint.js"/>
+                  <File Id="file1269" Name="LINTWR_0.JS" LongName="lintWrapper.js" Vital="yes" src="feature-core\INSTALLDIR\lib\support\lint\javascript\lintWrapper.js"/>
+                </Component>
+              </Directory> <!-- lib\support\lint\javascript -->
+            </Directory> <!-- lib\support\lint -->
           <Directory Id="directory210" Name="modules">
             <Component Id="component199" DiskId="1" Guid="$(autowix.guid)">
 <?if $(var.WithJSLib) = "yes" ?>
