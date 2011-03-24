@@ -1231,6 +1231,7 @@ function keysequence2keylabel(keysequence) {
     }
     var keyname = '';
     var part;
+    var i;
     for (i in keysequence) {
         part = keysequence[i];
         if (part[part.length-1] == '') part += '+';  // e.g. Ctrl--
