@@ -195,6 +195,11 @@
   <!-- JSHint linting options -->
   <boolean id="lintWithJSHint">false</boolean>
   <string id="jshintOptions"></string>
+
+  <!-- HTML linters -->
+  <boolean id="lintStandardHTMLChecking">true</boolean> <!-- either tidy or html5lib -->
+  <boolean id="lintHTML-CheckWith-Perl-HTML-Tidy">false</boolean>
+  <boolean id="lintHTML-CheckWith-Perl-HTML-Lint">false</boolean>
   
 
 <!-- ruby start -->

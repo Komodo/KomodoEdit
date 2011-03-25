@@ -111,6 +111,9 @@ var global_pref_observer_topics = [
     "jshintOptions",
     "lintWithJSLint",
     "jslintOptions",
+    "lintStandardHTMLChecking",
+    "lintHTML-CheckWith-Perl-HTML-Lint",
+    "lintHTML-CheckWith-Perl-HTML-Tidy",
     "tidy_errorlevel",
     "tidy_accessibility",
     "tidy_configpath",
@@ -119,7 +122,7 @@ var global_pref_observer_topics = [
 var view_pref_observer_topics = [
     "editUseLinting",
     "lintEOLs",
-    "endOfLine",
+    "endOfLine"
 ];
 
 this.lintBuffer = function LintBuffer(view) {
@@ -252,6 +255,9 @@ this.lintBuffer.prototype.observe = function(subject, topic, data)
         case "tidy_errorlevel":
         case "tidy_accessibility":
         case "tidy_configpath":
+            case "lintStandardHTMLChecking":
+            case "lintHTML-CheckWith-Perl-HTML-Lint":
+            case "lintHTML-CheckWith-Perl-HTML-Tidy":
             _log.info("LintBuffer["+this.view.title+
                            "].observed HTML/XML pref change, re-linting");
             if (lintingEnabled && this.view.languageObj.isHTMLLanguage) {

@@ -64,20 +64,22 @@
         var textbox = document.getElementById("tidy_configpath");
         var currentDir = getDirectoryFromTextObject(textbox);
         var file = ko.filepicker.browseForFile(currentDir);
-        if (file != null) {
+        if (file !== null) {
             textbox.value = file;
         }
     }
+
+var havePerlLint = null;
 
 function OnPreferencePageLoading(prefset) {
     try {
     var catSvc = Components.classes["@activestate.com/koXMLCatalogService;1"].
                        getService(Components.interfaces.koIXMLCatalogService);
     var decl = prefset.getStringPref("defaultHTMLDecl");
-    var idlist = catSvc.getPublicIDList(new Object());
+    var idlist = catSvc.getPublicIDList({});
     var popup = document.getElementById("doctypePopup");
     var selected = null;
-    for (var i =0 ; i < idlist.length; i++) {
+    for (var i = 0; i < idlist.length; i++) {
         // is this an HTML decl?
         if (idlist[i].match(/DTD X?HTML/)) {
             var el = document.createElement("menuitem");
@@ -90,7 +92,39 @@ function OnPreferencePageLoading(prefset) {
     } catch(e) {
         log.exception(e);
     }
+    checkHTMLLintUpdate();
 }
+
+function checkHTMLLintUpdate() {
+    // Is Perl's HTML-Lint available?
+    if (havePerlLint === null) {
+        setTimeout(function() {
+            var appInfoEx = Components.classes["@activestate.com/koAppInfoEx?app=Perl;1"].
+                    getService(Components.interfaces.koIPerlInfoEx);
+            havePerlLint = {
+                'lintHTML-CheckWith-Perl-HTML-Lint' : appInfoEx.haveModules(1, ["HTML::Lint"]),
+                'lintHTML-CheckWith-Perl-HTML-Tidy' : appInfoEx.haveModules(1, ["HTML::Tidy"])
+            }
+            updatePerlLintStatus(havePerlLint);
+        }, 100);
+    } else {
+        updatePerlLintStatus(havePerlLint);
+    }
+}
+
+function updatePerlLintStatus(havePerlLint) {
+    for (var idName in havePerlLint) {
+        var haveThisLint = havePerlLint[idName];
+        var checkbox = document.getElementById(idName);
+        if (haveThisLint) {
+            checkbox.disabled = false;
+        } else {
+            checkbox.disabled = true;
+            checkbox.checked = false;
+        }
+    }
+}
+
 
 function OnPreferencePageOK(prefset) {
     var popup = document.getElementById("doctypePopup");
@@ -115,6 +149,9 @@ function OnPreferencePageOK(prefset) {
         </groupbox>
         <groupbox orient="vertical">
             <caption label="&syntaxChecking.label;"/>
+            <checkbox id="lintStandardHTMLChecking"
+                      label="&doStandardHTMLChecking.label;"
+                      pref="true" />
             <vbox flex="1" align="center">
                 <description>
                     &syntaxControlHtml.description;
@@ -179,6 +216,20 @@ function OnPreferencePageOK(prefset) {
             </hbox>
         </groupbox>
     
+        <groupbox orient="vertical">
+            <caption label="&perlHTMLTidy.label;"/>
+            <checkbox id="lintHTML-CheckWith-Perl-HTML-Tidy"
+                      label="&checkWithPerlsHTMLTidy.label;"
+                      pref="true" />
+	</groupbox>
+    
+        <groupbox orient="vertical">
+            <caption label="&perlHTMLLint.label;"/>
+            <checkbox id="lintHTML-CheckWith-Perl-HTML-Lint"
+                      label="&checkWithPerlsHTMLLint.label;"
+                      pref="true" />
+	</groupbox>
+	
         <spacer flex="1"/>
 
     </vbox>

@@ -50,6 +50,7 @@ from html5lib.constants import E as html5libErrorDict
 import process
 
 import logging
+logging.basicConfig()
 log = logging.getLogger("KoHTMLLinter")
 #log.setLevel(logging.DEBUG)
 
@@ -59,18 +60,6 @@ class _CommonHTMLLinter(object):
     _com_interfaces_ = [components.interfaces.koILinter]
     
     def __init__(self):
-        self.koDirs = components.classes["@activestate.com/koDirs;1"].\
-                      getService(components.interfaces.koIDirs)
-        self.infoSvc = components.classes["@activestate.com/koInfoService;1"].\
-                       getService()
-        
-        self._proxyMgr = components.classes["@mozilla.org/xpcomproxy;1"].\
-            getService(components.interfaces.nsIProxyObjectManager)
-        self._prefSvc = components.classes["@activestate.com/koPrefService;1"].\
-            getService(components.interfaces.koIPrefService)
-        self._prefProxy = self._proxyMgr.getProxyForObject(None,
-            components.interfaces.koIPrefService, self._prefSvc,
-            PROXY_ALWAYS | PROXY_SYNC)
         self._koLintService = components.classes["@activestate.com/koLintService;1"].getService(components.interfaces.koILintService)
         self._lintersByLangName = {
             "CSS": self._koLintService.getLinterForLanguage("CSS"),
@@ -212,37 +201,84 @@ class _CommonHTMLLinter(object):
             
 
 class KoHTMLCompileLinter(_CommonHTMLLinter):
-    _reg_desc_ = "Komodo HTML Tidy Linter"
+    _reg_desc_ = "Komodo HTML Aggregate Linter"
     _reg_clsid_ = "{DBF1E5E0-91C7-43da-870B-DB1859017102}"
-    _reg_contractid_ = "@activestate.com/koLinter?language=HTML;1"
+    _reg_contractid_ = "@activestate.com/koLinter?language=HTML&type=Aggregator;1"
     _reg_categories_ = [
-         ("category-komodo-linter", 'HTML'),
+         ("category-komodo-linter-aggregator", 'HTML'),
          ]
+    
+    def __init__(self):
+        _CommonHTMLLinter.__init__(self)
+        self._koLintService_UW = UnwrapObject(self._koLintService)
 
-    def filterLines(self, lines):
-        return lines
-
+    # Do all the language-separation in the aggregator.  Then each HTML
+    # terminal linter will concern itself only with the full document,
+    # and won't have to pick out sublanguages.
     def lint(self, request, argv_additions=None, udlMapping=None, linters=None):
-        #XXX Is the argv_additions ever used?
+        #XXX Is argv_additions ever used?
         self._argv_additions = argv_additions
         return self._lint_common_html_request(request, udlMapping, linters)
 
     def lint_with_text(self, request, text):
+        if not text:
+            #log.debug("no text")
+            return
         argv_additions = getattr(self, '_argv_additions', None)
+        # Your basic aggregator....
+        linters = self._koLintService_UW.getTerminalLintersForLanguage("HTML")
+        finalLintResults = koLintResults()
+        for linter in linters:
+            if argv_additions is not None:
+                linter2 = UnwrapObject(linter)
+                if linter2._reg_contractid_ == "@activestate.com/koHTMLTidyLinter;1":
+                    newLintResults = linter2.lint_with_text(request, text, argv_additions)
+                else:
+                    newLintResults = linter2.lint_with_text(request, text)
+            else:
+                newLintResults = linter.lint_with_text(request, text)
+            if newLintResults and newLintResults.getNumResults():
+                if finalLintResults.getNumResults():
+                    finalLintResults = finalLintResults.addResults(newLintResults)
+                else:
+                    finalLintResults = newLintResults
+        return finalLintResults
+        
+
+class KoHTMLTidyLinter:
+    _com_interfaces_ = [components.interfaces.koILinter]
+    _reg_clsid_ = "{47b1aa81-d872-4b24-8338-de80ec3967a1}"
+    _reg_contractid_ = "@activestate.com/koHTMLTidyLinter;1"
+    _reg_desc_ = "HTML Tidy Linter"
+    _reg_categories_ = [
+         ("category-komodo-linter", 'HTML&type=tidy'),
+         ]
+
+    def filterLines(self, lines):
+        return lines
+    
+    def lint(self, request):
+        text = request.content.encode(request.encoding.python_encoding_name)
+        return self.lint_with_text(request, text)
+
+    def lint_with_text(self, request, text, argv_additions=None):
+        prefset = request.koDoc.getEffectivePrefs()
+        if not prefset.getBooleanPref("lintStandardHTMLChecking"):
+            return
         cwd = request.cwd
 
         text = eollib.convertToEOLFormat(text, eollib.EOL_LF)
         datalines = text.split('\n')
 
         # get the tidy config file
-        configFile = self._prefProxy.prefs.getStringPref('tidy_configpath')
+        configFile = prefset.getStringPref('tidy_configpath')
         if configFile and not os.path.exists(configFile):
             log.debug("The Tidy configuration file does not exist, please "
                      "correct your settings in the preferences for HTML.")
             configFile = None
             
-        errorLevel = self._prefProxy.prefs.getStringPref('tidy_errorlevel')
-        accessibility = self._prefProxy.prefs.getStringPref('tidy_accessibility')
+        errorLevel = prefset.getStringPref('tidy_errorlevel')
+        accessibility = prefset.getStringPref('tidy_accessibility')
         
         #Character encodings
         #-------------------
@@ -262,7 +298,9 @@ class KoHTMLCompileLinter(_CommonHTMLLinter):
         elif request.encoding.python_encoding_name == 'cp1252':
             enc = '-win1252'
             
-        argv = [os.path.join(self.koDirs.supportDir, "html", "tidy"),
+        koDirs = components.classes["@activestate.com/koDirs;1"].\
+                      getService(components.interfaces.koIDirs)
+        argv = [os.path.join(koDirs.supportDir, "html", "tidy"),
                 '-errors', '-quiet', enc]
         if argv_additions:
             argv += argv_additions
@@ -374,20 +412,165 @@ class KoHTMLCompileLinter(_CommonHTMLLinter):
         return results
 
 
+class _invokePerlLinter(object):
+    _com_interfaces_ = [components.interfaces.koILinter]
+    def lint(self, request):
+        text = request.content.encode(request.encoding.python_encoding_name)
+        return self.lint_with_text(request, text)
+        
+    def _lint_with_text(self, request, text, perlHTMLCheckerPrefName,
+                        perlLinterBasename, args):
+        if not text:
+            #log.debug("<< no text")
+            return
+        prefset = request.koDoc.getEffectivePrefs()
+        if not prefset.getBooleanPref(perlHTMLCheckerPrefName):
+            return
+        perlLintDir = os.path.join(components.classes["@activestate.com/koDirs;1"].\
+                                    getService(components.interfaces.koIDirs).supportDir,
+                                   "lint",
+                                   "perl")
+        perlWrapperFileName = os.path.join(perlLintDir, perlLinterBasename);
+        perlExe = prefset.getStringPref("perlDefaultInterpreter")
+        cmd = [perlExe, perlWrapperFileName]
+        cwd = request.cwd or None
+        try:
+            p = process.ProcessOpen(cmd, cwd=cwd)
+            stdout, stderr = p.communicate(text)
+            warnLines = stdout.splitlines() # Don't need the newlines.
+        except:
+            log.exception("Error perl/html linting")
+            
+                
+        # 'jslint' error reports come in this form:
+        # jslint error: at line \d+ column \d+: explanation
+        results = koLintResults()
+        if perlLinterBasename == "htmltidy.pl":
+            hasStatus = True
+            msgRe = re.compile(r'''^input \s+ \( (?P<lineNo>\d+)
+                               : (?P<columnNo>\d+) \)
+                               \s+ (?P<status>Warning|Info|Error)
+                               : \s* (?P<desc>.*)$''', re.VERBOSE)
+        else:
+            hasStatus = False
+            msgRe = re.compile(r'''^\s+ \( (?P<lineNo>\d+)
+                               : (?P<columnNo>\d+) \)
+                               \s+
+                               (?P<desc>.*)$''', re.VERBOSE)
+        datalines = text.splitlines()
+        numDataLines = len(datalines)
+        for msgLine in warnLines:
+            m = msgRe.match(msgLine)
+            if m:
+                status = hasStatus and m.group("status") or None
+                if status == "Info":
+                    # These are rarely useful
+                    continue
+                lineNo = int(m.group("lineNo"))
+                #columnNo = int(m.group("columnNo"))
+                # build lint result object
+                result = KoLintResult()
+                # if the error is on the last line, work back to the last
+                # character of the first nonblank line so we can display
+                # the error somewhere
+                if len(datalines[lineNo]) == 0:
+                    while lineNo > 0 and len(datalines[lineNo - 1]) == 0:
+                        lineNo -= 1
+                if lineNo == 0:
+                    lineNo = 1
+                result.columnStart =  1
+                result.columnEnd = len(datalines[lineNo - 1]) + 1
+                result.lineStart = result.lineEnd = lineNo
+                if status == "Error":
+                    result.severity = result.SEV_ERROR
+                else:
+                    result.severity = result.SEV_WARNING
+                result.description = m.group("desc")
+                results.addResult(result)
+
+        return results
+        
+class KoHTMLPerl_HTMLLint_Linter(_invokePerlLinter):
+    """
+    Check HTML code by using Perl's HTML-Lint module
+    """
+    _reg_clsid_ = "{1603484f-7723-4a65-b0f5-b4f77c563d25}"
+    _reg_desc_ = "Komodo HTML Linter Using Perl's HTML::Lint"
+    _reg_contractid_ = "@activestate.com/koLinter?language=HTML&type=Perl:HTML::Lint;1"
+    _reg_categories_ = [
+         ("category-komodo-linter", 'HTML&type=Perl:HTML::Lint'),
+         ("category-komodo-linter", 'HTML5&type=Perl:HTML::Lint'),
+         ]
+
+    def lint_with_text(self, request, text):
+        return self._lint_with_text(request, text,
+                                    "lintHTML-CheckWith-Perl-HTML-Lint",
+                                    "htmllint.pl", [])
+        
+class KoHTMLPerl_HTMLTidy_Linter(_invokePerlLinter):
+    """
+    Check HTML code by using Perl's HTML-Tidy module
+    """
+    _reg_clsid_ = "{6d9817fc-7b64-435b-9152-7183a9d3ffcc}"
+    _reg_desc_ = "Komodo HTML Linter Using Perl's HTML::Tidy"
+    _reg_contractid_ = "@activestate.com/koLinter?language=HTML&type=Perl:HTML::Tidy;1"
+    _reg_categories_ = [
+         ("category-komodo-linter", 'HTML&type=Perl:HTML::Tidy'),
+         ("category-komodo-linter", 'HTML5&type=Perl:HTML::Tidy'),
+         ]
+
+    def lint_with_text(self, request, text):
+        return self._lint_with_text(request, text,
+                                    "lintHTML-CheckWith-Perl-HTML-Tidy",
+                                    "htmltidy.pl", [])
+    
 class KoHTML5CompileLinter(_CommonHTMLLinter):
     _reg_desc_ = "Komodo HTML 5 Tidy Linter"
     _reg_clsid_ = "{06b2f705-849d-462f-aafb-bb2e4dfd6d37}"
-    _reg_contractid_ = "@activestate.com/koLinter?language=HTML5;1"
+    _reg_contractid_ = "@activestate.com/koLinter?language=HTML5&type=Aggregator;1"
     _reg_categories_ = [
-         ("category-komodo-linter", 'HTML5'),
+         ("category-komodo-linter-aggregator", 'HTML5'),
+         ]
+
+    def __init__(self):
+        _CommonHTMLLinter.__init__(self)
+        self._koLintService_UW = UnwrapObject(self._koLintService)
+
+    def lint(self, request, udlMapping=None, linters=None):
+        return self._lint_common_html_request(request, udlMapping, linters)
+
+    def lint_with_text(self, request, text):
+        if not text:
+            #log.debug("no text")
+            return
+        # Your basic aggregator....
+        linters = self._koLintService_UW.getTerminalLintersForLanguage("HTML5")
+        finalLintResults = koLintResults()
+        for linter in linters:
+            newLintResults = linter.lint_with_text(request, text)
+            if newLintResults and newLintResults.getNumResults():
+                if finalLintResults.getNumResults():
+                    finalLintResults = finalLintResults.addResults(newLintResults)
+                else:
+                    finalLintResults = newLintResults
+        return finalLintResults
+
+class KoHTML5_html5libLinter:
+    _com_interfaces_ = [components.interfaces.koILinter]
+    _reg_clsid_ = "{09204c16-b24f-4d67-a5b6-2f499f9ccc5b}"
+    _reg_contractid_ = "@activestate.com/koHTML5_html5libLinter;1"
+    _reg_desc_ = "HTML5 html5lib Linter"
+    _reg_categories_ = [
+         ("category-komodo-linter", 'HTML5&type=html5lib'),
          ]
 
     problem_word_ptn = re.compile(r'([ &<]?\w+\W*)$')
     leading_ws_ptn = re.compile(r'(\s+)')
     dictType = type({})
 
-    def lint(self, request, udlMapping=None, linters=None):
-        return self._lint_common_html_request(request, udlMapping, linters)
+    def lint(self, request):
+        text = request.content.encode(request.encoding.python_encoding_name)
+        return self.lint_with_text(request, text)
 
     def lint_with_text(self, request, text):
         textLines = text.splitlines()
