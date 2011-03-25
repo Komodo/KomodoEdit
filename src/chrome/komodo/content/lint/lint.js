@@ -92,32 +92,73 @@ var _linterLanguageNames = {};
 // for all JS-side linting handling for that view.
 //
 
-var global_pref_observer_topics = [
-    "editUseLinting",
-    "lintEOLs",
-    "perlDefaultInterpreter",
-    "perl_lintOption",
-    "perl_lintOption_perlCriticLevel",
-    "perl_lintOption_includeCurrentDirForLinter",
-    "pythonDefaultInterpreter",
-    "python3DefaultInterpreter",
-    "phpDefaultInterpreter",
-    "phpConfigFile",
-    "rubyDefaultInterpreter",
-    "ruby_lintOption",
-    "lintJavaScriptEnableWarnings",
-    "lintJavaScriptEnableStrict",
-    "lintWithJSHint",
-    "jshintOptions",
-    "lintWithJSLint",
-    "jslintOptions",
-    "lintStandardHTMLChecking",
-    "lintHTML-CheckWith-Perl-HTML-Lint",
-    "lintHTML-CheckWith-Perl-HTML-Tidy",
-    "tidy_errorlevel",
-    "tidy_accessibility",
-    "tidy_configpath",
-];
+// This object belongs to ko.lint, so extensions can add their prefs to
+// the observer.
+
+const PERL_LIST = ["Perl"];
+const PYTHON_LIST = ["Python", "Django"];
+const PHP_LIST = ["PHP"];
+const RUBY_LIST = ["Ruby"];
+const JS_LIST = ["JavaScript"];
+const HTML_LIST = ["HTML", "XML"];
+
+var global_pref_observer_topics = {
+    "editUseLinting" : null,
+    "lintEOLs" : null,
+    "perlDefaultInterpreter" : PERL_LIST,
+    "perl_lintOption" : PERL_LIST,
+    "perl_lintOption_perlCriticLevel" : PERL_LIST,
+    "perl_lintOption_includeCurrentDirForLinter" : PERL_LIST,
+    "pythonDefaultInterpreter" : PYTHON_LIST,
+    "python3DefaultInterpreter" : PYTHON_LIST,
+    "phpDefaultInterpreter" : PHP_LIST,
+    "phpConfigFile" : PHP_LIST,
+    "rubyDefaultInterpreter" : RUBY_LIST,
+    "ruby_lintOption" : RUBY_LIST,
+    "lintJavaScriptEnableWarnings" : JS_LIST,
+    "lintJavaScriptEnableStrict" : JS_LIST,
+    "lintWithJSHint" : JS_LIST,
+    "jshintOptions" : JS_LIST,
+    "lintWithJSLint" : JS_LIST,
+    "jslintOptions" : JS_LIST,
+    "lintStandardHTMLChecking" : HTML_LIST,
+    "lintHTML-CheckWith-Perl-HTML-Lint" : HTML_LIST,
+    "lintHTML-CheckWith-Perl-HTML-Tidy" : HTML_LIST,
+    "tidy_errorlevel" : HTML_LIST,
+    "tidy_accessibility" : HTML_LIST,
+    "tidy_configpath" : HTML_LIST
+};
+
+var global_pref_observer_topic_names = [];
+for (var key in global_pref_observer_topics) {
+    if (global_pref_observer_topics.hasOwnProperty(key)) {
+        global_pref_observer_topic_names.push(key);
+    }
+}
+
+this.addLintPreference = function(preferenceName, subLanguageNameList) {
+    // This function gives extensions access to the lint pref observer system
+    // @param preferenceName String
+    // @param subLanguageNameList [array of String], like ["Python", "Django"]
+    // returns: nothing
+    global_pref_observer_topics[preferenceName] = sublanguageNameList;
+    global_pref_observer_topic_names.push(preferenceName);
+    try {
+        var views = ko.views.manager.getAllViews();
+        for (var i = 0; i < views.length; i++) {
+            var view = views[i];
+            if (view.lintBuffer) {
+                // Add all prefs in case the buffer's language changes
+                _prefs.prefObserverService.
+                    addObserverForTopics(view.lintBuffer, 1,
+                                         [preferenceName],
+                                         false);
+            }
+        }
+    } catch(ex) {
+        _log.exception("addLintPreference: error: " + ex);
+    }
+};
 
 var view_pref_observer_topics = [
     "editUseLinting",
@@ -136,8 +177,8 @@ this.lintBuffer = function LintBuffer(view) {
 
         var globalPrefObserverService = _prefs.prefObserverService;
         globalPrefObserverService.addObserverForTopics(this,
-                                                       global_pref_observer_topics.length,
-                                                       global_pref_observer_topics, false);
+                                                       global_pref_observer_topic_names.length,
+                                                       global_pref_observer_topic_names, false);
 
         var viewPrefObserverService = this.view.prefs.prefObserverService;
         viewPrefObserverService.addObserverForTopics(this,
@@ -145,6 +186,8 @@ this.lintBuffer = function LintBuffer(view) {
                                                      view_pref_observer_topics, false);
 
         this._lintTimer = null; // used to control when lint requests are issued
+        
+        this.pendingRequest = false; // set when a pref changes for a different buffer
     } catch(ex) {
         _log.exception(ex);
     }
@@ -178,8 +221,8 @@ this.lintBuffer.prototype.destructor = function()
 
         var globalPrefObserverService = _prefs.prefObserverService;
         globalPrefObserverService.removeObserverForTopics(this,
-                                                          global_pref_observer_topics.length,
-                                                          global_pref_observer_topics);
+                                                          global_pref_observer_topic_names.length,
+                                                          global_pref_observer_topic_names);
 
         this.view = null; // drop reference to the view
     } catch(ex) {
@@ -187,105 +230,78 @@ this.lintBuffer.prototype.destructor = function()
     }
 }
 
+this.lintBuffer.prototype.usingSubLanguage = function(subLanguageList) {
+    var currentSubLanguages = this.view.languageObj.getSubLanguages({});
+    return subLanguageList.
+        map(function(langName) currentSubLanguages.indexOf(langName)).
+        filter(function(val) val >= 0).length > 0;
+}
+
+this.lintBuffer.prototype.processPendingRequests = function() {
+    if (this.pendingRequest) {
+        this.pendingRequest = false;
+        this.request();
+    }
+};
 
 // nsIObserver.observe()
 this.lintBuffer.prototype.observe = function(subject, topic, data)
 {
     //_log.debug("LintBuffer["+this.view.title+"].observe: subject="+
     //               subject+", topic="+topic+", data="+data);
+                
     try {
         var lintingEnabled = this.view.prefs.getBooleanPref("editUseLinting");
-        var count = {};
-        // XXX - These language specific linting preferences should not be
-        //       hard coded here - but should rather be triggered in another
-        //       more extensible manner.
-        switch (topic) {
-        case "perlDefaultInterpreter":
-        case "perl_lintOption":
-        case "perl_lintOption_perlCriticLevel":
-        case "perl_lintOption_includeCurrentDirForLinter":
-            _log.info("LintBuffer["+this.view.title+
-                           "].observed Perl pref change, re-linting");
-            if (lintingEnabled && this.view.languageObj.name == "Perl") {
-                this.request();
+        var setupRequest = false;
+        if (lintingEnabled
+            && global_pref_observer_topics[topic]) {
+            if (this.usingSubLanguage(global_pref_observer_topics[topic])) {
+                // Generic way of determining if the current buffer is affected
+                // by the changed pref.
+                _log.info("LintBuffer[" + this.view.title
+                          + "].observed "
+                          + global_pref_observer_topics[topic].join("/")
+                          + "pref change, re-linting");
+                setupRequest = true;
             }
-            break;
-        // Python
-        case "pythonDefaultInterpreter":
-        case "python3DefaultInterpreter":
-            _log.info("LintBuffer["+this.view.title+
-                           "].observed Python pref change, re-linting");
-            if (lintingEnabled && ((this.view.languageObj.getSubLanguages(count).indexOf("Python") >= 0) ||
-                                   (this.view.languageObj.getSubLanguages(count).indexOf("Django") >= 0))) {
-                this.request();
-            }
-            break;
-        // PHP
-        case "phpDefaultInterpreter":
-        case "phpConfigFile":
-            _log.info("LintBuffer["+this.view.title+
-                           "].observed PHP pref change, re-linting");
-            if (lintingEnabled && this.view.languageObj.getSubLanguages(count).indexOf("PHP") >= 0) {
-                this.request();
-            }
-            break;
-        // Ruby
-        case "rubyDefaultInterpreter":
-        case "ruby_lintOption":
-            _log.info("LintBuffer["+this.view.title+
-                           "].observed Ruby pref change, re-linting");
-            if (lintingEnabled && this.view.languageObj.getSubLanguages(count).indexOf("Ruby") >= 0) {
-                this.request();
-            }
-            break;
-        // JavaScript
-        case "lintJavaScriptEnableWarnings":
-        case "lintJavaScriptEnableStrict":
-        case "lintWithJSHint":
-        case "jshintOptions":
-        case "lintWithJSLint":
-        case "jslintOptions":
-            _log.info("LintBuffer["+this.view.title+
-                           "].observed JavaScript pref change, re-linting");
-            if (lintingEnabled && this.view.languageObj.getSubLanguages(count).indexOf("JavaScript") >= 0) {
-                this.request();
-            }
-            break;
-        // HTML and XML
-        case "tidy_errorlevel":
-        case "tidy_accessibility":
-        case "tidy_configpath":
-            case "lintStandardHTMLChecking":
-            case "lintHTML-CheckWith-Perl-HTML-Lint":
-            case "lintHTML-CheckWith-Perl-HTML-Tidy":
-            _log.info("LintBuffer["+this.view.title+
-                           "].observed HTML/XML pref change, re-linting");
-            if (lintingEnabled && this.view.languageObj.isHTMLLanguage) {
-                this.request();
-            }
-            break;
-        case "lintEOLs":
-        case "endOfLine":
-            _log.info("LintBuffer["+this.view.title+
-                           "].observed EOL pref change, re-linting");
-            if (lintingEnabled) {
-                this.request();
-            }
-            break;
-        case "editUseLinting":
-            _log.info("LintBuffer["+this.view.title+
-                           "].observe: lintingEnabled="+lintingEnabled);
-            if (lintingEnabled != this.lintingEnabled) {
-                // Do whatever must be done when the lintingEnabled state changes.
-                this.lintingEnabled = lintingEnabled;
+            return;
+        } else {
+            switch (topic) {
+                case "lintEOLs":
+                case "endOfLine":
+                _log.info("LintBuffer["+this.view.title+
+                          "].observed EOL pref change, re-linting");
                 if (lintingEnabled) {
-                    this.request();
-                } else {
-                    _lintSvc.cancelPendingRequests(this.view.uid);
-                    this._cancelDelayedRequest();
-                    this._clearResults();
-                    this._notify();
+                    setupRequest = true;
                 }
+                break;
+                case "editUseLinting":
+                _log.info("LintBuffer["+this.view.title+
+                          "].observe: lintingEnabled="+lintingEnabled);
+                if (lintingEnabled != this.lintingEnabled) {
+                    // Do whatever must be done when the lintingEnabled state changes.
+                    this.lintingEnabled = lintingEnabled;
+                    if (lintingEnabled) {
+                        setupRequest = true;
+                    } else {
+                        _lintSvc.cancelPendingRequests(this.view.uid);
+                        this._cancelDelayedRequest();
+                        this._clearResults();
+                        this._notify();
+                    }
+                }
+            }
+        }
+        if (setupRequest) {
+            if (this.view == ko.views.manager.currentView){
+                this.request();
+            } else {
+                // dump("Ignoring a lint pref change for doc "
+                //      + (this.view.document
+                //         ? (this.view.document.displayPath || "<untitled>")
+                //         : "<no doc>")
+                //      + "\n");
+                this.pendingRequest = true;
             }
         }
     } catch(ex) {
@@ -392,6 +408,7 @@ this.lintBuffer.prototype._cancelDelayedRequest = function()
 {
     _log.debug("LintBuffer["+this.view.title+"]._cancelDelayedRequest()");
     try {
+        this.pendingRequest = false;
         if (this._lintTimer) {
             this._lintTimer.stopTimeout();
             this._lintTimer.free();
