@@ -236,7 +236,7 @@ class KoHTMLCompileLinter(_CommonHTMLLinter):
                 else:
                     newLintResults = linter2.lint_with_text(request, text)
             else:
-                newLintResults = linter.lint_with_text(request, text)
+                newLintResults = UnwrapObject(linter).lint_with_text(request, text)
             if newLintResults and newLintResults.getNumResults():
                 if finalLintResults.getNumResults():
                     finalLintResults = finalLintResults.addResults(newLintResults)
@@ -547,7 +547,7 @@ class KoHTML5CompileLinter(_CommonHTMLLinter):
         linters = self._koLintService_UW.getTerminalLintersForLanguage("HTML5")
         finalLintResults = koLintResults()
         for linter in linters:
-            newLintResults = linter.lint_with_text(request, text)
+            newLintResults = UnwrapObject(linter).lint_with_text(request, text)
             if newLintResults and newLintResults.getNumResults():
                 if finalLintResults.getNumResults():
                     finalLintResults = finalLintResults.addResults(newLintResults)
@@ -603,36 +603,17 @@ class KoHTML5_html5libLinter:
                     pass
             for lineNo, endColNo, errorName, params in groupedErrors.values():
                 #print "KoHTMLLinter: %r -> %r" % (line, resultMatch.groupdict())
-                if lineNo >= len(textLines):
+                if lineNo >= len(textLines) or len(textLines[lineNo]) == 0:
                     lineNo = len(textLines) - 1
                     while lineNo >= 0 and len(textLines[lineNo]) == 0:
                         lineNo -= 1
                     if lineNo < 0:
                         log.warn("No text to display for bug %s", errorName)
                         continue
-                    endColNo = len(textLines[lineNo]) + 1
-                probText = textLines[lineNo]
-                probTextToHere = probText[:endColNo]
-                #log.debug("Line %d, probText:%s, probTextToHere:%s",
-                #          lineNo, probText, probTextToHere)
-                if errorName == 'non-void-element-with-trailing-solidus':
-                    startColNo = probTextToHere.rfind("/") + 1
-                elif errorName == 'expected-tag-name':
-                    startColNo = probTextToHere.rfind("<") + 1
-                else:
-                    m = self.problem_word_ptn.search(probTextToHere)
-                    if m:
-                        startColNo = m.span(1)[0] + 1
-                    else:
-                        m = self.leading_ws_ptn.match(probText)
-                        if m:
-                            startColNo = m.span(1)[1] + 1
-                        else:
-                            startColNo = 1
                 result = KoLintResult()
                 result.lineStart = result.lineEnd = lineNo + 1
-                result.columnEnd = endColNo
-                result.columnStart = startColNo
+                result.columnStart = 1
+                result.columnEnd = 1 + len(textLines[lineNo])
                 result.description = self._buildErrorMessage(errorName, params)
                 #TODO: Distinguish errors from warnings...
                 result.severity = result.SEV_ERROR
