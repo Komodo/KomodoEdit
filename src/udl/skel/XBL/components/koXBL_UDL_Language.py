@@ -69,7 +69,40 @@ class KoXBLLanguage(koXMLLanguageBase):
     namespaces = ["http://www.mozilla.org/xbl"]
 
     searchURL = "http://www.google.com/search?q=site%3Ahttp%3A%2F%2Fdeveloper.mozilla.org%2Fen%2Fdocs%2FXBL%3AXBL_1.0_Reference+%W"
-    
+
+    sample = """
+<bindings xmlns="http://www.mozilla.org/xbl">
+  <binding id="slideshow">
+
+    <content>
+      <xul:vbox flex="1">
+        <xul:deck xbl:inherits="selectedIndex" selectedIndex="0" flex="1">
+          <children/>
+        </xul:deck>
+        <xul:hbox>
+          <xul:button xbl:inherits="label=previoustext"/>
+          <xul:label flex="1"/>
+          <xul:button xbl:inherits="label=nexttext"/>
+        </xul:hbox>
+      </xul:vbox>
+    </content>
+
+    <implementation>
+      <constructor>
+        var totalpages=this.childNodes.length;
+        document.getAnonymousNodes(this)[0].childNodes[1].childNodes[1]
+                .setAttribute("value",(this.page+1)+" of "+totalpages);
+      </constructor>
+  
+      <property name="page"
+            onget="return parseInt(document.getAnonymousNodes(this)[0].childNodes[0].getAttribute('selectedIndex'));"
+            onset="return this.setPage(val);"/>
+    </implementation>
+
+  </binding>
+</bindings>
+"""
+
 class KoXBLCompileLinter(object):
     _com_interfaces_ = [components.interfaces.koILinter]
     _reg_desc_ = "Komodo XBL Compile Linter"

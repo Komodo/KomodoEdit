@@ -25,7 +25,20 @@ class KoTracWikiLanguage(KoUDLLanguage):
     _total_string_styles = None
 
     lang_from_udl_family = {'CSS': name, 'TPL': name, 'M': 'HTML', 'CSL': 'JavaScript', 'SSL': 'Python'}
-    
+
+    sample = """
+== Level 2 ==
+=== Level 3 ^([#hn note])^
+
+'''bold'''
+''italic''
+'''''Wikipedia style'''''
+`monospaced (''other markup ignored'')`
+
+>> ... (I said)
+> (he replied)
+"""
+
     def getStringStyles(self):
         if self._total_string_styles is None:
             scin = components.interfaces.ISciMoz

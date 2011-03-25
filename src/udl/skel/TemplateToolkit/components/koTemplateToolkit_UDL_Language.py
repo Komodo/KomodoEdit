@@ -67,6 +67,24 @@ class KoTemplateToolkitLanguage(koHTMLLanguageBase):
 
     lang_from_udl_family = {'CSL': 'JavaScript', 'TPL': 'TemplateToolkit', 'M': 'HTML', 'CSS': 'CSS', 'SSL': 'Perl'}
 
+    sample = """[% INCLUDE header
+   title = 'Template Toolkit CGI Test'
+%]
+
+<a href="mailto:[% email %]">Email [% me.name %]</a>
+
+<p>This is version [% version %]</p>
+
+<h3>Projects</h3>
+<ul>
+[% FOREACH project IN worklist(me.id) %]
+   <li> <a href="[% project.url %]">[% project.name %]</a>
+[% END %]
+</ul>
+
+[% INCLUDE footer %]
+"""
+
     def __init__(self):
         koHTMLLanguageBase.__init__(self)
         self.matchingSoftChars["%"] = ("%", self.softchar_accept_bracket_percent)

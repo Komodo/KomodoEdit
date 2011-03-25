@@ -25,7 +25,24 @@ class KoReStructuredTextLanguage(KoUDLLanguage):
 
     lang_from_udl_family = {'CSL': name, 'TPL': name, 'M': 'HTML', 'CSS': 'CSS', 'SSL': 'Python'}
     _total_string_styles = None
-    
+
+    sample = """:Version: 1.0 of 2001/08/08
+
+=====
+Title
+=====
+Subtitle
+--------
+List:
+- This is item 1
+- This is item 2 
+
+External hyperlinks, like Python_.
+
+.. _Python: http://www.python.org/
+
+"""
+
     def getStringStyles(self):
         if self._total_string_styles is None:
             scin = components.interfaces.ISciMoz

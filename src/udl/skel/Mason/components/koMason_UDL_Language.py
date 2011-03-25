@@ -70,6 +70,27 @@ class KoMasonLanguage(koHTMLLanguageBase):
 
     lang_from_udl_family = {'CSL': 'JavaScript', 'TPL': 'Mason', 'M': 'HTML', 'CSS': 'CSS', 'SSL': 'Perl'}
 
+    samples = """
+<html>
+<body>
+  <%class>
+  use Date::Format;
+  my $date_fmt = "%A, %B %d, %Y  %I:%M %p";
+  </%class>
+  
+  <%args>
+  $.article => (required => 1)
+  </%args>
+  
+  <div class="article">
+    <h3><% $.article->title %></h3>
+    <h4><% time2str($date_fmt, $.article->create_time) %></h4>
+    <% $.article->content %>
+  </div>
+</body>
+</html>
+"""
+
     def __init__(self):
         koHTMLLanguageBase.__init__(self)
         self.matchingSoftChars[" "] = ("%", self.softchar_accept_bracket_percent_space)

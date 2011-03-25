@@ -60,7 +60,22 @@ class koCSSLanguage(KoLanguageBase):
     }
 
     searchURL = "http://www.google.com/search?q=site%3Ahttp%3A%2F%2Fwww.w3schools.com%2Fcss+%W"
-    
+
+    sample = """
+h1 { color: white; background-color: orange !important; }
+h2 { color: rgb(255, 255, 255); background-color: #00FF00; }
+
+body {
+    text-decoration: none;
+    color: navy;
+    font-family: "arial";
+    font-size: 12pt;
+    font-weight: medium;
+}
+
+.bold { text-decoration: bold; }
+"""
+
     def __init__(self):
         KoLanguageBase.__init__(self)
         self._style_info.update(

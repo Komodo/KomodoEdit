@@ -68,6 +68,16 @@ class KoMXMLLanguage(koXMLLanguageBase):
     namespaces = ["http://www.adobe.com/2006/mxml",
                   "http://www.macromedia.com/2003/mxml"]
 
+    sample = """<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" 
+                layout="absolute" backgroundGradientColors="[#000011, #333333]">
+   <mx:Label text="Hello World!" verticalCenter="0" horizontalCenter="0" fontSize="48" letterSpacing="1">
+      <mx:filters>
+         <mx:GlowFilter color="#ffffdd"/>
+      </mx:filters>
+   </mx:Label>
+</mx:Application>
+"""
+
 class KoMXMLCompileLinter(KoGenericXMLLinter):
     _reg_desc_ = "Komodo MXML Compile Linter"
     _reg_clsid_ = "{85d92de0-f7d6-4c33-8736-dcb8ea9b6a41}"

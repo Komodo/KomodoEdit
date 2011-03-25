@@ -66,7 +66,14 @@ class KoRHTMLLanguage(koHTMLLanguageBase):
     defaultExtension = '.rhtml'
 
     lang_from_udl_family = {'CSL': 'JavaScript', 'TPL': 'RHTML', 'M': 'HTML', 'CSS': 'CSS', 'SSL': 'Ruby'}
-    
+
+    sample = """<ul>
+<% @products.each do |p| %>
+  <li><%=  @p.name %></li>
+<% end %>
+</ul>
+"""
+
     def insertInternalNewline_Special(self, scimoz, indentStyle, currentPos,
                                       allowExtraNewline, style_info):
         """
