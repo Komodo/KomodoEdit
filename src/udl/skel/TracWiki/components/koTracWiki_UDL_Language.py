@@ -19,7 +19,7 @@ class KoTracWikiLanguage(KoUDLLanguage):
     lexresLangName = "TracWiki"
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" % name
-    _reg_clsid_ = "{6072ecd4-525e-11db-82d8-000d935d3368}"
+    _reg_clsid_ = "{b843faa8-aeea-4fcb-aeb9-36c4483c6f95}"
     defaultExtension = '.tracwiki'
     primary = 0
     _total_string_styles = None
