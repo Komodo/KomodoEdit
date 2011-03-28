@@ -170,7 +170,9 @@ class koRemoteFileInfo:
 
     # Internal for class usage
     def _setpathinfo(self, dirname, filename, link_target=None):
-        filename = os.path.basename(filename)
+        # The basename of "/" is the empty string "" - which is not wanted.
+        if filename != "/":
+            filename = os.path.basename(filename)
         if filename not in ('', '/', '~', '~/', '.', './'):
             self.path = self._join_path(dirname, filename)
             self.dirname = dirname

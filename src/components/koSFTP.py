@@ -228,6 +228,8 @@ class koSFTPConnection(remotefilelib.koRemoteSSH):
             #    parentPath = path
             #else:
             #    parentPath = os.path.dirname(path)
+            if path == "/":
+                return self._createRFInfoFromStat(parentPath, path, info)
             return self._createRFInfoFromStat(parentPath, os.path.basename(path), info)
         except IOError, e:
             # Likely this path does not exist then, else it needs to be encoded
