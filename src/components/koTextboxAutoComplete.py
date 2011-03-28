@@ -180,6 +180,8 @@ class KoTACResult(object):
     def removeValueAt(self, rowIndex, removeFromDb=False):
         del self.matches[rowIndex]
 
+    # New in mozilla-central nsIAutoCompleteResult interface.
+    getLabelAt = getValueAt
 
 
 #---- specific TAC type searches
