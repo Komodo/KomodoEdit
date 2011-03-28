@@ -632,6 +632,7 @@ try {
     // If the command looks like it was operating on the current file, then
     // notify that the file might have changed.
     if (url) {
+        var marker;
         var markers = {"%f":1, "%F":1, "%(f":1, "%(F":1};
         var _gObserverSvc = Components.classes["@mozilla.org/observer-service;1"]
                             .getService(Components.interfaces.nsIObserverService);
