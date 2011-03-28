@@ -48,7 +48,10 @@ def unescape(text):
                 print "keyerror"
                 pass
         return text # leave as is
-    return re.sub("&#?\w+;", fixup, text)
+    text = re.sub("&#?\w+;", fixup, text)
+    # Reduce multiple spaces.
+    text = re.sub(r"\s(\s)+", " ", text)
+    return text
 
 def getNextTagWithName(tag, name):
     tag = tag.nextSibling
