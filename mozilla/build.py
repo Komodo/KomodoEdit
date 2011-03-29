@@ -56,23 +56,20 @@ r"""
     call it with the targets that you want to build. If not target is
     specified then the default 'all' target is used.
 
-    For CVS tag dates, see:
-        http://developer.mozilla.org/en/docs/CVS_Tags
-
     Suggested convention for Komodo version numbers:
     * For development builds you should add 10 to the minor version
       number:
-        Komodo Edit 5.2.x development:    -k 5.12
-        Komodo IDE 5.2.x development:     -k 5.12
+        Komodo Edit 7.0.x development:    -k 7.10
+        Komodo IDE 7.0.x development:     -k 7.10
       This allows you to run a production and development build at the
       same time without them trying to hand off to each other.
     
     Suggested configurations are:
-    * Komodo 6.0.x release builds:
-        python build.py configure -k 6.0 --moz-src=191 \
+    * Komodo 7.0.x release builds:
+        python build.py configure -k 7.0 --moz-src=200:FIREFOX_4_0_RELEASE \
             --release --no-strip --tools --with-crashreport-symbols
-    * Komodo 6.0 development builds:
-        python build.py configure -k 6.10 --moz-src=191 \
+    * Komodo 7.0 development builds:
+        python build.py configure -k 7.10 --moz-src=200 \
             --release --no-strip --tools
 """
 #
