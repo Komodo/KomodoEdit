@@ -435,13 +435,11 @@ $consLocal->Command($exeName,
 $consLocal->Install("$supportDir/html", $exeName);
 }
 
-my $landmark = "$komodoPythonUtilsDir/html5lib/__init__.py";
-$cons->Command($landmark,
-	       "html5lib/setup.py",
-	       qq(
-                    cd %1:d && $siloedPython %1:f install --install-lib=$komodoPythonUtilsDir --prefix=html5lib
-                   ));
-$cons->DependsRecursive($landmark, "html5lib", ("build", '\.svn'));
+my $landmark = "$komodoPythonUtilsDir/html5lib";
+$cons->InstallRecursive($landmark,
+                        #XXX must be absolute path (bug in InstallRecursive)
+                        cwd()."/contrib/html5lib/src/html5lib",
+                        ('\.svn'));
 
 # jslint
 $cons->Install("$supportDir/lint/javascript", "jslint/fulljslint.js");
