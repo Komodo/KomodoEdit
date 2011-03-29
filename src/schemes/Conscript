@@ -52,6 +52,7 @@ Import(
     'komodoPythonUtilsDir',
     'mozVersion',
     'sdkDir',
+    'mozSrc',
 );
 
 $cons->InstallPythonUtility('styles.py');

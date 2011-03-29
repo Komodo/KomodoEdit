@@ -80,6 +80,7 @@
         persist="screenX screenY width height"
         ondragover="return ko.dragdrop.onDragOver(event);"
         ondrop="return ko.dragdrop.onDrop(event);"
+        toggletoolbar="true"
         >
 
     <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>

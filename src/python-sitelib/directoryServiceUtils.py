@@ -37,7 +37,9 @@
 """utility functions to make using nsIDirectoryService a little easier.
 """
 
-from xpcom import components
+import os
+from xpcom import components, COMException
+import ConfigParser
 
 nsIDirectoryServiceContractID = "@mozilla.org/file/directory_service;1";
 nsIProperties = components.interfaces.nsIProperties;
@@ -61,18 +63,6 @@ def getFile(key):
     """
     return directoryService.get(key, components.interfaces.nsIFile);
 
-def getComponentsDirectories():
-    """getComponentsDirectories
-    
-    gets a list of file paths for all component directories
-    """
-    dirs = {}
-    dirs[getFile("GreComsD").path]=1
-    dirs[getFile("ComsD").path]=1
-    for file in getFiles("ComsDL"):
-        dirs[file.path]=1
-    return dirs.keys()
-
 _gExtensionDirectoriesCache = None
 def getExtensionDirectories():
     """Get extension directories.
@@ -83,8 +73,27 @@ def getExtensionDirectories():
     global _gExtensionDirectoriesCache
     if _gExtensionDirectoriesCache is None:
         dirs = set()
-        for d in getFiles("XREExtDL"):
-            dirs.add(d.path)
+        try:
+            iniFile = getFile("ProfD")
+            iniFile.append("extensions.ini")
+            config = ConfigParser.RawConfigParser()
+            config.read(iniFile.path)
+            if config.has_section("ExtensionDirs"):
+                for name, dir in config.items("ExtensionDirs"):
+                    if os.path.exists(dir):
+                        dirs.add(dir)
+        except COMException:
+            # Hopefully this means we're in a unit test and not a real app,
+            # so ask the test service for it.
+            try:
+                for d in getFiles("koTestExtDirL"):
+                    dirs.add(d.path)
+            except COMException as e:
+                # Okay, that didn't work either; perhaps we're just in early
+                # startup. _Hopefully_ this means ProfD isn't valid yet; pass
+                # an empty list back, but don't update the cache since we might
+                # have better luck next time.
+                return []
         _gExtensionDirectoriesCache = list(dirs)
     return _gExtensionDirectoriesCache
 
@@ -96,13 +105,11 @@ def getPylibDirectories():
         installed (and enabled?) extensions.
     """
     global _gPylibDirectoriesCache
-    from os.path import exists, join
-
     if _gPylibDirectoriesCache is None:
         dirs = set()
-        for extDir in getFiles("XREExtDL"):
-            d = join(extDir.path, "pylib")
-            if exists(d):
+        for dir in getExtensionDirectories():
+            d = os.path.join(dir, "pylib")
+            if os.path.exists(d):
                 dirs.add(d)
         _gPylibDirectoriesCache = list(dirs)
     return _gPylibDirectoriesCache

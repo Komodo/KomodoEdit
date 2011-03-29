@@ -346,7 +346,7 @@ this._importPackageViaHttp = function part__ImportPackageViaHttp(viewMgr, part, 
         var data = req.responseText;
         var stream = Components.classes["@mozilla.org/network/safe-file-output-stream;1"].
                         createInstance(Components.interfaces.nsIFileOutputStream);
-        stream.init(kpzFile, 0x04 | 0x08 | 0x20, 0600, 0); // write, create, truncate
+        stream.init(kpzFile, 0x04 | 0x08 | 0x20, /*0600*/384, 0); // write, create, truncate
         stream.write(data, data.length);
         this._importFromPackage(viewMgr, part, kpzFile.path, kpzExtractFolder);
         // This close method will remove/delete the file.

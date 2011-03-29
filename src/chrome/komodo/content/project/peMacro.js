@@ -730,7 +730,7 @@ this.evalAsJavaScript = function macro_evalAsJavascript(__code,
             _macro_error(cex, "compiling", part);
         }
         komodo.destructor();
-        delete komodo;
+        komodo = null;
         ko.macros.current = null;
         return __retcode;
     } catch (e) {

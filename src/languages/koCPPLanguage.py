@@ -51,15 +51,13 @@ import logging
 log = logging.getLogger("CPPLanguage")
 #log.setLevel(logging.DEBUG)
 
-def registerLanguage(registery):
-    registery.registerLanguage(koCPPLanguage())
-    
 class koCPPLanguage(KoLanguageBase):
     name = "C++"
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{0613C3CC-EAA4-47f9-B2C3-A73270FFFB19}"
+    _reg_categories_ = [("komodo-language", name)]
 
     searchURL = "http://www.google.com/search?q=site%3Ahttp%3A%2F%2Fwww.cppreference.com%2F+%W"
 

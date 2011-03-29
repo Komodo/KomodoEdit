@@ -38,14 +38,12 @@ from xpcom import components, ServerException
 
 from koLanguageServiceBase import *
 
-def registerLanguage(registery):
-    registery.registerLanguage(koNsisLanguage())
-
 class koNsisLanguage(KoLanguageBase):
     name = "Nsis"
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" % (name)
     _reg_clsid_ = "{fe5b419f-c978-4bbe-8fc0-0c54313387c1}"
+    _reg_categories_ = [("komodo-language", name)]
 
     _stateMap = {
         'default': ('SCE_NSIS_DEFAULT',),

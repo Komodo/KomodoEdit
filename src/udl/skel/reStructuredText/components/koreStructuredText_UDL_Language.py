@@ -20,6 +20,7 @@ class KoReStructuredTextLanguage(KoUDLLanguage):
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" % name
     _reg_clsid_ = "{d98cc808-2981-4aa0-841b-e5e920d83177}"
+    _reg_categories_ = [("komodo-language", name)]
     defaultExtension = '.rst'
     primary = 0
 

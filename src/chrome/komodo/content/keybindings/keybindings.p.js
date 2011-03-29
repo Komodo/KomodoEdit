@@ -483,7 +483,6 @@ this.manager.prototype._upgradeKeybingings = function (from_version,
                     "cmd_vim_yankLine":                [ "y, y" ],
                     "cmd_vim_yankWord":                [ "y, w" ],
                     "cmd_vim_changeWord":              [ "c, w" ],
-                    "cmd_vim_changeWord":              [ "c, e" ],
                     "cmd_vim_changeLine":              [ "c, c" ],
                     "cmd_vim_changeLineBegin":         [ "c, 0" ],
                     "cmd_vim_changeLineEnd":           [ "c, $" ],
@@ -495,6 +494,9 @@ this.manager.prototype._upgradeKeybingings = function (from_version,
                     "cmd_vim_lineCut":                 [ "d, d" ],
                     "cmd_vim_lineCutEnd":              [ "d, $" ],
                     "cmd_vim_deleteToDocumentEnd":     [ "d, G" ]
+                });
+                this._remove_keybinding_sequences({
+                    "cmd_vim_changeWord":              [ "c, e" ]
                 });
                 this._add_keybinding_sequences({
                     "cmd_vim_dedentOperation":         [ "<" ],

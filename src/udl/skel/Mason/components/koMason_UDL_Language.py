@@ -65,6 +65,7 @@ class KoMasonLanguage(koHTMLLanguageBase):
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" % name
     _reg_clsid_ = "{5e69ecf0-525e-11db-82d8-000d935d3368}"
+    _reg_categories_ = [("komodo-language", name)]
     defaultExtension = '.mason.html'
     searchURL = "http://masonhq.com"
 

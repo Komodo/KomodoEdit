@@ -41,15 +41,13 @@ import sciutils
 from koLanguageServiceBase import *
 sci_constants = components.interfaces.ISciMoz
 
-def registerLanguage(registery):
-    registery.registerLanguage(koCSSLanguage())
-    
 class koCSSLanguage(KoLanguageBase):
     name = "CSS"
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "52594294-AF26-414A-9D66-C2B47EF9F015"
+    _reg_categories_ = [("komodo-language", name)]
 
     supportsSmartIndent = "brace"
     primary = 1

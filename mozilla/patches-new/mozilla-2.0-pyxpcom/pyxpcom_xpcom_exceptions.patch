@@ -3,7 +3,7 @@ importing patch pyxpcom_xpcom_exceptions.patch
 diff --git a/xpcom/__init__.py b/xpcom/__init__.py
 --- a/xpcom/__init__.py
 +++ b/xpcom/__init__.py
-@@ -39,32 +39,130 @@
+@@ -39,32 +39,128 @@
  # The XPCOM (Cross Platform COM) package.
  import exceptions
  
@@ -80,17 +80,15 @@ diff --git a/xpcom/__init__.py b/xpcom/__init__.py
 +        self.inner = None
 +        self.data = None
 +
-+    _message = None
-+    
 +    # backwards compat when running under python 2.6
 +    @apply
 +    def message():
 +    
 +        def get(self):
-+            return self._message
++            return self.msg
 +    
 +        def set(self, value):
-+            self._message = value
++            self.msg = value
 +    
 +        return property(get, set)
 +

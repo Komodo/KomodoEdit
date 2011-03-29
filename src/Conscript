@@ -73,13 +73,22 @@ if ($platform eq "win") {
     $xre_dir = "$userDataDir\\XRE";
     $rm_cmd = "IF EXIST \"$xre_dir\\compreg.dat\" del \"$xre_dir\\compreg.dat\"";
 }
-# Change directory to the mozBin dir to avoid regxpcom picking up the
-# incorrect libraries (most notably libsqlite on Snow Leopard).
-$cons->Command($ranRegxpcomStateFileName, qq(
-    $rm_cmd
-    cd $mozBin && regxpcom
-    @ echo yes> %0
-    ));
+if ($mozVersionNumber > 191) {
+    # regxpcom is no longer useful, but we still want to make the state file
+    # since that also ensures some other things build in the right order
+    $cons->Command($ranRegxpcomStateFileName, qq(
+        $rm_cmd
+        @ echo yes> %0
+        ));
+} else {
+    # Change directory to the mozBin dir to avoid regxpcom picking up the
+    # incorrect libraries (most notably libsqlite on Snow Leopard).
+    $cons->Command($ranRegxpcomStateFileName, qq(
+        $rm_cmd
+        cd $mozBin && regxpcom
+        @ echo yes> %0
+        ));
+}
 
 # We put our PyXPCOM site-lib stuff in a "komodo" subdir of the actual
 # dir that PyXPCOM puts in sys.path (this is the "python" subdir in the

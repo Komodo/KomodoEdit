@@ -58,6 +58,9 @@ using namespace Scintilla;
 #endif
 #endif
 
+// XXX Mook hack to avoid including the internal string api
+#define nsString_h___
+
 // IME support
 #include "nsIPrivateTextEvent.h"
 #include "nsIPrivateTextRange.h"
@@ -83,11 +86,9 @@ static int gTimelineEnabled = -1;
 
 
 NS_INTERFACE_MAP_BEGIN(SciMoz)
-  NS_INTERFACE_MAP_ENTRY(ISciMoz)
-  NS_INTERFACE_MAP_ENTRY(ISciMozLite)
   NS_INTERFACE_MAP_ENTRY(nsIClassInfo)
   NS_INTERFACE_MAP_ENTRY(nsISupportsWeakReference)
-  NS_INTERFACE_MAP_ENTRY_AMBIGUOUS(nsISupports, ISciMoz)
+  NS_INTERFACE_MAP_ENTRY_AMBIGUOUS(nsISupports, nsIClassInfo)
 NS_INTERFACE_MAP_END
 
 
@@ -105,6 +106,8 @@ SciMoz::SciMoz(nsPluginInstance* aPlugin)
         NS_ABORT_IF_FALSE(gTimelineEnabled!=-1, "We just set it!");
     }
 #endif
+
+    SciMozInitNPIdentifiers();
 
     isClosed = 0;
     mPlugin = aPlugin;
@@ -138,10 +141,6 @@ SciMoz::SciMoz(nsPluginInstance* aPlugin)
     bracesCheck = true;
     bracesSloppy = true;
 
-    imeStartPos = -1;
-    imeComposing = false;
-    imeActive = false;
-    
     // There is no cached text to start with.
     _cachedText.SetIsVoid(TRUE);
 
@@ -159,16 +158,6 @@ SciMoz::~SciMoz()
     PlatformDestroy();
 
     isClosed = 1;
-}
-
-
-void SciMoz::NotifyPluginWasDestroyed()
-{
-#ifdef SCIMOZ_DEBUG
-    fprintf(stderr, "SciMoz::NotifyPluginWasDestroyed\n");
-#endif
-    /* Remove any scintilla references - it's now dead. */
-    PlatformDestroy();
 }
 
 // So we can debug reference issues we will implement our own addref/release
@@ -237,6 +226,30 @@ void SciMoz::Create(WinID hWnd) {
 	SendEditor(SCI_SETLEXER, SCLEX_CPP);
 	SendEditor(SCI_STYLECLEARALL);	// Copies global style to all others
 	SendEditor(SCI_SETMOUSEDOWNCAPTURES, 0);
+}
+
+bool SciMoz::Init(const NPVariant *args, uint32_t argCount, NPVariant *result) {
+	if (argCount != 1) {
+		SCIMOZ_DEBUG_PRINTF("%s: expected 1 argument, got %i\n",
+				    __FUNCTION__,
+				    argCount);
+		return false;
+	}
+	if (!NPVARIANT_IS_OBJECT(args[0])) {
+		SCIMOZ_DEBUG_PRINTF("%s: arg is not an object\n", __FUNCTION__);
+		return false;
+	}
+	if (!NPN_HasMethod(mPlugin->GetNPP(),
+			   NPVARIANT_TO_OBJECT(args[0]),
+			   NPN_GetStringIdentifier("abortComposing")))
+	{
+		SCIMOZ_DEBUG_PRINTF("%s: object has no abortComposing method\n",
+				    __FUNCTION__);
+		return false;
+	}
+
+	mIMEHelper = NPVARIANT_TO_OBJECT(args[0]);
+	return true;
 }
 
 static bool IsBrace(char ch) {
@@ -351,6 +364,18 @@ NS_IMETHODIMP SciMoz::DoBraceMatch()
 	BraceMatch();
 	return NS_OK;
 }
+bool SciMoz::DoBraceMatch(const NPVariant *args, uint32_t argCount, NPVariant *result) {
+        SCIMOZ_CHECK_THREAD("DoBraceMatch", false)
+        SCIMOZ_CHECK_ALIVE("DoBraceMatch", false)
+	if (argCount != 0) {
+		SCIMOZ_DEBUG_PRINTF("%s: expected 0 argument, got %i\n",
+				    __FUNCTION__,
+				    argCount);
+		return false;
+	}
+	BraceMatch();
+	return true;
+}
 
 #define FAST_CODE
 //#define SCIMOZ_DEBUG_NOTIFY
@@ -365,14 +390,13 @@ void SciMoz::Notify(long lParam) {
 	}
 
 	if ((notification->nmhdr.code == SCN_PAINTED) && commandUpdateTarget) {
-		PRBool bCanUndoNow, bCanRedoNow;
-		CanUndo(&bCanUndoNow);
-		CanRedo(&bCanRedoNow);
+		PRBool bCanUndoNow = SendEditor(SCI_CANUNDO, 0, 0);
+		PRBool bCanRedoNow = SendEditor(SCI_CANREDO, 0, 0);
 		if (bCouldUndoLastTime != bCanUndoNow || bCouldRedoLastTime != bCanRedoNow) {
 #ifdef SCIMOZ_DEBUG_NOTIFY
 			fprintf(stderr,"Scintilla sending 'undo' event\n");
 #endif
-			commandUpdateTarget->UpdateCommands(NS_LITERAL_STRING("undo"));
+			SendUpdateCommands("undo");
 			bCouldUndoLastTime = bCanUndoNow;
 			bCouldRedoLastTime = bCanRedoNow;
 		}
@@ -619,20 +643,12 @@ void SciMoz::Notify(long lParam) {
 
 /* attribute boolean isFocused; */
 NS_IMETHODIMP SciMoz::SetIsFocused(PRBool focus) {
-#ifdef SCIMOZ_DEBUG
-	printf("SciMoz::SetIsFocused\n");
-#endif
-	SCIMOZ_CHECK_VALID("SetIsFocused")	SendEditor(SCI_SETFOCUS, focus, 0);
-	return NS_OK;
+	return NS_ERROR_NOT_IMPLEMENTED; /* in XPFacer.p.py as manual setter */
 }
 
 /* attribute boolean isFocused; */
 NS_IMETHODIMP SciMoz::GetIsFocused(PRBool  *_retval) {
-#ifdef SCIMOZ_DEBUG
-	printf("SciMoz::GetIsFocused\n");
-#endif
-	SCIMOZ_CHECK_VALID("GetIsFocused")	*_retval = SendEditor(SCI_GETFOCUS, 0, 0);
-	return NS_OK;
+	return NS_ERROR_NOT_IMPLEMENTED; /* in XPFacer.p.py as manual getter */
 }
 
 
@@ -650,62 +666,130 @@ NS_IMETHODIMP SciMoz::MarkClosed()
 		PlatformMarkClosed();
 		isClosed = true;
 	}
-	return NS_OK;
+	return true;
 }
 
 /* void HookEvents (in nsISupports eventListener); */
 NS_IMETHODIMP SciMoz::HookEvents(ISciMozEvents *eventListener) {
-	SCIMOZ_CHECK_VALID("HookEvents");
-#ifdef SCIMOZ_DEBUG
-	fprintf(stderr,"SciMoz::HookEvents\n");
-#endif
-	if (eventListener==nsnull)
-		return NS_ERROR_UNEXPECTED;
-	return listeners.Add(eventListener, PR_TRUE, ISciMozEvents::SME_ALL /*& ~ISciMozEvents::SME_PAINTED*/);
+	return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-/* void HookEvents (in nsISupports eventListener); */
-NS_IMETHODIMP SciMoz::HookEventsWithStrongReference(ISciMozEvents *eventListener) {
-	SCIMOZ_CHECK_VALID("HookEventsWithStrongReference");
-#ifdef SCIMOZ_DEBUG
-	fprintf(stderr,"SciMoz::HookEventsWithStrongReference\n");
-#endif
-	if (eventListener==nsnull)
-		return NS_ERROR_UNEXPECTED;
-	return listeners.Add(eventListener, PR_FALSE, ISciMozEvents::SME_ALL /*& ~ISciMozEvents::SME_PAINTED*/);
-}
+bool SciMoz::HookEvents(const NPVariant *args, uint32_t argCount, NPVariant *result) {
+	SCIMOZ_DEBUG_PRINTF("SciMoz::HookEvents\n");
+	if (argCount != 1) {
+		SCIMOZ_DEBUG_PRINTF("%s: expected 1 argument, got %i\n",
+				    __FUNCTION__,
+				    argCount);
+		return false;
+	}
+	if (!NPVARIANT_IS_OBJECT(args[0])) {
+		SCIMOZ_DEBUG_PRINTF("%s: parameter is not an object\n",
+				    __FUNCTION__);
+		return false;
+	}
+	if (!NPN_HasMethod(mPlugin->GetNPP(),
+			   NPVARIANT_TO_OBJECT(args[0]),
+			   NPN_GetStringIdentifier("QueryInterface")))
+	{
+		SCIMOZ_DEBUG_PRINTF("%s: object has no QueryInterface method\n",
+				    __FUNCTION__);
+		return false;
+	}
+	// we need to get a nsIDOMWindowInternal IID, wrapped in JS and then
+	// wrapped in NPAPI.  The easiest way is to ask JS to do it for us.
+	NPString script = { "Components.interfaces.ISciMozEvents" };
+	script.UTF8Length = strlen(script.UTF8Characters);
+	NPVariant iid = { NPVariantType_Void };
+	if (!NPN_Evaluate(mPlugin->GetNPP(),
+			  NPVARIANT_TO_OBJECT(args[0]),
+			  &script,
+			  &iid))
+	{
+		SCIMOZ_DEBUG_PRINTF("%s: failed to get ISciMozEvents\n",
+				    __FUNCTION__);
+		return false;
+	}
 
-/* void HookSomeEvents (in nsISupports eventListener, in PRUint32 mask); */
-NS_IMETHODIMP SciMoz::HookSomeEvents(ISciMozEvents *eventListener, PRUint32 mask) {
-	SCIMOZ_CHECK_VALID("HookSomeEvents");
-#ifdef SCIMOZ_DEBUG
-	fprintf(stderr,"SciMoz::HookSomeEvents\n");
-#endif
-	if (eventListener==nsnull)
-		return NS_ERROR_UNEXPECTED;
-	return listeners.Add(eventListener, PR_TRUE, mask);
-}
-
-/* void HookSomeEventsWithStrongReference (in ISciMozEvents eventListener, in PRUint32 mask); */
-NS_IMETHODIMP SciMoz::HookSomeEventsWithStrongReference(ISciMozEvents *eventListener, PRUint32 mask) {
-	SCIMOZ_CHECK_VALID("HookSomeEventsWithStrongReference");
-#ifdef SCIMOZ_DEBUG
-	fprintf(stderr,"SciMoz::HookSomeEventsWithStrongReference %08X\n", eventListener);
-#endif
-	if (eventListener==nsnull)
-		return NS_ERROR_UNEXPECTED;
-	return listeners.Add(eventListener, PR_FALSE, mask);
+	NPVariant eventListenerVar;
+	if (!NPN_Invoke(mPlugin->GetNPP(),
+			NPVARIANT_TO_OBJECT(args[0]),
+			NPN_GetStringIdentifier("QueryInterface"),
+			&iid,
+			1,
+			&eventListenerVar))
+	{
+		SCIMOZ_DEBUG_PRINTF("%s: QI failed\n", __FUNCTION__);
+		return false;
+	}
+	if (!NPVARIANT_IS_OBJECT(eventListenerVar)) {
+		SCIMOZ_DEBUG_PRINTF("%s: QI result is not an object", __FUNCTION__);
+		return false;
+	}
+	return listeners.Add(mPlugin->GetNPP(),
+			     NPVARIANT_TO_OBJECT(eventListenerVar),
+			     PR_FALSE,
+			     ISciMozEvents::SME_ALL /*& ~ISciMozEvents::SME_PAINTED*/);
 }
 
 /* void UnhookEvents (in ISciMozEvents eventListener); */
 NS_IMETHODIMP SciMoz::UnhookEvents(ISciMozEvents *eventListener) {
 	SCIMOZ_CHECK_VALID("UnhookEvents");
-#ifdef SCIMOZ_DEBUG
-	fprintf(stderr,"SciMoz::UnhookEvents\n");
-#endif
-	if (eventListener==nsnull)
-		return NS_ERROR_UNEXPECTED;
-	return listeners.Remove(eventListener);
+	return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+bool SciMoz::UnhookEvents(const NPVariant *args, uint32_t argCount, NPVariant *result) {
+	SCIMOZ_DEBUG_PRINTF("SciMoz::HookEvents\n");
+	if (argCount != 1) {
+		SCIMOZ_DEBUG_PRINTF("%s: expected 1 argument, got %i\n",
+				    __FUNCTION__,
+				    argCount);
+		return false;
+	}
+	if (!NPVARIANT_IS_OBJECT(args[0])) {
+		SCIMOZ_DEBUG_PRINTF("%s: parameter is not an object\n",
+				    __FUNCTION__);
+		return false;
+	}
+	if (!NPN_HasMethod(mPlugin->GetNPP(),
+			   NPVARIANT_TO_OBJECT(args[0]),
+			   NPN_GetStringIdentifier("QueryInterface")))
+	{
+		SCIMOZ_DEBUG_PRINTF("%s: object has no QueryInterface method\n",
+				    __FUNCTION__);
+		return false;
+	}
+	// we need to get a nsIDOMWindowInternal IID, wrapped in JS and then
+	// wrapped in NPAPI.  The easiest way is to ask JS to do it for us.
+	NPString script = { "Components.interfaces.ISciMozEvents" };
+	script.UTF8Length = strlen(script.UTF8Characters);
+	NPVariant iid = { NPVariantType_Void };
+	if (!NPN_Evaluate(mPlugin->GetNPP(),
+			  NPVARIANT_TO_OBJECT(args[0]),
+			  &script,
+			  &iid))
+	{
+		SCIMOZ_DEBUG_PRINTF("%s: failed to get ISciMozEvents\n",
+				    __FUNCTION__);
+		return false;
+	}
+
+	NPVariant eventListenerVar;
+	if (!NPN_Invoke(mPlugin->GetNPP(),
+			NPVARIANT_TO_OBJECT(args[0]),
+			NPN_GetStringIdentifier("QueryInterface"),
+			&iid,
+			1,
+			&eventListenerVar))
+	{
+		SCIMOZ_DEBUG_PRINTF("%s: QI failed\n", __FUNCTION__);
+		return false;
+	}
+	if (!NPVARIANT_IS_OBJECT(eventListenerVar)) {
+		SCIMOZ_DEBUG_PRINTF("%s: QI result is not an object", __FUNCTION__);
+		return false;
+	}
+	return listeners.Remove(mPlugin->GetNPP(),
+			        NPVARIANT_TO_OBJECT(eventListenerVar));
 }
 
 /* void getStyledText (in long min, in long max, out unsigned long count, [array, size_is (count), retval] out octet str); */
@@ -729,6 +813,42 @@ NS_IMETHODIMP SciMoz::GetStyledText(PRInt32 min, PRInt32 max, PRUint32 *count, P
 	delete []buffer;
 	*count = bytesCopied;
 	return (*str) ? NS_OK : NS_ERROR_OUT_OF_MEMORY;
+}
+
+bool SciMoz::GetStyledText(const NPVariant *args, uint32_t argCount, NPVariant *result) {
+	if (argCount != 3) return false;
+	if (!NPVARIANT_IS_INT32(args[0])) return false;
+	if (!NPVARIANT_IS_INT32(args[1])) return false;
+	if (!NPVARIANT_IS_OBJECT(args[2])) return false;
+	PRUint32 count;
+	PRUint8* buf = nsnull;
+	nsresult rv = GetStyledText(NPVARIANT_TO_INT32(args[0]),
+				    NPVARIANT_TO_INT32(args[1]),
+						       &count,
+						       &buf);
+	if (NS_FAILED(rv)) return false;
+
+	NPVariant npCount;
+	INT32_TO_NPVARIANT(count, npCount);
+	bool success = NPN_SetProperty(mPlugin->GetNPP(),
+				       NPVARIANT_TO_OBJECT(args[2]),
+				       NPN_GetStringIdentifier("value"),
+				       &npCount);
+	if (!success) {
+		NS_Free(buf);
+		return false;
+	}
+
+	NPN_ReleaseVariantValue(result);
+	NPUTF8* npbuf = reinterpret_cast<NPUTF8*>(NPN_MemAlloc(count));
+	if (!npbuf) {
+		NS_Free(buf);
+		return false;
+	}
+	memcpy(npbuf, buf, count);
+	STRINGN_TO_NPVARIANT(npbuf, count, *result);
+	NS_Free(buf);
+	return true;
 }
 
 /* long getCurLine (out string text); */
@@ -758,6 +878,34 @@ NS_IMETHODIMP SciMoz::GetCurLine(nsAString & text, PRInt32 *_retval) {
 	return NS_OK;
 }
 
+bool SciMoz::GetCurLine(const NPVariant *args, uint32_t argCount, NPVariant *result) {
+	if (argCount != 1) return false;
+	if (!NPVARIANT_IS_OBJECT(args[0])) return false;
+	nsString text;
+	PRInt32 retval;
+	nsresult rv = GetCurLine(text, &retval);
+	if (NS_FAILED(rv)) return false;
+
+	NPN_ReleaseVariantValue(result);
+	INT32_TO_NPVARIANT(retval, *result);
+
+	NS_ConvertUTF16toUTF8 textUtf8(text);
+	NPUTF8* buf = reinterpret_cast<NPUTF8*>(NPN_MemAlloc(textUtf8.Length()));
+	if (!buf) return false;
+	memcpy(buf, textUtf8.get(), textUtf8.Length());
+	NPVariant textNp;
+	STRINGN_TO_NPVARIANT(buf, textUtf8.Length(), textNp);
+	bool success = NPN_SetProperty(mPlugin->GetNPP(),
+				       NPVARIANT_TO_OBJECT(args[0]),
+				       NPN_GetStringIdentifier("value"),
+				       &textNp);
+	if (!success) {
+		NPN_MemFree(buf);
+		return false;
+	}
+	return true;
+}
+
 /* long getLine(in long line, out AUTF8String text); */
 NS_IMETHODIMP SciMoz::GetLine(PRInt32 line, nsAString & text, PRInt32  *_retval) 
 {
@@ -784,6 +932,37 @@ NS_IMETHODIMP SciMoz::GetLine(PRInt32 line, nsAString & text, PRInt32  *_retval)
 	return NS_OK;
 }
 
+bool SciMoz::GetLine(const NPVariant *args, uint32_t argCount, NPVariant *result) {
+	if (argCount != 2) return false;
+	if (!NPVARIANT_IS_INT32(args[0])) return false;
+	if (!NPVARIANT_IS_OBJECT(args[1])) return false;
+	nsString text;
+	PRInt32 retval;
+	nsresult rv = GetLine(NPVARIANT_TO_INT32(args[0]),
+			      text,
+			      &retval);
+	if (NS_FAILED(rv)) return false;
+
+	NS_ConvertUTF16toUTF8 textUtf8(text);
+	NPUTF8* buf = reinterpret_cast<NPUTF8*>(NPN_MemAlloc(textUtf8.Length()));
+	if (!buf) return false;
+	memcpy(buf, textUtf8.get(), textUtf8.Length());
+	NPVariant textNp;
+	STRINGN_TO_NPVARIANT(buf, textUtf8.Length(), textNp);
+	bool success = NPN_SetProperty(mPlugin->GetNPP(),
+				       NPVARIANT_TO_OBJECT(args[1]),
+				       NPN_GetStringIdentifier("value"),
+				       &textNp);
+	if (!success) {
+		NPN_ReleaseVariantValue(&textNp);
+		return false;
+	}
+
+	NPN_ReleaseVariantValue(result);
+	INT32_TO_NPVARIANT(retval, *result);
+	return true;
+}
+
 /* void assignCmdKey (in long key, in long modifiers, in long msg); */
 NS_IMETHODIMP SciMoz::AssignCmdKey(PRInt32 key, PRInt32 modifiers, PRInt32 msg) {
 	SCIMOZ_CHECK_VALID("AssignCmdKey");
@@ -795,6 +974,18 @@ NS_IMETHODIMP SciMoz::AssignCmdKey(PRInt32 key, PRInt32 modifiers, PRInt32 msg) 
 	return NS_OK;
 }
 
+bool SciMoz::AssignCmdKey(const NPVariant *args, uint32_t argCount, NPVariant *result) {
+	if (argCount != 3) return false;
+	if (!NPVARIANT_IS_INT32(args[0])) return false;
+	if (!NPVARIANT_IS_INT32(args[1])) return false;
+	if (!NPVARIANT_IS_INT32(args[2])) return false;
+	nsresult rv = AssignCmdKey(NPVARIANT_TO_INT32(args[0]),
+				   NPVARIANT_TO_INT32(args[1]),
+				   NPVARIANT_TO_INT32(args[2]));
+	if (NS_FAILED(rv)) return false;
+	return true;
+}
+
 /* void clearCmdKey (in long key, in long modifiers); */
 NS_IMETHODIMP SciMoz::ClearCmdKey(PRInt32 key, PRInt32 modifiers) {
 	SCIMOZ_CHECK_VALID("ClearCmdKey");
@@ -804,6 +995,16 @@ NS_IMETHODIMP SciMoz::ClearCmdKey(PRInt32 key, PRInt32 modifiers) {
 	int km = LONGFROMTWOSHORTS(key, modifiers);
 	SendEditor(SCI_CLEARCMDKEY, km, 0);
 	return NS_OK;
+}
+
+bool SciMoz::ClearCmdKey(const NPVariant *args, uint32_t argCount, NPVariant *result) {
+	if (argCount != 2) return false;
+	if (!NPVARIANT_IS_INT32(args[0])) return false;
+	if (!NPVARIANT_IS_INT32(args[1])) return false;
+	nsresult rv = ClearCmdKey(NPVARIANT_TO_INT32(args[0]),
+				  NPVARIANT_TO_INT32(args[1]));
+	if (NS_FAILED(rv)) return false;
+	return true;
 }
 
 /* string getTextRange (in long min, in long max); */
@@ -840,6 +1041,26 @@ NS_IMETHODIMP SciMoz::GetTextRange(PRInt32 min, PRInt32 max, nsAString & _retval
 	delete []buffer;
 	return NS_OK;
 }
+
+bool SciMoz::GetTextRange(const NPVariant *args, uint32_t argCount, NPVariant *result) {
+	if (argCount != 2) return false;
+	if (!NPVARIANT_IS_INT32(args[0])) return false;
+	if (!NPVARIANT_IS_INT32(args[1])) return false;
+	nsString retval;
+	nsresult rv = GetTextRange(NPVARIANT_TO_INT32(args[0]),
+				   NPVARIANT_TO_INT32(args[1]),
+				   retval);
+	if (NS_FAILED(rv)) return false;
+
+	NS_ConvertUTF16toUTF8 retvalUtf8(retval);
+	NPUTF8* buf = reinterpret_cast<NPUTF8*>(NPN_MemAlloc(retvalUtf8.Length()));
+	if (!buf) return false;
+	memcpy(buf, retvalUtf8.get(), retvalUtf8.Length());
+	NPN_ReleaseVariantValue(result);
+	STRINGN_TO_NPVARIANT(buf, retvalUtf8.Length(), *result);
+	return true;
+}
+
 
 /* attribute string name; */
 NS_IMETHODIMP SciMoz::GetName(nsAString &val) {
@@ -980,6 +1201,21 @@ NS_IMETHODIMP SciMoz::CharPosAtPosition(PRInt32 pos, PRInt32  *_retval)
 	return NS_OK;
 }
 
+bool SciMoz::CharPosAtPosition(const NPVariant *args, uint32_t argCount, NPVariant *result) {
+	if (argCount != 1) return false;
+	if (!NPVARIANT_IS_INT32(args[0])) return false;
+
+	PRInt32 retval;
+	nsresult rv;
+	rv = CharPosAtPosition(NPVARIANT_TO_INT32(args[0]), &retval);
+	if (NS_FAILED(rv)) return false;
+
+	NPN_ReleaseVariantValue(result);
+	INT32_TO_NPVARIANT(retval, *result);
+
+	return true;
+}
+
 /* readonly attribute wstring selText; */
 NS_IMETHODIMP SciMoz::GetSelText(nsAString & aSelText)
 {
@@ -1013,182 +1249,126 @@ NS_IMETHODIMP SciMoz::GetSelText(nsAString & aSelText)
 }
 
 
-/* void ButtonDown( in long x, in long y, in PRUint16 button, in PRUint64 timeStamp, in boolean bShift, boolean bCtrl, boolean bAlt); */
-NS_IMETHODIMP SciMoz::ButtonDown(PRInt32 x, PRInt32 y, PRUint16 button, PRUint64 timeStamp, PRBool bShift, PRBool bCtrl, PRBool bAlt) {
+/* void ButtonDown( in long x, in long y, in PRUint16 button, in boolean bShift, boolean bCtrl, boolean bAlt); */
+NS_IMETHODIMP SciMoz::ButtonDown(PRInt32 x, PRInt32 y, PRUint16 button, PRBool bShift, PRBool bCtrl, PRBool bAlt) {
 #ifdef SCIMOZ_DEBUG
 	fprintf(stderr,"SciMoz::ButtonDown\n");
 #endif
-	return _DoButtonUpDown(PR_FALSE, x, y, button, timeStamp, bShift, bCtrl, bAlt);
+	return _DoButtonUpDown(PR_FALSE, x, y, button, bShift, bCtrl, bAlt);
 }
 
-/* void ButtonUp( in long x, in long y, in PRUint16 button, in PRUint64 timeStamp, in boolean bShift, boolean bCtrl, boolean bAlt); */
-NS_IMETHODIMP SciMoz::ButtonUp(PRInt32 x, PRInt32 y, PRUint16 button, PRUint64 timeStamp, PRBool bShift, PRBool bCtrl, PRBool bAlt) {
+/* void ButtonUp( in long x, in long y, in PRUint16 button, in boolean bShift, boolean bCtrl, boolean bAlt); */
+NS_IMETHODIMP SciMoz::ButtonUp(PRInt32 x, PRInt32 y, PRUint16 button, PRBool bShift, PRBool bCtrl, PRBool bAlt) {
 #ifdef SCIMOZ_DEBUG
 	fprintf(stderr,"SciMoz::ButtonUp\n");
 #endif
-	return _DoButtonUpDown(PR_TRUE, x, y, button, timeStamp, bShift, bCtrl, bAlt);
+	return _DoButtonUpDown(PR_TRUE, x, y, button, bShift, bCtrl, bAlt);
 }
 
 
 /* void setCommandUpdateTarget( in nsISupports window); */
 NS_IMETHODIMP SciMoz::SetCommandUpdateTarget(nsISupports *window) {
-	if (window==nsnull) {
-		commandUpdateTarget = 0; // wipe and release it.
-		return NS_OK;
+	return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+bool SciMoz::SetCommandUpdateTarget(const NPVariant *args, uint32_t argCount, NPVariant *result) {
+	if (argCount != 1) {
+		SCIMOZ_DEBUG_PRINTF("%s: expected 1 argument, got %i\n",
+				    __FUNCTION__,
+				    argCount);
+		return false;
 	}
-	else
-		return window->QueryInterface(NS_GET_IID(nsIDOMWindowInternal),
-	                              getter_AddRefs(commandUpdateTarget));
+	if (NPVARIANT_IS_VOID(args[0]) || NPVARIANT_IS_NULL(args[0])) {
+		commandUpdateTarget = 0;
+		return true;
+	}
+	if (!NPVARIANT_IS_OBJECT(args[0])) {
+		SCIMOZ_DEBUG_PRINTF("%s: arg is not an object\n", __FUNCTION__);
+		return false;
+	}
+	if (!NPN_HasMethod(mPlugin->GetNPP(),
+			   NPVARIANT_TO_OBJECT(args[0]),
+			   NPN_GetStringIdentifier("QueryInterface")))
+	{
+		SCIMOZ_DEBUG_PRINTF("%s: object has no QueryInterface method\n",
+				    __FUNCTION__);
+		return false;
+	}
+
+	// we need to get a nsIDOMWindowInternal IID, wrapped in JS and then
+	// wrapped in NPAPI.  The easiest way is to ask JS to do it for us.
+	NPString script = { "Components.interfaces.nsIDOMWindowInternal" };
+	script.UTF8Length = strlen(script.UTF8Characters);
+	NPVariant iid = { NPVariantType_Void };
+	if (!NPN_Evaluate(mPlugin->GetNPP(),
+			  NPVARIANT_TO_OBJECT(args[0]),
+			  &script,
+			  &iid))
+	{
+		SCIMOZ_DEBUG_PRINTF("%s: failed to get nsIDOMWindowInternal\n",
+				    __FUNCTION__);
+		return false;
+	}
+
+	NPVariant domWindowInternal;
+	if (!NPN_Invoke(mPlugin->GetNPP(),
+			NPVARIANT_TO_OBJECT(args[0]),
+			NPN_GetStringIdentifier("QueryInterface"),
+			&iid,
+			1,
+			&domWindowInternal))
+	{
+		SCIMOZ_DEBUG_PRINTF("%s: QI failed\n", __FUNCTION__);
+		return false;
+	}
+
+	// sanity check the nsIDOMWindowInternal we got
+	if (!NPN_HasMethod(mPlugin->GetNPP(),
+			   NPVARIANT_TO_OBJECT(domWindowInternal),
+			   NPN_GetStringIdentifier("updateCommands")))
+	{
+		SCIMOZ_DEBUG_PRINTF("%s: nsIDOMWindowInternal does not have an updateCommands method!\n",
+				    __FUNCTION__);
+		return false;
+	}
+	commandUpdateTarget = NPVARIANT_TO_OBJECT(domWindowInternal);
+
+	return true;
 }
 
 /* void sendUpdateCommands( in string text); */
 NS_IMETHODIMP SciMoz::SendUpdateCommands(const char *text) {
-	NS_ABORT_IF_FALSE(commandUpdateTarget!=nsnull, "Can't send a command update if you havent set the target!");
+	NS_ABORT_IF_FALSE(commandUpdateTarget != nsnull,
+			  "Can't send a command update if you havent set the target!");
 	if (commandUpdateTarget==nsnull)
 		return NS_ERROR_UNEXPECTED;
-	return commandUpdateTarget->UpdateCommands(NS_ConvertASCIItoUTF16(text));
+
+	NPVariant result = { NPVariantType_Void };
+	NPVariant varText;
+	STRINGZ_TO_NPVARIANT(text, varText);
+	bool success = NPN_Invoke(mPlugin->GetNPP(),
+				  commandUpdateTarget,
+				  NPN_GetStringIdentifier("updateCommands"),
+				  &varText,
+				  1,
+				  &result);
+	return success ? NS_OK : NS_ERROR_FAILURE;
 }
 
-//#define IME_DEBUG
-void SciMoz::StartCompositing()
-{
-#ifdef IME_DEBUG
-	fprintf(stderr, "SciMoz::StartCompositing\n");
-#endif
-	imeComposing = true;
-	if (imeStartPos < 0) {
-		BeginUndoAction();
-		int anchor = SendEditor(SCI_GETANCHOR, 0, 0);
-		imeStartPos = SendEditor(SCI_GETCURRENTPOS, 0, 0);
-		if (anchor < imeStartPos)
-			imeStartPos = anchor;
-		imeActive = true;
+bool SciMoz::SendUpdateCommands(const NPVariant *args, uint32_t argCount, NPVariant *result) {
+	if (argCount != 1) {
+		SCIMOZ_DEBUG_PRINTF("%s: expected 1 argument, got %i\n",
+				    __FUNCTION__,
+				    argCount);
+		return false;
 	}
+	nsresult rv = SendUpdateCommands(NPVARIANT_TO_STRING(args[0]).UTF8Characters);
+	return NS_SUCCEEDED(rv);
 }
 
-void SciMoz::EndCompositing()
+NS_IMETHODIMP SciMoz::HandleTextEvent(nsIDOMEvent* aTextEvent, nsIBoxObject *aBoxObject, nsAString & text)
 {
-#ifdef IME_DEBUG
-	fprintf(stderr, "SciMoz::EndCompositing\n");
-#endif
-	if (imeStartPos >= 0) {
-		imeStartPos = -1;
-		EndUndoAction();
-	}
-	if (imeComposing) {
-		// blur event, mouse click or other during composition, undo
-		// the composition now
-		PRBool collectUndo;
-		GetUndoCollection(&collectUndo);
-		SetUndoCollection(false);
-		Undo();
-		SetUndoCollection(collectUndo);
-		imeComposing = false;
-		mIMEString.Truncate();
-	}
-	imeActive = false;
-}
-
-NS_IMETHODIMP SciMoz::HandleTextEvent(nsIDOMEvent* aTextEvent, PRInt32 screenx, PRInt32 screeny, nsAString & text)
-{
-	// This is called multiple times in the middle of an 
-	// IME composition
-	nsCOMPtr<nsIPrivateTextEvent> textEvent(do_QueryInterface(aTextEvent));
-	if (!textEvent)
-	  return NS_OK;
-	
-	textEvent->GetText(mIMEString);
-	text = mIMEString;
-
-#ifdef IME_DEBUG
-        printf("HandleTextEvent: length: %d, [%s]\n", text.Length(), NS_ConvertUTF16toUTF8(text).get());
-#endif
-	
-#if 1
-	// this tells mozilla where to place IME input windows
-	nsTextEventReply *textEventReply;
-	textEventReply = textEvent->GetEventReply();
-	int curPos = SendEditor(SCI_GETCURRENTPOS, 0, 0);
-	int curLine = SendEditor(SCI_LINEFROMPOSITION, curPos);
-	int anchor = SendEditor(SCI_GETANCHOR, 0, 0);
-#if 0
-	// XXX device dependant!!!!  bug 40959
-	// see xpcom/ds/nsUnitConversion.h and gfx/src/mac/nsDeviceContextMac.cpp
-	nsCOMPtr<nsIDeviceContext> mDeviceContext = do_CreateInstance(kDeviceContextIID);
-	float  p2t;
-	p2t = mDeviceContext->DevUnitsToAppUnits();
-#else
-	int p2t = 60;
-#endif
-
-#define PIXELS_TO_APP(x,y) NSIntPixelsToAppUnits(x,y)
-	textEventReply->mCursorPosition.x = PIXELS_TO_APP(SendEditor(SCI_POINTXFROMPOSITION, 0, anchor) + screenx, p2t);
-	textEventReply->mCursorPosition.y = PIXELS_TO_APP(SendEditor(SCI_POINTYFROMPOSITION, 0, anchor) + screeny, p2t);
-	textEventReply->mCursorPosition.width = fWindow->width;
-	textEventReply->mCursorPosition.height = PIXELS_TO_APP(SendEditor(SCI_TEXTHEIGHT, curLine, 0), p2t);
-	textEventReply->mCursorIsCollapsed = false;
-#ifdef IME_DEBUG
-	fprintf(stderr, "text event cursor:: collapsed %d rect %d %d %d %d\n",
-		textEventReply->mCursorIsCollapsed,
-		textEventReply->mCursorPosition.x,
-		textEventReply->mCursorPosition.y,
-		textEventReply->mCursorPosition.width,
-		textEventReply->mCursorPosition.height
-		);
-#endif
-#endif
-	
-	// If there is no textRangeList, then this is the end of the IME session
-	// and we need to "harden" any IME input (hardening is done by setting
-	// imeComposing to false).
-	nsCOMPtr<nsIPrivateTextRangeList> textRangeList;
-	textRangeList = textEvent->GetInputRange();
-	int hasTextRangeList = 0;
-	if (textRangeList && (textRangeList->GetLength() > 0)) {
-	    hasTextRangeList = 1;
-#ifdef IME_DEBUG
-	    fprintf(stderr, "  text range length: %d\n", textRangeList->GetLength());
-#endif
-        }
-	// XXX problem here, we normally only want to insert text if we're
-	// in or finishing an ime session.  However, some chinese keyboard
-	// events happen a bit differently, so we do a bit of a hack to see
-	// if we're receiving something we're interested in.  The real fix
-	// is to figure out how to tell mozilla to cancel the IME session
-	// in EndCompositing().
-	//
-	// bug 40960
-	//
-	// Notes: imeActive is only true from the second IME keypress.
-	//
-        if (text.Length() > 0) {
-            if (imeStartPos < 0) {
-#ifdef IME_DEBUG
-		fprintf(stderr, "ime starting\n");
-#endif
-		StartCompositing();
-            }
-            if (imeActive || text.Length() > 0) {
-                    ReplaceSel(text);
-            }
-            if (!hasTextRangeList) {
-                imeComposing = 0;
-            }
-            if (imeActive && imeComposing) {
-                    SetAnchor(imeStartPos);
-            } else {
-#ifdef IME_DEBUG
-                fprintf(stderr, "ime finished\n");
-#endif
-                EndCompositing();
-            }
-        } else {
-            /* This is a notification that the IME has ended, there will be a
-               forthcoming textevent with the resultant string. */
-            imeComposing = false;
-        }
-
-	return NS_OK;
+	return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 /* wchar getWCharAt(in long pos); */
@@ -1322,6 +1502,20 @@ NS_IMETHODIMP SciMoz::GetWCharAt(PRInt32 pos, PRUnichar *_retval) {
     return NS_OK;
 }
 
+bool SciMoz::GetWCharAt(const NPVariant *args, uint32_t argCount, NPVariant *result) {
+	if (argCount != 1) return false;
+	if (!NPVARIANT_IS_INT32(args[0])) return false;
+	PRUnichar retval[2];
+	nsresult rv = GetWCharAt(NPVARIANT_TO_INT32(args[0]), retval);
+	retval[1] = PRUnichar(0);
+	if (NS_FAILED(rv)) return false;
+	NS_ConvertUTF16toUTF8 retvalUtf8(retval);
+	NPUTF8* buf = reinterpret_cast<NPUTF8*>(NPN_MemAlloc(retvalUtf8.Length()));
+	memcpy(buf, retvalUtf8.BeginReading(), retvalUtf8.Length());
+	STRINGN_TO_NPVARIANT(buf, retvalUtf8.Length(), *result);
+	return true;
+}
+
 NS_IMETHODIMP SciMoz::ConvertUTF16StringSendMessage(int message, PRInt32 length, const PRUnichar *text, PRInt32  *_retval) {
 	nsCAutoString utf8Text;
 	if (length == -1) {
@@ -1341,6 +1535,22 @@ NS_IMETHODIMP SciMoz::ReplaceTarget(PRInt32 length, const PRUnichar *text, PRInt
 	return ConvertUTF16StringSendMessage(SCI_REPLACETARGET, length, text, _retval);
 }
 
+bool SciMoz::ReplaceTarget(const NPVariant *args, uint32_t argCount, NPVariant *result) {
+	if (argCount != 2) return false;
+	if (!NPVARIANT_IS_INT32(args[0])) return false;
+	if (!NPVARIANT_IS_STRING(args[1])) return false;
+
+	NS_ConvertUTF8toUTF16 textUtf16(NPVARIANT_TO_STRING(args[1]).UTF8Characters,
+					NPVARIANT_TO_STRING(args[1]).UTF8Length);
+	PRInt32 retval;
+	nsresult rv;
+	rv = ReplaceTarget(NPVARIANT_TO_INT32(args[0]), textUtf16.get(), &retval);
+	if (NS_FAILED(rv)) return false;
+	NPN_ReleaseVariantValue(result);
+	INT32_TO_NPVARIANT(retval, *result);
+	return true;
+}
+
 /* long replaceTargetRE(in long length, in wstring text); */
 NS_IMETHODIMP SciMoz::ReplaceTargetRE(PRInt32 length, const PRUnichar *text, PRInt32  *_retval) {
 #ifdef SCIMOZ_DEBUG
@@ -1349,12 +1559,44 @@ NS_IMETHODIMP SciMoz::ReplaceTargetRE(PRInt32 length, const PRUnichar *text, PRI
 	return ConvertUTF16StringSendMessage(SCI_REPLACETARGETRE, length, text, _retval);
 }
 
+bool SciMoz::ReplaceTargetRE(const NPVariant *args, uint32_t argCount, NPVariant *result) {
+	if (argCount != 2) return false;
+	if (!NPVARIANT_IS_INT32(args[0])) return false;
+	if (!NPVARIANT_IS_STRING(args[1])) return false;
+
+	NS_ConvertUTF8toUTF16 textUtf16(NPVARIANT_TO_STRING(args[1]).UTF8Characters,
+					NPVARIANT_TO_STRING(args[1]).UTF8Length);
+	PRInt32 retval;
+	nsresult rv;
+	rv = ReplaceTargetRE(NPVARIANT_TO_INT32(args[0]), textUtf16.get(), &retval);
+	if (NS_FAILED(rv)) return false;
+	NPN_ReleaseVariantValue(result);
+	INT32_TO_NPVARIANT(retval, *result);
+	return true;
+}
+
 /* long searchInTarget(in long length, in wstring text); */
 NS_IMETHODIMP SciMoz::SearchInTarget(PRInt32 length, const PRUnichar *text, PRInt32  *_retval) {
 #ifdef SCIMOZ_DEBUG
 	printf("SciMoz::SearchInTarget\n");
 #endif
 	return ConvertUTF16StringSendMessage(SCI_SEARCHINTARGET, length, text, _retval);
+}
+
+bool SciMoz::SearchInTarget(const NPVariant *args, uint32_t argCount, NPVariant *result) {
+	if (argCount != 2) return false;
+	if (!NPVARIANT_IS_INT32(args[0])) return false;
+	if (!NPVARIANT_IS_STRING(args[1])) return false;
+
+	NS_ConvertUTF8toUTF16 textUtf16(NPVARIANT_TO_STRING(args[1]).UTF8Characters,
+					NPVARIANT_TO_STRING(args[1]).UTF8Length);
+	PRInt32 retval;
+	nsresult rv;
+	rv = SearchInTarget(NPVARIANT_TO_INT32(args[0]), textUtf16.get(), &retval);
+	if (NS_FAILED(rv)) return false;
+	NPN_ReleaseVariantValue(result);
+	INT32_TO_NPVARIANT(retval, *result);
+	return true;
 }
 
 /* attribute long modEventMask; */
@@ -1377,6 +1619,94 @@ NS_IMETHODIMP SciMoz::SetModEventMask(PRInt32 mask) {
 	return NS_OK;
 }
 
+/* void addChar(in PRUint32 ch); */
+bool SciMoz::AddChar(const NPVariant *args, uint32_t argCount, NPVariant *result) {
+	SCIMOZ_DEBUG_PRINTF("SciMoz::AddChar\n");
+	if (argCount != 1) {
+		SCIMOZ_DEBUG_PRINTF("%s: expected 1 argument, got %i\n",
+				    __FUNCTION__,
+				    argCount);
+		return false;
+	}
+	if (!NPVARIANT_IS_INT32(args[0])) {
+		SCIMOZ_DEBUG_PRINTF("%s: parameter is not int\n",
+				    __FUNCTION__);
+		return false;
+	}
+	nsresult rv = AddChar(NPVARIANT_TO_INT32(args[0]));
+	return NS_SUCCEEDED(rv);
+}
+
+bool SciMoz::ButtonDown(const NPVariant *args, uint32_t argCount, NPVariant *result) {
+        if (argCount != 6) return false;
+        /* arg 0 of type long */
+        if (!NPVARIANT_IS_INT32(args[0])) return false;
+        /* arg 1 of type long */
+        if (!NPVARIANT_IS_INT32(args[1])) return false;
+        /* arg 2 of type PRUint16 */
+        if (!NPVARIANT_IS_INT32(args[2])) return false;
+        /* arg 3 of type boolean */
+        if (!NPVARIANT_IS_BOOLEAN(args[3])) return false;
+        /* arg 4 of type boolean */
+        if (!NPVARIANT_IS_BOOLEAN(args[4])) return false;
+        /* arg 5 of type boolean */
+        if (!NPVARIANT_IS_BOOLEAN(args[5])) return false;
+	nsresult rv = _DoButtonUpDown(PR_FALSE,
+				      NPVARIANT_TO_INT32(args[0]),
+				      NPVARIANT_TO_INT32(args[1]),
+				      NPVARIANT_TO_INT32(args[2]),
+				      !!NPVARIANT_TO_BOOLEAN(args[3]),
+				      !!NPVARIANT_TO_BOOLEAN(args[4]),
+				      !!NPVARIANT_TO_BOOLEAN(args[5]));
+        /* return value of type void */
+        NPN_ReleaseVariantValue(result);
+	return NS_SUCCEEDED(rv);
+}
+bool SciMoz::ButtonUp(const NPVariant *args, uint32_t argCount, NPVariant *result) {
+        if (argCount != 6) return false;
+        /* arg 0 of type long */
+        if (!NPVARIANT_IS_INT32(args[0])) return false;
+        /* arg 1 of type long */
+        if (!NPVARIANT_IS_INT32(args[1])) return false;
+        /* arg 2 of type PRUint16 */
+        if (!NPVARIANT_IS_INT32(args[2])) return false;
+        /* arg 3 of type boolean */
+        if (!NPVARIANT_IS_BOOLEAN(args[3])) return false;
+        /* arg 4 of type boolean */
+        if (!NPVARIANT_IS_BOOLEAN(args[4])) return false;
+        /* arg 5 of type boolean */
+        if (!NPVARIANT_IS_BOOLEAN(args[5])) return false;
+	nsresult rv = _DoButtonUpDown(PR_TRUE,
+				      NPVARIANT_TO_INT32(args[0]),
+				      NPVARIANT_TO_INT32(args[1]),
+				      NPVARIANT_TO_INT32(args[2]),
+				      !!NPVARIANT_TO_BOOLEAN(args[3]),
+				      !!NPVARIANT_TO_BOOLEAN(args[4]),
+				      !!NPVARIANT_TO_BOOLEAN(args[5]));
+        /* return value of type void */
+        NPN_ReleaseVariantValue(result);
+	return NS_SUCCEEDED(rv);
+}
+bool SciMoz::ButtonMove(const NPVariant *args, uint32_t argCount, NPVariant *result) {
+        if (argCount != 2) return false;
+        /* arg 0 of type long */
+        if (!NPVARIANT_IS_INT32(args[0])) return false;
+        /* arg 1 of type long */
+        if (!NPVARIANT_IS_INT32(args[1])) return false;
+	nsresult rv = ButtonMove(NPVARIANT_TO_INT32(args[0]),
+				 NPVARIANT_TO_INT32(args[1]));
+        /* return value of type void */
+        NPN_ReleaseVariantValue(result);
+	return NS_SUCCEEDED(rv);
+}
+bool SciMoz::EndDrop(const NPVariant *args, uint32_t argCount, NPVariant *result) {
+        if (argCount != 0) return false;
+	nsresult rv = EndDrop();
+        /* return value of type void */
+        NPN_ReleaseVariantValue(result);
+	return NS_SUCCEEDED(rv);
+}
+
 // ***********************************************************************
 // *
 // * Include interface implementation autogenerated from Scintilla.iface.
@@ -1384,4 +1714,4 @@ NS_IMETHODIMP SciMoz::SetModEventMask(PRInt32 mask) {
 // ***********************************************************************
 #include "npscimoz_gen.h"
 
-
+#include "generated_plugin_code.h"

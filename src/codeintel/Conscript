@@ -45,6 +45,7 @@ Import(
     "ranRegxpcomStateFileName",
     "komodoPythonUtilsDir",
     'platform',
+    'mozSrc',
     'mozVersion',
     'productType',
     'buildFlavour',

@@ -176,7 +176,12 @@ class KoLanguageRegistryService:
 
         # XXX get from prefs?
         self.defaultLanguage = "Text"
-        
+
+        # Check if the django addon is enabled (and cache the result)
+        # This is here because the addon manager is asynchronous which really
+        # cramps us later when we try to synchronously check that
+        self.addonIsEnabled("django_language@ActiveState.com")
+
         self.registerLanguages()
         self._resetFileAssociationData() # must be after .registerLanguages()
         timeline.leave('KoLanguageRegistryService.__init__')
@@ -292,28 +297,21 @@ class KoLanguageRegistryService:
     _addonsEnabled = {}
 
     def addonIsEnabled(self, id):
-        result = self._addonsEnabled.get(id)
-        if result is None:
-            result = False
-            try:
-                extMgr = components.classes["@mozilla.org/extensions/manager;1"]. \
-                            getService(components.interfaces.nsIExtensionManager)
-                item = extMgr.getItemForID(id)
-                if item:
-                    extMgrDs = extMgr.datasource
-                    rdfSvc = components.classes["@mozilla.org/rdf/rdf-service;1"].getService(components.interfaces.nsIRDFService)
-                    if extMgrDs and rdfSvc:
-                        source = rdfSvc.GetResource("urn:mozilla:item:" + id)
-                        property = rdfSvc.GetResource("http://www.mozilla.org/2004/em-rdf#isDisabled")
-                        target = rdfSvc.GetLiteral("true")
-                        disabled = extMgrDs.HasAssertion(source, property, target, True)
-                        result = not disabled
-            except COMException:
-                log.warn("addonIsEnabled:: unable to obtain the nsIExtensionManager service")
-                # Not available in the test environment.
-                result = False
-            self._addonsEnabled[id] = result
-        return result
+        if id in self._addonsEnabled:
+            return self._addonsEnabled[id]
+
+        try:
+            addonMgr = components.classes["@mozilla.org/addons/addon-manager;1"]. \
+                        getService(components.interfaces.amIAddonManager)
+            def addonCallback(addon):
+                if addon is not None:
+                    self._addonsEnabled[id] = addon.isActive
+            addonMgr.getAddonByID(id, addonCallback)
+        except COMException:
+            log.warn("addonIsEnabled:: unable to obtain Addon Manager")
+            # Not available in the test environment.
+            self._addonsEnabled[id] = False
+        return False
 
     def getLanguageHierarchy(self):
         """Return the structure used to define the language name menulist
@@ -366,24 +364,19 @@ class KoLanguageRegistryService:
     def registerLanguages(self):
         """registerLanguages
         
-        Gets a list of files from the same directory this file
-        is located in, and calls the register function.
+        Registers the languages listed in the "komodo-language" category
         """
-        componentDirs = directoryServiceUtils.getComponentsDirectories()
         self._languageSpecificPrefs = self._globalPrefSvc.prefs.getPref("languages")
-        for dirname in componentDirs:
-            log.info("looking for languages in [%s]", dirname)
-            files = glob.glob(join(dirname, 'ko*Language.py'))
-            for file in files:
-                # REFACTOR: Should use imp.load_module() instead of execfile
-                #           here. And use better error message.
-                try:
-                    module = {}
-                    execfile(file, module)
-                    if 'registerLanguage' in module:
-                        module['registerLanguage'](self)
-                except Exception, e:
-                    log.exception(e)            
+        catman = components.classes["@mozilla.org/categorymanager;1"]\
+                           .getService(components.interfaces.nsICategoryManager)
+        enumerator = catman.enumerateCategory("komodo-language")
+        while enumerator.hasMoreElements():
+            try:
+                entry = enumerator.getNext().queryInterface(components.interfaces.nsISupportsCString).data
+                contract = catman.getCategoryEntry("komodo-language", entry)
+                self.registerLanguage(components.classes[contract].createInstance())
+            except Exception, e:
+                log.exception(e)
 
     def registerLanguage(self, language):
         name = language.name
@@ -438,7 +431,7 @@ class KoLanguageRegistryService:
 
         if self.__languageFromLanguageName[language] is None:
             contractid = "@activestate.com/koLanguage?language=%s;1" \
-                         % (language)
+                         % (language.replace(" ", "%20"))
             self.__languageFromLanguageName[language] = components.classes[contractid] \
                     .createInstance(components.interfaces.koILanguage)
 

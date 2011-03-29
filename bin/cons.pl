@@ -780,15 +780,16 @@ sub Salt($) {
     $param::salt .= $_[0];
 }
 
-# Mark files (or directories) to not be removed before building.
-sub Precious {
-    map($_->{precious} = 1, map($dir::cwd->lookup($_), @_));
-}
-
 
 # These methods are callable from Conscript files, via a cons
 # object. Procs beginning with _ are intended for internal use.
 package cons;
+
+# Mark files (or directories) to not be removed before building.
+sub Precious {
+    my($env) = shift;
+    map($_->{precious} = 1, map($dir::cwd->lookup($_), @_));
+}
 
 # This is passed the name of the base environment to instantiate.
 # Overrides to the base environment may also be passed in

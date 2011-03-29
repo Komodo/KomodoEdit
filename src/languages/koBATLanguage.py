@@ -38,15 +38,13 @@ from xpcom import components, ServerException
 
 from koLanguageServiceBase import *
 
-def registerLanguage(registery):
-    registery.registerLanguage(koBatchLanguage())
-    
 class koBatchLanguage(KoLanguageBase):
     name = "Batch"
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{12e65384-fe22-4c25-9922-069760da24d8}"
+    _reg_categories_ = [("komodo-language", name)]
 
     accessKey = 'b'
     defaultExtension = ".bat"

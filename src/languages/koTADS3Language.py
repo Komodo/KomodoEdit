@@ -38,15 +38,13 @@ from xpcom import components, ServerException
 
 from koLanguageServiceBase import *
 
-def registerLanguage(registery):
-    registery.registerLanguage(koTADS3Language())
-
 class koTADS3Language(KoLanguageBase):
     name = "TADS3"
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{371E0FF4-53F0-11DA-915F-000D935D3368}"
+    _reg_categories_ = [("komodo-language", name)]
 
     commentDelimiterInfo = {
         "line": [ "//" ],

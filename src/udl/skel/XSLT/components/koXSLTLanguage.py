@@ -53,6 +53,7 @@ class koXSLTLanguage(koXMLLanguageBase):
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{7F76A3CE-7FE1-4363-99EB-4AAAFA79BC88}"
+    _reg_categories_ = [("komodo-language", name)]
 
     lexresLangName = name
     lang_from_udl_family = {'M': 'XML'}

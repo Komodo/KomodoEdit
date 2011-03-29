@@ -1605,11 +1605,6 @@ def target_configure(argv):
     
         config["mozBuildExtensions"] = mozBuildExtensions
 
-        if sys.platform.startswith("linux"):
-            # http://benjamin.smedbergs.us/blog/2005-10-27/gcc-40-workaround/
-            # https://bugs.launchpad.net/ubuntu/+source/firefox/+bug/102518
-            config["mozconfig"] += "ac_cv_visibility_pragma=no\n"
-
     # Error out if it looks like we will hit the subtle limitation on
     # PATH length on Windows.
     if sys.platform == "win32":
@@ -2246,6 +2241,8 @@ def target_src(argv=["src"]):
             repo_url = "http://hg.mozilla.org/releases/mozilla-1.9.1/"
         elif config.mozVer <= 1.92:
             repo_url = "http://hg.mozilla.org/releases/mozilla-1.9.2/"
+        elif config.mozVer <= 2.00:
+            repo_url = "http://hg.mozilla.org/releases/mozilla-2.0/"
         else:
             repo_url = "http://hg.mozilla.org/mozilla-central/"
         revision_arg = ""

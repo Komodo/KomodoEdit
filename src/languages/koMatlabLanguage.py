@@ -38,16 +38,13 @@ from xpcom import components, ServerException
 
 from koLanguageServiceBase import *
 
-def registerLanguage(registery):
-    registery.registerLanguage(koMatlabLanguage())
-    registery.registerLanguage(koOctaveLanguage())
-    
 class koMatlabLanguage(KoLanguageBase):
     name = "Matlab"
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{913BAE69-8E17-4c91-B855-687F0A34CFF6}"
+    _reg_categories_ = [("komodo-language", name)]
 
     defaultExtension = ".m.matlab"
     commentDelimiterInfo = { "line": [ "%" ]  }
@@ -70,6 +67,7 @@ class koOctaveLanguage(koMatlabLanguage):
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{d738c609-0897-4dbe-bfd4-d7037deb0ed2}"
+    _reg_categories_ = [("komodo-language", name)]
 
     defaultExtension = ".m"
 

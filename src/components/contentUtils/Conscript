@@ -20,7 +20,9 @@ Import(
     'supportDir',
     'withSymbols',
     'unsiloedPerlExe',
+    'unsiloedPythonExe',
     'mozVersionNumber',
+    'mozVersion',
     'mozDist',
     'sdkDir',
 );
@@ -58,7 +60,11 @@ if ($platform eq "win") {
 
     $CXXFLAGS .= ' -I./include';
     $CXXFLAGS .= ' -I./include/private';
-    $LDFLAGS .= " xpcom.lib nspr4.lib xpcom_core.lib js3250.lib ";
+    if ($mozVersionNumber < 199) {
+	$LDFLAGS .= " xpcom.lib nspr4.lib xpcom_core.lib js3250.lib ";
+    } else {
+	$LDFLAGS .= " xpcomglue_s.lib xpcom.lib nspr4.lib mozjs.lib mozalloc.lib ";
+    }
     $LDFLAGS .= " /dll";
     $CXXFLAGS .= " -DLAYERS -W3 -D_WINDOWS -DWIN32 -DMOZILLA_INTERNAL_API=1 ";
     $CXXFLAGS .= " -D_IMPL_NS_LAYOUT -DMOZ_VERSION=$mozVersionNumber";
@@ -98,22 +104,30 @@ else {
         " -I$mozDevelDist/include/layout";
     $consLocal{'LDFLAGS'} = $consLocal{ENV}{'LDFLAGS'};
 
-    
+    if ($platform eq "linux") {
+	$consLocal{'LDFLAGS'} .= "-Wl,-z,defs";
+    }
+
 
     $consLocal{'CXX'} = "g++";
     $consLocal{'CC'} = "gcc";
-    $consLocal{'LIBS'} = "-lxpcom -lnspr4 -lplds4 -lplc4 -lxpcom_core -lmozjs ";
+    if ($mozVersionNumber < 199) {
+        $consLocal{'LIBS'} = "-lxpcom -lnspr4 -lplds4 -lplc4 -lxpcom_core -lmozjs ";
+    } else {
+        $consLocal{'LIBS'} = "-lmozalloc -lxpcomglue_s -ljs_static -lxpcom -lnspr4 -lplds4 -lplc4 -lpthread ";
+    }
     if ($platform eq "darwin") {
         if ($mozVersionNumber >= 190) {
           $consLocal{'LIBS'} .= " -Wl,-dead_strip -L$mozDevelDist/bin ";
           $consLocal{'LIBS'} .= " -Wl,-executable_path,$mozDevelDist/bin ";
           #TODO: should these two be used for Linux?
-          $consLocal{'LIBS'} .= " -L$mozDevelDist/lib ";
-          $consLocal{'LIBS'} .= " $mozDevelDist/lib/libxpcomglue.a ";
+          $consLocal{'LIBS'} .= " -L$mozDevelDist/lib";
+          $consLocal{'LIBS'} .= " $mozDevelDist/lib/libxpcomglue_s.a ";
+          $consLocal{'LIBS'} .= " $mozDevelDist/lib/XUL";
         }
         $consLocal{'LDFLAGS'} .= " -framework Carbon -bundle";
     } else {
-        $consLocal{'LDFLAGS'} .= " -fPIC -shared";
+        $consLocal{'LDFLAGS'} .= " -lxul -fPIC -shared";
     }
     $consLocal{'CXXFLAGS'} .= " -fno-rtti -DLAYERS -Wall -DMOZILLA_INTERNAL_API=1 -D_IMPL_NS_LAYOUT";
     $consLocal{'CXXFLAGS'} .= " -include $mozObjDir/mozilla-config.h -DMOZ_VERSION=$mozVersionNumber";

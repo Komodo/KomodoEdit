@@ -18,6 +18,7 @@ Import(
     'unsiloedPythonExe',
     'buildFlavour',
     'sdkDir',
+    'mozSrc',
 );
 
 $cons->Install($idlExportDir, 'koIHistory.idl');

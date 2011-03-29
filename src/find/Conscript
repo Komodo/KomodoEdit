@@ -51,6 +51,7 @@ Import(
     'unsiloedPythonExe',
     'buildFlavour',
     'sdkDir',
+    'mozSrc',
 );
 
 $cons->Install($idlExportDir, 'koIFinder.idl');

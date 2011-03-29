@@ -47,6 +47,7 @@ from glob import glob
 import logging
 import shutil
 import stat
+import re
 
 
 sys.path.insert(0, join(dirname(__file__), "support"))
@@ -340,7 +341,16 @@ def make_elementtree(maker, log):
     for src_dir in elementtree_dirs:
         # Distutils' --install-data doesn't seem to NOT install default.css
         # to the lib dir without this hack.
-        _run_in_dir(cfg.python+" setup.py install --prefix=bitbucket "
+        if cfg.komodo_cfg.buildType == "debug":
+            debug_flags = "--debug"
+        else:
+            debug_flags = ""
+        if sys.platform == "darwin":
+            os.environ["CFLAGS"] = os.environ["CFLAGS"].replace("-fvisibility=hidden", "")
+            os.environ["CXXFLAGS"] = os.environ["CXXFLAGS"].replace("-fvisibility=hidden", "")
+        _run_in_dir(" ".join([cfg.python, "setup.py", "build", debug_flags]),
+                    src_dir, logstream=log.info)
+        _run_in_dir(cfg.python+" setup.py install --skip-build --prefix=bitbucket "
                         "--install-data=bitbucket --install-scripts=bitbucket "
                         "--install-lib=%s" % abspath("lib"),
                     src_dir, logstream=log.info)

@@ -44,15 +44,13 @@ from koLanguageServiceBase import *
 # language for computers running Windows XP, Windows 2000, Windows
 # NT or Windows 9x in a Windows Networking environment.
 
-def registerLanguage(registery):
-    registery.registerLanguage(koKixLanguage())
-    
 class koKixLanguage(KoLanguageBase):
     name = "Kix"
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{fad493c5-33a3-4ad3-bb99-ed5e86f42918}"
+    _reg_categories_ = [("komodo-language", name)]
 
     _stateMap = {
         'default': ('SCE_KIX_DEFAULT',),

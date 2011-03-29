@@ -36,8 +36,6 @@
 
 const DEBUG = false; /* set to true to enable debug messages */
 
-const DIALOGPROXY_CONTRACTID     = "@activestate.com/asDialogProxy;1";
-const DIALOGPROXY_CID        = Components.ID("{57002286-C22C-4e42-BCFC-DE91AF24B5CA}");
 const APPSHELL_SERV_CONTRACTID  = "@mozilla.org/appshell/appShellService;1";
 
 const nsIAppShellService    = Components.interfaces.nsIAppShellService;
@@ -47,6 +45,7 @@ const asIDialogProxy         = Components.interfaces.asIDialogProxy;
 const nsIInterfaceRequestor = Components.interfaces.nsIInterfaceRequestor
 const nsIDOMWindow          = Components.interfaces.nsIDOMWindow;
 
+Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 function asDialogProxy()
 {
@@ -58,6 +57,11 @@ function asDialogProxy()
 }
 
 asDialogProxy.prototype = {
+  classID: Components.ID("{57002286-C22C-4e42-BCFC-DE91AF24B5CA}"),
+  contractID: "@activestate.com/asDialogProxy;1",
+  classDescription: "asDialogProxy",
+  QueryInterface: XPCOMUtils.generateQI([asIDialogProxy]),
+
   _getParentWindow: function() {
     /* if we can get the window from the window mediator, just use that,
        otherwise, fallback to the old behaviour, which always got the
@@ -197,64 +201,7 @@ asDialogProxy.prototype = {
           throw Components.results.NS_ERROR_FAILURE;
       }
       return null;
-  },
-
-  QueryInterface: function(iid) {
-    if (!iid.equals(asIDialogProxy) &&
-        !iid.equals(nsISupports))
-        throw Components.results.NS_ERROR_NO_INTERFACE;
-    return this;
   }
-}
+};
 
-/* module foo */
-
-var dialogProxyModule = new Object();
-
-dialogProxyModule.registerSelf =
-function (compMgr, fileSpec, location, type)
-{
-    compMgr = compMgr.QueryInterface(Components.interfaces.nsIComponentRegistrar);
-    compMgr.registerFactoryLocation(DIALOGPROXY_CID, 
-                                "JS Dialog Proxy Component",
-                                DIALOGPROXY_CONTRACTID, 
-                                fileSpec, 
-                                location,
-                                type);
-}
-
-dialogProxyModule.getClassObject =
-function (compMgr, cid, iid) {
-    if (!cid.equals(DIALOGPROXY_CID))
-        throw Components.results.NS_ERROR_NO_INTERFACE;
-    
-    if (!iid.equals(Components.interfaces.nsIFactory))
-        throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
-    
-    return dialogProxyFactory;
-}
-
-dialogProxyModule.canUnload =
-function(compMgr)
-{
-    debug("Unloading component.");
-    return true;
-}
-    
-/* factory object */
-var dialogProxyFactory = new Object();
-
-dialogProxyFactory.createInstance =
-function (outer, iid) {
-    //debug("CI: " + iid);
-    //debug("IID:" + asIDialogProxy);
-    if (outer != null)
-        throw Components.results.NS_ERROR_NO_AGGREGATION;
-
-    return (new asDialogProxy()).QueryInterface(iid);
-}
-
-/* entrypoint */
-function NSGetModule(compMgr, fileSpec) {
-    return dialogProxyModule;
-}
+const NSGetFactory = XPCOMUtils.generateNSGetFactory([asDialogProxy]);

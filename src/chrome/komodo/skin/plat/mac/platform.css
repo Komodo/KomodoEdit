@@ -136,7 +136,9 @@ toolbar:not([mode="full"]) > toolbaritem > toolbarbutton,
 .solo-button {
   border: 1px solid rgba(0,0,0,.5);
   border-bottom: 2px groove grey;
-  background-image: url("chrome://global/skin/icons/button-gradient.png");
+  background-image: -moz-linear-gradient(center top,
+                                         rgb(255, 255, 255),
+                                         rgb(204, 204, 204));
   margin: 0px;
   margin-right: -1px;
 }

@@ -63,6 +63,7 @@ class KoRHTMLLanguage(koHTMLLanguageBase):
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" % name
     _reg_clsid_ = "{A554B7D4-7920-4BDC-BA71-5D8555B9C9DB}"
+    _reg_categories_ = [("komodo-language", name)]
     defaultExtension = '.rhtml'
 
     lang_from_udl_family = {'CSL': 'JavaScript', 'TPL': 'RHTML', 'M': 'HTML', 'CSS': 'CSS', 'SSL': 'Ruby'}

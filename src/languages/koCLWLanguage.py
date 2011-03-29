@@ -38,15 +38,13 @@ from xpcom import components, ServerException
 
 from koLanguageServiceBase import *
 
-def registerLanguage(registery):
-    registery.registerLanguage(koCLWLanguage())
-
 class koCLWLanguage(KoLanguageBase):
     name = "CLW"
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{76459319-02e4-4c45-b529-c90fa2d28825}"
+    _reg_categories_ = [("komodo-language", name)]
 
     _stateMap = {
         'operators': ('SCE_CLW_COMPILER_DIRECTIVE',

@@ -1994,6 +1994,10 @@ class MozConfig(black.configure.Datum):
         self.applicable = 1
         moz_src = black.configure.items['MOZ_SRC'].Get()
         buildDir = os.path.dirname(moz_src)
+        if sys.platform.startswith("win") and buildDir[1] == ":":
+            # on Windows, drive letters are case-insensitive; lower it here
+            # to match MSYS (pwd -W).
+            buildDir = buildDir[0].lower() + buildDir[1:]
         srcTreeName = os.path.basename(moz_src)
         xulrunner = black.configure.items["xulrunner"].Get()
         if xulrunner:
@@ -2680,6 +2684,10 @@ class SCCBranch(black.configure.Datum):
                     scc_branch = line[1:].strip()
                     break
             if scc_branch == "master":
+                scc_branch = "trunk"
+        elif exists(join(dir, ".hg")):
+            scc_branch = _capture_stdout(['hg', 'branch']).strip()
+            if scc_branch == "default":
                 scc_branch = "trunk"
         return scc_branch
 

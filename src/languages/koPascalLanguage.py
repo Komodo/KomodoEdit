@@ -38,15 +38,13 @@ from xpcom import components, ServerException
 
 from koLanguageServiceBase import *
 
-def registerLanguage(registery):
-    registery.registerLanguage(koPascalLanguage())
-    
 class koPascalLanguage(KoLanguageBase):
     name = "Pascal"
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{8AE35E4C-0EC9-49f2-A534-8FEAB91D261D}"
+    _reg_categories_ = [("komodo-language", name)]
 
     defaultExtension = ".pas"
     commentDelimiterInfo = {

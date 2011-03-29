@@ -47,11 +47,6 @@ import re
 import sciutils
 
 
-def registerLanguage(registery):
-    registery.registerLanguage(KoPerlLanguage())
-
-    
-
 #---- globals
 
 log = logging.getLogger("koPerlLanguage")
@@ -78,6 +73,7 @@ class KoPerlLanguage(KoLanguageBase):
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{911E8F76-C8F9-46f2-A930-1F1693400FCB}"
+    _reg_categories_ = [("komodo-language", name)]
 
     modeNames = ['perl']
     shebangPatterns = [re.compile(ur'\A#!.*perl.*$', re.IGNORECASE | re.MULTILINE)]

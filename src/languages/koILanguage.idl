@@ -157,6 +157,11 @@ interface koILanguageRegistryService : nsISupports {
     // This service should never be used except by implementations
     // of the other interfaces defined in this file.
 
+    /**
+     * Register a language at runtime.
+     * Languages may also register by being in the "komodo-language" category
+     * (via component registration).
+     */
     void registerLanguage(in koILanguage language);
   
     // Get a language by its name.  koILanguage instances should

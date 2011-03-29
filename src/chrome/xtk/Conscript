@@ -40,7 +40,9 @@ Import(
     'cons',
     'platform',
     'mozChromeDir',
+    'mozResourcesDir',
     'mozBin',
+    'mozSrc',
     'unsiloedPythonExe',
     'productType',
     'jarring',
@@ -54,6 +56,14 @@ if ($jarring) {
 } else {
     $cons->InstallAs("$mozChromeDir/xtk.manifest", "debug.manifest");
 }
+$cons->Command("xtk.manifest.landmark",
+               "$mozChromeDir/xtk.manifest",
+               "$mozResourcesDir/chrome.manifest",
+               "$mozSrc/mozilla/config/buildlist.py",
+               qq(
+                 $unsiloedPythonExe %3 %2 "manifest chrome/%1:f"
+                 touch %>
+               ));
 
 $cons->InstallRecursive("$mozChromeDir/xtk/content/",
                         cwd()."/src/chrome/xtk/content/",

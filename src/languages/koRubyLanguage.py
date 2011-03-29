@@ -58,9 +58,6 @@ log = logging.getLogger("RubyLanguage")
 indentlog = logging.getLogger("RubyLanguage.indent")
 #indentlog.setLevel(logging.DEBUG)
 
-def registerLanguage(registery):
-    registery.registerLanguage(KoRubyLanguage())
-    
 sci_constants = components.interfaces.ISciMoz
 ORD_SPACE = ord(' ')
 ORD_TAB = ord('\t')
@@ -91,6 +88,7 @@ class KoRubyLanguage(KoLanguageBase):
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{3CFC5F18-0288-47e9-BF2D-061329D00FB6}"
+    _reg_categories_ = [("komodo-language", name)]
     _com_interfaces_ = [components.interfaces.koILanguage,
                         components.interfaces.nsIObserver]
 

@@ -404,7 +404,7 @@ MoreKomodoCommon.read = function(file) {
 }
 
 MoreKomodoCommon.makeOutputStream = function(fileNameOrLocalFile, append, permissions) {
-    permissions = typeof(permissions) == "undefined" ? 0600 : permissions;
+    permissions = typeof(permissions) == "undefined" ? /*0600*/384 : permissions;
     var os = Components.classes["@mozilla.org/network/file-output-stream;1"]
         .createInstance(Components.interfaces.nsIFileOutputStream);
     var flags = 0x02 | 0x08 | 0x20; // wronly | create | truncate

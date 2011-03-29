@@ -38,15 +38,13 @@ from xpcom import components, ServerException
 
 from koLanguageServiceBase import *
 
-def registerLanguage(registery):
-    registery.registerLanguage(konnCrontabLanguage())
-
 class konnCrontabLanguage(KoLanguageBase):
     name = "nnCrontab"
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{49F53DE0-67D3-4172-868A-CE5DF6EB5809}"
+    _reg_categories_ = [("komodo-language", name)]
 
     defaultExtension = ".tab"
     commentDelimiterInfo = {"line": [ "#" ]}

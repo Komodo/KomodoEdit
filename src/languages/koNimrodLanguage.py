@@ -39,9 +39,6 @@ from xpcom import components, ServerException
 
 from koLanguageServiceBase import *
 
-def registerLanguage(registery):
-    registery.registerLanguage(koNimrodLanguage())
-
 from xpcom import components, COMException, ServerException, nsError
 
 class koNimrodLanguage(KoLanguageBase):
@@ -50,6 +47,7 @@ class koNimrodLanguage(KoLanguageBase):
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{edf6481c-4b58-4b7f-acde-4506eeaca77f}"
+    _reg_categories_ = [("komodo-language", name)]
 
     _stateMap = {
         'default': ('SCE_P_DEFAULT',),

@@ -50,6 +50,7 @@ Import(
     'productType',
     'unsiloedPythonExe',
     'sdkDir',
+    'mozSrc',
 );
 
 $cons->Install($idlExportDir, 'koIRunService.idl');

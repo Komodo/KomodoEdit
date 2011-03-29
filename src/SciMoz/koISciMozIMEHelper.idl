@@ -1,0 +1,31 @@
+/* Copyright (C) 2011 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+#include "nsISupports.idl"
+
+interface nsIDOMEvent;
+interface nsIDOMEventTarget;
+interface nsIBoxObject;
+interface ISciMoz;
+
+/**
+ * \interface koISciMozHelper
+ * Helper interface to let scimoz deal with some Gecko-internal C++-only code,
+ * in order to work with input methods.
+ */
+
+[scriptable, uuid(6d15352e-9a7c-4927-a666-5dc0d4e5b5ff)]
+interface koISciMozIMEHelper: nsISupports {
+    /**
+     * Initialize the scimoz helper
+     * @param aSciMoz the scimoz to attach to
+     */
+    void init(in ISciMoz aSciMoz, in nsIDOMEventTarget aEventTarget);
+
+    /**
+     * IME handling - abort composition
+     * This cancels composition and reverts the input
+     */
+    void abortComposing();
+};
+

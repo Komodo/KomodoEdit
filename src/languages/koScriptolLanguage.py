@@ -38,15 +38,13 @@ from xpcom import components, ServerException
 
 from koLanguageServiceBase import *
 
-def registerLanguage(registery):
-    registery.registerLanguage(koScriptolLanguage())
-    
 class koScriptolLanguage(KoLanguageBase):
     name = "Scriptol"
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{cce047e6-ddd8-4790-b750-f53c4c2c7894}"
+    _reg_categories_ = [("komodo-language", name)]
 
     _stateMap = {
         'default': ('SCE_SCRIPTOL_DEFAULT',),

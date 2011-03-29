@@ -38,9 +38,6 @@ from xpcom import components, ServerException
 
 from koLanguageServiceBase import *
 
-def registerLanguage(registery):
-    registery.registerLanguage(koCsoundLanguage())
-
 # see http://caml.inria.fr/
 class koCsoundLanguage(KoLanguageBase):
     name = "Csound"
@@ -48,6 +45,7 @@ class koCsoundLanguage(KoLanguageBase):
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{24986A86-53E8-11DA-8731-000D935D3368}"
+    _reg_categories_ = [("komodo-language", name)]
 
     commentDelimiterInfo = {}
 

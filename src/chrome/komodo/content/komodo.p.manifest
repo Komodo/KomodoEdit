@@ -4,7 +4,7 @@
 # #define KO_BASE_CHROME komodo
 # #endif
 
-content komodo KO_BASE_CHROME/content/ xpcnativewrappers=yes
+content komodo KO_BASE_CHROME/content/
 locale komodo en-US KO_BASE_CHROME/locale/en-US/
 skin komodo classic/1.0 KO_BASE_CHROME/skin/
 

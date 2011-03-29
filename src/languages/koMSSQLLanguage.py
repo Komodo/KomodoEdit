@@ -47,15 +47,13 @@ from koLanguageServiceBase import *
 # stored_procedures
 # operators
 
-def registerLanguage(registery):
-    registery.registerLanguage(koMSSQLLanguage())
-    
 class koMSSQLLanguage(KoLanguageBase):
     name = "MSSQL"
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{f1ee2866-9fcf-441e-bb1d-42274eb7f397}"
+    _reg_categories_ = [("komodo-language", name)]
 
     _stateMap = {
         'default': ('SCE_MSSQL_DEFAULT',),

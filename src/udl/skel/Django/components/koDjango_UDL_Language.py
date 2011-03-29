@@ -69,6 +69,7 @@ class KoDjangoLanguage(koHTMLLanguageBase):
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" % name
     _reg_clsid_ = "{5c36e354-525e-11db-82d8-000d935d3368}"
+    _reg_categories_ = [("komodo-language", name)]
     defaultExtension = '.django.html'
     searchURL = "http://docs.djangoproject.com/en"
 

@@ -81,7 +81,7 @@ class KoTestDirectoryProvider:
     def __getExtensionDirs(self):
         paths = []
         componentsDir = self._dirSvc.get(
-            "ComsD", components.interfaces.nsIFile).path
+            "XpcomLib", components.interfaces.nsIFile).path
         extensionsDir = join(dirname(componentsDir), "extensions")
         try:
             for f in os.listdir(extensionsDir):
@@ -95,7 +95,7 @@ class KoTestDirectoryProvider:
         
     def getFiles(self, prop):
         paths = []
-        if prop == "XREExtDL":  # XRE extension dirs list
+        if prop == "koTestExtDirL":  # Komodo Testing extension dirs list
             paths = self.__getExtensionDirs()
         elif prop == "ComsDL":  # extension/component dirs list
             extension_paths = self.__getExtensionDirs()

@@ -38,15 +38,13 @@ from xpcom import components, ServerException
 
 from koLanguageServiceBase import *
 
-def registerLanguage(registery):
-    registery.registerLanguage(koPSLanguage())
-    
 class koPSLanguage(KoLanguageBase):
     name = "PostScript"
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{b92e8d2e-513c-4cd7-87a8-bd866c683499}"
+    _reg_categories_ = [("komodo-language", name)]
 
     _stateMap = {
         'default': ('SCE_PS_DEFAULT',
@@ -161,5 +159,3 @@ setsmoothness shfill""".split()
 copyscanlines currentdevice finddevice findlibfile findprotodevice flushpage
 getdeviceprops getenv makeimagedevice makewordimagedevice max min
 putdeviceprops setdevice""".split()
-
- 

@@ -558,6 +558,7 @@ def build_ext(base_dir, support_devinstall=True, unjarred=False,
    
         # Handle any PyXPCOM components and idl.
         if isdir("components"):
+            import chromereg
             components_build_dir = join(build_dir, "components")
             _mkdir(components_build_dir, log.info)
             for path in glob(join("components", "*")):
@@ -566,6 +567,10 @@ def build_ext(base_dir, support_devinstall=True, unjarred=False,
                 log.info)
             xpi_manifest.append(components_build_dir)
             
+            component_manifest = join(components_build_dir, "component.manifest")
+            for path in glob(join("components", "*.py")):
+                chromereg.register_file(path, component_manifest)
+
             idl_build_dir = join(build_dir, "idl")
             idl_paths = glob(join("components", "*.idl"))
             if idl_paths:
@@ -575,8 +580,10 @@ def build_ext(base_dir, support_devinstall=True, unjarred=False,
                     xpt_path = join(components_build_dir,
                         splitext(basename(idl_path))[0] + ".xpt")
                     _xpidl(idl_path, xpt_path, ko_info, log.info)
+                    chromereg.register_file(xpt_path, component_manifest)
                     if support_devinstall:
                         _cp(xpt_path, "components", log.info)
+                        _cp(component_manifest, "components", log.info)
                 xpi_manifest.append(idl_build_dir)
     
         # Handle any UDL lexer compilation.
@@ -794,8 +801,11 @@ class KomodoInfo(object):
         if sys.platform == "darwin":
             # from: .../dist/komodo-bits/sdk/pylib/koextlib.py
             #   to: .../dist/Komodo.app/Contents/MacOS/is_dev_tree.txt
-            is_dev_tree_txt = join(up_3_dir, "Komodo.app", "Contents",
-                "MacOS", "is_dev_tree.txt")
+            appBundle = join(up_3_dir, "Komodo.app")
+            if not exists(appBundle):
+                appBundle = join(up_3_dir, "KomodoDebug.app")
+            is_dev_tree_txt = join(appBundle, "Contents", "MacOS",
+                                   "is_dev_tree.txt")
         else:
             # from: .../dist/komodo-bits/sdk/pylib/koextlib.py
             #   to: .../dist/bin/is_dev_tree.txt
@@ -876,7 +886,10 @@ class KomodoInfo(object):
             if sys.platform == "darwin":
                 # from: .../dist/komodo-bits/sdk/pylib/koextlib.py
                 #   to: .../dist/Komodo.app/Contents/MacOS
-                return join(up_3_dir, "Komodo.app", "Contents", "MacOS")
+                appBundle = join(up_3_dir, "Komodo.app")
+                if not exists(appBundle):
+                    appBundle = join(up_3_dir, "KomodoDebug.app")
+                return join(appBundle, "Contents", "MacOS")
             else:
                 # from: .../dist/komodo-bits/sdk/pylib/koextlib.py
                 #   to: .../dist/bin

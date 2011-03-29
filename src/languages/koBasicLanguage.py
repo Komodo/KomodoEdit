@@ -38,11 +38,6 @@ from xpcom import components, ServerException
 
 from koLanguageServiceBase import *
 
-def registerLanguage(registery):
-    registery.registerLanguage(koFreeBasicLanguage())
-    registery.registerLanguage(koPureBasicLanguage())
-    registery.registerLanguage(koBlitzBasicLanguage())
-
 class basicBase(KoLanguageBase):
     _keywords = None
     _keywords2 = None
@@ -115,6 +110,7 @@ class koFreeBasicLanguage(basicBase):
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{37BF2C34-5549-11DA-B909-000D935D3368}"
+    _reg_categories_ = [("komodo-language", name)]
 
     defaultExtension = ".bas"
     supportsSmartIndent = "brace"
@@ -157,6 +153,7 @@ class koPureBasicLanguage(basicBase):
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{3B88E3E4-5549-11DA-B27F-000D935D3368}"
+    _reg_categories_ = [("komodo-language", name)]
     
     sciMozLexer = components.interfaces.ISciMoz.SCLEX_PUREBASIC
     defaultExtension = ".pb"
@@ -179,6 +176,7 @@ class koBlitzBasicLanguage(basicBase):
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{3EF4DCC6-5549-11DA-B774-000D935D3368}"
+    _reg_categories_ = [("komodo-language", name)]
     
     sciMozLexer = components.interfaces.ISciMoz.SCLEX_BLITZBASIC
     defaultExtension = ".bb"

@@ -38,9 +38,6 @@ from xpcom import components, ServerException
 
 from koLanguageServiceBase import *
 
-def registerLanguage(registery):
-    registery.registerLanguage(koFlagshipLanguage())
-
 # see http://fship.com/
 class koFlagshipLanguage(KoLanguageBase):
     name = "Flagship"
@@ -48,6 +45,7 @@ class koFlagshipLanguage(KoLanguageBase):
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{995A405E-5549-11DA-A58F-000D935D3368}"
+    _reg_categories_ = [("komodo-language", name)]
 
     commentDelimiterInfo = {
         "line": [ "//~" ],

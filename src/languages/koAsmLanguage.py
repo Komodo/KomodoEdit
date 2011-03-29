@@ -38,15 +38,13 @@ from xpcom import components, ServerException
 
 from koLanguageServiceBase import *
 
-def registerLanguage(registery):
-    registery.registerLanguage(koAsmLanguage())
-    
 class koAsmLanguage(KoLanguageBase):
     name = "Assembler"
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{118a7eda-be0f-41e3-ac27-32c32db32583}"
+    _reg_categories_ = [("komodo-language", name)]
 
     _stateMap = {
         'operators': ('SCE_ASM_OPERATOR',),

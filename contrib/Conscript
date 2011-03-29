@@ -63,6 +63,30 @@ Import(
     'withKomodoCix',
 );
 
+# Various setup.py-based things need extra flags for debbugging
+if ($buildType eq 'debug') {
+    $debugFlags = "--debug";
+} else {
+    $debugFlags = "";
+}
+
+my $consLocal = $cons;
+if ($platform eq "darwin") {
+    # Various OSX contrib things don't work well with hidden visibility (causing
+    # linking errors because symbols can't be found); also, on 10.6 we want to
+    # force building i386 for now.  We'll get to x86_64 some time later.
+    my %consLocal = $cons->copy();
+    $consLocal{'CFLAGS'} =~ s/-fvisibility=hidden//g;
+    $consLocal{'CFLAGS'} =~ s/-arch\s+x86_64//;
+    $consLocal{'CFLAGS'} .= " -arch i386";
+    $consLocal{'CXXFLAGS'} =~ s/-fvisibility=hidden//g;
+    $consLocal{'CXXFLAGS'} =~ s/-arch\s+\S+//g;
+    $consLocal{'CXXFLAGS'} .= " -arch i386";
+    $consLocal{'LDFLAGS'} =~ s/-arch\s+\S+//g;
+    $consLocal{'LDFLAGS'} .= " -arch i386";
+    $consLocal = new cons(ENV => \%consLocal,
+                          CFLAGS => $consLocal{'CFLAGS'});
+}
 
 #---- Komodo's schema-based autocomplete and other parts of the
 #     codeintel system use ElementTree.
@@ -71,19 +95,20 @@ my $landmark = "$komodoPythonUtilsDir/elementtree/__init__.py";
 $cons->Command($landmark,
                "elementtree/setup.py",
                qq(
-                cd %1:d && $siloedPython %1:f install --install-lib=$komodoPythonUtilsDir
+                cd %1:d && $siloedPython %1:f build $debugFlags
+                cd %1:d && $siloedPython %1:f install --skip-build --install-lib=$komodoPythonUtilsDir
                ));
 $cons->DependsRecursive($landmark, "elementtree", ("build", '\.svn'));
 # cElementTree
 my $pydExt = ($platform eq "win" ? ".pyd" : ".so");
 my $landmark = "$komodoPythonUtilsDir/cElementTree$pydExt";
-$cons->Command($landmark,
-               "cElementTree/setup.py",
-               qq(
-                cd %1:d && $siloedPython %1:f install --install-lib=$komodoPythonUtilsDir
-               ));
+$consLocal->Command($landmark,
+                    "cElementTree/setup.py",
+                    qq(
+                     cd %1:d && $siloedPython %1:f build $debugFlags
+                     cd %1:d && $siloedPython %1:f install --skip-build --install-lib=$komodoPythonUtilsDir
+                    ));
 $cons->DependsRecursive($landmark, "cElementTree", ("build", '\.svn'));
-
 
 #---- sgmlop (used for HTML parsing for HTML autocomplete)
 my $pydExt = ($platform eq "win" ? ".pyd" : ".so");
@@ -91,7 +116,8 @@ my $landmark = "$komodoPythonUtilsDir/sgmlop$pydExt";
 $cons->Command($landmark,
                "sgmlop/setup.py",
                qq(
-                cd %1:d && $siloedPython %1:f install --install-lib=$komodoPythonUtilsDir
+                cd %1:d && $siloedPython %1:f build $debugFlags
+                cd %1:d && $siloedPython %1:f install --skip-build --install-lib=$komodoPythonUtilsDir
                ));
 $cons->DependsRecursive($landmark, "sgmlop", ("build", '\.svn'));
 
@@ -110,7 +136,8 @@ if ($withCrypto) {
     $cons->Command($landmark,
                    "pycrypto/setup.py",
                    qq(
-                    cd %1:d && $siloedPython %1:f install --install-lib=$komodoPythonUtilsDir
+                    cd %1:d && $siloedPython %1:f build $debugFlags
+                    cd %1:d && $siloedPython %1:f install --skip-build --install-lib=$komodoPythonUtilsDir
                    ));
     $cons->DependsRecursive($landmark, "pycrypto", ("build", '\.svn'));
     
@@ -340,10 +367,10 @@ if ($platform eq "win") {
 }
 
 
-%consLocal = $cons->copy();
+my %consLocal = $cons->copy();
 $consLocal{CPPPATH} = "include";
 $consLocal{LIBPATH} = "obj";
-$consLocal = new cons(%consLocal);
+my $consLocal = new cons(%consLocal);
 
 $consLocal->Command($exeName, 
                     "tidy/build/gmake/Makefile",

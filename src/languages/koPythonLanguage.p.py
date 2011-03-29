@@ -51,10 +51,6 @@ from koLanguageServiceBase import *
 import sciutils
 
 
-def registerLanguage(registery):
-    registery.registerLanguage(KoPythonLanguage())
-    registery.registerLanguage(KoPython3Language())
-    
 
 #---- globals
 
@@ -276,6 +272,7 @@ class KoPythonLanguage(KoPythonCommonLanguage):
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{D90FF5C7-1FD4-4535-A0D2-47B5BDC3E7FE}"
+    _reg_categories_ = [("komodo-language", name)]
 
     shebangPatterns = [
         re.compile(ur'\A#!.*python(?!3).*$', re.IGNORECASE | re.MULTILINE),
@@ -293,6 +290,7 @@ class KoPython3Language(KoPythonCommonLanguage):
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{db8d60b3-f104-4622-b4d5-3324787d5149}"
+    _reg_categories_ = [("komodo-language", name)]
 
     shebangPatterns = [
         re.compile(ur'\A#!.*python3.*$', re.IGNORECASE | re.MULTILINE),

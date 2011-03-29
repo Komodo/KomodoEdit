@@ -37,58 +37,128 @@
 #ifndef __SCIMOZ_EVENTS__
 #define __SCIMOZ_EVENTS__
 
+#include <nsAutoPtr.h>
 #include "nsCOMPtr.h"
 #include "nsISupports.h"
 #include "nsIWeakReference.h"
 
 #include "ISciMozEvents.h"
+#include "npapi_utils.h"
+
+#include <npruntime.h>
+#if MOZ_VERSION == 191
+/* Gecko 1.9.1 was before a nasty silly npruntime.h compatibility break */
+#define UTF8Characters utf8characters
+#define UTF8Length     utf8length
+#endif
+
+// {9DE6C25C-ED73-46b6-A3F9-4308346DFDF7}
+#define SCIMOZEVENTSWRAPPER_IID \
+  { 0x9de6c25c, 0xed73, 0x46b6, { \
+    0xa3, 0xf9, 0x43, 0x8, 0x34, 0x6d, 0xfd, 0xf7 } }
+
+class SciMozEventsWrapper : public ISciMozEvents {
+	NS_DECL_ISUPPORTS
+	NS_DECL_ISCIMOZEVENTS
+	NS_DECLARE_STATIC_IID_ACCESSOR(SCIMOZEVENTSWRAPPER_IID)
+public:
+	SciMozEventsWrapper(NPObject* aWrappee, NPP aInstance)
+		: mWrappee(aWrappee), mInstance(aInstance)
+		{}
+	NPObject* GetWrappee() { return mWrappee; }
+protected:
+	nsresult Invoke(const char* aMethodName,  const NPVariant *args, uint32_t argCount);
+	koNPObjectPtr mWrappee;
+	NPP mInstance;
+};
 
 // A linked-list of all event listeners.
 class EventListener {
 public:
-	EventListener(ISciMozEvents *listener, PRBool tryWeakRef, PRUint32 _mask) {
+	EventListener(NPP instance, NPObject *listener, PRBool tryWeakRef, PRUint32 _mask) {
+		npp = instance;
 		mask = _mask;
 		bIsWeak = PR_FALSE;
+		pNext = NULL;
+		NPVariant iid = { NPVariantType_Void };
 		if (tryWeakRef) {
-			nsCOMPtr<nsISupportsWeakReference> wr = do_QueryInterface(listener);
-			if (wr) {
-				wr->GetWeakReference((nsIWeakReference **)&pListener);
+			NPString script = { "Components.interfaces.nsISupportsWeakReference" };
+			script.UTF8Length = strlen(script.UTF8Characters);
+			if (!NPN_Evaluate(npp,
+					  listener,
+					  &script,
+					  &iid))
+			{
+				tryWeakRef = false;
+			}
+		}
+		if (tryWeakRef) {
+			NPVariant weakVar;
+			if (NPN_Invoke(npp,
+				       listener,
+				       NPN_GetStringIdentifier("QueryInterface"),
+				       &iid,
+				       1,
+				       &weakVar))
+			{
+				pListener = NPVARIANT_TO_OBJECT(weakVar);
 				bIsWeak = PR_TRUE;
 			}
 		}
 		if (!bIsWeak)
-			listener->QueryInterface(NS_GET_IID(ISciMozEvents), (void **)&pListener);
-		pNext = NULL;
-	}
-	~EventListener() {
-		if (pListener) pListener->Release();
+			pListener = listener;
 	}
   
 	// Does one EventListener equal another???
 	PRBool Equals(ISciMozEvents *anotherListener) {
-		ISciMozEvents *pret;
-		get(&pret);
-		return anotherListener == pret;
+		nsCOMPtr<SciMozEventsWrapper> other = do_QueryInterface(anotherListener);
+		return other->GetWrappee() == pListener;
+	}
+	PRBool Equals(NPObject *anotherListener) {
+		return anotherListener == pListener;
 	}
 
 	void * get(ISciMozEvents **pret) {
 		if (bIsWeak) {
-			nsIWeakReference *pw = (nsIWeakReference *)pListener;
-			if (NS_SUCCEEDED(pw->QueryReferent(NS_GET_IID(ISciMozEvents), (void **)pret)))
+			NPVariant iid = { NPVariantType_Void };
+			NPString script = { "Components.interfaces.ISciMozEvents" };
+			script.UTF8Length = strlen(script.UTF8Characters);
+			if (!NPN_Evaluate(npp,
+					  pListener,
+					  &script,
+					  &iid))
+			{
+				return nsnull;
+			}
+			NPVariant strongRefVar = { NPVariantType_Void };
+			if (NPN_Invoke(npp,
+				       pListener,
+				       NPN_GetStringIdentifier("QueryReferent"),
+				       &iid,
+				       1,
+				       &strongRefVar))
+			{
+				// got a strong ref
+				nsRefPtr<SciMozEventsWrapper> wrapper =
+					new SciMozEventsWrapper(NPVARIANT_TO_OBJECT(strongRefVar), npp);
+				CallQueryInterface(wrapper.get(), pret);
 				return (void *)this;
+			}
 		} else {
-			pListener->AddRef();
-			*pret = (ISciMozEvents *)pListener;
+			nsRefPtr<SciMozEventsWrapper> wrapper =
+				new SciMozEventsWrapper(pListener, npp);
+			CallQueryInterface(wrapper.get(), pret);
 			return (void *)this;
 		}
 		return nsnull;
 	}
 
 
-	ISciMozEvents *pListener;
+	koNPObjectPtr pListener;
 	PRUint32 mask;
 	EventListener *pNext;
 	PRBool bIsWeak;
+	NPP npp;
 };
 
 class EventListeners {
@@ -102,17 +172,17 @@ public:
 			pLook = pTemp;
 		}
 	}
-	nsresult Add( ISciMozEvents *listener, PRBool tryWeakRef, PRUint32 mask) {
-		EventListener *l = new EventListener(listener, tryWeakRef, mask);
+	bool Add( NPP instance, NPObject *listener, PRBool tryWeakRef, PRUint32 mask) {
+		EventListener *l = new EventListener(instance, listener, tryWeakRef, mask);
 		if (!l || l->pListener == NULL) {
 			delete l;
-			return NS_ERROR_FAILURE;
+			return false;
 		}
 		l->pNext = pFirst;
 		pFirst = l;
-		return NS_OK;
+		return true;
 	}
-	nsresult Remove( ISciMozEvents *listener ) {
+	bool Remove( NPP instance, NPObject *listener ) {
 		// No real need to check for weak-reference support.
 		// If someone added a weak-reference, then almost
 		// by definition they dont want to manage the lifetime
@@ -127,12 +197,12 @@ public:
 				else
 					last->pNext = l->pNext;
 				delete l;
-				return NS_OK;
+				return true;
 			}
 			last = l;
 		}
 		NS_WARNING("Attempt to remove a listener that does not exist!\n");
-		return NS_ERROR_FAILURE;
+		return false;
 	}
 	void *GetNext(PRUint32 lookMask, void *from, ISciMozEvents **pret) {
 		EventListener *l = from ? ((EventListener *)from)->pNext : pFirst;

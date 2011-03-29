@@ -38,10 +38,6 @@ from xpcom import components, ServerException
 
 from koLanguageServiceBase import *
 
-def registerLanguage(registery):
-    registery.registerLanguage(koCamlLanguage())
-    registery.registerLanguage(koSMLLanguage())
-
 class _koBase_ML_Language(KoLanguageBase):
     commentDelimiterInfo = {
         "block": [ ("(*", "*)") ],
@@ -86,6 +82,7 @@ class koCamlLanguage(_koBase_ML_Language):
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{23CCAA5C-53E5-11DA-9353-000D935D3368}"
+    _reg_categories_ = [("komodo-language", name)]
 
     defaultExtension = ".ml" # and .mli
 
@@ -111,6 +108,7 @@ class koSMLLanguage(_koBase_ML_Language):
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{A8AB7F0E-06DA-4A5E-93AC-8646FA621F47}"
+    _reg_categories_ = [("komodo-language", name)]
 
     defaultExtension = ".sml"
 

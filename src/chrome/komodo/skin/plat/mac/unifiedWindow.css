@@ -1,9 +1,3 @@
-
-
-#komodo_main {
-  -moz-binding: url("chrome://global/skin/globalBindings.xml#unifiedWindow");
-}
-
 #komodo_main[chromehidden~="toolbar"][chromehidden~="location"][chromehidden~="directories"] {
   border-top: 1px solid rgba(0,0,0,0.65);
   -moz-appearance: none;
@@ -24,19 +18,10 @@
   -moz-appearance: none;
 }
 
-/**
- * Ensure the main toolbox row extends with the same color, instead of showing a
- * different color after the end of the toolbaritems - bug 86812.
- */
-#main-toolboxrow {
-  -moz-appearance: none;
-}
-
 #toolbox_main > toolbar,
 #main-toolboxrow > toolbaritem,
 #findToolbar > toolbaritem
 {
-  background-color: #C9C9C9;
   border: none;
   /* height same as background image */
   height: 31px;
@@ -44,7 +29,6 @@
 
 #main-toolboxrow[mode="full"],
 #main-toolboxrow[mode="full"] > toolbaritem {
-  background-color: #C9C9C9;
   border: none;
   background-image: none;
 }
@@ -52,26 +36,6 @@
 #main-toolboxrow[mode="full"] {
   height: 50px;
 }
-
-/* ----- INACTIVE WINDOW ----- */
-
-#komodo_main:not([active="true"]) > #toolbox_main,
-#komodo_main:not([active="true"]) > #toolbox_main > toolbar,
-#komodo_main:not([active="true"]) > #toolbox_main > toolbar > toolbaritem {
-  background-color: #E4E4E4;
-}
-
-#komodo_main:not([active="true"]) #toolbox_main[mode="full"] > toolbar {
-  background-color: #E4E4E4;
-  border: none;
-  background-image: none;
-}
-
-#komodo_main:not([active="true"]) #main-toolboxrow[mode="full"] {
-  background-image: none;
-}
-
-
 
 /**
  * Do not display the menubar toolbar on Mac - as it already has it's own

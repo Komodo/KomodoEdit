@@ -310,6 +310,7 @@ function getObjectTree(o, recurse, compress, level)
                 case "string":
                     if (o[i].length > 200)
                         s += pfx + tee + i + " (" + t + ") " +
+                            "'" + o[i].substr(0, 100) + "'..." +
                             o[i].length + " chars\n";
                     else
                         s += pfx + tee + i + " (" + t + ") '" + o[i] + "'\n";

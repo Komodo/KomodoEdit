@@ -40,15 +40,13 @@ from koLanguageServiceBase import *
 
 # Windows PowerShell
 
-def registerLanguage(registery):
-    registery.registerLanguage(koPowerShellLanguage())
-    
 class koPowerShellLanguage(KoLanguageBase):
     name = "PowerShell"
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{7feddc83-d8a6-4533-85f2-e11564a1a167}"
+    _reg_categories_ = [("komodo-language", name)]
 
     _stateMap = {
         'default': ('SCE_POWERSHELL_DEFAULT',),

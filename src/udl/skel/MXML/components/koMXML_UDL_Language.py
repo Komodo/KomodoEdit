@@ -59,6 +59,7 @@ class KoMXMLLanguage(koXMLLanguageBase):
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" % name
     _reg_clsid_ = "{8cdb154f-47e6-420e-a918-1548ab748499}"
+    _reg_categories_ = [("komodo-language", name)]
     defaultExtension = '.mxml'
 
     lang_from_udl_family = {'CSL': 'ActionScript', 'M': 'XML'}

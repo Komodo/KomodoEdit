@@ -38,11 +38,6 @@ from xpcom import components, ServerException
 
 from koLanguageServiceBase import *
 
-def registerLanguage(registery):
-    registery.registerLanguage(koMySQLLanguage())
-    registery.registerLanguage(koSQLLanguage())
-    registery.registerLanguage(koPLSQLLanguage())
-    
 class koCommonSQLLanguage(KoLanguageBase):
     _stateMap = {
         'default': ('SCE_SQL_DEFAULT',),
@@ -91,6 +86,7 @@ class koSQLLanguage(koCommonSQLLanguage):
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{EC1B0777-D982-41af-906F-34923D602B72}"
+    _reg_categories_ = [("komodo-language", name)]
 
     defaultExtension = ".sql"
 
@@ -154,6 +150,7 @@ class koPLSQLLanguage(koSQLLanguage):
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{543492ec-bdb7-4724-b4ea-482b777d07b4}"
+    _reg_categories_ = [("komodo-language", name)]
     defaultExtension = ".plsql"
 
     # These keywords are a union of the list in
@@ -1299,6 +1296,7 @@ class koMySQLLanguage(koCommonSQLLanguage):
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{B471580A-2DD7-4AF6-A244-5B95B1B08CF7}"
+    _reg_categories_ = [("komodo-language", name)]
 
     defaultExtension = ".mysql"
     

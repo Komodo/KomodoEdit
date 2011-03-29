@@ -39,14 +39,12 @@ from xpcom import components, ServerException
 from koLanguageServiceBase import *
 
 
-def registerLanguage(registery):
-    registery.registerLanguage(koAu3Language())
-
 class koAu3Language(KoLanguageBase):
     name = "AutoIt" # AKA "Au3"
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" % (name)
     _reg_clsid_ = "{0e9c0002-dc18-40eb-ab60-c3620ddc8a7a}"
+    _reg_categories_ = [("komodo-language", name)]
 
     _stateMap = {
         'default': ('SCE_AU3_DEFAULT',

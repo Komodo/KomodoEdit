@@ -2213,7 +2213,7 @@ class KoPlaceTreeView(TreeView):
     # Asych part of the module
 class _WorkerThread(threading.Thread, Queue):
     def __init__(self, **kwargs):
-        threading.Thread.__init__(self, kwargs)
+        threading.Thread.__init__(self, **kwargs)
         Queue.__init__(self)
         self._isShuttingDown = False
 

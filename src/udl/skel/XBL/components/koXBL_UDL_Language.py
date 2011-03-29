@@ -60,6 +60,7 @@ class KoXBLLanguage(koXMLLanguageBase):
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" % name
     _reg_clsid_ = "{46D9A883-9410-47D2-B4CE-5D3186A6D4C8}"
+    _reg_categories_ = [("komodo-language", name)]
     defaultExtension = '.xbl'
 
     lang_from_udl_family = {'CSL': 'JavaScript', 'M': 'XML'}

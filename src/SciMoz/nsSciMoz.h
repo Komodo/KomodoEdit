@@ -80,11 +80,14 @@
 #include "nsObserverService.h"
 #include <nsIConsoleService.h>
 
+#if MOZ_VERSION < 199
+#include "nsIGenericFactory.h"
+#endif
+
 #include "nsCOMPtr.h"
 #include "nsIServiceManager.h"
 #include "nsISupports.h"
-#include "nsIGenericFactory.h"
-#include "nsString.h"
+#include "nsStringGlue.h"
 #include "nsIAllocator.h"
 #include "nsIDOMWindowInternal.h"
 #include "nsWeakReference.h"
@@ -95,6 +98,8 @@
 #include "ISciMoz.h"
 #include "ISciMozEvents.h"
 #include "nsIClassInfo.h"
+
+#include "npapi_utils.h"
 
 #ifdef _WINDOWS
 #include <windows.h>
@@ -135,26 +140,26 @@
 #define IS_MAIN_THREAD() NS_IsMainThread()
 #endif // # MOZ_VERSION
 
-#define SCIMOZ_CHECK_THREAD(a) \
+#define SCIMOZ_CHECK_THREAD(method, result) \
     if (!IS_MAIN_THREAD()) { \
-	fprintf(stderr, "SciMoz::" a " was called on a thread\n"); \
-	return NS_ERROR_FAILURE; \
+	fprintf(stderr, "SciMoz::" method " was called on a thread\n"); \
+	return result; \
     }
 
 #else
-#define SCIMOZ_CHECK_THREAD(a)
+#define SCIMOZ_CHECK_THREAD(method, result)
 #endif // # if BUILD_FLAVOUR
 
 // Ensure that SciMoz has not been closed. Bug 82032.
-#define SCIMOZ_CHECK_ALIVE(a) \
+#define SCIMOZ_CHECK_ALIVE(method, result) \
     if (isClosed) { \
-	fprintf(stderr, "SciMoz::" a " used when closed!\n"); \
-	return NS_ERROR_FAILURE; \
+	fprintf(stderr, "SciMoz::" method " used when closed!\n"); \
+	return result; \
     }
 
-#define SCIMOZ_CHECK_VALID(a) \
-    SCIMOZ_CHECK_THREAD(a) \
-    SCIMOZ_CHECK_ALIVE(a)
+#define SCIMOZ_CHECK_VALID(method) \
+    SCIMOZ_CHECK_THREAD(method, NS_ERROR_FAILURE) \
+    SCIMOZ_CHECK_ALIVE(method, NS_ERROR_FAILURE)
 
 
 #include "SciMozEvents.h"
@@ -244,10 +249,6 @@ public:
   SciMoz(nsPluginInstance* plugin);
   ~SciMoz();
 
-#ifdef SCIDEBUG_REFS
-public:
-  int getRefCount() { return mRefCnt.get(); }
-#endif
 protected: 
     NPWindow* fWindow;
 //    nsPluginMode fMode;
@@ -269,7 +270,8 @@ protected:
     int width;
     int height;
     EventListeners listeners;
-    nsCOMPtr<nsIDOMWindowInternal> commandUpdateTarget;
+    koNPObjectPtr commandUpdateTarget;
+    koNPObjectPtr mIMEHelper;
     PRBool bCouldUndoLastTime;
     PRBool bCouldRedoLastTime;
 
@@ -280,7 +282,7 @@ protected:
     void PlatformCreate(WinID hWnd);
     void Notify(long lParam);
     void Resize();
-    NS_IMETHOD _DoButtonUpDown(PRBool up, PRInt32 x, PRInt32 y, PRUint16 button, PRUint64 timeStamp, PRBool bShift, PRBool bCtrl, PRBool bAlt);
+    NS_IMETHOD _DoButtonUpDown(PRBool up, PRInt32 x, PRInt32 y, PRUint16 button, PRBool bShift, PRBool bCtrl, PRBool bAlt);
 
 #ifdef XP_MACOSX
 	void SetHIViewShowHide(bool disabled);
@@ -291,13 +293,6 @@ protected:
     void LoadScintillaLibrary();
 #endif
 
-    // IME support
-    int imeStartPos;
-    bool imeComposing;
-    bool imeActive;
-    nsString mIMEString;
-    void StartCompositing();
-    void EndCompositing();
 public:
   nsString name;
   // native methods callable from JavaScript
@@ -308,9 +303,6 @@ public:
   void SetInstance(nsPluginInstance* plugin);
 
     void PlatformNew(void);
-
-    // Notify that the plugin is gone.
-    void NotifyPluginWasDestroyed(void);
 
     // Destroy is always called as we destruct.
     nsresult PlatformDestroy(void);
@@ -343,6 +335,40 @@ public:
     int sInGrab;
     static void NotifySignal(GtkWidget *, gint wParam, gpointer lParam, SciMoz *scimoz);
 #endif 
+
+    // NPRuntime support
+    static void SciMozInitNPIdentifiers();
+    bool HasProperty(NPIdentifier name);
+    bool GetProperty(NPIdentifier name, NPVariant *result);
+    bool SetProperty(NPIdentifier name, const NPVariant *value);
+    bool HasMethod(NPIdentifier name);
+    bool Invoke(NPP instance, NPIdentifier name, const NPVariant *args, uint32_t argCount, NPVariant *result);
+
+    // NPRuntime custom methods
+    bool Init(const NPVariant *args, uint32_t argCount, NPVariant *result);
+    bool DoBraceMatch(const NPVariant *args, uint32_t argCount, NPVariant *result);
+    bool MarkClosed(const NPVariant *args, uint32_t argCount, NPVariant *result);
+    bool HookEvents(const NPVariant *args, uint32_t argCount, NPVariant *result);
+    bool UnhookEvents(const NPVariant *args, uint32_t argCount, NPVariant *result);
+    bool GetStyledText(const NPVariant *args, uint32_t argCount, NPVariant *result);
+    bool GetCurLine(const NPVariant *args, uint32_t argCount, NPVariant *result);
+    bool GetLine(const NPVariant *args, uint32_t argCount, NPVariant *result);
+    bool AssignCmdKey(const NPVariant *args, uint32_t argCount, NPVariant *result);
+    bool ClearCmdKey(const NPVariant *args, uint32_t argCount, NPVariant *result);
+    bool GetTextRange(const NPVariant *args, uint32_t argCount, NPVariant *result);
+    bool CharPosAtPosition(const NPVariant *args, uint32_t argCount, NPVariant *result);
+    bool SetCommandUpdateTarget(const NPVariant *args, uint32_t argCount, NPVariant *result);
+    bool SendUpdateCommands(const NPVariant *args, uint32_t argCount, NPVariant *result);
+    bool GetWCharAt(const NPVariant *args, uint32_t argCount, NPVariant *result);
+    bool ReplaceTarget(const NPVariant *args, uint32_t argCount, NPVariant *result);
+    bool ReplaceTargetRE(const NPVariant *args, uint32_t argCount, NPVariant *result);
+    bool SearchInTarget(const NPVariant *args, uint32_t argCount, NPVariant *result);
+
+    bool AddChar(const NPVariant *args, uint32_t argCount, NPVariant *result);
+    bool ButtonDown(const NPVariant *args, uint32_t argCount, NPVariant *result);
+    bool ButtonUp(const NPVariant *args, uint32_t argCount, NPVariant *result);
+    bool ButtonMove(const NPVariant *args, uint32_t argCount, NPVariant *result);
+    bool EndDrop(const NPVariant *args, uint32_t argCount, NPVariant *result);
 
 protected:
   nsPluginInstance* mPlugin;

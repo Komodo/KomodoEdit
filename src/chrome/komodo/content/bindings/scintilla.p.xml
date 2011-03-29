@@ -165,15 +165,18 @@
             </body>
             </method>
 
+            <field name="__scimoz_wrapper">null</field>
             <field name="_scimoz">null</field>
-            <property name="xscimoz" onget="return document.getAnonymousElementByAttribute(this, 'anonid', 'scimoz').ISciMoz;"/>
             <property name="scimoz">
                 <getter><![CDATA[
-                if (this._scimoz == null) {
-                    var xblContent = document.getAnonymousElementByAttribute(this, 'anonid', 'scimoz');
-                    this._scimoz = xblContent && xblContent.ISciMoz;
+                if (!this.__scimoz_wrapper) {
+                    var sm = document.getAnonymousElementByAttribute(this, 'anonid', 'scimoz');
+                    var wsm = Components.classes["@activestate.com/koSciMozWrapper;1"].createInstance(Components.interfaces.ISciMoz);
+                    var unwrapped = wsm.wrappedJSObject;
+                    unwrapped.init(sm, this);
+                    this.__scimoz_wrapper = wsm;
                 }
-                return this._scimoz;
+                return this.__scimoz_wrapper;
                 ]]></getter>
             </property>
 
@@ -592,7 +595,7 @@
                   // Bug 86589.
                   if (window.document.commandDispatcher.focusedElement != null) {
 <!-- #endif -->
-                    this.scimoz.buttonUp( this._lastMousePos[0], this._lastMousePos[1], this._inMouseDown, event.timeStamp, 0, 0, 0);
+                    this.scimoz.buttonUp( this._lastMousePos[0], this._lastMousePos[1], this._inMouseDown, 0, 0, 0);
                     // The selection may have changed as a result.
                     // We could get smarter about only sending this when it truly _has_
                     // changed, but this would require remembering the position in the
@@ -781,14 +784,6 @@
                 ]]>
             </handler>
 
-            <handler event="text" phase="capturing">
-                <![CDATA[
-                // Text events are used for IME. These need to be passed down to
-                // SciMoz in order to get the IME information from the event.
-                this.scimoz.handleTextEvent(event, this.boxObject.screenX, this.boxObject.screenY);
-                ]]>
-            </handler>
-
 <!-- #if PLATFORM != "darwin" -->
             <handler event="keyup" phase="capturing"><![CDATA[
                 if (event.keyCode == event.DOM_VK_ALT && this.needToStopAltPropagation) {
@@ -836,7 +831,6 @@
                     //} else {
                     //    scimoz.buttonUp( x, y,
                     //                        event.button,
-                    //                        event.timeStamp,
                     //                        event.shiftKey, event.ctrlKey, event.metaKey);
                     }
 <!-- #endif -->
@@ -887,10 +881,9 @@
                     this._mouseUpEvent = function(event) {
                         var x,y;
                         [x,y] = self.getClientCoordinates(event);
-                        self.scimoz.buttonUp( x, y,
-                                            event.button,
-                                            event.timeStamp,
-                                            event.shiftKey, event.ctrlKey, event.metaKey);
+                        self.scimoz.buttonUp(x, y,
+                                             event.button,
+                                             event.shiftKey, event.ctrlKey, event.metaKey);
                         window.removeEventListener("mouseup", self._mouseUpEvent, true);
                         self._mouseUpEvent = null;
                         self._inMouseDown = -1;

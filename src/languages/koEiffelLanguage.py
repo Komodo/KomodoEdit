@@ -38,15 +38,13 @@ from xpcom import components, ServerException
 
 from koLanguageServiceBase import *
 
-def registerLanguage(registery):
-    registery.registerLanguage(koEiffelLanguage())
-
 class koEiffelLanguage(KoLanguageBase):
     name = "Eiffel"
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{A2EBF794-8C0B-4b51-8F5C-147F97399C43}"
+    _reg_categories_ = [("komodo-language", name)]
 
     defaultExtension = ".e"
     commentDelimiterInfo = {

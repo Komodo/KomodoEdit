@@ -10,15 +10,13 @@ from koLanguageServiceBase import KoLanguageBase, sci_constants, KoLexerLanguage
 from langinfo_prog import HLSLLangInfo
 
 
-def registerLanguage(registery):
-    registery.registerLanguage(koHLSLLanguage())
-
 class koHLSLLanguage(KoLanguageBase):
     name = "HLSL"
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{fd0846b3-ff7f-41af-b324-179783084469}"
+    _reg_categories_ = [("komodo-language", name)]
 
     primary = 0
     defaultExtension = ".hlsl"

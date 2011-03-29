@@ -65,6 +65,5 @@ class KoFinalizeService:
 
     def observe(self, subject, topic, data):
         if topic == 'xpcom-shutdown':
-            log.debug("pref service status got xpcom-shutdown, unloading");
+            log.debug("pref service status got xpcom-shutdown, unloading")
             self.finalize()
- 

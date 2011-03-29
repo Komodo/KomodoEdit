@@ -48,16 +48,13 @@ import logging
 
 log = logging.getLogger("TclLanguage")
 
-
-def registerLanguage(registery):
-    registery.registerLanguage(koTclLanguage())
-    
 class koTclLanguage(KoLanguageBase):
     name = "Tcl"
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{491A0CE5-7180-425b-A27A-9EA36BCBA50F}"
+    _reg_categories_ = [("komodo-language", name)]
 
     accessKey = 't'
     shebangPatterns = [

@@ -57,6 +57,7 @@ class KoActionScriptLanguage(KoUDLLanguage):
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" % name
     _reg_clsid_ = "{4dd22f3a-52e2-426d-8a21-6f7ea2ba91ac}"
+    _reg_categories_ = [("komodo-language", name)]
     defaultExtension = '.as'
 
     lang_from_udl_family = {'CSL': 'ActionScript', 'M': 'HTML'}

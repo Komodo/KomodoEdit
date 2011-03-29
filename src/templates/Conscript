@@ -56,6 +56,7 @@ Import(
     'productType',
     'unsiloedPythonExe',
     'sdkDir',
+    'mozSrc',
 );
 
 $cons->Preprocess('koTemplateService.p.py', 'koTemplateService.py');

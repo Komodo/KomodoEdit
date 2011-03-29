@@ -469,16 +469,16 @@ CodeIntelCompletionUIHandler.prototype._setDefinitionsInfo = function(
             var defn = defns[0];
             if (defns.length > 1) {
                 // Show choice of definitions, user can choose one
-                var arguments = new Object();
-                arguments.defns = defns;
+                var args = new Object();
+                args.defns = defns;
                 window.openDialog("chrome://komodo/content/codeintel/ciDefinitionChoice.xul",
                                   "Komodo:ciDefinitionChoice",
                                   "chrome,resizable=yes,dialog=yes,close=yes,dependent=yes,modal=yes",
-                                  arguments);
-                if (arguments.retval != "OK") {
+                                  args);
+                if (args.retval != "OK") {
                     return;
                 }
-                defn = arguments.selectedDefn;
+                defn = args.selectedDefn;
             }
 
             // defn is a koICodeIntelDefinition XPCOM object

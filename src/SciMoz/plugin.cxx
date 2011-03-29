@@ -36,12 +36,10 @@
  * ***** END LICENSE BLOCK ***** */
 
 #include "plugin.h"
-#include "nsIServiceManager.h"
-#include "nsIMemory.h"
-#include "nsISupportsUtils.h" // this is where some useful macros defined
+#include "npfunctions.h"
+
 //#define SCIMOZ_DEBUG
 
-// Unix needs this
 #define MIME_TYPES_HANDLED  "application/x-scimoz-plugin"
 #define PLUGIN_NAME         "Scintilla"
 #define MIME_TYPES_DESCRIPTION  MIME_TYPES_HANDLED"::"PLUGIN_NAME
@@ -73,11 +71,6 @@ NPError NS_PluginGetValue(NPPVariable aVariable, void *aValue)
       break;
   }
   return err;
-}
-
-NPError NPP_Initialize(void)
-{
-    return NPERR_NO_ERROR;
 }
 
 void NPP_Shutdown(void)
@@ -157,20 +150,19 @@ void NS_DestroyPluginInstance(nsPluginInstanceBase * aPlugin)
 nsPluginInstance::nsPluginInstance(NPP aInstance) : nsPluginInstanceBase(),
   mInstance(aInstance),
   mInitialized(FALSE),
-  mScriptablePeer(NULL)
+  mScriptableObject(NULL)
 {
   mString[0] = '\0';
-  mScriptablePeer = new SciMoz(this);
-  NS_ADDREF(mScriptablePeer);
+  mSciMoz = new SciMoz(this);
 #ifdef SCIMOZ_DEBUG
-    fprintf(stderr,"nsPluginInstance::nsPluginInstance %p inst %p peer %p\n", this, mInstance, mScriptablePeer);
+    fprintf(stderr,"nsPluginInstance::nsPluginInstance %p inst %p peer %p\n", this, mInstance, mSciMoz);
 #endif 
 }
 
 nsPluginInstance::~nsPluginInstance()
 {
 #ifdef SCIMOZ_DEBUG
-    fprintf(stderr,"nsPluginInstance::~nsPluginInstance %p inst %p peer %p\n", this, mInstance, mScriptablePeer);
+    fprintf(stderr,"nsPluginInstance::~nsPluginInstance %p inst %p peer %p\n", this, mInstance, mSciMoz);
 #endif 
 }
 
@@ -202,12 +194,12 @@ nsPluginInstance::SetWindow(NPWindow* window)
     *	info to the previous window (if any) to note window
     *	size changes, etc.
     */
-    return mScriptablePeer->PlatformSetWindow(window);
+    return mSciMoz->PlatformSetWindow(window);
 }
 
 uint16 nsPluginInstance::HandleEvent(void* event)
 {
-    return mScriptablePeer->PlatformHandleEvent(event);
+    return mSciMoz->PlatformHandleEvent(event);
 }
 
 void nsPluginInstance::shut()
@@ -215,26 +207,7 @@ void nsPluginInstance::shut()
 #ifdef SCIMOZ_DEBUG
     fprintf(stderr,"nsPluginInstance:: %p shut\n", this);
 #endif 
-  // The mScriptablePeer may be still held by the browser (XPCOM), so
-  // releasing it here does not guarantee that it is over. We must take
-  // precautions in case the mScriptablePeer is used later.
-  // When the mScriptablePeer is finally released, the mScriptablePeer will
-  // be the one to cleanup/destroy the plugin instance.
-  if (mScriptablePeer) {
-    mScriptablePeer->NotifyPluginWasDestroyed();
-#ifdef SCIDEBUG_REFS
-    int rc = mScriptablePeer->getRefCount() - 1;
-    if (rc > 0) {
-        fprintf(stderr, "LEAK: Plugin Destroyed but SciMoz lives on!!! refcnt %d %p\n", rc, mScriptablePeer);
-    }
-#endif
-    // The mScriptablePeer instance needs to be cleaned up now, to ensure the
-    // plugin and mScriptablePeer window relationships are all removed,
-    // otherwise a later event from the mScriptablePeer widget(s) could case a
-    // callback to a NULL plugin, causing a crash.
-    NS_RELEASE(mScriptablePeer);
-  }
-  mScriptablePeer = NULL;
+  mSciMoz = NULL;
   mInitialized = FALSE;
 }
 
@@ -265,7 +238,7 @@ void nsPluginInstance::getVersion(char* *aVersion)
 //
 // here the plugin is asked by Mozilla to tell if it is scriptable
 // we should return a valid interface id and a pointer to 
-// SciMoz interface which we should have implemented
+// nsScriptablePeer interface which we should have implemented
 // and which should be defined in the corressponding *.xpt file
 // in the bin/components folder
 NPError	nsPluginInstance::GetValue(NPPVariable aVariable, void *aValue)
@@ -276,26 +249,8 @@ NPError	nsPluginInstance::GetValue(NPPVariable aVariable, void *aValue)
 #endif   
 
   switch (aVariable) {
-    case NPPVpluginScriptableInstance: {
-      // addref happens in getter, so we don't addref here
-      ISciMoz * scriptablePeer = getScriptablePeer();
-      if (scriptablePeer) {
-        *(nsISupports **)aValue = scriptablePeer;
-      } else
-        rv = NPERR_OUT_OF_MEMORY_ERROR;
-    }
-    break;
-
-    case NPPVpluginScriptableIID: {
-      static nsIID scriptableIID = ISCIMOZ_IID;
-      nsIID* ptr = (nsIID *)NPN_MemAlloc(sizeof(nsIID));
-      if (ptr) {
-          *ptr = scriptableIID;
-          *(nsIID **)aValue = ptr;
-      } else
-        rv = NPERR_OUT_OF_MEMORY_ERROR;
-    }
-    break;
+    case NPPVpluginScriptableNPObject:// Scriptable plugin interface (for accessing from javascript)
+      *(NPObject **)aValue = this->getScriptableObject();
 
     default:
       rv = NS_PluginGetValue(aVariable, aValue);
@@ -309,21 +264,161 @@ NPError	nsPluginInstance::GetValue(NPPVariable aVariable, void *aValue)
 // ! Scriptability related code !
 // ==============================
 //
-// this method will return the scriptable object (and create it if necessary)
-SciMoz* nsPluginInstance::getScriptablePeer()
+
+
+SciMozScriptableNPObject::SciMozScriptableNPObject(NPP npp) : m_Instance(npp)
+{
+}
+
+SciMozScriptableNPObject::~SciMozScriptableNPObject()
+{
+}
+
+// static
+NPObject* SciMozScriptableNPObject::Allocate(NPP npp, NPClass *aClass) {
+    return new SciMozScriptableNPObject(npp);
+}
+
+// static
+void SciMozScriptableNPObject::_Invalidate(NPObject *obj) {
+    ((SciMozScriptableNPObject*)obj)->Invalidate();
+}
+void SciMozScriptableNPObject::Invalidate() {
+    // Invalidate the control however you wish
+}
+
+// static
+void SciMozScriptableNPObject::_Deallocate(NPObject *obj) {
+    ((SciMozScriptableNPObject*)obj)->Deallocate();
+    delete ((SciMozScriptableNPObject*)obj);
+}
+void SciMozScriptableNPObject::Deallocate() {
+    // Do any cleanup needed
+}
+
+// static
+bool SciMozScriptableNPObject::_HasMethod(NPObject *obj, NPIdentifier name) {
+    return ((SciMozScriptableNPObject*)obj)->HasMethod(name);
+}
+bool SciMozScriptableNPObject::HasMethod(NPIdentifier name) {
+    #ifdef SCIMOZ_DEBUG
+        printf("SciMozScriptableNPObject::HasMethod:: '%s'\n", NPN_UTF8FromIdentifier(name));
+    #endif /* SCIMOZ_DEBUG */
+    bool result = mSciMoz->HasMethod(name);
+    #ifdef SCIMOZ_DEBUG
+        printf("%s: %s = %s\n", __FUNCTION__, NPN_UTF8FromIdentifier(name), result ? "yes" : "no");
+    #endif /* SCIMOZ_DEBUG */
+    return result;
+}
+
+// static
+bool SciMozScriptableNPObject::_Invoke(NPObject *obj, NPIdentifier name, const NPVariant *args, uint32_t argCount, NPVariant *result) {
+    return ((SciMozScriptableNPObject*)obj)->Invoke(name, args, argCount, result);
+}
+bool SciMozScriptableNPObject::Invoke(NPIdentifier name, const NPVariant *args, uint32_t argCount, NPVariant *result) {
+    return mSciMoz->Invoke(m_Instance, name, args, argCount, result);
+}
+
+// static
+bool SciMozScriptableNPObject::_InvokeDefault(NPObject *obj, const NPVariant *args, uint32_t argCount, NPVariant *result) {
+    return ((SciMozScriptableNPObject*)obj)->InvokeDefault(args, argCount, result);
+}
+bool SciMozScriptableNPObject::InvokeDefault(const NPVariant *args, uint32_t argCount, NPVariant *result) {
+    return false;
+}
+
+// static
+bool SciMozScriptableNPObject::_HasProperty(NPObject *obj, NPIdentifier name) {
+    return ((SciMozScriptableNPObject*)obj)->HasProperty(name);
+}
+bool SciMozScriptableNPObject::HasProperty(NPIdentifier name) {
+    #ifdef SCIMOZ_DEBUG
+        printf("SciMozScriptableNPObject::HasProperty:: '%s'\n", NPN_UTF8FromIdentifier(name));
+    #endif /* SCIMOZ_DEBUG */
+    bool result = mSciMoz->HasProperty(name);
+    #ifdef SCIMOZ_DEBUG
+        printf("%s: %s = %s\n", __FUNCTION__, NPN_UTF8FromIdentifier(name), result ? "yes" : "no");
+    #endif /* SCIMOZ_DEBUG */
+    return result;
+}
+
+// static
+bool SciMozScriptableNPObject::_GetProperty(NPObject *obj, NPIdentifier name, NPVariant *result) {
+    return ((SciMozScriptableNPObject*)obj)->GetProperty(name, result);
+}
+bool SciMozScriptableNPObject::GetProperty(NPIdentifier name, NPVariant *result) {
+    return mSciMoz->GetProperty(name, result);
+}
+
+// static
+bool SciMozScriptableNPObject::_SetProperty(NPObject *obj, NPIdentifier name, const NPVariant *value) {
+    return ((SciMozScriptableNPObject*)obj)->SetProperty(name, value);
+}
+bool SciMozScriptableNPObject::SetProperty(NPIdentifier name, const NPVariant *value) {
+    return mSciMoz->SetProperty(name, value);
+}
+
+// static
+bool SciMozScriptableNPObject::_RemoveProperty(NPObject *obj, NPIdentifier name) {
+    return ((SciMozScriptableNPObject*)obj)->RemoveProperty(name);
+}
+bool SciMozScriptableNPObject::RemoveProperty(NPIdentifier name) {
+    return false;
+}
+
+// static
+bool SciMozScriptableNPObject::_Enumerate(NPObject *obj, NPIdentifier **identifier, uint32_t *count) {
+    return ((SciMozScriptableNPObject*)obj)->Enumerate(identifier, count);
+}
+bool SciMozScriptableNPObject::Enumerate(NPIdentifier **identifier, uint32_t *count) {
+    return false;
+}
+
+// static
+bool SciMozScriptableNPObject::_Construct(NPObject *obj, const NPVariant *args, uint32_t argCount, NPVariant *result) {
+    return ((SciMozScriptableNPObject*)obj)->Construct(args, argCount, result);
+}
+bool SciMozScriptableNPObject::Construct(const NPVariant *args, uint32_t argCount, NPVariant *result) {
+    return false;
+}
+
+
+NPClass SciMozScriptableNPObject::_npclass = {
+    NP_CLASS_STRUCT_VERSION,
+    SciMozScriptableNPObject::Allocate,
+    SciMozScriptableNPObject::_Deallocate,
+    SciMozScriptableNPObject::_Invalidate,
+    SciMozScriptableNPObject::_HasMethod,
+    SciMozScriptableNPObject::_Invoke,
+    SciMozScriptableNPObject::_InvokeDefault,
+    SciMozScriptableNPObject::_HasProperty,
+    SciMozScriptableNPObject::_GetProperty,
+    SciMozScriptableNPObject::_SetProperty,
+    SciMozScriptableNPObject::_RemoveProperty,
+    SciMozScriptableNPObject::_Enumerate,
+    SciMozScriptableNPObject::_Construct
+};
+
+
+// static
+SciMozScriptableNPObject* SciMozScriptableNPObject::NewScriptableSciMoz(NPP npp, SciMoz * scimoz) {
+    SciMozScriptableNPObject* newObj = (SciMozScriptableNPObject*)NPN_CreateObject(npp, &SciMozScriptableNPObject::_npclass);
+    newObj->mSciMoz = scimoz;
+    return newObj;
+}
+
+NPObject* nsPluginInstance::getScriptableObject()
 {
 #ifdef SCIMOZ_DEBUG
-    fprintf(stderr,"nsPluginInstance:: %p getScriptablePeer\n", this);
-#endif 
-  if (!mScriptablePeer) {
-    mScriptablePeer = new SciMoz(this);
-    if(!mScriptablePeer)
+    fprintf(stderr,"nsPluginInstance:: %p getScriptableObject\n", this);
+#endif
+  if (!mScriptableObject) {
+    mScriptableObject = (NPObject *) SciMozScriptableNPObject::NewScriptableSciMoz(this->mInstance, this->mSciMoz);
+    if(!mScriptableObject)
       return NULL;
-
-    NS_ADDREF(mScriptablePeer);
   }
 
-  // add reference for the caller requesting the object
-  NS_ADDREF(mScriptablePeer);
-  return mScriptablePeer;
+  NPN_RetainObject(mScriptableObject);
+
+  return mScriptableObject;
 }

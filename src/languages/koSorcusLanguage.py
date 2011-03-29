@@ -39,9 +39,6 @@ from xpcom import components, ServerException
 
 from koLanguageServiceBase import *
 
-def registerLanguage(registery):
-    registery.registerLanguage(koSorcusLanguage())
-
 from xpcom import components, COMException, ServerException, nsError
 
 class koSorcusLanguage(KoLanguageBase):
@@ -50,6 +47,7 @@ class koSorcusLanguage(KoLanguageBase):
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{894c880d-0946-42fe-883e-c871d125b0de}"
+    _reg_categories_ = [("komodo-language", name)]
 
     _stateMap = {
         'default': ('SCE_SORCUS_DEFAULT',),

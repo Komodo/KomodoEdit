@@ -20,6 +20,7 @@ class KoTracWikiLanguage(KoUDLLanguage):
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" % name
     _reg_clsid_ = "{b843faa8-aeea-4fcb-aeb9-36c4483c6f95}"
+    _reg_categories_ = [("komodo-language", name)]
     defaultExtension = '.tracwiki'
     primary = 0
     _total_string_styles = None

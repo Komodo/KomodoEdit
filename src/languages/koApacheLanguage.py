@@ -50,15 +50,13 @@ from koLanguageServiceBase import *
 #        'ip_addresses': ('SCE_CONF_IP',),
 #        }
 
-def registerLanguage(registery):
-    registery.registerLanguage(koApacheLanguage())
-    
 class koApacheLanguage(KoLanguageBase):
     name = "Apache"
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{4F13B454-43E9-41E7-AE72-F8EED38119B4}"
+    _reg_categories_ = [("komodo-language", name)]
 
     defaultExtension = ".conf"
     styleBits = 6

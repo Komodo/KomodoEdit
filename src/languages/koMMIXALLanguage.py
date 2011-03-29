@@ -42,15 +42,13 @@ from koLanguageServiceBase import *
 # info at http://mmixmasters.sourceforge.net/
 #         http://www.gnu.org/software/mdk/mdk.html
 
-def registerLanguage(registery):
-    registery.registerLanguage(koMMIXALLanguage())
-    
 class koMMIXALLanguage(KoLanguageBase):
     name = "MMIXAL" 
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{a21da487-916c-49aa-b7cc-0b86713e8f9b}"
+    _reg_categories_ = [("komodo-language", name)]
 
     modeNames = ['mixal', 'mmixal']
     _stateMap = {

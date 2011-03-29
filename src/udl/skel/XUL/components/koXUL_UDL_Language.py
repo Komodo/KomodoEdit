@@ -58,6 +58,7 @@ class KoXULLanguage(koXMLLanguageBase):
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" % name
     _reg_clsid_ = "{E9B4C1F5-C9F9-4F85-A920-09A9A74B0950}"
+    _reg_categories_ = [("komodo-language", name)]
     defaultExtension = '.xul'
 
     lang_from_udl_family = {'CSL': 'JavaScript', 'M': 'XML'}

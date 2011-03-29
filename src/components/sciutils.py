@@ -1324,7 +1324,7 @@ class SciUtilsTestCase(SciMozTestCase):
     _langSvcs = {}
     def _getLanguageService(self, languageName):
         if languageName not in self._langSvcs:
-            contractID = "@activestate.com/koLanguage?language=%s;1" % languageName
+            contractID = "@activestate.com/koLanguage?language=%s;1" % languageName.replace(" ", "%20")
             langSvc = components.classes[contractID].getService()
             self._langSvcs[languageName] = langSvc
         return self._langSvcs[languageName]

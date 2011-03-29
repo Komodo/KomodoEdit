@@ -38,16 +38,13 @@ from xpcom import components, ServerException
 
 from koLanguageServiceBase import *
 
-def registerLanguage(registery):
-    registery.registerLanguage(koLispLanguage())
-    registery.registerLanguage(koSchemeLanguage())
- 
 class koLispLanguage(KoLanguageBase):
     name = "Lisp"
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{7B60D626-E3E9-4634-9531-854DF66B1193}"
+    _reg_categories_ = [("komodo-language", name)]
 
     defaultExtension = ".lis"
     commentDelimiterInfo = {
@@ -90,6 +87,7 @@ class koSchemeLanguage(koLispLanguage):
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{7463ae07-1bec-4ae2-9c7a-9f5a6877b63b}"
+    _reg_categories_ = [("komodo-language", name)]
 
     defaultExtension = ".scm" #*.scm;*.smd;*.ss
 

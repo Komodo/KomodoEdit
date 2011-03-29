@@ -36,14 +36,24 @@
 #include "nsXPCOM.h"
 #include "nsCOMPtr.h"
 
-#include "nsIGenericFactory.h"
+#if MOZ_VERSION < 199
+  #include "nsIGenericFactory.h"
+#else
+#endif
+
 #include "nsILocalFile.h"
 #include "nsNetUtil.h"
 
 #include "nsContentCID.h"
-#include "nsICSSLoader.h"
-#include "nsICSSStyleSheet.h"
 #include "koICSSParser.h"
+
+#if MOZ_VERSION < 199
+  #include "nsICSSLoader.h"
+  #include "nsICSSStyleSheet.h"
+#else
+  #include "mozilla/css/Loader.h"
+  #include "nsCSSStyleSheet.h"
+#endif
 
 static NS_DEFINE_CID(kCSSLoaderCID, NS_CSS_LOADER_CID);
 
@@ -85,6 +95,7 @@ FileToURI(const char *aFilename, nsresult *aRv = 0)
     return uri;
 }
 
+#if MOZ_VERSION < 199
 NS_IMETHODIMP koCSSParser::ParseFile(const char *filename)
 {
     nsCOMPtr<nsICSSLoader> loader(do_CreateInstance(kCSSLoaderCID));
@@ -114,6 +125,37 @@ NS_IMETHODIMP koCSSParser::ParseFile(const char *filename)
     }
     return NS_OK;
 }
+#else
+NS_IMETHODIMP koCSSParser::ParseFile(const char *filename)
+{
+    nsCOMPtr<nsICSSLoader> loader(do_CreateInstance(kCSSLoaderCID));
+    nsCOMPtr<nsICSSStyleSheet> sheet;
+    nsresult rv;
+    nsCOMPtr<nsIURI> aSheetURI = FileToURI(filename, &rv);
+    if (!aSheetURI) {
+      return NS_ERROR_FILE_NOT_FOUND;
+    }
+#if MOZ_VERSION < 190
+    loader->LoadAgentSheet(aSheetURI, getter_AddRefs(sheet));
+#else
+    loader->LoadSheetSync(aSheetURI, getter_AddRefs(sheet));
+#endif
+    NS_ASSERTION(sheet, "sheet load failed");
+    /* This can happen if the file can't be found (e.g. you
+     * ask for a relative path and xpcom/io rejects it)
+     */
+    if (!sheet) {
+        return NS_ERROR_FILE_NOT_FOUND;
+    }
+    PRBool complete;
+    sheet->GetComplete(complete);
+    NS_ASSERTION(complete, "synchronous load did not complete");
+    if (!complete) {
+        return NS_ERROR_UNEXPECTED;
+    }
+    return NS_OK;
+}
+#endif
 
 // {7D82F06D-CF2D-11DA-AE2F-000D935D3368}
 #define KO_CSSPARSER_CID \

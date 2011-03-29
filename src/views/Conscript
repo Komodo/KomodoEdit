@@ -52,6 +52,7 @@ Import(
     'mozVersion',
     'withCrypto',
     'sdkDir',
+    'mozSrc',
 );
 
 $cons->Preprocess('URIlib.p.py', 'URIlib.py');

@@ -102,7 +102,8 @@ koColorPicker.prototype = {
 };
 
 // XPCOM registration of class.
-var components = [koColorPicker];
-function NSGetModule(compMgr, fileSpec) {
-    return XPCOMUtils.generateModule(components);
+if ("generateNSGetFactory" in XPCOMUtils) {
+    var NSGetFactory = XPCOMUtils.generateNSGetFactory([koColorPicker]);
+} else if ("generateNSGetModule" in XPCOMUtils) {
+    var NSGetModule = XPCOMUtils.generateNSGetModule([koColorPicker]);
 }

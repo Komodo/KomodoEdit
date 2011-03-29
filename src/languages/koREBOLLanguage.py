@@ -38,9 +38,6 @@ from xpcom import components, ServerException
 
 from koLanguageServiceBase import *
 
-def registerLanguage(registery):
-    registery.registerLanguage(koREBOLLanguage())
-
 # see http://www.rebol.com/
 class koREBOLLanguage(KoLanguageBase):
     name = "REBOL"
@@ -48,6 +45,7 @@ class koREBOLLanguage(KoLanguageBase):
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{7DA39DE8-53ED-11DA-9186-000D935D3368}"
+    _reg_categories_ = [("komodo-language", name)]
 
     commentDelimiterInfo = {
         "line": [ ";", ";;" ]

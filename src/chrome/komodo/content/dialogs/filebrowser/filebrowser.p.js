@@ -146,7 +146,7 @@ localFile.prototype = {
             // first, then call createUnique with the same directory name again!
             var file = this.clone();
             file._sfile.append(dirName);
-            file._sfile.createUnique(file._sfile.DIRECTORY_TYPE, 0755);
+            file._sfile.createUnique(file._sfile.DIRECTORY_TYPE, /*0755*/493);
         } catch (e) {
             //alert(e);
             ko.dialogs.alert(bundle.formatStringFromName("unableToCreateDirectory.alert",
@@ -401,7 +401,7 @@ RemoteFile.prototype.createDirectory = function(dirName) {
     if (!this.isDirectory) return false;
     try {
         log.debug("RemoteFile.createDirectory: current dir: "+this.path+", making "+dirName);
-        serverInfo.connection.createDirectory(this.path+"/"+dirName, 0755);
+        serverInfo.connection.createDirectory(this.path+"/"+dirName, /*0755*/493);
     } catch (e) {
         ko.dialogs.alert(bundle.formatStringFromName("unableToCreateDirectory.alert",
             [this.lastError()], 1));

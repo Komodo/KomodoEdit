@@ -249,21 +249,18 @@ window.tryToClose = function() {
 
 
 // #if BUILD_FLAVOUR == "dev"
-var MozPref = new Components.Constructor("@mozilla.org/preferences;1","nsIPref");
 function moz_user_pref(name, value) {
-    var pref;
-    if (typeof(value) == 'boolean') {
-        pref = new MozPref();
-        pref.SetBoolPref(name,value);
-    } else
-    if (typeof(value) == 'string') {
-        pref = new MozPref();
-        pref.SetCharPref(name,value);
-    } else
-    if (typeof(value) == 'number') {
-        pref = new MozPref();
-        pref.SetIntPref(name,value);
+    const methName = {
+        "boolean": "setBoolPref",
+        "string": "setCharPref",
+        "number": "setIntPref"
+    };
+    if (!(typeof(value) in methName)) {
+        return;
     }
+    var pref = Components.classes["@mozilla.org/preferences-service;1"]
+                         .getService(Components.interfaces.nsIPrefBranch);
+    pref[methName[typeof(value)]](name, value);
 }
 
 // nsIConsoleListener

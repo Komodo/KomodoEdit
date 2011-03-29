@@ -39,10 +39,6 @@ from xpcom import components, ServerException
 
 from koLanguageServiceBase import *
 
-def registerLanguage(registery):
-    registery.registerLanguage(koTACLLanguage())
-    registery.registerLanguage(koTALLanguage())
-
 from xpcom import components, COMException, ServerException, nsError
 
 class _koTandemComputerLanguage(KoLanguageBase):
@@ -75,6 +71,7 @@ class koTACLLanguage(_koTandemComputerLanguage):
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
+    _reg_categories_ = [("komodo-language", name)]
     defaultExtension = '.tacl'
     scimozLexer = components.interfaces.ISciMoz.SCLEX_TACL
 
@@ -84,5 +81,6 @@ class koTALLanguage(_koTandemComputerLanguage):
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
+    _reg_categories_ = [("komodo-language", name)]
     defaultExtension = '.tal'
     scimozLexer = components.interfaces.ISciMoz.SCLEX_TAL

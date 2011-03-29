@@ -38,16 +38,13 @@ from xpcom import components, ServerException
 
 from koLanguageServiceBase import *
 
-def registerLanguage(registery):
-    registery.registerLanguage(koFortran77Language())
-    registery.registerLanguage(koFortranLanguage())
-
 class koFortran77Language(KoLanguageBase):
     name = "Fortran 77"
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{2B5E00B3-904E-456B-BB12-B27FBD6D81E2}"
+    _reg_categories_ = [("komodo-language", name)]
 
     defaultExtension = ".f"
     styleBits = 6
@@ -137,6 +134,7 @@ class koFortranLanguage(koFortran77Language):
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{24736599-C6DD-4769-978C-C688710F0A1F}"
+    _reg_categories_ = [("komodo-language", name)]
 
     defaultExtension = ".f95"
     styleBits = 6

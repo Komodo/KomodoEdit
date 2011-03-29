@@ -5,3 +5,7 @@ overlay chrome://messenger/content/mailWindowOverlay.xul chrome://casper/content
 overlay chrome://browser/content/macBrowserOverlay.xul chrome://casper/content/tasksOverlay-ff.xul
 overlay chrome://browser/content/browser.xul chrome://casper/content/tasksOverlay-ff.xul
 overlay chrome://communicator/content/tasksOverlay.xul chrome://casper/content/tasksOverlay.xul
+
+component {C37134CD-A4B0-11DA-BA30-000D935D3368} components/casper-clhandler.js
+contract @activestate.com/casper/casper-clh;1 {C37134CD-A4B0-11DA-BA30-000D935D3368}
+category command-line-handler c-casper @activestate.com/casper/casper-clh;1

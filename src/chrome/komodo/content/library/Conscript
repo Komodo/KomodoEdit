@@ -40,6 +40,8 @@
 Import(
     'cons',
     'mozChromeDir',
+    'mozComponentsDir',
+    'ranRegxpcomStateFileName',
     'platform',
     'productType',
     'buildFlavour',

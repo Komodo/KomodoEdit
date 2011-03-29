@@ -38,15 +38,13 @@ from xpcom import components, ServerException
 
 from koLanguageServiceBase import *
 
-def registerLanguage(registery):
-    registery.registerLanguage(koPOVLanguage())
-
 class koPOVLanguage(KoLanguageBase):
     name = "POVRay"
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{51280a18-bb91-4be2-bd59-b96b3f63b386}"
+    _reg_categories_ = [("komodo-language", name)]
 
     _stateMap = {
         'default': ('SCE_POV_DEFAULT',),
@@ -167,5 +165,3 @@ SAMPLE NOT AVAILABLE
         strlen sum tan tanh val vdot vlength min_extent max_extent trace vaxis_rotate
         vcross vrotate vnormalize vturbulence chr concat str strlwr strupr substr vstr
         sqr cube reciprocal pwr""".split()
-            
-            

@@ -7,9 +7,12 @@
 Import(
     'cons',
     'mozBin',
+    'mozSrc',
     'mozChromeDir',
     'mozComponentsDir',
+    'mozVersion',
     'ranRegxpcomStateFileName',
+    'unsiloedPythonExe',
 );
 
 $cons->InstallInChrome('colorpicker.html');
@@ -17,4 +20,5 @@ $cons->InstallInChrome('colorpicker.js');
 $cons->InstallInChrome('colormethods.js');
 $cons->InstallInChrome('colorvaluepicker.js');
 $cons->InstallInChrome('slider.js');
-$cons->InstallXpcomComponent('xpcom_colorpicker.js');
+$cons->InstallXpcomComponent('xpcom_colorpicker.js',
+                             {'@activestate.com/koColorPicker;1' => "{57dbf673-ce91-4858-93f9-2e47fea3495d}"});

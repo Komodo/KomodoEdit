@@ -51,6 +51,7 @@ Import(
     'mozVersion',
     'komodoPythonUtilsDir',
     'sdkDir',
+    'mozSrc',
 );
 
 # Install Python components.

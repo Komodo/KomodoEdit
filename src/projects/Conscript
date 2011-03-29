@@ -50,6 +50,7 @@ Import(
     'komodoPythonUtilsDir',
     'mozVersion',
     'sdkDir',
+    'mozSrc',
 );
 
 $cons->Preprocess('koIProject.p.idl', 'koIProject.idl');

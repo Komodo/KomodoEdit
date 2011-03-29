@@ -38,15 +38,13 @@ from xpcom import components, ServerException
 
 from koLanguageServiceBase import *
 
-def registerLanguage(registery):
-    registery.registerLanguage(koMetapostLanguage())
-
 class koMetapostLanguage(KoLanguageBase):
     name = "Metapost"
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{0a8c12de-7cd7-4d45-9220-0aaaa93047dc}"
+    _reg_categories_ = [("komodo-language", name)]
 
     _stateMap = {
         'default': ('SCE_METAPOST_DEFAULT',),

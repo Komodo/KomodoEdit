@@ -87,17 +87,16 @@ if ($^O eq "linux") {
 # Scintilla.iface. The IDL stubs are patched into ISciMoz.template.idl to
 # make ISciMoz.idl.
 #
-# We use preprocessing to support building SciMoz for both 32-bit
-# and 64-bit architecutres (due to having a different pointer size).
 # The Scintilla.iface *must* be patched before the XPFacer is used,
 # to ensure the Scintilla definitions are aware of pointer references,
 # this is done in the "iface_64bit.patch" file in the patches directory.
-my %ppData = (
-    'ARCHITECTURE' => "$architecture",
-);
-$cons->Preprocess('XPFacer.p.py', 'XPFacer.py', \%ppData);
 $cons->Command(
-    "npscimoz_gen.h",
+    ["npscimoz_gen.h",
+     "generated_plugin_code.h",
+     "ISciMoz_lite_gen.idl.fragment",
+     "ISciMoz_gen.idl.fragment",
+     "ISciMoz_gen.consts.fragment",
+     "ISciMoz_jswrapper_gen.fragment"],
     # files needed to do the generation
     "XPFacer.py",
     "../scintilla/include/Scintilla.iface",
@@ -106,17 +105,17 @@ $cons->Command(
         $unsiloedPythonExe bin/run-in-dir.py %1:d $unsiloedPythonExe %1:f
     )
 );
+
 $cons->Command(
     "ISciMoz.idl",
-    "ISciMoz.template.idl",
     # files needed to do the generation and patching
-    "XPFacer.py",
-    "../scintilla/include/Scintilla.iface",
-    "../scintilla/include/Face.py",
+    "ISciMoz.template.idl",
+    "ISciMoz_lite_gen.idl.fragment",
+    "ISciMoz_gen.idl.fragment",
+    "ISciMoz_gen.consts.fragment",
     "#util/patch-template.py",
     qq(
-        $unsiloedPythonExe bin/run-in-dir.py %2:d $unsiloedPythonExe %2:f
-        $unsiloedPythonExe %5 %1 %0 __ISCIMOZ_LITE_INTERFACE__ \@%1:d/ISciMoz_lite_gen.idl.fragment __ISCIMOZ_INTERFACE__ \@%1:d/ISciMoz_gen.idl.fragment
+        $unsiloedPythonExe %5 %1 %0 __ISCIMOZ_LITE_INTERFACE__ \@%2 __ISCIMOZ_INTERFACE__ \@%3 __ISCIMOZ_INTERFACE_CONSTS__ \@%4
     )
 );
 
@@ -132,6 +131,17 @@ $cons->BuildHeaderFromIdl('ISciMozEvents.idl');
 $cons->Preprocess('koScintillaController.p.py','koScintillaController.py');
 $cons->InstallXpcomComponent('koScintillaController.py');
 
+
+$cons->Command(
+    'scimoz_wrapper.js',
+    'scimoz_wrapper.template.js',
+    'ISciMoz_jswrapper_gen.fragment',
+    "#util/patch-template.py",
+    qq(
+        $unsiloedPythonExe %3 %1 %0 __ISCIMOZ_JS_WRAPPER_GEN__ \@%2
+    ));
+$cons->InstallXpcomComponent('scimoz_wrapper.js',
+                             {'@activestate.com/koSciMozWrapper;1' => "{487f68c7-386a-4802-8874-b0f4912e59dc}"});
 
 # build and install the Mozilla plugin
 my $pluginName;
@@ -153,35 +163,42 @@ if ($platform eq "win") {
 
     %consLocal = $cons->copy();
 
-    my $LDFLAGS = $consLocal{'LDFLAGS'} . " /dll kernel32.lib user32.lib gdi32.lib shell32.lib advapi32.lib xpcom.lib nspr4.lib plugingate_s.lib xpcom_core.lib";
+    my $LDFLAGS = $consLocal{'LDFLAGS'} . " /dll kernel32.lib user32.lib gdi32.lib shell32.lib advapi32.lib xpcomglue_s.lib xpcom.lib nspr4.lib";
     foreach my $libDir (split(';', $mozLibPath)) {
         $LDFLAGS .= " /libpath:$libDir";
     }
     my $pluginSdkSrcDirWinPath;
-    if ($mozVersionNumber >= 191) {
+    if ($mozVersionNumber > 199) {
+        $pluginSdkSrcDirWinPath = "$mozObjDir\\modules\\plugin\\sdk";
+        $LDFLAGS .= " mozalloc.lib";
+    } elsif ($mozVersionNumber >= 191) {
         $pluginSdkSrcDirWinPath = "$mozObjDir\\modules\\plugin\\sdk";
     } else {
+        $LDFLAGS .= " xpcom_core.lib";
         $pluginSdkSrcDirWinPath = "$mozObjDir\\modules\\plugin\\tools\\sdk";
     }
 
     $LDFLAGS .= " /libpath:$pluginSdkSrcDirWinPath\\samples\\common";
+    $consLocal{'CPPPATH'} = [
+        "$scintillaBuildDir/include",
+        "$pluginSdkSrcDir/samples/include ",
+        "$mozDevelDist/include/xulapp",
+        "$mozSrc/mozilla/xpcom/ds",
+        "$mozDevelDist/include/widget",
+        "$mozDevelDist/include/dom",
+        "$mozDevelDist/include/string",
+        "$mozDevelDist/include/xpcom",
+        "$mozDevelDist/include/nspr",
+        "$mozDevelDist/include/content",
+        "$mozDevelDist/include/gfx",
+        "$mozDevelDist/include/plugin",
+        "$mozDevelDist/include/content",
+        "$mozDevelDist/include/java",
+        "helper"];
     my $CXXFLAGS = $consLocal{'CXXFLAGS'} .
         " /W3 /D_WINDOWS /DWIN32 " .
-        " /I$xScintillaBuildDir/include" .
-        " /I$pluginSdkSrcDir/samples/include ".
-        " /I$mozDevelDist/include/xulapp" .
-        " /I$mozSrc/mozilla/xpcom/ds" .
-        " /I$mozDevelDist/include/widget" .
-        " /I$mozDevelDist/include/dom" .
-        " /I$mozDevelDist/include/string" .
-        " /I$mozDevelDist/include/xpcom" .
-        " /I$mozDevelDist/include/nspr" .
-        " /I$mozDevelDist/include/content" .
-        " /I$mozDevelDist/include/gfx" .
-        " /I$mozDevelDist/include/plugin" .
-        " /I$mozDevelDist/include/java";
-    $CXXFLAGS .= " /FI$mozObjDir\\mozilla-config.h";
-    $CXXFLAGS .= " /DCONTAINER_HANDLES_EVENTS=1 /DINCLUDE_DEPRECATED_FEATURES";
+        " /FI$mozObjDir\\mozilla-config.h" .
+        " /DCONTAINER_HANDLES_EVENTS=1 /DINCLUDE_DEPRECATED_FEATURES";
 
     if ($buildType eq 'debug') {
         $CXXFLAGS .= " /ZI /Od /DDEBUG /D_DEBUG /MDd";
@@ -252,15 +269,13 @@ elsif ($platform eq "darwin") {
 
     %consLocal = $cons->copy();
     $consLocal{'LDFLAGS'} = "-dynamic";
-    $consLocal{'LIBS'} = "-bundle -lxpcom_core -lscintilla -lplugingate_s";
-    if ($mozVersionNumber >= 190) {
-      $consLocal{'LIBS'} .= " -Wl,-dead_strip -L$mozDevelDist/bin ";
-      $consLocal{'LIBS'} .= " -Wl,-executable_path,$mozDevelDist/bin ";
-      if ($mozVersionNumber == 190) {
-        $consLocal{'LIBS'} .= " -L$mozDevelDist/lib ";
-        $consLocal{'LIBS'} .= " $mozDevelDist/lib/libxpcomglue_s.a ";
-      }
+    $consLocal{'LIBS'} = "-bundle -lscintilla";
+    $consLocal{'LIBS'} .= " -Wl,-dead_strip -L$mozDevelDist/bin ";
+    $consLocal{'LIBS'} .= " -Wl,-executable_path,$mozDevelDist/bin ";
+    if ($mozVersionNumber == 190) {
+      $consLocal{'LIBS'} .= " -L$mozDevelDist/lib ";
     }
+    $consLocal{'LIBS'} .= " $mozDevelDist/lib/libxpcomglue_s.a -lxpcom -lnspr4 -lmozalloc ";
     # add required frameworks
     $consLocal{'LIBS'} .= "-framework Carbon -framework CoreFoundation ";
     # scintilla
@@ -268,7 +283,7 @@ elsif ($platform eq "darwin") {
 
     $consLocal{'CPPPATH'} = "$scintillaBuildDir/include:$scintillaBuildDir/src:$scintillaBuildDir/macosx:$mozIncludePath:$mozDevelDist/include/java";
     $consLocal{'LIBPATH'} = "$mozLibPath:$pluginSdkObjDir/samples/common:$mozBin";
-    $consLocal{'CXXFLAGS'} = " -Wall -Wno-non-virtual-dtor -fno-exceptions -fno-rtti -fno-common ";
+    $consLocal{'CXXFLAGS'} = " -Wall -Wno-non-virtual-dtor -fno-exceptions -fno-rtti -fno-common -fshort-wchar";
     # Add the global FLAGS.
     $consLocal{'CXXFLAGS'} .= " $consLocal{ENV}{'CXXFLAGS'}";
     $consLocal{'CFLAGS'} = $consLocal{ENV}{'CFLAGS'};
@@ -311,7 +326,9 @@ elsif ($platform eq "darwin") {
     }
 
     $consLocal = new cons(%consLocal);
-    $consLocal->Depends("SciMoz", "$scintillaBuildDir/bin/libscintilla.dylib");
+    $consLocal->Depends("SciMoz", "$mozBin/libscintilla.dylib");
+    $consLocal->Install("$mozBin", "$scintillaBuildDir/bin/libscintilla.dylib");
+
 
     $consLocal->Program(
 	"SciMoz",
@@ -354,7 +371,7 @@ else {
     $pluginName = "libnpscimoz.so";
 
     %consLocal = $cons->copy();
-    $consLocal{'LIBS'} = " -lplds4 -lplc4 -lnspr4 -lpthread -lplugingate_s";
+    $consLocal{'LIBS'} = " -lplds4 -lplc4 -lnspr4 -lpthread -lplugingate_s -lxpcomglue_s -lxpcom";
     $consLocal{'LIBS'} .= " $xScintillaBuildDir/bin/scintilla.a";
 
     # PCRE is built from contrib/pcre and is require by LexUDL.
@@ -416,7 +433,7 @@ else {
         $consLocal{'CXXFLAGS'} .= " -O2";
     }
     $consLocal{'LDFLAGS'} = "-shared `pkg-config --libs gthread-2.0 gtk+-2.0`";
-    $consLocal{'LDFLAGS'} .= " -fPIC";
+    $consLocal{'LDFLAGS'} .= " -fPIC -Wl,-z,defs -lmozalloc";
 
     # On Solaris, you have to use the -mimpure-text option if you are linking
     # a shared library that links to static libs (like scintilla.a).
@@ -429,9 +446,13 @@ else {
 
     #XXX have to add licensing code here as well.
     $consLocal->Program($pluginName,
+        "np_entry.cpp",
+        "npn_gate.cpp",
+        "npp_gate.cpp",
         "plugin.cxx",
         "nsSciMoz.cxx",
         "nsSciMozGtk.cxx",
+        "SciMozEvents.cxx",
         "sendscintilla.cxx",
     );
 }
@@ -460,12 +481,15 @@ if ($platform eq "win") {
 
     $CXXFLAGS .= ' -I./include';
     $CXXFLAGS .= ' -I./include/private';
-    $LDFLAGS .= " xpcom.lib nspr4.lib xpcom_core.lib SciLexer.lib ";
-    if ($mozVersionNumber >= 190) {
-        $LDFLAGS .= " xpcomglue.lib";
+    if ($mozVersionNumber > 199) {
+        $CXXFLAGS .= ' -DMOZ_NO_MOZALLOC';
+        $LDFLAGS .= " xpcomglue_s_nomozalloc.lib";
+    } else {
+        $LDFLAGS .= " xpcom_core.lib";
     }
+    $LDFLAGS .= " xpcom.lib nspr4.lib SciLexer.lib ";
     $LDFLAGS .= " /dll";
-    $CXXFLAGS .= " -DLAYERS -W3 -D_WINDOWS -DWIN32 -DMOZILLA_INTERNAL_API=1 ";
+    $CXXFLAGS .= " -DLAYERS -W3 -D_WINDOWS -DWIN32 ";
     $CXXFLAGS .= " -D_IMPL_NS_LAYOUT -DMOZ_VERSION=$mozVersionNumber";
     $CXXFLAGS .= " -DBUILDFLAVOUR=$buildFlavour";
     $CXXFLAGS .= " /FI$mozObjDir\\mozilla-config.h";
@@ -507,14 +531,14 @@ else {
     $consLocal{'CXXFLAGS'} .= " -DSCI_NAMESPACE=1 -DSCI_LEXER ".
                             " -DCONTAINER_HANDLES_EVENTS=1 -DINCLUDE_DEPRECATED_FEATURES".
                             " -DUSE_SYSTEM_CONSOLE=1 ".
-                            " -DMOZILLA_INTERNAL_API=1 -DMOZ_VERSION=$mozVersionNumber ";
+                            " -DMOZ_VERSION=$mozVersionNumber ";
 
     $consLocal{'CXX'} = "g++";
     $consLocal{'CC'} = "gcc";
-    $consLocal{'LIBS'} = "-bundle -lxpcom_core -lnspr4 -lplc4 -lplds4 -lscintilla ";
-    if ($mozVersionNumber == 190) {
-      $consLocal{'LIBS'} = "-lxpcomglue ".$consLocal{'LIBS'};
+    if ($mozVersionNumber >= 190) {
+      $consLocal{'LIBS'} = "-lxpcomglue_s ";
     }
+    $consLocal{'LIBS'} .= "-bundle -lxpcomglue_s -lxpcom -lnspr4 -lplc4 -lplds4 -lscintilla -lmozalloc ";
     if ($platform eq "darwin") {
         $consLocal{'LDFLAGS'} = "-framework Carbon -bundle";
         $consLocal{'CXXFLAGS'} .= " -DMACOSX=1 -DXP_MACOSX=1 -DNO_X11=1 ";
@@ -530,8 +554,9 @@ else {
     } else {
         $consLocal{'LDFLAGS'} = "-fPIC -shared";
     }
-    $consLocal{'CXXFLAGS'} .= " -fno-rtti -DLAYERS -Wall -Wno-non-virtual-dtor -DMOZILLA_INTERNAL_API=1 -D_IMPL_NS_LAYOUT";
+    $consLocal{'CXXFLAGS'} .= " -fno-rtti -DLAYERS -Wall -Wno-non-virtual-dtor -D_IMPL_NS_LAYOUT";
     $consLocal{'CXXFLAGS'} .= " -include $mozObjDir/mozilla-config.h -DMOZ_VERSION=$mozVersionNumber";
+    $consLocal{'CXXFLAGS'} .= " -fshort-wchar";
 
     if ($platform eq "solaris" or ($platform eq "darwin" and $architecture ne "x86")) {
 
@@ -567,3 +592,116 @@ else {
 $cons->InstallXpcomComponent($dllName);
 
 }
+
+###
+# Build and install the SciMoz IME helper
+$cons->Install($idlExportDir, 'koISciMozIMEHelper.idl');
+$cons->BuildAndInstallXpt('koISciMozIMEHelper.idl');
+$cons->BuildHeaderFromIdl('koISciMozIMEHelper.idl');
+
+my %consIME = $cons->copy();
+my $dllNameIME;
+$consIME{'CPPPATH'} = [
+    "$mozDevelDist/include", # for gecko 2.0
+    "$mozDevelDist/include/xpcom",
+    "$mozDevelDist/include/string", # not windows!?
+    "$mozSrc/mozilla/xpcom/ds",
+    "$mozDevelDist/include/nspr",
+    "$mozDevelDist/include/content",
+    "$mozDevelDist/include/widget",
+    "$mozDevelDist/include/dom",
+    "$mozDevelDist/include/gfx",
+    "$mozDevelDist/include/layout",
+    "$mozDevelDist/include/plugin",
+    "$scintillaBuildDir/include",
+    ".."];
+$consIME{'CXXFLAGS'} .=
+    " -DMOZ_VERSION=$mozVersionNumber" .
+    " -DMOZ_NO_MOZALLOC";
+if ($platform eq "win") {
+    $dllNameIME = 'koSciMozIMEHelper.dll';
+
+    my $LDFLAGS = $consIME{'LDFLAGS'}
+                  . " -dll";
+    my $LIBS = $consIME{'LIBS'};
+    if ($mozVersionNumber > 199) {
+        $LIBS .= " xpcomglue_s_nomozalloc.lib";
+    } else {
+        $LIBS .= " xpcomglue_s.lib";
+    }
+    $LIBS .= " nspr4.lib " .
+             " xpcom.lib" .
+             "";
+
+    foreach my $libDir (split(';', $mozLibPath)) {
+        $LDFLAGS .= " /libpath:$libDir";
+    }
+    $consIME{'CXXFLAGS'} .=
+        " -FI$mozObjDir\\mozilla-config.h" .
+        " ";
+
+    if ($buildType eq 'debug') {
+        $consIME{'CXXFLAGS'} .= " -Zi";
+        $consIME{'CXXFLAGS'} .= " -DDEBUG "; # for debugging
+    }
+
+    $consIME = new cons(%consIME);
+    $consIME->Module($dllNameIME,
+        "koSciMozIMEHelper.cpp",
+        "koSciMozIMEHelperModule.cpp",
+        qq(
+            link /nologo $LDFLAGS $LIBS /out:%0 %<
+        )
+    );
+}
+else {
+    $consIME{'CXXFLAGS'} .= " -fshort-wchar" .
+                            " -include $mozObjDir/mozilla-config.h ";
+    if ($platform eq "darwin") {
+        $consIME{'DYLD_LIBRARY_PATH'} = "$mozSrc/mozilla/dist/bin";
+        $consIME{'CXXFLAGS'} .= ' -DSCI_NAMESPACE';
+        # lots of warnings about ATSUI. We know.
+        $consIME{'CXXFLAGS'} .= ' -Wno-deprecated-declarations';
+        $dllNameIME = "koSciMozIMEHelper.dylib";
+        push @{$consIME{'CPPPATH'}}, (
+             "$scintillaBuildDir/macosx",
+             "$scintillaBuildDir/src");
+        $consIME{'LIBPATH'} = ["$mozBin",
+                               "$mozDevelDist/bin"];
+        $consIME{'LIBS'} .= " -Wl,-dead_strip " .
+                            " -Wl,-executable_path,$mozDevelDist/bin " .
+                            " -bundle " .
+                            " $mozDevelDist/lib/libxpcomglue_s_nomozalloc.a " .
+                            " -lxpcom -lnspr4 -lplc4 -lplds4 -lscintilla";
+    } else {
+        $dllNameIME = "koSciMozIMEHelper.so";
+
+        ## XXX PKG_CONFIG_PATH env var will point to pgkconfig dir for the platform
+        ## for GTK2 builds, we want two defines, GTK and GTK2
+        my $gtkConfig = "`pkg-config --cflags gtk+-2.0` -DGTK2 -DGTK2_XEMBED";
+
+        chomp($gtkConfig);
+        $consIME{'CXXFLAGS'} .= " -DGTK -W -Wall -Wno-non-virtual-dtor -fno-exceptions -fno-rtti ".
+            $gtkConfig;
+        $consIME{'CXXFLAGS'} .= " -DCONTAINER_HANDLES_EVENTS=1 -DINCLUDE_DEPRECATED_FEATURES";
+        # Add the global FLAGS.
+        $consIME{'CXXFLAGS'} .= $consIME{ENV}{'CXXFLAGS'};
+        $consIME{'CFLAGS'} = $consIME{ENV}{'CFLAGS'};
+        $consIME{'LIBS'} .=
+            " -lxpcomglue_s" .
+            " -lnspr4" .
+            " -lxpcom" .
+            "";
+        $consIME{'LIBPATH'} .= "$mozLibPath";
+        $consIME{'LDFLAGS'} .= " -shared";
+    }
+    if ($buildType eq 'debug') {
+        $consIME{'CXXFLAGS'} .= " -ggdb";
+        $consIME{'CXXFLAGS'} .= " -DDEBUG "; # for debugging
+    }
+    $consIME = new cons(%consIME);
+    $consIME->Program($dllNameIME,
+                      "koSciMozIMEHelper.cpp",
+                      "koSciMozIMEHelperModule.cpp");
+}
+$cons->InstallXpcomComponent($dllNameIME);

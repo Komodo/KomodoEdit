@@ -222,6 +222,8 @@ komodoCmdLineHandler.prototype = {
   _xpcom_categories: [{category: "command-line-handler", entry: "m-komodo"}]
 };
 
-function NSGetModule(compMgr, fileSpec) {
-  return XPCOMUtils.generateModule([komodoCmdLineHandler]);
+if ("generateNSGetFactory" in XPCOMUtils) {
+    var NSGetFactory = XPCOMUtils.generateNSGetFactory([komodoCmdLineHandler]);
+} else if ("generateNSGetModule" in XPCOMUtils) {
+    var NSGetModule = XPCOMUtils.generateNSGetModule([komodoCmdLineHandler]);
 }

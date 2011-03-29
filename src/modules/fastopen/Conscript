@@ -6,9 +6,12 @@ Import(
     'cons',
     'buildFlavour',
     'sdkDir',
+    'idlExportDir',
     'build',
     'mozBin',
+    'mozVersion',
     'unsiloedPythonExe',
+    'mozIdlIncludePath',
 );
 
 

@@ -39,21 +39,18 @@
  * -casper commandline handler; starts unittests.
  */
 
-const nsISupports           = Components.interfaces.nsISupports;
-const nsICategoryManager    = Components.interfaces.nsICategoryManager;
-const nsIComponentRegistrar = Components.interfaces.nsIComponentRegistrar;
-const nsICommandLine        = Components.interfaces.nsICommandLine;
-const nsICommandLineHandler = Components.interfaces.nsICommandLineHandler;
-const nsIFactory            = Components.interfaces.nsIFactory;
-const nsIModule             = Components.interfaces.nsIModule;
-const nsIWindowWatcher      = Components.interfaces.nsIWindowWatcher;
-const nsIObserver           = Components.interfaces.nsIObserver;
+const Cc = Components.classes;
+const Ci = Components.interfaces;
+Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+Components.utils.import("resource://gre/modules/Services.jsm");
+
 /*
  * Classes
  */
 
 
-const CasperConsoleHandler = {
+function CasperConsoleHandler() {}
+CasperConsoleHandler.prototype = {
     params: [],
     onload: null,
     eot: false,
@@ -61,16 +58,6 @@ const CasperConsoleHandler = {
     testsfile: null,
     timeoutafter: 1000 * 60 * 30 /* 30 mins */,
     windowHasOpened: false,
-    /* nsISupports */
-    QueryInterface : function clh_QI(iid) {
-        if (iid.equals(nsICommandLineHandler) ||
-            iid.equals(nsIObserver) ||
-            iid.equals(nsIFactory) ||
-            iid.equals(nsISupports))
-            return this;
-
-        throw Components.results.NS_ERROR_NO_INTERFACE;
-    },
 
     /* nsICommandLineHandler */
 
@@ -105,7 +92,7 @@ const CasperConsoleHandler = {
             cmdLine.removeArguments(0, cmdLine.length - 1);
             // we need to wait for the main window to startup before we
             // run any tests
-            this.windowWatcher.registerNotification(this);
+            Services.ww.registerNotification(this);
         } catch(e) {
             dump(e+"\n");
         }
@@ -116,32 +103,14 @@ const CasperConsoleHandler = {
                "       -testsfile           filepath contain the tests to be run.\n"+
                "       -logfile             save results to this logfile.\n\n"+
                "  Example: -casper test_something.js#mytestcase.childtest\n",
-
-    /* nsIFactory */
-
-    createInstance : function clh_CI(outer, iid) {
-        if (outer != null)
-            throw Components.results.NS_ERROR_NO_AGGREGATION;
-
-        return this.QueryInterface(iid);
-    },
-
-    lockFactory : function clh_lock(lock) {
-        /* no-op */
-    },
-
-    get windowWatcher() {
-        return Components.classes["@mozilla.org/embedcomp/window-watcher;1"]
-                        .getService(Components.interfaces.nsIWindowWatcher);
-    },
     
     observe: function(subject, topic, data)
     {
         switch(topic) {
         case "domwindowopened":
             try {
-                var domWindow = subject.QueryInterface(Components.interfaces.nsIDOMWindow);
-                this.windowWatcher.unregisterNotification(this);
+                var domWindow = subject.QueryInterface(Ci.nsIDOMWindow);
+                Services.ww.unregisterNotification(this);
                 // now we install an event listener and wait for the load event
                 var self = this;
 
@@ -157,19 +126,15 @@ const CasperConsoleHandler = {
                 domWindow.addEventListener("load", loadhandler, false);
 
                 // Add a ui-start handler to launch the casper tests.
-                var obSvc = Components.classes["@mozilla.org/observer-service;1"].
-                        getService(Components.interfaces.nsIObserverService);
-                obSvc.addObserver(this, "komodo-ui-started", false);
+                Services.obs.addObserver(this, "komodo-ui-started", false);
             } catch(e) {
                 dump(e+"\n");
             }
             break;
         case "komodo-ui-started":
             try {
-                var obSvc = Components.classes["@mozilla.org/observer-service;1"].
-                        getService(Components.interfaces.nsIObserverService);
-                obSvc.removeObserver(this, "komodo-ui-started");
-                this.handleLoad(this.windowWatcher.activeWindow);
+                Services.obs.removeObserver(this, "komodo-ui-started");
+                this.handleLoad(Services.ww.activeWindow);
             } catch(e) {
                 dump(e+"\n");
             }
@@ -178,22 +143,22 @@ const CasperConsoleHandler = {
     },
     
     forceQuit: function() {
-        var appStartup = Components.classes["@mozilla.org/toolkit/app-startup;1"]
-                                   .getService(Components.interfaces.nsIAppStartup);
-        appStartup.quit(appStartup.eForceQuit);
+        Cc["@mozilla.org/toolkit/app-startup;1"]
+          .getService(Ci.nsIAppStartup)
+          .quit(appStartup.eForceQuit);
     },
 
     handleLoad: function(domWindow) {
         try {
             if (this.testsfile) {
                 // Read in the tests that the user wants to run.
-                var file = Components.classes["@mozilla.org/file/local;1"].
-                                    createInstance(Components.interfaces.nsILocalFile);
+                var file = Cc["@mozilla.org/file/local;1"].
+                             createInstance(Ci.nsILocalFile);
                 file.initWithPath(this.testsfile);
-                var istream = Components.classes["@mozilla.org/network/file-input-stream;1"].
-                                        createInstance(Components.interfaces.nsIFileInputStream);
-                istream.init(file, 0x01, 0444, 0);
-                istream.QueryInterface(Components.interfaces.nsILineInputStream);
+                var istream = Cc["@mozilla.org/network/file-input-stream;1"].
+                                createInstance(Ci.nsIFileInputStream);
+                istream.init(file, 0x01, /*0444*/292, 0);
+                istream.QueryInterface(Ci.nsILineInputStream);
                 // read lines into array
                 var line_object = {}, lines = [], hasmore, paramline;
                 do {  
@@ -221,66 +186,16 @@ const CasperConsoleHandler = {
         } catch(e) {
             dump(e+"\n");
         }
-    }
-};
+    },
 
-const clh_contractID = "@activestate.com/casper/casper-clh;1";
-const clh_CID = Components.ID("{C37134CD-A4B0-11DA-BA30-000D935D3368}");
-const clh_category = "c-casper";
-
-const CasperConsoleHandlerModule = {
     /* nsISupports */
-
-    QueryInterface : function mod_QI(iid) {
-        if (iid.equals(nsIModule) ||
-            iid.equals(nsISupports))
-            return this;
-
-        throw Components.results.NS_ERROR_NO_INTERFACE;
-    },
-
-    /* nsIModule */
-
-    getClassObject : function mod_gch(compMgr, cid, iid) {
-        if (cid.equals(clh_CID))
-            return CasperConsoleHandler.QueryInterface(iid);
-
-        throw Components.results.NS_ERROR_NOT_REGISTERED;
-    },
-
-    registerSelf : function mod_regself(compMgr, fileSpec, location, type) {
-        compMgr.QueryInterface(nsIComponentRegistrar);
-
-        compMgr.registerFactoryLocation(clh_CID,
-                                        "CasperConsoleHandler",
-                                        clh_contractID,
-                                        fileSpec,
-                                        location,
-                                        type);
-
-        var catMan = Components.classes["@mozilla.org/categorymanager;1"]
-                               .getService(nsICategoryManager);
-        catMan.addCategoryEntry("command-line-handler",
-                                clh_category,
-                                clh_contractID, true, true);
-    },
-
-    unregisterSelf : function mod_unreg(compMgr, location, type) {
-        compMgr.QueryInterface(nsIComponentRegistrar);
-
-        compMgr.unregisterFactoryLocation(clh_CID, location);
-
-        var catMan = Components.classes["@mozilla.org/categorymanager;1"]
-                               .getService(nsICategoryManager);
-        catMan.deleteCategoryEntry("command-line-handler", clh_category);
-    },
-
-    canUnload : function (compMgr) {
-        return true;
-    }
+    QueryInterface: XPCOMUtils.generateQI([Ci.nsICommandLineHandler,
+                                           Ci.nsIObserver]),
+    classID: Components.ID('{C37134CD-A4B0-11DA-BA30-000D935D3368}'),
+    classDescription: 'CasperConsoleHandler',
+    contractID: '@activestate.com/casper/casper-clh;1',
+    _xpcom_categories: [{category: 'command-line-handler',
+                         entry: 'c-casper'}]
 };
 
-/* module initialisation */
-function NSGetModule(comMgr, fileSpec) {
-    return CasperConsoleHandlerModule;
-}
+var NSGetFactory = XPCOMUtils.generateNSGetFactory([CasperConsoleHandler]);

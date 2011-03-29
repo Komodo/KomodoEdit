@@ -51,6 +51,7 @@ class koJavaScriptLanguage(KoLanguageBase):
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{0DD83914-E2F6-478a-A77E-7307833A7601}"
+    _reg_categories_ = [("komodo-language", name)]
 
     shebangPatterns = [
         re.compile(r'\A#!.*(node|javascript).*$', re.I | re.M),
@@ -117,6 +118,7 @@ class koJSONLanguage(koJavaScriptLanguage):
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{879fa591-80f4-4f6c-b571-a7999d97a8cd}"
+    _reg_categories_ = [("komodo-language", name)]
 
     shebangPatterns = [
         re.compile(r'\A#!.*json.*$', re.I | re.M),
@@ -135,8 +137,3 @@ class koJSONLanguage(koJavaScriptLanguage):
     }
 }
 """
-
-
-def registerLanguage(registery):
-    registery.registerLanguage(koJavaScriptLanguage())
-    registery.registerLanguage(koJSONLanguage())

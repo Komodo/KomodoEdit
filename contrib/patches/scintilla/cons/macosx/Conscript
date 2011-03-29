@@ -259,6 +259,8 @@ map { _addLexer($cons, $_); } @lexers;
 
 %consLocal = $cons->copy();
 $consLocal{ENV}{'CXXFLAGS'} .= " $makeFlags";
+# scintilla has no visibility markers, so don't default to hidden
+$consLocal{ENV}{'CXXFLAGS'} =~ s/-fvisibility=hidden//;
 $consLocal{ENV}{'LDFLAGS'} .= " $makeFlags";
 $consLocal = new cons(%consLocal);
 

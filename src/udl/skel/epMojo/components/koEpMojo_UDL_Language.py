@@ -67,6 +67,7 @@ class koEpMojoLanguage(koHTMLLanguageBase):
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" % name
     _reg_clsid_ = "{ec34f812-d8c3-4b55-96b5-0601e659208a}"
+    _reg_categories_ = [("komodo-language", name)]
     defaultExtension = '.ep'
     searchURL = "http://mojolicio.us/perldoc"
 

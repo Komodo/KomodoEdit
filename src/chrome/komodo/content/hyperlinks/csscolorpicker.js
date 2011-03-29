@@ -194,7 +194,7 @@ ko.hyperlinks.ColorPickerHandler.prototype.colorToHex = function(color) {
     span.style.color = color;
     var color_rgb = window.getComputedStyle(span, null).color;
     var color_hex = ko.hyperlinks.ColorPickerHandler.rgb2hex(color_rgb);
-    delete span;
+    span = null;
     return color_hex;
 }
 

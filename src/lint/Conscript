@@ -43,9 +43,12 @@ Import(
     'mozIdlIncludePath',
     'idlExportDir',
     'komodoPythonUtilsDir',
+    'unsiloedPythonExe',
     'siloedPython',
     'supportDir',
+    'mozVersion',
     'sdkDir',
+    'mozSrc',
     'platform',
     'havePy2to3',
 );

@@ -107,7 +107,7 @@ void SciMoz::Resize() {
 #endif
 }
 
-NS_IMETHODIMP SciMoz::_DoButtonUpDown(PRBool up, PRInt32 x, PRInt32 y, PRUint16 button, PRUint64 timeStamp, PRBool bShift, PRBool bCtrl, PRBool bAlt) {
+NS_IMETHODIMP SciMoz::_DoButtonUpDown(PRBool up, PRInt32 x, PRInt32 y, PRUint16 button, PRBool bShift, PRBool bCtrl, PRBool bAlt) {
 	long lpoint = LONGFROMTWOSHORTS(x,y);
 	UINT msg;
 	switch (button) {
@@ -479,7 +479,7 @@ LRESULT CALLBACK SciMoz::ChildWndProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM
 
 /* readonly attribute boolean isOwned; */
 NS_IMETHODIMP SciMoz::GetIsOwned(PRBool *_ret) {
-	SCIMOZ_CHECK_THREAD("GetIsOwned");
+	SCIMOZ_CHECK_THREAD("GetIsOwned", NS_ERROR_FAILURE);
 	*_ret = wEditor && wMain && !isClosed
 			&& ::GetParent(wEditor) == wMain;
 	return NS_OK;

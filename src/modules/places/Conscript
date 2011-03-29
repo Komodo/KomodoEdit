@@ -41,11 +41,13 @@ Import(
     'productType',
     'buildFlavour',
     'sdkDir',
+    'idlExportDir',
     'build',
     'mozBin',
     'unsiloedPythonExe',
     'mozVersion',
     'mozExtensionDir',
+    'mozIdlIncludePath',
 );
 
 $cons->KoExt("koinstall");

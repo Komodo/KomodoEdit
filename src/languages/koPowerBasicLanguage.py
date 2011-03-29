@@ -40,15 +40,13 @@ from koLanguageServiceBase import *
 
 # Power Basic at http://www.powerbasic.com/
 
-def registerLanguage(registery):
-    registery.registerLanguage(koPowerBasicLanguage())
-    
 class koPowerBasicLanguage(KoLanguageBase):
     name = "PowerBasic"
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{0bc5c569-6546-45ec-8452-4636d326e0f7}"
+    _reg_categories_ = [("komodo-language", name)]
 
     _stateMap = {
         'default': ('SCE_B_DEFAULT',),

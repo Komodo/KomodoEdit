@@ -44,6 +44,7 @@ class koOthersLanguage(KoLanguageBase):
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{b4a008ac-1b93-42d3-9365-e43b4a999e10}"
+    # don't register in the komodo-language category, this is not a language
 
     defaultExtension = None
     commentDelimiterInfo = {}

@@ -86,7 +86,7 @@ void SciMoz::Resize() {
 	HIViewSetFrame(wEditor, &boundsRect);
 }
 
-NS_IMETHODIMP SciMoz::_DoButtonUpDown(PRBool up, PRInt32 x, PRInt32 y, PRUint16 button, PRUint64 timeStamp, PRBool bShift, PRBool bCtrl, PRBool bAlt) {
+NS_IMETHODIMP SciMoz::_DoButtonUpDown(PRBool up, PRInt32 x, PRInt32 y, PRUint16 button, PRBool bShift, PRBool bCtrl, PRBool bAlt) {
 	HIViewRef view;
 	HIPoint location;
 	UInt32 keyFlags = 0;
@@ -328,6 +328,17 @@ nsresult SciMoz::PlatformResetWindow() {
 	return NS_OK;
 }
 
+void AbortComposing(NPP npp, NPObject* object) {
+	NPVariant dummyResult = { NPVariantType_Void };
+	NPN_Invoke(npp,
+		   object,
+		   NPN_GetStringIdentifier("abortComposing"),
+		   nsnull,
+		   0,
+		   &dummyResult);
+	NPN_ReleaseVariantValue(&dummyResult);
+}
+
 int16 SciMoz::PlatformHandleEvent(void *ev) {
 	/* UNIX Plugins do not use HandleEvent */
 	
@@ -344,14 +355,8 @@ int16 SciMoz::PlatformHandleEvent(void *ev) {
 		break;
 	case mouseDown:
 		//fprintf(stderr, "SciMoz::PlatformHandleEvent mouseDown h %d v %d\n",event->where.h, event->where.v);
-		EndCompositing();
+		AbortComposing(mPlugin->GetNPP(), mIMEHelper);
 		if (scintilla->MouseDown(event) == noErr) return true;
-		/* Always return true here - otherwise the event will continue
-		   on and the plugin will get the focus (not what we want), we
-		   want to keep the focus on the XUL element(s). This code links
-		   together with the mozilla "plugin.patch" code.
-		*/
-		return true;
 		break;
 	case mouseUp:
 		//fprintf(stderr, "SciMoz::PlatformHandleEvent mouseUp h %d v %d\n",event->where.h, event->where.v);
@@ -363,7 +368,7 @@ int16 SciMoz::PlatformHandleEvent(void *ev) {
 		break;
 	case NPEventType_LoseFocusEvent:
 		//fprintf(stderr, "SciMoz::PlatformHandleEvent LoseFocusEvent\n");
-		EndCompositing();
+		AbortComposing(mPlugin->GetNPP(), mIMEHelper);
 		break;
 	case NPEventType_GetFocusEvent:
 		//fprintf(stderr, "SciMoz::PlatformHandleEvent GetFocusEvent\n");
@@ -426,7 +431,7 @@ int16 SciMoz::PlatformHandleEvent(void *ev) {
 
 /* readonly attribute boolean isOwned; */
 NS_IMETHODIMP SciMoz::GetIsOwned(PRBool *_ret) {
-	SCIMOZ_CHECK_THREAD("GetIsOwned");
+	SCIMOZ_CHECK_THREAD("GetIsOwned", NS_ERROR_FAILURE);
 	*_ret = wEditor && wMain && !isClosed;
 	return NS_OK;
 }

@@ -38,15 +38,13 @@ from xpcom import components, ServerException
 
 from koLanguageServiceBase import *
 
-def registerLanguage(registery):
-    registery.registerLanguage(koIDLLanguage())
-
 class koIDLLanguage(KoLanguageBase):
     name = "IDL"
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{E9A451B7-E13D-4d71-883C-93BD457A3D9F}"
+    _reg_categories_ = [("komodo-language", name)]
 
     accessKey = 'i'
     defaultExtension = ".idl"

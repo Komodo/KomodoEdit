@@ -38,9 +38,6 @@ from xpcom import components, ServerException
 
 from koLanguageServiceBase import *
 
-def registerLanguage(registery):
-    registery.registerLanguage(koCSharpLanguage())
-
 
 class koCSharpLanguage(KoLanguageBase):
     name = "C#"
@@ -48,6 +45,7 @@ class koCSharpLanguage(KoLanguageBase):
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{BC6A9F39-650F-48d4-B286-4D569DDB1F43}"
+    _reg_categories_ = [("komodo-language", name)]
 
     accessKey='#'
     commentDelimiterInfo = {

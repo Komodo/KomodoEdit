@@ -3,8 +3,6 @@
 #include "nsXPCOM.h"
 #include "nsCOMPtr.h"
 
-#include "nsIPref.h"
-
 #include "jsapi.h"
 #include "jsdbgapi.h"
 #include "prprf.h"
@@ -15,7 +13,11 @@
 #include "nsIXPConnect.h"
 #include "nsPIDOMWindow.h"
 
+#if MOZ_VERSION < 199
 #include "nsIGenericFactory.h"
+#else
+#include "mozilla/ModuleUtils.h"
+#endif
 #include "nsIDocShell.h"
 #include "nsIDOMWindow.h"
 
@@ -58,7 +60,7 @@ private:
   nsIDOMWindow *GetWindowFromCaller();
 };
 
-NS_IMPL_ISUPPORTS1(koContentUtils, koIContentUtils)
+NS_IMPL_THREADSAFE_ISUPPORTS1(koContentUtils, koIContentUtils)
 
 koContentUtils::koContentUtils()
 {
@@ -210,6 +212,7 @@ NS_IMETHODIMP koContentUtils::GetWindowFromCaller(nsIDOMWindow **callingDoc)
 
 NS_GENERIC_FACTORY_CONSTRUCTOR(koContentUtils)
 
+#if MOZ_VERSION < 199
 static nsModuleComponentInfo components[] =
 {
   { 
@@ -223,3 +226,34 @@ static nsModuleComponentInfo components[] =
 };
 
 NS_IMPL_NSGETMODULE("koContentUtilsModule", components)
+#else
+
+NS_DEFINE_NAMED_CID(KO_CONTENT_UTILS_CID);
+
+static const mozilla::Module::CIDEntry kModuleCIDs[] = {
+    { &kKO_CONTENT_UTILS_CID, true, NULL, koContentUtilsConstructor },
+    { NULL }
+};
+
+static const mozilla::Module::ContractIDEntry kModuleContracts[] = {
+    { KO_CONTENT_UTILS_CONTRACTID, &kKO_CONTENT_UTILS_CID },
+    { NULL }
+};
+
+static const mozilla::Module::CategoryEntry kModuleCategories[] = {
+    { NULL }
+};
+
+static const mozilla::Module kModule = {
+    mozilla::Module::kVersion,
+    kModuleCIDs,
+    kModuleContracts,
+    kModuleCategories
+};
+
+// The following line implements the one-and-only "NSModule" symbol exported from this
+// shared library.
+NSMODULE_DEFN(koContentUtilsModule) = &kModule;
+
+
+#endif

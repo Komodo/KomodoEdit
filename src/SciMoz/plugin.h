@@ -38,7 +38,8 @@
 #ifndef __PLUGIN_H__
 #define __PLUGIN_H__
 
-#define MOZILLA_INTERNAL_API 1
+#include "npapi.h"
+#include <npruntime.h>
 #include "pluginbase.h"
 #include "nsSciMoz.h"
 
@@ -63,14 +64,64 @@ public:
 
   /*nsScriptablePeer*/
   SciMoz* getScriptablePeer();
+  NPObject* getScriptableObject();
+ 
+  // XXX Mook: this needs to go somewhere better
+  NPP GetNPP() { return mInstance; }
 
 private:
   NPP mInstance;
   NPBool mInitialized;
-  SciMoz * mScriptablePeer;
+  SciMoz * mSciMoz;
+  NPObject * mScriptableObject;
 
 public:
   char mString[128];
 };
+
+
+class SciMozScriptableNPObject : public NPObject
+{
+protected:
+    // Class member functions that do the real work
+    void Deallocate();
+    void Invalidate();
+    bool HasMethod(NPIdentifier name);
+    bool Invoke(NPIdentifier name, const NPVariant *args, uint32_t argCount, NPVariant *result);
+    bool InvokeDefault(const NPVariant *args, uint32_t argCount, NPVariant *result);
+    bool HasProperty(NPIdentifier name);
+    bool GetProperty(NPIdentifier name, NPVariant *result);
+    bool SetProperty(NPIdentifier name, const NPVariant *value);
+    bool RemoveProperty(NPIdentifier name);
+    bool Enumerate(NPIdentifier **identifier, uint32_t *count);
+    bool Construct(const NPVariant *args, uint32_t argCount, NPVariant *result);
+public:
+    SciMozScriptableNPObject(NPP npp);
+    ~SciMozScriptableNPObject();
+    static NPObject* Allocate(NPP npp, NPClass *aClass);
+    static SciMozScriptableNPObject* NewScriptableSciMoz(NPP npp, SciMoz * scimoz);
+
+    /////////////////////////////
+    // Static NPObject methods //
+    /////////////////////////////
+    static void _Deallocate(NPObject *npobj);
+    static void _Invalidate(NPObject *npobj);
+    static bool _HasMethod(NPObject *npobj, NPIdentifier name);
+    static bool _Invoke(NPObject *npobj, NPIdentifier name, const NPVariant *args, uint32_t argCount, NPVariant *result);
+    static bool _InvokeDefault(NPObject *npobj, const NPVariant *args, uint32_t argCount, NPVariant *result);
+    static bool _HasProperty(NPObject * npobj, NPIdentifier name);
+    static bool _GetProperty(NPObject *npobj, NPIdentifier name, NPVariant *result);
+    static bool _SetProperty(NPObject *npobj, NPIdentifier name, const NPVariant *value);
+    static bool _RemoveProperty(NPObject *npobj, NPIdentifier name);
+    static bool _Enumerate(NPObject *npobj, NPIdentifier **identifier, uint32_t *count);
+    static bool _Construct(NPObject *npobj, const NPVariant *args, uint32_t argCount, NPVariant *result);
+
+    static NPClass _npclass;
+
+protected:
+    NPP m_Instance;
+    SciMoz * mSciMoz;
+};
+
 
 #endif // __PLUGIN_H__

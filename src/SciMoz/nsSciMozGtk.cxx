@@ -53,7 +53,6 @@ NS_IMETHODIMP SciMoz::_DoButtonUpDown(PRBool up,
                                       PRInt32 /* x */,
                                       PRInt32 /* y */,
                                       PRUint16 button,
-                                      PRUint64 /* timeStamp */,
                                       PRBool /* bShift */,
                                       PRBool /* bCtrl */,
                                       PRBool /* bAlt */)
@@ -302,14 +301,16 @@ NS_IMETHODIMP SciMoz::EndDrop()
 
 /* readonly attribute boolean inDragSession; */
 NS_IMETHODIMP SciMoz::GetInDragSession(PRBool *_ret) {
-	SCIMOZ_CHECK_VALID("GetInDragSession");
+	SCIMOZ_CHECK_THREAD("GetIsOwned", NS_ERROR_FAILURE);
+	SCIMOZ_CHECK_ALIVE("GetInDragSession", NS_ERROR_FAILURE);
 	*_ret = 0;
 	return NS_OK;
 }
 
 /* readonly attribute boolean isTracking */
 NS_IMETHODIMP SciMoz::GetIsTracking(PRBool *_ret) {
-	SCIMOZ_CHECK_VALID("GetIsTracking");
+	SCIMOZ_CHECK_THREAD("GetIsOwned", NS_ERROR_FAILURE);
+	SCIMOZ_CHECK_ALIVE("GetIsTracking", NS_ERROR_FAILURE);
 	*_ret = 0;
 	return NS_OK;
 }

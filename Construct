@@ -274,6 +274,11 @@ my %environ = (
 if ($platform eq "linux") {
     $environ{CFLAGS} .= " -fPIC";
     $environ{CXXFLAGS} .= " -fPIC";
+    #$environ{LDFLAGS} .= " -Wl,-z,defs";
+}
+elsif ($platform eq "darwin") {
+    $environ{CFLAGS} .= " -fvisibility=hidden";
+    $environ{CXXFLAGS} .= " -fvisibility=hidden";
 }
 
 if ($withSymbols) {
@@ -386,7 +391,7 @@ Build(
     "$build/install/Conscript",
     "$build/languages/Conscript",
     "$build/lint/Conscript",
-    "$build/lint/CSS/Conscript",
+    #"$build/lint/CSS/Conscript",
     "$build/lint/javascript/Conscript",
     "$build/lint/perl/Conscript",
     "$build/main/Conscript",
@@ -592,6 +597,9 @@ sub cons::KoExtSourceDevInstall {
         "$sdkDir/bin/koext$scriptExt",
         "$sdkDir/bin/xpidl$exeExt",
         "$sdkDir/pylib/koextlib.py",
+        "$sdkDir/pylib/chromereg.py",
+        "$sdkDir/pylib/chromereg.py",
+        "$sdkDir/pylib/chromereg.py",
         "$sdkDir/pylib/cmdln.py",
         "$sdkDir/pylib/preprocess.py",
         "$build/ranregxpcom.consjunk",
@@ -738,7 +746,7 @@ sub cons::BuildXpt {
 }
 
 sub cons::BuildAndInstallXpt {
-    my ($env, $idlFileName) = @_;
+    my ($env, $idlFileName) = (shift, shift);
 
     # Die if required elements are not defined.
     defined($sdkDir) or die "*** sdkDir is not defined for $idlFileName\n";
@@ -752,15 +760,42 @@ sub cons::BuildAndInstallXpt {
 
     my $idlBaseName = basename($idlFileName);
     $env->Install("$sdkDir/idl", $idlFileName);
+    my @idlDeps = $env->GenerateIdlDependencies($idlFileName, $idlExportDir, $mozIdlIncludePath);
+    $env->Depends("$idlExportDir/$idlBaseName", @idlDeps);
+    $env->Install("$idlExportDir", $idlFileName);
 
-    # make the typelib dependent on registration with the XPCOM registry
-    # - this is necessary because the components require the typelib for
-    #   registration
-    # - XXX I don't know if this will cause reregistration if the typelibs
-    #   change but the implementations do not, nor if this is even required
-    #   or useful
-    $env->Depends($ranRegxpcomStateFileName, "$mozComponentsDir/$xptBaseName");
-    $env->Depends($ranRegxpcomStateFileName, "$sdkDir/idl/$idlBaseName");
+    defined($mozVersion) or \
+        die "When building rule for $idlFileName: Mozilla version unknown, please Import 'mozVersion'";
+    if ($mozVersion > 1.99) {
+        defined($unsiloedPythonExe) or \
+            die "When building rule for $idlFileName: Unsiloed Python not found, please Import 'unsiloedPythonExe'";
+        defined($mozComponentsDir) or \
+            die "When building rule for $idlFileName: Component directory not found, please Import 'mozComponentsDir'";
+        $env->Command("$xptFileName.manifest.landmark",
+                      "$mozComponentsDir/$xptBaseName",
+                      "$mozComponentsDir/komodo.manifest",
+                      "$sdkDir/pylib/chromereg.py",
+                      qq(
+                        $unsiloedPythonExe %3 %2 %1
+                        touch %>
+                      ));
+
+        # make sure to export the file to the sdk
+        # depending on $ranRegxpcomStateFileName here is wrong, but is used
+        # to make sure all the koext consumers have a flag for it
+        $env->Depends($ranRegxpcomStateFileName, "$sdkDir/idl/$idlBaseName");
+        $env->Depends($ranRegxpcomStateFileName, "$xptFileName.manifest.landmark");
+    } else {
+        # make the typelib dependent on registration with the XPCOM registry
+        # - this is necessary because the components require the typelib for
+        #   registration
+        # - XXX I don't know if this will cause reregistration if the typelibs
+        #   change but the implementations do not, nor if this is even required
+        #   or useful
+        $env->Depends($ranRegxpcomStateFileName, "$mozComponentsDir/$xptBaseName");
+        $env->Depends($ranRegxpcomStateFileName, "$sdkDir/idl/$idlBaseName");
+    }
+
 }
 
 
@@ -1123,14 +1158,84 @@ sub cons::DependsOnRegxpcom {
 
 sub cons::InstallXpcomComponent {
     # Install the component in the proper components directory and register it.
-    my ($env, $fileName) = @_;
+    my ($env, $fileName) = (shift, shift);
     # die if required elements are not defined
     defined($mozComponentsDir) or
         die "*** mozComponentsDir is not defined for $fileName\n";
     # install in the Mozilla XPCOM components dir
     $env->Install($mozComponentsDir, $fileName);
-    # make the component dependent on registration with the XPCOM registry
-    $env->DependsOnRegxpcom("$mozComponentsDir/" . basename($fileName));
+    defined($mozVersion) or \
+        die "When building rule for $fileName: Mozilla version unknown, please Import 'mozVersion'";
+    if ($mozVersion > 1.99) {
+        if ($fileName =~ /\.py$/) {
+            defined($unsiloedPythonExe) or \
+                die "When building rule for $fileName: Unsiloed Python not found, please Import 'unsiloedPythonExe'";
+            defined($sdkDir) or \
+                die "When building rule for $fileName: SDK directory not found, please Import 'sdkDir'";
+            $env->Command("$fileName.manifest.landmark",
+                          $fileName,
+                          "$mozComponentsDir/komodo.manifest",
+                          "$sdkDir/pylib/chromereg.py",
+                          qq(
+                            $unsiloedPythonExe %3 %2 %1
+                            touch %>
+                          ));
+            # just mark this as "required" :(
+            $env->DependsOnRegxpcom("$fileName.manifest.landmark");
+        }
+        elsif ($fileName =~ /\.js$/) {
+            use Data::Dumper;
+            # JS components are hard (since we can't parse it manually)
+            # expect more arguments in @_: a hash of contractid -> cid, plus
+            # an arbitrary number of [category, entry, value] category entries
+            defined($unsiloedPythonExe) or \
+                die "When building rule for $fileName: Unsiloed Python not found, please Import 'unsiloedPythonExe'";
+            defined($mozSrc) or \
+                die "When building rule for $fileName: Mozilla source not found, please Import 'mozSrc'";
+            my $contracts = shift;
+            defined($contracts) or \
+                die "When building rule for $fileName: no contractid / cid defined";
+            my @commands = ();
+            while (my ($contractid, $cid) = each %$contracts) {
+                push @commands, qq(
+                    $unsiloedPythonExe %3 %2 "contract $contractid $cid"
+                    $unsiloedPythonExe %3 %2 "component $cid $fileName"
+                );
+            }
+            while (my $catEntry = shift) {
+                my ($category, $entry, $value) = @$catEntry;
+                push @commands, qq(
+                    $unsiloedPythonExe %3 %2 "category $category $entry $value"
+                );
+            }
+            my @deps = ("$fileName.manifest.landmark",
+                        "$fileName",
+                        "$mozComponentsDir/komodo.manifest",
+                        "$mozSrc/mozilla/config/buildlist.py");
+            push @commands, "touch %>";
+            push @deps, join("\n", @commands);
+            $env->Command(@deps);
+        }
+        elsif ($fileName =~ /\.(dll|so|dylib)$/) {
+            defined($unsiloedPythonExe) or \
+                die "When building rule for $fileName: Unsiloed Python not found, please Import 'unsiloedPythonExe'";
+            defined($sdkDir) or \
+                die "When building rule for $fileName: SDK directory not found, please Import 'sdkDir'";
+            $env->Command("$fileName.manifest.landmark",
+                          "$fileName",
+                          "$mozComponentsDir/komodo.manifest",
+			  "$sdkDir/pylib/chromereg.py",
+                          qq(
+                            $unsiloedPythonExe %3 %2 %1
+                            touch %>
+                          ));
+            # just mark this as "required" :(
+            $env->DependsOnRegxpcom("$fileName.manifest.landmark");
+        }
+    } else {
+        # make the component dependent on registration with the XPCOM registry
+        $env->DependsOnRegxpcom("$mozComponentsDir/" . basename($fileName));
+    }
 }
 
 sub cons::InstallXpcomModule {

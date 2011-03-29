@@ -45,6 +45,7 @@ import re
 from ludditelib import parser, gen, constants
 from ludditelib.common import LudditeError, guid_pat, norm_guid, \
                               generate_guid
+import chromereg # see __init__.py for finding where that is
 
 _log = logging.getLogger("luddite.commands")
 
@@ -327,13 +328,19 @@ def deprecated_package(language_name, version=None, creator=None,
     fout.write(install_rdf)
     fout.close()
 
-    # Create the chrome.manifest file, if necessary. (Empty because we don't
-    # install skin, locales or chrome, but should still have it).
+    # Register components
     chrome_manifest_path = join(build_dir, "chrome.manifest")
-    if not exists(chrome_manifest_path):
-        log.info("create `%s'", chrome_manifest_path)
-        fout = open(chrome_manifest_path, 'w')
-        fout.close()
+    for dirpath, dirnames, filenames in os.walk(join(build_dir, "components")):
+        for name in filenames:
+            if name.endswith(".py"):
+                chromereg.register_file(join(dirpath, name),
+                                        chrome_manifest_path,
+                                        "components/")
+            elif name == ".consign":
+                pass # komodo build artifact; these can be safely ignored
+            else:
+                log.warn("Unexpected file '%s'; consider using koext.py" %
+                    join(dirpath, name))
 
     # Create the xpi.
     xpi_name = "%s-%s-ko.xpi" % (codename, version)

@@ -38,15 +38,13 @@ from xpcom import components, ServerException
 
 from koLanguageServiceBase import *
 
-def registerLanguage(registery):
-    registery.registerLanguage(koLuaLanguage())
-    
 class koLuaLanguage(KoLanguageBase):
     name = "Lua"
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{D3C94E8B-B75C-4fa4-BC4D-986F68ACD33C}"
+    _reg_categories_ = [("komodo-language", name)]
 
     defaultExtension = ".lua"
     commentDelimiterInfo = {

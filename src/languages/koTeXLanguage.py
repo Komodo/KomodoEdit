@@ -38,17 +38,13 @@ from xpcom import components, ServerException
 
 from koLanguageServiceBase import *
 
-def registerLanguage(registery):
-    registery.registerLanguage(koTeXLanguage())
-    registery.registerLanguage(koLaTeXLanguage())
-    registery.registerLanguage(koConTeXLanguage())
-    
 class koTeXLanguage(KoLanguageBase):
     name = "TeX"
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{5b8a7183-313e-4119-9649-347dce868e7d}"
+    _reg_categories_ = [("komodo-language", name)]
 
     _stateMap = {
         'default': ('SCE_TEX_DEFAULT',),
@@ -268,6 +264,7 @@ class koLaTeXLanguage(koTeXLanguage):
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{a57119f8-6f19-40de-8e9e-cb0d2c139e32}"
+    _reg_categories_ = [("komodo-language", name)]
 
     def get_lexer(self):
         if self._lexer is None:
@@ -283,6 +280,7 @@ class koConTeXLanguage(koLaTeXLanguage):
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{2735fba9-940e-486d-825c-3d0bff0c709d}"
+    _reg_categories_ = [("komodo-language", name)]
     defaultExtension = None
 
     def get_lexer(self):

@@ -38,15 +38,13 @@ from xpcom import components, ServerException
 
 from koLanguageServiceBase import *
 
-def registerLanguage(registery):
-    registery.registerLanguage(koGui4CliLanguage())
-
 class koGui4CliLanguage(KoLanguageBase):
     name = "Gui4Cli"
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{2d7a3802-5582-4c58-b7b1-bcfb88f3107b}"
+    _reg_categories_ = [("komodo-language", name)]
 
     _stateMap = {
         'default': ('SCE_GC_DEFAULT',),

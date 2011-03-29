@@ -44,6 +44,9 @@ Import(
     'mozIdlIncludePath',
     'idlExportDir',
     'sdkDir',
+    'mozSrc',
+    'mozVersion',
+    'unsiloedPythonExe',
 );
 
 

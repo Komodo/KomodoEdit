@@ -38,10 +38,6 @@ from xpcom import components, ServerException
 
 from koLanguageServiceBase import *
 
-def registerLanguage(registery):
-    registery.registerLanguage(koVisualBasicLanguage())
-    registery.registerLanguage(koVBScriptLanguage())
-
 # list obtained from http://msdn.microsoft.com/library/default.asp?url=/library/en-us/vblr7/html/vaorivblangkeywordsall.asp
 keywords =  """addhandler addressof alias and
                 andalso  ansi as assembly 
@@ -85,6 +81,7 @@ class koVisualBasicLanguage(KoLanguageBase):
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{7B83199C-6C30-43ef-9087-329831FC6425}"
+    _reg_categories_ = [("komodo-language", name)]
 
     defaultExtension = ".vb"
     commentDelimiterInfo = {
@@ -111,6 +108,7 @@ class koVBScriptLanguage(koVisualBasicLanguage):
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{113d3a95-0488-4173-83ce-e51fe19c4c95}"
+    _reg_categories_ = [("komodo-language", name)]
 
     defaultExtension = ".vbs"
     

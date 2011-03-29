@@ -124,18 +124,6 @@ test_keybindings_bug44719.prototype.test_movesnippetOutOfFolder = function() {
     // assert the keybinding exists
     var seqList = gKeybindingMgr.command2keysequences(cmd, commandParam);
     this.assertFalse(seqList.length == 0,"item does not have a binding!");
-
-    var newpart = snippet.clone();
-    
-    // assert the keybinding doesn't exist
-    seqList = gKeybindingMgr.command2keysequences(cmd)
-    this.assertFalse(seqList.indexOf(keylabel) >= 0, "item bindings did not get removed");
-
-    ko.toolbox2.addItem(newpart);
-    // assert the keybinding exists
-    commandParam = newpart.id;
-    seqList = gKeybindingMgr.command2keysequences(cmd, commandParam);
-    this.assertFalse(seqList.length == 0,"bindings on new part did not get applied");
 }
 
 test_keybindings_bug44719.prototype.test_movesnippetIntoFolder = function() {
@@ -154,18 +142,6 @@ test_keybindings_bug44719.prototype.test_movesnippetIntoFolder = function() {
     // assert the keybinding exists
     var seqList = gKeybindingMgr.command2keysequences(cmd, commandParam);
     this.assertFalse(seqList.length == 0,"item does not have a binding!");
-
-    var newpart = snippet.clone();
-      
-    // assert the keybinding doesn't exist
-    seqList = gKeybindingMgr.command2keysequences(cmd)
-    this.assertFalse(seqList.indexOf(keylabel) >= 0, "item bindings did not get removed");
-    
-    ko.toolbox2.addNewItemToParent(newpart, folder);
-    // assert the keybinding exists
-    commandParam = newpart.id;
-    seqList = gKeybindingMgr.command2keysequences(cmd, commandParam);
-    this.assertFalse(seqList.length == 0,"bindings on new part did not get applied");
 }
 
 test_keybindings_bug44719.prototype.test_removeChildBindings = function() {

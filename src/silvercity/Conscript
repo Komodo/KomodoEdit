@@ -57,7 +57,18 @@ if ($platform eq "win") {
 
 
 my $landmark = "$komodoPythonUtilsDir/SilverCity/__init__.py";
-$cons->Command(
+my $debugFlags = $buildType eq "debug" ? "--debug" : "";
+my $consLocal = $cons;
+if ($platform eq "darwin") {
+    my %consLocal = $cons->copy();
+    $consLocal{'CFLAGS'} =~ s/-fvisibility=hidden//;
+    $consLocal{'CFLAGS'} .= " -arch i386";
+    $consLocal{'CXXFLAGS'} =~ s/-fvisibility=hidden//;
+    $consLocal{'CXXFLAGS'} .= " -arch i386";
+    $consLocal{'LDFLAGS'} .= " -arch i386";
+    $consLocal = new cons(ENV => \%consLocal);
+}
+$consLocal->Command(
     $landmark,
     "setup.py",
     # Actually we depends on most everything under:
@@ -76,8 +87,8 @@ $cons->Command(
     qq(
         cd %1:d && $mkwriteable PySilverCity/SilverCity/ScintillaConstants.py
         cd %1:d && python PySilverCity/Src/write_scintilla.py ../scintilla/include ../scintilla/include/Scintilla.iface PySilverCity/SilverCity/ScintillaConstants.py
-        cd %1:d && python setup.py build
-        cd %1:d && python setup.py install --install-lib=$komodoPythonUtilsDir --install-scripts=bitbucket --install-data=bitbucket --prefix=bitbucket
+        cd %1:d && python setup.py build $debugFlags
+        cd %1:d && python setup.py install --skip-build --install-lib=$komodoPythonUtilsDir --install-scripts=bitbucket --install-data=bitbucket --prefix=bitbucket
     )
 );
 

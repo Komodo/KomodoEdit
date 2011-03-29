@@ -40,15 +40,13 @@ from koLanguageServiceBase import *
 
 # Erlang info at http://www.erlang.org/
 
-def registerLanguage(registery):
-    registery.registerLanguage(koErlangLanguage())
-    
 class koErlangLanguage(KoLanguageBase):
     name = "Erlang"
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{0153c47a-f668-41d4-8519-9ecd6b1c5ba0}"
+    _reg_categories_ = [("komodo-language", name)]
 
     _stateMap = {
         'default': ('SCE_ERLANG_DEFAULT',),
