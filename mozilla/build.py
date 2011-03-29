@@ -1971,10 +1971,8 @@ def target_pyxpcom(argv=["pyxpcom"]):
     else:
         # Run the autoconf to generate the configure script.
         cmds = []
-        autoconf_command = "autoconf2.13"
-        if sys.platform == "win32":
-            # Windows uses a different executable name.
-            autoconf_command = "autoconf-2.13"
+        # Note: autoconf-2.13 has a special meaning for _get_exe_path()
+        autoconf_command = "autoconf-2.13"
         autoconf_path = _get_exe_path(autoconf_command)
         pyxpcom_src_dir = join(config.buildDir, config.srcTreeName, "mozilla",
                                "extensions", "python")
