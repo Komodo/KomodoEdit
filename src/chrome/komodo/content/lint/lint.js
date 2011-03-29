@@ -264,7 +264,6 @@ this.lintBuffer.prototype.observe = function(subject, topic, data)
                           + "pref change, re-linting");
                 setupRequest = true;
             }
-            return;
         } else {
             switch (topic) {
                 case "lintEOLs":
