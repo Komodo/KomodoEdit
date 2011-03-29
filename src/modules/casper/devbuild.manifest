@@ -1,4 +1,4 @@
-content casper chrome/content/ xpcnativewrappers=yes
+content casper chrome/content/
 skin casper classic/1.0 chrome/skin/
 overlay chrome://komodo/content/komodo.xul chrome://casper/content/komodoOverlay.xul
 overlay chrome://messenger/content/mailWindowOverlay.xul chrome://casper/content/tasksOverlay-tb.xul

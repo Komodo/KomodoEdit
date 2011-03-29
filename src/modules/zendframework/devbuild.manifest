@@ -1,2 +1,2 @@
-content zendframework content/ xpcnativewrappers=yes
+content zendframework content/
 overlay chrome://komodo/content/komodo.xul chrome://zendframework/content/overlay.xul

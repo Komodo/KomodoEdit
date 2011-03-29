@@ -1,4 +1,4 @@
-content komodospellchecker content/ xpcnativewrappers=yes
+content komodospellchecker content/
 locale komodospellchecker en-US locale/en-US/
 skin komodospellchecker classic/1.0 skin/
 overlay chrome://komodo/content/komodo.xul chrome://komodospellchecker/content/koSpellCheckOverlay.xul

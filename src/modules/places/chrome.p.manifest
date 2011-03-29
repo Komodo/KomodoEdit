@@ -1,9 +1,9 @@
 # #if MODE == "dev"
-content places content/ xpcnativewrappers=yes
+content places content/
 skin places classic/1.0 skin/
 locale places en-US locale/en-US/
 # #else
-content places jar:places.jar!/content/ xpcnativewrappers=yes
+content places jar:places.jar!/content/
 skin places classic/1.0 jar:places.jar!/skin/
 locale places en-US jar:places.jar!/locale/en-US/
 # #endif
