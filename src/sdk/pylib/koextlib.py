@@ -1411,13 +1411,9 @@ def _rm(path, logstream=None):
         _run("rm -rf %s" % path, logstream=logstream)
 
 def _mv(src, dest, logstream=None):
-    """My little lame cross-platform 'mv'"""
-    assert ' ' not in src and ' ' not in dest,\
-        "_mv: can't handle paths in spaces: src=%r, dest=%r" % (src, dest)
-    if sys.platform == "win32":
-        _run("move %s %s" % (src, dest), logstream=logstream)
-    else:
-        _run("mv %s %s" % (src, dest), logstream=logstream)
+    """Move src (a file or a directory) to dest."""
+    import shutil
+    shutil.move(src, dest)
 
 def _cp(src, dest, logstream=None):
     """My little lame cross-platform 'cp'"""
