@@ -1,0 +1,35 @@
+extra hacks to make msys patch compile for mingw-w64's toolchain (mingw instead of msys)
+diff -urN clean/patch-2.6.1//src/patch.c src/patch-2.6.1//src/patch.c
+--- clean/patch-2.6.1//src/patch.c	2011-03-30 10:34:32.418665001 -0700
++++ src/patch-2.6.1//src/patch.c	2011-03-30 10:12:47.428665001 -0700
+@@ -416,7 +416,9 @@
+ 			  if (geteuid () != instat.st_gid)
+ 			    {
+ 			      /* Fails if we are not in group instat.st_gid.  */
++			      #if 0 /* xxx marky: disabled for win32, no good mapping for groups */
+ 			      chown (outname, -1, instat.st_gid);
++			      #endif
+ 			    }
+ 			  /* FIXME: There may be other attributes to preserve.  */
+ 			}
+diff -urN clean/patch-2.6.1//src/util.c src/patch-2.6.1//src/util.c
+--- clean/patch-2.6.1//src/util.c	2011-03-30 10:34:32.418665001 -0700
++++ src/patch-2.6.1//src/util.c	2011-03-30 10:27:27.378665001 -0700
+@@ -240,7 +240,7 @@
+ 		  makedirs (bakname);
+ 		  try_makedirs_errno = 0;
+ 		}
+-	      else if (errno == EXDEV)
++	      else if (errno == EXDEV || errno == EEXIST)
+ 		{
+ 		  create_backup_copy (to, bakname, to_st,
+ 				      try_makedirs_errno == 0);
+@@ -296,7 +296,7 @@
+ 		goto rename_succeeded;
+ 	    }
+ 
+-	  if (errno == EXDEV)
++	  if (errno == EXDEV || errno == EEXIST)
+ 	    {
+ 	      struct stat tost;
+ 	      if (! backup)
