@@ -2591,10 +2591,39 @@ static void synchronizeDocStart(unsigned int& startPos,
     initState = p_MainInfo->GetCurrFamily()->DefaultStartState();
 }
 
+#if 0
+static char * showChar(char c) {
+    static char buf[10];
+    if (c < 0) {
+        sprintf(buf, "\\x%02x", 256 + c);
+    } else if (c <= 32) {
+        if (c == ' ') {
+            buf[0] = c;
+            buf[1] = 0;
+        } else if (c == '\r') {
+            buf[0] = '\\';
+            buf[1] = 'r';
+            buf[2] = 0;
+        } else if (c == '\n') {
+            buf[0] = '\\';
+            buf[1] = 'n';
+            buf[2] = 0;
+        } else {
+            sprintf(buf, "\\x%02x", c);
+        }
+    } else {
+        buf[0] = c;
+        buf[1] = 0;
+    }
+    return buf;
+}
+#endif
+
 static void doColorAction(int	    styleNum,
                           bool		no_keyword,
                           int		pos,
                           FamilyInfo	*p_FamilyInfo,
+                          MainInfo   *p_MainInfo,
                           Accessor &styler
                           )
 {
@@ -2613,7 +2642,27 @@ static void doColorAction(int	    styleNum,
                 }
             }
         }
+        int lastStyledPos = styler.GetStartSegment() - 1;
         styler.ColourTo(pos - 1, styleNum);
+        styler.Flush();
+        int old_style = styler.StyleAt(lastStyledPos);
+        int old_family = p_MainInfo->StyleToFamily(styler.StyleAt(lastStyledPos));
+        int new_family = p_MainInfo->StyleToFamily(styleNum);
+        if (old_family != new_family) {
+            int nfpos = lastStyledPos + 1;
+#if 0
+            fprintf(stderr, "UDL: trans from style %d=>%d, family #%d=>%d at %d=>%d (char '%s') (%d:%d), final pos: %d\n",
+                    old_style, styleNum,
+                    old_family, new_family,
+                    nfpos, nfpos + 1,
+                    showChar(styler[nfpos]),
+                    styler.GetLine(nfpos),
+                    nfpos - styler.LineStart(styler.GetLine(nfpos)),
+                    pos - 1);
+#endif
+            styler.IndicatorFill(nfpos, nfpos + 1,
+                                 DECORATOR_UDL_FAMILY_TRANSITION, 1);
+        }
     }
 }
 
@@ -2634,9 +2683,9 @@ static void doActions(Transition     *p_TranBlock,
     }
     FamilyInfo *p_FamilyInfo = p_MainInfo->GetCurrFamily();
     if (!p_TranBlock->token_check && oldPos > 0) {
-        doColorAction(p_TranBlock->upto_color, p_TranBlock->no_keyword, oldPos, p_FamilyInfo, styler);
+        doColorAction(p_TranBlock->upto_color, p_TranBlock->no_keyword, oldPos, p_FamilyInfo, p_MainInfo, styler);
     }
-    doColorAction(p_TranBlock->include_color, p_TranBlock->no_keyword, newPos, p_FamilyInfo, styler);
+    doColorAction(p_TranBlock->include_color, p_TranBlock->no_keyword, newPos, p_FamilyInfo, p_MainInfo, styler);
     int origOldPos = oldPos;
     if (p_TranBlock->search_type == TRAN_SEARCH_EMPTY) {
         // leave oldPos unchanged
@@ -2728,27 +2777,6 @@ static void doActions(Transition     *p_TranBlock,
 #endif
         istate = new_state;
         if (new_family >= 0 && curr_family != new_family) {
-            // Figure out where the new family started.
-            // This can be anywhere between where pattern-matching started
-            // (origOldPos) and one before where it ended (newPos) because 
-            // UDL actions can have both upto- and include- paint statements.
-            styler.Flush();
-            int nfpos;
-            int lowestPos = origOldPos - 100;  // usually we'll move back at most 10
-            if (lowestPos < 0) lowestPos = 0;
-            int last_style = -1; // Cache the family of the current style
-            for (nfpos = newPos - 1; nfpos >= lowestPos; nfpos--) {
-                int curr_style = styler.StyleAt(nfpos);
-                if (last_style != curr_style) {
-                    if (p_MainInfo->StyleToFamily(curr_style) == curr_family) {
-                        nfpos += 1;
-                        break;
-                    }
-                    last_style = curr_style;
-                }
-            }
-            styler.IndicatorFill(nfpos, nfpos + 1,
-                                 DECORATOR_UDL_FAMILY_TRANSITION, 1);
             curr_family = new_family;
             p_MainInfo->SetCurrFamily(curr_family);
         }
@@ -2824,7 +2852,7 @@ static bool doLookBackTest(Transition      *p_TranBlock,
     /* If there's an upto thing, color it now, as we need to
      * test against the text to the left.
      */
-    doColorAction(p_TranBlock->upto_color, p_TranBlock->no_keyword, oldPos, p_FamilyInfo, styler);
+    doColorAction(p_TranBlock->upto_color, p_TranBlock->no_keyword, oldPos, p_FamilyInfo, p_MainInfo, styler);
     LookBackTests  *p_LookBackTests = p_FamilyInfo->GetLookBackTests();
     if (!p_LookBackTests) return true;
     oldPos--;
