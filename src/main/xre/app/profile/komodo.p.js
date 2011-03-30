@@ -93,6 +93,9 @@ pref("extensions.blocklist.interval", 86400);
 pref("extensions.blocklist.url", "http://community.activestate.com/addons/blocklist/");
 pref("extensions.blocklist.detailsURL", "http://community.activestate.com/addons/blocklist/");
 
+// Add-on metadata querysa (screenshots, description, ratings, downloads, ...)
+pref("extensions.getAddons.cache.enabled", false);
+
 // Dictionary download preference
 pref("browser.dictionaries.download.url", "http://community.activestate.com/%LOCALE%/%APP%/%VERSION%/dictionaries/");
 
