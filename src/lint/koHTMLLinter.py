@@ -473,6 +473,8 @@ class _invokePerlLinter(object):
                 # if the error is on the last line, work back to the last
                 # character of the first nonblank line so we can display
                 # the error somewhere
+                if lineNo >= len(datalines):
+                   lineNo = len(datalines) - 1
                 if len(datalines[lineNo]) == 0:
                     while lineNo > 0 and len(datalines[lineNo - 1]) == 0:
                         lineNo -= 1
@@ -524,36 +526,7 @@ class KoHTMLPerl_HTMLTidy_Linter(_invokePerlLinter):
                                     "lintHTML-CheckWith-Perl-HTML-Tidy",
                                     "htmltidy.pl", [])
     
-class KoHTML5CompileLinter(_CommonHTMLLinter):
-    _reg_desc_ = "Komodo HTML 5 Tidy Linter"
-    _reg_clsid_ = "{06b2f705-849d-462f-aafb-bb2e4dfd6d37}"
-    _reg_contractid_ = "@activestate.com/koLinter?language=HTML5&type=Aggregator;1"
-    _reg_categories_ = [
-         ("category-komodo-linter-aggregator", 'HTML5'),
-         ]
-
-    def __init__(self):
-        _CommonHTMLLinter.__init__(self)
-        self._koLintService_UW = UnwrapObject(self._koLintService)
-
-    def lint(self, request, udlMapping=None, linters=None):
-        return self._lint_common_html_request(request, udlMapping, linters)
-
-    def lint_with_text(self, request, text):
-        if not text:
-            #log.debug("no text")
-            return
-        # Your basic aggregator....
-        linters = self._koLintService_UW.getTerminalLintersForLanguage("HTML5")
-        finalLintResults = koLintResults()
-        for linter in linters:
-            newLintResults = UnwrapObject(linter).lint_with_text(request, text)
-            if newLintResults and newLintResults.getNumResults():
-                if finalLintResults.getNumResults():
-                    finalLintResults = finalLintResults.addResults(newLintResults)
-                else:
-                    finalLintResults = newLintResults
-        return finalLintResults
+# HTML5 can use the generic aggregator
 
 class KoHTML5_html5libLinter:
     _com_interfaces_ = [components.interfaces.koILinter]

@@ -113,10 +113,16 @@ class KoEpMojoLinter():
 
 
     def __init__(self):
-        koLintService = components.classes["@activestate.com/koLintService;1"].getService(components.interfaces.koILintService)
-        self._perl_linter = koLintService.getLinterForLanguage("Perl")
-        self._html_linter = koLintService.getLinterForLanguage("HTML")
+        self._koLintService = components.classes["@activestate.com/koLintService;1"].getService(components.interfaces.koILintService)
+        self._html_linter = self._koLintService.getLinterForLanguage("HTML")
+        self._perl_linter = None
         
+    @property
+    def perl_linter(self):
+        if self._perl_linter is None:
+            self._perl_linter = UnwrapObject(self._koLintService.getLinterForLanguage("Perl"))
+        return self._perl_linter
+    
     epMatcher = re.compile(r'''(
                                 (?:<%(?:.|[\r\n])*?%>)   # Anything in <%...%>
                                 |(?:^%.*)                # % to eol is one-line of Perl
@@ -184,8 +190,8 @@ class KoEpMojoLinter():
         perlText = self._fixPerlPart(text)
         if not perlText.strip():
             return
-        return self._resetLines(self._perl_linter.lint_with_text(request, perlText),
-                                            text)
+        return self._resetLines(self.perl_linter.lint_with_text(request, perlText),
+                                text)
 
     def _resetLines(self, lintResults, text):
         lines = text.splitlines()

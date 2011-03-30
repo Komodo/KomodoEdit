@@ -116,7 +116,7 @@ class KoXBLCompileLinter(object):
     def __init__(self):
         koLintService = components.classes["@activestate.com/koLintService;1"].getService(components.interfaces.koILintService)
         self._html_linter = koLintService.getLinterForLanguage("HTML")
-        self._js_linter = koLintService.getLinterForLanguage("JavaScript")
+        self._js_linter = UnwrapObject(koLintService.getLinterForLanguage("JavaScript"))
 
     def lint(self, request):
         try:

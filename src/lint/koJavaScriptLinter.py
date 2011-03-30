@@ -241,7 +241,7 @@ class KoJSONLinter(CommonJSLinter):
          ]
 
     def lint_with_text(self, request, text):
-        return KoXPCShellLinter.lint_with_text(self, request, "var x = " + text)
+        return CommonJSLinter.lint_with_text(self, request, "var x = " + text)
         
 class GenericJSLinter(CommonJSLinter):
 
@@ -368,38 +368,3 @@ class KoJSHintLinter(GenericJSLinter):
         return self._jslint_with_text(request, text,
                                       prefSwitchName="lintWithJSHint",
                                       prefOptionsName="jshintOptions")
-
-class KoJavaScriptAggregatorLinter(object):
-    _com_interfaces_ = [components.interfaces.koILinter]
-    _reg_desc_ = "Komodo JavaScript Aggregate Linter"
-    _reg_clsid_ = "{f9dda89c-68dc-4a7e-85a4-694ad0cf2d87}"
-    _reg_contractid_ = "@activestate.com/koLinter?language=JavaScript&type=Aggregator;1"
-    _reg_categories_ = [
-         ("category-komodo-linter-aggregator", 'JavaScript'),
-         ]
-
-    def __init__(self):
-        self._koLintService = None
-
-    @property
-    def koLintService(self):
-        if self._koLintService is None:
-            self._koLintService = UnwrapObject(components.classes["@activestate.com/koLintService;1"].getService(components.interfaces.koILintService))
-        return self._koLintService
-
-    def lint(self, request):
-        text = request.content.encode(request.encoding.python_encoding_name)
-        return self.lint_with_text(request, text)        
-        
-    def lint_with_text(self, request, text):
-        linters = self.koLintService.getTerminalLintersForLanguage("JavaScript")
-        finalLintResults = koLintResults()
-        for linter in linters:
-            newLintResults = UnwrapObject(linter).lint_with_text(request, text)
-            if newLintResults and newLintResults.getNumResults():
-                if finalLintResults.getNumResults():
-                    finalLintResults = finalLintResults.addResults(newLintResults)
-                else:
-                    finalLintResults = newLintResults
-        return finalLintResults
-            

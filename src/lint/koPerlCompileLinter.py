@@ -515,43 +515,6 @@ class KoPerlCriticLinter(_CommonPerlLinter):
         dict['moduleOff'] = ' ##no critic(RequireFilenameMatchesPackage)'
         return "%(package1)s%(baseFileName)s%(space1)s%(moduleOff)s%(space2)s" % dict
 
-
-class KoPerlAggregatorLinter:
-    _com_interfaces_ = [components.interfaces.koILinter]
-    _reg_desc_ = "Komodo Perl Aggregate Linter"
-    _reg_clsid_ = "{2b0763b5-fae6-4fec-81de-7140f85fcfff}"
-    _reg_contractid_ = "@activestate.com/koLinter?language=Perl&type=Aggregator;1"
-    _reg_categories_ = [
-         ("category-komodo-linter-aggregator", 'Perl'),
-         ]
-
-    def __init__(self):
-        self._koLintService = None
-
-    @property
-    def koLintService(self):
-        if self._koLintService is None:
-            self._koLintService = UnwrapObject(components.classes["@activestate.com/koLintService;1"].getService(components.interfaces.koILintService))
-        return self._koLintService
-
-    def lint(self, request):
-        text = request.content.encode(request.encoding.python_encoding_name)
-        return self.lint_with_text(request, text)        
-        
-    def lint_with_text(self, request, text):
-        linters = self.koLintService.getTerminalLintersForLanguage("Perl")
-        finalLintResults = koLintResults()
-        for linter in linters:
-            newLintResults = UnwrapObject(linter).lint_with_text(request, text)
-            if newLintResults and newLintResults.getNumResults():
-                if finalLintResults.getNumResults():
-                    finalLintResults = finalLintResults.addResults(newLintResults)
-                else:
-                    finalLintResults = newLintResults
-        return finalLintResults
-            
-
-
 #---- script mainline testing 
 
 def _test():

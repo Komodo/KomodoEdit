@@ -226,10 +226,16 @@ class KoMasonLinter(object):
 
 
     def __init__(self):
-        koLintService = components.classes["@activestate.com/koLintService;1"].getService(components.interfaces.koILintService)
-        self._perl_linter = koLintService.getLinterForLanguage("Perl")
-        self._html_linter = koLintService.getLinterForLanguage("HTML")
+        self._koLintService = components.classes["@activestate.com/koLintService;1"].getService(components.interfaces.koILintService)
+        self._perl_linter = None
+        self._html_linter = UnwrapObject(self._koLintService.getLinterForLanguage("HTML"))
         
+    @property
+    def perl_linter(self):
+        if self._perl_linter is None:
+            self._perl_linter = UnwrapObject(self._koLintService.getLinterForLanguage("Perl"))
+        return self._perl_linter
+    
     _masonMatcher = re.compile(r'''(
                                 (?:</?%\w+\s*.*?>)
         |(?:<%\s+.*?%>)   # Anything in <%...%>
@@ -351,14 +357,13 @@ class KoMasonLinter(object):
         return finalText
 
     def lint(self, request):
-        return UnwrapObject(self._html_linter).lint(request,
-                                                    udlMapping={"Perl":"Mason"})
+        return self._html_linter.lint(request, udlMapping={"Perl":"Mason"})
 
     def lint_with_text(self, request, text):
         perlText, masonLintResults = self._fixPerlPart(text)
         if not perlText.strip():
             return
-        perlLintResults = self._resetLines(self._perl_linter.lint_with_text(request, perlText),
+        perlLintResults = self._resetLines(self.perl_linter.lint_with_text(request, perlText),
                                             text)
         for lr in masonLintResults:
             perlLintResults.addResult(lr)

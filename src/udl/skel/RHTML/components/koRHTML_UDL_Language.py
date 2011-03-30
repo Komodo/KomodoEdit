@@ -257,7 +257,7 @@ class KoRHTMLLinter(object):
 
     def __init__(self):
         koLintService = components.classes["@activestate.com/koLintService;1"].getService(components.interfaces.koILintService)
-        self._ruby_linter = koLintService.getLinterForLanguage("Ruby")
+        self._ruby_linter = UnwrapObject(koLintService.getLinterForLanguage("Ruby"))
         self._html_linter = koLintService.getLinterForLanguage("HTML")
         
     _RHTMLMatcher = re.compile(r'''(

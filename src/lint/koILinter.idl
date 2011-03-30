@@ -140,10 +140,6 @@ interface koILinter : nsISupports
     //                     # for sublanguages.
     //                     in dict {langName => koILinter});
     koILintResults lint(in koILintRequest request);
-
-    // Most linters should also implement a lint_with_text method to do
-    // the actual linting.  This is expected by multi-language document linters.
-    koILintResults lint_with_text(in koILintRequest request, in AString text);
 };
 
 

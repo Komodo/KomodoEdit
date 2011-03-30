@@ -181,7 +181,33 @@ class RequestQueue:
         self.queue = [item for item in self.queue
                       if hasattr(item, "uid") and item.uid != uid]
 
+class _GenericAggregator(object):
+    _com_interfaces_ = [components.interfaces.koILinter]
+    _reg_desc_ = "Komodo Generic Aggregate Linter"
+    _reg_clsid_ = "{b68f4ff8-f37e-45d1-970e-88b964e7096d}"
+    _reg_contractid_ = "@activestate.com/koGenericLinterAggregator;1"
 
+    def initialize(self, languageName, koLintService):
+        self._languageName = languageName
+        self._koLintService = koLintService
+        
+    def lint(self, request):
+        text = request.content.encode(request.encoding.python_encoding_name)
+        return self.lint_with_text(request, text)        
+        
+    def lint_with_text(self, request, text):
+        linters = self._koLintService.getTerminalLintersForLanguage(self._languageName)
+        finalLintResults = koLintResults()
+        for linter in linters:
+            newLintResults = UnwrapObject(linter).lint_with_text(request, text)
+            if newLintResults and newLintResults.getNumResults():
+                if finalLintResults.getNumResults():
+                    finalLintResults = finalLintResults.addResults(newLintResults)
+                else:
+                    finalLintResults = newLintResults
+        return finalLintResults
+
+    
 class KoLintRequest:
     _com_interfaces_ = [components.interfaces.koILintRequest]
     _reg_desc_ = "Komodo Lint Request"
@@ -312,16 +338,24 @@ class KoLintService:
                 for cid in self._linterCIDsByLanguageName[languageName]['terminals']]
         
 
+    GENERIC_LINTER_AGGREGATOR_CID = "@activestate.com/koGenericLinterAggregator;1"
     def _getLinterCIDByLanguageName(self, languageName):
         try:
             linters = self._linterCIDsByLanguageName[languageName]
         except KeyError:
             self._linterCIDsByLanguageName[languageName] = {'aggregator':None,
-                                                         'terminals':[None]}
+                                                         'terminals':[]}
             return None
         # If there's no explicit aggregator, return the first terminal linter.
         # If there isn't one, throw the ItemError all the way to top-level
-        return linters['aggregator'] or linters['terminals'][0]
+        if linters['aggregator'] is not None:
+            return linters['aggregator']
+        if len(linters['terminals']) > 1:
+            # Create a generic aggregator for this language.
+            linters['aggregator'] = (self.GENERIC_LINTER_AGGREGATOR_CID
+                                     + ":" + languageName)
+            return linters['aggregator']
+        return linters['terminals'][0]
 
     def getLinterForLanguage(self, languageName):
         """Return a koILinter XPCOM component of the given linterCID.
@@ -336,15 +370,19 @@ class KoLintService:
 
     def _getLinterByCID(self, linterCID):
         if linterCID not in self._linterCache:
-            if linterCID not in components.classes.keys():
-                linter = None
-            else:
-                try:
+            try:
+                if linterCID.startswith(self.GENERIC_LINTER_AGGREGATOR_CID):
+                    languageName = linterCID[len(self.GENERIC_LINTER_AGGREGATOR_CID) + 1:]
+                    linter = components.classes[self.GENERIC_LINTER_AGGREGATOR_CID].createInstance(components.interfaces.koILinter)
+                    UnwrapObject(linter).initialize(languageName, self)
+                elif linterCID not in components.classes.keys():
+                    linter = None
+                else:
                     linter = components.classes[linterCID].createInstance(components.interfaces.koILinter)
-                except COMException, ex:
-                    errmsg = "Internal Error creating a linter with CID '%s': %s"\
-                        % (linterCID, ex)
-                    raise ServerException(nsError.NS_ERROR_UNEXPECTED, errmsg)
+            except COMException, ex:
+                errmsg = "Internal Error creating a linter with CID '%s': %s"\
+                    % (linterCID, ex)
+                raise ServerException(nsError.NS_ERROR_UNEXPECTED, errmsg)
             self._linterCache[linterCID] = linter
 
         return self._linterCache[linterCID]

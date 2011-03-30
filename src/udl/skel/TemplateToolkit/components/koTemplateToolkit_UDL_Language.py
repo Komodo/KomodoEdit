@@ -225,9 +225,15 @@ class KoTemplateToolkitLinter(object):
 
 
     def __init__(self):
-        koLintService = components.classes["@activestate.com/koLintService;1"].getService(components.interfaces.koILintService)
-        self._perl_linter = koLintService.getLinterForLanguage("Perl")
-        self._html_linter = koLintService.getLinterForLanguage("HTML")
+        self._koLintService = components.classes["@activestate.com/koLintService;1"].getService(components.interfaces.koILintService)
+        self._perl_linter = None
+        self._html_linter = UnwrapObject(self._koLintService.getLinterForLanguage("HTML"))
+        
+    @property
+    def perl_linter(self):
+        if self._perl_linter is None:
+            self._perl_linter = UnwrapObject(self._koLintService.getLinterForLanguage("Perl"))
+        return self._perl_linter
         
     _ttktMatcher = re.compile(r'''(
          (?:\[%\s+PERL\s+%\].*?\[%\s+END\s+%\])
@@ -269,14 +275,11 @@ class KoTemplateToolkitLinter(object):
         return self._nonNewlineMatcher.sub(' ', markup)
 
     def lint(self, request):
-        try:
-            return UnwrapObject(self._html_linter).lint(request,
-                                                        udlMapping={"Perl":"TemplateToolkit"})
-        except:
-            log.exception("problems linting tktt ...")
+        return self._html_linter.lint(request,
+                                      udlMapping={"Perl":"TemplateToolkit"})
 
     def lint_with_text(self, request, text):
         perlText = self._fixPerlPart(text)
         if not perlText.strip():
             return
-        return self._perl_linter.lint_with_text(request, perlText)
+        return self.perl_linter.lint_with_text(request, perlText)
