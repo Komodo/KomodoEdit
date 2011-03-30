@@ -225,42 +225,46 @@ if ($platform eq "win") {
 
     # Others parts of the build for other platforms are defining these.
     # TODO: Clean up #define's in the file. This Conscript is a mess
-    #       and is causing confusion. Note that MOZILLA_INTERNAL_API
-    #       is hardwired in one of the .cxx|.h files so should be removed
-    #       from this Conscript.
-    $CXXFLAGS .= " /DMOZ_VERSION=$mozVersionNumber /DMOZILLA_INTERNAL_API=1";
+    #       and is causing confusion.
+    $CXXFLAGS .= " /DMOZ_VERSION=$mozVersionNumber";
     $CXXFLAGS .= " /DBUILDFLAVOUR=$buildFlavour";
 
     foreach my $includeDir (split(';', $mozIncludePath)) {
         $CXXFLAGS .= " /I$includeDir"
     }
 
-    $cons->Command($pluginName,
-        "npscimoz.rc",
+    $consLocal{'CXXFLAGS'} = $CXXFLAGS;
+    $consLocal = new cons(%consLocal);
+    my @scimozobjs = $consLocal->Objects(
+        "npn_gate.cpp",
+        "npp_gate.cpp",
+        "np_entry.cpp",
         "plugin.cxx",
         "nsSciMoz.cxx",
         "nsSciMozWin.cxx",
         "sendscintilla.cxx",
+        "SciMozEvents.cxx"
+        );
+
+    $cons->Command("npscimoz.res",
+        "npscimoz.rc",
+        qq(
+            rc /fo%> %<
+        )
+    );
+    $cons->Command($pluginName,
         "npscimoz.def",
-        "plugin.h",
-        "nsSciMoz.h",
-        "SciMozEvents.h",
-        "npscimoz_gen.h",
-        "sendscintilla.h",
-        "ISciMoz.h",
-        "ISciMozEvents.h",
+        "npscimoz.res",
+        @scimozobjs,
+        qq(
+            link /nologo $LDFLAGS /out:%> /DEF:%1 %<
+        )
+    );
+    $consLocal->Depends($pluginName,
         # scintilla must be built first (this is a little artificial because
         # this is only necessary to get the scintilla headers in the build
         # directory before this build
-        "$scintillaBuildDir/bin/SciLexer.dll",
-        qq(
-            rc /fo%1:b.res %1
-            cl /nologo $CXXFLAGS /TP /Fo%2:b.obj /c %2
-            cl /nologo $CXXFLAGS /TP /Fo%3:b.obj /c %3
-            cl /nologo $CXXFLAGS /TP /Fo%4:b.obj /c %4
-            cl /nologo $CXXFLAGS /TP /Fo%5:b.obj /c %5
-            link /nologo $LDFLAGS /out:%0 %2:b.obj %3:b.obj %4:b.obj %5:b.obj %1:b.res /DEF:%6
-        )
+        "$scintillaBuildDir/bin/SciLexer.dll"
     );
 }
 
@@ -297,7 +301,7 @@ elsif ($platform eq "darwin") {
     $consLocal{'CXXFLAGS'} .= " -DSCI_NAMESPACE=1 -DMACOSX=1 -DSCI_LEXER ".
                             " -DCONTAINER_HANDLES_EVENTS=1 -DINCLUDE_DEPRECATED_FEATURES".
                             " -DXP_MACOSX=1 -DNO_X11=1 -DUSE_SYSTEM_CONSOLE=1 ".
-                            " -DMOZILLA_INTERNAL_API=1 -DMOZ_VERSION=$mozVersionNumber ";
+                            " -DMOZ_VERSION=$mozVersionNumber ";
     $consLocal{'CXXFLAGS'} .= " -DBUILDFLAVOUR=$buildFlavour ";
     # to have SciMoz use carbon instead of quickdraw, do the following
     #if ($mozVersionNumber >= 190) {
@@ -337,6 +341,10 @@ elsif ($platform eq "darwin") {
 	"nsSciMoz.cxx",
 	"nsSciMozMac.cxx",
 	"sendscintilla.cxx",
+        "SciMozEvents.cxx",
+        "np_entry.cpp",
+        "npn_gate.cpp",
+        "npp_gate.cpp",
 	);
 
     # here we build the bundle package
@@ -397,30 +405,18 @@ else {
     $consLocal{'CXXFLAGS'} .= " -include $mozObjDir/mozilla-config.h " .
         " -I$pluginSdkSrcDir/samples/include ".
         " -I$mozDevelDist/include" .
-        " -I$mozDevelDist/include/xulapp" .
-        " -I$mozSrc/mozilla/xpcom/ds" .
-        " -I$mozDevelDist/include/widget" .
-        " -I$mozDevelDist/include/dom" .
-        " -I$mozDevelDist/include/string" .
-        " -I$mozDevelDist/include/nspr" .
-        " -I$mozDevelDist/include/xpcom" .
+        " -I$mozSrc/mozilla/xpcom/ds" .      # required for nsIObserver includes
+        " -I$mozDevelDist/include/plugin" .
         " -I$mozDevelDist/include/content" .
         " -I$mozDevelDist/include/gfx" .
-        " -I$mozDevelDist/include/plugin" .
-        " -I$mozDevelDist/include/java" .
         " -DMOZ_VERSION=$mozVersionNumber";
         
-    # XXX The _Right_ fix is to depend on the version of gcc being used,
-    #     however, in the name of expediency we are just if'ing on the
-    #     Linux dist.
-    if ($linuxDistro =~ /^redhat/) {
-        $consLocal{'CXXFLAGS'} .= " -fshort-wchar";
-    }
+    $consLocal{'CXXFLAGS'} .= " -fshort-wchar";
 
-    # Solaris ships with broken X11 headers that do not specify int
-    # return types.  The -fpermissive flag converts the errors g++
-    # would otherwise generate into warnings.
     if ($platform eq "solaris") {
+        # Solaris ships with broken X11 headers that do not specify int
+        # return types.  The -fpermissive flag converts the errors g++
+        # would otherwise generate into warnings.
         $consLocal{'CXXFLAGS'} .= " -fpermissive"
     }
 

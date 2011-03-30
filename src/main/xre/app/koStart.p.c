@@ -110,7 +110,7 @@
 #ifdef WIN32
     #include <winsock2.h>
     #include <windows.h>
-    #include <ShFolder.h>   // For CSIDL_LOCAL_APPDATA
+    #include <ShlObj.h> // For CSIDL_LOCAL_APPDATA
     #include <KnownFolders.h> // For FOLDERID_LocalAppData
     #include <process.h>
     #include <direct.h>

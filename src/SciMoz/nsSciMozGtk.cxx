@@ -269,29 +269,31 @@ int16 SciMoz::PlatformHandleEvent(void * /*event*/) {
 
 /* readonly attribute boolean isOwned; */
 NS_IMETHODIMP SciMoz::GetIsOwned(PRBool *_ret) {
-	SCIMOZ_CHECK_THREAD("GetIsOwned");
+	SCIMOZ_CHECK_THREAD("GetIsOwned", NS_ERROR_FAILURE);
 	*_ret = wEditor && wMain && !isClosed;
 	return NS_OK;
 }
 
 /* attribute boolean visible */
 NS_IMETHODIMP SciMoz::GetVisible(PRBool *_ret) {
-	SCIMOZ_CHECK_VALID("GetVisible");
+	SCIMOZ_CHECK_THREAD("GetIsOwned", NS_ERROR_FAILURE);
+	SCIMOZ_CHECK_ALIVE("GetVisible", NS_ERROR_FAILURE);
 	*_ret = wEditor != 0;
 	return NS_OK;
 }
 
 /* attribute boolean visible */
-NS_IMETHODIMP SciMoz::SetVisible(PRBool /* vis */)
-{
-	SCIMOZ_CHECK_VALID("SetVisible");
+NS_IMETHODIMP SciMoz::SetVisible(PRBool /* vis */) {
+	SCIMOZ_CHECK_THREAD("GetIsOwned", NS_ERROR_FAILURE);
+	SCIMOZ_CHECK_ALIVE("SetVisible", NS_ERROR_FAILURE);
 	return NS_OK;
 }
 
 /* void endDrop( ); */
 NS_IMETHODIMP SciMoz::EndDrop()
 {
-	SCIMOZ_CHECK_VALID("EndDrop");
+	SCIMOZ_CHECK_THREAD("GetIsOwned", NS_ERROR_FAILURE);
+	SCIMOZ_CHECK_ALIVE("EndDrop", NS_ERROR_FAILURE);
 	if (sInGrab) {
 		gtk_grab_remove(wEditor);
 		sInGrab = 0;

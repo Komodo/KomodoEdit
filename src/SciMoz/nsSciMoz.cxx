@@ -84,6 +84,18 @@ static NS_DEFINE_IID(kISupportsWeakReferenceIID, NS_ISUPPORTSWEAKREFERENCE_IID);
 static int gTimelineEnabled = -1;
 #endif
 
+#ifdef SCIMOZ_DEBUG
+	#define SCIMOZ_DEBUG_PRINTF(...) fprintf(stderr, __VA_ARGS__)
+#else
+	#define SCIMOZ_DEBUG_PRINTF(...) do { } while (0)
+#endif
+
+#if MOZ_VERSION == 191
+/* Gecko 1.9.1 was before a nasty silly npruntime.h compatibility break */
+#define UTF8Characters utf8characters
+#define UTF8Length     utf8length
+#endif
+
 
 NS_INTERFACE_MAP_BEGIN(SciMoz)
   NS_INTERFACE_MAP_ENTRY(nsIClassInfo)
@@ -656,11 +668,20 @@ NS_IMETHODIMP SciMoz::GetIsFocused(PRBool  *_retval) {
 
 NS_IMETHODIMP SciMoz::MarkClosed() 
 {
+	return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+bool SciMoz::MarkClosed(const NPVariant *args, uint32_t argCount, NPVariant *result) {
+	SCIMOZ_DEBUG_PRINTF("SciMoz::MarkClosed\n");
+	if (argCount != 0) {
+		SCIMOZ_DEBUG_PRINTF("%s: expected 0 argument, got %i\n",
+				    __FUNCTION__,
+				    argCount);
+		return false;
+	}
 	if (!isClosed) {
-		SCIMOZ_CHECK_VALID("MarkClosed");
-#ifdef SCIMOZ_DEBUG
-		fprintf(stderr,"SciMoz::MarkClosed\n");
-#endif
+		// Disable ondwell handlers.
+                SendEditor(SCI_SETMOUSEDWELLTIME, SC_TIME_FOREVER, 0);
 		// Turn off all of the scintilla timers.
 		SendEditor(SCI_STOPTIMERS, 0, 0);
 		PlatformMarkClosed();

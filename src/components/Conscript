@@ -73,14 +73,17 @@ $cons->Install($idlExportDir, 'koIObserverService.idl');
 $cons->BuildAndInstallXpt('koIObserverService.idl');
 
 # asIJSProxy
-$cons->InstallXpcomComponent('asJSDialogProxy.js');
+$cons->InstallXpcomComponent('asJSDialogProxy.js',
+                             {'@activestate.com/asDialogProxy;1' => "{57002286-C22C-4e42-BCFC-DE91AF24B5CA}"});
 $cons->Install($idlExportDir, 'asIJSDialogProxy.idl');
 $cons->BuildAndInstallXpt('asIJSDialogProxy.idl');
 
 $cons->Preprocess('asCommandLineHandler.p.js',
                   'asCommandLineHandler.js',
                   {"USE_BETA_LICENSE" => $useBetaLicense});
-$cons->InstallXpcomComponent('asCommandLineHandler.js');
+$cons->InstallXpcomComponent('asCommandLineHandler.js',
+                             {'@activestate.com/komodo/final-clh;1' => "{07DCEAC7-31F6-11DA-BC61-000D935D3368}"},
+                             ["command-line-handler", "m-komodo", '@activestate.com/komodo/final-clh;1']);
 
 # koIInitServive
 $cons->Preprocess('koInitService.p.py',
