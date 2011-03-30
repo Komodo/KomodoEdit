@@ -93,7 +93,7 @@ pref("extensions.blocklist.interval", 86400);
 pref("extensions.blocklist.url", "http://community.activestate.com/addons/blocklist/");
 pref("extensions.blocklist.detailsURL", "http://community.activestate.com/addons/blocklist/");
 
-// Add-on metadata querysa (screenshots, description, ratings, downloads, ...)
+// Add-on metadata query (screenshots, description, ratings, downloads, ...)
 pref("extensions.getAddons.cache.enabled", false);
 
 // Dictionary download preference
