@@ -217,7 +217,7 @@ ko.hyperlinks.handlers.imagePreviewHandler =
         null,  /* Use the found string instead of a replacement. */
         null   /* All language types */,
         Components.interfaces.ISciMoz.INDIC_PLAIN,
-        RGB(0x60,0x90,0xff));
+        xtk.color.RGB(0x60,0x90,0xff));
 ko.hyperlinks.addHandler(ko.hyperlinks.handlers.imagePreviewHandler);
 
 
@@ -230,7 +230,7 @@ ko.hyperlinks.handlers.chromePreviewHandler =
         null,  /* Use the found string instead of a replacement. */
         null   /* All language types */,
         Components.interfaces.ISciMoz.INDIC_PLAIN,
-        RGB(0x60,0x90,0xff));
+        xtk.color.RGB(0x60,0x90,0xff));
 ko.hyperlinks.addHandler(ko.hyperlinks.handlers.chromePreviewHandler);
 
 
@@ -243,7 +243,7 @@ ko.hyperlinks.handlers.networkURIHandler =
         null,  /* Use the found string instead of a replacement. */
         null   /* All language types */,
         Components.interfaces.ISciMoz.INDIC_PLAIN,
-        RGB(0x60,0x90,0xff));
+        xtk.color.RGB(0x60,0x90,0xff));
 ko.hyperlinks.addHandler(ko.hyperlinks.handlers.networkURIHandler);
 
 
@@ -256,7 +256,7 @@ ko.hyperlinks.handlers.ipAddressHandler =
       "http://$1",
       null,
       Components.interfaces.ISciMoz.INDIC_PLAIN,
-      RGB(0x60,0x90,0xff));
+      xtk.color.RGB(0x60,0x90,0xff));
 ko.hyperlinks.addHandler(ko.hyperlinks.handlers.ipAddressHandler);
 
 
@@ -269,5 +269,5 @@ ko.hyperlinks.handlers.activestateBugHandler =
         "http://bugs.activestate.com/show_bug.cgi?id=$1",
         null   /* All language types */,
         Components.interfaces.ISciMoz.INDIC_PLAIN,
-        RGB(0x60,0x90,0xff));
+        xtk.color.RGB(0x60,0x90,0xff));
 ko.hyperlinks.addHandler(ko.hyperlinks.handlers.activestateBugHandler);

@@ -167,7 +167,7 @@
                             null,  /* Use the found string instead of a replacement. */
                             null,  /* All language types */
                             Components.interfaces.ISciMoz.INDIC_PLAIN,
-                            RGB(0x60,0x90,0xff));
+                            xtk.color.RGB(0x60,0x90,0xff));
     ko.hyperlinks.addHandler(ko.hyperlinks.handlers.srcHrefHandler);
 
 
@@ -188,7 +188,7 @@
             null,  /* Use the found string instead of a replacement. */
             null,  /* All language types */
             Components.interfaces.ISciMoz.INDIC_PLAIN,
-            RGB(0x60,0x90,0xff));
+            xtk.color.RGB(0x60,0x90,0xff));
     ko.hyperlinks.addHandler(ko.hyperlinks.handlers.fileHandler);
 
 
@@ -218,7 +218,7 @@
             null,  /* Use the found string instead of a replacement. */
             ["JavaScript"],  /* Just javascript. */
             Components.interfaces.ISciMoz.INDIC_PLAIN,
-            RGB(0x60,0x90,0xff));
+            xtk.color.RGB(0x60,0x90,0xff));
     ko.hyperlinks.addHandler(ko.hyperlinks.handlers.jsGetElementByIdHandler);
     // Limit to JavaScript string styles.
     ko.hyperlinks.handlers.jsGetElementByIdHandler.limitToTheseStyles([Components.interfaces.ISciMoz.SCE_UDL_CSL_STRING]);
@@ -242,7 +242,7 @@
             null,  /* Use the found string instead of a replacement. */
             null,  /* All language types */
             Components.interfaces.ISciMoz.INDIC_PLAIN,
-            RGB(0x60,0x90,0xff));
+            xtk.color.RGB(0x60,0x90,0xff));
     ko.hyperlinks.addHandler(ko.hyperlinks.handlers.phpIncludeHandler);
 
 
@@ -272,7 +272,7 @@
             null,  /* Use the found string instead of a replacement. */
             ["Python", "Python3"],  /* Python files only */
             Components.interfaces.ISciMoz.INDIC_PLAIN,
-            RGB(0x60,0x90,0xff));
+            xtk.color.RGB(0x60,0x90,0xff));
     ko.hyperlinks.addHandler(ko.hyperlinks.handlers.djangoRenderViewHandler);
 
 
@@ -302,7 +302,7 @@
             null,  /* Use the found string instead of a replacement. */
             ["Django"],  /* Django files only */
             Components.interfaces.ISciMoz.INDIC_PLAIN,
-            RGB(0x60,0x90,0xff));
+            xtk.color.RGB(0x60,0x90,0xff));
     ko.hyperlinks.addHandler(ko.hyperlinks.handlers.djangoExtendsHandler);
 
 })();
