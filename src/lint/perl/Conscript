@@ -1,0 +1,13 @@
+#!/usr/local/bin/perl
+# Copyright (c) 2003-2011 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+
+Import(
+    "cons",
+    'supportDir',
+);
+
+
+$cons->Install("$supportDir/lint/perl", "htmllint.pl");
+$cons->Install("$supportDir/lint/perl", "htmltidy.pl");
