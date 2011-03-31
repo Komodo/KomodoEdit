@@ -52,7 +52,7 @@ function OnPreferencePageOK(prefset)
 
 // Populate the (tree) list of available Python interpreters on the current
 // system.
-function PrefPython_PopulatePythonInterps()
+function prefPython_PopulatePythonInterps()
 {
     var availInterpList = document.getElementById("pythonDefaultInterpreter");
     var infoSvc = Components.classes["@activestate.com/koInfoService;1"].
@@ -66,10 +66,10 @@ function PrefPython_PopulatePythonInterps()
     // get a list of installed Python interpreters
     var sysUtils = Components.classes['@activestate.com/koSysUtils;1'].
         getService(Components.interfaces.koISysUtils);
-    var availInterps = new Array();
-    availInterps = sysUtils.WhichAll("python", new Object());
+    var availInterps = [];
+    availInterps = sysUtils.WhichAll("python", {});
     if (infoSvc.platform == 'darwin') {
-        availInterps = availInterps.concat(sysUtils.WhichAll("pythonw", new Object()));
+        availInterps = availInterps.concat(sysUtils.WhichAll("pythonw", {}));
     }
 
     availInterpList.removeAllItems();
@@ -77,18 +77,21 @@ function PrefPython_PopulatePythonInterps()
 
     var found = false;
     // populate the tree listing them
-    if (availInterps.length == 0) {
+    if (availInterps.length === 0) {
         // tell the user no interpreter was found and direct them to
         // ActiveState to get one
         document.getElementById("no-avail-interps-message").removeAttribute("collapsed");
     } else {
         for (var i = 0; i < availInterps.length; i++) {
             availInterpList.appendItem(availInterps[i],availInterps[i]);
-            if (availInterps[i] == prefExecutable) found = true;
+            if (availInterps[i] == prefExecutable) {
+                found = true;
+            }
         }
     }
-    if (!found && prefExecutable)
+    if (!found && prefExecutable) {
         availInterpList.appendItem(prefExecutable,prefExecutable);
+    }
     _findingInterps = false;
 }
 
@@ -96,18 +99,19 @@ function PrefPython_PopulatePythonInterps()
 function PrefPython_OnLoad()
 {
     if (parent.hPrefWindow.prefset.hasStringPref('pythonDefaultInterpreter') &&
-        parent.hPrefWindow.prefset.getStringPref('pythonDefaultInterpreter'))
+        parent.hPrefWindow.prefset.getStringPref('pythonDefaultInterpreter')) {
         prefExecutable = parent.hPrefWindow.prefset.getStringPref('pythonDefaultInterpreter');
-    else
+    } else {
         prefExecutable = '';
-    PrefPython_PopulatePythonInterps();
+    }
+    prefPython_PopulatePythonInterps();
 
     var origWindow = ko.windowManager.getMainWindow();
     var cwd = origWindow.ko.window.getCwd();
     parent.hPrefWindow.onpageload();
     var extraPaths = document.getElementById("pythonExtraPaths");
-    extraPaths.setCwd(cwd)
-    extraPaths.init() // must happen after onpageload
+    extraPaths.setCwd(cwd);
+    extraPaths.init(); // must happen after onpageload
 }
 
 function loadPythonExecutable()
