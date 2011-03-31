@@ -133,7 +133,7 @@ function OnPreferencePageOK(prefset) {
     return true;
 }
 
-    ]]>
+    // ]]>
     </script>
 
     <!-- This main vbox is to ensure *all* the pref widgets are accessible,
