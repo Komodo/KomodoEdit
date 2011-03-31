@@ -369,6 +369,15 @@
       <ComponentRef Id="component638"/>
       <ComponentRef Id="component645"/>
       <ComponentRef Id="component655"/>
+      <ComponentRef Id="component18"/>
+      <ComponentRef Id="component20"/>
+      <ComponentRef Id="component123"/>
+      <ComponentRef Id="component237"/>
+      <ComponentRef Id="component371"/>
+      <ComponentRef Id="component481"/>
+      <ComponentRef Id="component580"/>
+      <ComponentRef Id="component581"/>
+      <ComponentRef Id="component582"/>
 
 <?if $(var.WithCrypto) = "yes" ?>
       <!-- Crypto and paramiko Python packages -->
@@ -448,7 +457,6 @@
             <File Id="file1282" Name="python26.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python26.dll"/>
             <File Id="file1283" Name="PYTHON_1.DLL" LongName="pythoncom26.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\pythoncom26.dll"/>
             <File Id="file1284" Name="PYWINT_1.DLL" LongName="pywintypes26.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\pywintypes26.dll"/>
-            <File Id="file338" Name="regxpcom.exe" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\regxpcom.exe"/>
             <File Id="file340" Name="SciLexer.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\SciLexer.dll"/>
             <File Id="file458" Name="updater.ini" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\updater.ini" />
             <File Id="file341" Name="updater.exe" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\updater.exe"/>
@@ -472,6 +480,14 @@
             <File Id="file910" LongName="nspr-config" Name="NSPRCO_0" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\nspr-config" />
             <File Id="file911" Name="nssdbm3.chk" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\nssdbm3.chk" />
             <File Id="file912" LongName="update.locale" Name="UPDATE_0.LOC" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\update.locale" />
+            <File Id="file1270" Name="PURGEC_0" LongName=".purgecaches" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\.purgecaches"/>
+            <File Id="file1271" Name="CHROM_24.MAN" LongName="chrome.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\chrome.manifest"/>
+            <File Id="file1272" Name="greprefs.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\greprefs.js"/>
+            <File Id="file1273" Name="mozalloc.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\mozalloc.dll"/>
+            <File Id="file1274" Name="mozjs.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\mozjs.dll"/>
+            <File Id="file1275" Name="MOZSQL_0.DLL" LongName="mozsqlite3.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\mozsqlite3.dll"/>
+            <File Id="file1276" Name="NSINST_0.EXE" LongName="nsinstall.exe" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\nsinstall.exe"/>
+            <File Id="file1277" Name="PLUGIN_0.EXE" LongName="plugin-container.exe" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\plugin-container.exe"/>
 <?if $(var.WithCrypto) = "yes" ?>
             <File Id="file1889" Name="freebl3.chk" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\freebl3.chk"/>
             <File Id="file1890" Name="freebl3.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\freebl3.dll"/>
@@ -971,6 +987,80 @@
               <File Id="file1076" Name="KOTOOL_0.PY" LongName="koToolbox2Components.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koToolbox2Components.py"/>
               <File Id="file1077" Name="KOTOOL_1.PY" LongName="koToolbox2HTreeView.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koToolbox2HTreeView.py"/>
               <File Id="file1218" Name="koTools.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koTools.py" />
+              <File Id="file1278" Name="ADDONM_0.MAN" LongName="addon-manager-xpcom.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\addon-manager-xpcom.manifest"/>
+              <File Id="file1279" Name="ADDONM_0.JS" LongName="addonManager.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\addonManager.js"/>
+              <File Id="file1285" Name="ADDON__0.XPT" LongName="addon_manager.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\addon_manager.xpt"/>
+              <File Id="file1286" Name="AMADDO_0.JS" LongName="amAddonManager.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\amAddonManager.js"/>
+              <File Id="file1287" Name="AMCONT_0.JS" LongName="amContentHandler.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\amContentHandler.js"/>
+              <File Id="file1288" Name="AMWEBI_0.JS" LongName="amWebInstallListener.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\amWebInstallListener.js"/>
+              <File Id="file1290" Name="CONSOL_0.JS" LongName="ConsoleAPI.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\ConsoleAPI.js"/>
+              <File Id="file1291" Name="CONSOL_0.MAN" LongName="ConsoleAPI.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\ConsoleAPI.manifest"/>
+              <File Id="file1292" Name="CONTEN_0.JS" LongName="contentAreaDropListener.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\contentAreaDropListener.js"/>
+              <File Id="file1293" Name="CONTEN_0.MAN" LongName="contentAreaDropListener.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\contentAreaDropListener.manifest"/>
+              <File Id="file1294" Name="CONTEN_1.JS" LongName="contentSecurityPolicy.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\contentSecurityPolicy.js"/>
+              <File Id="file1295" Name="CONTEN_1.MAN" LongName="contentSecurityPolicy.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\contentSecurityPolicy.manifest"/>
+              <File Id="file1296" Name="CONTEN_7.XPT" LongName="content_canvas.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\content_canvas.xpt"/>
+              <File Id="file1299" Name="CONTEN_8.XPT" LongName="content_events.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\content_events.xpt"/>
+              <File Id="file1300" Name="CRYPTO_0.JS" LongName="crypto-SDR.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\crypto-SDR.js"/>
+              <File Id="file1301" Name="docshell.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\docshell.xpt"/>
+              <File Id="file1302" Name="DOM_IN_0.XPT" LongName="dom_indexeddb.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\dom_indexeddb.xpt"/>
+              <File Id="file1395" Name="DOM_NO_0.XPT" LongName="dom_notification.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\dom_notification.xpt"/>
+              <File Id="file1401" Name="dom_smil.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\dom_smil.xpt"/>
+              <File Id="file1402" Name="EXTENS_0.MAN" LongName="extensions.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\extensions.manifest"/>
+              <File Id="file1403" Name="FEEDPR_0.MAN" LongName="FeedProcessor.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\FeedProcessor.manifest"/>
+              <File Id="file1408" Name="GPSDGE_0.JS" LongName="GPSDGeolocationProvider.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\GPSDGeolocationProvider.js"/>
+              <File Id="file1413" Name="GPSDGE_0.MAN" LongName="GPSDGeolocationProvider.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\GPSDGeolocationProvider.manifest"/>
+              <File Id="file1414" Name="INTERF_0.MAN" LongName="interfaces.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\interfaces.manifest"/>
+              <File Id="file1415" Name="jetpack.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\jetpack.xpt"/>
+              <File Id="file1416" Name="JSCONS_0.MAN" LongName="jsconsole-clhandler.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\jsconsole-clhandler.manifest"/>
+              <File Id="file1417" Name="KOISCI_2.XPT" LongName="koISciMozIMEHelper.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koISciMozIMEHelper.xpt"/>
+              <File Id="file1418" Name="KOMODO_2.MAN" LongName="komodo.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\komodo.manifest"/>
+              <File Id="file1419" Name="KOSCIM_0.DLL" LongName="koSciMozIMEHelper.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koSciMozIMEHelper.dll"/>
+              <File Id="file1420" Name="LAYOUT_4.XPT" LongName="layout_forms.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\layout_forms.xpt"/>
+              <File Id="file1421" Name="MESSAG_0.JS" LongName="messageWakeupService.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\messageWakeupService.js"/>
+              <File Id="file1422" Name="MESSAG_0.MAN" LongName="messageWakeupService.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\messageWakeupService.manifest"/>
+              <File Id="file1423" Name="NECKO_12.XPT" LongName="necko_wyciwyg.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\necko_wyciwyg.xpt"/>
+              <File Id="file1424" Name="NETWOR_0.MAN" LongName="NetworkGeolocationProvider.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\NetworkGeolocationProvider.manifest"/>
+              <File Id="file1425" Name="NSBADC_0.MAN" LongName="nsBadCertHandler.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsBadCertHandler.manifest"/>
+              <File Id="file1426" Name="NSCONT_0.MAN" LongName="nsContentDispatchChooser.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsContentDispatchChooser.manifest"/>
+              <File Id="file1427" Name="NSCONT_1.MAN" LongName="nsContentPrefService.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsContentPrefService.manifest"/>
+              <File Id="file1428" Name="NSDEFA_0.MAN" LongName="nsDefaultCLH.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsDefaultCLH.manifest"/>
+              <File Id="file1429" Name="NSDOWN_0.MAN" LongName="nsDownloadManagerUI.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsDownloadManagerUI.manifest"/>
+              <File Id="file1438" Name="NSFORM_0.JS" LongName="nsFormAutoComplete.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsFormAutoComplete.js"/>
+              <File Id="file1439" Name="NSFORM_1.JS" LongName="nsFormHistory.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsFormHistory.js"/>
+              <File Id="file1440" Name="NSHAND_0.MAN" LongName="nsHandlerService.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsHandlerService.manifest"/>
+              <File Id="file1441" Name="NSHELP_0.MAN" LongName="nsHelperAppDlg.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsHelperAppDlg.manifest"/>
+              <File Id="file1442" Name="NSINIP_0.JS" LongName="nsINIProcessor.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsINIProcessor.js"/>
+              <File Id="file1443" Name="NSINIP_0.MAN" LongName="nsINIProcessor.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsINIProcessor.manifest"/>
+              <File Id="file1444" Name="NSINPU_0.JS" LongName="nsInputListAutoComplete.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsInputListAutoComplete.js"/>
+              <File Id="file1445" Name="NSLIVE_0.JS" LongName="nsLivemarkService.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsLivemarkService.js"/>
+              <File Id="file1446" Name="NSMICR_0.JS" LongName="nsMicrosummaryService.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsMicrosummaryService.js"/>
+              <File Id="file1447" Name="NSPLAC_0.JS" LongName="nsPlacesAutoComplete.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsPlacesAutoComplete.js"/>
+              <File Id="file1448" Name="NSPLAC_0.MAN" LongName="nsPlacesAutoComplete.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsPlacesAutoComplete.manifest"/>
+              <File Id="file1449" Name="NSPLAC_1.JS" LongName="nsPlacesExpiration.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsPlacesExpiration.js"/>
+              <File Id="file1450" Name="NSPROM_0.JS" LongName="nsPrompter.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsPrompter.js"/>
+              <File Id="file1451" Name="NSPROM_0.MAN" LongName="nsPrompter.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsPrompter.manifest"/>
+              <File Id="file1452" Name="NSPROX_0.MAN" LongName="nsProxyAutoConfig.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsProxyAutoConfig.manifest"/>
+              <File Id="file1453" Name="NSTAGG_0.JS" LongName="nsTaggingService.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsTaggingService.js"/>
+              <File Id="file1454" Name="NSTRYT_0.MAN" LongName="nsTryToClose.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsTryToClose.manifest"/>
+              <File Id="file1455" Name="NSUPDA_0.MAN" LongName="nsUpdateService.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsUpdateService.manifest"/>
+              <File Id="file1456" Name="NSUPDA_1.JS" LongName="nsUpdateServiceStub.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsUpdateServiceStub.js"/>
+              <File Id="file1457" Name="NSUPDA_2.JS" LongName="nsUpdateTimerManager.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsUpdateTimerManager.js"/>
+              <File Id="file1458" Name="NSUPDA_1.MAN" LongName="nsUpdateTimerManager.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsUpdateTimerManager.manifest"/>
+              <File Id="file1459" Name="NSURLF_0.MAN" LongName="nsURLFormatter.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsURLFormatter.manifest"/>
+              <File Id="file1460" Name="NSWEBH_0.MAN" LongName="nsWebHandlerApp.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsWebHandlerApp.manifest"/>
+              <File Id="file1461" Name="PASSWO_0.MAN" LongName="passwordmgr.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\passwordmgr.manifest"/>
+              <File Id="file1462" Name="PLACES_0.JS" LongName="PlacesCategoriesStarter.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\PlacesCategoriesStarter.js"/>
+              <File Id="file1463" Name="PLUGIN_0.MAN" LongName="pluginGlue.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\pluginGlue.manifest"/>
+              <File Id="file1464" Name="SATCHE_0.MAN" LongName="satchel.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\satchel.manifest"/>
+              <File Id="file1465" Name="SCIMOZ_0.JS" LongName="scimoz_wrapper.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\scimoz_wrapper.js"/>
+              <File Id="file1466" Name="SERVIC_0.XPT" LongName="services-crypto-component.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\services-crypto-component.xpt"/>
+              <File Id="file1467" Name="STARTU_0.XPT" LongName="startupcache.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\startupcache.xpt"/>
+              <File Id="file1468" Name="TOOLKI_1.MAN" LongName="toolkitplaces.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\toolkitplaces.manifest"/>
+              <File Id="file1469" Name="TOOLKI_2.MAN" LongName="toolkitsearch.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\toolkitsearch.manifest"/>
+              <File Id="file1470" Name="TXEXSL_0.MAN" LongName="txEXSLTRegExFunctions.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\txEXSLTRegExFunctions.manifest"/>
+              <File Id="file1471" Name="webapps.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\webapps.xpt"/>
+              <File Id="file1472" Name="XPCOM__6.XPT" LongName="xpcom_threads.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\xpcom_threads.xpt"/>
             </Component>
           </Directory> <!-- lib\mozilla\components -->
           <Directory Id="directory58" Name="defaults">
@@ -1100,6 +1190,7 @@
                 <Component Id="component36" DiskId="1" Guid="$(autowix.guid)">
                   <File Id="file849" Name="KOFAST_0.PY" LongName="koFastOpen.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\fastopen@activestate.com\components\koFastOpen.py"/>
                   <File Id="file850" Name="KOIFAS_0.XPT" LongName="koIFastOpen.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\fastopen@activestate.com\components\koIFastOpen.xpt"/>
+                  <File Id="file1474" Name="COMPON_0.MAN" LongName="component.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\fastopen@activestate.com\components\component.manifest"/>
                 </Component>
               </Directory> <!-- lib\mozilla\extensions\fastopen@activestate.com\components -->
               <Directory Id="directory39" Name="idl">
@@ -1667,6 +1758,7 @@
                 <Component Id="component178" DiskId="1" Guid="$(autowix.guid)">
                   <File Id="file1058" Name="KOIPLA_0.XPT" LongName="koIPlaceTreeView.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\places@activestate.com\components\koIPlaceTreeView.xpt"/>
                   <File Id="file1059" Name="KOPLAC_0.PY" LongName="koPlaceTreeView.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\places@activestate.com\components\koPlaceTreeView.py"/>
+                  <File Id="file1475" Name="COMPON_1.MAN" LongName="component.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\places@activestate.com\components\component.manifest"/>
                 </Component>
               </Directory> <!-- lib\mozilla\extensions\places@activestate.com\components -->
               <Directory Id="directory194" Name="IDL_1" LongName="idl">
@@ -1696,6 +1788,32 @@
               <File Id="file921" LongName="DownloadLastDir.jsm" Name="DOWNLO_1.JSM" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\modules\DownloadLastDir.jsm" />
               <File Id="file922" LongName="SpatialNavigation.js" Name="SPATIA_0.JS" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\modules\SpatialNavigation.js" />
               <File Id="file923" LongName="WindowDraggingUtils.jsm" Name="WINDOW_0.JSM" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\modules\WindowDraggingUtils.jsm" />
+              <File Id="file1476" Name="ADDONL_0.JSM" LongName="AddonLogging.jsm" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\modules\AddonLogging.jsm"/>
+              <File Id="file1477" Name="ADDONM_0.JSM" LongName="AddonManager.jsm" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\modules\AddonManager.jsm"/>
+              <File Id="file1478" Name="ADDONR_0.JSM" LongName="AddonRepository.jsm" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\modules\AddonRepository.jsm"/>
+              <File Id="file1479" Name="ADDONU_0.JSM" LongName="AddonUpdateChecker.jsm" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\modules\AddonUpdateChecker.jsm"/>
+              <File Id="file1480" Name="CERTUT_0.JSM" LongName="CertUtils.jsm" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\modules\CertUtils.jsm"/>
+              <File Id="file1485" Name="COMMON_0.JSM" LongName="CommonDialog.jsm" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\modules\CommonDialog.jsm"/>
+              <File Id="file1486" Name="CRASHS_0.JSM" LongName="CrashSubmit.jsm" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\modules\CrashSubmit.jsm"/>
+              <File Id="file1487" Name="CSPUtils.jsm" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\modules\CSPUtils.jsm"/>
+              <File Id="file1488" Name="ctypes.jsm" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\modules\ctypes.jsm"/>
+              <File Id="file1489" Name="DOWNLO_2.JSM" LongName="DownloadPaths.jsm" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\modules\DownloadPaths.jsm"/>
+              <File Id="file1490" Name="DOWNLO_3.JSM" LongName="DownloadTaskbarProgress.jsm" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\modules\DownloadTaskbarProgress.jsm"/>
+              <File Id="file1491" Name="FILEUT_0.JSM" LongName="FileUtils.jsm" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\modules\FileUtils.jsm"/>
+              <File Id="file1492" Name="Geometry.jsm" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\modules\Geometry.jsm"/>
+              <File Id="file1493" Name="INLINE_0.JSM" LongName="InlineSpellChecker.jsm" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\modules\InlineSpellChecker.jsm"/>
+              <File Id="file1494" Name="LIGHTW_0.JSM" LongName="LightweightThemeConsumer.jsm" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\modules\LightweightThemeConsumer.jsm"/>
+              <File Id="file1495" Name="LIGHTW_1.JSM" LongName="LightweightThemeManager.jsm" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\modules\LightweightThemeManager.jsm"/>
+              <File Id="file1496" Name="NetUtil.jsm" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\modules\NetUtil.jsm"/>
+              <File Id="file1497" Name="NSFORM_0.JSM" LongName="nsFormAutoCompleteResult.jsm" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\modules\nsFormAutoCompleteResult.jsm"/>
+              <File Id="file1498" Name="PERFME_0.JSM" LongName="PerfMeasurement.jsm" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\modules\PerfMeasurement.jsm"/>
+              <File Id="file1499" Name="PLACES_0.JSM" LongName="PlacesDBUtils.jsm" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\modules\PlacesDBUtils.jsm"/>
+              <File Id="file1500" Name="PLACES_1.JSM" LongName="PlacesUtils.jsm" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\modules\PlacesUtils.jsm"/>
+              <File Id="file1501" Name="PLUGIN_0.JSM" LongName="PluginProvider.jsm" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\modules\PluginProvider.jsm"/>
+              <File Id="file1502" Name="POPUPN_0.JSM" LongName="PopupNotifications.jsm" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\modules\PopupNotifications.jsm"/>
+              <File Id="file1503" Name="Services.jsm" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\modules\Services.jsm"/>
+              <File Id="file1504" Name="utils.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\modules\utils.js"/>
+              <File Id="file1505" Name="XPIPRO_0.JSM" LongName="XPIProvider.jsm" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\modules\XPIProvider.jsm"/>
             </Component>
           </Directory> <!-- lib\mozilla\modules -->
           <Directory Id="directory66" Name="plugins">
@@ -2525,6 +2643,7 @@
                 <File Id="file630" Name="MATHF_10.PRO" LongName="mathfontSTIXNonUnicode.properties" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\fonts\mathfontSTIXNonUnicode.properties"/>
                 <File Id="file631" Name="MATHF_11.PRO" LongName="mathfontSTIXSize1.properties" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\fonts\mathfontSTIXSize1.properties"/>
                 <File Id="file632" Name="MATHF_12.PRO" LongName="mathfontUnicode.properties" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\fonts\mathfontUnicode.properties"/>
+                <File Id="file1506" Name="MATHFO_1.PRO" LongName="mathfontSTIXSizeOneSym.properties" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\res\fonts\mathfontSTIXSizeOneSym.properties"/>
               </Component>
             </Directory> <!-- lib\mozilla\res\fonts -->
             <Directory Id="directory83" Name="html">
@@ -3918,7 +4037,6 @@
           </Component>
           <Directory Id="directory619" Name="bin">
             <Component Id="component569" DiskId="1" Guid="$(autowix.guid)">
-              <File Id="file3805" Name="regxpcom.exe" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\bin\regxpcom.exe"/>
               <File Id="file3806" Name="xpidl.exe" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\bin\xpidl.exe"/>
               <File Id="file3807" Name="xpt_dump.exe" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\bin\xpt_dump.exe"/>
               <File Id="file3808" Name="xpt_link.exe" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\bin\xpt_link.exe"/>
@@ -3927,6 +4045,7 @@
               <File Id="file286" Name="koext.py" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\bin\koext.py"/>
               <File Id="file1412" LongName="codeintel.py" Name="CODEIN_0.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\bin\codeintel.py" />
               <File Id="file339" Name="KOMODO_2.PY" LongName="komodo-config.py" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\bin\komodo-config.py"/>
+              <File Id="file1507" Name="NSPRCO_1" LongName="nspr-config" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\bin\nspr-config"/>
             </Component>
           </Directory> <!-- lib\sdk\bin -->
           <Directory Id="directory620" Name="IDL_0" LongName="idl">
@@ -4231,6 +4350,7 @@
               <File Id="file794" Name="nsIJSON.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIJSON.idl"/>
               <File Id="file795" Name="NSIMUT_0.IDL" LongName="nsIMutableArray.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIMutableArray.idl"/>
               <File Id="file930" LongName="pyIXPCOMExtensionHelper.idl" Name="PYIXPC_0.IDL" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\pyIXPCOMExtensionHelper.idl" />
+              <File Id="file1508" Name="KOISCI_2.IDL" LongName="koISciMozIMEHelper.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koISciMozIMEHelper.idl"/>
             </Component>
           </Directory> <!-- lib\sdk\idl -->
           <Directory Id="directory6" Name="pylib">
@@ -4254,6 +4374,7 @@
                 <File Id="file31" Name="uuid.py" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\pylib\ludditelib\uuid.py"/>
                 <File Id="file41" Name="yacc.py" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\pylib\ludditelib\yacc.py"/>
                 <File Id="file42" Name="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\pylib\ludditelib\__init__.py"/>
+                <File Id="file1509" Name="CHROME_0.PY" LongName="chromereg.py" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\pylib\chromereg.py"/>
               </Component>
             </Directory> <!-- lib\sdk\pylib\ludditelib -->
           </Directory> <!-- lib\sdk\pylib -->
