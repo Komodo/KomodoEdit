@@ -6,15 +6,19 @@
     overflow: auto;
 }
 
-#pylint_failure.hide {
-    visibility: hidden;
+description.pref_hide {
+    visibility: collapsed;
+    display: none;
 }
 
-#pylint_failure.show {
+description.pref_show {
     margin-top: 5px;
     border: orange 1px solid;
     padding: 2px 1px;
-    visibility: visible;
+}
+
+description#pychecker_dangerous.pref_show {
+    border: red 2px solid;
 }
 
 .indentedPref01 {

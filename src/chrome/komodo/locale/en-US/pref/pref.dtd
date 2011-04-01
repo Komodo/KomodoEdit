@@ -734,6 +734,10 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY filePrefPythonUseThisInterpreter.label "Use this interpreter">
 <!ENTITY filePrefPythonAdditionalDirectory.description "Specify any additional directories that you want Komodo to add to the Python path when debugging, syntax checking or in the interactive shell.">
 <!ENTITY ClassicPythonChecking.label "Classic Komodo Python Syntax Checking">
+<!ENTITY lintWithPychecker.label "Do Pychecker Linting">
+<!ENTITY pycheckerWarning.descr "Warning: pychecker will load modules and run top-level statements.  ActiveState recommends using pylint instead.">
+<!ENTITY pycheckerWrapperLocation.label "Location of Pychecker Wrapper Script">
+<!ENTITY pycheckerRCLocation.label "Location of pycheckrc Config File">
 
 <!--pref-ruby.xul-->
 <!ENTITY noRubyInterpreter.description "No Ruby interpreter was found on your system. If you would like to debug and run Ruby programs in Komodo you will need to install Ruby. You can get Ruby from the Ruby home page at">

@@ -121,7 +121,9 @@ function OnPreferencePageLoading() {
 
 function updateUI_part1() {
     var currentPythonInterpreter = document.getElementById("pythonDefaultInterpreter").value;
-    if (currentPythonInterpreter && !(currentPythonInterpreter in havePylint)) {
+    if (!currentPythonInterpreter) {
+        updateUI_part3(currentPythonInterpreter);
+    } else if (!(currentPythonInterpreter in havePylint)) {
         setTimeout(function() {
                 var cmd = currentPythonInterpreter + " -c 'import pylint'";
                 var runSvc = Components.classes["@activestate.com/koRunService;1"].getService(Components.interfaces.koIRunService);
@@ -138,16 +140,17 @@ function updateUI_part1() {
 }
 
 function updateUI_part2(currentPythonInterpreter) {
+    // Update UI for pylint
     var checkbox = document.getElementById("lint_python_with_pylint");
     var failureNode = document.getElementById("pylint_failure");
     if (currentPythonInterpreter && havePylint[currentPythonInterpreter]) {
-        failureNode.setAttribute("class", "hide");
+        failureNode.setAttribute("class", "pref_hide");
         checkbox.disabled = false;
     } else {
         checkbox.checked = false;
         checkbox.disabled = true;
         if (!currentPythonInterpreter) {
-            failureNode.setAttribute("class", "hide");
+            failureNode.setAttribute("class", "pref_hide");
         } else {
             var text = _bundle.formatStringFromName("The current Python instance X doesnt have pylint installed", [currentPythonInterpreter], 1);
             var textNode = document.createTextNode(text);
@@ -155,10 +158,14 @@ function updateUI_part2(currentPythonInterpreter) {
                 failureNode.removeChild(failureNode.firstChild);
             }
             failureNode.appendChild(textNode);
-            failureNode.setAttribute("class", "show");
+            failureNode.setAttribute("class", "pref_show");
         }
     }
     onTogglePylintChecking(checkbox);
+    
+    // Update UI for pychecker
+    checkbox = document.getElementById("lint_python_with_pychecker");
+    onTogglePycheckerChecking(checkbox);
 }
 
 function loadPythonExecutable()
@@ -173,8 +180,39 @@ function onTogglePylintChecking(checkbox) {
     document.getElementById("pylint_browse_rcfile").disabled = !pylintEnabled;
 }
 
-function loadPylintRcfile() {
-    var textbox = document.getElementById("pylint_checking_rcfile");
+function onTogglePycheckerChecking(checkbox) {
+    var pycheckerEnabled = checkbox.checked;
+    document.getElementById("pychecker_wrapper_location").disabled = !pycheckerEnabled;
+    document.getElementById("pychecker_browse_wrapper_location").disabled = !pycheckerEnabled;
+    document.getElementById("pychecker_checking_rcfile").disabled = !pycheckerEnabled;
+    document.getElementById("pychecker_browse_rcfile").disabled = !pycheckerEnabled;
+    updatePycheckerPathStatus();
+    var pychecker_dangerous = document.getElementById("pychecker_dangerous");
+    if (pycheckerEnabled) {
+        pychecker_dangerous.setAttribute("class", "pref_show");
+    } else {
+        pychecker_dangerous.setAttribute("class", "pref_hide");
+    }
+        
+        
+}
+
+function updatePycheckerPathStatus() {
+    var failureNode = document.getElementById("pychecker_failure");
+    if (document.getElementById("lint_python_with_pychecker").checked) {
+        var hasPath = document.getElementById("pychecker_wrapper_location").value.length > 0;
+        if (hasPath) {
+            failureNode.setAttribute("class", "pref_hide");
+        } else {
+            failureNode.setAttribute("class", "pref_show");
+        }
+    } else {
+        failureNode.setAttribute("class", "pref_hide");
+    }
+}
+
+function loadTextboxFromFilepicker(eltID, prompt) {
+    var textbox = document.getElementById(eltID);
     var currentValue = textbox.value;
     var defaultDirectory = null, defaultFilename = null;
     if (currentValue) {
@@ -184,11 +222,27 @@ function loadPylintRcfile() {
         defaultDirectory = koFileEx.dirName;
         defaultFilename = koFileEx.baseName;
     }
-    var title = _bundle.GetStringFromName("Find a .pylintrc file");
+    var title = _bundle.GetStringFromName(prompt);
     var rcpath = ko.filepicker.browseForFile(defaultDirectory,
                                              defaultFilename, title);
     if (rcpath != null) {
         textbox.value = rcpath;
     }
+}
+
+function loadPylintRcfile() {
+    loadTextboxFromFilepicker("pylint_checking_rcfile",
+                              "Find a .pylintrc file");
+}
+
+function loadPycheckerRcFile() {
+    loadTextboxFromFilepicker("pychecker_checking_rcfile",
+                              "Find a .pycheckrc file");
+}
+
+function loadPycheckerWrapperFile() {
+    loadTextboxFromFilepicker("pychecker_wrapper_location",
+                              "Find a pychecker script");
+    updatePycheckerPathStatus();
 }
 

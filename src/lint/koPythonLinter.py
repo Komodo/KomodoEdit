@@ -68,6 +68,25 @@ log = logging.getLogger('koPythonLinter')
 
 _leading_ws_re = re.compile(r'(\s*)')
 
+_SEV_ERROR = 2   # No xpcom here :(
+_SEV_WARNING = 1
+_SEV_INFO = 0
+
+def _addResult(results, textlines, severity, lineNo, desc):
+    result = KoLintResult()
+    result.severity = severity
+    if lineNo >= len(textlines):
+        lineNo = len(textlines) - 1
+    while lineNo >= 0 and len(textlines[lineNo - 1]) == 0:
+        lineNo -= 1
+    if lineNo == 0:
+        return
+    result.lineStart = result.lineEnd = lineNo
+    result.columnStart = 1
+    result.columnEnd = len(textlines[lineNo - 1]) + 1
+    result.description = desc
+    results.addResult(result)
+
 class KoPythonPyLintChecker(object):
     _com_interfaces_ = [components.interfaces.koILinter]
     _reg_desc_ = "Komodo Python PyLint Linter"
@@ -165,6 +184,93 @@ class KoPythonPyLintChecker(object):
                 result.description = "pylint: %s%s %s" % (status, statusCode,
                                                           desc)
                 results.addResult(result)
+        return results
+
+class KoPythonPycheckerLinter(object):
+    """
+    Instead of checking your Python code using pylinter,
+      this one lints    your Python code using pychecker.
+    """
+    _com_interfaces_ = [components.interfaces.koILinter]
+    _reg_desc_ = "Komodo Python Pychecker Linter"
+    _reg_clsid_ = "{d3eb77c9-fb1f-4849-8e27-2e39d15c5331}"
+    _reg_contractid_ = "@activestate.com/koLinter?language=Python&type=pychecker;1"
+    _reg_categories_ = [
+         ("category-komodo-linter", 'Python&type=pychecker'),
+         ]
+        
+    def lint(self, request):
+        text = request.content.encode(request.encoding.python_encoding_name)
+        return self.lint_with_text(request, text)
+        
+    nonIdentChar_RE = re.compile(r'^\w_.,=')
+    def lint_with_text(self, request, text):
+        if not text:
+            return None
+        prefset = request.koDoc.getEffectivePrefs()
+        if not prefset.getBooleanPref("lint_python_with_pychecker"):
+            return
+        pychecker = prefset.getStringPref("pychecker_wrapper_location")
+        if not pychecker:
+            return
+        if sys.platform.startswith("win") and not os.path.exists(pychecker):
+            if os.path.exists(pychecker + ".bat"):
+                pychecker = pychecker + ".bat"
+            elif os.path.exists(pychecker + ".exe"):
+                pychecker = pychecker + ".exe"
+        if not os.path.exists(pychecker):
+            return
+        tmpfilename = tempfile.mktemp() + '.py'
+        fout = open(tmpfilename, 'w')
+        fout.write(text)
+        fout.close()
+        textlines = text.splitlines()
+        cwd = request.cwd
+        rcfilePath = prefset.getStringPref("pychecker_checking_rcfile")
+        if rcfilePath and os.path.exists(rcfilePath):
+            if self.nonIdentChar_RE.search(rcfilePath):
+                rcfilePath = '"' + rcfilePath + '"'
+            extraArgs = [ "--config=" + rcfilePath ]
+        else:
+            extraArgs = []
+            
+        cmd = [pychecker, "--keepgoing", "--only"] + extraArgs + [tmpfilename]
+        cwd = request.cwd or None
+        # We only need the stdout result.
+        try:
+            p = process.ProcessOpen(cmd, cwd=cwd, env=koprocessutils.getUserEnv(), stdin=None)
+            stdout, stderr = p.communicate()
+            warnLines = stdout.splitlines(0) # Don't need the newlines.
+            errorLines = stderr.splitlines(0)
+        finally:
+            os.unlink(tmpfilename)
+        # Check raw output for an exception
+        results = koLintResults()
+        re_escaped_filename = re.escape(tmpfilename)
+        exception_ptn = re.compile('''Caught exception importing module.+?File "%s", line (\d+), in <module>.+?\s*(\w+(?:Error|Exception):\s+.*)''' % re_escaped_filename, re.DOTALL)
+        m = exception_ptn.search(stderr)
+        if m:
+            lineNo = int(m.group(1))
+            desc = m.group(2)
+            _addResult(results, textlines, _SEV_ERROR, lineNo, desc)
+
+        warn_ptn = re.compile(r'^%s:(\d+):\s+(.+)' % re_escaped_filename)
+        error_ptn = re.compile(r'(.*[Ee]rror:.*?)\s*\(%s,\s+line\s+(\d+)\)'
+                               % re_escaped_filename)
+        for line in warnLines:
+            m = warn_ptn.match(line)
+            if m:
+                lineNo = int(m.group(1))
+                desc = m.group(2)
+                _addResult(results, textlines, _SEV_WARNING, lineNo,
+                           "pychecker: " + desc)
+        for line in errorLines:
+            m = error_ptn.match(line)
+            if m:
+                lineNo = int(m.group(2))
+                desc = m.group(1)
+                _addResult(results, textlines, _SEV_ERROR, lineNo,
+                           "pychecker: " + desc)
         return results
 
 class KoPythonCommonLinter(object):
