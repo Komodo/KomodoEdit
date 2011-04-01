@@ -202,6 +202,7 @@
   <boolean id="lintHTML-CheckWith-Perl-HTML-Lint">false</boolean>
   
   <!-- Python linters -->
+  <boolean id="lint_python_with_standard_python">true</boolean>
   <boolean id="lint_python_with_pylint">false</boolean>
   <string id="pylint_checking_rcfile"></string>
   

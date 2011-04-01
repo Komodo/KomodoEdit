@@ -112,6 +112,7 @@ var global_pref_observer_topics = {
     "pythonDefaultInterpreter" : PYTHON_LIST,
     "python3DefaultInterpreter" : PYTHON_LIST,
     "lint_python_with_pylint" : PYTHON_LIST,
+    "lint_python_with_standard_python" : PYTHON_LIST,
     "pylint_checking_rcfile" : PYTHON_LIST,
     "phpDefaultInterpreter" : PHP_LIST,
     "phpConfigFile" : PHP_LIST,

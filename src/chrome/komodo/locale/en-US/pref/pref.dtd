@@ -733,6 +733,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY noteRestartPython.alert "Note: Komodo must be restarted for it to recognize new Python installations.">
 <!ENTITY filePrefPythonUseThisInterpreter.label "Use this interpreter">
 <!ENTITY filePrefPythonAdditionalDirectory.description "Specify any additional directories that you want Komodo to add to the Python path when debugging, syntax checking or in the interactive shell.">
+<!ENTITY ClassicPythonChecking.label "Classic Komodo Python Syntax Checking">
 
 <!--pref-ruby.xul-->
 <!ENTITY noRubyInterpreter.description "No Ruby interpreter was found on your system. If you would like to debug and run Ruby programs in Komodo you will need to install Ruby. You can get Ruby from the Ruby home page at">

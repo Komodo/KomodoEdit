@@ -143,7 +143,7 @@ class KoPythonPyLintChecker(object):
                 statusCode = m.group(2)
                 lineNo = int(m.group(3))
                 desc = m.group(4)
-                if status == ("E", "F"):
+                if status in ("E", "F"):
                     result.severity = result.SEV_ERROR
                 elif status in ("C", "R", "W"):
                     result.severity = result.SEV_WARNING
@@ -303,6 +303,8 @@ class KoPythonCommonLinter(object):
         encoding_name = request.encoding.python_encoding_name
         cwd = request.cwd
         prefset = request.koDoc.getEffectivePrefs()
+        if not prefset.getBooleanPref("lint_python_with_standard_python"):
+            return
         try:
             python, pyver = self._getInterpreterAndPyver(prefset)
             if pyver and pyver >= (3, 0):
