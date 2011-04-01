@@ -378,6 +378,7 @@
       <ComponentRef Id="component580"/>
       <ComponentRef Id="component581"/>
       <ComponentRef Id="component582"/>
+      <ComponentRef Id="component654"/>
 
 <?if $(var.WithCrypto) = "yes" ?>
       <!-- Crypto and paramiko Python packages -->
@@ -4631,6 +4632,12 @@
                   <File Id="file1269" Name="LINTWR_0.JS" LongName="lintWrapper.js" Vital="yes" src="feature-core\INSTALLDIR\lib\support\lint\javascript\lintWrapper.js"/>
                 </Component>
               </Directory> <!-- lib\support\lint\javascript -->
+              <Directory Id="directory709" Name="PERL_1" LongName="perl">
+                <Component Id="component654" DiskId="1" Guid="$(autowix.guid)">
+                  <File Id="file338" Name="htmllint.pl" Vital="yes" src="feature-core\INSTALLDIR\lib\support\lint\perl\htmllint.pl"/>
+                  <File Id="file1510" Name="htmltidy.pl" Vital="yes" src="feature-core\INSTALLDIR\lib\support\lint\perl\htmltidy.pl"/>
+                </Component>
+              </Directory> <!-- lib\support\lint\perl -->
             </Directory> <!-- lib\support\lint -->
           <Directory Id="directory210" Name="modules">
             <Component Id="component199" DiskId="1" Guid="$(autowix.guid)">
