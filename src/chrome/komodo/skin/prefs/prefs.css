@@ -5,3 +5,14 @@
 {
     overflow: auto;
 }
+
+#pylint_failure.hide {
+    visibility: hidden;
+}
+
+#pylint_failure.show {
+    margin-top: 5px;
+    border: orange 1px solid;
+    padding: 2px 1px;
+    visibility: visible;
+}

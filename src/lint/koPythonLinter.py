@@ -55,10 +55,11 @@ import process
 import koprocessutils
 from xpcom import components, nsError, ServerException
 import logging
-from pprint import pprint, pformat
+from pprint import pprint# , pformat
 
-from koLintResult import *
+from koLintResult import KoLintResult
 from koLintResults import koLintResults
+import koprocessutils
 
 import projectUtils
 
@@ -67,7 +68,104 @@ log = logging.getLogger('koPythonLinter')
 
 _leading_ws_re = re.compile(r'(\s*)')
 
+class KoPythonPyLintChecker(object):
+    _com_interfaces_ = [components.interfaces.koILinter]
+    _reg_desc_ = "Komodo Python PyLint Linter"
+    _reg_clsid_ = "{e9e6d883-a712-46fc-a4a5-83c827aeff44}"
+    _reg_contractid_ = "@activestate.com/koLinter?language=Python&type=pylint;1"
+    _reg_categories_ = [
+         ("category-komodo-linter", 'Python&type=pylint'),
+         ]
 
+    def __init__(self):
+        self._pythonInfo = components.classes["@activestate.com/koAppInfoEx?app=Python;1"]\
+               .createInstance(components.interfaces.koIAppInfoEx)
+        
+    def lint(self, request):
+        text = request.content.encode(request.encoding.python_encoding_name)
+        return self.lint_with_text(request, text)
+        
+    nonIdentChar_RE = re.compile(r'^\w_.,=')
+    def lint_with_text(self, request, text):
+        if not text:
+            return None
+        prefset = request.koDoc.getEffectivePrefs()
+        if not prefset.getBooleanPref("lint_python_with_pylint"):
+            return
+        # if not prefset.getBooleanPref("lintWithPylint"): return
+        pythonExe = self._pythonInfo.executablePath
+        if not pythonExe:
+            return
+        tmpfilename = tempfile.mktemp() + '.py'
+        fout = open(tmpfilename, 'w')
+        fout.write(text)
+        fout.close()
+        textlines = text.splitlines()
+        cwd = request.cwd
+        pylintExe = "pylint"
+        if sys.platform.startswith("win"):
+            pylintExe += ".exe"
+        try:
+            pylintExe = which.which("pylint")
+        except which.WhichError:
+            log.warn("pylint not found")
+            return
+        if not pylintExe:
+            log.warn("pylint not found")
+            return
+        rcfilePath = prefset.getStringPref("pylint_checking_rcfile")
+        if rcfilePath and os.path.exists(rcfilePath):
+            if self.nonIdentChar_RE.search(rcfilePath):
+                rcfilePath = '"' + rcfilePath + '"'
+            extraArgs = [ "--rcfile=" + rcfilePath ]
+        else:
+            # Hardwire in these three messages:
+            extraArgs = []# [ "-d", "C0103", "-d" , "C0111", "-d", "F0401"]
+            
+        cmd = [pythonExe, pylintExe, "-f", "text", "-r", "n", "-i", "y"] + extraArgs
+        # Put config file entry here: .rcfile=<file>
+        cmd.append(tmpfilename)
+        cwd = request.cwd or None
+        # We only need the stdout result.
+        try:
+            p = process.ProcessOpen(cmd, cwd=cwd, env=koprocessutils.getUserEnv(), stdin=None)
+            stdout, _ = p.communicate()
+            warnLines = stdout.splitlines(0) # Don't need the newlines.
+        finally:
+            os.unlink(tmpfilename)
+        ptn = re.compile(r'^([A-Z])(\d+):\s*(\d+):\s*(.*)')
+        results = koLintResults()
+        for line in warnLines:
+            m = ptn.match(line)
+            if m:
+                result = KoLintResult()
+                status = m.group(1)
+                statusCode = m.group(2)
+                lineNo = int(m.group(3))
+                desc = m.group(4)
+                if status == ("E", "F"):
+                    result.severity = result.SEV_ERROR
+                elif status in ("C", "R", "W"):
+                    result.severity = result.SEV_WARNING
+                else:
+                    #log.debug("Skip %s", line)
+                    continue
+                if lineNo >= len(textlines):
+                    lineNo = len(textlines) - 1
+                while lineNo >= 0 and len(textlines[lineNo - 1]) == 0:
+                    lineNo -= 1
+                if lineNo == 0:
+                    continue
+                if lineNo == 1 and status == "C" and statusCode == "0103":
+                    # Don't show a warning triggered by the temp file name.
+                    continue
+                result.lineStart = result.lineEnd = lineNo
+                result.columnStart = 1
+                result.columnEnd = len(textlines[lineNo - 1]) + 1
+                result.description = "pylint: %s%s %s" % (status, statusCode,
+                                                          desc)
+                results.addResult(result)
+        return results
 
 class KoPythonCommonLinter(object):
     _stringType = type("")
@@ -121,8 +219,8 @@ class KoPythonCommonLinter(object):
         return self._pyverFromPythonCache[python]
 
 
-    def _buildResult(self, dict, leadingWS):
-        """Convert a pycompile.py output dict to a KoILintResult.
+    def _buildResult(self, resultDict, leadingWS):
+        """Convert a pycompile.py output resultDict to a KoILintResult.
         
         A pycompile.py dict looks like this:
             {'description': 'SyntaxError: invalid syntax',
@@ -133,26 +231,26 @@ class KoPythonCommonLinter(object):
              'text': 'asdf = \n'}
         """
         r = KoLintResult()
-        r.description = dict["description"]
+        r.description = resultDict["description"]
         if leadingWS:
-            dict['lineno'] -= 1
-            if dict['text'].startswith(leadingWS):
-                dict['text'] = dict['text'][len(leadingWS):]
-        if dict["offset"] is not None:
+            resultDict['lineno'] -= 1
+            if resultDict['text'].startswith(leadingWS):
+                resultDict['text'] = resultDict['text'][len(leadingWS):]
+        if resultDict["offset"] is not None:
             if leadingWS:
                 actualLineOffset = len(leadingWS)
-                if dict['offset'] >= actualLineOffset:
-                    dict['offset'] -= actualLineOffset
-            r.description += " (at column %d)" % dict["offset"]
-        r.lineStart = dict['lineno']
-        r.lineEnd = dict['lineno']
+                if resultDict['offset'] >= actualLineOffset:
+                    resultDict['offset'] -= actualLineOffset
+            r.description += " (at column %d)" % resultDict["offset"]
+        r.lineStart = resultDict['lineno']
+        r.lineEnd = resultDict['lineno']
         # Would be nice to actually underline from teh given offset, but
         # then have to be smart abouve how far after that to underline.
         r.columnStart = 1
-        r.columnEnd = len(dict['text'])
-        if dict['severity'] == "ERROR":
+        r.columnEnd = len(resultDict['text'])
+        if resultDict['severity'] == "ERROR":
             r.severity = r.SEV_ERROR
-        elif dict['severity'] == "WARNING":
+        elif resultDict['severity'] == "WARNING":
             r.severity = r.SEV_WARNING
         return r
 
@@ -207,7 +305,7 @@ class KoPythonCommonLinter(object):
         prefset = request.koDoc.getEffectivePrefs()
         try:
             python, pyver = self._getInterpreterAndPyver(prefset)
-            if pyver and pyver >= (3,0):
+            if pyver and pyver >= (3, 0):
                 compilePy = os.path.join(self._koDirSvc.supportDir, "python",
                                          "py3compile.py")
                 if encoding_name not in self._simple_python3_string_encodings:
@@ -305,7 +403,7 @@ class KoPythonLinter(KoPythonCommonLinter):
     _com_interfaces_ = [components.interfaces.koILinter]
     _reg_desc_ = "Komodo Python Linter"
     _reg_clsid_ = "{FAA3B898-5192-4463-BD37-816EDE05A5EE}"
-    _reg_contractid_ = "@activestate.com/koLinter?language=Python;1"
+    _reg_contractid_ = "@activestate.com/koLinter?language=Python&type=standard;1"
     _reg_categories_ = [
          ("category-komodo-linter", language_name),
          ]
@@ -317,7 +415,9 @@ class KoPython3Linter(KoPythonCommonLinter):
     _com_interfaces_ = [components.interfaces.koILinter]
     _reg_desc_ = "Komodo Python3 Linter"
     _reg_clsid_ = "{f2c7d20a-8399-453d-bbee-7e93d30841e9}"
-    _reg_contractid_ = "@activestate.com/koLinter?language=Python3;1"
+    _reg_contractid_ = "@activestate.com/koLinter?language=Python3&type=standard;1"
     _reg_categories_ = [
          ("category-komodo-linter", language_name),
          ]
+
+# Use the generic aggregators for both Python & Python3

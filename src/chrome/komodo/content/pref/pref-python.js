@@ -105,18 +105,90 @@ function PrefPython_OnLoad()
         prefExecutable = '';
     }
     prefPython_PopulatePythonInterps();
-
-    var origWindow = ko.windowManager.getMainWindow();
-    var cwd = origWindow.ko.window.getCwd();
     parent.hPrefWindow.onpageload();
+}
+
+var havePylint = {};
+
+function OnPreferencePageLoading() {
+    var origWindow = ko.windowManager.getMainWindow();
     var extraPaths = document.getElementById("pythonExtraPaths");
+    var cwd = origWindow.ko.window.getCwd();
     extraPaths.setCwd(cwd);
     extraPaths.init(); // must happen after onpageload
+    updateUI_part1();
+}
+
+function updateUI_part1() {
+    var currentPythonInterpreter = document.getElementById("pythonDefaultInterpreter").value;
+    if (currentPythonInterpreter && !(currentPythonInterpreter in havePylint)) {
+        setTimeout(function() {
+                var cmd = currentPythonInterpreter + " -c 'import pylint'";
+                var runSvc = Components.classes["@activestate.com/koRunService;1"].getService(Components.interfaces.koIRunService);
+                var output = {}, errors = {};
+                var res = runSvc.RunAndCaptureOutput(cmd, null, null, null,
+                                                     output, errors);
+                res = res == 1 ? false : true;
+                havePylint[currentPythonInterpreter] = res;
+                updateUI_part2(currentPythonInterpreter);
+            }, 300);
+    } else {
+        updateUI_part2(currentPythonInterpreter);
+    }
+}
+
+function updateUI_part2(currentPythonInterpreter) {
+    var checkbox = document.getElementById("lint_python_with_pylint");
+    var failureNode = document.getElementById("pylint_failure");
+    if (currentPythonInterpreter && havePylint[currentPythonInterpreter]) {
+        failureNode.setAttribute("class", "hide");
+        checkbox.disabled = false;
+    } else {
+        checkbox.checked = false;
+        checkbox.disabled = true;
+        if (!currentPythonInterpreter) {
+            failureNode.setAttribute("class", "hide");
+        } else {
+            var text = _bundle.formatStringFromName("The current Python instance X doesnt have pylint installed", [currentPythonInterpreter], 1);
+            var textNode = document.createTextNode(text);
+            while (failureNode.firstChild) {
+                failureNode.removeChild(failureNode.firstChild);
+            }
+            failureNode.appendChild(textNode);
+            failureNode.setAttribute("class", "show");
+        }
+    }
+    onTogglePylintChecking(checkbox);
 }
 
 function loadPythonExecutable()
 {
     loadExecutableIntoInterpreterList("pythonDefaultInterpreter");
+    updateUI_part1();
 }
 
+function onTogglePylintChecking(checkbox) {
+    var pylintEnabled = checkbox.checked;
+    document.getElementById("pylint_checking_rcfile").disabled = !pylintEnabled;
+    document.getElementById("pylint_browse_rcfile").disabled = !pylintEnabled;
+}
+
+function loadPylintRcfile() {
+    var textbox = document.getElementById("pylint_checking_rcfile");
+    var currentValue = textbox.value;
+    var defaultDirectory = null, defaultFilename = null;
+    if (currentValue) {
+        var koFileEx = Components.classes["@activestate.com/koFileEx;1"]
+            .createInstance(Components.interfaces.koIFileEx);
+        koFileEx.path = currentValue;
+        defaultDirectory = koFileEx.dirName;
+        defaultFilename = koFileEx.baseName;
+    }
+    var title = _bundle.GetStringFromName("Find a .pylintrc file");
+    var rcpath = ko.filepicker.browseForFile(defaultDirectory,
+                                             defaultFilename, title);
+    if (rcpath != null) {
+        textbox.value = rcpath;
+    }
+}
 

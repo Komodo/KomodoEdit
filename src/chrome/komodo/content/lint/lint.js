@@ -111,6 +111,8 @@ var global_pref_observer_topics = {
     "perl_lintOption_includeCurrentDirForLinter" : PERL_LIST,
     "pythonDefaultInterpreter" : PYTHON_LIST,
     "python3DefaultInterpreter" : PYTHON_LIST,
+    "lint_python_with_pylint" : PYTHON_LIST,
+    "pylint_checking_rcfile" : PYTHON_LIST,
     "phpDefaultInterpreter" : PHP_LIST,
     "phpConfigFile" : PHP_LIST,
     "rubyDefaultInterpreter" : RUBY_LIST,

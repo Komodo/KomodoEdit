@@ -56,6 +56,7 @@
 
     <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/uriparse.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/filepickers.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/pref/pref-python.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/pref/koPrefUtils.js" type="application/x-javascript;version=1.7" />
@@ -81,11 +82,31 @@
                 <menulist id="pythonDefaultInterpreter"
                     flex="1"
                     pref="true"
+		    oncommand="updateUI_part1();"
                     prefstring="pythonDefaultInterpreter">
                     <menupopup id="avail-interp-list"/>
                 </menulist>
                 <button label="&browse.label;" oncommand="loadPythonExecutable();"/>
             </hbox>
+        </groupbox>
+    
+        <separator class="thin"/>
+    
+        <groupbox orient="vertical">
+            <caption label="&pylintChecking.label;"/>
+            <checkbox id="lint_python_with_pylint"
+                      label="&pylintCheckingStatus.label;"
+                      pref="true"
+                      oncommand="onTogglePylintChecking(this);" />
+            <hbox id="pylint_checking_hbox_rcfile">
+               <label id="pylint_checking_rcfile_label"
+                      control="pylint_checking_rcfile"
+                      value="&pylintRCFileLocation.label;" />
+               <textbox id="pylint_checking_rcfile" pref="true"
+                        prefstring="pylint_checking_rcfile" flex="1"/>
+               <button id="pylint_browse_rcfile" label="&browse.label;" oncommand="loadPylintRcfile();"/>
+            </hbox>
+	    <description id="pylint_failure" class="hide" />
         </groupbox>
     
         <separator class="thin"/>
