@@ -72,7 +72,7 @@ _SEV_ERROR = 2   # No xpcom here :(
 _SEV_WARNING = 1
 _SEV_INFO = 0
 
-def _addResult(results, textlines, severity, lineNo, desc):
+def _addResult(results, textlines, severity, lineNo, desc, leadingWS=None):
     result = KoLintResult()
     result.severity = severity
     if lineNo >= len(textlines):
@@ -83,7 +83,12 @@ def _addResult(results, textlines, severity, lineNo, desc):
         return
     result.lineStart = result.lineEnd = lineNo
     result.columnStart = 1
-    result.columnEnd = len(textlines[lineNo - 1]) + 1
+    targetLine = textlines[lineNo - 1]
+    if leadingWS is not None:
+        columnEndOffset = len(leadingWS)
+    else:
+        columnEndOffset = 0
+    result.columnEnd = len(targetLine) + 1 - columnEndOffset
     result.description = desc
     results.addResult(result)
 
@@ -157,33 +162,19 @@ class KoPythonPyLintChecker(object):
         for line in warnLines:
             m = ptn.match(line)
             if m:
-                result = KoLintResult()
                 status = m.group(1)
                 statusCode = m.group(2)
                 lineNo = int(m.group(3))
-                desc = m.group(4)
+                desc = "pylint: %s%s %s" % (status, statusCode,
+                                                          m.group(4))
                 if status in ("E", "F"):
-                    result.severity = result.SEV_ERROR
+                    severity = _SEV_ERROR
                 elif status in ("C", "R", "W"):
-                    result.severity = result.SEV_WARNING
+                    severity = _SEV_WARNING
                 else:
                     #log.debug("Skip %s", line)
                     continue
-                if lineNo >= len(textlines):
-                    lineNo = len(textlines) - 1
-                while lineNo >= 0 and len(textlines[lineNo - 1]) == 0:
-                    lineNo -= 1
-                if lineNo == 0:
-                    continue
-                if lineNo == 1 and status == "C" and statusCode == "0103":
-                    # Don't show a warning triggered by the temp file name.
-                    continue
-                result.lineStart = result.lineEnd = lineNo
-                result.columnStart = 1
-                result.columnEnd = len(textlines[lineNo - 1]) + 1
-                result.description = "pylint: %s%s %s" % (status, statusCode,
-                                                          desc)
-                results.addResult(result)
+                _addResult(results, textlines, severity, lineNo, desc)
         return results
 
 class KoPythonPycheckerLinter(object):
@@ -377,9 +368,6 @@ class KoPythonCommonLinter(object):
         textlines = text.splitlines(1)
         if leadingWS:
             del textlines[0]
-            columnEndOffset = len(leadingWS)
-        else:
-            columnEndOffset = 0
         warningRe = re.compile("^(?P<fname>.*?):(?P<line>\d+): (?P<desc>.*)$")
         results = []
         for line in warntext.splitlines():
@@ -390,14 +378,7 @@ class KoPythonCommonLinter(object):
                 lineNo = int(match.group('line'))
                 if leadingWS:
                     lineNo -= 1
-                r.lineStart = lineNo
-                r.lineEnd = lineNo
-                r.columnStart = 1
-                r.columnEnd = len(textlines[r.lineStart-1]) - columnEndOffset
-                r.description = match.group('desc')
-                r.severity = r.SEV_WARNING
-                results.append(r)
-            
+                _addResult(results, textlines, r.SEV_WARNING, lineNo, match.group('desc'), leadingWS)
         return results
 
     def lint(self, request):
