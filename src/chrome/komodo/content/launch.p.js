@@ -702,20 +702,17 @@ this.finish = function()
 
 
 
-// backwards compat api for ko.help
-var launch_LanguageHelp = ko.help.language;
-var launch_AlternateLanguageHelp = ko.help.alternate;
-var launch_MainHelp = ko.help.open;
+/**
+ * @deprecated since 7.0
+ */
+ko.logging.globalDeprecatedByAlternative("launch_LanguageHelp", "ko.help.language");
+ko.logging.globalDeprecatedByAlternative("launch_AlternateLanguageHelp", "ko.help.alternate");
+ko.logging.globalDeprecatedByAlternative("launch_MainHelp", "ko.help.open");
 
-// backwards compat api for ko.launch
-var InputBuffer_Start = ko.inputBuffer.start;
-var InputBuffer_OnFocus = ko.inputBuffer.focus;
-var InputBuffer_Finish = ko.inputBuffer.finish;
-
-var launch_openAddonsMgr = ko.launch.openAddonsMgr;
-var launch_watchLocalFile = ko.launch.watchLocalFile;
-var launch_DiffWindow = ko.launch.diff;
-var launch_Find = ko.launch.find;
-var launch_Replace = ko.launch.replace;
-var launch_RunCommand = ko.launch.runCommand;
-var launch_FindInFiles = ko.launch.findInFiles;
+ko.logging.globalDeprecatedByAlternative("launch_openAddonsMgr", "ko.launch.openAddonsMgr");
+ko.logging.globalDeprecatedByAlternative("launch_watchLocalFile", "ko.launch.watchLocalFile");
+ko.logging.globalDeprecatedByAlternative("launch_DiffWindow", "ko.launch.diff");
+ko.logging.globalDeprecatedByAlternative("launch_Find", "ko.launch.find");
+ko.logging.globalDeprecatedByAlternative("launch_Replace", "ko.launch.replace");
+ko.logging.globalDeprecatedByAlternative("launch_RunCommand", "ko.launch.runCommand");
+ko.logging.globalDeprecatedByAlternative("launch_FindInFiles", "ko.launch.findInFiles");
