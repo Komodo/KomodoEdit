@@ -301,10 +301,12 @@ ko.windowManager = {
     }
 };
 
-// backwards compatibility APIs
-var openWindowUniqueInstance = ko.windowManager.openOrFocusDialog;
-var openWindowMultipleInstance = window.openDialog;
-function windowManager_getMainWindow() { return ko.windowManager.getMainWindow(); }
+/**
+ * @deprecated since 7.0
+ */
+ko.logging.globalDeprecatedByAlternative("openWindowUniqueInstance", "ko.windowManager.openOrFocusDialog");
+ko.logging.globalDeprecatedByAlternative("openWindowMultipleInstance", "window.openDialog");
+ko.logging.globalDeprecatedByAlternative("windowManager_getMainWindow", "ko.windowManager.getMainWindow");
 
 
 
