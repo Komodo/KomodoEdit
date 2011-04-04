@@ -95,7 +95,9 @@ function OnPreferencePageOK(prefset) {
             // XXX: This will never occur using ko.dialogs.yesNo()
             return false;
         } else if (answer == "Yes") {
-            onAddServerEntry();
+            if (!onAddServerEntry()) {
+                return false;
+            }
         } // else we just continue on normally
     }
 
@@ -229,7 +231,7 @@ function onAddServerEntry() {
     // prevent adding empty entries
     if (!alias || !hostname || !username) {
         prefServersLog.warn("Missing a required field. Name, Host Name and User Name are required fields.");
-        return;
+        return false;
     }
     if (((protocol == "SFTP" || protocol == "SCP") && parseInt(port) == 21) ||
         (protocol == "FTP" && parseInt(port) == 22)) {
@@ -241,7 +243,7 @@ function onAddServerEntry() {
                              "No" /* response */,
                              null /* text */,
                              "WARNING: Incorrect port?" /* title */) == "No") {
-            return;
+            return false;
         }
     }
 
@@ -259,7 +261,7 @@ function onAddServerEntry() {
     } else {
         if (getAliasIndex(alias) > -1) {
             alert("The entry name must be unique, please correct this.\n");
-            return;
+            return false;
         }
         // LoginManagerStorage will create a GUID when null
         serverInfo.init(null, protocol, alias, hostname, port, username, password, path,
@@ -270,6 +272,7 @@ function onAddServerEntry() {
     }
     setMenuSelection("serversList",serverInfo.alias);
     dialog.buttonAdd.setAttribute('disabled', 'true');
+    return true;
 }
 
 function setMenuSelection(id, label) {
