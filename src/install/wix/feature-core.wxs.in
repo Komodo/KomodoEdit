@@ -368,17 +368,8 @@
       <ComponentRef Id="component630"/>
       <ComponentRef Id="component638"/>
       <ComponentRef Id="component645"/>
-      <ComponentRef Id="component655"/>
-      <ComponentRef Id="component18"/>
-      <ComponentRef Id="component20"/>
-      <ComponentRef Id="component123"/>
-      <ComponentRef Id="component237"/>
-      <ComponentRef Id="component371"/>
-      <ComponentRef Id="component481"/>
-      <ComponentRef Id="component580"/>
-      <ComponentRef Id="component581"/>
-      <ComponentRef Id="component582"/>
       <ComponentRef Id="component654"/>
+      <ComponentRef Id="component655"/>
 
 <?if $(var.WithCrypto) = "yes" ?>
       <!-- Crypto and paramiko Python packages -->
