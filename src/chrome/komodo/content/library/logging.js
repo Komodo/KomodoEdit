@@ -160,6 +160,43 @@ this.Logger.prototype.deprecated = function(message, reportDuplicates /* false *
     }
 }
 
+/**
+ * Mark global var/function as being deprecated with an alternative. All calls
+ * to the item will be logged with a one-off warning.
+ *
+ * @param deprecatedName Type - Description
+ * @param  Type - Description
+ * @param  Type - Description
+ * @param  Type - Description
+ */
+this.globalDeprecatedByAlternative = function ko_logging_globalDeprecatedByAlternative(deprecatedName, replacementName, logger, replacementContext) {
+    window.__defineGetter__(deprecatedName,
+         function() {
+            // Get the caller of the deprecated item - 2 levels up.
+            var shortStack = "    " + getStack().split("\n")[2];
+            var marker = deprecatedName + shortStack;
+            if (!(marker in _gSeenDeprectatedMsg)) {
+                _gSeenDeprectatedMsg[marker] = true;
+                if (!logger) {
+                    logger = ko.logging.getLogger("");
+                }
+                if (!replacementContext) {
+                    replacementContext = window;
+                }
+                logger.warn("DEPRECATED: "
+                                           + deprecatedName
+                                           + ", use "
+                                           + replacementName
+                                           + "\n"
+                                           + shortStack
+                                           + "\n"
+                                           );
+            }
+            return eval(replacementName);
+        });
+};
+
+
 this.Logger.prototype.error = function(message) {
     try {
         if (this._logger.getEffectiveLevel() <= LOG_ERROR) {
