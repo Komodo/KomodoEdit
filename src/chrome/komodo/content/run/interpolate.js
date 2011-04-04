@@ -411,7 +411,9 @@ this.getBlockOffsets = function Interpolate_getBlockOffsets(s, bracketed)
 }).apply(ko.interpolate);
 
 
-// backwards compatibility apis
+/**
+ * @deprecated since 7.0
+ */
 ko.logging.globalDeprecatedByAlternative("Interpolate_isWordCharacter", "ko.interpolate.isWordCharacter");
 ko.logging.globalDeprecatedByAlternative("Interpolate_getWordUnderCursor", "ko.interpolate.getWordUnderCursor");
 ko.logging.globalDeprecatedByAlternative("Interpolate_CurrentFilePath", "ko.interpolate.currentFilePath");
