@@ -480,14 +480,16 @@ this.manageMRUList = function(prefName) {
 
 }).apply(ko.mru);
 
-// backwards compatibility api
-var MRU_initialize = ko.mru.initialize;
-var MRU_maxEntries = ko.mru.maxEntries;
-var MRU_add = ko.mru.add;
-var MRU_addURL = ko.mru.addURL;
-var MRU_addFromACTextbox = ko.mru.addFromACTextbox;
-var MRU_get = ko.mru.get;
-var MRU_del = ko.mru.del;
-var MRU_reset = ko.mru.reset;
-var MRU_getAll = ko.mru.getAll;
+/**
+ * @deprecated since 7.0
+ */
+ko.logging.globalDeprecatedByAlternative("MRU_initialize", "ko.mru.initialize");
+ko.logging.globalDeprecatedByAlternative("MRU_maxEntries", "ko.mru.maxEntries");
+ko.logging.globalDeprecatedByAlternative("MRU_add", "ko.mru.add");
+ko.logging.globalDeprecatedByAlternative("MRU_addURL", "ko.mru.addURL");
+ko.logging.globalDeprecatedByAlternative("MRU_addFromACTextbox", "ko.mru.addFromACTextbox");
+ko.logging.globalDeprecatedByAlternative("MRU_get", "ko.mru.get");
+ko.logging.globalDeprecatedByAlternative("MRU_del", "ko.mru.del");
+ko.logging.globalDeprecatedByAlternative("MRU_reset", "ko.mru.reset");
+ko.logging.globalDeprecatedByAlternative("MRU_getAll", "ko.mru.getAll");
 
