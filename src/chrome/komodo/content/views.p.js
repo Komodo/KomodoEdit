@@ -3467,18 +3467,6 @@ this.getCwd = function view_GetCwd() {
 
 }).apply(ko.window);
 
-// e.g. -- first one reached by ko.open.filePicker
-ko.views.addDeprecatedGetter('view_openFilesWithPicker', 'open', 'filePicker');
-ko.views.addDeprecatedGetter('view_openTemplatesWithPicker', 'open', 'templatePicker');
-ko.views.addDeprecatedGetter('view_restoreWorkspace', 'workspace', 'restoreWorkspace');
-ko.views.addDeprecatedGetter('view_saveWorkspace', 'workspace', 'saveWorkspace');
-ko.views.addDeprecatedGetter('view_focusedScintilla', 'window', 'focusedScintilla');
-ko.views.addDeprecatedGetter('view_focusedView', 'window', 'focusedView');
-ko.views.addDeprecatedGetter('view_checkDiskFiles', 'window', 'checkDiskFiles');
-
-// gViewMgr can be dropped in v6:
-ko.views.addDeprecatedGetter('gViewMgr', 'views', 'manager');
-
 // Convenient accessors, not to be deprecated (yet).
 var gEditorTooltipHandler = xtk.domutils.tooltips.getHandler('editorTooltip');
 var view_elementHasFocus = xtk.domutils.elementInFocus;
