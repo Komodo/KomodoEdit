@@ -492,14 +492,16 @@ this.getMappedPath = function(path, prefs)
 }).apply(ko.uriparse);
 
 
-// backwards compatibility API
-var uriparse_addMappedURI = ko.uriparse.addMappedURI;
-var uriparse_getMappedURI = ko.uriparse.getMappedURI;
-var uriparse_localPathToURI = ko.uriparse.localPathToURI;
-var uriparse_pathToURI = ko.uriparse.pathToURI;
-var uriparse_URIToLocalPath = ko.uriparse.URIToLocalPath;
-var uriparse_displayPath = ko.uriparse.displayPath;
-var uriparse_baseName = ko.uriparse.baseName;
-var uriparse_dirName = ko.uriparse.dirName;
-var uriparse_ext = ko.uriparse.ext;
-var uriparse_fixupURI = ko.uriparse.fixupURI;
+/**
+ * @deprecated since 7.0
+ */
+ko.logging.globalDeprecatedByAlternative("uriparse_addMappedURI", "ko.uriparse.addMappedURI");
+ko.logging.globalDeprecatedByAlternative("uriparse_getMappedURI", "ko.uriparse.getMappedURI");
+ko.logging.globalDeprecatedByAlternative("uriparse_localPathToURI", "ko.uriparse.localPathToURI");
+ko.logging.globalDeprecatedByAlternative("uriparse_pathToURI", "ko.uriparse.pathToURI");
+ko.logging.globalDeprecatedByAlternative("uriparse_URIToLocalPath", "ko.uriparse.URIToLocalPath");
+ko.logging.globalDeprecatedByAlternative("uriparse_displayPath", "ko.uriparse.displayPath");
+ko.logging.globalDeprecatedByAlternative("uriparse_baseName", "ko.uriparse.baseName");
+ko.logging.globalDeprecatedByAlternative("uriparse_dirName", "ko.uriparse.dirName");
+ko.logging.globalDeprecatedByAlternative("uriparse_ext", "ko.uriparse.ext");
+ko.logging.globalDeprecatedByAlternative("uriparse_fixupURI", "ko.uriparse.fixupURI");
