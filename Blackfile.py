@@ -1490,10 +1490,11 @@ into the appropriate .wxs files in "src/install/wix":
 """ % '\n'.join(msg))
 
     print "---- build the MSI"
-    #XXX Hack for finding 'nmake'.
-    nmake = r"C:\Program Files\Microsoft Visual Studio\VC98\Bin\nmake.exe"
-    if not exists(nmake):
-        raise Error("don't know where 'nmake' is on your machine")
+    dirs = [os.curdir] # implied by Windows shell
+    dirs.extend(os.environ.get("PATH", "").split(os.pathsep))
+    #XXX Historical hack
+    dirs.append(r"C:\Program Files\Microsoft Visual Studio\VC98\Bin")
+    nmake = which.which("nmake", dirs)
     cmd = '"PATH=%s;%%PATH%%" && nmake -nologo clean all' % dirname(nmake)
     _run_in_dir(cmd, wrkDir)
 
