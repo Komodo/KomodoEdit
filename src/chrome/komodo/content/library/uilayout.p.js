@@ -41,6 +41,8 @@ if (typeof(ko)=='undefined') {
 ko.uilayout = {};
 
 (function() {
+var _gPrefs = Components.classes["@activestate.com/koPrefService;1"].
+                getService(Components.interfaces.koIPrefService).prefs;
 var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
                 .getService(Components.interfaces.nsIStringBundleService)
                 .createBundle("chrome://komodo/locale/library.properties");
@@ -619,8 +621,8 @@ function _updateMRUMenu(prefName, limit, addManageItem, MRUName)
     var separator = separatorId ? document.getElementById(separatorId) : null;
     var mruList = null;
     var menuitem;
-    if (gPrefs.hasPref(prefName)) {
-        mruList = gPrefs.getPref(prefName);
+    if (_gPrefs.hasPref(prefName)) {
+        mruList = _gPrefs.getPref(prefName);
     }
 
     // Wipe out existing menuitems.
@@ -1365,9 +1367,9 @@ this.unload = function uilayout_unload()
     gUilayout_Observer.destroy();
     gUilayout_Observer = null;
     _prefobserver.destroy();
-    gPrefs.setBooleanPref("startupFullScreen", window.fullScreen)
+    _gPrefs.setBooleanPref("startupFullScreen", window.fullScreen)
     // nsIDOMChromeWindow STATE_MAXIMIZED = 1
-    gPrefs.setBooleanPref("startupMaximized", window.windowState==1)
+    _gPrefs.setBooleanPref("startupMaximized", window.windowState==1)
 }
 
 this.onload = function uilayout_onload()
@@ -1445,15 +1447,15 @@ this._setTabPaneLayoutForTabbox = function(layout, tabbox, position) {
  */
 this.setTabPaneLayout = function uilayout_setTabPaneLayout() {
     // Set the tab pane layout.
-    var leftTabStyle = gPrefs.getStringPref("ui.tabs.sidepanes.left.layout");
+    var leftTabStyle = _gPrefs.getStringPref("ui.tabs.sidepanes.left.layout");
     var leftTabbox = document.getElementById("leftTabBox");
     ko.uilayout._setTabPaneLayoutForTabbox(leftTabStyle, leftTabbox, "left");
 
-    var rightTabStyle = gPrefs.getStringPref("ui.tabs.sidepanes.right.layout");
+    var rightTabStyle = _gPrefs.getStringPref("ui.tabs.sidepanes.right.layout");
     var rightTabbox = document.getElementById("rightTabBox");
     ko.uilayout._setTabPaneLayoutForTabbox(rightTabStyle, rightTabbox, "right");
 
-    var bottomTabStyle = gPrefs.getStringPref("ui.tabs.sidepanes.bottom.layout");
+    var bottomTabStyle = _gPrefs.getStringPref("ui.tabs.sidepanes.bottom.layout");
     var bottomTabbox = document.getElementById("output_area");
     ko.uilayout._setTabPaneLayoutForTabbox(bottomTabStyle, bottomTabbox, "bottom");
 
@@ -1468,10 +1470,10 @@ this.setTabPaneLayout = function uilayout_setTabPaneLayout() {
 this.onloadDelayed = function uilayout_onloadDelayed()
 {
     try {
-        if (gPrefs.getBooleanPref("startupFullScreen")) {
+        if (_gPrefs.getBooleanPref("startupFullScreen")) {
             ko.uilayout.fullScreen();
         }
-        else if (gPrefs.getBooleanPref("startupMaximized")) {
+        else if (_gPrefs.getBooleanPref("startupMaximized")) {
             window.maximize()
         }
     
@@ -1492,7 +1494,7 @@ function _updateAccesskeys() {
     var i;
     var item;
 
-    var enable = ! gPrefs.getBooleanPref("keybindingDisableAccesskeys");
+    var enable = ! _gPrefs.getBooleanPref("keybindingDisableAccesskeys");
 
     menubar = document.getElementById('menubar_main');
     menus = menubar.childNodes;
@@ -1531,33 +1533,34 @@ _PrefObserver.prototype.observe = function(prefSet, prefName, prefSetID)
 
     } else if (prefName == "ui.tabs.sidepanes.left.layout") {
         // Set the tab pane layout.
-        var leftTabStyle = gPrefs.getStringPref("ui.tabs.sidepanes.left.layout");
+        var leftTabStyle = _gPrefs.getStringPref("ui.tabs.sidepanes.left.layout");
         var leftTabbox = document.getElementById("leftTabBox");
         ko.uilayout._setTabPaneLayoutForTabbox(leftTabStyle, leftTabbox, "left");
 
     } else if (prefName == "ui.tabs.sidepanes.right.layout") {
-        var rightTabStyle = gPrefs.getStringPref("ui.tabs.sidepanes.right.layout");
+        var rightTabStyle = _gPrefs.getStringPref("ui.tabs.sidepanes.right.layout");
         var rightTabbox = document.getElementById("rightTabBox");
         ko.uilayout._setTabPaneLayoutForTabbox(rightTabStyle, rightTabbox, "right");
 
     } else if (prefName == "ui.tabs.sidepanes.bottom.layout") {
-        var bottomTabStyle = gPrefs.getStringPref("ui.tabs.sidepanes.bottom.layout");
+        var bottomTabStyle = _gPrefs.getStringPref("ui.tabs.sidepanes.bottom.layout");
         var bottomTabbox = document.getElementById("output_area");
         ko.uilayout._setTabPaneLayoutForTabbox(bottomTabStyle, bottomTabbox, "bottom");
     }
 };
 
 _PrefObserver.prototype.init = function() {
-    gPrefs.prefObserverService.addObserver(this, "keybindingDisableAccesskeys", false);
-    gPrefs.prefObserverService.addObserver(this, "ui.tabs.sidepanes.left.layout", false);
-    gPrefs.prefObserverService.addObserver(this, "ui.tabs.sidepanes.right.layout", false);
-    gPrefs.prefObserverService.addObserver(this, "ui.tabs.sidepanes.bottom.layout", false);
+    _gPrefs.prefObserverService.addObserver(this, "keybindingDisableAccesskeys", false);
+    _gPrefs.prefObserverService.addObserver(this, "ui.tabs.sidepanes.left.layout", false);
+    _gPrefs.prefObserverService.addObserver(this, "ui.tabs.sidepanes.right.layout", false);
+    _gPrefs.prefObserverService.addObserver(this, "ui.tabs.sidepanes.bottom.layout", false);
 }
 
 _PrefObserver.prototype.destroy = function() {
-    if (gPrefSvc && gPrefs) {
-        gPrefs.prefObserverService.removeObserver(this, "keybindingDisableAccesskeys");
-    }
+    _gPrefs.prefObserverService.removeObserver(this, "keybindingDisableAccesskeys");
+    _gPrefs.prefObserverService.removeObserver(this, "ui.tabs.sidepanes.left.layout");
+    _gPrefs.prefObserverService.removeObserver(this, "ui.tabs.sidepanes.right.layout");
+    _gPrefs.prefObserverService.removeObserver(this, "ui.tabs.sidepanes.bottom.layout");
 }
 
 function _saveTabBoxPrefs(prefs, tabboxID, isCollapsedPrefID, selectedTabPrefID) {
@@ -1569,7 +1572,7 @@ function _saveTabBoxPrefs(prefs, tabboxID, isCollapsedPrefID, selectedTabPrefID)
 }
 
 this.saveTabSelections = function uilayout_SaveTabSelections(prefs) {
-    if (typeof(prefs) == "undefined") prefs = gPrefs;
+    if (typeof(prefs) == "undefined") prefs = _gPrefs;
     try {
         _saveTabBoxPrefs(prefs, 'leftTabBox',
                          'uilayout_leftTabBox_collapsed',
@@ -1627,7 +1630,7 @@ function _restoreTabBox(prefs, tabboxID, isCollapsedPrefID, selectedTabPrefID) {
 }
 
 this.restoreTabSelections = function uilayout_RestoreTabSelections(prefs) {
-    if (typeof(prefs) == "undefined") prefs = gPrefs;
+    if (typeof(prefs) == "undefined") prefs = _gPrefs;
     try {
         _restoreTabBox(prefs, 'leftTabBox',
                        'uilayout_leftTabBox_collapsed',
