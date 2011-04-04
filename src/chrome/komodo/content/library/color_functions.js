@@ -36,7 +36,8 @@
 
 // backwards compatibility APIs
 xtk.include("color");
-var rgb = xtk.color;
-var RGB = xtk.color.RGB;
-var hexColorToLong = xtk.color.hexToLong;
+// Deprecated backward compatibility APIs
+ko.logging.globalDeprecatedByAlternative("rgb", "xtk.color");
+ko.logging.globalDeprecatedByAlternative("RGB", "xtk.color.RGB");
+ko.logging.globalDeprecatedByAlternative("hexColorToLong", "xtk.color.hexColorToLong");
 
