@@ -129,4 +129,7 @@ ko.objectTimer.prototype.stopInterval  = function() {
     this.running = false;
 }
 
-var objectTimer = ko.objectTimer;
+/**
+ * @deprecated since 7.0
+ */
+ko.logging.globalDeprecatedByAlternative("objectTimer", "ko.objectTimer");
