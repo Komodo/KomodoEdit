@@ -119,7 +119,7 @@ function updateConfigMenu() {
     }
     var c;
     var selectedmenuitem = null;
-    for (i in configs) {
+    for (var i in configs) {
         c = configs[i];
         if (c == "_vi") {
             // Vi is not a visible choice, it's added on to existing bindings
