@@ -412,11 +412,11 @@ this.getBlockOffsets = function Interpolate_getBlockOffsets(s, bracketed)
 
 
 // backwards compatibility apis
-var Interpolate_isWordCharacter = ko.interpolate.isWordCharacter;
-var Interpolate_getWordUnderCursor = ko.interpolate.getWordUnderCursor;
-var Interpolate_CurrentFilePath = ko.interpolate.currentFilePath;
-var Interpolate_CurrentFileProjectPath = ko.interpolate.currentFileProjectPath;
-var Interpolate_activeProjectPath = ko.interpolate.activeProjectPath;
-var Interpolate_getViewData = ko.interpolate.getViewData;
-var Interpolate_interpolate = ko.interpolate.interpolate;
-var Interpolate_getBlockOffsets = ko.interpolate.getBlockOffsets;
+ko.logging.globalDeprecatedByAlternative("Interpolate_isWordCharacter", "ko.interpolate.isWordCharacter");
+ko.logging.globalDeprecatedByAlternative("Interpolate_getWordUnderCursor", "ko.interpolate.getWordUnderCursor");
+ko.logging.globalDeprecatedByAlternative("Interpolate_CurrentFilePath", "ko.interpolate.currentFilePath");
+ko.logging.globalDeprecatedByAlternative("Interpolate_CurrentFileProjectPath", "ko.interpolate.currentFileProjectPath");
+ko.logging.globalDeprecatedByAlternative("Interpolate_activeProjectPath", "ko.interpolate.activeProjectPath");
+ko.logging.globalDeprecatedByAlternative("Interpolate_getViewData", "ko.interpolate.getViewData");
+ko.logging.globalDeprecatedByAlternative("Interpolate_interpolate", "ko.interpolate.interpolate");
+ko.logging.globalDeprecatedByAlternative("Interpolate_getBlockOffsets", "ko.interpolate.getBlockOffsets");
