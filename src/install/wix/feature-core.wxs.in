@@ -780,7 +780,7 @@
               <File Id="file2172" Name="KOVIEW_0.PY" LongName="koViewService.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koViewService.py"/>
               <File Id="file2173" Name="KOWEBB_0.PY" LongName="koWebbrowser.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koWebbrowser.py"/>
               <File Id="file2174" Name="KOWIND_0.PY" LongName="koWindowsIntegration.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koWindowsIntegration.py"/>
-              <File Id="file1073" LongName="koJavaScriptLinter.py" Name="KOJAVA_2.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koJavaScriptLinter.py" />
+              <File Id="file1511" LongName="koJavaScriptLinter.py" Name="KOJAVA_2.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koJavaScriptLinter.py" />
               <File Id="file2182" Name="KOYAML_0.PY" LongName="koYAMLLanguage.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koYAMLLanguage.py"/>
               <File Id="file2570" Name="KOIKPF_0.XPT" LongName="koIKPFTreeView.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIKPFTreeView.xpt"/>
               <File Id="file2947" Name="KOKPFT_0.PY" LongName="koKPFTreeView.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koKPFTreeView.py"/>
