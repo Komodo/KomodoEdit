@@ -1686,38 +1686,40 @@ this.syncTabSelections = function uilayout_syncTabSelections() {
 
 }).apply(ko.uilayout);
 
-// backwards compatibility api
-var uilayout_toggleToolbarVisibility = ko.uilayout.toggleToolbarVisibility;
-var uilayout_toggleButtons = ko.uilayout.toggleButtons;
-var uilayout_updateToolbarArrangement = ko.uilayout.updateToolbarArrangement;
-var uilayout_populatePreviewToolbarButton = ko.uilayout.populatePreviewToolbarButton;
-var uilayout_focusPane = ko.uilayout.focusPane;
-var uilayout_toggleTab = ko.uilayout.toggleTab;
-var uilayout_updateTabpickerMenu = ko.uilayout.updateTabpickerMenu;
-var uilayout_togglePane = ko.uilayout.togglePane;
-var uilayout_toggleSplitter = ko.uilayout.toggleSplitter;
-var uilayout_updateSplitterBroadcasterState = ko.uilayout.updateSplitterBroadcasterState;
-var uilayout_updateFullScreen = ko.uilayout.updateFullScreen;
-var uilayout_FullScreen = ko.uilayout.fullScreen;
-var uilayout_onFullScreen = ko.uilayout.onFullScreen;
-var uilayout_newFileFromTemplateOrTrimMRU = ko.uilayout.newFileFromTemplateOrTrimMRU;
-var uilayout_UpdateMRUMenuIfNecessary = ko.uilayout.updateMRUMenuIfNecessary;
-var uilayout_updateWindowList = ko.uilayout.updateWindowList;
-var uilayout_UpdateViewAsMenuIfNecessary = ko.uilayout.updateViewAsMenuIfNecessary;
-var uilayout_buildViewAsLanguageMenu = ko.uilayout.buildViewAsLanguageMenu;
-var uilayout_outputPaneShown = ko.uilayout.outputPaneShown;
-var uilayout_leftPaneShown = ko.uilayout.leftPaneShown;
-var uilayout_rightPaneShown = ko.uilayout.rightPaneShown;
-var uilayout_isCodeBrowserTabShown = ko.uilayout.isCodeBrowserTabShown;
-var uilayout_ensureOutputPaneShown = ko.uilayout.ensureOutputPaneShown;
-var uilayout_ensurePaneForTabHidden = ko.uilayout.ensurePaneForTabHidden;
-var uilayout_isPaneShown = ko.uilayout.isPaneShown;
-var uilayout_findMainWindow = ko.windowManager.getMainWindow;
-var uilayout_ensurePaneShown = ko.uilayout.ensurePaneShown;
-var uilayout_ensureTabShown = ko.uilayout.ensureTabShown;
-var uilayout_updateTitlebar = ko.uilayout.updateTitlebar;
-var uilayout_unload = ko.uilayout.unload;
-var uilayout_onload = ko.uilayout.onload;
-var uilayout_onloadDelayed = ko.uilayout.onloadDelayed;
-var uilayout_SaveTabSelections = ko.uilayout.saveTabSelections;
-var uilayout_RestoreTabSelections = ko.uilayout.restoreTabSelections;
+/**
+ * @deprecated since 7.0
+ */
+ko.logging.globalDeprecatedByAlternative("uilayout_toggleToolbarVisibility", "ko.uilayout.toggleToolbarVisibility");
+ko.logging.globalDeprecatedByAlternative("uilayout_toggleButtons", "ko.uilayout.toggleButtons");
+ko.logging.globalDeprecatedByAlternative("uilayout_updateToolbarArrangement", "ko.uilayout.updateToolbarArrangement");
+ko.logging.globalDeprecatedByAlternative("uilayout_populatePreviewToolbarButton", "ko.uilayout.populatePreviewToolbarButton");
+ko.logging.globalDeprecatedByAlternative("uilayout_focusPane", "ko.uilayout.focusPane");
+ko.logging.globalDeprecatedByAlternative("uilayout_toggleTab", "ko.uilayout.toggleTab");
+ko.logging.globalDeprecatedByAlternative("uilayout_updateTabpickerMenu", "ko.uilayout.updateTabpickerMenu");
+ko.logging.globalDeprecatedByAlternative("uilayout_togglePane", "ko.uilayout.togglePane");
+ko.logging.globalDeprecatedByAlternative("uilayout_toggleSplitter", "ko.uilayout.toggleSplitter");
+ko.logging.globalDeprecatedByAlternative("uilayout_updateSplitterBroadcasterState", "ko.uilayout.updateSplitterBroadcasterState");
+ko.logging.globalDeprecatedByAlternative("uilayout_updateFullScreen", "ko.uilayout.updateFullScreen");
+ko.logging.globalDeprecatedByAlternative("uilayout_FullScreen", "ko.uilayout.fullScreen");
+ko.logging.globalDeprecatedByAlternative("uilayout_onFullScreen", "ko.uilayout.onFullScreen");
+ko.logging.globalDeprecatedByAlternative("uilayout_newFileFromTemplateOrTrimMRU", "ko.uilayout.newFileFromTemplateOrTrimMRU");
+ko.logging.globalDeprecatedByAlternative("uilayout_UpdateMRUMenuIfNecessary", "ko.uilayout.updateMRUMenuIfNecessary");
+ko.logging.globalDeprecatedByAlternative("uilayout_updateWindowList", "ko.uilayout.updateWindowList");
+ko.logging.globalDeprecatedByAlternative("uilayout_UpdateViewAsMenuIfNecessary", "ko.uilayout.updateViewAsMenuIfNecessary");
+ko.logging.globalDeprecatedByAlternative("uilayout_buildViewAsLanguageMenu", "ko.uilayout.buildViewAsLanguageMenu");
+ko.logging.globalDeprecatedByAlternative("uilayout_outputPaneShown", "ko.uilayout.outputPaneShown");
+ko.logging.globalDeprecatedByAlternative("uilayout_leftPaneShown", "ko.uilayout.leftPaneShown");
+ko.logging.globalDeprecatedByAlternative("uilayout_rightPaneShown", "ko.uilayout.rightPaneShown");
+ko.logging.globalDeprecatedByAlternative("uilayout_isCodeBrowserTabShown", "ko.uilayout.isCodeBrowserTabShown");
+ko.logging.globalDeprecatedByAlternative("uilayout_ensureOutputPaneShown", "ko.uilayout.ensureOutputPaneShown");
+ko.logging.globalDeprecatedByAlternative("uilayout_ensurePaneForTabHidden", "ko.uilayout.ensurePaneForTabHidden");
+ko.logging.globalDeprecatedByAlternative("uilayout_isPaneShown", "ko.uilayout.isPaneShown");
+ko.logging.globalDeprecatedByAlternative("uilayout_findMainWindow", "ko.windowManager.getMainWindow");
+ko.logging.globalDeprecatedByAlternative("uilayout_ensurePaneShown", "ko.uilayout.ensurePaneShown");
+ko.logging.globalDeprecatedByAlternative("uilayout_ensureTabShown", "ko.uilayout.ensureTabShown");
+ko.logging.globalDeprecatedByAlternative("uilayout_updateTitlebar", "ko.uilayout.updateTitlebar");
+ko.logging.globalDeprecatedByAlternative("uilayout_unload", "ko.uilayout.unload");
+ko.logging.globalDeprecatedByAlternative("uilayout_onload", "ko.uilayout.onload");
+ko.logging.globalDeprecatedByAlternative("uilayout_onloadDelayed", "ko.uilayout.onloadDelayed");
+ko.logging.globalDeprecatedByAlternative("uilayout_SaveTabSelections", "ko.uilayout.saveTabSelections");
+ko.logging.globalDeprecatedByAlternative("uilayout_RestoreTabSelections", "ko.uilayout.restoreTabSelections");
