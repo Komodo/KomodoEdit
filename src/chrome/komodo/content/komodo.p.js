@@ -516,3 +516,4 @@ window.openDialog = function openDialogNotSheet() {
  */
 ko.logging.globalDeprecatedByAlternative('gPrefSvc', 'Components.classes["@activestate.com/koPrefService;1"].getService(Components.interfaces.koIPrefService)');
 ko.logging.globalDeprecatedByAlternative("gPrefs", "ko.prefs");
+ko.logging.globalDeprecatedByAlternative("log", "ko.logging.getLogger('')");

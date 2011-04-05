@@ -587,5 +587,3 @@ ko.logging.globalDeprecatedByAlternative("LOG_INFO", "ko.logging.LOG_INFO");
 ko.logging.globalDeprecatedByAlternative("LOG_WARN", "ko.logging.");
 ko.logging.globalDeprecatedByAlternative("LOG_ERROR", "ko.logging.LOG_ERROR");
 ko.logging.globalDeprecatedByAlternative("LOG_CRITICAL", "ko.logging.LOG_CRITICAL");
-
-ko.logging.globalDeprecatedByAlternative("log", "ko.logging.getLogger('')");
