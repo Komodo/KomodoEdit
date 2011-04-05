@@ -3469,4 +3469,8 @@ this.getCwd = function view_GetCwd() {
 
 // Convenient accessors, not to be deprecated (yet).
 var gEditorTooltipHandler = xtk.domutils.tooltips.getHandler('editorTooltip');
-var view_elementHasFocus = xtk.domutils.elementInFocus;
+
+/**
+ * @deprecated since 7.0
+ */
+ko.logging.globalDeprecatedByAlternative("view_elementHasFocus", "xtk.domutils.elementInFocus");
