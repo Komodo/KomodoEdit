@@ -452,21 +452,3 @@ this.showDiffs = function peFile_ShowDiffs(fname1, fname2) {
 }
 
 }).apply(ko.fileutils);
-
-// setTimeout in case projectManager.p.js hasn't been loaded yet.
-setTimeout(function() {
-ko.projects.addDeprecatedGetter("peFile_Properties", "fileProperties");
-    },1);
-// Do this one here.
-var _deprecated_getters_noted = {peFile_ShowDiffs:false};
-__defineGetter__('peFile_ShowDiffs',
- function() {
-    if (!_deprecated_getters_noted.peFile_ShowDiffs) {
-        _deprecated_getters_noted.peFile_ShowDiffs = true;
-        ko.projects.manager.log.error("DEPRECATED: "
-                                      + 'peFile_ShowDiffs'
-                                      + ", use ko.fileutils.showDiffs"
-                                      + "\n");
-    }
-    return ko.fileutils.showDiffs;
- });

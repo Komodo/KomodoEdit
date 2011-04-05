@@ -103,12 +103,3 @@ this.runCommand = function Run_CommandPart(cmdPart) {
 }
 
 }).apply(ko.projects);
-
-// setTimeout in case projectManager.p.js hasn't been loaded yet.
-setTimeout(function() {
-ko.projects.addDeprecatedGetter("peCommand_addCommand", "addCommand");
-ko.projects.addDeprecatedGetter("command_editProperties", "commandProperties");
-ko.projects.addDeprecatedGetter("Run_CommandPart", "runCommand");
-ko.views.addDeprecatedGetter('ko.projects.addCommand', 'toolbox2', 'add_command');
-    }, 1);
-

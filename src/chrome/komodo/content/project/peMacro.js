@@ -855,35 +855,4 @@ _KomodoJSMacroAPI.prototype.interpolate = function(s, bracketed /*=false*/)
     return ko.interpolate.interpolateString(s, bracketed, queryTitle);
 }
 
-// Backwards Compatibility API
-var _deprecated_getters_noted = {};
-this.addDeprecatedGetter = function(deprecatedName, ko_macro_name) {
-    if (typeof(ko_macro_name) == "undefined") {
-        ko_macro_name = deprecatedName;
-    }
-    __defineGetter__(deprecatedName,
-         function() {
-            if (!(deprecatedName in _deprecated_getters_noted)) {
-                _deprecated_getters_noted[deprecatedName] = true;
-                ko.projects.manager.log.error("DEPRECATED: "
-                                              + deprecatedName
-                                              + ", use ko.macros."
-                                              + ko_macro_name
-                                              + "\n");
-                         }
-                         return ko.macros[ko_macro_name];
-        });
-}
 }).apply(ko.macros);
-
-// setTimeout in case projectManager.p.js hasn't been loaded yet.
-setTimeout(function() {
-ko.projects.addDeprecatedGetter("peMacro_addMacro", "addMacro");
-ko.projects.addDeprecatedGetter("macro_executeMacro", "executeMacro");
-ko.projects.addDeprecatedGetter("macro_executeMacroById", "executeMacroById");
-ko.projects.addDeprecatedGetter("macro_editProperties", "macroProperties");
-
-ko.macros.addDeprecatedGetter("gPeMacro", "eventHandler");
-ko.macros.addDeprecatedGetter("evalAsJavascript", "evalAsJavaScript");
-ko.macros.addDeprecatedGetter("recordPartInvocation", "recordPartInvocation");
-    }, 1000);

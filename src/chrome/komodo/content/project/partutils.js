@@ -355,14 +355,3 @@ this._importPackageViaHttp = function part__ImportPackageViaHttp(viewMgr, part, 
 }
 
 }).apply(ko.projects);
-
-// setTimeout in case projectManager.p.js hasn't been loaded yet.
-setTimeout(function() {
-["invokePart",
- "invokePartById",
- "findPartById"].map(function(name) {
-    ko.projects.addDeprecatedGetter("part_" + name, name);
-});
-ko.projects.addDeprecatedGetter("part_ImportFromFS", "importFromFileSystem");
-ko.projects.addDeprecatedGetter("part_ImportFromPackage", "importFromPackage");
-    }, 1000);

@@ -1305,20 +1305,4 @@ this.handle_parts_reload = function() {
     this.manager.applyPartKeybindings();
 };
 
-// Backwards Compatibility API
-this.addDeprecatedGetter = function(deprecatedName, ko_project_name) {
-    if (typeof(ko_project_name) == "undefined") {
-        ko_project_name = deprecatedName;
-    }
-    __defineGetter__(deprecatedName,
-         function() {
-             ko.main.__deprecatedNameTest(deprecatedName,
-                                        "ko.projects." + ko_project_name);
-             return ko.projects[ko_project_name];
-        });
-}
-
 }).apply(ko.projects);
-
-// dropped: gProjectManager // ko.projects.manager
-// dropped: gFocusedProjectView // ko.projects.active

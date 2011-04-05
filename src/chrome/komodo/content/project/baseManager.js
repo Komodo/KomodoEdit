@@ -463,13 +463,3 @@ this.findPart = function macro_findPart(type, name, where, /*koIPart*/ part) {
 }
 
 }).apply(ko.projects);
-
-// setTimeout in case projectManager.p.js hasn't been loaded yet.
-setTimeout(function() {
-["findItemsByURL",
- "removeItemsByURL",
- "findPartsByURL",
- "invalidateItem"].map(function(name) {
-    ko.projects.addDeprecatedGetter(name);
-});
-    }, 1000);

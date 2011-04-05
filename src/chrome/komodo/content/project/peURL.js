@@ -102,10 +102,3 @@ this.addURL = function peURL_newURL(/*koIPart|koITool*/ parent,
 }
 
 }).apply(ko.projects);
-
-// setTimeout in case projectManager.p.js hasn't been loaded yet.
-setTimeout(function() {
-ko.projects.addDeprecatedGetter("peURL_editProperties", "URLProperties");
-ko.projects.addDeprecatedGetter("peURL_addURL", "addURLFromText");
-ko.projects.addDeprecatedGetter("peURL_newURL", "addURL");
-    }, 1000);

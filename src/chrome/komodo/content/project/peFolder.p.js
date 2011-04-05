@@ -191,19 +191,3 @@ this.removeItems = function peFolder_removeItems(/*array of koIPart*/ items) {
 };
 
 }).apply(ko.projects);
-
-// setTimeout in case projectManager.p.js hasn't been loaded yet.
-setTimeout(function() {
-// backwards compat api
-["getDefaultDirectory",
-"addNewFileFromTemplate",
-"addFileWithURL",
-"addFile",
-"addRemoteFile",
-"addFolder",
-"addLiveFolder"].map(function(name) {
-    ko.projects.addDeprecatedGetter("peFolder_" + name, name);
-});
-
-ko.projects.addDeprecatedGetter("peFolder_add", "addNewPart");
-    }, 1000);

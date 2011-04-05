@@ -276,10 +276,3 @@ this.exportPackageItems = function Toolbox_ExportPackageItems(items) {
 }
 
 }).apply(ko.projects);
-// setTimeout in case projectManager.p.js hasn't been loaded yet.
-setTimeout(function() {
-ko.projects.addDeprecatedGetter("Toolbox_ExportItems", "exportItems");
-ko.projects.addDeprecatedGetter("Toolbox_ExportPackageItems", "exportPackageItems");
-ko.projects.addDeprecatedGetter("Toolbox_ImportPackage", "importPackage");
-    }, 1000);
-// Dropped: toolboxMgr

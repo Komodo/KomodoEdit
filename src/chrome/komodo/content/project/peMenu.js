@@ -660,17 +660,3 @@ this.menuProperties = function peMenu_editProperties(item) {
 }
 
 }).apply(ko.projects);
-
-// setTimeout in case projectManager.p.js hasn't been loaded yet.
-setTimeout(function() {
-["addMenu",
- "addMenuFromPart",
- "addToolbar",
- "addToolbarFromPart",
- "partAcceptsMenuToolbar",
- "removeToolbarForPart",
- "toggleToolbarHiddenStateInPref"].map(function(name) {
-    ko.projects.addDeprecatedGetter("peMenu_" + name, name);
-});
-ko.projects.addDeprecatedGetter("peMenu_editProperties", "menuProperties");
-}, 1000);
