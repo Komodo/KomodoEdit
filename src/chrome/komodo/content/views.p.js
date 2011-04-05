@@ -2419,7 +2419,7 @@ this.onload = function views_onload() {
                         focusedElement.parentNode.localName == "scintilla") {
                         // Should not be focused on the embed element, should
                         // always be focused on the Scintilla element.
-                        log.warn("The focus is on the embed element - changing it to scintilla");
+                        ko.views.manager.log.warn("The focus is on the embed element - changing it to scintilla");
                         ko.views.manager.currentView.setFocus();
                     }
 // #endif
@@ -2661,7 +2661,7 @@ this.gotoLine_onkeypress_handler = function ko_views_gotoLine_onkeypress_handler
             targetLine = currLine - num;
             break;
         default:
-            log.error("unexpected goto line 'sign' value: '"+sign+"'")
+            ko.views.manager.log.error("unexpected goto line 'sign' value: '"+sign+"'")
             targetLine = null;
             break;
     }
