@@ -150,9 +150,9 @@
 
         <!-- Is CodeIntel-based completion enabled for this buffer?
              To be true:
-             - the codeintel system must be active (gCodeIntelActive)
+             - the codeintel system must be active (ko.codeintel.isActive)
              - this buffer lang must be a codeintel completion language,
-               gCodeIntelSvc.is_cpln_lang().
+               ko.codeintel.is_cpln_lang().
              - XXX this buffer must have a document object
             
             This is set in various places that watch for relevant changes
@@ -168,7 +168,7 @@
                     this.log.info("["+this.title+"].isCICplnEnabled = "+val);
                     this._isCICplnEnabled = val;
                     if (val) {
-                        this.ciCompletionUIHandler = new CodeIntelCompletionUIHandler(
+                        this.ciCompletionUIHandler = new ko.codeintel.CompletionUIHandler(
                             this.koDoc.displayPath, this.scimoz,
                             this.languageObj.name,
                             this.koDoc.ciBuf);
@@ -194,9 +194,9 @@
              "Citadel stuff" include the Code Browser, Object Browser and
              the Current Scope statusbar area.
              To be true:
-             - the codeintel system must be active (gCodeIntelActive)
+             - the codeintel system must be active (ko.codeintel.isActive)
              - this buffer lang must be a codeintel citadel language,
-               gCodeIntelSvc.is_citadel_lang().
+               ko.codeintel.is_citadel_lang().
             
             This is set in various places that watch for relevant changes
             (e.g. change in the buffer's language, changes in user prefs,
@@ -217,9 +217,9 @@
              DOM viewer.
 
              To be true:
-             - the codeintel system must be active (gCodeIntelActive)
+             - the codeintel system must be active (ko.codeintel.isActive)
              - this buffer lang must be a codeintel XML language,
-               gCodeIntelSvc.is_xml_lang().
+               ko.codeintel.is_xml_lang().
 
             This is set in various places that watch for relevant changes
             (e.g. change in the buffer's language, changes in user prefs,
@@ -238,7 +238,7 @@
         <!-- Is CodeIntel-based re-scanning enabled for this buffer?
              The 'codeintel_rescan_while_typing_enabled' pref for this
              buffer. Note that this doesn't make sense unless
-             gCodeIntelSvc.is_citadel_lang() is true for this buffer.
+             ko.codeintel.is_citadel_lang() is true for this buffer.
              XXX:FIXME bug http://bugs.activestate.com/show_bug.cgi?id=58058
              XXX:PERF Cache this and use pref observer. -->
         <field name="_isCIRescanningEnabled">true</field>
@@ -1116,7 +1116,7 @@
                     && this._isCICplnEnabledViewPref
                     && this._isCIRescanningEnabled)
                 {
-                    gCodeIntelSvc.scan_document(this.koDoc, linesAdded, false);
+                    ko.codeintel.scan_document(this.koDoc, linesAdded, true /* forcedScan */);
                 }
 
                 if (this.koDoc) {

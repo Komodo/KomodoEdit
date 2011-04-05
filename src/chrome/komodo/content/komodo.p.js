@@ -366,8 +366,6 @@ function onloadDelay() {
         ko.mozhacks.pluginContextMenu();
         ko.history.init();
 
-        CodeIntel_InitializeWindow();
-
         ko.macros.eventHandler.hookOnStartup();
     } catch(ex) {
         _log.exception(ex);

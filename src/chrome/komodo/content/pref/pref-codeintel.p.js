@@ -100,7 +100,9 @@ function OnPreferencePageLoading(prefset)
             gCatalogsView = Components.classes['@activestate.com/koCodeIntelCatalogsTreeView;1']
                 .createInstance(Components.interfaces.koICodeIntelCatalogsTreeView);
             gWidgets.catalogs.treeBoxObject.view = gCatalogsView;
-            gCatalogsView.init(parent.opener.gCodeIntelSvc,
+            var codeintelSvc = Components.classes["@activestate.com/koCodeIntelService;1"]
+                                      .getService(Components.interfaces.koICodeIntelService);
+            gCatalogsView.init(codeintelSvc,
                                parent.hPrefWindow.prefset,
                                "codeintel_selected_catalogs");
             PrefCodeIntel_UpdateCatalogsUI();

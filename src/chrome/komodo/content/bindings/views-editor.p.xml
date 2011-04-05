@@ -165,12 +165,12 @@
                     this.lintBuffer.request("reset the view's document");
                     this._everLinted = true;
                 }
-                this.isCICplnEnabled = (gCodeIntelActive
-                    && gCodeIntelSvc.is_cpln_lang(val.language));
-                this.isCICitadelStuffEnabled = (gCodeIntelActive
-                    && gCodeIntelSvc.is_citadel_lang(val.language));
-                this.isCIXMLStuffEnabled = (gCodeIntelActive
-                    && gCodeIntelSvc.is_xml_lang(val.language));
+                this.isCICplnEnabled = (ko.codeintel.isActive
+                    && ko.codeintel.is_cpln_lang(val.language));
+                this.isCICitadelStuffEnabled = (ko.codeintel.isActive
+                    && ko.codeintel.is_citadel_lang(val.language));
+                this.isCIXMLStuffEnabled = (ko.codeintel.isActive
+                    && ko.codeintel.is_xml_lang(val.language));
                 
                 xtk.domutils.fireEvent(this, 'view_document_attached');
             }
@@ -211,11 +211,11 @@
             var this_ = this;
             this._on_codeintel_activated_window = function(event) {
                 this_.isCICplnEnabled =
-                    gCodeIntelSvc.is_cpln_lang(this_.koDoc.language);
+                    ko.codeintel.is_cpln_lang(this_.koDoc.language);
                 this_.isCICitadelStuffEnabled =
-                    gCodeIntelSvc.is_citadel_lang(this_.koDoc.language);
+                    ko.codeintel.is_citadel_lang(this_.koDoc.language);
                 this_.isCIXMLStuffEnabled =
-                    gCodeIntelSvc.is_xml_lang(this_.koDoc.language);
+                    ko.codeintel.is_xml_lang(this_.koDoc.language);
             }
             window.addEventListener('codeintel_activated_window',
                 this._on_codeintel_activated_window, false);
@@ -431,12 +431,12 @@
                 this.scimoz.colourise(0,-1);
                 this.commandCompletionSvc = null;
                 this._languageObj = null;
-                this.isCICplnEnabled = (gCodeIntelActive
-                    && gCodeIntelSvc.is_cpln_lang(doc.language));
-                this.isCICitadelStuffEnabled = (gCodeIntelActive
-                    && gCodeIntelSvc.is_citadel_lang(doc.language));
-                this.isCIXMLStuffEnabled = (gCodeIntelActive
-                    && gCodeIntelSvc.is_xml_lang(doc.language));
+                this.isCICplnEnabled = (ko.codeintel.isActive
+                    && ko.codeintel.is_cpln_lang(doc.language));
+                this.isCICitadelStuffEnabled = (ko.codeintel.isActive
+                    && ko.codeintel.is_citadel_lang(doc.language));
+                this.isCIXMLStuffEnabled = (ko.codeintel.isActive
+                    && ko.codeintel.is_xml_lang(doc.language));
                 if (this == ko.views.manager.currentView) {
                     if (this.lintBuffer && this.prefs.getBooleanPref("editUseLinting")) {
                         //XXX What if the language of a view other than the

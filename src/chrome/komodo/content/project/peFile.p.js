@@ -328,7 +328,7 @@ this.refreshStatus = function doRefreshStatus(/*koIPart []*/ items) {
 
         // Also refresh CodeIntel data for this view, if enabled.
         if (view.isCICitadelStuffEnabled || view.isCIXMLStuffEnabled) {
-            gCodeIntelSvc.scan_document(view.koDoc, 0, false);
+            ko.codeintel.scan_document(view.koDoc, 0, true /* forcedScan */);
         }
     }
     try {

@@ -1856,7 +1856,7 @@ viewManager.prototype.do_cmd_gotoLine = function() {
 
 // cmd_goToDefinition
 viewManager.prototype.is_cmd_goToDefinition_enabled = function() {
-    if (!gCodeIntelActive) return false;
+    if (!ko.codeintel.isActive) return false;
     var view = ko.views.manager.currentView;
     return (view && view.scimoz && view.koDoc &&
             view.isCICitadelStuffEnabled);
@@ -3375,13 +3375,13 @@ function _view_checkDiskFiles(event) {
                 for (i = 0; i < items.length; i++) {
                     if (item.type == 'view') {
                         items[i].view.revertUnconditionally()
-                        if (gCodeIntelActive) {
-                            gCodeIntelSvc.scan_document(
+                        if (ko.codeintel.isActive) {
+                            ko.codeintel.scan_document(
                                 items[i].view.koDoc,
                                 // linesAdded: using non-zero value to
                                 // encourage high-prio rescan
                                 1,
-                                true);
+                                false /* forcedScan */);
                         }
                     } else {
                         ko.projects.manager.revertProject(items[i].project);
