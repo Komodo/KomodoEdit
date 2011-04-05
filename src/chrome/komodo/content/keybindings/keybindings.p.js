@@ -1172,7 +1172,7 @@ this.manager.prototype.saveAndApply = function(prefset) {
 this.manager.prototype._saveKnownConfigs = function() {
     var keybinding;
     var keybindings = '';
-    for (i in this._knownconfigs) {
+    for (var i in this._knownconfigs) {
         keybinding = this._knownconfigs[i];
         keybindings += keybinding +'\n';
     }
