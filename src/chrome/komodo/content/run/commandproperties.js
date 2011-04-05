@@ -189,7 +189,7 @@ function LoadOptionsFromPart(part)
         UpdateField("cwd", true);
     }
     if (part.hasAttribute("env")) {
-        var env = stringutils_unescapeWhitespace(part.getStringAttribute("env"), '\n');
+        var env = ko.stringutils.unescapeWhitespace(part.getStringAttribute("env"), '\n');
         gEnvView.SetEnvironmentStrings(env);
         UpdateField("env", true);
     }

@@ -84,7 +84,7 @@ this.runCommand = function Run_CommandPart(cmdPart) {
         window,
         cmdPart.value,
         cmdPart.getStringAttribute("cwd"),
-        stringutils_unescapeWhitespace(cmdPart.getStringAttribute("env"), '\n'),
+        ko.stringutils.unescapeWhitespace(cmdPart.getStringAttribute("env"), '\n'),
         cmdPart.getBooleanAttribute("insertOutput"),
         cmdPart.getBooleanAttribute("operateOnSelection"),
         cmdPart.getBooleanAttribute("doNotOpenOutputWindow"),
