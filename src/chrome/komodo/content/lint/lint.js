@@ -651,9 +651,12 @@ this.doClick = function lint_doClick(event) {
 
 }).apply(ko.lint);
 
-var LintBuffer = ko.lint.lintBuffer;
-var lint_jumpToNextLintResult = ko.lint.jumpToNextLintResult;
-var lint_doRequest = ko.lint.doRequest;
-var lint_clearResults = ko.lint.clearResults;
-var lint_doClick = ko.lint.doClick;
+/**
+ * @deprecated since 7.0
+ */
+ko.logging.globalDeprecatedByAlternative("LintBuffer", "ko.lint.lintBuffer");
+ko.logging.globalDeprecatedByAlternative("lint_jumpToNextLintResult", "ko.lint.jumpToNextLintResult");
+ko.logging.globalDeprecatedByAlternative("lint_doRequest", "ko.lint.doRequest");
+ko.logging.globalDeprecatedByAlternative("lint_clearResults", "ko.lint.clearResults");
+ko.logging.globalDeprecatedByAlternative("lint_doClick", "ko.lint.doClick");
 
