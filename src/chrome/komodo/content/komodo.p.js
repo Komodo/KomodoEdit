@@ -519,21 +519,3 @@ window.openDialog = function openDialogNotSheet() {
 // backwards compatibility APIs
 var gPrefSvc = null;
 var gPrefs = null;
-
-__defineGetter__("gInfoSvc",
-function()
-{
-    ko.logging.getLogger("ko.main").warn("gInfoSvc is deprecated, use getService");
-    return Components.classes["@activestate.com/koInfoService;1"].
-              getService(Components.interfaces.koIInfoService);
-});
-
-// XXX don't use this for new code, it's here to support
-// older code
-__defineGetter__("gObserverSvc",
-function()
-{
-    ko.logging.getLogger("ko.main").warn("gObserverSvc is deprecated, use getService");
-    return Components.classes["@mozilla.org/observer-service;1"].
-            getService(Components.interfaces.nsIObserverService);
-});
