@@ -497,7 +497,7 @@ viewManager.prototype._doNewView = function(language /*= prefs.fileDefaultNew*/,
     if (typeof(viewType)=='undefined' || !viewType)
         viewType = 'editor';
     if (typeof(language)=='undefined' || !language) {
-        language = gPrefs.getStringPref('fileDefaultNew');
+        language = ko.prefs.getStringPref('fileDefaultNew');
     }
 
     // the following line is delayed to avoid notifications during load()
@@ -2733,20 +2733,20 @@ this.restoreWorkspace = function view_restoreWorkspace(currentWindow)
     var infoSvc = Components.classes["@activestate.com/koInfoService;1"].getService();
     if (infoSvc.nonInteractiveMode) return;
 
-    var was_normal_shutdown = gPrefs.getBooleanPref('komodo_normal_shutdown');
+    var was_normal_shutdown = ko.prefs.getBooleanPref('komodo_normal_shutdown');
     if (was_normal_shutdown) {
-        gPrefs.setBooleanPref('komodo_normal_shutdown', false);
+        ko.prefs.setBooleanPref('komodo_normal_shutdown', false);
         // Force flushing of prefs to file.
         gPrefSvc.saveState();
     }
 
     // If there is a workspace to restore - prompt the user to see if they wish
     // to restore it.
-    if (!gPrefs.hasPref(multiWindowWorkspacePrefName) && !gPrefs.hasPref('workspace')) {
+    if (!ko.prefs.hasPref(multiWindowWorkspacePrefName) && !ko.prefs.hasPref('workspace')) {
         return;
     } else if (!was_normal_shutdown) {   // Komodo crashed
-        if (gPrefs.getBooleanPref("donotask_restore_workspace") &&
-            gPrefs.getStringPref("donotask_action_restore_workspace") == "No") {
+        if (ko.prefs.getBooleanPref("donotask_restore_workspace") &&
+            ko.prefs.getStringPref("donotask_action_restore_workspace") == "No") {
             // The user has explictly asked never to restore the workspace.
             return;
         }
@@ -2760,15 +2760,15 @@ this.restoreWorkspace = function view_restoreWorkspace(currentWindow)
         return;
     }
 
-    if (!gPrefs.hasPref(multiWindowWorkspacePrefName)) {
-        this._restoreWindowWorkspace(gPrefs.getPref('workspace'), currentWindow, _mozPersistPositionDoesNotWork);
+    if (!ko.prefs.hasPref(multiWindowWorkspacePrefName)) {
+        this._restoreWindowWorkspace(ko.prefs.getPref('workspace'), currentWindow, _mozPersistPositionDoesNotWork);
         setTimeout(ko.uilayout.restoreTabSelections, 10, gPrefs);
         return;
     }
     // Restore the first workspace directly, and restore other
     // workspaces indirectly each new window's init routine in ko.main
     
-    var windowWorkspacePref = gPrefs.getPref(multiWindowWorkspacePrefName);
+    var windowWorkspacePref = ko.prefs.getPref(multiWindowWorkspacePrefName);
     var checkWindowBounds = _mozPersistPositionDoesNotWork || windowWorkspacePref.hasPref(1);
     this._restoreWindowWorkspace(windowWorkspacePref.getPref(0), currentWindow, checkWindowBounds);
     var nextIdx = this._getNextWorkspaceIndexToRestore(0);
@@ -2778,7 +2778,7 @@ this.restoreWorkspace = function view_restoreWorkspace(currentWindow)
 };
 
 this._getNextWorkspaceIndexToRestore = function(currIdx) {
-    var windowWorkspacePref = gPrefs.getPref(multiWindowWorkspacePrefName);
+    var windowWorkspacePref = ko.prefs.getPref(multiWindowWorkspacePrefName);
     var prefIds = {};
     windowWorkspacePref.getPrefIds(prefIds, {});
     prefIds = prefIds.value.filter(function(i) i > currIdx);
@@ -2815,7 +2815,7 @@ this._getNextWorkspaceIndexToRestore = function(currIdx) {
 
 this.restoreWorkspaceByIndex = function(currentWindow, idx, thisIndexOnly)
 {
-    if (!gPrefs.hasPref(multiWindowWorkspacePrefName)) {
+    if (!ko.prefs.hasPref(multiWindowWorkspacePrefName)) {
         ko.dialogs.alert("Internal error: \n"
                          + "ko.workspace.restoreWorkspaceByIndex invoked (index="
                          + idx
@@ -2826,7 +2826,7 @@ this.restoreWorkspaceByIndex = function(currentWindow, idx, thisIndexOnly)
     idx = parseInt(idx);
     //dump("restoreWorkspaceByIndex: set this workspace _koNum to " + idx + "\n");
     currentWindow._koNum = idx;
-    var windowWorkspacePref = gPrefs.getPref('windowWorkspace');
+    var windowWorkspacePref = ko.prefs.getPref('windowWorkspace');
     try {
         this._restoreWindowWorkspace(windowWorkspacePref.getPref(idx), currentWindow, idx > 0 || _mozPersistPositionDoesNotWork);
     } catch(ex) {
@@ -2846,7 +2846,7 @@ this.restoreWorkspaceByIndex = function(currentWindow, idx, thisIndexOnly)
 };
 
 this.getRecentClosedWindowList = function() {
-    var windowWorkspacePref = gPrefs.getPref(multiWindowWorkspacePrefName);
+    var windowWorkspacePref = ko.prefs.getPref(multiWindowWorkspacePrefName);
     var prefIds = {};
     windowWorkspacePref.getPrefIds(prefIds, {});
     prefIds = prefIds.value.map(function(x) parseInt(x));
@@ -2970,7 +2970,7 @@ this._restoreWindowWorkspace = function(workspace, currentWindow, checkWindowBou
         }
         // Opening the Start Page should be before commandment system init and
         // workspace restoration because it should be the first view opened.
-        if (gPrefs.getBooleanPref("show_start_page")) {
+        if (ko.prefs.getBooleanPref("show_start_page")) {
             ko.open.startPage();
         }
         workspace.getPrefIds(ids, cnt);
@@ -3054,7 +3054,7 @@ this.initializeEssentials = function(currentWindow, workspace /*=null*/,
     } else {
         currentWindow._koNum = infoService.nextWindowNum();
     }
-    if (showStartPage && gPrefs.getBooleanPref("show_start_page")) {
+    if (showStartPage && ko.prefs.getBooleanPref("show_start_page")) {
         ko.open.startPage();
     }
     xtk.domutils.fireEvent(window, 'workspace_restored');
@@ -3129,11 +3129,11 @@ this._saveWorkspaceForIdx_aux =
 };
 
 this._getWindowWorkspace = function() {
-    if (gPrefs.hasPref(multiWindowWorkspacePrefName)) {
-        return gPrefs.getPref(multiWindowWorkspacePrefName);
+    if (ko.prefs.hasPref(multiWindowWorkspacePrefName)) {
+        return ko.prefs.getPref(multiWindowWorkspacePrefName);
     }
     var windowWorkspace = Components.classes['@activestate.com/koPreferenceSet;1'].createInstance();
-    gPrefs.setPref(multiWindowWorkspacePrefName, windowWorkspace);
+    ko.prefs.setPref(multiWindowWorkspacePrefName, windowWorkspace);
     return windowWorkspace;    
 }
 
@@ -3261,8 +3261,8 @@ this.checkDiskFiles = function view_checkDiskFiles(event)
     }
     if (event && event.eventPhase != event.AT_TARGET) return true;
 
-    var checkDisk = (gPrefs.hasBooleanPref("checkDiskFile") &&
-                     gPrefs.getBooleanPref("checkDiskFile"));
+    var checkDisk = (ko.prefs.hasBooleanPref("checkDiskFile") &&
+                     ko.prefs.getBooleanPref("checkDiskFile"));
     if (!checkDisk) return true;
     _gInCheckDiskFiles = true;
     log.info('Checking Disk Files');

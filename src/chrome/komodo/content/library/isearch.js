@@ -150,8 +150,8 @@ ISController.prototype._startIncrementalSearch = function(backwards) {
 
     this.findSvc.options.searchBackward = backwards;
     this.findSvc.options.matchWord = false;
-    this.findSvc.options.patternType = Number(gPrefs.getStringPref('isearchType'));
-    this.findSvc.options.caseSensitivity = Number(gPrefs.getStringPref('isearchCaseSensitivity'));
+    this.findSvc.options.patternType = Number(ko.prefs.getStringPref('isearchType'));
+    this.findSvc.options.caseSensitivity = Number(ko.prefs.getStringPref('isearchCaseSensitivity'));
     this._incrementalSearchContext.type = this.findSvc.options.FCT_CURRENT_DOC;
     this._incrementalSearchPattern = pattern;
     if (pattern) {

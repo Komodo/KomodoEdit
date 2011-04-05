@@ -435,12 +435,12 @@
             this._bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
                 .getService(Components.interfaces.nsIStringBundleService)
                 .createBundle("chrome://komodo/locale/startpage/startpage.properties");
-            this._dateFormat = gPrefs.getStringPref("defaultDateFormat");
+            this._dateFormat = ko.prefs.getStringPref("defaultDateFormat");
 
             var obSvc = Components.classes["@mozilla.org/observer-service;1"].
                 getService(Components.interfaces.nsIObserverService);
             obSvc.addObserver(this, 'mru_changed', false);
-            gPrefs.prefObserverService.addObserver(this, "defaultDateFormat", true);
+            ko.prefs.prefObserverService.addObserver(this, "defaultDateFormat", true);
             try {
                 this.homePathLC = (Components.classes["@mozilla.org/file/directory_service;1"]
                                 .createInstance(Components.interfaces.nsIProperties)
@@ -465,7 +465,7 @@
             var obSvc = Components.classes["@mozilla.org/observer-service;1"].
                 getService(Components.interfaces.nsIObserverService);
             obSvc.removeObserver(this, 'mru_changed');
-            gPrefs.prefObserverService.removeObserver(this, "defaultDateFormat");
+            ko.prefs.prefObserverService.removeObserver(this, "defaultDateFormat");
         ]]></body>
         </method>
 
@@ -494,7 +494,7 @@
         <method name="updateFormat">
         <parameter name="name"/>
         <body> <![CDATA[
-            this._dateFormat = gPrefs.getStringPref(name);
+            this._dateFormat = ko.prefs.getStringPref(name);
             this.updateProjectMRUTable();
             this.updateFileMRUTable();
         ]]> </body>
@@ -598,8 +598,8 @@
                 var children = this._projects.lastChild;
                 // Get the MRU info.
                 var projectMRU = null;
-                if (gPrefs.hasPref("mruProjectList")) {
-                    projectMRU = gPrefs.getPref("mruProjectList");
+                if (ko.prefs.hasPref("mruProjectList")) {
+                    projectMRU = ko.prefs.getPref("mruProjectList");
                 }
 
                 // Clear the table (don't clear the header row).
@@ -626,8 +626,8 @@
                 var children = this._files.lastChild;
                 // Get the MRU info.
                 var fileMRU = null;
-                if (gPrefs.hasPref("mruFileList")) {
-                    fileMRU = gPrefs.getPref("mruFileList");
+                if (ko.prefs.hasPref("mruFileList")) {
+                    fileMRU = ko.prefs.getPref("mruFileList");
                 }
 
                 // Clear the table (don't clear the header row).
@@ -1005,7 +1005,7 @@
                 
                 obSvc.addObserver(this, 'mru_changed', false);
 
-                if (!gPrefs.getBooleanPref("start_page_landing_box_closed")) {
+                if (!ko.prefs.getBooleanPref("start_page_landing_box_closed")) {
                     this.loadLandingPage();
                 }
             } catch(ex) {
@@ -1020,7 +1020,7 @@
         try {
             // just ping the server to see if we can load a webpage
             var browser = document.getAnonymousElementByAttribute(this, "anonid", "landingPage");
-            var url = gPrefs.getStringPref('start_page_landing_box_url');
+            var url = ko.prefs.getStringPref('start_page_landing_box_url');
             if (!url) {
                 browser.setAttribute("src", "chrome://komodo/content/startpage/offline/edit_offline.html");
                 return;
@@ -1216,8 +1216,8 @@
             try {
                 // Get the MRU info.
                 var mru = null;
-                if (gPrefs.hasPref("mruTemplateList")) {
-                    mru = gPrefs.getPref("mruTemplateList");
+                if (ko.prefs.hasPref("mruTemplateList")) {
+                    mru = ko.prefs.getPref("mruTemplateList");
                 }
 
                 // Clear the table (don't clear the header row).

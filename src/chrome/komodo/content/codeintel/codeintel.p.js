@@ -88,7 +88,7 @@ function CodeIntelCompletionUIHandler(path, scimoz, language,
         this._lastRecentPrecedingCompletionAttemptTime = null;
         this._lastRecentPrecedingCompletionAttemptTimeout = 3.0;
 
-        if (gPrefs.getBooleanPref("codeintel_completion_auto_fillups_enabled")) {
+        if (ko.prefs.getBooleanPref("codeintel_completion_auto_fillups_enabled")) {
             scimoz.autoCSetFillUps(this.completionFillups);
         }
         // Don't hide when there is no match: may just be mistyped character.
@@ -128,7 +128,7 @@ function CodeIntelCompletionUIHandler(path, scimoz, language,
         this._lastTriggerPos = null;
         this._defns = [];
 
-        gPrefs.prefObserverService.addObserver(this,
+        ko.prefs.prefObserverService.addObserver(this,
             "codeintel_completion_auto_fillups_enabled", 0);
     } catch(ex) {
         _gCodeIntel_log.exception(ex);
@@ -151,7 +151,7 @@ CodeIntelCompletionUIHandler.prototype.finalize = function() {
     _gCodeIntel_log.debug("CodeIntelCompletionUIHandler.finalize()");
     this.scimoz = null;
     try {
-        gPrefs.prefObserverService.removeObserver(this,
+        ko.prefs.prefObserverService.removeObserver(this,
             "codeintel_completion_auto_fillups_enabled");
     } catch(ex) {
         _gCodeIntel_log.exception(ex);
@@ -166,7 +166,7 @@ CodeIntelCompletionUIHandler.prototype.observe = function(prefSet, prefName, pre
     try {
         switch (prefName) {
         case "codeintel_completion_auto_fillups_enabled":
-            if (gPrefs.getBooleanPref("codeintel_completion_auto_fillups_enabled")) {
+            if (ko.prefs.getBooleanPref("codeintel_completion_auto_fillups_enabled")) {
                 this.scimoz.autoCSetFillUps(this.completionFillups);
             } else {
                 this.scimoz.autoCSetFillUps("");
@@ -353,8 +353,8 @@ CodeIntelCompletionUIHandler.prototype._setCallTipInfo = function(
 
         // Ensure the calltip line width and number of calltip lines shown
         // is not more than the user wants to see.
-        var max_line_width = gPrefs.getLongPref("codeintel_calltip_max_line_width");
-        var max_lines = gPrefs.getLongPref("codeintel_calltip_max_lines");
+        var max_line_width = ko.prefs.getLongPref("codeintel_calltip_max_line_width");
+        var max_lines = ko.prefs.getLongPref("codeintel_calltip_max_lines");
         var textUtils = Components.classes["@activestate.com/koTextUtils;1"]
                             .getService(Components.interfaces.koITextUtils);
         calltip = textUtils.break_up_lines(calltip, max_line_width);
@@ -558,7 +558,7 @@ function CodeIntel_InitializeWindow()
 {
     _gCodeIntel_log.debug("CodeIntel_InitializeWindow()");
     try {
-        if (gPrefs.getBooleanPref("codeintel_enabled")) {
+        if (ko.prefs.getBooleanPref("codeintel_enabled")) {
             _CodeIntel_ActivateWindow();
         } else {
             _CodeIntel_DeactivateWindow();
@@ -620,7 +620,7 @@ function _CodeIntel_PreloadDBIfNecessary()
 {
     _gCodeIntel_log.debug("_CodeIntel_PreloadDBIfNecessary()");
     try {
-        if (! gPrefs.getBooleanPref("codeintel_have_preloaded_database")) {
+        if (! ko.prefs.getBooleanPref("codeintel_have_preloaded_database")) {
             var preloader = Components.classes["@activestate.com/koCodeIntelDBPreloader;1"]
                             .createInstance(Components.interfaces.koIShowsProgress);
             ko.dialogs.progress(preloader,
@@ -642,7 +642,7 @@ function _CodeIntel_PreloadDBIfNecessary()
 //{
 //    _gCodeIntel_log.debug("CodeIntel_UpdateCatalogZoneIfNecessary()");
 //    try {
-//        if (! gPrefs.getBooleanPref("codeintel_have_preloaded_database")) {
+//        if (! ko.prefs.getBooleanPref("codeintel_have_preloaded_database")) {
 //            var preloader = Components.classes["@activestate.com/koCodeIntelDBPreloader;1"]
 //                            .createInstance(Components.interfaces.koIShowsProgress);
 //            ko.dialogs.progress(preloader,

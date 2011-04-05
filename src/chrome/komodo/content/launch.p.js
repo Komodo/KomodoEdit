@@ -132,8 +132,8 @@ this.language = function(searchTerm) {
     // Get the help command appropriate for that language.
     var command=null, name=null;
     if (language) {
-        if (gPrefs.hasStringPref(language+'HelpCommand')) {
-            command = gPrefs.getStringPref(language+'HelpCommand');
+        if (ko.prefs.hasStringPref(language+'HelpCommand')) {
+            command = ko.prefs.getStringPref(language+'HelpCommand');
         } else {
             // try to get from the language service
             var langRegistrySvc = Components.classes['@activestate.com/koLanguageRegistryService;1'].
@@ -160,7 +160,7 @@ this.language = function(searchTerm) {
     }
     if (!command) {
         // Couldn't find language-specific help command -- use the default one.
-        command = gPrefs.getStringPref('DefaultHelpCommand');
+        command = ko.prefs.getStringPref('DefaultHelpCommand');
         name = "Help";
     }
 
@@ -187,7 +187,7 @@ this.language = function(searchTerm) {
  * Launches the alternate help command.
  */
 this.alternate = function() {
-    var command = gPrefs.getStringPref('OtherHelpCommand');
+    var command = ko.prefs.getStringPref('OtherHelpCommand');
     ko.run.runCommand(window,
                    command,
                    null, // cwd

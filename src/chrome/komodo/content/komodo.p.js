@@ -56,7 +56,7 @@ var _savedWorkspace = false;
 function saveWorkspaceIfNeeded() {
     if (!_savedWorkspace) {
         ko.workspace.saveWorkspace(true);
-        gPrefs.setBooleanPref("komodo_normal_shutdown", true);
+        ko.prefs.setBooleanPref("komodo_normal_shutdown", true);
         _savedWorkspace = true;
     }
 }
@@ -391,11 +391,6 @@ window.onload = function(event) {
         enableDevOptions();
 // #endif
 
-        // XXX get rid of globals
-        gPrefSvc = Components.classes["@activestate.com/koPrefService;1"].
-                        getService(Components.interfaces.koIPrefService);
-        gPrefs = gPrefSvc.prefs;
-
         /* services needed for even the most basic operation of komodo */
         ko.keybindings.onload();
 
@@ -516,6 +511,8 @@ window.openDialog = function openDialogNotSheet() {
 }).apply(ko.mozhacks);
 
 
-// backwards compatibility APIs
-var gPrefSvc = null;
-var gPrefs = null;
+/**
+ * @deprecated since 7.0
+ */
+ko.logging.globalDeprecatedByAlternative('gPrefSvc', 'Components.classes["@activestate.com/koPrefService;1"].getService(Components.interfaces.koIPrefService)');
+ko.logging.globalDeprecatedByAlternative("gPrefs", "ko.prefs");
