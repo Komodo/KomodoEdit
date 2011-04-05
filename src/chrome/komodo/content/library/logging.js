@@ -42,14 +42,14 @@
 
 Usage:
 
-    log = gLoggingMgr.getLogger(<logger_name>);
+    log = ko.logging.getLogger(<logger_name>);
     log.debug(<message>);
     log.info(<message>);
     etc.
 
 To turn on or off a logger, use:
 
-    log.setLevel(LOG_DEBUG)
+    log.setLevel(ko.logging.LOG_DEBUG);
 
 Loggers that we are using:
 
