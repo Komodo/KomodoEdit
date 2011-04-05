@@ -2737,7 +2737,8 @@ this.restoreWorkspace = function view_restoreWorkspace(currentWindow)
     if (was_normal_shutdown) {
         ko.prefs.setBooleanPref('komodo_normal_shutdown', false);
         // Force flushing of prefs to file.
-        gPrefSvc.saveState();
+        var prefSvc = Components.classes["@activestate.com/koPrefService;1"].getService(Components.interfaces.koIPrefService);
+        prefSvc.saveState();
     }
 
     // If there is a workspace to restore - prompt the user to see if they wish
@@ -3149,7 +3150,8 @@ this.saveWorkspaceForIdx = function saveWorkspaceForIdx(idx) {
         this._saveWorkspaceForIdx_aux(idx, restoreOnRestart,
                                       thisWindow, mainWindow,
                                       windowWorkspace, saveCoordinates);
-        gPrefSvc.saveState();
+        var prefSvc = Components.classes["@activestate.com/koPrefService;1"].getService(Components.interfaces.koIPrefService);
+        prefSvc.saveState();
     } catch (e) {
         log.exception(e,"Error saving workspace: ");
     } finally {
@@ -3177,7 +3179,8 @@ this.saveWorkspace = function view_saveWorkspace()
                                           windowWorkspace, saveCoordinates);
         }
         // Save prefs
-        gPrefSvc.saveState();
+        var prefSvc = Components.classes["@activestate.com/koPrefService;1"].getService(Components.interfaces.koIPrefService);
+        prefSvc.saveState();
     } catch (e) {
         log.exception(e,"Error saving workspace: ");
     } finally {

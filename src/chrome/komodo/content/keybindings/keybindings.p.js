@@ -121,13 +121,13 @@ this.manager = function keybindingManager() {
     this.keyTree = {};
     this.activeCommands = {};
     var line, i;
-    this.prefset = gPrefSvc.prefs;
+    this.prefset = ko.prefs;
     this._knownconfigs = [];
     this.keybindingSchemeService = Components.classes['@activestate.com/koKeybindingSchemeService;1'].getService();
     var schemes = new Array();
     this.keybindingSchemeService.getSchemeNames(schemes, new Object());
     this._knownconfigs = schemes.value;
-    this.currentConfiguration = gPrefSvc.prefs.getStringPref('keybinding-scheme');
+    this.currentConfiguration = this.prefset.getStringPref('keybinding-scheme');
     this.currentScheme = this.keybindingSchemeService.getScheme(this.currentConfiguration);
     //dump('got currentConfiguration = ' + this.currentConfiguration + '\n');
 
@@ -1137,7 +1137,7 @@ this.manager.prototype.revertToPref = function(configname) {
             }
         }
     }
-    gPrefSvc.prefs.setStringPref('keybinding-scheme', configname);
+    this.prefset.setStringPref('keybinding-scheme', configname);
     this.currentConfiguration = configname;
     this.currentScheme = this.keybindingSchemeService.getScheme(this.currentConfiguration);
     this.loadConfiguration(this.currentConfiguration);

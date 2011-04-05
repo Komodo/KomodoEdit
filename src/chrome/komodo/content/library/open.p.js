@@ -371,7 +371,8 @@ this.multipleURIs = function open_openMultipleURIs(urls, viewType)
 {
     var i,j;
     if (urls.length) {
-        var viewStateMRU = gPrefSvc.getPrefs("viewStateMRU");
+        var prefSvc = Components.classes["@activestate.com/koPrefService;1"].getService(Components.interfaces.koIPrefService);
+        var viewStateMRU = prefSvc.getPrefs("viewStateMRU");
         var projectFiles = [];
         var projectViewState,file_url;
         for (i=0; i < urls.length; i++) {
