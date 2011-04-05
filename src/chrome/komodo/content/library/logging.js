@@ -588,19 +588,4 @@ ko.logging.globalDeprecatedByAlternative("LOG_WARN", "ko.logging.");
 ko.logging.globalDeprecatedByAlternative("LOG_ERROR", "ko.logging.LOG_ERROR");
 ko.logging.globalDeprecatedByAlternative("LOG_CRITICAL", "ko.logging.LOG_CRITICAL");
 
-try {
-    //XXX Whoa. Isn't this evil? This means every JS namespace has 'log'
-    //    set to the root logger -- a subtle fallback for sloppy code that
-    //    presumes a 'log' variable. --TM
-    var log = getLoggingMgr().getLogger('');
-} catch (e) {
-    try {
-        alert(e);
-    } catch(ex) {
-        // this  happens if there is no window, and getLogger failed
-        dump(e+"\n");
-        dump(ex+"\n");
-    }
-}
-
-
+ko.logging.globalDeprecatedByAlternative("log", "ko.logging.getLogger('')");
