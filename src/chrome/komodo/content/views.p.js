@@ -2697,6 +2697,8 @@ if (typeof(ko.workspace) == "undefined") {
 }
 (function() {
 
+var log = ko.logging.getLogger('workspace');
+//log.setLevel(ko.logging.LOG_DEBUG);
 var _restoreInProgress = false;
 var _saveInProgress = false;
 var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
@@ -3188,6 +3190,9 @@ this.saveWorkspace = function view_saveWorkspace()
 
 ko.window = {};
 (function() {
+
+var log = ko.logging.getLogger('window');
+//log.setLevel(ko.logging.LOG_DEBUG);
 var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
     .getService(Components.interfaces.nsIStringBundleService)
     .createBundle("chrome://komodo/locale/views.properties");
