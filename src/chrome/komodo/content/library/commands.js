@@ -272,9 +272,12 @@ this.doCommand = function command_doCommand(command) {
 }).apply(ko.commands);
 
 
-var command_doCommand = ko.commands.doCommand;
-var command_doCommandAsync = ko.commands.doCommandAsync;
-var command_updateCommandset = ko.commands.updateCommandset;
-var command_doCode = ko.commands.doCode;
-var command_doCodeAsync = ko.commands.doCodeAsync;
+/**
+ * @deprecated since 7.0
+ */
+ko.logging.globalDeprecatedByAlternative("command_doCommand", "ko.commands.doCommand");
+ko.logging.globalDeprecatedByAlternative("command_doCommandAsync", "ko.commands.doCommandAsync");
+ko.logging.globalDeprecatedByAlternative("command_updateCommandset", "ko.commands.updateCommandset");
+ko.logging.globalDeprecatedByAlternative("command_doCode", "ko.commands.doCode");
+ko.logging.globalDeprecatedByAlternative("command_doCodeAsync", "ko.commands.doCodeAsync");
 

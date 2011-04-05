@@ -231,4 +231,7 @@ this.recorder = new MacroRecorder();
 
 }).apply(ko.macros);
 
-var gMacroMgr = ko.macros.recorder;
+/**
+ * @deprecated since 7.0
+ */
+ko.logging.globalDeprecatedByAlternative("gMacroMgr", "ko.macros.recorder");
