@@ -350,7 +350,10 @@ class KoLintService:
         # If there isn't one, throw the ItemError all the way to top-level
         if linters['aggregator'] is not None:
             return linters['aggregator']
-        if len(linters['terminals']) > 1:
+        if len(linters['terminals']) != 1:
+            if len(linters['terminals']) == 0:
+                log.error("No terminal linters for lang %s", languageName)
+                return None
             # Create a generic aggregator for this language.
             linters['aggregator'] = (self.GENERIC_LINTER_AGGREGATOR_CID
                                      + ":" + languageName)
@@ -366,6 +369,8 @@ class KoLintService:
         Note that aggregators are favored over terminal linters.
         """
         linterCID = self._getLinterCIDByLanguageName(languageName)
+        if linterCID is None:
+            return None
         return self._getLinterByCID(linterCID)
 
     def _getLinterByCID(self, linterCID):
