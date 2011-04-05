@@ -157,7 +157,7 @@ viewManager.prototype.shutdown = function()
                                 this.handle_view_opened_setup, false);
     } catch(e) {
         /* moz probably already removed them */
-        log.warn('possible error shutting down viewManager:'+e);
+        this.log.warn('possible error shutting down viewManager:'+e);
     }
 }
 
@@ -175,7 +175,7 @@ viewManager.prototype.canClose = function()
         this._dirtyItems = dirtyItems;
     } catch(e) {
         /* moz probably already removed them */
-        log.exception(e,'exception in viewManager.canClose');
+        this.log.exception(e,'exception in viewManager.canClose');
     }
     return true;
 }
@@ -204,7 +204,7 @@ viewManager.prototype.postCanClose = function()
         this._doCloseViews(null /* all */, ignoreFailures, closeStartPage, doNotOfferToSave);
     } catch(e) {
         /* moz probably already removed them */
-        log.warn('exception in viewManager.postCanClose:'+e);
+        this.log.warn('exception in viewManager.postCanClose:'+e);
     }
     return false;
 }
@@ -370,7 +370,7 @@ viewManager.prototype._doFileNewFromTemplate = function(uri,
         }
     } catch (ex) {
         errmsg = _lastErrorSvc.getLastErrorMessage();
-        log.exception(ex, errmsg);
+        this.log.exception(ex, errmsg);
         ko.dialogs.internalError(_bundle.GetStringFromName("errorOpeningTemplate.message"),
                                  _bundle.formatStringFromName("errorLoadingTemplate.message", [uri], 1),
                                  ex);
@@ -419,7 +419,7 @@ viewManager.prototype._doFileNewFromTemplate = function(uri,
             errmsg = _lastErrorSvc.getLastErrorMessage();
             ko.dialogs.alert(_bundle.formatStringFromName("couldNotInterpolate.message", [errmsg], 1));
         } else {
-            log.exception(ex, _bundle.GetStringFromName("errorInterpolatingTemplate.message"));
+            this.log.exception(ex, _bundle.GetStringFromName("errorInterpolatingTemplate.message"));
             ko.dialogs.internalError(_bundle.formatStringFromName("couldNotProcessInterpolatingCodes.message", [basename], 1),
                                      _bundle.formatStringFromName("errorInterpolatingTemplateUri.message", [uri], 1),
                                      ex);
@@ -932,7 +932,7 @@ viewManager.prototype.getUntitledView = function(name) {
         var doc = _docSvc.findDocumentByURI(name);
         return this.topView.findViewForDocument(doc);
     } catch (e) {
-        log.exception(e);
+        this.log.exception(e);
     }
     return null;
 }
@@ -2148,7 +2148,7 @@ viewManager.prototype.do_cmd_rotateSplitter = function() {
     try {
         this.topView.changeOrient();
     } catch (e) {
-        log.exception(e);
+        this.log.exception(e);
     }
 }
 
@@ -2165,7 +2165,7 @@ viewManager.prototype.do_cmd_switchpane = function() {
     try {
         ko.views.manager.topView.otherView.currentView.makeCurrent();
     } catch (e) {
-        log.exception(e);
+        this.log.exception(e);
     }
 }
 
