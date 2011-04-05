@@ -53,6 +53,7 @@ Import(
 $cons->InstallInChrome('timers.js');
 $cons->InstallInChrome('test.js');
 $cons->InstallInChrome('logging.js');
+$cons->InstallInChrome('prefs.js');
 $cons->Preprocess('windowManager.p.js', 'windowManager.js');
 $cons->InstallInChrome('windowManager.js');
 $cons->InstallInChrome('dragdrop.js');

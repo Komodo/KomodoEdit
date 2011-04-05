@@ -98,6 +98,7 @@
     <!--Komodo library resources-->
     <!-- "komodo.js" must be the first Komodo .js file included so that its
          top-level code can be sure that it is run first. -->
+    <script src="chrome://komodo/content/library/prefs.js"                type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/logging.js"              type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/komodo.js"                       type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/timers.js"               type="application/x-javascript;version=1.7"/>
