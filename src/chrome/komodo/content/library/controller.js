@@ -36,11 +36,7 @@
 
 /* -*- Mode: JavaScript; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
-// backwards compatibility APIs
 xtk.include("controller");
-var Controller = xtk.Controller;
-
-
 
 (function() {
 
@@ -115,7 +111,7 @@ var handlers = {
 function broadcasterController() {}
 
 // The following two lines ensure proper inheritance (see Flanagan, p. 144).
-broadcasterController.prototype = new Controller();
+broadcasterController.prototype = new xtk.Controller();
 broadcasterController.prototype.constructor = broadcasterController;
 
 broadcasterController.prototype.destructor = function() {
@@ -141,3 +137,8 @@ window.controllers.appendController(new broadcasterController());
 
 
 }).apply();
+
+/**
+ * @deprecated since 7.0
+ */
+ko.logging.globalDeprecatedByAlternative("Controller", "xtk.Controller");
