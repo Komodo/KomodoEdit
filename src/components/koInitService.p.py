@@ -1053,6 +1053,15 @@ class KoInitService(object):
                            currHostUserDataDir)
         self._upgradeXREDir(join(prevHostUserDataDir, "XRE"),
                             join(currHostUserDataDir, "XRE"))
+        if prevVer[0] < currVer[0]:
+            import glob
+            # Remove any XRE/extensions.* files, let Moz rebuild these,
+            # otherwise extensions can fail to load correctly.
+            xre_dir = join(currHostUserDataDir, "XRE")
+            for ext_filename in glob.glob(join(xre_dir, "extensions.*")):
+                ext_filepath = join(xre_dir, ext_filename) 
+                log.warn("not upgrading '%s'" % (ext_filepath, ))
+                os.remove(ext_filepath)
 
     def upgradeUserSettings(self):
         """Called every time Komodo starts up to initialize the user profile."""
