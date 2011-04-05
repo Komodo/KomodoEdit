@@ -206,6 +206,9 @@ this.macroProperties = function macro_editProperties(item)
 
 (function() {
 
+    var log = ko.logging.getLogger('ko.macros');
+
+
 function MacroEventHandler() {
     this._hookedMacrosByTrigger = {
         'trigger_startup' : [],
@@ -626,7 +629,7 @@ MacroEventHandler.prototype.observe = function(part, topic, code)
                 break;
         };
     } catch (e) {
-        log.exception(e);
+        this.log.exception(e);
     }
 }
 this.eventHandler = new MacroEventHandler();
