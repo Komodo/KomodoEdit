@@ -466,7 +466,7 @@
                         var start = this.scimoz.positionFromLine(sline);
                         var end = this.scimoz.getLineEndPosition(eline);
                         // we have either paste or dropped data, handle it now
-                        this._pasteTimer = new objectTimer(this, this.doPasteHandler, [text, linesAdded]);
+                        this._pasteTimer = new ko.objectTimer(this, this.doPasteHandler, [text, linesAdded]);
                         this._pasteTimer.startTimeout(1);
                         return true; // no further onmodified processing
 

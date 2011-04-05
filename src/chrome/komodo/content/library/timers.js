@@ -41,7 +41,7 @@
    example usage (within a class)
 
 someobject.prototype.startInterval() {
-    this._repeater = new objectTimer(this,this.doRepeater,['test string',12345]);
+    this._repeater = new ko.objectTimer(this,this.doRepeater,['test string',12345]);
     this._repeater.startInterval(20);
 }
 

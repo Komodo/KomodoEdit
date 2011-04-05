@@ -336,7 +336,7 @@
                 <body>
                 <![CDATA[
                     // dump('in onSelect ------------------\n');
-                    this._updateCommandTimer = new objectTimer(this,
+                    this._updateCommandTimer = new ko.objectTimer(this,
                                                                this._updateCommands,
                                                                []);
                     this._updateCommandTimer.startTimeout(1);

@@ -341,7 +341,7 @@ this.lintBuffer.prototype.request = function(reason /* = "" */)
         if (this._lintTimer) {
             this._lintTimer.stopTimeout();
         }
-        this._lintTimer = new objectTimer(this, this._issueRequest, []);
+        this._lintTimer = new ko.objectTimer(this, this._issueRequest, []);
         var delay;
         if (! _prefs.getBooleanPref('editUseLinting')) {
             delay = 0;
