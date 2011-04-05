@@ -48,7 +48,7 @@ xtk.include("clipboard");
 
 (function(){
 function PlacesController() {
-    this.log = getLoggingMgr().getLogger("PlacesController");
+    this.log = ko.logging.getLogger("PlacesController");
     this.log.setLevel(ko.logging.LOG_DEBUG);
 }
 

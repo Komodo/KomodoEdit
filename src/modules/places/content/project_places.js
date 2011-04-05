@@ -48,7 +48,7 @@ if (!('projects' in ko.places)) {
 
 (function() {
 
-var log = getLoggingMgr().getLogger("project_places_js");
+var log = ko.logging.getLogger("project_places_js");
 log.setLevel(LOG_DEBUG);
 
 const PROJECT_URI_REGEX = /^.*\/(.+?)\.(?:kpf|komodoproject)$/;
