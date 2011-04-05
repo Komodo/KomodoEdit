@@ -568,23 +568,26 @@ this.getLogger = function getLogger(logger_name) {
 }
 }).apply(ko.logging);
 
-// Backward Compat API
-var getLoggingMgr = ko.logging.getLoggingMgr;
-var loggingMgr = ko.logging.LoggingMgr;
-var loggerWrapper = ko.logging.Logger;
-var logging_getStack = ko.logging.getStack;
-var logging_dumpObjectTree = ko.logging.getObjectTree;
-var logging_dumpDOM = ko.logging.dumpDOM;
-var logging_dumpEvent = ko.logging.dumpEvent;
-var logging_dumpObject = ko.logging.dumpObject;
-var logging_dumpView = ko.logging.dumpView;
+/**
+ * @deprecated since 7.0
+ */
+ko.logging.globalDeprecatedByAlternative("getLoggingMgr", "ko.logging.getLoggingMgr");
+ko.logging.globalDeprecatedByAlternative("loggingMgr", "ko.logging.LoggingMgr");
+ko.logging.globalDeprecatedByAlternative("loggerWrapper", "ko.logging.Logger");
+ko.logging.globalDeprecatedByAlternative("logging_getStack", "ko.logging.getStack");
+ko.logging.globalDeprecatedByAlternative("logging_dumpObjectTree", "ko.logging.getObjectTree");
+ko.logging.globalDeprecatedByAlternative("logging_dumpDOM", "ko.logging.dumpDOM");
+ko.logging.globalDeprecatedByAlternative("logging_dumpEvent", "ko.logging.dumpEvent");
+ko.logging.globalDeprecatedByAlternative("logging_dumpObject", "ko.logging.dumpObject");
+ko.logging.globalDeprecatedByAlternative("logging_dumpView", "ko.logging.dumpView");
 
-var LOG_NOTSET = 0;
-var LOG_DEBUG = 10;
-var LOG_INFO = 20;
-var LOG_WARN = 30;
-var LOG_ERROR = 40;
-var LOG_CRITICAL = 50;
+ko.logging.globalDeprecatedByAlternative("LOG_NOTSET", "ko.logging.LOG_NOTSET");
+ko.logging.globalDeprecatedByAlternative("LOG_DEBUG", "ko.logging.LOG_DEBUG");
+ko.logging.globalDeprecatedByAlternative("LOG_INFO", "ko.logging.LOG_INFO");
+ko.logging.globalDeprecatedByAlternative("LOG_WARN", "ko.logging.");
+ko.logging.globalDeprecatedByAlternative("LOG_ERROR", "ko.logging.LOG_ERROR");
+ko.logging.globalDeprecatedByAlternative("LOG_CRITICAL", "ko.logging.LOG_CRITICAL");
+
 try {
     //XXX Whoa. Isn't this evil? This means every JS namespace has 'log'
     //    set to the root logger -- a subtle fallback for sloppy code that
