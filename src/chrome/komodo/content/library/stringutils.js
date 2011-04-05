@@ -211,9 +211,12 @@ this.contractUser = function(path) {
 
 }).apply(ko.stringutils);
 
-var stringutils_escapeWhitespace = ko.stringutils.escapeWhitespace;
-var stringutils_unescapeWhitespace = ko.stringutils.unescapeWhitespace;
-var stringutils_bytelength = ko.stringutils.bytelength;
-var stringutils_charIndexFromPosition = ko.stringutils.charIndexFromPosition;
-var stringutils_updateSubAttr = ko.stringutils.updateSubAttr;
-var stringutils_getSubAttr = ko.stringutils.getSubAttr;
+/**
+ * @deprecated since 7.0
+ */
+ko.logging.globalDeprecatedByAlternative("stringutils_escapeWhitespace", "ko.stringutils.escapeWhitespace");
+ko.logging.globalDeprecatedByAlternative("stringutils_unescapeWhitespace", "ko.stringutils.unescapeWhitespace");
+ko.logging.globalDeprecatedByAlternative("stringutils_bytelength", "ko.stringutils.bytelength");
+ko.logging.globalDeprecatedByAlternative("stringutils_charIndexFromPosition", "ko.stringutils.charIndexFromPosition");
+ko.logging.globalDeprecatedByAlternative("stringutils_updateSubAttr", "ko.stringutils.updateSubAttr");
+ko.logging.globalDeprecatedByAlternative("stringutils_getSubAttr", "ko.stringutils.getSubAttr");
