@@ -167,7 +167,7 @@ function VimController() {
 }
 
 // The following two lines ensure proper inheritance (see Flanagan, p. 144).
-VimController.prototype = new Controller();
+VimController.prototype = new xtk.Controller();
 VimController.prototype.constructor = VimController;
 
 VimController.prototype.destructor = function() {

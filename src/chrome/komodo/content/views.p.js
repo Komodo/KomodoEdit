@@ -1238,7 +1238,7 @@ viewManager.prototype.supportsCommand = function viewManager_supportsCommand(com
         return true;
     }
 
-    return Controller.prototype.supportsCommand.apply(this, [command]);
+    return xtk.Controller.prototype.supportsCommand.apply(this, [command]);
 }
 
 viewManager.prototype.isCommandEnabled = function viewManager_isCommandEnabled(command) {
@@ -1249,11 +1249,11 @@ viewManager.prototype.isCommandEnabled = function viewManager_isCommandEnabled(c
         return rc;
     }
 
-    return Controller.prototype.isCommandEnabled.apply(this, [command]);
+    return xtk.Controller.prototype.isCommandEnabled.apply(this, [command]);
 }
 
 viewManager.prototype.doCommand = function viewManager_doCommand(command) {
-    Controller.prototype.doCommand.apply(this, [command]);
+    xtk.Controller.prototype.doCommand.apply(this, [command]);
 }
 
 viewManager.prototype.is_cmd_bufferClose_supported = function() {
