@@ -36,11 +36,9 @@
 
 var gLoggerNames;
 var gLoggingService;
-var gLoggingMgr;
 var _loggingObserver;
 
 function loggingControl_OnLoad() {
-    gLoggingMgr = getLoggingMgr();
     gLoggingService = Components.classes["@activestate.com/koLoggingService;1"].
                         getService(Components.interfaces.koILoggingService);
 
@@ -103,7 +101,7 @@ var gLoggerView = ({
             return name;
             break;
         case "effectivelevel":
-            var level = gLoggingMgr.getLogger(this.loggernames[i]).getEffectiveLevel();
+            var level = ko.logging.getLogger(this.loggernames[i]).getEffectiveLevel();
             if (level == ko.logging.LOG_DEBUG) { return "DEBUG (10)"; }
             if (level == ko.logging.LOG_INFO) { return "INFO (20)"; }
             if (level == ko.logging.LOG_WARN) { return "WARN (30)"; }
@@ -112,7 +110,7 @@ var gLoggerView = ({
             return String(level);
             break;
         case "level":
-            var level = gLoggingMgr.getLogger(this.loggernames[i]).level;
+            var level = ko.logging.getLogger(this.loggernames[i]).level;
             if (level == ko.logging.LOG_NOTSET) { return "<unset>"; }
             if (level == ko.logging.LOG_DEBUG) { return "DEBUG (10)"; }
             if (level == ko.logging.LOG_INFO) { return "INFO (20)"; }

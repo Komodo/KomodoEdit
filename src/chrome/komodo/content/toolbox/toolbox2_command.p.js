@@ -1369,7 +1369,7 @@ this.onTreeKeyPress = function(event) {
 }
 
 var ToolboxController = function() {
-    this.log = getLoggingMgr().getLogger("ToolboxController");
+    this.log = ko.logging.getLogger("ToolboxController");
     this.log.setLevel(ko.logging.LOG_DEBUG);
 };
 ToolboxController.prototype = {

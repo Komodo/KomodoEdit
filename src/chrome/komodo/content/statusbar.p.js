@@ -97,7 +97,7 @@ if (typeof(ko) == 'undefined') {
 ko.statusBar = {};
 (function() { /* ko.statusBar */
 
-var _log = ko.logging.getLoggingMgr().getLogger('statusbar');
+var _log = ko.logging.getLogger('statusbar');
 var _messageStack = Components.classes["@activestate.com/koStatusMessageStack;1"].
                           createInstance(Components.interfaces.koIStatusMessageStack);
 var _observer = null;
