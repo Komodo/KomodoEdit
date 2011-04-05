@@ -789,6 +789,8 @@ this.changeEncoding = function(menuitem)
 }).apply(ko.statusBar);
 
 
-// Deprecated backward compatibility APIs
+/**
+ * @deprecated since 7.0
+ */
 ko.logging.globalDeprecatedByAlternative("StatusBar", "ko.statusBar");
 ko.logging.globalDeprecatedByAlternative("StatusBar_AddMessage", "ko.statusBar.AddMessage");
