@@ -37,8 +37,6 @@
 // Constants and global variables
 var dialog  = {};
 
-var log = ko.logging.getLogger("pref-keys");
-
 // Handlers
 
 function PrefKeys_OnLoad() {
@@ -173,7 +171,7 @@ function updateUI() {
             dialog.viCheckbox.removeAttribute('disabled');
         }
     } catch (e) {
-        log.exception(e);
+        ko.logging.getLogger("pref-keys").exception(e);
     }
 }
 
@@ -312,7 +310,7 @@ function updateCommandList() {
 	    dialog.deck.selectedIndex = 1;
 	}
     } catch (e) {
-	log.exception(e);
+	ko.logging.getLogger("pref-keys").exception(e);
     }
 }
 
