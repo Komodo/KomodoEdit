@@ -661,9 +661,9 @@ function doDelete()
         if (oldScheme == name) {
             // we _must_ change the pref, since that scheme is gone even before the OK.
             gDialog.prefset.setStringPref('editor-scheme', 'Default');
-            // We must do it on the parent's opener because of the pref dialog's hadnling of prefs--
+            // We must do it on the parent's opener because of the pref dialog's handling of prefs--
             // our prefset is ignored on Cancel.
-            parent.opener.gPrefs.setStringPref('editor-scheme', 'Default');
+            parent.opener.ko.prefs.setStringPref('editor-scheme', 'Default');
         }
         // need to remove it from the popup
         var menuitem = document.getElementById(name);
@@ -1129,7 +1129,7 @@ try {
 
 function initFonts(encoding)  {
     if (typeof(encoding)=='undefined') {
-       encoding = parent.opener.gPrefs.getStringPref('encodingDefault');
+       encoding = parent.opener.ko.prefs.getStringPref('encodingDefault');
     }
     // Do all fonts list first
     var fixedElement = new listElement( 'fixed' );
