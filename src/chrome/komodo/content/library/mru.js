@@ -122,7 +122,7 @@ _MRUPrefObserver.prototype.observe = function(prefSet, sizePrefName, data)
     }
     if (mruList) {
         // Chop the list to the correct size.
-        var maxEntries = MRU_maxEntries(listPrefName);
+        var maxEntries = ko.mru.maxEntries(listPrefName);
         while (mruList.length > maxEntries) {
             mruList.deletePref(mruList.length - 1);
         }
@@ -218,7 +218,7 @@ this.add = function MRU_add(prefName, entry, caseSensitive)
     }
 
     // Also: keep the list constrained to the correct size.
-    var maxEntries = MRU_maxEntries(prefName);
+    var maxEntries = ko.mru.maxEntries(prefName);
     while (mruList.length >= maxEntries && mruList.length > 0) {
         mruList.deletePref(mruList.length - 1);
     }
@@ -290,7 +290,7 @@ this.addURL = function MRU_addURL(prefName, url)
     }
 
     // max entries should itself come from a preference!
-    MRU_add(prefName, url, _os_case_sensitive);
+    ko.mru.add(prefName, url, _os_case_sensitive);
 }
 
 
@@ -333,7 +333,7 @@ this.addFromACTextbox = function MRU_addFromACTextbox(widget)
 
     _log.info("MRU_addFromACTextbox(widget): widget.value='"+widget.value+
                 "', prefName="+prefName);
-    MRU_add(prefName, widget.value, true);
+    ko.mru.add(prefName, widget.value, true);
 }
 
 
