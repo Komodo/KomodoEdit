@@ -71,7 +71,7 @@ interface koIUserEnviron : nsISupports {
       [retval, array, size_is(count)] out wstring envStrs);
 
     // Return the user environment as a string encoded as specified by
-    // run_functions.js::Run_RunCommand()'s env argument.
+    // ko.run.runCommand()'s env argument.
     wstring GetEncodedEnvironment();
     wstring GetEncodedStartupEnvironment();
 
