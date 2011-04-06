@@ -1066,28 +1066,8 @@ function Find_ReplaceInMacro(editor, contexttype, pattern, replacement,
 
     var old_patternType, old_caseSensitivity, old_searchBackward, old_matchWord;
     var context = Components.classes["@activestate.com/koFindContext;1"]
-            .createInstance(Components.interfaces.koIRangeFindContext);
+            .createInstance(Components.interfaces.koIFindContext);
     context.type = contexttype;
-    if (contexttype == Components.interfaces.koIFindContext.FCT_SELECTION) {
-        var msg = '';
-        var view = editor.ko.views.manager.currentView;
-        if (view) {
-            var scimoz = view.scimoz;
-            if (scimoz) {
-                context.startIndex = scimoz.charPosAtPosition(scimoz.selectionStart);
-                context.endIndex = scimoz.charPosAtPosition(scimoz.selectionEnd);
-            } else {
-                msg = _ffBundle.GetStringFromName("No scintilla object on current view");
-            }
-        } else {
-            msg = _ffBundle.GetStringFromName("No current view");
-        }
-        if (msg) {
-            editor.ko.statusBar.AddMessage("macro-replace: " + msg, "find",
-                                           3000, true);
-            return;
-        }
-    }
 
     // Stash old options
     old_patternType = findSvc.options.patternType;
@@ -1138,8 +1118,28 @@ function Find_ReplaceAllInMacro(editor, contexttype, pattern, replacement, quiet
 
     var old_patternType, old_caseSensitivity, old_searchBackward, old_matchWord;
     var context = Components.classes["@activestate.com/koFindContext;1"]
-            .createInstance(Components.interfaces.koIFindContext);
+            .createInstance(Components.interfaces.koIRangeFindContext);
     context.type = contexttype;
+    if (contexttype == Components.interfaces.koIFindContext.FCT_SELECTION) {
+        var msg = '';
+        var view = editor.ko.views.manager.currentView;
+        if (view) {
+            var scimoz = view.scimoz;
+            if (scimoz) {
+                context.startIndex = scimoz.charPosAtPosition(scimoz.selectionStart);
+                context.endIndex = scimoz.charPosAtPosition(scimoz.selectionEnd);
+            } else {
+                msg = _ffBundle.GetStringFromName("No scintilla object on current view");
+            }
+        } else {
+            msg = _ffBundle.GetStringFromName("No current view");
+        }
+        if (msg) {
+            editor.ko.statusBar.AddMessage("macro-replace: " + msg, "find",
+                                           3000, true);
+            return;
+        }
+    }
 
     // Stash old options
     old_patternType = findSvc.options.patternType;
