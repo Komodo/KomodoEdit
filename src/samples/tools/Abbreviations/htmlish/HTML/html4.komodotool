@@ -1,0 +1,20 @@
+{
+  "keyboard_shortcut": "", 
+  "set_selection": "false", 
+  "name": "html4", 
+  "value": [
+    "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"", 
+    "\t\t\"http://www.w3.org/TR/html4/loose.dtd\">", 
+    "<html>", 
+    "<head>", 
+    "\t<title>[[%tabstop1:title]]</title>", 
+    "</head>", 
+    "<body>", 
+    "\t<[[%tabstop2:h1]]>[[%tabstop1]]</[[%tabstop2]]>", 
+    "\t[[%tabstop:]]", 
+    "</body>", 
+    "</html>!@#_currentPos!@#_anchor"
+  ], 
+  "type": "snippet", 
+  "indent_relative": "true"
+}

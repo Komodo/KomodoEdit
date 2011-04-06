@@ -1,0 +1,13 @@
+{
+  "keyboard_shortcut": "", 
+  "set_selection": "false", 
+  "name": "script", 
+  "value": [
+    "<script type=\"application/x-javascript\">", 
+    "", 
+    "</script>", 
+    "!@#_currentPos!@#_anchor"
+  ], 
+  "type": "snippet", 
+  "indent_relative": "true"
+}

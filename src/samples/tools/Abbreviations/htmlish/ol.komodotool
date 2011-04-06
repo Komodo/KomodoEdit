@@ -1,0 +1,12 @@
+{
+  "keyboard_shortcut": "", 
+  "set_selection": "false", 
+  "name": "ol", 
+  "value": [
+    "<ol id=\"[[%tabstop:id]]\">", 
+    "\t<li>[[%tabstop:text]]</li>", 
+    "</ol>!@#_currentPos!@#_anchor"
+  ], 
+  "type": "snippet", 
+  "indent_relative": "true"
+}
