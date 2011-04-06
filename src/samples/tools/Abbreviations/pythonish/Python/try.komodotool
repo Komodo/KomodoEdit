@@ -1,0 +1,13 @@
+{
+  "keyboard_shortcut": "", 
+  "name": "try", 
+  "value": [
+    "try:", 
+    "\t[[%tabstop:your code here]]", 
+    "except [[%tabstop:exceptions]][[%tabstop:, [[%tabstop:name]]]]:", 
+    "\t[[%tabstop:pass]]!@#_currentPos!@#_anchor"
+  ], 
+  "set_selection": "true", 
+  "type": "snippet", 
+  "indent_relative": "true"
+}
