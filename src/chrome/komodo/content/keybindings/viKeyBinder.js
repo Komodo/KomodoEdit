@@ -14,7 +14,7 @@
  * The Original Code is Komodo code.
  * 
  * The Initial Developer of the Original Code is ActiveState Software Inc.
- * Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
+ * Portions created by ActiveState Software Inc are Copyright (C) 2000-2011
  * ActiveState Software Inc. All Rights Reserved.
  * 
  * Contributor(s):
@@ -559,7 +559,6 @@ VimController.prototype._initSettings = function() {
         var count = new Object();
         viPrefs.getPrefIds(result, count);
         var viSettingNames = result.value;
-        var setting;
         var prefType;
         var vim_set_command;
         for (var i = 0; i < viSettingNames.length; i++) {
