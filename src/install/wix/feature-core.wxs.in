@@ -352,24 +352,25 @@
       <ComponentRef Id="component384"/>
       <ComponentRef Id="component615"/>
       <ComponentRef Id="component616"/>
-      <ComponentRef Id="component617"/>
 
       <ComponentRef Id="component618"/>
       <ComponentRef Id="component619"/>
       <ComponentRef Id="component620"/>
       <ComponentRef Id="component621"/>
       <ComponentRef Id="component623"/>
-      <ComponentRef Id="component624"/>
       <ComponentRef Id="component625"/>
       <ComponentRef Id="component626"/>
       <ComponentRef Id="component627"/>
       <ComponentRef Id="component628"/>
       <ComponentRef Id="component629"/>
       <ComponentRef Id="component630"/>
-      <ComponentRef Id="component638"/>
-      <ComponentRef Id="component645"/>
       <ComponentRef Id="component654"/>
       <ComponentRef Id="component655"/>
+      <ComponentRef Id="component663"/>
+      <ComponentRef Id="component664"/>
+      <ComponentRef Id="component670"/>
+      <ComponentRef Id="component671"/>
+      <ComponentRef Id="component672"/>
 
 <?if $(var.WithCrypto) = "yes" ?>
       <!-- Crypto and paramiko Python packages -->
@@ -5042,42 +5043,28 @@
                     <File Id="file1097" Name="MAIN_0.KOM" LongName="main.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\General\main.komodotool"/>
                   </Component>
                 </Directory> <!-- lib\support\samples\tools\Abbreviations\General -->
-                <Directory Id="directory666" Name="HTML_4" LongName="HTML">
-                  <Component Id="component617" DiskId="1" Guid="$(autowix.guid)">
-                    <File Id="file1098" Name="COM_0.KOM" LongName="com.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\HTML\com.komodotool"/>
-                    <File Id="file1099" Name="DIV_0.KOM" LongName="div.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\HTML\div.komodotool"/>
-                    <File Id="file1100" Name="HTML4_0.KOM" LongName="html4.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\HTML\html4.komodotool"/>
-                    <File Id="file1101" Name="LI_0.KOM" LongName="li.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\HTML\li.komodotool"/>
-                    <File Id="file1102" Name="OL_0.KOM" LongName="ol.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\HTML\ol.komodotool"/>
-                    <File Id="file1103" Name="P_0.KOM" LongName="p.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\HTML\p.komodotool"/>
-                    <File Id="file1104" Name="SCRIPT_0.KOM" LongName="script.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\HTML\script.komodotool"/>
-                    <File Id="file1105" Name="SCRIPT_1.KOM" LongName="scriptlink.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\HTML\scriptlink.komodotool"/>
-                    <File Id="file1106" Name="STYLE_0.KOM" LongName="style.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\HTML\style.komodotool"/>
-                    <File Id="file1107" Name="TAG_0.KOM" LongName="tag.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\HTML\tag.komodotool"/>
-                    <File Id="file1108" Name="TEXT_0.KOM" LongName="text.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\HTML\text.komodotool"/>
-                    <File Id="file1109" Name="TEXTAR_0.KOM" LongName="textarea.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\HTML\textarea.komodotool"/>
-                    <File Id="file1110" Name="UL_0.KOM" LongName="ul.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\HTML\ul.komodotool"/>
-                    <File Id="file1111" Name="XHTML_0.KOM" LongName="xhtml.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\HTML\xhtml.komodotool"/>
-                  </Component>
-                </Directory> <!-- lib\support\samples\tools\Abbreviations\HTML -->
-
-                <Directory Id="directory688" Name="HTML5_2" LongName="HTML5">
-                  <Component Id="component638" DiskId="1" Guid="$(autowix.guid)">
-                    <File Id="file1245" Name="COM_3.KOM" LongName="com.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\HTML5\com.komodotool"/>
-                    <File Id="file1246" Name="DIV_1.KOM" LongName="div.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\HTML5\div.komodotool"/>
-                    <File Id="file1247" Name="LI_1.KOM" LongName="li.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\HTML5\li.komodotool"/>
-                    <File Id="file1248" Name="OL_1.KOM" LongName="ol.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\HTML5\ol.komodotool"/>
-                    <File Id="file1249" Name="P_1.KOM" LongName="p.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\HTML5\p.komodotool"/>
-                    <File Id="file1250" Name="SCRIPT_3.KOM" LongName="script.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\HTML5\script.komodotool"/>
-                    <File Id="file1251" Name="SCRIPT_4.KOM" LongName="scriptlink.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\HTML5\scriptlink.komodotool"/>
-                    <File Id="file1252" Name="STYLE_1.KOM" LongName="style.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\HTML5\style.komodotool"/>
-                    <File Id="file1253" Name="TAG_1.KOM" LongName="tag.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\HTML5\tag.komodotool"/>
-                    <File Id="file1254" Name="TEXT_1.KOM" LongName="text.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\HTML5\text.komodotool"/>
-                    <File Id="file1255" Name="TEXTAR_1.KOM" LongName="textarea.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\HTML5\textarea.komodotool"/>
-                    <File Id="file1256" Name="UL_1.KOM" LongName="ul.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\HTML5\ul.komodotool"/>
-                  </Component>
-                </Directory> <!-- lib\support\samples\tools\Abbreviations\HTML5 -->
-
+                <Directory Id="directory718" Name="HTMLCO_0" LongName="HTML-common">
+                    <Component Id="component663" DiskId="1" Guid="$(autowix.guid)">
+                      <File Id="file1512" Name="COM_4.KOM" LongName="com.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\HTML-common\com.komodotool"/>
+                      <File Id="file1513" Name="DIV_2.KOM" LongName="div.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\HTML-common\div.komodotool"/>
+                      <File Id="file1514" Name="LI_2.KOM" LongName="li.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\HTML-common\li.komodotool"/>
+                      <File Id="file1515" Name="OL_2.KOM" LongName="ol.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\HTML-common\ol.komodotool"/>
+                      <File Id="file1516" Name="P_2.KOM" LongName="p.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\HTML-common\p.komodotool"/>
+                      <File Id="file1517" Name="SCRIPT_5.KOM" LongName="script.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\HTML-common\script.komodotool"/>
+                      <File Id="file1518" Name="SCRIPT_6.KOM" LongName="scriptlink.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\HTML-common\scriptlink.komodotool"/>
+                      <File Id="file1519" Name="STYLE_2.KOM" LongName="style.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\HTML-common\style.komodotool"/>
+                      <File Id="file1520" Name="TAG_2.KOM" LongName="tag.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\HTML-common\tag.komodotool"/>
+                      <File Id="file1521" Name="TEXT_2.KOM" LongName="text.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\HTML-common\text.komodotool"/>
+                      <File Id="file1522" Name="TEXTAR_2.KOM" LongName="textarea.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\HTML-common\textarea.komodotool"/>
+                      <File Id="file1523" Name="UL_2.KOM" LongName="ul.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\HTML-common\ul.komodotool"/>
+                    </Component>
+                    <Directory Id="directory719" Name="HTML_6" LongName="HTML">
+                      <Component Id="component664" DiskId="1" Guid="$(autowix.guid)">
+                        <File Id="file1524" Name="HTML4_1.KOM" LongName="html4.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\HTML-common\HTML\html4.komodotool"/>
+                        <File Id="file1525" Name="XHTML_1.KOM" LongName="xhtml.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\HTML-common\HTML\xhtml.komodotool"/>
+                      </Component>
+                    </Directory> <!-- lib\support\samples\tools\Abbreviations\HTML-common\HTML -->
+                  </Directory> <!-- lib\support\samples\tools\Abbreviations\HTML-common -->
 
                 <Directory Id="directory667" Name="JAVASC_0" LongName="JavaScript">
                   <Component Id="component618" DiskId="1" Guid="$(autowix.guid)">
@@ -5127,35 +5114,30 @@
                     </Component>
                   </Directory> <!-- lib\support\samples\tools\Abbreviations\PHP\Drupal -->
                 </Directory> <!-- lib\support\samples\tools\Abbreviations\PHP -->
-                <Directory Id="directory672" Name="PYTHON_9" LongName="Python">
-                  <Component Id="component624" DiskId="1" Guid="$(autowix.guid)">
-                    <File Id="file1139" Name="CLASS_2.KOM" LongName="class.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\Python\class.komodotool"/>
-                    <File Id="file1140" Name="DOC_2.KOM" LongName="doc.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\Python\doc.komodotool"/>
-                    <File Id="file1239" Name="FOR_2.KOM" LongName="for.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\Python\for.komodotool" />
-                    <File Id="file1142" Name="MAIN_2.KOM" LongName="main.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\Python\main.komodotool"/>
-                    <File Id="file1143" Name="METH_1.KOM" LongName="meth.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\Python\meth.komodotool"/>
-                    <File Id="file1144" Name="OPTS_0.KOM" LongName="opts.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\Python\opts.komodotool"/>
-                    <File Id="file1145" Name="SHEBAN_0.KOM" LongName="shebang.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\Python\shebang.komodotool"/>
-                    <File Id="file1146" Name="WALK_0.KOM" LongName="walk.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\Python\walk.komodotool"/>
-                    <File Id="file554" LongName="def.komodotool" Name="DEF_1.KOM" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\Python\def.komodotool" />
-                    <File Id="file556" LongName="try.komodotool" Name="TRY_1.KOM" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\Python\try.komodotool" />
-                  </Component>
-                </Directory> <!-- lib\support\samples\tools\Abbreviations\Python -->
-
-                <Directory Id="directory695" Name="Python3">
-                  <Component Id="component645" DiskId="1" Guid="$(autowix.guid)">
-                    <File Id="file1257" Name="CLASS_4.KOM" LongName="class.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\Python3\class.komodotool"/>
-                    <File Id="file1258" Name="DOC_3.KOM" LongName="doc.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\Python3\doc.komodotool"/>
-                    <File Id="file1259" Name="FOR_3.KOM" LongName="for.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\Python3\for.komodotool"/>
-                    <File Id="file1261" Name="MAIN_4.KOM" LongName="main.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\Python3\main.komodotool"/>
-                    <File Id="file1262" Name="METH_2.KOM" LongName="meth.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\Python3\meth.komodotool"/>
-                    <File Id="file1263" Name="OPTS_1.KOM" LongName="opts.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\Python3\opts.komodotool"/>
-                    <File Id="file1264" Name="SHEBAN_1.KOM" LongName="shebang.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\Python3\shebang.komodotool"/>
-                    <File Id="file1265" Name="WALK_1.KOM" LongName="walk.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\Python3\walk.komodotool"/>
-                    <File Id="file560" LongName="def.komodotool" Name="DEF_2.KOM" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\Python3\def.komodotool" />
-                    <File Id="file872" LongName="try.komodotool" Name="TRY_2.KOM" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\Python3\try.komodotool" />
-                  </Component>
-                </Directory> <!-- lib\support\samples\tools\Abbreviations\Python3 -->
+                <Directory Id="directory725" Name="PYTHO_10" LongName="Python-common">
+                    <Component Id="component670" DiskId="1" Guid="$(autowix.guid)">
+                      <File Id="file1526" Name="CLASS_5.KOM" LongName="class.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\Python-common\class.komodotool"/>
+                      <File Id="file1527" Name="DEF_3.KOM" LongName="def.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\Python-common\def.komodotool"/>
+                      <File Id="file1528" Name="DOC_4.KOM" LongName="doc.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\Python-common\doc.komodotool"/>
+                      <File Id="file1529" Name="FOR_4.KOM" LongName="for.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\Python-common\for.komodotool"/>
+                      <File Id="file1530" Name="MAIN_5.KOM" LongName="main.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\Python-common\main.komodotool"/>
+                      <File Id="file1531" Name="METH_3.KOM" LongName="meth.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\Python-common\meth.komodotool"/>
+                      <File Id="file1532" Name="OPTS_2.KOM" LongName="opts.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\Python-common\opts.komodotool"/>
+                      <File Id="file1533" Name="SHEBAN_2.KOM" LongName="shebang.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\Python-common\shebang.komodotool"/>
+                      <File Id="file1534" Name="TRY_3.KOM" LongName="try.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\Python-common\try.komodotool"/>
+                      <File Id="file1535" Name="WALK_2.KOM" LongName="walk.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\Python-common\walk.komodotool"/>
+                    </Component>
+                    <Directory Id="directory726" Name="PYTHO_11" LongName="Python">
+                      <Component Id="component671" DiskId="1" Guid="$(autowix.guid)">
+                        <File Id="file1536" Name="TRY_4.KOM" LongName="try.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\Python-common\Python\try.komodotool"/>
+                      </Component>
+                    </Directory> <!-- lib\support\samples\tools\Abbreviations\Python-common\Python -->
+                    <Directory Id="directory727" Name="Python3">
+                      <Component Id="component672" DiskId="1" Guid="$(autowix.guid)">
+                        <File Id="file1537" Name="TRY_5.KOM" LongName="try.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tools\Abbreviations\Python-common\Python3\try.komodotool"/>
+                      </Component>
+                    </Directory> <!-- lib\support\samples\tools\Abbreviations\Python-common\Python3 -->
+                  </Directory> <!-- lib\support\samples\tools\Abbreviations\Python-common -->
 
                 <Directory Id="directory673" Name="RHTML">
                   <Component Id="component625" DiskId="1" Guid="$(autowix.guid)">
