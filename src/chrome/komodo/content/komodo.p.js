@@ -363,7 +363,6 @@ function onloadDelay() {
         
         ko.workspace.initializeEssentials(window);
         
-        ko.mozhacks.pluginContextMenu();
         ko.history.init();
 
         ko.macros.eventHandler.hookOnStartup();
@@ -456,26 +455,6 @@ this.__deprecatedNameTest = function(deprecatedName, supportedName) {
 ko.mozhacks = {};
 (function() { /* ko.mozhacks */
 var _log = ko.logging.getLogger("ko.main");
-
-/**
- * pluginContextMenu
- *
- * Verified still necessary with moz 1.8 branch - SMC
- * For some reason popups over the plugin are messed up until
- * the first context menu over mozilla is activated. It is apparently
- * due to popupNode not being initialized, so we do that here. See:
- *   http://www.xulplanet.com/references/elemref/ref_popup.html
- */
-this.pluginContextMenu = function() {
-    try {
-        var toolbar = document.getElementById('toolbox_main');
-        if (!toolbar) return;
-        document.popupNode = toolbar;
-    } catch(e) {
-        _log.exception(e);
-    }
-}
-
 
 // #if PLATFORM == "darwin"
 var _openDialog = window.openDialog;
