@@ -1,0 +1,11 @@
+{
+  "keyboard_shortcut": "", 
+  "name": "time", 
+  "value": [
+    "<time[[%tabstop: datetime=\"[[%tabstop:[[%date]]]]\"]]>[[%tabstop0:!@#_currentPos!@#_anchor]]</time>"
+  ], 
+  "set_selection": "true", 
+  "version": "1.0.7", 
+  "type": "snippet", 
+  "indent_relative": "true"
+}

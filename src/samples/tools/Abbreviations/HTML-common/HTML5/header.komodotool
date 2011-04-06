@@ -1,0 +1,13 @@
+{
+  "keyboard_shortcut": "", 
+  "name": "header", 
+  "value": [
+    "<header>", 
+    "\t!@#_currentPos!@#_anchor", 
+    "</header>"
+  ], 
+  "set_selection": "true", 
+  "version": "1.0.7", 
+  "type": "snippet", 
+  "indent_relative": "true"
+}

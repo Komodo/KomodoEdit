@@ -1,0 +1,11 @@
+{
+  "keyboard_shortcut": "", 
+  "name": "audio", 
+  "value": [
+    "<audio[[%tabstop: src=\"[[%tabstop]]\"]][[%tabstop: controls]]>[[%tabstop0:]]!@#_currentPos!@#_anchor</audio>"
+  ], 
+  "set_selection": "true", 
+  "version": "1.0.7", 
+  "type": "snippet", 
+  "indent_relative": "true"
+}

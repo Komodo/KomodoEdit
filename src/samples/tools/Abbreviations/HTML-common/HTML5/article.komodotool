@@ -1,0 +1,13 @@
+{
+  "keyboard_shortcut": "", 
+  "name": "article", 
+  "value": [
+    "<article>", 
+    "\t!@#_currentPos!@#_anchor", 
+    "</article>"
+  ], 
+  "set_selection": "true", 
+  "version": "1.0.7", 
+  "type": "snippet", 
+  "indent_relative": "true"
+}

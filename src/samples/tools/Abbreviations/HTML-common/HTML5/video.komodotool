@@ -1,0 +1,11 @@
+{
+  "keyboard_shortcut": "", 
+  "name": "video", 
+  "value": [
+    "<video[[%tabstop: src=\"[[%tabstop]]\"]][[%tabstop: controls]]>[[%tabstop0:]]!@#_currentPos!@#_anchor</video>"
+  ], 
+  "set_selection": "true", 
+  "version": "1.0.7", 
+  "type": "snippet", 
+  "indent_relative": "true"
+}

@@ -1,0 +1,13 @@
+{
+  "keyboard_shortcut": "", 
+  "name": "nav", 
+  "value": [
+    "<nav>", 
+    "\t!@#_currentPos!@#_anchor", 
+    "</nav>"
+  ], 
+  "set_selection": "true", 
+  "version": "1.0.7", 
+  "type": "snippet", 
+  "indent_relative": "true"
+}
