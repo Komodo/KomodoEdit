@@ -395,7 +395,9 @@ this.lintBuffer.prototype._issueRequest = function()
             return;
         }
         var lr = this._createLintRequest(linterLanguageName);
-        _lintSvc.addRequest(lr);
+        if (lr) {
+            _lintSvc.addRequest(lr);
+        }
         this._cancelDelayedRequest();
     } catch(ex) {
         if (ex.message.indexOf("Internal Error creating a linter with CID") >= 0) {
