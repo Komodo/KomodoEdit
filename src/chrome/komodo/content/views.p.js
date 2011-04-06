@@ -2898,9 +2898,8 @@ function _restoreFocusToMainWindow() {
         var w = windows[i];
         if (w.ko._hasFocus) {
             w.focus();
-            delete w.ko._hasFocus;
-            return;
         }
+        delete w.ko._hasFocus;
     }
 }
 
