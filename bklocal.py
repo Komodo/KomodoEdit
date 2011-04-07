@@ -1162,8 +1162,8 @@ class UnsiloedPythonExe(black.configure.Datum):
 
     def _Determine_Do(self):
         self.applicable = 1
-        siloedPythonExeName = black.configure.items['siloedPythonExeName'].Get()
-        self.value = tmShUtil.WhichFollowSymLinks(siloedPythonExeName)
+        # We are already running python; it's perfectly clear which one we want
+        self.value = sys.executable
         self.determined = 1
 
 class UnsiloedPerlExe(black.configure.Datum):
@@ -1519,7 +1519,7 @@ class LudditeVersion(black.configure.Datum):
     def _Determine_Do(self):
         self.applicable = 1
 
-        cmd = 'python src/udl/luddite.py --version'
+        cmd = '%s src/udl/luddite.py --version' % (sys.executable)
         i, o = os.popen2(cmd)
         i.close()
         output = o.read()

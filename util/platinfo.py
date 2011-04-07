@@ -629,6 +629,7 @@ class PlatInfo(object):
             "mandrake": re.compile("^Mandrake Linux release ([\d\.]+)"),
             # Ignoring the different RHEL flavours (AS, ES, WS) for now.
             "rhel": re.compile("^Red Hat Enterprise Linux \w{2} release ([\d\.]+)"),
+            "centos": re.compile("^CentOS release ([\d\.]+)"),
             "suse": re.compile("^SuSE Linux ([\d\.]+)"),
             "opensuse": re.compile("^openSUSE ([\d\.]+)"),
             "debian": re.compile("^([\d\.]+)"),

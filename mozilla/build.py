@@ -1352,6 +1352,37 @@ def target_configure(argv):
             mozBuildOptions.append("target=i386-apple-darwin%i" % (osx_major_ver))
         if mozVer >= 1.91:
             mozRawOptions.append("mk_add_options AUTOCONF=autoconf213")
+    elif sys.platform.startswith("linux"):
+        gcc = os.environ.get("CC")
+        gxx = os.environ.get("CXX")
+        if gcc is None:
+            try:
+                # prefer gcc/g++ 4.4 (for CentOS 5.5)
+                gcc = which.which("gcc44")
+                gxx = which.which("g++44")
+            except which.WhichError:
+                pass
+        if gcc is None:
+            gcc = which.which("gcc")
+            gxx = which.which("g++")
+        version = _capture_output("%s --version" % (gcc,)).split(" ")[2]
+        from distutils.version import LooseVersion
+        if LooseVersion(version) < "4.2":
+            machine = _capture_output("%s -dumpmachine" % (gcc,)).split("-")[0]
+            if machine == "x86_64":
+                error = "GCC 4.2 or higher is required due to visibility-" \
+                        "related issues; you have GCC %s, please install a " \
+                        "newer version. " \
+                        % version
+                if "distro" in config["platinfo"]:
+                    if config["platinfo"]["distro"] == "centos":
+                        error += "For CentOS, please try the gcc44-c++ package."
+                raise BuildError(error)
+            else:
+                # we don't _need_ gcc44 here...
+                log.warn("Using outdated gcc %s", version)
+        mozRawOptions.append("CC=%s\n" % gcc)
+        mozRawOptions.append("CXX=%s\n" % gxx)
 
     config["changenum"] = _getChangeNum()
     if sys.platform == "win32":
