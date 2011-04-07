@@ -253,7 +253,8 @@ peFile.prototype.doCommand = function(command) {
         this.doCopy(items)
         break;
     case 'cmd_paste':
-    if (!xtk.clipboard.getText()) return;
+        if (!xtk.clipboard.getText())
+            return;
         this.doPaste(items)
         break;
     default:
