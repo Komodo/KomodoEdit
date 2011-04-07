@@ -84,6 +84,8 @@ function scintillaOverlayOnLoad()
     var node = document.importNode(
        gMainWindow.document.getElementById('widekeyset'), true);
     document.documentElement.appendChild(node);
+
+    // Stop ENTER key in Scintilla from going to dialog "OK" button - bug 41071.
     doDialogKeypressHack();
 }
 
