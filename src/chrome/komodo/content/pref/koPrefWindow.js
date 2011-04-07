@@ -632,13 +632,13 @@ koPrefWindow.prototype =
     switchPage: function () {
         try {
         var selectedRow = this.helper.getSelectedRow();
-        var panelName = selectedRow.firstChild.getAttribute("label");
+        var url = selectedRow.firstChild.getAttribute("url");
+        var panelName = url;
         if (typeof(this.contentFrames[panelName]) == 'undefined') {
             var XUL_NS="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
             this.contentFrame = document.createElementNS(XUL_NS,'iframe');
             this.contentFrames[panelName] = this.contentFrame;
             this.deck.appendChild(this.contentFrame);
-            var url = selectedRow.firstChild.getAttribute("url");
             this.contentFrame.setAttribute("src", url);
         } else {
             this.contentFrame = this.contentFrames[panelName];
