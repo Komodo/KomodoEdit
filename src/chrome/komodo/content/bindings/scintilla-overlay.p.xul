@@ -85,7 +85,6 @@ function scintillaOverlayOnLoad()
        gMainWindow.document.getElementById('widekeyset'), true);
     document.documentElement.appendChild(node);
     doDialogKeypressHack();
-    doContextMenuHackForPlugin();
 }
 
 function scintillaOverlayOnUnload()
@@ -117,21 +116,6 @@ function keypressInterrupt(event) {
     }
     if (command && ko.commands.doCommand(command))
         event.preventDefault();
-}
-
-function doContextMenuHackForPlugin() {
-    // Verified still necessary with moz 1.8 branch - SMC
-    // For some reason popups over the plugin are messed up until
-    // the first context menu over mozilla is activated. It is apparently
-    // due to popupNode not being initialized, so we do that here. See:
-    //   http://www.xulplanet.com/references/elemref/ref_popup.html
-    try {
-        var toolbar = document.getElementById('context-spacer');
-        if (!toolbar) return;
-        document.popupNode = toolbar;
-    } catch(e) {
-        log.exception(e);
-    }
 }
 ]]>
 </script>
