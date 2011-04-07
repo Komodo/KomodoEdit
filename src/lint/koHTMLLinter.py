@@ -440,6 +440,7 @@ class _invokePerlLinter(object):
             warnLines = stdout.splitlines() # Don't need the newlines.
         except:
             log.exception("Error perl/html linting")
+            return
             
                 
         # 'jslint' error reports come in this form:
