@@ -210,7 +210,7 @@ function _init()
 
     // Hook up and start the "Replace in Files" process.
     var args = window.arguments[0];
-    _g_controller = new xtk.Controller();
+    _g_controller = new Controller();
     _g_replacer = _g_find_svc.confirmreplaceallinfiles(
         args.pattern, args.repl, args.context, _g_controller);
     widgets.repls.treeBoxObject.view = _g_replacer;
