@@ -302,7 +302,7 @@ class Database(object):
                 cu.execute("UPDATE toolbox2_meta SET value=? where key=?",
                            (value, key))
             except sqlite3.OperationalError:
-                log.error("Error updating meta table:%s", ex.message)
+                log.exception("Error updating meta table:%s")
                 self.set_meta(key, value, cu)
 
     def del_meta(self, key):
@@ -479,7 +479,7 @@ class Database(object):
             try:
                 cu.execute(cmd, args)
             except sqlite3.OperationalError:
-                log.exception("Couldn't do [%s](%s)", stmt, args)
+                log.exception("Couldn't do [%s](%s)", cmd, args)
                 return False
             else:
                 return True
@@ -841,123 +841,171 @@ class Database(object):
             cu.execute(stmt, (toolType, name))
             return [x[0] for x in cu.fetchall()]
     
-    def getAbbreviationSnippetId(self, abbrev, subnames):
+    def _searchAbbrevFolderSnippet(self, abbrev, subnames, cu):
         """
-        Return the first snippet whose name matches 'abbrev' from
-        a folder consisting of Abbreviations/[s in subnames],
-        ignoring case for the subnames.
-
+        In this SQL, p1 points to the Abbreviations folder,
+        p2 points to the language folder, and
+        p3 points to the snippet.
+        Favor case-sensitive over case-insensitive matches.
         This query uses self-joins so it can be done in one shot
         to the database.
         
         Without the question-marks:
         
-        select cd3.path_id, cd3.name as cd3name, cd2.name
-                from hierarchy as h2, hierarchy as h1,
-                     common_details as cd3, common_details as cd2, common_details as cd1
-                where cd1.name = "Abbreviations" and cd1.type = "folder"
-                  and h1.parent_path_id = cd1.path_id
-                  and h2.parent_path_id = h1.path_id
-                  and h2.parent_path_id = cd2.path_id and cd2.type = "folder" 
-                  and (cd2.name like subnames[0] or cd2.name like subnames[1]...)
-                  and cd3.path_id = h2.path_id and cd3.type = "snippet" and cd3.name like <abbrev>
-
+        Type 1 search:
+        
+        select ... <see below>
+            from paths as p1, paths as p2, paths as p3,
+                 common_details as cd3, common_details as cd2, common_details as cd1
+            where cd1.name = "Abbreviations" and cd1.type = "folder"
+              and cd2.type = "folder" and (cd2.name like "HTML" or cd2.name like "HTML5")
+              and cd1.path_id = p1.id
+              and cd2.path_id = p2.id
+              and substr(p2.path, 0, length(p1.path)) = p1.path
+              and cd3.type = "snippet" and cd3.name like "SNIPPET_NAME"
+              and cd3.path_id = p3.id
+              and substr(p3.path, 0, length(p2.path)) = p2.path ;
+        
+        """
+        q_subnames = ' or '.join(['cd2.name like ?'] * len(subnames))
+        stmt = """\
+        select p3.id, cd3.name, cd2.name, p1.path, p2.path, p3.path
+            from paths as p1, paths as p2, paths as p3,
+                 common_details as cd3, common_details as cd2, common_details as cd1
+            where cd1.name = "Abbreviations" and cd1.type = "folder"
+              and cd2.type = "folder" and (%s)
+              and cd1.path_id = p1.id
+              and cd2.path_id = p2.id
+              and substr(p2.path, 1, length(p1.path)) = p1.path
+              and cd3.type = "snippet" and cd3.name like ?
+              and cd3.path_id = p3.id
+              and substr(p3.path, 1, length(p2.path)) = p2.path
+              ;""" %  q_subnames
+        value_tuple = tuple(subnames + [abbrev])
+        cu.execute(stmt, value_tuple)
+        final_rows = []
+        rows = cu.fetchall()
+        for row in rows:
+            p3_id, cd3_name, cd2_name, p1_path, p2_path, p3_path = row
+            if p2_path[len(p1_path)] != os.path.sep:
+                #log.debug("#1: Rejecting %s", p2_path)
+                continue
+            elif p3_path[len(p2_path)] != os.path.sep:
+                #log.debug("#2: Rejecting %s", p3_path)
+                continue
+            # Add False to show that these snippets were found *below* the folder
+            final_rows.append([p3_id, cd3_name, cd2_name, False])
+        return final_rows
+        
+    def _searchAbbrevSnippetFolder(self, abbrev, subnames, cu):
+        """
+        In this SQL, p1 points to the Abbreviations folder,
+        p2 points to the language folder, and
+        p3 points to the snippet, and
+        p4 points to the snippet's parent.
+        
+        Again, case-sensitive over case-insensitive matches
+        """
+        q_subnames = ' or '.join(['cd2.name like ?'] * len(subnames))
+        stmt = """\
+        select p3.id, cd3.name, cd2.name, p1.path, p2.path, p4.path
+            from paths as p1, paths as p2, paths as p3, paths as p4,
+                 common_details as cd3, common_details as cd2, common_details as cd1,
+                 hierarchy as h3, hierarchy as h4
+            where cd1.name = "Abbreviations" and cd1.type = "folder"
+              and cd3.type = "snippet" and cd3.name like ?    
+              and p1.id = cd1.path_id
+              and p3.id = cd3.path_id 
+              and substr(p3.path, 1, length(p1.path)) = p1.path -- snippet is descendant of abbrev
+              and h3.path_id = p3.id
+              and h3.parent_path_id = h4.path_id
+              and h4.path_id = p4.id -- p4 is the snippet's parent
+              and cd2.type = "folder" and (%s)
+              and p2.id = cd2.path_id
+              and p2.path != p4.path -- if snippet's parent is the folder, this is query #1
+              and substr(p2.path, 1, length(p4.path)) = p4.path
+              ;
+    """ % q_subnames
+        value_tuple = tuple([abbrev] + subnames)
+        cu.execute(stmt, value_tuple)
+        # Add True to show that these snippets were found *above* the folder
+        final_rows = []
+        rows = cu.fetchall()
+        for row in rows:
+            p3_id, cd3_name, cd2_name, p1_path, p2_path, p4_path = row
+            #log.debug("p2_path:%s, \np4_path:%s, len(p2_path):%d, len(p4_path):%d",
+            #           p2_path, p4_path, len(p2_path), len(p4_path))
+            if p4_path != p1_path and p4_path[len(p1_path)] != os.path.sep:
+                #log.debug("#3: Rejecting %s", p4_path)
+                continue
+            elif p4_path != p2_path and p2_path[len(p4_path)] != os.path.sep:
+                #log.debug("#4: Rejecting p2:%s, p4:%s, p2[p4]:%s",
+                #           p2_path, p4_path, p2_path[len(p4_path)])
+                continue
+            final_rows.append([p3_id, cd3_name, cd2_name, True])
+        return final_rows
+    
+    def getAbbreviationSnippetId(self, abbrev, subnames):
+        """
+        First look for target snippets in the path
+        /.../Abbreviations/.../[s in subnames]/.../<target>
+        
+        If none are found, look for target snippets in all paths
+        /.../Abbreviations/.../P/<target>
+        where
+        /.../Abbreviations/.../P/.../[s in subnames] exists.
+        
+        This allows trees like so:
+        Abbreviations
+        + htmlish
+          + generic html snippets
+          + HTML
+            + html-specific snippets
+          + HTML5
+            + html5-specific snippets
+            
         In Sqlite, doing a 'like' on a value ignores case.  Since abbrev
         need to be names, we don't need to worry about wildcard chars.
+        
+        Lookup functions return rows containing:
+        [snippetID, snippetName, associated folder languageName,
+         isInsideFolder]
         """
-        #log.debug("Look for abbrev %s in subnames %s", abbrev, subnames)
-        condition_part = ['cd2.name like ?'] * len(subnames)
-        condition = ' or '.join(condition_part)
-        stmt = """select cd3.path_id, cd3.name as cd3name, cd2.name, cd3.type
-                from hierarchy as h2, hierarchy as h1,
-                     common_details as cd3, common_details as cd2, common_details as cd1
-                where cd1.name = ? and cd1.type = ?
-                  and h1.parent_path_id = cd1.path_id
-                  and h2.parent_path_id = h1.path_id
-                  and h2.parent_path_id = cd2.path_id
-                  and cd2.type = ? and (%s)
-                  and cd3.path_id = h2.path_id and ((cd3.type = ? and cd3.name like ?)
-                                                     or cd3.type = ?)
-                  """ % condition
-        test_values = ["Abbreviations", "folder", "folder"] + subnames + ["snippet", abbrev + "%", "folder"]
-        #log.debug("stmt:%s, test_values:%s", stmt, test_values)
-        matches = []
-        folder_matches = []
-        if abbrev[0].isalnum():
-            self.word_part_re = re.compile(abbrev + "\\b", re.IGNORECASE)
-            word_part_case_sensitive_re = re.compile(abbrev + "\\b")
-        else:
-            self.word_part_re = re.compile(re.escape(abbrev) + r'(?:[\w\s]|$)')
         with self.connect() as cu:
-            cu.execute(stmt, test_values)
-            rows = cu.fetchall()
-            if len(rows) == 0:
-                #log.debug("no matches")
-                return None
+            rows = self._searchAbbrevFolderSnippet(abbrev, subnames, cu)
+            # Look for case-sensitive matches to avoid a second search
+            # This should be the most common form anyway
             for row in rows:
-                if row[3] == 'folder':
-                    folder_matches.append(row)
-                elif self.word_part_re.match(row[1]):
-                    #log.debug("Abbrev %s, Matched %s", abbrev, row[1])
-                    matches.append(row)
-                else:
-                    pass
-                    #log.debug("Abbrev %s, Failed to match %s", abbrev, row[1])
-            if len(matches) == 0:
-                # First make sure the snippet exists somewhere
-                stmt = """select count(*) from common_details
-                          where type = ? and name like ?"""
-                cu.execute(stmt, ('snippet', abbrev + "%"))
-                if not cu.fetchone()[0]:
-                    return
-                # Then look in subfolders for the snippet
-                return self._getAbbreviationMatchInTree(folder_matches, abbrev, cu)
-        if len(matches) == 1:
-            #log.debug("exactly 1 match: %s", matches[0])
-            return matches[0][0]
-        # Favor case-sensitive matches over non-general-folder matches.
-        exactMatches = [x for x in matches if word_part_case_sensitive_re.match(x[1])]
-        if len(exactMatches) == 1:
-            #log.debug("exactly 1 case-sensitive match: %s", exactMatches[0])
-            return exactMatches[0][0]
-        #log.debug("Got %d matches, returning %s", len(matches), matches[0])
-        # Favor snippets that aren't in a General folder.
-        nonGeneralMatches = [x for x in matches if x[2] != "General"]
-        if nonGeneralMatches:
-            #log.debug("Got %d nonGeneralMatches, returning %d (%s)", len(nonGeneralMatches), nonGeneralMatches[0][0], nonGeneralMatches[0][1])
-            return nonGeneralMatches[0][0]
-        return matches[0][0]
-        
-    def _getAbbreviationMatchInTree(self, folder_matches, abbrev, cu):
-        # Search through all Abbreviations/<lang>/<folder>
-        # looking for abbrev.  First one wins, regardless of whether it's in
-        # lang or General, and whether case matches or not.
-        
-        """ select common_details.path_id, common_details.name,  common_details.type
-            from hierarchy, common_details
-            where (hierarchy.parent_path_id = <id1> or
-                   hierarchy.parent_path_id = <id2>...)
-                  and common_details.path_id = hierarchy.path_id
-                  and ((common_details.type = 'snippet' and common_details.name like '<abbrev>%')
-                        or common_details.type ='folder')
-        """
-        condition = ' or '.join(['hierarchy.parent_path_id = ?'] * len(folder_matches))
-        stmt = """select common_details.path_id, common_details.name, common_details.type
-                from hierarchy, common_details
-                where (%s)
-                      and common_details.path_id = hierarchy.path_id
-                      and ((common_details.type = ? and common_details.name like ?)
-                            or common_details.type = ?)""" % (condition,)
-        test_values = [f[0] for f in folder_matches] + ['snippet', abbrev + "%", 'folder']
-        cu.execute(stmt, test_values)
-        child_rows = cu.fetchall()
-        if not child_rows:
-            return
-        for child_row in child_rows:
-            if child_row[2] == 'snippet' and self.word_part_re.match(child_row[1]):
-                return child_row[0]
-        child_rows = [x for x in child_rows if x[2] == 'folder']
-        return self._getAbbreviationMatchInTree(child_rows, abbrev, cu)
+                if row[2] != "General" and row[1] == abbrev:
+                    return row[0]
+            rows += self._searchAbbrevSnippetFolder(abbrev, subnames, cu)
+        if not rows:
+            return None
+        elif len(rows) == 1:
+            return rows[0][0]
+        # Now favor in this order:
+        # 1. inside language folder, matches case (already checked)
+        # 2. inside language folder, any case
+        # 3. above language folder (not general), matches case
+        # 4. above language folder, any case
+        # 5. inside General, matches case
+        # 6. inside General, any case
+        # 7. above General, matches case
+        # 8. rest (above General, any case)
+        for row in rows:
+            score = 0
+            if row[1] != abbrev:
+                score += 1 # Add 1 for a case-insensitive match
+            if row[3]:
+                score += 2 # Add 2 for matching above the language folder
+            if row[2].lower() == "general":
+                score += 4  # Add 4 for a general match
+            if score == 1:
+                # This is the second-best score, so don't sort rows & go with it.
+                return row[0]
+            row.insert(0, score)
+        rows.sort()
+        return rows[0][1]
 
     def getChildByName(self, id, name, recurse, typeName=None):
         """ Return the first tool that's a child of id that has the
@@ -1799,7 +1847,6 @@ def main(argv):
     try:
         toolboxLoader = ToolboxLoader(dbFile, schemaFile)
         toolboxLoader.markAllTopLevelItemsUnloaded()
-        import time
         t1 = time.time()
         toolboxLoader.loadToolboxDirectory("standard directory",
                                            r"c:\Users\ericp\trash\stdToolbox")
