@@ -350,7 +350,7 @@ try {
     checkWidget.removeAttribute('collapsed');
 
     // Is linting enabled?
-    var checkingEnabled = view.prefs.getBooleanPref("editUseLinting");
+    var checkingEnabled = view.koDoc.getEffectivePrefs().getBooleanPref("editUseLinting");
 
     if (typeof(view.lintBuffer)=='undefined' || !view.lintBuffer)
         return;

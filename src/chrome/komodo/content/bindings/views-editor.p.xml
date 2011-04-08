@@ -161,7 +161,7 @@
 
                 if (!ko.views.manager.batchMode &&
                     this.lintBuffer &&
-                    this.prefs.getBooleanPref("editUseLinting")) {
+                    this.koDoc.getEffectivePrefs().getBooleanPref("editUseLinting")) {
                     this.lintBuffer.request("reset the view's document");
                     this._everLinted = true;
                 }
@@ -371,7 +371,7 @@
                     !ko.views.manager.batchMode &&
                     !this._everLinted &&
                     this.lintBuffer &&
-                    this.prefs.getBooleanPref("editUseLinting")) {
+                    this.koDoc.getEffectivePrefs().getBooleanPref("editUseLinting")) {
                     this.lintBuffer.request("focussing view and have not yet linted");
                     this._everLinted = true;
                 }
@@ -438,7 +438,7 @@
                 this.isCIXMLStuffEnabled = (ko.codeintel.isActive
                     && ko.codeintel.is_xml_lang(doc.language));
                 if (this == ko.views.manager.currentView) {
-                    if (this.lintBuffer && this.prefs.getBooleanPref("editUseLinting")) {
+                    if (this.lintBuffer && this.koDoc.getEffectivePrefs().getBooleanPref("editUseLinting")) {
                         //XXX What if the language of a view other than the
                         //    current is changed (not possible in Komodo
                         //    right now?). This will not re-lint in that case.

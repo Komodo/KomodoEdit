@@ -76,6 +76,7 @@
     var isfolder = false;
     var changedFields = {};
     var file = null;
+    var prefInvokeType;
 
     var gprefs = Components.classes["@activestate.com/koPrefService;1"]
                   .getService(Components.interfaces.koIPrefService).prefs;
@@ -114,6 +115,7 @@
         // figure out what nodes we want to remove based on what kind of
         // item we're view prefs for
         var isProject = part && part.type == "project";
+        prefInvokeType = isProject ? "project" : "view";
         var nodesToDrop = [];
         if (!view) {
             // XXX until prefs are more worked out, don't do editor prefs
@@ -266,6 +268,14 @@
                             </treerow>
                         </treeitem>
                     </treechildren>
+                </treeitem>
+                <treeitem container="false" id="syntaxCheckingItem">
+                    <treerow>
+                        <treecell class="treecell-indent"
+                                  url="chrome://komodo/content/pref/pref-syntax-checking.xul"
+                                  label="&syntaxChecking.label;"
+                                  helptag="syntax_checking"/>
+                    </treerow>
                 </treeitem>
 <!--
                 <treeitem container="false" id="environItem">

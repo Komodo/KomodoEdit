@@ -35,7 +35,6 @@
  * ***** END LICENSE BLOCK ***** */
 
 //---- globals
-var _findingInterps = false;
 var prefExecutable = null;
 var programmingLanguage = "Perl";
 var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
@@ -58,7 +57,6 @@ function PrefPerl_PopulatePerlInterps()
     var availInterpList = document.getElementById("perlDefaultInterpreter");
 
     // remove any existing items and add a "finding..." one
-    _findingInterps = true;
     availInterpList.removeAllItems();
     availInterpList.appendItem(_bundle.formatStringFromName("findingInterpreters.label", [programmingLanguage], 1));
 
@@ -85,7 +83,6 @@ function PrefPerl_PopulatePerlInterps()
     }
     if (!found && prefExecutable)
         availInterpList.appendItem(prefExecutable,prefExecutable);
-    _findingInterps = false;
 }
 
 
@@ -97,9 +94,6 @@ function PrefPerl_OnLoad()
     else
         prefExecutable = '';
     PrefPerl_PopulatePerlInterps();
-    var appInfoEx = Components.classes["@activestate.com/koAppInfoEx?app=Perl;1"].
-            getService(Components.interfaces.koIPerlInfoEx);
-    _setPerlCriticSection(appInfoEx.isPerlCriticInstalled(/*forceCheck=*/true));
 
     var origWindow = ko.windowManager.getMainWindow();
     var cwd = origWindow.ko.window.getCwd();
@@ -112,33 +106,6 @@ function PrefPerl_OnLoad()
 function loadPerlExecutable()
 {
     loadExecutableIntoInterpreterList("perlDefaultInterpreter");
-}
-
-function onPerlDefaultInterpreterChanged() {
-    var availInterpList = document.getElementById("perlDefaultInterpreter");
-    var newInterpreter = availInterpList.selectedItem.value;
-    // We can't use koAppInfo service, because it's still pointing at
-    // the old Perl interpreter value.
-    var cmd = !newInterpreter ? "perl" : newInterpreter;
-    cmd += " -Mcriticism -e 1";
-    var runSvc = Components.classes["@activestate.com/koRunService;1"]
-               .getService(Components.interfaces.koIRunService);
-    var out = {}, err = {};
-    var res = runSvc.RunAndCaptureOutput(cmd, null, null, null, out, err);
-    _setPerlCriticSection(res == 0);
-}
-
-function _setPerlCriticSection(havePerlCritic) {
-    var perlCriticLabel = document.getElementById("perl_lintOptions_perlCriticBox_label");
-    var perlCriticMenu = document.getElementById("perl_lintOption_perlCriticLevel");
-    var perlCriticEnableNode = document.getElementById("perl_lintOption_perlCriticEnableNote");
-    perlCriticLabel.disabled = !havePerlCritic;
-    perlCriticMenu.disabled = !havePerlCritic;
-    if (havePerlCritic) {
-        perlCriticEnableNode.setAttribute('collapsed', true);
-    } else {
-        perlCriticEnableNode.removeAttribute('collapsed');
-    }
 }
 
 function loadPerlLogpath()

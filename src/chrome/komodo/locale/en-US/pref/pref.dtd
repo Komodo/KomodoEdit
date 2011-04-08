@@ -638,6 +638,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 
 <!--pref-javascript.xul-->
 <!--pref-project-javascript.xul-->
+<!ENTITY lintJavaScript_SpiderMonkey.label "Check with Mozilla JS (SpiderMonkey)">
 <!ENTITY lintJavaScriptEnableWarnings.label "Enable warning messages">
 <!ENTITY lintJavaScriptEnableStrict.label "Enable strict warning messages.">
 <!ENTITY javascriptFolder.description "Specify any directories that you want Komodo to use for autocomplete and calltips. Komodo will recursively scan these directories for information.">
@@ -738,6 +739,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY pycheckerWarning.descr "Warning: pychecker will load modules and run top-level statements.  ActiveState recommends using pylint instead.">
 <!ENTITY pycheckerWrapperLocation.label "Location of Pychecker Wrapper Script">
 <!ENTITY pycheckerRCLocation.label "Location of pycheckrc Config File">
+<!ENTITY pycheckerNeedsPath.descr "Pychecker checking needs an explicit path to the Pychecker script">
 
 <!--pref-ruby.xul-->
 <!ENTITY noRubyInterpreter.description "No Ruby interpreter was found on your system. If you would like to debug and run Ruby programs in Komodo you will need to install Ruby. You can get Ruby from the Ruby home page at">
@@ -746,6 +748,10 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY filePrefRubyUseThisInterpreter.label "Use this interpreter">
 <!ENTITY filePrefRubyLevelStricness.description "You can configure the level of strictness that is used when doing background syntax checks.">
 <!ENTITY filePrefRubyAdditionalDirectory.description "Specify any additional directories that you want Komodo to add to the Ruby path when debugging, syntax checking or in the interactive shell.">
+
+<!--pref-syntax-checking.xul-->
+<!ENTITY langSpecificSyntaxCheckingProperties.label "Language-specific syntax checking properties">
+<!ENTITY basicChecking.label "Basic Checking">
 
 <!--pref-xml-catalog.xul-->
 <!ENTITY xmlIdentifies.description "Komodo identifies the type of your XML/HTML documents, and uses that to provide autocompletion appropriate for each document.">

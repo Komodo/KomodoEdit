@@ -59,17 +59,6 @@
     <script src="chrome://komodo/content/library/dialogs.js" type="application/x-javascript;version=1.7"/>
     <script type="application/x-javascript;version=1.7">
     <![CDATA[
-    function loadTidyConfigFile()
-    {
-        var textbox = document.getElementById("tidy_configpath");
-        var currentDir = getDirectoryFromTextObject(textbox);
-        var file = ko.filepicker.browseForFile(currentDir);
-        if (file !== null) {
-            textbox.value = file;
-        }
-    }
-
-var havePerlLint = null;
 
 function OnPreferencePageLoading(prefset) {
     try {
@@ -92,39 +81,7 @@ function OnPreferencePageLoading(prefset) {
     } catch(e) {
         log.exception(e);
     }
-    checkHTMLLintUpdate();
 }
-
-function checkHTMLLintUpdate() {
-    // Is Perl's HTML-Lint available?
-    if (havePerlLint === null) {
-        setTimeout(function() {
-            var appInfoEx = Components.classes["@activestate.com/koAppInfoEx?app=Perl;1"].
-                    getService(Components.interfaces.koIPerlInfoEx);
-            havePerlLint = {
-                'lintHTML-CheckWith-Perl-HTML-Lint' : appInfoEx.haveModules(1, ["HTML::Lint"]),
-                'lintHTML-CheckWith-Perl-HTML-Tidy' : appInfoEx.haveModules(1, ["HTML::Tidy"])
-            }
-            updatePerlLintStatus(havePerlLint);
-        }, 100);
-    } else {
-        updatePerlLintStatus(havePerlLint);
-    }
-}
-
-function updatePerlLintStatus(havePerlLint) {
-    for (var idName in havePerlLint) {
-        var haveThisLint = havePerlLint[idName];
-        var checkbox = document.getElementById(idName);
-        if (haveThisLint) {
-            checkbox.disabled = false;
-        } else {
-            checkbox.disabled = true;
-            checkbox.checked = false;
-        }
-    }
-}
-
 
 function OnPreferencePageOK(prefset) {
     var popup = document.getElementById("doctypePopup");
@@ -147,90 +104,6 @@ function OnPreferencePageOK(prefset) {
                 <menupopup id="doctypePopup"/>
             </menulist>
         </groupbox>
-        <groupbox orient="vertical">
-            <caption label="&syntaxChecking.label;"/>
-            <checkbox id="lintStandardHTMLChecking"
-                      label="&doStandardHTMLChecking.label;"
-                      pref="true" />
-            <vbox flex="1" align="center">
-                <description>
-                    &syntaxControlHtml.description;
-                </description>
-                <separator class="thin"/>
-                <label value="&moreInfoTydy.label;"/>
-                <separator class="thin"/>
-                <button label="&lt;http://tidy.sourceforge.net/&gt;"
-                    class="button-link"
-                    style="margin: -10px; color: #b82619;"
-                    onclick="parent.opener.ko.browse.openUrlInDefaultBrowser('http://tidy.sourceforge.net/');"/>
-                <separator/>
-                <label value="&moreInfoWai.label;"/>
-                <separator class="thin"/>
-                <button label="&lt;http://www.w3.org/TR/1999/WAI-WEBCONTENT-19990505&gt;"
-                    class="button-link"
-                    style="margin: -10px; color: #b82619;"
-                    oncommand="parent.opener.ko.browse.openUrlInDefaultBrowser('http://www.w3.org/TR/1999/WAI-WEBCONTENT-19990505/#priorities');"/>
-                <separator class="thin"/>
-            </vbox>
-    
-            <separator class="groovy-thin"
-                       style="margin-top: 10px; margin-bottom: 10px;"/>
-            <grid>
-                <columns>
-                    <column/>
-                    <column/>
-                </columns>
-                <rows>
-                    <row align="center">
-                    <label>&errorLevel.label;</label>
-                    <menulist pref="true" prefattribute="data"
-                              prefstring="tidy_errorlevel">
-                        <menupopup>
-                            <menuitem data="errors"   label="&errorsOnly.label;"/>
-                            <menuitem data="warnings" label="&errorsAndWarnings.label;"/>
-                        </menupopup>
-                    </menulist>
-                    </row>
-                    <row align="center">
-                        <label>&waiAccessibilityLevel.label;</label>
-                        <menulist pref="true" prefattribute="data"
-                                  prefstring="tidy_accessibility">
-                            <menupopup>
-                                <menuitem data="0" label="&off.label;"/>
-                                <menuitem data="1" label="&priority1.label;"/>
-                                <menuitem data="2" label="&priority2.label;"/>
-                                <menuitem data="3" label="&priority3.label;"/>
-                            </menupopup>
-                        </menulist>
-                    </row>
-                </rows>
-            </grid>
-    
-            <separator class="groovy-thin"
-                       style="margin-top: 10px; margin-bottom: 10px;"/>
-            <text value="&configurationFile.label;" style="padding: 2px 6px 2px 6px"/>
-            <hbox align="center">
-                <textbox id="tidy_configpath" pref="true" prefstring="tidy_configpath" flex="1"/>
-                <button label="&browse.label;"
-                        oncommand="loadTidyConfigFile();"/>
-            </hbox>
-        </groupbox>
-    
-        <groupbox orient="vertical">
-            <caption label="&perlHTMLTidy.label;"/>
-            <checkbox id="lintHTML-CheckWith-Perl-HTML-Tidy"
-                      label="&checkWithPerlsHTMLTidy.label;"
-                      pref="true" />
-	</groupbox>
-    
-        <groupbox orient="vertical">
-            <caption label="&perlHTMLLint.label;"/>
-            <checkbox id="lintHTML-CheckWith-Perl-HTML-Lint"
-                      label="&checkWithPerlsHTMLLint.label;"
-                      pref="true" />
-	</groupbox>
-	
-        <spacer flex="1"/>
 
     </vbox>
 

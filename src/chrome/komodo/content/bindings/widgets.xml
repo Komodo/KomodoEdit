@@ -122,6 +122,38 @@
                     ]]>
                 </body>
             </method>
+            <method name="rebuildMenuTree">
+                <parameter name="narrowToView"/>
+                <parameter name="view"/>
+                <body>
+                    <![CDATA[
+                        var popup = document.getAnonymousNodes(this)[0].firstChild;
+                        while (popup.firstChild) {
+                            popup.removeChild(popup.firstChild);
+                        }
+                        if (!narrowToView || !view) {
+                            log.warn("Not narrowing, or no view");
+                            this.getHierarchy();
+                            return;
+                        }
+                        try {
+                            var currentLanguageNames = view.document.languageObj.getSubLanguages({});
+                            currentLanguageNames
+                        } catch(ex) {
+                            log.exception("Failed to get languages: " + ex);
+                            this.getHierarchy();
+                            return;
+                        }
+                        var menuitem;
+                        const XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
+                        for (var i = 0; i < currentLanguageNames.length; i++) {
+                            menuitem = document.createElementNS(XUL_NS, 'menuitem');
+                            menuitem.setAttribute('label', currentLanguageNames[i]);
+                            popup.appendChild(menuitem);
+                        }
+                    ]]>
+                </body>
+            </method>
             <method name="changedSelection">
                 <parameter name="event"/>
                 <body>

@@ -179,4 +179,6 @@ $cons->InstallInChrome('file-permissions.xul');
 $cons->InstallInChrome('editing-properties.xul');
 $cons->InstallInChrome('editing-properties.js');
 $cons->InstallInChrome('indent-properties.xul');
+$cons->InstallInChrome('pref-syntax-checking.xul');
+$cons->InstallInChrome('pref-syntax-checking.js');
 $cons->InstallInChrome('preview-properties.xul');

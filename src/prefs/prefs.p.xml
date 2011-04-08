@@ -188,6 +188,7 @@
   <!-- JavaScript linting options -->
   <boolean id="lintJavaScriptEnableWarnings">1</boolean>
   <boolean id="lintJavaScriptEnableStrict">1</boolean>
+  <boolean id="lintJavaScript_SpiderMonkey">1</boolean>
   <!-- JSLint linting options -->
   <boolean id="lintWithJSLint">false</boolean>
   <string id="jslintOptions"></string> <!-- initially use all jslint defaults -->
@@ -198,8 +199,8 @@
 
   <!-- HTML linters -->
   <boolean id="lintStandardHTMLChecking">true</boolean> <!-- either tidy or html5lib -->
-  <boolean id="lintHTML-CheckWith-Perl-HTML-Tidy">false</boolean>
-  <boolean id="lintHTML-CheckWith-Perl-HTML-Lint">false</boolean>
+  <boolean id="lintHTML_CheckWith_Perl_HTML_Tidy">false</boolean>
+  <boolean id="lintHTML_CheckWith_Perl_HTML_Lint">false</boolean>
   
   <!-- Python linters -->
   <boolean id="lint_python_with_standard_python">true</boolean>

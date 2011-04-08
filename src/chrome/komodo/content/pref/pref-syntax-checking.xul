@@ -1,0 +1,358 @@
+<?xml version="1.0"?>
+<!DOCTYPE window SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % prefDTD SYSTEM "chrome://komodo/locale/pref/pref.dtd">
+  %prefDTD;
+]>
+
+<!-- Copyright (c) 2000-2011 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<?xml-stylesheet href="chrome://global/skin" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/prefs/prefs.css" type="text/css"?>
+
+<window xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        class="kodialog"
+        orient="vertical"
+        onload="docSyntaxCheckingOnLoad();">
+
+    <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/uriparse.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/filepickers.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/pref/koPrefUtils.js" type="application/x-javascript;version=1.7" />
+    <script src="chrome://komodo/content/library/dialogs.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/pref/pref-syntax-checking.js" type="application/x-javascript;version=1.7"/>
+
+    <!-- This main vbox is to ensure *all* the pref widgets are accessible,
+         as it adds a scrollbar when the contents are too long. -->
+    <vbox id="syntax-checking-properties-prefs-vbox" flex="1" class="autoscroll">
+        <groupbox orient="vertical">
+            <caption label="&syntaxChecking.label;"/>
+            <hbox align="center">
+                <checkbox id="editUseLinting"
+                          label="&enableBackgroundSyntaxCheckingAfter.label;"
+                          pref="true"
+                          prefstring="editUseLinting"
+                          prefattribute="checked"
+                          oncommand="pref_lint_doEnabling();"/>
+                <textbox id="lintDelay" size="4" pref="true"/>
+                <label value="&msecs.label;"/>
+            </hbox>
+            <checkbox id="lintEOLs"
+                      style="margin-left: 27px;"
+                      label="&lintEOLs.label;"
+                      pref="true"/>
+        </groupbox>
+        <groupbox>
+          <caption label="&langSpecificSyntaxCheckingProperties.label;" />
+
+          <hbox align="center">
+              <label id="languageLabel" control="languageList"
+                     value="&filePrefAssocLang.label;"/>
+              <langlist id="languageList" class="lang-menulist"
+                        oncommand="changeLanguage(this)"/>
+          </hbox>
+          <deck id="docSyntaxCheckByLang">
+            <vbox id="langSyntaxCheck-JavaScript">
+                <groupbox orient="vertical" >
+                    <caption label="&basicChecking.label;"/>
+                    <checkbox id="lintJavaScript_SpiderMonkey"
+                              label="&lintJavaScript_SpiderMonkey.label;"
+                              pref="true"
+                              oncommand="languageInfo.JavaScript.doWarningEnabling(this);"/>
+                    <checkbox id="lintJavaScriptEnableWarnings"
+                              label="&lintJavaScriptEnableWarnings.label;"
+                              class="indentedPref01"
+                              pref="true"
+                              oncommand="languageInfo.JavaScript.doWarningEnabling(this);"/>
+                    <checkbox id="lintJavaScriptEnableStrict"
+                              class="indentedPref02"
+                              label="&lintJavaScriptEnableStrict.label;"
+                              pref="true"/>
+                </groupbox>
+                <groupbox orient="vertical" >
+                    <caption label="&JSLint.label;"/>
+                    <checkbox id="lintWithJSLint"
+                              label="&lintJavaScriptWithJSLint.label;"
+                              pref="true"
+                              oncommand="languageInfo.JavaScript.doWarningEnabling(this);" />
+                    <hbox id="jslintOptionsBox" flex="1">
+                      <vbox id="jslintOptionsBox-vbox">
+                        <label id="&lintJSLintOptions.label;" control="jslintOptions"
+                               value="JSLint Options:" />
+                        <button id="jslintGoodPartsButton"
+                                label="&lintJSLint_ActivateGoodPartsOptions.label;"
+                                oncommand="languageInfo.JavaScript.addGoodParts();" />
+                        <button id="jslintBrutalMode"
+                                label="&lintJSLint_ActivateAllOptions.label;"
+                                oncommand="languageInfo.JavaScript.addAllOptions();" />
+                      </vbox>
+                      <textbox id="jslintOptions" multiline="true" rows="5" value=""
+                               flex="1"
+                               pref="true" />
+                    </hbox>
+                        <separator class="thin"/>
+                    <description id="jslintOptionsExplanation">
+                          &lintJSLint_Explanation.descr;
+                    </description>
+                        <separator class="thin"/>
+                        <hbox>
+                        <label value="&lintJSLint_WebSiteLabel.label;"/>
+                        <button label="&lt;http://www.jslint.com/lint.html#options&gt;"
+                            class="button-link"
+                            style="margin: -10px; color: #b82619;"
+                            onclick="parent.opener.ko.browse.openUrlInDefaultBrowser('http://www.jslint.com/lint.html#options');"/>
+                            </hbox>
+                        <separator/>
+                </groupbox>
+        
+                <groupbox orient="vertical" >
+                    <caption label="&JSHint.label;"/>
+                    <checkbox id="lintWithJSHint"
+                              label="&lintJavaScriptWithJSHint.label;"
+                              pref="true"
+                              oncommand="languageInfo.JavaScript.doWarningEnabling(this);" />
+                    <hbox id="jshintOptionsBox" flex="1">
+                       <vbox id="jshintOptionsBox-vbox">
+                       <label id="&lintJSHintOptions.label;" control="jshintOptions"
+                              value="JSHint Options:" />
+                    <button id="jshintBrutalMode"
+                            label="&lintJSHint_ActivateAllOptions.label;"
+                            oncommand="languageInfo.JavaScript.addAllJSHintOptions();" />
+                       </vbox>
+                       <textbox id="jshintOptions" multiline="true" rows="5" value=""
+                                flex="1"
+                                pref="true" />
+                    </hbox>
+                        <separator class="thin"/>
+                    <description id="jshintOptionsExplanation">
+                          &lintJSHint_Explanation.descr;
+                    </description>
+                        <separator class="thin"/>
+                        <hbox>
+                        <label value="&lintJSHint_WebSiteLabel.label;"/>
+                        <button label="&lt;http://jshint.com/&gt;"
+                            class="button-link"
+                            style="margin: -10px; color: #b82619;"
+                            onclick="parent.opener.ko.browse.openUrlInDefaultBrowser('http://www.jshint.com/');"/>
+                            </hbox>
+                        <separator/>
+                </groupbox>
+            </vbox>
+            
+            <vbox id="langSyntaxCheck-HTML">
+              <groupbox orient="vertical">
+                  <caption label="&syntaxChecking.label;"/>
+                  <checkbox id="lintStandardHTMLChecking"
+                            label="&doStandardHTMLChecking.label;"
+                            pref="true" />
+                  <vbox flex="1" align="center">
+                      <description>
+                          &syntaxControlHtml.description;
+                      </description>
+                      <separator class="thin"/>
+                      <label value="&moreInfoTydy.label;"/>
+                      <separator class="thin"/>
+                      <button label="&lt;http://tidy.sourceforge.net/&gt;"
+                          class="button-link"
+                          style="margin: -10px; color: #b82619;"
+                          onclick="parent.opener.ko.browse.openUrlInDefaultBrowser('http://tidy.sourceforge.net/');"/>
+                      <separator/>
+                      <label value="&moreInfoWai.label;"/>
+                      <separator class="thin"/>
+                      <button label="&lt;http://www.w3.org/TR/1999/WAI-WEBCONTENT-19990505&gt;"
+                          class="button-link"
+                          style="margin: -10px; color: #b82619;"
+                          oncommand="parent.opener.ko.browse.openUrlInDefaultBrowser('http://www.w3.org/TR/1999/WAI-WEBCONTENT-19990505/#priorities');"/>
+                      <separator class="thin"/>
+                  </vbox>
+          
+                  <separator class="groovy-thin"
+                             style="margin-top: 10px; margin-bottom: 10px;"/>
+                  <grid>
+                      <columns>
+                          <column/>
+                          <column/>
+                      </columns>
+                      <rows>
+                          <row align="center">
+                          <label>&errorLevel.label;</label>
+                          <menulist pref="true" prefattribute="data"
+                                    prefstring="tidy_errorlevel">
+                              <menupopup>
+                                  <menuitem data="errors"   label="&errorsOnly.label;"/>
+                                  <menuitem data="warnings" label="&errorsAndWarnings.label;"/>
+                              </menupopup>
+                          </menulist>
+                          </row>
+                          <row align="center">
+                              <label>&waiAccessibilityLevel.label;</label>
+                              <menulist pref="true" prefattribute="data"
+                                        prefstring="tidy_accessibility">
+                                  <menupopup>
+                                      <menuitem data="0" label="&off.label;"/>
+                                      <menuitem data="1" label="&priority1.label;"/>
+                                      <menuitem data="2" label="&priority2.label;"/>
+                                      <menuitem data="3" label="&priority3.label;"/>
+                                  </menupopup>
+                              </menulist>
+                          </row>
+                      </rows>
+                  </grid>
+          
+                  <separator class="groovy-thin"
+                             style="margin-top: 10px; margin-bottom: 10px;"/>
+                  <text value="&configurationFile.label;" style="padding: 2px 6px 2px 6px"/>
+                  <hbox align="center">
+                      <textbox id="tidy_configpath" pref="true" prefstring="tidy_configpath" flex="1"/>
+                      <button label="&browse.label;"
+                              oncommand="languageInfo.HTML.loadTidyConfigFile();"/>
+                  </hbox>
+              </groupbox>
+          
+              
+              <groupbox orient="vertical">
+                  <caption label="&perlHTMLTidy.label;"/>
+                  <checkbox id="lintHTML_CheckWith_Perl_HTML_Tidy"
+                            label="&checkWithPerlsHTMLTidy.label;"
+                            pref="true" />
+              </groupbox>
+          
+              <groupbox orient="vertical">
+                  <caption label="&perlHTMLLint.label;"/>
+                  <checkbox id="lintHTML_CheckWith_Perl_HTML_Lint"
+                            label="&checkWithPerlsHTMLLint.label;"
+                            pref="true" />
+              </groupbox>
+	
+            </vbox>
+            
+	    <vbox id="langSyntaxCheck-Perl">
+              <caption label="&backgroundSyntaxChecking.label;"/>
+              <description>
+                  &filePrefPerlLevelStricness.description;
+              </description>
+              <hbox align="center">
+                  <menulist id="perl_lintOption"
+                            flex="1" pref="true" prefattribute="data">
+                      <menupopup>
+                          <menuitem data="cwT" label="&errorsAndWarningsUseTaintModeCwT.label;"/>
+                          <menuitem data="cT" label="&errorsOnlyUseTaintModeCT.label;"/>
+                          <menuitem data="cw" label="&errorsAndWarningsCw.label;"/>
+                          <menuitem data="c" label="&errorsOnlyC.label;"/>
+                      </menupopup>
+                  </menulist>
+              </hbox>
+              <separator class="thin"/>
+              <hbox id="perl_lintOptions_perlCriticBox_hbox"
+                    align="center"
+                    collapsed="false">
+                  <label id="perl_lintOptions_perlCriticBox_label"
+                         value="&prefPerl.perlCriticOptions.label;"
+                         accesskey="&prefPerl.perlCriticOptions.accesskey;"
+                         control="perl_lintOption_perlCriticLevel"
+                         />
+                  <menulist id="perl_lintOption_perlCriticLevel"
+                            pref="true" prefattribute="data">
+                      <menupopup>
+                          <menuitem data="off" label="&prefPerl.perlCriticOption.off.label;"/>
+                          <menuitem data="gentle" label="&prefPerl.perlCriticOption.gentle.label;"/>
+                          <menuitem data="stern" label="&prefPerl.perlCriticOption.stern.label;"/>
+                          <menuitem data="harsh" label="&prefPerl.perlCriticOption.harsh.label;"/>
+                          <menuitem data="cruel" label="&prefPerl.perlCriticOption.cruel.label;"/>
+                          <menuitem data="brutal" label="&prefPerl.perlCriticOption.brutal.label;"/>
+                      </menupopup>
+                  </menulist>
+              </hbox>
+              <description id="perl_lintOption_perlCriticEnableNote"
+                           collapsed="true">&prefPerl.perlCriticOptionsEnable.description;</description>
+            </vbox>
+            
+	    <vbox id="langSyntaxCheck-Python">
+              <groupbox orient="vertical">
+                  <caption label="&syntaxChecking.label;"/>
+                  <checkbox id="lint_python_with_standard_python"
+                            label="&ClassicPythonChecking.label;"
+                            pref="true" />
+                  <separator class="thin"/>
+                  <checkbox id="lint_python_with_pylint"
+                            label="&pylintCheckingStatus.label;"
+                            pref="true"
+                            oncommand="languageInfo.Python.onTogglePylintChecking(this);" />
+                  <vbox id="pylint_checking_vbox_rcfile" class="indentedPref01">
+                     <label id="pylint_checking_rcfile_label"
+                              control="pylint_checking_rcfile"
+                              value="&pylintRCFileLocation.label;" />
+                     <hbox id="pylint_checking_hbox_rcfile">
+                       <textbox id="pylint_checking_rcfile" pref="true"
+                                prefstring="pylint_checking_rcfile" flex="1"/>
+                       <button id="pylint_browse_rcfile" label="&browse.label;" oncommand="languageInfo.Python.loadPylintRcfile();"/>
+                    </hbox>
+                    <description id="pylint_failure" class="pref_hide" />
+                  </vbox>
+                  <separator class="thin"/>
+                  <checkbox id="lint_python_with_pychecker"
+                            label="&lintWithPychecker.label;"
+                            pref="true"
+                            oncommand="languageInfo.Python.onTogglePycheckerChecking(this);" />
+                  <description id="pychecker_dangerous" class="pref_hide" >
+                    &pycheckerWarning.descr;
+                  </description>
+                  <vbox id="pychecker_info_vbox" class="indentedPref01">
+                     <label id="pychecker_wrapper_location_label"
+                              control="pychecker_wrapper_location"
+                              value="&pycheckerWrapperLocation.label;" />
+                     <hbox id="pychecker_wrapper_location_hbox">
+                       <textbox id="pychecker_wrapper_location" pref="true"
+                                prefstring="pychecker_wrapper_location" flex="1"
+                                oninput="updatePycheckerPathStatus(this);" />
+                       <button id="pychecker_browse_wrapper_location"
+                               label="&browse.label;"
+                               oncommand="languageInfo.Python.loadPycheckerWrapperFile();"/>
+                    </hbox>
+                    <separator class="thin"/>
+                    <label id="pychecker_checking_rcfile_label"
+                              control="pychecker_checking_rcfile"
+                              value="&pycheckerRCLocation.label;" />
+                    <hbox id="pychecker_checking_hbox_rcfile">
+                       <textbox id="pychecker_checking_rcfile" pref="true"
+                                prefstring="pychecker_checking_rcfile" flex="1"/>
+                       <button id="pychecker_browse_rcfile" label="&browse.label;" oncommand="languageInfo.Python.loadPycheckerRcFile();"/>
+                    </hbox>
+                    <description id="pychecker_failure" class="pref_hide" >
+                    &pycheckerNeedsPath.descr;
+                    </description>
+                  </vbox>
+              </groupbox>
+            </vbox>
+            
+	    <vbox id="langSyntaxCheck-Ruby">
+                <groupbox orient="vertical">
+                    <caption label="&backgroundSyntaxChecking.label;"/>
+                    <description>
+                        &filePrefRubyLevelStricness.description;
+                    </description>
+                    <hbox align="center">
+                        <menulist id="ruby_lintOption"
+                                  flex="1" pref="true" prefattribute="data">
+                            <menupopup>
+                                <menuitem data="cwT" label="&errorsAndWarningsUseTaintModeCwT.label;"/>
+                                <menuitem data="cT" label="&errorsOnlyUseTaintModeCT.label;"/>
+                                <menuitem data="cw" label="&errorsAndWarningsCw.label;"/>
+                                <menuitem data="c" label="&errorsOnlyC.label;"/>
+                            </menupopup>
+                        </menulist>
+                    </hbox>
+                </groupbox>
+            </vbox>
+        
+            <vbox id="langSyntaxCheckFallback">
+               <description>No lang-specific prefs for $1</description>
+            </vbox>
+          </deck>
+        </groupbox>
+    </vbox>
+</window>

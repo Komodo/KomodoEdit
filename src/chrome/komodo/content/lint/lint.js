@@ -105,6 +105,7 @@ const HTML_LIST = ["HTML", "XML"];
 var global_pref_observer_topics = {
     "editUseLinting" : null,
     "lintEOLs" : null,
+    "endOfLine" : null,
     "perlDefaultInterpreter" : PERL_LIST,
     "perl_lintOption" : PERL_LIST,
     "perl_lintOption_perlCriticLevel" : PERL_LIST,
@@ -120,15 +121,18 @@ var global_pref_observer_topics = {
     "phpConfigFile" : PHP_LIST,
     "rubyDefaultInterpreter" : RUBY_LIST,
     "ruby_lintOption" : RUBY_LIST,
+
     "lintJavaScriptEnableWarnings" : JS_LIST,
     "lintJavaScriptEnableStrict" : JS_LIST,
+    "lintJavaScript_SpiderMonkey" : JS_LIST,
     "lintWithJSHint" : JS_LIST,
     "jshintOptions" : JS_LIST,
     "lintWithJSLint" : JS_LIST,
     "jslintOptions" : JS_LIST,
+
     "lintStandardHTMLChecking" : HTML_LIST,
-    "lintHTML-CheckWith-Perl-HTML-Lint" : HTML_LIST,
-    "lintHTML-CheckWith-Perl-HTML-Tidy" : HTML_LIST,
+    "lintHTML_CheckWith_Perl_HTML_Lint" : HTML_LIST,
+    "lintHTML_CheckWith_Perl_HTML_Tidy" : HTML_LIST,
     "tidy_errorlevel" : HTML_LIST,
     "tidy_accessibility" : HTML_LIST,
     "tidy_configpath" : HTML_LIST
@@ -165,17 +169,11 @@ this.addLintPreference = function(preferenceName, subLanguageNameList) {
     }
 };
 
-var view_pref_observer_topics = [
-    "editUseLinting",
-    "lintEOLs",
-    "endOfLine"
-];
-
 this.lintBuffer = function LintBuffer(view) {
     _log.info("LintBuffer["+view.title+"].constructor()");
     try {
         this.view = view;
-        this.lintingEnabled = this.view.prefs.getBooleanPref("editUseLinting");
+        this.lintingEnabled = this.view.koDoc.getEffectivePrefs().getBooleanPref("editUseLinting");
         this.lintResults = null;
         this.errorString = null;
         this._lastRequestId = 0; // used to ensure only the last request is used
@@ -187,8 +185,8 @@ this.lintBuffer = function LintBuffer(view) {
 
         var viewPrefObserverService = this.view.prefs.prefObserverService;
         viewPrefObserverService.addObserverForTopics(this,
-                                                     view_pref_observer_topics.length,
-                                                     view_pref_observer_topics, false);
+                                                     global_pref_observer_topic_names.length,
+                                                     global_pref_observer_topic_names, false);
 
         this._lintTimer = null; // used to control when lint requests are issued
         
@@ -221,8 +219,8 @@ this.lintBuffer.prototype.destructor = function()
 
         var viewPrefObserverService = this.view.prefs.prefObserverService;
         viewPrefObserverService.removeObserverForTopics(this,
-                                                        view_pref_observer_topics.length,
-                                                        view_pref_observer_topics);
+                                                        global_pref_observer_topic_names.length,
+                                                        global_pref_observer_topic_names);
 
         var globalPrefObserverService = _prefs.prefObserverService;
         globalPrefObserverService.removeObserverForTopics(this,
@@ -256,7 +254,7 @@ this.lintBuffer.prototype.observe = function(subject, topic, data)
     //               subject+", topic="+topic+", data="+data);
                 
     try {
-        var lintingEnabled = this.view.prefs.getBooleanPref("editUseLinting");
+        var lintingEnabled = this.view.koDoc.getEffectivePrefs().getBooleanPref("editUseLinting");
         var setupRequest = false;
         if (lintingEnabled
             && global_pref_observer_topics[topic]) {
@@ -343,7 +341,7 @@ this.lintBuffer.prototype.request = function(reason /* = "" */)
         }
         this._lintTimer = new ko.objectTimer(this, this._issueRequest, []);
         var delay;
-        if (! _prefs.getBooleanPref('editUseLinting')) {
+        if (!this.view.koDoc.getEffectivePrefs().getBooleanPref('editUseLinting')) {
             delay = 0;
         } else {
             delay = _prefs.getLongPref('lintDelay'); // lint request delay (in ms)

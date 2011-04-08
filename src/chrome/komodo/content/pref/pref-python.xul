@@ -82,70 +82,11 @@
                 <menulist id="pythonDefaultInterpreter"
                     flex="1"
                     pref="true"
-                    oncommand="updateUI_part1();"
                     prefstring="pythonDefaultInterpreter">
                     <menupopup id="avail-interp-list"/>
                 </menulist>
                 <button label="&browse.label;" oncommand="loadPythonExecutable();"/>
             </hbox>
-        </groupbox>
-    
-        <separator class="thin"/>
-    
-        <groupbox orient="vertical">
-            <caption label="&syntaxChecking.label;"/>
-            <checkbox id="lint_python_with_standard_python"
-                      label="&ClassicPythonChecking.label;"
-                      pref="true" />
-            <separator class="thin"/>
-            <checkbox id="lint_python_with_pylint"
-                      label="&pylintCheckingStatus.label;"
-                      pref="true"
-                      oncommand="onTogglePylintChecking(this);" />
-            <vbox id="pylint_checking_vbox_rcfile" class="indentedPref01">
-               <label id="pylint_checking_rcfile_label"
-                        control="pylint_checking_rcfile"
-                        value="&pylintRCFileLocation.label;" />
-               <hbox id="pylint_checking_hbox_rcfile">
-                 <textbox id="pylint_checking_rcfile" pref="true"
-                          prefstring="pylint_checking_rcfile" flex="1"/>
-                 <button id="pylint_browse_rcfile" label="&browse.label;" oncommand="loadPylintRcfile();"/>
-              </hbox>
-              <description id="pylint_failure" class="pref_hide" />
-            </vbox>
-            <separator class="thin"/>
-            <checkbox id="lint_python_with_pychecker"
-                      label="&lintWithPychecker.label;"
-                      pref="true"
-                      oncommand="onTogglePycheckerChecking(this);" />
-            <description id="pychecker_dangerous" class="pref_hide" >
-	      &pycheckerWarning.descr;
-	    </description>
-            <vbox id="pychecker_info_vbox" class="indentedPref01">
-               <label id="pychecker_wrapper_location_label"
-                        control="pychecker_wrapper_location"
-                        value="&pycheckerWrapperLocation.label;" />
-               <hbox id="pychecker_wrapper_location_hbox">
-                 <textbox id="pychecker_wrapper_location" pref="true"
-                          prefstring="pychecker_wrapper_location" flex="1"
-			  oninput="updatePycheckerPathStatus(this);" />
-                 <button id="pychecker_browse_wrapper_location"
-		         label="&browse.label;"
-			 oncommand="loadPycheckerWrapperFile();"/>
-              </hbox>
-              <separator class="thin"/>
-              <label id="pychecker_checking_rcfile_label"
-                        control="pychecker_checking_rcfile"
-                        value="&pycheckerRCLocation.label;" />
-              <hbox id="pychecker_checking_hbox_rcfile">
-                 <textbox id="pychecker_checking_rcfile" pref="true"
-                          prefstring="pychecker_checking_rcfile" flex="1"/>
-                 <button id="pychecker_browse_rcfile" label="&browse.label;" oncommand="loadPycheckerRcFile();"/>
-              </hbox>
-              <description id="pychecker_failure" class="pref_hide" >
-	      &amp;pychecker checking needs an explicit path to the pychecker script
-	      </description>
-            </vbox>
         </groupbox>
     
         <separator class="thin"/>

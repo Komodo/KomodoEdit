@@ -73,6 +73,7 @@
     var prefPanelTree = null;
     var view = null;
     var part = null;
+    var prefInvokeType = "global";
 
     /* General startup routine for preferences dialog.
      * Place all necessary modifications to pref tree here.
@@ -443,6 +444,14 @@
                     </treerow>
                 </treeitem>
 <!-- #endif -->
+                <treeitem container="false" id="syntaxCheckingItem">
+                    <treerow>
+                        <treecell class="treecell-indent"
+                                  url="chrome://komodo/content/pref/pref-syntax-checking.xul"
+                                  label="&syntaxChecking.label;"
+                                  helptag="syntax_checking"/>
+                    </treerow>
+                </treeitem>
 
             </treechildren>
         </tree>

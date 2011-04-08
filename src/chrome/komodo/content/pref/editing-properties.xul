@@ -96,20 +96,6 @@
                 <textbox id="editAutoWrapColumn" size="3" pref="true"/>
             </hbox>
         </groupbox>
-    
-        <groupbox orient="vertical">
-            <caption label="&syntaxChecking.label;"/>
-            <checkbox id="editUseLinting"
-                      label="&enableBackgroundSyntaxChecking.label;"
-                      pref="true"
-                      prefstring="editUseLinting"
-                      prefattribute="checked"
-                      oncommand="pref_lint_doEnabling();"/>
-            <checkbox id="lintEOLs"
-                      style="margin-left: 27px;"
-                      label="&lintEOLs.label;"
-                      pref="true"/>
-        </groupbox>
 
     </vbox>
 

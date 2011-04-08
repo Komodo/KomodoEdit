@@ -432,6 +432,13 @@ class _invokePerlLinter(object):
                                    "perl")
         perlWrapperFileName = os.path.join(perlLintDir, perlLinterBasename);
         perlExe = prefset.getStringPref("perlDefaultInterpreter")
+        if not perlExe:
+            perlExe = components.classes["@activestate.com/koAppInfoEx?app=Perl;1"] \
+                     .getService(components.interfaces.koIAppInfoEx) \
+                     .executablePath
+            if not perlExe:
+                log.debug("html lint with Perl: No perl interpreter found.")
+                return
         cmd = [perlExe, perlWrapperFileName]
         cwd = request.cwd or None
         try:
@@ -439,7 +446,7 @@ class _invokePerlLinter(object):
             stdout, stderr = p.communicate(text)
             warnLines = stdout.splitlines() # Don't need the newlines.
         except:
-            log.exception("Error perl/html linting")
+            log.exception("Error perl/html linting, cmd: %s, pwd:%s", cmd, cwd)
             return
             
                 

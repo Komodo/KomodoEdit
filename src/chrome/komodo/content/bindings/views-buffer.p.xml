@@ -1106,7 +1106,7 @@
             if (modificationType & (SC_MOD_INSERTTEXT | SC_MOD_DELETETEXT))
             {
                 if (this.lintBuffer &&
-                    this.prefs.getBooleanPref("editUseLinting"))
+                    this.koDoc.getEffectivePrefs().getBooleanPref("editUseLinting"))
                 {
                     this.lintBuffer.request("buffer was modified");
                 }
