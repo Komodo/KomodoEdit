@@ -14,7 +14,7 @@
  * The Original Code is Komodo code.
  * 
  * The Initial Developer of the Original Code is ActiveState Software Inc.
- * Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
+ * Portions created by ActiveState Software Inc are Copyright (C) 2000-2011
  * ActiveState Software Inc. All Rights Reserved.
  * 
  * Contributor(s):
@@ -34,18 +34,26 @@
  * 
  * ***** END LICENSE BLOCK ***** */
 
+if (typeof(ko) == 'undefined') {
+    var ko = {};
+}
+
+if (typeof(ko.find)!='undefined') {
+    ko.logging.getLogger('').warn("ko.find was already loaded, re-creating it.\n");
+}
+
 /* Komodo's Find and Replace general functions
  *
  * Presumably these are to used by the editor for findNext shortcuts and
  * by the Find and Replace dialog.
  *
  * Usage:
- *      Find_FindNext(...)
- *      Find_FindAll(...)
- *      Find_MarkAll(...)
- *      Find_Replace(...)
- *      Find_ReplaceAll(...)
- *      Find_FindAllInFiles(...)
+ *      ko.find.findNext(...)
+ *      ko.find.findAll(...)
+ *      ko.find.markAll(...)
+ *      ko.find.replace(...)
+ *      ko.find.replaceAll(...)
+ *      ko.find.findAllInFiles(...)
  * where:
  *      "editor" is generally the editor object on which getFocusedView() et al
  *          can be called;
@@ -53,9 +61,11 @@
  *      "replacement" is the replacement string to use; and
  *      "context" is a koIFindContext component.
  */
+ko.find = {};
 
+(function() {
 
-//---- globals
+//---- locals
 
 var findLog = ko.logging.getLogger("find_functions");
 //findLog.setLevel(ko.logging.LOG_DEBUG);
@@ -65,23 +75,20 @@ var _ffBundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
     .createBundle("chrome://komodo/locale/find/find_functions.properties");
 // ----------------------------------------------
 
-// the find XPCOM service that does all the grunt work
-__defineGetter__("findSvc",
-function()
-{
-    return Components.classes["@activestate.com/koFindService;1"]
-                  .getService(Components.interfaces.koIFindService);
-});
+// The find XPCOM service that does all the grunt work.
+var _findSvc = Components.classes["@activestate.com/koFindService;1"]
+                    .getService(Components.interfaces.koIFindService);
 
 // The find session is used to hold find results and to determine when to stop
 // searching (i.e. when we have come full circle).
-var gFindSession = Components.classes["@activestate.com/koFindSession;1"]
-                   .getService(Components.interfaces.koIFindSession);
+var _findSession = Components.classes["@activestate.com/koFindSession;1"]
+                    .getService(Components.interfaces.koIFindSession);
+
 
 
 //--- internal support routines that Komodo's view system should have
 
-function _IsViewSearchable(view) {
+this._isViewSearchable = function _IsViewSearchable(view) {
     var scimoz = null;
     try {
         scimoz = view && view.scintilla && view.scintilla.scimoz;
@@ -99,7 +106,7 @@ function _IsViewSearchable(view) {
 //XXX Once all view types have viewIds we can do this more properly. I.e.
 //    don't default to 'editor' view 0 as the "next" view for any non-'editor'
 //    view.
-function _GetNextView(editor, currView)
+this._getNextView = function _GetNextView(editor, currView)
 {
     // Filter out view types that cannot be searched.
     var views = editor.ko.views.manager.topView.getViews(true);
@@ -110,7 +117,7 @@ function _GetNextView(editor, currView)
         if (views[i].getAttribute("type") == "editor") {
             searchableViews.push(views[i]);
         } else {
-            findLog.debug("_GetNextView: '"+views[i].getAttribute("type")+
+            findLog.debug("ko.find._getNextView: '"+views[i].getAttribute("type")+
                           "' view is not searchable");
         }
     }
@@ -146,7 +153,7 @@ function _GetNextView(editor, currView)
 
 // Return the view before this one appropriate for searching. If there is no
 // such view (e.g. only one view), then return null.
-function _GetPreviousView(editor, currView)
+this._getPreviousView = function _GetPreviousView(editor, currView)
 {
     // Filter out view types that cannot be searched.
     var views = editor.ko.views.manager.topView.getViews(true);
@@ -156,7 +163,7 @@ function _GetPreviousView(editor, currView)
         if (viewType == "editor") {
             searchableViews.push(views[i]);
         } else {
-            findLog.debug("_GetPreviousView: '" + viewType +
+            findLog.debug("ko.find._getPreviousView: '" + viewType +
                           "' view is not searchable");
         }
     }
@@ -193,7 +200,7 @@ function _GetPreviousView(editor, currView)
     }
 }
 
-function _GetViewFromViewId(editor, displayPath)
+this._getViewFromViewId = function _GetViewFromViewId(editor, displayPath)
 {
     // Filter out view types that cannot be searched.
     var views = editor.ko.views.manager.topView.getViews(true);
@@ -229,7 +236,7 @@ function _GetViewFromViewId(editor, displayPath)
  * @returns {koIFindResult|null} the found occurrence, or null if
  *      "pattern" wasn't found.
  */
-function _SetupAndFindNext(editor, context, pattern, mode,
+this._setupAndFindNext = function _SetupAndFindNext(editor, context, pattern, mode,
                            check_selection_only /* =false */)
 {
     if (typeof(check_selection_only) == 'undefined' || check_selection_only == null) check_selection_only = false;
@@ -241,12 +248,12 @@ function _SetupAndFindNext(editor, context, pattern, mode,
     }
 
     if (context.type == Components.interfaces.koIFindContext.FCT_ALL_OPEN_DOCS
-        && ! _IsViewSearchable(view))
+        && ! ko.find._isViewSearchable(view))
     {
-        if (findSvc.options.searchBackward) {
-            view = _GetPreviousView(editor, view);
+        if (_findSvc.options.searchBackward) {
+            view = ko.find._getPreviousView(editor, view);
         } else {
-            view = _GetNextView(editor, view);
+            view = ko.find._getNextView(editor, view);
         }
         if (view == null) {
             return null;
@@ -309,7 +316,7 @@ function _SetupAndFindNext(editor, context, pattern, mode,
     // This does not work in reverse because you keep getting the same result.
     // If there is a current find result (i.e. a selection) then set the
     // startOffset to the *start* of the selection.
-    if (findSvc.options.searchBackward && scimoz.selText != "") {
+    if (_findSvc.options.searchBackward && scimoz.selText != "") {
         startOffset -= scimoz.selText.length;
     }
 
@@ -321,12 +328,12 @@ function _SetupAndFindNext(editor, context, pattern, mode,
     // matches end a find session).
     // XXX I *think* this is a valid fix, i.e. the result is what the user
     //     expects.
-    var lastFindResult = gFindSession.GetLastFindResult();
+    var lastFindResult = _findSession.GetLastFindResult();
     var unadjustedStartOffset = startOffset;
     if (lastFindResult && url == lastFindResult.url
         && lastFindResult.value.length == 0)
     {
-        if (findSvc.options.searchBackward) {
+        if (_findSvc.options.searchBackward) {
             startOffset -= 1;
             if (startOffset < 0) {
                 startOffset = ko.stringutils.bytelength(text.slice(0, text.length-1));
@@ -340,7 +347,7 @@ function _SetupAndFindNext(editor, context, pattern, mode,
     }
 
     // find it
-    gFindSession.StartFind(pattern, url, findSvc.options,
+    _findSession.StartFind(pattern, url, _findSvc.options,
                            // Lie to the find session manager about the
                            // possible startOffset adjustment, else the find
                            // session will reset itself.
@@ -351,7 +358,7 @@ function _SetupAndFindNext(editor, context, pattern, mode,
                            mode);
     var findResult = null;
     while (1) {  // while not done searching all file(s)
-        findResult = findSvc.find(url, text, pattern,
+        findResult = _findSvc.find(url, text, pattern,
                                   startOffset, endOffset);
         // fix up the find result for context
         if (findResult != null) {
@@ -360,9 +367,9 @@ function _SetupAndFindNext(editor, context, pattern, mode,
         }
 
         // if was not found then wrap (if have not already) and try again
-        if (findResult == null && !gFindSession.wrapped) {
-            gFindSession.wrapped = true;
-            if (!findSvc.options.searchBackward) {
+        if (findResult == null && !_findSession.wrapped) {
+            _findSession.wrapped = true;
+            if (!_findSvc.options.searchBackward) {
                 startOffset = 0;
             } else {
                 startOffset = ko.stringutils.bytelength(text.slice(0, text.length-1));
@@ -373,27 +380,27 @@ function _SetupAndFindNext(editor, context, pattern, mode,
         // If finished searching the current document then:
         // - restore the cursor/selection state
         // - move to the next document (if we are searching more than one)
-        if (findResult == null || gFindSession.WasAlreadyFound(findResult)
-            || (mode == "replace" && gFindSession.IsRecursiveHit(findResult)))
+        if (findResult == null || _findSession.WasAlreadyFound(findResult)
+            || (mode == "replace" && _findSession.IsRecursiveHit(findResult)))
         {
             // Switch to the next document to search, if there are any.
             if (context.type == Components.interfaces.koIFindContext.FCT_ALL_OPEN_DOCS) {
                 var newView;
-                if (findSvc.options.searchBackward) {
-                    newView = _GetPreviousView(editor, view);
+                if (_findSvc.options.searchBackward) {
+                    newView = ko.find._getPreviousView(editor, view);
                 } else {
-                    newView = _GetNextView(editor, view);
+                    newView = ko.find._getNextView(editor, view);
                 }
                 if (newView == null)
                     break;  // Either there is no view or only the one.
                 view = newView;
                 url = view.koDoc.displayPath;
                 // restore the cursor/selection state in current document
-                scimoz.setSel(gFindSession.fileSelectionStartPos, gFindSession.fileSelectionEndPos);
+                scimoz.setSel(_findSession.fileSelectionStartPos, _findSession.fileSelectionEndPos);
                 //XXX Is this bad if the working view is not visible???
                 scimoz.ensureVisibleEnforcePolicy(scimoz.lineFromPosition(scimoz.currentPos));
                 // we are done if this document has already been searched
-                if (gFindSession.HaveSearchedThisUrlAlready(url)) {
+                if (_findSession.HaveSearchedThisUrlAlready(url)) {
                     break;
                 }
                 // make the switch
@@ -403,14 +410,14 @@ function _SetupAndFindNext(editor, context, pattern, mode,
             }
 
             // Save the start information in this doc.
-            gFindSession.fileStartPos = scimoz.currentPos;
-            gFindSession.fileSelectionStartPos = scimoz.selectionStart;
-            gFindSession.fileSelectionEndPos = scimoz.selectionEnd;
+            _findSession.fileStartPos = scimoz.currentPos;
+            _findSession.fileSelectionStartPos = scimoz.selectionStart;
+            _findSession.fileSelectionEndPos = scimoz.selectionEnd;
 
             // Setup for a search in this document. (Currently only "all open
             // documents" should reach this code.)
             text = scimoz.text;
-            if (findSvc.options.searchBackward) {
+            if (_findSvc.options.searchBackward) {
                 startOffset = ko.stringutils.bytelength(text.slice(0, text.length - 1));
             } else {
                 startOffset = 0;
@@ -422,7 +429,7 @@ function _SetupAndFindNext(editor, context, pattern, mode,
 
         // fix up the find result for context and return it
         if (findResult != null) {
-            gFindSession.NoteFind(findResult);
+            _findSession.NoteFind(findResult);
             return findResult;
         }
     }
@@ -431,18 +438,18 @@ function _SetupAndFindNext(editor, context, pattern, mode,
     scimoz.hideSelection(true);
     if (context.type == Components.interfaces.koIFindContext.FCT_ALL_OPEN_DOCS) {
         // switch to the original url if it is still open
-        var firstView = _GetViewFromViewId(editor, gFindSession.firstUrl);
+        var firstView = ko.find._getViewFromViewId(editor, _findSession.firstUrl);
         if (editor.ko.views.manager.currentView.koDoc.displayPath
             != firstView.koDoc.displayPath) {
             firstView.makeCurrent(false);
         }
         scimoz.setSel(
-            scimoz.positionAtChar(0, gFindSession.firstFileSelectionStartPos),
-            scimoz.positionAtChar(0, gFindSession.firstFileSelectionEndPos));
+            scimoz.positionAtChar(0, _findSession.firstFileSelectionStartPos),
+            scimoz.positionAtChar(0, _findSession.firstFileSelectionEndPos));
     } else if (context.type == Components.interfaces.koIFindContext.FCT_CURRENT_DOC) {
         scimoz.setSel(
-            scimoz.positionAtChar(0, gFindSession.firstFileSelectionStartPos),
-            scimoz.positionAtChar(0, gFindSession.firstFileSelectionEndPos));
+            scimoz.positionAtChar(0, _findSession.firstFileSelectionStartPos),
+            scimoz.positionAtChar(0, _findSession.firstFileSelectionEndPos));
     } else if (context.type == Components.interfaces.koIFindContext.FCT_SELECTION) {
         // We have to investigate this but find session termination is broken and so we can't
         // elicit this code path.
@@ -457,13 +464,13 @@ function _SetupAndFindNext(editor, context, pattern, mode,
     return null;
 }
 
-function _doMarkerClearingReplacement(editor, scimoz, startByte, endByte, replacementText) {
+this._doMarkerClearingReplacement = function _doMarkerClearingReplacement(editor, scimoz, startByte, endByte, replacementText) {
     scimoz.targetStart = startByte;
     scimoz.targetEnd = endByte;
     scimoz.replaceTarget(replacementText.length, replacementText);
 }
 
-function _doMarkerPreservingReplacement(editor, scimoz, startByte, endByte, replacementText) {
+this._doMarkerPreservingReplacement = function _doMarkerPreservingReplacement(editor, scimoz, startByte, endByte, replacementText) {
     var lineStart = scimoz.lineFromPosition(startByte);
     var lineEnd = scimoz.lineFromPosition(endByte);
     var ISciMoz = Components.interfaces.ISciMoz;
@@ -497,11 +504,11 @@ function _doMarkerPreservingReplacement(editor, scimoz, startByte, endByte, repl
         var numLinesInReplacement = (replacementText.match(eol_re) || "").length;
         if (numLinesInReplacement != (lineEnd - lineStart)) {
             // Lines differ, do quick repl
-            return _doMarkerClearingReplacement(editor, scimoz, startByte, endByte, replacementText);
+            return ko.find._doMarkerClearingReplacement(editor, scimoz, startByte, endByte, replacementText);
         }
         var nextMarkerLine = scimoz.markerNext(lineStart, 0xffff); // -1 if no more markers
         if (nextMarkerLine == -1 || nextMarkerLine > lineEnd) {
-            return _doMarkerClearingReplacement(editor, scimoz, startByte, endByte, replacementText);
+            return ko.find._doMarkerClearingReplacement(editor, scimoz, startByte, endByte, replacementText);
         }
         var replacementLines = replacementText.split(eol_re);
         var i, j, currText, replText;
@@ -545,27 +552,27 @@ function _doMarkerPreservingReplacement(editor, scimoz, startByte, endByte, repl
     return null;  // stifle js
 }
 
-function _ReplaceLastFindResult(editor, context, pattern, replacement)
+this._replaceLastFindResult = function _ReplaceLastFindResult(editor, context, pattern, replacement)
 {
     // Replace the last find result in the current find session, if there is
     // one and if it is genuine and current. No return value.
     var view = editor.ko.views.manager.currentView;
-    if (! _IsViewSearchable(view)) {
+    if (! ko.find._isViewSearchable(view)) {
         return;
     }
     /** @type {Components.interfaces.ISciMoz} */
     var scimoz = view.scintilla.scimoz;
     var url = view.koDoc.displayPath;
     var replaceResult = null;
-    var findResult = gFindSession.GetLastFindResult();
+    var findResult = _findSession.GetLastFindResult();
     
     // Special case: If there is *no* last find result (i.e. the session
     // just started), but the current selection is a legitimate hit, then
     // we need to prime the session with that find result.
     // http://bugs.activestate.com/show_bug.cgi?id=27208
     if (findResult == null) {
-        findResult = _SetupAndFindNext(editor, context, pattern, "replace", true);
-        Find_HighlightClearAll(scimoz);
+        findResult = ko.find._setupAndFindNext(editor, context, pattern, "replace", true);
+        ko.find.highlightClearAll(scimoz);
     }
 
     if (findResult != null) {
@@ -574,12 +581,12 @@ function _ReplaceLastFindResult(editor, context, pattern, replacement)
                                             findResult.end-findResult.start);
         var findText = scimoz.getTextRange(startByte, endByte);
         var startOffset;
-        if (findSvc.options.searchBackward) {
+        if (_findSvc.options.searchBackward) {
             startOffset = findResult.end;
         } else {
             startOffset = findResult.start;
         }
-        replaceResult = findSvc.replace(url, scimoz.text, pattern,
+        replaceResult = _findSvc.replace(url, scimoz.text, pattern,
                                         replacement, startOffset, scimoz);
         if (replaceResult) {
             findLog.info("replace result (from FindSvc): s/"+replaceResult.value+
@@ -596,10 +603,10 @@ function _ReplaceLastFindResult(editor, context, pattern, replacement)
             startByte = scimoz.positionAtChar(0, replaceResult.start);
             endByte = scimoz.positionAtChar(startByte,
                 replaceResult.end-replaceResult.start);
-            _doMarkerPreservingReplacement(editor, scimoz, startByte, endByte,
+            ko.find._doMarkerPreservingReplacement(editor, scimoz, startByte, endByte,
                                            replaceResult.replacement);
             var replaceByteLength = ko.stringutils.bytelength(replaceResult.replacement);
-            if (Find_HighlightingEnabled()) {
+            if (ko.find.highlightingEnabled()) {
                 var DECORATOR_FIND_HIGHLIGHT = Components.interfaces.koILintResult.DECORATOR_FIND_HIGHLIGHT;
                 scimoz.indicatorCurrent = DECORATOR_FIND_HIGHLIGHT;
                 scimoz.indicatorFillRange(startByte, replaceByteLength);
@@ -636,7 +643,7 @@ function _ReplaceLastFindResult(editor, context, pattern, replacement)
             replaceResult.line = startLineNum + 1;
             replaceResult.column = replaceResult.start -
                                    scimoz.positionFromLine(startLineNum);
-            gFindSession.NoteReplace(replaceResult);
+            _findSession.NoteReplace(replaceResult);
         } else {
             findLog.info("find result is not genuine: skipping replace");
         }
@@ -646,7 +653,7 @@ function _ReplaceLastFindResult(editor, context, pattern, replacement)
 }
 
 
-function _FindAllInView(editor, view, context, pattern, resultsView,
+this._findAllInView = function _FindAllInView(editor, view, context, pattern, resultsView,
                         highlightMatches)
 {
     // Find all instances of "pattern" with "replacement" in the current
@@ -673,18 +680,18 @@ function _FindAllInView(editor, view, context, pattern, resultsView,
         contextOffset = 0;
     }
 
-    findSvc.findallex(viewId, text, pattern, resultsView, contextOffset,
+    _findSvc.findallex(viewId, text, pattern, resultsView, contextOffset,
                       scimoz);
 
     if (highlightMatches) {
-        findSvc.highlightlastresults(scimoz);
+        _findSvc.highlightlastresults(scimoz);
     }
 
-    gFindSession.NoteUrl(viewId);
+    _findSession.NoteUrl(viewId);
 }
 
 
-function _MarkAllInView(editor, view, context, pattern)
+this._markAllInView = function _MarkAllInView(editor, view, context, pattern)
 {
     // Mark all instances of "pattern" with "replacement" in the current
     // view context.
@@ -710,17 +717,17 @@ function _MarkAllInView(editor, view, context, pattern)
 
     var countObj = new Object();
     var lines = new Array();
-    lines = findSvc.findalllines(viewId, text, pattern, contextOffset,
+    lines = _findSvc.findalllines(viewId, text, pattern, contextOffset,
                                  scimoz, countObj);
     var foundSome = lines.length > 0;
-    _MarkLinesForViewId(editor, viewId, lines);
+    ko.find._markLinesForViewId(editor, viewId, lines);
 
-    gFindSession.NoteUrl(viewId);
+    _findSession.NoteUrl(viewId);
     return foundSome;
 }
 
 
-function _ReplaceAllInView(editor, view, context, pattern, replacement,
+this._replaceAllInView = function _ReplaceAllInView(editor, view, context, pattern, replacement,
                            firstOnLine, resultsView, highlightReplacements)
 {
     // Replace all instances of "pattern" with "replacement" in the current
@@ -749,16 +756,16 @@ function _ReplaceAllInView(editor, view, context, pattern, replacement,
 
     // Find all possible replacements in this view.
     var numReplacementsObj = new Object();
-    var replacementText = findSvc.replaceallex(viewId, text, pattern,
+    var replacementText = _findSvc.replaceallex(viewId, text, pattern,
                                                replacement, firstOnLine,
-                                               gFindSession,
+                                               _findSession,
                                                resultsView, contextOffset,
                                                scimoz, numReplacementsObj);
     var numReplacements = numReplacementsObj.value;
 
     if (numReplacements > 0) {
         if (context.type == Components.interfaces.koIFindContext.FCT_SELECTION) {
-            _doMarkerPreservingReplacement(editor,
+            ko.find._doMarkerPreservingReplacement(editor,
                                            scimoz,
                                            scimoz.positionAtChar(0, context.startIndex),
                                            scimoz.positionAtChar(0, context.endIndex),
@@ -769,7 +776,7 @@ function _ReplaceAllInView(editor, view, context, pattern, replacement,
                 + ko.stringutils.bytelength(replacementText);
         } else {
             var line = scimoz.lineFromPosition(scimoz.currentPos);
-            _doMarkerPreservingReplacement(editor,
+            ko.find._doMarkerPreservingReplacement(editor,
                                            scimoz,
                                            0,
                                            ko.stringutils.bytelength(text),
@@ -785,17 +792,17 @@ function _ReplaceAllInView(editor, view, context, pattern, replacement,
     //XXX Is this bad if the working view is not visible???
     scimoz.ensureVisibleEnforcePolicy(scimoz.lineFromPosition(scimoz.currentPos));
 
-    gFindSession.NoteUrl(viewId);
+    _findSession.NoteUrl(viewId);
 
     if (highlightReplacements) {
-        findSvc.highlightlastresults(scimoz);
+        _findSvc.highlightlastresults(scimoz);
     }
 
     return numReplacements;
 }
 
 
-function _DisplayFindResult(editor, findResult)
+this._displayFindResult = function _DisplayFindResult(editor, findResult)
 {
     //dump("display find result: "+findResult.url+": " + findResult.start +
     //     "-" + findResult.end + ": '" + findResult.value + "'\n");
@@ -808,7 +815,7 @@ function _DisplayFindResult(editor, findResult)
     //     "unique id". The view system does not currently provide a way to
     //     getViewFromDisplayPath() so we roll our own.
     if (editor.ko.views.manager.currentView.koDoc.displayPath != findResult.url) {
-        var view = _GetViewFromViewId(editor, findResult.url);
+        var view = ko.find._getViewFromViewId(editor, findResult.url);
         if (view == null) {
             var err = "The view for a find result was closed before it could "+
                       "be displayed!";
@@ -846,10 +853,10 @@ function _DisplayFindResult(editor, findResult)
 }
 
 
-function _MarkLinesForViewId(editor, viewId, lines)
+this._markLinesForViewId = function _MarkLinesForViewId(editor, viewId, lines)
 {
     // Mark all the given find results.
-    var view = _GetViewFromViewId(editor, viewId);
+    var view = ko.find._getViewFromViewId(editor, viewId);
     if (!view) return;
 
     var isBookmarkable = false;
@@ -869,16 +876,17 @@ function _MarkLinesForViewId(editor, viewId, lines)
 }
 
 
-/** Report the completion of a find session to the user.
+/**
+ * Report the completion of a find session to the user.
  *
  * @param {DOMWindow} context is the koIFindContext for the find session.
  * @param {callback} msgHandler is a callback for displaying a
- *      message to the user. See Find_FindNext documentation for details.
+ *      message to the user. See ko.find.findNext documentation for details.
  */
-function _UiForCompletedFindSession(context, msgHandler)
+this._uiForCompletedFindSession = function _UiForCompletedFindSession(context, msgHandler)
 {
-    var numFinds = gFindSession.GetNumFinds();
-    var numReplacements = gFindSession.GetNumReplacements();
+    var numFinds = _findSession.GetNumFinds();
+    var numReplacements = _findSession.GetNumReplacements();
 
     // Put together an appropriate message.
     var msg = "";
@@ -896,18 +904,19 @@ function _UiForCompletedFindSession(context, msgHandler)
 }
 
 
-/** Report an error in the find service to the user.
+/**
+ * Report an error in the find service to the user.
  *
  * @param {string} context A short string giving context for the error,
  *      e.g. "find", "find all", "replace", ...
  * @param {exception} exc is an optional exception, if the error
  *      was trapped via try/catch. May be null.
  * @param {callback} msgHandler is a callback for displaying a
- *      message to the user. See Find_FindNext documentation for details.
+ *      message to the user. See ko.find.findNext documentation for details.
  *
  * The actual error message is pulled from the koILastErrorService.
  */
-function _UiForFindServiceError(context, exc, msgHandler)
+this._uiForFindServiceError = function _UiForFindServiceError(context, exc, msgHandler)
 {
     var lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"]
                         .getService(Components.interfaces.koILastErrorService);
@@ -927,7 +936,7 @@ function _UiForFindServiceError(context, exc, msgHandler)
 }
 
 var _Find_charsToEscape_re = /([\\\'])/g;
-function _Find_RegexEscapeString(original) {
+this.regexEscapeString = function _Find_RegexEscapeString(original) {
     return original.replace(_Find_charsToEscape_re, '\\$1');
 }
 
@@ -936,7 +945,7 @@ function _Find_RegexEscapeString(original) {
  * Return a callback appropriate for the 'msgHandler' callbacks that
  * will put a message on the status bar.
  */
-function _Find_GetStatusbarMsgHandler(editor)
+this.getStatusbarMsgHandler = function _Find_GetStatusbarMsgHandler(editor)
 {
     return function (level, context, msg) {
         editor.ko.statusBar.AddMessage(context+": "+msg, "find",
@@ -948,11 +957,11 @@ function _Find_GetStatusbarMsgHandler(editor)
 
 //---- public functions
 
-function Find_FindNextInMacro(editor, contexttype, pattern, patternType,
+this.findNextInMacro = function Find_FindNextInMacro(editor, contexttype, pattern, patternType,
                               caseSensitivity, searchBackward, matchWord,
                               mode, quiet, useMRU)
 {
-    // Called by macros -- only difference with Find_FindNext is that
+    // Called by macros -- only difference with ko.find.findNext is that
     // contexttype is
     // a constant, and the context needs to be created.
     // XXX the APIs should be factored out so that these "inmacro" versions aren't necessary.
@@ -962,29 +971,29 @@ function Find_FindNextInMacro(editor, contexttype, pattern, patternType,
     context.type = contexttype;
 
     // Stash old options
-    old_patternType = findSvc.options.patternType;
-    old_caseSensitivity = findSvc.options.caseSensitivity;
-    old_searchBackward = findSvc.options.searchBackward;
-    old_matchWord = findSvc.options.matchWord;
+    old_patternType = _findSvc.options.patternType;
+    old_caseSensitivity = _findSvc.options.caseSensitivity;
+    old_searchBackward = _findSvc.options.searchBackward;
+    old_matchWord = _findSvc.options.matchWord;
 
-    findSvc.options.patternType = patternType;
-    findSvc.options.caseSensitivity = caseSensitivity;
-    findSvc.options.searchBackward = searchBackward;
-    findSvc.options.matchWord = matchWord;
+    _findSvc.options.patternType = patternType;
+    _findSvc.options.caseSensitivity = caseSensitivity;
+    _findSvc.options.searchBackward = searchBackward;
+    _findSvc.options.matchWord = matchWord;
 
-    Find_FindNext(editor, context, pattern, mode, quiet, useMRU);
+    ko.find.findNext(editor, context, pattern, mode, quiet, useMRU);
 
     // restore options
-    findSvc.options.patternType = old_patternType;
-    findSvc.options.caseSensitivity = old_caseSensitivity;
-    findSvc.options.searchBackward = old_searchBackward;
-    findSvc.options.matchWord = old_matchWord;
+    _findSvc.options.patternType = old_patternType;
+    _findSvc.options.caseSensitivity = old_caseSensitivity;
+    _findSvc.options.searchBackward = old_searchBackward;
+    _findSvc.options.matchWord = old_matchWord;
 }
 
-function Find_FindAllInMacro(editor, contexttype, pattern, patternType,
+this.findAllInMacro = function Find_FindAllInMacro(editor, contexttype, pattern, patternType,
                              caseSensitivity, searchBackward, matchWord)
 {
-    // Called by macros -- only difference with Find_FindAll is that
+    // Called by macros -- only difference with ko.find.findAll is that
     // contexttype is a constant, the context needs to be created, and options
     // need to be set (and unset).
     // XXX the APIs should be factored out so that these "inmacro" versions
@@ -996,31 +1005,31 @@ function Find_FindAllInMacro(editor, contexttype, pattern, patternType,
     context.type = contexttype;
 
     // Stash old options
-    old_patternType = findSvc.options.patternType;
-    old_caseSensitivity = findSvc.options.caseSensitivity;
-    old_searchBackward = findSvc.options.searchBackward;
-    old_matchWord = findSvc.options.matchWord;
+    old_patternType = _findSvc.options.patternType;
+    old_caseSensitivity = _findSvc.options.caseSensitivity;
+    old_searchBackward = _findSvc.options.searchBackward;
+    old_matchWord = _findSvc.options.matchWord;
 
-    findSvc.options.patternType = patternType;
-    findSvc.options.caseSensitivity = caseSensitivity;
-    findSvc.options.searchBackward = searchBackward;
-    findSvc.options.matchWord = matchWord;
+    _findSvc.options.patternType = patternType;
+    _findSvc.options.caseSensitivity = caseSensitivity;
+    _findSvc.options.searchBackward = searchBackward;
+    _findSvc.options.matchWord = matchWord;
 
-    Find_FindAll(editor, context, pattern);
+    ko.find.findAll(editor, context, pattern);
 
     // restore options
-    findSvc.options.patternType = old_patternType;
-    findSvc.options.caseSensitivity = old_caseSensitivity;
-    findSvc.options.searchBackward = old_searchBackward;
-    findSvc.options.matchWord = old_matchWord;
+    _findSvc.options.patternType = old_patternType;
+    _findSvc.options.caseSensitivity = old_caseSensitivity;
+    _findSvc.options.searchBackward = old_searchBackward;
+    _findSvc.options.matchWord = old_matchWord;
 }
 
 
-function Find_MarkAllInMacro(editor, contexttype, pattern, patternType,
+this.markAllInMacro = function Find_MarkAllInMacro(editor, contexttype, pattern, patternType,
                              caseSensitivity, searchBackward, matchWord)
 {
 
-    // Called by macros -- only difference with Find_MarkAll is that
+    // Called by macros -- only difference with ko.find.markAll is that
     // contexttype is a constant, and the context needs to be created.
     // XXX the APIs should be factored out so that these "inmacro" versions
     //     aren't necessary.
@@ -1031,29 +1040,29 @@ function Find_MarkAllInMacro(editor, contexttype, pattern, patternType,
     context.type = contexttype;
 
     // Stash old options
-    old_patternType = findSvc.options.patternType;
-    old_caseSensitivity = findSvc.options.caseSensitivity;
-    old_searchBackward = findSvc.options.searchBackward;
-    old_matchWord = findSvc.options.matchWord;
+    old_patternType = _findSvc.options.patternType;
+    old_caseSensitivity = _findSvc.options.caseSensitivity;
+    old_searchBackward = _findSvc.options.searchBackward;
+    old_matchWord = _findSvc.options.matchWord;
 
-    findSvc.options.patternType = patternType;
-    findSvc.options.caseSensitivity = caseSensitivity;
-    findSvc.options.searchBackward = searchBackward;
-    findSvc.options.matchWord = matchWord;
+    _findSvc.options.patternType = patternType;
+    _findSvc.options.caseSensitivity = caseSensitivity;
+    _findSvc.options.searchBackward = searchBackward;
+    _findSvc.options.matchWord = matchWord;
 
-    Find_MarkAll(editor, context, pattern);
+    ko.find.markAll(editor, context, pattern);
 
     // restore options
-    findSvc.options.patternType = old_patternType;
-    findSvc.options.caseSensitivity = old_caseSensitivity;
-    findSvc.options.searchBackward = old_searchBackward;
-    findSvc.options.matchWord = old_matchWord;
+    _findSvc.options.patternType = old_patternType;
+    _findSvc.options.caseSensitivity = old_caseSensitivity;
+    _findSvc.options.searchBackward = old_searchBackward;
+    _findSvc.options.matchWord = old_matchWord;
 }
 
-function Find_ReplaceInMacro(editor, contexttype, pattern, replacement,
+this.replaceInMacro = function Find_ReplaceInMacro(editor, contexttype, pattern, replacement,
                              patternType, caseSensitivity, searchBackward, matchWord)
 {
-    // Called by macros -- only difference with Find_Replace is that
+    // Called by macros -- only difference with ko.find.replace is that
     // contexttype is a constant, and the context needs to be created.
     // XXX the APIs should be factored out so that these "inmacro" versions
     //     aren't necessary.
@@ -1064,27 +1073,32 @@ function Find_ReplaceInMacro(editor, contexttype, pattern, replacement,
     context.type = contexttype;
 
     // Stash old options
-    old_patternType = findSvc.options.patternType;
-    old_caseSensitivity = findSvc.options.caseSensitivity;
-    old_searchBackward = findSvc.options.searchBackward;
-    old_matchWord = findSvc.options.matchWord;
+    old_patternType = _findSvc.options.patternType;
+    old_caseSensitivity = _findSvc.options.caseSensitivity;
+    old_searchBackward = _findSvc.options.searchBackward;
+    old_matchWord = _findSvc.options.matchWord;
 
-    findSvc.options.patternType = patternType;
-    findSvc.options.caseSensitivity = caseSensitivity;
-    findSvc.options.searchBackward = searchBackward;
-    findSvc.options.matchWord = matchWord;
+    _findSvc.options.patternType = patternType;
+    _findSvc.options.caseSensitivity = caseSensitivity;
+    _findSvc.options.searchBackward = searchBackward;
+    _findSvc.options.matchWord = matchWord;
 
-    Find_Replace(editor, context, pattern, replacement);
+    ko.find.replace(editor, context, pattern, replacement);
 
     // restore options
-    findSvc.options.patternType = old_patternType;
-    findSvc.options.caseSensitivity = old_caseSensitivity;
-    findSvc.options.searchBackward = old_searchBackward;
-    findSvc.options.matchWord = old_matchWord;
+    _findSvc.options.patternType = old_patternType;
+    _findSvc.options.caseSensitivity = old_caseSensitivity;
+    _findSvc.options.searchBackward = old_searchBackward;
+    _findSvc.options.matchWord = old_matchWord;
 }
 
 
-/** Find_ReplaceAllInMacro
+/**
+ * Called by macros -- only difference with ko.find.replace is that
+ * contexttype is a constant, and the context needs to be created.
+ * XXX the APIs should be factored out so that these "inmacro" versions
+ *     aren't necessary.
+ *
  * @param {object} editor -- global window object
  * @param {int} contexttype -- one of the following koIFindContext values:
     FCT_CURRENT_DOC = 0, FCT_SELECTION, FCT_ALL_OPEN_DOCS,
@@ -1102,14 +1116,9 @@ function Find_ReplaceInMacro(editor, contexttype, pattern, replacement,
  * @returns void    
  */   
 
-function Find_ReplaceAllInMacro(editor, contexttype, pattern, replacement, quiet,
+this.replaceAllInMacro = function Find_ReplaceAllInMacro(editor, contexttype, pattern, replacement, quiet,
                                 patternType, caseSensitivity, searchBackward, matchWord)
 {
-    // Called by macros -- only difference with Find_Replace is that
-    // contexttype is a constant, and the context needs to be created.
-    // XXX the APIs should be factored out so that these "inmacro" versions
-    //     aren't necessary.
-
     var old_patternType, old_caseSensitivity, old_searchBackward, old_matchWord;
     var context = Components.classes["@activestate.com/koFindContext;1"]
             .createInstance(Components.interfaces.koIRangeFindContext);
@@ -1136,23 +1145,23 @@ function Find_ReplaceAllInMacro(editor, contexttype, pattern, replacement, quiet
     }
 
     // Stash old options
-    old_patternType = findSvc.options.patternType;
-    old_caseSensitivity = findSvc.options.caseSensitivity;
-    old_searchBackward = findSvc.options.searchBackward;
-    old_matchWord = findSvc.options.matchWord;
+    old_patternType = _findSvc.options.patternType;
+    old_caseSensitivity = _findSvc.options.caseSensitivity;
+    old_searchBackward = _findSvc.options.searchBackward;
+    old_matchWord = _findSvc.options.matchWord;
 
-    findSvc.options.patternType = patternType;
-    findSvc.options.caseSensitivity = caseSensitivity;
-    findSvc.options.searchBackward = searchBackward;
-    findSvc.options.matchWord = matchWord;
+    _findSvc.options.patternType = patternType;
+    _findSvc.options.caseSensitivity = caseSensitivity;
+    _findSvc.options.searchBackward = searchBackward;
+    _findSvc.options.matchWord = matchWord;
 
-    Find_ReplaceAll(editor, context, pattern, replacement, quiet);
+    ko.find.replaceAll(editor, context, pattern, replacement, quiet);
 
     // restore options
-    findSvc.options.patternType = old_patternType;
-    findSvc.options.caseSensitivity = old_caseSensitivity;
-    findSvc.options.searchBackward = old_searchBackward;
-    findSvc.options.matchWord = old_matchWord;
+    _findSvc.options.patternType = old_patternType;
+    _findSvc.options.caseSensitivity = old_caseSensitivity;
+    _findSvc.options.searchBackward = old_searchBackward;
+    _findSvc.options.matchWord = old_matchWord;
 }
 
 /**
@@ -1160,7 +1169,7 @@ function Find_ReplaceAllInMacro(editor, contexttype, pattern, replacement, quiet
  * 
  * @param scimoz {Components.interfaces.ISciMoz} - The scimoz instance.
  */
-function Find_HighlightClearAll(scimoz) {
+this.highlightClearAll = function Find_HighlightClearAll(scimoz) {
     var DECORATOR_FIND_HIGHLIGHT = Components.interfaces.koILintResult.DECORATOR_FIND_HIGHLIGHT;
     scimoz.indicatorCurrent = DECORATOR_FIND_HIGHLIGHT;
     scimoz.indicatorClearRange(0, scimoz.length);
@@ -1173,15 +1182,15 @@ function Find_HighlightClearAll(scimoz) {
  * @param {int} position - The scimoz position (byte position)
  * @param {int} length - The number of affected bytes at this position.
  */
-function Find_HighlightClearPosition(scimoz, position, length) {
+this.highlightClearPosition = function Find_HighlightClearPosition(scimoz, position, length) {
     var DECORATOR_FIND_HIGHLIGHT = Components.interfaces.koILintResult.DECORATOR_FIND_HIGHLIGHT;
     var hl_start, hl_end;
     [hl_start, hl_end] = ko.tabstops.findByIndicator(scimoz, DECORATOR_FIND_HIGHLIGHT, position);
     if (hl_start >= 0) {
         // There are indicators in the document.
         var end_position = position + length;
-        //dump("Find_HighlightClearPosition:: position: " + position + ", end_position: " + end_position + "\n");
-        //dump("Find_HighlightClearPosition:: hl_start: " + hl_start + ", hl_end: " + hl_end + "\n");
+        //dump("ko.find.highlightClearPosition:: position: " + position + ", end_position: " + end_position + "\n");
+        //dump("ko.find.highlightClearPosition:: hl_start: " + hl_start + ", hl_end: " + hl_end + "\n");
         if (hl_end < position)
             return;
         if (hl_start >= end_position)
@@ -1197,14 +1206,14 @@ function Find_HighlightClearPosition(scimoz, position, length) {
  *  @param context - a koIFindContext instance
  *  @param pattern - the pattern being sought
  */
-function Find_HighlightAllMatches(scimoz, context, pattern) {
+this.highlightAllMatches = function Find_HighlightAllMatches(scimoz, context, pattern) {
     var prefsSvc = Components.classes["@activestate.com/koPrefService;1"].
                             getService(Components.interfaces.koIPrefService);
     var timeout = prefsSvc.prefs.getLongPref("find-highlightTimeout");
     if (timeout <= 0) {
         timeout = 500;  /* When set to zero, use minimum of 1/2 a second. */
     }
-    findSvc.highlightall(scimoz,
+    _findSvc.highlightall(scimoz,
                          pattern,
                          context.startIndex,
                          context.endIndex,
@@ -1216,7 +1225,7 @@ function Find_HighlightAllMatches(scimoz, context, pattern) {
  *
  *  @returns {boolean} - true when enabled.
  */
-function Find_HighlightingEnabled() {
+this.highlightingEnabled = function Find_HighlightingEnabled() {
     var prefsSvc = Components.classes["@activestate.com/koPrefService;1"].
                             getService(Components.interfaces.koIPrefService);
     return prefsSvc.prefs.getBooleanPref("find-highlightEnabled");
@@ -1242,7 +1251,7 @@ function Find_HighlightingEnabled() {
 //      is true. By default messages are sent to the statusbar.
 //  "highlightMatches" (optional) when set, will highlight *all* matches in
 //      the context using a scintilla indicator.
-function Find_FindNext(editor, context, pattern, mode /* ="find" */,
+this.findNext = function Find_FindNext(editor, context, pattern, mode /* ="find" */,
                        quiet /* =false */, useMRU /* =true */,
                        msgHandler /* =<statusbar notifier> */,
                        highlightMatches /* =true */)
@@ -1251,24 +1260,24 @@ function Find_FindNext(editor, context, pattern, mode /* ="find" */,
     if (typeof(quiet) == 'undefined' || quiet == null) quiet = false;
     if (typeof(useMRU) == 'undefined' || useMRU == null) useMRU = true;
     if (typeof(msgHandler) == 'undefined' || msgHandler == null) {
-        msgHandler = _Find_GetStatusbarMsgHandler(editor);
+        msgHandler = ko.find.getStatusbarMsgHandler(editor);
     }
     if (typeof(highlightMatches) == 'undefined' || highlightMatches == null) highlightMatches = true;
-    if (!Find_HighlightingEnabled()) {
+    if (!ko.find.highlightingEnabled()) {
         highlightMatches = false;
     }
 
-    findLog.info("Find_FindNext(editor, context, pattern='"+pattern+
+    findLog.info("ko.find.findNext(editor, context, pattern='"+pattern+
                  "', mode="+mode+", quiet="+quiet+", useMRU"+useMRU+")");
 
     if (editor.ko.macros.recorder.mode == 'recording') {
-        editor.ko.macros.recorder.appendCode("Find_FindNextInMacro(window, " +
+        editor.ko.macros.recorder.appendCode("ko.find.findNextInMacro(window, " +
                                     context.type + ", '" +
-                                    _Find_RegexEscapeString(pattern) + "', " +
-                                    findSvc.options.patternType + ", " +
-                                    findSvc.options.caseSensitivity + ", " +
-                                    findSvc.options.searchBackward + ", " +
-                                    findSvc.options.matchWord + ", " +
+                                    ko.find.regexEscapeString(pattern) + "', " +
+                                    _findSvc.options.patternType + ", " +
+                                    _findSvc.options.caseSensitivity + ", " +
+                                    _findSvc.options.searchBackward + ", " +
+                                    _findSvc.options.matchWord + ", " +
                                     mode + ", " +
                                     quiet + ", " +
                                     useMRU +
@@ -1291,70 +1300,70 @@ function Find_FindNext(editor, context, pattern, mode /* ="find" */,
     }
 
     try {
-        findResult = _SetupAndFindNext(editor, context, pattern, mode);
+        findResult = ko.find._setupAndFindNext(editor, context, pattern, mode);
     } catch (ex) {
         if (highlightMatches) {
-            Find_HighlightClearAll(scimoz);
+            ko.find.highlightClearAll(scimoz);
         }
         if (!quiet)
-            _UiForFindServiceError("find", ex, msgHandler);
+            ko.find._uiForFindServiceError("find", ex, msgHandler);
         return null;
     }
     if (useMRU)
         ko.mru.add("find-patternMru", pattern, true);
 
     if (findResult) {
-        _DisplayFindResult(editor, findResult);
+        ko.find._displayFindResult(editor, findResult);
         if (highlightMatches && (mode == "find")) {
-            Find_HighlightAllMatches(scimoz, context, pattern);
+            ko.find.highlightAllMatches(scimoz, context, pattern);
         }
     } else {
         if (highlightMatches) {
-            Find_HighlightClearAll(scimoz);
+            ko.find.highlightClearAll(scimoz);
         }
         if (!quiet)
-            _UiForCompletedFindSession(context, msgHandler);
+            ko.find._uiForCompletedFindSession(context, msgHandler);
         //log.debug("Reset find session, because 'FindNext' did not find "
         //         + "anything.");
-        gFindSession.Reset();
+        _findSession.Reset();
     }
     return findResult != null;
 }
 
 
-function Find_FindAll(editor, context, pattern, patternAlias,
+this.findAll = function Find_FindAll(editor, context, pattern, patternAlias,
                       msgHandler /* =<statusbar notifier> */,
                       highlightMatches /* =true */)
 {
     if (typeof(msgHandler) == 'undefined' || msgHandler == null) {
-        msgHandler = _Find_GetStatusbarMsgHandler(editor);
+        msgHandler = ko.find.getStatusbarMsgHandler(editor);
     }
     if (typeof(highlightMatches) == 'undefined' || highlightMatches == null) {
         highlightMatches = true;
     }
-    if (!Find_HighlightingEnabled()) {
+    if (!ko.find.highlightingEnabled()) {
         highlightMatches = false;
     }
 
-    findLog.info("Find_FindAll(editor, context, pattern='"+pattern+
+    findLog.info("ko.find.findAll(editor, context, pattern='"+pattern+
                  "', patternAlias='"+patternAlias+"')");
     if (editor.ko.macros.recorder.mode == 'recording') {
-        editor.ko.macros.recorder.appendCode("Find_FindAllInMacro(window, " +
+        editor.ko.macros.recorder.appendCode("ko.find.findAllInMacro(window, " +
                                     context.type + ", '" +
-                                    _Find_RegexEscapeString(pattern) + "', " +
-                                    findSvc.options.patternType + ", " +
-                                    findSvc.options.caseSensitivity + ", " +
-                                    findSvc.options.searchBackward + ", " +
-                                    findSvc.options.matchWord +
+                                    ko.find.regexEscapeString(pattern) + "', " +
+                                    _findSvc.options.patternType + ", " +
+                                    _findSvc.options.caseSensitivity + ", " +
+                                    _findSvc.options.searchBackward + ", " +
+                                    _findSvc.options.matchWord +
                                     ");\n");
     }
 
-    var preferredResultsTab = findSvc.options.displayInFindResults2 ? 2 : 1;
+    var preferredResultsTab = _findSvc.options.displayInFindResults2 ? 2 : 1;
     var resultsMgr = editor.FindResultsTab_GetTab(preferredResultsTab);
     if (resultsMgr == null)
         return null;
     resultsMgr.configure(pattern, patternAlias, null, context,
-                         findSvc.options);
+                         _findSvc.options);
     resultsMgr.show();
 
     resultsMgr.searchStarted();
@@ -1362,33 +1371,33 @@ function Find_FindAll(editor, context, pattern, patternAlias,
     try {
         if (context.type == Components.interfaces.koIFindContext.FCT_CURRENT_DOC
             || context.type == Components.interfaces.koIFindContext.FCT_SELECTION) {
-            findLog.debug("Find_FindAll: find all in '"+
+            findLog.debug("ko.find.findAll: find all in '"+
                           editor.ko.views.manager.currentView.koDoc.displayPath+"'\n");
-            _FindAllInView(editor, editor.ko.views.manager.currentView, context,
+            ko.find._findAllInView(editor, editor.ko.views.manager.currentView, context,
                            pattern, resultsMgr.view, highlightMatches);
         } else if (context.type == Components.interfaces.koIFindContext.FCT_ALL_OPEN_DOCS) {
             var view = editor.ko.views.manager.currentView;
             var viewId;
             numFilesSearched = 0;
             while (view) {
-                if (_IsViewSearchable(view)) {
+                if (ko.find._isViewSearchable(view)) {
                     viewId = view.koDoc.displayPath;
-                    if (gFindSession.HaveSearchedThisUrlAlready(viewId)) {
-                        findLog.debug("Find_FindAll: have already searched '"+
+                    if (_findSession.HaveSearchedThisUrlAlready(viewId)) {
+                        findLog.debug("ko.find.findAll: have already searched '"+
                                       viewId+"'\n");
                         break;
                     }
     
-                    findLog.debug("Find_FindAll: find all in '"+viewId+"'\n");
-                    _FindAllInView(editor, view, context, pattern,
+                    findLog.debug("ko.find.findAll: find all in '"+viewId+"'\n");
+                    ko.find._findAllInView(editor, view, context, pattern,
                                    resultsMgr.view, highlightMatches);
                     numFilesSearched += 1;
                 }
 
-                if (findSvc.options.searchBackward) {
-                    view = _GetPreviousView(editor, view);
+                if (_findSvc.options.searchBackward) {
+                    view = ko.find._getPreviousView(editor, view);
                 } else {
-                    view = _GetNextView(editor, view);
+                    view = ko.find._getNextView(editor, view);
                 }
             }
         } else {
@@ -1400,7 +1409,7 @@ function Find_FindAll(editor, context, pattern, patternAlias,
         resultsMgr.searchFinished(true, resultsMgr.view.rowCount, null,
                                   numFilesSearched);
     } catch (ex) {
-        _UiForFindServiceError("find all", ex, msgHandler);
+        ko.find._uiForFindServiceError("find all", ex, msgHandler);
         return null;
     }
 
@@ -1421,28 +1430,28 @@ function Find_FindAll(editor, context, pattern, patternAlias,
         }
         msgHandler("warn", "find", msg);
     }
-    gFindSession.Reset();
+    _findSession.Reset();
 
     return foundSome;
 }
 
 
-function Find_MarkAll(editor, context, pattern, patternAlias,
+this.markAll = function Find_MarkAll(editor, context, pattern, patternAlias,
                       msgHandler /* =<statusbar notifier> */)
 {
     if (typeof(msgHandler) == 'undefined' || msgHandler == null) {
-        msgHandler = _Find_GetStatusbarMsgHandler(editor);
+        msgHandler = ko.find.getStatusbarMsgHandler(editor);
     }
     
     // Returns true iff any matches were found and displayed.
     if (editor.ko.macros.recorder.mode == 'recording') {
-        editor.ko.macros.recorder.appendCode("Find_MarkAllInMacro(window, " +
+        editor.ko.macros.recorder.appendCode("ko.find.markAllInMacro(window, " +
                                     context.type + ", '" +
-                                    _Find_RegexEscapeString(pattern) + "', " +
-                                    findSvc.options.patternType + ", " +
-                                    findSvc.options.caseSensitivity + ", " +
-                                    findSvc.options.searchBackward + ", " +
-                                    findSvc.options.matchWord + ", " +
+                                    ko.find.regexEscapeString(pattern) + "', " +
+                                    _findSvc.options.patternType + ", " +
+                                    _findSvc.options.caseSensitivity + ", " +
+                                    _findSvc.options.searchBackward + ", " +
+                                    _findSvc.options.matchWord + ", " +
                                     ");\n");
     }
 
@@ -1450,7 +1459,7 @@ function Find_MarkAll(editor, context, pattern, patternAlias,
     var rv
     if (context.type == Components.interfaces.koIFindContext.FCT_CURRENT_DOC
         || context.type == Components.interfaces.koIFindContext.FCT_SELECTION) {
-        rv = _MarkAllInView(editor, editor.ko.views.manager.currentView, context,
+        rv = ko.find._markAllInView(editor, editor.ko.views.manager.currentView, context,
                             pattern);
         if (rv) foundSome = true;
     } else if (context.type == Components.interfaces.koIFindContext.FCT_ALL_OPEN_DOCS) {
@@ -1458,19 +1467,19 @@ function Find_MarkAll(editor, context, pattern, patternAlias,
         var viewId;
         while (view) {
             viewId = view.koDoc.displayPath;
-            if (gFindSession.HaveSearchedThisUrlAlready(viewId)) {
-                findLog.debug("Find_MarkAll: have alread searched '"+
+            if (_findSession.HaveSearchedThisUrlAlready(viewId)) {
+                findLog.debug("ko.find.markAll: have alread searched '"+
                               viewId+"'\n");
                 break;
             }
 
-            rv = _MarkAllInView(editor, view, context, pattern);
+            rv = ko.find._markAllInView(editor, view, context, pattern);
             if (rv) foundSome = true;
 
-            if (findSvc.options.searchBackward) {
-                view = _GetPreviousView(editor, view);
+            if (_findSvc.options.searchBackward) {
+                view = ko.find._getPreviousView(editor, view);
             } else {
-                view = _GetNextView(editor, view);
+                view = ko.find._getNextView(editor, view);
             }
         }
     } else {
@@ -1493,34 +1502,34 @@ function Find_MarkAll(editor, context, pattern, patternAlias,
         }
         msgHandler("warn", "find", msg);
     }
-    gFindSession.Reset();
+    _findSession.Reset();
 
     return foundSome;
 }
 
 
-function Find_Replace(editor, context, pattern, replacement,
+this.replace = function Find_Replace(editor, context, pattern, replacement,
                       msgHandler /* =<statusbar notifier> */)
 {
     if (typeof(msgHandler) == 'undefined' || msgHandler == null) {
-        msgHandler = _Find_GetStatusbarMsgHandler(editor);
+        msgHandler = ko.find.getStatusbarMsgHandler(editor);
     }
 
     // Replace the currently selected find result (if there is one) and find
     // the next occurrence of the current pattern. Returns true iff a next
     // occurence of the pattern was found and hilighted.
-    findLog.info("Find_Replace(editor, context, pattern='"+pattern+
+    findLog.info("ko.find.replace(editor, context, pattern='"+pattern+
                  "', replacement='"+replacement+"')");
 
     if (editor.ko.macros.recorder.mode == 'recording') {
-        editor.ko.macros.recorder.appendCode("Find_ReplaceInMacro(window, " +
+        editor.ko.macros.recorder.appendCode("ko.find.replaceInMacro(window, " +
                                     context.type + ", '" +
-                                    _Find_RegexEscapeString(pattern) + "', '" +
-                                    _Find_RegexEscapeString(replacement) + "', " +
-                                    findSvc.options.patternType + ", " +
-                                    findSvc.options.caseSensitivity + ", " +
-                                    findSvc.options.searchBackward + ", " +
-                                    findSvc.options.matchWord +
+                                    ko.find.regexEscapeString(pattern) + "', '" +
+                                    ko.find.regexEscapeString(replacement) + "', " +
+                                    _findSvc.options.patternType + ", " +
+                                    _findSvc.options.caseSensitivity + ", " +
+                                    _findSvc.options.searchBackward + ", " +
+                                    _findSvc.options.matchWord +
                                     ");\n");
     }
 
@@ -1534,37 +1543,37 @@ function Find_Replace(editor, context, pattern, replacement,
 
         // replace the current find result if there is one
         try {
-            findLog.info("Find_Replace: replace last find result");
-            _ReplaceLastFindResult(editor, context, pattern, replacement);
+            findLog.info("ko.find.replace: replace last find result");
+            ko.find._replaceLastFindResult(editor, context, pattern, replacement);
         } catch (ex) {
-            _UiForFindServiceError("replace", ex, msgHandler);
+            ko.find._uiForFindServiceError("replace", ex, msgHandler);
             return null;
         }
 
         // find the next one
         try {
-            findLog.info("Find_Replace: find next hit");
-            findResult = _SetupAndFindNext(editor, context, pattern,
+            findLog.info("ko.find.replace: find next hit");
+            findResult = ko.find._setupAndFindNext(editor, context, pattern,
                                            'replace');
             if (findResult) {
-                findLog.info("Find_Replace: found next hit: "+
+                findLog.info("ko.find.replace: found next hit: "+
                              findResult.start+"-"+findResult.end+": '"+
                              findResult.value+"'");
             }
         } catch (ex) {
-            _UiForFindServiceError("replace", ex, msgHandler);
+            ko.find._uiForFindServiceError("replace", ex, msgHandler);
             return null;
         }
         ko.mru.add("find-patternMru", pattern, true);
 
         // Do the appropriate UI work for results.
         if (findResult == null) {
-            _UiForCompletedFindSession(context, msgHandler);
+            ko.find._uiForCompletedFindSession(context, msgHandler);
             //findLog.debug("Reset find session, because 'Replace' action "
             //              + "returned no result.");
-            gFindSession.Reset();
+            _findSession.Reset();
         } else {
-            _DisplayFindResult(editor, findResult);
+            ko.find._displayFindResult(editor, findResult);
         }
     }
     return findResult != null;
@@ -1580,7 +1589,7 @@ function Find_Replace(editor, context, pattern, replacement,
  * @param {boolean} highlightReplacements To highlight the replacements made.
  * ...
  */
-function Find_ReplaceAll(editor, context, pattern, replacement,
+this.replaceAll = function Find_ReplaceAll(editor, context, pattern, replacement,
                          showReplaceResults /* =false */,
                          firstOnLine /* =false */,
                          msgHandler /* =<statusbar notifier> */,
@@ -1591,31 +1600,31 @@ function Find_ReplaceAll(editor, context, pattern, replacement,
         firstOnLine = false;
     }
     if (typeof(msgHandler) == 'undefined' || msgHandler == null) {
-        msgHandler = _Find_GetStatusbarMsgHandler(editor);
+        msgHandler = ko.find.getStatusbarMsgHandler(editor);
     }
     if (typeof(highlightReplacements) == 'undefined' || highlightReplacements == null) {
         highlightReplacements = true;
     }
-    if (!Find_HighlightingEnabled()) {
+    if (!ko.find.highlightingEnabled()) {
         highlightReplacements = false;
     }
 
-    findLog.info("Find_ReplaceAll(editor, context, pattern='"+pattern
+    findLog.info("ko.find.replaceAll(editor, context, pattern='"+pattern
                  +"', replacement='"+replacement
                  +"', showReplaceResults="+showReplaceResults
                  +"', firstOnLine="+firstOnLine+")\n");
 
     if (editor.ko.macros.recorder.mode == 'recording') {
         //TODO: Support 'firstOnLine' here.
-        editor.ko.macros.recorder.appendCode("Find_ReplaceAllInMacro(window, " +
+        editor.ko.macros.recorder.appendCode("ko.find.replaceAllInMacro(window, " +
                                     context.type + ", '" +
-                                    _Find_RegexEscapeString(pattern) + "', '" +
-                                    _Find_RegexEscapeString(replacement) + "', " +
+                                    ko.find.regexEscapeString(pattern) + "', '" +
+                                    ko.find.regexEscapeString(replacement) + "', " +
                                     showReplaceResults + ", " +
-                                    findSvc.options.patternType + ", " +
-                                    findSvc.options.caseSensitivity + ", " +
-                                    findSvc.options.searchBackward + ", " +
-                                    findSvc.options.matchWord +
+                                    _findSvc.options.patternType + ", " +
+                                    _findSvc.options.caseSensitivity + ", " +
+                                    _findSvc.options.searchBackward + ", " +
+                                    _findSvc.options.matchWord +
                                     ");\n");
     }
 
@@ -1624,12 +1633,12 @@ function Find_ReplaceAll(editor, context, pattern, replacement,
     var numFiles = null;
     var numFilesSearched = null;
     if (showReplaceResults) {
-        var preferredResultsTab = findSvc.options.displayInFindResults2 ? 2 : 1;
+        var preferredResultsTab = _findSvc.options.displayInFindResults2 ? 2 : 1;
         resultsMgr = editor.FindResultsTab_GetTab(preferredResultsTab);
         if (resultsMgr == null)
             return false;
         resultsMgr.configure(pattern, null, replacement, context,
-                             findSvc.options);
+                             _findSvc.options);
         resultsMgr.show();
         resultsView = resultsMgr.view;
         resultsMgr.searchStarted();
@@ -1637,7 +1646,7 @@ function Find_ReplaceAll(editor, context, pattern, replacement,
         // Should add results already in session.
         var countObj = new Object();
         var replaceResults = new Object();
-        var rrs = gFindSession.GetReplacements(countObj);
+        var rrs = _findSession.GetReplacements(countObj);
         var i, rr;
         for (i = 0; i < rrs.length; ++ i) {
             rr = rrs[i];
@@ -1652,13 +1661,13 @@ function Find_ReplaceAll(editor, context, pattern, replacement,
     // replaces something. Good enough just always do it for now.
     editor.ko.history.note_curr_loc();
 
-    var numReplacements = gFindSession.GetNumReplacements();
+    var numReplacements = _findSession.GetNumReplacements();
     var nr;
     if (context.type == Components.interfaces.koIFindContext.FCT_CURRENT_DOC
         || context.type == Components.interfaces.koIFindContext.FCT_SELECTION) {
-        findLog.debug("Find_ReplaceAll: replace all in '"+
+        findLog.debug("ko.find.replaceAll: replace all in '"+
                       editor.ko.views.manager.currentView.koDoc.displayPath+"'\n");
-        nr = _ReplaceAllInView(editor, editor.ko.views.manager.currentView, context,
+        nr = ko.find._replaceAllInView(editor, editor.ko.views.manager.currentView, context,
                                pattern, replacement, firstOnLine, resultsView,
                                highlightReplacements);
         numReplacements += nr;
@@ -1667,16 +1676,16 @@ function Find_ReplaceAll(editor, context, pattern, replacement,
         var viewId;
         numFiles = numFilesSearched = 0;
         while (view) {
-            if (_IsViewSearchable(view)) {
+            if (ko.find._isViewSearchable(view)) {
                 viewId = view.koDoc.displayPath;
-                if (gFindSession.HaveSearchedThisUrlAlready(viewId)) {
-                    findLog.debug("Find_ReplaceAll: have already searched '"+
+                if (_findSession.HaveSearchedThisUrlAlready(viewId)) {
+                    findLog.debug("ko.find.replaceAll: have already searched '"+
                                   viewId+"'\n");
                     break;
                 }
     
-                findLog.debug("Find_ReplaceAll: replace all in '"+viewId+"'\n");
-                nr = _ReplaceAllInView(editor, view, context, pattern,
+                findLog.debug("ko.find.replaceAll: replace all in '"+viewId+"'\n");
+                nr = ko.find._replaceAllInView(editor, view, context, pattern,
                                        replacement, firstOnLine, resultsView,
                                        highlightReplacements);
                 numReplacements += nr;
@@ -1686,10 +1695,10 @@ function Find_ReplaceAll(editor, context, pattern, replacement,
                 numFilesSearched += 1;
             }
 
-            if (findSvc.options.searchBackward) {
-                view = _GetPreviousView(editor, view);
+            if (_findSvc.options.searchBackward) {
+                view = ko.find._getPreviousView(editor, view);
             } else {
-                view = _GetNextView(editor, view);
+                view = ko.find._getNextView(editor, view);
             }
         }
     } else {
@@ -1717,7 +1726,7 @@ function Find_ReplaceAll(editor, context, pattern, replacement,
                                            [numReplacements, context.name], 2);
         editor.ko.statusBar.AddMessage(msg, "find", 3000, true);
     }
-    gFindSession.Reset();
+    _findSession.Reset();
 
     return numReplacements != 0;
 }
@@ -1732,16 +1741,16 @@ function Find_ReplaceAll(editor, context, pattern, replacement,
  * @param {string} patternAlias a name for the pattern (for display to
  *      the user)
  * @param {callback} msgHandler is an optional callback for displaying a
- *      message to the user. See Find_FindNext documentation for details.
+ *      message to the user. See ko.find.findNext documentation for details.
  */
-function Find_FindAllInFiles(editor, context, pattern, patternAlias,
+this.findAllInFiles = function Find_FindAllInFiles(editor, context, pattern, patternAlias,
                              msgHandler /* =<statusbar notifier> */)
 {
     if (typeof(msgHandler) == 'undefined' || msgHandler == null) {
-        msgHandler = _Find_GetStatusbarMsgHandler(editor);
+        msgHandler = ko.find.getStatusbarMsgHandler(editor);
     }
 
-    findLog.info("Find_FindAllInFiles(editor, context, pattern='"+pattern+
+    findLog.info("ko.find.findAllInFiles(editor, context, pattern='"+pattern+
                  "', patternAlias='"+patternAlias+"')");
 
     //TODO macro recording stuff for this
@@ -1750,13 +1759,13 @@ function Find_FindAllInFiles(editor, context, pattern, patternAlias,
     if (resultsMgr == null)
         return false;
     resultsMgr.configure(pattern, patternAlias, null, context,
-                         findSvc.options);
+                         _findSvc.options);
     resultsMgr.show();
 
     try {
-        findSvc.findallinfiles(resultsMgr.id, pattern, resultsMgr);
+        _findSvc.findallinfiles(resultsMgr.id, pattern, resultsMgr);
     } catch (ex) {
-        _UiForFindServiceError("find all in files", ex, msgHandler);
+        ko.find._uiForFindServiceError("find all in files", ex, msgHandler);
         resultsMgr.clear();
         return false;
     }
@@ -1776,20 +1785,20 @@ function Find_FindAllInFiles(editor, context, pattern, patternAlias,
  * @param {boolean} confirm Whether to confirm replacements. Optional,
  *      true by default.
  * @param {callback} msgHandler is an optional callback for displaying a
- *      message to the user. See Find_FindNext documentation for details.
+ *      message to the user. See ko.find.findNext documentation for details.
  * @returns {boolean} True if the operation was successful. False if there
  *      was an error or replacement was aborted.
  */
-function Find_ReplaceAllInFiles(editor, context, pattern, repl,
+this.replaceAllInFiles = function Find_ReplaceAllInFiles(editor, context, pattern, repl,
                                 confirm /* =true */,
                                 msgHandler /* =<statusbar notifier> */)
 {
     if (typeof(confirm) == 'undefined' || confirm == null) confirm = true;
     if (typeof(msgHandler) == 'undefined' || msgHandler == null) {
-        msgHandler = _Find_GetStatusbarMsgHandler(editor);
+        msgHandler = ko.find.getStatusbarMsgHandler(editor);
     }
 
-    findLog.info("Find_ReplaceAllInFiles(editor, context, pattern='"+pattern+
+    findLog.info("ko.find.replaceAllInFiles(editor, context, pattern='"+pattern+
                  "', repl='"+repl+"', confirm="+confirm+")");
 
     //TODO macro recording stuff for this
@@ -1834,7 +1843,7 @@ function Find_ReplaceAllInFiles(editor, context, pattern, repl,
             return false;
         }
         resultsMgr.configure(pattern, null, repl, context,
-                             findSvc.options,
+                             _findSvc.options,
                              true);  // opSupportsUndo
         resultsMgr.show();
         replacer.commit(resultsMgr);
@@ -1846,16 +1855,16 @@ function Find_ReplaceAllInFiles(editor, context, pattern, repl,
         if (resultsMgr == null)
             return false;
         resultsMgr.configure(pattern, null, repl, context,
-                             findSvc.options,
+                             _findSvc.options,
                              true); // opSupportsUndo
         resultsMgr.show();
     
         try {
-            findSvc.replaceallinfiles(resultsMgr.id, pattern, repl,
+            _findSvc.replaceallinfiles(resultsMgr.id, pattern, repl,
                                       resultsMgr);
         } catch (ex) {
             var msg = _ffBundle.GetStringFromName("replace all in files");
-            _UiForFindServiceError(msg, ex, msgHandler);
+            ko.find._uiForFindServiceError(msg, ex, msgHandler);
             resultsMgr.clear();
             return false;
         }
@@ -1863,3 +1872,44 @@ function Find_ReplaceAllInFiles(editor, context, pattern, repl,
 
     return true;
 }
+
+}).apply(ko.find);
+
+/**
+ * @deprecated since 7.0
+ */
+ko.logging.globalDeprecatedByAlternative("findSvc", 'Components.classes["@activestate.com/koFindService;1"].getService(Components.interfaces.koIFindService);');
+ko.logging.globalDeprecatedByAlternative("gFindSession", 'Components.classes["@activestate.com/koFindSession;1"].getService(Components.interfaces.koIFindSession);');
+ko.logging.globalDeprecatedByAlternative("_IsViewSearchable", "ko.find._isViewSearchable");
+ko.logging.globalDeprecatedByAlternative("_GetNextView", "ko.find._getNextView");
+ko.logging.globalDeprecatedByAlternative("_GetPreviousView", "ko.find._getPreviousView");
+ko.logging.globalDeprecatedByAlternative("_GetViewFromViewId", "ko.find._getViewFromViewId");
+ko.logging.globalDeprecatedByAlternative("_SetupAndFindNext", "ko.find._setupAndFindNext");
+ko.logging.globalDeprecatedByAlternative("_doMarkerClearingReplacement", "ko.find._doMarkerClearingReplacement");
+ko.logging.globalDeprecatedByAlternative("_doMarkerPreservingReplacement", "ko.find._doMarkerPreservingReplacement");
+ko.logging.globalDeprecatedByAlternative("_ReplaceLastFindResult", "ko.find._replaceLastFindResult");
+ko.logging.globalDeprecatedByAlternative("_FindAllInView", "ko.find._findAllInView");
+ko.logging.globalDeprecatedByAlternative("_MarkAllInView", "ko.find._markAllInView");
+ko.logging.globalDeprecatedByAlternative("_ReplaceAllInView", "ko.find._replaceAllInView");
+ko.logging.globalDeprecatedByAlternative("_DisplayFindResult", "ko.find._displayFindResult");
+ko.logging.globalDeprecatedByAlternative("_MarkLinesForViewId", "ko.find._markLinesForViewId");
+ko.logging.globalDeprecatedByAlternative("_UiForCompletedFindSession", "ko.find._uiForCompletedFindSession");
+ko.logging.globalDeprecatedByAlternative("_UiForFindServiceError", "ko.find._uiForFindServiceError");
+ko.logging.globalDeprecatedByAlternative("_Find_RegexEscapeString", "ko.find.regexEscapeString");
+ko.logging.globalDeprecatedByAlternative("_Find_GetStatusbarMsgHandler", "ko.find.getStatusbarMsgHandler");
+ko.logging.globalDeprecatedByAlternative("Find_FindNextInMacro", "ko.find.findNextInMacro");
+ko.logging.globalDeprecatedByAlternative("Find_FindAllInMacro", "ko.find.findAllInMacro");
+ko.logging.globalDeprecatedByAlternative("Find_MarkAllInMacro", "ko.find.markAllInMacro");
+ko.logging.globalDeprecatedByAlternative("Find_ReplaceInMacro", "ko.find.replaceInMacro");
+ko.logging.globalDeprecatedByAlternative("Find_ReplaceAllInMacro", "ko.find.replaceAllInMacro");
+ko.logging.globalDeprecatedByAlternative("Find_HighlightClearAll", "ko.find.highlightClearAll");
+ko.logging.globalDeprecatedByAlternative("Find_HighlightClearPosition", "ko.find.highlightClearPosition");
+ko.logging.globalDeprecatedByAlternative("Find_HighlightAllMatches", "ko.find.highlightAllMatches");
+ko.logging.globalDeprecatedByAlternative("Find_HighlightingEnabled", "ko.find.highlightingEnabled");
+ko.logging.globalDeprecatedByAlternative("Find_FindNext", "ko.find.findNext");
+ko.logging.globalDeprecatedByAlternative("Find_FindAll", "ko.find.findAll");
+ko.logging.globalDeprecatedByAlternative("Find_MarkAll", "ko.find.markAll");
+ko.logging.globalDeprecatedByAlternative("Find_Replace", "ko.find.replace");
+ko.logging.globalDeprecatedByAlternative("Find_ReplaceAll", "ko.find.replaceAll");
+ko.logging.globalDeprecatedByAlternative("Find_FindAllInFiles", "ko.find.findAllInFiles");
+ko.logging.globalDeprecatedByAlternative("Find_ReplaceAllInFiles", "ko.find.replaceAllInFiles");
