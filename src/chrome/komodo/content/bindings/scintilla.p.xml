@@ -1210,7 +1210,7 @@
                     // current position.
                     scimoz.insertText(pos, text);
                     scimoz.selectionStart = pos;
-                    scimoz.selectionEnd = pos+stringutils_bytelength(text);
+                    scimoz.selectionEnd = pos+ko.stringutils.bytelength(text);
                 } finally {
                     if (endUndoAction) {
                         scimoz.endUndoAction();

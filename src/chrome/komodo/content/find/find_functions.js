@@ -335,11 +335,11 @@ function _SetupAndFindNext(editor, context, pattern, mode,
         if (findSvc.options.searchBackward) {
             startOffset -= 1;
             if (startOffset < 0) {
-                startOffset = stringutils_bytelength(text.slice(0, text.length-1));
+                startOffset = ko.stringutils.bytelength(text.slice(0, text.length-1));
             }
         } else {
             startOffset += 1;
-            if (startOffset > stringutils_bytelength(text.slice(0, text.length-1))) {
+            if (startOffset > ko.stringutils.bytelength(text.slice(0, text.length-1))) {
                 startOffset = 0;
             }
         }
@@ -371,7 +371,7 @@ function _SetupAndFindNext(editor, context, pattern, mode,
             if (!findSvc.options.searchBackward) {
                 startOffset = 0;
             } else {
-                startOffset = stringutils_bytelength(text.slice(0, text.length-1));
+                startOffset = ko.stringutils.bytelength(text.slice(0, text.length-1));
             }
             continue;
         }
@@ -417,7 +417,7 @@ function _SetupAndFindNext(editor, context, pattern, mode,
             // documents" should reach this code.)
             text = scimoz.text;
             if (findSvc.options.searchBackward) {
-                startOffset = stringutils_bytelength(text.slice(0, text.length - 1));
+                startOffset = ko.stringutils.bytelength(text.slice(0, text.length - 1));
             } else {
                 startOffset = 0;
             }
@@ -604,7 +604,7 @@ function _ReplaceLastFindResult(editor, context, pattern, replacement)
                 replaceResult.end-replaceResult.start);
             _doMarkerPreservingReplacement(editor, scimoz, startByte, endByte,
                                            replaceResult.replacement);
-            var replaceByteLength = stringutils_bytelength(replaceResult.replacement);
+            var replaceByteLength = ko.stringutils.bytelength(replaceResult.replacement);
             if (Find_HighlightingEnabled()) {
                 var DECORATOR_FIND_HIGHLIGHT = Components.interfaces.koILintResult.DECORATOR_FIND_HIGHLIGHT;
                 scimoz.indicatorCurrent = DECORATOR_FIND_HIGHLIGHT;
@@ -622,10 +622,10 @@ function _ReplaceLastFindResult(editor, context, pattern, replacement)
             } else if (context.type == Components.interfaces.koIFindContext.FCT_SELECTION) {
                 // adjust the context range for the change in length
                 //XXX I think perhaps context.endIndex should be measured in
-                //    chars and not in bytes (as this stringutils_bytelength
+                //    chars and not in bytes (as this ko.stringutils.bytelength
                 //    is converting it to).
                 context.endIndex += replaceByteLength -
-                                    stringutils_bytelength(replaceResult.value);
+                                    ko.stringutils.bytelength(replaceResult.value);
             } else {
                 throw new Error("unexpected context: name='" + context.name + "' type=" + context.type);
             }
@@ -772,13 +772,13 @@ function _ReplaceAllInView(editor, view, context, pattern, replacement,
             // Restore the selection.
             scimoz.currentPos = scimoz.positionAtChar(0, context.startIndex);
             scimoz.anchor = scimoz.positionAtChar(0, context.startIndex)
-                + stringutils_bytelength(replacementText);
+                + ko.stringutils.bytelength(replacementText);
         } else {
             var line = scimoz.lineFromPosition(scimoz.currentPos);
             _doMarkerPreservingReplacement(editor,
                                            scimoz,
                                            0,
-                                           stringutils_bytelength(text),
+                                           ko.stringutils.bytelength(text),
                                            replacementText);
             // Put the cursor on the same line as before replacement.
             scimoz.anchor = scimoz.currentPos = scimoz.positionFromLine(line);
@@ -837,8 +837,8 @@ function _DisplayFindResult(editor, findResult)
     var scimoz = editor.ko.views.manager.currentView.scintilla.scimoz;
     // Unfortunately this is going to be very slow -- I can't come up with a
     // way around this that will actually work without rewriting the find subsystem.
-    var startByteIndex = stringutils_bytelength(scimoz.text.slice(0, findResult.start));
-    var endByteIndex = startByteIndex + stringutils_bytelength(findResult.value);
+    var startByteIndex = ko.stringutils.bytelength(scimoz.text.slice(0, findResult.start));
+    var endByteIndex = startByteIndex + ko.stringutils.bytelength(findResult.value);
     // Ensure folded lines are expanded. We *could* conceivably have search
     // results that span lines so should ensure that the whole selection is
     // visible. XXX should include every line in btwn here
