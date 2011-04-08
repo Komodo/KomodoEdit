@@ -36,17 +36,14 @@
 
 // Globals
 var log = ko.logging.getLogger("pref.editing-properties");
-var _pref_lint_dialog = {};
+var dialog = {};
 
 function editingPropertiesOnLoad() {
     try {
         parent.hPrefWindow.onpageload();
-        _pref_lint_dialog.editUseEdge = document.getElementById("editUseEdge");
-        _pref_lint_dialog.edgeColumnTextbox = document.getElementById("editAutoWrapColumn");
-        _pref_lint_dialog.lintEOLs = document.getElementById("lintEOLs");
-        _pref_lint_dialog.editUseLinting = document.getElementById("editUseLinting");
+        dialog.editUseEdge = document.getElementById("editUseEdge");
+        dialog.edgeColumnTextbox = document.getElementById("editAutoWrapColumn");
         pref_edgeLine_doEnabling();
-        pref_lint_doEnabling();
         parent.initPanel();
     } catch(e) {
         log.exception(e);
@@ -64,11 +61,6 @@ function _pref_setElementEnabledState(elt, enabled) {
 }
 
 function pref_edgeLine_doEnabling() {
-    var enabled = _pref_lint_dialog.editUseEdge.checked;
-    _pref_setElementEnabledState(_pref_lint_dialog.edgeColumnTextbox, enabled);
-}
-
-function pref_lint_doEnabling() {
-    var enabled = _pref_lint_dialog.editUseLinting.checked;
-    _pref_setElementEnabledState(_pref_lint_dialog.lintEOLs, enabled);
+    var enabled = dialog.editUseEdge.checked;
+    _pref_setElementEnabledState(dialog.edgeColumnTextbox, enabled);
 }
