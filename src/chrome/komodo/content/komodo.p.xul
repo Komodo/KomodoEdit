@@ -2175,7 +2175,7 @@
                      completeselectedindex="true"
                      ontextentered="this.focus();
                                     this.setSelectionRange(this.textLength, this.textLength);"
-                     onkeypress="Findtoolbar_OpenTextboxKeyPress(this, event);"
+                     onkeypress="ko.findtoolbar.openTextboxKeyPress(this, event);"
 <!-- #if PLATFORM == "darwin" -->
                      accesskey="&openLabel.accesskey;"
 <!-- #endif -->
@@ -2205,7 +2205,7 @@
                      completeselectedindex="true"
                      ontextentered="this.focus();
                                     this.setSelectionRange(0, this.textLength);"
-                     onkeypress="Findtoolbar_FindTextboxKeyPress(this, event);"
+                     onkeypress="ko.findtoolbar.findTextboxKeyPress(this, event);"
 <!-- #if PLATFORM == "darwin" -->
                      accesskey="&findLabel.accesskey;"
 <!-- #endif -->
@@ -2230,8 +2230,8 @@
                                     this.searchParam, 'cwd', ko.window.getCwd());"
                      ontextentered="this.focus();
                                     this.setSelectionRange(0, this.textLength);"
-                     onkeypress="Findtoolbar_FindFilesKeyPress(this, event);"
-                     onfocus="Findtoolbar_FindFilesOnFocus(this, event);"
+                     onkeypress="ko.findtoolbar.findFilesKeyPress(this, event);"
+                     onfocus="ko.findtoolbar.findFilesOnFocus(this, event);"
 <!-- #if PLATFORM != "darwin" -->
                      onblur="document.getElementById('findButton').setAttribute('class', 'find');"
 <!-- #endif -->
@@ -2240,7 +2240,7 @@
                            class="open-file-nohover-icon solo-button" accesskey="&findToolbarBrowsedirectory.accesskey;"
                            style="min-width: 0px; margin: 0px"
                            tooltiptext="&browseForDirectoriesToAddToSearchList.tooltiptext;"
-                           oncommand="Findtoolbar_AddBrowsedDirectory();"/>
+                           oncommand="ko.findtoolbar.addBrowsedDirectory();"/>
           </toolbaritem>
         </toolbar>
 
