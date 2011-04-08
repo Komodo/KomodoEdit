@@ -45,10 +45,6 @@
 var findResultsLog = ko.logging.getLogger('findResultsTab');
 //findResultsLog.setLevel(ko.logging.LOG_DEBUG);
 
-var gFindResultsView_Bound = false; // Is the nsITreeView instance is bound to
-                                    // the find results <tree>.
-
-
 
 //---- the new FindResultsTab functionality (new ones are created on the fly)
 //
