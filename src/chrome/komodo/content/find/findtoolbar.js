@@ -165,7 +165,7 @@ function Findtoolbar_FindTextboxKeyPress(field, event) {
         }
         if (String.fromCharCode(event.charCode) == 'a') {
             if (event.altKey && ! event.shiftKey && ! event.ctrlKey) {
-                Find_FindAll(window, gFindTextboxContext, field.value);
+                ko.find.findAll(window, gFindTextboxContext, field.value);
                 event.stopPropagation();
                 event.preventDefault();
                 return;
@@ -185,12 +185,14 @@ function Findtoolbar_FindTextboxKeyPress(field, event) {
                     ko.launch.find(field.value);
                 } else {
                     ko.mru.addFromACTextbox(field);
+                    var findSvc = Components.classes["@activestate.com/koFindService;1"].
+                           getService(Components.interfaces.koIFindService);
                     if (event.shiftKey) {
                         findSvc.options.searchBackward = true;
                     } else {
                         findSvc.options.searchBackward = false;
                     }
-                    Find_FindNext(window, gFindTextboxContext, field.value,
+                    ko.find.findNext(window, gFindTextboxContext, field.value,
                                   "find", false, false);
                 }
                 event.stopPropagation();
@@ -270,7 +272,7 @@ function Findtoolbar_FindFilesKeyPress(field, event) {
                     ko.mru.addFromACTextbox(document.getElementById('textbox_find'));
                     ko.mru.addFromACTextbox(field);
                     gFindFilesTextboxContext.cwd = ko.window.getCwd();
-                    Find_FindAllInFiles(window,
+                    ko.find.findAllInFiles(window,
                                         gFindFilesTextboxContext,
                                         findTerm);
                 }

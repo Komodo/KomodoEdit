@@ -1097,9 +1097,9 @@
             const SC_PERFORMED_UNDO = Components.interfaces.ISciMoz.SC_PERFORMED_UNDO;
 
             if ((modificationType & (SC_MOD_INSERTTEXT | SC_MOD_BEFOREDELETE)) &&
-                (typeof(Find_HighlightClearPosition) != "undefined")) {
+                (typeof(ko.find.highlightClearPosition) != "undefined")) {
                 // Remove the find highlighting in this modification area.
-                Find_HighlightClearPosition(this.scimoz, position, length);
+                ko.find.highlightClearPosition(this.scimoz, position, length);
             }
 
             // if deleting or inserting text...

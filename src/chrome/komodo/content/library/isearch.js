@@ -161,7 +161,7 @@ ISController.prototype._startIncrementalSearch = function(backwards) {
         ko.statusBar.AddMessage(_bundle.formatStringFromName("incrementalSearchPrompt",
                                                              [pattern], 1),
                                 "isearch", 0, false, true);
-        Find_FindNext(window, this._incrementalSearchContext,
+        ko.find.findNext(window, this._incrementalSearchContext,
                       pattern, null, true,
                       true);  // useMRU: add this pattern to the find MRU
     }
@@ -397,14 +397,16 @@ ISController.prototype.keyPressForSearch = function(event) {
             if (this._incrementalSearchPattern == "") {
                 // Second <Ctrl+I> after a non-search action
                 this._incrementalSearchPattern = this._lastIncrementalSearchText;
-                gFindSession.Reset();
+                var findSessionSvc = Components.classes["@activestate.com/koFindSession;1"].
+                                        getService(Components.interfaces.koIFindSession);
+                findSessionSvc.Reset();
             }
             if (eventkey == backwardstriggerkey) {
                 this.findSvc.options.searchBackward = true;
             } else {
                 this.findSvc.options.searchBackward = false;
             }
-            var findres = Find_FindNext(window, this._incrementalSearchContext,
+            var findres = ko.find.findNext(window, this._incrementalSearchContext,
                                         this._incrementalSearchPattern,
                                         null, true,
                                         true); // add pattern to find MRU
@@ -461,7 +463,7 @@ ISController.prototype.keyPressForSearch = function(event) {
                 return;
             }
             ko.macros.recorder.undo();
-            findres = Find_FindNext(
+            findres = ko.find.findNext(
                 window, this._incrementalSearchContext,
                 this._incrementalSearchPattern, null,
                 true,

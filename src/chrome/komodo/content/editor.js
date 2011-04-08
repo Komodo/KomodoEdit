@@ -127,7 +127,7 @@ editor_editorController.prototype.do_cmd_findNextSelected = function(backwards /
     context.type = findSvc.options.FCT_CURRENT_DOC;
     findSvc.options.preferredContextType = findSvc.options.FCT_CURRENT_DOC;
     findSvc.options.searchBackward = backwards;
-    Find_FindNext(window, context, pattern);
+    ko.find.findNext(window, context, pattern);
 }
 
 editor_editorController.prototype.is_cmd_findPreviousSelected_enabled = function() {

@@ -1654,7 +1654,7 @@ viewManager.prototype.do_cmd_findNext = function() {
                   getService(Components.interfaces.koIFindService);
         context.type = findSvc.options.preferredContextType;
         findSvc.options.searchBackward = false;
-        Find_FindNext(window, context, pattern);
+        ko.find.findNext(window, context, pattern);
     } else {
         ko.launch.find();
     }
@@ -1678,7 +1678,7 @@ viewManager.prototype.do_cmd_findPrevious = function() {
                   getService(Components.interfaces.koIFindService);
         context.type = findSvc.options.preferredContextType;
         findSvc.options.searchBackward = true;
-        Find_FindNext(window, context, pattern);
+        ko.find.findNext(window, context, pattern);
     } else {
         ko.launch.find();
     }
@@ -1732,9 +1732,9 @@ viewManager.prototype._findFunction = function(searchType) {
                       .createInstance(Components.interfaces.koIFindContext);
         context.type = Components.interfaces.koIFindContext.FCT_CURRENT_DOC;
         if (searchType == "all") {
-            Find_FindAll(window, context, re, namedBlockDescription);
+            ko.find.findAll(window, context, re, namedBlockDescription);
         } else {
-            Find_FindNext(window, context, re);
+            ko.find.findNext(window, context, re);
         }
         findSvc.options.patternType = patternType;
         findSvc.options.caseSensitivity = caseSensitivity;
@@ -2188,7 +2188,7 @@ viewManager.prototype.do_cmd_cancel = function() {
     } else if (sm.autoCActive()) {
         sm.autoCCancel()
     } else {
-        Find_HighlightClearAll(sm);
+        ko.find.highlightClearAll(sm);
         this.currentView.removeHyperlinks("cmd_cancel");
     }
 }

@@ -1534,7 +1534,7 @@ VimController.prototype.performSearch = function (scimoz, searchString,
 
             // Vi searches can have a repitition count.
             for (var count=0; count < repeatSearchCount; count++) {
-                var findres = Find_FindNext(window,
+                var findres = ko.find.findNext(window,
                                             searchContext,
                                             searchString,
                                             null,  // mode
@@ -1628,7 +1628,7 @@ VimController.prototype.performReplace = function (searchString, replaceString,
             // 'g' option means "global replace". Without 'g' we only
             // replace the first hit on each line.
             var firstOnLine = options.indexOf('g') == -1;
-            var findres = Find_FindNext(window,
+            var findres = ko.find.findNext(window,
                                         findContext,
                                         searchString,
                                         null,  // mode, defaults to find
@@ -1642,7 +1642,7 @@ VimController.prototype.performReplace = function (searchString, replaceString,
                 this.setStatusBarMessage("'"+searchString+"' was not found in the specified range. No changes were made.",
                                          5000, true);
             } else {
-                Find_ReplaceAll(window,           /* editor */
+                ko.find.replaceAll(window,           /* editor */
                                 findContext,      /* context */
                                 searchString,     /* pattern */
                                 replaceString,    /* replacement */

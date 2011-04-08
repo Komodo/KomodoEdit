@@ -572,7 +572,7 @@ function find_next(backward /* =false */) {
         gFindSvc.options.searchBackward = backward;
     
         var mode = (widgets.opt_repl.checked ? "replace" : "find");
-        var found_one = Find_FindNext(opener, _g_find_context, pattern, mode,
+        var found_one = ko.find.findNext(opener, _g_find_context, pattern, mode,
                                       false,         // quiet
                                       true,          // useMRU
                                       msg_callback); // msgHandler
@@ -616,7 +616,7 @@ function find_all() {
         ko.mru.addFromACTextbox(widgets.pattern);
 
         if (_g_find_context.type == koIFindContext.FCT_IN_COLLECTION) {
-            if (Find_FindAllInFiles(opener, _g_find_context,
+            if (ko.find.findAllInFiles(opener, _g_find_context,
                                     pattern, null,
                                     msg_callback)) {
                 window.close();
@@ -630,14 +630,14 @@ function find_all() {
                 ko.mru.addFromACTextbox(widgets.excludes);
             gFindSvc.options.cwd = _g_find_context.cwd;
 
-            if (Find_FindAllInFiles(opener, _g_find_context,
+            if (ko.find.findAllInFiles(opener, _g_find_context,
                                     pattern, null,
                                     msg_callback)) {
                 window.close();
             }
 
         } else {
-            var found_some = Find_FindAll(opener, _g_find_context, pattern,
+            var found_some = ko.find.findAll(opener, _g_find_context, pattern,
                                           null,          // patternAlias
                                           msg_callback); // msgHandler
             if (found_some) {
@@ -683,7 +683,7 @@ function mark_all() {
         }
         ko.mru.addFromACTextbox(widgets.pattern);
 
-        var found_some = Find_MarkAll(opener, _g_find_context, pattern,
+        var found_some = ko.find.markAll(opener, _g_find_context, pattern,
                                       null,          // patternAlias
                                       msg_callback); // msgHandler
         if (found_some) {
@@ -728,7 +728,7 @@ function replace() {
             ko.mru.addFromACTextbox(widgets.repl);
     
         gFindSvc.options.searchBackward = false;
-        var found_one = Find_Replace(opener, _g_find_context,
+        var found_one = ko.find.replace(opener, _g_find_context,
                 pattern, repl, msg_callback);
         if (!found_one) {
             // If no match was hilighted then it is likely that the user will
@@ -773,7 +773,7 @@ function replace_all() {
             ko.mru.addFromACTextbox(widgets.repl);
 
         if (_g_find_context.type == koIFindContext.FCT_IN_COLLECTION) {
-            if (Find_ReplaceAllInFiles(opener, _g_find_context,
+            if (ko.find.replaceAllInFiles(opener, _g_find_context,
                                        pattern, repl,
                                        gFindSvc.options.confirmReplacementsInFiles,
                                        msg_callback)) {
@@ -787,7 +787,7 @@ function replace_all() {
                 ko.mru.addFromACTextbox(widgets.excludes);
             gFindSvc.options.cwd = _g_find_context.cwd;
 
-            if (Find_ReplaceAllInFiles(opener, _g_find_context,
+            if (ko.find.replaceAllInFiles(opener, _g_find_context,
                                        pattern, repl,
                                        gFindSvc.options.confirmReplacementsInFiles,
                                        msg_callback)) {
@@ -795,7 +795,7 @@ function replace_all() {
             }
         } else {
             var found_some = null;
-            var found_some = Find_ReplaceAll(
+            var found_some = ko.find.replaceAll(
                     opener, _g_find_context, pattern, repl,
                     widgets.show_replace_all_results.checked,
                     false,  /* firstOnLine */
@@ -1109,7 +1109,9 @@ function _init() {
 
     // The act of opening the find dialog should reset the find session.
     // This is the behaviour of least surprise.
-    gFindSession.Reset();
+    var findSessionSvc = Components.classes["@activestate.com/koFindSession;1"].
+                            getService(Components.interfaces.koIFindSession);
+    findSessionSvc.Reset();
 }
 
 function _set_pattern_focus(select_all)
