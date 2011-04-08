@@ -417,6 +417,14 @@ class KoPythonCommonInfoEx(KoAppInfoEx):
         """Return a web URL for help on this app, else return None."""
         return "http://docs.activestate.com/activepython/"
 
+    def haveModules(self, modules):
+        argv = [self.get_executablePath(), '-c',
+                ' '.join(['import ' + str(mod) + ';' for mod in modules])]
+        env = koprocessutils.getUserEnv()
+        p = process.ProcessOpen(argv, env=env, stdin=None)
+        retval = p.wait()
+        return not retval
+
 
 class KoPythonInfoEx(KoPythonCommonInfoEx):
     _com_interfaces_ = [components.interfaces.koIAppInfoEx,
