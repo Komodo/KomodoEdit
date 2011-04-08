@@ -71,7 +71,7 @@ function findtoolbar_onload()
             "@activestate.com/koFindInFilesContext;1"]
             .createInstance(Components.interfaces.koIFindInFilesContext);
         gFindFilesTextboxContext.type = Components.interfaces.koIFindContext.FCT_IN_FILES;
-        gFindFilesTextboxContext.cwd = window.gFindInFilesCwd;
+        gFindFilesTextboxContext.cwd = null;
 
         gFindToolbar_FindInFiles_Textbox = document.getElementById('textbox_findInFiles');
     } catch (e) {

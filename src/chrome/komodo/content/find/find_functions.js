@@ -59,7 +59,6 @@
 
 // XXX globals maintained to keep things working, used in findInFiles and
 // the find toolbar
-var gFindInFilesCwd = null;
 var gFindInFilesSearchTerm = null;
 var gFindInFilesFolders = null;
 
