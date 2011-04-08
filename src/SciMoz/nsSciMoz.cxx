@@ -861,14 +861,38 @@ bool SciMoz::GetStyledText(const NPVariant *args, uint32_t argCount, NPVariant *
 	}
 
 	NPN_ReleaseVariantValue(result);
-	NPUTF8* npbuf = reinterpret_cast<NPUTF8*>(NPN_MemAlloc(count));
-	if (!npbuf) {
+	// gah, this is an [array] octet, not a string. allocate a JS array :|
+	NPObject *win = nsnull;
+	NPError err = NPN_GetValue(mPlugin->GetNPP(), NPNVWindowNPObject, &win);
+	if (err != NPERR_NO_ERROR) {
+		SCIMOZ_DEBUG_PRINTF("%s: failed to get window\n",
+				    __FUNCTION__);
 		NS_Free(buf);
 		return false;
 	}
-	memcpy(npbuf, buf, count);
-	STRINGN_TO_NPVARIANT(npbuf, count, *result);
+	NPString script = { "new Array()" };
+	script.UTF8Length = strlen(script.UTF8Characters);
+	if (!NPN_Evaluate(mPlugin->GetNPP(),
+			  win,
+			  &script,
+			  result))
+	{
+		SCIMOZ_DEBUG_PRINTF("%s: failed to create array\n",
+				    __FUNCTION__);
+		NS_Free(buf);
+		return false;
+	}
+	NPN_RetainObject(NPVARIANT_TO_OBJECT(*result));
+	for (PRUint32 i = 0; i < count; ++i) {
+		NPVariant v;
+		INT32_TO_NPVARIANT(buf[i], v);
+		NPN_SetProperty(mPlugin->GetNPP(),
+				NPVARIANT_TO_OBJECT(*result),
+				NPN_GetIntIdentifier(i),
+				&v);
+	}
 	NS_Free(buf);
+	NPN_ReleaseObject(NPVARIANT_TO_OBJECT(*result));
 	return true;
 }
 

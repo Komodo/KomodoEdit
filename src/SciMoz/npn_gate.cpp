@@ -217,7 +217,7 @@ void NPN_GetStringIdentifiers(const NPUTF8 **names, uint32_t nameCount,
   return NPNFuncs.getstringidentifiers(names, nameCount, identifiers);
 }
 
-NPIdentifier NPN_GetStringIdentifier(int32_t intid)
+NPIdentifier NPN_GetIntIdentifier(int32_t intid)
 {
   return NPNFuncs.getintidentifier(intid);
 }
