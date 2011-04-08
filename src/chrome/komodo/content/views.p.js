@@ -1694,7 +1694,7 @@ viewManager.prototype.is_cmd_findNextResult_enabled = function() {
 }
 
 viewManager.prototype.do_cmd_findNextResult = function() {
-    FindResultsTab_NextResult();
+    ko.findresults.nextResult();
 }
 
 // cmd_findNextFunction, cmd_findPreviousFunction, cmd_findAllFunctions

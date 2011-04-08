@@ -1404,7 +1404,7 @@ this.findAll = function Find_FindAll(editor, context, pattern, patternAlias,
     }
 
     var preferredResultsTab = _findSvc.options.displayInFindResults2 ? 2 : 1;
-    var resultsMgr = editor.FindResultsTab_GetTab(preferredResultsTab);
+    var resultsMgr = editor.ko.findresults.getTab(preferredResultsTab);
     if (resultsMgr == null)
         return null;
     resultsMgr.configure(pattern, patternAlias, null, context,
@@ -1723,7 +1723,7 @@ this.replaceAll = function Find_ReplaceAll(editor, context, pattern, replacement
     var numFilesSearched = null;
     if (showReplaceResults) {
         var preferredResultsTab = _findSvc.options.displayInFindResults2 ? 2 : 1;
-        resultsMgr = editor.FindResultsTab_GetTab(preferredResultsTab);
+        resultsMgr = editor.ko.findresults.getTab(preferredResultsTab);
         if (resultsMgr == null)
             return false;
         resultsMgr.configure(pattern, null, replacement, context,
@@ -1846,7 +1846,7 @@ this.findAllInFiles = function Find_FindAllInFiles(editor, context, pattern, pat
 
     //TODO macro recording stuff for this
 
-    var resultsMgr = editor.FindResultsTab_GetTab();
+    var resultsMgr = editor.ko.findresults.getTab();
     if (resultsMgr == null)
         return false;
     resultsMgr.configure(pattern, patternAlias, null, context,
@@ -1924,7 +1924,7 @@ this.replaceAllInFiles = function Find_ReplaceAllInFiles(editor, context, patter
         
         // The replacement completed, and there were hits.
         // I.e., we now have to make those replacements.
-        var resultsMgr = editor.FindResultsTab_GetTab();
+        var resultsMgr = editor.ko.findresults.getTab();
         if (resultsMgr == null) {
             //TODO: It really isn't a good thing that we can abort the
             //      "Replace in Files" at this point just because we
@@ -1943,7 +1943,7 @@ this.replaceAllInFiles = function Find_ReplaceAllInFiles(editor, context, patter
         return true;
 
     } else {
-        var resultsMgr = editor.FindResultsTab_GetTab();
+        var resultsMgr = editor.ko.findresults.getTab();
         if (resultsMgr == null)
             return false;
         resultsMgr.configure(pattern, null, repl, context,
