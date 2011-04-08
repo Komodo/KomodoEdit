@@ -97,23 +97,6 @@
             </hbox>
         </groupbox>
         <separator class="thin"/>
-        <groupbox orient="vertical">
-            <caption label="&backgroundSyntaxChecking.label;"/>
-            <description>
-                &filePrefRubyLevelStricness.description;
-            </description>
-            <hbox align="center">
-                <menulist id="ruby_lintOption"
-                          flex="1" pref="true" prefattribute="data">
-                    <menupopup>
-                        <menuitem data="cwT" label="&errorsAndWarningsUseTaintModeCwT.label;"/>
-                        <menuitem data="cT" label="&errorsOnlyUseTaintModeCT.label;"/>
-                        <menuitem data="cw" label="&errorsAndWarningsCw.label;"/>
-                        <menuitem data="c" label="&errorsOnlyC.label;"/>
-                    </menupopup>
-                </menulist>
-            </hbox>
-        </groupbox>
     
         <separator class="thin"/>
     

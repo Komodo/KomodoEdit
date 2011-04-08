@@ -52,15 +52,6 @@ log = logging.getLogger("koJavaScriptLinter")
 class CommonJSLinter(object):
     _is_macro_re = re.compile("macro2?://")
     def __init__(self):
-        self.infoSvc = components.classes["@activestate.com/koInfoService;1"].\
-            getService(components.interfaces.koIInfoService)
-        self.isDebugBuild = self.infoSvc.buildType == "debug"
-        prefSvc = components.classes["@activestate.com/koPrefService;1"].\
-                    getService(components.interfaces.koIPrefService)
-        self._prefProxy = getProxyForObject(1,
-                    components.interfaces.koIPrefService, prefSvc,
-                    PROXY_ALWAYS | PROXY_SYNC)
-        
         self.koDirs = components.classes["@activestate.com/koDirs;1"].\
                               getService(components.interfaces.koIDirs)
         
@@ -106,10 +97,11 @@ class CommonJSLinter(object):
         cmd = [jsInterp, "-C"]
 
         # Set the JS linting preferences.
-        enableWarnings = self._prefProxy.prefs.getBooleanPref('lintJavaScriptEnableWarnings')
+        prefset = request.koDoc.getEffectivePrefs()
+        enableWarnings = prefset.getBooleanPref('lintJavaScriptEnableWarnings')
         if enableWarnings:
             cmd.append("-w")
-            enableStrict = self._prefProxy.prefs.getBooleanPref('lintJavaScriptEnableStrict')
+            enableStrict = prefset.getBooleanPref('lintJavaScriptEnableStrict')
             if enableStrict:
                 cmd.append("-s")
         else:
