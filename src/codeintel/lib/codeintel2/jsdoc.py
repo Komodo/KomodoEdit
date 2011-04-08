@@ -153,7 +153,7 @@ jsdoc_tags = {
                     "Example: /** @namespace Can be used to do stuff. */",
 
     "param":        "Provide information about a function parameter.\n"
-                    "Note: The type field {} is optional."
+                    "Note: The type field {} is optional.\n"
                     "Example: /** @param {String} arg1  The first argument */",
 
     "private":      "Member is private.\n"
@@ -162,7 +162,7 @@ jsdoc_tags = {
                     "Example: /** @private */",
 
     "property":     "Document a member variable.\n"
-                    "Note: The type field {} is optional."
+                    "Note: The type field {} is optional.\n"
                     "Example: /** @property {String} name  The description */",
 
     "public":       "Causes object to be documented as exposed.\n"
