@@ -98,14 +98,18 @@ this._isViewSearchable = function _IsViewSearchable(view) {
     return scimoz != null;
 }
 
-// Return the view after this one appropriate for searching. If there is no
-// such view (e.g. only one view), then return null.
-//
-// Dev Note: This in very inefficient for a lot of open files.
-//
-//XXX Once all view types have viewIds we can do this more properly. I.e.
-//    don't default to 'editor' view 0 as the "next" view for any non-'editor'
-//    view.
+/**
+ * Return the view after this one appropriate for searching. If there is no
+ * such view (e.g. only one view), then return null.
+ *
+ * Dev Note: This in very inefficient for a lot of open files.
+ *
+ * XXX: Once all view types have viewIds we can do this more properly. I.e.
+ *      don't default to 'editor' view 0 as the "next" view for any non-'editor'
+ *      view.
+ *
+ * XXX: This internal method is required by the TODO addon.
+ */
 this._getNextView = function _GetNextView(editor, currView)
 {
     // Filter out view types that cannot be searched.
@@ -151,8 +155,10 @@ this._getNextView = function _GetNextView(editor, currView)
     }
 }
 
-// Return the view before this one appropriate for searching. If there is no
-// such view (e.g. only one view), then return null.
+/**
+ * Return the view before this one appropriate for searching. If there is no
+ * such view (e.g. only one view), then return null.
+ */
 this._getPreviousView = function _GetPreviousView(editor, currView)
 {
     // Filter out view types that cannot be searched.
@@ -552,10 +558,12 @@ this._doMarkerPreservingReplacement = function _doMarkerPreservingReplacement(ed
     return null;  // stifle js
 }
 
+/**
+ * Replace the last find result in the current find session, if there is
+ * one and if it is genuine and current. No return value.
+ */
 this._replaceLastFindResult = function _ReplaceLastFindResult(editor, context, pattern, replacement)
 {
-    // Replace the last find result in the current find session, if there is
-    // one and if it is genuine and current. No return value.
     var view = editor.ko.views.manager.currentView;
     if (! ko.find._isViewSearchable(view)) {
         return;
@@ -653,18 +661,21 @@ this._replaceLastFindResult = function _ReplaceLastFindResult(editor, context, p
 }
 
 
+/**
+ * Find all instances of "pattern" with "replacement" in the current
+ * view context.
+ *
+ * Note: koIFindSession.StartFind() is skipped because we don't need to
+ * use this state mechanism to know when to terminate the session. Session
+ * termination is handled via .NoteUrl() and .HaveSearchedThisUrlAlready().
+ *
+ * No return value.
+ *
+ * XXX: This internal method is required by the TODO addon.
+ */
 this._findAllInView = function _FindAllInView(editor, view, context, pattern, resultsView,
                         highlightMatches)
 {
-    // Find all instances of "pattern" with "replacement" in the current
-    // view context.
-    //
-    // Note: koIFindSession.StartFind() is skipped because we don't need to
-    // use this state mechanism to know when to terminate the session. Session
-    // termination is handled via .NoteUrl() and .HaveSearchedThisUrlAlready().
-    //
-    // No return value.
-
     var viewId = view.koDoc.displayPath;
     var scimoz = view.scintilla.scimoz;
     var text; // the text to search (this is a subset of whole buffer if
@@ -691,17 +702,18 @@ this._findAllInView = function _FindAllInView(editor, view, context, pattern, re
 }
 
 
+/**
+ * Mark all instances of "pattern" with "replacement" in the current
+ * view context.
+ *
+ * Note: koIFindSession.StartFind() is skipped because we don't need to
+ * use this state mechanism to know when to terminate the session. Session
+ * termination is handled via .NoteUrl() and .HaveSearchedThisUrlAlready().
+ *
+ * Returns true if hits were found in the view, false otherwise.
+ */
 this._markAllInView = function _MarkAllInView(editor, view, context, pattern)
 {
-    // Mark all instances of "pattern" with "replacement" in the current
-    // view context.
-    //
-    // Note: koIFindSession.StartFind() is skipped because we don't need to
-    // use this state mechanism to know when to terminate the session. Session
-    // termination is handled via .NoteUrl() and .HaveSearchedThisUrlAlready().
-    //
-    // Returns true if hits were found in the view, false otherwise.
-
     var viewId = view.koDoc.displayPath;
     var scimoz = view.scintilla.scimoz;
     var text; // the text to search (this is a subset of whole buffer if
@@ -726,19 +738,19 @@ this._markAllInView = function _MarkAllInView(editor, view, context, pattern)
     return foundSome;
 }
 
-
+/**
+ * Replace all instances of "pattern" with "replacement" in the current
+ * view context.
+ *
+ * Note: koIFindSession.StartReplace() is skipped because we don't need to
+ * use this state mechanism to know when to terminate the session. Session
+ * termination is handled via .NoteUrl() and .HaveSearchedThisUrlAlready().
+ *
+ * Returns the number of replacements made.
+ */
 this._replaceAllInView = function _ReplaceAllInView(editor, view, context, pattern, replacement,
                            firstOnLine, resultsView, highlightReplacements)
 {
-    // Replace all instances of "pattern" with "replacement" in the current
-    // view context.
-    //
-    // Note: koIFindSession.StartReplace() is skipped because we don't need to
-    // use this state mechanism to know when to terminate the session. Session
-    // termination is handled via .NoteUrl() and .HaveSearchedThisUrlAlready().
-    //
-    // Returns the number of replacements made.
-
     var viewId = view.koDoc.displayPath;
     var scimoz = view.scintilla.scimoz;
     var text; // the text to search (this is a subset of whole buffer if
@@ -801,19 +813,20 @@ this._replaceAllInView = function _ReplaceAllInView(editor, view, context, patte
     return numReplacements;
 }
 
-
+/**
+ * Make the view for this find result current if necessary.
+ * XXX Note that we are presuming that Komodo does not yet allow multiple
+ *     views per document, which it eventually will. When this is possibly
+ *     we must switch to storing unique view IDs in the find session.
+ * XXX We are currently using view.koDoc.displayPath as the view's
+ *     "unique id". The view system does not currently provide a way to
+ *     getViewFromDisplayPath() so we roll our own.
+ */
 this._displayFindResult = function _DisplayFindResult(editor, findResult)
 {
     //dump("display find result: "+findResult.url+": " + findResult.start +
     //     "-" + findResult.end + ": '" + findResult.value + "'\n");
 
-    // Make the view for this find result current if necessary.
-    // XXX Note that we are presuming that Komodo does not yet allow multiple
-    //     views per document, which it eventually will. When this is possibly
-    //     we must switch to storing unique view IDs in the find session.
-    // XXX We are currently using view.koDoc.displayPath as the view's
-    //     "unique id". The view system does not currently provide a way to
-    //     getViewFromDisplayPath() so we roll our own.
     if (editor.ko.views.manager.currentView.koDoc.displayPath != findResult.url) {
         var view = ko.find._getViewFromViewId(editor, findResult.url);
         if (view == null) {
@@ -853,9 +866,11 @@ this._displayFindResult = function _DisplayFindResult(editor, findResult)
 }
 
 
+/**
+ * Mark all the given find results.
+ */
 this._markLinesForViewId = function _MarkLinesForViewId(editor, viewId, lines)
 {
-    // Mark all the given find results.
     var view = ko.find._getViewFromViewId(editor, viewId);
     if (!view) return;
 
@@ -957,14 +972,17 @@ this.getStatusbarMsgHandler = function _Find_GetStatusbarMsgHandler(editor)
 
 //---- public functions
 
+/**
+ * Called by macros -- only difference with ko.find.findNext is that
+ * contexttype is a constant, and the context needs to be created.
+ *
+ * XXX the APIs should be factored out so that these "inmacro" versions aren't
+ *     necessary.
+ */
 this.findNextInMacro = function Find_FindNextInMacro(editor, contexttype, pattern, patternType,
                               caseSensitivity, searchBackward, matchWord,
                               mode, quiet, useMRU)
 {
-    // Called by macros -- only difference with ko.find.findNext is that
-    // contexttype is
-    // a constant, and the context needs to be created.
-    // XXX the APIs should be factored out so that these "inmacro" versions aren't necessary.
     var old_patternType, old_caseSensitivity, old_searchBackward, old_matchWord;
     var context = Components.classes["@activestate.com/koFindContext;1"]
             .createInstance(Components.interfaces.koIFindContext);
@@ -990,15 +1008,17 @@ this.findNextInMacro = function Find_FindNextInMacro(editor, contexttype, patter
     _findSvc.options.matchWord = old_matchWord;
 }
 
+/**
+ * Called by macros -- only difference with ko.find.findAll is that
+ * contexttype is a constant, the context needs to be created, and options
+ * need to be set (and unset).
+ *
+ * XXX the APIs should be factored out so that these "inmacro" versions
+ *     aren't necessary.
+ */
 this.findAllInMacro = function Find_FindAllInMacro(editor, contexttype, pattern, patternType,
                              caseSensitivity, searchBackward, matchWord)
 {
-    // Called by macros -- only difference with ko.find.findAll is that
-    // contexttype is a constant, the context needs to be created, and options
-    // need to be set (and unset).
-    // XXX the APIs should be factored out so that these "inmacro" versions
-    //     aren't necessary.
-
     var old_patternType, old_caseSensitivity, old_searchBackward, old_matchWord;
     var context = Components.classes["@activestate.com/koFindContext;1"]
             .createInstance(Components.interfaces.koIFindContext);
@@ -1024,16 +1044,16 @@ this.findAllInMacro = function Find_FindAllInMacro(editor, contexttype, pattern,
     _findSvc.options.matchWord = old_matchWord;
 }
 
-
+/**
+ * Called by macros -- only difference with ko.find.markAll is that
+ * contexttype is a constant, and the context needs to be created.
+ *
+ * XXX the APIs should be factored out so that these "inmacro" versions
+ *     aren't necessary.
+ */
 this.markAllInMacro = function Find_MarkAllInMacro(editor, contexttype, pattern, patternType,
                              caseSensitivity, searchBackward, matchWord)
 {
-
-    // Called by macros -- only difference with ko.find.markAll is that
-    // contexttype is a constant, and the context needs to be created.
-    // XXX the APIs should be factored out so that these "inmacro" versions
-    //     aren't necessary.
-
     var old_patternType, old_caseSensitivity, old_searchBackward, old_matchWord;
     var context = Components.classes["@activestate.com/koFindContext;1"]
             .createInstance(Components.interfaces.koIFindContext);
@@ -1059,14 +1079,16 @@ this.markAllInMacro = function Find_MarkAllInMacro(editor, contexttype, pattern,
     _findSvc.options.matchWord = old_matchWord;
 }
 
+/**
+ * Called by macros -- only difference with ko.find.replace is that
+ * contexttype is a constant, and the context needs to be created.
+ *
+ * XXX the APIs should be factored out so that these "inmacro" versions
+ *     aren't necessary.
+ */
 this.replaceInMacro = function Find_ReplaceInMacro(editor, contexttype, pattern, replacement,
                              patternType, caseSensitivity, searchBackward, matchWord)
 {
-    // Called by macros -- only difference with ko.find.replace is that
-    // contexttype is a constant, and the context needs to be created.
-    // XXX the APIs should be factored out so that these "inmacro" versions
-    //     aren't necessary.
-
     var old_patternType, old_caseSensitivity, old_searchBackward, old_matchWord;
     var context = Components.classes["@activestate.com/koFindContext;1"]
             .createInstance(Components.interfaces.koIFindContext);
@@ -1202,9 +1224,10 @@ this.highlightClearPosition = function Find_HighlightClearPosition(scimoz, posit
 
 /**
  * Highlight all additional find matches.
- *  @param editor  - a reference to the komodo.xul main window
- *  @param context - a koIFindContext instance
- *  @param pattern - the pattern being sought
+ *
+ * @param {window} editor  - a reference to the komodo.xul main window
+ * @param {Components.interfaces.koIFindContext} context - a koIFindContext instance
+ * @param {string} pattern - the pattern being sought
  */
 this.highlightAllMatches = function Find_HighlightAllMatches(scimoz, context, pattern) {
     var prefsSvc = Components.classes["@activestate.com/koPrefService;1"].
@@ -1223,7 +1246,7 @@ this.highlightAllMatches = function Find_HighlightAllMatches(scimoz, context, pa
 /**
  * Check to see if find highlighting is enabled.
  *
- *  @returns {boolean} - true when enabled.
+ * @returns {boolean} - true when enabled.
  */
 this.highlightingEnabled = function Find_HighlightingEnabled() {
     var prefsSvc = Components.classes["@activestate.com/koPrefService;1"].
@@ -1231,26 +1254,30 @@ this.highlightingEnabled = function Find_HighlightingEnabled() {
     return prefsSvc.prefs.getBooleanPref("find-highlightEnabled");
 }
 
-// Find (and move to) the next occurrence of the given pattern.
-//
-//  "editor" is a reference to the komodo.xul main window
-//  "context" is a koIFindContext instance
-//  "pattern" is the pattern being sought
-//  "mode" (optional) is either "find" (the default) or "replace",
-//      indicating if this is in the context of a replace UI.
-//  "quiet" (optional) is a boolean indicating if UI (e.g. dialogs) may
-//      be used for presenting info, e.g. wrapped the document. Interactive
-//      search typically sets this to true. Default is false.
-//  "useMRU" (optional) is a boolean indicating if the pattern should be
-//      loaded into the find MRU. Default is true.
-//  "msgHandler" (optional) is a callback that is called for displaying
-//      a message during the find. It will be called like this:
-//          callback(level, context, message)
-//      where `level` is one of "info", "warn" or "error" and `message`
-//      is the message to display. The msgHandler is ignore if `quiet`
-//      is true. By default messages are sent to the statusbar.
-//  "highlightMatches" (optional) when set, will highlight *all* matches in
-//      the context using a scintilla indicator.
+/**
+ * Find (and move to) the next occurrence of the given pattern.
+ *
+ * @param {window} editor  - a reference to the komodo.xul main window
+ * @param {Components.interfaces.koIFindContext} context - a koIFindContext
+ * @param {string} pattern - the pattern being sought
+ * @param {string} mode (optional) is either "find" (the default) or "replace",
+ *        indicating if this is in the context of a replace UI.
+ * @param {bool} quiet (optional) is a boolean indicating if UI (e.g. dialogs)
+ *        may be used for presenting info, e.g. wrapped the document.
+ *        Interactive search typically sets this to true. Default is false.
+ * @param {bool} useMRU (optional) is a boolean indicating if the pattern should
+ *        be loaded into the find MRU. Default is true.
+ * @param msgHandler (optional) is a callback that is called for displaying
+ *        a message during the find. It will be called like this:
+ *            callback(level, context, message)
+ *        where `level` is one of "info", "warn" or "error" and `message`
+ *        is the message to display. The msgHandler is ignore if `quiet`
+ *        is true. By default messages are sent to the statusbar.
+ * @param {bool} highlightMatches (optional) when set, will highlight *all*
+ *        matches in the context using a scintilla indicator.
+ *
+ * @returns {boolean} True if the pattern was successfully found.
+ */
 this.findNext = function Find_FindNext(editor, context, pattern, mode /* ="find" */,
                        quiet /* =false */, useMRU /* =true */,
                        msgHandler /* =<statusbar notifier> */,
@@ -1331,6 +1358,24 @@ this.findNext = function Find_FindNext(editor, context, pattern, mode /* ="find"
 }
 
 
+/**
+ * Find all occurrences of the given pattern.
+ *
+ * @param {window} editor  - a reference to the komodo.xul main window
+ * @param {Components.interfaces.koIFindContext} context - a koIFindContext
+ * @param {string} pattern - the pattern being sought
+ * @param {string} patternAlias - shortened version of the pattern in use
+ * @param msgHandler (optional) is a callback that is called for displaying
+ *        a message during the find. It will be called like this:
+ *            callback(level, context, message)
+ *        where `level` is one of "info", "warn" or "error" and `message`
+ *        is the message to display. The msgHandler is ignore if `quiet`
+ *        is true. By default messages are sent to the statusbar.
+ * @param {bool} highlightMatches (optional) when set, will highlight *all*
+ *        matches in the context using a scintilla indicator.
+ *
+ * @returns {boolean} True if the pattern was successfully found.
+ */
 this.findAll = function Find_FindAll(editor, context, pattern, patternAlias,
                       msgHandler /* =<statusbar notifier> */,
                       highlightMatches /* =true */)
@@ -1436,6 +1481,22 @@ this.findAll = function Find_FindAll(editor, context, pattern, patternAlias,
 }
 
 
+/**
+ * Bookmark all occurrences of the given pattern.
+ *
+ * @param {window} editor  - a reference to the komodo.xul main window
+ * @param {Components.interfaces.koIFindContext} context - a koIFindContext
+ * @param {string} pattern - the pattern being sought
+ * @param {string} patternAlias a name for the pattern (for display to user)
+ * @param msgHandler (optional) is a callback that is called for displaying
+ *        a message during the find. It will be called like this:
+ *            callback(level, context, message)
+ *        where `level` is one of "info", "warn" or "error" and `message`
+ *        is the message to display. The msgHandler is ignore if `quiet`
+ *        is true. By default messages are sent to the statusbar.
+ *
+ * @returns {boolean} True if there were bookmarks made.
+ */
 this.markAll = function Find_MarkAll(editor, context, pattern, patternAlias,
                       msgHandler /* =<statusbar notifier> */)
 {
@@ -1508,6 +1569,22 @@ this.markAll = function Find_MarkAll(editor, context, pattern, patternAlias,
 }
 
 
+/**
+ * Replace one occurrence of the given pattern.
+ *
+ * @param {window} editor  - a reference to the komodo.xul main window
+ * @param {Components.interfaces.koIFindContext} context - a koIFindContext
+ * @param {string} pattern - the pattern being sought
+ * @param {string} replacement - the pattern to replace with
+ * @param msgHandler (optional) is a callback that is called for displaying
+ *        a message during the find. It will be called like this:
+ *            callback(level, context, message)
+ *        where `level` is one of "info", "warn" or "error" and `message`
+ *        is the message to display. The msgHandler is ignore if `quiet`
+ *        is true. By default messages are sent to the statusbar.
+ *
+ * @returns {boolean} True if there was a replacement made.
+ */
 this.replace = function Find_Replace(editor, context, pattern, replacement,
                       msgHandler /* =<statusbar notifier> */)
 {
@@ -1581,13 +1658,25 @@ this.replace = function Find_Replace(editor, context, pattern, replacement,
 
 
 /**
- * TODO: add other params
- * ...
+ * Replace all occurrences of the given pattern.
+ *
+ * @param {window} editor  - a reference to the komodo.xul main window
+ * @param {Components.interfaces.koIFindContext} context - a koIFindContext
+ * @param {string} pattern - the pattern being sought
+ * @param {string} replacement - the pattern to replace with
+ * @param {boolean} showReplaceResults - whether to show the results tab
  * @param {boolean} firstOnLine A boolean indicating, if true, that only
  *      the first hit on a line should be replaced. Default is false. (This
  *      is to support Vi's replace with the 'g' flag.)
+ * @param msgHandler (optional) is a callback that is called for displaying
+ *        a message during the find. It will be called like this:
+ *            callback(level, context, message)
+ *        where `level` is one of "info", "warn" or "error" and `message`
+ *        is the message to display. The msgHandler is ignore if `quiet`
+ *        is true. By default messages are sent to the statusbar.
  * @param {boolean} highlightReplacements To highlight the replacements made.
- * ...
+ *
+ * @returns {boolean} True if there were replacements made.
  */
 this.replaceAll = function Find_ReplaceAll(editor, context, pattern, replacement,
                          showReplaceResults /* =false */,
@@ -1736,12 +1825,14 @@ this.replaceAll = function Find_ReplaceAll(editor, context, pattern, replacement
  * Find all hits in files.
  *
  * @param {DOMWindow} editor the main Komodo window in which to work
- * @param context {Components.interfaces.koIFindContext}
+ * @param {Components.interfaces.koIFindContext} context
  * @param {string} pattern the pattern to search for.
- * @param {string} patternAlias a name for the pattern (for display to
- *      the user)
+ * @param {string} patternAlias a name for the pattern (for display to user)
  * @param {callback} msgHandler is an optional callback for displaying a
  *      message to the user. See ko.find.findNext documentation for details.
+ *
+ * @returns {boolean} True if the operation was successful. False if there
+ *      was an error or find was aborted.
  */
 this.findAllInFiles = function Find_FindAllInFiles(editor, context, pattern, patternAlias,
                              msgHandler /* =<statusbar notifier> */)
@@ -1786,6 +1877,7 @@ this.findAllInFiles = function Find_FindAllInFiles(editor, context, pattern, pat
  *      true by default.
  * @param {callback} msgHandler is an optional callback for displaying a
  *      message to the user. See ko.find.findNext documentation for details.
+ *
  * @returns {boolean} True if the operation was successful. False if there
  *      was an error or replacement was aborted.
  */
