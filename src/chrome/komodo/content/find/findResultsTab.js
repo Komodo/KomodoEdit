@@ -14,7 +14,7 @@
  * The Original Code is Komodo code.
  * 
  * The Initial Developer of the Original Code is ActiveState Software Inc.
- * Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
+ * Portions created by ActiveState Software Inc are Copyright (C) 2000-2011
  * ActiveState Software Inc. All Rights Reserved.
  * 
  * Contributor(s):
@@ -34,6 +34,14 @@
  * 
  * ***** END LICENSE BLOCK ***** */
 
+if (typeof(ko) == 'undefined') {
+    var ko = {};
+}
+
+if (typeof(ko.findresults)!='undefined') {
+    ko.logging.getLogger('').warn("ko.findresults was already loaded, re-creating it.\n");
+}
+
 /* -*- Mode: JavaScript; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 2 -*-
  *
  * Komodo's Find and Replace results tab control (a tab in the output pane)
@@ -41,6 +49,11 @@
  * TODO:
  *  - try to refind results that have moved from buffer editting since search
  */
+ko.findresults = {};
+
+(function() {
+
+//---- locals
 
 var findResultsLog = ko.logging.getLogger('findResultsTab');
 //findResultsLog.setLevel(ko.logging.LOG_DEBUG);
@@ -49,7 +62,7 @@ var findResultsLog = ko.logging.getLogger('findResultsTab');
 //---- the new FindResultsTab functionality (new ones are created on the fly)
 //
 // Usage:
-//      var manager = FindResultsTab_GetTab(1); // or 2
+//      var manager = ko.findresults.getTab(1); // or 2
 //      if (manager == null) {
 //          // user aborted
 //      }
@@ -61,7 +74,10 @@ var findResultsLog = ko.logging.getLogger('findResultsTab');
 
 // Mapping from find results tab id (1 or 2) to a tab manager instance.
 // If the key's value is null the tab XUL needs to be created.
-var _gFindResultsTab_managers = {1: null, 2: null};
+var _managers = {1: null, 2: null};
+
+// Expose this local - required by the TODO extension.
+this.managers = _managers;
 
 // Return a usable (not busy, not locked, cleared) Find Results tab manager.
 //
@@ -78,11 +94,11 @@ var _gFindResultsTab_managers = {1: null, 2: null};
 // XXX: Am I going to go to the trouble of ensuring synchronicity here? I.e.
 // this "GetTab" method would have to lock out other requests for this one
 // until released. Dunno.
-function FindResultsTab_GetTab(preferredId /* =1 */)
+this.getTab = function FindResultsTab_GetTab(preferredId /* =1 */)
 {
     if (typeof(preferredId) == "undefined" || preferredId == null) preferredId = 1;
 
-    findResultsLog.debug("FindResultsTab_GetTab(preferredId="+preferredId+")\n");
+    findResultsLog.debug("getTab(preferredId="+preferredId+")\n");
     try {
         var otherId = null;
         if (preferredId == 1) {
@@ -95,22 +111,22 @@ function FindResultsTab_GetTab(preferredId /* =1 */)
 
         // Determine which find results tab will be used.
         var id, answer;
-        if (_gFindResultsTab_managers[preferredId] == null) {
+        if (_managers[preferredId] == null) {
             id = preferredId;
-        } else if (!_gFindResultsTab_managers[preferredId].isBusy()
-                   && !_gFindResultsTab_managers[preferredId].is_locked) {
+        } else if (!_managers[preferredId].isBusy()
+                   && !_managers[preferredId].is_locked) {
             id = preferredId;
-        } else if (_gFindResultsTab_managers[otherId] == null ||
-                   (!_gFindResultsTab_managers[otherId].isBusy()
-                    && !_gFindResultsTab_managers[otherId].is_locked)) {
+        } else if (_managers[otherId] == null ||
+                   (!_managers[otherId].isBusy()
+                    && !_managers[otherId].is_locked)) {
             // The preferred tab is busy or locked, but the other one is
             // available: just use the other one.
             id = otherId;
         } else {
             // Both are busy or locked. Offer to stop/unlock the current one.
-            var action_1 = (_gFindResultsTab_managers[1].isBusy()
+            var action_1 = (_managers[1].isBusy()
                             ? "Stop" : "Unlock");
-            var action_2 = (_gFindResultsTab_managers[2].isBusy()
+            var action_2 = (_managers[2].isBusy()
                             ? "Stop" : "Unlock");
             answer = ko.dialogs.customButtons(
                 "Both Find Results tabs are busy or locked. Would you "
@@ -122,10 +138,10 @@ function FindResultsTab_GetTab(preferredId /* =1 */)
                 null, // text
                 null); // title
             if (answer == "Stop and Use Tab 1") {
-                _gFindResultsTab_managers[1].stopSearch()
+                _managers[1].stopSearch()
                 id = 1;
             } else if (answer == "Stop and Use Tab 2") {
-                _gFindResultsTab_managers[2].stopSearch()
+                _managers[2].stopSearch()
                 id = 2;
             } else if (answer == "Unlock and Use Tab 1") {
                 id = 1;
@@ -137,10 +153,10 @@ function FindResultsTab_GetTab(preferredId /* =1 */)
         }
 
         // Create the tab or clear it and return its manager.
-        var manager = _gFindResultsTab_managers[id];
+        var manager = _managers[id];
         if (manager == null) {
-            manager = _FindResultsTab_Create(id);
-            _gFindResultsTab_managers[id] = manager;
+            manager = ko.findresults.create(id);
+            _managers[id] = manager;
         } else {
             manager.clear();
         }
@@ -151,9 +167,9 @@ function FindResultsTab_GetTab(preferredId /* =1 */)
     return null;
 }
 
-function FindResultsTab_GetManager(id)
+this.getManager = function FindResultsTab_GetManager(id)
 {
-    return _gFindResultsTab_managers[id];
+    return _managers[id];
 }
 
 // Create/uncollapse a new find results tab and return a manager object.
@@ -165,7 +181,7 @@ function FindResultsTab_GetManager(id)
 // (1) we are limiting to two so we can and (2) dynamically creating them
 // ran into the old Komodo problem of the UI not updating until the mouse
 // is moved.
-function _FindResultsTab_Create(id)
+this.create = function _FindResultsTab_Create(id)
 {
     if (1) { // just uncollapsed the hardcoded find results tabs
         var tab = document.getElementById("findresults"+id+"_tab");
@@ -229,7 +245,7 @@ function _FindResultsTab_Create(id)
         button0.setAttribute("id", idprefix+"-jumptoprev-button");
         button0.setAttribute("class", "list-item-up-icon button-toolbar-a");
         button0.setAttribute("tooltiptext", "Jump To Previous Result");
-        button0.setAttribute("oncommand", "FindResultsTab_GetManager("+id+").jumpToPrevResult();");
+        button0.setAttribute("oncommand", "ko.findresults.getManager("+id+").jumpToPrevResult();");
         //            <button id="findresultsN-jumptonext-button"
         //                    class="list-item-down-icon button-toolbar-a"
         //                    tooltiptext="Jump To Next Result"
@@ -238,7 +254,7 @@ function _FindResultsTab_Create(id)
         button1.setAttribute("id", idprefix+"-jumptonext-button");
         button1.setAttribute("class", "list-item-down-icon button-toolbar-a");
         button1.setAttribute("tooltiptext", "Jump To Next Result");
-        button1.setAttribute("oncommand", "FindResultsTab_GetManager("+id+").jumpToNextResult();");
+        button1.setAttribute("oncommand", "ko.findresults.getManager("+id+").jumpToNextResult();");
         //            <button id="findresultsN-stopsearch-button"
         //                    class="find-stop-icon button-toolbar-a"
         //                    tooltiptext="Stop Search"
@@ -249,7 +265,7 @@ function _FindResultsTab_Create(id)
         //XXX Want a stop-sign-type icon for this. Or could use the buttondbgStop button that we have now.
         button2.setAttribute("class", "find-stop-icon button-toolbar-a");
         button2.setAttribute("tooltiptext", "Stop Search");
-        button2.setAttribute("oncommand", "FindResultsTab_GetManager("+id+").stopSearch();");
+        button2.setAttribute("oncommand", "ko.findresults.getManager("+id+").stopSearch();");
         button2.setAttribute("disabled", "true");
         //            <button id="findresultsN-redosearch-button"
         //                    class="list-item-down-icon button-toolbar-a"
@@ -261,7 +277,7 @@ function _FindResultsTab_Create(id)
         //XXX Want a recycle-type icon for this.
         button3.setAttribute("class", "list-item-down-icon button-toolbar-a");
         button3.setAttribute("tooltiptext", "Redo Search");
-        button3.setAttribute("oncommand", "FindResultsTab_GetManager("+id+").redoSearch();");
+        button3.setAttribute("oncommand", "ko.findresults.getManager("+id+").redoSearch();");
         button3.setAttribute("disabled", "true");
         // 'Close Tab' button not necessary with current Find Results tab policy.
         ////            <button id="findresultsN-close-button"
@@ -273,7 +289,7 @@ function _FindResultsTab_Create(id)
         //button4.setAttribute("id", idprefix+"-closetab-button");
         //button4.setAttribute("class", "small-x-icon button-toolbar-a");
         //button4.setAttribute("tooltiptext", "Close Tab");
-        //button4.setAttribute("oncommand", "FindResultsTab_GetManager("+id+").closeTab();");
+        //button4.setAttribute("oncommand", "ko.findresults.getManager("+id+").closeTab();");
         //button4.setAttribute("disabled", "true");
         //        </hbox>
         hbox.appendChild(label);
@@ -290,8 +306,8 @@ function _FindResultsTab_Create(id)
         tree.setAttribute("id", idprefix);
         tree.setAttribute("flex", "1");
         tree.setAttribute("seltype", "single");
-        tree.setAttribute("onclick", "FindResultsTab_GetManager("+id+").onClick(event);");
-        tree.setAttribute("onkeypress", "return FindResultsTab_GetManager("+id+").onKeyPress(event);");
+        tree.setAttribute("onclick", "ko.findresults.getManager("+id+").onClick(event);");
+        tree.setAttribute("onkeypress", "return ko.findresults.getManager("+id+").onKeyPress(event);");
         //            <treecols>
         treecols = document.createElement("treecols");
         //                <treecol primary="true"
@@ -352,19 +368,19 @@ function _FindResultsTab_Create(id)
         tabpanels.appendChild(tabpanel);
     }
 
-    var manager = new FindResultsTabManager();
+    var manager = new ko.findresults.findResultsTabManager();
     manager.initialize(id);
     return manager;
 }
 
 
-function FindResultsTabManager() { }
-FindResultsTabManager.prototype.constructor = FindResultsTabManager;
+this.findResultsTabManager = function FindResultsTabManager() { }
+ko.findresults.findResultsTabManager.prototype.constructor = ko.findresults.findResultsTabManager;
 
-FindResultsTabManager.prototype.initialize = function(id)
+ko.findresults.findResultsTabManager.prototype.initialize = function(id)
 {
     try {
-        this.id = id; // Number identifying this FindResultsTabManager from others.
+        this.id = id; // Number identifying this ko.findresults.findResultsTabManager from others.
         this._idprefix = "findresults"+this.id;
 
         // Should be called in the onload handler for the window containing the
@@ -395,7 +411,7 @@ FindResultsTabManager.prototype.initialize = function(id)
 }
 
 
-FindResultsTabManager.prototype.show = function(focus /* =false */)
+ko.findresults.findResultsTabManager.prototype.show = function(focus /* =false */)
 {
     if (typeof(focus) == "undefined" || focus == null) focus = false;
 
@@ -422,10 +438,10 @@ FindResultsTabManager.prototype.show = function(focus /* =false */)
 }
 
 
-FindResultsTabManager.prototype.clear = function()
+ko.findresults.findResultsTabManager.prototype.clear = function()
 {
     // Clear the list of find results.
-    findResultsLog.info("FindResultsTabManager.clear()");
+    findResultsLog.info("findResultsTabManager.clear()");
     this._searchInProgress = null;
     this._pattern = null;
     this._patternAlias = null;
@@ -453,17 +469,17 @@ FindResultsTabManager.prototype.clear = function()
 }
 
 
-FindResultsTabManager.prototype.updateFilter = function()
+ko.findresults.findResultsTabManager.prototype.updateFilter = function()
 {
-    findResultsLog.info("FindResultsTabManager.updateFilter()");
+    findResultsLog.info("findResultsTabManager.updateFilter()");
     var searchTextbox = document.getElementById(this._idprefix + "-filter-textbox");
     this.view.SetFilterText(searchTextbox.value);
 }
 
 
-FindResultsTabManager.prototype.jumpToPrevResult = function()
+ko.findresults.findResultsTabManager.prototype.jumpToPrevResult = function()
 {
-    findResultsLog.info("FindResultsTabManager.jumpToPrevResult()");
+    findResultsLog.info("findResultsTabManager.jumpToPrevResult()");
     var treeWidget = document.getElementById(this._idprefix);
     if (treeWidget.treeBoxObject.view.rowCount < 1) {
         ko.dialogs.alert("Could not find previous result because the "+
@@ -485,9 +501,9 @@ FindResultsTabManager.prototype.jumpToPrevResult = function()
 }
 
 
-FindResultsTabManager.prototype.jumpToNextResult = function()
+ko.findresults.findResultsTabManager.prototype.jumpToNextResult = function()
 {
-    findResultsLog.info("FindResultsTabManager.jumpToNextResult()");
+    findResultsLog.info("findResultsTabManager.jumpToNextResult()");
     var treeWidget = document.getElementById(this._idprefix);
     if (treeWidget.treeBoxObject.view.rowCount < 1) {
         ko.dialogs.alert("Could not find next result because the find results "+
@@ -508,9 +524,9 @@ FindResultsTabManager.prototype.jumpToNextResult = function()
 }
 
 
-FindResultsTabManager.prototype.toggleLockResults = function()
+ko.findresults.findResultsTabManager.prototype.toggleLockResults = function()
 {
-    findResultsLog.info("FindResultsTabManager.toggleLockResults()");
+    findResultsLog.info("findResultsTabManager.toggleLockResults()");
     try {
         this.is_locked = ! this.is_locked;
         var lockButton = document.getElementById(this._idprefix+"-lock-button");
@@ -534,7 +550,7 @@ FindResultsTabManager.prototype.toggleLockResults = function()
 }
 
 
-FindResultsTabManager.prototype.stopSearch = function()
+ko.findresults.findResultsTabManager.prototype.stopSearch = function()
 {
     var findSvc = Components.classes["@activestate.com/koFindService;1"].
               getService(Components.interfaces.koIFindService);
@@ -543,7 +559,7 @@ FindResultsTabManager.prototype.stopSearch = function()
 }
 
 
-FindResultsTabManager.prototype.undoReplace = function()
+ko.findresults.findResultsTabManager.prototype.undoReplace = function()
 {
     // Pass off to the "Undo Replacements" dialog.
     // This dialog runs the undo and returns true (success) or false
@@ -564,14 +580,14 @@ FindResultsTabManager.prototype.undoReplace = function()
 
 
 //XXX Not implemented yet.
-//FindResultsTabManager.prototype.redoSearch = function()
+//ko.findresults.findResultsTabManager.prototype.redoSearch = function()
 //{
 //    alert('NYI redoSearch');
 //}
 
 
 // 'Close Tab' button not necessary with current Find Results tab policy.
-//FindResultsTabManager.prototype.closeTab = function()
+//ko.findresults.findResultsTabManager.prototype.closeTab = function()
 //{
 //    try {
 //        // Warn if the search is still in progress, offer to stop it and.
@@ -603,14 +619,14 @@ FindResultsTabManager.prototype.undoReplace = function()
 //        // Reclaim the id number.
 //        //XXX Have to figure out our Find Results tab policy before working
 //        //    on this.
-//        //delete _gFindResultsTab_managers[this.id];
+//        //delete _managers[this.id];
 //    } catch(ex) {
 //        findResultsLog.exception(ex);
 //    }
 //}
 
 
-FindResultsTabManager.prototype.setDescription = function(subDesc /* =null */,
+ko.findresults.findResultsTabManager.prototype.setDescription = function(subDesc /* =null */,
                                                           important /* =false */)
 {
     if (typeof(subDesc) == "undefined") subDesc = null;
@@ -638,7 +654,7 @@ FindResultsTabManager.prototype.setDescription = function(subDesc /* =null */,
 }
 
 
-FindResultsTabManager.prototype._getBaseDescription = function(tense)
+ko.findresults.findResultsTabManager.prototype._getBaseDescription = function(tense)
 {
     // Add a description of the find process.
     var baseDesc = "";
@@ -706,7 +722,7 @@ FindResultsTabManager.prototype._getBaseDescription = function(tense)
  * @param {Boolean} opSupportsUndo Indicates in this find/replace
  *      operation supports undo. Optional, default false.
  */
-FindResultsTabManager.prototype.configure = function(
+ko.findresults.findResultsTabManager.prototype.configure = function(
     pattern, patternAlias, repl, context, options,
     opSupportsUndo /* =false */)
 {
@@ -757,7 +773,7 @@ FindResultsTabManager.prototype.configure = function(
 }
 
 
-FindResultsTabManager.prototype.searchStarted = function()
+ko.findresults.findResultsTabManager.prototype.searchStarted = function()
 {
     this._searchInProgress = true;
 
@@ -783,7 +799,7 @@ FindResultsTabManager.prototype.searchStarted = function()
 }
 
 
-FindResultsTabManager.prototype.isBusy = function()
+ko.findresults.findResultsTabManager.prototype.isBusy = function()
 {
     return this._searchInProgress;
 }
@@ -803,7 +819,7 @@ FindResultsTabManager.prototype.isBusy = function()
  *      "Replace All in Files" operation. This is used to support undo.
  *      Null if not applicable.
  */
-FindResultsTabManager.prototype.searchFinished = function(
+ko.findresults.findResultsTabManager.prototype.searchFinished = function(
     success, numResults /* =null */, numFiles /* =null */,
     numFilesSearched /* =null */, journalId /* =null */)
 {
@@ -883,11 +899,11 @@ FindResultsTabManager.prototype.searchFinished = function(
 }
 
 
-FindResultsTabManager.prototype.addReplaceResult = function(
+ko.findresults.findResultsTabManager.prototype.addReplaceResult = function(
     type, url, startIndex, endIndex, value, replacement, fileName,
     lineNum, columnNum, context)
 {
-    findResultsLog.info("FindResultsTabManager.addReplaceResult(...)");
+    findResultsLog.info("findResultsTabManager.addReplaceResult(...)");
     //XXX should raise exception if not in replace all "mode"
     this.view.AddReplaceResult(type, url, startIndex, endIndex, value,
                                replacement, fileName, lineNum,
@@ -910,9 +926,9 @@ FindResultsTabManager.prototype.addReplaceResult = function(
 }
 
 
-FindResultsTabManager.prototype.onKeyPress = function(event)
+ko.findresults.findResultsTabManager.prototype.onKeyPress = function(event)
 {
-    findResultsLog.info("FindResultsTabManager.onKeyPress()");
+    findResultsLog.info("findResultsTabManager.onKeyPress()");
     if (event.keyCode == 13) {
         this._doubleClick();
         event.stopPropagation();
@@ -922,9 +938,9 @@ FindResultsTabManager.prototype.onKeyPress = function(event)
 }
 
 
-FindResultsTabManager.prototype.onClick = function(event)
+ko.findresults.findResultsTabManager.prototype.onClick = function(event)
 {
-    findResultsLog.info("FindResultsTabManager.onClick(event)");
+    findResultsLog.info("findResultsTabManager.onClick(event)");
 
     // c.f. mozilla/mailnews/base/resources/content/threadPane.js
     var t = event.originalTarget;
@@ -941,14 +957,14 @@ FindResultsTabManager.prototype.onClick = function(event)
 }
 
 
-FindResultsTabManager.prototype._columnClick = function(columnID)
+ko.findresults.findResultsTabManager.prototype._columnClick = function(columnID)
 {
     this.view.Sort(columnID);
     this._updateSortIndicators(columnID);
 }
 
 
-FindResultsTabManager.prototype._doubleClick = function()
+ko.findresults.findResultsTabManager.prototype._doubleClick = function()
 {
     // Jump to the find/replace result.
     try {
@@ -1088,7 +1104,7 @@ FindResultsTabManager.prototype._doubleClick = function()
 }
 
 
-FindResultsTabManager.prototype._updateSortIndicators = function(sortId)
+ko.findresults.findResultsTabManager.prototype._updateSortIndicators = function(sortId)
 {
     var sortedColumn = null;
 
@@ -1122,7 +1138,7 @@ FindResultsTabManager.prototype._updateSortIndicators = function(sortId)
 }
 
 
-FindResultsTabManager.prototype.QueryInterface = function (iid) {
+ko.findresults.findResultsTabManager.prototype.QueryInterface = function (iid) {
     if (!iid.equals(Components.interfaces.koIFindResultsTabManager) &&
         !iid.equals(Components.interfaces.nsISupports)) {
         throw Components.results.NS_ERROR_NO_INTERFACE;
@@ -1141,20 +1157,20 @@ FindResultsTabManager.prototype.QueryInterface = function (iid) {
 // algorithm: if there is a "Find Results N" tab visible, then use it,
 // silently do nothing.
 //
-function FindResultsTab_NextResult()
+this.nextResult = function FindResultsTab_NextResult()
 {
-    findResultsLog.info("FindResultsTab_NextResult()");
+    findResultsLog.info("nextResult()");
     try {
         if (! ko.uilayout.outputPaneShown()) {
             return;
         }
 
         var tabName, tabId, tab, manager;
-        for (tabName in _gFindResultsTab_managers) {
+        for (tabName in _managers) {
             tabId = "findresults"+tabName+"_tab";
             tab = document.getElementById(tabId);
             if (tab && tab.selected) {
-                manager = _gFindResultsTab_managers[tabName];
+                manager = _managers[tabName];
                 manager.jumpToNextResult();
                 break;
             }
@@ -1164,3 +1180,15 @@ function FindResultsTab_NextResult()
     }
 }
 
+
+}).apply(ko.findresults);
+
+/**
+ * @deprecated since 7.0
+ */
+ko.logging.globalDeprecatedByAlternative("FindResultsTab_GetTab", "ko.findresults.getTab");
+ko.logging.globalDeprecatedByAlternative("FindResultsTab_GetManager", "ko.findresults.getManager");
+ko.logging.globalDeprecatedByAlternative("_FindResultsTab_Create", "ko.findresults.create");
+ko.logging.globalDeprecatedByAlternative("FindResultsTabManager", "ko.findresults.findResultsTabManager");
+ko.logging.globalDeprecatedByAlternative("FindResultsTab_NextResult", "ko.findresults.nextResult");
+ko.logging.globalDeprecatedByAlternative("_gFindResultsTab_managers", "ko.findresults.managers");
