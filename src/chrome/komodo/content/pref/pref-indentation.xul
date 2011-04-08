@@ -149,7 +149,6 @@ function getPrefsForLanguage(name) {
     return o;
 }
 function changeNewLanguage(item, name)  {
-    var encoding;
     var langlist = document.getElementById("langList");
 
     if (!name) name = langlist.selection;
