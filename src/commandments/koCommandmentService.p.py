@@ -434,8 +434,6 @@ class KoCommandmentService(object):
 
     def __init__(self):
         global _gObserverSvc
-        proxyMgr = components.classes["@mozilla.org/xpcomproxy;1"]\
-            .getService(components.interfaces.nsIProxyObjectManager)
         observerSvc = components.classes["@mozilla.org/observer-service;1"]\
             .getService(components.interfaces.nsIObserverService)
         _gObserverSvc = getProxyForObject(None,

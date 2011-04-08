@@ -37,7 +37,7 @@
 
 import sys
 from xpcom import components, nsError, ServerException, COMException
-from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC
+from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC, getProxyForObject
 
 
 
@@ -58,9 +58,7 @@ class KoMacroService:
 
         # not sure why we can't create proxies -- I'm thinking that we need
         # to because the JS notification hangs the main window.
-        #self._proxyMgr = components.classes["@mozilla.org/xpcomproxy;1"].\
-        #    getService(components.interfaces.nsIProxyObjectManager)
-        #self._proxyObserverSvc = self._proxyMgr.getProxyForObject(None,
+        #self._proxyObserverSvc = getProxyForObject(1,
         #    components.interfaces.nsIObserverService, self._observerSvc,
         #    PROXY_ALWAYS | PROXY_ASYNC)
 

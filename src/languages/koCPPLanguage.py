@@ -35,7 +35,7 @@
 # ***** END LICENSE BLOCK *****
 
 from xpcom import components, nsError, ServerException
-from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC
+from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC, getProxyForObject
 from koLintResult import *
 from koLintResults import koLintResults
 import os, sys, re
@@ -255,11 +255,9 @@ class KoCPPCompileLinter:
 
         self._lastErrorSvc = components.classes["@activestate.com/koLastErrorService;1"].\
             getService(components.interfaces.koILastErrorService)
-        self._proxyMgr = components.classes["@mozilla.org/xpcomproxy;1"].\
-            getService(components.interfaces.nsIProxyObjectManager)
         self._prefSvc = components.classes["@activestate.com/koPrefService;1"].\
             getService(components.interfaces.koIPrefService)
-        self._prefProxy = self._proxyMgr.getProxyForObject(None,
+        self._prefProxy = getProxyForObject(1,
             components.interfaces.koIPrefService, self._prefSvc,
             PROXY_ALWAYS | PROXY_SYNC)
         

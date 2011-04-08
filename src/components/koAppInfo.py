@@ -38,7 +38,7 @@
 import sys, os, re, string
 import tempfile
 from xpcom import components, ServerException, COMException, nsError
-from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC
+from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC, getProxyForObject
 from xpcom.server import WrapObject, UnwrapObject
 
 import process
@@ -60,11 +60,9 @@ class KoAppInfoEx:
         self._configPath = ''
         self.installed = 0
 
-        self._proxyMgr = components.classes["@mozilla.org/xpcomproxy;1"].\
-            getService(components.interfaces.nsIProxyObjectManager)
         self._prefSvc = components.classes["@activestate.com/koPrefService;1"].\
             getService(components.interfaces.koIPrefService)
-        self.prefService = self._proxyMgr.getProxyForObject(None,
+        self.prefService = getProxyForObject(1,
             components.interfaces.koIPrefService, self._prefSvc,
             PROXY_ALWAYS | PROXY_SYNC)
 

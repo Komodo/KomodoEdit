@@ -38,7 +38,7 @@
 
 from xpcom import components, nsError, ServerException
 from xpcom.server import UnwrapObject
-from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC
+from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC, getProxyForObject
 from koLintResult import *
 from koLintResults import koLintResults
 import os, sys, re
@@ -55,11 +55,9 @@ class CommonJSLinter(object):
         self.infoSvc = components.classes["@activestate.com/koInfoService;1"].\
             getService(components.interfaces.koIInfoService)
         self.isDebugBuild = self.infoSvc.buildType == "debug"
-        proxyMgr = components.classes["@mozilla.org/xpcomproxy;1"].\
-                    getService(components.interfaces.nsIProxyObjectManager)
         prefSvc = components.classes["@activestate.com/koPrefService;1"].\
                     getService(components.interfaces.koIPrefService)
-        self._prefProxy = proxyMgr.getProxyForObject(None,
+        self._prefProxy = getProxyForObject(1,
                     components.interfaces.koIPrefService, prefSvc,
                     PROXY_ALWAYS | PROXY_SYNC)
         

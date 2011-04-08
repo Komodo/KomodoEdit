@@ -39,7 +39,7 @@
 
 import sys, os, operator
 from xpcom import components, nsError, ServerException, COMException
-from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC
+from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC, getProxyForObject
 import which
 import logging
 import shutil
@@ -67,12 +67,10 @@ class koSysUtils:
         self.R_OK = os.R_OK
         self.W_OK = os.W_OK
         self.X_OK = os.X_OK
-        self._proxyMgr = components.classes["@mozilla.org/xpcomproxy;1"].\
-            getService(components.interfaces.nsIProxyObjectManager)
         # XXX Should just cache the user env locally. It ain't changin'.
         self._userEnvSvc = components.classes["@activestate.com/koUserEnviron;1"].\
             getService(components.interfaces.koIUserEnviron)
-        self._userEnvProxy = self._proxyMgr.getProxyForObject(None,
+        self._userEnvProxy = getProxyForObject(1,
             components.interfaces.koIUserEnviron, self._userEnvSvc,
             PROXY_ALWAYS | PROXY_SYNC)
         self._manager = None

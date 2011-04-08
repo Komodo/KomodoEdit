@@ -185,7 +185,7 @@ else:
     try:
         from xpcom import components, _xpcom
         from xpcom.server import WrapObject, UnwrapObject
-        from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC
+        from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC, getProxyForObject
         _xpcom_ = True
     except ImportError:
         _xpcom_ = False
@@ -199,11 +199,9 @@ if _xpcom_:
         """
         _com_interfaces_ = [components.interfaces.nsIObserver]
         def __init__(self):
-            proxyMgr = components.classes["@mozilla.org/xpcomproxy;1"].\
-                getService(components.interfaces.nsIProxyObjectManager)
             self._prefSvc = components.classes["@activestate.com/koPrefService;1"].\
                                     getService(components.interfaces.koIPrefService)
-            self._prefsProxy = proxyMgr.getProxyForObject(None,
+            self._prefsProxy = getProxyForObject(1,
                 components.interfaces.koIPrefService, self._prefSvc,
                 PROXY_ALWAYS | PROXY_SYNC)
             

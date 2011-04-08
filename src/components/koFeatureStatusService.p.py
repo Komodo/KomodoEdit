@@ -43,7 +43,7 @@ import Queue
 import logging
 import which
 from xpcom import components, nsError, ServerException, COMException
-from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC
+from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC, getProxyForObject
 from xpcom.server import WrapObject, UnwrapObject
 import koprocessutils
 
@@ -98,24 +98,27 @@ class KoFeatureStatusService:
         self._fsThreadExiting = threading.Event()
 
         # Get a schwack of services and components and proxy them all.
-        self._proxyMgr = components.classes["@mozilla.org/xpcomproxy;1"].\
-            getService(components.interfaces.nsIProxyObjectManager)
         self._observerSvc = components.classes["@mozilla.org/observer-service;1"].\
             getService(components.interfaces.nsIObserverService)
-        self._observerProxy = self._proxyMgr.getProxyForObject(None,
-            components.interfaces.nsIObserverService, self._observerSvc,
-            PROXY_ALWAYS | PROXY_ASYNC)
+        self._observerProxy = getProxyForObject(1,
+                                components.interfaces.nsIObserverService,
+                                self._observerSvc,
+                                PROXY_ALWAYS | PROXY_ASYNC)
 
         self._lastErrorSvc = components.classes["@activestate.com/koLastErrorService;1"].\
             getService(components.interfaces.koILastErrorService)
-        self._lastErrorProxy = self._proxyMgr.getProxyForObject(None,
-            components.interfaces.koILastErrorService, self._lastErrorSvc,
-            PROXY_ALWAYS | PROXY_SYNC)
+        self._lastErrorProxy = getProxyForObject(1,
+                                components.interfaces.koILastErrorService,
+                                self._lastErrorSvc,
+                                PROXY_ALWAYS | PROXY_SYNC)
+
         self._prefSvc = components.classes["@activestate.com/koPrefService;1"].\
             getService(components.interfaces.koIPrefService)
-        self._prefProxy = self._proxyMgr.getProxyForObject(None,
-            components.interfaces.koIPrefService, self._prefSvc,
-            PROXY_ALWAYS | PROXY_SYNC)
+        self._prefProxy = getProxyForObject(1,
+                                components.interfaces.koIPrefService,
+                                self._prefSvc,
+                                PROXY_ALWAYS | PROXY_SYNC)
+
         self._perlInfoEx = components.classes["@activestate.com/koAppInfoEx?app=Perl;1"].\
             createInstance(components.interfaces.koIAppInfoEx)
         self._phpInfoEx = components.classes["@activestate.com/koAppInfoEx?app=PHP;1"].\
