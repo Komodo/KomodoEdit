@@ -877,10 +877,12 @@ class Database(object):
               and cd1.path_id = p1.id
               and cd2.path_id = p2.id
               and substr(p2.path, 1, length(p1.path)) = p1.path
+              and substr(p2.path, length(p1.path) + 1, 1) = "%s"
               and cd3.type = "snippet" and cd3.name like ?
               and cd3.path_id = p3.id
               and substr(p3.path, 1, length(p2.path)) = p2.path
-              ;""" %  q_subnames
+              and substr(p3.path, length(p2.path) + 1, 1) = "%s"
+              ;""" %  (q_subnames, os.path.sep, os.path.sep)
         value_tuple = tuple(subnames + [abbrev])
         cu.execute(stmt, value_tuple)
         final_rows = []
@@ -917,6 +919,7 @@ class Database(object):
               and p1.id = cd1.path_id
               and p3.id = cd3.path_id 
               and substr(p3.path, 1, length(p1.path)) = p1.path -- snippet is descendant of abbrev
+              and substr(p3.path, length(p1.path) + 1, 1) = "%s"
               and h3.path_id = p3.id
               and h3.parent_path_id = h4.path_id
               and h4.path_id = p4.id -- p4 is the snippet's parent
@@ -924,8 +927,9 @@ class Database(object):
               and p2.id = cd2.path_id
               and p2.path != p4.path -- if snippet's parent is the folder, this is query #1
               and substr(p2.path, 1, length(p4.path)) = p4.path
+              and substr(p2.path, length(p4.path) + 1, 1) = "%s"
               ;
-    """ % q_subnames
+    """ % (os.path.sep, q_subnames, os.path.sep)
         value_tuple = tuple([abbrev] + subnames)
         cu.execute(stmt, value_tuple)
         # Add True to show that these snippets were found *above* the folder
