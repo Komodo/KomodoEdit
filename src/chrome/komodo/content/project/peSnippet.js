@@ -397,7 +397,7 @@ this.snippetInsertImpl = function snippetInsertImpl(snippet, view /* =<curr view
         
         var lines = text.split(eol_str);
         scimoz.lineEnd();
-        for (i = 1; i < lines.length; i++) {
+        for (var i = 1; i < lines.length; i++) {
             // Turn the snippet tabs into a space-equivalent value,
             // we only need to do this for starting whitespace though.
             var match = lines[i].match(leading_ws_re);
