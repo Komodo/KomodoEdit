@@ -154,11 +154,10 @@ this.URIAtLine = function open_openURIAtLine(uri, lineno, viewType /* ="editor" 
         if (uri.match(/\.(?:kpf|komodoproject)$/i)) {
             ko.projects.open(uri, skipRecentOpenFeature);
         } else if (uri.match(/\.xpi$/i)) {
-            if (InstallTrigger.enabled) {
-                var xpi={'Komodo Extension': uri};
-                InstallTrigger.install(xpi, null);
-            } else {
-                ko.dialogs.alert(_viewsBundle.GetStringFromName("installingExtensionIsCurrentlyDisabled"));
+            try {
+                this._installAddon(uri);
+            } catch(ex) {
+                ko.dialogs.alert(_viewsBundle.GetStringFromName("installingExtensionIsCurrentlyDisabled") + " " + ex);
             }
         } else if (uri.match(/\.kpz$/i)) {
             ko.toolboxes.importPackage(uri);
@@ -213,6 +212,16 @@ this.URIAtLine = function open_openURIAtLine(uri, lineno, viewType /* ="editor" 
         log.exception(e);
     }
     return null;
+}
+
+this._installAddon = function(uri) {
+    Components.utils.import("resource://gre/modules/AddonManager.jsm", this);
+    this.AddonManager.getInstallForURL(uri,
+                                       function(aInstall) {
+                                           aInstall.install();
+                                           ko.launch.openAddonsMgr();
+                                           //log.debug("Installed " + uri);
+                                       }, "application/x-xpinstall");
 }
 
 /**
