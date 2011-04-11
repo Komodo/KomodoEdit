@@ -131,6 +131,12 @@ class Database(object):
             except Exception, ex:
                 log.exception("error upgrading `%s': %s", self.path, ex)
                 self.reset()
+        koDirSvc = components.classes["@activestate.com/koDirs;1"].getService()
+        ptnString = r"%s%sSamples[ _\(]+[\d_.]+.*?%sAbbreviations" % \
+            (re.escape(join(koDirSvc.userDataDir, DEFAULT_TARGET_DIRECTORY)),
+             os.path.sep,
+             os.path.sep)
+        self._sampleAbbrevRE = re.compile(ptnString, re.IGNORECASE)
 
         self._specific_names = {
             'command':['insertOutput', 'parseRegex', 'operateOnSelection',
@@ -889,14 +895,10 @@ class Database(object):
         rows = cu.fetchall()
         for row in rows:
             p3_id, cd3_name, cd2_name, p1_path, p2_path, p3_path = row
-            if p2_path[len(p1_path)] != os.path.sep:
-                #log.debug("#1: Rejecting %s", p2_path)
-                continue
-            elif p3_path[len(p2_path)] != os.path.sep:
-                #log.debug("#2: Rejecting %s", p3_path)
-                continue
+            isSampleAbbrev = self._sampleAbbrevRE.match(p1_path) != None
+            #log.debug("_searchAbbrevFolderSnippet: got path: %s, isSampleAbbrev:%r", p1_path, isSampleAbbrev)
             # Add False to show that these snippets were found *below* the folder
-            final_rows.append([p3_id, cd3_name, cd2_name, False])
+            final_rows.append([p3_id, cd3_name, cd2_name, False, isSampleAbbrev])
         return final_rows
         
     def _searchAbbrevSnippetFolder(self, abbrev, subnames, cu):
@@ -937,16 +939,12 @@ class Database(object):
         rows = cu.fetchall()
         for row in rows:
             p3_id, cd3_name, cd2_name, p1_path, p2_path, p4_path = row
+            #log.debug("_searchAbbrevSnippetFolder: got path: %s", p1_path)
             #log.debug("p2_path:%s, \np4_path:%s, len(p2_path):%d, len(p4_path):%d",
             #           p2_path, p4_path, len(p2_path), len(p4_path))
-            if p4_path != p1_path and p4_path[len(p1_path)] != os.path.sep:
-                #log.debug("#3: Rejecting %s", p4_path)
-                continue
-            elif p4_path != p2_path and p2_path[len(p4_path)] != os.path.sep:
-                #log.debug("#4: Rejecting p2:%s, p4:%s, p2[p4]:%s",
-                #           p2_path, p4_path, p2_path[len(p4_path)])
-                continue
-            final_rows.append([p3_id, cd3_name, cd2_name, True])
+            isSampleAbbrev = self._sampleAbbrevRE.match(p1_path) != None
+            #log.debug("_searchAbbrevSnippetFolder: got path: %s, isSampleAbbrev:%r", p1_path, isSampleAbbrev)
+            final_rows.append([p3_id, cd3_name, cd2_name, True, isSampleAbbrev])
         return final_rows
     
     def getAbbreviationSnippetId(self, abbrev, subnames):
@@ -973,21 +971,21 @@ class Database(object):
         
         Lookup functions return rows containing:
         [snippetID, snippetName, associated folder languageName,
-         isInsideFolder]
+         isInsideFolder, isSampleAbbrev]
         """
         with self.connect() as cu:
             rows = self._searchAbbrevFolderSnippet(abbrev, subnames, cu)
             # Look for case-sensitive matches to avoid a second search
             # This should be the most common form anyway
             for row in rows:
-                if row[2] != "General" and row[1] == abbrev:
+                if row[2] != "General" and row[1] == abbrev and not row[4]:
                     return row[0]
             rows += self._searchAbbrevSnippetFolder(abbrev, subnames, cu)
         if not rows:
             return None
         elif len(rows) == 1:
             return rows[0][0]
-        # Now favor in this order:
+        # Now favor in this order (first not isSampleAbbrev):
         # 1. inside language folder, matches case (already checked)
         # 2. inside language folder, any case
         # 3. above language folder (not general), matches case
@@ -996,6 +994,7 @@ class Database(object):
         # 6. inside General, any case
         # 7. above General, matches case
         # 8. rest (above General, any case)
+        # 9..16: as above, but with isSampleAbbrev true
         for row in rows:
             score = 0
             if row[1] != abbrev:
@@ -1004,6 +1003,8 @@ class Database(object):
                 score += 2 # Add 2 for matching above the language folder
             if row[2].lower() == "general":
                 score += 4  # Add 4 for a general match
+            if row[4]:
+                score += 8  # Add 8 if it's a sample abbrev'n
             if score == 1:
                 # This is the second-best score, so don't sort rows & go with it.
                 return row[0]
