@@ -563,7 +563,7 @@ this.lintBuffer.prototype._getLinterLanguageName = function()
                 res = languageName;
             }
         } catch(ex) {
-            dump("_getLinterLanguageName: " + ex + "\n");
+            _log.error("_getLinterLanguageName: " + ex);
         }
         _linterLanguageNames[languageName] = res;
     }

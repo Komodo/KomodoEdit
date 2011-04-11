@@ -39,7 +39,7 @@
 from xpcom import components, ServerException
 from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC, getProxyForObject
 from xpcom.server import UnwrapObject
-from koLintResult import KoLintResult
+from koLintResult import KoLintResult, getProxiedEffectivePrefs
 from koLintResults import koLintResults
 from xpcom.server.enumerator import *
 import os, sys, re
@@ -262,7 +262,7 @@ class KoHTMLTidyLinter:
         return self.lint_with_text(request, text)
 
     def lint_with_text(self, request, text, argv_additions=None):
-        prefset = request.koDoc.getEffectivePrefs()
+        prefset = getProxiedEffectivePrefs(request)
         if not prefset.getBooleanPref("lintStandardHTMLChecking"):
             return
         cwd = request.cwd
@@ -423,7 +423,7 @@ class _invokePerlLinter(object):
         if not text:
             #log.debug("<< no text")
             return
-        prefset = request.koDoc.getEffectivePrefs()
+        prefset = getProxiedEffectivePrefs(request)
         if not prefset.getBooleanPref(perlHTMLCheckerPrefName):
             return
         perlLintDir = os.path.join(components.classes["@activestate.com/koDirs;1"].\
@@ -514,7 +514,7 @@ class KoHTMLPerl_HTMLLint_Linter(_invokePerlLinter):
 
     def lint_with_text(self, request, text):
         return self._lint_with_text(request, text,
-                                    "lintHTML-CheckWith-Perl-HTML-Lint",
+                                    "lintHTML_CheckWith_Perl_HTML_Lint",
                                     "htmllint.pl", [])
         
 class KoHTMLPerl_HTMLTidy_Linter(_invokePerlLinter):
@@ -531,7 +531,7 @@ class KoHTMLPerl_HTMLTidy_Linter(_invokePerlLinter):
 
     def lint_with_text(self, request, text):
         return self._lint_with_text(request, text,
-                                    "lintHTML-CheckWith-Perl-HTML-Tidy",
+                                    "lintHTML_CheckWith_Perl_HTML_Tidy",
                                     "htmltidy.pl", [])
     
 # HTML5 can use the generic aggregator

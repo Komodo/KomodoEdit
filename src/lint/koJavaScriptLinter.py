@@ -39,7 +39,7 @@
 from xpcom import components, nsError, ServerException
 from xpcom.server import UnwrapObject
 from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC, getProxyForObject
-from koLintResult import *
+from koLintResult import KoLintResult, getProxiedEffectivePrefs
 from koLintResults import koLintResults
 import os, sys, re
 import tempfile
@@ -97,7 +97,7 @@ class CommonJSLinter(object):
         cmd = [jsInterp, "-C"]
 
         # Set the JS linting preferences.
-        prefset = request.koDoc.getEffectivePrefs()
+        prefset = getProxiedEffectivePrefs(request)
         enableWarnings = prefset.getBooleanPref('lintJavaScriptEnableWarnings')
         if enableWarnings:
             cmd.append("-w")
@@ -243,7 +243,7 @@ class GenericJSLinter(CommonJSLinter):
         if not text:
             #log.debug("<< no text")
             return
-        prefset = request.koDoc.getEffectivePrefs()
+        prefset = getProxiedEffectivePrefs(request)
         if not prefset.getBooleanPref(prefSwitchName):
             return
         jsfilename, isMacro, datalines = self._make_tempfile_from_text(request, text)

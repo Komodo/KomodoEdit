@@ -57,7 +57,7 @@ from xpcom import components, nsError, ServerException
 import logging
 from pprint import pprint# , pformat
 
-from koLintResult import KoLintResult
+from koLintResult import KoLintResult, getProxiedEffectivePrefs
 from koLintResults import koLintResults
 import koprocessutils
 
@@ -113,7 +113,7 @@ class KoPythonPyLintChecker(object):
     def lint_with_text(self, request, text):
         if not text:
             return None
-        prefset = request.koDoc.getEffectivePrefs()
+        prefset = getProxiedEffectivePrefs(request)
         if not prefset.getBooleanPref("lint_python_with_pylint"):
             return
         # if not prefset.getBooleanPref("lintWithPylint"): return
@@ -198,7 +198,7 @@ class KoPythonPycheckerLinter(object):
     def lint_with_text(self, request, text):
         if not text:
             return None
-        prefset = request.koDoc.getEffectivePrefs()
+        prefset = getProxiedEffectivePrefs(request)
         if not prefset.getBooleanPref("lint_python_with_pychecker"):
             return
         pychecker = prefset.getStringPref("pychecker_wrapper_location")
@@ -389,7 +389,7 @@ class KoPythonCommonLinter(object):
     def lint_with_text(self, request, text):
         encoding_name = request.encoding.python_encoding_name
         cwd = request.cwd
-        prefset = request.koDoc.getEffectivePrefs()
+        prefset = getProxiedEffectivePrefs(request)
         if not prefset.getBooleanPref("lint_python_with_standard_python"):
             return
         try:

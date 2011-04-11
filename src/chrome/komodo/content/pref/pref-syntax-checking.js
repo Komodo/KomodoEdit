@@ -1,7 +1,7 @@
 /* Copyright (c) 2000-2011 ActiveState Software Inc.
    See the file LICENSE.txt for licensing information. */
 
-var log = ko.logging.getLogger("pref.doc-syntax-checking");
+var log = ko.logging.getLogger("pref.pref-syntax-checking");
 var dialog = {};
 var currentView;
 

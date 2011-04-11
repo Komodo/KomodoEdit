@@ -37,7 +37,14 @@
 
 
 from xpcom import components
+from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, getProxyForObject
 import re
+
+def getProxiedEffectivePrefs(request):
+    return getProxyForObject(None,
+                             components.interfaces.koIPreferenceSet,
+                             request.koDoc.getEffectivePrefs(),
+                             PROXY_ALWAYS | PROXY_SYNC)
 
 class KoLintResult:
     _com_interfaces_ = [components.interfaces.koILintResult]

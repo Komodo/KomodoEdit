@@ -38,10 +38,11 @@
 import os, sys
 import threading
 import time
+import urllib2
 from xpcom import components, nsError, ServerException, COMException
 from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC, getProxyForObject
 from xpcom.server import WrapObject, UnwrapObject
-from koLintResult import KoLintResult
+from koLintResult import KoLintResult, getProxiedEffectivePrefs
 from koLintResults import koLintResults
 
 import logging
@@ -286,36 +287,45 @@ class KoLintService:
         names = catman.enumerateCategory(categoryName)
         while names.hasMoreElements():
             nameObj = names.getNext()
-            nameObj.QueryInterface(components.interfaces.nsISupportsCString)
-            name = nameObj.data
-            cid = catman.getCategoryEntry(categoryName, name)
-            if not self._linterCIDsByLanguageName.has_key(name):
-                self._linterCIDsByLanguageName[name] = {'terminals':[],
+            rawName, fixedName = self._getCategoryNameFromNameObj(nameObj)
+            cid = catman.getCategoryEntry(categoryName, rawName)
+            if not self._linterCIDsByLanguageName.has_key(fixedName):
+                self._linterCIDsByLanguageName[fixedName] = {'terminals':[],
                                                      'aggregator':cid}
             else:
                 log.warn("Possible Problem: more than one entry for linter aggregator %s (was %s), now %s",
                          name,
-                         self._linterCIDsByLanguageName[name]['aggregator'],
+                         self._linterCIDsByLanguageName[fixedName]['aggregator'],
                          cid)
-                self._linterCIDsByLanguageName[name]['aggregator'] = cid
+                self._linterCIDsByLanguageName[fixedName]['aggregator'] = cid
             
         categoryName = 'category-komodo-linter'
         names = catman.enumerateCategory(categoryName)
         while names.hasMoreElements():
             nameObj = names.getNext()
-            nameObj.QueryInterface(components.interfaces.nsISupportsCString)
-            name = nameObj.data
-            idx = name.find("&type=")
+            rawName, fixedName = self._getCategoryNameFromNameObj(nameObj)
+            idx = fixedName.find("&type=")
             if idx == -1:
-                languageName = name
+                languageName = fixedName
             else:
-                languageName = name[:idx]
-            cid = catman.getCategoryEntry(categoryName, name)
+                languageName = fixedName[:idx]
+            cid = catman.getCategoryEntry(categoryName, rawName)
             if not self._linterCIDsByLanguageName.has_key(languageName):
                 self._linterCIDsByLanguageName[languageName] = {'terminals':[],
                                                              'aggregator':None}
             self._linterCIDsByLanguageName[languageName]['terminals'].append(cid)
         #log.debug("Loaded these linters: %s", self._linterCIDsByLanguageName)
+
+    def _getCategoryNameFromNameObj(self, nameObj):
+        nameObj.QueryInterface(components.interfaces.nsISupportsCString)
+        rawName = nameObj.data
+        try:
+            fixedName = urllib2.unquote(rawName)
+        except:
+            fixedName = rawName
+        else:
+            fixedName = rawName
+        return rawName, fixedName
 
     def getLinter_CID_ForLanguage(self, languageName):
         return self._getLinterCIDByLanguageName(languageName)
@@ -542,7 +552,11 @@ class KoLintService:
                         #XXX This is where context-sensitive linting args should
                         #    be passed in, but linters don't support this yet.
                         log.debug("manager thread: call linter.lint(request)")
-                        results = request.linter.lint(request)
+                        try:
+                            results = UnwrapObject(request.linter).lint(request)
+                        except:
+                            log.exception("Unexpected error while linting")
+                        
                         # This makes a red statusbar icon go green, but it
                         # might not be what we always want.
                         # Needs more investigation.
@@ -551,7 +565,8 @@ class KoLintService:
                         log.debug("manager thread: linter.lint(request) returned")
                     if TIME_LINTS: endlintlint = time.clock()
 
-                    if request.koDoc.prefs.getBooleanPref("lintEOLs"):
+                    prefset = getProxiedEffectivePrefs(request)
+                    if prefset.getBooleanPref("lintEOLs"):
                         # Also look for mixed-line endings warnings.
                         self._addMixedEOLWarnings(results, request.content,
                             request.koDoc.new_line_endings)
