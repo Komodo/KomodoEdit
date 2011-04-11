@@ -1033,9 +1033,8 @@ class PHPTreeEvaluator(TreeEvaluator):
                          "classref %r", first_token)
                 if not first_token:
                     return (None, None)
-                # Change scope to global scope
                 tokens = [first_token] + tokens[1:]
-                scoperef = self._get_global_scoperef(scoperef)
+                scoperef = self.parent_scoperef_from_scoperef(scoperef)
                 # Now go below and find the parent class members
             elif self._return_with_hit((elem, scoperef), 1):
                 self.log("_hits_from_first_part:: %s returning scoperef: %r",
@@ -1066,8 +1065,9 @@ class PHPTreeEvaluator(TreeEvaluator):
                             (alias is None and symbol == first_token):
                         self.log("_hits_from_first_part:: is '%s' accessible on "
                                  "%s? yes: %s", first_token, scoperef, child)
-                        expr = "%s\\%s" % (module, symbol)
-                        hit = self._hit_from_citdl(expr, (child, scoperef))
+                        # Aliases always use a fully qualified namespace.
+                        expr = "\\%s\\%s" % (module, symbol)
+                        hit = self._hit_from_citdl(expr, scoperef)
                         if hit:
                             return ([hit], 1)
                         break

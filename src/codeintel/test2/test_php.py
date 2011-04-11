@@ -2574,6 +2574,31 @@ EOD;
             [("function", "beginTransaction"), ("function", "commit")])
 
 
+    @tag("bug89755")
+    def test_function_closure(self):
+        content, positions = unmark_text(php_markup(dedent(r"""
+            <?php
+            namespace APP\ONE;
+            class parentClass{
+                    function parent_function(){
+                            //method code
+                    }
+            }
+            
+            namespace APP\THREE;
+            use APP\ONE\parentClass as parentClass;
+            class childClass extends parentClass {
+                    function test() {
+                            parent::<1>parent_function();
+                    }
+            }
+            
+            ?>
+        """)))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+            [("function", "parent_function")])
+
+
 class IncludeEverythingTestCase(CodeIntelTestCase):
     lang = "PHP"
     test_dir = join(os.getcwd(), "tmp")
