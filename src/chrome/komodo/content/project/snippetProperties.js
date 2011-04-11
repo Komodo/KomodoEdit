@@ -282,8 +282,8 @@ function Apply() {
     }
     // Insert anchor/column markers
     var text = scin.text;
-    var anchor = stringutils_charIndexFromPosition(text,scin.anchor);
-    var currentPos = stringutils_charIndexFromPosition(text,scin.currentPos);
+    var anchor = ko.stringutils.charIndexFromPosition(text,scin.anchor);
+    var currentPos = ko.stringutils.charIndexFromPosition(text,scin.currentPos);
     if (anchor < currentPos) {
         text = text.slice(0, anchor) + ANCHOR_MARKER +
                text.slice(anchor, currentPos) + CURRENTPOS_MARKER +
