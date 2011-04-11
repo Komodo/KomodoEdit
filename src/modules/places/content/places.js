@@ -2436,7 +2436,7 @@ ManagerClass.prototype = {
                 // Copy all of them
                 dest_fwd_idx = this.history_forwardPlaces.length;
             }
-            for (i = 0; i < dest_fwd_idx; i++) {
+            for (var i = 0; i < dest_fwd_idx; i++) {
                 this.history_prevPlaces.push(this.history_forwardPlaces[i]);
             }
             this.history_forwardPlaces.splice(0, dest_fwd_idx + 1);
