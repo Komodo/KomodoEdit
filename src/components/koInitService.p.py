@@ -390,6 +390,9 @@ class KoInitService(object):
         observerSvc = components.classes["@mozilla.org/observer-service;1"].\
                       getService(components.interfaces.nsIObserverService)
         if topic == "app-startup":
+            observerSvc.addObserver(self, "profile-after-change", 1)
+            observerSvc.removeObserver(self, "app-startup")
+        elif topic == "profile-after-change":
             # get all komodo-startup components and instantiate them
             catman = components.classes["@mozilla.org/categorymanager;1"].\
                             getService(components.interfaces.nsICategoryManager)
@@ -411,6 +414,7 @@ class KoInitService(object):
                     log.exception("Unable to start %r service: %r", name, cid)
             observerSvc.addObserver(self, "komodo-ui-started", 1)
             observerSvc.addObserver(self, "quit-application", 1)
+            observerSvc.removeObserver(self, "profile-after-change")
         elif topic == "komodo-ui-started":
             observerSvc.removeObserver(self, "komodo-ui-started")
             # get all delayed komodo-startup components and instantiate them
