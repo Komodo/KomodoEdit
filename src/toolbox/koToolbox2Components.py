@@ -264,6 +264,22 @@ class KoToolbox2Service(object):
             log.debug("Didn't find uri %s in self._loadedToolboxes")
             return None
 
+    def getExtensionToolbox(self, extensionName):
+        # @param: extensionName {str} - the em:name from install.rdf
+        koDirSvc = components.classes["@activestate.com/koDirs;1"].\
+            getService(components.interfaces.koIDirs)
+        binDirs = [join(koDirSvc.mozBinDir, "extensions"),
+                   join(koDirSvc.userDataDir, "XRE", "extensions")]
+        for dir in binDirs:
+            extDir = join(dir, extensionName)
+            if os.path.isdir(extDir):
+                toolsDir = join(extDir, "tools")
+                if os.path.isdir(toolsDir):
+                    tbox_id = self.db.get_id_from_path(join(extDir, "tools"))
+                    if tbox_id != -1:
+                        return self._toolsMgrSvc.getToolById(tbox_id)
+        return None
+
     def getProjectToolboxId(self, uri):
         id = self._loadedToolboxes.get(uri, None)
         if id is None:

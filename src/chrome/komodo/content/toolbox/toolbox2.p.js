@@ -489,6 +489,11 @@ this.getStandardToolbox = function() {
     //return this.findToolById(this.manager.toolbox2Svc.getStandardToolboxID());
 }
 
+this.getExtensionToolbox = function(extensionName) {
+    return this.manager.toolbox2Svc.getExtensionToolbox(extensionName);
+    //return this.findToolById(this.manager.toolbox2Svc.getStandardToolboxID());
+}
+
  this.addItem = function(/* koITool */ tool, /* koITool */ parent,
                          selectItem /*false*/) {
     if (typeof(selectItem) == 'undefined') selectItem = false;

@@ -75,7 +75,10 @@ interface koIToolbox2Service: nsISupports {
     void deactivateProjectToolbox(in koIPart project);
     koITool getStandardToolbox();
     koITool getSharedToolbox();
-    //NOTYET: koITool getExtensionToolbox(in wstring extensionName);
+    // Get a toolbox that an extension provides, if there is one
+    // The extensionName argument is the [em:name] value from
+    // the extension's install.rdf file.
+    koITool getExtensionToolbox(in wstring extensionName); // The em:name from install.rdf
     long getProjectToolboxId(in wstring uri);
     long getStandardToolboxID();
     void importDirectory(in wstring parentPath,
