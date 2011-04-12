@@ -323,8 +323,6 @@ class KoLintService:
             fixedName = urllib2.unquote(rawName)
         except:
             fixedName = rawName
-        else:
-            fixedName = rawName
         return rawName, fixedName
 
     def getLinter_CID_ForLanguage(self, languageName):
