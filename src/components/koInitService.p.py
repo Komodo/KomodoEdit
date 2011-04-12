@@ -879,7 +879,7 @@ class KoInitService(object):
             prefs.deletePref("autoSaveMinutes")
 
     # This value must be kept in sync with the value in "../prefs/prefs.p.xml"
-    _current_pref_version = 2
+    _current_pref_version = 3
 
     def _upgradeUserPrefs(self):
         """Upgrade any specific info in the user's prefs.xml.
@@ -901,6 +901,24 @@ class KoInitService(object):
         if version >= self._current_pref_version:
             # Nothing to upgrade.
             return
+
+        if version < 3:
+            # Add the two new Komodo project names to import_exclude_matches
+            try:
+                import_exclude_matches = prefs.getStringPref("import_exclude_matches")
+                if import_exclude_matches.endswith(";"):
+                    import_exclude_matches = import_exclude_matches[:-1]
+                # From Komodo 5 (prefset version 2)
+                orig_str_1 = "*.*~;*.bak;*.tmp;CVS;.#*;*.pyo;*.pyc;.svn;*%*;tmp*.html;.DS_Store"
+                # From Komodo 6 (still prefset version 2)
+                orig_str_2 = "*.*~;*.bak;*.tmp;CVS;.#*;*.pyo;*.pyc;.svn;_svn;.git;.hg;.bzr;*%*;tmp*.html;.DS_Store"
+                if import_exclude_matches in (orig_str_1, orig_str_2):
+                    suffix = ";*.komodoproject;.komodotools"
+                    import_exclude_matches = orig_str_2 + suffix
+                    prefs.setStringPref("import_exclude_matches",
+                                        import_exclude_matches)
+            except:
+                log.exception("Error updating import_exclude_matches")
 
         # Set the version so we don't have to upgrade again.
         prefs.setLongPref("version", self._current_pref_version)

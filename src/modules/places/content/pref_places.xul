@@ -45,6 +45,17 @@
             </vbox>
         </groupbox>
         
+        <groupbox id="pref_places_projectDirectoryFilters"
+                  name="pref_places_projectDirectoryFilters" orient="vertical">
+            <caption label="&specifyDefaultProjectFilters.label;" class="kopadded"/>
+            <label value="&filesToInclude.label;"/>
+            <textbox id="import_include_matches" pref="true" value=""/>
+            <separator class="thin"/>
+            <label value="&filesToExclude.label;"/>
+            <textbox id="import_exclude_matches" pref="true" value=""/>
+            <separator class="thin"/>
+        </groupbox>
+        
         <groupbox id="pref_places_dblClickToggleFrame"
                   name="pref_places_dblClickToggleFrame" orient="vertical">
           <caption label="&options.label;" class="kopadded"/>
