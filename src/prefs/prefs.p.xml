@@ -43,8 +43,10 @@
 -->
 <preference-set id="default">
 
-  <!-- This version field is used by Komodo to upgrade preferences. -->
-  <long id="version">2</long>
+  <!-- This version field is used by Komodo to upgrade preferences.
+       The value should be kept in sync with "../components/koInitService.p.py"
+  -->
+  <long id="version">3</long>
 
   <boolean id="startupMaximized">0</boolean>
   <boolean id="startupFullScreen">0</boolean>
