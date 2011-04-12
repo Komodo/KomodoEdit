@@ -31,13 +31,12 @@
  * calltips. See the javascript_sample.js file for more JavaScript
  * features.
  */
-
 /* mini js library */
 function $(id) { return document.getElementById(id); }
-function html(id,str) { $(id).innerHTML = str; }
-function add_html(id,str) { $(id).innerHTML += str; }
+function html(id, str) { $(id).innerHTML = str; }
+function add_html(id, str) { $(id).innerHTML += str; }
 function log(str) { add_html('log', str); $('log').scrollTop = $('log').scrollHeight; }
-function clear(id) { html(id,"");}
+function clear(id) { html(id, ""); }
 function trim(str) { str.replace(/^\s*/, '').replace(/\s*$/, ''); return str; } 
 
 /**
@@ -46,14 +45,13 @@ function trim(str) { str.replace(/^\s*/, '').replace(/\s*$/, ''); return str; }
 */
 
 function rand_color() {
-    var hex = new Array('0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F');
+    var hex = ['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'];
     var hexstr = "";
-    var i=0; while(i<6) {
+    for (var i = 0; i < 6; i++) {
         var tmp = (Math.round((Math.random() * 16))-1);
         if(tmp<0) { tmp = 0; }
         if(!hex[tmp]) {alert(tmp);}
-        hexstr += new String(hex[tmp]);
-        i++;
+        hexstr += hex[tmp];
     }
     return "#"+hexstr;
 }
@@ -69,17 +67,17 @@ function hack() {
     var txt = $('name').value;
     txt = trim(txt);
     if(txt.length > 0 && txt != ' ') {
-        log('got <span class="val">\'' + txt + '\'</span> from the text field<br/>');
+        log('got <span class="val">\'' + txt + '\'<\/span> from the text field<br/>');
         var tmp = "";
         var i=0;
         while(i<12) {
             var fsize = String(i+14);
-            tmp = '<p style="font-size:'+fsize+'pt; color: '+rand_color()+'">'+txt+'</p>';
+            tmp = '<p style="font-size:'+fsize+'pt; color: '+rand_color()+'">'+txt+'<\/p>';
             add_html('script-output', tmp);
             i++;
         }
     } else {
-        log('<span class="err">Error: got nothing from the text box...</span><br/>');    
+        log('<span class="err">Error: got nothing from the text box...<\/span><br/>');    
     }
     return false;
 }
@@ -94,7 +92,7 @@ function livehack() {
 
 function hide(id) {
     $(id).style.display = "none";
-    $('log-header').innerHTML = '<a href="JavaScript:show(\'log-div\')">Show Log</a>'
+    $('log-header').innerHTML = '<a href="JavaScript:show(\'log-div\')">Show Log<\/a>';
 }
 
 function show(id) {
