@@ -440,6 +440,9 @@ this.addItem = function(item, parent) {
     manager.viewMgr.tree.treeBoxObject.ensureRowIsVisible(partindex);
 }
 
+this._toolboxParts = ['macro', 'snippet', 'command', 'template',
+                      'menu','toolbar', 'URL'];
+
 /**
  * findPart
  *
@@ -452,6 +455,8 @@ this.addItem = function(item, parent) {
  *                       "current part project, toolbox, shared toolbox"
  * @param {koIPart} part defaults to the running macro if available
  * @returns {koIPart}
+ *
+ * This method is left in for v5 compatibility.
  */
 this.findPart = function macro_findPart(type, name, where, /*koIPart*/ part) {
     var _partSvc = Components.classes["@activestate.com/koPartService;1"]
@@ -459,7 +464,18 @@ this.findPart = function macro_findPart(type, name, where, /*koIPart*/ part) {
     if (!part) {
         part = _partSvc.runningMacro;
     }
-    return _partSvc.findPart(type, name, where, part);
+    var foundPart = _partSvc.findPart(type, name, where, part);
+    if (foundPart) {
+        return foundPart;
+    }
+    // Try the version 6 API
+    if (this._toolboxParts.indexOf(type) != -1) {
+        foundPart = ko.toolbox2.getToolsByTypeAndName(type, name);
+        if (foundPart && foundPart.length) {
+            return foundPart[0];
+        }
+    }
+    return null;
 }
 
 }).apply(ko.projects);
