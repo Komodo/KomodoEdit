@@ -1001,7 +1001,7 @@ var JSHINT = (function () {
 // Regular expressions. Some of these are stupidly long.
 
 // unsafe comment or string
-        ax = /@cc|<\/?|script|\]\s*\]|<\s*!|&lt/i,
+        ax = /@cc|<\/?|\bscript\b|\]\s*\]|<\s*!|&lt/i,
 // unsafe characters that are silently deleted by one or more browsers
         cx = /[\u0000-\u001f\u007f-\u009f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/,
 // token
@@ -1594,7 +1594,9 @@ var JSHINT = (function () {
                             } else if (xmode === 'script' && /<\s*\//i.test(s)) {
                                 warningAt("Unexpected <\/ in comment.", line, character);
                             } else if ((option.safe || xmode === 'script') && ax.test(s)) {
-                                warningAt("Dangerous comment.", line, character);
+                                if (ax.test(s.replace(/<!\[CDATA\[/, ""))) {
+                                    warningAt("Dangerous comment.", line, character);
+                                }
                             }
                             s = '';
                             token.comment = true;
