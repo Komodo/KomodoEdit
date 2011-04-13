@@ -40,17 +40,19 @@ function clear(id) { html(id, ""); }
 function trim(str) { str.replace(/^\s*/, '').replace(/\s*$/, ''); return str; } 
 
 /**
- * rand_color: psudo random hex color generator
- * @returns {String}
+ * rand_color: pseudo-random hex color generator
+ * @returns {string}
 */
 
 function rand_color() {
-    var hex = ['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'];
+    var hex = "0123456789ABCDEF";
     var hexstr = "";
     for (var i = 0; i < 6; i++) {
-        var tmp = (Math.round((Math.random() * 16))-1);
-        if(tmp<0) { tmp = 0; }
-        if(!hex[tmp]) {alert(tmp);}
+        var tmp = Math.floor(Math.random() * 16);
+        if(!hex[tmp]) {
+            alert("unexpected random value: " + tmp);
+            tmp = 0;
+        }
         hexstr += hex[tmp];
     }
     return "#"+hexstr;
