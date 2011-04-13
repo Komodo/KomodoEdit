@@ -54,6 +54,11 @@
 // OnPreferencePageCancel(prefset)
 //      called when the user clicks cancel
 //
+// OnPreferencePageSelect(prefset)
+//      called when the user switches to the existing page.
+//      Currently commented out.  Uncomment the code and remove these two
+//      lines once it's needed.
+//
 // OnPreferencePageInitalize(prefset)
 //      called prior to any pref widgets getting initialized
 //
@@ -642,6 +647,14 @@ koPrefWindow.prototype =
             this.contentFrame.setAttribute("src", url);
         } else {
             this.contentFrame = this.contentFrames[panelName];
+            // if ('OnPreferencePageSelect' in this.contentFrame.contentWindow) {
+            //     var prefset = this._getCurrentPrefSet();
+            //     try {
+            //         this.contentFrame.contentWindow.OnPreferencePageSelect(prefset);
+            //     } catch(e) {
+            //         prefLog.exception(e);
+            //     }
+            // }
         }
         this.deck.selectedPanel = this.contentFrame;
 
