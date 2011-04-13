@@ -1508,6 +1508,10 @@ into the appropriate .wxs files in "src/install/wix":
 
 def _PackageKomodoUpdates(cfg, dryRun=False):
     print "packaging 'Komodo Updates'..."
+    # Not creating updates for K7 alpha 2 (as the moz platform changed).
+    if cfg.komodoVersion in ('7.0.0-alpha2', ):
+        print "  not creating updates for %r" % (cfg.komodoVersion, )
+        return
     mozupdate = join("util", "mozupdate.py")
     packagesDir = join(cfg.packagesRelDir, "updates")
     if not isdir(packagesDir):
