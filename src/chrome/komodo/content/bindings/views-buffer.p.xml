@@ -1096,8 +1096,9 @@
             const SC_PERFORMED_USER = Components.interfaces.ISciMoz.SC_PERFORMED_USER;
             const SC_PERFORMED_UNDO = Components.interfaces.ISciMoz.SC_PERFORMED_UNDO;
 
-            if ((modificationType & (SC_MOD_INSERTTEXT | SC_MOD_BEFOREDELETE)) &&
-                (typeof(ko.find.highlightClearPosition) != "undefined")) {
+            if ((modificationType & (SC_MOD_INSERTTEXT | SC_MOD_BEFOREDELETE))
+                && ko.find
+                && typeof(ko.find.highlightClearPosition) != "undefined") {
                 // Remove the find highlighting in this modification area.
                 ko.find.highlightClearPosition(this.scimoz, position, length);
             }
