@@ -105,7 +105,7 @@
             onset="this.log.deprecated('`koIView.document` is deprecated, use `koIView.koDoc`');
                 this.koDoc = val" />
 
-        <property name="scintilla" onget="return document.getAnonymousNodes(this)[0];"/>
+        <property name="scintilla" onget="return document.getAnonymousElementByAttribute(this, 'anonid', 'scintilla');"/>
 
         <field name="__docSvc">null</field>
         <property name="docSvc">
@@ -1683,6 +1683,7 @@
     extends="chrome://komodo/content/bindings/views-buffer.xml#view-buffer-base">
     <content>
         <xul:scintilla xbl:inherits="flex,focused,context,mozcontext"
+                       anonid="scintilla"
                        allowIME="true"
                        mozcontext="bufferContextMenu"
                        flex="1"/>
