@@ -418,12 +418,14 @@ function python_setup() {
         [
          "lint_python_with_pychecker",
          "lint_python_with_pylint",
+         "lint_python_with_pyflakes",
          "pychecker_browse_rcfile",
          "pychecker_browse_wrapper_location",
          "pychecker_checking_rcfile",
          "pychecker_dangerous",
          "pychecker_failure",
          "pychecker_wrapper_location",
+         "pyflakes_failure",
          "pylint_browse_rcfile",
          "pylint_checking_rcfile",
          "pylint_checking_rcfile",
@@ -438,10 +440,19 @@ function python_setup() {
         getService(Components.interfaces.koIAppInfoEx);
     var pythonExe = appInfoEx.executablePath;
     var pylintStatusByExecutable = languageInfo.Python.pylintStatusByExecutable;
-    if (!(pythonExe in pylintStatusByExecutable)) {
+    var pyflakesStatusByExecutable = languageInfo.Python.pyflakesStatusByExecutable;
+    if (!(pythonExe in pylintStatusByExecutable)
+        || !(pythonExe in pyflakesStatusByExecutable)) {
         setTimeout(function() {
-                var res = appInfoEx.haveModules(1, ['pylint']);
-                pylintStatusByExecutable[pythonExe] = res;
+                var res;
+                if (!(pythonExe in pylintStatusByExecutable)) {
+                    res = appInfoEx.haveModules(1, ['pylint']);
+                    pylintStatusByExecutable[pythonExe] = res;
+                }
+                if (!(pythonExe in pyflakesStatusByExecutable)) {
+                    res = appInfoEx.haveModules(1, ['pyflakes.scripts.pyflakes']);
+                    pyflakesStatusByExecutable[pythonExe] = res;
+                }
                 languageInfo.Python.updateUI(pythonExe);
             }, 300);
     } else {
@@ -452,6 +463,21 @@ languageSetup.Python = python_setup;
 function pythonInfo() {
     return {
         pylintStatusByExecutable: {},
+        pyflakesStatusByExecutable: {},
+        
+        _updateFailureBox: function(failureNode, pythonExe, linterName) {
+            if (!pythonExe) {
+                failureNode.setAttribute("class", "pref_hide");
+            } else {
+                var text = bundleLang.formatStringFromName("The current Python instance X doesnt have X installed", [pythonExe, linterName], 2);
+                var textNode = document.createTextNode(text);
+                while (failureNode.firstChild) {
+                    failureNode.removeChild(failureNode.firstChild);
+                }
+                failureNode.appendChild(textNode);
+                failureNode.setAttribute("class", "pref_show");
+            }
+        },
     
         updateUI: function(pythonExe) {
             // Update UI for pylint
@@ -463,19 +489,20 @@ function pythonInfo() {
             } else {
                 checkbox.checked = false;
                 checkbox.disabled = true;
-                if (!pythonExe) {
-                    failureNode.setAttribute("class", "pref_hide");
-                } else {
-                    var text = bundleLang.formatStringFromName("The current Python instance X doesnt have pylint installed", [pythonExe], 1);
-                    var textNode = document.createTextNode(text);
-                    while (failureNode.firstChild) {
-                        failureNode.removeChild(failureNode.firstChild);
-                    }
-                    failureNode.appendChild(textNode);
-                    failureNode.setAttribute("class", "pref_show");
-                }
+                this._updateFailureBox(failureNode, pythonExe, "pylint")
             }
             this.onTogglePylintChecking(checkbox);
+            
+            // pyflakes
+            checkbox = dialog.Python.lint_python_with_pyflakes;
+            failureNode = dialog.Python.pyflakes_failure;
+            if (pythonExe && this.pyflakesStatusByExecutable[pythonExe]) {
+                checkbox.disabled = false;
+            } else {
+                checkbox.checked = false;
+                checkbox.disabled = true;
+                this._updateFailureBox(failureNode, pythonExe, "pyflakes")
+            }
             
             // Update UI for pychecker
             checkbox = dialog.Python.lint_python_with_pychecker;

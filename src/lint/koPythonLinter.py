@@ -91,15 +91,9 @@ def _addResult(results, textlines, severity, lineNo, desc, leadingWS=None):
     result.columnEnd = len(targetLine) + 1 - columnEndOffset
     result.description = desc
     results.addResult(result)
-
-class KoPythonPyLintChecker(object):
+    
+class _GenericPythonLinter(object):
     _com_interfaces_ = [components.interfaces.koILinter]
-    _reg_desc_ = "Komodo Python PyLint Linter"
-    _reg_clsid_ = "{e9e6d883-a712-46fc-a4a5-83c827aeff44}"
-    _reg_contractid_ = "@activestate.com/koLinter?language=Python&type=pylint;1"
-    _reg_categories_ = [
-         ("category-komodo-linter", 'Python&type=pylint'),
-         ]
 
     def __init__(self):
         self._pythonInfo = components.classes["@activestate.com/koAppInfoEx?app=Python;1"]\
@@ -108,6 +102,14 @@ class KoPythonPyLintChecker(object):
     def lint(self, request):
         text = request.content.encode(request.encoding.python_encoding_name)
         return self.lint_with_text(request, text)
+
+class KoPythonPyLintChecker(_GenericPythonLinter):
+    _reg_desc_ = "Komodo Python PyLint Linter"
+    _reg_clsid_ = "{e9e6d883-a712-46fc-a4a5-83c827aeff44}"
+    _reg_contractid_ = "@activestate.com/koLinter?language=Python&type=pylint;1"
+    _reg_categories_ = [
+         ("category-komodo-linter", 'Python&type=pylint'),
+         ]
         
     nonIdentChar_RE = re.compile(r'^\w_.,=')
     def lint_with_text(self, request, text):
@@ -177,22 +179,69 @@ class KoPythonPyLintChecker(object):
                 _addResult(results, textlines, severity, lineNo, desc)
         return results
 
-class KoPythonPycheckerLinter(object):
+class KoPythonPyflakesChecker(_GenericPythonLinter):
+    _reg_desc_ = "Komodo Python Pyflakes Linter"
+    _reg_clsid_ = "{7617c1bc-0e12-4c26-9a1a-0c03f2d8c8d2}"
+    _reg_contractid_ = "@activestate.com/koLinter?language=Python&type=pyflakes;1"
+    _reg_categories_ = [
+         ("category-komodo-linter", 'Python&type=pyflakes'),
+         ]
+        
+    def lint_with_text(self, request, text):
+        if not text:
+            return None
+        prefset = getProxiedEffectivePrefs(request)
+        if not prefset.getBooleanPref("lint_python_with_pyflakes"):
+            return
+        pythonExe = self._pythonInfo.executablePath
+        if not pythonExe:
+            return
+        tmpfilename = tempfile.mktemp() + '.py'
+        fout = open(tmpfilename, 'w')
+        fout.write(text)
+        fout.close()
+        textlines = text.splitlines()
+        cwd = request.cwd
+        try:
+            checkerExe = which.which("pyflakes")
+        except which.WhichError:
+            log.warn("pyflakes not found")
+            return
+        if not checkerExe:
+            log.warn("pyflakes not found")
+            return
+            
+        cmd = [pythonExe, checkerExe, tmpfilename]
+        cwd = request.cwd or None
+        # We only need the stdout result.
+        try:
+            p = process.ProcessOpen(cmd, cwd=cwd, env=koprocessutils.getUserEnv(), stdin=None)
+            _, stderr = p.communicate()
+            warnLines = stderr.splitlines(0) # Don't need the newlines.
+        finally:
+            os.unlink(tmpfilename)
+        ptn = re.compile(r'^(.+?):(\d+):\s+(.*)')
+        results = koLintResults()
+        for line in warnLines:
+            m = ptn.match(line)
+            if m:
+                lineNo = int(m.group(2))
+                desc = "pyflakes: %s" % (m.group(3),)
+                severity = _SEV_ERROR
+                _addResult(results, textlines, severity, lineNo, desc)
+        return results
+
+class KoPythonPycheckerLinter(_GenericPythonLinter):
     """
     Instead of checking your Python code using pylinter,
       this one lints    your Python code using pychecker.
     """
-    _com_interfaces_ = [components.interfaces.koILinter]
     _reg_desc_ = "Komodo Python Pychecker Linter"
     _reg_clsid_ = "{d3eb77c9-fb1f-4849-8e27-2e39d15c5331}"
     _reg_contractid_ = "@activestate.com/koLinter?language=Python&type=pychecker;1"
     _reg_categories_ = [
          ("category-komodo-linter", 'Python&type=pychecker'),
          ]
-        
-    def lint(self, request):
-        text = request.content.encode(request.encoding.python_encoding_name)
-        return self.lint_with_text(request, text)
         
     nonIdentChar_RE = re.compile(r'^\w_.,=')
     def lint_with_text(self, request, text):

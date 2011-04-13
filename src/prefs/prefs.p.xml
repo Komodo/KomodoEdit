@@ -207,6 +207,7 @@
   <!-- Python linters -->
   <boolean id="lint_python_with_standard_python">true</boolean>
 
+  <boolean id="lint_python_with_pyflakes">false</boolean>
   <boolean id="lint_python_with_pylint">false</boolean>
   <string id="pylint_checking_rcfile"></string>
   

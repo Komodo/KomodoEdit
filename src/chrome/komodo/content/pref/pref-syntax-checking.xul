@@ -294,6 +294,13 @@
                     <description id="pylint_failure" class="pref_hide" />
                   </vbox>
                   <separator class="thin"/>
+                  
+                  <checkbox id="lint_python_with_pyflakes"
+                            label="&pyflakesChecking.label;"
+                            pref="true" />
+                  <description id="pyflakes_failure" class="pref_hide" />
+                  <separator class="thin"/>
+                  
                   <checkbox id="lint_python_with_pychecker"
                             label="&lintWithPychecker.label;"
                             pref="true"

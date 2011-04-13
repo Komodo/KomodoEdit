@@ -369,6 +369,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY projectsAndWorkspace.label "Projects and Workspace">
 <!ENTITY properties.label "Properties">
 <!ENTITY proportional.label "Proportional">
+<!ENTITY pyflakesChecking.label "Pyflakes Checking">
 <!ENTITY pylintChecking.label "Pylint Checking">
 <!ENTITY pylintCheckingStatus.label "Do Pylint Checking">
 <!ENTITY pylintRCFileLocation.label "Location of .pylintrc file to use">
