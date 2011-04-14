@@ -168,6 +168,7 @@ class SELinux:
                 else:
                     log.warn("unexpected line in `%s': %r (ignoring)",
                              context_file, line)
+                    continue
                 try:
                     config.append( (re.compile('^'+parts[0]+'$'),
                                     filter,
