@@ -796,7 +796,7 @@ viewMgrClass.prototype = {
         }
     },
 
-    _finishFileCopyOperation: function(from_uris, to_uri, target_index, copying) {
+    finishFileCopyOperation: function(from_uris, to_uri, target_index, copying) {
         // target_index can be -1 if we're dropping on the root node
         var srcFileInfoObjs = {}, targetFileInfoObjs = {};
         var simple_callback = {
@@ -1054,7 +1054,17 @@ viewMgrClass.prototype = {
         this.view.selection.clearSelection();
         return true;
     },
-
+    _finishFileCopyOperation: function(from_uris, to_uri, target_index, copying) {
+        if (!("_deprecate__finishFileCopyOperation" in this)) {
+            var msg = _bundle.GetStringFromName("ko.places.viewMgr._finishFileCopyOperation is deprecated");
+            log.warn(msg);
+            this._deprecate__finishFileCopyOperation = null;
+        }
+        // This function needs to be exposed, do not change interface.
+        // See http://code.activestate.com/recipes/577562-a-komodo-macro-for-duplicating-the-current-file-in/
+        // This code 
+        return this.finishFileCopyOperation(from_uris, to_uri, target_index, copying);
+    },
     _getNewSuggestedName: function(srcBaseName, targetDirPath,
                                    isLocal, conn) {
         var newName, selectionStart, selectionEnd;
