@@ -45,7 +45,6 @@
 #
 #TODO:
 # - type inferencing: asserts
-# - type inferencing: return statements
 # - type inferencing: calls to isinstance
 # - special handling for None may be required
 # - Comments and doc strings. What format?
