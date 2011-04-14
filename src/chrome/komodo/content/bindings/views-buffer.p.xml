@@ -1532,8 +1532,8 @@
         </handler>
         <handler event="mousemove" phase="capturing">
             <![CDATA[
-            var x = event.clientX < 0 ? 0 : event.clientX - this.boxObject.x;
-            var y = event.clientY - this.boxObject.y;
+            var x = event.clientX < 0 ? 0 : event.clientX - this.scintilla.boxObject.x;
+            var y = event.clientY - this.scintilla.boxObject.y;
             this._last_mousemove_xy = [x, y];
 <!-- #if PLATFORM == "darwin" -->
             if (this.isMetaKeyDown(false)) {
@@ -1569,8 +1569,8 @@
                     this.removeHyperlinks("mouseup");
                     return;
                 }
-                var x = event.clientX < 0 ? 0 : event.clientX - this.boxObject.x;
-                var y = event.clientY - this.boxObject.y;
+                var x = event.clientX < 0 ? 0 : event.clientX - this.scintilla.boxObject.x;
+                var y = event.clientY - this.scintilla.boxObject.y;
                 var scimoz = this.scimoz;
                 var pos = scimoz.positionFromPointClose(x, y);
                 var anchor = scimoz.anchor;
