@@ -646,9 +646,7 @@
                         this.handle_current_view_linecol_changed, false);
                 }
 
-                // XXX nothing should ever inherit from view-editor
-                // if they do, this code using __proto__ must be changed
-                return this.__proto__.__proto__.close.call(this)
+                return this.close_viewbufferbase();
             ]]></body>
         </method>
 

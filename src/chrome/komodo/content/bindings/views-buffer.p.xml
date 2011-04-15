@@ -536,7 +536,7 @@
             ]]></getter>
         </property>
 
-        <method name="close">
+        <method name="close_viewbufferbase">
         <body>
         <![CDATA[
             //this.log.info('view-buffer is closing')
@@ -558,16 +558,15 @@
 
             this.scintilla.unload();
 
-            /////// copied from view-base.close due to xbl inheritance issues //////
-            xtk.domutils.fireEvent(this, 'view_closed');
-            try {
-                if (this.parentView)
-                    this.parentView.removeView(this);
-            } catch (e) {
-                this.log.exception(e,"Unable to remove the view from the parentView, logging and continuing.");
-            }
-            return true;
-            ////////////////////////////////////////////////////////////////////////
+            return this.close_viewbase();
+        ]]>
+        </body>
+        </method>
+
+        <method name="close">
+        <body>
+        <![CDATA[
+            this.close_viewbufferbase();
         ]]>
         </body>
         </method>

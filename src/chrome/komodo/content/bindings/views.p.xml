@@ -735,11 +735,10 @@
         </body>
         </method>
 
-        <!--void close(); // this will decrease the refcount on the document-->
-        <method name="close">
+        <!-- Notifies and then removes the view from the viewlist. -->
+        <method name="close_viewbase">
         <body>
         <![CDATA[
-            // XXX this code is duplicated in view-buffer to avoid xbl inheritance limitations
             xtk.domutils.fireEvent(this, 'view_closed');
             try {
                 if (this.parentView)
@@ -748,6 +747,15 @@
                 this.log.exception(e,"Unable to remove the view from the parentView, logging and continuing.");
             }
             return true;
+        ]]>
+        </body>
+        </method>
+
+        <!--void close(); // this will decrease the refcount on the document-->
+        <method name="close">
+        <body>
+        <![CDATA[
+            return this.close_viewbase();
         ]]>
         </body>
         </method>
