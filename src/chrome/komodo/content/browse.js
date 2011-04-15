@@ -112,7 +112,7 @@ this.openUrlInDefaultBrowser = function browse_OpenUrlInDefaultBrowser(url, brow
 this.showKeybindings = function browse_ShowKeybindings()
 {
     try {
-        var text = gKeybindingMgr.makeCurrentKeyBindingTable();
+        var text = ko.keybindings.manager.makeCurrentKeyBindingTable();
         var tmpFileSvc = Components.classes["@activestate.com/koFileService;1"]
                          .getService(Components.interfaces.koIFileService)
         var outputTmpFile = tmpFileSvc.makeTempFile(".html","w");
@@ -132,7 +132,7 @@ this.showKeybindings = function browse_ShowKeybindings()
 this.showCommandIds = function browse_ShowCommandIds()
 {
     try {
-        var text = gKeybindingMgr.makeCommandIdTable();
+        var text = ko.keybindings.manager.makeCommandIdTable();
         var tmpFileSvc = Components.classes["@activestate.com/koFileService;1"]
                          .getService(Components.interfaces.koIFileService)
         var outputTmpFile = tmpFileSvc.makeTempFile(".html","w");

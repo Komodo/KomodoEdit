@@ -93,7 +93,7 @@ function OnLoad()
     gDlg.applyButton = gDlg.window.getButton("extra1");
     gDlg.cancelButton = gDlg.window.getButton("cancel");
     gDlg.keybinding = document.getElementById('keybindings');
-    gDlg.keybinding.gKeybindingMgr = opener.gKeybindingMgr;
+    gDlg.keybinding.gKeybindingMgr = opener.ko.keybindings.manager;
     gDlg.keybinding.part = gPart;
     gDlg.tabs.selectedTab = gDlg.command_tab;  // in some circumstances we may want to change this.
     update_icon(gPart.iconurl);

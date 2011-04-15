@@ -85,7 +85,7 @@
         var gMainWindow = ko.windowManager.getMainWindow();
         // get a keybinding and set the text correctly
         var text = useTabCharacterToCompleteWords;
-        var keylabel = gMainWindow.gKeybindingMgr.command2keylabel('cmd_completeWord');
+        var keylabel = gMainWindow.ko.keybindings.manager.command2keylabel('cmd_completeWord');
         text = text.replace('__KEY__', keylabel);
         document.getElementById('editTabCompletes').setAttribute('label', text);
 

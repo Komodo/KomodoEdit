@@ -1627,7 +1627,7 @@ test_vi_emulation.prototype.test_bug82707_changeLine = function() {
 /* TEST SUITE */
 
 function vi_emulation_test_suite(name) {
-    this._originalKeybindingConfigName = gKeybindingMgr.currentConfiguration;
+    this._originalKeybindingConfigName = ko.keybindings.manager.currentConfiguration;
     Casper.UnitTest.TestSuite.apply(this, [name]);
 }
 vi_emulation_test_suite.prototype = new Casper.UnitTest.TestSuite();
@@ -1648,7 +1648,7 @@ vi_emulation_test_suite.prototype.run = function() {
     if (this._originalKeybindingConfigName != "Vi") {
         gVimController.enable(false);
         gVimController.enabledCallback = callback;
-        gKeybindingMgr.switchConfiguration("Vi");
+        ko.keybindings.manager.switchConfiguration("Vi");
     } else {
         callback();
     }
@@ -1656,8 +1656,8 @@ vi_emulation_test_suite.prototype.run = function() {
 
 vi_emulation_test_suite.prototype.tearDown = function() {
     // Switch back the keybindings to the original set
-    if (gKeybindingMgr.currentConfiguration != this._originalKeybindingConfigName) {
-        gKeybindingMgr.switchConfiguration(this._originalKeybindingConfigName);
+    if (ko.keybindings.manager.currentConfiguration != this._originalKeybindingConfigName) {
+        ko.keybindings.manager.switchConfiguration(this._originalKeybindingConfigName);
     }
 }
 

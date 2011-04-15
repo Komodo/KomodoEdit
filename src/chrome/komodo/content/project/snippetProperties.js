@@ -86,7 +86,7 @@ function onLoad(event) {
         snippetname.value = gItem.getStringAttribute('name');
 
         keybinding = document.getElementById('keybindings');
-        keybinding.gKeybindingMgr = opener.gKeybindingMgr;
+        keybinding.gKeybindingMgr = opener.ko.keybindings.manager;
         keybinding.part = gItem;
 
         keybinding.commandParam = gItem.id;

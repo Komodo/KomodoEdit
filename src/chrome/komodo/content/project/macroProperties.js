@@ -111,7 +111,7 @@ function onLoad() {
         }
 
         gKeybinding = document.getElementById('keybindings');
-        gKeybinding.gKeybindingMgr = opener.gKeybindingMgr;
+        gKeybinding.gKeybindingMgr = opener.ko.keybindings.manager;
         gKeybinding.part = gPart;
         gKeybinding.commandParam = gPart.id;
         gKeybinding.init();

@@ -60,12 +60,12 @@ function langhelp_OnLoad() {
     try {
     var gMainWindow = ko.windowManager.getMainWindow();
     // get a keybinding and set the text correctly
-    var keylabel = gMainWindow.gKeybindingMgr.command2keylabel('cmd_helpLanguage');
+    var keylabel = gMainWindow.ko.keybindings.manager.command2keylabel('cmd_helpLanguage');
     var text = _bundle.formatStringFromName("SpecifyWhatCommandKeyShouldRun", [keylabel], 1)+" "+_bundle.GetStringFromName("SetToEmptyToUseDefault");
     var node = document.createTextNode(text);
     document.getElementById('language_help_desc').appendChild(node);
     
-    keylabel = gMainWindow.gKeybindingMgr.command2keylabel('cmd_helpLanguageAlternate');
+    keylabel = gMainWindow.ko.keybindings.manager.command2keylabel('cmd_helpLanguageAlternate');
     text = _bundle.formatStringFromName("SpecifyWhatCommandKeyShouldRun", [keylabel], 1);
     node = document.createTextNode(text);
     document.getElementById('language_help_alt_desc').appendChild(node);

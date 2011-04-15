@@ -96,7 +96,7 @@ function onLoad() {
         tabs.selectedTab = part_tab; // we may want to change this sometimes.
 
         keybinding = document.getElementById('keybindings');
-        keybinding.gKeybindingMgr = opener.gKeybindingMgr;
+        keybinding.gKeybindingMgr = opener.ko.keybindings.manager;
         keybinding.part = gItem;
 
         keybinding.commandParam = gItem.id;

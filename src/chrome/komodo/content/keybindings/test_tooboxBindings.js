@@ -200,19 +200,19 @@ test_keybindings_toolbox.prototype.test_keybinding_toolboxMacro = function() {
     var keylabel = "Ctrl+K, Ctrl+B";
     var commandParam = item.id;
     
-    var seqList = gKeybindingMgr.command2keysequences(cmd, commandParam);
+    var seqList = ko.keybindings.manager.command2keysequences(cmd, commandParam);
     this.assertTrue(seqList.length == 0,"command already has binding!");
 
     var keysequence = keylabel2keysequence(keylabel);
-    seqList = gKeybindingMgr.command2keysequences(cmd)
+    seqList = ko.keybindings.manager.command2keysequences(cmd)
     this.assertFalse(seqList.indexOf(keylabel) >= 0, "test key sequence already exists");
     
-    gKeybindingMgr.assignKey(cmd, keysequence, commandParam);
-    seqList = gKeybindingMgr.command2keysequences(cmd, commandParam)
+    ko.keybindings.manager.assignKey(cmd, keysequence, commandParam);
+    seqList = ko.keybindings.manager.command2keysequences(cmd, commandParam)
     this.assertTrue(seqList.indexOf(keylabel) >= 0, "assignKey failed");
     
-    gKeybindingMgr.makeKeyActive(cmd, keysequence);
-    gKeybindingMgr.stashIn(item, keylabel);
+    ko.keybindings.manager.makeKeyActive(cmd, keysequence);
+    ko.keybindings.manager.stashIn(item, keylabel);
     this.assertEqual(item.getStringAttribute('keyboard_shortcut'), keylabel, "keylabel was not stashed in part");
 }
 
@@ -288,19 +288,19 @@ test_keybindings_toolbox.prototype.test_changeKey_toolboxMacro = function() {
     var keylabel = "Ctrl+K, K";
     var oldkeylabel = "Ctrl+K, Ctrl+B";
     var commandParam = item.id;
-    var seqList = gKeybindingMgr.command2keysequences(cmd, commandParam);
+    var seqList = ko.keybindings.manager.command2keysequences(cmd, commandParam);
     this.assertTrue(seqList.length != 0,"command does not have a binding!");
     
-    gKeybindingMgr.clearSequence(cmd, oldkeylabel, false);
+    ko.keybindings.manager.clearSequence(cmd, oldkeylabel, false);
     // ensure the command is no longer tied to the sequence
-    seqList = gKeybindingMgr.command2keysequences(cmd)
+    seqList = ko.keybindings.manager.command2keysequences(cmd)
     this.assertFalse(seqList.indexOf(keylabel) >= 0, "test key sequence did not get removed");
-    seqList = gKeybindingMgr.command2keysequences(cmd, commandParam)
+    seqList = ko.keybindings.manager.command2keysequences(cmd, commandParam)
     this.assertFalse(seqList.indexOf(keylabel) >= 0, "test key sequence did not get removed");
     
     var keysequence = keylabel2keysequence(keylabel);
-    gKeybindingMgr.assignKey(cmd, keysequence, commandParam);
-    seqList = gKeybindingMgr.command2keysequences(cmd, commandParam)
+    ko.keybindings.manager.assignKey(cmd, keysequence, commandParam);
+    seqList = ko.keybindings.manager.command2keysequences(cmd, commandParam)
     this.assertEqual(keysequence2keylabel(seqList), keylabel, "assignKey failed");
 }
 
@@ -324,17 +324,17 @@ test_keybindings_toolbox.prototype.test_clearSequence_toolboxMacro = function() 
     var keylabel = "Ctrl+K, K";
     var keysequence = keylabel2keysequence(keylabel);
     
-    var seqList = gKeybindingMgr.command2keysequences(cmd, commandParam)
+    var seqList = ko.keybindings.manager.command2keysequences(cmd, commandParam)
     this.assertTrue(seqList.indexOf(keylabel) >= 0, "test key sequence does not exist yet");
 
-    gKeybindingMgr.clearSequence(cmd, keylabel, false);
+    ko.keybindings.manager.clearSequence(cmd, keylabel, false);
 
     // ensure the command is no longer tied to the sequence
-    var seqList = gKeybindingMgr.command2keysequences(cmd, commandParam)
+    var seqList = ko.keybindings.manager.command2keysequences(cmd, commandParam)
     this.assertFalse(seqList.indexOf(keylabel) >= 0, "test key sequence did not get removed");
 
     // ensure that the keytree no longer has this sequence
-    var root = gKeybindingMgr._getKeyTreeRoot(keysequence);
+    var root = ko.keybindings.manager._getKeyTreeRoot(keysequence);
     this.assertNotEqual(root[keysequence[keysequence.length-1]], cmd, "keytree still has keysequence!");
 }
 

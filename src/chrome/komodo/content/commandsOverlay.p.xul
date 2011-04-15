@@ -380,7 +380,7 @@
             it 'invisible'-->
         <command
             id="cmd_prefix"
-            oncommand="gKeybindingMgr.keypressHandler(event)"
+            oncommand="ko.keybindings.manager.keypressHandler(event)"
             invisible="true"
             />
         <command
@@ -388,7 +388,7 @@
             interactive="true"
             invisible="true"
             docommand="try { ko.projects.invokePartById(_param) ;} catch (e) { log.exception(e); }"
-            oncommand="gKeybindingMgr.keypressHandler(event)"
+            oncommand="ko.keybindings.manager.keypressHandler(event)"
             />
 
         <command

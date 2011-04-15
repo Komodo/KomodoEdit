@@ -301,8 +301,8 @@ ISController.prototype.cancelMultiHandler = function(event) {
  */
 
 ISController.prototype._lookingAtRepeatCommand = function(event) {
-    var actual_key = gKeybindingMgr.event2keylabel(event);
-    var expected_key_sequences = gKeybindingMgr.command2key['cmd_repeatNextCommandBy'];
+    var actual_key = ko.keybindings.manager.event2keylabel(event);
+    var expected_key_sequences = ko.keybindings.manager.command2key['cmd_repeatNextCommandBy'];
     for (var i in expected_key_sequences) {
         // Reject multi-character keylabels like Ctrl-K, Ctrl-Home
         // to eliminate any ambiguity.
@@ -335,9 +335,9 @@ ISController.prototype.multiHandler= function(event) {
                                     "multi_input", 0, false, true);
             return;
         }
-        var key = gKeybindingMgr.event2keylabel(event);
+        var key = ko.keybindings.manager.event2keylabel(event);
         // If the key corresponds to the cmd_cancel command, cancel.
-        if (gKeybindingMgr.command2key['cmd_cancel'] == key) {
+        if (ko.keybindings.manager.command2key['cmd_cancel'] == key) {
             event.cancelBubble = true;
             ko.isearch.controller.cancelMultiHandler();
             return;
@@ -365,9 +365,9 @@ ISController.prototype.keyPressForSearch = function(event) {
         var scintilla = v.scintilla;
         var scimoz = v.scintilla.scimoz;
         var pos = scimoz.selectionStart < scimoz.selectionEnd ? scimoz.selectionStart : scimoz.selectionEnd;
-        var eventkey = gKeybindingMgr.event2keylabel(event);
-        var triggerkeys = gKeybindingMgr.command2keysequences('cmd_startIncrementalSearch');
-        var backwardstriggerkeys = gKeybindingMgr.command2keysequences('cmd_startIncrementalSearchBackwards');
+        var eventkey = ko.keybindings.manager.event2keylabel(event);
+        var triggerkeys = ko.keybindings.manager.command2keysequences('cmd_startIncrementalSearch');
+        var backwardstriggerkeys = ko.keybindings.manager.command2keysequences('cmd_startIncrementalSearchBackwards');
 
         // If the key sequence associated with incremental search is more than
         // one key long (i.e. the user has customized from the default <Ctrl+I>
@@ -494,8 +494,8 @@ ISController.prototype.keyPressForSearch = function(event) {
                 mouse_event_handler_for_isearch, false);
             // Anything, not just escape, cancels incremental search
             this._stopIncrementalSearch(_bundle.GetStringFromName("searchCanceled"));
-            var key = gKeybindingMgr.event2keylabel(event);
-            if (gKeybindingMgr.command2key['cmd_cancel'] == key) {
+            var key = ko.keybindings.manager.event2keylabel(event);
+            if (ko.keybindings.manager.command2key['cmd_cancel'] == key) {
                 event.cancelBubble = true;
             }
             return;

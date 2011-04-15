@@ -96,19 +96,19 @@ test_keybindings_bug44719.prototype.test_addKeyBinding = function() {
     var keylabel = "Ctrl+K, B";
     var commandParam = item.id;
     
-    var seqList = gKeybindingMgr.command2keysequences(cmd, commandParam);
+    var seqList = ko.keybindings.manager.command2keysequences(cmd, commandParam);
     this.assertTrue(seqList.length == 0,"command already has binding!");
 
     var keysequence = keylabel2keysequence(keylabel);
-    seqList = gKeybindingMgr.command2keysequences(cmd)
+    seqList = ko.keybindings.manager.command2keysequences(cmd)
     this.assertFalse(seqList.indexOf(keylabel) >= 0, "test key sequence already exists");
     
-    gKeybindingMgr.assignKey(cmd, keysequence, commandParam);
-    seqList = gKeybindingMgr.command2keysequences(cmd, commandParam)
+    ko.keybindings.manager.assignKey(cmd, keysequence, commandParam);
+    seqList = ko.keybindings.manager.command2keysequences(cmd, commandParam)
     this.assertTrue(seqList.indexOf(keylabel) >= 0, "assignKey failed");
     
-    gKeybindingMgr.makeKeyActive(cmd, keysequence);
-    gKeybindingMgr.stashIn(item, keylabel);
+    ko.keybindings.manager.makeKeyActive(cmd, keysequence);
+    ko.keybindings.manager.stashIn(item, keylabel);
     this.assertEqual(item.getStringAttribute('keyboard_shortcut'), keylabel, "keylabel was not stashed in part");
 }
 
@@ -122,7 +122,7 @@ test_keybindings_bug44719.prototype.test_movesnippetOutOfFolder = function() {
     var commandParam = snippet.id;
 
     // assert the keybinding exists
-    var seqList = gKeybindingMgr.command2keysequences(cmd, commandParam);
+    var seqList = ko.keybindings.manager.command2keysequences(cmd, commandParam);
     this.assertFalse(seqList.length == 0,"item does not have a binding!");
 }
 
@@ -140,7 +140,7 @@ test_keybindings_bug44719.prototype.test_movesnippetIntoFolder = function() {
     //ko.toolbox2.manager.view.toggleOpenState(index);
 
     // assert the keybinding exists
-    var seqList = gKeybindingMgr.command2keysequences(cmd, commandParam);
+    var seqList = ko.keybindings.manager.command2keysequences(cmd, commandParam);
     this.assertFalse(seqList.length == 0,"item does not have a binding!");
 }
 
@@ -162,11 +162,11 @@ test_keybindings_bug44719.prototype.test_removeChildBindings = function() {
     var items = ko.toolbox2.getToolsByTypeAndName('snippet', this.snippetName);
     this.assertEqual(0, items.length, "snippet did not get deleted with folder");
     // assert our binding no longer exists
-    seqList = gKeybindingMgr.command2keysequences(cmd)
+    seqList = ko.keybindings.manager.command2keysequences(cmd)
     this.assertFalse(seqList.indexOf(keylabel) >= 0, "item bindings did not get removed");
 
     // assert our binding no longer exists
-    var seqList = gKeybindingMgr.command2keysequences(cmd, commandParam);
+    var seqList = ko.keybindings.manager.command2keysequences(cmd, commandParam);
     this.assertTrue(seqList.length == 0,"the binding still exists after removing the snippet!");
 }
 

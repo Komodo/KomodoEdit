@@ -464,7 +464,7 @@ VimController.prototype.loadOverlay = function() {
                 gVimController.updateViInternals();
                 // Force keybindings to reload it's command configuration, which
                 // ensures the keybinding pref window shows the vi commands.
-                gKeybindingMgr.parseGlobalData();
+                ko.keybindings.manager.parseGlobalData();
                 if (gVimController.enabledCallback) {
                     gVimController.enabledCallback.call();
                     gVimController.enabledCallback = null;
@@ -474,7 +474,7 @@ VimController.prototype.loadOverlay = function() {
     };
     // Enable vi keybindings - load the vi command overlay
     //dump("Loading vi overlay\n");
-    gKeybindingMgr.document.loadOverlay("chrome://komodo/content/keybindings/vi-commands-overlay.xul", callback);
+    ko.keybindings.manager.document.loadOverlay("chrome://komodo/content/keybindings/vi-commands-overlay.xul", callback);
 }
 
 // Remove the vi overlay commands
@@ -491,13 +491,13 @@ VimController.prototype.unloadOverlay = function() {
     }
 
     // Disable vi keybindings - remove the vi commandset
-    var vimset = gKeybindingMgr.document.getElementById('cmdset_vim');
+    var vimset = ko.keybindings.manager.document.getElementById('cmdset_vim');
     if (vimset && vimset.parentNode) {
         var parentNode = vimset.parentNode;
         //dump("Removing vimset: " + vimset + "\n");
         parentNode.removeChild(vimset);
         // Force keybindings to reload it's command configuration
-        gKeybindingMgr.parseGlobalData();
+        ko.keybindings.manager.parseGlobalData();
     }
     window.controllers.removeController(this);
 
@@ -1075,7 +1075,7 @@ VimController.prototype.handleKeypress = function(event) {
                 event.stopPropagation();
                 event.preventDefault();
                 event.cancelBubble = true;
-                gKeybindingMgr.keypressHandler(event);
+                ko.keybindings.manager.keypressHandler(event);
             } else {
                 // Else, leave everything else alone
                 return false;

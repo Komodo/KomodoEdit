@@ -57,15 +57,15 @@ test_keybindings_bindings.prototype.setup = function() {
     // ensure all files are closed
     // create a macro with a keybinding
     // prevent commands executing during this test
-    this._evalCommand = gKeybindingMgr.evalCommand;
+    this._evalCommand = ko.keybindings.manager.evalCommand;
     var self = this;
-    gKeybindingMgr.evalCommand = function(event, commandname, keylabel) {
+    ko.keybindings.manager.evalCommand = function(event, commandname, keylabel) {
         self.evalCommand(event, commandname, keylabel);
         return true;
     };
 }
 test_keybindings_bindings.prototype.tearDown = function() {
-    gKeybindingMgr.evalCommand = this._evalCommand;
+    ko.keybindings.manager.evalCommand = this._evalCommand;
     // remove the macro
 }
 test_keybindings_bindings.prototype.evalCommand = function(event, commandname, keylabel)
@@ -117,20 +117,20 @@ test_keybindings_bindings.prototype.key2event = function(seq)
 }
 
 test_keybindings_bindings.prototype.multiKeyBinding = function(event) {
-    var keys = gKeybindingMgr.eventBindings(event);
+    var keys = ko.keybindings.manager.eventBindings(event);
     for (var b in bindings) {
         //dump("    binding "+bindings[b]+"\n");
-        var key2command = gKeybindingMgr.key2command[bindings[b]];
+        var key2command = ko.keybindings.manager.key2command[bindings[b]];
         //dump("    key "+seq+" command "+key2command+"\n");
         this.assertEqual(key2command, command, "binding "+bindings[b]+" did not resolve to command "+command);
     }
 }
 
 test_keybindings_bindings.prototype.test_loadConfiguration = function() {
-    for (var command in gKeybindingMgr.command2key) {
-        if (command in gKeybindingMgr._commandParams)
+    for (var command in ko.keybindings.manager.command2key) {
+        if (command in ko.keybindings.manager._commandParams)
             continue;
-        var keys = gKeybindingMgr.command2keysequences(command);
+        var keys = ko.keybindings.manager.command2keysequences(command);
         
         for (var k in keys) {
             var seq = keylabel2keysequence(keys[k])
@@ -141,10 +141,10 @@ test_keybindings_bindings.prototype.test_loadConfiguration = function() {
                 var found = false;
                 //ko.logging.dumpEvent(event);
                 // see if we get back what we want
-                var bindings = gKeybindingMgr.eventBindings(events[0]);
+                var bindings = ko.keybindings.manager.eventBindings(events[0]);
                 for (var b in bindings) {
                   //dump("    binding "+bindings[b]+"\n");
-                  var key2command = gKeybindingMgr.key2command[bindings[b]];
+                  var key2command = ko.keybindings.manager.key2command[bindings[b]];
                   //dump("    key "+seq+" command "+key2command+"\n");
                   found = key2command == command;
                 }
@@ -154,7 +154,7 @@ test_keybindings_bindings.prototype.test_loadConfiguration = function() {
                 this.commandFound = false;
                 for (var i=0; i < events.length; i++) {
                     this.assertFalse(this.commandFound, "command found prior to end of key combo!");
-                    gKeybindingMgr.keypressHandler(events[i]);
+                    ko.keybindings.manager.keypressHandler(events[i]);
                 }
                 //dump("  key found? "+this.commandFound+"\n");
                 this.assertTrue(this.commandFound, "binding "+keys[k]+" did not resolve to command "+command);
