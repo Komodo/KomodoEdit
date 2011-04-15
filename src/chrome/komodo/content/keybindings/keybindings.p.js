@@ -36,9 +36,6 @@
 
 // Keybindings.js -- code related to customizable keybindings
 
-// Globals
-var gKeybindingMgr= null;
-
 /* The keybindingManager controls all things keybinding-related.
 
     It manages:
@@ -114,7 +111,7 @@ var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
 
 //_log.setLevel(ko.logging.LOG_DEBUG);
     
-this.manager = function keybindingManager() {
+this.Manager = function KeybindingManager() {
     this.commanditems = null; // XXX
     this.command2key = {}; // what key for a command?
     this.key2command= {}; // what command assigned to a key?
@@ -165,9 +162,9 @@ this.manager = function keybindingManager() {
     this.inPrefixCapture = false;
 }
 
-this.manager.prototype.constructor = this.manager;
+this.Manager.prototype.constructor = this.Manager;
 
-this.manager.prototype.finalize = function(part, topic, partId) {
+this.Manager.prototype.finalize = function(part, topic, partId) {
     window.removeEventListener('keypress', gKeyHandler, false);
 // #if PLATFORM != 'darwin'
     window.removeEventListener('keydown', gKeyDownHandler, false);
@@ -185,7 +182,7 @@ this.manager.prototype.finalize = function(part, topic, partId) {
     observerSvc.removeObserver(this, 'toolbox-unloaded-global');
  }
 
-this.manager.prototype.observe = function(part, topic, partId) {
+this.Manager.prototype.observe = function(part, topic, partId) {
     // Two notifications are observed by the keybinding manager -- kb-load and kb-unload.
     // see the notification HOWTO for details
 
@@ -223,7 +220,7 @@ this.manager.prototype.observe = function(part, topic, partId) {
     }
 }
 
-this.manager.prototype.manageKeyboardShortcut = function(part, topic, partId) {
+this.Manager.prototype.manageKeyboardShortcut = function(part, topic, partId) {
     var keylabels = part.getStringAttribute('keyboard_shortcut').split('###');
     var keylabel;
     var command = 'cmd_callPart';
@@ -241,11 +238,11 @@ this.manager.prototype.manageKeyboardShortcut = function(part, topic, partId) {
     }
 }
 
-this.manager.prototype.getConfigurations = function () {
+this.Manager.prototype.getConfigurations = function () {
     return this._knownconfigs;
 }
 
-this.manager.prototype.loadConfiguration = function (configName, forceReload /* = false */) {
+this.Manager.prototype.loadConfiguration = function (configName, forceReload /* = false */) {
     try {
         if (typeof(forceReload) == 'undefined') forceReload = false;
         //dump("loading from " + configName + '\n');
@@ -273,7 +270,7 @@ this.manager.prototype.loadConfiguration = function (configName, forceReload /* 
     }
 }
 
-this.manager.prototype.mergeSchemeConfiguration = function (configName, forceReload /* = false */) {
+this.Manager.prototype.mergeSchemeConfiguration = function (configName, forceReload /* = false */) {
     try {
         if (typeof(forceReload) == 'undefined') forceReload = false;
         //dump("loading from " + configName + '\n');
@@ -289,7 +286,7 @@ this.manager.prototype.mergeSchemeConfiguration = function (configName, forceRel
     }
 }
 
-this.manager.prototype.removeCommandsWithPrefix = function (prefix) {
+this.Manager.prototype.removeCommandsWithPrefix = function (prefix) {
     try {
         this._clearActiveBindings();
         this.clearBindings();
@@ -357,7 +354,7 @@ const currentKeybindingVersionNumber = 28;
  * Remove this dictionary of keybinds.
  * @private
  */
-this.manager.prototype._remove_keybinding_sequences = function (command_to_key_sequences) {
+this.Manager.prototype._remove_keybinding_sequences = function (command_to_key_sequences) {
     var i;
     var j;
     var commandId;
@@ -385,7 +382,7 @@ this.manager.prototype._remove_keybinding_sequences = function (command_to_key_s
  * Add this dictionary of keybinds.
  * @private
  */
-this.manager.prototype._add_keybinding_sequences = function (command_to_key_sequences) {
+this.Manager.prototype._add_keybinding_sequences = function (command_to_key_sequences) {
     var i;
     var j;
     var commandId;
@@ -436,7 +433,7 @@ this.manager.prototype._add_keybinding_sequences = function (command_to_key_sequ
  * @param {int} from_version  the version to upgrade from
  * @param {boolean} vi_enabled whether uses vi key keybindings
  */
-this.manager.prototype._upgradeKeybingings = function (from_version,
+this.Manager.prototype._upgradeKeybingings = function (from_version,
                                                        vi_enabled) {
     // Loop around until it's fully upgraded
     while (from_version < currentKeybindingVersionNumber) {
@@ -831,7 +828,7 @@ this.manager.prototype._upgradeKeybingings = function (from_version,
  * Parse the keybinding configuration file data into commands.
  * Acitivate the keybinding commands.
  */
-this.manager.prototype.parseConfiguration = function (data,
+this.Manager.prototype.parseConfiguration = function (data,
                                                       forceReload /* =false */,
                                                       ignoreCommandPrefix /* =null */) {
     // Type check the arguments
@@ -950,7 +947,7 @@ this.manager.prototype.parseConfiguration = function (data,
     gVimController.enable(vi_enabled);
 }
 
-this.manager.prototype.learnParameter = function (commandId, parameter, keylabel) {
+this.Manager.prototype.learnParameter = function (commandId, parameter, keylabel) {
     // Parameters are the parameters to "parametrized commands" -- i.e. those that require an argument
     // used in cmd_callPart
     if (!(commandId in this._commandParams)) {
@@ -960,14 +957,14 @@ this.manager.prototype.learnParameter = function (commandId, parameter, keylabel
     this._commandParams[commandId][keylabel] = parameter;
 }
 
-this.manager.prototype._configKnown= function (newconfigname) {
+this.Manager.prototype._configKnown= function (newconfigname) {
     for (var i in this._knownconfigs) {
         if (this._knownconfigs[i] == newconfigname) return true;
     }
     return false;
 }
 
-this.manager.prototype.makeNewConfiguration = function (newconfigname, prefset) {
+this.Manager.prototype.makeNewConfiguration = function (newconfigname, prefset) {
     try {
         this.prefset = prefset;
         var alreadyExists = this._configKnown(newconfigname);
@@ -991,7 +988,7 @@ this.manager.prototype.makeNewConfiguration = function (newconfigname, prefset) 
     return newconfigname;
 }
 
-this.manager.prototype.deleteConfiguration = function (configname, prefset) {
+this.Manager.prototype.deleteConfiguration = function (configname, prefset) {
     try {
         if (! this._configKnown(configname)) {
             alert("Error deleting configuration: " + configname);
@@ -1028,11 +1025,11 @@ this.manager.prototype.deleteConfiguration = function (configname, prefset) {
     }
 }
 
-this.manager.prototype.makeDirty= function() {
+this.Manager.prototype.makeDirty= function() {
     this._configDirty = true;
 }
 
-this.manager.prototype.saveCurrentConfiguration = function() {
+this.Manager.prototype.saveCurrentConfiguration = function() {
     if (!this.configurationWriteable(this.currentConfiguration)) {
         return;  // We don't bother saving factory default configs.
     }
@@ -1066,7 +1063,7 @@ this.manager.prototype.saveCurrentConfiguration = function() {
     this._configDirty = false;
 }
 
-this.manager.prototype.configurationWriteable = function(configname) {
+this.Manager.prototype.configurationWriteable = function(configname) {
     var scheme = this.keybindingSchemeService.getScheme(configname);
     return scheme.writeable;
 }
@@ -1079,11 +1076,11 @@ function isArray(obj) {
     return ((typeof(obj) == 'object') && (typeof(obj.length) == 'number'));
 }
 
-this.manager.prototype.applyCurrentConfiguration = function() {
+this.Manager.prototype.applyCurrentConfiguration = function() {
     this.walk_and_apply(this.keyTree, []);
 }
 
-this.manager.prototype.walk_and_apply = function(root, keysequence) {
+this.Manager.prototype.walk_and_apply = function(root, keysequence) {
     // walk the prefixTree, calling makeKeyActive each time
     for (var leaf in root) {
         //dump("leaf = " + leaf +'\n');
@@ -1113,7 +1110,7 @@ this.manager.prototype.walk_and_apply = function(root, keysequence) {
     }
 }
 
-this.manager.prototype._clearActiveBindings= function() {
+this.Manager.prototype._clearActiveBindings= function() {
     if (! this.activeCommands) {
         //dump("null activeCommands\n");
         return;
@@ -1127,7 +1124,7 @@ this.manager.prototype._clearActiveBindings= function() {
     this.activeCommands = null;
 }
 
-this.manager.prototype.revertToPref = function(configname) {
+this.Manager.prototype.revertToPref = function(configname) {
     if (this._configUnsaved) {
         var configs = this._knownconfigs;
         this._knownconfigs = []
@@ -1144,7 +1141,7 @@ this.manager.prototype.revertToPref = function(configname) {
     ko.toolbox2.applyKeybindings(); 
 }
 
-this.manager.prototype.saveAndApply = function(prefset) {
+this.Manager.prototype.saveAndApply = function(prefset) {
     try {
         var keybindings = '';
         var i, keybinding;
@@ -1169,7 +1166,7 @@ this.manager.prototype.saveAndApply = function(prefset) {
     }
 }
 
-this.manager.prototype._saveKnownConfigs = function() {
+this.Manager.prototype._saveKnownConfigs = function() {
     var keybinding;
     var keybindings = '';
     for (var i in this._knownconfigs) {
@@ -1186,7 +1183,7 @@ this.manager.prototype._saveKnownConfigs = function() {
 
 // On switching of configuration names, check to see if current configuration needs to be saved
 
-this.manager.prototype.offerToSave= function () {
+this.Manager.prototype.offerToSave= function () {
     if (this._configDirty
         && ko.dialogs.yesNo("Changes to the current keyboard configuration have "
                         +"not been saved yet.  Do you wish to save them?")
@@ -1197,7 +1194,7 @@ this.manager.prototype.offerToSave= function () {
     }
 }
 
-this.manager.prototype.switchConfiguration= function (newconfigname) {
+this.Manager.prototype.switchConfiguration= function (newconfigname) {
     if (newconfigname == this.currentConfiguration) return true; // Nothing to do
     if (!this._configKnown(newconfigname)) {
         alert("Unknown Keyboard configuration: " + newconfigname);
@@ -1215,14 +1212,14 @@ this.manager.prototype.switchConfiguration= function (newconfigname) {
     //dump("switched to " + this.currentConfiguration+'\n');
 }
 
-this.manager.prototype.clearBindings = function () {
+this.Manager.prototype.clearBindings = function () {
     this.keyTree = {};  // a sequence of key sequences
     this.command2key = {};  // a hash between commands and keys
     this.key2command = {};  // a hash from key to command
     this.activeCommands = {};
 }
 
-this.manager.prototype.command2keylabel = function (commandId) {
+this.Manager.prototype.command2keylabel = function (commandId) {
     var seq = this.command2keysequences(commandId);
     return keysequence2keylabel(seq);
 }
@@ -1255,7 +1252,7 @@ function keylabel2keysequence(keylabel) {
 }
 this.keylabel2keysequence = keylabel2keysequence;
 
-this.manager.prototype.getKey = function(keyname) {
+this.Manager.prototype.getKey = function(keyname) {
     //_log.info("doing getKey for " + keyname);
     // XXX consider using this.key etc. to avoid creation of 4 variables on each key assignment.
     // This function is called once for each key binding at startup -- it should be as fast as possible.
@@ -1285,7 +1282,7 @@ function dumpKey(key) {
     dump('/>');
 }
 
-this.manager.prototype.clearBinding = function(commandId, commandParam, restore) {
+this.Manager.prototype.clearBinding = function(commandId, commandParam, restore) {
     if (!(commandId in this.command2key)) {
         //dump("-- clearing binding for " + commandId + " but no binding exists \n");
         return;
@@ -1314,7 +1311,7 @@ this.manager.prototype.clearBinding = function(commandId, commandParam, restore)
     }
 };
 
-this.manager.prototype._getKeyTreeRoot = function(keysequence) {
+this.Manager.prototype._getKeyTreeRoot = function(keysequence) {
     var root = this.keyTree;
     var i;
     for (i=0; i < keysequence.length - 1; i++) {
@@ -1327,7 +1324,7 @@ this.manager.prototype._getKeyTreeRoot = function(keysequence) {
     return root;
 }
 
-this.manager.prototype.clearSequence = function(commandId, keylabel, restore) {
+this.Manager.prototype.clearSequence = function(commandId, keylabel, restore) {
     //dump("clearSequence "+commandId+", "+keylabel+", "+restore+"\n");
     try {
     if (typeof(keylabel) != 'string') {
@@ -1376,7 +1373,7 @@ this.manager.prototype.clearSequence = function(commandId, keylabel, restore) {
     } catch(e) { _log.exception(e); }
 };
 
-this.manager.prototype.unsetKey = function(keylabel) {
+this.Manager.prototype.unsetKey = function(keylabel) {
     // we do not remove non-command key elements due to a mozilla crash bug
     // this unsets any command attached to the key but otherwise leaves
     // it intact
@@ -1389,7 +1386,7 @@ this.manager.prototype.unsetKey = function(keylabel) {
     }
 }
 
-this.manager.prototype.unsetKeyBinding = function(commandId) {
+this.Manager.prototype.unsetKeyBinding = function(commandId) {
     // this both unsets the keybinding and clears the menu key text,
     // which is set by either acceltext, keytext, or modifiers+key|keycode
     //dump("unsetKeyBinding "+commandId+"\n");
@@ -1410,7 +1407,7 @@ this.manager.prototype.unsetKeyBinding = function(commandId) {
     }
 }
 
-this.manager.prototype.setKeyBinding = function(keysequence, commandId, commandKey) {
+this.Manager.prototype.setKeyBinding = function(keysequence, commandId, commandKey) {
     // for purpose of assignment, we bind the command to the first key
     var keyname = keysequence[0]; 
     var keylabel = keysequence2keylabel(keysequence);
@@ -1475,7 +1472,7 @@ this.manager.prototype.setKeyBinding = function(keysequence, commandId, commandK
     return key;
 }
 
-this.manager.prototype.makeKeyActive = function(commandId, keysequence) {
+this.Manager.prototype.makeKeyActive = function(commandId, keysequence) {
   try {
     if (keysequence.length > 1) {
         //dump("makeKeyActive: " + commandId + ", keysequence: " + keysequence + "\n");
@@ -1507,14 +1504,14 @@ this.manager.prototype.makeKeyActive = function(commandId, keysequence) {
   }
 }
 
-this.manager.prototype.clearUsedBys= function(commandId, keysequence) {
+this.Manager.prototype.clearUsedBys= function(commandId, keysequence) {
     var usedbys = this.usedBy(keysequence)
     for (var i in usedbys) {
         this.clearSequence(usedbys[i].command, usedbys[i].label);
     }
 }
 
-this.manager.prototype.assignKey = function(commandId, keysequence, parameter) {
+this.Manager.prototype.assignKey = function(commandId, keysequence, parameter) {
     var sequencelabel = keysequence2keylabel(keysequence);
     if (typeof(parameter) == 'string' && parameter != '') {
         this.learnParameter(commandId, parameter, sequencelabel);
@@ -1545,7 +1542,7 @@ this.manager.prototype.assignKey = function(commandId, keysequence, parameter) {
     }
 }
 
-this.manager.prototype.parseGlobalData= function() {
+this.Manager.prototype.parseGlobalData= function() {
     var i;
     var keyname, key, commandname, commanddesc, command;
     var keys = this.document.getElementsByTagName('key');
@@ -1719,7 +1716,7 @@ a:hover\
 	text-decoration: underline;\
 	}";
 
-this.manager.prototype.makeCurrentKeyBindingTable = function() {
+this.Manager.prototype.makeCurrentKeyBindingTable = function() {
     //if (this.commanditems == null) {
         this.parseGlobalData();
     //}
@@ -1771,7 +1768,7 @@ this.manager.prototype.makeCurrentKeyBindingTable = function() {
     return text;
 }
 
-this.manager.prototype.makeCommandIdTable = function() {
+this.Manager.prototype.makeCommandIdTable = function() {
     //if (this.commanditems == null) {
         this.parseGlobalData();
     //}
@@ -1816,7 +1813,7 @@ this.manager.prototype.makeCommandIdTable = function() {
     return text;
 }
 
-this.manager.prototype._addRow = function(category, desc, keys) {
+this.Manager.prototype._addRow = function(category, desc, keys) {
     var text = '';
     // We may be missing some characters.
     desc = desc.replace('&', '&amp;', 'g');
@@ -1846,7 +1843,7 @@ this.manager.prototype._addRow = function(category, desc, keys) {
     return text;
 }
 
-this.manager.prototype._getPartFromId = function(param) {
+this.Manager.prototype._getPartFromId = function(param) {
     var part = ko.toolbox2.findToolById(param);
     if (!part) {
         throw new Error("keybindings._getPartFromId: Couldn't find part with id: " + param + '\n');
@@ -1854,7 +1851,7 @@ this.manager.prototype._getPartFromId = function(param) {
     return part;
 }
 
-this.manager.prototype.commandId2desc= function(commandname, param, label) {
+this.Manager.prototype.commandId2desc= function(commandname, param, label) {
     var command = this.document.getElementById(commandname);
     if (! command) {
         return '';
@@ -1879,7 +1876,7 @@ this.manager.prototype.commandId2desc= function(commandname, param, label) {
     return commanddesc;
 }
 
-this.manager.prototype.commandId2shortdesc = function(commandname, param) {
+this.Manager.prototype.commandId2shortdesc = function(commandname, param) {
     var command = this.document.getElementById(commandname);
     if (! command) {
         return '';
@@ -1902,7 +1899,7 @@ this.manager.prototype.commandId2shortdesc = function(commandname, param) {
     return commanddesc;
 }
 
-this.manager.prototype.commandId2tabledesc= function(commandname, param) {
+this.Manager.prototype.commandId2tabledesc= function(commandname, param) {
     var command = this.document.getElementById(commandname);
     if (! command) {
         return '';
@@ -1922,7 +1919,7 @@ this.manager.prototype.commandId2tabledesc= function(commandname, param) {
     return commanddesc;
 }
 
-this.manager.prototype.commandId2parameter= function(commandname, label) {
+this.Manager.prototype.commandId2parameter= function(commandname, label) {
     if (commandname in this._commandParams) {
         return this._commandParams[commandname][label];
     } else {
@@ -1930,11 +1927,11 @@ this.manager.prototype.commandId2parameter= function(commandname, label) {
     }
 }
 
-this.manager.prototype.stashIn= function(vessel, keylabel) {
+this.Manager.prototype.stashIn= function(vessel, keylabel) {
     vessel.setStringAttribute('keyboard_shortcut', keylabel);
 }
 
-this.manager.prototype.command2keysequences= function(commandId, commandParam) {
+this.Manager.prototype.command2keysequences= function(commandId, commandParam) {
     if (!(commandId in this.command2key)) return [];
     if (!(commandId in this._commandParams)) return this.command2key[commandId]
     var seqs = [];
@@ -1947,7 +1944,7 @@ this.manager.prototype.command2keysequences= function(commandId, commandParam) {
     return seqs;
 }
 
-this.manager.prototype._usedbys = function(root, remainingsequence, sofarsequence, usedbys) {
+this.Manager.prototype._usedbys = function(root, remainingsequence, sofarsequence, usedbys) {
     // This is a fairly delicate piece of code -- the logic is tricky to follow
     // so don't touch it if you don't really know what you're doing.
     //dump("-- remainingsequence = " + remainingsequence +'\n');
@@ -2042,7 +2039,7 @@ this.manager.prototype._usedbys = function(root, remainingsequence, sofarsequenc
     }
 }
 
-this.manager.prototype.usedBy = function(sequence) {
+this.Manager.prototype.usedBy = function(sequence) {
     // This function needs to walk the keyTree starting at root and return a list
     // of objects describing the commands which would be "intercepted" by the sequence
     // being sent in.
@@ -2064,7 +2061,7 @@ function dumpUsedBys(usedbys) {
     }
 }
 
-this.manager.prototype.eventBindings = function (event, isKeyPressEvent) {
+this.Manager.prototype.eventBindings = function (event, isKeyPressEvent) {
     if (typeof(isKeyPressEvent) == 'undefined') {
         isKeyPressEvent = true;
     }
@@ -2089,7 +2086,7 @@ this.manager.prototype.eventBindings = function (event, isKeyPressEvent) {
     return possible;
 }
 
-this.manager.prototype.event2keylabel = function (event, useShift, isKeyPressEvent) {
+this.Manager.prototype.event2keylabel = function (event, useShift, isKeyPressEvent) {
     var data = [];
     try {
         if (typeof(useShift) == 'undefined') {
@@ -2183,7 +2180,7 @@ this.manager.prototype.event2keylabel = function (event, useShift, isKeyPressEve
     return data.join('+');
 }
 
-this.manager.prototype.evalCommand = function (event, commandname, keylabel) {
+this.Manager.prototype.evalCommand = function (event, commandname, keylabel) {
     // this handles executing multi-key bindings and toolbox related commands
     try {
         var command = this.document.getElementById(commandname);
@@ -2224,7 +2221,7 @@ this.manager.prototype.evalCommand = function (event, commandname, keylabel) {
     return false;
 }
 
-this.manager.prototype.cancelPrefix = function (why) {
+this.Manager.prototype.cancelPrefix = function (why) {
     // This function is called whenever the prefix handler business needs to "stop"
     // this happens internally when a sequence of keystrokes doesn't correspond
     // to a predefined binding.
@@ -2256,7 +2253,7 @@ this.manager.prototype.cancelPrefix = function (why) {
     }
 }
 
-this.manager.prototype.startPrefixCapture = function() {
+this.Manager.prototype.startPrefixCapture = function() {
     this.inPrefixCapture = true;
     window.addEventListener('keypress',gKeyHandler, true);
 // #if PLATFORM != 'darwin'
@@ -2268,14 +2265,14 @@ this.manager.prototype.startPrefixCapture = function() {
 }
 
 var gKeyHandler = function (event) {
-    gKeybindingMgr.keypressHandler(event);
+    ko.keybindings.manager.keypressHandler(event);
 }
 
 // #if PLATFORM != 'darwin'
 var gKeyDownHandler = function (event) {
     // get and store the keydown label
-    gKeybindingMgr.keyDownLabels = gKeybindingMgr.eventBindings(event, false);
-    //dump("gKeyDownHandler "+gKeybindingMgr.keyDownLabels.join(", ")+"\n");
+    ko.keybindings.manager.keyDownLabels = ko.keybindings.manager.eventBindings(event, false);
+    //dump("gKeyDownHandler "+ko.keybindings.manager.keyDownLabels.join(", ")+"\n");
 }
 // #endif
 
@@ -2286,10 +2283,10 @@ var gCancelKeyHandler = function (event) {
     } else {
         msg = 'Key command canceled';
     }
-    gKeybindingMgr.cancelPrefix(msg)
+    ko.keybindings.manager.cancelPrefix(msg)
 }
 
-this.manager.prototype.keypressHandler = function (event) {
+this.Manager.prototype.keypressHandler = function (event) {
     try {
         //dump("keybindingManager::keypressHandler: key event "+event.type+" keycode "+event.keyCode+" phase "+event.eventPhase+"\n");
 
@@ -2393,12 +2390,12 @@ this.manager.prototype.keypressHandler = function (event) {
 this.onload = function keybindingManagerOnLoad()
 {
     try {
-        gKeybindingMgr = new ko.keybindings.manager();
+        ko.keybindings.manager = new ko.keybindings.manager();
         // Load vim key handling stuff
         VimController_onload();
         // makes it handy for other things to access in different windows
-        gKeybindingMgr.vimController = gVimController;
-        gKeybindingMgr.loadConfiguration(gKeybindingMgr.currentConfiguration);
+        ko.keybindings.manager.vimController = gVimController;
+        ko.keybindings.manager.loadConfiguration(ko.keybindings.manager.currentConfiguration);
     } catch (e) {
         _log.error(e);
     }
@@ -2675,3 +2672,4 @@ this.VKLabels = VKLabels;
  */
 ko.logging.globalDeprecatedByAlternative("keylabel2keysequence", "ko.keybindings.keylabel2keysequence");
 ko.logging.globalDeprecatedByAlternative("keysequence2keylabel", "ko.keybindings.keysequence2keylabel");
+ko.logging.globalDeprecatedByAlternative("gKeybindingMgr", "ko.keybindings.manager");
