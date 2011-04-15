@@ -177,6 +177,9 @@ class koCoffeeScriptLanguage(koJSLikeLanguage):
         "block": [ ("/*", "*/") ],
         "markup": "*",
     }
+    _indent_open_chars = "{[(=:"  # Yes, = starts a yaml-like object
+    _indenting_keywords = [u'if', u'while', u'else', u'for', u'try', u'catch',
+                           u'catch', u'finally', u'switch', u'when']
     _dedenting_statements = [u'throw', u'return', u'break', u'continue']
     _indenting_statements = [u'case']
     searchURL = "http://jashkenas.github.com/coffee-script/"
@@ -226,6 +229,7 @@ chkrange {name:'five', value:5}, 7, 12
         #log.debug("Found %s if ... no then here, no dedent", kwd)
         return None
     
+    _initial_word_re = re.compile("\s*(\w+)")
     def _shouldIndent(self, scimoz, pos, style_info):
         """ Override KoLanguageBase._shouldIndent to handle -> at EOL
         See comments in koLanguageServiceBase.py
@@ -243,7 +247,28 @@ chkrange {name:'five', value:5}, 7, 12
             elif (char == ">" and style in style_info._indent_open_styles):
                 if (p >= lineStart + 1
                     and ord(data[(p - lineStart - 1) * 2 + 1]) == style
-                    and data[(p - lineStart - 1) * 2] == "-"):
-                    return self._findIndentationBasedOnStartOfLogicalStatement(scimoz, pos, style_info, curLineNo)                           
+                    and data[(p - lineStart - 1) * 2] in "-="):
+                    # => and -> both denote functions, => rebinds 'this'
+                    return self._findIndentationBasedOnStartOfLogicalStatement(scimoz, pos, style_info, curLineNo)
+            eol_pos = p + 1
             break
-        return KoLanguageBase._shouldIndent(self, scimoz, pos, style_info)
+
+        # Now look to see if the line ends with a standard indenting
+        # character.  This is easier to look for than matching keywords
+        # at the start of the line.
+        if p > lineStart + 1:
+            # Continue looking using the base class method,
+            # but don't look at the characters in [p .. pos)
+            indentString =  KoLanguageBase._shouldIndent(self, scimoz, eol_pos, style_info)
+            if indentString:
+                return indentString
+                           
+        # Now look at the start of the line for a keyword
+        # Since coffeescript is so punctuation-adverse, a line that
+        # starts with 'return', 'if', etc. will be indented on the next line
+
+        lineString = data[0::2]
+        m = self._initial_word_re.match(lineString)
+        if m and m.group(1) in self._indenting_keywords:
+            return self._findIndentationBasedOnStartOfLogicalStatement(scimoz, eol_pos, style_info, curLineNo)
+        return None
