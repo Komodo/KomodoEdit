@@ -647,7 +647,7 @@
             var tabequivalent = '';
             var useTabs = this.prefs.getBooleanPref("useTabs");
             var tabWidth = this.prefs.getLongPref("tabWidth");
-            for (i = 0; i < tabWidth; i++) {
+            for (var i = 0; i < tabWidth; i++) {
                 tabequivalent += ' ';
             }
             var leading_ws_re = /^(\s+)(.*)/;
