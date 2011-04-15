@@ -224,8 +224,7 @@ var moreKomodo = {
 
     onCopyDirectoryPath : function() {
         var view = ko.views.manager.currentView;
-        var document = view.koDoc;
-        var file = document.file;
+        var file = view.koDoc.file;
         var dirName = file.dirName;
 
         if (file.isRemoteFile) {
