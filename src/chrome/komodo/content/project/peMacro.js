@@ -824,7 +824,7 @@ _KomodoJSMacroAPI.prototype.destructor = function() {
     delete this.view;
     delete this.window;
     delete this.koDoc;
-    //TODO: add this too? `delete this.doc;`
+    delete this.doc;
     delete this.document;
     delete this.domdocument;
 }
