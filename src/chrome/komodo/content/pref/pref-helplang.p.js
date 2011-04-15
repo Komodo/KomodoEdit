@@ -64,6 +64,7 @@ function langhelp_OnLoad() {
     var text = _bundle.formatStringFromName("SpecifyWhatCommandKeyShouldRun", [keylabel], 1)+" "+_bundle.GetStringFromName("SetToEmptyToUseDefault");
     var node = document.createTextNode(text);
     document.getElementById('language_help_desc').appendChild(node);
+    
     keylabel = gMainWindow.gKeybindingMgr.command2keylabel('cmd_helpLanguageAlternate');
     text = _bundle.formatStringFromName("SpecifyWhatCommandKeyShouldRun", [keylabel], 1);
     node = document.createTextNode(text);
