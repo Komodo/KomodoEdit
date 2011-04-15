@@ -57,6 +57,7 @@ from xpcom import components, nsError, ServerException
 import logging
 from pprint import pprint# , pformat
 
+import koLintResult
 from koLintResult import KoLintResult, getProxiedEffectivePrefs
 from koLintResults import koLintResults
 import koprocessutils
@@ -68,30 +69,6 @@ log = logging.getLogger('koPythonLinter')
 
 _leading_ws_re = re.compile(r'(\s*)')
 
-_SEV_ERROR = 2   # No xpcom here :(
-_SEV_WARNING = 1
-_SEV_INFO = 0
-
-def _addResult(results, textlines, severity, lineNo, desc, leadingWS=None):
-    result = KoLintResult()
-    result.severity = severity
-    if lineNo >= len(textlines):
-        lineNo = len(textlines) - 1
-    while lineNo >= 0 and len(textlines[lineNo - 1]) == 0:
-        lineNo -= 1
-    if lineNo == 0:
-        return
-    result.lineStart = result.lineEnd = lineNo
-    result.columnStart = 1
-    targetLine = textlines[lineNo - 1]
-    if leadingWS is not None:
-        columnEndOffset = len(leadingWS)
-    else:
-        columnEndOffset = 0
-    result.columnEnd = len(targetLine) + 1 - columnEndOffset
-    result.description = desc
-    results.addResult(result)
-    
 class _GenericPythonLinter(object):
     _com_interfaces_ = [components.interfaces.koILinter]
 
@@ -170,13 +147,13 @@ class KoPythonPyLintChecker(_GenericPythonLinter):
                 desc = "pylint: %s%s %s" % (status, statusCode,
                                                           m.group(4))
                 if status in ("E", "F"):
-                    severity = _SEV_ERROR
+                    severity = koLintResult.SEV_ERROR
                 elif status in ("C", "R", "W"):
-                    severity = _SEV_WARNING
+                    severity = koLintResult.SEV_WARNING
                 else:
                     #log.debug("Skip %s", line)
                     continue
-                _addResult(results, textlines, severity, lineNo, desc)
+                koLintResult.createAddResult(results, textlines, severity, lineNo, desc)
         return results
 
 class KoPythonPyflakesChecker(_GenericPythonLinter):
@@ -227,8 +204,8 @@ class KoPythonPyflakesChecker(_GenericPythonLinter):
             if m:
                 lineNo = int(m.group(2))
                 desc = "pyflakes: %s" % (m.group(3),)
-                severity = _SEV_ERROR
-                _addResult(results, textlines, severity, lineNo, desc)
+                severity = koLintResult.SEV_ERROR
+                koLintResult.createAddResult(results, textlines, severity, lineNo, desc)
         return results
 
 class KoPythonPycheckerLinter(_GenericPythonLinter):
@@ -292,7 +269,7 @@ class KoPythonPycheckerLinter(_GenericPythonLinter):
         if m:
             lineNo = int(m.group(1))
             desc = m.group(2)
-            _addResult(results, textlines, _SEV_ERROR, lineNo, desc)
+            koLintResult.createAddResult(results, textlines, koLintResult.SEV_ERROR, lineNo, desc)
 
         warn_ptn = re.compile(r'^%s:(\d+):\s+(.+)' % re_escaped_filename)
         error_ptn = re.compile(r'(.*[Ee]rror:.*?)\s*\(%s,\s+line\s+(\d+)\)'
@@ -302,14 +279,14 @@ class KoPythonPycheckerLinter(_GenericPythonLinter):
             if m:
                 lineNo = int(m.group(1))
                 desc = m.group(2)
-                _addResult(results, textlines, _SEV_WARNING, lineNo,
+                koLintResult.createAddResult(results, textlines, koLintResult.SEV_WARNING, lineNo,
                            "pychecker: " + desc)
         for line in errorLines:
             m = error_ptn.match(line)
             if m:
                 lineNo = int(m.group(2))
                 desc = m.group(1)
-                _addResult(results, textlines, _SEV_ERROR, lineNo,
+                koLintResult.createAddResult(results, textlines, koLintResult.SEV_ERROR, lineNo,
                            "pychecker: " + desc)
         return results
 
@@ -427,7 +404,7 @@ class KoPythonCommonLinter(object):
                 lineNo = int(match.group('line'))
                 if leadingWS:
                     lineNo -= 1
-                _addResult(results, textlines, r.SEV_WARNING, lineNo, match.group('desc'), leadingWS)
+                koLintResult.createAddResult(results, textlines, r.SEV_WARNING, lineNo, match.group('desc'), leadingWS)
         return results
 
     def lint(self, request):

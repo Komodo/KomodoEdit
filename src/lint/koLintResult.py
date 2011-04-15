@@ -46,6 +46,30 @@ def getProxiedEffectivePrefs(request):
                              request.koDoc.getEffectivePrefs(),
                              PROXY_ALWAYS | PROXY_SYNC)
 
+SEV_ERROR = 2   # No xpcom here :(
+SEV_WARNING = 1
+SEV_INFO = 0
+
+def createAddResult(results, textlines, severity, lineNo, desc, leadingWS=None):
+    result = KoLintResult()
+    result.severity = severity
+    if lineNo >= len(textlines):
+        lineNo = len(textlines) - 1
+    while lineNo >= 0 and len(textlines[lineNo - 1]) == 0:
+        lineNo -= 1
+    if lineNo == 0:
+        return
+    result.lineStart = result.lineEnd = lineNo
+    result.columnStart = 1
+    targetLine = textlines[lineNo - 1]
+    if leadingWS is not None:
+        columnEndOffset = len(leadingWS)
+    else:
+        columnEndOffset = 0
+    result.columnEnd = len(targetLine) + 1 - columnEndOffset
+    result.description = desc
+    results.addResult(result)
+    
 class KoLintResult:
     _com_interfaces_ = [components.interfaces.koILintResult]
 # This object is never actually registered and created by contract ID.

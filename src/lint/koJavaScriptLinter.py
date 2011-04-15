@@ -39,9 +39,10 @@
 from xpcom import components, nsError, ServerException
 from xpcom.server import UnwrapObject
 from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC, getProxyForObject
+import koLintResult
 from koLintResult import KoLintResult, getProxiedEffectivePrefs
 from koLintResults import koLintResults
-import os, sys, re
+import os, sys, re, which
 import tempfile
 import process
 
@@ -358,3 +359,57 @@ class KoJSHintLinter(GenericJSLinter):
         return self._jslint_with_text(request, text,
                                       prefSwitchName="lintWithJSHint",
                                       prefOptionsName="jshintOptions")
+
+class KoCoffeeScriptLinter(object):
+    _com_interfaces_ = [components.interfaces.koILinter]
+    _reg_desc_ = "Komodo CoffeeScript Linter"
+    _reg_clsid_ = "{85dd97d8-719d-48f2-8c97-9de992ba0ce9}"
+    _reg_contractid_ = "@activestate.com/koLinter?language=CoffeeScript&type=;1"
+    _reg_categories_ = [
+         ("category-komodo-linter", 'CoffeeScript'),
+         ]
+        
+    def lint(self, request):
+        text = request.content.encode(request.encoding.python_encoding_name)
+        return self.lint_with_text(request, text)
+
+    def lint_with_text(self, request, text):
+        if not text:
+            return None
+        prefset = getProxiedEffectivePrefs(request)
+        if not prefset.getBooleanPref("lint_coffee_script"):
+            return
+        try:
+            coffeeExe = which.which("coffee")
+            if not coffeeExe:
+                return
+        except which.WhichError:
+            log.warn("coffee not found")
+            return
+        tmpfilename = tempfile.mktemp() + '.coffee'
+        fout = open(tmpfilename, 'w')
+        fout.write(text)
+        fout.close()
+        textlines = text.splitlines()
+        cwd = request.cwd
+        cmd = [coffeeExe, "-l", "-c", tmpfilename]
+        # We only need the stderr result.
+        try:
+            p = process.ProcessOpen(cmd, cwd=cwd, stdin=None)
+            _, stderr = p.communicate()
+            warnLines = stderr.splitlines(0) # Don't need the newlines.
+        finally:
+            os.unlink(tmpfilename)
+        ptn = re.compile(r'^Error: In (.*),\s*(.*) on line (\d+):\s*(.*)')
+        results = koLintResults()
+        for line in warnLines:
+            m = ptn.match(line)
+            if m:
+                part1 = m.group(2)
+                lineNo = int(m.group(3))
+                part2 = m.group(4)
+                desc = "%s on line %d: %s" % (part1, lineNo, part2)
+                severity = koLintResult.SEV_ERROR
+                koLintResult.createAddResult(results, textlines, severity,
+                                             lineNo, desc)
+        return results

@@ -150,10 +150,8 @@ class RubyLangInfo(LangInfo):
     #TODO: http://blade.nagaokaut.ac.jp/cgi-bin/scat.rb/ruby/ruby-core/12900
     #      Ruby uses similar (same?) coding decl as Python.
 
-class JavaScriptLangInfo(LangInfo):
-    name = "JavaScript"
+class _JSLikeLangInfo(LangInfo):
     conforms_to_bases = ["Text"]
-    exts = ['.js', '.jsm']
     # Support for Node (server side JavaScript).
     magic_numbers = [
         (0, "regex", re.compile(r'\A#!.*node.*$', re.I | re.M))
@@ -191,6 +189,22 @@ class JavaScriptLangInfo(LangInfo):
                     "short", "static", "super", "synchronized",
                     "throws", "transient"
                     ]))
+
+class JavaScriptLangInfo(_JSLikeLangInfo):
+    name = "JavaScript"
+    exts = ['.js', '.jsm']
+
+class CoffeeScriptLangInfo(_JSLikeLangInfo):
+    name = "CoffeeScript"
+    exts = ['.coffee']
+    def __init__(self, _database):
+        _JSLikeLangInfo.__init__(self, _database)
+        # Clone and modify the JS keywords
+        self.common_keywords = set().union(self.common_keywords)
+        try:
+            self.common_keywords.remove("var")
+        except KeyError:
+            pass
 
 class CLangInfo(LangInfo):
     #TODO: rationalize with C++ and Komodo's usage

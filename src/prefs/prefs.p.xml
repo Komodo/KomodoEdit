@@ -187,6 +187,9 @@
   <string id="python3ExtraPaths"></string>
   <string id="perlExtraPaths"></string>
 
+  <!-- CoffeeScript linting options -->
+  <boolean id="lint_coffee_script">1</boolean>
+
   <!-- JavaScript linting options -->
   <boolean id="lintJavaScriptEnableWarnings">1</boolean>
   <boolean id="lintJavaScriptEnableStrict">1</boolean>
@@ -274,6 +277,7 @@
  '*.cls': 'LaTeX',
  '*.clw': 'CLW',
  '*.cmd': 'Batch',
+ '*.coffee': 'CoffeeScript',
  '*.conf': 'Apache',
  '*.cpp': 'C++',
  '*.cron': 'nnCrontab',

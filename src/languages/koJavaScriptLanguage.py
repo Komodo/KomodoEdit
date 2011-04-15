@@ -41,11 +41,47 @@ import re
 
 from xpcom import components, ServerException
 
-from langinfo_prog import JavaScriptLangInfo
+from langinfo_prog import JavaScriptLangInfo, CoffeeScriptLangInfo
 from koLanguageServiceBase import *
 
+log = logging.getLogger('koJavaScriptLanguage')
+#log.setLevel(logging.DEBUG)
 
-class koJavaScriptLanguage(KoLanguageBase):
+class KoJSLikeCommonLexerLanguageService(KoLexerLanguageService):
+    def __init__(self):
+        KoLexerLanguageService.__init__(self)
+        self.setLexer(components.interfaces.ISciMoz.SCLEX_CPP)
+        self.supportsFolding = 1
+        self.setProperty('lexer.cpp.allow.dollars', '1')
+
+class KoJavaScriptLexerLanguageService(KoJSLikeCommonLexerLanguageService):
+    def __init__(self):
+        KoJSLikeCommonLexerLanguageService.__init__(self)
+        self.setKeywords(0, JavaScriptLangInfo.keywords)
+
+class KoCoffeeScriptLexerLanguageService(KoJSLikeCommonLexerLanguageService):
+    def __init__(self):
+        KoJSLikeCommonLexerLanguageService.__init__(self)
+        self.setKeywords(0, CoffeeScriptLangInfo.keywords)
+        self.setProperty('lexer.cpp.coffeescript', '1')
+
+class koJSLikeLanguage(KoLanguageBase):
+    def __init__(self):
+        KoLanguageBase.__init__(self)
+        self._style_info.update(
+            _block_comment_styles = [sci_constants.SCE_C_COMMENT,
+                                     sci_constants.SCE_C_COMMENTDOC,
+                                     sci_constants.SCE_C_COMMENTDOCKEYWORD,
+                                     sci_constants.SCE_C_COMMENTDOCKEYWORDERROR],
+            _variable_styles = [components.interfaces.ISciMoz.SCE_C_IDENTIFIER]
+            )
+        self._setupIndentCheckSoftChar()
+        
+    def getVariableStyles(self):
+        return self._style_info._variable_styles
+
+
+class koJavaScriptLanguage(koJSLikeLanguage):
     name = "JavaScript"
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
@@ -89,27 +125,10 @@ class koJavaScriptLanguage(KoLanguageBase):
     styleStdin = components.interfaces.ISciMoz.SCE_C_STDIN
     styleStdout = components.interfaces.ISciMoz.SCE_C_STDOUT
     styleStderr = components.interfaces.ISciMoz.SCE_C_STDERR
-
-    def __init__(self):
-        KoLanguageBase.__init__(self)
-        self._style_info.update(
-            _block_comment_styles = [sci_constants.SCE_C_COMMENT,
-                                     sci_constants.SCE_C_COMMENTDOC,
-                                     sci_constants.SCE_C_COMMENTDOCKEYWORD,
-                                     sci_constants.SCE_C_COMMENTDOCKEYWORDERROR],
-            _variable_styles = [components.interfaces.ISciMoz.SCE_C_IDENTIFIER]
-            )
-        self._setupIndentCheckSoftChar()
-        
-    def getVariableStyles(self):
-        return self._style_info._variable_styles
     
     def get_lexer(self):
         if self._lexer is None:
-            self._lexer = KoLexerLanguageService()
-            self._lexer.setLexer(components.interfaces.ISciMoz.SCLEX_CPP)
-            self._lexer.setKeywords(0, JavaScriptLangInfo.keywords)
-            self._lexer.supportsFolding = 1
+            self._lexer = KoJavaScriptLexerLanguageService()
         return self._lexer
 
 class koJSONLanguage(koJavaScriptLanguage):
@@ -137,3 +156,94 @@ class koJSONLanguage(koJavaScriptLanguage):
     }
 }
 """
+
+class koCoffeeScriptLanguage(koJSLikeLanguage):
+    name = "CoffeeScript"
+    _reg_desc_ = "%s Language" % name
+    _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
+                       % (name)
+    _reg_clsid_ = "{7a0ab511-bcc9-416e-95e6-db29694226e9}"
+    _reg_categories_ = [("komodo-language", name)]
+
+    shebangPatterns = [
+        re.compile(r'\A#!.*(node|javascript).*$', re.I | re.M),
+    ]
+
+    accessKey = 'C'
+    primary = 1
+    defaultExtension = ".coffee"
+    commentDelimiterInfo = {
+        "line": [ "#" ],
+        "block": [ ("/*", "*/") ],
+        "markup": "*",
+    }
+    _dedenting_statements = [u'throw', u'return', u'break', u'continue']
+    _indenting_statements = [u'case']
+    searchURL = "http://jashkenas.github.com/coffee-script/"
+    
+    # matches:
+    # function name
+    # name: function
+    # name = function
+    # class.prototype.name = function
+    namedBlockDescription = 'CoffeeScript functions and classes'
+    namedBlockRE = r'^[ |\t]*?(?:([\w|\.|_]*?)\s*[=:]\s*\(.*\)\s*=>).*?$'
+    supportsSmartIndent = "python"
+    sample = \
+"""chkrange = (elem, minval, maxval) =>
+# Comment
+if elem.value < minval - 1 || elem.value > maxval + 1
+    alert("Prlb:" + elem.name + " is out of range!")
+chkrange {name:'five', value:5}, 7, 12
+"""
+
+    def get_lexer(self):
+        if self._lexer is None:
+            self._lexer = KoCoffeeScriptLexerLanguageService()
+        return self._lexer
+
+    
+    expnRE = re.compile(r"\s*(\w+).+?\bif\b(.*)");
+    thenRE = re.compile(r"\bthen\b")
+    ifRE = re.compile(r"\bif\b")
+    def finishProcessingDedentingStatement(self, scimoz, pos, curLine, wordMatch):
+        """ This is similar to the code in koLanguageServiceBase.py,
+            but doesn't trigger an indent in the following cases:
+            [dedenter] if ... <no then>
+            """
+        expnMatch = self.expnRE.match(curLine)
+        if not expnMatch:
+            return koJSLikeLanguage.finishProcessingDedentingStatement(self, scimoz, pos, curLine, wordMatch)
+        kwd = expnMatch.group(1)
+        val = expnMatch.group(2)
+        if self.ifRE.search(val):
+            # Found <kwd> ... if ... if
+            #log.debug("Expression is too complex, don't dedent")
+            return None
+        if self.thenRE.search(val):
+            #log.debug("Got if ... then here, assume <kwd> ... if test val then val")
+            return koJSLikeLanguage.finishProcessingDedentingStatement(self, scimoz, pos, curLine, wordMatch)
+        #log.debug("Found %s if ... no then here, no dedent", kwd)
+        return None
+    
+    def _shouldIndent(self, scimoz, pos, style_info):
+        """ Override KoLanguageBase._shouldIndent to handle -> at EOL
+        See comments in koLanguageServiceBase.py
+        """
+        curLineNo = scimoz.lineFromPosition(pos)
+        lineStart = scimoz.positionFromLine(curLineNo)
+        data = scimoz.getStyledText(lineStart, pos+1)
+        for p in range(pos-1, lineStart-1, -1):
+            char = data[(p-lineStart)*2]
+            style = ord(data[(p-lineStart)*2+1])
+            if style in style_info._comment_styles:
+                continue
+            elif char in ' \t':
+                continue
+            elif (char == ">" and style in style_info._indent_open_styles):
+                if (p >= lineStart + 1
+                    and ord(data[(p - lineStart - 1) * 2 + 1]) == style
+                    and data[(p - lineStart - 1) * 2] == "-"):
+                    return self._findIndentationBasedOnStartOfLogicalStatement(scimoz, pos, style_info, curLineNo)                           
+            break
+        return KoLanguageBase._shouldIndent(self, scimoz, pos, style_info)

@@ -1370,6 +1370,8 @@ class KoLanguageBase:
         # look past any comments to the left until hit either beginning
         # of line or a character.
         # if that character is an indenting brace, then indent.
+
+        # Note that koCoffeeScriptLanguage overrides this method.
         timeline.enter('_shouldIndent')
         curLineNo = scimoz.lineFromPosition(pos)
         lineStart = scimoz.positionFromLine(curLineNo)
@@ -1386,14 +1388,17 @@ class KoLanguageBase:
                 continue
             elif (char in self._indent_open_chars and
                   style in style_info._indent_open_styles):
-                # need to find the beginning of the logical statement.
-                lineNo = self._statementStartingLineFromPos(scimoz, p, style_info)
-                indentlog.debug("we've decided that the statement starting from line %d actually starts at line %d" % (curLineNo, lineNo))
-                nextIndentWidth = self._getNextLineIndent(scimoz, lineNo)
-                return scimozindent.makeIndentFromWidth(scimoz, nextIndentWidth)
+                return self._findIndentationBasedOnStartOfLogicalStatement(scimoz, pos, style_info, curLineNo)
             break
         timeline.leave('_shouldIndent')
         return None
+
+    def _findIndentationBasedOnStartOfLogicalStatement(self, scimoz, pos, style_info, curLineNo):
+        # need to find the beginning of the logical statement.
+        lineNo = self._statementStartingLineFromPos(scimoz, pos, style_info)
+        indentlog.debug("we've decided that the statement starting from line %d actually starts at line %d" % (curLineNo, lineNo))
+        nextIndentWidth = self._getNextLineIndent(scimoz, lineNo)
+        return scimozindent.makeIndentFromWidth(scimoz, nextIndentWidth)
 
     def _shouldLineUp(self, scimoz, pos, style_info):
         # first we look for an unmatched 'line-up' brace, going back until
@@ -1768,18 +1773,21 @@ class KoLanguageBase:
         if wordMatch and wordMatch.group(1) in self._indenting_statements:
             return 1
         if wordMatch and wordMatch.group(1) in self._dedenting_statements:
-            lineNo = scimoz.lineFromPosition(pos)
-            currentIndentWidth = self._getIndentWidthForLine(scimoz, lineNo)
-            indent = scimoz.indent
-            if indent == 0:
-                log.error('indent was 0, defaulting to 8')
-                indent = 8 # XXX
-            indentLevel, extras = divmod(currentIndentWidth, indent)
-            if indentLevel and not extras:
-                indentLevel -= 1
-            nextIndentWidth = indentLevel * scimoz.indent
-            return scimozindent.makeIndentFromWidth(scimoz, nextIndentWidth)
+            return self.finishProcessingDedentingStatement(scimoz, pos, curLine, wordMatch)
         return None
+
+    def finishProcessingDedentingStatement(self, scimoz, pos, curLine, wordMatch):
+        lineNo = scimoz.lineFromPosition(pos)
+        currentIndentWidth = self._getIndentWidthForLine(scimoz, lineNo)
+        indent = scimoz.indent
+        if indent == 0:
+            log.error('indent was 0, defaulting to 8')
+            indent = 8 # XXX
+        indentLevel, extras = divmod(currentIndentWidth, indent)
+        if indentLevel and not extras:
+            indentLevel -= 1
+        nextIndentWidth = indentLevel * scimoz.indent
+        return scimozindent.makeIndentFromWidth(scimoz, nextIndentWidth)
 
     def _finishedBlockComment(self, scimoz, pos, style_info):
         """ This function looks to see if we just ended a block comment.

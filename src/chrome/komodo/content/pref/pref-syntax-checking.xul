@@ -56,6 +56,16 @@
                         oncommand="changeLanguage(this)"/>
           </hbox>
           <deck id="docSyntaxCheckByLang">
+            
+	    <vbox id="langSyntaxCheck-CoffeeScript">
+                <groupbox orient="vertical">
+                    <checkbox id="lint_coffee_script"
+                              label="&basicChecking.label;"
+                              pref="true" />
+                  <description id="lint_coffee_failure" class="pref_hide" />
+                </groupbox>
+            </vbox>
+            
             <vbox id="langSyntaxCheck-JavaScript">
                 <groupbox orient="vertical" >
                     <caption label="&basicChecking.label;"/>

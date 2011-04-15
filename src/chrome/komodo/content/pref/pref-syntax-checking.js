@@ -95,6 +95,51 @@ function changeLanguage(langList) {
     showLanguageNamePanel(langList.selection);
 }
 
+function coffeeScript_setup() {
+    if (!('CoffeeScript' in dialog)) {
+        dialog.CoffeeScript = {};
+        [
+         "lint_coffee_script",
+         "lint_coffee_failure"].forEach(function(name) {
+            dialog.CoffeeScript[name] = document.getElementById(name);
+        });
+        languageInfo.CoffeeScript = CoffeeScriptInfo();
+    }
+    languageInfo.CoffeeScript.updateUI();
+}
+
+languageSetup.CoffeeScript = coffeeScript_setup;
+function CoffeeScriptInfo() {
+    return {
+      hasCS: null,
+      
+      updateUI: function() {
+            if (this.hasCS == null) {
+                var koSysUtils = Components.classes["@activestate.com/koSysUtils;1"].getService(Components.interfaces.koISysUtils);
+                var coffeeScript = koSysUtils.Which("coffee");
+                this.hasCS = !!coffeeScript;
+            }
+            var checkbox = dialog.CoffeeScript.lint_coffee_script;
+            var failureNode = dialog.CoffeeScript.lint_coffee_failure;
+            if (this.hasCS) {
+                failureNode.setAttribute("class", "pref_hide");
+                checkbox.disabled = false;
+            } else {
+                checkbox.checked = false;
+                checkbox.disabled = true;
+                if (!failureNode.firstChild) {
+                    var text = bundleLang.GetStringFromName("Cant find CoffeeScript, update the PATH to include it, and restart Komodo");
+                    var textNode = document.createTextNode(text);
+                    failureNode.appendChild(textNode);
+                }
+                failureNode.setAttribute("class", "pref_show");
+            }
+        }
+    };
+}
+
+        
+
 function htmlSetup() {
     if (!('HTML' in dialog)) {
         dialog.HTML = {};
