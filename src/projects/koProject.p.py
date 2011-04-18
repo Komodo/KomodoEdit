@@ -1731,12 +1731,24 @@ class koProject(koLiveFolderPart):
             for _child in kids:
                 self.forgetChildByURL(_child)
 
+    def _addTrailingSlash(self, path):
+        if path[-1] == "/":
+            return path
+        return path + "/"
+    
     def getLiveAncestor(self, url):
         for path, part in self._urlmap.items():
             if hasattr(part, 'children') and url.startswith(path):
                 return part
-        if url.startswith(os.path.dirname(self._url)):
+        # Fix bug 89767 -- look at the import_dirname first, but
+        # leave the code looking at the project's location anyway.
+        if url.startswith(self._addTrailingSlash(os.path.dirname(self._url))):
             return self
+        elif self.prefset and self.prefset.hasPrefHere("import_dirname"):
+            projPath = self.prefset.getStringPref("import_dirname")
+            projURI = uriparse.localPathToURI(projPath)
+            if url.startswith(self._addTrailingSlash(os.path.dirname(projURI))):
+                return self
         return None
 
     def getChildByURL(self, url):
