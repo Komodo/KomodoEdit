@@ -2616,7 +2616,9 @@ function ItemWrapper(uri, type) {
     this.uri = this.url = uri; // allow for both variants.
     this.type = type; // one of 'file', 'folder', or 'project'
     if (type == 'project') {
-        this.project = ko.projects.manager.currentProject;
+        var project = (ko.projects.manager.getProjectByURL(uri)
+                       || ko.projects.manager.currentProject);
+        this.project = project;
     }
 }
 ItemWrapper.prototype.__defineGetter__("file", function() {
