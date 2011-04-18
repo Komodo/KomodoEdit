@@ -138,7 +138,12 @@ function CoffeeScriptInfo() {
     };
 }
 
-        
+
+function django_setup() {
+    // Nothing to do
+}
+
+languageSetup.Django = django_setup;        
 
 function htmlSetup() {
     if (!('HTML' in dialog)) {

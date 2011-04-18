@@ -190,6 +190,9 @@
   <!-- CoffeeScript linting options -->
   <boolean id="lint_coffee_script">1</boolean>
 
+  <!-- Django linting options -->
+  <boolean id="lint_django">1</boolean>
+
   <!-- JavaScript linting options -->
   <boolean id="lintJavaScriptEnableWarnings">1</boolean>
   <boolean id="lintJavaScriptEnableStrict">1</boolean>

@@ -66,6 +66,14 @@
                 </groupbox>
             </vbox>
             
+	    <vbox id="langSyntaxCheck-Django">
+                <groupbox orient="vertical">
+                    <checkbox id="lint_django"
+                              label="&basicChecking.label;"
+                              pref="true" />
+                </groupbox>
+            </vbox>
+            
             <vbox id="langSyntaxCheck-JavaScript">
                 <groupbox orient="vertical" >
                     <caption label="&basicChecking.label;"/>

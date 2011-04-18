@@ -131,6 +131,7 @@ var global_pref_observer_topics = {
     "lintWithJSLint" : JS_LIST,
     "jslintOptions" : JS_LIST,
     "lint_coffee_script" : ["CoffeeScript"],
+    "lint_django" : PYTHON_LIST,
 
     "lintStandardHTMLChecking" : HTML_LIST,
     "lintHTML_CheckWith_Perl_HTML_Lint" : HTML_LIST,

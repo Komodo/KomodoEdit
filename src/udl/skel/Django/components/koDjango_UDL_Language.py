@@ -50,7 +50,7 @@ from xpcom import components, nsError, ServerException
 from xpcom.server import WrapObject, UnwrapObject
 from koXMLLanguageBase import koHTMLLanguageBase
 
-from koLintResult import KoLintResult
+from koLintResult import KoLintResult, getProxiedEffectivePrefs
 from koLintResults import koLintResults
 
 import scimozindent
@@ -313,6 +313,11 @@ class KoDjangoLinter(object):
         return self._html_linter.lint(request)
 
     def lint_with_text(self, request, text):
+        if not text.strip():
+            return None
+        prefset = getProxiedEffectivePrefs(request)
+        if not prefset.getBooleanPref("lint_django"):
+            return
         cwd = request.cwd
         settingsDir = self._getSettingsDir(cwd)
         if settingsDir:
@@ -322,11 +327,27 @@ class KoDjangoLinter(object):
             try:
                 fout.write(text)
                 fout.close()
-            
+
+                #XXX: How to tell whether we're using Python or Python3?
+                prefName = "pythonExtraPaths"
+                pythonPath =  prefset.hasPref(prefName) and prefset.getStringPref(prefName) or None
+                env = koprocessutils.getUserEnv()
+                pythonPathEnv = env.get("PYTHONPATH", "")
+                if pythonPathEnv:
+                    if pythonPath:
+                        pythonPath += os.pathsep + pythonPathEnv
+                    else:
+                        pythonPath = pythonPathEnv
+                if pythonPath:
+                    if sys.platform.startswith("win"):
+                        pythonPath = pythonPath.replace('\\', '/')
+                    env["PYTHONPATH"] = pythonPath
+                elif env.has_key("PYTHONPATH"):
+                    del env["PYTHONPATH"]
+
                 results = koLintResults()
                 argv = [self._pythonExecutable, self._djangoLinterPath,
                         tmpFileName, settingsDir]
-                env = koprocessutils.getUserEnv()
                 p = process.ProcessOpen(argv, cwd=cwd, env=env, stdin=None)
                 output, error = p.communicate()
                 #log.debug("Django output: output:[%s], error:[%s]", output, error)
