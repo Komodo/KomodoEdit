@@ -1412,7 +1412,6 @@ ManagerClass.prototype = {
             return;
         }
         var successFunc = function() {
-            ko.uilayout.ensureTabShown("places_tab", true);
             var index = gPlacesViewMgr.view.getRowIndexForURI(file.URI);
             if (index > -1) {
                 var treeSelection = gPlacesViewMgr.view.selection;
