@@ -13,7 +13,6 @@
 <?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
 
 <window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
         orient="vertical"
         onload="onLoad()">
 
@@ -64,12 +63,11 @@
         <vbox style="margin-left: 22px">
             <description>
               &goToolIntegration.description;
-              <html:a
-                  class="button-link"
-                  style="color: #b82619;"
-                  onclick="parent.opener.ko.browse.openUrlInDefaultBrowser('http://code.google.com/p/go-tool/');">
-                   Visit the go-tool project site.</html:a>
             </description>
+            <button label="Visit the go-tool project site."
+                class="button-link"
+                style="margin: -10px; color: #b82619;"
+                onclick="parent.opener.ko.browse.openUrlInDefaultBrowser('http://code.google.com/p/go-tool/');"/>
         </vbox>
         <hbox>
           <checkbox id="fastopen_enable_history_gatherer"
