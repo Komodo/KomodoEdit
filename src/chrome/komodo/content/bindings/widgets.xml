@@ -132,7 +132,6 @@
                             popup.removeChild(popup.firstChild);
                         }
                         if (!narrowToView || !view) {
-                            log.warn("Not narrowing, or no view");
                             this.getHierarchy();
                             return;
                         }
