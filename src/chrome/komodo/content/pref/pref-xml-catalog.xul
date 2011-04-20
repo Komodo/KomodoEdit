@@ -86,14 +86,16 @@ function OnPreferencePageLoading() {
             <description>
                 &xmlAdditionalCatalogs.description;
             </description>
-            <pathlist
-                    id="xmlCatalogPaths"
-                    flex="1"
-                    seltype="multiple"
-                    type="files"
-                    rows="4"
-                    pref="true" prefwidget="true"
-                    prefstring="xmlCatalogPaths"/>
+            <vbox id="xmlCatalogs_vbox">
+                <pathlist
+                        id="xmlCatalogPaths"
+                        flex="1"
+                        seltype="multiple"
+                        type="files"
+                        rows="4"
+                        pref="true" prefwidget="true"
+                        prefstring="xmlCatalogPaths"/>
+            </vbox>
         </groupbox>
 
     </vbox>
