@@ -58,7 +58,7 @@ if ($jarring) {
 }
 $cons->Command("xtk.manifest.landmark",
                "$mozChromeDir/xtk.manifest",
-               "$mozResourcesDir/chrome.manifest",
+               "$mozBin/chrome.manifest",
                "$mozSrc/mozilla/config/buildlist.py",
                qq(
                  $unsiloedPythonExe %3 %2 "manifest chrome/%1:f"

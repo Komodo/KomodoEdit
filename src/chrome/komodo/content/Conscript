@@ -56,7 +56,7 @@ $cons->Preprocess('komodo.p.manifest', "$mozChromeDir/komodo.manifest",
                   {'WITH_JARRING' => $jarring}, 1);
 $cons->Command("komodo.manifest.landmark",
                "$mozChromeDir/komodo.manifest",
-               "$mozResourcesDir/chrome.manifest",
+               "$mozBin/chrome.manifest",
                "$mozSrc/mozilla/config/buildlist.py",
                qq(
                  $unsiloedPythonExe %3 %2 "manifest chrome/%1:f"
