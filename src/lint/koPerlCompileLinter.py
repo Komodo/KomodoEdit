@@ -397,7 +397,7 @@ class KoPerlCompileLinter(_CommonPerlLinter):
             argv = [perlExe]
             for incpath in perlExtraPaths:
                 argv += ['-I', incpath]
-            if 'T' in lintOptions and prefset.getBooleanPref("perl_lintOption_includeCurrentDirForLinter"):
+            if prefset.getBooleanPref("perl_lintOption_includeCurrentDirForLinter"):
                 argv += ['-I', '.']
                 
             # bug 27963: Fix instances of <<use PerlTray>> from code
