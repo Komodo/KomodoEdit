@@ -63,6 +63,10 @@ function PrefPhp_OnLoad()  {
 function OnPreferencePageLoading() {
     var extraPaths = document.getElementById("phpExtraPaths");
     extraPaths.init() // must happen after onpageload
+    var file = getOwningFileObject();
+    if (file && file.dirName) {
+        extraPaths.setCwd(file.dirName);
+    }
 }
 
 function OnPreferencePageOK(prefset)

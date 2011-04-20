@@ -101,7 +101,7 @@ class KoPHPCompileLinter:
         #print "PHP Lint"
         #print text
         #print "----------------------------"
-        php = self.phpInfoEx.executablePath
+        php = self.phpInfoEx.getExecutableFromDocument(request.koDoc)
         if php is None:
             errmsg = "Could not find a suitable PHP interpreter for linting."
             raise COMException(nsError.NS_ERROR_NOT_AVAILABLE, errmsg)

@@ -427,6 +427,8 @@ class KoCodeIntelManager(Manager):
             "Tcl": "tclExtraPaths",
             "Ruby": "rubyExtraPaths",
         }
+        #Note: this is called once per language at module registration time,
+        # so it can't change search paths by project or document.
         if lang in extra_paths_pref_from_lang:
             extra_paths_pref = extra_paths_pref_from_lang[lang]
             prefSvc = components.classes["@activestate.com/koPrefService;1"]\

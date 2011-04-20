@@ -1731,6 +1731,9 @@ class koDocumentBase:
         return self._tabstopInsertionNodes is not None
 
     def _getPython2Path(self):
+        python2Path = self.getEffectivePrefs().getStringPref("pythonDefaultInterpreter")
+        if python2Path and os.path.isfile(python2Path):
+            return python2Path
         python2Info = components.classes["@activestate.com/koAppInfoEx?app=%s;1"
                                         % 'Python'] \
                         .getService(components.interfaces.koIAppInfoEx)
@@ -1743,6 +1746,9 @@ class koDocumentBase:
         return python2Path
 
     def _getPython3Path(self):
+        python3Path = self.getEffectivePrefs().getStringPref("python3DefaultInterpreter")
+        if python3Path and os.path.isfile(python3Path):
+            return python3Path
         python3Info = components.classes["@activestate.com/koAppInfoEx?app=%s;1"
                                         % 'Python3'] \
                         .getService(components.interfaces.koIAppInfoEx)

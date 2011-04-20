@@ -96,7 +96,7 @@ class KoPythonPyLintChecker(_GenericPythonLinter):
         if not prefset.getBooleanPref("lint_python_with_pylint"):
             return
         # if not prefset.getBooleanPref("lintWithPylint"): return
-        pythonExe = self._pythonInfo.executablePath
+        pythonExe = self._pythonInfo.getExecutableFromDocument(request.koDoc)
         if not pythonExe:
             return
         tmpfilename = tempfile.mktemp() + '.py'
@@ -170,7 +170,7 @@ class KoPythonPyflakesChecker(_GenericPythonLinter):
         prefset = getProxiedEffectivePrefs(request)
         if not prefset.getBooleanPref("lint_python_with_pyflakes"):
             return
-        pythonExe = self._pythonInfo.executablePath
+        pythonExe = self._pythonInfo.getExecutableFromDocument(request.koDoc)
         if not pythonExe:
             return
         tmpfilename = tempfile.mktemp() + '.py'

@@ -36,8 +36,8 @@
 
 //---- globals
 
-var asPrefLog = getLoggingMgr().getLogger("ActionScriptInterp");
-asPrefLog.setLevel(LOG_DEBUG);
+var asPrefLog = ko.logging.getLoggingMgr().getLogger("ActionScriptInterp");
+asPrefLog.setLevel(ko.logging.LOG_DEBUG);
 
 function OnPreferencePageOK(prefset)
 {

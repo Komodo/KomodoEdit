@@ -85,6 +85,14 @@ class KoAppInfoEx:
     def get_includePath(self):
         return self._configPath
 
+    def get_executable_from_doc_pref(self, koDoc, prefName):
+        prefset = koDoc.getEffectivePrefs()
+        if prefset.hasPref(prefName):
+            interpPath = prefset.getStringPref(prefName)
+            if interpPath and os.path.exists(interpPath):
+                return interpPath
+        return self.get_executablePath()
+
 class KoPerlInfoEx(KoAppInfoEx):
     _com_interfaces_ = [components.interfaces.koIPerlInfoEx,
                         components.interfaces.nsIObserver]
@@ -140,6 +148,10 @@ class KoPerlInfoEx(KoAppInfoEx):
 
     def get_executablePath(self):
         return self._GetPerlExeName()
+
+    def getExecutableFromDocument(self, koDoc):
+        return self.get_executable_from_doc_pref(koDoc,
+                                                 'perlDefaultInterpreter')
 
     def get_haveLicense(self):
         return 1
@@ -310,6 +322,10 @@ class KoPythonCommonInfoEx(KoAppInfoEx):
         if self.executablePath:
             return self.executablePath
         return self._GetPythonExeName()
+
+    def getExecutableFromDocument(self, koDoc):
+        return self.get_executable_from_doc_pref(koDoc,
+                                                 'pythonDefaultInterpreter')
 
     def get_haveLicense(self):
         return 1
@@ -510,6 +526,10 @@ class KoRubyInfoEx(KoAppInfoEx):
             return None
         return rubyExePath
     
+    def getExecutableFromDocument(self, koDoc):
+        return self.get_executable_from_doc_pref(koDoc,
+                                                 'rubyDefaultInterpreter')
+
     def set_executablePath(self, path):
         self.installationPath = os.path.dirname(os.path.dirname(path))
 
@@ -633,6 +653,10 @@ class KoTclInfoEx(KoAppInfoEx):
             return os.path.join(self.installationPath, "tclsh.exe")
         else:
            return os.path.join(self.installationPath, "bin", "tclsh")
+    
+    def getExecutableFromDocument(self, koDoc):
+        return self.get_executable_from_doc_pref(koDoc,
+                                                 'tclshDefaultInterpreter')
 
     def _getTclshExeName(self):
         if sys.platform.startswith('win'):
@@ -936,6 +960,10 @@ class KoPHPInfoInstance(KoAppInfoEx):
 
     def get_executablePath(self):
         return self._GetPHPExeName()
+    
+    def getExecutableFromDocument(self, koDoc):
+        return self.get_executable_from_doc_pref(koDoc,
+                                                 'phpDefaultInterpreter')
 
     def set_executablePath(self, exe):
         self.set_installationPath(exe)

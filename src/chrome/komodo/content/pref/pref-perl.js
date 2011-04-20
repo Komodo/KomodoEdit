@@ -95,12 +95,13 @@ function PrefPerl_OnLoad()
         prefExecutable = '';
     PrefPerl_PopulatePerlInterps();
 
-    var origWindow = ko.windowManager.getMainWindow();
-    var cwd = origWindow.ko.window.getCwd();
     parent.hPrefWindow.onpageload();
     var extraPaths = document.getElementById("perlExtraPaths");
     extraPaths.init(); // must happen after onpageload
-    extraPaths.setCwd(cwd);
+    var file = getOwningFileObject();
+    if (file && file.dirName) {
+        extraPaths.setCwd(file.dirName);
+    }
 }
 
 function loadPerlExecutable()

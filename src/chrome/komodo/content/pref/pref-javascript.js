@@ -44,6 +44,10 @@ function PrefJavaScript_OnLoad() {
 function OnPreferencePageLoading() {
     var extraPaths = document.getElementById("javascriptExtraPaths");
     extraPaths.init(); // must happen after onpageload
+    var file = getOwningFileObject();
+    if (file && file.dirName) {
+        extraPaths.setCwd(file.dirName);
+    }
 }
 
 // Find the user's Firefox installation and install the Komodo JavaScript

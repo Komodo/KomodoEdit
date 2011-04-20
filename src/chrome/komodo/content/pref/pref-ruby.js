@@ -126,6 +126,10 @@ function PrefRuby_OnLoad()
     var extraPaths = document.getElementById("rubyExtraPaths");
     extraPaths.setCwd(cwd)
     extraPaths.init() // must happen after onpageload
+    var file = getOwningFileObject();
+    if (file && file.dirName) {
+        extraPaths.setCwd(file.dirName);
+    }
 }
 
 function loadRubyExecutable()

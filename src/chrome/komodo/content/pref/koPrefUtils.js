@@ -132,3 +132,19 @@ function checkValidInterpreterSetting(prefset,
     document.getElementById(interpreterPrefName).focus();
     return false;
 }
+
+function getOwningFileObject() {
+    var file;
+    var loadContext = parent.prefInvokeType;
+    if (loadContext == "project") {
+        if (parent.part) {
+            file = parent.part.getFile();
+        } else {
+            file = parent.view.koDoc.file;
+        }
+    } else {
+        file = null;
+        // Not this: parent.opener.window.ko.views.manager.currentView.koDoc.file;
+    }
+    return file;
+}

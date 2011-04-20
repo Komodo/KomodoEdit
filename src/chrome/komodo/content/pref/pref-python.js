@@ -116,6 +116,10 @@ function OnPreferencePageLoading() {
     var cwd = origWindow.ko.window.getCwd();
     extraPaths.setCwd(cwd);
     extraPaths.init(); // must happen after onpageload
+    var file = getOwningFileObject();
+    if (file && file.dirName) {
+        extraPaths.setCwd(file.dirName);
+    }
 }
 
 function loadPythonExecutable()

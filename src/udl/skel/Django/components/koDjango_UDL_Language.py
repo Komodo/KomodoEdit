@@ -230,12 +230,8 @@ class KoDjangoLinter(object):
             getService(components.interfaces.koIDirs)
         koLintService = components.classes["@activestate.com/koLintService;1"].getService(components.interfaces.koILintService)
         self._userPath = koprocessutils.getUserEnv()["PATH"].split(os.pathsep)
-        self._koPythonInfoEx = components.classes["@activestate.com/koAppInfoEx?app=Python;1"].\
-            getService(components.interfaces.koIAppInfoEx)
-        #TODO: Observe pref changes affecting self._pythonExecutable
-        self._pythonExecutable = self._koPythonInfoEx.executablePath
-        if not self._pythonExecutable:
-            self._pythonExecutable = koDirSvc.pythonExe
+        self._pythonInfo = components.classes["@activestate.com/koAppInfoEx?app=Python;1"]\
+            .createInstance(components.interfaces.koIAppInfoEx)
         self._djangoLinterPath = join(dirname(dirname(__file__)),
                                      "pylib",
                                      "djangoLinter.py")
@@ -346,7 +342,8 @@ class KoDjangoLinter(object):
                     del env["PYTHONPATH"]
 
                 results = koLintResults()
-                argv = [self._pythonExecutable, self._djangoLinterPath,
+                pythonExe = self._pythonInfo.getExecutableFromDocument(request.koDoc)
+                argv = [pythonExe, self._djangoLinterPath,
                         tmpFileName, settingsDir]
                 p = process.ProcessOpen(argv, cwd=cwd, env=env, stdin=None)
                 output, error = p.communicate()

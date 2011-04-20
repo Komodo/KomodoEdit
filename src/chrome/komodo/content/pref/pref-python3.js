@@ -75,6 +75,10 @@ function PrefPython3_OnLoad()
     var extraPaths = document.getElementById("python3ExtraPaths");
     extraPaths.setCwd(cwd)
     extraPaths.init() // must happen after onpageload
+    var file = getOwningFileObject();
+    if (file && file.dirName) {
+        extraPaths.setCwd(file.dirName);
+    }
 }
 
 function loadPython3Executable()

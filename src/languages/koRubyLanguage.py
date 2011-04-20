@@ -1101,7 +1101,7 @@ class KoRubyCompileLinter:
 
         lines = []
         try:
-            rubyExe = self.rubyInfoEx.executablePath
+            rubyExe = self.rubyInfoEx.getExecutableFromDocument(request.koDoc)
             if not rubyExe:
                 rubyExe = self.sysUtils.Which("ruby")
                 if not rubyExe:
@@ -1109,6 +1109,9 @@ class KoRubyCompileLinter:
                     self._lastErrorSvc.setLastError(1, errmsg)
                     raise ServerException(nsError.NS_ERROR_NOT_AVAILABLE)
             option = '-' + prefset.getStringPref("ruby_lintOption")
+            # Note that ruby -c doesn't actually consult paths.  It doesn't
+            # actually load required modules, since it doesn't need to process
+            # them the way Perl does to determine how to interpret code after 'use'
             rubyExtraPaths = prefset.getStringPref("rubyExtraPaths")
             if rubyExtraPaths:
                 if sys.platform.startswith("win"):

@@ -67,7 +67,8 @@
          as it adds a scrollbar when the contents are too long. -->
     <vbox id="file-properties-prefs-vbox" flex="1" class="autoscroll">
 
-        <groupbox id="importFrame" name="importFrame" orient="vertical" >
+        <groupbox id="importFrame" name="importFrame" orient="vertical"
+                  class="load-context-check" showIfLoadContext="project">
             <caption label="&specifyTheProjectsActualLocation.label;" class="kopadded"/>
             <vbox flex="1">
                <grid align="center" id="baseDirPickerGrid">

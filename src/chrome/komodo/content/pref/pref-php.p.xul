@@ -119,7 +119,8 @@
                     pref="true" prefwidget="true"
                     prefstring="phpExtraPaths"/>
         </groupbox>
-        <groupbox orient="vertical">
+        <groupbox orient="vertical" id="pref-php-comment-style"
+                  class="load-context-check" showIfLoadContext="global">
             <caption label="&otherOptions.label;"/>
             <hbox align="center">
             <label value="&commentStyle.label;"/>

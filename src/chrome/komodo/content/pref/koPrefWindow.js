@@ -823,9 +823,36 @@ koPrefWindow.prototype =
                 }
             }
         }
+        this._handleLoadContextElements(parentDoc);
         // Call the page loading function.
         if( this.contentFrame && ('OnPreferencePageLoading' in this.contentFrame.contentWindow)) { // is there a start function.
             this.contentFrame.contentWindow.OnPreferencePageLoading(prefset);
+        }
+    },
+
+    _handleLoadContextElements: function(parentDoc) {
+        var i, j, node, nodes = parentDoc.getElementsByClassName("load-context-check");
+        var loadContext = parent.prefInvokeType;
+        // Set up for an XOR test.
+        // If a show-test matches, it will be xor'd with 0 => 1
+        // If a hide-test matches, it will be xor'd with 1 => 0
+        // etc.
+        var attrMatch, attr, hiding, attrTable = [
+            ["hideIfLoadContext", 1],
+            ["showUnlessLoadContext", 1],
+            ["hideUnlessLoadContext", 0],
+            ["showIfLoadContext", 0]];
+        for (i = 0; i < nodes.length; i++) {
+            node = nodes[i];
+            for (j = 0; j < attrTable.length; j++) {
+                [attr, hiding] = attrTable[j];
+                if (node.hasAttribute(attr)) {
+                    var doesntMatch = node.getAttribute(attr).split(/\s+/).indexOf(loadContext) === -1 ? 1 : 0;
+                    var collapsed = doesntMatch ^ hiding ? "true" : "false";
+                    node.setAttribute("collapsed", collapsed);
+                    break;
+                }
+            }
         }
     },
 
