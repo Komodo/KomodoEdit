@@ -77,38 +77,39 @@ def PerlWarnsToLintResults(warns, perlfilename, perlcode):
     warns = newwarns
 
     results = []
-    warnRe = re.compile(r'(?P<description>.*) at (?P<fileName>.*?) line (?P<lineNum>\d+)(?P<hint>.*)')
+    warnRe = re.compile(r'(?P<description>.*) at %s line (?P<lineNum>\d+)(?P<hint>.*)' % re.escape(perlfilename))
     successRe = re.compile(r'syntax OK')
     failureRe = re.compile(r'had compilation errors')
-    pendingMessage = None
+    pendingLines = []
     for warn in warns:
         match = warnRe.search(warn)
         if match:
-            if match.group('fileName') == perlfilename:
-                lineNum = int(match.group('lineNum'))
-                varName = match.groupdict().get('varName', None)
-                lr = KoLintResult()
-                
-                lr.description = match.group('description') + match.group('hint')
-                lr.lineStart = lineNum 
-                lr.lineEnd = lineNum
-                if varName:
-                    lr.columnStart = perllines[lr.lineStart-1].find(varName) + 1
-                    if lr.columnStart == -1:
-                        lr.columnEnd = -1
-                    else:
-                        lr.columnEnd = lr.columnStart + len(varName) + 1
+            lineNum = int(match.group('lineNum'))
+            varName = match.groupdict().get('varName', None)
+            lr = KoLintResult()
+            
+            lr.description = match.group('description') + match.group('hint')
+            if not lr.description.strip() and pendingLines:
+                lr.description = "  ".join(pendingLines)
+                pendingLines = []
+            lr.lineStart = lineNum 
+            lr.lineEnd = lineNum
+            if varName:
+                lr.columnStart = perllines[lr.lineStart-1].find(varName) + 1
+                if lr.columnStart == -1:
+                    lr.columnEnd = -1
                 else:
-                    lr.columnStart = 1
-                    lr.columnEnd = len(perllines[lr.lineStart-1]) + 1
-                
-                results.append(lr)
-            elif pendingMessage is None:
-                pendingMessage = warn
+                    lr.columnEnd = lr.columnStart + len(varName) + 1
+            else:
+                lr.columnStart = 1
+                lr.columnEnd = len(perllines[lr.lineStart-1]) + 1
+            results.append(lr)
+        else:
+            pendingLines.append(warn)
     if (len(results) == 1
         and results[0].description == "BEGIN failed--compilation aborted."
-        and pendingMessage):
-        results[0].description = pendingMessage
+        and pendingLines):
+        results[0].description = "  ".join(pendingLines)
 
 # XXX
 #
