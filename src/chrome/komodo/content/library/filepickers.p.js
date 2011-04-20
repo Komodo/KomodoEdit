@@ -438,8 +438,15 @@ function _browseForFile(pickerFn,
             localFile.initWithPath(defaultDirectory);
             fp.displayDirectory = localFile;
         } catch (ex) {
-            _log.error("problem setting '"+defaultDirectory+
-                                 "' as default directory for file picker");
+            _log.warn("problem setting '"+defaultDirectory+
+                                 "' as default directory, defaulting to home directory.");
+            var localFile = Components.classes["@mozilla.org/file/local;1"]
+                            .createInstance(Components.interfaces.nsILocalFile);
+            var osPathSvc = Components.classes["@activestate.com/koOsPath;1"].
+                    getService(Components.interfaces.koIOsPath);
+            defaultDirectory = osPathSvc.expanduser("~");
+            localFile.initWithPath(defaultDirectory);
+            fp.displayDirectory = localFile;
         }
     }
     if (defaultFilename) {
@@ -712,8 +719,15 @@ this.browseForFiles = function filepicker_openFiles(defaultDirectory /* =null */
             localFile.initWithPath(defaultDirectory);
             fp.displayDirectory = localFile;
         } catch (ex) {
-            _log.error("problem setting '"+defaultDirectory+
-                                 "' as default directory for file picker");
+            _log.warn("problem setting '"+defaultDirectory+
+                                 "' as default directory, defaulting to home directory.");
+            var localFile = Components.classes["@mozilla.org/file/local;1"]
+                            .createInstance(Components.interfaces.nsILocalFile);
+            var osPathSvc = Components.classes["@activestate.com/koOsPath;1"].
+                    getService(Components.interfaces.koIOsPath);
+            defaultDirectory = osPathSvc.expanduser("~");
+            localFile.initWithPath(defaultDirectory);
+            fp.displayDirectory = localFile;
         }
     }
     if (defaultFilename) {
