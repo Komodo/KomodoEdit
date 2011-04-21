@@ -1,0 +1,132 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE overlay SYSTEM "chrome://klint/locale/klint.dtd" >
+<?xml-stylesheet href="chrome://klint/skin/klint.css" type="text/css"?>
+
+<overlay id="klintOverlay"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+  <script type="application/x-javascript"
+          src="chrome://klint/content/common.js" />
+  <script type="application/x-javascript"
+          src="chrome://klint/content/klintTreeview.js" />
+  <script type="application/x-javascript"
+          src="chrome://klint/content/klintOverlay.js" />
+
+    <menupopup id="menu_view_tabs_popup">
+        <menuitem id="show_klint_tab2"
+            observes="show_klint_tab"
+            class="menuitem-iconic-wide"
+            oncommand="ko.uilayout.ensureTabShown('klint_tab', true)"
+            label="&klint.tab.title;"
+            type="checkbox"
+            />
+    </menupopup>
+
+    <menupopup id="tabPicker_popup">
+        <menuitem id="show_klint_tab"
+            oncommand="ko.uilayout.ensureTabShown('klint_tab', true)"
+            label="&klint.tab.title;"
+            type="checkbox"
+            />
+    </menupopup>
+
+    <menupopup id="context_lint">
+        <menuitem id="show_klint_tab"
+                  class="statusbar-label"
+            oncommand="ko.uilayout.ensureTabShown('klint_tab', true)"
+            label="&klint.open.tab.title;"
+            />
+    </menupopup>
+
+    <tabs id="output_tabs">
+        <!-- From Todo extensio: Need both onmousedown and onfocus to catch selection
+             by mouse and Ctrl[+Shift]+Tab -->
+        <tab id="klint_tab"
+             label="&klint.tab.title;"
+             onmousedown="document.getElementById('klint-treechildren').focus();"
+             onfocus="document.getElementById('klint-treechildren').focus();" />
+    </tabs>
+
+    <tabpanels id="output_tabpanels">
+        <tabpanel id="klint_tabpanel"
+                  orient="vertical"
+                  flex="1">
+            <vbox flex="1">
+                <hbox align="center">
+                    <label flex="1" id="klint-count" value=""/>
+                    <separator flex="1"/>
+                    <hbox align="center">
+                        <image id="klint-icon-filter-pattern"
+                               tooltiptext="&klint.filter.by.description.tooltiptext;"
+                               class="klint-filter-pattern" />
+                        <textbox id="klint-filter-pattern"
+                            tooltiptext="&klint.filter.by.description.tooltiptext;"
+                            onkeypress="gKlint.onTextFilterKeypress(event)"
+                            oninput="gKlint.onTextFilterInput(event);" />
+                    </hbox>
+                    <menulist id="klint-filter-type">
+                        <menupopup>
+                            <menuitem id="klint-filter-error"
+                                label="&klint.show.errors.label;"
+                                oncommand="gKlint.filterVisibleItems(KlintTreeView.ERROR)"/>
+                            <menuitem id="klint-filter-warning"
+                                label="&klint.show.warnings.label;"
+                                oncommand="gKlint.filterVisibleItems(KlintTreeView.WARNING)"/>
+                            <menuitem id="klint-filter-info"
+                                hidden="true"
+                                label="&klint.show.infos.label;"
+                                oncommand="gKlint.filterVisibleItems(KlintTreeView.INFO)"/>
+                            <menuseparator />
+                            <menuitem id="klint-filter-all"
+                                label="&klint.show.all.label;"
+                                oncommand="gKlint.filterVisibleItems(KlintTreeView.ALL)"/>
+                            <menuitem id="klint-filter-none"
+                                label="&klint.show.hide.all.label;"
+                                oncommand="gKlint.filterVisibleItems(KlintTreeView.NONE)"/>
+                        </menupopup>
+                    </menulist>
+                    <button id="klint-disable-syntax-checking"
+                            class="button-klint-disable-syntax-checking button-toolbar-a"
+                            tooltiptext="&klint.disable.syntax.checking.by.file.pattern.label;"
+                            oncommand="gKlint.onOpenLintFiltersDialog();"/>
+                    <button id="klint-refresh"
+                            class="button-klint-refresh button-toolbar-a"
+                            tooltiptext="&klint.refresh.label;"
+                            oncommand="ko.lint.doRequest();"/>
+                </hbox>
+            <tree id="klint-tree"
+                  flex="1"
+                  seltype="single">
+                <treecols>
+                    <treecol primary="true"
+                             id="klint-linenum"
+                             style="min-width: 8em;"
+                             label="&klint.line.number.label;"
+                             sortActive="true"
+                             sortDirection="ascending"
+                             onclick="gKlint.sort(event)"
+                             persist="width"/>
+                    <splitter class="tree-splitter" />
+                    <treecol id="klint-messageType"
+                             style="min-width: 8em;"
+                             onclick="gKlint.sort(event)"
+                             label="&klint.message.type.label;" />
+                    <splitter class="tree-splitter" />
+                    <treecol id="klint-message"
+                             flex="1"
+                             label="&klint.message.text.label;"
+                             onclick="gKlint.sort(event)"
+                             persist="width" />
+                </treecols>
+                <treechildren id="klint-treechildren"
+                              class="klintTreeChildren"
+                              flex="1"
+                              ondblclick="gKlint.onDblClick(event);"/>
+            </tree>
+            </vbox>
+        </tabpanel>
+    </tabpanels>
+
+</overlay>
+

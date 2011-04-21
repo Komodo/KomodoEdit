@@ -436,6 +436,10 @@ if ($withCasper) {
     );
 }
 
+Build(
+    "$build/modules/klint/Conscript",
+);
+
 if ($buildFlavour ne "full") {
     # for now these will only be in dev builds
     Build(

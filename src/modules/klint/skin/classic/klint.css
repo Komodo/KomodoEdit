@@ -1,0 +1,26 @@
+.button-klint-refresh {
+  list-style-image: url("chrome://klint/skin/refresh.png");
+}
+
+.klintTreeChildren::-moz-tree-image(error) {
+  padding-right: 4px;
+  list-style-image: url("chrome://klint/skin/icon_check_error.png");
+}
+
+.klintTreeChildren::-moz-tree-image(warning) {
+  padding-right: 4px;
+  list-style-image: url("chrome://klint/skin/icon_check_warning.png");
+}
+
+.klintTreeChildren::-moz-tree-image(info) {
+  padding-right: 4px;
+  list-style-image: url("chrome://klint/skin/icon_check_info.png");
+}
+
+.klint-filter-pattern {
+  list-style-image: url("chrome://klint/skin/search.png");
+}
+
+.button-klint-disable-syntax-checking {
+  list-style-image: url("chrome://klint/skin/remove.png");
+}

@@ -1,0 +1,15 @@
+<!ENTITY klint.tab.title "Syntax Checking Status">
+<!ENTITY klint.open.tab.title "Syntax Checking">
+<!ENTITY klint.refresh.label "Refresh">
+<!ENTITY klint.line.number.label "Line Number">
+<!ENTITY klint.message.text.label "Description">
+<!ENTITY klint.message.type.label "Type">
+
+<!ENTITY klint.show.all.label "Show All">
+<!ENTITY klint.show.errors.label "Errors">
+<!ENTITY klint.show.warnings.label "Warnings">
+<!ENTITY klint.show.infos.label "Info">
+<!ENTITY klint.show.hide.all.label "Hide All">
+
+<!ENTITY klint.filter.by.description.tooltiptext "Filter By Description">
+<!ENTITY klint.disable.syntax.checking.by.file.pattern.label "Disable syntax checking by file pattern">

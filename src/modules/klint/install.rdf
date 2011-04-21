@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RDF xmlns:em="http://www.mozilla.org/2004/em-rdf#" xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+<Description about="urn:mozilla:install-manifest">
+<em:id>klint@dafizilla.sourceforge.net</em:id>
+<em:name>Klint</em:name>
+<em:version>1.4.0</em:version>
+<em:description>Klint adds a message windows to KomodoEdit syntax checker</em:description>
+<em:creator>Davide Ficano</em:creator>
+<em:homepageURL>http://dafizilla.sourceforge.net/klint</em:homepageURL>
+<em:updateURL>http://dafizilla.sourceforge.net/klint/update.php?item_id=%ITEM_ID%&amp;item_version=%ITEM_VERSION%&amp;app_id=%APP_ID%&amp;app_version=%APP_VERSION%</em:updateURL>
+<em:updateKey>MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQD3PgNKVyoQIfygs5ZetbWKi1
+		  WP4QZo/OisHBpKI2ke/ZATE60S4kr5+3iNAjV9Vj4jG797nL2N/Cq8OnMDna+rB
+		  /xFw5n7mU0gswZk8HBz8euWAuoo0lD/HoNattF79quYEFDU/H8gblKyH529NiQw
+		  26bUyAC61RYTxWHgSAlIxQIDAQAB
+    </em:updateKey>
+<em:iconURL>chrome://klint/skin/appicon.png</em:iconURL>
+<!-- Komodo IDE -->
+<em:targetApplication>
+<Description>
+<em:id>{36E66FA0-F259-11D9-850E-000D935D3368}</em:id>
+<em:minVersion>4.2</em:minVersion>
+<em:maxVersion>7.*</em:maxVersion>
+</Description>
+</em:targetApplication>
+<!-- Komodo Edit -->
+<em:targetApplication>
+<Description>
+<em:id>{b1042fb5-9e9c-11db-b107-000d935d3368}</em:id>
+<em:minVersion>4.0</em:minVersion>
+<em:maxVersion>7.*</em:maxVersion>
+</Description>
+</em:targetApplication>
+</Description>
+</RDF>
