@@ -92,7 +92,7 @@ class RSATest(unittest.TestCase):
         self.p = bytes_to_long(a2b_hex(self.prime_factor))
 
         # Compute q, d, and u from n, e, and p
-        self.q = self.n / self.p
+        self.q = divmod(self.n, self.p)[0]
         self.d = inverse(self.e, (self.p-1)*(self.q-1))
         self.u = inverse(self.p, self.q)    # u = e**-1 (mod q)
 
@@ -142,6 +142,7 @@ class RSATest(unittest.TestCase):
     def test_construct_5tuple(self):
         """RSA (default implementation) constructed key (5-tuple)"""
         rsaObj = self.rsa.construct((self.n, self.e, self.d, self.p, self.q))
+        self._check_private_key(rsaObj)
         self._check_encryption(rsaObj)
         self._check_decryption(rsaObj)
         self._check_signing(rsaObj)

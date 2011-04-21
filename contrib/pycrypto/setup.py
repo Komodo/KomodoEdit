@@ -121,6 +121,9 @@ class PCTBuildExt (build_ext):
 
         # Tweak compiler options
         if self.compiler.compiler_type in ('unix', 'cygwin', 'mingw32'):
+            # Tell GCC to compile using the C99 standard.
+            self.__add_compiler_option("-std=c99")
+
             # Make assert() statements always work
             self.__remove_compiler_option("-DNDEBUG")
 
@@ -138,6 +141,8 @@ class PCTBuildExt (build_ext):
                 self.__add_compiler_option("-fomit-frame-pointer")
                 # Don't include debug symbols unless debugging
                 self.__remove_compiler_option("-g")
+                # Don't include profiling information (incompatible with -fomit-frame-pointer)
+                self.__remove_compiler_option("-pg")
             if USE_GCOV:
                 self.__add_compiler_option("-fprofile-arcs")
                 self.__add_compiler_option("-ftest-coverage")
@@ -232,7 +237,7 @@ class TestCommand(Command):
         self.announce("running extended self-tests")
 
 kw = {'name':"pycrypto",
-      'version':"2.1.0",  # See also: lib/Crypto/__init__.py
+      'version':"2.3",  # See also: lib/Crypto/__init__.py
       'description':"Cryptographic modules for Python.",
       'author':"Dwayne C. Litzenberger",
       'author_email':"dlitz@dlitz.net",
