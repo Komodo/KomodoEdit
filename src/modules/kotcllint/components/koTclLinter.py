@@ -46,7 +46,7 @@ from xpcom import components, nsError, ServerException
 
 import process
 import koprocessutils
-from koLintResult import *
+from koLintResult import KoLintResult, getProxiedEffectivePrefs
 from koLintResults import koLintResults
 
 
@@ -251,11 +251,15 @@ class KoTclCompileLinter:
         return linterArgv
 
     def lint(self, request):
+        text = request.content.encode(request.encoding.python_encoding_name)
+        return self.lint_with_text(request, text)
+        
+    def lint_with_text(self, request, text):
         """Lint the given Tcl content.
         
         Raise an exception if there is a problem.
         """
-        prefset = request.document.getEffectivePrefs()
+        prefset = getProxiedEffectivePrefs(request)
         argv = self._getLinterArgv(prefset)
         env = koprocessutils.getUserEnv()
 
@@ -283,7 +287,6 @@ class KoTclCompileLinter:
             env["TCLLIBPATH"] = TCLLIBPATH
 
         cwd = request.cwd or None
-        text = request.content.encode(request.encoding.python_encoding_name)
         p = process.ProcessOpen(argv, cwd=cwd, env=env)
         lOutput, lErrOut = p.communicate(text)
         lOutput = lOutput.splitlines(1)

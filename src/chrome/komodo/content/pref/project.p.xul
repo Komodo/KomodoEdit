@@ -131,7 +131,7 @@
         if (!isProject) {
             // stuff that should ONLY show up on project prefs
             nodesToDrop = nodesToDrop.concat(["mappedURIsItem", "newFilesItem",
-                                              "environItem", "languagesItem",
+                                              "environItem",
                                               "debugProperties"]);
             if (isfolder) {
                 // stuff that should NOT show up on non-project folders
@@ -309,18 +309,11 @@
                                   helptag="language_configuration_preferences"/>
                     </treerow>
                     <treechildren id="languagesChildren">
-                        <treeitem container="false" id="javascriptItem">
-                            <treerow>
-                                <treecell class="treecell-indent"
-                                          url="chrome://komodo/content/pref/pref-project-javascript.xul"
-                                          label="&javaScript.label;"
-                                          helptag="javascript_configuration"/>
-                            </treerow>
-                        </treeitem>
+                        <!-- JS has no project/document-specific prefs -->
                         <treeitem container="false" id="perlItem">
                             <treerow>
                                 <treecell class="treecell-indent"
-                                          url="chrome://komodo/content/pref/pref-project-perl.xul"
+                                          url="chrome://komodo/content/pref/pref-perl.xul"
                                           label="&perl.label;"
                                           helptag="perl_configuration"/>
                             </treerow>
@@ -328,7 +321,7 @@
                         <treeitem container="false" id="phpItem">
                             <treerow>
                                 <treecell class="treecell-indent"
-                                          url="chrome://komodo/content/pref/pref-project-php.xul"
+                                          url="chrome://komodo/content/pref/pref-php.xul"
                                           label="&PHP.label;"
                                           helptag="php_configuration"/>
                             </treerow>
@@ -336,15 +329,23 @@
                         <treeitem container="false" id="pythonItem">
                             <treerow>
                                 <treecell class="treecell-indent"
-                                          url="chrome://komodo/content/pref/pref-project-python.xul"
+                                          url="chrome://komodo/content/pref/pref-python.xul"
                                           label="&python.label;"
+                                          helptag="python_configuration"/>
+                            </treerow>
+                        </treeitem>
+                        <treeitem container="false" id="python3Item">
+                            <treerow>
+                                <treecell class="treecell-indent"
+                                          url="chrome://komodo/content/pref/pref-python3.xul"
+                                          label="&python3.label;"
                                           helptag="python_configuration"/>
                             </treerow>
                         </treeitem>
                         <treeitem container="false" id="rubyItem">
                             <treerow>
                                 <treecell class="treecell-indent"
-                                          url="chrome://komodo/content/pref/pref-project-ruby.xul"
+                                          url="chrome://komodo/content/pref/pref-ruby.xul"
                                           label="&ruby.label;"
                                           helptag="ruby_configuration"/>
                             </treerow>

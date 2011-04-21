@@ -77,23 +77,19 @@ $cons->InstallInChrome('pref-association.js');
 
 $cons->InstallInChrome('pref-find.xul');
 
-$cons->InstallInChrome('pref-project-python.xul');
 $cons->InstallInChrome('pref-python.xul');
 $cons->InstallInChrome('pref-python.js');
 $cons->InstallInChrome('pref-python3.xul');
 $cons->InstallInChrome('pref-python3.js');
 
-$cons->InstallInChrome('pref-project-javascript.xul');
 $cons->Preprocess('pref-javascript.p.xul', 'pref-javascript.xul');
 $cons->InstallInChrome('pref-javascript.xul');
 $cons->InstallInChrome('pref-javascript.js');
 
-$cons->InstallInChrome('pref-project-perl.xul');
 $cons->Preprocess('pref-perl.p.xul', 'pref-perl.xul');
 $cons->InstallInChrome('pref-perl.xul');
 $cons->InstallInChrome('pref-perl.js');
 
-$cons->InstallInChrome('pref-project-ruby.xul');
 $cons->Preprocess('pref-ruby.p.xul', 'pref-ruby.xul');
 $cons->InstallInChrome('pref-ruby.xul');
 $cons->InstallInChrome('pref-ruby.js');
@@ -122,7 +118,6 @@ $cons->InstallInChrome('pref-servers.js');
 $cons->Preprocess('pref-servers.p.xul', 'pref-servers.xul');
 $cons->InstallInChrome('pref-servers.xul');
 
-$cons->InstallInChrome('pref-project-php.xul');
 $cons->Preprocess('pref-php.p.xul', 'pref-php.xul');
 $cons->InstallInChrome('pref-php.xul');
 $cons->Preprocess('pref-php.p.js', 'pref-php.js');

@@ -48,9 +48,6 @@ function PrefTcl_OnLoad()
     try {
         dialog = {};
         // This ensures all of our preferences get loaded correctly.
-        var tclInfoEx = Components.classes["@activestate.com/koAppInfoEx?app=Tcl;1"]
-                         .createInstance(Components.interfaces.koITclInfoEx);
-
         if (parent.hPrefWindow.prefset.hasStringPref('tclshDefaultInterpreter') &&
             parent.hPrefWindow.prefset.getStringPref('tclshDefaultInterpreter')) {
             tclExecutable = parent.hPrefWindow.prefset.getStringPref('tclshDefaultInterpreter');
@@ -76,14 +73,18 @@ function PrefTcl_OnLoad()
         PrefTcl_InsertFindingMessage(document.getElementById("tclshDefaultInterpreter"));
         PrefTcl_PopulateTclInterps();
 
-        var origWindow = ko.windowManager.getMainWindow();
-        var cwd = origWindow.ko.window.getCwd();
         parent.hPrefWindow.onpageload();
-        var extraPaths = document.getElementById("tclExtraPaths");
-        extraPaths.setCwd(cwd)
-        extraPaths.init() // must happen after onpageload
     } catch (e) {
         log.exception(e);
+    }
+}
+
+function OnPreferencePageLoading() {
+    var extraPaths = document.getElementById("tclExtraPaths");
+    extraPaths.init();
+    var file = getOwningFileObject();
+    if (file && file.dirName) {
+        extraPaths.setCwd(file.dirName)
     }
 }
 
@@ -93,32 +94,17 @@ function OnPreferencePageOK(prefset)
     var ok = true;
 
     // ensure that the default tcl interpreters are valid
-    var defaultTclshInterp = prefset.getStringPref("tclshDefaultInterpreter");
-    var defaultWishInterp  = prefset.getStringPref("wishDefaultInterpreter");
-    var koSysUtils = Components.classes["@activestate.com/koSysUtils;1"].
-        getService(Components.interfaces.koISysUtils);
-
-    if (defaultTclshInterp != "") {
-        if (! koSysUtils.IsFile(defaultTclshInterp)) {
-            alert("No Tcl interpreter could be found at '" +
-                  defaultTclshInterp + "'. You must make another " +
-                  "selection for the default Tcl interpreter.\n");
-            ok = false;
-            document.getElementById("tclshDefaultInterpreter").focus();
+    var prefNames = {"tclshDefaultInterpreter": "Tcl",
+                     "wishDefaultInterpreter": "Tcl Wish"};
+    for (var interpreterPrefName in prefNames) {
+        if (!checkValidInterpreterSetting(prefset,
+                                          interpreterPrefName,
+                                          prefNames[interpreterPrefName],
+                                          "tclItem")) {
+            return false;
         }
     }
-
-    if (defaultWishInterp != "") {
-        if (! koSysUtils.IsFile(defaultWishInterp)) {
-            alert("No Tcl Wish interpreter could be found at '" +
-                  defaultWishInterp + "'. You must make another selection " +
-                  "for the default Tcl Wish interpreter.\n");
-            ok = false;
-            document.getElementById("wishDefaultInterpreter").focus();
-        }
-    }
-
-    return ok;
+    return true;
 }
 
 function PrefTcl_PopulateTclInterps()
@@ -211,18 +197,10 @@ function PrefTcl_PopulateWishInterps(availInterps)
 
 function loadTclExecutable()
 {
-    var tclExe = ko.filepicker.openExeFile();
-    if (tclExe != null) {
-        var availInterpList = document.getElementById("tclshDefaultInterpreter");
-        availInterpList.selectedItem = availInterpList.appendItem(tclExe, tclExe);
-    }
+    loadExecutableIntoInterpreterList("tclshDefaultInterpreter");
 }
 
 function loadWishExecutable()
 {
-    var wishExe = ko.filepicker.openExeFile();
-    if (wishExe != null) {
-        var availInterpList = document.getElementById("wishDefaultInterpreter");
-        availInterpList.selectedItem = availInterpList.appendItem(wishExe, wishExe);
-    }
+    loadExecutableIntoInterpreterList("wishDefaultInterpreter");
 }

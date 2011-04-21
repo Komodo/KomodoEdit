@@ -63,6 +63,7 @@
     <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/dialogs.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/filepickers.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/pref/koPrefUtils.js" type="application/x-javascript;version=1.7" />
     <script src="chrome://kotcllint/content/pref-tcl.js" type="application/x-javascript;version=1.7"/>
     <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/windowManager.js"/>
 
@@ -87,16 +88,19 @@
                         oncommand="alert('Note: Komodo must be restarted for it to recognize new Tcl installations.'); parent.opener.ko.browse.openUrlInDefaultBrowser('http://www.activestate.com/activetcl_pro_studio/');"/>
             </hbox>
         </vbox>
-        <label value="Use this Wish interpreter"/>
-        <hbox align="center">
-            <menulist id="wishDefaultInterpreter"
-                flex="1"
-                pref="true"
-                prefstring="wishDefaultInterpreter">
-                <menupopup id="avail-interp-list"/>
-            </menulist>
-            <button label="&browse.label;" oncommand="loadWishExecutable();"/>
-        </hbox>
+        <vbox id="wish-interpreter-vbox" class="load-context-check"
+              showIfLoadContext="global">
+            <label value="Use this Wish interpreter"/>
+            <hbox align="center">
+                <menulist id="wishDefaultInterpreter"
+                    flex="1"
+                    pref="true"
+                    prefstring="wishDefaultInterpreter">
+                    <menupopup id="avail-interp-list"/>
+                </menulist>
+                <button label="&browse.label;" oncommand="loadWishExecutable();"/>
+            </hbox>
+        </vbox>
         <vbox id="no-avail-tclsh-interps-message" collapsed="true" flex="1"
               align="center" style="border: 1px dotted;" >
             <description id="no-avail-tclsh-interps-message"
