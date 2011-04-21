@@ -186,12 +186,17 @@
 
         <field name="_global_pref_observer_topics">
             [
-                'ySlop',
-                'select_most_recent_buffer_on_buffer_close',
                 'debuggerMaxTooltipSize',
                 'editor-scheme'
             ]
         </field>
+        <field name="_doc_pref_observer_topics">
+            [
+                'ySlop',
+                'select_most_recent_buffer_on_buffer_close'
+            ]
+        </field>
+        <field name="haveDocPrefs"></field>
 
         <method name="init">
         <body>
@@ -202,12 +207,28 @@
                                                      this._global_pref_observer_topics.length,
                                                      this._global_pref_observer_topics,
                                                      false);
+            var docPrefsThisTime;
+            if (this.prefs) {
+                this.prefs.prefObserverService.addObserverForTopics(this,
+                                            this._doc_pref_observer_topics.length,
+                                            this._doc_pref_observer_topics,
+                                            false);
+                this.haveDocPrefs = true;
+                docPrefsThisTime = this.prefs;
+            } else {
+            prefObserverService.addObserverForTopics(this,
+                                            this._doc_pref_observer_topics.length,
+                                            this._doc_pref_observer_topics,
+                                                     false);
+                this.haveDocPrefs = false;
+                docPrefsThisTime = this.__globalPrefs;
+            }
             this.scimoz.setYCaretPolicy(this.scimoz.CARET_SLOP |
                                    this.scimoz.CARET_STRICT |
                                    this.scimoz.CARET_EVEN,
-                                   this.__globalPrefs.getLongPref('ySlop'));
+                                   docPrefsThisTime.getLongPref('ySlop'));
             this.selectMostRecentBufferOnBufferClose =
-                this.__globalPrefs.getBooleanPref('select_most_recent_buffer_on_buffer_close');
+                docPrefsThisTime.getBooleanPref('select_most_recent_buffer_on_buffer_close');
             
             var this_ = this;
             this._on_codeintel_activated_window = function(event) {
@@ -483,11 +504,11 @@
                 this.scimoz.setYCaretPolicy(this.scimoz.CARET_SLOP |
                                        this.scimoz.CARET_STRICT |
                                        this.scimoz.CARET_EVEN,
-                                       this.__globalPrefs.getLongPref('ySlop'));
+                                       (this.prefs || this.__globalPrefs).getLongPref('ySlop'));
                 break;
             case 'select_most_recent_buffer_on_buffer_close':
                 this.selectMostRecentBufferOnBufferClose =
-                    this.__globalPrefs.getBooleanPref('select_most_recent_buffer_on_buffer_close');
+                    (this.prefs || this.__globalPrefs).getBooleanPref('select_most_recent_buffer_on_buffer_close');
                 break;
 
             case 'codeintel_enabled':
@@ -632,6 +653,16 @@
                 prefObserverService.removeObserverForTopics(this,
                                                             this._global_pref_observer_topics.length,
                                                             this._global_pref_observer_topics);
+
+                if (this.haveDocPrefs) {
+                    this.prefs.prefObserverService.removeObserverForTopics(this,
+                        this._doc_pref_observer_topics.length,
+                        this._doc_pref_observer_topics);
+                } else {
+                    prefObserverService.removeObserverForTopics(this,
+                        this._doc_pref_observer_topics.length,
+                        this._doc_pref_observer_topics);
+                }
 
                 window.removeEventListener('codeintel_activated_window',
                     this._on_codeintel_activated_window, false);

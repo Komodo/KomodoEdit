@@ -154,6 +154,7 @@ class koDocumentSettingsManager:
         self._applyPrefs(koDoc.prefs, scimoz)
         
         prefs = self.koDoc.prefs
+        effectivePrefs = self.koDoc.getEffectivePrefs()
 
         if prefs.hasLongPref('anchor'):
             scimoz.currentPos = scimoz.anchor = prefs.getLongPref('anchor')
@@ -161,45 +162,45 @@ class koDocumentSettingsManager:
         if prefs.hasLongPref('currentPos'):
             scimoz.currentPos = prefs.getLongPref('currentPos')
 
-        if prefs.hasPrefHere('indentWidth'):
-            scimoz.indent = prefs.getLongPref('indentWidth')
+        if effectivePrefs.hasPrefHere('indentWidth'):
+            scimoz.indent = effectivePrefs.getLongPref('indentWidth')
         else:
             scimoz.indent = koDoc.indentWidth
 
-        if prefs.hasPrefHere('editUseAlternateFaceType'):
-            useAlternate = prefs.getBooleanPref('editUseAlternateFaceType')
+        if effectivePrefs.hasPrefHere('editUseAlternateFaceType'):
+            useAlternate = effectivePrefs.getBooleanPref('editUseAlternateFaceType')
         else:
             useAlternate = 0
         scintilla.alternateFaceType = useAlternate
-        self._updateEdge(prefs)
+        self._updateEdge(effectivePrefs)
             
-        if prefs.hasPrefHere('useTabs'):
-            scimoz.useTabs = prefs.getBooleanPref('useTabs')
+        if effectivePrefs.hasPrefHere('useTabs'):
+            scimoz.useTabs = effectivePrefs.getBooleanPref('useTabs')
         else:
             scimoz.useTabs = koDoc.useTabs
 
-        if prefs.hasPrefHere('tabWidth'):
-            scimoz.tabWidth = prefs.getLongPref('tabWidth')
+        if effectivePrefs.hasPrefHere('tabWidth'):
+            scimoz.tabWidth = effectivePrefs.getLongPref('tabWidth')
         else:
             scimoz.tabWidth = koDoc.tabWidth
 
-        slop = prefs.getLongPref('ySlop')
+        slop = effectivePrefs.getLongPref('ySlop')
         scimoz.setYCaretPolicy(scimoz.CARET_SLOP | scimoz.CARET_STRICT | scimoz.CARET_EVEN, slop)
         scimoz.setVisiblePolicy(scimoz.VISIBLE_SLOP | scimoz.VISIBLE_STRICT, slop)
 
-        if prefs.hasLongPref('firstVisibleLine'):
-            scimoz.lineScroll(0, prefs.getLongPref('firstVisibleLine'))
+        if effectivePrefs.hasLongPref('firstVisibleLine'):
+            scimoz.lineScroll(0, effectivePrefs.getLongPref('firstVisibleLine'))
 
-        if prefs.hasLongPref('scrollWidth'):
-            scimoz.scrollWidth = prefs.getLongPref("scrollWidth")
+        if effectivePrefs.hasLongPref('scrollWidth'):
+            scimoz.scrollWidth = effectivePrefs.getLongPref("scrollWidth")
         else:
             log.warn('should set default scroll width?')
 
-        if prefs.getBooleanPref('scrollWidthTracking'):
-            scimoz.scrollWidthTracking = prefs.getBooleanPref("scrollWidthTracking")
+        if effectivePrefs.getBooleanPref('scrollWidthTracking'):
+            scimoz.scrollWidthTracking = effectivePrefs.getBooleanPref("scrollWidthTracking")
 
-        if prefs.hasLongPref('xOffset'):
-            scimoz.xOffset = prefs.getLongPref('xOffset')
+        if effectivePrefs.hasLongPref('xOffset'):
+            scimoz.xOffset = effectivePrefs.getLongPref('xOffset')
         else:
             scimoz.xOffset = 0
 
@@ -212,10 +213,10 @@ class koDocumentSettingsManager:
         # restore fold points if the user has checked that pref off.
         # We don't do it by default because the colourise(.., -1) call below
         # can be quite slow.
-        if prefs.getBooleanPref("editRestoreFoldPoints") and \
-           prefs.hasPref('foldPoints') and \
+        if effectivePrefs.getBooleanPref("editRestoreFoldPoints") and \
+           effectivePrefs.hasPref('foldPoints') and \
            scimoz.getPropertyInt("fold"):
-            foldPoints = prefs.getPref("foldPoints")
+            foldPoints = effectivePrefs.getPref("foldPoints")
             if foldPoints.length:
                 # restyle the whole document to get folding right
                 # Fixes bug 45621
@@ -224,8 +225,8 @@ class koDocumentSettingsManager:
                     scimoz.toggleFold(foldPoints.getLongPref(i));
 
         # restore the bookmarks
-        if prefs.hasPref("bookmarks"):
-            bookmarks = prefs.getPref("bookmarks")
+        if effectivePrefs.hasPref("bookmarks"):
+            bookmarks = effectivePrefs.getPref("bookmarks")
             for i in range(bookmarks.length):
                 scimoz.markerAdd(bookmarks.getLongPref(i), MARKNUM_BOOKMARK)
 

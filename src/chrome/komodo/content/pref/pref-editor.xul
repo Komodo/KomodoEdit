@@ -161,7 +161,8 @@
             </hbox>
         </groupbox>
 
-        <groupbox id="dragdrop_groupbox" orient="vertical">
+        <groupbox id="dragdrop_groupbox" orient="vertical"
+                  class="load-context-check" showIfLoadContext="global">
             <caption id="dragdrop_caption" label="&dragdrop.label;"/>
             <hbox id="dragdrop_ask_hbox" align="center">
                 <!-- When dropping a URL on Komodo: -->
@@ -180,7 +181,8 @@
             </hbox>
         </groupbox>
 
-        <groupbox orient="vertical">
+        <groupbox orient="vertical"
+                  class="load-context-check" showIfLoadContext="global">
             <caption label="&confirmationDialogs.label;"/>
             <checkbox id="checkDiskFile"
                       label="&detectWhenFilesAreChangedOutsideTheEnvironment.label;"
@@ -258,7 +260,10 @@
                           prefattribute="checked"
                           tooltiptext="&horizScrollWidthTracking.tooltiptext;"/>
             </hbox>
-            <vbox>
+            <!-- This is only used in scintilla.p.xml, and it can't
+                 see it's containing koDoc object, so it can only
+                 use the global prefs -->
+            <vbox class="load-context-check" showIfLoadContext="global">
                 <checkbox id="scrollEndAtLastLine" label="&enableScrollingPastEndOfBufferOnlyAppliesToNewBuffers.label;"
                           pref="true" prefstring="scrollEndAtLastLine"
                           prefattribute="checked"/>

@@ -121,8 +121,10 @@
             // XXX until prefs are more worked out, don't do editor prefs
             // on project parts
             nodesToDrop = nodesToDrop.concat(["advancedFileProperties",
-                                              "editorProperties",
                                               "previewProperties"]);
+            if (!isProject) {
+                nodesToDrop.concat(["editorProperties"]);
+            }
         }
         if (!isfolder) {
             // stuff that should only show up on folders
@@ -254,7 +256,7 @@
                 <treeitem container="true" id="editorProperties">
                     <treerow>
                         <treecell class="treecell-indent"
-                                  url="chrome://komodo/content/pref/editing-properties.xul"
+                                  url="chrome://komodo/content/pref/pref-editor.xul"
                                   label="&editor.label;"
                                   helptag="editor"/>
                     </treerow>
@@ -262,9 +264,17 @@
                         <treeitem container="false" id="indentationProperties">
                             <treerow>
                                 <treecell class="treecell-indent"
-                                          url="chrome://komodo/content/pref/indent-properties.xul"
+                                          url="chrome://komodo/content/pref/pref-indentation.xul"
                                           label="&indentation.label;"
                                           helptag="indentation"/>
+                            </treerow>
+                        </treeitem>
+                        <treeitem container="false" id="editsmartItem">
+                            <treerow>
+                                <treecell class="treecell-indent"
+                                          url="chrome://komodo/content/pref/pref-editsmart.xul"
+                                          label="&smartEditing.label;"
+                                          helptag="smart_editing"/>
                             </treerow>
                         </treeitem>
                     </treechildren>

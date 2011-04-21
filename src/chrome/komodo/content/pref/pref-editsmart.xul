@@ -153,7 +153,12 @@
                     </menupopup>
                 </menulist>
             </hbox>
-            <vbox id="wordwrap_settings_vbox">
+            <!-- editWordWrapMarker and editWordWrapIndentation are used
+                 in scintilla.p.xml, where we have access only to global prefs.
+                 They're used in koDocSettingsManager.py as well, but those
+                 will bubble up from doc prefs to global prefs
+              -->
+            <vbox id="wordwrap_settings_vbox" class="load-context-check" showIfLoadContext="global">
                 <hbox id="wordwrap_markers_hbox"
                       align="center"
                       style="margin-left: 27px;">
@@ -179,7 +184,7 @@
                         </menupopup>
                     </menulist>
                 </hbox>
-                <hbox id="wordwrap_indenation_hbox"
+                <hbox id="wordwrap_indentation_hbox"
                       align="center"
                       style="margin-left: 27px;">
                     <label id="wordwrap_indentation_label"
@@ -214,6 +219,10 @@
             </hbox>
     
             <separator class="thin"/>
+            <!-- smart-char processing is done in scintilla handlers where
+                 we don't have access to the containing view/koDoc.
+            -->
+            <vbox class="load-context-check" showIfLoadContext="global">
             <checkbox id="editSmartSoftCharacters" label="&enableSoftCharacters.label;" pref="true"
                     prefstring="editSmartSoftCharacters" prefattribute="checked"
                       oncommand="pref_softChars_doEnabling();"/>
@@ -228,9 +237,13 @@
                       label="&cutCopyWithoutSelection.label;" pref="true"
                       prefstring="editSmartCutCopyWithoutSelection"
                       prefattribute="checked"/>
+            </vbox>
         </groupbox>
     
-        <groupbox orient="vertical">
+        <!-- hyperlinksEnabled is used with doc prefs, but
+             hyperlinksEnableGotoDefinition is used only with global prefs
+        -->
+        <groupbox orient="vertical" class="load-context-check" showIfLoadContext="global">
             <caption label="&hyperlinks.label;"/>
             <checkbox id="hyperlinksEnabled"
                       label="&hyperlinksEnabled.label;"

@@ -605,9 +605,7 @@ VimController.prototype.updateViInternals = function() {
         if (typeof(ko.views.manager) != 'undefined' && ko.views.manager && ko.views.manager.currentView &&
             ko.views.manager.currentView.koDoc && ko.views.manager.currentView.scintilla) {
             var scimoz = ko.views.manager.currentView.scintilla.scimoz;
-            var prefsSvc = Components.classes["@activestate.com/koPrefService;1"].
-                                    getService(Components.interfaces.koIPrefService);
-            var prefs = prefsSvc.prefs;
+            var prefs = ko.views.manager.currentView.koDoc.getEffectivePrefs();
             scimoz.caretStyle = prefs.getLongPref('caretStyle');
             scimoz.caretWidth = prefs.getLongPref('caretWidth');
         }

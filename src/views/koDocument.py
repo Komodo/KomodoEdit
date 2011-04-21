@@ -212,6 +212,21 @@ class koDocumentBase:
         if self._refcount < 1:
             self._dereference()
         log.debug('refcount = %d', self._refcount)
+
+    #def resetPrefs(self):
+    #    docStateMRU = self._globalPrefSvc.getPrefs("docStateMRU");
+    #    if not self.isUntitled and docStateMRU.hasPref(self.file.URI):
+    #        docStateMRU.deletePref(self.file.URI)
+    #    if self.prefs:
+    #        prefObserver = self.prefs.prefObserverService
+    #        prefObserver.removeObserver(self, 'useTabs')
+    #        prefObserver.removeObserver(self, 'indentWidth')
+    #        prefObserver.removeObserver(self, 'tabWidth')
+    #    try:
+    #        encoding_name = self.encoding.python_encoding_name
+    #    except:
+    #        encoding_name = None
+    #    self._setupPrefs(encoding_name)
         
     def _setupPrefs(self, encoding_name=None):
         """ We can only setup the prefs on the document once we have a URI for it

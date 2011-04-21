@@ -67,6 +67,9 @@ function MyOnload() {
 }
 function OnPreferencePageInitalize(prefset) {
     log.info("OnPreferencePageInitalize");
+    if (parent.prefInvokeType != "global") {
+        return;
+    }
     try {
         var langToUse;
         // set up the prefs
@@ -85,6 +88,9 @@ function OnPreferencePageInitalize(prefset) {
 }
 function OnPreferencePageOK(prefset)  {
     log.info("OnPreferencePageOK");
+    if (parent.prefInvokeType != "global") {
+        return true;
+    }
     // save any updated prefs
     try {
         changeNewLanguage(null,null);
@@ -118,7 +124,6 @@ function _getCurrentLangPrefs(language) {
     } else {
         prefs = langPrefs.getPref('languages/'+language);
     }
-    
     prefs.parent = langPrefs;
     return prefs;
 }
@@ -176,9 +181,13 @@ function changeNewLanguage(item, name)  {
     <vbox id="indentation-prefs-vbox" flex="1" class="autoscroll">
 
         <groupbox orient="vertical">
-            <caption label="&indentationGlobalSettings.label;"/>
+            <caption label="&indentationGlobalSettings.label;"
+                  class="load-context-check" showIfLoadContext="global"/>
+            <caption label="&indentation.label;"
+                  class="load-context-check" hideIfLoadContext="global"/>
       
-            <hbox align="center">
+            <hbox align="center"
+                  class="load-context-check" showIfLoadContext="global">
               <label value="&autoIndentStyle.label;"/>
               <menulist id="editAutoIndentStyle" pref="true" prefattribute="data">
                   <menupopup>
@@ -203,11 +212,13 @@ function changeNewLanguage(item, name)  {
             <!-- space helps re-inforce "smart-tabs" may override the rest -->
                   <checkbox id="indentStringsAfterParens" label="&indentStringsAfterParens.label;"
                       pref="true" prefstring="indentStringsAfterParens"
-                      prefattribute="checked"/>
+                      prefattribute="checked"
+                      class="load-context-check" showIfLoadContext="global"/>
       
                   <checkbox id="dedentOnColon" label="&dedentOnColon.label;"
                       pref="true" prefstring="dedentOnColon"
-                      prefattribute="checked"/>
+                      prefattribute="checked"
+                      class="load-context-check" showIfLoadContext="global"/>
       
             <checkbox id="useTabs"
                       label="&preferTabCharactersOverSpaces.label;"
@@ -235,7 +246,8 @@ function changeNewLanguage(item, name)  {
       
         </groupbox>
       
-        <groupbox orient="vertical">
+        <groupbox orient="vertical"
+                  class="load-context-check" showIfLoadContext="global">
             <caption label="&indentation-per-language.label;"/>
             <langlist id="langList" class="lang-menulist"
                       oncommand="changeNewLanguage(this, null)"/>
