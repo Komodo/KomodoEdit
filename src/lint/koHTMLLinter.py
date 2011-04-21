@@ -371,6 +371,9 @@ class KoHTMLTidyLinter:
                     # ignore warnings
                     continue
                 result.severity = result.SEV_WARNING
+            elif result.description.startswith("Info:"):
+                # Ignore Info: lines.
+                continue
             else:
                 result.severity = result.SEV_ERROR
 
