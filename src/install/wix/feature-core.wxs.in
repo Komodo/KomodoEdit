@@ -1895,7 +1895,7 @@
                 <File Id="file299" Name="mozutils.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\mozutils.py" />
 
 <?if $(var.WithCrypto) = "yes" ?>
-                <File Id="file956" Name="PYCRYP_0.EGG" LongName="pycrypto-2.1.0-py2.6.egg-info" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\pycrypto-2.1.0-py2.6.egg-info"/>
+                <File Id="file554" LongName="pycrypto-2.3-py2.6.egg-info" Name="PYCRYP_0.EGG" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\pycrypto-2.3-py2.6.egg-info" />
                 <File Id="file710" LongName="ctypesutils.py" Name="CTYPES_0.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\ctypesutils.py" />
                 <File Id="file420" Name="runutils.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\runutils.py" />
 <?endif ?>
@@ -2294,7 +2294,6 @@
                 <Directory Id="directory364" Name="Hash">
                   <Component Id="component329" DiskId="1" Guid="$(autowix.guid)">
                     <File Id="file958" Name="RIPEMD.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\Crypto\Hash\RIPEMD.py"/>
-                    <File Id="file959" Name="RIPEMD_0.PYD" LongName="RIPEMD160.pyd" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\Crypto\Hash\RIPEMD160.pyd"/>
                     <File Id="file1035" Name="HMAC.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\Crypto\Hash\HMAC.py"/>
                     <File Id="file1036" Name="MD2.pyd" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\Crypto\Hash\MD2.pyd"/>
                     <File Id="file1037" Name="MD4.pyd" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\Crypto\Hash\MD4.pyd"/>
@@ -2392,11 +2391,13 @@
                     <Component Id="component339" DiskId="1" Guid="$(autowix.guid)">
                       <File Id="file1000" Name="test_DSA.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\Crypto\SelfTest\PublicKey\test_DSA.py"/>
                       <File Id="file1001" Name="test_RSA.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\Crypto\SelfTest\PublicKey\test_RSA.py"/>
+                      <File Id="file556" LongName="test_importKey.py" Name="TEST_I_0.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\Crypto\SelfTest\PublicKey\test_importKey.py" />
                       <File Id="file1002" Name="__INI_81.PY" LongName="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\Crypto\SelfTest\PublicKey\__init__.py"/>
                     </Component>
                   </Directory> <!-- lib\mozilla\python\komodo\Crypto\SelfTest\PublicKey -->
                   <Directory Id="directory389" Name="RANDOM_0" LongName="Random">
                     <Component Id="component340" DiskId="1" Guid="$(autowix.guid)">
+                      <File Id="file560" LongName="test_asn1.py" Name="TEST_A_2.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\Crypto\SelfTest\Util\test_asn1.py" />
                       <File Id="file1003" Name="TEST_R_2.PY" LongName="test_random.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\Crypto\SelfTest\Random\test_random.py"/>
                       <File Id="file1004" Name="TEST_R_3.PY" LongName="test_rpoolcompat.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\Crypto\SelfTest\Random\test_rpoolcompat.py"/>
                       <File Id="file1005" Name="__INI_82.PY" LongName="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\Crypto\SelfTest\Random\__init__.py"/>
@@ -2431,6 +2432,7 @@
                 </Directory> <!-- lib\mozilla\python\komodo\Crypto\SelfTest -->
                 <Directory Id="directory395" Name="UTIL_0" LongName="Util">
                   <Component Id="component352" DiskId="1" Guid="$(autowix.guid)">
+                    <File Id="file872" Name="asn1.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\Crypto\Util\asn1.py" />
                     <File Id="file1020" Name="Counter.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\Crypto\Util\Counter.py"/>
                     <File Id="file1021" Name="PYTHO_13.PY" LongName="python_compat.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\Crypto\Util\python_compat.py"/>
                     <File Id="file1022" Name="strxor.pyd" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\Crypto\Util\strxor.pyd"/>
