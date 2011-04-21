@@ -124,6 +124,9 @@ class KoPythonPyLintChecker(_GenericPythonLinter):
         else:
             # Hardwire in these three messages:
             extraArgs = []# [ "-d", "C0103", "-d" , "C0111", "-d", "F0401"]
+        preferredLineWidth = prefset.getLongPref("editAutoWrapColumn")
+        if preferredLineWidth > 0:
+            extraArgs.append("--max-line-length=%d" % preferredLineWidth)
             
         cmd = [pythonExe, pylintExe, "-f", "text", "-r", "n", "-i", "y"] + extraArgs
         # Put config file entry here: .rcfile=<file>
