@@ -316,7 +316,7 @@ var gKlint = {
     },
 
     onTextFilterInput : function(event) {
-        view = ko.views.manager.currentView;
+        var view = ko.views.manager.currentView;
         var klintInfo = this.getKlintInfo(view);
         this.filterVisibleItems(klintInfo.filterType);
     },
@@ -350,8 +350,8 @@ var gKlint = {
     },
 
     checkLintStatusForView : function(view) {
-        if (view.document && view.document.file) {
-            if (this.matchesLintFilter(view.document.file.path)) {
+        if (view.koDoc && view.koDoc.file) {
+            if (this.matchesLintFilter(view.koDoc.file.path)) {
                 view.prefs.setBooleanPref("editUseLinting", false);
             }
         }
