@@ -358,7 +358,7 @@ var gKlint = {
     },
 
     GlobContains : function(globString, matchCase) {
-        convertGlobMetaCharsToRegexpMetaChars = function(glob) {
+        var convertGlobMetaCharsToRegexpMetaChars = function(glob) {
             var re = glob;
             re = re.replace(/([.^$+(){}\[\]\\|])/g, "\\$1");
             re = re.replace(/\?/g, "(.|[\r\n])");
