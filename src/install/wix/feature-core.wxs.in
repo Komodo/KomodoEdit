@@ -2294,6 +2294,7 @@
                 <Directory Id="directory364" Name="Hash">
                   <Component Id="component329" DiskId="1" Guid="$(autowix.guid)">
                     <File Id="file958" Name="RIPEMD.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\Crypto\Hash\RIPEMD.py"/>
+                    <File Id="file959" Name="RIPEMD_0.PYD" LongName="RIPEMD160.pyd" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\Crypto\Hash\RIPEMD160.pyd"/>
                     <File Id="file1035" Name="HMAC.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\Crypto\Hash\HMAC.py"/>
                     <File Id="file1036" Name="MD2.pyd" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\Crypto\Hash\MD2.pyd"/>
                     <File Id="file1037" Name="MD4.pyd" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\Crypto\Hash\MD4.pyd"/>
