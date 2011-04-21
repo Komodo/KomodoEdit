@@ -252,7 +252,7 @@ var gKlint = {
 
     sort : function(event) {
         var selectedColumn = event.target;
-        view = ko.views.manager.currentView;
+        var view = ko.views.manager.currentView;
         this.getKlintInfo(view).changeSortColumn(selectedColumn.id);
         this.updateSortIndicator(ko.views.manager.currentView);
         this.lintTreeView.sort(this.getKlintInfo(view).getCurrentSortInfo());
