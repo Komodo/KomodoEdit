@@ -148,6 +148,11 @@ class PCTBuildExt (build_ext):
                 self.__add_compiler_option("-ftest-coverage")
                 self.compiler.libraries += ['gcov']
 
+        # ACTIVESTATE: Patch for building on Mac OS X - bug 89844.
+        if sys.platform == 'darwin':
+            self.__remove_compiler_option("-fvisibility=hidden")
+        # ACTIVESTATE: end of patch.
+
         # Call the superclass's build_extensions method
         build_ext.build_extensions(self)
 
