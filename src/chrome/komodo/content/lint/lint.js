@@ -279,8 +279,8 @@ this.lintBuffer.prototype.processPendingRequests = function() {
 // nsIObserver.observe()
 this.lintBuffer.prototype.observe = function(subject, topic, data)
 {
--   //_log.debug("LintBuffer["+this.view.title+"].observe: subject="+
--   //               subject+", topic="+topic+", data="+data);
+    //_log.debug("LintBuffer["+this.view.title+"].observe: subject="+
+    //               subject+", topic="+topic+", data="+data);
                 
     try {
         var lintingEnabled = this.view.koDoc.getEffectivePrefs().getBooleanPref("editUseLinting");
