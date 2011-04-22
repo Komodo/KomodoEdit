@@ -352,64 +352,71 @@ class KoHTMLTidyLinter:
                 continue
 
             #print "KoHTMLLinter: %r -> %r" % (line, resultMatch.groupdict())
-            result = KoLintResult()
             try:
-                result.lineStart = int(resultMatch.group("line"))
-                result.columnStart = int(resultMatch.group("column"))
+                lineStart = int(resultMatch.group("line"))
+                columnStart = int(resultMatch.group("column"))
             except ValueError:
                 # Tidy sometimes spits out an invalid line (don't know why).
                 # This catches those lines, and ignores them.
                 continue
-            result.description = resultMatch.group("desc")
+
+            description = resultMatch.group("desc")
             # We keep the "Error:"/"Warning:" on the description because
             # currently we do not get green squigglies for warnings.
-            if result.description.startswith("Error:"):
-                result.severity = result.SEV_ERROR
-            elif result.description.startswith("Warning:") or \
-                 result.description.startswith("Access:"):
+            if description.startswith("Error:"):
+                severity = KoLintResult.SEV_ERROR
+            elif description.startswith("Warning:") or \
+                 description.startswith("Access:"):
                 if errorLevel == 'errors':
                     # ignore warnings
                     continue
-                result.severity = result.SEV_WARNING
-            elif result.description.startswith("Info:"):
+                severity = KoLintResult.SEV_WARNING
+            elif description.startswith("Info:"):
                 # Ignore Info: lines.
                 continue
             else:
-                result.severity = result.SEV_ERROR
+                severity = KoLintResult.SEV_ERROR
 
             # Set the end of the lint result to the '>' closing the tag.
-            result.columnEnd = -1
-            i = result.lineStart
+            i = lineStart
+            columnEnd = -1
             while i < len(datalines):
                 # first pass -- go to first >, even if in attribute name
-                if i == result.lineStart:
-                    curLine = datalines[i-1][result.columnStart:]
-                    offset = result.columnStart
+                if i == lineStart:
+                    curLine = datalines[i-1][columnStart:]
+                    offset = columnStart
                 else:
                     curLine = datalines[i-1]
                     offset = 0
                 end = curLine.find('>')
                 if end != -1:
-                    result.columnEnd = end + offset + 2
+                    columnEnd = end + offset + 2
                     break
                 i = i + 1
-            if result.columnEnd == -1:
-                result.columnEnd=len(datalines[i-1]) + 1
-            result.lineEnd = i
+            if columnEnd == -1:
+                columnEnd=len(datalines[i-1]) + 1
+            lineEnd = i
             
             # Move back to the first non-blank line for errors
             # that appear on blank lines.  In empty and
             # near-empty buffers this result will end up at
             # the first line (which is 1-based in the lint system)
-            if result.lineStart == result.lineEnd and \
-               result.columnEnd <= result.columnStart:
-                while result.lineStart > 0 and len(datalines[result.lineStart - 1]) == 0:
-                    result.lineStart -= 1
-                if result.lineStart == 0:
-                    result.lineStart = 1
-                result.lineEnd = result.lineStart
-                result.columnStart = 1
-                result.columnEnd = len(datalines[result.lineStart-1]) + 1
+            if lineStart == lineEnd and \
+               columnEnd <= columnStart:
+                while lineStart > 0 and len(datalines[lineStart - 1]) == 0:
+                    lineStart -= 1
+                if lineStart == 0:
+                    lineStart = 1
+                lineEnd = lineStart
+                columnStart = 1
+                columnEnd = len(datalines[lineStart-1]) + 1
+
+            result = KoLintResult(description=description,
+                                  severity=severity,
+                                  lineStart=lineStart,
+                                  lineEnd=lineEnd,
+                                  columnStart=columnStart,
+                                  columnEnd=columnEnd)
 
             results.addResult(result)
         return results
