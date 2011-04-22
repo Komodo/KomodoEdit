@@ -315,6 +315,7 @@
             if (!this.prefs.getBooleanPref('colorizing_enabled')) {
                 this._turnColourizingOff();
             }
+            ko.lint.initializeGenericPrefs(this.prefs)
             ko.macros.eventHandler.hookPostFileOpen(this);
         } catch (e) {
             this.log.exception(e);

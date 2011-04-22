@@ -131,7 +131,6 @@ var global_pref_observer_topics = {
     "lintWithJSLint" : JS_LIST,
     "jslintOptions" : JS_LIST,
     "lint_coffee_script" : ["CoffeeScript"],
-    "lint_django" : PYTHON_LIST,
 
     "lintStandardHTMLChecking" : HTML_LIST,
     "lintHTML_CheckWith_Perl_HTML_Lint" : HTML_LIST,
@@ -148,13 +147,32 @@ for (var key in global_pref_observer_topics) {
     }
 }
 
+this.updateDocLintPreferences = function(prefset, preferenceName) {
+    try {
+        var views = ko.views.manager.getAllViews();
+        for (var i = 0; i < views.length; i++) {
+            var view = views[i];
+            if (view.prefs === prefset && view.lintBuffer) {
+                // Add all prefs in case the buffer's language changes
+                prefset.prefObserverService.
+                    addObserverForTopics(view.lintBuffer, 1,
+                                         [preferenceName],
+                                         false);
+            }
+        }
+    } catch(ex) {
+        _log.exception("updateLintPreferences: error: " + ex);
+    }
+};
+
 this.addLintPreference = function(preferenceName, subLanguageNameList) {
     // This function gives extensions access to the lint pref observer system
     // @param preferenceName String
     // @param subLanguageNameList [array of String], like ["Python", "Django"]
     // returns: nothing
-    global_pref_observer_topics[preferenceName] = sublanguageNameList;
+    global_pref_observer_topics[preferenceName] = subLanguageNameList;
     global_pref_observer_topic_names.push(preferenceName);
+    
     try {
         var views = ko.views.manager.getAllViews();
         for (var i = 0; i < views.length; i++) {
@@ -162,6 +180,10 @@ this.addLintPreference = function(preferenceName, subLanguageNameList) {
             if (view.lintBuffer) {
                 // Add all prefs in case the buffer's language changes
                 _prefs.prefObserverService.
+                    addObserverForTopics(view.lintBuffer, 1,
+                                         [preferenceName],
+                                         false);
+                view.prefs.prefObserverService.
                     addObserverForTopics(view.lintBuffer, 1,
                                          [preferenceName],
                                          false);
@@ -238,6 +260,10 @@ this.lintBuffer.prototype.destructor = function()
 
 this.lintBuffer.prototype.usingSubLanguage = function(subLanguageList) {
     var currentSubLanguages = this.view.languageObj.getSubLanguages({});
+    var langName = this.view.koDoc.language;
+    if (currentSubLanguages.indexOf(langName) === -1) {
+        currentSubLanguages.push(langName);
+    }
     return subLanguageList.
         map(function(langName) currentSubLanguages.indexOf(langName)).
         filter(function(val) val >= 0).length > 0;
@@ -253,8 +279,8 @@ this.lintBuffer.prototype.processPendingRequests = function() {
 // nsIObserver.observe()
 this.lintBuffer.prototype.observe = function(subject, topic, data)
 {
-    //_log.debug("LintBuffer["+this.view.title+"].observe: subject="+
-    //               subject+", topic="+topic+", data="+data);
+-   //_log.debug("LintBuffer["+this.view.title+"].observe: subject="+
+-   //               subject+", topic="+topic+", data="+data);
                 
     try {
         var lintingEnabled = this.view.koDoc.getEffectivePrefs().getBooleanPref("editUseLinting");
@@ -652,7 +678,21 @@ this.doClick = function lint_doClick(event) {
     }
 }
 
+this.initializeGenericPrefs = function(prefset) {
+    var ids = {};
+    prefset.getPrefIds(ids, {});
+    var idNames = ids.value.filter(function(x) x.indexOf("genericLinter:") == 0);
+    var that = ko.lint;
+    idNames.forEach(function(prefName) {
+        var langName = prefName.substr(prefName.indexOf(":") + 1);
+        if (!(prefName in global_pref_observer_topics)) {
+            that.addLintPreference(prefName, [langName]);
+        }
+    });
+}
+
 }).apply(ko.lint);
+setTimeout(ko.lint.initializeGenericPrefs, 4000, ko.prefs);
 
 /**
  * @deprecated since 7.0

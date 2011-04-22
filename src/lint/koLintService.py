@@ -352,7 +352,8 @@ class KoLintService:
             linters = self._linterCIDsByLanguageName[languageName]
         except KeyError:
             self._linterCIDsByLanguageName[languageName] = {'aggregator':None,
-                                                         'terminals':[]}
+                                                            'terminals':[],
+                                                            'generated':True}
             return None
         # If there's no explicit aggregator, return the first terminal linter.
         # If there isn't one, throw the ItemError all the way to top-level
@@ -360,7 +361,8 @@ class KoLintService:
             return linters['aggregator']
         if len(linters['terminals']) != 1:
             if len(linters['terminals']) == 0:
-                log.error("No terminal linters for lang %s", languageName)
+                if not linters.get('generated', False):
+                    log.error("No terminal linters for lang %s", languageName)
                 return None
             # Create a generic aggregator for this language.
             linters['aggregator'] = (self.GENERIC_LINTER_AGGREGATOR_CID
@@ -551,7 +553,17 @@ class KoLintService:
                         #    be passed in, but linters don't support this yet.
                         log.debug("manager thread: call linter.lint(request)")
                         try:
-                            results = UnwrapObject(request.linter).lint(request)
+                            genericCheck = "genericLinter:" + request.koDoc.language
+                            if (not request.koDoc.prefs.hasPref(genericCheck)
+                                or request.koDoc.prefs.getBooleanPref(genericCheck)):
+                                results = request.linter.lint(request)
+                                # results = UnwrapObject(request.linter).lint(request)
+                                # This makes a red statusbar icon go green, but it
+                                # might not be what we always want.
+                                # Needs more investigation.
+                                #if results is None:
+                                #   results = koLintResults() 
+                            
                         except:
                             log.exception("Unexpected error while linting")
                         

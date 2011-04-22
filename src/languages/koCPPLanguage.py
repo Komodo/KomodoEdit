@@ -247,6 +247,7 @@ class KoCPPCompileLinter:
     _reg_contractid_ = "@activestate.com/koLinter?language=CPP;1"
     _reg_categories_ = [
          ("category-komodo-linter", 'CPP'),
+         ("category-komodo-linter", 'C++'),
          ]
 
     def __init__(self):

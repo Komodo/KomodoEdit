@@ -9,6 +9,7 @@ var languageSetup = {}; // Map language names to functions
 var languageInfo = {}; // Map language names to objects
 var cachedAppInfo = {}; // Map languages to whatever.  Avoid hitting appinfo during each session.
 var loadContext;
+var g_prefset;
 
 var bundleLang = Components.classes["@mozilla.org/intl/stringbundle;1"]
             .getService(Components.interfaces.nsIStringBundleService)
@@ -20,7 +21,8 @@ function docSyntaxCheckingOnLoad() {
         dialog.editUseLinting = document.getElementById("editUseLinting");
         dialog.langlist = document.getElementById("languageList");
         dialog.deck = document.getElementById("docSyntaxCheckByLang");
-        dialog.deckFallback = document.getElementById("langSyntaxCheckFallback");
+        dialog.deckNoLinterFallback = document.getElementById("langSyntaxCheckFallback_NoLinter");
+        dialog.genericLinterFallback = document.getElementById("langSyntaxCheckFallback_GenericLinter");
         dialog.html_perl_html_tidy = document.getElementById("lintHTML-CheckWith-Perl-HTML-Tidy");
         dialog.html_perl_html_lint = document.getElementById("lintHTML-CheckWith-Perl-HTML-Lint");
         parent.initPanel();
@@ -30,6 +32,7 @@ function docSyntaxCheckingOnLoad() {
 }
 
 function OnPreferencePageLoading(prefset) {
+    g_prefset = prefset;
     loadContext = parent.prefInvokeType;
     pref_lint_doEnabling();
     currentView = parent.opener.window.ko.views.manager.currentView;
@@ -50,6 +53,24 @@ function OnPreferencePageLoading(prefset) {
     showLanguageNamePanel(languageName);
 }
 
+function OnPreferencePageOK(prefset) {
+    if (dialog.deck.selectedPanel == dialog.genericLinterFallback) {
+        var languageName = dialog.langlist.selection;
+        if (languageName) {
+            var linterPrefName = "genericLinter:" + languageName;
+            if (!prefset.hasPref(linterPrefName)) {
+                // Track changes to this pref.
+                parent.opener.ko.lint.addLintPreference(linterPrefName, [languageName]);
+            } else if (!prefset.hasPrefHere(linterPrefName)) {
+                parent.opener.ko.lint.updateDocLintPreferences(prefset, linterPrefName);
+            }
+            prefset.setBooleanPref(linterPrefName,
+                                   document.getElementById("generic_linter_for_current_language").checked);
+        }
+    }
+    return true;       
+}
+
 function showLanguageNamePanel(languageName) {
     var deckID = null;
     if (languageName) {
@@ -62,15 +83,35 @@ function showLanguageNamePanel(languageName) {
         }
     }
     if (deckID === null) {
-        var descr = dialog.deck.selectedPanel = dialog.deckFallback;
-        descr = descr.firstChild;
-        while (descr.firstChild) {
-            descr.removeChild(descr.firstChild);
-        }
+        var descr, linterCID = null, msg;
         if (languageName) {
-            var msg = bundleLang.formatStringFromName("No language-specific syntax-checking is available for X", [languageName], 1);
+            linterCID = Components.classes["@activestate.com/koLintService;1"].
+                getService(Components.interfaces.koILintService).
+                getLinter_CID_ForLanguage(languageName);
+        }
+        if (!linterCID) {
+            descr = dialog.deck.selectedPanel = dialog.deckNoLinterFallback;
+            descr = descr.firstChild;
+            while (descr.firstChild) {
+                descr.removeChild(descr.firstChild);
+            }
+            if (!languageName) {
+                languageName = "<unknown>";
+            }
+            msg = bundleLang.formatStringFromName("Komodo does no syntax-checking on X documents", [languageName], 1);
             var textNode = document.createTextNode(msg);
             descr.appendChild(textNode);
+        } else {
+            descr = dialog.deck.selectedPanel = dialog.genericLinterFallback;
+            var checkbox = document.getElementById("generic_linter_for_current_language");
+            checkbox.setAttribute("label",
+                                  bundleLang.formatStringFromName("Check syntax for X", [languageName], 1));
+            var linterPrefName = "genericLinter:" + languageName;
+            if (g_prefset.hasPref(linterPrefName)) {
+                checkbox.checked = g_prefset.getBooleanPref(linterPrefName);
+            } else {
+                checkbox.checked = true;
+            }
         }
     }
 }
@@ -114,7 +155,7 @@ function CoffeeScriptInfo() {
       hasCS: null,
       
       updateUI: function() {
-            if (this.hasCS == null) {
+            if (this.hasCS === null) {
                 var koSysUtils = Components.classes["@activestate.com/koSysUtils;1"].getService(Components.interfaces.koISysUtils);
                 var coffeeScript = koSysUtils.Which("coffee");
                 this.hasCS = !!coffeeScript;

@@ -706,6 +706,7 @@ projectManager.prototype._addProject = function(project, inTimeout/*=false*/) {
         this.viewMgr.refresh(project);
     }
     this.setCurrentProject(project);
+    ko.lint.initializeGenericPrefs(this.prefset)
     ko.toolbox2.manager.addProject(project);
 
     // Let the file status service know it has work to do.

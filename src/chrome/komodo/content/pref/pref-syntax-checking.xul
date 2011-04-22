@@ -66,14 +66,6 @@
                 </groupbox>
             </vbox>
             
-	    <vbox id="langSyntaxCheck-Django">
-                <groupbox orient="vertical">
-                    <checkbox id="lint_django"
-                              label="&basicChecking.label;"
-                              pref="true" />
-                </groupbox>
-            </vbox>
-            
             <vbox id="langSyntaxCheck-JavaScript">
                 <groupbox orient="vertical" >
                     <caption label="&basicChecking.label;"/>
@@ -288,10 +280,8 @@
               <description id="perl_lintOption_perlCriticEnableNote"
                            collapsed="true">&prefPerl.perlCriticOptionsEnable.description;</description>
             </vbox>
-            
-	    <vbox id="langSyntaxCheck-Python">
+            <vbox id="langSyntaxCheck-Python">
               <groupbox orient="vertical">
-                  <caption label="&syntaxChecking.label;"/>
                   <checkbox id="lint_python_with_standard_python"
                             label="&ClassicPythonChecking.label;"
                             pref="true" />
@@ -374,8 +364,19 @@
                 </groupbox>
             </vbox>
         
-            <vbox id="langSyntaxCheckFallback">
+            <vbox id="langSyntaxCheckFallback_NoOptions">
                <description>No lang-specific prefs for $1</description>
+            </vbox>
+        
+            <vbox id="langSyntaxCheckFallback_GenericLinter">
+              <groupbox orient="vertical">
+                  <checkbox id="generic_linter_for_current_language"
+                            label="" />
+              </groupbox>
+            </vbox>
+        
+            <vbox id="langSyntaxCheckFallback_NoLinter">
+               <description>Komodo does no syntax-checking on $1 documents</description>
             </vbox>
           </deck>
         </groupbox>

@@ -312,8 +312,6 @@ class KoDjangoLinter(object):
         if not text.strip():
             return None
         prefset = getProxiedEffectivePrefs(request)
-        if not prefset.getBooleanPref("lint_django"):
-            return
         cwd = request.cwd
         settingsDir = self._getSettingsDir(cwd)
         if settingsDir:

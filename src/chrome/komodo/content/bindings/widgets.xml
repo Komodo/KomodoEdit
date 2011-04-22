@@ -137,7 +137,10 @@
                         }
                         try {
                             var currentLanguageNames = view.document.languageObj.getSubLanguages({});
-                            currentLanguageNames
+                            if (currentLanguageNames.indexOf(view.document.language) == -1) {
+                                currentLanguageNames.push(view.document.language);
+                            }
+                            currentLanguageNames.sort()
                         } catch(ex) {
                             log.exception("Failed to get languages: " + ex);
                             this.getHierarchy();
