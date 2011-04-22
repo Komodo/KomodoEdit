@@ -51,23 +51,25 @@ SEV_WARNING = 1
 SEV_INFO = 0
 
 def createAddResult(results, textlines, severity, lineNo, desc, leadingWS=None):
-    result = KoLintResult()
-    result.severity = severity
     if lineNo >= len(textlines):
         lineNo = len(textlines) - 1
     while lineNo >= 0 and len(textlines[lineNo - 1]) == 0:
         lineNo -= 1
     if lineNo == 0:
         return
-    result.lineStart = result.lineEnd = lineNo
-    result.columnStart = 1
     targetLine = textlines[lineNo - 1]
     if leadingWS is not None:
         columnEndOffset = len(leadingWS)
     else:
         columnEndOffset = 0
-    result.columnEnd = len(targetLine) + 1 - columnEndOffset
-    result.description = desc
+    columnEnd = len(targetLine) + 1 - columnEndOffset
+
+    result = KoLintResult(description=desc,
+                          severity=severity,
+                          lineStart=lineNo,
+                          lineEnd=lineNo,
+                          columnStart=1,
+                          columnEnd=columnEnd)
     results.addResult(result)
     
 class KoLintResult:
@@ -82,14 +84,14 @@ class KoLintResult:
     SEV_WARNING = components.interfaces.koILintResult.SEV_WARNING
     SEV_ERROR   = components.interfaces.koILintResult.SEV_ERROR
 
-    def __init__(self):
-        self.lineStart = -1
-        self.lineEnd = -1
-        self.columnStart = -1
-        self.columnEnd = -1
-        self.description = ""
+    def __init__(self, description="", severity=None, lineStart=-1, lineEnd=-1, columnStart=-1, columnEnd=-1):
+        self.lineStart = lineStart
+        self.lineEnd = lineEnd
+        self.columnStart = columnStart
+        self.columnEnd = columnEnd
+        self.description = description
         self.encodedDescription = None
-        self.severity = None
+        self.severity = severity
 
     def __str__(self):
         return "%d:%d (%d-%d) %s" % (
