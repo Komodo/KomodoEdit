@@ -49,6 +49,7 @@ Import(
     'buildFlavour',
     'komodoTitleBarName',
     'mozVersion',
+    'sdkDir',
 );
 
 if ($jarring) {
@@ -59,9 +60,9 @@ if ($jarring) {
 $cons->Command("xtk.manifest.landmark",
                "$mozChromeDir/xtk.manifest",
                "$mozBin/chrome.manifest",
-               "$mozSrc/mozilla/config/buildlist.py",
+               "$sdkDir/pylib/chromereg.py",
                qq(
-                 $unsiloedPythonExe %3 %2 "manifest chrome/%1:f"
+                 $unsiloedPythonExe %3 %2 %1 "chrome"
                  touch %>
                ));
 

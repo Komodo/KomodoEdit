@@ -50,6 +50,7 @@ Import(
     'komodoTitleBarName',
     'mozVersion',
     'komodoDevDir',
+    'sdkDir',
 );
 
 $cons->Preprocess('komodo.p.manifest', "$mozChromeDir/komodo.manifest",
@@ -57,9 +58,9 @@ $cons->Preprocess('komodo.p.manifest', "$mozChromeDir/komodo.manifest",
 $cons->Command("komodo.manifest.landmark",
                "$mozChromeDir/komodo.manifest",
                "$mozBin/chrome.manifest",
-               "$mozSrc/mozilla/config/buildlist.py",
+               "$sdkDir/pylib/chromereg.py",
                qq(
-                 $unsiloedPythonExe %3 %2 "manifest chrome/%1:f"
+                 $unsiloedPythonExe %3 %2 %1 "chrome"
                  touch %>
                ));
 

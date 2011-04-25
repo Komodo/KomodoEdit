@@ -247,12 +247,16 @@ class ChromeReg(object):
     def register(self):
         """Main entry point to register the component in the chrome registry"""
         self.read_manifest()
-        if self.source_file.endswith(".py"):
+        extension = splitext(self.source_file)[1]
+        relname = self.relpath + basename(self.source_file)
+        if extension in (".py",):
             self._register_python()
-        elif self.source_file.endswith(".xpt"):
-            self.new_lines.add("interfaces %s" % basename(self.source_file))
-        elif splitext(self.source_file)[1] in (".dll", ".so", ".dylib"):
-            self.new_lines.add("binary-component %s" % basename(self.source_file))
+        elif extension in (".xpt",):
+            self.new_lines.add("interfaces %s" % relname)
+        elif extension in (".dll", ".so", ".dylib"):
+            self.new_lines.add("binary-component %s" % relname)
+        elif extension in (".manifest",):
+            self.new_lines.add("manifest %s" % relname)
         else:
             assert False, "Don't know how to register %s" % self.source_file
         self.write_manifest()
