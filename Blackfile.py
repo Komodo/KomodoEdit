@@ -2142,7 +2142,7 @@ def BuildKomodo(cfg, argv):
     return retval
 
 def CleanKomodoBuild(cfg, argv):
-    """Try to clean out move of the Komodo build bits."""
+    """Try to clean out most of the Komodo build bits."""
     from os.path import abspath, join, isdir, isfile
     def mozpath(*parts): return join(cfg.mozSrc, *parts)
     def mozdistpath(*parts): return mozpath(cfg.mozDist, *parts)
@@ -2156,6 +2156,7 @@ def CleanKomodoBuild(cfg, argv):
         mozbinpath("python", "komodo"),
         mozbinpath("python", "komodo.pth"),
         mozbinpath("is_dev_tree.txt"),
+        mozbinpath(".consign"),
         
         # This moved. Make sure it gets turfed from old moz builds.
         mozbinpath("komodo-config.py"),

@@ -48,6 +48,7 @@ Import(
     'mozChromeDir',
     'mozResourcesDir',
     'mozBin',
+    'mozExe',
     'mozSrc',
     'version',
     'buildNum',
@@ -318,12 +319,13 @@ if ($mozVersion > 1.99) {
         $dllName = "libpyloader.dylib";
     }
     $cons->Command("$mozComponentsDir/komodo.manifest",
-                   "$mozSrc/mozilla/config/buildlist.py",
+                   "$sdkDir/pylib/chromereg.py",
                    "$mozResourcesDir/chrome.manifest",
+                   "$mozExe",
                    qq(
-                     $unsiloedPythonExe %1 %2 "manifest components/%0:f"
-                     $unsiloedPythonExe %1 %0 "binary-component $dllName"
+                     $unsiloedPythonExe %1 %2 %0 "components"
+                     $unsiloedPythonExe %1 %0 "$dllName"
                    ));
     $cons->Precious("$mozComponentsDir/komodo.manifest");
-    $cons->Precious("$mozResourcesDir/chrome.manifest");
+    $cons->Precious("$mozBin/chrome.manifest");
 }

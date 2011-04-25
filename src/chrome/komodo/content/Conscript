@@ -42,6 +42,7 @@ Import(
     'mozChromeDir',
     'mozResourcesDir',
     'mozBin',
+    'mozExe',
     'mozSrc',
     'unsiloedPythonExe',
     'productType',
@@ -59,6 +60,7 @@ $cons->Command("komodo.manifest.landmark",
                "$mozChromeDir/komodo.manifest",
                "$mozBin/chrome.manifest",
                "$sdkDir/pylib/chromereg.py",
+               "$mozExe",
                qq(
                  $unsiloedPythonExe %3 %2 %1 "chrome"
                  touch %>
