@@ -9,7 +9,7 @@ XPCOM registration information and modify the manifest to declare them.
 Also suppports registering XPTypeLib files.
 """
 
-import ast, re, sys, urllib
+import ast, os, re, sys, urllib
 from os.path import exists, basename, splitext
 
 def _dump_ast(node, indent="", stream=sys.stdout):
@@ -84,6 +84,11 @@ class ChromeReg(object):
         with open(self.manifest_name, "a") as output:
             for line in self.new_lines:
                 output.write("%s\n" % line)
+            if sys.platform == "darwin":
+                # On OSX only, we seem to have problems where the manifest lines
+                # are not correctly written out.  See if flushing things helps.
+                output.flush()
+                os.fsync(output.fileno())
 
     def set(self, scope, name, value):
         """Set the value of an expression
