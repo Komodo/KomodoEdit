@@ -323,7 +323,7 @@ if ($mozVersion > 1.99) {
                    "$mozResourcesDir/chrome.manifest",
                    "$mozExe",
                    qq(
-                     $unsiloedPythonExe %1 %0 "$dllName"
+                     $unsiloedPythonExe %1 %0 "$mozComponentsDir/$dllName"
                      $unsiloedPythonExe %1 %2 %0 "components"
                    ));
     $cons->Precious("$mozComponentsDir/komodo.manifest");
