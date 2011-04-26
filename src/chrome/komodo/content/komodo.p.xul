@@ -2427,6 +2427,7 @@
                 ondrop="event.cancelBubble=true; return true;">
                 <tabs type="scrollable" collapsable="true"
                     id="output_tabs" orient="horizontal"
+                    align="center"
                     splitterId="bottom_splitter"
                     onclose="ko.uilayout.toggleSplitter('cmd_viewBottomPane');"
 		    ondragstart="event.preventDefault();"
