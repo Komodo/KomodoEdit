@@ -559,9 +559,6 @@
         <!-- Note: two separators in a row is okay because we always expect
              to have at least one user of this space (the spell checker). -->
         <menuseparator id="editor-context-sep-properties"/>
-        <menuitem id="editor-context-mapuri"
-                  label="&createMappedURI.label;"
-                  observes="cmd_createMappedURI"/>
         <menuitem id="editor-context-properties"
                 label="&propertiesAndSettings.label;"
                 observes="cmd_editPrefsCurrent"/>
