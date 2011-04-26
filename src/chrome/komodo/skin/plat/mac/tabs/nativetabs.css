@@ -121,16 +121,6 @@ view[lastfocused="true"] .native tab[selected="true"] .tab-text {
   list-style-image: url("chrome://global/skin/tree/item-grayscale.png");
 }
 
-.native .tabs-closebutton {
-  margin: 0;
-  list-style-image: url("chrome://global/skin/icons/closetab.png") !important;
-}
-
-.native .tabs-closebutton:hover:active {
-  list-style-image: url("chrome://global/skin/icons/closetab-active.png") !important;
-  border: none !important;
-}
-
 .native .tabstrip-box {
   border-bottom: none;
   background-color: rgba(0,0,0,0.20); /* controls darkness of unselected tabs */
@@ -177,47 +167,42 @@ view[lastfocused="true"] .native tab[selected="true"] .tab-text {
   background: url('chrome://komodo/skin/tabs/tabDragIndicator.png') 50% 40% no-repeat;
 }
 
-/**
- * In-tab close button
- */
-
-.native .tab-close-button > .toolbarbutton-icon {
-  -moz-margin-end: 0px !important;
+/* Tab close button */
+.tab-close-button {
+  display: none;
 }
 
-.native tab[selected="true"] .tab-close-button {
-  list-style-image: url("chrome://global/skin/icons/closetab.png");
+.tab-close-button,
+.tabs-closebutton {
   -moz-appearance: none;
-  border: none !important;
-  padding: 0 0 0 0;
   margin: 0;
-  margin-bottom: 1px;
-  background: inherit;
-  cursor: default;
+  padding-left: 0;
+  padding-right: 0;
+  list-style-image: url("chrome://global/skin/icons/close.png");
+  -moz-image-region: rect(0px, 16px, 16px, 0px);
 }
 
-.native tab[selected="true"] > .tab-close-button:hover {
-  list-style-image: url("chrome://global/skin/icons/closetab-hover.png");
+.tab-close-button[selected="true"] {
+  display: inherit;
 }
 
-.native tab[selected="true"] > .tab-close-button:hover:active {
-  list-style-image: url("chrome://global/skin/icons/closetab-active.png");
+.tab-close-button:focus {
+  outline: none !important;
 }
 
-.native tab > .tab-close-button {
-  background-image: url("chrome://komodo/skin/tabs/tab-middle.png");
-  background-repeat: repeat-x;
+.tab-close-button:hover,
+.tabs-closebutton:hover {
+  -moz-image-region: rect(0px, 32px, 16px, 16px);
 }
 
-.native tab[selected="true"] > .tab-close-button {
-  /* Make this button focusable so clicking on it will not focus the tab while
-     it's getting closed */
-  -moz-user-focus: normal;
+.tab-close-button:hover:active,
+.tabs-closebutton:hover:active {
+  -moz-image-region: rect(0px, 48px, 16px, 32px);
 }
 
-.native tab:not([selected="true"]) > .tab-close-button {
-  background-image: url("chrome://komodo/skin/tabs/tab-middle-bkgnd.png");
-}
+/**
+ * Tab selection.
+ */
 
 .native .tabs-select-button {
   list-style-image: url("chrome://komodo/skin/images/alltabs-box-bkgnd-icon.png");
@@ -306,22 +291,6 @@ view[lastfocused="true"] .native tab[selected="true"] .tab-text {
   background-color: transparent !important;
 }
 
-
-.native .tabs-closebutton {
-  padding-right: 4px;
-  list-style-image: url("chrome://global/skin/icons/closetab.png") !important;
-  list-style-image: none;
-  border: none;
-  -moz-box-align: stretch;
-}
-
-.native .tabs-closebutton:hover > .toolbarbutton-icon {
-	background-image: none !important;
-}
-
-.native .tabs-closebutton:hover:active {
-	list-style-image: url("chrome://global/skin/icons/closetab-active.png") !important;
-}
 
 .native tabpanels.plain {
 	background-color: #fff !important;
