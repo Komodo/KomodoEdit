@@ -1,0 +1,6 @@
+# This is trivial, but should still be an includable component
+
+family csl
+
+state IN_CSL_DEFAULT:
+/-?%>/ : paint(upto, CSL_DEFAULT), paint(include, TPL_OPERATOR), spop_check => IN_M_DEFAULT

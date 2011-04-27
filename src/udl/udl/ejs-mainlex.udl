@@ -1,0 +1,22 @@
+# Describe a lexer for EJS (embedded JS) files
+# The weird thing is that there are two kinds of CSL (JavaScript)
+# blocks in this code -- one for <script> elt's, the other for 
+# server-side <% ... %> blocks.
+
+language EJS
+
+include "html2js.udl"
+
+include "html2css.udl"
+
+include "html2ejs.udl"
+
+include "css2html.udl"
+
+include "ejs2html.udl"
+
+include "js2html.udl"
+
+include "html.udl"
+include "csslex.udl"
+include "jslex.udl"

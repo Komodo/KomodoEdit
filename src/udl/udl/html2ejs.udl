@@ -1,0 +1,14 @@
+
+family markup
+
+# Precondition: we already painted everything before the
+# '<' that brought us here.
+
+state IN_M_STAG_EXP_TNAME:
+/%=?/ : paint(include, TPL_OPERATOR), spush_check(IN_M_DEFAULT) => IN_CSL_DEFAULT
+
+state IN_M_STAG_ATTR_DSTRING:
+/<%=?/ : paint(upto, M_STRING), paint(include, TPL_OPERATOR), spush_check(IN_M_STAG_ATTR_DSTRING) => IN_CSL_DEFAULT
+
+state IN_M_STAG_ATTR_SSTRING:
+/<%=?/ : paint(upto, M_STRING), paint(include, TPL_OPERATOR), spush_check(IN_M_STAG_ATTR_SSTRING) => IN_CSL_DEFAULT
