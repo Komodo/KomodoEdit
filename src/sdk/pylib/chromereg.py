@@ -9,8 +9,15 @@ XPCOM registration information and modify the manifest to declare them.
 Also suppports registering XPTypeLib files.
 """
 
-import ast, re, sys, urllib
+import re
+import sys
+import urllib
 from os.path import exists, basename, splitext
+try:
+    import ast
+except ImportError:
+    # Support Python 2.5
+    from compiler import ast
 
 def _dump_ast(node, indent="", stream=sys.stdout):
     """Pretty-print the AST in a somewhat readable manner.
