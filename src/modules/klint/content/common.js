@@ -55,26 +55,26 @@ extensions.dafizilla.klint.commonUtils = {};
 
     this.getLocalizedMessage = function(msg) {
         return locale.GetStringFromName(msg);
-    }
+    };
 
     this.getFormattedMessage = function(msg, ar) {
         return locale.formatStringFromName(msg, ar, ar.length);
-    }
+    };
 
     this.getObserverService = function () {
         const CONTRACTID_OBSERVER = "@mozilla.org/observer-service;1";
         const nsObserverService = Components.interfaces.nsIObserverService;
 
         return Components.classes[CONTRACTID_OBSERVER].getService(nsObserverService);
-    }
+    };
 
     this.log = function(message) {
         ko.logging.getLogger("klint").warn((new Date()) + ": " + message);
-    }
+    };
 
     this.debug = function(message) {
         Components.classes["@mozilla.org/consoleservice;1"]
             .getService(Components.interfaces.nsIConsoleService)
                 .logStringMessage(message);
-    }
+    };
 }).apply(extensions.dafizilla.klint.commonUtils);

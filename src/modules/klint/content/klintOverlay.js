@@ -91,8 +91,8 @@ var gKlint = {
             var countMessage = "";
 
             if (results) {
-                var resultsObj = new Object();
-                var numResultsObj = new Object();
+                var resultsObj = {};
+                var numResultsObj = {};
                 results.getResults(resultsObj, numResultsObj);
 
                 if (numResultsObj.value > 0) {
@@ -266,7 +266,7 @@ var gKlint = {
         var selectedColumn = document.getElementById(
             this.getKlintInfo(view).currentSortColumnName);
         var sortInfo = this.getKlintInfo(view).getCurrentSortInfo();
-        var sortDirection = sortInfo.isAscending ? "ascending" : "descending"
+        var sortDirection = sortInfo.isAscending ? "ascending" : "descending";
         var cols = this.lintTree.columns;
 
         for (var i = 0; i < cols.count; i++) {

@@ -46,7 +46,7 @@ function KlintInfo(filterType) {
             sorter : function(direction) {
                 return function(a, b) {
                     return direction * (a.lineStart - b.lineStart);
-                }
+                };
             }
         };
     this._sortInfo["klint-messageType"] = { isAscending: true,
@@ -56,7 +56,7 @@ function KlintInfo(filterType) {
                         return a.lineStart - b.lineStart;
                     }
                     return direction * (a.severity - b.severity);
-                }
+                };
             }
         };
     this._sortInfo["klint-message"] = { isAscending: true,
@@ -71,7 +71,7 @@ function KlintInfo(filterType) {
                         return a.lineStart - b.lineStart;
                     }
                     return direction * cmp;
-                }
+                };
             }
         };
 }
