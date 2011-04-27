@@ -205,11 +205,11 @@ Step 1: Building Python
 -----------------------
 
 Currently the Komodo source tree includes *prebuilt* Python binaries
-in `mozilla/prebuilt/python2.5`. Basically these are vanilla Python 2.6
+in `mozilla/prebuilt/python2.6`. Basically these are vanilla Python 2.6
 builds with the following tweaks:
 
 - [Windows] a patch to disable looking in the registry for sys.path info
-- [Windows] built with VC8 (atypical of all current Python distros)
+- [Windows] built with VC9 (atypical of all current Python distros)
 - [Mac OS X] a patch to the Python frameworks bin/python stub to allow
   running `python` in this framework without it having to be installed
   in one of the standard "/Library/Frameworks",
