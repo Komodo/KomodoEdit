@@ -1284,6 +1284,7 @@ class koProject(koLiveFolderPart):
         events = pulldom.parse(stream)
         kpfVer = 0
         canBeCulled = False
+        basename = None
         for (event, node) in events:
             if event == pulldom.START_ELEMENT:
                 if node.tagName == 'project':
@@ -1404,8 +1405,9 @@ class koProject(koLiveFolderPart):
                         if _owning_part.type not in ("folder", "livefolder", "group", "file"):
                             _owning_part.set_prefset(prefset)
                         else:
-                            projectName = "project " + basename
-                            if not projectName:
+                            if basename is not None:
+                                projectName = "project " + basename
+                            else:
                                 projectName = "the current project"
                             try:
                                 typeName = _owning_part.type
