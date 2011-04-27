@@ -110,7 +110,7 @@ class ClipboardWrapper():
         try:
             (str, strLength) = self.transferable.getTransferData("text/unicode")
             return str.QueryInterface(components.interfaces.nsISupportsString).data[:strLength/2]
-        except COMException as ex:
+        except COMException:
             log.error("ClipboardWrapper._getTextFromClipboard: Nothing on the clipboard to get?")
             return ""
         except:
