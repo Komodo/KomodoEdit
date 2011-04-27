@@ -1799,6 +1799,8 @@ def _exc_info_summary():
     else:  # string exception
         return exc_info[0]
 
+
+_high_bit_chr_re = re.compile(r'[^\x00-\x7f]')
 def _regex_info_from_ko_find_data(pattern, repl=None,
                                   patternType=FOT_SIMPLE,
                                   caseSensitivity=FOC_SENSITIVE,
@@ -1814,7 +1816,6 @@ def _regex_info_from_ko_find_data(pattern, repl=None,
     desc_flag_bits = []
     
     # Determine the flags.
-    #TODO: should we turn on re.UNICODE all the time?
     flags = re.MULTILINE   # Generally always want line-based searching.
     if caseSensitivity == FOC_INSENSITIVE:
         desc_flag_bits.append("ignore case")
@@ -1833,6 +1834,10 @@ def _regex_info_from_ko_find_data(pattern, repl=None,
     else:
         raise ValueError("unrecognized case-sensitivity: %r"
                          % caseSensitivity)
+    if (flags & re.IGNORECASE) and _high_bit_chr_re.search(pattern):
+        # Fix bug 89863:
+        # eg: re.UNICODE will allow AGRAVE to match agrave when ignoring case.
+        flags |= re.UNICODE
 
     # Massage the pattern, if necessary.
     if patternType == FOT_SIMPLE:
