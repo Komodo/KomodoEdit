@@ -62,14 +62,14 @@ class ChromeReg(object):
         if not exists(self.manifest_name):
             # nothing to read
             return
-        with open(self.manifest_name, "rU") as input:
-            for line in input.readlines():
-                # normalize whitespace - strip leading/trailing, collapse inner
-                line = " ".join(line.split())
-                if line.startswith("#"):
-                    # skip all comments (repeating them can make sense)
-                    continue
-                self.existing_lines.add(line)
+        inputfile = file(self.manifest_name, "rU")
+        for line in inputfile.readlines():
+            # normalize whitespace - strip leading/trailing, collapse inner
+            line = " ".join(line.split())
+            if line.startswith("#"):
+                # skip all comments (repeating them can make sense)
+                continue
+            self.existing_lines.add(line)
 
     def write_manifest(self):
         """Write new registrations to the chrome manifest"""
@@ -81,9 +81,9 @@ class ChromeReg(object):
         if len(self.new_lines) < 1:
             # nothing to write
             return
-        with open(self.manifest_name, "a") as output:
-            for line in self.new_lines:
-                output.write("%s\n" % line)
+        outputfile = file(self.manifest_name, "a")
+        for line in self.new_lines:
+            outputfile.write("%s\n" % line)
 
     def set(self, scope, name, value):
         """Set the value of an expression
@@ -263,8 +263,8 @@ class ChromeReg(object):
     
     def _register_python(self):
         """Regsiter the component, knowing that it is a python file"""
-        with open(self.source_file, "r") as input:
-            tree = ast.parse(input.read(), self.source_file)
+        inputfile = file(self.source_file, "r")
+        tree = ast.parse(inputfile.read(), self.source_file)
         assert isinstance(tree, ast.Module), \
             "failed to parse %s" % self.source_file
         for node in ast.iter_child_nodes(tree):
