@@ -1570,18 +1570,22 @@ typeInfo = {
     },
 }
 
-# Generate the interface information and dump them to separate files
-face = Face.Face()
-face.ReadFromFile(os.path.join(scintillaFilesPath, "Scintilla.iface"))
-fixup_iface_data(face)
-generate_idl_constants_fragment(face)
-generate_idl_lite_fragment(face)
-generate_idl_full_fragment(face)
-generate_cxx_xpcom_fragment(face)
-with open("generated_plugin_code.h", "w") as file:
-    generate_npapi_identifiers(face, file)
-    generate_npapi_has_method(face, file)
-    generate_npapi_invoke(face, file)
-    generate_npapi_has_property(face, file)
-    generate_npapi_get_property(face, file)
-    generate_npapi_set_property(face, file)
+def main():
+    # Generate the interface information and dump them to separate files
+    face = Face.Face()
+    face.ReadFromFile(os.path.join(scintillaFilesPath, "Scintilla.iface"))
+    fixup_iface_data(face)
+    generate_idl_constants_fragment(face)
+    generate_idl_lite_fragment(face)
+    generate_idl_full_fragment(face)
+    generate_cxx_xpcom_fragment(face)
+    outputfile = file("generated_plugin_code.h", "w")
+    generate_npapi_identifiers(face, outputfile)
+    generate_npapi_has_method(face, outputfile)
+    generate_npapi_invoke(face, outputfile)
+    generate_npapi_has_property(face, outputfile)
+    generate_npapi_get_property(face, outputfile)
+    generate_npapi_set_property(face, outputfile)
+
+if __name__ == '__main__':
+    main()
