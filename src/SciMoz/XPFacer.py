@@ -399,23 +399,23 @@ def generate_idl_constants_fragment(face):
     @param face: The scintilla interface definition structure
     """
     unwantedValues = ["SCI_START", "SCI_OPTIONAL_START", "SCI_LEXER_START"]
-    with open("ISciMoz_gen.consts.fragment", "w") as file:
-        print "Dumping ISciMoz interface constants to %s" % file.name
-        for name in face.order:
-            if name in unwantedValues:
-                # we don't want to expose this constant
-                continue
-            feature = face.features[name]
-            if feature["FeatureType"] == "val":
-                if "Comment" in feature:
-                    _(map(lambda x: "// " + x, feature["Comment"]), 8, file=file)
-                _("const long %(name)s = %(value)s;",
-                  8,
-                  replacements={
-                    "name": name,
-                    "value": feature["Value"]
-                  },
-                  file=file)
+    outputfile = file("ISciMoz_gen.consts.fragment", "w")
+    print "Dumping ISciMoz interface constants to %s" % outputfile.name
+    for name in face.order:
+        if name in unwantedValues:
+            # we don't want to expose this constant
+            continue
+        feature = face.features[name]
+        if feature["FeatureType"] == "val":
+            if "Comment" in feature:
+                _(map(lambda x: "// " + x, feature["Comment"]), 8, file=outputfile)
+            _("const long %(name)s = %(value)s;",
+              8,
+              replacements={
+                "name": name,
+                "value": feature["Value"]
+              },
+              file=outputfile)
 
 def generate_idl_method_fragment(feature, file, indent=8):
     """
@@ -498,34 +498,34 @@ def generate_idl_lite_fragment(face):
     Generate the ISciMozLite interface fragment
     @param face: the scintilla interface definition structure
     """
-    with open("ISciMoz_lite_gen.idl.fragment", "w") as file:
-        print "Dumping ISciMoz 'lite' inteface to %s" % file.name
-        liteFeatures = str.split("""
-            addText insertText length currentPos anchor selectAll gotoLine
-            gotoPos startStyling setStyling markerAdd markerNext styleSetFore
-            readOnly selectionStart selectionEnd hideSelection replaceSel
-            scrollWidth deleteBack newLine xOffset lineFromPosition
-            pointXFromPosition pointYFromPosition textHeight
-            beginUndoAction endUndoAction undoCollection undo
-            charPositionFromPointClose getLineEndPosition positionFromLine
-            positionAfter positionAtChar
-            """)
-        for name in face.order:
-            if not (idlName(name) in liteFeatures or attributeName(name) in liteFeatures):
-                continue
-            feature = face.features[name]
-            if feature["FeatureType"] == "fun":
-                generate_idl_method_fragment(feature, file)
-            elif feature["FeatureType"] == "get":
-                generate_idl_attribute_fragment(feature, file)
-            elif feature["FeatureType"] == "set":
-                # don't do anything with setters, we generate attributes on the
-                # matching getter (and there are no writeonly attributes)
-                pass
-            else:
-                # dunno what this is, not touching
-                continue
-            feature["isLite"] = True # don't duplicate in non-lite interface
+    outputfile = file("ISciMoz_lite_gen.idl.fragment", "w")
+    print "Dumping ISciMoz 'lite' inteface to %s" % outputfile.name
+    liteFeatures = str.split("""
+        addText insertText length currentPos anchor selectAll gotoLine
+        gotoPos startStyling setStyling markerAdd markerNext styleSetFore
+        readOnly selectionStart selectionEnd hideSelection replaceSel
+        scrollWidth deleteBack newLine xOffset lineFromPosition
+        pointXFromPosition pointYFromPosition textHeight
+        beginUndoAction endUndoAction undoCollection undo
+        charPositionFromPointClose getLineEndPosition positionFromLine
+        positionAfter positionAtChar
+        """)
+    for name in face.order:
+        if not (idlName(name) in liteFeatures or attributeName(name) in liteFeatures):
+            continue
+        feature = face.features[name]
+        if feature["FeatureType"] == "fun":
+            generate_idl_method_fragment(feature, outputfile)
+        elif feature["FeatureType"] == "get":
+            generate_idl_attribute_fragment(feature, outputfile)
+        elif feature["FeatureType"] == "set":
+            # don't do anything with setters, we generate attributes on the
+            # matching getter (and there are no writeonly attributes)
+            pass
+        else:
+            # dunno what this is, not touching
+            continue
+        feature["isLite"] = True # don't duplicate in non-lite interface
 
 def generate_idl_full_fragment(face):
     """
@@ -538,46 +538,46 @@ def generate_idl_full_fragment(face):
         getModEventMask charPosAtPosition
     """.split()
 
-    with open("ISciMoz_gen.idl.fragment", "w") as file:
-        idlTemplateHead = """
-            [scriptable, uuid(%s)]
-            interface ISciMoz_Part%i : nsISupports {
-            """
-        idlTemplateTail = """};"""
-        interfaceCount = 0
-        slotCount = 0
+    outputfile = file("ISciMoz_gen.idl.fragment", "w")
+    idlTemplateHead = """
+        [scriptable, uuid(%s)]
+        interface ISciMoz_Part%i : nsISupports {
+        """
+    idlTemplateTail = """};"""
+    interfaceCount = 0
+    slotCount = 0
 
-        print "Dumping ISciMoz inteface to %s" % file.name
-        _(idlTemplateHead % (uuid.uuid4(), interfaceCount), file=file)
-        for name in face.order:
-            if idlName(name) in suppressedFeatures:
-                # don't write this out - either we don't use it, or it conflicts
-                # with something else
-                continue
-            feature = face.features[name]
-            if "isLite" in feature:
-                # this is a Lite feature, skip it
-                continue
-            if feature["FeatureType"] == "fun":
-                slotCount += generate_idl_method_fragment(feature, file)
-            elif feature["FeatureType"] == "get":
-                slotCount += generate_idl_attribute_fragment(feature, file)
-            elif feature["FeatureType"] == "set":
-                # don't do anything with setters, we generate attributes on the
-                # matching getter (and there are no writeonly attributes)
-                pass
-            else:
-                # didn't do anything with this one
-                continue
-            if slotCount > 150:
-                # too many methods on this interface, make a new one
-                # we actually support ~ 240 or so, but things from the ancestor
-                # interfaces count too
-                slotCount = 0
-                interfaceCount += 1
-                _(idlTemplateTail, file=file)
-                _(idlTemplateHead % (uuid.uuid4(), interfaceCount), file=file)
-        _(idlTemplateTail, file=file)
+    print "Dumping ISciMoz inteface to %s" % outputfile.name
+    _(idlTemplateHead % (uuid.uuid4(), interfaceCount), file=outputfile)
+    for name in face.order:
+        if idlName(name) in suppressedFeatures:
+            # don't write this out - either we don't use it, or it conflicts
+            # with something else
+            continue
+        feature = face.features[name]
+        if "isLite" in feature:
+            # this is a Lite feature, skip it
+            continue
+        if feature["FeatureType"] == "fun":
+            slotCount += generate_idl_method_fragment(feature, outputfile)
+        elif feature["FeatureType"] == "get":
+            slotCount += generate_idl_attribute_fragment(feature, outputfile)
+        elif feature["FeatureType"] == "set":
+            # don't do anything with setters, we generate attributes on the
+            # matching getter (and there are no writeonly attributes)
+            pass
+        else:
+            # didn't do anything with this one
+            continue
+        if slotCount > 150:
+            # too many methods on this interface, make a new one
+            # we actually support ~ 240 or so, but things from the ancestor
+            # interfaces count too
+            slotCount = 0
+            interfaceCount += 1
+            _(idlTemplateTail, file=outputfile)
+            _(idlTemplateHead % (uuid.uuid4(), interfaceCount), file=outputfile)
+    _(idlTemplateTail, file=outputfile)
     generate_wrapper(face, interfaceCount)
 
 def generate_cxx_xpcom_method_fragment(feature, file):
@@ -706,22 +706,22 @@ def generate_cxx_xpcom_fragment(face):
     Generate the C++ XPCOM stubs
     @param face: the scintilla interface definition structure
     """
-    with open("npscimoz_gen.h", "w") as file:
-        print "Dumping C++ SciMoz implementation to %s" % file.name
-        for name in face.order:
-            if idlName(name) in manualFunctions + discardedFeatures:
-                # skip manually implemented functions
-                continue
-            feature = face.features[name]
-            if not "isLite" in feature:
-                # we don't need xpcom implementations for non-lite features
-                continue
-            if feature["FeatureType"] == "fun":
-                generate_cxx_xpcom_method_fragment(feature, file)
-            elif feature["FeatureType"] == "get":
-                generate_cxx_xpcom_attribute_fragment(feature, file)
-            elif feature["FeatureType"] == "set":
-                pass
+    outputfile = file("npscimoz_gen.h", "w")
+    print "Dumping C++ SciMoz implementation to %s" % outputfile.name
+    for name in face.order:
+        if idlName(name) in manualFunctions + discardedFeatures:
+            # skip manually implemented functions
+            continue
+        feature = face.features[name]
+        if not "isLite" in feature:
+            # we don't need xpcom implementations for non-lite features
+            continue
+        if feature["FeatureType"] == "fun":
+            generate_cxx_xpcom_method_fragment(feature, outputfile)
+        elif feature["FeatureType"] == "get":
+            generate_cxx_xpcom_attribute_fragment(feature, outputfile)
+        elif feature["FeatureType"] == "set":
+            pass
 
 def generate_npapi_identifiers(face, file):
     """
@@ -1343,62 +1343,62 @@ def generate_npapi_set_property(face, file):
       file=file)
 
 def generate_wrapper(face, interfaceCount):
-    with open("ISciMoz_jswrapper_gen.fragment", "w") as file:
-        print "Generating XPCOM wrapper in %s" % file.name
-        for i in range(interfaceCount + 1):
-            _("""
-              koSciMozWrapper.prototype._interfaces.push(Components.interfaces.ISciMoz_Part%(i)s);
-              """,
-              replacements={
-                "i": i
-              },
-              file=file)
+    outputfile = file("ISciMoz_jswrapper_gen.fragment", "w")
+    print "Generating XPCOM wrapper in %s" % outputfile.name
+    for i in range(interfaceCount + 1):
+        _("""
+          koSciMozWrapper.prototype._interfaces.push(Components.interfaces.ISciMoz_Part%(i)s);
+          """,
+          replacements={
+            "i": i
+          },
+          file=outputfile)
 
-        methods = set(manualFunctions)
-        getters = set(map(attributeName, manualGetterProperties.keys()))
-        setters = set(map(attributeName, manualSetterProperties.keys()))
+    methods = set(manualFunctions)
+    getters = set(map(attributeName, manualGetterProperties.keys()))
+    setters = set(map(attributeName, manualSetterProperties.keys()))
 
-        for name in face.order:
-            if idlName(name) in discardedFeatures:
-                # skip things we don't need
-                continue
-            feature = face.features[name]
-            if feature["FeatureType"] == "get":
-                getters.add(attributeName(name))
-            elif feature["FeatureType"] == "set":
-                setters.add(attributeName(name))
-            elif feature["FeatureType"] == "fun":
-                methods.add(idlName(name))
+    for name in face.order:
+        if idlName(name) in discardedFeatures:
+            # skip things we don't need
+            continue
+        feature = face.features[name]
+        if feature["FeatureType"] == "get":
+            getters.add(attributeName(name))
+        elif feature["FeatureType"] == "set":
+            setters.add(attributeName(name))
+        elif feature["FeatureType"] == "fun":
+            methods.add(idlName(name))
 
-        for name in getters:
-            _("""
-              koSciMozWrapper.prototype.__defineGetter__("%(name)s",
-                                                         function()this.__scimoz.%(name)s);
-              """,
-              replacements={
-                "name": name
-              },
-              file=file)
+    for name in getters:
+        _("""
+          koSciMozWrapper.prototype.__defineGetter__("%(name)s",
+                                                     function()this.__scimoz.%(name)s);
+          """,
+          replacements={
+            "name": name
+          },
+          file=outputfile)
 
-        for name in setters:
-            _("""
-              koSciMozWrapper.prototype.__defineSetter__("%(name)s",
-                                                         function(v)this.__scimoz.%(name)s=v);
-              """,
-              replacements={
-                "name": name
-              },
-              file=file)
+    for name in setters:
+        _("""
+          koSciMozWrapper.prototype.__defineSetter__("%(name)s",
+                                                     function(v)this.__scimoz.%(name)s=v);
+          """,
+          replacements={
+            "name": name
+          },
+          file=outputfile)
 
-        for name in methods:
-            _("""
-              koSciMozWrapper.prototype.%(name)s =
-                  function() this.__scimoz.%(name)s.apply(this.__scimoz, arguments);
-              """,
-              replacements={
-                "name": idlName(name)
-              },
-              file=file)
+    for name in methods:
+        _("""
+          koSciMozWrapper.prototype.%(name)s =
+              function() this.__scimoz.%(name)s.apply(this.__scimoz, arguments);
+          """,
+          replacements={
+            "name": idlName(name)
+          },
+          file=outputfile)
 
 
 #
