@@ -15,12 +15,19 @@ var gOsPath = null;
 
 var _gCurrQuery = null; // the query string last used to search
 var _gIsMac = navigator.platform.match(/^Mac/);
+var gOpenerKo;
 
 
 //---- routines called by dialog
 
 function onLoad()
 {
+    try {
+        gOpenerKo = window.arguments[0].ko;
+    } catch(ex) {
+        log.exception("gotofile.js: onLoad failed: " + ex);
+        gOpenerKo = opener.ko;
+    }
     try {
         gWidgets = {
             query: document.getElementById("query"),
@@ -47,16 +54,16 @@ function onLoad()
                 .getService(Components.interfaces.koIPartService);
         gSession.setCurrProject(partSvc.currentProject);
         var openViews = [];
-        var hist = opener.ko.views.manager.topView.viewhistory;
+        var hist = gOpenerKo.views.manager.topView.viewhistory;
         //hist._debug_recentViews();
-        for (view in hist.genRecentViews()) {
+        for (var view in hist.genRecentViews()) {
             openViews.push(view);
         }
-        if (opener.ko.places) {
-            gSession.setCurrentPlace(opener.ko.places.manager.currentPlace);
+        if (gOpenerKo.places) {
+            gSession.setCurrentPlace(gOpenerKo.places.manager.currentPlace);
         }
         gSession.setOpenViews(openViews.length, openViews);
-        gSession.setCurrHistorySession(opener.ko.history.curr_session_name());
+        gSession.setCurrHistorySession(gOpenerKo.history.curr_session_name());
 
         gWidgets.query.focus();
         findFiles(gWidgets.query.value);
@@ -292,7 +299,7 @@ function _openFirstSelectedHitInPlaces() {
  * @param {koIFastOpenHit} hit The hit to open.
  */
 function _openHitInPlaces(hit) {
-    if (!opener.ko.places) {
+    if (!gOpenerKo.places) {
         return;
     }
     var dir, baseName;
@@ -302,7 +309,7 @@ function _openHitInPlaces(hit) {
         dir = hit.dir;
         baseName = hit.base;
     }
-    opener.ko.places.manager.openDirectory(dir, baseName);
+    gOpenerKo.places.manager.openDirectory(dir, baseName);
 }
 
 /* Open the views/paths selected in the results tree.
@@ -339,7 +346,7 @@ function _openHits(hits) {
         }
     }
     if (fileUrlsToOpen.length) {
-        opener.ko.open.multipleURIs(fileUrlsToOpen);
+        gOpenerKo.open.multipleURIs(fileUrlsToOpen);
     } else if (dirsToOpen.length) {
         // Selecting a dir should just enter that dir into the filter box.
         gWidgets.query.value = dirsToOpen[0] + gSep;
