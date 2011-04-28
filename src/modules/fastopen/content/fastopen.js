@@ -21,11 +21,12 @@ ko.fastopen = {};
     //---- public interface
 
     this.open_gotofile_dialog = function open_gotofile_dialog() {
-        var obj = new Object();
-        ko.windowManager.openDialog("chrome://fastopen/content/gotofile.xul",
-            "dialog-gotofile",
-            "chrome,modal,centerscreen,titlebar,resizable=yes",
-            obj);
+        // Make sure the windowtype field (arg #2)
+        // matches window@windowtype in gotofile.xul
+        ko.windowManager.openOrFocusDialog("chrome://fastopen/content/gotofile.xul",
+                                           "komodo_gotofile",
+                                           "chrome,centerscreen,titlebar,resizable=yes",
+                                           { ko: ko});
     }
 
     this.open_invoketool_panel = function open_invoketool_panel(pos, x, y) {

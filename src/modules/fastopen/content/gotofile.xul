@@ -12,7 +12,7 @@
 <?xml-stylesheet href="chrome://fastopen/skin/gotofile.css" type="text/css"?>
 
 <window id="dialog-gotofile"
-        window_type="komodo_gotofile"
+        windowtype="komodo_gotofile"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         title="&goToFile.window.title;"
         onload="onLoad()"
