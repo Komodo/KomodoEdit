@@ -52,7 +52,7 @@ import process
 import logging
 logging.basicConfig()
 log = logging.getLogger("KoHTMLLinter")
-#log.setLevel(logging.DEBUG)-
+#log.setLevel(logging.DEBUG)
 
 #---- component implementation
 
