@@ -46,6 +46,12 @@ class RHTMLLangInfo(LangInfo):
     exts = [".rhtml"]
 
 
+class EJSLangInfo(LangInfo):
+    name = "EJS"
+    conforms_to_bases = ["Text"]
+    exts = [".ejs"]
+
+
 class DjangoTemplateLangInfo(LangInfo):
     name = "Django Template"
     conforms_to_bases = ["Text"]
