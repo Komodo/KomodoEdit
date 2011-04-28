@@ -207,6 +207,7 @@ class KoEJSLanguage(koHTMLLanguageBase):
 		i += 1
         return delta, numTags
 
+_tplPatterns = ("EJS", re.compile('<%.*'), re.compile('.*?%>'))
 class KoEJSLinter(object):
     _com_interfaces_ = [components.interfaces.koILinter]
     _reg_desc_ = "EJS Template Linter"
@@ -218,11 +219,11 @@ class KoEJSLinter(object):
 
     def __init__(self):
         koLintService = components.classes["@activestate.com/koLintService;1"].getService(components.interfaces.koILintService)
-        self._html_linter = koLintService.getLinterForLanguage("HTML")
+        self._html_linter = UnwrapObject(koLintService.getLinterForLanguage("HTML"))
         
     def lint(self, request):
 	#TODO: Hook on parts to pull templatized-parts out of jslint
-        return self._html_linter.lint(request)
+        return self._html_linter.lint(request, squelchTPLPatterns=_tplPatterns)
 
     def lint_with_text(self, request, text):
 	return None

@@ -74,6 +74,13 @@ my @lexers = (
                skel => "skel/Django",
               },
               {
+               language_name => "EJS",
+               codename => "ejs_language",
+               udl_path => "ejs-mainlex.udl",
+               ext => ".ejs.html",
+               skel => "skel/EJS",
+              },
+              {
                language_name => "HTML",
                codename => "html_language",
                udl_path => "html-mainlex.udl",

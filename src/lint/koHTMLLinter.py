@@ -52,7 +52,7 @@ import process
 import logging
 logging.basicConfig()
 log = logging.getLogger("KoHTMLLinter")
-#log.setLevel(logging.DEBUG)
+#log.setLevel(logging.DEBUG)-
 
 #---- component implementation
 
@@ -88,7 +88,7 @@ class _CommonHTMLLinter(object):
         return self._mappedNames and self._mappedNames.get(name, name) or name
 
     _cdata_ms_re = re.compile(r'\A(\s*)(<!\[CDATA\[)?(.*?)(\]\]>)?(\s*)\Z', re.DOTALL)
-    def _lint_common_html_request(self, request, udlMapping=None, linters=None):
+    def _lint_common_html_request(self, request, udlMapping=None, linters=None, squelchTPLPatterns=None):
         self._mappedNames = udlMapping
         lintersByName = {}
         # Copy working set of linters into a local var
@@ -121,6 +121,7 @@ class _CommonHTMLLinter(object):
         endPt = 0
         htmlAllowedNames = ("HTML", "HTML5", "CSS", "JavaScript", "XML")
         currStartTag = None
+        squelching = False
         for i in range(1, lim):
             startPt = endPt
             endPt = transitionPoints[i]
@@ -133,7 +134,14 @@ class _CommonHTMLLinter(object):
             #          koDoc.languageForPosition(startPt),
             #          langName, startPt, endPt, currText)
             for name in bytesByLang.keys():
-                if (origLangName == "CSS"
+                if squelchTPLPatterns and origLangName == squelchTPLPatterns[0]:
+                    if not squelching and squelchTPLPatterns[1].match(currText):
+                        squelching = True
+                    elif squelching and squelchTPLPatterns[2].match(currText):
+                        squelching = False
+                elif squelching:
+                    bytesByLang[name].append(self._spaceOutNonNewlines(currText))
+                elif (origLangName == "CSS"
                     and langName == name
                     and "{" not in currText):
                     if (i > 0
@@ -215,10 +223,12 @@ class KoHTMLCompileLinter(_CommonHTMLLinter):
     # Do all the language-separation in the aggregator.  Then each HTML
     # terminal linter will concern itself only with the full document,
     # and won't have to pick out sublanguages.
-    def lint(self, request, argv_additions=None, udlMapping=None, linters=None):
+    def lint(self, request, argv_additions=None, udlMapping=None, linters=None,
+             squelchTPLPatterns=None):
         #XXX Is argv_additions ever used?
         self._argv_additions = argv_additions
-        return self._lint_common_html_request(request, udlMapping, linters)
+        return self._lint_common_html_request(request, udlMapping, linters,
+                                              squelchTPLPatterns)
 
     def lint_with_text(self, request, text):
         if not text:
