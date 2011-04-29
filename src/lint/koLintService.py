@@ -48,6 +48,8 @@ from koLintResults import koLintResults
 import logging
 log = logging.getLogger("koLintService")
 #log.setLevel(logging.DEBUG)
+qlog = logging.getLogger("koLintService.q")
+qlog.setLevel(logging.DEBUG)
 
 class RequestQueue:
     # This is a modification if Python's std Queue.Queue class:
@@ -314,7 +316,7 @@ class KoLintService:
                 self._linterCIDsByLanguageName[languageName] = {'terminals':[],
                                                              'aggregator':None}
             self._linterCIDsByLanguageName[languageName]['terminals'].append(cid)
-        #log.debug("Loaded these linters: %s", self._linterCIDsByLanguageName)
+        qlog.debug("Loaded these linters: %s", self._linterCIDsByLanguageName)
 
     def _getCategoryNameFromNameObj(self, nameObj):
         nameObj.QueryInterface(components.interfaces.nsISupportsCString)
@@ -557,7 +559,7 @@ class KoLintService:
                             if (not request.koDoc.prefs.hasPref(genericCheck)
                                 or request.koDoc.prefs.getBooleanPref(genericCheck)):
                                 results = request.linter.lint(request)
-                                # results = UnwrapObject(request.linter).lint(request)
+                                #results = UnwrapObject(request.linter).lint(request)
                                 # This makes a red statusbar icon go green, but it
                                 # might not be what we always want.
                                 # Needs more investigation.

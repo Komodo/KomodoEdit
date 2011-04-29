@@ -262,6 +262,7 @@ class KoHTMLTidyLinter:
     _reg_desc_ = "HTML Tidy Linter"
     _reg_categories_ = [
          ("category-komodo-linter", 'HTML&type=tidy'),
+         ("category-komodo-linter", 'HTML5&type=tidy'),
          ]
 
     def filterLines(self, lines):
@@ -273,7 +274,7 @@ class KoHTMLTidyLinter:
 
     def lint_with_text(self, request, text, argv_additions=None):
         prefset = getProxiedEffectivePrefs(request)
-        if not prefset.getBooleanPref("lintStandardHTMLChecking"):
+        if not prefset.getBooleanPref("lintStandardHTMLTidy"):
             return
         cwd = request.cwd
 
@@ -553,12 +554,13 @@ class KoHTMLPerl_HTMLTidy_Linter(_invokePerlLinter):
         return self._lint_with_text(request, text,
                                     "lintHTML_CheckWith_Perl_HTML_Tidy",
                                     "htmltidy.pl", [])
+
     
 # HTML5 can use the generic aggregator
-
+ 
 class KoHTML5_html5libLinter:
     _com_interfaces_ = [components.interfaces.koILinter]
-    _reg_clsid_ = "{09204c16-b24f-4d67-a5b6-2f499f9ccc5b}"
+    _reg_clsid_ = "{913f43fc-d46b-4d2a-a821-0b925ca9a65b}"
     _reg_contractid_ = "@activestate.com/koHTML5_html5libLinter;1"
     _reg_desc_ = "HTML5 html5lib Linter"
     _reg_categories_ = [
@@ -574,6 +576,11 @@ class KoHTML5_html5libLinter:
         return self.lint_with_text(request, text)
 
     def lint_with_text(self, request, text):
+        if not text:
+            return
+        prefset = getProxiedEffectivePrefs(request)
+        if not prefset.getBooleanPref('lintHTML5Lib'):
+            return
         textLines = text.splitlines()
         try:
             # Use StringIO, not CStringIO!

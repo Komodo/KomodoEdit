@@ -57,7 +57,7 @@
           </hbox>
           <deck id="docSyntaxCheckByLang">
             
-	    <vbox id="langSyntaxCheck-CoffeeScript">
+            <vbox id="langSyntaxCheck-CoffeeScript">
                 <groupbox orient="vertical">
                     <checkbox id="lint_coffee_script"
                               label="&basicChecking.label;"
@@ -155,10 +155,12 @@
             
             <vbox id="langSyntaxCheck-HTML">
               <groupbox orient="vertical">
-                  <caption label="&syntaxChecking.label;"/>
-                  <checkbox id="lintStandardHTMLChecking"
-                            label="&doStandardHTMLChecking.label;"
+                  <caption label="&HTMLTidy.label;"/>
+                  <checkbox id="lintStandardHTMLTidy"
+                            label="&CheckWithHTMLTidy.label;"
+                            oncommand="languageInfo.HTML.updateHTMLTidySyntaxChecking(this);"
                             pref="true" />
+                  <vbox flex="1" align="center" id="lintHTMLTidy_Details_vbox">
                   <vbox flex="1" align="center">
                       <description>
                           &syntaxControlHtml.description;
@@ -221,8 +223,15 @@
                       <button label="&browse.label;"
                               oncommand="languageInfo.HTML.loadTidyConfigFile();"/>
                   </hbox>
+                  </vbox>
               </groupbox>
-          
+
+              <groupbox orient="vertical" id="lint_html5lib_groupbox">
+                  <caption label="&HTML5lib.label;"/>
+                  <checkbox id="lintHTML5Lib"
+                            label="&CheckWithHTML5lib.label;"
+                            pref="true" />
+              </groupbox>          
               
               <groupbox orient="vertical">
                   <caption label="&perlHTMLTidy.label;"/>
@@ -237,10 +246,10 @@
                             label="&checkWithPerlsHTMLLint.label;"
                             pref="true" />
               </groupbox>
-	
+        
             </vbox>
             
-	    <vbox id="langSyntaxCheck-Perl">
+            <vbox id="langSyntaxCheck-Perl">
               <caption label="&backgroundSyntaxChecking.label;"/>
               <description>
                   &filePrefPerlLevelStricness.description;
@@ -344,7 +353,7 @@
               </groupbox>
             </vbox>
             
-	    <vbox id="langSyntaxCheck-Ruby">
+            <vbox id="langSyntaxCheck-Ruby">
                 <groupbox orient="vertical">
                     <caption label="&backgroundSyntaxChecking.label;"/>
                     <description>

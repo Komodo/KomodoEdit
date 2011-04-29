@@ -71,11 +71,20 @@ function OnPreferencePageOK(prefset) {
     return true;       
 }
 
+var _mappedNames = {
+  "HTML5": "HTML"
+}
+function getMappedName(languageName) {
+    return (languageName in _mappedNames
+            ? _mappedNames[languageName]
+            : null);
+}
+
 function showLanguageNamePanel(languageName) {
     var deckID = null;
     if (languageName) {
         if (languageName in languageSetup) {
-            languageSetup[languageName]();
+            languageSetup[languageName](languageName);
         }
         deckID = document.getElementById("langSyntaxCheck-" + languageName);
         if (deckID) {
@@ -83,6 +92,14 @@ function showLanguageNamePanel(languageName) {
         }
     }
     if (deckID === null) {
+        var mappedName = getMappedName(languageName);
+        if (mappedName) {
+            deckID = document.getElementById("langSyntaxCheck-" + mappedName);
+            if (deckID) {
+                dialog.deck.selectedPanel = deckID;
+                return;
+            }
+        }
         var descr, linterCID = null, msg;
         if (languageName) {
             linterCID = Components.classes["@activestate.com/koLintService;1"].
@@ -186,11 +203,15 @@ function django_setup() {
 
 languageSetup.Django = django_setup;        
 
-function htmlSetup() {
+function htmlSetup(languageName) {
     if (!('HTML' in dialog)) {
         dialog.HTML = {};
-        ["lintHTML_CheckWith_Perl_HTML_Tidy",
+        ["lintStandardHTMLTidy",
+         "lintHTML_CheckWith_Perl_HTML_Tidy",
          "lintHTML_CheckWith_Perl_HTML_Lint",
+         "lintHTMLTidy_Details_vbox",
+         "lintHTML5Lib",
+         "lint_html5lib_groupbox",
          "tidy_configpath"                  
          ].forEach(function(name) {
             dialog.HTML[name] = document.getElementById(name);
@@ -205,19 +226,20 @@ function htmlSetup() {
                         getService(Components.interfaces.koIPerlInfoEx);
                 cachedAppInfo.Perl.htmlLint = appInfoEx.haveModules(1, ["HTML::Lint"]);
                 cachedAppInfo.Perl.htmlTidy = appInfoEx.haveModules(1, ["HTML::Tidy"]);
-                languageInfo.HTML.htmlSetupFinish();
+                languageInfo.HTML.htmlSetupFinish(languageName);
             }, 100);
     } else {
-        languageInfo.HTML.htmlSetupFinish();
+        languageInfo.HTML.htmlSetupFinish(languageName);
     }
 }
 languageSetup.HTML = htmlSetup;
 function htmlInfo() {
     return {
         cachedAppInfo: {},
-        htmlSetupFinish: function() {
+        htmlSetupFinish: function(languageName) {
             pref_setElementEnabledState(dialog.HTML.lintHTML_CheckWith_Perl_HTML_Tidy, this.cachedAppInfo.Perl.htmlTidy);
             pref_setElementEnabledState(dialog.HTML.lintHTML_CheckWith_Perl_HTML_Lint, this.cachedAppInfo.Perl.htmlLint);
+            dialog.HTML.lint_html5lib_groupbox.collapsed = languageName == "HTML";
         },
         loadTidyConfigFile: function() {
             var textbox = dialog.HTML.tidy_configpath;
@@ -227,10 +249,14 @@ function htmlInfo() {
                 textbox.value = file;
             }
         },
+        updateHTMLTidySyntaxChecking: function(checkbox) {
+            dialog.HTML.lintHTMLTidy_Details_vbox.collapsed = !checkbox.checked;
+        },
 
         __END__: null
     };
-}  
+}
+languageSetup.HTML5 = htmlSetup;
 
 // JavaScript functions
 

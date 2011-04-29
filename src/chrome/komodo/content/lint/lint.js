@@ -100,7 +100,7 @@ const PYTHON_LIST = ["Python", "Django"];
 const PHP_LIST = ["PHP"];
 const RUBY_LIST = ["Ruby"];
 const JS_LIST = ["JavaScript"];
-const HTML_LIST = ["HTML", "XML"];
+const HTML_LIST = ["HTML", "XML", "HTML5"];
 
 var global_pref_observer_topics = {
     "editUseLinting" : null,
@@ -132,7 +132,8 @@ var global_pref_observer_topics = {
     "jslintOptions" : JS_LIST,
     "lint_coffee_script" : ["CoffeeScript"],
 
-    "lintStandardHTMLChecking" : HTML_LIST,
+    "lintHTMLTidy" : HTML_LIST,
+    "lintHTML5Lib" : ["HTML5"],
     "lintHTML_CheckWith_Perl_HTML_Lint" : HTML_LIST,
     "lintHTML_CheckWith_Perl_HTML_Tidy" : HTML_LIST,
     "tidy_errorlevel" : HTML_LIST,

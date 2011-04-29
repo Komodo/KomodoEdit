@@ -203,7 +203,8 @@
   <string id="jshintOptions"></string>
 
   <!-- HTML linters -->
-  <boolean id="lintStandardHTMLChecking">true</boolean> <!-- either tidy or html5lib -->
+  <boolean id="lintHTMLTidy">true</boolean>
+  <boolean id="lintHTML5Lib">false</boolean>
   <boolean id="lintHTML_CheckWith_Perl_HTML_Tidy">false</boolean>
   <boolean id="lintHTML_CheckWith_Perl_HTML_Lint">false</boolean>
   
