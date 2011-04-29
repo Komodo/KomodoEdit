@@ -741,7 +741,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY ClassicPythonChecking.label "Python Interpreter Syntax Checking">
 <!ENTITY lintWithPychecker.label "Do Pychecker Linting">
 <!ENTITY pycheckerWarning.descr "Warning: pychecker will load modules and run top-level statements.  ActiveState recommends using pylint instead.">
-<!ENTITY pycheckerWrapperLocation.label "Location of Pychecker Wrapper Script">
+<!ENTITY pycheckerWrapperLocation.label "Location of Pychecker Executable">
 <!ENTITY pycheckerRCLocation.label "Location of pycheckrc Config File">
 <!ENTITY pycheckerNeedsPath.descr "Pychecker checking needs an explicit path to the Pychecker script">
 
