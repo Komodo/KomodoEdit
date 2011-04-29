@@ -97,6 +97,7 @@ var _linterLanguageNames = {};
 
 const PERL_LIST = ["Perl"];
 const PYTHON_LIST = ["Python", "Django"];
+const PYTHON3_LIST = ["Python3"];
 const PHP_LIST = ["PHP"];
 const RUBY_LIST = ["Ruby"];
 const JS_LIST = ["JavaScript"];
@@ -111,10 +112,11 @@ var global_pref_observer_topics = {
     "perl_lintOption_perlCriticLevel" : PERL_LIST,
     "perl_lintOption_includeCurrentDirForLinter" : PERL_LIST,
     "pythonDefaultInterpreter" : PYTHON_LIST,
-    "python3DefaultInterpreter" : PYTHON_LIST,
+    "python3DefaultInterpreter" : PYTHON3_LIST,
     "lint_python_with_pylint" : PYTHON_LIST,
     "lint_python_with_pyflakes" : PYTHON_LIST,
     "lint_python_with_standard_python" : PYTHON_LIST,
+    "lint_python3_with_standard_python" : PYTHON3_LIST,
     "pylint_checking_rcfile" : PYTHON_LIST,
     "lint_python_with_pychecker" : PYTHON_LIST,
     "pychecker_checking_rcfile" : PYTHON_LIST,

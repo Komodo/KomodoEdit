@@ -518,6 +518,25 @@ class KoLintService:
             r.severity = r.SEV_WARNING
             results.addResult(r)
 
+    # When a new panel is added for a language in
+    # pref-syntax-checking.xul, we'll need to pull the generic marker
+    # out of any documents that adopted it.  We can either do it when
+    # we open the doc (although we have to wait until we know its language),
+    # but this way we only check when we're about to lint.
+    #
+    # Also, it's too bad that doc prefs aren't versioned.
+    _no_longer_generic_languages = ["Python3", "HTML5"]
+    def _passesGenericCheck(self, request):
+        prefs = request.koDoc.prefs
+        languageName = request.koDoc.language
+        genericCheck = "genericLinter:" + languageName
+        if not prefs.hasPref(genericCheck):
+            return True
+        if languageName in self._no_longer_generic_languages:
+            prefs.deletePref(genericCheck)
+            return True
+        return prefs.getBooleanPref(genericCheck)
+    
     def run(self):
         """Process lint requests serially until told to stop.
         
@@ -553,9 +572,7 @@ class KoLintService:
                         #    be passed in, but linters don't support this yet.
                         log.debug("manager thread: call linter.lint(request)")
                         try:
-                            genericCheck = "genericLinter:" + request.koDoc.language
-                            if (not request.koDoc.prefs.hasPref(genericCheck)
-                                or request.koDoc.prefs.getBooleanPref(genericCheck)):
+                            if self._passesGenericCheck(request):
                                 results = request.linter.lint(request)
                                 #results = UnwrapObject(request.linter).lint(request)
                                 # This makes a red statusbar icon go green, but it

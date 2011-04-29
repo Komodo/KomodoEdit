@@ -352,6 +352,14 @@
                   </vbox>
               </groupbox>
             </vbox>
+	    
+            <vbox id="langSyntaxCheck-Python3">
+              <groupbox orient="vertical">
+                  <checkbox id="lint_python3_with_standard_python"
+                            label="&ClassicPythonChecking.label;"
+                            pref="true" />
+              </groupbox>
+            </vbox>
             
             <vbox id="langSyntaxCheck-Ruby">
                 <groupbox orient="vertical">

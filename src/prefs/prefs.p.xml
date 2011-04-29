@@ -218,6 +218,9 @@
   <boolean id="lint_python_with_pychecker">false</boolean>
   <string id="pychecker_wrapper_location"></string>
   <string id="pychecker_checking_rcfile"></string>
+
+  <!-- Python3 linters -->
+  <boolean id="lint_python3_with_standard_python">true</boolean>
   
 
 <!-- ruby start -->

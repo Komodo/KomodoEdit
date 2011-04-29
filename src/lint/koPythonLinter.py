@@ -419,7 +419,8 @@ class KoPythonCommonLinter(object):
         encoding_name = request.encoding.python_encoding_name
         cwd = request.cwd
         prefset = getProxiedEffectivePrefs(request)
-        if not prefset.getBooleanPref("lint_python_with_standard_python"):
+        prefName = "lint_%s_with_standard_python" % self.language_name_lc
+        if not prefset.getBooleanPref(prefName):
             return
         try:
             python, pyver = self._getInterpreterAndPyver(prefset)

@@ -136,9 +136,9 @@
                             return;
                         }
                         try {
-                            var currentLanguageNames = view.document.languageObj.getSubLanguages({});
-                            if (currentLanguageNames.indexOf(view.document.language) == -1) {
-                                currentLanguageNames.push(view.document.language);
+                            var currentLanguageNames = view.koDoc.languageObj.getSubLanguages({});
+                            if (currentLanguageNames.indexOf(view.koDoc.language) == -1) {
+                                currentLanguageNames.push(view.koDoc.language);
                             }
                             currentLanguageNames.sort()
                         } catch(ex) {
