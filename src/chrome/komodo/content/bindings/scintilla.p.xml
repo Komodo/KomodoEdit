@@ -75,8 +75,7 @@
                         flex="1"
                         width="100%" height="100%"
                         pluginAllowsFocusEvents="false"
-                        pluginHandlesDomEvents="true"
-                        pluginHandlesDragEvents="false"
+                        pluginHandlesDomEvents="false"
                         />
 <!-- #endif -->
         </content>
@@ -569,6 +568,7 @@
         <handlers>
             <handler event="focus" phase="capturing">
                 <![CDATA[
+                //dump("scintilla:: focus\n");
                 var scimoz = this.scimoz;
                 scimoz.indicatorCurrent = this.DECORATOR_SOFT_CHAR;
                 scimoz.indicatorClearRange(0, scimoz.textLength);
@@ -584,6 +584,7 @@
 
             <handler event="blur" phase="capturing">
                 <![CDATA[
+                //dump("scintilla:: blur\n");
                 // We need to send mouseUps if we are blurred before a mouseup naturally occurs (e.g. if the user alt-tabs).
                 // Otherwise the mouseup is never picked up by scintilla and selection "keeps going on".
                 if (this._inMouseDown != -1 && event.originalTarget == this) {
@@ -611,6 +612,7 @@
 
             <handler event="keypress" phase="capturing">
                 <![CDATA[
+                //dump("scintilla: keypress\n");
 <!-- #if PLATFORM != "darwin" -->
                 var cmdkey = event.ctrlKey || event.altKey || event.metaKey;
 <!-- #else -->
@@ -786,6 +788,7 @@
 
 <!-- #if PLATFORM != "darwin" -->
             <handler event="keyup" phase="capturing"><![CDATA[
+                //dump("scintilla: keyup\n");
                 if (event.keyCode == event.DOM_VK_ALT && this.needToStopAltPropagation) {
                     event.stopPropagation();
                     event.preventDefault();
@@ -796,6 +799,7 @@
 
             <handler event="keydown" phase="capturing">
                 <![CDATA[
+                //dump("scintilla: keydown\n");
                 if (this.key_handler) {
                     // The key_handler will cancelBubble or preventDefault if it
                     // is necessary.
@@ -812,10 +816,14 @@
                 scimoz.indicatorCurrent = this.DECORATOR_SOFT_CHAR;
                 scimoz.indicatorClearRange(0, scimoz.textLength);
                 if (event.button != 2) { // right-click is handled by us
-                    
-<!-- #if PLATFORM != "darwin" and PLATFORM != "win" -->
+<!-- #if PLATFORM != "win" -->                    
                     var x,y;
                     [x,y] = this.getClientCoordinates(event);
+<!-- #if PLATFORM == "darwin" -->
+                    // Mac must inform SciMoz of mouse events - bug 89002.
+                    this.scimoz.buttonUp( x, y, event.button,
+                                         event.shiftKey, event.ctrlKey, event.metaKey);
+<!-- #endif -->
 
                     // only disable scintilla mouseup if this is a single left button
                     // click.  Otherwise selections get disabled on linux
@@ -825,13 +833,6 @@
                         scimoz.selectionStart = scimoz.selectionEnd = pos;
                         scimoz.currentPos = pos;
                         scimoz.dragPosition = -1;
-
-                    // SciMoz.buttonUp does nothing on Linux, so commenting out
-                    // this pointless xpcom call - toddw.
-                    //} else {
-                    //    scimoz.buttonUp( x, y,
-                    //                        event.button,
-                    //                        event.shiftKey, event.ctrlKey, event.metaKey);
                     }
 <!-- #endif -->
 
@@ -895,6 +896,7 @@
 
             <handler event="mousedown" phase="capturing">
                 <![CDATA[
+                //dump("scintilla:: mousedown\n");
                 var scimoz = this.scimoz;
                 if (!scimoz.isFocused) {
                     // Focus on this Scintilla now.
@@ -902,6 +904,11 @@
                 }
                 var x,y;
                 [x,y] = this.getClientCoordinates(event);
+<!-- #if PLATFORM == "darwin" -->
+                // Mac must inform SciMoz of mouse events - bug 89002.
+                this.scimoz.buttonDown( x, y, event.button,
+                                       event.shiftKey, event.ctrlKey, event.metaKey);
+<!-- #endif -->
                 this._mouseDownSelection = scimoz.selText;
                 this._lastMousePos = [x,y];
                 if (this._contextShowing && this._mozcontext) {
