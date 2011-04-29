@@ -631,6 +631,8 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY perlHTMLLint.label "Perl HTML-Lint">
 <!ENTITY checkWithPerlsHTMLLint.label "Check With Perl's HTML-Lint">
 <!ENTITY CheckWithHTMLTidy.label "Check With HTML Tidy">
+<!ENTITY CheckWithHTML5lib.label "Check With html5lib">
+<!ENTITY HTML5lib.label "html5lib">
 <!ENTITY HTMLTidy.label "HTML Tidy">
 
 <!--pref-indentation.xul-->
