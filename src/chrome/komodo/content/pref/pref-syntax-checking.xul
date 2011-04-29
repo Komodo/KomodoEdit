@@ -332,7 +332,7 @@
                      <hbox id="pychecker_wrapper_location_hbox">
                        <textbox id="pychecker_wrapper_location" pref="true"
                                 prefstring="pychecker_wrapper_location" flex="1"
-                                oninput="updatePycheckerPathStatus(this);" />
+                                oninput="languageInfo.Python.updatePycheckerPathStatus(this);" />
                        <button id="pychecker_browse_wrapper_location"
                                label="&browse.label;"
                                oncommand="languageInfo.Python.loadPycheckerWrapperFile();"/>
