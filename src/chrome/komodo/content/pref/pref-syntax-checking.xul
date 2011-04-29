@@ -161,68 +161,68 @@
                             oncommand="languageInfo.HTML.updateHTMLTidySyntaxChecking(this);"
                             pref="true" />
                   <vbox flex="1" align="center" id="lintHTMLTidy_Details_vbox">
-                  <vbox flex="1" align="center">
-                      <description>
-                          &syntaxControlHtml.description;
-                      </description>
-                      <separator class="thin"/>
-                      <label value="&moreInfoTydy.label;"/>
-                      <separator class="thin"/>
-                      <button label="&lt;http://tidy.sourceforge.net/&gt;"
-                          class="button-link"
-                          style="margin: -10px; color: #b82619;"
-                          onclick="parent.opener.ko.browse.openUrlInDefaultBrowser('http://tidy.sourceforge.net/');"/>
-                      <separator/>
-                      <label value="&moreInfoWai.label;"/>
-                      <separator class="thin"/>
-                      <button label="&lt;http://www.w3.org/TR/1999/WAI-WEBCONTENT-19990505&gt;"
-                          class="button-link"
-                          style="margin: -10px; color: #b82619;"
-                          oncommand="parent.opener.ko.browse.openUrlInDefaultBrowser('http://www.w3.org/TR/1999/WAI-WEBCONTENT-19990505/#priorities');"/>
-                      <separator class="thin"/>
-                  </vbox>
-          
-                  <separator class="groovy-thin"
-                             style="margin-top: 10px; margin-bottom: 10px;"/>
-                  <grid>
-                      <columns>
-                          <column/>
-                          <column/>
-                      </columns>
-                      <rows>
-                          <row align="center">
-                          <label>&errorLevel.label;</label>
-                          <menulist pref="true" prefattribute="data"
-                                    prefstring="tidy_errorlevel">
-                              <menupopup>
-                                  <menuitem data="errors"   label="&errorsOnly.label;"/>
-                                  <menuitem data="warnings" label="&errorsAndWarnings.label;"/>
-                              </menupopup>
-                          </menulist>
-                          </row>
-                          <row align="center">
-                              <label>&waiAccessibilityLevel.label;</label>
-                              <menulist pref="true" prefattribute="data"
-                                        prefstring="tidy_accessibility">
-                                  <menupopup>
-                                      <menuitem data="0" label="&off.label;"/>
-                                      <menuitem data="1" label="&priority1.label;"/>
-                                      <menuitem data="2" label="&priority2.label;"/>
-                                      <menuitem data="3" label="&priority3.label;"/>
-                                  </menupopup>
-                              </menulist>
-                          </row>
-                      </rows>
-                  </grid>
-          
-                  <separator class="groovy-thin"
-                             style="margin-top: 10px; margin-bottom: 10px;"/>
-                  <text value="&configurationFile.label;" style="padding: 2px 6px 2px 6px"/>
-                  <hbox align="center">
-                      <textbox id="tidy_configpath" pref="true" prefstring="tidy_configpath" flex="1"/>
-                      <button label="&browse.label;"
-                              oncommand="languageInfo.HTML.loadTidyConfigFile();"/>
-                  </hbox>
+                    <vbox flex="1" align="center">
+                        <description>
+                            &syntaxControlHtml.description;
+                        </description>
+                        <separator class="thin"/>
+                        <label value="&moreInfoTydy.label;"/>
+                        <separator class="thin"/>
+                        <button label="&lt;http://tidy.sourceforge.net/&gt;"
+                            class="button-link"
+                            style="margin: -10px; color: #b82619;"
+                            onclick="parent.opener.ko.browse.openUrlInDefaultBrowser('http://tidy.sourceforge.net/');"/>
+                        <separator/>
+                        <label value="&moreInfoWai.label;"/>
+                        <separator class="thin"/>
+                        <button label="&lt;http://www.w3.org/TR/1999/WAI-WEBCONTENT-19990505&gt;"
+                            class="button-link"
+                            style="margin: -10px; color: #b82619;"
+                            oncommand="parent.opener.ko.browse.openUrlInDefaultBrowser('http://www.w3.org/TR/1999/WAI-WEBCONTENT-19990505/#priorities');"/>
+                        <separator class="thin"/>
+                    </vbox>
+            
+                    <separator class="groovy-thin"
+                               style="margin-top: 10px; margin-bottom: 10px;"/>
+                    <grid>
+                        <columns>
+                            <column/>
+                            <column/>
+                        </columns>
+                        <rows>
+                            <row align="center">
+                            <label>&errorLevel.label;</label>
+                            <menulist pref="true" prefattribute="data"
+                                      prefstring="tidy_errorlevel">
+                                <menupopup>
+                                    <menuitem data="errors"   label="&errorsOnly.label;"/>
+                                    <menuitem data="warnings" label="&errorsAndWarnings.label;"/>
+                                </menupopup>
+                            </menulist>
+                            </row>
+                            <row align="center">
+                                <label>&waiAccessibilityLevel.label;</label>
+                                <menulist pref="true" prefattribute="data"
+                                          prefstring="tidy_accessibility">
+                                    <menupopup>
+                                        <menuitem data="0" label="&off.label;"/>
+                                        <menuitem data="1" label="&priority1.label;"/>
+                                        <menuitem data="2" label="&priority2.label;"/>
+                                        <menuitem data="3" label="&priority3.label;"/>
+                                    </menupopup>
+                                </menulist>
+                            </row>
+                        </rows>
+                    </grid>
+            
+                    <separator class="groovy-thin"
+                               style="margin-top: 10px; margin-bottom: 10px;"/>
+                    <text value="&configurationFile.label;" style="padding: 2px 6px 2px 6px"/>
+                    <hbox align="center">
+                        <textbox id="tidy_configpath" pref="true" prefstring="tidy_configpath" flex="1"/>
+                        <button label="&browse.label;"
+                                oncommand="languageInfo.HTML.loadTidyConfigFile();"/>
+                    </hbox>
                   </vbox>
               </groupbox>
 
