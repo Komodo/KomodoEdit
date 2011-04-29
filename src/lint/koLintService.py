@@ -48,8 +48,6 @@ from koLintResults import koLintResults
 import logging
 log = logging.getLogger("koLintService")
 #log.setLevel(logging.DEBUG)
-qlog = logging.getLogger("koLintService.q")
-qlog.setLevel(logging.DEBUG)
 
 class RequestQueue:
     # This is a modification if Python's std Queue.Queue class:
@@ -316,7 +314,7 @@ class KoLintService:
                 self._linterCIDsByLanguageName[languageName] = {'terminals':[],
                                                              'aggregator':None}
             self._linterCIDsByLanguageName[languageName]['terminals'].append(cid)
-        qlog.debug("Loaded these linters: %s", self._linterCIDsByLanguageName)
+        #log.debug("Loaded these linters: %s", self._linterCIDsByLanguageName)
 
     def _getCategoryNameFromNameObj(self, nameObj):
         nameObj.QueryInterface(components.interfaces.nsISupportsCString)
