@@ -1,5 +1,5 @@
 <!ENTITY klint.tab.title "Syntax Checking Status">
-<!ENTITY klint.open.tab.title "Syntax Checking">
+<!ENTITY klint.open.tab.title "Show Syntax Checking Panel">
 <!ENTITY klint.refresh.label "Refresh">
 <!ENTITY klint.line.number.label "Line Number">
 <!ENTITY klint.message.text.label "Description">
