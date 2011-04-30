@@ -134,6 +134,7 @@
             // stuff that should ONLY show up on project prefs
             nodesToDrop = nodesToDrop.concat(["mappedURIsItem", "newFilesItem",
                                               "environItem",
+                                              "internationalItem",
                                               "debugProperties"]);
             if (isfolder) {
                 // stuff that should NOT show up on non-project folders
@@ -287,6 +288,15 @@
                                   helptag="syntax_checking"/>
                     </treerow>
                 </treeitem>
+                <treeitem container="false" id="internationalItem">
+                    <treerow>
+                        <treecell class="treecell-indent"
+                                  url="chrome://komodo/content/pref/pref-intl.xul"
+                                  label="&internationalization.label;"
+                                  helptag="internationalization_preferences"/>
+                    </treerow>
+                </treeitem>
+
 <!--
                 <treeitem container="false" id="environItem">
                     <treerow>
