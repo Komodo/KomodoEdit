@@ -156,11 +156,6 @@ function OnPreferencePageLoading(prefset) {
 }
 
 function updateNewFilesEncodingSection() {
-    var count = new Object();
-    var temp = new Object();
-    koEncodingServices.enumerateEncodings(temp,count);
-    var encodings = temp.value;
-
     var init_hierarchy = koEncodingServices.encoding_hierarchy;
     var menupopup = ko.widgets.getEncodingPopup(init_hierarchy, true, 'changeNewEncoding(this)');
 
@@ -243,7 +238,7 @@ function changeNewLanguage(item, name)  {
         encoding = langPrefs.getStringPref('encodingDefault')
     }
 
-    _setSelectedEncoding(dialog.newencodingList,encoding);
+    _setSelectedEncoding(dialog.newencodingList, encoding);
 
     if (encoding == 'Default Encoding') {
         dialog.bomBox.setAttribute('checked', false);

@@ -1749,7 +1749,7 @@ class koProject(koLiveFolderPart):
         elif self.prefset and self.prefset.hasPrefHere("import_dirname"):
             projPath = self.prefset.getStringPref("import_dirname")
             projURI = uriparse.localPathToURI(projPath)
-            if url.startswith(self._addTrailingSlash(os.path.dirname(projURI))):
+            if url.startswith(self._addTrailingSlash(projURI)):
                 return self
         return None
 

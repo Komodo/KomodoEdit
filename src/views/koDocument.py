@@ -228,6 +228,34 @@ class koDocumentBase:
     #        encoding_name = None
     #    self._setupPrefs(encoding_name)
         
+    def _getEncodingNameForNewFile(self, language):
+        if not language:
+            registryService = components.classes['@activestate.com/koLanguageRegistryService;1'].\
+                                getService(components.interfaces.koILanguageRegistryService)
+            language = registryService.suggestLanguageForFile(self.get_displayPath())
+            if not language:
+                language = 'Text'
+        languagePrefName = 'languages/' + language
+        langEncodingName = language + '/newEncoding'
+        effectivePrefs = self.getEffectivePrefs()
+        if effectivePrefs.hasPrefHere('languages'):
+            languagesPrefs = effectivePrefs.getPref('languages')
+            if languagesPrefs.hasPrefHere(languagePrefName):
+                prefs = languagesPrefs.getPref(languagePrefName)
+                if prefs.hasPrefHere(langEncodingName):
+                    encoding = prefs.getStringPref(langEncodingName)
+                    if encoding != 'Default Encoding':
+                        return encoding
+        prefs = self._globalPrefs
+        languagesPrefs = prefs.getPref('languages')
+        if languagesPrefs.hasPref(languagePrefName):
+            langPref = languagesPrefs.getPref(languagePrefName)
+            if langPref.hasStringPref(langEncodingName):
+                encoding = langPref.getStringPref(langEncodingName)
+                if encoding != 'Default Encoding':
+                    return encoding
+        return prefs.getStringPref('encodingDefault')
+    
     def _setupPrefs(self, encoding_name=None):
         """ We can only setup the prefs on the document once we have a URI for it
         So after __init__, self.prefs is None, until we get an "initWith....()" call.
@@ -253,7 +281,13 @@ class koDocumentBase:
         self.encoding = components.classes['@activestate.com/koEncoding;1'].\
                                  createInstance(components.interfaces.koIEncoding)
         if not encoding_name:
-            encoding_name = self._getStringPref('encodingDefault')
+            if self._language:
+                language = self._language
+            elif self.prefs.hasPref('language'):
+                language = self.prefs.getStringPref('language')
+            else:
+                language = None
+            encoding_name = self._getEncodingNameForNewFile(language)
         self.encoding.python_encoding_name = self.encodingServices.get_canonical_python_encoding_name(
             self.encodingServices.get_encoding_info(encoding_name).python_encoding_name)
 
@@ -273,9 +307,9 @@ class koDocumentBase:
     def getEffectivePrefs(self):
         # this returns either a prefset from a project, or my own prefset
         if self.file and self.file.URI:
-            _partSvc = components.classes["@activestate.com/koPartService;1"]\
+            partSvc = components.classes["@activestate.com/koPartService;1"]\
                 .getService(components.interfaces.koIPartService)
-            prefset = _partSvc.getEffectivePrefsForURL(self.file.URI)
+            prefset = partSvc.getEffectivePrefsForURL(self.file.URI)
             if prefset:
                 return prefset
         return self.prefs
@@ -803,22 +837,14 @@ class koDocumentBase:
         try:
             registryService = components.classes['@activestate.com/koLanguageRegistryService;1'].\
                                 getService(components.interfaces.koILanguageRegistryService)
-            prefs = self._globalPrefs
-            languagesPrefs = prefs.getPref('languages')
             language = registryService.suggestLanguageForFile(baseName)
             if not language:
                 language = 'Text'
-            encoding = 'Default Encoding'
-            if languagesPrefs.hasPref('languages/'+language):
-                langPref = languagesPrefs.getPref('languages/'+language)
-                if langPref.hasStringPref(language+'/newEncoding'):
-                    encoding = langPref.getStringPref(language+'/newEncoding')
-            if encoding == 'Default Encoding':
-                encoding = prefs.getStringPref('encodingDefault')
+            encoding_name = self._getEncodingNameForNewFile(language=language)
         except Exception, e:
             log.error("Error getting newEncoding for %s", language, exc_info=1)
-            encoding = prefs.getStringPref('encodingDefault')
-        return encoding
+            encoding_name = prefs.getStringPref('encodingDefault')
+        return encoding_name
 
     def _detectEncoding(self, buffer):
         if not isinstance(buffer,str):
@@ -1805,11 +1831,13 @@ class koDocumentBase:
     #---- internal general support methods
     
     def _getStringPref(self, name, default=None):
-        if self.prefs.hasPref(name):
+        effectivePrefs = self.getEffectivePrefs()
+        if effectivePrefs.hasPref(name):
             return self.prefs.getStringPref(name)
         return default
 
     def _getBooleanPref(self, name, default=0):
-        if self.prefs.hasPref(name):
-            return self.prefs.getBooleanPref(name)
+        effectivePrefs = self.getEffectivePrefs()
+        if effectivePrefs.hasPref(name):
+            return effectivePrefs.getBooleanPref(name)
         return default

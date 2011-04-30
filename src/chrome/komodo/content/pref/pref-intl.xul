@@ -67,7 +67,8 @@
         <groupbox orient="vertical">
             <caption label="&defaultEditorEncoding.label;"/>
             <vbox flex="1">
-                <hbox flex="1">
+                <hbox flex="1"
+                  class="load-context-check" hideUnlessLoadContext="global">
                     <checkbox id="encodingEnvironment"
                               baselabel="&useEncodeEnvironment.label;"
                               pref="true" oncommand="updateDefaultEncodingSection();"
@@ -80,7 +81,8 @@
                                style="color: #CC3333;"/>
                     </hbox>
                 </hbox>
-                <hbox flex="1" style="padding-left: 20px;">
+                <hbox flex="1" style="padding-left: 20px;"
+                  class="load-context-check" hideUnlessLoadContext="global">
                     <hbox align="center" pack="end">
                         <text class="kopadded" value="&customEncoding.label;"/>
                     </hbox>
