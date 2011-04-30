@@ -110,7 +110,7 @@ this.charIndexFromPosition = function stringutils_charIndexFromPosition(s,p)
  * 
  * This is useful, for example, for modifying the "cwd: <value>" sub-attribute
  * of the "autocompletesearchparam" attribute on an autocomplete textbox.
- *      textbox.searchParam = stringutils_updateSubAttr(
+ *      textbox.searchParam = ko.stringutils.updateSubAttr(
  *          textbox.searchParam, "cwd", ko.window.getCwd());
  *  
  */

@@ -204,7 +204,7 @@ this.findFilesOnFocus = function Findtoolbar_FindFilesOnFocus(field, event) {
         field.setSelectionRange(0, field.value.length);
         if (event.target.nodeName == 'html:input') { 
           var textbox = field.parentNode.parentNode.parentNode;
-          textbox.searchParam = stringutils_updateSubAttr(
+          textbox.searchParam = ko.stringutils.updateSubAttr(
               textbox.searchParam, 'cwd', ko.window.getCwd());
         }
     } catch (e) {

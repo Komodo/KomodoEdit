@@ -103,19 +103,19 @@
                      completeselectedindex="true"
                      onblur="document.getElementById('findButton').setAttribute('class', 'find');"
                      onfocus="ko.findtoolbar.findFilesOnFocus(this, event);"
-                     onmousedown="this.searchParam = stringutils_updateSubAttr(
+                     onmousedown="this.searchParam = ko.stringutils.updateSubAttr(
                                     this.searchParam, 'cwd', ko.window.getCwd());"
                      ontextentered="this.focus();
                                     this.setSelectionRange(0, this.textLength);"
                      onkeypress="ko.findtoolbar.findFilesKeyPress(this, event);"/>
                                       if (0 && event.target.nodeName == 'html:input') { 
                                         var textbox = this.parentNode.parentNode.parentNode;
-                                        textbox.searchParam = stringutils_updateSubAttr(
+                                        textbox.searchParam = ko.stringutils.updateSubAttr(
                                             textbox.searchParam, 'cwd', ko.window.getCwd());
                                       }"
                                       if (0 && event.target.nodeName == 'html:input') { 
                                         var textbox = this.parentNode.parentNode.parentNode;
-                                        textbox.searchParam = stringutils_updateSubAttr(
+                                        textbox.searchParam = ko.stringutils.updateSubAttr(
                                             textbox.searchParam, 'cwd', ko.window.getCwd());
                                       }"
 -->

@@ -2223,7 +2223,7 @@
                      enablehistory="true"
                      completeselectedindex="true"
                      tabscrolling="true"
-                     onmousedown="this.searchParam = stringutils_updateSubAttr(
+                     onmousedown="this.searchParam = ko.stringutils.updateSubAttr(
                                     this.searchParam, 'cwd', ko.window.getCwd());"
                      ontextentered="this.focus();
                                     this.setSelectionRange(0, this.textLength);"

@@ -63,9 +63,9 @@ function OnLoad()
             ! opener.ko.views.manager.currentView.koDoc.isUntitled) {
             first.value = opener.ko.views.manager.currentView.koDoc.displayPath;
             gCWD = opener.ko.window.getCwd();
-            first.searchParam = stringutils_updateSubAttr(
+            first.searchParam = ko.stringutils.updateSubAttr(
                 first.searchParam, "cwd", gCWD);
-            second.searchParam = stringutils_updateSubAttr(
+            second.searchParam = ko.stringutils.updateSubAttr(
                 second.searchParam, "cwd", gCWD);
             second.focus();
         } else {
