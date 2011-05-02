@@ -206,7 +206,7 @@ languageSetup.Django = django_setup;
 function htmlSetup(languageName) {
     if (!('HTML' in dialog)) {
         dialog.HTML = {};
-        ["lintStandardHTMLTidy",
+        ["lintHTMLTidy",
          "lintHTML_CheckWith_Perl_HTML_Tidy",
          "lintHTML_CheckWith_Perl_HTML_Lint",
          "lintHTMLTidy_Details_vbox",

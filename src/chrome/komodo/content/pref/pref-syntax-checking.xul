@@ -156,7 +156,7 @@
             <vbox id="langSyntaxCheck-HTML">
               <groupbox orient="vertical">
                   <caption label="&HTMLTidy.label;"/>
-                  <checkbox id="lintStandardHTMLTidy"
+                  <checkbox id="lintHTMLTidy"
                             label="&CheckWithHTMLTidy.label;"
                             oncommand="languageInfo.HTML.updateHTMLTidySyntaxChecking(this);"
                             pref="true" />
