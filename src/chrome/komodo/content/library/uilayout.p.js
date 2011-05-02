@@ -279,11 +279,11 @@ this.toggleTab = function uilayout_toggleTab(tabId, collapseIfFocused /* =true *
         if (splitterWidget.hasAttribute('collapsed') &&
             splitterWidget.getAttribute('collapsed') == 'true') {
             ko.uilayout.toggleSplitter(cmdId);
-            tabs.selectedItem = tab;
-            if (focusHandlingWidget)
-                focusHandlingWidget.focus();
-            else
-                tabs.parentNode.selectedTab.focus();
+            // Default: select and focus tab
+        } else if ((!splitterWidget.hasAttribute('collapsed')
+                    || splitterWidget.getAttribute('collapsed') == 'false')
+                   && tab !== tabs.selectedItem) {
+            // Default: select and focus new tab
         } else {
             if (collapseIfAlreadySelected && 
                 (tabs.parentNode.selectedTab == tab)) {
@@ -299,13 +299,14 @@ this.toggleTab = function uilayout_toggleTab(tabId, collapseIfFocused /* =true *
                     }
                 }
                 ko.uilayout.toggleSplitter(cmdId);
-            } else {
-                tabs.parentNode.selectedTab = tab;
-                if (focusHandlingWidget)
-                    focusHandlingWidget.focus();
-                else
-                    tabs.parentNode.selectedTab.focus();
+                return;
             }
+        }
+        tabs.parentNode.selectedTab = tab;
+        if (focusHandlingWidget) {
+            focusHandlingWidget.focus();
+        } else {
+            tabs.parentNode.selectedTab.focus();
         }
     } catch (e) {
         _log.exception(e);
