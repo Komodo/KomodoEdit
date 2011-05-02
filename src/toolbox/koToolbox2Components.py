@@ -216,15 +216,15 @@ class KoToolbox2Service(object):
         #log.debug("Time to load std-toolbox: %g msec", (t2 - t1) * 1000.0)
         self.registerStandardToolbox(toolbox_id)
         
-        # TODO: Don't rely on pyXPCOMExtensionHelper (as it may be removed in future versions)
-        extensionDirs = UnwrapObject(components.classes["@python.org/pyXPCOMExtensionHelper;1"].getService(components.interfaces.pyIXPCOMExtensionHelper)).getExtensionDirectories()
-        for fileEx in extensionDirs:
+        import directoryServiceUtils
+        extensionDirs = directoryServiceUtils.getExtensionDirectories()
+        for extensionDir in extensionDirs:
             # Does this happen for disabled extensions?
-            toolDir = join(fileEx.path, koToolbox2.DEFAULT_TARGET_DIRECTORY)
+            toolDir = join(extensionDir, koToolbox2.DEFAULT_TARGET_DIRECTORY)
             if os.path.exists(toolDir):
-                self.activateExtensionToolbox(fileEx.path)
+                self.activateExtensionToolbox(extensionDir)
             #else:
-            #    log.debug("No tools in %s", fileEx.path)
+            #    log.debug("No tools in %s", extensionDir)
         self.toolboxLoader.deleteUnloadedTopLevelItems()
     
     def registerStandardToolbox(self, id):
