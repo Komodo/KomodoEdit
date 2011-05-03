@@ -87,17 +87,12 @@ void SciMoz::Resize() {
 }
 
 NS_IMETHODIMP SciMoz::_DoButtonUpDown(PRBool up, PRInt32 x, PRInt32 y, PRUint16 button, PRBool bShift, PRBool bCtrl, PRBool bAlt) {
-	HIViewRef view;
 	HIPoint location;
 	UInt32 keyFlags = 0;
 	EventMouseButton mb;
 	
 	location.x = x;
 	location.y = y;
-	
-	// ignore scrollbar hits
-	HIViewGetSubviewHit(wEditor, &location, true, &view);
-	if (view) return NS_OK;
 	
 	switch (button) {
 		case 0:
