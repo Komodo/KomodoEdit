@@ -64,7 +64,7 @@
   
   <!-- XXX move this popup to the lower popupset -->
   <popupset>
-    <popup id="placesSubpanelProjectsToolsPopup"
+    <menupopup id="placesSubpanelProjectsToolsPopup"
         onpopupshowing="ko.projects.manager.updateProjectMenu(event, this);"/>
     <menupopup id="projectPlacesCog_SortMenu">
         <menuitem id="projectPlacesSortAscending"
