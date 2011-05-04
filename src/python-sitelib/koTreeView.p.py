@@ -95,7 +95,7 @@ class TreeView(object):
         if self.log:
             self.log.debug("canDrop()")
         return False
-    def drop(self, row, orientation):
+    def drop(self, row, orientation, dataTransfer):
         if self.log:
             self.log.debug("drop()")
         pass
