@@ -18,6 +18,20 @@ diff -r 9b8188993c1a content/xul/content/src/nsXULElement.cpp
 diff -r 9b8188993c1a widget/src/cocoa/nsChildView.mm
 --- a/widget/src/cocoa/nsChildView.mm	Mon Apr 18 20:00:01 2011 -0400
 +++ b/widget/src/cocoa/nsChildView.mm	Fri Apr 29 14:26:26 2011 -0700
+@@ -2673,6 +2673,13 @@
+ // this to be a 'focused' widget for event dispatch.
+ - (BOOL)acceptsFirstResponder
+ {
++  // ACTIVESTATE: Don't allow the plugin to become the first reponder, we need
++  //              "xul:scintilla" to be the first responder in order to get
++  //              proper key and mouse handling - see bug 89902.
++  if (mIsPluginView) {
++    return NO;
++  }
++  // ACTIVESTATE: end
+   return YES;
+ }
+ 
 @@ -5561,7 +5577,8 @@
  {
    NS_OBJC_BEGIN_TRY_ABORT_BLOCK;
