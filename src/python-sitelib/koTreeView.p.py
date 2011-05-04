@@ -91,7 +91,7 @@ class TreeView(object):
         if self.log:
             self.log.debug("isSorted()")
         return False
-    def canDrop(self, index, orientation):
+    def canDrop(self, index, orientation, dataTransfer):
         if self.log:
             self.log.debug("canDrop()")
         return False
