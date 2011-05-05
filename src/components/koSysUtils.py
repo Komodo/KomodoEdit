@@ -428,7 +428,7 @@ if sys.platform.startswith("win"):
         _reg_contractid_ = "@activestate.com/koSystemColorPicker;1"
         _reg_desc_ = _bundle.GetStringFromName("windowsColorPicker.desc")
         _reg_categories_ = [
-             ("colorpicker", _reg_desc_),
+             ("colorpicker", "windows_system_color_picker"),
         ]
 
         def __init__(self):
@@ -468,7 +468,7 @@ elif sys.platform.startswith("darwin"):
         _reg_contractid_ = "@activestate.com/koSystemColorPicker;1"
         _reg_desc_ = _bundle.GetStringFromName("macosxColorPicker.desc")
         _reg_categories_ = [
-             ("colorpicker", _reg_desc_),
+             ("colorpicker", "macosx_system_color_picker"),
         ]
 
         def pickColor(self, startingcolor):

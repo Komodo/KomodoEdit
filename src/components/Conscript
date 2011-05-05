@@ -128,7 +128,18 @@ $cons->Install($idlExportDir, 'koIWebbrowser.idl');
 $cons->BuildAndInstallXpt('koIWebbrowser.idl');
 
 # koISysUtils
-$cons->InstallXpcomComponent('koSysUtils.py');
+
+if ($platform eq "win") {
+    $cons->InstallXpcomComponent('koSysUtils.py',
+                                 {'@activestate.com/koSystemColorPicker;1' => "{a482cb10-823b-4142-9f39-65991a94f0fa}"},
+                                 ["colorpicker", "windows_system_color_picker", '@activestate.com/koSystemColorPicker;1']);
+} elsif ($platform eq "darwin") {
+    $cons->InstallXpcomComponent('koSysUtils.py',
+                                 {'@activestate.com/koSystemColorPicker;1' => "{434c3a68-5485-4b27-a852-e220358333f3}"},
+                                 ["colorpicker", "macosx_system_color_picker", '@activestate.com/koSystemColorPicker;1']);
+} else {
+    $cons->InstallXpcomComponent('koSysUtils.py');
+}
 $cons->Install($idlExportDir, 'koISysUtils.idl');
 $cons->BuildAndInstallXpt('koISysUtils.idl');
 
