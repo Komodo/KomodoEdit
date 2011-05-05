@@ -781,7 +781,8 @@ class CSSLangIntel(LangIntel, ParenStyleCalltipIntelMixin):
             elif trg.id == ("CSS", TRG_FORM_CPLN, "property-names"):
                 cplns = self.CSS_PROPERTY_NAMES
                 if cplns:
-                    ctlr.set_cplns( [ ("property", v) for v in cplns ] )
+                    # Note: we add the colon as well - see bug 89913.
+                    ctlr.set_cplns( [ ("property", v + ": ") for v in cplns ] )
                     #print "  _async_eval_at_trg:: cplns:", cplns
                 ctlr.done("success")
             elif trg.id == ("CSS", TRG_FORM_CALLTIP, "property-values"):
