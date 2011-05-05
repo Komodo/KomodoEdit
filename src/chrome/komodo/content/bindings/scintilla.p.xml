@@ -1193,11 +1193,7 @@
                 var endUndoAction = true;
                 scimoz.beginUndoAction();
                 try {
-<!-- #if PLATFORM == "darwin" -->
-                    if (scimoz.inDragSession)
-<!-- #else -->
                     if (this.inDragDrop) 
-<!-- #endif -->
                     {
                         // data from inside scimoz
                         if (onselection) {
