@@ -165,7 +165,7 @@ static void ColouriseCppDoc(unsigned int startPos, int length, int initStyle, Wo
 				|| lineStartState == SCE_C_CHARACTER)) {
 				// Prevent SCE_C_STRINGEOL from leaking back to previous line which
 				// ends with a line continuation by locking in the state upto this position.
-				sc.SetState(SCE_C_STRING);
+				sc.SetState(lineStartState);
 			} else if (IsIOStyle(sc.state)) {
 				sc.SetState(SCE_C_DEFAULT);
 			}
