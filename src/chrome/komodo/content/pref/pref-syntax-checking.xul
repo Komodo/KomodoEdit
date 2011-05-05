@@ -89,67 +89,69 @@
                               label="&lintJavaScriptWithJSLint.label;"
                               pref="true"
                               oncommand="languageInfo.JavaScript.doWarningEnabling(this);" />
-                    <hbox id="jslintOptionsBox" flex="1">
-                      <vbox id="jslintOptionsBox-vbox">
-                        <label id="&lintJSLintOptions.label;" control="jslintOptions"
-                               value="JSLint Options:" />
-                        <button id="jslintGoodPartsButton"
-                                label="&lintJSLint_ActivateGoodPartsOptions.label;"
-                                oncommand="languageInfo.JavaScript.addGoodParts();" />
-                        <button id="jslintBrutalMode"
-                                label="&lintJSLint_ActivateAllOptions.label;"
-                                oncommand="languageInfo.JavaScript.addAllOptions();" />
-                      </vbox>
-                      <textbox id="jslintOptions" multiline="true" rows="5" value=""
-                               flex="1"
-                               pref="true" />
-                    </hbox>
-                        <separator class="thin"/>
-                    <description id="jslintOptionsExplanation">
-                          &lintJSLint_Explanation.descr;
-                    </description>
-                        <separator class="thin"/>
-                        <hbox>
-                        <label value="&lintJSLint_WebSiteLabel.label;"/>
-                        <button label="&lt;http://www.jslint.com/lint.html#options&gt;"
-                            class="button-link"
-                            style="margin: -10px; color: #b82619;"
-                            onclick="parent.opener.ko.browse.openUrlInDefaultBrowser('http://www.jslint.com/lint.html#options');"/>
-                            </hbox>
-                        <separator/>
+                    <vbox id="jslintPrefsVbox">
+                       <hbox id="jslintOptionsBox" flex="1">
+                         <vbox id="jslintOptionsBox-vbox">
+                           <label id="&lintJSLintOptions.label;" control="jslintOptions"
+                                  value="JSLint Options:" />
+                           <button id="jslintGoodPartsButton"
+                                   label="&lintJSLint_ActivateGoodPartsOptions.label;"
+                                   oncommand="languageInfo.JavaScript.addGoodParts();" />
+                           <button id="jslintBrutalMode"
+                                   label="&lintJSLint_ActivateAllOptions.label;"
+                                   oncommand="languageInfo.JavaScript.addAllOptions();" />
+                         </vbox>
+                         <textbox id="jslintOptions" multiline="true" rows="5" value=""
+                                  flex="1"
+                                  pref="true" />
+                       </hbox>
+                       <separator class="thin"/>
+                       <description id="jslintOptionsExplanation">
+                             &lintJSLint_Explanation.descr;
+                       </description>
+                       <separator class="thin"/>
+                       <hbox>
+                            <label value="&lintJSLint_WebSiteLabel.label;"/>
+                            <button label="&lt;http://www.jslint.com/lint.html#options&gt;"
+                                class="button-link"
+                                style="margin: -10px; color: #b82619;"
+                                onclick="parent.opener.ko.browse.openUrlInDefaultBrowser('http://www.jslint.com/lint.html#options');"/>
+                       </hbox>
+                    </vbox>
                 </groupbox>
         
-                <groupbox orient="vertical" >
+                <groupbox orient="vertical" id="jshintGroupbox">
                     <caption label="&JSHint.label;"/>
                     <checkbox id="lintWithJSHint"
                               label="&lintJavaScriptWithJSHint.label;"
                               pref="true"
                               oncommand="languageInfo.JavaScript.doWarningEnabling(this);" />
-                    <hbox id="jshintOptionsBox" flex="1">
-                       <vbox id="jshintOptionsBox-vbox">
-                       <label id="&lintJSHintOptions.label;" control="jshintOptions"
-                              value="JSHint Options:" />
-                    <button id="jshintBrutalMode"
-                            label="&lintJSHint_ActivateAllOptions.label;"
-                            oncommand="languageInfo.JavaScript.addAllJSHintOptions();" />
-                       </vbox>
-                       <textbox id="jshintOptions" multiline="true" rows="5" value=""
-                                flex="1"
-                                pref="true" />
-                    </hbox>
-                        <separator class="thin"/>
-                    <description id="jshintOptionsExplanation">
-                          &lintJSHint_Explanation.descr;
-                    </description>
-                        <separator class="thin"/>
-                        <hbox>
+                    <vbox id="jshintPrefsVbox">
+                      <hbox id="jshintOptionsBox" flex="1">
+                         <vbox id="jshintOptionsBox-vbox">
+                           <label id="&lintJSHintOptions.label;" control="jshintOptions"
+                                  value="JSHint Options:" />
+                           <button id="jshintBrutalMode"
+                                   label="&lintJSHint_ActivateAllOptions.label;"
+                                   oncommand="languageInfo.JavaScript.addAllJSHintOptions();" />
+                         </vbox>
+                         <textbox id="jshintOptions" multiline="true" rows="5" value=""
+                                  flex="1"
+                                  pref="true" />
+                      </hbox>
+                      <separator class="thin"/>
+                      <description id="jshintOptionsExplanation">
+                            &lintJSHint_Explanation.descr;
+                      </description>
+                      <separator class="thin"/>
+                      <hbox>
                         <label value="&lintJSHint_WebSiteLabel.label;"/>
                         <button label="&lt;http://jshint.com/&gt;"
                             class="button-link"
                             style="margin: -10px; color: #b82619;"
                             onclick="parent.opener.ko.browse.openUrlInDefaultBrowser('http://www.jshint.com/');"/>
-                            </hbox>
-                        <separator/>
+                      </hbox>
+                    </vbox>
                 </groupbox>
             </vbox>
             

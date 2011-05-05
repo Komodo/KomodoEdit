@@ -536,6 +536,10 @@
       <string id="JavaScript/newEncoding">Default Encoding</string>
       <boolean id="JavaScript/newBOM">0</boolean>
     </preference-set>
+    <preference-set id="languages/Node.js">
+      <string id="Node.js/newEncoding">ascii</string>
+      <boolean id="Node.js/newBOM">0</boolean>
+    </preference-set>
     <preference-set id="languages/LaTeX">
       <string id="LaTeX/newEncoding">Default Encoding</string>
       <boolean id="LaTeX/newBOM">0</boolean>

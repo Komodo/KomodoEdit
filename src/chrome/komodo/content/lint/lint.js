@@ -101,12 +101,14 @@ const PYTHON3_LIST = ["Python3"];
 const PHP_LIST = ["PHP"];
 const RUBY_LIST = ["Ruby"];
 const JS_LIST = ["JavaScript"];
+const NODEJS_LIST = ["Node.js"];
 const HTML_LIST = ["HTML", "XML", "HTML5"];
 
 var global_pref_observer_topics = {
     "editUseLinting" : null,
     "lintEOLs" : null,
     "endOfLine" : null,
+    "nodejsDefaultInterpreter" : NODEJS_LIST,
     "perlDefaultInterpreter" : PERL_LIST,
     "perl_lintOption" : PERL_LIST,
     "perl_lintOption_perlCriticLevel" : PERL_LIST,

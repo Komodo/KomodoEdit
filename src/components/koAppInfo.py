@@ -1140,6 +1140,140 @@ class KoPHPInfoEx(KoPHPInfoInstance):
             return cgi_exe
         return self._info.get('cgi-executable')
 
+class KoNodeJSInfoEx(KoAppInfoEx):
+    _com_interfaces_ = [components.interfaces.koIAppInfoEx,
+                        components.interfaces.nsIObserver]
+    _reg_clsid_ = "{d5f5f120-2322-4cdf-8fbf-cd4a5861cc5a}"
+    _reg_contractid_ = "@activestate.com/koAppInfoEx?app=NodeJS;1"
+    _reg_desc_ = "Extended NodeJS Information"
+
+    def __init__(self):
+        KoAppInfoEx.__init__(self)
+        self._userPath = koprocessutils.getUserEnv()["PATH"].split(os.pathsep)
+        self._executables = []
+        self._digits_re = re.compile(r'(\d+)')
+        try:
+            self._prefSvc.prefs.prefObserverService.addObserver(self, "nodejsDefaultInterpreter", 0)
+        except Exception, e:
+            print e
+
+    def observe(self, subject, topic, data):
+        if topic == "nodejsDefaultInterpreter":
+            self.installationPath = None
+        
+    def _GetNodeJSExeName(self):
+        if not self.installationPath:
+            nodejsExe = self.prefService.prefs.getStringPref("nodejsDefaultInterpreter")
+            if nodejsExe and os.path.exists(nodejsExe):
+                return nodejsExe
+            paths = self.FindInstallationPaths()
+            if paths:
+                path = paths[0]
+            else:
+                return None
+        else:
+            path = self.installationPath
+            paths = None
+        if sys.platform.startswith("win"):
+            res = os.path.join(path, "bin", "node.exe")
+        else:
+            res = os.path.join(path, "bin", "node")
+        if paths is not None:
+            self.set_executablePath(res)
+        return res
+
+    def getInstallationPathFromBinary(self, binaryPath):
+        return os.path.dirname(os.path.dirname(binaryPath))
+
+    def get_executablePath(self):
+        nodejsExePath = self._GetNodeJSExeName()
+        if not nodejsExePath:
+            # which("non-existent-app) can return empty string, map it to None
+            return None
+        if not os.path.exists(nodejsExePath):
+            log.info("KoNodeJSInfoEx:get_executablePath: file %r doesn't exist",
+                     nodejsExePath)
+            return None
+        return nodejsExePath
+    
+    def getExecutableFromDocument(self, koDoc):
+        return self.get_executable_from_doc_pref(koDoc,
+                                                 'nodejsDefaultInterpreter')
+
+    def set_executablePath(self, path):
+        self.installationPath = os.path.dirname(os.path.dirname(path))
+        
+    def getVersionForBinary(self, nodejsExe):
+        if not os.path.exists(nodejsExe):
+            raise ServerException(nsError.NS_ERROR_FILE_NOT_FOUND)
+        argv = [nodejsExe, "-v"]
+        p = process.ProcessOpen(argv, stdin=None)
+        nodejsVersionDump, stderr = p.communicate()
+        pattern = re.compile("v([\w\.]+) ")
+        match = pattern.match(nodejsVersionDump)
+        if match:
+            return match.group(1)
+        else:
+            msg = "Can't find a version in `%s -v` output of '%s'/'%s'" % (nodejsExe, nodejsVersionDump, stderr)
+            raise ServerException(nsError.NS_ERROR_UNEXPECTED, msg)
+    
+    def get_version(self):
+        nodejsExe = self._GetNodeJSExeName()
+        return self.getVersionForBinary(nodejsExe)
+        
+    def get_valid_version(self):
+        nodejsExe = self._GetNodeJSExeName()
+        if not nodejsExe:
+            return False
+        try:
+            ver = self.getVersionForBinary(nodejsExe)
+            versionParts = invocationutils.split_short_ver(ver, intify=True)
+            return tuple(versionParts) >= (0, 2, 0) # minimum version, assume 0.1 was experimental
+        except AttributeError:
+            return False
+        except ServerException, ex:
+            if ex.errno != nsError.NS_ERROR_FILE_NOT_FOUND:
+                raise
+            return False
+
+    def get_buildNumber(self):
+        raise ServerException(nsError.NS_ERROR_NOT_IMPLEMENTED)
+ 
+    def get_localHelpFile(self):
+        return None
+
+    def get_webHelpURL(self):
+        """Return a web URL for help on this app, else return None."""
+        return "http://www.nodejs.org/docs/" + "v" + self.get_version()
+        # On newer systems the docs are at nodejs.org/docs/<version>/api,
+        # but this varies for older versions, and could change in the future.
+
+    def FindInstallationPaths(self):
+        if sys.platform.startswith('win'):
+            exts = ['.exe']
+        else:
+            exts = None
+        self._executables = []
+        installationPaths = None
+        self._executables = which.whichall('node', exts=exts, path=self._userPath)
+        if not self._executables:
+            current_nodejs_path = self.prefService.prefs.getStringPref("nodejsDefaultInterpreter")
+            if current_nodejs_path:
+                self._executables = [current_nodejs_path]
+        if self._executables:
+            installationPaths = [self.getInstallationPathFromBinary(p)\
+                                   for p in self._executables]
+        return installationPaths
+
+    def FindInstallationExecutables(self):
+        if not self._executables:
+            self.FindInstallationPaths()
+        return self._executables
+
+    def set_installationPath(self, path):
+        self.installationPath = path
+        self.executablePath = ''
+
 class KoCVSInfoEx(KoAppInfoEx):
     _com_interfaces_ = [components.interfaces.koIAppInfoEx,
                         components.interfaces.nsIObserver]

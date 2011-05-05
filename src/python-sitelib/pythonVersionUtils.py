@@ -277,7 +277,186 @@ def getScores(buffer):
     log.debug("Python2: %d, Python3: %d", scores[0], scores[1])
     return scores
 
+class JavaScriptDistinguisher(object):
+    # lexing states:
+    ST_DEFAULT = 0
+    ST_IN_STRING = 1
+    ST_IN_COMMENT = 2
+    ST_IN_NAME = 3
+    ST_IN_NUMBER = 4
+    ST_IN_OPERATOR = 5
+    ST_IN_COMMENTBLOCK = 6
+    _node_hash_bang_re = re.compile(r'#!/.+node\b')
+    # Things that indicate JS:
+    # document....(...)
+    # alert....(...)
     
+    # Things that indicate node.js:
+    # hashbang: #!/usr/bin/env node
+    # hashbang: #!/...node\b
+    # require(...)
+    # module.exports
+    # <name>.on(string, )
+    
+    # If a transition goes to state -1, accept it.  True => JS, False => Node
+    _stateMachine = {
+        0: [
+            (ST_IN_NAME, 'document', 101),
+            (ST_IN_NAME, 'alert', 201),
+            (ST_IN_NAME, 'require', 301),
+            (ST_IN_NAME, 'module', 401),
+            (ST_IN_NAME, None, 501),
+        ],
+        101: [(ST_IN_OPERATOR, ".", 102),],
+        102: [(ST_IN_NAME, None, -1, True),],
+            
+        201: [(ST_IN_OPERATOR, "(", 202),],
+        202: [(ST_IN_NAME, None, -1),
+              (ST_IN_STRING, None, -1, True),
+            ],
+        301: [(ST_IN_OPERATOR, "(", 302),],
+        302: [(ST_IN_STRING, None, -1, False),],
+            
+        401: [(ST_IN_OPERATOR, ".", 402),],
+        402: [(ST_IN_NAME, 'exports', -1, False),],
+            
+        501: [(ST_IN_OPERATOR, ".", 502),],
+        502: [(ST_IN_NAME, 'on', 503),],
+        503: [(ST_IN_OPERATOR, "(", 504),],
+        504: [(ST_IN_STRING, None, 505),],
+        505: [(ST_IN_OPERATOR, ",", -1, False),],
+    }
+    _type_str = type("")
+    _type_re = type(re.compile(""))
+    
+    def _transitionState(self, tokState, tokString):
+        try:
+            matches = self._stateMachine[self.parseState]
+        except KeyError:
+            log.exception("Bad parseState of %d", self.parseState)
+            self.parseState = 0
+            return
+        initState = self.parseState
+        for matcher in matches:
+            matchState = matcher[0]
+            if matchState == tokState:
+                matchArg = matcher[1]
+                if (matchArg is None
+                    or (type(matchArg) == self._type_str and matchArg == tokString)
+                    or (type(matchArg) == self._type_re and matchArg.match(tokString))):
+                    newState = matcher[2]
+                    if newState == -1:
+                        # Found a match, update scores, state, return
+                        self.parseState = 0
+                        score = matcher[3]
+                        if score:
+                            self.scores[0] += 1
+                        else:
+                            self.scores[1] += 1
+                    else:
+                        self.parseState = newState
+                    return
+        if initState != 0:
+            # We rejected this token, but check to see if it can start a new sequence.
+            self.parseState = 0
+            self._transitionState(tokState, tokString)
+    
+    def isNodeJS(self, buffer):
+        if len(buffer) < 4:
+            return False
+        if self._node_hash_bang_re.match(buffer):
+            return True
+        lineNo = 1
+        lim = len(buffer)
+        lim3 = lim - 3
+        state = self.ST_DEFAULT
+        currToken = None
+        i = 0
+        self.scores = [0, 0]
+        lineTokens = []
+        self.parseState = 0
+        c_next = buffer[0]
+        c_next2 = buffer[1]
+        while i < lim3:
+            c = c_next
+            c_next = c_next2
+            c_next2 = buffer[i + 2]
+            if c == "\n":
+                lineNo += 1
+                if abs(self.scores[0] - self.scores[1]) > 10:
+                    break
+                if lineNo >= 100:
+                    break
+            if state == self.ST_DEFAULT:
+                if c == '/' and c_next == '/':
+                    state = self.ST_IN_COMMENT
+                    bufStart = i
+                elif c == '/' and c_next == '*':
+                    state = self.ST_IN_COMMENTBLOCK
+                    bufStart = i
+                    i += 1; c_next = c_next2; c_next2 = buffer[i + 3]
+                elif c == '#' and c_next == '!' and lineNo <= 2:
+                    state = self.ST_IN_COMMENT # Fake
+                    bufStart = i
+                elif c in ('\'', '"'):
+                    state = self.ST_IN_STRING
+                    strStart = c
+                    bufStart = i + 1
+                elif c.isalpha() or c == "_":
+                    if not c_next.isalnum():
+                        # Handle one-char names here
+                        self._transitionState(self.ST_IN_NAME, c)
+                    else:
+                        state = self.ST_IN_NAME
+                        bufStart = i
+                elif c.isdigit():
+                    if not c_next.isdigit():
+                        # Handle one-digit numbers here
+                        self._transitionState(self.ST_IN_NUMBER, c)
+                    else:
+                        state = self.ST_IN_NUMBER
+                        bufStart = i
+                elif not c.isspace():
+                    self._transitionState(self.ST_IN_OPERATOR, c)
+                else:
+                    # Don't bother processing regex'es.  If we get out of sync
+                    # with a string, we'll stop at end of line.  If the regex
+                    # includes a '/*', we lose.
+                    pass
+            elif state == self.ST_IN_STRING:
+                if c == '\\' and c_next != '\n':
+                    i += 1; c_next = c_next2; c_next2 = buffer[i + 3]
+                elif c == strStart:
+                    currToken = buffer[bufStart: i]
+                    self._transitionState(self.ST_IN_STRING, currToken)
+                    state = self.ST_DEFAULT
+                elif c_next == "\n":
+                    currToken = buffer[bufStart: i + 1]
+                    self._transitionState(self.ST_IN_STRING, currToken)
+                    state = self.ST_DEFAULT
+            elif state == self.ST_IN_COMMENT:
+                if c_next == "\n":
+                    currToken = buffer[bufStart: i + 1]
+                    self._transitionState(self.ST_IN_COMMENT, currToken)
+                    state = self.ST_DEFAULT
+            elif state == self.ST_IN_COMMENTBLOCK:
+                if c == "*" and c_next == "/":
+                    currToken = buffer[bufStart: i + 2]
+                    self._transitionState(self.ST_IN_COMMENTBLOCK, currToken)
+                    state = self.ST_DEFAULT
+                    i += 1; c_next = c_next2; c_next2 = buffer[i + 3]
+            elif state == self.ST_IN_NAME and not c_next.isalnum():
+                    currToken = buffer[bufStart: i + 1]
+                    self._transitionState(self.ST_IN_NAME, currToken)
+                    state = self.ST_DEFAULT
+            elif state == self.ST_IN_NUMBER and not c_next.isdigit():
+                    currToken = buffer[bufStart: i + 1]
+                    self._transitionState(self.ST_IN_NUMBER, currToken)
+                    state = self.ST_DEFAULT
+            i += 1
+        return self.scores[0] < self.scores[1] # js wins ties
+
+
 if __name__ == '__main__':
     import os
     logging.basicConfig()

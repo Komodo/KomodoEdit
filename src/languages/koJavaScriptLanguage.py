@@ -157,6 +157,32 @@ class koJSONLanguage(koJavaScriptLanguage):
 }
 """
 
+class koNodeJSLanguage(koJavaScriptLanguage):
+    name = "Node.js"
+    _reg_desc_ = "%s Language" % name
+    _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
+                       % (name)
+    _reg_clsid_ = "{21a9b248-4fc3-4264-9bb8-2e9b0bb5f436}"
+    _reg_categories_ = [("komodo-language", name)]
+
+    shebangPatterns = [
+        re.compile(r'\A#!.*node\b$', re.I | re.M),
+    ]
+
+    accessKey = 'n'
+    primary = 1
+    defaultExtension = ".js"
+
+    sample = """
+var fs = require('fs');
+var events = require('events');
+var dns = require('dns');
+
+input.on('data', function(data) {
+     self._normalWrite(data);
+   });
+"""
+
 class koCoffeeScriptLanguage(koJSLikeLanguage):
     name = "CoffeeScript"
     _reg_desc_ = "%s Language" % name

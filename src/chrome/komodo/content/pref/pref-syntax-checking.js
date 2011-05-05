@@ -71,8 +71,15 @@ function OnPreferencePageOK(prefset) {
     return true;       
 }
 
+/* Three parts to having the pref panel for one language working with another language:
+ * 1. Add an entry in the _mappedNames object
+ * 2. Point languageSetup[aliasLanguage] to the <actualLanguage>_setup function.
+ * 3. Update UI in the <actualLanguage>_setup function to reflect prefs for whichever
+ *    language we're showing prefs for.
+ */
 var _mappedNames = {
-  "HTML5": "HTML"
+    "HTML5": "HTML",
+    "Node.js": "JavaScript"
 }
 function getMappedName(languageName) {
     return (languageName in _mappedNames
@@ -260,7 +267,7 @@ languageSetup.HTML5 = htmlSetup;
 
 // JavaScript functions
 
-function javaScript_setup() {
+function javaScript_setup(languageName) {
     var djs;
     if (!('JavaScript' in dialog)) {
         djs = dialog.JavaScript = {};
@@ -268,10 +275,13 @@ function javaScript_setup() {
          "lintJavaScriptEnableWarnings",
          "lintJavaScriptEnableStrict",
          "jshintBrutalMode",
+         "jshintGroupbox",
          "jshintOptions",
          "jslintBrutalMode",
          "jslintGoodPartsButton",
          "jslintOptions",
+         "jshintPrefsVbox",
+         "jslintPrefsVbox",
          "lintWithJSHint",
          "lintWithJSLint"
          ].forEach(function(name) {
@@ -287,6 +297,14 @@ function javaScript_setup() {
     } else {
         pref_setElementEnabledState(djs.lintJavaScriptEnableWarnings, true);
         pref_setElementEnabledState(djs.lintJavaScriptEnableStrict, djs.lintJavaScriptEnableWarnings.checked);
+    }
+    languageInfo.JavaScript.doWarningEnabling(djs.lintWithJSLint);
+    if (languageName === "JavaScript") {
+        djs.jshintGroupbox.removeAttribute("collapsed");
+        languageInfo.JavaScript.doWarningEnabling(djs.lintWithJSHint);
+    } else {
+        //  (languageName === "Node.js") {
+        djs.jshintGroupbox.setAttribute("collapsed", "true");
     }
 }
 
@@ -459,28 +477,32 @@ function javaScriptInfo() {
         
         doWarningEnabling: function(checkbox) {
             var djs = dialog.JavaScript;
+            var isChecked = checkbox.checked;
             switch (checkbox) {
             case djs.lintJavaScript_SpiderMonkey:
-                pref_setElementEnabledState(djs.lintJavaScriptEnableWarnings, checkbox.checked);
-                pref_setElementEnabledState(djs.lintJavaScriptEnableStrict, checkbox.checked && djs.lintJavaScriptEnableWarnings.checked);
+                pref_setElementEnabledState(djs.lintJavaScriptEnableWarnings, isChecked);
+                pref_setElementEnabledState(djs.lintJavaScriptEnableStrict, isChecked && djs.lintJavaScriptEnableWarnings.checked);
                 break;
             case djs.lintJavaScriptEnableWarnings:
-                pref_setElementEnabledState(djs.lintJavaScriptEnableStrict, checkbox.checked);
+                pref_setElementEnabledState(djs.lintJavaScriptEnableStrict, isChecked);
                 break;
             case djs.lintWithJSLint:
-                pref_setElementEnabledState(djs.jslintGoodPartsButton, checkbox.checked);
-                pref_setElementEnabledState(djs.jslintBrutalMode, checkbox.checked);
-                pref_setElementEnabledState(djs.jslintOptions, checkbox.checked);
+                pref_setElementEnabledState(djs.jslintGoodPartsButton, isChecked);
+                pref_setElementEnabledState(djs.jslintBrutalMode, isChecked);
+                pref_setElementEnabledState(djs.jslintOptions, isChecked);
+                djs.jslintPrefsVbox.collapsed = !isChecked;
                 break;
             case djs.lintWithJSHint:
-                pref_setElementEnabledState(djs.jshintBrutalMode, checkbox.checked);
-                pref_setElementEnabledState(djs.jshintOptions, checkbox.checked);
+                pref_setElementEnabledState(djs.jshintBrutalMode, isChecked);
+                pref_setElementEnabledState(djs.jshintOptions, isChecked);
+                djs.jshintPrefsVbox.collapsed = !isChecked;
                 break;
             }
         },
         __EOD__: null
     };
 }
+languageSetup["Node.js"] = javaScript_setup;
 
 function perl_setup() {
     if (!('Perl' in dialog)) {

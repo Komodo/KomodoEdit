@@ -194,6 +194,10 @@ class JavaScriptLangInfo(_JSLikeLangInfo):
     name = "JavaScript"
     exts = ['.js', '.jsm']
 
+class NodeJSLangInfo(_JSLikeLangInfo):
+    name = "Node.js"
+    exts = ['.js']
+
 class CoffeeScriptLangInfo(_JSLikeLangInfo):
     name = "CoffeeScript"
     exts = ['.coffee']

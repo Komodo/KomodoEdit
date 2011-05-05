@@ -380,6 +380,8 @@ class koDocumentBase:
         buffer = self.get_buffer()
         if fileNameLanguage == "Python":
             contentLanguages = self._distinguishPythonVersion(buffer)
+        elif fileNameLanguage == "JavaScript":
+            contentLanguages = self._distinguishJavaScriptOrNode(buffer)
         elif buffer:
             contentLanguages = langRegistrySvc.guessLanguageFromContents(
                 buffer[:1000], buffer[-1000:])
@@ -1800,6 +1802,21 @@ class koDocumentBase:
             except which.WhichError:
                 python3Path = None
         return python3Path
+
+    _jsDistinguisher = None
+    def _distinguishJavaScriptOrNode(self, buffer):
+        if not buffer:
+            return ["JavaScript"]
+        nodeJSAppInfo = components.classes["@activestate.com/koAppInfoEx?app=NodeJS;1"].\
+                        getService(components.interfaces.koIAppInfoEx)
+        if not nodeJSAppInfo.executablePath:
+            return ["JavaScript"]
+        import pythonVersionUtils
+        if self._jsDistinguisher is None:
+            self._jsDistinguisher = pythonVersionUtils.JavaScriptDistinguisher()
+        if self._jsDistinguisher.isNodeJS(buffer):
+            return ["Node.js"]
+        return ["JavaScript"]
 
     _languageNameByVersion = [None, None, "Python", "Python3"]
     def _distinguishPythonVersion(self, buffer):
