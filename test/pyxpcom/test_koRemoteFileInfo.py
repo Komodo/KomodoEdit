@@ -150,7 +150,7 @@ class remoteInfoTests(unittest.TestCase):
     @tag("bug88866")
     def test_ruski_format(self):
         # Russian file listing
-        folder_listing   = 'drwxrwxr-x  2 username username      4096 Дек  5  2009 doxygen'
+        folder_listing   = u'drwxrwxr-x  2 username username      4096 Дек  5  2009 doxygen'
         fileinfo = self._makeKoRemoteFileInfo()
         self.failIf(fileinfo.initFromDirectoryListing("testingdir", folder_listing) != True,
                     "Could not parse directory listing: %r" % (folder_listing, ))
@@ -163,7 +163,7 @@ class remoteInfoTests(unittest.TestCase):
         self.failIf(fileinfo.isFile() != False,
                     "Incorrect isFile: '%r'" % (fileinfo.isFile(),))
 
-        file_listing   = '-rw-rw-r--  1 username username       990 Авг 19  2009 failed.gif'
+        file_listing   = u'-rw-rw-r--  1 username username       990 Авг 19  2009 failed.gif'
         fileinfo = self._makeKoRemoteFileInfo()
         self.failIf(fileinfo.initFromDirectoryListing("testingdir", file_listing) != True,
                     "Could not parse directory listing: %r" % (file_listing, ))
@@ -197,7 +197,7 @@ class remoteInfoTests(unittest.TestCase):
     @tag("bug88866")
     def test_french_format(self):
         # French file listing
-        folder_listing   = 'drwxr-xr-x   3 root root  4096 26 fév 22:00 boot'
+        folder_listing   = u'drwxr-xr-x   3 root root  4096 26 fév 22:00 boot'
         fileinfo = self._makeKoRemoteFileInfo()
         self.failIf(fileinfo.initFromDirectoryListing("testingdir", folder_listing) != True,
                     "Could not parse directory listing: %r" % (folder_listing, ))
