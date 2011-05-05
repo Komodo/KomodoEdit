@@ -1499,8 +1499,8 @@ function _get_registered_colorpickers() {
         nameObj.QueryInterface(Components.interfaces.nsISupportsCString);
         name = nameObj.data;
         cid = catMgr.getCategoryEntry(category, name);
-        if ((name == "Windows Color Picker" && shortPlatName == "Win") ||
-            (name == "Mac OS X Color Picker" && shortPlatName == "Mac")) {
+        if ((name == "windows_system_color_picker" && shortPlatName == "Win") ||
+            (name == "macosx_system_color_picker" && shortPlatName == "Mac")) {
             // We want the default system color picker to be first in the list.
             result.splice(0, 0, {"name": name, "cid": cid});
         } else {
