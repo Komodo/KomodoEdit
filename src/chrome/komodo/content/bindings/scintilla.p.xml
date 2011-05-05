@@ -1091,6 +1091,15 @@
             <handler event="drop">
                 <![CDATA[
                 //dump("scintilla: drop\n");
+
+<!-- #if PLATFORM == "darwin" -->
+                if (this._inMouseDown != -1) {
+                    // As scimoz won't get a mouseup event when dropped.
+                    this.scimoz.buttonUp( this._lastMousePos[0], this._lastMousePos[1], this._inMouseDown, 0, 0, 0);
+                    this._inMouseDown = -1;
+                }
+<!-- #endif -->
+
 <!-- #if PLATFORM != "darwin" -->
                 this._dragScrollHits = 0;
 <!-- #endif -->
