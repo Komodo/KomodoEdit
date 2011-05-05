@@ -21,4 +21,5 @@ $cons->InstallInChrome('colormethods.js');
 $cons->InstallInChrome('colorvaluepicker.js');
 $cons->InstallInChrome('slider.js');
 $cons->InstallXpcomComponent('xpcom_colorpicker.js',
-                             {'@activestate.com/koColorPicker;1' => "{57dbf673-ce91-4858-93f9-2e47fea3495d}"});
+                             {'@activestate.com/koColorPicker;1' => "{57dbf673-ce91-4858-93f9-2e47fea3495d}"},
+                             ["colorpicker", "john_dyer_color_picker", '@activestate.com/koColorPicker;1']);
