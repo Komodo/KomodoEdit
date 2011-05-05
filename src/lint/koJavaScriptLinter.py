@@ -88,6 +88,42 @@ class CommonJSLinter(object):
         text = request.content.encode(request.encoding.python_encoding_name)
         return self.lint_with_text(request, text)
 
+    def _createAddResult(self, results, datalines, errorType, lineNo, desc, numDots):
+        # build lint result object
+        result = KoLintResult()
+        if lineNo >= len(datalines):
+            lineNo = len(datalines) - 1
+            # if the error is on the last line, work back to the last
+            # character of the first nonblank line so we can display
+            # the error somewhere
+            while lineNo >= 0 and not datalines[lineNo]:
+                lineNo -= 1
+            if lineNo < 0:
+                return
+            result.columnEnd = len(datalines[lineNo - 1]) + 1
+            result.columnStart = 1
+            lineNo += 1
+        else:
+            if numDots is None:
+                result.columnStart = 1
+            else:
+                result.columnStart = numDots + 1
+            result.columnEnd = result.columnStart + 1
+        result.lineStart = lineNo
+        result.lineEnd = lineNo
+        if (errorType.lower().find('warning') > 0):
+            result.severity = result.SEV_WARNING
+        else:
+            result.severity = result.SEV_ERROR
+        # This always results in a lint result spanning a single
+        # character, which, given the squiggly reporting scheme is
+        # almost invisible. Workaround: set the result to be the
+        # whole line and append the column number to the description.
+        result.description = "%s: %s (on column %d)" % (errorType,desc,result.columnStart)
+        result.columnStart = 1
+        result.columnEnd = len(datalines[lineNo-1])+1
+        results.addResult(result)
+
     def lint_with_text(self, request, text):
         jsfilename, isMacro, datalines = self._make_tempfile_from_text(request, text)
         cwd = request.cwd
@@ -136,13 +172,13 @@ class CommonJSLinter(object):
         # Parse out the xpcshell lint results
         results = koLintResults()
         counter = 0  # count index in 3 line groups
-        firstLineRe = re.compile("^%s:(?P<lineNo>\d+):\s*(?P<type>.*?):(?P<desc>.*?):\s*$" %\
+        firstLineRe = re.compile("^%s:(?P<lineNo>\d+):\s*(?P<type>.*?):(?P<desc>.*?)\s*$" %\
             re.escape(jsfilename))
         lastLineRe = re.compile("^%s:(?P<lineNo>\d+):\s*(?P<dots>.*?)\^\s*$" %\
             re.escape(jsfilename))
         strictLineRe = re.compile("^%s:(?P<lineNo>\d+):\s*(?P<type>.*?):\s*(?P<dots>.*?)\^\s*$" %\
             re.escape(jsfilename))
-        desc = None
+        desc = numDots = None
         for line in strippedWarnLines:
             if counter == 0 and line.startswith(jsfilename):
                 # first line: get the error description and line number
@@ -181,35 +217,12 @@ class CommonJSLinter(object):
                           "output: '%s'\n" % line
                     log.debug(msg)
                     continue
-                # build lint result object
-                result = KoLintResult()
-                if lineNo >= len(datalines):
-                    # if the error is on the last line, work back to the last
-                    # character of the first nonblank line so we can display
-                    # the error somewhere
-                    while len(datalines[lineNo - 1]) == 0:
-                        lineNo -= 1
-                    result.columnEnd = len(datalines[lineNo - 1])
-                    result.columnStart = result.columnEnd - 1
-                else:
-                    result.columnStart = numDots + 1
-                    result.columnEnd = result.columnStart + 1
-                result.lineStart = lineNo
-                result.lineEnd = lineNo
-                if (errorType.lower().find('warning') > 0):
-                    result.severity = result.SEV_WARNING
-                else:
-                    result.severity = result.SEV_ERROR
-                # This always results in a lint result spanning a single
-                # character, which, given the squiggly reporting scheme is
-                # almost invisible. Workaround: set the result to be the
-                # whole line and append the column number to the description.
-                result.description = "%s: %s (on column %d)" % (errorType,desc,result.columnStart)
-                result.columnStart = 1
-                result.columnEnd = len(datalines[lineNo-1])+1
-                results.addResult(result)
+                self._createAddResult(results, datalines, errorType, lineNo, desc, numDots)
+                desc = numDots = None
             counter = (counter + 1) % 3
 
+        if desc is not None:
+            self._createAddResult(results, datalines, errorType, lineNo, desc, numDots)
         return results
 
 
