@@ -87,6 +87,11 @@ class _CommonHTMLLinter(object):
     def _getMappedName(self, name):
         return self._mappedNames and self._mappedNames.get(name, name) or name
 
+    def _blankOutOneLiners(self, code):
+        if "\n" in code.strip():
+            return code
+        return self._spaceOutNonNewlines(code)
+        
     _cdata_ms_re = re.compile(r'\A(\s*)(<!\[CDATA\[)?(.*?)(\]\]>)?(\s*)\Z', re.DOTALL)
     def _lint_common_html_request(self, request, udlMapping=None, linters=None, squelchTPLPatterns=None):
         self._mappedNames = udlMapping
@@ -96,6 +101,7 @@ class _CommonHTMLLinter(object):
         if linters:
             lintersByName.update(linters)
         koDoc = request.koDoc  # koDoc is a proxied object
+        jsShouldBeWrapped = koDoc.language == "XBL"
         transitionPoints = koDoc.getLanguageTransitionPoints(0, koDoc.bufferLength)
         languageNamesAtTransitionPoints = [koDoc.languageForPosition(pt)
                                            for pt in transitionPoints[:-2]]
@@ -160,9 +166,19 @@ class _CommonHTMLLinter(object):
                     bytesByLang[name].append(subparts[0])
                     if subparts[1]:
                         bytesByLang[name].append(self._spaceOutNonNewlines(subparts[1]))
-                    bytesByLang[name].append(subparts[2])
+                    if jsShouldBeWrapped:
+                        actualCode = self._blankOutOneLiners(subparts[2])
+                        thisJSShouldBeWrapped = actualCode.strip()
+                    else:
+                        actualCode = subparts[2]
+                        thisJSShouldBeWrapped = False
+                    if thisJSShouldBeWrapped:
+                        bytesByLang[name].append("(function() { ")
+                    bytesByLang[name].append(actualCode)
                     if subparts[3]:
                         bytesByLang[name].append(self._spaceOutNonNewlines(subparts[3]))
+                    if thisJSShouldBeWrapped:
+                        bytesByLang[name].append(" })();")
                     bytesByLang[name].append(subparts[4])
                 elif (name == langName
                     or ((name.startswith("HTML") or name == "XML")

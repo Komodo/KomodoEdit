@@ -71,7 +71,13 @@ class CommonJSLinter(object):
             textToAnalyze = "function " + funcName + "() {\n" + text + "\n}";
         else:
             textToAnalyze = text
-        datalines = text.splitlines()
+        if request.koDoc.language == "XBL":
+            # The HTML sub-lang splitter polluted the text, so we need to get
+            # the original text from the request object.  This doesn't get
+            # analyzed, just underlined by the error displayer.
+            datalines = request.content.encode(request.encoding.python_encoding_name).splitlines()
+        else:
+            datalines = text.splitlines()
         fout = open(jsfilename, 'w')
         fout.write(textToAnalyze)
         fout.close()
