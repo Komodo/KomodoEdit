@@ -1749,8 +1749,12 @@ class koProject(koLiveFolderPart):
         elif self.prefset and self.prefset.hasPrefHere("import_dirname"):
             projPath = self.prefset.getStringPref("import_dirname")
             projURI = uriparse.localPathToURI(projPath)
-            if url.startswith(self._addTrailingSlash(projURI)):
-                return self
+            try:
+                if url.startswith(self._addTrailingSlash(projURI)):
+                    return self
+            except TypeError:
+                log.exception("Error getting info on project %s import_dirname val: %r",
+                              self._name, projPath)
         return None
 
     def getChildByURL(self, url):
