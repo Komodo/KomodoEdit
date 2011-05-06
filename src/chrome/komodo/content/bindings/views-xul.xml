@@ -49,13 +49,6 @@
         <xul:iframe flex="1"/>
     </content>
     <implementation name="viewxul" implements="koIXULView">
-        <!-- `document` DEPRECATED in Komodo 6.0.0, use `koDoc` -->
-        <property name="document"
-            onget="this.log.deprecated('`koIView.document` is deprecated, use `koIView.koDoc`');
-                return this.koDoc;"
-            onset="this.log.deprecated('`koIView.document` is deprecated, use `koIView.koDoc`');
-                this.koDoc = val" />
-
         <property name="iframe" readonly="true"
             onget="return document.getAnonymousNodes(this)[0];"/>
 

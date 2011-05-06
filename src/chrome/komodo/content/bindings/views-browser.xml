@@ -69,13 +69,6 @@
         </xul:vbox>
     </content>
     <implementation name="viewbrowser" implements="koIBrowserView">
-        <!-- `document` DEPRECATED in Komodo 6.0.0, use `koDoc` -->
-        <property name="document"
-            onget="this.log.deprecated('`koIView.document` is deprecated, use `koIView.koDoc`');
-                return this.koDoc;"
-            onset="this.log.deprecated('`koIView.document` is deprecated, use `koIView.koDoc`');
-                this.koDoc = val" />
-        
         <!-- The tempPreviewFile is used for remote files and untitled files,
              in order to be able to show a browser preview. -->
         <field name="tempPreviewFile">null</field>

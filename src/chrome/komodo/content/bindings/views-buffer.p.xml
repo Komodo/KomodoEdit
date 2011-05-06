@@ -98,12 +98,6 @@
         this.addModifiedHandler(this._onModifiedHandler, this, 1000, wantedflags);
         ]]>
         </constructor>
-        <!-- `document` DEPRECATED in Komodo 6.0.0, use `koDoc` -->
-        <property name="document"
-            onget="this.log.deprecated('`koIView.document` is deprecated, use `koIView.koDoc`');
-                return this.koDoc;"
-            onset="this.log.deprecated('`koIView.document` is deprecated, use `koIView.koDoc`');
-                this.koDoc = val" />
 
         <property name="scintilla" onget="return document.getAnonymousElementByAttribute(this, 'anonid', 'scintilla');"/>
 
