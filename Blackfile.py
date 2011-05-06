@@ -1685,9 +1685,6 @@ def _PackageKomodoUpdates(cfg, dryRun=False):
 def _PackageKomodoCrashReportSymbols(cfg, dryRun=False):
     if not cfg.withCrashReportSymbols:
         return 0
-    if sys.platform.startswith("linux") and os.uname()[4] == "x86_64":
-        print "no crash report symbols available for linux 64-bit builds"
-        return 0
     print "packaging 'Komodo Crash Report symbols'..."
     symbolsSrcDir = join(cfg.mozDist, "crashreporter-symbols")
     symbolsDstDir = join(cfg.packagesRelDir, "internal", "crashreportsymbols")
