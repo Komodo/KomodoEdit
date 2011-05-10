@@ -57,6 +57,7 @@ Import(
     'ranRegxpcomStateFileName',
     'siloedPython',
     'readmeDir',
+    'sdkDir',
     'universal',
     'komodoDevDir',
     'withDocs',
@@ -488,8 +489,11 @@ if ($withDocs) {
         $landmark,
         "komododoc/Makefile.py",
         "komododoc/config.py",
+        "$mozBin/chrome.manifest",
+        "$sdkDir/pylib/chromereg.py",
         qq{
             cd %1:d && mk mozhelp
+            $unsiloedPythonExe %4 %3 %0 "chrome"
         }
     );
     if ($withKomodoCix) {
