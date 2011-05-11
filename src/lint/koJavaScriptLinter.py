@@ -393,6 +393,9 @@ class KoCoffeeScriptLinter(object):
     _reg_categories_ = [
          ("category-komodo-linter", 'CoffeeScript'),
          ]
+
+    def __init__(self):
+        self._userPath = koprocessutils.getUserEnv()["PATH"].split(os.pathsep)
         
     def lint(self, request):
         text = request.content.encode(request.encoding.python_encoding_name)
@@ -405,11 +408,11 @@ class KoCoffeeScriptLinter(object):
         if not prefset.getBooleanPref("lint_coffee_script"):
             return
         try:
-            coffeeExe = which.which("coffee")
+            coffeeExe = which.which("coffee", path=self._userPath)
             if not coffeeExe:
                 return
         except which.WhichError:
-            log.warn("coffee not found")
+            log.exception("coffee not found")
             return
         tmpfilename = tempfile.mktemp() + '.coffee'
         fout = open(tmpfilename, 'w')

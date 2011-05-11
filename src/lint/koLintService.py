@@ -200,12 +200,16 @@ class _GenericAggregator(object):
         linters = self._koLintService.getTerminalLintersForLanguage(self._languageName)
         finalLintResults = koLintResults()
         for linter in linters:
-            newLintResults = UnwrapObject(linter).lint_with_text(request, text)
-            if newLintResults and newLintResults.getNumResults():
-                if finalLintResults.getNumResults():
-                    finalLintResults = finalLintResults.addResults(newLintResults)
-                else:
-                    finalLintResults = newLintResults
+            try:
+                newLintResults = UnwrapObject(linter).lint_with_text(request, text)
+            except:
+                log.exception("lint_with_text exception")
+            else:
+                if newLintResults and newLintResults.getNumResults():
+                    if finalLintResults.getNumResults():
+                        finalLintResults = finalLintResults.addResults(newLintResults)
+                    else:
+                        finalLintResults = newLintResults
         return finalLintResults
 
     

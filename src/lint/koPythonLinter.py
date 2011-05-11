@@ -75,6 +75,7 @@ class _GenericPythonLinter(object):
     def __init__(self):
         self._pythonInfo = components.classes["@activestate.com/koAppInfoEx?app=Python;1"]\
                .createInstance(components.interfaces.koIAppInfoEx)
+        self._userPath = koprocessutils.getUserEnv()["PATH"].split(os.pathsep)
         
     def lint(self, request):
         text = request.content.encode(request.encoding.python_encoding_name)
@@ -109,7 +110,7 @@ class KoPythonPyLintChecker(_GenericPythonLinter):
         if sys.platform.startswith("win"):
             pylintExe += ".exe"
         try:
-            pylintExe = which.which("pylint")
+            pylintExe = which.which("pylint", path=self._userPath)
         except which.WhichError:
             log.warn("pylint not found")
             return
@@ -183,7 +184,7 @@ class KoPythonPyflakesChecker(_GenericPythonLinter):
         textlines = text.splitlines()
         cwd = request.cwd
         try:
-            checkerExe = which.which("pyflakes")
+            checkerExe = which.which("pyflakes", path=self._userPath)
         except which.WhichError:
             log.warn("pyflakes not found")
             return
