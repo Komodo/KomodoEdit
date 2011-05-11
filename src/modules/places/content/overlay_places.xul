@@ -101,100 +101,100 @@
         events="current_view_changed,place_dirty,current_place_changed,current_place_opened,current_place_closed,some_projects_open">
       <command
           id="cmd_openDirectory" key="key_cmd_openDirectory"
-          oncommand="ko.commands.doCommandAsync('cmd_openDirectory', event)"
+          oncommand="ko.commands.doCommand('cmd_openDirectory', event)"
           desc="&placesLoadPlace.desc;"/>
       <command
           id="cmd_openRemoteDirectory" key="key_cmd_openRemoteDirectory"
-          oncommand="ko.commands.doCommandAsync('cmd_openRemoteDirectory', event)"
+          oncommand="ko.commands.doCommand('cmd_openRemoteDirectory', event)"
           desc="&placesLoadRemotePlace.desc;"/>
       <command
           id="cmd_findInPlace"
           key="key_cmd_findInPlace"
-          oncommand="ko.commands.doCommandAsync('cmd_findInPlace', event)"
+          oncommand="ko.commands.doCommand('cmd_findInPlace', event)"
           disabled="true"
           desc="&findInPlace.desc;"/>
       <command
           id="cmd_replaceInPlace"
           key="key_cmd_replaceInPlace"
-          oncommand="ko.commands.doCommandAsync('cmd_replaceInPlace', event)"
+          oncommand="ko.commands.doCommand('cmd_replaceInPlace', event)"
           disabled="true"
           desc="&replaceInPlace.desc;"/>
       <command
           id="cmd_deletePlaceItem"
           key="key_cmd_deletePlaceItem"
-          oncommand="ko.commands.doCommandAsync('cmd_deletePlaceItem', event)"
+          oncommand="ko.commands.doCommand('cmd_deletePlaceItem', event)"
           disabled="true"
           desc="&deletePlaceItem.desc;"/>
       <command
           id="cmd_places_showInFinder"
           key="key_cmd_places_showInFinder"
-          oncommand="ko.commands.doCommandAsync('cmd_places_showInFinder', event)"
+          oncommand="ko.commands.doCommand('cmd_places_showInFinder', event)"
           disabled="true"
           desc="&showInFinder.desc;"/>
       <command
           id="cmd_renamePlace_File"
           key="key_cmd_renamePlace_File"
-          oncommand="ko.commands.doCommandAsync('cmd_renamePlace_File', event)"
+          oncommand="ko.commands.doCommand('cmd_renamePlace_File', event)"
           disabled="true"
           desc="&renamePlaceItem.desc;"/>
       <command
           id="cmd_placeView_defaultView"
           key="key_cmd_placeView_defaultView"
-          oncommand="ko.commands.doCommandAsync('cmd_placeView_defaultView', event)"
+          oncommand="ko.commands.doCommand('cmd_placeView_defaultView', event)"
           disabled="true"
           desc="&placeView_defaultView.desc;"/>
       <command
           id="cmd_placeView_currentProject"
           key="key_cmd_placeView_currentProject"
-          oncommand="ko.commands.doCommandAsync('cmd_placeView_currentProject', event)"
+          oncommand="ko.commands.doCommand('cmd_placeView_currentProject', event)"
           disabled="true"
           desc="&placeView_currentProject.desc;"/>
       <command
           id="cmd_placeView_viewAll"
           key="key_cmd_placeView_viewAll"
-          oncommand="ko.commands.doCommandAsync('cmd_placeView_viewAll', event)"
+          oncommand="ko.commands.doCommand('cmd_placeView_viewAll', event)"
           disabled="true"
           desc="&placeView_viewAll.desc;"/>
       <command
           id="cmd_placeView_customView"
           key="key_cmd_placeView_customView"
-          oncommand="ko.commands.doCommandAsync('cmd_placeView_customView', event)"
+          oncommand="ko.commands.doCommand('cmd_placeView_customView', event)"
           disabled="true"
           desc="&placeView_customView.desc;"/>
       <command
           id="cmd_places_goUpOneFolder"
           key="key_cmd_places_goUpOneFolder"
-          oncommand="ko.commands.doCommandAsync('cmd_places_goUpOneFolder', event)"
+          oncommand="ko.commands.doCommand('cmd_places_goUpOneFolder', event)"
           disabled="true"
           desc="&placesUpFolder.desc;"/>
       <command
           id="cmd_placeView_sortNatural"
           key="key_cmd_placeView_sortNatural"
-          oncommand="ko.commands.doCommandAsync('cmd_placeView_sortNatural', event)"
+          oncommand="ko.commands.doCommand('cmd_placeView_sortNatural', event)"
           disabled="true"
           desc="&placeView_sortNatural.desc;"/>
       <command
           id="cmd_placeView_sortAscending"
           key="key_cmd_placeView_sortAscending"
-          oncommand="ko.commands.doCommandAsync('cmd_placeView_sortAscending', event)"
+          oncommand="ko.commands.doCommand('cmd_placeView_sortAscending', event)"
           disabled="true"
           desc="&placeView_sortAscending.desc;"/>
       <command
           id="cmd_placeView_sortDescending"
           key="key_cmd_placeView_sortDescending"
-          oncommand="ko.commands.doCommandAsync('cmd_placeView_sortDescending', event)"
+          oncommand="ko.commands.doCommand('cmd_placeView_sortDescending', event)"
           disabled="true"
           desc="&placeView_sortDescending.desc;"/>
       <command
           id="cmd_sortProjectsDescending"
           key="key_cmd_sortProjectsDescending"
-          oncommand="ko.commands.doCommandAsync('cmd_sortProjectsDescending', event)"
+          oncommand="ko.commands.doCommand('cmd_sortProjectsDescending', event)"
           disabled="true"
           desc="&sortProjectsDescending.desc;"/>
       <command
           id="cmd_sortProjectsAscending"
           key="key_cmd_sortProjectsAscending"
-          oncommand="ko.commands.doCommandAsync('cmd_sortProjectsAscending', event)"
+          oncommand="ko.commands.doCommand('cmd_sortProjectsAscending', event)"
           disabled="true"
           desc="&sortProjectsAscending.desc;"/>
     </commandset>
@@ -212,13 +212,13 @@
       <command
           id="cmd_goNextPlace"
           key="key_cmd_goNextPlace"
-          oncommand="ko.commands.doCommandAsync('cmd_goNextPlace', event)"
+          oncommand="ko.commands.doCommand('cmd_goNextPlace', event)"
           disabled="true"
           desc="&goNextPlace.desc;"/>
       <command
           id="cmd_goPreviousPlace"
           key="key_cmd_goPreviousPlace"
-          oncommand="ko.commands.doCommandAsync('cmd_goPreviousPlace', event)"
+          oncommand="ko.commands.doCommand('cmd_goPreviousPlace', event)"
           disabled="true"
           desc="&goPreviousPlace.desc;"/>
     </commandset>
@@ -230,7 +230,7 @@
       <command
           id="cmd_placeView_undoTreeOperation"
           key="key_cmd_placeView_undoTreeOperation"
-          oncommand="ko.commands.doCommandAsync('cmd_placeView_undoTreeOperation', event)"
+          oncommand="ko.commands.doCommand('cmd_placeView_undoTreeOperation', event)"
           disabled="true"
          />
     </commandset>
@@ -242,7 +242,7 @@
       <command
           id="cmd_placeView_showCurrent_TabInPlaces"
           key="key_cmd_placeView_showCurrent_TabInPlaces"
-          oncommand="ko.commands.doCommandAsync('cmd_placeView_showCurrent_TabInPlaces', event)"
+          oncommand="ko.commands.doCommand('cmd_placeView_showCurrent_TabInPlaces', event)"
           disabled="true"
          />
     </commandset>

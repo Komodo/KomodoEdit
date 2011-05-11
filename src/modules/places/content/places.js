@@ -1715,8 +1715,15 @@ ManagerClass.prototype = {
     //},
 
     _clickedOnRoot: function() {
-        if (document.popupNode == widgets.rootButton) return true;
-        return (document.popupNode.id == "places-files-tree-body"
+        var popupNode = document.popupNode;
+        if (!popupNode) {
+            popupNode = document.getElementById("places-files-popup").triggerNode;
+            if (!popupNode) {
+                return false;
+            }
+        }
+        if (popupNode == widgets.rootButton) return true;
+        return (popupNode.id == "places-files-tree-body"
                 && gPlacesViewMgr.view.selection.count == 0);
     },
 
