@@ -51,7 +51,6 @@ var gKlint = {
                 .getBranch("extensions.dafizilla.klint.");
 
             this.initFiltersRE();
-            sizeToContent();
         } catch (err) {
             alert("klint onLoad " + err);
         }
@@ -177,40 +176,30 @@ var gKlint = {
     },
 
     addListeners : function() {
-        var self = this;
+        this.onCurrentViewChanged = this.onCurrentViewChanged.bind(this);
+        this.onCurrentViewCheckStatus = this.onCurrentViewCheckStatus.bind(this);
+        this.onCurrentViewOpened = this.onCurrentViewOpened.bind(this);
+        this.onCurrentViewClosed = this.onCurrentViewClosed.bind(this);
 
-        this.handle_current_view_changed_setup = function(event) {
-            self.onCurrentViewChanged(event);
-        };
-        this.handle_current_view_check_status_setup = function(event) {
-            self.onCurrentViewCheckStatus(event);
-        };
-        this.handle_current_view_opened_setup = function(event) {
-            self.onCurrentViewOpened(event);
-        }
-        this.handle_current_view_closed_setup = function(event) {
-            self.onCurrentViewClosed(event);
-        }
-
-        window.addEventListener('current_view_changed',
-                                this.handle_current_view_changed_setup, false);
-        window.addEventListener('current_view_check_status',
-                                this.handle_current_view_check_status_setup, false);
-        window.addEventListener('view_opened',
-                                this.handle_current_view_opened_setup, false);
+        parent.addEventListener('current_view_changed',
+                                this.onCurrentViewChanged, false);
+        parent.addEventListener('current_view_check_status',
+                                this.onCurrentViewCheckStatus, false);
+        parent.addEventListener('view_opened',
+                                this.onCurrentViewOpened, false);
 
         // Under ko5 clear tree content if it is the view last
         window.addEventListener('view_closed',
-                                this.handle_current_view_closed_setup, false);
+                                this.onCurrentViewClosed, false);
     },
 
     removeListeners : function() {
-        window.removeEventListener('current_view_changed',
-                                this.handle_current_view_changed_setup, false);
-        window.removeEventListener('current_view_check_status',
-                                this.handle_current_view_check_status_setup, false);
-        window.removeEventListener('view_opened',
-                                this.handle_current_view_opened_setup, false);
+        parent.removeEventListener('current_view_changed',
+                                   this.onCurrentViewChanged, false);
+        parent.removeEventListener('current_view_check_status',
+                                   this.onCurrentViewCheckStatus, false);
+        parent.removeEventListener('view_opened',
+                                   this.onCurrentViewOpened, false);
     },
 
     onCurrentViewChanged : function(event) {
@@ -398,5 +387,5 @@ var gKlint = {
     }
 };
 
-window.addEventListener("load", function(event) {gKlint.onLoad(event);}, false);
-window.addEventListener("unload", function(event) {gKlint.onUnLoad(event);}, false);
+window.addEventListener("load", gKlint.onLoad.bind(gKlint), false);
+window.addEventListener("unload", gKlint.onUnLoad.bind(gKlint), false);
