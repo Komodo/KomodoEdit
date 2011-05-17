@@ -1,25 +1,25 @@
 <!-- ***** BEGIN LICENSE BLOCK *****
  Version: MPL 1.1/GPL 2.0/LGPL 2.1
- 
+
  The contents of this file are subject to the Mozilla Public License
  Version 1.1 (the "License"); you may not use this file except in
  compliance with the License. You may obtain a copy of the License at
  http://www.mozilla.org/MPL/
- 
+
  Software distributed under the License is distributed on an "AS IS"
  basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
  License for the specific language governing rights and limitations
  under the License.
- 
+
  The Original Code is Komodo code.
- 
+
  The Initial Developer of the Original Code is ActiveState Software Inc.
  Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
  ActiveState Software Inc. All Rights Reserved.
- 
+
  Contributor(s):
    ActiveState Software Inc
- 
+
  Alternatively, the contents of this file may be used under the terms of
  either the GNU General Public License Version 2 or later (the "GPL"), or
  the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
@@ -31,7 +31,7 @@
  and other provisions required by the GPL or the LGPL. If you do not delete
  the provisions above, a recipient may use your version of this file under
  the terms of any one of the MPL, the GPL or the LGPL.
- 
+
  ***** END LICENSE BLOCK ***** -->
 
 <!ENTITY createMappedURI.label "Create Mapped URI">
@@ -42,7 +42,7 @@
 <!ENTITY aboutMenu.accesskey "A">
 <!ENTITY aboutName.accesskey "A">
 <!ENTITY add.label "Add">
-<!ENTITY addAsSnippetInToolbox.label "Add as Snippet in Toolbox">
+<!ENTITY addAsSnippetInToolbox.label "Add as Snippet into Toolbox">
 <!ENTITY addItemToCurrentProject.tooltiptext "Add Item to current project">
 <!ENTITY browseForDirectoriesToAddToSearchList.tooltiptext "Browse for directories to add to search list">
 <!ENTITY browserPreview.menu.accesskey "B">
@@ -99,7 +99,7 @@
 <!ENTITY edit.label "Edit">
 <!ENTITY editMacro.label "Edit Macro">
 <!ENTITY editorInvokeHyperlink.desc "Editor: Invoke Hyperlink">
-<!ENTITY editorAddAsSnippetToToolbox.desc "Editor: Add as Snippet to Toolbox">
+<!ENTITY editorAddAsSnippetToToolbox.desc "Editor: Add as Snippet into Toolbox">
 <!ENTITY editorBack.desc "Editor: Back">
 <!ENTITY editorBackspace.desc "Editor: Backspace">
 <!ENTITY editorBeginningOfLine.desc "Editor: Beginning of Line">
@@ -308,8 +308,8 @@
 <!ENTITY generalSave.desc "General: Save">
 <!ENTITY generalSaveAll.desc "General: Save All">
 <!ENTITY generalSaveAs.desc "General: Save As...">
-<!ENTITY generalSaveAsRemote.desc "General: Save As Remote...">
-<!ENTITY generalSaveAsTemplate.desc "General: Save As Template">
+<!ENTITY generalSaveAsRemote.desc "General: Save as Remote...">
+<!ENTITY generalSaveAsTemplate.desc "General: Save as Template">
 <!ENTITY generalSaveProject.desc "General: Save Project">
 <!ENTITY generalSaveProjectAs.desc "General: Save Project As...">
 <!ENTITY generalSwitchToTab1.desc "General: Switch to Tab 1">
@@ -323,7 +323,7 @@
 <!ENTITY generalSwitchToTab9.desc "General: Switch to Tab 9">
 <!ENTITY goToDefinition.label "Go to Definition">
 <!ENTITY gotoLine.accesskey "G">
-<!ENTITY gotoLine.label "Goto Line...">
+<!ENTITY gotoLine.label "Go to Line...">
 <!ENTITY gotoLine.prompt.description "Enter a line number to go to. Prefix + or - to move relative to the current line. For example: +4 will move forward 4 lines.">
 <!ENTITY gotoLine.prompt.label "Enter line number:">
 <!ENTITY goToTab.menu.accesskey "A">

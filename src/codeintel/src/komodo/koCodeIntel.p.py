@@ -1,26 +1,26 @@
 #!python
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
-# 
+#
 # The contents of this file are subject to the Mozilla Public License
 # Version 1.1 (the "License"); you may not use this file except in
 # compliance with the License. You may obtain a copy of the License at
 # http://www.mozilla.org/MPL/
-# 
+#
 # Software distributed under the License is distributed on an "AS IS"
 # basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
 # License for the specific language governing rights and limitations
 # under the License.
-# 
+#
 # The Original Code is Komodo code.
-# 
+#
 # The Initial Developer of the Original Code is ActiveState Software Inc.
 # Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
 # ActiveState Software Inc. All Rights Reserved.
-# 
+#
 # Contributor(s):
 #   ActiveState Software Inc
-# 
+#
 # Alternatively, the contents of this file may be used under the terms of
 # either the GNU General Public License Version 2 or later (the "GPL"), or
 # the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
@@ -32,7 +32,7 @@
 # and other provisions required by the GPL or the LGPL. If you do not delete
 # the provisions above, a recipient may use your version of this file under
 # the terms of any one of the MPL, the GPL or the LGPL.
-# 
+#
 # ***** END LICENSE BLOCK *****
 
 """The glue between the Komodo-independent 'codeintel' Python package
@@ -244,9 +244,9 @@ class KoCodeIntelEnvironment(Environment):
             for prefset in self.prefsets:
                 prefset.prefObserverService.addObserver(
                     self._wrapped_self, name, 0)
-                
+
             self._pref_observer_callbacks_from_name[name] = {}
-        
+
         self._pref_observer_callbacks_from_name[name][id(callback)] = callback
 
     def remove_pref_observer(self, name, callback):
@@ -382,14 +382,14 @@ class KoCodeIntelManager(Manager):
                       import_handler_class=None, cile_driver_class=None,
                       is_cpln_lang=False, langintel_class=None):
         """Override some specific lang handling for Komodo.
-        
+
         Currently just need to tweak some of the import handlers.
         """
         Manager.set_lang_info(self, lang, silvercity_lexer, buf_class,
                               import_handler_class, cile_driver_class,
                               is_cpln_lang,
                               langintel_class=langintel_class)
-        
+
         if lang not in ("Python", "Python3", "PHP", "Perl", "Tcl", "Ruby"):
             return
 
@@ -651,7 +651,7 @@ class KoCodeIntelEvalController(EvalController):
     _reg_clsid_ = "{020FE3F2-BDFD-4F45-8F13-D70A1D6F4D82}"
     _reg_contractid_ = "@activestate.com/koCodeIntelEvalController;1"
     _reg_desc_ = "Komodo CodeIntel Evaluation Controller"
-    
+
     log = None
     have_errors = have_warnings = False
     got_results = False
@@ -709,7 +709,7 @@ class KoCodeIntelEvalController(EvalController):
 
         "element": koICodeIntelCompletionUIHandler.ACIID_XML_ELEMENT,
         "attribute": koICodeIntelCompletionUIHandler.ACIID_XML_ATTRIBUTE,
-        
+
         # Added for CSS, may want to have a better name/images though...
         "value": koICodeIntelCompletionUIHandler.ACIID_VARIABLE,
         "property": koICodeIntelCompletionUIHandler.ACIID_CLASS,
@@ -726,14 +726,14 @@ class KoCodeIntelEvalController(EvalController):
         # Handle fallbacks? "ACIID_VARIABLE" for Ruby. That should be done
         # in post-processing.
     }
-    
+
     def cplns_with_aciids_from_cplns(self, cplns):
         """Translate a list of completion tuples
             [(<type>, <value>), ...]
         into a list of completions with image references as Scintilla
         wants them
             ["<value>?1", ...]
-        
+
         See the CodeIntelCompletionUIHandler ctor in codeintel.js for
         registration of the image XPMs.
         """
@@ -847,7 +847,7 @@ class KoCodeIntelBatchUpdater(BatchUpdater):
         self.progress_ui_handler_proxy = getProxyForObject(1,
             components.interfaces.koICodeIntelBatchUpdateProgressUIHandler,
             self.progress_ui_handler, PROXY_ALWAYS | PROXY_ASYNC)
-        
+
     def error(self, msg, *args):
         self.errors.append((msg, args))
     def get_error_log(self):
@@ -872,7 +872,7 @@ class KoCodeIntelBatchUpdater(BatchUpdater):
         ui = self.progress_ui_handler_proxy
         if not ui:
             return
-        
+
         # With an "upgrade" batch update we expect progress notifications
         # of this form:
         #   "upgrade", (<current-stage-message>, <percentage-done>)
@@ -881,7 +881,7 @@ class KoCodeIntelBatchUpdater(BatchUpdater):
             ui.setStatusMessage("Upgrade: "+stage_msg)
             ui.setProgressMeterValue(percent)
             return
-        
+
         # With other batch updates progress notifications are of these forms:
         #   "importing", <path of CIX file being imported>
         #   "gathering files", <number of files found>
@@ -975,7 +975,7 @@ class KoCodeIntelDBUpgrader(threading.Thread):
             controller, PROXY_ALWAYS | PROXY_SYNC)
         self.controller.set_progress_mode("undetermined")
         self.start()
-    
+
     def run(self):
         try:
             ciSvc = components.classes["@activestate.com/koCodeIntelService;1"].\
@@ -1022,7 +1022,7 @@ class KoCodeIntelDBPreloader(threading.Thread):
         ciSvc = components.classes["@activestate.com/koCodeIntelService;1"].\
                    getService(components.interfaces.koICodeIntelService)
         self._mgr = UnwrapObject(ciSvc).mgr
-    
+
         prefs = components.classes["@activestate.com/koPrefService;1"]\
                     .getService(components.interfaces.koIPrefService).prefs
         self._proxiedPrefs = getProxyForObject(None,
@@ -1050,7 +1050,7 @@ class KoCodeIntelDBPreloader(threading.Thread):
                 # TODO: Eventually would want to tie this to answers from a
                 #       "Komodo Startup Wizard" that would ask the user what
                 #       languages they use.
-                self.controller.set_stage("Preloading standard library data.")
+                self.controller.set_stage("Preloading standard library data...")
                 stdlibs_zone = self._mgr.db.get_stdlibs_zone()
                 if stdlibs_zone.can_preload():
                     stdlibs_zone.preload(self.progress_cb)
@@ -1087,11 +1087,11 @@ class KoCodeIntelDBPreloader(threading.Thread):
                                 # Just update the progress.
                                 self.progress_cb("", value_base)
                         value_base += value_incr
-                
+
                 # Stage 2: catalog zone
                 # Preload catalogs that are enabled by default (or perhaps
-                # more than that.) For now we preload all of them.
-                self.controller.set_stage("Preloading catalogs.")
+                # more than that). For now we preload all of them.
+                self.controller.set_stage("Preloading catalogs...")
                 self.controller.set_progress_value(0)
                 self.value_span = (0, 100)
                 self.controller.set_desc("")
@@ -1130,7 +1130,7 @@ class KoCodeIntelService:
     _reg_clsid_ = "{CF1F65B6-25EC-4FB3-A2CB-241CB436E377}"
     _reg_contractid_ = "@activestate.com/koCodeIntelService;1"
     _reg_desc_ = "Komodo Code Intelligence Service"
-    
+
     enabled = False
     isBackEndActive = False
     mgr = None
@@ -1271,7 +1271,7 @@ class KoCodeIntelService:
         # the guts of the codeintel system.
         ##self.__cached_real_ctlr = ctlr #XXX weakref? necessary?
         ##self.mgr.batch_update_start(wait=wait, ctlr=UnwrapObject(ctlr))
-        
+
         #XXX Should we unwrap the updater obj?
         unwrapped_updater = UnwrapObject(updater)
         self.mgr.batch_update(join=join, updater=unwrapped_updater)
@@ -1413,4 +1413,3 @@ class KoCodeIntelService:
 #                                    explicit)
 #            subimports = []
 #        return subimports
-

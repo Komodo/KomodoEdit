@@ -1,25 +1,25 @@
 <!-- ***** BEGIN LICENSE BLOCK *****
  Version: MPL 1.1/GPL 2.0/LGPL 2.1
- 
+
  The contents of this file are subject to the Mozilla Public License
  Version 1.1 (the "License"); you may not use this file except in
  compliance with the License. You may obtain a copy of the License at
  http://www.mozilla.org/MPL/
- 
+
  Software distributed under the License is distributed on an "AS IS"
  basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
  License for the specific language governing rights and limitations
  under the License.
- 
+
  The Original Code is Komodo code.
- 
+
  The Initial Developer of the Original Code is ActiveState Software Inc.
  Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
  ActiveState Software Inc. All Rights Reserved.
- 
+
  Contributor(s):
    ActiveState Software Inc
- 
+
  Alternatively, the contents of this file may be used under the terms of
  either the GNU General Public License Version 2 or later (the "GPL"), or
  the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
@@ -31,7 +31,7 @@
  and other provisions required by the GPL or the LGPL. If you do not delete
  the provisions above, a recipient may use your version of this file under
  the terms of any one of the MPL, the GPL or the LGPL.
- 
+
  ***** END LICENSE BLOCK ***** -->
 
 <!ENTITY connection.label                "Connection">
@@ -119,35 +119,35 @@
 <!ENTITY aAbbreviatedWeekdayName.label "&#37;a : abbreviated weekday name">
 <!ENTITY aLiteralCharacter.label "&#37;&#37; : a literal '&#37;' character">
 <!ENTITY add.label "Add...">
-<!ENTITY addAnAPICatalog.label "Add an API Catalog...">
+<!ENTITY addAnAPICatalog.label "Add an API catalog...">
 <!ENTITY addAppropriateExtension.label "Add appropriate extension">
 <!ENTITY additionalPerlImportDirectories.label "Additional Perl Import Directories">
 <!ENTITY additionalPythonImportDirectories.label "Additional Python Import Directories">
 <!ENTITY additionalPython3ImportDirectories.label "Additional Python 3 Import Directories">
 <!ENTITY additionalRubyImportDirectories.label "Additional Ruby Import Directories">
 <!ENTITY all.label "All">
-<!ENTITY allowCodingTagToOverrideAutoDetection.label "Allow 'coding:' tag to Override Auto-Detection">
+<!ENTITY allowCodingTagToOverrideAutoDetection.label "Allow 'coding:' tag to override auto-detection">
 <!ENTITY allowFileContentsToOverrideTabSettings.label "Allow file contents to override Tab and Indentation settings">
-<!ENTITY allowHTMLMETATagToOverrideAutoDetection.label "Allow HTML META tag to Override Auto-Detection">
-<!ENTITY allowXMLDeclarationToOverrideAutoDetection.label "Allow XML Declaration to Override Auto-Detection">
+<!ENTITY allowHTMLMETATagToOverrideAutoDetection.label "Allow HTML META tag to override auto-detection">
+<!ENTITY allowXMLDeclarationToOverrideAutoDetection.label "Allow XML declaration to override auto-detection">
 <!ENTITY alternateHelp.label "Alternate Help">
 <!ENTITY always.label "Always">
-<!ENTITY anonymousLogin.label "Anonymous Login">
+<!ENTITY anonymousLogin.label "Anonymous login">
 <!ENTITY appearance.label "Appearance">
 <!ENTITY arrows.label "Arrows">
 <!ENTITY askMeWhatFilesToClose.label "Ask me what files to close">
 <!ENTITY askMeWhatFilesToReload.label "Ask me what files to reload">
 <!ENTITY askMeWhatToDo.label "Ask me what to do">
 <!ENTITY askMeWhetherToRestoreWorkspace.label "Ask me whether to restore workspace">
-<!ENTITY assignEmptyFilesSpecifiedEOL.label "Assign new, empty files this EOL">
+<!ENTITY assignEmptyFilesSpecifiedEOL.label "Assign this EOL to new, empty files">
 <!ENTITY autoAdjustClosingBraces.label "Auto-adjust closing braces">
-<!ENTITY autoDetectFileEncodingWhenOpened.label "Auto-Detect File Encoding when Opened">
+<!ENTITY autoDetectFileEncodingWhenOpened.label "Auto-detect file encoding when opened">
 <!ENTITY bAbbreviatedMonthName.label "&#37;b : abbreviated month name">
 <!ENTITY backgroundSyntaxChecking.label "Background Syntax Checking">
 <!ENTITY backspaceDecreasesIndentationInLeadingWhitespace.label "'Backspace' decreases indentation in leading whitespace">
 <!ENTITY blockCursor.label "Block cursor">
 <!ENTITY bom.accesskey "B">
-<!ENTITY bookmarkColor.label "Bookmark Color">
+<!ENTITY bookmarkColor.label "Bookmark color">
 <!ENTITY both.label "Both">
 <!ENTITY browse.label "Browse...">
 <!ENTITY browseFiles.label "Browse Files">
@@ -161,7 +161,7 @@
 <!ENTITY cleanTrailingWhitespaceAndEOLMarkers.label "Clean trailing whitespace and EOL markers">
 <!ENTITY clear.label "Clear">
 <!ENTITY clearButton.accesskey "n">
-<!ENTITY clearList.label "Clear List">
+<!ENTITY clearList.label "Clear list">
 <!ENTITY clearListOfRecentTemplates.tooltiptext "Clear list of recent templates.">
 <!ENTITY clearPreview.accesskey "l">
 <!ENTITY closeAllFiles.label "Close all files">
@@ -175,24 +175,24 @@
 <!ENTITY configureCommonAssociations.label "Configure common associations...">
 <!ENTITY confirmationDialogs.label "Confirmation Dialogs">
 <!ENTITY cookie.label "Cookie">
-<!ENTITY currentLineBackgroundColor.label "Current Line Background Color">
-<!ENTITY cursorColor.label "Cursor Color">
+<!ENTITY currentLineBackgroundColor.label "Current line background color">
+<!ENTITY cursorColor.label "Cursor color">
 <!ENTITY cursorOptions.label "Cursor options">
 <!ENTITY cursorWillBeACharacterSizedBlock.tooltiptext "Cursor will be a character sized block">
 <!ENTITY cursorWillBeAVerticalLine.tooltiptext "Cursor will be a vertical line">
 <!ENTITY cursorWillNotBeShown.tooltiptext "Cursor will not be shown">
-<!ENTITY curvyTrees.label "Curvy Trees">
+<!ENTITY curvyTrees.label "Curvy trees">
 <!ENTITY dDayOfTheMonth0131.label "&#37;d : day of the month [01,31]">
-<!ENTITY debuggerCallingLineBackgroundColor.label "Debugger Calling Line Background Color">
-<!ENTITY debuggerCurrentLineBackgroundColor.label "Debugger Current Line Background Color">
-<!ENTITY dedentOnColon.label "Dedent Line After Colon (Python)">
+<!ENTITY debuggerCallingLineBackgroundColor.label "Debugger calling line background color">
+<!ENTITY debuggerCurrentLineBackgroundColor.label "Debugger current line background color">
+<!ENTITY dedentOnColon.label "Dedent line after colon (Python)">
 <!ENTITY defaultConnectionTimeout.label "Default Connection Timeout">
 <!ENTITY defaultEditorEncoding.label "Default Editor Encoding">
-<!ENTITY defaultHTMLDocumentType.label "Default HTML Document type">
+<!ENTITY defaultHTMLDocumentType.label "Default HTML Document Type">
 <!ENTITY defaultPHPInterpreter.label "Default PHP Interpreter">
 <!ENTITY defaultPerlInterpreter.label "Default Perl Interpreter">
 <!ENTITY defaultPythonInterpreter.label "Default Python Interpreter">
-<!ENTITY defaultPython3Interpreter.label "Default Python3 Interpreter">
+<!ENTITY defaultPython3Interpreter.label "Default Python 3 Interpreter">
 <!ENTITY defaultRubyInterpreter.label "Default Ruby Interpreter">
 <!ENTITY delete.label "Delete">
 <!ENTITY deleteButton.accesskey "d">
@@ -217,7 +217,7 @@
 <!ENTITY donTAutoIndent.label "Don't auto-indent">
 <!ENTITY donTShowFoldMarks.label "Don't show fold marks">
 <!ENTITY doubleSlash.label "//">
-<!ENTITY edgeLineBackgroundColorOfTextTooFar.label "Line Edge / Background Color of Text Too Far">
+<!ENTITY edgeLineBackgroundColorOfTextTooFar.label "Line edge / background color of text too far">
 <!ENTITY edit.label "Edit...">
 <!ENTITY editAssociations.label "&quot;Edit&quot; Associations">
 <!ENTITY editButton.accesskey "e">
@@ -240,10 +240,10 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY ensureFileEndsWithEOLMarker.label "Ensure file ends with EOL marker">
 <!ENTITY environment.label "Environment">
 <!ENTITY environmentVariable.title "Environment Variable">
-<!ENTITY errorsAndWarnings.label "Errors and Warnings">
+<!ENTITY errorsAndWarnings.label "Errors and warnings">
 <!ENTITY errorsAndWarningsCw.label "Errors and warnings (-cw)">
 <!ENTITY errorsAndWarningsUseTaintModeCwT.label "Errors and warnings, use taint mode (-cwT)">
-<!ENTITY errorsOnly.label "Errors Only">
+<!ENTITY errorsOnly.label "Errors only">
 <!ENTITY errorsOnlyC.label "Errors only (-c)">
 <!ENTITY errorsOnlyUseTaintModeCT.label "Errors only, use taint mode (-cT)">
 <!ENTITY file.label "File">
@@ -256,7 +256,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY fixedWidth.label "Fixed width">
 <!ENTITY folderPropertiesAndSettings.title "Folder Properties and Settings">
 <!ENTITY folding.label "Folding">
-<!ENTITY foldMarginColor.label "Fold Margin Color">
+<!ENTITY foldMarginColor.label "Fold margin color">
 <!ENTITY fonts.accesskey "F">
 <!ENTITY fonts.label "Fonts">
 <!ENTITY fontsAndColors.label "Fonts and Colors">
@@ -264,9 +264,9 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY h.accesskey "h">
 <!ENTITY hash.label "#">
 <!ENTITY help.label "Help">
-<!ENTITY hideQuickLinksPane.label "Hide Quick Links Pane">
-<!ENTITY highlightCharactersBeyondEdgeLine.label "Highlight characters that extend beyond the line edge column">
-<!ENTITY highlightCurrentLine.label "Highlight Current Line">
+<!ENTITY hideQuickLinksPane.label "Hide Quick Links pane">
+<!ENTITY highlightCharactersBeyondEdgeLine.label "Highlight characters that extend beyond the edge line column">
+<!ENTITY highlightCurrentLine.label "Highlight current line">
 <!ENTITY htmHTML.label ".htm: HTML">
 <!ENTITY htmlHTML.label ".html: HTML">
 <!ENTITY httpAspnActiveStateComASPNPHP.label "http://php.net/index.php">
@@ -274,18 +274,18 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY httpWwwActiveStateComActivePython.label "http://www.activestate.com/activepython/">
 <!ENTITY httpWwwRubyLangOrg.label "http://www.ruby-lang.org/">
 <!ENTITY hyperlinks.label "Hyperlinks">
-<!ENTITY hyperlinksEnabled.label "Enable hyperlinks (underlining of text under the mouse)">
-<!ENTITY hyperlinksEnableGotoDefinition.label "Enable goto definition hyperlinking">
+<!ENTITY hyperlinksEnabled.label "Enable hyperlinks (underlining of text under mouse pointer)">
+<!ENTITY hyperlinksEnableGotoDefinition.label "Enable hyperlinking to definition">
 <!ENTITY ifClearedYouWillBePromptedForThisValueTheNextTimeYouPreview.tooltiptext "If cleared, you will be prompted for this value the next time you preview.">
 <!ENTITY ifNoPasswordIsGivenYouLlBePromptedForItUponFirstConnecting.tooltiptext "If no password is given, you'll be prompted for it upon first connecting.">
 <!ENTITY ifNoPathIsGivenTheDefaultPathIsTheCurrentDirectoryAfterLogin.tooltiptext "If no path is given, the default path is the current directory after login.">
 <!ENTITY ifNoPortIsGivenTheDefaultProtocolPortIsUsed.tooltiptext "If no port is given, the default protocol port is used.">
-<!ENTITY ifSearchStringContainsCapitalLetters.label "If Search String Contains Capital Letters">
+<!ENTITY ifSearchStringContainsCapitalLetters.label "If search string contains capital letters">
 <!ENTITY importDirectoryStructure.label "Import directory structure">
 <!ENTITY importFromFileSystem.title "Import from File System">
 <!ENTITY importSubdirectoriesRecursively.label "Import Subdirectories Recursively">
 <!ENTITY incrementalSearch.label "Incremental Search">
-<!ENTITY indentStringsAfterParens.label "Force Shallow Indent At String Start">
+<!ENTITY indentStringsAfterParens.label "Force shallow indent at string start">
 <!ENTITY indentToFirstNonEmptyColumn.label "Indent to first non-empty column">
 <!ENTITY indentation.label "Indentation">
 <!ENTITY indentationGlobalSettings.label "Global Indentation Settings">
@@ -296,11 +296,11 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY javaScriptDirectories.label "JavaScript Directories">
 <!ENTITY jsJavaScript.label ".js: JavaScript">
 <!ENTITY keyBindings.label "Key Bindings">
-<!ENTITY label.1px "1px">
-<!ENTITY label.2px "2px">
-<!ENTITY label.3px "3px">
+<!ENTITY label.1px "1 pixel">
+<!ENTITY label.2px "2 pixels">
+<!ENTITY label.3px "3 pixels">
 <!ENTITY langSpecific.accesskey "L">
-<!ENTITY langSpecific.label "Lang-Specific">
+<!ENTITY langSpecific.label "Language Specific">
 <!ENTITY language.label "Language">
 <!ENTITY languageConfigurations.label "Language Configurations">
 <!ENTITY languageHelp.label "Language Help">
@@ -335,7 +335,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY openRecentFiles.label "Open recent files">
 <!ENTITY openingAndClosingProjects.label "Opening and Closing Projects">
 <!ENTITY otherOptions.label "Other Options">
-<!ENTITY overrideTextColorInSelection.label "Override Text Color in Selection">
+<!ENTITY overrideTextColorInSelection.label "Override text color in selection">
 <!ENTITY pAMOrPM.label "&#37;p : AM or PM">
 <!ENTITY path.label "Path">
 <!ENTITY pathToAlternatePHPConfigurationFile.label "Path to alternate PHP configuration file">
@@ -343,7 +343,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY perl.label "Perl">
 <!ENTITY phpPHP.label ".php: PHP">
 <!ENTITY plPerl.label ".pl: Perl">
-<!ENTITY plainText.label "Plain Text">
+<!ENTITY plainText.label "Plain text">
 <!ENTITY pmPerlModule.label ".pm: Perl Module">
 <!ENTITY preferFixed.accesskey "X">
 <!ENTITY preferFixed.label "Prefer Fixed">
@@ -359,8 +359,8 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY previewInExternalBrowserSpecifiedAbove.label "Preview in external browser (specified above)">
 <!ENTITY previewInKomodoTabOtherTabGroup.label "Preview in Komodo tab, other Split View">
 <!ENTITY previewInKomodoTabSameTabGroup.label "Preview in Komodo tab, same Split View">
-<!ENTITY printInColorAlwaysTrueWhenPrintingToFile.label "Print in Color (always true when printing to file)">
-<!ENTITY printLineNumbers.label "Print Line Numbers">
+<!ENTITY printInColorAlwaysTrueWhenPrintingToFile.label "Print in color (always true when printing to file)">
+<!ENTITY printLineNumbers.label "Print line numbers">
 <!ENTITY printing.label "Printing">
 <!ENTITY printingStyle.label "Printing Style">
 <!ENTITY priority1.label "Priority 1">
@@ -375,19 +375,19 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY pylintRCFileLocation.label "Location of .pylintrc file to use">
 <!ENTITY pyPython.label ".py: Python">
 <!ENTITY python.label "Python">
-<!ENTITY python3.label "Python3">
+<!ENTITY python3.label "Python 3">
 <!ENTITY pywPython.label ".pyw: Python">
 <!ENTITY rawData.label "Raw Data">
 <!ENTITY rbRuby.label ".rb: Ruby">
 <!ENTITY reApplySettingsToSystem.label "Re-apply settings to system">
 <!ENTITY readOnly.label "Read-only">
 <!ENTITY readonly.accesskey "R">
-<!ENTITY regularExpressionsPythonSyntax.label "Regular Expressions (Python Syntax)">
+<!ENTITY regularExpressionsPythonSyntax.label "Regular expressions (Python syntax)">
 <!ENTITY reloadAllFiles.label "Reload all files">
 <!ENTITY reloadNoFiles.label "Reload no files">
 <!ENTITY remoteAccounts.label "Remote Accounts">
 <!ENTITY remove.label "Remove">
-<!ENTITY removeCatalog.label "Remove Catalog">
+<!ENTITY removeCatalog.label "Remove catalog">
 <!ENTITY requestVariable.label "Request Variable">
 <!ENTITY reset.label "Reset">
 <!ENTITY resetLanguageToTheDefaultForThisFileType.tooltiptext "Reset language to the default for this file type.">
@@ -400,15 +400,15 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY scrolling.label "Scrolling">
 <!ENTITY selectACommand.tooltiptext "Select a Command">
 <!ENTITY selected.tooltiptext "Selected">
-<!ENTITY selectionBackgroundColor.label "Selection Background Color">
-<!ENTITY selectionTextColor.label "Selection Text Color">
+<!ENTITY selectionBackgroundColor.label "Selection background color">
+<!ENTITY selectionTextColor.label "Selection text color">
 <!ENTITY servers.label "Servers">
 <!ENTITY settingOnlyAppliesWhenTheCursorStyleIsLine.tooltiptext "Setting only applies when the cursor style is line">
 <!ENTITY setupCommonKomodoFileAssociations.title "Setup Common Komodo File Associations">
 <!ENTITY shortNameYouWishToCallThisServerConnection.tooltiptext "Short name you wish to call this server connection.">
 <!ENTITY showButtonText.label "Show button text">
-<!ENTITY showEdgeLine.label "Draw the line edge column">
-<!ENTITY showEndOfLineCharacters.label "Show end-of-line characters">
+<!ENTITY showEdgeLine.label "Draw the edge line column">
+<!ENTITY showEndOfLineCharacters.label "Show end-of-line (EOL) characters">
 <!ENTITY showIndentationGuides.label "Show indentation guides">
 <!ENTITY showKomodoResourcesToolbar.label "Show Komodo resources toolbar">
 <!ENTITY showKomodoStartPageOnStartup.label "Show Komodo Start Page on startup">
@@ -423,7 +423,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY sourceCodeControlProperties.label "Source Code Control Properties">
 <!ENTITY specifyDefaultProjectFilters.label "Specify the default filters for new projects">
 <!ENTITY specifyTheProjectsActualLocation.label "Project base directory">
-<!ENTITY squareTrees.label "Square Trees">
+<!ENTITY squareTrees.label "Square trees">
 <!ENTITY startOfLine.label "Start of line">
 <!ENTITY startPage.label "Start Page">
 <!ENTITY syntaxChecking.label "Syntax Checking">
@@ -439,15 +439,15 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY useFileContentToDetermineLanguage.label "Use File Content to Determine Language">
 <!ENTITY useHorizontalLineOnFolds.label "Use horizontal line on folds">
 <!ENTITY useShebangLine.label "Use shebang line (#!...)">
-<!ENTITY useSignatureBOM.label "Use signature (BOM)">
+<!ENTITY useSignatureBOM.label "Use Byte Order Mark (BOM) signature">
 <!ENTITY useSmartIndent.label "Use Smart Indent">
-<!ENTITY useTabCharacterToCompleteWordsLikeCtrlSpace.label "Use tab character to complete words like Ctrl+Space">
+<!ENTITY useTabCharacterToCompleteWordsLikeCtrlSpace.label "Use Tab character to complete words like Ctrl+Space">
 <!ENTITY usernameUsedToLoginToTheRemoteServer.tooltiptext "Username used to login to the remote server.">
 <!ENTITY value.label "Value">
 <!ENTITY viewAndEditAssociations.label "View and Edit Associations">
 <!ENTITY wWeekday0Sunday6.label "&#37;w : weekday [0(Sunday),6]">
 <!ENTITY webBrowser.label "Web &amp; Browser">
-<!ENTITY whitespaceForegroundColor.label "Whitespace Foreground Color">
+<!ENTITY whitespaceForegroundColor.label "Whitespace foreground color">
 <!ENTITY wildcard.label "Wildcard">
 <!ENTITY windowsIntegration.label "Windows Integration">
 <!ENTITY word.label "Word">
@@ -501,28 +501,28 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY webAndBrowser.label "Web &amp; Browser">
 
 <!--pref.alllangfonts.xul-->
-<!ENTITY sampleText.label "Sample Text:">
-<!ENTITY schemeType.label "Scheme: (System schemes are in bold)">
+<!ENTITY sampleText.label "Sample text:">
+<!ENTITY schemeType.label "Scheme: (system schemes are in bold)">
 <!ENTITY schemeType.accesskey "S">
 <!ENTITY chooseEncodFont.description "Choose an encoding and font for Komodo's editor windows.">
 <!ENTITY filePrefAllLangEncod.label "Encoding: ">
 <!ENTITY filePrefAllLangEncod.accesskey "E">
-<!ENTITY filePrefAllLangFixedWidth.label "Fixed Width:">
+<!ENTITY filePrefAllLangFixedWidth.label "Fixed width:">
 <!ENTITY filePrefAllLangFixedWidth.accesskey "W">
 <!ENTITY filPrefAllLangForeText "Fore:">
 <!ENTITY filPrefAllLangBackText "Back:">
 <!ENTITY filePrefAllLangProportional.label "Proportional:">
 <!ENTITY chooseColorEditorElement.description "Choose colors for Komodo's editor elements (i.e. anything in the editor that is not syntax coloring).">
-<!ENTITY filePrefAllLangColorChoice.label "Color Choice: ">
+<!ENTITY filePrefAllLangColorChoice.label "Color choice:">
 <!ENTITY filePrefAllLangColorChoice.accesskey "h">
 <!ENTITY styleForElements.description "Set styling for syntax elements common to many programming languages.">
-<!ENTITY filePrefAllLangElementType.label "Element Type: ">
+<!ENTITY filePrefAllLangElementType.label "Element type: ">
 <!ENTITY filePrefAllLangElementType1.accesskey "T">
 <!ENTITY filePrefAllLangFace.label "Face:">
 <!ENTITY filePrefAllLangSize.label "Size:">
 <!ENTITY filePrefAllLangForeground.label "Foreground:">
 <!ENTITY filePrefAllLangBackground.label "Background:">
-<!ENTITY filePrefSubLanguageBackground.label "Sub-Language Background:">
+<!ENTITY filePrefSubLanguageBackground.label "Sub-language background:">
 <!ENTITY filePrefUseSubLanguageBackground.label "Use a different background color when used as a sub-language">
 <!ENTITY filePrefSubLanguageBackground.accesskey "S">
 <!ENTITY filePrefUseSubLanguageBackground.accesskey "U">
@@ -547,13 +547,13 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY codeintelScanning.caption "Code Scanning">
 <!ENTITY codeintelScanning.description "Controls how the Code Intelligence system scans your source code files.">
 <!ENTITY codeintelScanFilesInProject.label "Include all files and directories from the project base directory">
-<!ENTITY codeIntelMaxRecursiveDirectoryDepth.label "Max directory depth: ">
+<!ENTITY codeIntelMaxRecursiveDirectoryDepth.label "Maximum directory depth: ">
 <!ENTITY codeIntelAPICatalogs.description "Komodo uses API catalogs to provide autocomplete and calltips for 3rd-party libraries. Check the libraries that you use in your code.">
 <!ENTITY codeIntelAPICatalogsNote.description "Note: Selecting all API catalogs for a particular language can lead to confusing results.">
 
 <!--pref-intl.xul-->
-<!ENTITY useEncodeEnvironment.label "Use Encoding Defined in Environment">
-<!ENTITY customEncoding.label "Custom Encoding">
+<!ENTITY useEncodeEnvironment.label "Use encoding defined in environment:">
+<!ENTITY customEncoding.label "Custom encoding:">
 <!ENTITY dateTime.label "Date &amp; Time">
 <!ENTITY format.label "Format">
 <!ENTITY dateTimeExample.label "Example:">
@@ -570,13 +570,13 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY fileEditSmartWrapLines.label "Wrap long lines by:">
 <!ENTITY fileEditSmartWrapIndentation.label "Wrap indentation:">
 <!ENTITY fileEditSmartWrapMarkers.label "Wrap markers:">
-<!ENTITY fileEditSmartEdgeLine.label "Line edge column:">
+<!ENTITY fileEditSmartEdgeLine.label "Edge line column:">
 <!ENTITY fileEditSmartFoldMarkStyle.label "Fold mark style:">
-<!ENTITY wordwrapIndentationFixed.label "Fixed Alignment">
-<!ENTITY wordwrapIndentationSame.label "Same Level Alignment">
-<!ENTITY wordwrapIndentationOneLevel.label "One Extra Level">
+<!ENTITY wordwrapIndentationFixed.label "Fixed alignment">
+<!ENTITY wordwrapIndentationSame.label "Same level alignment">
+<!ENTITY wordwrapIndentationOneLevel.label "One extra level">
 <!-- strings embedded in script-->
-<!ENTITY useTabCharacterToCompleteWords.message "Use tab character to complete words like __KEY__ ">
+<!ENTITY useTabCharacterToCompleteWords.message "Use Tab character to complete words like __KEY__">
 
 <!--pref-editor.xul-->
 <!ENTITY cursorStyle.label "Cursor style:">
@@ -587,21 +587,21 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY horizScrollWidth.label "Minimum horizontal scrollbar width (in pixels):">
 <!ENTITY horizScrollWidthTracking.label "Automatically adjust the horizontal scrollbar width">
 <!ENTITY horizScrollWidthTracking.tooltiptext "When enabled, this will automatically adjust the horizontal scrollbar width to fit the document width. Note: Enabling this feature can decrease the editor performance.">
-<!ENTITY filePrefEditorMatchCase.label "Matches Case:">
+<!ENTITY filePrefEditorMatchCase.label "Matches case:">
 <!ENTITY filePrefEdiorUses.label "Uses:">
 <!ENTITY tabs.label "Tabs">
 <!ENTITY returnToMostRecentBufferOnClose.label "When I close the current tab, switch to the most recently visited tab">
 <!ENTITY dragdrop.label "Drag &amp; Drop">
-<!ENTITY droppingURL.label "When dropping a URL on Komodo:">
+<!ENTITY droppingURL.label "When dropping a URL in Komodo:">
 <!-- These three entities are special and must match the button labels from the
      drag/drop dialog, which are set in the "library.properties" file. -->
 <!ENTITY addAURIMapping.label "Map the URL">
-<!ENTITY viewSource.label "View Source">
-<!ENTITY dropAsText.label "Drop as Text">
+<!ENTITY viewSource.label "View source">
+<!ENTITY dropAsText.label "Drop as text">
 
 <!--pref-environ.xul-->
-<!ENTITY startEnvironVar.label "Startup Environment Variables">
-<!ENTITY userEnvironVar.label "User Environment Variables (override defaults)">
+<!ENTITY startEnvironVar.label "Startup environment variables:">
+<!ENTITY userEnvironVar.label "User environment variables (override defaults):">
 
 <!--pref-find.xul-->
 <!ENTITY bytes.label "bytes">
@@ -623,9 +623,9 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY syntaxControlHtml.description "Komodo uses Tidy, an HTML syntax checking tool from the W3C, to check for errors in your HTML files.  Here you can set error levels, and the WAI Accessibility Conformance level you wish to support. If you need a deeper level of customization for Tidy, you can customize the way Tidy works by creating a Tidy configuration file. You can find more details on Tidy configuration at the website below.">
 <!ENTITY moreInfoTydy.label "You can find more information about Tidy at:">
 <!ENTITY moreInfoWai.label "You can find more information about WAI at:">
-<!ENTITY errorLevel.label "Error Level:">
-<!ENTITY waiAccessibilityLevel.label "WAI Accessibility Conformance Level:">
-<!ENTITY configurationFile.label "Configuration File:">
+<!ENTITY errorLevel.label "Error level:">
+<!ENTITY waiAccessibilityLevel.label "WAI accessibility conformance level:">
+<!ENTITY configurationFile.label "Configuration file:">
 <!ENTITY perlHTMLTidy.label "Perl HTML-Tidy">
 <!ENTITY checkWithPerlsHTMLTidy.label "Check With Perl's HTML-Tidy">
 <!ENTITY perlHTMLLint.label "Perl HTML-Lint">
@@ -636,7 +636,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY HTMLTidy.label "HTML Tidy">
 
 <!--pref-indentation.xul-->
-<!ENTITY autoIndentStyle.label "Auto-Indent Style:">
+<!ENTITY autoIndentStyle.label "Auto-indent style:">
 <!ENTITY filePrefIndentationSpacePerIndent.label "Number of spaces per indent">
 <!ENTITY filePrefIndentationWhidtTabChar.label "Width of each Tab character">
 
@@ -644,7 +644,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!--pref-project-javascript.xul-->
 <!ENTITY lintJavaScript_SpiderMonkey.label "Check with Mozilla JS (SpiderMonkey)">
 <!ENTITY lintJavaScriptEnableWarnings.label "Enable warning messages">
-<!ENTITY lintJavaScriptEnableStrict.label "Enable strict warning messages.">
+<!ENTITY lintJavaScriptEnableStrict.label "Enable strict warning messages">
 <!ENTITY javascriptFolder.description "Specify any directories that you want Komodo to use for autocomplete and calltips. Komodo will recursively scan these directories for information.">
 <!ENTITY lintJavaScriptWithJSLint.label "Check Code With JSLint">
 <!ENTITY JSLint.label "JSLint">
@@ -675,7 +675,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!--pref-languages.xul-->
 <!ENTITY languagesSettings.description "Komodo comes with support for a variety of languages. Core editing features are enabled by default for a large set of languages.  For additional configuration of Core languages, select the language in the tree to the left.">
 <!ENTITY filterPrimaryLanguageNames.tooltip "Filter Language Names">
-<!ENTITY languageNames.label "Language Names:">
+<!ENTITY languageNames.label "Language names:">
 <!ENTITY languageNames.accesskey "L">
 <!ENTITY primaryLanguage.tooltip "Primary Language">
 <!ENTITY primaryLanguages.label "Primary Languages">
@@ -685,14 +685,14 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY mappedUri.description "Specify any mapping of a URI to a local path that you would like Komodo to use when opening files, previewing, etc.">
 
 <!--pref-newfiles.xul-->
-<!ENTITY newButtonSettings.description "Specify the default language for files created using the 'New' Button.">
+<!ENTITY newButtonSettings.description "Specify the default language for files created using the 'New' button.">
 <!ENTITY newFileEolIndicator.description "Specify the end-of-line (EOL) indicator for newly created files.">
 <!ENTITY noExtensionFile.label "If filename has no extension:">
-<!ENTITY numberTemplatesRember.label "Number of recent templates to remember">
+<!ENTITY numberTemplatesRember.label "Number of recent templates to remember:">
 
 <!--pref-ui.xul-->
-<!ENTITY numberOfProjects.label "Number of Projects">
-<!ENTITY numberOfFiles.label "Number of Files">
+<!ENTITY numberOfProjects.label "Number of projects:">
+<!ENTITY numberOfFiles.label "Number of files:">
 
 <!--pref-ui-tabs.xul-->
 <!ENTITY sidePaneTabStyles.caption "Side Pane Layouts">
@@ -734,16 +734,16 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 
 <!--pref-python.xul-->
 <!ENTITY noPythonInterpreter.description "No Python interpreter was found on your system PATH. If you would like to debug and run Python programs in Komodo you will need to have Python installed and then enter the path to your Python interpreter below. You can get Python from ActiveState at">
-<!ENTITY noPython3Interpreter.description "No Python3 interpreter was found on your system PATH. If you would like to debug and run Python3 programs in Komodo you will need to have Python3 installed and then enter the path to your Python3 interpreter below. You can get Python from ActiveState at">
+<!ENTITY noPython3Interpreter.description "No Python 3 interpreter was found on your system PATH. If you would like to debug and run Python 3 programs in Komodo you will need to have Python 3 installed and then enter the path to your Python 3 interpreter below. You can get Python from ActiveState at">
 <!ENTITY noteRestartPython.alert "Note: Komodo must be restarted for it to recognize new Python installations.">
 <!ENTITY filePrefPythonUseThisInterpreter.label "Use this interpreter">
 <!ENTITY filePrefPythonAdditionalDirectory.description "Specify any additional directories that you want Komodo to add to the Python path when debugging, syntax checking or in the interactive shell.">
 <!ENTITY ClassicPythonChecking.label "Python Interpreter Syntax Checking">
 <!ENTITY lintWithPychecker.label "Do Pychecker Linting">
-<!ENTITY pycheckerWarning.descr "Warning: pychecker will load modules and run top-level statements.  ActiveState recommends using pylint instead.">
-<!ENTITY pycheckerWrapperLocation.label "Location of Pychecker Executable">
-<!ENTITY pycheckerRCLocation.label "Location of pycheckrc Config File">
-<!ENTITY pycheckerNeedsPath.descr "Pychecker checking needs an explicit path to the Pychecker script">
+<!ENTITY pycheckerWarning.descr "Warning: Pychecker will load modules and run top-level statements. ActiveState recommends using pylint instead.">
+<!ENTITY pycheckerWrapperLocation.label "Location of Pychecker executable">
+<!ENTITY pycheckerRCLocation.label "Location of pycheckrc config file">
+<!ENTITY pycheckerNeedsPath.descr "Pychecker checking needs an explicit path to the Pychecker script.">
 
 <!--pref-ruby.xul-->
 <!ENTITY noRubyInterpreter.description "No Ruby interpreter was found on your system. If you would like to debug and run Ruby programs in Komodo you will need to install Ruby. You can get Ruby from the Ruby home page at">
@@ -786,13 +786,13 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY ifFileNameHasNoExtension.label "If filename has no extension:">
 
 <!--pref-servers.xul-->
-<!ENTITY serverType.label "Server Type (*)">
+<!ENTITY serverType.label "Server type (*)">
 <!ENTITY connectionName.label "Name (*)">
 <!ENTITY hostName.label "Hostname (*)">
 <!ENTITY portNumber.label "Port">
-<!ENTITY userName.label "User Name (*)">
+<!ENTITY userName.label "Username (*)">
 <!ENTITY password.label "Password">
-<!ENTITY defaultPath.label "Default Path">
+<!ENTITY defaultPath.label "Default path">
 <!ENTITY requiredFieldMark.label "Required fields are marked with (*)">
 <!ENTITY timeoutSeconds.label "Timeout (seconds):">
 
@@ -828,22 +828,22 @@ For example, when entering '(', automatically add a closing ')' after the cursor
                                             -->
 <!--pref-helplang.xul-->
 <!ENTITY default.value "Default:">
-<!ENTITY generalHelp.value "General Help:">
+<!ENTITY generalHelp.value "General help:">
 
 <!--pref-alllangfonts.xul-->
 <!ENTITY indicators.accesskey "I">
 <!ENTITY indicators.label "Indicators">
 <!ENTITY indicatorMenu.label "Indicator:">
-<!ENTITY indicators.description "Set the color and styling of indicators">
+<!ENTITY indicators.description "Set the color and styling of indicators.">
 <!ENTITY indicStyle.label "Style:">
 <!ENTITY indicStylePlain.label "Underline">
 <!ENTITY indicStyleSquiggle.label "Squiggle">
-<!ENTITY indicStyleTT.label "TT Shapes">
-<!ENTITY indicStyleDiagonal.label "Diagonal Hatch">
+<!ENTITY indicStyleTT.label "TT shapes">
+<!ENTITY indicStyleDiagonal.label "Diagonal hatch">
 <!ENTITY indicStyleStrike.label "Strike">
 <!ENTITY indicStyleHidden.label "Hidden">
-<!ENTITY indicStyleBox.label "Box Outline">
-<!ENTITY indicStyleRoundBox.label "Rounded Box">
-<!ENTITY indicAlpha.label "Alpha (0 - 256):">
+<!ENTITY indicStyleBox.label "Box outline">
+<!ENTITY indicStyleRoundBox.label "Rounded box">
+<!ENTITY indicAlpha.label "Alpha (0&#8211;256):">
 <!ENTITY indicColor.label "Color:">
 <!ENTITY indicDrawUnderneath.label "Draw indicator underneath the text">
