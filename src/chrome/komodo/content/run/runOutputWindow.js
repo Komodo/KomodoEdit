@@ -115,6 +115,15 @@ this.initialize = function RunOutput_Init() {
         _gTerminalView.init();
         _gTerminalView.initWithTerminal(_gTerminalHandler);
         boxObject.view = _gTerminalHandler;
+
+        ["mousedown", "focus"].forEach(function(eventname) {
+            window.frameElement.addEventListener(eventname, function(event) {
+                if (event.originalTarget == event.target) {
+                    document.getElementById("runoutput-deck").focus();
+                }
+            }, false);
+        });
+        window.frameElement.hookupObservers("runoutput-commandset");
     } finally {
         ko.main.addWillCloseHandler(ko.run.output.finalize);
     }
@@ -308,7 +317,8 @@ this.kill = function RunOutput_Kill(retval)
 
 function _SetView(editor, showParsedOutputList)
 {
-    var deckWidget = editor.document.getElementById("runoutput-deck");
+    // ignore |editor|, always use the window we're in
+    var deckWidget = window.document.getElementById("runoutput-deck");
     if (showParsedOutputList) {
         deckWidget.setAttribute("selectedIndex", 1);
     } else {

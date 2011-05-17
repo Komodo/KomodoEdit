@@ -551,6 +551,7 @@ StatusBarObserver.prototype.handle_current_view_language_changed = function(even
 }; 
 
 StatusBarObserver.prototype.handle_current_view_linecol_changed = function(event) {
+    if (!ko.views.manager) return; // no manager yet
     _updateLineCol(ko.views.manager.currentView);
 }; 
 

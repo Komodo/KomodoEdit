@@ -127,7 +127,6 @@
     <script src="chrome://komodo/content/find/findResultsTab.js"          type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/find/findtoolbar.js"             type="application/x-javascript;version=1.7"/>
 
-    <script src="chrome://komodo/content/run/runOutputWindow.js"          type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/run/run_functions.js"            type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/run/interpolate.js"              type="application/x-javascript;version=1.7"/>
 
@@ -2130,8 +2129,8 @@
                          by mouse and Ctrl[+Shift]+Tab -->
                     <tab id="runoutput_tab" label="&commandOutput.label;"
                         linkedpanel="runoutput-desc-tabpanel"
-                        onmousedown="document.getElementById('runoutput-deck').focus();"
-                        onfocus="document.getElementById('runoutput-deck').focus();"
+                        onmousedown="document.getElementById('runoutput-browser').focus();"
+                        onfocus="document.getElementById('runoutput-browser').focus();"
                         onmovetab_unload="ko.run.output.finalize();"
                         onmovetab_load="ko.run.output.initialize();"
                         />
@@ -2153,69 +2152,9 @@
                         output.
                     -->
                     <tabpanel orient="vertical" flex="1" id="runoutput-desc-tabpanel">
-                        <hbox id="runoutput-desc-tabpanel-toolbar-hbox"
-                            class="toolbar-background toolbar-hbox">
-                            <vbox flex="1">
-                                <spring flex="1"/>
-                                <label id="runoutput-desc" style="height: 15px;"
-                                       flex="1" crop="center"/>
-                                <spring flex="1"/>
-                            </vbox>
-                            <spacer flex="1"/>
-                            <hbox id="runoutput-button-box" class="no-border solo-toolbaritem">
-                            <toolbarbutton id="runoutput-list-button"
-                                    class="bulletlist-icon"
-                                    tooltiptext="&toggleRawParsedOutputView.tooltiptext;"
-                                    oncommand="ko.run.output.toggleView();"
-                                    disabled="true"/>
-                            <toolbarbutton id="runoutput-close-button"
-                                    class="find-stop-icon"
-                                    tooltiptext="&terminateProcess.tooltiptext;"
-                                    oncommand="ko.run.output.kill(-1);"
-                                    disabled="true"/>
-                            </hbox>
-                        </hbox>
-                        <vbox flex="1" id="runoutput-desc-tabpanel-vbox">
-                            <hbox flex="1" id="runoutput-desc-tabpanel-hbox">
-                                <deck id="runoutput-deck"
-                                      selectedIndex="0" flex="1">
-                                    <view type="terminal"
-                                          onclick="ko.run.output.scintillaOnClick(event);"
-                                          id="runoutput-scintilla"
-                                          flex="1" style="cursor: text;"/>
-                                    <tree id="runoutput-tree" flex="1" class="no-border"
-                                          onclick="ko.run.output.treeOnClick(event);"
-                                          onkeypress="return ko.run.output.treeOnKeyPress(event);">
-                                        <treecols>
-                                        <treecol primary="true"
-                                                 class="treecol-header treecol-inset-header sortDirectionIndicator"
-                                                 id="runoutput-tree-file"
-                                                 label="&file.label;" flex="6"
-                                                 persist="width"
-                                                 crop="left"/>
-                                        <splitter class="tree-splitter"/>
-                                        <treecol id="runoutput-tree-line"
-                                                 class="treecol-header treecol-inset-header sortDirectionIndicator"
-                                                 label="&line.label;"
-                                                 persist="width"
-                                                 style="width: 5em;"/>
-                                        <splitter class="tree-splitter"/>
-                                        <treecol id="runoutput-tree-column"
-                                                 class="treecol-header treecol-inset-header sortDirectionIndicator"
-                                                 label="&column.label;"
-                                                 persist="width"
-                                                 style="width: 5em;"/>
-                                        <splitter class="tree-splitter"/>
-                                        <treecol id="runoutput-tree-content"
-                                                 class="treecol-header treecol-inset-header sortDirectionIndicator"
-                                                 persist="width"
-                                                 label="&content.label;" flex="12"/>
-                                        </treecols>
-                                        <treechildren id="runoutput-tree-body" flex="1"/>
-                                    </tree>
-                                </deck>
-                            </hbox>
-                        </vbox>
+                        <browser flex="1" id="runoutput-browser"
+                                 src="chrome://komodo/content/run/runOutputPane.xul"
+                                 style="-moz-binding: url('chrome://komodo/content/bindings/pane.xml#pane-browser');"/>
                     </tabpanel>
 
                     <!-- The two Find Results tabs of the output pane -->

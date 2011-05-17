@@ -42,6 +42,7 @@ $cons->InstallInChrome('run.js');
 $cons->InstallInChrome('run.xul');
 $cons->InstallInChrome('run_functions.js');
 $cons->InstallInChrome('interpolate.js');
+$cons->InstallInChrome('runOutputPane.xul');
 $cons->InstallInChrome('runOutputWindow.js');
 $cons->InstallInChrome('commandproperties.js');
 $cons->InstallInChrome('commandproperties.xul');

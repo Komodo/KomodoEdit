@@ -1,0 +1,87 @@
+<?xml version="1.0"?>
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+<!DOCTYPE overlay PUBLIC "-//MOZILLA//DTD XUL V1.0//EN" "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % debuggerDTD SYSTEM "chrome://komodo/locale/komodo.dtd">
+  %debuggerDTD;
+]>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/scintilla.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/scrolltabs.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/views.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/komodo.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/platform.css" type="text/css"?>
+<?xml-stylesheet href="chrome://global/skin/tabbox.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/tabs/tabs.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/toolbar.css" type="text/css"?>
+
+<page xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+    <hbox id="runoutput-desc-tabpanel-toolbar-hbox"
+        class="toolbar-background toolbar-hbox">
+        <vbox flex="1">
+            <spring flex="1"/>
+            <label id="runoutput-desc" style="height: 15px;"
+                   flex="1" crop="center"/>
+            <spring flex="1"/>
+        </vbox>
+        <spacer flex="1"/>
+        <hbox id="runoutput-button-box" class="no-border solo-toolbaritem">
+        <toolbarbutton id="runoutput-list-button"
+                class="bulletlist-icon"
+                tooltiptext="&toggleRawParsedOutputView.tooltiptext;"
+                oncommand="ko.run.output.toggleView();"
+                disabled="true"/>
+        <toolbarbutton id="runoutput-close-button"
+                class="find-stop-icon"
+                tooltiptext="&terminateProcess.tooltiptext;"
+                oncommand="ko.run.output.kill(-1);"
+                disabled="true"/>
+        </hbox>
+    </hbox>
+    <vbox flex="1" id="runoutput-desc-tabpanel-vbox">
+        <hbox flex="1" id="runoutput-desc-tabpanel-hbox">
+            <deck id="runoutput-deck"
+                  selectedIndex="0" flex="1">
+                <view type="terminal"
+                      onclick="ko.run.output.scintillaOnClick(event);"
+                      id="runoutput-scintilla"
+                      flex="1" style="cursor: text;"/>
+                <tree id="runoutput-tree" flex="1" class="no-border"
+                      onclick="ko.run.output.treeOnClick(event);"
+                      onkeypress="return ko.run.output.treeOnKeyPress(event);">
+                    <treecols>
+                    <treecol primary="true"
+                             class="treecol-header treecol-inset-header sortDirectionIndicator"
+                             id="runoutput-tree-file"
+                             label="&file.label;" flex="6"
+                             persist="width"
+                             crop="left"/>
+                    <splitter class="tree-splitter"/>
+                    <treecol id="runoutput-tree-line"
+                             class="treecol-header treecol-inset-header sortDirectionIndicator"
+                             label="&line.label;"
+                             persist="width"
+                             style="width: 5em;"/>
+                    <splitter class="tree-splitter"/>
+                    <treecol id="runoutput-tree-column"
+                             class="treecol-header treecol-inset-header sortDirectionIndicator"
+                             label="&column.label;"
+                             persist="width"
+                             style="width: 5em;"/>
+                    <splitter class="tree-splitter"/>
+                    <treecol id="runoutput-tree-content"
+                             class="treecol-header treecol-inset-header sortDirectionIndicator"
+                             persist="width"
+                             label="&content.label;" flex="12"/>
+                    </treecols>
+                    <treechildren id="runoutput-tree-body" flex="1"/>
+                </tree>
+            </deck>
+        </hbox>
+    </vbox>
+
+    <commandset id="runoutput-commandset"/>
+
+    <script src="chrome://komodo/content/run/runOutputWindow.js"          type="application/x-javascript;version=1.7"/>
+</page>
