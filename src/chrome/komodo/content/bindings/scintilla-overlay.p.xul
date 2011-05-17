@@ -59,7 +59,7 @@
 
     <hbox id="scintillaOverlayXul" style="margin: 0px; padding: 0px; height: 0px; width: 0px;">
         <menupopup type="buffercontext" id="bufferContextMenu"
-                   onpopupshowing="window.updateCommands('buffer_context_menu_showing');"/>
+                   onpopupshowing="document.commandDispatcher.updateCommands('buffer_context_menu_showing');"/>
         <menupopup id = "token-context-menu"/>
         <spacer height="0" id="context-spacer" context="token-context-menu"/>
         <commandset id="allcommands"/>
