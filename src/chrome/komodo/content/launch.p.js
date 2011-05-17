@@ -673,7 +673,7 @@ this.id = "hidden-input-buffer";
 this.start = function()
 {
     _isActive = true;
-    var inputBufferWidget = document.getElementById(ko.inputBuffer.id);
+    var inputBufferWidget = (parent||window).document.getElementById(ko.inputBuffer.id);
     inputBufferWidget.focus();
 }
 
@@ -690,7 +690,7 @@ this.focus = function(event)
 this.finish = function()
 {
     // Return the contents of the input buffer and stop buffering.
-    var inputBufferWidget = document.getElementById(ko.inputBuffer.id);
+    var inputBufferWidget = (parent||window).document.getElementById(ko.inputBuffer.id);
     var contents = inputBufferWidget.value;
     inputBufferWidget.value = "";
 
