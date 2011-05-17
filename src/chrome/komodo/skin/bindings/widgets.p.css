@@ -84,6 +84,88 @@ menu.menulist-subLevel > menupopup  > menuitem {
 }
 
 
+/* A pane to hold widgets, as in kd 272 */
+ko-pane {
+  -moz-binding: url("chrome://komodo/content/bindings/pane.xml#pane");
+}
+ko-pane .pane-tabs-container tabs {
+  -moz-box-flex: 1;
+}
+
+ko-pane[type="sidebar"],
+ko-pane[type="horizontal"] {
+  -moz-box-orient: vertical;
+}
+ko-pane[type="sidebar"] .pane-tabs-container tabs {
+  -moz-binding: url("chrome://komodo/content/bindings/scrolltabs.xml#tabs-droplist");
+}
+ko-pane[type="horizontal"] .pane-tabs-container tabs {
+  -moz-binding: url("chrome://komodo/content/bindings/scrolltabs.xml#tabs-scrollable");
+}
+ko-pane .tabs-vertical-label {
+  -moz-appearance: -moz-win-browsertabbar-toolbox;
+  -moz-box-align: center;
+}
+ko-pane[type="sidebar"] .tabs-vertical-label,
+ko-pane[type="horizontal"] .tabs-vertical-label{
+  visibility: collapse;
+}
+
+ko-pane .tabs-vertical-label > spacer {
+  -moz-box-flex: 1;
+}
+
+ko-pane[type="horizontal"] {
+  -moz-box-orient: vertical;
+}
+
+ko-pane[type="vertical"] tabs[anonid="tabs"] {
+  -moz-binding: url("chrome://komodo/content/bindings/scrolltabs.xml#tabs-vertical-text");
+  -moz-box-orient: vertical;
+}
+ko-pane[type="vertical"] tabs[anonid="tabs"] .tabs-left {
+  /* Ensures the tabs are vertically centered. */
+  -moz-box-flex: 1;
+}
+ko-pane[type="vertical"] tabs[anonid="tabs"] tab {
+  /* Vertical tab with vertical text labels. */
+  -moz-binding        : url("chrome://komodo/content/bindings/scrolltabs.xml#tab-vertical-text");
+  -moz-appearance     : none;
+  min-width           : 4.5ex;
+  max-width           : 3em;
+  margin              : 0;
+  padding             : 0;
+}
+ko-pane[type="vertical"] tabs[anonid="tabs"] tab[selected] {
+  font-weight: bold;
+}
+ko-pane[type="vertical"] tabs[anonid="tabs"] tab:-moz-focusring {
+  outline: none;
+}
+
+ko-pane[type="vertical"] tabs[anonid="tabs"][rotation="90"] .vertical-label-vbox {
+  /* since the last character is normally on top, this makes the text read backwards */
+  -moz-box-direction: reverse;
+}
+ko-pane[type="vertical"] tabs[anonid="tabs"][rotation="90"] .vertical-button-text {
+  -moz-transform: rotate(90deg);
+}
+ko-pane[type="vertical"] tabs[anonid="tabs"][rotation="180"] .vertical-button-text {
+  -moz-transform: rotate(180deg);
+}
+ko-pane[type="vertical"] tabs[anonid="tabs"][rotation="270"] .vertical-button-text {
+  -moz-transform: rotate(270deg);
+}
+#workspace_right_area[type="vertical"] {
+  /* put the tabs on the outer edge of the window */
+  -moz-box-direction: reverse;
+}
+
+browser[type="ko-widget"] {
+  -moz-binding: url("chrome://komodo/content/bindings/pane.xml#widget");
+  -moz-box-flex: 1;
+}
+
 /**
  * Vertical tab text in a tabbox.
  */
@@ -96,7 +178,7 @@ tabbox.vertical_tabs tabpanels
     /* Remove the 1px border on top of the tabbox panels. */
     border-top-width    : 0;
 }
-tabbox tabpanel
+_commented_out tabbox tabpanel
 {
     /* The normal tabpanel. Required due to bug 87690. */
     -moz-binding        : url("chrome://komodo/content/bindings/scrolltabs.xml#tabpanel-normal");
@@ -164,17 +246,4 @@ label.vertical_text
     /* Captialized characters need a little more room. */
     margin-top          : -3px;
     margin-bottom       : -3px;
-}
-
-.vertical-label-vbox[rotation="90"] > label
-{
-    -moz-transform      : rotate(90deg);
-}
-.vertical-label-vbox[rotation="180"] > label
-{
-    -moz-transform      : rotate(180deg);
-}
-.vertical-label-vbox[rotation="270"] > label
-{
-    -moz-transform      : rotate(270deg);
 }

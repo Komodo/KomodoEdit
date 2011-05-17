@@ -42,9 +42,9 @@ xtk.include("controller");
 
 var handlers = {
     'cmd_helpAbout': 'ko.launch.about()',
-    'cmd_viewBottomPane': 'ko.uilayout.togglePane(\'bottom_splitter\', \'output_tabs\', \'cmd_viewBottomPane\');',
-    'cmd_viewLeftPane': 'ko.uilayout.togglePane(\'workspace_left_splitter\', \'project_toolbox_tabs\', \'cmd_viewLeftPane\');',
-    'cmd_viewRightPane': 'ko.uilayout.togglePane(\'workspace_right_splitter\', \'right_toolbox_tabs\', \'cmd_viewRightPane\');',
+    'cmd_viewBottomPane': function() ko.uilayout.togglePane("workspace_bottom_area"),
+    'cmd_viewLeftPane': function() ko.uilayout.togglePane("workspace_left_area"),
+    'cmd_viewRightPane': function() ko.uilayout.togglePane("workspace_right_area"),
     'cmd_viewToolbox': 'ko.uilayout.toggleTab(\'toolbox2_tab\')',
     'cmd_focusProjectPane': 'ko.uilayout.focusPane(\'project_toolbox_tabs\')',
     'cmd_focusToolboxPane': 'ko.uilayout.focusPane(\'right_toolbox_tabs\')',
@@ -128,7 +128,11 @@ broadcasterController.prototype.supportsCommand = broadcasterController.prototyp
 
 broadcasterController.prototype.doCommand = function(cmdName) {
     if (cmdName in handlers) {
-        return eval(handlers[cmdName]);
+        if (handlers[cmdName] instanceof Function) {
+            return handlers[cmdName]();
+        } else {
+            return eval(handlers[cmdName]);
+        }
     };
     return false;
 }

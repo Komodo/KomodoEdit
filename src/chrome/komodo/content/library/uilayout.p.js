@@ -370,7 +370,7 @@ this.updateTabpickerMenu = function uilayout_updateTabpickerMenu(menupopup)
     }
 }
 
-this.togglePane = function uilayout_togglePane(splitterId, tabsId, cmdId, force)
+this.togglePane = function uilayout_togglePane(paneId, force)
 {
     // If force is true, then the toggle happens regardless.
     // If force is false, then the toggle happens only if the
@@ -381,11 +381,8 @@ this.togglePane = function uilayout_togglePane(splitterId, tabsId, cmdId, force)
         }
         // If the project/toolbox pane is not shown, then show it
         // and focus on the relevant part manager
-        var splitterWidget = document.getElementById(splitterId);
-        var tabs = document.getElementById(tabsId);
-        if (!force &&
-            splitterWidget.hasAttribute('collapsed') &&
-            splitterWidget.getAttribute('collapsed') == 'true') {
+        var pane = document.getElementById(paneId);
+        if (!force && pane.collapsed) {
             var scimoz = null;
             // Following code fixes bug 83545:
             // After we've opened a tab, if the caret was visible before
@@ -406,7 +403,7 @@ this.togglePane = function uilayout_togglePane(splitterId, tabsId, cmdId, force)
                     scimoz = null;
                 }
             }
-            ko.uilayout.toggleSplitter(cmdId);
+            pane.collapsed = false;
             if (scimoz) {
                 // This has to be done in a setTimeout on Windows and OS X.
                 // If we try it now, Scintilla thinks the caret is still in
@@ -421,7 +418,7 @@ this.togglePane = function uilayout_togglePane(splitterId, tabsId, cmdId, force)
         } else {
             // Before we collapse it, figure out whether the focus is in this
             // panel.  If so, then move it back to the editor
-            if (xtk.domutils.elementInFocus(tabs.parentNode)) {
+            if (xtk.domutils.elementInFocus(pane)) {
                 if (ko.views.manager.currentView) {
                     ko.views.manager.currentView.setFocus();
                 } else {
@@ -429,7 +426,7 @@ this.togglePane = function uilayout_togglePane(splitterId, tabsId, cmdId, force)
                     window.focus();
                 }
             }
-            ko.uilayout.toggleSplitter(cmdId);
+            pane.collapsed = !pane.collapsed;
         }
     } catch (e) {
         _log.exception(e);
@@ -1390,57 +1387,29 @@ this.onload = function uilayout_onload()
     ko.main.addWillCloseHandler(ko.uilayout.unload);
 }
 
-this._setTabPaneLayoutForTabbox = function(layout, tabbox, position) {
-    var tabs = tabbox.tabs;
+this._setTabPaneLayoutForTabbox = function(layout, pane, position) {
     if (position == "right" && layout != "vertical") {
-        tabbox.removeAttribute("dir");
+        pane.removeAttribute("dir");
     }
     switch (layout) {
         case "sidebar":
-            if (tabbox.getAttribute("class").indexOf("vertical_tabs") >= 0) {
+        case "horizontal":
+            if (pane.getAttribute("type") == "vertical") {
                 // Ensure to properly unhook the vertical tabs event handlers
                 // when switching bindings - otherwise exceptions will be raised
                 // when any adding/deleting of nodes occurs.
-                tabs.unHookBinding();
+                pane.tabs.unHookBinding();
             }
-            tabbox.setAttribute("orient", "vertical");
-            tabs.setAttribute("orient", "horizontal");
-            tabs.setAttribute("type", "sidebar");
-            tabbox.setAttribute("class", "sidepanel");
-            // This label updating has to happen in a timeout, otherwise it
-            // won't get applied correctly.
-            window.setTimeout(function() { tabs.setAttribute("label", tabs.selectedItem.getAttribute("label")); }, 1);
             break;
         case "vertical":
-            tabs.setAttribute("orient", "vertical");
-            tabs.removeAttribute("type");
             if (position == "left") {
-                tabbox.setAttribute("rotation", "270");
+                pane.setAttribute("rotation", "270");
             } else if (position == "right") {
-                tabbox.setAttribute("rotation", "90");
-                tabbox.setAttribute("dir", "reverse");
+                pane.setAttribute("rotation", "90");
             }
-            tabbox.setAttribute("orient", "horizontal");
-            tabbox.setAttribute("class", "native vertical_tabs");
-            // This label updating has to happen in a timeout, otherwise it
-            // won't get applied correctly.
-            window.setTimeout(function() { tabs.updateSelectedTabLabel(); }, 1);
-            break;
-        case "horizontal":
-            if (tabbox.getAttribute("class").indexOf("vertical_tabs") >= 0) {
-                // Ensure to properly unhook the vertical tabs event handlers
-                // when switching bindings - otherwise exceptions will be raised
-                // when any adding/deleting of nodes occurs.
-                tabs.unHookBinding();
-            }
-            tabbox.setAttribute("orient", "vertical");
-            tabs.setAttribute("orient", "horizontal");
-            tabbox.setAttribute("class", "native");
-            // This type setting has to occur in a timeout, otherwise it
-            // won't get applied correctly.
-            window.setTimeout(function() { tabs.setAttribute("type", "scrollable"); }, 1);
             break;
     }
+    pane.setAttribute("type", layout);
 }
 
 /**
@@ -1449,15 +1418,15 @@ this._setTabPaneLayoutForTabbox = function(layout, tabbox, position) {
 this.setTabPaneLayout = function uilayout_setTabPaneLayout() {
     // Set the tab pane layout.
     var leftTabStyle = _gPrefs.getStringPref("ui.tabs.sidepanes.left.layout");
-    var leftTabbox = document.getElementById("leftTabBox");
+    var leftTabbox = document.getElementById("workspace_left_area");
     ko.uilayout._setTabPaneLayoutForTabbox(leftTabStyle, leftTabbox, "left");
 
     var rightTabStyle = _gPrefs.getStringPref("ui.tabs.sidepanes.right.layout");
-    var rightTabbox = document.getElementById("rightTabBox");
+    var rightTabbox = document.getElementById("workspace_right_area");
     ko.uilayout._setTabPaneLayoutForTabbox(rightTabStyle, rightTabbox, "right");
 
     var bottomTabStyle = _gPrefs.getStringPref("ui.tabs.sidepanes.bottom.layout");
-    var bottomTabbox = document.getElementById("output_area");
+    var bottomTabbox = document.getElementById("workspace_bottom_area");
     ko.uilayout._setTabPaneLayoutForTabbox(bottomTabStyle, bottomTabbox, "bottom");
 
     if (navigator.oscpu == 'Windows NT 5.1') {
@@ -1535,17 +1504,17 @@ _PrefObserver.prototype.observe = function(prefSet, prefName, prefSetID)
     } else if (prefName == "ui.tabs.sidepanes.left.layout") {
         // Set the tab pane layout.
         var leftTabStyle = _gPrefs.getStringPref("ui.tabs.sidepanes.left.layout");
-        var leftTabbox = document.getElementById("leftTabBox");
+        var leftTabbox = document.getElementById("workspace_left_area");
         ko.uilayout._setTabPaneLayoutForTabbox(leftTabStyle, leftTabbox, "left");
 
     } else if (prefName == "ui.tabs.sidepanes.right.layout") {
         var rightTabStyle = _gPrefs.getStringPref("ui.tabs.sidepanes.right.layout");
-        var rightTabbox = document.getElementById("rightTabBox");
+        var rightTabbox = document.getElementById("workspace_right_area");
         ko.uilayout._setTabPaneLayoutForTabbox(rightTabStyle, rightTabbox, "right");
 
     } else if (prefName == "ui.tabs.sidepanes.bottom.layout") {
         var bottomTabStyle = _gPrefs.getStringPref("ui.tabs.sidepanes.bottom.layout");
-        var bottomTabbox = document.getElementById("output_area");
+        var bottomTabbox = document.getElementById("workspace_bottom_area");
         ko.uilayout._setTabPaneLayoutForTabbox(bottomTabStyle, bottomTabbox, "bottom");
     }
 };
@@ -1564,26 +1533,26 @@ _PrefObserver.prototype.destroy = function() {
     _gPrefs.prefObserverService.removeObserver(this, "ui.tabs.sidepanes.bottom.layout");
 }
 
-function _saveTabBoxPrefs(prefs, tabboxID, isCollapsedPrefID, selectedTabPrefID) {
-    var tabbox = document.getElementById(tabboxID);
-    var selectedTabId = tabbox.selectedTab.id;
-    prefs.setBooleanPref(isCollapsedPrefID,
-                         tabbox.parentNode.getAttribute('collapsed') == 'true');
-    prefs.setStringPref(selectedTabPrefID, selectedTabId);
-}
-
 this.saveTabSelections = function uilayout_SaveTabSelections(prefs) {
     if (typeof(prefs) == "undefined") prefs = _gPrefs;
+
+    function _savePanePrefs(prefs, paneID, isCollapsedPrefID, selectedPanelPrefID) {
+        var pane = document.getElementById(paneID);
+        var selectedPanelId = pane.selectedPanel.id;
+        prefs.setBooleanPref(isCollapsedPrefID,
+                             pane.getAttribute('collapsed') == 'true');
+        prefs.setStringPref(selectedPanelPrefID, selectedPanelId);
+    }
     try {
-        _saveTabBoxPrefs(prefs, 'leftTabBox',
-                         'uilayout_leftTabBox_collapsed',
-                         'uilayout_leftTabBoxSelectedTabId');
-        _saveTabBoxPrefs(prefs, 'rightTabBox',
-                         'uilayout_rightTabBox_collapsed',
-                         'uilayout_rightTabBoxSelectedTabId');
-        _saveTabBoxPrefs(prefs, 'output_area',
-                         'uilayout_bottomTabBox_collapsed',
-                         'uilayout_bottomTabBoxSelectedTabId');
+        _savePanePrefs(prefs, 'workspace_left_area',
+                       'uilayout_leftTabBox_collapsed',
+                       'uilayout_leftTabBoxSelectedTabId');
+        _savePanePrefs(prefs, 'workspace_right_area',
+                       'uilayout_rightTabBox_collapsed',
+                       'uilayout_rightTabBoxSelectedTabId');
+        _savePanePrefs(prefs, 'workspace_bottom_area',
+                       'uilayout_bottomTabBox_collapsed',
+                       'uilayout_bottomTabBoxSelectedTabId');
     } catch (e) {
         _log.exception("Couldn't save selected tab preferences:" + e);
     }
@@ -1592,57 +1561,43 @@ this.saveTabSelections = function uilayout_SaveTabSelections(prefs) {
 var _buttonIdFromTabboxId = {
     leftTabBox : "toggleLeftPane",
     rightTabBox : "toggleRightPane",
-    output_area : "toggleBottomPane"
+    workspace_bottom_area : "toggleBottomPane"
 };
 var _splitterIdFromTabboxId = {
     leftTabBox : "workspace_left_splitter",
     rightTabBox : "workspace_right_splitter",
-    output_area : "bottom_splitter"
+    workspace_bottom_area : "bottom_splitter"
 };
-function _restoreTabBox(prefs, tabboxID, isCollapsedPrefID, selectedTabPrefID) {
-    if (prefs.hasStringPref(selectedTabPrefID)) {
-        var selectedTabId = prefs.getStringPref(selectedTabPrefID);
-        var tabbox = document.getElementById(tabboxID);
-        var buttonID = _buttonIdFromTabboxId[tabboxID];
-        var button = document.getElementById(buttonID);
-        if (!button) {
-            throw new Error("No toolbar button element for ID " + buttonID);
-        }
-        var splitterID = _splitterIdFromTabboxId[tabboxID];
-        var splitter = document.getElementById(splitterID);
-        if (!splitter) {
-            throw new Error("No splitter element for ID " + splitterID);
-        }
-        if (prefs.hasBooleanPref(isCollapsedPrefID)) {
-            var isCollapsed = prefs.getBooleanPref(isCollapsedPrefID);
-            if (isCollapsed) {
-                tabbox.parentNode.setAttribute('collapsed', 'true');
-            } else {
-                tabbox.parentNode.removeAttribute('collapsed');
-            }
-            button.checked = !isCollapsed;
-            splitter.collapsed = isCollapsed;
-        }
-        var tab = document.getElementById(selectedTabId);
-        if (tab) {
-            tabbox.selectedTab = tab;
-        }
-    }
-}
 
 this.restoreTabSelections = function uilayout_RestoreTabSelections(prefs) {
+
+    function _restoreTabBox(prefs, tabboxID, isCollapsedPrefID, selectedTabPrefID) {
+        if (prefs.hasStringPref(selectedTabPrefID)) {
+            var selectedTabId = prefs.getStringPref(selectedTabPrefID);
+            var pane = document.getElementById(tabboxID);
+            if (prefs.hasBooleanPref(isCollapsedPrefID)) {
+                pane.collapsed = prefs.getBooleanPref(isCollapsedPrefID);
+            }
+            var panel = document.getElementById(selectedTabId);
+            if (panel && !panel.hasAttribute("collapsed")) {
+                pane.selectedTab = panel.tab;
+            }
+        }
+    }
+
     if (typeof(prefs) == "undefined") prefs = _gPrefs;
     try {
-        _restoreTabBox(prefs, 'leftTabBox',
+        _restoreTabBox(prefs, 'workspace_left_area',
                        'uilayout_leftTabBox_collapsed',
                        'uilayout_leftTabBoxSelectedTabId');
-        _restoreTabBox(prefs, 'rightTabBox',
+        _restoreTabBox(prefs, 'workspace_right_area',
                        'uilayout_rightTabBox_collapsed',
                        'uilayout_rightTabBoxSelectedTabId');
-        _restoreTabBox(prefs, 'output_area',
+        _restoreTabBox(prefs, 'workspace_bottom_area',
                        'uilayout_bottomTabBox_collapsed',
                        'uilayout_bottomTabBoxSelectedTabId');
     } catch (e) {
+        Components.utils.reportError(e);
         _log.exception("Couldn't restore selected tab: " + e);
     }
 }
@@ -1661,25 +1616,18 @@ this.syncTabSelections = function uilayout_syncTabSelections() {
     // If a tab is closed, the button should be in its unchecked
     // state, and vice versa.
     
-    function isCollapsed(node) {
-        if (!node.hasAttribute("collapsed")) {
-            return false;
+    function syncTabUI(paneID) {
+        var pane = document.getElementById(paneID);
+        if (pane.hasAttribute("collapsed")) {
+            pane.removeAttribute("checked");
         } else {
-            return node.getAttribute("collapsed") == 'true';
-        }
-    }
-    function syncTabUI(tabboxID) {
-        var tabbox = document.getElementById(tabboxID);
-        var buttonID = _buttonIdFromTabboxId[tabboxID];
-        var button = document.getElementById(buttonID);
-        if (button.checked == isCollapsed(tabbox.parentNode)) {
-            button.checked = !button.checked;
+            pane.setAttribute("checked", true);
         }
     }
     try {
-        syncTabUI('leftTabBox');
-        syncTabUI('rightTabBox');
-        syncTabUI('output_area');
+        syncTabUI('workspace_left_area');
+        syncTabUI('workspace_right_area');
+        syncTabUI('workspace_bottom_area');
     } catch (e) {
         _log.exception("Couldn't sync selected tab: " + e);
     }

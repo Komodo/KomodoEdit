@@ -14,7 +14,7 @@ tabbox.vertical_tabs tabpanel
   border-top: 0;
 }
 
-tabbox.vertical_tabs tab
+ko-pane[type="vertical"] tabs[anonid="tabs"] tab
 {
   /* Let our own native tab styling above work on the vertical tabs. */
   -moz-appearance: none;
@@ -24,19 +24,19 @@ tabbox.vertical_tabs tab
   -moz-border-radius-bottomright: 2px;
 }
 
-tabbox.vertical_tabs tab:hover {
+ko-pane[type="vertical"] tabs[anonid="tabs"] tab:hover {
   /* Undo horizontal-specific native tab css styling from above. */
   border-top-width: 2px;
 }
 
-tabbox.vertical_tabs tab[selected="true"]
+ko-pane[type="vertical"] tabs[anonid="tabs"] tab[selected="true"]
 {
   /* Undo horizontal-specific native tab css styling from above. */
   -moz-border-radius-bottomleft: 4px;
   -moz-border-radius-bottomright: 4px;
 }
 
-tabbox.vertical_tabs tab[selected="true"]:hover {
+ko-pane[type="vertical"] tabs[anonid="tabs"] tab[selected="true"]:hover {
   /* Undo horizontal-specific native tab css styling from above. */
   border-top-width: 1px;
 }

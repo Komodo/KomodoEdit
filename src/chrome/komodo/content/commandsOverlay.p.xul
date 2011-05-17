@@ -57,20 +57,24 @@
             id="cmd_viewBottomPane" key="key_cmd_viewBottomPane"
             desc="&userInterfaceShowHideBottomPane.desc;"
             splitter="bottom_splitter"
-            box="output_panel"
+            box="workspace_bottom_area"
             oncommand="ko.commands.doCommandAsync('cmd_viewBottomPane', event)"/>
         <broadcaster
             id="cmd_viewLeftPane" key="key_cmd_viewLeftPane"
             desc="&userInterfaceShowHideLeftPane.desc;"
             splitter="workspace_left_splitter"
-            box="project_toolbox_area"
-            oncommand="ko.commands.doCommandAsync('cmd_viewLeftPane', event)"/>
+            box="workspace_left_area"
+            oncommand="ko.commands.doCommandAsync('cmd_viewLeftPane', event)">
+            <observes attribute="checked" element="workspace_left_area"/>
+        </broadcaster>
         <broadcaster
             id="cmd_viewRightPane" key="key_cmd_viewRightPane"
             desc="&userInterfaceShowHideRightPane.desc;"
             splitter="workspace_right_splitter"
-            box="right_toolbox_area"
-            oncommand="ko.commands.doCommandAsync('cmd_viewRightPane', event)"/>
+            box="workspace_right_area"
+            oncommand="ko.commands.doCommandAsync('cmd_viewRightPane', event)">
+            <observes attribute="checked" element="workspace_right_area"/>
+        </broadcaster>
         <broadcaster
             id="cmd_viewToolbox" key="key_cmd_viewToolbox"
             desc="&userInterfaceShowHideToolboxTab.desc;"

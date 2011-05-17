@@ -1774,6 +1774,7 @@
                     observes="cmd_viewRightPane"
                     oncommand="ko.uilayout.togglePane('workspace_right_splitter', 'right_toolbox_tabs', 'cmd_viewRightPane', true)"
                     label="&toggleRight.label;">
+                    <observes element="workspace_right_area" attribute="checked"/>
                 </toolbarbutton>
                 <toolbarbutton id="tabPicker"
                     tooltiptext="&showSpecificTab.tooltiptext;"
@@ -2006,35 +2007,27 @@
     <deck id="komodo-box" selectedIndex="0" flex="1">
     <vbox id="komodo-vbox" flex="1">
         <hbox id="komodo-hbox" flex="1">
-            <vbox id="project_toolbox_area"
-                width="200"
-                collapsed="true"
-                persist="width collapsed">
-                <tabbox id="leftTabBox"
-                        flex="1"
-                        orient="horizontal"
-                        class="native vertical_tabs"
-                        rotation="270">
-                    <tabs id="project_toolbox_tabs"
-                          orient="vertical"
-                          collapsable="true"
-                          splitterId="workspace_left_splitter"
-                          ondragstart="event.preventDefault();"
-                          onclose="ko.uilayout.toggleSplitter('cmd_viewLeftPane');"
-                          closeclass="scroll-minimize-left-icon"
-                          closecollapsed="false">
-                    </tabs>
-                    <tabpanels flex="1" id="project_toolbox_tabpanels">
-                   </tabpanels>
-                </tabbox>
-            </vbox>
+            <ko-pane id="workspace_left_area"
+                     width="200"
+                     collapsed="true"
+                     rotation="270"
+                     class="native vertical_tabs"
+                     pref="ui.tabs.sidepanes.left.layout"
+                     persist="width type">
+                <browser type="ko-widget"
+                         id="codebrowserviewbox"
+                         label="&code.label;"
+                         src="chrome://komodo/content/codeintel/codebrowser.xul"/>
+            </ko-pane>
             <splitter id="workspace_left_splitter"
                       class="workspace_splitter workspace_splitter_left"
                       orient="horizontal"
                       collapse="none"
                       collapsed="true"
                       splitterCmdId="cmd_viewLeftPane"
-                      persist="collapsed"/>
+                      persist="collapsed">
+                <observes element="workspace_left_area" attribute="collapsed"/>
+            </splitter>
             <vbox id="editorviewbox" flex="1" class="blank-workspace">
                 <view id="topview"
                       type="multiview"
@@ -2052,41 +2045,22 @@
                       collapse="none"
                       collapsed="true"
                       splitterCmdId="cmd_viewRightPane"
-                      persist="collapsed"/>
-            <vbox id="right_toolbox_area"
-                width="200"
-                collapsed="true"
-                persist="width collapsed">
-                <tabbox orient="vertical"
-                        flex="1"
-                        id="rightTabBox"
-                        class="native vertical_tabs"
-                        rotation="90">
-                    <tabs id="right_toolbox_tabs"
-                          orient="vertical"
-                          collapsable="true"
-                          splitterId="workspace_right_splitter"
-			  ondragstart="event.preventDefault();"
-                          onclose="ko.uilayout.toggleSplitter('cmd_viewRightPane');"
-                          closeclass="scroll-minimize-right-icon"
-                          closecollapsed="false">
-                        <tab id="toolbox2_tab" label="&toolbox2.label;"
-                             locktip="&thisToolboxIsReadOnly.locktip;"
-                             linkedpanel="toolbox2viewbox"
-                             onmovetab_unload="ko.toolbox2.onUnload();"
-                             onmovetab_load="ko.toolbox2.onload();"
-                             accesskey="&toolboxTab.accesskey;"/>
-                    </tabs>
-                    <tabpanels flex="1" id="right_toolbox_tabpanels">
-                        <tabpanel flex="1" id="toolbox2viewbox">
-                            <browser flex="1"
-                                     src="chrome://komodo/content/toolbox/toolboxPanel.xul"
-                                     style="-moz-binding: url('chrome://komodo/content/bindings/pane.xml#pane-browser');"
-                                     disablehistory="true"/>
-                        </tabpanel>
-                    </tabpanels>
-                </tabbox>
-            </vbox>
+                      persist="collapsed">
+                <observes element="workspace_right_area" attribute="collapsed"/>
+            </splitter>
+            <ko-pane id="workspace_right_area"
+                     width="200"
+                     collapsed="true"
+                     persist="width type"
+                     class="native vertical_tabs"
+                     rotation="90">
+                <browser type="ko-widget"
+                         id="toolbox2viewbox"
+                         label="&toolbox2.label;"
+                         locktip="&thisToolboxIsReadOnly.locktip;"
+                         accesskey="&toolboxTab.accesskey;"
+                         src="chrome://komodo/content/toolbox/toolboxPanel.xul"/>
+            </ko-pane>
         </hbox>
 
         <splitter id="bottom_splitter"
@@ -2095,84 +2069,37 @@
                   class="workspace_splitter"
                   persist="collapsed"
                   collapsed="true"
-                  orient="vertical"/>
+                  orient="vertical">
+            <observes element="workspace_bottom_area" attribute="collapsed"/>
+        </splitter>
 
         <!-- Output Area -->
         <!--Persisting of collapsed disabled because of http://bugs.activestate.com/show_bug.cgi?id=25918-->
-        <vbox id="output_panel"
-            class="thin-inset-border"
-            height="200"
-            collapsed="true"
-            persist="height collapsed"
-            >
-            <!-- XXX Will have to select a starting tab that is
-                 not a collapsed one, otherwise opening the bottom panel on
-                 startup will show a blank tabpanel area with no selected
-                 tab. -->
-            <!-- only allow drag-drop for widgets that specificly support it -->
-            <tabbox id="output_area" orient="vertical" flex="1"
-                class="whiteout"
-                handleCtrlTab="true"
-                handleCtrlPageUpDown="true"
-                ondragover="event.cancelBubble=true; return false;"
-                ondrop="event.cancelBubble=true; return true;">
-                <tabs type="scrollable" collapsable="true"
-                    id="output_tabs" orient="horizontal"
-                    align="center"
-                    splitterId="bottom_splitter"
-                    onclose="ko.uilayout.toggleSplitter('cmd_viewBottomPane');"
-		    ondragstart="event.preventDefault();"
-                    closeclass="scroll-minimize-down-icon"
-                    closecollapsed="false">
-                    <!-- Need both onmousedown and onfocus to catch selection
-                         by mouse and Ctrl[+Shift]+Tab -->
-                    <tab id="runoutput_tab" label="&commandOutput.label;"
-                        linkedpanel="runoutput-desc-tabpanel"
-                        onmousedown="document.getElementById('runoutput-browser').focus();"
-                        onfocus="document.getElementById('runoutput-browser').focus();"
-                        onmovetab_unload="ko.run.output.finalize();"
-                        onmovetab_load="ko.run.output.initialize();"
-                        />
-                    <tab id="findresults1_tab" label="&findResults1.label;"
-                         linkedpanel="findresults1_tabpanel"
-                         collapsed="true" hidden="true"
-                         onmousedown="document.getElementById('findresults1-body').focus();"
-                         onfocus="document.getElementById('findresults1-body').focus();"/>
-                    <tab id="findresults2_tab" label="&findResults2.label;"
-                         linkedpanel="findresults2_tabpanel"
-                         collapsed="true" hidden="true"
-                         onmousedown="document.getElementById('findresults2-body').focus();"
-                         onfocus="document.getElementById('findresults2-body').focus();"/>
-                </tabs>
-                <tabpanels flex="1" id="output_tabpanels">
-                    <!-- Run output tab of the output pane. This pane is made
-                        of two levels: (1) a scintilla terminal to show
-                        unparsed output and (2) an tree to show parsed
-                        output.
-                    -->
-                    <tabpanel orient="vertical" flex="1" id="runoutput-desc-tabpanel">
-                        <browser flex="1" id="runoutput-browser"
-                                 src="chrome://komodo/content/run/runOutputPane.xul"
-                                 style="-moz-binding: url('chrome://komodo/content/bindings/pane.xml#pane-browser');"/>
-                    </tabpanel>
+        <!-- only allow drag-drop for widgets that specificly support it -->
+        <ko-pane id="workspace_bottom_area" height="200" collapsed="true"
+                 persist="height type"
+                 ondragover="event.cancelBubble=true; return false;"
+                 ondrop="event.cancelBubble=true; return true;">
+            <!-- Run output tab of the output pane. This pane is made
+                of two levels: (1) a scintilla terminal to show
+                unparsed output and (2) an tree to show parsed
+                output.
+            -->
+            <browser type="ko-widget"
+                     id="runoutput-desc-tabpanel"
+                     label="&commandOutput.label;"
+                     src="chrome://komodo/content/run/runOutputPane.xul"/>
 
-                    <!-- The two Find Results tabs of the output pane -->
-                    <tabpanel id="findresults1_tabpanel" orient="vertical"
-                              flex="1" collapsed="true">
-                        <browser flex="1" id="findresults1_browser"
-                                 src="chrome://komodo/content/find/findResultsTab.xul"
-                                 style="-moz-binding: url('chrome://komodo/content/bindings/pane.xml#pane-browser');"/>
-                    </tabpanel>
-                    <tabpanel id="findresults2_tabpanel" orient="vertical"
-                              flex="1" collapsed="true">
-                       <browser flex="1" id="findresults2_browser"
-                                src="chrome://komodo/content/find/findResultsTab.xul"
-                                style="-moz-binding: url('chrome://komodo/content/bindings/pane.xml#pane-browser');"/>
-                   </tabpanel>
-
-                </tabpanels>
-            </tabbox>
-        </vbox>
+            <!-- The two Find Results tabs of the output pane -->
+            <browser type="ko-widget"
+                     id="findresults1_tabpanel"
+                     collapsed="true" label="&findResults1.label;"
+                     src="chrome://komodo/content/find/findResultsTab.xul"/>
+            <browser type="ko-widget"
+                     id="findresults2_tabpanel"
+                     collapsed="true" label="&findResults2.label;"
+                     src="chrome://komodo/content/find/findResultsTab.xul"/>
+        </ko-pane>
 
     </vbox> <!-- main window box -->
     <browser id="printBrowser" type="content-primary" flex="1" disablehistory="true"/>

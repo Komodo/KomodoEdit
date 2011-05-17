@@ -47,6 +47,141 @@
   - See kd 0272 for specifications
   -->
 
+  <binding id="pane" extends="chrome://global/content/bindings/tabbox.xml#tabbox">
+    <content>
+      <xul:hbox class="pane-tabs-container">
+        <!-- this is for the "sidebar" and "horzontal" modes -->
+        <xul:tabs anonid="tabs"
+                  closecollapsed="false"
+                  orient="this is here to prevent the tabs binding setting it to horizontal"
+                  xbl:inherits="rotation,label"
+                  onclose="var elem = this;
+                           while (!/pane/.test(elem.localName))
+                             elem = document.getBindingParent(elem);
+                           elem.collapsed = true;"/>
+      </xul:hbox>
+      <xul:vbox flex="1">
+        <!-- this is here for the "vertical" case -->
+        <xul:hbox class="tabs-vertical-label">
+          <xul:label xbl:inherits="value=label"/>
+          <xul:spacer/>
+          <xul:toolbarbutton anonid="panel-close-button"
+                  class="tabs-closebutton"
+                  buttonstyle="pictures"
+                  oncommand="document.getBindingParent(this).collapsed = true;"/>
+        </xul:hbox>
+        <xul:tabpanels anonid="tabpanels" flex="1">
+          <children/>
+        </xul:tabpanels>
+      </xul:vbox>
+    </content>
+    <implementation>
+      <method name="addPane">
+        <parameter name="pane"/>
+        <body>
+        <![CDATA[
+          if (!pane.tab) {
+            var tab = this.ownerDocument.createElementNS(this.namespaceURI, "tab");
+            tab.setAttribute("observes", pane.id);
+            tab.setAttribute("linkedpanel", pane.id);
+            pane.tab = tab;
+          }
+          this.tabs.appendChild(pane.tab);
+          // we never want to have flex by the attr; remove the flex generated
+          // by the tab binding. (we can do it from css if we really want to.)
+          pane.tab.removeAttribute("flex");
+          this.tabpanels.appendChild(pane);
+        ]]>
+        </body>
+      </method>
+
+      <property name="splitter">
+        <getter>
+        <![CDATA[
+          for each (var elem in [this.previousElementSibling, this.nextElementSibling]) {
+            if (elem && elem.namespaceURI == this.namespaceURI && elem.localName == "splitter") {
+              return elem;
+            }
+          }
+          return null;
+        ]]>
+        </getter>
+      </property>
+      <property name="tabs">
+        <getter>
+          return this.ownerDocument.getAnonymousElementByAttribute(this, "anonid", "tabs");
+        </getter>
+      </property>
+      <property name="tabpanels">
+        <getter>
+          return this.ownerDocument.getAnonymousElementByAttribute(this, "anonid", "tabpanels");
+        </getter>
+      </property>
+      <property name="collapsed">
+        <getter>
+        <![CDATA[
+          return this.hasAttribute("collapsed");
+        ]]>
+        </getter>
+        <setter>
+        <![CDATA[
+          /* note that the splitter is expected to observe the collapsed attr
+           * on this element, and the toolbar button is expected to observe the
+           * checked attr
+           */
+          if (val) {
+            this.setAttribute("collapsed", true);
+            this.removeAttribute("checked"); // for reflecting to toolbarbutton
+          } else {
+            this.removeAttribute("collapsed");
+            this.setAttribute("checked", true);
+          }
+        ]]>
+        </setter>
+      </property>
+
+      <constructor>
+      <![CDATA[
+      try{
+        if (!this.hasAttribute("type")) {
+          // no type; this leads to broken UI, so default to something
+          this.setAttribute("type", "sidebar");
+        }
+        if (this.hasAttribute("pref")) {
+          // the type of this pane is persisted in prefs
+          var prefs = Components.classes["@activestate.com/koPrefService;1"]
+                                .getService(Components.interfaces.koIPrefService)
+                                .effectivePrefs;
+          var prefid = this.getAttribute("pref");
+          if (prefs.hasStringPref(prefid)) {
+            this.setAttribute("type", prefs.getStringPref(prefid));
+          }
+        }
+        // re-inserting the tabpanel in the same place causes it to show up
+        // in DOM inspector's tree (still as a anonymous node)...
+        this.tabpanels.parentNode.insertBefore(this.tabpanels, this.tabpanels.nextSibling);
+        var panes = Array.slice(this.childNodes);
+        for each (var pane in panes) {
+          this.addPane(pane);
+        }
+      } catch (e) { Components.utils.reportError(e); }
+      ]]>
+      </constructor>
+    </implementation>
+    <handlers>
+      <handler event="select" phase="bubbling">
+      <![CDATA[
+        if (event.originalTarget == this.tabs) {
+          var tab = this.tabs.selectedItem;
+          this.setAttribute("label", tab.label);
+          var panel = this.ownerDocument.getElementById(tab.linkedPanel);
+          this.tabpanels.selectedPanel = panel;
+        }
+      ]]>
+      </handler>
+    </handlers>
+  </binding>
+
   <binding id="pane-browser" extends="chrome://global/content/bindings/browser.xml#browser">
     <content disablehistory="true">
       <broadcasterset anonid="pane_broadcasterset"/>
@@ -131,6 +266,50 @@
         }, this);
       ]]></handler>
     </handlers>
+  </binding>
+
+  <binding id="widget" extends="#pane-browser">
+    <!--
+      - A widget to be displayed in a <ko-pane>.
+      - It's a cross between a <tabpanel> and a <browser>.
+      - Instantiate as <browser type="ko-widget">
+      -->
+    <implementation>
+      <property name="tabbox">
+        <getter>
+        <![CDATA[
+          /**
+           * This is more complicated than normal because we want to look for
+           * any element that uses the tabbox binding, instead of matching on
+           * the tag name.
+           */
+          var utils = Components.classes["@mozilla.org/inspector/dom-utils;1"]
+                                .getService(Components.interfaces.inIDOMUtils);
+          const TABBOX_URL = "chrome://global/content/bindings/tabbox.xml#tabbox";
+          var result = null;
+          for (var parent = this.parentNode; !result && parent; parent = parent.parentNode) {
+              if (!(parent instanceof Element)) continue;
+              var urls = utils.getBindingURLs(parent).enumerate();
+              while (urls.hasMoreElements()) {
+                  var uri = urls.getNext().QueryInterface(Components.interfaces.nsIURI);
+                  if (uri.spec == TABBOX_URL) {
+                      result = parent;
+                      break;
+                  }
+              }
+          }
+          return result;
+        ]]>
+        </getter>
+      </property>
+      <constructor>
+      <![CDATA[
+        if (!this.hasAttribute("disablehistory")) {
+          this.setAttribute("disablehistory", true);
+        }
+      ]]>
+      </constructor>
+    </implementation>
   </binding>
 
 </bindings>

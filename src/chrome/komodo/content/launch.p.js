@@ -43,10 +43,9 @@
 if (typeof(ko) == 'undefined') {
     var ko = {};
 }
-ko.launch = {};
-ko.help = {};
 
 
+if (!("help" in ko))
 (function () {
 var _log = ko.logging.getLogger("ko.help");
 
@@ -227,8 +226,9 @@ this.viewErrorLog = function() {
     }
 }
 
-}).apply(ko.help);
+}).apply(ko.help = {});
 
+if (!("launch" in ko))
 (function () {
 var _log = ko.logging.getLogger("ko.launch");
 
@@ -651,7 +651,7 @@ this.newTemplate = function newTemplate(obj)
 }
 
 
-}).apply(ko.launch);
+}).apply(ko.launch = {});
 
 /**
  * Input buffering
@@ -665,7 +665,7 @@ this.newTemplate = function newTemplate(obj)
  *      var contents = ko.inputBuffer.finish();
  *      // use the contents somehow
  */
-ko.inputBuffer = {};
+if (!("inputBuffer" in ko))
 (function() { // ko.inputBuffer
 
 var _isActive = false;
@@ -698,7 +698,7 @@ this.finish = function()
     return contents;
 }
 
-}).apply(ko.inputBuffer);
+}).apply(ko.inputBuffer = {});
 
 
 

@@ -436,13 +436,27 @@
                 <parameter name="tab"/>
                 <body>
                 <![CDATA[
-                    var parent = tab.parentNode;
-                    while (parent) {
-                      if (parent.localName == "tabbox")
-                        return parent;
-                      parent = parent.parentNode;
+                    /**
+                     * This is more complicated than normal because we want to look for
+                     * any element that uses the tabbox binding, instead of matching on
+                     * the tag name.
+                     */
+                    var utils = Components.classes["@mozilla.org/inspector/dom-utils;1"]
+                                          .getService(Components.interfaces.inIDOMUtils);
+                    const TABBOX_URL = "chrome://global/content/bindings/tabbox.xml#tabbox";
+                    var result = null;
+                    for (var parent = tab.parentNode; !result && parent; parent = parent.parentNode) {
+                        if (!(parent instanceof Element)) continue;
+                        var urls = utils.getBindingURLs(parent).enumerate();
+                        while (urls.hasMoreElements()) {
+                            var uri = urls.getNext().QueryInterface(Components.interfaces.nsIURI);
+                            if (uri.spec == TABBOX_URL) {
+                                result = parent;
+                                break;
+                            }
+                        }
                     }
-                    return null;
+                    return result;
                 ]]>
                 </body>
             </method>
@@ -778,6 +792,30 @@
                 this.unHookBinding();
             </destructor>
 
+            <field name="tabbox" readonly="true">
+                <![CDATA[
+                    /* We need to find the tabbox in a more robust way
+                     * because we named it ko-pane
+                     */
+                    var utils = Components.classes["@mozilla.org/inspector/dom-utils;1"]
+                                          .getService(Components.interfaces.inIDOMUtils);
+                    const TABBOX_URL = "chrome://global/content/bindings/tabbox.xml#tabbox";
+                    var result = null;
+                    for (var parent = this.parentNode; !result && parent; parent = parent.parentNode) {
+                        if (!(parent instanceof Element)) continue;
+                        var urls = utils.getBindingURLs(parent).enumerate();
+                        while (urls.hasMoreElements()) {
+                            var uri = urls.getNext().QueryInterface(Components.interfaces.nsIURI);
+                            if (uri.spec == TABBOX_URL) {
+                                result = parent;
+                                break;
+                            }
+                        }
+                    }
+                    result;
+                ]]>
+            </field>
+
             <method name="unHookBinding">
               <body>
               <![CDATA[
@@ -819,7 +857,7 @@
             <method name="updateSelectedTabLabel">
               <body>
               <![CDATA[
-                this._tabbox.selectedPanel.setAttribute("label", this.selectedItem.label);
+                this.tabbox.selectedPanel.setAttribute("label", this.selectedItem.label);
               ]]>
               </body>
             </method>

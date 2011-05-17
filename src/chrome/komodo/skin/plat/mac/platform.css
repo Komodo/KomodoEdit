@@ -81,13 +81,13 @@ toolbar[mode="full"] > toolbaritem > .toolbar-background {
 #komodo-box {
 }
 
-#project_toolbox_area {
+#workspace_left_area {
   padding: 0px;
   margin: 0px;
   border: none;
 }
 
-#right_toolbox_area {
+#workspace_right_area {
   padding: 0px;
   margin: 0px;
   border: none;

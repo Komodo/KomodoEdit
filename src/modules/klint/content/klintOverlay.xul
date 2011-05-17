@@ -32,24 +32,10 @@
             />
     </menupopup>
 
-    <tabs id="output_tabs">
-        <!-- From Todo extensio: Need both onmousedown and onfocus to catch selection
-             by mouse and Ctrl[+Shift]+Tab -->
-        <tab id="klint_tab"
-             label="&klint.tab.title;"
-             onmousedown="//document.getElementById('klint-treechildren').focus();"
-             onfocus="//document.getElementById('klint-treechildren').focus();" />
-    </tabs>
-
-    <tabpanels id="output_tabpanels">
-        <tabpanel id="klint_tabpanel"
-                  orient="vertical"
-                  flex="1">
-            <browser flex="1" id="klint_browser"
-                     src="chrome://klint/content/klintPane.xul"
-                     style="-moz-binding: url('chrome://komodo/content/bindings/pane.xml#pane-browser');"/>
-        </tabpanel>
-    </tabpanels>
+    <ko-pane id="workspace_bottom_area">
+        <browser type="ko-widget" id="klint_tabpanel" label="&klint.tab.title;"
+                 src="chrome://klint/content/klintPane.xul"/>
+    </ko-pane>
 
 </overlay>
 

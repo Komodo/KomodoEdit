@@ -282,9 +282,8 @@ this.show = function RunOutput_Show(editor, showParsedOutputList)
     ko.uilayout.ensureOutputPaneShown(editor);
 
     // switch to the run output tab
-    var tabsWidget = editor.document.getElementById("output_tabs");
-    var tabWidget = editor.document.getElementById("runoutput_tab");
-    tabsWidget.selectedItem = tabWidget;
+    var panel = editor.document.getElementById("runoutput-desc-tabpanel");
+    panel.tabbox.selectedTab = panel.tab;
 
     // open the proper command output view
     _SetView(editor, showParsedOutputList);

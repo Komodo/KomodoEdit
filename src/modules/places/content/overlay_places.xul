@@ -271,21 +271,12 @@
 
   <!-- ****************    Content    ****************** -->
 
-  <tabs id="project_toolbox_tabs">
-    <tab id="places_tab" label="&Places.label;" insertbefore="codebrowser_tab"
-         position="1" linkedpanel="placesViewbox"
+  <ko-pane id="workspace_left_area">
+    <!--
         oncommand="ko.places.viewMgr.focus(); ko.places.viewMgr.updateView();"
         onfocus="ko.places.viewMgr.focus(); ko.places.viewMgr.updateView();"
-        onmovetab_unload="ko.places.onUnload();"
-        onmovetab_load="ko.places.onLoad();"
-         />
-  </tabs>
-  <tabpanels id="project_toolbox_tabpanels">
-    <tabpanel flex="1" id="placesViewbox">
-      <browser flex="1"
-	       src="chrome://places/content/places_panel.xul"
-	       style="-moz-binding: url('chrome://komodo/content/bindings/pane.xml#pane-browser');"
-	       disablehistory="true"/>
-    </tabpanel>
-  </tabpanels>
+    -->
+    <browser type="ko-widget" id="placesViewbox" label="&Places.label;"
+	     src="chrome://places/content/places_panel.xul"/>
+  </ko-pane>
 </overlay>

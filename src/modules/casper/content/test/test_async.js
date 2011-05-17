@@ -60,9 +60,9 @@ function AsyncEventTest(name) {
     "screenX":117,
     "screenY":104,
     "timeStamp":2224091094,
-    "targetXPath":"/xmlns:window[@id=\"jaguar_main\"]/xmlns:deck[1]/xmlns:vbox[@id=\"komodo-vbox\"]/xmlns:hbox[@id=\"komodo-hbox\"]/xmlns:vbox[@id=\"project_toolbox_area\"]/xmlns:tabbox[@id=\"leftTabBox\"]/xmlns:tabs[@id=\"project_toolbox_tabs\"]/xmlns:tab[@id=\"codebrowser_tab\"]",
+    "targetXPath":"/xmlns:window[@id=\"jaguar_main\"]/xmlns:deck[1]/xmlns:vbox[@id=\"komodo-vbox\"]/xmlns:hbox[@id=\"komodo-hbox\"]/xmlns:vbox[@id=\"workspace_left_area\"]/xmlns:tabbox[@id=\"leftTabBox\"]/xmlns:tabs[@id=\"project_toolbox_tabs\"]/xmlns:tab[@id=\"codebrowser_tab\"]",
     "currentTargetXPath":"/",
-    "originalTargetXPath":"/xmlns:window[@id=\"jaguar_main\"]/xmlns:deck[1]/xmlns:vbox[@id=\"komodo-vbox\"]/xmlns:hbox[@id=\"komodo-hbox\"]/xmlns:vbox[@id=\"project_toolbox_area\"]/xmlns:tabbox[@id=\"leftTabBox\"]/xmlns:tabs[@id=\"project_toolbox_tabs\"]/xmlns:tab[@id=\"codebrowser_tab\"]",
+    "originalTargetXPath":"/xmlns:window[@id=\"jaguar_main\"]/xmlns:deck[1]/xmlns:vbox[@id=\"komodo-vbox\"]/xmlns:hbox[@id=\"komodo-hbox\"]/xmlns:vbox[@id=\"workspace_left_area\"]/xmlns:tabbox[@id=\"leftTabBox\"]/xmlns:tabs[@id=\"project_toolbox_tabs\"]/xmlns:tab[@id=\"codebrowser_tab\"]",
     "enabled":true,
     "action":"fire"}
     ,
@@ -85,9 +85,9 @@ function AsyncEventTest(name) {
     "screenX":117,
     "screenY":104,
     "timeStamp":2224091487,
-    "targetXPath":"/xmlns:window[@id=\"jaguar_main\"]/xmlns:deck[1]/xmlns:vbox[@id=\"komodo-vbox\"]/xmlns:hbox[@id=\"komodo-hbox\"]/xmlns:vbox[@id=\"project_toolbox_area\"]/xmlns:tabbox[@id=\"leftTabBox\"]/xmlns:tabs[@id=\"project_toolbox_tabs\"]/xmlns:tab[@id=\"codebrowser_tab\"]",
+    "targetXPath":"/xmlns:window[@id=\"jaguar_main\"]/xmlns:deck[1]/xmlns:vbox[@id=\"komodo-vbox\"]/xmlns:hbox[@id=\"komodo-hbox\"]/xmlns:vbox[@id=\"workspace_left_area\"]/xmlns:tabbox[@id=\"leftTabBox\"]/xmlns:tabs[@id=\"project_toolbox_tabs\"]/xmlns:tab[@id=\"codebrowser_tab\"]",
     "currentTargetXPath":"/",
-    "originalTargetXPath":"/xmlns:window[@id=\"jaguar_main\"]/xmlns:deck[1]/xmlns:vbox[@id=\"komodo-vbox\"]/xmlns:hbox[@id=\"komodo-hbox\"]/xmlns:vbox[@id=\"project_toolbox_area\"]/xmlns:tabbox[@id=\"leftTabBox\"]/xmlns:tabs[@id=\"project_toolbox_tabs\"]/xmlns:tab[@id=\"codebrowser_tab\"]",
+    "originalTargetXPath":"/xmlns:window[@id=\"jaguar_main\"]/xmlns:deck[1]/xmlns:vbox[@id=\"komodo-vbox\"]/xmlns:hbox[@id=\"komodo-hbox\"]/xmlns:vbox[@id=\"workspace_left_area\"]/xmlns:tabbox[@id=\"leftTabBox\"]/xmlns:tabs[@id=\"project_toolbox_tabs\"]/xmlns:tab[@id=\"codebrowser_tab\"]",
     "enabled":true,
     "action":"fire"}
     ,
@@ -98,11 +98,11 @@ function AsyncEventTest(name) {
     "cancelable":true,
     "timeStamp":0,
     "target":null,
-    "targetXPath":"/xmlns:window[@id=\"jaguar_main\"]/xmlns:deck[1]/xmlns:vbox[@id=\"komodo-vbox\"]/xmlns:hbox[@id=\"komodo-hbox\"]/xmlns:vbox[@id=\"project_toolbox_area\"]/xmlns:tabbox[@id=\"leftTabBox\"]/xmlns:tabpanels[@id=\"project_toolbox_tabpanels\"]/xmlns:tabpanel[@id=\"codebrowserviewbox\"]/xmlns:vbox[@id=\"codebrowserview-vbox\"]/xmlns:vbox[@id=\"codebrowser-tree-vbox\"]/xmlns:tree[@id=\"codebrowser-tree\"]",
+    "targetXPath":"/xmlns:window[@id=\"jaguar_main\"]/xmlns:deck[1]/xmlns:vbox[@id=\"komodo-vbox\"]/xmlns:hbox[@id=\"komodo-hbox\"]/xmlns:vbox[@id=\"workspace_left_area\"]/xmlns:tabbox[@id=\"leftTabBox\"]/xmlns:tabpanels[@id=\"project_toolbox_tabpanels\"]/xmlns:tabpanel[@id=\"codebrowserviewbox\"]/xmlns:vbox[@id=\"codebrowserview-vbox\"]/xmlns:vbox[@id=\"codebrowser-tree-vbox\"]/xmlns:tree[@id=\"codebrowser-tree\"]",
     "currentTarget":null,
     "currentTargetXPath":"/",
     "originalTarget":null,
-    "originalTargetXPath":"/xmlns:window[@id=\"jaguar_main\"]/xmlns:deck[1]/xmlns:vbox[@id=\"komodo-vbox\"]/xmlns:hbox[@id=\"komodo-hbox\"]/xmlns:vbox[@id=\"project_toolbox_area\"]/xmlns:tabbox[@id=\"leftTabBox\"]/xmlns:tabpanels[@id=\"project_toolbox_tabpanels\"]/xmlns:tabpanel[@id=\"codebrowserviewbox\"]/xmlns:vbox[@id=\"codebrowserview-vbox\"]/xmlns:vbox[@id=\"codebrowser-tree-vbox\"]/xmlns:tree[@id=\"codebrowser-tree\"]",
+    "originalTargetXPath":"/xmlns:window[@id=\"jaguar_main\"]/xmlns:deck[1]/xmlns:vbox[@id=\"komodo-vbox\"]/xmlns:hbox[@id=\"komodo-hbox\"]/xmlns:vbox[@id=\"workspace_left_area\"]/xmlns:tabbox[@id=\"leftTabBox\"]/xmlns:tabpanels[@id=\"project_toolbox_tabpanels\"]/xmlns:tabpanel[@id=\"codebrowserviewbox\"]/xmlns:vbox[@id=\"codebrowserview-vbox\"]/xmlns:vbox[@id=\"codebrowser-tree-vbox\"]/xmlns:tree[@id=\"codebrowser-tree\"]",
     "enabled":true,
     "action":"fire"}
 

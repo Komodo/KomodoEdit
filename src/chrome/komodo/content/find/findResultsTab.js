@@ -182,197 +182,19 @@ this.getManager = function FindResultsTab_GetManager(id)
 // is moved.
 this.create = function _FindResultsTab_Create(id)
 {
-    if (1) { // just uncollapsed the hardcoded find results tabs
-        var tab = parent.document.getElementById("findresults"+id+"_tab");
-        if (tab.hasAttribute("collapsed"))
-            tab.removeAttribute("collapsed");
-        // <tabbox> Ctrl+Tab handling uses the "hidden" attribute.
-        if (tab.hasAttribute("hidden"))
-            tab.removeAttribute("hidden");
-        var tabpanel = parent.document.getElementById("findresults"+id+"_tabpanel");
-        if (tabpanel.hasAttribute("collapsed"))
-            tabpanel.removeAttribute("collapsed");
-    } else { // code to manually create the XUL
-
-        //WARNING: This is out of date with the current hardcoded results
-        //         tabs.
-
-        // Create the new XUL.
-        var tab, tabpanel, hbox, vbox, label, separator,
-            tree, treecols, treecol1, treecol2, treecol3, splitter1, splitter2,
-            treechildren, button0, button1, button2, button3, button4;
-        var idprefix = "findresults"+id;
-        // Add one of these to "output_tabs":
-        //    <tab id="findresultsN_tab" label="Find Results N"
-        //         onmousedown="document.getElementById('findresultsN-body').focus();"
-        //         onfocus="document.getElementById('findresultsN-body').focus();"/>
-        var tabs = document.getElementById("output_tabs");
-        tab = document.createElement("tab");
-        tab.setAttribute("id", idprefix+"_tab");
-        tab.setAttribute("label", "Find Results "+id);
-        tab.setAttribute("onmousedown",
-                         "document.getElementById('"+idprefix+"-body').focus();");
-        tab.setAttribute("onfocus",
-                         "document.getElementById('"+idprefix+"-body').focus();");
-        tabs.appendChild(tab);
-
-        // Add the new <tabpanel/> to "output_tabpanels":
-        var tabpanels = document.getElementById("output_tabpanels");
-        //    <tabpanel id="findresultsN_tabpanel" orient="vertical" flex="1">
-        tabpanel = document.createElement("tabpanel");
-        tabpanel.setAttribute("id", idprefix+"_tabpanel");
-        tabpanel.setAttribute("orient", "vertical");
-        tabpanel.setAttribute("flex", "1");
-        //        <hbox align="center">
-        hbox = document.createElement("hbox");
-        hbox.setAttribute("align", "center");
-        //            <label id="findresultsN-desc" style="height: 15px;"
-        //                   flex="1" crop="center"/>
-        label = document.createElement("label");
-        label.setAttribute("id", idprefix+"-desc");
-        label.setAttribute("style", "height: 15px");
-        label.setAttribute("flex", "1");
-        label.setAttribute("crop", "center");
-        //            <separator flex="1"/>
-        separator = document.createElement("separator");
-        separator.setAttribute("flex", "1");
-        //            <button id="findresultsN-jumptonext-button"
-        //                    class="list-item-down-icon button-toolbar-a"
-        //                    tooltiptext="Jump To Next Result"
-        //                    oncommand="mgr.jumpToNextResult();"/>
-        button0 = document.createElement("button");
-        button0.setAttribute("id", idprefix+"-jumptoprev-button");
-        button0.setAttribute("class", "list-item-up-icon button-toolbar-a");
-        button0.setAttribute("tooltiptext", "Jump To Previous Result");
-        button0.setAttribute("oncommand", "ko.findresults.getManager("+id+").jumpToPrevResult();");
-        //            <button id="findresultsN-jumptonext-button"
-        //                    class="list-item-down-icon button-toolbar-a"
-        //                    tooltiptext="Jump To Next Result"
-        //                    oncommand="mgr.jumpToNextResult();"/>
-        button1 = document.createElement("button");
-        button1.setAttribute("id", idprefix+"-jumptonext-button");
-        button1.setAttribute("class", "list-item-down-icon button-toolbar-a");
-        button1.setAttribute("tooltiptext", "Jump To Next Result");
-        button1.setAttribute("oncommand", "ko.findresults.getManager("+id+").jumpToNextResult();");
-        //            <button id="findresultsN-stopsearch-button"
-        //                    class="find-stop-icon button-toolbar-a"
-        //                    tooltiptext="Stop Search"
-        //                    oncommand="mgr.stopSearch();"
-        //                    disabled="true"/>
-        button2 = document.createElement("button");
-        button2.setAttribute("id", idprefix+"-stopsearch-button");
-        //XXX Want a stop-sign-type icon for this. Or could use the buttondbgStop button that we have now.
-        button2.setAttribute("class", "find-stop-icon button-toolbar-a");
-        button2.setAttribute("tooltiptext", "Stop Search");
-        button2.setAttribute("oncommand", "ko.findresults.getManager("+id+").stopSearch();");
-        button2.setAttribute("disabled", "true");
-        //            <button id="findresultsN-redosearch-button"
-        //                    class="list-item-down-icon button-toolbar-a"
-        //                    tooltiptext="Redo Search"
-        //                    oncommand="mgr.redoSearch();"
-        //                    disabled="true"/>
-        button3 = document.createElement("button");
-        button3.setAttribute("id", idprefix+"-redosearch-button");
-        //XXX Want a recycle-type icon for this.
-        button3.setAttribute("class", "list-item-down-icon button-toolbar-a");
-        button3.setAttribute("tooltiptext", "Redo Search");
-        button3.setAttribute("oncommand", "ko.findresults.getManager("+id+").redoSearch();");
-        button3.setAttribute("disabled", "true");
-        // 'Close Tab' button not necessary with current Find Results tab policy.
-        ////            <button id="findresultsN-close-button"
-        ////                    class="small-x-icon button-toolbar-a"
-        ////                    tooltiptext="Close Tab"
-        ////                    oncommand="mgr.closeTab();"
-        ////                    disabled="true"/>
-        //button4 = document.createElement("button");
-        //button4.setAttribute("id", idprefix+"-closetab-button");
-        //button4.setAttribute("class", "small-x-icon button-toolbar-a");
-        //button4.setAttribute("tooltiptext", "Close Tab");
-        //button4.setAttribute("oncommand", "ko.findresults.getManager("+id+").closeTab();");
-        //button4.setAttribute("disabled", "true");
-        //        </hbox>
-        hbox.appendChild(label);
-        hbox.appendChild(separator);
-        hbox.appendChild(button0);
-        hbox.appendChild(button1);
-        hbox.appendChild(button2);
-        hbox.appendChild(button3);
-        //        <tree id="findresultsN" flex="1"
-        //              seltype="single"
-        //              onclick="mgr.onClick(event);"
-        //              onkeypress="return mgr.onKeyPress(event);"
-        tree = document.createElement("tree");
-        tree.setAttribute("id", idprefix);
-        tree.setAttribute("flex", "1");
-        tree.setAttribute("seltype", "single");
-        tree.setAttribute("onclick", "ko.findresults.getManager("+id+").onClick(event);");
-        tree.setAttribute("onkeypress", "return ko.findresults.getManager("+id+").onKeyPress(event);");
-        //            <treecols>
-        treecols = document.createElement("treecols");
-        //                <treecol primary="true"
-        //                         id="findresults-filename"
-        //                         label="File" flex="6"
-        //                         persist="width"
-        //                         crop="left"/>
-        treecol1 = document.createElement("treecol");
-        treecol1.setAttribute("primary", "true");
-        //treecol1.setAttribute("id", "findresults-filename");
-        treecol1.setAttribute("id", idprefix+"-filename");
-        treecol1.setAttribute("label", "File");
-        treecol1.setAttribute("flex", "6");
-        treecol1.setAttribute("persist", "width");
-        treecol1.setAttribute("crop", "left");
-        //                <splitter class="tree-splitter"/>
-        splitter1 = document.createElement("splitter");
-        splitter1.setAttribute("class", "tree-splitter");
-        //                <treecol id="findresults-linenum"
-        //                         label="Line" align="right"
-        //                         persist="width"
-        //                         style="width: 4em;"/>
-        treecol2 = document.createElement("treecol");
-        //treecol2.setAttribute("id", "findresults-linenum");
-        treecol2.setAttribute("id", idprefix+"-linenum");
-        treecol2.setAttribute("label", "Line");
-        treecol2.setAttribute("align", "right");
-        treecol2.setAttribute("persist", "width");
-        treecol2.setAttribute("style", "width: 4em;");
-        //                <splitter class="tree-splitter"/>
-        splitter2 = document.createElement("splitter");
-        splitter2.setAttribute("class", "tree-splitter");
-        //                <treecol id="findresults-context"
-        //                         persist="width"
-        //                         label="Content" flex="12"/>
-        treecol3 = document.createElement("treecol");
-        //treecol3.setAttribute("id", "findresults-context");
-        treecol3.setAttribute("id", idprefix+"-context");
-        treecol3.setAttribute("label", "Content");
-        treecol3.setAttribute("flex", "12");
-        treecol3.setAttribute("persist", "width");
-        //            </treecols>
-        treecols.appendChild(treecol1);
-        treecols.appendChild(splitter1);
-        treecols.appendChild(treecol2);
-        treecols.appendChild(splitter2);
-        treecols.appendChild(treecol3);
-        //            <treechildren id="findresultsN-body" flex="1"/>
-        treechildren = document.createElement("treechildren");
-        treechildren.setAttribute("id", idprefix+"-body");
-        treechildren.setAttribute("flex", "1");
-        //        </tree>
-        tree.appendChild(treecols);
-        tree.appendChild(treechildren);
-        //    </tabpanel>
-        tabpanel.appendChild(hbox);
-        tabpanel.appendChild(tree);
-        tabpanels.appendChild(tabpanel);
-    }
+    var panel = parent.document.getElementById("findresults"+id+"_tabpanel");
+    var tab = panel.tab;
+    tab.removeAttribute("collapsed");
+    // <tabbox> Ctrl+Tab handling uses the "hidden" attribute.
+    tab.removeAttribute("hidden");
+    panel.removeAttribute("collapsed");
 
     var manager = new ko.findresults.FindResultsTabManager();
     manager.initialize(id);
     ["mousedown", "focus"].forEach(function(eventName) {
         tab.addEventListener(eventName, function() {
-            tabpanel.parentNode.selectedPanel = tabpanel;
-            tabpanel.firstChild.focus();
+            panel.tabbox.selectedPanel = panel;
+            panel.firstChild.focus();
             manager.doc.getElementById("findresults").focus();
         }, false);
     });
@@ -402,7 +224,7 @@ this.FindResultsTabManager.prototype.initialize = function(id)
         // depend on |window| or |document| (or other normally window-specific
         // globals) to help us distinguish which document we want.  We need
         // to go ask the containing browser instead.
-        var browser = parent.document.getElementById("findresults" + id + "_browser");
+        var browser = parent.document.getElementById("findresults" + id + "_tabpanel");
         this.doc = browser.contentDocument;
 
         // Ensure the nsITreeView instance is bound to the <tree>.
@@ -435,15 +257,13 @@ this.FindResultsTabManager.prototype.show = function(focus /* =false */)
         ko.uilayout.ensureOutputPaneShown(window);
 
         // switch to proper tab
-        var tabsWidget = parent.document.getElementById("output_tabs");
-        var tabWidget = parent.document.getElementById(this._idprefix+"_tab");
-        tabsWidget.selectedItem = tabWidget;
+        var widget = this.doc.defaultView.frameElement;
+        widget.tabbox.selectedTab = widget.tab;
 
         if (focus) {
             // Give the find results tab the focus. See bug 79487 for why
             // this *isn't* the default.
-            var tabpanel = parent.document.getElementById(tabWidget.linkedPanel);
-            tabpanel.firstChild.focus();
+            widget.firstChild.focus();
             this.doc.getElementById("findresults").focus();
         }
     } catch(ex) {
