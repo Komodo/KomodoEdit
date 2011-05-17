@@ -1183,12 +1183,7 @@ this.buildViewAsLanguageMenu = function uilayout_buildViewAsLanguageMenu() {
 
 this.outputPaneShown = function uilayout_outputPaneShown()
 {
-    var splitter = window.document.getElementById("bottom_splitter");
-    if (!splitter.hasAttribute('collapsed')) {
-        return true;
-    }
-    var collapsed = splitter.getAttribute('collapsed') == 'true';
-    return !collapsed;
+    return !window.document.getElementById("workspace_bottom_area").collapsed;
 }
 
 this.leftPaneShown = function uilayout_leftPaneShown()
