@@ -46,6 +46,8 @@ if (typeof(ko.toolbox2)=='undefined') {
 
 (function() {
 
+var log = ko.logging.getLogger("toolbox");
+
 var osPathSvc = (Components.classes["@activestate.com/koOsPath;1"]
              .getService(Components.interfaces.koIOsPath));
     
@@ -1420,7 +1422,7 @@ ToolboxController.prototype = {
  try {
 document.getElementById("toolbox2-hierarchy-tree").controllers.insertControllerAt(0, new ToolboxController());
  } catch(ex) {
-     this_.log.error("Failed to set a toolbox controller: " + ex + "\n");
+     log.error("Failed to set a toolbox controller: " + ex + "\n");
  }
      }, true);
 
