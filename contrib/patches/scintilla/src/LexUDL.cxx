@@ -2643,6 +2643,9 @@ static void doColorAction(int	    styleNum,
             }
         }
         int lastStyledPos = styler.GetStartSegment() - 1;
+        if (lastStyledPos < 0) {
+            lastStyledPos = 0;
+        }
         styler.ColourTo(pos - 1, styleNum);
         styler.Flush();
         int old_style = styler.StyleAt(lastStyledPos);
