@@ -1056,7 +1056,7 @@
                                     <!--
                                       - the three spacers here are the insertion targets for
                                       - dynamically creating the menu items; see
-                                      - chrome://komodo/content/bindings/pane.xml#pane::addPane
+                                      - chrome://komodo/content/bindings/pane.xml#pane::addWidget
                                       -->
                                     <spacer id="menu_view_tabs_stub_workspace_left_area"/>
                                     <menuseparator id="viewtabs_rightPane2"/>

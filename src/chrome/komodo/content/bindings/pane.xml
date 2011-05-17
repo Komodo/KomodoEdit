@@ -76,33 +76,86 @@
       </xul:vbox>
     </content>
     <implementation>
-      <method name="addPane">
-        <parameter name="pane"/>
+      <method name="addWidget">
+        <!--
+          - Add the given widget to the pane
+          -->
+        <parameter name="widget"/>
         <body>
         <![CDATA[
-          if (!pane.tab) {
+          if (!widget.tab) {
             var tab = this.ownerDocument.createElementNS(this.namespaceURI, "tab");
-            tab.setAttribute("observes", pane.id);
-            tab.setAttribute("linkedpanel", pane.id);
-            pane.tab = tab;
+            tab.setAttribute("observes", widget.id);
+            tab.setAttribute("linkedpanel", widget.id);
+            widget.tab = tab;
           }
-          this.tabs.appendChild(pane.tab);
+          this.tabs.appendChild(widget.tab);
           // we never want to have flex by the attr; remove the flex generated
           // by the tab binding. (we can do it from css if we really want to.)
-          pane.tab.removeAttribute("flex");
-          this.tabpanels.appendChild(pane);
+          widget.tab.removeAttribute("flex");
+          this.tabpanels.appendChild(widget);
 
-          // update the menu listing the panes to show
+          // update the menu listing the widgets to show
           var refElem = document.getElementById("menu_view_tabs_stub_" + this.id);
           if (refElem) {
             var menuitem = document.createElement("menuitem");
-            menuitem.setAttribute("label", pane.getAttribute("label"));
+            menuitem.setAttribute("label", widget.getAttribute("label"));
             menuitem.setAttribute("type", "checkbox");
-            menuitem.setAttribute("pane", pane.id);
+            menuitem.setAttribute("widget", widget.id);
             refElem.parentNode.insertBefore(menuitem, refElem);
             menuitem.addEventListener("command",
-                                      ko.uilayout.ensureTabShown.bind(ko.uilayout, pane.id, true),
+                                      ko.uilayout.ensureTabShown.bind(ko.uilayout, widget.id, true),
                                       false);
+          }
+        ]]>
+        </body>
+      </method>
+
+      <method name="removeWidget">
+        <!--
+          - Remove a given widget.
+          - This should not be used if you just want to hide the widget
+          - temporarily.
+          -->
+        <parameter name="widget"/>
+        <body>
+        <![CDATA[
+          if (widget.parentNode) {
+            widget.parentNode.removeChild(widget);
+          }
+          if (widget.tab) {
+            if (widget.tab.parentNode) {
+              // find another tab to select
+              var tab = widget.tab.nextElementSibling;
+              for (; tab; tab = tab.nextElementSibling) {
+                if (!tab.hasAttribute("collapsed")) {
+                  break;
+                }
+              }
+              if (!tab) {
+                tab = widget.tab.previousElementSibling;
+                for (; tab; tab = tab.previousElementSibling) {
+                  if (!tab.hasAttribute("collapsed")) {
+                    break;
+                  }
+                }
+              }
+              if (tab) {
+                this.selectedTab = tab;
+              } else {
+                // we're removing the only visible widget. Hide.
+                this.collapsed = true;
+              }
+              widget.tab.parentNode.removeChild(widget.tab);
+            }
+            widget.tab = null;
+          }
+          // update the menu listing the widgets
+          var refElem = document.getElementById("menu_view_tabs_stub_" + this.id);
+          var menu = refElem.parentNode;
+          var menuitem = menu.querySelector("menuitem[widget='" + widget.id + "']");
+          if (menuitem) {
+            menuitem.parentNode.removeChild(menuitem);
           }
         ]]>
         </body>
@@ -172,10 +225,12 @@
         }
         // re-inserting the tabpanel in the same place causes it to show up
         // in DOM inspector's tree (still as a anonymous node)...
+        // (this is not strictly necessary, since things still work without it)
         this.tabpanels.parentNode.insertBefore(this.tabpanels, this.tabpanels.nextSibling);
-        var panes = Array.slice(this.childNodes);
-        for each (var pane in panes) {
-          this.addPane(pane);
+        // re-insert the widgets so we can properly construct tabs for them
+        var widgets = Array.slice(this.childNodes);
+        for each (var widget in widgets) {
+          this.addWidget(widget);
         }
       } catch (e) { Components.utils.reportError(e); }
       ]]>

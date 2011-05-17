@@ -193,8 +193,8 @@ this.create = function _FindResultsTab_Create(id)
     manager.initialize(id);
     ["mousedown", "focus"].forEach(function(eventName) {
         tab.addEventListener(eventName, function() {
-            panel.tabbox.selectedPanel = panel;
-            panel.firstChild.focus();
+            panel.tabbox.selectedTab = tab;
+            panel.focus();
             manager.doc.getElementById("findresults").focus();
         }, false);
     });
