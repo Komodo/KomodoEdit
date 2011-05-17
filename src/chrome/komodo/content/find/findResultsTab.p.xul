@@ -1,0 +1,89 @@
+<?xml version="1.0"?>
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+<!DOCTYPE overlay PUBLIC "-//MOZILLA//DTD XUL V1.0//EN" "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % debuggerDTD SYSTEM "chrome://komodo/locale/komodo.dtd">
+  %debuggerDTD;
+]>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/scintilla.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/scrolltabs.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/views.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/komodo.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/platform.css" type="text/css"?>
+<?xml-stylesheet href="chrome://global/skin/tabbox.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/tabs/tabs.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/toolbar.css" type="text/css"?>
+<?xul-overlay href="chrome://komodo/content/bindings/scintilla-overlay.xul"?>
+
+<page xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+    <hbox align="center" id="findresults_tabpanel-toolbarbox"
+        class="toolbar-background toolbar-hbox">
+        <image id="findresults-icon"
+               collapsed="true" hidden="true"
+               style="padding-left: 3px;"
+               src="chrome://global/skin/icons/loading_16.png"/>
+        <label id="findresults-desc" style="height: 18px;"
+               flex="1" crop="center"/>
+        <separator flex="1"/>
+        <textbox id="findresults-filter-textbox"
+                 type="search"
+                 timeout="200"
+                 oncommand="ko.findresults.getManager(1).updateFilter();"
+                 tooltiptext="&findFilter.tooltiptext;"
+                 />
+        <hbox id="findtoolbar1-button-box" class="no-border solo-toolbaritem"
+              align="center">
+            <toolbarbutton id="findresults-jumptoprev-button"
+                    class="list-item-up-icon"
+                    tooltiptext="&jumpToPreviousResult.tooltiptext;"
+                    oncommand="ko.findresults.getManager(1).jumpToPrevResult();"/>
+            <toolbarbutton id="findresults-jumptonext-button"
+                    class="list-item-down-icon"
+                    tooltiptext="&jumpToNextResult.tooltiptext;"
+                    oncommand="ko.findresults.getManager(1).jumpToNextResult();"/>
+            <toolbarseparator style="width: 10px;"/>
+            <toolbarbutton id="findresults-stopsearch-button"
+                    class="find-stop-icon"
+                    tooltiptext="&stopSearch.tooltiptext;"
+                    oncommand="ko.findresults.getManager(1).stopSearch();"
+                    disabled="true"/>
+            <toolbarbutton id="findresults-undoreplace-button"
+                    class="find-undo-icon"
+                    tooltiptext="&undoReplacements.tooltiptext;"
+                    oncommand="ko.findresults.getManager(1).undoReplace();"
+                    disabled="true"/>
+            <toolbarseparator style="width: 10px;"/>
+            <toolbarbutton id="findresults-lock-button"
+                    class="find-lock-icon"
+                    tooltiptext="&lockUnlockFindResults.tooltiptext;"
+                    oncommand="ko.findresults.getManager(1).toggleLockResults();"/>
+        </hbox>
+    </hbox>
+    <tree id="findresults" flex="1"
+          seltype="single" class="no-border"
+          onclick="ko.findresults.getManager(1).onClick(event);"
+          onkeypress="return ko.findresults.getManager(1).onKeyPress(event);">
+        <treecols>
+            <treecol primary="true"
+                     id="findresults-filename"
+                     label="&file.label;" flex="6"
+                     persist="width"
+                     crop="left"/>
+            <splitter class="tree-splitter"/>
+            <treecol id="findresults-linenum"
+                     label="&line.label;"
+                     persist="width"
+                     style="width: 4em;"/>
+            <splitter class="tree-splitter"/>
+            <treecol id="findresults-context"
+                     persist="width"
+                     label="&content.label;" flex="12"/>
+        </treecols>
+        <treechildren id="findresults-body" flex="1"
+                      class="findresults"/>
+    </tree>
+
+    <script src="chrome://komodo/content/find/findResultsTab.js"          type="application/x-javascript;version=1.7"/>
+</page>

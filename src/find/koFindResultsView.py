@@ -120,11 +120,11 @@ class KoFindResultsView(TreeView):
                  "value": value,
                  "lineNum": lineNum,
                  "columnNum": columnNum,
-                 "findresults%d-filename" % self.id: fileName,
-                 "findresults%d-linenum" % self.id: lineNum,
-                 "findresults%d-context" % self.id: context}
+                 "findresults-filename": fileName,
+                 "findresults-linenum": lineNum,
+                 "findresults-context": context}
         if type == "warning":
-            datum["findresults%d-linenum" % self.id] = "-"
+            datum["findresults-linenum"] = "-"
 
         self._unfiltered_data.append(datum)
         if not self._filter_words or \
@@ -152,11 +152,11 @@ class KoFindResultsView(TreeView):
                      "value": value,
                      "lineNum": lineNum,
                      "columnNum": columnNum,
-                     "findresults%d-filename" % self.id: fileName,
-                     "findresults%d-linenum" % self.id: lineNum,
-                     "findresults%d-context" % self.id: context}
+                     "findresults-filename": fileName,
+                     "findresults-linenum": lineNum,
+                     "findresults-context": context}
             if type == "warning":
-                datum["findresults%d-linenum" % self.id] = "-"
+                datum["findresults-linenum"] = "-"
 
             self._unfiltered_data.append(datum)
             if not self._filter_words or \
@@ -184,11 +184,11 @@ class KoFindResultsView(TreeView):
                  "replacement": replacement,
                  "lineNum": lineNum,
                  "columnNum": columnNum,
-                 "findresults%d-filename" % self.id: fileName,
-                 "findresults%d-linenum" % self.id: lineNum,
-                 "findresults%d-context" % self.id: context}
+                 "findresults-filename": fileName,
+                 "findresults-linenum": lineNum,
+                 "findresults-context": context}
         if type == "warning":
-            datum["findresults%d-linenum" % self.id] = "-"
+            datum["findresults-linenum"] = "-"
 
         self._unfiltered_data.append(datum)
         if not self._filter_words or \
@@ -219,11 +219,11 @@ class KoFindResultsView(TreeView):
                      "replacement": replacement,
                      "lineNum": lineNum,
                      "columnNum": columnNum,
-                     "findresults%d-filename" % self.id: fileName,
-                     "findresults%d-linenum" % self.id: lineNum,
-                     "findresults%d-context" % self.id: context}
+                     "findresults-filename": fileName,
+                     "findresults-linenum": lineNum,
+                     "findresults-context": context}
             if type == "warning":
-                datum["findresults%d-linenum" % self.id] = "-"
+                datum["findresults-linenum"] = "-"
 
             self._unfiltered_data.append(datum)
             if not self._filter_words or \
@@ -265,7 +265,7 @@ class KoFindResultsView(TreeView):
             self._data.reverse()
         else:
             try:
-                if sortBy == "findresults%d-context" % self.id:
+                if sortBy == "findresults-context":
                     # strip leading whitespace for context sort order
                     self._data.sort(lambda dict1,dict2,sortBy=sortBy:
                                         cmp(dict1[sortBy].lstrip(), dict2[sortBy].lstrip())

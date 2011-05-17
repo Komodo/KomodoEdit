@@ -40,6 +40,8 @@ if (typeof(ko) == 'undefined') {
 
 if (typeof(ko.findresults)!='undefined') {
     ko.logging.getLogger('').warn("ko.findresults was already loaded, re-creating it.\n");
+} else {
+    ko.findresults = {};
 }
 
 /* -*- Mode: JavaScript; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 2 -*-
@@ -49,7 +51,6 @@ if (typeof(ko.findresults)!='undefined') {
  * TODO:
  *  - try to refind results that have moved from buffer editting since search
  */
-ko.findresults = {};
 
 (function() {
 
@@ -74,10 +75,8 @@ var findResultsLog = ko.logging.getLogger('findResultsTab');
 
 // Mapping from find results tab id (1 or 2) to a tab manager instance.
 // If the key's value is null the tab XUL needs to be created.
-var _managers = {1: null, 2: null};
-
-// Expose this local - required by the TODO extension.
-this.managers = _managers;
+if (!("managers" in this))
+    this.managers = {1: null, 2: null};
 
 // Return a usable (not busy, not locked, cleared) Find Results tab manager.
 //
@@ -111,22 +110,22 @@ this.getTab = function FindResultsTab_GetTab(preferredId /* =1 */)
 
         // Determine which find results tab will be used.
         var id, answer;
-        if (_managers[preferredId] == null) {
+        if (this.managers[preferredId] == null) {
             id = preferredId;
-        } else if (!_managers[preferredId].isBusy()
-                   && !_managers[preferredId].is_locked) {
+        } else if (!this.managers[preferredId].isBusy()
+                   && !this.managers[preferredId].is_locked) {
             id = preferredId;
-        } else if (_managers[otherId] == null ||
-                   (!_managers[otherId].isBusy()
-                    && !_managers[otherId].is_locked)) {
+        } else if (this.managers[otherId] == null ||
+                   (!this.managers[otherId].isBusy()
+                    && !this.managers[otherId].is_locked)) {
             // The preferred tab is busy or locked, but the other one is
             // available: just use the other one.
             id = otherId;
         } else {
             // Both are busy or locked. Offer to stop/unlock the current one.
-            var action_1 = (_managers[1].isBusy()
+            var action_1 = (this.managers[1].isBusy()
                             ? "Stop" : "Unlock");
-            var action_2 = (_managers[2].isBusy()
+            var action_2 = (this.managers[2].isBusy()
                             ? "Stop" : "Unlock");
             answer = ko.dialogs.customButtons(
                 "Both Find Results tabs are busy or locked. Would you "
@@ -138,10 +137,10 @@ this.getTab = function FindResultsTab_GetTab(preferredId /* =1 */)
                 null, // text
                 null); // title
             if (answer == "Stop and Use Tab 1") {
-                _managers[1].stopSearch()
+                this.managers[1].stopSearch()
                 id = 1;
             } else if (answer == "Stop and Use Tab 2") {
-                _managers[2].stopSearch()
+                this.managers[2].stopSearch()
                 id = 2;
             } else if (answer == "Unlock and Use Tab 1") {
                 id = 1;
@@ -153,10 +152,10 @@ this.getTab = function FindResultsTab_GetTab(preferredId /* =1 */)
         }
 
         // Create the tab or clear it and return its manager.
-        var manager = _managers[id];
+        var manager = this.managers[id];
         if (manager == null) {
-            manager = ko.findresults.create(id);
-            _managers[id] = manager;
+            manager = this.create(id);
+            this.managers[id] = manager;
         } else {
             manager.clear();
         }
@@ -169,7 +168,7 @@ this.getTab = function FindResultsTab_GetTab(preferredId /* =1 */)
 
 this.getManager = function FindResultsTab_GetManager(id)
 {
-    return _managers[id];
+    return this.managers[id];
 }
 
 // Create/uncollapse a new find results tab and return a manager object.
@@ -184,13 +183,13 @@ this.getManager = function FindResultsTab_GetManager(id)
 this.create = function _FindResultsTab_Create(id)
 {
     if (1) { // just uncollapsed the hardcoded find results tabs
-        var tab = document.getElementById("findresults"+id+"_tab");
+        var tab = parent.document.getElementById("findresults"+id+"_tab");
         if (tab.hasAttribute("collapsed"))
             tab.removeAttribute("collapsed");
         // <tabbox> Ctrl+Tab handling uses the "hidden" attribute.
         if (tab.hasAttribute("hidden"))
             tab.removeAttribute("hidden");
-        var tabpanel = document.getElementById("findresults"+id+"_tabpanel");
+        var tabpanel = parent.document.getElementById("findresults"+id+"_tabpanel");
         if (tabpanel.hasAttribute("collapsed"))
             tabpanel.removeAttribute("collapsed");
     } else { // code to manually create the XUL
@@ -370,6 +369,13 @@ this.create = function _FindResultsTab_Create(id)
 
     var manager = new ko.findresults.FindResultsTabManager();
     manager.initialize(id);
+    ["mousedown", "focus"].forEach(function(eventName) {
+        tab.addEventListener(eventName, function() {
+            tabpanel.parentNode.selectedPanel = tabpanel;
+            tabpanel.firstChild.focus();
+            manager.doc.getElementById("findresults").focus();
+        }, false);
+    });
     return manager;
 }
 
@@ -392,8 +398,15 @@ this.FindResultsTabManager.prototype.initialize = function(id)
         }
         this.view.id = this.id;
 
+        // since the two find results tabs share ko.findresults.*, we can't
+        // depend on |window| or |document| (or other normally window-specific
+        // globals) to help us distinguish which document we want.  We need
+        // to go ask the containing browser instead.
+        var browser = parent.document.getElementById("findresults" + id + "_browser");
+        this.doc = browser.contentDocument;
+
         // Ensure the nsITreeView instance is bound to the <tree>.
-        var treeWidget = document.getElementById(this._idprefix);
+        var treeWidget = this.doc.getElementById("findresults");
         var boxObject = treeWidget.treeBoxObject
                 .QueryInterface(Components.interfaces.nsITreeBoxObject);
         if (boxObject.view == null) {
@@ -422,15 +435,16 @@ this.FindResultsTabManager.prototype.show = function(focus /* =false */)
         ko.uilayout.ensureOutputPaneShown(window);
 
         // switch to proper tab
-        var tabsWidget = document.getElementById("output_tabs");
-        var tabWidget = document.getElementById(this._idprefix+"_tab");
+        var tabsWidget = parent.document.getElementById("output_tabs");
+        var tabWidget = parent.document.getElementById(this._idprefix+"_tab");
         tabsWidget.selectedItem = tabWidget;
 
         if (focus) {
             // Give the find results tab the focus. See bug 79487 for why
             // this *isn't* the default.
-            var findResultsWidget = document.getElementById(this._idprefix+"-body");
-            findResultsWidget.focus();
+            var tabpanel = parent.document.getElementById(tabWidget.linkedPanel);
+            tabpanel.firstChild.focus();
+            this.doc.getElementById("findresults").focus();
         }
     } catch(ex) {
         findResultsLog.exception(ex);
@@ -454,15 +468,15 @@ this.FindResultsTabManager.prototype.clear = function()
     // Clear the UI.
     this.view.Clear(0);
     this._updateSortIndicators(null);
-    var descWidget = document.getElementById(this._idprefix+"-desc");
+    var descWidget = this.doc.getElementById("findresults-desc");
     descWidget.setAttribute("value", "No current find/replace results.");
     descWidget.removeAttribute("baseDesc");
     descWidget.style.setProperty("color", "black", "");
-    document.getElementById(this._idprefix+"-jumptonext-button")
+    document.getElementById("findresults-jumptonext-button")
             .setAttribute("disabled", "true");
-    document.getElementById(this._idprefix+"-jumptoprev-button")
+    document.getElementById("findresults-jumptoprev-button")
             .setAttribute("disabled", "true");
-    var searchTextbox = document.getElementById(this._idprefix + "-filter-textbox");
+    var searchTextbox = this.doc.getElementById("findresults-filter-textbox");
     if (searchTextbox) {  // May not exist (i.e. not yet in the TODO extension).
         searchTextbox.value = "";
     }
@@ -472,7 +486,7 @@ this.FindResultsTabManager.prototype.clear = function()
 this.FindResultsTabManager.prototype.updateFilter = function()
 {
     findResultsLog.info("FindResultsTabManager.updateFilter()");
-    var searchTextbox = document.getElementById(this._idprefix + "-filter-textbox");
+    var searchTextbox = this.doc.getElementById("findresults-filter-textbox");
     this.view.SetFilterText(searchTextbox.value);
 }
 
@@ -480,7 +494,7 @@ this.FindResultsTabManager.prototype.updateFilter = function()
 this.FindResultsTabManager.prototype.jumpToPrevResult = function()
 {
     findResultsLog.info("FindResultsTabManager.jumpToPrevResult()");
-    var treeWidget = document.getElementById(this._idprefix);
+    var treeWidget = this.doc.getElementById("findresults");
     if (treeWidget.treeBoxObject.view.rowCount < 1) {
         ko.dialogs.alert("Could not find previous result because the "+
                      "find results list is empty.");
@@ -504,7 +518,7 @@ this.FindResultsTabManager.prototype.jumpToPrevResult = function()
 this.FindResultsTabManager.prototype.jumpToNextResult = function()
 {
     findResultsLog.info("FindResultsTabManager.jumpToNextResult()");
-    var treeWidget = document.getElementById(this._idprefix);
+    var treeWidget = this.doc.getElementById("findresults");
     if (treeWidget.treeBoxObject.view.rowCount < 1) {
         ko.dialogs.alert("Could not find next result because the find results "+
                      "list is empty.");
@@ -529,7 +543,7 @@ this.FindResultsTabManager.prototype.toggleLockResults = function()
     findResultsLog.info("FindResultsTabManager.toggleLockResults()");
     try {
         this.is_locked = ! this.is_locked;
-        var lockButton = document.getElementById(this._idprefix+"-lock-button");
+        var lockButton = this.doc.getElementById("findresults-lock-button");
         if (!lockButton) {
             // This is to allow the TODO extension to work. It is piggybacking
             // on the Find Results tab stuff.
@@ -572,7 +586,7 @@ this.FindResultsTabManager.prototype.undoReplace = function()
         "komodo_undo_repl",
         "chrome,modal,titlebar,resizable=yes",
         args);
-    var undoButton = document.getElementById(this._idprefix+"-undoreplace-button");
+    var undoButton = this.doc.getElementById("findresults-undoreplace-button");
     if (args.retval && undoButton) {
         undoButton.setAttribute("disabled", "true");
     }
@@ -608,18 +622,18 @@ this.FindResultsTabManager.prototype.undoReplace = function()
 //        }
 //
 //        // Remove the tab's XUL.
-//        var tabs = document.getElementById("output_tabs");
-//        var tab = document.getElementById(this._idprefix+"_tab");
+//        var tabs = parent.document.getElementById("output_tabs");
+//        var tab = parent.document.getElementById(this._idprefix+"_tab");
 //        tabs.selectedItem = tab.previousSibling; // select preceding tab
 //        tabs.removeChild(tab);
-//        var tabpanels = document.getElementById("output_tabpanels");
-//        var tabpanel = document.getElementById(this._idprefix+"_tabpanel");
+//        var tabpanels = parent.document.getElementById("output_tabpanels");
+//        var tabpanel = parent.document.getElementById(this._idprefix+"_tabpanel");
 //        tabpanels.removeChild(tabpanel);
 //
 //        // Reclaim the id number.
 //        //XXX Have to figure out our Find Results tab policy before working
 //        //    on this.
-//        //delete _managers[this.id];
+//        //delete ko.findresults.managers[this.id];
 //    } catch(ex) {
 //        findResultsLog.exception(ex);
 //    }
@@ -632,7 +646,7 @@ this.FindResultsTabManager.prototype.setDescription = function(subDesc /* =null 
     if (typeof(subDesc) == "undefined") subDesc = null;
     if (typeof(important) == "undefined") important = false;
 
-    var descWidget = document.getElementById(this._idprefix+"-desc");
+    var descWidget = this.doc.getElementById("findresults-desc");
     var baseDesc = descWidget.getAttribute("baseDesc");
     var desc;
     if (subDesc) {
@@ -739,11 +753,11 @@ this.FindResultsTabManager.prototype.configure = function(
 
     // Add a description of the find process.
     var baseDesc = this._getBaseDescription("present");
-    var descWidget = document.getElementById(this._idprefix+"-desc");
+    var descWidget = this.doc.getElementById("findresults-desc");
     descWidget.setAttribute("baseDesc", baseDesc);
     this.setDescription();
 
-    var filenameCol = document.getElementById(this._idprefix+"-filename");
+    var filenameCol = this.doc.getElementById("findresults-filename");
     if (context.type == Components.interfaces.koIFindContext.FCT_CURRENT_DOC
         || context.type == Components.interfaces.koIFindContext.FCT_SELECTION)
     {
@@ -754,7 +768,7 @@ this.FindResultsTabManager.prototype.configure = function(
 
     // Make the undo button available if this find/replace operation
     // supports it.
-    var undoButton = document.getElementById(this._idprefix+"-undoreplace-button");
+    var undoButton = this.doc.getElementById("findresults-undoreplace-button");
     if (opSupportsUndo) {
         if (undoButton) { // because "todo"-extension is piggy-backing
             if (undoButton.hasAttribute("collapsed"))
@@ -777,7 +791,7 @@ this.FindResultsTabManager.prototype.searchStarted = function()
 {
     this._searchInProgress = true;
 
-    var icon = document.getElementById(this._idprefix+"-icon");
+    var icon = this.doc.getElementById("findresults-icon");
     if (icon) { // because "todo"-extension is piggy-backing
         if (icon.hasAttribute("collapsed"))
             icon.removeAttribute("collapsed");
@@ -786,14 +800,14 @@ this.FindResultsTabManager.prototype.searchStarted = function()
     }
 
     // 'Close Tab' button not necessary with current Find Results tab policy.
-    //var closeButton = document.getElementById(this._idprefix+"-closetab-button");
+    //var closeButton = document.getElementById("findresults-closetab-button");
     //if (closeButton.hasAttribute("disabled"))
     //    closeButton.removeAttribute("disabled");
-    document.getElementById(this._idprefix+"-jumptonext-button")
+    this.doc.getElementById("findresults-jumptonext-button")
         .setAttribute("disabled", "true");
-    document.getElementById(this._idprefix+"-jumptoprev-button")
+    this.doc.getElementById("findresults-jumptoprev-button")
         .setAttribute("disabled", "true");
-    var stopButton = document.getElementById(this._idprefix+"-stopsearch-button");
+    var stopButton = this.doc.getElementById("findresults-stopsearch-button");
     if (stopButton.hasAttribute("disabled"))
         stopButton.removeAttribute("disabled");
 }
@@ -830,31 +844,31 @@ this.FindResultsTabManager.prototype.searchFinished = function(
 
     this._journalId = journalId;
 
-    var icon = document.getElementById(this._idprefix+"-icon");
+    var icon = this.doc.getElementById("findresults-icon");
     if (icon) {
         icon.setAttribute("collapsed", "true");
         icon.setAttribute("hidden", "true");
     }
 
     this._searchInProgress = false;
-    var jumpToNextButton = document.getElementById(this._idprefix+"-jumptonext-button");
+    var jumpToNextButton = this.doc.getElementById("findresults-jumptonext-button");
     if (jumpToNextButton.hasAttribute("disabled"))
         jumpToNextButton.removeAttribute("disabled");
-    var jumpToPrevButton = document.getElementById(this._idprefix+"-jumptoprev-button");
+    var jumpToPrevButton = this.doc.getElementById("findresults-jumptoprev-button");
     if (jumpToPrevButton.hasAttribute("disabled"))
         jumpToPrevButton.removeAttribute("disabled");
 
 //XXX Not implemented yet.
-//    var redoButton = document.getElementById(this._idprefix+"-redosearch-button");
+//    var redoButton = this.doc.getElementById("findresults-redosearch-button");
 //    if (redoButton.hasAttribute("disabled"))
 //        redoButton.removeAttribute("disabled");
-    var stopButton = document.getElementById(this._idprefix+"-stopsearch-button");
+    var stopButton = this.doc.getElementById("findresults-stopsearch-button");
     stopButton.setAttribute("disabled", "true");
 
     var desc;
     if (success) {
         var baseDesc = this._getBaseDescription("past");
-        var descWidget = document.getElementById(this._idprefix+"-desc");
+        var descWidget = this.doc.getElementById("findresults-desc");
         descWidget.setAttribute("baseDesc", baseDesc);
         if (this._repl != null) {
             desc = "Replaced ";
@@ -889,7 +903,7 @@ this.FindResultsTabManager.prototype.searchFinished = function(
         ko.window.checkDiskFiles();
 
         if (success) {
-            var undoButton = document.getElementById(this._idprefix+"-undoreplace-button");
+            var undoButton = this.doc.getElementById("findresults-undoreplace-button");
             if (undoButton) { // because "todo"-extension is piggy-backing
                 if (undoButton.hasAttribute("disabled"))
                     undoButton.removeAttribute("disabled");
@@ -908,7 +922,7 @@ this.FindResultsTabManager.prototype.addReplaceResult = function(
     this.view.AddReplaceResult(type, url, startIndex, endIndex, value,
                                replacement, fileName, lineNum,
                                columnNum, context);
-    var descWidget = document.getElementById(this._idprefix+"-desc");
+    var descWidget = this.doc.getElementById("findresults-desc");
     var desc = descWidget.getAttribute("baseDesc");
     var numHits = this.view.rowCount;
     if (numHits == 1) {
@@ -969,7 +983,7 @@ this.FindResultsTabManager.prototype._doubleClick = function()
     // Jump to the find/replace result.
     try {
         // Open and/or switch to the appropriate file.
-        var treeWidget = document.getElementById(this._idprefix);
+        var treeWidget = this.doc.getElementById("findresults");
         var i = treeWidget.currentIndex;
 
         var eventType = this.view.GetType(i);
@@ -1123,7 +1137,7 @@ this.FindResultsTabManager.prototype._updateSortIndicators = function(sortId)
 
     // remove the sort indicator from all the columns
     // except the one we are sorted by
-    var currCol = document.getElementById(this._idprefix).firstChild.firstChild;
+    var currCol = this.doc.getElementById("findresults").firstChild.firstChild;
     while (currCol) {
         while (currCol && currCol.localName != "treecol") {
             currCol = currCol.nextSibling;
@@ -1166,11 +1180,11 @@ this.nextResult = function FindResultsTab_NextResult()
         }
 
         var tabName, tabId, tab, manager;
-        for (tabName in _managers) {
+        for (tabName in this.managers) {
             tabId = "findresults"+tabName+"_tab";
             tab = document.getElementById(tabId);
             if (tab && tab.selected) {
-                manager = _managers[tabName];
+                manager = this.managers[tabName];
                 manager.jumpToNextResult();
                 break;
             }

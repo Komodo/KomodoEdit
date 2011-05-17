@@ -48,6 +48,8 @@ Import(
 
 $cons->InstallInChrome('find_functions.js');
 $cons->InstallInChrome('findResultsTab.js');
+$cons->Preprocess('findResultsTab.p.xul', 'findResultsTab.xul');
+$cons->InstallInChrome('findResultsTab.xul');
 
 $cons->Preprocess('find2.p.js', 'find2.js');
 $cons->InstallInChrome('find2.js');

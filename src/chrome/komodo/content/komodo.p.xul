@@ -124,7 +124,6 @@
 <!-- #endif -->
 
     <script src="chrome://komodo/content/find/find_functions.js"          type="application/x-javascript;version=1.7"/>
-    <script src="chrome://komodo/content/find/findResultsTab.js"          type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/find/findtoolbar.js"             type="application/x-javascript;version=1.7"/>
 
     <script src="chrome://komodo/content/run/run_functions.js"            type="application/x-javascript;version=1.7"/>
@@ -2160,142 +2159,16 @@
                     <!-- The two Find Results tabs of the output pane -->
                     <tabpanel id="findresults1_tabpanel" orient="vertical"
                               flex="1" collapsed="true">
-                        <hbox align="center" id="findresults1_tabpanel-toolbarbox"
-                            class="toolbar-background toolbar-hbox">
-                            <image id="findresults1-icon"
-                                   collapsed="true" hidden="true"
-                                   style="padding-left: 3px;"
-                                   src="chrome://global/skin/icons/loading_16.png"/>
-                            <label id="findresults1-desc" style="height: 18px;"
-                                   flex="1" crop="center"/>
-                            <separator flex="1"/>
-                            <textbox id="findresults1-filter-textbox"
-                                     type="search"
-                                     timeout="200"
-                                     oncommand="ko.findresults.getManager(1).updateFilter();"
-                                     tooltiptext="&findFilter.tooltiptext;"
-                                     />
-                            <hbox id="findtoolbar1-button-box" class="no-border solo-toolbaritem"
-                                  align="center">
-                                <toolbarbutton id="findresults1-jumptoprev-button"
-                                        class="list-item-up-icon"
-                                        tooltiptext="&jumpToPreviousResult.tooltiptext;"
-                                        oncommand="ko.findresults.getManager(1).jumpToPrevResult();"/>
-                                <toolbarbutton id="findresults1-jumptonext-button"
-                                        class="list-item-down-icon"
-                                        tooltiptext="&jumpToNextResult.tooltiptext;"
-                                        oncommand="ko.findresults.getManager(1).jumpToNextResult();"/>
-                                <toolbarseparator style="width: 10px;"/>
-                                <toolbarbutton id="findresults1-stopsearch-button"
-                                        class="find-stop-icon"
-                                        tooltiptext="&stopSearch.tooltiptext;"
-                                        oncommand="ko.findresults.getManager(1).stopSearch();"
-                                        disabled="true"/>
-                                <toolbarbutton id="findresults1-undoreplace-button"
-                                        class="find-undo-icon"
-                                        tooltiptext="&undoReplacements.tooltiptext;"
-                                        oncommand="ko.findresults.getManager(1).undoReplace();"
-                                        disabled="true"/>
-                                <toolbarseparator style="width: 10px;"/>
-                                <toolbarbutton id="findresults1-lock-button"
-                                        class="find-lock-icon"
-                                        tooltiptext="&lockUnlockFindResults.tooltiptext;"
-                                        oncommand="ko.findresults.getManager(1).toggleLockResults();"/>
-                            </hbox>
-                        </hbox>
-                        <tree id="findresults1" flex="1"
-                              seltype="single" class="no-border"
-                              onclick="ko.findresults.getManager(1).onClick(event);"
-                              onkeypress="return ko.findresults.getManager(1).onKeyPress(event);">
-                            <treecols>
-                                <treecol primary="true"
-                                         id="findresults1-filename"
-                                         label="&file.label;" flex="6"
-                                         persist="width"
-                                         crop="left"/>
-                                <splitter class="tree-splitter"/>
-                                <treecol id="findresults1-linenum"
-                                         label="&line.label;"
-                                         persist="width"
-                                         style="width: 4em;"/>
-                                <splitter class="tree-splitter"/>
-                                <treecol id="findresults1-context"
-                                         persist="width"
-                                         label="&content.label;" flex="12"/>
-                            </treecols>
-                            <treechildren id="findresults1-body" flex="1"
-                                          class="findresults"/>
-                        </tree>
+                        <browser flex="1" id="findresults1_browser"
+                                 src="chrome://komodo/content/find/findResultsTab.xul"
+                                 style="-moz-binding: url('chrome://komodo/content/bindings/pane.xml#pane-browser');"/>
                     </tabpanel>
                     <tabpanel id="findresults2_tabpanel" orient="vertical"
                               flex="1" collapsed="true">
-                        <hbox align="center" id="findresults2_tabpanel-toolbarbox"
-                            class="toolbar-background toolbar-hbox">
-                            <image id="findresults2-icon"
-                                   collapsed="true" hidden="true"
-                                   style="padding-left: 3px;"
-                                   src="chrome://global/skin/icons/loading_16.png"/>
-                            <label id="findresults2-desc" style="height: 15px;"
-                                   flex="1" crop="center"/>
-                            <separator flex="1"/>
-                            <textbox id="findresults2-filter-textbox"
-                                     type="search"
-                                     timeout="200"
-                                     oncommand="ko.findresults.getManager(2).updateFilter();"
-                                     tooltiptext="&findFilter.tooltiptext;"
-                                     />
-                            <hbox id="findtoolbar2-button-box" class="no-border solo-toolbaritem"
-                                  align="center">
-                                <toolbarbutton id="findresults2-jumptoprev-button"
-                                        class="list-item-up-icon"
-                                        tooltiptext="&jumpToPreviousResult.tooltiptext;"
-                                        oncommand="ko.findresults.getManager(2).jumpToPrevResult();"/>
-                                <toolbarbutton id="findresults2-jumptonext-button"
-                                        class="list-item-down-icon"
-                                        tooltiptext="&jumpToNextResult.tooltiptext;"
-                                        oncommand="ko.findresults.getManager(2).jumpToNextResult();"/>
-                                <toolbarseparator style="width: 10px;"/>
-                                <toolbarbutton id="findresults2-stopsearch-button"
-                                        class="find-stop-icon"
-                                        tooltiptext="&stopSearch.tooltiptext;"
-                                        oncommand="ko.findresults.getManager(2).stopSearch();"
-                                        disabled="true"/>
-                                <toolbarbutton id="findresults2-undoreplace-button"
-                                        class="find-undo-icon"
-                                        tooltiptext="&undoReplacements.tooltiptext;"
-                                        oncommand="ko.findresults.getManager(2).undoReplace();"
-                                        disabled="true"/>
-                                <toolbarseparator style="width: 10px;"/>
-                                <toolbarbutton id="findresults2-lock-button"
-                                        class="find-lock-icon"
-                                        tooltiptext="&lockUnlockFindResults.tooltiptext;"
-                                        oncommand="ko.findresults.getManager(2).toggleLockResults();"/>
-                            </hbox>
-                        </hbox>
-                        <tree id="findresults2" flex="1"
-                              seltype="single" class="no-border"
-                              onclick="ko.findresults.getManager(2).onClick(event);"
-                              onkeypress="return ko.findresults.getManager(2).onKeyPress(event);">
-                            <treecols>
-                                <treecol primary="true"
-                                         id="findresults2-filename"
-                                         label="&file.label;" flex="6"
-                                         persist="width"
-                                         crop="left"/>
-                                <splitter class="tree-splitter"/>
-                                <treecol id="findresults2-linenum"
-                                         label="&line.label;"
-                                         persist="width"
-                                         style="width: 4em;"/>
-                                <splitter class="tree-splitter"/>
-                                <treecol id="findresults2-context"
-                                         persist="width"
-                                         label="&content.label;" flex="12"/>
-                            </treecols>
-                            <treechildren id="findresults2-body" flex="1"
-                                          class="findresults"/>
-                        </tree>
-                    </tabpanel>
+                       <browser flex="1" id="findresults2_browser"
+                                src="chrome://komodo/content/find/findResultsTab.xul"
+                                style="-moz-binding: url('chrome://komodo/content/bindings/pane.xml#pane-browser');"/>
+                   </tabpanel>
 
                 </tabpanels>
             </tabbox>
