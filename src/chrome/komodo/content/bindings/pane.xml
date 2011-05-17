@@ -1,0 +1,136 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1/GPL 2.0/LGPL 2.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is Komodo.
+   -
+   - The Initial Developer of the Original Code is
+   - ActiveState Software Inc.
+   - Portions created by the Initial Developer are Copyright (C) 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - Alternatively, the contents of this file may be used under the terms of
+   - either the GNU General Public License Version 2 or later (the "GPL"), or
+   - the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+   - in which case the provisions of the GPL or the LGPL are applicable instead
+   - of those above. If you wish to allow use of your version of this file only
+   - under the terms of either the GPL or the LGPL, and not to allow others to
+   - use your version of this file under the terms of the MPL, indicate your
+   - decision by deleting the provisions above and replace them with the notice
+   - and other provisions required by the LGPL or the GPL. If you do not delete
+   - the provisions above, a recipient may use your version of this file under
+   - the terms of any one of the MPL, the GPL or the LGPL.
+   -
+   - ***** END LICENSE BLOCK ***** -->
+<!DOCTYPE bindings PUBLIC "-//MOZILLA//DTD XBL V1.0//EN" "http://www.mozilla.org/xbl">
+
+<bindings
+    xmlns="http://www.mozilla.org/xbl"
+    xmlns:xbl="http://www.mozilla.org/xbl"
+    xmlns:html="http://www.w3.org/1999/xhtml"
+    xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+<!--
+  - Panes for sidebars and the like
+  - See kd 0272 for specifications
+  -->
+
+  <binding id="pane-browser" extends="chrome://global/content/bindings/browser.xml#browser">
+    <content disablehistory="true">
+      <broadcasterset anonid="pane_broadcasterset"/>
+      <children/>
+    </content>
+
+    <implementation>
+      <method name="hookupObservers">
+        <!--
+          - hook up the observes= elements in the child document so they work
+          - @param containerElement An element in the child document that can be
+          -         used to hold generated elements
+          - @param parentNode [optional] the node from which to look for observes=
+          -         attributes; defaults to the content document
+          -->
+        <parameter name="containerElement"/>
+        <parameter name="parentNode"/>
+        <body>
+        <![CDATA[
+          if (typeof(containerElement) == "string") {
+            containerElement = this.contentDocument.getElementById(containerElement);
+          } else if (!containerElement) {
+            containerElement = this.contentDocument.documentElement;
+          }
+          var parentSet = this.ownerDocument.getAnonymousElementByAttribute(this, "anonid", "pane_broadcasterset");
+
+          var onBroadcast = (function onBroadcast(aCmdId) {
+            if (typeof(aCmdId) != "string") {
+              // This is not a string; therefore, it's an onbroadcast event.
+              // Figure out the target element and read the id off that.
+              aCmdId = aCmdId.target.getAttribute("element");
+            }
+            var srcCmd = this.ownerDocument.getElementById(aCmdId);
+            var destCmd = this.contentDocument.getElementById(aCmdId);
+            for each (let attr in Array.slice(destCmd.attributes)) {
+                if (!srcCmd.hasAttribute(attr.name))
+                    destCmd.removeAttribute(attr.name);
+            }
+            for each (let attr in Array.slice(srcCmd.attributes)) {
+                destCmd.setAttributeNS(attr.namespaceURI, attr.name, attr.value);
+            }
+          }).bind(this);
+
+          // Find all elements with observes= attributes and create proxying
+          // <observes> elements in the parent document, and <command> elements
+          // in the child document.
+          if (!parentNode) parentNode = this.contentDocument;
+          var elems = Array.slice(parentNode.querySelectorAll("[observes]"));
+          for each (let elem in elems) {
+            let cmdId = elem.getAttribute("observes");
+            let srcCmd = this.ownerDocument.getElementById(cmdId);
+            if (!srcCmd) continue; // not observing into the parent
+            let destCmd = this.contentDocument.getElementById(cmdId);
+            if (!destCmd) {
+              // create a <command> in the child document and force refresh
+              destCmd = this.contentDocument.createElement("command");
+              destCmd.setAttribute("id", cmdId);
+              containerElement.appendChild(destCmd);
+              onBroadcast(cmdId);
+
+              // create a <observes> in the parent and listen for changes
+              let observer = this.ownerDocument.createElement("observes");
+              observer.setAttribute("element", cmdId);
+              observer.setAttribute("attribute", "*");
+              parentSet.appendChild(observer);
+              observer.addEventListener("broadcast", onBroadcast, false);
+            }
+            // re-insert the element to make sure observes= gets hooked up :(
+            elem.parentNode.insertBefore(elem, elem.nextSibling);
+          }
+        ]]>
+        </body>
+      </method>
+    </implementation>
+    
+    <handlers>
+      <handler event="DOMWindowCreated" phase="target"><![CDATA[
+        // inject the bits the content window will need; this is the exposed API.
+        this.contentWindow.parent = window;
+        ["ko", "xtk", "gEditorTooltipHandler"].forEach(function(prop) {
+          this.contentWindow.__defineGetter__(prop, function()window[prop]);
+        }, this);
+      ]]></handler>
+    </handlers>
+  </binding>
+
+</bindings>

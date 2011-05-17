@@ -287,7 +287,7 @@ PlacesProjectManager.prototype = {
 };
 
 this.initProjectMRUCogMenu = function() {
-    var srcMenu = document.getElementById("popup_project");
+    var srcMenu = parent.document.getElementById("popup_project");
     var destMenu = document.getElementById("placesSubpanelProjectsToolsPopup");
     var srcNodes = srcMenu.childNodes;
     var node, newNode;

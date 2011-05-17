@@ -1291,17 +1291,18 @@ function ManagerClass() {
     this.focused = false;
     this.controller = new ko.places.PlacesController();
     window.controllers.appendController(this.controller);
+    parent.controllers.appendController(this.controller);
     
     var gObserverSvc = Components.classes["@mozilla.org/observer-service;1"].
         getService(Components.interfaces.nsIObserverService);
     gObserverSvc.addObserver(this, 'visit_directory_proposed', false);
     gObserverSvc.addObserver(this, 'current_project_changed', false);
     gObserverSvc.addObserver(this, 'file_changed', false);
-    window.addEventListener('project_opened',
+    parent.addEventListener('project_opened',
                             this.handle_project_opened_setup, false);
-    window.addEventListener('visit_directory_proposed',
+    parent.addEventListener('visit_directory_proposed',
                             this.handle_visit_directory_proposed, false);
-    window.addEventListener('current_view_changed',
+    parent.addEventListener('current_view_changed',
                             this.handle_current_view_changed, false);
     
     document.getElementById("places-files-tree").addEventListener('keypress',
@@ -1570,7 +1571,7 @@ ManagerClass.prototype = {
                     window.setTimeout(window.updateCommands, 1,
                                       "current_place_opened");
                     if (save) {
-                        _placePrefs.setStringPref(window._koNum, dirURI);
+                        _placePrefs.setStringPref(parent._koNum, dirURI);
                     }
                     var viewName = null;
                     var prefSet;
@@ -1910,8 +1911,9 @@ ManagerClass.prototype = {
     initialize: function() {
         var uri = null;
         try {
-            if (_globalPrefs.getPref("places").hasPref(window._koNum)) {
-                uri = _globalPrefs.getPref("places").getStringPref(window._koNum);
+            window.frameElement.hookupObservers("panel-proxy-commandset");
+            if (_globalPrefs.getPref("places").hasPref(parent._koNum)) {
+                uri = _globalPrefs.getPref("places").getStringPref(parent._koNum);
                 var file = Components.classes["@activestate.com/koFileEx;1"].
                     createInstance(Components.interfaces.koIFileEx);
                 try {
@@ -1922,7 +1924,7 @@ ManagerClass.prototype = {
                              [ko.uriparse.baseName(uri)], 1);
                         //log.info(msg);
                         ko.statusBar.AddMessage(msg, "editor", 10 * 1000, true);
-                        _globalPrefs.getPref("places").deletePref(window._koNum);
+                        _globalPrefs.getPref("places").deletePref(parent._koNum);
                         uri = null;
                     }
                 } catch(ex2) {
@@ -2003,8 +2005,8 @@ ManagerClass.prototype = {
             } else {
                 this.trackCurrentTab_pref = false;
             }
-            document.getElementById("places_trackCurrentTab").
-                    setAttribute('checked', this.trackCurrentTab_pref);
+            parent.document.getElementById("places_trackCurrentTab").
+                   setAttribute('checked', this.trackCurrentTab_pref);
         } catch(ex) {
             dump("Error init'ing the viewMgrClass (2): " + ex + "\n");
         }
@@ -2038,17 +2040,18 @@ ManagerClass.prototype = {
         this.cleanPrefs();
         this.currentPlace = null;
         window.controllers.removeController(this.controller);
+        parent.controllers.removeController(this.controller);
         this.controller = null;
         var gObserverSvc = Components.classes["@mozilla.org/observer-service;1"].
             getService(Components.interfaces.nsIObserverService);
         gObserverSvc.removeObserver(this, 'visit_directory_proposed');
         gObserverSvc.removeObserver(this, 'current_project_changed');
         gObserverSvc.removeObserver(this, 'file_changed');
-        window.removeEventListener('current_view_changed',
+        parent.removeEventListener('current_view_changed',
                                    this.handle_current_view_changed, false);
-        window.removeEventListener('project_opened',
+        parent.removeEventListener('project_opened',
                                    this.handle_project_opened_setup, false);
-        window.removeEventListener('visit_directory_proposed',
+        parent.removeEventListener('visit_directory_proposed',
                                    this.handle_visit_directory_proposed, false);
         document.getElementById("places-files-tree").removeEventListener('keypress',
                                    this.handle_keypress_setup, true);
@@ -2931,3 +2934,5 @@ this.matchAllTypes = function(typeListAttr, typesSelectedArray) {
 };
 
 }).apply(ko.places);
+
+parent.addEventListener("workspace_restored", ko.places.onLoad, false);
