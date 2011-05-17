@@ -150,7 +150,7 @@ class _BaseCSSTestCase(CodeIntelTestCase):
                           'marks', 'max-height', 'max-width', 'min-height',
                           'min-width', )
         self.assertCompletionsInclude("h1 { m<|>ax ",
-            [ ("property", v) for v in property_names ])
+            [ ("property", v + ': ') for v in property_names ])
         # assert no trig in string or URL
         self.assertNoTrigger('body { background: "../myimage.png { m<|>ax"')
         # This one is a bit much to ask for udl
@@ -517,7 +517,7 @@ class CSS_UDL_HTMLStyleAttributes(CodeIntelTestCase):
                           'marks', 'max-height', 'max-width', 'min-height',
                           'min-width', )
         self.assertCompletionsInclude('<p style="m<|>ax" />',
-            [ ("property", v) for v in property_names ])
+            [ ("property", v + ': ') for v in property_names ])
         # assert no trig in string or URL
         #self.assertNoTrigger('''<p style="background: '../myimage.png { m<|>ax'" />''')
         # This one is a bit much to ask for udl
