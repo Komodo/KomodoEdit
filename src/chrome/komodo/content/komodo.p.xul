@@ -1053,36 +1053,16 @@
                                     onpopupshowing="ko.uilayout.updateTabpickerMenu(this)"
                                     type="menu"
                                     >
+                                    <!--
+                                      - the three spacers here are the insertion targets for
+                                      - dynamically creating the menu items; see
+                                      - chrome://komodo/content/bindings/pane.xml#pane::addPane
+                                      -->
+                                    <spacer id="menu_view_tabs_stub_workspace_left_area"/>
                                     <menuseparator id="viewtabs_rightPane2"/>
-                                    <menuitem id="show_toolbox2_tab2"
-                                        observes="show_toolbox2_tab"
-                                        oncommand="ko.uilayout.ensureTabShown('toolbox_tab', true)"
-                                        label="&toolbox.label;"
-                                        checked="true"
-                                        type="checkbox"
-                                        />
+                                    <spacer id="menu_view_tabs_stub_workspace_right_area"/>
                                     <menuseparator id="viewtabs_bottomPane"/>
-                                    <menuitem id="show_findresults1_tab2"
-                                        observes="show_findresults1_tab"
-                                        oncommand="ko.uilayout.ensureTabShown('findresults1_tab', true)"
-                                        label="&findResults1.label;"
-                                        checked="true"
-                                        type="checkbox"
-                                        />
-                                    <menuitem id="show_findresults2_tab2"
-                                        observes="show_findresults2_tab"
-                                        oncommand="ko.uilayout.ensureTabShown('findresults2_tab', true)"
-                                        label="&findResults2.label;"
-                                        checked="true"
-                                        type="checkbox"
-                                        />
-                                    <menuitem id="show_runoutput_tab2"
-                                        observes="show_runoutput_tab"
-                                        oncommand="ko.uilayout.ensureTabShown('runoutput_tab', true)"
-                                        label="&commandOutput.label;"
-                                        checked="true"
-                                        type="checkbox"
-                                        />
+                                    <spacer id="menu_view_tabs_stub_workspace_bottom_area"/>
                                 </menupopup>
                             </menu>
                             <menu id="menu_toolbars" label="&toolbars.label;">
@@ -1784,32 +1764,7 @@
                     class="tabPicker-icon"
                     buttonstyle="pictures"
                     label="&showTab.label;">
-                    <menupopup id="tabPicker_popup"
-                               onpopupshowing="ko.uilayout.updateTabpickerMenu(this)">
-                        <menuseparator id="viewtabs_rightPane"/>
-                        <menuitem id="show_toolbox2_tab"
-                            oncommand="ko.uilayout.ensureTabShown('toolbox2_tab', true)"
-                            label="&toolbox2.label;"
-                            type="checkbox"
-                            />
-                        <menuseparator id="viewtabs_rightPane0"/>
-                        <!-- The other menu already claimed viewtabs_rightPane -->
-                        <menuitem id="show_findresults1_tab"
-                            oncommand="ko.uilayout.ensureTabShown('findresults1_tab', true)"
-                            label="&findResults1.label;"
-                            type="checkbox"
-                            />
-                        <menuitem id="show_findresults2_tab"
-                            oncommand="ko.uilayout.ensureTabShown('findresults2_tab', true)"
-                            label="&findResults2.label;"
-                            type="checkbox"
-                            />
-                        <menuitem id="show_runoutput_tab"
-                            oncommand="ko.uilayout.ensureTabShown('runoutput_tab', true)"
-                            label="&commandOutput.label;"
-                            type="checkbox"
-                            />
-                    </menupopup>
+                    <menupopup onpopupshowing="ko.uilayout.updateTabpickerMenu(this);"/>
                 </toolbarbutton>
             </toolbaritem>
             <toolbaritem class="chromeclass-toolbar"

@@ -91,6 +91,19 @@
           // by the tab binding. (we can do it from css if we really want to.)
           pane.tab.removeAttribute("flex");
           this.tabpanels.appendChild(pane);
+
+          // update the menu listing the panes to show
+          var refElem = document.getElementById("menu_view_tabs_stub_" + this.id);
+          if (refElem) {
+            var menuitem = document.createElement("menuitem");
+            menuitem.setAttribute("label", pane.getAttribute("label"));
+            menuitem.setAttribute("type", "checkbox");
+            menuitem.setAttribute("pane", pane.id);
+            refElem.parentNode.insertBefore(menuitem, refElem);
+            menuitem.addEventListener("command",
+                                      ko.uilayout.ensureTabShown.bind(ko.uilayout, pane.id, true),
+                                      false);
+          }
         ]]>
         </body>
       </method>

@@ -327,37 +327,24 @@ this.toggleTab = function uilayout_toggleTab(tabId, collapseIfFocused /* =true *
 this.updateTabpickerMenu = function uilayout_updateTabpickerMenu(menupopup)
 {
     try {
-        var id, tab, menuitem, pane, cmd;
-        var label, menuId, tabId;
-        var menuItems = menupopup.getElementsByTagName("menuitem");
-        for (var i = 0; i < menuItems.length; i++) {
-            menuitem = menuItems[i];
-            menuId = menuitem.getAttribute("observes");
-            if (!menuId) {
-                menuId = menuitem.id;
-            }
-            if (!menuId) {
-                _log.error("Menu item " + menuitem.id
-                           + " is missing both an observer and an ID attribute");
-                continue;
-            }
-            if (menuId.indexOf("show_") == 0) {
-                tabId = menuId.substring(5); // "show_".length
-            } else {
-                tabId = menuId;
-            }
-            tab = document.getElementById(tabId);
-            if (!tab || tab.collapsed) {
-                menuitem.setAttribute('collapsed', 'true');
-                menuitem.setAttribute('hidden', 'true');
+        /* first, update the menu items in the menubar (the canonical one) */
+        var canonicalPopup = document.getElementById("menu_view_tabs_popup");
+        var menuitems = canonicalPopup.getElementsByTagName("menuitem");
+        for (var i = 0; i < menuitems.length; i++) {
+            var menuitem = menuitems[i];
+            var paneid = menuitem.getAttribute("pane");
+            var pane = paneid ? document.getElementById(paneid) : null;
+            if (!pane || pane.collapsed) {
+                // the pane should not be visible (nor selectabale)
+                menuitem.setAttribute("collapsed", true);
+                menuitem.setAttribute("hidden", true);
                 continue;
             }
             menuitem.removeAttribute('collapsed');
             menuitem.removeAttribute('hidden');
-            pane = tab.parentNode.parentNode.parentNode;
-            //ko.logging.dumpDOM(pane);
-            //ko.logging.dumpDOM(tab.parentNode);
-            if (tab.selected && ! pane.collapsed) {
+            var selected = !pane.tabbox.collapsed &&
+                           pane.tabbox.selectedTab == pane.tab;
+            if (selected) {
                 menuitem.setAttribute('checked', 'true');
                 menuitem.disabled = true;
             } else {
@@ -365,6 +352,35 @@ this.updateTabpickerMenu = function uilayout_updateTabpickerMenu(menupopup)
                 menuitem.disabled = false;
             }
         }
+
+        /* next, copy the menu over if required */
+        if (canonicalPopup == menupopup) return;
+        while (menupopup.firstChild) {
+            menupopup.removeChild(menupopup.firstChild);
+        }
+        Array.slice(canonicalPopup.childNodes).forEach(function(item) {
+            var newitem = item.cloneNode(true);
+            menupopup.appendChild(newitem);
+            if (newitem.localName == "menuitem") {
+                // this is a menu item; add an event listener that makes a new
+                // event that looks close enough and dispatches it to the
+                // canonical item
+                newitem.addEventListener("command", function(event){
+                    var newevent = document.createEvent("XULCommandEvent");
+                    newevent.initCommandEvent(event.type,       // type
+                                              true,             // can bubble
+                                              false,            // can cancel
+                                              event.view,       // view
+                                              event.detail,     // detail
+                                              event.ctrlKey,    // ctrl
+                                              event.altKey,     // alt
+                                              event.shiftKey,   // shift
+                                              event.metaKey,    // meta
+                                              event);           // source
+                    item.dispatchEvent(newevent);
+                }, false);
+            }
+        });
     } catch (e) {
         _log.exception(e);
     }
@@ -413,7 +429,7 @@ this.togglePane = function uilayout_togglePane(paneId, force)
                     if (selectedTabItem) {
                         selectedTabItem.focus();
                     }
-                }, 100, tabs.selectedItem);
+                }, 100, pane.selectedTab);
             }
         } else {
             // Before we collapse it, figure out whether the focus is in this
@@ -1259,33 +1275,26 @@ this.isPaneShown = function uilayout_isPaneShown(tabs) {
     }
 }
 
-this.ensurePaneShown = function uilayout_ensurePaneShown(tabs) {
-    var splitterId = tabs.getAttribute('splitterId');
-    var splitterWidget = document.getElementById(splitterId);
-    var splitterCmdId = splitterWidget.getAttribute('splitterCmdId');
-    if (splitterWidget.hasAttribute('collapsed') &&
-        splitterWidget.getAttribute('collapsed') == 'true') {
-        ko.uilayout.toggleSplitter(splitterCmdId);
-    }
+this.ensurePaneShown = function uilayout_ensurePaneShown(pane) {
+    pane.tabbox.collapsed = false;
 }
 
-this.ensureTabShown = function uilayout_ensureTabShown(tabId, focusToo) {
+this.ensureTabShown = function uilayout_ensureTabShown(paneId, focusToo) {
     try {
         if (typeof(focusToo) == 'undefined') focusToo = false;
         var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                         .getService(Components.interfaces.nsIWindowMediator);
         var mainWindow = wm.getMostRecentWindow('Komodo');
-        var tab = mainWindow.document.getElementById(tabId);
-        if (!tab) {
-            log.error("ko.uilayout.ensureTabShown: couldn't find tab: " + tabId);
+        var pane = mainWindow.document.getElementById(paneId);
+        if (!pane) {
+            log.error("ko.uilayout.ensureTabShown: couldn't find tab: " + paneId);
             return;
         }
-        var tabs = tab.parentNode;
         // First make sure that the pane the tab is in is visible
-        ko.uilayout.ensurePaneShown(tabs);
-        tabs.selectedItem = tab;
+        ko.uilayout.ensurePaneShown(pane);
+        pane.tabbox.selectedTab = pane.tab;
         if (focusToo) {
-            tab.focus();
+            pane.focus();
         }
     } catch (e) {
         log.exception(e);
