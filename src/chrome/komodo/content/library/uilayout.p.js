@@ -1172,7 +1172,7 @@ this.buildViewAsLanguageMenu = function uilayout_buildViewAsLanguageMenu() {
     try {
     _getHierarchy(hdata);
     } catch (e) {
-        log.exception(e);
+        _log.exception(e);
     }
     cmd = document.createElementNS(XUL_NS, 'command');
     cmd.setAttribute("id", "cmd_viewAsGuessedLanguage");
@@ -1252,7 +1252,7 @@ this.ensurePaneForTabHidden = function uilayout_ensurePaneForTabHidden(tabName)
     var tab = document.getElementById(tabName);
     var tabs = tab.parentNode;
     if (! tabs.hasAttribute('splitterId')) {
-        log.error("Tab " + tabName + " isn't in a tabs element with a splitterId");
+        _log.error("Tab " + tabName + " isn't in a tabs element with a splitterId");
         return;
     }
     if (ko.uilayout.isPaneShown(tabs)) {
@@ -1287,7 +1287,7 @@ this.ensureTabShown = function uilayout_ensureTabShown(paneId, focusToo) {
         var mainWindow = wm.getMostRecentWindow('Komodo');
         var pane = mainWindow.document.getElementById(paneId);
         if (!pane) {
-            log.error("ko.uilayout.ensureTabShown: couldn't find tab: " + paneId);
+            _log.error("ko.uilayout.ensureTabShown: couldn't find tab: " + paneId);
             return;
         }
         // First make sure that the pane the tab is in is visible
@@ -1297,7 +1297,7 @@ this.ensureTabShown = function uilayout_ensureTabShown(paneId, focusToo) {
             pane.focus();
         }
     } catch (e) {
-        log.exception(e);
+        _log.exception(e);
     }
 }
 
