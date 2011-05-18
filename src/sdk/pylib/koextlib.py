@@ -120,19 +120,20 @@ _install_rdf_template = """<?xml version="1.0"?>
     <em:creator>%(creator)s</em:creator>
     <em:homepageURL>%(homepage)s</em:homepageURL>
     <em:type>2</em:type> <!-- type=extension --> 
+    <em:unpack>%(unpack)s</em:unpack>
 
     <em:targetApplication> <!-- Komodo IDE -->
       <Description>
         <em:id>{36E66FA0-F259-11D9-850E-000D935D3368}</em:id>
         <em:minVersion>4.1</em:minVersion>
-        <em:maxVersion>6.*</em:maxVersion>
+        <em:maxVersion>7.*</em:maxVersion>
       </Description>
     </em:targetApplication>
     <em:targetApplication> <!-- Komodo Edit -->
       <Description>
         <em:id>{b1042fb5-9e9c-11db-b107-000d935d3368}</em:id>
         <em:minVersion>4.1</em:minVersion>
-        <em:maxVersion>6.*</em:maxVersion>
+        <em:maxVersion>7.*</em:maxVersion>
       </Description>
     </em:targetApplication>
   </Description>
@@ -187,6 +188,10 @@ def create_ext_skel(base_dir, name=None, id=None, version=None, desc="",
     # Gather info for install.rdf.
     need_to_query = (id is None or name is None or version is None
                      or creator is None)
+    curr_dir = os.getcwd()
+    dirs = set([d for d in os.listdir(curr_dir) if isdir(d)]).\
+        difference(set(["content", "prefs", "skin", "locale"]))
+    unpack = dirs and "true" or "false"
     while need_to_query:
         print _banner("Gathering extension information")
         
@@ -349,6 +354,7 @@ def create_udl_lang_skel(base_dir, lang, ext=None, is_html_based=False,
                 lexresLangName = "%(safe_lang)s"
                 _reg_desc_ = "%%s Language" %% name
                 _reg_contractid_ = "@activestate.com/koLanguage?language=%%s;1" %% name
+                _reg_categories_ = [("komodo-language", name)]
                 _reg_clsid_ = "%(guid)s"
                 %(default_ext_assign)s
             
@@ -566,6 +572,13 @@ def build_ext(base_dir, support_devinstall=True, unjarred=False,
             _trim_files_in_dir(components_build_dir, ["*.idl"] + exclude_pats,
                 log.info)
             xpi_manifest.append(components_build_dir)
+            if "chrome.manifest" not in xpi_manifest:
+                # Create a single-line chrome.manifest
+                chrome_manifest_path = join(base_dir, "chrome.manifest")
+                fd = open(chrome_manifest_path, "w")
+                fd.write("manifest components/component.manifest\n")
+                fd.close()
+                xpi_manifest.append("chrome.manifest")
             
             component_manifest = join(components_build_dir, "component.manifest")
             for path in glob(join("components", "*.py")):
