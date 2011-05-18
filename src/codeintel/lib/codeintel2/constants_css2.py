@@ -102,8 +102,6 @@ CSS2_SPECIFIC_ATTRS_DICT = {
             'open-quote',
             'url(',
             '!important',
-            "",
-            '',
         ],
     'counter-increment': [
             'inherit',
@@ -349,8 +347,6 @@ CSS2_SPECIFIC_ATTRS_DICT = {
             'inherit',
             'none',
             '!important',
-            "",
-            '',
         ],
     'richness'  : [
             'inherit',

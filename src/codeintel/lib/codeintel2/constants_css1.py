@@ -548,8 +548,6 @@ CSS_ATTR_DICT = {
             'left',
             'right',
             '!important',
-            "",
-            '',
         ],
     'text-decoration': [
             'blink',
