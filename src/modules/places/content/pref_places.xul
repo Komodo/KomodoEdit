@@ -60,13 +60,21 @@
                   name="pref_places_dblClickToggleFrame" orient="vertical">
           <caption label="&options.label;" class="kopadded"/>
           <checkbox id="pref_places_dblClickRebases"
-                    label="&dblClickToRebase.label;" />
+                    label="&dblClickToRebase.label;"
+                    accesskey="&pref_places_dblClickRebases.accesskey;" />
           <separator class="thin"/>
           <checkbox id="pref_places_showProjectPath"
-                    label="&showProjectPath.label;" />
+                    label="&showProjectPath.label;"
+                    accesskey="&pref_places_showProjectPath.accesskey;" />
           <separator class="thin"/>
           <checkbox id="pref_places_showProjectPathExtension"
-                    label="&showProjectPathExtension.label;" />
+                    label="&showProjectPathExtension.label;"
+                    accesskey="&pref_places_showProjectPathExtension.accesskey;" />
+          <separator class="thin"/>
+          <checkbox id="places.multiple_project_view"
+                    label="&multiple_project_view.label;"
+                    accesskey="&places.multiple_project_view.accesskey;"
+                    pref="true"/>
         </groupbox>
 
     </vbox>

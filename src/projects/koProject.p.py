@@ -1758,7 +1758,11 @@ class koProject(koLiveFolderPart):
         return None
 
     def getChildByURL(self, url):
-        part = self._urlmap.get(url, None)
+        try:
+            part = self._urlmap.get(url, None)
+        except:
+            log.exception("Can't get part for url %s", url)
+            return None
         if not part:
             # if the url is in a live folder, then make a part for the url
             # this part will have no parent, until the live folder it belongs

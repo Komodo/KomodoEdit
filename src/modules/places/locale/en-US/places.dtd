@@ -75,6 +75,7 @@
 <!ENTITY placeView_currentProject.desc "Places: Use the filter associated with the current project.">
 <!ENTITY placeView_viewAll.desc "Places: View everything.">
 <!ENTITY placeView_customView.desc "Places: Manage custom view filters.">
+<!ENTITY removeProjectListing.label "Remove from Recent Projects">
 
 <!ENTITY placesUpFolder.label "Move Up One Directory">
 <!ENTITY placesUpFolder.desc "Move up one directory.">
@@ -113,5 +114,11 @@
 <!ENTITY showProjectPath.label "Show full project path">
 <!ENTITY showInPlaces.label "Show In Places">
 <!ENTITY trackCurrentTab.label "Synchronize Current File In Places">
+<!ENTITY multiple_project_view.label "Allow Multiple Open Projects">
+
+<!ENTITY pref_places_dblClickRebases.accesskey "D">
+<!ENTITY pref_places_showProjectPath.accesskey "F">
+<!ENTITY pref_places_showProjectPathExtension.accesskey "E">
+<!ENTITY places.multiple_project_view.accesskey "M">
 
 <!ENTITY options.label "Options">

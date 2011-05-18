@@ -110,6 +110,15 @@ viewMgrClass.prototype = {
         if (!sortDir) {
             sortDir = 'natural';
         }
+        this.single_project_view = !ko.projects.manager.initProjectViewPref(_globalPrefs);
+        
+        if (!widgets.placeView_treeViewDeck) {
+            widgets.placeView_treeViewDeck = document.getElementById("placesSubpanelDeck");
+            widgets.placesSubpanelProjectsTools_MPV = document.getElementById("placesSubpanelProjectsTools_MPV");
+            widgets.placesSubpanelProjectsTools_SPV = document.getElementById("placesSubpanelProjectsTools_SPV");
+        }
+        this._setupProjectView(this.single_project_view);
+        ko.projects.manager.switchProjectView(this.single_project_view);
         var sortMenuPopup = document.getElementById("placeView_sortPopup");
         var childNodes = sortMenuPopup.childNodes;
         var targetSortId = "placeView_sort" + sortDir[0].toUpperCase() + sortDir.substr(1);
@@ -135,10 +144,21 @@ viewMgrClass.prototype = {
                            nsIDOMKeyEvent.DOM_VK_DOWN,
                            nsIDOMKeyEvent.DOM_VK_LEFT,
                            nsIDOMKeyEvent.DOM_VK_RIGHT];
-        var prefsToWatch = ["import_exclude_matches", "import_include_matches"];
+        var prefsToWatch = ["import_exclude_matches", "import_include_matches",
+                            "places.multiple_project_view"];
         _globalPrefs.prefObserverService.addObserverForTopics(this,
                                                               prefsToWatch.length,
                                                               prefsToWatch, false);
+    },
+
+    _setupProjectView: function(single_project_view) {
+        try {
+            widgets.placeView_treeViewDeck.selectedIndex = single_project_view ? 1 : 0;
+            widgets.placesSubpanelProjectsTools_MPV.collapsed = single_project_view;
+            widgets.placesSubpanelProjectsTools_SPV.collapsed = !single_project_view;
+        } catch(ex) {
+            log.exception("Error in _setupProjectView: " + ex);
+        }
     },
 
     observe: function(subject, topic, data) {
@@ -149,6 +169,12 @@ viewMgrClass.prototype = {
                 == 'true')
             && (project = ko.projects.manager.currentProject)) {
             this._updateViewPrefsFromProjectPrefs(project);
+        } else if (topic == "places.multiple_project_view") {
+            var use_single_project_view = !_globalPrefs.getBooleanPref("places.multiple_project_view");
+            if (use_single_project_view != this.single_project_view) {
+                this._setupProjectView(this.single_project_view = use_single_project_view);
+                ko.projects.manager.switchProjectView(use_single_project_view);
+            }
         }
     },
 
@@ -2534,7 +2560,8 @@ ManagerClass.prototype = {
         } else if (topic == 'current_project_changed') {
             this._checkProjectMatch();
         } else if (topic == 'file_changed') {
-            if (PROJECT_URI_REGEX.test(data)) {
+            if (PROJECT_URI_REGEX.test(data)
+                && ko.places.multiple_project_view) {
                 ko.places.projects.manager.refresh();
             }
         }
@@ -2805,25 +2832,55 @@ this.onLoad_aux = function places_onLoad_aux() {
         document.getElementById("placeView_viewAll");
     widgets.placeView_customView_menuitem =
         document.getElementById("placeView_customView");
+    if (!widgets.placeView_treeViewDeck) {
+        widgets.placeView_treeViewDeck = document.getElementById("placesSubpanelDeck");
+    }
     ko.places.updateFilterViewMenu();
     // The "initialize" routine needs to be in a timeout, otherwise the
     // tree will always show a pending icon and never updates.
     window.setTimeout(function() {
             ko.places.manager.initialize();
         }, 1);
+    // Call this for either.
     ko.places.projects._updateSubpanelFromState();
     
     // Wait until ko.projects.manager exists before
     // init'ing the projects view tree.
     var mruProjectViewerID;
+    this.single_project_view = !ko.projects.manager.initProjectViewPref(_globalPrefs);
     var launch_createProjectMRUView = function() {
         if (ko.projects && ko.projects.manager) {
             clearInterval(mruProjectViewerID);
-            ko.places.projects.createPlacesProjectView();
+            try {
+                ko.places.initProjectMRUCogMenu_SPV();
+                ko.places.projects_SPV.createProjectMRUView();
+                ko.places.projects.createPlacesProjectView();
+            } catch(ex) {
+                dump("Init failed: " + ex + "\n");
+            }
         }
-    };
+    }.bind(this);
     mruProjectViewerID = setInterval(launch_createProjectMRUView, 50);
 }
+
+this.initProjectMRUCogMenu_SPV = function() {
+    var srcMenu = parent.document.getElementById("popup_project");
+    var destMenu = document.getElementById("placesSubpanelProjectsToolsPopup_SPV");
+    var srcNodes = srcMenu.childNodes;
+    var node, newNode;
+    var len = srcNodes.length;
+    for (var i = 0; i < len; i++) {
+        node = srcNodes[i];
+        if (node.id == "menu_closeAllProjects") {
+            // skip this -- hardwired menu item....
+        } else if (node.getAttribute("skipCopyToCogMenu") != "true") {
+            newNode = node.cloneNode(false);
+            newNode.id = node.id + "_places_projects_cog";
+            destMenu.appendChild(newNode);
+        }
+    }
+};
+
 
 this.onUnload = function places_onUnload() {
     ko.places.manager.finalize();
@@ -2888,7 +2945,7 @@ this.updateFilterViewMenu = function() {
 //---- internal support stuff
 
 function _notify(label, value, image, priority, buttons) {
-    var notificationBox = document.getElementById("komodo-notificationbox");
+    var notificationBox = parent.document.getElementById("komodo-notificationbox");
     value = value || 'places-warning';
     // Other interesting ones: information.png, exclamation.png
     image = image || "chrome://famfamfamsilk/skin/icons/error.png";

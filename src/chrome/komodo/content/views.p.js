@@ -2992,15 +2992,29 @@ this._restoreWindowWorkspace = function(workspace, currentWindow, checkWindowBou
         this.initializeEssentials(currentWindow, workspace, false);
 
         // Now projects depends on places, so open it after
-        if (workspace.hasPref('opened_projects')) {
-            pref = workspace.getPref('opened_projects');
+        // In Version 7 Komodo saves opened projects in a different prefset,
+        // so allow both here.
+        if (workspace.hasPref('opened_projects')
+            || workspace.hasPref('opened_projects_v7')) {
+            var use_v7_mode;
+            if (workspace.hasPref('opened_projects_v7')) {
+                use_v7_mode = true;
+                pref = workspace.getPref('opened_projects_v7');
+            } else {
+                use_v7_mode = false;
+                pref = workspace.getPref('opened_projects');
+            }
             var currentProjectURI;
             if (workspace.hasPref('current_project')) {
                 currentProjectURI = workspace.getStringPref('current_project');
             } else {
                 currentProjectURI = null;
             }
-            wko.projects.manager.setState(pref);
+            if (use_v7_mode) {
+                wko.projects.manager.setState(pref);
+            } else {
+                wko.projects.manager.setState_v6(pref);
+            }
             if (currentProjectURI) {
                 setTimeout(function() {
                         // If a project with that url is loaded, make it current

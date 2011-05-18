@@ -832,7 +832,7 @@ class KPFTreeView(TreeView):
         if index >= len(self._rows) or index < 0: return -1
         return self._rows[index].level
 
-    _name_fields = { 'placesSubpanelProjectNameTreecol':'name' }
+    _name_fields = { 'placesSubpanelProjectNameTreecol_MPV':'name' }
     def _getFieldName(self, column):
         return self._name_fields.get(column.id, column.id)
 
@@ -844,8 +844,13 @@ class KPFTreeView(TreeView):
         if name == "name":
             part = self._rows[index].part
             if part._attributes.has_key('icon'):
-                #print "getImageSrc row %d [%s]"% (index, node._attributes['icon'])
+                #print "getImageSrc row %d [%s]"% (index, part._attributes['icon'])
                 return part._attributes['icon']
+            else:
+                try:
+                    return part.get_iconurl() or ""
+                except:
+                    log.exception("Error trying to get icon")
         return ""
 
     def getCellValue(self, index, column):
