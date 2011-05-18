@@ -202,21 +202,6 @@
     </binding>
 
 
-    <!-- Similar to the cbtree handling: here we want to toggle a folder
-         only on dbl-click with the left button, not the context button
-      -->
-    <binding id="tboxtree" extends="chrome://global/content/bindings/tree.xml#tree">
-        <handlers>
-            <handler event="click" clickcount="2" phase="capturing">
-                <![CDATA[
-                if (event.which != 1) {
-                    event.stopPropagation();
-                }
-                ]]>
-            </handler>
-        </handlers>
-    </binding>
-
     <!-- TODO: add a "check path validity" icon -->
 
     <binding id="listbox-patheditor">
