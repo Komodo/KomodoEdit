@@ -77,23 +77,69 @@ var _obSvc = Components.classes["@mozilla.org/observer-service;1"].
 //----- The projectManager class manages the set of open projects and
 // which project is 'current'.
 
+// "spv" views refer to project views with one opened project + the recent projects
+// "mpv" views refer to project views with multiple opened projects (where one is active)
+// this._currentProject is used for both the spv and mpv views
+// this._projects is used only for the mpv view
+
 function projectManager() {
     this.name = 'projectManager';
     ko.projects.BaseManager.apply(this, []);
     this.log = ko.logging.getLogger('projectManager');
     //this.log.setLevel(ko.logging.LOG_DEBUG);
     this._projects = [];
+    this._spv_urls = [];
+    this._mpv_urls = [];
     this._currentProject = null;
     // register our command handlers
     this.registerCommands();
     this._project_opened_during_workspace_restore = false;
     this._lastCurrentProject = null;
     this.viewMgr = null;
+    this.single_project_view = !this.initProjectViewPref(ko.prefs);
 }
 
 // The following two lines ensure proper inheritance (see Flanagan, p. 144).
 projectManager.prototype = new ko.projects.BaseManager();
 projectManager.prototype.constructor = projectManager;
+
+projectManager.prototype.initProjectViewPref = function(prefset) {
+    // This is in terms of whether to use a multiple project view or not
+    const DEFAULT_MULTIPLE_PROJECT_VIEW_MODE = false;
+    if (!prefset.hasPref("places.multiple_project_view")) {
+        prefset.setBooleanPref("places.multiple_project_view", DEFAULT_MULTIPLE_PROJECT_VIEW_MODE);
+        return DEFAULT_MULTIPLE_PROJECT_VIEW_MODE;
+    }
+    return prefset.getBooleanPref("places.multiple_project_view");
+};
+
+projectManager.prototype.switchProjectView = function(single_project_view) {
+    var i, listLen, urlList;
+    var currentProjectURL = this.currentProject === null ? null : this.currentProject.url;
+    if (single_project_view) {
+        this._mpv_urls = this._projects.map(function(p) p.url);
+        urlList = this._spv_urls;
+    } else {
+        this._spv_urls = this._projects.map(function(p) p.url);
+        urlList = this._mpv_urls;
+    }
+    this.closeAllProjects();
+    // Now reopen the new view with the other type of project view.
+    this.single_project_view = single_project_view;
+    listLen = urlList.length;
+    for (i = 0; i < listLen; i++) {
+        ko.projects.open(urlList[i]);
+    }
+    if (currentProjectURL !== null ) {
+        var openedIdx = this._projects.map(function(p) p.url).indexOf(currentProjectURL);
+        if (openedIdx != -1) {
+            this.currentProject = this._projects[openedIdx];
+        } else {
+            ko.projects.open(currentProjectURL);
+            //dump("**************** Need to re-activate proj " + currentProjectURL + "\n");
+        }
+    }
+};
 
 projectManager.prototype.setViewMgr = function(projectViewMgr) {
     this.viewMgr = projectViewMgr;
@@ -156,7 +202,28 @@ projectManager.prototype._saveProjectViewState = function(project) {
     projectViewState.setPref("opened_files", opened_files);
 }
 
+projectManager.prototype.closeProjectEvenIfDirty_SingleProjectView = function(project) {
+    if (typeof(project) == "undefined") project = this.currentProject;
+    if (!project) {
+        // No project to close.
+        return true;
+    }
+    ko.toolbox2.manager.toolbox2Svc.deactivateProjectToolbox(project);
+    
+    // the active project has been reset
+    // Forget about any notifications made for this project.
+    this.notifiedClearProject(project);
+    project.close();
+    this.currentProject = null;
+    ko.mru.addURL("mruProjectList", project.url);
+    window.updateCommands('some_projects_open');
+    return true;
+}
+
 projectManager.prototype.closeProjectEvenIfDirty = function(project) {
+    if (this.single_project_view) {
+        return this.closeProjectEvenIfDirty_SingleProjectView(project);
+    }
     // Remove the project node/part from the Projects tree.
     if (this.viewMgr) {
         this.viewMgr.removeProject(project);
@@ -267,18 +334,24 @@ projectManager.prototype.getDirtyProjects = function() {
         });
 }
 
-projectManager.prototype.closeAllProjects = function() {
+projectManager.prototype._closeAllProjectsByFunc = function(func) {
     for (var i = this._projects.length - 1; i >= 0; i--) {
-        if (!this.closeProject(this._projects[i])) return false;
+        if (!func.call(this, this._projects[i])) {
+            this._projects.splice(i + 1);
+            return false;
+        }
     }
+    this._projects = [];
+    this.currentProject = null;
     return true;
 }
 
+projectManager.prototype.closeAllProjects = function() {
+    return this._closeAllProjectsByFunc(this.closeProject);
+}
+
 projectManager.prototype.closeAllProjectsEvenIfDirty = function() {
-    for (var i = this._projects.length - 1; i >= 0; i--) {
-        if (!this.closeProjectEvenIfDirty(this._projects[i])) return false;
-    }
-    return true;
+    return this._closeAllProjectsByFunc(this.closeProjectEvenIfDirty);
 }
 
 projectManager.prototype._notified_projects = {};
@@ -390,6 +463,9 @@ projectManager.prototype.saveProject = function(project, skip_scc_check) {
 }
 
 projectManager.prototype.newProject = function(url) {
+    if (this.single_project_view && !this.closeProject()) {
+        return false;
+    }
     var project = Components.classes["@activestate.com/koProject;1"]
                                         .createInstance(Components.interfaces.koIProject);
     project.create();
@@ -407,7 +483,7 @@ projectManager.prototype._saveNewProject = function(project) {
             [project.name, lastErrorSvc.getLastErrorMessage()], 2));
         return false;
     }
-    this._addProject(project);
+    this._addProject(project, false);
     xtk.domutils.fireEvent(window, 'project_opened');
     try {
         _obSvc.notifyObservers(this, 'file_project', project.url);
@@ -438,6 +514,9 @@ projectManager.prototype._getNewProjectPath = function() {
 projectManager.prototype.newProjectFromTemplate = function(templatePath) {
     try {
         this.log.info("doing newTemplate: ");
+        if (this.single_project_view && !this.closeProject()) {
+            return false;
+        }
         var lastErrorSvc = Components.classes['@activestate.com/koLastErrorService;1'].getService();
         var projectPath;
         if (typeof(templatePath) == "undefined") {
@@ -686,28 +765,37 @@ projectManager.prototype.loadProject = function(url) {
             [projectname, lastErrorSvc.getLastErrorMessage()], 2));
         return;
     }
-    this._addProject(project);
+    this._addProject(project, false);
 }
 
 projectManager.prototype._addProject = function(project, inTimeout/*=false*/) {
     if (typeof(inTimeout) == "undefined") inTimeout = false;
-    if (!inTimeout && !this.viewMgr) {
-        setTimeout(function(this_) {
-                this_._addProject(project, true);
-            }, 100, this);
-        return;
-    } else if (inTimeout && !this.viewMgr) {
-        dump("_addProject: called inTimeout, this.viewMgr still null\n");
-    }
-    this._projects.push(project);
-    // add project to project tree
-    if (this.viewMgr) {
-        this.viewMgr.addProject(project, 0);
-        this.viewMgr.refresh(project);
+    if (!this.single_project_view) {
+        if (!inTimeout && !this.viewMgr) {
+            setTimeout(function(this_) {
+                    this_._addProject(project, true);
+                }, 100, this);
+            return;
+        } else if (inTimeout && !this.viewMgr) {
+            dump("_addProject: called inTimeout, this.viewMgr still null\n");
+        }
+        this._projects.push(project);
+        // add project to project tree
+        if (this.viewMgr) {
+            this.viewMgr.addProject(project, 0);
+            this.viewMgr.refresh(project);
+        }
+    } else {
+        this._projects = [project];
     }
     this.setCurrentProject(project);
-    ko.lint.initializeGenericPrefs(this.prefset)
-    ko.toolbox2.manager.addProject(project);
+    ko.lint.initializeGenericPrefs(project.prefset)
+    if (this.single_project_view) {
+        ko.toolbox2.manager.toolbox2Svc.activateProjectToolbox(project);
+        ko.mru.addURL("mruProjectList", project.url);
+    } else {
+        ko.toolbox2.manager.addProject(project);
+    }
 
     // Let the file status service know it has work to do.
     var fileStatusSvc = Components.classes["@activestate.com/koFileStatusService;1"].
@@ -750,6 +838,11 @@ function(project)
 
 projectManager.prototype.setCurrentProject = function(project) {
     this.currentProject = project;
+    if (!this.single_project_view) {
+        if (this.viewMgr) {
+            this.viewMgr.setCurrentProject(project);
+        }
+    }
 }
 
 projectManager.prototype.setCurrentProjectFromPartService = function() {
@@ -1083,7 +1176,18 @@ projectManager.prototype.findPartByAttributeValue = function(attribute, value) {
     return null;
 }
 
-projectManager.prototype.getState = function ()
+/* Old style:
+ * "opened_projects":
+ *   [ array of projects ]
+ *
+ * Introduced in v7.1, to maintain 6.0 compatibility:
+ * "opened_projects_v7":
+ *   { "spv_projects": [ json array, but only with current project ],
+ *     "mpv_projects": [ json array of projects ]
+ *   }
+ */
+
+projectManager.prototype.getState_old = function ()
 {
     if (this._projects.length == 0) {
         return null; // persist nothing
@@ -1103,8 +1207,36 @@ projectManager.prototype.getState = function ()
     return opened_projects;
 }
 
+projectManager.prototype.getState = function()
+{
+    var i, project, url, listLen;
+    var pref = Components.classes["@activestate.com/koPreferenceSet;1"].createInstance();
+    pref.id = 'opened_projects_v7';
+    var spv_projects = Components.classes['@activestate.com/koOrderedPreference;1'].createInstance();
+    var mpv_projects = Components.classes['@activestate.com/koOrderedPreference;1'].createInstance();
+    var json = Components.classes["@mozilla.org/dom/json;1"].
+               createInstance(Components.interfaces.nsIJSON);
+    if (this.single_project_view) {
+        if (this.currentProject) {
+            pref.setStringPref("spv_projects", json.encode([this.currentProject.url]));
+        } else {
+            pref.setStringPref("spv_projects", json.encode([]));
+        }
+        pref.setStringPref("mpv_projects", json.encode(this._mpv_urls));
+    } else {
+        pref.setStringPref("spv_projects", json.encode(this._spv_urls));
+        pref.setStringPref("mpv_projects", json.encode(this._projects.map(function(p) p.url)));
+        if (this.viewMgr) {
+            this._projects.forEach(function(project) {
+                    this.viewMgr.savePrefs(project);
+                }.bind(this));
+        }
+    }
+    return pref;
+}
 
-projectManager.prototype.setState = function (pref)
+// In version 6 there's only one kind of saved projects.
+projectManager.prototype.setState_v6 = function(pref)
 {
     try {
         var i, file_url;
@@ -1119,6 +1251,47 @@ projectManager.prototype.setState = function (pref)
         this.log.exception(e);
     }
 }
+
+projectManager.prototype.setState = function(pref)
+{
+    var json = Components.classes["@mozilla.org/dom/json;1"].
+                createInstance(Components.interfaces.nsIJSON);
+    try {
+        try {
+            this._spv_urls = json.decode(pref.getStringPref("spv_projects"));
+        } catch(ex) {
+            log.error("Can't get pref spv_projects");
+            this._spv_urls = [];
+        }
+        try {
+            this._mpv_urls = json.decode(pref.getStringPref("mpv_projects"));
+        } catch(ex) {
+            log.error("Can't get pref mpv_projects");
+            this._mpv_urls = [];
+        }
+        var urlList = this.single_project_view ? this._spv_urls : this._mpv_urls;
+        setTimeout(function() {
+                urlList.forEach(function(url) {
+                        dump("Opening project " + url + "\n");
+                        ko.projects.open(url);
+                    })},
+            1000);
+    } catch (e) {
+        this.log.exception(e);
+    }
+};
+
+projectManager.prototype._loadProjectsFromOrderedPrefSet = function(pref)
+{
+    var i, file_url;
+    // Load projects indicated in the pref
+    for (i=0; i < pref.length; i++) {
+        file_url = pref.getStringPref(i);
+        // skip opening of recently opened files -- that's taken care of
+        // by the view persistence
+        ko.projects.open(file_url, true);
+    }
+};
 
 projectManager.prototype.writeable = function () {
     // The project may not be writeable, but it can
@@ -1141,7 +1314,8 @@ projectManager.prototype.effectivePrefs = function () {
 //
 
 
-this.open = function project_openProjectFromURL(url, skipRecentOpenFeature /* false */) {
+this.open = function project_openProjectFromURL(url,
+                                                skipRecentOpenFeature /* false */) {
     var action = null;
     var opened_files = [];
     if (typeof(skipRecentOpenFeature) == 'undefined') {

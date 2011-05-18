@@ -67,7 +67,7 @@ this.createPlacesProjectView = function() {
                    getService(Components.interfaces.koIPrefService).prefs);
     _placePrefs = _globalPrefs.getPref("places");
     _g_showProjectPath = _globalPrefs.getPref("places").getBooleanPref('showProjectPath');
-    this.projectsTree = document.getElementById("placesSubpanelProjects");
+    this.projectsTree = document.getElementById("placesSubpanelProjects_MPV");
     this.projectsTreeView = Components.classes["@activestate.com/koKPFTreeView;1"]
                           .createInstance(Components.interfaces.koIKPFTreeView);
     if (!this.projectsTreeView) {
@@ -77,7 +77,7 @@ this.createPlacesProjectView = function() {
                         .QueryInterface(Components.interfaces.nsITreeBoxObject)
                         .view = this.projectsTreeView;
     this.projectsTreeView.initialize();
-    this.initProjectMRUCogMenu();
+    this.initProjectMRUCogMenu_MPV();
     this.manager = new PlacesProjectManager(this);
     ko.projects.manager.setViewMgr(this.manager);
 };
@@ -109,7 +109,11 @@ PlacesProjectManager.prototype = {
         if (typeof(position) == "undefined" || position === null) {
             this.owner.projectsTreeView.addProject(project);
         } else {
-            this.owner.projectsTreeView.addProjectAtPosition(project, 0);
+            try {
+                this.owner.projectsTreeView.addProjectAtPosition(project, 0);
+            } catch(ex) {
+                dump("PlacesProjectManager.addProject: " + ex + "\n");
+            }
         }
     },
   getSelectedItem: function() {
@@ -286,9 +290,9 @@ PlacesProjectManager.prototype = {
   _EOF_ : null
 };
 
-this.initProjectMRUCogMenu = function() {
+this.initProjectMRUCogMenu_MPV = function() {
     var srcMenu = parent.document.getElementById("popup_project");
-    var destMenu = document.getElementById("placesSubpanelProjectsToolsPopup");
+    var destMenu = document.getElementById("placesSubpanelProjectsToolsPopup_MPV");
     var srcNodes = srcMenu.childNodes;
     var node, newNode;
     var len = srcNodes.length;
@@ -312,7 +316,7 @@ this.initProjectMRUCogMenu = function() {
             destMenu.insertBefore(newNode, firstChild);
         }
     } catch(ex) {
-        log.exception("initProjectMRUCogMenu: error: " + ex + "\n");
+        log.exception("initProjectMRUCogMenu_MPV: error: " + ex + "\n");
     }
 };
 
@@ -579,7 +583,7 @@ this.initProject_SCC_ContextMenu = function(menuNode) {
 };
 
 this.getFocusedProjectView = function() {
-    if (xtk.domutils.elementInFocus(document.getElementById('placesSubpanelProjects'))) {
+    if (xtk.domutils.elementInFocus(document.getElementById('placesSubpanelProjects_MPV'))) {
         return this;
     }
     return null;
