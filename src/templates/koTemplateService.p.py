@@ -301,7 +301,8 @@ to use Komodo's numerous standard %s templates.""" % (self.type, str(ex), self.t
             headers, leaves = self._getLeaves(items)
             userItems += leaves
             
-        for extensionDir in directoryServiceUtils.getExtensionDirectories():
+        for extensionDir in [d for d in directoryServiceUtils.getExtensionDirectories()
+                             if os.path.isdir(d)]:
             items = self.walkFuncForKPZ(extensionDir)
             if items:
                 headers, leaves = self._getLeaves(items)
