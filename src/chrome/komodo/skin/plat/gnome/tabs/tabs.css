@@ -48,9 +48,15 @@
 .tab-close-button {
   visibility: hidden;
 }
+.tab-close-button > image {
+  /* Make the close button on the tab smaller (8x8 pixels) */
+  margin: -4px -4px -4px -4px;
+}
+
 /* Make the tab close button visible when the tab is selected. */
 .tab-close-button[selected="true"] {
   visibility: visible;
+  margin-left: 4px;
 }
 
 view[lastfocused="true"] tab[selected="true"] {
