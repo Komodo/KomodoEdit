@@ -1294,6 +1294,25 @@ class PHPTreeEvaluator(TreeEvaluator):
                 if sibling_matches:
                     return (sibling_matches[0], scoperef)
             scoperef = self.parent_scoperef_from_scoperef(scoperef)
+
+        variable_namespace = elem.get("namespace")
+        if variable_namespace and scoperef[0] is not None:
+            # Variable was defined inside of a namespace, that means
+            # it gets access to the namespace as well even though the
+            # variable is defined to the global scope - bug 88964.
+            self.log("_hit_from_variable_type_inference:: variable was defined in namespace %r",
+                     variable_namespace)
+            blob = scoperef[0]
+            ns_elem = blob.names.get(variable_namespace)
+            if ns_elem is not None:
+                try:
+                    hit = self._hit_from_citdl(citdl, (blob, [variable_namespace]))
+                    if hit is not None:
+                        return hit
+                except:
+                    self.log("_hit_from_variable_type_inference:: %r not found in namespace %r",
+                             citdl, variable_namespace)
+
         return self._hit_from_citdl(citdl, scoperef)
 
     def parent_scoperef_from_scoperef(self, scoperef):

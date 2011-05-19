@@ -2598,6 +2598,42 @@ EOD;
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
             [("function", "parent_function")])
 
+    @tag("bug88964", "php53")
+    def test_variable_lookup_from_namespace(self):
+        test_dir = join(self.test_dir, "test_variable_lookup_from_namespace")
+        test_content_1, test_positions_1 = unmark_text(php_markup(dedent(r"""
+            namespace TestNamespace;
+            class NSTestClass extends <1>NSTestBaseClass {
+                function myFunction() { }
+            }
+
+            $test = new NSTestClass();
+            $test-><2>myFunction();
+        """)))
+        test_content_2, test_positions_2 = unmark_text(php_markup(dedent(r"""
+            namespace TestNamespace;
+            interface NSTestInterface {
+                function testFunction();
+            }
+            class NSTestBaseClass implements NSTestInterface {
+                function testFunction() { }
+            }
+        """)))
+        manifest = [
+            (join(test_dir, "file1.php"), test_content_1),
+            (join(test_dir, "file2.php"), test_content_2),
+        ]
+        for filepath, content in manifest:
+            writefile(filepath, content)
+
+        buf1 = self.mgr.buf_from_path(join(test_dir, "file1.php"), lang=self.lang)
+
+        #self.assertCompletionsInclude2(buf1, test_positions_1[1],
+        #    [("class", r"NSTestBaseClass")])
+        self.assertCompletionsInclude2(buf1, test_positions_1[2],
+            [("function", r"myFunction"),
+             ("function", r"testFunction")])
+
 
 class IncludeEverythingTestCase(CodeIntelTestCase):
     lang = "PHP"
