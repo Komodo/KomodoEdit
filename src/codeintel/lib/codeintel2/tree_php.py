@@ -370,6 +370,14 @@ class PHPTreeEvaluator(TreeEvaluator):
                 namespace = self._namespace_elem_from_scoperef(scoperef)
                 if namespace is not None:
                     elemlist.append(namespace)
+                    # Note: This namespace may occur across multiple files, so we
+                    #       iterate over all known libs that use this namespace.
+                    fqn = namespace.get("name")
+                    lpath = (fqn, )
+                    for lib in self.libs:
+                        hits = lib.hits_from_lpath(lpath, self.ctlr,
+                                                   curr_buf=self.buf)
+                        elemlist += [elem for elem, scoperef in hits]
             elif scope_type == "builtins":
                 lib = self.buf.stdlib
                 # Find the matching names (or all names if no expr)
@@ -476,7 +484,7 @@ class PHPTreeEvaluator(TreeEvaluator):
         return self._element_names_from_scope_starting_with_expr(expr and expr[:3] or None,
                             scoperef,
                             "function",
-                            ("locals", "globals", "imports",),
+                            ("locals", "namespace", "globals", "imports",),
                             self.function_shortnames_from_elem)
 
     def _classes_from_scope(self, expr, scoperef):
@@ -484,7 +492,7 @@ class PHPTreeEvaluator(TreeEvaluator):
         return self._element_names_from_scope_starting_with_expr(expr,
                             scoperef,
                             "class",
-                            ("locals", "globals", "imports",),
+                            ("locals", "namespace", "globals", "imports",),
                             self.class_names_from_elem)
 
     def _imported_namespaces_from_scope(self, expr, scoperef):

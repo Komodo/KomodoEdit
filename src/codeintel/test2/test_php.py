@@ -2632,8 +2632,8 @@ EOD;
         self.assertCompletionsInclude2(buf2, test_positions_2[1],
             [("interface", r"NSTestInterface")])
 
-        #self.assertCompletionsInclude2(buf1, test_positions_1[1],
-        #    [("class", r"NSTestBaseClass")])
+        self.assertCompletionsInclude2(buf1, test_positions_1[1],
+            [("class", r"NSTestBaseClass")])
         self.assertCompletionsInclude2(buf1, test_positions_1[2],
             [("function", r"myFunction"),
              ("function", r"testFunction")])
