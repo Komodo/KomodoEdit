@@ -135,7 +135,7 @@ TYPE_PARENT = 8
 #---- language support
 
 class JavaScriptLexer(Lexer):
-    lang = "JavaScript"
+    lang = lang
     def __init__(self, mgr):
         self._properties = SilverCity.PropertySet()
         self._lexer = SilverCity.find_lexer_module_by_id(ScintillaConstants.SCLEX_CPP)
@@ -183,7 +183,7 @@ class JavaScriptLangIntel(CitadelLangIntel,
                           ParenStyleCalltipIntelMixin,
                           ProgLangTriggerIntelMixin,
                           PythonCITDLExtractorMixin):
-    lang = "JavaScript"
+    lang = lang
 
     # The way namespacing is done with variables in JS means that grouping
     # global vars is just annoying.
@@ -721,7 +721,7 @@ class JavaScriptLangIntel(CitadelLangIntel,
 
 
 class JavaScriptBuffer(CitadelBuffer):
-    lang = "JavaScript"
+    lang = lang
 
     # Fillup chars for JavaScript: basically, any non-identifier char.
     # XXX - '@' removed in order to better support XPCOM completions:
