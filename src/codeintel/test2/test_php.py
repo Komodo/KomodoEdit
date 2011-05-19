@@ -2615,7 +2615,7 @@ EOD;
             interface NSTestInterface {
                 function testFunction();
             }
-            class NSTestBaseClass implements NSTestInterface {
+            class NSTestBaseClass implements <1>NSTestInterface {
                 function testFunction() { }
             }
         """)))
@@ -2627,6 +2627,10 @@ EOD;
             writefile(filepath, content)
 
         buf1 = self.mgr.buf_from_path(join(test_dir, "file1.php"), lang=self.lang)
+        buf2 = self.mgr.buf_from_path(join(test_dir, "file2.php"), lang=self.lang)
+
+        self.assertCompletionsInclude2(buf2, test_positions_2[1],
+            [("interface", r"NSTestInterface")])
 
         #self.assertCompletionsInclude2(buf1, test_positions_1[1],
         #    [("class", r"NSTestBaseClass")])

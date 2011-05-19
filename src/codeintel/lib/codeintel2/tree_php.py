@@ -526,7 +526,7 @@ class PHPTreeEvaluator(TreeEvaluator):
         return self._element_names_from_scope_starting_with_expr(expr,
                             scoperef,
                             "interface",
-                            ("globals", "imports",),
+                            ("namespace", "globals", "imports",),
                             self.interface_names_from_elem)
 
     # c.f. tree_python.py::PythonTreeEvaluator

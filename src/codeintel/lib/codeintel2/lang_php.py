@@ -1853,11 +1853,8 @@ class PHPNamespace:
         for v in self.includes:
             v.toElementTree(cixelement)
 
-        for i in self.interfaces:
-            addInterfaceRef(cixelement, i.strip())
-
         allValues = self.functions.values() + self.constants.values() + \
-                    self.classes.values()
+                    self.interfaces.values() + self.classes.values()
         for v in sortByLine(allValues):
             v.toElementTree(cixelement)
 
@@ -1986,7 +1983,6 @@ class PHPParser:
         self.classStack = []
         self.currentClass = None
         self.currentNamespace = None
-        self.currentInterface = None
         self.currentFunction = None
         self.csl_tokens = []
         self.lineno = 0
@@ -2038,15 +2034,14 @@ class PHPParser:
         if self.currentClass and self.currentClass.depth == self.depth:
             # log.debug("done with class %s at depth %d", self.currentClass.name, self.depth)
             self.currentClass.lineend = self.lineno
+            log.debug("done with %s %s at depth %r",
+                      isinstance(self.currentClass, PHPInterface) and "interface" or "class",
+                      self.currentClass.name, self.depth)
             self.currentClass = self.classStack.pop()
         if self.currentNamespace and self.currentNamespace.depth == self.depth:
             log.debug("done with namespace %s at depth %r", self.currentNamespace.name, self.depth)
             self.currentNamespace.lineend = self.lineno
             self.currentNamespace = None
-        if self.currentInterface and self.currentInterface.depth == self.depth:
-            # log.debug("done with interface %s at depth %d", self.currentClass.name, self.depth)
-            self.currentInterface.lineend = self.lineno
-            self.currentInterface = None
         elif self.currentFunction and self.currentFunction.depth == self.depth:
             self.currentFunction.lineend = self.lineno
             # XXX stacked functions used to work in php, need verify still is
@@ -2060,9 +2055,6 @@ class PHPParser:
         if self.currentClass:
             classname = self.currentClass.name
             extendsName = self.currentClass.extends
-        elif self.currentInterface:
-            classname = self.currentInterface.name
-            extendsName = self.currentInterface.extends
         self.currentFunction = PHPFunction(name,
                                            phpArgs,
                                            self.lineno,
@@ -2074,13 +2066,11 @@ class PHPParser:
                                            returnByRef=returnByRef)
         if self.currentClass:
             self.currentClass.functions[self.currentFunction.name] = self.currentFunction
-        elif self.currentInterface:
-            self.currentInterface.functions[self.currentFunction.name] = self.currentFunction
         elif self.currentNamespace:
             self.currentNamespace.functions[self.currentFunction.name] = self.currentFunction
         else:
             self.fileinfo.functions[self.currentFunction.name] = self.currentFunction
-        if self.currentInterface or self.currentFunction.attributes.find('abstract') >= 0:
+        if isinstance(self.currentClass, PHPInterface) or self.currentFunction.attributes.find('abstract') >= 0:
             self.currentFunction.lineend = self.lineno
             self.currentFunction = None
 
@@ -2156,14 +2146,14 @@ class PHPParser:
 
     def addInterface(self, name, extends=None, doc=None):
         toScope = self.currentNamespace or self.fileinfo
-        if name not in toScope.classes:
+        if name not in toScope.interfaces:
             # push the current interface onto the class stack
             self.classStack.append(self.currentClass)
             # make this interface the current interface
-            self.currentInterface = PHPInterface(name,extends, self.lineno, self.depth)
-            toScope.interfaces[name] = self.currentInterface
-            log.debug("INTERFACE: %s extends %s on line %d in %s at depth %d",
-                     name, extends, self.lineno, self.filename, self.depth)
+            self.currentClass = PHPInterface(name, extends, self.lineno, self.depth)
+            toScope.interfaces[name] = self.currentClass
+            log.debug("INTERFACE: %s extends %s on line %d, depth %d",
+                      name, extends, self.lineno, self.depth)
         else:
             # shouldn't ever get here
             pass
@@ -3099,7 +3089,10 @@ class PHPParser:
                         self.incBlock()
                     elif op == "}":
                         # Decreasing depth/scope
-                        self._addCodePiece()
+                        if len(text) == 1 and text[0] == "}":
+                            self._resetState()
+                        else:
+                            self._addCodePiece()
                         self.decBlock()
                     elif op == ":":
                         # May be an alternative syntax
