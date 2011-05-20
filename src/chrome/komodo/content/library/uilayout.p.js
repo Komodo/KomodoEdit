@@ -332,9 +332,9 @@ this.updateTabpickerMenu = function uilayout_updateTabpickerMenu(menupopup)
         var menuitems = canonicalPopup.getElementsByTagName("menuitem");
         for (var i = 0; i < menuitems.length; i++) {
             var menuitem = menuitems[i];
-            var paneid = menuitem.getAttribute("pane");
-            var pane = paneid ? document.getElementById(paneid) : null;
-            if (!pane || pane.collapsed) {
+            var widgetid = menuitem.getAttribute("widget");
+            var widget = widgetid ? document.getElementById(widgetid) : null;
+            if (!widget || widget.collapsed) {
                 // the pane should not be visible (nor selectabale)
                 menuitem.setAttribute("collapsed", true);
                 menuitem.setAttribute("hidden", true);
@@ -342,8 +342,8 @@ this.updateTabpickerMenu = function uilayout_updateTabpickerMenu(menupopup)
             }
             menuitem.removeAttribute('collapsed');
             menuitem.removeAttribute('hidden');
-            var selected = !pane.tabbox.collapsed &&
-                           pane.tabbox.selectedTab == pane.tab;
+            var selected = !widget.tabbox.collapsed &&
+                           widget.tabbox.selectedTab == widget.tab;
             if (selected) {
                 menuitem.setAttribute('checked', 'true');
                 menuitem.disabled = true;
