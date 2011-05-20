@@ -251,63 +251,35 @@ this.focusPane = function uilayout_focusPane(tabsId)
     ko.uilayout.toggleTab(tabId, false);
 }
 
-this.toggleTab = function uilayout_toggleTab(tabId, collapseIfFocused /* =true */,
-                                             collapseIfAlreadySelected /* false */)
+this.toggleTab = function uilayout_toggleTab(widgetId, collapseIfFocused /* =true */)
 {
     try {
         // if called with collapseIfFocused=false, we will only ensure that
         // the specified tab is focused and will not collapse any panels
         if (typeof(collapseIfFocused) == 'undefined')
             collapseIfFocused = true;
-        var tab = document.getElementById(tabId);
-        var tabs = tab.parentNode;
-        var splitterId = tabs.getAttribute('splitterId');
-        var splitterWidget = document.getElementById(splitterId);
-        // If the pane in question is not shown and focused, then show it and
-        // focus the relevant widget. The "focusHandlingWidget" must maintain
-        // a .focused attribute.
-        var focusHandlingWidget = null;
-        switch (tabId) {
-            case 'toolbox2_tab':
-                focusHandlingWidget = document.getElementById('toolbox2viewbox').tree;
-                break;
-            case 'codebrowser_tab':
-                focusHandlingWidget = document.getElementById('codebrowser-tree');
-                break;
+        var widget = document.getElementById(widgetId);
+        if (!widget) {
+            throw("Can't find widget " + widgetId);
         }
-        var cmdId = splitterWidget.getAttribute('splitterCmdId');
-        if (splitterWidget.hasAttribute('collapsed') &&
-            splitterWidget.getAttribute('collapsed') == 'true') {
-            ko.uilayout.toggleSplitter(cmdId);
-            // Default: select and focus tab
-        } else if ((!splitterWidget.hasAttribute('collapsed')
-                    || splitterWidget.getAttribute('collapsed') == 'false')
-                   && tab !== tabs.selectedItem) {
-            // Default: select and focus new tab
-        } else {
-            if (collapseIfAlreadySelected && 
-                (tabs.parentNode.selectedTab == tab)) {
-                ko.uilayout.toggleSplitter(cmdId);
-                return;
-            }
-            if (collapseIfFocused) {
-                // Before we collapse it, figure out whether the focus is in this
-                // panel.  If so, then move it back to the editor
-                if (xtk.domutils.elementInFocus(tabs.parentNode)) {
-                    if (ko.views.manager.currentView) {
-                        ko.views.manager.currentView.setFocus();
-                    }
+        if (!widget.tabbox.collapsed &&
+            widget.tabbox.selectedTab == widget.tab &&
+            collapseIfFocused)
+        {
+            // The widget is currently selected and visible; we want to toggle
+            // it so it's not.
+            // Before we collapse it, figure out whether the focus is in
+            // this widget.  If so, then move it back to the editor
+            if (xtk.domutils.elementInFocus(widget.tabbox)) {
+                if (ko.views.manager.currentView) {
+                    ko.views.manager.currentView.setFocus();
                 }
-                ko.uilayout.toggleSplitter(cmdId);
-                return;
             }
+            widget.tabbox.collapsed = true;
+            return;
         }
-        tabs.parentNode.selectedTab = tab;
-        if (focusHandlingWidget) {
-            focusHandlingWidget.focus();
-        } else {
-            tabs.parentNode.selectedTab.focus();
-        }
+        // If we get here, we want to force show and focus the widget.
+        this.ensureTabShown(widgetId, true);
     } catch (e) {
         _log.exception(e);
     }
@@ -1277,24 +1249,30 @@ this.isPaneShown = function uilayout_isPaneShown(tabs) {
 
 this.ensurePaneShown = function uilayout_ensurePaneShown(pane) {
     pane.tabbox.collapsed = false;
-}
+};
 
-this.ensureTabShown = function uilayout_ensureTabShown(paneId, focusToo) {
+this.ensureTabShown = function uilayout_ensureTabShown(widgetId, focusToo) {
     try {
         if (typeof(focusToo) == 'undefined') focusToo = false;
-        var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                        .getService(Components.interfaces.nsIWindowMediator);
-        var mainWindow = wm.getMostRecentWindow('Komodo');
-        var pane = mainWindow.document.getElementById(paneId);
-        if (!pane) {
-            _log.error("ko.uilayout.ensureTabShown: couldn't find tab: " + paneId);
-            return;
+        var widget;
+        if ((typeof(widgetId) == "object") && ("localName" in widgetId)) {
+            // we actually got passed the widget instead
+            widget = widgetId;
+        } else {
+            var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                            .getService(Components.interfaces.nsIWindowMediator);
+            var mainWindow = wm.getMostRecentWindow('Komodo');
+            widget = mainWindow.document.getElementById(widgetId);
+            if (!widget) {
+                log.error("ko.uilayout.ensureTabShown: couldn't find tab: " + widgetId);
+                return;
+            }
         }
         // First make sure that the pane the tab is in is visible
-        ko.uilayout.ensurePaneShown(pane);
-        pane.tabbox.selectedTab = pane.tab;
+        widget.tabbox.collapsed = false;
+        widget.tabbox.selectedTab = widget.tab;
         if (focusToo) {
-            pane.focus();
+            widget.focus();
         }
     } catch (e) {
         _log.exception(e);
