@@ -389,9 +389,7 @@
  'Conscript': 'Perl',
  'Construct': 'Perl',
  'Makefile': 'Makefile',
- 'Makefile.*': 'Makefile',
  'makefile': 'Makefile',
- 'makefile.*': 'Makefile',
  'Rakefile': 'Ruby',
  'rakefile': 'Ruby'
 }</string>
