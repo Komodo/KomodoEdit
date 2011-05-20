@@ -587,6 +587,22 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
                     raise CodeIntelError("could not resolve recursive citdl expression %r" % citdl)
                 # Continue looking using _hits_from_citdl with the parent.
                 self.log("Continue search for %r from the parent scope.", citdl)
+        if citdl == "require()":
+            requirename = elem.get('required_library_name')
+            if requirename:
+                # Files usually end with a ".js" suffix, though others are like
+                # ".node" are possible.
+                #
+                # TODO: Get these from node using "require.extensions".
+                requirename += ".js"
+                from codeintel2.database.langlib import LangDirsLib
+                from codeintel2.database.multilanglib import MultiLangDirsLib
+                for lib in self.libs:
+                    if isinstance(lib, (LangDirsLib, MultiLangDirsLib)):
+                        #print "keys: %r" % (lib.get_basenames().keys(), )
+                        blobs = lib.blobs_with_basename(requirename, ctlr=self.ctlr)
+                        if len(blobs) > 0:
+                            return [(blob, []) for blob in blobs]
         return self._hits_from_citdl(citdl, scoperef)
 
     def _hits_from_type_inference(self, citdl, scoperef):
