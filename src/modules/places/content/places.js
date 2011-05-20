@@ -2103,7 +2103,7 @@ ManagerClass.prototype = {
     _setDirURI_successFunc_show_tab: function() {
         // Don't cause a focus change triggered from workspace restore - bug 87868.
         if (ko.projects.manager._project_opened_during_workspace_restore) {
-            if (ko.projects.manager.current_tab_during_workspace_restore == "places_tab") {
+            if (ko.projects.manager.current_tab_during_workspace_restore == "placesViewbox") {
                 ko.uilayout.ensureTabShown("placesViewbox", false);
             }
             ko.projects.manager._project_opened_during_workspace_restore = false;

@@ -60,9 +60,9 @@ function AsyncEventTest(name) {
     "screenX":117,
     "screenY":104,
     "timeStamp":2224091094,
-    "targetXPath":"/xmlns:window[@id=\"jaguar_main\"]/xmlns:deck[1]/xmlns:vbox[@id=\"komodo-vbox\"]/xmlns:hbox[@id=\"komodo-hbox\"]/xmlns:vbox[@id=\"workspace_left_area\"]/xmlns:tabbox[@id=\"leftTabBox\"]/xmlns:tabs[@id=\"project_toolbox_tabs\"]/xmlns:tab[@id=\"codebrowser_tab\"]",
+    "targetXPath":"/xmlns:window[@id=\"jaguar_main\"]/xmlns:deck[1]/xmlns:vbox[@id=\"komodo-vbox\"]/xmlns:hbox[@id=\"komodo-hbox\"]/xmlns:vbox[@id=\"workspace_left_area\"]/xmlns:tabbox[@id=\"leftTabBox\"]/xmlns:tabs[@id=\"project_toolbox_tabs\"]/xmlns:tab[@paneid=\"codebrowserviewbox\"]",
     "currentTargetXPath":"/",
-    "originalTargetXPath":"/xmlns:window[@id=\"jaguar_main\"]/xmlns:deck[1]/xmlns:vbox[@id=\"komodo-vbox\"]/xmlns:hbox[@id=\"komodo-hbox\"]/xmlns:vbox[@id=\"workspace_left_area\"]/xmlns:tabbox[@id=\"leftTabBox\"]/xmlns:tabs[@id=\"project_toolbox_tabs\"]/xmlns:tab[@id=\"codebrowser_tab\"]",
+    "originalTargetXPath":"/xmlns:window[@id=\"jaguar_main\"]/xmlns:deck[1]/xmlns:vbox[@id=\"komodo-vbox\"]/xmlns:hbox[@id=\"komodo-hbox\"]/xmlns:vbox[@id=\"workspace_left_area\"]/xmlns:tabbox[@id=\"leftTabBox\"]/xmlns:tabs[@id=\"project_toolbox_tabs\"]/xmlns:tab[@paneid=\"codebrowserviewbox\"]",
     "enabled":true,
     "action":"fire"}
     ,
@@ -85,9 +85,9 @@ function AsyncEventTest(name) {
     "screenX":117,
     "screenY":104,
     "timeStamp":2224091487,
-    "targetXPath":"/xmlns:window[@id=\"jaguar_main\"]/xmlns:deck[1]/xmlns:vbox[@id=\"komodo-vbox\"]/xmlns:hbox[@id=\"komodo-hbox\"]/xmlns:vbox[@id=\"workspace_left_area\"]/xmlns:tabbox[@id=\"leftTabBox\"]/xmlns:tabs[@id=\"project_toolbox_tabs\"]/xmlns:tab[@id=\"codebrowser_tab\"]",
+    "targetXPath":"/xmlns:window[@id=\"jaguar_main\"]/xmlns:deck[1]/xmlns:vbox[@id=\"komodo-vbox\"]/xmlns:hbox[@id=\"komodo-hbox\"]/xmlns:vbox[@id=\"workspace_left_area\"]/xmlns:tabbox[@id=\"leftTabBox\"]/xmlns:tabs[@id=\"project_toolbox_tabs\"]/xmlns:tab[@paneid=\"codebrowserviewbox\"]",
     "currentTargetXPath":"/",
-    "originalTargetXPath":"/xmlns:window[@id=\"jaguar_main\"]/xmlns:deck[1]/xmlns:vbox[@id=\"komodo-vbox\"]/xmlns:hbox[@id=\"komodo-hbox\"]/xmlns:vbox[@id=\"workspace_left_area\"]/xmlns:tabbox[@id=\"leftTabBox\"]/xmlns:tabs[@id=\"project_toolbox_tabs\"]/xmlns:tab[@id=\"codebrowser_tab\"]",
+    "originalTargetXPath":"/xmlns:window[@id=\"jaguar_main\"]/xmlns:deck[1]/xmlns:vbox[@id=\"komodo-vbox\"]/xmlns:hbox[@id=\"komodo-hbox\"]/xmlns:vbox[@id=\"workspace_left_area\"]/xmlns:tabbox[@id=\"leftTabBox\"]/xmlns:tabs[@id=\"project_toolbox_tabs\"]/xmlns:tab[@paneid=\"codebrowserviewbox\"]",
     "enabled":true,
     "action":"fire"}
     ,
@@ -112,7 +112,7 @@ AsyncEventTest.prototype = new Casper.UnitTest.TestCaseAsync();
 AsyncEventTest.prototype.constructor = AsyncEventTest;
 AsyncEventTest.prototype.setup = function() {
     // make sure the project pane is open, and the project tab is selected
-    uilayout_toggleTab('places_tab');
+    ko.uilayout.ensureTabShown('placesViewbox');
 }
 AsyncEventTest.prototype.test_async = function() {
     var self = this;

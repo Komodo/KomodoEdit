@@ -244,13 +244,14 @@ this.populatePreviewToolbarButton = function uilayout_populatePreviewToolbarButt
     }
 }
 
-this.focusPane = function uilayout_focusPane(tabsId)
+this.focusPane = function uilayout_focusPane(paneId)
 {
-    var tabs = document.getElementById(tabsId);
-    var tabId = tabs.selectedItem.getAttribute('id');
-    ko.uilayout.toggleTab(tabId, false);
+    var pane = document.getElementById(paneId);
+    var widgetId = pane.selectedItem.getAttribute('id');
+    ko.uilayout.toggleTab(widgetId, false);
 }
 
+this.toggleWidget = /* alias for toggleTab */
 this.toggleTab = function uilayout_toggleTab(widgetId, collapseIfFocused /* =true */)
 {
     try {
@@ -1172,80 +1173,39 @@ this.buildViewAsLanguageMenu = function uilayout_buildViewAsLanguageMenu() {
 this.outputPaneShown = function uilayout_outputPaneShown()
 {
     return !window.document.getElementById("workspace_bottom_area").collapsed;
-}
+};
 
 this.leftPaneShown = function uilayout_leftPaneShown()
 {
-    var splitter = window.document.getElementById("workspace_left_splitter");
-    if (!splitter.hasAttribute('collapsed')) {
-        return true;
-    }
-    var collapsed = splitter.getAttribute('collapsed') == 'true';
-    return !collapsed;
-}
+    return !window.document.getElementById("workspace_left_area").collapsed;
+};
 
 this.rightPaneShown = function uilayout_rightPaneShown()
 {
-    var splitter = window.document.getElementById("workspace_right_splitter");
-    if (!splitter.hasAttribute('collapsed')) {
-        return true;
-    }
-    var collapsed = splitter.getAttribute('collapsed') == 'true';
-    return !collapsed;
-}
+    return !window.document.getElementById("workspace_right_area").collapsed;
+};
 
 this.isCodeBrowserTabShown = function uilayout_isCodeBrowserTabShown()
 {
-    var splitter = window.document.getElementById("workspace_left_splitter");
-    if (splitter.hasAttribute("collapsed")
-        && splitter.getAttribute("collapsed") == "true") {
-        return false;
-    }
-    var tabs = window.document.getElementById("project_toolbox_tabs");
-    var tab = window.document.getElementById("codebrowser_tab");
-    if (tabs.selectedItem != tab) {
-        return false;
-    }
-    return true;
-}
-
+    var widget = window.document.getElementById("codebrowserviewbox");
+    return !widget.tabbox.collapsed &&
+           widget.tabbox.selectedTab == widget.tab;
+};
 
 this.ensureOutputPaneShown = function uilayout_ensureOutputPaneShown()
 {
-    if (!ko.uilayout.outputPaneShown()) {
-        ko.uilayout.toggleSplitter('cmd_viewBottomPane');
-    }
-}
-
+    window.document.getElementById("workspace_bottom_area").collapsed = false;
+};
 
 this.ensurePaneForTabHidden = function uilayout_ensurePaneForTabHidden(tabName)
 {
     // given a tab id, collapse the pane that the tab is in.
-    var tab = document.getElementById(tabName);
-    var tabs = tab.parentNode;
-    if (! tabs.hasAttribute('splitterId')) {
-        _log.error("Tab " + tabName + " isn't in a tabs element with a splitterId");
-        return;
-    }
-    if (ko.uilayout.isPaneShown(tabs)) {
-        var splitterId = tabs.getAttribute('splitterId');
-        var splitterWidget = document.getElementById(splitterId);
-        var splitterCmdId = splitterWidget.getAttribute('splitterCmdId');
-        ko.uilayout.toggleSplitter(splitterCmdId);
-    }
-}
+    document.getElementById(tabName).tabbox.collapsed = true;
+};
 
-
-this.isPaneShown = function uilayout_isPaneShown(tabs) {
-    var splitterId = tabs.getAttribute('splitterId');
-    var splitterWidget = document.getElementById(splitterId);
-    if (splitterWidget.hasAttribute('collapsed') &&
-        splitterWidget.getAttribute('collapsed') == 'true') {
-        return false;
-    } else {
-        return true;
-    }
-}
+this.isPaneShown = function uilayout_isPaneShown(pane) {
+    return !pane.collapsed;
+};
 
 this.ensurePaneShown = function uilayout_ensurePaneShown(pane) {
     pane.tabbox.collapsed = false;

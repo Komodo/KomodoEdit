@@ -2055,7 +2055,6 @@
                      collapsed="true" label="&findResults2.label;"
                      src="chrome://komodo/content/find/findResultsTab.xul"/>
         </ko-pane>
-
     </vbox> <!-- main window box -->
     <browser id="printBrowser" type="content-primary" flex="1" disablehistory="true"/>
     </deck>

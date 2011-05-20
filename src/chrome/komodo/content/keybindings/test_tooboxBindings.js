@@ -234,7 +234,7 @@ test_keybindings_toolbox.prototype.testAsync_keybinding_runToolboxMacro_FocusPro
     this.macroExecuted = false;
     // place focus on project
     //ko.commands.doCommand('cmd_viewRightPane');
-    ko.uilayout.toggleTab('places_tab', false);
+    ko.uilayout.ensureTabShown('placesViewbox', false);
     //dump("*** runToolboxMacro_FocusProjects\n");
     var self = this;
     var test = new Casper.Events.test(window);
@@ -248,7 +248,7 @@ test_keybindings_toolbox.prototype.testAsync_keybinding_runToolboxMacro_FocusPro
 test_keybindings_toolbox.prototype.testAsync_keybinding_runToolboxMacro_FocusToolbox = function() {
     this.macroExecuted = false;
     // place focus on toolbox
-    ko.uilayout.toggleTab('toolbox2_tab', false);
+    ko.uilayout.toggleTab('toolbox2viewbox', false);
     //dump("*** runToolboxMacro_FocusToolbox\n");
     var self = this;
     var test = new Casper.Events.test(window);

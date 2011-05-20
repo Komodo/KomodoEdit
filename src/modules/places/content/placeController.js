@@ -57,7 +57,7 @@ PlacesController.prototype.is_cmd_viewPlaces_enabled = function() {
 }
 
 PlacesController.prototype.do_cmd_viewPlaces = function() {
-    ko.uilayout.toggleTab('places_tab');
+    ko.uilayout.toggleTab('placesViewbox');
 }
 
 PlacesController.prototype.is_cmd_openDirectory_enabled = function() {
