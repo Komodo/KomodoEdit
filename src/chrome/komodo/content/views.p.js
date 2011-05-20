@@ -2355,9 +2355,9 @@ viewManager.prototype.do_cmd_fontZoomReset = function() {
 
 
 viewManager.prototype.notify_visited_directory = function(path) {
-    var event = document.createEvent("Events");
+    var event = document.createEvent("DataContainerEvents");
     event.initEvent('visit_directory_proposed', true, true);
-    event.visitedPath = path;
+    event.setData("visitedPath", path);
     window.dispatchEvent(event);
 }
 

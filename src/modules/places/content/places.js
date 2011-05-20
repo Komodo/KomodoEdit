@@ -2579,7 +2579,7 @@ ManagerClass.prototype = {
     },
     
     handle_visit_directory_proposed: function(event) {
-        ko.places.manager.observe(null, 'visit_directory_proposed', event.visitedPath);
+        ko.places.manager.observe(null, 'visit_directory_proposed', event.getData("visitedPath"));
     },
     
     handle_keypress_setup: function(event) {
