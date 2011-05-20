@@ -1323,7 +1323,7 @@ this.open = function project_openProjectFromURL(url,
     }
     if (!ko.workspace.restoreInProgress()) {
         // another part of the workspace restoration will show the tab if necessary
-        ko.uilayout.ensureTabShown('places_tab');
+        ko.uilayout.ensureTabShown('placesViewbox');
     }
 
     var prefSvc = Components.classes["@activestate.com/koPrefService;1"].

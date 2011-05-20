@@ -104,7 +104,7 @@
             menuitem.setAttribute("widget", widget.id);
             refElem.parentNode.insertBefore(menuitem, refElem);
             menuitem.addEventListener("command",
-                                      ko.uilayout.ensureTabShown.bind(ko.uilayout, widget.id, true),
+                                      ko.uilayout.ensureTabShown.bind(ko.uilayout, widget, true),
                                       false);
           }
         ]]>

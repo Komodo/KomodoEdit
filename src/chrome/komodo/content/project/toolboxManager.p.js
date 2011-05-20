@@ -207,7 +207,7 @@ this.addCommand = function AddCommandToToolbox(command, cwd, env, insertOutput,
     part.setStringAttribute('parseRegex', parseRegex);
     part.setBooleanAttribute('showParsedOutputList', showParsedOutputList);
     ko.toolbox2.addItem(part);
-    ko.uilayout.ensureTabShown('toolbox2_tab');
+    ko.uilayout.ensureTabShown('toolbox2viewbox');
 }
 
 }).apply(ko.toolboxes);

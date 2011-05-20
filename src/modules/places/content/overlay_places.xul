@@ -228,29 +228,6 @@
     there's no codebrowser, so we can fall back to the first position
     (position="1") if the insertbefore element isn't found.    
 -->
-    <menupopup id="menu_view_tabs_popup">
-      <menuitem id="show_places_tab2"
-          observes="show_places_tab"
-          insertbefore="show_codebrowser_tab2"
-          insertafter="show_project_tab2"
-          position="1"
-          oncommand="uilayout_ensureTabShown('places_tab', true)"
-          label="&Places.label;"
-          type="checkbox"
-          />
-    </menupopup>
-
-    <menupopup id="tabPicker_popup">
-      <menuitem id="show_places_tab"
-          observes="show_places_tab"
-          insertbefore="show_codebrowser_tab"
-          insertafter="show_project_tab"
-          position="1"
-          oncommand="uilayout_ensureTabShown('places_tab', true)"
-          label="&Places.label;"
-          type="checkbox"
-          />
-    </menupopup>
     
     <menupopup id="tabContextMenu">
      <menuitem id="tabContextMenu_show_in_places"
@@ -277,6 +254,7 @@
         onfocus="ko.places.viewMgr.focus(); ko.places.viewMgr.updateView();"
     -->
     <browser type="ko-widget" id="placesViewbox" label="&Places.label;"
+             position="1" insertbefore="codebrowserviewbox"
 	     src="chrome://places/content/places_panel.xul"/>
   </ko-pane>
 </overlay>

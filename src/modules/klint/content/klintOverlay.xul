@@ -6,28 +6,10 @@
 <overlay id="klintOverlay"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
-    <menupopup id="menu_view_tabs_popup">
-        <menuitem id="show_klint_tab2"
-            observes="show_klint_tab"
-            class="menuitem-iconic-wide"
-            oncommand="ko.uilayout.ensureTabShown('klint_tab', true)"
-            label="&klint.tab.title;"
-            type="checkbox"
-            />
-    </menupopup>
-
-    <menupopup id="tabPicker_popup">
-        <menuitem id="show_klint_tab"
-            oncommand="ko.uilayout.ensureTabShown('klint_tab', true)"
-            label="&klint.tab.title;"
-            type="checkbox"
-            />
-    </menupopup>
-
     <menupopup id="context_lint">
         <menuitem id="show_klint_tab"
                   class="statusbar-label"
-            oncommand="ko.uilayout.ensureTabShown('klint_tab', true)"
+            oncommand="ko.uilayout.ensureTabShown('klint_tabpanel', true)"
             label="&klint.open.tab.title;"
             />
     </menupopup>
