@@ -2573,6 +2573,8 @@ class GLibCVersion(black.configure.Datum):
             import platform
             # determine libc version
             libc = '/lib/libc.so.6'
+            if not os.path.exists(libc):
+                libc = sys.executable
             lib,ver = platform.libc_ver(libc)
             ver = ver.split('.')[:2]
             self.value  = ''.join(ver) # make string '23'
