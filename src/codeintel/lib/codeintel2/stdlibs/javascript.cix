@@ -40,6 +40,9 @@
       <variable name="Infinity" />
       <variable name="NaN" />
       <variable name="undefined" />
+      <scope doc="Import the given CommonJS module." ilk="function" name="require" signature="require(str)">
+        <variable citdl="String" ilk="argument" name="str" />
+      </scope>
       <scope doc="Evaluate the supplied string as JavaScript code." ilk="function" name="eval" signature="eval(str)">
         <variable citdl="String" ilk="argument" name="str" />
       </scope>

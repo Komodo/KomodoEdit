@@ -537,7 +537,7 @@ class PythonCITDLExtractorMixin(object):
     citdl_from_literal_type = {"string": "str"}
 
     def _citdl_expr_from_pos(self, buf, pos, implicit=False,
-                             include_forwards=False, DEBUG=False):
+                             include_forwards=False, DEBUG=False, trg=None):
 
         #PERF: Would dicts be faster for all of these?
         WHITESPACE = tuple(" \t\n\r\v\f")
@@ -678,6 +678,8 @@ class PythonCITDLExtractorMixin(object):
                             if DEBUG:
                                 print "jump to matching brace at %d: %r" % (i, ch)
                             citdl_expr.append(ch)
+                            if trg:
+                                trg.extra["_params"] = accessor.text_range(i + 1, pos)
                             i -= 1
                             break
                     i -= 1
@@ -759,7 +761,8 @@ class PythonCITDLExtractorMixin(object):
                 pos = trg.extra.get('bracket_pos') - 1
             else:
                 pos = trg.pos - 2   # skip ahead of the trigger char
-            return self._citdl_expr_from_pos(buf, pos, trg.implicit, DEBUG)
+            return self._citdl_expr_from_pos(buf, pos, implicit=trg.implicit,
+                                             DEBUG=DEBUG, trg=trg)
 
 
 #---- internal calltip parsing support

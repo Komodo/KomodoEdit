@@ -2592,9 +2592,7 @@ class JavaScriptCiler:
 
     def _unquoteJsString(self, s):
         """Return the string without quotes around it"""
-        if len(s) >= 2 and s[0] in "\"'":
-            return s[1:-1]
-        return s
+        return Utils.unquoteJsString(s)
 
     def _getVariableDetail(self, namelist, styles, text, p, assignmentChar="="):
         # this.myname = "123";
@@ -3547,6 +3545,13 @@ class JavaScriptCiler:
         self.cile.convertToElementTreeModule(cixmodule)
 
 
+class Utils(object):
+    @staticmethod
+    def unquoteJsString(s):
+        """Return the string without quotes around it"""
+        if len(s) >= 2 and s[0] in "\"'":
+            return s[1:-1]
+        return s
 
 #---- internal support stuff
 

@@ -451,6 +451,21 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
         if elem.get("ilk") != "function":
             raise CodeIntelError("_hits_from_call:: unexpected element type %r"
                                  % elem)
+
+        # CommonJS / NodeJS hack
+        if elem.get("name") == "require" and \
+           scoperef[0] is self.built_in_blob and \
+           not scoperef[1]:
+            import codeintel2.lang_javascript
+            requirename = self.trg.extra["_params"]
+            if requirename:
+                requirename = codeintel2.lang_javascript.Utils.unquoteJsString(requirename)
+                self.log("_hits_from_call: resolving CommonJS require(%s)",
+                         requirename)
+                hits = self._hits_from_commonjs_require(requirename)
+                if len(hits) > 0:
+                    return hits
+
         citdl = elem.get("returns")
         if not citdl:
             raise CodeIntelError("no return type info for %r" % elem)
@@ -590,19 +605,9 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
         if citdl == "require()":
             requirename = elem.get('required_library_name')
             if requirename:
-                # Files usually end with a ".js" suffix, though others are like
-                # ".node" are possible.
-                #
-                # TODO: Get these from node using "require.extensions".
-                requirename += ".js"
-                from codeintel2.database.langlib import LangDirsLib
-                from codeintel2.database.multilanglib import MultiLangDirsLib
-                for lib in self.libs:
-                    if isinstance(lib, (LangDirsLib, MultiLangDirsLib)):
-                        #print "keys: %r" % (lib.get_basenames().keys(), )
-                        blobs = lib.blobs_with_basename(requirename, ctlr=self.ctlr)
-                        if len(blobs) > 0:
-                            return [(blob, []) for blob in blobs]
+                hits = self._hits_from_commonjs_require(requirename)
+                if hits:
+                    return hits
         return self._hits_from_citdl(citdl, scoperef)
 
     def _hits_from_type_inference(self, citdl, scoperef):
@@ -702,6 +707,29 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
             nconsumed = 1
 
         return hits, nconsumed
+
+    def _hits_from_commonjs_require(self, requirename):
+        """Resolve hits from a CommonJS require() invocation"""
+        # Files usually end with a ".js" suffix, though others are like
+        # ".node" are possible.
+        #
+        # TODO: Get these from node using "require.extensions".
+        requirename += ".js"
+        from codeintel2.database.langlib import LangDirsLib
+        from codeintel2.database.multilanglib import MultiLangDirsLib
+        hits = []
+        for lib in self.libs:
+            if isinstance(lib, (LangDirsLib, MultiLangDirsLib)):
+                #print "keys: %r" % (lib.get_basenames().keys(), )
+                blobs = lib.blobs_with_basename(requirename, ctlr=self.ctlr)
+                for blob in blobs:
+                    exports = blob.names.get("exports")
+                    self.log("exports: %r", exports)
+                    if exports is not None and exports.tag == "variable":
+                        hits += self._hits_from_variable_type_inference(exports, [blob, ["exports"]])
+                    else:
+                        self.log("Exported exports to be a variable, got %r instead", exports)
+        return hits
 
     ## n-char trigger completions ##
 
