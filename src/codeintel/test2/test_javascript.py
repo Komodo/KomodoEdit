@@ -1691,6 +1691,34 @@ class XPCOMTestCase(CodeIntelTestCase):
              ("function", "saveState")])
 
 
+class NodeCplnTestCase(CodeIntelTestCase):
+    lang = "JavaScript"
+
+    @tag("nodejs", "knownfailure")
+    def test_nodejs_require(self):
+        test_dir = join(self.test_dir, "test_nodejs_require")
+        content, positions = unmark_text(dedent("""\
+            var http = require('http');
+            http.<1>;
+        """))
+        manifest = [
+            ("http.js", dedent("""
+                function Server(i) {
+                    this.state = 0;
+                }
+                Server.prototype.connect(host) {
+                }
+             """)),
+            ("foo.js", content),
+        ]
+        for file, content in manifest:
+            path = join(test_dir, file)
+            writefile(path, content)
+        buf = self.mgr.buf_from_path(join(test_dir, "foo.js"))
+        self.assertCompletionsInclude2(buf, positions[1],
+            [("class", "Server"), ])
+
+
 #---- mainline
 
 if __name__ == "__main__":
