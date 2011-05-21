@@ -59,7 +59,8 @@ class NodeJSLexer(JavaScriptLexer):
     lang = lang
 
 class NodeJSLangIntel(JavaScriptLangIntel):
-    lang = lang
+    # Langintel is "JavaScript" in order to have the sections list work.
+    lang = "JavaScript"
     interpreterPrefName = "nodejsDefaultInterpreter"
     extraPathsPrefName = "nodejsExtraPaths"
 
