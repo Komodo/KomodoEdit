@@ -1,0 +1,11 @@
+Index: /home/toddw/as/komodo-devel/mozilla/build/moz200-ko7.9/mozilla/toolkit/mozapps/extensions/content/extensions.xul
+--- a/toolkit/mozapps/extensions/content/extensions.xul	Thu Mar 24 09:09:19 2011 -0400
++++ b/toolkit/mozapps/extensions/content/extensions.xul	Mon May 16 12:55:08 2011 -0700
+@@ -232,6 +232,7 @@
+                     name="&view.features.label;"
+                     tooltiptext="&view.features.label;"/>
+       <richlistitem id="category-themes" value="addons://list/theme"
++                    hidden="true"
+                     class="category"
+                     name="&view.appearance2.label;"
+                     tooltiptext="&view.appearance2.label;"/>
