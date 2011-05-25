@@ -685,6 +685,14 @@ class JavaScriptLangIntel(CitadelLangIntel,
             if buf.lang == "HTML5":
                 # Implicit HTML 5 catalog additions.
                 libs.append(db.get_catalog_lib("JavaScript", ["html5"]))
+            if buf.lang == "Node.js":
+                # Implicit Node.js standard library import
+                libdir = os.path.join(dirname(__file__),
+                                      "lib_srcs",
+                                      "node.js")
+                libs.append(db.get_lang_lib(lang="Node.js",
+                                            name="node.js stdlib",
+                                            dirs=(libdir,)))
             libs += [
                 db.get_catalog_lib("JavaScript", catalog_selections),
                 db.get_stdlib("JavaScript"),

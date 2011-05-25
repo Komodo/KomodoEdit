@@ -673,13 +673,16 @@ class PythonCITDLExtractorMixin(object):
                         #    when LexPython+SilverCity styling bugs are fixed
                         #    (spurious 'stderr' problem):
                         #       and style == stack[-1][1]:
-                        stack.pop()
+                        last_frame = stack.pop()
                         if not stack:
                             if DEBUG:
                                 print "jump to matching brace at %d: %r" % (i, ch)
                             citdl_expr.append(ch)
                             if trg:
-                                trg.extra["_params"] = accessor.text_range(i + 1, pos)
+                                # save the text in params, in case the completion
+                                # needs to special-case things depending on the
+                                # argument.
+                                trg.extra["_params"] = accessor.text_range(i + 1, last_frame[3])
                             i -= 1
                             break
                     i -= 1

@@ -456,9 +456,9 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
         if elem.get("name") == "require" and \
            scoperef[0] is self.built_in_blob and \
            not scoperef[1]:
-            import codeintel2.lang_javascript
-            requirename = self.trg.extra["_params"]
-            if requirename:
+            requirename = self.trg.extra.get("_params")
+            if requirename is not None:
+                import codeintel2.lang_javascript
                 requirename = codeintel2.lang_javascript.Utils.unquoteJsString(requirename)
                 self.log("_hits_from_call: resolving CommonJS require(%s)",
                          requirename)
@@ -717,18 +717,23 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
         requirename += ".js"
         from codeintel2.database.langlib import LangDirsLib
         from codeintel2.database.multilanglib import MultiLangDirsLib
+        from codeintel2.database.catalog import CatalogLib
         hits = []
         for lib in self.libs:
+            blobs = None
             if isinstance(lib, (LangDirsLib, MultiLangDirsLib)):
                 #print "keys: %r" % (lib.get_basenames().keys(), )
                 blobs = lib.blobs_with_basename(requirename, ctlr=self.ctlr)
-                for blob in blobs:
-                    exports = blob.names.get("exports")
-                    self.log("exports: %r", exports)
-                    if exports is not None and exports.tag == "variable":
-                        hits += self._hits_from_variable_type_inference(exports, [blob, ["exports"]])
-                    else:
-                        self.log("Exported exports to be a variable, got %r instead", exports)
+            elif isinstance(lib, CatalogLib):
+                blob = lib.get_blob(requirename)
+                if blob is not None:
+                    blobs = [blob]
+            for blob in blobs or []:
+                exports = blob.names.get("exports")
+                if exports is not None and exports.tag == "variable":
+                    hits += self._hits_from_variable_type_inference(exports, [blob, ["exports"]])
+                else:
+                    self.log("Exported exports to be a variable, got %r instead", exports)
         return hits
 
     ## n-char trigger completions ##
