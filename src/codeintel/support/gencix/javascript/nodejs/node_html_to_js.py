@@ -172,13 +172,19 @@ class NodeModule(NodeItem):
         NodeItem.__init__(self, name, doc=None)
         self._checkedName = False
         self.current = None
+        self._merging = False
+
     def parse_tag(self, tag):
         if tag.name in ('p'):
             if self.doc is None:
                 self.doc = getSubElementText(tag)
-            if self.current and self.current.doc is None:
-                #if "<code>" not in str(tag):
-                    self.current.doc = getSubElementText(tag)
+            if self.current:
+                if self.current.doc is None:
+                    #if "<code>" not in str(tag):
+                        self.current.doc = getSubElementText(tag)
+                elif self._merging:
+                    self._merging = False
+                    self.current.doc += "\n\n" + getSubElementText(tag)
             return
             
         if tag.name in ('h2', 'h3', 'h4'):
@@ -193,7 +199,8 @@ class NodeModule(NodeItem):
                 name = sp[0]
                 if name in self.items:
                     # alternative form of the constructor
-                    pass
+                    self.current = self.items[name]
+                    self._merging = True
                 else:
                     self.current = self.addItem(name, tag=tag)
             elif "." in id:
