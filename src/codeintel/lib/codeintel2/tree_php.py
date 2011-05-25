@@ -586,7 +586,23 @@ class PHPTreeEvaluator(TreeEvaluator):
             if ctor is not None:
                 self.log("_calltip_from_class:: ctor is %r", ctor)
                 return self._calltip_from_func(ctor, scoperef)
+
             self.log("_calltip_from_class:: no ctor in class %r", name)
+
+            # See if there is a parent class that has a constructor - bug 90156.
+            for classref in node.get("classrefs", "").split():
+                #TODO: update _hit_from_citdl to accept optional node type,
+                #      i.e. to only return classes in this case.
+                self.log("_calltip_from_class:: looking for parent class: %r",
+                         classref)
+                base_elem, base_scoperef \
+                    = self._hit_from_citdl(classref, scoperef)
+                if base_elem is not None and base_elem.get("ilk") == "class":
+                    return self._calltip_from_class(base_elem, base_scoperef)
+                else:
+                    self.log("_calltip_from_class:: no parent class found: %r",
+                             base_elem)
+
             return "%s()" % (name)
 
     def _members_from_array_hit(self, hit, trg_char):

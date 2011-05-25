@@ -2638,6 +2638,27 @@ EOD;
             [("function", r"myFunction"),
              ("function", r"testFunction")])
 
+    @tag("bug90156")
+    def test_class_constructor_inheritance(self):
+        content, positions = unmark_text(php_markup(dedent(r"""
+            class Foo {
+               /**
+                * Constructor
+                * @param mixed $arg1
+                */
+               public function Foo($arg1) {}
+            }
+            
+            class Bar extends Foo {}
+            
+            $foo = new Foo(<1>); // shows all tooltip info when in arg list
+            $bar = new Bar(<2>); // should show Foo constructor calltip
+        """)))
+        self.assertCalltipIs(markup_text(content, pos=positions[1]),
+                             "Foo(mixed $arg1)\nConstructor\n@param mixed $arg1")
+        self.assertCalltipIs(markup_text(content, pos=positions[2]),
+                             "Foo(mixed $arg1)\nConstructor\n@param mixed $arg1")
+
 
 class IncludeEverythingTestCase(CodeIntelTestCase):
     lang = "PHP"
