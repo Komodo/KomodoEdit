@@ -410,6 +410,19 @@ class CplnTestCase(CodeIntelTestCase):
                 response of the part of the user, other than the
                 acknowledgement of the message."""))
 
+    def test_prototype_vars(self):
+        content = dedent("""\
+            function Foo() {}
+            Foo.prototype = {}
+            Foo.prototype.bar = function() {}
+            Foo.prototype.baz = 0;
+            var foo = new Foo();
+            foo.<|>
+        """)
+        self.assertCompletionsInclude(
+            content,
+            [("function", "bar"), ("variable", "baz")])
+
     def test_intermixed_class_definitions(self):
         # JS completion when intermixing class definitions
         content, positions = unmark_text(dedent("""\

@@ -2282,6 +2282,9 @@ class JavaScriptCiler:
                     else:
                         self._addClassPart(ctorName, self.ADD_CLASS_CONSTRUCTOR,
                                            namelist[:-2], doc=doc, path=self.path)
+                else:
+                    self._addClassPart(varName, self.ADD_CLASS_VARIABLE,
+                                       namelist[:-2], doc=doc, path=self.path)
                 return
             else:
                 # Find or create the parent scope
