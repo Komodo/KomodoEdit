@@ -180,7 +180,7 @@ class _JSLikeLangInfo(LangInfo):
                     "char", "class",
                     "double",
                     "enum", "extends",
-                    "final", "float",
+                    "float",
                     "goto",
                     "implements", "int", "interface",
                     "long",

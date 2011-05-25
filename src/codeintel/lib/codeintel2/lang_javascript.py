@@ -204,7 +204,7 @@ class JavaScriptLangIntel(CitadelLangIntel,
         return data
 
     def trg_from_pos(self, buf, pos, implicit=True,
-                     lang="JavaScript"):
+                     lang=None):
         DEBUG = False  # not using 'logging' system, because want to be fast
         #DEBUG = True
         #if DEBUG:
@@ -213,6 +213,9 @@ class JavaScriptLangIntel(CitadelLangIntel,
 
         if pos == 0:
             return None
+
+        if lang is None:
+            lang = self.lang
 
         if isinstance(buf, UDLBuffer):
             jsClassifier = udlJSClassifier
@@ -438,7 +441,7 @@ class JavaScriptLangIntel(CitadelLangIntel,
                             isThis = True
                     if not isThis:
                         return None
-                return Trigger("JavaScript", TRG_FORM_CPLN,
+                return Trigger(lang, TRG_FORM_CPLN,
                                "object-members", pos, implicit)
             elif last_char == "(":
                 # p is now at the end of the identifier, go back and check
@@ -674,7 +677,7 @@ class JavaScriptLangIntel(CitadelLangIntel,
                                 "import dirs: this may result in poor "
                                 "completion performance" % num_import_dirs)
 
-            if buf.lang == "JavaScript":
+            if buf.lang == self.lang:
                 # - curdirlib (before extradirslib; only if pure JS file)
                 cwd = dirname(normpath(buf.path))
                 if cwd not in extra_dirs:
@@ -914,7 +917,7 @@ class JavaScriptCILEDriver(CILEDriver):
 
     def scan_purelang(self, buf):
         #print >> sys.stderr, buf.path
-        log.info("scan_purelang: path: %r", buf.path)
+        log.info("scan_purelang: path: %r lang: %s", buf.path, buf.lang)
         norm_path = buf.path
         if sys.platform == "win32":
             # CIX requires a normalized path.
@@ -929,7 +932,7 @@ class JavaScriptCILEDriver(CILEDriver):
         jscile.scan_puretext(buf.accessor.text)
 
         tree = createCixRoot()
-        jscile.convertToElementTreeFile(tree, file_lang="JavaScript")
+        jscile.convertToElementTreeFile(tree, file_lang=self.lang)
 
         return tree
 
@@ -964,7 +967,7 @@ class JavaScriptCILEDriver(CILEDriver):
         jscile.cile.updateAllScopeNames()
 
         tree = createCixRoot()
-        jscile.convertToElementTreeFile(tree, file_lang=buf.lang)
+        jscile.convertToElementTreeFile(tree, file_lang=buf.lang, module_lang=self.lang)
         return tree
 
     def scan_csl_tokens(self, file_elem, blob_name, csl_tokens):
@@ -1541,10 +1544,12 @@ class JSFile:
             if not v.isHidden:
                 v.toElementTree(cixmodule)
 
-    def convertToElementTreeFile(self, cixelement, file_lang):
+    def convertToElementTreeFile(self, cixelement, file_lang, module_lang=None):
+        if module_lang is None:
+            module_lang = file_lang
         cixfile = createCixFile(cixelement, self.path, lang=file_lang,
                                 mtime=str(self.mtime))
-        cixmodule = createCixModule(cixfile, self.name, lang="JavaScript",
+        cixmodule = createCixModule(cixfile, self.name, lang=module_lang,
                                     src=self.path)
         self.convertToElementTreeModule(cixmodule)
 
@@ -2482,7 +2487,7 @@ class JavaScriptCiler:
         last_style = self.JS_OPERATOR
         while p < len(styles):
             style = styles[p]
-            #print "p: %d, text[p]: %r" % (p, text[p], )
+            #log.debug("p: %d, text[p]: %r", p, text[p])
             #print "style: %d, last_style: %d" % (style, last_style)
             if style == self.JS_IDENTIFIER or text[p] == "this":
                 if last_style != self.JS_OPERATOR:
@@ -2502,6 +2507,8 @@ class JavaScriptCiler:
                         args, p = self._getParenArguments(styles, text, p)
                         if len(args) >= 3 and styles[paren_pos+1] in self.JS_STRINGS:
                             self._metadata['required_library_name'] = self._unquoteJsString(args[1])
+                            log.debug("Dealing with CommonJS require(%s)",
+                                      self._metadata['required_library_name'])
                     else:
                         p = self._skipOverParenArguments(styles, text, p)
                     if citdl:
@@ -3547,9 +3554,9 @@ class JavaScriptCiler:
             # We've parsed up the JavaScript, fix any variables types
             self.cile.updateAllScopeNames()
 
-    def convertToElementTreeFile(self, cixelement, file_lang):
+    def convertToElementTreeFile(self, cixelement, file_lang, module_lang=None):
         """Store JS information into the cixelement as a file(s) sub element"""
-        self.cile.convertToElementTreeFile(cixelement, file_lang)
+        self.cile.convertToElementTreeFile(cixelement, file_lang, module_lang)
 
     def convertToElementTreeModule(self, cixmodule):
         """Store JS information into already created cixmodule"""
