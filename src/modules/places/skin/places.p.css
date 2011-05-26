@@ -94,8 +94,8 @@ treechildren#places-files-tree-body::-moz-tree-cell-text {
    *    16px for width of native icon
    *    5px for half overlap of status icon (status icons are usually 9px).
    */
-  margin-left: -21px !important;
-  padding-left: 21px !important;
+  margin-left: -21px;
+  padding-left: 21px;
   background-repeat: no-repeat;
   background-position: bottom left;
 }
