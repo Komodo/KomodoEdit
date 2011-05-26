@@ -39,7 +39,13 @@
  */
 
 #placesRootButton {
+  /* #if PLATFORM == "darwin" */
+  list-style-image: url("chrome://global/skin/dirListing/folder.png");
+  /* #elif PLATFORM == "linux" */
+  list-style-image: url("moz-icon://stock/gtk-directory?size=16");
+  /* #else */
   list-style-image: url("chrome://komodo/skin/images/folder-closed.png");
+  /* #endif */
 }
 #placesRootButton.remote {
   list-style-image: url("chrome://famfamfamsilk/skin/icons/folder_link.png");
