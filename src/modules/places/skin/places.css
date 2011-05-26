@@ -50,103 +50,109 @@
 }
 
 
+/**
+   Places tree icons, see bug 80523:
+    * we display native file icons in Places (see the Places tree view), this
+      uses the -moz-tree-image to set the cell icon.
+    * we then overlay with the native file icon with a status icon (such as
+      SCC status icon), this uses the -moz-tree-cell-text and adds the image
+      using the background-image CSS property.
+ */
 treechildren#places-files-tree-body::-moz-tree-image {
   margin-right: 2px;
+}
+treechildren#places-files-tree-body::-moz-tree-image(places_folder_open) {
+  /* #if PLATFORM == "darwin" */
+  list-style-image: url("chrome://global/skin/dirListing/folder.png");
+  /* #elif PLATFORM == "linux" */
+  list-style-image: url("moz-icon://stock/gtk-directory?size=16");
+  /* #else */
+  list-style-image: url("chrome://komodo/skin/images/folder-open.png");
+  /* #endif */
+}
+treechildren#places-files-tree-body::-moz-tree-image(places_folder_closed) {
+  /* #if PLATFORM == "darwin" */
+  list-style-image: url("chrome://global/skin/dirListing/folder.png");
+  /* #elif PLATFORM == "linux" */
+  list-style-image: url("moz-icon://stock/gtk-directory?size=16");
+  /* #else */
+  list-style-image: url("chrome://komodo/skin/images/folder-closed.png");
+  /* #endif */
+}
+
+treechildren#places-files-tree-body::-moz-tree-cell-text {
+  /**
+   * These settings are used to show both a background native file image, as
+   * well as a status icon (on top of the native icon).
+   * Note: the 21px for margin-left is:
+   *    16px for width of native icon
+   *    5px for half overlap of status icon (status icons are usually 9px).
+   */
+  margin-left: -21px !important;
+  padding-left: 21px !important;
+  background-repeat: no-repeat;
+  background-position: bottom left;
 }
 treechildren#places-files-tree-body::-moz-tree-cell-text(disabled) {
   color: grey;
 }
-treechildren#places-files-tree-body::-moz-tree-image(places_folder_open) {
-  list-style-image : url("chrome://komodo/skin/images/folder-open.png");
-}
-treechildren#places-files-tree-body::-moz-tree-image(places_folder_closed) {
-  list-style-image : url("chrome://komodo/skin/images/folder-closed.png");
-}
-treechildren#places-files-tree-body::-moz-tree-image(places_file) {
-  list-style-image : url("chrome://komodo/skin/images/file_icon.png");
-}
-treechildren#places-files-tree-body::-moz-tree-image(places_busy) {
-  list-style-image : url("chrome://global/skin/icons/loading_16.png");
+treechildren#places-files-tree-body:-moz-tree-cell-text(places_file, sccOk) {
+  background-image: url('chrome://komodo/skin/images/status_icon_ok.png');
 }
 
-treechildren#places-files-tree-body:-moz-tree-image(places_file, sccOk) {
-  list-style-image: url('chrome://komodo/skin/images/file_icon_ok.png');
+treechildren#places-files-tree-body:-moz-tree-cell-text(places_file, sccSync) {
+  background-image: url('chrome://komodo/skin/images/status_icon_sync.png');
 }
 
-treechildren#places-files-tree-body:-moz-tree-image(places_file, sccSync) {
-  list-style-image: url('chrome://komodo/skin/images/file_icon_sync.png');
+treechildren#places-files-tree-body:-moz-tree-cell-text(places_file, sccConflict) {
+  background-image: url('chrome://komodo/skin/images/status_icon_conflict.png');
 }
 
-treechildren#places-files-tree-body:-moz-tree-image(places_file, sccConflict) {
-  list-style-image: url('chrome://komodo/skin/images/file_icon_conflict.png');
+treechildren#places-files-tree-body:-moz-tree-cell-text(places_file, add) {
+  background-image: url('chrome://komodo/skin/images/status_icon_add.png');
 }
 
-treechildren#places-files-tree-body:-moz-tree-image(places_file, add) {
-  list-style-image: url('chrome://komodo/skin/images/file_icon_add.png');
-}
-
-treechildren#places-files-tree-body:-moz-tree-image(places_file, delete) {
-  list-style-image: url('chrome://komodo/skin/images/file_icon_delete.png');
+treechildren#places-files-tree-body:-moz-tree-cell-text(places_file, delete) {
+  background-image: url('chrome://komodo/skin/images/status_icon_delete.png');
 }
 
 
-treechildren#places-files-tree-body:-moz-tree-image(places_file, sccOk, isReadOnly) {
-  list-style-image: url('chrome://komodo/skin/images/file_icon_readonly_ok.png');
-}
-
-treechildren#places-files-tree-body:-moz-tree-image(places_file, sccSync, isReadOnly) {
-  list-style-image: url('chrome://komodo/skin/images/file_icon_readonly_sync.png');
-}
-
-treechildren#places-files-tree-body:-moz-tree-image(places_file, sccConflict, isReadOnly) {
-  list-style-image: url('chrome://komodo/skin/images/file_icon_readonly_conflict.png');
-}
-
-treechildren#places-files-tree-body:-moz-tree-image(places_file, add, isReadOnly) {
-  list-style-image: url('chrome://komodo/skin/images/file_icon_readonly_add.png');
-}
-
-treechildren#places-files-tree-body:-moz-tree-image(places_file, delete, isReadOnly) {
-  list-style-image: url('chrome://komodo/skin/images/file_icon_readonly_delete.png');
-}
-
-
-treechildren#places-files-tree-body:-moz-tree-image(places_file, branch) {
+treechildren#places-files-tree-body:-moz-tree-cell-text(places_file, branch) {
   /* XXX fixme */
-  list-style-image: url('chrome://komodo/skin/images/file_icon_add.png');
+  background-image: url('chrome://komodo/skin/images/status_icon_add.png');
 }
 
 /* XXX fixme integrate icons are needed, currently they match the edit icons */
-treechildren#places-files-tree-body:-moz-tree-image(places_file, integrate) {
-  list-style-image: url('chrome://komodo/skin/images/file_icon_edit.png');
+treechildren#places-files-tree-body:-moz-tree-cell-text(places_file, integrate) {
+  background-image: url('chrome://komodo/skin/images/status_icon_edit.png');
 }
 
-treechildren#places-files-tree-body:-moz-tree-image(places_file, sccOk, integrate) {
-  list-style-image: url('chrome://komodo/skin/images/file_icon_edit_ok.png');
+treechildren#places-files-tree-body:-moz-tree-cell-text(places_file, sccOk, integrate) {
+  background-image: url('chrome://komodo/skin/images/status_icon_edit_ok.png');
 }
 
-treechildren#places-files-tree-body:-moz-tree-image(places_file, sccSync, integrate) {
-  list-style-image: url('chrome://komodo/skin/images/file_icon_edit_sync.png');
+treechildren#places-files-tree-body:-moz-tree-cell-text(places_file, sccSync, integrate) {
+  background-image: url('chrome://komodo/skin/images/status_icon_edit_sync.png');
 }
 
-treechildren#places-files-tree-body:-moz-tree-image(places_file, sccConflict, integrate) {
-  list-style-image: url('chrome://komodo/skin/images/file_icon_edit_conflict.png');
+treechildren#places-files-tree-body:-moz-tree-cell-text(places_file, sccConflict, integrate) {
+  background-image: url('chrome://komodo/skin/images/status_icon_edit_conflict.png');
 }
 
-treechildren#places-files-tree-body:-moz-tree-image(places_file, edit) {
-  list-style-image: url('chrome://komodo/skin/images/file_icon_edit.png');
+treechildren#places-files-tree-body:-moz-tree-cell-text(places_file, edit) {
+  background-image: url('chrome://komodo/skin/images/status_icon_edit.png');
 }
 
-treechildren#places-files-tree-body:-moz-tree-image(places_file, sccOk, edit) {
-  list-style-image: url('chrome://komodo/skin/images/file_icon_edit_ok.png');
+treechildren#places-files-tree-body:-moz-tree-cell-text(places_file, sccOk, edit) {
+  background-image: url('chrome://komodo/skin/images/status_icon_edit.png');
 }
 
-treechildren#places-files-tree-body:-moz-tree-image(places_file, sccSync, edit) {
-  list-style-image: url('chrome://komodo/skin/images/file_icon_edit_sync.png');
+treechildren#places-files-tree-body:-moz-tree-cell-text(places_file, sccSync, edit) {
+  background-image: url('chrome://komodo/skin/images/status_icon_edit_sync.png');
 }
 
-treechildren#places-files-tree-body:-moz-tree-image(places_file, sccConflict, edit) {
-  list-style-image: url('chrome://komodo/skin/images/file_icon_edit_conflict.png');
+treechildren#places-files-tree-body:-moz-tree-cell-text(places_file, sccConflict, edit) {
+  background-image: url('chrome://komodo/skin/images/status_icon_edit_conflict.png');
 }
 
 /* bindings */

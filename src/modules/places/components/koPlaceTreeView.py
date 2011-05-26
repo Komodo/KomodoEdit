@@ -87,6 +87,7 @@ class _kplBase(object):
     - _path : init None, managed by property path
     - _koFile: init None, managed by property koFile, instance of koFileEx
     - properties: init None
+    - cellImageURL: used for displaying moz-icon (native file) images
     - isContainer: class attribute
     - isOpen: should be called on _kplFolder only
     - childNodes: should be called on _kplFolder only
@@ -94,6 +95,7 @@ class _kplBase(object):
     - original_image_icon
     - busy_count
     """
+    cellImageURL = None
     def __init__(self, level, uri):
         self.level = level
         self.uri = uri
@@ -220,7 +222,14 @@ class _kplNonFolder(_kplBase):
 
 class _kplFile(_kplNonFolder):
     image_icon = 'places_file'
-    
+    _cellImageURL = None
+
+    @property
+    def cellImageURL(self):
+        if self._cellImageURL is None:
+            self._cellImageURL = "moz-icon://" + self.koFile.baseName + "?size=16"
+        return self._cellImageURL
+
 class _kplOther(_kplNonFolder):
     image_icon = 'places_other'
     
@@ -1659,6 +1668,11 @@ class KoPlaceTreeView(TreeView):
         for atomProp in rowNode.properties:
             properties.AppendElement(atomProp)
     
+    def getImageSrc(self, row_idx, column):
+        """Return the image for the given cell."""
+        if column.id == 'name':
+            return self._rows[row_idx].cellImageURL
+
     def _updateFileProperties(self, idx):
         rowNode = self._rows[idx]
         try:
