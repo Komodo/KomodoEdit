@@ -432,8 +432,12 @@
   list-style-image : url("chrome://komodo/skin/images/komodo_16x16.png");
 }
 
-.open-file-nohover-icon {
-  list-style-image : url("chrome://komodo/skin/images/open.png");
+.native_folder_icon {
+  /* #if PLATFORM == "linux" */
+  list-style-image: url("moz-icon://stock/gtk-directory?size=16");
+  /* #else */
+  list-style-image: url("chrome://global/skin/dirListing/folder.png");
+  /* #endif */
 }
 
 .open-file-icon {

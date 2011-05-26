@@ -1858,7 +1858,7 @@
                 >
 <!-- #if PLATFORM != "darwin" -->
             <image id="openButton"
-                   class="open-file-nohover-icon"
+                   class="native_folder_icon"
                    style="margin-left: 7px;"/>
             <label value="&komodoFindToolbarOpen.label;"
                    accesskey="&openLabel.accesskey;"
@@ -1948,7 +1948,7 @@
 <!-- #endif -->
                 />
             <toolbarbutton id="find-toolbar-browsedirectory"
-                           class="open-file-nohover-icon solo-button" accesskey="&findToolbarBrowsedirectory.accesskey;"
+                           class="native_folder_icon solo-button" accesskey="&findToolbarBrowsedirectory.accesskey;"
                            style="min-width: 0px; margin: 0px"
                            tooltiptext="&browseForDirectoriesToAddToSearchList.tooltiptext;"
                            oncommand="ko.findtoolbar.addBrowsedDirectory();"/>
