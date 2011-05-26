@@ -47,11 +47,11 @@
 [scriptable, uuid(1D55BFC1-5DCA-4CE6-85A5-22B58AB2E054)]
 interface koITime : nsISupports {
     double time();
-    wstring asctime(in PRUint32 count,
+    AString asctime(in PRUint32 count,
                     [array, size_is(count)] in PRUint32 timetuple);
     void localtime(in double secs, out PRUint32 count,
                    [retval, array, size_is(count)] out PRUint32 tuple);
-    wstring strftime(in wstring format, in PRUint32 count,
+    AString strftime(in wstring format, in PRUint32 count,
                      [array, size_is(count)] in PRUint32 timetuple);
     
     // XXX Other possibly useful ones:

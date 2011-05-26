@@ -59,7 +59,11 @@ class KoTime:
     def time(self):
         return time.time()
     def strftime(self, format, timetuple):
-        return time.strftime(format, timetuple)
+        s = time.strftime(format, timetuple)
+        try:
+            return s.decode("utf8")
+        except UnicodeDecodeError:
+            return s
 
     def nice_modtime_from_path(self, path):
         if not os.path.exists(path):
