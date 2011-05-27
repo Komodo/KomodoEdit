@@ -142,6 +142,7 @@ class CplnTestCase(CodeIntelTestCase):
         """
         Test that the documented globals are available
         """
+        # XXX marky: also test that |timer.*| and |process| are imported
         manifest = {
             "test.js": """
                 require.<1>;
@@ -151,6 +152,27 @@ class CplnTestCase(CodeIntelTestCase):
         self.assertCompletionsInclude2(buf, positions[1],
             [("function", "resolve"),
              ("array", "paths"),
+            ])
+
+    @tag("node.js")
+    def test_nodejs_console(self):
+        """
+        Test the Node.js console module
+        """
+        manifest = {"test.js": """
+            require('console').<1>;
+            """}
+        buf, positions = self._write_files(manifest=manifest, name="console")
+        self.assertCompletionsInclude2(buf, positions[1],
+            [("function", "log"),
+             ("function", "info"),
+             ("function", "warn"),
+             ("function", "error"),
+             ("function", "dir"),
+             ("function", "time"),
+             ("function", "timeEnd"),
+             ("function", "trace"),
+             ("function", "assert"),
             ])
 
     @tag("nodejs")
@@ -165,6 +187,38 @@ class CplnTestCase(CodeIntelTestCase):
              ("function", "clearTimeout"),
              ("function", "setInterval"),
              ("function", "clearInterval"),
+            ])
+
+    @tag("nodejs")
+    def test_nodejs_process(self):
+        """
+        Test the Node.js process module
+        """
+        manifest = {"test.js": "require('process').<1>;"}
+        buf, positions = self._write_files(manifest=manifest, name="process")
+        self.assertCompletionsInclude2(buf, positions[1],
+            [("variable", "stdout"),
+             ("variable", "stderr"),
+             ("variable", "stdin"),
+             ("variable", "argv"),
+             ("variable", "execPath"),
+             ("function", "chdir"),
+             ("function", "cwd"),
+             ("variable", "env"),
+             ("function", "exit"),
+             ("function", "getgid"),
+             ("function", "setgid"),
+             ("function", "getuid"),
+             ("function", "setuid"),
+             ("variable", "version"),
+             ("variable", "installPrefix"),
+             ("function", "kill"),
+             ("variable", "pid"),
+             ("variable", "title"),
+             ("variable", "platform"),
+             ("function", "memoryUsage"),
+             ("function", "nextTick"),
+             ("function", "umask"),
             ])
 
     @tag("nodejs")
@@ -257,6 +311,8 @@ class CplnTestCase(CodeIntelTestCase):
              ("function", "createHmac"),
              ("function", "createCipher"),
              ("function", "createDecipher"),
+             ("function", "createSign"),
+             ("function", "createVerify"),
             ])
         self.assertCompletionsInclude2(buf, positions[2],
             [("function", "update"),
@@ -391,6 +447,7 @@ class CplnTestCase(CodeIntelTestCase):
              ("function", "write"),
              ("function", "end"),
              ("function", "destroy"),
+             ("function", "destroySoon"),
             ])
 
     @tag("nodejs")
@@ -412,6 +469,408 @@ class CplnTestCase(CodeIntelTestCase):
              ("function", "extname"),
              ("function", "exists"),
              ("function", "existsSync"),
+            ])
+
+    @tag("nodejs")
+    def test_nodejs_net(self):
+        """
+        Test the Node.js net module
+        """
+        manifest = {"test.js": """
+            net = require('net');
+            net.<1>;
+            var server = net.createServer();
+            server.<2>;
+            var socket = new net.Socket();
+            socket.<3>;
+            """}
+        buf, positions = self._write_files(manifest=manifest, name="net")
+        self.assertCompletionsInclude2(buf, positions[1],
+            [("function", "createServer"),
+             ("function", "createConnection"),
+             ("function", "isIP"),
+             ("function", "isIPv4"),
+             ("function", "isIPv6"),
+            ])
+        self.assertCompletionsInclude2(buf, positions[2],
+            [("function", "on"), # from EventEmitter
+             ("function", "listen"),
+             ("function", "listenFD"),
+             ("function", "pause"),
+             ("function", "close"),
+             ("function", "address"),
+             ("variable", "maxConnections"),
+             ("variable", "connections"),
+            ])
+        self.assertCompletionsInclude2(buf, positions[3],
+            [("function", "on"), # from EventEmitter
+             ("function", "connect"),
+             ("variable", "bufferSize"),
+             ("function", "setEncoding"),
+             ("function", "setSecure"),
+             ("function", "write"),
+             ("function", "end"),
+             ("function", "destroy"),
+             ("function", "pause"),
+             ("function", "resume"),
+             ("function", "setTimeout"),
+             ("function", "setNoDelay"),
+             ("function", "setKeepAlive"),
+             ("function", "address"),
+             ("variable", "remoteAddress"),
+            ])
+
+    @tag("nodejs")
+    def test_nodejs_dgram(self):
+        """
+        Test the Node.js dgram module
+        """
+        manifest = {"test.js": """
+            dgram = require('dgram');
+            dgram.<1>;
+            var socket = dgram.createSocket("udp4");
+            socket.<2>;
+            """}
+        buf, positions = self._write_files(manifest=manifest, name="dgram")
+        self.assertCompletionsInclude2(buf, positions[1],
+            [("function", "createSocket"),
+            ])
+        self.assertCompletionsInclude2(buf, positions[2],
+            [("function", "send"),
+             ("function", "bind"),
+             ("function", "close"),
+             ("function", "address"),
+             ("function", "setBroadcast"),
+             ("function", "setTTL"),
+             ("function", "setMulticastTTL"),
+             ("function", "setMulticastLoopback"),
+             ("function", "addMembership"),
+             ("function", "dropMembership"),
+            ])
+
+    @tag("nodejs")
+    def test_nodejs_dns(self):
+        """
+        Test the Node.js dns module
+        """
+        manifest = {"test.js": """
+            dns = require('dns');
+            dns.<1>;
+            """}
+        buf, positions = self._write_files(manifest=manifest, name="dns")
+        self.assertCompletionsInclude2(buf, positions[1],
+            [("function", "lookup"),
+             ("function", "resolve"),
+             ("function", "resolve4"),
+             ("function", "resolve6"),
+             ("function", "resolveMx"),
+             ("function", "resolveTxt"),
+             ("function", "resolveSrv"),
+             ("function", "reverse"),
+             ("function", "resolveNs"),
+             ("function", "resolveCname"),
+            ])
+
+    @tag("nodejs")
+    def test_nodejs_http(self):
+        """
+        Test the Node.js http module
+        """
+        manifest = {"test.js": """
+            http = require('http');
+            http.<1>;
+            var server = http.createServer();
+            server.<2>;
+            var request = new http.ServerRequest(); /* not actually valid */
+            request.<3>;
+            var response = new http.ServerResponse(); /* not actually valid */
+            response.<4>;
+            var agent = http.getAgent();
+            agent.<5>;
+            var clientRequest = http.request();
+            clientRequest.<6>;
+            var clientResponse = new http.ClientResponse(); /* not actually valid */
+            clientResponse.<7>;
+            """}
+        buf, positions = self._write_files(manifest=manifest, name="http")
+        self.assertCompletionsInclude2(buf, positions[1],
+            [("function", "createServer"),
+             ("function", "request"),
+             ("function", "get"),
+             ("class", "Agent"),
+             ("function", "getAgent"),
+            ])
+        self.assertCompletionsInclude2(buf, positions[2],
+            [("function", "on"), # inherited from EventEmitter
+             ("function", "listen"),
+             ("function", "close"),
+            ])
+        self.assertCompletionsInclude2(buf, positions[3],
+            [("function", "on"), # inherited from EventEmitter
+             ("variable", "method"),
+             ("variable", "url"),
+             ("variable", "headers"),
+             ("variable", "trailers"),
+             ("variable", "httpVersion"),
+             ("function", "setEncoding"),
+             ("function", "pause"),
+             ("function", "resume"),
+             ("variable", "connection"),
+            ])
+        self.assertCompletionsInclude2(buf, positions[4],
+            [("function", "on"), # inherited from EventEmitter
+             ("variable", "writable"), # inherited from WritableStream
+             ("function", "writeContinue"),
+             ("function", "writeHead"),
+             ("variable", "statusCode"),
+             ("function", "setHeader"),
+             ("function", "getHeader"),
+             ("function", "removeHeader"),
+             ("function", "write"),
+             ("function", "addTrailers"),
+             ("function", "end"),
+            ])
+        self.assertCompletionsInclude2(buf, positions[5],
+            [("variable", "maxSockets"),
+             ("variable", "sockets"),
+             ("variable", "queue"),
+            ])
+        self.assertCompletionsInclude2(buf, positions[6],
+            [("function", "on"), # inherited from EventEmitter
+             ("function", "write"),
+             ("function", "end"),
+             ("function", "abort"),
+            ])
+        self.assertCompletionsInclude2(buf, positions[7],
+            [("function", "on"), # inherited from EventEmitter
+             ("variable", "statusCode"),
+             ("variable", "httpVersion"),
+             ("variable", "headers"),
+             ("variable", "trailers"),
+             ("function", "setEncoding"),
+             ("function", "pause"),
+             ("function", "resume"),
+            ])
+
+    @tag("nodejs")
+    def test_nodejs_https(self):
+        """
+        Test the Node.js https module
+        """
+        manifest = {"test.js": """
+            https = require('https');
+            https.<1>;
+            var server = https.createServer();
+            server.<2>;
+            var request = https.request();
+            request.<3>;
+            """}
+        buf, positions = self._write_files(manifest=manifest, name="https")
+        self.assertCompletionsInclude2(buf, positions[1],
+            [("function", "createServer"),
+             ("function", "request"),
+             ("function", "get"),
+            ])
+        self.assertCompletionsInclude2(buf, positions[2],
+            [("function", "on"), # inherited from EventEmitter
+             ("function", "listen"),
+             ("function", "close"),
+            ])
+        self.assertCompletionsInclude2(buf, positions[3],
+            [("function", "on"), # inherited from EventEmitter
+             ("function", "write"),
+             ("function", "end"),
+             ("function", "abort"),
+            ])
+
+    @tag("nodejs")
+    def test_nodejs_url(self):
+        """
+        Test the Node.js url module
+        """
+        manifest = {"test.js": """
+            url = require('url');
+            url.<1>;
+            var result = url.parse("");
+            result.<2>;
+            """}
+        buf, positions = self._write_files(manifest=manifest, name="url")
+        self.assertCompletionsInclude2(buf, positions[1],
+            [("function", "parse"),
+             ("function", "format"),
+             ("function", "resolve"),
+            ])
+        self.assertCompletionsInclude2(buf, positions[2],
+            [("variable", "href"),
+             ("variable", "protocol"),
+             ("variable", "host"),
+             ("variable", "auth"),
+             ("variable", "hostname"),
+             ("variable", "port"),
+             ("variable", "pathname"),
+             ("variable", "search"),
+             ("variable", "query"),
+             ("variable", "hash"),
+            ])
+
+    @tag("nodejs")
+    def test_nodejs_querystring(self):
+        """
+        Test the Node.js querystring module
+        """
+        manifest = {"test.js": """
+            querystring = require('querystring');
+            querystring.<1>;
+            """}
+        buf, positions = self._write_files(manifest=manifest, name="querystring")
+        self.assertCompletionsInclude2(buf, positions[1],
+            [("function", "stringify"),
+             ("function", "parse"),
+             ("function", "escape"),
+             ("function", "unescape"),
+            ])
+
+    @tag("nodejs")
+    def test_nodejs_repl(self):
+        """
+        Test the Node.js repl module
+        """
+        manifest = {"test.js": """
+            repl = require('repl');
+            repl.<1>;
+            """}
+        buf, positions = self._write_files(manifest=manifest, name="repl")
+        self.assertCompletionsInclude2(buf, positions[1],
+            [("function", "start"),
+            ])
+
+    @tag("nodejs")
+    def test_nodejs_vm(self):
+        """
+        Test the Node.js vm module
+        """
+        manifest = {"test.js": """
+            vm = require('vm');
+            vm.<1>;
+            var script = vm.createScript("");
+            script.<2>;
+            """}
+        buf, positions = self._write_files(manifest=manifest, name="vm")
+        self.assertCompletionsInclude2(buf, positions[1],
+            [("function", "runInThisContext"),
+             ("function", "runInNewContext"),
+             ("function", "createScript"),
+            ])
+        self.assertCompletionsInclude2(buf, positions[2],
+            [("function", "runInThisContext"),
+             ("function", "runInNewContext"),
+            ])
+
+    @tag("nodejs")
+    def test_nodejs_child_process(self):
+        """
+        Test the Node.js child_process module
+        """
+        manifest = {"test.js": """
+            child_process = require('child_process');
+            child_process.<1>;
+            var child = child_process.spawn();
+            child.<2>;
+            child.stdin.<3>;
+            child.stdout.<4>;
+            child.stderr.<5>;
+            """}
+        buf, positions = self._write_files(manifest=manifest, name="child_process")
+        self.assertCompletionsInclude2(buf, positions[1],
+            [("function", "spawn"),
+             ("function", "exec"),
+            ])
+        self.assertCompletionsInclude2(buf, positions[2],
+            [("variable", "stdin"),
+             ("variable", "stdout"),
+             ("variable", "stderr"),
+             ("variable", "pid"),
+             ("function", "kill"),
+            ])
+        self.assertCompletionsInclude2(buf, positions[3],
+            [("function", "on"), # from EventEmitter
+             ("variable", "writable"), # from stream.WritableStream
+            ])
+        self.assertCompletionsInclude2(buf, positions[4],
+            [("function", "on"), # from EventEmitter
+             ("variable", "readable"), # from stream.ReadableStream
+            ])
+        self.assertCompletionsInclude2(buf, positions[5],
+            [("function", "on"), # from EventEmitter
+             ("variable", "readable"), # from stream.ReadableStream
+            ])
+
+    @tag("nodejs")
+    def test_nodejs_assert(self):
+        """
+        Test the Node.js assert module
+        """
+        manifest = {"test.js": """
+            assert = require('assert');
+            assert.<1>;
+            """}
+        buf, positions = self._write_files(manifest=manifest, name="assert")
+        self.assertCompletionsInclude2(buf, positions[1],
+            [("function", "fail"),
+             ("function", "ok"),
+             ("function", "equal"),
+             ("function", "notEqual"),
+             ("function", "deepEqual"),
+             ("function", "notDeepEqual"),
+             ("function", "strictEqual"),
+             ("function", "notStrictEqual"),
+             ("function", "throws"),
+             ("function", "doesNotThrow"),
+             ("function", "ifError"),
+            ])
+
+    @tag("nodejs")
+    def test_nodejs_tty(self):
+        """
+        Test the Node.js tty module
+        """
+        manifest = {"test.js": """
+            tty = require('tty');
+            tty.<1>;
+            tty.open().<2>;
+            """}
+        buf, positions = self._write_files(manifest=manifest, name="tty")
+        self.assertCompletionsInclude2(buf, positions[1],
+            [("function", "open"),
+             ("function", "isatty"),
+             ("function", "setRawMode"),
+             ("function", "setWindowSize"),
+             ("function", "getWindowSize"),
+            ])
+        self.assertCompletionsInclude2(buf, positions[2],
+            [("function", "kill"),
+            ])
+
+    @tag("nodejs")
+    def test_nodejs_os(self):
+        """
+        Test the Node.js os module
+        """
+        manifest = {"test.js": """
+            os = require('os');
+            os.<1>;
+            tty.open().<2>;
+            """}
+        buf, positions = self._write_files(manifest=manifest, name="os")
+        self.assertCompletionsInclude2(buf, positions[1],
+            [("function", "hostname"),
+             ("function", "type"),
+             ("function", "release"),
+             ("function", "uptime"),
+             ("function", "loadavg"),
+             ("function", "totalmem"),
+             ("function", "freemem"),
+             ("function", "cpus"),
             ])
 
 #---- mainline

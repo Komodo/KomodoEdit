@@ -187,7 +187,7 @@ class _JSLikeLangInfo(LangInfo):
                     "native",
                     "package", "private", "protected", "public",
                     "short", "static", "super", "synchronized",
-                    "throws", "transient"
+                    "transient"
                     ]))
 
 class JavaScriptLangInfo(_JSLikeLangInfo):

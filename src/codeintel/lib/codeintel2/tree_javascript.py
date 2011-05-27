@@ -604,6 +604,8 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
                 self.log("Continue search for %r from the parent scope.", citdl)
         if citdl == "require()":
             requirename = elem.get('required_library_name')
+            self.log("_hits_from_variable_type_inference: resolving require(%r)",
+                     requirename)
             if requirename:
                 hits = self._hits_from_commonjs_require(requirename)
                 if hits:

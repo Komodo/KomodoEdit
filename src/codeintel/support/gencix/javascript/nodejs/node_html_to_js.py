@@ -70,10 +70,14 @@ class NodeItem(object):
     def addItem(self, item, doc=None, tag=None, parent=None):
         if not isinstance(item, NodeItem):
             if item[0].isupper():
-                return self.addClass(item, doc=doc, parent=parent)
-            elif tag and "(" in tag.string:
+                self.last_class = self.addClass(item, doc=doc, parent=parent)
+                return self.last_class
+            elif tag and isinstance(tag, Tag) and "(" in tag.string:
                 assert ")" in tag.string
                 return self.addFunction(item, doc=doc, parent=parent, signature=tag.string)
+            elif tag and isinstance(tag, str) and "(" in tag:
+                assert ")" in tag
+                return self.addFunction(item, doc=doc, parent=parent, signature=tag)
             item = NodeVariable(item, doc=doc, parent=parent)
         self.items[item.name] = item
         if parent is not None:
@@ -136,6 +140,7 @@ class NodeVariable(NodeItem):
                 if self.doc.lower().startswith("a boolean"):
                     citdl = "Boolean"
             doclines = textwrap.wrap(self.doc, width=72)
+            doclines.extend(sorted(self.extra_docs))
             result += "/**\n * %s\n" % ("\n * ".join(doclines))
             if citdl:
                 result += " *\n * @type {%s}\n" % (citdl, )
@@ -179,6 +184,7 @@ class NodeModule(NodeItem):
         NodeItem.__init__(self, name, doc=None)
         self.current = None
         self._mergingDocs = False
+        self.last_class = None
 
         self.extra_code = []
         module_extra_doc = ({
@@ -201,6 +207,49 @@ class NodeModule(NodeItem):
                 var events = require('events');
                 stream.ReadableStream.prototype = new events.EventEmitter();
                 stream.WritableStream.prototype = new events.EventEmitter();
+                """,
+            "net": """\
+                /* net.Server inherits from EventEmitter */
+                var events = require('events');
+                net.Server.prototype = new events.EventEmitter();
+                net.Socket.prototype = new events.EventEmitter();
+                """,
+            "http": """\
+                var events = require('events');
+                http.Server.prototype = new events.EventEmitter();
+                http.ServerRequest.prototype = new events.EventEmitter();
+                http.ClientRequest.prototype = new events.EventEmitter();
+                http.ClientResponse.prototype = new events.EventEmitter();
+                var stream = require('stream');
+                http.ServerResponse.prototype = new stream.WritableStream();
+                """,
+            "https": """\
+                var http = require('http');
+                https.Server.prototype = new http.Server();
+                """,
+            "url": """\
+                /* see http://nodejs.org/docs/v0.4.2/api/url.html#uRL */
+                function URL() {}
+                URL.prototype = {
+                    "href": 0,
+                    "protocol": 0,
+                    "host": 0,
+                    "auth": 0,
+                    "hostname": 0,
+                    "port": 0,
+                    "pathname": 0,
+                    "search": 0,
+                    "query": 0,
+                    "hash": 0,
+                };
+                """,
+            "child_process": """\
+                /* used for giving types to ChildProcess.std* */
+                var stream = require('stream');
+                """,
+            "tty": """\
+                /* return value of tty.open */
+                child_process = require('child_process');
                 """,
         }).get(name)
         if module_extra_doc is not None:
@@ -248,6 +297,40 @@ class NodeModule(NodeItem):
                         "@returns stream.WritableStream",
                     ('tls', 'tls', 'createServer'):
                         "@returns tls.Server",
+                    ('net', 'net', 'createServer'):
+                        "@returns net.Server",
+                    ('udp_datagram_sockets', 'dgram', 'createSocket'):
+                        "@returns dgram.Socket",
+                    ('http', 'http', 'createServer'):
+                        "@returns http.Server",
+                    ('http', 'http', 'getAgent'):
+                        "@returns http.Agent",
+                    ('http', 'http', 'request'):
+                        "@returns http.ClientRequest",
+                    ('http', 'http', 'get'):
+                        "@returns http.ClientRequest",
+                    ('https', 'https', 'createServer'):
+                        "@returns https.Server",
+                    ('https', 'https', 'request'):
+                        "@returns http.ClientRequest",
+                    ('https', 'https', 'get'):
+                        "@returns http.ClientRequest",
+                    ('url', 'url', 'parse'):
+                        "@returns URL", # not exported
+                    ('executing_javascript', 'vm', 'createScript'):
+                        "@return vm.Script",
+                    ('child_processes', 'child_process', 'spawn'):
+                        "@return child_process.ChildProcess",
+                    ('child_processes', 'child_process', 'exec'):
+                        "@return child_process.ChildProcess",
+                    ('child_processes', 'ChildProcess', 'stdin'):
+                        "@type stream.WritableStream",
+                    ('child_processes', 'ChildProcess', 'stdout'):
+                        "@type stream.ReadableStream",
+                    ('child_processes', 'ChildProcess', 'stderr'):
+                        "@type stream.ReadableStream",
+                    ('tty', 'tty', 'open'):
+                        "@returns child_process.ChildProcess",
                 }).get((self.real_name, self.current.parent.name, self.current.name))
                 if extra_docs is not None:
                     self.current.extra_docs.add(extra_docs)
@@ -263,6 +346,8 @@ class NodeModule(NodeItem):
             elif id.startswith('new_') and getSubElementText(tag).startswith("new "):
                 # constructor function
                 sp = id[len('new_'):].split(".")
+                if len(sp) > 1 and sp[0] == self.name:
+                    sp = sp[1:]
                 log.debug('  sp: %r', sp)
                 assert len(sp) == 1
                 name = sp[0]
@@ -283,13 +368,12 @@ class NodeModule(NodeItem):
                 name = sp[1]
                 # sometimes the documentation uses what looks to be an example
                 # variable to describe what properties a class has.  Use a
-                # (module, variable-name) -> class-name mapping to fix it up.
+                # (module, variable-name, [property-name]) -> class-name mapping
+                # to fix it up.
                 ns_mappings = {
                     ('http', 'server'): 'Server',
-                    ('net', 'server'):  'Server',
-                    ('tls', 'server'):  'Server',
-                    ('http', 'request'): 'ServerRequest',
-                    ('http', 'response'): 'ServerResponse',
+                    ('net', 'server'): 'Server',
+                    ('tls', 'server'): 'Server',
                     ('buffers', 'buffer'): 'Buffer',
                     ('crypto', 'hash'): 'Hash',
                     ('crypto', 'hmac'): 'Hmac',
@@ -300,13 +384,45 @@ class NodeModule(NodeItem):
                     ('events', 'emitter'): 'EventEmitter',
                     ('readable_stream', 'stream'): 'ReadableStream',
                     ('writable_stream', 'stream'): 'WritableStream',
+                    ('net', 'socket'): 'Socket',
+                    ('udp_datagram_sockets', 'dgram'): 'Socket',
+                    ('udp_datagram_sockets', 'dgram', 'createSocket'): 'createSocket', # Node.js documentation is horrible
+                    ('http', 'request'): {
+                        'ServerRequest': 'ServerRequest',
+                        'ClientRequest': 'ClientRequest'},
+                    ('http', 'response'): {
+                        'ServerResponse': 'ServerResponse',
+                        'ClientResponse': 'ClientResponse'},
+                    ('http', 'agent'): 'Agent',
+                    ('https', 'https', 'createServer'): 'createServer(requestListener)',
+                    ('query_string', 'querystring', 'escape'): 'escape(str)',
+                    ('query_string', 'querystring', 'unescape'): 'unescape(str)',
+                    ('executing_javascript', 'script'): 'Script',
+                    ('child_processes', 'child'): 'ChildProcess',
                 }
-                if (self.real_name, ns) in ns_mappings:
-                    ns = ns_mappings.get((self.real_name, ns))
-                    if not ns in self.items:
-                        # if we have a mapping here, we need a class.  Sometimes
+                # try for (module, variable-name, property-name)
+                match = ns_mappings.get((self.real_name, ns, name))
+                if match is None:
+                    # try just (module, variable-name) instead?
+                    match = ns_mappings.get((self.real_name, ns))
+                if isinstance(match, dict):
+                    # some variables are context-dependent, where the last class
+                    # defined determines what it's for
+                    match = match.get(self.last_class and self.last_class.name)
+                if match is not None:
+                    # we have match, override.
+                    if "(" in match:
+                        # override into a method
+                        tag = match
+                        ns = match[:match.index("(")]
+                    else:
+                        ns = match
+                    if not ns in self.items and ns[0].isupper():
+                        # If the first letter is uppercase, assume this is a
+                        # class constructor. Sometimes
                         # (e.g. ReadableStream/WritableStream) the class
-                        # constructors themselves are not documented.
+                        # constructors themselves are not documented, but we
+                        # need the class to exist so we can tack things on it.
                         self.addItem(ns, tag=tag, parent=self)
                 log.debug('   mod: %r ns: %r name: %r', self.real_name, ns, name)
                 if ns in self.items:
@@ -397,6 +513,10 @@ class NodeProcessor(object):
                         "streams": "stream",
                         "readable_stream": "stream",
                         "writable_stream": "stream",
+                        "udp_datagram_sockets": "dgram",
+                        "query_string": "querystring",
+                        "executing_javascript": "vm",
+                        "child_processes": "child_process",
                         }).get(ns, ns)
                     if (ns != sp[0]):
                         log.warning('  ** renaming module ** %r to %r', sp[0], ns)
@@ -443,9 +563,9 @@ class NodeProcessor(object):
             mod.write()
 
 def getDocsFromWebpage():
-    if os.path.exists("docs_042_all.html"):
-        return file("docs_042_all.html").read()
-    urlOpener = urllib.urlopen("http://nodejs.org/docs/v0.4.2/api/all.html")
+    if os.path.exists("docs_048_all.html"):
+        return file("docs_048_all.html").read()
+    urlOpener = urllib.urlopen("http://nodejs.org/docs/v0.4.8/api/all.html")
     return urlOpener.read()
 
 # Soup parsing of API documentation from webpage
