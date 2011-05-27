@@ -497,7 +497,7 @@
                                 <menupopup id="popup_file_open">
                                     <menuitem label="&fileOpen.label;"
                                               id="menu_openFile"
-                                              class="menuitem-iconic open-file-icon"
+                                              class="menuitem-iconic native_folder_icon"
                                               observes="cmd_open"
                                               key="key_open"
                                               />
@@ -1634,7 +1634,7 @@
                     tooltiptext="&openFile.tooltiptext;"
                     persist="buttonstyle"
                     buttonstyle="pictures"
-                    class="open-file-icon"
+                    class="native_folder_icon"
                     observes="cmd_open"
                     label="&open.label;"/>
                 <toolbarbutton id="saveButton"
