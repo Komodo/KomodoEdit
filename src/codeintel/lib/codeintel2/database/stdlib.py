@@ -587,6 +587,9 @@ class StdLibsZone(object):
             ET.ElementTree(blob).write(join(dbdir, dbfile+".blob"))
             if is_hits_from_lpath_lang:
                 for toplevelname, elem in blob.names.iteritems():
+                    if "__local__" in elem.get("attributes", "").split():
+                        # this is internal to the stdlib
+                        continue
                     ilk = elem.get("ilk") or elem.tag
                     bft = toplevelname_index.setdefault(ilk, {})
                     if toplevelname not in bft:

@@ -1,0 +1,28 @@
+<codeintel version="2.0">
+  <file lang="Node.js" mtime="0" path="node_globals.cix">
+    <scope ilk="blob" lang="Node.js" name="*"
+           doc="These object are available in all modules. Some of these objects aren't actually in the global scope but in the module scope - this will be noted.">
+      <variable citdl="require()" name="console" required_library_name="console"
+                doc="Used to print to stdout and stderr. See the stdio section."/>
+      <variable citdl="require()" name="process" required_library_name="process"
+                doc="The process object. See the process object section."/>
+      <scope ilk="function" name="require" signature="require(str)"
+             doc="To require modules. See the Modules section. require isn't actually a global but rather local to each module.">
+        <variable citdl="String" ilk="argument" name="str" doc="The name of the module to import"/>
+        <scope ilk="function" name="resolve" signature="resolve()"
+               doc="Use the internal require() machinery to look up the location of a module, but rather than loading the module, just return the resolved filename."/>
+        <variable citdl="Array" name="paths"
+                  doc="An array of search paths for require(). This array can be modified to add custom paths, but this is deprecated."/>
+      </scope>
+      <variable attributes="__local__" citdl="require()" name="timers" required_library_name="timers"/>
+      <variable citdl="timers.setTimeout" name="setTimeout"/>
+      <variable citdl="timers.setInterval" name="setInterval"/>
+      <variable citdl="timers.clearTimeout" name="clearTimeout"/>
+      <variable citdl="timers.clearInterval" name="clearInterval"/>
+      <variable citdl="String" name="__filename"
+                doc="The filename of the script being executed. This is the absolute path, and not necessarily the same filename passed in as a command line argument."/>
+      <variable citdl="String" name="__dirname"
+                doc="The dirname of the script being executed."/>
+    </scope>
+  </file>
+</codeintel>

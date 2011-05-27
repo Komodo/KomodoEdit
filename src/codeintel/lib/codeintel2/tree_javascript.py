@@ -138,7 +138,7 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
         """
         For JavaScript-in-the-browser the top-level scope is the
         Window object instance. For now we are always presuming we
-        are running in the browser.
+        are running in the browser if the language is JavaScript.
 
         Problem: if we *started* on the Window class then the parent
         scope should be -> built-in-blob. This is what
@@ -152,6 +152,9 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
             return (blob, lpath[:-1])
         elif blob is self.built_in_blob:
             if started_in_builtin_window_scope:
+                return None
+            elif self.lang != "JavaScript":
+                # not JavaScript, don't assume Window is toplevel
                 return None
             else:
                 return (self.built_in_blob, ["Window"])
@@ -258,9 +261,12 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
                     members.update(self._members_from_hits(subhits))
                 except CodeIntelError:
                     pass  # Ignore if Function was not found
-                continue
 
             for child in elem:
+                if elem.get("ilk") == "function" and child.get("ilk") == "argument":
+                    # function arguments are not members, skip them.
+                    # (we might still find properties of functions, though)
+                    continue
                 # Only add locals when the current scope is the same
                 # as the variable scope.
                 attributes = child.get("attributes", "").split()
@@ -772,6 +778,9 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
                 if name and name.startswith(expr):
                     if name not in all_completions:
                         hit_elem = elem.names[name]
+                        if "__local__" in hit_elem.get("attributes", "").split():
+                            # Skip things that should be local to the parent scope
+                            continue
                         all_completions[name] = hit_elem.get("ilk") or hit_elem.tag
             # Continue walking up the scope chain...
             scoperef = self.parent_scoperef_from_scoperef(scoperef)

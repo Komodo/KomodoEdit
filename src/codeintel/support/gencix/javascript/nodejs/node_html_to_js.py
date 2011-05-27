@@ -249,7 +249,7 @@ class NodeModule(NodeItem):
                 """,
             "tty": """\
                 /* return value of tty.open */
-                child_process = require('child_process');
+                var child_process = require('child_process');
                 """,
         }).get(name)
         if module_extra_doc is not None:
@@ -450,10 +450,10 @@ class NodeModule(NodeItem):
         if self.name == "process":
             log.debug("process says: %s", tag)
 
-    def write(self):
-        if not os.path.exists("raw"):
-            os.mkdir("raw")
-        f = file(join("raw", "%s.js" % (self.name, )), "w")
+    def write(self, directory="raw"):
+        if not os.path.exists(directory):
+            os.makedirs(directory, 0755)
+        f = file(join(directory, "%s.js" % (self.name, )), "w")
         try:
             if self.doc:
                 doclines = textwrap.wrap(self.doc, width=72)
@@ -559,8 +559,10 @@ class NodeProcessor(object):
                 seen_modules[item.name] = item
 
     def write_docs(self):
+        directory = os.sep.join(os.path.abspath(__file__).split(os.sep)[:-5] +
+                                ["lib", "codeintel2", "lib_srcs", "node.js"])
         for mod in self.modules.values():
-            mod.write()
+            mod.write(directory)
 
 def getDocsFromWebpage():
     if os.path.exists("docs_048_all.html"):
@@ -574,10 +576,6 @@ def main():
     processor = NodeProcessor(htmldata)
     processor.parse_docs()
     processor.write_docs()
-
-    #ref_tag = soup.html.body.div.findAll(attrs={'name':"Reference"}, limit=1)[0]
-    ##print ref_tag
-    #processRefTags(cix_module, ref_tag)
 
 if __name__ == '__main__':
     main()

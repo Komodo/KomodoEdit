@@ -388,7 +388,7 @@ class JavaScriptLangIntel(CitadelLangIntel,
                         print "triggering 'javascript-complete-names' at " \
                               "pos: %d" % (last_pos - 2, )
                                 
-                    return Trigger("JavaScript", TRG_FORM_CPLN,
+                    return Trigger(self.lang, TRG_FORM_CPLN,
                                    "names", last_pos - 2, implicit,
                                    citdl_expr="".join(reversed(citdl_expr)))
             if DEBUG:
@@ -688,18 +688,23 @@ class JavaScriptLangIntel(CitadelLangIntel,
             if buf.lang == "HTML5":
                 # Implicit HTML 5 catalog additions.
                 libs.append(db.get_catalog_lib("JavaScript", ["html5"]))
+
             if buf.lang == "Node.js":
                 # Implicit Node.js standard library import
                 libdir = os.path.join(dirname(__file__),
                                       "lib_srcs",
                                       "node.js")
-                libs.append(db.get_lang_lib(lang="Node.js",
-                                            name="node.js stdlib",
-                                            dirs=(libdir,)))
-            libs += [
-                db.get_catalog_lib("JavaScript", catalog_selections),
-                db.get_stdlib("JavaScript"),
-            ]
+                libs += [
+                    db.get_lang_lib(lang="Node.js",
+                                    name="node.js stdlib",
+                                    dirs=(libdir,)),
+                    db.get_stdlib("Node.js"),
+                ]
+            else:
+                libs += [
+                    db.get_catalog_lib("JavaScript", catalog_selections),
+                    db.get_stdlib("JavaScript"),
+                ]
             cache[buf] = libs
         return cache[buf]
 
