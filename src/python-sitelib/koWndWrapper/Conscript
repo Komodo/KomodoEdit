@@ -46,4 +46,4 @@ Import(
 
 $cons->InstallRecursive("$komodoPythonUtilsDir/koWndWrapper",
 			cwd() . "/src/python-sitelib/koWndWrapper",
-			('\.svn'));
+                        ('\.svn', 'Conscript'));

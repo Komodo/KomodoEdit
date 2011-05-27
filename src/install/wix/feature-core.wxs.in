@@ -2092,7 +2092,6 @@
 
               <Directory Id="directory278" Name="KOWNDW_0" LongName="koWndWrapper">
                 <Component Id="component260" DiskId="1" Guid="$(autowix.guid)">
-                  <File Id="file128" Name="CONSCR_0" LongName="Conscript" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\koWndWrapper\Conscript"/>
                   <File Id="file153" Name="notify.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\koWndWrapper\notify.py"/>
                   <File Id="file200" Name="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\koWndWrapper\__init__.py"/>
                 </Component>
