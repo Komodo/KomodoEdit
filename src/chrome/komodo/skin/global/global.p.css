@@ -440,20 +440,8 @@
   /* #endif */
 }
 
-.open-file-icon {
-  list-style-image : url("chrome://komodo/skin/images/open.png");
-}
-
-.open-file-icon[disabled="true"],
-.open-file-icon[disabled="true"]:hover,
-.open-file-icon[disabled="true"]:hover:active
-{
-  list-style-image : url("chrome://komodo/skin/images/open_disabled.png");
-}
-
-.open-file-icon:hover
-{
-  list-style-image : url("chrome://komodo/skin/images/open_hover.png");
+.native_folder_icon[disabled="true"] > image {
+  opacity: 0.25;
 }
 
 .project-tools-icon {
