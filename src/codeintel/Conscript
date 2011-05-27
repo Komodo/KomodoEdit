@@ -208,20 +208,6 @@ foreach my $file (@catalog_files) {
     $cons->InstallPythonUtility($file, "codeintel2/catalogs");
 }
 
-$cons->Command("$komodoPythonUtilsDir/codeintel2/lib_srcs/.landmark",
-               "support/gencix/javascript/nodejs/node_html_to_js.py",
-               "support/gencix/javascript/nodejs/docs_042_all.html",
-               qq(
-                rm -f %1:d/node.js/*.js
-                [ -d %1:d/node.js ] && rmdir %1:d/node.js || true
-                cd %1:d && $unsiloedPythonExe %1:f
-                mv %1:d/raw %1:d/node.js
-                cp -R %1:d/node.js %>:d/
-                touch %>
-               ));
-$cons->Depends($ranRegxpcomStateFileName,
-               "$komodoPythonUtilsDir/codeintel2/lib_srcs/.landmark");
-
 # Build codeintel's custom cElementTree -> ciElementTree.
 my $PYD = ($platform eq "win") ? ".pyd" : ".so";
 my $ciElementTreeExt = "lib/ciElementTree$PYD";
