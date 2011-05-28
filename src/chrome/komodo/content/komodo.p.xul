@@ -877,6 +877,11 @@
                                       accesskey="&menuCleanLineEndings.accesskey;"
                                       observes="cmd_cleanLineEndings"
                                       />
+                            <menuitem label="&menuRemoveTrailingWhitespace.label;"
+                                      id="menu_removeTrailingWhitespace"
+                                      accesskey="&menuRemoveTrailingWhitespace.accesskey;"
+                                      observes="cmd_removeTrailingWhitespace"
+                                      />
 
                             <menuseparator id="codeConvert_menuseparator"/>
 

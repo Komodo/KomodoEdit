@@ -1226,6 +1226,11 @@
             disabled="true"
             desc="&sourceCodeCleanLineEndings.desc;"/>
         <command
+            id="cmd_removeTrailingWhitespace" key="key_cmd_removeTrailingWhitespace"
+            oncommand="ko.commands.doCommandAsync('cmd_removeTrailingWhitespace', event)"
+            disabled="true"
+            desc="&editorRemoveTrailingWhitespace.desc;"/>
+        <command
             id="cmd_editPrefsCurrent" key="key_cmd_editPrefsCurrent"
             oncommand="ko.commands.doCommandAsync('cmd_editPrefsCurrent', event);"
             disabled="true"

@@ -1175,7 +1175,78 @@ class koScintillaController:
         else:
             end = min(sm.positionFromLine(lineNo+1), sm.textLength)
         self._doSmartCut(sm.currentPos, end)
-        
+
+    def _do_cmd_removeTrailingWhitespace(self):
+        # Two cases -- either there's a selection in which case we
+        # want to do the operation only on the selection, or there
+        # isn't, in which case we want to do it on the whole document
+        sm = self.scimoz()
+        #from dbgp.client import brk; brk()
+        pos_start = 0
+        pos_end = sm.length
+        had_selection = False
+        modifyCursorLine = True
+        anchor = sm.anchor
+        currentPos = sm.currentPos
+        cursorLineNo = sm.lineFromPosition(currentPos)
+        pos_cursor_line_start = sm.positionFromLine(cursorLineNo)
+        pos_cursor_line_end = sm.getLineEndPosition(cursorLineNo)
+        textBeforeCursor = sm.getTextRange(pos_cursor_line_start, currentPos)
+        textAfterCursor = sm.getTextRange(currentPos, pos_cursor_line_end)
+        if not textAfterCursor:
+            # There is no text at all after the cursor position, or there are
+            # words after the cursor position - don't change it.
+            modifyCursorLine = False
+        if currentPos != anchor:
+            had_selection = True
+            anchor_was_first = anchor < currentPos
+            if anchor_was_first:
+                pos_start, pos_end = anchor, currentPos
+                cursorLineNo -= sm.lineFromPosition(anchor)
+                modifyCursorLine = False
+            else:
+                pos_start, pos_end = currentPos, anchor
+                cursorLineNo = 0
+
+        oldText = sm.getTextRange(pos_start, pos_end)
+        oldLines = oldText.splitlines(0)
+        oldLinesWithEol = oldText.splitlines(1)
+        newLinesWithEol = []
+        cursorOffset = 0
+        lastLineNo = len(oldLines) - 1
+        for i, (oldLine, oldLineWithEol) in enumerate(zip(oldLines, oldLinesWithEol)):
+            if len(oldLineWithEol) == len(oldLine):
+                # No eol on this line.
+                newLineWithEol = oldLineWithEol.rstrip()
+            elif i == cursorLineNo:
+                if not modifyCursorLine:
+                    # Don't change the cursor line.
+                    newLineWithEol = oldLineWithEol
+                else:
+                    # Only strip the text that is after the cursor position.
+                    eol = oldLineWithEol[len(oldLine) - len(oldLineWithEol):]
+                    newLineWithEol = textBeforeCursor + textAfterCursor.rstrip() + eol
+            else:
+                eol = oldLineWithEol[len(oldLine) - len(oldLineWithEol):]
+                newLineWithEol = oldLine.rstrip() + eol
+            newLinesWithEol.append(newLineWithEol)
+            if i < cursorLineNo:
+                cursorOffset += len(oldLineWithEol) - len(newLineWithEol)
+        newText = "".join(newLinesWithEol)
+
+        num_bytes_removed = len(oldText) - len(newText)
+        if num_bytes_removed > 0:
+            sm.targetStart, sm.targetEnd = pos_start, pos_end
+            sm.replaceTarget(len(newText), newText)
+            if had_selection:
+                sm.anchor = pos_start
+                sm.currentPos = pos_end - num_bytes_removed
+                if not anchor_was_first:
+                    sm.swapMainAnchorCaret()
+            else:
+                currentPos -= cursorOffset
+                sm.anchor, sm.currentPos = currentPos, currentPos
+
 
 charClass = {}
 for x in string.letters + string.digits + '_':

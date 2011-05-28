@@ -160,6 +160,7 @@
 <!ENTITY editorRedo.desc "Editor: Redo">
 <!ENTITY editorReflowParagraphS.desc "Editor: Reflow paragraph(s)">
 <!ENTITY editorRemoveAllBookmarks.desc "Editor: Remove All Bookmarks">
+<!ENTITY editorRemoveTrailingWhitespace.desc "Editor: Remove Trailing Whitespace from Ends of Lines">
 <!ENTITY editorRepeatNextKeystrokeNTimes.desc "Editor: Repeat next keystroke N times">
 <!ENTITY editorResetLanguageToBestGuess.desc "Editor: Reset language to best guess">
 <!ENTITY editorScrollCurrentLineToCenterOfScreen.desc "Editor: Scroll current line to center of screen">
@@ -407,6 +408,8 @@
 <!ENTITY menuBufferNext.accesskey "x">
 <!ENTITY menuBufferPrevious.accesskey "P">
 <!ENTITY menuCleanLineEndings.accesskey "E">
+<!ENTITY menuRemoveTrailingWhitespace.accesskey "W">
+<!ENTITY menuRemoveTrailingWhitespace.label "Remove Trailing Whitespace">
 <!ENTITY menuClearSearchHighlighting.accesskey "H">
 <!ENTITY menuCloseOtherBuffers.accesskey "H">
 <!ENTITY menuCloseOtherBuffers.label "Close Others">
