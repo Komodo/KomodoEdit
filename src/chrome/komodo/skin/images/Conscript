@@ -236,3 +236,11 @@ $cons->InstallInChrome('historyToolbar.png');
 $cons->InstallRecursive("$mozChromeDir/komodo/skin/images/colorpicker",
                         cwd()."/src/chrome/komodo/skin/images/colorpicker",
                         ('\.svn'));
+
+$cons->InstallRecursive("$mozChromeDir/komodo/skin/images/databases",
+                        cwd()."/src/chrome/komodo/skin/images/databases",
+                        ('\.svn'));
+
+$cons->InstallRecursive("$mozChromeDir/komodo/skin/images/languages",
+                        cwd()."/src/chrome/komodo/skin/images/languages",
+                        ('\.svn'));
