@@ -189,7 +189,6 @@ $cons->InstallInChrome('new_toolboxitem_disabled.png');
 $cons->InstallInChrome('new_toolboxitem_hover.png');
 $cons->InstallInChrome('new_project_icon.png');
 
-$cons->InstallInChrome('tab_picker_hover.png');
 $cons->InstallInChrome('tab_picker.png');
 
 $cons->InstallInChrome('small_lock.png');

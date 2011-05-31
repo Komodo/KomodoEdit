@@ -95,17 +95,11 @@ $cons->Install($imagesDir, "icons/minimize_down_hover.gif");
 $cons->Install($imagesDir, "icons/minimize_down_disable.gif");
 
 $cons->Install($imagesDir, "icons/show_left_pane.png");
-$cons->Install($imagesDir, "icons/show_left_pane_hover.png");
 $cons->Install($imagesDir, "icons/hide_left_pane.png");
-$cons->Install($imagesDir, "icons/hide_left_pane_hover.png");
 $cons->Install($imagesDir, "icons/show_right_pane.png");
-$cons->Install($imagesDir, "icons/show_right_pane_hover.png");
 $cons->Install($imagesDir, "icons/hide_right_pane.png");
-$cons->Install($imagesDir, "icons/hide_right_pane_hover.png");
 $cons->Install($imagesDir, "icons/show_bottom_pane.png");
-$cons->Install($imagesDir, "icons/show_bottom_pane_hover.png");
 $cons->Install($imagesDir, "icons/hide_bottom_pane.png");
-$cons->Install($imagesDir, "icons/hide_bottom_pane_hover.png");
 
 # Macro icons
 # Other macro icons are coming from src/images/famfamfam[_derived]/...
@@ -137,7 +131,6 @@ $cons->Install($imagesDir, "icons/grippy_vertical_down.png");
 
 # derived famfamfam icons
 $cons->InstallAs("$imagesDir/redo.png", "famfamfam_derived/arrow_redo.png");
-$cons->InstallAs("$imagesDir/redo_hover.png", "famfamfam_derived/arrow_redo_hover.png");
 $cons->InstallAs("$imagesDir/redo_disabled.png", "famfamfam_derived/arrow_redo_disabled.png");
 
 $cons->InstallAs("$imagesDir/undo.png", "famfamfam_derived/arrow_undo.png");
@@ -158,20 +151,16 @@ $cons->InstallAs("$imagesDir/macro_save_disable.png", "famfamfam_derived/control
 $cons->InstallAs("$imagesDir/macro_stop.png", "famfamfam_derived/control_stop_blue.png");
 $cons->InstallAs("$imagesDir/macro_stop_disable.png", "famfamfam_derived/control_stop.png");
 
-$cons->InstallAs("$imagesDir/cut_hover.png", "famfamfam_derived/cut_red.png");
 $cons->InstallAs("$imagesDir/cut.png", "famfamfam_derived/cut.png");
 $cons->InstallAs("$imagesDir/cut_disabled.png", "famfamfam_derived/cut_disabled.png");
 
 $cons->InstallAs("$imagesDir/copy.png", "famfamfam_derived/page_copy.png");
-$cons->InstallAs("$imagesDir/copy_hover.png", "famfamfam_derived/page_copy_hover.png");
 $cons->InstallAs("$imagesDir/copy_disabled.png", "famfamfam_derived/page_copy_disabled.png");
 
 $cons->InstallAs("$imagesDir/paste.png", "famfamfam_derived/page_paste.png");
-$cons->InstallAs("$imagesDir/paste_hover.png", "famfamfam_derived/page_paste_hover.png");
 $cons->InstallAs("$imagesDir/paste_disabled.png", "famfamfam_derived/page_paste_disabled.png");
 
 $cons->InstallAs("$imagesDir/print_button.png", "famfamfam_derived/printer.png");
-$cons->InstallAs("$imagesDir/print_button_hover.png", "famfamfam_derived/printer_hover.png");
 $cons->InstallAs("$imagesDir/print_button_disabled.png", "famfamfam_derived/printer_disabled.png");
 
 $cons->InstallAs("$imagesDir/help.png", "famfamfam_derived/help.png");
@@ -181,11 +170,9 @@ $cons->InstallAs("$imagesDir/save.png", "famfamfam_derived/disk.png");
 $cons->InstallAs("$imagesDir/save_disabled.png", "famfamfam_derived/disk_disabled.png");
 
 $cons->InstallAs("$imagesDir/saveAll.png", "famfamfam_derived/disk_multiple.png");
-$cons->InstallAs("$imagesDir/saveAll_hover.png", "famfamfam_derived/disk_multiple_hover.png");
 $cons->InstallAs("$imagesDir/saveAll_disabled.png", "famfamfam_derived/disk_multiple_disabled.png");
 
 $cons->InstallAs("$imagesDir/newText.png", "famfamfam_derived/newText.png");
-$cons->InstallAs("$imagesDir/newText_hover.png", "famfamfam_derived/newText_hover.png");
 $cons->InstallAs("$imagesDir/newText_disabled.png", "famfamfam_derived/newText_disabled.png");
 
 $cons->InstallAs("$imagesDir/open.png", "famfamfam_derived/folder.png");

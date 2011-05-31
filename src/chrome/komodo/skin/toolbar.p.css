@@ -94,129 +94,59 @@ toolbarbutton {
 {
   list-style-image : url("chrome://komodo/skin/images/newText.png");
 }
-
-#newButton[disabled="true"],
-#newButton[disabled="true"]:hover,
-#newButton[disabled="true"]:hover:active
-{
+#newButton[disabled="true"] {
   list-style-image : url("chrome://komodo/skin/images/newText_disabled.png");
-}
-
-#newButton:hover
-{
-  list-style-image : url("chrome://komodo/skin/images/newText_hover.png");
 }
 
 /* the newProjectButton is never disabled, so don't bother for now */
 
-.save-all-buffers-icon
-{
+.save-all-buffers-icon {
   list-style-image : url("chrome://komodo/skin/images/saveAll.png");
 }
-
-.save-all-buffers-icon[disabled="true"],
-.save-all-buffers-icon[disabled="true"]:hover,
-.save-all-buffers-icon[disabled="true"]:hover:active
-{
+.save-all-buffers-icon[disabled="true"] {
   list-style-image : url("chrome://komodo/skin/images/saveAll_disabled.png");
 }
 
-.save-all-buffers-icon:hover
-{
-  list-style-image : url("chrome://komodo/skin/images/saveAll_hover.png");
-}
-
-.cut-button
-{
+.cut-button {
   list-style-image : url("chrome://komodo/skin/images/cut.png");
 }
-
-.cut-button[disabled="true"],
-.cut-button[disabled="true"]:hover,
-.cut-button[disabled="true"]:hover:active
-{
+.cut-button[disabled="true"] {
   list-style-image : url("chrome://komodo/skin/images/cut_disabled.png");
 }
 
-.cut-button:hover
-{
-  list-style-image : url("chrome://komodo/skin/images/cut_hover.png");
-}
-
-.copy-button
-{
+.copy-button {
   list-style-image : url("chrome://komodo/skin/images/copy.png");
 }
-
-.copy-button[disabled="true"],
-.copy-button[disabled="true"]:hover,
-.copy-button[disabled="true"]:hover:active
-{
+.copy-button[disabled="true"] {
   list-style-image : url("chrome://komodo/skin/images/copy_disabled.png");
 }
 
-.copy-button:hover
-{
-  list-style-image : url("chrome://komodo/skin/images/copy_hover.png");
-}
-
-.paste-button
-{
+.paste-button {
   list-style-image : url("chrome://komodo/skin/images/paste.png");
 }
-
-.paste-button[disabled="true"],
-.paste-button[disabled="true"]:hover,
-.paste-button[disabled="true"]:hover:active
-{
+.paste-button[disabled="true"] {
   list-style-image : url("chrome://komodo/skin/images/paste_disabled.png");
 }
 
-.paste-button:hover
-{
-  list-style-image : url("chrome://komodo/skin/images/paste_hover.png");
-}
-
-#undoButton
-{
+#undoButton {
   list-style-image : url("chrome://komodo/skin/images/undo.png");
 }
 #undoButton[disabled="true"] {
   list-style-image : url("chrome://komodo/skin/images/undo_disabled.png");
 }
 
-#redoButton
-{
+#redoButton {
   list-style-image : url("chrome://komodo/skin/images/redo.png");
 }
-
-#redoButton[disabled="true"],
-#redoButton[disabled="true"]:hover,
-#redoButton[disabled="true"]:hover:active
-{
+#redoButton[disabled="true"] {
   list-style-image : url("chrome://komodo/skin/images/redo_disabled.png");
 }
 
-#redoButton:hover
-{
-  list-style-image : url("chrome://komodo/skin/images/redo_hover.png");
-}
-
-.print-button
-{
+.print-button {
   list-style-image : url("chrome://komodo/skin/images/print_button.png");
 }
-
-.print-button[disabled="true"],
-.print-button[disabled="true"]:hover,
-.print-button[disabled="true"]:hover:active
-{
+.print-button[disabled="true"] {
   list-style-image : url("chrome://komodo/skin/images/print_button_disabled.png");
-}
-
-.print-button:hover
-{
-  list-style-image : url("chrome://komodo/skin/images/print_button_hover.png");
 }
 
 
@@ -252,53 +182,27 @@ toolbarbutton {
 #toggleLeftPane {
   list-style-image : url("chrome://komodo/skin/images/show_left_pane.png");
 }
-#toggleLeftPane:hover {
-  list-style-image : url("chrome://komodo/skin/images/show_left_pane_hover.png");
-}
 #toggleLeftPane[checked="true"] {
   list-style-image : url("chrome://komodo/skin/images/hide_left_pane.png");
 }
-#toggleLeftPane[checked="true"]:hover {
-  list-style-image : url("chrome://komodo/skin/images/hide_left_pane_hover.png");
-}
-
 
 #toggleRightPane {
   list-style-image : url("chrome://komodo/skin/images/show_right_pane.png");
 }
-#toggleRightPane:hover {
-  list-style-image : url("chrome://komodo/skin/images/show_right_pane_hover.png");
-}
 #toggleRightPane[checked="true"] {
   list-style-image : url("chrome://komodo/skin/images/hide_right_pane.png");
 }
-#toggleRightPane[checked="true"]:hover {
-  list-style-image : url("chrome://komodo/skin/images/hide_right_pane_hover.png");
-}
-
 
 #toggleBottomPane {
   list-style-image : url("chrome://komodo/skin/images/show_bottom_pane.png");
 }
-#toggleBottomPane:hover {
-  list-style-image : url("chrome://komodo/skin/images/show_bottom_pane_hover.png");
-}
 #toggleBottomPane[checked="true"] {
   list-style-image : url("chrome://komodo/skin/images/hide_bottom_pane.png");
 }
-#toggleBottomPane[checked="true"]:hover {
-  list-style-image : url("chrome://komodo/skin/images/hide_bottom_pane_hover.png");
-}
 
 
-.tabPicker-icon
-{
+.tabPicker-icon {
   list-style-image : url("chrome://komodo/skin/images/tab_picker.png");
-}
-
-.tabPicker-icon:hover
-{
-  list-style-image : url("chrome://komodo/skin/images/tab_picker_hover.png");
 }
 
 #findButton.find
