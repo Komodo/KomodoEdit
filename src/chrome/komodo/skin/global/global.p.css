@@ -165,7 +165,7 @@
 {
   list-style-image : url("chrome://fugue/skin/icons/application-run.png");
 }
-.clear-text-icon[disabled="true"] {
+.clear-text-icon[disabled="true"] > image {
   opacity: 0.25;
 }
 
@@ -323,7 +323,7 @@
   list-style-image: url("chrome://global/skin/dirListing/folder.png");
   /* #endif */
 }
-.open-file-icon, /* open-file-icon deprecated since Komodo 7 */
+.open-file-icon[disabled="true"] > image, /* open-file-icon deprecated since Komodo 7 */
 .native_open_icon[disabled="true"] > image {
   opacity: 0.25;
 }
