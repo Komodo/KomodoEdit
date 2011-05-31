@@ -324,10 +324,6 @@
   list-style-image : url("chrome://fugue/skin/icons/gear.png");
 }
 
-.open-project-icon {
-  list-style-image : url("chrome://komodo/skin/images/open_project.png");
-}
-
 .new-template-icon {
   list-style-image : url("chrome://komodo/skin/images/newTemplate.png");
 }
