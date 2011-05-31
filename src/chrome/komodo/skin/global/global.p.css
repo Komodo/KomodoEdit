@@ -323,6 +323,7 @@
   list-style-image: url("chrome://global/skin/dirListing/folder.png");
   /* #endif */
 }
+.open-file-icon, /* open-file-icon deprecated since Komodo 7 */
 .native_open_icon[disabled="true"] > image {
   opacity: 0.25;
 }
