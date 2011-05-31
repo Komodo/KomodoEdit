@@ -328,10 +328,6 @@
   list-style-image : url("chrome://komodo/skin/images/newTemplate.png");
 }
 
-.close-buffer-icon {
-  list-style-image : url("chrome://komodo/skin/images/small-x.png");
-}
-
 .save-buffer-icon {
   list-style-image : url("chrome://komodo/skin/images/save.png");
 }
