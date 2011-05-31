@@ -214,55 +214,6 @@ toolbarbutton {
   list-style-image : url("chrome://komodo/skin/images/find_in_files.png");
 }
 
-/* Interactive Shell icons */
-.ishell-icon {
-  list-style-image : url("chrome://komodo/skin/images/ishell.png");
-}
-.ishell-icon:hover {
-  list-style-image : url("chrome://komodo/skin/images/ishell_hover.png");
-}
-.ishell-icon[disabled="true"],
-.ishell-icon[disabled="true"]:hover,
-.ishell-icon[disabled="true"]:hover:active {
-  list-style-image : url("chrome://komodo/skin/images/ishell_disable.png");
-}
-
-.ishell-icon[language="Python"] {
-  list-style-image : url("chrome://komodo/skin/images/ishell_python.png");
-}
-.ishell-icon[language="Python"]:hover {
-  list-style-image : url("chrome://komodo/skin/images/ishell_python_hover.png");
-}
-.ishell-icon[language="Python"][disabled="true"],
-.ishell-icon[language="Python"][disabled="true"]:hover,
-.ishell-icon[language="Python"][disabled="true"]:hover:active {
-  list-style-image : url("chrome://komodo/skin/images/ishell_python_disable.png");
-}
-
-.ishell-icon[language="Tcl"] {
-  list-style-image : url("chrome://komodo/skin/images/ishell_tcl.png");
-}
-.ishell-icon[language="Tcl"]:hover {
-  list-style-image : url("chrome://komodo/skin/images/ishell_tcl_hover.png");
-}
-.ishell-icon[language="Tcl"][disabled="true"],
-.ishell-icon[language="Tcl"][disabled="true"]:hover,
-.ishell-icon[language="Tcl"][disabled="true"]:hover:active {
-  list-style-image : url("chrome://komodo/skin/images/ishell_tcl_disable.png");
-}
-
-.ishell-icon[language="Perl"] {
-  list-style-image : url("chrome://komodo/skin/images/ishell_perl.png");
-}
-.ishell-icon[language="Perl"]:hover {
-  list-style-image : url("chrome://komodo/skin/images/ishell_perl_hover.png");
-}
-.ishell-icon[language="Perl"][disabled="true"],
-.ishell-icon[language="Perl"][disabled="true"]:hover,
-.ishell-icon[language="Perl"][disabled="true"]:hover:active {
-  list-style-image : url("chrome://komodo/skin/images/ishell_perl_disable.png");
-}
-
 
 /* Images for the Diff Toolbar  */
 .previous-diff-icon {
