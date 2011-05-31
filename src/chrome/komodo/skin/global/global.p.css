@@ -101,11 +101,13 @@
 }
 
 
-.help-icon {
+.help-icon,
+.native-help-icon {
+/* #if PLATFORM == "linux" */
+  list-style-image : url("moz-icon://stock/gtk-help?size=16");
+/* #else */
   list-style-image : url("chrome://komodo/skin/images/help.png");
-}
-.help-icon[disabled="true"] {
-  list-style-image : url("chrome://komodo/skin/images/help_disable.png");
+/* #endif */
 }
 
 
