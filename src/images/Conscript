@@ -80,7 +80,6 @@ $cons->Install($imagesDir, "icons/find_in_files.png");
 
 # Other tool icons
 $cons->InstallAs("$imagesDir/preview_in_browser.png", "icons/preview.png");
-$cons->InstallAs("$imagesDir/preview_in_browser_hover.png", "icons/preview-hover.png");
 $cons->InstallAs("$imagesDir/preview_in_browser_disable.png", "icons/preview-disabled.png");
 
 

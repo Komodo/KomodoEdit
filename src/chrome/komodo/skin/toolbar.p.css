@@ -86,15 +86,7 @@ toolbarbutton {
 {
   list-style-image : url("chrome://komodo/skin/images/preview_in_browser.png");
 }
-
-#buttonBrowserPreview:hover
-{
-  list-style-image : url("chrome://komodo/skin/images/preview_in_browser_hover.png");
-}
-#buttonBrowserPreview[disabled="true"],
-#buttonBrowserPreview[disabled="true"]:hover,
-#buttonBrowserPreview[disabled="true"]:hover:active
-{
+#buttonBrowserPreview[disabled="true"] {
   list-style-image : url("chrome://komodo/skin/images/preview_in_browser_disable.png");
 }
 
@@ -462,24 +454,13 @@ menuitem.history-nav-current {
   -moz-image-region: rect(0px 16px 16px 0px);
 }
 /* rect(top,right,bottom,left) */
-.history-back-icon:not([disabled="true"]):hover {
-  -moz-image-region: rect(0px 16px 16px 0px);
-}
 .history-back-icon[disabled="true"] {
   -moz-image-region: rect(32px 16px 48px 0px) !important;
-}
-.history-back-icon:not([disabled="true"]):hover,
-.history-back-icon:not([disabled="true"]):hover:active {
-  -moz-image-region: rect(16px 16px 32px 0px);
 }
 
 .history-forward-icon {
   list-style-image: url("chrome://komodo/skin/images/browser_buttons.png");
   -moz-image-region: rect(0px 32px 16px 16px);
-}
-.history-forward-icon:not([disabled="true"]):hover,
-.history-forward-icon:not([disabled="true"]):hover:active {
-  -moz-image-region: rect(16px 32px 32px 16px);
 }
 .history-forward-icon[disabled="true"] {
   -moz-image-region: rect(32px 32px 48px 16px) !important;
