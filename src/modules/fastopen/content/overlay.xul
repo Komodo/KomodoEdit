@@ -28,7 +28,7 @@
               key="key_cmd_goToFile"
               insertafter="menu_openFile"
               label="&goToFile.menuitem;"
-              class="menuitem-iconic native_folder_icon"
+              class="menuitem-iconic native_open_icon"
               observes="cmd_goToFile" />
   </menupopup>
   

@@ -497,7 +497,7 @@
                                 <menupopup id="popup_file_open">
                                     <menuitem label="&fileOpen.label;"
                                               id="menu_openFile"
-                                              class="menuitem-iconic native_folder_icon"
+                                              class="menuitem-iconic native_open_icon"
                                               observes="cmd_open"
                                               key="key_open"
                                               />
@@ -1639,7 +1639,7 @@
                     tooltiptext="&openFile.tooltiptext;"
                     persist="buttonstyle"
                     buttonstyle="pictures"
-                    class="native_folder_icon"
+                    class="native_open_icon"
                     observes="cmd_open"
                     label="&open.label;"/>
                 <toolbarbutton id="saveButton"
@@ -1953,7 +1953,7 @@
 <!-- #endif -->
                 />
             <toolbarbutton id="find-toolbar-browsedirectory"
-                           class="native_folder_icon solo-button" accesskey="&findToolbarBrowsedirectory.accesskey;"
+                           class="native_open_icon solo-button" accesskey="&findToolbarBrowsedirectory.accesskey;"
                            style="min-width: 0px; margin: 0px"
                            tooltiptext="&browseForDirectoriesToAddToSearchList.tooltiptext;"
                            oncommand="ko.findtoolbar.addBrowsedDirectory();"/>

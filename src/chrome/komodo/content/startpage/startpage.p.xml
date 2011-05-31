@@ -376,7 +376,7 @@
             <xul:menupopup>
             <xul:menuitem anonid="context_open"
                       label="&open.label;"
-                      class="menuitem-iconic native_folder_icon"
+                      class="menuitem-iconic native_open_icon"
                       oncommand="window.document.getBindingParent(this).openSelected();"
                       />
             <xul:menuitem anonid="context_remove"

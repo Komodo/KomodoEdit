@@ -307,6 +307,17 @@
   list-style-image : url("chrome://komodo/skin/images/komodo_16x16.png");
 }
 
+.native_open_icon {
+  /* #if PLATFORM == "linux" */
+  list-style-image: url("moz-icon://stock/gtk-open?size=16");
+  /* #else */
+  list-style-image: url("chrome://global/skin/dirListing/folder.png");
+  /* #endif */
+}
+.native_open_icon[disabled="true"] > image {
+  opacity: 0.25;
+}
+
 .native_folder_icon {
   /* #if PLATFORM == "linux" */
   list-style-image: url("moz-icon://stock/gtk-directory?size=16");
@@ -314,7 +325,6 @@
   list-style-image: url("chrome://global/skin/dirListing/folder.png");
   /* #endif */
 }
-
 .native_folder_icon[disabled="true"] > image {
   opacity: 0.25;
 }
