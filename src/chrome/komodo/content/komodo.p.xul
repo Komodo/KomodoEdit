@@ -472,7 +472,7 @@
                                     <menuitem id="menu_file_newFile"
                                               label="&newFile.label;"
                                               accesskey="&newFile.accesskey;"
-                                              class="menuitem-iconic new-file-icon"
+                                              class="menuitem-iconic native-new-file-icon"
                                               observes="cmd_new"
                                               />
                                     <menuitem id="menu_file_newFileFromTemplate"
@@ -1634,6 +1634,7 @@
                     observes="cmd_new"
                     persist="buttonstyle"
                     buttonstyle="pictures"
+                    class="native-new-file-icon"
                     label="&new.label;"/>
                 <toolbarbutton id="openButton"
                     tooltiptext="&openFile.tooltiptext;"

@@ -938,7 +938,7 @@
                         <xul:button anonid="menu_file_newFile"
                                   label="&newFile.label;"
                                   align="left" pack="center"
-                                  class="button-link new-file-icon"
+                                  class="button-link native-new-file-icon"
                                   observes="cmd_newTemplate"
                                   />
                         <xul:button label="&newProject.label;"
@@ -1259,7 +1259,7 @@
                 var hbox, label;
 
                 var btn = document.createElement("button");
-                btn.setAttribute("class", "button-link new-file-icon");
+                btn.setAttribute("class", "button-link native-new-file-icon");
                 var name = ko.uriparse.baseName(url);
                 btn.setAttribute("label", name);
 

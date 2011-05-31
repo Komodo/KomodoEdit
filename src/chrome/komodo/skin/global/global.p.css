@@ -299,14 +299,21 @@
     list-style-image: url("chrome://komodo/skin/images/new_project.png")
 }
 
-.new-file-icon {
+.new-file-icon, /* new-file-icon is deprecated since Komodo 7 */
+.native-new-file-icon
+{
+  /* #if PLATFORM == "linux" */
+  list-style-image : url("moz-icon://stock/gtk-new?size=16");
+  /* #else */
   list-style-image : url("chrome://komodo/skin/images/newText.png");
+  /* #endif */
 }
 
 .new-window-icon {
   list-style-image : url("chrome://komodo/skin/images/komodo_16x16.png");
 }
 
+.open-file-icon, /* open-file-icon deprecated since Komodo 7 */
 .native_open_icon {
   /* #if PLATFORM == "linux" */
   list-style-image: url("moz-icon://stock/gtk-open?size=16");

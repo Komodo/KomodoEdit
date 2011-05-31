@@ -14,7 +14,7 @@
  * The Original Code is Komodo code.
  * 
  * The Initial Developer of the Original Code is ActiveState Software Inc.
- * Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
+ * Portions created by ActiveState Software Inc are Copyright (C) 2000-2011
  * ActiveState Software Inc. All Rights Reserved.
  * 
  * Contributor(s):
@@ -89,16 +89,6 @@ toolbarbutton {
 #buttonBrowserPreview[disabled="true"] {
   list-style-image : url("chrome://komodo/skin/images/preview_in_browser_disable.png");
 }
-
-#newButton
-{
-  list-style-image : url("chrome://komodo/skin/images/newText.png");
-}
-#newButton[disabled="true"] {
-  list-style-image : url("chrome://komodo/skin/images/newText_disabled.png");
-}
-
-/* the newProjectButton is never disabled, so don't bother for now */
 
 .save-all-buffers-icon {
   list-style-image : url("chrome://komodo/skin/images/saveAll.png");

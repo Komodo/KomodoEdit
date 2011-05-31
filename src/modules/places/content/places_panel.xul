@@ -364,14 +364,14 @@
                 />
       <menuitem id="placesContextMenu_newFileFromTemplate"
                 label="&placesNewFileFromTemplate.label;"
-                class="menuitem-iconic new-file-icon"
+                class="menuitem-iconic native-new-file-icon"
                 oncommand="ko.places.viewMgr.addNewFileFromTemplate()"
                 testDisableIf="t:multipleSelection t:isRemote"
                 hideIf="file"
                 />
       <menuitem id="placesContextMenu_newFile"
                 label="&newFilesPlace.label;"
-                class="menuitem-iconic new-file-icon"
+                class="menuitem-iconic native-new-file-icon"
                 oncommand="ko.places.viewMgr.addNewFile()"
                 testDisableIf="t:multipleSelection"
                 hideIf="file"
