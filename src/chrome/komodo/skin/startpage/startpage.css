@@ -102,23 +102,6 @@ treechildren::-moz-tree-image(project-icon),
 .config-icon {
     list-style-image: url("chrome://komodo/skin/startpage/images/config_icon.gif");
 }
-.clear-icon {
-    list-style-image : url("chrome://komodo/skin/startpage/images/small-x.png");
-    padding: 1px 3px 1px 3px;
-    margin: 1px;
-}
-
-.clear-icon:hover {
-    list-style-image : url("chrome://komodo/skin/startpage/images/small-x_hover.png");
-}
-
-.clear-icon[disabled="true"],
-.clear-icon[disabled="true"]:hover,
-.clear-icon[disabled="true"]:hover:active
-{
-    list-style-image : url("chrome://komodo/skin/startpage/images/small-x_disable.png");
-}
-
 
 .openbox-icon {
     list-style-image : url("chrome://komodo/skin/startpage/images/hollow_arrows_down.gif");
