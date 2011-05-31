@@ -90,62 +90,6 @@ toolbarbutton {
   list-style-image : url("chrome://komodo/skin/images/preview_in_browser_disable.png");
 }
 
-.rx-icon {
-  list-style-image : url("chrome://komodo/skin/images/rx.png");
-}
-.rx-icon:hover {
-  list-style-image : url("chrome://komodo/skin/images/rx_hover.png");
-}
-.rx-icon[disabled="true"],
-.rx-icon[disabled="true"]:hover,
-.rx-icon[disabled="true"]:hover:active {
-  list-style-image : url("chrome://komodo/skin/images/rx_disable.png");
-}
-
-#objectBrowser
-{
-  list-style-image : url("chrome://komodo/skin/images/cb_objectbrowser.png");
-}
-
-#objectBrowser:hover
-{
-  list-style-image : url("chrome://komodo/skin/images/cb_objectbrowser_hover.png");
-}
-
-#buttondbgRestart
-{
-  list-style-image : url("chrome://komodo/skin/images/debug_restart.png");
-}
-
-#buttondbgRestart[disabled="true"],
-#buttondbgRestart[disabled="true"]:hover,
-#buttondbgRestart[disabled="true"]:hover:active
-{
-  list-style-image : url("chrome://komodo/skin/images/debug_restart_disable.png");
-}
-
-#buttondbgRestart:hover
-{
-  list-style-image : url("chrome://komodo/skin/images/debug_restart_hover.png");
-}
-
-#bufferCloseButton
-{
-  list-style-image : url("chrome://komodo/skin/images/small-x.png");
-}
-
-#bufferCloseButton[disabled="true"],
-#bufferCloseButton[disabled="true"]:hover,
-#bufferCloseButton[disabled="true"]:hover:active
-{
-  list-style-image : url("chrome://komodo/skin/images/small-x_disable.png");
-}
-
-#bufferCloseButton:hover
-{
-  list-style-image : url("chrome://komodo/skin/images/small-x_hover.png");
-}
-
 #newButton
 {
   list-style-image : url("chrome://komodo/skin/images/newText.png");
