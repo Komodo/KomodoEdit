@@ -159,23 +159,6 @@
     list-style-image : url("chrome://komodo/skin/global/images/cog.png");
 }
 
-.small-x-icon
-{
-  list-style-image : url("chrome://komodo/skin/images/small-x.png");
-}
-
-.small-x-icon:hover
-{
-  list-style-image : url("chrome://komodo/skin/images/small-x_hover.png");
-}
-
-.small-x-icon[disabled="true"],
-.small-x-icon[disabled="true"]:hover,
-.small-x-icon[disabled="true"]:hover:active
-{
-  list-style-image : url("chrome://komodo/skin/images/small-x_disable.png");
-}
-
 .clear-text-icon
 {
   list-style-image : url("chrome://fugue/skin/icons/application-run.png");
