@@ -343,11 +343,6 @@
   list-style-image : url("chrome://komodo/skin/images/run_commands.png");
 }
 
-.breakpoint-toggle-icon {
-  list-style-image : url("chrome://komodo/skin/images/breakpoint_toggle_state.gif");
-}
-
-
 .next-buffer-icon {
   list-style-image : url("chrome://komodo/skin/images/scrollArrowRight.png");
 }
