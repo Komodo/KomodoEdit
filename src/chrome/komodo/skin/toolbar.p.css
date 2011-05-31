@@ -245,17 +245,8 @@ toolbarbutton {
 {
   list-style-image : url("chrome://komodo/skin/images/undo.png");
 }
-
-#undoButton[disabled="true"],
-#undoButton[disabled="true"]:hover,
-#undoButton[disabled="true"]:hover:active
-{
+#undoButton[disabled="true"] {
   list-style-image : url("chrome://komodo/skin/images/undo_disabled.png");
-}
-
-#undoButton:hover
-{
-  list-style-image : url("chrome://komodo/skin/images/undo_hover.png");
 }
 
 #redoButton

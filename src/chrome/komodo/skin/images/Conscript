@@ -67,10 +67,8 @@ $cons->InstallInChrome('small-x.png');
 $cons->InstallInChrome('small-x_hover.png');
 $cons->InstallInChrome('small-x_disable.png');
 $cons->InstallInChrome('small-arrow.png');
-$cons->InstallInChrome('small-arrow_hover.png');
 $cons->InstallInChrome('small-arrow_disable.png');
 $cons->InstallInChrome('small-arrow-up.png');
-$cons->InstallInChrome('small-arrow-up_hover.png');
 $cons->InstallInChrome('small-arrow-up_disable.png');
 
 $cons->InstallInChrome('leftarrow.png');
@@ -87,10 +85,8 @@ $cons->InstallInChrome('menu-arrow-left.gif');
 $cons->InstallInChrome('menu-arrow-right.gif');
 
 $cons->InstallInChrome('boldButton.png');
-$cons->InstallInChrome('boldButton_hover.png');
 $cons->InstallInChrome('boldButton_disable.png');
 $cons->InstallInChrome('italicButton.png');
-$cons->InstallInChrome('italicButton_hover.png');
 $cons->InstallInChrome('italicButton_disable.png');
 $cons->InstallInChrome('colorbg.png');
 $cons->InstallInChrome('smallheader-bg.png');
@@ -178,7 +174,6 @@ $cons->InstallInChrome('tab_icon_delete.png');
 
 $cons->InstallInChrome('bulletlist.png');
 $cons->InstallInChrome('bulletlist_disable.png');
-$cons->InstallInChrome('bulletlist_hover.png');
 
 # seperate tab status icons for the new status tab widget
 $cons->InstallInChrome('status_icon_delete.png');
@@ -216,11 +211,9 @@ $cons->InstallInChrome('new_folder.png');
 $cons->InstallInChrome('new_live_folder.png');
 $cons->InstallInChrome('new_open_shortcut.png');
 $cons->InstallInChrome('new_project.png');
-$cons->InstallInChrome('new_project_hover.png');
 $cons->InstallInChrome('remote_file.png');
 
 $cons->InstallInChrome('open_project.png');
-$cons->InstallInChrome('open_project_hover.png');
 
 
 # Two checkbox icons from mozilla/themes/classic/global/win/checkbox.

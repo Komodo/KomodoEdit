@@ -47,10 +47,8 @@ $cons->InstallInChrome('cog_edit.png');
 $cons->InstallInChrome('cog.png');
 
 $cons->InstallInChrome('goBack.png');
-$cons->InstallInChrome('goBack_hover.png');
 $cons->InstallInChrome('goBack_disable.png');
 $cons->InstallInChrome('preview.png');
-$cons->InstallInChrome('preview_hover.png');
 $cons->InstallInChrome('preview_disable.png');
 $cons->InstallInChrome('refreshFile.png');
 $cons->InstallInChrome('serverAccount.png');
