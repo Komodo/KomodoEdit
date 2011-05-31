@@ -43,12 +43,6 @@
 #browser-back-button {
   -moz-image-region: rect(0px 16px 16px 0px);
 }
-
-#browser-back-button:hover,
-#browser-back-button:hover:active {
-  -moz-image-region: rect(16px 16px 32px 0px);
-}
-
 #browser-back-button[disabled="true"] {
   -moz-image-region: rect(32px 16px 48px 0px) !important;
 }
@@ -56,12 +50,6 @@
 #browser-forward-button {
   -moz-image-region: rect(0px 32px 16px 16px);
 }
-
-#browser-forward-button:hover,
-#browser-forward-button:hover:active {
-  -moz-image-region: rect(16px 32px 32px 16px);
-}
-
 #browser-forward-button[disabled="true"] {
   -moz-image-region: rect(32px 32px 48px 16px) !important;
 }
@@ -69,12 +57,6 @@
 #browser-stop-button {
   -moz-image-region: rect(0px 48px 16px 32px);
 }
-
-#browser-stop-button:hover,
-#browser-stop-button:hover:active {
-  -moz-image-region: rect(16px 48px 32px 32px);
-}
-
 #browser-stop-button[disabled="true"] {
   -moz-image-region: rect(32px 48px 48px 32px) !important;
 }
@@ -82,12 +64,6 @@
 #browser-reload-button {
   -moz-image-region: rect(0px 64px 16px 48px);
 }
-
-#browser-reload-button:hover,
-#browser-reload-button:hover:active {
-  -moz-image-region: rect(16px 64px 32px 48px);
-}
-
 #browser-reload-button[disabled="true"] {
   -moz-image-region: rect(32px 64px 48px 48px) !important;
 }
