@@ -46,6 +46,7 @@ include "html2django.udl"
 include "css2html.udl"
 
 include "js2html.udl"
+include "js2django.udl"
 
 include "django2html.udl"
 
