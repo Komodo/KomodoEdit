@@ -118,7 +118,6 @@ $cons->Install($imagesDir, "icons/list_item_remove_disable.png");
 $cons->Install($imagesDir, "icons/menupopup_arrows.png");
 
 $cons->Install($imagesDir, "icons/tree_select.png");
-$cons->Install($imagesDir, "icons/tree_select_hover.png");
 $cons->Install($imagesDir, "icons/tree_select_disable.png");
 
 $cons->Install($imagesDir, "icons/grippy.png");
