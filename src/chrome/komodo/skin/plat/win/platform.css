@@ -73,12 +73,6 @@ toolbar #historyRecentLocations {
   list-style-image : url("chrome://komodo/skin/images/Toolbar-small.png");
   -moz-image-region: rect(0px 301px 24px 288px);
 }
-toolbar #historyRecentLocations:not([disabled="true"]):hover {
-  -moz-image-region: rect(24px 301px 48px 288px);
-}
 toolbar #historyRecentLocations[disabled="true"] {
   -moz-image-region: rect(48px 301px 72px 288px);
-}
-toolbar #historyRecentLocations:not([disabled="true"]):hover:active {
-  -moz-image-region: rect(72px 301px 96px 288px);
 }

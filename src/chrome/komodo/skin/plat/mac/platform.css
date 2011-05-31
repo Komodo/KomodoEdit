@@ -208,14 +208,8 @@ toolbar #historyRecentLocations {
 toolbar #historyRecentLocations {
   -moz-image-region: rect(0px, 664px, 23px, 649px);
 }
-
 toolbar #historyRecentLocations[disabled="true"] {
  -moz-image-region: rect(23px, 664px, 46px, 649px);
-}
-
-toolbar #historyRecentLocations:hover:active:not([disabled]),
-toolbar #historyRecentLocations[open="true"] {
-  -moz-image-region: rect(46px, 664px, 69px, 649px);
 }
 
 /**
