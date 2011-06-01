@@ -348,11 +348,17 @@
   list-style-image : url("chrome://komodo/skin/images/newTemplate.png");
 }
 
-.save-buffer-icon {
+.save-buffer-icon,
+.native-save-icon {
+  /* #if PLATFORM == "linux" */
+  list-style-image : url("moz-icon://stock/gtk-save?size=16");
+  /* #else */
   list-style-image : url("chrome://komodo/skin/images/save.png");
+  /* #endif */
 }
-.save-buffer-icon[disabled="true"] {
-  list-style-image : url("chrome://komodo/skin/images/save_disabled.png");
+.save-buffer-icon[disabled="true"] > image,
+.native-save-icon[disabled="true"] > image {
+  opacity: 0.25;
 }
 
 .run-command-icon {

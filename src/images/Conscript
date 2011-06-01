@@ -166,7 +166,6 @@ $cons->InstallAs("$imagesDir/help.png", "famfamfam_derived/help.png");
 $cons->InstallAs("$imagesDir/help_disabled.png", "famfamfam_derived/help_disabled.png");
 
 $cons->InstallAs("$imagesDir/save.png", "famfamfam_derived/disk.png");
-$cons->InstallAs("$imagesDir/save_disabled.png", "famfamfam_derived/disk_disabled.png");
 
 $cons->InstallAs("$imagesDir/saveAll.png", "famfamfam_derived/disk_multiple.png");
 $cons->InstallAs("$imagesDir/saveAll_disabled.png", "famfamfam_derived/disk_multiple_disabled.png");

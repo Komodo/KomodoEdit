@@ -1648,7 +1648,7 @@
                     persist="buttonstyle"
                     buttonstyle="pictures"
                     observes="cmd_save"
-                    class="save-buffer-icon"
+                    class="native-save-icon"
                     label="&saveFile.label;"/>
                 <toolbarbutton id="saveAllButton"
                     tooltiptext="&saveAllFiles.tooltiptext;"
