@@ -594,7 +594,7 @@ VimController.prototype.doCommand = function(cmdName) {
 VimController.prototype.onBufferFocus =
 VimController.prototype.updateViInternals = function() {
     if (this.enabled) {
-        if (ko.views.manager && ko.views.manager.currentView) {
+        if (ko.views.manager && ko.views.manager.currentView && ko.views.manager.currentView.scintilla) {
             this.updateCaretStyle(ko.views.manager.currentView.scimoz);
             this.updateModeIfBufferHasSelection(false);
         }
@@ -878,14 +878,26 @@ var normalModeCommandMap = {
 // Vi handles command
 VimController.prototype.handleCommand = function(event, commandname, keylabel, multikey) {
     try {
-        /* Ensure it's going to a vi controlled scintilla component */
-        if (!this.enabled || event.target.nodeName != 'view' ||
-            /* Certain commands like cmd_cancel and cmd_right event actually
-               comes through with an event target that is the Komodo multi view.
-               Not sure why that is - but added a special case to allow
-               multiview event targets as well. */
-            (!event.target.scintilla &&
-             event.target.getAttribute("type") != "multiview")) {
+        /* Ensure it's going to a Komodo view element. */
+        if (!this.enabled || event.target.nodeName != 'view') {
+            return false;
+        }
+
+        /* Ensure it's going to a Komodo Scintilla element.
+           Note: Certain commands like cmd_cancel and cmd_right event can
+                 arrive with an event target that is the Komodo multi view. Not
+                 sure why that is - likely something to do with split view, so
+                 added a special case to allow multiview event targets as well.
+                 Without this, the views-browser URL base will not accept
+                 cmd_delete or cursor movement events.
+        */
+        var view = event.target;
+        var viewType = event.target.getAttribute("type");
+        if (viewType == "multiview") {
+            // Get the current child view.
+            view = view.currentView.currentView; // multiview -> tabbedview -> editorview
+        }
+        if (!view.scintilla) {
             return false;
         }
 
