@@ -163,9 +163,7 @@ class koDocumentBase:
         self.docSettingsMgr = None
         if self.prefs:
             prefObserver = self.prefs.prefObserverService
-            prefObserver.removeObserver(self, 'useTabs')
-            prefObserver.removeObserver(self, 'indentWidth')
-            prefObserver.removeObserver(self, 'tabWidth')
+            prefObserver.removeObserverForTopics(self, ['useTabs', 'indentWidth', 'tabWidth'])
         self._wrapSelf = None
         self.ciBuf = None
 
@@ -300,9 +298,7 @@ class koDocumentBase:
         # yet not stored in prefs except if set explicitely.
         log.debug("adding prefs observer")
         prefObserver = self.prefs.prefObserverService
-        prefObserver.addObserver(self, 'useTabs', True)
-        prefObserver.addObserver(self, 'indentWidth', True)
-        prefObserver.addObserver(self, 'tabWidth', True)
+        prefObserver.addObserverForTopics(self, ['useTabs' 'indentWidth', 'tabWidth'], True)
 
     def getEffectivePrefs(self):
         # this returns either a prefset from a project, or my own prefset
