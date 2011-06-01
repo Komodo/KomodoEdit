@@ -126,7 +126,7 @@ class koDocumentBase:
                            getService(components.interfaces.koIHistoryService)
 
 
-        self._wrapSelf = None
+        self._proxied = None
         
         self.lidb = langinfo.get_default_database()
 
@@ -150,9 +150,9 @@ class koDocumentBase:
         # scintilla in a thread, and must proxy.  since this shouldn't
         # get hit often, we'll just always proxy to be on the safe
         # side of things
-        if not self._wrapSelf:
+        if not self._proxied:
             wrapSelf = xpcom.server.WrapObject(self, components.interfaces.koIDocument)
-            self._wrapSelf = _xpcom.getProxyForObject(1, components.interfaces.koIDocument,
+            self._proxied = _xpcom.getProxyForObject(1, components.interfaces.koIDocument,
                                               wrapSelf, _xpcom.PROXY_SYNC | _xpcom.PROXY_ALWAYS)
         if not self.docSettingsMgr:
             self.docSettingsMgr = components.classes['@activestate.com/koDocumentSettingsManager;1'].\
@@ -164,7 +164,7 @@ class koDocumentBase:
         if self.prefs:
             prefObserver = self.prefs.prefObserverService
             prefObserver.removeObserverForTopics(self, ['useTabs', 'indentWidth', 'tabWidth'])
-        self._wrapSelf = None
+        self._proxied = None
         self.ciBuf = None
 
     def _initCIBuf(self):
@@ -1698,7 +1698,7 @@ class koDocumentBase:
     def doAutoSave(self):
         try:
             # no point in autosaving if we're not dirty
-            if not self._isDirty or self.isUntitled or not self._wrapSelf: return
+            if not self._isDirty or self.isUntitled or not self._proxied: return
             
             autoSaveFile = self._getAutoSaveFile()
             log.debug("last save %d now %d", autoSaveFile.lastModifiedTime, time.time())
@@ -1706,18 +1706,18 @@ class koDocumentBase:
             # translate the buffer before opening the file so if it
             # fails, we haven't truncated the file
             try:
-                data = self._wrapSelf.encodedText
+                data = self._proxied.encodedText
             except Exception, e:
                 try:
                     # failed to get encoded text, save it using utf-8 to avoid
                     # data loss (bug 40857)
-                    data = self._wrapSelf.utf8Text;
+                    data = self._proxied.utf8Text;
                     self._statusBarMessage("Using UTF-8 to autosave '%s'" %
-                                  self._wrapSelf.baseName)
+                                  self._proxied.baseName)
                 except Exception, e:
                     log.exception(e)
                     self._statusBarMessage("Error getting encoded text for autosave of '%s'" %
-                                  self._wrapSelf.baseName)
+                                  self._proxied.baseName)
                     return
    
             try:
@@ -1732,7 +1732,7 @@ class koDocumentBase:
                 # failure so don't set it again. You will just override
                 # better data.
                 self._statusBarMessage("Unable to autosave file '%s'" %
-                              self._wrapSelf.baseName)
+                              self._proxied.baseName)
                 return
         finally:
             #log.debug("doAutoSave finally")
