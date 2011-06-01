@@ -1394,7 +1394,7 @@ class koDocumentBase:
         scimoz = scintilla.scimoz
         xpself = WrapObject(self, components.interfaces.koIDocument)
         if not self._docPointer:
-            scimoz.docPointer = "" # create document
+            # Use the existing document/docPointer created by Scintilla.
             self.docSettingsMgr.register(xpself, scintilla)
             self._buffer = None # clear out any old buffer we may have had
             self._docPointer = scimoz.docPointer
