@@ -452,4 +452,37 @@ this.showDiffs = function peFile_ShowDiffs(fname1, fname2) {
     window.setTimeout(_openDiffWindowForFiles, 0, fname1, fname2);
 }
 
+this.setFileStatusAttributes = function peFile_setFileStatusAttributes(element, koDoc) {
+    // Here we set the attributes for our file status indicators. The following
+    // attributes on the element can be set:
+
+    // file_readonly="chrome://komodo/skin/images/status_icon_readonly.png"
+
+    let koFile = koDoc.isUntitled ? null : koDoc.file;
+
+    if (koDoc.isUntitled ||
+        !koFile.exists ||
+        koFile.isWriteable) {
+        element.removeAttribute('file_readonly');
+    } else {
+        element.setAttribute('file_readonly', 'readonly');
+    }
+
+    if (koDoc.isUntitled) {
+        element.removeAttribute('file_action');
+        return;
+    }
+
+    var asyncSvc = Components.classes['@activestate.com/koAsyncService;1'].
+                    getService(Components.interfaces.koIAsyncService);
+    if (asyncSvc.uriHasPendingOperation(koFile.URI)) {
+        // This file has an asynchronous operation pending, give it
+        // the "processing" throbber gif.
+        element.setAttribute('file_action', 'async_operation');
+        return;
+    } else {
+        element.removeAttribute('file_action');
+    }
+}
+
 }).apply(ko.fileutils);

@@ -303,43 +303,11 @@
         <![CDATA[
             if (!view.koDoc) return;
 
-            // here we set the images for our status indicators
-            // the following attributes on the tab can be set:
-
-            // XXX remember images have been left in komodo chrome for now
-
-            // status="chrome://komodo/skin/images/status_icon_sync.png"
-            // action="chrome://komodo/skin/images/status_icon_edit.png"
-            // readonly="chrome://komodo/skin/images/status_icon_readonly.png"
-
             let tab = view.parentNode._tab;
-            let koDoc = view.koDoc;
-            let koFile = koDoc.isUntitled ? null : koDoc.file;
-
             try {
-                if (koDoc.isUntitled ||
-                    !koFile.exists ||
-                    koFile.isWriteable) {
-                    tab.removeAttribute('readonly');
-                } else {
-                    tab.setAttribute('readonly',"chrome://komodo/skin/images/status_icon_readonly.png");
-                }
-    
-                if (!koDoc.isUntitled) {
-                    var asyncSvc = Components.classes['@activestate.com/koAsyncService;1'].
-                                    getService(Components.interfaces.koIAsyncService);
-                    if (asyncSvc.uriHasPendingOperation(view.koDoc.file.URI)) {
-                        // This file has an asynchronous operation pending, give it
-                        // the "processing" throbber gif.
-                        tab.setAttribute('action', asyncSvc.asynchronous_icon_url);
-                        tab.removeAttribute('status');
-                        return;
-                    }
-                }
-    
-                tab.removeAttribute('action');
-                tab.removeAttribute('status');
-
+                ko.fileutils.setFileStatusAttributes(tab, view.koDoc);
+            } catch(ex) {
+                this.log.exception(ex, 'Unable to set file status attributes');
             } finally {
                 let tabs = this.tabbox.firstChild;
                 tabs.scrollBoxObject.ensureElementIsVisible(tabs.selectedItem);

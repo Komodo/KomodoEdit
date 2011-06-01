@@ -220,3 +220,10 @@ treechildren#toolbox2-hierarchy-treebody::-moz-tree-image {
 
 #gotoLine_description {
 }
+
+.file-status-icon[file_readonly="readonly"] {
+  list-style-image : url("chrome://komodo/skin/images/status_icon_readonly.png");
+}
+.file-status-icon[file_action="async_operation"] {
+  list-style-image : url("chrome://global/skin/icons/loading_16.png");
+}
