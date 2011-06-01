@@ -298,7 +298,7 @@ class koDocumentBase:
         # yet not stored in prefs except if set explicitely.
         log.debug("adding prefs observer")
         prefObserver = self.prefs.prefObserverService
-        prefObserver.addObserverForTopics(self, ['useTabs' 'indentWidth', 'tabWidth'], True)
+        prefObserver.addObserverForTopics(self, ['useTabs', 'indentWidth', 'tabWidth'], True)
 
     def getEffectivePrefs(self):
         # this returns either a prefset from a project, or my own prefset
