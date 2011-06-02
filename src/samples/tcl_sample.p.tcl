@@ -1,5 +1,4 @@
 #!tclsh
-# Copyright (c) 2000-2008 ActiveState Software Inc.
 package require Tcl 8
 
 # Use this sample script to explore some of Komodo's Tcl features.

@@ -1,5 +1,4 @@
 #!/usr/bin/ruby
-# Copyright (c) 2000-2008 ActiveState Software Inc.
 
 # Use this sample script to explore some of Komodo's Ruby features.
 

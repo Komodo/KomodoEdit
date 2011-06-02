@@ -1,5 +1,3 @@
-<!-- # Copyright (c) 2000-2008 ActiveState Corp. -->
-
 <!-- Use this sample script to explore some of Komodo's PHP features. -->
 
 <?php

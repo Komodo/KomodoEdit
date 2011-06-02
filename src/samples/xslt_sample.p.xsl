@@ -1,5 +1,4 @@
 <?xml version="1.0"?> 
-<!-- Copyright (c) 2000-2006 ActiveState Software Inc. -->
 
 <!-- Use this sample script to explore some of Komodo's XSLT features. -->
 

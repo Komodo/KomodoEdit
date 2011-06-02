@@ -1,5 +1,4 @@
 #!/usr/bin/perl
-# Copyright (c) 2000-2008 ActiveState Software Inc.
 
 # Use this sample script to explore some of Komodo's Perl features.
 
