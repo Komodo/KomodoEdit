@@ -221,9 +221,31 @@ treechildren#toolbox2-hierarchy-treebody::-moz-tree-image {
 #gotoLine_description {
 }
 
-.file-status-icon[file_readonly="readonly"] {
-  list-style-image : url("chrome://komodo/skin/images/status_icon_readonly.png");
+/**
+ * File status icons for the editor tabs.
+ */
+.file-status-icons {
+  padding-right: 2px;
 }
-.file-status-icon[file_status="async_operation"] {
+
+.file-readonly-icon[file_readonly="readonly"] {
+  list-style-image : url("chrome://komodo/skin/images/status_icon_readonly_16x16.png");
+}
+.file-readonly-icon[file_readonly] {
+  /* Overlap the top-right of the native file image by 4px. */
+  margin-left: -6px;
+  /* Readonly icons are only 7px wide, so move the right margin 9px across,
+     though we also need to give a little more padding (:
+      (16 - 7) */
+  margin-right: -9px;
+}
+
+.native_file_image[async_operation="true"] {
   list-style-image : url("chrome://global/skin/icons/loading_16.png");
+}
+
+.file-status2-icon:not([file_status2]),
+.file-readonly-icon:not([file_readonly]) {
+  /* Collapse status images that are not showing anything. */
+  display: none;
 }

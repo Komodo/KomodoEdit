@@ -305,7 +305,7 @@
 
             let tab = view.parentNode._tab;
             try {
-                ko.fileutils.setFileStatusAttributes(tab, view.koDoc);
+                ko.fileutils.setFileStatusAttributesFromDoc(tab, view.koDoc);
             } catch(ex) {
                 this.log.exception(ex, 'Unable to set file status attributes');
             } finally {

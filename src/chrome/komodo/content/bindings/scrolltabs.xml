@@ -51,11 +51,11 @@
         <content>
             <xul:hbox class="tab-image-left" xbl:inherits="selected"/>
             <xul:hbox flex="1" class="tab-image-middle" xbl:inherits="selected" align="center">
-                <xul:hbox flex="0" class="tab-icons" align="center" pack="center">
-                    <xul:image class="file-status-icon" xbl:inherits="validate,disabled,file_status,tooltiptext=statustip"/>
-                    <xul:image class="file-status-icon" xbl:inherits="validate,disabled,file_status2,tooltiptext=status2tip"/>
-                    <xul:image class="file-status-icon" xbl:inherits="validate,disabled,file_readonly,tooltiptext=locktip"/>
-                    <xul:image class="tab-icon" xbl:inherits="validate,disabled,src=image,tooltiptext=icontip"/>
+                <xul:hbox flex="0" class="tab-icons file-status-icons" align="center" pack="center">
+                    <xul:image class="tab-icon native_file_image" xbl:inherits="validate,disabled,src=file_image_url,async_operation"/>
+                    <xul:image class="tab-icon file-status-icon" xbl:inherits="validate,disabled,file_status,tooltiptext=filestatustip"/>
+                    <xul:image class="tab-icon file-status2-icon" xbl:inherits="validate,disabled,file_status2,tooltiptext=filestatus2tip"/>
+                    <xul:image class="tab-icon file-readonly-icon" xbl:inherits="validate,disabled,file_readonly,tooltiptext=locktip"/>
                 </xul:hbox>
                 <xul:label class="tab-text" xbl:inherits="value=label,accesskey,crop,disabled,selected"
                            flex="1" anonid="label" crop="right"/>

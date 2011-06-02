@@ -452,37 +452,44 @@ this.showDiffs = function peFile_ShowDiffs(fname1, fname2) {
     window.setTimeout(_openDiffWindowForFiles, 0, fname1, fname2);
 }
 
-this.setFileStatusAttributes = function peFile_setFileStatusAttributes(element, koDoc) {
+this.setFileStatusAttributesFromFile = function peFile_setFileStatusAttributes(element, koFile) {
     // Here we set the attributes for our file status indicators. The following
     // attributes on the element can be set:
 
-    // file_readonly="chrome://komodo/skin/images/status_icon_readonly.png"
+    // file_readonly=[readonly]
+    // file_status = [async_operation];
 
-    let koFile = koDoc.isUntitled ? null : koDoc.file;
+    // File image url.
+    element.setAttribute('file_image_url', 'moz-icon://' + koFile.baseName + '?size=16');
 
-    if (koDoc.isUntitled ||
-        !koFile.exists ||
-        koFile.isWriteable) {
+    // Readonly status.
+    if (!koFile.exists || koFile.isWriteable) {
         element.removeAttribute('file_readonly');
     } else {
         element.setAttribute('file_readonly', 'readonly');
     }
 
-    if (koDoc.isUntitled) {
-        element.removeAttribute('file_status');
-        return;
-    }
-
+    // File status.
     var asyncSvc = Components.classes['@activestate.com/koAsyncService;1'].
                     getService(Components.interfaces.koIAsyncService);
     if (asyncSvc.uriHasPendingOperation(koFile.URI)) {
         // This file has an asynchronous operation pending, give it
-        // the "processing" throbber gif.
-        element.setAttribute('file_status', 'async_operation');
-        return;
-    } else {
-        element.removeAttribute('file_status');
+        // the "processing" throbber image.
+        element.removeAttribute('file_image_url');
+        element.setAttribute('async_operation', 'true');
     }
+}
+
+this.setFileStatusAttributesFromDoc = function peFile_setFileStatusAttributes(element, koDoc) {
+    let koFile = koDoc.isUntitled ? null : koDoc.file;
+
+    if (!koFile) {
+        element.removeAttribute('file_image_url');
+        element.removeAttribute('file_status');
+        return;
+    }
+
+    this.setFileStatusAttributesFromFile(element, koFile);
 }
 
 }).apply(ko.fileutils);
