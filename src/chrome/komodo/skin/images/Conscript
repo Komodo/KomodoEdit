@@ -125,62 +125,20 @@ $cons->InstallInChrome('open_shortcut.png');
 
 $cons->InstallInChrome('file_icon_missing.png');
 $cons->InstallInChrome('file_icon_readonly.png');
-$cons->InstallInChrome('file_icon_readonly_ok.png');
-$cons->InstallInChrome('file_icon_readonly_sync.png');
-$cons->InstallInChrome('file_icon_readonly_conflict.png');
-$cons->InstallInChrome('file_icon_readonly_add.png');
-$cons->InstallInChrome('file_icon_readonly_delete.png');
 $cons->InstallInChrome('file_icon.png');
-$cons->InstallInChrome('file_icon_ok.png');
-$cons->InstallInChrome('file_icon_sync.png');
-$cons->InstallInChrome('file_icon_conflict.png');
-$cons->InstallInChrome('file_icon_add.png');
-$cons->InstallInChrome('file_icon_delete.png');
-$cons->InstallInChrome('file_icon_edit.png');
-$cons->InstallInChrome('file_icon_edit_ok.png');
-$cons->InstallInChrome('file_icon_edit_sync.png');
-$cons->InstallInChrome('file_icon_edit_conflict.png');
 
 $cons->InstallInChrome('project_icon_readonly.png');
-$cons->InstallInChrome('project_icon_readonly_ok.png');
-$cons->InstallInChrome('project_icon_readonly_sync.png');
-$cons->InstallInChrome('project_icon_readonly_conflict.png');
-$cons->InstallInChrome('project_icon.png');
-$cons->InstallInChrome('project_icon_ok.png');
-$cons->InstallInChrome('project_icon_sync.png');
-$cons->InstallInChrome('project_icon_conflict.png');
-$cons->InstallInChrome('project_icon_add.png');
-$cons->InstallInChrome('project_icon_delete.png');
-$cons->InstallInChrome('project_icon_edit.png');
-$cons->InstallInChrome('project_icon_edit_ok.png');
-$cons->InstallInChrome('project_icon_edit_sync.png');
-$cons->InstallInChrome('project_icon_edit_conflict.png');
 
 $cons->InstallInChrome('more.gif');
 $cons->InstallInChrome('less.gif');
 
 $cons->InstallInChrome('tab_icon_blank.png');
 $cons->InstallInChrome('tab_icon_readonly.png');
-$cons->InstallInChrome('tab_icon_readonly_ok.png');
-$cons->InstallInChrome('tab_icon_readonly_sync.png');
-$cons->InstallInChrome('tab_icon_readonly_conflict.png');
-$cons->InstallInChrome('tab_icon_ok.png');
-$cons->InstallInChrome('tab_icon_sync.png');
-$cons->InstallInChrome('tab_icon_conflict.png');
-$cons->InstallInChrome('tab_icon_edit.png');
-$cons->InstallInChrome('tab_icon_add.png');
-$cons->InstallInChrome('tab_icon_delete.png');
 
 $cons->InstallInChrome('bulletlist.png');
 $cons->InstallInChrome('bulletlist_disable.png');
 
 # seperate tab status icons for the new status tab widget
-$cons->InstallInChrome('status_icon_delete.png');
-$cons->InstallInChrome('status_icon_edit.png');
-$cons->InstallInChrome('status_icon_add.png');
-$cons->InstallInChrome('status_icon_sync.png');
-$cons->InstallInChrome('status_icon_ok.png');
-$cons->InstallInChrome('status_icon_conflict.png');
 $cons->InstallInChrome('status_icon_readonly.png');
 
 $cons->InstallInChrome('new_toolboxitem_icon.png');
