@@ -140,6 +140,7 @@ $cons->InstallInChrome('bulletlist_disable.png');
 
 # seperate tab status icons for the new status tab widget
 $cons->InstallInChrome('status_icon_readonly.png');
+$cons->InstallInChrome('status_icon_readonly_16x16.png');
 
 $cons->InstallInChrome('new_toolboxitem_icon.png');
 $cons->InstallInChrome('new_toolboxitem_disabled.png');
