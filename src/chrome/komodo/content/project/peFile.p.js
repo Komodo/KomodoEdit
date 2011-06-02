@@ -469,7 +469,7 @@ this.setFileStatusAttributes = function peFile_setFileStatusAttributes(element, 
     }
 
     if (koDoc.isUntitled) {
-        element.removeAttribute('file_action');
+        element.removeAttribute('file_status');
         return;
     }
 
@@ -478,10 +478,10 @@ this.setFileStatusAttributes = function peFile_setFileStatusAttributes(element, 
     if (asyncSvc.uriHasPendingOperation(koFile.URI)) {
         // This file has an asynchronous operation pending, give it
         // the "processing" throbber gif.
-        element.setAttribute('file_action', 'async_operation');
+        element.setAttribute('file_status', 'async_operation');
         return;
     } else {
-        element.removeAttribute('file_action');
+        element.removeAttribute('file_status');
     }
 }
 
