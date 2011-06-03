@@ -55,7 +55,7 @@ var log = ko.logging.getLogger("find.undorepl");
 var widgets = null; // object storing interesting XUL element references
 
 var _g_find_svc = null;
-var _g_controller = null;   // Controller instance managing this dialog's UI.
+var _g_controller = null;   // UndoReplaceController instance managing this dialog's UI.
 var _g_undoer = null;
 
 
@@ -112,7 +112,7 @@ function _init()
 
     // Hook up and start the "Replace in Files" process.
     var args = window.arguments[0];
-    _g_controller = new xtk.Controller();
+    _g_controller = new UndoReplaceController();
     _g_undoer = _g_find_svc.undoreplaceallinfiles(
         args.journal_id, _g_controller);
     widgets.repls.treeBoxObject.view = _g_undoer;
@@ -145,13 +145,13 @@ function _set_desc(widget, text) {
 
 //---- Controller component for koIFindService to manage the UI.
 
-function Controller()
+function UndoReplaceController()
 {
     this.log = log;
 }
-Controller.prototype.constructor = Controller;
+UndoReplaceController.prototype.constructor = xtk.Controller;
 
-Controller.prototype.QueryInterface = function(iid) {
+UndoReplaceController.prototype.QueryInterface = function(iid) {
     if (!iid.equals(Components.interfaces.koIUndoReplaceController) &&
         !iid.equals(Components.interfaces.nsISupports)) {
         throw Components.results.NS_ERROR_NO_INTERFACE;
@@ -160,7 +160,7 @@ Controller.prototype.QueryInterface = function(iid) {
 }
 
 
-Controller.prototype.set_summary = function(summary)
+UndoReplaceController.prototype.set_summary = function(summary)
 {
     try {
         _set_desc(widgets.summary_desc, summary);
@@ -169,7 +169,7 @@ Controller.prototype.set_summary = function(summary)
     }
 }
 
-Controller.prototype.report = function(num_hits, num_paths)
+UndoReplaceController.prototype.report = function(num_hits, num_paths)
 {
     try {
         var hits_s_str = (num_hits == 1 ? "": "s");
@@ -183,7 +183,7 @@ Controller.prototype.report = function(num_hits, num_paths)
     }
 }
 
-Controller.prototype.error = function(errmsg)
+UndoReplaceController.prototype.error = function(errmsg)
 {
     try {
         widgets.status_img.setAttribute("src",
@@ -203,7 +203,7 @@ Controller.prototype.error = function(errmsg)
     }
 }
 
-Controller.prototype.done = function()
+UndoReplaceController.prototype.done = function()
 {
     try {
         widgets.status_img.setAttribute("src",
