@@ -69,3 +69,4 @@ $cons->InstallInChrome('views-diff.xml');
 $cons->InstallInChrome('views-multi.xml');
 $cons->Preprocess('views-terminal.p.xml', 'views-terminal.xml');
 $cons->InstallInChrome('views-terminal.xml');
+$cons->InstallInChrome('pane.xml');
