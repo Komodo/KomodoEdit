@@ -130,10 +130,8 @@ $cons->Install($imagesDir, "icons/grippy_vertical_down.png");
 
 # derived famfamfam icons
 $cons->InstallAs("$imagesDir/redo.png", "famfamfam_derived/arrow_redo.png");
-$cons->InstallAs("$imagesDir/redo_disabled.png", "famfamfam_derived/arrow_redo_disabled.png");
 
 $cons->InstallAs("$imagesDir/undo.png", "famfamfam_derived/arrow_undo.png");
-$cons->InstallAs("$imagesDir/undo_disabled.png", "famfamfam_derived/arrow_undo_disabled.png");
 
 $cons->InstallAs("$imagesDir/macro_pause.png", "famfamfam_derived/control_pause_blue.png");
 $cons->InstallAs("$imagesDir/macro_pause_disable.png", "famfamfam_derived/control_pause.png");
