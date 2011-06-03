@@ -47,6 +47,8 @@
  *                      "false" means undo failed or was aborted.
  */
 
+xtk.include("controller");
+
 var log = ko.logging.getLogger("find.undorepl");
 //log.setLevel(ko.logging.LOG_DEBUG);
 
