@@ -160,7 +160,6 @@ $cons->InstallAs("$imagesDir/paste.png", "famfamfam_derived/page_paste.png");
 $cons->InstallAs("$imagesDir/paste_disabled.png", "famfamfam_derived/page_paste_disabled.png");
 
 $cons->InstallAs("$imagesDir/print_button.png", "famfamfam_derived/printer.png");
-$cons->InstallAs("$imagesDir/print_button_disabled.png", "famfamfam_derived/printer_disabled.png");
 
 $cons->InstallAs("$imagesDir/help.png", "famfamfam_derived/help.png");
 $cons->InstallAs("$imagesDir/help_disabled.png", "famfamfam_derived/help_disabled.png");
