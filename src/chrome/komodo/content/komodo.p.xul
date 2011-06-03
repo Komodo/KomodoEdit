@@ -647,12 +647,12 @@
                                     <menuitem label="&print.label;"
                                               id="menu_print"
                                               accesskey="&menuPrint.accesskey;"
-                                              class="menuitem-iconic print-button"
+                                              class="menuitem-iconic native-print-icon"
                                               observes="cmd_print"
                                               />
                                     <menuitem label="&printSelectedText.label;"
                                               id="menu_printSelected"
-                                              class="menuitem-iconic print-button"
+                                              class="menuitem-iconic native-print-icon"
                                               observes="cmd_printSelection"
                                               />
                                     <menuitem label="&printToHTMLFile.label;"
@@ -1693,7 +1693,7 @@
                     tooltiptext="&print.tooltiptext;"
                     persist="buttonstyle"
                     buttonstyle="pictures"
-                    class="print-button"
+                    class="native-print-icon"
                     observes="cmd_print"
                     label="&print.label;"/>
                 <toolbarbutton id="helpButton"

@@ -132,11 +132,18 @@ toolbarbutton {
   list-style-image : url("chrome://komodo/skin/images/redo_disabled.png");
 }
 
-.print-button {
+.print-button, /* deprecated since Komodo 7 */
+.native-print-icon
+{
+  /* #if PLATFORM == "linux" */
+  list-style-image : url("moz-icon://stock/gtk-print?size=16");
+  /* #else */
   list-style-image : url("chrome://komodo/skin/images/print_button.png");
+  /* #endif */
 }
-.print-button[disabled="true"] {
-  list-style-image : url("chrome://komodo/skin/images/print_button_disabled.png");
+.print-button[disabled="true"] > image, /* deprecated since Komodo 7 */
+.native-print-icon[disabled="true"] > image {
+  opacity: 0.25;
 }
 
 
