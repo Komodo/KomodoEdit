@@ -297,6 +297,20 @@
                     if (!label) {
                         tooltiptext = label = tab.label;
                     }
+
+                    // Commented this out - as we already have commands for
+                    // selecting tab by position.
+                    //
+                    // Add the position of the tab - makes for easy tab changes
+                    // using the keyboard.
+                    //var tabIndex = Array.slice(this.childNodes).indexOf(tab);
+                    //if (tabIndex >= 0) {
+                    //    label = (tabIndex + 1) + " " + label;
+                    //    if (tabIndex < 9) {
+                    //        menuitem.setAttribute("accesskey", (tabIndex + 1));
+                    //    }
+                    //}
+
                     menuitem.setAttribute("label", label);
                     menuitem.setAttribute("tooltiptext", tooltiptext);
                     
