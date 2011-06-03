@@ -421,9 +421,6 @@
 {
   list-style-image : url("chrome://komodo/content/icons/undo.png");
 }
-.green-undo-icon[disabled="true"] {
-  list-style-image : url("chrome://komodo/content/icons/undo.png");
-}
 
 
 
