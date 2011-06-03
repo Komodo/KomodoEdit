@@ -2390,7 +2390,7 @@ this.Manager.prototype.keypressHandler = function (event) {
 this.onload = function keybindingManagerOnLoad()
 {
     try {
-        ko.keybindings.manager = new ko.keybindings.manager();
+        ko.keybindings.manager = new ko.keybindings.Manager();
         // Load vim key handling stuff
         VimController_onload();
         // makes it handy for other things to access in different windows
