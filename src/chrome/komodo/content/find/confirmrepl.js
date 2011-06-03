@@ -120,6 +120,15 @@ function repls_on_keypress(event)
     return true;
 }
 
+function filter_skipped_paths(checkbox)
+{
+    try {
+        _g_replacer.filterSkippedPaths(checkbox.checked);
+    } catch(ex) {
+        log.exception(ex);
+    }
+}
+
 function show_selected_changes()
 {
     try {
@@ -215,6 +224,7 @@ function _init()
     _g_controller = new FindReplaceController();
     _g_replacer = _g_find_svc.confirmreplaceallinfiles(
         args.pattern, args.repl, args.context, _g_controller);
+    _g_replacer.filterSkippedPaths(document.getElementById('filter-skipped-paths').checked);
     widgets.repls.treeBoxObject.view = _g_replacer;
     _g_replacer.start();
 }

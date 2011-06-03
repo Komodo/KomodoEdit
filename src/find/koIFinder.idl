@@ -81,6 +81,8 @@ interface koIConfirmReplacerInFiles : nsITreeView {
     boolean isAlive();
     void stop();
 
+    void filterSkippedPaths(in boolean filter);
+
     void toggle_mark(in PRUint32 row_idx);
     AString diff_from_indeces(
         in PRUint32 count,

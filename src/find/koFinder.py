@@ -481,7 +481,9 @@ class _ConfirmReplacerInFiles(threading.Thread, TreeView):
 
         self.journal = None
         self.journal_id = None
+        self._filter_skipped_paths = False
         self.events = []
+        self.all_events = []
         self.num_hits = 0
         self.num_paths_with_hits = 0
         self.num_paths_skipped = 0
@@ -563,6 +565,30 @@ class _ConfirmReplacerInFiles(threading.Thread, TreeView):
                    and rgroup._marked:
                     rgroups.append(rgroup)
         return '\n'.join(rgroup.diff for rgroup in rgroups)
+
+    def filterSkippedPaths(self, doFilter):
+        self._filter_skipped_paths = doFilter
+        with self._lock:
+            previous_num_events = len(self.events)
+            previous_last_report_num_tree_rows = self._last_report_num_tree_rows
+
+            if doFilter:
+                self.events = [event for event in self.all_events if not self._isFilteredEvent(event)]
+            else:
+                self.events = self.all_events
+            num_events_now = len(self.events)
+            num_rows_changed = num_events_now - previous_num_events
+            self._last_report_num_tree_rows = previous_last_report_num_tree_rows + num_rows_changed
+
+        if num_rows_changed != 0:
+            self._treeProxy.beginUpdateBatch()
+            self._treeProxy.rowCountChanged(
+                # Starting at row N...
+                previous_num_events,
+                # ...for M rows.
+                num_rows_changed)
+            self._treeProxy.invalidate()
+            self._treeProxy.endUpdateBatch()
 
     def commit(self, resultsMgr):
         if self.isAlive():
@@ -700,17 +726,26 @@ class _ConfirmReplacerInFiles(threading.Thread, TreeView):
         self._last_report_num_paths_with_hits = self.num_paths_with_hits
         self._last_report_num_paths_searched = self.num_paths_searched
 
+    def _isFilteredEvent(self, event):
+        if self._filter_skipped_paths and isinstance(event, findlib2.SkipPath):
+            return True
+        return False
+
     def _add_repl_group(self, rgroup):
         self.num_paths_with_hits += 1
         self.num_hits += rgroup.length
         with self._lock:
+            self.all_events.append(rgroup)
+            # No need to filter the actual replace hits.
             rgroup._marked = True
             self.events.append(rgroup)
 
     def _add_skipped_path(self, event):
         self.num_paths_skipped += 1
         with self._lock:
-            self.events.append(event)
+            self.all_events.append(event)
+            if not self._isFilteredEvent(event):
+                self.events.append(event)
 
     #---- koITreeView methods
     def setTree(self, tree):

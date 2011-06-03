@@ -114,6 +114,10 @@
 
     <separator class="thin"/>
     <hbox>
+        <checkbox id="filter-skipped-paths"
+                  persist="checked"
+                  label="Filter skipped paths"
+                  oncommand="filter_skipped_paths(this);"/>
         <separator flex="1"/>
         <button id="show-selected-changes-btn" label="&showSelectedChanges.label;"
                 tooltiptext="&showSelectedChanges.tooltiptext;"
