@@ -862,6 +862,7 @@ int main(int argc, char **argv) { exit(0); }
                 log.debug("could not compile test C++ file with g++: %s", e)
                 return {}
             objdump = os.popen('objdump -p a.out').read()
+            ldd = os.popen('ldd a.out').read()
         finally:
             os.chdir(currdir)
 
@@ -885,6 +886,11 @@ int main(int argc, char **argv) { exit(0); }
     # If this is glibc, get its version.
     if int(_split_ver(lib_info["libc"])[0]) >= 6:
         libc_so = os.path.join("/lib", "libc.so."+lib_info["libc"])
+        if not os.path.exists(libc_so):
+            for line in ldd.split("\n"):
+                if line.startswith("\tlibc.so.%s => " % (lib_info["libc"],)):
+                    libc_so = line.split(" ")[2]
+                    break
         o = os.popen(libc_so)
         try:
             libc_so_ver_line = o.readline().strip()
