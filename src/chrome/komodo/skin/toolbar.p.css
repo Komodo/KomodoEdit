@@ -118,20 +118,6 @@ toolbarbutton {
   list-style-image : url("chrome://komodo/skin/images/paste_disabled.png");
 }
 
-#undoButton {
-  list-style-image : url("chrome://komodo/skin/images/undo.png");
-}
-#undoButton[disabled="true"] {
-  list-style-image : url("chrome://komodo/skin/images/undo_disabled.png");
-}
-
-#redoButton {
-  list-style-image : url("chrome://komodo/skin/images/redo.png");
-}
-#redoButton[disabled="true"] {
-  list-style-image : url("chrome://komodo/skin/images/redo_disabled.png");
-}
-
 .print-button, /* deprecated since Komodo 7 */
 .native-print-icon
 {

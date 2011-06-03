@@ -692,14 +692,14 @@
                     <menu id="menu_edit" label="&edit.label;" accesskey="&menuEdit.accesskey;">
                         <menupopup id="popup_edit">
                             <menuitem label="&undo.label;"
-                                      class="menuitem-iconic"
+                                      class="menuitem-iconic native-undo-icon"
                                       id="undoButton"
                                       accesskey="&undoButton.accesskey;"
                                       observes="cmd_undo"
                                       />
                             <menuitem label="&redo.label;"
                                       id="redoButton"
-                                      class="menuitem-iconic"
+                                      class="menuitem-iconic native-redo-icon"
                                       accesskey="&redoButton.accesskey;"
                                       observes="cmd_redo"
                                       />
@@ -1680,6 +1680,7 @@
                     tooltiptext="&undoLastAction.tooltiptext;"
                     persist="buttonstyle"
                     buttonstyle="pictures"
+                    class="native-undo-icon"
                     observes="cmd_undo"
                     label="&undo.label;"/>
                 <toolbarbutton id="redoButton"
@@ -1687,6 +1688,7 @@
                     observes="cmd_redo"
                     persist="buttonstyle"
                     buttonstyle="pictures"
+                    class="native-redo-icon"
                     label="&redo.label;"/>
                 <toolbarseparator/>
                 <toolbarbutton id="printButton"

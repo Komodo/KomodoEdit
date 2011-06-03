@@ -242,12 +242,30 @@
 }
 
 
-.find-undo-icon
+.find-undo-icon, /* deprecated since Komodo 7 */
+.native-undo-icon
 {
+  /* #if PLATFORM == "linux" */
+  list-style-image : url("moz-icon://stock/gtk-undo?size=16");
+  /* #else */
   list-style-image : url("chrome://komodo/skin/images/undo.png");
+  /* #endif */
 }
-.find-undo-icon[disabled="true"] {
-  list-style-image : url("chrome://komodo/skin/images/undo_disabled.png");
+.find-undo-icon[disabled="true"] > image, /* deprecated since Komodo 7 */
+.native-undo-icon[disabled="true"] > image {
+  opacity: 0.25;
+}
+
+.native-redo-icon
+{
+  /* #if PLATFORM == "linux" */
+  list-style-image : url("moz-icon://stock/gtk-redo?size=16");
+  /* #else */
+  list-style-image : url("chrome://komodo/skin/images/redo.png");
+  /* #endif */
+}
+.native-redo-icon[disabled="true"] > image {
+  opacity: 0.25;
 }
 
 
