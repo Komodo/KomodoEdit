@@ -305,10 +305,6 @@
         <menuitem id="menu_showUnsavedChanges"
                   label="&showUnsavedChanges.label;"
                   observes="cmd_showUnsavedChanges"/>
-        <menuitem id="editor-context-print"
-                class="menuitem-iconic print-button"
-                label="&print.label;"
-                observes="cmd_print"/>
         <menuseparator/>
         <menuitem id="menu_refreshStatus2"
                 label="&refreshStatus.label;"
