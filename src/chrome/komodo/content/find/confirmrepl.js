@@ -34,6 +34,8 @@
  * 
  * ***** END LICENSE BLOCK ***** */
 
+xtk.include("controller");
+
 /* Confirm a "Replace All in Files" operation.
  *
  * Usage:
@@ -56,7 +58,7 @@ var widgets = null; // object storing interesting XUL element references
 
 var _g_find_svc = null;
 var _g_replacer = null;     // the <koIConfirmReplacerInFiles> handler of replacements
-var _g_controller = null;   // Controller instance managing this dialog's UI.
+var _g_controller = null;   // FindReplaceController instance managing this dialog's UI.
 
 
 
@@ -210,7 +212,7 @@ function _init()
 
     // Hook up and start the "Replace in Files" process.
     var args = window.arguments[0];
-    _g_controller = new Controller();
+    _g_controller = new FindReplaceController();
     _g_replacer = _g_find_svc.confirmreplaceallinfiles(
         args.pattern, args.repl, args.context, _g_controller);
     widgets.repls.treeBoxObject.view = _g_replacer;
@@ -247,7 +249,7 @@ function _enable_widget(widget) {
 
 //---- Controller component for koIFindService to manage the UI.
 
-function Controller()
+function FindReplaceController()
 {
     this.log = log;
     this._have_had_first_report_with_hits = false;
@@ -257,9 +259,9 @@ function Controller()
     this.num_paths_searched = 0;
     this.num_paths_skipped = 0;
 }
-Controller.prototype.constructor = Controller;
+FindReplaceController.prototype.constructor = xtk.Controller;
 
-Controller.prototype.QueryInterface = function(iid) {
+FindReplaceController.prototype.QueryInterface = function(iid) {
     if (!iid.equals(Components.interfaces.koIConfirmReplaceController) &&
         !iid.equals(Components.interfaces.nsISupports)) {
         throw Components.results.NS_ERROR_NO_INTERFACE;
@@ -267,7 +269,7 @@ Controller.prototype.QueryInterface = function(iid) {
     return this;
 }
 
-Controller.prototype.report = function(num_hits, num_paths_with_hits,
+FindReplaceController.prototype.report = function(num_hits, num_paths_with_hits,
                                        num_paths_searched,
                                        num_paths_skipped)
 {
@@ -300,7 +302,7 @@ Controller.prototype.report = function(num_hits, num_paths_with_hits,
     }
 }
 
-Controller.prototype.done = function()
+FindReplaceController.prototype.done = function()
 {
     try {
         if (this.num_hits == 0) {
