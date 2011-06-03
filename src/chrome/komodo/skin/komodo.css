@@ -243,6 +243,9 @@ treechildren#toolbox2-hierarchy-treebody::-moz-tree-image {
 .native_file_image[alt_image="browser"] {
   list-style-image : url("chrome://komodo/skin/images/preview_in_browser.png");
 }
+.native_file_image[alt_image="startpage"] {
+  list-style-image : url("chrome://komodo/skin/images/komodo_16x16.png");
+}
 .native_file_image[alt_image="async_operation"] {
   list-style-image : url("chrome://global/skin/icons/loading_16.png");
 }

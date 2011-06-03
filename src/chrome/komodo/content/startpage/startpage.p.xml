@@ -1130,6 +1130,7 @@
             this.log.info("initWithDocument");
             this.koDoc = doc;
             this.parentView.updateLeafName(this);
+            this.parentView.updateFileStatus(this);
             xtk.domutils.fireEvent(this, 'view_document_attached');
             xtk.domutils.fireEvent(this, 'current_view_changed');
         ]]> </body>

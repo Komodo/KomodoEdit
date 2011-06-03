@@ -496,24 +496,33 @@ this.setFileStatusAttributesFromDoc = function peFile_setFileStatusAttributesFro
 }
 
 this.setFileStatusAttributesFromView = function peFile_setFileStatusAttributesFromView(element, view) {
-    let koFile = view && view.koDoc && view.koDoc.file;
-    if (koFile && view.koDoc.isUntitled) {
-        koFile = null;
-    }
-    
-    if (koFile) {
-        this.setFileStatusAttributesFromFile(element, koFile);
-    } else {
-        element.removeAttribute('file_image_url');
-        element.removeAttribute('file_status');
-        if (!view.icon_type) {
-            element.removeAttribute('alt_image');
+    var viewType = view.getAttribute("type");
+    if (viewType != "startpage" && viewType != "browser") {
+        let koFile = view && view.koDoc && view.koDoc.file;
+        if (koFile && view.koDoc.isUntitled) {
+            koFile = null;
         }
-    }
-
-    if (view.icon_type) {
-        element.removeAttribute('file_image_url');
-        element.setAttribute('alt_image', view.icon_type);
+        
+        if (koFile) {
+            this.setFileStatusAttributesFromFile(element, koFile);
+        } else {
+            element.removeAttribute('file_image_url');
+            element.removeAttribute('file_status');
+            if (!view.icon_type) {
+                element.removeAttribute('alt_image');
+            }
+        }
+    
+        if (view.icon_type) {
+            element.removeAttribute('file_image_url');
+            element.setAttribute('alt_image', view.icon_type);
+        }
+    } else {
+        if (view.icon_type) {
+            element.setAttribute('alt_image', view.icon_type);
+        } else {
+            element.setAttribute('alt_image', viewType);
+        }
     }
 }
 
