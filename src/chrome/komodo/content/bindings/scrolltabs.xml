@@ -52,10 +52,10 @@
             <xul:hbox class="tab-image-left" xbl:inherits="selected"/>
             <xul:hbox flex="1" class="tab-image-middle" xbl:inherits="selected" align="center">
                 <xul:hbox flex="0" class="tab-icons file-status-icons" align="center" pack="center">
-                    <xul:image class="tab-icon native_file_image" xbl:inherits="validate,disabled,src=file_image_url,async_operation"/>
+                    <xul:image class="tab-icon native_file_image" xbl:inherits="validate,disabled,src=file_image_url,alt_image"/>
                     <xul:image class="tab-icon file-status-icon" xbl:inherits="validate,disabled,file_status,tooltiptext=filestatustip"/>
-                    <xul:image class="tab-icon file-status2-icon" xbl:inherits="validate,disabled,file_status2,tooltiptext=filestatus2tip"/>
                     <xul:image class="tab-icon file-readonly-icon" xbl:inherits="validate,disabled,file_readonly,tooltiptext=locktip"/>
+                    <xul:image class="tab-icon file-status2-icon" xbl:inherits="validate,disabled,file_status2,tooltiptext=filestatus2tip"/>
                 </xul:hbox>
                 <xul:label class="tab-text" xbl:inherits="value=label,accesskey,crop,disabled,selected"
                            flex="1" anonid="label" crop="right"/>
@@ -283,7 +283,12 @@
                         // toolbox, usually don't.
                         try {
                             var view = document.getElementById(tab.linkedPanel).firstChild;
-                            [label, tooltiptext] = ko.views.labelsFromView(view, null, true);
+                            if (view) {
+                                [label, tooltiptext] = ko.views.labelsFromView(view, null, true);
+                                // Add file status images to the menuitems.
+                                menuitem.setAttribute('class', 'menuitem-file-status');
+                                ko.fileutils.setFileStatusAttributesFromView(menuitem, view);
+                            }
                         } catch (ex) {
                             var _log = ko.logging.getLogger("scrolltabs");
                             _log.exception("error calculating tab label '"+label+"': "+ex+"\n");
@@ -295,22 +300,8 @@
                     menuitem.setAttribute("label", label);
                     menuitem.setAttribute("tooltiptext", tooltiptext);
                     
-                    //TODO: Status icons. The tab's icons are zero or more
-                    //  URLs in the 'status', 'status2', 'action', 'readonly'
-                    //  and 'image' attributes on the tab.
-                    //  As a starter I tried to use just the 'status' icon,
-                    //  but I cannot get the 'image' attribute to work as
-                    //  follows:
-                    //menuitem.setAttribute('type', 'menuitem-iconic');
-                    //var image = tab.getAttribute("status");
-                    //if (image) {
-                    //    menuitem.setAttribute("image", image);
-                    //}
-                    
                     if (tab.selected) {
-                        menuitem.setAttribute('class', 'selected');
-                        menuitem.setAttribute('type', 'checkbox');
-                        menuitem.setAttribute('checked', 'true');
+                        menuitem.setAttribute('style', 'font-weight: bold');
                     } else {
                         // Command also requires a setFocus - see bug 89163.
                         menuitem.setAttribute('oncommand', 'this.tab.control.selectedItem = this.tab; ko.views.manager.currentView.setFocus();');

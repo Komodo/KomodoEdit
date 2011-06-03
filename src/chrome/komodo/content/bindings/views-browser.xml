@@ -73,6 +73,9 @@
              in order to be able to show a browser preview. -->
         <field name="tempPreviewFile">null</field>
 
+        <!-- The icon_type is a CSS class used to style the view's icon. -->
+        <field name="icon_type">'browser'</field>
+
         <property name="_backButton"
             onget="return window.document.getAnonymousElementByAttribute(this, 'anonid', 'browser-back-button');"/>
         <property name="_forwardButton"
@@ -256,6 +259,7 @@
               onStateChange : function(aWebProgress, aRequest, aStateFlags, aStatus) {
                 if (aStateFlags & Components.interfaces.nsIWebProgressListener.STATE_STOP) {
                     this.view.parentView.updateLeafName(this.view);
+                    this.view.parentView.updateFileStatus(this.view);
                     this.view.setBusy(false);
                     this.view.resetArrowButtons();
                 }
@@ -267,6 +271,7 @@
                 // Update urlbar only if there was a load on the root docshell
                 if (domWindow == domWindow.top) {
                   this.view.parentView.updateLeafName(this.view);
+                  this.view.parentView.updateFileStatus(this.view);
                   this.view.urlBar.value = aLocation.spec;
                   if (this.view.koDoc && this.view.koDoc.file.URI != aLocation.spec &&
                       !this.view.tempPreviewFile) {
@@ -376,8 +381,10 @@
             this.setBusy(true);
             this.resetArrowButtons();
 
-            if (this.parentView)
+            if (this.parentView) {
                 this.parentView.updateLeafName(this);
+                this.parentView.updateFileStatus(this);
+            }
             if (notify) {
                 xtk.domutils.fireEvent(this, 'view_document_attached');
                 xtk.domutils.fireEvent(this, 'current_view_changed');

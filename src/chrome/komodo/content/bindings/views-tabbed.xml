@@ -301,11 +301,9 @@
         <parameter name="view"/>
         <body>
         <![CDATA[
-            if (!view.koDoc) return;
-
             let tab = view.parentNode._tab;
             try {
-                ko.fileutils.setFileStatusAttributesFromDoc(tab, view.koDoc);
+                ko.fileutils.setFileStatusAttributesFromView(tab, view);
             } catch(ex) {
                 this.log.exception(ex, 'Unable to set file status attributes');
             } finally {

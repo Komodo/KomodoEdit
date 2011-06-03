@@ -452,12 +452,12 @@ this.showDiffs = function peFile_ShowDiffs(fname1, fname2) {
     window.setTimeout(_openDiffWindowForFiles, 0, fname1, fname2);
 }
 
-this.setFileStatusAttributesFromFile = function peFile_setFileStatusAttributes(element, koFile) {
+this.setFileStatusAttributesFromFile = function peFile_setFileStatusAttributesFromView(element, koFile) {
     // Here we set the attributes for our file status indicators. The following
     // attributes on the element can be set:
 
+    // alt_image = [async_operation];
     // file_readonly=[readonly]
-    // file_status = [async_operation];
 
     // File image url.
     element.setAttribute('file_image_url', 'moz-icon://' + koFile.baseName + '?size=16');
@@ -476,20 +476,45 @@ this.setFileStatusAttributesFromFile = function peFile_setFileStatusAttributes(e
         // This file has an asynchronous operation pending, give it
         // the "processing" throbber image.
         element.removeAttribute('file_image_url');
-        element.setAttribute('async_operation', 'true');
+        element.setAttribute('alt_image', 'async_operation');
+    } else if (element.getAttribute('alt_image') == 'async_operation') {
+        element.removeAttribute('alt_image');
     }
 }
 
-this.setFileStatusAttributesFromDoc = function peFile_setFileStatusAttributes(element, koDoc) {
+this.setFileStatusAttributesFromDoc = function peFile_setFileStatusAttributesFromDoc(element, koDoc) {
     let koFile = koDoc.isUntitled ? null : koDoc.file;
 
     if (!koFile) {
         element.removeAttribute('file_image_url');
         element.removeAttribute('file_status');
+        element.removeAttribute('alt_image');
         return;
     }
 
     this.setFileStatusAttributesFromFile(element, koFile);
+}
+
+this.setFileStatusAttributesFromView = function peFile_setFileStatusAttributesFromView(element, view) {
+    let koFile = view && view.koDoc && view.koDoc.file;
+    if (koFile && view.koDoc.isUntitled) {
+        koFile = null;
+    }
+    
+    if (koFile) {
+        this.setFileStatusAttributesFromFile(element, koFile);
+    } else {
+        element.removeAttribute('file_image_url');
+        element.removeAttribute('file_status');
+        if (!view.icon_type) {
+            element.removeAttribute('alt_image');
+        }
+    }
+
+    if (view.icon_type) {
+        element.removeAttribute('file_image_url');
+        element.setAttribute('alt_image', view.icon_type);
+    }
 }
 
 }).apply(ko.fileutils);
