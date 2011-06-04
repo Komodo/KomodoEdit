@@ -35,6 +35,7 @@
 # ***** END LICENSE BLOCK *****
 
 from xpcom import components, ServerException
+from xpcom.server import UnwrapObject
 import timeline
 
 from koLanguageServiceBase import *
@@ -411,5 +412,5 @@ class KoGenericXMLLinter(object):
         return self._xml_linter.lint(request)
 
     def lint_with_text(self, request, text):
-        return self._xml_linter.lint_with_text(request, text)
+        return UnwrapObject(self._xml_linter).lint_with_text(request, text)
 
