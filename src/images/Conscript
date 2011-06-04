@@ -149,13 +149,10 @@ $cons->InstallAs("$imagesDir/macro_stop.png", "famfamfam_derived/control_stop_bl
 $cons->InstallAs("$imagesDir/macro_stop_disable.png", "famfamfam_derived/control_stop.png");
 
 $cons->InstallAs("$imagesDir/cut.png", "famfamfam_derived/cut.png");
-$cons->InstallAs("$imagesDir/cut_disabled.png", "famfamfam_derived/cut_disabled.png");
 
 $cons->InstallAs("$imagesDir/copy.png", "famfamfam_derived/page_copy.png");
-$cons->InstallAs("$imagesDir/copy_disabled.png", "famfamfam_derived/page_copy_disabled.png");
 
 $cons->InstallAs("$imagesDir/paste.png", "famfamfam_derived/page_paste.png");
-$cons->InstallAs("$imagesDir/paste_disabled.png", "famfamfam_derived/page_paste_disabled.png");
 
 $cons->InstallAs("$imagesDir/print_button.png", "famfamfam_derived/printer.png");
 
