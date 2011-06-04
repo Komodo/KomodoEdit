@@ -249,17 +249,17 @@
         <menuitem id="editor-context-cut"
                 label="&cut.label;"
                 accesskey="&cutButton.accesskey;"
-                class="menuitem-iconic cut-button"
+                class="menuitem-iconic native-cut-icon"
                 observes="cmd_cut"/>
         <menuitem id="editor-context-copy"
                 label="&copy.label;"
                 accesskey="&copyButton.accesskey;"
-                class="menuitem-iconic copy-button"
+                class="menuitem-iconic native-copy-icon"
                 observes="cmd_copy"/>
         <menuitem id="editor-context-paste"
                 label="&paste.label;"
                 accesskey="&pasteButton.accesskey;"
-                class="menuitem-iconic paste-button"
+                class="menuitem-iconic native-paste-icon"
                 observes="cmd_paste"/>
 
         <menuseparator id="editor_context_select_separator"/>
@@ -409,11 +409,11 @@
                onpopupshowing="window.updateCommands('buffer_context_menu_showing');">
         <menuitem id="buffer-context-copy"
                 label="&copy.label;"
-                class="menuitem-iconic copy-button"
+                class="menuitem-iconic native-copy-icon"
                 observes="cmd_copy"/>
         <menuitem id="buffer-context-paste"
                 label="&paste.label;"
-                class="menuitem-iconic paste-button"
+                class="menuitem-iconic native-paste-icon"
                 observes="cmd_paste"/>
         <menuitem id="buffer-context-editSelectAll"
                 label="&selectAll.label;"
@@ -708,19 +708,19 @@
 
                             <menuitem label="&cut.label;"
                                       id="cutButton"
-                                      class="menuitem-iconic cut-button"
+                                      class="menuitem-iconic native-cut-icon"
                                       accesskey="&cutButton.accesskey;"
                                       observes="cmd_cut"
                                       />
                             <menuitem label="&copy.label;"
                                       id="copyButton"
-                                      class="menuitem-iconic copy-button"
+                                      class="menuitem-iconic native-copy-icon"
                                       accesskey="&copyButton.accesskey;"
                                       observes="cmd_copy"
                                       />
                             <menuitem label="&paste.label;"
                                       id="pasteButton"
-                                      class="menuitem-iconic paste-button"
+                                      class="menuitem-iconic native-paste-icon"
                                       accesskey="&pasteButton.accesskey;"
                                       observes="cmd_paste"
                                       />
@@ -1659,21 +1659,21 @@
                     persist="buttonstyle"
                     buttonstyle="pictures"
                     observes="cmd_cut"
-                    class="cut-button"
+                    class="native-cut-icon"
                     label="&cut.label;"/>
                 <toolbarbutton id="copyButton"
                     tooltiptext="&copy.tooltiptext;"
                     persist="buttonstyle"
                     buttonstyle="pictures"
                     observes="cmd_copy"
-                    class="copy-button"
+                    class="native-copy-icon"
                     label="&copy.label;"/>
                 <toolbarbutton id="pasteButton"
                     tooltiptext="&paste.tooltiptext;"
                     persist="buttonstyle"
                     buttonstyle="pictures"
                     observes="cmd_paste"
-                    class="paste-button"
+                    class="native-paste-icon"
                     label="&paste.label;"/>
                 <toolbarseparator/>
                 <toolbarbutton id="undoButton"

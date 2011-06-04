@@ -243,20 +243,20 @@
                            />
             <menuitem id="toolbox2ContextMenu_cut"
                       label="&cut.label;"
-                      class="menuitem-iconic cut-button"
+                      class="menuitem-iconic native-cut-icon"
                       oncommand="ko.toolbox2.cutItem(event)"
                       disableIf="standardToolbox"
                       testDisableIf="t:raggedMultipleSelection"
                       />
             <menuitem id="toolbox2ContextMenu_copy"
                       label="&copy.label;"
-                      class="menuitem-iconic copy-button"
+                      class="menuitem-iconic native-copy-icon"
                       oncommand="ko.toolbox2.copyItem(event)"
                       testDisableIf="t:raggedMultipleSelection"
                       />
             <menuitem id="toolbox2ContextMenu_partPaste"
                       keep_background="true"
-                      class="menuitem-iconic paste-button"
+                      class="menuitem-iconic native-paste-icon"
                       label="&paste.label;"
                       disableUnless="folder menu toolbar standardToolbox"
                       oncommand="ko.toolbox2.pasteIntoItem(event)"

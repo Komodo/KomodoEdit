@@ -97,25 +97,46 @@ toolbarbutton {
   list-style-image : url("chrome://komodo/skin/images/saveAll_disabled.png");
 }
 
-.cut-button {
+.cut-button, /* deprecated since Komodo 7 */
+.native-cut-icon
+{
+  /* #if PLATFORM == "linux" */
+  list-style-image : url("moz-icon://stock/gtk-cut?size=16");
+  /* #else */
   list-style-image : url("chrome://komodo/skin/images/cut.png");
+  /* #endif */
 }
-.cut-button[disabled="true"] {
-  list-style-image : url("chrome://komodo/skin/images/cut_disabled.png");
+.cut-button[disabled="true"] > image, /* deprecated since Komodo 7 */
+.native-cut-icon[disabled="true"] > image {
+  opacity: 0.25;
 }
 
-.copy-button {
+.copy-button, /* deprecated since Komodo 7 */
+.native-copy-icon
+{
+  /* #if PLATFORM == "linux" */
+  list-style-image : url("moz-icon://stock/gtk-copy?size=16");
+  /* #else */
   list-style-image : url("chrome://komodo/skin/images/copy.png");
+  /* #endif */
 }
-.copy-button[disabled="true"] {
-  list-style-image : url("chrome://komodo/skin/images/copy_disabled.png");
+.copy-button[disabled="true"] > image, /* deprecated since Komodo 7 */
+.native-copy-icon[disabled="true"] > image {
+  opacity: 0.25;
 }
 
-.paste-button {
+.paste-button, /* deprecated since Komodo 7 */
+.native-paste-icon
+{
+  /* #if PLATFORM == "linux" */
+  list-style-image : url("moz-icon://stock/gtk-paste?size=16");
+  /* #else */
   list-style-image : url("chrome://komodo/skin/images/paste.png");
+  /* #endif */
 }
-.paste-button[disabled="true"] {
-  list-style-image : url("chrome://komodo/skin/images/paste_disabled.png");
+.paste-button[disabled="true"] > image, /* deprecated since Komodo 7 */
+.native-paste-icon[disabled="true"] > image {
+  opacity: 0.25;
 }
 
 .print-button, /* deprecated since Komodo 7 */

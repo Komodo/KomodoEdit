@@ -123,7 +123,7 @@
         <menuseparator/>
         <menuitem id="buffer-context-copy"
                   label="&copy.label;"
-                  class="menuitem-iconic copy-button"
+                  class="menuitem-iconic native-copy-icon"
                   observes="cmd_copy"/>
         <menuitem id="buffer-context-editSelectAll"
                   label="&selectAll.label;"

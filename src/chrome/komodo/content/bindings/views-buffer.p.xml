@@ -51,15 +51,15 @@
     <content>
         <xul:menuitem id="buffer-context-cut"
                       label="&cut.label;"
-                      class="menuitem-iconic cut-button"
+                      class="menuitem-iconic native-cut-icon"
                       observes="cmd_cut"/>
         <xul:menuitem id="buffer-context-copy"
                       label="&copy.label;"
-                      class="menuitem-iconic copy-button"
+                      class="menuitem-iconic native-copy-icon"
                       observes="cmd_copy"/>
         <xul:menuitem id="buffer-context-paste"
                       label="&paste.label;"
-                      class="menuitem-iconic paste-button"
+                      class="menuitem-iconic native-paste-icon"
                       observes="cmd_paste"/>
         <xul:menuitem id="buffer-context-editSelectAll"
                       label="&selectAll.label;"
