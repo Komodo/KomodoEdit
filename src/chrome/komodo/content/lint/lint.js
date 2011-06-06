@@ -392,7 +392,7 @@ this.lintBuffer.prototype.request = function(reason /* = "" */)
 // koILintBuffer.reportResults()
 this.lintBuffer.prototype.reportResults = function(request)
 {
-    if (!this.view) {
+    if (!this.view || !this.view.koDoc) {
         _log.debug("lineBuffer.reportResults: this.view is null");
         return;
     }
@@ -683,7 +683,17 @@ this.doClick = function lint_doClick(event) {
     }
 }
 
-this.initializeGenericPrefs = function(prefset) {
+this.initializeGenericPrefs = function(prefset, attemptNo) {
+    if (!prefset || !ko.views || !ko.views.manager) {
+        if (typeof(attemptNo) == "undefined") {
+            attemptNo = 0;
+        } else if (attemptNo >= 10) {
+            log.error("Can't get prefset on initializeGenericPrefs");
+            return;
+        }
+        setTimeout(ko.lint.initializeGenericPrefs, 4000, prefset || ko.prefs, attemptNo + 1);
+        return;
+    }
     var ids = {};
     prefset.getPrefIds(ids, {});
     var idNames = ids.value.filter(function(x) x.indexOf("genericLinter:") == 0);
@@ -697,7 +707,7 @@ this.initializeGenericPrefs = function(prefset) {
 }
 
 }).apply(ko.lint);
-setTimeout(ko.lint.initializeGenericPrefs, 4000, ko.prefs);
+setTimeout(ko.lint.initializeGenericPrefs, 4000, ko.prefs, 0);
 
 /**
  * @deprecated since 7.0
