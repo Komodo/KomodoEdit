@@ -1,0 +1,18 @@
+<codeintel version="2.0">
+  <file lang="JavaScript" mtime="42" path="scan_inputs/javascript_aliases.js">
+    <scope ilk="blob" lang="JavaScript" name="javascript_aliases.js" src="scan_inputs/javascript_aliases.js">
+      <scope classrefs="Object" ilk="class" line="1" lineend="2" name="ClassName">
+        <scope attributes="__ctor__" ilk="function" line="1" lineend="1" name="ClassName" signature="ClassName()">
+          <variable citdl="ClassName" name="this" />
+        </scope>
+        <variable citdl="ClassName" line="2" name="constructor" />
+        <scope ilk="function" line="6" lineend="6" name="method" signature="method()">
+          <variable citdl="ClassName" name="this" />
+        </scope>
+      </scope>
+      <variable citdl="ClassName" line="4" name="alias" />
+      <variable citdl="ClassName" line="5" name="instance" />
+      <variable citdl="loop" line="9" name="loop" />
+    </scope>
+  </file>
+</codeintel>

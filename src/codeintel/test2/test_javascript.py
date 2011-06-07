@@ -1393,7 +1393,7 @@ class ExtTestCase(CodeIntelTestCase):
     #    self.assertCompletionsInclude("YAHOO.<|>",
     #        [("variable", "util"), ("variable", "widget")])
 
-    @tag("bug70684", "knownfailure")
+    @tag("bug70684")
     def test_intelligent_type_scanning(self):
         # Try more than once to test alternate code path after caching.
         content, positions = unmark_text(dedent("""\
