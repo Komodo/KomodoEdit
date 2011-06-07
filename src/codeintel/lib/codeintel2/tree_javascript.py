@@ -474,9 +474,9 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
             if requirename is not None:
                 import codeintel2.lang_javascript
                 requirename = codeintel2.lang_javascript.Utils.unquoteJsString(requirename)
-                self.log("_hits_from_call: resolving CommonJS require(%s)",
+                self.log("_hits_from_call: resolving CommonJS require(%r)",
                          requirename)
-                hits = self._hits_from_commonjs_require(requirename)
+                hits = self._hits_from_commonjs_require(requirename, scoperef)
                 if len(hits) > 0:
                     return hits
 
@@ -621,7 +621,7 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
             self.log("_hits_from_variable_type_inference: resolving require(%r)",
                      requirename)
             if requirename:
-                hits = self._hits_from_commonjs_require(requirename)
+                hits = self._hits_from_commonjs_require(requirename, scoperef)
                 if hits:
                     return hits
         return self._hits_from_citdl(citdl, scoperef)
@@ -724,7 +724,7 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
 
         return hits, nconsumed
 
-    def _hits_from_commonjs_require(self, requirename):
+    def _hits_from_commonjs_require(self, requirename, scoperef):
         """Resolve hits from a CommonJS require() invocation"""
         # Files usually end with a ".js" suffix, though others are like
         # ".node" are possible.

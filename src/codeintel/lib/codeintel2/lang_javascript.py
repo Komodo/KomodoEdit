@@ -185,6 +185,7 @@ class JavaScriptLangIntel(CitadelLangIntel,
                           ProgLangTriggerIntelMixin,
                           PythonCITDLExtractorMixin):
     lang = lang
+    _evaluatorClass = JavaScriptTreeEvaluator
 
     # The way namespacing is done with variables in JS means that grouping
     # global vars is just annoying.
@@ -606,8 +607,7 @@ class JavaScriptLangIntel(CitadelLangIntel,
                 ctlr.done("error")
                 return
         line = buf.accessor.line_from_pos(trg.pos)
-        evalr = JavaScriptTreeEvaluator(ctlr, buf, trg,
-                                        citdl_expr, line)
+        evalr = self._evaluatorClass(ctlr, buf, trg, citdl_expr, line)
         buf.mgr.request_eval(evalr)
 
     def _extra_dirs_from_env(self, env):
@@ -682,7 +682,7 @@ class JavaScriptLangIntel(CitadelLangIntel,
                 # - curdirlib (before extradirslib; only if pure JS file)
                 cwd = dirname(normpath(buf.path))
                 if cwd not in extra_dirs:
-                    libs.insert(0, db.get_lang_lib(lang, "curdirlib", [cwd]))
+                    libs.insert(0, db.get_lang_lib(self.lang, "curdirlib", [cwd]))
 
             # - cataloglib, stdlib
             catalog_selections = env.get_pref("codeintel_selected_catalogs")
