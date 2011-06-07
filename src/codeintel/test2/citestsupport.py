@@ -407,10 +407,14 @@ class CodeIntelTestCase(unittest.TestCase):
             "unexpected %s completions at the given position\n"
             "  expected: %r\n"
             "  got:      %r\n"
+            "  extra:    %r\n"
+            "  missing:  %r\n"
             "  eval log\n%s\n"
             "  buffer:\n%s"
             % (lang, completions,
                actual_completions,
+               list(set(actual_completions or []).difference(completions or [])),
+               list(set(completions or []).difference(actual_completions or [])),
                indent('\n'.join('%5s: %s' % (lvl,m) for lvl,m in ctlr.log)),
                indent(markedup_content)))
 
