@@ -208,7 +208,23 @@ class CplnTestCase(CodeIntelTestCase):
              # the rest are tested in test_nodejs_console
             ])
 
-    @tag("nodejs", "knownfailure")
+    @tag("nodejs")
+    def test_nodejs_global_accessor(self):
+        """
+        Test that the Node.js global accessor, |global|, is usable
+        """
+        manifest = {
+            "test.js": """
+                global.foo = new Array();
+                foo.<1>;
+                """,
+        }
+        buf, positions = self._write_files(manifest=manifest, name="global_accessor")
+        self.assertCompletionsInclude2(buf, positions[1],
+            [("function", "concat"),
+            ])
+
+    @tag("nodejs")
     def test_nodejs_globals_no_pollute(self):
         """
         Test that the modules don't pollute the global namespace

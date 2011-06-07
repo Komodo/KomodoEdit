@@ -962,6 +962,15 @@ class CplnTestCase(CodeIntelTestCase):
                 markup_text(content, pos=positions[4]),
                 "Dumper()")
 
+    def test_import_no_auto(self):
+        """
+        Check that we don't automatically import all available modules
+        """
+        content = dedent("""\
+            Env::<|>
+        """)
+        self.assertCompletionsAre(content, None)
+
     def test_data_dumper(self):
         content, positions = unmark_text(dedent("""\
             use Data::Dumper;

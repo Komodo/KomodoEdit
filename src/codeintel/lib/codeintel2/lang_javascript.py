@@ -928,7 +928,7 @@ class JavaScriptCILEDriver(CILEDriver):
             # CIX requires a normalized path.
             norm_path = norm_path.replace('\\', '/')
         mtime = "XXX"
-        jscile = JavaScriptCiler(self.mgr, norm_path, mtime)
+        jscile = JavaScriptCiler(self.mgr, norm_path, mtime, lang=buf.lang)
         # Profiling code: BEGIN
         #import hotshot, hotshot.stats
         #profiler = hotshot.Profile("%s.prof" % (__file__))
@@ -1569,9 +1569,10 @@ class JavaScriptCiler:
     UDL_COMMENT_STYLES = (SCE_UDL_CSL_COMMENT,
                           SCE_UDL_CSL_COMMENTBLOCK)
 
-    def __init__(self, mgr, path="", mtime=None):
+    def __init__(self, mgr, path="", mtime=None, lang="JavaScript"):
         self.mgr = mgr
         self.path = path
+        self.lang = lang
         # hook up the lexical matches to a function that handles the token
 
         # Working variables, used in conjunction with state
@@ -2215,7 +2216,11 @@ class JavaScriptCiler:
     def _findOrCreateScope(self, namelist, attrlist=("variables", ),
                            fromScope=None, isLocal=False):
         # Don't create a window scope - bug 87442.
-        if namelist[0] == "window":
+        global_var = {
+            "JavaScript": "window",
+            "Node.js":    "global",
+        }.get(self.lang)
+        if namelist[0] == global_var:
             fromScope = self.cile
             namelist =  namelist[1:]
             if not namelist:

@@ -302,6 +302,17 @@ class CplnTestCase(CodeIntelTestCase):
             [("function", "setTree"),
              ("variable", "treebox")])
 
+    def test_global_accessor(self):
+        # JS completion for stuff in just the local file.
+        content, positions = unmark_text(dedent("""\
+            window.foo = new Array();
+            foo.<1>;
+        """))
+        # Should not include name, due to it being private
+        self.assertCompletionsInclude(
+            markup_text(content, pos=positions[1]),
+            [("function", "concat")])
+
     def test_ctor_scope_cheat(self):
         # At one point was getting this error:
         #     error: error evaluating 'this.baz' at rand20#7: ValueError: too many values to unpack (/home/trentm/as/Komodo-devel/src/codeintel/lib/codeintel2/tree.py#854 in get_parent_scope)

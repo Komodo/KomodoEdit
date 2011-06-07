@@ -23,6 +23,12 @@
                 doc="The filename of the script being executed. This is the absolute path, and not necessarily the same filename passed in as a command line argument."/>
       <variable citdl="String" name="__dirname"
                 doc="The dirname of the script being executed."/>
+      <scope ilk="namespace" name="module"
+             doc="A reference to the current module. In particular module.exports is the same as the exports object. See src/node.js for more information. module isn't actually a global but rather local to each module.">
+        <scope ilk="namespace" name="exports"/>
+      </scope>
+      <variable citdl="module.exports" name="exports"/>
+      <variable citdl="*" name="global"/>
     </scope>
   </file>
 </codeintel>
