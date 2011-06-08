@@ -152,6 +152,25 @@ class CplnTestCase(CodeIntelTestCase):
             [("function", "method"), ])
 
     @tag("nodejs")
+    def test_nodejs_require_module_exports(self):
+        """
+        Test exporting via module.exports
+        """
+        manifest = {
+            "test.js": """
+                require('./dummy').<1>;
+                """,
+            "dummy.js": """
+                module.exports = {
+                    method: function() {}
+                };
+                """,
+        }
+        buf, positions = self._write_files(manifest=manifest, name="require_module_exports")
+        self.assertCompletionsInclude2(buf, positions[1],
+            [("function", "method"), ])
+
+    @tag("nodejs")
     def test_nodejs_require_not_buf_path(self):
         """
         Test require() from a path that is not the buffer path

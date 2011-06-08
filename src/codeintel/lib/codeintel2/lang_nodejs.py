@@ -128,7 +128,12 @@ class NodeJSTreeEvaluator(JavaScriptTreeEvaluator):
                     if exports is not None and exports.tag == "variable":
                         hits += self._hits_from_variable_type_inference(exports, [blob, ["exports"]])
                     else:
-                        self.log("Exported exports to be a variable, got %r instead", exports)
+                        # try module.exports
+                        module = blob.names.get("module")
+                        if module is not None:
+                            exports = module.names.get("exports")
+                            if exports is not None and exports.tag == "variable":
+                                hits += self._hits_from_variable_type_inference(exports, [blob, ["module", "exports"]])
                 if hits:
                     return hits
             return None
@@ -179,7 +184,7 @@ class NodeJSTreeEvaluator(JavaScriptTreeEvaluator):
             return hits or []
 
         # if we get here, this is a bare module name, require("foo") or require("foo/bar")
-        parts = filter(bool, srcdir.split(os.sep))
+        parts = os.path.normpath(srcdir).split(os.sep)
         try:
             root_index = parts.index("node_modules") - 1
         except ValueError:
@@ -189,7 +194,7 @@ class NodeJSTreeEvaluator(JavaScriptTreeEvaluator):
             if part_index > 0 and parts[part_index - 1] == "node_modules":
                 # don't try foo/node_modules/node_modules
                 continue
-            dir = os.sep.join([""] + parts[:part_index] + ["node_modules"])
+            dir = os.sep.join(parts[:part_index] + ["node_modules"])
             hits = load_as_file(os.path.join(dir, requirename))
             if hits is None:
                 hits = load_as_directory(os.path.join(dir, requirename))
