@@ -38,11 +38,6 @@ tabpanel
   margin: 0px;
 }
 
-.sidepanel tabpanels {
-  border: None;
-  padding: 0px;
-}
-
 /* Fix disabled autocomplete-textbox styling on Linux and Vista (bug 75996).
  * 
  * Only *specifically* doing this for non-MacOSX and for textboxes of

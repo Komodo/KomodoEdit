@@ -9,17 +9,3 @@ tabs[type="sidebar"]
   border-bottom: 1px solid ThreeDShadow;
   border-top: 1px solid ThreeDHighlight;
 }
-
-tabbox.sidepanel label.tab-text {
-  -moz-padding-start: 4px;
-}
-
-/* Drop the default 1 pixel border around trees and make the top border
- * blend into the side panel toolbar/header
- */
-tabbox.sidepanel tree {
-  -moz-appearance: none;
-  border: 0;
-  margin: 0;
-  border-top: 1px solid ThreeDShadow;
-}

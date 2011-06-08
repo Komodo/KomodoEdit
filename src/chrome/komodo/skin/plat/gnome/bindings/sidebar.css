@@ -5,25 +5,10 @@ tabs[type="sidebar"]
   -moz-binding: url('chrome://komodo/content/bindings/scrolltabs.xml#tabs-droplist');
 }
 
-tabbox.sidepanel label.tab-text {
-  -moz-padding-start: 6px;
-}
-
 /* Ensure the buttons are vertically aligned. */
 .sidebar-buttons {
   -moz-box-align: center;
   padding-right: 6px;
-}
-
-/* Drop the default 1 pixel border around trees and make the top border
- * blend into the side panel toolbar/header
- */
-tabbox.sidepanel tree
-{
-  -moz-appearance: none;
-  border: 0;
-  margin: 0;
-  border-top: 1px solid;
 }
 
 tabbox#leftTabBox > tabs {
