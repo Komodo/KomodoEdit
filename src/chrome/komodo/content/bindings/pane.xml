@@ -186,7 +186,9 @@
       <property name="collapsed">
         <getter>
         <![CDATA[
-          return this.hasAttribute("collapsed");
+          // somebody silly somewhere is setting collapsed to empty string (which
+          // isn't considered to be collapsed), so we have to check for that too
+          return !!this.getAttribute("collapsed");
         ]]>
         </getter>
         <setter>
