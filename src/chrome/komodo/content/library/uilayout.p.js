@@ -371,6 +371,16 @@ this.togglePane = function uilayout_togglePane(paneId, force)
         // If the project/toolbox pane is not shown, then show it
         // and focus on the relevant part manager
         var pane = document.getElementById(paneId);
+        if (pane.getAttribute("splitterCmdId")) {
+            // we got the splitter instead; find the pane
+            var broadcaster = document.getElementById(pane.getAttribute("splitterCmdId"));
+            if (broadcaster.getAttribute("box")) {
+                pane = document.getElementById(broadcaster.getAttribute("box"));
+                _log.deprecated(String(<![CDATA[Calling togglePane with the splitter ID as the
+                                                first argument is deprecated; please use the ID
+                                                of the pane instead.]]>).replace(/\s+/, " "));
+            }
+        }
         if (!force && pane.collapsed) {
             var scimoz = null;
             // Following code fixes bug 83545:
