@@ -119,7 +119,6 @@
             buttonstyle="pictures" />
       </hbox>
       <tree id="places-files-tree" flex="1"
-            style="margin: 0px;"
             ondblclick="ko.places.viewMgr.onDblClick(event);"
             onclick="ko.places.viewMgr.onTreeClick(event);"
             onfocus="ko.places.viewMgr.focused = true;"
@@ -210,7 +209,6 @@
       <tree id="placesSubpanelProjects_MPV"
           flex="1"
           height="100"
-          style="margin: 0px;"
           hidecolumnpicker="true"
           context="places-projects-popup-MPV"
           class="projectPlacesTree"
@@ -233,7 +231,6 @@
       <tree id="placesSubpanelProjects_SPV"
           flex="1"
           height="100"
-          style="margin: 0px;"
           hidecolumnpicker="true"
           context="places-projects-popup-SPV"
           seltype="single">

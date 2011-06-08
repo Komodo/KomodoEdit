@@ -196,6 +196,15 @@ tab > .tab-text {
   padding-right: 3px;
 }
 
+
+/**
+ * Remove tree margins inside of a page (for the ko-panes, aka "side panels").
+ */
+page tree {
+  margin: 0;
+}
+
+
 #gotoLine_error_hbox {
     background-color: #FFF1A8;
 }
