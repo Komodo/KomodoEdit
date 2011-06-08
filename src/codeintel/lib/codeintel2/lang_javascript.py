@@ -186,6 +186,7 @@ class JavaScriptLangIntel(CitadelLangIntel,
                           PythonCITDLExtractorMixin):
     lang = lang
     _evaluatorClass = JavaScriptTreeEvaluator
+    extraPathsPrefName = "javascriptExtraPaths"
 
     # The way namespacing is done with variables in JS means that grouping
     # global vars is just annoying.
@@ -617,14 +618,14 @@ class JavaScriptLangIntel(CitadelLangIntel,
             proj_base_dir = env.get_proj_base_dir()
             if proj_base_dir is not None:
                 extra_dirs.add(proj_base_dir)  # Bug 68850.
-        for pref in env.get_all_prefs("javascriptExtraPaths"):
+        for pref in env.get_all_prefs(self.extraPathsPrefName):
             if not pref: continue
             extra_dirs.update(d.strip() for d in pref.split(os.pathsep)
                               if exists(d.strip()))
         if extra_dirs:
-            log.debug("JavaScript extra lib dirs: %r", extra_dirs)
+            log.debug("%s extra lib dirs: %r", self.lang, extra_dirs)
             max_depth = env.get_pref("codeintel_max_recursive_dir_depth", 10)
-            js_assocs = env.assoc_patterns_from_lang("JavaScript")
+            js_assocs = env.assoc_patterns_from_lang(self.lang)
             extra_dirs = tuple(
                 util.gen_dirs_under_dirs(extra_dirs,
                     max_depth=max_depth,
@@ -667,7 +668,7 @@ class JavaScriptLangIntel(CitadelLangIntel,
             # - extradirslib
             extra_dirs = self._extra_dirs_from_env(env)
             if extra_dirs:
-                libs.append( db.get_lang_lib("JavaScript", "extradirslib",
+                libs.append( db.get_lang_lib(self.lang, "extradirslib",
                                 extra_dirs) )
 
             # Warn the user if there is a huge number of import dirs that
@@ -719,7 +720,7 @@ class JavaScriptLangIntel(CitadelLangIntel,
         extra_dirs = self._extra_dirs_from_env(env)
         if extra_dirs:
             extradirslib = self.mgr.db.get_lang_lib(
-                "JavaScript", "extradirslib", extra_dirs)
+                self.lang, "extradirslib", extra_dirs)
             request = PreloadLibRequest(extradirslib)
             self.mgr.idxr.stage_request(request, 1.0)
 

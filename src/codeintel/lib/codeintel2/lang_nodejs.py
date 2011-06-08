@@ -97,6 +97,7 @@ class NodeJSTreeEvaluator(JavaScriptTreeEvaluator):
             """Load "path" as a file and return hits from there
             If it does not exist / isn't a valid node.js module, return None
             """
+            path = os.path.normpath(path)
             if os.path.isfile(path):
                 filename = path
             elif os.path.isfile(path + ".js"):
@@ -119,7 +120,7 @@ class NodeJSTreeEvaluator(JavaScriptTreeEvaluator):
 
                 blobs = lib.blobs_with_basename(basename, ctlr=self.ctlr)
                 for blob in blobs or []:
-                    if blob.get("src") != filename:
+                    if os.path.normpath(blob.get("src")) != filename:
                         # wrong file
                         continue
                     self.log("require() found at %s", filename)
@@ -136,6 +137,7 @@ class NodeJSTreeEvaluator(JavaScriptTreeEvaluator):
             """Load "path" as a directory and return hits from there
             If it does not exist / isn't a valid node.js module, return None
             """
+            path = os.path.normpath(path)
             if not os.path.isdir(path):
                 # not a directory, don't bother
                 return None
@@ -148,6 +150,8 @@ class NodeJSTreeEvaluator(JavaScriptTreeEvaluator):
                     if "main" in manifest:
                         main_path = os.path.join(path, manifest.get("main"))
                         main_path = os.path.normpath(main_path)
+                        self.log("found module via %r, trying %r",
+                                 manifest_path, main_path)
                         hits = load_as_file(main_path)
                 except ValueError, e:
                     self.log("Error loading %r: %r", manifest_path, e)
@@ -191,6 +195,25 @@ class NodeJSTreeEvaluator(JavaScriptTreeEvaluator):
                 hits = load_as_directory(os.path.join(dir, requirename))
             if hits is not None:
                 return hits
+
+        # last-ditch: try the extradirs pref
+        extra_dirs = []
+        for pref in self.buf.env.get_all_prefs(self.langintel.extraPathsPrefName):
+            if not pref: continue
+            for dir in pref.split(os.pathsep):
+                dir = dir.strip()
+                if not os.path.isdir(dir):
+                    continue
+                if not dir in extra_dirs:
+                    extra_dirs.append(dir)
+        for dir in extra_dirs:
+            hits = load_as_file(os.path.join(dir, requirename))
+            if hits is None:
+                hits = load_as_directory(os.path.join(dir, requirename))
+            if hits is not None:
+                return hits
+
+        self.log("Failed to find module for require(%r)", requirename)
 
         # getting here means we exhausted all possible modules; give up
         return []

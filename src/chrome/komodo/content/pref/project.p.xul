@@ -330,6 +330,14 @@
                     </treerow>
                     <treechildren id="languagesChildren">
                         <!-- JS has no project/document-specific prefs -->
+                        <treeitem container="false" id="nodejsItem">
+                            <treerow>
+                                <treecell class="treecell-indent"
+                                          url="chrome://komodo/content/pref/pref-nodejs.xul"
+                                          label="&nodejs.label;"
+                                          helptag="nodejs_configuration"/>
+                            </treerow>
+                        </treeitem>
                         <treeitem container="false" id="perlItem">
                             <treerow>
                                 <treecell class="treecell-indent"

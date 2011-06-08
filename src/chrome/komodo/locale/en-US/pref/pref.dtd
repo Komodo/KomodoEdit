@@ -659,6 +659,8 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY defaultNodejsInterpreter.label "Default node.js Interpreter">
 <!ENTITY filePrefNodejsUseThisInterpreter.label "Use this interpreter">
 <!ENTITY noNodejsInterpreter.description "No node.js interpreter was found on your system. If you would like to debug and run node.js programs in Komodo you will need to install node.js.">
+<!ENTITY nodejsDirectories.label "Node.js Directories">
+<!ENTITY nodejsFolder.description "Specify any directories you want to load Node modules from. Komodo will recursively scan these directories for autocomplete and calltip information.">
 
 <!-- JSHint, a fork of jshint -->
 <!ENTITY JSHint.label "JSHint">

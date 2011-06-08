@@ -183,6 +183,7 @@
   <!-- Additional  directories for Python, Perl, etc. These are
        stored as pathsep-separated local paths. -->
   <string id="javascriptExtraPaths"></string>
+  <string id="nodejsExtraPaths"></string>
   <string id="phpExtraPaths"></string>
   <string id="pythonExtraPaths"></string>
   <string id="python3ExtraPaths"></string>
