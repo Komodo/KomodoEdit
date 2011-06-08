@@ -234,6 +234,14 @@
         for each (var widget in widgets) {
           this.addWidget(widget);
         }
+
+        // Do the _opposite_ of what we want the checked attribute to be, here,
+        // so that the later change from project restore will get noticed
+        if (this.collapsed) {
+          this.setAttribute("checked", true);
+        } else {
+          this.removeAttribute("checked");
+        }
       } catch (e) { Components.utils.reportError(e); }
       ]]>
       </constructor>
