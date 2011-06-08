@@ -536,12 +536,18 @@
             //this.log.info('view-buffer is closing')
             if (this._uiTimer)
                 clearTimeout(this._uiTimer);
-            // force scimoz to stop ticking, bug 
-            this.scimoz.isFocused = false; 
+            // Note that we have to deal with being called after scintilla has
+            // already been unloaded.
             try {
-                this.scimoz.unhookEvents(this);  // This needs to be done in a close() method.
-                this.scintilla.controllers.removeController(this._genericController);
-                this._genericController.view = null;
+                if (this.scintilla.inited) {
+                    // force scimoz to stop ticking, bug 37165
+                    this.scimoz.isFocused = false; 
+                    this.scimoz.unhookEvents(this);  // This needs to be done in a close() method.
+                    this.scintilla.controllers.removeController(this._genericController);
+                }
+                if (this._genericController) {
+                    this._genericController.view = null;
+                }
                 this._genericController = null;
             } catch(e) {
                 // if anything bad happened, we still want to close the view!

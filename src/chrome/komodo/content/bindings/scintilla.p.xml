@@ -391,6 +391,7 @@
             <method name="unload">
             <body><![CDATA[
                 if (!this.inited) {
+                    // ignore duplicate unload
                     return;
                 }
                 try {
