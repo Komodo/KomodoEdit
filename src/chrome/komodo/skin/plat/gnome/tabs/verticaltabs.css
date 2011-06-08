@@ -1,12 +1,12 @@
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
-tabbox#leftTabBox.vertical_tabs tabs
+ko-pane[type="vertical"] tabs[anonid="tabs"]
 {
     /* Remove the side-pane border css, from sidebar.css */
     border-right: none;
 }
 
-tabbox.vertical_tabs tab
+ko-pane[type="vertical"] tabs[anonid="tabs"] tab
 {
     /* Make vertical tabs look like real tabs. */
     -moz-appearance     : tab;
@@ -14,7 +14,7 @@ tabbox.vertical_tabs tab
     min-width           : 1.8em;
 }
 
-tabbox.vertical_tabs tab[selected="true"]
+ko-pane[type="vertical"] tab[selected="true"]
 {
     /* A little bottom margin helps to cover the fact that the bottom
        border is missing from the native tab. */
@@ -22,7 +22,7 @@ tabbox.vertical_tabs tab[selected="true"]
 }
 
 /* Same styling as sidebar was using (see sidebar.css) */
-tabbox.vertical_tabs tree
+ko-pane[type="vertical"] tree
 {
   -moz-appearance: none;
   border: 0;
