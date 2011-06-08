@@ -45,6 +45,19 @@ tabpanels {
   margin: 0px;
 }
 
+/**
+ * Remove tree borders inside of a page (for the ko-panes, aka "side panels").
+ */
+page tree {
+  -moz-appearance: none;
+  border: 0;
+  /* We want to show top and bottom borders.
+     This combination seems the best for creating a light framed border.
+   */
+  border-top: 1px ridge;
+  border-bottom: 1px groove;
+}
+
 /* Fix disabled autocomplete-textbox styling on Linux and Vista (bug 75996).
  * 
  * Only *specifically* doing this for non-MacOSX and for textboxes of
