@@ -46,6 +46,8 @@ ko.printing = {};
 (function() {
 var _gBrowserLoadListener = null;
 
+var log = ko.logging.getLogger("printing");
+
 this.printPreview = function(view, preview, tofile, selectionOnly)
 {
     window.openDialog("chrome://komodo/content/printPreview.xul",
@@ -64,12 +66,18 @@ this.browserPrintPreviewExit = function() {
     window.close();
 }
 
-this.browserPrintPreview = function()
+this.browserPrintPreview = function(evt)
 {
     try {
-        var browser = document.getElementById("printBrowser");
+        var browser = document.getElementById("printSource");
         browser.removeEventListener("load", _gBrowserLoadListener, true);
-        PrintUtils.printPreview(ko.printing.browserPrintPreviewEnter, ko.printing.browserPrintPreviewExit);
+        PrintUtils.printPreview({
+            getPrintPreviewBrowser: function() { return document.getElementById("printBrowser"); },
+            getSourceBrowser: function() { return browser },
+            getNavToolbox: function() { return document.getElementById("printPreviewDeck"); },
+            onEnter: ko.printing.browserPrintPreviewEnter,
+            onExit: ko.printing.browserPrintPreviewExit,
+        });
     } catch(e) { log.exception(e); }
 }
 
@@ -138,7 +146,7 @@ this.print = function(view, preview, tofile, selectionOnly)
         if (tofile) {
             ko.open.URI(URI);
         } else {
-            var browser = document.getElementById("printBrowser");
+            var browser = document.getElementById("printSource");
             if (preview) {
               _gBrowserLoadListener = function(evt) { setTimeout(ko.printing.browserPrintPreview, 0, evt); };
             } else {

@@ -88,32 +88,18 @@
       } catch(e) { log.exception(e); }
     }
     
-    // Callbacks used by PrintUtils.printPreview in Moz 1.9:
-    function getPPBrowser() {
-        return document.getElementById("printBrowser");
-    }
-    
-    function getNavToolbox() {
-        return document.getElementById("printPreviewDeck");
-    }
-    
-    function getWebNavigation() {
-        // Give PrintUtils.printPreview() what it wants
-        // (in toolkit/components/printing/content/printUtils.js).
-        return {
-          document: document,
-          currentURI: { spec: opener.ko.views.manager.currentView.koDoc.file.URI }
-        };
-    }
-    // End callbacks
-
     ]]>
     </script>
 
+    <!--
+      As of Gecko 2.0 (Komodo 7.0), the source and preview browsers must be
+      different, and the source must be content-primary
+      -->
     <deck id="printPreviewDeck" selectedIndex="0" flex="1">
     <hbox flex="1"/>
     <vbox flex="1">
-    <browser id="printBrowser" type="content-primary" flex="1"/>
+    <browser id="printBrowser" type="content" flex="1" disablehistory="true"/>
     </vbox>
+    <browser id="printSource" type="content-primary" flex="1" disablehistory="true"/>
     </deck>
 </window>
