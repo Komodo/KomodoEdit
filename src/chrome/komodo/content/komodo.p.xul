@@ -1738,7 +1738,6 @@
                     buttonstyle="pictures"
                     type="checkbox"
                     observes="cmd_viewLeftPane"
-                    oncommand="ko.uilayout.togglePane('workspace_left_splitter', 'project_toolbox_tabs', 'cmd_viewLeftPane', true)"
                     label="&toggleLeft.label;">
                 </toolbarbutton>
                 <toolbarbutton id="toggleBottomPane"
@@ -1747,7 +1746,6 @@
                     buttonstyle="pictures"
                     type="checkbox"
                     observes="cmd_viewBottomPane"
-                    oncommand="ko.uilayout.togglePane('bottom_splitter', 'output_tabs', 'cmd_viewBottomPane', true)"
                     label="&toggleBottom.label;">
                 </toolbarbutton>
                 <toolbarbutton id="toggleRightPane"
@@ -1756,7 +1754,6 @@
                     buttonstyle="pictures"
                     type="checkbox"
                     observes="cmd_viewRightPane"
-                    oncommand="ko.uilayout.togglePane('workspace_right_splitter', 'right_toolbox_tabs', 'cmd_viewRightPane', true)"
                     label="&toggleRight.label;">
                     <observes element="workspace_right_area" attribute="checked"/>
                 </toolbarbutton>
