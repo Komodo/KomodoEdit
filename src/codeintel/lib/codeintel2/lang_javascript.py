@@ -3010,11 +3010,21 @@ class JavaScriptCiler:
  
             if p >= len(styles) or text[p] in ",;":
                 # It's a uninitialized variable?
-                log.debug("Adding uninitialized variable: %r, line: %d",
-                          namelist, lineno)
-                self.addVariable(namelist, [],
-                                 doc=self.comment,
-                                 isLocal=isLocal)
+                already_known = False
+                if len(namelist) == 1:
+                    for varType in ("variables", "classes", "functions", "members"):
+                        if namelist[0] in getattr(self.currentScope, varType, {}):
+                            # it's a variable we already know about, don't shadow it
+                            log.debug("uninitialized variable %r is already known, skipping",
+                                      namelist)
+                            already_known = True
+                            break
+                if not already_known:
+                    log.debug("Adding uninitialized variable: %r, line: %d",
+                              namelist, lineno)
+                    self.addVariable(namelist, [],
+                                     doc=self.comment,
+                                     isLocal=isLocal)
                 already_looped = True
                 continue
 

@@ -863,6 +863,18 @@ class CplnTestCase(CodeIntelTestCase):
              ("function", "valueOf"),
             ])
 
+    def test_function_extra_completions(self):
+        # Ensure we can get extra things off of functions we hang things off of
+        content, positions = unmark_text(dedent("""\
+            function func_extras() { }
+            func_extras.hello = function() {};
+            func_extras.<1>;
+        """))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+            [("function", "hello"),
+             ("function", "apply"),
+            ])
+
     @tag("bug80880")
     def test_function_calltips(self):
         # Ensure we get calltips on actual function hits. Bug 80880.
