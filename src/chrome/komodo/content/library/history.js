@@ -292,7 +292,7 @@ function _view_from_uri(uri, viewType) {
         //  Internal URI scheme used for unsaved buffers
         var uid = RegExp.$1;
         var views = ko.views.manager.topView.getViews(true);
-        for (i = 0; i < views.length; i++) {
+        for (var i=0; i < views.length; i++) {
             var view = views[i];
             if (view.uid == uid) {
                 return view;
