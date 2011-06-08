@@ -86,6 +86,9 @@ $cons->Preprocess('pref-javascript.p.xul', 'pref-javascript.xul');
 $cons->InstallInChrome('pref-javascript.xul');
 $cons->InstallInChrome('pref-javascript.js');
 
+$cons->InstallInChrome('pref-nodejs.xul');
+$cons->InstallInChrome('pref-nodejs.js');
+
 $cons->Preprocess('pref-perl.p.xul', 'pref-perl.xul');
 $cons->InstallInChrome('pref-perl.xul');
 $cons->InstallInChrome('pref-perl.js');

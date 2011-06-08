@@ -170,6 +170,7 @@
   <string id="userEnvironment"/>
 
   <string id="xmlCatalogPaths"/>
+  <string id="nodejsDefaultInterpreter"/>
   <string id="perlDefaultInterpreter"/>
   <string id="pythonDefaultInterpreter"/>
   <string id="python3DefaultInterpreter"/>

@@ -654,6 +654,12 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY lintJSLint_Explanation.descr "Use a format like bitwise=false debug=true maxerr=5">
 <!ENTITY lintJSLint_WebSiteLabel.label "See all allowed options at: ">
 
+<!--pref-nodejs.xul-->
+<!ENTITY nodejs.label "Node.js">
+<!ENTITY defaultNodejsInterpreter.label "Default node.js Interpreter">
+<!ENTITY filePrefNodejsUseThisInterpreter.label "Use this interpreter">
+<!ENTITY noNodejsInterpreter.description "No node.js interpreter was found on your system. If you would like to debug and run node.js programs in Komodo you will need to install node.js.">
+
 <!-- JSHint, a fork of jshint -->
 <!ENTITY JSHint.label "JSHint">
 <!ENTITY lintJavaScriptWithJSHint.label "Check Code With JSHint">
