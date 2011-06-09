@@ -758,6 +758,8 @@ this.rctabs_build_menu = function(menupopup) {
 
     _rctabs_determine_duplicate_entries(rctabs_list);    
     var label, tooltip;
+    var fileSvc = Components.classes["@activestate.com/koFileService;1"]
+                    .createInstance(Components.interfaces.koIFileService);
     // rctabs_list is a stack, so walk it in reverse order
     var actual_index = 0;
     for (var i = num_rctabs - 1; i >= 0; i--, actual_index++) {
@@ -772,28 +774,17 @@ this.rctabs_build_menu = function(menupopup) {
             menuitem.setAttribute("accesskey", "0");
         }
         var url = rctab.uri;
-        var pathPart;
-        var path = ko.uriparse.displayPath(url) || url;
-        var baseName, dirName = null;
-        var slashIdx = path.lastIndexOf("/");
-        if (slashIdx == -1) {
-            slashIdx = path.lastIndexOf("\\");
-        }
-        if (slashIdx == -1) {
-            baseName = ko.uriparse.baseName(url);
-        } else {
-            baseName = path.substring(slashIdx + 1);
-            dirName = path.substring(0, slashIdx);
-        }
+        let koFile = fileSvc.getFileFromURI(url);
         pathPart = ko.views.labelFromPathInfo(
-            baseName,
-            dirName,
+            koFile.baseName,
+            koFile.dirName,
             null,  // line #
             rctab.hasDuplicateTabGroup ? rctab.tabGroup.substring("view-".length) : null,
             rctab.hasDuplicateViewType ? rctab.viewType : null
             );
         menuitem.setAttribute("label", (actual_index + 1) + " " + pathPart);
-        menuitem.setAttribute("class", "menuitem_mru");
+        menuitem.setAttribute('class', 'menuitem-file-status');
+        ko.fileutils.setFileStatusAttributesFromFile(menuitem, koFile);
         menuitem.setAttribute("crop", "center");
         var cmd = ("ko.history.open_rctab(" + i + ")");
         menuitem.setAttribute("oncommand", cmd);
