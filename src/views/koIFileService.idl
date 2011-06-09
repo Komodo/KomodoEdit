@@ -51,6 +51,11 @@ interface koIFileService: nsISupports
 {
     koIFileEx getFileFromURI(in wstring URI);
 
+    /* Same as getFileFromURI, but won't store/remember the file instance,
+       which means that Komodo won't try to update the file status information
+       for this path. */
+    koIFileEx getFileFromURINoCache(in wstring URI);
+
     void getAllFiles([array, size_is(count)] out koIFileEx files,
                      out PRUint32 count);
     koIFileEx findFileByURI(in wstring URI);

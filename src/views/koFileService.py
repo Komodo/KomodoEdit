@@ -99,6 +99,25 @@ class koFileService(object):
         
         return kofile
     
+    def getFileFromURINoCache(self, uri):
+        # first cleanup the uri by passing it through the parser
+        try:
+            self._uriParser.URI = uri
+            uri = self._uriParser.URI
+            
+            kofile = self.findFileByURI(uri)
+            if kofile:
+                return kofile
+        
+            kofile = \
+                components.classes["@activestate.com/koFileEx;1"] \
+                .createInstance(components.interfaces.koIFileEx)
+            kofile.URI = uri
+        except Exception, e:
+            log.error("Invalid URL parsed: %r", uri)
+            raise ServerException(nsError.NS_ERROR_FAILURE, str(e))
+        return kofile
+
     def getFilesInBaseURI(self, baseURI):
         L = []
         for uri,wr in self._files.items():
