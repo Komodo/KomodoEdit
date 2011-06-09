@@ -646,6 +646,8 @@ function _updateMRUMenu(prefName, limit, addManageItem, MRUName)
         if (!menupopup) {
             menupopup = separator.parentNode;
         }
+        var fileSvc = Components.classes["@activestate.com/koFileService;1"]
+                        .createInstance(Components.interfaces.koIFileService);
         var length = mruList.length;
         var labelNum = 1;
         for (var i = 0; i < length; i++) {
@@ -674,13 +676,25 @@ function _updateMRUMenu(prefName, limit, addManageItem, MRUName)
             } else if (labelNum == 10) {
                 menuitem.setAttribute("accesskey", "0");
             }
+            let koFile = fileSvc.getFileFromURI(url);
             if (prefName == "mruTemplateList") {
-                menuitem.setAttribute("label", labelNum + " " + ko.uriparse.baseName(url));
+                menuitem.setAttribute("label", labelNum + " " + koFile.baseName);
             } else {
-                menuitem.setAttribute("label", labelNum + " " + ko.uriparse.displayPath(url));
+                let pathPart = ko.views.labelFromPathInfo(koFile.baseName, koFile.dirName);
+                if (prefName == "mruProjectList") {
+                    // We don't need to show the ".komodoproject" extension.
+                    let pos = pathPart.indexOf(".komodoproject");
+                    if (pos >= 0) {
+                        pathPart = pathPart.slice(0, pos) + pathPart.slice(pos + 14);
+                    }
+                }
+                menuitem.setAttribute("label", labelNum + " " + pathPart);
             }
+
+            menuitem.setAttribute('class', 'menuitem-file-status');
+            ko.fileutils.setFileStatusAttributesFromFile(menuitem, koFile);
+
             labelNum++;
-            menuitem.setAttribute("class", "menuitem_mru");
             menuitem.setAttribute("crop", "center");
             // XXX:HACK: For whatever reason, the "observes" attribute is
             // ignored when the menu item is inside a popup, so we call
