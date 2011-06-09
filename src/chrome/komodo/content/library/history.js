@@ -757,7 +757,7 @@ this.rctabs_build_menu = function(menupopup) {
     // the menu unless they're needed to distinguish duplicates.
 
     _rctabs_determine_duplicate_entries(rctabs_list);    
-    var label, tooltip;
+    var label, tooltip, pathPart;
     var fileSvc = Components.classes["@activestate.com/koFileService;1"]
                     .createInstance(Components.interfaces.koIFileService);
     // rctabs_list is a stack, so walk it in reverse order
