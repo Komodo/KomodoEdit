@@ -676,7 +676,7 @@ function _updateMRUMenu(prefName, limit, addManageItem, MRUName)
             } else if (labelNum == 10) {
                 menuitem.setAttribute("accesskey", "0");
             }
-            let koFile = fileSvc.getFileFromURI(url);
+            let koFile = fileSvc.getFileFromURINoCache(url);
             if (prefName == "mruTemplateList") {
                 menuitem.setAttribute("label", labelNum + " " + koFile.baseName);
             } else {

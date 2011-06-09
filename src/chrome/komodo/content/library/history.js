@@ -774,7 +774,7 @@ this.rctabs_build_menu = function(menupopup) {
             menuitem.setAttribute("accesskey", "0");
         }
         var url = rctab.uri;
-        let koFile = fileSvc.getFileFromURI(url);
+        let koFile = fileSvc.getFileFromURINoCache(url);
         pathPart = ko.views.labelFromPathInfo(
             koFile.baseName,
             koFile.dirName,
