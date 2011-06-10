@@ -1043,82 +1043,83 @@
     <!-- Widget used to display vertical text. -->
     <binding id="vertical_label"
              extends="chrome://global/content/bindings/general.xml#basecontrol">
-        <content>
-            <xul:vbox anonid="text_hbox" class="vertical-label-vbox"
-                      xbl:inherits="flex, disabled, rotation">
-            </xul:vbox>
+        <content align="start">
+            <xul:label anonid="label" class="label"/>
         </content>
 
         <implementation>
-
+            <field name="_lastText">""</field>
+            <field name="_label">document.getAnonymousElementByAttribute(this, "anonid", "label");</field>
             <constructor>
-                <![CDATA[
-                this._label = "";
-                if (this.getAttribute("label")) {
+                setTimeout((function() {
                     this.value = this.getAttribute("label");
-                }
-                ]]>
+                }).bind(this), 0);
             </constructor>
+            <method name="refresh">
+                <!--
+                  - Update the label
+                  -->
+                <body>
+                <![CDATA[
+                    // Insert a <box overflow=hidden><label/><box> somewhere
+                    // visible so we can measure the text.  Note that we can't
+                    // just stick it inside anonymous content here, since we might
+                    // not be visible yet.
+                    var doc = this.ownerDocument;
+                    var box = doc.createElementNS(this.namespaceURI, "box");
+                    box.setAttribute("style", "overflow: hidden; width: 0; height: 0;");
+                    var measure = doc.createElementNS(this.namespaceURI, "label");
+                    box.appendChild(measure);
+                    doc.documentElement.appendChild(box);
+                    measure.value = this._lastText;
+                    var {width, height} = measure.getBoundingClientRect();
+                    doc.documentElement.removeChild(box);
 
+                    // Now that we have the dimensions, use it to set things
+                    this._label.width = height;
+                    this._label.style.height = "-moz-calc(" + width + "px + 10px)";
+                    this.width = height;
+                    this._label.value = this._lastText;
+                    this.setAttribute("value", this._lastText);
+                ]]>
+                </body>
+            </method>
             <property name="value">
-                <setter>
-                    <![CDATA[
-                    this._label = val;
-                    var text_hbox = document.getAnonymousElementByAttribute(this, 'anonid', 'text_hbox');
-                    var nextSibling = text_hbox.firstChild;
-                    var labelSibling;
-                    while (nextSibling) {
-                        labelSibling = nextSibling;
-                        nextSibling = labelSibling.nextSibling;
-                        if (labelSibling.localName == 'label') {
-                            text_hbox.removeChild(labelSibling);
-                        }
-                    }
-                    var XUL_NS="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
-                    var labelElement;
-                    var char;
-                    var rotation = parseInt(this.getAttribute("rotation")) % 360;
-                    if (rotation < 180) {
-                        for (var i=0; i < val.length; i++) {
-                            char = val.substring(i, i+1);
-                            labelElement = document.createElementNS(XUL_NS, "label");
-                            labelElement.setAttribute("value", char);
-                            if (char.toUpperCase() == char) {
-                                labelElement.setAttribute("class", "vertical-button-text vertical-button-text-uppercase");
-                            } else {
-                                labelElement.setAttribute("class", "vertical-button-text");
-                            }
-                            text_hbox.appendChild(labelElement);
-                        }
-                    } else {
-                        for (var i=val.length-1; i >= 0; i--) {
-                            char = val.substring(i, i+1);
-                            labelElement = document.createElementNS(XUL_NS, "label");
-                            labelElement.setAttribute("value", char);
-                            if (char.toUpperCase() == char) {
-                                labelElement.setAttribute("class", "vertical-button-text vertical-button-text-uppercase");
-                            } else {
-                                labelElement.setAttribute("class", "vertical-button-text");
-                            }
-                            text_hbox.appendChild(labelElement);
-                        }
-                    }
-                    ]]>
-                </setter>
                 <getter>
-                    <![CDATA[
-                    return this._label;
-                    ]]>
+                    return this._lastText;
                 </getter>
+                <setter>
+                    if (val == this._lastText) return;
+                    this._lastText = val;
+                    this.refresh();
+                    return val;
+                </setter>
             </property>
-
         </implementation>
+
+        <handlers>
+            <handler event="DOMAttrModified" phase="target">
+            <![CDATA[
+                switch (event.attrName) {
+                    case "value": {
+                        this.value = event.newValue;
+                        break;
+                    }
+                    case "collapsed": {
+                        // need to re-measure the text
+                        this.refresh();
+                        break;
+                    }
+                }
+            ]]>
+            </handler>
+        </handlers>
 
     </binding>
 
 
-    <!-- Used to display file status within a menuitem. These "class" and
-         "xbl:inherits" should match those in the "file-status-tab" binding.
+    <!-- Used to display file status within a menuitem. sThese "class" and
+         "xbl:inherits" should match those in the "file-tatus-tab" binding.
     -->
     <binding id="menuitem-file-status" extends="chrome://global/content/bindings/menu.xml#menuitem">
         <content>

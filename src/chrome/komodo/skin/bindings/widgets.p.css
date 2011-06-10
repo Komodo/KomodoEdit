@@ -162,7 +162,7 @@ ko-pane[type="vertical"] tabs[anonid="tabs"][rotation="180"] .vertical-button-te
 ko-pane[type="vertical"] tabs[anonid="tabs"][rotation="270"] .vertical-button-text {
   -moz-transform: rotate(270deg);
 }
-#workspace_right_area[type="vertical"] {
+#workspace_right_area[type="vertical"] .pane-container {
   /* put the tabs on the outer edge of the window */
   -moz-box-direction: reverse;
 }
@@ -226,11 +226,29 @@ tabbox.vertical_tabs .tabs-left
 /**
  * Vertical text label.
  */
-label.vertical_text
+ko-vertical-text
 {
     -moz-binding        : url("chrome://komodo/content/bindings/widgets.xml#vertical_label");
     margin-left         : 0px;
     margin-right        : 0px;
+    overflow-x          : hidden;
+    -moz-box-align      : start;
+}
+
+ko-vertical-text .label
+{
+    overflow-x          : hidden;
+}
+
+ko-pane[type="vertical"] tabs[anonid="tabs"][rotation="90"] ko-vertical-text .label {
+  -moz-transform-origin: top left;
+  -moz-transform: rotate(90deg) translateY(-moz-calc(-1em + 5px));
+}
+ko-pane[type="vertical"] tabs[anonid="tabs"][rotation="180"] ko-vertical-text .label {
+  -moz-transform: rotate(180deg);
+}
+ko-pane[type="vertical"] tabs[anonid="tabs"][rotation="270"] ko-vertical-text .label {
+  -moz-transform: rotate(270deg) translateY(-moz-calc(-1em + 10px));
 }
 
 .vertical-label-vbox

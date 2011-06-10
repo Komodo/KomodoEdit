@@ -103,6 +103,7 @@
           if (!widget.tab) {
             this._log.debug("Widget " + widget.id + " has no tab, creating one (" + this.id + ")");
             var tab = this.ownerDocument.createElementNS(this.namespaceURI, "tab");
+            // set label now so vertical text gets it right
             tab.setAttribute("label", widget.getAttribute("label"));
             tab.setAttribute("observes", widget.id);
             tab.setAttribute("linkedpanel", widget.id);
@@ -154,6 +155,11 @@
                                       false);
             widget._menuitem = menuitem;
           }
+          
+          // Update tab strip visibility
+          if (widget.tabbox.tabs.setTabVisibility) {
+            widget.tabbox.tabs.setTabVisibility();
+          }
         ]]>
         </body>
       </method>
@@ -167,6 +173,7 @@
         <parameter name="widget"/>
         <body>
         <![CDATA[
+          var tabbox = widget.tabbox;
           if (widget.parentNode) {
             widget.parentNode.removeChild(widget);
           }
@@ -212,6 +219,11 @@
             // no widgets left
             document.getAnonymousElementByAttribute(this, "anonid", "pane-dummy-container")
                     .selectedIndex = 0;
+          }
+
+          // Update tab strip visibility
+          if (tabbox && tabbox.tabs.setTabVisibility) {
+            tabbox.tabs.setTabVisibility();
           }
         ]]>
         </body>

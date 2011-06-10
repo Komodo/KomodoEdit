@@ -755,7 +755,8 @@
                       xbl:inherits="flex, disabled">
                 <xul:hbox class="tab-middle box-inherit" xbl:inherits="align,dir,pack,orient,selected" flex="1">
                   <xul:image class="tab-icon" xbl:inherits="validate,src=image"/>
-                  <xul:label class="tab-text vertical_text" xbl:inherits="label,accesskey,crop,disabled,rotation" flex="1"/>
+                  <xul:ko-vertical-text class="tab-text" anonid="label"
+                                        xbl:inherits="label,accesskey,crop,disabled,rotation,collapsed" flex="1"/>
                 </xul:hbox>
             </xul:vbox>
         </content>
@@ -773,6 +774,18 @@
                 this.setAttribute("rotation", tabbox.getAttribute("rotation"));
               ]]>
             </constructor>
+
+            <field name="_label">
+                document.getAnonymousElementByAttribute(this, "anonid", "label")
+            </field>
+
+            <method name="refresh">
+                <body>
+                <![CDATA[
+                    this._label.refresh && this._label.refresh();
+                ]]>
+                </body>
+            </method>
 
         </implementation>
 
@@ -857,6 +870,11 @@
                 } else {
                     // Show the tabs.
                     this.removeAttribute("collapsed");
+                    for each (var tab in Array.slice(this.children)) {
+                        // refresh the tabs because they may not have correct
+                        // sizing information yet if they've never been shown
+                        if (tab.refresh) tab.refresh();
+                    }
                 }
               ]]>
               </body>
