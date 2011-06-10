@@ -314,6 +314,31 @@ class CplnTestCase(CodeIntelTestCase):
         self.assertCompletionsInclude2(buf, positions[1],
             [("function", "method"), ])
 
+    @tag("nodejs", "bug90331", "knownfailure")
+    def test_nodejs_require_extras(self):
+        """
+        Check that we can tack extra properties onto require()d objects
+        """
+        manifest = {
+                "test.js": """
+                    require('./foo').<1>;
+                    """,
+                "foo.js": """
+                    exports = require('./bar');
+                    exports.foo = function() {};
+                    """,
+                "bar.js": """
+                    exports = {
+                        bar: function() {}
+                    }
+                    """,
+        }
+        buf, positions = self._write_files(manifest=manifest, name="modules_updir")
+        self.assertCompletionsInclude2(buf, positions[1],
+            [("function", "foo"),
+             ("function", "bar"),
+            ])
+
     @tag("nodejs")
     def test_nodejs_globals(self):
         """
