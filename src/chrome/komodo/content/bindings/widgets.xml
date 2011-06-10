@@ -1052,7 +1052,7 @@
             <field name="_label">document.getAnonymousElementByAttribute(this, "anonid", "label");</field>
             <constructor>
                 setTimeout((function() {
-                    this.value = this.getAttribute("label");
+                    this.value = this.getAttribute("short-label") || this.getAttribute("label");
                 }).bind(this), 0);
             </constructor>
             <method name="refresh">

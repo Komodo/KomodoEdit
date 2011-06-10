@@ -15,7 +15,9 @@
     </menupopup>
 
     <ko-pane id="workspace_bottom_area">
-        <browser type="ko-widget" id="klint_tabpanel" label="&klint.tab.title;"
+        <browser type="ko-widget" id="klint_tabpanel"
+                 label="&klint.tab.title;"
+                 short-label="&klint.tab.title.short;"
                  src="chrome://klint/content/klintPane.xul"/>
     </ko-pane>
 

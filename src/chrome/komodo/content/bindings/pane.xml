@@ -105,6 +105,9 @@
             var tab = this.ownerDocument.createElementNS(this.namespaceURI, "tab");
             // set label now so vertical text gets it right
             tab.setAttribute("label", widget.getAttribute("label"));
+            if (widget.hasAttribute("short-label")) {
+              tab.setAttribute("short-label", widget.getAttribute("short-label"));
+            }
             tab.setAttribute("observes", widget.id);
             tab.setAttribute("linkedpanel", widget.id);
             tab.addEventListener("contextmenu", (function(event) {
