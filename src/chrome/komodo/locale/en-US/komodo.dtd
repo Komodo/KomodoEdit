@@ -621,6 +621,7 @@
 <!ENTITY showHideLeftPane.tooltiptext "Show/Hide Left Pane">
 <!ENTITY showHideRightPane.tooltiptext "Show/Hide Right Pane">
 <!ENTITY pane.moveTo.label "Move widget to">
+<!ENTITY pane.empty.label "This pane has no content. Please right click on a widget tab to move it here.">
 <!ENTITY paneNameLeft "Left Pane">
 <!ENTITY paneNameRight "Right Pane">
 <!ENTITY paneNameBottom "Bottom Pane">

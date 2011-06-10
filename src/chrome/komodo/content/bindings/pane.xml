@@ -52,32 +52,39 @@
 
   <binding id="pane" extends="chrome://global/content/bindings/tabbox.xml#tabbox">
     <content>
-      <xul:hbox class="pane-tabs-container">
-        <!-- this is for the "sidebar" and "horzontal" modes -->
-        <xul:tabs anonid="tabs"
-                  closecollapsed="false"
-                  orient="this is here to prevent the tabs binding setting it to horizontal"
-                  xbl:inherits="rotation,label=tabLabel"
-                  oncontextmenu="return document.getBindingParent(this)._onTabContext(event);"
-                  onclose="var elem = this;
-                           while (!/pane/.test(elem.localName))
-                             elem = document.getBindingParent(elem);
-                           elem.collapsed = true;"/>
-      </xul:hbox>
-      <xul:vbox flex="1">
-        <!-- this is here for the "vertical" case -->
-        <xul:hbox class="tabs-vertical-label">
-          <xul:label xbl:inherits="value=tabLabel"/>
-          <xul:spacer/>
-          <xul:toolbarbutton anonid="panel-close-button"
-                  class="tabs-closebutton"
-                  buttonstyle="pictures"
-                  oncommand="document.getBindingParent(this).collapsed = true;"/>
-        </xul:hbox>
-        <xul:tabpanels anonid="tabpanels" flex="1">
-          <children/>
-        </xul:tabpanels>
-      </xul:vbox>
+      <xul:deck anonid="pane-dummy-container" flex="1">
+        <xul:vbox class="pane-empty-container" align="stretch" pack="center">
+          <xul:description>&pane.empty.label;</xul:description>
+        </xul:vbox>
+        <xul:box class="pane-container">
+          <xul:hbox class="pane-tabs-container">
+            <!-- this is for the "sidebar" and "horzontal" modes -->
+            <xul:tabs anonid="tabs"
+                      closecollapsed="false"
+                      orient="this is here to prevent the tabs binding setting it to horizontal"
+                      xbl:inherits="rotation,label=tabLabel"
+                      oncontextmenu="return document.getBindingParent(this)._onTabContext(event);"
+                      onclose="var elem = this;
+                               while (!/pane/.test(elem.localName))
+                                 elem = document.getBindingParent(elem);
+                               elem.collapsed = true;"/>
+          </xul:hbox>
+          <xul:vbox flex="1">
+            <!-- this is here for the "vertical" case -->
+            <xul:hbox class="tabs-vertical-label">
+              <xul:label xbl:inherits="value=tabLabel"/>
+              <xul:spacer/>
+              <xul:toolbarbutton anonid="panel-close-button"
+                      class="tabs-closebutton"
+                      buttonstyle="pictures"
+                      oncommand="document.getBindingParent(this).collapsed = true;"/>
+            </xul:hbox>
+            <xul:tabpanels anonid="tabpanels" flex="1">
+              <children/>
+            </xul:tabpanels>
+          </xul:vbox>
+        </xul:box>
+      </xul:deck>
 
       <xul:menupopup anonid="tabs_popup">
         <xul:menu label="&pane.moveTo.label;">
@@ -96,6 +103,7 @@
           if (!widget.tab) {
             this._log.debug("Widget " + widget.id + " has no tab, creating one (" + this.id + ")");
             var tab = this.ownerDocument.createElementNS(this.namespaceURI, "tab");
+            tab.setAttribute("label", widget.getAttribute("label"));
             tab.setAttribute("observes", widget.id);
             tab.setAttribute("linkedpanel", widget.id);
             tab.addEventListener("contextmenu", (function(event) {
@@ -130,6 +138,8 @@
           // by the tab binding. (we can do it from css if we really want to.)
           widget.tab.removeAttribute("flex");
           this.tabpanels.appendChild(widget);
+          document.getAnonymousElementByAttribute(this, "anonid", "pane-dummy-container")
+                  .selectedIndex = 1;
 
           // update the menu listing the widgets to show
           var refElem = document.getElementById("menu_view_tabs_stub_" + this.id);
@@ -196,6 +206,12 @@
           }
           if (menuitem) {
             menuitem.parentNode.removeChild(menuitem);
+          }
+          this._log.debug("children length: " + this.tabpanels.children.length);
+          if (this.tabpanels.children.length < 1) {
+            // no widgets left
+            document.getAnonymousElementByAttribute(this, "anonid", "pane-dummy-container")
+                    .selectedIndex = 0;
           }
         ]]>
         </body>
@@ -376,7 +392,7 @@
             if (attr.name != "disablehistory")
               widget.removeAttributeNode(attr);
           }
-          pane.removeWidget(widget);
+          oldPane.removeWidget(widget);
           if (nextTab) {
             // need to select some other tab now that the old one is gone
             this._log.debug("switching to alternate widget " + nextTab.getAttribute("label"));

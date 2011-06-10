@@ -88,12 +88,18 @@ menu.menulist-subLevel > menupopup  > menuitem {
 ko-pane {
   -moz-binding: url("chrome://komodo/content/bindings/pane.xml#pane");
 }
+ko-pane .pane-empty-container description {
+  color: graytext;
+  width: 0;
+  margin: 2em;
+  text-align: center;
+}
 ko-pane .pane-tabs-container tabs {
   -moz-box-flex: 1;
 }
 
-ko-pane[type="sidebar"],
-ko-pane[type="horizontal"] {
+ko-pane[type="sidebar"] .pane-container,
+ko-pane[type="horizontal"] .pane-container {
   -moz-box-orient: vertical;
 }
 ko-pane[type="sidebar"] .pane-tabs-container tabs {
