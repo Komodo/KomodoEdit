@@ -866,13 +866,12 @@
               <body>
               <![CDATA[
                 // check for number of children that's actually visible
-                var hasChild = false;
+                var childCount = 0;
                 for each (var tab in Array.slice(this.childNodes)) {
                     if (tab.collapsed || tab.hidden) continue;
-                    hasChild = true;
-                    break;
+                    ++childCount;
                 }
-                if (hasChild) {
+                if (childCount > 1) {
                     // Show the tabs.
                     this.removeAttribute("collapsed");
                     for each (var tab in Array.slice(this.children)) {
