@@ -1083,6 +1083,12 @@ def target_configure(argv):
             the non-default compiler on Windows. Currently we build with
             VC9 and this is the default.
 
+        --gcc=<gcc44>  # Unix-only
+        --gxx=<g++44>  # Unix-only
+            There is *some* support for building Mozilla/Firefox with
+            the non-default compiler on Linux. Currently we build with
+            gcc44, g++44 and this is the default.
+
         --moz-objdir=<name>
             Specify a name to use for the MOZ_OBJDIR: the directory in
             the mozilla tree under which all build products go.
@@ -1119,6 +1125,8 @@ def target_configure(argv):
         "withCrashReportSymbols": False,
         "stripBuild": True,
         "compiler": None, # Windows-only; 'vc9' (the default)
+        "gcc": None, # Unix-only; 'gcc44' (the default)
+        "gxx": None, # Unix-only; 'g++44' (the default)
         "mozObjDir": None,
         "universal": False,
         "patchesDirs": ["patches-new"],
@@ -1161,7 +1169,8 @@ def target_configure(argv):
              "build-tag=",
              "official",
              "p4-changenum=",
-             "compiler=", "moz-objdir="])
+             "compiler=", "gcc=", "gxx=",
+             "moz-objdir="])
     except getopt.GetoptError, msg:
         raise BuildError("configure: %s" % str(msg))
 
@@ -1267,6 +1276,10 @@ def target_configure(argv):
                 "invalid compiler value (%s), must be one of: %s"\
                 % (optarg, validCompilers)
             config["compiler"] = optarg
+        elif opt == "--gcc" or opt == "--gxx":
+            assert sys.platform != "win32", \
+                "'--gcc' configure option is only supported on Unix"
+            config[opt[2:]] = optarg
         elif opt == "--moz-objdir":
             config["mozObjDir"] = optarg
         elif opt == "-j":
@@ -1353,8 +1366,8 @@ def target_configure(argv):
         if mozVer >= 1.91:
             mozRawOptions.append("mk_add_options AUTOCONF=autoconf213")
     elif sys.platform.startswith("linux"):
-        gcc = os.environ.get("CC")
-        gxx = os.environ.get("CXX")
+        gcc = config.get("gcc") or os.environ.get("CC")
+        gxx = config.get("gxx") or os.environ.get("CXX")
         if gcc is None:
             try:
                 # prefer gcc/g++ 4.4 (for CentOS 5.5)
@@ -1381,6 +1394,8 @@ def target_configure(argv):
             else:
                 # we don't _need_ gcc44 here...
                 log.warn("Using outdated gcc %s", version)
+        config["gcc"] = gcc
+        config["gxx"] = gxx
         mozRawOptions.append("CC=%s\n" % gcc)
         mozRawOptions.append("CXX=%s\n" % gxx)
 
@@ -2012,13 +2027,18 @@ def target_pyxpcom(argv=["pyxpcom"]):
         if not exists(pyxpcom_obj_dir):
             os.makedirs(pyxpcom_obj_dir)
         configure_flags = ''
+        configure_options = []
         if sys.platform.startswith("linux"):
             configure_flags += 'PYTHON="%s"' % (config.python, )
             configure_flags += " ac_cv_visibility_pragma=no"
+            if config.gcc:
+                # Need to pass in the same compiler as used in the Moz build,
+                # otherwise Linux-x86_64 builds will complain about needing to
+                # recompile with -fPIC.
+                configure_options.append("CC=%s" % (config.gcc))
         elif sys.platform == "darwin":
             configure_flags += 'PYTHON="%s"' % (config.python, )
             configure_flags += ' CC="gcc -arch i386" CXX="g++ -arch i386"'
-        configure_options = []
         if config.buildType == "debug":
             configure_options.append("--enable-debug")
         configure_path = join(pyxpcom_src_dir, "configure")
