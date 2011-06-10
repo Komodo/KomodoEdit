@@ -155,9 +155,10 @@ statusbarpanel > toolbarbutton[type="menu"] > dropmarker {
 }
 
 /**
- * Language menulists.
+ * Language icons for the language menulists and tree views.
  */
-menuitem.languageicon {
+menuitem.languageicon,
+treechildren::-moz-tree-image(DefaultLanguage) {
   /* The default language icon. */
   list-style-image: url("moz-icon://.txt?size=16");
 }
@@ -165,75 +166,104 @@ menuitem.languageicon[type="checkbox"] image {
   /* Push the image to the right of the menuitem checkbox. */
   margin-left: 24px;
 }
+treechildren::-moz-tree-image(DefaultLanguage) {
+  /* Put spacing around the tree images. */
+  margin-left: 3px;
+  margin-right: 3px;
+}
 
-.languageicon[language="ActionScript"] {
+.languageicon[language="ActionScript"],
+treechildren::-moz-tree-image(LanguageActionScript) {
   list-style-image: url("chrome://komodo/skin/images/languages/actionscript/actionscript_16x16.png") !important;
 }
-.languageicon[language="C++"] {
+.languageicon[language="C++"],
+treechildren::-moz-tree-image(LanguageC) {
   list-style-image: url("chrome://komodo/skin/images/languages/c/c_plusplus_16x16.png");
 }
-.languageicon[language="CoffeeScript"] {
+.languageicon[language="CoffeeScript"],
+treechildren::-moz-tree-image(LanguageCoffeeScript) {
   list-style-image: url("chrome://komodo/skin/images/languages/javascript/coffeescript_16x16.png");
 }
-.languageicon[language="CSS"] {
+.languageicon[language="CSS"],
+treechildren::-moz-tree-image(LanguageCSS) {
   list-style-image: url("chrome://komodo/skin/images/languages/css/css_16x16.png");
 }
-.languageicon[language="Django"] {
+.languageicon[language="Django"],
+treechildren::-moz-tree-image(LanguageDjango) {
   list-style-image: url("chrome://komodo/skin/images/languages/python/django_16x16.png");
 }
-.languageicon[language="EJS"] {
+.languageicon[language="EJS"],
+treechildren::-moz-tree-image(LanguageEJS) {
   list-style-image: url("chrome://komodo/skin/images/languages/javascript/ejs_16x16.png");
 }
-.languageicon[language="epMojo"] {
+.languageicon[language="epMojo"],
+treechildren::-moz-tree-image(LanguageepMojo) {
   list-style-image: url("chrome://komodo/skin/images/languages/perl/mojolicious_16x16.png");
 }
-.languageicon[language="HTML"] {
+.languageicon[language="HTML"],
+treechildren::-moz-tree-image(LanguageHTML) {
   list-style-image: url("chrome://komodo/skin/images/languages/html/html_16x16.png");
 }
-.languageicon[language="HTML5"] {
+.languageicon[language="HTML5"],
+treechildren::-moz-tree-image(LanguageHTML5) {
   list-style-image: url("chrome://komodo/skin/images/languages/html/html5_16x16.png");
 }
-.languageicon[language="JavaScript"] {
+.languageicon[language="JavaScript"],
+treechildren::-moz-tree-image(LanguageJavaScript) {
   list-style-image: url("chrome://komodo/skin/images/languages/javascript/javascript_16x16.png");
 }
-.languageicon[language="JSON"] {
+.languageicon[language="JSON"],
+treechildren::-moz-tree-image(LanguageJSON) {
   list-style-image: url("chrome://fugue/skin/icons/json.png");
 }
-.languageicon[language="MXML"] {
+.languageicon[language="MXML"],
+treechildren::-moz-tree-image(LanguageMXML) {
   list-style-image: url("chrome://komodo/skin/images/languages/flex/mxml_16x16.png");
 }
-.languageicon[language="Node.js"] {
+.languageicon[language="Node.js"],
+treechildren::-moz-tree-image(LanguageNodejs) {
   list-style-image: url("chrome://komodo/skin/images/languages/nodejs/nodejs_16x16.png");
 }
-.languageicon[language="Perl"] {
+.languageicon[language="Perl"],
+treechildren::-moz-tree-image(LanguagePerl) {
   list-style-image: url("chrome://komodo/skin/images/languages/perl/perl_16x16.png");
 }
-.languageicon[language="PHP"] {
+.languageicon[language="PHP"],
+treechildren::-moz-tree-image(LanguagePHP) {
   list-style-image: url("chrome://komodo/skin/images/languages/php/php_16x16.png");
 }
-.languageicon[language="Python"] {
+.languageicon[language="Python"],
+treechildren::-moz-tree-image(LanguagePython) {
   list-style-image: url("chrome://komodo/skin/images/languages/python/python_16x16.png");
 }
-.languageicon[language="Python3"] {
+.languageicon[language="Python3"],
+treechildren::-moz-tree-image(LanguagePython3) {
   list-style-image: url("chrome://komodo/skin/images/languages/python/python3_16x16.png");
 }
-.languageicon[language="RHTML"] {
+.languageicon[language="RHTML"],
+treechildren::-moz-tree-image(LanguageRHTML) {
   list-style-image: url("chrome://komodo/skin/images/languages/ruby/rails_16x16.png");
 }
-.languageicon[language="Ruby"] {
+.languageicon[language="Ruby"],
+treechildren::-moz-tree-image(LanguageRuby) {
   list-style-image: url("chrome://komodo/skin/images/languages/ruby/ruby_16x16.png");
 }
-.languageicon[language="Tcl"] {
+.languageicon[language="Tcl"],
+treechildren::-moz-tree-image(LanguageTcl) {
   list-style-image: url("chrome://komodo/skin/images/languages/tcl/tcl_16x16.png");
 }
-.languageicon[language="XML"] {
+.languageicon[language="XML"],
+treechildren::-moz-tree-image(LanguageXML) {
   list-style-image: url("chrome://komodo/skin/images/languages/xml/xml_16x16.png");
 }
-.languageicon[language="XSLT"] {
+.languageicon[language="XSLT"],
+treechildren::-moz-tree-image(LanguageXSLT) {
   list-style-image: url("chrome://komodo/skin/images/languages/xslt/xslt_16x16.png");
 }
 .languageicon[language="XBL"],
-.languageicon[language="XUL"] {
+treechildren::-moz-tree-image(LanguageXBL),
+.languageicon[language="XUL"],
+treechildren::-moz-tree-image(LanguageXUL) {
   list-style-image: url("chrome://komodo/skin/images/languages/xul/xul_16x16.png");
 }
 

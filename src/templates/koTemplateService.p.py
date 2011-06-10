@@ -77,8 +77,12 @@ class Node(dict):
 
     def addTemplate(self, path):
         name = _templateNameFromPath(path)
+        langRegistrySvc = components.classes['@activestate.com/koLanguageRegistryService;1'].\
+                          getService(components.interfaces.koILanguageRegistryService)
+        fileNameLanguage = langRegistrySvc.suggestLanguageForFile(path)
         fdata = {"path": path,
                  "template-name": name,
+                 "language": fileNameLanguage,
                  "sort-key": name.lower()}
         self.files.append(fdata)
 
@@ -370,6 +374,9 @@ class KoTemplatesView(TreeView):
         self._data = []
         self._tree = None
         self._sortedBy = None
+        self.atomSvc = components.classes["@mozilla.org/atom-service;1"].\
+                  getService(components.interfaces.nsIAtomService)
+        self.defaultLanguageAtom = self.atomSvc.getAtom("DefaultLanguage")
 
     def setData(self, data):
         # Called by the template categories view when its selection changes.
@@ -420,9 +427,25 @@ class KoTemplatesView(TreeView):
         else:
             return 1
 
-    def getImageSrc(self, row, column):
-        return "chrome://komodo/skin/images/newTemplate.png"
+    def getCellProperties(self, row, column, properties):
+        try:
+            # Add a default language image.
+            properties.AppendElement(self.defaultLanguageAtom)
 
+            # Add individual language icon if we have one.
+            lang = self._data[row]['language']
+            if lang:
+                # Remove some special chararacters from the language name, so
+                # it can be styled via CSS.
+                lang = lang.replace("+", "").replace(".", "")
+                atom = self.atomSvc.getAtom("Language" + lang)
+                if atom is not None:
+                    properties.AppendElement(atom)
+        except IndexError:
+            # Silence this, it is too annoying.
+            # c.f. http://bugs.activestate.com/show_bug.cgi?id=27487
+            #log.error("no %sth result" % row)
+            pass
 
 class KoTemplateCategoriesView(TreeView):
     _com_interfaces_ = [components.interfaces.koITemplateCategoriesView,
