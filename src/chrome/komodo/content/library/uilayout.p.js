@@ -1085,18 +1085,13 @@ function _buildMenuTree(hdata, hierarchy, toplevel) {
         menuitem.setAttribute('label', hierarchy.name);
         menuitem.setAttribute("accesskey", hierarchy.key);
         menuitem.setAttribute("type", "checkbox");
-        menuitem.setAttribute("name", "current_language");
+        menuitem.setAttribute("class", "languageicon");
+        menuitem.setAttribute("language", hierarchy.name);
         menuitem.setAttribute("observes", "cmd_viewAs"+languageNameNospaces);
 
-        menuitem2 = document.createElementNS(XUL_NS, 'menuitem');
-        menuitem2.setAttribute("accesskey", hierarchy.key);
-        menuitem2.setAttribute("label", hierarchy.name);
-        menuitem2.setAttribute("class", "statusbar-label");
-        menuitem2.setAttribute("type", "checkbox");
-        menuitem2.setAttribute("name", "current_language");
-        menuitem2.setAttribute("observes", "cmd_viewAs"+languageNameNospaces);
-        menuitem2.setAttribute("name", "current_language_statusbar");
+        menuitem2 = menuitem.cloneNode(false);
         menuitem2.setAttribute("id", "contextmenu_viewAs" + languageNameNospaces);
+        menuitem2.setAttribute("class", "statusbar-label languageicon");
 
         if (hierarchy.name == hdata.language) {
             menuitem.setAttribute('checked', 'true');
