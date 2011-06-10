@@ -5374,6 +5374,7 @@
               <File Id="file91" Name="HTML2S_0.UDL" LongName="html2smarty.udl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\udl\html2smarty.udl"/>
               <File Id="file94" Name="html2ttk.udl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\udl\html2ttk.udl"/>
               <File Id="file107" Name="JSMAIN_0.UDL" LongName="js-mainlex.udl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\udl\js-mainlex.udl"/>
+              <File Id="file677" Name="JS2DJA_0.UDL" LongName="js2django.udl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\udl\js2django.udl"/>
               <File Id="file108" Name="js2html.udl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\udl\js2html.udl"/>
               <File Id="file109" Name="js2php.udl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\udl\js2php.udl"/>
               <File Id="file110" Name="js2xbl.udl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\udl\js2xbl.udl"/>
