@@ -154,6 +154,89 @@ statusbarpanel > toolbarbutton[type="menu"] > dropmarker {
     list-style-image: url("chrome://komodo/skin/images/icon_check_error.png");
 }
 
+/**
+ * Language menulists.
+ */
+menuitem.languageicon {
+  /* The default language icon. */
+  list-style-image: url("moz-icon://.txt?size=16");
+}
+menuitem.languageicon[type="checkbox"] image {
+  /* Push the image to the right of the menuitem checkbox. */
+  margin-left: 24px;
+}
+
+.languageicon[language="ActionScript"] {
+  list-style-image: url("chrome://komodo/skin/images/languages/actionscript/actionscript_16x16.png") !important;
+}
+.languageicon[language="C++"] {
+  list-style-image: url("chrome://komodo/skin/images/languages/c/c_plusplus_16x16.png");
+}
+.languageicon[language="CoffeeScript"] {
+  list-style-image: url("chrome://komodo/skin/images/languages/javascript/coffeescript_16x16.png");
+}
+.languageicon[language="CSS"] {
+  list-style-image: url("chrome://komodo/skin/images/languages/css/css_16x16.png");
+}
+.languageicon[language="Django"] {
+  list-style-image: url("chrome://komodo/skin/images/languages/python/django_16x16.png");
+}
+.languageicon[language="EJS"] {
+  list-style-image: url("chrome://komodo/skin/images/languages/javascript/ejs_16x16.png");
+}
+.languageicon[language="epMojo"] {
+  list-style-image: url("chrome://komodo/skin/images/languages/perl/mojolicious_16x16.png");
+}
+.languageicon[language="HTML"] {
+  list-style-image: url("chrome://komodo/skin/images/languages/html/html_16x16.png");
+}
+.languageicon[language="HTML5"] {
+  list-style-image: url("chrome://komodo/skin/images/languages/html/html5_16x16.png");
+}
+.languageicon[language="JavaScript"] {
+  list-style-image: url("chrome://komodo/skin/images/languages/javascript/javascript_16x16.png");
+}
+.languageicon[language="JSON"] {
+  list-style-image: url("chrome://fugue/skin/icons/json.png");
+}
+.languageicon[language="MXML"] {
+  list-style-image: url("chrome://komodo/skin/images/languages/flex/mxml_16x16.png");
+}
+.languageicon[language="Node.js"] {
+  list-style-image: url("chrome://komodo/skin/images/languages/nodejs/nodejs_16x16.png");
+}
+.languageicon[language="Perl"] {
+  list-style-image: url("chrome://komodo/skin/images/languages/perl/perl_16x16.png");
+}
+.languageicon[language="PHP"] {
+  list-style-image: url("chrome://komodo/skin/images/languages/php/php_16x16.png");
+}
+.languageicon[language="Python"] {
+  list-style-image: url("chrome://komodo/skin/images/languages/python/python_16x16.png");
+}
+.languageicon[language="Python3"] {
+  list-style-image: url("chrome://komodo/skin/images/languages/python/python3_16x16.png");
+}
+.languageicon[language="RHTML"] {
+  list-style-image: url("chrome://komodo/skin/images/languages/ruby/rails_16x16.png");
+}
+.languageicon[language="Ruby"] {
+  list-style-image: url("chrome://komodo/skin/images/languages/ruby/ruby_16x16.png");
+}
+.languageicon[language="Tcl"] {
+  list-style-image: url("chrome://komodo/skin/images/languages/tcl/tcl_16x16.png");
+}
+.languageicon[language="XML"] {
+  list-style-image: url("chrome://komodo/skin/images/languages/xml/xml_16x16.png");
+}
+.languageicon[language="XSLT"] {
+  list-style-image: url("chrome://komodo/skin/images/languages/xslt/xslt_16x16.png");
+}
+.languageicon[language="XBL"],
+.languageicon[language="XUL"] {
+  list-style-image: url("chrome://komodo/skin/images/languages/xul/xul_16x16.png");
+}
+
 
 .primary_menu_item {
     font-weight: bold;
