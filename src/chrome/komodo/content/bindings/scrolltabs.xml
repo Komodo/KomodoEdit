@@ -865,10 +865,14 @@
             <method name="setTabVisibility">
               <body>
               <![CDATA[
-                if (this.childNodes.length <= 1) {
-                    // Hide the tabs.
-                    this.setAttribute("collapsed", "true");
-                } else {
+                // check for number of children that's actually visible
+                var hasChild = false;
+                for each (var tab in Array.slice(this.childNodes)) {
+                    if (tab.collapsed || tab.hidden) continue;
+                    hasChild = true;
+                    break;
+                }
+                if (hasChild) {
                     // Show the tabs.
                     this.removeAttribute("collapsed");
                     for each (var tab in Array.slice(this.children)) {
@@ -876,6 +880,9 @@
                         // sizing information yet if they've never been shown
                         if (tab.refresh) tab.refresh();
                     }
+                } else {
+                    // Hide the tabs.
+                    this.setAttribute("collapsed", "true");
                 }
               ]]>
               </body>

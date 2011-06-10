@@ -177,36 +177,43 @@
         <body>
         <![CDATA[
           var tabbox = widget.tabbox;
+
+          // find a tab to focus after we've moved things
+          var nextTab = null;
+          if (tabbox && tabbox.selectedTab == widget.tab) {
+            for each (var dir in ["nextElementSibling", "previousElementSibling"]) {
+              if (nextTab) break; // already found
+              for (var elem = widget.tab[dir]; elem; elem = elem[dir]) {
+                if (elem.hidden || elem.collapsed) continue;
+                nextTab = elem;
+                break;
+              }
+            }
+          } else {
+            // we still might need to switch selected widget, if we're removing
+            // a widget with a lower index (so <tabpanels>.selectedIndex will
+            // be too large).
+            nextTab = tabbox ? tabbox.selectedTab : null;
+          }
+
+          if (widget.tab && widget.tab.parentNode) {
+            widget.tab.parentNode.removeChild(widget.tab);
+          }
+          widget.tab = null;
           if (widget.parentNode) {
             widget.parentNode.removeChild(widget);
           }
-          if (widget.tab) {
-            if (widget.tab.parentNode) {
-              // find another tab to select
-              var tab = widget.tab.nextElementSibling;
-              for (; tab; tab = tab.nextElementSibling) {
-                if (!tab.hasAttribute("collapsed")) {
-                  break;
-                }
-              }
-              if (!tab) {
-                tab = widget.tab.previousElementSibling;
-                for (; tab; tab = tab.previousElementSibling) {
-                  if (!tab.hasAttribute("collapsed")) {
-                    break;
-                  }
-                }
-              }
-              if (tab) {
-                this.selectedTab = tab;
-              } else {
-                // we're removing the only visible widget. Hide.
-                this.collapsed = true;
-              }
-              widget.tab.parentNode.removeChild(widget.tab);
-            }
-            widget.tab = null;
+
+          if (nextTab) {
+            // Select the new tab.  Note that we need to set selectedPanel here
+            // too, because panels go by indicies but tabs don't, meaning if we
+            // removed a lower-numbered panel we would end up showing the wrong
+            // element here.
+            tabbox.tabpanels.selectedPanel =
+              nextTab.ownerDocument.getElementById(nextTab.getAttribute("linkedpanel"));
+            tabbox.selectedTab = nextTab;
           }
+
           // update the menu listing the widgets
           var refElem = document.getElementById("menu_view_tabs_stub_" + this.id);
           var menu = refElem.parentNode;
@@ -217,16 +224,19 @@
           if (menuitem) {
             menuitem.parentNode.removeChild(menuitem);
           }
-          this._log.debug("children length: " + this.tabpanels.children.length);
-          if (this.tabpanels.children.length < 1) {
-            // no widgets left
-            document.getAnonymousElementByAttribute(this, "anonid", "pane-dummy-container")
-                    .selectedIndex = 0;
-          }
 
           // Update tab strip visibility
           if (tabbox && tabbox.tabs.setTabVisibility) {
             tabbox.tabs.setTabVisibility();
+          }
+          
+          // Update pane visiblity. (this has to come after updating tab strip
+          // visibility otherwise the tab strip would be unbound and we can't
+          // use its methods anymore)
+          if (tabbox && !nextTab) {
+            document.getAnonymousElementByAttribute(this, "anonid", "pane-dummy-container")
+                    .selectedIndex = 0;
+            tabbox.collapsed = true;
           }
         ]]>
         </body>
@@ -351,15 +361,6 @@
             return;
           }
 
-          var nextTab = widget.tab.nextElementSibling ||
-                        widget.tab.previousElementSibling;
-          if (oldPane.selectedTab != widget.tab) {
-            // we still might need to switch selected widget, if we're removing
-            // a widget with a lower index (so <tabpanels>.selectedIndex will
-            // be too large).
-            nextTab = oldPane.selectedTab;
-          }
-
           this._log.debug("moving widget " + widget.id + " to " + pane.id);
 
           // dispatch an event into the widget so they can stop this if they
@@ -408,11 +409,6 @@
               widget.removeAttributeNode(attr);
           }
           oldPane.removeWidget(widget);
-          if (nextTab) {
-            // need to select some other tab now that the old one is gone
-            this._log.debug("switching to alternate widget " + nextTab.getAttribute("label"));
-            ko.uilayout.ensureTabShown(nextTab, false);
-          }
 
           // set the focus if requested
           if (focus) {
