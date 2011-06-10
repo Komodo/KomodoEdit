@@ -475,6 +475,10 @@ class KoTemplateCategoriesView(TreeView):
         self.templateTree = None # Working copy of template tree Nodes.
         self.selectedTemplateByCategory = None
         self.categoryIsOpen = None
+        self.atomSvc = components.classes["@mozilla.org/atom-service;1"].\
+                  getService(components.interfaces.nsIAtomService)
+        self.folderOpenAtom = self.atomSvc.getAtom("folderOpen")
+        self.folderClosedAtom = self.atomSvc.getAtom("folderClosed")
 
     def initialize(self, templateSvc, templatesView):
         # Need to unwrap these Python XPCOM object because we access
@@ -663,13 +667,13 @@ class KoTemplateCategoriesView(TreeView):
         cdict = self._data[index]
         self.templatesView.setData(cdict["node"].files)
 
-    def getImageSrc(self, row, column):
+    def getCellProperties(self, row, column, properties):
         categoryPath = self._data[row]["category-path"]
         if self.categoryIsOpen.get(categoryPath, 0):
-            return "chrome://komodo/skin/images/folder-open.png"
+            properties.AppendElement(self.folderOpenAtom)
         else:
-            return "chrome://komodo/skin/images/folder-closed.png"
-    
+            properties.AppendElement(self.folderClosedAtom)
+
     def hasNextSibling(self, rowIndex, afterIndex):
         """From the nsITreeView.idl docs:
         

@@ -62,6 +62,9 @@ $cons->InstallInChrome('find.css');
 $cons->InstallInChrome('feature_control_panel.css');
 $cons->InstallInChrome('notifications.css');
 
+$cons->Preprocess('templates/new.p.css', 'templates/new.css');
+$cons->InstallInChrome('templates/new.css');
+
 $cons->InstallInChrome('prefs/prefs.css');
 
 if ($platform eq "darwin") {

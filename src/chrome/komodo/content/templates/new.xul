@@ -45,6 +45,7 @@
 <?xml-stylesheet href="chrome://komodo/skin/komodo.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/autocomplete.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/templates/new.css" type="text/css"?>
 
 <dialog id="dialog-newtemplate"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
