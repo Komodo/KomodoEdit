@@ -278,12 +278,8 @@ this.show = function RunOutput_Show(editor, showParsedOutputList)
     if (!editor) {
         _log.error("show: 'editor' is not true");
     }
-    // open output pane in komodo.xul
-    ko.uilayout.ensureOutputPaneShown(editor);
-
-    // switch to the run output tab
-    var panel = editor.document.getElementById("runoutput-desc-tabpanel");
-    panel.tabbox.selectedTab = panel.tab;
+    // Make sure the tab is visible
+    ko.uilayout.ensureTabShown(window.frameElement.id, true);
 
     // open the proper command output view
     _SetView(editor, showParsedOutputList);
@@ -519,6 +515,21 @@ function _UpdateSortIndicators(mainWindow, sortId)
         }
     }
 }
+
+this.onFocus = function RunOutput_OnFocus(event) {
+    if (event.originalTarget != window) {
+        // bubbled event
+        return;
+    }
+    var selected = window.document.getElementById("runoutput-deck").selectedPanel;
+    if ("scintilla" in selected) {
+        selected.scintilla.focus();
+    } else {
+        selected.focus();
+    }
+};
+
+window.addEventListener("focus", this.onFocus, false);
 
 }).apply(ko.run.output);
 
