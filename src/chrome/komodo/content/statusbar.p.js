@@ -153,9 +153,11 @@ function _updateLanguage(view) {
         if (view.getAttribute("type") == "startpage") {
             _clearLanguage();
             languageWidget.setAttribute('collapsed', 'true');
+            languageWidget.removeAttribute('language');
         } else {
             var language = view.koDoc.language;
             languageWidget.setAttribute("label", language);
+            languageWidget.setAttribute('language', language);
             languageWidget.removeAttribute('collapsed');
         }
     } catch(e) {

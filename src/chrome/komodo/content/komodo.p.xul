@@ -2132,7 +2132,7 @@
         <statusbarpanel id="statusbar-language"
                         pack="end"
                         style="min-width: 8em; max-width: 12em;">
-            <toolbarbutton class="statusbar-label"
+            <toolbarbutton class="statusbar-label languageicon"
                   id="statusbar-language-menu"
                   tooltiptext="&fileType.tooltiptext;"
                   flex="1"
