@@ -1256,7 +1256,11 @@ this.ensureTabShown = function uilayout_ensureTabShown(widgetId, focusToo) {
         widget.tabbox.collapsed = false;
         widget.tabbox.selectedTab = widget.tab;
         if (focusToo) {
-            widget.focus();
+            if (widget.contentWindow) {
+                widget.contentWindow.focus();
+            } else {
+                widget.focus();
+            }
         }
     } catch (e) {
         _log.exception(e);

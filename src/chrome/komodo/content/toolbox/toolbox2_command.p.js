@@ -1370,6 +1370,12 @@ this.onTreeKeyPress = function(event) {
     return false;
 }
 
+this.onFocusWindow = function(event) {
+    if (event.originalTarget == window) {
+        document.getElementById("toolbox2-filter-textbox").focus();
+    }
+};
+
 var ToolboxController = function() {
     this.log = ko.logging.getLogger("ToolboxController");
     this.log.setLevel(ko.logging.LOG_DEBUG);
@@ -1419,11 +1425,12 @@ ToolboxController.prototype = {
 };
 
  window.addEventListener("load", function() {
- try {
-document.getElementById("toolbox2-hierarchy-tree").controllers.insertControllerAt(0, new ToolboxController());
- } catch(ex) {
+   try {
+     document.getElementById("toolbox2-hierarchy-tree").controllers.insertControllerAt(0, new ToolboxController());
+     window.addEventListener("focus", this.onFocusWindow, false);
+   } catch(ex) {
      log.error("Failed to set a toolbox controller: " + ex + "\n");
- }
-     }, true);
+   }
+ }, true);
 
 }).apply(ko.toolbox2);
