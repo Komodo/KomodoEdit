@@ -58,7 +58,9 @@
             desc="&userInterfaceShowHideBottomPane.desc;"
             splitter="bottom_splitter"
             box="workspace_bottom_area"
-            oncommand="ko.commands.doCommandAsync('cmd_viewBottomPane', event)"/>
+            oncommand="ko.commands.doCommandAsync('cmd_viewBottomPane', event)">
+            <observes attribute="checked" element="workspace_bottom_area"/>
+        </broadcaster>
         <broadcaster
             id="cmd_viewLeftPane" key="key_cmd_viewLeftPane"
             desc="&userInterfaceShowHideLeftPane.desc;"

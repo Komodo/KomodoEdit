@@ -1734,7 +1734,7 @@
                      tooltiptext="&workspaceToolbar.tooltiptext;">
                 <toolbarbutton id="toggleLeftPane"
                     tooltiptext="&showHideLeftPane.tooltiptext;"
-                    persist="buttonstyle checked"
+                    persist="buttonstyle"
                     buttonstyle="pictures"
                     type="checkbox"
                     observes="cmd_viewLeftPane"
@@ -1742,7 +1742,7 @@
                 </toolbarbutton>
                 <toolbarbutton id="toggleBottomPane"
                     tooltiptext="&showHideBottomPane.tooltiptext;"
-                    persist="buttonstyle checked"
+                    persist="buttonstyle"
                     buttonstyle="pictures"
                     type="checkbox"
                     observes="cmd_viewBottomPane"
@@ -1750,12 +1750,11 @@
                 </toolbarbutton>
                 <toolbarbutton id="toggleRightPane"
                     tooltiptext="&showHideRightPane.tooltiptext;"
-                    persist="buttonstyle checked"
+                    persist="buttonstyle"
                     buttonstyle="pictures"
                     type="checkbox"
                     observes="cmd_viewRightPane"
                     label="&toggleRight.label;">
-                    <observes element="workspace_right_area" attribute="checked"/>
                 </toolbarbutton>
                 <toolbarbutton id="tabPicker"
                     tooltiptext="&showSpecificTab.tooltiptext;"

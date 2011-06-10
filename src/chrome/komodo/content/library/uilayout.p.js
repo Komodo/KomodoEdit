@@ -462,33 +462,6 @@ this.toggleSplitter = function uilayout_toggleSplitter(aCommandID) {
     }
 }
 
-this.updateSplitterBroadcasterState = function uilayout_updateSplitterBroadcasterState(aCommandID) {
-    var elt = document.getElementById(aCommandID);
-    if (!elt) {
-        _log.error("ko.uilayout.toggleSplitter: couldn't find '" + aCommandID + "'");
-        return;
-    }
-    var boxId = elt.getAttribute('box');
-    var box = document.getElementById(boxId)
-    if (!box) {
-        _log.error("couldn't find " + boxId);
-        return;
-    }
-    var splitterId = elt.getAttribute('splitter')
-    var splitter = document.getElementById(splitterId)
-    if (!splitter) {
-        _log.error("couldn't find " + splitterId);
-        return;
-    }
-
-    if (! box.hasAttribute('collapsed') ||
-        box.getAttribute("collapsed") == "false") {
-        elt.setAttribute('checked', 'true');
-    } else {
-        elt.removeAttribute('checked');
-    }
-}
-
 this.updateFullScreen = function uilayout_updateFullScreen() {
     // Update whether the checkbox for full screen is checked or not.
     var menuitem = document.getElementById('menuitem_fullScreen');
@@ -1344,9 +1317,6 @@ this.onload = function uilayout_onload()
 {
     ko.uilayout.updateToolbarArrangement();
     addEventListener("fullscreen", ko.uilayout.onFullScreen, false);
-    ko.uilayout.updateSplitterBroadcasterState('cmd_viewRightPane');
-    ko.uilayout.updateSplitterBroadcasterState('cmd_viewLeftPane');
-    ko.uilayout.updateSplitterBroadcasterState('cmd_viewBottomPane');
     _gNeedToUpdateFileMRUMenu = true;
     _gNeedToUpdateProjectMRUMenu = true;
     _gNeedToUpdateTemplateMRUMenu = true;
@@ -1617,7 +1587,7 @@ ko.logging.globalDeprecatedByAlternative("uilayout_toggleTab", "ko.uilayout.togg
 ko.logging.globalDeprecatedByAlternative("uilayout_updateTabpickerMenu", "ko.uilayout.updateTabpickerMenu");
 ko.logging.globalDeprecatedByAlternative("uilayout_togglePane", "ko.uilayout.togglePane");
 ko.logging.globalDeprecatedByAlternative("uilayout_toggleSplitter", "ko.uilayout.toggleSplitter");
-ko.logging.globalDeprecatedByAlternative("uilayout_updateSplitterBroadcasterState", "ko.uilayout.updateSplitterBroadcasterState");
+ko.logging.globalDeprecatedByAlternative("uilayout_updateSplitterBroadcasterState", "(function(){/* This function is no longer necessary */})");
 ko.logging.globalDeprecatedByAlternative("uilayout_updateFullScreen", "ko.uilayout.updateFullScreen");
 ko.logging.globalDeprecatedByAlternative("uilayout_FullScreen", "ko.uilayout.fullScreen");
 ko.logging.globalDeprecatedByAlternative("uilayout_onFullScreen", "ko.uilayout.onFullScreen");
