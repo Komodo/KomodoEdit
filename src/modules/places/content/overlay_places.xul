@@ -249,12 +249,10 @@
   <!-- ****************    Content    ****************** -->
 
   <ko-pane id="workspace_left_area">
-    <!--
-        oncommand="ko.places.viewMgr.focus(); ko.places.viewMgr.updateView();"
-        onfocus="ko.places.viewMgr.focus(); ko.places.viewMgr.updateView();"
-    -->
     <browser type="ko-widget" id="placesViewbox" label="&Places.label;"
              position="1" insertbefore="codebrowserviewbox"
+             tab_oncommand="ko.places.viewMgr.focus(); ko.places.viewMgr.updateView();"
+             tab_onfocus="ko.places.viewMgr.focus(); ko.places.viewMgr.updateView();"
 	     src="chrome://places/content/places_panel.xul"/>
   </ko-pane>
 </overlay>

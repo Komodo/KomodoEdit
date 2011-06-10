@@ -87,6 +87,25 @@
             var tab = this.ownerDocument.createElementNS(this.namespaceURI, "tab");
             tab.setAttribute("observes", widget.id);
             tab.setAttribute("linkedpanel", widget.id);
+            // copy any attributes over that start with "tab_" without the prefix
+            // so we can have things like oncommand
+            for (var [index, attr] in Iterator(widget.attributes)) {
+              if (/^tab_/.test(attr.name)) {
+                // copy the attribute over
+                tab.setAttribute(attr.name.replace(/^tab_/, ""), attr.value);
+                // add a <observes> to catch the attribute changing dynamically
+                var observes = this.ownerDocument.createElementNS(this.namespaceURI, "observes");
+                observes.setAttribute("element", widget.id);
+                observes.setAttribute("attribute", attr.name);
+                observes.addEventListener("broadcast", (function(event){
+                  var observes = event.target;
+                  var attr = observes.getAttribute("attribute");
+                  observes.parentNode.setAttribute(attr.replace(/^tab_/, ""),
+                                                   this.getAttribute(attr));
+                }).bind(widget), false);
+                tab.appendChild(observes);
+              }
+            }
             widget.tab = tab;
           }
           this.tabs.appendChild(widget.tab);

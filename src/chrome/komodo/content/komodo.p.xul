@@ -2040,7 +2040,9 @@
             <browser type="ko-widget"
                      id="runoutput-desc-tabpanel"
                      label="&commandOutput.label;"
-                     src="chrome://komodo/content/run/runOutputPane.xul"/>
+                     src="chrome://komodo/content/run/runOutputPane.xul"
+                     tab_onmousedown="document.getElementById('runoutput-browser').focus();"
+                     tab_onfocus="document.getElementById('runoutput-browser').focus();"/>
 
             <!-- The two Find Results tabs of the output pane -->
             <browser type="ko-widget"
