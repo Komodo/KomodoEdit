@@ -683,12 +683,17 @@ class koDocumentBase:
                 family_next = udl_family_from_style(scimoz.getStyleAt(current_run_pos + 1))
                 if family_start != family_next:
                     transition_points.append(current_run_pos + 1)
+                    current_run_pos += 1
                 else:
                     break
             transition_points.append(indic_end)
             if indic_end >= end_pos:  # Past the end of the region specified.
                 break
-            pos = indic_end + 1
+            pos = indic_end
+            if indic_end == end_pos:
+                # In case the last indicator ends on the last char, not at the
+                # posn after the last character
+                pos += 1
         if len(transition_points) < 2:
             return [0, length]
         transition_points.append(length)
