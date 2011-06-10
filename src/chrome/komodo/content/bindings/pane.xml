@@ -449,6 +449,11 @@
           return this.ownerDocument.getAnonymousElementByAttribute(this, "anonid", "tabpanels");
         </getter>
       </property>
+      <property name="widgets">
+        <getter>
+          return Array.slice(this.tabpanels.childNodes);
+        </getter>
+      </property>
       <property name="collapsed">
         <getter>
         <![CDATA[

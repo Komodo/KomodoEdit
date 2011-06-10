@@ -1505,6 +1505,14 @@ this.saveTabSelections = function uilayout_SaveTabSelections(prefs) {
         _savePanePrefs(prefs, 'workspace_bottom_area',
                        'uilayout_bottomTabBox_collapsed',
                        'uilayout_bottomTabBoxSelectedTabId');
+
+        // save which pane each of the widgets are in
+        for each (var pane in ko.widgets._panes) {
+            for each (var widget in pane.widgets) {
+                prefs.setStringPref("uilayout_widget_position_" + widget.id,
+                                    pane.id);
+            }
+        }
     } catch (e) {
         _log.exception("Couldn't save selected tab preferences:" + e);
     }
@@ -1539,6 +1547,25 @@ this.restoreTabSelections = function uilayout_RestoreTabSelections(prefs) {
 
     if (typeof(prefs) == "undefined") prefs = _gPrefs;
     try {
+        // restore which pane each of the widgets are in
+        for each (var pane in ko.widgets._panes) {
+            for each (var widget in pane.widgets) {
+                var prefId = "uilayout_widget_position_" + widget.id;
+                if (!prefs.hasStringPref(prefId)) {
+                    continue;
+                }
+                paneId =  prefs.getStringPref(prefId, pane.id);
+                var pane = document.getElementById(paneId);
+                if (!pane) {
+                    // the pane went away?
+                    continue;
+                }
+                widget.tabbox.moveWidgetToPane(widget, pane);
+            }
+        }
+
+        // restore the state of the panes
+
         _restoreTabBox(prefs, 'workspace_left_area',
                        'uilayout_leftTabBox_collapsed',
                        'uilayout_leftTabBoxSelectedTabId');
@@ -1548,6 +1575,7 @@ this.restoreTabSelections = function uilayout_RestoreTabSelections(prefs) {
         _restoreTabBox(prefs, 'workspace_bottom_area',
                        'uilayout_bottomTabBox_collapsed',
                        'uilayout_bottomTabBoxSelectedTabId');
+
     } catch (e) {
         Components.utils.reportError(e);
         _log.exception("Couldn't restore selected tab: " + e);
