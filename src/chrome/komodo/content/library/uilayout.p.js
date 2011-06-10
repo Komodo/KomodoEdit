@@ -1213,8 +1213,13 @@ this.ensureTabShown = function uilayout_ensureTabShown(widgetId, focusToo) {
         if (typeof(focusToo) == 'undefined') focusToo = false;
         var widget;
         if ((typeof(widgetId) == "object") && ("localName" in widgetId)) {
-            // we actually got passed the widget instead
-            widget = widgetId;
+            if (widgetId.hasAttribute("linkedpanel")) {
+                // we literally got the <tab>.
+                widget = document.getElementById(widgetId.getAttribute("linkedpanel"));
+            } else {
+                // we actually got passed the widget instead
+                widget = widgetId;
+            }
         } else {
             var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                             .getService(Components.interfaces.nsIWindowMediator);
@@ -1228,6 +1233,13 @@ this.ensureTabShown = function uilayout_ensureTabShown(widgetId, focusToo) {
         // First make sure that the pane the tab is in is visible
         widget.tabbox.collapsed = false;
         widget.tabbox.selectedTab = widget.tab;
+
+        // let's be very, very sure. (this is needed in the case where we're here
+        // because a tab in front of us got moved away, in which case .selectedIndex
+        // will not properly reflect reality)
+        widget.tabbox.tabpanels.selectedPanel = widget;
+
+        // See if we want to focus the newly selected widget
         if (focusToo) {
             if (widget.contentWindow) {
                 widget.contentWindow.focus();

@@ -620,6 +620,10 @@
 <!ENTITY showHideBottomPane.tooltiptext "Show/Hide Bottom Pane">
 <!ENTITY showHideLeftPane.tooltiptext "Show/Hide Left Pane">
 <!ENTITY showHideRightPane.tooltiptext "Show/Hide Right Pane">
+<!ENTITY pane.moveTo.label "Move widget to">
+<!ENTITY paneNameLeft "Left Pane">
+<!ENTITY paneNameRight "Right Pane">
+<!ENTITY paneNameBottom "Bottom Pane">
 <!ENTITY showInExplorer.label "Show in Explorer">
 <!ENTITY showInFileManager.label "Show in File Manager">
 <!ENTITY showInFinder.label "Show in Finder">

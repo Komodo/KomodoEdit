@@ -124,10 +124,14 @@
     <binding id="tabs-droplist" xbl:inherits="orient"
              extends="chrome://global/content/bindings/tabbox.xml#tabs">
         <content>
-            <xul:box xbl:inherits="orient,align,pack,dir" flex="1"
+            <xul:box xbl:inherits="orient,pack,dir" flex="1"
                      align="center" pack="center">
-                <xul:label anonid="label" class="tab-text" xbl:inherits="value=label"/>
-                <xul:spacer flex="1"/>
+                <xul:hbox flex="1" pack="start" align="stretch"
+                          anonid="label-box" xbl:inherits="align">
+                    <xul:label anonid="label"
+                               class="tab-text"
+                               xbl:inherits="value=label"/>
+                </xul:hbox>
                 <xul:hbox class="noborder sidebar-buttons">
                     <xul:toolbarbutton anonid="tabs-list"
                             type="menu"
