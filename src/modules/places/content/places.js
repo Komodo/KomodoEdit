@@ -2171,7 +2171,9 @@ ManagerClass.prototype = {
     },
     
     trackCurrentTab : function(menuitem) {
-        this.trackCurrentTab_pref = menuitem.getAttribute('checked');
+       // On OSX with Mozilla 2.0, mi.getAttribute("checked") ==> "false",
+       // which naively evaluates to true.
+       this.trackCurrentTab_pref = menuitem.getAttribute('checked') == "true";
     },
 
     can_undoTreeOperation: function() {
