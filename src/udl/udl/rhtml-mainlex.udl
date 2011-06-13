@@ -46,6 +46,7 @@ include "html2ruby.udl"
 
 include "css2html.udl"
 
+include "js2ruby.udl"
 include "js2html.udl"
 
 include "ruby2html.udl"

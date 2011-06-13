@@ -55,7 +55,7 @@ pattern NMSTART = '$\w\x80-\xff'   # inside cset
 pattern CS = '$NMSTART\d_'   # inside cset
 pattern WS = '\s\t\r\n'           # inside cset
 pattern OP = '!\#%&\(\)\*\+,-\.\/:;<=>\?@\[\]\^\{\}~|'
-pattern NAMESEQ = '[$NMSTART][$CS]*'
+# pattern NAMESEQ = '[$NMSTART][$CS]*'
 
 # We need to do some processing to determine when a / in default state 
 # starts a regex, and when it starts an RE
@@ -100,7 +100,8 @@ state IN_CSL_DEFAULT:
 
 # '<' if token_check  : paint(upto, CSL_DEFAULT), => IN_CSL_XML # E4X stuff
 
-/$NAMESEQ/ : paint(upto, CSL_DEFAULT), paint(include, CSL_IDENTIFIER)
+# /$NAMESEQ/ : paint(upto, CSL_DEFAULT), paint(include, CSL_IDENTIFIER)
+/[$NMSTART][$CS]*/ : paint(upto, CSL_DEFAULT), paint(include, CSL_IDENTIFIER)
 
 # Now a bunch of operators
 # Multi-char operators first
