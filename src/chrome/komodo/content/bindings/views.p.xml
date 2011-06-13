@@ -553,15 +553,7 @@
 <binding id="view-base"
     extends="chrome://komodo/content/bindings/views.xml#view-list-base">
     <implementation name="viewbase" implements="koIView">
-        <!-- Note: Want to set a "document" property here that is an
-            alias for "koDoc" (`document` is deprecated). However, that
-            causes `'this.document' is undefined` errors. Don't know why.
-            Suspect it might be that a property with a getter or setter
-            actually results in XBL creating something with that name
-            but in a way that conflicts. Result: sub-classes of "view-base"
-            XBL need to define their own such alias:
-                <property name="document" onget="return this.koDoc;" onset="this.koDoc = val" />
-            -->
+
         <field name="koDoc">null</field>
 
         <property name="title" readonly="true">

@@ -53,13 +53,6 @@
     </content>
     <implementation name="vieweditor" implements="koIScintillaView, koIBookmarkableView, ISciMozEvents, nsIObserver">
 
-        <!-- `document` DEPRECATED in Komodo 6.0.0, use `koDoc` -->
-        <property name="document"
-            onget="this.log.deprecated('`koIView.document` is deprecated, use `koIView.koDoc`');
-                return this.koDoc;"
-            onset="this.log.deprecated('`koIView.document` is deprecated, use `koIView.koDoc`');
-                this.koDoc = val" />
-
         <property name="cwd">
              <getter><![CDATA[
                 if (this.koDoc && ! this.koDoc.isUntitled) {
