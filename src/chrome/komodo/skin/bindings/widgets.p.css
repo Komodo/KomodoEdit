@@ -172,56 +172,6 @@ browser[type="ko-widget"] {
   -moz-box-flex: 1;
 }
 
-/**
- * Vertical tab text in a tabbox.
- */
-tabbox.vertical_tabs
-{
-    -moz-box-orient     : horizontal;
-}
-tabbox.vertical_tabs tabpanels
-{
-    /* Remove the 1px border on top of the tabbox panels. */
-    border-top-width    : 0;
-}
-_commented_out tabbox tabpanel
-{
-    /* The normal tabpanel. Required due to bug 87690. */
-    -moz-binding        : url("chrome://komodo/content/bindings/scrolltabs.xml#tabpanel-normal");
-}
-tabbox.vertical_tabs tabpanel
-{
-    /* A tabpanel that has a special tabpanel header label. */
-    -moz-binding        : url("chrome://komodo/content/bindings/scrolltabs.xml#tabpanel-vertical-text");
-}
-
-tabbox.vertical_tabs tab[selected="true"] label.tab-text
-{
-    font-weight: bold;
-}
-
-tabbox.vertical_tabs tabs
-{
-    /* Vertical tabs with special handling of tab selection. */
-    -moz-binding        : url("chrome://komodo/content/bindings/scrolltabs.xml#tabs-vertical-text");
-    -moz-box-orient     : vertical;
-}
-tabbox.vertical_tabs tab
-{
-    /* Vertical tab with vertical text labels. */
-    -moz-binding        : url("chrome://komodo/content/bindings/scrolltabs.xml#tab-vertical-text");
-    -moz-appearance     : none;
-    min-width           : 1.5em;
-    max-width           : 3em;
-    margin              : 0;
-    padding             : 0;
-}
-
-tabbox.vertical_tabs .tabs-left
-{
-    /* Ensures the tabs are vertically centered. */
-    -moz-box-flex: 1;
-}
 
 /**
  * Vertical text label.

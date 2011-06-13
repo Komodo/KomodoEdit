@@ -1966,7 +1966,7 @@
                      width="200"
                      collapsed="true"
                      rotation="270"
-                     class="native vertical_tabs"
+                     class="native"
                      pref="ui.tabs.sidepanes.left.layout"
                      label="&paneNameLeft;"
                      persist="width type">
@@ -2004,7 +2004,7 @@
                      width="200"
                      collapsed="true"
                      persist="width type"
-                     class="native vertical_tabs"
+                     class="native"
                      label="&paneNameRight;"
                      rotation="90">
                 <browser type="ko-widget"
