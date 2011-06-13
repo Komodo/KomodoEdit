@@ -2,6 +2,18 @@
  * Side panes - Vertical tabs
  */
 
+/* Add border to tabs - we use .pane-tabs-container instead of the tab element
+ * because the tab gets styled natively and this setting is then ignored.
+ */
+ko-pane[type="vertical"][rotation="270"] .pane-tabs-container
+{
+  border-right: 1px solid threedshadow;
+}
+ko-pane[type="vertical"][rotation="90"] .pane-tabs-container
+{
+  border-left: 1px solid threedshadow;
+}
+
 ko-pane[type="vertical"] tabs[anonid="tabs"] tab
 {
   /* Let our own native tab styling above work on the vertical tabs. */
