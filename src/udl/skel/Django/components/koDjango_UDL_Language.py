@@ -110,7 +110,7 @@ class KoDjangoLanguage(koHTMLLanguageBase):
     def _computeIndent(self, scimoz, indentStyle, continueComments, style_info):
         res = self._doIndentHere(scimoz, indentStyle, continueComments, style_info)
         if res is None:
-            return koHTMLLanguageBase._computeIndent(self, scimoz, indentStyle, continueComments, self._style_info)
+            return koHTMLLanguageBase.computeIndent(self, scimoz, indentStyle, continueComments)
         return res
 
     def _keyPressed(self, ch, scimoz, style_info):

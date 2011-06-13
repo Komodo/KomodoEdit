@@ -488,7 +488,11 @@ class KoUDLLanguage(KoLanguageBase):
     
     def computeIndent(self, scimoz, indentStyle, continueComments):
         (lang_svc_obj, style_info) = self._getLangSvcAndStyleInfoFromScimoz(scimoz)
-        return lang_svc_obj._computeIndent(scimoz, indentStyle, continueComments, style_info)
+        if lang_svc_obj.isUDL():
+            # Bug 90371: Avoid infinite recursion.  Always call towards the superclass.
+            return KoLanguageBase._computeIndent(self, scimoz, indentStyle, continueComments, style_info)
+        else:
+            return lang_svc_obj._computeIndent(scimoz, indentStyle, continueComments, style_info)
 
     def getBraceIndentStyle(self, ch, style):
         (lang_svc_obj, style_info) = self.getLangSvcAndStyleInfoFromStyle(style)
