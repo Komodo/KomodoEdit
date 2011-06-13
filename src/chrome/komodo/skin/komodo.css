@@ -311,10 +311,13 @@ tab > .tab-text {
 
 
 /**
- * Remove tree margins inside of a page (for the ko-panes, aka "side panels").
+ * Remove tree margins and borders inside of a page (for the ko-panes, aka
+ * Komodo "side panels").
  */
 page tree {
+  -moz-appearance: none;
   margin: 0;
+  border: none;
 }
 
 
