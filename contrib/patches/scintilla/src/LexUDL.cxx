@@ -21,6 +21,7 @@
 #include <pcre.h>
 
 #define UDL_DEBUG 0
+#define UDL_DEBUG_OTHER 0
 #define UDL_DEBUG_TIME 0
 #define UDL_WINDEBUG 0
 
@@ -2463,7 +2464,7 @@ static LexerInfoList LexerList;
 
 // We set the initStyle to the default style for the current family.
 
-#if 0
+#if UDL_DEBUG_OTHER
 // Semi-useful helper, but can only be called once per sprintf
 static char* line_colon_col(int pos, Accessor &styler) {
     static char buf[30];
@@ -2591,7 +2592,7 @@ static void synchronizeDocStart(unsigned int& startPos,
     initState = p_MainInfo->GetCurrFamily()->DefaultStartState();
 }
 
-#if 0
+#if UDL_DEBUG_OTHER
 static char * showChar(char c) {
     static char buf[10];
     if (c < 0) {
@@ -2649,13 +2650,13 @@ static void doColorAction(int	    styleNum,
         styler.ColourTo(pos - 1, styleNum);
         styler.Flush();
         int old_style = styler.StyleAt(lastStyledPos);
-        int old_family = p_MainInfo->StyleToFamily(styler.StyleAt(lastStyledPos));
+        int old_family = p_MainInfo->StyleToFamily(old_style);
         int new_family = p_MainInfo->StyleToFamily(styleNum);
         if (old_family != new_family) {
             int nfpos = lastStyledPos + 1;
-#if 0
-            fprintf(stderr, "UDL: trans from style %d=>%d, family #%d=>%d at %d=>%d (char '%s') (%d:%d), final pos: %d\n",
-                    old_style, styleNum,
+#if UDL_DEBUG_OTHER
+            fprintf(stderr, "UDL: trans from style %d(at pos %d)=>%d, family #%d=>%d at %d=>%d (char '%s') (%d:%d), final pos: %d\n",
+                    old_style, lastStyledPos, styleNum,
                     old_family, new_family,
                     nfpos, nfpos + 1,
                     showChar(styler[nfpos]),
@@ -2709,7 +2710,7 @@ static void doActions(Transition     *p_TranBlock,
         int nextOldPos;
         if (end_line > start_line) {
             oldPos = styler.LineStart(start_line + 1);
-#if 0
+#if UDL_DEBUG_OTHER
             fprintf(stderr, "#1: start-line=%d, end-line=%d, setting oldPos=%d=>%d\n",
                     start_line, end_line, origOldPos, oldPos);
 #endif
@@ -2717,7 +2718,7 @@ static void doActions(Transition     *p_TranBlock,
                                   styler.LineStart(start_line + 1)) - 1
                    && newPos >= nextOldPos) {
             oldPos = nextOldPos;
-#if 0
+#if UDL_DEBUG_OTHER
             fprintf(stderr, "#2: start-line=%d, end-line=%d, setting oldPos=%d=>%d\n",
                     start_line, end_line, origOldPos, oldPos);
 #endif
@@ -2769,7 +2770,7 @@ static void doActions(Transition     *p_TranBlock,
         }
     }
     if (new_state >= 1 && new_state < p_MainInfo->NumTransitions()) {
-#if 0
+#if UDL_DEBUG_OTHER
         fprintf(stderr, "state tran %d=>%d at pos %d [%d:%d] => %d\n",
                 istate,
                 new_state,
@@ -3145,7 +3146,7 @@ static void ColouriseTemplate1Doc(unsigned int startPos,
     
     int curr_family;
     TransitionTable  *p_TransitionTable = p_MainInfo->GetTable();
-#if 0
+#if UDL_DEBUG_OTHER
     int origStartPos = startPos;
     int origLength = length;
 #endif
@@ -3164,7 +3165,7 @@ static void ColouriseTemplate1Doc(unsigned int startPos,
     if (length == 0) {
         return;
     }
-#if 0
+#if UDL_DEBUG_OTHER
     int origLine = styler.GetLine(origStartPos);
     int currLine = styler.GetLine(startPos);
     fprintf(stderr,
@@ -3265,7 +3266,7 @@ static void ColouriseTemplate1Doc(unsigned int startPos,
                         // update the target
                         if (lengthDoc < nextLinePos) {
                             int newLengthDoc = nextLinePos < totalDocLength ? nextLinePos : totalDocLength;
-#if 0
+#if UDL_DEBUG_OTHER
                             fprintf(stderr,
                                     "Need to keep lexing, from %d to %d\n",
                                     lengthDoc, newLengthDoc);
@@ -3300,7 +3301,7 @@ static void ColouriseTemplate1Doc(unsigned int startPos,
             if (p_TranBlock->search_type == TRAN_SEARCH_STRING) {
                 if (lookingAtString(p_TranBlock->p_search_string,
                                     i, newPos, lengthDoc, styler)) {
-#if 0
+#if UDL_DEBUG_OTHER
                     fprintf(stderr, "Matched [%s] at pos %d\n",
                             p_TranBlock->p_search_string, i);
 #endif
@@ -3315,7 +3316,7 @@ static void ColouriseTemplate1Doc(unsigned int startPos,
                                    i, newPos, lengthDoc, p_CurrTextLine,
                                    p_MainInfo, p_BufferStateInfo,
                                    styler)) {
-#if 0
+#if UDL_DEBUG_OTHER
                     fprintf(stderr, "Matched [%s] at pos %d\n",
                             p_TranBlock->p_search_string, i);
 #endif
@@ -3327,7 +3328,7 @@ static void ColouriseTemplate1Doc(unsigned int startPos,
                     && lookingAtString(p_BufferStateInfo->current_delimiter.c_str(),
                                        i, newPos, lengthDoc, styler)) {
                     passedPart1 = true;
-#if 0
+#if UDL_DEBUG_OTHER
                     fprintf(stderr, "keeping delimiter %s: %s\n",
                             p_BufferStateInfo->current_delimiter.c_str(),
                             p_TranBlock->keep_current_delimiter ? "true" : "false");
