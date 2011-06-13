@@ -137,8 +137,8 @@ ko-pane[type="vertical"] tabs[anonid="tabs"] tab {
   /* Vertical tab with vertical text labels. */
   -moz-binding        : url("chrome://komodo/content/bindings/scrolltabs.xml#tab-vertical-text");
   -moz-appearance     : none;
-  min-width           : 4.5ex;
-  max-width           : 3em;
+  min-width           : 1.5em;
+  max-width           : 2.5em;
   margin              : 0;
   padding             : 0;
 }

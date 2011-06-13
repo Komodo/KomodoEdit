@@ -11,3 +11,9 @@ ko-pane[type="vertical"] tabs[anonid="tabs"] tab
   -moz-border-radius-bottomleft: 2px;
   -moz-border-radius-bottomright: 2px;
 }
+
+ko-pane[type="vertical"] tabs[anonid="tabs"][rotation="270"] tab
+{
+  /* This has the affect of pushing the tab labels to the left (centered). */
+  padding-right: 5px;
+}
