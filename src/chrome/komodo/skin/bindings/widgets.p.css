@@ -215,13 +215,6 @@ ko-pane[type="vertical"] tabs[anonid="tabs"][rotation="270"] ko-vertical-text .l
     margin-bottom       : -4px;
 }
 
-.vertical-button-text-uppercase
-{
-    /* Captialized characters need a little more room. */
-    margin-top          : -3px;
-    margin-bottom       : -3px;
-}
-
 
 /**
  * File Status within menu items.
