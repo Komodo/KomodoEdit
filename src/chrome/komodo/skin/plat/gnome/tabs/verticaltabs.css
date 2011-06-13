@@ -10,8 +10,13 @@ ko-pane[type="vertical"] tabs[anonid="tabs"] tab
 {
     /* Make vertical tabs look like real tabs. */
     -moz-appearance     : tab;
-    /* Need to ensure mimimum width, to stop fidgiting - bug 87998. */
-    min-width           : 1.8em;
+    max-width           : 2em;
+}
+
+ko-pane[type="vertical"] tabs[anonid="tabs"][rotation="270"] tab
+{
+    /* This has the affect of centering the tab labels. */
+    padding-left        : 5px;
 }
 
 ko-pane[type="vertical"] tab[selected="true"]
