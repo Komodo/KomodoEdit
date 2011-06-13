@@ -35,7 +35,6 @@ tab {
   -moz-border-left-colors: ThreeDShadow rgba(255,255,255,.3);
 }
 
-tab:hover,
 tab[selected="true"] {
   border-top-width: 1px;
   -moz-border-radius-topleft: 4px;
@@ -43,18 +42,15 @@ tab[selected="true"] {
   -moz-border-top-colors: ThreeDShadow;
   -moz-border-right-colors: ThreeDShadow;
   -moz-border-left-colors: ThreeDShadow;
-}
-
-tab:not([selected="true"]):hover {
-  background-image: url("chrome://komodo/skin/tabs/tab-hover-bkgnd.png");
-}
-
-tab[selected="true"] {
   border-width: 1px;
   margin: 2px 0px 0px;
   padding: 1px 4px 1px;
   background-image: url("chrome://komodo/skin/tabs/tab-active-bkgnd.png");
   background-color: -moz-dialog;
+}
+
+tab:not([selected="true"]):hover {
+  background-image: url("chrome://komodo/skin/tabs/tab-hover-bkgnd.png");
 }
 
 view[lastfocused="true"] tab[selected="true"] {
