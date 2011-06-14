@@ -1549,7 +1549,7 @@ this.restoreTabSelections = function uilayout_RestoreTabSelections(prefs) {
                 if (!prefs.hasStringPref(prefId)) {
                     continue;
                 }
-                paneId =  prefs.getStringPref(prefId, pane.id);
+                var paneId =  prefs.getStringPref(prefId, pane.id);
                 var pane = document.getElementById(paneId);
                 if (!pane) {
                     // the pane went away?
