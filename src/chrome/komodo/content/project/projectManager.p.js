@@ -93,7 +93,7 @@ function projectManager() {
     this._currentProject = null;
     // register our command handlers
     this.registerCommands();
-    this._project_opened_during_workspace_restore = false;
+    this._ensureProjectPaneVisible = true;
     this._lastCurrentProject = null;
     this.viewMgr = null;
     this.single_project_view = !this.initProjectViewPref(ko.prefs);
@@ -128,14 +128,18 @@ projectManager.prototype.switchProjectView = function(single_project_view) {
     this.single_project_view = single_project_view;
     listLen = urlList.length;
     for (i = 0; i < listLen; i++) {
-        ko.projects.open(urlList[i]);
+        ko.projects.open(urlList[i],
+                         false /* skipRecentOpenFeature */,
+                         false /* ensureVisible */);
     }
     if (currentProjectURL !== null ) {
         var openedIdx = this._projects.map(function(p) p.url).indexOf(currentProjectURL);
         if (openedIdx != -1) {
             this.currentProject = this._projects[openedIdx];
         } else {
-            ko.projects.open(currentProjectURL);
+            ko.projects.open(currentProjectURL,
+                             false /* skipRecentOpenFeature */,
+                             false /* ensureVisible */);
             //dump("**************** Need to re-activate proj " + currentProjectURL + "\n");
         }
     }
@@ -1272,10 +1276,11 @@ projectManager.prototype.setState = function(pref)
         var urlList = this.single_project_view ? this._spv_urls : this._mpv_urls;
         setTimeout(function() {
                 urlList.forEach(function(url) {
-                        dump("Opening project " + url + "\n");
-                        ko.projects.open(url);
-                    })},
-            1000);
+                        ko.projects.open(url,
+                                         false /* skipRecentOpenFeature */,
+                                         false /* ensureVisible */);
+                    });
+        }, 1000);
     } catch (e) {
         this.log.exception(e);
     }
@@ -1315,13 +1320,17 @@ projectManager.prototype.effectivePrefs = function () {
 
 
 this.open = function project_openProjectFromURL(url,
-                                                skipRecentOpenFeature /* false */) {
+                                                skipRecentOpenFeature /* false */,
+                                                ensureVisible /* true */) {
     var action = null;
     var opened_files = [];
     if (typeof(skipRecentOpenFeature) == 'undefined') {
         skipRecentOpenFeature = false;
     }
-    if (!ko.workspace.restoreInProgress()) {
+    if (typeof(ensureVisible) == 'undefined') {
+        ensureVisible = true;
+    }
+    if (ensureVisible) {
         // another part of the workspace restoration will show the tab if necessary
         ko.uilayout.ensureTabShown('placesViewbox');
     }
@@ -1355,14 +1364,13 @@ this.open = function project_openProjectFromURL(url,
             }
         }
     }
-    // Need to remember if the project was opened during the workspace restore,
-    // bug 87868. If we didn't use a setTimeout here, then we could detect the
-    // workspace was restoring and wouldn't need this variable.
-    if (ko.workspace.restoreInProgress()) {
-        ko.projects.manager._project_opened_during_workspace_restore = true;
-        ko.projects.manager.current_tab_during_workspace_restore = ko.workspace.restoredLeftTabBoxID;
-    }
-    setTimeout(xtk.domutils.fireEvent, 10, window, 'project_opened');
+    setTimeout(function() {
+        // Need to remember if the project wants to be made visible, bug 87868.
+        // This is required for Places project_open handling to work correctly.
+        ko.projects.manager._ensureProjectPaneVisible = ensureVisible;
+        xtk.domutils.fireEvent(window, 'project_opened');
+        ko.projects.manager._ensureProjectPaneVisible = true;
+    }, 10);
     return true;
 }
 

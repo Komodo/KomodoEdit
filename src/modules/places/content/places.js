@@ -2101,15 +2101,7 @@ ManagerClass.prototype = {
     },
 
     _setDirURI_successFunc_show_tab: function() {
-        // Don't cause a focus change triggered from workspace restore - bug 87868.
-        if (ko.projects.manager._project_opened_during_workspace_restore) {
-            if (ko.projects.manager.current_tab_during_workspace_restore == "placesViewbox") {
-                ko.uilayout.ensureTabShown("placesViewbox", false);
-            }
-            ko.projects.manager._project_opened_during_workspace_restore = false;
-        } else {
-            ko.uilayout.ensureTabShown("placesViewbox", true);
-        }
+        ko.uilayout.ensureTabShown("placesViewbox", true);
     },
     
     goPreviousPlace: function() {
@@ -2593,6 +2585,10 @@ ManagerClass.prototype = {
         if (project) {
             var targetDirURI = project.importDirectoryURI;
             if (targetDirURI) {
+                var successFunction;
+                if (!ko.projects.manager._ensureProjectPaneVisible) {
+                    successFunction = function() { /* don't make project pane visible - bug 87868 */};
+                }
                 // Delay, because at startup the tree might not be
                 // fully initialized.
                 setTimeout(function() {
@@ -2601,7 +2597,7 @@ ManagerClass.prototype = {
                                 currentProjectFilterPrefs.setStringPref(name,
                                                                         project.prefset.getStringPref("import_" + name));
                 });
-                        ko.places.manager.openDirURI(targetDirURI);
+                        ko.places.manager.openDirURI(targetDirURI, null, successFunction);
                     }, 100);
             }
         }
