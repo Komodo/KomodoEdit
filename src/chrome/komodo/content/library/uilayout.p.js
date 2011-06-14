@@ -1513,17 +1513,6 @@ this.saveTabSelections = function uilayout_SaveTabSelections(prefs) {
     }
 }
 
-var _buttonIdFromTabboxId = {
-    leftTabBox : "toggleLeftPane",
-    rightTabBox : "toggleRightPane",
-    workspace_bottom_area : "toggleBottomPane"
-};
-var _splitterIdFromTabboxId = {
-    leftTabBox : "workspace_left_splitter",
-    rightTabBox : "workspace_right_splitter",
-    workspace_bottom_area : "bottom_splitter"
-};
-
 this.restoreTabSelections = function uilayout_RestoreTabSelections(prefs) {
 
     function _restoreTabBox(prefs, tabboxID, isCollapsedPrefID, selectedTabPrefID) {
