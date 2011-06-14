@@ -142,29 +142,6 @@ class KPFTreeView(TreeView):
             getService(components.interfaces.nsIObserverService)
         self._observerSvc.addObserver(self, "file_status",True) # weakref
 
-    def observe(self, subject, topic, data):
-        if not self._tree:
-            # No tree, Komodo is likely shutting down.
-            return
-
-        if topic == "file_status":
-            # find the row for the file and invalidate it
-            files = data.split("\n")
-            invalidRows = [i for (i,row) in enumerate(self._rows)
-                           if getattr(getattr(row.part, 'file', None), 'URI', None) in files]
-            for row in invalidRows:
-                try:
-                    del self._rows[row].properties
-                except AttributeError:
-                    pass
-                
-            if invalidRows:
-                self._tree.beginUpdateBatch()
-                try:
-                    map(self._tree.invalidateRow, invalidRows)
-                finally:
-                    self._tree.endUpdateBatch()
-
     def initialize(self):
         self.atomService = components.classes["@mozilla.org/atom-service;1"].\
                                 getService(components.interfaces.nsIAtomService)
