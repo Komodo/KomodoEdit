@@ -798,14 +798,11 @@ class KoPlaceTreeView(TreeView):
     def _targetFileExists(self, localFinalTargetPath, targetPath, srcBasename,
                           isDir_OutVal):
         if not self.safe_isLocal():
-            try:
-                conn = self._RCService.getConnectionUsingUri(self._currentPlace_uri)
-                finalTargetPath = targetPath + "/" + srcBasename
-                rfi = conn.list(finalTargetPath, True)
-                isDir_OutVal['value'] = rfi and rfi.isDirectory()
-                return rfi # Just want a boolean
-            finally:
-                conn.close()
+            conn = self._RCService.getConnectionUsingUri(self._currentPlace_uri)
+            finalTargetPath = targetPath + "/" + srcBasename
+            rfi = conn.list(finalTargetPath, True)
+            isDir_OutVal['value'] = rfi and rfi.isDirectory()
+            return rfi # Just want a boolean
         elif os.path.exists(localFinalTargetPath):
             isDir_OutVal['value'] = os.path.isdir(localFinalTargetPath)
             return True
@@ -813,13 +810,10 @@ class KoPlaceTreeView(TreeView):
     def _targetFileExistsByFileExObj(self, targetFileEx, isDir_OutVal):
         path = targetFileEx.path
         if not self.safe_isLocal():
-            try:
-                conn = self._RCService.getConnectionUsingUri(targetFileEx.URI)
-                rfi = conn.list(path, True)
-                isDir_OutVal['value'] = rfi and rfi.isDirectory()
-                return rfi # Just want a boolean
-            finally:
-                conn.close()
+            conn = self._RCService.getConnectionUsingUri(targetFileEx.URI)
+            rfi = conn.list(path, True)
+            isDir_OutVal['value'] = rfi and rfi.isDirectory()
+            return rfi # Just want a boolean
         elif os.path.exists(path):
             isDir_OutVal['value'] = os.path.isdir(path)
             return True
@@ -1518,12 +1512,9 @@ class KoPlaceTreeView(TreeView):
         if self.safe_isLocal():
             return len(os.listdir(path)) > 0
         conn = self._RCService.getConnectionUsingUri(uri)
-        try:
-            rfi = conn.list(path, True)
-            children = rfi.getChildren()
-            return len(children) > 0
-        finally:
-            conn.close()
+        rfi = conn.list(path, True)
+        children = rfi.getChildren()
+        return len(children) > 0
 
     def deleteItems(self, indices, uris):
         self.lock.acquire()
@@ -2174,27 +2165,24 @@ class KoPlaceTreeView(TreeView):
             msg = "Failed to connect to %s" % self._currentPlace_uri
             log.exception("%s", msg)
             raise Exception(msg)
-        try:
-            path = uriparse.URIToPath(uri)
-            rfi = conn.list(path, True) # Really a stat
-            if not rfi:
-                raise Exception("Can't read path:%s on server:%s" %
-                                (path, conn.server))
-            rfi_children = rfi.getChildren()
-            items = []
-            for rfi in rfi_children:
-                if rfi.isDirectory():
-                    itemType = _PLACE_FOLDER
-                elif rfi.isFile():
-                    itemType = _PLACE_FILE
-                else:
-                    itemType = _PLACE_OTHER
-                name = rfi.getFilename()
-                item = self._finishGettingItem(uri + "/" + name, name, itemType)
-                items.append(item)
-            return items
-        finally:
-            conn.close()
+        path = uriparse.URIToPath(uri)
+        rfi = conn.list(path, True) # Really a stat
+        if not rfi:
+            raise Exception("Can't read path:%s on server:%s" %
+                            (path, conn.server))
+        rfi_children = rfi.getChildren()
+        items = []
+        for rfi in rfi_children:
+            if rfi.isDirectory():
+                itemType = _PLACE_FOLDER
+            elif rfi.isFile():
+                itemType = _PLACE_FILE
+            else:
+                itemType = _PLACE_OTHER
+            name = rfi.getFilename()
+            item = self._finishGettingItem(uri + "/" + name, name, itemType)
+            items.append(item)
+        return items
         
 
     #---- Methods related to working with the workerThread:
@@ -2371,19 +2359,16 @@ class _WorkerThread(threading.Thread, Queue):
             return not koFileEx.exists
         else:
             conn = requester._RCService.getConnectionUsingUri(uri)
-            try:
-                rfi = conn.list(path, True)
-                if rfi.isDirectory():
-                    self._deleteRemoteDirectoryContents(conn, rfi)
-                    conn.removeDirectory(path)
-                else:
-                    conn.removeFile(path)
-                rfi2 = conn.list(path, False)
-                if rfi2:
-                    log.error("deleteItem: failed to delete %s on server %s" % (path, conn.server))
-                    return False
-            finally:
-                conn.close()
+            rfi = conn.list(path, True)
+            if rfi.isDirectory():
+                self._deleteRemoteDirectoryContents(conn, rfi)
+                conn.removeDirectory(path)
+            else:
+                conn.removeFile(path)
+            rfi2 = conn.list(path, False)
+            if rfi2:
+                log.error("deleteItem: failed to delete %s on server %s" % (path, conn.server))
+                return False
             return True
 
     def doTreeOperation_WorkerThread(self, args):
@@ -2439,63 +2424,60 @@ class _WorkerThread(threading.Thread, Queue):
               and (not targetFileEx.isLocal)
               and srcFileEx.server == targetFileEx.server):
             conn = requester._RCService.getConnectionUsingUri(srcURI)
-            try:
-                finalTargetFilePath = targetFileEx.path + "/" + srcFileEx.baseName
-                target_rfi = conn.list(finalTargetFilePath, True)
-                updateTargetTree = not target_rfi
-                #XXX Watch out if targetFile is an open folder.
-                if not copying:
-                    try:
-                        conn.rename(srcPath, finalTargetFilePath)
-                    except:
-                        log.exception("Can't rename %s, %s", srcPath, finalTargetFilePath)
-                        if target_rfi:
-                            # File already exists, so we can't just rename it
+            finalTargetFilePath = targetFileEx.path + "/" + srcFileEx.baseName
+            target_rfi = conn.list(finalTargetFilePath, True)
+            updateTargetTree = not target_rfi
+            #XXX Watch out if targetFile is an open folder.
+            if not copying:
+                try:
+                    conn.rename(srcPath, finalTargetFilePath)
+                except:
+                    log.exception("Can't rename %s, %s", srcPath, finalTargetFilePath)
+                    if target_rfi:
+                        # File already exists, so we can't just rename it
+                        try:
+                            newTempName = "%s-%f" % (finalTargetFilePath,
+                                                     time.time())
+                            conn.rename(finalTargetFilePath, newTempName)
+                            conn.rename(srcPath, finalTargetFilePath)
                             try:
-                                newTempName = "%s-%f" % (finalTargetFilePath,
-                                                         time.time())
-                                conn.rename(finalTargetFilePath, newTempName)
-                                conn.rename(srcPath, finalTargetFilePath)
-                                try:
-                                    conn.removeFile(newTempName)
-                                except:
-                                    log.exception("Can't remove file %s", newTempName)
-                                    try:
-                                        conn.removeDirectoryRecursively(newTempName)
-                                    except:
-                                        log.exception("Can't remove dir %s", newTempName)
+                                conn.removeFile(newTempName)
                             except:
-                                log.exception("Can't rename this thing")
-                    requester.lock.acquire()
-                    try:
-                        requester.dragDropUndoCommand.update(targetURI + "/" + srcFileEx.baseName, srcURI, False)
-                    finally:
-                        requester.lock.release()
-                elif srcFileEx.isDirectory:
-                    requester_data['uncopied_symlinks'] = []
-                    requester_data['unrecognized_filetypes'] = []
-                    self._copyRemoteFolder(conn, srcPath, targetFileEx.dirName, requester_data)
-                    if requester_data['uncopied_symlinks'] or requester_data['unrecognized_filetypes']:
-                        finalMsg = ("There were problems copying folder %s to %s:\n"
-                               % (srcPath, targetFileEx.dirName))
-                        if requester_data['uncopied_symlinks']:
-                            finalMsg += "\nThe following symbolic links weren't copied:\n"
-                            finalMsg += "\n    ".join(requester_data['uncopied_symlinks'])
-                        if requester_data['unrecognized_filetypes']:
-                            finalMsg += "\nThe following files had an unexpected type:\n"
-                            finalMsg += "\n    ".join(requester_data['unrecognized_filetypes'])
-                else:
-                    # Copy infile outfile
-                    try:
-                        data = conn.readFile(srcPath)
-                        conn.writeFile(finalTargetFilePath, data)
-                    except:
-                        log.exception("can't copy file %s (data:%r))",
-                                      srcPath, data)
-                        errorMsg = "Exception: can't copy file %s (data:%s)): %s" % (srcPath, data, sys.exc_info()[1])
-                                
-            finally:
-                conn.close()
+                                log.exception("Can't remove file %s", newTempName)
+                                try:
+                                    conn.removeDirectoryRecursively(newTempName)
+                                except:
+                                    log.exception("Can't remove dir %s", newTempName)
+                        except:
+                            log.exception("Can't rename this thing")
+                requester.lock.acquire()
+                try:
+                    requester.dragDropUndoCommand.update(targetURI + "/" + srcFileEx.baseName, srcURI, False)
+                finally:
+                    requester.lock.release()
+            elif srcFileEx.isDirectory:
+                requester_data['uncopied_symlinks'] = []
+                requester_data['unrecognized_filetypes'] = []
+                self._copyRemoteFolder(conn, srcPath, targetFileEx.dirName, requester_data)
+                if requester_data['uncopied_symlinks'] or requester_data['unrecognized_filetypes']:
+                    finalMsg = ("There were problems copying folder %s to %s:\n"
+                           % (srcPath, targetFileEx.dirName))
+                    if requester_data['uncopied_symlinks']:
+                        finalMsg += "\nThe following symbolic links weren't copied:\n"
+                        finalMsg += "\n    ".join(requester_data['uncopied_symlinks'])
+                    if requester_data['unrecognized_filetypes']:
+                        finalMsg += "\nThe following files had an unexpected type:\n"
+                        finalMsg += "\n    ".join(requester_data['unrecognized_filetypes'])
+            else:
+                # Copy infile outfile
+                try:
+                    data = conn.readFile(srcPath)
+                    conn.writeFile(finalTargetFilePath, data)
+                except:
+                    log.exception("can't copy file %s (data:%r))",
+                                  srcPath, data)
+                    errorMsg = "Exception: can't copy file %s (data:%s)): %s" % (srcPath, data, sys.exc_info()[1])
+                            
         else:
             errorMsg = "drag/drop across different servers not yet supported"
         requester_data['finalMsg'] = finalMsg
@@ -2591,8 +2573,6 @@ class _WorkerThread(threading.Thread, Queue):
                             (srcPath, newPath, ex.message))
                 log.exception("%s", finalMsg)
                 return finalMsg
-            finally:
-                conn.close()
         requester_data['updateTargetTree'] = updateTargetTree
         requester._sortModel(targetURI)
         return ''
