@@ -3024,11 +3024,14 @@ this._restoreWindowWorkspace = function(workspace, currentWindow, checkWindowBou
                         }
                     }, 1000);
             }
+            // TODO: Should be in the places code - use a restore-workspace event?
             if (workspace.hasPref('project_sort_direction')) {
                 setTimeout(function() {
                         try {
-                            ko.places.projects.manager.
-                                sortProjects(workspace.getLongPref('project_sort_direction'));
+                            if (ko.places) {
+                                ko.places.projects.manager.
+                                    sortProjects(workspace.getLongPref('project_sort_direction'));
+                            }
                         } catch(ex) {
                             log.exception("WorkspaceRestore: Can't sort rows: " + ex + "\n");
                         }
@@ -3110,7 +3113,7 @@ this._saveWorkspaceForIdx_aux =
         }
     }
     try {
-        if (ko.places.projects.projectsTreeView) {
+        if (ko.places && ko.places.projects.projectsTreeView) {
             workspace.setLongPref("project_sort_direction", 
                                   ko.places.projects.projectsTreeView.sortDirection);
         }

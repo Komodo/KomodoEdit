@@ -91,7 +91,7 @@ peFile.prototype.registerMenus = function() {
 peFile.prototype.supportsCommand = function(command, item) {
     var items = null;
     var file = null;
-    if (ko.places.currentPlace) {
+    if (ko.places && ko.places.currentPlace) {
         items = ko.places.manager.getSelectedItems();
     }
     switch (command) {
@@ -128,7 +128,7 @@ peFile.prototype.supportsCommand = function(command, item) {
     case 'cmd_refreshStatus':
         // if a toolbox has focus, get the currently selected item and refresh it
         // otherwise, always refresh the currentView if there is one.
-        if (ko.places.getFocusedPlacesView()) {
+        if (ko.places && ko.places.getFocusedPlacesView()) {
             item = ko.projects.active.getSelectedItem();
             // item must be a file
             if (item && item.url) return true;
@@ -157,7 +157,7 @@ peFile.prototype.doCommand = function(command) {
     var item = null, items = null;
     var i, fname, otherfile;
     var dirname = '';
-    if (ko.places.manager.currentPlace !== null) {
+    if (ko.places && ko.places.manager.currentPlace !== null) {
         item = ko.places.manager.getSelectedItem();
         items = ko.places.manager.getSelectedItems();
     }
@@ -200,13 +200,15 @@ peFile.prototype.doCommand = function(command) {
             item.url = newfile;
         var fileStatusSvc = Components.classes["@activestate.com/koFileStatusService;1"].getService(Components.interfaces.koIFileStatusService);
         fileStatusSvc.updateStatusForUris(1, [newfile], true /* forcerefresh */);
-        ko.places.manager.refreshItem(item);
+        if (ko.places) {
+            ko.places.manager.refreshItem(item);
+        }
         break;
     case 'cmd_refreshStatus':
         ko.projects.refreshStatus();
         break;
     case 'cmd_editProperties':
-        if (!ko.places.getFocusedPlacesView()) {
+        if (!ko.places || !ko.places.getFocusedPlacesView()) {
             return;
         }
         if (!items) return;
@@ -269,7 +271,7 @@ peFile.prototype.ondblclick = function(item,event) {
 
 peFile.prototype.doCut = function(items)
 {
-    var pview = ko.places.getFocusedPlacesView();
+    var pview = ko.places && ko.places.getFocusedPlacesView();
     if (pview) {
         items = pview.manager.doCutPlaceItem();
     }
@@ -277,7 +279,7 @@ peFile.prototype.doCut = function(items)
 
 peFile.prototype.doCopy = function(items)
 {
-    var pview = ko.places.getFocusedPlacesView();
+    var pview = ko.places && ko.places.getFocusedPlacesView();
     if (pview) {
         items = pview.manager.doCopyPlaceItem();
     }
@@ -285,7 +287,7 @@ peFile.prototype.doCopy = function(items)
 
 peFile.prototype.doPaste = function()
 {
-    var pview = ko.places.getFocusedPlacesView();
+    var pview = ko.places && ko.places.getFocusedPlacesView();
     if (pview) {
         items = pview.manager.doPastePlaceItem();
     }
@@ -307,7 +309,7 @@ this.refreshStatus = function doRefreshStatus(/*koIPart []*/ items) {
     var urls = [];
 
     if (!items) {
-        var pview = ko.places.getFocusedPlacesView();
+        var pview = ko.places && ko.places.getFocusedPlacesView();
         if (pview) {
             items = pview.manager.getSelectedItems();
         }
@@ -383,7 +385,7 @@ this.fileProperties = function peFile_Properties(item, view, folder)
         if (item) {
             if (item.type == 'project') {
                 window.updateCommands('project_dirty');
-            } else {
+            } else if (ko.places) {
                 // make the tree refresh this part
                 ko.places.manager.refreshItem(item);
             }
