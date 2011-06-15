@@ -242,6 +242,42 @@
         </body>
       </method>
 
+      <method name="showWidget">
+        <parameter name="widget"/>
+        <body>
+        <![CDATA[
+          if ((typeof(widget) == "object") && ("localName" in widget)) {
+            if ("linkedpanel" in widget) {
+              // We got the <tab>. Find the corresponding widget.
+              widget = widget.linkedpanel;
+            }
+          } else if (widget) {
+            // Got a string, probably the widget id. Be nice and find it.
+            widget = this.ownerDocument.getElementById(widget);
+          }
+          if (!widget || !widget.tabbox || widget.tabbox != this) {
+            // Bad widget.
+            this._log.exception("showWidget got a bad widget!");
+            throw("Widget does not exist or doesn't belong to this pane");
+          }
+
+          // First make sure that this pane is visible
+          this.collapsed = false;
+          this.selectedTab = widget.tab;
+
+          // let's be very, very sure. (this is needed in the case where we're here
+          // because a tab in front of us got moved away, in which case .selectedIndex
+          // will not properly reflect reality)
+          this.tabpanels.selectedPanel = widget;
+
+          // Make sure we're showing the tabpanels.  This can be needed if this
+          // widget used to be hidden.
+          document.getAnonymousElementByAttribute(this, "anonid", "pane-dummy-container")
+                  .selectedIndex = 1;
+        ]]>
+        </body>
+      </method>
+
       <method name="_updateMoveToPopup">
         <parameter name="event"/>
         <body>

@@ -253,18 +253,13 @@ this.FindResultsTabManager.prototype.show = function(focus /* =false */)
     try {
         findResultsLog.info("[manager "+this.id+"] show");
 
-        // If necessary, open output pane in komodo.xul
-        ko.uilayout.ensureOutputPaneShown(window);
-
-        // switch to proper tab
         var widget = this.doc.defaultView.frameElement;
-        widget.tabbox.selectedTab = widget.tab;
+        ko.uilayout.ensureTabShown(widget, focus);
 
         if (focus) {
             // Give the find results tab the focus. See bug 79487 for why
             // this *isn't* the default.
             widget.firstChild.focus();
-            this.doc.getElementById("findresults").focus();
         }
     } catch(ex) {
         findResultsLog.exception(ex);

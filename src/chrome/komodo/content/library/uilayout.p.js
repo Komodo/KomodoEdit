@@ -1224,15 +1224,9 @@ this.ensureTabShown = function uilayout_ensureTabShown(widgetId, focusToo) {
                 log.error("ko.uilayout.ensureTabShown: couldn't find tab: " + widgetId);
                 return;
             }
-        }
-        // First make sure that the pane the tab is in is visible
-        widget.tabbox.collapsed = false;
-        widget.tabbox.selectedTab = widget.tab;
+        }        
 
-        // let's be very, very sure. (this is needed in the case where we're here
-        // because a tab in front of us got moved away, in which case .selectedIndex
-        // will not properly reflect reality)
-        widget.tabbox.tabpanels.selectedPanel = widget;
+        widget.tabbox.showWidget(widget);
 
         // See if we want to focus the newly selected widget
         if (focusToo) {
