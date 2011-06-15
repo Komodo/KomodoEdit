@@ -2030,7 +2030,7 @@
         <!--Persisting of collapsed disabled because of http://bugs.activestate.com/show_bug.cgi?id=25918-->
         <!-- only allow drag-drop for widgets that specificly support it -->
         <ko-pane id="workspace_bottom_area" height="200" collapsed="true"
-                 persist="height type" label="&paneNameBottom;"
+                 persist="height type" label="&paneNameBottom;" class="native"
                  ondragover="event.cancelBubble=true; return false;"
                  ondrop="event.cancelBubble=true; return true;">
             <!-- Run output tab of the output pane. This pane is made

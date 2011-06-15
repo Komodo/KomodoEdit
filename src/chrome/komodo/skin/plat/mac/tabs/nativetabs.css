@@ -26,7 +26,6 @@
   margin-bottom: 0;
   font: message-box;
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
-  height: 16px;
 }
 
 .native tab[selected="true"] .tab-text {
@@ -63,7 +62,6 @@ view[lastfocused="true"] .native tab[selected="true"] .tab-text {
   -moz-background-clip: padding;
   min-width: 1px !important;
   text-align: center;
-  height: 24px;
 }
 
 .native tab[selected="true"] {

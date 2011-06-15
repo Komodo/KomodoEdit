@@ -1,5 +1,9 @@
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
+ko-pane :not(ko-vertical-text).tab-text {
+  padding-left: 6px;
+}
+
 ko-pane[type="vertical"] tabs[anonid="tabs"]
 {
     /* Remove the side-pane border css, from sidebar.css */

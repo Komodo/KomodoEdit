@@ -2,6 +2,13 @@
  * Side panes - Vertical tabs
  */
 
+/*
+ * Add margin to tab headings (for vertical/sidebar only)
+ */
+ko-pane :not(ko-vertical-text).tab-text {
+  padding-left: 6px;
+}
+
 /* Add border to tabs - we use .pane-tabs-container instead of the tab element
  * because the tab gets styled natively and this setting is then ignored.
  */
@@ -22,10 +29,4 @@ ko-pane[type="vertical"] tabs[anonid="tabs"] tab
   border-bottom: solid 1px;
   -moz-border-radius-bottomleft: 2px;
   -moz-border-radius-bottomright: 2px;
-}
-
-ko-pane[type="vertical"] tabs[anonid="tabs"][rotation="270"] tab
-{
-  /* This has the affect of pushing the tab labels to the left (centered). */
-  padding-right: 5px;
 }

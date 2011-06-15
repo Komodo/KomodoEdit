@@ -10,13 +10,26 @@ scintilla {
   border-bottom: 1px solid rgba(0,0,0,0.10);
 }
 
+:root:not(#komodo_main),
+:root:not(#komodo_main) .toolbar-background{
+  -moz-appearance: none;
+  background-color: transparent;
+}
 
-tabs[type="sidebar"]
+ko-pane
 {
-  -moz-binding: url('chrome://komodo/content/bindings/scrolltabs.xml#tabs-droplist');
-    padding: 0px;
-    margin: 0px;
-    -moz-appearance: none;
-    border: none;
-  /*background-color: #d4dde5;*/
+  background-color: #d4dde5;
+}
+
+ko-pane:-moz-window-inactive {
+  background-color: #E4E4E4;
+}
+
+ko-pane .tabs-vertical-label .tab-text,
+ko-pane[type="sidebar"] .tab-text {
+  /* Same style as for `sidebar-title` in Mozilla's 
+     "pinstripe/browser/browser.css". */
+  font: menu;
+  font-weight: bold;
+  color: #535f6d;
 }

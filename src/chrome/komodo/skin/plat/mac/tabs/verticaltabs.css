@@ -2,31 +2,26 @@
 /**
  * Vertical sidebar tabs - Mac specific settings.
  */
-tabbox.vertical_tabs
+ko-pane[type="vertical"]
 {
   border: none;
   padding: 0px;
   margin: 0px;
-  background-color: #d4dde5;
 }
 
-#komodo_main:not([active="true"]) tabbox.vertical_tabs {
-  background-color: #E4E4E4;
-}
-
-tabbox.vertical_tabs tabs
+ko-pane[type="vertical"] tabs
 {
   /* Remove native tab background image (nativetabs.css) */
   background-image:     none;
 }
 
-tabbox.vertical_tabs tab
+ko-pane[type="vertical"] tab
 {
   width: 2em;
   -moz-border-top-colors: rgba(0, 0, 0, .08) rgba(0, 0, 0, .17) rgba(180, 180, 180, .29);
 }
 
-tabbox.vertical_tabs[rotation="270"] tab
+ko-pane[type="vertical"] tabs[rotation="270"] tab
 {
   -moz-border-radius: 6px 0 0 6px;
   border-bottom: 3px solid;
@@ -34,7 +29,7 @@ tabbox.vertical_tabs[rotation="270"] tab
   border-right: none;
 }
 
-tabbox.vertical_tabs[rotation="90"] tab
+ko-pane[type="vertical"] tabs[rotation="90"] tab
 {
   -moz-border-radius: 0 6px 6px 0;
   border-bottom: 3px solid;
@@ -42,7 +37,7 @@ tabbox.vertical_tabs[rotation="90"] tab
   border-left: none;
 }
 
-tabbox.vertical_tabs tabpanel label.tab-text {
+ko-pane[type="vertical"] tabpanel label.tab-text {
     /* Same style as for `sidebar-title` in Mozilla's 
        "pinstripe/browser/browser.css". */
     font-weight: bold !important;
@@ -50,14 +45,26 @@ tabbox.vertical_tabs tabpanel label.tab-text {
     color: #535f6d;
 }
 
-tabbox.vertical_tabs tab > .tab-text,
-tabbox.vertical_tabs .tab-middle {
+ko-pane[type="vertical"] tab > .tab-text,
+ko-pane[type="vertical"] .tab-middle {
   /* Remove left/right padding around the tab */
   padding-left: 0;
   padding-right: 0;
 }
 
-/* Drop the default margin around vertical sidepane trees. */
-tabbox.vertical_tabs tree {
-  margin: 0;
+/* Drop the default margin around widgets */
+ko-pane tabpanels {
+  padding: 0;
+}
+
+ko-vertical-text .label {
+  padding-bottom: 0px;
+}
+
+/* align the labels to not centered */
+ko-pane[type="vertical"][rotation="270"] ko-vertical-text .label {
+  margin: 2px 0 5px 2px;
+}
+ko-pane[type="vertical"][rotation="90"] ko-vertical-text .label {
+  margin: 5px 0 2px 2px;
 }

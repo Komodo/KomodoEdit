@@ -1076,8 +1076,8 @@
                     doc.documentElement.removeChild(box);
 
                     // Now that we have the dimensions, use it to set things
-                    this._label.width = height;
-                    this._label.style.height = "-moz-calc(" + width + "px + 10px)";
+                    this._label.style.width = height + "px";
+                    this._label.style.height = width + "px";
                     this.width = height;
                     this._label.value = this._lastText;
                     this.setAttribute("value", this._lastText);

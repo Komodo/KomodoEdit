@@ -38,6 +38,7 @@
  * CSS for Places UI
  */
 
+
 #placesRootButton {
   /* #if PLATFORM == "darwin" */
   list-style-image: url("chrome://global/skin/dirListing/folder.png");

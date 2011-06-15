@@ -98,12 +98,17 @@ ko-pane .pane-tabs-container tabs {
   -moz-box-flex: 1;
 }
 
+ko-pane tabpanels {
+  -moz-appearance: none;
+}
+
 ko-pane[type="sidebar"] .pane-container,
 ko-pane[type="horizontal"] .pane-container {
   -moz-box-orient: vertical;
 }
 ko-pane[type="sidebar"] .pane-tabs-container tabs {
   -moz-binding: url("chrome://komodo/content/bindings/scrolltabs.xml#tabs-droplist");
+  background-image: none;
 }
 ko-pane[type="horizontal"] .pane-tabs-container tabs {
   -moz-binding: url("chrome://komodo/content/bindings/scrolltabs.xml#tabs-scrollable");
@@ -187,12 +192,13 @@ ko-vertical-text
 
 ko-vertical-text .label
 {
-    overflow-x          : hidden;
+  overflow-x          : hidden;
+  margin              : 0;
 }
 
 ko-pane[type="vertical"] tabs[anonid="tabs"][rotation="90"] ko-vertical-text .label {
   -moz-transform-origin: top left;
-  -moz-transform: rotate(90deg) translateY(-moz-calc(-1em + 5px));
+  -moz-transform: rotate(90deg) translateY(-1em);
 }
 ko-pane[type="vertical"] tabs[anonid="tabs"][rotation="180"] ko-vertical-text .label {
   -moz-transform: rotate(180deg);
@@ -201,10 +207,15 @@ ko-pane[type="vertical"] tabs[anonid="tabs"][rotation="270"] ko-vertical-text .l
   -moz-transform: rotate(270deg) translateY(-moz-calc(-1em + 10px));
 }
 
-.vertical-label-vbox
+.vertical-label-vbox, .tab-text.vertical-label-vbox
 {
     text-align          : center;
     padding             : 4px 0 4px 0;
+}
+.vertical-label-vbox .tab-middle
+{
+    padding-left: 3px;
+    padding-right: 3px;
 }
 
 .vertical-button-text
