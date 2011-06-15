@@ -1208,9 +1208,9 @@ this.ensureTabShown = function uilayout_ensureTabShown(widgetId, focusToo) {
         if (typeof(focusToo) == 'undefined') focusToo = false;
         var widget;
         if ((typeof(widgetId) == "object") && ("localName" in widgetId)) {
-            if (widgetId.hasAttribute("linkedpanel")) {
+            if ("linkedpanel" in widgetId) {
                 // we literally got the <tab>.
-                widget = document.getElementById(widgetId.getAttribute("linkedpanel"));
+                widget = widgetId.linkedpanel;
             } else {
                 // we actually got passed the widget instead
                 widget = widgetId;

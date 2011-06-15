@@ -58,7 +58,9 @@ if (typeof(xtk)=='undefined') {
  * particular commands (as in checkbox commands), they can implement
  * is_<command>_supported() for those commands.
  */
-xtk.Controller = function Controller() {}
+xtk.Controller = function Controller() {
+    this.wrappedJSObject = this;
+}
 xtk.Controller.prototype = {
 
 supportsCommand: function(command) {
@@ -88,7 +90,7 @@ isCommandEnabled: function(command) {
 doCommand: function(command) {
     var func = "do_" + command;
     if (func in this) {
-        this[func]();
+        this[func].apply(this, Array.slice(arguments, 1));
     }
 },
 

@@ -110,6 +110,7 @@
             }
             tab.setAttribute("observes", widget.id);
             tab.setAttribute("linkedpanel", widget.id);
+            tab.linkedpanel = widget;
             tab.addEventListener("contextmenu", (function(event) {
               this._updateMoveToPopup(event);
               var popup = document.getAnonymousElementByAttribute(this, "anonid", "tabs_popup");
@@ -209,8 +210,7 @@
             // too, because panels go by indicies but tabs don't, meaning if we
             // removed a lower-numbered panel we would end up showing the wrong
             // element here.
-            tabbox.tabpanels.selectedPanel =
-              nextTab.ownerDocument.getElementById(nextTab.getAttribute("linkedpanel"));
+            tabbox.tabpanels.selectedPanel = nextTab.linkedpanel;
             tabbox.selectedTab = nextTab;
           }
 
@@ -251,7 +251,7 @@
           while (popup.firstChild) {
             popup.removeChild(popup.firstChild);
           }
-          var widget = document.getElementById(tab.getAttribute("linkedpanel"))
+          var widget = tab.linkedpanel;
           popup.setAttribute("_widgetToMove", widget.id);
           for each (var paneid in Object.keys(ko.widgets._panes)) {
             var pane = ko.widgets._panes[paneid];
@@ -559,6 +559,12 @@
           var parentSet = this.ownerDocument.getAnonymousElementByAttribute(this, "anonid", "pane_broadcasterset");
 
           var onBroadcast = (function onBroadcast(aCmdId) {
+            if (!this.contentDocument) {
+              // Our content document went away.  This can happen on widget moves,
+              // or on destroy - generally, times that would be better to cover
+              // our ears and shout really loudly.
+              return;
+            }
             if (typeof(aCmdId) != "string") {
               // This is not a string; therefore, it's an onbroadcast event.
               // Figure out the target element and read the id off that.

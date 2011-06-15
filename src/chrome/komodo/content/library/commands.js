@@ -212,7 +212,7 @@ this.doCommandAsync = function command_doCommandAsync(command, event) {
     // otherwise, do this in a timeout, which prevents 'sticky' menu's and such
     window.setTimeout(function(this_) {
         try {
-            this_.doCommand(command);
+            this_.doCommand(command, event);
         } catch (e) {
             _log.exception(e);
         }
@@ -228,6 +228,10 @@ this.doCommand = function command_doCommand(command) {
     try {
         var controller = top.document.commandDispatcher.getControllerForCommand(command);
         if (controller) {
+            if (controller.wrappedJSObject) {
+                // unwrapping allows us to pass in extra arguments
+                controller = controller.wrappedJSObject;
+            }
             var commandNode = document.getElementById(command);
             // ko.macros.recorder can be undefined if we're not in the main komodo.xul window (e.g. Rx commands)
             if (typeof(ko.macros) != 'undefined' && ko.macros.recorder && ko.macros.recorder.mode == 'recording') {
@@ -249,12 +253,10 @@ this.doCommand = function command_doCommand(command) {
                 if (_isCheckCommand(commandNode)) {
                     // For a check command, we do the command, then re-update it,
                     // (as presumably the state has now toggled)
-                    // XXX - Can have params here
-                    controller.doCommand(command);
+                    controller.doCommand.apply(controller, Array.slice(arguments));
                     ko.commands.updateCommand(command, commandNode, controller);
                 } else {
-                    // XXX - Can have params here
-                    controller.doCommand(command);
+                    controller.doCommand.apply(controller, Array.slice(arguments));
                 }
             }
             rc = true;
