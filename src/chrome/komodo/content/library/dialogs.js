@@ -704,6 +704,8 @@ this.authenticate2 = function dialog_authenticate2(prompt, server, username, all
 //      this is false. Note: yesNoCancel=true does not make sense if
 //      selectionCondition!="zero-or-more", and an error will be raised in this
 //      condition.
+//  "selectedIndex" is an integer.  If given, the numbered item is selected,
+//      instead of the default depending on selectionCondition
 //
 // It returns null if the dialog was cancelled. Otherwise it returns the list
 // of selected items.
@@ -713,7 +715,7 @@ this.authenticate2 = function dialog_authenticate2(prompt, server, username, all
 //
 this.selectFromList = function dialog_selectFromList(title, prompt, items, selectionCondition,
                                stringifier, doNotAskPref, yesNoCancel,
-                               buttonNames)
+                               buttonNames, selectedIndex)
 {
     if (typeof(title) == 'undefined') title = null;
     if (typeof(prompt) == 'undefined') prompt = null;
@@ -723,6 +725,7 @@ this.selectFromList = function dialog_selectFromList(title, prompt, items, selec
     if (typeof(doNotAskPref) == 'undefined') doNotAskPref = null;
     if (typeof(yesNoCancel) == 'undefined') yesNoCancel = false;
     if (typeof(buttonNames) == 'undefined') buttonNames = null;
+    if (typeof(selectedIndex) == 'undefined') selectedIndex = null;
 
     // Break out early if "doNotAskPref" prefs so direct.
     var bpref = null, spref = null;
@@ -783,6 +786,7 @@ this.selectFromList = function dialog_selectFromList(title, prompt, items, selec
     obj.doNotAskUI = doNotAskPref != null;
     obj.yesNoCancel = yesNoCancel;
     obj.buttonNames = buttonNames;
+    obj.selectedIndex = selectedIndex;
     window.openDialog("chrome://komodo/content/dialogs/selectFromList.xul",
                       "_blank",
                       "chrome,modal,titlebar,resizable=yes,centerscreen",

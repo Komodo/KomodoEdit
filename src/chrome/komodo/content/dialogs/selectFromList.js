@@ -66,6 +66,7 @@ var gItems = null;          // List of items from which user is to select.
 var gSelectionCondition = null;
 var gDoNotAskUI = false;    // true iff "Don't ask me again" UI is being used.
 var gStringifier = null;
+var gArgObj = null;
 
 
 var gItemsTreeView = {  // The nsITreeView object for the list of items.
@@ -119,17 +120,18 @@ function OnLoad()
     var cancelButton = dialog.getButton("cancel");
     var itemsTree = document.getElementById("items");
     var msg;
+    gArgObj = window.arguments[0];
     // .title
-    if (typeof window.arguments[0].title != "undefined" &&
-        window.arguments[0].title != null) {
-        document.title = window.arguments[0].title;
+    if (typeof gArgObj.title != "undefined" &&
+        gArgObj.title != null) {
+        document.title = gArgObj.title;
     } else {
         document.title = "Komodo";
     }
 
     // .prompt
     var descWidget = document.getElementById("prompt");
-    var desc = window.arguments[0].prompt;
+    var desc = gArgObj.prompt;
     if (typeof desc != "undefined" && desc != null) {
         var textUtils = Components.classes["@activestate.com/koTextUtils;1"]
                             .getService(Components.interfaces.koITextUtils);
@@ -141,7 +143,7 @@ function OnLoad()
     }
 
     // .items
-    gItems = window.arguments[0].items;
+    gItems = gArgObj.items;
     if (typeof gItems == "undefined" || gItems == null) {
         //XXX Is this the kind of error handling we want to do in onload
         //    handlers?
@@ -156,47 +158,52 @@ function OnLoad()
     gItemsTreeView.setRowCount(gItems.length);
 
     // .selectionCondition
-    if (typeof window.arguments[0].selectionCondition == "undefined" ||
-        window.arguments[0].selectionCondition == null) {
+    if (typeof gArgObj.selectionCondition == "undefined" ||
+        gArgObj.selectionCondition == null) {
         gSelectionCondition = "one-or-more";
     } else {
-        gSelectionCondition = window.arguments[0].selectionCondition;
+        gSelectionCondition = gArgObj.selectionCondition;
     }
-    switch (gSelectionCondition) {
-    case "one-or-more":
-        SelectAll();
-        break;
-    case "zero-or-more":
-        SelectAll();
-        break;
-    case "zero-or-more-default-none":
-        break;
-    case "one":
-        itemsTree.setAttribute("seltype", "single");
-        gItemsTreeView.selection.select(0);
-        document.getElementById("select-all").setAttribute("collapsed", true);
-        document.getElementById("clear-all") .setAttribute("collapsed", true);
-        break;
-    default:
-        //XXX Is this the kind of error handling we want to do in onload
-        //    handlers?
-        msg = "Internal Error: illegal selection condition value for "
-                  +"Select From List dialog: '"+gSelectionCondition+"'.";
-        log.error(msg);
-        alert(msg);
-        window.close();
+    var selectedIndex = gArgObj.selectedIndex;
+    if (selectedIndex === null || gSelectionCondition == "one") {
+        switch (gSelectionCondition) {
+            case "one-or-more":
+                SelectAll();
+                break;
+            case "zero-or-more":
+                SelectAll();
+                break;
+            case "zero-or-more-default-none":
+                break;
+            case "one":
+                itemsTree.setAttribute("seltype", "single");
+                gItemsTreeView.selection.select(selectedIndex || 0);
+                document.getElementById("select-all").setAttribute("collapsed", true);
+                document.getElementById("clear-all") .setAttribute("collapsed", true);
+                break;
+            default:
+                //XXX Is this the kind of error handling we want to do in onload
+                //    handlers?
+                msg = "Internal Error: illegal selection condition value for "
+                    +"Select From List dialog: '"+gSelectionCondition+"'.";
+                log.error(msg);
+                alert(msg);
+                window.close();
+        }
+    } else {
+        gItemsTreeView.selection.select(selectedIndex);
     }
 
     // .stringifier
-    if (typeof window.arguments[0].stringifier != "undefined" &&
-        window.arguments[0].stringifier != null) {
-        gStringifier = window.arguments[0].stringifier;
+    if (typeof gArgObj.stringifier != "undefined" &&
+        gArgObj.stringifier != null) {
+        gStringifier = gArgObj.stringifier;
     }
 
     // .doNotAskUI
-    if (typeof window.arguments[0].doNotAskUI != "undefined" &&
-        window.arguments[0].doNotAskUI != null) {
-        gDoNotAskUI = window.arguments[0].doNotAskUI;
+    if (typeof gArgObj.doNotAskUI != "undefined" &&
+        gArgObj.doNotAskUI != null) {
+        gDoNotAskUI = gArgObj.doNotAskUI;
     }
     if (gDoNotAskUI) {
         document.getElementById("doNotAsk-checkbox")
@@ -204,11 +211,11 @@ function OnLoad()
     }
 
     // .yesNoCancel
-    var yesNoCancel = window.arguments[0].yesNoCancel;
+    var yesNoCancel = gArgObj.yesNoCancel;
     if (typeof yesNoCancel == "undefined" || yesNoCancel == null) {
         yesNoCancel = false;
     }
-    var buttonNames = window.arguments[0].buttonNames;
+    var buttonNames = gArgObj.buttonNames;
     if (typeof buttonNames == "undefined" || buttonNames == null) {
         if (yesNoCancel) {
             buttonNames = ["Yes", "No", "Cancel"];
@@ -312,14 +319,14 @@ function ClearAll()
 function Accept()
 {
     var acceptButton = document.getElementById("dialog_selectFromList").getButton("accept");
-    window.arguments[0].retval = acceptButton.getAttribute("label");
+    gArgObj.retval = acceptButton.getAttribute("label");
 
     if (gDoNotAskUI) {
         var checkbox = document.getElementById("doNotAsk-checkbox");
         if (! checkbox.getAttribute("disabled")) {
-            window.arguments[0].doNotAsk = checkbox.checked;
+            gArgObj.doNotAsk = checkbox.checked;
         } else {
-            window.arguments[0].doNotAsk = false;
+            gArgObj.doNotAsk = false;
         }
     }
 
@@ -332,7 +339,7 @@ function Accept()
             selected.push(item);
         }
     }
-    window.arguments[0].selected = selected;
+    gArgObj.selected = selected;
 
     return true;
 }
@@ -341,19 +348,19 @@ function Accept()
 function No()
 {
     var noButton = document.getElementById("dialog_selectFromList").getButton("extra1");
-    window.arguments[0].retval = noButton.getAttribute("label");
+    gArgObj.retval = noButton.getAttribute("label");
 
     ClearAll(); // do this first because it might affect the checkbox state
     if (gDoNotAskUI) {
         var checkbox = document.getElementById("doNotAsk-checkbox");
         if (! checkbox.getAttribute("disabled")) {
-            window.arguments[0].doNotAsk = checkbox.checked;
+            gArgObj.doNotAsk = checkbox.checked;
         } else {
-            window.arguments[0].doNotAsk = false;
+            gArgObj.doNotAsk = false;
         }
     }
 
-    window.arguments[0].selected = [];
+    gArgObj.selected = [];
 
     window.close();
     return true;
@@ -362,10 +369,10 @@ function No()
 
 function Cancel()
 {
-    window.arguments[0].retval = "Cancel";
+    gArgObj.retval = "Cancel";
     if (gDoNotAskUI) {
         // Don't skip this dialog next time if it was cancelled this time.
-        window.arguments[0].doNotAsk = false;
+        gArgObj.doNotAsk = false;
     }
     return true;
 }
