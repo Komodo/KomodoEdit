@@ -798,7 +798,9 @@
 
         <content>
             <xul:spacer class="tabs-left"/>
-            <children />
+            <xul:arrowscrollbox orient="vertical" flex="1">
+                <children />
+            </xul:arrowscrollbox>
             <xul:spacer class="tabs-right" flex="1"/>
         </content>
 
