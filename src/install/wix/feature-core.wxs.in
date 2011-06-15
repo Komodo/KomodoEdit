@@ -990,6 +990,7 @@
               <File Id="file1470" Name="TXEXSL_0.MAN" LongName="txEXSLTRegExFunctions.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\txEXSLTRegExFunctions.manifest"/>
               <File Id="file1471" Name="webapps.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\webapps.xpt"/>
               <File Id="file1472" Name="XPCOM__6.XPT" LongName="xpcom_threads.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\xpcom_threads.xpt"/>
+            </Component>
           </Directory> <!-- lib\mozilla\components -->
           <Directory Id="directory58" Name="defaults">
             <Directory Id="directory59" Name="AUTOCO_0" LongName="autoconfig">
