@@ -23,7 +23,7 @@
 }
 
 .native .tab-text {
-  margin-bottom: 0;
+  margin: 0;
   font: message-box;
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
 }
@@ -52,8 +52,8 @@ view[lastfocused="true"] .native tab[selected="true"] .tab-text {
   -moz-appearance: none;
   -moz-border-radius: 0 0 6px 6px;
   color: #222;
-  margin: 0 0 1px;
-  padding: 0 5px;
+  margin: 0;
+  padding: 0;
   border-style: none solid solid;
   border-width: 3px;
   -moz-border-right-colors: rgba(0, 0, 0, .08) rgba(0, 0, 0, .17) rgba(180, 180, 180, .29);

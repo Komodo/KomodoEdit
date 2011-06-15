@@ -278,3 +278,25 @@ textbox.search-box-open-icon {
 textbox[type="autocomplete"].search-box {
 }
 
+
+/**
+ * File status icons for the editor tabs.
+ */
+.file-status-icons {
+  padding-right: 0; /* remove 2px padding set in komodo.css */
+  margin-left: -4px; /* move icons closer to the left side of the tab */
+}
+.file-readonly-icon[file_readonly="readonly"] {
+  /* Crop the image region, otherwise there's too much space between the icon
+     and the tab label. */
+  -moz-image-region: rect(0px, 9px, 9px, 0px);
+}
+/**
+ * File Status within menu items.
+ */
+.menu-file-status-image-box {
+  padding-left: 0; /* remove 2px padding set in widgets.css */
+  /* Ensure these is enough room to display all icons evenly - keeps the
+     list of menuitems a uniform width (16px for image, 4px for padding). */
+  min-width: 20px;
+}
