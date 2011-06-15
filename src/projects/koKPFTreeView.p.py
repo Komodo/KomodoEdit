@@ -66,8 +66,14 @@ _notificationsToReceive = _rebuildFlags | \
 _g_suffix = koToolbox2.PROJECT_FILE_EXTENSION
 
 class _Node(object):
+    uri = None
+    path = None
     def __init__(self, part, level, project):
         self.part = part
+        if part is not None:
+            # Store the path and URI - saves having to get the part's koIFile.
+            self.uri = part.URI
+            self.path = part.path
         self.level = level
         self.project = project
         self.isContainer = False
@@ -187,8 +193,7 @@ class KPFTreeView(TreeView):
             try:
                 # find the row for the file and invalidate it
                 files = data.split("\n")
-                invalidRows = [i for (i,row) in enumerate(self._rows)
-                               if getattr(row.part.getFile(), 'URI', None) in files]
+                invalidRows = [i for (i,row) in enumerate(self._rows) if row.uri in files]
                 for row in invalidRows:
                     thisRow = self._rows[row]
                     try:
@@ -675,6 +680,8 @@ class KPFTreeView(TreeView):
         prop.append(part.type)
         
         if not hasattr(part, 'file'):
+            # We hold a reference to the koFile instance, this causes the file
+            # status service to check/maintain the file's status information.
             part.file = part.getFile()
         if part.file and not part.file.isLocal:
             prop.append("remote")
@@ -850,7 +857,7 @@ class KPFTreeView(TreeView):
         name = self._getFieldName(column)
         if node.level == 0:
             if self._showProjectPath:
-                text = node.part.getFile().path
+                text = node.path
             else:
                 text = child.getFieldValue(name)
             if not self._showProjectPathExtension:
