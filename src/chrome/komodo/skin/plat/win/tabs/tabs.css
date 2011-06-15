@@ -118,7 +118,7 @@ tab[selected="true"]:focus > .tab-text {
 /* Tab close button */
 .tab-close-button > .toolbarbutton-icon {
   -moz-margin-end: 0px !important;
-  margin-top: 1px;
+  margin-top: 2px;
 }
 
 .tab-close-button {
@@ -128,28 +128,17 @@ tab[selected="true"]:focus > .tab-text {
   padding-left: 1px;
 }
 
-.tab-close-button:hover,
-tab[selected="true"] > .tab-close-button:hover {
-  -moz-image-region: rect(0px, 28px, 14px, 14px);
+tab[selected="true"] .tab-close-button {
   list-style-image: url("chrome://global/skin/icons/close.png");
-}
-
-.tab-close-button:hover:active,
-tab[selected="true"] > .tab-close-button:hover:active {
-  -moz-image-region: rect(0px, 42px, 14px, 28px);
-  list-style-image: url("chrome://global/skin/icons/close.png");
-}
-
-.tab-close-button[selected="true"],
-tab[selected="true"] > .tab-close-button {
-  -moz-image-region: rect(0px, 14px, 14px, 0px);
+  -moz-image-region: rect(0px, 16px, 16px, 0px);
   /* Make this button focusable so clicking on it will not focus the tab while
      it's getting closed */
   -moz-user-focus: normal;
-  list-style-image: url("chrome://global/skin/icons/close.png");
 }
-
-.tab-close-button:focus {
+tab[selected="true"] .tab-close-button:hover {
+  -moz-image-region: rect(0px, 32px, 16px, 16px);
+}
+tab[selected="true"] .tab-close-button:focus {
   outline: none !important;
 }
 
@@ -257,7 +246,7 @@ tab[selected="true"] > .tab-close-button {
 .tabs-closebutton {
   -moz-appearance: none;
   list-style-image: url("chrome://global/skin/icons/close.png");
-  -moz-image-region: rect(0px, 14px, 14px, 0px);
+  -moz-image-region: rect(0px, 16px, 16px, 0px);
   padding: 4px 2px;
   margin: 0px;
   margin-top: 3px;
@@ -272,11 +261,11 @@ tab[selected="true"] > .tab-close-button {
 }
 
 .tabs-closebutton:hover {
-  -moz-image-region: rect(0px, 28px, 14px, 14px);
+  -moz-image-region: rect(0px, 32px, 16px, 16px);
 }
 
 .tabs-closebutton:hover:active {
-  -moz-image-region: rect(0px, 42px, 14px, 28px);
+  -moz-image-region: rect(0px, 48px, 16px, 32px);
 }
 
 .tabs-closebutton:hover {
