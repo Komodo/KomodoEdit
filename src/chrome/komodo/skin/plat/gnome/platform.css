@@ -125,3 +125,11 @@ toolbar #historyRecentLocations {
   margin-right: 0;
   width: 24px;
 }
+
+
+/**
+ * File Status within menu items.
+ */
+.menu-file-status-image-box {
+  padding-left: 4px;
+}
