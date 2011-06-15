@@ -71,3 +71,14 @@ toolbar #historyRecentLocations {
 toolbar #historyRecentLocations[disabled="true"] {
   -moz-image-region: rect(48px 301px 72px 288px);
 }
+
+
+/**
+ * File Status within menu items.
+ */
+menuitem.menuitem-file-status {
+  padding-left: 4px;
+}
+menuitem.menuitem-file-status label {
+  padding-left: 2px;
+}
