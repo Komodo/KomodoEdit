@@ -30,3 +30,9 @@ ko-pane[type="vertical"] tabs[anonid="tabs"] tab
   -moz-border-radius-bottomleft: 2px;
   -moz-border-radius-bottomright: 2px;
 }
+
+ko-pane[type="vertical"][rotation="90"] tab .tab-text
+{
+  /* Otherwise the right pane tabs will crop the left-side of the text. */
+  padding-left: 2px;
+}
