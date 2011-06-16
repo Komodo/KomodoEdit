@@ -37,6 +37,7 @@
 if (typeof(ko) == 'undefined') {
     var ko = {};
 }
+if (!ko.windowManager)
 ko.windowManager = {
     fixupOpenDialogArgs: function(inargs) {
         var args = inargs.slice(); // make a copy
