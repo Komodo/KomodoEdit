@@ -40,6 +40,7 @@ from xpcom.server import WrapObject, UnwrapObject
 import sys, os, re, types
 from koTreeView import TreeView
 import koToolbox2
+import uriparse
 
 import logging
 
@@ -73,7 +74,7 @@ class _Node(object):
         if part is not None:
             # Store the path and url - saves having to get the part's koIFile.
             self.uri = part.url
-            self.path = part.path
+            self.path = uriparse.URIToPath(self.uri)
         self.level = level
         self.project = project
         self.isContainer = False
