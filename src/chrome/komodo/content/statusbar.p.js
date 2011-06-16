@@ -97,6 +97,10 @@ if (typeof(ko) == 'undefined') {
 ko.statusBar = {};
 (function() { /* ko.statusBar */
 
+const Cc = Components.classes;
+const Ci = Components.interfaces;
+Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+
 var _log = ko.logging.getLogger('statusbar');
 var _messageStack = Components.classes["@activestate.com/koStatusMessageStack;1"].
                           createInstance(Components.interfaces.koIStatusMessageStack);
@@ -788,6 +792,25 @@ this.changeEncoding = function(menuitem)
         }
     }
 }
+
+this.browserStatusHandler = {
+    QueryInterface : XPCOMUtils.generateQI([Ci.nsISupportsWeakReference,
+                                            Ci.nsIXULBrowserWindow]),
+    setJSStatus : function(status) {
+        _addMessage(status, "browser-status", 0, false, true);
+    },
+    setJSDefaultStatus : function(status) {},
+    setOverLink : function(link, context) {
+        _addMessage(link, "browser-status", 0, false, true);
+    },
+    onBeforeLinkTraversal: function(originalTarget, linkURI, linkNode, isAppTab) {}
+};
+window.QueryInterface(Ci.nsIInterfaceRequestor)
+      .getInterface(Ci.nsIWebNavigation)
+      .QueryInterface(Ci.nsIDocShellTreeItem)
+      .treeOwner.QueryInterface(Ci.nsIInterfaceRequestor)
+      .getInterface(Ci.nsIXULWindow)
+      .XULBrowserWindow = this.browserStatusHandler;
 
 }).apply(ko.statusBar);
 

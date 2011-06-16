@@ -1125,7 +1125,7 @@ VimController.prototype.inputBufferStart = function (commandHistory,
         this._inputBuffer_historyPosition = this._inputBuffer_history.length;
         var xulInputBuffer = this.inputBuffer;
         xulInputBuffer.value = initialText;
-        this.statusBarDeck.selectedIndex = 1;
+        this.statusBarDeck.selectedPanel = document.getElementById("vim-hbox");
         xulInputBuffer.addEventListener('keypress', vim_InputBuffer_KeyPress, false);
         xulInputBuffer.focus();
     } catch (e) {
@@ -1150,7 +1150,7 @@ VimController.prototype.inputBufferFinish = function ()
         // Return the contents of the input buffer and stop buffering.
         var contents = this.inputBuffer.value;
         this.inputBuffer.value = "";
-        this.statusBarDeck.selectedIndex = 0;
+        this.statusBarDeck.selectedPanel = document.getElementById("statusbar-message-internal-deck");
         this.inputBuffer.removeEventListener('keypress', vim_InputBuffer_KeyPress, false);
         this._inputBuffer_active = false;
         return contents;
