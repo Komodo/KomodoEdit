@@ -71,8 +71,8 @@ class _Node(object):
     def __init__(self, part, level, project):
         self.part = part
         if part is not None:
-            # Store the path and URI - saves having to get the part's koIFile.
-            self.uri = part.URI
+            # Store the path and url - saves having to get the part's koIFile.
+            self.uri = part.url
             self.path = part.path
         self.level = level
         self.project = project
