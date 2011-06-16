@@ -52,5 +52,4 @@ Import(
 );
 
 $cons->InstallInChrome('em-overlay.xul');
-
-
+$cons->InstallInChrome('em-overlay.js');

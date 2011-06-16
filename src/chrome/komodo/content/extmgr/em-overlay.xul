@@ -38,19 +38,14 @@
 
 <overlay id="extensionsOverlay"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-    <radio id="themes-view" hidden="true" collapsed="true"/>
-    
-    <script type="application/x-javascript;version=1.7">
-    <![CDATA[
-    function openURL(aURL)
-    {
-      var uri = Components.classes["@mozilla.org/network/io-service;1"]
-                          .getService(nsIIOService).newURI(aURL, null, null);
-    
-      var protocolSvc = Components.classes["@mozilla.org/uriloader/external-protocol-service;1"]
-                                  .getService(Components.interfaces.nsIExternalProtocolService);
-      protocolSvc.loadUrl(uri);
-    }
-    ]]>
-    </script>
+
+    <!-- persist dialog sizes -->
+    <page id="addons-page" persist="width height"/>
+
+    <!-- hide the themes view, we don't support them quite like that -->
+    <richlistitem id="category-themes" hidden="true" collapsed="true"/>
+
+    <!-- import crazy JS to shim in support for basic UI -->
+    <script type="application/x-javascript;version=1.7"
+            src="chrome://komodo/content/extmgr/em-overlay.js"/>
 </overlay>

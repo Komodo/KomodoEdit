@@ -580,7 +580,7 @@ this.watchLocalFile = function() {
 this.openAddonsMgr = function launch_openAddonsMgr()
 {
     return ko.windowManager.openOrFocusDialog("chrome://mozapps/content/extensions/extensions.xul",
-                                       "Extension:Manager",
+                                       "Addons:Manager",
                                        "chrome,menubar,extra-chrome,toolbar,resizable");
                                        
 }

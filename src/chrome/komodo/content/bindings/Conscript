@@ -54,6 +54,7 @@ $cons->Preprocess('scintilla.p.xml', 'scintilla.xml');
 $cons->InstallInChrome('scintilla.xml');
 $cons->Preprocess('scintilla-overlay.p.xul', 'scintilla-overlay.xul');
 $cons->InstallInChrome('scintilla-overlay.xul');
+$cons->InstallInChrome('text-link.xml');
 $cons->InstallInChrome('widgets.xml');
 $cons->Preprocess('views.p.xml', 'views.xml');
 $cons->InstallInChrome('views.xml');

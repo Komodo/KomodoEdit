@@ -36,6 +36,10 @@
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
+/* override the default text-link binding to always open in a different app */
+label.text-link, label[onclick] {
+  -moz-binding: url(chrome://komodo/content/bindings/text-link.xml#text-link);
+}
 
 /* a menupopup that can be used in a menu or menulist */
 langlist  {
