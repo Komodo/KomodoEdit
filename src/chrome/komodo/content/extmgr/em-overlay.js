@@ -59,9 +59,19 @@ var gkoAMActionObserver = {
   // installation failure handler
   failed: function(installs) {
     for each (var install in installs) {
-      this.box.appendNotification(this.bundle.formatStringFromName("notification.failed",
-                                                                   [install.name],
-                                                                   1),
+      var errorDetail = this.bundle.formatStringFromName("notification.failed",
+                                                         [install.name],
+                                                         1);
+      if (!install.isCompatible) {
+        var extBundle = Cc["@mozilla.org/intl/stringbundle;1"]
+                        .getService(Ci.nsIStringBundleService)
+                        .createBundle("chrome://mozapps/locale/extensions/extensions.properties");
+        errorDetail = extBundle.formatStringFromName("details.notification.incompatible",
+                                                     [install.name, this.brandShortName, this.appVersion],
+                                                     3);
+      }
+
+      this.box.appendNotification(errorDetail,
                                   install.addon ? install.addon.id : install.sourceURI.spec,
                                   null,
                                   this.box.PRIORITY_WARNING_MEDIUM);
@@ -92,7 +102,13 @@ var gkoAMActionObserver = {
   // The string bundle
   get bundle() Cc["@mozilla.org/intl/stringbundle;1"]
                  .getService(Ci.nsIStringBundleService)
-                 .createBundle("chrome://komodo/locale/extmgr.properties")
+                 .createBundle("chrome://komodo/locale/extmgr.properties"),
+  get brandShortName() Cc["@mozilla.org/intl/stringbundle;1"]
+                 .getService(Ci.nsIStringBundleService)
+                 .createBundle("chrome://branding/locale/brand.properties")
+                 .GetStringFromName("brandShortName"),
+  get appVersion() Services.appinfo.version
+
 };
 
 // Hook up and teardown for observers
