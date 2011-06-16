@@ -773,8 +773,8 @@ this.recordPartInvocation = function macro_recordPartInvocation(part) {
  * The original Komodo JS Macro object is deprecated, use the following
  * to map to the current correct usage
  * 
- * komodo.doc -> ko.views.manager.currentView.koDoc (DEPRECATED in Komodo 6.0.0b1, use `koDoc`)
- * komodo.document -> ko.views.manager.currentView.koDoc (DEPRECATED in Komodo 6.0.0b1, use `koDoc`)
+ * komodo.doc -> ko.views.manager.currentView.koDoc (DROPPED in Komodo 7.0.0a2, use `koDoc`)
+ * komodo.document -> ko.views.manager.currentView.koDoc (DROPPED in Komodo 7.0.0a2, use `koDoc`)
  * komodo.koDoc -> ko.views.manager.currentView.koDoc
  * komodo.editor -> ko.views.manager.currentView.scimoz
  * komodo.view -> ko.views.manager.currentView
@@ -797,9 +797,9 @@ function _KomodoJSMacroAPI(macro, view)
 {
     log.debug("_KomodoJSMacroAPI()");
     try {
-        this.koDoc = this.doc = this.document = null;
+        this.koDoc = null;
         if (view && view.koDoc) {
-            this.koDoc = this.doc = this.document = view.koDoc;
+            this.koDoc = view.koDoc;
         }
         this.editor = null;
         if (view && view.scimoz) {
@@ -824,8 +824,6 @@ _KomodoJSMacroAPI.prototype.destructor = function() {
     delete this.view;
     delete this.window;
     delete this.koDoc;
-    delete this.doc;
-    delete this.document;
     delete this.domdocument;
 }
 
