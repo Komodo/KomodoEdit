@@ -224,6 +224,12 @@ class KoFileStatusService:
         self._tlock.acquire()
         try:
             log.info("addFileStatusChecker:: added %r", checkerInstance.name)
+            # Try to get the native Python checker instance instead of XPCOM
+            # one - saves CPU cycles by not having to go through XPCOM.
+            try:
+                checkerInstance = UnwrapObject(checkerInstance)
+            except:
+                pass # Keep the XPCOM version then.
             checkerInstance.initialize()
             for i in range(len(self._statusCheckers)):
                 checker = self._statusCheckers[i]
