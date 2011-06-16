@@ -126,6 +126,8 @@ class koPart(object):
     _iconurl = ''
     _observerSvc = None
     primaryInterface = 'koIPart'
+    _hasset_koFile = False
+    _koFile = None
 
     def __init__(self, project):
         assert project is not None
@@ -442,18 +444,34 @@ class koPart(object):
             self._setPathAndName()
         return self._url
 
+    url = property(get_url, set_url)
+
     def _setPathAndName(self):
+        self._hasset_koFile = False
+        self._koFile = None
         if self._uri:
             self._name = self._uri.baseName
             self._path = self._uri.path
         
     def getFile(self):
-        # XXX fixme, optmize.  right now this is what forces file status
-        # to be retrieved.
-        if self.get_url():
-            fsvc = components.classes["@activestate.com/koFileService;1"].getService(components.interfaces.koIFileService)
-            return fsvc.getFileFromURI(self.get_url())
-        return None
+        if not self._hasset_koFile:
+            self._hasset_koFile = True
+            # We cache the koFile object, otherwise a koPart can cause the file
+            # status service to continually re-check file status for this path.
+            # This re-checking is due to the koFile being continually garbage
+            # collected and re-created, which causes the file-status service to
+            # drop and then re-update it's information - and notifying of this
+            # update.
+            #
+            # Repro: have a project opened in Komodo, but Places/Projects
+            #        sidebar closed, restart Komodo and switch tabs - causes
+            #        calls to getFile() and the koFile is subsequently gc'd.
+            if self.get_url():
+                fsvc = components.classes["@activestate.com/koFileService;1"].getService(components.interfaces.koIFileService)
+                self._koFile = fsvc.getFileFromURI(self.get_url())
+            else:
+                self._koFile = None
+        return self._koFile
 
     def hasAttribute(self, name):
         return self._attributes.has_key(name)
