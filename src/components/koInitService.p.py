@@ -937,6 +937,22 @@ class KoInitService(object):
             log.debug("upgrading XRE directory")
             _copy(prevXREDir, currXREDir, overwriteExistingFiles=False,
                   ignoreErrors=True)
+            klintDir = os.path.join(currXREDir, "klint@dafizilla.sourceforge.net")
+            # Bug 90294: klint is replaced by a builtin extension in 7.0a3
+            # If people later install their own klint in this dir, don't delete it.
+            # The last version that would have this version is 7.0.0a2
+            prevXREVersion = float(os.path.basename(os.path.dirname(prevXREDir)))
+            currXREVersion = float(os.path.basename(os.path.dirname(currXREDir)))
+            if (prevXREVersion <= 7.01
+                and abs(currXREVersion - 7.0) <= 0.01  # floating pt math...
+                and os.path.exists(klintDir)):
+                try:
+                    import shutil
+                    shutil.rmtree(klintDir)
+                except:
+                    log.exception("Can't remove old klint extension directory %s.  This should be manually removed.",
+                                  klintDir)
+                
 
     def _upgradeUserDataDirFiles(self):
         """Upgrade files under the USERDATADIR if necessary.
