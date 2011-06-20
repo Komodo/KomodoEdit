@@ -1032,11 +1032,6 @@ def target_configure(argv):
 
         --perf      build with timeline and profiling support
         --tools     build with venkman, inspector and cview
-        --jssh      extract and build JS Telnet Server to rebuild with a
-                    new version of jssh, you must remove
-                    mozilla/extensions/jssh and add a new jssh.zip to
-                    Mozilla-devel/modules.  jssh is at
-                    http://www.croczilla.com/jssh
 
         --options=
             additional mozilla build options that may
@@ -1161,7 +1156,7 @@ def target_configure(argv):
              "g4", "no-g4",
              "no-mar",
              "with-tests", "without-tests", 
-             "perf", "tools", "jssh", "js",
+             "perf", "tools", "js",
              "options=", "extensions=", "moz-config=",
              "build-dir=",
              "src-tree-name=",
@@ -1212,10 +1207,6 @@ def target_configure(argv):
             config["komodoVersion"] = None
         elif opt == "--no-mar":
             config["enableMar"] = False
-        elif opt == "--jssh":
-            config["buildOpt"].append("jssh")
-            mozBuildExtensions.append('jssh')
-            mozBuildExtensions.append('webservices')
         elif opt == "--perf":
             config["buildOpt"].append("perf")
         elif opt == "--tools":
@@ -1489,12 +1480,6 @@ def target_configure(argv):
         config["srcTreeName"] = '-'.join(srcTreeNameBits)
     if config["mozObjDir"] is None:
         config["mozObjDir"] = '-'.join(mozObjDirBits)
-
-    # Add any patches dirs, if necessary.
-    if "jssh" in config["buildOpt"]:
-        jsshDir = join(config["buildDir"], config["srcTreeName"], "mozilla",
-                       "extensions", "jssh")
-        config["patchesDirs"].append(jsshDir)
 
     # Determine the exact mozilla build configuration (i.e. the content
     # of '.mozconfig') -- unless specifically given.
@@ -2060,52 +2045,6 @@ def target_pyxpcom(argv=["pyxpcom"]):
     return argv[1:]
 
 
-def target_src_extra_extensions(argv=["src_extra_extensions"]):
-    """Add any extra mozilla extensions in our modules/... dir to
-    the current mozilla source (if configured to do so).
-
-    Currently the only extension supported is jssh (--jssh).
-    """
-    log.info("target: src_extra_extensions")
-    config = _importConfig()
-    buildDir = os.path.join(config.buildDir, config.srcTreeName)
-    extDir = os.path.join(buildDir, 'mozilla', 'extensions')
-    
-    # jssh
-    if 'jssh' in config.buildOpt:
-        jsshDir = os.path.join(buildDir, 'mozilla', 'extensions', 'jssh')
-        if exists(jsshDir):
-            log.info("'jssh' extension already added: `%s' exists", jsshDir)
-        else:
-            log.info("add 'jssh' extension source to `%s'" % jsshDir)
-            _run('unzip -d %s modules/jssh.zip' % extDir, log.info)
-            # Note: There is a .patch in this zip to apply to mozilla.
-            #       That is handled via the jsshDir having been added to
-            #       config.patchesDirs.
-
-    return argv[1:]
-
-def _build_modules(config, buildDir):
-    raise "this is a HACK and the patches this sucks, fix it"
-    extDir = os.path.join(buildDir, 'mozilla', 'extensions')
-    jsshDir = os.path.join(buildDir, 'mozilla', 'extensions', 'jssh')
-    if 'jssh' in config.buildOpt and not os.path.exists(jsshDir):
-        cmd = 'unzip -d %s modules/jssh.zip' % extDir
-        retval = os.system(cmd)
-        if retval:
-            raise BuildError("error running '%s'" % cmd)
-        # copy the patch to the build/patches dir
-        jsshPatch = os.path.join(extDir, 'jssh', 'allmakefiles.sh.patch')
-        print "cwd is ", os.getcwd()
-        if sys.platform.startswith("win"):
-            cmd = 'copy %s patches\\jssh-allmakefiles.sh.patch' % jsshPatch
-        else:
-            cmd = 'cp %s patches/jssh-allmakefiles.sh.patch' % jsshPatch
-        print "copy command is ", cmd
-        retval = os.system(cmd)
-        if retval:
-            raise BuildError("error running '%s'" % cmd)
-
 def target_fastupdate(argv=["update"]):
     """update mozilla source from cvs"""
     config = _importConfig()
@@ -2182,7 +2121,6 @@ def target_src(argv=["src"]):
         # exists", then we should still be doing work.
         if not config.official:
             _get_js_standalone(buildDir)
-        target_src_extra_extensions()
 
         return argv[1:]
     
@@ -2303,7 +2241,6 @@ def target_src(argv=["src"]):
         raise BuildError("unknown mozSrcType: %r" % mozSrcType)
 
     # Get any extra stuff.
-    target_src_extra_extensions()
     _get_js_standalone(buildDir)
 
     if force_checkout:
