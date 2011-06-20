@@ -311,7 +311,7 @@ class JavaScriptDistinguisher(object):
         102: [(ST_IN_NAME, None, -1, True),],
             
         201: [(ST_IN_OPERATOR, "(", 202),],
-        202: [(ST_IN_NAME, None, -1),
+        202: [(ST_IN_NAME, None, -1, True),
               (ST_IN_STRING, None, -1, True),
             ],
         301: [(ST_IN_OPERATOR, "(", 302),],
