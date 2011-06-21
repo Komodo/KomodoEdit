@@ -66,6 +66,7 @@ var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
                 .createBundle("chrome://komodo/locale/library.properties");
 var _log = ko.logging.getLogger("filepickers");
 
+const Ci = Components.interfaces;
 
 //---- internal support stuff
 
@@ -240,100 +241,29 @@ function _appendFilters(fp, limitTo /* =null */) {
 }
 
 
-//---- cached file picker initializers
-
-// All caching is done in the _cache dictionary.  The cache looks
-// like this:
-//    _cache = {
-//        "openFile": {
-//            "fp": <open file nsIFilePicker>,
-//            "title": <current title for file picker>,
-//            ...other cached info...
-//        }
-//        ...other picker caches...
-//    }
-var _cache = null;
-
-function _getCache(name) {
-    if (_cache == null)
-        _cache = new Object();
-    if (!(name in _cache))
-        _cache[name] = new Object();
-    return _cache[name];
-}
-
-
-// Get a (possibly cached) file picker.
+// Get a file picker.
 //
-//  "cache" is a cache object for this type of file picker.
 //  "mode" is one of the nsIFilePicker.mode* flags.
 //  "title" is the title for the dialog. Use 'null' for the default.
 //  "defaultFilterName" (optional) is the filter to make the default.
 //  "limitTo" (optional) is a list of filter names to which to restrict the
 //      filter list.
 //
-function _getFilePicker(cache, mode, title, defaultFilterName,
-                                   limitTo)
+function _getFilePicker(mode, title, defaultFilterName, limitTo)
 {
-    if (typeof(defaultFilterName) == 'undefined') defaultFilterName = null;
-    if (typeof(limitTo) == 'undefined') limitTo = null;
+    var fp = Components.classes["@mozilla.org/filepicker;1"].
+             createInstance(Components.interfaces.nsIFilePicker);
+    fp.init(window, title, mode);
+    if (mode != Ci.nsIFilePicker.modeGetFolder) {
+        var filterNames = _appendFilters(fp, limitTo);
 
-    // == operator that can handle lists
-    function equal(a, b) {
-        //ump("equal(a,b): a="+a+" ("+typeof(a)+"), b="+b+" ("+typeof(b)+")\n");
-        if (typeof(a) != typeof(b))
-            return false;
-        else if (a == null && b == null)
-            return true;
-        else if (a == null || b == null)
-            return false;
-        // Presume they are arrays. If they are not, then we cannot compare
-        // them and an error will be raised.
-        else if (a.join(',') ==  b.join(','))
-            return true;
-        else
-            return false;
-    }
-
-    if (!("fp" in cache) || (!("limitTo" in cache) || !equal(limitTo, cache.limitTo)))
-    {
-        // Data point: caching the instance creation makes a HUGE time diff on
-        // 10,000 calls.
-        var fp = Components.classes["@mozilla.org/filepicker;1"].
-                 createInstance(Components.interfaces.nsIFilePicker);
-        fp.init(window, title, mode);
-        if (mode != Components.interfaces.nsIFilePicker.modeGetFolder) {
-            // Data point: caching appending the standard filters makes a
-            // significant difference on 10,000 calls (a few seconds).
-            var filterNames = _appendFilters(fp, limitTo);
-            cache.limitTo = limitTo;
-            cache.filterNames = filterNames;
-        }
-        cache.title = title;
-        cache.fp = fp;
-    }
-
-    // Data point: caching the title made the difference between 0.439 seconds
-    // and 1.109 seconds for 10,000 calls to filepicker_openFile(). Not that
-    // big a deal, but better than a kick in the pants.
-    if (cache.title != title) {
-        cache.fp.init(window, title, mode);
-        cache.title = title;
-    }
-
-    if (mode != Components.interfaces.nsIFilePicker.modeGetFolder) {
         // Set the filter index to that of the named default filter.
         if (defaultFilterName != null) {
-            var foundIt = false;
-            for (var i = 0; i < cache.filterNames.length; ++i) {
-                if (defaultFilterName == cache.filterNames[i]) {
-                    cache.fp.filterIndex = i;
-                    foundIt = true;
-                    break;
-                }
-            }
-            if (!foundIt) {
-                _log.info("Could not find '"+defaultFilterName+
+            var filterIndex = filterNames.indexOf(defaultFilterName);
+            if (filterIndex != -1) {
+                fp.filterIndex = filterIndex;
+            } else {
+                _log.info("Could not find '" + defaultFilterName +
                                     "' filter -- using default.");
                 defaultFilterName = null; // trigger next if-block
             }
@@ -342,73 +272,48 @@ function _getFilePicker(cache, mode, title, defaultFilterName,
             // If the list of filters is limited then we default to the first
             // filter. Otherwise we default to the _last_ one ("All Files").
             if (limitTo != null) {
-                cache.fp.filterIndex = 0;
+                fp.filterIndex = 0;
             } else {
-                cache.fp.filterIndex = cache.filterNames.length - 1;
+                fp.filterIndex = filterNames.length - 1;
             }
         }
     }
 
-    return cache.fp;
+    return fp;
 }
 
 
 function _getOpenFilePicker(title, defaultFilterName, limitTo) {
-    var cache = _getCache("openFile");
-    return _getFilePicker(
-                cache,
-                Components.interfaces.nsIFilePicker.modeOpen,
-                title,
-                defaultFilterName,
-                limitTo);
+    return _getFilePicker(Ci.nsIFilePicker.modeOpen, title, defaultFilterName,
+                          limitTo);
 }
 
 
 function _getSaveFilePicker(title, defaultFilterName, limitTo) {
-    var cache = _getCache("saveFile");
-    return _getFilePicker(
-                cache,
-                Components.interfaces.nsIFilePicker.modeSave,
-                title,
-                defaultFilterName,
-                limitTo);
+    return _getFilePicker(Ci.nsIFilePicker.modeSave, title, defaultFilterName,
+                          limitTo);
 }
 
 
 function _getOpenExeFilePicker(title) {
-    var cache = _getCache("openExeFile");
     var limitTo;
 // #if PLATFORM == "win"
     limitTo = ["Executable", "All"];
 // #else
     limitTo = ["All"];
 // #endif
-    return _getFilePicker(
-                cache,
-                Components.interfaces.nsIFilePicker.modeOpen,
-                title,
-                null,
-                limitTo);
+    return _getFilePicker(Ci.nsIFilePicker.modeOpen, title, null, limitTo);
 }
 
 
 function _getOpenFilesPicker(title, defaultFilterName, limitTo) {
-    var cache = _getCache("openFiles");
-    return _getFilePicker(
-                cache,
-                Components.interfaces.nsIFilePicker.modeOpenMultiple,
-                title,
-                defaultFilterName,
-                limitTo);
+    return _getFilePicker(Ci.nsIFilePicker.modeOpenMultiple, title,
+                          defaultFilterName, limitTo);
 }
 
 
 function _getGetFolderPicker(title) {
-    var cache = _getCache("getFolder");
-    return _getFilePicker(
-                cache,
-                Components.interfaces.nsIFilePicker.modeGetFolder,
-                title);
+    return _getFilePicker(Ci.nsIFilePicker.modeGetFolder, title);
 }
 
 
