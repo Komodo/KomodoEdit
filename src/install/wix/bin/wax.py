@@ -532,7 +532,7 @@ class Guru:
                         % SENTINEL)
 
     def get_component_id(self):
-        SENTINEL = 1000
+        SENTINEL = 5000
         for i in range(self.component_index, SENTINEL):
             id = "component%s" % i
             if id not in self.component_ids:
