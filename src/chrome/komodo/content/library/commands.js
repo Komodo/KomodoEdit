@@ -142,7 +142,7 @@ this.setCommandEnabled = function _command_setCommandEnabled(id, node, supported
                 node.setAttribute('toggled', 'true');
             }
             else {
-                node.setAttribute('checked', 'false');
+                node.removeAttribute('checked');
                 node.setAttribute('toggled', 'false');
             }
         } else {
