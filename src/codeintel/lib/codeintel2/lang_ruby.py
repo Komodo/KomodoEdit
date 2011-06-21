@@ -322,8 +322,7 @@ class RubyLangIntel(CitadelLangIntel,
             # - curdirlib (in Ruby '.' is *last* in the import path)
             cwd = dirname(buf.path)
             if cwd != "<Unsaved>":
-                libs.append( self.mgr.db.get_lang_lib("Ruby", "curdirlib",
-                                                  [dirname(buf.path)]) )
+                libs.append( self.mgr.db.get_lang_lib("Ruby", "curdirlib", [cwd]) )
 
             cache[buf] = libs
         return cache[buf]

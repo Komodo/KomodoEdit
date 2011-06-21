@@ -897,8 +897,7 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
             if cwd == "<Unsaved>":
                 libs = []
             else:
-                libs = [ self.mgr.db.get_lang_lib("PHP", "curdirlib",
-                                          [dirname(buf.path)], "PHP") ]
+                libs = [ self.mgr.db.get_lang_lib("PHP", "curdirlib", [cwd], "PHP")]
 
             libs += self._buf_indep_libs_from_env(env)
             cache[buf] = libs

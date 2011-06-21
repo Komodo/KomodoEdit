@@ -601,8 +601,7 @@ class PythonLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
             if cwd == "<Unsaved>":
                 libs = []
             else:
-                libs = [ self.mgr.db.get_lang_lib(self.lang, "curdirlib",
-                                                  [dirname(buf.path)]) ]
+                libs = [ self.mgr.db.get_lang_lib(self.lang, "curdirlib", [cwd]) ]
 
             libs += self._buf_indep_libs_from_env(env)
             cache[buf] = libs
