@@ -1344,8 +1344,12 @@ viewManager.prototype.do_cmd_bufferCloseOthers = function() {
     // Get the other editor views.
     var view, filtered_views = [], urls = [];
     for (var i = 0; i < views.length; i++) {
-        if ((view = views[i]) == currView) {
+        view = views[i];
+        var viewType = view.getAttribute("type");
+        if (view == currView) {
             continue;
+        } else if (viewType == "browser") {
+            filtered_views.push(view);
         } else if (view.getAttribute("type") != "editor" || !view.koDoc) {
             continue;
         } else if (view.koDoc.isUntitled) {
