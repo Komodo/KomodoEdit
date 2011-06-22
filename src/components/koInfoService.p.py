@@ -109,19 +109,20 @@ class KoInfoService(object):
         self._nextAvailWindowNum = 1
         
     def nextWindowNum(self):
+        loadedWindowNums = []
         prefs = components.classes["@activestate.com/koPrefService;1"].\
                         getService(components.interfaces.koIPrefService).prefs
-        windowWorkspacePrefs = prefs.getPref("windowWorkspace")
-        prefIds = windowWorkspacePrefs.getPrefIds()
-        loadedWindowNums = []
-        for prefId in prefIds:
-            pref = windowWorkspacePrefs.getPref(prefId)
-            try:
-                windowNum = pref.getLongPref('windowNum')
-                loadedWindowNums.append(windowNum)
-            except:
-                log.exception("nextWindowNum: can't get window # for workspace %r",
-                              prefId)
+        if prefs.hasPref("windowWorkspace"):
+            windowWorkspacePrefs = prefs.getPref("windowWorkspace")
+            prefIds = windowWorkspacePrefs.getPrefIds()
+            for prefId in prefIds:
+                pref = windowWorkspacePrefs.getPref(prefId)
+                try:
+                    windowNum = pref.getLongPref('windowNum')
+                    loadedWindowNums.append(windowNum)
+                except:
+                    log.exception("nextWindowNum: can't get window # for workspace %r",
+                                  prefId)
         retVal = self._nextAvailWindowNum
         if retVal in self._usedWindowNums:
             while True:
