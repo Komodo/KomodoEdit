@@ -796,6 +796,7 @@ class Ko%(safeLangName)sLanguage(%(baseClass)s):
     _reg_desc_ = "%%s Language" %% name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%%s;1" %% name
     _reg_clsid_ = "%(guid)s"
+    _reg_categories_ = [("komodo-language", name)]
     %(defaultExtDecl)s
 
     lang_from_udl_family = %(lang_from_udl_family)r
