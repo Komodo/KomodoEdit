@@ -602,6 +602,7 @@ this.onProjectTreeDblClick = function(event) {
             log.error("onProjectTreeDblClick(" + index + ") => null\n");
         } else {
             var uri = part.url;
+            var koFile;
             switch (part.type) {
                 case "project":
                     var currentProject = ko.projects.manager.currentProject;
@@ -612,7 +613,12 @@ this.onProjectTreeDblClick = function(event) {
                     break;
 
                 case "livefolder":
-                    ko.places.manager.openDirectory(part.getFile().path);
+                    koFile = part.getFile();
+                    if (koFile.isLocal) {
+                        ko.places.manager.openDirectory(koFile.path);
+                    } else {
+                        ko.places.manager.openNamedRemoteDirectory(uri);
+                    }
                     break;
 
                 case "file":

@@ -1374,6 +1374,10 @@ ManagerClass.prototype = {
             return;
         }
         this._recordLastHomePlace();
+        this.openNamedRemoteDirectory(uri);
+    },
+
+    openNamedRemoteDirectory: function(uri) {
         var RCService = Components.classes["@activestate.com/koRemoteConnectionService;1"].
             getService(Components.interfaces.koIRemoteConnectionService);
         if (!RCService.isSupportedRemoteUrl(uri)) {
