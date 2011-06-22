@@ -2851,6 +2851,9 @@ this.restoreWorkspaceByIndex = function(currentWindow, idx, thisIndexOnly)
 };
 
 this.getRecentClosedWindowList = function() {
+    if (!ko.prefs.hasPref(multiWindowWorkspacePrefName)) {
+        return [];
+    }
     var windowWorkspacePref = ko.prefs.getPref(multiWindowWorkspacePrefName);
     var prefIds = {};
     windowWorkspacePref.getPrefIds(prefIds, {});
