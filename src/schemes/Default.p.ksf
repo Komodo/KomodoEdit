@@ -34,7 +34,7 @@
 # 
 # ***** END LICENSE BLOCK *****
 
-Version = 4
+Version = 5
 
 Booleans = {'preferFixed': 1, 'useSelFore': False, 'caretLineVisible': True}
 
@@ -163,7 +163,8 @@ LanguageStyles = {'Apache': {'directives': {'fore': 9145088},
  'Perl': {'compound_document_defaults': {'back': 16050922},
           'here documents': {'bold': 1, 'fore': 8594211}},
 'Python': {'compound_document_defaults': {'back': 16777173},
-            'decorators': {'fore': 39168},},
+            'decorators': {'fore': 39168},
+            'keywords2': {'fore': 878529},},
  'RHTML': {'compound_document_defaults': {'back': 10092543}},
  'reStructuredText': {'comment': {'fore': 0x92bd37, 'italic': 1},
                       'identifier': {'fore': 0x1874cd},

@@ -34,7 +34,7 @@
 # 
 # ***** END LICENSE BLOCK *****
 
-Version = 4
+Version = 5
 
 Booleans = {'preferFixed': 1, 'useSelFore': False, 'caretLineVisible': True}
 
@@ -143,7 +143,8 @@ LanguageStyles = {'C#': {'UUIDs': {},
  'PHP': {'identifiers': {'fore': 6711039}},
  'Perl': {'compound_document_defaults': {'back': 5966082},
           'here documents': {'bold': 1, 'fore': 8183004}},
-'Python': {'decorators': {'fore': 16741120},},
+'Python': {'decorators': {'fore': 16741120},
+           'keywords2': {'fore': 15989931},},
  'RHTML': {'compound_document_defaults': {'back': 60}},
 'reStructuredText': {'regex' : {'bold':1, },
                      'comment': {'fore':0x92bde7,
