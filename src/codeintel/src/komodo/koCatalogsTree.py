@@ -83,9 +83,9 @@ class KoCodeIntelCatalogsTreeView(TreeView):
             = normpath(normcase(join(koDirSvc.userDataDir, "apicatalogs")))
 
         # Atoms for styling the checkboxes.
-        atomSvc = components.classes["@mozilla.org/atom-service;1"].\
+        self.atomSvc = components.classes["@mozilla.org/atom-service;1"].\
                   getService(components.interfaces.nsIAtomService)
-        self._sortColAtom = atomSvc.getAtom("sort-column")
+        self._sortColAtom = self.atomSvc.getAtom("sort-column")
 
     def init(self, ciSvc, prefSet, prefName):
         self.ciSvc = ciSvc
@@ -263,6 +263,14 @@ class KoCodeIntelCatalogsTreeView(TreeView):
     def getColumnProperties(self, col, properties):
         if col.id[len("catalogs-"):] == self._sortData[0]:
             properties.AppendElement(self._sortColAtom)
+
+    def getCellProperties(self, row_idx, col, properties):
+        if col.id == "catalogs-lang":
+            try:
+                lang = self._rows[row_idx]["lang"]
+                properties.AppendElement(self.atomSvc.getAtom("Language" + lang))
+            except KeyError, ex:
+                raise ValueError("getCellText: unexpected col.id: %r" % col.id)
 
     def isSorted(self):
         return self._sortData != (None, None)

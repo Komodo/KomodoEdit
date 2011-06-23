@@ -66,6 +66,7 @@ $cons->Preprocess('templates/new.p.css', 'templates/new.css');
 $cons->InstallInChrome('templates/new.css');
 
 $cons->InstallInChrome('prefs/prefs.css');
+$cons->InstallInChrome('prefs/pref-codeintel.css');
 
 if ($platform eq "darwin") {
     $cons->InstallRecursive("$mozChromeDir/komodo/skin/",
