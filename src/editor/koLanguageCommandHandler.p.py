@@ -744,6 +744,7 @@ class GenericCommandHandler:
     def _do_cmd_newline(self, indentStyle=None, continueComments=0):
         view = self._view
         sm = view.scimoz
+        initXOffset = sm.xOffset
         # Do tab autocompletion, if it's in progress.
         if sm.autoCActive():
             return self._finish_autocomplete(view, sm)
@@ -827,6 +828,7 @@ class GenericCommandHandler:
                 sm.newLine()
                 if indent:
                     sm.addText(self.sysUtils.byteLength(indent), indent) # consider using replaceTarget??
+                    sm.xOffset = initXOffset
             sm.chooseCaretX()
         finally:
             sm.endUndoAction()
