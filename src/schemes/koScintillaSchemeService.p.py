@@ -794,7 +794,7 @@ class Scheme:
                (scincolor >> 16) & 0xFF]
         return len([x for x in rgb if x >= 128]) >= 2
     def _isDarkScintillaColor(self, scincolor):
-        return not self._isLightColor(scincolor)
+        return not self._isLightScintillaColor(scincolor)
 
     def getHighlightColorInfo(self, languageObj):
         """
