@@ -167,6 +167,7 @@ class KoLanguageRegistryService:
         #   (src/languages/ko*Language.py and any installed UDL-based
         #   language extensions) unless the given pattern is already used
         self.__languageNameFromPattern = {} # e.g. "*.py": "Python"
+        self.__sortedLanguageNamePatterns = [] # e.g. "*.py"
         # Used for creating user assocs diff.
         self.__factoryLanguageNameFromPattern = {}
         self.__patternsFromLanguageName = None  # e.g. "Python": ["*.py", "*.pyw"]
@@ -189,6 +190,7 @@ class KoLanguageRegistryService:
     def observe(self, aSubject, aTopic, someData):
         if aTopic == "fileAssociationDiffs":
             self.__languageNameFromPattern = None
+            self.__sortedLanguageNamePatterns = []
             self.__languageNameFromExtOrBasename = None
             self.__patternsFromLanguageName = None
             self._resetFileAssociationData()
@@ -197,6 +199,7 @@ class KoLanguageRegistryService:
         timeline.enter('KoLanguageRegistryService._resetFileAssociationData')
 
         self.__languageNameFromPattern = {}
+        self.__sortedLanguageNamePatterns = []
         self.__languageNameFromExtOrBasename = {}
         self.__factoryLanguageNameFromPattern = {}
         self.__patternsFromLanguageName = {}
@@ -244,6 +247,10 @@ class KoLanguageRegistryService:
                 log.exception("error loading 'fileAssociationDiffs' "
                               "(skipping): %s", fileAssociationDiffsRepr)
 
+        # We want the language patterns sorted, so it can used directly in
+        # suggestLanguageForFile.
+        self.__sortedLanguageNamePatterns.sort(_cmpLen)
+
         timeline.leave('KoLanguageRegistryService._resetFileAssociationData')
 
     def _removeOneFileAssociation(self, pattern, languageName):
@@ -251,6 +258,7 @@ class KoLanguageRegistryService:
             log.debug("remove '%s' -> '%s' file association", pattern,
                       languageName)
             del self.__languageNameFromPattern[pattern]
+            self.__sortedLanguageNamePatterns.remove(pattern)
             self.__patternsFromLanguageName[languageName].remove(pattern)
 
             base, ext = splitext(pattern)
@@ -283,6 +291,7 @@ class KoLanguageRegistryService:
         #          % (pattern, languageName)
 
         self.__languageNameFromPattern[pattern] = languageName
+        self.__sortedLanguageNamePatterns.append(pattern)
 
         if languageName not in self.__patternsFromLanguageName:
             self.__patternsFromLanguageName[languageName] = []
@@ -461,14 +470,11 @@ class KoLanguageRegistryService:
 
         # Next, try each registered filename glob pattern: slower.  Use the
         # longest pattern first
-        patterns = self.__languageNameFromPattern.keys()
-        if patterns:
-            patterns.sort(_cmpLen)
-            for pattern in patterns:
-                if fnmatch.fnmatch(basename, pattern):
-                    #print "debug: suggestLanguageForFile: '%s' -> '%s'" \
-                    #      % (pattern, self.__languageNameFromPattern[pattern])
-                    return self.__languageNameFromPattern[pattern]
+        for pattern in self.__sortedLanguageNamePatterns:
+            if fnmatch.fnmatch(basename, pattern):
+                #print "debug: suggestLanguageForFile: '%s' -> '%s'" \
+                #      % (pattern, self.__languageNameFromPattern[pattern])
+                return self.__languageNameFromPattern[pattern]
 
         return ''  # indicates that we don't know the lang name
 
