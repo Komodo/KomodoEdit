@@ -111,7 +111,7 @@ class Scheme:
         self._loadSchemeSettings(namespace, upgradeSettings=(not unsaved))
         return True
 
-    _current_scheme_version = 4
+    _current_scheme_version = 5
 
     def _execfile(self, fname, namespace):
         try:
@@ -196,15 +196,21 @@ class Scheme:
 
             if version == 3:  # Upgrade to v4.
                 if 'whitespaceColor' not in self._colors:
-                    names = ['default_fixed', 'default_proportional', 'default']
-                    for name in names:
-                        if name in self._commonStyles:
-                            defaultForeColor = self._commonStyles[name].get('fore')
-                            if defaultForeColor is not None:
-                                break
+                    self._colors['whitespaceColor'] = self._defaultForeColor()
+                version += 1
+
+            if version == 4:
+                pythonStyles = self._languageStyles.get("Python", {})
+                if "Python" not in self._languageStyles:
+                    self._languageStyles["Python"] = pythonStyles
+                if "keywords2" not in pythonStyles:
+                    if self._hasLightColoredBackground():
+                        # Use a darker fg style.
+                        pythonStyles["keywords2"] = { 'fore': 878529 }
                     else:
-                        defaultForeColor = 0 # fallback
-                    self._colors['whitespaceColor'] = defaultForeColor
+                        # Use the lighter fg style.
+                        pythonStyles["keywords2"] = { 'fore': 15989931 }
+                version += 1
 
             try:
                 self.save()
@@ -795,6 +801,22 @@ class Scheme:
         return len([x for x in rgb if x >= 128]) >= 2
     def _isDarkScintillaColor(self, scincolor):
         return not self._isLightScintillaColor(scincolor)
+
+    def _defaultForeColor(self):
+        defaultForeColor = 0 # fallback - white
+        names = ['default_fixed', 'default_proportional', 'default']
+        for name in names:
+            if name in self._commonStyles:
+                defaultForeColor = self._commonStyles[name].get('fore')
+                if defaultForeColor is not None:
+                    break
+        return defaultForeColor
+
+    def _hasLightColoredBackground(self):
+        """Light refers to the background color of the scheme."""
+        return self._isDarkScintillaColor(self._defaultForeColor())
+    def _hasDarkColoredBackground(self):
+        return not self._hasLightColoredBackground()
 
     def getHighlightColorInfo(self, languageObj):
         """
