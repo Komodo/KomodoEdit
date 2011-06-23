@@ -43,20 +43,24 @@
 treechildren::-moz-tree-checkbox
 {
     /* unchecked checkbox treecells */
-    list-style-image: none;
+    list-style-image: url("chrome://komodo/skin/images/checkbox_bordered_unchecked.png");
 }
 treechildren::-moz-tree-checkbox(checked)
 {
     /* checked checkbox treecells */
-    list-style-image: url("chrome://komodo/skin/images/cbox-check.gif");
+    list-style-image: url("chrome://komodo/skin/images/checkbox_bordered_checked.png");
 }
 treechildren::-moz-tree-checkbox(disabled)
 {
     /* disabled checkbox treecells */
-    list-style-image: url("chrome://komodo/skin/images/cbox-check-dis.gif");
+    opacity: 0.25;
 }
 treechildren::-moz-tree-column(sort-column)
 {
     background: #eee;
 }
 
+.treecol-image {
+    padding-left: 4px;
+    padding-right: 4px;
+}
