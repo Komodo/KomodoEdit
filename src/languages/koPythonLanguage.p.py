@@ -108,19 +108,54 @@ class KoPythonLexerLanguageService(KoPythonCommonLexerLanguageService):
     def __init__(self):
         KoPythonCommonLexerLanguageService.__init__(self)
         kwlist = set(keyword.kwlist)
-        kwlist.update(['None', 'as', 'with', 'True', 'False'])
+        kwlist2 = set(['False', 'None', 'True',
+                       ## built-in functions
+                       'abs', 'all', 'any', 'apply', 'basestring', 'bin',
+                       'bool', 'buffer', 'bytearray', 'bytes', 'callable',
+                       'chr', 'classmethod', 'cmp', 'coerce', 'compile',
+                       'complex', 'copyright', 'credits', 'delattr', 'dict',
+                       'dir', 'divmod', 'enumerate', 'eval', 'execfile', 'exit',
+                       'file', 'filter', 'float', 'format', 'frozenset',
+                       'getattr', 'globals', 'hasattr', 'hash', 'help', 'hex',
+                       'id', 'input', 'int', 'intern', 'isinstance',
+                       'issubclass', 'iter', 'len', 'license', 'list', 'locals',
+                       'long', 'map', 'max', 'memoryview', 'min', 'next',
+                       'object', 'oct', 'open', 'ord', 'pow', 'print',
+                       'property', 'quit', 'range', 'raw_input', 'reduce',
+                       'reload', 'repr', 'reversed', 'round', 'set', 'setattr',
+                       'slice', 'sorted', 'staticmethod', 'str', 'sum', 'super',
+                       'tuple', 'type', 'unichr', 'unicode', 'vars', 'xrange',
+                       'zip', '__import__']
+                    )
         self.setKeywords(0, list(kwlist))
-    
+        self.setKeywords(1, list(kwlist2))
+
 class KoPython3LexerLanguageService(KoPythonCommonLexerLanguageService):
     def __init__(self):
         KoPythonCommonLexerLanguageService.__init__(self)
-        kwlist = set(['False', 'None', 'True', 'and', 'as', 'assert', 'break',
+        kwlist = set(['and', 'as', 'assert', 'break',
                       'class', 'continue', 'def', 'del', 'elif', 'else',
                       'except', 'finally', 'for', 'from', 'global', 'if',
                       'import', 'in', 'is', 'lambda', 'nonlocal', 'not', 'or',
-                    'pass', 'raise', 'return', 'try', 'while', 'with', 'yield']
+                      'pass', 'raise', 'return', 'try', 'while', 'with', 'yield']
                      )
+        kwlist2 = set(['False', 'None', 'True',
+                       ## built-in functions
+                       'abs', 'all', 'any', 'ascii', 'bin', 'bool', 'bytearray',
+                       'bytes', 'callable', 'chr', 'classmethod', 'compile',
+                       'complex', 'delattr', 'dict', 'dir', 'divmod',
+                       'enumerate', 'eval', 'exec', 'exit', 'filter', 'float',
+                       'format', 'frozenset', 'getattr', 'globals', 'hasattr',
+                       'hash', 'help', 'hex', 'id', 'input', 'int',
+                       'isinstance', 'issubclass', 'iter', 'len', 'list',
+                       'locals', 'map', 'max', 'memoryview', 'min', 'next',
+                       'object', 'oct', 'open', 'ord', 'pow', 'print',
+                       'property', 'quit', 'range', 'repr', 'reversed', 'round',
+                       'set', 'setattr', 'slice', 'sorted', 'staticmethod',
+                       'str', 'sum', 'super', 'tuple', 'type', 'vars', 'zip',
+                       '__import__'] )
         self.setKeywords(0, list(kwlist))
+        self.setKeywords(1, list(kwlist2))
 
 class KoPythonCommonLanguage(KoLanguageBase):
     accessKey = 'y'
