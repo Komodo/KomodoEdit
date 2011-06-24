@@ -1,7 +1,8 @@
+Drop on upgrade: This patch has already been applied to the Scintilla hg repo.
+
 Do not highlight keyword2 items that are used as a sub-identifier, i.e. do not
 highlight "open" in "myobject.open".
 
-Scintilla bug reference:
 https://sourceforge.net/tracker/?func=detail&aid=3325333&group_id=2439&atid=102439
 Index: /home/toddw/src/editors/scintilla/hg/scintilla/lexers/LexPython.cxx
 --- src/LexPython.cxx	Thu Jun 23 09:11:58 2011 +1000
