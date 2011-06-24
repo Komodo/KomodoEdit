@@ -1195,11 +1195,40 @@ this.ensurePaneForTabHidden = function uilayout_ensurePaneForTabHidden(tabName)
     document.getElementById(tabName).tabbox.collapsed = true;
 };
 
+/**
+ * Returns whether the given pane is currently opened/visible in Komodo.
+ *
+ * @param pane {object | id} - The pane element, or the id of the pane element.
+ * @returns {boolean} Whether this pane is shown.
+ */
 this.isPaneShown = function uilayout_isPaneShown(pane) {
+    if (typeof(pane) == 'string') {
+        // It's the id of the pane.
+        var paneId = pane;
+        pane = document.getElementById(paneId);
+        if (!pane) {
+            log.error("isPaneShown: no pane with the id: " + paneId);
+            return false;
+        }
+    }
     return !pane.collapsed;
 };
 
+/**
+ * Makes the given pane open/visible in Komodo.
+ *
+ * @param pane {object | id} - The pane element, or the id of the pane element.
+ */
 this.ensurePaneShown = function uilayout_ensurePaneShown(pane) {
+    if (typeof(pane) == 'string') {
+        // It's the id of the pane.
+        var paneId = pane;
+        pane = document.getElementById(paneId);
+        if (!pane) {
+            log.error("ensurePaneShown: no pane with the id: " + paneId);
+            return;
+        }
+    }
     pane.tabbox.collapsed = false;
 };
 
