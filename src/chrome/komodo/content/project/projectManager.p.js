@@ -1322,6 +1322,11 @@ projectManager.prototype.effectivePrefs = function () {
 this.open = function project_openProjectFromURL(url,
                                                 skipRecentOpenFeature /* false */,
                                                 ensureVisible /* true */) {
+    if (this.manager.single_project_view
+        && this.manager.currentProject
+        && !this.manager.closeProject(this.manager.currentProject)) {
+        return false;
+    }
     var action = null;
     var opened_files = [];
     if (typeof(skipRecentOpenFeature) == 'undefined') {
