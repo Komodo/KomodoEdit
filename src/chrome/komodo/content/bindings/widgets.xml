@@ -1118,8 +1118,8 @@
     </binding>
 
 
-    <!-- Used to display file status within a menuitem. sThese "class" and
-         "xbl:inherits" should match those in the "file-tatus-tab" binding.
+    <!-- Used to display file status within a menuitem. These "class" and
+         "xbl:inherits" should match those in the "file-status-tab" binding.
     -->
     <binding id="menuitem-file-status" extends="chrome://global/content/bindings/menu.xml#menuitem">
         <content>
