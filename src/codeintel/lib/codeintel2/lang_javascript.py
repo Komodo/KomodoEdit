@@ -271,7 +271,7 @@ class JavaScriptLangIntel(CitadelLangIntel,
                 return None
             if DEBUG:
                 print "Matched trigger for jsdoc completion"
-            return Trigger("JavaScript", TRG_FORM_CPLN,
+            return Trigger(lang, TRG_FORM_CPLN,
                            "jsdoc-tags", pos, implicit)
 
         # JSDoc calltip
@@ -303,7 +303,7 @@ class JavaScriptLangIntel(CitadelLangIntel,
                     jsdoc_field = accessor.text_range(p+2, ident_found_pos+1)
                     if DEBUG:
                         print "Matched trigger for jsdoc calltip: '%s'" % (jsdoc_field, )
-                    return Trigger("JavaScript", TRG_FORM_CALLTIP,
+                    return Trigger(lang, TRG_FORM_CALLTIP,
                                    "jsdoc-tags", ident_found_pos, implicit,
                                    jsdoc_field=jsdoc_field)
                 elif not _isident(ch):
@@ -427,7 +427,7 @@ class JavaScriptLangIntel(CitadelLangIntel,
 
             if last_char == ".":
                 if style in jsClassifier.string_styles:
-                    return Trigger("JavaScript", TRG_FORM_CPLN,
+                    return Trigger(lang, TRG_FORM_CPLN,
                                    "literal-members", pos, implicit,
                                    citdl_expr="String")
                 elif style == jsClassifier.keyword_style:
@@ -458,7 +458,7 @@ class JavaScriptLangIntel(CitadelLangIntel,
                     if prev_text in ("function", ):
                         # Don't trigger here
                         return None
-                return Trigger("JavaScript", TRG_FORM_CALLTIP,
+                return Trigger(lang, TRG_FORM_CALLTIP,
                                "call-signature", pos, implicit)
 
         elif last_style in jsClassifier.string_styles and last_char in "\"'":
@@ -474,7 +474,7 @@ class JavaScriptLangIntel(CitadelLangIntel,
                 # We're good to go.
                 if DEBUG:
                     print "Matched trigger for array completions"
-                return Trigger("JavaScript", TRG_FORM_CPLN,
+                return Trigger(lang, TRG_FORM_CPLN,
                                "array-members", pos, implicit,
                                bracket_pos=prev_pos, trg_char=last_char)
 
@@ -574,14 +574,14 @@ class JavaScriptLangIntel(CitadelLangIntel,
         ctlr.start(buf, trg)
 
         # JSDoc completions
-        if trg.id == ("JavaScript", TRG_FORM_CPLN, "jsdoc-tags"):
+        if trg.id == (self.lang, TRG_FORM_CPLN, "jsdoc-tags"):
             #TODO: Would like a "javadoc tag" completion image name.
             ctlr.set_cplns(self._jsdoc_cplns)
             ctlr.done("success")
             return
 
         # JSDoc calltip
-        elif trg.id == ("JavaScript", TRG_FORM_CALLTIP, "jsdoc-tags"):
+        elif trg.id == (self.lang, TRG_FORM_CALLTIP, "jsdoc-tags"):
             #TODO: Would like a "javadoc tag" completion image name.
             jsdoc_field = trg.extra.get("jsdoc_field")
             if jsdoc_field:
@@ -675,9 +675,10 @@ class JavaScriptLangIntel(CitadelLangIntel,
             # might slow down completion.
             num_import_dirs = len(extra_dirs)
             if num_import_dirs > 100:
-                db.report_event("This buffer is configured with %d JavaScript "
+                db.report_event("This buffer is configured with %d %s "
                                 "import dirs: this may result in poor "
-                                "completion performance" % num_import_dirs)
+                                "completion performance" %
+                                (num_import_dirs, self.lang))
 
             if buf.lang == self.lang:
                 # - curdirlib (before extradirslib; only if pure JS file)

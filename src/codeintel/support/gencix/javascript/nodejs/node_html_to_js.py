@@ -90,7 +90,7 @@ class NodeItem(object):
         return item
     def addFunction(self, item, doc=None, parent=None, signature=None):
         if not isinstance(item, NodeFunction):
-            item = NodeFunction(item, doc=doc, parent=parent)
+            item = NodeFunction(item, doc=doc, parent=parent, signature=signature)
         self.items[item.name] = item
         return item
     def addClass(self, item, doc=None, parent=None):
@@ -150,15 +150,35 @@ class NodeVariable(NodeItem):
 
 class NodeFunction(NodeItem):
     type = "Function"
-    def __init__(self, name, **kwargs):
+    def __init__(self, name, signature=None, **kwargs):
         NodeItem.__init__(self, name, **kwargs)
+        self.args = []
+        if signature is not None:
+            args = signature.split("(", 1)[-1].split(")", 1)[0]
+            if args:
+                for arg in args.split(","):
+                    arg = arg.strip()
+                    self.extra_docs.add(u"@param %s" % (arg,)) # possibly optional
+                    if arg.startswith("[") and arg.endswith("]"):
+                        # optional argument
+                        arg = arg[1:-1]
+                    # default value
+                    arg = arg.split("=", 1)[0]
+                    # rest arguments (foo, bar, rest...)
+                    if arg.endswith("..."):
+                        arg = arg[:-3]
+                        if arg == "":
+                            # (foo, bar, ...)
+                            continue
+                    self.args.append(arg)
+
     def stringify(self, ns):
         result = ""
         if self.doc:
             doclines = textwrap.wrap(self.doc, width=72)
             doclines.extend(sorted(self.extra_docs))
             result += "/**\n * %s\n */\n" % ("\n * ".join(doclines))
-        result += "%s.%s = function() {}\n" % (ns, self.name)
+        result += "%s.%s = function(%s) {}\n" % (ns, self.name, ", ".join(self.args))
         return result
 
 class NodeClass(NodeItem):
@@ -528,13 +548,10 @@ class NodeProcessor(object):
                         current_module.parse_tag(tag)
                         continue
 
-                    if False and ns == "timers":
-                        current_module = self.modules.get("global_objects")
-                    else:
-                        log.debug("Module name: %s", ns)
-                        current_module = NodeModule(ns, real_name=sp[0])
-                        current_name = ns
-                        self.modules[ns] = current_module
+                    log.debug("Module name: %s", ns)
+                    current_module = NodeModule(ns, real_name=sp[0])
+                    current_name = ns
+                    self.modules[ns] = current_module
             elif current_module:
                 current_module.parse_tag(tag)
                 # parse_tag can cause the module to be renamed - check that now.

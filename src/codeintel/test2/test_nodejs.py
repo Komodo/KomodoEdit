@@ -96,7 +96,6 @@ class CplnTestCase(CodeIntelTestCase):
         curdirlib.dirs = tuple(dirs)
         return (buf, positions)
 
-    @tag("nodejs")
     def test_nodejs_require(self):
         """
         Check that require() works for relative paths
@@ -132,7 +131,6 @@ class CplnTestCase(CodeIntelTestCase):
         self.assertCompletionsInclude2(buf, positions[2],
             [("function", "rename"), ])
 
-    @tag("nodejs")
     def test_nodejs_require_nonvar(self):
         """
         Test require() without intermediate assignment
@@ -151,7 +149,6 @@ class CplnTestCase(CodeIntelTestCase):
         self.assertCompletionsInclude2(buf, positions[1],
             [("function", "method"), ])
 
-    @tag("nodejs")
     def test_nodejs_require_module_exports(self):
         """
         Test exporting via module.exports
@@ -170,7 +167,6 @@ class CplnTestCase(CodeIntelTestCase):
         self.assertCompletionsInclude2(buf, positions[1],
             [("function", "method"), ])
 
-    @tag("nodejs")
     def test_nodejs_require_not_buf_path(self):
         """
         Test require() from a path that is not the buffer path
@@ -192,7 +188,6 @@ class CplnTestCase(CodeIntelTestCase):
         self.assertCompletionsInclude2(buf, positions[1],
             [("function", "method"), ])
 
-    @tag("nodejs")
     def test_nodejs_module_simple(self):
         """
         Test require() using node_modules (simple case)
@@ -211,7 +206,6 @@ class CplnTestCase(CodeIntelTestCase):
         self.assertCompletionsInclude2(buf, positions[1],
             [("function", "simpleMethod"), ])
 
-    @tag("nodejs")
     def test_nodejs_module_package_manifest(self):
         """
         Test require() on a module using package.json
@@ -237,7 +231,6 @@ class CplnTestCase(CodeIntelTestCase):
         self.assertCompletionsInclude2(buf, positions[1],
             [("function", "method"), ])
 
-    @tag("nodejs")
     def test_nodejs_require_prefer_core(self):
         """
         Check that require() prefers core modules where available
@@ -254,7 +247,6 @@ class CplnTestCase(CodeIntelTestCase):
         self.assertCompletionsInclude2(buf, positions[1],
             [("function", "createServer"), ])
 
-    @tag("nodejs")
     def test_nodejs_modules_no_repeat_subdir(self):
         """
         Check that we don't descend into foo/node_modules/node_modules
@@ -285,7 +277,6 @@ class CplnTestCase(CodeIntelTestCase):
         self.assertCompletionsDoNotInclude2(buf, positions[2],
             [("function", "method"), ])
 
-    @tag("nodejs")
     def test_nodejs_modules_updir(self):
         """
         Test finding modules up the directory tree
@@ -314,7 +305,7 @@ class CplnTestCase(CodeIntelTestCase):
         self.assertCompletionsInclude2(buf, positions[1],
             [("function", "method"), ])
 
-    @tag("nodejs", "bug90331", "knownfailure")
+    @tag("bug90331", "knownfailure")
     def test_nodejs_require_extras(self):
         """
         Check that we can tack extra properties onto require()d objects
@@ -339,7 +330,6 @@ class CplnTestCase(CodeIntelTestCase):
              ("function", "bar"),
             ])
 
-    @tag("nodejs")
     def test_nodejs_globals(self):
         """
         Test that the documented globals are available
@@ -380,7 +370,6 @@ class CplnTestCase(CodeIntelTestCase):
             [("variable", "__dirname"),
             ])
 
-    @tag("nodejs")
     def test_nodejs_globals_props(self):
         """
         Test that the imported globals have the right properties
@@ -410,7 +399,6 @@ class CplnTestCase(CodeIntelTestCase):
              # the rest are tested in test_nodejs_console
             ])
 
-    @tag("nodejs")
     def test_nodejs_global_accessor(self):
         """
         Test that the Node.js global accessor, |global|, is usable
@@ -426,7 +414,6 @@ class CplnTestCase(CodeIntelTestCase):
             [("function", "concat"),
             ])
 
-    @tag("nodejs")
     def test_nodejs_globals_no_pollute(self):
         """
         Test that the modules don't pollute the global namespace
@@ -441,7 +428,6 @@ class CplnTestCase(CodeIntelTestCase):
             [("variable", "timers"),
             ])
 
-    @tag("node.js")
     def test_nodejs_console(self):
         """
         Test the Node.js console module
@@ -462,7 +448,6 @@ class CplnTestCase(CodeIntelTestCase):
              ("function", "assert"),
             ])
 
-    @tag("nodejs")
     def test_nodejs_timers(self):
         """
         Test the Node.js timers module
@@ -476,7 +461,6 @@ class CplnTestCase(CodeIntelTestCase):
              ("function", "clearInterval"),
             ])
 
-    @tag("nodejs")
     def test_nodejs_process(self):
         """
         Test the Node.js process module
@@ -508,7 +492,6 @@ class CplnTestCase(CodeIntelTestCase):
              ("function", "umask"),
             ])
 
-    @tag("nodejs")
     def test_nodejs_util(self):
         """
         Test the Node.js util module
@@ -523,7 +506,6 @@ class CplnTestCase(CodeIntelTestCase):
              ("function", "inherits"),
             ])
 
-    @tag("nodejs")
     def test_nodejs_events(self):
         """
         Test the Node.js events module
@@ -548,7 +530,6 @@ class CplnTestCase(CodeIntelTestCase):
              ("function", "emit"),
             ])
 
-    @tag("nodejs")
     def test_nodejs_buffer(self):
         """
         Test the Node.js buffer module
@@ -576,7 +557,6 @@ class CplnTestCase(CodeIntelTestCase):
              ("function", "slice"),
             ])
 
-    @tag("nodejs")
     def test_nodejs_crypto(self):
         """
         Test the Node.js crypto module
@@ -626,7 +606,6 @@ class CplnTestCase(CodeIntelTestCase):
              ("function", "verify"),
             ])
 
-    @tag("nodejs")
     def test_nodejs_tls(self):
         """
         Test the Node.js tls module
@@ -647,7 +626,6 @@ class CplnTestCase(CodeIntelTestCase):
              ("variable", "connections"),
             ])
 
-    @tag("nodejs")
     def test_nodejs_fs(self):
         """
         Test the Node.js fs module
@@ -737,7 +715,6 @@ class CplnTestCase(CodeIntelTestCase):
              ("function", "destroySoon"),
             ])
 
-    @tag("nodejs")
     def test_nodejs_path(self):
         """
         Test the Node.js path module
@@ -758,7 +735,6 @@ class CplnTestCase(CodeIntelTestCase):
              ("function", "existsSync"),
             ])
 
-    @tag("nodejs")
     def test_nodejs_net(self):
         """
         Test the Node.js net module
@@ -807,7 +783,6 @@ class CplnTestCase(CodeIntelTestCase):
              ("variable", "remoteAddress"),
             ])
 
-    @tag("nodejs")
     def test_nodejs_dgram(self):
         """
         Test the Node.js dgram module
@@ -835,7 +810,6 @@ class CplnTestCase(CodeIntelTestCase):
              ("function", "dropMembership"),
             ])
 
-    @tag("nodejs")
     def test_nodejs_dns(self):
         """
         Test the Node.js dns module
@@ -858,7 +832,6 @@ class CplnTestCase(CodeIntelTestCase):
              ("function", "resolveCname"),
             ])
 
-    @tag("nodejs")
     def test_nodejs_http(self):
         """
         Test the Node.js http module
@@ -939,7 +912,6 @@ class CplnTestCase(CodeIntelTestCase):
              ("function", "resume"),
             ])
 
-    @tag("nodejs")
     def test_nodejs_https(self):
         """
         Test the Node.js https module
@@ -970,7 +942,6 @@ class CplnTestCase(CodeIntelTestCase):
              ("function", "abort"),
             ])
 
-    @tag("nodejs")
     def test_nodejs_url(self):
         """
         Test the Node.js url module
@@ -1000,7 +971,6 @@ class CplnTestCase(CodeIntelTestCase):
              ("variable", "hash"),
             ])
 
-    @tag("nodejs")
     def test_nodejs_querystring(self):
         """
         Test the Node.js querystring module
@@ -1017,7 +987,6 @@ class CplnTestCase(CodeIntelTestCase):
              ("function", "unescape"),
             ])
 
-    @tag("nodejs")
     def test_nodejs_repl(self):
         """
         Test the Node.js repl module
@@ -1031,7 +1000,6 @@ class CplnTestCase(CodeIntelTestCase):
             [("function", "start"),
             ])
 
-    @tag("nodejs")
     def test_nodejs_vm(self):
         """
         Test the Node.js vm module
@@ -1053,7 +1021,6 @@ class CplnTestCase(CodeIntelTestCase):
              ("function", "runInNewContext"),
             ])
 
-    @tag("nodejs")
     def test_nodejs_child_process(self):
         """
         Test the Node.js child_process module
@@ -1092,7 +1059,6 @@ class CplnTestCase(CodeIntelTestCase):
              ("variable", "readable"), # from stream.ReadableStream
             ])
 
-    @tag("nodejs")
     def test_nodejs_assert(self):
         """
         Test the Node.js assert module
@@ -1116,7 +1082,6 @@ class CplnTestCase(CodeIntelTestCase):
              ("function", "ifError"),
             ])
 
-    @tag("nodejs")
     def test_nodejs_tty(self):
         """
         Test the Node.js tty module
@@ -1138,7 +1103,6 @@ class CplnTestCase(CodeIntelTestCase):
             [("function", "kill"),
             ])
 
-    @tag("nodejs")
     def test_nodejs_os(self):
         """
         Test the Node.js os module
@@ -1159,6 +1123,42 @@ class CplnTestCase(CodeIntelTestCase):
              ("function", "freemem"),
              ("function", "cpus"),
             ])
+
+class CallTipTestCase(CodeIntelTestCase):
+    lang = "Node.js"
+    test_dir = join(os.getcwd(), "tmp")
+
+    @tag("bug90482")
+    def test_builtin_funcs(self):
+        """Check that built-in functions (i.e. things in node_globals) exist"""
+        content, positions = unmark_text(dedent("""\
+            parseInt(<1>"99999");
+            require(<2>"moo");
+        """))
+        self.assertCalltipMatches(
+            markup_text(content, pos=positions[1]),
+            r"parseInt\(\w+\s*,\s*\w+\s*\)\s*->\s*Number\s*$",
+            flags=re.MULTILINE)
+        self.assertCalltipMatches(
+            markup_text(content, pos=positions[2]),
+            r"require\(\s*\w+\s*\)\s*$",
+            flags=re.MULTILINE)
+
+    @tag("bug90482")
+    def test_required_funcs(self):
+        """ Check that methods auto-generated from Node documentation exist"""
+        content, positions = unmark_text(dedent("""\
+            require('net').createServer(<1>);
+            require('vm').runInThisContext(<2>"code", "filename");
+        """))
+        self.assertCalltipMatches(
+            markup_text(content, pos=positions[1]),
+            r"createServer\(\s*\w+\s*,\s*\w+\s*\)\s*$",
+            flags=re.MULTILINE)
+        self.assertCalltipMatches(
+            markup_text(content, pos=positions[2]),
+            r"runInThisContext\(\s*\w+\s*,\s*\w+\s*\)\s*$",
+            flags=re.MULTILINE)
 
 #---- mainline
 

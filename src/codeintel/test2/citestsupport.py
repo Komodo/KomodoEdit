@@ -592,6 +592,42 @@ class CodeIntelTestCase(unittest.TestCase):
                indent('\n'.join('%5s: %s' % (lvl,m) for lvl,m in ctlr.log)),
                indent(markedup_content)))
 
+    def assertCalltipMatches(self, markedup_content, calltip, lang=None,
+                        implicit=True, env=None, flags=0):
+        if lang is None:
+            lang = self.lang
+        buf, trg = self._get_buf_and_trg(markedup_content, lang,
+                                         implicit=implicit, env=env)
+        self._assertCalltipMatches(buf, trg, markedup_content, calltip, lang, flags)
+
+    def _assertCalltipMatches(self, buf, trg, markedup_content, expr, lang, flags):
+        if trg is None:
+            self.fail("given position is not a %s trigger point, "
+                      "expected the calltip to match the following:\n"
+                      "  exression:\n%s\n"
+                      "  buffer:\n%s"
+                      % (lang, indent(expr),
+                         indent(markedup_content)))
+
+        if isinstance(buf, CitadelBuffer):
+            buf.unload() # remove any entry from CIDB to ensure clean test
+        ctlr = _CaptureEvalController()
+        actual_calltips = buf.calltips_from_trg(trg, ctlr=ctlr)
+        if actual_calltips and actual_calltips[0]:
+            actual_calltip = actual_calltips[0]
+        else:
+            actual_calltip = None
+        self.assertNotEquals(re.search(expr, actual_calltip, flags), None,
+            "unexpected %s calltip at the given position\n"
+            "  expression:\n%s\n"
+            "  got:\n%s\n"
+            "  eval log:\n%s\n"
+            "  buffer:\n%s"
+            % (trg.name, indent(expr and expr or "(none)"),
+               indent(actual_calltip and actual_calltip or "(none)"),
+               indent('\n'.join('%5s: %s' % (lvl,m) for lvl,m in ctlr.log)),
+               indent(markedup_content)))
+
     def assertCurrCalltipArgRange(self, markedup_content, calltip,
                                   expected_range, lang=None, implicit=True):
         if lang is None:
