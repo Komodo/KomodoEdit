@@ -222,10 +222,14 @@ class Shell(cmdln.Cmdln):
     """
     name = "ci2"
     version = __version__
+    _do_profiling = False
 
     #XXX There is a bug in cmdln.py alignment when using this. Leave it off
     #    until that is fixed. -- I think this may be fixed now.
     #helpindent = ' '*4
+
+    def _set_profiling(self, option, opt_str, value, parser):
+        self._do_profiling = True
 
     def get_optparser(self):
         optparser = cmdln.Cmdln.get_optparser(self)
@@ -235,6 +239,9 @@ class Shell(cmdln.Cmdln):
         optparser.add_option("-L", "--log-level",
             action="callback", callback=_set_logger_level, nargs=1, type="str",
             help="Specify a logger level via '<logname>:<levelname>'.")
+        optparser.add_option("-p", "--profile",
+            action="callback", callback=self._set_profiling,
+            help="Enable code profiling, prints out a method summary.")
         return optparser
 
     def do_test(self, argv):
@@ -244,7 +251,10 @@ class Shell(cmdln.Cmdln):
         """
         import subprocess
         testdir = join(dirname(__file__), "test2")
-        cmd = '"%s" test.py %s' % (sys.executable, ' '.join(argv[1:]))
+        if self._do_profiling:
+            cmd = '"%s" -m cProfile -s time test.py %s' % (sys.executable, ' '.join(argv[1:]))
+        else:
+            cmd = '"%s" test.py %s' % (sys.executable, ' '.join(argv[1:]))
         env = os.environ.copy()
         env["CODEINTEL_NO_PYXPCOM"] = "1"
         p = subprocess.Popen(cmd, cwd=testdir, env=env, shell=True)
