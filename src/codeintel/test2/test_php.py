@@ -2564,7 +2564,7 @@ EOD;
             [("function", "getMessage"), ("function", "getLine")])
 
     @tag("bug89356", "knownfailure")
-    def test_function_closure(self):
+    def test_function_closure_1(self):
         content, positions = unmark_text(php_markup(dedent(r"""
             $var = function( PDO $pdo ) {
                 $pdo-><1>xxx;
@@ -2575,7 +2575,7 @@ EOD;
 
 
     @tag("bug89755")
-    def test_function_closure(self):
+    def test_function_closure_2(self):
         content, positions = unmark_text(php_markup(dedent(r"""
             <?php
             namespace APP\ONE;
