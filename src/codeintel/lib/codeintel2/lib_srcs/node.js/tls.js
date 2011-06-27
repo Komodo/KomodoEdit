@@ -6,15 +6,21 @@ var tls = {};
 /**
  * This is a constructor for the tls.Server class. The options object has
  * these possibilities:
+ * @param options
+ * @param secureConnectionListener
  * @returns tls.Server
  */
-tls.createServer = function() {}
+tls.createServer = function(options, secureConnectionListener) {}
 
 /**
  * Creates a new client connection to the given port and host. (If host
  * defaults to localhost.) options should be an object which specifies
+ * @param [host]
+ * @param [options]
+ * @param callback
+ * @param port
  */
-tls.connect = function() {}
+tls.connect = function(port, host, options, callback) {}
 
 /**
  * This class is a subclass of net.Server and has the same methods on it.
@@ -42,8 +48,11 @@ tls.Server.prototype.maxConnections = 0;
  * Begin accepting connections on the specified port and host. If the host
  * is omitted, the server will accept connections directed to any IPv4
  * address (INADDR_ANY).
+ * @param [callback]
+ * @param [host]
+ * @param port
  */
-tls.Server.prototype.listen = function() {}
+tls.Server.prototype.listen = function(port, host, callback) {}
 
 
 exports = tls;

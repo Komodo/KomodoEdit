@@ -15,8 +15,9 @@ stream.ReadableStream.prototype.pause = function() {}
 /**
  * Makes the data event emit a string instead of a Buffer. encoding can be
  * 'utf8', 'ascii', or 'base64'.
+ * @param encoding
  */
-stream.ReadableStream.prototype.setEncoding = function() {}
+stream.ReadableStream.prototype.setEncoding = function(encoding) {}
 /**
  * Resumes the incoming 'data' events after a pause().
  */
@@ -30,8 +31,10 @@ stream.ReadableStream.prototype.resume = function() {}
 stream.ReadableStream.prototype.readable = 0;
 /**
  * This is a Stream.prototype method available on all Streams.
+ * @param [options]
+ * @param destination
  */
-stream.ReadableStream.prototype.pipe = function() {}
+stream.ReadableStream.prototype.pipe = function(destination, options) {}
 /**
  * Closes the underlying file descriptor. Stream will not emit any more
  * events.
@@ -53,12 +56,14 @@ stream.WritableStream.prototype = {}
 stream.WritableStream.prototype.writable = 0;
 /**
  * Same as the above except with a raw buffer.
+ * @param buffer
  */
-stream.WritableStream.prototype.write = function() {}
+stream.WritableStream.prototype.write = function(buffer) {}
 /**
  * Same as above but with a buffer.
+ * @param buffer
  */
-stream.WritableStream.prototype.end = function() {}
+stream.WritableStream.prototype.end = function(buffer) {}
 /**
  * After the write queue is drained, close the file descriptor.
  * destroySoon() can still destroy straight away, as long as there is no
