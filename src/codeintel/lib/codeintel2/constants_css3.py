@@ -4,7 +4,6 @@ CSS 3 definitions - requires CSS 1 and CSS 2 modules.
 
 import textwrap
 
-from codeintel2.util import CompareNPunctLast
 from codeintel2.constants_css1 import CSS_ATTR_DICT as CSS1_SPECIFIC_ATTRS_DICT
 from codeintel2.constants_css1 import CSS_PROPERTY_ATTRIBUTE_CALLTIPS_DICT as CSS1_SPECIFIC_CALLTIP_DICT
 from codeintel2.constants_css2 import CSS2_SPECIFIC_ATTRS_DICT, CSS2_SPECIFIC_CALLTIP_DICT
@@ -1079,6 +1078,7 @@ css3_color_names = [
 ]
 
 # Add the css3 named colors.
+#from codeintel2.util import CompareNPunctLast
 #for attr, values in CSS_ATTR_DICT.items():
 #    if '#' in values or 'rbg(' in values:
 #        CSS_ATTR_DICT[attr] = sorted(values + css3_color_names,
