@@ -309,6 +309,12 @@ class KoLanguageRegistryService:
         if id in self._addonsEnabled:
             return self._addonsEnabled[id]
 
+        if os.environ.has_key("KO_PYXPCOM_PROFILE"):
+            # The addonMgr does not work well with the profiler, so we just
+            # let all addons be enabed when profiling is enabled.
+            self._addonsEnabled[id] = True
+            return True
+
         try:
             addonMgr = components.classes["@mozilla.org/addons/addon-manager;1"]. \
                         getService(components.interfaces.amIAddonManager)
