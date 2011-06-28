@@ -636,6 +636,10 @@ class JavaScriptLangIntel(CitadelLangIntel,
             extra_dirs = () # ensure retval is a tuple
         return extra_dirs
 
+    @property
+    def stdlibs(self):
+        return [self.mgr.db.get_stdlib(self.lang)]
+
     def libs_from_buf(self, buf):
         env = buf.env
 
@@ -687,28 +691,16 @@ class JavaScriptLangIntel(CitadelLangIntel,
                 if cwd not in extra_dirs:
                     libs.insert(0, db.get_lang_lib(self.lang, "curdirlib", [cwd]))
 
-            # - cataloglib, stdlib
-            catalog_selections = env.get_pref("codeintel_selected_catalogs")
+            # - cataloglibs
             if buf.lang == "HTML5":
                 # Implicit HTML 5 catalog additions.
                 libs.append(db.get_catalog_lib("JavaScript", ["html5"]))
+            catalog_selections = env.get_pref("codeintel_selected_catalogs")
+            libs.append(db.get_catalog_lib(self.lang, catalog_selections))
 
-            if buf.lang == "Node.js":
-                # Implicit Node.js standard library import
-                libdir = os.path.join(dirname(__file__),
-                                      "lib_srcs",
-                                      "node.js")
-                libs += [
-                    db.get_lang_lib(lang="Node.js",
-                                    name="node.js stdlib",
-                                    dirs=(libdir,)),
-                    db.get_stdlib("Node.js"),
-                ]
-            else:
-                libs += [
-                    db.get_catalog_lib("JavaScript", catalog_selections),
-                    db.get_stdlib("JavaScript"),
-                ]
+            # - stdlibs
+            libs += self.stdlibs
+
             cache[buf] = libs
         return cache[buf]
 

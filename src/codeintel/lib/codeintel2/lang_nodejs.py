@@ -37,7 +37,9 @@
 
 """NodeJS support for CodeIntel"""
 
-import json, logging, os
+import os
+import json
+import logging
 
 from codeintel2.util import makePerformantLogger
 from codeintel2.lang_javascript import (JavaScriptLexer,
@@ -234,6 +236,16 @@ class NodeJSLangIntel(JavaScriptLangIntel):
     _evaluatorClass = NodeJSTreeEvaluator
     interpreterPrefName = "nodejsDefaultInterpreter"
     extraPathsPrefName = "nodejsExtraPaths"
+
+    @property
+    def stdlibs(self):
+        libdir = os.path.join(os.path.dirname(__file__), "lib_srcs", "node.js")
+        db = self.mgr.db
+        node_sources_lib = db.get_lang_lib(lang="Node.js",
+                                           name="node.js stdlib",
+                                           dirs=(libdir,))
+        return [node_sources_lib,
+                db.get_stdlib(self.lang)]
 
 class NodeJSBuffer(JavaScriptBuffer):
     lang = lang
