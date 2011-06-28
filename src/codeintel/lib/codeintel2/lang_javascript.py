@@ -105,6 +105,7 @@ lang = "JavaScript"
 log = logging.getLogger("codeintel.javascript")
 #log.setLevel(logging.DEBUG)
 #log.setLevel(logging.INFO)
+util.makePerformantLogger(log)
 
 # When enabled, will add a specific path attribute to each cix element for where
 # this element was originally created from, good for debugging gencix JavaScript

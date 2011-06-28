@@ -62,7 +62,8 @@ from SilverCity import Keywords
 
 from codeintel2.common import *
 from codeintel2.buffer import Buffer
-from codeintel2.util import OrdPunctLast, make_short_name_dict
+from codeintel2.util import (OrdPunctLast, make_short_name_dict,
+                             makePerformantLogger)
 from codeintel2.langintel import LangIntel, ParenStyleCalltipIntelMixin
 from codeintel2.udl import UDLBuffer, is_udl_css_style
 from codeintel2.accessor import AccessorCache
@@ -80,6 +81,7 @@ if _xpcom_:
 
 lang = "CSS"
 log = logging.getLogger("codeintel.css")
+makePerformantLogger(log)
 WHITESPACE = tuple(" \t\r\n")  # care about '\v', '\f'?
 
 

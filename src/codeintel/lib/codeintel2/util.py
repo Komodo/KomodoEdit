@@ -43,6 +43,7 @@ import sys
 import re
 import stat
 import textwrap
+import logging
 import types
 from pprint import pprint, pformat
 import time
@@ -700,6 +701,18 @@ class Memoize:
     
     def _getKey(self,*args,**kwds):
         return kwds and (args, set(kwds)) or args    
+
+def makePerformantLogger(logger):
+    """Replaces the info() and debug() methods with dummy methods.
+
+    Assumes that the logging level does not change during runtime.
+    """
+    if not logger.isEnabledFor(logging.INFO):
+        def _log_ignore(self, *args, **kwargs):
+            pass
+        logger.info = _log_ignore
+        if not logger.isEnabledFor(logging.DEBUG):
+            logger.debug = _log_ignore
 
 
 #---- mainline self-test

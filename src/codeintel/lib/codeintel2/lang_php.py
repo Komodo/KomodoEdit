@@ -86,7 +86,7 @@ if _xpcom_:
 lang = "PHP"
 log = logging.getLogger("codeintel.php")
 #log.setLevel(logging.DEBUG)
-
+util.makePerformantLogger(log)
 
 #---- language support
 

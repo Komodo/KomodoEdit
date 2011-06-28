@@ -39,6 +39,7 @@
 
 import json, logging, os
 
+from codeintel2.util import makePerformantLogger
 from codeintel2.lang_javascript import (JavaScriptLexer,
                                         JavaScriptLangIntel,
                                         JavaScriptBuffer,
@@ -51,6 +52,7 @@ from codeintel2.tree_javascript import JavaScriptTreeEvaluator
 lang = "Node.js"
 log = logging.getLogger("codeintel.nodejs")
 #log.setLevel(logging.DEBUG)
+makePerformantLogger(log)
 
 
 #---- language support
