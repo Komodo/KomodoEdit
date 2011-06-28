@@ -1588,7 +1588,11 @@
         <!--    </toolbaritem>-->
         <!--</toolbar>-->
 
-        <toolbar id="main-toolboxrow" flex="1" align="start" persist="hidden mode" mode="icons">
+        <toolbar id="main-toolboxrow" flex="1" align="start" persist="hidden mode" mode="icons"
+<!-- #if PLATFORM == "darwin" -->
+                 fullscreentoolbar="true"
+<!-- #endif -->
+                 >
             <toolbaritem
                 id="standardToolbar"
                 class="chromeclass-toolbar"
@@ -1842,6 +1846,17 @@
                     observes="cmd_helpViewBugs"
                     label="&bugs.label;"/>
             </toolbaritem>
+
+<!-- #if PLATFORM == "darwin" -->
+            <spacer id="fullscreenflex" flex="1" hidden="true" fullscreencontrol="true"  ordinal="9998"/>
+            <toolbaritem id="window-controls" hidden="true" fullscreencontrol="true"
+                ordinal="9999" pack="end">
+                <!-- no minimize/close on mac -->
+                <toolbarbutton id="restore-button" class="rightarrow-button-a"
+                                oncommand="ko.uilayout.fullScreen();"/>
+            </toolbaritem>
+<!-- #endif -->
+
         </toolbar>
         <toolbar id="findToolbar"
                  align="start"

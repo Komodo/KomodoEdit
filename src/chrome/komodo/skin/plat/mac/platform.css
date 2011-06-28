@@ -155,6 +155,12 @@ toolbar:not([mode="full"]) > toolbaritem > toolbarbutton,
   min-width: 24px;
 }
 
+/* for fullscreen use */
+#komodo_main #restore-button {
+  list-style-image: url(chrome://komodo/skin/images/fullscreen.png);
+  -moz-image-region: rect(0, 40px, 20px, 20px);
+}
+
 /**
  * Use a different background to distinguish when a toolbar button is checked.
  */
