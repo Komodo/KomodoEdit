@@ -2526,7 +2526,6 @@ void KoStart_IssueCommandments(const KoStartOptions* pOptions,
             overflow = snprintf(commandment, MAX_COMMANDMENT_LEN,
                                 "open\t%s\n", absFile);
         }
-        fprintf(stderr, "Writing commandment %s\n", commandment);
         if (overflow > MAX_COMMANDMENT_LEN || overflow < 0) {
             _LogError("buffer overflow while create open commandment "\
                       "for '%s'\n", absFile);
