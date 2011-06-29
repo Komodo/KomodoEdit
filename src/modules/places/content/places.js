@@ -1518,12 +1518,19 @@ ManagerClass.prototype = {
                 try {
                     var project = ko.projects.manager.currentProject;
                     if (project) {
-                        var projectURI = project.getFile().URI;
-                        var projectURILastSlashIdx = projectURI.lastIndexOf("/");
-                        if (projectURILastSlashIdx !== -1) {
-                            var projectParentURI = projectURI.substr(0, projectURILastSlashIdx);
-                            if (uri.indexOf(projectParentURI) === 0) {
-                                parentURI = projectParentURI;
+                        var projectLiveDirURI = ko.uriparse.localPathToURI(project.liveDirectory);
+                        if (projectLiveDirURI
+                            && uri.indexOf(projectLiveDirURI + "/") === 0) {
+                                parentURI = projectLiveDirURI;
+                        } else {
+                            var projectURI = project.getFile().URI;
+                            var projectURILastSlashIdx = projectURI.lastIndexOf("/");
+                            if (projectURILastSlashIdx !== -1) {
+                                var projectParentURI = projectURI.substr(0, projectURILastSlashIdx);
+                                if (projectParentURI !== projectLiveDirURI
+                                    && uri.indexOf(projectParentURI) === 0) {
+                                    parentURI = projectParentURI;
+                                }
                             }
                         }
                     }
