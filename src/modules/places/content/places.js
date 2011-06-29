@@ -1431,7 +1431,7 @@ ManagerClass.prototype = {
                                 onSuccess:successFunc});
     },
     
-    showCurrentEditorTab: function() {
+    showCurrentEditorTab: function(forceNewPlaceDir) {
         var view = ko.views.manager.currentView;
         if (!view
             || view.getAttribute("type") != "editor"
@@ -1538,7 +1538,8 @@ ManagerClass.prototype = {
                     log.exception("Error trying to get the project's URI: " + ex);
                 }
                 if (!parentURI) {
-                    if(!_placePrefs.getBooleanPref('syncAllFiles')) {
+                    if (!forceNewPlaceDir
+                        && !_placePrefs.getBooleanPref('syncAllFiles')) {
                         // Don't open anything new in places.
                         return;
                     }
@@ -2652,7 +2653,7 @@ ManagerClass.prototype = {
     handle_current_view_changed: function(event) {
         var manager = ko.places.manager;
         if (manager.trackCurrentTab_pref) {
-            manager.showCurrentEditorTab();
+            manager.showCurrentEditorTab(/*forceNewPlaceDir=*/ false);
         }
     },
     

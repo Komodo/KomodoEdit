@@ -312,7 +312,7 @@ PlacesController.prototype.is_cmd_placeView_showCurrent_TabInPlaces_enabled = fu
 }
 
 PlacesController.prototype.do_cmd_placeView_showCurrent_TabInPlaces = function() {
-    ko.places.manager.showCurrentEditorTab();
+    ko.places.manager.showCurrentEditorTab(/*forceNewPlaceDir=*/ true);
 }
 
 PlacesController.prototype._haveProjects = function() {
