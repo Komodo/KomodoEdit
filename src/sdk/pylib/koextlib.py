@@ -513,6 +513,10 @@ def build_ext(base_dir, support_devinstall=True, unjarred=False,
     exclude_pats = [".svn", "CVS", ".hg", ".bzr", ".git",
         ".DS_Store", "*~", "*.pyo", "*.pyc"]
 
+    # files that do not need to cause <em:unpack>
+    unpack_excludes = ["install.rdf", "chrome.manifest", "chrome", "content",
+                       "skin", "locale"]
+
     # Dev Note: Parts of the following don't work unless the source
     # dir is the current one. The easiest solution for now is to just
     # chdir there.
@@ -557,9 +561,9 @@ def build_ext(base_dir, support_devinstall=True, unjarred=False,
                 # zip (jar) up the chrome
                 _run_in_dir('"%s" -X -r %s.jar *' % (zip_exe, ext_info.codename),
                             chrome_build_dir, log.info)
-                xpi_manifest += [
-                    join(chrome_build_dir, ext_info.codename+".jar"),
-                ]
+                jar_name = join(chrome_build_dir, ext_info.codename+".jar")
+                xpi_manifest += [jar_name, ]
+                unpack_excludes += [jar_name, ]
             xpi_manifest.append("chrome.manifest")
    
         # Handle any PyXPCOM components and idl.
@@ -650,6 +654,27 @@ def build_ext(base_dir, support_devinstall=True, unjarred=False,
                 _cp(src, join(xpi_build_dir, basename(src)), log.info)
             else:
                 _cp(src, xpi_build_dir, log.info)
+
+        # add em:unpack if necessary
+        if not ext_info.unpack and set(xpi_manifest).difference(unpack_excludes):
+            log.warn("setting <em:unpack> due to %r",
+                     list(set(xpi_manifest).difference(unpack_excludes)))
+            (in_file, out_file) = (None, None)
+            try:
+                in_file = open("install.rdf", "r")
+                out_file = open(join(xpi_build_dir, "install.rdf"), "w")
+                for line in in_file:
+                    out_file.write(line)
+                    if re.search("""about=['"]urn:mozilla:install-manifest['"]""", line):
+                        # this is *probably* right; we might break things if
+                        # the tag spans more than one line, but at least in that
+                        # case things will fail to install and should be easier
+                        # to spot, hopefully
+                        out_file.write('<em:unpack>true</em:unpack>\n')
+            finally:
+                if (in_file): in_file.close()
+                if (out_file): out_file.close()
+
         _trim_files_in_dir(xpi_build_dir, exclude_pats, log.info)
         _run_in_dir('"%s" -X -r %s *' % (zip_exe, ext_info.pkg_name),
                     xpi_build_dir, log.info)
@@ -973,6 +998,8 @@ class ExtensionInfo(object):
             info["name"] = name_pat.search(install_rdf).group(1)
             ver_pat = re.compile(r'<em:version>(.*?)</em:version>')
             info["version"] = ver_pat.search(install_rdf).group(1)
+            unpack_pat = re.compile(r'<em:unpack>true</em:unpack>')
+            info["unpack"] = unpack_pat.search(install_rdf) and True or False
             self._install_rdf_info_cache = info
         return self._install_rdf_info_cache
     
@@ -995,6 +1022,10 @@ class ExtensionInfo(object):
     @property
     def pkg_name(self):
         return "%s-%s-ko.xpi" % (self.codename, self.version)
+
+    @property
+    def unpack(self):
+        return self._install_rdf_info["unpack"]
 
 
 def _code_safe_lang_from_lang(lang):
