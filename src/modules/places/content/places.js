@@ -1442,16 +1442,61 @@ ManagerClass.prototype = {
         if (!file) {
             return;
         }
-        var successFunc = function() {
-            var index = gPlacesViewMgr.view.getRowIndexForURI(file.URI);
-            if (index > -1) {
-                var treeSelection = gPlacesViewMgr.view.selection;
-                treeSelection.currentIndex = index;
-                treeSelection.select(index);
-                gPlacesViewMgr.tree.treeBoxObject.ensureRowIsVisible(index);
-            }
+        var showTreeItem = function(index) {
+            var treeSelection = gPlacesViewMgr.view.selection;
+            treeSelection.currentIndex = index;
+            treeSelection.select(index);
+            gPlacesViewMgr.tree.treeBoxObject.ensureRowIsVisible(index);
             // And make sure the tab keeps the focus.
             view.setFocus();
+        };
+        var successFunc;
+        var findFileFunc = function() {
+            var currentPlace = ko.places.manager.currentPlace;
+            var targetURI = file.URI;
+            var index = targetURI.indexOf(currentPlace + "/");
+            if (index !== 0) {
+                log.error("Expecting to see ["
+                          + currentPlace
+                          + "] in "
+                          + targetURI
+                          + ", got ]"
+                          + targetURI.indexOf(currentPlace + "/")
+                          + "]");
+                return;
+            }
+            var pieces = targetURI.substr(currentPlace.length + 1).split("/");
+            var placesTreeView = gPlacesViewMgr.view;
+            var findPiecesFunc = function(leadingURI, pieces) {
+                var newURI = leadingURI + "/" + pieces[0];
+                var location = placesTreeView.getRowIndexForURI(newURI);
+                if (location == -1) {
+                    log.warn("Can't find "
+                             + pieces[0]
+                             + " in the tree");
+                    return;
+                }
+                if (pieces.length === 1) {
+                    showTreeItem(location);
+                    return;
+                }
+                if (!placesTreeView.isContainerOpen(location)) {
+                    placesTreeView.toggleOpenState(location);
+                    //XXX race condition, would be better to have a callback
+                    setTimeout(findPiecesFunc, 500, newURI, pieces.slice(1));
+                    return;
+                }
+                findPiecesFunc(newURI, pieces.slice(1));
+            }
+            findPiecesFunc(currentPlace, pieces);
+        };
+        successFunc = function() {
+            var index = gPlacesViewMgr.view.getRowIndexForURI(file.URI);
+            if (index > -1) {
+                showTreeItem(index);
+            } else {
+                findFileFunc();
+            }
             // view.scintilla.focus();
         };
         try {
@@ -1461,10 +1506,38 @@ ManagerClass.prototype = {
                 log.error("Can't find a '/' in uri [" + uri + "]\n");
                 return;
             }
-            var parentURI = uri.substr(0, index);
-            if (this.currentPlace != parentURI) {
-                // Don't bother loading the URI, if we're currently looking at it.
-                this.openDirURI(parentURI, uri.substr(index + 1), successFunc);
+            
+            // If the selected file lives in the current places' hierarchy,
+            // don't switch.
+            // If the current project contains the file,
+            // switch to the project.
+            // Otherwise, switch to the current file.
+            if (uri.indexOf(this.currentPlace) !== 0) {
+                var parentURI = null;
+                var baseName = uri.substr(index + 1);
+                try {
+                    var project = ko.projects.manager.currentProject;
+                    if (project) {
+                        var projectURI = project.getFile().URI;
+                        var projectURILastSlashIdx = projectURI.lastIndexOf("/");
+                        if (projectURILastSlashIdx !== -1) {
+                            var projectParentURI = projectURI.substr(0, projectURILastSlashIdx);
+                            if (uri.indexOf(projectParentURI) === 0) {
+                                parentURI = projectParentURI;
+                            }
+                        }
+                    }
+                } catch(ex) {
+                    log.exception("Error trying to get the project's URI: " + ex);
+                }
+                if (!parentURI) {
+                    if(!_placePrefs.getBooleanPref('syncAllFiles')) {
+                        // Don't open anything new in places.
+                        return;
+                    }
+                    parentURI = uri.substr(0, index);
+                }
+                this.openDirURI(parentURI, baseName, successFunc);
             } else {
                 successFunc();
             }
@@ -2745,6 +2818,9 @@ this.onLoad_aux = function places_onLoad_aux() {
     if (!_placePrefs.hasPref('showProjectPathExtension')) {
         // Default is false -- show only basename
         _placePrefs.setBooleanPref('showProjectPathExtension', false);
+    }
+    if (!_placePrefs.hasPref('syncAllFiles')) {
+        _placePrefs.setBooleanPref('syncAllFiles', true);
     }
     if (!filterPrefs.hasPref(DEFAULT_FILTER_NAME)) {
         //dump("global/places/filters prefs has no " + DEFAULT_FILTER_NAME + "\n");
