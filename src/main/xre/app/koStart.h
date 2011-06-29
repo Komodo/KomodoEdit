@@ -56,6 +56,7 @@ typedef struct {
     char** files;       // generally these are pointers into argv
     char* line;         // --line string argument
     char* selection;    // --selection string argument
+    int usePosition;
 } KoStartOptions;
 
 

@@ -112,7 +112,8 @@ def _handleCommandment(commandment):
                 # Validate this and put an error in the status bar and
                 # carry on if invalid.
                 # Good: 1  1,2  1-3  1,2-3  1,2-3,4  1-3,4
-                pattern = re.compile("^\d+(,\d+)?(-\d+(,\d+)?)?$")
+                #       A comma can be followed by a "p" (bug 86164)
+                pattern = re.compile("^\d+(?:,p?\d+)?(?:-\d+(?:,p?\d+)?)?$")
                 match = pattern.match(optarg)
                 if not match:
                     if '-' in optarg:

@@ -1044,19 +1044,35 @@ viewManager.prototype.handle_open_file = function(topic, data)
                         anchor = Number(anchorDesc);
                     } else {
                         subparts = anchorDesc.split(',');
-                        var anchorLine = Math.max(Number(subparts[0]) - 1, 0);
-                        var anchorCol = Math.max(Number(subparts[1]) - 1, 0);
-                        anchor = ko.views.manager.currentView.positionAtColumn(anchorLine,
-                                                                               anchorCol);
+                        var anchorCol, anchorLine = Math.max(Number(subparts[0]) - 1, 0);
+                        var scimoz = view.scimoz;
+                        var lineStartPos, numBytes;
+                        if (subparts[1][0] == 'p') {
+                            anchorCol = Math.max(Number(subparts[1].substr(1)) - 1, 0);
+                            // Don't expand tabs.  But do handle Unicode => utf8 expansion
+                            lineStartPos = scimoz.positionFromLine(anchorLine);
+                            numBytes = scimoz.getStyledText(lineStartPos, lineStartPos + anchorCol, {}).length/2;
+                            anchor = lineStartPos + numBytes;
+                        } else {
+                            var anchorCol = Math.max(Number(subparts[1]) - 1, 0);
+                            anchor = scimoz.positionAtColumn(anchorLine, anchorCol);
+                        }
                     }
                     if (currentPosDesc.indexOf(',') == -1) {
                         currentPos = Number(currentPosDesc);
                     } else {
+                        var currentPosCol;
                         subparts = currentPosDesc.split(',')
                         var currentPosLine = Math.max(Number(subparts[0]) - 1, 0);
-                        var currentPosCol = Math.max(Number(subparts[1]) - 1, 0);
-                        currentPos = ko.views.manager.currentView.positionAtColumn(currentPosLine,
-                                                                                   currentPosCol);
+                        if (subparts[1][0] == 'p') {
+                            currentPosCol = Math.max(Number(subparts[1].substr(1)) - 1, 0);
+                            lineStartPos = scimoz.positionFromLine(currentPosLine);
+                            numBytes = scimoz.getStyledText(lineStartPos, lineStartPos + currentPosCol, {}).length/2;
+                            currentPos = lineStartPos + numBytes;
+                        } else {
+                            currentPosCol = Math.max(Number(subparts[1]) - 1, 0);
+                            currentPos = view.positionAtColumn(currentPosLine, currentPosCol);
+                        }
                     }
                     // do gotoline first because it messes w/ current position and anchor.
                     var scimoz = view.scimoz;

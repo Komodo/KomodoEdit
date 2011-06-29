@@ -1943,6 +1943,11 @@ Options:\n\
             1,5-2,15\tselect from line 1 and column 5\n\
                     \tto line 2 column 15\n\
             15-22   \tselect from character 15 to 22\n\
+    -P, --use-position\n\
+        Interpret column coordinates in --line and --selection as positions,\n\
+        not columns, so tabs are counted as one character.\n\
+        Unicode characters need to be utf-8-expanded, otherwise we'll\n\
+        try to select a partial character.\n\
 \n");
 }
 
@@ -1965,7 +1970,7 @@ Options:\n\
 int KoStart_HandleArgV(int argc, char** argv, KoStartOptions* pOptions)
 {
     /* Variables for option processing. */
-    char *shortopts = "hVvnXl:s:";
+    char *shortopts = "hVvnXPl:s:";
     struct option longopts[] = {
         /* name,        has_arg,           flag, val */ /* longind */
         { "version",    no_argument,       0,    'V' }, /*       0 */
@@ -1975,6 +1980,7 @@ int KoStart_HandleArgV(int argc, char** argv, KoStartOptions* pOptions)
         { "selection",  required_argument, 0,    's' }, /*       4 */
         { "xml-version",no_argument,       0,    'X' }, /*       5 */
         { "new-window", no_argument,       0,    'n' }, /*       6 */
+        { "use-position", no_argument,       0,    'P' }, /*       7 */
         { 0, 0, 0, 0 } /* sentinel */
     };
     int longind = 0;
@@ -2050,6 +2056,8 @@ int KoStart_HandleArgV(int argc, char** argv, KoStartOptions* pOptions)
             }
             pOptions->line = optarg;
             break;
+        case 'P':
+            pOptions->usePosition = 1;
         case 's':
             if (pOptions->line) {
                 _LogError("cannot use both -l|--line and -s|--selection options\n");
@@ -2064,6 +2072,12 @@ int KoStart_HandleArgV(int argc, char** argv, KoStartOptions* pOptions)
             _LogError("unknown option '%c', aborting\n", optopt);
             return KS_ERROR;
         }
+    }
+    if (pOptions->usePosition
+        && !pOptions->line
+        && !pOptions->selection) {
+       _LogError("used -P|--use-position but not either -l|--line or -s|--selection options\n");
+       return KS_ERROR;
     }
     if (optind < argc) {
         pOptions->files = argv + optind;
@@ -2088,6 +2102,9 @@ int KoStart_HandleArgV(int argc, char** argv, KoStartOptions* pOptions)
         }
         if (pOptions->selection != NULL) {
             _LogDebug("\tselection: %s\n", pOptions->selection);
+        }
+        if (pOptions->usePosition) {
+            _LogDebug("\t--use-position: 1\n");
         }
     }
     return KS_CONTINUE;
@@ -2379,6 +2396,25 @@ void KoStart_InitCommandments()
 #endif /* WIN32 */
 }
 
+// Transform coordinates of form <LINE>,<COLUMN> to 
+// <LINE>,p<COLUMN> if the --use-position option was specified.
+static char *insertUsePosition(char *coordinates, int usePosition) {
+   static char buf[40];
+   char *p_comma, *p_coordinates = coordinates, *p_buf = buf;
+   int numToCopy;
+   if (!usePosition || strlen(coordinates) > sizeof(buf)) {
+      return coordinates;
+   }
+   while ((p_comma = strchr(p_coordinates, ',')) != NULL) {
+      numToCopy = p_comma - p_coordinates + 1;
+      strncpy(p_buf, p_coordinates, numToCopy);
+      p_buf += numToCopy;
+      *p_buf++ = 'p';
+      p_coordinates = p_comma + 1;
+   }
+   strcpy(p_buf, p_coordinates);
+   return buf;
+}
 
 /* Issue the appropriate commandments to the running (or soon to be)
  * Komodo.
@@ -2468,7 +2504,9 @@ void KoStart_IssueCommandments(const KoStartOptions* pOptions,
          */
         if (pOptions->line && strchr(pOptions->line, ',') != NULL) {
             overflow = snprintf(commandment, MAX_COMMANDMENT_LEN,
-                                "open\t--selection=%s\t%s\n", pOptions->line,
+                                "open\t--selection=%s\t%s\n",
+                                insertUsePosition(pOptions->line,
+                                                  pOptions->usePosition),
                                 absFile);
         } else if (pOptions->line) {
             /* Ensure that line,col specification has the ",col" as
@@ -2481,11 +2519,14 @@ void KoStart_IssueCommandments(const KoStartOptions* pOptions,
         } else if (pOptions->selection) {
             overflow = snprintf(commandment, MAX_COMMANDMENT_LEN,
                                 "open\t--selection=%s\t%s\n",
-                                pOptions->selection, absFile);
+                                insertUsePosition(pOptions->selection,
+                                                  pOptions->usePosition),
+                                absFile);
         } else {
             overflow = snprintf(commandment, MAX_COMMANDMENT_LEN,
                                 "open\t%s\n", absFile);
         }
+        fprintf(stderr, "Writing commandment %s\n", commandment);
         if (overflow > MAX_COMMANDMENT_LEN || overflow < 0) {
             _LogError("buffer overflow while create open commandment "\
                       "for '%s'\n", absFile);
