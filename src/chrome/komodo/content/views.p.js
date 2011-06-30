@@ -1049,7 +1049,8 @@ viewManager.prototype.handle_open_file = function(topic, data)
                         var lineStartPos, numBytes;
                         if (subparts[1][0] == 'p') {
                             anchorCol = Math.max(Number(subparts[1].substr(1)) - 1, 0);
-                            // Don't expand tabs.  But do handle Unicode => utf8 expansion
+                            // Don't expand tabs.  But do handle Unicode => utf8 expansion,
+                            // to avoid selecting a partial character.
                             lineStartPos = scimoz.positionFromLine(anchorLine);
                             numBytes = scimoz.getStyledText(lineStartPos, lineStartPos + anchorCol, {}).length/2;
                             anchor = lineStartPos + numBytes;

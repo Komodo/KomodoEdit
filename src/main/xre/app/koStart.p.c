@@ -1946,8 +1946,6 @@ Options:\n\
     -P, --use-position\n\
         Interpret column coordinates in --line and --selection as positions,\n\
         not columns, so tabs are counted as one character.\n\
-        Unicode characters need to be utf-8-expanded, otherwise we'll\n\
-        try to select a partial character.\n\
 \n");
 }
 
@@ -2058,6 +2056,7 @@ int KoStart_HandleArgV(int argc, char** argv, KoStartOptions* pOptions)
             break;
         case 'P':
             pOptions->usePosition = 1;
+            break;
         case 's':
             if (pOptions->line) {
                 _LogError("cannot use both -l|--line and -s|--selection options\n");
