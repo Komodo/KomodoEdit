@@ -4,6 +4,7 @@ from xpcom.server import WrapObject, UnwrapObject
 
 import os, re
 import uriparse
+import koToolbox2
 
 import logging
 log = logging.getLogger("koProjectPackageService")
@@ -182,6 +183,27 @@ class koProjectPackageService:
                     if self.debug:
                         print "diskfile [%r] dest[%r]" % (diskfile, dest)
                     flist.add((diskfile, dest))
+
+                
+            if orig_project:
+                koProjectFile = orig_project.getFile()
+                if koProjectFile.isLocal:
+                    # For each file in
+                    # .../.komodotools/D/f
+                    # write out fullpath => .komodotools/D/f
+                    ktools = koToolbox2.PROJECT_TARGET_DIRECTORY
+                    toolboxPath = os.path.join(koProjectFile.dirName, ktools)
+                    if os.path.exists(toolboxPath):
+                        srcRootLen = len(koProjectFile.dirName) + 1
+                        for root, dirs, files in os.walk(toolboxPath):
+                            if os.path.basename(root) == ".svn":
+                                # XXX Are there others that should be ignored?
+                                continue
+                            archive_root = os.path.abspath(root)[srcRootLen:]
+                            for f in files:
+                                fullpath = os.path.join(root, f)
+                                archive_name = os.path.join(archive_root, f)
+                                zf.write(fullpath, archive_name)
             
             if not self.test:
                 for item in flist:
