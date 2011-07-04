@@ -239,6 +239,12 @@ this.FindResultsTabManager.prototype.initialize = function(id)
         }
         boxObject.view = this.view;
 
+        // Make sure the tab can find its own manager
+        var widget = parent.document.getElementById(this._idprefix + "_tabpanel");
+        if (widget) {
+            widget.contentWindow.gFindResultsTabManager = this;
+        }
+
         this.clear();
     } catch(ex) {
         findResultsLog.exception(ex);

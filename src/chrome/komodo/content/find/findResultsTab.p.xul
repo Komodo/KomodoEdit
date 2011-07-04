@@ -29,7 +29,7 @@
         <textbox id="findresults-filter-textbox"
                  type="search"
                  timeout="200"
-                 oncommand="ko.findresults.getManager(1).updateFilter();"
+                 oncommand="gFindResultsTabManager.updateFilter();"
                  tooltiptext="&findFilter.tooltiptext;"
                  />
         <hbox id="findtoolbar1-button-box" class="no-border solo-toolbaritem"
@@ -37,33 +37,33 @@
             <toolbarbutton id="findresults-jumptoprev-button"
                     class="list-item-up-icon"
                     tooltiptext="&jumpToPreviousResult.tooltiptext;"
-                    oncommand="ko.findresults.getManager(1).jumpToPrevResult();"/>
+                    oncommand="gFindResultsTabManager.jumpToPrevResult();"/>
             <toolbarbutton id="findresults-jumptonext-button"
                     class="list-item-down-icon"
                     tooltiptext="&jumpToNextResult.tooltiptext;"
-                    oncommand="ko.findresults.getManager(1).jumpToNextResult();"/>
+                    oncommand="gFindResultsTabManager.jumpToNextResult();"/>
             <toolbarseparator style="width: 10px;"/>
             <toolbarbutton id="findresults-stopsearch-button"
                     class="find-stop-icon"
                     tooltiptext="&stopSearch.tooltiptext;"
-                    oncommand="ko.findresults.getManager(1).stopSearch();"
+                    oncommand="gFindResultsTabManager.stopSearch();"
                     disabled="true"/>
             <toolbarbutton id="findresults-undoreplace-button"
                     class="find-undo-icon"
                     tooltiptext="&undoReplacements.tooltiptext;"
-                    oncommand="ko.findresults.getManager(1).undoReplace();"
+                    oncommand="gFindResultsTabManager.undoReplace();"
                     disabled="true"/>
             <toolbarseparator style="width: 10px;"/>
             <toolbarbutton id="findresults-lock-button"
                     class="find-lock-icon"
                     tooltiptext="&lockUnlockFindResults.tooltiptext;"
-                    oncommand="ko.findresults.getManager(1).toggleLockResults();"/>
+                    oncommand="gFindResultsTabManager.toggleLockResults();"/>
         </hbox>
     </hbox>
     <tree id="findresults" flex="1"
           seltype="single" class="no-border"
-          onclick="ko.findresults.getManager(1).onClick(event);"
-          onkeypress="return ko.findresults.getManager(1).onKeyPress(event);">
+          onclick="gFindResultsTabManager.onClick(event);"
+          onkeypress="return gFindResultsTabManager.onKeyPress(event);">
         <treecols>
             <treecol primary="true"
                      id="findresults-filename"
