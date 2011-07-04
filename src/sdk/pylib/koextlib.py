@@ -577,13 +577,8 @@ def build_ext(base_dir, support_devinstall=True, unjarred=False,
                 log.info)
             xpi_manifest.append(components_build_dir)
             if "chrome.manifest" not in xpi_manifest:
-                # Create a single-line chrome.manifest
-                chrome_manifest_path = join(base_dir, "chrome.manifest")
-                fd = open(chrome_manifest_path, "w")
-                fd.write("manifest components/component.manifest\n")
-                fd.close()
                 xpi_manifest.append("chrome.manifest")
-            
+
             component_manifest = join(components_build_dir, "component.manifest")
             for path in glob(join("components", "*.py")):
                 chromereg.register_file(path, component_manifest)
@@ -674,6 +669,14 @@ def build_ext(base_dir, support_devinstall=True, unjarred=False,
             finally:
                 if (in_file): in_file.close()
                 if (out_file): out_file.close()
+
+        # insert reference to component manifest if required
+        if isdir("components"):
+            log.info("Ensuring component manifest is registered")
+            import chromereg
+            chromereg.register_file(join(xpi_build_dir, "components", "component.manifest"),
+                                    join(xpi_build_dir, "chrome.manifest"),
+                                    "components")
 
         _trim_files_in_dir(xpi_build_dir, exclude_pats, log.info)
         _run_in_dir('"%s" -X -r %s *' % (zip_exe, ext_info.pkg_name),

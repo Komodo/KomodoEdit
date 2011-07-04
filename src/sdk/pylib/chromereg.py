@@ -43,9 +43,6 @@ def _dump_ast(node, indent="", stream=sys.stdout):
 
 class ChromeReg(object):
     """Helper class to group related methods to register a component"""
-    vars = {} # variables seen
-    existing_lines = None # existing chrome registration lines
-    new_lines = set() # added chrome registration lines
     def __init__(self, source_file, manifest, relpath=""):
         """ChromeReg constrcutor
         
@@ -54,6 +51,10 @@ class ChromeReg(object):
         @param relpath the relative path from the manifest to the registered
             component
         """
+        self.vars = {} # variables seen
+        self.existing_lines = None # existing chrome registration lines
+        self.new_lines = set() # added chrome registration lines
+
         self.source_file = source_file
         self.manifest_name = manifest
         if len(relpath) == 0 or relpath.endswith("/") or relpath.endswith("\\"):
