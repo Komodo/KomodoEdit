@@ -567,6 +567,13 @@
                 hideUnless="folder project"
                 oncommand="ko.places.projects.exportPackage();" />
 
+      <menuitem label="&createTemplateFromProject.label;"
+                id="menu_projCtxt_createProjectTemplate"
+                testDisableIf="t:multipleSelection"
+                class="menuitem-iconic"
+                hideUnless="project"
+                oncommand="ko.places.projects.createProjectTemplate();" />
+
       <menuseparator id="menu_projCtxt_project_save_separator_3"
                      hideUnless="folder" />
       
