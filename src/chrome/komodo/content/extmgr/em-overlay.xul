@@ -34,6 +34,8 @@
  the terms of any one of the MPL, the GPL or the LGPL.
  
  ***** END LICENSE BLOCK ***** -->
+<?xml-stylesheet type="text/css" href="chrome://komodo/skin/bindings/widgets.css"?>
+<?xml-stylesheet type="text/css" href="chrome://komodo/skin/extmgr.css"?>
 <!DOCTYPE overlay PUBLIC "-//MOZILLA//DTD XUL V1.0//EN" "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
 <overlay id="extensionsOverlay"

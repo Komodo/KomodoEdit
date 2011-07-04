@@ -79,6 +79,30 @@ var gkoAMActionObserver = {
   },
 
   complete: function(installs) {
+    for each (var install in installs) {
+      var opMask = AddonManager.PENDING_INSTALL | AddonManager.PENDING_UPGRADE;
+      var addonOps = (install.addon.operationsRequiringRestart || 0);
+      var buttons = [];
+      if (opMask & addonOps) {
+        buttons.push({
+          label: this.bundle.GetStringFromName("notification.restart"),
+          accessKey: "",
+          callback: function() {
+            Cc["@mozilla.org/toolkit/app-startup;1"]
+              .getService(Ci.nsIAppStartup)
+              .quit(Ci.nsIAppStartup.eAttemptQuit |
+                    Ci.nsIAppStartup.eRestart);
+          }
+        });
+      }
+      this.box.appendNotification(this.bundle.formatStringFromName("notification.success",
+                                                                   [install.name],
+                                                                   1),
+                                  install.addon ? install.addon.id : install.sourceURI.spec,
+                                  null,
+                                  this.box.PRIORITY_INFO_LOW,
+                                  buttons);
+    }
     // try to select the install. (no-op, doCommand handles it)
   },
 

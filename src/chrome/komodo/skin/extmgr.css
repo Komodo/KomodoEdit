@@ -1,0 +1,16 @@
+/* Copyright (c) 2005-2011 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+/*
+ * This applies to about:addons via em-overlay.xul
+ */
+
+#ko-notificationbox > notification[type="info"] {
+    background: transparent;
+    color: inherit;
+}
+#ko-notificationbox > notification[type="info"] > .notification-inner {
+    border: none;
+    background-image: -moz-linear-gradient(rgba(0, 255, 0, 0.05), rgba(0, 255, 0, 0.01));
+    border-radius: 10px;
+}
