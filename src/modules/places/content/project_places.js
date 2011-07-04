@@ -704,6 +704,11 @@ this.exportPackage = function() {
     ko.projects.exportPackageItems(items);
 };
 
+this.createProjectTemplate = function() {
+    this._getProjectItemAndOperate("createProjectTemplate",
+                                   ko.projects.manager, "saveProjectAsTemplate");
+};
+
 this.importPackage = function() {
     var item = this.manager.getSelectedItem();
     if (!item || item.type != "folder") {
