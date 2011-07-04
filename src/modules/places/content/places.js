@@ -1460,7 +1460,7 @@ ManagerClass.prototype = {
                           + currentPlace
                           + "] in "
                           + targetURI
-                          + ", got ]"
+                          + ", got ["
                           + targetURI.indexOf(currentPlace + "/")
                           + "]");
                 return;
