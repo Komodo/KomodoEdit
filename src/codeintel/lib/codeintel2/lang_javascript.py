@@ -650,7 +650,7 @@ class JavaScriptLangIntel(CitadelLangIntel,
         cache = env.cache["javascript-buf-libs"] # <buf-weak-ref> -> <libs>
 
         if buf not in cache:
-            env.add_pref_observer("javascriptExtraPaths",
+            env.add_pref_observer(self.extraPathsPrefName,
                 self._invalidate_cache_and_rescan_extra_dirs)
             env.add_pref_observer("codeintel_selected_catalogs",
                                   self._invalidate_cache)
