@@ -82,6 +82,18 @@ NS_IMETHODIMP SciMozEventsWrapper::OnDwellEnd(PRInt32 position, PRInt32 x, PRInt
 	INT32_TO_NPVARIANT(y, args[2]);
 	return Invoke("onDwellEnd", args, 3);
 }
+NS_IMETHODIMP SciMozEventsWrapper::OnOtherNotification(PRInt32 notificationType,
+						       PRInt32 position,
+					               const nsAString & text,
+						       PRInt32 modifiers) {
+	NS_ConvertUTF16toUTF8 textUtf8(text);
+	NPVariant args[4];
+	INT32_TO_NPVARIANT(notificationType, args[0]);
+	INT32_TO_NPVARIANT(position, args[1]);
+	STRINGN_TO_NPVARIANT(textUtf8.get(), textUtf8.Length(), args[2]);
+	INT32_TO_NPVARIANT(modifiers, args[3]);
+	return Invoke("onOtherNotification", args, 4);
+}
 NS_IMPL_THREADSAFE_ISUPPORTS2(SciMozEventsWrapper,
 			      SciMozEventsWrapper,
 			      ISciMozEvents)

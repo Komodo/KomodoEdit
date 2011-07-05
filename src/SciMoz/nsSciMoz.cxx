@@ -563,13 +563,11 @@ void SciMoz::Notify(long lParam) {
 				eventSink->OnMarginClick(
 					notification->modifiers, notification->position, notification->margin);
 			break;
-		/*
 		case SCN_NEEDSHOWN:
 			mask = ISciMozEvents::SME_NEEDSHOWN;
 			while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
-				eventSink->OnNeedShown(notification->position, notification->length);
+				eventSink->OnOtherNotification(mask, notification->position, NS_LITERAL_STRING(""), notification->modifiers);
 			break;
-		*/
 		/*
 		case SCN_PAINTED:
 			// No need to waste time with an event for this ATM.
@@ -578,13 +576,19 @@ void SciMoz::Notify(long lParam) {
 				eventSink->OnPainted();
 			break;
 		*/
-		/*
 		case SCN_USERLISTSELECTION:
-			mask = ISciMozEvents::SME_USERLISTSELECTION;
-			while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
-				eventSink->OnNotification(notification->position, notification->x, notification->y);
+			{
+				nsAutoString uText;
+				if (notification->text) {
+					uText = NS_ConvertUTF8toUTF16(notification->text);
+				} else {
+					uText.Truncate();
+				}
+				mask = ISciMozEvents::SME_USERLISTSELECTION;
+				while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
+					eventSink->OnOtherNotification(mask, notification->position, uText, notification->modifiers);
+			}
 			break;
-		*/
 		case SCN_DWELLSTART:
 			mask = ISciMozEvents::SME_DWELLSTART;
 			while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
@@ -605,38 +609,44 @@ void SciMoz::Notify(long lParam) {
 			while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
 				eventSink->OnHotSpotDoubleClick(notification->position, notification->modifiers);
 			break;
-		/*
 		case SCN_CALLTIPCLICK:
 			mask = ISciMozEvents::SME_CALLTIPCLICK;
 			while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
-				eventSink->OnNotification(notification->position, notification->x, notification->y);
+				eventSink->OnOtherNotification(mask, notification->position, NS_LITERAL_STRING(""), notification->modifiers);
 			break;
 		case SCN_AUTOCSELECTION:
-			mask = ISciMozEvents::SME_AUTOCSELECTION;
-			while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
-				eventSink->OnNotification(notification->position, notification->x, notification->y);
+			{
+				nsAutoString uText;
+				if (notification->text) {
+					uText = NS_ConvertUTF8toUTF16(notification->text);
+				} else {
+					uText.Truncate();
+				}
+				mask = ISciMozEvents::SME_AUTOCSELECTION;
+				while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
+					eventSink->OnOtherNotification(mask, notification->position, uText, notification->modifiers);
+			}
 			break;
 		case SCN_INDICATORCLICK:
 			mask = ISciMozEvents::SME_INDICATORCLICK;
 			while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
-				eventSink->OnNotification(notification->position, notification->x, notification->y);
+				eventSink->OnOtherNotification(mask, notification->position, NS_LITERAL_STRING(""), notification->modifiers);
 			break;
 		case SCN_INDICATORRELEASE:
 			mask = ISciMozEvents::SME_INDICATORRELEASE;
 			while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
-				eventSink->OnNotification(notification->position, notification->x, notification->y);
+				eventSink->OnOtherNotification(mask, notification->position, NS_LITERAL_STRING(""), notification->modifiers);
 			break;
 		case SCN_AUTOCCANCELLED:
 			mask = ISciMozEvents::SME_AUTOCCANCELLED;
 			while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
-				eventSink->OnNotification(notification->position, notification->x, notification->y);
+				eventSink->OnOtherNotification(mask, notification->position, NS_LITERAL_STRING(""), notification->modifiers);
 			break;
 		case SCN_AUTOCCHARDELETED:
 			mask = ISciMozEvents::SME_AUTOCCHARDELETED;
 			while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
-				eventSink->OnNotification(notification->position, notification->x, notification->y);
+				eventSink->OnOtherNotification(mask, notification->position, NS_LITERAL_STRING(""), notification->modifiers);
 			break;
-		*/
 		default: {
                     /*  XXX
                         We don't handle all the scimoz notifications any longer,

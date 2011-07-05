@@ -99,4 +99,10 @@ interface ISciMozEvents : nsISupports {
     // void onPainted();
     void onDwellStart(in long position, in long x, in long y);
     void onDwellEnd(in long position, in long x, in long y);
+
+    // Any other events (like SME_AUTOCSELECTION, SME_INDICATORCLICK, etc...).
+    // Note: Not all fields will be useful for all events, some will be NULL or
+    //       0 if they are unused - consult the Scintilla docs for details.
+    void onOtherNotification(in long notificationType, in long position,
+                             in AString text, in long modifiers);
 };

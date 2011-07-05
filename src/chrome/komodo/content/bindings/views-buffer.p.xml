@@ -1273,6 +1273,22 @@
         </body>
         </method>
 
+        <method name="onOtherNotification">
+        <parameter name="eventType"/>
+        <parameter name="position"/>
+        <parameter name="text"/>
+        <parameter name="modifiers"/>
+        <body>
+        <![CDATA[
+            // Do nothing.
+            //dump("onOtherNotification\n  eventType: " + eventType +
+            //                        "\n  position: " + position +
+            //                        "\n  text: " + text +
+            //                        "\n  modifiers: " + modifiers + "\n");
+        ]]>
+        </body>
+        </method>
+
         <method name="_flashMatchingTag">
         <body>
         <![CDATA[
