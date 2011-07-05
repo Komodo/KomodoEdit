@@ -85,7 +85,6 @@ this.createPlacesProjectView = function() {
         // now have the same sort direction.
         var direction = _placePrefs.getLongPref("project_sort_direction");
         setTimeout(function(mgr, direction) {
-                dump("direction: " + direction + "\n");
                 mgr.sortProjects(direction);
             }, 1, this.manager, direction);
     } else {
