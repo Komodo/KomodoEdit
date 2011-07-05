@@ -85,9 +85,39 @@ getFocusedAncestorByName: function(localName) {
     return null;
 },
 
+/**
+ * Send out a window event with the given event name.
+ *
+ * @param {DOMElement} target - The originating target.
+ * @param {String} eventName - The name for the event.
+ */
 fireEvent : function(target, eventName) {
     var event = document.createEvent("Events");
     event.initEvent(eventName, true, true);
+    target.dispatchEvent(event);
+},
+
+/**
+ * Send out a window data event with the given event name and data settings.
+ *
+ * Listeners will need to use event.getData(key) to retrieve the data values.
+ *
+ * More on DataContainerEvent's here:
+ * http://mxr.mozilla.org/mozilla2.0/source/dom/interfaces/events/nsIDOMDataContainerEvent.idl
+ *
+ * @param {DOMElement} target - The originating target.
+ * @param {String} eventName - The name for the event.
+ * @param {Object} data - (Optional) Additional data object.
+ */
+fireDataEvent : function(target, eventName, data) {
+    /** @type {Components.interfaces.nsIDOMDataContainerEvent} */
+    var event = document.createEvent("DataContainerEvent");
+    event.initEvent(eventName, true, true);
+    if (data) {
+        for (var key in data) {
+            event.setData(key, data[key]);
+        }
+    }
     target.dispatchEvent(event);
 },
 
