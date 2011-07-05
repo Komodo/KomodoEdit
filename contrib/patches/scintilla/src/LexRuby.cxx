@@ -1744,6 +1744,18 @@ static void FoldRbDoc(unsigned int startPos, int length, int initStyle,
                           ) {
                 levelCurrent++;
             }
+        } else if (atEOL) {
+            if (style == SCE_RB_POD) {
+                int lineStartPosn = styler.LineStart(lineCurrent);
+                if (lineStartPosn == 0
+                    || styler.StyleAt(lineStartPosn - 1) != SCE_RB_POD) {
+                    levelCurrent++;
+                }
+            } else if (style == SCE_RB_DEFAULT) {
+                if (styler.StyleAt(styler.LineStart(lineCurrent)) == SCE_RB_POD) {
+                    levelCurrent--;
+                }
+            }
         }
         if (atEOL) {
             int lev = levelPrev;
