@@ -167,8 +167,7 @@ this.getViewData = function Interpolate_getViewData(editor,
     if (typeof viewData == 'undefined' || viewData == null)
         viewData = new Object();
 
-    var view = editor.ko.window.focusedView();
-    if (!view) view = editor.ko.views.manager.currentView;
+    var view = editor.ko.views.manager.currentView;
     var scimoz = null;
     if (view && view.scintilla) {
         scimoz = view.scintilla.scimoz;

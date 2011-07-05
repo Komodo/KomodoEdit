@@ -347,8 +347,7 @@ try {
                        .getService(Components.interfaces.koILastErrorService);
 
     var scimoz = null;
-    var view = editor.ko.window.focusedView();
-    if (!view) view = editor.ko.views.manager.currentView;
+    var view = editor.ko.views.manager.currentView;
 
     var filename = null;
     var url = null;
@@ -656,6 +655,98 @@ try {
     return false;
 }
 
+
+/**
+ * Run the given command.
+ *  @param {Object} "editor" is the main editor window JS object.
+ *  @param {String} "command" is the command string to spawn.
+ *  @param {String} "cwd" is the directory to start the child process in (null to inherit from
+ *      the parent).
+ *  @param {String} "env" is an encoded string of environment changes to make for the child
+ *      (null to inherit from the parent). Encoding scheme:
+ *              "VAR1=value1\nVAR2=value2\n..."
+ *  @param {Boolean} "insertOutput" specifies whether to insert the command's output
+ *      into the current insertion point.
+ *  @param {Boolean} "operateOnSelection" specifies whether to use the current
+ *      selection as input to the given command.
+ *  @param {Boolean} "doNotOpenOutputWindow" specifies that the Command Output window
+ *      should *not* be opened.
+ *  @param {String} "runIn" identifies where the command should be run, e.g. in a new
+ *      console window, in the command output pane (this is only meaningful if
+ *      the command will be run interactively). See the koIPart_command IDL for
+ *      a description of the exact strings to use.
+ *  @param {Boolean} "parseOutput" indicates whether to parse output lines with the
+ *      given regular expression, "parseRegex".
+ *  @param {String} "parseRegex" is a regex pattern to use to parse the output lines
+ *      into the command output window tree.
+ *  @param {Boolean} "showParsedOutputList" indicates whether to view parsed results
+ *      in the tree.
+ *  @param {String} "name"is an optional name for the command being run. Sometimes
+ *      this name is useful when interacting with the user.
+ *  @param {Boolean} "clearOutputWindow". By default the command output window is
+ *      cleared before starting a new command. This option is only relevant
+ *      when runIn=="command-output-window". NOTE: This option is currently NOT
+ *      exposed via the Command UI, nor is it persisted in koIPart_command's.
+ *      YAGNI.
+ *  @param {Function} "terminationCallback" is called after the command terminates.
+ *      Limitation: This is currently only implemented for
+ *      runIn=="command-output-window" (the default) for simplicity sake.
+ *
+ * @returns {Boolean} true iff the command was launched successfully.
+ */
+this.runRemoteCommand = function Run_RemoteRunCommand(serverAliasOrURI,
+                                                      command,
+                                                      terminationCallback  /* null */,
+                                                      parseOutput          /* false */,
+                                                      parseRegex           /* '' */,
+                                                      showParsedOutputList /* false */,
+                                                      clearOutputWindow    /* true */)
+{
+    try {
+        if (!serverAliasOrURI) {
+            ko.statusBar.AddMessage("runRemoteCommand: no server name provided", "remote", 5000, true);
+            return false;
+        }
+        if (!command) {
+            ko.statusBar.AddMessage("runRemoteCommand: no command provided", "remote", 5000, true);
+            return false;
+        }
+        if (!terminationCallback) terminationCallback = null;
+        if (typeof parseOutput == 'undefined' || parseOutput == null) parseOutput = false;
+        if (!parseRegex) parseRegex = "";
+        if (typeof showParsedOutputList == 'undefined' || showParsedOutputList == null) showParsedOutputList = false;
+        if (typeof clearOutputWindow == 'undefined' || clearOutputWindow == null) clearOutputWindow = true;
+    
+        var obj, errmsg;
+        var lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"]
+                           .getService(Components.interfaces.koILastErrorService);
+
+        var RCService = Components.classes["@activestate.com/koRemoteConnectionService;1"].
+                        getService(Components.interfaces.koIRemoteConnectionService);
+        var conn = null;
+        if (RCService.getServerInfoForAlias(serverAliasOrURI)) {
+            conn = RCService.getConnectionUsingServerAlias(serverAliasOrURI);
+        } else {
+            conn = RCService.getConnectionUsingUri(serverAliasOrURI);
+        }
+        try {
+            var ssh_conn = conn.QueryInterface(Components.interfaces.koISSHConnection)
+        } catch(e) {
+            ko.statusBar.AddMessage("runRemoteCommand: SFTP or SCP connection required", "remote", 5000, true);
+            return false;
+        }
+
+        var stdout = {};
+        var stderr = {};
+        ssh_conn.runCommand(command, false /* combine stdout/stderr */, stdout, stderr);
+
+        return true;
+    } catch (e) {
+        _log.exception(e);
+        ko.statusBar.AddMessage("runRemoteCommand: error: " + e, "remote", 5000, true);
+    }
+    return false;
+}
 
 /**
  * Prepare to close Komodo. Return false if cannot yet close Komodo.
