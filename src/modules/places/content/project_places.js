@@ -80,6 +80,18 @@ this.createPlacesProjectView = function() {
     this.initProjectMRUCogMenu_MPV();
     this.manager = new PlacesProjectManager(this);
     ko.projects.manager.setViewMgr(this.manager);
+    if (_placePrefs.hasPref("project_sort_direction")) {
+        // See bug 89283 for an explanation of why all windows
+        // now have the same sort direction.
+        var direction = _placePrefs.getLongPref("project_sort_direction");
+        setTimeout(function(mgr, direction) {
+                dump("direction: " + direction + "\n");
+                mgr.sortProjects(direction);
+            }, 1, this.manager, direction);
+    } else {
+        // dump('loading... _placePrefs.hasPref("project_sort_direction"): not found\n');
+    }
+
 };
 
 this._copyTree = function(srcParentNode, destParentNode) {
@@ -388,6 +400,9 @@ this.refreshParentShowChild = function(parentPart, newPart) {
 };
 
 this.terminate = function() {
+    // One sort direction for all windows, last one wins.
+    _placePrefs.setLongPref("project_sort_direction",
+                            this.projectsTreeView.sortDirection);
     this.projectsTreeView.terminate();
 };
 
