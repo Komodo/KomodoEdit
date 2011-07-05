@@ -2784,7 +2784,7 @@ this.restoreWorkspace = function view_restoreWorkspace(currentWindow)
 
     if (!ko.prefs.hasPref(multiWindowWorkspacePrefName)) {
         this._restoreWindowWorkspace(ko.prefs.getPref('workspace'), currentWindow, _mozPersistPositionDoesNotWork);
-        setTimeout(ko.uilayout.restoreTabSelections, 10, gPrefs);
+        setTimeout(ko.uilayout.restoreTabSelections, 10, ko.prefs);
         return;
     }
     // Restore the first workspace directly, and restore other
