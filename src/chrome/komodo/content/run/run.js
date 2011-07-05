@@ -114,7 +114,7 @@ function OnLoad()
 
         // Insert any text from the input buffer and give the command textbox the
         // initial focus.
-        var inputBufferContents = opener.InputBuffer_Finish();
+        var inputBufferContents = opener.ko.inputBuffer.finish();
         if (inputBufferContents) {
             dialog.commandTextbox.setAttribute('value', inputBufferContents);
         }
