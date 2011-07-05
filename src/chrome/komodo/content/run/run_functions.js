@@ -411,6 +411,9 @@ try {
             icommandForDisplay = istrings[1];
             icwd = istrings[2];
             icwdForDisplay = istrings[3];
+            if (!Components.classes["@activestate.com/koOsPath;1"].getService(Components.interfaces.koIOsPath).exists(icwd)) {
+                icwd = icwdForDisplay = ko.window.getCwd();
+            }
             if (env) {
                 ienv = istrings[4];
                 ienvForDisplay = istrings[5];
