@@ -3048,19 +3048,6 @@ this._restoreWindowWorkspace = function(workspace, currentWindow, checkWindowBou
                         }
                     }, 1000);
             }
-            // TODO: Should be in the places code - use a restore-workspace event?
-            if (workspace.hasPref('project_sort_direction')) {
-                setTimeout(function() {
-                        try {
-                            if (ko.places) {
-                                ko.places.projects.manager.
-                                    sortProjects(workspace.getLongPref('project_sort_direction'));
-                            }
-                        } catch(ex) {
-                            log.exception("WorkspaceRestore: Can't sort rows: " + ex + "\n");
-                        }
-                    }, 1000);
-            }
         }
         wko._hasFocus = (workspace.hasBooleanPref('hasFocus')
                          && workspace.getBooleanPref('hasFocus'));
@@ -3135,14 +3122,6 @@ this._saveWorkspaceForIdx_aux =
         if (currentProject) {
             workspace.setStringPref('current_project', currentProject.url);
         }
-    }
-    try {
-        if (ko.places && ko.places.projects.projectsTreeView) {
-            workspace.setLongPref("project_sort_direction", 
-                                  ko.places.projects.projectsTreeView.sortDirection);
-        }
-    } catch(ex) {
-        log.exception("Can't set project tree view sort direction: " + ex);
     }
     var ids = ['topview'];
     var i, elt, id, pref;
