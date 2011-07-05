@@ -187,27 +187,37 @@ class koProjectPackageService:
                 
             if orig_project:
                 koProjectFile = orig_project.getFile()
+                projectDirName = koProjectFile.dirName
                 if koProjectFile.isLocal:
                     # For each file in
                     # .../.komodotools/D/f
                     # write out fullpath => .komodotools/D/f
                     ktools = koToolbox2.PROJECT_TARGET_DIRECTORY
-                    toolboxPath = os.path.join(koProjectFile.dirName, ktools)
+                    toolboxPath = os.path.join(projectDirName, ktools)
                     if os.path.exists(toolboxPath):
-                        srcRootLen = len(koProjectFile.dirName) + 1
-                        for root, dirs, files in os.walk(toolboxPath):
-                            if os.path.basename(root) == ".svn":
-                                # XXX Are there others that should be ignored?
-                                continue
-                            archive_root = os.path.abspath(root)[srcRootLen:]
-                            for f in files:
-                                fullpath = os.path.join(root, f)
-                                archive_name = os.path.join(archive_root, f)
-                                zf.write(fullpath, archive_name)
-            
-            if not self.test:
-                for item in flist:
-                    zf.write(str(item[0]), str(item[1]))
+                        self._archiveDir(zf, projectDirName, toolboxPath)
+
+                    # Now write out any referenced local files and folders,
+                    # but only if they're relative to the project's home.
+
+                    pathPairs = [(uriparse.URIToLocalPath(x), x)
+                                 for x in orig_project.getAllContainedURLs() 
+                                 if x.startswith("file://")]
+                    for p, url in pathPairs:
+                        if os.path.isdir(p):
+                            if p.startswith(projectDirName):
+                                self._archiveDir(zf, projectDirName, p)
+                            else:
+                                self._archiveDirUnderBasename(zf, p)
+                                part = newproject.getChildByURL(url)
+                                part.url = part.name
+                        elif os.path.isfile(p):
+                            if p.startswith(projectDirName):
+                                zf.write(p, p[len(projectDirName) + 1:])
+                            else:
+                                zf.write(p, os.path.basename(p))
+                                part = newproject.getChildByURL(url)
+                                part.url = part.name
 
             # get a list of all the icons that are not in chrome so we can package
             # them
@@ -245,6 +255,30 @@ class koProjectPackageService:
 
         os.unlink(tmp_project_localPath)
         self.lastErrorSvc.setLastError(0, 'The package has been exported successfully to %s' % zipfilename)
+
+    def _archiveDir(self, zf, projectDirName, srcPath):
+        self._archiveDirWithRootLength(zf, srcPath, len(projectDirName) + 1)
+               
+    def _archiveDirUnderBasename(self, zf, srcDir):
+        srcDirParent = os.path.dirname(srcDir)
+        self._archiveDirWithRootLength(zf, srcDir, len(srcDirParent) + 1)
+        
+    def _archiveDirWithRootLength(self, zf, srcDir, srcRootLen):
+        for root, dirs, files in os.walk(srcDir):
+            if os.path.basename(root) == ".svn":
+            # XXX Are there others that should be ignored?
+                continue
+            try:
+                idx = dirs.index(".svn")
+                del dirs[idx]
+            except ValueError:
+                # do nothing
+                pass
+            archive_root = os.path.abspath(root)[srcRootLen:]
+            for f in files:
+                fullpath = os.path.join(root, f)
+                archive_name = os.path.join(archive_root, f)
+                zf.write(fullpath, archive_name)
 
     def newProjectFromPackage(self, file, dir):
         return self._importPackage(file, dir, None)
