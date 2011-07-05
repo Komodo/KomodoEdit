@@ -1789,6 +1789,9 @@ class KoLanguageBase:
         nextIndentWidth = indentLevel * scimoz.indent
         return scimozindent.makeIndentFromWidth(scimoz, nextIndentWidth)
 
+    def findActualStartLine(self, scimoz, startLine):
+        return startLine
+
     def _finishedBlockComment(self, scimoz, pos, style_info):
         """ This function looks to see if we just ended a block comment.
         If not, it returns (None, None).

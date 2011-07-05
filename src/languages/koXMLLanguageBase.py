@@ -240,6 +240,27 @@ class koXMLLanguageBase(KoUDLLanguage):
         return self._onTargetTag(scimoz, pos, self._endTagStyles,
                                 scimoz.SCE_UDL_M_ETAGC)
 
+    def findActualStartLine(self, scimoz, startLine):
+        origPos = pos = scimoz.positionFromLine(startLine)
+        nextLenPos = scimoz.positionFromLine(startLine + 1)
+        if nextLenPos >= scimoz.textLength:
+            nextLenPos = scimoz.textLength - 1
+        while pos < nextLenPos and scimoz.getStyleAt(pos) == scimoz.SCE_UDL_M_DEFAULT:
+            pos += 1
+        if pos == nextLenPos:
+            return startLine
+        style = scimoz.getStyleAt(pos)
+        if style not in self._startTagStyles:
+            return startLine
+        if style == scimoz.SCE_UDL_M_STAGO:
+            return startLine
+        pos = origPos
+        while pos >= 0:
+            pos -= 1
+            if scimoz.getStyleAt(pos) == scimoz.SCE_UDL_M_STAGO:
+                return scimoz.lineFromPosition(pos)
+        return startLine
+
     def getMatchingTagInfo(self, scimoz, pos, constrainSearchInViewPort):
         return scimozindent.findMatchingTagPosition(scimoz, pos, self,
                                                     constrainSearchInViewPort)

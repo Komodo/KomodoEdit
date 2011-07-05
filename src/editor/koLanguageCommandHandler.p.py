@@ -1039,6 +1039,7 @@ class GenericCommandHandler:
                 sm.anchor = sm.textLength
             else:
                 sm.anchor = sm.positionFromLine(endLine+1)
+            startLine = UnwrapObject(self._view.languageObj).findActualStartLine(sm, startLine)
             sm.currentPos = sm.positionFromLine(startLine)
             sm.ensureVisibleEnforcePolicy(startLine)
         sm.sendUpdateCommands("select")
