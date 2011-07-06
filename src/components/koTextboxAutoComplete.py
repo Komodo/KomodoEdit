@@ -121,6 +121,9 @@ class KoTACResult(object):
     errorDescription = None
     matches = None   # list of koIAutoCompleteMatch
 
+    def __init__(self):
+        self.prefName = None
+    
     def init(self, searchString):
         self.searchString = searchString
         self.searchResult = components.interfaces.nsIAutoCompleteResult.RESULT_NOMATCH
@@ -178,6 +181,14 @@ class KoTACResult(object):
     def getImageAt(self, index):
         return self.matches[index].image
     def removeValueAt(self, rowIndex, removeFromDb=False):
+        if removeFromDb and self.prefName is not None:
+            prefSvc = components.classes["@activestate.com/koPrefService;1"]\
+                .getService().prefs # global prefs
+            try:
+                prefSvc.getPref(self.prefName).deletePref(rowIndex)
+            except:
+                log.exception("Failed to delete pref %d(%s)",
+                              rowIndex, self.matches[rowIndex])
         del self.matches[rowIndex]
 
     # New in mozilla-central nsIAutoCompleteResult interface.
@@ -320,6 +331,8 @@ class KoTACMruSearch(KoTACSearch):
         if DEBUG: allitems = []
         if self.prefSvc.hasPref(prefName):
             mru = self.prefSvc.getPref(prefName)
+            if mru:
+                result.prefName = prefName
             for i in range(mru.length):
                 item = mru.getStringPref(i)
                 if DEBUG: allitems.append(item)
