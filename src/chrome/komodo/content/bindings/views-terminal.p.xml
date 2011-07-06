@@ -278,7 +278,7 @@
                 //dump('enter in linecount '+this.scimoz.lineCount+'\n');
                 var markerStatus = this.scimoz.markerGet(this.scimoz.lineCount - 1);
 
-                ko.commands.doCommand('cmd_newline')
+                ko.commands.doCommand('cmd_newlineBare');
                 this.setPromptMarker(this.lastPrompt);
                 this.terminalHandler.lastWritePosition = this.scimoz.length;
 
