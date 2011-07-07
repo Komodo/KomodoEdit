@@ -83,20 +83,6 @@ def sendStatusMessage(msg, timeout=3000, highlight=1):
 
 #---- language services implementations
 
-class KoCompletionLanguageService:
-    _com_interfaces_ = [components.interfaces.koICompletionLanguageService]
-    triggers = ''
-    completionSeparator = ord('\n')
-    triggersCallTip = None
-
-    def __init__(self):
-        pass
-    
-    def scanBufferCompletion(self, scimoz, filename):
-        pass
-
-
-
 class _QueueOfOne(Queue.Queue):
     """A thread-safe queue where an item always replaces any existing one.
     I.e. there will only ever be zero or one (the latest) items on the queue.
@@ -110,152 +96,6 @@ class _QueueOfOne(Queue.Queue):
         self.queue = []
     def _get(self):
         return self.queue.pop(0)
-
-class KoCodeIntelCompletionLanguageService:
-    _com_interfaces_ = [components.interfaces.koICodeIntelCompletionLanguageService]
-
-    # Separator btwn completions in a completion list.
-    # We don't use the default, ' ', because so of our languages have
-    # completions with spaces in them (e.g. Tcl).
-    completionSeparator = '\n'
-    # Characters that invoke the currently completion and then get added.
-    # This should be overriden as necessary by the lang-specific subclasses.
-    completionFillups = ""
-
-    def __init__(self):
-        self.initialized = False
-        self.codeIntelSvc = components.classes["@activestate.com/koCodeIntelService;1"]\
-            .getService(components.interfaces.koICodeIntelService);
-        self._requests = _QueueOfOne()
-        self._scheduler = threading.Thread(target=self._schedule,
-            name="KoCodeIntelCompletionLanguageService Scheduler (%s)" % id(self))
-        self._scheduler.start()
-
-    def initialize(self, language):
-        # Styles in which completion should not automatically happen.
-        self._noImplicitCompletionStyles \
-            = dict((s, True) for s in
-                   language.getCommentStyles() + language.getStringStyles())
-
-        # Styles in which completion should never happen (automatically or
-        # otherwise).
-        self._noCompletionStyles \
-            = dict((s, True) for s in language.getNumberStyles())
-
-        self.initialized = True
-
-    def finalize(self):
-        self._requests.put(None)  # sentinel to stop scheduler thread
-
-    def get_completionSeparatorOrd(self):
-        return ord(self.completionSeparator)
-
-    def _schedule(self):
-        """The is the Code Intel Completion UI request scheduler.
-        
-        It gets requests from self._requests and calls self._handleRequest
-        for each. Each language-specific subclass of this class must
-        implement that method.
-        """
-        log.info("codeintel completion UI request scheduler: start")
-        while 1:
-            request = self._requests.get()
-            if request is None: # sentinel
-                break
-            try:
-                self._handleRequest(request)
-            except:
-                # Log any errors and keep going.
-                log.exception("error handling Code Intel completion UI "
-                              "request for '%s' at %s:%d", request[2],
-                              os.path.basename(request[0]), request[1])
-        log.info("codeintel completion UI request scheduler: end")
-
-    def requestCompletionUI(self, path, completionType, scimoz, position,
-                            ciCompletionUIHandler):
-        log.debug("requestCompletionUI(path=%r, '%s', scimoz, position=%d, "
-                  "ciCompletionUIHandler)", path, completionType, position)
-        proxiedCICompletionUIHandler = getProxyForObject(
-            None, components.interfaces.koICodeIntelCompletionUIHandler,
-            ciCompletionUIHandler, PROXY_ALWAYS | PROXY_SYNC)
-        offset, styledText, styleMask = self._getSciMozContext(scimoz, position)
-        file_id, table, id = self.codeIntelSvc.getAdjustedCurrentScope(scimoz, position)
-        request = (path, scimoz.lineFromPosition(position)+1,
-                   completionType, offset, styledText, styleMask, position,
-                   file_id, table, id, scimoz.text,
-                   proxiedCICompletionUIHandler)
-        self._requests.put(request)
-
-    def _getSciMozContext(self, scimoz, position):
-        """Return styled context around 'position' for completion work."""
-        # We need to pick some reasonable amount of context around the
-        # trigger position.
-        LINES_CONTEXT = (10, 3) # lines of context before and after
-        currLine = scimoz.lineFromPosition(position)
-        span = (max(0, currLine-LINES_CONTEXT[0]),  # context span (in lines)
-                min(scimoz.lineCount, currLine+LINES_CONTEXT[1]+1))
-        span = (scimoz.positionFromLine(span[0]),   # context span (in position)
-                scimoz.positionFromLine(span[1]))
-        offset = span[0]
-        styledText = scimoz.getStyledText(*span)
-        styleMask = (1 << scimoz.styleBits) - 1
-        return (offset, styledText, styleMask)
-
-    def triggerPrecedingCompletionUI(self, path, scimoz, startPos,
-                                     ciCompletionUIHandler):
-        return "'Trigger preceding completion' not implemented for this language."
-
-    def _handleRequest(self, request):
-        """Handle a single completion UI request.
-        
-            "request" is a 11-tuple representing the request:
-                (<path>,
-                 <line>, # 1-based line number of trigger point
-                 <completion-type>,
-                 <offset of context>,
-                 <styledText of reasonable context>, # as from scimoz.getStyledText()
-                 <styleMask>,
-                 <position>,  # trigger point position
-                 # CIDB table/id of starting scope, or None/0
-                 <scopeTable>, <scopeId>,
-                 # the full buffer contents (optional, required for fallback
-                 # "dumb" completion handling)
-                 <content>,
-                 <koICodeIntelCompletionUIHandler>)
-        
-        The <completion-type> is one of the strings in the set returned by
-        the language's getTriggerType() implementation.
-        
-        This is what a language-specific implementation of this method is
-        supposed to do: It should determine authoritatively if the given
-        position is a trigger point -- remember that .getTriggerType() may
-        return false positives. If it is not a trigger point then just
-        silently abort. If it is a trigger point then determine the
-        completion data and pass it to the completion UI handler.
-        """
-        raise NotImplementedError("virtual method called: must override "
-                                  "in subclass")
-
-    def getCallTipHighlightSpan(self, enteredRegion, calltip):
-        """Determine which span of the given calltip to highlight.
-        
-        Returns a 2-tuple giving the start and end indeces into the "calltip"
-        string.
-        
-        Specifying -1 for the start index will abort the calltip -- i.e. the
-        cursor has moved out of the call region. A calltip will automatically
-        be aborted for some actions -- e.g. <End> key, <PgDn>. However,
-        a good implementation of this per-language is probably necessary to
-        know when to properly close the calltip.
-        
-        Sub-classes should implement this for their languages.
-        """
-        #XXX It might make sense to write a relatively general and capable
-        #    one in this base class.
-        log.debug("getCallTipHighlightSpan(enteredRegion=%r, calltip=%r)",
-                  enteredRegion, calltip)
-        return (0, 0) # don't highlight anything by default
-
 
 class KoLexerLanguageService:
     _com_interfaces_ = [components.interfaces.koILexerLanguageService]
@@ -1050,7 +890,6 @@ class KoLanguageBase:
     _svcdict = {
         components.interfaces.koILexerLanguageService: 'get_lexer',
         components.interfaces.koICompletionLanguageService: 'get_completer',
-        components.interfaces.koICodeIntelCompletionLanguageService: 'get_codeintelcompleter',
         components.interfaces.koICommenterLanguageService: 'get_commenter',
         components.interfaces.koIAppInfoEx: 'get_interpreter',
     }

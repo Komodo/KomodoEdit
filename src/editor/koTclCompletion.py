@@ -41,7 +41,6 @@ import glob
 import string
 import logging
 
-from koLanguageServiceBase import KoCompletionLanguageService
 iface = components.interfaces.koICodeIntelCompletionUIHandler
 
 
@@ -49,11 +48,13 @@ log = logging.getLogger("koTclCompletion")
 useCharSet = "_: " + string.ascii_uppercase + string.ascii_lowercase + string.digits
 tipVersionStr = "version TclTip-1.0"
 
-class KoTclCompletion(KoCompletionLanguageService):
+class KoTclCompletion:
     _com_interfaces_ = [components.interfaces.koICompletionLanguageService]
     _reg_desc_       = "Tcl Calltip/AutoCompletion Service"
     _reg_clsid_      = "{1F3FD077-F98E-450a-8EA5-235F23921013}"
     _reg_contractid_ = "@activestate.com/koTclCompletionLanguageService;1"
+
+    triggers = ''
 
     lComplete = []
     dComplete = {}

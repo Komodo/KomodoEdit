@@ -411,13 +411,6 @@
                     this.scimoz.registerImage(iface.ACIID_NAMESPACE,        ko.markers.getPixmap("chrome://komodo/skin/images/ac_namespace.xpm"));
                 }
                 this.scimoz.autoCSeparator = this._commandCompletionSvc.completionSeparator;
-                if (this.koDoc) { // We should get rid of the passing of files and pass the text along.
-                    if (this.koDoc.isUntitled) {
-                        this._commandCompletionSvc.scanBufferCompletion(this.scimoz, null);
-                    } else {
-                        this._commandCompletionSvc.scanBufferCompletion(this.scimoz, this.koDoc.file.URI);
-                    }
-                }
             }
             return this._commandCompletionSvc;
             ]]></getter>
@@ -1129,18 +1122,6 @@
                         && this.scimoz.autoCActive())
                     {
                         this.scimoz.autoCCancel();
-                    }
-
-                    // Signal command completion to update information.
-                    // _Don't_ do it on a single char change, i.e. we are
-                    // looking for eol or mass paste/delete.
-                    if (this.commandCompletionSvc
-                        && this._doAutoComplete
-                        && !this.koDoc.isUntitled
-                        && (text.length > 1 || linesAdded > 0))
-                    {
-                        this.commandCompletionSvc.scanBufferCompletion(
-                            this.scimoz, this.koDoc.file.URI);
                     }
                 }
             }
