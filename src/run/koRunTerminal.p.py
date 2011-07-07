@@ -267,6 +267,7 @@ class koTerminalHandler:
         # name is either <stderr> or <stdout>
         # Note, the terminal mutex should *must* be aquired before this call.
         #log.debug("koTerminalHandler.proxyAddText: [%s] [%r]", name, text)
+        eventMask = 0
         try:
           self.acquireLock()
           eventMask = self._scintilla.modEventMask
