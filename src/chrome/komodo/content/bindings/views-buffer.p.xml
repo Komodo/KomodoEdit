@@ -1280,11 +1280,27 @@
         <parameter name="modifiers"/>
         <body>
         <![CDATA[
-            // Do nothing.
             //dump("onOtherNotification\n  eventType: " + eventType +
             //                        "\n  position: " + position +
             //                        "\n  text: " + text +
             //                        "\n  modifiers: " + modifiers + "\n");
+            switch(eventType) {
+                case Components.interfaces.ISciMozEvents.SME_AUTOCSELECTION:
+                    var data = {
+                        'position': position,
+                        'text': text,
+                    }
+                    xtk.domutils.fireDataEvent(this, "codeintel_autocomplete_selected", data);
+                    break;
+                case Components.interfaces.ISciMozEvents.SME_USERLISTSELECTION:
+                    var data = {
+                        'position': position,
+                        'text': text,
+                        'listType': modifiers,
+                    }
+                    xtk.domutils.fireDataEvent(this, "codeintel_userlist_selected", data);
+                    break;
+            }
         ]]>
         </body>
         </method>
