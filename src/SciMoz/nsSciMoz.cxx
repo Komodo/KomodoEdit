@@ -586,7 +586,7 @@ void SciMoz::Notify(long lParam) {
 				}
 				mask = ISciMozEvents::SME_USERLISTSELECTION;
 				while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
-					eventSink->OnOtherNotification(mask, notification->position, uText, notification->modifiers);
+					eventSink->OnOtherNotification(mask, notification->position, uText, notification->listType);
 			}
 			break;
 		case SCN_DWELLSTART:
