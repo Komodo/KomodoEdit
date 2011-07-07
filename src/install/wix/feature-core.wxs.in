@@ -160,7 +160,6 @@
       <ComponentRef Id="component197"/>
       <ComponentRef Id="component198"/>
       <ComponentRef Id="component199"/>
-      <ComponentRef Id="component201"/>
       <ComponentRef Id="component205"/>
       <ComponentRef Id="component206"/>
       <ComponentRef Id="component213"/>
@@ -649,8 +648,6 @@
               <File Id="file878" LongName="koHLSLLanguage.py" Name="KOHLSL_0.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koHLSLLanguage.py" />
               <File Id="file2018" Name="KOHTML_1.PY" LongName="koHTMLLinter.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koHTMLLinter.py"/>
               <File Id="file2019" Name="KOIAPP_0.XPT" LongName="koIAppInfo.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIAppInfo.xpt"/>
-              <File Id="file2020" Name="KOIAUT_0.XPT" LongName="koIAutoComplete.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIAutoComplete.xpt"/>
-              <File Id="file2022" Name="KOICAL_0.XPT" LongName="koICallTips.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koICallTips.xpt"/>
               <File Id="file2023" Name="KOICOD_0.XPT" LongName="koICodeIntel.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koICodeIntel.xpt"/>
               <File Id="file2024" Name="KOICOM_0.XPT" LongName="koICommandmentService.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koICommandmentService.xpt"/>
               <File Id="file2028" Name="koIDirs.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIDirs.xpt"/>
@@ -735,10 +732,7 @@
               <File Id="file2118" Name="koOs.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koOs.py"/>
               <File Id="file2119" Name="KOOTHE_0.PY" LongName="koOthersLanguage.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koOthersLanguage.py"/>
               <File Id="file2121" Name="KOPASC_0.PY" LongName="koPascalLanguage.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koPascalLanguage.py"/>
-              <File Id="file2122" Name="KOPERL_0.PY" LongName="koPerlAutoComplete.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koPerlAutoComplete.py"/>
-              <File Id="file2123" Name="KOPERL_1.PY" LongName="koPerlCallTips.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koPerlCallTips.py"/>
               <File Id="file2124" Name="KOPERL_2.PY" LongName="koPerlCompileLinter.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koPerlCompileLinter.py"/>
-              <File Id="file2125" Name="KOPERL_3.PY" LongName="koPerlCompletion.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koPerlCompletion.py"/>
               <File Id="file2126" Name="KOPERL_4.PY" LongName="koPerlLanguage.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koPerlLanguage.py"/>
               <File Id="file2130" Name="KOPHPL_1.PY" LongName="koPHPLinter.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koPHPLinter.py"/>
               <File Id="file2131" Name="KOPOST_0.PY" LongName="koPostScriptLanguage.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koPostScriptLanguage.py"/>
@@ -4043,8 +4037,6 @@
               <File Id="file3830" Name="ISCIMO_0.IDL" LongName="ISciMozController.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\ISciMozController.idl"/>
               <File Id="file3831" Name="ISCIMO_1.IDL" LongName="ISciMozEvents.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\ISciMozEvents.idl"/>
               <File Id="file3833" Name="KOIAPP_0.IDL" LongName="koIAppInfo.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIAppInfo.idl"/>
-              <File Id="file3838" Name="KOIAUT_0.IDL" LongName="koIAutoComplete.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIAutoComplete.idl"/>
-              <File Id="file3840" Name="KOICAL_0.IDL" LongName="koICallTips.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koICallTips.idl"/>
               <File Id="file3841" Name="KOICOD_0.IDL" LongName="koICodeIntel.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koICodeIntel.idl"/>
               <File Id="file3842" Name="KOICOM_0.IDL" LongName="koICommandmentService.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koICommandmentService.idl"/>
               <File Id="file865" Name="KOICOL_0.IDL" LongName="koIColorPicker.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIColorPicker.idl"/>
@@ -5620,9 +5612,6 @@
             </Component>
           </Directory> <!-- lib\support\modules -->
           <Directory Id="directory212" Name="PERL_0" LongName="perl">
-            <Component Id="component201" DiskId="1" Guid="$(autowix.guid)">
-              <File Id="file3826" Name="PERLCO_0.TIP" LongName="perl-core.tip" Vital="yes" src="feature-core\INSTALLDIR\lib\support\perl\perl-core.tip"/>
-            </Component>
             <Directory Id="directory650" Name="perltray">
               <Component Id="component596" DiskId="1" Guid="$(autowix.guid)">
                 <File Id="file18" Name="PerlTray.pm" Vital="yes" src="feature-core\INSTALLDIR\lib\support\perl\perltray\PerlTray.pm"/>
