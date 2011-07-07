@@ -63,8 +63,11 @@
         <groupbox orient="vertical" flex="1">
             <caption label="&environment.label;"/>
             <vbox flex="1">
-                <label value="&startEnvironVar.label;" control="env-sys" class="kopadded"/>
-                <EnvPrefs id="env-sys" editable="false" flex="1"/>
+                <vbox flex="1" id="pref-environment-global-env-vbox"
+                  class="load-context-check" hideUnlessLoadContext="global">
+                    <label value="&startEnvironVar.label;" control="env-sys" class="kopadded"/>
+                    <EnvPrefs id="env-sys" editable="false" flex="1"/>
+                </vbox>
                 <label value="&userEnvironVar.label;" control="user-env-prefs" class="kopadded"/>
                 <EnvPrefs id="user-env-prefs" editable="true"
                     prefwidget="true" pref="true"

@@ -31,6 +31,8 @@ class KomodoWindowData(object):
         self._currentProject = project
         if self._currentProject:
             self._currentProject.activate()
+            UnwrapObject(components.classes["@activestate.com/koUserEnviron;1"].getService()).addProjectEnvironment(project)
+            
         obsSvc = components.classes["@mozilla.org/observer-service;1"].\
                        getService(components.interfaces.nsIObserverService)
         try:

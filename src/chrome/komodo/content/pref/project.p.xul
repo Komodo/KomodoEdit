@@ -297,7 +297,6 @@
                     </treerow>
                 </treeitem>
 
-<!--
                 <treeitem container="false" id="environItem">
                     <treerow>
                         <treecell class="treecell-indent"
@@ -305,7 +304,7 @@
                                   label="&environment.label;"/>
                     </treerow>
                 </treeitem>
--->
+
                 <treeitem container="false" id="previewProperties">
                     <treerow>
                         <treecell class="treecell-indent"

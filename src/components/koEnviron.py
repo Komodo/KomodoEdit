@@ -333,7 +333,10 @@ class KoUserEnviron:
                 else:
                     del self._userEnviron[item]
 
-    def _updateWithUserOverrides(self):
+    def addProjectEnvironment(self, project):
+        self._updateWithUserOverrides(project)
+
+    def _updateWithUserOverrides(self, project=None):
         self._userEnviron = self._origStartupEnv.copy()
         
         # now overwrite with the userEnvironment preference
@@ -344,20 +347,24 @@ class KoUserEnviron:
             .getService(components.interfaces.koIEnvironUtils)
         havePATHOverride = False
         prefName = "userEnvironmentStartupOverride"
-        if prefs.hasStringPref(prefName) and prefs.getStringPref(prefName):
-            env = re.split('\r?\n|\r', prefs.getStringPref(prefName), re.U)
-            if not env: env = []
-            sysenv = self.GetEnvironmentStrings()
-            newenv = _environUtils.MergeEnvironmentStrings(sysenv, env)
-            if not newenv:
-                return
-            self._userEnviron = {}
-            for line in newenv:
-                item =  _ParseBashEnvStr(line)
-                if item:
-                    if item[0] == "PATH":
-                        havePATHOverride = True
-                    self._userEnviron[item[0]] = item[1]
+        prefArray = [prefs]
+        if project:
+            prefArray.append(project.prefset)
+        for prefs in prefArray:
+            if prefs.hasStringPref(prefName) and prefs.getStringPref(prefName):
+                env = re.split('\r?\n|\r', prefs.getStringPref(prefName), re.U)
+                if not env: env = []
+                sysenv = self.GetEnvironmentStrings()
+                newenv = _environUtils.MergeEnvironmentStrings(sysenv, env)
+                if not newenv:
+                    return
+                self._userEnviron = {}
+                for line in newenv:
+                    item =  _ParseBashEnvStr(line)
+                    if item:
+                        if item[0] == "PATH":
+                            havePATHOverride = True
+                        self._userEnviron[item[0]] = item[1]
         
         # For some platforms we implicitly add some common dirs to the PATH.
         # It is common, for example, on Mac OS X for a Komodo user to have

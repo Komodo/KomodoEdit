@@ -326,6 +326,8 @@ class koPart(object):
     def observe(self, subject, topic, message):
         #print "part observer %r,%r,%r, %s" % (subject, topic, message, self._project.get_name())
         self._project._isPrefDirty = True
+        if topic == 'userEnvironmentStartupOverride':
+            UnwrapObject(components.classes["@activestate.com/koUserEnviron;1"].getService()).addProjectEnvironment(self)
 
     def dump(self, indent):
         print " "*indent + "Part of type '" + self.type +"':"
