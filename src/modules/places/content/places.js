@@ -1442,7 +1442,9 @@ ManagerClass.prototype = {
         if (!file) {
             return;
         }
-        ko.uilayout.ensureTabShown("placesViewbox", true);
+        if (forceNewPlaceDir) {
+            ko.uilayout.ensureTabShown("placesViewbox", true);
+        }
         var showTreeItem = function(index) {
             var treeSelection = gPlacesViewMgr.view.selection;
             treeSelection.currentIndex = index;
