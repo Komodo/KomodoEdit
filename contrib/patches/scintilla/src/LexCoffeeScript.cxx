@@ -318,6 +318,7 @@ static void ColouriseCoffeeScriptDoc(unsigned int startPos, int length, int init
 				if (sc.Match("###")) {
 					sc.ChangeState(SCE_C_COMMENT);
 					sc.Forward();
+					sc.Forward();
 					sc.ForwardSetState(SCE_C_DEFAULT);
 				} else if (sc.ch == '\\') {
 					sc.Forward();
@@ -325,6 +326,7 @@ static void ColouriseCoffeeScriptDoc(unsigned int startPos, int length, int init
 				break;
 			case SCE_C_COFFEESCRIPT_VERBOSE_REGEX:
 				if (sc.Match("///")) {
+					sc.Forward();
 					sc.Forward();
 					sc.ChangeState(SCE_C_REGEX);
 					sc.ForwardSetState(SCE_C_DEFAULT);
