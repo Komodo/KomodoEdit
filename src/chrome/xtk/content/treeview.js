@@ -591,3 +591,109 @@ xtk.dataTreeView.prototype = {
     }
 
 };
+
+// Alternative name.
+xtk.flatTreeView = xtk.dataTreeView;
+
+
+
+/**
+ * A hierarchical tree implementation (where each row may contain child nodes).
+ *
+ * Each tree row must be an object that has the following properties:
+ *   attribute isContainer {bool} - whether it can have child nodes
+ *   attribute hasChildren {bool} - whether the container is empty or not
+ *   method getChildren() {array} - retrieve the child row nodes (children must be objects that meet the same tree requirements)
+ *   attribute state {int}        - tree flags, such as whether opened/closed (managed by the tree), should be 0 by default
+ *   attribute level {int}        - the depth of the row (managed by the tree), should be 0 by default
+ */
+
+/**
+ * Custom treeview for showing hierachical tree data.
+ */
+xtk.hierarchicalTreeView = function hierarchicalTreeView(initial_rows) {
+        // Call the parent initializer.
+    xtk.dataTreeView.apply(this, [initial_rows]);
+    this._sortFunction = null;
+    this._sortPropertyName = null;
+};
+xtk.hierarchicalTreeView.STATE_CLOSED = 0;
+xtk.hierarchicalTreeView.STATE_OPENED = 1;
+xtk.hierarchicalTreeView.prototype = new xtk.dataTreeView();
+xtk.hierarchicalTreeView.prototype.contructor = xtk.hierarchicalTreeView;
+
+xtk.hierarchicalTreeView.prototype.isContainer = function(row) { return this.rows[row].isContainer; };
+xtk.hierarchicalTreeView.prototype.isContainerOpen = function(row) {return this.rows[row].state == xtk.hierarchicalTreeView.STATE_OPENED;};
+xtk.hierarchicalTreeView.prototype.isContainerEmpty = function(row) {return !this.rows[row].hasChildren;};
+xtk.hierarchicalTreeView.prototype.getLevel = function(row) {return this.rows[row].level;};
+xtk.hierarchicalTreeView.prototype.getParentIndex = function(row) {
+    var level = this._rows[row].level;
+    row--;
+    while (row >= 0 && this._rows[row].level >= level) {
+        row--;
+    }
+    return row;
+};
+xtk.hierarchicalTreeView.prototype.hasNextSibling = function(row, afterIndex) {
+    var level = this._rows[row].level;
+    row = afterIndex+1;
+    var end = this._rows.length;
+    while (row < end) {
+        if (this._rows[row].level < level)
+            return false;
+        elif (this._rows[row].level == level)
+            return true;
+        row++;
+    }
+    return false;
+};
+
+xtk.hierarchicalTreeView.prototype._expand_and_sort_child_rows = function(children, sortPropertyName, sortFunction, sortDir) {
+    var rows = [];
+    var child;
+    children = this._sort_rows_of_same_depth(children, this._sortPropertyName,
+                                             this._sortFunction, this._sortDirection);
+    for (var i=0; i < children.length; i++) {
+        child = children[i];
+        rows.push(child);
+        if (child.state == xtk.hierarchicalTreeView.STATE_OPENED && child.hasChildren) {
+            rows = rows.concat(this._expand_and_sort_child_rows(child.getChildren(), sortPropertyName, sortFunction, sortDir));
+        }
+    }
+    return rows;
+};
+
+xtk.hierarchicalTreeView.prototype.toggleOpenState = function(row) {
+    var item = this._rows[row];
+    if (!item.hasChildren) return;
+    var old_row_length = this._rows.length;
+    var new_rows;
+
+    if (item.state == xtk.hierarchicalTreeView.STATE_CLOSED) {
+        var children = item.getChildren();
+        children = this._expand_and_sort_child_rows(children, this._sortPropertyName, this._sortFunction, this._sortDirection);
+        new_rows = this._rows.slice(0, row+1);
+        new_rows = new_rows.concat(children);
+        new_rows = new_rows.concat(this._rows.slice(row+1));
+        item.state = xtk.hierarchicalTreeView.STATE_OPENED;
+
+    } else {
+        var level = this._rows[row].level;
+        var r = row+1;
+        var end = this._rows.length;
+        while (r < end && this._rows[r].level > level) {
+            if (this._rows[r].level <= level)
+                break;
+            r++;
+        }
+        new_rows = this._rows.slice(0, row+1);
+        new_rows = new_rows.concat(this._rows.slice(r));
+        item.state = xtk.hierarchicalTreeView.STATE_CLOSED;
+    }
+
+    var num_rows_changed = new_rows.length - this._rows.length;
+    this._rows = new_rows;
+    // Using rowCountChanged to notify rows were added
+    this.tree.rowCountChanged(row+1, num_rows_changed);
+    this.tree.invalidateRow(row); // To redraw the twisty.
+};
