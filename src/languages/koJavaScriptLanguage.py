@@ -47,23 +47,20 @@ from koLanguageServiceBase import *
 log = logging.getLogger('koJavaScriptLanguage')
 #log.setLevel(logging.DEBUG)
 
-class KoJSLikeCommonLexerLanguageService(KoLexerLanguageService):
+class KoJavaScriptLexerLanguageService(KoLexerLanguageService):
     def __init__(self):
         KoLexerLanguageService.__init__(self)
         self.setLexer(components.interfaces.ISciMoz.SCLEX_CPP)
         self.supportsFolding = 1
         self.setProperty('lexer.cpp.allow.dollars', '1')
-
-class KoJavaScriptLexerLanguageService(KoJSLikeCommonLexerLanguageService):
-    def __init__(self):
-        KoJSLikeCommonLexerLanguageService.__init__(self)
         self.setKeywords(0, JavaScriptLangInfo.keywords)
 
-class KoCoffeeScriptLexerLanguageService(KoJSLikeCommonLexerLanguageService):
+class KoCoffeeScriptLexerLanguageService(KoLexerLanguageService):
     def __init__(self):
-        KoJSLikeCommonLexerLanguageService.__init__(self)
+        KoLexerLanguageService.__init__(self)
+        self.setLexer(components.interfaces.ISciMoz.SCLEX_COFFEESCRIPT)
+        self.supportsFolding = 1
         self.setKeywords(0, CoffeeScriptLangInfo.keywords)
-        self.setProperty('lexer.cpp.coffeescript', '1')
 
 class koJSLikeLanguage(KoLanguageBase):
     def __init__(self):

@@ -36,7 +36,7 @@
  enu ModificationFlags=SC_MOD_ SC_PERFORMED_ SC_LAST
  val SC_MOD_INSERTTEXT=0x1
  val SC_MOD_DELETETEXT=0x2
-@@ -2279,14 +2297,17 @@
+@@ -2279,14 +2297,18 @@
  val SCLEX_COBOL=92
  val SCLEX_TACL=93
  val SCLEX_SORCUS=94
@@ -47,6 +47,7 @@
 +val SCLEX_XSLT=99
 +# User-defined languages
 +val SCLEX_UDL=100
++val SCLEX_COFFEESCRIPT=101
  
  # When a lexer specifies its language as SCLEX_AUTOMATIC it receives a
  # value assigned in sequence from SCLEX_AUTOMATIC+1.

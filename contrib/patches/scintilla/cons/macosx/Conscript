@@ -80,6 +80,7 @@ my @lexers = qw(
     Basic
     Bullant
     Caml
+    CoffeeScript
     Conf
     COBOL
     CPP

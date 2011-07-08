@@ -117,6 +117,7 @@ $cons->Command(
     "../src/LexCLW.cxx",
     "../src/LexCmake.cxx",
     "../src/LexCOBOL.cxx",
+    "../src/LexCoffeeScript.cxx",
     "../src/LexConf.cxx",
     "../src/LexCPP.cxx",
     "../src/LexCrontab.cxx",

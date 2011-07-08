@@ -45,6 +45,7 @@ from koLintResults import koLintResults
 import os, sys, re, which
 import tempfile
 import process
+import koprocessutils
 
 import logging
 log = logging.getLogger("koJavaScriptLinter")
@@ -395,7 +396,11 @@ class KoCoffeeScriptLinter(object):
          ]
 
     def __init__(self):
-        self._userPath = koprocessutils.getUserEnv()["PATH"].split(os.pathsep)
+        try:
+            self._userPath = koprocessutils.getUserEnv()["PATH"].split(os.pathsep)
+        except:
+            log.exception("KoCoffeeScriptLinter: can't get user path")
+            self._userPath = None
         
     def lint(self, request):
         text = request.content.encode(request.encoding.python_encoding_name)
@@ -429,6 +434,7 @@ class KoCoffeeScriptLinter(object):
         finally:
             os.unlink(tmpfilename)
         ptn = re.compile(r'^Error: In (.*),\s*(.*) on line (\d+):\s*(.*)')
+        syntaxErrorPtn = re.compile(r'^SyntaxError: In (.*),\s*(.*) on line (\d+)')
         results = koLintResults()
         for line in warnLines:
             m = ptn.match(line)
@@ -440,4 +446,13 @@ class KoCoffeeScriptLinter(object):
                 severity = koLintResult.SEV_ERROR
                 koLintResult.createAddResult(results, textlines, severity,
                                              lineNo, desc)
+            else:
+                m = syntaxErrorPtn.match(line)
+                if m:
+                    part1 = m.group(2)
+                    lineNo = int(m.group(3))
+                    desc = "SyntaxError: %s on line %d" % (part1, lineNo)
+                    severity = koLintResult.SEV_ERROR
+                    koLintResult.createAddResult(results, textlines, severity,
+                                                 lineNo, desc)
         return results
