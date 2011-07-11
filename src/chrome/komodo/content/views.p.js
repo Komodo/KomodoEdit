@@ -67,6 +67,7 @@ don't correspond to real selection changes.  At this point that is not done.
 
 xtk.include('domutils');
 xtk.include('controller');
+Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 if (typeof(ko)=='undefined') {
     var ko = {};
@@ -2392,13 +2393,9 @@ var _gCheckFilesObserver = null;
  * @type ko.views.viewManager
  *
  */
-this.__defineGetter__("manager",
+XPCOMUtils.defineLazyGetter(this, "manager",
 function()
 {
-    return _manager;
-});
-
-this.onload = function views_onload() {
     _manager = new viewManager();
     var viewSvc = Components.classes['@activestate.com/koViewService;1'].getService(
                     Components.interfaces.koIViewService);
@@ -2450,6 +2447,11 @@ this.onload = function views_onload() {
     }
     _gCheckFilesObserver = new _checkFilesObserver();
 // #endif
+    return _manager;
+});
+this.onload = function views_onload() {
+    // force trigger the lazy getter if it hasn't happened yet
+    this.manager;
 };
 
 /* convert an offset in character coordinates to an offset in
