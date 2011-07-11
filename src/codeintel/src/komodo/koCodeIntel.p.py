@@ -818,8 +818,8 @@ class KoCodeIntelEvalController(EvalController):
                 msg, (self.trg and not self.trg.implicit or False))
 
         EvalController.done(self, reason)
-        #XXX Should we clean up the UI handler and proxy? Are we leaking?
-        #    And the obs svc, too?
+        self.ui_handler_proxy_sync = None
+        self.ui_handler = None
 
 
 class KoCodeIntelBatchUpdater(BatchUpdater):
