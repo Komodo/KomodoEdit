@@ -89,7 +89,7 @@ body {
         if self._lexer is None:
             self._lexer = KoLexerLanguageService()
             self._lexer.setLexer(components.interfaces.ISciMoz.SCLEX_CSS)
-            from lang_css import raw_word_lists
+            from codeintel2.lang_css import raw_word_lists
             for i in range(len(raw_word_lists)):
                 self._lexer.setKeywords(i, raw_word_lists[i].split())
             self._lexer.supportsFolding = 1
