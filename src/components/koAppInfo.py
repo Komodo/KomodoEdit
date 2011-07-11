@@ -286,16 +286,9 @@ class KoPythonCommonInfoEx(KoAppInfoEx):
         assert self.installationPath is not None
 
         if sys.platform.startswith("win"):
-            if self.koInfoService.buildType == "release":
-                return os.path.join(self.installationPath,
-                                    "%s.exe" % (self.languageName_lc,))
-            else:
-                #XXX: Is it python3_d or python_3d or what?
-                return os.path.join(self.installationPath, 
-                                    "%s_d.exe" % (self.languageName_lc,))
+            return os.path.join(self.installationPath, "%s.exe" % (self.languageName_lc,))
         else:
-           return os.path.join(self.installationPath, "bin",
-                               self.languageName_lc)
+           return os.path.join(self.installationPath, "bin", self.languageName_lc)
 
     # koIAppInfoEx routines
     def FindInstallationPaths(self):
