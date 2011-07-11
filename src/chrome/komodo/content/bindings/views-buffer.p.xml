@@ -548,6 +548,7 @@
             }
             this.lintBuffer = null;
             this.ciCompletionUIHandler = null;
+            this._ciLastTrg = null;
 
             this.scintilla.unload();
 
