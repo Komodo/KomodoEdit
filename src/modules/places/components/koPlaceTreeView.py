@@ -610,7 +610,7 @@ class KoPlaceTreeView(TreeView):
                      _compare_item_descending]
     # Keep the items in sync with SORT_DIRECTION_NAME_NATURAL, etc.
     def _sortItems(self, childNodes):
-        assert self._sortedBy == "name"
+        assert self._sortedBy == "name", 'sorting by %r, expected "name"' % (self._sortedBy,)
         adjustedItems = [(node.name.lower(), node) for node in childNodes]
         sortedItems = sorted(adjustedItems, cmp=self.sortFuncTable[self._sortDir])
         return [x[1] for x in sortedItems]    
@@ -1989,6 +1989,8 @@ class KoPlaceTreeView(TreeView):
         self._tree.invalidate()
 
     def sortBy(self, sortKey, direction):
+        if sortKey != "name":
+            log.exception("sortBy called with key %r instead of name", sortKey)
         self._sortedBy = sortKey
         self._sortDir = direction
 

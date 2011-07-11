@@ -137,7 +137,7 @@ viewMgrClass.prototype = {
             childNodes[0].setAttribute('checked', 'true');
         }
         this.sortDirection = sortDir;
-        this.view.sortBy("Name", this._mozSortDirNameToKomodoSortDirValue[sortDir]);
+        this.view.sortBy("name", this._mozSortDirNameToKomodoSortDirValue[sortDir]);
         //  _arrowKeys used by onTreeKeyPress, easier to init here.
         var nsIDOMKeyEvent = Components.interfaces.nsIDOMKeyEvent;
         this._arrowKeys = [nsIDOMKeyEvent.DOM_VK_UP,
