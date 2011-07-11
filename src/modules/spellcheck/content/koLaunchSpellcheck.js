@@ -60,6 +60,7 @@ var __SpellCheckController = null;
 function SpellCheckController() {
     try {
         window.controllers.appendController(this);
+        window.addEventListener("unload", this.destory.bind(this), false);
     } catch(e) {
         this.log.exception(e);
     }
