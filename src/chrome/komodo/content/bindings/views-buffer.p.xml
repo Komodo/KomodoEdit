@@ -162,10 +162,7 @@
                     this.log.info("["+this.title+"].isCICplnEnabled = "+val);
                     this._isCICplnEnabled = val;
                     if (val) {
-                        this.ciCompletionUIHandler = new ko.codeintel.CompletionUIHandler(
-                            this.koDoc.displayPath, this.scimoz,
-                            this.languageObj.name,
-                            this.koDoc.ciBuf);
+                        this.ciCompletionUIHandler = new ko.codeintel.CompletionUIHandler(this);
                     }
                 } catch(ex) {
                     this.log.exception(ex);

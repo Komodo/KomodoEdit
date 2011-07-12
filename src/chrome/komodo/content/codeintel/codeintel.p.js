@@ -294,21 +294,16 @@ ko.codeintel = {};
     //       Python-side. Hence would cleanly fit into
     //       class KoCodeIntelEvalController.
 
-    this.CompletionUIHandler = function CodeIntelCompletionUIHandler(path, scimoz, language, 
-                                          /* codeintel.Buffer */ buf)
+    this.CompletionUIHandler = function CodeIntelCompletionUIHandler(view)
     {
-        log.debug("CompletionUIHandler(path, scimoz, language, buf)");
+        log.debug("CompletionUIHandler(view)");
         try {
-            this.path = path;
-            /**
-             * @type {Components.interfaces.ISciMoz}
-             */
-            this.scimoz = scimoz;
-            this.language = language;
-            this.buf = buf;
-            this.completionFillups = buf.cpln_fillup_chars;
-            scimoz.autoCSeparator = buf.scintilla_cpln_sep_ord;
-            scimoz.autoCStops(buf.cpln_stop_chars);
+            this.view = view;
+            var scimoz = view.scimoz;
+            var ciBuf = this.view.koDoc.ciBuf;
+            this.completionFillups = ciBuf.cpln_fillup_chars;
+            scimoz.autoCSeparator = ciBuf.scintilla_cpln_sep_ord;
+            scimoz.autoCStops(ciBuf.cpln_stop_chars);
     
             this._timeSvc = Components.classes["@activestate.com/koTime;1"].
                                 getService(Components.interfaces.koITime);
@@ -377,7 +372,8 @@ ko.codeintel = {};
     
     this.CompletionUIHandler.prototype.finalize = function() {
         log.debug("CompletionUIHandler.finalize()");
-        this.scimoz = null;
+        var view = this.view;
+        this.view = null;
         try {
             ko.prefs.prefObserverService.removeObserver(this,
                 "codeintel_completion_auto_fillups_enabled");
@@ -390,14 +386,14 @@ ko.codeintel = {};
     this.CompletionUIHandler.prototype.observe = function(prefSet, prefName, prefSetID)
     {
         //log.debug("observe pref '"+prefName+"' change on '"+
-        //                      this.path+"'s completion UI handler");
+        //                      this.view.koDoc.displayPath+"'s completion UI handler");
         try {
             switch (prefName) {
             case "codeintel_completion_auto_fillups_enabled":
                 if (ko.prefs.getBooleanPref("codeintel_completion_auto_fillups_enabled")) {
-                    this.scimoz.autoCSetFillUps(this.completionFillups);
+                    this.view.scimoz.autoCSetFillUps(this.completionFillups);
                 } else {
-                    this.scimoz.autoCSetFillUps("");
+                    this.view.scimoz.autoCSetFillUps("");
                 }
                 break;
             default:
@@ -450,29 +446,30 @@ ko.codeintel = {};
                               "triggerPrecedingCompletion()");
         try {
             // Determine start position.
+            var scimoz = this.view.scimoz;
             var startPos = null;
-            if (this.scimoz.callTipActive() || this.scimoz.autoCActive()) {
+            if (scimoz.callTipActive() || scimoz.autoCActive()) {
                 startPos = this._lastTriggerPos - 1;
             } else {
                 var lastRecentAttemptPos = this._getLastRecentPrecedingCompletionAttemptPos();
                 if (lastRecentAttemptPos != null) {
                     startPos = lastRecentAttemptPos - 1;
                 } else {
-                    startPos = this.scimoz.currentPos;
+                    startPos = scimoz.currentPos;
                 }
             }
-    
-            ko.codeintel.linkCurrentProjectWithBuffer(this.buf);
+            var ciBuf = this.view.koDoc.ciBuf;
+            ko.codeintel.linkCurrentProjectWithBuffer(ciBuf);
             // Hand off to language service to find and display.
-            var trg = this.buf.preceding_trg_from_pos(startPos,
-                                                      this.scimoz.currentPos);
+            var trg = ciBuf.preceding_trg_from_pos(startPos,
+                                                      scimoz.currentPos);
             if (trg) {
                 this._setLastRecentPrecedingCompletionAttemptPos(trg.pos);
                 var ctlr = 
                     Components.classes["@activestate.com/koCodeIntelEvalController;1"].
                     createInstance(Components.interfaces.koICodeIntelEvalController);
                 ctlr.set_ui_handler(this);
-                this.buf.async_eval_at_trg(trg, ctlr);
+                ciBuf.async_eval_at_trg(trg, ctlr);
             } else if (typeof(ko.statusBar.AddMessage) != "undefined") {
                 this._setLastRecentPrecedingCompletionAttemptPos(null);
                 ko.statusBar.AddMessage("No preceding trigger point within range of current position.",
@@ -486,22 +483,23 @@ ko.codeintel = {};
     
     this.CompletionUIHandler.prototype._setAutoCompleteInfo = function(
         completions, trg)
-     {
+    {
         var triggerPos = trg.pos;
         log.debug("CompletionUIHandler.setAutoCompleteInfo"+
                               "(triggerPos="+triggerPos+")");
         try {
             // If the trigger is no longer relevant, then drop the completions.
             // - if the current position is before the trigger pos
-            var curPos = this.scimoz.currentPos;
+            var scimoz = this.view.scimoz;
+            var curPos = scimoz.currentPos;
             if (curPos < triggerPos) {
                 log.info("aborting autocomplete at "+triggerPos+
                                      ": cursor is before trigger position");
                 return;
             }
             // - if the line changed
-            var curLine = this.scimoz.lineFromPosition(curPos);
-            var triggerLine = this.scimoz.lineFromPosition(triggerPos);
+            var curLine = scimoz.lineFromPosition(curPos);
+            var triggerLine = scimoz.lineFromPosition(triggerPos);
             if (curLine != triggerLine) {
                 log.debug("aborting autocomplete at "+triggerPos+
                                       ": current line number changed");
@@ -516,7 +514,7 @@ ko.codeintel = {};
             var numTypedAlready = curPos - triggerPos;
             var ch;
             for (var i = triggerPos; i < curPos; i++) {
-                ch = this.scimoz.getWCharAt(i);
+                ch = scimoz.getWCharAt(i);
                 if (this.completionFillups.indexOf(ch) != -1) {
                     log.debug("aborting autocomplete at "+triggerPos+
                                           ": fillup character typed: '"+ch+"'");
@@ -529,14 +527,14 @@ ko.codeintel = {};
             if (numTypedAlready) {
                 // Cancel when moving before the pos when the completion list is
                 // shown - bug 88292.
-                this.scimoz.autoCCancelAtStart = true;
+                scimoz.autoCCancelAtStart = true;
             } else {
-                this.scimoz.autoCCancelAtStart = false;
+                scimoz.autoCCancelAtStart = false;
             }
-            this.scimoz.autoCShow(numTypedAlready, completions);
+            scimoz.autoCShow(numTypedAlready, completions);
             if (numTypedAlready > 0) {
-                var typedAlready = this.scimoz.getTextRange(triggerPos, curPos);
-                this.scimoz.autoCSelect(typedAlready);
+                var typedAlready = scimoz.getTextRange(triggerPos, curPos);
+                scimoz.autoCSelect(typedAlready);
             }
         } catch(ex) {
             log.exception(ex);
@@ -551,7 +549,8 @@ ko.codeintel = {};
                               "(calltip, triggerPos="+triggerPos+
                               ", explicit="+explicit+")");
         try {
-            var curPos = this.scimoz.currentPos;
+            var scimoz = this.view.scimoz;
+            var curPos = scimoz.currentPos;
             if (!explicit) {
                 // If the trigger is no longer relevant, then drop the calltip.
                 // - if the current position is before the trigger pos
@@ -564,7 +563,8 @@ ko.codeintel = {};
                 //   c.f. http://kd.nas/kd-0100.html#autocomplete-and-calltips
                 var hltStartObj = new Object();
                 var hltEndObj = new Object();
-                this.buf.curr_calltip_arg_range(
+                var ciBuf = this.view.koDoc.ciBuf;
+                ciBuf.curr_calltip_arg_range(
                     triggerPos, calltip, curPos, hltStartObj, hltEndObj);
                 var hltStart = hltStartObj.value;
                 var hltEnd = hltEndObj.value;
@@ -576,8 +576,8 @@ ko.codeintel = {};
             }
     
             // Show the callip.
-            if (this.scimoz.callTipActive()) {
-                this.scimoz.callTipCancel();
+            if (scimoz.callTipActive()) {
+                scimoz.callTipCancel();
             }
             this._lastTriggerPos = triggerPos;
     
@@ -596,15 +596,15 @@ ko.codeintel = {};
     
             // Ensure the calltip is displayed relative to the current
             // cursor position - bug 87587.
-            var curLine = this.scimoz.lineFromPosition(curPos);
-            var callTipLine = this.scimoz.lineFromPosition(triggerPos);
+            var curLine = scimoz.lineFromPosition(curPos);
+            var callTipLine = scimoz.lineFromPosition(triggerPos);
             if (callTipLine != curLine) {
-                var triggerColumn = this.scimoz.getColumn(triggerPos);
-                triggerPos = this.scimoz.positionAtColumn(curLine, triggerColumn);
+                var triggerColumn = scimoz.getColumn(triggerPos);
+                triggerPos = scimoz.positionAtColumn(curLine, triggerColumn);
             }
     
-            this.scimoz.callTipShow(triggerPos, calltip);
-            this.scimoz.callTipSetHlt(hltStart, hltEnd);
+            scimoz.callTipShow(triggerPos, calltip);
+            scimoz.callTipSetHlt(hltStart, hltEnd);
             var callTipItem = {"triggerPos": triggerPos, "calltip": calltip};
             this.callTipStack.push(callTipItem);
         } catch(ex) {
@@ -615,7 +615,8 @@ ko.codeintel = {};
     this.CompletionUIHandler.prototype.updateCallTip = function() {
         log.debug("CompletionUIHandler.updateCallTip()");
         try {
-            if (! this.scimoz.callTipActive()) {
+            var scimoz = this.view.scimoz;
+            if (! scimoz.callTipActive()) {
                 // The calltip may get cancelled in various other places so
                 // we have to make sure that the callTipStack here doesn't
                 // grow unboundedly.
@@ -623,8 +624,8 @@ ko.codeintel = {};
                 return;
             }
     
-            var curPos = this.scimoz.currentPos;
-            var curLine = this.scimoz.lineFromPosition(curPos);
+            var curPos = scimoz.currentPos;
+            var curLine = scimoz.lineFromPosition(curPos);
             var callTipItem = this.callTipStack[this.callTipStack.length-1];
             var triggerPos = callTipItem["triggerPos"];
             var calltip = callTipItem["calltip"];
@@ -636,7 +637,8 @@ ko.codeintel = {};
             if (!cancel) {
                 var hltStartObj = new Object();
                 var hltEndObj = new Object();
-                this.buf.curr_calltip_arg_range(
+                var ciBuf = this.view.koDoc.ciBuf;
+                ciBuf.curr_calltip_arg_range(
                     triggerPos, calltip, curPos, hltStartObj, hltEndObj);
                 hltStart = hltStartObj.value;
                 hltEnd = hltEndObj.value;
@@ -646,7 +648,7 @@ ko.codeintel = {};
             // Cancel if required and fallback to previous calltip, if any.
             if (cancel) {
                 // Cancel the current call tip.
-                this.scimoz.callTipCancel();
+                scimoz.callTipCancel();
                 this.callTipStack.pop();
     
                 // Start the calltip one up in the stack, if there is one.
@@ -655,11 +657,11 @@ ko.codeintel = {};
                     triggerPos = callTipItem["triggerPos"];
                     calltip = callTipItem["calltip"];
                     if (curPos >= triggerPos) {
-                        triggerColumn = this.scimoz.getColumn(triggerPos);
-                        callTipPos = this.scimoz.positionAtColumn(
+                        triggerColumn = scimoz.getColumn(triggerPos);
+                        callTipPos = scimoz.positionAtColumn(
                                 curLine, triggerColumn);
                         this._lastTriggerPos = triggerPos;
-                        this.scimoz.callTipShow(callTipPos, calltip);
+                        scimoz.callTipShow(callTipPos, calltip);
                         this.updateCallTip();
                     }
                 }
@@ -668,20 +670,20 @@ ko.codeintel = {};
     
             // If the cursor is on a different line from the current display
             // point then we need to move the calltip up or down.
-            callTipPos = this.scimoz.callTipPosStart();
-            var callTipLine = this.scimoz.lineFromPosition(callTipPos);
+            callTipPos = scimoz.callTipPosStart();
+            var callTipLine = scimoz.lineFromPosition(callTipPos);
             if (callTipLine != curLine) {
-                this.scimoz.callTipCancel();
-                triggerColumn = this.scimoz.getColumn(triggerPos);
-                var newCallTipPos = this.scimoz.positionAtColumn(curLine, triggerColumn);
+                scimoz.callTipCancel();
+                triggerColumn = scimoz.getColumn(triggerPos);
+                var newCallTipPos = scimoz.positionAtColumn(curLine, triggerColumn);
                 this._lastTriggerPos = triggerPos;
-                this.scimoz.callTipShow(newCallTipPos, calltip);
+                scimoz.callTipShow(newCallTipPos, calltip);
                 //dump("XXX moved the calltip to "+newCallTipPos+
-                //     ", now it is at "+this.scimoz.callTipPosStart()+"\n");
+                //     ", now it is at "+scimoz.callTipPosStart()+"\n");
             }
     
             // Update the highlighting.
-            this.scimoz.callTipSetHlt(hltStart, hltEnd);
+            scimoz.callTipSetHlt(hltStart, hltEnd);
         } catch(ex) {
             log.exception(ex);
         }
