@@ -284,7 +284,7 @@
     /**
      * Return a string with escaped html attributes.
      */
-    function _setDefinitionsInfo(count, ciDefns, triggerPos) {
+    function _setDefinitionsInfo(count, ciDefns, trg) {
         try {
             /** @type {Components.interfaces.koIScintillaView} */
             var view = ko.views.manager.currentView;
@@ -427,8 +427,8 @@
     GotoDefinitionUIHandler.prototype.setStatusMessage = function() {
         // Do nothing...
     }
-    GotoDefinitionUIHandler.prototype.setDefinitionsInfo = function(count, ciDefns, triggerPos) {
-        _setDefinitionsInfo(count, ciDefns, triggerPos);
+    GotoDefinitionUIHandler.prototype.setDefinitionsInfo = function(count, ciDefns, trg) {
+        _setDefinitionsInfo(count, ciDefns, trg);
     }
 
 }).apply(ko.hyperlinks);
