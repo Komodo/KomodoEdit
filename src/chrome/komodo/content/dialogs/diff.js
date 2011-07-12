@@ -50,11 +50,10 @@
 var _dw_log = ko.logging.getLogger("diff");
 //_dw_log.setLevel(ko.logging.LOG_DEBUG);
 var _diffWindow = null;
-var _diffDocument = null;
-
 var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
     .getService(Components.interfaces.nsIStringBundleService)
     .createBundle("chrome://komodo/locale/dialogs/diff.properties");
+var _g_view_initialized = false;
 
 //
 // Diff window object
@@ -71,10 +70,6 @@ function DiffWindow()
     view.setAttribute("mozcontext", "diffContextMenu");
 
     try {
-        _diffDocument = view.docSvc.createUntitledDocument("Diff"); // koIDocument
-        _dw_log.debug("_diffDocument = "+_diffDocument);
-        _diffDocument.addView(view);
-
         var diff = '';
         if (!window.arguments[0].diff) {
             if (window.arguments[0].async_op) {
@@ -136,11 +131,13 @@ function loadDiffResult(result, cwd) {
         var diff = result;
         var diffView = document.getElementById('view');
         _dw_log.debug("diff.length: " + diff.length);
-        _diffDocument.buffer = diff;
-        diffView.initWithBuffer(diff, "Diff");
+        if (!_g_view_initialized) {
+            _g_view_initialized = true;
+            diffView.initWithBuffer(diff, "Diff");
+        } else {
+            diffView.setBufferText(diff);
+        }
 
-        diffView.encoding = _diffDocument.encoding.python_encoding_name;
-        diffView.scimoz.codePage = _diffDocument.codePage;
         // Force scintilla buffer to readonly mode, bug:
         //   http://bugs.activestate.com/show_bug.cgi?id=27910
         diffView.scimoz.readOnly = true;
