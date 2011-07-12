@@ -92,60 +92,6 @@ interface koICodeIntelDefinition: nsISupports {
     readonly attribute wstring returns;    // Function return type
 };
 
-// JS-implemented component to provide scintilla autocomplete/calltip UI
-// handling for a view.
-[scriptable, uuid(03B1DED3-9E65-4E7E-BC73-B21142F8DBDF)]
-interface koICodeIntelCompletionUIHandler : nsISupports {
-    // AIID: AutoComplete Image IDs
-    // Notes:
-    // - Not bothering with symbol attributes (private, protected, etc.) for
-    //   now.
-    // - Not sure if we need bother with Perl typeglobs, file handles, etc.
-    const long ACIID_CLASS = 0;
-    const long ACIID_FUNCTION = 1;
-    const long ACIID_MODULE = 2;  // David, could use cb_import.png for this. --TM
-    const long ACIID_VARIABLE = 3;           // the blue triangle
-    const long ACIID_VARIABLE_SCALAR = 4;    // ...with Perl's '$'
-    const long ACIID_VARIABLE_ARRAY = 5;     // ...with Perl's '@'
-    const long ACIID_VARIABLE_HASH = 6;      // ...with Perl's '%'
-    const long ACIID_INTERFACE = 7;
-    const long ACIID_NAMESPACE = 8;
-    const long ACIID_DIRECTORY = 9;
-    const long ACIID_XML_ELEMENT = 10;
-    const long ACIID_XML_ATTRIBUTE = 11;
-    const long ACIID_CONSTANT = 12;
-    const long ACIID_KEYWORD = 13;
-    
-    // Called by a koICodeIntelCompletionLanguageService (see
-    // src/languages/ko*Language.py) to provide data for these UIs.
-    //
-    //  "completions" is a 'completionSeparator'-separated list of
-    //      completion strings (sorted).
-    //  "calltip" is a string to display at the given trigger position.
-    //  "triggerPos" is the buffer position at which the autocomplete was
-    //      triggered.
-    //
-    void setAutoCompleteInfo(in wstring completions,
-                             in long triggerPos);
-    void setCallTipInfo(in wstring calltip,
-                        in long triggerPos,
-                        in boolean explicit);
-    void setDefinitionsInfo(in PRUint32 count,
-                            [array, size_is(count)] in koICodeIntelDefinition defns,
-                            in long triggerPos);
-    void setStatusMessage(in wstring msg, in boolean highlight);
-
-    // If there is an active calltip, then update it as necessary (i.e.,
-    // the highlighted arg may need to change, perhaps it should be
-    // canceled).
-    void updateCallTip();
-
-    // Synchronously find and trigger the preceding autocomplete or calltip
-    // trigger point. This searching should stop and the beginning of the
-    // current statement.
-    void triggerPrecedingCompletion(in wstring path);
-};
-
 // JS-implemented component to provide visual feedback on batch update
 // progress.
 [scriptable, uuid(59132D74-DB82-4B5F-96C0-BBDF44F853F8)]
@@ -216,6 +162,60 @@ interface koICodeIntelTrigger: nsISupports {
 
     readonly attribute wstring name;
     boolean is_same(in koICodeIntelTrigger trg);
+};
+
+// JS-implemented component to provide scintilla autocomplete/calltip UI
+// handling for a view.
+[scriptable, uuid(03B1DED3-9E65-4E7E-BC73-B21142F8DBDF)]
+interface koICodeIntelCompletionUIHandler : nsISupports {
+    // AIID: AutoComplete Image IDs
+    // Notes:
+    // - Not bothering with symbol attributes (private, protected, etc.) for
+    //   now.
+    // - Not sure if we need bother with Perl typeglobs, file handles, etc.
+    const long ACIID_CLASS = 0;
+    const long ACIID_FUNCTION = 1;
+    const long ACIID_MODULE = 2;  // David, could use cb_import.png for this. --TM
+    const long ACIID_VARIABLE = 3;           // the blue triangle
+    const long ACIID_VARIABLE_SCALAR = 4;    // ...with Perl's '$'
+    const long ACIID_VARIABLE_ARRAY = 5;     // ...with Perl's '@'
+    const long ACIID_VARIABLE_HASH = 6;      // ...with Perl's '%'
+    const long ACIID_INTERFACE = 7;
+    const long ACIID_NAMESPACE = 8;
+    const long ACIID_DIRECTORY = 9;
+    const long ACIID_XML_ELEMENT = 10;
+    const long ACIID_XML_ATTRIBUTE = 11;
+    const long ACIID_CONSTANT = 12;
+    const long ACIID_KEYWORD = 13;
+
+    // Called by a koICodeIntelCompletionLanguageService (see
+    // src/languages/ko*Language.py) to provide data for these UIs.
+    //
+    //  "completions" is a 'completionSeparator'-separated list of
+    //      completion strings (sorted).
+    //  "calltip" is a string to display at the given trigger position.
+    //  "triggerPos" is the buffer position at which the autocomplete was
+    //      triggered.
+    //
+    void setAutoCompleteInfo(in wstring completions,
+                             in koICodeIntelTrigger trg);
+    void setCallTipInfo(in wstring calltip,
+                        in koICodeIntelTrigger trg,
+                        in boolean explicit);
+    void setDefinitionsInfo(in PRUint32 count,
+                            [array, size_is(count)] in koICodeIntelDefinition defns,
+                            in koICodeIntelTrigger trg);
+    void setStatusMessage(in wstring msg, in boolean highlight);
+
+    // If there is an active calltip, then update it as necessary (i.e.,
+    // the highlighted arg may need to change, perhaps it should be
+    // canceled).
+    void updateCallTip();
+
+    // Synchronously find and trigger the preceding autocomplete or calltip
+    // trigger point. This searching should stop and the beginning of the
+    // current statement.
+    void triggerPrecedingCompletion(in wstring path);
 };
 
 [scriptable, uuid(5B6F1D4D-FB32-4462-A3A7-E6FA2B9FE128)]

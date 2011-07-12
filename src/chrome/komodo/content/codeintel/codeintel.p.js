@@ -485,10 +485,11 @@ ko.codeintel = {};
     }
     
     this.CompletionUIHandler.prototype._setAutoCompleteInfo = function(
-        completions, triggerPos)
-    {
-        log.debug("CompletionUIHandler.setAutoCompleteInfo("+
-                              "completions, triggerPos)");
+        completions, trg)
+     {
+        var triggerPos = trg.pos;
+        log.debug("CompletionUIHandler.setAutoCompleteInfo"+
+                              "(triggerPos="+triggerPos+")");
         try {
             // If the trigger is no longer relevant, then drop the completions.
             // - if the current position is before the trigger pos
@@ -543,8 +544,9 @@ ko.codeintel = {};
     }
     
     this.CompletionUIHandler.prototype._setCallTipInfo = function(
-        calltip, triggerPos, explicit)
+        calltip, trg, explicit)
     {
+        var triggerPos = trg.pos;
         log.debug("CompletionUIHandler.setCallTipInfo"+
                               "(calltip, triggerPos="+triggerPos+
                               ", explicit="+explicit+")");
@@ -686,8 +688,9 @@ ko.codeintel = {};
     }
     
     this.CompletionUIHandler.prototype._setDefinitionsInfo = function(
-          defns, triggerPos)
+          defns, trg)
     {
+        var triggerPos = trg.pos;
         log.debug("CompletionUIHandler.setDefinitionsInfo"+
                               "(triggerPos="+triggerPos+
                               ", num defns="+defns.length+")");
@@ -759,24 +762,24 @@ ko.codeintel = {};
     }
     
     this.CompletionUIHandler.prototype.setAutoCompleteInfo = function(
-        completions, triggerPos)
+        completions, trg)
     {
-        window.setTimeout(function (me, completions, triggerPos) {me._setAutoCompleteInfo(completions, triggerPos);},
-                          1, this, completions, triggerPos);
+        window.setTimeout(function (me, completions_, trg_) {me._setAutoCompleteInfo(completions_, trg_);},
+                          1, this, completions, trg);
     }
     
     this.CompletionUIHandler.prototype.setCallTipInfo = function(
-        calltip, triggerPos, explicit)
+        calltip, trg, explicit)
     {
-        window.setTimeout(function (me, calltip, triggerPos, explicit) {me._setCallTipInfo(calltip, triggerPos, explicit);},
-                          1, this, calltip, triggerPos, explicit);
+        window.setTimeout(function (me, calltip_, trg_, explicit_) {me._setCallTipInfo(calltip_, trg_, explicit_);},
+                          1, this, calltip, trg, explicit);
     }
     
     this.CompletionUIHandler.prototype.setDefinitionsInfo = function(
-        count, defns, triggerPos)
+        count, defns, trg)
     {
-        window.setTimeout(function (me, defns, triggerPos) {me._setDefinitionsInfo(defns, triggerPos);},
-                          1, this, defns, triggerPos);
+        window.setTimeout(function (me, defns_, trg_) {me._setDefinitionsInfo(defns_, trg_);},
+                          1, this, defns, trg);
     }
     
 }).apply(ko.codeintel);

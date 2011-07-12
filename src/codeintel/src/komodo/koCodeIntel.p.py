@@ -753,18 +753,18 @@ class KoCodeIntelEvalController(EvalController):
         #XXX Might want to include relevant string info leading up to
         #    the trigger char so the Completion Stack can decide
         #    whether the completion info is still relevant.
-        self.ui_handler_proxy_sync.setAutoCompleteInfo(cplns_str, self.trg.pos)
+        self.ui_handler_proxy_sync.setAutoCompleteInfo(cplns_str, self.trg)
 
     def set_calltips(self, calltips):
         self.got_results = True
         calltip = calltips[0]
-        self.ui_handler_proxy_sync.setCallTipInfo(calltip, self.trg.pos,
+        self.ui_handler_proxy_sync.setCallTipInfo(calltip, self.trg,
                                                   not self.trg.implicit)
 
     def set_defns(self, defns):
         self.got_results = True
         self._last_defns = defns
-        self.ui_handler_proxy_sync.setDefinitionsInfo(defns, self.trg.pos)
+        self.ui_handler_proxy_sync.setDefinitionsInfo(defns, self.trg)
 
     def done(self, reason):
         # This part of the spec describes what the IDE user UI should be
