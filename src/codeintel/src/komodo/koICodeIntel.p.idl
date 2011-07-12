@@ -161,6 +161,11 @@ interface koICodeIntelTrigger: nsISupports {
     readonly attribute long length;     // num chars of the trigger token
 
     readonly attribute wstring name;
+
+    // When true, after a completion event occurs, codeintel will call
+    // "trg_from_pos" again.
+    attribute boolean retriggerOnCompletion;
+
     boolean is_same(in koICodeIntelTrigger trg);
 };
 

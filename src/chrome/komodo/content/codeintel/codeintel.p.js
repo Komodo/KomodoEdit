@@ -310,6 +310,7 @@ ko.codeintel = {};
             this._lastRecentPrecedingCompletionAttemptPos = null;
             this._lastRecentPrecedingCompletionAttemptTime = null;
             this._lastRecentPrecedingCompletionAttemptTimeout = 3.0;
+            this._boundCompletionEventListener = null;
     
             if (ko.prefs.getBooleanPref("codeintel_completion_auto_fillups_enabled")) {
                 scimoz.autoCSetFillUps(this.completionFillups);
@@ -377,6 +378,13 @@ ko.codeintel = {};
         try {
             ko.prefs.prefObserverService.removeObserver(this,
                 "codeintel_completion_auto_fillups_enabled");
+            // Clean up bound event listeners.
+            if (this._boundCompletionEventListener) {
+                if (view) {
+                    view.removeEventListener("codeintel_autocomplete_selected", this._boundCompletionEventListener, false);
+                }
+                this._boundCompletionEventListener = null;
+            }
         } catch(ex) {
             log.exception(ex);
         }    
@@ -536,11 +544,68 @@ ko.codeintel = {};
                 var typedAlready = scimoz.getTextRange(triggerPos, curPos);
                 scimoz.autoCSelect(typedAlready);
             }
+            if (trg.retriggerOnCompletion) {
+                this.watchForCompletionEvent();
+            }
         } catch(ex) {
             log.exception(ex);
         }
     }
     
+    this.CompletionUIHandler.prototype.onCompletionEvent = function(event)
+    {
+        log.debug("CompletionUIHandler.onCompletionEvent");
+        try {
+            // Stop listening for completions events.
+            this.view.removeEventListener("codeintel_autocomplete_selected", this._boundCompletionEventListener, false);
+            this._boundCompletionEventListener = null;
+            // Retrigger codeintel.
+            if (this.view) {
+                // Timeout required because the event fires prior to the
+                // completion insertion.
+                //var view = this.view;
+                window.setTimeout(
+                    function(view, pos) {
+                        // We have to colourise the line in order to get a
+                        // trigger - lang_css requires CSS styling, which
+                        // hasn't occurred yet for the inserted text.
+                        var scimoz = view.scimoz;
+                        var lineno = scimoz.lineFromPosition(pos);
+                        var lineStartPos = scimoz.positionFromLine(lineno);
+                        var lineEndPos = scimoz.getLineEndPosition(lineno);
+                        scimoz.colourise(lineStartPos, lineEndPos);
+                        // Give colourise some time to finish - so use another
+                        // setTimeout.
+                        window.setTimeout(
+                            function(view_) {
+                                ko.codeintel.trigger(view_);
+                            },
+                            1, view);
+                    },
+                    1, this.view, event.getData("position"));
+            }
+        } catch(ex) {
+            log.exception(ex);
+        }
+    }
+
+    this.CompletionUIHandler.prototype.watchForCompletionEvent = function()
+    {
+        log.debug("CompletionUIHandler.watchForCompletionEvent");
+        try {
+            if (this.view && !this._boundCompletionEventListener) {
+                // Create a wrapper for our listener function - to ensure we call with the wanted scope.
+                var self = this;
+                this._boundCompletionEventListener = function(event) {
+                    self.onCompletionEvent(event);
+                }
+                this.view.addEventListener("codeintel_autocomplete_selected", this._boundCompletionEventListener, false);
+            }
+        } catch(ex) {
+            log.exception(ex);
+        }
+    }
+
     this.CompletionUIHandler.prototype._setCallTipInfo = function(
         calltip, trg, explicit)
     {

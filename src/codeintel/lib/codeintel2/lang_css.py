@@ -783,6 +783,8 @@ class CSSLangIntel(LangIntel, ParenStyleCalltipIntelMixin):
                 if cplns:
                     # Note: we add the colon as well - see bug 89913.
                     ctlr.set_cplns( [ ("property", v + ": ") for v in cplns ] )
+                    # We want to show the property values after autocompleting.
+                    trg.retriggerOnCompletion = True
                     #print "  _async_eval_at_trg:: cplns:", cplns
                 ctlr.done("success")
             elif trg.id == ("CSS", TRG_FORM_CALLTIP, "property-values"):
