@@ -100,7 +100,7 @@ class koDocumentBase:
         self._lastmd5 = None
         
         self._refcount = 0
-        self.ciBuf = None
+        self._ciBuf = None
         self.docSettingsMgr = None
 
         self._tabstopInsertionNodes = None
@@ -165,12 +165,14 @@ class koDocumentBase:
             prefObserver = self.prefs.prefObserverService
             prefObserver.removeObserverForTopics(self, ['useTabs', 'indentWidth', 'tabWidth'])
         self._proxied = None
-        self.ciBuf = None
+        self._ciBuf = None
 
-    def _initCIBuf(self):
-        codeIntelSvc = components.classes['@activestate.com/koCodeIntelService;1'] \
-                        .getService(components.interfaces.koICodeIntelService)
-        self.ciBuf = codeIntelSvc.buf_from_koIDocument(self)
+    def get_ciBuf(self):
+        if self._ciBuf is None:
+            codeIntelSvc = components.classes['@activestate.com/koCodeIntelService;1'] \
+                            .getService(components.interfaces.koICodeIntelService)
+            self._ciBuf = codeIntelSvc.buf_from_koIDocument(self)
+        return self._ciBuf
 
     def initWithFile(self, file, untitled):
         log.info("initWithFile(file=%s, ...)", file.URI)
@@ -181,9 +183,9 @@ class koDocumentBase:
             self._guessLanguage()
 
         # This gets called again unnecessarily in self.load(). Can't
-        # follow the koDocument spaghetti to be assured this
-        # self._initCIBuf() can be removed for all cases.
-        self._initCIBuf()
+        # follow the koDocument spaghetti to be assured that
+        # self._ciBuf is reset for all cases.
+        self._ciBuf = None
 
     def initUntitled(self, name, encoding):
         log.info("initUntitled(name=%r, ...)", name)
@@ -193,7 +195,7 @@ class koDocumentBase:
         self.set_buffer("", 0)  # make sure new buffer is not dirty
         if self._language is None:
             self._guessLanguage()
-        self._initCIBuf()
+        self._ciBuf = None
 
     def addReference(self):
         self._refcount += 1
@@ -431,7 +433,7 @@ class koDocumentBase:
             return
         self._loadfile(file)
         self._guessLanguage()
-        self._initCIBuf() # need a new codeintel Buffer for this lang
+        self._ciBuf = None # need a new codeintel Buffer for this lang
         eolpref = self.prefs.getStringPref('endOfLine')
         if self.prefs.hasPrefHere('endOfLine'):
             current_eol = eollib.eolPref2eol[eolpref]
@@ -600,7 +602,7 @@ class koDocumentBase:
             self.prefs.setStringPref('language', language)
         self._setLangPrefs()
 
-        self._initCIBuf() # need a new codeintel Buffer for this lang
+        self._ciBuf = None # need a new codeintel Buffer for this lang
 
         self._languageObj = None
         try:
@@ -1062,7 +1064,7 @@ class koDocumentBase:
                 make_dirty = make_dirty or self.encoding.use_byte_order_marker != encoding.use_byte_order_marker
                 self.encoding = encoding
 
-                self._initCIBuf()
+                self._ciBuf = None
 
                 self.prefs.setStringPref("encoding",
                                          self.encoding.python_encoding_name)
