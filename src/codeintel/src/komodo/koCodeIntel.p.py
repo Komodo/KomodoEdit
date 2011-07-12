@@ -146,8 +146,6 @@ class KoCodeIntelEnvironment(Environment):
         self._langRegSvc = getProxyForObject(None,
             components.interfaces.koILanguageRegistryService,
             langRegSvc, PROXY_ALWAYS | PROXY_SYNC)
-        self._wrapped_self = WrapObject(self,
-            components.interfaces.nsIObserver)
 
 
     def __repr__(self):
@@ -243,7 +241,7 @@ class KoCodeIntelEnvironment(Environment):
             log.debug("%s: start observing '%s' pref", self, name)
             for prefset in self.prefsets:
                 prefset.prefObserverService.addObserver(
-                    self._wrapped_self, name, 0)
+                    self, name, 0)
 
             self._pref_observer_callbacks_from_name[name] = {}
 
@@ -258,7 +256,7 @@ class KoCodeIntelEnvironment(Environment):
             log.debug("%s: stop observing '%s' pref", self, name)
             for prefset in self.prefsets:
                 prefset.prefObserverService.removeObserver(
-                    self._wrapped_self, name)
+                    self, name)
             del self._pref_observer_callbacks_from_name[name]
 
     def _notify_pref_observers(self, name):
