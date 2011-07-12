@@ -530,6 +530,13 @@ ko.codeintel = {};
                 }
             }
     
+            // Send out a DOM event.
+            var data = {
+                // TODO: Would like to add the array of completion items here.
+                'trg': trg
+            };
+            xtk.domutils.fireDataEvent(this.view, "codeintel_autocomplete_showing", data);
+
             // Show the completions UI.
             this._lastTriggerPos = triggerPos;
             if (numTypedAlready) {
