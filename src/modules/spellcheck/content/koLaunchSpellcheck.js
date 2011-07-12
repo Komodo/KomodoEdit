@@ -60,9 +60,9 @@ var __SpellCheckController = null;
 function SpellCheckController() {
     try {
         window.controllers.appendController(this);
-        window.addEventListener("unload", this.destory.bind(this), false);
+        window.addEventListener("unload", this.destroy.bind(this), false);
     } catch(e) {
-        this.log.exception(e);
+        ko.logging.getLogger('spellchecker').exception(e);
     }
 }
 
