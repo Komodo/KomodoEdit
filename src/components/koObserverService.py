@@ -78,20 +78,6 @@ class KoObserverService:
     def __init__(self):
         self._topics = {}
         self.cv = threading.Condition()
-        try:
-            osSvc = components.classes["@mozilla.org/observer-service;1"].\
-                getService(components.interfaces.nsIObserverService)
-            self._nsIObserver = WrapObject(self, components.interfaces.nsIObserver)
-            osSvc.addObserver(self._nsIObserver, 'xpcom-shutdown', 1)
-        except Exception, e:
-            log.exception(e)
-
-    def observe(self, dummy, topic, featureName):
-        if topic == "xpcom-shutdown":
-            #self._removeDead()
-            #if self._topics:
-            #    log.warn("observers not removed: %r", (self._topics.keys(),))
-            self._topics = {}
 
     def dump(self, topics=None):
         print
