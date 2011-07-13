@@ -2221,6 +2221,12 @@ def target_src(argv=["src"]):
             repo_url = "http://hg.mozilla.org/releases/mozilla-1.9.2/"
         elif config.mozVer <= 2.00:
             repo_url = "http://hg.mozilla.org/releases/mozilla-2.0/"
+        elif config.mozVer <= 5.00:
+            repo_url = "http://hg.mozilla.org/releases/mozilla-release/"
+        elif config.mozVer <= 6.00:
+            repo_url = "http://hg.mozilla.org/releases/mozilla-beta/"
+        elif config.mozVer <= 7.00:
+            repo_url = "http://hg.mozilla.org/releases/mozilla-aurora/"
         else:
             repo_url = "http://hg.mozilla.org/mozilla-central/"
         revision_arg = ""
@@ -2501,7 +2507,9 @@ def target_pluginsdk(argv=["mozilla"]):
     config = _importConfig()
     _setupMozillaEnv()
     native_objdir = _get_mozilla_objdir(convert_to_native_win_path=True)
-    if config.mozVer >= 1.91:
+    if config.mozVer >= 5.0:
+        pluginDir = os.path.join(native_objdir, 'modules', 'plugin')
+    elif config.mozVer >= 1.91:
         pluginDir = os.path.join(native_objdir, 'modules', 'plugin', 'sdk')
     else:
         pluginDir = os.path.join(native_objdir, 'modules', 'plugin',

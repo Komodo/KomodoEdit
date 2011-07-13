@@ -1,0 +1,177 @@
+# HG changeset patch
+# Parent c0e76ab73ff6d8ccf7ff874672992bb8f65c9f2a
+mozilla bug 385962 - allow mar to take file list from stdin
+
+diff --git a/modules/libmar/src/mar_create.c b/modules/libmar/src/mar_create.c
+--- a/modules/libmar/src/mar_create.c
++++ b/modules/libmar/src/mar_create.c
+@@ -138,17 +138,17 @@ int mar_create(const char *dest, int num
+ #endif
+   FILE *fp;
+   int i, rv = -1;
+ 
+   memset(&stack, 0, sizeof(stack));
+ 
+   fp = fopen(dest, "wb");
+   if (!fp) {
+-    fprintf(stderr, "ERROR: could not create target file: %s\n", dest);
++    fprintf(stderr, "mar: ERROR: could not create target file: %s\n", dest);
+     return -1;
+   }
+ 
+   if (fwrite(MAR_ID, MAR_ID_SIZE, 1, fp) != 1)
+     goto failure;
+   if (fwrite(&offset_to_index, sizeof(PRUint32), 1, fp) != 1)
+     goto failure;
+ 
+@@ -158,17 +158,17 @@ int mar_create(const char *dest, int num
+ #ifdef WINCE
+     HANDLE handle;
+     MultiByteToWideChar(CP_ACP, 0, files[i], -1, wide_path, MAX_PATH);
+     handle = FindFirstFile(wide_path, &file_data);
+     if (handle == INVALID_HANDLE_VALUE) {
+ #else
+     if (stat(files[i], &st)) {
+ #endif
+-      fprintf(stderr, "ERROR: file not found: %s\n", files[i]);
++      fprintf(stderr, "mar: ERROR: file not found: %s\n", files[i]);
+       goto failure;
+     }
+ #ifdef WINCE
+     flags = (file_data.dwFileAttributes & FILE_ATTRIBUTE_READONLY) ?
+       0444 : 0666;
+     size = (file_data.nFileSizeHigh * (MAXDWORD + 1)) + file_data.nFileSizeLow;
+     FindClose(handle);
+     if (mar_push(&stack, size, flags, files[i]))
+diff --git a/modules/libmar/tool/mar.c b/modules/libmar/tool/mar.c
+--- a/modules/libmar/tool/mar.c
++++ b/modules/libmar/tool/mar.c
+@@ -43,16 +43,17 @@
+ #include <direct.h>
+ #define chdir _chdir
+ #else
+ #include <unistd.h>
+ #endif
+ 
+ static void print_usage() {
+     printf("usage: mar [-C dir] {-c|-x|-t} archive.mar [files...]\n");
++    printf("  Use '-' for 'files...' to provide files on stdin (one per line).\n");
+ }
+ 
+ static int mar_test_callback(MarFile *mar, const MarItem *item, void *unused) {
+   printf("%u\t0%o\t%s\n", item->length, item->flags, item->name);
+   return 0;
+ }
+ 
+ static int mar_test(const char *path) {
+@@ -64,33 +65,109 @@ static int mar_test(const char *path) {
+ 
+   printf("SIZE\tMODE\tNAME\n");
+   mar_enum_items(mar, mar_test_callback, NULL);
+ 
+   mar_close(mar);
+   return 0;
+ }
+ 
++
++#define MAXLINE 1024
++
++/* Get a line from stdin (up to MAXLINE-1 chars).
++ * Line will always be null-terminated.
++ *
++ * Returns 0 on success, 1 on EOF, -1 on line too long (the rest of the
++ * line will have been read and thrown away).
++ */
++static int mar_getline(char *buf) {
++  int c, i = 0;
++  int rv = 0;
++  while ((c = getchar()) != EOF) {
++    if (c == '\n') break;
++    if (i < MAXLINE-1)
++      buf[i++] = c;
++    else
++      rv = -1;
++  }
++  buf[i] = '\0';
++  
++  if (c == EOF && i == 0) {
++    /* Only report EOF when didn't read anything on this line, otherwise
++     * caller will miss last line.
++     */ 
++    rv = 1;
++  }
++  return rv;
++}
++
++
+ int main(int argc, char **argv) {
+   int command;
+ 
+   if (argc < 3) {
+     print_usage();
+     return -1;
+   }
+ 
+   if (argv[1][1] == 'C') {
+     chdir(argv[2]);
+     argv += 2;
+     argc -= 2;
+   }
+ 
+   switch (argv[1][1]) {
+   case 'c':
+-    return mar_create(argv[2], argc - 3, argv + 3);
++    if (argc == 4 && strcmp(argv[3], "-") == 0) {
++      /* Read files from stdin. */
++
++      #define FILES_AT_A_TIME 100
++      char line[MAXLINE];
++      int len, i, rv;
++      char **files = (char**) malloc(sizeof(char*) * FILES_AT_A_TIME);
++      int num_files_until_realloc = FILES_AT_A_TIME;
++      char *file;
++      int num_files = 0;
++      
++      while (1) {
++        /* Read a line. */
++        rv = mar_getline(line);
++        if (rv == 1) break; /* EOF */
++        if (rv == -1) {
++          fprintf(stderr, "mar: ERROR: stdin line too long: '%s...'\n",
++                  line);
++          return -1;
++        }
++        len = strlen(line);
++        if (len == 0) continue; /* skip empty lines */
++
++        /* Ensure have space in 'files' array for new file. */
++        if (num_files_until_realloc == 0) {
++          files = (char**) realloc(files, sizeof(char*) * (num_files + FILES_AT_A_TIME));
++          num_files_until_realloc = FILES_AT_A_TIME;
++        }
++
++        file = (char*) malloc(len+1);
++        strcpy(file, line);
++        files[num_files++] = file;
++        num_files_until_realloc--;
++      }
++
++      rv = mar_create(argv[2], num_files, files);
++
++      for (i = 0; i < num_files; ++i) {
++        free(files[i]);
++      }
++      free(files);
++      
++      return rv;
++    } else {
++      return mar_create(argv[2], argc - 3, argv + 3);
++    }
+   case 't':
+     return mar_test(argv[2]);
+   case 'x':
+     return mar_extract(argv[2]);
+   default:
+     print_usage();
+     return -1;
+   }

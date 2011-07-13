@@ -150,7 +150,10 @@ my $xScintillaBuildDir = DirPath($scintillaBuildDir);
 # Plugin directory moved as of Mozilla 1.9.1
 my $pluginSdkSrcDir;
 my $pluginSdkObjDir;
-if ($mozVersionNumber >= 191) {
+if ($mozVersionNumber >= 500) {
+    $pluginSdkSrcDir = "$mozSrc/mozilla/modules/plugin";
+    $pluginSdkObjDir = "$mozObjDir/modules/plugin";
+} elsif ($mozVersionNumber >= 191) {
     $pluginSdkSrcDir = "$mozSrc/mozilla/modules/plugin/sdk";
     $pluginSdkObjDir = "$mozObjDir/modules/plugin/sdk";
 } else {
