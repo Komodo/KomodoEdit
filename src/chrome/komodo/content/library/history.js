@@ -205,10 +205,19 @@ function _get_curr_loc(view /* =current view */,
             pos = -1;
         }
     }
+    // we must grab the exception from the right global - this is another case
+    // of https://bugzilla.mozilla.org/show_bug.cgi?id=339884
+    var TypeError = view.ownerDocument.defaultView.TypeError || {};
+    try {
+        var tabbedViewId = view.tabbedViewId;
+    } catch (ex if (ex instanceof TypeError && ex.message == "tabbedViewContainer is null")) {
+        // no tabbed view id
+        return null;
+    }
     return _controller.historySvc.loc_from_view_info(
             viewType,
             window._koNum,
-            view.tabbedViewId,
+            tabbedViewId,
             view,
             pos,
             _curr_session_name);

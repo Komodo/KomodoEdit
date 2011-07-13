@@ -1,0 +1,84 @@
+/* Copyright (c) 2000-2011 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+
+ko-findbar .ko-findbar-container {
+  -moz-box-flex: 1;
+  -moz-box-align: center;
+  overflow-x: hidden;
+}
+
+ko-findbar .ko-findbar-container > toolbarbutton {
+  -moz-box-orient: horizontal;
+  -moz-user-focus: normal;
+}
+
+ko-findbar .ko-findbar-closebutton {
+  list-style-image: url("chrome://global/skin/icons/close.png");
+  -moz-image-region: rect(0, 16px, 16px, 0);
+  -moz-appearance: none;
+  border: none;
+
+  /* vertically center the close button */
+  -moz-box-align: center;
+}
+ko-findbar .ko-findbar-closebutton:hover {
+  -moz-image-region: rect(0, 32px, 16px, 16px);
+}
+ko-findbar .ko-findbar-closebutton:hover:active {
+  -moz-image-region: rect(0, 48px, 16px, 32px);
+}
+
+ko-findbar .ko-findbar-textbox {
+  -moz-box-flex: 1;
+  max-width: 30em;
+  -moz-user-focus: normal;
+}
+
+ko-findbar.ko-findbar-status-not-found .ko-findbar-textbox {
+  background: rgba(255, 64, 64, 0.8);
+  border: none;
+  color: white;
+  -moz-appearance: none;
+}
+
+ko-findbar.ko-findbar-status-not-found .ko-findbar-textbox > .autocomplete-textbox-container {
+  /* on linux, this normally gets -moz-appearance: menulist-textfield due to
+     enablehistory="true" */
+  -moz-appearance: none;
+}
+
+ko-findbar .ko-findbar-status {
+  visibility:  collapse;
+  -moz-box-pack: start;
+  /* make sure this doesn't crop the input box */
+  width: 0;
+  -moz-box-flex: 1;
+  overflow-x: hidden;
+}
+
+ko-findbar .ko-findbar-status > .ko-findbar-status-container {
+  -moz-box-align: center;
+}
+
+ko-findbar.ko-findbar-status-not-found .ko-findbar-status {
+  visibility: visible;
+  list-style-image: url("chrome://global/skin/icons/wrap.png");
+}
+
+ko-findbar.ko-findbar-status-wrapped .ko-findbar-status {
+  visibility: visible;
+  list-style-image: url("chrome://global/skin/icons/wrap.png");
+}
+
+ko-findbar .ko-findbar-next {
+  list-style-image: url(moz-icon://stock/gtk-go-forward?size=menu);
+}
+ko-findbar .ko-findbar-prev {
+  list-style-image: url(moz-icon://stock/gtk-go-back?size=menu);
+}
+
+ko-findbar .ko-findbar-open-dialog {
+  list-style-image: url(chrome://komodo/skin/images/small-arrow-up.png);
+}

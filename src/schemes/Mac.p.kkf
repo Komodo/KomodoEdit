@@ -1,4 +1,4 @@
-version 28
+version 29
 
 binding cmd_back  Shift+Backspace
 binding cmd_backSmart  Backspace
@@ -58,7 +58,7 @@ binding cmd_end  Meta+Right
 binding cmd_endOfWord Meta+E
 binding cmd_executeLastMacro Ctrl+K _
 binding cmd_expandAbbrev Meta+T
-binding cmd_find Meta+F
+# cmd_find unassigned
 binding cmd_findAllFunctions  Meta+F8
 binding cmd_findInFiles Meta+Shift+F
 binding cmd_findNext  Meta+G 
@@ -139,6 +139,7 @@ binding cmd_selectToMatchingBrace  Meta+}
 binding cmd_selectWordLeft  Alt+Shift+Left
 binding cmd_selectWordRight  Alt+Shift+Right
 binding cmd_splittab Meta+"
+binding cmd_startIncrementalSearch Meta+F
 binding cmd_startIncrementalSearch Meta+I
 binding cmd_startIncrementalSearchBackwards Meta+Shift+I
 binding cmd_startMacroMode Ctrl+K (

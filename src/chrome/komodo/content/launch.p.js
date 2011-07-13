@@ -234,9 +234,6 @@ var _log = ko.logging.getLogger("ko.launch");
 
 
 
-// Used for passing information reliably to the find dialog.
-this.find2_dialog_args = null;
-
 /**
  * Open the Find dialog.
  *
@@ -249,13 +246,6 @@ this.find = function(pattern /* =null */) {
     // retrieve these contents when it is ready.
     ko.inputBuffer.start();
 
-    // Special global to pass info to find2.xul. Passing in via
-    // openDialog() doesn't work if the dialog is already up.
-    ko.launch.find2_dialog_args = {
-        "pattern": pattern,
-        "mode": "find"
-    };
-
     // WARNING: Do NOT use ko.windowManager.openOrFocusDialog() here.
     // Because that ends up causing problems when re-opening the find
     // dialog (i.e. Ctrl+F when the Find dialog is already up).
@@ -267,7 +257,10 @@ this.find = function(pattern /* =null */) {
     return ko.windowManager.openDialog(
         "chrome://komodo/content/find/find2.xul",
         "komodo_find2",
-        "chrome,close=yes,centerscreen");
+        "chrome,close=yes,centerscreen",
+        {"pattern": pattern,
+         "mode": "find"
+        });
 }
 
 
@@ -283,20 +276,16 @@ this.replace = function(pattern /* =null */, repl /* =null */) {
     // retrieve these contents when it is ready.
     ko.inputBuffer.start();
 
-    // Special global to pass info to find2.xul. Passing in via
-    // openDialog() doesn't work if the dialog is already up.
-    ko.launch.find2_dialog_args = {
-        "pattern": pattern,
-        "repl": repl,
-        "mode": "replace"
-    };
-
     // WARNING: Do NOT use ko.windowManager.openOrFocusDialog() here.
     // (See above for why.)
     return ko.windowManager.openDialog(
         "chrome://komodo/content/find/find2.xul",
         "komodo_find2",
-        "chrome,close=yes,centerscreen");
+        "chrome,close=yes,centerscreen",
+        { "pattern": pattern,
+          "repl": repl,
+          "mode": "replace"
+        });
 }
 
 /**
@@ -311,20 +300,16 @@ this.findInCollection = function(collection, pattern /* =null */) {
     // retrieve these contents when it is ready.
     ko.inputBuffer.start();
 
-    // Special global to pass info to find2.xul. Passing in via
-    // openDialog() doesn't work if the dialog is already up.
-    ko.launch.find2_dialog_args = {
-        "collection": collection,
-        "pattern": pattern,
-        "mode": "findincollection"
-    };
-
     // WARNING: Do NOT use ko.windowManager.openOrFocusDialog() here.
     // (See above for why.)
     return ko.windowManager.openDialog(
         "chrome://komodo/content/find/find2.xul",
         "komodo_find2",
-        "chrome,close=yes,centerscreen");
+        "chrome,close=yes,centerscreen",
+        { "collection": collection,
+          "pattern": pattern,
+          "mode": "findincollection"
+        });
 }
 
 /**
@@ -341,21 +326,17 @@ this.replaceInCollection = function(collection, pattern /* =null */,
     // retrieve these contents when it is ready.
     ko.inputBuffer.start();
 
-    // Special global to pass info to find2.xul. Passing in via
-    // openDialog() doesn't work if the dialog is already up.
-    ko.launch.find2_dialog_args = {
-        "collection": collection,
-        "pattern": pattern,
-        "repl": repl,
-        "mode": "replaceincollection"
-    };
-
     // WARNING: Do NOT use ko.windowManager.openOrFocusDialog() here.
     // (See above for why.)
     return ko.windowManager.openDialog(
         "chrome://komodo/content/find/find2.xul",
         "komodo_find2",
-        "chrome,close=yes,centerscreen");
+        "chrome,close=yes,centerscreen",
+        { "collection": collection,
+          "pattern": pattern,
+          "repl": repl,
+          "mode": "replaceincollection"
+        });
 }
 
 /**
@@ -369,19 +350,15 @@ this.findInCurrProject = function(pattern /* =null */) {
     // retrieve these contents when it is ready.
     ko.inputBuffer.start();
 
-    // Special global to pass info to find2.xul. Passing in via
-    // openDialog() doesn't work if the dialog is already up.
-    ko.launch.find2_dialog_args = {
-        "pattern": pattern,
-        "mode": "findincurrproject"
-    };
-
     // WARNING: Do NOT use ko.windowManager.openOrFocusDialog() here.
     // (See above for why.)
     return ko.windowManager.openDialog(
         "chrome://komodo/content/find/find2.xul",
         "komodo_find2",
-        "chrome,close=yes,centerscreen");
+        "chrome,close=yes,centerscreen",
+        { "pattern": pattern,
+          "mode": "findincurrproject"
+        });
 }
 
 
@@ -397,20 +374,16 @@ this.replaceInCurrProject = function(pattern /* =null */, repl /* =null */) {
     // retrieve these contents when it is ready.
     ko.inputBuffer.start();
 
-    // Special global to pass info to find2.xul. Passing in via
-    // openDialog() doesn't work if the dialog is already up.
-    ko.launch.find2_dialog_args = {
-        "pattern": pattern,
-        "repl": repl,
-        "mode": "replaceincurrproject"
-    };
-
     // WARNING: Do NOT use ko.windowManager.openOrFocusDialog() here.
     // (See above for why.)
     return ko.windowManager.openDialog(
         "chrome://komodo/content/find/find2.xul",
         "komodo_find2",
-        "chrome,close=yes,centerscreen");
+        "chrome,close=yes,centerscreen",
+        { "pattern": pattern,
+          "repl": repl,
+          "mode": "replaceincurrproject"
+        });
 }
 
 /**
@@ -438,24 +411,21 @@ this.findInFiles = function(pattern /* =null */, dirs /* =null */,
         cwd = view.koDoc.file.dirName;
     }
 
-    // Special global to pass info to find2.xul. Passing in via
-    // openDialog() doesn't work if the dialog is already up.
     var mode = dirs ? "findinfiles" : "findinlastfiles";
-    ko.launch.find2_dialog_args = {
-        "pattern": pattern,
-        "dirs": dirs,
-        "includes": includes,
-        "excludes": excludes,
-        "cwd": cwd,
-        "mode": mode
-    };
 
     // WARNING: Do NOT use ko.windowManager.openOrFocusDialog() here.
     // (See above for why.)
     return ko.windowManager.openDialog(
             "chrome://komodo/content/find/find2.xul",
             "komodo_find2",
-            "chrome,close=yes,centerscreen");
+            "chrome,close=yes,centerscreen",
+            { "pattern": pattern,
+               "dirs": dirs,
+               "includes": includes,
+               "excludes": excludes,
+               "cwd": cwd,
+               "mode": mode
+            });
 }
 
 /**
@@ -475,24 +445,21 @@ this.replaceInFiles = function(pattern /* =null */, repl /* =null */,
     // retrieve these contents when it is ready.
     ko.inputBuffer.start();
 
-    // Special global to pass info to find2.xul. Passing in via
-    // openDialog() doesn't work if the dialog is already up.
     var mode = dirs ? "replaceinfiles" : "replaceinlastfiles";
-    ko.launch.find2_dialog_args = {
-        "pattern": pattern,
-        "repl": repl,
-        "dirs": dirs,
-        "includes": includes,
-        "excludes": excludes,
-        "mode": mode
-    };
 
     // WARNING: Do NOT use ko.windowManager.openOrFocusDialog() here.
     // (See above for why.)
     return ko.windowManager.openDialog(
             "chrome://komodo/content/find/find2.xul",
             "komodo_find2",
-            "chrome,close=yes,centerscreen");
+            "chrome,close=yes,centerscreen",
+            { "pattern": pattern,
+              "repl": repl,
+              "dirs": dirs,
+              "includes": includes,
+              "excludes": excludes,
+              "mode": mode
+            });
 }
 
 

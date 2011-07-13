@@ -318,6 +318,7 @@ function cloneObject(what) {
  * the keybinding files in sync as the keybinding system gets changed.
  *
  * Version history:
+ * 29: Komodo 7.0.0a4 - switch to incremental find for Ctrl+F/Ctrl+Shift+F
  * 28: Komodo 7.0.0a1 - Mac: add "Cmd+Shift+{" and "Cmd+Shift+}" for buffer prev/next.
  * 27: Komodo 6.1.1 - IDE only change - ignored.
  * 26: Komodo 6.1.0a1 - add cmd_tabAwarePaste (meta+ctrl+v, ctrl+alt+v)
@@ -348,7 +349,7 @@ function cloneObject(what) {
  * 2: Komodo 4.2.0-beta2 and above
  * 1: Komodo 4.2.0-beta1 and before
  */
-const currentKeybindingVersionNumber = 28;
+const currentKeybindingVersionNumber = 29;
 
 /**
  * Remove this dictionary of keybinds.
@@ -393,36 +394,36 @@ this.Manager.prototype._add_keybinding_sequences = function (command_to_key_sequ
     // Find a keymatch
     for (commandId in command_to_key_sequences) {
         keysequences = command_to_key_sequences[commandId];
-        // See if the keybinding we want to add is already taken
-        var usedbys = this.usedBy(keysequences);
-        if (usedbys.length > 0) {
-            // Already used
-            if (usedbys[0].command != commandId) {
-                _log.warn("_upgradeKeybingings:: could not add '" +
-                          keysequences + "' for command " + commandId +
-                          ", binding already in use by command: " +
-                          usedbys[0].command);
-            }
-            continue;
-        }
-        // See if the command already has this keybinding
-        seq = this.command2keysequences(commandId);
-        foundMatch = false;
-        for (i=0; i < seq.length; i++) {
-            for (j=0; j < keysequences.length; j++) {
-                if (seq[i] == keysequences[j]) {
-                    foundMatch = true;
-                    break;
+        // XXX marky: remember that keysequences is an array of _independent_
+        // sequences; each sequence is a string with individual keys joined by
+        // ", " (comma followed by a space).  In order to give this.usedBy() the
+        // format it wants, we fake an array.
+        
+        for each (var keysequence in keysequences) {
+            // See if the keybinding we want to add is already taken
+            var usedbys = this.usedBy([keysequence]);
+            if (usedbys.length > 0) {
+                // Already used
+                if (usedbys[0].command != commandId) {
+                    _log.warn("_upgradeKeybingings:: could not add '" +
+                              keysequences + "' for command " + commandId +
+                              ", binding already in use by command: " +
+                              usedbys[0].command);
                 }
+                continue;
             }
-        }
-        if (!foundMatch) {
+            // See if the command already has this keybinding
+            seq = this.command2keysequences(commandId);
+            if (seq.indexOf(keysequence) != -1) {
+                // found an existing mapping
+                continue;
+            }
             // Not found, need to add it in
             //seq.push(keymatch);
-            this.assignKey(commandId, keysequences);
-            this.makeKeyActive(commandId, keysequences);
+            this.assignKey(commandId, [keysequence]);
+            this.makeKeyActive(commandId, [keysequence]);
             _log.warn("_upgradeKeybingings:: added keybinding " +
-                      keysequences + " for command " + commandId);
+                      keysequence + " for command " + commandId);
         }
     }
 }
@@ -816,6 +817,23 @@ this.Manager.prototype._upgradeKeybingings = function (from_version,
             this._add_keybinding_sequences({
                 'cmd_bufferPrevious' : ["Meta+Shift+{"],
                 'cmd_bufferNext' : ["Meta+Shift+}"]
+            });
+// #endif
+            break;
+        case 28:
+// #if PLATFORM == 'darwin'
+            this._remove_keybinding_sequences({
+                'cmd_find': ["Meta+F"],
+            })
+            this._add_keybinding_sequences({
+                'cmd_startIncrementalSearch' : ["Meta+F"]
+            });
+// #else
+            this._remove_keybinding_sequences({
+                'cmd_find': ["Ctrl+F"]
+            })
+            this._add_keybinding_sequences({
+                'cmd_startIncrementalSearch' : ["Ctrl+F"]
             });
 // #endif
             break;

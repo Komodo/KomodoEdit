@@ -169,13 +169,12 @@ this.doCode = function command_doCode(cmdId, code) {
             ko.macros.recorder.appendCommand(cmdId);
         }
         var numRepeats = 1
-        // if commands.js is included (e.g. in a dialog) but not isearch.js,
-        // then ko.isearch.controller is undefined -- we obviously can't be in
-        // a 'repeated command' situation
-        if (typeof(ko.isearch.controller) != 'undefined' &&
-            ko.isearch.controller.inRepeatCounterAccumulation) {
-            numRepeats = ko.isearch.controller.getCount();
-            ko.isearch.controller.cancelMultiHandler();
+        // Look for the repeat commands controller, and ask it about the repeats
+        var repeatController = top.controllers.getControllerForCommand("cmd_repeatNextCommandBy");
+        if (repeatController) repeatController = repeatController.wrappedJSObject;
+        if (repeatController && repeatController.inRepeatCounterAccumulation) {
+            numRepeats = repeatController.getCount();
+            repeatController.cancelMultiHandler();
             if (numRepeats > 256) {
                 dump("Repeating command " + cmdId
                                         + numRepeat + 'times...\n');
@@ -240,14 +239,12 @@ this.doCommand = function command_doCommand(command) {
                 }
             }
             var numRepeats = 1;
-            // if commands.js is included (e.g. in a dialog) but not isearch.js,
-            // then ko.isearch.controller is undefined -- we obviously can't be in
-            // a 'repeated command' situation
-            if (typeof(ko.isearch) != 'undefined'
-                && ko.isearch.controller
-                && ko.isearch.controller.inRepeatCounterAccumulation) {
-                numRepeats = ko.isearch.controller.getCount();
-                ko.isearch.controller.cancelMultiHandler();
+            // Look for the repeat commands controller, and ask it about the repeats
+            var repeatController = top.controllers.getControllerForCommand("cmd_repeatNextCommandBy");
+            if (repeatController) repeatController = repeatController.wrappedJSObject;
+            if (repeatController && repeatController.inRepeatCounterAccumulation) {
+                numRepeats = repeatController.getCount();
+                repeatController.cancelMultiHandler();
             }
             for (var i = 0; i < numRepeats; i++) {
                 if (_isCheckCommand(commandNode)) {

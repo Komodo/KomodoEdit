@@ -311,6 +311,65 @@ editor_editorController.prototype.do_cmd_browserPreviewInternalSameTabGroup = fu
         view.createInternalViewPreview(null, view.parentView);
 }
 
+/**
+ * handle raw key commands (i.e. insert literal key)
+ */
+editor_editorController.prototype.is_cmd_rawKey_enabled = function() {
+    return ko.views.manager.currentView != null;
+}
+
+editor_editorController.prototype.do_cmd_rawKey= function() {
+    var scintilla = ko.views.manager.currentView.scintilla;
+    scintilla.key_handler = this.rawHandler;
+    scintilla.addEventListener('blur', gCancelRawHandler, false);
+    scintilla.scimoz.isFocused = true;
+    ko.statusBar.AddMessage(_bundle.GetStringFromName("enterControlCharacter"),
+                            "raw_input", 0, true, true);
+}
+
+function gCancelRawHandler(event) {
+    if (this.key_handler) {
+        this.key_handler = null;
+        ko.views.manager.currentView.scintilla.
+            removeEventListener('blur', gCancelRawHandler, false);
+    }
+    ko.statusBar.AddMessage(null, "raw_input", 0, false, true)
+}
+
+editor_editorController.prototype.rawHandler= function(event) {
+    try {
+        if (event.type != 'keypress') return;
+        var scintilla = ko.views.manager.currentView.scintilla;
+        scintilla.key_handler = null;
+        var scimoz = scintilla.scimoz;
+        event.cancelBubble = true;
+        event.preventDefault();
+        // XXX handle meta key here?
+        if (event.ctrlKey) {
+            // Need to convert from charCode to ASCII value
+            scimoz.replaceSel(String.fromCharCode(event.charCode-96));
+        } else {
+            if (event.charCode != 0) {  // not sure why space doesn't work.
+                scimoz.replaceSel(String.fromCharCode(event.charCode));
+            } else {
+                switch (event.keyCode) {
+                    case event.DOM_VK_ESCAPE:
+                    case event.DOM_VK_ENTER:
+                    case event.DOM_VK_RETURN:
+                    case event.DOM_VK_TAB:
+                    case event.DOM_VK_BACK_SPACE:
+                        scimoz.replaceSel(String.fromCharCode(event.keyCode));
+                        break;
+                    default:
+                        // do nothing
+                }
+            }
+        }
+        ko.statusBar.AddMessage(null, "raw_input", 0, false, true)
+    } catch (e) {
+        _log.error(e);
+    }
+};
 
 window.controllers.appendController(new editor_editorController());
 

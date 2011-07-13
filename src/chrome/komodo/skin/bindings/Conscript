@@ -50,6 +50,7 @@ Import(
 
 $cons->InstallInChrome('buttons.css');
 $cons->InstallInChrome('colorpicker.css');
+$cons->InstallInChrome('findbar.css');
 $cons->InstallInChrome('listbox.css');
 $cons->InstallInChrome('scintilla.css');
 $cons->Preprocess('widgets.p.css', 'widgets.css');

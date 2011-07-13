@@ -875,8 +875,11 @@ function _init_widgets()
  * Initialize the dialog from `opener.ko.launch.find2_dialog_args` data.
  */
 function _init() {
-    var args = opener.ko.launch.find2_dialog_args || {};
-    opener.ko.launch.find2_dialog_args = null;
+    var [args] = window.arguments || [];
+    if (typeof(args) == "undefined") {
+        args = opener.ko.launch.find2_dialog_args || {};
+        opener.ko.launch.find2_dialog_args = null;
+    }
 
     // If there is selected text then preload the find pattern with it.
     // Unless it spans a line, then set the search context to the

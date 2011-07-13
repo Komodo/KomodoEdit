@@ -1,4 +1,4 @@
-version 28
+version 29
 
 # Movement and selection
 binding cmd_left  Left
@@ -99,8 +99,9 @@ binding cmd_wordWrap Ctrl+Shift+9
 binding cmd_jumpToMatchingBrace  Ctrl+]
 binding cmd_selectToMatchingBrace  Ctrl+Shift+]
 binding cmd_gotoLine Ctrl+G
-binding cmd_find Ctrl+F
-binding cmd_findNext  F3 
+binding cmd_startIncrementalSearch Ctrl+F
+# cmd_find unassigned
+binding cmd_findNext  F3
 binding cmd_findNextSelected  Ctrl+F3
 binding cmd_findPrevious  Shift+F3
 binding cmd_findNextFunction  F8 

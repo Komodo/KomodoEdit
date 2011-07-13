@@ -78,6 +78,7 @@
                         pluginHandlesDomEvents="false"
                         />
 <!-- #endif -->
+            <xul:ko-findbar anonid="findbar"/>
         </content>
         <implementation implements="nsIObserver">
             <field name='_inMouseDown'>-1</field>
@@ -164,6 +165,8 @@
             </body>
             </method>
 
+            <field name="_embed">document.getAnonymousElementByAttribute(this, 'anonid', 'scimoz')</field>
+
             <field name="__scimoz_wrapper">null</field>
             <field name="_scimoz">null</field>
             <property name="scimoz">
@@ -178,6 +181,10 @@
                 return this.__scimoz_wrapper;
                 ]]></getter>
             </property>
+
+            <field name="findbar">
+                document.getAnonymousElementByAttribute(this, 'anonid', 'findbar')
+            </field>
 
             <field name="_log">null</field>
             <property name="log">
@@ -570,6 +577,10 @@
             <handler event="focus" phase="capturing">
                 <![CDATA[
                 //dump("scintilla:: focus\n");
+                if (event.originalTarget != this && event.originalTarget != this._embed) {
+                    // probably the findbar or something
+                    return;
+                }
                 var scimoz = this.scimoz;
                 scimoz.indicatorCurrent = this.DECORATOR_SOFT_CHAR;
                 scimoz.indicatorClearRange(0, scimoz.textLength);
@@ -586,6 +597,10 @@
             <handler event="blur" phase="capturing">
                 <![CDATA[
                 //dump("scintilla:: blur\n");
+                if (event.originalTarget != this && event.originalTarget != this._embed) {
+                    // probably the findbar or something
+                    return;
+                }
                 // We need to send mouseUps if we are blurred before a mouseup naturally occurs (e.g. if the user alt-tabs).
                 // Otherwise the mouseup is never picked up by scintilla and selection "keeps going on".
                 if (this._inMouseDown != -1 && event.originalTarget == this) {
@@ -898,6 +913,10 @@
             <handler event="mousedown" phase="capturing">
                 <![CDATA[
                 //dump("scintilla:: mousedown\n");
+                if (event.originalTarget != this && event.originalTarget != this._embed) {
+                    // probably the findbar or something
+                    return;
+                }
                 var scimoz = this.scimoz;
                 if (!scimoz.isFocused) {
                     // Focus on this Scintilla now.

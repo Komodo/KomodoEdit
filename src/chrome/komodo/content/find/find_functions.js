@@ -39,7 +39,11 @@ if (typeof(ko) == 'undefined') {
 }
 
 if (typeof(ko.find)!='undefined') {
-    ko.logging.getLogger('').warn("ko.find was already loaded, re-creating it.\n");
+    if (ko.find.findNext) {
+        ko.logging.getLogger('').warn("ko.find was already loaded, re-creating it.\n");
+    }
+} else {
+    ko.find = {};
 }
 
 /* Komodo's Find and Replace general functions
@@ -61,7 +65,6 @@ if (typeof(ko.find)!='undefined') {
  *      "replacement" is the replacement string to use; and
  *      "context" is a koIFindContext component.
  */
-ko.find = {};
 
 (function() {
 
@@ -211,7 +214,9 @@ this._getViewFromViewId = function _GetViewFromViewId(editor, displayPath)
     // Filter out view types that cannot be searched.
     var views = editor.ko.views.manager.topView.getViews(true);
     for (var i = 0; i < views.length; ++i) {
-        if (views[i].koDoc && views[i].koDoc.displayPath == displayPath) {
+        if (views[i].uid == displayPath ||
+            (views[i].koDoc && views[i].koDoc.displayPath == displayPath))
+        {
             return views[i];
         }
     }
@@ -227,9 +232,11 @@ this._getViewFromViewId = function _GetViewFromViewId(editor, displayPath)
  * Setup (i.e. do all the right things for find-session maintenance) and
  * find the next occurrence of "pattern".
  *
- * @param {DOMWindow} editor the main Komodo window in which to work
+ * @param {DOMWindow|koIScintillaView} editor the main Komodo window in which
+ *      to work, or the view to work with
  * @param {koIFindContext} context defines the scope in which to search,
  *      e.g., in a selection, just the current doc, all open docs.
+ *      (if editor is a view, context.type cannot be FCT_ALL_OPEN_DOCS)
  * @param {string} pattern the pattern to search for.
  * @param {string} mode either 'find' or 'replace'. The maintenance of a
  *      find session needs to know if a find-next operation is in the
@@ -248,7 +255,19 @@ this._setupAndFindNext = function _SetupAndFindNext(editor, context, pattern, mo
     if (typeof(check_selection_only) == 'undefined' || check_selection_only == null) check_selection_only = false;
 
     // abort if there is no current view
-    var view = editor.ko.views.manager.currentView;
+    var view = null;
+    if (editor instanceof Components.interfaces.koIScintillaView) {
+        findLog.debug("_setupAndFindNext: editor " + editor + " is a view");
+        view = editor;
+        if (context.type == Components.interfaces.koIFindContext.FCT_ALL_OPEN_DOCS) {
+            findLog.exception("Trying to find in all open docs but only a view was given");
+            throw new Components.Exception("Trying to find in all open docs but only a view was given",
+                                           Components.results.NS_ERROR_INVALID_ARG);
+        }
+    } else {
+        findLog.debug("_setupAndFindNext: editor " + editor + " is not a view");
+        view = editor.ko.views.manager.currentView;
+    }
     if (view == null) {
         return null;
     }
@@ -267,10 +286,11 @@ this._setupAndFindNext = function _SetupAndFindNext(editor, context, pattern, mo
     }
 
     // Get the necessary data (context may be other than the whole file).
-    var scimoz = view.scintilla.scimoz;
-    // url: The unique view identifier. This is not ideal. Eventually the view
-    //      system should grow unique view ids that can be used here.
-    var url = view.koDoc.displayPath;
+    var scimoz = view.scimoz;
+    // url: The unique view identifier.  We prefer koDoc.displayPath due to
+    // backwards compatibility (and has the side effect of not searching
+    // multiple views of the same file).
+    var url = view.koDoc ? view.koDoc.displayPath : view.uid;
     var text; // the text to search (this is a subset of whole buffer if
               // searching within a selection)
     var contextOffset; // "text"s offset into the whole scimoz buffer
@@ -400,7 +420,7 @@ this._setupAndFindNext = function _SetupAndFindNext(editor, context, pattern, mo
                 if (newView == null)
                     break;  // Either there is no view or only the one.
                 view = newView;
-                url = view.koDoc.displayPath;
+                url = view.koDoc ? view.koDoc.displayPath : view.uid;
                 // restore the cursor/selection state in current document
                 scimoz.setSel(_findSession.fileSelectionStartPos, _findSession.fileSelectionEndPos);
                 //XXX Is this bad if the working view is not visible???
@@ -410,7 +430,7 @@ this._setupAndFindNext = function _SetupAndFindNext(editor, context, pattern, mo
                     break;
                 }
                 // make the switch
-                scimoz = view.scintilla.scimoz;
+                scimoz = view.scimoz;
             } else {
                 break;
             }
@@ -827,8 +847,17 @@ this._displayFindResult = function _DisplayFindResult(editor, findResult)
     //dump("display find result: "+findResult.url+": " + findResult.start +
     //     "-" + findResult.end + ": '" + findResult.value + "'\n");
 
-    if (editor.ko.views.manager.currentView.koDoc.displayPath != findResult.url) {
-        var view = ko.find._getViewFromViewId(editor, findResult.url);
+    var win = editor, view = editor;
+    if (editor instanceof Components.interfaces.koIScintillaView) {
+        win = view.QueryInterface(Components.interfaces.nsIDOMNode)
+                  .ownerDocument.defaultView;
+    } else {
+        view = editor.ko.views.manager.currentView;
+    }
+
+    var url = view.koDoc ? view.koDoc.displayPath : view.uid;
+    if (url != findResult.url) {
+        var view = ko.find._getViewFromViewId(win, findResult.url);
         if (view == null) {
             var err = "The view for a find result was closed before it could "+
                       "be displayed!";
@@ -838,17 +867,17 @@ this._displayFindResult = function _DisplayFindResult(editor, findResult)
             return;
         }
         // we don't want to focus when find dialog is up.
-        var noFocus = editor != window;
-        editor.ko.history.note_curr_loc(editor.ko.views.manager.currentView);
+        var noFocus = (win != window);
+        win.ko.history.note_curr_loc(view);
         view.makeCurrent(noFocus);
     } else {
-        editor.ko.history.note_curr_loc(editor.ko.views.manager.currentView);
+        win.ko.history.note_curr_loc(view);
     }
 
     // Jump to the find result and select it.
     // Jump to the _end_ (i.e. the start if going backwards) of the
     // result so that repeated finds are non-overlapping.
-    var scimoz = editor.ko.views.manager.currentView.scintilla.scimoz;
+    var scimoz = view.scimoz;
     // Unfortunately this is going to be very slow -- I can't come up with a
     // way around this that will actually work without rewriting the find subsystem.
     var startByteIndex = ko.stringutils.bytelength(scimoz.text.slice(0, findResult.start));
@@ -1257,7 +1286,8 @@ this.highlightingEnabled = function Find_HighlightingEnabled() {
 /**
  * Find (and move to) the next occurrence of the given pattern.
  *
- * @param {window} editor  - a reference to the komodo.xul main window
+ * @param {window|koIScintillaView} editor - a reference to the komodo.xul main
+ *        window, or a scintilla view in which to search
  * @param {Components.interfaces.koIFindContext} context - a koIFindContext
  * @param {string} pattern - the pattern being sought
  * @param {string} mode (optional) is either "find" (the default) or "replace",
@@ -1283,22 +1313,31 @@ this.findNext = function Find_FindNext(editor, context, pattern, mode /* ="find"
                        msgHandler /* =<statusbar notifier> */,
                        highlightMatches /* =true */)
 {
+    var win = editor, view;
+    if (editor instanceof Components.interfaces.koIScintillaView) {
+        win = editor.QueryInterface(Components.interfaces.nsIDOMNode)
+                    .ownerDocument.defaultView;
+        view = editor;
+    } else {
+        view = editor.ko.views.manager.currentView;
+    }
+
     if (typeof(mode) == 'undefined' || mode == null) mode = "find";
     if (typeof(quiet) == 'undefined' || quiet == null) quiet = false;
     if (typeof(useMRU) == 'undefined' || useMRU == null) useMRU = true;
     if (typeof(msgHandler) == 'undefined' || msgHandler == null) {
-        msgHandler = ko.find.getStatusbarMsgHandler(editor);
+        msgHandler = ko.find.getStatusbarMsgHandler(win);
     }
     if (typeof(highlightMatches) == 'undefined' || highlightMatches == null) highlightMatches = true;
     if (!ko.find.highlightingEnabled()) {
         highlightMatches = false;
     }
 
-    findLog.info("ko.find.findNext(editor, context, pattern='"+pattern+
-                 "', mode="+mode+", quiet="+quiet+", useMRU"+useMRU+")");
+    findLog.info("ko.find.findNext(editor="+editor+", context, pattern='"+pattern+
+                 "', mode="+mode+", quiet="+quiet+", useMRU="+useMRU+")");
 
-    if (editor.ko.macros.recorder.mode == 'recording') {
-        editor.ko.macros.recorder.appendCode("ko.find.findNextInMacro(window, " +
+    if (win.ko.macros.recorder.mode == 'recording') {
+        win.ko.macros.recorder.appendCode("ko.find.findNextInMacro(window, " +
                                     context.type + ", '" +
                                     ko.find.regexEscapeString(pattern) + "', " +
                                     _findSvc.options.patternType + ", " +
@@ -1323,12 +1362,13 @@ this.findNext = function Find_FindNext(editor, context, pattern, mode /* ="find"
     var findResult = null;
     var scimoz;
     if (highlightMatches) {
-        scimoz = editor.ko.views.manager.currentView.scintilla.scimoz;
+        scimoz = view.scimoz;
     }
 
     try {
         findResult = ko.find._setupAndFindNext(editor, context, pattern, mode);
     } catch (ex) {
+        findLog.debug("_setupAndFindNext failed with " + ex);
         if (highlightMatches) {
             ko.find.highlightClearAll(scimoz);
         }
@@ -1340,6 +1380,7 @@ this.findNext = function Find_FindNext(editor, context, pattern, mode /* ="find"
         ko.mru.add("find-patternMru", pattern, true);
 
     if (findResult) {
+        findLog.debug("found a result " + findResult);
         ko.find._displayFindResult(editor, findResult);
         if (highlightMatches && (mode == "find")) {
             ko.find.highlightAllMatches(scimoz, context, pattern);
@@ -1350,8 +1391,8 @@ this.findNext = function Find_FindNext(editor, context, pattern, mode /* ="find"
         }
         if (!quiet)
             ko.find._uiForCompletedFindSession(context, msgHandler);
-        //log.debug("Reset find session, because 'FindNext' did not find "
-        //         + "anything.");
+        findLog.debug("Reset find session, because 'FindNext' did not find " +
+                      "anything.");
         _findSession.Reset();
     }
     return findResult != null;

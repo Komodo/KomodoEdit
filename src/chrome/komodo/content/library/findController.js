@@ -1,0 +1,695 @@
+/* ***** BEGIN LICENSE BLOCK *****
+ * Version: MPL 1.1/GPL 2.0/LGPL 2.1
+ * 
+ * The contents of this file are subject to the Mozilla Public License
+ * Version 1.1 (the "License"); you may not use this file except in
+ * compliance with the License. You may obtain a copy of the License at
+ * http://www.mozilla.org/MPL/
+ * 
+ * Software distributed under the License is distributed on an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+ * License for the specific language governing rights and limitations
+ * under the License.
+ * 
+ * The Original Code is Komodo code.
+ * 
+ * The Initial Developer of the Original Code is ActiveState Software Inc.
+ * Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
+ * ActiveState Software Inc. All Rights Reserved.
+ * 
+ * Contributor(s):
+ *   ActiveState Software Inc
+ * 
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU General Public License Version 2 or later (the "GPL"), or
+ * the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+ * in which case the provisions of the GPL or the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of either the GPL or the LGPL, and not to allow others to
+ * use your version of this file under the terms of the MPL, indicate your
+ * decision by deleting the provisions above and replace them with the notice
+ * and other provisions required by the GPL or the LGPL. If you do not delete
+ * the provisions above, a recipient may use your version of this file under
+ * the terms of any one of the MPL, the GPL or the LGPL.
+ * 
+ * ***** END LICENSE BLOCK ***** */
+
+/**
+ * Unified find controller - this handles both incremental search as well as
+ * commands related to opening the find dialog
+ */
+
+Components.utils.import("resource://gre/modules/PluralForm.jsm");
+
+xtk.include('controller');
+
+if (typeof(ko)=='undefined') {
+    var ko = {};
+}
+if (typeof(ko.find)=='undefined') {
+    ko.find = {};
+}
+
+ko.find.controller = {};
+(function() {
+
+const Cc = Components.classes;
+const Ci = Components.interfaces;
+
+var _bundle = Cc["@mozilla.org/intl/stringbundle;1"]
+                .getService(Ci.nsIStringBundleService)
+                .createBundle("chrome://komodo/locale/library.properties");
+var _log = ko.logging.getLogger('findController');
+
+function FindController(viewManager) {
+    if (!(this instanceof FindController)) {
+        // somebody called us, but not as a constructor
+        _log.exception("FindController should be called as a constructor");
+        throw("FindController should be called as a constructor");
+    }
+    this._viewManager = viewManager;
+    this._incrementalSearchPattern = ''; // only used for incremental search
+    this._lastIncrementalSearchText = ''; // only used for incremental search
+    this._findSvc = Cc["@activestate.com/koFindService;1"]
+                      .getService(Ci.koIFindService);
+    var win = Components.utils.getGlobalForObject(this._viewManager);
+    win.controllers.appendController(this);
+    _log.debug("find controller initialized for " + viewManager);
+}
+
+// The following two lines ensure proper inheritance (see Flanagan, p. 144).
+FindController.prototype = new xtk.Controller();
+FindController.prototype.constructor = FindController;
+
+/**
+ * Clean up
+ */
+FindController.prototype._destructor = function() {
+    var win = Components.utils.getGlobalForObject(this._viewManager);
+    win.controllers.removeController(this);
+}
+
+/**
+ * Get the view we want to search in
+ */
+FindController.prototype.__defineGetter__("_currentView", function FindController_get__currentView() {
+    var view = this._viewManager;
+    if ("currentView" in this._viewManager) {
+        // this may be a koIViewList with multiple views
+        try {
+            view = this._viewManager.currentView;
+        } catch (ex) {
+            if (ex == Components.results.NS_ERROR_NOT_IMPLEMENTED) {
+                // This can happen if we got a basic view instead of a tabbed
+                // view; ignore the exception, it's expected.
+            } else {
+                // unexpected
+                _log.exception(ex);
+                return null;
+            }
+        }
+    }
+    return view;
+});
+
+/**
+ * Returns true if the view we want to search in exists and is the current view
+ * in the view manager
+ */
+function viewIsCurrentView() {
+    var currView = this._currentView;
+    return currView && currView == ko.views.manager.currentView;
+}
+
+// cmd_find
+FindController.prototype.is_cmd_find_enabled = function() {
+    var currView = this._currentView;
+    return currView &&
+           currView == ko.views.manager.currentView &&
+           currView.getAttribute("type") == "editor";
+}
+
+FindController.prototype.do_cmd_find = function() ko.launch.find();
+
+// cmd_replace
+FindController.prototype.is_cmd_replace_enabled = function() {
+    ko.views.manager.getAllViews().length != 0;
+}
+
+FindController.prototype.do_cmd_replace = function() ko.launch.replace();
+
+FindController.prototype._cmd_findNextPrev = function(searchBackward) {
+    var pattern = ko.mru.get("find-patternMru");
+    if (pattern) {
+        var context = Cc["@activestate.com/koFindContext;1"]
+                        .createInstance(Ci.koIFindContext);
+        var findSvc = Cc["@activestate.com/koFindService;1"]
+                        .getService(Ci.koIFindService);
+        context.type = findSvc.options.preferredContextType;
+        findSvc.options.searchBackward = searchBackward;
+        ko.find.findNext(window, context, pattern);
+    } else {
+        ko.launch.find();
+    }
+};
+
+// cmd_findNext
+FindController.prototype.is_cmd_findNext_enabled = viewIsCurrentView;
+
+FindController.prototype.do_cmd_findNext = function() {
+    this._cmd_findNextPrev(false);
+}
+
+// cmd_findPrevious
+FindController.prototype.is_cmd_findPrevious_enabled = viewIsCurrentView;
+
+FindController.prototype.do_cmd_findPrevious = function()  {
+    this._cmd_findNextPrev(true);
+}
+
+// cmd_findNextResult
+FindController.prototype.is_cmd_findNextResult_enabled = viewIsCurrentView;
+
+FindController.prototype.do_cmd_findNextResult = function() ko.findresults.nextResult();
+
+// cmd_findNextFunction, cmd_findPreviousFunction, cmd_findAllFunctions
+
+// Auxiliary function used by the find*Function(s) methods.
+//
+//  "searchType" is one of "next", "previous" or "all"
+//
+FindController.prototype._findFunction = function(searchType) {
+    try {
+        var language = this._currentView.koDoc.languageObj;
+        var re = language.namedBlockRE;
+        var namedBlockDescription = language.namedBlockDescription;
+        if (re == null || re == '')
+            return;
+
+        // save some find options
+        var patternType, caseSensitivity, searchBackward, matchWord;
+        patternType = this._findSvc.options.patternType;
+        caseSensitivity = this._findSvc.options.caseSensitivity;
+        searchBackward = this._findSvc.options.searchBackward;
+        matchWord = this._findSvc.options.matchWord;
+
+        this._findSvc.options.patternType = Ci.koIFindOptions.FOT_REGEX_PYTHON;
+        this._findSvc.options.caseSensitivity = Ci.koIFindOptions.FOT_SENSITIVE;
+        this._findSvc.options.searchBackward = (searchType == "previous");
+        this._findSvc.options.matchWord = false;
+
+        var context = Cc["@activestate.com/koFindContext;1"]
+                        .createInstance(Ci.koIFindContext);
+        context.type = Ci.koIFindContext.FCT_CURRENT_DOC;
+        if (searchType == "all") {
+            ko.find.findAll(window, context, re, namedBlockDescription);
+        } else {
+            ko.find.findNext(window, context, re);
+        }
+
+        // restore saved find options
+        this._findSvc.options.patternType = patternType;
+        this._findSvc.options.caseSensitivity = caseSensitivity;
+        this._findSvc.options.searchBackward = searchBackward;
+        this._findSvc.options.matchWord = matchWord;
+    }  catch (e) {
+        this.log.error(e);
+    }
+}
+
+FindController.prototype.is_cmd_findNextFunction_enabled = function() {
+    var view = this._currentView;
+    return view && view.koDoc && view.koDoc.languageObj.namedBlockRE != '';
+}
+
+FindController.prototype.do_cmd_findNextFunction = function() {
+    this._findFunction("next");
+}
+
+FindController.prototype.is_cmd_findPreviousFunction_enabled = function() {
+    var view = this._currentView;
+    return view && view.koDoc && view.koDoc.languageObj.namedBlockRE != '';
+}
+
+FindController.prototype.do_cmd_findPreviousFunction = function() {
+    this._findFunction("previous");
+}
+
+FindController.prototype.is_cmd_findAllFunctions_enabled = function() {
+    var view = this._currentView;
+    return view && view.koDoc && view.koDoc.languageObj.namedBlockRE != '';
+}
+
+FindController.prototype.do_cmd_findAllFunctions = function() {
+    this._findFunction("all");
+}
+
+/**
+ * Check if incremental search is enabled
+ * @see nsIController::isCommandEnabled
+ */
+FindController.prototype.is_cmd_startIncrementalSearch_enabled = function() {
+    return this._currentView != null;
+}
+
+/**
+ * Find the next incremental search result
+ * @see nsIController::doCommand
+ */
+FindController.prototype.do_cmd_startIncrementalSearch = function() {
+    this._startIncrementalSearch(false);
+}
+
+/**
+ * Check if incremental search (backwards) is enabled
+ * @see nsIController::isCommandEnabled
+ */
+FindController.prototype.is_cmd_startIncrementalSearchBackwards_enabled = function() {
+    return this._currentView != null;
+}
+
+/**
+ * Find the previous incremental search result
+ * @see nsIController::doCommand
+ */
+FindController.prototype.do_cmd_startIncrementalSearchBackwards = function() {
+    this._startIncrementalSearch(true);
+}
+
+/**
+ * Set the search pattern type
+ */
+FindController.prototype.__defineSetter__("patternType", function FindController_set_patternType(val) {
+    this._findSvc.options.patternType = val;
+    if (this._scintilla) {
+        // in incremental search
+        this._scintilla.findbar.patternType = val;
+    }
+});
+
+/**
+ * mouse event handler for incremental search
+ */
+FindController.prototype._mouseHandlerBase = function (e) {
+    var relatedTarget = null;
+    if (e && e.type && e.type == "mousedown") {
+        var isFindbar =
+            (e.originalTarget == this._scintilla.findbar) ||
+            (e.originalTarget.compareDocumentPosition(this._scintilla.findbar) & Node.DOCUMENT_POSITION_CONTAINS);
+        if (isFindbar) {
+            // The user clicked on the find bar or something in it; we don't
+            // want to do anything here
+            event.stopPropagation();
+            return;
+        }
+    }
+    this._stopIncrementalSearch("Clicked away", false);
+};
+
+/**
+ * Focus event handler for incremental search
+ * @note this should be bound to a FindController instance
+ * @param event The focus event
+ */
+FindController.prototype._focusHandlerBase = function(e) {
+    // look at the focused element, instead of what the event says, because we
+    // shouldn't hide the find bar if the window itself gets focus without
+    // changing the focused element
+    var elem = document.commandDispatcher.focusedElement;
+
+    if ((!this._scintilla) ||
+        (!elem) ||
+        (elem == this._scintilla.findbar) ||
+        (elem.compareDocumentPosition(this._scintilla.findbar) & Node.DOCUMENT_POSITION_CONTAINS))
+    {
+        // The user clicked on the find bar or something in it; we don't
+        // want to do anything here
+        return;
+    }
+    this._stopIncrementalSearch("Focus changed", false);
+};
+
+
+FindController.prototype._startIncrementalSearch = function(backwards) {
+    if (!this._currentView) {
+        _log.error("Couldn't start incremental search with no focused scintilla");
+        return;
+    }
+    _log.debug("Starting incremental search " + (backwards ? "backwards" : "forwards"));
+    this._view = this._currentView;
+    var scintilla = this._scintilla = this._currentView.scintilla;
+    var scimoz = scintilla.scimoz;
+    this._scintilla.findbar.controller = this;
+    this._scintilla.findbar.notFound = false;
+    this._scintilla.findbar.collapsed = false;
+    this._scintilla.findbar.setStatus(null);
+    this._scintilla.findbar.focus();
+    // canOpenDialog must be set after collapsed=false in order for the XBL
+    // binding to apply early enough.
+    this._scintilla.findbar.canOpenDialog = (this._viewManager == ko.views.manager);
+    this._mouseHandler = this._mouseHandlerBase.bind(this);
+    scintilla.mouse_handler = this._mouseHandler;
+    this._focusHandler = this._focusHandlerBase.bind(this);
+    document.addEventListener("focus", this._focusHandler, true);
+    this._incrementalSearchStartPos = Math.min(scimoz.currentPos, scimoz.anchor);
+    var pattern = scimoz.selText;
+    if (/\n/.test(pattern)) pattern = ""; // ignore multi-line selections
+    this._incrementalSearchContext = Cc["@activestate.com/koFindContext;1"]
+                                       .createInstance(Ci.koIFindContext);
+
+    // Save original find settings
+    this._origFindOptions = {
+        "searchBackward":  this._findSvc.options.searchBackward,
+        "matchWord":       this._findSvc.options.matchWord,
+        "patternType":     this._findSvc.options.patternType,
+        "caseSensitivity": this._findSvc.options.caseSensitivity
+    };
+
+    // Clear the highlight now because we're starting a new search
+    ko.find.highlightClearAll(this._scintilla.scimoz);
+    ko.statusBar.AddMessage(null, "isearch");
+
+    // Apply new find settings
+    this._findSvc.options.searchBackward = backwards;
+    this._findSvc.options.matchWord = this._scintilla.findbar.matchWord = false;
+    this.patternType = Number(ko.prefs.getStringPref('isearchType'));
+    this._findSvc.options.caseSensitivity = Number(ko.prefs.getStringPref('isearchCaseSensitivity'));
+    this._scintilla.findbar.caseSensitivity = this._findSvc.options.caseSensitivity;
+    this._incrementalSearchContext.type = this._findSvc.options.FCT_CURRENT_DOC;
+    this._incrementalSearchPattern = pattern;
+    this._scintilla.findbar.text = pattern;
+    if (pattern) {
+        this._scintilla.findbar.selectText();
+        // we have something selected; highlight the other occurrences without
+        // moving the cursor, please
+        ko.find.highlightAllMatches(scimoz, this._incrementalSearchContext, pattern)
+    }
+}
+
+FindController.prototype._stopIncrementalSearch = function(why, highlight) {
+    _log.debug("stopping incremental search (" + why + ")");
+    if (why !== null) {
+        ko.statusBar.AddMessage(_bundle.formatStringFromName("incrementalSearchStopped",
+                                                             [why], 1),
+                                "isearch", 3000, highlight, true);
+    }
+    if (this._origFindOptions) {
+        // Restore original find settings
+        for each (let key in Object.keys(this._origFindOptions)) {
+            _log.debug("restoring " + key + " to " + this._origFindOptions[key]);
+            this._findSvc.options[key] = this._origFindOptions[key];
+        }
+        this._origFindOptions = null;
+    }
+    // never add to the MRU; we only do that in searchAgain.
+    this._incrementalSearchPattern = '';
+
+    if (!this._scintilla) return;
+
+    // clean up event handlers
+    if (this._scintilla.mouse_handler == this._mouseHandler) {
+        this._scintilla.mouse_handler = null;
+    }
+    document.removeEventListener("focus", this._focusHandler, true);
+    this._focusHandler = null;
+
+    var elem = document.commandDispatcher.focusedElement;
+    if ((!elem) ||
+        (elem == this._scintilla.findbar) ||
+        (elem.compareDocumentPosition(this._scintilla.findbar) & Node.DOCUMENT_POSITION_CONTAINS))
+    {
+        // the focus is in the find bar; it gets confused if we send more key
+        // events its way, so move the focus to its scintilla instead.
+        this._scintilla.focus();
+    }
+
+    // clean up the find bar
+    this._scintilla.findbar.controller = null;
+    this._scintilla.findbar.collapsed = true;
+    this._scintilla = null;
+}
+
+/**
+ * Convert this incremental search to a Find dialog
+ */
+FindController.prototype.convertToDialog = function() {
+    // throw away the original find options, it's all going into the dialog
+    this._origFindOptions = null;
+    // save the pattern
+    var pattern = this._incrementalSearchPattern;
+    // abort the incremental search
+    this._stopIncrementalSearch(null, false);
+    // Open the find dialog
+    ko.launch.find(pattern);
+};
+
+
+/**
+ * Start an incremental search (or update the current one with more text)
+ * @param pattern The pattern to search for
+ */
+FindController.prototype.search = function(pattern, highlight) {
+    var scimoz = this._scintilla.scimoz;
+    this._lastIncrementalSearchText = pattern;
+    this._incrementalSearchPattern = pattern;
+    var oldStart = scimoz.selectionStart;
+    var oldEnd = scimoz.selectionEnd;
+    this._scintilla.findbar.notFound = false;
+    this._scintilla.findbar.text = this._incrementalSearchPattern;
+    scimoz.gotoPos(this._incrementalSearchStartPos-1);
+    if (this._incrementalSearchPattern == '') {
+        return;
+    }
+    ko.macros.recorder.undo();
+    var findres = ko.find.findNext(
+        this._view, this._incrementalSearchContext,
+        this._incrementalSearchPattern, null,
+        true,
+        // Do NOT add this pattern to find MRU
+        //  http://bugs.activestate.com/show_bug.cgi?id=27350
+        // that will be done on stopping of interactive search.
+        false,
+        null,   // msgHandler
+        highlight);
+    if (! findres) {
+        var prompt = _bundle.formatStringFromName("noOccurencesFound",
+                                                  [this._incrementalSearchPattern], 1);
+        scimoz.setSel(oldStart, oldEnd);
+        this._scintilla.findbar.notFound = true;
+    }
+};
+
+/**
+ * Find the next occurence of an incremental search result
+ * @param {Boolean} isBackwards Whether the search should be conducted backwards
+ */
+FindController.prototype.searchAgain = function(isBackwards) {
+    this._scintilla.findbar.notFound = false;
+    if (this._lastIncrementalSearchText == '')
+        return;
+
+    var findSessionSvc = Cc["@activestate.com/koFindSession;1"]
+                           .getService(Ci.koIFindSession);
+    var lastCount = findSessionSvc.GetNumFinds();
+
+    if (this._incrementalSearchPattern == "") {
+        // Second <Ctrl+I> after a non-search action
+        this._incrementalSearchPattern = this._lastIncrementalSearchText;
+        findSessionSvc.Reset();
+    }
+    this._scintilla.findbar.text = this._incrementalSearchPattern;
+    this._findSvc.options.searchBackward = isBackwards;
+    var scimoz = this._scintilla.scimoz;
+    var lastPos = (isBackwards ? Math.max : Math.min)(scimoz.anchor,
+                                                      scimoz.currentPos);
+    var findres = ko.find.findNext(this._view, this._incrementalSearchContext,
+                                   this._incrementalSearchPattern,
+                                   null, true,
+                                   true); // add pattern to find MRU
+    if (findres == false) {
+        var text = _bundle.GetStringFromName("findNotFound");
+        text = PluralForm.get(lastCount, text).replace("#1", lastCount);
+        this._scintilla.findbar.setStatus("not-found", text);
+        this._scintilla.findbar.notFound = true;
+    } else {
+        this._incrementalSearchStartPos = this._scintilla.scimoz.currentPos;
+        ko.statusBar.AddMessage(null, "isearch");
+        if (isBackwards) {
+            var newPos = Math.max(scimoz.anchor, scimoz.currentPos);
+            if (newPos > lastPos) {
+                this._scintilla.findbar.setStatus("wrapped", "findWrappedBackwards");
+            } else {
+                this._scintilla.findbar.setStatus(null);
+            }
+        } else {
+            var newPos = Math.min(scimoz.anchor, scimoz.currentPos);
+            if (newPos < lastPos) {
+                this._scintilla.findbar.setStatus("wrapped", "findWrappedForwards");
+            } else {
+                this._scintilla.findbar.setStatus(null);
+            }
+        }
+    }
+}
+
+FindController.prototype.__defineSetter__("matchWord", function FindController_set_matchWord(val) {
+    if (this._findSvc.options.matchWord == val) {
+        return;
+    }
+    this._findSvc.options.matchWord = val;
+    if (this._scintilla) {
+        // in incremental search
+        this._scintilla.findbar.matchWord = val;
+    }
+    // update the search
+    this.search(this._incrementalSearchPattern);
+});
+
+FindController.prototype.__defineSetter__("caseSensitivity", function FindController_set_caseSensitivity(val) {
+    if (this._findSvc.options.caseSensitivity == val) {
+        return;
+    }
+    this._findSvc.options.caseSensitivity = val;
+    if (this._scintilla) {
+        // in incremental search
+        this._scintilla.findbar.caseSensitivity = val;
+    }
+});
+
+/**
+ * keypress event handler for the find controller
+ * @note this is called from the findbar's <handler>
+ */
+FindController.prototype._keyHandler = function FindController__keyHandler(event) {
+    var keyMgr = ko.keybindings.manager;
+    var eventkey = keyMgr.event2keylabel(event);
+    var forwardKeys = ["cmd_startIncrementalSearch", "cmd_findNext"]
+                      .map(keyMgr.command2keysequences, keyMgr);
+    var backwardKeys = ["cmd_startIncrementalSearchBackwards", "cmd_findPrevious"]
+                       .map(keyMgr.command2keysequences, keyMgr);
+
+    // If the key sequence associated with incremental search is more than
+    // one key long (i.e. the user has customized from the default <Ctrl+I>
+    // to, say, <Ctrl+K, I>):
+    // - if the last key is a Ctrl or Alt key, use it
+    // - otherwise, disable the 'multiple hits' feature
+    for each (var keyset in forwardKeys.concat(backwardKeys)) {
+        for each (var keyseq in keyset || []) {
+            // comma followed by space is a multiple key sequence delimiter
+            // (as opposed to just comma, which could be the key itself)
+            var keys = keyseq.split(", ");
+            var lastkey = keys[keys.length - 1];
+            if ((keys.length == 1 || /(?:Ctrl|Meta|Alt)\+/.test(lastkey)) &&
+                eventkey == lastkey)
+            {
+                // we're hitting the same key as was last used to start the
+                // search, so we just want to redo the search
+                event.stopPropagation();
+                event.preventDefault();
+                this.searchAgain(backwardKeys.indexOf(keyset) > -1);
+                return;
+            }
+        }
+    }
+
+    var cmdFindKeys = keyMgr.command2keysequences('cmd_find');
+    if (cmdFindKeys.indexOf(eventkey) != -1) {
+        // The user pressed the "open find dialog" key. (This will never
+        // happen if it involves more than one key in the sequence,
+        // because eventkey is only one key event)
+        event.stopPropagation();
+        event.preventDefault();
+        this.convertToDialog();
+        return;
+    }
+
+    // If we get here, this isn't trying to trigger a find. See if we need
+    // to close the findbar.
+
+    if (event.ctrlKey || event.altKey || event.metaKey) {
+      // Some sort of chord; don't close the findbar, since it might
+      // be stuff like paste.  We close on blur, anyway
+      return;
+    }
+
+    switch (event.keyCode) {
+      case 0:
+        // regular keys have keycode 0 (and a charCode is used instead)
+        // (fall through)
+
+      // navigation
+      case KeyEvent.DOM_VK_LEFT:       case KeyEvent.DOM_VK_RIGHT:
+      case KeyEvent.DOM_VK_UP:         case KeyEvent.DOM_VK_DOWN:
+      case KeyEvent.DOM_VK_HOME:       case KeyEvent.DOM_VK_END:
+      case KeyEvent.DOM_VK_TAB:
+
+      // editing
+      case KeyEvent.DOM_VK_ENTER:      case KeyEvent.DOM_VK_RETURN:
+      case KeyEvent.DOM_VK_BACK_SPACE: case KeyEvent.DOM_VK_DELETE:
+
+      // misc
+      case KeyEvent.DOM_VK_CONTEXT_MENU:
+
+      // IME / input
+      case KeyEvent.DOM_VK_CONVERT:    case KeyEvent.DOM_VK_NONCONVERT:
+      case KeyEvent.DOM_VK_HANGUL:     case KeyEvent.DOM_VK_HANJA:
+      case KeyEvent.DOM_VK_JUNJA:
+      case KeyEvent.DOM_VK_KANA:       case KeyEvent.DOM_VK_KANJI:
+
+        return;
+    }
+
+    // if we get here, it's a special key of some sort. Close the findbar.
+    var scintilla = this._scintilla; // this will go away, hold on to it
+    this._stopIncrementalSearch("User cancelled", false);
+    scintilla.focus();
+};
+
+// expose the controller constructor
+this.FindController = FindController;
+
+/*****
+ * Deprecated shims (since Komodo 7.0.0a4)
+ *****/
+ko.logging.propertyDeprecatedByAlternative(FindController.prototype,
+                                           "findSvc",
+                                           'Components.classes["@activestate.com/koFindService;1"].getService(Components.interfaces.koIFindService)');
+ko.logging.propertyDeprecatedByAlternative(FindController.prototype,
+                                           "inRepeatCounterAccumulation",
+                                           'window.controllers.getControllerForCommand("cmd_repeatNextCommandBy").wrappedJSObject.inRepeatCounterAccumulation');
+ko.logging.propertyDeprecatedByAlternative(FindController.prototype,
+                                           "defaultRepeatCounter",
+                                           'window.controllers.getControllerForCommand("cmd_repeatNextCommandBy").wrappedJSObject.defaultRepeatCounter');
+ko.logging.propertyDeprecatedByAlternative(FindController.prototype,
+                                           "do_cmd_repeatNextCommandBy",
+                                           'window.controllers.getControllerForCommand("cmd_repeatNextCommandBy").wrappedJSObject.do_cmd_repeatNextCommandBy');
+ko.logging.propertyDeprecatedByAlternative(FindController.prototype,
+                                           "getCount",
+                                           'window.controllers.getControllerForCommand("cmd_repeatNextCommandBy").wrappedJSObject.getCount');
+ko.logging.propertyDeprecatedByAlternative(FindController.prototype,
+                                           "cancelMultiHandler",
+                                           'window.controllers.getControllerForCommand("cmd_repeatNextCommandBy").wrappedJSObject.cancelMultiHandler');
+
+// if we're the main window, wait for ko.views to be available and hook up a
+// default incremental search controller
+addEventListener("load", (function() {
+    if (document.documentElement.id == "komodo_main") {
+        setTimeout((function() {
+            this.controller = new FindController(ko.views.manager);
+            ko.main.addWillCloseHandler(this.controller._destructor, this.controller);
+        }).bind(this), 0);
+    }
+}).bind(this), false);
+
+}).apply(ko.find.controller);
+
+// shims
+if (!ko.isearch) ko.isearch = {};
+(function() {
+/*****
+ * Deprecated shims (since Komodo 7.0.0a4)
+ *****/
+ko.logging.propertyDeprecatedByAlternative(this,
+                                           "controller",
+                                           "ko.find.controller");
+}).apply(ko.isearch);

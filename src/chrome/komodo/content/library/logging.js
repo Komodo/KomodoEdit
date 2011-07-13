@@ -164,12 +164,11 @@ this.Logger.prototype.deprecated = function(message, reportDuplicates /* false *
  * Mark global var/function as being deprecated with an alternative. All calls
  * to the item will be logged with a one-off warning.
  *
- * @param deprecatedName Type - Description
- * @param  Type - Description
- * @param  Type - Description
- * @param  Type - Description
+ * @param deprecatedName {string}  The global variable name that is deprecated
+ * @param replacementName {string}  The new replacement code (an expression to eval)
+ * @param logger {Logger}  The logger to use (from ko.logging.getLogger), or null to use the default
  */
-this.globalDeprecatedByAlternative = function ko_logging_globalDeprecatedByAlternative(deprecatedName, replacementName, logger, replacementContext) {
+this.globalDeprecatedByAlternative = function ko_logging_globalDeprecatedByAlternative(deprecatedName, replacementName, logger) {
     window.__defineGetter__(deprecatedName,
          function() {
             // Get the caller of the deprecated item - 2 levels up.
@@ -179,9 +178,6 @@ this.globalDeprecatedByAlternative = function ko_logging_globalDeprecatedByAlter
                 _gSeenDeprectatedMsg[marker] = true;
                 if (!logger) {
                     logger = ko.logging.getLogger("");
-                }
-                if (!replacementContext) {
-                    replacementContext = window;
                 }
                 logger.warn("DEPRECATED: "
                                            + deprecatedName
@@ -193,6 +189,41 @@ this.globalDeprecatedByAlternative = function ko_logging_globalDeprecatedByAlter
                                            );
             }
             return eval(replacementName);
+        });
+};
+
+/**
+ * Mark object property as being deprecated with an alternative. All gets
+ * to the item will be logged with a one-off warning.
+ *
+ * @param object {Object} The object on which the deprecated property exists
+ * @param deprecatedName {string}  The global variable name that is deprecated
+ * @param replacementName {string}  An expression to get the replacement; |this| is the object
+ * @param logger {Logger}  The logger to use (from ko.logging.getLogger), or null to use the default
+ */
+this.propertyDeprecatedByAlternative = function ko_logging_propertyDeprecatedByAlternative(object, deprecatedName, replacementName, logger) {
+    object.__defineGetter__(deprecatedName,
+         function() {
+            // Get the caller of the deprecated item - 2 levels up.
+            var shortStack = "    " + getStack().split("\n")[2];
+            var marker = deprecatedName + shortStack;
+            if (!(marker in _gSeenDeprectatedMsg)) {
+                _gSeenDeprectatedMsg[marker] = true;
+                if (!logger) {
+                    logger = ko.logging.getLogger("");
+                }
+                logger.warn("DEPRECATED: "
+                                           + object
+                                           + "."
+                                           + deprecatedName
+                                           + ", use "
+                                           + replacementName.replace(/\bthis\b/g, object)
+                                           + "\n"
+                                           + shortStack
+                                           + "\n"
+                                           );
+            }
+            return (function() eval(replacementName)).call(object);
         });
 };
 

@@ -186,3 +186,27 @@
 <!ENTITY undoReplacements.title "Undo Replacements">
 <!ENTITY undoingReplacements.description "Undoing replacement.">
 <!ENTITY preparing.description "Preparing...">
+
+<!--findbar.xml-->
+<!ENTITY findbar.prompt "Incremental search ready">
+<!ENTITY findbar.close.tooltiptext "Close find bar">
+<!ENTITY findbar.next.label "Next">
+<!ENTITY findbar.next.tooltiptext "Find the next occurrence">
+<!ENTITY findbar.previous.label "Previous">
+<!ENTITY findbar.previous.tooltiptext "Find the previous occurrence">
+<!ENTITY findbar.word.label "Word">
+<!ENTITY findbar.word.tooltiptext "Match whole words only">
+<!ENTITY findbar.case.insensitive.label "Insensitive">
+<!ENTITY findbar.case.insensitive.tooltiptext "Search case-insensitively">
+<!ENTITY findbar.case.sensitive.label "Sensitive">
+<!ENTITY findbar.case.sensitive.tooltiptext "Search case-sensitively">
+<!ENTITY findbar.case.smart.label "Smart">
+<!ENTITY findbar.case.smart.tooltiptext "Search case-sensitively only if the search string is mixed case">
+<!ENTITY findbar.using.simple.label "Plain">
+<!ENTITY findbar.using.simple.tooltiptext "Search using plain text">
+<!ENTITY findbar.using.wildcard.label "Wildcard">
+<!ENTITY findbar.using.wildcard.tooltiptext "Search using wild cards">
+<!ENTITY findbar.using.regex.label "RegEx">
+<!ENTITY findbar.using.regex.tooltiptext "Search using regular expressions (Python syntax)">
+<!ENTITY findbar.openDialog.tooltiptext "Open the find dialog">
+

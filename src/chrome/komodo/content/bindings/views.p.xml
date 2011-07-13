@@ -637,13 +637,14 @@
         <property name="tabbedViewId">
             <getter><![CDATA[
             // Warning: Brittle XBL code ahead:
-            // Move up four levels to get the tabbedView container,
+            // Assume the binding parent is the tabbedView container,
             // with ID either 'view-1' or 'view-2'
-            var tabbedViewContainer = this.parentNode.parentNode.parentNode.parentNode;
+            var tabbedViewContainer = document.getBindingParent(this);
             // Sanity check.
             if (tabbedViewContainer.localName != 'view'
                 || tabbedViewContainer.getAttribute("type") != "tabbed"
-                || tabbedViewContainer.id.indexOf("view-") != 0) {
+                || !/^view-/.test(tabbedViewContainer.id))
+            {
                 throw new Error("view.tabbedViewId: expected the tabbedView, got node"
                                 + tabbedViewContainer.localName
                                 + " id:"

@@ -57,9 +57,12 @@ toolbar {
 }
   
 toolbarbutton {
-    -moz-box-orient: vertical;
     padding-top: 4px;
     padding-bottom: 4px;
+}
+
+#main-toolboxrow toolbarbutton {
+    -moz-box-orient: vertical;
 }
 
 .toolbarbutton-text[buttonstyle="pictures"],
