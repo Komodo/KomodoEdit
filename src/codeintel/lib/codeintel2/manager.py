@@ -440,6 +440,8 @@ class Manager(threading.Thread, Queue):
                     self._handle_eval_sess_error(eval_sess)
                 except:
                     pass
+            finally:
+                self._curr_eval_sess = None
     
     def _handle_eval_sess_error(self, eval_sess):
         exc_info = sys.exc_info()
