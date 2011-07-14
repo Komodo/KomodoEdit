@@ -5,6 +5,16 @@
         <scope ilk="function" line="3" lineend="10" name="sortBy" returns="this.map().sort().pluck()" signature="sortBy(iterator)">
           <variable ilk="argument" name="iterator" />
           <variable citdl="Enumerable" name="this" />
+          <scope attributes="__local__ private" ilk="function" line="4" lineend="6" name="(anonymous)" signature="(anonymous)(value, index)">
+            <variable ilk="argument" name="value" />
+            <variable ilk="argument" name="index" />
+          </scope>
+          <scope attributes="__local__ private" ilk="function" line="6" lineend="9" name="(anonymous)" returns="a" signature="(anonymous)(left, right)">
+            <variable ilk="argument" name="left" />
+            <variable ilk="argument" name="right" />
+            <variable attributes="__local__ private" citdl="left.criteria" line="7" name="a" />
+            <variable attributes="__local__ private" citdl="right.criteria" line="7" name="b" />
+          </scope>
         </scope>
       </variable>
     </scope>

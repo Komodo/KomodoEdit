@@ -10,7 +10,8 @@
         <scope attributes="__local__ private" ilk="function" line="9" lineend="9" name="(anonymous)" returns="this._num" signature="(anonymous)()">
           <variable citdl="jsclass" name="this" />
         </scope>
-        <scope attributes="__local__ private" ilk="function" line="10" lineend="12" name="(anonymous)" signature="(anonymous)()">
+        <scope attributes="__local__ private" ilk="function" line="10" lineend="12" name="(anonymous)" signature="(anonymous)(new_num)">
+          <variable ilk="argument" name="new_num" />
           <variable citdl="jsclass" name="this" />
           <variable citdl="new_num" line="11" name="_num" />
         </scope>

@@ -3742,17 +3742,34 @@ class JavaScriptCiler:
                         if self.state == S_IN_ARGS:
                             # __defineGetter__("num", function() { return this._num });
                             argTextPos = self.argumentTextPosition
-                            if len(self.text) > argTextPos and \
-                               self.styles[argTextPos] == self.JS_WORD and \
-                               self.text[argTextPos] == "function" and \
-                               self.text[-2] == ")":
-                                # Passing a function as one of the arguments,
-                                # need to create a JSFunction scope for this,
-                                # as various information may be needed, i.e.
-                                # a getter function return type.
-                                obj = self.addAnonymousFunction()
-                                self.objectArguments.append((self.argumentPosition, obj))
-                                self._pushAndSetState(S_DEFAULT)
+                            if len(self.text) >= 2 and self.text[-2] == ")":
+                                # foo( ... ( ... ) {
+                                # this really only makes sense as a function expression definition
+                                # foo( ... function (...) {
+                                # this function may have multiple arguments, so we can't trust
+                                # self.argumentTextPosition (which was clobbered)
+                                try:
+                                    argsStart = len(self.text) - list(reversed(self.text)).index("(")
+                                    if argsStart > 1:
+                                        functionPos = argsStart - 2 # position of "function" keyword
+                                        if self.styles[functionPos] == self.JS_IDENTIFIER: # named function
+                                            functionPos -= 1
+                                        if functionPos > -1 and \
+                                           self.styles[functionPos] == self.JS_WORD and \
+                                           self.text[functionPos] == "function":
+                                            # this is indeed a function; check arguments for sanity
+                                            args = self.text[argsStart:-2]
+                                            if all(x == ',' for x in args[1::2]):
+                                                # Passing a function as one of the arguments,
+                                                # need to create a JSFunction scope for this,
+                                                # as various information may be needed, i.e.
+                                                # a getter function return type.
+                                                obj = self.addAnonymousFunction(args=args[::2])
+                                                self.objectArguments.append((self.argumentPosition, obj))
+                                                self._pushAndSetState(S_DEFAULT)
+                                except ValueError:
+                                    # no "(" found in self.text
+                                    pass
                             elif len(self.text) >= 2 and \
                                ((self.text[-2] == "(" and
                                  self.argumentPosition == 0) or
