@@ -56,47 +56,48 @@ from citestsupport import CodeIntelTestCase, run, writefile
 
 log = logging.getLogger("test")
 
+def write_files(test_case, manifest={}, name="unnamed"):
+    """
+    Wrapper to write out the files for testing
+    @param hash of file name to text content
+        The file "test.js" will be run through unmark_text
+    @param name the name of the test
+    @return tuple (buf, positions)
+        buf is a buffer of the resulting test.js
+        positions is the positions returned from unmark_text
+    """
+    assert len(manifest) > 0, "No manifest"
+    assert "test.js" in manifest, "No test.js to run"
+    test_dir = join(test_case.test_dir, "test_nodejs_%s" % name)
+    test_js = None
+    for name, content in manifest.items():
+        content = dedent(content)
+        path = join(test_dir, name)
+        if name == "test.js":
+            content, positions = unmark_text(content)
+            test_js = path
+        writefile(path, content)
+    buf = test_case.mgr.buf_from_path(test_js, lang="Node.js", encoding="utf-8")
+    # Our files may include subdirectories, which won't get scanned by
+    # default (because curdirlib doesn't want to be recursive).  Manually
+    # ensure everything is scanned here.
+    curdirlib = buf.libs[0] # XXX: make this not so fragile
+    dirs = set(curdirlib.dirs)
+    for name in manifest.keys():
+        dirname, basename = os.path.split(name)
+        absdir = join(test_dir, dirname).rstrip(os.path.sep)
+        if not absdir in dirs:
+            curdirlib.ensure_dir_scanned(absdir)
+            dirs.add(absdir)
+    curdirlib.dirs = tuple(dirs)
+    return (buf, positions)
+
+
 class CplnTestCase(CodeIntelTestCase):
     lang = "Node.js"
     test_dir = join(os.getcwd(), "tmp")
 
-    def _write_files(self, manifest={}, name="unnamed"):
-        """
-        Wrapper to write out the files for testing
-        @param hash of file name to text content
-            The file "test.js" will be run through unmark_text
-        @param name the name of the test
-        @return tuple (buf, positions)
-            buf is a buffer of the resulting test.js
-            positions is the positions returned from unmark_text
-        """
-        assert len(manifest) > 0, "No manifest"
-        assert "test.js" in manifest, "No test.js to run"
-        test_dir = join(self.test_dir, "test_nodejs_%s" % name)
-        test_js = None
-        for name, content in manifest.items():
-            content = dedent(content)
-            path = join(test_dir, name)
-            if name == "test.js":
-                content, positions = unmark_text(content)
-                test_js = path
-            writefile(path, content)
-        buf = self.mgr.buf_from_path(test_js, lang="Node.js", encoding="utf-8")
-        # Our files may include subdirectories, which won't get scanned by
-        # default (because curdirlib doesn't want to be recursive).  Manually
-        # ensure everything is scanned here.
-        curdirlib = buf.libs[0] # XXX: make this not so fragile
-        dirs = set(curdirlib.dirs)
-        for name in manifest.keys():
-            dirname, basename = os.path.split(name)
-            absdir = join(test_dir, dirname).rstrip(os.path.sep)
-            if not absdir in dirs:
-                curdirlib.ensure_dir_scanned(absdir)
-                dirs.add(absdir)
-        curdirlib.dirs = tuple(dirs)
-        return (buf, positions)
-
-    def test_nodejs_require(self):
+    def test_require(self):
         """
         Check that require() works for relative paths
         """
@@ -125,13 +126,13 @@ class CplnTestCase(CodeIntelTestCase):
                 my_fs.<2>;
                 """,
         }
-        buf, positions = self._write_files(manifest=manifest, name="require")
+        buf, positions = write_files(self, manifest=manifest, name="require")
         self.assertCompletionsInclude2(buf, positions[1],
             [("class", "Server"), ])
         self.assertCompletionsInclude2(buf, positions[2],
             [("function", "rename"), ])
 
-    def test_nodejs_require_nonvar(self):
+    def test_require_nonvar(self):
         """
         Test require() without intermediate assignment
         """
@@ -145,11 +146,11 @@ class CplnTestCase(CodeIntelTestCase):
                 };
                 """,
         }
-        buf, positions = self._write_files(manifest=manifest, name="require_nonvar")
+        buf, positions = write_files(self, manifest=manifest, name="require_nonvar")
         self.assertCompletionsInclude2(buf, positions[1],
             [("function", "method"), ])
 
-    def test_nodejs_require_module_exports(self):
+    def test_require_module_exports(self):
         """
         Test exporting via module.exports
         """
@@ -163,11 +164,11 @@ class CplnTestCase(CodeIntelTestCase):
                 };
                 """,
         }
-        buf, positions = self._write_files(manifest=manifest, name="require_module_exports")
+        buf, positions = write_files(self, manifest=manifest, name="require_module_exports")
         self.assertCompletionsInclude2(buf, positions[1],
             [("function", "method"), ])
 
-    def test_nodejs_require_not_buf_path(self):
+    def test_require_not_buf_path(self):
         """
         Test require() from a path that is not the buffer path
         """
@@ -184,11 +185,11 @@ class CplnTestCase(CodeIntelTestCase):
                 };
                 """,
         }
-        buf, positions = self._write_files(manifest=manifest, name="require_not_buf_path")
+        buf, positions = write_files(self, manifest=manifest, name="require_not_buf_path")
         self.assertCompletionsInclude2(buf, positions[1],
             [("function", "method"), ])
 
-    def test_nodejs_module_simple(self):
+    def test_module_simple(self):
         """
         Test require() using node_modules (simple case)
         """
@@ -202,11 +203,11 @@ class CplnTestCase(CodeIntelTestCase):
                 };
                 """,
         }
-        buf, positions = self._write_files(manifest=manifest, name="module_simple")
+        buf, positions = write_files(self, manifest=manifest, name="module_simple")
         self.assertCompletionsInclude2(buf, positions[1],
             [("function", "simpleMethod"), ])
 
-    def test_nodejs_module_package_manifest(self):
+    def test_module_package_manifest(self):
         """
         Test require() on a module using package.json
         """
@@ -227,11 +228,11 @@ class CplnTestCase(CodeIntelTestCase):
                 };
                 """,
         }
-        buf, positions = self._write_files(manifest=manifest, name="module_package_manifest")
+        buf, positions = write_files(self, manifest=manifest, name="module_package_manifest")
         self.assertCompletionsInclude2(buf, positions[1],
             [("function", "method"), ])
 
-    def test_nodejs_require_prefer_core(self):
+    def test_require_prefer_core(self):
         """
         Check that require() prefers core modules where available
         """
@@ -243,11 +244,11 @@ class CplnTestCase(CodeIntelTestCase):
                 exports = {}
                 """,
         }
-        buf, positions = self._write_files(manifest=manifest, name="require_prefer_core")
+        buf, positions = write_files(self, manifest=manifest, name="require_prefer_core")
         self.assertCompletionsInclude2(buf, positions[1],
             [("function", "createServer"), ])
 
-    def test_nodejs_modules_no_repeat_subdir(self):
+    def test_modules_no_repeat_subdir(self):
         """
         Check that we don't descend into foo/node_modules/node_modules
         """
@@ -271,13 +272,13 @@ class CplnTestCase(CodeIntelTestCase):
                 }
                 """,
         }
-        buf, positions = self._write_files(manifest=manifest, name="modules_no_repeat_subdir")
+        buf, positions = write_files(self, manifest=manifest, name="modules_no_repeat_subdir")
         self.assertCompletionsInclude2(buf, positions[1],
             [("function", "other"), ])
         self.assertCompletionsDoNotInclude2(buf, positions[2],
             [("function", "method"), ])
 
-    def test_nodejs_modules_updir(self):
+    def test_modules_updir(self):
         """
         Test finding modules up the directory tree
         This also tests that multiple files with the same base name works
@@ -301,12 +302,12 @@ class CplnTestCase(CodeIntelTestCase):
                 }
                 """,
         }
-        buf, positions = self._write_files(manifest=manifest, name="modules_updir")
+        buf, positions = write_files(self, manifest=manifest, name="modules_updir")
         self.assertCompletionsInclude2(buf, positions[1],
             [("function", "method"), ])
 
     @tag("bug90331", "knownfailure")
-    def test_nodejs_require_extras(self):
+    def test_require_extras(self):
         """
         Check that we can tack extra properties onto require()d objects
         """
@@ -324,13 +325,13 @@ class CplnTestCase(CodeIntelTestCase):
                     }
                     """,
         }
-        buf, positions = self._write_files(manifest=manifest, name="modules_updir")
+        buf, positions = write_files(self, manifest=manifest, name="modules_updir")
         self.assertCompletionsInclude2(buf, positions[1],
             [("function", "foo"),
              ("function", "bar"),
             ])
 
-    def test_nodejs_globals(self):
+    def test_globals(self):
         """
         Test that the documented globals are available
         """
@@ -345,7 +346,7 @@ class CplnTestCase(CodeIntelTestCase):
                 __d<7>;
                 """,
         }
-        buf, positions = self._write_files(manifest=manifest, name="globals")
+        buf, positions = write_files(self, manifest=manifest, name="globals")
         self.assertCompletionsInclude2(buf, positions[1],
             [("variable", "console"),
             ])
@@ -370,7 +371,7 @@ class CplnTestCase(CodeIntelTestCase):
             [("variable", "__dirname"),
             ])
 
-    def test_nodejs_globals_props(self):
+    def test_globals_props(self):
         """
         Test that the imported globals have the right properties
         """
@@ -381,7 +382,7 @@ class CplnTestCase(CodeIntelTestCase):
                 console.<3>;
                 """,
         }
-        buf, positions = self._write_files(manifest=manifest, name="globals")
+        buf, positions = write_files(self, manifest=manifest, name="globals")
         self.assertCompletionsInclude2(buf, positions[1],
             [("function", "resolve"),
              ("variable", "paths"),
@@ -399,7 +400,7 @@ class CplnTestCase(CodeIntelTestCase):
              # the rest are tested in test_nodejs_console
             ])
 
-    def test_nodejs_global_accessor(self):
+    def test_global_accessor(self):
         """
         Test that the Node.js global accessor, |global|, is usable
         """
@@ -409,12 +410,12 @@ class CplnTestCase(CodeIntelTestCase):
                 foo.<1>;
                 """,
         }
-        buf, positions = self._write_files(manifest=manifest, name="global_accessor")
+        buf, positions = write_files(self, manifest=manifest, name="global_accessor")
         self.assertCompletionsInclude2(buf, positions[1],
             [("function", "concat"),
             ])
 
-    def test_nodejs_globals_no_pollute(self):
+    def test_globals_no_pollute(self):
         """
         Test that the modules don't pollute the global namespace
         """
@@ -423,19 +424,24 @@ class CplnTestCase(CodeIntelTestCase):
                 tim<1>;
                 """,
         }
-        buf, positions = self._write_files(manifest=manifest, name="globals_no_pollute")
+        buf, positions = write_files(self, manifest=manifest, name="globals_no_pollute")
         self.assertCompletionsDoNotInclude2(buf, positions[1],
             [("variable", "timers"),
             ])
 
-    def test_nodejs_console(self):
+class StdLibTestCase(CodeIntelTestCase):
+    """ Code Completion test cases for the Node.js standard library"""
+    lang = "Node.js"
+    test_dir = join(os.getcwd(), "tmp")
+
+    def test_console(self):
         """
         Test the Node.js console module
         """
         manifest = {"test.js": """
             require('console').<1>;
             """}
-        buf, positions = self._write_files(manifest=manifest, name="console")
+        buf, positions = write_files(self, manifest=manifest, name="console")
         self.assertCompletionsInclude2(buf, positions[1],
             [("function", "log"),
              ("function", "info"),
@@ -448,12 +454,12 @@ class CplnTestCase(CodeIntelTestCase):
              ("function", "assert"),
             ])
 
-    def test_nodejs_timers(self):
+    def test_timers(self):
         """
         Test the Node.js timers module
         """
         manifest = {"test.js": "require('timers').<1>;"}
-        buf, positions = self._write_files(manifest=manifest, name="timers")
+        buf, positions = write_files(self, manifest=manifest, name="timers")
         self.assertCompletionsInclude2(buf, positions[1],
             [("function", "setTimeout"),
              ("function", "clearTimeout"),
@@ -461,12 +467,12 @@ class CplnTestCase(CodeIntelTestCase):
              ("function", "clearInterval"),
             ])
 
-    def test_nodejs_process(self):
+    def test_process(self):
         """
         Test the Node.js process module
         """
         manifest = {"test.js": "require('process').<1>;"}
-        buf, positions = self._write_files(manifest=manifest, name="process")
+        buf, positions = write_files(self, manifest=manifest, name="process")
         self.assertCompletionsInclude2(buf, positions[1],
             [("variable", "stdout"),
              ("variable", "stderr"),
@@ -492,12 +498,12 @@ class CplnTestCase(CodeIntelTestCase):
              ("function", "umask"),
             ])
 
-    def test_nodejs_util(self):
+    def test_util(self):
         """
         Test the Node.js util module
         """
         manifest = {"test.js": "require('util').<1>;"}
-        buf, positions = self._write_files(manifest=manifest, name="util")
+        buf, positions = write_files(self, manifest=manifest, name="util")
         self.assertCompletionsInclude2(buf, positions[1],
             [("function", "debug"),
              ("function", "log"),
@@ -506,7 +512,7 @@ class CplnTestCase(CodeIntelTestCase):
              ("function", "inherits"),
             ])
 
-    def test_nodejs_events(self):
+    def test_events(self):
         """
         Test the Node.js events module
         """
@@ -516,7 +522,7 @@ class CplnTestCase(CodeIntelTestCase):
             var emitter = new events.EventEmitter();
             emitter.<2>;
             """}
-        buf, positions = self._write_files(manifest=manifest, name="events")
+        buf, positions = write_files(self, manifest=manifest, name="events")
         self.assertCompletionsInclude2(buf, positions[1],
             [("class", "EventEmitter")])
         self.assertCompletionsInclude2(buf, positions[2],
@@ -530,7 +536,7 @@ class CplnTestCase(CodeIntelTestCase):
              ("function", "emit"),
             ])
 
-    def test_nodejs_buffer(self):
+    def test_buffer(self):
         """
         Test the Node.js buffer module
         """
@@ -541,7 +547,7 @@ class CplnTestCase(CodeIntelTestCase):
             var buf = new buffer.Buffer();
             buf.<3>;
             """}
-        buf, positions = self._write_files(manifest=manifest, name="buffer")
+        buf, positions = write_files(self, manifest=manifest, name="buffer")
         self.assertCompletionsInclude2(buf, positions[1],
             [("class", "Buffer")])
         self.assertCompletionsInclude2(buf, positions[2],
@@ -557,7 +563,7 @@ class CplnTestCase(CodeIntelTestCase):
              ("function", "slice"),
             ])
 
-    def test_nodejs_crypto(self):
+    def test_crypto(self):
         """
         Test the Node.js crypto module
         """
@@ -571,7 +577,7 @@ class CplnTestCase(CodeIntelTestCase):
             crypto.createSign("RSA-SHA256").<6>;
             crypto.createVerify("RSA-SHA256").<7>;
             """}
-        buf, positions = self._write_files(manifest=manifest, name="crypto")
+        buf, positions = write_files(self, manifest=manifest, name="crypto")
         self.assertCompletionsInclude2(buf, positions[1],
             [("function", "createCredentials"),
              ("function", "createHash"),
@@ -606,7 +612,7 @@ class CplnTestCase(CodeIntelTestCase):
              ("function", "verify"),
             ])
 
-    def test_nodejs_tls(self):
+    def test_tls(self):
         """
         Test the Node.js tls module
         """
@@ -614,7 +620,7 @@ class CplnTestCase(CodeIntelTestCase):
             require('tls').<1>;
             require('tls').createServer({}, function(s){}).<2>;
             """}
-        buf, positions = self._write_files(manifest=manifest, name="tls")
+        buf, positions = write_files(self, manifest=manifest, name="tls")
         self.assertCompletionsInclude2(buf, positions[1],
             [("function", "connect"),
              ("function", "createServer"),
@@ -626,7 +632,7 @@ class CplnTestCase(CodeIntelTestCase):
              ("variable", "connections"),
             ])
 
-    def test_nodejs_fs(self):
+    def test_fs(self):
         """
         Test the Node.js fs module
         """
@@ -636,7 +642,7 @@ class CplnTestCase(CodeIntelTestCase):
             require('fs').createReadStream("/tmp/foofoo").<3>;
             require('fs').createWriteStream("/tmp/foofoo").<4>;
             """}
-        buf, positions = self._write_files(manifest=manifest, name="fs")
+        buf, positions = write_files(self, manifest=manifest, name="fs")
         self.assertCompletionsInclude2(buf, positions[1],
             [("function", "rename"),
              ("function", "renameSync"),
@@ -715,7 +721,7 @@ class CplnTestCase(CodeIntelTestCase):
              ("function", "destroySoon"),
             ])
 
-    def test_nodejs_path(self):
+    def test_path(self):
         """
         Test the Node.js path module
         """
@@ -723,7 +729,7 @@ class CplnTestCase(CodeIntelTestCase):
             path = require('path');
             path.<1>;
             """}
-        buf, positions = self._write_files(manifest=manifest, name="path")
+        buf, positions = write_files(self, manifest=manifest, name="path")
         self.assertCompletionsInclude2(buf, positions[1],
             [("function", "normalize"),
              ("function", "join"),
@@ -735,7 +741,7 @@ class CplnTestCase(CodeIntelTestCase):
              ("function", "existsSync"),
             ])
 
-    def test_nodejs_net(self):
+    def test_net(self):
         """
         Test the Node.js net module
         """
@@ -747,7 +753,7 @@ class CplnTestCase(CodeIntelTestCase):
             var socket = new net.Socket();
             socket.<3>;
             """}
-        buf, positions = self._write_files(manifest=manifest, name="net")
+        buf, positions = write_files(self, manifest=manifest, name="net")
         self.assertCompletionsInclude2(buf, positions[1],
             [("function", "createServer"),
              ("function", "createConnection"),
@@ -783,7 +789,7 @@ class CplnTestCase(CodeIntelTestCase):
              ("variable", "remoteAddress"),
             ])
 
-    def test_nodejs_dgram(self):
+    def test_dgram(self):
         """
         Test the Node.js dgram module
         """
@@ -793,7 +799,7 @@ class CplnTestCase(CodeIntelTestCase):
             var socket = dgram.createSocket("udp4");
             socket.<2>;
             """}
-        buf, positions = self._write_files(manifest=manifest, name="dgram")
+        buf, positions = write_files(self, manifest=manifest, name="dgram")
         self.assertCompletionsInclude2(buf, positions[1],
             [("function", "createSocket"),
             ])
@@ -810,7 +816,7 @@ class CplnTestCase(CodeIntelTestCase):
              ("function", "dropMembership"),
             ])
 
-    def test_nodejs_dns(self):
+    def test_dns(self):
         """
         Test the Node.js dns module
         """
@@ -818,7 +824,7 @@ class CplnTestCase(CodeIntelTestCase):
             dns = require('dns');
             dns.<1>;
             """}
-        buf, positions = self._write_files(manifest=manifest, name="dns")
+        buf, positions = write_files(self, manifest=manifest, name="dns")
         self.assertCompletionsInclude2(buf, positions[1],
             [("function", "lookup"),
              ("function", "resolve"),
@@ -832,7 +838,7 @@ class CplnTestCase(CodeIntelTestCase):
              ("function", "resolveCname"),
             ])
 
-    def test_nodejs_http(self):
+    def test_http(self):
         """
         Test the Node.js http module
         """
@@ -852,7 +858,7 @@ class CplnTestCase(CodeIntelTestCase):
             var clientResponse = new http.ClientResponse(); /* not actually valid */
             clientResponse.<7>;
             """}
-        buf, positions = self._write_files(manifest=manifest, name="http")
+        buf, positions = write_files(self, manifest=manifest, name="http")
         self.assertCompletionsInclude2(buf, positions[1],
             [("function", "createServer"),
              ("function", "request"),
@@ -912,7 +918,7 @@ class CplnTestCase(CodeIntelTestCase):
              ("function", "resume"),
             ])
 
-    def test_nodejs_https(self):
+    def test_https(self):
         """
         Test the Node.js https module
         """
@@ -924,7 +930,7 @@ class CplnTestCase(CodeIntelTestCase):
             var request = https.request();
             request.<3>;
             """}
-        buf, positions = self._write_files(manifest=manifest, name="https")
+        buf, positions = write_files(self, manifest=manifest, name="https")
         self.assertCompletionsInclude2(buf, positions[1],
             [("function", "createServer"),
              ("function", "request"),
@@ -942,7 +948,7 @@ class CplnTestCase(CodeIntelTestCase):
              ("function", "abort"),
             ])
 
-    def test_nodejs_url(self):
+    def test_url(self):
         """
         Test the Node.js url module
         """
@@ -952,7 +958,7 @@ class CplnTestCase(CodeIntelTestCase):
             var result = url.parse("");
             result.<2>;
             """}
-        buf, positions = self._write_files(manifest=manifest, name="url")
+        buf, positions = write_files(self, manifest=manifest, name="url")
         self.assertCompletionsInclude2(buf, positions[1],
             [("function", "parse"),
              ("function", "format"),
@@ -971,7 +977,7 @@ class CplnTestCase(CodeIntelTestCase):
              ("variable", "hash"),
             ])
 
-    def test_nodejs_querystring(self):
+    def test_querystring(self):
         """
         Test the Node.js querystring module
         """
@@ -979,7 +985,7 @@ class CplnTestCase(CodeIntelTestCase):
             querystring = require('querystring');
             querystring.<1>;
             """}
-        buf, positions = self._write_files(manifest=manifest, name="querystring")
+        buf, positions = write_files(self, manifest=manifest, name="querystring")
         self.assertCompletionsInclude2(buf, positions[1],
             [("function", "stringify"),
              ("function", "parse"),
@@ -987,7 +993,7 @@ class CplnTestCase(CodeIntelTestCase):
              ("function", "unescape"),
             ])
 
-    def test_nodejs_repl(self):
+    def test_repl(self):
         """
         Test the Node.js repl module
         """
@@ -995,12 +1001,12 @@ class CplnTestCase(CodeIntelTestCase):
             repl = require('repl');
             repl.<1>;
             """}
-        buf, positions = self._write_files(manifest=manifest, name="repl")
+        buf, positions = write_files(self, manifest=manifest, name="repl")
         self.assertCompletionsInclude2(buf, positions[1],
             [("function", "start"),
             ])
 
-    def test_nodejs_vm(self):
+    def test_vm(self):
         """
         Test the Node.js vm module
         """
@@ -1010,7 +1016,7 @@ class CplnTestCase(CodeIntelTestCase):
             var script = vm.createScript("");
             script.<2>;
             """}
-        buf, positions = self._write_files(manifest=manifest, name="vm")
+        buf, positions = write_files(self, manifest=manifest, name="vm")
         self.assertCompletionsInclude2(buf, positions[1],
             [("function", "runInThisContext"),
              ("function", "runInNewContext"),
@@ -1021,7 +1027,7 @@ class CplnTestCase(CodeIntelTestCase):
              ("function", "runInNewContext"),
             ])
 
-    def test_nodejs_child_process(self):
+    def test_child_process(self):
         """
         Test the Node.js child_process module
         """
@@ -1034,7 +1040,7 @@ class CplnTestCase(CodeIntelTestCase):
             child.stdout.<4>;
             child.stderr.<5>;
             """}
-        buf, positions = self._write_files(manifest=manifest, name="child_process")
+        buf, positions = write_files(self, manifest=manifest, name="child_process")
         self.assertCompletionsInclude2(buf, positions[1],
             [("function", "spawn"),
              ("function", "exec"),
@@ -1059,7 +1065,7 @@ class CplnTestCase(CodeIntelTestCase):
              ("variable", "readable"), # from stream.ReadableStream
             ])
 
-    def test_nodejs_assert(self):
+    def test_assert(self):
         """
         Test the Node.js assert module
         """
@@ -1067,7 +1073,7 @@ class CplnTestCase(CodeIntelTestCase):
             assert = require('assert');
             assert.<1>;
             """}
-        buf, positions = self._write_files(manifest=manifest, name="assert")
+        buf, positions = write_files(self, manifest=manifest, name="assert")
         self.assertCompletionsInclude2(buf, positions[1],
             [("function", "fail"),
              ("function", "ok"),
@@ -1082,7 +1088,7 @@ class CplnTestCase(CodeIntelTestCase):
              ("function", "ifError"),
             ])
 
-    def test_nodejs_tty(self):
+    def test_tty(self):
         """
         Test the Node.js tty module
         """
@@ -1091,7 +1097,7 @@ class CplnTestCase(CodeIntelTestCase):
             tty.<1>;
             tty.open().<2>;
             """}
-        buf, positions = self._write_files(manifest=manifest, name="tty")
+        buf, positions = write_files(self, manifest=manifest, name="tty")
         self.assertCompletionsInclude2(buf, positions[1],
             [("function", "open"),
              ("function", "isatty"),
@@ -1103,7 +1109,7 @@ class CplnTestCase(CodeIntelTestCase):
             [("function", "kill"),
             ])
 
-    def test_nodejs_os(self):
+    def test_os(self):
         """
         Test the Node.js os module
         """
@@ -1112,7 +1118,7 @@ class CplnTestCase(CodeIntelTestCase):
             os.<1>;
             tty.open().<2>;
             """}
-        buf, positions = self._write_files(manifest=manifest, name="os")
+        buf, positions = write_files(self, manifest=manifest, name="os")
         self.assertCompletionsInclude2(buf, positions[1],
             [("function", "hostname"),
              ("function", "type"),
