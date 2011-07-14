@@ -9,8 +9,8 @@ var vm = {};
  * compiled code. This script can be run later many times using methods
  * below. The returned script is not bound to any global object. It is
  * bound before each run, just for that run. filename is optional.
- * @param [filename]
  * @param code
+ * @param filename
  * @return vm.Script
  */
 vm.createScript = function(code, filename) {}
@@ -19,8 +19,8 @@ vm.createScript = function(code, filename) {}
  * vm.runInThisContext() compiles code as if it were loaded from filename,
  * runs it and returns the result. Running code does not have access to
  * local scope. filename is optional.
- * @param [filename]
  * @param code
+ * @param filename
  */
 vm.runInThisContext = function(code, filename) {}
 
@@ -29,9 +29,9 @@ vm.runInThisContext = function(code, filename) {}
  * from filename, then runs it and returns the result. Running code does
  * not have access to local scope and the object sandbox will be used as
  * the global object for code. sandbox and filename are optional.
- * @param [filename]
- * @param [sandbox]
  * @param code
+ * @param sandbox
+ * @param filename
  */
 vm.runInNewContext = function(code, sandbox, filename) {}
 
@@ -49,7 +49,7 @@ vm.Script.prototype.runInThisContext = function() {}
  * script.runInNewContext runs the code of script with sandbox as the
  * global object and returns the result. Running code does not have access
  * to local scope. sandbox is optional.
- * @param [sandbox]
+ * @param sandbox
  */
 vm.Script.prototype.runInNewContext = function(sandbox) {}
 

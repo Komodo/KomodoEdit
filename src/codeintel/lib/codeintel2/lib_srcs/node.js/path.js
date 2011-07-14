@@ -12,31 +12,30 @@ path.normalize = function(p) {}
 
 /**
  * Resolves to to an absolute path.
- * @param [from ...]
+ * @param from 
  * @param to
  */
 path.resolve = function(from , to) {}
 
 /**
  * Join all arguments together and normalize the resulting path.
- * @param [...]
- * @param [path1]
- * @param [path2]
+ * @param path1
+ * @param path2
  */
 path.join = function(path1, path2) {}
 
 /**
  * Test whether or not the given path exists. Then, call the callback
  * argument with either true or false. Example:
- * @param [callback]
  * @param p
+ * @param callback
  */
 path.exists = function(p, callback) {}
 
 /**
  * Return the last portion of a path. Similar to the Unix basename command.
- * @param [ext]
  * @param p
+ * @param ext
  */
 path.basename = function(p, ext) {}
 

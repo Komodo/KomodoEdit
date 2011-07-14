@@ -7,8 +7,8 @@ var url = {};
 /**
  * Take a URL string, and return an object. Pass true as the second
  * argument to also parse the query string using the querystring module.
- * @param parseQueryString=false
  * @param urlStr
+ * @param parseQueryString=false
  * @returns URL
  */
 url.parse = function(urlStr, parseQueryString) {}

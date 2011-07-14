@@ -41,10 +41,9 @@ events.EventEmitter.prototype.setMaxListeners = function(n) {}
 events.EventEmitter.prototype.listeners = function(event) {}
 /**
  * Execute each of the listeners in order with the supplied arguments.
- * @param [...]
- * @param [arg1]
- * @param [arg2]
  * @param event
+ * @param arg1
+ * @param arg2
  */
 events.EventEmitter.prototype.emit = function(event, arg1, arg2) {}
 /**
@@ -63,6 +62,14 @@ events.EventEmitter.prototype.removeListener = function(event, listener) {}
  */
 events.EventEmitter.prototype.once = function(event, listener) {}
 
+
+/** @__local__ */ var __events__ = {};
+/**
+ * This event is emitted any time someone adds a new listener.
+ * @param event {String}
+ * @param listener {Function}
+ */
+__events__.newListener = function(listener, event) {};
 
 exports = events;
 

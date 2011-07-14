@@ -15,10 +15,10 @@ tls.createServer = function(options, secureConnectionListener) {}
 /**
  * Creates a new client connection to the given port and host. (If host
  * defaults to localhost.) options should be an object which specifies
- * @param [host]
- * @param [options]
- * @param callback
  * @param port
+ * @param host
+ * @param options
+ * @param callback
  */
 tls.connect = function(port, host, options, callback) {}
 
@@ -48,12 +48,21 @@ tls.Server.prototype.maxConnections = 0;
  * Begin accepting connections on the specified port and host. If the host
  * is omitted, the server will accept connections directed to any IPv4
  * address (INADDR_ANY).
- * @param [callback]
- * @param [host]
  * @param port
+ * @param host
+ * @param callback
  */
 tls.Server.prototype.listen = function(port, host, callback) {}
 
+
+/** @__local__ */ var __events__ = {};
+/**
+ * This event is emitted after a new connection has been successfully
+ * handshaked. The argument is a duplex instance of stream.Stream. It has
+ * all the common stream methods and events.
+ * @param cleartextStream {stream.Stream}
+ */
+__events__.secureConnection = function(cleartextStream) {};
 
 exports = tls;
 

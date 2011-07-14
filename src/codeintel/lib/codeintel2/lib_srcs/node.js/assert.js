@@ -7,25 +7,25 @@ var assert = {};
 /**
  * Tests shallow, coercive non-equality with the not equal comparison
  * operator ( != ).
- * @param [message]
  * @param actual
  * @param expected
+ * @param message
  */
 assert.notEqual = function(actual, expected, message) {}
 
 /**
  * Expects block not to throw an error, see assert.throws for details.
- * @param [error]
- * @param [message]
  * @param block
+ * @param error
+ * @param message
  */
 assert.doesNotThrow = function(block, error, message) {}
 
 /**
  * Tests if value is a true value, it is equivalent to assert.equal(true,
  * value, message);
- * @param [message]
  * @param value
+ * @param message
  */
 assert.ok = function(value, message) {}
 
@@ -39,26 +39,26 @@ assert.ifError = function(value) {}
 /**
  * Tests shallow, coercive equality with the equal comparison operator ( ==
  * ).
- * @param [message]
  * @param actual
  * @param expected
+ * @param message
  */
 assert.equal = function(actual, expected, message) {}
 
 /**
  * Tests for any deep inequality.
- * @param [message]
  * @param actual
  * @param expected
+ * @param message
  */
 assert.notDeepEqual = function(actual, expected, message) {}
 
 /**
  * Tests strict non-equality, as determined by the strict not equal
  * operator ( !== )
- * @param [message]
  * @param actual
  * @param expected
+ * @param message
  */
 assert.notStrictEqual = function(actual, expected, message) {}
 
@@ -74,26 +74,26 @@ assert.fail = function(actual, expected, message, operator) {}
 /**
  * Expects block to throw an error. error can be constructor, regexp or
  * validation function.
- * @param [error]
- * @param [message]
  * @param block
+ * @param error
+ * @param message
  */
 assert.throws = function(block, error, message) {}
 
 /**
  * Tests strict equality, as determined by the strict equality operator (
  * === )
- * @param [message]
  * @param actual
  * @param expected
+ * @param message
  */
 assert.strictEqual = function(actual, expected, message) {}
 
 /**
  * Tests for deep equality.
- * @param [message]
  * @param actual
  * @param expected
+ * @param message
  */
 assert.deepEqual = function(actual, expected, message) {}
 

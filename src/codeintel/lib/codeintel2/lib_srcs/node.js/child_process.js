@@ -7,9 +7,9 @@ var child_process = {};
 /**
  * Launches a new process with the given command, with command line
  * arguments in args. If omitted, args defaults to an empty Array.
- * @param [options]
- * @param args=[]
  * @param command
+ * @param args=[]
+ * @param options
  * @return child_process.ChildProcess
  */
 child_process.spawn = function(command, args, options) {}
@@ -46,13 +46,24 @@ child_process.ChildProcess.prototype.stdout = 0;
 /**
  * High-level way to execute a command as a child process, buffer the
  * output, and return it all in a callback.
- * @param [options]
- * @param callback
  * @param command
+ * @param options
+ * @param callback
  * @return child_process.ChildProcess
  */
 child_process.exec = function(command, options, callback) {}
 
+
+/** @__local__ */ var __events__ = {};
+/**
+ * This event is emitted after the child process ends. If the process
+ * terminated normally, code is the final exit code of the process,
+ * otherwise null. If the process terminated due to receipt of a signal,
+ * signal is the string name of the signal, otherwise null.
+ * @param code {Number}
+ * @param signal {String}
+ */
+__events__.exit = function(signal, code) {};
 
                 /* used for giving types to ChildProcess.std* */
                 var stream = require('stream');

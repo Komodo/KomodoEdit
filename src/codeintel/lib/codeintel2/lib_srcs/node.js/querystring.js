@@ -7,18 +7,18 @@ var querystring = {};
 /**
  * Deserialize a query string to an object. Optionally override the default
  * separator and assignment characters.
- * @param eq='='
- * @param sep='&amp;'
  * @param str
+ * @param sep='&amp;'
+ * @param eq='='
  */
 querystring.parse = function(str, sep, eq) {}
 
 /**
  * Serialize an object to a query string. Optionally override the default
  * separator and assignment characters.
- * @param eq='='
  * @param obj
  * @param sep='&amp;'
+ * @param eq='='
  */
 querystring.stringify = function(obj, sep, eq) {}
 

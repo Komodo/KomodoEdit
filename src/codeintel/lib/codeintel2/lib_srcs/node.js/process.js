@@ -59,7 +59,7 @@ process.title = 0;
  * Sets or reads the process's file mode creation mask. Child processes
  * inherit the mask from the parent process. Returns the old mask if mask
  * argument is given, otherwise returns the current mask.
- * @param [mask]
+ * @param mask
  */
 process.umask = function(mask) {}
 
@@ -140,6 +140,22 @@ process.stderr = 0;
  */
 process.execPath = 0;
 
+
+/** @__local__ */ var __events__ = {};
+/**
+ * Emitted when the process is about to exit. This is a good hook to
+ * perform constant time checks of the module's state (like for unit
+ * tests). The main event loop will no longer be run after the 'exit'
+ * callback finishes, so timers may not be scheduled.
+ */
+__events__.exit = function() {};
+/**
+ * Emitted when an exception bubbles all the way back to the event loop. If
+ * a listener is added for this exception, the default action (which is to
+ * print a stack trace and exit) will not occur.
+ * @param err {Object}
+ */
+__events__.uncaughtException = function(err) {};
 
 exports = process;
 

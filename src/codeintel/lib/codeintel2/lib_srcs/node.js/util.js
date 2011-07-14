@@ -22,17 +22,17 @@ util.inherits = function(constructor, superConstructor) {}
 
 /**
  * Experimental
- * @param [callback]
  * @param readableStream
  * @param writableStream
+ * @param callback
  */
 util.pump = function(readableStream, writableStream, callback) {}
 
 /**
  * Return a string representation of object, which is useful for debugging.
- * @param depth=2
  * @param object
  * @param showHidden=false
+ * @param depth=2
  */
 util.inspect = function(object, showHidden, depth) {}
 

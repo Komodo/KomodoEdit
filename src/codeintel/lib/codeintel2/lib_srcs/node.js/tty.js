@@ -12,17 +12,17 @@ tty.isatty = function(fd) {}
 
 /**
  * ioctls the window size settings to the file descriptor.
- * @param col
  * @param fd
  * @param row
+ * @param col
  */
 tty.setWindowSize = function(fd, row, col) {}
 
 /**
  * Spawns a new process with the executable pointed to by path as the
  * session leader to a new pseudo terminal.
- * @param args=[]
  * @param path
+ * @param args=[]
  * @returns child_process.ChildProcess
  */
 tty.open = function(path, args) {}

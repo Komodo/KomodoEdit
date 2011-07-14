@@ -15,8 +15,8 @@ https.createServer = function(requestListener) {}
 
 /**
  * Like http.get() but for HTTPS.
- * @param callback
  * @param options
+ * @param callback
  * @returns http.ClientRequest
  */
 https.get = function(options, callback) {}
@@ -24,8 +24,8 @@ https.get = function(options, callback) {}
 /**
  * Makes a request to a secure web server. Similar options to
  * http.request().
- * @param callback
  * @param options
+ * @param callback
  * @returns http.ClientRequest
  */
 https.request = function(options, callback) {}

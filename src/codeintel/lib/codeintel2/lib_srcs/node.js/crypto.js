@@ -82,8 +82,8 @@ crypto.Sign.prototype.update = function(data) {}
  * Calculates the signature on all the updated data passed through the
  * signer. private_key is a string containing the PEM encoded private key
  * for signing.
- * @param output_format='binary'
  * @param private_key
+ * @param output_format='binary'
  */
 crypto.Sign.prototype.sign = function(private_key, output_format) {}
 

@@ -8,8 +8,8 @@ var dgram = {};
 /**
  * Creates a datagram socket of the specified types. Valid types are: udp4,
  * udp6, and unix_dgram.
- * @param [callback]
  * @param type
+ * @param callback
  * @returns dgram.Socket
  */
 dgram.createSocket = function(type, callback) {}
@@ -19,16 +19,16 @@ dgram.Socket.prototype = {}
 /**
  * Tells the kernel to join a multicast group with IP_ADD_MEMBERSHIP socket
  * option.
- * @param [multicastInterface]
  * @param multicastAddress
+ * @param multicastInterface
  */
 dgram.Socket.prototype.addMembership = function(multicastAddress, multicastInterface) {}
 /**
  * For UDP sockets, listen for datagrams on a named port and optional
  * address. If address is not specified, the OS will try to listen on all
  * addresses.
- * @param [address]
  * @param port
+ * @param address
  */
 dgram.Socket.prototype.bind = function(port, address) {}
 /**
@@ -47,12 +47,12 @@ dgram.Socket.prototype.setMulticastTTL = function(ttl) {}
  * DNS errors and when buf may be re-used. Note that DNS lookups will delay
  * the time that a send takes place, at least until the next tick. The only
  * way to know for sure that a send has taken place is to use the callback.
- * @param [callback]
- * @param address
  * @param buf
- * @param length
  * @param offset
+ * @param length
  * @param port
+ * @param address
+ * @param callback
  */
 dgram.Socket.prototype.send = function(buf, offset, length, port, address, callback) {}
 /**
@@ -94,11 +94,32 @@ dgram.Socket.prototype.close = function() {}
  * with IP_DROP_MEMBERSHIP socket option. This is automatically called by
  * the kernel when the socket is closed or process terminates, so most apps
  * will never need to call this.
- * @param [multicastInterface]
  * @param multicastAddress
+ * @param multicastInterface
  */
 dgram.Socket.prototype.dropMembership = function(multicastAddress, multicastInterface) {}
 
+
+/** @__local__ */ var __events__ = {};
+/**
+ * Emitted when a new datagram is available on a socket. msg is a Buffer
+ * and rinfo is an object with the sender's address information and the
+ * number of bytes in the datagram.
+ * @param msg {buffer.Buffer}
+ * @param rinfo {Object}
+ */
+__events__.message = function(msg, rinfo) {};
+/**
+ * Emitted when a socket starts listening for datagrams. This happens as
+ * soon as UDP sockets are created. Unix domain sockets do not start
+ * listening until calling bind() on them.
+ */
+__events__.listening = function() {};
+/**
+ * Emitted when a socket is closed with close(). No new message events will
+ * be emitted on this socket.
+ */
+__events__.close = function() {};
 
 exports = dgram;
 
