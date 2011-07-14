@@ -761,7 +761,6 @@ class KoCodeIntelEvalController(EvalController):
 
     def set_defns(self, defns):
         self.got_results = True
-        self._last_defns = defns
         self.ui_handler_proxy_sync.setDefinitionsInfo(defns, self.trg)
 
     def done(self, reason):
