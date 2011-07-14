@@ -1275,6 +1275,10 @@ class JSObject:
                 attributeDocs.append("CONSTRUCTOR")
                 if "__ctor__" not in self.attributes:
                     self.attributes.append("__ctor__")
+            if jsdoc.is__local__():
+                attributeDocs.append("__LOCAL__")
+                if "__local__" not in self.attributes:
+                    self.attributes.append("__local__")
             if jsdoc.tags:
                 cixobject.attrib["tags"] = jsdoc.tags
             if jsdoc.doc:
