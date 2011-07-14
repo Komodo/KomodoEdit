@@ -181,10 +181,8 @@ class UpgradeTestCase(DBTestCase):
                             splitext(db_zip_base)[0])
             # setup
             if exists(test_dir):
-                if sys.platform == "win32":
-                    run('rd /s/q "%s"' % test_dir)
-                else:
-                    run('rm -rf "%s"' % test_dir)
+                import shutil
+                shutil.rmtree(test_dir)
             os.makedirs(test_dir)
             run_in_dir("unzip -q %s" % db_zip, test_dir, log.info)
 
@@ -206,10 +204,8 @@ class CatalogTestCase(DBTestCase):
     def setUp(self):
         DBTestCase.setUp(self)
         if exists(self.test_catalog_dir):
-            if sys.platform == "win32":
-                run('rd /s/q "%s"' % self.test_catalog_dir)
-            else:
-                run('rm -rf "%s"' % self.test_catalog_dir)
+            import shutil
+            shutil.rmtree(self.test_catalog_dir)
         log.debug("mkdir `%s'", self.test_catalog_dir)
         os.makedirs(self.test_catalog_dir)
 
@@ -778,10 +774,8 @@ class MultiLangLibTestCase(DBTestCase):
         DBTestCase.setUp(self)
         #TODO: shouldn't be doing this here.
         if exists(self.test_dir):
-            if sys.platform == "win32":
-                run('rd /s/q "%s"' % self.test_dir)
-            else:
-                run('rm -rf "%s"' % self.test_dir)
+            import shutil
+            shutil.rmtree(self.test_dir)
         log.debug("mkdir `%s'", self.test_dir)
         os.makedirs(self.test_dir)
 
@@ -1051,10 +1045,8 @@ class LangLibTestCase(DBTestCase):
     def setUp(self):
         DBTestCase.setUp(self)
         if exists(self.test_dir):
-            if sys.platform == "win32":
-                run('rd /s/q "%s"' % self.test_dir)
-            else:
-                run('rm -rf "%s"' % self.test_dir)
+            import shutil
+            shutil.rmtree(self.test_dir)
         log.debug("mkdir `%s'", self.test_dir)
         os.makedirs(self.test_dir)
 
@@ -1504,10 +1496,8 @@ class ProjTestCase(DBTestCase):
     def setUp(self):
         DBTestCase.setUp(self)
         if exists(self.test_dir):
-            if sys.platform == "win32":
-                run('rd /s/q "%s"' % self.test_dir)
-            else:
-                run('rm -rf "%s"' % self.test_dir)
+            import shutil
+            shutil.rmtree(self.test_dir)
         log.debug("mkdir `%s'", self.test_dir)
         os.makedirs(self.test_dir)
 
