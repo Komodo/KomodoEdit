@@ -51,7 +51,7 @@ from codeintel2.util import indent, dedent, banner, markup_text, unmark_text
 from codeintel2.environment import SimplePrefsEnvironment
 
 from testlib import TestError, TestSkipped, TestFailed, tag
-from citestsupport import CodeIntelTestCase, run, writefile
+from citestsupport import CodeIntelTestCase, writefile
 
 
 
@@ -172,11 +172,10 @@ class CplnTestCase(CodeIntelTestCase):
 
     def setUp(self):
         CodeIntelTestCase.setUp(self)
-        if sys.platform == "win32":
-            run('rd /s/q "%s"' % self.test_dir)
-        else:
-            run('rm -rf "%s"' % self.test_dir)
-        log.debug("mkdir `%s'", self.test_dir)
+        if exists(self.test_dir):
+            # Ensure a clean working test directory.
+            import shutil
+            shutil.rmtree(self.test_dir, ignore_errors=True)
         os.makedirs(self.test_dir)
 
     def test_doctags(self):
