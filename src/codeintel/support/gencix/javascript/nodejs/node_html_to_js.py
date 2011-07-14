@@ -16,10 +16,10 @@ Requirements:
   * BeautifulSoup   (http://www.crummy.com/software/BeautifulSoup/)
 
 Webpage used for documentation:
-  * http://nodejs.org/docs/v0.4.2/api/all.html
+  * http://nodejs.org/docs/v0.4.8/api/all.html
 
 Tested with NodeJS version:
-  * 1.4.2           (default)
+  * 0.4.8           (default)
 """
 
 import logging
@@ -35,7 +35,7 @@ from BeautifulSoup import BeautifulSoup, NavigableString, Tag
 
 logging.basicConfig()
 log = logging.getLogger()
-#log.setLevel(logging.DEBUG)
+log.setLevel(logging.DEBUG)
 
 spacere = re.compile(r'\s+')
 def condenseSpaces(s):
@@ -125,7 +125,128 @@ class NodeItem(object):
 class NodeEvent(NodeItem):
     type = "Event"
     def __init__(self, name, **kwargs):
-        NodeItem.__init__(self, name, **kwargs)
+        # note that we add "event:" to the name here and remove it on stringify
+        # this is needed to avoid clashes, e.g. http.request vs the event
+        NodeItem.__init__(self, "event:" + name, **kwargs)
+        log.debug("event %r: %r", name, kwargs)
+    def parse_args(self, code, real_module=None, module=None, scope=None):
+        """Parse the arguments for an event.
+        Unfortunately, the Node documentation for events is not machine-parsable
+        for the types of the parameters, so we might as well just ship a hard
+        coded list instead.
+        @param real_module {str} The original name of the module
+        @param module {str} The current name of the module
+        @param scope {str|None} The name of the current scope, or None
+        """
+        scope = getattr(scope, "name", None)
+        params = {
+
+            ('process', 'process', None, 'exit'): {},
+            ('process', 'process', None, 'uncaughtException'): {
+                'err': 'Object'},
+
+            ('events', 'events', 'EventEmitter', 'newListener'): {
+                'event': 'String',
+                'listener': 'Function'},
+
+            ('readable_stream', 'stream', None, 'data'): {
+                'data': 'buffer.Buffer'},
+            ('readable_stream', 'stream', None, 'end'): {},
+            ('readable_stream', 'stream', None, 'error'): {
+                'exception': 'Error'},
+            ('readable_stream', 'stream', None, 'close'): {},
+            ('readable_stream', 'stream', None, 'fd'): {
+                'fd': 'Number'},
+            
+            ('writable_stream', 'stream', 'ReadableStream', 'drain'): {},
+            ('writable_stream', 'stream', 'ReadableStream', 'error'): {
+                'exception': 'Error'},
+            ('writable_stream', 'stream', 'ReadableStream', 'close'): {},
+            ('writable_stream', 'stream', 'ReadableStream', 'pipe'): {
+                'src': 'stream.ReadableStream'},
+            
+            ('tls', 'tls', 'Server', 'secureConnection'): {
+                'cleartextStream': 'stream.Stream'},
+            
+            ('fs', 'fs', 'WriteStream', 'open'): {
+                'fd': 'Number'},
+ 
+            ('net', 'net', 'Server', 'connection'): {
+                'socket': 'net.Socket'},
+            ('net', 'net', 'Server', 'close'): {},
+            ('net', 'net', 'Socket', 'connect'): {},
+            ('net', 'net', 'Socket', 'data'): {
+                'data': 'buffer.Buffer'},
+            ('net', 'net', 'Socket', 'end'): {},
+            ('net', 'net', 'Socket', 'timeout'): {},
+            ('net', 'net', 'Socket', 'drain'): {},
+            ('net', 'net', 'Socket', 'error'): {
+                'exception': 'Error'},
+            ('net', 'net', 'Socket', 'close'): {
+                'had_error': 'Boolean'},
+
+            ('udp_datagram_sockets', 'dgram', None, 'message'): {
+                'msg': 'buffer.Buffer',
+                'rinfo': 'Object'}, # there's no class for this
+            ('udp_datagram_sockets', 'dgram', None, 'listening'): {},
+            ('udp_datagram_sockets', 'dgram', None, 'close'): {},
+
+            ('http', 'http', 'Server', 'request'): {
+                'request': 'http.ServerRequest',
+                'response': 'http.ServerResponse'},
+            ('http', 'http', 'Server', 'connection'): {
+                'stream': 'net.Stream'},
+            ('http', 'http', 'Server', 'close'): {
+                'errno': 'Number'},
+            ('http', 'http', 'Server', 'checkContinue'): {
+                'request': 'http.ServerRequest',
+                'response': 'http.ServerResponse'},
+            ('http', 'http', 'Server', 'upgrade'): {
+                'request': 'http.ServerRequest',
+                'socket': 'net.Socket',
+                'head': 'buffer.Buffer'},
+            ('http', 'http', 'Server', 'clientError'): {
+                'exception': 'Error'},
+            ('http', 'http', 'ServerRequest', 'data'): {
+                'chunk': 'String'},
+            ('http', 'http', 'ServerRequest', 'end'): {},
+            ('http', 'http', 'ServerRequest', 'close'): {
+                'err': 'Error'},
+            ('http', 'http', 'Agent', 'upgrade'): {
+                'response': 'http.ServerResponse',
+                'socket': 'net.Socket',
+                'head': 'buffer.Buffer'},
+            ('http', 'http', 'Agent', 'continue'): {},
+            ('http', 'http', 'ClientRequest', 'response'): {
+                'response': 'http.ClientResponse'},
+            ('http', 'http', 'ClientResponse', 'data'): {
+                'chunk': 'String'},
+            ('http', 'http', 'ClientResponse', 'end'): {},
+
+            ('child_processes', 'child_process', None, 'exit'): {
+                'code': 'Number',
+                'signal': 'String'}
+
+        }.get((real_module, module, scope, self.name[len("event:"):]))
+        if params is None:
+            log.warn("Event %r has unknown parameters",
+                     (str(real_module), str(module), str(scope),
+                      str(self.name[len("event:"):])))
+            params = {}
+        self.args = params.keys()
+        for arg, argtype in params.items():
+            self.extra_docs.add("@param %s {%s}" % (arg, argtype))
+        
+    def stringify(self, ns):
+        result = ""
+        name = self.name[len("event:"):]
+        if self.doc:
+            doclines = textwrap.wrap(self.doc, width=72)
+            doclines.extend(sorted(self.extra_docs))
+            result += "/**\n * %s\n" % ("\n * ".join(doclines))
+            result += " */\n"
+        result += "__events__.%s = function(%s) {};" % (name, ", ".join(self.args))
+        return result
 
 class NodeVariable(NodeItem):
     type = "Variable"
@@ -158,27 +279,62 @@ class NodeFunction(NodeItem):
             if args:
                 for arg in args.split(","):
                     arg = arg.strip()
-                    self.extra_docs.add(u"@param %s" % (arg,)) # possibly optional
+                    info = {"raw": arg}
                     if arg.startswith("[") and arg.endswith("]"):
                         # optional argument
                         arg = arg[1:-1]
+                        info["optional"] = True
                     # default value
-                    arg = arg.split("=", 1)[0]
+                    sep = arg.find("=")
+                    if sep > -1:
+                        info["default"] = arg[sep + 1:]
+                        arg = arg[:sep]
                     # rest arguments (foo, bar, rest...)
                     if arg.endswith("..."):
                         arg = arg[:-3]
                         if arg == "":
                             # (foo, bar, ...)
                             continue
-                    self.args.append(arg)
+                    info["name"] = arg
+                    self.args.append(info)
+        self.fixup_args()
+
+    def fixup_args(self):
+        """Fix up the arguments where we have manually hard-coded information
+        beyond what can be scraped from the Node.js documentation"""
+        data = {
+            (None, 'http', 'createServer'): {
+                "requestListener": {"type": "__events__.request"}}
+        }.get((self.parent.parent and self.parent.parent.name or None,
+               self.parent.name, self.name), {})
+        for name, info in data.items():
+            for arg in self.args:
+                if arg["name"] == name:
+                    break
+            else:
+                arg = {"name": name}
+                self.args.append(arg)
+            arg.update(info)
 
     def stringify(self, ns):
         result = ""
         if self.doc:
             doclines = textwrap.wrap(self.doc, width=72)
+            for arg in self.args:
+                doc = arg["name"]
+                if "default" in arg:
+                    doc = "%s=%s" % (arg["name"], arg["default"])
+                # can't do optional args, we failed to parse the docs
+                #if arg.get("optional"):
+                #    doc = "[%s]" % (doc)
+                if "type" in arg:
+                    # this argument has hand-written type information
+                    doc = "%s {%s}" % (doc, arg["type"])
+                doclines.append(u"@param %s" % (doc,))
             doclines.extend(sorted(self.extra_docs))
             result += "/**\n * %s\n */\n" % ("\n * ".join(doclines))
-        result += "%s.%s = function(%s) {}\n" % (ns, self.name, ", ".join(self.args))
+        args = ", ".join([arg["name"] for arg in self.args])
+        result += "%s.%s = function(%s) {}\n" % (ns, self.name, args)
         return result
 
 class NodeClass(NodeItem):
@@ -283,8 +439,17 @@ class NodeModule(NodeItem):
                 self.doc = getSubElementText(tag)
             if self.current:
                 if self.current.doc is None:
+                    if isinstance(self.current, NodeEvent) and \
+                       not hasattr(self.current, "args") and \
+                        str(tag).startswith("<p><code>function ("):
+                        # for an event, the args show up as the first paragraph
+                        self.current.parse_args(tag.getText(),
+                                                real_module=self.real_name,
+                                                module=self.current.parent.name,
+                                                scope=self.last_class)
+                        return
                     #if "<code>" not in str(tag):
-                        self.current.doc = getSubElementText(tag)
+                    self.current.doc = getSubElementText(tag)
                 elif self._mergingDocs:
                     self._mergingDocs = False
                     self.current.doc += "\n\n" + getSubElementText(tag)
@@ -475,15 +640,29 @@ class NodeModule(NodeItem):
             os.makedirs(directory, 0755)
         f = file(join(directory, "%s.js" % (self.name, )), "w")
         try:
+            # module documentation
             if self.doc:
                 doclines = textwrap.wrap(self.doc, width=72)
                 f.write("/**\n * %s\n */\n" % ("\n * ".join(doclines)))
             f.write("var %s = {};\n\n" % (self.name))
+
+            # items
             for item_name, item in self.items.items():
                 f.write("%s\n" % (item.stringify(self.name)))
             f.write("\n");
+
+            # events
+            if self.events:
+                f.write("/** @__local__ */ var __events__ = {};\n")
+                for event in self.events:
+                    f.write("%s\n" % (event.stringify(self.name),))
+                f.write("\n");
+
+            # extra module-specific hacks
             if self.extra_code:
                 f.write("\n".join(self.extra_code))
+
+            # all done, export things
             f.write("exports = %s;\n\n" % (self.name))
         finally:
             f.close()
