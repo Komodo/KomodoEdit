@@ -5,6 +5,7 @@
         <variable ilk="argument" name="one" />
         <variable ilk="argument" name="two" />
         <variable ilk="argument" name="delay" />
+        <caller citdl="setTimeout" line="9" pos="2" />
       </scope>
     </scope>
   </file>

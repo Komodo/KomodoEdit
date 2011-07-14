@@ -1234,7 +1234,7 @@ class JSObject:
         if not self.name:
             log.info("%s has no name, line: %d, ignoring it.",
                      self.cixname, self.line)
-            return
+            return None
         if self.cixname == "function":
             cixobject = createCixFunction(cixelement, self.name)
         elif self.cixname in ("object", "variable"):
@@ -1345,13 +1345,14 @@ class JSObject:
            cixobject.get("citdl") != "Object":
             log.info("Variable of type: %r contains %d child elements, "
                      "ignoring them.", cixobject.get("citdl"), len(allValues))
-            return
+            return None
 
         # Sort and include contents
         for v in sortByLine(allValues):
             if not v.isHidden:
                 v.toElementTree(cixobject)
 
+        return cixobject
 
 class JSVariable(JSObject):
     def __init__(self, name, parent, line, depth, vartype='', doc=None,
@@ -1404,11 +1405,27 @@ class JSFunction(JSObject):
         if isinstance(parent, JSClass):
             self._class = parent
         self._parent_assigned_vars = []
+        self._callers = set()
 
     ##
     # @rtype {string or JSObject} add this possible return type
     def addReturnType(self, rtype):
         self.returnTypes.append(rtype)
+
+    def addCaller(self, caller, pos, line):
+        """Add caller information to this function"""
+        if isinstance(caller, (list, tuple)):
+            caller = ".".join(caller)
+        self._callers.add((pos, caller, line))
+
+    def toElementTree(self, cixelement):
+        cixobject = JSObject.toElementTree(self, cixelement)
+        if not cixobject:
+            return cixobject
+        for pos, caller, line in self._callers:
+            SubElement(cixobject, "caller", citdl=caller,
+                       pos=str(pos), line=str(line), attributes="__hidden__")
+        return cixobject
 
 class JSClass(JSObject):
     """A JavaScript class object (a function with a non-default .prototype)"""
@@ -1720,6 +1737,8 @@ class JavaScriptCiler:
         self.bracket_depth = 0
         self.lastText = []
         self.lastScope = None
+
+        self._metadata = {}
 
         # Document styles used for deciding what to do
         # Note: Can be customized by calling setStyleValues()
@@ -3172,6 +3191,11 @@ class JavaScriptCiler:
             else:
                 log.debug("_variableHandler:: Line %d, calling scoped variable: %r",
                           lineno, namelist)
+                for pos, obj in self.objectArguments:
+                    if not isinstance(obj, JSFunction):
+                        continue
+                    # we have a function, tell it about the caller
+                    obj.addCaller(caller=namelist, pos=pos, line=lineno)
             already_looped = True
 
     def createObjectArgument(self, styles, text):
@@ -3769,7 +3793,8 @@ class JavaScriptCiler:
                                                 # as various information may be needed, i.e.
                                                 # a getter function return type.
                                                 obj = self.addAnonymousFunction(args=args[::2])
-                                                self.objectArguments.append((self.argumentPosition, obj))
+                                                # don't append to self.objectArguments here, we do
+                                                # it later when we see the closing brace
                                                 self._pushAndSetState(S_DEFAULT)
                                 except ValueError:
                                     # no "(" found in self.text

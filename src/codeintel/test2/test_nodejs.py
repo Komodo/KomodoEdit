@@ -429,6 +429,28 @@ class CplnTestCase(CodeIntelTestCase):
             [("variable", "timers"),
             ])
 
+    @tag("bug90485")
+    def test_callback_types(self):
+        """
+        Test for completion of callback arguments
+        """
+        manifest = {
+            "test.js": """
+                var http = require('http');
+                http.createServer(function(q, p) {
+                    q.<1>;
+                    p.<2>;
+                })
+                """,
+        }
+        buf, positions = write_files(self, manifest=manifest, name="callback_types")
+        self.assertCompletionsInclude2(buf, positions[1],
+            [("function", "pause"),
+            ])
+        self.assertCompletionsInclude2(buf, positions[2],
+            [("function", "writeContinue"),
+            ])
+
 class StdLibTestCase(CodeIntelTestCase):
     """ Code Completion test cases for the Node.js standard library"""
     lang = "Node.js"

@@ -7,7 +7,9 @@
           <variable ilk="argument" name="Y" />
           <scope attributes="__local__ private" ilk="function" line="16" lineend="18" name="init" signature="init()" />
           <scope attributes="__local__ private" ilk="function" line="19" lineend="21" name="myMethod" signature="myMethod()" />
+          <caller citdl="Y.use" line="23" pos="1" />
         </scope>
+        <caller citdl="YUI" line="25" pos="6" />
       </scope>
     </scope>
   </file>

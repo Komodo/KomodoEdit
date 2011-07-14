@@ -8,6 +8,7 @@
         <scope ilk="function" line="3" lineend="10" name="setOptions" signature="setOptions(options)">
           <variable ilk="argument" name="options" />
           <variable citdl="Base" name="this" />
+          <caller citdl="Object.extend" line="9" pos="1" />
         </scope>
         <variable citdl="Object" line="4" lineend="8" name="options">
           <variable citdl="String" line="5" name="method" />
