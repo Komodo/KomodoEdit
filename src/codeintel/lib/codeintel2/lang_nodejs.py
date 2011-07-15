@@ -97,6 +97,28 @@ class NodeJSTreeEvaluator(JavaScriptTreeEvaluator):
             self.log("no source directory found, can't resolve require(%r)", requirename)
             return []
 
+        def get_hits_from_lib(lib, filename):
+            """Get the hits from a given LangDirsLib, or None"""
+            hits = []
+            basename = os.path.basename(filename)
+            blobs = lib.blobs_with_basename(basename, ctlr=self.ctlr)
+            for blob in blobs or []:
+                if os.path.normpath(blob.get("src")) != filename:
+                    # wrong file
+                    continue
+                self.log("require() found at %s", filename)
+                exports = blob.names.get("exports")
+                if exports is not None and exports.tag == "variable":
+                    hits += self._hits_from_variable_type_inference(exports, [blob, ["exports"]])
+                else:
+                    # try module.exports
+                    module = blob.names.get("module")
+                    if module is not None:
+                        exports = module.names.get("exports")
+                        if exports is not None and exports.tag == "variable":
+                            hits += self._hits_from_variable_type_inference(exports, [blob, ["module", "exports"]])
+            return hits or None
+
         def load_as_file(path):
             """Load "path" as a file and return hits from there
             If it does not exist / isn't a valid node.js module, return None
@@ -110,9 +132,9 @@ class NodeJSTreeEvaluator(JavaScriptTreeEvaluator):
                 # we don't deal with binary components; otherwise, it's missing
                 return None
             self.log("looking to resolve require() via %s", path)
-            basename = os.path.basename(filename)
+            dirname = os.path.dirname(filename)
+
             for lib in self.libs:
-                hits = []
                 if lib == self.nodejslib:
                     # skip the core modules, they're looked at above
                     continue
@@ -120,27 +142,18 @@ class NodeJSTreeEvaluator(JavaScriptTreeEvaluator):
                     # can't deal with anything but these
                     self.log("skipping lib %r, don't know how to deal", lib)
                     continue
-                self.log("looking up lib %r (basename %r)", lib.dirs, basename)
 
-                blobs = lib.blobs_with_basename(basename, ctlr=self.ctlr)
-                for blob in blobs or []:
-                    if os.path.normpath(blob.get("src")) != filename:
-                        # wrong file
-                        continue
-                    self.log("require() found at %s", filename)
-                    exports = blob.names.get("exports")
-                    if exports is not None and exports.tag == "variable":
-                        hits += self._hits_from_variable_type_inference(exports, [blob, ["exports"]])
-                    else:
-                        # try module.exports
-                        module = blob.names.get("module")
-                        if module is not None:
-                            exports = module.names.get("exports")
-                            if exports is not None and exports.tag == "variable":
-                                hits += self._hits_from_variable_type_inference(exports, [blob, ["module", "exports"]])
-                if hits:
-                    return hits
-            return None
+                if dirname in map(os.path.normpath, lib.dirs):
+                    # Found a lib with the directory we want. Whether we found
+                    # a hit or not, we don't need to look in any other libs
+                    # (since they will just give the same results)
+                    self.log("looking up lib %r (filename %r)", lib.dirs, filename)
+                    return get_hits_from_lib(lib, filename)
+
+            # none of the libs we know about has it, but we do have a file...
+            # try to force scan it
+            lib = self.mgr.db.get_lang_lib(self.lang, "node_modules_lib", (dirname,))
+            return get_hits_from_lib(lib, filename)
 
         def load_as_directory(path):
             """Load "path" as a directory and return hits from there
