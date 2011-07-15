@@ -9,13 +9,13 @@
         <variable line="9" name="num" />
         <scope attributes="__local__ private" ilk="function" line="9" lineend="9" name="(anonymous)" returns="this._num" signature="(anonymous)()">
           <variable citdl="jsclass" name="this" />
-          <caller citdl="jsclass.prototype.__defineGetter__" line="9" pos="1" />
+          <caller attributes="__hidden__" citdl="jsclass.prototype.__defineGetter__" line="9" pos="1" />
         </scope>
         <scope attributes="__local__ private" ilk="function" line="10" lineend="12" name="(anonymous)" signature="(anonymous)(new_num)">
           <variable ilk="argument" name="new_num" />
           <variable citdl="jsclass" name="this" />
           <variable citdl="new_num" line="11" name="_num" />
-          <caller citdl="jsclass.prototype.__defineSetter__" line="12" pos="1" />
+          <caller attributes="__hidden__" citdl="jsclass.prototype.__defineSetter__" line="12" pos="1" />
         </scope>
       </scope>
       <scope classrefs="Object" ilk="class" line="18" lineend="23" name="myclass">

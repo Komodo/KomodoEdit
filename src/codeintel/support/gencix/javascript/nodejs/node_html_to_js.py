@@ -443,7 +443,7 @@ class NodeModule(NodeItem):
                        not hasattr(self.current, "args") and \
                         str(tag).startswith("<p><code>function ("):
                         # for an event, the args show up as the first paragraph
-                        self.current.parse_args(tag.getText(),
+                        self.current.parse_args(tag.string,
                                                 real_module=self.real_name,
                                                 module=self.current.parent.name,
                                                 scope=self.last_class)
