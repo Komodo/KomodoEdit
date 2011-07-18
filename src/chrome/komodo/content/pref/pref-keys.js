@@ -237,20 +237,15 @@ function selectCommandFromSelectedUseBy(event) {
     // Ensure it's coming from the listbox, not some other xul element
     if (listbox && listbox.nodeName == "xul:listbox" &&
         listbox.selectedIndex >= 0) {
-        // commandAndKeyname contains the description and the key bindings
-        // Example: "Find: Find... [Ctrl-F]"
-        var commandAndKeyname = listbox.selectedItem.label;
-        //dump("commandAndKeyname: " + commandAndKeyname + "\n");
+        var commandname = listbox.selectedItem.getAttribute('name');
 	var numrows = dialog.tree.getRowCount();
         var listitem;
-        // commandName will just contain the description
-        // Example: "Find: Find..."
-        var commandName;
+        var listitem_commandname;
         var i;
 	for (i = 0; i < numrows ; i++) {
 	    listitem = dialog.tree.childNodes[i];
-            commandName = listitem.getAttribute('data');
-            if (commandName && commandAndKeyname.indexOf(commandName) == 0) {
+            listitem_commandname = listitem.getAttribute('name');
+            if (commandname == listitem_commandname) {
                 var tree_index = i;
                 if (i > 0) {
                     // Was not correct offset sometimes... not sure why needs -1
@@ -258,7 +253,7 @@ function selectCommandFromSelectedUseBy(event) {
                 }
                 dialog.tree.ensureIndexIsVisible(tree_index);
                 dialog.tree.selectedIndex = tree_index;
-                dialog.editkeybinding.commandId = listitem.getAttribute('name');
+                dialog.editkeybinding.commandId = listitem_commandname;
                 dialog.editkeybinding.updateCurrentKey();
                 break;
             }

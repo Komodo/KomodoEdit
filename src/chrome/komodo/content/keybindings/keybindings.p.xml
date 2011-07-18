@@ -578,6 +578,7 @@
                             commandname = usedbys[i].command;
                             listitem = document.createElement('listitem');
                             listitem.setAttribute('label', usedbys[i].desc);
+                            listitem.setAttribute('name', commandname);
                             this.usedby.appendChild(listitem);
                             if (i == 0) startwith = usedbys[i].desc;
                         }
