@@ -428,6 +428,15 @@ class _BaseCSSTestCase(CodeIntelTestCase):
                                       pseudo_results)
         self.assertNoTrigger(markup_text(content, pos=positions[2]))
 
+    @tag("bug90681", "css3")
+    def test_empty_css3_property_completions(self):
+        content = dedent("""
+            body {
+                transition-property: <|>;
+            }
+        """)
+        self.assertCompletionsAre(content, [])
+
 class CSS_StraightTest(_BaseCSSTestCase):
     lang = "CSS"
 
