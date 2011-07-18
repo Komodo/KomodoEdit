@@ -3412,6 +3412,19 @@ class JavaScriptCiler:
                          "keeping %r", jsother.cixname, jsother.name, name,
                          d_members[name])
 
+    def _handleDefineProperty(self, styles, text, p):
+        # text example:
+        #   ['(', 'namespace', ',', '"propname"', ',', '{', ')']
+        namelist, p = self._getIdentifiersFromPos(styles, text, p+1)
+        if namelist and p+3 < len(styles) and styles[p+1] in self.JS_STRINGS:
+            propertyname = self._unquoteJsString(text[p+1])
+            if namelist == ["this"]:
+                scope = self.currentScope
+            else:
+                scope = self._findOrCreateScope(namelist, ('variables', 'classes', 'functions'))
+            v = JSVariable(propertyname, scope, self.lineno, self.depth)
+            scope.addVariable(propertyname, value=v)
+            
     def _handleYAHOOExtension(self, styles, text, p):
         # text example:
         #   ['(', 'Dog', ',', 'Mammal', ',', '{', ')']
@@ -3578,7 +3591,10 @@ class JavaScriptCiler:
             if not namelist:
                 return
             #print "namelist: %r" % (namelist, )
-            if namelist[0] == "YAHOO" and \
+            if namelist == ["Object", "defineProperty"]:
+                # Defines a property on a given scope.
+                self._handleDefineProperty(styles, text, p)
+            elif namelist[0] == "YAHOO" and \
                namelist[1:] in (["extend"], ["lang", "extend"]):
                 # XXX - Should YAHOO API catalog be enabled then?
                 self._handleYAHOOExtension(styles, text, p)

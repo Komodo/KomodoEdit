@@ -32,3 +32,15 @@ function thirdclass() {
 thirdclass.prototype = {
     set name(newname) { if (newname) this._name = newname; }
 }
+
+//
+// Test 4
+// New style "Object.defineProperty" - JavaScript 1.8.5
+//
+var foo = {};
+Object.defineProperty(foo, "prop", {
+  get: function() this._v + 5,
+  set: function(v) { this._v = v + 10; return this.prop; },
+  configurable: true,
+  enumerable: true
+});

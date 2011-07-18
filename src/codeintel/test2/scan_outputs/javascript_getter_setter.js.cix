@@ -33,6 +33,9 @@
         <variable citdl="String" line="30" name="_name" />
         <variable line="33" name="name" />
       </scope>
+      <variable citdl="Object" line="40" lineend="40" name="foo">
+        <variable line="46" name="prop" />
+      </variable>
     </scope>
   </file>
 </codeintel>
