@@ -1,6 +1,6 @@
 /*
  * ElementTree
- * $Id: /work/modules/celementtree/cElementTree.c 1128 2005-12-16T21:57:13.668520Z Fredrik  $
+ * $Id: _elementtree.c 2657 2006-03-12 20:50:32Z fredrik $
  *
  * elementtree accelerator
  *
@@ -33,17 +33,22 @@
  * 2005-08-11 fl  added runtime test for copy workaround (1.0.3)
  * 2005-12-13 fl  added expat_capi support (for xml.etree) (1.0.4)
  * 2005-12-16 fl  added support for non-standard encodings
+ * 2006-03-08 fl  fixed a couple of potential null-refs and leaks
+ * 2006-03-12 fl  merge in 2.5 ssize_t changes
  *
- * Copyright (c) 1999-2005 by Secret Labs AB.  All rights reserved.
- * Copyright (c) 1999-2005 by Fredrik Lundh.
+ * Copyright (c) 1999-2006 by Secret Labs AB.  All rights reserved.
+ * Copyright (c) 1999-2006 by Fredrik Lundh.
  *
  * info@pythonware.com
  * http://www.pythonware.com
  */
 
+/* Licensed to PSF under a Contributor Agreement. */
+/* See http://www.python.org/2.4/license for licensing details. */
+
 #include "Python.h"
 
-#define VERSION "1.0.5"
+#define VERSION "1.0.6"
 
 /* -------------------------------------------------------------------- */
 /* configuration */
@@ -89,6 +94,11 @@ do { memory -= size; printf("%8d - %s\n", memory, comment); } while (0)
 #endif
 
 /* compatibility macros */
+#if (PY_VERSION_HEX < 0x02050000)
+typedef int Py_ssize_t;
+#define lenfunc inquiry
+#endif
+
 #if (PY_VERSION_HEX < 0x02040000)
 #define PyDict_CheckExact PyDict_Check
 #if (PY_VERSION_HEX < 0x02020000)
@@ -98,12 +108,6 @@ do { memory -= size; printf("%8d - %s\n", memory, comment); } while (0)
 #define Py_USING_UNICODE /* always enabled for 2.0 and 2.1 */
 #endif
 #endif
-#endif
-
-#if (PY_VERSION_HEX >= 0x02050000)
-#define PY_CONST const /* 2.5 adds const to some API:s */
-#else
-#define PY_CONST
 #endif
 
 #if !defined(Py_RETURN_NONE)
@@ -143,6 +147,9 @@ deepcopy(PyObject* object, PyObject* memo)
     }
 
     args = PyTuple_New(2);
+    if (!args)
+        return NULL;
+
     Py_INCREF(object); PyTuple_SET_ITEM(args, 0, (PyObject*) object);
     Py_INCREF(memo);   PyTuple_SET_ITEM(args, 1, (PyObject*) memo);
 
@@ -188,6 +195,9 @@ list_join(PyObject* list)
     }
 
     args = PyTuple_New(1);
+    if (!args)
+        return NULL;
+
     PyTuple_SET_ITEM(args, 0, list);
 
     result = PyObject_CallObject(function, args);
@@ -264,7 +274,7 @@ typedef struct {
 
 staticforward PyTypeObject Element_Type;
 
-#define Element_CheckExact(op) ((op)->ob_type == &Element_Type)
+#define Element_CheckExact(op) (Py_TYPE(op) == &Element_Type)
 
 /* -------------------------------------------------------------------- */
 /* element constructor and destructor */
@@ -324,8 +334,10 @@ element_new(PyObject* tag, PyObject* attrib)
 
     if (attrib != Py_None) {
 
-        if (element_new_extra(self, attrib) < 0)
+        if (element_new_extra(self, attrib) < 0) {
+            PyObject_Del(self);
             return NULL;
+	}
 
         self->extra->length = 0;
         self->extra->allocated = STATIC_CHILDREN;
@@ -450,7 +462,17 @@ element_resize(ElementObject* self, int extra)
     if (size > self->extra->allocated) {
         /* use Python 2.4's list growth strategy */
         size = (size >> 3) + (size < 9 ? 3 : 6) + size;
+        /* Coverity CID #182 size_error: Allocating 1 bytes to pointer "children"
+         * which needs at least 4 bytes. 
+         * Although it's a false alarm always assume at least one child to 
+         * be safe.
+         */
+        size = size ? size : 1;
         if (self->extra->children != self->extra->_children) {
+            /* Coverity CID #182 size_error: Allocating 1 bytes to pointer
+             * "children", which needs at least 4 bytes. Although it's a 
+             * false alarm always assume at least one child to be safe.
+             */
             children = PyObject_Realloc(self->extra->children,
                                         size * sizeof(PyObject*));
             if (!children)
@@ -606,8 +628,10 @@ subelement(PyObject* self, PyObject* args, PyObject* kw)
 
     Py_DECREF(attrib);
 
-    if (element_add_subelement(parent, elem) < 0)
+    if (element_add_subelement(parent, elem) < 0) {
+        Py_DECREF(elem);
         return NULL;
+    }
 
     return elem;
 }
@@ -695,8 +719,10 @@ element_copy(ElementObject* self, PyObject* args)
 
     if (self->extra) {
         
-        if (element_resize(element, self->extra->length) < 0)
+        if (element_resize(element, self->extra->length) < 0) {
+            Py_DECREF(element);
             return NULL;
+        }
 
         for (i = 0; i < self->extra->length; i++) {
             Py_INCREF(self->extra->children[i]);
@@ -798,7 +824,8 @@ element_deepcopy(ElementObject* self, PyObject* args)
 LOCAL(int)
 checkpath(PyObject* tag)
 {
-    int i, check = 1;
+    Py_ssize_t i;
+    int check = 1;
 
     /* check if a tag contains an xpath character */
 
@@ -889,7 +916,7 @@ element_findtext(ElementObject* self, PyObject* args)
             PyObject* text = element_get_text(item);
             if (text == Py_None)
                 return PyString_FromString("");
-            Py_INCREF(text);
+            Py_XINCREF(text);
             return text;
         }
     }
@@ -999,6 +1026,9 @@ element_getiterator(ElementObject* self, PyObject* args)
     }
 
     args = PyTuple_New(2);
+    if (!args)
+        return NULL;
+
     Py_INCREF(self); PyTuple_SET_ITEM(args, 0, (PyObject*) self);
     Py_INCREF(tag);  PyTuple_SET_ITEM(args, 1, (PyObject*) tag);
 
@@ -1010,8 +1040,10 @@ element_getiterator(ElementObject* self, PyObject* args)
 }
 
 static PyObject*
-element_getitem(ElementObject* self, int index)
+element_getitem(PyObject* self_, Py_ssize_t index)
 {
+    ElementObject* self = (ElementObject*) self_;
+
     if (!self->extra || index < 0 || index >= self->extra->length) {
         PyErr_SetString(
             PyExc_IndexError,
@@ -1025,9 +1057,10 @@ element_getitem(ElementObject* self, int index)
 }
 
 static PyObject*
-element_getslice(ElementObject* self, int start, int end)
+element_getslice(PyObject* self_, Py_ssize_t start, Py_ssize_t end)
 {
-    int i;
+    ElementObject* self = (ElementObject*) self_;
+    Py_ssize_t i;
     PyObject* list;
 
     if (!self->extra)
@@ -1113,7 +1146,7 @@ element_keys(ElementObject* self, PyObject* args)
     return PyDict_Keys(self->extra->attrib);
 }
 
-static int
+static Py_ssize_t
 element_length(ElementObject* self)
 {
     if (!self->extra)
@@ -1252,9 +1285,10 @@ element_set(ElementObject* self, PyObject* args)
 }
 
 static int
-element_setslice(ElementObject* self, int start, int end, PyObject* item)
+element_setslice(PyObject* self_, Py_ssize_t start, Py_ssize_t end, PyObject* item)
 {
-    int i, new, old;
+    ElementObject* self = (ElementObject*) self_;
+    Py_ssize_t i, new, old;
     PyObject* recycle = NULL;
 
     if (!self->extra)
@@ -1280,7 +1314,7 @@ element_setslice(ElementObject* self, int start, int end, PyObject* item)
         /* FIXME: support arbitrary sequences? */
         PyErr_Format(
             PyExc_TypeError,
-            "expected list, not \"%.200s\"", item->ob_type->tp_name
+            "expected list, not \"%.200s\"", Py_TYPE(item)->tp_name
             );
         return -1;
     }
@@ -1322,8 +1356,9 @@ element_setslice(ElementObject* self, int start, int end, PyObject* item)
 }
 
 static int
-element_setitem(ElementObject* self, int index, PyObject* item)
+element_setitem(PyObject* self_, Py_ssize_t index, PyObject* item)
 {
+    ElementObject* self = (ElementObject*) self_;
     int i;
     PyObject* old;
 
@@ -1478,13 +1513,13 @@ element_setattr(ElementObject* self, const char* name, PyObject* value)
 }
 
 static PySequenceMethods element_as_sequence = {
-    (inquiry) element_length,
+    (lenfunc) element_length,
     0, /* sq_concat */
     0, /* sq_repeat */
-    (intargfunc) element_getitem,
-    (intintargfunc) element_getslice,
-    (intobjargproc) element_setitem,
-    (intintobjargproc) element_setslice,
+    element_getitem,
+    element_getslice,
+    element_setitem,
+    element_setslice,
 };
 
 statichere PyTypeObject Element_Type = {
@@ -1515,7 +1550,7 @@ typedef struct {
     PyObject* data; /* data collector (string or list), or NULL */
 
     PyObject* stack; /* element stack */
-    int index; /* current stack size (0=empty) */
+    Py_ssize_t index; /* current stack size (0=empty) */
 
     /* element tracing */
     PyObject* events; /* list of events, or NULL if not collecting */
@@ -1528,7 +1563,7 @@ typedef struct {
 
 staticforward PyTypeObject TreeBuilder_Type;
 
-#define TreeBuilder_CheckExact(op) ((op)->ob_type == &TreeBuilder_Type)
+#define TreeBuilder_CheckExact(op) (Py_TYPE(op) == &TreeBuilder_Type)
 
 /* -------------------------------------------------------------------- */
 /* constructor and destructor */
@@ -1565,7 +1600,7 @@ treebuilder_new(void)
 }
 
 static PyObject*
-treebuilder(PyObject* _self, PyObject* args)
+treebuilder(PyObject* self_, PyObject* args)
 {
     if (!PyArg_ParseTuple(args, ":TreeBuilder"))
         return NULL;
@@ -1612,10 +1647,12 @@ treebuilder_handle_start(TreeBuilderObject* self, PyObject* tag,
 
     if (self->data) {
         if (self->this == self->last) {
+            Py_DECREF(JOIN_OBJ(self->last->text));
             self->last->text = JOIN_SET(
                 self->data, PyList_CheckExact(self->data)
                 );
         } else {
+            Py_DECREF(JOIN_OBJ(self->last->tail));
             self->last->tail = JOIN_SET(
                 self->data, PyList_CheckExact(self->data)
                 );
@@ -1633,14 +1670,14 @@ treebuilder_handle_start(TreeBuilderObject* self, PyObject* tag,
 
     if (this != Py_None) {
         if (element_add_subelement((ElementObject*) this, node) < 0)
-            return NULL;
+            goto error;
     } else {
         if (self->root) {
             PyErr_SetString(
                 PyExc_SyntaxError,
                 "multiple elements on top level"
                 );
-            return NULL;
+            goto error;
         }
         Py_INCREF(node);
         self->root = node;
@@ -1648,11 +1685,11 @@ treebuilder_handle_start(TreeBuilderObject* self, PyObject* tag,
 
     if (self->index < PyList_GET_SIZE(self->stack)) {
         if (PyList_SetItem(self->stack, self->index, this) < 0)
-            return NULL;
+            goto error;
         Py_INCREF(this);
     } else {
         if (PyList_Append(self->stack, this) < 0)
-            return NULL;
+            goto error;
     }
     self->index++;
 
@@ -1678,21 +1715,29 @@ treebuilder_handle_start(TreeBuilderObject* self, PyObject* tag,
     }
 
     return node;
+
+  error:
+    Py_DECREF(node);
+    return NULL;
 }
 
 LOCAL(PyObject*)
 treebuilder_handle_data(TreeBuilderObject* self, PyObject* data)
 {
     if (!self->data) {
+        if (self->last == (ElementObject*) Py_None) {
+            /* ignore calls to data before the first call to start */
+            Py_RETURN_NONE;
+        }
         /* store the first item as is */
         Py_INCREF(data); self->data = data;
     } else {
         /* more than one item; use a list to collect items */
-        if (PyString_CheckExact(self->data) && self->data->ob_refcnt == 1 &&
+        if (PyString_CheckExact(self->data) && Py_REFCNT(self->data) == 1 &&
             PyString_CheckExact(data) && PyString_GET_SIZE(data) == 1) {
             /* expat often generates single character data sections; handle
                the most common case by resizing the existing string... */
-            int size = PyString_GET_SIZE(self->data);
+            Py_ssize_t size = PyString_GET_SIZE(self->data);
             if (_PyString_Resize(&self->data, size + 1) < 0)
                 return NULL;
             PyString_AS_STRING(self->data)[size] = PyString_AS_STRING(data)[0];
@@ -1719,10 +1764,12 @@ treebuilder_handle_end(TreeBuilderObject* self, PyObject* tag, long line, long c
 
     if (self->data) {
         if (self->this == self->last) {
+            Py_DECREF(JOIN_OBJ(self->last->text));
             self->last->text = JOIN_SET(
                 self->data, PyList_CheckExact(self->data)
                 );
         } else {
+            Py_DECREF(JOIN_OBJ(self->last->tail));
             self->last->tail = JOIN_SET(
                 self->data, PyList_CheckExact(self->data)
                 );
@@ -2071,11 +2118,10 @@ expat_default_handler(XMLParserObject* self, const XML_Char* data_in,
             res = PyObject_CallFunction(self->handle_data, "O", value);
         else
             res = NULL;
-        Py_DECREF(value);
         Py_XDECREF(res);
     } else {
         PyErr_Format(
-            PyExc_SyntaxError, "undefined entity &%s;: line %d, column %d",
+            PyExc_SyntaxError, "undefined entity &%s;: line %ld, column %ld",
             PyString_AS_STRING(key),
             EXPAT(GetErrorLineNumber)(self->parser),
             EXPAT(GetErrorColumnNumber)(self->parser)
@@ -2153,6 +2199,8 @@ expat_data_handler(XMLParserObject* self, const XML_Char* data_in,
     PyObject* res;
 
     data = makestring(data_in, data_len);
+    if (!data)
+        return; /* parser will look for errors */
 
     if (TreeBuilder_CheckExact(self->target))
         /* shortcut */
@@ -2263,7 +2311,7 @@ expat_unknown_encoding_handler(XMLParserObject *self, const XML_Char *name,
     for (i = 0; i < 256; i++)
         s[i] = i;
     
-    u = PyUnicode_Decode(s, 256, name, "replace");
+    u = PyUnicode_Decode((char*) s, 256, name, "replace");
     if (!u)
         return XML_STATUS_ERROR;
 
@@ -2291,7 +2339,7 @@ expat_unknown_encoding_handler(XMLParserObject *self, const XML_Char *name,
 /* constructor and destructor */
 
 static PyObject*
-xmlparser(PyObject* _self, PyObject* args, PyObject* kw)
+xmlparser(PyObject* self_, PyObject* args, PyObject* kw)
 {
     XMLParserObject* self;
     /* FIXME: does this need to be static? */
@@ -2299,7 +2347,7 @@ xmlparser(PyObject* _self, PyObject* args, PyObject* kw)
 
     PyObject* target = NULL;
     char* encoding = NULL;
-    static PY_CONST char* kwlist[] = { "target", "encoding", NULL };
+    static char* kwlist[] = { "target", "encoding", NULL };
     if (!PyArg_ParseTupleAndKeywords(args, kw, "|Oz:XMLParser", kwlist,
                                      &target, &encoding))
         return NULL;
@@ -2320,13 +2368,14 @@ xmlparser(PyObject* _self, PyObject* args, PyObject* kw)
     self->entity = PyDict_New();
     if (!self->entity) {
         PyObject_Del(self);
-        return NULL; /* FIXME: cleanup on error */
+        return NULL;
     }
      
     self->names = PyDict_New();
     if (!self->names) {
+        PyObject_Del(self->entity);
         PyObject_Del(self);
-        return NULL; /* FIXME: cleanup on error */
+        return NULL;
     }
 
     memory_handler.malloc_fcn = PyObject_Malloc;
@@ -2335,16 +2384,22 @@ xmlparser(PyObject* _self, PyObject* args, PyObject* kw)
 
     self->parser = EXPAT(ParserCreate_MM)(encoding, &memory_handler, "}");
     if (!self->parser) {
+        PyObject_Del(self->names);
+        PyObject_Del(self->entity);
+        PyObject_Del(self);
         PyErr_NoMemory();
-        return NULL; /* FIXME: cleanup on error */
+        return NULL;
     }
 
     /* setup target handlers */
     if (!target) {
         target = treebuilder_new();
         if (!target) {
+            EXPAT(ParserFree)(self->parser);
+            PyObject_Del(self->names);
+            PyObject_Del(self->entity);
             PyObject_Del(self);
-            return NULL; /* FIXME: cleanup on error */
+            return NULL;
         }
     } else
         Py_INCREF(target);
@@ -2432,7 +2487,7 @@ expat_parse(XMLParserObject* self, char* data, int data_len, int final)
 
     if (!ok) {
         PyErr_Format(
-            PyExc_SyntaxError, "%s: line %d, column %d",
+            PyExc_SyntaxError, "%s: line %ld, column %ld",
             EXPAT(ErrorString)(EXPAT(GetErrorCode)(self->parser)),
             EXPAT(GetErrorLineNumber)(self->parser),
             EXPAT(GetErrorColumnNumber)(self->parser)
@@ -2539,7 +2594,7 @@ xmlparser_setevents(XMLParserObject* self, PyObject* args)
 {
     /* activate element event reporting */
 
-    int i;
+    Py_ssize_t i;
     TreeBuilderObject* target;
 
     PyObject* events; /* event collector */
@@ -2714,16 +2769,20 @@ initcElementTree(void)
 #endif
 
     /* Patch object type */
-    Element_Type.ob_type = TreeBuilder_Type.ob_type = &PyType_Type;
+    Py_TYPE(&Element_Type) = Py_TYPE(&TreeBuilder_Type) = &PyType_Type;
 #if defined(USE_EXPAT)
-    XMLParser_Type.ob_type = &PyType_Type;
+    Py_TYPE(&XMLParser_Type) = &PyType_Type;
 #endif
 
     m = Py_InitModule("cElementTree", _functions);
+    if (!m)
+        return;
 
     /* python glue code */
 
     g = PyDict_New();
+    if (!g)
+        return;
 
     PyDict_SetItemString(g, "__builtins__", PyEval_GetBuiltins());
 

@@ -38,13 +38,13 @@ co-habitation with a pure(r) cElementTree.
      PyObject* m;
      PyObject* g;
 @@ -2813,7 +2813,7 @@
-     XMLParser_Type.ob_type = &PyType_Type;
+     Py_TYPE(&XMLParser_Type) = &PyType_Type;
  #endif
  
 -    m = Py_InitModule("cElementTree", _functions);
 +    m = Py_InitModule("ciElementTree", _functions);
- 
-     /* python glue code */
+     if (!m)
+         return;
  
 @@ -2836,19 +2836,19 @@
          "ET = ElementTree\n"
