@@ -1,4 +1,5 @@
-==== //depot/main/Apps/Komodo-devel/contrib/cElementTree/cElementTree.c#2 - /Users/shanec/main/Apps/Komodo-devel/contrib/cElementTree/cElementTree.c ====
+--- cElementTree/cElementTree.c.orig	2007-03-19 13:09:30.000000000 -0700
++++ cElementTree/cElementTree.c	2007-03-19 13:09:47.000000000 -0700
 @@ -253,6 +253,11 @@
         pointer; use JOIN_OBJ to get the object pointer. */
      PyObject* tail;
