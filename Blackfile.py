@@ -1208,6 +1208,14 @@ def ImageKomodo(cfg, argv):
         ("trim", iimozbinpath("components", "xpti.dat")),
     ]
 
+    # Trim pyxpcom component files that we don't need.
+    ibits += [
+        ("trim", iimozbinpath("components", "pyabout.manifest")),
+        ("trim", iimozbinpath("components", "pyabout.py")),
+        # Don't need the pyxpcom manifest as we have our own komodo manifest.
+        ("trim", iimozbinpath("components", "pyxpcom.manifest")),
+    ]
+
     # Start with a fresh image
     basedir = "install" #ipkgpath()
     if exists(basedir): # start with a fresh INSTALLDIR/...
