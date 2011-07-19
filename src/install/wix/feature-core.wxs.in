@@ -893,7 +893,6 @@
               <File Id="file573" Name="NSWEBH_0.JS" LongName="nsWebHandlerApp.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\nsWebHandlerApp.js"/>
               <File Id="file574" Name="PARENT_0.XPT" LongName="parentalcontrols.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\parentalcontrols.xpt"/>
               <File Id="file575" Name="places.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\places.xpt"/>
-              <File Id="file577" Name="pyabout.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\pyabout.py"/>
               <File Id="file579" Name="STORAG_0.JS" LongName="storage-Legacy.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\storage-Legacy.js"/>
               <File Id="file580" Name="TXEXSL_0.JS" LongName="txEXSLTRegExFunctions.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\txEXSLTRegExFunctions.js"/>
               <File Id="file581" Name="XPCOM__5.XPT" LongName="xpcom_system.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\xpcom_system.xpt"/>
