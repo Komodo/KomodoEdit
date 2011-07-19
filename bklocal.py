@@ -1426,6 +1426,28 @@ class WithPlaces(black.configure.BooleanDatum):
                 self.value = 0
         self.determined = 1
 
+class WithTests(black.configure.BooleanDatum):
+    def __init__(self):
+        black.configure.Datum.__init__(self, "withTests",
+            desc="build Komodo with testing components",
+            acceptedOptions=("", ["with-tests", "without-tests"]))
+    def _Determine_Do(self):
+        self.applicable = 1
+        configTokens = black.configure.items["configTokens"].Get()
+        buildFlavour = black.configure.items["buildFlavour"].Get()
+        if buildFlavour == "full":
+            self.value = False
+        else:
+            self.value = True
+        for opt, optarg in self.chosenOptions:
+            if opt == "--with-tests":
+                if not self.value: configTokens.append("tests")
+                self.value = True
+            elif opt == "--without-tests":
+                if self.value: configTokens.append("notests")
+                self.value = False
+        self.determined = 1
+
 class WithCasper(black.configure.BooleanDatum):
     def __init__(self):
         black.configure.Datum.__init__(self, "withCasper",

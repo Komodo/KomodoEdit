@@ -801,6 +801,7 @@ configuration = {
 
     "withCrypto": WithCrypto(), # configure with Crypto support
     "withPlaces": WithPlaces(),
+    "withTests": WithTests(),
     "withCasper": WithCasper(),
     "withJSLib": WithJSLib(),
     "withDocs": WithDocs(),

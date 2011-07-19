@@ -58,6 +58,7 @@ my @toExport = (
     'withSymbols',              # should include debug syms for C/C++ comps
     'withCrashReportSymbols',   # should include crash report syms for C/C++
     'withCrypto',               # should build include crypto code
+    'withTests',
     'withCasper',
     'withJSLib',
     'withDocs', 'withDocJarring',
@@ -421,10 +422,14 @@ Build(
 
     # 3rd-party contributed code in contrib/...
     "$contribBuild/Conscript",
-
-    "test/pyxpcom/Conscript",
 );
 
+
+if ($withTests) {
+    Build(
+	"test/pyxpcom/Conscript",
+    );
+}
 
 if ($withCasper) {
     Build(
