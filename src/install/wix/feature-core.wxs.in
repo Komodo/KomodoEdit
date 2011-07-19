@@ -697,7 +697,6 @@
               <File Id="file2079" Name="KOISTA_0.XPT" LongName="koIStatusMessage.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIStatusMessage.xpt"/>
               <File Id="file2083" Name="KOISYS_1.XPT" LongName="koISysUtils.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koISysUtils.xpt"/>
               <File Id="file2084" Name="KOITEM_0.XPT" LongName="koITemplateService.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koITemplateService.xpt"/>
-              <File Id="file1405" Name="koITest.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koITest.xpt" />
               <File Id="file1386" LongName="koITextboxAutoComplete.xpt" Name="KOITEX_0.XPT" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koITextboxAutoComplete.xpt" />
               <File Id="file2086" Name="KOIURL_0.XPT" LongName="koIUrllib.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIUrllib.xpt"/>
               <File Id="file2087" Name="KOIURL_1.XPT" LongName="koIUrlUtils.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIUrlUtils.xpt"/>
@@ -760,7 +759,6 @@
               <File Id="file2159" Name="KOSYSU_0.PY" LongName="koSysUtils.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koSysUtils.py"/>
               <File Id="file2160" Name="KOTCLC_0.PY" LongName="koTclCompletion.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koTclCompletion.py"/>
               <File Id="file2161" Name="KOTCLL_0.PY" LongName="koTclLanguage.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koTclLanguage.py"/>
-              <File Id="file1406" Name="koTest.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koTest.py" />
               <File Id="file2163" Name="KOTEMP_0.PY" LongName="koTemplateService.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koTemplateService.py"/>
               <File Id="file2164" Name="KOTEXL_0.PY" LongName="koTeXLanguage.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koTeXLanguage.py"/>
               <File Id="file2165" Name="KOTEXT_0.PY" LongName="koTextboxAutoComplete.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koTextboxAutoComplete.py"/>
@@ -4091,7 +4089,6 @@
               <File Id="file4090" Name="KOISTA_0.IDL" LongName="koIStatusMessage.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIStatusMessage.idl"/>
               <File Id="file4094" Name="KOISYS_1.IDL" LongName="koISysUtils.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koISysUtils.idl"/>
               <File Id="file4095" Name="KOITEM_0.IDL" LongName="koITemplateService.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koITemplateService.idl"/>
-              <File Id="file1407" Name="koITest.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koITest.idl" />
               <File Id="file4096" Name="KOITEX_0.IDL" LongName="koITextboxAutoComplete.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koITextboxAutoComplete.idl"/>
               <File Id="file411" Name="KOITEX_1.IDL" LongName="koITextUtils.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koITextUtils.idl"/>
               <File Id="file4098" Name="KOIURL_0.IDL" LongName="koIUrllib.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIUrllib.idl"/>
