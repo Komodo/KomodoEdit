@@ -1255,13 +1255,14 @@ def ImageKomodo(cfg, argv):
                 continue
             if not exists(dirname(dst)):
                 os.makedirs(dirname(dst))
-            if isdir(src):
-                log.debug("image:: cp dir %r to %r", src, dst)
-                shutil.copytree(src, dst)
-            else:
-                for path in glob.glob(src):
-                    log.debug("image:: cp %r to %r", src, dst)
-                    shutil.copy2(path, dst)
+            for srcpath in glob.glob(src):
+                if isdir(srcpath):
+                    dstpath = isdir(dst) and join(dst, basename(srcpath)) or dst
+                    log.debug("image:: cp dir %r to %r", srcpath, dstpath)
+                    shutil.copytree(srcpath, dstpath)
+                else:
+                    log.debug("image:: cp %r to %r", srcpath, dst)
+                    shutil.copy2(srcpath, dst)
         elif data[0] == "mv":
             action, src, dst = data
             if exists(dst):
