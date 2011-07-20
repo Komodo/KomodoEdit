@@ -66,6 +66,7 @@ from os.path import join, dirname, exists, isfile, basename, abspath, \
 from fnmatch import fnmatch
 import pprint
 import glob
+import shutil
 try:
     from hashlib import md5
 except ImportError:
@@ -1220,10 +1221,7 @@ def ImageKomodo(cfg, argv):
     # Start with a fresh image
     basedir = "install" #ipkgpath()
     if exists(basedir): # start with a fresh INSTALLDIR/...
-        if sys.platform == "win32":
-            _run("rd /s/q %s" % basedir)
-        else:
-            _run("rm -rf %s" % basedir)
+        shutil.rmtree(basedir)
     os.makedirs(basedir)
 
     # Solaris doesn't support the -L
@@ -1254,78 +1252,45 @@ def ImageKomodo(cfg, argv):
             if not dst:
                 # Some path factory functions return None to indicate
                 # inapplicability on this platform.
-                continue 
-            if sys.platform == "win32":
-                if isdir(src):
-                    if not exists(dst): 
-                        os.makedirs(dst)
-                    _run('xcopy /q/s "%s" "%s"' % (src, dst))
-                elif '*' in src or '?' in src:
-                    if not exists(dst): 
-                        os.makedirs(dst)
-                    for path in glob.glob(src):
-                        _run('copy "%s" "%s"' % (path, dst))
-                else:
-                    if not exists(dirname(dst)):
-                        os.makedirs(dirname(dst))
-                    _run('copy "%s" "%s"' % (src, dst))
+                continue
+            if not exists(dirname(dst)):
+                os.makedirs(dirname(dst))
+            if isdir(src):
+                log.debug("image:: cp dir %r to %r", src, dst)
+                shutil.copytree(src, dst)
             else:
-                if '*' in src or '?' in src:
-                    _run('mkdir -p "%s"' % dst)
-                    for path in glob.glob(src):
-                        _run('%s "%s" "%s"' % (cplink, path, dst))
-                else:
-                    _run('mkdir -p "%s"' % dirname(dst))
-                    _run('%s "%s" "%s"' % (cplink, src, dst))
+                for path in glob.glob(src):
+                    log.debug("image:: cp %r to %r", src, dst)
+                    shutil.copy2(path, dst)
         elif data[0] == "mv":
             action, src, dst = data
             if exists(dst):
                 raise Error("can't move '%s' to '%s': '%s' exists"
                             % (src, dst, dst))
-            if sys.platform == "win32":
-                _run('move "%s" "%s"' % (src, dst))
-            else:
-                _run('mv "%s" "%s"' % (src, dst))
+            log.debug("image:: mv %r to %r", src, dst)
+            shutil.move(src, dst)
         elif data[0] == "rm":
             action, pattern = data
-            if sys.platform == "win32":
-                assert ' ' not in pattern,\
-                    "cannot yet handle a space in '%s'" % pattern
-                _run("del /q %s" % pattern)
-            else:
-                _run('rm -f "%s"' % pattern)
+            for path in glob.glob(pattern):
+                log.debug("image:: rm %r", path)
+                os.unlink(path)
         elif data[0] == "rmdir":
             action, pattern = data
-            if sys.platform == "win32":
-                assert ' ' not in pattern,\
-                    "cannot yet handle a space in '%s'" % pattern
-                _run("rd /s /q %s" % pattern)
-            else:
-                _run('rm -rf "%s"' % pattern)
+            for path in glob.glob(pattern):
+                log.debug("image:: rmtree %r", path)
+                shutil.rmtree(path)
         elif data[0] == "trim":
             # like 'rm' but doesn't error out if doesn't exist on Win
             action, pattern = data
-            if sys.platform == "win32":
-                assert ' ' not in pattern,\
-                    "cannot yet handle a space in '%s'" % pattern
-                if glob.glob(pattern):
-                    _run("del /q %s" % pattern)
-            else:
-                _run('rm -f "%s"' % pattern)
+            for path in glob.glob(pattern):
+                log.debug("image:: trim %r", path)
+                os.unlink(path)
         elif data[0] == "rtrim": # recursively trim given pattern
             action, pattern = data
-            if sys.platform == "win32":
-                cmd = "del /s/q %s || exit 0" % pattern
-                _run_in_dir(cmd, cfg.installRelDir)
-            elif sys.platform.startswith("sunos"):
-                # Solaris' 'find' and 'xargs' generally do not support
-                # '-print0' and '-0', respectively.
-                for dirpath, dirnames, filenames in os.walk(cfg.installRelDir):
-                    for filepath in glob.glob(join(dirpath, pattern)):
-                        os.unlink(filepath)
-            else:
-                cmd = 'find . -name "%s" -print0 | xargs -0 -n1 rm -f' % pattern
-                _run_in_dir(cmd, cfg.installRelDir)
+            for dirpath, dirnames, filenames in os.walk(cfg.installRelDir):
+                for path in glob.glob(join(dirpath, pattern)):
+                    log.debug("image:: trim %r", path)
+                    os.unlink(path)
         elif data[0] == "rmemptydirs":
             #XXX Note that this removed a dir like:
             #     lib/mozilla/extensions/{972ce4c6-7e08-4474-a285-3208198ce6fd}
@@ -1405,7 +1370,7 @@ def _PackageKomodoDMG(cfg):
     template = "%s-%s" % (productName, majorVer)
     pkgPath = cfg.komodoInstallerPackage
     if exists(pkgPath):
-        _run("rm %s" % pkgPath)
+        os.unlink(pkgPath)
     if not exists(dirname(pkgPath)):
         os.makedirs(dirname(pkgPath))
     _run("osxpkg mkdmg -T %s %s %s" % (template, pkgPath, cfg.installRelDir))
@@ -1428,7 +1393,7 @@ def _PackageKomodoASPackage(cfg):
     pkgName = basename(cfg.installRelDir)
     cmd = "tar czf %s %s" % (basename(pkgPath), pkgName)
     if exists(pkgPath):
-        _run("rm %s" % pkgPath)
+        os.unlink(pkgPath)
     _run_in_dir(cmd, dirname(pkgPath))
     if not isdir(cfg.packagesRelDir):
         os.makedirs(cfg.packagesRelDir)
