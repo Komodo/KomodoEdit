@@ -1298,21 +1298,21 @@ def ImageKomodo(cfg, argv):
             action, dname = data
             _rmemptydirs(dname)
 
-    #---- Some manual fixes
-    # The copying above destroyed this symlink in ".../lib/mozilla":
-    #   libpythonX.Y.so -> libpythonX.Y.so.1.0
-    # Having two independent libpythonX.Y.so's results in the following
-    # on Solaris:
-    #   Fatal Python error: Interpreter not initialized (version mismatch?)
-    # when doing PyXPCOM registration on startup. I don't know why on
-    # Solaris and not on Linux. Restore the symlink for both.
+    #---- Some manual Symlink fixes.
+    # We now have four copies of libpython.so, cut that back to one copy and
+    # symlink the others.
     if sys.platform not in ("win32", "darwin"):
-        libpythonXYso = iicorepath("lib", "mozilla",
+        libpythonXYso = iicorepath("lib", "python", "lib",
                                    "libpython%s.so" % cfg.siloedPyVer)
-        _run("rm -f "+libpythonXYso)
-        _run_in_dir("ln -s %s.1.0 %s"
-                    % (basename(libpythonXYso), basename(libpythonXYso)),
-                    dirname(libpythonXYso))
+        os.unlink(libpythonXYso)
+        os.symlink("%s.1.0" % basename(libpythonXYso), libpythonXYso)
+        log.debug("image:: symlinking %r => %r", libpythonXYso, "%s.1.0" % basename(libpythonXYso))
+
+        for path in (iicorepath("lib", "mozilla", "libpython%s.so" % cfg.siloedPyVer),
+                     iicorepath("lib", "mozilla", "libpython%s.so.1.0" % cfg.siloedPyVer)):
+            os.unlink(path)
+            os.symlink("../python/lib/%s.1.0" % basename(libpythonXYso), path)
+            log.debug("image:: symlinking %r => %r", path, "../python/lib/%s.1.0" % basename(libpythonXYso))
 
     # Ensure that there is a <image>/lib/mozilla/extensions directory
     # (bug 42497).
