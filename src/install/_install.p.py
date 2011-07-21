@@ -439,7 +439,6 @@ def _install(installDir, userDataDir, suppressShortcut, destDir=None):
         pyRelocDir = join(absRelocDir, "lib", "python")
 
     # copy the entire "Komodo" tree to the installDir
-     # copy the entire "Komodo" tree to the installDir
     if not exists(absInstallDir):
          os.makedirs(absInstallDir)
     for path in glob(join(dirname(dirname(__file__)), "INSTALLDIR", "*")):
