@@ -442,25 +442,12 @@ def _install(installDir, userDataDir, suppressShortcut, destDir=None):
      # copy the entire "Komodo" tree to the installDir
     if not exists(absInstallDir):
          os.makedirs(absInstallDir)
-    import sh2
-    sh2.cp(join(dirname(dirname(__file__)), "INSTALLDIR", "*"),
-           dstdir=absInstallDir, preserve=True,
-           recursive=True)
-
-    # The copying above destroyed this symlink in ".../lib/mozilla":
-    #   libpythonX.Y.so -> libpythonX.Y.so.1.0
-    # Having two independent libpythonX.Y.so's results in the following
-    # on Solaris:
-    #   Fatal Python error: Interpreter not initialized (version mismatch?)
-    # when doing PyXPCOM registration on startup. I don't know why on
-    # Solaris and not on Linux. Restore the symlink for both.
-    if sys.platform not in ("win32", "darwin"):
-        libpythonXYso = glob(join(absInstallDir, "lib", "mozilla",
-                                  "libpython?.?.so"))[0]
-        _run('rm -f "%s"' % libpythonXYso)
-        _run_in_dir("ln -s %s.1.0 %s"
-                    % (basename(libpythonXYso), basename(libpythonXYso)),
-                    dirname(libpythonXYso))
+    for path in glob(join(dirname(dirname(__file__)), "INSTALLDIR", "*")):
+        if isdir(path):
+            shutil.copytree(path, join(absInstallDir, basename(path)),
+                            symlinks=True)
+        else:
+            shutil.copy2(path, absInstallDir)
 
     log.debug("Preparing internal Python...")
     import activestate
