@@ -61,7 +61,8 @@
 
 import sys
 import os
-from os.path import abspath, expanduser, normpath, join, dirname, basename
+from os.path import (abspath, expanduser, normpath, join, dirname, basename,
+                     isdir, exists)
 import shutil
 import socket
 import tempfile
@@ -186,7 +187,7 @@ def _askYesNo(question, default="yes"):
 
 
 def _validateInstallDir(installDir):
-    if os.path.exists(installDir) and not os.path.isdir(installDir):
+    if exists(installDir) and not isdir(installDir):
         raise Error("cannot install to '%s': exists and is not a directory"
                     % installDir)
 
@@ -299,14 +300,14 @@ Categories=__GNOME_DESKTOP_CATEGORIES__
         if not HOME:
             raise ShortcutInstallError("no HOME environment variable")
         elif absInstallDir.startswith(HOME):
-            shortcutDir = os.path.join(HOME, "Desktop")
+            shortcutDir = join(HOME, "Desktop")
         else:
             shortcutDir = "/usr/share/applications"
-        shortcutPath = os.path.join(shortcutDir, shortcutName)
+        shortcutPath = join(shortcutDir, shortcutName)
 
         # Attempt to write the Komodo shortcut.
         # (We DO overwrite an existing such shortcut.)
-        if not os.path.exists(shortcutDir):
+        if not exists(shortcutDir):
             raise ShortcutInstallError("'%s' does not exist" % shortcutDir)
         else:
             fout = open(shortcutPath, 'w')
@@ -325,10 +326,10 @@ Categories=__GNOME_DESKTOP_CATEGORIES__
                 log.warn("could not set exec permissions on desktop shortcut"
                          "'%s': %s", shortcutPath, ex)
     except (EnvironmentError, ShortcutInstallError), ex:
-        fallbackDir = os.path.join(absInstallDir, "share", "desktop")
-        fallbackPath = os.path.join(fallbackDir, shortcutName)
+        fallbackDir = join(absInstallDir, "share", "desktop")
+        fallbackPath = join(fallbackDir, shortcutName)
         try:
-            if not os.path.exists(fallbackDir):
+            if not exists(fallbackDir):
                 os.makedirs(fallbackDir)
             fout = open(fallbackPath, 'w')
             fout.write(content)
@@ -360,7 +361,7 @@ def _gen_so_paths(basedir):
     for dirpath, dirnames, filenames in os.walk(basedir):
         for filename in filenames:
             if filename.endswith(".so"):
-                yield os.path.join(dirpath, filename)
+                yield join(dirpath, filename)
 
 def _selinux_prepare(absInstallDir):
     """If this is Linux and SELinux is installed and enabled,
@@ -438,8 +439,9 @@ def _install(installDir, userDataDir, suppressShortcut, destDir=None):
         pyRelocDir = join(absRelocDir, "lib", "python")
 
     # copy the entire "Komodo" tree to the installDir
-    if not os.path.exists(absInstallDir):
-        os.makedirs(absInstallDir)
+     # copy the entire "Komodo" tree to the installDir
+    if not exists(absInstallDir):
+         os.makedirs(absInstallDir)
     import sh2
     sh2.cp(join(dirname(dirname(__file__)), "INSTALLDIR", "*"),
            dstdir=absInstallDir, preserve=True,
@@ -466,8 +468,7 @@ def _install(installDir, userDataDir, suppressShortcut, destDir=None):
                                 verbose=log.isEnabledFor(logging.DEBUG))
 
     log.debug("pre-compile .py files in siloed Python")
-    pyLibDir = os.path.join(pyInstallDir, "lib",
-                            "python%s.%s" % sys.version_info[:2])
+    pyLibDir = join(pyInstallDir, "lib", "python%s.%s" % sys.version_info[:2])
     # Skip .pyc's only, just .pyo's are necessary because we always run
     # Python in optimized mode.
     cmds = ['"%s" -W "ignore:hex/oct constants" -O "%s/compileall.py" '
@@ -481,12 +482,12 @@ def _install(installDir, userDataDir, suppressShortcut, destDir=None):
 
     # Configure siloed GTK2 libs (if any).
     log.debug("Configuring GTK2...")
-    files = [os.path.join(mozInstallDir, "pango", "pangorc"),
-             os.path.join(mozInstallDir, "pango", "pango.modules"),
-             os.path.join(mozInstallDir, "gdk-pixbuf", "gdk-pixbuf.loaders")]
+    files = [join(mozInstallDir, "pango", "pangorc"),
+             join(mozInstallDir, "pango", "pango.modules"),
+             join(mozInstallDir, "gdk-pixbuf", "gdk-pixbuf.loaders")]
     token = "__PATH_TO_INSTALLED_KOMODO__"
     for file in files:
-        if not os.path.exists(file):
+        if not exists(file):
             continue
         log.debug("fixing up '%s'", file)
         fin = open(file, 'r')
@@ -546,8 +547,8 @@ Install directory: """ % default)
     if not installDir:
         installDir = default
 
-    norm = os.path.normpath(os.path.expanduser(installDir))
-    if os.path.isdir(norm):
+    norm = normpath(expanduser(installDir))
+    if isdir(norm):
         sys.stdout.write("""
 '%s' already exists. Installing over an existing
 Komodo installation may have unexpected results. Are you
@@ -559,7 +560,7 @@ sure you would like to proceed with the installation?
         elif choice == "no":
             print "Aborting install."
             return
-    elif os.path.exists(norm):
+    elif exists(norm):
         raise Error("'%s' exists and is not a directory" % installDir)
 
     print
@@ -569,12 +570,12 @@ def install(installDir, suppressShortcut, destDir=None):
     # Redirect the "user data dir" to a temp location to avoid
     # the problem described in bug 32270 ("sudo ./install.sh" results in
     # interfering root-owned stuff in ~/.komodo).
-    tempDir = os.path.join(tempfile.gettempdir(), "koinstall.%s" % os.getpid())
+    tempDir = join(tempfile.gettempdir(), "koinstall.%s" % os.getpid())
     try:
         return _install(installDir, tempDir, suppressShortcut,
                         destDir=destDir)
     finally:
-        if os.path.exists(tempDir):
+        if exists(tempDir):
             log.debug("removing temp user data dir: '%s'", tempDir)
             _rmtree(tempDir)
 
