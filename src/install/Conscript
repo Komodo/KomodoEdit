@@ -156,7 +156,6 @@ if ($buildFlavour eq "full") {
         );
         $cons->Install($installSupportDir, "install.sh");
         $cons->Install("$installSupportDir/support", "_install.py");
-        $cons->Install("$installSupportDir/support", "sh2.py");
         $cons->Install("$installSupportDir/support", "selinuxlib.py");
         $cons->Install("$installSupportDir/support",
                        "../python-sitelib/which.py");
