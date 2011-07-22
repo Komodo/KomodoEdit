@@ -69,7 +69,7 @@ class CommonJSLinter(object):
                 funcName = funcName[:lastDot]
             # Append "_macro" to avoid collisions with any js keywords
             funcName = re.sub(r'[\W]+', '_', funcName) + "_macro"
-            textToAnalyze = "function " + funcName + "() {\n" + text + "\n}";
+            textToAnalyze = "function " + funcName + "() { " + text + "\n}";
         else:
             textToAnalyze = text
         if request.koDoc.language == "XBL":
