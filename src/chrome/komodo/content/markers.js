@@ -59,6 +59,7 @@ ko.markers =  function markers_module() {
     // Here are the marker numbers that Komodo uses.
     // Note: These numbers *must* match the corresponding values used in
     //       src/koRunTerminal.py.
+    MAX_MARKNUM: 13,
     MARKNUM_HISTORYLOC: 13,
     MARKNUM_STDERR: 12, // used in terminal view
     MARKNUM_STDOUT: 11, // used in terminal view
@@ -66,12 +67,6 @@ ko.markers =  function markers_module() {
     MARKNUM_STDIN_PROMPT: 9, // used in terminal view
     MARKNUM_BOOKMARK: 6,
     MARKNUM_TRANSIENTMARK: 0, // used in buffer view
-    
-    // Include all markers *except* MARKNUM_CURRENT_LINE_BACKGROUND.
-    // - Want the Nth bitfield for marker N to be set iff that marker should
-    //   up in the symbol margin and cleared if the line background should be
-    //   colored.
-    MARKERS_MASK_SYMBOLS: 0x03FF,
     
     /**
      * Read a file from disk, cache and return the contents.
@@ -118,3 +113,9 @@ ko.markers =  function markers_module() {
     };
 
 }();
+
+// Include all markers *except* MARKNUM_CURRENT_LINE_BACKGROUND, as the
+// background marker is handled independently.
+// - Want the Nth bitfield for marker N to be set iff that marker should
+//   be visible in the symbol margin.
+ko.markers.MARKERS_MASK_SYMBOLS = ((1 << (ko.markers.MAX_MARKNUM+1)) - 1) ^ (1 << ko.markers.MARKNUM_CURRENT_LINE_BACKGROUND);
