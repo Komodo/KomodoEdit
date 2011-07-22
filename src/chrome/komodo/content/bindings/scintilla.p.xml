@@ -225,7 +225,7 @@
 
             <field name="inited">false</field> <!--Set to true once initialization complete.-->
 
-            <field name="_language">Text</field>
+            <field name="_language">'Text'</field>
             <property name="language">
                 <getter><![CDATA[
                     return this._language;
