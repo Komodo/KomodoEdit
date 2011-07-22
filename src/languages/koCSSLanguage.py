@@ -41,13 +41,7 @@ import sciutils
 from koLanguageServiceBase import *
 sci_constants = components.interfaces.ISciMoz
 
-class koCSSLanguage(KoLanguageBase):
-    name = "CSS"
-    _reg_desc_ = "%s Language" % name
-    _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
-                       % (name)
-    _reg_clsid_ = "52594294-AF26-414A-9D66-C2B47EF9F015"
-    _reg_categories_ = [("komodo-language", name)]
+class koCSSCommonLanguage(KoLanguageBase):
 
     supportsSmartIndent = "brace"
     primary = 1
@@ -100,6 +94,50 @@ body {
         CSSAutoIndentTestCase.cssObj = self
         testCases = [CSSAutoIndentTestCase]
         sciutils.runSciMozTests(testCases, scimoz)
+
+class koCSSLanguage(koCSSCommonLanguage):
+    name = "CSS"
+    _reg_desc_ = "%s Language" % name
+    _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
+                       % (name)
+    _reg_clsid_ = "52594294-AF26-414A-9D66-C2B47EF9F015"
+    _reg_categories_ = [("komodo-language", name)]
+
+class koLessLanguage(koCSSCommonLanguage):
+    name = "Less"
+    _reg_desc_ = "%s Language" % name
+    _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
+                       % (name)
+    _reg_clsid_ = "5ae0487c-7ac8-4367-94fc-f3d0c7304551"
+    _reg_categories_ = [("komodo-language", name)]
+    commentDelimiterInfo = {
+        "block": [ ("/*", "*/") ],
+        "markup": "*",
+        "line": ["//",],
+    }
+    
+    def get_lexer(self):
+        if self._lexer is None:
+            lexer = koCSSCommonLanguage.get_lexer(self)
+            if lexer != self._lexer:
+                print("Errorin koLessLanguage: lexer:%r, self._lexer:%r" % (lexer, self._lexer))
+                      
+            lexer.setProperty('lexer.css.less.language', '1')
+        return self._lexer
+
+class koSCSSLanguage(koCSSCommonLanguage):
+    name = "SCSS"
+    _reg_desc_ = "%s Language" % name
+    _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
+                       % (name)
+    _reg_clsid_ = "b35862ad-7349-453e-8bf6-73177f98c98e"
+    _reg_categories_ = [("komodo-language", name)]
+    
+    def get_lexer(self):
+        if self._lexer is None:
+            lexer = koCSSCommonLanguage.get_lexer(self)
+            lexer.setProperty('lexer.css.scss.language', '1')
+        return self._lexer
         
 class CSSAutoIndentTestCase(sciutils.SciMozTestCase):
     """Test suite for koCSSLanguage."""

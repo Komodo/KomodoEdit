@@ -386,6 +386,13 @@ class _BaseCSSTestCase(CodeIntelTestCase):
     #    #        checkbox[checked=<|>
     #    pass
 
+    def test_complete_tag_names_in_ws(self):
+        tag_names_trigger = "css-complete-tag-names"
+        body = "a <|>"
+        self.assertTriggerMatches(body, name=tag_names_trigger, pos=2)
+        self.assertCompletionsInclude(body,
+            [("element", "body"), ("element", "li")])
+
     @tag("bug58637")
     def test_complete_tag_names_multiple(self):
         for content in ("b<|>ody { ... }",
@@ -440,7 +447,6 @@ class _BaseCSSTestCase(CodeIntelTestCase):
 class CSS_StraightTest(_BaseCSSTestCase):
     lang = "CSS"
 
-
 class CSS_UDL_HTMLTest(_BaseCSSTestCase):
     lang = "HTML"
 
@@ -470,6 +476,14 @@ class CSS_UDL_HTMLTest(_BaseCSSTestCase):
         pos values accordingly.
         """
         return pos + len(self._prefix)
+
+    def test_complete_tag_names_in_ws(self):
+        tag_names_trigger = "css-complete-property-values"
+        body = "a <|>"
+        self.assertTriggerMatches(body, name=tag_names_trigger, pos=2)
+        # Unfortunately udl css scanning doesn't recognize the tag region
+        #self.assertCompletionsInclude(body,
+        #    [("element", "body"), ("element", "li")])
 
 
 class CSS_UDL_RHTMLTest(CSS_UDL_HTMLTest):
