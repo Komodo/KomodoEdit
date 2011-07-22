@@ -1039,6 +1039,7 @@ viewManager.prototype.handle_open_file = function(topic, data)
                     if (!view || !anchorDesc || !currentPosDesc) {
                         return;
                     }
+                    var scimoz = view.scimoz;
                     var anchor, currentPos;
                     // Are we using character index or line,column?
                     if (anchorDesc.indexOf(',') == -1) {
@@ -1046,7 +1047,6 @@ viewManager.prototype.handle_open_file = function(topic, data)
                     } else {
                         subparts = anchorDesc.split(',');
                         var anchorCol, anchorLine = Math.max(Number(subparts[0]) - 1, 0);
-                        var scimoz = view.scimoz;
                         var lineStartPos, numBytes;
                         if (subparts[1][0] == 'p') {
                             anchorCol = Math.max(Number(subparts[1].substr(1)) - 1, 0);
@@ -1077,7 +1077,6 @@ viewManager.prototype.handle_open_file = function(topic, data)
                         }
                     }
                     // do gotoline first because it messes w/ current position and anchor.
-                    var scimoz = view.scimoz;
                     var lineNo = scimoz.lineFromPosition(currentPos);
                     scimoz.gotoLine(Math.max(lineNo - 1, 0)); // scimoz is 0-indexed
                     scimoz.anchor = anchor;
