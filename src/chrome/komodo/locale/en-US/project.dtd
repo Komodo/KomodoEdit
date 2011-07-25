@@ -109,19 +109,6 @@
 <!ENTITY menuAccessKey.label "Menu Access Key">
 <!ENTITY menuAccessKey.accesskey "m">
 
-<!--fileProperties.xul-->
-<!ENTITY name.label "Name:">
-<!ENTITY size.label "Size:">
-<!ENTITY location.label "Location:">
-<!ENTITY created.label "Created:">
-<!ENTITY modified.label "Modified:">
-<!ENTITY access.label "Access:">
-<!ENTITY attribute.label "Attribute">
-<!ENTITY readOnly.label "Read-Only">
-<!ENTITY filesToInclude.label "Files to include: (empty means 'all')">
-<!ENTITY filesToExclude.label "Files and directories to exclude: (empty means 'none')">
-<!ENTITY filePropertiesNA.label "N/A">
-
 <!--macroProperties.xul-->
 <!ENTITY language.label "Language: ">
 <!ENTITY rank.label "Rank:">
