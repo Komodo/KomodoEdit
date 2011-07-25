@@ -112,6 +112,7 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 	const int IMPORTANT_SUBSTATE__AFTER_BANG = 0; // after "!"
 	const int IMPORTANT_SUBSTATE__IN_COMMENT = 1; // after "!  /* "
 	const int IMPORTANT_SUBSTATE__IN_WHITESPACE = 2; // after "! /* ... */  "
+	const int IMPORTANT_SUBSTATE__IN_WORD = 3; // after "! /* ... */  <letter>"
 	int important_substate = IMPORTANT_SUBSTATE__AFTER_BANG;
 	
 	const int STRING_SUBSTATE__IN_STRING = 0; // inside a string
@@ -243,11 +244,33 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 			break;
 		
 		case SCE_CSS_IMPORTANT:
-			if (IsASpaceOrTab(ch)) {
+			if (IsAWordChar(ch)) {
+				if (important_substate != IMPORTANT_SUBSTATE__IN_COMMENT) {
+					if (important_substate == IMPORTANT_SUBSTATE__IN_WHITESPACE) {
+						sc.ChangeState(SCE_CSS_DEFAULT);
+						sc.SetState(SCE_CSS_IMPORTANT);
+					}
+					important_substate = IMPORTANT_SUBSTATE__IN_WORD;
+				}
+			} else if (important_substate == IMPORTANT_SUBSTATE__IN_WORD) {
+				char s2[100], *p_buf = s2;
+				int wordStart = styler.GetStartSegment();
+				getCurrentWord(s2, sizeof(s2)/sizeof(s2[0]),
+					       wordStart, sc.currentPos, styler);
+				if (*p_buf == '!') {
+					p_buf += 1;
+				}
+				if (!strcasecmp(p_buf, "important")) {
+					main_substate = MAIN_SUBSTATE_IN_PROPERTY_VALUE;
+				} else {
+					sc.ChangeState(SCE_CSS_VALUE);
+				}
+				sc.SetState(SCE_CSS_DEFAULT);
+			} else if (strchr(" \t\r\n\f", ch)) {
 				if (important_substate == IMPORTANT_SUBSTATE__AFTER_BANG) {
 					sc.SetState(SCE_CSS_IMPORTANT);
-					important_substate = IMPORTANT_SUBSTATE__IN_WHITESPACE;
 				}
+				important_substate = IMPORTANT_SUBSTATE__IN_WHITESPACE;
 			} else if (sc.Match('/', '*')) {
 				if (important_substate == IMPORTANT_SUBSTATE__AFTER_BANG) {
 					sc.SetState(SCE_CSS_IMPORTANT);
@@ -258,31 +281,14 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 					important_substate = IMPORTANT_SUBSTATE__IN_COMMENT;
 				}
 				sc.Forward();
-			} else if (important_substate == IMPORTANT_SUBSTATE__IN_COMMENT) {
-				if (sc.Match('*', '/')) {
-					sc.ChangeState(SCE_CSS_COMMENT);
-					sc.SetState(SCE_CSS_IMPORTANT);
-					sc.Forward();
-					sc.Forward();
-					sc.currentPos -= 1; // because we'll go forward later.
-					important_substate = IMPORTANT_SUBSTATE__AFTER_BANG;
-				}
-			} else if ((int)(styler.Length() - sc.currentPos) > IMPORTANT_LEN
-				   && sc.MatchIgnoreCase("important")) {
-				if (important_substate == IMPORTANT_SUBSTATE__IN_WHITESPACE) {
-					sc.ChangeState(SCE_CSS_DEFAULT);
-					sc.SetState(SCE_CSS_IMPORTANT);
-				} else if (important_substate == IMPORTANT_SUBSTATE__IN_COMMENT) {
-					sc.ChangeState(SCE_CSS_COMMENT);
-					sc.SetState(SCE_CSS_IMPORTANT);
-				} else {
-					sc.ChangeState(SCE_CSS_IMPORTANT);
-				}
-				sc.Forward(IMPORTANT_LEN);
-				sc.SetState(SCE_CSS_DEFAULT);
-			} else {
-				// Give up
-				sc.ChangeState(SCE_CSS_DEFAULT);
+			} else if (important_substate == IMPORTANT_SUBSTATE__IN_COMMENT
+				   && sc.Match('*', '/')) {
+				sc.Forward();
+				sc.Forward();
+				sc.ChangeState(SCE_CSS_COMMENT);
+				sc.SetState(SCE_CSS_IMPORTANT);
+				sc.currentPos -= 1; // because we'll go forward later.
+				important_substate = IMPORTANT_SUBSTATE__AFTER_BANG;
 			}
 			break;
 		
