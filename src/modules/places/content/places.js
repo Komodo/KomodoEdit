@@ -2751,9 +2751,9 @@ ItemWrapper.prototype.__defineGetter__("isLocal", function() {
 });
 ItemWrapper.prototype.getFile = function() {
     if (!('_koFileEx' in this)) {
-        var fileObj = Components.classes["@activestate.com/koFileEx;1"].
-                      createInstance(Components.interfaces.koIFileEx);
-        fileObj.URI = this.uri;
+        var fileObj = Components.classes["@activestate.com/koFileService;1"].
+                       getService(Components.interfaces.koIFileService).
+                       getFileFromURI(this.uri);
         this._koFileEx = fileObj;
     }
     return this._koFileEx;
