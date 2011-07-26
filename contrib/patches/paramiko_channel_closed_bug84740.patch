@@ -1,5 +1,7 @@
 Fix for remote files Paramiko "Channel Closed" exception, bug 84740.
 
+No longer need this file once Paramiko gets upgraded.
+
 Index: paramiko/paramiko/channel.py
 ===================================================================
 --- paramiko/paramiko/channel.py	(revision 16146)
