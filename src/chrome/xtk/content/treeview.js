@@ -648,16 +648,19 @@ xtk.hierarchicalTreeView.prototype.hasNextSibling = function(row, afterIndex) {
     return false;
 };
 
-xtk.hierarchicalTreeView.prototype._expand_and_sort_child_rows = function(children, sortPropertyName, sortFunction, sortDir) {
+xtk.hierarchicalTreeView.prototype._expand_and_sort_child_rows = function(rowItem, sortPropertyName, sortFunction, sortDir) {
     var rows = [];
     var child;
+    var children = rowItem.getChildren();
     children = this._sort_rows_of_same_depth(children, this._sortPropertyName,
                                              this._sortFunction, this._sortDirection);
+    var child_level = rowItem.level + 1;
     for (var i=0; i < children.length; i++) {
         child = children[i];
+        child.level = child_level;
         rows.push(child);
         if (child.state == xtk.hierarchicalTreeView.STATE_OPENED && child.hasChildren) {
-            rows = rows.concat(this._expand_and_sort_child_rows(child.getChildren(), sortPropertyName, sortFunction, sortDir));
+            rows = rows.concat(this._expand_and_sort_child_rows(child, sortPropertyName, sortFunction, sortDir));
         }
     }
     return rows;
@@ -670,8 +673,7 @@ xtk.hierarchicalTreeView.prototype.toggleOpenState = function(row) {
     var new_rows;
 
     if (item.state == xtk.hierarchicalTreeView.STATE_CLOSED) {
-        var children = item.getChildren();
-        children = this._expand_and_sort_child_rows(children, this._sortPropertyName, this._sortFunction, this._sortDirection);
+        var children = this._expand_and_sort_child_rows(item, this._sortPropertyName, this._sortFunction, this._sortDirection);
         new_rows = this._rows.slice(0, row+1);
         new_rows = new_rows.concat(children);
         new_rows = new_rows.concat(this._rows.slice(row+1));
