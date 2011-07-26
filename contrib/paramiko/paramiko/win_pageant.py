@@ -82,10 +82,10 @@ def _query_pageant(msg):
         return None
 
     # Write our pageant request string into the file (pageant will read this to determine what to do)
-    filename = tempfile.mktemp('.pag')
+    (fd, filename) = tempfile.mkstemp('.pag')
     map_filename = os.path.basename(filename)
 
-    f = open(filename, 'w+b')
+    f = os.fdopen(fd, 'w+b')
     f.write(msg )
     # Ensure the rest of the file is empty, otherwise pageant will read this
     f.write('\0' * (_AGENT_MAX_MSGLEN - len(msg)))
