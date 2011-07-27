@@ -45,11 +45,12 @@
 
 <binding id="view-editor"
     extends="chrome://komodo/content/bindings/views-buffer.xml#view-buffer-base">
-    <content>
+    <content orient="vertical">
         <xul:scintilla xbl:inherits="flex,focused,context,mozcontext" flex="1"
                        anonid="scintilla"
                        allowIME="true"
                        mozcontext="editorContextMenu"/>
+        <xul:ko-findbar anonid="findbar"/>
     </content>
     <implementation name="vieweditor" implements="koIScintillaView, koIBookmarkableView, ISciMozEvents, nsIObserver">
 
@@ -1437,6 +1438,12 @@
             <!-- Keypress handler was explicitly added for vi keybindings -->
 	    <handler event="keypress" phase="capturing">
                 <![CDATA[
+                if (document.commandDispatcher.focusedElement != this.scintilla) {
+                    // something other than the <scintilla> is focused; ignore
+                    // key presses for the purposes of vi key binding emulation
+                    return;
+                }
+
                 var vi_mode_enabled = (typeof(gVimController) != 'undefined' &&
                                        gVimController.enabled);
                 // Ensure vi is enabled and no keypress catcher (like iSearch)

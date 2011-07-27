@@ -140,6 +140,10 @@
 
         <field name="textChangeUndoPending">false</field>
 
+        <field name="findbar">
+            document.getAnonymousElementByAttribute(this, 'anonid', 'findbar')
+        </field>
+
         <!-- Properties related to CodeIntel functionality for this view. -->
 
         <!-- Is CodeIntel-based completion enabled for this buffer?
@@ -1697,6 +1701,7 @@
                        allowIME="true"
                        mozcontext="bufferContextMenu"
                        flex="1"/>
+        <xul:ko-findbar anonid="findbar"/>
     </content>
     <implementation name="viewbuffer" implements="koIScintillaView, ISciMozEvents, nsIObserver">
         <field name="_foldstyle">null</field>

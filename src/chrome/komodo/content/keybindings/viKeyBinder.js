@@ -900,6 +900,10 @@ VimController.prototype.handleCommand = function(event, commandname, keylabel, m
         if (!view.scintilla) {
             return false;
         }
+        if (document.commandDispatcher.focusedElement != view.scintilla) {
+            // focusing somewhere else in the view
+            return false;
+        }
 
         if (commandname == 'cmd_cancel') {
             var cancelCmd = true;

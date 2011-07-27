@@ -290,9 +290,9 @@ Object.defineProperty(FindController.prototype, "patternType", {
             return;
         }
         this._findSvc.options.patternType = val;
-        if (this._scintilla) {
+        if (this._view) {
             // in incremental search
-            this._scintilla.findbar.patternType = val;
+            this._view.findbar.patternType = val;
         }
     },
     enumerable : true,
@@ -306,8 +306,8 @@ FindController.prototype._mouseHandlerBase = function (e) {
     var relatedTarget = null;
     if (e && e.type && e.type == "mousedown") {
         var isFindbar =
-            (e.originalTarget == this._scintilla.findbar) ||
-            (e.originalTarget.compareDocumentPosition(this._scintilla.findbar) & Node.DOCUMENT_POSITION_CONTAINS);
+            (e.originalTarget == this._view.findbar) ||
+            (e.originalTarget.compareDocumentPosition(this._view.findbar) & Node.DOCUMENT_POSITION_CONTAINS);
         if (isFindbar) {
             // The user clicked on the find bar or something in it; we don't
             // want to do anything here
@@ -329,10 +329,10 @@ FindController.prototype._focusHandlerBase = function(e) {
     // changing the focused element
     var elem = document.commandDispatcher.focusedElement;
 
-    if ((!this._scintilla) ||
+    if ((!this._view) ||
         (!elem) ||
-        (elem == this._scintilla.findbar) ||
-        (elem.compareDocumentPosition(this._scintilla.findbar) & Node.DOCUMENT_POSITION_CONTAINS))
+        (elem == this._view.findbar) ||
+        (elem.compareDocumentPosition(this._view.findbar) & Node.DOCUMENT_POSITION_CONTAINS))
     {
         // The user clicked on the find bar or something in it; we don't
         // want to do anything here
@@ -349,16 +349,16 @@ FindController.prototype._startIncrementalSearch = function(backwards) {
     }
     _log.debug("Starting incremental search " + (backwards ? "backwards" : "forwards"));
     this._view = this._currentView;
-    var scintilla = this._scintilla = this._currentView.scintilla;
+    var scintilla = this._currentView.scintilla;
     var scimoz = scintilla.scimoz;
-    this._scintilla.findbar.controller = this;
-    this._scintilla.findbar.notFound = false;
-    this._scintilla.findbar.collapsed = false;
-    this._scintilla.findbar.setStatus(null);
-    this._scintilla.findbar.focus();
+    this._view.findbar.controller = this;
+    this._view.findbar.notFound = false;
+    this._view.findbar.collapsed = false;
+    this._view.findbar.setStatus(null);
+    this._view.findbar.focus();
     // canOpenDialog must be set after collapsed=false in order for the XBL
     // binding to apply early enough.
-    this._scintilla.findbar.canOpenDialog = (this._viewManager == ko.views.manager);
+    this._view.findbar.canOpenDialog = (this._viewManager == ko.views.manager);
     this._mouseHandler = this._mouseHandlerBase.bind(this);
     scintilla.mouse_handler = this._mouseHandler;
     this._focusHandler = this._focusHandlerBase.bind(this);
@@ -378,7 +378,7 @@ FindController.prototype._startIncrementalSearch = function(backwards) {
     };
 
     // Clear the highlight now because we're starting a new search
-    ko.find.highlightClearAll(this._scintilla.scimoz);
+    ko.find.highlightClearAll(this._view.scimoz);
     ko.statusBar.AddMessage(null, "isearch");
 
     // Apply new find settings
@@ -387,14 +387,14 @@ FindController.prototype._startIncrementalSearch = function(backwards) {
     this.patternType = Number(ko.prefs.getStringPref('isearchType'));
     this.highlightTimeout = Number(ko.prefs.getLongPref('isearchHighlightTimeout')) || undefined;
     // manually force the findbar pattern type to match reality
-    this._scintilla.findbar.patternType = this.patternType;
+    this._view.findbar.patternType = this.patternType;
     this._findSvc.options.caseSensitivity = Number(ko.prefs.getStringPref('isearchCaseSensitivity'));
-    this._scintilla.findbar.caseSensitivity = this._findSvc.options.caseSensitivity;
+    this._view.findbar.caseSensitivity = this._findSvc.options.caseSensitivity;
     this._incrementalSearchContext.type = this._findSvc.options.FCT_CURRENT_DOC;
     this._incrementalSearchPattern = pattern;
-    this._scintilla.findbar.text = pattern;
+    this._view.findbar.text = pattern;
     if (pattern) {
-        this._scintilla.findbar.selectText();
+        this._view.findbar.selectText();
         // we have something selected; highlight the other occurrences without
         // moving the cursor, please
         ko.find.highlightAllMatches(scimoz,
@@ -426,29 +426,29 @@ FindController.prototype._stopIncrementalSearch = function(why, highlight) {
     // never add to the MRU; we only do that in searchAgain.
     this._incrementalSearchPattern = '';
 
-    if (!this._scintilla) return;
+    if (!this._view) return;
 
     // clean up event handlers
-    if (this._scintilla.mouse_handler == this._mouseHandler) {
-        this._scintilla.mouse_handler = null;
+    if (this._view.scintilla.mouse_handler == this._mouseHandler) {
+        this._view.scintilla.mouse_handler = null;
     }
     document.removeEventListener("focus", this._focusHandler, true);
     this._focusHandler = null;
 
     var elem = document.commandDispatcher.focusedElement;
     if ((!elem) ||
-        (elem == this._scintilla.findbar) ||
-        (elem.compareDocumentPosition(this._scintilla.findbar) & Node.DOCUMENT_POSITION_CONTAINS))
+        (elem == this._view.findbar) ||
+        (elem.compareDocumentPosition(this._view.findbar) & Node.DOCUMENT_POSITION_CONTAINS))
     {
         // the focus is in the find bar; it gets confused if we send more key
         // events its way, so move the focus to its scintilla instead.
-        this._scintilla.focus();
+        this._view.scintilla.focus();
     }
 
     // clean up the find bar
-    this._scintilla.findbar.controller = null;
-    this._scintilla.findbar.collapsed = true;
-    this._scintilla = null;
+    this._view.findbar.controller = null;
+    this._view.findbar.collapsed = true;
+    this._view = null;
 };
 
 /**
@@ -471,13 +471,13 @@ FindController.prototype.convertToDialog = function() {
  * @param pattern The pattern to search for
  */
 FindController.prototype.search = function(pattern, highlight) {
-    var scimoz = this._scintilla.scimoz;
+    var scimoz = this._view.scintilla.scimoz;
     this._lastIncrementalSearchText = pattern;
     this._incrementalSearchPattern = pattern;
     var oldStart = scimoz.selectionStart;
     var oldEnd = scimoz.selectionEnd;
-    this._scintilla.findbar.notFound = false;
-    this._scintilla.findbar.text = this._incrementalSearchPattern;
+    this._view.findbar.notFound = false;
+    this._view.findbar.text = this._incrementalSearchPattern;
     scimoz.gotoPos(this._incrementalSearchStartPos-1);
 
     if (this._incrementalSearchPattern == '') {
@@ -500,7 +500,7 @@ FindController.prototype.search = function(pattern, highlight) {
         var prompt = _bundle.formatStringFromName("noOccurencesFound",
                                                   [this._incrementalSearchPattern], 1);
         scimoz.setSel(oldStart, oldEnd);
-        this._scintilla.findbar.notFound = true;
+        this._view.findbar.notFound = true;
     }
 };
 
@@ -509,7 +509,7 @@ FindController.prototype.search = function(pattern, highlight) {
  * @param {Boolean} isBackwards Whether the search should be conducted backwards
  */
 FindController.prototype.searchAgain = function(isBackwards) {
-    this._scintilla.findbar.notFound = false;
+    this._view.findbar.notFound = false;
     if (this._lastIncrementalSearchText == '')
         return;
 
@@ -522,9 +522,9 @@ FindController.prototype.searchAgain = function(isBackwards) {
         this._incrementalSearchPattern = this._lastIncrementalSearchText;
         findSessionSvc.Reset();
     }
-    this._scintilla.findbar.text = this._incrementalSearchPattern;
+    this._view.findbar.text = this._incrementalSearchPattern;
     this._findSvc.options.searchBackward = isBackwards;
-    var scimoz = this._scintilla.scimoz;
+    var scimoz = this._view.scintilla.scimoz;
     var lastPos = (isBackwards ? Math.max : Math.min)(scimoz.anchor,
                                                       scimoz.currentPos);
     var findres = ko.find.findNext(this._view, this._incrementalSearchContext,
@@ -534,24 +534,24 @@ FindController.prototype.searchAgain = function(isBackwards) {
     if (findres == false) {
         var text = _bundle.GetStringFromName("findNotFound");
         text = PluralForm.get(lastCount, text).replace("#1", lastCount);
-        this._scintilla.findbar.setStatus("not-found", text);
-        this._scintilla.findbar.notFound = true;
+        this._view.findbar.setStatus("not-found", text);
+        this._view.findbar.notFound = true;
     } else {
-        this._incrementalSearchStartPos = this._scintilla.scimoz.currentPos;
+        this._incrementalSearchStartPos = this._view.scintilla.scimoz.currentPos;
         ko.statusBar.AddMessage(null, "isearch");
         if (isBackwards) {
             var newPos = Math.max(scimoz.anchor, scimoz.currentPos);
             if (newPos > lastPos) {
-                this._scintilla.findbar.setStatus("wrapped", "findWrappedBackwards");
+                this._view.findbar.setStatus("wrapped", "findWrappedBackwards");
             } else {
-                this._scintilla.findbar.setStatus(null);
+                this._view.findbar.setStatus(null);
             }
         } else {
             var newPos = Math.min(scimoz.anchor, scimoz.currentPos);
             if (newPos < lastPos) {
-                this._scintilla.findbar.setStatus("wrapped", "findWrappedForwards");
+                this._view.findbar.setStatus("wrapped", "findWrappedForwards");
             } else {
-                this._scintilla.findbar.setStatus(null);
+                this._view.findbar.setStatus(null);
             }
         }
     }
@@ -568,9 +568,9 @@ Object.defineProperty(FindController.prototype, "caseSensitivity", {
             return;
         }
         this._findSvc.options.caseSensitivity = val;
-        if (this._scintilla) {
+        if (this._view) {
             // in incremental search
-            this._scintilla.findbar.caseSensitivity = val;
+            this._view.findbar.caseSensitivity = val;
         }
     },
     enumerable : true,
@@ -661,7 +661,7 @@ FindController.prototype._keyHandler = function FindController__keyHandler(event
     }
 
     // if we get here, it's a special key of some sort. Close the findbar.
-    var scintilla = this._scintilla; // this will go away, hold on to it
+    var scintilla = this._view.scintilla; // this will go away, hold on to it
     this._stopIncrementalSearch("User cancelled", false);
     scintilla.focus();
 };

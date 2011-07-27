@@ -97,6 +97,7 @@
                            xbl:inherits="flex,focused,context,mozcontext"
                            flex="1"
                            mozcontext="bufferContextMenu"/>
+            <xul:ko-findbar anonid="findbar"/>
         </xul:notificationbox>
     </content>
     <implementation name="viewdiff" implements="koIScintillaView, ISciMozEvents, nsIObserver">
