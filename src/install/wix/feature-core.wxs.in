@@ -646,6 +646,7 @@
               <File Id="file620" Name="KOHIST_0.PY" LongName="koHistory.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koHistory.py"/>
               <File Id="file622" Name="KOIHIS_0.XPT" LongName="koIHistory.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIHistory.xpt"/>
               <File Id="file878" LongName="koHLSLLanguage.py" Name="KOHLSL_0.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koHLSLLanguage.py" />
+              <File Id="file577" LongName="koCSSExLinter.py" Name="KOCSSE_0.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koCSSExLinter.py" />
               <File Id="file2018" Name="KOHTML_1.PY" LongName="koHTMLLinter.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koHTMLLinter.py"/>
               <File Id="file2019" Name="KOIAPP_0.XPT" LongName="koIAppInfo.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIAppInfo.xpt"/>
               <File Id="file2023" Name="KOICOD_0.XPT" LongName="koICodeIntel.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koICodeIntel.xpt"/>
@@ -1882,6 +1883,7 @@
                   <File Id="file1224" LongName="constants_css_microsoft_extensions.py" Name="CONSTA_4.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\constants_css_microsoft_extensions.py" />
                   <File Id="file1225" LongName="constants_css_moz_extensions.py" Name="CONSTA_5.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\constants_css_moz_extensions.py" />
                   <File Id="file1226" LongName="constants_css_webkit_extensions.py" Name="CONSTA_6.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\constants_css_webkit_extensions.py" />
+                  <File Id="file680" LongName="css_linter.py" Name="CSS_LI_0.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\css_linter.py" />
                   <File Id="file121" Name="GENCIX_0.PY" LongName="gencix_utils.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\gencix_utils.py"/>
                   <File Id="file461" Name="hooks.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\hooks.py" />
                   <File Id="file419" Name="phpdoc.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\phpdoc.py" />
