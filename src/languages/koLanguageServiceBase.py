@@ -2136,7 +2136,7 @@ class KoLanguageBase:
         return ''
     
     def _precededByText(self, scimoz, currentPos):
-        assert scimoz.getWCharAt(pos) == "<"
+        assert scimoz.getWCharAt(currentPos) == "<"
         currentLine = scimoz.lineFromPosition(currentPos)
         lineStartPos = scimoz.positionFromLine(currentLine)
         for pos in range(currentPos - 1, lineStartPos - 1, -1):

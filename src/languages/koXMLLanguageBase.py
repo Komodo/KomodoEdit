@@ -155,7 +155,6 @@ class koXMLLanguageBase(KoUDLLanguage):
         closing tag, return the line # of the start-tag's start.
         Otherwise return None.  Preconditions given as assertions.
         """
-        assert indentStyle is not None
         assert scimoz.getStyleAt(currentPos) == scimoz.SCE_UDL_M_ETAGO
         prevPos = currentPos - 1 # ascii
         if scimoz.getStyleAt(prevPos) != scimoz.SCE_UDL_M_STAGC:
