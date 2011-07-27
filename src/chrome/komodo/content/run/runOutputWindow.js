@@ -124,6 +124,7 @@ this.initialize = function RunOutput_Init() {
             }, false);
         });
         window.frameElement.hookupObservers("runoutput-commandset");
+        scintillaOverlayOnLoad();
     } finally {
         ko.main.addWillCloseHandler(ko.run.output.finalize);
     }
@@ -140,6 +141,7 @@ this.finalize = function RunOutput_Fini()
     if (!ko.main.windowIsClosing) {
         ko.main.removeWillCloseHandler(ko.run.output.finalize);
     }
+    scintillaOverlayOnUnload();
 }
 
 

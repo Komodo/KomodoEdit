@@ -14,8 +14,6 @@
 <?xml-stylesheet href="chrome://komodo/skin/toolbar.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/platform.css" type="text/css"?>
 
-<?xul-overlay href="chrome://komodo/content/bindings/scintilla-overlay.xul"?>
-
 <page xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
     <hbox align="center" id="findresults_tabpanel-toolbarbox"
         class="toolbar-background toolbar-hbox">

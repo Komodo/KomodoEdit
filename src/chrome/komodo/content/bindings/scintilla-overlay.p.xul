@@ -1,26 +1,26 @@
 <?xml version="1.0"?>
 <!-- ***** BEGIN LICENSE BLOCK *****
  Version: MPL 1.1/GPL 2.0/LGPL 2.1
- 
+
  The contents of this file are subject to the Mozilla Public License
  Version 1.1 (the "License"); you may not use this file except in
  compliance with the License. You may obtain a copy of the License at
  http://www.mozilla.org/MPL/
- 
+
  Software distributed under the License is distributed on an "AS IS"
  basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
  License for the specific language governing rights and limitations
  under the License.
- 
+
  The Original Code is Komodo code.
- 
+
  The Initial Developer of the Original Code is ActiveState Software Inc.
  Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
  ActiveState Software Inc. All Rights Reserved.
- 
+
  Contributor(s):
    ActiveState Software Inc
- 
+
  Alternatively, the contents of this file may be used under the terms of
  either the GNU General Public License Version 2 or later (the "GPL"), or
  the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
@@ -32,7 +32,7 @@
  and other provisions required by the GPL or the LGPL. If you do not delete
  the provisions above, a recipient may use your version of this file under
  the terms of any one of the MPL, the GPL or the LGPL.
- 
+
  ***** END LICENSE BLOCK ***** -->
 <!DOCTYPE overlay PUBLIC "-//MOZILLA//DTD XUL V1.0//EN" "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
@@ -45,18 +45,6 @@
 
 <overlay id="scintillaOverlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
-    <script src="chrome://komodo/content/library/logging.js"          type="application/x-javascript;version=1.7" />
-    <script src="chrome://komodo/content/library/windowManager.js"    type="application/x-javascript;version=1.7" />
-    <script src="chrome://komodo/content/library/timers.js"           type="application/x-javascript;version=1.7" />
-    <script src="chrome://komodo/content/library/stringutils.js"      type="application/x-javascript;version=1.7" />
-    <script src="chrome://komodo/content/library/color_functions.js"  type="application/x-javascript;version=1.7" />
-    <script src="chrome://komodo/content/library/controller.js"       type="application/x-javascript;version=1.7"/>
-    <script src="chrome://komodo/content/library/commands.js"         type="application/x-javascript;version=1.7"/>
-    <script src="chrome://komodo/content/library/dragdrop.js"         type="application/x-javascript;version=1.7" />
-    <script src="chrome://komodo/content/library/open.js"             type="application/x-javascript;version=1.7" />
-    <script src="chrome://komodo/content/launch.js"                   type="application/x-javascript;version=1.7" />
-    <script src="chrome://komodo/content/markers.js"                  type="application/x-javascript;version=1.7" />
-
     <hbox id="scintillaOverlayXul" style="margin: 0px; padding: 0px; height: 0px; width: 0px;">
         <menupopup type="buffercontext" id="bufferContextMenu"
                    onpopupshowing="document.commandDispatcher.updateCommands('buffer_context_menu_showing');"/>
@@ -65,60 +53,132 @@
         <commandset id="allcommands"/>
     </hbox>
 
-
 <script type="application/x-javascript;version=1.7">
 <![CDATA[
+(function() {
 var gMainWindow = null;
+var _log = null;
+var _loaded = false;
 
 if (typeof(gEditorTooltipHandler) == 'undefined') {
-    var gEditorTooltipHandler = null;
+    Components.utils.getGlobalForObject(this).gEditorTooltipHandler = null;
 }
 
-function scintillaOverlayOnLoad()
-{
+/**
+ * Initialize additional Scintilla support
+ * @param options [optional] A hash; keys in this hash turn on various options.
+ *   "commands": various <command>s and <key>s (default on)
+ *   "keyhandler": traps key handling to prevent other handlers from taking over
+ *      (e.g. to prevent dialogs closing on enter in scintilla) (default on)
+ */
+function scintillaOverlayOnLoad(options) {
+    if (_loaded) {
+        // this is being run twice; skip
+        return;
+    }
+    _loaded = true;
+
+    // import various scripts if they don't exist; this is necessary for the
+    // panes because they get ko.* for free and including the script again would
+    // clobber them (and use the wrong global).
+    var scripts = {
+        "library/logging.js"          : true,
+        "library/windowManager.js"    : true,
+        "library/timers.js"           : function() "objectTimer" in (ko || {}),
+        "library/stringutils.js"      : true,
+        "library/commands.js"         : true,
+        "library/dragdrop.js"         : true,
+        "markers.js"                  : true,
+    };
+
+    var loader = null;
+    for (var [script, check] in scripts) {
+        if (check instanceof Function) {
+            if (check()) continue;
+        } else if (script.split("/").pop().replace(/\.js$/, "") in (ko || {})) {
+            // ko.foo exists
+            continue;
+        }
+        if (!loader) {
+            loader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
+                               .getService(Components.interfaces.mozIJSSubScriptLoader);
+        }
+        var url = "chrome://komodo/content/" + script;
+        loader.loadSubScript(url);
+        if (!_log) {
+            // this works because logging is the first thing we load, and it's done
+            _log = ko.logging.getLogger("scintilla-overlay");
+            //_log.setLevel(ko.logging.LOG_DEBUG);
+        }
+        _log.warn("Loading " + url + " via subscript loader; possible performance " +
+                  "hit, consider including the script directly in " + window.location.href);
+    }
+    if (!_log) {
+        // we didn't need to load any scripts at all; grab the log for later
+        _log = ko.logging.getLogger("scintilla-overlay");
+    }
+    
     gMainWindow = ko.windowManager.getMainWindow();
 
-    // "steal" the commands and keyset from the main window
-    // Doing it the 'right' way takes a long time - I'm hoping this
-    // will be faster.
-    var node = document.importNode(
-       gMainWindow.document.getElementById('widekeyset'), true);
-    document.documentElement.appendChild(node);
+    if (!options || ("commands" in options)) {
+        // "steal" the commands and keyset from the main window
+        // Doing it the 'right' way takes a long time - I'm hoping this
+        // will be faster.
+        var node = document.importNode(
+              gMainWindow.document.getElementById('widekeyset'), true);
+        document.documentElement.appendChild(node);
+    }
 
-    // Stop ENTER key in Scintilla from going to dialog "OK" button - bug 41071.
-    doDialogKeypressHack();
+    if (!options || ("keyhandler" in options)) {
+        // Stop ENTER key in Scintilla from going to dialog "OK" button - bug 41071.
+        // (keypress screws up keybindings with shifted keys such as ctrl+shift+9)
+        window.addEventListener("keydown", keypressInterrupt, false);
+    }
 }
 
-function scintillaOverlayOnUnload()
-{
-    removeDialogKeypressHack();
-}
-
-// XXX bug 41071
-function doDialogKeypressHack() {
-    window.addEventListener("keypress", keypressInterrupt, false);
-}
-
-function removeDialogKeypressHack() {
-    window.removeEventListener("keypress", keypressInterrupt, false);
+function scintillaOverlayOnUnload() {
+    if (!_loaded) {
+        // this is being run twice; skip
+        return;
+    }
+    _loaded = false;
+    // bug 41071
+    window.removeEventListener("keydown", keypressInterrupt, false);
 }
 
 function keypressInterrupt(event) {
-    // get the command name from the keybinding and execute it
-    var key = gMainWindow.ko.keybindings.manager.event2keylabel(event);
-    if (!key) return;
-    var command = gMainWindow.ko.keybindings.manager.key2command[key];
-    // When not the main window, do not handle cmd_delete in a textbox,
-    // otherwise a textbox widget will not work correctly from a XUL dialog.
-    // Bug 65504.
-    if ((gMainWindow != window) && (command == 'cmd_delete') &&
-        ('originalTarget' in event) &&
-        (event.originalTarget.nodeName == "html:input")) {
-        return;
-    }
-    if (command && ko.commands.doCommand(command))
+    try {
+        // get the command name from the keybinding and execute it
+        var key = gMainWindow.ko.keybindings.manager.event2keylabel(event, undefined, false);
+        if (!key) return;
+        var command = gMainWindow.ko.keybindings.manager.key2command[key];
+        if (!command) return;
+        var controller = document.commandDispatcher.getControllerForCommand(command);
+        if (!controller) return;
+        if (!(controller instanceof Components.interfaces.ISciMozController) &&
+            !(controller instanceof Components.interfaces.koIViewController))
+        {
+            // Only do special handling for <scintilla> and <view> elements; see
+            // bug 65504 where we overrode cmd_delete for <textbox>s
+            return;
+        }
+        // we have a valid controller; just go ahead and do it, since our typical
+        // isCommandEnabled is broken.
         event.preventDefault();
+        controller.doCommand(command);
+    } finally {
+        // this lets us do logging at one spot, using undefined for missing values
+        _log.debug("keypressInterrupt: key [" + key +
+                   "] command [" + command +
+                   "] controller [" + controller + "]");
+    }
 }
+
+Components.utils.getGlobalForObject(this).scintillaOverlayOnLoad =
+    scintillaOverlayOnLoad;
+Components.utils.getGlobalForObject(this).scintillaOverlayOnUnload =
+    scintillaOverlayOnUnload;
+})();
 ]]>
 </script>
 
