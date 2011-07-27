@@ -182,6 +182,8 @@ $cons->InstallInChrome('cbox-check-dis.gif');
 
 $cons->InstallInChrome('historyToolbar.png');
 
+$cons->InstallInChrome('find_options_icons.png');
+
 $cons->InstallRecursive("$mozChromeDir/komodo/skin/images/colorpicker",
                         cwd()."/src/chrome/komodo/skin/images/colorpicker",
                         ('\.svn'));

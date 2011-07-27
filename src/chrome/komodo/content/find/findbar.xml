@@ -78,43 +78,45 @@
                            accesskey=""
                            tooltiptext="&findbar.previous.tooltiptext;"
                            oncommand="prev();"/>
-        <xul:checkbox anonid="match-word"
-                      class="ko-findbar-match-word"
-                      label="&findbar.word.label;"
-                      accesskey=""
-                      oncommand="setMatchWord(this.checked)"
-                      tooltiptext="&findbar.word.tooltiptext;"/>
-        <xul:menulist anonid="case-sensitive"
-                      class="ko-findbar-case-sensitive"
-                      accesskey=""
-                      oncommand="setCaseSensitivity(this.selectedItem.value)">
+        <xul:toolbarbutton anonid="case-sensitive"
+                           class="ko-findbar-case-sensitive"
+                           accesskey=""
+                           type="menu"
+                           oncommand="setCaseSensitivity(event.target.value)">
           <xul:menupopup>
             <xul:menuitem label="&findbar.case.insensitive.label;"
                           tooltiptext="&findbar.case.insensitive.tooltiptext;"
-                          value="FOC_INSENSITIVE"/>
+                          value="FOC_INSENSITIVE"
+                          type="radio"/>
             <xul:menuitem label="&findbar.case.sensitive.label;"
                           tooltiptext="&findbar.case.sensitive.tooltiptext;"
-                          value="FOC_SENSITIVE"/>
+                          value="FOC_SENSITIVE"
+                          type="radio"/>
             <xul:menuitem label="&findbar.case.smart.label;"
                           tooltiptext="&findbar.case.smart.tooltiptext;"
-                          value="FOC_SMART"/>
+                          value="FOC_SMART"
+                          type="radio"/>
           </xul:menupopup>
-        </xul:menulist>
-        <xul:menulist anonid="pattern-type"
-                      class="ko-findbar-pattern-type"
-                      oncommand="setPatternType(this.selectedItem.value)">
+        </xul:toolbarbutton>
+        <xul:toolbarbutton anonid="pattern-type"
+                           class="ko-findbar-pattern-type"
+                           type="menu"
+                           oncommand="setPatternType(event.target.value)">
           <xul:menupopup>
             <xul:menuitem label="&findbar.using.simple.label;"
                           tooltiptext="&findbar.using.simple.tooltiptext;"
-                          value="FOT_SIMPLE"/>
+                          value="FOT_SIMPLE"
+                          type="radio"/>
             <xul:menuitem label="&findbar.using.wildcard.label;"
                           tooltiptext="&findbar.using.wildcard.tooltiptext;"
-                          value="FOT_WILDCARD"/>
+                          value="FOT_WILDCARD"
+                          type="radio"/>
             <xul:menuitem label="&findbar.using.regex.label;"
                           tooltiptext="&findbar.using.regex.tooltiptext;"
-                          value="FOT_REGEX_PYTHON"/>
+                          value="FOT_REGEX_PYTHON"
+                          type="radio"/>
           </xul:menupopup>
-        </xul:menulist>
+        </xul:toolbarbutton>
         <xul:toolbarbutton anonid="open-dialog"
                            class="ko-findbar-open-dialog"
                            tooltip="_child"
@@ -150,22 +152,16 @@
           this.controller.searchAgain(true);
         </body>
       </method>
-      <method name="setMatchWord">
-        <parameter name="val"/>
-        <body>
-          return this.matchWord = val;
-        </body>
-      </method>
       <method name="setCaseSensitivity">
         <parameter name="val"/>
         <body>
-          this.controller.caseSensitivity = Components.interfaces.koIFindOptions[val];
+          this.caseSensitivity = Components.interfaces.koIFindOptions[val];
         </body>
       </method>
       <method name="setPatternType">
         <parameter name="val"/>
         <body>
-          this.controller.patternType = Components.interfaces.koIFindOptions[val];
+          this.patternType = Components.interfaces.koIFindOptions[val];
         </body>
       </method>
       <method name="openDialog">
@@ -269,9 +265,6 @@
       <field name="_textbox">
         document.getAnonymousElementByAttribute(this, 'anonid', 'textbox')
       </field>
-      <field name="_matchWord">
-        document.getAnonymousElementByAttribute(this, 'anonid', 'match-word')
-      </field>
       <field name="_caseSensitive">
         document.getAnonymousElementByAttribute(this, 'anonid', 'case-sensitive')
       </field>
@@ -286,17 +279,28 @@
         document.getAnonymousElementByAttribute(this, 'anonid', 'status-text')
       </field>
 
+      <field name="_log">
+        ko.logging.getLogger("findbar")
+      </field>
+
       <property name="patternType">
+        <getter>
+          var item = this._patternType.querySelector("menuitem[value^='FOT_'][checked]");
+          if (!item) return undefined;
+          return Components.interfaces.koIFindOptions[item.value];
+        </getter>
         <setter>
         <![CDATA[
-          for (var i = 0; i < this._patternType.itemCount; ++i) {
-            var item = this._patternType.getItemAtIndex(i);
-            if (Components.interfaces.koIFindOptions[item.value] != val) {
-              continue;
-            }
-            this._patternType.selectedItem = item;
-            break;
-          }
+          this._log.debug("findbar: patternType := " + val);
+          this.controller.patternType = val;
+          const koIFindOptions = Components.interfaces.koIFindOptions;
+          var name = Object.keys(koIFindOptions)
+                           .filter(function(n) /^FOT_/.test(n) && koIFindOptions[n] == val)[0];
+          var menuitem = this._patternType.getElementsByAttribute("value", name)[0];
+          menuitem.setAttribute("checked", true);
+          this._patternType.setAttribute("value", menuitem.value);
+          this._patternType.tooltipText = menuitem.tooltipText;
+          return this.patternType;
         ]]>
         </setter>
       </property>
@@ -310,30 +314,21 @@
         </getter>
       </property>
 
-      <property name="matchWord">
-        <getter>
-          return this.controller.matchWord;
-        </getter>
-        <setter>
-          return this._matchWord.checked = this.controller.matchWord = val;
-        </setter>
-      </property>
-
       <property name="caseSensitivity">
         <getter>
-          var item = this._caseSensitive.selectedItem;
-          return Components.interfaces.koIFindOptions[item.value];
+          return this.controller.caseSensitivity;
         </getter>
         <setter>
         <![CDATA[
-          for (var i = 0; i < this._caseSensitive.itemCount; ++i) {
-            var item = this._caseSensitive.getItemAtIndex(i);
-            if (Components.interfaces.koIFindOptions[item.value] != val) {
-              continue;
-            }
-            this._caseSensitive.selectedItem = item;
-            break;
-          }
+          this._log.debug("findbar: caseSensitivity := " + val);
+          this.controller.caseSensitivity = val;
+          const koIFindOptions = Components.interfaces.koIFindOptions;
+          var name = Object.keys(koIFindOptions)
+                           .filter(function(n) /^FOC_/.test(n) && koIFindOptions[n] == val)[0];
+          var menuitem = this._caseSensitive.getElementsByAttribute("value", name)[0];
+          menuitem.setAttribute("checked", true);
+          this._caseSensitive.setAttribute("value", menuitem.value);
+          this._caseSensitive.tooltipText = menuitem.tooltipText;
           return this.caseSensitivity;
         ]]>
         </setter>

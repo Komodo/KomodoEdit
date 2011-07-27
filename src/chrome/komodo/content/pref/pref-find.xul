@@ -139,6 +139,12 @@
                     </row>
                 </rows>
             </grid>
+            <description id="find-isearch-timeout-description" flex="1">
+                <!-- this lets the description wrap a bit if needed -->
+                &findIncrementalHighlightTimeout.label.pre;
+                <textbox id="isearchHighlightTimeout" size="4" pref="true" preftype="long"/>
+                &findIncrementalHighlightTimeout.label.post;
+            </description>
         </groupbox>
 
     </vbox>

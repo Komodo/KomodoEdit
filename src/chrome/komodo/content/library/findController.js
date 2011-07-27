@@ -279,12 +279,24 @@ FindController.prototype.do_cmd_startIncrementalSearchBackwards = function() {
 /**
  * Set the search pattern type
  */
-FindController.prototype.__defineSetter__("patternType", function FindController_set_patternType(val) {
-    this._findSvc.options.patternType = val;
-    if (this._scintilla) {
-        // in incremental search
-        this._scintilla.findbar.patternType = val;
-    }
+Object.defineProperty(FindController.prototype, "patternType", {
+    get: function FindController_get_patternType() {
+        return this._findSvc.options.patternType;
+    },
+    set: function FindController_set_patternType(val) {
+        _log.debug("setting patternType to " + val +
+                   "(was " + this._findSvc.options.patternType + ")");
+        if (this._findSvc.options.patternType == val) {
+            return;
+        }
+        this._findSvc.options.patternType = val;
+        if (this._scintilla) {
+            // in incremental search
+            this._scintilla.findbar.patternType = val;
+        }
+    },
+    enumerable : true,
+    configurable : true
 });
 
 /**
@@ -371,8 +383,11 @@ FindController.prototype._startIncrementalSearch = function(backwards) {
 
     // Apply new find settings
     this._findSvc.options.searchBackward = backwards;
-    this._findSvc.options.matchWord = this._scintilla.findbar.matchWord = false;
+    this._findSvc.options.matchWord = false;
     this.patternType = Number(ko.prefs.getStringPref('isearchType'));
+    this.highlightTimeout = Number(ko.prefs.getLongPref('isearchHighlightTimeout')) || undefined;
+    // manually force the findbar pattern type to match reality
+    this._scintilla.findbar.patternType = this.patternType;
     this._findSvc.options.caseSensitivity = Number(ko.prefs.getStringPref('isearchCaseSensitivity'));
     this._scintilla.findbar.caseSensitivity = this._findSvc.options.caseSensitivity;
     this._incrementalSearchContext.type = this._findSvc.options.FCT_CURRENT_DOC;
@@ -382,7 +397,10 @@ FindController.prototype._startIncrementalSearch = function(backwards) {
         this._scintilla.findbar.selectText();
         // we have something selected; highlight the other occurrences without
         // moving the cursor, please
-        ko.find.highlightAllMatches(scimoz, this._incrementalSearchContext, pattern)
+        ko.find.highlightAllMatches(scimoz,
+                                    this._incrementalSearchContext,
+                                    pattern,
+                                    this.highlightTimeout);
     }
 }
 
@@ -394,6 +412,10 @@ FindController.prototype._stopIncrementalSearch = function(why, highlight) {
                                 "isearch", 3000, highlight, true);
     }
     if (this._origFindOptions) {
+        // Save the incremental search settings
+        ko.prefs.setStringPref('isearchType', this.patternType);
+        ko.prefs.setStringPref('isearchCaseSensitivity', this.caseSensitivity);
+
         // Restore original find settings
         for each (let key in Object.keys(this._origFindOptions)) {
             _log.debug("restoring " + key + " to " + this._origFindOptions[key]);
@@ -427,7 +449,7 @@ FindController.prototype._stopIncrementalSearch = function(why, highlight) {
     this._scintilla.findbar.controller = null;
     this._scintilla.findbar.collapsed = true;
     this._scintilla = null;
-}
+};
 
 /**
  * Convert this incremental search to a Find dialog
@@ -457,9 +479,11 @@ FindController.prototype.search = function(pattern, highlight) {
     this._scintilla.findbar.notFound = false;
     this._scintilla.findbar.text = this._incrementalSearchPattern;
     scimoz.gotoPos(this._incrementalSearchStartPos-1);
+
     if (this._incrementalSearchPattern == '') {
         return;
     }
+
     ko.macros.recorder.undo();
     var findres = ko.find.findNext(
         this._view, this._incrementalSearchContext,
@@ -470,7 +494,8 @@ FindController.prototype.search = function(pattern, highlight) {
         // that will be done on stopping of interactive search.
         false,
         null,   // msgHandler
-        highlight);
+        highlight,
+        this.highlightTimeout);
     if (! findres) {
         var prompt = _bundle.formatStringFromName("noOccurencesFound",
                                                   [this._incrementalSearchPattern], 1);
@@ -532,28 +557,24 @@ FindController.prototype.searchAgain = function(isBackwards) {
     }
 }
 
-FindController.prototype.__defineSetter__("matchWord", function FindController_set_matchWord(val) {
-    if (this._findSvc.options.matchWord == val) {
-        return;
-    }
-    this._findSvc.options.matchWord = val;
-    if (this._scintilla) {
-        // in incremental search
-        this._scintilla.findbar.matchWord = val;
-    }
-    // update the search
-    this.search(this._incrementalSearchPattern);
-});
-
-FindController.prototype.__defineSetter__("caseSensitivity", function FindController_set_caseSensitivity(val) {
-    if (this._findSvc.options.caseSensitivity == val) {
-        return;
-    }
-    this._findSvc.options.caseSensitivity = val;
-    if (this._scintilla) {
-        // in incremental search
-        this._scintilla.findbar.caseSensitivity = val;
-    }
+Object.defineProperty(FindController.prototype, "caseSensitivity", {
+    get: function FindController_set_caseSensitivity() {
+        return this._findSvc.options.caseSensitivity;
+    },
+    set: function FindController_set_caseSensitivity(val) {
+        _log.debug("caseSensitivity := " + val +
+                   " (was " + this._findSvc.options.caseSensitivity + ")");
+        if (this._findSvc.options.caseSensitivity == val) {
+            return;
+        }
+        this._findSvc.options.caseSensitivity = val;
+        if (this._scintilla) {
+            // in incremental search
+            this._scintilla.findbar.caseSensitivity = val;
+        }
+    },
+    enumerable : true,
+    configurable : true
 });
 
 /**

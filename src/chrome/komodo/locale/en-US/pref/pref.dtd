@@ -613,6 +613,8 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY findHighlightTimeout.description "This timeout value is used by the 'Find Next' and 'Find Previous' commands to ensure they continue to operate quickly. If the search term highlighting is still running after this amount of time, the highlighting will stop and the cursor will then move to the match location.">
 <!ENTITY findSkipLargeFilesEnabled.label "Skip over large files">
 <!ENTITY findSkipFilesLargerThan.label "Larger than:">
+<!ENTITY findIncrementalHighlightTimeout.label.pre "Incremental highlighting will timeout after ">
+<!ENTITY findIncrementalHighlightTimeout.label.post " msecs (set to 0 to never timeout)">
 
 <!--pref-folderimport.xul-->
 <!ENTITY filesToInclude.label "Files to include: (empty means 'all')">

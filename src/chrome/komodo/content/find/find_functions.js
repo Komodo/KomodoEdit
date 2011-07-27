@@ -1257,11 +1257,14 @@ this.highlightClearPosition = function Find_HighlightClearPosition(scimoz, posit
  * @param {window} editor  - a reference to the komodo.xul main window
  * @param {Components.interfaces.koIFindContext} context - a koIFindContext instance
  * @param {string} pattern - the pattern being sought
+ * @param {Number} timeout - [optional] number of milliseconds before timing out
  */
-this.highlightAllMatches = function Find_HighlightAllMatches(scimoz, context, pattern) {
+this.highlightAllMatches = function Find_HighlightAllMatches(scimoz, context, pattern, timeout) {
     var prefsSvc = Components.classes["@activestate.com/koPrefService;1"].
                             getService(Components.interfaces.koIPrefService);
-    var timeout = prefsSvc.prefs.getLongPref("find-highlightTimeout");
+    if (typeof(timeout) == "undefined") {
+        timeout = prefsSvc.prefs.getLongPref("find-highlightTimeout");
+    }
     if (timeout <= 0) {
         timeout = 500;  /* When set to zero, use minimum of 1/2 a second. */
     }
@@ -1305,13 +1308,17 @@ this.highlightingEnabled = function Find_HighlightingEnabled() {
  *        is true. By default messages are sent to the statusbar.
  * @param {bool} highlightMatches (optional) when set, will highlight *all*
  *        matches in the context using a scintilla indicator.
+ * @param {Number} highlightTimeout (optional) the maximum number of
+ *        milliseconds to spend highlighting before giving up; defaults to using
+ *        the user-specified preference value.
  *
  * @returns {boolean} True if the pattern was successfully found.
  */
 this.findNext = function Find_FindNext(editor, context, pattern, mode /* ="find" */,
                        quiet /* =false */, useMRU /* =true */,
                        msgHandler /* =<statusbar notifier> */,
-                       highlightMatches /* =true */)
+                       highlightMatches /* =true */,
+                       highlightTimeout /* =from pref */)
 {
     var win = editor, view;
     if (editor instanceof Components.interfaces.koIScintillaView) {
@@ -1383,7 +1390,7 @@ this.findNext = function Find_FindNext(editor, context, pattern, mode /* ="find"
         findLog.debug("found a result " + findResult);
         ko.find._displayFindResult(editor, findResult);
         if (highlightMatches && (mode == "find")) {
-            ko.find.highlightAllMatches(scimoz, context, pattern);
+            ko.find.highlightAllMatches(scimoz, context, pattern, highlightTimeout);
         }
     } else {
         if (highlightMatches) {
