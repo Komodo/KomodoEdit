@@ -10,8 +10,8 @@
           <variable citdl="myfunc" name="this" />
         </scope>
         <scope ilk="function" line="15" lineend="21" name="strFunc" signature="strFunc(s)">
-          <variable ilk="argument" name="s" />
           <variable citdl="myfunc" name="this" />
+          <variable ilk="argument" line="15" name="s" />
           <variable attributes="__local__ private" citdl="String" line="16" name="copyOfS" />
         </scope>
         <scope ilk="function" line="131" lineend="133" name="separateFunc" signature="separateFunc()">
@@ -22,126 +22,126 @@
       <variable citdl="String" line="24" name="s" />
       <scope ilk="class" line="30" lineend="46" name="treeView">
         <scope attributes="__ctor__" ilk="function" line="30" lineend="46" name="treeView" signature="treeView(table, columns, rowcount)">
-          <variable ilk="argument" name="table" />
-          <variable ilk="argument" name="columns" />
-          <variable ilk="argument" name="rowcount" />
           <variable citdl="treeView" name="this" />
+          <variable ilk="argument" line="30" name="table" />
+          <variable ilk="argument" line="30" name="columns" />
+          <variable ilk="argument" line="30" name="rowcount" />
         </scope>
         <variable citdl="table" line="31" name="table" />
         <variable citdl="columns" line="32" name="columns" />
         <variable citdl="rowcount" line="33" name="rowCount" />
         <variable citdl="treebox" line="34" name="treebox" />
         <scope ilk="function" line="35" lineend="35" name="getCellText" returns="this.table[row][this.columns[column][0]]" signature="getCellText(row, column)">
-          <variable ilk="argument" name="row" />
-          <variable ilk="argument" name="column" />
           <variable citdl="treeView" name="this" />
+          <variable ilk="argument" line="35" name="column" />
+          <variable ilk="argument" line="35" name="row" />
         </scope>
         <scope ilk="function" line="37" lineend="37" name="setTree" signature="setTree(treebox)">
-          <variable ilk="argument" name="treebox" />
           <variable citdl="treeView" name="this" />
+          <variable ilk="argument" line="37" name="treebox" />
         </scope>
         <scope ilk="function" line="38" lineend="38" name="isContainer" returns="Boolean" signature="isContainer(row)">
-          <variable ilk="argument" name="row" />
           <variable citdl="treeView" name="this" />
+          <variable ilk="argument" line="38" name="row" />
         </scope>
         <scope ilk="function" line="39" lineend="39" name="isSeparator" returns="Boolean" signature="isSeparator(row)">
-          <variable ilk="argument" name="row" />
           <variable citdl="treeView" name="this" />
+          <variable ilk="argument" line="39" name="row" />
         </scope>
         <scope ilk="function" line="40" lineend="40" name="isSorted" returns="Boolean" signature="isSorted(row)">
-          <variable ilk="argument" name="row" />
           <variable citdl="treeView" name="this" />
+          <variable ilk="argument" line="40" name="row" />
         </scope>
         <scope ilk="function" line="41" lineend="41" name="getLevel" returns="Number" signature="getLevel(row)">
-          <variable ilk="argument" name="row" />
           <variable citdl="treeView" name="this" />
+          <variable ilk="argument" line="41" name="row" />
         </scope>
         <scope ilk="function" line="42" lineend="42" name="getImageSrc" signature="getImageSrc(row, col)">
-          <variable ilk="argument" name="row" />
-          <variable ilk="argument" name="col" />
           <variable citdl="treeView" name="this" />
+          <variable ilk="argument" line="42" name="col" />
+          <variable ilk="argument" line="42" name="row" />
         </scope>
         <scope ilk="function" line="43" lineend="43" name="getRowProperties" signature="getRowProperties(row, props)">
-          <variable ilk="argument" name="row" />
-          <variable ilk="argument" name="props" />
           <variable citdl="treeView" name="this" />
+          <variable ilk="argument" line="43" name="props" />
+          <variable ilk="argument" line="43" name="row" />
         </scope>
         <scope ilk="function" line="44" lineend="44" name="getCellProperties" signature="getCellProperties(row, col, props)">
-          <variable ilk="argument" name="row" />
-          <variable ilk="argument" name="col" />
-          <variable ilk="argument" name="props" />
           <variable citdl="treeView" name="this" />
+          <variable ilk="argument" line="44" name="props" />
+          <variable ilk="argument" line="44" name="col" />
+          <variable ilk="argument" line="44" name="row" />
         </scope>
         <scope ilk="function" line="45" lineend="45" name="getColumnProperties" signature="getColumnProperties(colid, col, props)">
-          <variable ilk="argument" name="colid" />
-          <variable ilk="argument" name="col" />
-          <variable ilk="argument" name="props" />
           <variable citdl="treeView" name="this" />
+          <variable ilk="argument" line="45" name="colid" />
+          <variable ilk="argument" line="45" name="col" />
+          <variable ilk="argument" line="45" name="props" />
         </scope>
       </scope>
       <variable citdl="Object" line="49" lineend="65" name="treeView2">
         <variable citdl="Number" line="50" name="rowCount" />
         <variable citdl="treebox" line="51" name="treebox" />
         <scope ilk="function" line="52" lineend="55" name="getCellText" returns="String" signature="getCellText(row, column)">
-          <variable ilk="argument" name="row" />
-          <variable ilk="argument" name="column" />
           <variable citdl="treeView2" name="this" />
+          <variable ilk="argument" line="52" name="column" />
+          <variable ilk="argument" line="52" name="row" />
         </scope>
         <scope ilk="function" line="56" lineend="56" name="setTree" signature="setTree(treebox)">
-          <variable ilk="argument" name="treebox" />
           <variable citdl="treeView2" name="this" />
+          <variable ilk="argument" line="56" name="treebox" />
         </scope>
         <scope ilk="function" line="57" lineend="57" name="isContainer" returns="Boolean" signature="isContainer(row)">
-          <variable ilk="argument" name="row" />
           <variable citdl="treeView2" name="this" />
+          <variable ilk="argument" line="57" name="row" />
         </scope>
         <scope ilk="function" line="58" lineend="58" name="isSeparator" returns="Boolean" signature="isSeparator(row)">
-          <variable ilk="argument" name="row" />
           <variable citdl="treeView2" name="this" />
+          <variable ilk="argument" line="58" name="row" />
         </scope>
         <scope ilk="function" line="59" lineend="59" name="isSorted" returns="Boolean" signature="isSorted()">
           <variable citdl="treeView2" name="this" />
         </scope>
         <scope ilk="function" line="60" lineend="60" name="getLevel" returns="Number" signature="getLevel(row)">
-          <variable ilk="argument" name="row" />
           <variable citdl="treeView2" name="this" />
+          <variable ilk="argument" line="60" name="row" />
         </scope>
         <scope ilk="function" line="61" lineend="61" name="getImageSrc" signature="getImageSrc(row, col)">
-          <variable ilk="argument" name="row" />
-          <variable ilk="argument" name="col" />
           <variable citdl="treeView2" name="this" />
+          <variable ilk="argument" line="61" name="col" />
+          <variable ilk="argument" line="61" name="row" />
         </scope>
         <scope ilk="function" line="62" lineend="62" name="getRowProperties" signature="getRowProperties(row, props)">
-          <variable ilk="argument" name="row" />
-          <variable ilk="argument" name="props" />
           <variable citdl="treeView2" name="this" />
+          <variable ilk="argument" line="62" name="props" />
+          <variable ilk="argument" line="62" name="row" />
         </scope>
         <scope ilk="function" line="63" lineend="63" name="getCellProperties" signature="getCellProperties(row, col, props)">
-          <variable ilk="argument" name="row" />
-          <variable ilk="argument" name="col" />
-          <variable ilk="argument" name="props" />
           <variable citdl="treeView2" name="this" />
+          <variable ilk="argument" line="63" name="props" />
+          <variable ilk="argument" line="63" name="col" />
+          <variable ilk="argument" line="63" name="row" />
         </scope>
         <scope ilk="function" line="64" lineend="64" name="getColumnProperties" signature="getColumnProperties(colid, col, props)">
-          <variable ilk="argument" name="colid" />
-          <variable ilk="argument" name="col" />
-          <variable ilk="argument" name="props" />
           <variable citdl="treeView2" name="this" />
+          <variable ilk="argument" line="64" name="colid" />
+          <variable ilk="argument" line="64" name="col" />
+          <variable ilk="argument" line="64" name="props" />
         </scope>
       </variable>
       <variable citdl="Object" line="67" lineend="72" name="partTreeView">
         <scope ilk="function" line="68" lineend="68" name="setTree" signature="setTree(treebox)">
-          <variable ilk="argument" name="treebox" />
           <variable citdl="partTreeView" name="this" />
+          <variable ilk="argument" line="68" name="treebox" />
         </scope>
         <variable citdl="treebox" line="68" name="treebox" />
         <scope ilk="function" line="69" lineend="69" name="isContainer" returns="Boolean" signature="isContainer(row)">
-          <variable ilk="argument" name="row" />
           <variable citdl="partTreeView" name="this" />
+          <variable ilk="argument" line="69" name="row" />
         </scope>
         <scope ilk="function" line="70" lineend="70" name="isSeparator" returns="Boolean" signature="isSeparator(row)">
-          <variable ilk="argument" name="row" />
           <variable citdl="partTreeView" name="this" />
+          <variable ilk="argument" line="70" name="row" />
         </scope>
         <scope ilk="function" line="71" lineend="71" name="isSorted" returns="Boolean" signature="isSorted()">
           <variable citdl="partTreeView" name="this" />
@@ -163,8 +163,8 @@
         </scope>
         <variable citdl="String" line="126" name="classVar2" />
         <scope ilk="function" line="137" lineend="143" name="strFunc" signature="strFunc(s)">
-          <variable ilk="argument" name="s" />
           <variable citdl="otherfunc" name="this" />
+          <variable ilk="argument" line="137" name="s" />
           <variable attributes="__local__ private" citdl="String" line="138" name="copyOfS" />
         </scope>
       </scope>

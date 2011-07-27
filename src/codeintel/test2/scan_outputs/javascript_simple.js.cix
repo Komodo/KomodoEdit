@@ -11,8 +11,8 @@
           <variable citdl="myfunc" name="this" />
         </scope>
         <scope ilk="function" line="16" lineend="23" name="strFunc" signature="strFunc(s)">
-          <variable ilk="argument" name="s" />
           <variable citdl="myfunc" name="this" />
+          <variable ilk="argument" line="16" name="s" />
           <variable attributes="__local__ private" citdl="String" line="17" name="copyOfS" />
         </scope>
       </scope>

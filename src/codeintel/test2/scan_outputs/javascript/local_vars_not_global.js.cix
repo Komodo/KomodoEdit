@@ -1,0 +1,15 @@
+<codeintel version="2.0">
+  <file lang="JavaScript" mtime="42" path="scan_inputs/javascript/local_vars_not_global.js">
+    <scope ilk="blob" lang="JavaScript" name="local_vars_not_global.js" src="scan_inputs/javascript/local_vars_not_global.js">
+      <scope ilk="function" line="2" lineend="6" name="myfunc" signature="myfunc(view)">
+        <variable ilk="argument" line="2" name="view">
+          <variable citdl="Object" line="4" name="scimoz">
+            <variable citdl="Number" line="4" name="anchor" />
+            <variable citdl="Number" line="5" name="currentPos" />
+          </variable>
+        </variable>
+        <variable attributes="__local__ private" citdl="view.scimoz" line="3" name="scimoz" />
+      </scope>
+    </scope>
+  </file>
+</codeintel>

@@ -12,16 +12,16 @@
           <caller attributes="__hidden__" citdl="jsclass.prototype.__defineGetter__" line="9" pos="1" />
         </scope>
         <scope attributes="__local__ private" ilk="function" line="10" lineend="12" name="(anonymous)" signature="(anonymous)(new_num)">
-          <variable ilk="argument" name="new_num" />
           <variable citdl="jsclass" name="this" />
+          <variable ilk="argument" line="10" name="new_num" />
           <variable citdl="new_num" line="11" name="_num" />
           <caller attributes="__hidden__" citdl="jsclass.prototype.__defineSetter__" line="12" pos="1" />
         </scope>
       </scope>
       <scope classrefs="Object" ilk="class" line="18" lineend="23" name="myclass">
         <scope attributes="__ctor__" ilk="function" line="18" lineend="20" name="myclass" signature="myclass(initial_rows)">
-          <variable ilk="argument" name="initial_rows" />
           <variable citdl="myclass" name="this" />
+          <variable ilk="argument" line="18" name="initial_rows" />
         </scope>
         <variable citdl="initial_rows" line="19" name="_rows" />
         <variable line="22" name="rowCount" />

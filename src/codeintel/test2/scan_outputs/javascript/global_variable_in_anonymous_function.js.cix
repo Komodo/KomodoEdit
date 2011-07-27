@@ -3,7 +3,7 @@
     <scope ilk="blob" lang="JavaScript" name="global_variable_in_anonymous_function.js" src="scan_inputs/javascript/global_variable_in_anonymous_function.js">
       <scope attributes="__local__ private" ilk="function" line="1" lineend="6" name="(anonymous)" signature="(anonymous)()">
         <scope attributes="__local__ private" ilk="function" line="2" lineend="4" name="Paginator" signature="Paginator(config)">
-          <variable ilk="argument" name="config" />
+          <variable ilk="argument" line="2" name="config" />
         </scope>
       </scope>
       <variable citdl="Object" line="5" name="YAHOO">

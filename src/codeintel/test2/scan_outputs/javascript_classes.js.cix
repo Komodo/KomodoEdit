@@ -3,8 +3,8 @@
     <scope ilk="blob" lang="JavaScript" name="javascript_classes.js" src="scan_inputs/javascript_classes.js">
       <scope ilk="class" line="1" lineend="4" name="Mammal">
         <scope attributes="__ctor__" ilk="function" line="1" lineend="4" name="Mammal" signature="Mammal(name)">
-          <variable ilk="argument" name="name" />
           <variable citdl="Mammal" name="this" />
+          <variable ilk="argument" line="1" name="name" />
         </scope>
         <variable citdl="name" line="2" name="name" />
         <variable citdl="Array" line="3" name="offspring" />
@@ -18,8 +18,8 @@
       </scope>
       <scope classrefs="Mammal" ilk="class" line="15" lineend="19" name="Cat">
         <scope attributes="__local__ private __ctor__" ilk="function" line="17" lineend="19" name="Cat" signature="Cat(name)">
-          <variable ilk="argument" name="name" />
           <variable citdl="Cat" name="this" />
+          <variable ilk="argument" line="17" name="name" />
         </scope>
         <variable citdl="name" line="18" name="name" />
         <scope ilk="function" line="20" lineend="22" name="toString" returns="String" signature="toString()">

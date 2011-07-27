@@ -2,9 +2,9 @@
   <file lang="JavaScript" mtime="42" path="scan_inputs/javascript/anon_function_is_scope.js">
     <scope ilk="blob" lang="JavaScript" name="anon_function_is_scope.js" src="scan_inputs/javascript/anon_function_is_scope.js">
       <scope attributes="__local__ private" ilk="function" line="5" lineend="9" name="(anonymous)" signature="(anonymous)(one, two, delay)">
-        <variable ilk="argument" name="one" />
-        <variable ilk="argument" name="two" />
-        <variable ilk="argument" name="delay" />
+        <variable ilk="argument" line="5" name="delay" />
+        <variable ilk="argument" line="5" name="two" />
+        <variable ilk="argument" line="5" name="one" />
         <caller attributes="__hidden__" citdl="setTimeout" line="9" pos="2" />
       </scope>
     </scope>

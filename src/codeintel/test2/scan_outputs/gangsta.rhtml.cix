@@ -2,7 +2,7 @@
   <file lang="RHTML" mtime="42" path="scan_inputs/gangsta.rhtml">
     <scope ilk="blob" lang="JavaScript" name="gangsta.rhtml" src="scan_inputs/gangsta.rhtml">
       <scope ilk="function" line="5" lineend="7" name="yoyoyo" signature="yoyoyo(span)">
-        <variable ilk="argument" name="span" />
+        <variable ilk="argument" line="5" name="span" />
       </scope>
     </scope>
     <scope ilk="blob" lang="Ruby" name="gangsta.rhtml" src="scan_inputs/gangsta.rhtml">

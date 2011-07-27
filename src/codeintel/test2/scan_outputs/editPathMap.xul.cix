@@ -5,8 +5,8 @@
       <scope ilk="function" line="33" lineend="37" name="onOK" signature="onOK()" />
       <scope ilk="function" line="38" lineend="42" name="onCancel" signature="onCancel()" />
       <scope ilk="function" line="44" lineend="56" name="browseForDir" signature="browseForDir(elem, remote)">
-        <variable ilk="argument" name="elem" />
-        <variable ilk="argument" name="remote" />
+        <variable ilk="argument" line="44" name="remote" />
+        <variable ilk="argument" line="44" name="elem" />
         <variable attributes="__local__ private" citdl="elem.value" line="50" name="path" />
         <variable attributes="__local__ private" citdl="document.getElementById()" line="51" name="uri" />
       </scope>

@@ -4,8 +4,8 @@
       <variable citdl="Number" line="11" name="a" />
       <variable citdl="$ab.cd" line="12" name="b" />
       <scope ilk="function" line="13" lineend="15" name="myfunc" signature="myfunc(x1, p2)">
-        <variable ilk="argument" name="x1" />
-        <variable ilk="argument" name="p2" />
+        <variable ilk="argument" line="13" name="p2" />
+        <variable ilk="argument" line="13" name="x1" />
       </scope>
     </scope>
     <scope ilk="blob" lang="Perl" name="mason-js-test02.mason.html" src="scan_inputs/mason-js-test02.mason.html">

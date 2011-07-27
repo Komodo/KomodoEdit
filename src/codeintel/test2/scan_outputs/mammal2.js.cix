@@ -6,8 +6,8 @@
           <variable citdl="Cat" name="this" />
         </scope>
         <scope attributes="__ctor__" ilk="function" line="3" lineend="5" name="Cat" signature="Cat(name)">
-          <variable ilk="argument" name="name" />
           <variable citdl="Cat" name="this" />
+          <variable ilk="argument" line="3" name="name" />
         </scope>
         <variable citdl="name" line="4" name="name" />
         <scope ilk="function" line="6" lineend="6" name="purr" signature="purr()">

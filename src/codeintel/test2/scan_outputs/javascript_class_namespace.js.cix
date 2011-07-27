@@ -4,13 +4,13 @@
       <variable citdl="Object" line="2" lineend="2" name="xtk">
         <scope classrefs="Object" ilk="class" line="3" lineend="14" name="dataTreeView">
           <scope attributes="__ctor__" ilk="function" line="3" lineend="9" name="dataTreeView" signature="dataTreeView(initial_rows)">
-            <variable ilk="argument" name="initial_rows" />
             <variable citdl="dataTreeView" name="this" />
+            <variable ilk="argument" line="3" name="initial_rows" />
           </scope>
           <variable citdl="Array" line="5" name="_rows" />
           <scope ilk="function" line="11" lineend="13" name="setTreeRows" signature="setTreeRows(rows)">
-            <variable ilk="argument" name="rows" />
             <variable citdl="dataTreeView" name="this" />
+            <variable ilk="argument" line="11" name="rows" />
           </scope>
         </scope>
       </variable>

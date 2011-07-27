@@ -9,18 +9,18 @@
           <variable citdl="Number" line="11" name="direction" />
         </variable>
         <scope ilk="function" line="14" lineend="16" name="log" signature="log(msg)">
-          <variable ilk="argument" name="msg" />
           <variable citdl="applyToObject" name="this" />
+          <variable ilk="argument" line="14" name="msg" />
         </scope>
       </variable>
       <variable citdl="Object" line="20" lineend="20" name="ns">
         <variable citdl="String" line="22" name="name" />
         <variable attributes="__local__ private" citdl="Object" line="23" lineend="25" name="willQuitListener">
           <scope ilk="function" line="24" lineend="24" name="observe" signature="observe(subject, topic, data)">
-            <variable ilk="argument" name="subject" />
-            <variable ilk="argument" name="topic" />
-            <variable ilk="argument" name="data" />
             <variable citdl="willQuitListener" name="this" />
+            <variable ilk="argument" line="24" name="topic" />
+            <variable ilk="argument" line="24" name="data" />
+            <variable ilk="argument" line="24" name="subject" />
           </scope>
         </variable>
       </variable>
