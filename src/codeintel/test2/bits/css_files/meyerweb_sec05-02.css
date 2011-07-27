@@ -1,0 +1,4 @@
+.cl1:first-line strong {color: red;}
+.cl2em {color: red;}
+.cl2+.cl3 {color: green;}
+.cl3  +  .cl4 {color: green;}

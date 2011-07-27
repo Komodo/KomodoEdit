@@ -1,0 +1,234 @@
+/*******************************************************************************
+ *
+ *  Copyright © 2010-2011 Hewlett-Packard Development Company, L.P. 
+ *
+ *  This work is distributed under the W3C® Software License [1] 
+ *  in the hope that it will be useful, but WITHOUT ANY 
+ *  WARRANTY; without even the implied warranty of 
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+ *
+ *  [1] http://www.w3.org/Consortium/Legal/2002/copyright-software-20021231 
+ *
+ *  Adapted from the Mobile Test Harness
+ *  Copyright © 2007 World Wide Web Consortium
+ *  http://dev.w3.org/cvsweb/2007/mobile-test-harness/
+ * 
+ ******************************************************************************/
+
+html, body, div, p, form {
+  margin: 0;
+  padding: 0;
+}
+html {
+  height: 100%;
+}
+body {
+  height: 100%;
+  width: 100%;
+  display: table;
+  table-layout: fixed;
+}
+img {
+  border: none;
+  float: left;
+  margin-right: 8pt;
+  margin-bottom: 4pt;
+}
+p.nav {
+  margin-bottom: 6pt;
+}
+p.nav a {
+  white-space: nowrap;
+}
+h1, h2, h3, h4 {
+  margin: 0; padding: 0;
+}
+
+.results {
+  font-size: small;
+  float: right;
+  width: auto;
+  margin: 0 0 0 1em;
+}
+.results a {
+  padding: 1px .25em;
+  margin: 0 0.1em;
+  border: solid 1px black;
+  text-decoration: none;
+}
+.results .active {
+  padding-bottom: 0px;
+  border-bottom-width: 2px;
+}
+.results .uncertain {
+  background-color: yellow;
+}
+.results .fail {
+  background-color: #F66;
+}
+.results .fail.uncertain {
+  background-color: #FAA;
+}
+.results .pass {
+  background-color: #8F8;
+}
+.results .pass.fail,
+.results .pass.uncertain {
+  background-color: #BFB;
+}
+.results .invalid,
+.results .pass.invalid,
+.results .fail.invalid,
+.results .uncertain.invalid {
+  background-color: #AAA;
+}
+
+.suite {
+  font: inherit; 
+  font-size: 1.3em;
+  margin-bottom: 4pt;
+}
+.title {
+  clear: both;
+  font-size: 1.0em;
+  margin-bottom: 4pt;
+}
+.testname {
+  clear: both;
+  font-size: 1.0em;
+  margin-bottom: 4pt;
+}
+.resultlink {
+  font-weight: normal;
+}
+.notes {
+  font-size: smaller;
+}
+.testname {
+  font-weight: bold;
+}
+.header {
+  display: table-cell;
+  margin-bottom: 0.4em;
+  padding: 1em 1em 0em 1em;
+  height: auto;
+}
+
+.prerequisites {
+  margin: 1em 0;
+  clear: both;
+}
+p.userstyle { 
+  color: green; 
+  display: none; 
+}
+p.nouserstyle {
+  color: red; 
+  display: none;
+}
+
+.tabbar {
+  display: table-row;
+  height: 1.0em;
+}
+.tabbar.ref {
+  height: 3.5em;
+}
+.tabbar .tabgroup {
+  padding: 0;
+  margin: 0;
+}
+.tabbar .tabgroup .tab {
+  float: left;
+  border: 1px solid #888;
+  border-bottom-width: 0;
+  margin: 0 0 0 1em;
+}
+.tabbar .tabgroup .tab a {
+  text-decoration: none;
+  display: block;
+  padding: 0.24em 1em;
+  text-align: center;
+  background: #e4e4e4;
+}
+.tabbar .tabgroup .tab a:hover {
+  background: #eee;
+}
+.tabbar .tabgroup .tab.active {
+  border-color: black;
+}
+.tabbar .tabgroup .tab.active a {
+  position: relative;
+  top: 1px;
+  background: white;
+  color: black;
+}
+.tabbar .tabgroup.format {
+  float: right;
+  display: inline;
+  margin-right: 1.5em;
+  clear: none;
+}
+.tabbar .tabgroup.format .tab.active a {
+  top: 2px;
+}
+.tabbar .tabgroup.format .tab.disabled a {
+  background: #ddd;
+  color: #aaa;
+}
+.tabbar .tabgroup.format .tab.active.other,
+.tabbar .tabgroup.format .tab.active.other a {
+  color: white;
+  background: #4040ff;
+}
+.instruct {
+  border-top: 1px solid black;
+  clear: left;
+  padding: 4pt 1em 0 1em;
+  margin: 0 0 4pt 0;
+  color: black;
+}
+
+.test {
+  height: 70%;
+  width: 100%;
+  text-align: center;
+  display: table-row;
+}
+.test p {
+  height: inherit;
+  display: table-cell;
+}
+object {
+  height: 98%;
+  width: 98%;
+  border: groove 2px;
+  margin: auto;
+  display: block;
+}
+object a {
+  display: block;
+}
+
+.footer {
+  margin-top: 0.4em;
+  padding: .5em;
+  display: table-cell;
+  height: 2em;
+}
+p.buttons {
+  float: left;
+}
+p.ua {
+  text-align: right;
+  font-size: smaller;
+}
+p.ua abbr.other {
+  font-weight: bolder;
+  color: white;
+  background: #4040ff;
+  padding: 2pt;
+}
+p.ua a {
+  padding: 0 .1em;
+}
