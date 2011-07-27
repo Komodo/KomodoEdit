@@ -12,7 +12,13 @@ class CSSLexer(Lexer.Lexer):
         self._lexer = find_lexer_module_by_id(SCLEX_CSS)
         self._keyword_lists = [
             WordList(Keywords.css_keywords),
+            WordList(Keywords.css_pseudo_classes),
             WordList(Keywords.css_keywords_2),
+            WordList(Keywords.css_properties_3),
+            WordList(Keywords.css_pseudo_elements),
+            WordList(Keywords.css_browser_specific_properties),
+            WordList(Keywords.css_browser_specific_pseudo_classes),
+            WordList(Keywords.css_browser_specific_pseudo_elements),
                                ]
             
 class CSSHandler(DispatchHandler):

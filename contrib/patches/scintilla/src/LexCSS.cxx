@@ -1,10 +1,9 @@
 // Scintilla source code edit control
 /** @file LexCSS.cxx
  ** Lexer for Cascading Style Sheets
- ** Written by Jakub Vrána
- ** Improved by Philippe Lhoste (CSS2)
+ ** Written by Eric Promislow
  **/
-// Copyright 1998-2002 by Neil Hodgson <neilh@scintilla.org>
+// Copyright 1998-2011 by ActiveState Software Inc.
 // The License.txt file describes the conditions under which this software may be distributed.
 
 #include <stdlib.h>
@@ -18,6 +17,7 @@
 #include "PropSet.h"
 #include "Accessor.h"
 #include "StyleContext.h"
+#include "SString.h"
 #include "KeyWords.h"
 #include "Scintilla.h"
 #include "SciLexer.h"
@@ -127,13 +127,11 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 	const int COMMENT_SUBSTATE_LINE = 2;
 	int comment_substate;
 	
-	const int IMPORTANT_LEN = 9;
-	
 	bool in_default_substate = false;
+	bool in_top_level_directive = false;
 
-	if (!(isLessDocument = styler.GetPropertyInt("lexer.css.less.language"))) {
-		isScssDocument = styler.GetPropertyInt("lexer.css.scss.language");
-	}
+	isLessDocument = styler.GetPropertyInt("lexer.css.less.language");
+	isScssDocument = styler.GetPropertyInt("lexer.css.scss.language");
 
 	/*TODO: When we move to v 225, store some of the substate
 	* fields in the end-state for the line at end.  For now,
@@ -233,11 +231,27 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 				}
 			}
 			break;
+            
+		case SCE_CSS_DIRECTIVE:
+			if (!IsAWordChar(ch)) {
+				char s2[100], *p_buf = s2;
+				int wordStart = styler.GetStartSegment();
+				getCurrentWord(s2, sizeof(s2)/sizeof(s2[0]),
+					       wordStart, sc.currentPos, styler);
+				if (*p_buf == '@') p_buf += 1;
+				if (!CompareCaseInsensitive(p_buf, "import")
+				    || !CompareCaseInsensitive(p_buf, "charset")
+				    || !CompareCaseInsensitive(p_buf, "media")) {
+					in_top_level_directive = true;
+					main_substate = MAIN_SUBSTATE_IN_PROPERTY_VALUE;
+				}
+				sc.SetState(SCE_CSS_DEFAULT);
+			}
+			break;
 
 		case SCE_CSS_CLASS:
 		case SCE_CSS_ID:
 		case SCE_CSS_ATTRIBUTE:
-		case SCE_CSS_DIRECTIVE:
 			if (!IsAWordChar(ch)) {
 				sc.SetState(SCE_CSS_DEFAULT);
 			}
@@ -260,7 +274,7 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 				if (*p_buf == '!') {
 					p_buf += 1;
 				}
-				if (!strcasecmp(p_buf, "important")) {
+				if (!CompareCaseInsensitive(p_buf, "important")) {
 					main_substate = MAIN_SUBSTATE_IN_PROPERTY_VALUE;
 				} else {
 					sc.ChangeState(SCE_CSS_VALUE);
@@ -289,7 +303,11 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 				sc.SetState(SCE_CSS_IMPORTANT);
 				sc.currentPos -= 1; // because we'll go forward later.
 				important_substate = IMPORTANT_SUBSTATE__AFTER_BANG;
-			}
+			} else if (important_substate == IMPORTANT_SUBSTATE__AFTER_BANG) {
+                // Give up.
+                sc.SetState(SCE_CSS_DEFAULT);
+                
+            }
 			break;
 		
 		case SCE_CSS_DOUBLESTRING:
@@ -335,7 +353,7 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 			break;
 		
 		case SCE_CSS_NUMBER:
-			if (!IsADigit(ch)) {
+			if (!IsADigit(ch) && ch != '.') {
 				if (sc.MatchIgnoreCase("grad")
 				    && !IsAWordChar(styler.SafeGetCharAt(sc.currentPos + 4))) {
 					sc.Forward();
@@ -444,13 +462,18 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 				break;
 	
 			case '.':
-				sc.SetState(SCE_CSS_OPERATOR);
-				if ((main_substate == MAIN_SUBSTATE_TOP_LEVEL
-				     || main_substate == MAIN_SUBSTATE_IN_SELECTOR
-				     || main_substate == MAIN_SUBSTATE_AMBIGUOUS_SELECTOR_OR_PROPERTY_NAME)
-				    && IsAWordChar(sc.chNext)) {
-					sc.ForwardSetState(SCE_CSS_CLASS);
-					main_substate = MAIN_SUBSTATE_IN_SELECTOR;
+				if (main_substate == MAIN_SUBSTATE_IN_PROPERTY_VALUE
+				    && IsADigit(sc.chNext)) {
+					sc.SetState(SCE_CSS_NUMBER);
+				} else {
+					sc.SetState(SCE_CSS_OPERATOR);
+					if ((main_substate == MAIN_SUBSTATE_TOP_LEVEL
+					     || main_substate == MAIN_SUBSTATE_IN_SELECTOR
+					     || main_substate == MAIN_SUBSTATE_AMBIGUOUS_SELECTOR_OR_PROPERTY_NAME)
+					    && IsAWordChar(sc.chNext)) {
+						sc.ForwardSetState(SCE_CSS_CLASS);
+						main_substate = MAIN_SUBSTATE_IN_SELECTOR;
+					}
 				}
 				break;
 	
@@ -497,6 +520,10 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 						main_substate = MAIN_SUBSTATE_IN_DECLARATION_NAME;
 					}
 					nested_declaration_count += 1;
+				} else if (main_substate == MAIN_SUBSTATE_IN_PROPERTY_VALUE) {
+					// Happens in @media or @page blocks
+					nested_declaration_count += 1;
+					main_substate = MAIN_SUBSTATE_IN_SELECTOR;
 				}
 				sc.SetState(SCE_CSS_OPERATOR);
 				break;
@@ -522,6 +549,9 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 				// Always change to DECL NAME
 				if (isLessDocument || isScssDocument) {
 					main_substate = MAIN_SUBSTATE_AMBIGUOUS_SELECTOR_OR_PROPERTY_NAME;
+				} else if (in_top_level_directive) {
+					main_substate = MAIN_SUBSTATE_TOP_LEVEL;
+					in_top_level_directive = false;
 				} else {
 					main_substate = MAIN_SUBSTATE_IN_DECLARATION_NAME;
 				}
@@ -539,13 +569,16 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 				if (main_substate == MAIN_SUBSTATE_IN_SELECTOR
 				    || main_substate == MAIN_SUBSTATE_AMBIGUOUS_SELECTOR_OR_PROPERTY_NAME) {
 					sc.SetState(SCE_CSS_OPERATOR);
-					sc.ForwardSetState(SCE_CSS_DEFAULT);
 					if (IsASpaceOrTab(sc.chNext)) {
+						sc.ForwardSetState(SCE_CSS_DEFAULT);
 						while (sc.More() && IsASpaceOrTab(sc.chNext)) {
 							sc.Forward();
 						}
 					}
-					sc.SetState(SCE_CSS_ATTRIBUTE);
+					if (IsSafeAlpha(sc.chNext)) {
+						sc.ForwardSetState(SCE_CSS_ATTRIBUTE);
+					}
+					// otherwise it's just an operator.
 				} else {
 					sc.SetState(SCE_CSS_OPERATOR);
 				}
@@ -653,6 +686,11 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 				}
 			}
 		}
+	}
+	switch (sc.state) {
+	case SCE_CSS_DOUBLESTRING:
+	case SCE_CSS_SINGLESTRING:
+		sc.ChangeState(SCE_CSS_STRINGEOL);
 	}
 	sc.Complete();
 }

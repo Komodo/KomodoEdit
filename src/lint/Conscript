@@ -64,6 +64,7 @@ $cons->Install("$supportDir/python", 'pycompile.py');
 if ($havePy2to3) {
     $cons->Py2To3('pycompile.py', "$supportDir/python/py3compile.py");
 }
+$cons->InstallXpcomComponent('koCSSExLinter.py');
 $cons->InstallXpcomComponent('koHTMLLinter.py');
 $cons->InstallXpcomComponent('koPHPLinter.py');
 $cons->InstallXpcomComponent('koJavaScriptLinter.py');
