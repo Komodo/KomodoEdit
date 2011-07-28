@@ -39,6 +39,17 @@ class CSSLintTest(CodeIntelTestCase):
             results = self.csslinter.lint(code)
             self.assertEqual([], results, "Failed to parse file %s" % path)
 
+    def test_komodo_skin_files_01(self):
+        skin_dir = join(dirname(dirname(dirname(abspath(__file__)))), "chrome", "komodo", "skin")
+        self.assertTrue(os.path.exists(join(skin_dir, "codeintel.css")), skin_dir)
+        for path in glob.glob(join(skin_dir, "*.css")):
+            fd = open(path, 'r')
+            code = fd.read().decode("utf-8")
+            fd.close()
+            #sys.stderr.write("Test file %s\n" % basename(path))
+            results = self.csslinter.lint(code)
+            self.assertEqual([], results, "Failed to parse file %s" % path)
+
     def test_jezdez(self):
         path = join(self.test_dir, "bits", "bad_css_files", "jezdez-reset-fonts-grids.css")
         fd = open(path, 'r')
@@ -88,8 +99,7 @@ h1 {
         self.assertEqual(1, len(results))
         if len(results) >= 1:
             r = results[0]
-            self.assertEqual(r.message,
-                             "expecting ';', got ")
+            self.assertTrue(r.message.startswith("expecting ';'"), r.message)
             self.assertEqual(r.line_start, None)
 
     def test_css_special_selector_01(self):
@@ -510,6 +520,17 @@ body {
         self.assertEqual(code.splitlines()[0][r.col_start:r.col_end], '{')
 
 
+    def test_css_good_property_function(self):
+        code = dedent("""\
+div.flip {
+    background-image: -moz-linear-gradient(rgba(0, 255, 0, 0.05), rgba(0, 255, 0, 0.01));
+}
+""").decode("utf-8")
+        results = self.csslinter.lint(code)
+        if results:
+            self.assertEqual(0, len(results), results[0])
+        self.assertEqual(0, len(results))
+
     def test_css_import_good_page_01(self):
         code = '@page { background: red; }'
         results = self.csslinter.lint(code)
@@ -606,13 +627,13 @@ body {
         self.assertEqual(code.splitlines()[0][r.col_start:r.col_end], '}')
 
     def test_css_ruleset_bad_property_04(self):
-        code = 'h1 { border-width: -shlub; }'
+        code = 'h1 { border-width: -@shlub; }'
         results = self.csslinter.lint(code)
         self.assertEqual(1, len(results))
         r = results[0]
         self.assertTrue(r.message.startswith("expecting a number"),
                         r.message)
-        self.assertEqual(code.splitlines()[0][r.col_start:r.col_end], 'shlub')
+        self.assertEqual(code.splitlines()[0][r.col_start:r.col_end], '@')
 
     def test_css_ruleset_bad_property_05(self):
         code = 'h1 { border-width: mssyntax:; }'
@@ -859,6 +880,33 @@ body {
         results = self.csslinter.lint(code)
         self.assertEqual(0, len(results))
         
+    def test_css_attr_no_value(self):
+        code = dedent("""\
+.file-status-icons[file_scc_status] {
+  /* Since we move the scc status icon to the left of the file image, we have to
+     add padding for it in the parenting hbox. */
+  padding-left: 4px;
+}
+""").decode("utf-8")
+        results = self.csslinter.lint(code)
+        self.assertEqual(0, len(results))
+
+    def test_css_not_psuedo_class(self):
+        code = dedent("""\
+.file-status-icon:not([file_scc_status]):not([file_status]),
+.file-scc-status-extra-icon:not([file_scc_status_extra]) {
+  /* Collapse scc status images that are not showing anything. */
+  display: none;
+}
+""").decode("utf-8")
+        results = self.csslinter.lint(code)
+        if results:
+            r = results[0]
+            self.assertTrue(r.message.startswith("blif"),
+                            r.message)
+            self.assertEqual(code.splitlines()[0][r.col_start:r.col_end], 'flib')
+        self.assertEqual(0, len(results))
+
     def test_css_bad_random_input_01(self):
         import string, random
         chars = string.letters + string.digits\

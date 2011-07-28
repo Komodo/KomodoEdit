@@ -252,6 +252,7 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 		case SCE_CSS_CLASS:
 		case SCE_CSS_ID:
 		case SCE_CSS_ATTRIBUTE:
+		case SCE_CSS_PSEUDOELEMENT:
 			if (!IsAWordChar(ch)) {
 				sc.SetState(SCE_CSS_DEFAULT);
 			}
@@ -529,11 +530,16 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 				break;
 	
 			case ':':
-				if (IsAWordChar(sc.chNext)
+				if ((IsAWordChar(sc.chNext) || sc.chNext == ':')
 				    && (main_substate == MAIN_SUBSTATE_TOP_LEVEL
 					|| main_substate == MAIN_SUBSTATE_IN_SELECTOR)) {
 					sc.SetState(SCE_CSS_OPERATOR);
-					sc.ForwardSetState(SCE_CSS_PSEUDOCLASS);
+					if (sc.chNext == ':') {
+						sc.Forward();
+						sc.ForwardSetState(SCE_CSS_PSEUDOELEMENT);
+					} else {
+						sc.ForwardSetState(SCE_CSS_PSEUDOCLASS);
+					}
 					main_substate = MAIN_SUBSTATE_IN_SELECTOR;
 				} else {
 					// Ambig resolution isn't perfect here, chance it
@@ -636,8 +642,10 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 				if (main_substate == MAIN_SUBSTATE_IN_PROPERTY_VALUE) {
 					if (IsADigit(sc.chNext)) {
 						  sc.SetState(SCE_CSS_NUMBER);
+					} else if (IsAWordChar(sc.chNext)) {
+						sc.SetState(SCE_CSS_VALUE);
 					} else {
-						 sc.SetState(SCE_CSS_OPERATOR);
+						sc.SetState(SCE_CSS_OPERATOR);
 					}
 				} else {
 					  sc.SetState(SCE_CSS_IDENTIFIER);

@@ -315,6 +315,14 @@ class _CSSParser(object):
                     self._pseudo_element_check(tok, saw_pseudo_element)
                     if prev_tok.text == "::":
                         saw_pseudo_element = True
+                    elif prev_tok.text == ":" and tok.text == "not":
+                        tok = self._tokenizer.get_next_token()
+                        if self._classifier.is_operator(tok, "("):
+                            # It's the CSS3 "not" selector
+                            self._parse_simple_selector(True)
+                            self._parse_required_operator(")")
+                        else:
+                            self._tokenizer.put_back(tok)
                 elif tok.text == '[':
                     self._parse_attribute()
                     selected_something = True
@@ -368,8 +376,11 @@ class _CSSParser(object):
             self._add_result("expecting an identifier", tok)
         else:
             tok = self._tokenizer.get_next_token()
-        if not self._classifier.is_operator_choose(tok, ("=", "~=", "|=")):
-            self._tokenizer.put_back(tok)
+        attr_toks = ("]", "=", "~=", "|=")
+        if not self._classifier.is_operator_choose(tok, attr_toks):
+            self._add_result("expecting one of %s" % (', '.join(attr_toks),), tok)
+            self._parser_putback_recover(tok)
+        if tok.text == ']':
             return
         tok = self._tokenizer.get_next_token()
         if self._classifier.is_stringeol(tok):
@@ -416,6 +427,13 @@ class _CSSParser(object):
 
         elif tok.text.lower() == "page":
             return self._parse_page()
+            
+    def _parse_required_operator(self, op, tok=None):
+        if tok is None:
+            tok = self._tokenizer.get_next_token()
+        if not self._classifier.is_operator(tok, op):
+            self._add_result("expecting '%s'" % op, tok)
+            self._parser_putback_recover(tok)
 
     def _parse_charset(self, charset_tok):
         tok = self._tokenizer.get_next_token()
@@ -425,10 +443,7 @@ class _CSSParser(object):
             self._add_result("expecting a string after @charset, got %s" % (tok.text),
                              tok)
             self._parser_putback_recover(tok)
-        tok = self._tokenizer.get_next_token()
-        if not self._classifier.is_operator(tok, ";"):
-            self._add_result("expecting ';', got %s" % (tok.text), tok)
-            self._parser_putback_recover(tok)
+        self._parse_required_operator(';')
         
         if self._region > self._PARSE_REGION_AT_START:
             self._add_result("@charset allowed only at start of file", charset_tok)
@@ -451,9 +466,7 @@ class _CSSParser(object):
         if self._classifier.is_value(tok) and self._lex_identifier(tok):
             self._parse_identifier_list(self._classifier.is_value, ",")
             tok = self._tokenizer.get_next_token()
-        if not self._classifier.is_operator(tok, ";"):
-            self._add_result("expecting ';'", tok)
-            self._parser_putback_recover(tok)
+        self._parse_required_operator(";", tok)
 
     def _parse_media(self):
         tok = self._tokenizer.get_next_token()
@@ -475,10 +488,7 @@ class _CSSParser(object):
         self._parse_declarations()
 
     def _parse_declarations(self):
-        tok = self._tokenizer.get_next_token()
-        if not (self._classifier.is_operator(tok, "{")):
-            self._add_result("expecting '{'", tok)
-            return self._parser_putback_recover(tok)
+        self._parse_required_operator("{")
         while True:
             tok = self._tokenizer.get_next_token()
             if tok.style == EOF_STYLE:
@@ -528,10 +538,7 @@ class _CSSParser(object):
             # Swallow it
         self._parse_expression()
         self._parse_priority()
-        tok = self._tokenizer.get_next_token()
-        if not self._classifier.is_operator(tok, ";"):
-            self._add_result("expecting ';' at end of declaration", tok)
-            self._parser_putback_recover(tok)
+        self._parse_required_operator(";")
         return True
 
     def _parse_property(self):
@@ -696,11 +703,7 @@ class _CSSParser(object):
             self._tokenizer.put_back(tok)
             return True
         self._parse_expression() # Includes commas
-        tok = self._tokenizer.get_next_token()
-        if not self._classifier.is_operator(tok, ")"):
-            self._add_result("expecting ')'", tok)
-            self._parser_putback_recover(tok)
-            return False
+        self._parse_required_operator(")")
         return True
 
     def _parse_priority(self):
