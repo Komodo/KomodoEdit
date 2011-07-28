@@ -695,6 +695,8 @@ class _CSSParser(object):
                     self._tokenizer.put_back(tok)
                     # slightly convoluted way of running code in 
                     do_declarations_this_time = True
+                elif self._classifier.is_operator(tok, "@"):
+                    self._tokenizer.put_back(tok)
                 # Otherwise consume the "}" and continue
 
     _identifier_lex_re = re.compile(r'(?:[a-zA-Z_\-\x80-\xff]|\\[^\r\n\f0-9a-fA-F])(?:[\w_\-\x80-\xff]|\\[^\r\n\f0-9a-fA-F])*$')
