@@ -72,7 +72,14 @@
     <script src="chrome://komodo/content/library/dialogs.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/filepickers.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/uriparse.js" type="application/x-javascript;version=1.7"/>
+    <!-- Required for scintilla overlay. -->
+    <script src="chrome://komodo/content/library/timers.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/stringutils.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/commands.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/dragdrop.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/windowManager.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/markers.js" type="application/x-javascript;version=1.7"/>
+
     <script src="chrome://komodo/content/dialogs/diff.js" type="application/x-javascript;version=1.7"/>
 
     <keyset>
