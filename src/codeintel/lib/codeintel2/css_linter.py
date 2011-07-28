@@ -206,11 +206,16 @@ class _CSSParser(object):
     def _add_result(self, message, tok, status=1):
         self._add_result_tok_parts(message,
                                    tok.start_line, tok.start_column,
-                                   tok.end_line, tok.end_column,
+                                   tok.end_line, tok.end_column, tok.text,
                                    status)
 
-    def _add_result_tok_parts(self, message, line_start, col_start, line_end, col_end, status=1):
+    def _add_result_tok_parts(self, message, line_start, col_start, line_end, col_end, text, status=1):
         if not self._results or self._results[-1].line_end < line_start:
+            if not "got" in message:
+                if line_start is None:
+                    message += ", reached end of file"
+                elif text:
+                    message += ", got '%s'" % (text)
             self._results.append(Result(message, line_start, col_start, line_end, col_end, status))
     
     def parse(self, text):
@@ -355,10 +360,9 @@ class _CSSParser(object):
                                  prev_tok.end_line,
                                  prev_tok.end_column,
                                  tok.start_line,
-                                 tok.start_column)
+                                 tok.start_column, "")
             else:
-                self._add_result("expecting an identifier after %s, got %s" % (prev_tok.text, tok.text),
-                                 tok)
+                self._add_result("expecting an identifier after %s" % (prev_tok.text), tok)
                 self._parser_putback_recover(tok)
             
         if tok.text == "charset":
@@ -693,7 +697,7 @@ class _CSSParser(object):
                     return
                 if self._classifier.is_operator(tok, "{"):
                     self._tokenizer.put_back(tok)
-                    # slightly convoluted way of running code in 
+                    # slightly convoluted way of running code in the same try/except block
                     do_declarations_this_time = True
                 elif self._classifier.is_operator(tok, "@"):
                     self._tokenizer.put_back(tok)

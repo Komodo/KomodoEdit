@@ -156,7 +156,7 @@ h1 {
         self.assertEqual(1, len(results))
         if len(results) >= 1:
             r = results[0]
-            self.assertTrue(r.message.startswith("expecting an identifier after @, got "),
+            self.assertTrue(r.message.startswith("expecting an identifier after @"),
                             r.message)
             self.assertEqual(r.line_start, None)
 
