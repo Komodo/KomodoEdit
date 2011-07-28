@@ -502,12 +502,27 @@ class _CSSParser(object):
 
     def _parse_property(self):
         tok = self._tokenizer.get_next_token()
+        if self._classifier.is_operator(tok, "*"):
+            prev_tok = tok;
+            tok = self._tokenizer.get_next_token()
+        else:
+            prev_tok = None
         if not (self._classifier.is_identifier(tok)
                 or self._classifier.is_tag(tok)):
             #@NO TEST YET
             self._add_result("expecting a property name", tok)
             self._parser_putback_recover(tok)
             return False
+        if prev_tok is not None:
+            if prev_tok.end_column == tok.start_column:
+                self._add_result_tok_parts("Use of non-standard property-name '%s%s'" %
+                                           (prev_tok.text, tok.text),
+                                           prev_tok.start_line, prev_tok.start_column,
+                                           tok.end_line, tok.end_column, "",
+                                           status=0)
+            else:
+                # Put the token back, trigger an error-message later
+                self._tokenizer.put_back(tok)
         return True
 
     def _parse_expression(self):
@@ -681,8 +696,8 @@ class _CSSParser(object):
                 self._check_tag_tok(tok, 10)
             try:
                 if do_declarations_this_time:
-                    self._parse_declarations()
                     do_declarations_this_time = False
+                    self._parse_declarations()
                 if self._classifier.is_operator(tok, "@"):
                     self._parse_directive(tok)
                 else:

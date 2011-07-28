@@ -739,6 +739,25 @@ body {
                         r.message)
         self.assertEqual(code.splitlines()[0][r.col_start:r.col_end], ';')
 
+    def test_css_ms_hack_property_name_01(self):
+        code = '.yui-gb .yui-u{*margin-left:1.9%;*width:31.9%;}'
+        results = self.csslinter.lint(code)
+        self.assertEqual(1, len(results))
+        r = results[0]
+        self.assertTrue(r.message.startswith("Use of non-standard property-name '*margin-left'"),
+                        r.message)
+        self.assertEqual(code.splitlines()[0][r.col_start:r.col_end], '*margin-left')
+        self.assertEqual(r.status, 0, "%s:%r" % (r.message, r.status))
+
+    def test_css_ms_hack_property_name_botched_02(self):
+        code = '.yui-gb .yui-u{* margin-left:1.9%;*    width:31.9%;}'
+        results = self.csslinter.lint(code)
+        self.assertEqual(1, len(results))
+        r = results[0]
+        self.assertTrue(r.message.startswith("expecting ':',"),
+                        r.message)
+        self.assertEqual(code.splitlines()[0][r.col_start:r.col_end], 'margin-left')
+
     def test_css_bad_random_input_01(self):
         import string, random
         chars = string.letters + string.digits\
@@ -747,7 +766,10 @@ body {
         for i in range(1000):
             prog.append(random.choice(chars))
         code = "".join(prog)
-        print code
+        #print code
+        #f = open("/tmp/code.css", 'w')
+        #f.write(code)
+        #f.close()
         results = self.csslinter.lint(code)
         print "\n".join([str(x) for x in results])
         self.assertTrue(len(results) > 0, "this code passed!:<<%s>>" % code)
