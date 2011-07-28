@@ -626,12 +626,23 @@ class _CSSParser(object):
     _url_re = re.compile(r'url\((.*)\)\Z')
     def _parse_url(self):
         tok = self._tokenizer.get_next_token()
-        if (self._classifier.is_value(tok) and
-            self._url_re.match(tok.text)):
-            return True
-        else:
-            self._tokenizer.put_back(tok)
-            return False
+        if self._classifier.is_value(tok):
+            if self._url_re.match(tok.text):
+                return True
+            if tok.text == "url(":
+                # Verify that the actual URL is a string
+                if not self._parse_string():
+                    self._add_result("expecting a quoted URL", tok)
+                    self._parser_putback_recover(tok)
+                tok = self._tokenizer.get_next_token()
+                if not (self._classifier.is_operator(tok, ")")
+                        or (self._classifier.is_value(tok) and tok.text == ')')):
+                    self._add_result("expecting ')'", tok)
+                    self._parser_putback_recover(tok)
+                else:
+                    return True
+        self._tokenizer.put_back(tok)
+        return False
 
     _hex_color_re = re.compile(r'#(?:[\da-fA-F]{3}){1,2}\Z')
     def _parse_hex_color(self):

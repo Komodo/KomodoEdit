@@ -757,7 +757,16 @@ body {
         self.assertTrue(r.message.startswith("expecting ':',"),
                         r.message)
         self.assertEqual(code.splitlines()[0][r.col_start:r.col_end], 'margin-left')
-
+        
+    def test_css_quoted_urls_01(self):
+        code = dedent("""\
+.browser-toolbar {
+  list-style-image: url("chrome://komodo/skin/images/browser_buttons.png");
+}
+""").decode("utf-8")
+        results = self.csslinter.lint(code)
+        self.assertEqual(0, len(results))
+        
     def test_css_bad_random_input_01(self):
         import string, random
         chars = string.letters + string.digits\
