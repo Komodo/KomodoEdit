@@ -379,11 +379,12 @@ xtk.dataTreeView.prototype = {
             this._sortColumn.removeAttribute("sortDirection");
         }
 
-        // Update the sort direction on the sorted column
+        // Update the sort direction on the sorted column.
+        // Note: xtk sort values are opposite to the actual tree indicators.
         if (newSortDirection == xtk.dataTreeView.SORT_ASCENDING) {
-            column.setAttribute("sortDirection", "ascending");
-        } else {
             column.setAttribute("sortDirection", "descending");
+        } else {
+            column.setAttribute("sortDirection", "ascending");
         }
         this._sortColumn = column;
         this._sortDirection = newSortDirection;
