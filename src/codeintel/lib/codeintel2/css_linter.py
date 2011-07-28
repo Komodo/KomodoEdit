@@ -106,6 +106,9 @@ _classifier = None
 # No need for a UDL class -- since everything here goes through
 # SilverCity, it always uses pure styles.
 
+class SyntaxErrorEOF(SyntaxError):
+    pass
+
 class _CSSLexer(Lexer):
     def __init__(self, code):
         Lexer.__init__(self)
@@ -223,12 +226,11 @@ class _CSSParser(object):
 
     def _parser_putback_recover(self, tok):
         self._tokenizer.put_back(tok)
-        self._in_recovery = True
+        raise SyntaxError()
         
     def _parse(self):
         self._at_start = True
         self._charset = "UTF-8"
-        self._in_recovery = False
         self._parse_top_level()            
 
     def _parse_ruleset(self, selectorRequired=True):
@@ -289,12 +291,9 @@ class _CSSParser(object):
                     prev_tok = tok
                     tok = self._tokenizer.get_next_token()
                     if not self._classifier.is_special_identifier(tok):
-                        if not self._in_recovery:
-                            self._add_result("expecting an identifier after %s, got %s" % (prev_tok.text, tok.text), tok)
-                        else:
-                            selected_something = True
-                            self._in_recovery = True
-                    # Give up looking at selectors
+                        self._add_result("expecting an identifier after %s, got %s" % (prev_tok.text, tok.text), tok)
+                        selected_something = True
+                        # Give up looking at selectors
                         self._tokenizer.put_back(tok)
                         return False
                     selected_something = True
@@ -307,39 +306,19 @@ class _CSSParser(object):
                     # Short-circuit the calling loop.
                     self._tokenizer.put_back(tok)
                     return False
-                elif self._in_recovery and tok.text == '}':
-                    self._in_recovery = True
-                    # continue here
+                elif tok.text == '}':
+                    # continue here -- assume we recovered to the end of a "}"
+                    pass
                 else:
                     break
             else:
                 break
         if not selected_something and match_required:
-            if not self._in_recovery:
-                self._add_result("expecting a selector, got %s" % (tok.text,),
-                                 tok)
-                self._parser_putback_recover(tok)
-            else:
-                # Do the recovery here.
-                while self._in_recovery:
-                    tok = self._tokenizer.get_next_token()
-                    if tok.style == EOF_STYLE:
-                        break
-                    self._check_tag_tok(tok, 4)
-                    if self._classifier.is_operator(tok):
-                        if tok.text == "{":
-                            self._in_recovery = False
-                            # Short-circuit the calling loop.
-                            self._tokenizer.put_back(tok)
-                            return False
-                        elif tok.text == ";":
-                            # Not sure where we're going with this yet...
-                            self._in_recovery = False
-                            break
-                        elif tok.text == "}":
-                            self._tokenizer.put_back(tok)
-                            self._in_recovery = False
-                            break
+            self._add_result("expecting a selector, got %s" % (tok.text,), tok)
+            tok = self._recover(allowEOF=False, opTokens=("{", "}"))
+            # We got a { or }, so short-circuit the calling loop and
+            # go parse the declaration
+            self._tokenizer.put_back(tok)
             return False
         return selected_something
                 
@@ -367,7 +346,6 @@ class _CSSParser(object):
             
         
     def _parse_directive(self, prev_tok):
-        self._in_recovery = False
         tok = self._tokenizer.get_next_token()
         if not self._classifier.is_directive(tok):
             if (self._classifier.is_tag(tok)
@@ -381,7 +359,7 @@ class _CSSParser(object):
             else:
                 self._add_result("expecting an identifier after %s, got %s" % (prev_tok.text, tok.text),
                                  tok)
-                return self._parser_putback_recover(tok)
+                self._parser_putback_recover(tok)
             
         if tok.text == "charset":
             return self._parse_charset(tok)
@@ -408,7 +386,7 @@ class _CSSParser(object):
         elif not self._classifier.is_string(tok):
             self._add_result("expecting a string after @charset, got %s" % (tok.text),
                              tok)
-            return self._parser_putback_recover(tok)
+            self._parser_putback_recover(tok)
         tok = self._tokenizer.get_next_token()
         if not self._classifier.is_operator(tok, ";"):
             self._add_result("expecting ';', got %s" % (tok.text), tok)
@@ -429,7 +407,7 @@ class _CSSParser(object):
         elif not (self._classifier.is_value(tok)
                   and self._url_re.match(tok.text)):
             self._add_result("expecting a string or url", tok)
-            return self._parser_putback_recover(tok)
+            self._parser_putback_recover(tok)
         
         tok = self._tokenizer.get_next_token()
         if self._classifier.is_value(tok) and self._lex_identifier(tok):
@@ -437,13 +415,13 @@ class _CSSParser(object):
             tok = self._tokenizer.get_next_token()
         if not self._classifier.is_operator(tok, ";"):
             self._add_result("expecting ';'", tok)
-            return self._parser_putback_recover(tok)
+            self._parser_putback_recover(tok)
 
     def _parse_media(self):
         tok = self._tokenizer.get_next_token()
         if not (self._classifier.is_value(tok) and self._lex_identifier(tok)):
             self._add_result("expecting an identifier for a media list", tok)
-            return self._parser_putback_recover(tok)
+            self._parser_putback_recover(tok)
         self._parse_identifier_list(self._classifier.is_value, ",")
         self._parse_declarations()
         
@@ -466,42 +444,39 @@ class _CSSParser(object):
         while True:
             tok = self._tokenizer.get_next_token()
             if tok.style == EOF_STYLE:
-                self._add_result("expecting '}'", tok)
+                self._add_result("expecting '}', hit end of file", tok)
+                raise SyntaxErrorEOF()
+            if self._classifier.is_operator(tok, "}"):
                 break
-            elif self._classifier.is_operator(tok, "}"):
-                break
-            else:
-                self._tokenizer.put_back(tok)
-            #TODO: Look ahead for either ';' or '{' to know
-            # whether we're entering a nested block or a property
-            # 
-            # The problem with ':' is that they can appear in both selectors
-            # as well as after property-names.
-            if not self._parse_declaration():
-                break
-            tok = self._tokenizer.get_next_token()
-            self._check_tag_tok(tok, 6)
-            if not self._classifier.is_operator(tok, ";"):
-                self._add_result("expecting ';'", tok)
-                # Move forward until we get ; tag-{ } or EOF
-                continue_here = False
-                while True:
-                    if tok.style == EOF_STYLE:
-                        break
-                    elif self._classifier.is_operator(tok):
-                        self._check_tag_tok(tok, 21)
-                        t = tok.text
-                        if t == ";":
-                            continue_here = True
-                            break
-                        elif t == "}":
-                            break
-                        elif t == "{":
-                            self._tokenizer.put_back(tok)
-                            break
-                    tok = self._tokenizer.get_next_token()
-                if not continue_here:
+            self._tokenizer.put_back(tok)
+            try:
+                #TODO: Look ahead for either ';' or '{' to know
+                # whether we're entering a nested block or a property
+                # 
+                # The problem with ':' is that they can appear in both selectors
+                # as well as after property-names.
+                if not self._parse_declaration():
                     break
+            except SyntaxError:
+                tok = self._recover(allowEOF=False, opTokens=(';',"{","}"))
+                t = tok.text
+                if t == ";":
+                    pass # This is good -- continue doing declarations.
+                elif t == "}":
+                    self._tokenizer.put_back(tok) # Use this back in loop
+                elif t == "{":
+                    # Either we're in less/scss, or we missed a selector, fake it
+                    self._parse_declarations();
+                
+    def _recover(self, allowEOF, opTokens):
+        while True:
+            tok = self._tokenizer.get_next_token()
+            if tok.style == EOF_STYLE:
+                if allowEOF:
+                    return tok
+                raise SyntaxErrorEOF()
+            elif self._classifier.is_operator_choose(tok, opTokens):
+                return tok
 
     def _parse_declaration(self):
         """
@@ -513,9 +488,12 @@ class _CSSParser(object):
         if not self._classifier.is_operator(tok, ":"):
             self._add_result("expecting ':'", tok)
             # Swallow it
-            self._in_recovery = True
         self._parse_expression()
         self._parse_priority()
+        tok = self._tokenizer.get_next_token()
+        if not self._classifier.is_operator(tok, ";"):
+            self._add_result("expecting ';' at end of declaration", tok)
+            self._parser_putback_recover(tok)
         return True
 
     def _parse_property(self):
@@ -687,20 +665,37 @@ class _CSSParser(object):
 
     def _parse_top_level(self):
         self._region = self._PARSE_REGION_AT_START
+        do_declarations_this_time = False # for recovery
         while True:
-            tok = self._tokenizer.get_next_token()
-            if tok is None:
-                log.error("tok is None")
+            if not do_declarations_this_time:
+                tok = self._tokenizer.get_next_token()
+                if tok is None:
+                    log.error("tok is None")
+                    break
+                if tok.style == EOF_STYLE:
+                    return
+                self._check_tag_tok(tok, 10)
+            try:
+                if do_declarations_this_time:
+                    self._parse_declarations()
+                    do_declarations_this_time = False
+                if self._classifier.is_operator(tok, "@"):
+                    self._parse_directive(tok)
+                else:
+                    self._tokenizer.put_back(tok)
+                    self._region = self._PARSE_REGION_SAW_OTHER
+                    self._parse_ruleset(selectorRequired=True)
+            except SyntaxErrorEOF:
                 break
-            if tok.style == EOF_STYLE:
-                return
-            self._check_tag_tok(tok, 10)
-            if self._classifier.is_operator(tok, "@"):
-                self._parse_directive(tok)
-            else:
-                self._tokenizer.put_back(tok)
-                self._region = self._PARSE_REGION_SAW_OTHER
-                self._parse_ruleset(selectorRequired=True)
+            except SyntaxError:
+                tok = self._recover(allowEOF=True, opTokens=("{", "}", "@"))
+                if tok.style == EOF_STYLE:
+                    return
+                if self._classifier.is_operator(tok, "{"):
+                    self._tokenizer.put_back(tok)
+                    # slightly convoluted way of running code in 
+                    do_declarations_this_time = True
+                # Otherwise consume the "}" and continue
 
     _identifier_lex_re = re.compile(r'(?:[a-zA-Z_\-\x80-\xff]|\\[^\r\n\f0-9a-fA-F])(?:[\w_\-\x80-\xff]|\\[^\r\n\f0-9a-fA-F])*$')
     def _lex_identifier(self, tok):
