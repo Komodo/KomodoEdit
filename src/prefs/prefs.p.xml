@@ -404,7 +404,7 @@
   <long id="editWrapType">0</long>
   <long id="editWordWrapMarker">0</long>
   <long id="editWordWrapIndentation">0</long>
-  <boolean id="editUseEdge">1</boolean>
+  <boolean id="editUseEdge">0</boolean>
   <!-- editAutoIndentStyle:
      'smart': adjust auto-indent after newline _in brace languages_
      'plain': auto-indent to first column of previous line that contains non-whitespace after newline, nothing after }
