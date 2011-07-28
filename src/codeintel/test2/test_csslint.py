@@ -135,6 +135,98 @@ h1 {
                 self.assertTrue(r.message.startswith("expecting an identifier after %s" % (char,)), "unexpected message:%s" % r.message)
                 self.assertEqual(code[r.col_start:r.col_end], "{", "expected complaint about {, got %s" % r)
 
+
+    def test_css_special_selector_05(self):
+        code = dedent("""\
+treechildren::-moz-tree-cell-text(showDetail) {
+    background-color: infobackground;
+}
+""").decode("utf-8")
+        results = self.csslinter.lint(code)
+        self.assertEqual(0, len(results))
+
+    def test_css_special_selector_06(self):
+        # Multiple selectors
+        code = dedent("""\
+treechildren::-moz-tree-cell-text(showDetail), 
+treechildren::-moz-tree-cell-text(showDetail) {
+    background-color: infobackground;
+}
+""").decode("utf-8")
+        results = self.csslinter.lint(code)
+        self.assertEqual(0, len(results))
+
+    def test_css_special_selector_missing_prop_07(self):
+        # Multiple selectors
+        code = dedent("""\
+treechildren::-moz-tree-cell-text(), {
+    background-color: infobackground;
+}
+""").decode("utf-8")
+        results = self.csslinter.lint(code)
+        self.assertEqual(1, len(results))
+        r = results[0]
+        self.assertTrue(r.message.startswith("expecting a property name"),
+                        r.message)
+        self.assertEqual(code.splitlines()[r.line_start - 1][r.col_start:r.col_end], ")")
+
+    def test_css_special_selector_missing_paren_08(self):
+        code = dedent("""\
+treechildren::-moz-tree-cell-text(showDetail, 
+treechildren::-moz-tree-cell-text(showDetail) {
+    background-color: infobackground;
+}
+""").decode("utf-8")
+        results = self.csslinter.lint(code)
+        self.assertEqual(1, len(results))
+        r = results[0]
+        self.assertTrue(r.message.startswith("expecting ')'"),
+                        r.message)
+        self.assertEqual(code.splitlines()[r.line_start - 1][r.col_start:r.col_end], "::")
+
+
+    def test_css_special_selector_missing_selector_09(self):
+        code = dedent("""\
+treechildren::-moz-tree-cell-text(showDetail),
+{
+    background-color: infobackground;
+}
+""").decode("utf-8")
+        results = self.csslinter.lint(code)
+        self.assertEqual(1, len(results))
+        r = results[0]
+        self.assertTrue(r.message.startswith("expecting a selector"),
+                        r.message)
+        self.assertEqual(code.splitlines()[r.line_start - 1][r.col_start:r.col_end], "{", str(r))
+
+    def test_css_special_selector_bad_syntax_10(self):
+        # Multiple selectors
+        code = dedent("""\
+treechildren::-moz-tree-cell-text(&) {
+    background-color: infobackground;
+}
+""").decode("utf-8")
+        results = self.csslinter.lint(code)
+        self.assertEqual(1, len(results))
+        r = results[0]
+        self.assertTrue(r.message.startswith("expecting a property name"),
+                        r.message)
+        self.assertEqual(code.splitlines()[r.line_start - 1][r.col_start:r.col_end], "&", str(r))
+
+    def test_css_special_selector_missing_rest_11(self):
+        # Multiple selectors
+        code = dedent("""\
+treechildren::-moz-tree-cell-text( {
+    background-color: infobackground;
+}
+""").decode("utf-8")
+        results = self.csslinter.lint(code)
+        self.assertEqual(1, len(results))
+        r = results[0]
+        self.assertTrue(r.message.startswith("expecting a property name"),
+                        r.message)
+        self.assertEqual(code.splitlines()[r.line_start - 1][r.col_start:r.col_end], "{", str(r))
+
     def test_css_no_selector_01(self):
         code = "{ font: red; }"  # missing semi-colon
         results = self.csslinter.lint(code)
@@ -455,9 +547,9 @@ body {
         results = self.csslinter.lint(code)
         self.assertEqual(1, len(results))
         r = results[0]
-        self.assertTrue(r.message.startswith("expecting an identifier"),
+        self.assertTrue(r.message.startswith("expecting '{'"),
                         r.message)
-        self.assertEqual(code.splitlines()[0][r.col_start:r.col_end], ':')
+        self.assertEqual(code.splitlines()[0][r.col_start:r.col_end], '::')
 
     def test_css_import_bad_page_04(self):
         code = '@page { background: red;'

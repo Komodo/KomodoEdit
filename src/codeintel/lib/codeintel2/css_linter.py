@@ -36,6 +36,7 @@ class _CSSLexerClassifier(object):
         return tok.style in (ScintillaConstants.SCE_CSS_ID,
                              ScintillaConstants.SCE_CSS_CLASS,
                              ScintillaConstants.SCE_CSS_PSEUDOCLASS,
+                             ScintillaConstants.SCE_CSS_PSEUDOELEMENT,
                              ScintillaConstants.SCE_CSS_UNKNOWN_PSEUDOCLASS,
                              ScintillaConstants.SCE_CSS_EXTENDED_PSEUDOCLASS,
                              ScintillaConstants.SCE_CSS_EXTENDED_PSEUDOELEMENT,)
@@ -113,7 +114,7 @@ class _CSSLexer(Lexer):
     def __init__(self, code):
         Lexer.__init__(self)
         # We don't care about any JS operators in `...` escapes
-        self.multi_char_ops = self.build_dict('@{ ${ ~= |=')
+        self.multi_char_ops = self.build_dict('@{ ${ ~= |= ::')
         self.classifier = _classifier
         CSS.CSSLexer().tokenize_by_style(code, self._fix_token_list)
         self.string_types = [ScintillaConstants.SCE_CSS_DOUBLESTRING,
@@ -238,8 +239,8 @@ class _CSSParser(object):
         self._charset = "UTF-8"
         self._parse_top_level()            
 
-    def _parse_ruleset(self, selectorRequired=True):
-        self._parse_selector(selectorRequired)
+    def _parse_ruleset(self):
+        self._parse_selector()
 
         while True:
             tok = self._tokenizer.get_next_token()
@@ -249,10 +250,10 @@ class _CSSParser(object):
             if not self._classifier.is_operator(tok, ","):
                 self._tokenizer.put_back(tok)
                 break
-            self._parse_selector(False)
+            self._parse_selector()
         self._parse_declarations()
         
-    def _parse_selector(self, selectorRequired):
+    def _parse_selector(self):
         """
         selector : simple_selector [ combinator selector
                                      | S [ combinator? selector ]?
@@ -265,7 +266,7 @@ class _CSSParser(object):
 
         Note that error-recovery takes place here, not at the top-level.
         """
-        require_simple_selector = selectorRequired
+        require_simple_selector = True
         while True:
             res = self._parse_simple_selector(require_simple_selector)
             if not res:
@@ -276,8 +277,16 @@ class _CSSParser(object):
             if not self._classifier.is_operator_choose(tok, ("+",">")):
                 self._tokenizer.put_back(tok)
                 
+    def _pseudo_element_check(self, tok, saw_pseudo_element):
+        if saw_pseudo_element:
+            self._add_result_tok_parts("Pseudo elements must appear at the end of a selector chain",
+                                       tok.start_line, tok.start_column,
+                                       tok.end_line, tok.end_column,
+                                       "", 1)
+    
     def _parse_simple_selector(self, match_required):
         selected_something = False
+        saw_pseudo_element = False
         while True:
             tok = self._tokenizer.get_next_token()
             if tok.style == EOF_STYLE:
@@ -286,22 +295,26 @@ class _CSSParser(object):
             log.debug("_parse_simple_selector: got tok %s", tok.dump_ret())
             if self._classifier.is_tag(tok):
                 selected_something = True
+                self._pseudo_element_check(tok, saw_pseudo_element)
             elif self._classifier.is_identifier(tok):
                 selected_something = True
+                self._pseudo_element_check(tok, saw_pseudo_element)
                 #@NO TEST YET
                 self._add_result("treating unrecognized name %s (%d) as a tag name" % (tok.text, tok.style),
                                  tok, status=0)
             elif self._classifier.is_operator(tok):
-                if tok.text in ("#", ".", ":",):
+                if tok.text in ("#", ".", ":", "::",):
                     prev_tok = tok
                     tok = self._tokenizer.get_next_token()
                     if not self._classifier.is_special_identifier(tok):
                         self._add_result("expecting an identifier after %s, got %s" % (prev_tok.text, tok.text), tok)
-                        selected_something = True
                         # Give up looking at selectors
                         self._tokenizer.put_back(tok)
                         return False
                     selected_something = True
+                    self._pseudo_element_check(tok, saw_pseudo_element)
+                    if prev_tok.text == "::":
+                        saw_pseudo_element = True
                 elif tok.text == '[':
                     self._parse_attribute()
                     selected_something = True
@@ -312,20 +325,41 @@ class _CSSParser(object):
                     self._tokenizer.put_back(tok)
                     return False
                 elif tok.text == '}':
-                    # continue here -- assume we recovered to the end of a "}"
-                    pass
+                    continue # assume we recovered to the end of a "}"
                 else:
                     break
             else:
                 break
-        if not selected_something and match_required:
-            self._add_result("expecting a selector, got %s" % (tok.text,), tok)
-            tok = self._recover(allowEOF=False, opTokens=("{", "}"))
+        if not selected_something:
+            if match_required:
+                self._add_result("expecting a selector, got %s" % (tok.text,), tok)
+                tok = self._recover(allowEOF=False, opTokens=("{", "}"))
             # We got a { or }, so short-circuit the calling loop and
             # go parse the declaration
             self._tokenizer.put_back(tok)
             return False
-        return selected_something
+        # Allow the Mozilla ( id [, id]* ) property syntax
+        # Note that we have the token that caused us to leave the above loop
+        if not self._classifier.is_operator(tok, "("):
+            self._tokenizer.put_back(tok)
+            return True
+        do_recover = False
+        tok = self._tokenizer.get_next_token()
+        if not self._classifier.is_tag(tok):
+            self._add_result("expecting a property name", tok)
+            self._tokenizer.put_back(tok)
+            do_recover = True
+        else:
+            self._parse_identifier_list(self._classifier.is_tag, ",")
+            tok = self._tokenizer.get_next_token()
+            if not self._classifier.is_operator(tok, ")"):
+                self._add_result("expecting ')'", tok)
+                do_recover = True
+        if do_recover:
+            tok = self._recover(allowEOF=False, opTokens=("{", "}"))
+            self._tokenizer.put_back(tok)
+            return False
+        return True
                 
     def _parse_attribute(self):
         tok = self._tokenizer.get_next_token()
@@ -714,7 +748,7 @@ class _CSSParser(object):
                 else:
                     self._tokenizer.put_back(tok)
                     self._region = self._PARSE_REGION_SAW_OTHER
-                    self._parse_ruleset(selectorRequired=True)
+                    self._parse_ruleset()
             except SyntaxErrorEOF:
                 break
             except SyntaxError:
