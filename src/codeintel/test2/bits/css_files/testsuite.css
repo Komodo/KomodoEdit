@@ -1,6 +1,6 @@
 /* for testing opacity set in styles in IE */
 /* s/opacity=// so it works */
-ol#empty { opacity: 0; filter:Alpha(0); }
+ol#empty { opacity: 0; filter: Alpha(0); }
 
 div#fx-tests h4 {
         background: red;

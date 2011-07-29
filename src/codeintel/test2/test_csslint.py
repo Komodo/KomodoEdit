@@ -27,6 +27,8 @@ class CSSLintTest(CodeIntelTestCase):
     lang = "CSS"
     test_dir = os.getcwd()
     csslinter = CSSLinter()
+    
+    langs = ("CSS", "SCSS", "Less")
 
     def test_expect_good_files(self):
         test_dir = join(self.test_dir, "bits", "css_files")
@@ -40,15 +42,17 @@ class CSSLintTest(CodeIntelTestCase):
             self.assertEqual([], results, "Failed to parse file %s" % path)
 
     def test_komodo_skin_files_01(self):
+        # Test these under CSS, SCSS, and Less
         skin_dir = join(dirname(dirname(dirname(abspath(__file__)))), "chrome", "komodo", "skin")
         self.assertTrue(os.path.exists(join(skin_dir, "codeintel.css")), skin_dir)
         for path in glob.glob(join(skin_dir, "*.css")):
             fd = open(path, 'r')
             code = fd.read().decode("utf-8")
             fd.close()
-            #sys.stderr.write("Test file %s\n" % basename(path))
-            results = self.csslinter.lint(code)
-            self.assertEqual([], results, "Failed to parse file %s" % path)
+            for lang in self.langs:
+                #sys.stderr.write("Test file %s\n" % basename(path))
+                results = self.csslinter.lint(code, language=lang)
+                self.assertEqual([], results, "Failed to parse file %s/%s" % (path, lang))
 
     def test_jezdez(self):
         path = join(self.test_dir, "bits", "bad_css_files", "jezdez-reset-fonts-grids.css")
@@ -907,6 +911,51 @@ body {
             self.assertEqual(code.splitlines()[0][r.col_start:r.col_end], 'flib')
         self.assertEqual(0, len(results))
 
+    _nested_block_code_01 = dedent("""\
+body.abc {
+    ul.def {
+        color: red;
+        background: white;
+        li.ghi {
+            background-color: flip;
+        }
+        
+    }
+}
+""").decode("utf-8")
+    def test_css_nested_block_01(self):
+        # Fail: it's plain CSS
+        code = self._nested_block_code_01
+        results = self.csslinter.lint(code, language="CSS")
+        self.assertEqual(2, len(results))
+        r = results[0]
+        self.assertTrue(r.message.startswith("expecting ':'"),
+                        r.message)
+        self.assertEqual(code.splitlines()[1][r.col_start:r.col_end], '.', r)
+        r = results[1]
+        # This tests a recovery algorithm, so it's more volatile.
+        self.assertTrue(r.message.startswith("expecting ':'"),
+                        r.message)
+        cdo = code.splitlines()[4][r.col_start:r.col_end]
+        self.assertEqual(code.splitlines()[4][r.col_start:r.col_end], '.', r)
+
+    def test_css_nested_block_02(self):
+        # Allow, it's Less
+        code = self._nested_block_code_01
+        results = self.csslinter.lint(code, language="Less")
+        self.assertEqual(0, len(results))
+        if results:
+            r = results[0]
+            self.assertTrue(r.message.startswith("expecting ':'"),
+                            r.message)
+            self.assertEqual(code.splitlines()[1][r.col_start:r.col_end], '.', r)
+            r = results[1]
+            # This tests a recovery algorithm, so it's more volatile.
+            self.assertTrue(r.message.startswith("expecting ':'"),
+                            r.message)
+            cdo = code.splitlines()[4][r.col_start:r.col_end]
+            self.assertEqual(code.splitlines()[4][r.col_start:r.col_end], '.', r)
+
     def test_css_bad_random_input_01(self):
         import string, random
         chars = string.letters + string.digits\
@@ -919,9 +968,10 @@ body {
         #f = open("/tmp/code.css", 'w')
         #f.write(code)
         #f.close()
-        results = self.csslinter.lint(code)
-        print "\n".join([str(x) for x in results])
-        self.assertTrue(len(results) > 0, "this code passed!:<<%s>>" % code)
+        for lang in self.langs:
+            results = self.csslinter.lint(code, language=lang)
+            #print "\n".join([str(x) for x in results])
+            self.assertTrue(len(results) > 0, "this code passed!:<<%s/%s>>" % (lang, code,))
    
     def _x_test_css_stuff(self):
         code = dedent("""\

@@ -32,6 +32,9 @@ class _CSSLexerClassifier(object):
                              ScintillaConstants.SCE_CSS_EXTENDED_PSEUDOELEMENT,
                              ScintillaConstants.SCE_CSS_UNKNOWN_IDENTIFIER)
 
+    def is_unknown_identifier(self, tok):
+        return tok.style == ScintillaConstants.SCE_CSS_UNKNOWN_IDENTIFIER
+
     def is_special_identifier(self, tok):
         return tok.style in (ScintillaConstants.SCE_CSS_ID,
                              ScintillaConstants.SCE_CSS_CLASS,
@@ -161,6 +164,12 @@ class _CSSLexer(Lexer):
                 dest_q.append(new_tok)
         else:
             dest_q.append(tok)
+            
+    def next_token_is_whitespace(self, tok):
+        if not self.q:
+            return False
+        return self.q[0]['style'] in (EOF_STYLE, self.classifier.style_comment,
+                                   self.classifier.style_default)
 
     def get_next_token(self):
         res = Lexer.get_next_token(self)
@@ -203,6 +212,10 @@ class _CSSParser(object):
     _PARSE_REGION_SAW_CHARSET = 1
     _PARSE_REGION_SAW_IMPORT = 2
     _PARSE_REGION_SAW_OTHER = 3
+    
+    def __init__(self, language):
+        self._supportsNestedDeclaration = language in ("Less", "SCSS")
+        self.language = language
 
     def _add_result(self, message, tok, status=1):
         self._add_result_tok_parts(message,
@@ -245,15 +258,15 @@ class _CSSParser(object):
         while True:
             tok = self._tokenizer.get_next_token()
             if tok.style == EOF_STYLE:
-                break
+                self._add_result("expecting a block of declarations", tok)
+                return
             self._check_tag_tok(tok, 1)
             if not self._classifier.is_operator(tok, ","):
-                self._tokenizer.put_back(tok)
                 break
             self._parse_selector()
-        self._parse_declarations()
+        self._parse_declarations(tok) # tok is the non-comma, should be "{"
         
-    def _parse_selector(self):
+    def _parse_selector(self, resolve_selector_property_ambiguity=False):
         """
         selector : simple_selector [ combinator selector
                                      | S [ combinator? selector ]?
@@ -268,9 +281,13 @@ class _CSSParser(object):
         """
         require_simple_selector = True
         while True:
-            res = self._parse_simple_selector(require_simple_selector)
+            res = self._parse_simple_selector(require_simple_selector,
+                                              resolve_selector_property_ambiguity)
             if not res:
                 break
+            if resolve_selector_property_ambiguity and not require_simple_selector:
+                # More than one simple selector in a row means it's not a property
+                self._saw_selector = True
             require_simple_selector = False
             tok = self._tokenizer.get_next_token()
             self._check_tag_tok(tok, 2)
@@ -284,7 +301,7 @@ class _CSSParser(object):
                                        tok.end_line, tok.end_column,
                                        "", 1)
     
-    def _parse_simple_selector(self, match_required):
+    def _parse_simple_selector(self, match_required, resolve_selector_property_ambiguity):
         selected_something = False
         saw_pseudo_element = False
         while True:
@@ -299,31 +316,50 @@ class _CSSParser(object):
             elif self._classifier.is_identifier(tok):
                 selected_something = True
                 self._pseudo_element_check(tok, saw_pseudo_element)
-                #@NO TEST YET
-                self._add_result("treating unrecognized name %s (%d) as a tag name" % (tok.text, tok.style),
-                                 tok, status=0)
+                if not self._supportsNestedDeclaration:
+                    self._add_result("treating unrecognized name %s (%d) as a tag name" % (tok.text, tok.style),
+                                     tok, status=0)
             elif self._classifier.is_operator(tok):
-                if tok.text in ("#", ".", ":", "::",):
+                if tok.text == ":":
+                    if resolve_selector_property_ambiguity and not self._saw_selector:
+                        # This is the crucial point
+                        # Are we looking at
+                        # font: ....
+                        #    or
+                        # a:hover ...
+                        # We take the easy way out and resolve this by looking at coordinates
+                        #
+                        # We also assume that anyone using Less or SCSS is more interested in
+                        # readability than conciseness, so we aren't dealing with minified CSS.
+                        if self._tokenizer.next_token_is_whitespace(tok):
+                            self._tokenizer.put_back(tok)
+                            return False
                     prev_tok = tok
                     tok = self._tokenizer.get_next_token()
-                    if not self._classifier.is_special_identifier(tok):
-                        self._add_result("expecting an identifier after %s, got %s" % (prev_tok.text, tok.text), tok)
-                        # Give up looking at selectors
-                        self._tokenizer.put_back(tok)
+                    if not self._check_special_identifier(prev_tok, tok):
+                        return False
+                    if tok.text == "not":
+                        tok = self._tokenizer.get_next_token()
+                        if self._classifier.is_operator(tok, "("):
+                            # It's the CSS3 "not" selector
+                            self._parse_simple_selector(True, resolve_selector_property_ambiguity=False)
+                            self._parse_required_operator(")")
+                        else:
+                            self._tokenizer.put_back(tok)
+                        
+                elif tok.text in ("#", ".", "::",):
+                    prev_tok = tok
+                    tok = self._tokenizer.get_next_token()
+                    if not self._check_special_identifier(prev_tok, tok):
                         return False
                     selected_something = True
                     self._pseudo_element_check(tok, saw_pseudo_element)
                     if prev_tok.text == "::":
                         saw_pseudo_element = True
-                    elif prev_tok.text == ":" and tok.text == "not":
-                        tok = self._tokenizer.get_next_token()
-                        if self._classifier.is_operator(tok, "("):
-                            # It's the CSS3 "not" selector
-                            self._parse_simple_selector(True)
-                            self._parse_required_operator(")")
-                        else:
-                            self._tokenizer.put_back(tok)
                 elif tok.text == '[':
+                    if resolve_selector_property_ambiguity:
+                        # More than one simple selector in a row means it's not a property
+                        self._saw_selector = True
                     self._parse_attribute()
                     selected_something = True
                 elif tok.text == '{':
@@ -368,7 +404,17 @@ class _CSSParser(object):
             self._tokenizer.put_back(tok)
             return False
         return True
-                
+    
+    def _check_special_identifier(self, prev_tok, tok):
+        if (self._classifier.is_special_identifier(tok)
+            or (self._supportsNestedDeclaration
+                and self._classifier.is_unknown_identifier(tok))):
+            return True
+        self._add_result("expecting an identifier after %s, got %s" % (prev_tok.text, tok.text), tok)
+        # Give up looking at selectors
+        self._tokenizer.put_back(tok)
+        return False
+                        
     def _parse_attribute(self):
         tok = self._tokenizer.get_next_token()
         if not (self._classifier.is_attribute(tok)
@@ -423,10 +469,10 @@ class _CSSParser(object):
 
         self._region = self._PARSE_REGION_SAW_OTHER
         if tok.text.lower() == "media":
-            return self._parse_media()
+            self._parse_media()
 
         elif tok.text.lower() == "page":
-            return self._parse_page()
+            self._parse_page()
             
     def _parse_required_operator(self, op, tok=None):
         if tok is None:
@@ -478,13 +524,13 @@ class _CSSParser(object):
             tok = self._tokenizer.get_next_token()
             if not (self._classifier.is_special_identifier(tok)):
                 self._add_result("expecting an identifier", tok)
-                return self._parser_putback_recover(tok)
-        else:
-            self._tokenizer.put_back(tok)
-        self._parse_declarations()
+                self._parser_putback_recover(tok)
+            else:
+                tok = None # refresh in _parse_declarations
+        self._parse_declarations(tok)
 
-    def _parse_declarations(self):
-        self._parse_required_operator("{")
+    def _parse_declarations(self, tok=None):
+        self._parse_required_operator("{", tok)
         while True:
             tok = self._tokenizer.get_next_token()
             if tok.style == EOF_STYLE:
@@ -499,8 +545,10 @@ class _CSSParser(object):
                 # 
                 # The problem with ':' is that they can appear in both selectors
                 # as well as after property-names.
-                if not self._parse_declaration():
-                    break
+                if self._supportsNestedDeclaration:
+                    self._parse_declaration_or_nested_block()
+                else:
+                    self._parse_declaration()
             except SyntaxError:
                 tok = self._recover(allowEOF=False, opTokens=(';',"{","}"))
                 t = tok.text
@@ -510,7 +558,7 @@ class _CSSParser(object):
                     self._tokenizer.put_back(tok) # Use this back in loop
                 elif t == "{":
                     # Either we're in less/scss, or we missed a selector, fake it
-                    self._parse_declarations();
+                    self._parse_declarations(tok);
                 
     def _recover(self, allowEOF, opTokens):
         while True:
@@ -526,16 +574,39 @@ class _CSSParser(object):
         """
         Because this is called in a loop, have it return True only if it matches everything
         """
-        if not self._parse_property():
-            return False
+        self._parse_property()
         tok = self._tokenizer.get_next_token()
         if not self._classifier.is_operator(tok, ":"):
             self._add_result("expecting ':'", tok)
             # Swallow it
+        self._parse_remaining_declaration()
+        
+    def _parse_remaining_declaration(self):
         self._parse_expression()
         self._parse_priority()
         self._parse_required_operator(";")
-        return True
+    
+    def _parse_declaration_or_nested_block(self):
+        """
+        For Less and SCSS, blocks can nest.  So parse either a property-name
+        or full-blown selector here.
+        # Key method for Less/SCSS linting.  At this point we can have
+        # either a declaration or a nested rule-set.
+        """
+        # selectors are supersets of property-names, so go with it
+        self._saw_selector = False
+        self._parse_selector(resolve_selector_property_ambiguity=True) 
+        tok = self._tokenizer.get_next_token()
+        if self._classifier.is_operator(tok, "{"):
+            return self._parse_declarations(tok)
+        if self._saw_selector:
+            self._add_result("expecting '{'", tok)
+        if self._classifier.is_operator(tok, ":"):
+            self._parse_remaining_declaration()
+        else:
+            #@NO TEST YET
+            self._add_result("expecting ':' or '{'", tok)
+            self._parser_putback_recover(tok)
 
     def _parse_property(self):
         tok = self._tokenizer.get_next_token()
@@ -549,7 +620,6 @@ class _CSSParser(object):
             #@NO TEST YET
             self._add_result("expecting a property name", tok)
             self._parser_putback_recover(tok)
-            return False
         if prev_tok is not None:
             if prev_tok.end_column == tok.start_column:
                 self._add_result_tok_parts("Use of non-standard property-name '%s%s'" %
@@ -560,7 +630,6 @@ class _CSSParser(object):
             else:
                 # Put the token back, trigger an error-message later
                 self._tokenizer.put_back(tok)
-        return True
 
     def _parse_expression(self):
         if self._parse_term(required=True):
@@ -777,7 +846,7 @@ class _CSSParser(object):
             raise Exception("Stuck in a loop with tok %s, tag %d" % (tok.dump_ret(), loop_id))
 
 class CSSLinter(object):
-    def lint(self, text):
-        self._parser = _CSSParser()
+    def lint(self, text, language="CSS"):
+        self._parser = _CSSParser(language)
         results = self._parser.parse(text)
         return results

@@ -40,7 +40,7 @@ class KoCSSLinter(object):
 
     def lint_with_text(self, request, text):
         textlines = text.splitlines()
-        results = CSSLinter().lint(text)
+        results = CSSLinter().lint(text, request.document.language)
         lintResults = koLintResults()
         for r in results:
             if r.line_start is None:
@@ -53,8 +53,8 @@ class KoCSSLinter(object):
                                       severity=r.status + 1,
                                       lineStart=r.line_start,
                                       lineEnd=r.line_end,
-                                      columnStart=r.col_start,
-                                      columnEnd=r.col_end)
+                                      columnStart=r.col_start + 1,
+                                      columnEnd=r.col_end + 1)
                 lintResults.addResult(result)
         return lintResults
                 
