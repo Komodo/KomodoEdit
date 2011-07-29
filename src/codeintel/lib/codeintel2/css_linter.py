@@ -450,19 +450,15 @@ class _CSSParser(object):
         else:
             self._region = self._PARSE_REGION_SAW_CHARSET
 
+
     def _parse_import(self):
-        tok = self._tokenizer.get_next_token()
-        if self._classifier.is_string(tok):
+        if (not self._parse_url()) and (not self._parse_string()):
             tok = self._tokenizer.get_next_token()
-        elif self._classifier.is_stringeol(tok):
-            self._add_result("missing string close-quote", tok)
-            tok = self._tokenizer.get_next_token()
-        elif not (self._classifier.is_value(tok)
-                  and self._url_re.match(tok.text)):
             self._add_result("expecting a string or url", tok)
-            self._parser_putback_recover(tok)
-        
-        tok = self._tokenizer.get_next_token()
+            # Stay here, hope for the best.
+        else:
+            tok = self._tokenizer.get_next_token()
+            
         if self._classifier.is_value(tok) and self._lex_identifier(tok):
             self._parse_identifier_list(self._classifier.is_value, ",")
             tok = self._tokenizer.get_next_token()
@@ -673,6 +669,7 @@ class _CSSParser(object):
             if tok.text == "url(":
                 # Verify that the actual URL is a string
                 if not self._parse_string():
+                    tok = self._tokenizer.get_next_token()
                     self._add_result("expecting a quoted URL", tok)
                     self._parser_putback_recover(tok)
                 tok = self._tokenizer.get_next_token()

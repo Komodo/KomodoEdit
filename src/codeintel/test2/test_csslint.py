@@ -386,9 +386,9 @@ body {
         results = self.csslinter.lint(code)
         self.assertEqual(1, len(results))
         r = results[0]
-        self.assertTrue(r.message.startswith("expecting a string or url"),
+        self.assertTrue(r.message.startswith("expecting a quoted URL"),
                         r.message)
-        self.assertEqual(code.splitlines()[0][r.col_start:r.col_end], "url(")
+        self.assertEqual(code.splitlines()[0][r.col_start:r.col_end], ";")
 
     def test_css_import_bad_url_02(self):
         code = '@import url(http://example.com/) print'
