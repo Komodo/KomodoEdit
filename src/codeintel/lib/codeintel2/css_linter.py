@@ -600,6 +600,23 @@ class _CSSParser(object):
         self._parse_remaining_declaration()
         
     def _parse_remaining_declaration(self):
+        """ SCSS allows nested declarations:
+        li {
+          font: {
+            family: serif; // => font-family: serif; //etc.
+            weight: bold;
+            size: 1.2em;
+          }
+        }
+        """
+        if self.language == "SCSS":
+            tok = self._tokenizer.get_next_token()
+            have_brace = self._classifier.is_operator(tok, "{")
+            self._tokenizer.put_back(tok)
+            if have_brace:
+                self._parse_declarations()
+                return
+                
         self._parse_expression()
         self._parse_priority()
         self._parse_required_operator(";")

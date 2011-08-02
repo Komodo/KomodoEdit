@@ -237,7 +237,7 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 		case SCE_CSS_TAG:
 			if (!IsAWordChar(ch)) {
 				if (main_substate == MAIN_SUBSTATE_AMBIGUOUS_SELECTOR_OR_PROPERTY_NAME) {
-					classifyWordAndStyle(sc, styler, keywordlists, false, -1);
+					classifyWordAndStyle(sc, styler, keywordlists, true, SCE_CSS_IDENTIFIER);
 				} else {
 					sc.SetState(SCE_CSS_DEFAULT);
 				}
@@ -537,7 +537,16 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 				} else if (main_substate == MAIN_SUBSTATE_IN_PROPERTY_VALUE) {
 					// Happens in @media or @page blocks
 					nested_declaration_count += 1;
-					main_substate = MAIN_SUBSTATE_IN_SELECTOR;
+					if (isScssDocument) {
+					    // Nested property names with a common parent, like
+					    // font: {
+					    //    family: serif;
+					    //    weight: bold; ...
+					    // }
+					    main_substate = MAIN_SUBSTATE_IN_DECLARATION_NAME;
+					} else {
+					    main_substate = MAIN_SUBSTATE_IN_SELECTOR;
+					}
 				}
 				sc.SetState(SCE_CSS_OPERATOR);
 				break;

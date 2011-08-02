@@ -999,7 +999,32 @@ h2 {
             self.assertTrue(r.message.startswith("expecting a directive after @"),
                             r)
             self.assertEqual(code.splitlines()[0][r.col_start:r.col_end], 'color', r)
-
+            
+    def test_css_scss_nested_properties(self):
+        code = dedent("""\
+li {
+  font: {
+    family: serif;
+    weight: bold;
+    size: 1.2em;
+  }
+}
+""").decode("utf-8")
+        results = self.csslinter.lint(code, language="SCSS")
+        if results:
+            r = results[0]
+            self.assertTrue(r.message.startswith("blif"),
+                            r)
+            self.assertEqual(code.splitlines()[0][r.col_start:r.col_end], 'flib')
+        self.assertEqual(0, len(results))
+        for lang in ("CSS", "Less"):
+            results = self.csslinter.lint(code, language=lang)
+            self.assertTrue(len(results) > 0, "Expecting at least one error for lang %s" % (lang,))
+            r = results[0]
+            self.assertTrue(r.message.startswith("expecting a value"),
+                            r)
+            self.assertEqual(code.splitlines()[1][r.col_start:r.col_end], '{', r)
+        
     def _x_test_css_stuff(self):
         code = dedent("""\
 @import url(http://example.com/) print
