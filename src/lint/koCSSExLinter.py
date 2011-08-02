@@ -40,7 +40,7 @@ class KoCSSLinter(object):
 
     def lint_with_text(self, request, text):
         textlines = text.splitlines()
-        results = CSSLinter().lint(text, request.document.language)
+        results = CSSLinter().lint(text, request.koDoc.language)
         lintResults = koLintResults()
         for r in results:
             if r.line_start is None:
