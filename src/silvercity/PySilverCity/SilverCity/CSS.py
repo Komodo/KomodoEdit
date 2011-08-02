@@ -6,8 +6,8 @@ from _SilverCity import find_lexer_module_by_id, PropertySet, WordList
 from ScintillaConstants import SCLEX_CSS
 import LanguageInfo
 
-class CSSLexer(Lexer.Lexer):
-    def __init__(self, properties = PropertySet()):
+class _CSSLexerTemplate(Lexer.Lexer):
+    def __init__(self, properties):
         self._properties = properties
         self._lexer = find_lexer_module_by_id(SCLEX_CSS)
         self._keyword_lists = [
@@ -20,7 +20,21 @@ class CSSLexer(Lexer.Lexer):
             WordList(Keywords.css_browser_specific_pseudo_classes),
             WordList(Keywords.css_browser_specific_pseudo_elements),
                                ]
+
+class CSSLexer(_CSSLexerTemplate):
+    def __init__(self, properties = PropertySet()):
+        _CSSLexerTemplate.__init__(self, properties)
             
+class SCSSLexer(_CSSLexerTemplate):
+    def __init__(self, properties = PropertySet()):
+        _CSSLexerTemplate.__init__(self, properties)
+        properties['lexer.css.scss.language'] = '1'
+
+class LessLexer(_CSSLexerTemplate):
+    def __init__(self, properties = PropertySet()):
+        _CSSLexerTemplate.__init__(self, properties)
+        properties['lexer.css.less.language'] = '1'
+
 class CSSHandler(DispatchHandler):
     def __init__(self):
         DispatchHandler.__init__(self, 'SCE_CSS')

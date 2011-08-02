@@ -126,7 +126,12 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 	const int COMMENT_SUBSTATE_BLOCK = 1;
 	const int COMMENT_SUBSTATE_LINE = 2;
 	int comment_substate;
-	
+    
+	const int IDENTIFIER_SUBSTATE_DEFAULT = 0;
+	const int IDENTIFIER_SUBSTATE_SCSS_DOLLAR = 1;
+	const int IDENTIFIER_SUBSTATE_LESS_ATSIGN = 2;
+	int identifier_substate = IDENTIFIER_SUBSTATE_DEFAULT;
+
 	bool in_default_substate = false;
 	bool in_top_level_directive = false;
 
@@ -169,8 +174,15 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 		switch (sc.state) {
 		case SCE_CSS_IDENTIFIER:
 			if (!IsAWordChar(ch)) {
-				classifyWordAndStyle(sc, styler, keywordlists,
-						     true, SCE_CSS_UNKNOWN_IDENTIFIER);
+				if (identifier_substate == IDENTIFIER_SUBSTATE_SCSS_DOLLAR) {
+					// In SCSS, all $... things are identifiers only.
+					// In Less, @... things could be directives as well.
+					identifier_substate = IDENTIFIER_SUBSTATE_DEFAULT;
+					sc.SetState(SCE_CSS_DEFAULT);
+				} else {
+					classifyWordAndStyle(sc, styler, keywordlists,
+							     true, SCE_CSS_UNKNOWN_IDENTIFIER);
+				}
 			}
 			break;
 
@@ -458,6 +470,7 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 	
 			case '$':
 				if (isScssDocument) {
+					identifier_substate = IDENTIFIER_SUBSTATE_SCSS_DOLLAR;
 					sc.SetState(SCE_CSS_IDENTIFIER);
 				}
 				break;

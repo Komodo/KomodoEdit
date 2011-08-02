@@ -973,6 +973,33 @@ body.abc {
             #print "\n".join([str(x) for x in results])
             self.assertTrue(len(results) > 0, "this code passed!:<<%s/%s>>" % (lang, code,))
    
+    def test_css_less_atsign_assignment(self):
+        code = dedent("""\
+@color: #4D926F;
+
+#header {
+  color: @color;
+}
+h2 {
+  color: @color;
+}
+""").decode("utf-8")
+        results = self.csslinter.lint(code, language="Less")
+        if results:
+            r = results[0]
+            self.assertTrue(r.message.startswith("blif"),
+                            r)
+            self.assertEqual(code.splitlines()[0][r.col_start:r.col_end], 'flib')
+        self.assertEqual(0, len(results))
+        
+        for lang in ("CSS", "SCSS"):
+            results = self.csslinter.lint(code, language=lang)
+            self.assertTrue(len(results) > 0, "Expecting at least one CSS error")
+            r = results[0]
+            self.assertTrue(r.message.startswith("expecting a directive after @"),
+                            r)
+            self.assertEqual(code.splitlines()[0][r.col_start:r.col_end], 'color', r)
+
     def _x_test_css_stuff(self):
         code = dedent("""\
 @import url(http://example.com/) print

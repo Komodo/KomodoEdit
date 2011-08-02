@@ -113,13 +113,18 @@ _classifier = None
 class SyntaxErrorEOF(SyntaxError):
     pass
 
+def get_silvercity_lexer(language):
+    return {"CSS": CSS.CSSLexer,
+            "SCSS": CSS.SCSSLexer,
+            "Less": CSS.LessLexer}.get(language, CSS.CSSLexer)
+
 class _CSSLexer(Lexer):
-    def __init__(self, code):
+    def __init__(self, code, language):
         Lexer.__init__(self)
         # We don't care about any JS operators in `...` escapes
         self.multi_char_ops = self.build_dict('@{ ${ ~= |= ::')
         self.classifier = _classifier
-        CSS.CSSLexer().tokenize_by_style(code, self._fix_token_list)
+        get_silvercity_lexer(language)().tokenize_by_style(code, self._fix_token_list)
         self.string_types = [ScintillaConstants.SCE_CSS_DOUBLESTRING,
                          ScintillaConstants.SCE_CSS_SINGLESTRING,
                          ]
@@ -239,7 +244,7 @@ class _CSSParser(object):
         if _classifier is None:
             _classifier = _CSSLexerClassifier()
         self._classifier = _classifier
-        self._tokenizer = _CSSLexer(text)
+        self._tokenizer = _CSSLexer(text, self.language)
         self._parse()
         return self._results
 
@@ -441,6 +446,14 @@ class _CSSParser(object):
             self._add_result("expecting an ']'", tok)        
             
         
+    def _parse_assignment(self):
+        """
+        we saw $var or @var at top-level, expect : expression ;
+        """
+        self._parse_required_operator(":")
+        self._parse_expression()
+        self._parse_required_operator(";")
+
     def _parse_directive(self, prev_tok):
         tok = self._tokenizer.get_next_token()
         if not self._classifier.is_directive(tok):
@@ -473,6 +486,11 @@ class _CSSParser(object):
 
         elif tok.text.lower() == "page":
             self._parse_page()
+            
+        elif self.language == "Less":
+            self._parse_assignment()
+        else:
+            self._add_result("expecting a directive after %s" % (prev_tok.text), tok)
             
     def _parse_required_operator(self, op, tok=None):
         if tok is None:
@@ -672,6 +690,8 @@ class _CSSParser(object):
             return True
         elif self._parse_function_call_or_term_identifier():
             return True
+        elif self._parse_variable_reference():
+            return True
         if required:
             tok = self._tokenizer.get_next_token()
             self._check_tag_tok(tok, 8)
@@ -757,7 +777,14 @@ class _CSSParser(object):
         if (self._classifier.is_value(tok)
             and self._hex_color_re.match(tok.text)):
             return True
-        self._tokenizer.put_back(tok)
+        elif self.language != "CSS" and self._classifier.is_operator(tok, "#"):
+            new_tok = self._tokenizer.get_next_token()
+            if self._hex_color_re.match("#" + new_tok.text):
+                return True
+            self._tokenizer.put_back(tok)
+            self._tokenizer.put_back(new_tok)
+        else:
+            self._tokenizer.put_back(tok)
         return False
 
     def _parse_function_call_or_term_identifier(self):
@@ -771,6 +798,20 @@ class _CSSParser(object):
         self._parse_expression() # Includes commas
         self._parse_required_operator(")")
         return True
+
+    def _parse_variable_reference(self):
+        tok = self._tokenizer.get_next_token()
+        if self._classifier.is_operator(tok, "@") and self.language == "Less":
+            tok = self._tokenizer.get_next_token()
+            if not (self._classifier.is_attribute(tok)
+                    or self._classifier.is_identifier(tok)
+                    or self._classifier.is_directive(tok)):
+                self._add_result("expecting an identifier", tok)
+            return True
+        elif self._is_scss_variable(tok):
+            return True
+        self._tokenizer.put_back(tok)
+        return False
 
     def _parse_priority(self):
         tok = self._tokenizer.get_next_token()
@@ -814,6 +855,8 @@ class _CSSParser(object):
                     self._parse_declarations()
                 if self._classifier.is_operator(tok, "@"):
                     self._parse_directive(tok)
+                elif self._is_scss_variable(tok):
+                    self._parse_assignment()
                 else:
                     self._tokenizer.put_back(tok)
                     self._region = self._PARSE_REGION_SAW_OTHER
@@ -835,6 +878,13 @@ class _CSSParser(object):
     _identifier_lex_re = re.compile(r'(?:[a-zA-Z_\-\x80-\xff]|\\[^\r\n\f0-9a-fA-F])(?:[\w_\-\x80-\xff]|\\[^\r\n\f0-9a-fA-F])*$')
     def _lex_identifier(self, tok):
         return self._identifier_lex_re.match(tok.text)
+
+    
+    def _is_scss_variable(self, tok):
+        if self.language != "SCSS":
+            return False
+        return (self._classifier.is_identifier(tok)
+                and tok.text[0] == "$")
 
     _check_tag_tok_count = 0
     def _check_tag_tok(self, tok, loop_id):
