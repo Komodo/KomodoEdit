@@ -122,7 +122,11 @@ class _CSSLexer(Lexer):
     def __init__(self, code, language):
         Lexer.__init__(self)
         # We don't care about any JS operators in `...` escapes
-        self.multi_char_ops = self.build_dict('@{ ${ ~= |= ::')
+        terms = '@{ ${ ~= |= ::'
+        if language == "Less":
+            terms += ' || &&'
+        self.multi_char_ops = self.build_dict(terms)
+            
         self.classifier = _classifier
         get_silvercity_lexer(language)().tokenize_by_style(code, self._fix_token_list)
         self.string_types = [ScintillaConstants.SCE_CSS_DOUBLESTRING,
@@ -245,6 +249,8 @@ class _CSSParser(object):
             _classifier = _CSSLexerClassifier()
         self._classifier = _classifier
         self._tokenizer = _CSSLexer(text, self.language)
+        if self.language == "Less":
+            self._less_mixins = {} # => name => parameter list
         self._parse()
         return self._results
 
@@ -307,8 +313,10 @@ class _CSSParser(object):
                                        "", 1)
     
     def _parse_simple_selector(self, match_required, resolve_selector_property_ambiguity):
-        selected_something = False
         saw_pseudo_element = False
+        current_name = None
+        num_selected_names = 0
+        could_have_mixin = False
         while True:
             tok = self._tokenizer.get_next_token()
             if tok.style == EOF_STYLE:
@@ -316,14 +324,18 @@ class _CSSParser(object):
             self._check_tag_tok(tok, 3)
             log.debug("_parse_simple_selector: got tok %s", tok.dump_ret())
             if self._classifier.is_tag(tok):
-                selected_something = True
+                num_selected_names += 1
                 self._pseudo_element_check(tok, saw_pseudo_element)
+                current_name = tok.text
+                could_have_mixin = False
             elif self._classifier.is_identifier(tok):
-                selected_something = True
+                num_selected_names += 1
                 self._pseudo_element_check(tok, saw_pseudo_element)
                 if not self._supportsNestedDeclaration:
                     self._add_result("treating unrecognized name %s (%d) as a tag name" % (tok.text, tok.style),
                                      tok, status=0)
+                current_name = tok.text
+                could_have_mixin = False
             elif self._classifier.is_operator(tok):
                 if tok.text == ":":
                     if resolve_selector_property_ambiguity and not self._saw_selector:
@@ -343,6 +355,7 @@ class _CSSParser(object):
                     tok = self._tokenizer.get_next_token()
                     if not self._check_special_identifier(prev_tok, tok):
                         return False
+                    current_name = tok.text
                     if tok.text == "not":
                         tok = self._tokenizer.get_next_token()
                         if self._classifier.is_operator(tok, "("):
@@ -351,14 +364,18 @@ class _CSSParser(object):
                             self._parse_required_operator(")")
                         else:
                             self._tokenizer.put_back(tok)
-                        
+                    could_have_mixin = False
                 elif tok.text in ("#", ".", "::",):
                     prev_tok = tok
                     tok = self._tokenizer.get_next_token()
                     if not self._check_special_identifier(prev_tok, tok):
                         return False
-                    selected_something = True
+                    num_selected_names += 1
                     self._pseudo_element_check(tok, saw_pseudo_element)
+                    current_name = tok.text
+                    could_have_mixin = (self.language == "Less"
+                                        and prev_tok.text == '.'
+                                        and num_selected_names == 1)
                     if prev_tok.text == "::":
                         saw_pseudo_element = True
                 elif tok.text == '[':
@@ -366,20 +383,23 @@ class _CSSParser(object):
                         # More than one simple selector in a row means it's not a property
                         self._saw_selector = True
                     self._parse_attribute()
-                    selected_something = True
+                    num_selected_names += 1
+                    could_have_mixin = False
                 elif tok.text == '{':
-                    if not selected_something and match_required:
+                    if num_selected_names == 0 and match_required:
                         self._add_result("expecting a selector, got '{'", tok)
                     # Short-circuit the calling loop.
                     self._tokenizer.put_back(tok)
                     return False
                 elif tok.text == '}':
                     continue # assume we recovered to the end of a "}"
+                    could_have_mixin = False
+                    num_selected_names = 0
                 else:
                     break
             else:
                 break
-        if not selected_something:
+        if num_selected_names == 0:
             if match_required:
                 self._add_result("expecting a selector, got %s" % (tok.text,), tok)
                 tok = self._recover(allowEOF=False, opTokens=("{", "}"))
@@ -387,12 +407,23 @@ class _CSSParser(object):
             # go parse the declaration
             self._tokenizer.put_back(tok)
             return False
-        # Allow the Mozilla ( id [, id]* ) property syntax
+        # Allow either the Mozilla ( id [, id]* ) property syntax or a Less mixin declaration/insertion
         # Note that we have the token that caused us to leave the above loop
         if not self._classifier.is_operator(tok, "("):
+            if (could_have_mixin
+                and self._less_mixins.has_key(current_name)
+                and self._classifier.is_operator(tok, ";")):
+                self._inserted_mixin = True
             self._tokenizer.put_back(tok)
             return True
         do_recover = False
+        if could_have_mixin:
+            if self._less_mixins.has_key(current_name):
+                self._parse_mixin_invocation()
+                self._inserted_mixin = True
+            else:
+                self._parse_mixin_declaration(current_name)
+            return
         tok = self._tokenizer.get_next_token()
         if not self._classifier.is_tag(tok):
             self._add_result("expecting a property name", tok)
@@ -546,6 +577,61 @@ class _CSSParser(object):
             else:
                 tok = None # refresh in _parse_declarations
         self._parse_declarations(tok)
+        
+    def _parse_mixin_declaration(self, current_name):
+        """
+        Allow ()
+              (@foo[:value]) or
+              (@foo1[:value1], @foo2[:value2], ... @fooN[:valueN])
+        """
+        
+        mixin_vars = []
+        self._less_mixins[current_name] = mixin_vars
+        tok = self._tokenizer.get_next_token()
+        if self._classifier.is_operator(tok, ")"):
+            return
+        while True:
+            if not self._classifier.is_operator(tok, "@"):
+                self._add_result("expecting ')' or a directive", tok)
+                raise SyntaxError()
+            tok = self._tokenizer.get_next_token()
+            if not self._classifier.is_directive(tok):
+                self._add_result("expecting a variable name", tok)
+                raise SyntaxError()
+            mixin_vars.append(tok.text)
+            tok = self._tokenizer.get_next_token()
+            if self._classifier.is_operator(tok, ":"):
+                self._parse_expression()
+                tok = self._tokenizer.get_next_token()
+            if self._classifier.is_operator(tok, ","):
+                tok = self._tokenizer.get_next_token()
+                # Stay in loop
+            elif self._classifier.is_operator(tok, ")"):
+                return
+            else:
+                self._add_result("expecting ',' or ')'", tok)
+                raise SyntaxError()
+                
+    def _parse_mixin_invocation(self):
+        """
+        comma-separated values, followed by a ")"
+        """
+        tok = self._tokenizer.get_next_token()
+        if self._classifier.is_operator(tok, ")"):
+            return
+        self._tokenizer.put_back(tok)
+        while True:
+            self._parse_expression()
+            tok = self._tokenizer.get_next_token()
+            if self._classifier.is_operator(tok, ","):
+                tok = self._tokenizer.get_next_token()
+                # Stay in loop
+            elif self._classifier.is_operator(tok, ")"):
+                return
+            else:
+                self._add_result("expecting ',' or ')'", tok)
+                raise SyntaxError()
+        
 
     def _parse_declarations(self, tok=None):
         self._parse_required_operator("{", tok)
@@ -630,10 +716,14 @@ class _CSSParser(object):
         """
         # selectors are supersets of property-names, so go with it
         self._saw_selector = False
-        self._parse_selector(resolve_selector_property_ambiguity=True) 
+        self._inserted_mixin = False
+        self._parse_selector(resolve_selector_property_ambiguity=True)
         tok = self._tokenizer.get_next_token()
         if self._classifier.is_operator(tok, "{"):
             return self._parse_declarations(tok)
+        elif self._classifier.is_operator(tok, ";") and self._inserted_mixin:
+            # Nothing left to do
+            return
         if self._saw_selector:
             self._add_result("expecting '{'", tok)
         if self._classifier.is_operator(tok, ":"):
@@ -678,7 +768,13 @@ class _CSSParser(object):
         self._check_tag_tok(tok, 7)
         if not self._classifier.is_operator(tok):
             self._tokenizer.put_back(tok)
-        elif not tok.text in (",", "/"):
+        elif tok.text in (",", "/"):
+            # use up
+            pass
+        elif self.language == "Less" and tok.text in ("~", "*", "^", "-", "+", "/", "|", "&", "||", "&&",):
+            # use up
+            pass
+        else:
             self._tokenizer.put_back(tok)
 
     def _parse_unary_operator(self):

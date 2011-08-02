@@ -1025,6 +1025,54 @@ li {
                             r)
             self.assertEqual(code.splitlines()[1][r.col_start:r.col_end], '{', r)
         
+
+    def test_css_less_operators(self):
+        code = dedent("""\ 
+        @the-border: 1px;
+@base-color: #111;
+@red:        #842210;
+
+#header {
+  color: @base-color * 3;
+  border-left: @the-border;
+  border-right: @the-border * 2;
+}
+#footer { 
+  color: @base-color + #003300;
+  border-color: desaturate(@red, 10%);
+}
+""").decode("utf-8")
+        results = self.csslinter.lint(code, language="Less")
+        if results:
+            r = results[0]
+            self.assertTrue(r.message.startswith("blif"),
+                            r)
+            self.assertEqual(code.splitlines()[0][r.col_start:r.col_end], 'flib')
+        self.assertEqual(0, len(results))
+
+    def test_css_less_mixins_01(self):
+        code = dedent("""\ 
+.rounded-corners (@radius: 5px) {
+  border-radius: @radius;
+  -webkit-border-radius: @radius;
+  -moz-border-radius: @radius;
+}
+
+#header {
+  .rounded-corners;
+}
+#footer {
+  .rounded-corners(10px);
+}
+""").decode("utf-8")
+        results = self.csslinter.lint(code, language="Less")
+        if results:
+            r = results[0]
+            self.assertTrue(r.message.startswith("blif"),
+                            r)
+            self.assertEqual(code.splitlines()[0][r.col_start:r.col_end], 'flib')
+        self.assertEqual(0, len(results))
+
     def _x_test_css_stuff(self):
         code = dedent("""\
 @import url(http://example.com/) print
