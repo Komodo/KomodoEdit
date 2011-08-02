@@ -30,6 +30,21 @@ class CSSLintTest(CodeIntelTestCase):
     
     langs = ("CSS", "SCSS", "Less")
 
+    def _check_zero_results_show_error(self, code, language="CSS"):
+        results = self.csslinter.lint(code, language)
+        if results:
+            # Show the result that triggered the failure
+            self.assertEqual(0, len(results), results[0])
+        self.assertEqual(0, len(results))
+    
+    def _check_one_result_check_error_on_line(self, code, startswith, expected, lineNo=0, language="CSS"):
+        results = self.csslinter.lint(code, language)
+        self.assertEqual(1, len(results))
+        r = results[0]
+        self.assertTrue(r.message.startswith(startswith),
+                        r.message)
+        self.assertEqual(code.splitlines()[lineNo][r.col_start:r.col_end], expected)
+                         
     def test_expect_good_files(self):
         test_dir = join(self.test_dir, "bits", "css_files")
         print "Test files in path %s" % test_dir
@@ -80,41 +95,37 @@ h1 {
         code = "@charset "
         results = self.csslinter.lint(code)
         self.assertEqual(1, len(results))
-        if len(results) >= 1:
-            r = results[0]
-            self.assertEqual(r.message,
-                             "expecting a string after @charset, got ")
-            self.assertEqual(r.line_start, None)
+        r = results[0]
+        self.assertEqual(r.message,
+                         "expecting a string after @charset, got ")
+        self.assertEqual(r.line_start, None)
 
     def test_css_charset_stub_02(self):
         code = "@charset moo"
         results = self.csslinter.lint(code)
         self.assertEqual(1, len(results))
-        if len(results) >= 1:
-            r = results[0]
-            self.assertEqual(r.message,
-                             "expecting a string after @charset, got moo")
-            self.assertEqual(r.line_start, 1)
-            self.assertEqual(code[r.col_start:r.col_end], "moo")
+        r = results[0]
+        self.assertEqual(r.message,
+                         "expecting a string after @charset, got moo")
+        self.assertEqual(r.line_start, 1)
+        self.assertEqual(code[r.col_start:r.col_end], "moo")
 
     def test_css_charset_stub_03(self):
         code = "@charset 'utf-8'"  # missing semi-colon
         results = self.csslinter.lint(code)
         self.assertEqual(1, len(results))
-        if len(results) >= 1:
-            r = results[0]
-            self.assertTrue(r.message.startswith("expecting ';'"), r.message)
-            self.assertEqual(r.line_start, None)
+        r = results[0]
+        self.assertTrue(r.message.startswith("expecting ';'"), r.message)
+        self.assertEqual(r.line_start, None)
 
     def test_css_special_selector_01(self):
         codes = ["#", '.', ':']
         for code in codes:
             results = self.csslinter.lint(code)
             self.assertEqual(1, len(results))
-            if len(results) >= 1:
-                r = results[0]
-                self.assertTrue(r.message.startswith("expecting an identifier after %s" % (code,)), "unexpected message:%s" % r.message)
-                self.assertEqual(r.line_start, None)
+            r = results[0]
+            self.assertTrue(r.message.startswith("expecting an identifier after %s" % (code,)), "unexpected message:%s" % r.message)
+            self.assertEqual(r.line_start, None)
 
     def test_css_special_selector_02(self):
         codes = ["#", '.', ':']
@@ -122,10 +133,9 @@ h1 {
             code = char + "{}"
             results = self.csslinter.lint(code)
             self.assertEqual(1, len(results))
-            if len(results) >= 1:
-                r = results[0]
-                self.assertTrue(r.message.startswith("expecting an identifier after %s" % (char,)), "unexpected message:%s" % r.message)
-                self.assertEqual(code[r.col_start:r.col_end], "{")
+            r = results[0]
+            self.assertTrue(r.message.startswith("expecting an identifier after %s" % (char,)), "unexpected message:%s" % r.message)
+            self.assertEqual(code[r.col_start:r.col_end], "{")
 
     def test_css_special_selector_03(self):
         codes = ["#", '.', ':']
@@ -133,10 +143,9 @@ h1 {
             code = "gleep " + char
             results = self.csslinter.lint(code)
             self.assertEqual(1, len(results))
-            if len(results) >= 1:
-                r = results[0]
-                self.assertTrue(r.message.startswith("expecting an identifier after %s" % (char,)), "unexpected message:%s" % r.message)
-                self.assertEqual(r.line_start, None)
+            r = results[0]
+            self.assertTrue(r.message.startswith("expecting an identifier after %s" % (char,)), "unexpected message:%s" % r.message)
+            self.assertEqual(r.line_start, None)
 
     def test_css_special_selector_04(self):
         codes = ["#", '.', ':']
@@ -144,11 +153,9 @@ h1 {
             code = "gleep " + char + " {"
             results = self.csslinter.lint(code)
             self.assertEqual(1, len(results))
-            if len(results) >= 1:
-                r = results[0]
-                self.assertTrue(r.message.startswith("expecting an identifier after %s" % (char,)), "unexpected message:%s" % r.message)
-                self.assertEqual(code[r.col_start:r.col_end], "{", "expected complaint about {, got %s" % r)
-
+            r = results[0]
+            self.assertTrue(r.message.startswith("expecting an identifier after %s" % (char,)), "unexpected message:%s" % r.message)
+            self.assertEqual(code[r.col_start:r.col_end], "{", "expected complaint about {, got %s" % r)
 
     def test_css_special_selector_05(self):
         code = dedent("""\
@@ -156,8 +163,7 @@ treechildren::-moz-tree-cell-text(showDetail) {
     background-color: infobackground;
 }
 """).decode("utf-8")
-        results = self.csslinter.lint(code)
-        self.assertEqual(0, len(results))
+        self._check_zero_results_show_error(code)
 
     def test_css_special_selector_06(self):
         # Multiple selectors
@@ -167,8 +173,7 @@ treechildren::-moz-tree-cell-text(showDetail) {
     background-color: infobackground;
 }
 """).decode("utf-8")
-        results = self.csslinter.lint(code)
-        self.assertEqual(0, len(results))
+        self._check_zero_results_show_error(code)
 
     def test_css_special_selector_missing_prop_07(self):
         # Multiple selectors
@@ -245,46 +250,41 @@ treechildren::-moz-tree-cell-text( {
         code = "{ font: red; }"  # missing semi-colon
         results = self.csslinter.lint(code)
         self.assertEqual(1, len(results))
-        if len(results) >= 1:
-            r = results[0]
-            self.assertTrue(r.message.startswith("expecting a selector, got "),
-                            r.message)
-            self.assertEqual(code[r.col_start:r.col_end], "{")
+        r = results[0]
+        self.assertTrue(r.message.startswith("expecting a selector, got "),
+                        r.message)
+        self.assertEqual(code[r.col_start:r.col_end], "{")
 
     def test_css_empty(self):
         code = ""
-        results = self.csslinter.lint(code)
-        self.assertEqual(0, len(results))
+        self._check_zero_results_show_error(code)
 
     def test_css_no_directive_01(self):
         code = "@"  # missing semi-colon
         results = self.csslinter.lint(code)
         self.assertEqual(1, len(results))
-        if len(results) >= 1:
-            r = results[0]
-            self.assertTrue(r.message.startswith("expecting an identifier after @"),
-                            r.message)
-            self.assertEqual(r.line_start, None)
+        r = results[0]
+        self.assertTrue(r.message.startswith("expecting an identifier after @"),
+                        r.message)
+        self.assertEqual(r.line_start, None)
 
     def test_css_no_directive_02(self):
         code = "@ charset 'utf8';"  # space not allowed
         results = self.csslinter.lint(code)
         self.assertEqual(1, len(results))
-        if len(results) >= 1:
-            r = results[0]
-            self.assertTrue(r.message.startswith("expecting a directive immediately after @"),
-                            r.message)
-            self.assertEqual(code[r.col_start:r.col_end], " ")
+        r = results[0]
+        self.assertTrue(r.message.startswith("expecting a directive immediately after @"),
+                        r.message)
+        self.assertEqual(code[r.col_start:r.col_end], " ")
 
     def test_css_no_directive_cascade(self):
         code = "@ charset ;"  # space not allowed
         results = self.csslinter.lint(code)
         self.assertEqual(1, len(results))
-        if len(results) >= 1:
-            r = results[0]
-            self.assertTrue(r.message.startswith("expecting a directive immediately after @"),
-                            r.message)
-            self.assertEqual(code[r.col_start:r.col_end], " ")
+        r = results[0]
+        self.assertTrue(r.message.startswith("expecting a directive immediately after @"),
+                        r.message)
+        self.assertEqual(code[r.col_start:r.col_end], " ")
 
     def test_css_missing_semicolon_01(self):
         code = dedent("""\
@@ -329,11 +329,10 @@ body {
 """).decode("utf-8")
         results = self.csslinter.lint(code)
         self.assertEqual(1, len(results))
-        if len(results) >= 1:
-            r = results[0]
-            self.assertTrue(r.message.startswith("@charset allowed only at start of file"),
-                            r.message)
-            self.assertEqual(code.splitlines()[3][r.col_start:r.col_end], "charset")
+        r = results[0]
+        self.assertTrue(r.message.startswith("@charset allowed only at start of file"),
+                        r.message)
+        self.assertEqual(code.splitlines()[3][r.col_start:r.col_end], "charset")
 
     def test_css_import_missing_arg_01(self):
         code = '@import ;'
@@ -373,17 +372,11 @@ body {
 
     def test_css_import_good_url_01(self):
         code = '@import url(http://wawa.moose/);'
-        results = self.csslinter.lint(code)
-        if results:
-            self.assertEqual(0, len(results), results[0])
-        self.assertEqual(0, len(results))
+        self._check_zero_results_show_error(code)
 
     def test_css_import_good_medialist_01(self):
         code = '@import url(http://example.com/) print;'
-        results = self.csslinter.lint(code)
-        if results:
-            self.assertEqual(0, len(results), results[0])
-        self.assertEqual(0, len(results))
+        self._check_zero_results_show_error(code)
 
     def test_css_import_bad_url_01(self):
         code = '@import url( ;'
@@ -507,22 +500,11 @@ body {
 
     def test_css_import_bad_media_11(self):
         code = '@media abc, 765 {'
-        results = self.csslinter.lint(code)
-        self.assertEqual(1, len(results))
-        r = results[0]
-        self.assertTrue(r.message.startswith("expecting an identifier"),
-                        r.message)
-        self.assertEqual(code.splitlines()[0][r.col_start:r.col_end], '765')
-
+        self._check_one_result_check_error_on_line(code, "expecting an identifier", '765')
+        
     def test_css_import_bad_media_12(self):
         code = '@media abc, { color: red; }'
-        results = self.csslinter.lint(code)
-        self.assertEqual(1, len(results))
-        r = results[0]
-        self.assertTrue(r.message.startswith("expecting an identifier"),
-                        r.message)
-        self.assertEqual(code.splitlines()[0][r.col_start:r.col_end], '{')
-
+        self._check_one_result_check_error_on_line(code, "expecting an identifier", '{')
 
     def test_css_good_property_function(self):
         code = dedent("""\
@@ -530,51 +512,27 @@ div.flip {
     background-image: -moz-linear-gradient(rgba(0, 255, 0, 0.05), rgba(0, 255, 0, 0.01));
 }
 """).decode("utf-8")
-        results = self.csslinter.lint(code)
-        if results:
-            self.assertEqual(0, len(results), results[0])
-        self.assertEqual(0, len(results))
+        self._check_zero_results_show_error(code)
 
     def test_css_import_good_page_01(self):
         code = '@page { background: red; }'
-        results = self.csslinter.lint(code)
-        if results:
-            self.assertEqual(0, len(results), results[0])
-        self.assertEqual(0, len(results))
+        self._check_zero_results_show_error(code)
 
     def test_css_import_good_page_02(self):
         code = '@page :fish { background: red; }'
-        results = self.csslinter.lint(code)
-        if results:
-            self.assertEqual(0, len(results), results[0])
-        self.assertEqual(0, len(results))
+        self._check_zero_results_show_error(code)
 
     def test_css_import_bad_page_01(self):
         code = '@page : { background: red; }'
-        results = self.csslinter.lint(code)
-        self.assertEqual(1, len(results))
-        r = results[0]
-        self.assertTrue(r.message.startswith("expecting an identifier"),
-                        r.message)
-        self.assertEqual(code.splitlines()[0][r.col_start:r.col_end], '{')
+        self._check_one_result_check_error_on_line(code, "expecting an identifier", '{')
 
     def test_css_import_bad_page_02(self):
         code = '@page woop { background: red; }'
-        results = self.csslinter.lint(code)
-        self.assertEqual(1, len(results))
-        r = results[0]
-        self.assertTrue(r.message.startswith("expecting '{'"),
-                        r.message)
-        self.assertEqual(code.splitlines()[0][r.col_start:r.col_end], 'woop')
+        self._check_one_result_check_error_on_line(code, "expecting '{'", 'woop')
 
     def test_css_import_bad_page_03(self):
         code = '@page :: { background: red; }'
-        results = self.csslinter.lint(code)
-        self.assertEqual(1, len(results))
-        r = results[0]
-        self.assertTrue(r.message.startswith("expecting '{'"),
-                        r.message)
-        self.assertEqual(code.splitlines()[0][r.col_start:r.col_end], '::')
+        self._check_one_result_check_error_on_line(code, "expecting '{'", '::')
 
     def test_css_import_bad_page_04(self):
         code = '@page { background: red;'
@@ -596,12 +554,7 @@ div.flip {
 
     def test_css_missing_classname_01(self):
         code = '. { }'
-        results = self.csslinter.lint(code)
-        self.assertEqual(1, len(results))
-        r = results[0]
-        self.assertTrue(r.message.startswith("expecting an identifier"),
-                        r.message)
-        self.assertEqual(code.splitlines()[0][r.col_start:r.col_end], '{')
+        self._check_one_result_check_error_on_line(code, "expecting an identifier", '{')
 
     def test_css_ruleset_bad_property_01(self):
         code = 'h1 { background: '
@@ -632,21 +585,11 @@ div.flip {
 
     def test_css_ruleset_bad_property_04(self):
         code = 'h1 { border-width: -@shlub; }'
-        results = self.csslinter.lint(code)
-        self.assertEqual(1, len(results))
-        r = results[0]
-        self.assertTrue(r.message.startswith("expecting a number"),
-                        r.message)
-        self.assertEqual(code.splitlines()[0][r.col_start:r.col_end], '@')
+        self._check_one_result_check_error_on_line(code, "expecting a number", '@')
 
     def test_css_ruleset_bad_property_05(self):
         code = 'h1 { border-width: mssyntax:; }'
-        results = self.csslinter.lint(code)
-        self.assertEqual(1, len(results))
-        r = results[0]
-        self.assertTrue(r.message.startswith("expecting an identifier"),
-                        r.message)
-        self.assertEqual(code.splitlines()[0][r.col_start:r.col_end], ';')
+        self._check_one_result_check_error_on_line(code, "expecting an identifier", ';')
 
     def test_css_ruleset_bad_property_fn_06(self):
         code = 'h1 { border-width: f(10'
@@ -659,21 +602,11 @@ div.flip {
 
     def test_css_ruleset_bad_property_fn_07(self):
         code = 'h1 { border-width: f(10 }'
-        results = self.csslinter.lint(code)
-        self.assertEqual(1, len(results))
-        r = results[0]
-        self.assertTrue(r.message.startswith("expecting ')'"),
-                        r.message)
-        self.assertEqual(code.splitlines()[0][r.col_start:r.col_end], '}')
+        self._check_one_result_check_error_on_line(code, "expecting ')'", '}')
 
     def test_css_ruleset_bad_property_fn_08(self):
         code = 'h1 { border-width: f(10 ; }'
-        results = self.csslinter.lint(code)
-        self.assertEqual(1, len(results))
-        r = results[0]
-        self.assertTrue(r.message.startswith("expecting ')'"),
-                        r.message)
-        self.assertEqual(code.splitlines()[0][r.col_start:r.col_end], ';')
+        self._check_one_result_check_error_on_line(code, "expecting ')'", ';')
 
     def test_css_ruleset_bad_property_09(self):
         code = 'h1 { border-width: f(10) !'
@@ -1042,13 +975,7 @@ li {
   border-color: desaturate(@red, 10%);
 }
 """).decode("utf-8")
-        results = self.csslinter.lint(code, language="Less")
-        if results:
-            r = results[0]
-            self.assertTrue(r.message.startswith("blif"),
-                            r)
-            self.assertEqual(code.splitlines()[0][r.col_start:r.col_end], 'flib')
-        self.assertEqual(0, len(results))
+        self._check_zero_results_show_error(code, language="Less")
 
     def test_css_less_mixins_01(self):
         code = dedent("""\ 
@@ -1066,12 +993,7 @@ li {
 }
 """).decode("utf-8")
         results = self.csslinter.lint(code, language="Less")
-        if results:
-            r = results[0]
-            self.assertTrue(r.message.startswith("blif"),
-                            r)
-            self.assertEqual(code.splitlines()[0][r.col_start:r.col_end], 'flib')
-        self.assertEqual(0, len(results))
+        self._check_zero_results_show_error(code, language="Less")
 
     def _x_test_css_stuff(self):
         code = dedent("""\
