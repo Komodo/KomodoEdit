@@ -1891,6 +1891,7 @@
                   <File Id="file164" LongName="langintel.py" Name="LANGIN_0.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\langintel.py" />
                   <File Id="file2207" Name="lang_css.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\lang_css.py"/>
                   <File Id="file2219" Name="LANG_J_0.PY" LongName="lang_javascript.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\lang_javascript.py"/>
+                  <File Id="file681" LongName="lang_less.py" Name="LANG_L_1.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\lang_less.py" />
                   <File Id="file330" Name="LANG_N_0.PY" LongName="lang_nodejs.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\lang_nodejs.py" />
                   <File Id="file2220" Name="LANG_P_0.PY" LongName="lang_perl.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\lang_perl.py"/>
                   <File Id="file2235" Name="lang_php.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\lang_php.py"/>
