@@ -1074,7 +1074,20 @@ pre { .wrap }
         self._check_zero_results_show_error(code, language="Less")
         self._check_some_errors_on_line(code, "expecting a value", ' ~', lineNo=1, language="CSS")
         self._check_some_errors_on_line(code, "expecting a value", ' ~', lineNo=1, language="SCSS")
-       
+   
+    def test_css_less_tilde_escape_02(self):
+        code = dedent("""\
+@var: ~`"@{str}".toUpperCase() + '!'`;
+@height: `document.body.clientHeight`;
+.class {
+  filter: ~"progid:DXImageTransform.Microsoft.AlphaImageLoader(src='image.png')";
+  font: "stew@{height}", @var;
+}
+""").decode("utf-8")
+        self._check_zero_results_show_error(code, language="Less")
+        for lang in ("CSS", "SCSS"):
+            self._check_some_errors_on_line(code, "expecting a directive", 'var', lineNo=0, language="lang")
+
     def _x_test_css_stuff(self):
         code = dedent("""\
 @import url(http://example.com/) print

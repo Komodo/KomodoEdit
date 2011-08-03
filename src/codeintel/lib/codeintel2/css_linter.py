@@ -820,22 +820,30 @@ class _CSSParser(object):
         return True
     
     def _parse_escaped_string(self):
+        """
+        Accept any of
+        ~" ... "
+        ~` ... `
+        ` ... `
+        """
         tok = self._tokenizer.get_next_token()
-        if not self._classifier.is_operator(tok, "~"):
+        if not self._classifier.is_operator_choose(tok, ("~", '`')):
             self._tokenizer.put_back(tok)
             return False
-        prev_tok = tok
-        tok = self._tokenizer.get_next_token()
-        if not self._classifier.is_operator(tok, '"'):
-            self._tokenizer.put_back(prev_tok)
-            self._tokenizer.put_back(tok)
-            return False
+        if tok.text == '~':
+            prev_tok = tok
+            tok = self._tokenizer.get_next_token()
+            if not self._classifier.is_operator(tok) or tok.text not in ('"', '`'):
+                self._tokenizer.put_back(prev_tok)
+                self._tokenizer.put_back(tok)
+                return False
+        target = tok.text
         while True:
             tok = self._tokenizer.get_next_token()
             if tok.style == EOF_STYLE:
-                self._add_result("expecting '\"', hit end of file", tok)
+                self._add_result("expecting '%s', hit end of file" % (target,), tok)
                 raise SyntaxErrorEOF()
-            elif self._classifier.is_operator(tok, '"'):
+            elif self._classifier.is_operator(tok, target):
                 return True
 
     def _parse_term(self, required=False):
