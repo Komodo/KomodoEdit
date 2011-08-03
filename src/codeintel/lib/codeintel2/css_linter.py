@@ -818,6 +818,25 @@ class _CSSParser(object):
         self._parse_expression()
         self._parse_required_operator(")")
         return True
+    
+    def _parse_escaped_string(self):
+        tok = self._tokenizer.get_next_token()
+        if not self._classifier.is_operator(tok, "~"):
+            self._tokenizer.put_back(tok)
+            return False
+        prev_tok = tok
+        tok = self._tokenizer.get_next_token()
+        if not self._classifier.is_operator(tok, '"'):
+            self._tokenizer.put_back(prev_tok)
+            self._tokenizer.put_back(tok)
+            return False
+        while True:
+            tok = self._tokenizer.get_next_token()
+            if tok.style == EOF_STYLE:
+                self._add_result("expecting '\"', hit end of file", tok)
+                raise SyntaxErrorEOF()
+            elif self._classifier.is_operator(tok, '"'):
+                return True
 
     def _parse_term(self, required=False):
         exp_num = self._parse_unary_operator()
@@ -838,6 +857,8 @@ class _CSSParser(object):
             return True
         elif self.language == "Less":
             if self._parse_parenthesized_expression():
+                return True
+            elif self._parse_escaped_string():
                 return True
         if required:
             tok = self._tokenizer.get_next_token()
