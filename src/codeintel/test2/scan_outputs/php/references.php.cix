@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="PHP" mtime="42" path="scan_inputs/php_references.php">
-    <scope ilk="blob" lang="PHP" name="php_references.php" src="scan_inputs/php_references.php">
+  <file lang="PHP" mtime="42" path="scan_inputs/php/references.php">
+    <scope ilk="blob" lang="PHP" name="references.php" src="scan_inputs/php/references.php">
       <variable citdl="string" line="7" name="b" />
       <variable citdl="b" line="8" name="a" />
       <scope doc="Pass by reference" ilk="function" line="12" lineend="15" name="foo" signature="foo(&amp; $var)">

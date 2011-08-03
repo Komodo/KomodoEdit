@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="PHP" mtime="42" path="scan_inputs/php5_sample.php">
-    <scope ilk="blob" lang="PHP" name="php5_sample.php" src="scan_inputs/php5_sample.php">
+  <file lang="PHP" mtime="42" path="scan_inputs/php/php5_sample.php">
+    <scope ilk="blob" lang="PHP" name="php5_sample.php" src="scan_inputs/php/php5_sample.php">
       <import line="2" module="soap.php" />
       <scope doc="simpleFunc&#xA;&#xA;an example doc string in php" ilk="function" line="9" lineend="10" name="simpleFunc" signature="simpleFunc($ttt)">
         <variable ilk="argument" name="ttt" />

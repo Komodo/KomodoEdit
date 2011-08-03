@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="PHP" mtime="42" path="scan_inputs/php_test1.php">
-    <scope ilk="blob" lang="PHP" name="php_test1.php" src="scan_inputs/php_test1.php">
+  <file lang="PHP" mtime="42" path="scan_inputs/php/test1.php">
+    <scope ilk="blob" lang="PHP" name="test1.php" src="scan_inputs/php/test1.php">
       <scope ilk="class" line="2" lineend="14" name="A">
         <scope ilk="function" line="4" lineend="13" name="foo" signature="foo()" />
       </scope>

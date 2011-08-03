@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="PHP" mtime="42" path="scan_inputs/php_uppercase_tags_bug79787.php">
-    <scope ilk="blob" lang="PHP" name="php_uppercase_tags_bug79787.php" src="scan_inputs/php_uppercase_tags_bug79787.php">
+  <file lang="PHP" mtime="42" path="scan_inputs/php/uppercase_tags_bug79787.php">
+    <scope ilk="blob" lang="PHP" name="uppercase_tags_bug79787.php" src="scan_inputs/php/uppercase_tags_bug79787.php">
       <scope ilk="class" line="3" lineend="6" name="bug79787">
         <scope ilk="function" line="5" lineend="5" name="foo" signature="foo()" />
       </scope>

@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="PHP" mtime="42" path="scan_inputs/php_greedy_comments.php">
-    <scope ilk="blob" lang="PHP" name="php_greedy_comments.php" src="scan_inputs/php_greedy_comments.php">
+  <file lang="PHP" mtime="42" path="scan_inputs/php/greedy_comments.php">
+    <scope ilk="blob" lang="PHP" name="greedy_comments.php" src="scan_inputs/php/greedy_comments.php">
       <scope doc="Function TestFunction&#xA;@param PDO $model&#xA;@param DOMDocument $node&#xA;@return DOMDocument" ilk="function" line="16" lineend="18" name="TestFunction" returns="DOMDocument" signature="DOMDocument TestFunction(PDO $model, DOMDocument $node)">
         <variable citdl="PDO" ilk="argument" name="model" />
         <variable citdl="DOMDocument" ilk="argument" name="node" />
