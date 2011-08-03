@@ -1,0 +1,9 @@
+<codeintel version="2.0">
+  <file lang="PHP" mtime="42" path="scan_inputs/php/define_in_namespace.php">
+    <scope ilk="blob" lang="PHP" name="define_in_namespace.php" src="scan_inputs/php/define_in_namespace.php">
+      <scope ilk="namespace" line="3" name="Codebite\Quartz">
+        <variable citdl="string" ilk="constant" line="5" name="SITE_ROOT" />
+      </scope>
+    </scope>
+  </file>
+</codeintel>
