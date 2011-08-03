@@ -716,6 +716,11 @@ class koRemoteConnectionService:
         return None
 
     def saveServerInfoList(self, serverinfo_list):
+        # Ensure the cache is cleared, as it must get reloaded by
+        # getServerInfoList later on, otherwise we may get 'Login exists'
+        # errors, see - bug 89685.
+        self.clearServerInfoListCache()
+
         loginmanager = components.classes["@mozilla.org/login-manager;1"].\
                             getService(components.interfaces.nsILoginManager)
         old_logins = {}
@@ -734,7 +739,6 @@ class koRemoteConnectionService:
                 guid = old_login.QueryInterface(components.interfaces.\
                                                 nsILoginMetaInfo).guid
                 old_logins[guid] = old_login
-            
         for serverinfo in serverinfo_list:
             new_login = serverinfo.generateLoginInfo()
             if not new_login.password:
@@ -752,7 +756,6 @@ class koRemoteConnectionService:
         for old_login in old_logins.itervalues():
             loginmanager.removeLogin(old_login)
             
-        self.__serverinfo_list = serverinfo_list
         obsSvc = components.classes["@mozilla.org/observer-service;1"].\
                       getService(components.interfaces.nsIObserverService)
         obsSvc.notifyObservers(None, "server-preferences-changed", "")
