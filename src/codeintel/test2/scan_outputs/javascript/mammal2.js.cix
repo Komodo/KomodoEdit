@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="JavaScript" mtime="42" path="scan_inputs/mammal2.js">
-    <scope ilk="blob" lang="JavaScript" name="mammal2.js" src="scan_inputs/mammal2.js">
+  <file lang="JavaScript" mtime="42" path="scan_inputs/javascript/mammal2.js">
+    <scope ilk="blob" lang="JavaScript" name="mammal2.js" src="scan_inputs/javascript/mammal2.js">
       <scope ilk="class" line="1" lineend="2" name="Cat">
         <scope ilk="function" line="2" lineend="2" name="meow" signature="meow()">
           <variable citdl="Cat" name="this" />
