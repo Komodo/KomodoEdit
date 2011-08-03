@@ -45,6 +45,14 @@ class CSSLintTest(CodeIntelTestCase):
                         r.message)
         self.assertEqual(code.splitlines()[lineNo][r.col_start:r.col_end], expected)
                          
+    def _check_some_errors_on_line(self, code, startswith, expected, lineNo=0, language="CSS"):
+        results = self.csslinter.lint(code, language)
+        self.assertTrue(len(results) > 0)
+        r = results[0]
+        self.assertTrue(r.message.startswith(startswith),
+                        r.message)
+        self.assertEqual(code.splitlines()[lineNo][r.col_start:r.col_end], expected)
+                    
     def test_expect_good_files(self):
         test_dir = join(self.test_dir, "bits", "css_files")
         print "Test files in path %s" % test_dir
@@ -1009,6 +1017,22 @@ pre { .wrap }
 """).decode("utf-8")
         self._check_zero_results_show_error(code, language="Less")
 
+    def test_css_less_inherit_01(self):
+        code = dedent("""\
+#header        { color: black;
+  .logo        { width: 300px;
+    &:hover    { text-decoration: none; }
+    a:visited    { text-decoration: none; }
+    &::firstThing    { border: dashed; }
+    zos::lastThing    { padding: 5px; }
+  }
+}
+""").decode("utf-8")
+        self._check_zero_results_show_error(code, language="Less")
+        self._check_some_errors_on_line(code, "expecting a property name", '.', lineNo=1, language="CSS")
+        self._check_some_errors_on_line(code, "expecting a selector", '&', lineNo=2, language="SCSS")
+
+        
     def _x_test_css_stuff(self):
         code = dedent("""\
 @import url(http://example.com/) print

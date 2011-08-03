@@ -129,7 +129,7 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
     
 	const int IDENTIFIER_SUBSTATE_DEFAULT = 0;
 	const int IDENTIFIER_SUBSTATE_SCSS_DOLLAR = 1;
-	const int IDENTIFIER_SUBSTATE_LESS_ATSIGN = 2;
+	//const int IDENTIFIER_SUBSTATE_LESS_ATSIGN = 2;
 	int identifier_substate = IDENTIFIER_SUBSTATE_DEFAULT;
 
 	bool in_default_substate = false;
@@ -492,7 +492,25 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 				break;
 	
 			case '&':
+				if (isLessDocument
+				    && sc.chNext == ':'
+				    && main_substate == MAIN_SUBSTATE_AMBIGUOUS_SELECTOR_OR_PROPERTY_NAME) {
+					char next2Char = styler.SafeGetCharAt(sc.currentPos + 2);
+					if (next2Char == ':' || IsAWordChar(next2Char)) {
+						sc.SetState(SCE_CSS_OPERATOR);
+						sc.Forward();
+						if (next2Char == ':') {
+							sc.ForwardSetState(SCE_CSS_PSEUDOELEMENT);
+						} else {
+							sc.ForwardSetState(SCE_CSS_PSEUDOCLASS);
+						}
+						main_substate = MAIN_SUBSTATE_IN_SELECTOR;
+						break;
+					}
+				}
+				// else fall through
 			case '^':
+			case '|':
 				if (isLessDocument || isScssDocument) {
 					sc.SetState(SCE_CSS_OPERATOR);
 				}
@@ -641,11 +659,12 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 				break;
 			
 			case '~':
-				if (isLessDocument
-				    && sc.chNext == '"') {
+				if (isLessDocument) {
 					sc.SetState(SCE_CSS_OPERATOR);
-					sc.Forward();
-					string_substate = STRING_SUBSTATE__IN_LESS_CSS_ESCAPE;
+					if (sc.chNext == '"') {
+						sc.Forward();
+						string_substate = STRING_SUBSTATE__IN_LESS_CSS_ESCAPE;
+					}
 				}
 				break;
 			

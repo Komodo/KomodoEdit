@@ -355,6 +355,7 @@ class _CSSParser(object):
                     tok = self._tokenizer.get_next_token()
                     if not self._check_special_identifier(prev_tok, tok):
                         return False
+                    num_selected_names += 1
                     current_name = tok.text
                     if tok.text == "not":
                         tok = self._tokenizer.get_next_token()
@@ -399,7 +400,17 @@ class _CSSParser(object):
                     # assume we recovered to the end of a "}"
                     could_have_mixin = False
                     num_selected_names = 0
-                    continue 
+                    continue
+                elif tok.text == "&" and self.language == "Less":
+                    tok = self._tokenizer.get_next_token()
+                    if (self._classifier.is_operator_choose(tok, ("#", ".", ":", "::"))
+                        or self._classifier.is_special_identifier(tok)):
+                        # Parse the qualifier next time around
+                        self._saw_selector = True
+                        num_selected_names += 1
+                    else:
+                        self._add_result("expecting a class or psuedo-class selector after '&'", tok)
+                    self._tokenizer.put_back(tok)
                 else:
                     break
             else:
