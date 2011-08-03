@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="PHP" mtime="42" path="scan_inputs/method_local_var.php">
-    <scope ilk="blob" lang="PHP" name="method_local_var.php" src="scan_inputs/method_local_var.php">
+  <file lang="PHP" mtime="42" path="scan_inputs/php/method_local_var.php">
+    <scope ilk="blob" lang="PHP" name="method_local_var.php" src="scan_inputs/php/method_local_var.php">
       <scope ilk="class" line="3" lineend="10" name="DB">
         <scope ilk="function" line="5" lineend="8" name="factory" signature="&amp;factory($type)">
           <variable ilk="argument" name="type" />

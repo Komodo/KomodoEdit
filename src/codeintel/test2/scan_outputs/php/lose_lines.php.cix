@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="PHP" mtime="42" path="scan_inputs/lose_lines.php">
-    <scope ilk="blob" lang="PHP" name="lose_lines.php" src="scan_inputs/lose_lines.php">
+  <file lang="PHP" mtime="42" path="scan_inputs/php/lose_lines.php">
+    <scope ilk="blob" lang="PHP" name="lose_lines.php" src="scan_inputs/php/lose_lines.php">
       <variable citdl="string" line="5" name="var" />
       <variable citdl="string" line="7" name="var2" />
       <variable citdl="string" line="12" name="var3" />
