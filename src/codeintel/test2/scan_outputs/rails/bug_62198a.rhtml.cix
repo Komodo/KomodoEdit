@@ -1,0 +1,7 @@
+<codeintel version="2.0">
+  <file lang="RHTML" mtime="42" path="scan_inputs/rails/bug_62198a.rhtml">
+    <scope ilk="blob" lang="Ruby" name="bug_62198a.rhtml" src="scan_inputs/rails/bug_62198a.rhtml">
+      <variable attributes="__local__" citdl="Fixnum" line="1" name="a" />
+    </scope>
+  </file>
+</codeintel>

@@ -1,0 +1,7 @@
+<codeintel version="2.0">
+  <file lang="RHTML" mtime="42" path="scan_inputs/rails/bug_52677_multilang_ruby.rhtml">
+    <scope ilk="blob" lang="JavaScript" name="bug_52677_multilang_ruby.rhtml" src="scan_inputs/rails/bug_52677_multilang_ruby.rhtml">
+      <scope ilk="function" line="4" lineend="5" name="myfunc" signature="myfunc()" />
+    </scope>
+  </file>
+</codeintel>

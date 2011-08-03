@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="RHTML" mtime="42" path="scan_inputs/rhtml-test01-noruby-js.rhtml">
-    <scope ilk="blob" lang="JavaScript" name="rhtml-test01-noruby-js.rhtml" src="scan_inputs/rhtml-test01-noruby-js.rhtml">
+  <file lang="RHTML" mtime="42" path="scan_inputs/rails/rhtml-test01-noruby-js.rhtml">
+    <scope ilk="blob" lang="JavaScript" name="rhtml-test01-noruby-js.rhtml" src="scan_inputs/rails/rhtml-test01-noruby-js.rhtml">
       <variable citdl="Number" line="3" name="a" />
       <scope ilk="function" line="4" lineend="6" name="b" signature="b(f)">
         <variable ilk="argument" line="4" name="f" />
