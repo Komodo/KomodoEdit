@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="XUL" mtime="42" path="scan_inputs\editPathMap.xul">
-    <scope ilk="blob" lang="JavaScript" name="editPathMap.xul" src="scan_inputs/editPathMap.xul">
+  <file lang="XUL" mtime="42" path="scan_inputs/xul/editPathMap.xul">
+    <scope ilk="blob" lang="JavaScript" name="editPathMap.xul" src="scan_inputs/xul/editPathMap.xul">
       <scope ilk="function" line="26" lineend="32" name="onLoad" signature="onLoad()" />
       <scope ilk="function" line="33" lineend="37" name="onOK" signature="onOK()" />
       <scope ilk="function" line="38" lineend="42" name="onCancel" signature="onCancel()" />
