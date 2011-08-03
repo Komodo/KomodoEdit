@@ -925,21 +925,9 @@ h2 {
   color: @color;
 }
 """).decode("utf-8")
-        results = self.csslinter.lint(code, language="Less")
-        if results:
-            r = results[0]
-            self.assertTrue(r.message.startswith("blif"),
-                            r)
-            self.assertEqual(code.splitlines()[0][r.col_start:r.col_end], 'flib')
-        self.assertEqual(0, len(results))
-        
-        for lang in ("CSS", "SCSS"):
-            results = self.csslinter.lint(code, language=lang)
-            self.assertTrue(len(results) > 0, "Expecting at least one CSS error")
-            r = results[0]
-            self.assertTrue(r.message.startswith("expecting a directive after @"),
-                            r)
-            self.assertEqual(code.splitlines()[0][r.col_start:r.col_end], 'color', r)
+        self._check_zero_results_show_error(code, language="Less")
+        self._check_some_errors_on_line(code, "expecting a directive", 'color', lineNo=0, language="CSS")
+        self._check_some_errors_on_line(code, "expecting a directive", 'color', lineNo=0, language="SCSS")
             
     def test_css_scss_nested_properties(self):
         code = dedent("""\
@@ -1086,8 +1074,67 @@ pre { .wrap }
 """).decode("utf-8")
         self._check_zero_results_show_error(code, language="Less")
         for lang in ("CSS", "SCSS"):
-            self._check_some_errors_on_line(code, "expecting a directive", 'var', lineNo=0, language="lang")
+            self._check_some_errors_on_line(code, "expecting a directive", 'var', lineNo=0, language=lang)
 
+    def test_css_scss_parse_mixins(self):
+        code = dedent("""\
+@mixin table-base {
+  th {
+    text-align: center;
+    font-weight: bold;
+  }
+  td, th {padding: 2px;}
+}
+
+@mixin left($dist) {
+  float: left;
+  margin-left: $dist;
+}
+
+#data {
+  @include left(10px);
+  @include table-base;
+}
+""").decode("utf-8")
+        self._check_zero_results_show_error(code, language="SCSS")
+        
+    def test_css_scss_bad_mixin_01(self):
+        code = "@mixin  {"
+        self._check_some_errors_on_line(code, "expecting a mixin name", '{', lineNo=0, language="SCSS")
+        
+    def test_css_scss_bad_mixin_02(self):
+        code = "@mixin table-base missing-brace {"
+        self._check_some_errors_on_line(code, "expecting '{'", 'missing-brace', lineNo=0, language="SCSS")
+        
+    def test_css_scss_bad_mixin_03(self):
+        code = dedent("""\
+@mixin table-base {
+  td, th {padding: 2px;}
+}
+
+#data {
+  @zeep;
+}
+""").decode("utf-8")
+        self._check_some_errors_on_line(code, "expecting 'include'", 'zeep', lineNo=5, language="SCSS")
+        
+    def test_css_scss_bad_mixin_04(self):
+        code = dedent("""\
+@mixin table-base {
+  td, th {padding: 2px;}
+}
+
+#data {
+  @include;
+}
+""").decode("utf-8")
+        self._check_some_errors_on_line(code, "expecting a mixin name", ';', lineNo=5, language="SCSS")
+        
+    def test_css_bad_missing_selector(self):
+        code = "td,  {padding: 2px;}"
+        for lang in self.langs:
+            self._check_some_errors_on_line(code, "expecting a selector", "{", lineNo=0, language=lang)
+        
     def _x_test_css_stuff(self):
         code = dedent("""\
 @import url(http://example.com/) print

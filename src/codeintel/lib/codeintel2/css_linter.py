@@ -536,9 +536,26 @@ class _CSSParser(object):
             
         elif self.language == "Less":
             self._parse_assignment()
+        elif self.language == "SCSS":
+            self._parse_scss_mixin_declaration(tok)
         else:
             self._add_result("expecting a directive after %s" % (prev_tok.text), tok)
             
+    def _parse_scss_mixin_declaration(self, tok):
+        if not (self._classifier.is_directive(tok) and tok.text == "mixin"):
+            self._add_result("expecting a directive or 'mixin'", tok)
+            self._parser_putback_recover(tok)
+        tok = self._tokenizer.get_next_token()
+        if not self._classifier.is_tag(tok):
+            self._add_result("expecting a mixin name", tok)
+            self._parser_putback_recover(tok) 
+        tok = self._tokenizer.get_next_token()           
+        if self._classifier.is_operator(tok, "("):
+            self._parse_mixin_invocation()
+        else:
+            self._tokenizer.put_back(tok)
+        self._parse_declarations()
+    
     def _parse_required_operator(self, op, tok=None):
         if tok is None:
             tok = self._tokenizer.get_next_token()
@@ -723,6 +740,28 @@ class _CSSParser(object):
         self._parse_priority()
         self._parse_required_operator(";")
     
+    def _parse_scss_mixin_use(self):
+        # Check for reading in a mixin
+        tok = self._tokenizer.get_next_token()
+        if not self._classifier.is_operator(tok, "@"):
+            self._tokenizer.put_back(tok)
+            return
+        tok = self._tokenizer.get_next_token()
+        if not (self._classifier.is_directive(tok) and tok.text == "include"):
+            self._add_result("expecting 'include'", tok)
+            self._tokenizer.put_back(tok)
+            return
+        tok = self._tokenizer.get_next_token()
+        if not self._classifier.is_identifier(tok):
+            self._add_result("expecting a mixin name", tok)
+            self._parser_putback_recover(tok)
+        tok = self._tokenizer.get_next_token()
+        if self._classifier.is_operator(tok, "("):
+            self._parse_mixin_invocation()
+            tok = self._tokenizer.get_next_token()
+        self._parse_required_operator(";", tok)
+        return True
+            
     def _parse_declaration_or_nested_block(self):
         """
         For Less and SCSS, blocks can nest.  So parse either a property-name
@@ -733,8 +772,14 @@ class _CSSParser(object):
         # selectors are supersets of property-names, so go with it
         self._saw_selector = False
         self._inserted_mixin = False
+        if self.language == "SCSS":
+            if self._parse_scss_mixin_use():
+                return
         self._parse_selector(resolve_selector_property_ambiguity=True)
         tok = self._tokenizer.get_next_token()
+        if self._classifier.is_operator(tok, ","):
+            self._parse_ruleset()
+            return
         if self._classifier.is_operator(tok, "{"):
             return self._parse_declarations(tok)
         if self._inserted_mixin:
