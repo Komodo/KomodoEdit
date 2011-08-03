@@ -1,0 +1,8 @@
+<codeintel version="2.0">
+  <file lang="TemplateToolkit" mtime="42" path="scan_inputs/ttkt/ttkt-test03-noperl.ttkt.html">
+    <scope ilk="blob" lang="JavaScript" name="ttkt-test03-noperl.ttkt.html" src="scan_inputs/ttkt/ttkt-test03-noperl.ttkt.html">
+      <variable citdl="Number" line="8" name="$perl" />
+      <variable citdl="$ab.cd" line="9" name="$b" />
+    </scope>
+  </file>
+</codeintel>
