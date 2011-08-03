@@ -809,7 +809,16 @@ class _CSSParser(object):
             return False
         else:
             return True
-            
+    
+    def _parse_parenthesized_expression(self):
+        tok = self._tokenizer.get_next_token()
+        if not self._classifier.is_operator(tok, "("):
+            self._tokenizer.put_back(tok)
+            return False
+        self._parse_expression()
+        self._parse_required_operator(")")
+        return True
+
     def _parse_term(self, required=False):
         exp_num = self._parse_unary_operator()
         have_num = self._parse_number(exp_num)
@@ -827,6 +836,9 @@ class _CSSParser(object):
             return True
         elif self._parse_variable_reference():
             return True
+        elif self.language == "Less":
+            if self._parse_parenthesized_expression():
+                return True
         if required:
             tok = self._tokenizer.get_next_token()
             self._check_tag_tok(tok, 8)
