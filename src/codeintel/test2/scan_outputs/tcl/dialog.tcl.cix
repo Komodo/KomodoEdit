@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="Tcl" mtime="42" path="scan_inputs/dialog.tcl">
-    <scope ilk="blob" lang="Tcl" name="dialog" src="scan_inputs/dialog.tcl">
+  <file lang="Tcl" mtime="42" path="scan_inputs/tcl/dialog.tcl">
+    <scope ilk="blob" lang="Tcl" name="dialog" src="scan_inputs/tcl/dialog.tcl">
       <scope doc="dialog.tcl This file is part of Unifix BWidget Toolkit $Id:&#xA;dialog.tcl,v 1.15 2004/09/24 23:56:59 hobbs Exp $ ----------&#xA;------------------------------------------------------------&#xA;------ Index of commands:" ilk="namespace" line="24" lineend="53" name="Dialog" />
       <scope doc="Command Dialog::create" ilk="function" line="59" lineend="125" name="Dialog::create" signature="Dialog::create {path args}">
         <variable ilk="argument" name="path" />

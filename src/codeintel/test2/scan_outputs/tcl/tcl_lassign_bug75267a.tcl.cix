@@ -1,0 +1,9 @@
+<codeintel version="2.0">
+  <file lang="Tcl" mtime="42" path="scan_inputs/tcl/tcl_lassign_bug75267a.tcl">
+    <scope ilk="blob" lang="Tcl" name="tcl_lassign_bug75267a" src="scan_inputs/tcl/tcl_lassign_bug75267a.tcl">
+      <variable line="1" name="a" />
+      <variable line="1" name="b" />
+      <variable line="1" name="c" />
+    </scope>
+  </file>
+</codeintel>
