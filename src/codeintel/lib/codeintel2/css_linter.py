@@ -950,6 +950,9 @@ class _CSSParser(object):
         tok = self._tokenizer.get_next_token()
         if self._classifier.is_operator(tok, "@") and self.language == "Less":
             tok = self._tokenizer.get_next_token()
+            # Allow multiple '@' signs
+            while self._classifier.is_operator(tok, "@"):
+                tok = self._tokenizer.get_next_token()
             if not (self._classifier.is_attribute(tok)
                     or self._classifier.is_identifier(tok)
                     or self._classifier.is_directive(tok)):

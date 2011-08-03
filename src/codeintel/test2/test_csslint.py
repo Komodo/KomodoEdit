@@ -1050,6 +1050,21 @@ pre { .wrap }
             self._check_some_errors_on_line(code, "expecting a directive", 'base', lineNo=0, language="lang")
        
         
+
+    def test_css_less_multiple_at_signs(self):
+        code = dedent("""\
+@base: 5%;
+@filler: @base * 2;
+@other: @base + @filler;
+
+#header        { color:  @@base;
+  .logo        { width: @@@filler;
+    &:hover    { background-color: @@@@other + #111; }
+  }
+}
+""").decode("utf-8")
+        self._check_zero_results_show_error(code, language="Less")
+
     def _x_test_css_stuff(self):
         code = dedent("""\
 @import url(http://example.com/) print
