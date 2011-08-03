@@ -1067,20 +1067,13 @@ pre { .wrap }
 
     def test_css_less_tilde_escape(self):
         code = dedent("""\
-@base: 5%;
-@filler: @base * 2;
-@other: @base + @filler;
-
-#header        { color:  #888 / 4;
-  .logo        { width: 300px * 1.1;
-    &:hover    { background-color: @base-color + #111; }
-    a:visited    { height: 100% / (2 + @filler); }
-  }
+.class {
+  filter: ~"progid:DXImageTransform.Microsoft.AlphaImageLoader(src='image.png')";
 }
 """).decode("utf-8")
         self._check_zero_results_show_error(code, language="Less")
-        for lang in ("CSS", "SCSS"):
-            self._check_some_errors_on_line(code, "expecting a directive", 'base', lineNo=0, language="lang")
+        self._check_some_errors_on_line(code, "expecting a value", ' ~', lineNo=1, language="CSS")
+        self._check_some_errors_on_line(code, "expecting a value", ' ~', lineNo=1, language="SCSS")
        
     def _x_test_css_stuff(self):
         code = dedent("""\
