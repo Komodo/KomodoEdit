@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="PHP" mtime="42" path="scan_inputs/file.inc">
-    <scope ilk="blob" lang="PHP" name="file.inc" src="scan_inputs/file.inc">
+  <file lang="PHP" mtime="42" path="scan_inputs/php/file.inc">
+    <scope ilk="blob" lang="PHP" name="file.inc" src="scan_inputs/php/file.inc">
       <scope ilk="function" line="2" lineend="4" name="file_check_upload" signature="file_check_upload()">
         <variable attributes="static" line="3" name="upload_cache" />
       </scope>
