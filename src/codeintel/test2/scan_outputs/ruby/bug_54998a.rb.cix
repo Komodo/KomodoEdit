@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="Ruby" mtime="42" path="scan_inputs/bug_54998a.rb">
-    <scope ilk="blob" lang="Ruby" name="bug_54998a" src="scan_inputs/bug_54998a.rb">
+  <file lang="Ruby" mtime="42" path="scan_inputs/ruby/bug_54998a.rb">
+    <scope ilk="blob" lang="Ruby" name="bug_54998a" src="scan_inputs/ruby/bug_54998a.rb">
       <scope classrefs="Object" ilk="class" line="1" lineend="6" name="C">
         <scope attributes="__classmethod__" ilk="function" line="2" name="cls_met" signature="C.cls_met" />
         <scope attributes="__ctor__" ilk="function" line="3" lineend="4" name="initialize" signature="initialize">

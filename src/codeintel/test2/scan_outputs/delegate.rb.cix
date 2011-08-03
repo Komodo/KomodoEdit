@@ -1,7 +1,0 @@
-<codeintel version="2.0">
-  <file lang="Ruby" mtime="42" path="scan_inputs/delegate.rb">
-    <scope ilk="blob" lang="Ruby" name="delegate" src="scan_inputs/delegate.rb">
-      <scope ilk="function" line="2" lineend="4" name="foo.test" signature="foo.test" />
-    </scope>
-  </file>
-</codeintel>

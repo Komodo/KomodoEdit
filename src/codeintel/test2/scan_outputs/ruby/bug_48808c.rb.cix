@@ -1,0 +1,7 @@
+<codeintel version="2.0">
+  <file lang="Ruby" mtime="42" path="scan_inputs/ruby/bug_48808c.rb">
+    <scope ilk="blob" lang="Ruby" name="bug_48808c" src="scan_inputs/ruby/bug_48808c.rb">
+      <variable attributes="__local__" citdl="Regexp" line="2" name="floatpat" />
+    </scope>
+  </file>
+</codeintel>

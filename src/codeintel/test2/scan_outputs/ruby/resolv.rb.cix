@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="Ruby" mtime="42" path="scan_inputs/resolv.rb">
-    <scope ilk="blob" lang="Ruby" name="resolv" src="scan_inputs/resolv.rb">
+  <file lang="Ruby" mtime="42" path="scan_inputs/ruby/resolv.rb">
+    <scope ilk="blob" lang="Ruby" name="resolv" src="scan_inputs/ruby/resolv.rb">
       <import line="192" module="socket" symbol="*" />
       <import line="193" module="fcntl" symbol="*" />
       <import line="194" module="timeout" symbol="*" />
