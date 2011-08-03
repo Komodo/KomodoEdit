@@ -61,7 +61,17 @@
     <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/dialogs.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/pref/koPrefUtils.js" type="application/x-javascript;version=1.7" />
+
+    <!-- Scintilla overlay - required files. -->
+    <script src="chrome://komodo/content/library/windowManager.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/timers.js"       type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/stringutils.js"  type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/commands.js"     type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/dragdrop.js"     type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/markers.js"              type="application/x-javascript;version=1.7"/>
+
     <script src="chrome://komodo/content/pref/pref-alllangfonts.js" type="application/x-javascript;version=1.7"/>
+
     <hbox id="scintillaOverlayXul"/>
 
     <!-- This main vbox is to ensure *all* the pref widgets are accessible,
