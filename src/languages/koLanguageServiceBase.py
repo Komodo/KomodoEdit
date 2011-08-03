@@ -1117,6 +1117,7 @@ class KoLanguageBase:
         XXX to DavidA - why didn't the routine use Scintilla's levels before?
         """
         timeline.enter('guessIndentationByFoldLevels')
+        comment_styles = None
         try:
             textLength = scimoz.length
             if textLength == 0:
@@ -1138,6 +1139,15 @@ class KoLanguageBase:
                 if indentedLineNo is None:
                     indentlog.debug("reject line %d", lineNo)
                     continue
+                if comment_styles is None:
+                    # Lazily loaded.
+                    comment_styles = self.getCommentStyles()
+                indentEndPosition = scimoz.getLineIndentPosition(indentedLineNo)
+                style = scimoz.getStyleAt(indentEndPosition)
+                if style in comment_styles: # skip comments
+                    indentlog.debug("reject line %d - it's a comment", lineNo)
+                    continue
+
                 ws_info = [classifyws(scimoz.getTextRange(scimoz.positionFromLine(aLine),
                                                        scimoz.getLineIndentPosition(aLine)), tabWidth)
                         for aLine in [lineNo, indentedLineNo]]
