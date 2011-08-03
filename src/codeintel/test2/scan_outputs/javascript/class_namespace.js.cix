@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="JavaScript" mtime="42" path="scan_inputs/javascript_class_namespace.js">
-    <scope ilk="blob" lang="JavaScript" name="javascript_class_namespace.js" src="scan_inputs/javascript_class_namespace.js">
+  <file lang="JavaScript" mtime="42" path="scan_inputs/javascript/class_namespace.js">
+    <scope ilk="blob" lang="JavaScript" name="class_namespace.js" src="scan_inputs/javascript/class_namespace.js">
       <variable citdl="Object" line="2" lineend="2" name="xtk">
         <scope classrefs="Object" ilk="class" line="3" lineend="14" name="dataTreeView">
           <scope attributes="__ctor__" ilk="function" line="3" lineend="9" name="dataTreeView" signature="dataTreeView(initial_rows)">

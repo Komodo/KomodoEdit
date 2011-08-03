@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="JavaScript" mtime="42" path="scan_inputs/javascript_encoded_utf8.js">
-    <scope ilk="blob" lang="JavaScript" name="javascript_encoded_utf8.js" src="scan_inputs/javascript_encoded_utf8.js">
+  <file lang="JavaScript" mtime="42" path="scan_inputs/javascript/encoded_utf8.js">
+    <scope ilk="blob" lang="JavaScript" name="encoded_utf8.js" src="scan_inputs/javascript/encoded_utf8.js">
       <scope doc="&#1083;&#1086;&#1082;&#1072;&#1083;&#1080;&#1079;&#1072;&#1094;&#1080;&#1080;" ilk="function" line="4" lineend="4" name="russion_function" signature="russion_function()" />
       <scope doc="&#8364;" ilk="function" line="9" lineend="9" name="euro_function" signature="euro_function()" />
     </scope>

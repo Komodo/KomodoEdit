@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="JavaScript" mtime="42" path="scan_inputs/javascript_sub_objects.js">
-    <scope ilk="blob" lang="JavaScript" name="javascript_sub_objects.js" src="scan_inputs/javascript_sub_objects.js">
+  <file lang="JavaScript" mtime="42" path="scan_inputs/javascript/sub_objects.js">
+    <scope ilk="blob" lang="JavaScript" name="sub_objects.js" src="scan_inputs/javascript/sub_objects.js">
       <scope classrefs="Object" ilk="class" line="1" lineend="11" name="Base">
         <scope attributes="__ctor__" ilk="function" line="1" lineend="1" name="Base" signature="Base()">
           <variable citdl="Base" name="this" />

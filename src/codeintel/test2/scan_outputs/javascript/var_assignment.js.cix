@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="JavaScript" mtime="42" path="scan_inputs/javascript_var_assignment.js">
-    <scope ilk="blob" lang="JavaScript" name="javascript_var_assignment.js" src="scan_inputs/javascript_var_assignment.js">
+  <file lang="JavaScript" mtime="42" path="scan_inputs/javascript/var_assignment.js">
+    <scope ilk="blob" lang="JavaScript" name="var_assignment.js" src="scan_inputs/javascript/var_assignment.js">
       <scope ilk="function" line="4" lineend="26" name="test_scope" signature="test_scope()">
         <variable attributes="__local__ private" citdl="Object" line="8" lineend="8" name="m_oVisibleMenus" />
         <variable attributes="__local__ private" citdl="Boolean" line="8" name="m_bInitializedEventHandlers" />

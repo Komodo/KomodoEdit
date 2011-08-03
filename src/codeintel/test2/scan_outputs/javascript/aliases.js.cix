@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="JavaScript" mtime="42" path="scan_inputs/javascript_aliases.js">
-    <scope ilk="blob" lang="JavaScript" name="javascript_aliases.js" src="scan_inputs/javascript_aliases.js">
+  <file lang="JavaScript" mtime="42" path="scan_inputs/javascript/aliases.js">
+    <scope ilk="blob" lang="JavaScript" name="aliases.js" src="scan_inputs/javascript/aliases.js">
       <scope classrefs="Object" ilk="class" line="1" lineend="2" name="ClassName">
         <scope attributes="__ctor__" ilk="function" line="1" lineend="1" name="ClassName" signature="ClassName()">
           <variable citdl="ClassName" name="this" />

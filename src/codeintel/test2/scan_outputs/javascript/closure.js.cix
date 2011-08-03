@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="JavaScript" mtime="42" path="scan_inputs/javascript_closure.js">
-    <scope ilk="blob" lang="JavaScript" name="javascript_closure.js" src="scan_inputs/javascript_closure.js">
+  <file lang="JavaScript" mtime="42" path="scan_inputs/javascript/closure.js">
+    <scope ilk="blob" lang="JavaScript" name="closure.js" src="scan_inputs/javascript/closure.js">
       <variable citdl="Object" line="5" lineend="24" name="systemInfo">
         <variable citdl="Number" line="6" name="system" />
         <variable line="12" name="platform" />

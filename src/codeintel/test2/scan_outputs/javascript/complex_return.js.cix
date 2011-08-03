@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="JavaScript" mtime="42" path="scan_inputs/javascript_complex_return.js">
-    <scope ilk="blob" lang="JavaScript" name="javascript_complex_return.js" src="scan_inputs/javascript_complex_return.js">
+  <file lang="JavaScript" mtime="42" path="scan_inputs/javascript/complex_return.js">
+    <scope ilk="blob" lang="JavaScript" name="complex_return.js" src="scan_inputs/javascript/complex_return.js">
       <variable citdl="Object" line="2" lineend="11" name="Enumerable">
         <scope ilk="function" line="3" lineend="10" name="sortBy" returns="this.map().sort().pluck()" signature="sortBy(iterator)">
           <variable citdl="Enumerable" name="this" />

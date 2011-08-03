@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="JavaScript" mtime="42" path="scan_inputs/javascript_classes.js">
-    <scope ilk="blob" lang="JavaScript" name="javascript_classes.js" src="scan_inputs/javascript_classes.js">
+  <file lang="JavaScript" mtime="42" path="scan_inputs/javascript/classes.js">
+    <scope ilk="blob" lang="JavaScript" name="classes.js" src="scan_inputs/javascript/classes.js">
       <scope ilk="class" line="1" lineend="4" name="Mammal">
         <scope attributes="__ctor__" ilk="function" line="1" lineend="4" name="Mammal" signature="Mammal(name)">
           <variable citdl="Mammal" name="this" />

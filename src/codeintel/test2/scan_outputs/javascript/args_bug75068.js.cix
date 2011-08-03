@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="JavaScript" mtime="42" path="scan_inputs/javascript_args_bug75068.js">
-    <scope ilk="blob" lang="JavaScript" name="javascript_args_bug75068.js" src="scan_inputs/javascript_args_bug75068.js">
+  <file lang="JavaScript" mtime="42" path="scan_inputs/javascript/args_bug75068.js">
+    <scope ilk="blob" lang="JavaScript" name="args_bug75068.js" src="scan_inputs/javascript/args_bug75068.js">
       <scope ilk="function" line="4" lineend="9" name="function_args_bug75068" signature="function_args_bug75068(xyz)">
         <variable citdl="Number" ilk="argument" line="4" name="xyz" />
         <scope attributes="__local__ private" ilk="function" line="6" lineend="8" name="b" signature="b()" />

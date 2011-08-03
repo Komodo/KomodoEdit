@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="JavaScript" mtime="42" path="scan_inputs/javascript_getter_setter.js">
-    <scope ilk="blob" lang="JavaScript" name="javascript_getter_setter.js" src="scan_inputs/javascript_getter_setter.js">
+  <file lang="JavaScript" mtime="42" path="scan_inputs/javascript/getter_setter.js">
+    <scope ilk="blob" lang="JavaScript" name="getter_setter.js" src="scan_inputs/javascript/getter_setter.js">
       <scope ilk="class" line="6" lineend="8" name="jsclass">
         <scope attributes="__ctor__" ilk="function" line="6" lineend="8" name="jsclass" signature="jsclass()">
           <variable citdl="jsclass" name="this" />

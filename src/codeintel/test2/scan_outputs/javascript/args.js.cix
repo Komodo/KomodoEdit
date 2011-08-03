@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="JavaScript" mtime="42" path="scan_inputs/javascript_args.js">
-    <scope ilk="blob" lang="JavaScript" name="javascript_args.js" src="scan_inputs/javascript_args.js">
+  <file lang="JavaScript" mtime="42" path="scan_inputs/javascript/args.js">
+    <scope ilk="blob" lang="JavaScript" name="args.js" src="scan_inputs/javascript/args.js">
       <scope ilk="class" line="2" lineend="4" name="Foo">
         <scope ilk="function" line="2" lineend="4" name="onTreeKeyPress" signature="onTreeKeyPress(event)">
           <variable citdl="Foo" name="this" />

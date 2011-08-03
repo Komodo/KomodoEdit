@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="JavaScript" mtime="42" path="scan_inputs/javascript_namespace.js">
-    <scope ilk="blob" lang="JavaScript" name="javascript_namespace.js" src="scan_inputs/javascript_namespace.js">
+  <file lang="JavaScript" mtime="42" path="scan_inputs/javascript/namespace.js">
+    <scope ilk="blob" lang="JavaScript" name="namespace.js" src="scan_inputs/javascript/namespace.js">
       <variable citdl="Object" line="2" lineend="5" name="mynamespace">
         <variable citdl="String" line="6" name="foo" />
       </variable>
