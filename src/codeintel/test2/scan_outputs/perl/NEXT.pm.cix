@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="Perl" mtime="42" path="scan_inputs/NEXT.pm">
-    <scope ilk="blob" lang="Perl" name="NEXT" src="scan_inputs/NEXT.pm">
+  <file lang="Perl" mtime="42" path="scan_inputs/perl/NEXT.pm">
+    <scope ilk="blob" lang="Perl" name="NEXT" src="scan_inputs/perl/NEXT.pm">
       <scope ilk="class" line="1" lineend="83" name="NEXT">
         <import line="3" module="Carp" symbol="*" />
         <variable line="2" name="$VERSION" />

@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="Perl" mtime="42" path="scan_inputs/client1.pm">
-    <scope ilk="blob" lang="Perl" name="client1" src="scan_inputs/client1.pm">
+  <file lang="Perl" mtime="42" path="scan_inputs/perl/client1.pm">
+    <scope ilk="blob" lang="Perl" name="client1" src="scan_inputs/perl/client1.pm">
       <import line="4" module="File::Basename" symbol="*" />
       <import line="7" module="utf8" symbol="*" />
       <import line="8" module="modules::Settings" symbol="*" />

@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="Perl" mtime="42" path="scan_inputs/sub1.pl">
-    <scope ilk="blob" lang="Perl" name="sub1" src="scan_inputs/sub1.pl">
+  <file lang="Perl" mtime="42" path="scan_inputs/perl/sub1.pl">
+    <scope ilk="blob" lang="Perl" name="sub1" src="scan_inputs/perl/sub1.pl">
       <scope ilk="function" line="1" lineend="1" name="foo" signature="foo()" />
     </scope>
   </file>

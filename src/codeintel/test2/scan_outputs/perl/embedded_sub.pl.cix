@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="Perl" mtime="42" path="scan_inputs/embedded_sub.pl">
-    <scope ilk="blob" lang="Perl" name="embedded_sub" src="scan_inputs/embedded_sub.pl">
+  <file lang="Perl" mtime="42" path="scan_inputs/perl/embedded_sub.pl">
+    <scope ilk="blob" lang="Perl" name="embedded_sub" src="scan_inputs/perl/embedded_sub.pl">
       <scope ilk="function" line="3" lineend="6" name="ccc" signature="ccc()" />
       <scope ilk="function" line="1" lineend="9" name="aaa" signature="aaa()" />
       <scope ilk="function" line="10" lineend="13" name="bbb" signature="bbb()" />

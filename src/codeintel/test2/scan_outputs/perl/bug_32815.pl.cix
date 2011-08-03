@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="Perl" mtime="42" path="scan_inputs/bug_32815.pl">
-    <scope ilk="blob" lang="Perl" name="bug_32815" src="scan_inputs/bug_32815.pl">
+  <file lang="Perl" mtime="42" path="scan_inputs/perl/bug_32815.pl">
+    <scope ilk="blob" lang="Perl" name="bug_32815" src="scan_inputs/perl/bug_32815.pl">
       <scope ilk="function" line="1" lineend="21" name="CheckOnly" signature="CheckOnly($section, $line, $input)">
         <variable ilk="argument" name="$section" />
         <variable ilk="argument" name="$line" />

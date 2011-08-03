@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="Perl" mtime="42" path="scan_inputs/global_var_defined_in_sub.pl">
-    <scope ilk="blob" lang="Perl" name="global_var_defined_in_sub" src="scan_inputs/global_var_defined_in_sub.pl">
+  <file lang="Perl" mtime="42" path="scan_inputs/perl/global_var_defined_in_sub.pl">
+    <scope ilk="blob" lang="Perl" name="global_var_defined_in_sub" src="scan_inputs/perl/global_var_defined_in_sub.pl">
       <variable line="3" name="$quux" />
       <variable line="6" name="$baz" />
       <scope ilk="function" line="4" lineend="7" name="foo" signature="foo()">

@@ -1,0 +1,7 @@
+<codeintel version="2.0">
+  <file lang="Perl" mtime="42" path="scan_inputs/perl/escape_var.pl">
+    <scope ilk="blob" lang="Perl" name="escape_var" src="scan_inputs/perl/escape_var.pl">
+      <scope ilk="function" line="1" lineend="3" name="escape_var" signature="escape_var()" />
+    </scope>
+  </file>
+</codeintel>

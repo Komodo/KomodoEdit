@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="Perl" mtime="42" path="scan_inputs/bug_80856a.pl">
-    <scope ilk="blob" lang="Perl" name="bug_80856a" src="scan_inputs/bug_80856a.pl">
+  <file lang="Perl" mtime="42" path="scan_inputs/perl/bug_80856a.pl">
+    <scope ilk="blob" lang="Perl" name="bug_80856a" src="scan_inputs/perl/bug_80856a.pl">
       <import line="2" module="Digest::MD5" symbol="*" />
       <import line="9" module="LWP::UserAgent" symbol="*" />
       <import line="16" module="SOAP::Lite" symbol="*" />

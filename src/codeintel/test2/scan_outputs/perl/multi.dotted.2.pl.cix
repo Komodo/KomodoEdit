@@ -1,0 +1,7 @@
+<codeintel version="2.0">
+  <file lang="Perl" mtime="42" path="scan_inputs/perl/multi.dotted.2.pl">
+    <scope ilk="blob" lang="Perl" name="multi.dotted.2" src="scan_inputs/perl/multi.dotted.2.pl">
+      <variable attributes="__local__" line="2" name="$multi2" />
+    </scope>
+  </file>
+</codeintel>

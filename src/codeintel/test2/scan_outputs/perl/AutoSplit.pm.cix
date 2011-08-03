@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="Perl" mtime="42" path="scan_inputs/AutoSplit.pm">
-    <scope ilk="blob" lang="Perl" name="AutoSplit" src="scan_inputs/AutoSplit.pm">
+  <file lang="Perl" mtime="42" path="scan_inputs/perl/AutoSplit.pm">
+    <scope ilk="blob" lang="Perl" name="AutoSplit" src="scan_inputs/perl/AutoSplit.pm">
       <scope classrefs="Exporter" ilk="class" line="1" lineend="484" name="AutoSplit">
         <import line="4" module="Exporter" />
         <import line="5" module="Config" symbol="%Config" />
