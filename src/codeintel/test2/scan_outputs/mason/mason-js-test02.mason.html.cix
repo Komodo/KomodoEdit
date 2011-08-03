@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="Mason" mtime="42" path="scan_inputs/mason-js-test02.mason.html">
-    <scope ilk="blob" lang="JavaScript" name="mason-js-test02.mason.html" src="scan_inputs/mason-js-test02.mason.html">
+  <file lang="Mason" mtime="42" path="scan_inputs/mason/mason-js-test02.mason.html">
+    <scope ilk="blob" lang="JavaScript" name="mason-js-test02.mason.html" src="scan_inputs/mason/mason-js-test02.mason.html">
       <variable citdl="Number" line="11" name="a" />
       <variable citdl="$ab.cd" line="12" name="b" />
       <scope ilk="function" line="13" lineend="15" name="myfunc" signature="myfunc(x1, p2)">
@@ -8,7 +8,7 @@
         <variable ilk="argument" line="13" name="x1" />
       </scope>
     </scope>
-    <scope ilk="blob" lang="Perl" name="mason-js-test02.mason.html" src="scan_inputs/mason-js-test02.mason.html">
+    <scope ilk="blob" lang="Perl" name="mason-js-test02.mason.html" src="scan_inputs/mason/mason-js-test02.mason.html">
       <scope ilk="function" line="20" lineend="21" name="a" signature="a()" />
       <scope ilk="function" line="22" lineend="23" name="b" signature="b()" />
       <scope ilk="function" line="24" lineend="25" name="ab" signature="ab()" />

@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="Mason" mtime="42" path="scan_inputs/mason-test04-noperl-js.mason.html">
-    <scope ilk="blob" lang="JavaScript" name="mason-test04-noperl-js.mason.html" src="scan_inputs/mason-test04-noperl-js.mason.html">
+  <file lang="Mason" mtime="42" path="scan_inputs/mason/mason-test04-noperl-js.mason.html">
+    <scope ilk="blob" lang="JavaScript" name="mason-test04-noperl-js.mason.html" src="scan_inputs/mason/mason-test04-noperl-js.mason.html">
       <variable citdl="Number" line="3" name="a" />
       <scope ilk="function" line="4" lineend="6" name="b" signature="b(f)">
         <variable ilk="argument" line="4" name="f" />
