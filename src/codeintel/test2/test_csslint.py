@@ -992,7 +992,21 @@ li {
   .rounded-corners(10px);
 }
 """).decode("utf-8")
-        results = self.csslinter.lint(code, language="Less")
+        self._check_zero_results_show_error(code, language="Less")
+
+    def test_css_less_mixins_02(self):
+        # No semi-colon needed after the mixin insertion
+        code = dedent("""\ 
+.wrap () {
+  text-wrap: wrap;
+  white-space: pre-wrap;
+  white-space: -moz-pre-wrap;
+  word-wrap: break-word;
+}
+
+pre { .wrap }
+
+""").decode("utf-8")
         self._check_zero_results_show_error(code, language="Less")
 
     def _x_test_css_stuff(self):

@@ -392,9 +392,14 @@ class _CSSParser(object):
                     self._tokenizer.put_back(tok)
                     return False
                 elif tok.text == '}':
-                    continue # assume we recovered to the end of a "}"
+                    if could_have_mixin and self._less_mixins.has_key(current_name):
+                        self._inserted_mixin = True
+                        self._tokenizer.put_back(tok)
+                        return False
+                    # assume we recovered to the end of a "}"
                     could_have_mixin = False
                     num_selected_names = 0
+                    continue 
                 else:
                     break
             else:
@@ -721,9 +726,15 @@ class _CSSParser(object):
         tok = self._tokenizer.get_next_token()
         if self._classifier.is_operator(tok, "{"):
             return self._parse_declarations(tok)
-        elif self._classifier.is_operator(tok, ";") and self._inserted_mixin:
-            # Nothing left to do
-            return
+        if self._inserted_mixin:
+            # Nothing left to do.
+            # ; is optional before '}'
+            if self._classifier.is_operator(tok, ";"):
+                return
+            elif self._classifier.is_operator(tok, "}"):
+                self._tokenizer.put_back(tok)
+                return
+            
         if self._saw_selector:
             self._add_result("expecting '{'", tok)
         if self._classifier.is_operator(tok, ":"):
