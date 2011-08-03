@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="Python" mtime="42" path="scan_inputs/superfancy_default_args.py">
-    <scope ilk="blob" lang="Python" name="superfancy_default_args" src="scan_inputs/superfancy_default_args.py">
+  <file lang="Python" mtime="42" path="scan_inputs/python/superfancy_default_args.py">
+    <scope ilk="blob" lang="Python" name="superfancy_default_args" src="scan_inputs/python/superfancy_default_args.py">
       <scope ilk="function" line="4" lineend="6" name="Bastion" signature="Bastion(object, filter=lambda name:..., name=None, bastionclass=BastionClass)">
         <variable ilk="argument" name="object" />
         <variable ilk="argument" name="filter" />

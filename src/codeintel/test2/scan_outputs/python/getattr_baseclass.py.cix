@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="Python" mtime="42" path="scan_inputs/getattr_baseclass.py">
-    <scope ilk="blob" lang="Python" name="getattr_baseclass" src="scan_inputs/getattr_baseclass.py">
+  <file lang="Python" mtime="42" path="scan_inputs/python/getattr_baseclass.py">
+    <scope ilk="blob" lang="Python" name="getattr_baseclass" src="scan_inputs/python/getattr_baseclass.py">
       <import line="4" module="Queue" />
       <scope classrefs="Queue.Queue" ilk="class" line="6" lineend="7" name="MyQueue" />
     </scope>

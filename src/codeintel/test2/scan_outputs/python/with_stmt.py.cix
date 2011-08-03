@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="Python" mtime="42" path="scan_inputs/with_stmt.py">
-    <scope ilk="blob" lang="Python" name="with_stmt" src="scan_inputs/with_stmt.py">
+  <file lang="Python" mtime="42" path="scan_inputs/python/with_stmt.py">
+    <scope ilk="blob" lang="Python" name="with_stmt" src="scan_inputs/python/with_stmt.py">
       <import line="1" module="__future__" symbol="with_statement" />
       <import line="2" module="threading" />
       <scope ilk="function" line="4" lineend="8" name="do_something" signature="do_something()" />

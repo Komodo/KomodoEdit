@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="Python" mtime="42" path="scan_inputs/properties.py">
-    <scope ilk="blob" lang="Python" name="properties" src="scan_inputs/properties.py">
+  <file lang="Python" mtime="42" path="scan_inputs/python/properties.py">
+    <scope ilk="blob" lang="Python" name="properties" src="scan_inputs/python/properties.py">
       <scope classrefs="object" ilk="class" line="1" lineend="13" name="C">
         <variable attributes="property" citdl="self._x" line="3" name="x" />
         <scope attributes="__hidden__" ilk="function" line="3" lineend="5" name="x (property getter)" returns="self._x" signature="x (property getter)()">

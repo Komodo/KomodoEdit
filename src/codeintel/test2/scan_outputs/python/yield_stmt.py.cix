@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="Python" mtime="42" path="scan_inputs/yield_stmt.py">
-    <scope ilk="blob" lang="Python" name="yield_stmt" src="scan_inputs/yield_stmt.py">
+  <file lang="Python" mtime="42" path="scan_inputs/python/yield_stmt.py">
+    <scope ilk="blob" lang="Python" name="yield_stmt" src="scan_inputs/python/yield_stmt.py">
       <scope ilk="function" line="2" lineend="4" name="foo" signature="foo()" />
       <scope ilk="function" line="6" lineend="8" name="bar" signature="bar()" />
     </scope>

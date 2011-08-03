@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="Python" mtime="42" path="scan_inputs/multiple_inheritance.py">
-    <scope ilk="blob" lang="Python" name="multiple_inheritance" src="scan_inputs/multiple_inheritance.py">
+  <file lang="Python" mtime="42" path="scan_inputs/python/multiple_inheritance.py">
+    <scope ilk="blob" lang="Python" name="multiple_inheritance" src="scan_inputs/python/multiple_inheritance.py">
       <scope ilk="class" line="1" name="Alice">
         <scope attributes="__ctor__" doc="give me an A" ilk="function" line="2" name="__init__" signature="Alice(a)">
           <variable citdl="Alice" ilk="argument" name="self" />

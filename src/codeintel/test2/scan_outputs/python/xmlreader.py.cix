@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="Python" mtime="42" path="scan_inputs/xmlreader.py">
-    <scope doc="An XML Reader is the SAX 2 name for an XML parser." ilk="blob" lang="Python" name="xmlreader" src="scan_inputs/xmlreader.py">
+  <file lang="Python" mtime="42" path="scan_inputs/python/xmlreader.py">
+    <scope doc="An XML Reader is the SAX 2 name for an XML parser." ilk="blob" lang="Python" name="xmlreader" src="scan_inputs/python/xmlreader.py">
       <import line="4" module="handler" />
       <import line="6" module="_exceptions" symbol="SAXNotSupportedException" />
       <import line="6" module="_exceptions" symbol="SAXNotRecognizedException" />

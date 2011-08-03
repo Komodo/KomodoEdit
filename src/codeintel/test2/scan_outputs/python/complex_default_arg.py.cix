@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="Python" mtime="42" path="scan_inputs/complex_default_arg.py">
-    <scope ilk="blob" lang="Python" name="complex_default_arg" src="scan_inputs/complex_default_arg.py">
+  <file lang="Python" mtime="42" path="scan_inputs/python/complex_default_arg.py">
+    <scope ilk="blob" lang="Python" name="complex_default_arg" src="scan_inputs/python/complex_default_arg.py">
       <import line="1" module="datetime" />
       <scope ilk="function" line="2" lineend="5" name="getTimeDifference" signature="getTimeDifference(now, then, markup=True, closeLimit=datetime.timedelta(days=3), farAwayLimit=datetime.timedelta(days=7))">
         <variable ilk="argument" name="now" />

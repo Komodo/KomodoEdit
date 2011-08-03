@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="Python" mtime="42" path="scan_inputs/bug_86727.py">
-    <scope ilk="blob" lang="Python" name="bug_86727" src="scan_inputs/bug_86727.py">
+  <file lang="Python" mtime="42" path="scan_inputs/python/bug_86727.py">
+    <scope ilk="blob" lang="Python" name="bug_86727" src="scan_inputs/python/bug_86727.py">
       <scope ilk="function" line="1" lineend="2" name="fun" returns="int" signature="fun(value)">
         <variable ilk="argument" name="value" />
       </scope>

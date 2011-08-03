@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="Python" mtime="42" path="scan_inputs/broken_on_curr_line.py">
-    <scope ilk="blob" lang="Python" name="broken_on_curr_line" src="scan_inputs/broken_on_curr_line.py">
+  <file lang="Python" mtime="42" path="scan_inputs/python/broken_on_curr_line.py">
+    <scope ilk="blob" lang="Python" name="broken_on_curr_line" src="scan_inputs/python/broken_on_curr_line.py">
       <import line="3" module="os" />
       <scope classrefs="Mammal" ilk="class" line="5" lineend="8" name="Person">
         <scope attributes="__ctor__" ilk="function" line="6" lineend="8" name="__init__" signature="Person(name)">

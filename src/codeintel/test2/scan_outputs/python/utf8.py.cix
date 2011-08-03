@@ -1,0 +1,7 @@
+<codeintel version="2.0">
+  <file lang="Python" mtime="42" path="scan_inputs/python/utf8.py">
+    <scope ilk="blob" lang="Python" name="utf8" src="scan_inputs/python/utf8.py">
+      <variable citdl="unicode" line="2" name="x" />
+    </scope>
+  </file>
+</codeintel>

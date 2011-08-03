@@ -1,0 +1,7 @@
+<codeintel version="2.0">
+  <file lang="Python" mtime="42" path="scan_inputs/python/koi8r.py">
+    <scope ilk="blob" lang="Python" name="koi8r" src="scan_inputs/python/koi8r.py">
+      <variable citdl="unicode" line="2" name="x" />
+    </scope>
+  </file>
+</codeintel>
