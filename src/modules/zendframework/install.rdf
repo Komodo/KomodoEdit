@@ -8,6 +8,7 @@
         <em:description></em:description>
         <em:creator>Jeff Griffiths</em:creator>
         <em:homepageURL>http://community.activestate.com/addons/zendframework/</em:homepageURL>
+        <em:iconURL>chrome://zendframework/skin/zendframework_32x32.png</em:iconURL>
         <em:type>2</em:type> <!-- type=extension --> 
 
         <em:targetApplication>
