@@ -47,6 +47,7 @@
 		<em:description>XUL Unit Test Framework</em:description>
 		<em:creator>Shane Caraveo</em:creator>
 		<em:homepageURL>http://komodo.activestate.com/addons/casper/</em:homepageURL>
+	        <em:iconURL>chrome://casper/skin/casper_32x32.png</em:iconURL>
 		<em:type>2</em:type> <!-- type=extension --> 
 
 		<em:targetApplication>

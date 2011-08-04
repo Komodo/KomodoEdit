@@ -53,5 +53,6 @@ Import(
 
 if ($buildFlavour ne "full") { # don't want this in installer builds
 $cons->InstallAs("$mozExtensionDir/casper\@ActiveState.com/chrome/skin/casper.css", 'casper.css');
+$cons->InstallAs("$mozExtensionDir/casper\@ActiveState.com/chrome/skin/casper_32x32.png", 'casper_32x32.png');
 }
 
