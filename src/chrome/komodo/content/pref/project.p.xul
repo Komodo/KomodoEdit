@@ -328,7 +328,14 @@
                                   helptag="language_configuration_preferences"/>
                     </treerow>
                     <treechildren id="languagesChildren">
-                        <!-- JS has no project/document-specific prefs -->
+                        <treeitem container="false" id="javascriptItem">
+                            <treerow>
+                                <treecell class="treecell-indent"
+                                          url="chrome://komodo/content/pref/pref-javascript.xul"
+                                          label="&javaScript.label;"
+                                          helptag="javascript_configuration"/>
+                            </treerow>
+                        </treeitem>
                         <treeitem container="false" id="nodejsItem">
                             <treerow>
                                 <treecell class="treecell-indent"
