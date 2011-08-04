@@ -45,6 +45,7 @@
         <em:description>A better project system</em:description>
         <em:creator>Eric Promislow</em:creator>
         <em:homepageURL>http://komodo.activestate.com/addons/places/</em:homepageURL>
+        <em:iconURL>chrome://places/skin/house_32x32.png</em:iconURL>
         <em:type>2</em:type> <!-- type=extension --> 
 
         <em:targetApplication>
