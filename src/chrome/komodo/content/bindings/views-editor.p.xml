@@ -46,6 +46,8 @@
 <binding id="view-editor"
     extends="chrome://komodo/content/bindings/views-buffer.xml#view-buffer-base">
     <content orient="vertical">
+        <xul:hbox anonid="view-toolbar" class="view-toolbar">
+        </xul:hbox>
         <xul:scintilla xbl:inherits="flex,focused,context,mozcontext" flex="1"
                        anonid="scintilla"
                        allowIME="true"
@@ -53,6 +55,8 @@
         <xul:ko-findbar anonid="findbar"/>
     </content>
     <implementation name="vieweditor" implements="koIScintillaView, koIBookmarkableView, ISciMozEvents, nsIObserver">
+
+        <property name="toolbar" onget="return window.document.getAnonymousElementByAttribute(this, 'anonid', 'view-toolbar');"/>
 
         <property name="cwd">
              <getter><![CDATA[

@@ -76,3 +76,9 @@ menupopup[type='buffercontext']  {
   -moz-binding: url('chrome://komodo/content/bindings/views-buffer.xml#popup-buffer');
 }
 
+.view-toolbar {
+  border: 0;
+  border-bottom: 1px inset;
+  padding-bottom: 2px;
+  margin-bottom: 2px;
+}
