@@ -216,6 +216,10 @@ treechildren::-moz-tree-image(LanguageJavaScript) {
 treechildren::-moz-tree-image(LanguageJSON) {
   list-style-image: url("chrome://fugue/skin/icons/json.png");
 }
+.languageicon[language="Less"],
+treechildren::-moz-tree-image(LanguageLess) {
+  list-style-image: url("chrome://komodo/skin/images/languages/css/less_16x16.png");
+}
 .languageicon[language="MXML"],
 treechildren::-moz-tree-image(LanguageMXML) {
   list-style-image: url("chrome://komodo/skin/images/languages/flex/mxml_16x16.png");
@@ -247,6 +251,10 @@ treechildren::-moz-tree-image(LanguageRHTML) {
 .languageicon[language="Ruby"],
 treechildren::-moz-tree-image(LanguageRuby) {
   list-style-image: url("chrome://komodo/skin/images/languages/ruby/ruby_16x16.png");
+}
+.languageicon[language="SCSS"],
+treechildren::-moz-tree-image(LanguageSCSS) {
+  list-style-image: url("chrome://komodo/skin/images/languages/css/sass_16x16.png");
 }
 .languageicon[language="Tcl"],
 treechildren::-moz-tree-image(LanguageTcl) {
