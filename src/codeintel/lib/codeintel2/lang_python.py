@@ -332,6 +332,8 @@ class PythonLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
     # Used by ProgLangTriggerIntelMixin.preceding_trg_from_pos().
     trg_chars = tuple(" (.")
     
+    citdl_from_literal_type = {"string": "str"}
+
     def async_eval_at_trg(self, buf, trg, ctlr):
         if _xpcom_:
             trg = UnwrapObject(trg)
