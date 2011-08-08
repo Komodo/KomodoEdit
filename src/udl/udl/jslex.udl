@@ -62,3 +62,49 @@ abstract debugger enum goto implements interface native protected short synchron
 # row 6 - "future reserved"
 
 include "ecmascript_262.udl"
+
+# This is a stripped down variant of everything else to get
+# JS code-completion inside HTML onXXX="" strings.
+
+state IN_CSL_STAG_ATTR_DEFAULT_DOUBLEQUOTE:
+delimiter: paint(upto, CSL_DEFAULT), paint(include, M_STRING) => IN_M_STAG_POST_TAGNAME
+'/*' : paint(upto, CSL_DEFAULT) =>  IN_CSL_STAG_ATTR_COMMENT_DOUBLEQUOTE
+'\'' : paint(upto, CSL_DEFAULT), => IN_CSL_STAG_ATTR_SSTRING
+/\/\*.*?\*\//: paint(upto, CSL_DEFAULT), paint(include, CSL_COMMENT)
+/[$WS]+/  : #stay
+/0[Xx][0-9a-fA-F]+/ : paint(upto, CSL_DEFAULT), paint(include, CSL_NUMBER)
+/[-+]?[0-9]/ : paint(upto, CSL_DEFAULT), => IN_CSL_NUMBER_1
+/\.\d/ : paint(upto, CSL_DEFAULT), => IN_CSL_NUMBER_2
+/[-+]\./ : paint(upto, CSL_DEFAULT), => IN_CSL_NUMBER_2
+/[$NMSTART][$CS]*/ : paint(upto, CSL_DEFAULT), paint(include, CSL_IDENTIFIER)
+/[$OP]/: paint(upto, CSL_DEFAULT), paint(include, CSL_OPERATOR)
+
+state IN_CSL_STAG_ATTR_COMMENT_DOUBLEQUOTE:
+'*/' : paint(include, CSL_COMMENT), => IN_CSL_STAG_ATTR_DEFAULT_DOUBLEQUOTE
+
+# Paint to the end of the string, return back to the double quote attr state.
+state IN_CSL_STAG_ATTR_SSTRING:
+'\'' : paint(include, CSL_STRING), => IN_CSL_STAG_ATTR_DEFAULT_DOUBLEQUOTE
+
+
+# Same oxXXX handling again, but attribute is using single quotes this time.
+
+state IN_CSL_STAG_ATTR_DEFAULT_SINGLEQUOTE:
+delimiter: paint(upto, CSL_DEFAULT), paint(include, M_STRING) => IN_M_STAG_POST_TAGNAME
+'/*' : paint(upto, CSL_DEFAULT) =>  IN_CSL_STAG_ATTR_COMMENT_SINGLEQUOTE
+'"' : paint(upto, CSL_DEFAULT), => IN_CSL_STAG_ATTR_DSTRING
+/\/\*.*?\*\//: paint(upto, CSL_DEFAULT), paint(include, CSL_COMMENT)
+/[$WS]+/  : #stay
+/0[Xx][0-9a-fA-F]+/ : paint(upto, CSL_DEFAULT), paint(include, CSL_NUMBER)
+/[-+]?[0-9]/ : paint(upto, CSL_DEFAULT), => IN_CSL_NUMBER_1
+/\.\d/ : paint(upto, CSL_DEFAULT), => IN_CSL_NUMBER_2
+/[-+]\./ : paint(upto, CSL_DEFAULT), => IN_CSL_NUMBER_2
+/[$NMSTART][$CS]*/ : paint(upto, CSL_DEFAULT), paint(include, CSL_IDENTIFIER)
+/[$OP]/: paint(upto, CSL_DEFAULT), paint(include, CSL_OPERATOR)
+
+state IN_CSL_STAG_ATTR_COMMENT_SINGLEQUOTE:
+'*/' : paint(include, CSL_COMMENT), => IN_CSL_STAG_ATTR_DEFAULT_SINGLEQUOTE
+
+# Paint to the end of the string, return back to the single quote attr state.
+state IN_CSL_STAG_ATTR_DSTRING:
+'"' : paint(include, CSL_STRING), => IN_CSL_STAG_ATTR_DEFAULT_SINGLEQUOTE

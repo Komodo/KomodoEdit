@@ -87,4 +87,20 @@ state IN_H2CSL_STAG_ATTR_USTRING:
 # Assume a < means we're out of sync, bail
 '<'    : paint(upto, M_STRING), redo => IN_M_DEFAULT
 
-# 
+
+# Allow for style attributes, for any "onXXX" attributes.
+
+state IN_M_STAG_POST_TAGNAME:
+/\bon([a-zA-Z]+)\b/i: paint(upto, M_TAGSPACE), paint(include, M_ATTRNAME) => IN_H2CSL_ON_ATTR_1
+
+state IN_H2CSL_ON_ATTR_1:
+'=' : paint(upto, M_TAGSPACE), paint(include, M_OPERATOR) => IN_H2CSL_STYLE_ATTR_2
+# bail
+/[^$WS]/ : paint(upto, M_TAGSPACE), redo => IN_M_STAG_POST_TAGNAME
+
+state IN_H2CSL_STYLE_ATTR_2:
+/[$WS]+/ : #stay
+/(")/ : set_delimiter(1), paint(upto, M_TAGSPACE), paint(include, M_STRING), => IN_CSL_STAG_ATTR_DEFAULT_DOUBLEQUOTE
+/(')/ : set_delimiter(1), paint(upto, M_TAGSPACE), paint(include, M_STRING), => IN_CSL_STAG_ATTR_DEFAULT_SINGLEQUOTE
+# bail, but allow for other handling of attribute values
+/./ : paint(upto, M_TAGSPACE), redo, => IN_M_STAG_POST_ATTRNAME_2

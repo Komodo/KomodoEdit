@@ -210,6 +210,40 @@ class HTMLTestCase(_TheBasicsTestCase):
                                        "foo(a, b, c)", (7,8))
         self.assertCurrCalltipArgRange("<style> body { color:<+><|> </style>",
                                        "blah blah", (0,0))
+    def test_script_onx_attrs_dquotes(self):
+        script = """
+        <html>
+            <head></head>
+            <body onload="parseInt(); var x = ''; x.foo;">
+            </body>
+        </html>
+        """
+        self.assertCompletionsInclude(script.replace("parseInt", "par<|>seInt"),
+            [("function", "parseFloat"),
+             ("function", "parseInt"),])
+        self.assertCompletionsInclude(script.replace("x = ''", "''.<|>"),
+            [("variable", "length"),
+             ("function", "toLowerCase"),])
+        self.assertCompletionsInclude(script.replace("x.foo", "x.<|>foo"),
+            [("variable", "length"),
+             ("function", "toLowerCase"),])
+    def test_script_onx_attrs_squotes(self):
+        script = """
+        <html>
+            <head></head>
+            <body onload='parseInt(); var x = ""; x.foo;'>
+            </body>
+        </html>
+        """
+        self.assertCompletionsInclude(script.replace('parseInt', 'par<|>seInt'),
+            [('function', 'parseFloat'),
+             ('function', 'parseInt'),])
+        self.assertCompletionsInclude(script.replace('x = ""', '"".<|>'),
+            [('variable', 'length'),
+             ('function', 'toLowerCase'),])
+        self.assertCompletionsInclude(script.replace('x.foo', 'x.<|>foo'),
+            [('variable', 'length'),
+             ('function', 'toLowerCase'),])
 
 class PHPTestCase(HTMLTestCase):
     lang = "PHP"
