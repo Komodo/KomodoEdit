@@ -54,7 +54,7 @@
             <children />
         </content>
 
-        <implementation>
+        <implementation implements="nsIDOMEventListener">
             <constructor>
                 <![CDATA[
                 window.addEventListener("resize", this, false);
