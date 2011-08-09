@@ -140,6 +140,7 @@
     <script src="chrome://komodo/content/browse.js"                       type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/launch.js"                       type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/views.js"                        type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/viewtoolbar/encoding.js"         type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/statusbar.js"                    type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/editor.js"                       type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/markers.js"                      type="application/x-javascript;version=1.7"/>
@@ -2120,20 +2121,6 @@
                               observes="cmd_lintClearResults"
                               />
                 </menupopup>
-            </toolbarbutton>
-        </statusbarpanel>
-        <statusbarpanel id="statusbar-encoding"
-                        tooltiptext="&fileEncoding.tooltiptext;"
-                        style="min-width: 6em;">
-            <toolbarbutton class="statusbar-label"
-                  id="statusbar-encoding-label"
-                  flex="1"
-                  orient="horizontal"
-                  type="menu"
-                  persist="buttonstyle"
-                  buttonstyle="text">
-                <menupopup id="statusbar-encoding-menupopup"
-                           onpopupshowing="ko.statusBar.setupEncodingMenu(this);" />
             </toolbarbutton>
         </statusbarpanel>
 
