@@ -72,6 +72,8 @@ interface koILanguage : nsISupports {
     readonly attribute boolean foldable;
     readonly attribute wstring supportsSmartIndent; // 'text', 'brace', 'python', 'XML'
     
+    attribute boolean primary;
+
     // these are lexer dependent style numbers. these are used from the terminal
     readonly attribute long styleStdin;
     readonly attribute long styleStdout;
