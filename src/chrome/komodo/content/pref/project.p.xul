@@ -204,8 +204,7 @@
     }
 
     function getHelpTag() {
-        var selectedRow = hPrefWindow.helper.getSelectedRow();
-        return selectedRow.firstChild.getAttribute("helptag");
+        return hPrefWindow.helper.getSelectedCellValue("helptag");
     }
     
     function canHelp() {
