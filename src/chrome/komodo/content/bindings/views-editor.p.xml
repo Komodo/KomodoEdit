@@ -46,8 +46,9 @@
 <binding id="view-editor"
     extends="chrome://komodo/content/bindings/views-buffer.xml#view-buffer-base">
     <content orient="vertical">
-        <xul:hbox anonid="view-toolbar" class="view-toolbar">
-        </xul:hbox>
+        <xul:scrollbox anonid="view-toolbar" class="view-toolbar">
+            <xul:sectionlist anonid="sectionlist" width="150" />
+        </xul:scrollbox>
         <xul:scintilla xbl:inherits="flex,focused,context,mozcontext" flex="1"
                        anonid="scintilla"
                        allowIME="true"
