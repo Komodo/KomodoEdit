@@ -47,7 +47,15 @@
     extends="chrome://komodo/content/bindings/views-buffer.xml#view-buffer-base">
     <content orient="vertical">
         <xul:scrollbox anonid="view-toolbar" class="view-toolbar">
-            <xul:sectionlist anonid="sectionlist" width="150" />
+            <xul:spacer anonid="view-toolbar-spacer"
+                        flex="1" />
+            <xul:toolbarbutton anonid="encoding-toolbarbutton"
+                               orient="horizontal"
+                               type="menu">
+                <xul:menupopup anonid="encoding-menupopup"
+                               class="encoding-menupopup"
+                               onpopupshowing="ko.viewtoolbar.encoding.initializeMenu(document.getBindingParent(this), this);" />
+            </xul:toolbarbutton>
         </xul:scrollbox>
         <xul:scintilla xbl:inherits="flex,focused,context,mozcontext" flex="1"
                        anonid="scintilla"
