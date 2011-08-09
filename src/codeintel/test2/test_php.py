@@ -2659,6 +2659,18 @@ EOD;
         self.assertCalltipIs(markup_text(content, pos=positions[2]),
                              "Foo(mixed $arg1)\nConstructor\n@param mixed $arg1")
 
+    @tag("bug90846")
+    def test_class_chained_completion(self):
+        content = php_markup(dedent(r"""
+            class Test {
+                /* @return Test */
+                function callMe($arg) {
+                    $this->callMe()->cal<|>
+                }
+            }
+        """))
+        self.assertNoTrigger(markup_text(content))
+
 
 class IncludeEverythingTestCase(CodeIntelTestCase):
     lang = "PHP"
