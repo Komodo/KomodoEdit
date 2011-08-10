@@ -534,7 +534,6 @@ this.loadPrefsFullText = function() {
     this.urlManager = new URLManager();
     this.fullTextManager = new FullTextManager();
     this.fullTextManager.loadStopWords();
-    var parser = new DOMParser();
     
     var DocLoader = function() {
         this.urlIndex = 0;
