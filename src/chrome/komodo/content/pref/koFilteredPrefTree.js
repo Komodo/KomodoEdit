@@ -589,8 +589,9 @@ this.loadPrefsFullText = function() {
         }
     };
     DocLoader.prototype.getWordPrefixes = function(s) {
-        return s.replace(/([a-zA-Z])[^a-zA-Z_\-\'\s]+/g, "$1").
-                 replace(/[^a-zA-Z\'\-\_]+/g, " ").
+        // Handles latin1 characters only
+        return s.replace(/([a-zA-Z\xa0-\xff])[^a-zA-Z\xa0-\xff_\-\'\s]+/g, "$1").
+                 replace(/[^a-zA-Z\xa0-\xff\'\-\_]+/g, " ").
                  split(/\s+/);
     };
     DocLoader.prototype.internWords = function(url, words, owner) {
