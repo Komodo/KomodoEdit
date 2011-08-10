@@ -180,12 +180,13 @@
                     this.lintBuffer.request("reset the view's document");
                     this._everLinted = true;
                 }
+                let language = val.language;
                 this.isCICplnEnabled = (ko.codeintel.isActive
-                    && ko.codeintel.is_cpln_lang(val.language));
+                    && ko.codeintel.is_cpln_lang(language));
                 this.isCICitadelStuffEnabled = (ko.codeintel.isActive
-                    && ko.codeintel.is_citadel_lang(val.language));
+                    && ko.codeintel.is_citadel_lang(language));
                 this.isCIXMLStuffEnabled = (ko.codeintel.isActive
-                    && ko.codeintel.is_xml_lang(val.language));
+                    && ko.codeintel.is_xml_lang(language));
                 
                 xtk.domutils.fireEvent(this, 'view_document_attached');
             }
@@ -441,8 +442,9 @@
                 if (!this.isCurrent) {
                     return;
                 }
-                this.log.info("Changed language to:" + doc.language);
-                this.scintilla.language = doc.language;
+                let language = doc.language;
+                this.log.info("Changed language to:" + language);
+                this.scintilla.language = language;
                 // bug 34689, bug 81587: force syntax highlighting to re-lex,
                 // otherwise the syntax colouring is not correctly updated.
                 this._clearFoldLevels(this.scimoz);
@@ -452,11 +454,11 @@
                 this.commandCompletionSvc = null;
                 this._languageObj = null;
                 this.isCICplnEnabled = (ko.codeintel.isActive
-                    && ko.codeintel.is_cpln_lang(doc.language));
+                    && ko.codeintel.is_cpln_lang(language));
                 this.isCICitadelStuffEnabled = (ko.codeintel.isActive
-                    && ko.codeintel.is_citadel_lang(doc.language));
+                    && ko.codeintel.is_citadel_lang(language));
                 this.isCIXMLStuffEnabled = (ko.codeintel.isActive
-                    && ko.codeintel.is_xml_lang(doc.language));
+                    && ko.codeintel.is_xml_lang(language));
                 if (this == ko.views.manager.currentView) {
                     if (this.lintBuffer && this.koDoc.getEffectivePrefs().getBooleanPref("editUseLinting")) {
                         //XXX What if the language of a view other than the
