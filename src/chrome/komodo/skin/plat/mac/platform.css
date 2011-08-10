@@ -259,7 +259,7 @@ textbox.search-box-open-icon {
   -moz-border-right-colors: #7F7F7F #EEE -moz-Field;
   -moz-border-left-colors: #7F7F7F #EFEFEF -moz-Field;
   -moz-border-radius: 11px;
-  -moz-background-clip: border !important;
+  background-clip: border-box !important;
   padding: 0 2px 0 8px;
 }
 textbox[focused="true"].search-box {
@@ -284,12 +284,16 @@ textbox.search-box-open-icon {
 textbox[type="autocomplete"].search-box {
 }
 
+#find-toolbar-browsedirectory {
+  background-image: none;
+}
 
 /**
  * File status icons for the editor tabs.
  */
 .file-status-icons {
   padding-right: 0; /* remove 2px padding set in komodo.css */
+  /*margin-bottom: -4px;*/
   margin-left: -4px; /* move icons closer to the left side of the tab */
 }
 .file-readonly-icon[file_readonly="readonly"] {
