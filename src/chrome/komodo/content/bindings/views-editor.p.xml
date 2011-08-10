@@ -244,22 +244,6 @@
             this.selectMostRecentBufferOnBufferClose =
                 docPrefsThisTime.getBooleanPref('select_most_recent_buffer_on_buffer_close');
             
-            var this_ = this;
-            this._on_codeintel_activated_window = function(event) {
-                this_.isCICplnEnabled =
-                    ko.codeintel.is_cpln_lang(this_.koDoc.language);
-                this_.isCICitadelStuffEnabled =
-                    ko.codeintel.is_citadel_lang(this_.koDoc.language);
-                this_.isCIXMLStuffEnabled =
-                    ko.codeintel.is_xml_lang(this_.koDoc.language);
-            }
-            window.addEventListener('codeintel_activated_window',
-                this._on_codeintel_activated_window, false);
-            this._on_codeintel_deactivated_window = function(event) {
-                this_.isCICplnEnabled = false;
-                this_.isCICitadelStuffEnabled = false;
-                this_.isCIXMLStuffEnabled = false;
-            }
             this._currentFamily = "";
             this._highlightColors = null;
             this._listeningLineCol = false;
@@ -279,6 +263,7 @@
                     this._familyAtPosition[style] = part[0];
                 }
             }
+            var this_ = this;
             this.handle_current_view_linecol_changed = function(event) {
                 // TODO: We shouldn't need to use this updateCurrentLineColor
                 //       hack, we should be using Scintilla caretLineBackAlpha
@@ -293,8 +278,6 @@
                                                 this.handle_current_view_linecol_changed, false);
                 }
             };
-            window.addEventListener('codeintel_deactivated_window',
-                this._on_codeintel_deactivated_window, false);
         ]]>
         </body>
         </method>
@@ -679,10 +662,6 @@
                         this._doc_pref_observer_topics);
                 }
 
-                window.removeEventListener('codeintel_activated_window',
-                    this._on_codeintel_activated_window, false);
-                window.removeEventListener('codeintel_deactivated_window',
-                    this._on_codeintel_deactivated_window, false);
                 window.removeEventListener('view_document_attached',
                     this.handle_view_document_attached, false);
                 window.removeEventListener('view_document_detaching',

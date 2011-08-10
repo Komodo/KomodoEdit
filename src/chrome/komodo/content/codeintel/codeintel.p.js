@@ -169,7 +169,6 @@ ko.codeintel = {};
             }
     
             ko.codeintel.isActive = true;
-            xtk.domutils.fireEvent(window, "codeintel_activated_window");
         } catch(ex) {
             log.exception(ex);
         }
@@ -181,7 +180,6 @@ ko.codeintel = {};
         log.debug("_CodeIntel_DeactivateWindow()");
         try {
             ko.codeintel.isActive = false;
-            xtk.domutils.fireEvent(window, "codeintel_deactivated_window");
             window.updateCommands('codebrowser');
         } catch(ex) {
             log.exception(ex);
