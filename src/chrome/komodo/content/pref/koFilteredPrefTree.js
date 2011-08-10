@@ -351,18 +351,13 @@ this.findBounds = function(target) {
     return -1;
 }
 
-this.updateFilter = function(target) {
-    if (!target) {
-        this.prefTreeView.removeFilter();
-        return;
-    }
-    target = target.toLowerCase();
+this.getHitsForWord = function(target) {
     var hit = this.findBounds(target);
+    var hits = {};
     if (hit == -1) {
         this.prefTreeView.filterEverything();
-        return;
+        return hits;
     }
-    var hits = {};
     var word, lim = this.wordList.length;
     for (var i = hit; i < lim; i++) {
         word = this.wordList[i];
@@ -373,12 +368,74 @@ this.updateFilter = function(target) {
             hits[num] = 1;
         }
     }
+    return hits;
+};
+
+this._intersectSets = function(set1, set2) {
+    var iset = {};
+    for (var p in set1) {
+        if (p in set2) {
+            iset[p] = set1[p];
+        }
+    }
+    return iset;
+};
+this._unionSets = function(setList) {
+    if (setList.length == 1) {
+        return setList[0];
+    }
+    var uset = {};
+    for each (var thisSet in setList) {
+        for (var p in thisSet) {
+            uset[p] = thisSet[p];
+        }
+    }
+    return uset;
+};
+this._isSetEmpty = function(set) {
+    for (var p in set) {
+        return false;
+    }
+    return true;
+};
+
+this.updateFilter = function(target) {
+    if (!target) {
+        this.prefTreeView.removeFilter();
+        return;
+    }
+    // Support multi-word queries by splitting target on spaces
+    // Interpret w1 w2 w3 ... wn into groups, where each run of
+    // words w[i] w[i+1] ... w[j] is a run if its intersection is non-empty.
+    // Then take the union of all runs.
+    var targets = target.replace(/^\s+/, "").replace(/\s+$/,"").
+                         toLowerCase().split(/\s+/);
+    if (!targets.length || !targets[0]) {
+        this.prefTreeView.removeFilter();
+        return;
+    }
+    var lim = targets.length;
+    var i;
+    var currentSet = this.getHitsForWord(targets[0]);
+    var runs = [];
+    var nextSet, iSet, uSet;
+    for (i = 1; i < lim; i++) {
+        nextSet = this.getHitsForWord(targets[i]);
+        iSet = this._intersectSets(currentSet, nextSet);
+        if (this._isSetEmpty(iSet)) {
+            runs.push(currentSet);
+            currentSet = nextSet;
+        } else {
+            currentSet = iSet;
+        }
+    }
+    runs.push(currentSet);
+    var hits = this._unionSets(runs);
     var urls = [];
     for (var num in hits) {
         urls.push(this.urlManager.URLsFromNums(num));
     }
     this.prefTreeView.updateFilter(urls); 
-   
 };
 
 function URLManager() {
