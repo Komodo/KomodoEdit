@@ -1041,7 +1041,7 @@
 
             <handler event="dragover">
                 <![CDATA[
-                //dump("dragover\n");
+                //dump("scintilla: dragover\n");
                 // Automatically scroll Scintilla up/down when the drag
                 // cursor moves to the top/bottom of the visible document.
                 var scimoz = this.scimoz;
@@ -1111,6 +1111,7 @@
                 var dataTransfer = event.dataTransfer;
                 if (!dataTransfer.mozItemCount) {
                     // Nothing to do.
+                    this.scimoz.dragPosition = -1;
                     return false;
                 }
 
@@ -1248,6 +1249,7 @@
                 // ended.
                 //dump("scintilla: dragend\n");
                 this._startDragDrop = null;
+                this.scimoz.dragPosition = -1;
 <!-- #if PLATFORM == "win" -->
                     // Ensure the mouse capture is released - bug 87342.
                     this.scimoz.endDrop();

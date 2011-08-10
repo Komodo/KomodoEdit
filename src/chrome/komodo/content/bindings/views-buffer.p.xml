@@ -1538,7 +1538,7 @@
                 // it has then the hyperlink should be removed.
                 this.removeHyperlinks("mousemove");
                 var pos = this.scimoz.positionFromPointClose(x, y);
-                if (pos >= 0) {
+                if (pos >= 0 && this.scimoz.dragPosition == -1) {
                     this.checkHyperlinks(pos, "mousemove");
                 }
             }
@@ -1633,7 +1633,7 @@
                 var x, y;
                 [x,y] = this._last_mousemove_xy;
                 var pos = this.scimoz.positionFromPointClose(x, y);
-                if (pos >= 0) {
+                if (pos >= 0 && this.scimoz.dragPosition == -1) {
                     this.checkHyperlinks(pos, "keydown");
                 }
             }
