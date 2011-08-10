@@ -825,6 +825,7 @@
 
             // Hmm, we might be able to now catch tabs, etc. right here.
             if (this.lastCharAdded) {
+                this.lastCharAdded = null;
                 if (this.isCICplnEnabled && this._isCITriggeringEnabled) {
                     // Trigger completions or calltip.
                     ko.codeintel.trigger(this);
@@ -839,7 +840,6 @@
                 }
             }
 
-            this.lastCharAdded = null;
             if (this.textChangeUndoPending) {
                 // Fix bug 89414 -- undo/redo buttons not getting updated on doc changes
                 window.updateCommands('undo');
