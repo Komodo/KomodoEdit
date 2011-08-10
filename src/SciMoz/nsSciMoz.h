@@ -233,7 +233,6 @@ class SciMoz : public ISciMoz,
                
 {
 private:
-    long _lastCharCodeAdded;
     // Used to cache the "text" property - resets when the buffer changes.
     nsString _cachedText;
     

@@ -121,15 +121,6 @@ manualGetterProperties = {
             return true;
             """
     },
-    "lastCharCodeAdded": {
-        "ReturnType": "int",
-        "code": """
-            PRInt32 myresult;
-            GetLastCharCodeAdded(&myresult);
-            INT32_TO_NPVARIANT(myresult, *result);
-            return true;
-            """,
-    },
     "isTracking": {
         "ReturnType": "bool",
         "code": """
@@ -185,13 +176,6 @@ manualSetterProperties = {
             nsresult rv = SetName(name);
             return NS_SUCCEEDED(rv);
             """
-    },
-    "setLastCharCodeAdded": {
-        "code": """
-            if (!NPVARIANT_IS_INT32(*value)) return false;
-            nsresult rv = SetLastCharCodeAdded(NPVARIANT_TO_INT32(*value));
-            return NS_SUCCEEDED(rv);
-            """,
     },
     "SetModEventMask": {
         # We override the modEventMask handling in order to workaround a

@@ -147,7 +147,6 @@ SciMoz::SciMoz(nsPluginInstance* aPlugin)
 #if defined(XP_UNIX) && !defined(XP_MACOSX)
     sInGrab = 0;
 #endif
-    _lastCharCodeAdded = 0;
 
     bracesStyle = 10;
     bracesCheck = true;
@@ -431,13 +430,9 @@ void SciMoz::Notify(long lParam) {
 			break;
 		*/
 		case SCN_CHARADDED:
-#ifdef FAST_CODE
-			_lastCharCodeAdded = notification->ch;
-#else
 			mask = ISciMozEvents::SME_CHARADDED;
 			while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
 				eventSink->OnCharAdded(notification->ch);
-#endif
 			break;
 		case SCN_SAVEPOINTREACHED:
 			mask = ISciMozEvents::SME_SAVEPOINTREACHED;
@@ -467,14 +462,6 @@ void SciMoz::Notify(long lParam) {
 				eventSink->OnDoubleClick();
 			break;
 		case SCN_UPDATEUI:
-#if 0
-			if (!_lastCharCodeAdded || IsBrace(_lastCharCodeAdded)) {
-				BraceMatch();
-			} else if (SendEditor(SCI_GETHIGHLIGHTGUIDE, 0) >= 0) {
-				SendEditor(SCI_SETHIGHLIGHTGUIDE, 0, 0);
-				SendEditor(SCI_BRACEHIGHLIGHT, 0, 0);
-			}
-#endif
 			mask = ISciMozEvents::SME_UPDATEUI;
 			while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
 				eventSink->OnUpdateUI();
@@ -1215,19 +1202,6 @@ unsigned int SciMozUCS2Length(const char *s, unsigned int len) {
 			ulen++;
 	}
 	return ulen;
-}
-
-/* attribute long lastCharCodeAdded; */
-NS_IMETHODIMP SciMoz::GetLastCharCodeAdded(PRInt32  *_retval)
-{
-	*_retval = _lastCharCodeAdded;
-	return NS_OK;
-}
-
-NS_IMETHODIMP SciMoz::SetLastCharCodeAdded(PRInt32  charcode)
-{
-	_lastCharCodeAdded = charcode;
-	return NS_OK;
 }
 
 /* long charPosAtPosition(in long); */

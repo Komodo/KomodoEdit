@@ -118,25 +118,7 @@
         <property name="dragHandler"
             onget="return this.scintilla;"/>
 
-        <field name="_lastCharAdded">null</field>
-        <property name="lastCharAdded">
-            <getter><![CDATA[
-                // if fast code is used
-                if (this.scimoz.lastCharCodeAdded)
-                    return String.fromCharCode(this.scimoz.lastCharCodeAdded);
-                else
-                    return "";
-                // if SLOW CODE is used
-                return String.fromCharCode(this._lastCharAdded);
-            ]]></getter>
-            <setter><![CDATA[
-                // if fast code is used
-                this.scimoz.lastCharCodeAdded = val;
-                return;
-                // if SLOW CODE is used
-                this._lastCharAdded = val;
-            ]]></setter>
-        </property>
+        <field name="lastCharAdded">null</field>
 
         <field name="textChangeUndoPending">false</field>
 
@@ -727,10 +709,10 @@
         </method>
 
         <method name="onCharAdded">
-        <parameter name="ch"/>
+        <parameter name="charCode"/>
         <body>
         <![CDATA[
-            return true;
+            this.lastCharAdded = String.fromCharCode(charCode);
         ]]>
         </body>
         </method>
@@ -842,8 +824,7 @@
             }
 
             // Hmm, we might be able to now catch tabs, etc. right here.
-            var _lastCharAdded = this.lastCharAdded;
-            if (_lastCharAdded) {
+            if (this.lastCharAdded) {
                 if (this.isCICplnEnabled && this._isCITriggeringEnabled) {
                     // Trigger completions or calltip.
                     ko.codeintel.trigger(this);
@@ -854,8 +835,7 @@
                     this.prefs.getBooleanPref("editElectricBrace")) {
                     // "keyPressed" is the poorly named mechanism to initiate
                     // auto-indenting functionality.
-                    this.languageObj.keyPressed(_lastCharAdded,
-                                                         this.scimoz);
+                    this.languageObj.keyPressed(this.lastCharAdded, this.scimoz);
                 }
             }
 

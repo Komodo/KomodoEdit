@@ -79,7 +79,6 @@ interface ISciMozLite : nsISupports {
 	readonly attribute AString selText;
 	
 	// stuff to minimize some of our eventist usage
-	attribute long lastCharCodeAdded;
 	void doBraceMatch();
 	
         // utility function to save every man and his dog from doing the int->char conversion.
