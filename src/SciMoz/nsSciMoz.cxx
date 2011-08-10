@@ -1654,26 +1654,6 @@ bool SciMoz::SearchInTarget(const NPVariant *args, uint32_t argCount, NPVariant 
 	return true;
 }
 
-/* attribute long modEventMask; */
-NS_IMETHODIMP SciMoz::GetModEventMask(PRInt32  *_retval) {
-#ifdef SCIMOZ_DEBUG
-	printf("SciMoz::GetModEventMask\n");
-#endif
-	SCIMOZ_CHECK_VALID("GetModEventMask")	*_retval = SendEditor(SCI_GETMODEVENTMASK, 0, 0);
-	return NS_OK;
-}
-
-/* attribute long modEventMask; */
-NS_IMETHODIMP SciMoz::SetModEventMask(PRInt32 mask) {
-#ifdef SCIMOZ_DEBUG
-	printf("SciMoz::SetModEventMask\n");
-#endif
-	SCIMOZ_CHECK_VALID("SetModEventMask")	SendEditor(SCI_SETMODEVENTMASK, mask, 0);
-        // Void the cached text - see bug 85194 for why.
-        _cachedText.SetIsVoid(TRUE);
-	return NS_OK;
-}
-
 /* void addChar(in PRUint32 ch); */
 bool SciMoz::AddChar(const NPVariant *args, uint32_t argCount, NPVariant *result) {
 	SCIMOZ_DEBUG_PRINTF("SciMoz::AddChar\n");

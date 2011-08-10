@@ -193,6 +193,34 @@ manualSetterProperties = {
             return NS_SUCCEEDED(rv);
             """,
     },
+    "SetModEventMask": {
+        # We override the modEventMask handling in order to workaround a
+        # "scimoz.text" problem, where the scimoz text attribute does not
+        # return the correct contents. The terminal-view's turn off the
+        # modEventMask, which results in SciMoz not voiding the cached text it
+        # holds - resulting in stale text. To work around this SciMoz overrides
+        # this method and manually nulls the text when the eventmask is
+        # changed. Bug 85194.
+
+        "code": """
+            /* arg 0 of type int */
+            if (!NPVARIANT_IS_INT32(*value)) {
+                #ifdef SCIMOZ_DEBUG
+                    printf("modEventMask setter: arg 0 has invalid type %%i",
+                           (*value).type);
+                #endif
+                return false;
+            }
+            SendEditor(SCI_SETMODEVENTMASK,
+                       NPVARIANT_TO_INT32(*value),
+                       0);
+
+            // Void the cached text - see bug 85194 for why.
+            _cachedText.SetIsVoid(PR_TRUE);
+
+            return true;
+            """
+    },
 }
 """ manually implemented setters """
 
@@ -535,7 +563,7 @@ def generate_idl_full_fragment(face):
 
     suppressedFeatures = """
         getStyledText getCurLine assignCmdKey clearCmdKey getLine getTextRange
-        getModEventMask charPosAtPosition
+        charPosAtPosition
     """.split()
 
     outputfile = file("ISciMoz_gen.idl.fragment", "w")
