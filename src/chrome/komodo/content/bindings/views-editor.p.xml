@@ -181,6 +181,7 @@
                     this._everLinted = true;
                 }
                 let language = val.language;
+                this.language = language;
                 this.isCICplnEnabled = (ko.codeintel.isActive
                     && ko.codeintel.is_cpln_lang(language));
                 this.isCICitadelStuffEnabled = (ko.codeintel.isActive
@@ -189,6 +190,8 @@
                     && ko.codeintel.is_xml_lang(language));
                 
                 xtk.domutils.fireEvent(this, 'view_document_attached');
+            } else {
+                this.language = "Text";
             }
         ]]>
         </setter>
@@ -444,7 +447,7 @@
                 }
                 let language = doc.language;
                 this.log.info("Changed language to:" + language);
-                this.scintilla.language = language;
+                this.language = language;
                 // bug 34689, bug 81587: force syntax highlighting to re-lex,
                 // otherwise the syntax colouring is not correctly updated.
                 this._clearFoldLevels(this.scimoz);
