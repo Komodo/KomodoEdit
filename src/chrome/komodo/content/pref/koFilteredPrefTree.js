@@ -303,7 +303,6 @@ PrefTreeView.prototype.updateFilter = function(urls) {
     var lim = this._rows.length;
     for (i = lim - 1; i >= 0; i--) {
         row = this._rows[i];
-        // ~ convenient test against -1 to see if indexOf succeeded
         if (row.filteredOut && urls.indexOf(row.url) != -1) {
             row.filteredOut = false;
             i1 = i;
@@ -357,6 +356,7 @@ this.updateFilter = function(target) {
         this.prefTreeView.removeFilter();
         return;
     }
+    target = target.toLowerCase();
     var hit = this.findBounds(target);
     if (hit == -1) {
         this.prefTreeView.filterEverything();
@@ -389,7 +389,7 @@ function URLManager() {
 URLManager.prototype = {
     intern: function(url) {
         if (url in this._urlToNumber) {
-            return this._urlToNumber;
+            return this._urlToNumber[url];
         }
         this._docNumber += 1;
         this._urlToNumber[url] = this._docNumber;
@@ -486,7 +486,6 @@ this.loadPrefsFullText = function() {
         this.overlayURLs = [];
         this.beforeOverlays = true;
     };
-    
     DocLoader.prototype.doNextURL = function() {
         if (this.urlIndex >= this.urlCount) {
             if (this.beforeOverlays) {
@@ -495,6 +494,7 @@ this.loadPrefsFullText = function() {
                 this.urlCount = this.overlayURLs.length;
                 urls = this.overlayURLs;
             } else {
+                this.getTopLevelWords();
                 this_.wordList = this_.fullTextManager.getWordList();
                 //document.getElementById("pref-filter-textbox").removeAttribute("readonly");
                 return;
@@ -560,30 +560,46 @@ this.loadPrefsFullText = function() {
             }
         }
         if (phrases.length) {
-            var words = phrases.join(" ").
-                        replace(/([a-zA-Z])[^a-zA-Z_\-\'\s]+/g, "$1").
-                        replace(/[^a-zA-Z\'\-\_]+/g, " ").
-                        split(/\s+/);
+            var words = this.getWordPrefixes(phrases.join(" "));
             if (this.beforeOverlays) {
-                var urlNum = this_.urlManager.intern(url);
-                words.forEach(function(word) {
-                        this_.fullTextManager.record(word, urlNum);
-                    });
+                this.internWords(url, words, this_);
             } else {
                 var targetURLs = this.overlays[url];
                 var i, lim = targetURLs.length;
                 for (i = 0; i < lim; i++) {
-                    var targetURL = targetURLs[i];
-                    var urlNum = this_.urlManager.intern(targetURL);
-                    words.forEach(function(word) {
-                            this_.fullTextManager.record(word, urlNum);
-                        });
+                    this.internWords(targetURLs[i], words, this_);
                 }
             }
         }
         this.urlIndex += 1;
         this.doNextURL();
     };
+    DocLoader.prototype.getTopLevelWords = function(docObject) {
+        var nodes = document.getElementsByTagName("treecell");
+        var lim = nodes.length;
+        var i, node, label, url, words;
+        var phrases = [];
+        for (var i = 0; i < lim && (node = nodes[i]); i++) {
+            label = node.getAttribute("label").toLowerCase(); 
+            url = node.getAttribute("url");
+            if (label && url) {
+                words = this.getWordPrefixes(label);
+                this.internWords(url, words, this_);
+            }
+        }
+    };
+    DocLoader.prototype.getWordPrefixes = function(s) {
+        return s.replace(/([a-zA-Z])[^a-zA-Z_\-\'\s]+/g, "$1").
+                 replace(/[^a-zA-Z\'\-\_]+/g, " ").
+                 split(/\s+/);
+    };
+    DocLoader.prototype.internWords = function(url, words, owner) {
+        var urlNum = owner.urlManager.intern(url);
+        words.forEach(function(word) {
+            owner.fullTextManager.record(word, urlNum);
+        });
+    };
+
     (new DocLoader()).doNextURL();
 };
 
