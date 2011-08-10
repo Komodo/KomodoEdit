@@ -3009,12 +3009,11 @@ this.saveWorkspace = function view_saveWorkspace()
     try {
         var mainWindow = ko.windowManager.getMainWindow();
         var windows = ko.windowManager.getWindows();
-        var that = ko.workspace;
-        var windowWorkspace = that._getWindowWorkspace();
+        var windowWorkspace = ko.workspace._getWindowWorkspace();
         var saveCoordinates = _mozPersistPositionDoesNotWork || windows.length > 1;
         var restoreOnRestart = true;
         for (var thisWindow, idx = 0; thisWindow = windows[idx]; idx++) {
-            that._saveWorkspaceForIdx_aux(idx, restoreOnRestart,
+            ko.workspace._saveWorkspaceForIdx_aux(idx, restoreOnRestart,
                                           thisWindow, mainWindow,
                                           windowWorkspace, saveCoordinates);
         }
