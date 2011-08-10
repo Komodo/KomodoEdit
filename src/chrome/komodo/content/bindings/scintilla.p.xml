@@ -418,6 +418,8 @@
                     this.log.warn("Scintilla ["+this.id+"] was gone before we unloaded!");
                 }
                 this.inited = false;
+                // Force blur so we don't try to do things after we close scimoz
+                this.blur();
                 // Mark scimoz as closed, which will ensure no more calls are
                 // made to this instance. Bug 81293.
                 // Note: There should be no more calls to scimoz after this!
