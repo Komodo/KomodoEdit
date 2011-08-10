@@ -14,7 +14,7 @@
  * The Original Code is Komodo code.
  * 
  * The Initial Developer of the Original Code is ActiveState Software Inc.
- * Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
+ * Portions created by ActiveState Software Inc are Copyright (C) 2000-2011
  * ActiveState Software Inc. All Rights Reserved.
  * 
  * Contributor(s):
@@ -165,7 +165,8 @@ function koPrefWindow( frame_id, prefset /* = null */ )
     this.prefset           = null;
     this.prefservice      = null;
     this.orig_prefset = null;
-    this.helper = new prefTreeHelper("prefsTree");
+    this.helper = this.stdHelper = new prefTreeHelper("filteredPrefsTree");
+    this.prefDeckSwitched(document.getElementById("pref-deck").selectedIndex);
     this.onload();
     this.init(prefset);
 }
@@ -211,6 +212,11 @@ koPrefWindow.prototype =
                          "If you get this message, a pref panel is incorrectly modifying prefs "+
                          "and the modified value will be lost.");
         }
+    },
+
+    setTreeView: function(filteredTreeView) {
+        this.filteredTreeView = filteredTreeView;
+        this.helper.setTreeView(filteredTreeView);
     },
     
     finalizePrefset: function() {
@@ -288,11 +294,7 @@ koPrefWindow.prototype =
         this._doClosingHandlers(true);
 
         if (this.deck != null) {
-            // persist which preference panel is currently open
-            var selectedId = this.helper.getSelectedItemId();
-            Components.classes["@activestate.com/koPrefService;1"]
-                  .getService(Components.interfaces.koIPrefService).prefs
-                  .setStringPref('defaultSelectedPref', selectedId);
+            this._saveCurrentPref();
         }
         
         this.setResult('ok');
@@ -303,9 +305,18 @@ koPrefWindow.prototype =
         return false;
     },
 
+    doClose: function() {
+        try {
+            this.filteredTreeView.doClose();
+        } catch(ex) {
+            prefLog.exception(ex);
+        }
+        close();
+    },
+
     onOK: function () {
         if (this._onOK()) {
-            close();
+            this.doClose();
             return true;
         }
         return false;
@@ -318,19 +329,33 @@ koPrefWindow.prototype =
             this.finalizePrefset();
             this._doClosingHandlers(false);
     
-            // persist which preference panel is currently open
-            var selectedId = this.helper.getSelectedItemId();
-            Components.classes["@activestate.com/koPrefService;1"]
-                  .getService(Components.interfaces.koIPrefService).prefs
-                  .setStringPref('defaultSelectedPref', selectedId);
-    
+            this._saveCurrentPref();
             this.setResult('cancel');
-            close();
+            this.doClose();
         } catch(e) {
             prefLog.exception(e);
             return false;
         }
         return true;
+    },
+
+    _saveCurrentPref: function() {
+        // persist which preference panel is currently open
+        try {
+            var selectedID = this.helper.getSelectedItemId();
+            Components.classes["@activestate.com/koPrefService;1"]
+                  .getService(Components.interfaces.koIPrefService).prefs
+                  .setStringPref('defaultSelectedPref', selectedID);
+        } catch(e) {
+            prefLog.exception(e);
+        }
+    },
+
+    restoreDefaultPref: function() {
+        var selectedID = Components.classes["@activestate.com/koPrefService;1"]
+                  .getService(Components.interfaces.koIPrefService).prefs
+                  .getStringPref('defaultSelectedPref');
+        this.helper.selectRowById(selectedID);
     },
 
     setResult: function (res) {
@@ -636,10 +661,12 @@ koPrefWindow.prototype =
 
     switchPage: function () {
         try {
-        var selectedRow = this.helper.getSelectedRow();
-        var url = selectedRow.firstChild.getAttribute("url");
+        var url = this.helper.getSelectedCellValue("url");
+        if (!url) {
+            return;
+        }
         var panelName = url;
-        if (typeof(this.contentFrames[panelName]) == 'undefined') {
+        if (!(panelName in this.contentFrames)) {
             var XUL_NS="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
             this.contentFrame = document.createElementNS(XUL_NS,'iframe');
             this.contentFrames[panelName] = this.contentFrame;
@@ -668,6 +695,10 @@ koPrefWindow.prototype =
         } catch(e) {
             prefLog.exception(e);
         }
+    },
+
+    prefDeckSwitched: function(selectedIndex) {
+        this.helper = (selectedIndex === 0 ? null : this.stdHelper);
     },
 
     // return the widget on the current page with the pref ID, or null.
@@ -856,18 +887,6 @@ koPrefWindow.prototype =
         }
     },
 
-    closeBranches: function ( aComponentName ) {
-        var panelChildren = document.getElementById( "panelChildren" );
-        var panelTree = document.getElementById( "prefsTree" );
-        for( var i = 0; i < panelChildren.childNodes.length; i++ ) {
-            var currentItem = panelChildren.childNodes[i];
-            if( currentItem.id != aComponentName && currentItem.id != "appearance" )
-                currentItem.removeAttribute( "open" );
-        }
-        var openItem = document.getElementById( aComponentName );
-        panelTree.selectItem( openItem );
-    },
-
     toggleTreeItems: function(treeView, colId) {
         try {
             var treeViewSelection = treeView.selection;
@@ -905,7 +924,7 @@ koPrefWindow.prototype =
             }
             return false;
         } catch(ex) {
-            log.exception(ex);
+            prefLog.exception(ex);
         }
         return true;
     },
@@ -913,96 +932,32 @@ koPrefWindow.prototype =
     __END__: null
 };
 
-
-
-/* tree support functions
-
-   these functions can be used if trees are coded in xul and you are
-   not using a view class like the one above.  Primarily this helps
-   in retreiving the selected treerow.
-
-   XXX This certainly could be optimized
-   but this is just a quick fix for moving to 1.3
-*/
 function prefTreeHelper(treeid) {
     this.tree = document.getElementById(treeid);
 }
 prefTreeHelper.prototype = {
-    getTreeEntries: function(treechildren, all_entries) {
-        var entries = [];
-        for (var i=0;i<treechildren.childNodes.length;i++) {
-            var treeitem = treechildren.childNodes[i];
-            entries[entries.length] = treeitem.firstChild; // treerow
-            if (treeitem.getAttribute('container') == 'true' &&
-                (all_entries || treeitem.getAttribute('open') == 'true')) {
-                var children = this.getTreeEntries(treeitem.firstChild.nextSibling,all_entries);
-                if (children.length > 0)
-                    entries = entries.concat(children);
-            }
-        }
-        return entries;
-    },
-    getVisibleRowByIndex: function(index) {
-        this.entries = this.getTreeEntries(this.tree.firstChild.nextSibling,false);
-        return this.entries[index];
-    },
-    getVisibleRowById: function(id) {
-        this.entries = this.getTreeEntries(this.tree.firstChild.nextSibling,
-                                           false);
-        for (var i=0; i < this.entries.length; i++) {
-            if (this.entries[i].parentNode.id == id)
-                return i - 1;
-        }
-        return -1;
-    },
-    getRowIndexById: function(id) {
-        this.entries = this.getTreeEntries(this.tree.firstChild.nextSibling,true);
-        for (var i=0; i < this.entries.length; i++) {
-            if (this.entries[i].parentNode.id == id) return i - 1;
-        }
-        return -1;
-    },
-    ensureRowVisible: function(row) {
-        if (row.parentNode.parentNode.localName == 'treeitem' &&
-            row.parentNode.parentNode.getAttribute('open') != 'true')
-        {
-            row.parentNode.parentNode.setAttribute('open', 'true');
-            //XXX I am not sure that this is correct. I would think the arg
-            //    should be "row.parentNode.parentNode". However, we currently
-            //    have not prefs panels more than 2 levels deep so it
-            //    doesn't really matter.
-            this.ensureRowVisible(row.parentNode.parentNode.firstChild);
-        }
+    setTreeView: function(filteredTreeView) {
+        this.filteredTreeView = filteredTreeView;
     },
     selectRowById: function(id) {
-        var row = document.getElementById(id);
-        if (!row) return;
-        this.ensureRowVisible(row);
-        var index = this.getVisibleRowById(id);
-        this.tree.view.selection.select(index+1);
-    },
-    /* returns the current selection (treerow element). */
-    getSelectedRow: function() {
-        return this.getVisibleRowByIndex(this.tree.currentIndex);
+        var index = this.filteredTreeView.getIndexById(id);
+        if (index == -1) {
+            prefLog.debug("Can't find pref id '" + id + "'\n");
+            return;
+        }
+        this.filteredTreeView.tree.ensureRowIsVisible(index);
+        this.filteredTreeView.selection.select(index);
     },
     /* returns the id of the treeitem currently selected */
     getSelectedItemId: function() {
-        return this.getVisibleRowByIndex(this.tree.currentIndex).parentNode.getAttribute('id');
+        return this.getSelectedCellValue("id");
     },
-    /* returns an array of selected items (treerow elements). */
-    getSelectedRows: function() {
-        var entries = this.getTreeEntries(this.tree.firstChild.nextSibling,false);
-        var start = new Object();
-        var end = new Object();
-        var numRanges = this.tree.view.selection.getRangeCount();
-        var selection = [];
-        for (var t=0; t<numRanges; t++){
-          tree.view.selection.getRangeAt(t,start,end);
-          for (var v=start.value; v<=end.value; v++){
-            selection[selection.length] = entries[v];
-          }
+    getSelectedCellValue: function(columnName) {
+        var index =  this.filteredTreeView.selection.currentIndex;
+        if (index == -1) {
+            prefLog.debug("No selected item for column " + columnName);
+            return null;
         }
-        return selection;
+        return this.filteredTreeView.getCellValue(index, {id:columnName});
     }
-}
-
+};
