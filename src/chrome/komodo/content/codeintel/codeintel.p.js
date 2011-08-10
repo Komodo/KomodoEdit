@@ -175,12 +175,11 @@ ko.codeintel = {};
     }
     
     
-    function _CodeIntel_DeactivateWindow()
+    function _CodeIntel_DeactivateWindow(isShuttingDown)
     {
         log.debug("_CodeIntel_DeactivateWindow()");
         try {
             ko.codeintel.isActive = false;
-            window.updateCommands('codebrowser');
         } catch(ex) {
             log.exception(ex);
         }
@@ -207,7 +206,7 @@ ko.codeintel = {};
     {
         log.debug("finalize()");
         try {
-            _CodeIntel_DeactivateWindow();
+            _CodeIntel_DeactivateWindow(true /* shutting down */);
         } catch(ex) {
             log.exception(ex);
         }
