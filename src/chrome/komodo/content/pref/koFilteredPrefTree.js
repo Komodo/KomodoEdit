@@ -322,7 +322,7 @@ PrefTreeView.prototype.updateFilter = function(urls) {
 PrefTreeView.prototype.getIndexById = function(id) {
     for (var i = this._rows.length - 1; i >= 0; i--) {
         if (this._rows[i].id === id) {
-            break;
+            return i;
         }
     }
     return -1;
