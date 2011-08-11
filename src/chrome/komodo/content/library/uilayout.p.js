@@ -115,16 +115,6 @@ this.toggleToolbarVisibility = function uilayout_toggleToolbarVisibility(toolbar
     }
 }
 
-// XRE toolbar does not have toolbar.update.  this is duplicated
-// from the xpfe toolbar widget, and will make our stuff work
-// with either XRE or XPFE
-function _updateToolbarButtonText(tbElt,tag,style) {
-    var elements = tbElt.getElementsByTagName(tag);
-    for (var i = 0; i < elements.length; i++) {
-        elements[i].setAttribute("buttonstyle", style);
-    }
-}
-
 // 'toolbarId' is the id of the toolbar that should be affected
 // 'show' is a boolean -- true means show the text.
 function _setToolbarButtonText(toolbarId, buttonTextShowing)
@@ -132,17 +122,10 @@ function _setToolbarButtonText(toolbarId, buttonTextShowing)
     var toolbar = document.getElementById(toolbarId);
     if (!toolbar) {
         _log.error("Could not find toolbar with id: " + toolbarId);
+        return;
     }
     try {
-        if (buttonTextShowing) {
-            toolbar.removeAttribute('buttonstyle');
-            toolbar.setAttribute('mode','full');
-            _updateToolbarButtonText(toolbar, 'toolbarbutton', null);
-        } else {
-            toolbar.setAttribute('buttonstyle','pictures');
-            toolbar.setAttribute('mode','icons');
-            _updateToolbarButtonText(toolbar, 'toolbarbutton', 'pictures');
-        }
+        toolbar.setAttribute('mode', buttonTextShowing ? 'full' : 'icons');
     } catch(e) {
         _log.error(e);
     }
