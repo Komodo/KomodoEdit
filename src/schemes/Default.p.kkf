@@ -1,4 +1,4 @@
-version 29
+version 30
 
 # Movement and selection
 binding cmd_left  Left
@@ -57,6 +57,7 @@ binding cmd_deleteWordRight  Ctrl+Delete
 # Special commands
 binding cmd_redo Ctrl+Y
 binding cmd_undo Ctrl+Z
+binding cmd_undo Alt+Backspace
 binding cmd_cancel Escape
 binding cmd_editReflow Ctrl+Q
 binding cmd_expandAbbrev Ctrl+T

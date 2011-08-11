@@ -318,6 +318,7 @@ function cloneObject(what) {
  * the keybinding files in sync as the keybinding system gets changed.
  *
  * Version history:
+ * 30: Komodo 7.0.0a5 - added Alt+Backspace for Default keybinding scheme.
  * 29: Komodo 7.0.0a4 - switch to incremental find for Ctrl+F/Ctrl+Shift+F
  * 28: Komodo 7.0.0a1 - Mac: add "Cmd+Shift+{" and "Cmd+Shift+}" for buffer prev/next.
  * 27: Komodo 6.1.1 - IDE only change - ignored.
@@ -349,7 +350,7 @@ function cloneObject(what) {
  * 2: Komodo 4.2.0-beta2 and above
  * 1: Komodo 4.2.0-beta1 and before
  */
-const currentKeybindingVersionNumber = 29;
+const currentKeybindingVersionNumber = 30;
 
 /**
  * Remove this dictionary of keybinds.
@@ -834,6 +835,13 @@ this.Manager.prototype._upgradeKeybingings = function (from_version,
             })
             this._add_keybinding_sequences({
                 'cmd_startIncrementalSearch' : ["Ctrl+F"]
+            });
+// #endif
+            break;
+        case 29:
+// #if PLATFORM != 'darwin'
+            this._add_keybinding_sequences({
+                'cmd_undo' : ["Alt+Backspace"]
             });
 // #endif
             break;
