@@ -792,6 +792,8 @@
         </body>
         </method>
 
+        <field name="_lastPosLineAndCol">[-1, -1, -1]</field>
+
         <!-- Called in a timer from onUpdateUI. -->
         <method name="doUpdateUI">
         <body>
@@ -800,26 +802,52 @@
             this.log.debug('doUpdateUI called');
             this._uiTimer = null;
 
-            this.scimoz.doBraceMatch();
+            // Since onUpdateUI is called for a lot of different cases, we
+            // check to see if the position has really changed.
+            var scimoz = this.scimoz;
+            var currentPos = scimoz.currentPos;
+            var currentLineNo = scimoz.lineFromPosition(currentPos);
+            var columnNo = scimoz.getColumn(currentPos);
+            var old
+            var newPosLineAndCol = [currentPos, currentLineNo, columnNo];
+            if ((this._lastPosLineAndCol[0] != newPosLineAndCol[0]) ||
+                (this._lastPosLineAndCol[1] != newPosLineAndCol[1]) ||
+                (this._lastPosLineAndCol[2] != newPosLineAndCol[2])) {
+                this._lastPosLineAndCol = newPosLineAndCol;
+                // The position has changed since the last time we updated.
+                var data = {
+                    "currentPos": currentPos,
+                    "line": currentLineNo,
+                    "column": columnNo,
+                }
+                dump("doUpdateUI:: sending 'current_view_linecol_changed' event\n");
+                xtk.domutils.fireDataEvent(this, 'current_view_linecol_changed', data);
+
+            } else if (!this.textChangeUndoPending && !this.lastCharAdded) {
+                // Position hasn't changed, no chars were added and no text
+                // was modified - we've got nothing to do.
+                return;
+            }
+
+            scimoz.doBraceMatch();
 
             // If there is an active calltip, then update it as necessary.
             if (this.isCICplnEnabled) { 
                 this.ciCompletionUIHandler.updateCallTip();
-            } else if (this.scimoz.callTipActive()) {
+            } else if (scimoz.callTipActive()) {
                 // For languages NOT using CodeIntel-based completion, make
                 // sure an active CallTip gets canceled if the cursor moves
                 // off the CallTip line or before the start pos. (Komodo-only
                 // patches to Scintilla make Scintilla NOT cancel this
                 // automatically for these cases.)
-                var posStart = this.scimoz.callTipPosStart();
-                var curPos = this.scimoz.currentPos;
-                if (curPos < posStart) {
-                    this.scimoz.callTipCancel();
+                var posStart = scimoz.callTipPosStart();
+                if (currentPos < posStart) {
+                    scimoz.callTipCancel();
                 } else {
-                    var curLine = this.scimoz.lineFromPosition(curPos);
-                    var posStartLine = this.scimoz.lineFromPosition(posStart);
-                    if (curLine != posStartLine)
-                        this.scimoz.callTipCancel();
+                    var currentLineNo = scimoz.lineFromPosition(curPos);
+                    var posStartLine = scimoz.lineFromPosition(posStart);
+                    if (currentLineNo != posStartLine)
+                        scimoz.callTipCancel();
                 }
             }
 
@@ -852,8 +880,6 @@
         <method name="onUpdateUI">
         <body>
         <![CDATA[
-            xtk.domutils.fireEvent(this, 'current_view_linecol_changed');
-
             // often painting during onUpdateUI doesn't work correctly since it
             // has to reenter scimoz, if we set it in a timeout, it works.
             if (this._uiTimer) {
