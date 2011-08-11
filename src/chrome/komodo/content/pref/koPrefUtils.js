@@ -57,6 +57,14 @@ function loadExecutableIntoInterpreterList(availInterpListID) {
     return false;
 }
 
+function loadFilePathIntoTextObject(fieldId) {
+    var field = document.getElementById(fieldId);
+    var path = ko.filepicker.saveFile(null, field.value);
+    if (path) {
+        field.value = path;
+    }
+}
+
 
 function ignorePrefPageOKFailure(prefset, context, message) {
     var title = bundle.GetStringFromName("ErrorWhileSavingPreferences.label");

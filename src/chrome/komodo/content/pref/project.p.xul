@@ -154,7 +154,7 @@
         } else {
             prefset = part.prefset;
         }
-        hPrefWindow = new koPrefWindow('panelFrame', prefset);
+        hPrefWindow = new koPrefWindow('panelFrame', prefset, true);
         if (!hPrefWindow) {
             throw new Error("failed to create prefwindow");
         }

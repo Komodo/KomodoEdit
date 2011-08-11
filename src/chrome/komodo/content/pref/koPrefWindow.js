@@ -143,12 +143,13 @@ function _getPrefAttributeForElement(elt) {
 
 window.doneLoading = false;
 
-function koPrefWindow( frame_id, prefset /* = null */ )
+function koPrefWindow( frame_id, prefset /* = null */, usesDeck /* = false */ )
 {
     if (frame_id)
         this.deck = document.getElementById(frame_id);
     else
         this.deck = null;
+    if (typeof(usesDeck) == "undefined") usesDeck = false;
 
     this.contentFrames   = {};
     this.contentFrame = null;
@@ -165,8 +166,12 @@ function koPrefWindow( frame_id, prefset /* = null */ )
     this.prefset           = null;
     this.prefservice      = null;
     this.orig_prefset = null;
-    this.helper = this.stdHelper = new prefTreeHelper("filteredPrefsTree");
-    this.prefDeckSwitched(document.getElementById("pref-deck").selectedIndex);
+    if (usesDeck) {
+        this.helper = this.stdHelper = new prefTreeHelper("filteredPrefsTree");
+        this.prefDeckSwitched(document.getElementById("pref-deck").selectedIndex);
+    } else {
+        this.helper = new prefTreeHelper("prefsTree");
+    }
     this.onload();
     this.init(prefset);
 }
