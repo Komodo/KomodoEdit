@@ -211,13 +211,14 @@
         <vbox id="pref-deck-vbox" flex="1">
             <textbox id="pref-filter-textbox"
                        style="min-width:40px;"
+                       accesskey="&search.accesskey;"
                        rows="1"
                        type="search"
                        timeout="500"
                        onfocus="this.select();"
                        onkeypress="onFilterKeypress(event);"
                        oncommand="updateFilter(event);"
-                       tooltiptext="&amp; koFilteredTreeView.tooltiptext;"/>
+                       tooltiptext="&filteredTreeView.tooltiptext;"/>
             <deck id="pref-deck" selectedIndex="0" flex="1">
                 <!-- tree sidebar -->
                 <tree id="prefsTree" style="min-width: 14em;"
