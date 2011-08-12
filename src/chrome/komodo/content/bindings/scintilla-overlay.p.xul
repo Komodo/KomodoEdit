@@ -133,6 +133,7 @@ function scintillaOverlayOnLoad(options) {
         // Stop ENTER key in Scintilla from going to dialog "OK" button - bug 41071.
         // (keypress screws up keybindings with shifted keys such as ctrl+shift+9)
         window.addEventListener("keydown", keypressInterrupt, false);
+        window.addEventListener("keypress", keypressInterrupt, false);
     }
 }
 
@@ -144,12 +145,20 @@ function scintillaOverlayOnUnload() {
     _loaded = false;
     // bug 41071
     window.removeEventListener("keydown", keypressInterrupt, false);
+    window.removeEventListener("keypress", keypressInterrupt, false);
 }
 
 function keypressInterrupt(event) {
     try {
+        if (event.shiftKey != (event.type == "keydown")) {
+            // if the shift key is down, use the keydown event; otherwise, use
+            // the keypress event.
+            return;
+        }
         // get the command name from the keybinding and execute it
-        var key = gMainWindow.ko.keybindings.manager.event2keylabel(event, undefined, false);
+        var key = gMainWindow.ko.keybindings.manager.event2keylabel(event,
+                                                                    undefined,
+                                                                    event.type == "keypress");
         if (!key) return;
         var command = gMainWindow.ko.keybindings.manager.key2command[key];
         if (!command) return;
