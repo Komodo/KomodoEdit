@@ -75,6 +75,7 @@ function OnLoad()
     try {
         gMode = window.arguments[0].mode;
         if (typeof gMode == "undefined" || gMode == null) gMode = "previewing";
+        var browserType = window.arguments[0].browserType;
 
         var dialog = document.getElementById("dialog-pickpreview")
         widgets.okButton = dialog.getButton("accept");
@@ -103,6 +104,8 @@ function OnLoad()
         widgets.useAnotherRadio = document.getElementById("use-another-file");
         widgets.browseButton = document.getElementById("browse-button");
         widgets.otherFileTextbox = document.getElementById("other-file");
+        widgets.browserMenulist = document.getElementById("browser-select-menulist");
+        widgets.browserMenupopup = document.getElementById("browser-select-menupopup");
         widgets.rememberCheckbox = document.getElementById("remember");
 
         gURL = window.arguments[0].url;
@@ -136,6 +139,7 @@ function OnLoad()
             widgets.otherFileTextbox.focus();
         }
         UpdateAnotherGroup();
+        LoadAvailableBrowsers(browserType);
 
         if (gMode == "setting") {
             widgets.rememberCheckbox.setAttribute("collapsed", "true");
@@ -175,6 +179,34 @@ function UpdateAnotherGroup()
         }
     } catch(ex) {
         log.exception(ex, "Error updating 'another file' group.");
+    }
+}
+
+
+function LoadAvailableBrowsers(browserType)
+{
+    try {
+        var popup = widgets.browserMenupopup;
+        // Only need to do this once.
+        if (popup.childNodes.length > 0)
+            return;
+
+        // Load the menuitems, though we must remove the oncommand attribute.
+        ko.uilayout.populatePreviewToolbarButton(popup);
+        var menuitem = popup.firstChild;
+        var selectedItem = null;
+        while (menuitem) {
+            if (browserType && menuitem.getAttribute("value") == browserType) {
+                selectedItem = menuitem;
+            }
+            menuitem.removeAttribute("oncommand");
+            menuitem = menuitem.nextSibling;
+        }
+        if (selectedItem) {
+            widgets.browserMenulist.selectedItem = selectedItem;
+        }
+    } catch(ex) {
+        log.exception(ex, "Error loading the browser selections.");
     }
 }
 
@@ -265,6 +297,7 @@ function Preview()
         }
 
         window.arguments[0].preview = preview;
+        window.arguments[0].browserType = widgets.browserMenulist.value;
         if (gMode == "previewing") {
             window.arguments[0].remember = widgets.rememberCheckbox.checked;
         }

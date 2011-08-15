@@ -86,6 +86,8 @@
 <!ENTITY pickAnIcon.title "Pick an icon">
 <!ENTITY previewWithAnotherFileOrURL.label "Preview with another file or URL:">
 <!ENTITY previewWithThisFile.label "Preview with this file.">
+<!ENTITY previewUsing.label "Preview using:">
+<!ENTITY previewUsingDefaultBrowser.value "Default Browser">
 <!ENTITY previousDiff.label "Previous Diff">
 <!ENTITY pythonConfiguredPythonInterpreter.label "[[&#37;python]] : Configured Python Interpreter">
 <!ENTITY remember.accesskey "R">

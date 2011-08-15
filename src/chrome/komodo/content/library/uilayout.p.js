@@ -184,6 +184,25 @@ this.populatePreviewToolbarButton = function uilayout_populatePreviewToolbarButt
     if (popup.childNodes.length > 0)
         return;
 
+// #if PLATFORM == "win"
+    mi = document.createElementNS(XUL_NS, "menuitem");
+    mi.setAttribute("label", _bundle.GetStringFromName("configuredBrowser"));
+    mi.setAttribute("tooltiptext", _bundle.GetStringFromName("seePreferencesWebBrowser"));
+    mi.setAttribute("oncommand",
+                    "ko.views.manager.currentView.viewPreview(); event.stopPropagation();");
+    mi.setAttribute("value", "configured");
+    popup.appendChild(mi);
+// #endif
+
+    mi = document.createElementNS(XUL_NS, "menuitem");
+    mi.setAttribute("label", _bundle.GetStringFromName("internalBrowser.menu.label"));
+    mi.setAttribute("tooltiptext", _bundle.GetStringFromName("internalBrowser.menu.tooltiptext"));
+    mi.setAttribute("oncommand",
+                    "ko.views.manager.currentView.viewPreview('komodo'); event.stopPropagation();");
+    mi.setAttribute("class", "menuitem-iconic komodo-16x16");
+    mi.setAttribute("value", "komodo");
+    popup.appendChild(mi);
+
     var koWebbrowser = Components.classes["@activestate.com/koWebbrowser;1"].
                        getService(Components.interfaces.koIWebbrowser);
     var browsersObj = {};
@@ -193,24 +212,6 @@ this.populatePreviewToolbarButton = function uilayout_populatePreviewToolbarButt
     var browsers = browsersObj.value;
     var browserTypes = browserTypesObj.value;
     var mi;
-
-// #if PLATFORM == "win"
-    mi = document.createElementNS(XUL_NS, "menuitem");
-    mi.setAttribute("label", _bundle.GetStringFromName("configuredBrowser"));
-    mi.setAttribute("tooltiptext", _bundle.GetStringFromName("seePreferencesWebBrowser"));
-    mi.setAttribute("oncommand",
-                    "ko.views.manager.currentView.viewPreview(); event.stopPropagation();");
-    popup.appendChild(mi);
-// #endif
-
-    mi = document.createElementNS(XUL_NS, "menuitem");
-    mi.setAttribute("label", _bundle.GetStringFromName("internalBrowser.menu.label"));
-    mi.setAttribute("tooltiptext", _bundle.GetStringFromName("internalBrowser.menu.tooltiptext"));
-    mi.setAttribute("oncommand",
-                    "ko.commands.doCommand('cmd_browserPreviewInternal'); event.stopPropagation();");
-    mi.setAttribute("class", "menuitem-iconic komodo-16x16");
-    popup.appendChild(mi);
-
     var browserURI;
     for (var i = 0; i < browsers.length; i++) {
         mi = document.createElementNS(XUL_NS, "menuitem");
@@ -218,11 +219,12 @@ this.populatePreviewToolbarButton = function uilayout_populatePreviewToolbarButt
         mi.setAttribute("crop", "center");
         mi.setAttribute("tooltiptext", ko.uriparse.baseName(browsers[i]));
         if (browserTypes[i]) {
+            mi.setAttribute("value", browserTypes[i]);
             mi.setAttribute("class", "menuitem-iconic browser-"+browserTypes[i]+"-icon");
         }
         browserURI = ko.uriparse.localPathToURI(browsers[i]);
         mi.setAttribute("oncommand",
-                        "ko.views.manager.currentView.viewPreview('"+browserURI+"'); event.stopPropagation();");
+                        "ko.views.manager.currentView.viewPreview('"+browserTypes[i]+"'); event.stopPropagation();");
         popup.appendChild(mi);
     }
 }

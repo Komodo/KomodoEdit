@@ -64,15 +64,20 @@ if (typeof(ko.dialogs)=='undefined') {
  *                        different depending on whether the preview file/URL
  *                        is being sought to immediately _use_ it or to just
  *                        set it. The default is "previewing".
+ *  @param {String} browserType  The browser type to preview with. Must be one
+ *                               of "default", "komodo", "firefox", "safari",
+ *                               "chrome", "opera", "ie".
  *
  * If the dialog is cancelled it returns null. Otherwise it returns an object
  * with the following attributes:
  *      .preview    The file or URL to use to preview the given URL. Note
  *                  that this may be the given URL itself.
+ *      .browserType  When a browser choice was made, the value of that choice.
  *      .remember   A boolean indicating if the current setting should be
  *                  remembered so this picker need not be called again.
  */
-this.pickPreview = function dialog_pickPreview(url, language /*=null*/, mode /*="previewing"*/)
+this.pickPreview = function dialog_pickPreview(url, language /*=null*/, mode /*="previewing"*/,
+                                               browserType)
 {
     if (typeof(url) == 'undefined' || url == null)
         throw new Error("Must specify 'url' argument to ko.dialogs.pickPreview().");
@@ -84,6 +89,7 @@ this.pickPreview = function dialog_pickPreview(url, language /*=null*/, mode /*=
     obj.url = url;
     obj.language = language;
     obj.mode = mode;
+    obj.browserType = browserType;
     window.openDialog("chrome://komodo/content/dialogs/pickPreview.xul",
                       "_blank",
                       "chrome,modal,titlebar",

@@ -1299,28 +1299,81 @@
         </body>
         </method>
 
-        <method name="_getPreviewPath">
-        <parameter name="dontPromptForPath"/>
+        <method name="_browserMethodAndPathForBrowserType">
+        <parameter name="browserType"/>
+        <body>
+        <![CDATA[
+            if (!browserType) {
+                browserType = "";
+            }
+            var browserMethod = this.__globalPrefs.getStringPref("browser_preview_method");
+            var browserPath = undefined;
+            switch(browserType) {
+                case "komodo":
+                    if (browserMethod == "external") {
+                        /* Default was external, but user wants it in Komodo. */
+                        browserMethod = "in-tab-other-group";
+                    }
+                    break;
+                case "configured":
+                case "default":
+                case "":
+                    /* Do nothing - will use the default values. */
+                    break;
+                default:
+                    /* Anything else must be an external browser request. */
+                    browserMethod = "external";
+                    var koWebbrowser = Components.classes["@activestate.com/koWebbrowser;1"].
+                                       getService(Components.interfaces.koIWebbrowser);
+                    var browsersObj = {};
+                    var browserTypesObj = {};
+                    koWebbrowser.get_possible_browsers_and_types(
+                            {} /* count */, browsersObj, browserTypesObj);
+                    var browsers = browsersObj.value;
+                    var browserTypes = browserTypesObj.value;
+                    var i = browserTypes.indexOf(browserType);
+                    if (i >= 0) {
+                        browserPath = browsers[i];
+                    }
+                    break;
+            }
+            return [browserMethod, browserPath];
+        ]]>
+        </body>
+        </method>
+
+        <method name="_getPreviewPathAndBrowserType">
+        <parameter name="browserType"/>
         <body>
         <![CDATA[
             // Return the user's chosen preview path for this document,
             // asking if necessary. This may return null, meaning the
             // action calling this method should abort.
-            var previewPath=null;
+            var previewPath = null;
             if (this.koDoc.prefs.hasStringPref("preview_path")) {
                 previewPath = this.koDoc.prefs.getStringPref("preview_path");
             }
-            if (!previewPath && !dontPromptForPath) {
-                var pick = ko.dialogs.pickPreview(this.koDoc.file.displayPath);
+            if (!browserType && this.koDoc.prefs.hasStringPref("preview_browser")) {
+                browserType = this.koDoc.prefs.getStringPref("preview_browser");
+            }
+            if (!previewPath) {
+                var pick = ko.dialogs.pickPreview(this.koDoc.file.displayPath,
+                                                  undefined, undefined,
+                                                  browserType);
                 if (pick == null)
                     return null;
                 previewPath = pick.preview;
+                if (pick.browserType) {
+                    browserType = pick.browserType;
+                }
                 if (pick.remember) {
-                    this.koDoc.prefs.setStringPref("preview_path",
-                                                      previewPath);
+                    this.koDoc.prefs.setStringPref("preview_path", previewPath);
+                    if (browserType) {
+                        this.koDoc.prefs.setStringPref("preview_browser", browserType);
+                    }
                 }
             }
-            return previewPath;
+            return [previewPath, browserType];
         ]]>
         </body>
         </method>
@@ -1331,7 +1384,9 @@
         <body>
         <![CDATA[
         if (!previewURI) {
-            previewURI = this._getPreviewPath();
+            var browserType;
+            // Ignore the browserType setting.
+            [previewURI, browserType] = this._getPreviewPathAndBrowserType("komodo");
             previewURI = ko.uriparse.pathToURI(previewURI);
         }
         if (!previewURI) {
@@ -1352,22 +1407,20 @@
         </method>
 
         <field name="preview">null</field>
+
         <method name="viewPreview">
-        <parameter name="browserURI"/>
+        <parameter name="browserType"/>
         <body>
         <![CDATA[
         // Open (if necessary) and switch to the browser preview for
         // this view.
         //
-        //  "browserURI" is a URI to a browser executable to use.
-        //      If left null or undefined (as is the case when the
-        //      preview toolbar button is just pressed) the
-        //      "browserPreview" pref is used to indicate where to
-        //      open the view.
-        //
-        //      Note: I believe (TrentM) that the browser is passed as a
-        //      URI to avoid problems in escaping Windows dir separators.
-        //
+        //  "browserType" is a type of browser to open with, if specified, must
+        //                be one of: "komodo", "default", "firefox, "chrome" or
+        //                other configured/platform browser type. If left null
+        //                or undefined (as is the case when the preview toolbar
+        //                button is just pressed) the "browserPreview" pref is
+        //                used to indicate where to open the view.
         try {
             if (this.koDoc.isUntitled) {
                 ko.dialogs.alert("You must save '"+this.title+
@@ -1375,43 +1428,34 @@
                 return;
             }
 
+            var previewPath;
             // If a browser is specified then use it.
-            if (typeof(browserURI) != 'undefined' && browserURI != null) {
+            if (browserType) {
                 //XXX kind of a hack, see ko.uilayout.populatePreviewToolbarButton
-                var browserPath = ko.uriparse.URIToLocalPath(browserURI);
-                var previewPath = this._getPreviewPath();
-                if (previewPath == null)
-                    return;
-                ko.browse.openUrlInDefaultBrowser(previewPath, browserPath);
-            }
-
-            // Else if this view already has an open browser preview, switch
-            // to it.
-            else if (this.preview) {
+                [previewPath, browserType] = this._getPreviewPathAndBrowserType(browserType);
+            } else if (this.preview) {
+                // When the view already has an open browser preview, switch to it.
                 this.preview.makeCurrent();
                 this.preview.reload();
+            } else {
+                // Ppen the browser preview as specified by the user's prefs.
+                [previewPath, browserType] = this._getPreviewPathAndBrowserType();
             }
-
-            // Otherwise, open the browser preview as specified by the
-            // appropriate pref.
-            else {
-                var previewPath = this._getPreviewPath();
-                if (previewPath == null)
-                    return;
-
-                var bpm = this.__globalPrefs.getStringPref("browser_preview_method");
-                switch (bpm) {
-                case "external":
-                    ko.browse.openUrlInDefaultBrowser(previewPath);
-                    return;
-                case "in-tab-other-group":
-                    var previewURI = ko.uriparse.pathToURI(previewPath);
-                    this.createInternalViewPreview(previewURI, this.alternateViewList);
-                    break;
-                case "in-tab-same-group":
-                    var previewURI = ko.uriparse.pathToURI(previewPath);
-                    this.createInternalViewPreview(previewURI, this.parentView);
-                    break;
+            if (previewPath) {
+                var browserMethod, browserPath;
+                [browserMethod, browserPath] = this._browserMethodAndPathForBrowserType(browserType);
+                switch (browserMethod) {
+                    case "external":
+                        ko.browse.openUrlInDefaultBrowser(previewPath, browserPath);
+                        break;
+                    case "in-tab-other-group":
+                        var previewURI = ko.uriparse.pathToURI(previewPath);
+                        this.createInternalViewPreview(previewURI, this.alternateViewList);
+                        break;
+                    case "in-tab-same-group":
+                        var previewURI = ko.uriparse.pathToURI(previewPath);
+                        this.createInternalViewPreview(previewURI, this.parentView);
+                        break;
                 }
             }
         } catch(ex) {

@@ -61,6 +61,7 @@
     <script src="chrome://komodo/content/library/dialogs.js"     type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/uriparse.js"    type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/filepickers.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/uilayout.js"    type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/dialogs/pickPreview.js" type="application/x-javascript;version=1.7"/>
 
     <hbox flex="1">
@@ -88,6 +89,16 @@
                             oncommand="Browse();"/>
                 </hbox>
             </vbox>
+
+            <hbox id="browser-select-hbox"
+                  flex="1"
+                  align="center">
+                <label value="&previewUsing.label;"/>
+                <menulist id="browser-select-menulist"
+                          label="&previewUsingDefaultBrowser.value;">
+                    <menupopup id="browser-select-menupopup"/>
+                </menulist>
+            </hbox>
 
             <separator flex="1" style="min-height: 10px;"/>
             <checkbox id="remember" checked="false"
