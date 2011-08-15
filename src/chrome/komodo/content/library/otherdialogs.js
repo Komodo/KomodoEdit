@@ -53,22 +53,25 @@ if (typeof(ko.dialogs)=='undefined') {
 }
 (function() {
 
-// Pick a preview File/URL for the given file.
-//
-//  "url" indicate the file to preview.
-//  "language" is the language of the current file. If this is not specified it
-//      will be automaticxally determined from the URL.
-//  "mode" is one of "previewing" or "setting". The UI is slightly different
-//      depending on whether the preview file/URL is being sought to
-//      immediately _use_ it or to just set it. The default is "previewing".
-//
-// If the dialog is cancelled it returns null. Otherwise it returns an object
-// with the following attributes:
-//      .preview    The file or URL to use to preview the given URL. Note
-//                  that this may be the given URL itself.
-//      .remember   A boolean indicating if the current setting should be
-//                  remembered so this picker need not be called again.
-//
+/**
+ * Pick a HTML preview File/URL for the given file.
+ *
+ *  @param {String} url  Indicate the file to preview.
+ *  @param {String} language  The language of the current file. If this is not
+ *                            specified it will be automaticxally determined
+ *                            from the URL.
+ *  @param {String} mode  One of "previewing" or "setting". The UI is slightly
+ *                        different depending on whether the preview file/URL
+ *                        is being sought to immediately _use_ it or to just
+ *                        set it. The default is "previewing".
+ *
+ * If the dialog is cancelled it returns null. Otherwise it returns an object
+ * with the following attributes:
+ *      .preview    The file or URL to use to preview the given URL. Note
+ *                  that this may be the given URL itself.
+ *      .remember   A boolean indicating if the current setting should be
+ *                  remembered so this picker need not be called again.
+ */
 this.pickPreview = function dialog_pickPreview(url, language /*=null*/, mode /*="previewing"*/)
 {
     if (typeof(url) == 'undefined' || url == null)
