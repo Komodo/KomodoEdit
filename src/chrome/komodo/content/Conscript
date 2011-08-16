@@ -85,6 +85,7 @@ $cons->InstallInChrome('markers.js');
 # $cons->Depends('komodo.unprocessed.xul', 'testmenu.xul');
 
 $cons->InstallInChrome("viewtoolbar/encoding.js");
+$cons->InstallInChrome("viewtoolbar/overflow.js");
 
 $cons->Preprocess('testkeys.p.xul', 'testkeys.xul');
 $cons->InstallInChrome("testkeys.xul");

@@ -46,17 +46,16 @@
 <binding id="view-editor"
     extends="chrome://komodo/content/bindings/views-buffer.xml#view-buffer-base">
     <content orient="vertical">
-        <xul:scrollbox anonid="view-toolbar" class="view-toolbar">
-            <xul:spacer anonid="view-toolbar-spacer"
-                        flex="1" />
-            <xul:toolbarbutton anonid="encoding-toolbarbutton"
-                               orient="horizontal"
+        <xul:hbox anonid="view-toolbar-container">
+            <xul:toolbarbutton anonid="overflow-toolbarbutton"
+                               disabled="true"
                                type="menu">
-                <xul:menupopup anonid="encoding-menupopup"
-                               class="encoding-menupopup"
-                               onpopupshowing="ko.viewtoolbar.encoding.initializeMenu(document.getBindingParent(this), this);" />
+                <xul:menupopup anonid="overflow-menupopup"
+                               class="overflow-menupopup"
+                               onpopupshowing="ko.viewtoolbar.overflow.initializeMenu(document.getBindingParent(this), this);"
+                               onpopuphidden="ko.viewtoolbar.overflow.teardownMenu(document.getBindingParent(this), this);"/>
             </xul:toolbarbutton>
-        </xul:scrollbox>
+        </xul:hbox>
         <xul:scintilla xbl:inherits="flex,focused,context,mozcontext" flex="1"
                        anonid="scintilla"
                        allowIME="true"
@@ -65,7 +64,33 @@
     </content>
     <implementation name="vieweditor" implements="koIScintillaView, koIBookmarkableView, ISciMozEvents, nsIObserver">
 
+        <constructor>
+        <![CDATA[
+            // Copy the global view toolbar elements into our local view toolbar.
+            var toolbar_template = document.getElementById('view-toolbar');
+            if (toolbar_template) {
+                let viewtoolbar = this.toolbar;
+                let tbclone = toolbar_template.cloneNode(true);
+                while (tbclone.firstChild) {
+                    let childnode = tbclone.removeChild(tbclone.firstChild);
+                    if (childnode.hasAttribute("id")) {
+                        childnode.removeAttribute("id");
+                    }
+                    viewtoolbar.appendChild(childnode);
+                }
+                // Link the toolbar with the overflow element.
+                viewtoolbar.toolbar_overflow = this.toolbar_overflow;
+            }
+        ]]>
+        </constructor>
+
         <property name="toolbar" onget="return window.document.getAnonymousElementByAttribute(this, 'anonid', 'view-toolbar');"/>
+
+        <property name="toolbar_container" onget="return window.document.getAnonymousElementByAttribute(this, 'anonid', 'view-toolbar-container');"/>
+
+        <property name="toolbar_overflow" onget="return window.document.getAnonymousElementByAttribute(this, 'anonid', 'overflow-toolbarbutton');"/>
+
+        <property name="toolbar_encoding" onget="return window.document.getAnonymousElementByAttribute(this, 'anonid', 'encoding-toolbarbutton');"/>
 
         <property name="cwd">
              <getter><![CDATA[

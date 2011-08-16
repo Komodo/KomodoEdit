@@ -69,6 +69,9 @@
                 ]]>
             </destructor>
 
+            <!-- Element to enable/disable when overflowed/underflowed. -->
+            <field name="toolbar_overflow">null</field>
+
             <field name="_updateTimerId">0</field>
 
             <method name="_updateChildVisibility_callback">
@@ -85,6 +88,13 @@
                       childOverflowed = childRect.right > scrollRect.right;
                     }
                     child.style.visibility = childOverflowed ? "hidden" : "visible";
+                }
+                if (this.toolbar_overflow) {
+                    if (childOverflowed) {
+                        this.toolbar_overflow.removeAttribute("disabled");
+                    } else {
+                        this.toolbar_overflow.setAttribute("disabled", "true");
+                    }
                 }
               ]]>
               </body>

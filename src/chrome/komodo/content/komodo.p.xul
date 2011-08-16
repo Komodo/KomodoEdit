@@ -141,6 +141,7 @@
     <script src="chrome://komodo/content/launch.js"                       type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/views.js"                        type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/viewtoolbar/encoding.js"         type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/viewtoolbar/overflow.js"         type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/statusbar.js"                    type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/editor.js"                       type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/markers.js"                      type="application/x-javascript;version=1.7"/>
@@ -1973,6 +1974,32 @@
         </toolbar>
 
     </toolbox>
+
+    <hbox id="view-toolbar" collapsed="true">
+        <!--
+        This is the template to be used for Komodo's view toolbar. All of these
+        elements will be copied into the views-editor element for each view when
+        it gets initialized.
+        
+        These items should not used ids - as the id's will be lost when the
+        element gets copied across.
+
+        If there are too many elements to fix into the view's toolbar,
+        overflowed elements will be hidden and made accessible through a
+        special menu dropdown at the end of the view toolbar. The overflow
+        menu dropdown will get rebuilt everytime it neededs to be displayed.
+        See "./viewtoolbar/overflow.js" code.
+        -->
+        <spacer anonid="view-toolbar-spacer"
+                flex="1" />
+        <toolbarbutton anonid="encoding-toolbarbutton"
+                       orient="horizontal"
+                       type="menu">
+            <menupopup anonid="encoding-menupopup"
+                       class="encoding-menupopup"
+                       onpopupshowing="ko.viewtoolbar.encoding.initializeMenu(document.getBindingParent(this), this);" />
+        </toolbarbutton>
+    </hbox>
 
     <!-- main window box -->
     <notificationbox id="komodo-notificationbox"/>
