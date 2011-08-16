@@ -82,3 +82,13 @@ menuitem.menuitem-file-status {
 menuitem.menuitem-file-status label {
   padding-left: 2px;
 }
+
+/**
+ * View as Language menu's.
+ */
+menuitem.languageicon[type="checkbox"] image {
+  /* Make sure the image is visible, otherwise no language icon appears. */
+  display: inherit;
+  /* Push the image to the right of the menuitem checkbox. */
+  margin-left: 30px;
+}
