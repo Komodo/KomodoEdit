@@ -149,8 +149,10 @@
                                                                     this._koDoc_observer_topics);
                 this._koDoc.releaseView(this);
                 this._koDoc.releaseReference();
-                Components.classes["@mozilla.org/observer-service;1"].
-                getService(Components.interfaces.nsIObserverService).removeObserver(this,'scheme-changed');
+                var obsSvc = Components.classes["@mozilla.org/observer-service;1"].
+                                getService(Components.interfaces.nsIObserverService);
+                obsSvc.removeObserver(this, 'scheme-changed');
+                obsSvc.removeObserver(this, 'primary_languages_changed');
                 } catch(e) {
                     this.log.exception(e);
                 }
@@ -190,8 +192,10 @@
                                                              this._view_pref_observer_topics.length,
                                                              this._view_pref_observer_topics,
                                                              false);
-                Components.classes["@mozilla.org/observer-service;1"].
-                getService(Components.interfaces.nsIObserverService).addObserver(this,'scheme-changed',0);
+                var obsSvc = Components.classes["@mozilla.org/observer-service;1"].
+                                getService(Components.interfaces.nsIObserverService);
+                obsSvc.addObserver(this, 'scheme-changed', false);
+                obsSvc.addObserver(this, 'primary_languages_changed', false);
                 this.parentView.updateLeafName(this);
                 this.parentView.updateFileStatus(this);
                 this.parentView.updateDirtyStatus(this);
@@ -581,6 +585,13 @@
                     this_._setupHighlightColors();
                 }, 1, this);
                 break;
+
+            case 'primary_languages_changed':
+                // Menu gets rebuild if there is no "komodo_language_menu_already_built" attribute.
+                var languageMenupopup = document.getAnonymousElementByAttribute(this, "anonid", "language-menupopup");
+                languageMenupopup.removeAttribute("komodo_language_menu_already_built");
+                break;
+
             }
         ]]>
         </body>
