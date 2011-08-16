@@ -268,13 +268,17 @@ function _updateSelectionInformation(view) {
     document.getElementById("statusbar-selection").label = selectionLabel;
 }
 
-function _updateLineCol(view) {
+function _updateLineCol(view, currentLine, currentColumn) {
     if (typeof(view)=='undefined' || !view)
         return;
+    if (typeof(currentLine)=='undefined')
+        currentLine = view.currentLine;
+    if (typeof(currentColumn)=='undefined')
+        currentColumn = view.currentColumn;
 
     try {
         var lineColText = _bundle.formatStringFromName("lineColCount.label",
-            [view.currentLine, view.currentColumn], 2);
+            [currentLine, currentColumn], 2);
         var lineColWidget = document.getElementById('statusbar-line-col');
         lineColWidget.setAttribute('label', lineColText);
     } catch(ex) {
@@ -524,8 +528,10 @@ StatusBarObserver.prototype.handle_current_view_language_changed = function(even
 
 StatusBarObserver.prototype.handle_current_view_linecol_changed = function(event) {
     if (!ko.views.manager) return; // no manager yet
-    _updateLineCol(ko.views.manager.currentView);
-}; 
+    _updateLineCol(event.originalTarget,
+                   event.getData("line")+1, // Human line numbers start from 1.
+                   event.getData("column"));
+; 
 
 StatusBarObserver.prototype.handle_current_view_open_or_closed = function(event) {
     _clear()
