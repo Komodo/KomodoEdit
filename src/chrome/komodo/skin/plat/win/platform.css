@@ -91,4 +91,6 @@ menuitem.languageicon[type="checkbox"] image {
   display: inherit;
   /* Push the image to the right of the menuitem checkbox. */
   margin-left: 30px;
+  /* Move the label (on the right) closer to the image. */
+  margin-right: -7px;
 }
