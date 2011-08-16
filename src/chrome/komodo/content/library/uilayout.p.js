@@ -798,15 +798,13 @@ function _Observer ()
     observerSvc.addObserver(this, "primary_languages_changed",false);
     var self = this;
     this.handle_current_view_changed_setup = function(event) {
-        self.handle_current_view_changed(event);
+        self.current_view_changed_common(event.originalTarget);
     };
     this.handle_view_list_closed_setup = function(event) {
         self.handle_view_list_closed(event);
     };
     window.addEventListener('current_view_changed',
                             this.handle_current_view_changed_setup, false);
-    window.addEventListener('current_view_language_changed',
-                            this.handle_current_view_language_changed, false);
     window.addEventListener('view_list_closed',
                             this.handle_view_list_closed_setup, false);
     window.addEventListener('current_project_changed',
@@ -823,8 +821,6 @@ _Observer.prototype.destroy = function()
     
     window.removeEventListener('current_view_changed',
                                this.handle_current_view_changed_setup, false);
-    window.removeEventListener('current_view_language_changed',
-                               this.handle_current_view_language_changed, false);
     window.removeEventListener('view_list_closed',
                                this.handle_view_list_closed_setup, false);
     window.removeEventListener('current_project_changed',
@@ -848,7 +844,8 @@ _Observer.prototype.observe = function(subject, topic, data)
         }
         break;
     case 'primary_languages_changed':
-        ko.uilayout.buildViewAsLanguageMenu();
+        var viewAsMenupopup = document.getElementById("popup_viewAsLanguage");
+        viewAsMenupopup.removeAttribute("komodo_language_menu_already_built");
         break;
     case 'current_project_changed':
     case 'project_opened':
@@ -859,68 +856,16 @@ _Observer.prototype.observe = function(subject, topic, data)
 
 _Observer.prototype.current_view_changed_common = function(view) {
     if (!ko.views.manager.batchMode) {
-        _updateCurrentLanguage(view);
         ko.uilayout.updateTitlebar(view);
     }
 }
-_Observer.prototype.handle_current_view_changed = function(event) {
-    this.current_view_changed_common(event.originalTarget);
-}
 
-_Observer.prototype.handle_current_view_language_changed = function(event) {
-    _log.info("GOT current_view_language_changed");
-    _updateCurrentLanguage(event.originalTarget);
-}
 _Observer.prototype.handle_project_changed = function(event) {
     ko.uilayout.updateTitlebar(ko.views.manager.currentView);
 }
 
 _Observer.prototype.handle_view_list_closed = function(event) {
     this.current_view_changed_common(null);
-}
-
-function _updateCurrentLanguage(view)
-{
-    if (! _viewAsMenuIsBuilt) {
-        // If we haven't built the menu yet, don't bother.
-        return;
-    }
-    if (! view || !view.koDoc || !view.koDoc.language) {
-        // If we don't have a current language, don't bother either
-        return;
-    }
-    _setCheckedLanguage(view.koDoc.language);
-}
-
-function _setCheckedLanguage(language)
-{
-    _log.info("in _updateCurrentLanguage");
-    var languageNameNospaces = language.replace(' ', '', 'g');
-    var id1 = "menu_viewAs" + languageNameNospaces
-    var id2 = "contextmenu_viewAs" + languageNameNospaces
-    var i;
-    var id;
-    var child;
-    var childnodes = document.getElementById('popup_viewAsLanguage').getElementsByTagName('menuitem');
-    for (i = 0; i < childnodes.length; i++) {
-        child = childnodes[i];
-        id = child.getAttribute('id');
-        if (id == id1) {
-            child.setAttribute('checked', 'true');
-        } else {
-            child.setAttribute('checked', 'false');
-        }
-    }
-    childnodes = document.getElementById('statusbar-filetype-menu').getElementsByTagName('menuitem');
-    for (i = 0; i < childnodes.length; i++) {
-        child = childnodes[i];
-        id = child.getAttribute('id');
-        if (id == id2) {
-            child.setAttribute('checked', 'true');
-        } else {
-            child.setAttribute('checked', 'false');
-        }
-    }
 }
 
 // Create and return on tab/window item at the bottom of the Window menu.
@@ -1003,147 +948,115 @@ this.updateWindowList = function uilayout_updateWindowList(popup) {
     }
 }
 
-var _viewAsMenuIsBuilt = false;
-this.updateViewAsMenuIfNecessary = function uilayout_UpdateViewAsMenuIfNecessary()
-{
-    if (_viewAsMenuIsBuilt) return;
-    ko.uilayout.buildViewAsLanguageMenu();
-    _viewAsMenuIsBuilt = true;
-}
-
-function _getHierarchy(hdata) {
-    var langService = Components.classes["@activestate.com/koLanguageRegistryService;1"].
-                getService(Components.interfaces.koILanguageRegistryService);
-    var langHierarchy = langService.getLanguageHierarchy();
-    var items = _buildMenuTree(hdata, langHierarchy, true);
-    for (var i=0;i<items[0].length;i++)  {
-        hdata.viewAsMenu.appendChild(items[0][i]);
-        hdata.statusbarContextMenu.appendChild(items[1][i]);
-    }
-}
-
-
-function _buildMenuTree(hdata, hierarchy, toplevel) {
-    var menu, menu2;
-    var menupopup, menupopup2;
-    var viewAs_menuitems = new Array();
-    var context_menuitems = new Array();
-    var cmd, menuitem, menuitem2;
-    var children = new Object();
-    var count = new Object();
+function _buildMenuTree(hierarchy, toplevel) {
+    var menu;
+    var menupopup;
+    var menuitem;
+    var menuitems = [];
+    var children = {};
     var i, j;
 
     if (hierarchy.container == true)  {
         // build menu
-        hierarchy.getChildren(children, count);
+        hierarchy.getChildren(children, {} /* count */);
         children = children.value;
 
         for (i=0;i<children.length;i++)  {
-            var a = _buildMenuTree(hdata, children[i], false);
-            viewAs_menuitems.push(a[0]);
-            context_menuitems.push(a[1]);
+            menuitems.push(_buildMenuTree(children[i], false));
         }
         if (!toplevel)  {
             menu = document.createElementNS(XUL_NS, 'menu');
-            menupopup = document.createElementNS(XUL_NS, 'menupopup');
             menu.setAttribute('label', hierarchy.name);
-            menu2 = document.createElementNS(XUL_NS, 'menu');
-            menupopup2 = document.createElementNS(XUL_NS, 'menupopup');
-            menu2.setAttribute('label', hierarchy.name);
-            menu2.setAttribute("class", "statusbar-label");
-
-            for (j=0;j<viewAs_menuitems.length;j++)  {
-                menupopup.appendChild(viewAs_menuitems[j]);
-                menupopup2.appendChild(context_menuitems[j]);
+            menupopup = document.createElementNS(XUL_NS, 'menupopup');
+            for (j=0; j < menuitems.length; j++)  {
+                menupopup.appendChild(menuitems[j]);
             }
             menu.appendChild(menupopup);
-            menu2.appendChild(menupopup2);
-            return [menu, menu2];
+            return menu;
         }
-        return [viewAs_menuitems, context_menuitems];
-    }
-    else  {
+        return menuitems;
+
+    } else {
         var languageNameNospaces = hierarchy.name.replace(' ', '', 'g')
 
         menuitem = document.createElementNS(XUL_NS, 'menuitem');
-        menuitem.setAttribute("id", "menu_viewAs" + languageNameNospaces);
+        menuitem.setAttribute("anonid", "menu_viewAs" + languageNameNospaces);
         menuitem.setAttribute('label', hierarchy.name);
         menuitem.setAttribute("accesskey", hierarchy.key);
         menuitem.setAttribute("type", "checkbox");
         menuitem.setAttribute("class", "languageicon");
         menuitem.setAttribute("language", hierarchy.name);
-        menuitem.setAttribute("observes", "cmd_viewAs"+languageNameNospaces);
+        menuitem.setAttribute("oncommand", "ko.views.manager.do_ViewAs('" + hierarchy.name + "');");
 
-        menuitem2 = menuitem.cloneNode(false);
-        menuitem2.setAttribute("id", "contextmenu_viewAs" + languageNameNospaces);
-        menuitem2.setAttribute("class", "statusbar-label languageicon");
-
-        if (hierarchy.name == hdata.language) {
-            menuitem.setAttribute('checked', 'true');
-            menuitem2.setAttribute('checked', 'true');
-        }
-
-        // create the commandset
-        cmd = document.createElementNS(XUL_NS, 'command');
-        cmd.setAttribute("id", "cmd_viewAs"+languageNameNospaces);
-        if (hdata.language == null) {
-            cmd.setAttribute("disabled", "true");
-        }
-        cmd.setAttribute("oncommand", "ko.views.manager.do_ViewAs('" + hierarchy.name + "');");
-        hdata.commandset.appendChild(cmd);
-
-        return [menuitem, menuitem2];
+        return menuitem;
     }
 }
 
 // This updates the list in the View As ... menu.
 // Called by uilayout_onload
-this.buildViewAsLanguageMenu = function uilayout_buildViewAsLanguageMenu() {
-    // We may already have a language, let's find out:
-
-    var hdata = {};
-    var cmd, menuitem, menuitem2;
-    hdata.commandset = document.getElementById("cmdset_viewAs");
-    hdata.viewAsMenu = document.getElementById("popup_viewAsLanguage");
-    hdata.statusbarContextMenu = document.getElementById('statusbar-filetype-menu');
+this.buildViewAsLanguageMenu = function uilayout_buildViewAsLanguageMenu(menupopup) {
     // If we're rebuilding a menu, delete any existing nodes.
-    for (var p in hdata) {
-        var node = hdata[p];
-        while (node.firstChild) {
-            node.removeChild(node.firstChild);
-        }
+    while (menupopup.firstChild) {
+        menupopup.removeChild(menupopup.firstChild);
     }
-    hdata.language = null;
-    if (ko.views.manager.currentView &&
-        ko.views.manager.currentView.koDoc &&
-        ko.views.manager.currentView.koDoc.language) {
-        hdata.language = ko.views.manager.currentView.koDoc.language;
-    }
+
+    // Load all the known languages into the menupopup.
     try {
-    _getHierarchy(hdata);
+        var langService = Components.classes["@activestate.com/koLanguageRegistryService;1"].
+                    getService(Components.interfaces.koILanguageRegistryService);
+        var langHierarchy = langService.getLanguageHierarchy();
+        var menuitems = _buildMenuTree(langHierarchy, true);
+        for (var i=0; i < menuitems.length; i++)  {
+            menupopup.appendChild(menuitems[i]);
+        }
     } catch (e) {
         _log.exception(e);
     }
-    cmd = document.createElementNS(XUL_NS, 'command');
-    cmd.setAttribute("id", "cmd_viewAsGuessedLanguage");
-    cmd.setAttribute("disabled", "true");
-    cmd.setAttribute("oncommand", "ko.views.manager.do_ViewAs('');");
-    hdata.commandset.appendChild(cmd);
-    menuitem = document.createElementNS(XUL_NS, 'menuseparator');
-    hdata.viewAsMenu.appendChild(menuitem);
-    menuitem2 = document.createElementNS(XUL_NS, 'menuseparator');
-    hdata.statusbarContextMenu.appendChild(menuitem2);
+
+    // Add separator and the reset to best guess menuitem.
+    var menuitem = document.createElementNS(XUL_NS, 'menuseparator');
+    menupopup.appendChild(menuitem);
+
     menuitem = document.createElementNS(XUL_NS, 'menuitem');
     menuitem.setAttribute("id", "menu_viewAsGuessedLanguage");
     menuitem.setAttribute("label", _bundle.GetStringFromName("resetToBestGuess"));
     menuitem.setAttribute("observes", "cmd_viewAsGuessedLanguage");
-    hdata.viewAsMenu.appendChild(menuitem);
-    menuitem2 = document.createElementNS(XUL_NS, 'menuitem');
-    menuitem2.setAttribute("id", "menu_viewAsGuessedLanguage");
-    menuitem2.setAttribute("label", _bundle.GetStringFromName("resetToBestGuess"));
-    menuitem2.setAttribute("class", "statusbar-label");
-    menuitem2.setAttribute("observes", "cmd_viewAsGuessedLanguage");
-    hdata.statusbarContextMenu.appendChild(menuitem2);
+    menupopup.appendChild(menuitem);
+}
+
+function _setCheckedLanguage(menupopup, language)
+{
+    _log.info("in _setCheckedLanguage");
+    var i;
+    var id;
+    var child;
+    var childnodes = menupopup.getElementsByTagName('menuitem');
+    for (i = 0; i < childnodes.length; i++) {
+        child = childnodes[i];
+        if (child.getAttribute('language') == language) {
+            child.setAttribute('checked', 'true');
+        } else {
+            child.setAttribute('checked', 'false');
+        }
+    }
+}
+
+this.updateViewAsLanguageMenu = function uilayout_updateViewAsLanguageMenu(menupopup, view)
+{
+    if (!menupopup.hasAttribute("komodo_language_menu_already_built")) {
+        // Build the menu;
+        ko.uilayout.buildViewAsLanguageMenu(menupopup);
+        menupopup.setAttribute("komodo_language_menu_already_built", "true");
+    }
+
+    if (!view) {
+        view = ko.views.manager.currentView;
+        if (!view) {
+            return;
+        }
+    }
+    // Mark the current view's language.
+    _setCheckedLanguage(menupopup, view.language);
 }
 
 
@@ -1626,7 +1539,6 @@ ko.logging.globalDeprecatedByAlternative("uilayout_onFullScreen", "ko.uilayout.o
 ko.logging.globalDeprecatedByAlternative("uilayout_newFileFromTemplateOrTrimMRU", "ko.uilayout.newFileFromTemplateOrTrimMRU");
 ko.logging.globalDeprecatedByAlternative("uilayout_UpdateMRUMenuIfNecessary", "ko.uilayout.updateMRUMenuIfNecessary");
 ko.logging.globalDeprecatedByAlternative("uilayout_updateWindowList", "ko.uilayout.updateWindowList");
-ko.logging.globalDeprecatedByAlternative("uilayout_UpdateViewAsMenuIfNecessary", "ko.uilayout.updateViewAsMenuIfNecessary");
 ko.logging.globalDeprecatedByAlternative("uilayout_buildViewAsLanguageMenu", "ko.uilayout.buildViewAsLanguageMenu");
 ko.logging.globalDeprecatedByAlternative("uilayout_outputPaneShown", "ko.uilayout.outputPaneShown");
 ko.logging.globalDeprecatedByAlternative("uilayout_leftPaneShown", "ko.uilayout.leftPaneShown");

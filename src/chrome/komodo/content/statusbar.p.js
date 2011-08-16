@@ -121,35 +121,6 @@ var updateMessageRequestID = 0;
 //---- helper functions
 
 
-function _updateLanguage(view) {
-    if (typeof(view)=='undefined' || !view || !view.koDoc)
-        return;
-    try {
-        //XXX It would probably be cleaner to handle the "startpage language
-        //    is N/A" logic in the view system, but I don't know how to
-        //    easily do that right now.
-        var languageWidget = document.getElementById('statusbar-language-menu');
-        if (view.getAttribute("type") == "startpage") {
-            _clearLanguage();
-            languageWidget.setAttribute('collapsed', 'true');
-            languageWidget.removeAttribute('language');
-        } else {
-            var language = view.koDoc.language;
-            languageWidget.setAttribute("label", language);
-            languageWidget.setAttribute('language', language);
-            languageWidget.removeAttribute('collapsed');
-        }
-    } catch(e) {
-        _clearLanguage();
-    }
-}
-
-
-function _clearLanguage() {
-    var languageWidget = document.getElementById('statusbar-language-menu');
-    languageWidget.setAttribute("label", "");
-}
-
 function _updateLintMessage(view) {
     // The timeout has been called, remove the setTimeout id
     _updateLintMessageTimer = null;
@@ -443,7 +414,6 @@ function _updateMessage()
 
 
 function _clear() {
-    _clearLanguage();
     _clearLineCol();
     _clearCheck();
 }
@@ -458,8 +428,6 @@ function StatusBarObserver() {
                             this.handle_current_view_changed, false);
     window.addEventListener('current_view_check_status',
                             this.handle_current_view_check_status, false);
-    window.addEventListener('current_view_language_changed',
-                            this.handle_current_view_language_changed, false);
     window.addEventListener('current_view_linecol_changed',
                             this.handle_current_view_linecol_changed, false);
     window.addEventListener('view_closed',
@@ -480,8 +448,6 @@ StatusBarObserver.prototype.destroy = function()
                                this.handle_current_view_changed, false);
     window.removeEventListener('current_view_check_status',
                                this.handle_current_view_check_status, false);
-    window.removeEventListener('current_view_language_changed',
-                               this.handle_current_view_language_changed, false);
     window.removeEventListener('current_view_linecol_changed',
                                this.handle_current_view_linecol_changed, false);
     window.removeEventListener('view_closed',
@@ -512,7 +478,6 @@ StatusBarObserver.prototype.observe = function(subject, topic, data)
 StatusBarObserver.prototype.handle_current_view_changed = function(event) {
     if (!ko.views.manager.batchMode) {
         var view = event.originalTarget;
-        _updateLanguage(view);
         _updateLineCol(view);
         _updateCheck(view);
     }
@@ -521,10 +486,6 @@ StatusBarObserver.prototype.handle_current_view_changed = function(event) {
 StatusBarObserver.prototype.handle_current_view_check_status = function(event) {
     _updateCheck(ko.views.manager.currentView);
 };
-
-StatusBarObserver.prototype.handle_current_view_language_changed = function(event) {
-    _updateLanguage(ko.views.manager.currentView);
-}; 
 
 StatusBarObserver.prototype.handle_current_view_linecol_changed = function(event) {
     if (!ko.views.manager) return; // no manager yet

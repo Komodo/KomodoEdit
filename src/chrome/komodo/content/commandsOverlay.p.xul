@@ -986,12 +986,6 @@
             disabled="true"
             desc="&generalExportAsHTML.desc;"/>
         <command
-            id="cmd_viewAsGuessedLanguage" key="key_cmd_viewAsGuessedLanguage"
-            interactive="true"
-            oncommand="ko.commands.doCommandAsync('cmd_viewAsGuessedLanguage', event)"
-            disabled="true"
-            desc="&editorResetLanguageToBestGuess.desc;"/>
-        <command
             id="cmd_find" key="key_cmd_find"
             interactive="true"
             oncommand="ko.commands.doCommandAsync('cmd_find', event)"
@@ -1125,6 +1119,12 @@
         <command
             id="cmd_viewAsLanguage" key="key_cmd_viewAsLanguage"
             disabled="true"/>
+        <command
+            id="cmd_viewAsGuessedLanguage" key="key_cmd_viewAsGuessedLanguage"
+            interactive="true"
+            oncommand="ko.commands.doCommandAsync('cmd_viewAsGuessedLanguage', event)"
+            disabled="true"
+            desc="&editorResetLanguageToBestGuess.desc;"/>
 
         <command
             id="cmd_transpose" key="key_cmd_transpose"
@@ -1655,15 +1655,6 @@
     </commandset>
 
     <commandset id="cmdset_parts"/>
-
-    <commandset
-        id="cmdset_viewAs"
-        oncommandupdate="ko.commands.updateCommandset(this)"
-        commandupdater="true"
-        events="currentview_is_editor"
-        >
-        <!-- this is populated by ko.uilayout.updateViewAsLanguage() -->
-    </commandset>
 
 </commandset>
 <!-- key_cmd_catchallbindings:

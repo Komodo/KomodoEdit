@@ -1250,29 +1250,6 @@ viewManager.prototype.handle_view_opened = function() {
     }
 };
 
-viewManager.prototype.supportsCommand = function viewManager_supportsCommand(command) {
-    if (command.indexOf("cmd_viewAs") == 0) {
-        return true;
-    }
-
-    return xtk.Controller.prototype.supportsCommand.apply(this, [command]);
-}
-
-viewManager.prototype.isCommandEnabled = function viewManager_isCommandEnabled(command) {
-    if (command.indexOf("cmd_viewAs") == 0) {
-        // XXX we want to use a broadcaster for this, there are too many.
-        var rc = ko.views.manager.currentView && ko.views.manager.currentView.getAttribute('type') == 'editor'
-        //this.log.warn('asked about' + command + ', returning ' + rc );
-        return rc;
-    }
-
-    return xtk.Controller.prototype.isCommandEnabled.apply(this, [command]);
-}
-
-viewManager.prototype.doCommand = function viewManager_doCommand(command) {
-    xtk.Controller.prototype.doCommand.apply(this, [command]);
-}
-
 viewManager.prototype.is_cmd_bufferClose_supported = function() {
     return 1;
 }
@@ -1662,6 +1639,21 @@ viewManager.prototype.is_cmd_viewAsLanguage_enabled = function() {
     }
 }
 
+// cmd_viewAsGuessedLanguage
+
+viewManager.prototype.is_cmd_viewAsGuessedLanguage_supported = function() {
+    return 1;
+}
+
+viewManager.prototype.is_cmd_viewAsGuessedLanguage_enabled = function() {
+    return (this.currentView && this.currentView.getAttribute("type") == "editor");
+}
+
+viewManager.prototype.do_cmd_viewAsGuessedLanguage = function() {
+    if (this.currentView && this.currentView.getAttribute("type") == "editor") {
+        ko.views.manager.do_ViewAs('');
+    }
+}
 
 // cmd_gotoLine
 

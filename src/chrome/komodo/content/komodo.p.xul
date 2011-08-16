@@ -141,6 +141,7 @@
     <script src="chrome://komodo/content/launch.js"                       type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/views.js"                        type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/viewtoolbar/encoding.js"         type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/viewtoolbar/language.js"         type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/viewtoolbar/overflow.js"         type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/statusbar.js"                    type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/editor.js"                       type="application/x-javascript;version=1.7"/>
@@ -1188,7 +1189,7 @@
                                   accesskey="&viewAsLanguage.accesskey;"
                                   observes="cmd_viewAsLanguage">
                                 <menupopup id="popup_viewAsLanguage"
-                                           onpopupshowing="ko.uilayout.updateViewAsMenuIfNecessary();"
+                                           onpopupshowing="ko.uilayout.updateViewAsLanguageMenu(this);"
                                            />
                             </menu>
                             <menuitem label="&increaseFont.label;"
@@ -1992,11 +1993,24 @@
         -->
         <spacer anonid="view-toolbar-spacer"
                 flex="1" />
+
+        <toolbarbutton anonid="language-toolbarbutton"
+                       class="languageicon"
+                       tooltiptext="&fileType.tooltiptext;"
+                       orient="horizontal"
+                       type="menu">
+            <menupopup anonid="language-menupopup"
+                       class="language-menupopup"
+                       position="before_end"
+                       onpopupshowing="ko.uilayout.updateViewAsLanguageMenu(this, document.getBindingParent(this));" />
+        </toolbarbutton>
+
         <toolbarbutton anonid="encoding-toolbarbutton"
                        orient="horizontal"
                        type="menu">
             <menupopup anonid="encoding-menupopup"
                        class="encoding-menupopup"
+                       position="before_end"
                        onpopupshowing="ko.viewtoolbar.encoding.initializeMenu(document.getBindingParent(this), this);" />
         </toolbarbutton>
     </hbox>
@@ -2159,22 +2173,6 @@
                         tooltiptext="&selectionInformation.tooltiptext;"
                         style="min-width: 8em;"
                         insertafter="statusbar-line-col"/>
-        <statusbarpanel id="statusbar-language"
-                        pack="end"
-                        style="min-width: 8em; max-width: 12em;">
-            <toolbarbutton class="statusbar-label languageicon"
-                  id="statusbar-language-menu"
-                  tooltiptext="&fileType.tooltiptext;"
-                  flex="1"
-                  orient="horizontal"
-                  type="menu"
-                  persist="buttonstyle"
-                  buttonstyle="text">
-                <menupopup id="statusbar-filetype-menu"
-                           position="before_end"
-                           onpopupshowing="ko.uilayout.updateViewAsMenuIfNecessary();" />
-            </toolbarbutton>
-        </statusbarpanel>
     </statusbar>
     <commandset id="allcommands"/>
     <keyset id="widekeyset" persist="persisted_kb" persisted_kb="false"/>

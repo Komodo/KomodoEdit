@@ -92,6 +92,8 @@
 
         <property name="toolbar_encoding" onget="return window.document.getAnonymousElementByAttribute(this, 'anonid', 'encoding-toolbarbutton');"/>
 
+        <property name="toolbar_language" onget="return window.document.getAnonymousElementByAttribute(this, 'anonid', 'language-toolbarbutton');"/>
+
         <property name="cwd">
              <getter><![CDATA[
                 if (this.koDoc && ! this.koDoc.isUntitled) {
@@ -206,13 +208,7 @@
                     this._everLinted = true;
                 }
                 let language = val.language;
-                this.language = language;
-                this.isCICplnEnabled = (ko.codeintel.isActive
-                    && ko.codeintel.is_cpln_lang(language));
-                this.isCICitadelStuffEnabled = (ko.codeintel.isActive
-                    && ko.codeintel.is_citadel_lang(language));
-                this.isCIXMLStuffEnabled = (ko.codeintel.isActive
-                    && ko.codeintel.is_xml_lang(language));
+                this._setLanguage(language);
                 
                 xtk.domutils.fireEvent(this, 'view_document_attached');
             } else {
@@ -448,6 +444,27 @@
         </body>
         </method>
 
+        <method name="_setLanguage">
+        <parameter name="language"/>
+        <body>
+        <![CDATA[
+            this.language = language;
+
+            // Update codeintel variables.
+            this.isCICplnEnabled = (ko.codeintel.isActive && ko.codeintel.is_cpln_lang(language));
+            this.isCICitadelStuffEnabled = (ko.codeintel.isActive && ko.codeintel.is_citadel_lang(language));
+            this.isCIXMLStuffEnabled = (ko.codeintel.isActive && ko.codeintel.is_xml_lang(language));
+
+            // Update the view toolbar.
+            var languageWidget = this.toolbar_language;
+            if (languageWidget) {
+                languageWidget.setAttribute("label", language);
+                languageWidget.setAttribute('language', language);
+            }
+        ]]>
+        </body>
+        </method>
+
         <!--nsIObserver implementation-->
         <method name="observe">
         <!-- Generally the subject of the notification is the view's
@@ -472,7 +489,7 @@
                 }
                 let language = doc.language;
                 this.log.info("Changed language to:" + language);
-                this.language = language;
+                this._setLanguage(language);
                 // bug 34689, bug 81587: force syntax highlighting to re-lex,
                 // otherwise the syntax colouring is not correctly updated.
                 this._clearFoldLevels(this.scimoz);
@@ -481,12 +498,6 @@
                 this.scimoz.colourise(0,-1);
                 this.commandCompletionSvc = null;
                 this._languageObj = null;
-                this.isCICplnEnabled = (ko.codeintel.isActive
-                    && ko.codeintel.is_cpln_lang(language));
-                this.isCICitadelStuffEnabled = (ko.codeintel.isActive
-                    && ko.codeintel.is_citadel_lang(language));
-                this.isCIXMLStuffEnabled = (ko.codeintel.isActive
-                    && ko.codeintel.is_xml_lang(language));
                 if (this == ko.views.manager.currentView) {
                     if (this.lintBuffer && this.koDoc.getEffectivePrefs().getBooleanPref("editUseLinting")) {
                         //XXX What if the language of a view other than the
