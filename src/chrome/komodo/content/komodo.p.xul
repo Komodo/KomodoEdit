@@ -141,7 +141,6 @@
     <script src="chrome://komodo/content/launch.js"                       type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/views.js"                        type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/viewtoolbar/encoding.js"         type="application/x-javascript;version=1.7"/>
-    <script src="chrome://komodo/content/viewtoolbar/language.js"         type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/viewtoolbar/overflow.js"         type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/statusbar.js"                    type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/editor.js"                       type="application/x-javascript;version=1.7"/>
