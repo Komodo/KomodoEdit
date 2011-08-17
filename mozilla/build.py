@@ -2221,11 +2221,14 @@ def target_src(argv=["src"]):
             repo_url = "http://hg.mozilla.org/releases/mozilla-1.9.2/"
         elif config.mozVer <= 2.00:
             repo_url = "http://hg.mozilla.org/releases/mozilla-2.0/"
-        elif config.mozVer <= 5.00:
-            repo_url = "http://hg.mozilla.org/releases/mozilla-release/"
+        # 5.0 is gone? I cannot find it...
+        #elif config.mozVer <= 5.00:
+        #    repo_url = "http://hg.mozilla.org/releases/mozilla-5.0/"
         elif config.mozVer <= 6.00:
-            repo_url = "http://hg.mozilla.org/releases/mozilla-beta/"
+            repo_url = "http://hg.mozilla.org/releases/mozilla-release/"
         elif config.mozVer <= 7.00:
+            repo_url = "http://hg.mozilla.org/releases/mozilla-beta/"
+        elif config.mozVer <= 8.00:
             repo_url = "http://hg.mozilla.org/releases/mozilla-aurora/"
         else:
             repo_url = "http://hg.mozilla.org/mozilla-central/"
