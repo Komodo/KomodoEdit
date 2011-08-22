@@ -45,9 +45,11 @@ def add(config):
     base = os.path.dirname(__file__)
     mozVer = hasattr(config, "mozVer") and config.mozVer or None
     if mozVer < 4.99:
-        name = "Makefile-trunk.in"
-    else:
+        name = "Makefile-40.in"
+    elif mozVer < 5.99:
         name = "Makefile-50.in"
+    else:
+        name = "Makefile-60.in"
     src = os.path.join(base, name)
     shutil.copy(src, os.path.join(base, "Makefile.in"))
         

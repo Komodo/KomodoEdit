@@ -1,0 +1,44 @@
+# HG changeset patch
+# Parent b95477733569f36e6cbb076d8f584185797b9662
+importing patch bug70739_myspell_en-us_dic.patch
+
+diff --git a/extensions/spellcheck/locales/en-US/hunspell/en-US.dic b/extensions/spellcheck/locales/en-US/hunspell/en-US.dic
+--- a/extensions/spellcheck/locales/en-US/hunspell/en-US.dic
++++ b/extensions/spellcheck/locales/en-US/hunspell/en-US.dic
+@@ -134,16 +134,17 @@ Achebe/M
+ Achernar
+ Acheson/M
+ Achilles/M
+ Aconcagua/M
+ Acosta/M
+ Acropolis
+ Acrux/M
+ Actaeon
++ActiveState/M
+ ActiveX/M
+ Acton
+ Acts
+ Acuff/M
+ Acura/MS
+ Ad/MN
+ Ada/SM
+ Adah/M
+@@ -8583,16 +8584,18 @@ Koenraad/M
+ Koestler
+ Kohinoor
+ Kohl
+ Koizumi/M
+ Kojak/M
+ Koln/M
+ Kolyma
+ Kommunizma/M
++Komodo/M
++komodo/M
+ Kong/M
+ Kongo/M
+ Konrad/M
+ Konstance/M
+ Konstantin/M
+ Konstantine/M
+ Konstanze/M
+ Koo/M

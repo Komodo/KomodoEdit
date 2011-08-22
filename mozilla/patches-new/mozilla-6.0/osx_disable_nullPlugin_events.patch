@@ -1,0 +1,17 @@
+Disable the nullPlugin event handling used in the Mozilla plugin event system.
+Komodo does not need to receive these events and removing these greatly
+reduces Komodo's CPU usage.
+http://bugs.activestate.com/show_bug.cgi?id=81373
+
+Index: /Users/toddw/as/komodo-devel/mozilla/build/moz200-ko7.9/mozilla/layout/generic/nsObjectFrame.cpp
+--- a/layout/generic/nsObjectFrame.cpp	Mon Apr 18 20:00:01 2011 -0400
++++ b/layout/generic/nsObjectFrame.cpp	Tue May 03 10:50:07 2011 -0700
+@@ -6511,6 +6543,8 @@
+ #ifdef MAC_CARBON_PLUGINS
+ void nsPluginInstanceOwner::StartTimer(PRBool isVisible)
+ {
++  // Komodo - disable the nullPlugin timer for perf reasons, we don't need it.
++  return;
+   if (GetEventModel() != NPEventModelCarbon)
+     return;
+ 

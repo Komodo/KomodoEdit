@@ -78,6 +78,13 @@ ifdef SOURCE_REPO
 DEFINES += -DMOZ_SOURCE_REPO="$(SOURCE_REPO)"
 endif
 
+DEFINES += -DMOZ_APP_BASENAME="$(MOZ_APP_BASENAME)" \
+           -DMOZ_APP_VENDOR="$(MOZ_APP_VENDOR)"
+
+ifdef MOZ_APP_PROFILE
+DEFINES += -DMOZ_APP_PROFILE="$(MOZ_APP_PROFILE)"
+endif
+
 LIBS += $(JEMALLOC_LIBS)
 
 ifdef LIBXUL_SDK
@@ -85,7 +92,7 @@ include $(topsrcdir)/config/rules.mk
 else
 # Build a binary bootstrapping with XRE_main
 
-ifneq (,$(filter OS2 WINCE WINNT,$(OS_ARCH)))
+ifneq (,$(filter OS2 WINNT,$(OS_ARCH)))
 PROGRAM = $(MOZ_APP_NAME)$(BIN_SUFFIX)
 else
 PROGRAM = $(MOZ_APP_NAME)-bin$(BIN_SUFFIX)
@@ -99,50 +106,19 @@ CSRCS = my_getopt.c \
 LOCAL_INCLUDES += -I$(topsrcdir)/toolkit/xre
 LOCAL_INCLUDES += -I$(topsrcdir)/xpcom/base
 
-ifdef BUILD_STATIC_LIBS
-ifdef _MSC_VER
-STATIC_COMPONENTS_LINKER_PATH = -LIBPATH:$(DEPTH)/staticlib
-else
-STATIC_COMPONENTS_LINKER_PATH = -L$(DEPTH)/staticlib
-endif
-LIBS += $(DEPTH)/toolkit/xre/$(LIB_PREFIX)xulapp_s.$(LIB_SUFFIX)
-else
 ifeq (cocoa,$(MOZ_WIDGET_TOOLKIT))
 LIBS += $(DIST)/bin/XUL
+TK_LIBS := $(TK_LIBS)
 else
 EXTRA_DSO_LIBS += xul
-endif
-endif
-
-ifeq (cocoa,$(MOZ_WIDGET_TOOLKIT))
-TK_LIBS := $(TK_LIBS)
-endif
-
-ifdef MOZ_ENABLE_LIBXUL
-APP_XPCOM_LIBS = $(XPCOM_GLUE_LDOPTS)
-else
-MOZILLA_INTERNAL_API = 1
-APP_XPCOM_LIBS = $(XPCOM_LIBS)
 endif
 
 LIBS += \
 	$(STATIC_COMPONENTS_LINKER_PATH) \
 	$(EXTRA_DSO_LIBS) \
-	$(APP_XPCOM_LIBS) \
+	$(XPCOM_GLUE_LDOPTS) \
 	$(NSPR_LIBS) \
 	$(NULL)
-
-ifdef BUILD_STATIC_LIBS
-LIBS += \
-	$(MOZ_JS_LIBS) \
-	$(TK_LIBS) \
-	$(NULL)
-
-# Add explicit X11 dependency when building against X11 toolkits
-ifneq (,$(filter gtk2,$(MOZ_WIDGET_TOOLKIT)))
-LIBS += $(XLDFLAGS) $(XLIBS) $(ZLIB_LIBS)
-endif
-endif
 
 ifdef MOZ_JPROF
 LIBS += -ljprof
@@ -165,27 +141,7 @@ include $(topsrcdir)/config/config.mk
 ifdef _MSC_VER
 # Always enter a Windows program through wmain, whether or not we're
 # a console application.
-ifdef WINCE
-WIN32_EXE_LDFLAGS += -ENTRY:mainWCRTStartup
-else
 WIN32_EXE_LDFLAGS += -ENTRY:wmainCRTStartup
-endif
-endif
-
-ifdef WINCE
-EXTRA_DSO_LDOPTS += $(call EXPAND_LIBNAME,corelibc)
-endif
-
-ifdef BUILD_STATIC_LIBS
-include $(topsrcdir)/config/static-config.mk
-
-EXTRA_DEPS	+= \
-	$(STATIC_EXTRA_DEPS) \
-	$(NULL)
-DEFINES		+= $(STATIC_DEFINES)
-CPPSRCS		+= $(STATIC_CPPSRCS)
-EXTRA_DSO_LIBS	+= $(STATIC_EXTRA_DSO_LIBS)
-EXTRA_LIBS	+= $(STATIC_EXTRA_LIBS)
 endif
 
 ifeq ($(OS_ARCH),WINNT)
@@ -193,15 +149,12 @@ OS_LIBS += $(call EXPAND_LIBNAME,comctl32 comdlg32 uuid shell32 ole32 oleaut32 v
 OS_LIBS += $(call EXPAND_LIBNAME,usp10 msimg32)
 endif
 
-ifneq (,$(filter WINNT WINCE,$(OS_ARCH)))
+ifeq ($(OS_ARCH),WINNT)
 RCINCLUDE = splash.rc
 ifndef GNU_CC
 RCFLAGS += -DMOZ_PHOENIX -I$(srcdir)
 else
 RCFLAGS += -DMOZ_PHOENIX --include-dir $(srcdir)
-endif
-ifdef BUILD_STATIC_LIBS
-RCFLAGS += -DMOZ_STATIC_BUILD
 endif
 ifdef DEBUG
 RCFLAGS += -DDEBUG
@@ -211,22 +164,13 @@ endif
 ifeq ($(OS_ARCH),OS2)
 RESFILE=splashos2.res
 RCFLAGS += -DMOZ_PHOENIX
-ifdef BUILD_STATIC_LIBS
-RCFLAGS += -DMOZ_STATIC_BUILD -i $(DIST)/include
-endif
 ifdef DEBUG
 RCFLAGS += -DDEBUG
 endif
-RCFLAGS += -DFIREFOX_ICO=\"$(DIST)/branding/komodo.ico\"
+RCFLAGS += -DKOMODO_ICO=\"$(DIST)/branding/firefox-os2.ico\" -DDOCUMENT_ICO=\"$(DIST)/branding/document-os2.ico\"
 endif
 
 include $(topsrcdir)/config/rules.mk
-
-ifdef BUILD_STATIC_LIBS
-include $(topsrcdir)/config/static-rules.mk
-
-DEFINES += -DIMPL_XREAPI
-endif
 
 ifeq ($(MOZ_WIDGET_TOOLKIT),photon)
 LIBS += -lphexlib
@@ -252,7 +196,7 @@ endif
 endif
 endif
 
-ifneq (,$(filter-out OS2 WINNT WINCE,$(OS_ARCH)))
+ifneq (,$(filter-out OS2 WINNT,$(OS_ARCH)))
 
 $(MOZ_APP_NAME):: $(topsrcdir)/build/unix/mozilla.in $(GLOBAL_DEPS)
 	cat $< | sed -e "s|%MOZAPPDIR%|$(installdir)|" \
@@ -272,7 +216,7 @@ endif
 
 endif # LIBXUL_SDK
 
-DEFINES += -DFIREFOX_ICO=\"$(DIST)/branding/komodo.ico\"
+DEFINES += -DKOMODO_ICO=\"$(DIST)/branding/komodo.ico\" -DDOCUMENT_ICO=\"$(DIST)/branding/document.ico\"
 
 ifdef MOZILLA_OFFICIAL
 DEFINES += -DMOZILLA_OFFICIAL
@@ -280,23 +224,13 @@ endif
 
 ifeq ($(MOZ_WIDGET_TOOLKIT),gtk2)
 libs::
-	$(INSTALL) $(IFLAGS1) $(DIST)/mozicon128.png $(DIST)/bin/icons
-	$(INSTALL) $(IFLAGS1) $(DIST)/default.xpm  $(DIST)/bin/chrome/icons/default
-	$(INSTALL) $(IFLAGS1) $(DIST)/mozicon16.xpm  $(DIST)/bin/chrome/icons/default
-	$(INSTALL) $(IFLAGS1) $(DIST)/mozicon50.xpm  $(DIST)/bin/chrome/icons/default
+	$(INSTALL) $(IFLAGS1) $(srcdir)/default.xpm    $(DIST)/bin/chrome/icons/default
 endif
 
 ifdef MOZ_SPLASHSCREEN
 ifeq ($(MOZ_WIDGET_TOOLKIT),windows)
 libs::
 	$(INSTALL) $(IFLAGS1) $(DIST)/branding/splash.bmp $(DIST)/bin
-endif
-endif
-
-ifdef WINCE
-ifdef MOZ_FASTSTART
-libs::
-	cp -f $(DIST)/bin/faststartstub.exe $(DIST)/bin/$(MOZ_APP_NAME)faststart.exe
 endif
 endif
 
@@ -343,6 +277,7 @@ else
 endif
 	-cp -L $(DIST)/bin/mangle $(DIST)/bin/shlibsign $(DIST)/$(APP_NAME).app/Contents/$(APPFILES)
 	cp -RL $(DIST)/branding/komodo.icns $(DIST)/$(APP_NAME).app/Contents/Resources/komodo.icns
+	cp -RL $(DIST)/branding/document.icns $(DIST)/$(APP_NAME).app/Contents/Resources/document.icns
 	printf APPLMOZB > $(DIST)/$(APP_NAME).app/Contents/PkgInfo
 #       remove CVS dirs from packaged app
 	find $(DIST)/$(APP_NAME).app -type d -name "CVS" -prune -exec rm -rf {} \;

@@ -1,0 +1,61 @@
+# HG changeset patch
+# Parent dda427763e84324fb95abe84611ae755a4b903be
+Allow use of Ctrl+Space keybinding on Mac OS X - bug 89069.
+
+
+
+diff --git a/widget/src/cocoa/nsChildView.mm b/widget/src/cocoa/nsChildView.mm
+--- a/widget/src/cocoa/nsChildView.mm
++++ b/widget/src/cocoa/nsChildView.mm
+@@ -4561,8 +4561,14 @@ GetUSLayoutCharFromKeyTranslate(UInt32 a
+       outGeckoEvent->charCode = [chars characterAtIndex:0];
+     
+     // convert control-modified charCode to raw charCode (with appropriate case)
+-    if (outGeckoEvent->isControl && outGeckoEvent->charCode <= 26)
+-      outGeckoEvent->charCode += (outGeckoEvent->isShift) ? ('A' - 1) : ('a' - 1);
++    if (outGeckoEvent->isControl && outGeckoEvent->charCode <= 26) {
++      /* XXX ACTIVESTATE: charCode of ctrl-space is 0x00 - bug 89069. */
++      if (outGeckoEvent->charCode == 0) {
++        outGeckoEvent->charCode = 0x20;
++      } else {
++        outGeckoEvent->charCode += (outGeckoEvent->isShift) ? ('A' - 1) : ('a' - 1);
++      }
++    }
+ 
+     // Accel and access key handling needs to know the characters that this
+     // key produces with Shift up or down.  So, provide this information
+@@ -5411,15 +5417,25 @@ static const char* ToEscapedString(NSStr
+     // If this is the context menu key command, send a context menu key event.
+     unsigned int modifierFlags = [theEvent modifierFlags] & NSDeviceIndependentModifierFlagsMask;
+     if (modifierFlags == NSControlKeyMask && [[theEvent charactersIgnoringModifiers] isEqualToString:@" "]) {
+-      nsMouseEvent contextMenuEvent(PR_TRUE, NS_CONTEXTMENU, [self widget], nsMouseEvent::eReal, nsMouseEvent::eContextMenuKey);
+-      contextMenuEvent.isShift = contextMenuEvent.isControl = contextMenuEvent.isAlt = contextMenuEvent.isMeta = PR_FALSE;
+-      PRBool cmEventHandled = mGeckoChild->DispatchWindowEvent(contextMenuEvent);
+-      [self maybeInitContextMenuTracking];
+-      // Bail, there is nothing else to do here.
+-      PRBool handled = (cmEventHandled || mKeyDownHandled);
+-      mCurKeyEvent = nil;
+-      mKeyDownHandled = PR_FALSE;
+-      return handled;
++
++      /* XXX ACTIVESTATE: allowing to customize ctrl+space keybinding - bug 89069. */
++      nsCOMPtr<nsIPrefBranch> prefs = do_GetService(NS_PREFSERVICE_CONTRACTID);
++      PRBool useCtrlSpaceContextMenu = PR_FALSE;
++      if (prefs) {
++        nsresult rv = prefs->GetBoolPref("ui.use_ctrl_space_contextmenu", &useCtrlSpaceContextMenu);
++      }
++
++      if (useCtrlSpaceContextMenu) {
++        nsMouseEvent contextMenuEvent(PR_TRUE, NS_CONTEXTMENU, [self widget], nsMouseEvent::eReal, nsMouseEvent::eContextMenuKey);
++        contextMenuEvent.isShift = contextMenuEvent.isControl = contextMenuEvent.isAlt = contextMenuEvent.isMeta = PR_FALSE;
++        PRBool cmEventHandled = mGeckoChild->DispatchWindowEvent(contextMenuEvent);
++        [self maybeInitContextMenuTracking];
++        // Bail, there is nothing else to do here.
++        PRBool handled = (cmEventHandled || mKeyDownHandled);
++        mCurKeyEvent = nil;
++        mKeyDownHandled = PR_FALSE;
++        return handled;
++      }
+     }
+ 
+     nsKeyEvent geckoKeypress(PR_TRUE, NS_KEY_PRESS, nsnull);

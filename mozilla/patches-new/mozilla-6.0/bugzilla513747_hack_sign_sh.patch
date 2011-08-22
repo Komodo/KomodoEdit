@@ -1,0 +1,26 @@
+# HG changeset patch
+# Parent a3a4280700da400c05e3cf4ccfe51897537b1585
+importing patch bugzilla513747_hack_sign_sh.patch
+
+diff --git a/security/nss/cmd/shlibsign/sign.sh b/security/nss/cmd/shlibsign/sign.sh
+--- a/security/nss/cmd/shlibsign/sign.sh
++++ b/security/nss/cmd/shlibsign/sign.sh
+@@ -23,17 +23,17 @@ WIN*)
+     ;;
+ *)
+     LIBPATH=`(cd "${1}"/lib; pwd)`:`(cd "${4}"; pwd)`:$LIBPATH
+     export LIBPATH
+     SHLIB_PATH=${1}/lib:${4}:$SHLIB_PATH
+     export SHLIB_PATH
+     LD_LIBRARY_PATH=${1}/lib:${4}:$LD_LIBRARY_PATH
+     export LD_LIBRARY_PATH
+-    DYLD_LIBRARY_PATH=${1}/lib:${4}:$DYLD_LIBRARY_PATH
++    DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:/usr/lib:${1}/lib:${4}
+     export DYLD_LIBRARY_PATH
+     LIBRARY_PATH=${1}/lib:${4}:$LIBRARY_PATH
+     export LIBRARY_PATH
+     ADDON_PATH=${1}/lib:${4}:$ADDON_PATH
+     export ADDON_PATH
+     echo "${2}"/shlibsign -v -i "${5}"
+     "${2}"/shlibsign -v -i "${5}"
+     ;;

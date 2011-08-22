@@ -1,0 +1,70 @@
+# HG changeset patch
+# Parent 413855cad7f65bd438e84a701bd2b546c4f28248
+Log the last used PyXPCOM method call into the Crash Reporter extra file.
+
+There is a slight performance hit on this - as an extra XPCOM call is made
+per PyXPCOM call, so it's only currently enabled in the nightly builds.
+
+
+diff --git a/xpcom/src/PyGStub.cpp b/xpcom/src/PyGStub.cpp
+--- a/xpcom/src/PyGStub.cpp
++++ b/xpcom/src/PyGStub.cpp
+@@ -46,12 +46,19 @@
+ //
+ // (c) 2000, ActiveState corp.
+ 
+ #include "PyXPCOM_std.h"
+ #include <nsIInterfaceInfoManager.h>
+ 
++#ifdef MOZ_CRASHREPORTER
++#include "nsIXULAppInfo.h"
++#include "nsXPCOMCIDInternal.h"
++#include "nsICrashReporter.h"
++static nsICrashReporter *g_appCrashReporter = nsnull;
++#endif
++
+ PyXPCOM_XPTStub::PyXPCOM_XPTStub(PyObject *instance, const nsIID &iid)
+ 	: PyG_Base(instance, iid),
+ 	  m_pNextObject(nsnull)
+ {
+ 	if (NS_FAILED(InitStub(iid)))
+ 		NS_ERROR("InitStub must not fail!");
+@@ -76,16 +83,38 @@ PyXPCOM_XPTStub::CallMethod(PRUint16 met
+ {
+ 	nsresult rc = NS_ERROR_FAILURE;
+ 	NS_PRECONDITION(info, "NULL methodinfo pointer");
+ 	NS_PRECONDITION(params, "NULL variant pointer");
+ 	CEnterLeavePython _celp;
+ 	PyObject *obParams = NULL;
+ 	PyObject *result = NULL;
+ 	PyObject *obThisObject = NULL;
++
++#ifdef MOZ_CRASHREPORTER
++        // Add the last XPCOM method into the Crash Reporter information.
++        if (g_appCrashReporter == nsnull) {
++            //printf("\n\n Getting the XUL App Info service\n");
++            nsCOMPtr<nsIXULAppInfo> xapp (do_GetService(XULAPPINFO_SERVICE_CONTRACTID));
++            if (xapp) {
++                //printf("  querying for the nsICrashReporter service\n");
++                nsCOMPtr<nsICrashReporter> localAppCrashReporter (do_QueryInterface(xapp));
++                if (localAppCrashReporter) {
++                    g_appCrashReporter = localAppCrashReporter;
++                    //printf("    all good!\n");
++                }
++            }
++        }
++        if (g_appCrashReporter) {
++            //printf("\n\n Reporting\n\n");
++            g_appCrashReporter->AnnotateCrashReport(NS_LITERAL_CSTRING("PyxpcomMethod"),
++                                                    nsDependentCString(info->name));
++        }
++#endif
++
+ 	PyObject *obMI = PyObject_FromXPTMethodDescriptor(info);
+ 	PyXPCOM_GatewayVariantHelper arg_helper(this, methodIndex, info, params);
+ 	if (obMI==NULL)
+ 		goto done;
+ 	// base object is passed raw.
+ 	obThisObject = PyObject_FromNSInterface((nsISupports *)ThisAsIID(m_iid),
+ 	                                        m_iid, PR_FALSE);
+ 	obParams = arg_helper.MakePyArgs();
