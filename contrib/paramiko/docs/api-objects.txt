@@ -39,6 +39,7 @@ paramiko.auth_handler.MSG_USERAUTH_INFO_REQUEST	paramiko.auth_handler-module.htm
 paramiko.auth_handler.MSG_DEBUG	paramiko.auth_handler-module.html#MSG_DEBUG
 paramiko.auth_handler.MSG_CHANNEL_FAILURE	paramiko.auth_handler-module.html#MSG_CHANNEL_FAILURE
 paramiko.auth_handler.OPEN_SUCCEEDED	paramiko.auth_handler-module.html#OPEN_SUCCEEDED
+paramiko.auth_handler.rng	paramiko.auth_handler-module.html#rng
 paramiko.auth_handler.OPEN_FAILED_UNKNOWN_CHANNEL_TYPE	paramiko.auth_handler-module.html#OPEN_FAILED_UNKNOWN_CHANNEL_TYPE
 paramiko.auth_handler.OPEN_FAILED_RESOURCE_SHORTAGE	paramiko.auth_handler-module.html#OPEN_FAILED_RESOURCE_SHORTAGE
 paramiko.auth_handler.ERROR	paramiko.auth_handler-module.html#ERROR
@@ -56,7 +57,6 @@ paramiko.auth_handler.MSG_SERVICE_REQUEST	paramiko.auth_handler-module.html#MSG_
 paramiko.auth_handler.MSG_CHANNEL_EXTENDED_DATA	paramiko.auth_handler-module.html#MSG_CHANNEL_EXTENDED_DATA
 paramiko.auth_handler.MSG_CHANNEL_CLOSE	paramiko.auth_handler-module.html#MSG_CHANNEL_CLOSE
 paramiko.auth_handler.DISCONNECT_AUTH_CANCELLED_BY_USER	paramiko.auth_handler-module.html#DISCONNECT_AUTH_CANCELLED_BY_USER
-paramiko.auth_handler.randpool	paramiko.auth_handler-module.html#randpool
 paramiko.auth_handler.MSG_CHANNEL_OPEN_SUCCESS	paramiko.auth_handler-module.html#MSG_CHANNEL_OPEN_SUCCESS
 paramiko.auth_handler.MSG_CHANNEL_EOF	paramiko.auth_handler-module.html#MSG_CHANNEL_EOF
 paramiko.auth_handler.MSG_USERAUTH_SUCCESS	paramiko.auth_handler-module.html#MSG_USERAUTH_SUCCESS
@@ -94,6 +94,7 @@ paramiko.channel.MSG_USERAUTH_INFO_REQUEST	paramiko.channel-module.html#MSG_USER
 paramiko.channel.MSG_DEBUG	paramiko.channel-module.html#MSG_DEBUG
 paramiko.channel.MSG_CHANNEL_FAILURE	paramiko.channel-module.html#MSG_CHANNEL_FAILURE
 paramiko.channel.OPEN_SUCCEEDED	paramiko.channel-module.html#OPEN_SUCCEEDED
+paramiko.channel.rng	paramiko.channel-module.html#rng
 paramiko.channel.OPEN_FAILED_UNKNOWN_CHANNEL_TYPE	paramiko.channel-module.html#OPEN_FAILED_UNKNOWN_CHANNEL_TYPE
 paramiko.channel.OPEN_FAILED_RESOURCE_SHORTAGE	paramiko.channel-module.html#OPEN_FAILED_RESOURCE_SHORTAGE
 paramiko.channel.ERROR	paramiko.channel-module.html#ERROR
@@ -112,7 +113,6 @@ paramiko.channel.MSG_SERVICE_REQUEST	paramiko.channel-module.html#MSG_SERVICE_RE
 paramiko.channel.MSG_CHANNEL_EXTENDED_DATA	paramiko.channel-module.html#MSG_CHANNEL_EXTENDED_DATA
 paramiko.channel.MSG_CHANNEL_CLOSE	paramiko.channel-module.html#MSG_CHANNEL_CLOSE
 paramiko.channel.DISCONNECT_AUTH_CANCELLED_BY_USER	paramiko.channel-module.html#DISCONNECT_AUTH_CANCELLED_BY_USER
-paramiko.channel.randpool	paramiko.channel-module.html#randpool
 paramiko.channel.MSG_CHANNEL_OPEN_SUCCESS	paramiko.channel-module.html#MSG_CHANNEL_OPEN_SUCCESS
 paramiko.channel.MSG_CHANNEL_EOF	paramiko.channel-module.html#MSG_CHANNEL_EOF
 paramiko.channel.MSG_USERAUTH_SUCCESS	paramiko.channel-module.html#MSG_USERAUTH_SUCCESS
@@ -146,6 +146,7 @@ paramiko.client.MSG_USERAUTH_INFO_REQUEST	paramiko.client-module.html#MSG_USERAU
 paramiko.client.MSG_DEBUG	paramiko.client-module.html#MSG_DEBUG
 paramiko.client.MSG_CHANNEL_FAILURE	paramiko.client-module.html#MSG_CHANNEL_FAILURE
 paramiko.client.OPEN_SUCCEEDED	paramiko.client-module.html#OPEN_SUCCEEDED
+paramiko.client.rng	paramiko.client-module.html#rng
 paramiko.client.OPEN_FAILED_UNKNOWN_CHANNEL_TYPE	paramiko.client-module.html#OPEN_FAILED_UNKNOWN_CHANNEL_TYPE
 paramiko.client.OPEN_FAILED_RESOURCE_SHORTAGE	paramiko.client-module.html#OPEN_FAILED_RESOURCE_SHORTAGE
 paramiko.client.ERROR	paramiko.client-module.html#ERROR
@@ -164,7 +165,6 @@ paramiko.client.AUTH_FAILED	paramiko.client-module.html#AUTH_FAILED
 paramiko.client.MSG_CHANNEL_EXTENDED_DATA	paramiko.client-module.html#MSG_CHANNEL_EXTENDED_DATA
 paramiko.client.MSG_CHANNEL_CLOSE	paramiko.client-module.html#MSG_CHANNEL_CLOSE
 paramiko.client.DISCONNECT_AUTH_CANCELLED_BY_USER	paramiko.client-module.html#DISCONNECT_AUTH_CANCELLED_BY_USER
-paramiko.client.randpool	paramiko.client-module.html#randpool
 paramiko.client.MSG_CHANNEL_OPEN_SUCCESS	paramiko.client-module.html#MSG_CHANNEL_OPEN_SUCCESS
 paramiko.client.MSG_CHANNEL_EOF	paramiko.client-module.html#MSG_CHANNEL_EOF
 paramiko.client.MSG_USERAUTH_SUCCESS	paramiko.client-module.html#MSG_USERAUTH_SUCCESS
@@ -196,6 +196,7 @@ paramiko.common.MSG_USERAUTH_INFO_REQUEST	paramiko.common-module.html#MSG_USERAU
 paramiko.common.MSG_DEBUG	paramiko.common-module.html#MSG_DEBUG
 paramiko.common.MSG_CHANNEL_FAILURE	paramiko.common-module.html#MSG_CHANNEL_FAILURE
 paramiko.common.OPEN_SUCCEEDED	paramiko.common-module.html#OPEN_SUCCEEDED
+paramiko.common.rng	paramiko.common-module.html#rng
 paramiko.common.OPEN_FAILED_UNKNOWN_CHANNEL_TYPE	paramiko.common-module.html#OPEN_FAILED_UNKNOWN_CHANNEL_TYPE
 paramiko.common.OPEN_FAILED_RESOURCE_SHORTAGE	paramiko.common-module.html#OPEN_FAILED_RESOURCE_SHORTAGE
 paramiko.common.ERROR	paramiko.common-module.html#ERROR
@@ -215,7 +216,6 @@ paramiko.common.AUTH_FAILED	paramiko.common-module.html#AUTH_FAILED
 paramiko.common.MSG_CHANNEL_EXTENDED_DATA	paramiko.common-module.html#MSG_CHANNEL_EXTENDED_DATA
 paramiko.common.MSG_CHANNEL_CLOSE	paramiko.common-module.html#MSG_CHANNEL_CLOSE
 paramiko.common.DISCONNECT_AUTH_CANCELLED_BY_USER	paramiko.common-module.html#DISCONNECT_AUTH_CANCELLED_BY_USER
-paramiko.common.randpool	paramiko.common-module.html#randpool
 paramiko.common.MSG_CHANNEL_OPEN_SUCCESS	paramiko.common-module.html#MSG_CHANNEL_OPEN_SUCCESS
 paramiko.common.MSG_CHANNEL_EOF	paramiko.common-module.html#MSG_CHANNEL_EOF
 paramiko.common.MSG_USERAUTH_SUCCESS	paramiko.common-module.html#MSG_USERAUTH_SUCCESS
@@ -253,6 +253,7 @@ paramiko.dsskey.MSG_USERAUTH_INFO_REQUEST	paramiko.dsskey-module.html#MSG_USERAU
 paramiko.dsskey.MSG_DEBUG	paramiko.dsskey-module.html#MSG_DEBUG
 paramiko.dsskey.MSG_CHANNEL_FAILURE	paramiko.dsskey-module.html#MSG_CHANNEL_FAILURE
 paramiko.dsskey.OPEN_SUCCEEDED	paramiko.dsskey-module.html#OPEN_SUCCEEDED
+paramiko.dsskey.rng	paramiko.dsskey-module.html#rng
 paramiko.dsskey.OPEN_FAILED_UNKNOWN_CHANNEL_TYPE	paramiko.dsskey-module.html#OPEN_FAILED_UNKNOWN_CHANNEL_TYPE
 paramiko.dsskey.OPEN_FAILED_RESOURCE_SHORTAGE	paramiko.dsskey-module.html#OPEN_FAILED_RESOURCE_SHORTAGE
 paramiko.dsskey.ERROR	paramiko.dsskey-module.html#ERROR
@@ -270,7 +271,6 @@ paramiko.dsskey.AUTH_FAILED	paramiko.dsskey-module.html#AUTH_FAILED
 paramiko.dsskey.MSG_CHANNEL_EXTENDED_DATA	paramiko.dsskey-module.html#MSG_CHANNEL_EXTENDED_DATA
 paramiko.dsskey.MSG_CHANNEL_CLOSE	paramiko.dsskey-module.html#MSG_CHANNEL_CLOSE
 paramiko.dsskey.DISCONNECT_AUTH_CANCELLED_BY_USER	paramiko.dsskey-module.html#DISCONNECT_AUTH_CANCELLED_BY_USER
-paramiko.dsskey.randpool	paramiko.dsskey-module.html#randpool
 paramiko.dsskey.MSG_CHANNEL_OPEN_SUCCESS	paramiko.dsskey-module.html#MSG_CHANNEL_OPEN_SUCCESS
 paramiko.dsskey.MSG_CHANNEL_EOF	paramiko.dsskey-module.html#MSG_CHANNEL_EOF
 paramiko.dsskey.MSG_USERAUTH_SUCCESS	paramiko.dsskey-module.html#MSG_USERAUTH_SUCCESS
@@ -304,6 +304,7 @@ paramiko.hostkeys.MSG_USERAUTH_INFO_REQUEST	paramiko.hostkeys-module.html#MSG_US
 paramiko.hostkeys.MSG_DEBUG	paramiko.hostkeys-module.html#MSG_DEBUG
 paramiko.hostkeys.MSG_CHANNEL_FAILURE	paramiko.hostkeys-module.html#MSG_CHANNEL_FAILURE
 paramiko.hostkeys.OPEN_SUCCEEDED	paramiko.hostkeys-module.html#OPEN_SUCCEEDED
+paramiko.hostkeys.rng	paramiko.hostkeys-module.html#rng
 paramiko.hostkeys.OPEN_FAILED_UNKNOWN_CHANNEL_TYPE	paramiko.hostkeys-module.html#OPEN_FAILED_UNKNOWN_CHANNEL_TYPE
 paramiko.hostkeys.OPEN_FAILED_RESOURCE_SHORTAGE	paramiko.hostkeys-module.html#OPEN_FAILED_RESOURCE_SHORTAGE
 paramiko.hostkeys.ERROR	paramiko.hostkeys-module.html#ERROR
@@ -324,7 +325,6 @@ paramiko.hostkeys.AUTH_FAILED	paramiko.hostkeys-module.html#AUTH_FAILED
 paramiko.hostkeys.MSG_CHANNEL_EXTENDED_DATA	paramiko.hostkeys-module.html#MSG_CHANNEL_EXTENDED_DATA
 paramiko.hostkeys.MSG_CHANNEL_CLOSE	paramiko.hostkeys-module.html#MSG_CHANNEL_CLOSE
 paramiko.hostkeys.DISCONNECT_AUTH_CANCELLED_BY_USER	paramiko.hostkeys-module.html#DISCONNECT_AUTH_CANCELLED_BY_USER
-paramiko.hostkeys.randpool	paramiko.hostkeys-module.html#randpool
 paramiko.hostkeys.MSG_CHANNEL_OPEN_SUCCESS	paramiko.hostkeys-module.html#MSG_CHANNEL_OPEN_SUCCESS
 paramiko.hostkeys.MSG_CHANNEL_EOF	paramiko.hostkeys-module.html#MSG_CHANNEL_EOF
 paramiko.hostkeys.CONNECTION_FAILED_CODE	paramiko.hostkeys-module.html#CONNECTION_FAILED_CODE
@@ -340,6 +340,7 @@ paramiko.kex_gex.MSG_DISCONNECT	paramiko.kex_gex-module.html#MSG_DISCONNECT
 paramiko.kex_gex.DISCONNECT_NO_MORE_AUTH_METHODS_AVAILABLE	paramiko.kex_gex-module.html#DISCONNECT_NO_MORE_AUTH_METHODS_AVAILABLE
 paramiko.kex_gex.MSG_SERVICE_ACCEPT	paramiko.kex_gex-module.html#MSG_SERVICE_ACCEPT
 paramiko.kex_gex.MSG_IGNORE	paramiko.kex_gex-module.html#MSG_IGNORE
+paramiko.kex_gex.rng	paramiko.kex_gex-module.html#rng
 paramiko.kex_gex.WARNING	paramiko.kex_gex-module.html#WARNING
 paramiko.kex_gex.MSG_GLOBAL_REQUEST	paramiko.kex_gex-module.html#MSG_GLOBAL_REQUEST
 paramiko.kex_gex.MSG_USERAUTH_INFO_RESPONSE	paramiko.kex_gex-module.html#MSG_USERAUTH_INFO_RESPONSE
@@ -379,7 +380,6 @@ paramiko.kex_gex._MSG_KEXDH_GEX_REQUEST	paramiko.kex_gex-module.html#_MSG_KEXDH_
 paramiko.kex_gex.MSG_CHANNEL_EXTENDED_DATA	paramiko.kex_gex-module.html#MSG_CHANNEL_EXTENDED_DATA
 paramiko.kex_gex.MSG_CHANNEL_CLOSE	paramiko.kex_gex-module.html#MSG_CHANNEL_CLOSE
 paramiko.kex_gex.DISCONNECT_AUTH_CANCELLED_BY_USER	paramiko.kex_gex-module.html#DISCONNECT_AUTH_CANCELLED_BY_USER
-paramiko.kex_gex.randpool	paramiko.kex_gex-module.html#randpool
 paramiko.kex_gex.MSG_CHANNEL_OPEN_SUCCESS	paramiko.kex_gex-module.html#MSG_CHANNEL_OPEN_SUCCESS
 paramiko.kex_gex.MSG_CHANNEL_EOF	paramiko.kex_gex-module.html#MSG_CHANNEL_EOF
 paramiko.kex_gex.MSG_USERAUTH_SUCCESS	paramiko.kex_gex-module.html#MSG_USERAUTH_SUCCESS
@@ -414,6 +414,7 @@ paramiko.kex_group1.MSG_USERAUTH_INFO_REQUEST	paramiko.kex_group1-module.html#MS
 paramiko.kex_group1.G	paramiko.kex_group1-module.html#G
 paramiko.kex_group1.MSG_CHANNEL_FAILURE	paramiko.kex_group1-module.html#MSG_CHANNEL_FAILURE
 paramiko.kex_group1.OPEN_SUCCEEDED	paramiko.kex_group1-module.html#OPEN_SUCCEEDED
+paramiko.kex_group1.rng	paramiko.kex_group1-module.html#rng
 paramiko.kex_group1.OPEN_FAILED_UNKNOWN_CHANNEL_TYPE	paramiko.kex_group1-module.html#OPEN_FAILED_UNKNOWN_CHANNEL_TYPE
 paramiko.kex_group1.OPEN_FAILED_RESOURCE_SHORTAGE	paramiko.kex_group1-module.html#OPEN_FAILED_RESOURCE_SHORTAGE
 paramiko.kex_group1._MSG_KEXDH_INIT	paramiko.kex_group1-module.html#_MSG_KEXDH_INIT
@@ -434,7 +435,6 @@ paramiko.kex_group1.AUTH_FAILED	paramiko.kex_group1-module.html#AUTH_FAILED
 paramiko.kex_group1.MSG_CHANNEL_EXTENDED_DATA	paramiko.kex_group1-module.html#MSG_CHANNEL_EXTENDED_DATA
 paramiko.kex_group1.MSG_CHANNEL_CLOSE	paramiko.kex_group1-module.html#MSG_CHANNEL_CLOSE
 paramiko.kex_group1.DISCONNECT_AUTH_CANCELLED_BY_USER	paramiko.kex_group1-module.html#DISCONNECT_AUTH_CANCELLED_BY_USER
-paramiko.kex_group1.randpool	paramiko.kex_group1-module.html#randpool
 paramiko.kex_group1.MSG_CHANNEL_OPEN_SUCCESS	paramiko.kex_group1-module.html#MSG_CHANNEL_OPEN_SUCCESS
 paramiko.kex_group1.MSG_CHANNEL_EOF	paramiko.kex_group1-module.html#MSG_CHANNEL_EOF
 paramiko.kex_group1.MSG_USERAUTH_SUCCESS	paramiko.kex_group1-module.html#MSG_USERAUTH_SUCCESS
@@ -481,6 +481,7 @@ paramiko.packet.MSG_USERAUTH_INFO_REQUEST	paramiko.packet-module.html#MSG_USERAU
 paramiko.packet.MSG_DEBUG	paramiko.packet-module.html#MSG_DEBUG
 paramiko.packet.MSG_CHANNEL_FAILURE	paramiko.packet-module.html#MSG_CHANNEL_FAILURE
 paramiko.packet.OPEN_SUCCEEDED	paramiko.packet-module.html#OPEN_SUCCEEDED
+paramiko.packet.rng	paramiko.packet-module.html#rng
 paramiko.packet.OPEN_FAILED_UNKNOWN_CHANNEL_TYPE	paramiko.packet-module.html#OPEN_FAILED_UNKNOWN_CHANNEL_TYPE
 paramiko.packet.OPEN_FAILED_RESOURCE_SHORTAGE	paramiko.packet-module.html#OPEN_FAILED_RESOURCE_SHORTAGE
 paramiko.packet.ERROR	paramiko.packet-module.html#ERROR
@@ -498,7 +499,6 @@ paramiko.packet.AUTH_FAILED	paramiko.packet-module.html#AUTH_FAILED
 paramiko.packet.MSG_CHANNEL_EXTENDED_DATA	paramiko.packet-module.html#MSG_CHANNEL_EXTENDED_DATA
 paramiko.packet.MSG_CHANNEL_CLOSE	paramiko.packet-module.html#MSG_CHANNEL_CLOSE
 paramiko.packet.DISCONNECT_AUTH_CANCELLED_BY_USER	paramiko.packet-module.html#DISCONNECT_AUTH_CANCELLED_BY_USER
-paramiko.packet.randpool	paramiko.packet-module.html#randpool
 paramiko.packet.MSG_CHANNEL_OPEN_SUCCESS	paramiko.packet-module.html#MSG_CHANNEL_OPEN_SUCCESS
 paramiko.packet.MSG_CHANNEL_EOF	paramiko.packet-module.html#MSG_CHANNEL_EOF
 paramiko.packet.MSG_USERAUTH_SUCCESS	paramiko.packet-module.html#MSG_USERAUTH_SUCCESS
@@ -513,6 +513,7 @@ paramiko.pkey.MSG_KEXINIT	paramiko.pkey-module.html#MSG_KEXINIT
 paramiko.pkey.MSG_CHANNEL_WINDOW_ADJUST	paramiko.pkey-module.html#MSG_CHANNEL_WINDOW_ADJUST
 paramiko.pkey.MSG_CHANNEL_REQUEST	paramiko.pkey-module.html#MSG_CHANNEL_REQUEST
 paramiko.pkey.MSG_NAMES	paramiko.pkey-module.html#MSG_NAMES
+paramiko.pkey.__package__	paramiko.pkey-module.html#__package__
 paramiko.pkey.MSG_CHANNEL_OPEN	paramiko.pkey-module.html#MSG_CHANNEL_OPEN
 paramiko.pkey.MSG_REQUEST_SUCCESS	paramiko.pkey-module.html#MSG_REQUEST_SUCCESS
 paramiko.pkey.MSG_DISCONNECT	paramiko.pkey-module.html#MSG_DISCONNECT
@@ -535,6 +536,7 @@ paramiko.pkey.MSG_USERAUTH_INFO_REQUEST	paramiko.pkey-module.html#MSG_USERAUTH_I
 paramiko.pkey.MSG_DEBUG	paramiko.pkey-module.html#MSG_DEBUG
 paramiko.pkey.MSG_CHANNEL_FAILURE	paramiko.pkey-module.html#MSG_CHANNEL_FAILURE
 paramiko.pkey.OPEN_SUCCEEDED	paramiko.pkey-module.html#OPEN_SUCCEEDED
+paramiko.pkey.rng	paramiko.pkey-module.html#rng
 paramiko.pkey.OPEN_FAILED_UNKNOWN_CHANNEL_TYPE	paramiko.pkey-module.html#OPEN_FAILED_UNKNOWN_CHANNEL_TYPE
 paramiko.pkey.OPEN_FAILED_RESOURCE_SHORTAGE	paramiko.pkey-module.html#OPEN_FAILED_RESOURCE_SHORTAGE
 paramiko.pkey.ERROR	paramiko.pkey-module.html#ERROR
@@ -552,12 +554,10 @@ paramiko.pkey.AUTH_FAILED	paramiko.pkey-module.html#AUTH_FAILED
 paramiko.pkey.MSG_CHANNEL_EXTENDED_DATA	paramiko.pkey-module.html#MSG_CHANNEL_EXTENDED_DATA
 paramiko.pkey.MSG_CHANNEL_CLOSE	paramiko.pkey-module.html#MSG_CHANNEL_CLOSE
 paramiko.pkey.DISCONNECT_AUTH_CANCELLED_BY_USER	paramiko.pkey-module.html#DISCONNECT_AUTH_CANCELLED_BY_USER
-paramiko.pkey.randpool	paramiko.pkey-module.html#randpool
 paramiko.pkey.MSG_CHANNEL_OPEN_SUCCESS	paramiko.pkey-module.html#MSG_CHANNEL_OPEN_SUCCESS
 paramiko.pkey.MSG_CHANNEL_EOF	paramiko.pkey-module.html#MSG_CHANNEL_EOF
 paramiko.pkey.MSG_USERAUTH_SUCCESS	paramiko.pkey-module.html#MSG_USERAUTH_SUCCESS
 paramiko.pkey.CONNECTION_FAILED_CODE	paramiko.pkey-module.html#CONNECTION_FAILED_CODE
-paramiko.pkey.__package__	paramiko.pkey-module.html#__package__
 paramiko.primes	paramiko.primes-module.html
 paramiko.primes._roll_random	paramiko.primes-module.html#_roll_random
 paramiko.primes._generate_prime	paramiko.primes-module.html#_generate_prime
@@ -565,25 +565,13 @@ paramiko.primes.__package__	paramiko.primes-module.html#__package__
 paramiko.resource	paramiko.resource-module.html
 paramiko.resource.ResourceManager	paramiko.resource-module.html#ResourceManager
 paramiko.resource.__package__	paramiko.resource-module.html#__package__
-paramiko.rng	paramiko.rng-module.html
-paramiko.rng.rng_device	paramiko.rng-module.html#rng_device
-paramiko.rng.__package__	paramiko.rng-module.html#__package__
-paramiko.rng._strxor	paramiko.rng-module.html#_strxor
-paramiko.rng_posix	paramiko.rng_posix-module.html
-paramiko.rng_posix.__package__	paramiko.rng_posix-module.html#__package__
-paramiko.rng_posix.open_rng_device	paramiko.rng_posix-module.html#open_rng_device
-paramiko.rng_win32	paramiko.rng_win32-module.html
-paramiko.rng_win32._winrandom	paramiko.rng_win32-module.html#_winrandom
-paramiko.rng_win32._open_winrandom	paramiko.rng_win32-module.html#_open_winrandom
-paramiko.rng_win32.__package__	paramiko.rng_win32-module.html#__package__
-paramiko.rng_win32.open_rng_device	paramiko.rng_win32-module.html#open_rng_device
-paramiko.rng_win32._open_urandom	paramiko.rng_win32-module.html#_open_urandom
 paramiko.rsakey	paramiko.rsakey-module.html
 paramiko.rsakey.AUTH_SUCCESSFUL	paramiko.rsakey-module.html#AUTH_SUCCESSFUL
 paramiko.rsakey.MSG_KEXINIT	paramiko.rsakey-module.html#MSG_KEXINIT
 paramiko.rsakey.MSG_CHANNEL_WINDOW_ADJUST	paramiko.rsakey-module.html#MSG_CHANNEL_WINDOW_ADJUST
 paramiko.rsakey.MSG_CHANNEL_REQUEST	paramiko.rsakey-module.html#MSG_CHANNEL_REQUEST
 paramiko.rsakey.MSG_NAMES	paramiko.rsakey-module.html#MSG_NAMES
+paramiko.rsakey.__package__	paramiko.rsakey-module.html#__package__
 paramiko.rsakey.MSG_CHANNEL_OPEN	paramiko.rsakey-module.html#MSG_CHANNEL_OPEN
 paramiko.rsakey.MSG_REQUEST_SUCCESS	paramiko.rsakey-module.html#MSG_REQUEST_SUCCESS
 paramiko.rsakey.MSG_DISCONNECT	paramiko.rsakey-module.html#MSG_DISCONNECT
@@ -606,6 +594,7 @@ paramiko.rsakey.MSG_USERAUTH_INFO_REQUEST	paramiko.rsakey-module.html#MSG_USERAU
 paramiko.rsakey.MSG_DEBUG	paramiko.rsakey-module.html#MSG_DEBUG
 paramiko.rsakey.MSG_CHANNEL_FAILURE	paramiko.rsakey-module.html#MSG_CHANNEL_FAILURE
 paramiko.rsakey.OPEN_SUCCEEDED	paramiko.rsakey-module.html#OPEN_SUCCEEDED
+paramiko.rsakey.rng	paramiko.rsakey-module.html#rng
 paramiko.rsakey.OPEN_FAILED_UNKNOWN_CHANNEL_TYPE	paramiko.rsakey-module.html#OPEN_FAILED_UNKNOWN_CHANNEL_TYPE
 paramiko.rsakey.OPEN_FAILED_RESOURCE_SHORTAGE	paramiko.rsakey-module.html#OPEN_FAILED_RESOURCE_SHORTAGE
 paramiko.rsakey.ERROR	paramiko.rsakey-module.html#ERROR
@@ -623,12 +612,10 @@ paramiko.rsakey.AUTH_FAILED	paramiko.rsakey-module.html#AUTH_FAILED
 paramiko.rsakey.MSG_CHANNEL_EXTENDED_DATA	paramiko.rsakey-module.html#MSG_CHANNEL_EXTENDED_DATA
 paramiko.rsakey.MSG_CHANNEL_CLOSE	paramiko.rsakey-module.html#MSG_CHANNEL_CLOSE
 paramiko.rsakey.DISCONNECT_AUTH_CANCELLED_BY_USER	paramiko.rsakey-module.html#DISCONNECT_AUTH_CANCELLED_BY_USER
-paramiko.rsakey.randpool	paramiko.rsakey-module.html#randpool
 paramiko.rsakey.MSG_CHANNEL_OPEN_SUCCESS	paramiko.rsakey-module.html#MSG_CHANNEL_OPEN_SUCCESS
 paramiko.rsakey.MSG_CHANNEL_EOF	paramiko.rsakey-module.html#MSG_CHANNEL_EOF
 paramiko.rsakey.MSG_USERAUTH_SUCCESS	paramiko.rsakey-module.html#MSG_USERAUTH_SUCCESS
 paramiko.rsakey.CONNECTION_FAILED_CODE	paramiko.rsakey-module.html#CONNECTION_FAILED_CODE
-paramiko.rsakey.__package__	paramiko.rsakey-module.html#__package__
 paramiko.server	paramiko.server-module.html
 paramiko.server.AUTH_SUCCESSFUL	paramiko.server-module.html#AUTH_SUCCESSFUL
 paramiko.server.MSG_KEXINIT	paramiko.server-module.html#MSG_KEXINIT
@@ -657,6 +644,7 @@ paramiko.server.MSG_USERAUTH_INFO_REQUEST	paramiko.server-module.html#MSG_USERAU
 paramiko.server.MSG_DEBUG	paramiko.server-module.html#MSG_DEBUG
 paramiko.server.MSG_CHANNEL_FAILURE	paramiko.server-module.html#MSG_CHANNEL_FAILURE
 paramiko.server.OPEN_SUCCEEDED	paramiko.server-module.html#OPEN_SUCCEEDED
+paramiko.server.rng	paramiko.server-module.html#rng
 paramiko.server.OPEN_FAILED_UNKNOWN_CHANNEL_TYPE	paramiko.server-module.html#OPEN_FAILED_UNKNOWN_CHANNEL_TYPE
 paramiko.server.OPEN_FAILED_RESOURCE_SHORTAGE	paramiko.server-module.html#OPEN_FAILED_RESOURCE_SHORTAGE
 paramiko.server.ERROR	paramiko.server-module.html#ERROR
@@ -675,7 +663,6 @@ paramiko.server.MSG_SERVICE_REQUEST	paramiko.server-module.html#MSG_SERVICE_REQU
 paramiko.server.MSG_CHANNEL_EXTENDED_DATA	paramiko.server-module.html#MSG_CHANNEL_EXTENDED_DATA
 paramiko.server.MSG_CHANNEL_CLOSE	paramiko.server-module.html#MSG_CHANNEL_CLOSE
 paramiko.server.DISCONNECT_AUTH_CANCELLED_BY_USER	paramiko.server-module.html#DISCONNECT_AUTH_CANCELLED_BY_USER
-paramiko.server.randpool	paramiko.server-module.html#randpool
 paramiko.server.MSG_CHANNEL_OPEN_SUCCESS	paramiko.server-module.html#MSG_CHANNEL_OPEN_SUCCESS
 paramiko.server.MSG_CHANNEL_EOF	paramiko.server-module.html#MSG_CHANNEL_EOF
 paramiko.server.MSG_USERAUTH_SUCCESS	paramiko.server-module.html#MSG_USERAUTH_SUCCESS
@@ -712,7 +699,6 @@ paramiko.sftp.CMD_NAMES	paramiko.sftp-module.html#CMD_NAMES
 paramiko.sftp.CMD_WRITE	paramiko.sftp-module.html#CMD_WRITE
 paramiko.sftp.CMD_OPEN	paramiko.sftp-module.html#CMD_OPEN
 paramiko.sftp.MSG_SERVICE_ACCEPT	paramiko.sftp-module.html#MSG_SERVICE_ACCEPT
-paramiko.sftp.randpool	paramiko.sftp-module.html#randpool
 paramiko.sftp.WARNING	paramiko.sftp-module.html#WARNING
 paramiko.sftp.CMD_REMOVE	paramiko.sftp-module.html#CMD_REMOVE
 paramiko.sftp.SFTP_EOF	paramiko.sftp-module.html#SFTP_EOF
@@ -769,6 +755,7 @@ paramiko.sftp.CMD_STATUS	paramiko.sftp-module.html#CMD_STATUS
 paramiko.sftp.AUTH_PARTIALLY_SUCCESSFUL	paramiko.sftp-module.html#AUTH_PARTIALLY_SUCCESSFUL
 paramiko.sftp.OPEN_FAILED_ADMINISTRATIVELY_PROHIBITED	paramiko.sftp-module.html#OPEN_FAILED_ADMINISTRATIVELY_PROHIBITED
 paramiko.sftp.MSG_CHANNEL_FAILURE	paramiko.sftp-module.html#MSG_CHANNEL_FAILURE
+paramiko.sftp.rng	paramiko.sftp-module.html#rng
 paramiko.sftp.SFTP_CONNECTION_LOST	paramiko.sftp-module.html#SFTP_CONNECTION_LOST
 paramiko.sftp.OPEN_FAILED_CONNECT_FAILED	paramiko.sftp-module.html#OPEN_FAILED_CONNECT_FAILED
 paramiko.sftp.MSG_USERAUTH_REQUEST	paramiko.sftp-module.html#MSG_USERAUTH_REQUEST
@@ -808,7 +795,6 @@ paramiko.sftp_attr.CMD_NAMES	paramiko.sftp_attr-module.html#CMD_NAMES
 paramiko.sftp_attr.CMD_WRITE	paramiko.sftp_attr-module.html#CMD_WRITE
 paramiko.sftp_attr.CMD_OPEN	paramiko.sftp_attr-module.html#CMD_OPEN
 paramiko.sftp_attr.MSG_SERVICE_ACCEPT	paramiko.sftp_attr-module.html#MSG_SERVICE_ACCEPT
-paramiko.sftp_attr.randpool	paramiko.sftp_attr-module.html#randpool
 paramiko.sftp_attr.WARNING	paramiko.sftp_attr-module.html#WARNING
 paramiko.sftp_attr.CMD_REMOVE	paramiko.sftp_attr-module.html#CMD_REMOVE
 paramiko.sftp_attr.SFTP_EOF	paramiko.sftp_attr-module.html#SFTP_EOF
@@ -864,6 +850,7 @@ paramiko.sftp_attr.CMD_STATUS	paramiko.sftp_attr-module.html#CMD_STATUS
 paramiko.sftp_attr.AUTH_PARTIALLY_SUCCESSFUL	paramiko.sftp_attr-module.html#AUTH_PARTIALLY_SUCCESSFUL
 paramiko.sftp_attr.OPEN_FAILED_ADMINISTRATIVELY_PROHIBITED	paramiko.sftp_attr-module.html#OPEN_FAILED_ADMINISTRATIVELY_PROHIBITED
 paramiko.sftp_attr.MSG_CHANNEL_FAILURE	paramiko.sftp_attr-module.html#MSG_CHANNEL_FAILURE
+paramiko.sftp_attr.rng	paramiko.sftp_attr-module.html#rng
 paramiko.sftp_attr.SFTP_CONNECTION_LOST	paramiko.sftp_attr-module.html#SFTP_CONNECTION_LOST
 paramiko.sftp_attr.OPEN_FAILED_CONNECT_FAILED	paramiko.sftp_attr-module.html#OPEN_FAILED_CONNECT_FAILED
 paramiko.sftp_attr.MSG_USERAUTH_REQUEST	paramiko.sftp_attr-module.html#MSG_USERAUTH_REQUEST
@@ -904,7 +891,6 @@ paramiko.sftp_client.CMD_NAMES	paramiko.sftp_client-module.html#CMD_NAMES
 paramiko.sftp_client.CMD_WRITE	paramiko.sftp_client-module.html#CMD_WRITE
 paramiko.sftp_client.CMD_OPEN	paramiko.sftp_client-module.html#CMD_OPEN
 paramiko.sftp_client.MSG_SERVICE_ACCEPT	paramiko.sftp_client-module.html#MSG_SERVICE_ACCEPT
-paramiko.sftp_client.randpool	paramiko.sftp_client-module.html#randpool
 paramiko.sftp_client.WARNING	paramiko.sftp_client-module.html#WARNING
 paramiko.sftp_client.CMD_REMOVE	paramiko.sftp_client-module.html#CMD_REMOVE
 paramiko.sftp_client.SFTP_EOF	paramiko.sftp_client-module.html#SFTP_EOF
@@ -960,6 +946,7 @@ paramiko.sftp_client.CMD_STATUS	paramiko.sftp_client-module.html#CMD_STATUS
 paramiko.sftp_client.AUTH_PARTIALLY_SUCCESSFUL	paramiko.sftp_client-module.html#AUTH_PARTIALLY_SUCCESSFUL
 paramiko.sftp_client.OPEN_FAILED_ADMINISTRATIVELY_PROHIBITED	paramiko.sftp_client-module.html#OPEN_FAILED_ADMINISTRATIVELY_PROHIBITED
 paramiko.sftp_client.MSG_CHANNEL_FAILURE	paramiko.sftp_client-module.html#MSG_CHANNEL_FAILURE
+paramiko.sftp_client.rng	paramiko.sftp_client-module.html#rng
 paramiko.sftp_client.SFTP_CONNECTION_LOST	paramiko.sftp_client-module.html#SFTP_CONNECTION_LOST
 paramiko.sftp_client.OPEN_FAILED_CONNECT_FAILED	paramiko.sftp_client-module.html#OPEN_FAILED_CONNECT_FAILED
 paramiko.sftp_client.MSG_USERAUTH_REQUEST	paramiko.sftp_client-module.html#MSG_USERAUTH_REQUEST
@@ -1000,7 +987,6 @@ paramiko.sftp_file.CMD_NAMES	paramiko.sftp_file-module.html#CMD_NAMES
 paramiko.sftp_file.CMD_WRITE	paramiko.sftp_file-module.html#CMD_WRITE
 paramiko.sftp_file.CMD_OPEN	paramiko.sftp_file-module.html#CMD_OPEN
 paramiko.sftp_file.MSG_SERVICE_ACCEPT	paramiko.sftp_file-module.html#MSG_SERVICE_ACCEPT
-paramiko.sftp_file.randpool	paramiko.sftp_file-module.html#randpool
 paramiko.sftp_file.WARNING	paramiko.sftp_file-module.html#WARNING
 paramiko.sftp_file.CMD_REMOVE	paramiko.sftp_file-module.html#CMD_REMOVE
 paramiko.sftp_file.SFTP_EOF	paramiko.sftp_file-module.html#SFTP_EOF
@@ -1055,6 +1041,7 @@ paramiko.sftp_file.CMD_STATUS	paramiko.sftp_file-module.html#CMD_STATUS
 paramiko.sftp_file.AUTH_PARTIALLY_SUCCESSFUL	paramiko.sftp_file-module.html#AUTH_PARTIALLY_SUCCESSFUL
 paramiko.sftp_file.OPEN_FAILED_ADMINISTRATIVELY_PROHIBITED	paramiko.sftp_file-module.html#OPEN_FAILED_ADMINISTRATIVELY_PROHIBITED
 paramiko.sftp_file.MSG_CHANNEL_FAILURE	paramiko.sftp_file-module.html#MSG_CHANNEL_FAILURE
+paramiko.sftp_file.rng	paramiko.sftp_file-module.html#rng
 paramiko.sftp_file.SFTP_CONNECTION_LOST	paramiko.sftp_file-module.html#SFTP_CONNECTION_LOST
 paramiko.sftp_file.OPEN_FAILED_CONNECT_FAILED	paramiko.sftp_file-module.html#OPEN_FAILED_CONNECT_FAILED
 paramiko.sftp_file.MSG_USERAUTH_REQUEST	paramiko.sftp_file-module.html#MSG_USERAUTH_REQUEST
@@ -1094,7 +1081,6 @@ paramiko.sftp_handle.CMD_NAMES	paramiko.sftp_handle-module.html#CMD_NAMES
 paramiko.sftp_handle.CMD_WRITE	paramiko.sftp_handle-module.html#CMD_WRITE
 paramiko.sftp_handle.CMD_OPEN	paramiko.sftp_handle-module.html#CMD_OPEN
 paramiko.sftp_handle.MSG_SERVICE_ACCEPT	paramiko.sftp_handle-module.html#MSG_SERVICE_ACCEPT
-paramiko.sftp_handle.randpool	paramiko.sftp_handle-module.html#randpool
 paramiko.sftp_handle.WARNING	paramiko.sftp_handle-module.html#WARNING
 paramiko.sftp_handle.CMD_REMOVE	paramiko.sftp_handle-module.html#CMD_REMOVE
 paramiko.sftp_handle.SFTP_EOF	paramiko.sftp_handle-module.html#SFTP_EOF
@@ -1150,6 +1136,7 @@ paramiko.sftp_handle.CMD_STATUS	paramiko.sftp_handle-module.html#CMD_STATUS
 paramiko.sftp_handle.AUTH_PARTIALLY_SUCCESSFUL	paramiko.sftp_handle-module.html#AUTH_PARTIALLY_SUCCESSFUL
 paramiko.sftp_handle.OPEN_FAILED_ADMINISTRATIVELY_PROHIBITED	paramiko.sftp_handle-module.html#OPEN_FAILED_ADMINISTRATIVELY_PROHIBITED
 paramiko.sftp_handle.MSG_CHANNEL_FAILURE	paramiko.sftp_handle-module.html#MSG_CHANNEL_FAILURE
+paramiko.sftp_handle.rng	paramiko.sftp_handle-module.html#rng
 paramiko.sftp_handle.SFTP_CONNECTION_LOST	paramiko.sftp_handle-module.html#SFTP_CONNECTION_LOST
 paramiko.sftp_handle.OPEN_FAILED_CONNECT_FAILED	paramiko.sftp_handle-module.html#OPEN_FAILED_CONNECT_FAILED
 paramiko.sftp_handle.MSG_USERAUTH_REQUEST	paramiko.sftp_handle-module.html#MSG_USERAUTH_REQUEST
@@ -1189,7 +1176,6 @@ paramiko.sftp_server.CMD_NAMES	paramiko.sftp_server-module.html#CMD_NAMES
 paramiko.sftp_server.CMD_WRITE	paramiko.sftp_server-module.html#CMD_WRITE
 paramiko.sftp_server.CMD_OPEN	paramiko.sftp_server-module.html#CMD_OPEN
 paramiko.sftp_server.MSG_SERVICE_ACCEPT	paramiko.sftp_server-module.html#MSG_SERVICE_ACCEPT
-paramiko.sftp_server.randpool	paramiko.sftp_server-module.html#randpool
 paramiko.sftp_server.WARNING	paramiko.sftp_server-module.html#WARNING
 paramiko.sftp_server.CMD_REMOVE	paramiko.sftp_server-module.html#CMD_REMOVE
 paramiko.sftp_server.SFTP_EOF	paramiko.sftp_server-module.html#SFTP_EOF
@@ -1246,6 +1232,7 @@ paramiko.sftp_server.CMD_STATUS	paramiko.sftp_server-module.html#CMD_STATUS
 paramiko.sftp_server.AUTH_PARTIALLY_SUCCESSFUL	paramiko.sftp_server-module.html#AUTH_PARTIALLY_SUCCESSFUL
 paramiko.sftp_server.OPEN_FAILED_ADMINISTRATIVELY_PROHIBITED	paramiko.sftp_server-module.html#OPEN_FAILED_ADMINISTRATIVELY_PROHIBITED
 paramiko.sftp_server.MSG_CHANNEL_FAILURE	paramiko.sftp_server-module.html#MSG_CHANNEL_FAILURE
+paramiko.sftp_server.rng	paramiko.sftp_server-module.html#rng
 paramiko.sftp_server.SFTP_CONNECTION_LOST	paramiko.sftp_server-module.html#SFTP_CONNECTION_LOST
 paramiko.sftp_server.OPEN_FAILED_CONNECT_FAILED	paramiko.sftp_server-module.html#OPEN_FAILED_CONNECT_FAILED
 paramiko.sftp_server.MSG_USERAUTH_REQUEST	paramiko.sftp_server-module.html#MSG_USERAUTH_REQUEST
@@ -1285,7 +1272,6 @@ paramiko.sftp_si.CMD_NAMES	paramiko.sftp_si-module.html#CMD_NAMES
 paramiko.sftp_si.CMD_WRITE	paramiko.sftp_si-module.html#CMD_WRITE
 paramiko.sftp_si.CMD_OPEN	paramiko.sftp_si-module.html#CMD_OPEN
 paramiko.sftp_si.MSG_SERVICE_ACCEPT	paramiko.sftp_si-module.html#MSG_SERVICE_ACCEPT
-paramiko.sftp_si.randpool	paramiko.sftp_si-module.html#randpool
 paramiko.sftp_si.WARNING	paramiko.sftp_si-module.html#WARNING
 paramiko.sftp_si.CMD_REMOVE	paramiko.sftp_si-module.html#CMD_REMOVE
 paramiko.sftp_si.SFTP_EOF	paramiko.sftp_si-module.html#SFTP_EOF
@@ -1341,6 +1327,7 @@ paramiko.sftp_si.CMD_STATUS	paramiko.sftp_si-module.html#CMD_STATUS
 paramiko.sftp_si.AUTH_PARTIALLY_SUCCESSFUL	paramiko.sftp_si-module.html#AUTH_PARTIALLY_SUCCESSFUL
 paramiko.sftp_si.OPEN_FAILED_ADMINISTRATIVELY_PROHIBITED	paramiko.sftp_si-module.html#OPEN_FAILED_ADMINISTRATIVELY_PROHIBITED
 paramiko.sftp_si.MSG_CHANNEL_FAILURE	paramiko.sftp_si-module.html#MSG_CHANNEL_FAILURE
+paramiko.sftp_si.rng	paramiko.sftp_si-module.html#rng
 paramiko.sftp_si.SFTP_CONNECTION_LOST	paramiko.sftp_si-module.html#SFTP_CONNECTION_LOST
 paramiko.sftp_si.OPEN_FAILED_CONNECT_FAILED	paramiko.sftp_si-module.html#OPEN_FAILED_CONNECT_FAILED
 paramiko.sftp_si.MSG_USERAUTH_REQUEST	paramiko.sftp_si-module.html#MSG_USERAUTH_REQUEST
@@ -1365,7 +1352,6 @@ paramiko.transport.MSG_NEWKEYS	paramiko.transport-module.html#MSG_NEWKEYS
 paramiko.transport.MSG_USERAUTH_SUCCESS	paramiko.transport-module.html#MSG_USERAUTH_SUCCESS
 paramiko.transport.MSG_KEXINIT	paramiko.transport-module.html#MSG_KEXINIT
 paramiko.transport.MSG_SERVICE_ACCEPT	paramiko.transport-module.html#MSG_SERVICE_ACCEPT
-paramiko.transport.randpool	paramiko.transport-module.html#randpool
 paramiko.transport.WARNING	paramiko.transport-module.html#WARNING
 paramiko.transport.ERROR	paramiko.transport-module.html#ERROR
 paramiko.transport.DEBUG	paramiko.transport-module.html#DEBUG
@@ -1396,6 +1382,7 @@ paramiko.transport.__package__	paramiko.transport-module.html#__package__
 paramiko.transport.AUTH_PARTIALLY_SUCCESSFUL	paramiko.transport-module.html#AUTH_PARTIALLY_SUCCESSFUL
 paramiko.transport.OPEN_FAILED_ADMINISTRATIVELY_PROHIBITED	paramiko.transport-module.html#OPEN_FAILED_ADMINISTRATIVELY_PROHIBITED
 paramiko.transport.MSG_CHANNEL_FAILURE	paramiko.transport-module.html#MSG_CHANNEL_FAILURE
+paramiko.transport.rng	paramiko.transport-module.html#rng
 paramiko.transport.MSG_REQUEST_SUCCESS	paramiko.transport-module.html#MSG_REQUEST_SUCCESS
 paramiko.transport.OPEN_FAILED_CONNECT_FAILED	paramiko.transport-module.html#OPEN_FAILED_CONNECT_FAILED
 paramiko.transport.MSG_USERAUTH_REQUEST	paramiko.transport-module.html#MSG_USERAUTH_REQUEST
@@ -1430,6 +1417,7 @@ paramiko.util.MSG_USERAUTH_FAILURE	paramiko.util-module.html#MSG_USERAUTH_FAILUR
 paramiko.util.MSG_REQUEST_FAILURE	paramiko.util-module.html#MSG_REQUEST_FAILURE
 paramiko.util.inflate_long	paramiko.util-module.html#inflate_long
 paramiko.util.__package__	paramiko.util-module.html#__package__
+paramiko.util.safe_string	paramiko.util-module.html#safe_string
 paramiko.util._g_thread_counter	paramiko.util-module.html#_g_thread_counter
 paramiko.util.MSG_CHANNEL_DATA	paramiko.util-module.html#MSG_CHANNEL_DATA
 paramiko.util.CRITICAL	paramiko.util-module.html#CRITICAL
@@ -1444,8 +1432,9 @@ paramiko.util.log_to_file	paramiko.util-module.html#log_to_file
 paramiko.util.MSG_DEBUG	paramiko.util-module.html#MSG_DEBUG
 paramiko.util.MSG_CHANNEL_FAILURE	paramiko.util-module.html#MSG_CHANNEL_FAILURE
 paramiko.util.OPEN_SUCCEEDED	paramiko.util-module.html#OPEN_SUCCEEDED
-paramiko.util.safe_string	paramiko.util-module.html#safe_string
+paramiko.util.format_binary_weird	paramiko.util-module.html#format_binary_weird
 paramiko.util.format_binary_line	paramiko.util-module.html#format_binary_line
+paramiko.util.rng	paramiko.util-module.html#rng
 paramiko.util.OPEN_FAILED_UNKNOWN_CHANNEL_TYPE	paramiko.util-module.html#OPEN_FAILED_UNKNOWN_CHANNEL_TYPE
 paramiko.util.OPEN_FAILED_RESOURCE_SHORTAGE	paramiko.util-module.html#OPEN_FAILED_RESOURCE_SHORTAGE
 paramiko.util.ERROR	paramiko.util-module.html#ERROR
@@ -1461,7 +1450,6 @@ paramiko.util.WARNING	paramiko.util-module.html#WARNING
 paramiko.util.mod_inverse	paramiko.util-module.html#mod_inverse
 paramiko.util.MSG_USERAUTH_REQUEST	paramiko.util-module.html#MSG_USERAUTH_REQUEST
 paramiko.util.DISCONNECT_SERVICE_NOT_AVAILABLE	paramiko.util-module.html#DISCONNECT_SERVICE_NOT_AVAILABLE
-paramiko.util.format_binary_weird	paramiko.util-module.html#format_binary_weird
 paramiko.util.PY22	paramiko.util-module.html#PY22
 paramiko.util.MSG_SERVICE_REQUEST	paramiko.util-module.html#MSG_SERVICE_REQUEST
 paramiko.util.AUTH_FAILED	paramiko.util-module.html#AUTH_FAILED
@@ -1470,7 +1458,6 @@ paramiko.util.MSG_CHANNEL_EXTENDED_DATA	paramiko.util-module.html#MSG_CHANNEL_EX
 paramiko.util.format_binary	paramiko.util-module.html#format_binary
 paramiko.util.MSG_CHANNEL_CLOSE	paramiko.util-module.html#MSG_CHANNEL_CLOSE
 paramiko.util.DISCONNECT_AUTH_CANCELLED_BY_USER	paramiko.util-module.html#DISCONNECT_AUTH_CANCELLED_BY_USER
-paramiko.util.randpool	paramiko.util-module.html#randpool
 paramiko.util.MSG_CHANNEL_OPEN_SUCCESS	paramiko.util-module.html#MSG_CHANNEL_OPEN_SUCCESS
 paramiko.util.MSG_CHANNEL_EOF	paramiko.util-module.html#MSG_CHANNEL_EOF
 paramiko.util._g_thread_ids	paramiko.util-module.html#_g_thread_ids
@@ -1830,14 +1817,14 @@ paramiko.SFTPFile.readv	paramiko.SFTPFile-class.html#readv
 paramiko.SFTPFile.close	paramiko.SFTPFile-class.html#close
 paramiko.BufferedFile.next	paramiko.BufferedFile-class.html#next
 paramiko.SFTPFile.seek	paramiko.SFTPFile-class.html#seek
-paramiko.SFTPFile._read_prefetch	paramiko.SFTPFile-class.html#_read_prefetch
+paramiko.SFTPFile.check	paramiko.SFTPFile-class.html#check
 paramiko.SFTPFile.__init__	paramiko.SFTPFile-class.html#__init__
 paramiko.BufferedFile.FLAG_UNIVERSAL_NEWLINE	paramiko.BufferedFile-class.html#FLAG_UNIVERSAL_NEWLINE
 paramiko.BufferedFile.readline	paramiko.BufferedFile-class.html#readline
 paramiko.BufferedFile._set_mode	paramiko.BufferedFile-class.html#_set_mode
 paramiko.BufferedFile.flush	paramiko.BufferedFile-class.html#flush
 paramiko.SFTPFile._async_response	paramiko.SFTPFile-class.html#_async_response
-paramiko.SFTPFile.check	paramiko.SFTPFile-class.html#check
+paramiko.SFTPFile._read_prefetch	paramiko.SFTPFile-class.html#_read_prefetch
 paramiko.BufferedFile.write	paramiko.BufferedFile-class.html#write
 paramiko.SFTPFile.__del__	paramiko.SFTPFile-class.html#__del__
 paramiko.SFTPFile._start_prefetch	paramiko.SFTPFile-class.html#_start_prefetch
@@ -2189,14 +2176,6 @@ paramiko.primes.ModulusPack._parse_modulus	paramiko.primes.ModulusPack-class.htm
 paramiko.primes.ModulusPack.read_file	paramiko.primes.ModulusPack-class.html#read_file
 paramiko.primes.ModulusPack.get_modulus	paramiko.primes.ModulusPack-class.html#get_modulus
 paramiko.primes.ModulusPack.__init__	paramiko.primes.ModulusPack-class.html#__init__
-paramiko.rng.StrongLockingRandomPool	paramiko.rng.StrongLockingRandomPool-class.html
-paramiko.rng.StrongLockingRandomPool.stir	paramiko.rng.StrongLockingRandomPool-class.html#stir
-paramiko.rng.StrongLockingRandomPool.get_bytes	paramiko.rng.StrongLockingRandomPool-class.html#get_bytes
-paramiko.rng.StrongLockingRandomPool.randomize	paramiko.rng.StrongLockingRandomPool-class.html#randomize
-paramiko.rng.StrongLockingRandomPool.add_event	paramiko.rng.StrongLockingRandomPool-class.html#add_event
-paramiko.rng.StrongLockingRandomPool.__init__	paramiko.rng.StrongLockingRandomPool-class.html#__init__
-paramiko.rng_posix.error	paramiko.rng_posix.error-class.html
-paramiko.rng_win32.error	paramiko.rng_win32.error-class.html
 paramiko.ssh_exception.PartialAuthentication	paramiko.ssh_exception.PartialAuthentication-class.html
 paramiko.ssh_exception.PartialAuthentication.allowed_types	paramiko.ssh_exception.PartialAuthentication-class.html#allowed_types
 paramiko.ssh_exception.PartialAuthentication.__init__	paramiko.ssh_exception.PartialAuthentication-class.html#__init__

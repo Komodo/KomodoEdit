@@ -123,6 +123,7 @@ class SSHClient (object):
         self._log_channel = None
         self._policy = RejectPolicy()
         self._transport = None
+        self._agent = None
 
     def load_system_host_keys(self, filename=None):
         """
@@ -226,7 +227,8 @@ class SSHClient (object):
         self._policy = policy
 
     def connect(self, hostname, port=SSH_PORT, username=None, password=None, pkey=None,
-                key_filename=None, timeout=None, allow_agent=True, look_for_keys=True):
+                key_filename=None, timeout=None, allow_agent=True, look_for_keys=True,
+                compress=False):
         """
         Connect to an SSH server and authenticate to it.  The server's host key
         is checked against the system host keys (see L{load_system_host_keys})
@@ -267,6 +269,8 @@ class SSHClient (object):
         @param look_for_keys: set to False to disable searching for discoverable
             private key files in C{~/.ssh/}
         @type look_for_keys: bool
+        @param compress: set to True to turn on compression
+        @type compress: bool
 
         @raise BadHostKeyException: if the server's host key could not be
             verified
@@ -281,7 +285,8 @@ class SSHClient (object):
                 addr = sockaddr
                 break
         else:
-            raise SSHException('No suitable address family for %s' % hostname)
+            # some OS like AIX don't indicate SOCK_STREAM support, so just guess. :(
+            af, _, _, _, addr = socket.getaddrinfo(hostname, port, socket.AF_UNSPEC, socket.SOCK_STREAM)
         sock = socket.socket(af, socket.SOCK_STREAM)
         if timeout is not None:
             try:
@@ -290,7 +295,7 @@ class SSHClient (object):
                 pass
         sock.connect(addr)
         t = self._transport = Transport(sock)
-
+        t.use_compression(compress=compress)
         if self._log_channel is not None:
             t.set_log_channel(self._log_channel)
         t.start_client()
@@ -334,6 +339,10 @@ class SSHClient (object):
             return
         self._transport.close()
         self._transport = None
+
+        if self._agent != None:
+            self._agent.close()
+            self._agent = None
 
     def exec_command(self, command, bufsize=-1):
         """
@@ -432,7 +441,10 @@ class SSHClient (object):
                     saved_exception = e
 
         if allow_agent:
-            for key in Agent().get_keys():
+            if self._agent == None:
+                self._agent = Agent()
+
+            for key in self._agent.get_keys():
                 try:
                     self._log(DEBUG, 'Trying SSH agent key %s' % hexlify(key.get_fingerprint()))
                     self._transport.auth_publickey(username, key)

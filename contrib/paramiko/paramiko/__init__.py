@@ -1,4 +1,4 @@
-# Copyright (C) 2003-2009  Robey Pointer <robeypointer@gmail.com>
+# Copyright (C) 2003-2011  Robey Pointer <robeypointer@gmail.com>
 #
 # This file is part of paramiko.
 #
@@ -20,7 +20,7 @@
 I{Paramiko} (a combination of the esperanto words for "paranoid" and "friend")
 is a module for python 2.3 or greater that implements the SSH2 protocol for
 secure (encrypted and authenticated) connections to remote machines.  Unlike
-SSL (aka TLS), the SSH2 protocol does not require heirarchical certificates
+SSL (aka TLS), the SSH2 protocol does not require hierarchical certificates
 signed by a powerful central authority.  You may know SSH2 as the protocol that
 replaced C{telnet} and C{rsh} for secure access to remote shells, but the
 protocol also includes the ability to open arbitrary channels to remote
@@ -47,7 +47,7 @@ released under the GNU Lesser General Public License (LGPL).
 
 Website: U{http://www.lag.net/paramiko/}
 
-@version: 1.7.6 (Fanny)
+@version: 1.7.7.1 (George)
 @author: Robey Pointer
 @contact: robeypointer@gmail.com
 @license: GNU Lesser General Public License (LGPL)
@@ -60,13 +60,13 @@ if sys.version_info < (2, 2):
 
 
 __author__ = "Robey Pointer <robeypointer@gmail.com>"
-__date__ = "1 Nov 2009"
-__version__ = "1.7.6 (Fanny)"
-__version_info__ = (1, 7, 6)
+__date__ = "21 May 2011"
+__version__ = "1.7.7.1 (George)"
+__version_info__ = (1, 7, 7, 1)
 __license__ = "GNU Lesser General Public License (LGPL)"
 
 
-from transport import randpool, SecurityOptions, Transport
+from transport import SecurityOptions, Transport
 from client import SSHClient, MissingHostKeyPolicy, AutoAddPolicy, RejectPolicy, WarningPolicy
 from auth_handler import AuthHandler
 from channel import Channel, ChannelFile

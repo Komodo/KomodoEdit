@@ -55,6 +55,7 @@ class Agent:
         @raise SSHException: if an SSH agent is found, but speaks an
             incompatible protocol
         """
+        self.conn = None
         self.keys = ()
         if ('SSH_AUTH_SOCK' in os.environ) and (sys.platform != 'win32'):
             conn = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
@@ -87,7 +88,8 @@ class Agent:
         """
         Close the SSH agent connection.
         """
-        self.conn.close()
+        if self.conn is not None:
+            self.conn.close()
         self.conn = None
         self.keys = ()
 
@@ -139,7 +141,7 @@ class AgentKey(PKey):
     def get_name(self):
         return self.name
 
-    def sign_ssh_data(self, randpool, data):
+    def sign_ssh_data(self, rng, data):
         msg = Message()
         msg.add_byte(chr(SSH2_AGENTC_SIGN_REQUEST))
         msg.add_string(self.blob)

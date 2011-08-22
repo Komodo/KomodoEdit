@@ -98,7 +98,7 @@ paramiko.SFTPServerInterface.stat" class="py-name" href="#" onclick="return docl
 <a name="L39"></a><tt class="py-lineno"> 39</tt>  <tt class="py-line"><tt class="py-docstring">    are stored in a dict named C{attr}.  Occasionally, the filename is also</tt> </tt>
 <a name="L40"></a><tt class="py-lineno"> 40</tt>  <tt class="py-line"><tt class="py-docstring">    stored, in C{filename}.</tt> </tt>
 <a name="L41"></a><tt class="py-lineno"> 41</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
-<a name="L42"></a><tt class="py-lineno"> 42</tt>  <tt class="py-line">     </tt>
+<a name="L42"></a><tt class="py-lineno"> 42</tt>  <tt class="py-line"> </tt>
 <a name="L43"></a><tt class="py-lineno"> 43</tt>  <tt class="py-line">    <tt id="link-5" class="py-name" targets="Variable paramiko.SFTPAttributes.FLAG_SIZE=paramiko.SFTPAttributes-class.html#FLAG_SIZE"><a title="paramiko.SFTPAttributes.FLAG_SIZE" class="py-name" href="#" onclick="return doclink('link-5', 'FLAG_SIZE', 'link-5');">FLAG_SIZE</a></tt> <tt class="py-op">=</tt> <tt class="py-number">1</tt> </tt>
 <a name="L44"></a><tt class="py-lineno"> 44</tt>  <tt class="py-line">    <tt id="link-6" class="py-name" targets="Variable paramiko.SFTPAttributes.FLAG_UIDGID=paramiko.SFTPAttributes-class.html#FLAG_UIDGID"><a title="paramiko.SFTPAttributes.FLAG_UIDGID" class="py-name" href="#" onclick="return doclink('link-6', 'FLAG_UIDGID', 'link-6');">FLAG_UIDGID</a></tt> <tt class="py-op">=</tt> <tt class="py-number">2</tt> </tt>
 <a name="L45"></a><tt class="py-lineno"> 45</tt>  <tt class="py-line">    <tt id="link-7" class="py-name" targets="Variable paramiko.SFTPAttributes.FLAG_PERMISSIONS=paramiko.SFTPAttributes-class.html#FLAG_PERMISSIONS"><a title="paramiko.SFTPAttributes.FLAG_PERMISSIONS" class="py-name" href="#" onclick="return doclink('link-7', 'FLAG_PERMISSIONS', 'link-7');">FLAG_PERMISSIONS</a></tt> <tt class="py-op">=</tt> <tt class="py-number">4</tt> </tt>
@@ -148,7 +148,7 @@ paramiko.SFTPServerInterface.stat" class="py-name" href="#" onclick="return docl
 <a name="L89"></a><tt class="py-lineno"> 89</tt>  <tt class="py-line"> </tt>
 <a name="L90"></a><tt class="py-lineno"> 90</tt>  <tt class="py-line">    <tt class="py-comment">###  internals...</tt> </tt>
 <a name="L91"></a><tt class="py-lineno"> 91</tt>  <tt class="py-line"> </tt>
-<a name="L92"></a><tt class="py-lineno"> 92</tt>  <tt class="py-line">     </tt>
+<a name="L92"></a><tt class="py-lineno"> 92</tt>  <tt class="py-line"> </tt>
 <a name="SFTPAttributes._from_msg"></a><div id="SFTPAttributes._from_msg-def"><a name="L93"></a><tt class="py-lineno"> 93</tt> <a class="py-toggle" href="#" id="SFTPAttributes._from_msg-toggle" onclick="return toggle('SFTPAttributes._from_msg');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="paramiko.sftp_attr.SFTPAttributes-class.html#_from_msg">_from_msg</a><tt class="py-op">(</tt><tt class="py-param">cls</tt><tt class="py-op">,</tt> <tt class="py-param">msg</tt><tt class="py-op">,</tt> <tt class="py-param">filename</tt><tt class="py-op">=</tt><tt class="py-name">None</tt><tt class="py-op">,</tt> <tt class="py-param">longname</tt><tt class="py-op">=</tt><tt class="py-name">None</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
 </div><div id="SFTPAttributes._from_msg-collapsed" style="display:none;" pad="+++" indent="++++++++"></div><div id="SFTPAttributes._from_msg-expanded"><a name="L94"></a><tt class="py-lineno"> 94</tt>  <tt class="py-line">        <tt class="py-name">attr</tt> <tt class="py-op">=</tt> <tt class="py-name">cls</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
 <a name="L95"></a><tt class="py-lineno"> 95</tt>  <tt class="py-line">        <tt class="py-name">attr</tt><tt class="py-op">.</tt><tt class="py-name">_unpack</tt><tt class="py-op">(</tt><tt class="py-name">msg</tt><tt class="py-op">)</tt> </tt>
@@ -292,7 +292,7 @@ paramiko.SFTPServerInterface.stat" class="py-name" href="#" onclick="return docl
 <a name="L200"></a><tt class="py-lineno">200</tt>  <tt class="py-line">        <tt class="py-keyword">else</tt><tt class="py-op">:</tt> </tt>
 <a name="L201"></a><tt class="py-lineno">201</tt>  <tt class="py-line">            <tt class="py-name">ks</tt> <tt class="py-op">=</tt> <tt class="py-string">'?---------'</tt> </tt>
 <a name="L202"></a><tt class="py-lineno">202</tt>  <tt class="py-line">        <tt class="py-comment"># compute display date</tt> </tt>
-<a name="L203"></a><tt class="py-lineno">203</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">st_mtime</tt> <tt class="py-keyword">is</tt> <tt class="py-name">None</tt><tt class="py-op">)</tt> <tt class="py-keyword">or</tt> <tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">st_mtime</tt> <tt class="py-op">==</tt> <tt class="py-number">0xffffffff</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L203"></a><tt class="py-lineno">203</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">st_mtime</tt> <tt class="py-keyword">is</tt> <tt class="py-name">None</tt><tt class="py-op">)</tt> <tt class="py-keyword">or</tt> <tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">st_mtime</tt> <tt class="py-op">==</tt> <tt class="py-number">0xffffffffL</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
 <a name="L204"></a><tt class="py-lineno">204</tt>  <tt class="py-line">            <tt class="py-comment"># shouldn't really happen</tt> </tt>
 <a name="L205"></a><tt class="py-lineno">205</tt>  <tt class="py-line">            <tt class="py-name">datestr</tt> <tt class="py-op">=</tt> <tt class="py-string">'(unknown date)'</tt> </tt>
 <a name="L206"></a><tt class="py-lineno">206</tt>  <tt class="py-line">        <tt class="py-keyword">else</tt><tt class="py-op">:</tt> </tt>
@@ -302,7 +302,7 @@ paramiko.SFTPServerInterface.stat" class="py-name" href="#" onclick="return docl
 <a name="L210"></a><tt class="py-lineno">210</tt>  <tt class="py-line">            <tt class="py-keyword">else</tt><tt class="py-op">:</tt> </tt>
 <a name="L211"></a><tt class="py-lineno">211</tt>  <tt class="py-line">                <tt class="py-name">datestr</tt> <tt class="py-op">=</tt> <tt class="py-name">time</tt><tt class="py-op">.</tt><tt class="py-name">strftime</tt><tt class="py-op">(</tt><tt class="py-string">'%d %b %H:%M'</tt><tt class="py-op">,</tt> <tt class="py-name">time</tt><tt class="py-op">.</tt><tt class="py-name">localtime</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">st_mtime</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
 <a name="L212"></a><tt class="py-lineno">212</tt>  <tt class="py-line">        <tt class="py-name">filename</tt> <tt class="py-op">=</tt> <tt class="py-name">getattr</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">,</tt> <tt class="py-string">'filename'</tt><tt class="py-op">,</tt> <tt class="py-string">'?'</tt><tt class="py-op">)</tt> </tt>
-<a name="L213"></a><tt class="py-lineno">213</tt>  <tt class="py-line">         </tt>
+<a name="L213"></a><tt class="py-lineno">213</tt>  <tt class="py-line"> </tt>
 <a name="L214"></a><tt class="py-lineno">214</tt>  <tt class="py-line">        <tt class="py-comment"># not all servers support uid/gid</tt> </tt>
 <a name="L215"></a><tt class="py-lineno">215</tt>  <tt class="py-line">        <tt class="py-name">uid</tt> <tt class="py-op">=</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">st_uid</tt> </tt>
 <a name="L216"></a><tt class="py-lineno">216</tt>  <tt class="py-line">        <tt class="py-name">gid</tt> <tt class="py-op">=</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">st_gid</tt> </tt>
@@ -310,7 +310,7 @@ paramiko.SFTPServerInterface.stat" class="py-name" href="#" onclick="return docl
 <a name="L218"></a><tt class="py-lineno">218</tt>  <tt class="py-line">            <tt class="py-name">uid</tt> <tt class="py-op">=</tt> <tt class="py-number">0</tt> </tt>
 <a name="L219"></a><tt class="py-lineno">219</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-name">gid</tt> <tt class="py-keyword">is</tt> <tt class="py-name">None</tt><tt class="py-op">:</tt> </tt>
 <a name="L220"></a><tt class="py-lineno">220</tt>  <tt class="py-line">            <tt class="py-name">gid</tt> <tt class="py-op">=</tt> <tt class="py-number">0</tt> </tt>
-<a name="L221"></a><tt class="py-lineno">221</tt>  <tt class="py-line">             </tt>
+<a name="L221"></a><tt class="py-lineno">221</tt>  <tt class="py-line"> </tt>
 <a name="L222"></a><tt class="py-lineno">222</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-string">'%s   1 %-8d %-8d %8d %-12s %s'</tt> <tt class="py-op">%</tt> <tt class="py-op">(</tt><tt class="py-name">ks</tt><tt class="py-op">,</tt> <tt class="py-name">uid</tt><tt class="py-op">,</tt> <tt class="py-name">gid</tt><tt class="py-op">,</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">st_size</tt><tt class="py-op">,</tt> <tt class="py-name">datestr</tt><tt class="py-op">,</tt> <tt class="py-name">filename</tt><tt class="py-op">)</tt> </tt>
 </div></div><a name="L223"></a><tt class="py-lineno">223</tt>  <tt class="py-line"> </tt><script type="text/javascript">
 <!--
@@ -345,7 +345,7 @@ expandto(location.href);
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Sun Nov  1 22:14:18 2009
+    Generated by Epydoc 3.0.1 on Mon May 23 13:50:04 2011
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"

@@ -1551,39 +1551,39 @@ paramiko.sftp_si.DISCONNECT_NO_MORE_AUTH_METHODS_AVAILABLE
 paramiko.transport.DISCONNECT_NO_MORE_AUTH_METHODS_AVAILABLE
 paramiko.util.DISCONNECT_NO_MORE_AUTH_METHODS_AVAILABLE" class="py-name" href="#" onclick="return doclink('link-69', 'DISCONNECT_NO_MORE_AUTH_METHODS_AVAILABLE', 'link-69');">DISCONNECT_NO_MORE_AUTH_METHODS_AVAILABLE</a></tt> <tt class="py-op">=</tt> <tt class="py-number">7</tt><tt class="py-op">,</tt> <tt class="py-number">13</tt><tt class="py-op">,</tt> <tt class="py-number">14</tt> </tt>
 <a name="L97"></a><tt class="py-lineno"> 97</tt>  <tt class="py-line"> </tt>
-<a name="L98"></a><tt class="py-lineno"> 98</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt id="link-70" class="py-name" targets="Module paramiko.rng=paramiko.rng-module.html"><a title="paramiko.rng" class="py-name" href="#" onclick="return doclink('link-70', 'rng', 'link-70');">rng</a></tt> <tt class="py-keyword">import</tt> <tt id="link-71" class="py-name" targets="Class paramiko.rng.StrongLockingRandomPool=paramiko.rng.StrongLockingRandomPool-class.html"><a title="paramiko.rng.StrongLockingRandomPool" class="py-name" href="#" onclick="return doclink('link-71', 'StrongLockingRandomPool', 'link-71');">StrongLockingRandomPool</a></tt> </tt>
+<a name="L98"></a><tt class="py-lineno"> 98</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt class="py-name">Crypto</tt> <tt class="py-keyword">import</tt> <tt class="py-name">Random</tt> </tt>
 <a name="L99"></a><tt class="py-lineno"> 99</tt>  <tt class="py-line"> </tt>
 <a name="L100"></a><tt class="py-lineno">100</tt>  <tt class="py-line"><tt class="py-comment"># keep a crypto-strong PRNG nearby</tt> </tt>
-<a name="L101"></a><tt class="py-lineno">101</tt>  <tt class="py-line"><tt id="link-72" class="py-name" targets="Variable paramiko.auth_handler.randpool=paramiko.auth_handler-module.html#randpool,Variable paramiko.channel.randpool=paramiko.channel-module.html#randpool,Variable paramiko.client.randpool=paramiko.client-module.html#randpool,Variable paramiko.common.randpool=paramiko.common-module.html#randpool,Variable paramiko.dsskey.randpool=paramiko.dsskey-module.html#randpool,Variable paramiko.hostkeys.randpool=paramiko.hostkeys-module.html#randpool,Variable paramiko.kex_gex.randpool=paramiko.kex_gex-module.html#randpool,Variable paramiko.kex_group1.randpool=paramiko.kex_group1-module.html#randpool,Variable paramiko.packet.randpool=paramiko.packet-module.html#randpool,Variable paramiko.pkey.randpool=paramiko.pkey-module.html#randpool,Variable paramiko.rsakey.randpool=paramiko.rsakey-module.html#randpool,Variable paramiko.server.randpool=paramiko.server-module.html#randpool,Variable paramiko.sftp.randpool=paramiko.sftp-module.html#randpool,Variable paramiko.sftp_attr.randpool=paramiko.sftp_attr-module.html#randpool,Variable paramiko.sftp_client.randpool=paramiko.sftp_client-module.html#randpool,Variable paramiko.sftp_file.randpool=paramiko.sftp_file-module.html#randpool,Variable paramiko.sftp_handle.randpool=paramiko.sftp_handle-module.html#randpool,Variable paramiko.sftp_server.randpool=paramiko.sftp_server-module.html#randpool,Variable paramiko.sftp_si.randpool=paramiko.sftp_si-module.html#randpool,Variable paramiko.transport.randpool=paramiko.transport-module.html#randpool,Variable paramiko.util.randpool=paramiko.util-module.html#randpool"><a title="paramiko.auth_handler.randpool
-paramiko.channel.randpool
-paramiko.client.randpool
-paramiko.common.randpool
-paramiko.dsskey.randpool
-paramiko.hostkeys.randpool
-paramiko.kex_gex.randpool
-paramiko.kex_group1.randpool
-paramiko.packet.randpool
-paramiko.pkey.randpool
-paramiko.rsakey.randpool
-paramiko.server.randpool
-paramiko.sftp.randpool
-paramiko.sftp_attr.randpool
-paramiko.sftp_client.randpool
-paramiko.sftp_file.randpool
-paramiko.sftp_handle.randpool
-paramiko.sftp_server.randpool
-paramiko.sftp_si.randpool
-paramiko.transport.randpool
-paramiko.util.randpool" class="py-name" href="#" onclick="return doclink('link-72', 'randpool', 'link-72');">randpool</a></tt> <tt class="py-op">=</tt> <tt id="link-73" class="py-name"><a title="paramiko.rng.StrongLockingRandomPool" class="py-name" href="#" onclick="return doclink('link-73', 'StrongLockingRandomPool', 'link-71');">StrongLockingRandomPool</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L101"></a><tt class="py-lineno">101</tt>  <tt class="py-line"><tt id="link-70" class="py-name" targets="Variable paramiko.auth_handler.rng=paramiko.auth_handler-module.html#rng,Variable paramiko.channel.rng=paramiko.channel-module.html#rng,Variable paramiko.client.rng=paramiko.client-module.html#rng,Variable paramiko.common.rng=paramiko.common-module.html#rng,Variable paramiko.dsskey.rng=paramiko.dsskey-module.html#rng,Variable paramiko.hostkeys.rng=paramiko.hostkeys-module.html#rng,Variable paramiko.kex_gex.rng=paramiko.kex_gex-module.html#rng,Variable paramiko.kex_group1.rng=paramiko.kex_group1-module.html#rng,Variable paramiko.packet.rng=paramiko.packet-module.html#rng,Variable paramiko.pkey.rng=paramiko.pkey-module.html#rng,Variable paramiko.rsakey.rng=paramiko.rsakey-module.html#rng,Variable paramiko.server.rng=paramiko.server-module.html#rng,Variable paramiko.sftp.rng=paramiko.sftp-module.html#rng,Variable paramiko.sftp_attr.rng=paramiko.sftp_attr-module.html#rng,Variable paramiko.sftp_client.rng=paramiko.sftp_client-module.html#rng,Variable paramiko.sftp_file.rng=paramiko.sftp_file-module.html#rng,Variable paramiko.sftp_handle.rng=paramiko.sftp_handle-module.html#rng,Variable paramiko.sftp_server.rng=paramiko.sftp_server-module.html#rng,Variable paramiko.sftp_si.rng=paramiko.sftp_si-module.html#rng,Variable paramiko.transport.rng=paramiko.transport-module.html#rng,Variable paramiko.util.rng=paramiko.util-module.html#rng"><a title="paramiko.auth_handler.rng
+paramiko.channel.rng
+paramiko.client.rng
+paramiko.common.rng
+paramiko.dsskey.rng
+paramiko.hostkeys.rng
+paramiko.kex_gex.rng
+paramiko.kex_group1.rng
+paramiko.packet.rng
+paramiko.pkey.rng
+paramiko.rsakey.rng
+paramiko.server.rng
+paramiko.sftp.rng
+paramiko.sftp_attr.rng
+paramiko.sftp_client.rng
+paramiko.sftp_file.rng
+paramiko.sftp_handle.rng
+paramiko.sftp_server.rng
+paramiko.sftp_si.rng
+paramiko.transport.rng
+paramiko.util.rng" class="py-name" href="#" onclick="return doclink('link-70', 'rng', 'link-70');">rng</a></tt> <tt class="py-op">=</tt> <tt class="py-name">Random</tt><tt class="py-op">.</tt><tt id="link-71" class="py-name" targets="Class Method paramiko.util.Counter.new()=paramiko.util.Counter-class.html#new"><a title="paramiko.util.Counter.new" class="py-name" href="#" onclick="return doclink('link-71', 'new', 'link-71');">new</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
 <a name="L102"></a><tt class="py-lineno">102</tt>  <tt class="py-line"> </tt>
 <a name="L103"></a><tt class="py-lineno">103</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">sys</tt> </tt>
 <a name="L104"></a><tt class="py-lineno">104</tt>  <tt class="py-line"><tt class="py-keyword">if</tt> <tt class="py-name">sys</tt><tt class="py-op">.</tt><tt class="py-name">version_info</tt> <tt class="py-op">&lt;</tt> <tt class="py-op">(</tt><tt class="py-number">2</tt><tt class="py-op">,</tt> <tt class="py-number">3</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
 <a name="L105"></a><tt class="py-lineno">105</tt>  <tt class="py-line">    <tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
 <a name="L106"></a><tt class="py-lineno">106</tt>  <tt class="py-line">        <tt class="py-keyword">import</tt> <tt class="py-name">logging</tt> </tt>
 <a name="L107"></a><tt class="py-lineno">107</tt>  <tt class="py-line">    <tt class="py-keyword">except</tt><tt class="py-op">:</tt> </tt>
-<a name="L108"></a><tt class="py-lineno">108</tt>  <tt class="py-line">        <tt class="py-keyword">import</tt> <tt id="link-74" class="py-name" targets="Module paramiko.logging22=paramiko.logging22-module.html"><a title="paramiko.logging22" class="py-name" href="#" onclick="return doclink('link-74', 'logging22', 'link-74');">logging22</a></tt> <tt class="py-keyword">as</tt> <tt class="py-name">logging</tt> </tt>
+<a name="L108"></a><tt class="py-lineno">108</tt>  <tt class="py-line">        <tt class="py-keyword">import</tt> <tt id="link-72" class="py-name" targets="Module paramiko.logging22=paramiko.logging22-module.html"><a title="paramiko.logging22" class="py-name" href="#" onclick="return doclink('link-72', 'logging22', 'link-72');">logging22</a></tt> <tt class="py-keyword">as</tt> <tt class="py-name">logging</tt> </tt>
 <a name="L109"></a><tt class="py-lineno">109</tt>  <tt class="py-line">    <tt class="py-keyword">import</tt> <tt class="py-name">select</tt> </tt>
-<a name="L110"></a><tt class="py-lineno">110</tt>  <tt class="py-line">    <tt id="link-75" class="py-name" targets="Variable paramiko.auth_handler.PY22=paramiko.auth_handler-module.html#PY22,Variable paramiko.channel.PY22=paramiko.channel-module.html#PY22,Variable paramiko.client.PY22=paramiko.client-module.html#PY22,Variable paramiko.common.PY22=paramiko.common-module.html#PY22,Variable paramiko.dsskey.PY22=paramiko.dsskey-module.html#PY22,Variable paramiko.hostkeys.PY22=paramiko.hostkeys-module.html#PY22,Variable paramiko.kex_gex.PY22=paramiko.kex_gex-module.html#PY22,Variable paramiko.kex_group1.PY22=paramiko.kex_group1-module.html#PY22,Variable paramiko.packet.PY22=paramiko.packet-module.html#PY22,Variable paramiko.pkey.PY22=paramiko.pkey-module.html#PY22,Variable paramiko.rsakey.PY22=paramiko.rsakey-module.html#PY22,Variable paramiko.server.PY22=paramiko.server-module.html#PY22,Variable paramiko.sftp.PY22=paramiko.sftp-module.html#PY22,Variable paramiko.sftp_attr.PY22=paramiko.sftp_attr-module.html#PY22,Variable paramiko.sftp_client.PY22=paramiko.sftp_client-module.html#PY22,Variable paramiko.sftp_file.PY22=paramiko.sftp_file-module.html#PY22,Variable paramiko.sftp_handle.PY22=paramiko.sftp_handle-module.html#PY22,Variable paramiko.sftp_server.PY22=paramiko.sftp_server-module.html#PY22,Variable paramiko.sftp_si.PY22=paramiko.sftp_si-module.html#PY22,Variable paramiko.transport.PY22=paramiko.transport-module.html#PY22,Variable paramiko.util.PY22=paramiko.util-module.html#PY22"><a title="paramiko.auth_handler.PY22
+<a name="L110"></a><tt class="py-lineno">110</tt>  <tt class="py-line">    <tt id="link-73" class="py-name" targets="Variable paramiko.auth_handler.PY22=paramiko.auth_handler-module.html#PY22,Variable paramiko.channel.PY22=paramiko.channel-module.html#PY22,Variable paramiko.client.PY22=paramiko.client-module.html#PY22,Variable paramiko.common.PY22=paramiko.common-module.html#PY22,Variable paramiko.dsskey.PY22=paramiko.dsskey-module.html#PY22,Variable paramiko.hostkeys.PY22=paramiko.hostkeys-module.html#PY22,Variable paramiko.kex_gex.PY22=paramiko.kex_gex-module.html#PY22,Variable paramiko.kex_group1.PY22=paramiko.kex_group1-module.html#PY22,Variable paramiko.packet.PY22=paramiko.packet-module.html#PY22,Variable paramiko.pkey.PY22=paramiko.pkey-module.html#PY22,Variable paramiko.rsakey.PY22=paramiko.rsakey-module.html#PY22,Variable paramiko.server.PY22=paramiko.server-module.html#PY22,Variable paramiko.sftp.PY22=paramiko.sftp-module.html#PY22,Variable paramiko.sftp_attr.PY22=paramiko.sftp_attr-module.html#PY22,Variable paramiko.sftp_client.PY22=paramiko.sftp_client-module.html#PY22,Variable paramiko.sftp_file.PY22=paramiko.sftp_file-module.html#PY22,Variable paramiko.sftp_handle.PY22=paramiko.sftp_handle-module.html#PY22,Variable paramiko.sftp_server.PY22=paramiko.sftp_server-module.html#PY22,Variable paramiko.sftp_si.PY22=paramiko.sftp_si-module.html#PY22,Variable paramiko.transport.PY22=paramiko.transport-module.html#PY22,Variable paramiko.util.PY22=paramiko.util-module.html#PY22"><a title="paramiko.auth_handler.PY22
 paramiko.channel.PY22
 paramiko.client.PY22
 paramiko.common.PY22
@@ -1603,7 +1603,7 @@ paramiko.sftp_handle.PY22
 paramiko.sftp_server.PY22
 paramiko.sftp_si.PY22
 paramiko.transport.PY22
-paramiko.util.PY22" class="py-name" href="#" onclick="return doclink('link-75', 'PY22', 'link-75');">PY22</a></tt> <tt class="py-op">=</tt> <tt class="py-name">True</tt> </tt>
+paramiko.util.PY22" class="py-name" href="#" onclick="return doclink('link-73', 'PY22', 'link-73');">PY22</a></tt> <tt class="py-op">=</tt> <tt class="py-name">True</tt> </tt>
 <a name="L111"></a><tt class="py-lineno">111</tt>  <tt class="py-line"> </tt>
 <a name="L112"></a><tt class="py-lineno">112</tt>  <tt class="py-line">    <tt class="py-keyword">import</tt> <tt class="py-name">socket</tt> </tt>
 <a name="L113"></a><tt class="py-lineno">113</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-keyword">not</tt> <tt class="py-name">hasattr</tt><tt class="py-op">(</tt><tt class="py-name">socket</tt><tt class="py-op">,</tt> <tt class="py-string">'timeout'</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
@@ -1612,7 +1612,7 @@ paramiko.util.PY22" class="py-name" href="#" onclick="return doclink('link-75', 
 <a name="L116"></a><tt class="py-lineno">116</tt>  <tt class="py-line">        <tt class="py-keyword">del</tt> <tt class="py-name">timeout</tt> </tt>
 <a name="L117"></a><tt class="py-lineno">117</tt>  <tt class="py-line"><tt class="py-keyword">else</tt><tt class="py-op">:</tt> </tt>
 <a name="L118"></a><tt class="py-lineno">118</tt>  <tt class="py-line">    <tt class="py-keyword">import</tt> <tt class="py-name">logging</tt> </tt>
-<a name="L119"></a><tt class="py-lineno">119</tt>  <tt class="py-line">    <tt id="link-76" class="py-name"><a title="paramiko.auth_handler.PY22
+<a name="L119"></a><tt class="py-lineno">119</tt>  <tt class="py-line">    <tt id="link-74" class="py-name"><a title="paramiko.auth_handler.PY22
 paramiko.channel.PY22
 paramiko.client.PY22
 paramiko.common.PY22
@@ -1632,10 +1632,10 @@ paramiko.sftp_handle.PY22
 paramiko.sftp_server.PY22
 paramiko.sftp_si.PY22
 paramiko.transport.PY22
-paramiko.util.PY22" class="py-name" href="#" onclick="return doclink('link-76', 'PY22', 'link-75');">PY22</a></tt> <tt class="py-op">=</tt> <tt class="py-name">False</tt> </tt>
+paramiko.util.PY22" class="py-name" href="#" onclick="return doclink('link-74', 'PY22', 'link-73');">PY22</a></tt> <tt class="py-op">=</tt> <tt class="py-name">False</tt> </tt>
 <a name="L120"></a><tt class="py-lineno">120</tt>  <tt class="py-line"> </tt>
 <a name="L121"></a><tt class="py-lineno">121</tt>  <tt class="py-line"> </tt>
-<a name="L122"></a><tt class="py-lineno">122</tt>  <tt class="py-line"><tt id="link-77" class="py-name" targets="Variable paramiko.auth_handler.DEBUG=paramiko.auth_handler-module.html#DEBUG,Variable paramiko.channel.DEBUG=paramiko.channel-module.html#DEBUG,Variable paramiko.client.DEBUG=paramiko.client-module.html#DEBUG,Variable paramiko.common.DEBUG=paramiko.common-module.html#DEBUG,Variable paramiko.dsskey.DEBUG=paramiko.dsskey-module.html#DEBUG,Variable paramiko.hostkeys.DEBUG=paramiko.hostkeys-module.html#DEBUG,Variable paramiko.kex_gex.DEBUG=paramiko.kex_gex-module.html#DEBUG,Variable paramiko.kex_group1.DEBUG=paramiko.kex_group1-module.html#DEBUG,Variable paramiko.logging22.DEBUG=paramiko.logging22-module.html#DEBUG,Variable paramiko.packet.DEBUG=paramiko.packet-module.html#DEBUG,Variable paramiko.pkey.DEBUG=paramiko.pkey-module.html#DEBUG,Variable paramiko.rsakey.DEBUG=paramiko.rsakey-module.html#DEBUG,Variable paramiko.server.DEBUG=paramiko.server-module.html#DEBUG,Variable paramiko.sftp.DEBUG=paramiko.sftp-module.html#DEBUG,Variable paramiko.sftp_attr.DEBUG=paramiko.sftp_attr-module.html#DEBUG,Variable paramiko.sftp_client.DEBUG=paramiko.sftp_client-module.html#DEBUG,Variable paramiko.sftp_file.DEBUG=paramiko.sftp_file-module.html#DEBUG,Variable paramiko.sftp_handle.DEBUG=paramiko.sftp_handle-module.html#DEBUG,Variable paramiko.sftp_server.DEBUG=paramiko.sftp_server-module.html#DEBUG,Variable paramiko.sftp_si.DEBUG=paramiko.sftp_si-module.html#DEBUG,Variable paramiko.transport.DEBUG=paramiko.transport-module.html#DEBUG,Variable paramiko.util.DEBUG=paramiko.util-module.html#DEBUG"><a title="paramiko.auth_handler.DEBUG
+<a name="L122"></a><tt class="py-lineno">122</tt>  <tt class="py-line"><tt id="link-75" class="py-name" targets="Variable paramiko.auth_handler.DEBUG=paramiko.auth_handler-module.html#DEBUG,Variable paramiko.channel.DEBUG=paramiko.channel-module.html#DEBUG,Variable paramiko.client.DEBUG=paramiko.client-module.html#DEBUG,Variable paramiko.common.DEBUG=paramiko.common-module.html#DEBUG,Variable paramiko.dsskey.DEBUG=paramiko.dsskey-module.html#DEBUG,Variable paramiko.hostkeys.DEBUG=paramiko.hostkeys-module.html#DEBUG,Variable paramiko.kex_gex.DEBUG=paramiko.kex_gex-module.html#DEBUG,Variable paramiko.kex_group1.DEBUG=paramiko.kex_group1-module.html#DEBUG,Variable paramiko.logging22.DEBUG=paramiko.logging22-module.html#DEBUG,Variable paramiko.packet.DEBUG=paramiko.packet-module.html#DEBUG,Variable paramiko.pkey.DEBUG=paramiko.pkey-module.html#DEBUG,Variable paramiko.rsakey.DEBUG=paramiko.rsakey-module.html#DEBUG,Variable paramiko.server.DEBUG=paramiko.server-module.html#DEBUG,Variable paramiko.sftp.DEBUG=paramiko.sftp-module.html#DEBUG,Variable paramiko.sftp_attr.DEBUG=paramiko.sftp_attr-module.html#DEBUG,Variable paramiko.sftp_client.DEBUG=paramiko.sftp_client-module.html#DEBUG,Variable paramiko.sftp_file.DEBUG=paramiko.sftp_file-module.html#DEBUG,Variable paramiko.sftp_handle.DEBUG=paramiko.sftp_handle-module.html#DEBUG,Variable paramiko.sftp_server.DEBUG=paramiko.sftp_server-module.html#DEBUG,Variable paramiko.sftp_si.DEBUG=paramiko.sftp_si-module.html#DEBUG,Variable paramiko.transport.DEBUG=paramiko.transport-module.html#DEBUG,Variable paramiko.util.DEBUG=paramiko.util-module.html#DEBUG"><a title="paramiko.auth_handler.DEBUG
 paramiko.channel.DEBUG
 paramiko.client.DEBUG
 paramiko.common.DEBUG
@@ -1656,7 +1656,7 @@ paramiko.sftp_handle.DEBUG
 paramiko.sftp_server.DEBUG
 paramiko.sftp_si.DEBUG
 paramiko.transport.DEBUG
-paramiko.util.DEBUG" class="py-name" href="#" onclick="return doclink('link-77', 'DEBUG', 'link-77');">DEBUG</a></tt> <tt class="py-op">=</tt> <tt class="py-name">logging</tt><tt class="py-op">.</tt><tt id="link-78" class="py-name"><a title="paramiko.auth_handler.DEBUG
+paramiko.util.DEBUG" class="py-name" href="#" onclick="return doclink('link-75', 'DEBUG', 'link-75');">DEBUG</a></tt> <tt class="py-op">=</tt> <tt class="py-name">logging</tt><tt class="py-op">.</tt><tt id="link-76" class="py-name"><a title="paramiko.auth_handler.DEBUG
 paramiko.channel.DEBUG
 paramiko.client.DEBUG
 paramiko.common.DEBUG
@@ -1677,8 +1677,8 @@ paramiko.sftp_handle.DEBUG
 paramiko.sftp_server.DEBUG
 paramiko.sftp_si.DEBUG
 paramiko.transport.DEBUG
-paramiko.util.DEBUG" class="py-name" href="#" onclick="return doclink('link-78', 'DEBUG', 'link-77');">DEBUG</a></tt> </tt>
-<a name="L123"></a><tt class="py-lineno">123</tt>  <tt class="py-line"><tt id="link-79" class="py-name" targets="Variable paramiko.auth_handler.INFO=paramiko.auth_handler-module.html#INFO,Variable paramiko.channel.INFO=paramiko.channel-module.html#INFO,Variable paramiko.client.INFO=paramiko.client-module.html#INFO,Variable paramiko.common.INFO=paramiko.common-module.html#INFO,Variable paramiko.dsskey.INFO=paramiko.dsskey-module.html#INFO,Variable paramiko.hostkeys.INFO=paramiko.hostkeys-module.html#INFO,Variable paramiko.kex_gex.INFO=paramiko.kex_gex-module.html#INFO,Variable paramiko.kex_group1.INFO=paramiko.kex_group1-module.html#INFO,Variable paramiko.logging22.INFO=paramiko.logging22-module.html#INFO,Variable paramiko.packet.INFO=paramiko.packet-module.html#INFO,Variable paramiko.pkey.INFO=paramiko.pkey-module.html#INFO,Variable paramiko.rsakey.INFO=paramiko.rsakey-module.html#INFO,Variable paramiko.server.INFO=paramiko.server-module.html#INFO,Variable paramiko.sftp.INFO=paramiko.sftp-module.html#INFO,Variable paramiko.sftp_attr.INFO=paramiko.sftp_attr-module.html#INFO,Variable paramiko.sftp_client.INFO=paramiko.sftp_client-module.html#INFO,Variable paramiko.sftp_file.INFO=paramiko.sftp_file-module.html#INFO,Variable paramiko.sftp_handle.INFO=paramiko.sftp_handle-module.html#INFO,Variable paramiko.sftp_server.INFO=paramiko.sftp_server-module.html#INFO,Variable paramiko.sftp_si.INFO=paramiko.sftp_si-module.html#INFO,Variable paramiko.transport.INFO=paramiko.transport-module.html#INFO,Variable paramiko.util.INFO=paramiko.util-module.html#INFO"><a title="paramiko.auth_handler.INFO
+paramiko.util.DEBUG" class="py-name" href="#" onclick="return doclink('link-76', 'DEBUG', 'link-75');">DEBUG</a></tt> </tt>
+<a name="L123"></a><tt class="py-lineno">123</tt>  <tt class="py-line"><tt id="link-77" class="py-name" targets="Variable paramiko.auth_handler.INFO=paramiko.auth_handler-module.html#INFO,Variable paramiko.channel.INFO=paramiko.channel-module.html#INFO,Variable paramiko.client.INFO=paramiko.client-module.html#INFO,Variable paramiko.common.INFO=paramiko.common-module.html#INFO,Variable paramiko.dsskey.INFO=paramiko.dsskey-module.html#INFO,Variable paramiko.hostkeys.INFO=paramiko.hostkeys-module.html#INFO,Variable paramiko.kex_gex.INFO=paramiko.kex_gex-module.html#INFO,Variable paramiko.kex_group1.INFO=paramiko.kex_group1-module.html#INFO,Variable paramiko.logging22.INFO=paramiko.logging22-module.html#INFO,Variable paramiko.packet.INFO=paramiko.packet-module.html#INFO,Variable paramiko.pkey.INFO=paramiko.pkey-module.html#INFO,Variable paramiko.rsakey.INFO=paramiko.rsakey-module.html#INFO,Variable paramiko.server.INFO=paramiko.server-module.html#INFO,Variable paramiko.sftp.INFO=paramiko.sftp-module.html#INFO,Variable paramiko.sftp_attr.INFO=paramiko.sftp_attr-module.html#INFO,Variable paramiko.sftp_client.INFO=paramiko.sftp_client-module.html#INFO,Variable paramiko.sftp_file.INFO=paramiko.sftp_file-module.html#INFO,Variable paramiko.sftp_handle.INFO=paramiko.sftp_handle-module.html#INFO,Variable paramiko.sftp_server.INFO=paramiko.sftp_server-module.html#INFO,Variable paramiko.sftp_si.INFO=paramiko.sftp_si-module.html#INFO,Variable paramiko.transport.INFO=paramiko.transport-module.html#INFO,Variable paramiko.util.INFO=paramiko.util-module.html#INFO"><a title="paramiko.auth_handler.INFO
 paramiko.channel.INFO
 paramiko.client.INFO
 paramiko.common.INFO
@@ -1699,7 +1699,7 @@ paramiko.sftp_handle.INFO
 paramiko.sftp_server.INFO
 paramiko.sftp_si.INFO
 paramiko.transport.INFO
-paramiko.util.INFO" class="py-name" href="#" onclick="return doclink('link-79', 'INFO', 'link-79');">INFO</a></tt> <tt class="py-op">=</tt> <tt class="py-name">logging</tt><tt class="py-op">.</tt><tt id="link-80" class="py-name"><a title="paramiko.auth_handler.INFO
+paramiko.util.INFO" class="py-name" href="#" onclick="return doclink('link-77', 'INFO', 'link-77');">INFO</a></tt> <tt class="py-op">=</tt> <tt class="py-name">logging</tt><tt class="py-op">.</tt><tt id="link-78" class="py-name"><a title="paramiko.auth_handler.INFO
 paramiko.channel.INFO
 paramiko.client.INFO
 paramiko.common.INFO
@@ -1720,8 +1720,8 @@ paramiko.sftp_handle.INFO
 paramiko.sftp_server.INFO
 paramiko.sftp_si.INFO
 paramiko.transport.INFO
-paramiko.util.INFO" class="py-name" href="#" onclick="return doclink('link-80', 'INFO', 'link-79');">INFO</a></tt> </tt>
-<a name="L124"></a><tt class="py-lineno">124</tt>  <tt class="py-line"><tt id="link-81" class="py-name" targets="Variable paramiko.auth_handler.WARNING=paramiko.auth_handler-module.html#WARNING,Variable paramiko.channel.WARNING=paramiko.channel-module.html#WARNING,Variable paramiko.client.WARNING=paramiko.client-module.html#WARNING,Variable paramiko.common.WARNING=paramiko.common-module.html#WARNING,Variable paramiko.dsskey.WARNING=paramiko.dsskey-module.html#WARNING,Variable paramiko.hostkeys.WARNING=paramiko.hostkeys-module.html#WARNING,Variable paramiko.kex_gex.WARNING=paramiko.kex_gex-module.html#WARNING,Variable paramiko.kex_group1.WARNING=paramiko.kex_group1-module.html#WARNING,Variable paramiko.logging22.WARNING=paramiko.logging22-module.html#WARNING,Variable paramiko.packet.WARNING=paramiko.packet-module.html#WARNING,Variable paramiko.pkey.WARNING=paramiko.pkey-module.html#WARNING,Variable paramiko.rsakey.WARNING=paramiko.rsakey-module.html#WARNING,Variable paramiko.server.WARNING=paramiko.server-module.html#WARNING,Variable paramiko.sftp.WARNING=paramiko.sftp-module.html#WARNING,Variable paramiko.sftp_attr.WARNING=paramiko.sftp_attr-module.html#WARNING,Variable paramiko.sftp_client.WARNING=paramiko.sftp_client-module.html#WARNING,Variable paramiko.sftp_file.WARNING=paramiko.sftp_file-module.html#WARNING,Variable paramiko.sftp_handle.WARNING=paramiko.sftp_handle-module.html#WARNING,Variable paramiko.sftp_server.WARNING=paramiko.sftp_server-module.html#WARNING,Variable paramiko.sftp_si.WARNING=paramiko.sftp_si-module.html#WARNING,Variable paramiko.transport.WARNING=paramiko.transport-module.html#WARNING,Variable paramiko.util.WARNING=paramiko.util-module.html#WARNING"><a title="paramiko.auth_handler.WARNING
+paramiko.util.INFO" class="py-name" href="#" onclick="return doclink('link-78', 'INFO', 'link-77');">INFO</a></tt> </tt>
+<a name="L124"></a><tt class="py-lineno">124</tt>  <tt class="py-line"><tt id="link-79" class="py-name" targets="Variable paramiko.auth_handler.WARNING=paramiko.auth_handler-module.html#WARNING,Variable paramiko.channel.WARNING=paramiko.channel-module.html#WARNING,Variable paramiko.client.WARNING=paramiko.client-module.html#WARNING,Variable paramiko.common.WARNING=paramiko.common-module.html#WARNING,Variable paramiko.dsskey.WARNING=paramiko.dsskey-module.html#WARNING,Variable paramiko.hostkeys.WARNING=paramiko.hostkeys-module.html#WARNING,Variable paramiko.kex_gex.WARNING=paramiko.kex_gex-module.html#WARNING,Variable paramiko.kex_group1.WARNING=paramiko.kex_group1-module.html#WARNING,Variable paramiko.logging22.WARNING=paramiko.logging22-module.html#WARNING,Variable paramiko.packet.WARNING=paramiko.packet-module.html#WARNING,Variable paramiko.pkey.WARNING=paramiko.pkey-module.html#WARNING,Variable paramiko.rsakey.WARNING=paramiko.rsakey-module.html#WARNING,Variable paramiko.server.WARNING=paramiko.server-module.html#WARNING,Variable paramiko.sftp.WARNING=paramiko.sftp-module.html#WARNING,Variable paramiko.sftp_attr.WARNING=paramiko.sftp_attr-module.html#WARNING,Variable paramiko.sftp_client.WARNING=paramiko.sftp_client-module.html#WARNING,Variable paramiko.sftp_file.WARNING=paramiko.sftp_file-module.html#WARNING,Variable paramiko.sftp_handle.WARNING=paramiko.sftp_handle-module.html#WARNING,Variable paramiko.sftp_server.WARNING=paramiko.sftp_server-module.html#WARNING,Variable paramiko.sftp_si.WARNING=paramiko.sftp_si-module.html#WARNING,Variable paramiko.transport.WARNING=paramiko.transport-module.html#WARNING,Variable paramiko.util.WARNING=paramiko.util-module.html#WARNING"><a title="paramiko.auth_handler.WARNING
 paramiko.channel.WARNING
 paramiko.client.WARNING
 paramiko.common.WARNING
@@ -1742,7 +1742,7 @@ paramiko.sftp_handle.WARNING
 paramiko.sftp_server.WARNING
 paramiko.sftp_si.WARNING
 paramiko.transport.WARNING
-paramiko.util.WARNING" class="py-name" href="#" onclick="return doclink('link-81', 'WARNING', 'link-81');">WARNING</a></tt> <tt class="py-op">=</tt> <tt class="py-name">logging</tt><tt class="py-op">.</tt><tt id="link-82" class="py-name"><a title="paramiko.auth_handler.WARNING
+paramiko.util.WARNING" class="py-name" href="#" onclick="return doclink('link-79', 'WARNING', 'link-79');">WARNING</a></tt> <tt class="py-op">=</tt> <tt class="py-name">logging</tt><tt class="py-op">.</tt><tt id="link-80" class="py-name"><a title="paramiko.auth_handler.WARNING
 paramiko.channel.WARNING
 paramiko.client.WARNING
 paramiko.common.WARNING
@@ -1763,8 +1763,8 @@ paramiko.sftp_handle.WARNING
 paramiko.sftp_server.WARNING
 paramiko.sftp_si.WARNING
 paramiko.transport.WARNING
-paramiko.util.WARNING" class="py-name" href="#" onclick="return doclink('link-82', 'WARNING', 'link-81');">WARNING</a></tt> </tt>
-<a name="L125"></a><tt class="py-lineno">125</tt>  <tt class="py-line"><tt id="link-83" class="py-name" targets="Variable paramiko.auth_handler.ERROR=paramiko.auth_handler-module.html#ERROR,Variable paramiko.channel.ERROR=paramiko.channel-module.html#ERROR,Variable paramiko.client.ERROR=paramiko.client-module.html#ERROR,Variable paramiko.common.ERROR=paramiko.common-module.html#ERROR,Variable paramiko.dsskey.ERROR=paramiko.dsskey-module.html#ERROR,Variable paramiko.hostkeys.ERROR=paramiko.hostkeys-module.html#ERROR,Variable paramiko.kex_gex.ERROR=paramiko.kex_gex-module.html#ERROR,Variable paramiko.kex_group1.ERROR=paramiko.kex_group1-module.html#ERROR,Variable paramiko.logging22.ERROR=paramiko.logging22-module.html#ERROR,Variable paramiko.packet.ERROR=paramiko.packet-module.html#ERROR,Variable paramiko.pkey.ERROR=paramiko.pkey-module.html#ERROR,Variable paramiko.rsakey.ERROR=paramiko.rsakey-module.html#ERROR,Variable paramiko.server.ERROR=paramiko.server-module.html#ERROR,Variable paramiko.sftp.ERROR=paramiko.sftp-module.html#ERROR,Variable paramiko.sftp_attr.ERROR=paramiko.sftp_attr-module.html#ERROR,Variable paramiko.sftp_client.ERROR=paramiko.sftp_client-module.html#ERROR,Variable paramiko.sftp_file.ERROR=paramiko.sftp_file-module.html#ERROR,Variable paramiko.sftp_handle.ERROR=paramiko.sftp_handle-module.html#ERROR,Variable paramiko.sftp_server.ERROR=paramiko.sftp_server-module.html#ERROR,Variable paramiko.sftp_si.ERROR=paramiko.sftp_si-module.html#ERROR,Variable paramiko.transport.ERROR=paramiko.transport-module.html#ERROR,Variable paramiko.util.ERROR=paramiko.util-module.html#ERROR"><a title="paramiko.auth_handler.ERROR
+paramiko.util.WARNING" class="py-name" href="#" onclick="return doclink('link-80', 'WARNING', 'link-79');">WARNING</a></tt> </tt>
+<a name="L125"></a><tt class="py-lineno">125</tt>  <tt class="py-line"><tt id="link-81" class="py-name" targets="Variable paramiko.auth_handler.ERROR=paramiko.auth_handler-module.html#ERROR,Variable paramiko.channel.ERROR=paramiko.channel-module.html#ERROR,Variable paramiko.client.ERROR=paramiko.client-module.html#ERROR,Variable paramiko.common.ERROR=paramiko.common-module.html#ERROR,Variable paramiko.dsskey.ERROR=paramiko.dsskey-module.html#ERROR,Variable paramiko.hostkeys.ERROR=paramiko.hostkeys-module.html#ERROR,Variable paramiko.kex_gex.ERROR=paramiko.kex_gex-module.html#ERROR,Variable paramiko.kex_group1.ERROR=paramiko.kex_group1-module.html#ERROR,Variable paramiko.logging22.ERROR=paramiko.logging22-module.html#ERROR,Variable paramiko.packet.ERROR=paramiko.packet-module.html#ERROR,Variable paramiko.pkey.ERROR=paramiko.pkey-module.html#ERROR,Variable paramiko.rsakey.ERROR=paramiko.rsakey-module.html#ERROR,Variable paramiko.server.ERROR=paramiko.server-module.html#ERROR,Variable paramiko.sftp.ERROR=paramiko.sftp-module.html#ERROR,Variable paramiko.sftp_attr.ERROR=paramiko.sftp_attr-module.html#ERROR,Variable paramiko.sftp_client.ERROR=paramiko.sftp_client-module.html#ERROR,Variable paramiko.sftp_file.ERROR=paramiko.sftp_file-module.html#ERROR,Variable paramiko.sftp_handle.ERROR=paramiko.sftp_handle-module.html#ERROR,Variable paramiko.sftp_server.ERROR=paramiko.sftp_server-module.html#ERROR,Variable paramiko.sftp_si.ERROR=paramiko.sftp_si-module.html#ERROR,Variable paramiko.transport.ERROR=paramiko.transport-module.html#ERROR,Variable paramiko.util.ERROR=paramiko.util-module.html#ERROR"><a title="paramiko.auth_handler.ERROR
 paramiko.channel.ERROR
 paramiko.client.ERROR
 paramiko.common.ERROR
@@ -1785,7 +1785,7 @@ paramiko.sftp_handle.ERROR
 paramiko.sftp_server.ERROR
 paramiko.sftp_si.ERROR
 paramiko.transport.ERROR
-paramiko.util.ERROR" class="py-name" href="#" onclick="return doclink('link-83', 'ERROR', 'link-83');">ERROR</a></tt> <tt class="py-op">=</tt> <tt class="py-name">logging</tt><tt class="py-op">.</tt><tt id="link-84" class="py-name"><a title="paramiko.auth_handler.ERROR
+paramiko.util.ERROR" class="py-name" href="#" onclick="return doclink('link-81', 'ERROR', 'link-81');">ERROR</a></tt> <tt class="py-op">=</tt> <tt class="py-name">logging</tt><tt class="py-op">.</tt><tt id="link-82" class="py-name"><a title="paramiko.auth_handler.ERROR
 paramiko.channel.ERROR
 paramiko.client.ERROR
 paramiko.common.ERROR
@@ -1806,8 +1806,8 @@ paramiko.sftp_handle.ERROR
 paramiko.sftp_server.ERROR
 paramiko.sftp_si.ERROR
 paramiko.transport.ERROR
-paramiko.util.ERROR" class="py-name" href="#" onclick="return doclink('link-84', 'ERROR', 'link-83');">ERROR</a></tt> </tt>
-<a name="L126"></a><tt class="py-lineno">126</tt>  <tt class="py-line"><tt id="link-85" class="py-name" targets="Variable paramiko.auth_handler.CRITICAL=paramiko.auth_handler-module.html#CRITICAL,Variable paramiko.channel.CRITICAL=paramiko.channel-module.html#CRITICAL,Variable paramiko.client.CRITICAL=paramiko.client-module.html#CRITICAL,Variable paramiko.common.CRITICAL=paramiko.common-module.html#CRITICAL,Variable paramiko.dsskey.CRITICAL=paramiko.dsskey-module.html#CRITICAL,Variable paramiko.hostkeys.CRITICAL=paramiko.hostkeys-module.html#CRITICAL,Variable paramiko.kex_gex.CRITICAL=paramiko.kex_gex-module.html#CRITICAL,Variable paramiko.kex_group1.CRITICAL=paramiko.kex_group1-module.html#CRITICAL,Variable paramiko.logging22.CRITICAL=paramiko.logging22-module.html#CRITICAL,Variable paramiko.packet.CRITICAL=paramiko.packet-module.html#CRITICAL,Variable paramiko.pkey.CRITICAL=paramiko.pkey-module.html#CRITICAL,Variable paramiko.rsakey.CRITICAL=paramiko.rsakey-module.html#CRITICAL,Variable paramiko.server.CRITICAL=paramiko.server-module.html#CRITICAL,Variable paramiko.sftp.CRITICAL=paramiko.sftp-module.html#CRITICAL,Variable paramiko.sftp_attr.CRITICAL=paramiko.sftp_attr-module.html#CRITICAL,Variable paramiko.sftp_client.CRITICAL=paramiko.sftp_client-module.html#CRITICAL,Variable paramiko.sftp_file.CRITICAL=paramiko.sftp_file-module.html#CRITICAL,Variable paramiko.sftp_handle.CRITICAL=paramiko.sftp_handle-module.html#CRITICAL,Variable paramiko.sftp_server.CRITICAL=paramiko.sftp_server-module.html#CRITICAL,Variable paramiko.sftp_si.CRITICAL=paramiko.sftp_si-module.html#CRITICAL,Variable paramiko.transport.CRITICAL=paramiko.transport-module.html#CRITICAL,Variable paramiko.util.CRITICAL=paramiko.util-module.html#CRITICAL"><a title="paramiko.auth_handler.CRITICAL
+paramiko.util.ERROR" class="py-name" href="#" onclick="return doclink('link-82', 'ERROR', 'link-81');">ERROR</a></tt> </tt>
+<a name="L126"></a><tt class="py-lineno">126</tt>  <tt class="py-line"><tt id="link-83" class="py-name" targets="Variable paramiko.auth_handler.CRITICAL=paramiko.auth_handler-module.html#CRITICAL,Variable paramiko.channel.CRITICAL=paramiko.channel-module.html#CRITICAL,Variable paramiko.client.CRITICAL=paramiko.client-module.html#CRITICAL,Variable paramiko.common.CRITICAL=paramiko.common-module.html#CRITICAL,Variable paramiko.dsskey.CRITICAL=paramiko.dsskey-module.html#CRITICAL,Variable paramiko.hostkeys.CRITICAL=paramiko.hostkeys-module.html#CRITICAL,Variable paramiko.kex_gex.CRITICAL=paramiko.kex_gex-module.html#CRITICAL,Variable paramiko.kex_group1.CRITICAL=paramiko.kex_group1-module.html#CRITICAL,Variable paramiko.logging22.CRITICAL=paramiko.logging22-module.html#CRITICAL,Variable paramiko.packet.CRITICAL=paramiko.packet-module.html#CRITICAL,Variable paramiko.pkey.CRITICAL=paramiko.pkey-module.html#CRITICAL,Variable paramiko.rsakey.CRITICAL=paramiko.rsakey-module.html#CRITICAL,Variable paramiko.server.CRITICAL=paramiko.server-module.html#CRITICAL,Variable paramiko.sftp.CRITICAL=paramiko.sftp-module.html#CRITICAL,Variable paramiko.sftp_attr.CRITICAL=paramiko.sftp_attr-module.html#CRITICAL,Variable paramiko.sftp_client.CRITICAL=paramiko.sftp_client-module.html#CRITICAL,Variable paramiko.sftp_file.CRITICAL=paramiko.sftp_file-module.html#CRITICAL,Variable paramiko.sftp_handle.CRITICAL=paramiko.sftp_handle-module.html#CRITICAL,Variable paramiko.sftp_server.CRITICAL=paramiko.sftp_server-module.html#CRITICAL,Variable paramiko.sftp_si.CRITICAL=paramiko.sftp_si-module.html#CRITICAL,Variable paramiko.transport.CRITICAL=paramiko.transport-module.html#CRITICAL,Variable paramiko.util.CRITICAL=paramiko.util-module.html#CRITICAL"><a title="paramiko.auth_handler.CRITICAL
 paramiko.channel.CRITICAL
 paramiko.client.CRITICAL
 paramiko.common.CRITICAL
@@ -1828,7 +1828,7 @@ paramiko.sftp_handle.CRITICAL
 paramiko.sftp_server.CRITICAL
 paramiko.sftp_si.CRITICAL
 paramiko.transport.CRITICAL
-paramiko.util.CRITICAL" class="py-name" href="#" onclick="return doclink('link-85', 'CRITICAL', 'link-85');">CRITICAL</a></tt> <tt class="py-op">=</tt> <tt class="py-name">logging</tt><tt class="py-op">.</tt><tt id="link-86" class="py-name"><a title="paramiko.auth_handler.CRITICAL
+paramiko.util.CRITICAL" class="py-name" href="#" onclick="return doclink('link-83', 'CRITICAL', 'link-83');">CRITICAL</a></tt> <tt class="py-op">=</tt> <tt class="py-name">logging</tt><tt class="py-op">.</tt><tt id="link-84" class="py-name"><a title="paramiko.auth_handler.CRITICAL
 paramiko.channel.CRITICAL
 paramiko.client.CRITICAL
 paramiko.common.CRITICAL
@@ -1849,7 +1849,7 @@ paramiko.sftp_handle.CRITICAL
 paramiko.sftp_server.CRITICAL
 paramiko.sftp_si.CRITICAL
 paramiko.transport.CRITICAL
-paramiko.util.CRITICAL" class="py-name" href="#" onclick="return doclink('link-86', 'CRITICAL', 'link-85');">CRITICAL</a></tt> </tt>
+paramiko.util.CRITICAL" class="py-name" href="#" onclick="return doclink('link-84', 'CRITICAL', 'link-83');">CRITICAL</a></tt> </tt>
 <a name="L127"></a><tt class="py-lineno">127</tt>  <tt class="py-line"> </tt><script type="text/javascript">
 <!--
 expandto(location.href);
@@ -1883,7 +1883,7 @@ expandto(location.href);
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Sun Nov  1 22:14:21 2009
+    Generated by Epydoc 3.0.1 on Mon May 23 13:50:08 2011
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"

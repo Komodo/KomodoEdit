@@ -120,15 +120,6 @@ docs/paramiko.primes-pysrc.html
 docs/paramiko.primes.ModulusPack-class.html
 docs/paramiko.resource-module.html
 docs/paramiko.resource-pysrc.html
-docs/paramiko.rng-module.html
-docs/paramiko.rng-pysrc.html
-docs/paramiko.rng.StrongLockingRandomPool-class.html
-docs/paramiko.rng_posix-module.html
-docs/paramiko.rng_posix-pysrc.html
-docs/paramiko.rng_posix.error-class.html
-docs/paramiko.rng_win32-module.html
-docs/paramiko.rng_win32-pysrc.html
-docs/paramiko.rng_win32.error-class.html
 docs/paramiko.rsakey-module.html
 docs/paramiko.rsakey-pysrc.html
 docs/paramiko.server-module.html
@@ -186,9 +177,6 @@ docs/toc-paramiko.pipe-module.html
 docs/toc-paramiko.pkey-module.html
 docs/toc-paramiko.primes-module.html
 docs/toc-paramiko.resource-module.html
-docs/toc-paramiko.rng-module.html
-docs/toc-paramiko.rng_posix-module.html
-docs/toc-paramiko.rng_win32-module.html
 docs/toc-paramiko.rsakey-module.html
 docs/toc-paramiko.server-module.html
 docs/toc-paramiko.sftp-module.html
@@ -225,9 +213,6 @@ paramiko/pipe.py
 paramiko/pkey.py
 paramiko/primes.py
 paramiko/resource.py
-paramiko/rng.py
-paramiko/rng_posix.py
-paramiko/rng_win32.py
 paramiko/rsakey.py
 paramiko/server.py
 paramiko/sftp.py
