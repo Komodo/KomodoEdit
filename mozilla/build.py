@@ -2511,7 +2511,8 @@ def target_pluginsdk(argv=["mozilla"]):
     _setupMozillaEnv()
     native_objdir = _get_mozilla_objdir(convert_to_native_win_path=True)
     if config.mozVer >= 5.0:
-        pluginDir = os.path.join(native_objdir, 'modules', 'plugin')
+        # Nothing to do - Komodo uses npapi sdk from google code.
+        return argv[1:]
     elif config.mozVer >= 1.91:
         pluginDir = os.path.join(native_objdir, 'modules', 'plugin', 'sdk')
     else:
