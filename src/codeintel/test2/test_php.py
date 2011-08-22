@@ -2671,6 +2671,53 @@ EOD;
         """))
         self.assertNoTrigger(markup_text(content))
 
+    @tag("bug90956")
+    def test_class_phpdoc_chained_completion(self):
+        test_dir = join(self.test_dir, "test_class_phpdoc_chained_completion")
+        test_content_1, test_positions_1 = unmark_text(php_markup(dedent(r"""
+            class bug90956_A {
+                /** @return bug90956_A **/
+                public function A1() {
+                    return $this;
+                }
+                /** @return bug90956_B **/
+                public function A2() {
+                    return $this;
+                }
+            }
+        """)))
+        test_content_2, test_positions_2 = unmark_text(php_markup(dedent(r"""
+            class bug90956_B extends bug90956_A {
+                /** @return bug90956_B **/
+                public function B1() {
+                    return $this;
+                }
+            }
+        """)))
+        test_content_3, test_positions_3 = unmark_text(php_markup(dedent(r"""
+            $bug90956_x = new bug90956_B();
+            $bug90956_x-><1>A2()-><2>
+        """)))
+        manifest = [
+            (join(test_dir, "file1.php"), test_content_1),
+            (join(test_dir, "file2.php"), test_content_2),
+            (join(test_dir, "file3.php"), test_content_3),
+        ]
+        for filepath, content in manifest:
+            writefile(filepath, content)
+
+        buf3 = self.mgr.buf_from_path(join(test_dir, "file3.php"), lang=self.lang)
+        self.assertCompletionsInclude2(buf3, test_positions_3[1],
+            [("function", r"A1"),
+             ("function", r"A2"),
+             ("function", r"B1"),
+            ])
+        self.assertCompletionsInclude2(buf3, test_positions_3[2],
+            [("function", r"A1"),
+             ("function", r"A2"),
+             ("function", r"B1"),
+            ])
+
 
 class IncludeEverythingTestCase(CodeIntelTestCase):
     lang = "PHP"

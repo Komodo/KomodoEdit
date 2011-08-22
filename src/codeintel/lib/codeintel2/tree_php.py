@@ -1276,6 +1276,8 @@ class PHPTreeEvaluator(TreeEvaluator):
         if not citdl:
             raise CodeIntelError("no _hit_from_call info for %r" % elem)
         self.log("_hit_from_call: resolve '%s' for %r, lpath: %r", citdl, elem, scoperef[1])
+        # Clear the imported blobs, it's a different evaluation - bug 90956.
+        self._imported_blobs = {}
         # scoperef has to be on the function called
         func_scoperef = (scoperef[0], scoperef[1]+[elem.get("name")])
         return self._hit_from_citdl(citdl, func_scoperef)
