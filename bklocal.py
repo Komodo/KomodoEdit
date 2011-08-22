@@ -3524,6 +3524,28 @@ class ContribBuildRelDir_ForCons(black.configure.Datum):
         self.determined = 1
 
 
+class TestBuildRelDir_ForCons(black.configure.Datum):
+    """The project-root relative build dir *for test code* with
+    the Cons "relative to project to root" marker.
+    """
+    def __init__(self):
+        black.configure.Datum.__init__(self, "testBuildRelDir_ForCons",
+            desc="the Cons marked project relative test build dir")
+
+    def _Determine_Sufficient(self):
+        if self.value is None:
+            raise black.configure.ConfigureError(\
+                "Could not determine %s\n." % self.desc)
+
+    def _Determine_Do(self):
+        self.applicable = black.configure.items["buildRelDir_ForCons"].Determine()
+        if self.applicable:
+            self.value = os.path.join(
+                black.configure.items["buildRelDir_ForCons"].Get(),
+                "test")
+        self.determined = 1
+
+
 class ExportRelDir_ForCons(black.configure.Datum):
     """The project-root relative export dir with the Cons "relative to
     project to root" marker."""

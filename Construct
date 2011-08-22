@@ -185,6 +185,7 @@ HERE
 $export = $exportRelDir_ForCons;
 $build = $buildRelDir_ForCons;
 $contribBuild = $contribBuildRelDir_ForCons;
+$testBuild = $testBuildRelDir_ForCons;
 $install = $installRelDir_ForCons;
 $packages = "#".$packagesRelDir;
 # export directory structure
@@ -340,6 +341,7 @@ Default(
 
 Link $build => 'src';
 Link $contribBuild => 'contrib';
+Link $testBuild => 'test';
 
 # these items are in ALL BUILDS
 Build(
@@ -427,7 +429,7 @@ Build(
 
 if ($withTests) {
     Build(
-	"test/pyxpcom/Conscript",
+	"$testBuild/pyxpcom/Conscript",
     );
 }
 

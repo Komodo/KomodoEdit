@@ -790,6 +790,7 @@ configuration = {
     "installRelDir_ForCons": InstallRelDir_ForCons(), 
     "buildRelDir_ForCons": BuildRelDir_ForCons(), 
     "contribBuildRelDir_ForCons": ContribBuildRelDir_ForCons(), 
+    "testBuildRelDir_ForCons": TestBuildRelDir_ForCons(), 
     "exportRelDir_ForCons": ExportRelDir_ForCons(), 
     "idlExportRelDir_ForCons": IdlExportRelDir_ForCons(), 
     "installAbsDir": InstallAbsDir(),
