@@ -13,6 +13,13 @@
 #include "nsStringGlue.h"
 #endif
 
+#ifdef XP_WIN
+#ifdef KOMODO_USE_WMAIN
+// we want a wmain entry point
+#include "nsWindowsWMain.cpp"
+#endif
+#endif
+
 #include "koStart.h"
 
 #ifdef MOZILLA_1_8_BRANCH

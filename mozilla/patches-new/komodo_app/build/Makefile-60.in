@@ -216,7 +216,9 @@ endif
 
 endif # LIBXUL_SDK
 
-DEFINES += -DKOMODO_ICO=\"$(DIST)/branding/komodo.ico\" -DDOCUMENT_ICO=\"$(DIST)/branding/document.ico\"
+DEFINES += -DKOMODO_ICO=\"$(srcdir)/komodo.ico\" -DDOCUMENT_ICO=\"$(DIST)/branding/document.ico\"
+
+DEFINES += -DKOMODO_USE_WMAIN
 
 ifdef MOZILLA_OFFICIAL
 DEFINES += -DMOZILLA_OFFICIAL
