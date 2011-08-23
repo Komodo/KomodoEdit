@@ -182,6 +182,9 @@ if ($platform eq "win") {
         #    --dev/--full.
         $envVars = "MOZ_WINCONSOLE=0";
     }
+    if ($mozVersion ge 6.0) {
+        $envVars .= " KOMODO_USE_WMAIN=1";
+    }
     $buildCmd = "cd $mozKomodoSrcDir\\app && touch *.c && touch *.cpp && cd $mozKomodoObjDir\\app && del *.obj && make $envVars";
 } else {
     $cp = "cp -f";
