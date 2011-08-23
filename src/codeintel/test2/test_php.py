@@ -2718,6 +2718,27 @@ EOD;
              ("function", r"B1"),
             ])
 
+    @tag("bug90968")
+    def test_class_chained_completion(self):
+        content, positions = unmark_text(php_markup(dedent(r"""
+            class foo {
+              /** @var DirectoryIterator **/
+              public static $bar;
+              public static function test() {
+                $a = self::$bar;
+                $a-><1>;
+              }
+            }
+            $test = foo::$bar;
+            $test-><2>;
+        """)))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+            [("function", "getFilename"),
+             ("function", "getPath"),])
+        self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
+            [("function", "getFilename"),
+             ("function", "getPath"),])
+
 
 class IncludeEverythingTestCase(CodeIntelTestCase):
     lang = "PHP"

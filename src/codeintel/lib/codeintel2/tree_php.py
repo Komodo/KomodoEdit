@@ -1222,9 +1222,17 @@ class PHPTreeEvaluator(TreeEvaluator):
             # attributes.
             pass
         elif ilk == "class":
+            static_member = False
+            if first_token.startswith("$"):
+                # Cix doesn't use "$" in member names, remove it - bug 90968.
+                static_member = True
+                first_token = first_token[1:]
             attr = elem.names.get(first_token)
             if attr is not None:
                 self.log("_hit_from_getattr:: attr is %r in %r", attr, elem)
+                if static_member and "static" not in attr.get("attributes", "").split():
+                    self.warn("_hit_from_getattr:: %r in class %r is not marked static",
+                              first_token, elem)
                 classname = elem.get("name")
                 # XXX - This works, but does not feel right.
                 # Add the class name if it's not already there
