@@ -39,7 +39,7 @@ from xpcom import components, ServerException
 from koLanguageServiceBase import *
 
 
-class koCSharpLanguage(KoLanguageBase):
+class koCSharpLanguage(KoLanguageBase, KoLanguageBaseDedentMixin):
     name = "C#"
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
@@ -54,13 +54,13 @@ class koCSharpLanguage(KoLanguageBase):
         "markup": "*",
     }
     _dedenting_statements = [u'throw', u'return', u'break', u'continue']
-    _indenting_statements = [u'case']
 
     defaultExtension = ".cs"
     supportsSmartIndent = "brace"
 
     def __init__(self):
         KoLanguageBase.__init__(self)
+        KoLanguageBaseDedentMixin.__init__(self)
         self._style_info.update(
             _block_comment_styles = [sci_constants.SCE_C_COMMENT,
                                      sci_constants.SCE_C_COMMENTDOC,

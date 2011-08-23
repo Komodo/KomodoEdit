@@ -57,7 +57,7 @@ def registerLanguage(registry):
     registry.registerLanguage(KoPHPLanguage())
     
 
-class KoPHPLanguage(KoUDLLanguage):
+class KoPHPLanguage(KoUDLLanguage, KoLanguageBaseDedentMixin):
     name = "PHP"
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
@@ -88,7 +88,6 @@ class KoPHPLanguage(KoUDLLanguage):
         "markup": "*",
     }
     _dedenting_statements = [u'throw', u'return', u'break', u'continue']
-    _indenting_statements = [u'case']
     supportsSmartIndent = "brace"
     sample = """<?php
 class foo {
@@ -114,6 +113,7 @@ echo $foo1->mul()."";
         
     def __init__(self):
         KoUDLLanguage.__init__(self)
+        KoLanguageBaseDedentMixin.__init__(self)
         
         # get the comment prefs and set that, then observe for pref changes
         self.__prefs = components.classes["@activestate.com/koPrefService;1"].\

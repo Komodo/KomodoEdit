@@ -51,7 +51,7 @@ import logging
 log = logging.getLogger("CPPLanguage")
 #log.setLevel(logging.DEBUG)
 
-class koCPPLanguage(KoLanguageBase):
+class koCPPLanguage(KoLanguageBase, KoLanguageBaseDedentMixin):
     name = "C++"
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
@@ -71,7 +71,6 @@ class koCPPLanguage(KoLanguageBase):
         "markup": "*",
     }
     _dedenting_statements = [u'throw', u'return', u'break', u'continue']
-    _indenting_statements = [u'case', u'protected', u'private', u'public']
     supportsSmartIndent = "brace"
     sample = """#include <windows.h>
 #include <iostream>
@@ -115,6 +114,8 @@ int main(int argc, char *argv[])
 
     def __init__(self):
         KoLanguageBase.__init__(self)
+        KoLanguageBaseDedentMixin.__init__(self)
+        self._indenting_statements = [u'case', u'default', u'protected', u'private', u'public']
         self._style_info.update(
             _block_comment_styles = [sci_constants.SCE_C_COMMENT,
                                      sci_constants.SCE_C_COMMENTDOC,

@@ -78,7 +78,7 @@ class koJSLikeLanguage(KoLanguageBase):
         return self._style_info._variable_styles
 
 
-class koJavaScriptLanguage(koJSLikeLanguage):
+class koJavaScriptLanguage(koJSLikeLanguage, KoLanguageBaseDedentMixin):
     name = "JavaScript"
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
@@ -99,7 +99,6 @@ class koJavaScriptLanguage(koJSLikeLanguage):
         "markup": "*",
     }
     _dedenting_statements = [u'throw', u'return', u'break', u'continue']
-    _indenting_statements = [u'case']
     searchURL = "https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference"
     
     # matches:
@@ -122,6 +121,10 @@ class koJavaScriptLanguage(koJSLikeLanguage):
     styleStdin = components.interfaces.ISciMoz.SCE_C_STDIN
     styleStdout = components.interfaces.ISciMoz.SCE_C_STDOUT
     styleStderr = components.interfaces.ISciMoz.SCE_C_STDERR
+
+    def __init__(self):
+        koJSLikeLanguage.__init__(self)
+        KoLanguageBaseDedentMixin.__init__(self)
     
     def get_lexer(self):
         if self._lexer is None:
@@ -227,19 +230,18 @@ chkrange {name:'five', value:5}, 7, 12
         if self._lexer is None:
             self._lexer = KoCoffeeScriptLexerLanguageService()
         return self._lexer
-
     
     expnRE = re.compile(r"\s*(\w+).+?\bif\b(.*)");
     thenRE = re.compile(r"\bthen\b")
     ifRE = re.compile(r"\bif\b")
-    def finishProcessingDedentingStatement(self, scimoz, pos, curLine, wordMatch):
+    def finishProcessingDedentingStatement(self, scimoz, pos, curLine):
         """ This is similar to the code in koLanguageServiceBase.py,
             but doesn't trigger an indent in the following cases:
             [dedenter] if ... <no then>
             """
         expnMatch = self.expnRE.match(curLine)
         if not expnMatch:
-            return koJSLikeLanguage.finishProcessingDedentingStatement(self, scimoz, pos, curLine, wordMatch)
+            return koJSLikeLanguage.finishProcessingDedentingStatement(self, scimoz, pos, curLine)
         kwd = expnMatch.group(1)
         val = expnMatch.group(2)
         if self.ifRE.search(val):
@@ -248,7 +250,7 @@ chkrange {name:'five', value:5}, 7, 12
             return None
         if self.thenRE.search(val):
             #log.debug("Got if ... then here, assume <kwd> ... if test val then val")
-            return koJSLikeLanguage.finishProcessingDedentingStatement(self, scimoz, pos, curLine, wordMatch)
+            return koJSLikeLanguage.finishProcessingDedentingStatement(self, scimoz, pos, curLine)
         #log.debug("Found %s if ... no then here, no dedent", kwd)
         return None
     

@@ -38,7 +38,7 @@ from xpcom import components, ServerException
 
 from koLanguageServiceBase import *
 
-class koJavaLanguage(KoLanguageBase):
+class koJavaLanguage(KoLanguageBase, KoLanguageBaseDedentMixin):
     name = "Java"
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
@@ -102,6 +102,7 @@ public class Showtime extends Frame implements Runnable {
 
     def __init__(self):
         KoLanguageBase.__init__(self)
+        KoLanguageBaseDedentMixin.__init__(self)
         self._style_info.update(
             _block_comment_styles = [sci_constants.SCE_C_COMMENT,
                                      sci_constants.SCE_C_COMMENTDOC,

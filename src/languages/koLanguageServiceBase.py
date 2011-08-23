@@ -872,6 +872,7 @@ class KoLanguageBase:
     _lineup_chars = "()[]{}"
     _lineup_open_chars = "(["
     _lineup_close_chars = ")]"
+    _dedent_chars = ""
 
     # These should be overriden by the language implementation
     _dedenting_statements = []
@@ -991,9 +992,9 @@ class KoLanguageBase:
             prefObserver.removeObserver(self, 'editSmartSoftCharacters')
             prefObserver.removeObserver(self, 'dedentOnColon')
         elif topic in ('indentStringsAfterParens',
-		       'editSmartSoftCharacters', 'dedentOnColon'):
-	    setattr(self, "_" + topic,
-		    self.prefset.getBooleanPref(topic))
+                       'editSmartSoftCharacters', 'dedentOnColon'):
+            setattr(self, "_" + topic,
+                    self.prefset.getBooleanPref(topic))
 
     def getSubLanguages(self):
         return [self.name]
@@ -1622,10 +1623,10 @@ class KoLanguageBase:
         if wordMatch and wordMatch.group(1) in self._indenting_statements:
             return 1
         if wordMatch and wordMatch.group(1) in self._dedenting_statements:
-            return self.finishProcessingDedentingStatement(scimoz, pos, curLine, wordMatch)
+            return self.finishProcessingDedentingStatement(scimoz, pos, curLine)
         return None
 
-    def finishProcessingDedentingStatement(self, scimoz, pos, curLine, wordMatch):
+    def finishProcessingDedentingStatement(self, scimoz, pos, curLine):
         lineNo = scimoz.lineFromPosition(pos)
         currentIndentWidth = self._getIndentWidthForLine(scimoz, lineNo)
         indent = scimoz.indent
@@ -2392,6 +2393,27 @@ class KoLanguageBase:
                 # If there's non white-space between proposed_indent
                 # and curr_indent, the new indent will be ignored
                 return scimozindent.makeIndentFromWidth(scimoz, proposed_indent)
+        elif (ch in self._dedent_chars
+              and style in style_info._indent_close_styles
+              and hasattr(self, 'getIndentBasedOnDedentChar')):
+            # The hasattr test is to see if a subclass included the mixin.
+            # This is more performant than including a null getIndentBasedOnDedentChar
+            # in this class and having to search the mixin class first for
+            # every other method.
+            new_indent = self.getIndentBasedOnDedentChar(scimoz, charPos, style_info)
+            if new_indent is not None:
+                # Do the indent here, and return 'None'
+                start = scimoz.positionFromLine(scimoz.lineFromPosition(charPos))
+                end = charPos
+                # Unicode: charPos is safe
+                stuffToLeft = scimoz.getTextRange(start, end)
+                leadingWS = re.compile(r'^(\s+)').match(stuffToLeft)
+                if leadingWS:
+                    # all white-space on our left, so replace it
+                    scimoz.targetStart = start
+                    scimoz.targetEnd = start + len(leadingWS.group(1))
+                    scimoz.replaceTarget(len(new_indent), new_indent)
+                    return None
         if default_indentation:
             return default_indentation
         return None
@@ -2676,6 +2698,43 @@ class KoLanguageBase:
             curLine = curLine[end:]
             firstHit = curLine.find('http://')
 
+
+class KoLanguageBaseDedentMixin(object):
+    def __init__(self):
+        # Override the defaults from KoLanguageBase
+        self._dedent_chars = ":"   # Only when line starts with 'case' or 'default'
+        self._indenting_statements = [u'case', u'default']
+    
+    _caseOrDefaultStmtRE = re.compile(r'^(\s*)(?:case\b.+|default)\s*:(.*)$')
+    def getIndentBasedOnDedentChar(self, scimoz, charPos, style_info):
+        """
+        If current line matches ^\s+case.*:$ or default
+        and the previous line matches ^\s+case\b or default
+        do a dedent
+        """
+        currLineNo = self._statementStartingLineFromPos(scimoz, charPos-1, style_info)
+        currLineStart = scimoz.positionFromLine(currLineNo)
+        currLineEnd = scimoz.getLineEndPosition(currLineNo)
+        currLine = scimoz.getTextRange(currLineStart, currLineEnd)
+        m1 = self._caseOrDefaultStmtRE.match(currLine)
+        if (not m1) or m1.group(2):
+            print "Giving up due to post-: of %s" % m1.group(2)
+            # Don't accept if this isn't the first ":" on the line.
+            return None
+        prevLineNo = currLineNo - 1
+        prevLineStart = scimoz.positionFromLine(prevLineNo)
+        prevLineEnd = scimoz.getLineEndPosition(prevLineNo)
+        prevLine = scimoz.getTextRange(prevLineStart, prevLineEnd)
+        m2 = self._caseOrDefaultStmtRE.match(prevLine)
+        if not m2:
+            return None
+        prevWhiteSequence = m2.group(1)
+        prevWhiteLen = len(prevWhiteSequence)
+        prevNonWhiteColumn = scimoz.getColumn(prevLineStart + prevWhiteLen)
+        currWhiteLen = len(m1.group(1))
+        currNonWhiteColumn = scimoz.getColumn(currLineStart + currWhiteLen)
+        if currNonWhiteColumn > prevNonWhiteColumn:
+            return prevWhiteSequence
 
 def _findIndent(scimoz, bitmask, chars, styles, comment_styles, tabWidth, defaultUsesTabs):
     """

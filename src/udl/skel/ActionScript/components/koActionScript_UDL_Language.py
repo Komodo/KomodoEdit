@@ -51,7 +51,7 @@ def registerLanguage(registry):
     registry.registerLanguage(KoActionScriptLanguage())
 
 
-class KoActionScriptLanguage(KoUDLLanguage):
+class KoActionScriptLanguage(KoUDLLanguage, KoLanguageBaseDedentMixin):
     name = "ActionScript"
     lexresLangName = "ActionScript"
     _reg_desc_ = "%s Language" % name
@@ -70,7 +70,6 @@ class KoActionScriptLanguage(KoUDLLanguage):
         "markup": "*",
     }
     _dedenting_statements = [u'throw', u'return', u'break', u'continue']
-    _indenting_statements = [u'case']
     searchURL = "http://www.google.com/search?q=site%3Aadobe.com%20ActionScript%20Reference+%W"
     namedBlockDescription = 'ActiveScript functions and classes'
     namedBlockRE = r'^[ |\t]*?(?:([\w|\.|_]*?)\s*=\s*function|function\s*([\w|\_]*?)|([\w|\_]*?)\s*:\s*function).*?$'
@@ -84,6 +83,9 @@ class KoActionScriptLanguage(KoUDLLanguage):
     }
 }
 """
+    def __init__(self):
+        KoUDLLanguage.__init__(self)
+        KoLanguageBaseDedentMixin.__init__(self)
 
 from xpcom import components, nsError, ServerException
 from koLintResult import *
