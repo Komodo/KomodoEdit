@@ -214,7 +214,7 @@ PlatformInstance;
 #include "ScintillaWidget.h"
 #endif 
 
-#if defined(XP_MAC) || defined(XP_MACOSX)
+#if defined(XP_MACOSX)
 #include <Carbon/Carbon.h>
 typedef struct _PlatformInstance {
 	WindowPtr	container;
