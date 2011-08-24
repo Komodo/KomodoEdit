@@ -215,7 +215,9 @@ PlatformInstance;
 #endif 
 
 #if defined(XP_MACOSX)
+#ifndef USE_CARBON
 #include <Carbon/Carbon.h>
+#endif
 typedef struct _PlatformInstance {
 	WindowPtr	container;
 #ifndef USE_CARBON //1.8 branch
