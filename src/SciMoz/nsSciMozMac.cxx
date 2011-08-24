@@ -37,6 +37,8 @@
 /* -*- Mode: C++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 
 #include "plugin.h"
+#include "nsSciMoz.h"
+
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;
 #endif

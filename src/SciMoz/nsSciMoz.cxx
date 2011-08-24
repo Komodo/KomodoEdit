@@ -71,15 +71,7 @@ using namespace Scintilla;
 #include "nsUnitConversion.h"
 #include "nsIDeviceContext.h"
 #endif
-#include "nsGfxCIID.h"
-static NS_DEFINE_IID(kDeviceContextIID, NS_DEVICE_CONTEXT_CID);
 // -- IME support
-
-//static NS_DEFINE_IID(kISciMozIID, ISCIMOZ_IID);
-//static NS_DEFINE_IID(kISciMozLiteIID, ISCIMOZLITE_IID);
-//static NS_DEFINE_IID(kIClassInfoIID, NS_ICLASSINFO_IID);
-//static NS_DEFINE_IID(kISupportsIID, NS_ISUPPORTS_IID);
-//static NS_DEFINE_IID(kISupportsWeakReferenceIID, NS_ISUPPORTSWEAKREFERENCE_IID);
 
 #ifdef SCIMOZ_TIMELINE
 #include "prenv.h" // run time enable of logging.

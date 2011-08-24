@@ -289,7 +289,7 @@ elsif ($platform eq "darwin") {
     
 
     $consLocal{'CPPPATH'} = "$scintillaBuildDir/include:$scintillaBuildDir/src:$scintillaBuildDir/macosx:$mozIncludePath:$mozDevelDist/include/java";
-    $consLocal{'LIBPATH'} = "$mozLibPath:$pluginSdkObjDir/samples/common:$mozBin";
+    $consLocal{'LIBPATH'} = "$mozLibPath:$mozBin";
     $consLocal{'CXXFLAGS'} = " -Wall -Wno-non-virtual-dtor -fno-exceptions -fno-rtti -fno-common -fshort-wchar";
     # Add the global FLAGS.
     $consLocal{'CXXFLAGS'} .= " $consLocal{ENV}{'CXXFLAGS'}";
@@ -314,7 +314,6 @@ elsif ($platform eq "darwin") {
 
     # Ensure that these are defined for use by mozilla headers
     $consLocal{'CXXFLAGS'} .= " -include $mozObjDir/mozilla-config.h " .
-        " -I$pluginSdkSrcDir/samples/include ".
         " -I$mozDevelDist/include/string" .
         " -I$mozSrc/mozilla/xpcom/ds" .
         " -I$mozDevelDist/include/content" .
@@ -339,15 +338,12 @@ elsif ($platform eq "darwin") {
 
     $consLocal->Program(
 	"SciMoz",
-	"npmac.cpp",
 	"plugin.cxx",
+        "npn_gate.cpp",
 	"nsSciMoz.cxx",
 	"nsSciMozMac.cxx",
 	"sendscintilla.cxx",
         "SciMozEvents.cxx",
-        "np_entry.cpp",
-        "npn_gate.cpp",
-        "npp_gate.cpp",
 	);
 
     # here we build the bundle package
