@@ -1,5 +1,3 @@
-#include <npapi.h>
-#include <npruntime.h>
 #include <nsStringGlue.h>
 #include "SciMozEvents.h"
 

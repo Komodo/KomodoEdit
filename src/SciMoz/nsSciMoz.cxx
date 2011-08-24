@@ -48,7 +48,9 @@
 // The native methods of this class are supposed to
 // be callable from JavaScript
 //
-#include "plugin.h"
+
+#include "nsSciMoz.h"
+
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;
 #endif
@@ -73,11 +75,11 @@ using namespace Scintilla;
 static NS_DEFINE_IID(kDeviceContextIID, NS_DEVICE_CONTEXT_CID);
 // -- IME support
 
-static NS_DEFINE_IID(kISciMozIID, ISCIMOZ_IID);
-static NS_DEFINE_IID(kISciMozLiteIID, ISCIMOZLITE_IID);
-static NS_DEFINE_IID(kIClassInfoIID, NS_ICLASSINFO_IID);
-static NS_DEFINE_IID(kISupportsIID, NS_ISUPPORTS_IID);
-static NS_DEFINE_IID(kISupportsWeakReferenceIID, NS_ISUPPORTSWEAKREFERENCE_IID);
+//static NS_DEFINE_IID(kISciMozIID, ISCIMOZ_IID);
+//static NS_DEFINE_IID(kISciMozLiteIID, ISCIMOZLITE_IID);
+//static NS_DEFINE_IID(kIClassInfoIID, NS_ICLASSINFO_IID);
+//static NS_DEFINE_IID(kISupportsIID, NS_ISUPPORTS_IID);
+//static NS_DEFINE_IID(kISupportsWeakReferenceIID, NS_ISUPPORTSWEAKREFERENCE_IID);
 
 #ifdef SCIMOZ_TIMELINE
 #include "prenv.h" // run time enable of logging.
@@ -96,6 +98,7 @@ static int gTimelineEnabled = -1;
 #define UTF8Length     utf8length
 #endif
 
+#include "plugin.h"
 
 NS_INTERFACE_MAP_BEGIN(SciMoz)
   NS_INTERFACE_MAP_ENTRY(nsIClassInfo)
@@ -105,7 +108,7 @@ NS_INTERFACE_MAP_END
 
 
 
-SciMoz::SciMoz(nsPluginInstance* aPlugin)
+SciMoz::SciMoz(SciMozPluginInstance* aPlugin)
 {
 #ifdef SCIMOZ_DEBUG
     fprintf(stderr,"SciMoz::SciMoz %p\n",aPlugin);
@@ -199,14 +202,6 @@ NS_IMETHODIMP_(nsrefcnt) SciMoz::Release()
   return mRefCnt;
 }
 #endif
-
-void SciMoz::SetInstance(nsPluginInstance* plugin)
-{
-  mPlugin = plugin;
-  if (plugin == NULL) {
-    PlatformResetWindow();
-  }
-}
 
 long SciMoz::SendEditor(unsigned int Msg, unsigned long wParam, long lParam) {
     if (isClosed) {

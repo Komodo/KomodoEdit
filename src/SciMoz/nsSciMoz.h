@@ -164,7 +164,7 @@
 
 #include "SciMozEvents.h"
 
-class nsPluginInstance;
+class SciMozPluginInstance;
 
 // We must implement nsIClassInfo because it signals the
 // Mozilla Security Manager to allow calls from JavaScript.
@@ -245,7 +245,7 @@ private:
     void BraceMatch();
     
 public:
-  SciMoz(nsPluginInstance* plugin);
+  SciMoz(SciMozPluginInstance* plugin);
   ~SciMoz();
 
 protected: 
@@ -298,8 +298,6 @@ public:
   NS_DECL_ISUPPORTS
   NS_DECL_ISCIMOZLITE
   NS_DECL_ISCIMOZ
-
-  void SetInstance(nsPluginInstance* plugin);
 
     void PlatformNew(void);
 
@@ -370,7 +368,7 @@ public:
     bool EndDrop(const NPVariant *args, uint32_t argCount, NPVariant *result);
 
 protected:
-  nsPluginInstance* mPlugin;
+  SciMozPluginInstance* mPlugin;
 };
 
 // We use our own timeline macros so they can be switch on independently.

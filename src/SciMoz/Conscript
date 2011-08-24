@@ -382,7 +382,7 @@ else {
     $pluginName = "libnpscimoz.so";
 
     %consLocal = $cons->copy();
-    $consLocal{'LIBS'} = " -lplds4 -lplc4 -lnspr4 -lpthread -lplugingate_s -lxpcomglue_s -lxpcom";
+    $consLocal{'LIBS'} = " -lplds4 -lplc4 -lnspr4 -lpthread -lxpcomglue_s -lxpcom -lmozalloc ";
     $consLocal{'LIBS'} .= " $xScintillaBuildDir/bin/scintilla.a";
 
     # PCRE is built from contrib/pcre and is required by LexUDL.
@@ -409,12 +409,15 @@ else {
         " -I$pluginSdkSrcDir/samples/include ".
         " -I$mozDevelDist/include" .
         " -I$mozSrc/mozilla/xpcom/ds" .      # required for nsIObserver includes
-        " -I$mozDevelDist/include/plugin" .
         " -I$mozDevelDist/include/content" .
         " -I$mozDevelDist/include/gfx" .
         " -DMOZ_VERSION=$mozVersionNumber";
         
+    $consLocal{'CFLAGS'} .= " -DXP_UNIX=1";
+    $consLocal{'CXXFLAGS'} .= " -DXP_UNIX=1";
+
     $consLocal{'CXXFLAGS'} .= " -fshort-wchar";
+    #$consLocal{'CXXFLAGS'} .= " -std=c++0x";
 
     if ($platform eq "solaris") {
         # Solaris ships with broken X11 headers that do not specify int
@@ -431,8 +434,7 @@ else {
     } else {
         $consLocal{'CXXFLAGS'} .= " -O2";
     }
-    $consLocal{'LDFLAGS'} = "-shared `pkg-config --libs gthread-2.0 gtk+-2.0`";
-    $consLocal{'LDFLAGS'} .= " -fPIC -Wl,-z,defs -lmozalloc";
+    $consLocal{'LDFLAGS'} = "`pkg-config --libs gtk+-2.0` -fPIC -Wl,-z,defs -shared";
 
     # On Solaris, you have to use the -mimpure-text option if you are linking
     # a shared library that links to static libs (like scintilla.a).
@@ -445,10 +447,8 @@ else {
 
     #XXX have to add licensing code here as well.
     $consLocal->Program($pluginName,
-        "np_entry.cpp",
-        "npn_gate.cpp",
-        "npp_gate.cpp",
         "plugin.cxx",
+        "npn_gate.cpp",
         "nsSciMoz.cxx",
         "nsSciMozGtk.cxx",
         "SciMozEvents.cxx",

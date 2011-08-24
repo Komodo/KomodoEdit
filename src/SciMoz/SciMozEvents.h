@@ -45,13 +45,6 @@
 #include "ISciMozEvents.h"
 #include "npapi_utils.h"
 
-#include <npruntime.h>
-#if MOZ_VERSION == 191
-/* Gecko 1.9.1 was before a nasty silly npruntime.h compatibility break */
-#define UTF8Characters utf8characters
-#define UTF8Length     utf8length
-#endif
-
 // {9DE6C25C-ED73-46b6-A3F9-4308346DFDF7}
 #define SCIMOZEVENTSWRAPPER_IID \
   { 0x9de6c25c, 0xed73, 0x46b6, { \

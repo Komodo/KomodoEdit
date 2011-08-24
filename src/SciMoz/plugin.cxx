@@ -1,11 +1,11 @@
-/* -*- Mode: C++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
+/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 /* ***** BEGIN LICENSE BLOCK *****
- * Version: NPL 1.1/GPL 2.0/LGPL 2.1
+ * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
- * The contents of this file are subject to the Netscape Public License
- * Version 1.1 (the "License"); you may not use this file except in
- * compliance with the License. You may obtain a copy of the License at
- * http://www.mozilla.org/NPL/
+ * The contents of this file are subject to the Mozilla Public License Version
+ * 1.1 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * http://www.mozilla.org/MPL/
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -14,176 +14,301 @@
  *
  * The Original Code is mozilla.org code.
  *
- * The Initial Developer of the Original Code is 
+ * The Initial Developer of the Original Code is
  * Netscape Communications Corporation.
  * Portions created by the Initial Developer are Copyright (C) 1998
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
+ *   Josh Aas <josh@mozilla.com>
  *
  * Alternatively, the contents of this file may be used under the terms of
- * either the GNU General Public License Version 2 or later (the "GPL"), or 
+ * either the GNU General Public License Version 2 or later (the "GPL"), or
  * the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
  * in which case the provisions of the GPL or the LGPL are applicable instead
  * of those above. If you wish to allow use of your version of this file only
  * under the terms of either the GPL or the LGPL, and not to allow others to
- * use your version of this file under the terms of the NPL, indicate your
+ * use your version of this file under the terms of the MPL, indicate your
  * decision by deleting the provisions above and replace them with the notice
  * and other provisions required by the GPL or the LGPL. If you do not delete
  * the provisions above, a recipient may use your version of this file under
- * the terms of any one of the NPL, the GPL or the LGPL.
+ * the terms of any one of the MPL, the GPL or the LGPL.
  *
  * ***** END LICENSE BLOCK ***** */
 
 #include "plugin.h"
-#include "npfunctions.h"
 
-//#define SCIMOZ_DEBUG
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+#include <stddef.h>
 
-#define MIME_TYPES_HANDLED  "application/x-scimoz-plugin"
-#define PLUGIN_NAME         "Scintilla"
-#define MIME_TYPES_DESCRIPTION  MIME_TYPES_HANDLED"::"PLUGIN_NAME
-#define PLUGIN_DESCRIPTION  PLUGIN_NAME " for Mozilla" 
+/**
+ * For understanding NPAPI plugins, I suggest taking a good read of:
+ * http://colonelpanic.net/2009/03/building-a-firefox-plugin-part-one/
+ *
+ * This gives a good description of the necessary functions and how they
+ * differ between platforms.
+ */
 
-char* NPP_GetMIMEDescription(void)
+#define PLUGIN_NAME        "Scintilla"
+#define PLUGIN_DESCRIPTION  PLUGIN_NAME " for Komodo" 
+#define PLUGIN_VERSION     "1.0.0.0"
+#define MIME_TYPES_DESCRIPTION  "application/x-scimoz-plugin::Scintilla"
+
+#include "nsSciMoz.h"
+
+NPNetscapeFuncs *browserNPNFuncs = NULL;
+
+/**
+ * Exported plugin NP_ functions - called by Mozilla when loading plugins.
+ */
+
+/**
+ * Windows version of NP_Initialize.
+ */
+#if defined(XP_WIN) || defined(XP_MACOSX)
+NP_EXPORT(NPError) OSCALL 
+NP_Initialize(NPNetscapeFuncs* bFuncs)
 {
-    return(MIME_TYPES_DESCRIPTION);
+  browserNPNFuncs = bFuncs;
+
+  return NPERR_NO_ERROR;
 }
+#endif /* XP_WIN or XP_MACOSX */
 
-// get values per plugin
-NPError NS_PluginGetValue(NPPVariable aVariable, void *aValue)
+/**
+ * Linux version of NP_Initialize.
+ */
+#if defined(XP_UNIX) && !defined(XP_MACOSX)
+NP_EXPORT(NPError)
+NP_Initialize(NPNetscapeFuncs* bFuncs, NPPluginFuncs* pFuncs)
 {
-  NPError err = NPERR_NO_ERROR;
-  switch (aVariable) {
-    case NPPVpluginNameString:
-      *((char **)aValue) = PLUGIN_NAME;
-      break;
-    case NPPVpluginDescriptionString:
-      *((char **)aValue) = PLUGIN_DESCRIPTION;
-      break;
-#ifdef GTK2_XEMBED
-    case NPPVpluginNeedsXEmbed:
-        *((PRBool *)aValue) = PR_TRUE;
-        break;
+  browserNPNFuncs = bFuncs;
+
+  // Check the size of the provided structure based on the offset of the
+  // last member we need.
+  if (pFuncs->size < (offsetof(NPPluginFuncs, setvalue) + sizeof(void*)))
+    return NPERR_INVALID_FUNCTABLE_ERROR;
+
+  pFuncs->newp = NPP_New;
+  pFuncs->destroy = NPP_Destroy;
+  pFuncs->setwindow = NPP_SetWindow;
+  pFuncs->newstream = NPP_NewStream;
+  pFuncs->destroystream = NPP_DestroyStream;
+  pFuncs->asfile = NPP_StreamAsFile;
+  pFuncs->writeready = NPP_WriteReady;
+  pFuncs->write = NPP_Write;
+  pFuncs->print = NPP_Print;
+  pFuncs->event = NPP_HandleEvent;
+  pFuncs->urlnotify = NPP_URLNotify;
+  pFuncs->getvalue = NPP_GetValue;
+  pFuncs->setvalue = NPP_SetValue;
+
+  return NPERR_NO_ERROR;
+}
+#endif /* XP_UNIX && !XP_MACOSX*/
+
+// NP_GetEntryPoints is only called by the plugin host on win32 and osx.
+#if defined(XP_WIN) || defined(XP_MACOSX)
+NPError OSCALL
+NP_GetEntryPoints(NPPluginFuncs* pFuncs)
+{
+  if(pFuncs == NULL)
+    return NPERR_INVALID_FUNCTABLE_ERROR;
+
+  if(pFuncs->size < (offsetof(NPPluginFuncs, setvalue) + sizeof(void*)))
+    return NPERR_INVALID_FUNCTABLE_ERROR;
+
+  pFuncs->version       = (NP_VERSION_MAJOR << 8) | NP_VERSION_MINOR;
+  pFuncs->newp          = NPP_New;
+  pFuncs->destroy       = NPP_Destroy;
+  pFuncs->setwindow     = NPP_SetWindow;
+  pFuncs->newstream     = NULL;
+  pFuncs->destroystream = NULL;
+  pFuncs->asfile        = NULL;
+  pFuncs->writeready    = NULL;
+  pFuncs->write         = NULL;
+  pFuncs->print         = NULL;
+  pFuncs->event         = NPP_HandleEvent;
+  pFuncs->urlnotify     = NULL;
+  pFuncs->javaClass     = NULL;
+  pFuncs->getvalue      = NPP_GetValue;
+  pFuncs->setvalue      = NPP_SetValue;
+#if 0
+  /* not implemented in gecko */
+  gotfocus;
+  lostfocus;
+  /* optional, we don't implement */
+  urlredirectnotify;
+  clearsitedata;
+  getsiteswithdata;
 #endif
-    default:
-      err = NPERR_INVALID_PARAM;
-      break;
-  }
-  return err;
+
+  return NPERR_NO_ERROR;
+}
+#endif /* XP_WIN || XP_MACOSX */
+
+NP_EXPORT(char*)
+NP_GetPluginVersion()
+{
+  return PLUGIN_VERSION;
 }
 
-void NPP_Shutdown(void)
+NP_EXPORT(const char*)
+NP_GetMIMEDescription()
 {
+  return(MIME_TYPES_DESCRIPTION);
 }
 
-//////////////////////////////////////
-//
-// general initialization and shutdown
-//
-NPError NS_PluginInitialize()
+NP_EXPORT(NPError)
+NP_GetValue(void* istance, NPPVariable aVariable, void* aValue) {
+  printf("\n\nNP_GetValue called!\n\n\n");
+  return NPERR_INVALID_PARAM;
+}
+
+NP_EXPORT(NPError) OSCALL 
+NP_Shutdown()
 {
-#ifdef SCIMOZ_DEBUG
-    fprintf(stderr,"NS_PluginInitialize\n");
-#endif
   return NPERR_NO_ERROR;
 }
 
-void NS_PluginShutdown()
-{
-#ifdef SCIMOZ_DEBUG
-    fprintf(stderr,"NS_PluginShutdown\n");
-#endif
-}
 
-/////////////////////////////////////////////////////////////
-//
-// construction and destruction of our plugin instance object
-//
-nsPluginInstanceBase * NS_NewPluginInstance(nsPluginCreateData * aCreateDataStruct)
-{
-#ifdef SCIMOZ_DEBUG
-    fprintf(stderr,"NS_NewPluginInstance %p\n", aCreateDataStruct);
-#endif 
-  if(!aCreateDataStruct)
-    return NULL;
-#ifdef USE_LICENSE
-    if (!CheckLicense()) {
-            return NULL;
-    }
-#endif /* USE_LICENSE */
+/**
+ * NPP_ functions that the plugin must implement.
+ */
 
-#if USE_CARBON
-    // Check if the browser supports the CoreGraphics drawing model
-    NPBool supportsCoreGraphics = FALSE;
-    NPError err = NPN_GetValue(aCreateDataStruct->instance,
-                                    NPNVsupportsCoreGraphicsBool,
-                                    &supportsCoreGraphics);
-    if (err != NPERR_NO_ERROR || !supportsCoreGraphics) 
-        return NULL;
+NPError
+NPP_New(NPMIMEType pluginType, NPP instance, uint16_t mode, int16_t argc, char* argn[], char* argv[], NPSavedData* saved) {
+  // Create our new SciMoz plugin instance.
+  SciMozPluginInstance* scimozPlugin = new SciMozPluginInstance(instance);
+  if (!scimozPlugin)
+    return NPERR_OUT_OF_MEMORY_ERROR;
+  instance->pdata = scimozPlugin;
 
-    // Set the drawing model
-    err = NPN_SetValue(aCreateDataStruct->instance,
-                            NPPVpluginDrawingModel,
-                            (void*)NPDrawingModelCoreGraphics);
-    if (err != NPERR_NO_ERROR) 
-        return NULL;
-#endif
-
-  nsPluginInstance * plugin = new nsPluginInstance(aCreateDataStruct->instance);
-  return plugin;
-}
-
-void NS_DestroyPluginInstance(nsPluginInstanceBase * aPlugin)
-{
-#ifdef SCIMOZ_DEBUG
-    fprintf(stderr,"NS_DestroyPluginInstance %p\n", aPlugin);
-#endif
-    if (aPlugin)
-        delete (nsPluginInstance *)aPlugin;
-}
-
-////////////////////////////////////////
-//
-// nsPluginInstance class implementation
-//
-nsPluginInstance::nsPluginInstance(NPP aInstance) : nsPluginInstanceBase(),
-  mInstance(aInstance),
-  mInitialized(FALSE),
-  mScriptableObject(NULL)
-{
-  mString[0] = '\0';
-  mSciMoz = new SciMoz(this);
-#ifdef SCIMOZ_DEBUG
-    fprintf(stderr,"nsPluginInstance::nsPluginInstance %p inst %p peer %p\n", this, mInstance, mSciMoz);
-#endif 
-}
-
-nsPluginInstance::~nsPluginInstance()
-{
-#ifdef SCIMOZ_DEBUG
-    fprintf(stderr,"nsPluginInstance::~nsPluginInstance %p inst %p peer %p\n", this, mInstance, mSciMoz);
-#endif 
-}
-
-NPBool nsPluginInstance::init(NPWindow* aWindow)
-{
-#ifdef SCIMOZ_DEBUG
-    fprintf(stderr,"nsPluginInstance:: %p init: window %p\n",this,aWindow);
-#endif 
-  if(aWindow == NULL)
-    return FALSE;
-
-  SetWindow(aWindow);
-  mInitialized = TRUE;
-  return TRUE;
+  return NPERR_NO_ERROR;
 }
 
 NPError
-nsPluginInstance::SetWindow(NPWindow* window)
+NPP_Destroy(NPP instance, NPSavedData** save) {
+  SciMozPluginInstance* scimozPlugin = (SciMozPluginInstance*)(instance->pdata);
+  delete scimozPlugin;
+  return NPERR_NO_ERROR;
+}
+
+NPError
+NPP_GetValue(NPP instance, NPPVariable variable, void *value) {
+#ifdef SCIMOZ_DEBUG
+  fprintf(stderr,"NPP_GetValue:: GetValue\n");
+#endif   
+
+  switch (variable) {
+    case NPPVpluginNameString:
+      *((char**)value) = PLUGIN_NAME;
+      return NPERR_NO_ERROR;
+    case NPPVpluginDescriptionString:
+      *((char**)value) = PLUGIN_DESCRIPTION;
+      return NPERR_NO_ERROR;
+#ifdef GTK2_XEMBED
+    case NPPVpluginNeedsXEmbed:
+      *((PRBool *)value) = PR_TRUE;
+      return NPERR_NO_ERROR;
+#endif
+    case NPPVpluginScriptableNPObject:// Scriptable plugin interface (for accessing from javascript)
+      SciMozPluginInstance* scimozPlugin = (SciMozPluginInstance*)(instance->pdata);
+      *(NPObject **)value = scimozPlugin->getScriptableObject();
+      return NPERR_NO_ERROR;
+  }
+
+  return NPERR_INVALID_PARAM;
+}
+
+NPError
+NPP_SetWindow(NPP instance, NPWindow* window) {
+  SciMozPluginInstance* scimozPlugin = (SciMozPluginInstance*)(instance->pdata);
+  scimozPlugin->SetWindow(window);
+  return NPERR_NO_ERROR;
+}
+
+int16_t
+NPP_HandleEvent(NPP instance, void* event) {
+  SciMozPluginInstance *scimozPlugin = (SciMozPluginInstance*)(instance->pdata);
+  return scimozPlugin->HandleEvent(event);
+}
+
+
+/**
+ * The rest are generic stubs - for the plugin functions that we don't use.
+ */
+
+NPError
+NPP_NewStream(NPP instance, NPMIMEType type, NPStream* stream, NPBool seekable, uint16_t* stype) {
+  return NPERR_GENERIC_ERROR;
+}
+
+NPError
+NPP_DestroyStream(NPP instance, NPStream* stream, NPReason reason) {
+  return NPERR_GENERIC_ERROR;
+}
+
+int32_t
+NPP_WriteReady(NPP instance, NPStream* stream) {
+  return 0;
+}
+
+int32_t
+NPP_Write(NPP instance, NPStream* stream, int32_t offset, int32_t len, void* buffer) {
+  return 0;
+}
+
+void
+NPP_StreamAsFile(NPP instance, NPStream* stream, const char* fname) {
+
+}
+
+void
+NPP_Print(NPP instance, NPPrint* platformPrint) {
+
+}
+
+void
+NPP_URLNotify(NPP instance, const char* URL, NPReason reason, void* notifyData) {
+
+}
+
+NPError
+NPP_SetValue(NPP instance, NPNVariable variable, void *value) {
+  return NPERR_GENERIC_ERROR;
+}
+
+
+
+/**
+ * SciMoz plugin instance (really just a handle on the SciMoz instance).
+ */
+
+SciMozPluginInstance::SciMozPluginInstance(NPP aInstance) :
+    nppInstance(aInstance),
+    scimozScriptableObject(NULL)
+{
+    scimozInstance = new SciMoz(this);
+#ifdef SCIMOZ_DEBUG
+    fprintf(stderr,"SciMozPluginInstance::SciMozPluginInstance %p inst %p peer %p\n", this, nppInstance, scimozInstance);
+#endif 
+}
+
+SciMozPluginInstance::~SciMozPluginInstance()
 {
 #ifdef SCIMOZ_DEBUG
-    fprintf(stderr,"nsPluginInstance:: %p SetWindow: %p\n", this, window);
+    fprintf(stderr,"SciMozPluginInstance::~SciMozPluginInstance %p inst %p peer %p\n", this, nppInstance, scimozInstance);
+#endif
+}
+
+NPError
+SciMozPluginInstance::SetWindow(NPWindow* window)
+{
+#ifdef SCIMOZ_DEBUG
+    fprintf(stderr,"SciMozPluginInstance:: %p SetWindow: %p\n", this, window);
 #endif 
     // nsresult result;
 
@@ -194,71 +319,34 @@ nsPluginInstance::SetWindow(NPWindow* window)
     *	info to the previous window (if any) to note window
     *	size changes, etc.
     */
-    return mSciMoz->PlatformSetWindow(window);
+    return scimozInstance->PlatformSetWindow(window);
 }
 
-uint16 nsPluginInstance::HandleEvent(void* event)
+uint16_t
+SciMozPluginInstance::HandleEvent(void* event)
 {
-    return mSciMoz->PlatformHandleEvent(event);
+    return scimozInstance->PlatformHandleEvent(event);
 }
 
-void nsPluginInstance::shut()
-{
-#ifdef SCIMOZ_DEBUG
-    fprintf(stderr,"nsPluginInstance:: %p shut\n", this);
-#endif 
-  mSciMoz = NULL;
-  mInitialized = FALSE;
-}
-
-NPBool nsPluginInstance::isInitialized()
+NPObject*
+SciMozPluginInstance::getScriptableObject()
 {
 #ifdef SCIMOZ_DEBUG
-    fprintf(stderr,"nsPluginInstance:: %p isInitialized: %d\n", this, mInitialized);
-#endif 
-  return mInitialized;
-}
-
-void nsPluginInstance::getVersion(char* *aVersion)
-{
-  const char *ua = NPN_UserAgent(mInstance);
-  char*& version = *aVersion;
-#ifdef SCIMOZ_DEBUG
-    fprintf(stderr,"nsPluginInstance:: %p getVersion %s\n", this, ua);
-#endif   
-
-  version = (char*)NPN_MemAlloc(strlen(ua) + 1);
-  if (version)
-    strcpy(version, ua);
-}
-
-// ==============================
-// ! Scriptability related code !
-// ==============================
-//
-// here the plugin is asked by Mozilla to tell if it is scriptable
-// we should return a valid interface id and a pointer to 
-// nsScriptablePeer interface which we should have implemented
-// and which should be defined in the corressponding *.xpt file
-// in the bin/components folder
-NPError	nsPluginInstance::GetValue(NPPVariable aVariable, void *aValue)
-{
-  NPError rv = NPERR_NO_ERROR;
-#ifdef SCIMOZ_DEBUG
-    fprintf(stderr,"nsPluginInstance:: %p GetValue\n", this);
-#endif   
-
-  switch (aVariable) {
-    case NPPVpluginScriptableNPObject:// Scriptable plugin interface (for accessing from javascript)
-      *(NPObject **)aValue = this->getScriptableObject();
-
-    default:
-      rv = NS_PluginGetValue(aVariable, aValue);
-      break;
+    fprintf(stderr,"SciMozPluginInstance:: %p getScriptableObject\n", this);
+#endif
+  if (!scimozScriptableObject) {
+    scimozScriptableObject = (NPObject *) SciMozScriptableNPObject::NewScriptableSciMoz(this->nppInstance, this->scimozInstance);
+    if(!scimozScriptableObject)
+      return NULL;
   }
 
-  return rv;
+  NPN_RetainObject(scimozScriptableObject);
+
+  return scimozScriptableObject;
 }
+
+
+
 
 // ==============================
 // ! Scriptability related code !
@@ -405,20 +493,4 @@ SciMozScriptableNPObject* SciMozScriptableNPObject::NewScriptableSciMoz(NPP npp,
     SciMozScriptableNPObject* newObj = (SciMozScriptableNPObject*)NPN_CreateObject(npp, &SciMozScriptableNPObject::_npclass);
     newObj->mSciMoz = scimoz;
     return newObj;
-}
-
-NPObject* nsPluginInstance::getScriptableObject()
-{
-#ifdef SCIMOZ_DEBUG
-    fprintf(stderr,"nsPluginInstance:: %p getScriptableObject\n", this);
-#endif
-  if (!mScriptableObject) {
-    mScriptableObject = (NPObject *) SciMozScriptableNPObject::NewScriptableSciMoz(this->mInstance, this->mSciMoz);
-    if(!mScriptableObject)
-      return NULL;
-  }
-
-  NPN_RetainObject(mScriptableObject);
-
-  return mScriptableObject;
 }
