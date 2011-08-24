@@ -68,6 +68,7 @@ NPNetscapeFuncs *browserNPNFuncs = NULL;
  * Windows version of NP_Initialize.
  */
 #if defined(XP_WIN) || defined(XP_MACOSX)
+#define NP_EXPORT(__type) __type
 NP_EXPORT(NPError) OSCALL 
 NP_Initialize(NPNetscapeFuncs* bFuncs)
 {
