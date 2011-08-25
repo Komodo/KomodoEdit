@@ -1391,7 +1391,8 @@
         <body>
         <![CDATA[
             var scimoz = this.scimoz;
-            obj.initialPos = scimoz.currentPos;
+            obj.currentPos = scimoz.currentPos;
+            obj.anchor = scimoz.anchor;
             obj.firstVisibleLine = scimoz.firstVisibleLine;
             obj.xOffset = scimoz.xOffset;
             obj.selectionStart = scimoz.selectionStart;
@@ -1405,11 +1406,16 @@
         <body>
         <![CDATA[
             var scimoz = this.scimoz;
-            scimoz.gotoPos(obj.initialPos);
-            scimoz.lineScroll(obj.origXOffset - scimoz.xOffset,
-                              obj.firstVisibleLine - scimoz.firstVisibleLine);
+            scimoz.currentPos = obj.currentPos;
+            scimoz.anchor = obj.anchor;
             scimoz.selectionStart = obj.selectionStart;
             scimoz.selectionEnd = obj.selectionEnd;
+            setTimeout(function() {
+                // Do this in a timeout because for saveAs, some other code will try
+                // to update the horiz and vert locations, and get it wrong.
+                scimoz.firstVisibleLine = obj.firstVisibleLine;
+                scimoz.xOffset = obj.xOffset;
+            }, 300);
         ]]>
         </body>
         </method>

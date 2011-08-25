@@ -71,10 +71,11 @@ var moreKomodo = {
                 for (var i in list) {
                     var view = list[i];
                     if (view.getAttribute("type") == "editor") {
-                        var currentPos = view.scimoz.currentPos;
+                        var locationInfo = {};
+                        view.saveLocation(locationInfo);
                         view.koDoc = commandInfo.newDocument;
-                        view.scimoz.currentPos = currentPos;
                         this.updateView(view);
+                        view.restoreLocation(locationInfo);
 
                         // /opt/devel/mozilla/komodo/openkomodo/src/chrome/komodo/content/bindings/views-browser.xml
                         // /opt/devel/mozilla/komodo/openkomodo/src/chrome/komodo/content/bindings/views-editor.p.xml
