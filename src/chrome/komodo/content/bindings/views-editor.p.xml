@@ -1211,22 +1211,16 @@
             // XXX this buffer switching is not optimal, first we copy from
             // scintilla to a non-scintilla buffer, then we turn the
             // non-scintilla into a scintilla.
-            var anchor, currentPos, xOffset, fvl;
-            anchor = this.scimoz.anchor;
-            currentPos = this.scimoz.currentPos;
-            xOffset = this.scimoz.xOffset;
-            fvl = this.scimoz.firstVisibleLine;
+            var locationInfo = {};
+            this.saveLocation(locationInfo);
             newdocument.setBufferAndEncoding(this.koDoc.buffer, this.koDoc.encoding.python_encoding_name);
             var codePage = this.koDoc.codePage;
             this.koDoc = newdocument;
             this.koDoc.codePage = codePage;
             this.koDoc.language = ''; // trigger a re-guessing of lang
             this._doSave();
-            this.scimoz.anchor = anchor;
-            this.scimoz.currentPos = currentPos;
-            this.scimoz.xOffset = xOffset;
-            this.scimoz.lineScroll(0, fvl-this.scimoz.firstVisibleLine);
             this.koDoc.docSettingsMgr.applyDocumentSettingsToView(this);
+            this.restoreLocation(locationInfo);
             window.updateCommands('previewability_changed');
             this.lintBuffer.request("save as");
             return true;
