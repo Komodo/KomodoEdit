@@ -157,6 +157,7 @@ this.Manager = function KeybindingManager() {
     // windows and unix
     this.keyDownLabels = null;
     window.addEventListener('keydown',gKeyDownHandler, false);
+    window.addEventListener('keypress', gF10KeyHandler, true);
 // #endif
     window.addEventListener('keypress',gKeyHandler, false);
     this.inPrefixCapture = false;
@@ -167,6 +168,7 @@ this.Manager.prototype.constructor = this.Manager;
 this.Manager.prototype.finalize = function(part, topic, partId) {
     window.removeEventListener('keypress', gKeyHandler, false);
 // #if PLATFORM != 'darwin'
+    window.removeEventListener('keypress', gF10KeyHandler, true);
     window.removeEventListener('keydown', gKeyDownHandler, false);
 // #endif
     window.removeEventListener("unload", this.removeListener, false);
@@ -2294,6 +2296,16 @@ var gKeyHandler = function (event) {
     ko.keybindings.manager.keypressHandler(event);
 }
 
+var gF10KeyHandler = function (event) {
+    /**
+     * Special F10 key handling that must listen on propagation phase (instead
+     * of the bubbling phase) - bug 81657.
+     */
+    if (event.keyCode == event.DOM_VK_F10) {
+        ko.keybindings.manager.keypressHandler(event, true /* ignore phase checks */);
+    }
+}
+
 // #if PLATFORM != 'darwin'
 var gKeyDownHandler = function (event) {
     // get and store the keydown label
@@ -2312,7 +2324,7 @@ var gCancelKeyHandler = function (event) {
     ko.keybindings.manager.cancelPrefix(msg)
 }
 
-this.Manager.prototype.keypressHandler = function (event) {
+this.Manager.prototype.keypressHandler = function (event, ignorePhase) {
     try {
         //dump("keybindingManager::keypressHandler: key event "+event.type+" keycode "+event.keyCode+" phase "+event.eventPhase+"\n");
 
@@ -2329,7 +2341,7 @@ this.Manager.prototype.keypressHandler = function (event) {
             // not in multi key bindings)
             // if in multi key bindings (inPrefixCapture) allow single keys
             // to complete the binding
-            if (!this.inPrefixCapture && (event.eventPhase == 1 ||
+            if (!this.inPrefixCapture && ((event.eventPhase == 1 && !ignorePhase) ||
                 (event.keyCode == 0 && !event.ctrlKey && !event.altKey && !event.metaKey)))
                 return;
         }
