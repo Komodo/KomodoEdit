@@ -400,7 +400,7 @@ else {
     } else {
         $consLocal{'CXXFLAGS'} .= " -O2";
     }
-    $consLocal{'LDFLAGS'} = "`pkg-config --libs gtk+-2.0` -fPIC -Wl,-z,defs -shared";
+    $consLocal{'LDFLAGS'} = "`pkg-config --libs gthread-2.0 gtk+-2.0` -fPIC -Wl,-z,defs -shared";
 
     # On Solaris, you have to use the -mimpure-text option if you are linking
     # a shared library that links to static libs (like scintilla.a).
