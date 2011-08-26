@@ -782,7 +782,7 @@ viewMgrClass.prototype = {
             }
         }
         try {
-            this._finishFileCopyOperation(from_uris, target_uri, index, copying);
+            this.finishFileCopyOperation(from_uris, target_uri, index, copying);
         } catch(ex) {
             ko.dialogs.alert(ex);
         }
@@ -1804,7 +1804,7 @@ ManagerClass.prototype = {
             }
         }
         try {
-            gPlacesViewMgr._finishFileCopyOperation(srcURIs, target_uri, index,
+            gPlacesViewMgr.finishFileCopyOperation(srcURIs, target_uri, index,
                                                     isCopying);
         } catch(ex) {
             ko.dialogs.alert(ex);
