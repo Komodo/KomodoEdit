@@ -262,7 +262,7 @@ class TriggerTestCase(CodeIntelTestCase):
         #
         #    Samples:
         #        use <|>
-        name = "php-complete-namespaces"
+        name = "php-complete-use-namespace"
         self.assertTriggerMatches(php_markup("use <|>"),
                                   name=name, pos=10)
 
@@ -2423,7 +2423,7 @@ EOD;
     def test_php_namespace_aliasing(self):
         content, positions = unmark_text(php_markup(dedent(r"""
             namespace bug83192_nsp4 {
-                use \ArrayObject as AO;
+                use ArrayObject as AO;
                 function foo() {
                     AO::<1>;
                 }
@@ -2769,6 +2769,28 @@ EOD;
         for pos in range(1, 4):
             self.assertCompletionsAre2(buf2, test_positions_2[pos],
                 [("function", r"trigger")])
+
+    @tag("bug85918")
+    def test_namespace_class_completions(self):
+        content, positions = unmark_text(php_markup(dedent(r"""
+            namespace foo; // declaring a namespace
+            
+            use <1>AppendIterator; // importing default class
+            use ArrayIterator as AAAIterator; // importing with alias
+            
+            $x = new <2>;
+            /*
+             * Expected behavior:
+             * 	AAAIterator (class icon)
+             * 	AppendIterator (class icon)
+             */
+        """)))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+            [("class", "ArrayIterator"),
+             ("class", "AppendIterator"),])
+        self.assertCompletionsAre(markup_text(content, pos=positions[2]),
+            [("namespace", "AAAIterator"),
+             ("namespace", "AppendIterator"),])
 
 
 class IncludeEverythingTestCase(CodeIntelTestCase):

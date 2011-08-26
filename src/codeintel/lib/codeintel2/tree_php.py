@@ -218,8 +218,11 @@ class PHPTreeEvaluator(TreeEvaluator):
         elif trg.type == "classes":
             return self._classes_from_scope(None, start_scope) + \
                    self._imported_namespaces_from_scope(None, start_scope)
-        elif trg.type == "namespaces":
-            return self._namespaces_from_scope(self.expr, start_scope)
+        elif trg.type == "use-namespace":
+            # All available namespaces and all available/global classes.
+            global_scoperef = self._get_global_scoperef(start_scope)
+            return self._namespaces_from_scope(self.expr, start_scope) + \
+                   self._classes_from_scope(None, global_scoperef, allowGlobalClasses=True)
         elif trg.type == "namespace-members" and (not self.expr or self.expr == "\\"):
             # All available namespaces and include all available global
             # functions/classes/constants as well.
@@ -487,12 +490,16 @@ class PHPTreeEvaluator(TreeEvaluator):
                             ("locals", "namespace", "globals", "imports",),
                             self.function_shortnames_from_elem)
 
-    def _classes_from_scope(self, expr, scoperef):
+    def _classes_from_scope(self, expr, scoperef, allowGlobalClasses=False):
         """Return all available class names beginning with expr"""
+        lookup_scopes = ("locals", "namespace", "globals", "imports",)
+        if not allowGlobalClasses and self._namespace_elem_from_scoperef(scoperef):
+            # When inside a namespace, don't include global classes - bug 83192.
+            lookup_scopes = ("locals", "namespace",)
         return self._element_names_from_scope_starting_with_expr(expr,
                             scoperef,
                             "class",
-                            ("locals", "namespace", "globals", "imports",),
+                            lookup_scopes,
                             self.class_names_from_elem)
 
     def _imported_namespaces_from_scope(self, expr, scoperef):

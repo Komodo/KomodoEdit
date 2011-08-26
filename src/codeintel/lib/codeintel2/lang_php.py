@@ -225,7 +225,7 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                     elif text in ("implements", ):
                         return Trigger(lang, TRG_FORM_CPLN, "interfaces", pos, implicit)
                     elif text in ("use", ):
-                        return Trigger(lang, TRG_FORM_CPLN, "namespaces", pos, implicit)
+                        return Trigger(lang, TRG_FORM_CPLN, "use-namespace", pos, implicit)
                     elif prev_style == self.operator_style and \
                          prev_char == "," and implicit:
                         return self._functionCalltipTrigger(ac, prev_pos, DEBUG)
@@ -359,7 +359,7 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                             prev_text = ac.getTextBackWithStyle(style, max_text_len=15)
                             if DEBUG:
                                 print "prev_text: %r" % (prev_text, )
-                            if (prev_text[1] not in ("new", "function",
+                            if (prev_text[1] not in ("new", "function", "use",
                                                     "class", "interface", "implements",
                                                     "public", "private", "protected",
                                                     "final", "abstract", "instanceof",)
@@ -685,7 +685,7 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                     print "i now: %d, ch: %r" % (i, ch)
 
                 if ch in WHITESPACE:
-                    if trg.type in ("namespaces", "namespace-members"):
+                    if trg.type in ("use-namespace", "namespace-members"):
                         # Namespaces cannot be split over whitespace.
                         break
                     while ch in WHITESPACE:
@@ -840,7 +840,7 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                 i = trg.pos + 1   # triggered on the $, skip over it
             elif trg.type == "array-members":
                 i = trg.extra.get("bracket_pos")   # triggered on foo['
-            elif trg.type == "namespaces":
+            elif trg.type == "use-namespace":
                 i = trg.pos + 1
             elif trg.type == "namespace-members":
                 i = trg.pos - 1
