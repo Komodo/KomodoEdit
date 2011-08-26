@@ -79,26 +79,6 @@ function on_load()
     }
 }
 
-function repls_on_select()
-{
-    // <http://www.xulplanet.com/references/xpcomref/ifaces/nsITreeView.html#method_selectionChanged>
-    // says:
-    //    Should be called from a XUL onselect handler whenever the
-    //    selection changes.
-    //TODO: Do we have to do the handling to see if it is a selection *change*?
-    try {
-        widgets.repls.view.selectionChanged();
-        
-        if (_get_selected_indeces().length >= 1) {
-            _enable_widget(widgets.show_selected_changes_btn);
-        } else {
-            _disable_widget(widgets.show_selected_changes_btn);
-        }
-    } catch (ex) {
-        log.exception(ex);
-    }
-}
-
 function repls_on_keypress(event)
 {
     try {
@@ -127,6 +107,30 @@ function filter_skipped_paths(checkbox)
     } catch(ex) {
         log.exception(ex);
     }
+}
+
+function _set_selected_checkboxes(value)
+{
+    try {
+        var selected_indeces = _get_selected_indeces();
+        var treeCol = widgets.repls.columns.getFirstColumn();
+        var out = {};
+        for (var i=0; i < selected_indeces.length; i++) {
+            _g_replacer.setCellValue(selected_indeces[i], treeCol, value);
+        }
+    } catch(ex) {
+        log.exception(ex);
+    }
+}
+
+function check_selected()
+{
+    _set_selected_checkboxes("true");
+}
+
+function uncheck_selected()
+{
+    _set_selected_checkboxes("false");
 }
 
 function show_selected_changes()
@@ -202,7 +206,6 @@ function _init_widgets()
     widgets.repls = document.getElementById("repls");
     widgets.status_img = document.getElementById("status-img");
     widgets.status_lbl = document.getElementById("status-lbl");
-    widgets.show_selected_changes_btn = document.getElementById("show-selected-changes-btn");
     widgets.show_marked_changes_btn = document.getElementById("show-marked-changes-btn");
 }
 

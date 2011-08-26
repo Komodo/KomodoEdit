@@ -70,6 +70,16 @@
     <script src="chrome://komodo/content/launch.js"  type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/find/confirmrepl.js" type="application/x-javascript;version=1.7"/>
 
+    <menupopup id="tree_context_menu">
+        <menuitem id="context_menu_diff"
+                  label="&showSelectedChanges.label;"
+                  tooltiptext="&showSelectedChanges.tooltiptext;"
+                  oncommand="show_selected_changes();"/>
+        <menuseparator id="context_menu_separator_1" />
+        <menuitem id="context_menu_check" label="&context_menu_check.label;" oncommand="check_selected();"/>
+        <menuitem id="context_menu_uncheck" label="&context_menu_uncheck.label;" oncommand="uncheck_selected();"/>
+    </menupopup>
+
     <hbox align="center">
         <image id="dialog-icon" class="question-icon spaced" />
         <separator orient="vertical" class="thin"/>
@@ -90,7 +100,6 @@
           editable="true"
           style="margin: 0px; height: 200px;"
           hidecolumnpicker="true"
-          onselect="repls_on_select()"
           onkeypress="return repls_on_keypress(event)">
         <treecols>
             <treecol id="repls-marked"
@@ -109,6 +118,7 @@
         </treecols>
         <treechildren id="repls-body" flex="1"
                       alternatingbackground="true"
+                      context="tree_context_menu"
                       class="confirmrepl"/>
     </tree>
 
@@ -119,11 +129,6 @@
                   label="Filter skipped paths"
                   oncommand="filter_skipped_paths(this);"/>
         <separator flex="1"/>
-        <button id="show-selected-changes-btn" label="&showSelectedChanges.label;"
-                tooltiptext="&showSelectedChanges.tooltiptext;"
-                disabled="true"
-                accesskey="&showSelectedChanges.accesskey;"
-                oncommand="show_selected_changes();"/>
         <button id="show-marked-changes-btn" label="&showMarkedChanges.label;"
                 tooltiptext="&showMarkedChanges.tooltiptext;"
                 disabled="true"
