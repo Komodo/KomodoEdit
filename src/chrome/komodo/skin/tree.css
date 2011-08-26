@@ -63,4 +63,5 @@ treechildren::-moz-tree-column(sort-column)
 .treecol-image {
     padding-left: 4px;
     padding-right: 4px;
+    min-width: 20px;
 }
