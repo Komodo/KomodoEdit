@@ -224,7 +224,10 @@ function _init()
     _g_controller = new FindReplaceController();
     _g_replacer = _g_find_svc.confirmreplaceallinfiles(
         args.pattern, args.repl, args.context, _g_controller);
-    _g_replacer.filterSkippedPaths(document.getElementById('filter-skipped-paths').checked);
+    if (document.getElementById('filter-skipped-paths').checked) {
+        _g_replacer.filterSkippedPaths(true);
+    }
+    
     widgets.repls.treeBoxObject.view = _g_replacer;
     _g_replacer.start();
 }
