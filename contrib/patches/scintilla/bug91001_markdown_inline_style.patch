@@ -1,10 +1,6 @@
-Index: src/LexMarkdown.cxx
-===================================================================
---- src/LexMarkdown.cxx	(revision 65631)
-+++ src/LexMarkdown.cxx	(working copy)
-@@ -104,20 +104,24 @@
-         ;
-     while (--i + sc.currentPos) {
+--- src/LexMarkdown.cxx	2011-08-26 11:44:17.000000000 -0700
++++ src/LexMarkdown.cxx	2011-08-25 16:50:27.000000000 -0700
+@@ -106,16 +106,20 @@
          if (IsNewline(sc.GetRelative(i)))
              break;
          if (!IsASpaceOrTab(sc.GetRelative(i)))
@@ -25,11 +21,7 @@ Index: src/LexMarkdown.cxx
          if (c == sc.ch) 
              ++count;
          // hit a terminating character
-         else if (!IsASpaceOrTab(c) || sc.currentPos + i == endPos) {
-             // Are we a valid HRULE
-@@ -364,49 +368,52 @@
-                 if (j) {
-                     sc.SetState(SCE_MARKDOWN_LINK);
+@@ -366,45 +370,48 @@
                      sc.Forward(j);
                      // Also has a URL or reference portion
                      if (k)
@@ -86,5 +78,3 @@ Index: src/LexMarkdown.cxx
      }
      sc.Complete();
  }
- 
- LexerModule lmMarkdown(SCLEX_MARKDOWN, ColorizeMarkdownDoc, "markdown");
