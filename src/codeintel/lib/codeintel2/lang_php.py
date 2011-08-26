@@ -224,7 +224,7 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                         return Trigger(lang, TRG_FORM_CPLN, "classes", pos, implicit)
                     elif text in ("implements", ):
                         return Trigger(lang, TRG_FORM_CPLN, "interfaces", pos, implicit)
-                    elif text in ("use"):
+                    elif text in ("use", ):
                         return Trigger(lang, TRG_FORM_CPLN, "namespaces", pos, implicit)
                     elif prev_style == self.operator_style and \
                          prev_char == "," and implicit:
