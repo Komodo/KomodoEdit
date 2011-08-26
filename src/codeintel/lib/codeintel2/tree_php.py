@@ -1078,6 +1078,19 @@ class PHPTreeEvaluator(TreeEvaluator):
                         if hit:
                             return ([hit], 1)
                         break
+                else:
+                    if "\\" not in first_token and elem.get("ilk") == "namespace":
+                        self.log("_hits_from_first_part:: checking for a FQN hit")
+                        # Being in a namespace, we also need to check if this name
+                        # is accessable as a FQN - bug 86784.
+                        fqn = self._fqn_for_expression(first_token, scoperef)
+                        try:
+                            hit = self._hit_from_citdl(fqn, scoperef)
+                            if hit:
+                                return ([hit], 1)
+                        except CodeIntelError:
+                            pass
+
             self.log("_hits_from_first_part:: pt3: is '%s' accessible on %s? no",
                      first_token, scoperef)
             # Do not go past the global scope reference

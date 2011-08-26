@@ -2739,6 +2739,37 @@ EOD;
             [("function", "getFilename"),
              ("function", "getPath"),])
 
+    @tag("bug86784")
+    def test_namespace_completions_from_argument(self):
+        test_dir = join(self.test_dir, "test_namespace_completions_from_argument")
+        test_content_1, test_positions_1 = unmark_text(php_markup(dedent(r"""
+            namespace my\space;
+            final class from_1 {
+                public function trigger() {}
+            }
+        """)))
+        test_content_2, test_positions_2 = unmark_text(php_markup(dedent(r"""
+            namespace my\space;
+            final class in_2 {
+                public function test(from_1 $item) {
+                    $item-><1>xxx; // no completions provided
+                    from_1::<2>xxx; // no completions provided
+                    \my\space\from_1::<3>xxx; // completion for 'trigger' found
+                }
+            }
+        """)))
+        manifest = [
+            (join(test_dir, "file1.php"), test_content_1),
+            (join(test_dir, "file2.php"), test_content_2),
+        ]
+        for filepath, content in manifest:
+            writefile(filepath, content)
+
+        buf2 = self.mgr.buf_from_path(join(test_dir, "file2.php"), lang=self.lang)
+        for pos in range(1, 4):
+            self.assertCompletionsAre2(buf2, test_positions_2[pos],
+                [("function", r"trigger")])
+
 
 class IncludeEverythingTestCase(CodeIntelTestCase):
     lang = "PHP"
