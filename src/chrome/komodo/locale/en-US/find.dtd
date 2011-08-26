@@ -130,8 +130,8 @@
 <!ENTITY showSelectedChanges.label "Show Selected Changes">
 <!ENTITY showSelectedChanges.tooltiptext "Show the changes for the selected paths.">
 <!ENTITY showSelectedChanges.accesskey "l">
-<!ENTITY showMarkedChanges.label "Show Marked Changes">
-<!ENTITY showMarkedChanges.tooltiptext "Show the changes for all marked paths.">
+<!ENTITY showMarkedChanges.label "Show Checked Changes">
+<!ENTITY showMarkedChanges.tooltiptext "Show the changes to be made for all paths that have been checked.">
 <!ENTITY showMarkedChanges.accesskey "k">
 
 <!--find2.xul-->
