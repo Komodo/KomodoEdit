@@ -164,7 +164,6 @@ NP_GetMIMEDescription()
 
 NP_EXPORT(NPError)
 NP_GetValue(void* istance, NPPVariable aVariable, void* aValue) {
-  printf("\n\nNP_GetValue called!\n\n\n");
   return NPERR_INVALID_PARAM;
 }
 
