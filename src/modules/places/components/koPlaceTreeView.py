@@ -1890,7 +1890,7 @@ class KoPlaceTreeView(TreeView):
         self._watchedDirectories = openedDirs
 
     def _sameFiles(self, path1, path2):
-        if os.path.normcase(oldBaseName) == os.path.normcase(newBaseName):
+        if os.path.normcase(path1) == os.path.normcase(path2):
             return True
         else:
             st1 = os.stat(path1)

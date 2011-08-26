@@ -1893,6 +1893,8 @@ ManagerClass.prototype = {
 
     _doRenameItem_dir_exists_re: /renameItem: invalid operation: you can\'t rename existing directory: (.*)/,
 
+    _doRenameItem_files_are_same_re: /renameItem failure.*indicate the same file/,
+
     doRenameItem: function() {
         var index = gPlacesViewMgr.view.selection.currentIndex;
         var uri = gPlacesViewMgr.view.getURIForRow(index);
@@ -1918,7 +1920,11 @@ ManagerClass.prototype = {
                     try {
                         gPlacesViewMgr.view.renameItem(index, newname, true);
                     } catch(ex2) {
-                        ko.dialogs.alert(_bundle.formatStringFromName("Error when trying to rename a file.template", [ex2], 1));
+                        if (this._doRenameItem_files_are_same_re.test(ex2.message)) {
+                            ko.dialogs.alert(_bundle.formatStringFromName("Files X and X are the same, rename stopped.template", [oldname, newname], 2));
+                        } else {
+                            ko.dialogs.alert(_bundle.formatStringFromName("Error when trying to rename a file.template", [ex2], 1));
+                        }
                         dump("doRenameItem: " + ex2 + "\n");
                     }
                 }
