@@ -124,7 +124,7 @@
 
 <!--confirmrepl.xul-->
 <!ENTITY confirmReplacement.title "Confirm Replacements">
-<!ENTITY confirmReplacement.description "Confirm replacements before changes are made. Mark the files you would like to change and click 'Make Changes' to commit. Click 'Cancel' to cancel without making any changes.">
+<!ENTITY confirmReplacement.description "Confirm replacements before changes are made. Check the files you would like to change and click 'Make Changes' to commit. Click 'Cancel' to cancel without making any changes.">
 <!ENTITY preparing.label "Preparing...">
 <!ENTITY checkToApplyChanges.tooltiptext "Check to apply changes to this file">
 <!ENTITY showSelectedChanges.label "Show Selected Changes">
