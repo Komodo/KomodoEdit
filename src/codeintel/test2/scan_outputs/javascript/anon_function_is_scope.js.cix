@@ -1,7 +1,7 @@
 <codeintel version="2.0">
   <file lang="JavaScript" mtime="42" path="scan_inputs/javascript/anon_function_is_scope.js">
     <scope ilk="blob" lang="JavaScript" name="anon_function_is_scope.js" src="scan_inputs/javascript/anon_function_is_scope.js">
-      <scope attributes="__local__ private" ilk="function" line="5" lineend="9" name="(anonymous)" signature="(anonymous)(one, two, delay)">
+      <scope attributes="__local__ private" ilk="function" line="5" lineend="9" name="(anonymous 1)" signature="(anonymous 1)(one, two, delay)">
         <variable ilk="argument" line="5" name="delay" />
         <variable ilk="argument" line="5" name="two" />
         <variable ilk="argument" line="5" name="one" />

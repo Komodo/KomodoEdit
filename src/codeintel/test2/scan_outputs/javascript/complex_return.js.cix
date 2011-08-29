@@ -5,11 +5,11 @@
         <scope ilk="function" line="3" lineend="10" name="sortBy" returns="this.map().sort().pluck()" signature="sortBy(iterator)">
           <variable citdl="Enumerable" name="this" />
           <variable ilk="argument" line="3" name="iterator" />
-          <scope attributes="__local__ private" ilk="function" line="4" lineend="6" name="(anonymous)" signature="(anonymous)(value, index)">
+          <scope attributes="__local__ private" ilk="function" line="4" lineend="6" name="(anonymous 1)" signature="(anonymous 1)(value, index)">
             <variable ilk="argument" line="4" name="index" />
             <variable ilk="argument" line="4" name="value" />
           </scope>
-          <scope attributes="__local__ private" ilk="function" line="6" lineend="9" name="(anonymous)" returns="a" signature="(anonymous)(left, right)">
+          <scope attributes="__local__ private" ilk="function" line="6" lineend="9" name="(anonymous 2)" returns="a" signature="(anonymous 2)(left, right)">
             <variable ilk="argument" line="6" name="right" />
             <variable ilk="argument" line="6" name="left" />
             <variable attributes="__local__ private" citdl="left.criteria" line="7" name="a" />

@@ -1087,7 +1087,7 @@ class JSObject:
         return self.variables or self.functions or self.classes or self.members
 
     def isAnonymous(self):
-        return self.name == "(anonymous)"
+        return self.name.startswith("(anonymous")
 
     def addClassRef(self, baseclass):
         assert isinstance(baseclass, (str, unicode)), "baseclass %r is not a str" % (baseclass,)
@@ -1167,7 +1167,11 @@ class JSObject:
     def outline(self, depth=0):
         result = []
         if self.cixname == "function":
-            result.append("%s%s %s(%s)" % (" " * depth, self.cixname, self.name, ", ".join(self.args)))
+            s = "%s%s %s(%s)" % (" " * depth, self.cixname, self.name, ", ".join(self.args))
+            r = self.getReturnType()
+            if r:
+                s += " => %s" % (r, )
+            result.append(s)
         elif self.cixname == "class" and self.classrefs:
             result.append("%s%s %s [%s]" % (" " * depth, self.cixname, self.name, self.classrefs))
         elif self.cixname == "variable" and (self.type or (self.jsdoc and self.jsdoc.type)):
@@ -1736,6 +1740,7 @@ class JavaScriptCiler:
         self.lastScope = None
 
         self._metadata = {}
+        self._anonid = 0
 
         # Document styles used for deciding what to do
         # Note: Can be customized by calling setStyleValues()
@@ -2059,15 +2064,20 @@ class JavaScriptCiler:
             jsclass.doc = None
             jsclass.jsdoc = None
 
+    def _createAnonymousFunctionName(self):
+        self._anonid += 1
+        return "(anonymous %d)" % (self._anonid, )
+
     ##
     # Create an anonymous JSFunction and add it to the current scope.
     # @param args {list} list of arguments for the function
     # @param doc {list} list of comment strings for given scope
     #
     def addAnonymousFunction(self, args=None, doc=None, isHidden=False):
-        log.debug("addAnonymousFunction: (%s)", args)
+        name = self._createAnonymousFunctionName()
+        log.info("addAnonymousFunction: %s(%s)", name, args)
         toScope = self.currentScope
-        fn = JSFunction("(anonymous)", toScope, args, self.lineno, self.depth,
+        fn = JSFunction(name, toScope, args, self.lineno, self.depth,
                         doc=doc, isLocal=True, isHidden=isHidden,
                         path=self.path)
         toScope.anonymous_functions.append(fn)
@@ -2722,7 +2732,8 @@ class JavaScriptCiler:
         last_style = self.JS_OPERATOR
         while pos < len(styles):
             style = styles[pos]
-            if style == self.JS_IDENTIFIER:
+            if style == self.JS_IDENTIFIER or \
+               (style == self.JS_WORD and text[pos] == "this"):
                 if last_style != self.JS_OPERATOR:
                     break
                 ids.append(text[pos])
@@ -3439,6 +3450,10 @@ class JavaScriptCiler:
                          "keeping %r", jsother.cixname, jsother.name, name,
                          d_members[name])
 
+        if jsobject.anonymous_functions:
+            jsother.anonymous_functions = jsobject.anonymous_functions
+            jsobject.anonymous_functions = []
+
     def _handleDefineProperty(self, styles, text, p):
         # text example:
         #   ['(', 'namespace', ',', '"propname"', ',', '{', ')']
@@ -3450,8 +3465,10 @@ class JavaScriptCiler:
             else:
                 scope = self._findOrCreateScope(namelist, ('variables', 'classes', 'functions'))
             v = JSVariable(propertyname, scope, self.lineno, self.depth)
+            if self.lastScope and isinstance(self.lastScope, JSFunction):
+                v.type = "%s()" % (self.lastScope.name, )
             scope.addVariable(propertyname, value=v)
-            
+
     def _handleYAHOOExtension(self, styles, text, p):
         # text example:
         #   ['(', 'Dog', ',', 'Mammal', ',', '{', ')']

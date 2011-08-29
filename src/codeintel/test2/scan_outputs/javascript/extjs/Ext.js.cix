@@ -5,7 +5,7 @@
         <variable citdl="String" line="2" name="version" />
         <variable citdl="isWindows" line="10" name="isWindows" />
       </variable>
-      <scope attributes="__local__ private" ilk="function" line="5" lineend="12" name="(anonymous)" signature="(anonymous)()">
+      <scope attributes="__local__ private" ilk="function" line="5" lineend="12" name="(anonymous 1)" signature="(anonymous 1)()">
         <variable attributes="__local__ private" citdl="check()" line="6" name="isWindows" />
       </scope>
     </scope>
