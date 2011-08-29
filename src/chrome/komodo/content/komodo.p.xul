@@ -2026,15 +2026,13 @@
                      class="native"
                      pref="ui.tabs.sidepanes.left.layout"
                      label="&paneNameLeft;"
-                     persist="width type">
+                     persist="width type collapsed">
             </ko-pane>
             <splitter id="workspace_left_splitter"
                       class="workspace_splitter workspace_splitter_left"
                       orient="horizontal"
-                      collapse="none"
-                      collapsed="true"
-                      splitterCmdId="cmd_viewLeftPane"
-                      persist="collapsed">
+                      collapse="before"
+                      splitterCmdId="cmd_viewLeftPane">
                 <observes element="workspace_left_area" attribute="collapsed"/>
             </splitter>
             <vbox id="editorviewbox" flex="1" class="blank-workspace">
@@ -2051,16 +2049,14 @@
             <splitter id="workspace_right_splitter"
                       orient="horizontal"
                       class="workspace_splitter workspace_splitter_right"
-                      collapse="none"
-                      collapsed="true"
-                      splitterCmdId="cmd_viewRightPane"
-                      persist="collapsed">
+                      collapse="after"
+                      splitterCmdId="cmd_viewRightPane">
                 <observes element="workspace_right_area" attribute="collapsed"/>
             </splitter>
             <ko-pane id="workspace_right_area"
                      width="200"
                      collapsed="true"
-                     persist="width type"
+                     persist="width type collapsed"
                      class="native"
                      label="&paneNameRight;"
                      rotation="90">
@@ -2074,11 +2070,9 @@
         </hbox>
 
         <splitter id="bottom_splitter"
-                  collapse="none"
+                  collapse="after"
                   splitterCmdId="cmd_viewBottomPane"
                   class="workspace_splitter"
-                  persist="collapsed"
-                  collapsed="true"
                   orient="vertical">
             <observes element="workspace_bottom_area" attribute="collapsed"/>
         </splitter>
@@ -2087,7 +2081,8 @@
         <!--Persisting of collapsed disabled because of http://bugs.activestate.com/show_bug.cgi?id=25918-->
         <!-- only allow drag-drop for widgets that specificly support it -->
         <ko-pane id="workspace_bottom_area" height="200" collapsed="true"
-                 persist="height type" label="&paneNameBottom;" class="native"
+                 persist="height type collapsed" label="&paneNameBottom;"
+                 class="native"
                  ondragover="event.cancelBubble=true; return false;"
                  ondrop="event.cancelBubble=true; return true;">
             <!-- Run output tab of the output pane. This pane is made

@@ -429,22 +429,7 @@ this.toggleSplitter = function uilayout_toggleSplitter(aCommandID) {
         _log.error("couldn't find " + boxId);
         return;
     }
-    var splitterId = elt.getAttribute('splitter')
-    var splitter = document.getElementById(splitterId)
-    if (!splitter) {
-        _log.error("couldn't find " + splitterId);
-        return;
-    }
-
-    if (! box.hasAttribute('collapsed') || box.getAttribute("collapsed") == "false") {
-        box.setAttribute('collapsed','true');
-        splitter.setAttribute('collapsed','true');
-        elt.removeAttribute('checked');
-    } else {
-        box.setAttribute('collapsed','false');
-        splitter.setAttribute('collapsed','false');
-        elt.setAttribute('checked', 'true');
-    }
+    box.collapsed = !box.collapsed;
 }
 
 this.updateFullScreen = function uilayout_updateFullScreen() {
@@ -1503,7 +1488,7 @@ this.syncTabSelections = function uilayout_syncTabSelections() {
     
     function syncTabUI(paneID) {
         var pane = document.getElementById(paneID);
-        if (pane.hasAttribute("collapsed")) {
+        if (pane.getAttribute("collapsed") == "true") {
             pane.removeAttribute("checked");
         } else {
             pane.setAttribute("checked", true);

@@ -493,23 +493,25 @@
       <property name="collapsed">
         <getter>
         <![CDATA[
-          // somebody silly somewhere is setting collapsed to empty string (which
-          // isn't considered to be collapsed), so we have to check for that too
-          return !!this.getAttribute("collapsed");
+          // We need to set the attribute to "false", rather than the typical
+          // missing attribute or emptry string, in order for XUL attribute
+          // persistence to remove it and fall back to the default value.  See
+          // bug 90908 and https://bugzilla.mozilla.org/show_bug.cgi?id=682918
+          return this.getAttribute("collapsed") == "true";
         ]]>
         </getter>
         <setter>
         <![CDATA[
-          /* note that the splitter is expected to observe the collapsed attr
-           * on this element, and the toolbar button is expected to observe the
-           * checked attr
-           */
+          // Note that the splitter is expected to observe the collapsed attr
+          // on this element, and the toolbar button is expected to observe the
+          // checked attr.  Also note that we need to set it to "false" instead
+          // of missing attribute or empty string due to XUL persistence bugs.
           if (val) {
-            this.setAttribute("collapsed", true);
+            this.setAttribute("collapsed", "true");
             this.removeAttribute("checked"); // for reflecting to toolbarbutton
           } else {
-            this.removeAttribute("collapsed");
-            this.setAttribute("checked", true);
+            this.setAttribute("collapsed", "false");
+            this.setAttribute("checked", "true");
           }
         ]]>
         </setter>
@@ -549,6 +551,18 @@
         var widgets = Array.slice(this.childNodes);
         for each (var widget in widgets) {
           this.addWidget(widget);
+        }
+
+        // Normalize attributes here in case XUL persistence screws up
+        if (this.getAttribute("collapsed") != "true") {
+          this.setAttribute("collapsed", "false");
+        }
+        if (this.collapsed) {
+          this.removeAttribute("checked");
+          this.splitter.setAttribute("collapsed", "true");
+        } else {
+          this.setAttribute("checked", "true");
+          this.splitter.removeAttribute("collapsed");
         }
       } catch (e) { Components.utils.reportError(e); }
       ]]>
