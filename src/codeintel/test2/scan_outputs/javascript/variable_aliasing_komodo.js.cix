@@ -1,0 +1,10 @@
+<codeintel version="2.0">
+  <file lang="JavaScript" mtime="42" path="scan_inputs/javascript/variable_aliasing_komodo.js">
+    <scope ilk="blob" lang="JavaScript" name="variable_aliasing_komodo.js" src="scan_inputs/javascript/variable_aliasing_komodo.js">
+      <scope ilk="function" line="1" lineend="7" name="foo" signature="foo()">
+        <variable attributes="__local__ private" citdl="Components.interfaces.koIInfoService" line="3" name="infoSvc" />
+        <variable attributes="__local__ private" citdl="infoSvc.daysUntilExpiration" line="5" name="daysLeft" />
+      </scope>
+    </scope>
+  </file>
+</codeintel>

@@ -1943,6 +1943,7 @@ class JavaScriptCiler:
             noVariables = True
         # Work up the scope stack looking for the classname
         aliasDepth = 0
+        firstAliasFound = None
         while scope:
             currentScope = scope
             log.debug("Looking in scope %r", currentScope.name)
@@ -1960,6 +1961,8 @@ class JavaScriptCiler:
                     if namesDict:
                         foundScope = namesDict.get(name)
                         if isinstance(foundScope, JSAlias) and aliasDepth < 10:
+                            if firstAliasFound is None:
+                                firstAliasFound = foundScope
                             # This is an alias; look again with its target
                             namelist[:namePos+1] = foundScope.target
                             currentScope = scope = foundScope.scope
@@ -1986,6 +1989,9 @@ class JavaScriptCiler:
                 return currentScope
             # Try parent scope
             scope = scope.parent
+        if firstAliasFound:
+            log.debug("Found alias, but no alias target, returning just the alias: %r", firstAliasFound.name)
+            return firstAliasFound
         log.debug("NO scope found for: %r", namelist)
         return None
 
@@ -2139,7 +2145,9 @@ class JavaScriptCiler:
             # Look for the class first, then if we don't find it look for
             # a function or variable: bug 70324
             jsclass = self._locateScopeForName(scopeNames, attrlist=("classes", ))
-            if jsclass is None:
+            # Note: We could have an alias object, in that case we look for
+            #       something better, see test "variable_aliasing_komodo.js"
+            if jsclass is None or not isinstance(jsclass, JSClass):
                 jsclass = self._locateScopeForName(scopeNames, attrlist=("classes", "functions", "variables", ))
                 if isinstance(jsclass, JSFunction):
                     # Convert it to a class
