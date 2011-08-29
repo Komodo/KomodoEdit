@@ -182,13 +182,9 @@ state IN_M_STAG_POST_ATTRNAME_2
 
 state IN_M_STAG_ATTR_DSTRING:
 '"' : paint(include, M_STRING), => IN_M_STAG_POST_TAGNAME
-# Assume a < means we're way out of sync
-'<'    : paint(upto, M_STRING), => IN_M_STAG_EXP_TNAME
 
 state IN_M_STAG_ATTR_SSTRING:
 '\'' : paint(include, M_STRING), => IN_M_STAG_POST_TAGNAME
-# Assume a < means we're way out of sync
-'<'    : paint(upto, M_STRING), => IN_M_STAG_EXP_TNAME
 
 state IN_M_ETAG_1:
 ':' : #stay

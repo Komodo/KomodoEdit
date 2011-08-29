@@ -65,10 +65,6 @@ state IN_H2CSL_STAG_POST_ATTRNAME_2
 
 state IN_H2CSL_STAG_ATTR_DSTRING:
 '"' : paint(include, M_STRING), => IN_H2CSL_STAG_POST_TAGNAME
-# Assume a < means we're way out of sync, bail
-'<'    : paint(upto, M_STRING), redo => IN_M_DEFAULT
 
 state IN_H2CSL_STAG_ATTR_SSTRING:
 '\'' : paint(include, M_STRING), => IN_H2CSL_STAG_POST_TAGNAME
-# Assume a < means we're way out of sync
-'<'    : paint(upto, M_STRING), redo => IN_M_DEFAULT
