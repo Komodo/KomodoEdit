@@ -3638,6 +3638,9 @@ class JavaScriptCiler:
             if namelist == ["Object", "defineProperty"]:
                 # Defines a property on a given scope.
                 self._handleDefineProperty(styles, text, p)
+            elif namelist == ["XPCOMUtils", "defineLazyGetter"]:
+                # Mozilla way to define a property on a given scope.
+                self._handleDefineProperty(styles, text, p)
             elif namelist[0] == "YAHOO" and \
                namelist[1:] in (["extend"], ["lang", "extend"]):
                 # XXX - Should YAHOO API catalog be enabled then?
