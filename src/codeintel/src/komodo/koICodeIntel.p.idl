@@ -106,49 +106,6 @@ interface koICodeIntelBatchUpdateProgressUIHandler : nsISupports {
     void erroredout(in wstring errstr);
 };
 
-[scriptable, uuid(21F9CD93-5132-4A9A-A35F-E58BA47D3BA7)]
-interface koICodeIntelBatchUpdater : nsISupports {
-    // Must be set on the JavaScript-side before the controller is
-    // passed to Manager.batch_update().
-    //XXX attribute koICodeIntelBatchUpdateProgressUIHandler progress_ui_handler;
-    void set_progress_ui_handler(
-            in koICodeIntelBatchUpdateProgressUIHandler progress_ui_handler);
-
-    //  "type" is one of:
-    //      language    scan a language installation
-    //      cix         import a CIX file
-    //      directory   scan a source directory
-    //      upgrade     upgrade a CIDB file to the current version
-    //  "path", depending on "type" is the full path to:
-    //      language    a language installation
-    //      cix         a CIX file
-    //      directory   a source directory
-    //      upgrade     a CIDB file
-    //  "language", depending on "type" is:
-    //      language    the language of the language installation
-    //      cix         (not relevant, should be null)
-    //      directory   the language of the source directory
-    //      upgrade     (not relevant, should be null)
-    //  "extra" is an optional (null if not used) extra value depending
-    //      on the type, path and/or language of the request that may be
-    //      request for processing it. For example, a PHP language batch
-    //      update request uses the "extra" field to specify the
-    //      "php.ini"-config-file path. The "upgrade" type uses this to
-    //      specify an error handling mode: "recover" (the default if null)
-    //      to recover the old database or "replace" to create a new empty
-    //      on failure.
-    void add_request(in string type, in wstring path,
-                     in string language, in wstring extra);
-
-    void join();
-    void abort();
-    boolean isAlive();
-    // Return a list of error logs, if any.
-    void get_error_log(
-        out PRUint32 count,
-        [retval, array, size_is(count)] out wstring errors);
-};
-
 [scriptable, uuid(EC0B8148-8E12-43C2-8422-724E2478D884)]
 interface koICodeIntelTrigger: nsISupports {
     //XXX Should add the TRG_FORM_* constants.
@@ -295,9 +252,6 @@ interface koICodeIntelService: nsISupports {
     //      force a scan of *unsaved* changes, use false.
     void scan_document(in koIDocument document, in long linesAdded,
                        in boolean useFileMtime);
-
-    void batch_update(in boolean join,
-                      in koICodeIntelBatchUpdater updater);
 
     koICodeIntelBuffer buf_from_koIDocument(in koIDocument doc);
 

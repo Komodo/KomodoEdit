@@ -65,7 +65,7 @@ from codeintel2.common import *
 from codeintel2.manager import Manager
 from codeintel2.environment import Environment
 from codeintel2.util import indent
-from codeintel2.indexer import ScanRequest, BatchUpdater, XMLParseRequest
+from codeintel2.indexer import ScanRequest, XMLParseRequest
 from codeintel2.database.database import Database
 
 
@@ -819,145 +819,6 @@ class KoCodeIntelEvalController(EvalController):
         self.ui_handler = None
 
 
-class KoCodeIntelBatchUpdater(BatchUpdater):
-    """An adaptor between the codeintel BatchUpdater API and
-    koICodeIntelBatchUpdateProgressUIHandler that drives Komodo's "Build
-    CIDB" wizard.
-    """
-    _com_interfaces_ = [components.interfaces.koICodeIntelBatchUpdater]
-    _reg_clsid_ = "{40F1F58F-D81B-44B9-B71B-2C89A39F63EC}"
-    _reg_contractid_ = "@activestate.com/koCodeIntelBatchUpdater;1"
-    _reg_desc_ = "Komodo CodeIntel Batch Updater"
-
-    def __init__(self):
-        BatchUpdater.__init__(self)
-
-        # Save reported errors for reporting to user later.
-        # Do we want to save other logging? Warnings?
-        self.errors = []
-        self.progress_cache = {}
-        self.progress_ui_handler = None
-        self.progress_ui_handler_proxy = None
-
-    def set_progress_ui_handler(self, progress_ui_handler):
-        self.progress_ui_handler = progress_ui_handler
-        self.progress_ui_handler_proxy = getProxyForObject(1,
-            components.interfaces.koICodeIntelBatchUpdateProgressUIHandler,
-            self.progress_ui_handler, PROXY_ALWAYS | PROXY_ASYNC)
-
-    def error(self, msg, *args):
-        self.errors.append((msg, args))
-    def get_error_log(self):
-        return [(msg % args) for msg,args in self.errors]
-
-    def done(self, reason):
-        ui = self.progress_ui_handler_proxy
-        if not ui:
-            return
-
-        if self.is_aborted():
-            ui.cancelled()
-        elif self.errors:
-            errors_str = '\n'.join((msg%args) for msg,args in self.errors)
-            ui.erroredout(errors_str)
-        else:
-            ui.completed()
-
-        BatchUpdater.done(self, reason)
-
-    def progress(self, stage, obj):
-        ui = self.progress_ui_handler_proxy
-        if not ui:
-            return
-
-        # With an "upgrade" batch update we expect progress notifications
-        # of this form:
-        #   "upgrade", (<current-stage-message>, <percentage-done>)
-        if stage == "upgrade":
-            stage_msg, percent = obj
-            ui.setStatusMessage("Upgrade: "+stage_msg)
-            ui.setProgressMeterValue(percent)
-            return
-
-        # With other batch updates progress notifications are of these forms:
-        #   "importing", <path of CIX file being imported>
-        #   "gathering files", <number of files found>
-        #   "scanning", <ScanRequest object>
-        #   <some string>, <some object>      # should be graceful
-        remaining = eta = percent = None
-        percent_from_importing = self.progress_cache.setdefault(
-            "percent_from_importing", 0.00)
-        percent_from_gathering = self.progress_cache.setdefault(
-            "percent_from_gathering", 0.00)
-        percent_from_scanning = self.progress_cache.setdefault(
-            "percent_from_scanning", 0.00)
-
-        if stage == "importing":
-            msg = "Importing: %s" % obj
-            # just want at least 5% on first CIX file import
-            percent_from_importing = 0.05
-        elif stage == "gathering files":
-            remaining = self.num_files_to_process() + 1
-            msg = "Gathering files..."
-            times_gathering = self.progress_cache.setdefault("times_gathering", 0)
-            times_gathering += 1
-            percent_from_gathering = min(0.01*times_gathering, 0.05)
-            self.progress_cache["times_gathering"] = times_gathering
-        elif stage == "scanning": # 'obj' is a request object
-            remaining = self.num_files_to_process() + 1
-            total = self.progress_cache.setdefault("total_files", remaining)
-            # Progress meter
-            percent_from_scanning = float(total-remaining)/float(total)
-            # Message
-            # 79: display width; 25: other stuff, e.g. "Scanning", "ETA: ..."
-            msg = "Scanning: %s" % obj.path
-            # ETA
-            FEW = 50
-            now = time.time()
-            try:
-                last_few = self.progress_cache["last_few"]
-            except KeyError:
-                self.progress_cache["last_few"] = [now]
-            else:
-                secs_for_one = (now - last_few[0]) / len(last_few)
-                last_few.append(now)
-                if len(last_few) > FEW: del last_few[0]
-                self.progress_cache["last_few"] = last_few
-
-                remain_secs = secs_for_one * float(remaining)
-                if remain_secs < 60.0:
-                    eta = "%d sec" % int(remain_secs)
-                elif (remain_secs/60.0 < 60.0):
-                    eta = "%d min" % int(remain_secs/60.0)
-                else:
-                    eta = "%d hr" % int(remain_secs/3600.0)
-
-            # Adjust percent so it ranges over the remainder after the
-            # accumulated "Gathering" and "Importing" percentages have been
-            # factored out.
-            sucked_up = percent_from_importing + percent_from_gathering
-            percent_from_scanning = percent_from_scanning * (1.00-sucked_up)
-        else:
-            if obj:
-                msg = "%s: %s" % (stage, obj)
-            else:
-                msg = stage
-        self.progress_cache["percent_from_importing"] = percent_from_importing
-        self.progress_cache["percent_from_gathering"] = percent_from_gathering
-        self.progress_cache["percent_from_scanning"] = percent_from_scanning
-        if percent is None:
-            percent = percent_from_importing \
-                      + percent_from_gathering \
-                      + percent_from_scanning
-
-        ui.setStatusMessage(msg)
-        if remaining is None: remaining = -1
-        ui.setRemainingFiles(remaining)
-        if percent is not None:
-            ui.setProgressMeterValue(int(percent*100.0))
-        ui.setETA(eta)
-
-
 class KoCodeIntelDBUpgrader(threading.Thread):
     """Upgrade the DB and show progress."""
     _com_interfaces_ = [components.interfaces.koIShowsProgress]
@@ -1261,17 +1122,6 @@ class KoCodeIntelService:
                 request = ScanRequest(document.ciBuf, PRIORITY_CURRENT,
                                       mtime=mtime)
                 self.mgr.idxr.stage_request(request, 1.5)
-
-    #XXX I think this is unused and can be dropped.
-    def batch_update(self, join, updater):
-        # Unwrap controller so the non-IDL-ified attributes can be used by
-        # the guts of the codeintel system.
-        ##self.__cached_real_ctlr = ctlr #XXX weakref? necessary?
-        ##self.mgr.batch_update_start(wait=wait, ctlr=UnwrapObject(ctlr))
-
-        #XXX Should we unwrap the updater obj?
-        unwrapped_updater = UnwrapObject(updater)
-        self.mgr.batch_update(join=join, updater=unwrapped_updater)
 
     def _env_from_koIDocument(self, doc):
         """Return an Environment instance appropriate for the given
