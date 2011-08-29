@@ -539,7 +539,7 @@ class Evaluator(object):
     that the rules described for Buffer.async_eval_at_trg() are followed
     (see buffer.py). Typically this just means:
     - ensuring ctlr.done() is called,
-    - reacting to ctrl.is_aborted(), and
+    - reacting to ctlr.is_aborted(), and
     - optionally calling the other EvalController methods as appropriate.
 
     A subclass should also implement readable __str__ output.

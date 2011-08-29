@@ -212,13 +212,13 @@ class Buffer(object):
         
         Rules for implementation:
         - Must call ctlr.start(buf, trg) at start.
-        - Should call ctrl.set_desc(desc) near the start to provide a
+        - Should call ctlr.set_desc(desc) near the start to provide a
           short description of the evaluation. 
         - Should log eval errors via ctlr.error(msg, args...).
         - Should log other events via ctlr.{debug|info|warn}.
         - Should respond to ctlr.abort() in a timely manner.
         - If successful, must report results via one of
-          ctrl.set_cplns() or ctrl.set_calltips().
+          ctlr.set_cplns() or ctlr.set_calltips().
         - Must call ctlr.done(some_reason_string) when done.
 
         Tips for implementation:
