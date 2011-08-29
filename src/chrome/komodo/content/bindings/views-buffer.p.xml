@@ -787,6 +787,42 @@
         <method name="onDoubleClick">
         <body>
         <![CDATA[
+        var scimoz = this.scimoz;
+        // sample dbl clicks.  Match other parts in these:
+        // 123.456 -123.456 .211 435.61
+        // but not these:
+        // 456.321no no321.567 blip 123e+43e+55 128.34.56.75
+        
+        var sStart = scimoz.selectionStart;
+        var sEnd = scimoz.selectionEnd;
+        var lineStart = scimoz.lineFromPosition(sStart);
+        var lineEnd = scimoz.lineFromPosition(sEnd);
+        var selectedText = scimoz.getTextRange(sStart, sEnd);
+        var x = 123.456 + 123.456e-33 - 123.456e+33 * 123.34e02 + 10e4;
+        if (lineStart == lineEnd && /^\d+[Ee]?$/.test(selectedText)) {
+            // Consider everything surrounding the current selection
+            var textLeft = scimoz.getTextRange(scimoz.positionFromLine(lineStart), sStart);
+            var textRight = scimoz.getTextRange(sEnd, scimoz.getLineEndPosition(lineEnd));
+            var rightOffset;
+            if (/[Ee]$/.test(selectedText) && textRight.length && /^[\-\+]/.test(textRight)) {
+                selectedText += textRight[0];
+                textRight = textRight.substr(1);
+                rightOffset = 1;
+            } else {
+                rightOffset = 0;
+            }
+            var ptn = '((?:[Ee][\\-\\+]?|\\d+|\\.|\\w)+)';
+            var m = (new RegExp(ptn + "$")).exec(textLeft);
+            var numTextLeft = m ? m[1] : "";
+            m = (new RegExp("^" + ptn)).exec(textRight);
+            var numTextRight = m ? m[1] : "";
+            var spannedText = numTextLeft + selectedText + numTextRight;
+            if (/^[\-\+]?\d*?(\.\d*)?(?:[Ee][\-\+]?)?\d*$/.test(spannedText)) {
+                // The matched subparts together match a single number.
+                scimoz.selectionStart = sStart - numTextLeft.length;
+                scimoz.selectionEnd = sEnd + numTextRight.length + rightOffset;
+            }
+        }
         return true;
         ]]>
         </body>
