@@ -92,20 +92,6 @@ interface koICodeIntelDefinition: nsISupports {
     readonly attribute wstring returns;    // Function return type
 };
 
-// JS-implemented component to provide visual feedback on batch update
-// progress.
-[scriptable, uuid(59132D74-DB82-4B5F-96C0-BBDF44F853F8)]
-interface koICodeIntelBatchUpdateProgressUIHandler : nsISupports {
-    void setStatusMessage(in wstring message);
-    void setProgressMeterValue(in long percent);
-    // -1 indicates that the "remaining files" label should be removed
-    void setRemainingFiles(in long remaining);
-    void setETA(in wstring eta);
-    void completed();
-    void cancelled();
-    void erroredout(in wstring errstr);
-};
-
 [scriptable, uuid(EC0B8148-8E12-43C2-8422-724E2478D884)]
 interface koICodeIntelTrigger: nsISupports {
     //XXX Should add the TRG_FORM_* constants.
