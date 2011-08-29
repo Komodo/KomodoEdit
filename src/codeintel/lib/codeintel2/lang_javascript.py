@@ -2979,7 +2979,7 @@ class JavaScriptCiler:
             if len(namelist) > 2 and namelist[-2:] == ["prototype", "constructor"]:
                 # Foo.prototype.constructor = bar; don't treat as an alias
                 pass
-            elif isAlias:
+            elif isAlias and typeNames != namelist:
                 log.debug("_getVariableDetail: %r is an alias to %r",
                           namelist, typeNames)
                 return (TYPE_ALIAS, typeNames, None, p)
