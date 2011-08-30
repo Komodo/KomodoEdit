@@ -91,9 +91,9 @@
                 }
                 if (this.toolbar_overflow) {
                     if (childOverflowed) {
-                        this.toolbar_overflow.removeAttribute("disabled");
+                        this.toolbar_overflow.removeAttribute("collapsed");
                     } else {
-                        this.toolbar_overflow.setAttribute("disabled", "true");
+                        this.toolbar_overflow.setAttribute("collapsed", "true");
                     }
                 }
               ]]>

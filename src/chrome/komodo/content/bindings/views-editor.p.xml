@@ -48,8 +48,8 @@
     <content orient="vertical">
         <xul:hbox anonid="view-toolbar-container">
             <xul:toolbarbutton anonid="overflow-toolbarbutton"
-                               disabled="true"
-                               type="menu">
+                               collapsed="true"
+                               label="&#0187;"> <!-- #0187 is the Chevron character. -->
                 <xul:menupopup anonid="overflow-menupopup"
                                class="overflow-menupopup"
                                onpopupshowing="ko.viewtoolbar.overflow.initializeMenu(document.getBindingParent(this), this);"
