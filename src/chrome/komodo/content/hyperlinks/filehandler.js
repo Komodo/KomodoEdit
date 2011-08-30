@@ -154,8 +154,7 @@
             }
         }
     }
-    function src_href_jump_fn() {
-        var match = src_href_handler.regex_match;
+    function src_href_jump_fn(match) {
         var filepath = match[2];
         filename_jump_handler(filepath);
     }
@@ -184,7 +183,7 @@
             new RegExp(_is_windows ? "(file:|[\\.]{1,2}/|/|[A-Z]:\\\\|\\\\\\\\)[^'\"<>()[\\]\\s]+"
                                    : "(file:|[\\.]{1,2}/|/)[^'\"<>()[\\]\\s]+",
                        "i"),
-            filename_jump_handler,
+            function(match, arg) { filename_jump_handler(arg); },
             null,  /* Use the found string instead of a replacement. */
             null,  /* All language types */
             Components.interfaces.ISciMoz.INDIC_PLAIN,
@@ -200,8 +199,7 @@
      * Note: This hyperlink handler will only show when hovering over the
      *       string section of the match, i.e. over 'myid'.
      */
-    function getelementbyid_jump_handler() {
-        var match = javascript_getelementbyid_handler.regex_match;
+    function getelementbyid_jump_handler(match) {
         var id = match[2];
         if (id[0] == '#') {
             id = id.substr(1);
@@ -229,8 +227,7 @@
      *    include('functions/myfile.php');
      *    require_once "foo/bar/myfile.php";
      */
-    function php_jump_handler() {
-        var match = php_include_handler.regex_match;
+    function php_jump_handler(match) {
         var filepath = match[3];
         filename_jump_handler(filepath);
     }
@@ -250,8 +247,7 @@
      * A Django view/template handler - to help in opening files. Examples:
      *    render_to_response('komodo/index.html', ...)
      */
-    function django_view_jump_handler() {
-        var match = django_view_handler.regex_match;
+    function django_view_jump_handler(match) {
         var filepath = match[3];
         var osPathSvc = Components.classes["@activestate.com/koOsPath;1"].getService(Components.interfaces.koIOsPath);
         // Try current directory templates.
@@ -280,8 +276,7 @@
      * A Django view/template handler - to help in opening files. Examples:
      *    render_to_response('komodo/index.html', ...)
      */
-    function django_extends_jump_handler() {
-        var match = django_extends_handler.regex_match;
+    function django_extends_jump_handler(match) {
         var filepath = match[1];
         var osPathSvc = Components.classes["@activestate.com/koOsPath;1"].getService(Components.interfaces.koIOsPath);
         // Try current directory templates.

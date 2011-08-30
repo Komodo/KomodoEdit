@@ -120,7 +120,7 @@ ko.hyperlinks.RegexHandler.prototype.show = function(view, scimoz, position, lin
                 arg = arg.replace(this.findRegex, this.replace_str);
             }
             //dump('Function arg: ' + arg + '\n');
-            return this.setHyperlink(view, start, end, [arg]);
+            return this.setHyperlink(view, start, end, [match, arg]);
         }
         // Move past this match in the line, we'll check for
         // another match with on the rest of the line.
@@ -130,7 +130,6 @@ ko.hyperlinks.RegexHandler.prototype.show = function(view, scimoz, position, lin
     }
     return null;
 }
-
 
 /**
  * Preview handler - can show image preview on dwelling.
