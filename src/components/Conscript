@@ -132,7 +132,7 @@ $cons->BuildAndInstallXpt('koIWebbrowser.idl');
 if ($platform eq "win") {
     $cons->InstallXpcomComponent('koSysUtils.py',
                                  {'@activestate.com/koSysUtils;1' => "{56F686E0-A989-4714-A5D6-D77BC850C5C0}",
-                                  '@activestate.com/koSystemColorPicker;1' => "{434c3a68-5485-4b27-a852-e220358333f3}"},
+                                  '@activestate.com/koSystemColorPicker;1' => "{a482cb10-823b-4142-9f39-65991a94f0fa}"},
                                  ["colorpicker", "windows_system_color_picker", '@activestate.com/koSystemColorPicker;1']);
 } elsif ($platform eq "darwin") {
     $cons->InstallXpcomComponent('koSysUtils.py',
