@@ -4,7 +4,7 @@
 <em:id>klint@dafizilla.sourceforge.net</em:id>
 <em:name>Klint</em:name>
 <em:version>1.4.0</em:version>
-<em:description>Klint adds a message windows to KomodoEdit syntax checker</em:description>
+<em:description>Adds a Syntax Checking tab into Komodo's bottom pane.</em:description>
 <em:creator>Davide Ficano</em:creator>
 <em:homepageURL>http://dafizilla.sourceforge.net/klint</em:homepageURL>
 <em:updateURL>http://dafizilla.sourceforge.net/klint/update.php?item_id=%ITEM_ID%&amp;item_version=%ITEM_VERSION%&amp;app_id=%APP_ID%&amp;app_version=%APP_VERSION%</em:updateURL>
