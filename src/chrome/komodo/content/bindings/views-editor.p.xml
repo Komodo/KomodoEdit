@@ -49,7 +49,7 @@
         <xul:hbox anonid="view-toolbar-container">
             <xul:toolbarbutton anonid="overflow-toolbarbutton"
                                collapsed="true"
-                               label="&#0187;"> <!-- #0187 is the Chevron character. -->
+                               label="&#0187;">
                 <xul:menupopup anonid="overflow-menupopup"
                                class="overflow-menupopup"
                                onpopupshowing="ko.viewtoolbar.overflow.initializeMenu(document.getBindingParent(this), this);"
