@@ -233,7 +233,7 @@
     }
     ko.hyperlinks.handlers.phpIncludeHandler =
         new ko.hyperlinks.RegexHandler(
-            "File handler",
+            "PHP include handler",
             new RegExp("(include|require|include_once|require_once)\\s*(\\(\\s*)?[\"'](.*?)[\"']\\s*\\)?", "i"),
             php_jump_handler,
             null,  /* Use the found string instead of a replacement. */
