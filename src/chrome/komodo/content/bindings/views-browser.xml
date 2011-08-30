@@ -356,7 +356,7 @@
             //var docCharset = this.browser.docShell.QueryInterface(
             //                    Components.interfaces.nsIDocCharset);
             //docCharset.charset = this.koDoc.encoding.python_encoding_name;
-            var needsTempFile = doc.isUntitled || doc.file.isRemote;
+            var needsTempFile = doc.isUntitled || doc.file.isRemoteFile;
             var koFileEx;
             if (needsTempFile) {
                 var koFileService = Components.classes["@activestate.com/koFileService;1"].
