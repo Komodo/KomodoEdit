@@ -51,8 +51,8 @@
     <binding id="scintilla">
         <content>
             <html:embed type="application/x-scimoz-plugin"
-                        xbl:inherits="flex,width,height"
                         anonid="scimoz"
+                        style="-moz-box-flex: 1;"
                         pluginAllowsFocusEvents="false"
                         pluginHandlesDomEvents="false"
                         />

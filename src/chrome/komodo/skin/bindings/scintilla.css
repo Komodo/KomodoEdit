@@ -40,7 +40,6 @@ scintilla {
   -moz-user-focus: normal;
   -moz-binding: url('chrome://komodo/content/bindings/scintilla.xml#scintilla');
   -moz-box-orient: vertical;
-  -moz-box-flex: 1;
 }
 
 ko-findbar {
