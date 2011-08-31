@@ -58,10 +58,8 @@ from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC, getProxyForObjec
 
 from koTreeView import TreeView
 from koLanguageServiceBase import sendStatusMessage
-log = logging.getLogger("KoPlaceTreeView")
+log = logging.getLogger("koPlaceTreeView")
 #log.setLevel(logging.DEBUG)
-qlog = logging.getLogger("KoPlaceTreeView.q")
-#qlog.setLevel(logging.DEBUG)
 
 
 #---- Global functions
@@ -201,7 +199,7 @@ class _kplFolder(_kplBase):
     def getCellPropertyNames(self, col_id):
         if self.propertyNames is None:
             self.propertyNames = self.getCellPropertyNames_aux(col_id)
-            qlog.debug("folder.getCellPropertyNames: folder.propertyNames: %s", self.propertyNames)
+            #qlog.debug("folder.getCellPropertyNames: folder.propertyNames: %s", self.propertyNames)
         return self.propertyNames
     
     def getCellPropertyNames_aux(self, col_id):
