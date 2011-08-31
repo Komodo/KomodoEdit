@@ -774,23 +774,23 @@ projectManager.prototype.loadProject = function(url) {
 
 projectManager.prototype._addProject = function(project, inTimeout/*=false*/) {
     if (typeof(inTimeout) == "undefined") inTimeout = false;
+    if (!inTimeout && !this.viewMgr) {
+        setTimeout(function(this_) {
+                this_._addProject(project, true);
+            }, 100, this);
+        return;
+    } else if (inTimeout && !this.viewMgr) {
+        dump("_addProject: called inTimeout, this.viewMgr still null\n");
+    }
     if (!this.single_project_view) {
-        if (!inTimeout && !this.viewMgr) {
-            setTimeout(function(this_) {
-                    this_._addProject(project, true);
-                }, 100, this);
-            return;
-        } else if (inTimeout && !this.viewMgr) {
-            dump("_addProject: called inTimeout, this.viewMgr still null\n");
-        }
         this._projects.push(project);
-        // add project to project tree
-        if (this.viewMgr) {
-            this.viewMgr.addProject(project, 0);
-            this.viewMgr.refresh(project);
-        }
     } else {
         this._projects = [project];
+    }
+    // add project to project tree
+    if (this.viewMgr) {
+        this.viewMgr.addProject(project, 0);
+        this.viewMgr.refresh(project);
     }
     this.setCurrentProject(project);
     ko.lint.initializeGenericPrefs(project.prefset)

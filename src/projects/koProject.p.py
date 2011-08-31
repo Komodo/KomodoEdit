@@ -1827,6 +1827,28 @@ class koProject(koLiveFolderPart):
             return Folder(url, basename, project, live)
         return File(url, basename, project)
 
+class koUnopenedProject(koProject):
+    _com_interfaces_ = [components.interfaces.koIUnopenedProject]
+    _reg_desc_ = "Komodo Unopened Project"
+    _reg_contractid_ = "@activestate.com/koUnopenedProject;1"
+    _reg_clsid_ = "{13b7604e-4113-4477-bbab-d53dc00421b7}"
+    type = 'unopened_project'
+    prettytype = 'Unopened Project'
+    _iconurl = 'chrome://komodo/skin/images/project_icon.png'
+    primaryInterface = 'koIUnopenedProject'
+    _partSvc = None
+    
+    def __init__(self):
+        koProject.__init__(self)
+        self.flavors.insert(0, 'text/x-moz-url')
+
+    def __str__(self):
+        return "<koUnopenedProject, url=%s>" % self._attributes.get('url', 'None')
+
+    def __repr__(self):
+        return "<koUnopenedProject %s (id=%r)>" % (
+            self._attributes.get("name", "?name?"),
+            self._attributes.get("id", "?id?"))
 
 #---- Utility routines
 

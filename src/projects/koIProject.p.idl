@@ -243,6 +243,13 @@ interface koIProject: koIPart_livefolder {
     boolean containsLiveURL(in wstring url);
 };
 
+[scriptable, uuid(717c94cf-e454-446e-8836-7df65f86e44c)]
+interface koIUnopenedProject: koIProject {
+    // This type is used only in the single-project view in the project panel.
+    // It represents an unopened project in the projects MRU.
+    // It inherits from koIProject so it can work with the KPF trees,
+    // but it certainly doesn't support all the same items.
+};
 
 [scriptable, uuid(2F84B17E-FCEB-4cd0-8579-6C0F4E95CCA0)]
 interface koIPart_file: koIPart {

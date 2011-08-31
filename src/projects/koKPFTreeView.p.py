@@ -88,6 +88,9 @@ class _ContainerNode(_Node):
 class _ProjectNode(_ContainerNode):
     pass
 
+class _UnopenedProjectNode(_Node):
+    pass
+
 class _GroupNode(_ContainerNode):
     def __init__(self, part, level, project):
         _ContainerNode.__init__(self, part, level, project)
@@ -105,21 +108,46 @@ class _FileNode(_Node):
 class _RemoteFileNode(_Node):
     pass
 
-def compareNodeFolder(a, b, field):
-    a_c = hasattr(a, 'children')
-    b_c = hasattr(b, 'children')
+def _compareNodeClassCheck(a, b):
+    """Make sure that the true projects always appear before the
+    MRU unopened projects
+    """
+    if a[0] != b[0]:
+        if a[0] < b[0]:
+            return -1
+        return 1
+    return 0
+
+def _compareNodeValue(a, b, field):
+    aval = a[2].getFieldValue(field)
+    bval = b[2].getFieldValue(field)
+    if isinstance(aval, types.StringTypes):
+        return cmp(aval.lower(), bval.lower())
+    return cmp(aval, bval)
+
+def compareNodeFolder(a, b, field, sortDir):
+    # Each field comes in as a tuple with values
+    # 0: project, 1: unopened project
+    # 1: classtype for rebuilding the node
+    # 2: part
+    res = _compareNodeClassCheck(a, b)
+    if res:
+        return res
+    a2 = a[2]
+    b2 = b[2]
+    a_c = hasattr(a2, 'children')
+    b_c = hasattr(b2, 'children')
     if a_c and not b_c:
         return -1
     elif b_c and not a_c:
         return 1
-    return compareNode(a,b,field)
+    return _compareNodeValue(a,b,field) * sortDir
 
 def compareNode(a, b, field):
-    aval = a.getFieldValue(field)
-    bval = b.getFieldValue(field)
-    if isinstance(aval, types.StringTypes):
-        return cmp(aval.lower(), bval.lower())
-    return cmp(aval, bval)
+    res = _compareNodeClassCheck(a, b)
+    if res:
+        return res
+    return _compareNodeValue(a, b, field)
 
 class KPFTreeView(TreeView):
     _com_interfaces_ = [components.interfaces.nsIObserver,
@@ -295,10 +323,10 @@ class KPFTreeView(TreeView):
         self._tree.rowCountChanged(newProjectIndex, 1)
         self._addProjectEpilogue(unwrapped_kpf, newProjectIndex)
 
-    def moveProjectToEnd(self, kpf):
-        unwrapped_kpf = UnwrapObject(kpf)
-        self._rows.append(_ProjectNode(unwrapped_kpf, 0, unwrapped_kpf))
-        self._addProjectEpilogue(unwrapped_kpf, len(self._rows) - 1)
+    def moveProjectToEnd(self, project_tuple):
+        _, kpfClass, kpf = project_tuple
+        self._rows.append(kpfClass(kpf, 0, kpf))
+        self._addProjectEpilogue(kpf, len(self._rows) - 1)
         
     def _addProjectPrologue(self, kpf):
         self._partSvc.addProject(kpf)
@@ -314,6 +342,12 @@ class KPFTreeView(TreeView):
               and not self.isContainerOpen(newProjectIndex)
               and not self.isContainerEmpty(newProjectIndex)):
             self.toggleOpenState(newProjectIndex)
+
+    def addUnopenedProject(self, kpf):
+        newProjectIndex = len(self._rows)
+        unwrapped_kpf = UnwrapObject(kpf)
+        self._rows.append(_UnopenedProjectNode(unwrapped_kpf, 0, unwrapped_kpf))
+        self._tree.rowCountChanged(newProjectIndex, 1)
     
     def removeProject(self, kpfWrapped):
         self._partSvc.removeProject(kpfWrapped)
@@ -323,7 +357,7 @@ class KPFTreeView(TreeView):
         # remove rows for project
         index = self._getIndexByPart(kpf)
         if index == -1:
-            log.debug("removeProject: can't find project %s", kpf.name)
+            log.debug("removeProject: can't find project %s", kpf.get_name())
             return
         sibling = self.getNextSiblingIndex(index)
         if needNewCurrentProject:
@@ -623,7 +657,12 @@ class KPFTreeView(TreeView):
         if self._sortDir == 0:
             # There is no "natural order" in v6.1+
             return
-        projects = [UnwrapObject(x) for x in self._partSvc.getProjects()]
+        # projects = [UnwrapObject(x) for x in self._partSvc.getProjects()]
+        opened_projects = [(0, _ProjectNode, x.part) for x in self._rows
+                           if x.part.type == 'project']
+        unopened_projects = [(1, _UnopenedProjectNode, x.part) for x in self._rows
+                           if x.part.type == 'unopened_project']
+        projects = opened_projects + unopened_projects
         self._sortNodes(projects, self._sortedBy, self._sortDir, force=True)
         olen = len(self._rows)
         self._rows = []
@@ -640,7 +679,7 @@ class KPFTreeView(TreeView):
         if force or self._sortedBy != sortBy or self._sortDir != sortDir:
             log.debug("KPFTree::_sortNodes()")
             if sortDir != 0:
-                nodes.sort(lambda a,b: compareNodeFolder(a, b, sortBy) * sortDir)
+                nodes.sort(lambda a,b: compareNodeFolder(a, b, sortBy, sortDir))
             else:
                 nodes.sort(lambda a,b: compareNode(a, b, sortBy))
             self._sortDir = sortDir # cache sort order
@@ -781,7 +820,7 @@ class KPFTreeView(TreeView):
         except AttributeError:
             #log.debug("isContainerEmpty: node:%d, part:%s",
             #           index, node.part or "<null>")
-            pass
+            return False
 
     def isSorted( self ):
         # Result: boolean
@@ -817,7 +856,8 @@ class KPFTreeView(TreeView):
         if index >= len(self._rows) or index < 0: return -1
         return self._rows[index].level
 
-    _name_fields = { 'placesSubpanelProjectNameTreecol_MPV':'name' }
+    _name_fields = { 'placesSubpanelProjectNameTreecol_MPV':'name',
+                     'placesSubpanelProjectNameTreecol_SPV':'name', }
     def _getFieldName(self, column):
         return self._name_fields.get(column.id, column.id)
 
@@ -841,11 +881,15 @@ class KPFTreeView(TreeView):
     def getCellValue(self, index, column):
         ####log.debug("getCellValue(%d/%s) => ...", index, column.id)
         if index >= len(self._rows) or index < 0: return
-        child = self._rows[index].part
+        part = self._rows[index].part
         name = self._getFieldName(column)
-        if hasattr(child, name):
-            ####log.debug(" => %s", getattr(child, name))
-            return getattr(child, name)
+        if hasattr(part, name):
+            ####log.debug(" => %s", getattr(part, name))
+            return getattr(part, name)
+        get_name = "get_" + name
+        if hasattr(part, get_name):
+            ####log.debug(" => %s", getattr(part, get_name)())
+            return getattr(part, get_name)()
         ####log.debug(" => %s", "")
         return ""
 

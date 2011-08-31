@@ -28,14 +28,51 @@ this.createProjectMRUView = function() {
                    getService(Components.interfaces.koIPrefService).prefs);
     _placePrefs = _globalPrefs.getPref("places");
     this.projectsTree = document.getElementById("placesSubpanelProjects_SPV");
-    this.projectsTreeView = new this.recentProjectsTreeView();
+    this.projectsTreeView = Components.classes["@activestate.com/koKPFTreeView;1"]
+                          .createInstance(Components.interfaces.koIKPFTreeView);
     if (!this.projectsTreeView) {
-        throw new Error("couldn't create a recentProjectsTreeView");
+        throw new Error("couldn't create a KPF ProjectsTreeView");
     }
+    this.projectsTreeView.setDebugStatus(true);
     this.projectsTree.treeBoxObject
                         .QueryInterface(Components.interfaces.nsITreeBoxObject)
                         .view = this.projectsTreeView;
     this.projectsTreeView.initialize();
+    this.manager = new ko.places.projects.PlacesProjectManager(this);
+    ko.projects.manager.setViewMgr(this.manager);
+    this.projectCommandHelper = new ko.places.projects.ProjectCommandHelper(this, this.manager);
+    // Delegate all the context-menu commands to the projectCommandHelper
+    this.projectCommandHelper.injectHelperFunctions(this);
+    this._load_MRU_Projects();
+    if (_placePrefs.hasPref("project_sort_direction")) {
+        // See bug 89283 for an explanation of why all windows
+        // now have the same sort direction.
+        var direction = _placePrefs.getLongPref("project_sort_direction");
+        setTimeout(function(this_) {
+                this_.manager.sortProjects(direction);
+            }, 1, this);
+    } else {
+        // dump('loading... _placePrefs.hasPref("project_sort_direction"): not found\n');
+    }
+};
+
+this.activateView = function() {
+    ko.projects.manager.setViewMgr(this.manager);
+};
+
+this._load_MRU_Projects = function() {
+    var this_ = this;
+    var currentProject = ko.projects.manager.currentProject;
+    var currentURI = currentProject ? currentProject.uri : null;
+    ko.mru.getAll("mruProjectList").forEach(function(uri) {
+            if (uri != currentURI) {
+                var project = Components.classes["@activestate.com/koUnopenedProject;1"]
+                    .createInstance(Components.interfaces.koIUnopenedProject);
+                project.url = uri;
+                project.isDirty = false;
+                this_.projectsTreeView.addUnopenedProject(project);
+            }
+        });
 };
 
 // Methods for dealing with the projects tree context menu.
@@ -46,6 +83,11 @@ this._projectTestLabelMatcher = /^t:project\|(.+)\|(.+)$/;
 // menupopup id="placesSubpanelProjectsContextMenu_SPV"
 // refers to ko.places.projects_SPV.initProjectsContextMenu(event, this);
 this.initProjectsContextMenu = function(event, menupopup) {
+    if (event.explicitOriginalTarget.id
+        != "placesSubpanelProjectsTreechildren_SPV") {
+        // Invoked by an inner popupmenu.
+        return true;
+    }
     var row = {};
     this.projectsTree.treeBoxObject.getCellAt(event.pageX, event.pageY, row, {},{});
     var index = row.value;
@@ -57,12 +99,28 @@ this.initProjectsContextMenu = function(event, menupopup) {
         event.preventDefault();
         return false;
     }
-    var selectedUrl = this.projectsTreeView.getCellValue(index);
+    var selectedUrl = this.getCellValue(index, "url");
     var selectionInfo = {};
+    var treeView = this.projectsTreeView;
+    var selectedIndices = ko.treeutils.getSelectedIndices(treeView,
+                                                          false /*rootsOnly*/);
+    var selectedItems = selectedIndices.map(function(i) treeView.getRowItem(i));
     var currentProject = ko.projects.manager.currentProject;
+    if (!selectedItems.length && currentProject) {
+        selectedItems = [currentProject];
+    }
+    var selectedUrls = selectedItems ? selectedItems.map(function(item) item.url) : [];
+    var isRootNode = !selectedItems.length && index == -1;
+    var itemTypes;
+    if (isRootNode) {
+        itemTypes = ['root'];
+    } else {
+        itemTypes = selectedItems.map(function(item) item.type);
+    }
     selectionInfo.currentProject = (currentProject
                                     && currentProject.url == selectedUrl);
     selectionInfo.projectIsDirty = selectionInfo.currentProject && currentProject.isDirty;
+    selectionInfo.itemTypes = itemTypes;
     var projectIsOpen = false;
     var windows = ko.windowManager.getWindows();
     for (var win, i = 0; win = windows[i]; i++) {
@@ -76,8 +134,13 @@ this.initProjectsContextMenu = function(event, menupopup) {
     
     var childNodes = menupopup.childNodes;
     for (var menuNode, i = 0; menuNode = childNodes[i]; i++) {
-        var disableNode = false;
-        var directive = menuNode.getAttribute('disableIf');
+        var directive, disableNode = false;
+        if (!ko.places.matchAllTypes(menuNode.getAttribute('hideUnless'), itemTypes)) {
+            // hide the node
+            menuNode.setAttribute('collapsed', true);
+            continue;
+        }
+        directive = menuNode.getAttribute('disableIf');
         if (directive) {
             if ((directive in selectionInfo) && selectionInfo[directive]) {
                 disableNode = true;
@@ -94,51 +157,23 @@ this.initProjectsContextMenu = function(event, menupopup) {
         } else {
             menuNode.removeAttribute('disabled');
         }
+        if (menuNode.id == "menu_addItemToProject_projectsContext"
+            && selectionInfo.currentProject) {
+            var menupopup = menuNode.firstChild;
+            if (menupopup.childNodes.length == 0) {
+                ko.places.projects.copyNewItemMenu(menupopup, "SPV_projView_");
+            }
+        }
     }
     return true;
 };
 
-this.onProjectTreeDblClick = function(event) {
-    if (event.which != 1) {
-        return;
+this.getCellValue = function(index, columnName) {
+    if (typeof(columnName) == "undefined") {
+        columnName = 'placesSubpanelProjectNameTreecol_MPV';
     }
-    var row = {};
-    this.projectsTree.treeBoxObject.getCellAt(event.pageX, event.pageY, row, {},{});
-    var index = row.value;
-    if (index != -1) {
-        var uri = this.projectsTreeView.getCellValue(index);
-        var currentProject = ko.projects.manager.currentProject;
-        if (!currentProject || currentProject.url != uri) {
-            ko.projects.open(uri);
-        } else {
-            this.showProjectInPlaces();
-        }
-    }
-    event.stopPropagation();
-    event.preventDefault();
-};
-
-this.showProjectInPlaces = function() {
-    ko.places.manager.moveToProjectDir(ko.projects.manager.currentProject);
-};
-
-this.closeProject = function() {
-    ko.projects.manager.closeProject(ko.projects.manager.currentProject,
-                                     /* single_project_view= */ true);
-};
-
-this.saveProject = function() {
-    ko.projects.manager.saveProject(ko.projects.manager.currentProject);
-};
-
-this.saveProjectAs = function() {
-    ko.projects.saveProjectAs(ko.projects.manager.currentProject);
-};
-
-this.revertProject = function() {
-    ko.projects.manager.revertProject(ko.projects.manager.currentProject,
-                                      /* single_project_view= */ true);
-};
+    return this.projectsTreeView.getCellValue(index, {id : columnName});
+}
 
 this.openProjectInNewWindow = function() {
     this._openProject(true);
@@ -154,12 +189,13 @@ this.removeProjectListing = function() {
         log.debug("removeProjectListing: No index");
         return;
     }
-    var uri = this.projectsTreeView.getCellValue(index);
-    if (!uri) {
-        log.debug("removeProjectListing: No uri at index:" + index);
+    var part = this.projectsTreeView.getRowItem(index);
+    if (!part) {
+        log.debug("removeProjectListing: No part at index:" + index);
         return;
     }
-    ko.mru.deleteValue('mruProjectList', uri, true/*notify */);
+    ko.mru.deleteValue('mruProjectList', part.uri, true/*notify */);
+    this.projectsTreeView.removeProject(part);
 }
 
 this._openProject = function(inNewWindow) {
@@ -167,118 +203,34 @@ this._openProject = function(inNewWindow) {
     if (index == -1) {
         return;
     }
-    var uri = this.projectsTreeView.getCellValue(index);
+    var part = this.projectsTreeView.getRowItem(index);
+    if (part.type != "unopened_project") {
+        ko.dialogs.alert("Unexpected error: expecting type of project "
+                         + part.name
+                         + " to be 'unopened_project', but it's "
+                         + part.type);
+        return;
+    }
     if (inNewWindow) {
-        ko.launch.newWindow(uri);
+        ko.launch.newWindow(part.url);
     } else {
-        ko.projects.open(uri);
-    }
-};
-
-this.editProjectProperties = function() {
-    var item = ko.places.getItemWrapper(ko.projects.manager.currentProject.url, 'project');
-    ko.projects.fileProperties(item, null, true);
-};
-
-xtk.include("treeview");
-this.recentProjectsTreeView = function() {
-    xtk.dataTreeView.apply(this, []);
-    this._atomService = Components.classes["@mozilla.org/atom-service;1"].
-                            getService(Components.interfaces.nsIAtomService);
-}
-this.recentProjectsTreeView.prototype = new xtk.dataTreeView();
-this.recentProjectsTreeView.prototype.constructor = this.recentProjectsTreeView;
-
-this.recentProjectsTreeView.prototype.initialize = function() {
-    this._resetRows();
-    var observerSvc = Components.classes["@mozilla.org/observer-service;1"].
-            getService(Components.interfaces.nsIObserverService);
-    observerSvc.addObserver(this, "mru_changed", false);
-    this.pref_observer_names = [ "showProjectPath" ];
-    _placePrefs.prefObserverService.addObserverForTopics(this,
-                                         this.pref_observer_names.length,
-                                         this.pref_observer_names, true);
-};
-
-this.recentProjectsTreeView.prototype.terminate = function() {
-    _placePrefs.prefObserverService.removeObserverForTopics(this,
-                                            this.pref_observer_names.length,
-                                            this.pref_observer_names);
-    var observerSvc = Components.classes["@mozilla.org/observer-service;1"].
-                    getService(Components.interfaces.nsIObserverService);
-    try {
-        observerSvc.removeObserver(this, "mru_changed");
-    } catch(ex) {
-        // Sometimes during shutdown this throws a 0x80004005 exception
-    }
-};
-
-this.recentProjectsTreeView.prototype._resetRows = function() {
-    var showProjectPath = _globalPrefs.getPref("places").getBooleanPref('showProjectPath');
-    var rows = ko.mru.getAll("mruProjectList").map(function(uri) {
-            if (!showProjectPath) {
-                var m = PROJECT_URI_REGEX.exec(uri);
-                if (m) {
-                    return [uri, decodeURIComponent(m[1])];
-                }
-            }
-            var path = ko.uriparse.URIToPath(uri);
-            var name, lastSlash, lastDot;
-            if (!showProjectPath) {
-                var lastSlash = uri.lastIndexOf('/');
-                if (lastSlash > -1) {
-                    var lastDot = uri.lastIndexOf(".");
-                    if (lastDot > -1
-                        && ['.komodoproject', '.kpf'].indexOf(uri.substr(lastDot)) > -1) {
-                        // Standard -- ends with ".komodoproject" or ".kpf"
-                        path = path.substring(lastSlash + 1, lastDot);
-                    } else {
-                        path = path.substring(lastSlash + 1);
-                    }
-                }
-                // else Do nothing
-            } else {
-                var lastDot = path.lastIndexOf(".");
-                if (lastDot > -1
-                    && ['.komodoproject', '.kpf'].indexOf(path.substr(lastDot)) > -1) {
-                    path = path.substr(0, lastDot);
-                }
-            }
-            return [uri, path];
-        });
-    rows.reverse();
-    this.rows = rows;
-};
-this.recentProjectsTreeView.prototype.observe = function(subject, topic, data) {
-    if (data == "mruProjectList") {
-        this._resetRows();
-    } else if (topic == "showProjectPath") {
-        this._resetRows();
-    }
-};
-// NSITreeView methods.
-this.recentProjectsTreeView.prototype.getCellText = function(index, column) {
-    var row = this.rows[index];
-    var currentProject = ko.projects.manager.currentProject;
-    if (currentProject
-        && currentProject.isDirty
-        && currentProject.url == row[0]) {
-        return row[1] + "*";
-    } else {
-        return row[1];
-    }
-};
-this.recentProjectsTreeView.prototype.getCellValue = function(index, column) {
-    return this.rows[index][0];
-};
-this.recentProjectsTreeView.prototype.getImageSrc = function(index, column) {
-    return 'chrome://komodo/skin/images/project_icon.png'
-};
-this.recentProjectsTreeView.prototype.getCellProperties = function(index, column, properties) {
-    var row = this.rows[index];
-    var currentProject = ko.projects.manager.currentProject;
-    if (currentProject && currentProject.url == row[0]) {
-        properties.AppendElement(this._atomService.getAtom("projectActive"));
+        var currentProject = ko.projects.manager.currentProject;
+        if (currentProject) {
+            this.projectsTreeView.removeProject(currentProject);
+        }
+        this.projectsTreeView.removeProject(part);
+        if (currentProject) {
+            this.projectsTreeView.removeProject(currentProject);
+            ko.projects.manager.closeProject(currentProject);
+            var unopenedProject = Components.classes["@activestate.com/koUnopenedProject;1"]
+                    .createInstance(Components.interfaces.koIUnopenedProject);
+            unopenedProject.url = currentProject.url;
+            unopenedProject.isDirty = false;
+            this.projectsTreeView.addUnopenedProject(unopenedProject);
+            var direction = _placePrefs.getLongPref("project_sort_direction");
+            this.manager.sortProjects(direction);
+        }
+        ko.projects.open(part.url);
     }
 };
 

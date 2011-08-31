@@ -153,7 +153,13 @@ viewMgrClass.prototype = {
 
     _setupProjectView: function(single_project_view) {
         try {
-            widgets.placeView_treeViewDeck.selectedIndex = single_project_view ? 1 : 0;
+            if (single_project_view) {
+                widgets.placeView_treeViewDeck.selectedIndex = 1;
+                ko.places.projects_SPV.activateView();
+            } else {
+                widgets.placeView_treeViewDeck.selectedIndex = 0;
+                ko.places.projects.activateView();
+            }
             widgets.placesSubpanelProjectsTools_MPV.collapsed = single_project_view;
             widgets.placesSubpanelProjectsTools_SPV.collapsed = !single_project_view;
         } catch(ex) {
@@ -2944,15 +2950,30 @@ this.onLoad_aux = function places_onLoad_aux() {
     var mruProjectViewerID;
     this.single_project_view = !ko.projects.manager.initProjectViewPref(_globalPrefs);
     var launch_createProjectMRUView = function() {
-        if (ko.projects && ko.projects.manager) {
+        if (ko.projects && ko.projects.manager
+            && ko.places.projects.PlacesProjectManager
+            && ko.places.projects.ProjectCommandHelper) {
             clearInterval(mruProjectViewerID);
             try {
                 ko.places.initProjectMRUCogMenu_SPV();
                 ko.places.projects_SPV.createProjectMRUView();
                 ko.places.projects.createPlacesProjectView();
+                gPlacesViewMgr._setupProjectView(this.single_project_view = !_globalPrefs.getBooleanPref("places.multiple_project_view"));
             } catch(ex) {
                 dump("Init failed: " + ex + "\n");
             }
+        } else {
+            dump("Delaying init SPV menu: ");
+            if (!ko.projects || !ko.projects.manager) {
+                dump("no projects manager");
+            } else if (!ko.places.projects.PlacesProjectManager) {
+                dump("no PlacesProjectManager");
+            } else if (!ko.places.projects.ProjectCommandHelper) {
+                dump("no ProjectCommandHelper");
+            } else {
+                dump(" ????");
+            }
+            dump("\n");                
         }
     }.bind(this);
     mruProjectViewerID = setInterval(launch_createProjectMRUView, 50);

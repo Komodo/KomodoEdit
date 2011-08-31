@@ -399,6 +399,12 @@
     </menupopup>
     
     <menupopup id="placesSubpanelProjects_AddItemsMenu" disableUnless="project group">
+      <!--  When this subtree is copied over to 
+        [menupopup id="menu_addMenu_popup_projectsContext" /]
+	the first time, we need to change 'ko.places.projects' in
+	oncommand to 'ko.places.projects_SPV' so it hits the
+	correct object.
+      -->
       <menuitem id="folder_context_newFileFromTemplate"
                 label="&newFilesPlace.label;"
                 accesskey="&folderContextNewFile.accesskey;"
@@ -633,6 +639,13 @@
           disableUnless="projectIsDirty"
           oncommand="ko.places.projects_SPV.revertProject();" />
 
+      <menu label="&add.label;"
+            id="menu_addItemToProject_projectsContext"
+            class="menu-iconic"
+            hideUnless="folder project">
+        <menupopup id="menu_addMenu_popup_projectsContext" />
+      </menu>
+
       <menuseparator id="menu_project_save_separator_projectsContext"/>
 
       <menuitem label="&openProject.label;"
@@ -675,6 +688,8 @@
 
   <commandset id="panel-proxy-commandset"/>
 
+  <script src="chrome://places/content/projectCommandHelper.js"
+          type="application/x-javascript"/>
   <script src="chrome://places/content/places.js"
           type="application/x-javascript"/>
   <script src="chrome://places/content/project_places.js"
