@@ -304,6 +304,7 @@ class Database(object):
     # version number should be used for small upgrades to the database.
     #
     # db change log:
+    # - 2.0.23: (JS added __file_local__, bug 90823)
     # - 2.0.22: (Node.js core API documentation parser changes)
     # - 2.0.21: (PHP namespace top-level-name performance tweaks)
     # - 2.0.20: (PHP namespace class inheritance scanning)
@@ -350,7 +351,7 @@ class Database(object):
     # - 2.0.2: added scan_error to res_index in LangZone and MultiLangZone,
     #   add "lang" file to lang zones for reverse safe_lang -> lang lookup
     # - 2.0.1: s/VERSION.txt/VERSION/, made PHP a MultiLangZone
-    VERSION = "2.0.22"
+    VERSION = "2.0.23"
 
     LEN_PREFIX = 3 # Length of prefix in 'toplevelprefix_index' indeces.
 
@@ -592,6 +593,7 @@ class Database(object):
         "2.0.19": (VERSION, _upgrade_wipe_db_langs, ["PHP"]),
         "2.0.20": (VERSION, _upgrade_wipe_db_langs, ["PHP"]),
         "2.0.21": (VERSION, _upgrade_wipe_db_langs, ["Node.js"]),
+        "2.0.22": (VERSION, _upgrade_wipe_db_langs, ["JavaScript", "Node.js"]),
     }
 
     def report_event(self, desc):

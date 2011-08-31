@@ -255,6 +255,7 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
 
     def _members_from_hits(self, hits):
         members = set()
+        curr_blob = self.buf.blob_from_lang.get(self.lang, None)
         for elem, scope in hits:
             # In JavaScript we include the constructor function for a
             # (faked) class as a method. Completion on an instance of
@@ -278,6 +279,10 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
                 # Only add locals when the current scope is the same
                 # as the variable scope.
                 attributes = child.get("attributes", "").split()
+                if curr_blob is not None and scope[0] != curr_blob:
+                    if "__file_local__" in attributes:
+                        self.log("skipping file_local %r in %r", elem, scope)
+                        continue
                 if "__local__" in attributes:
                     # XXX: Move start_scoperef to be a part of the class
                     #start_scoperef = self.get_start_scoperef()
@@ -436,7 +441,16 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
         #    with children just returns itself. I.e. you *can't* resolve
         #    the <variable> away.
         resolved_hits = []
+        if self.buf:
+            curr_blob = self.buf.blob_from_lang.get(self.lang, {})
+        else:
+            curr_blob = None
+
         for elem, scoperef in hits:
+            if scoperef[0] != curr_blob:
+                if "__file_local__" in elem.get("attributes", "").split():
+                    self.log("skipping __file_local__ %r in %r", elem, scoperef)
+                    continue
             if elem.tag == "variable" and not defn_only:
                 try:
                     if (not elem.get("citdl")) and elem.get("ilk") == "argument":

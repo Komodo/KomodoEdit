@@ -2529,6 +2529,7 @@ class JavaScriptCiler:
                 scope = applyToScope.addVariable(name, value=v)
                 log.info("Could not find %r in scope: %r, creating variable (type=Object) for it on scope %r!!!",
                          name, fromScope.name, applyToScope.name)
+                scope.attributes.append("__file_local__")
             fromScope = scope
             applyToScope = scope
         return fromScope

@@ -935,6 +935,53 @@ class CplnTestCase(CodeIntelTestCase):
         self.assertCompletionsAre(markup_text(content, pos=positions[1]),
             [("namespace", "ab"), ])
 
+    @tag("bug90823")
+    def test_implied_globals_not_exported(self):
+        """Test that global variables that are implied and not assigned to do
+           not get exported"""
+        test_dir = join(self.test_dir, "test_implied_globals_not_exported")
+        target_js_content, target_js_positions = unmark_text(dedent("""\
+            exists.<1>dummy = 3;
+            implicit.<2>no_such_prop = 4;
+            function dummy() {
+                var local = other.implicit.object;
+                local.prop = 4;
+                other.<3>;
+            }
+        """))
+
+        manifest = {
+            "other.js": dedent("""
+                var exists = {};
+                exists.newprop = 4;
+                function foo() {
+                    var local = implicit.object.reference;
+                    local.prop = 3;
+                    var dummy = exists.implicit.property;
+                    dummy.prop = 4;
+                }
+             """),
+            "target.js": target_js_content,
+        }
+        for file, content in manifest.items():
+            path = join(test_dir, file)
+            writefile(path, content)
+
+        buf = self.mgr.buf_from_path(join(test_dir, "target.js"),
+                                     lang="JavaScript")
+        # make sure we picked up things from other.js
+        self.assertCompletionsInclude2(buf, target_js_positions[1],
+            [("variable", "newprop")])
+        # but not implicitly declared properties on exported globals
+        self.assertCompletionsDoNotInclude2(buf, target_js_positions[1],
+            [("namespace", "implicit")])
+        # also no implicitly declared globals
+        self.assertCompletionsDoNotInclude2(buf, target_js_positions[2],
+            [("namespace", "object")])
+        # but we should get implicit properties in the same file
+        self.assertCompletionsInclude2(buf, target_js_positions[3],
+            [("namespace", "implicit")])
+
 class DOMTestCase(CodeIntelTestCase):
     lang = "JavaScript"
     @tag("bug86391")

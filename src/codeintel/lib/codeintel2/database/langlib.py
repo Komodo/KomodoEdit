@@ -264,6 +264,11 @@ class LangDirsLib(object):
                         #LIMITATION: *Imported* names at each scope are
                         # not being included here. This is fine while we
                         # just care about JavaScript.
+                        if curr_buf:
+                            if "__file_local__" in elem.get("attributes", "").split():
+                                # this is a file-local element in a different blob,
+                                # don't look at it
+                                raise KeyError
                         elem = elem.names[p]
                 except KeyError:
                     continue
@@ -1050,6 +1055,9 @@ class LangZone(object):
                     blobname = blob.get("name")
                     toplevelnames_from_ilk = new_res_data.setdefault(blobname, {})
                     for toplevelname, elem in blob.names.iteritems():
+                        if "__file_local__" in elem.get("attributes", "").split():
+                            # don't put file local things in toplevel names
+                            continue
                         ilk = elem.get("ilk") or elem.tag
                         if ilk not in toplevelnames_from_ilk:
                             toplevelnames_from_ilk[ilk] = set([toplevelname])

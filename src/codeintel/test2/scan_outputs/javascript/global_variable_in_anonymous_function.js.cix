@@ -6,8 +6,8 @@
           <variable ilk="argument" line="2" name="config" />
         </scope>
       </scope>
-      <variable citdl="Object" line="5" name="YAHOO">
-        <variable citdl="Object" line="5" name="widget">
+      <variable attributes="__file_local__" citdl="Object" line="5" name="YAHOO">
+        <variable attributes="__file_local__" citdl="Object" line="5" name="widget">
           <variable citdl="Paginator" line="5" name="Paginator" />
         </variable>
       </variable>
