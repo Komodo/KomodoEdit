@@ -42,7 +42,40 @@ this.createProjectMRUView = function() {
     this.projectCommandHelper = new ko.places.projects.ProjectCommandHelper(this, this.manager);
     // Delegate all the context-menu commands to the projectCommandHelper
     this.projectCommandHelper.injectHelperFunctions(this);
-    this._load_MRU_Projects();
+    this.load_MRU_Projects();
+};
+
+this.activateView = function() {
+    ko.projects.manager.setViewMgr(this.manager);
+};
+
+this.rebuildView = function() {
+    this.projectsTree.treeBoxObject.beginUpdateBatch();
+    try {
+        this.projectsTreeView.clearTree();
+        var currentProject = ko.projects.manager.currentProject;
+        if (currentProject) {
+            this.projectsTreeView.addProject(currentProject);
+        }
+        this.load_MRU_Projects();
+    } finally {
+        this.projectsTree.treeBoxObject.endUpdateBatch();
+    }
+};
+
+this.load_MRU_Projects = function() {
+    var this_ = this;
+    var currentProject = ko.projects.manager.currentProject;
+    var currentURI = currentProject ? currentProject.url : null;
+    ko.mru.getAll("mruProjectList").forEach(function(uri) {
+            if (uri != currentURI) {
+                var project = Components.classes["@activestate.com/koUnopenedProject;1"]
+                    .createInstance(Components.interfaces.koIUnopenedProject);
+                project.url = uri;
+                project.isDirty = false;
+                this_.projectsTreeView.addUnopenedProject(project);
+            }
+        });
     if (_placePrefs.hasPref("project_sort_direction")) {
         // See bug 89283 for an explanation of why all windows
         // now have the same sort direction.
@@ -53,25 +86,6 @@ this.createProjectMRUView = function() {
     } else {
         // dump('loading... _placePrefs.hasPref("project_sort_direction"): not found\n');
     }
-};
-
-this.activateView = function() {
-    ko.projects.manager.setViewMgr(this.manager);
-};
-
-this._load_MRU_Projects = function() {
-    var this_ = this;
-    var currentProject = ko.projects.manager.currentProject;
-    var currentURI = currentProject ? currentProject.uri : null;
-    ko.mru.getAll("mruProjectList").forEach(function(uri) {
-            if (uri != currentURI) {
-                var project = Components.classes["@activestate.com/koUnopenedProject;1"]
-                    .createInstance(Components.interfaces.koIUnopenedProject);
-                project.url = uri;
-                project.isDirty = false;
-                this_.projectsTreeView.addUnopenedProject(project);
-            }
-        });
 };
 
 // Methods for dealing with the projects tree context menu.
@@ -193,7 +207,7 @@ this.removeProjectListing = function() {
         log.debug("removeProjectListing: No part at index:" + index);
         return;
     }
-    ko.mru.deleteValue('mruProjectList', part.uri, true/*notify */);
+    ko.mru.deleteValue('mruProjectList', part.url, true/*notify */);
     this.projectsTreeView.removeProject(part);
 }
 

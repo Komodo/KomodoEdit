@@ -64,6 +64,7 @@ interface koIKPFTreeView : nsITreeView {
     void addProjectAtPosition(in koIProject prj, in long newProjectIndex);
     void addUnopenedProject(in koIProject prj);
     void removeProject(in koIProject prj);
+    void clearTree();
     
     attribute nsIObserver statusObserver;
     

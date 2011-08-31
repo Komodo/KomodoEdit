@@ -298,6 +298,15 @@ this.activateView = function() {
     ko.projects.manager.setViewMgr(this.manager);
 };
 
+this.rebuildView = function() {
+    this.projectsTree.treeBoxObject.beginUpdateBatch();
+    try {
+        this.projectsTreeView.clearTree();
+    } finally {
+        this.projectsTree.treeBoxObject.endUpdateBatch();
+    }
+};
+
 this.finishSCCProjectsMenu = function(destID, srcID, prefix) {
     var menuNode = document.getElementById(destID);
     if (!menuNode || menuNode.nodeName != "menu") {

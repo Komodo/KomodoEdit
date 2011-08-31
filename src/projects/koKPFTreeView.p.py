@@ -112,11 +112,7 @@ def _compareNodeClassCheck(a, b):
     """Make sure that the true projects always appear before the
     MRU unopened projects
     """
-    if a[0] != b[0]:
-        if a[0] < b[0]:
-            return -1
-        return 1
-    return 0
+    return cmp(a[0], b[0])
 
 def _compareNodeValue(a, b, field):
     aval = a[2].getFieldValue(field)
@@ -386,6 +382,10 @@ class KPFTreeView(TreeView):
             finally:
                 self._tree.endUpdateBatch()
                     
+    def clearTree(self):
+        nlen = len(self._rows)
+        self._rows = []
+        self._tree.rowCountChanged(0, -nlen)
 
     def restorePrefs(self, kpf):
         prefSvc = components.classes["@activestate.com/koPrefService;1"]\

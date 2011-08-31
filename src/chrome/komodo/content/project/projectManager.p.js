@@ -116,14 +116,20 @@ projectManager.prototype.initProjectViewPref = function(prefset) {
 projectManager.prototype.switchProjectView = function(single_project_view) {
     var i, listLen, urlList;
     var currentProjectURL = this.currentProject === null ? null : this.currentProject.url;
+    var treeOwner;
     if (single_project_view) {
         this._mpv_urls = this._projects.map(function(p) p.url);
         urlList = this._spv_urls;
+        treeOwner = ko.places.projects_SPV;
     } else {
         this._spv_urls = this._projects.map(function(p) p.url);
         urlList = this._mpv_urls;
+        treeOwner = ko.places.projects;
     }
     this.closeAllProjects();
+    if (treeOwner.projectsTreeView) {
+        treeOwner.projectsTreeView.clearTree();
+    }
     // Now reopen the new view with the other type of project view.
     this.single_project_view = single_project_view;
     listLen = urlList.length;
@@ -132,15 +138,19 @@ projectManager.prototype.switchProjectView = function(single_project_view) {
                          false /* skipRecentOpenFeature */,
                          false /* ensureVisible */);
     }
-    if (currentProjectURL !== null ) {
-        var openedIdx = this._projects.map(function(p) p.url).indexOf(currentProjectURL);
-        if (openedIdx != -1) {
-            this.currentProject = this._projects[openedIdx];
-        } else {
-            ko.projects.open(currentProjectURL,
-                             false /* skipRecentOpenFeature */,
-                             false /* ensureVisible */);
-            //dump("**************** Need to re-activate proj " + currentProjectURL + "\n");
+    if (single_project_view && treeOwner.projectsTreeView) {
+        treeOwner.load_MRU_Projects();
+    } else {
+        if (currentProjectURL !== null ) {
+            var openedIdx = this._projects.map(function(p) p.url).indexOf(currentProjectURL);
+            if (openedIdx != -1) {
+                this.currentProject = this._projects[openedIdx];
+            } else {
+                ko.projects.open(currentProjectURL,
+                                 false /* skipRecentOpenFeature */,
+                                 false /* ensureVisible */);
+                //dump("**************** Need to re-activate proj " + currentProjectURL + "\n");
+            }
         }
     }
 };
@@ -767,6 +777,13 @@ projectManager.prototype.loadProject = function(url) {
         }
         ko.dialogs.alert(_bundle.formatStringFromName("unableToLoadProject.alert",
             [projectname, lastErrorSvc.getLastErrorMessage()], 2));
+        // Assume the error is that the file doesn't exist.
+        // Currently all we can do is test against the English value of
+        // lastErrorSvc.getLastErrorMessage(), but that won't work
+        // if it's ever localized.
+        if (url) {
+            ko.mru.deleteValue("mruProjectList", url, true);
+        }
         return;
     }
     this._addProject(project, false);
