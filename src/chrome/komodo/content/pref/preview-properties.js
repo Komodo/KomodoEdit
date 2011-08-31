@@ -57,5 +57,6 @@ function OnPreferencePageOK(prefset) {
     } catch (e) {
         log.exception(e);
     }
+    return false;
 }
 
