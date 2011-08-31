@@ -2,6 +2,8 @@
 <!DOCTYPE window SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
   <!ENTITY % prefDTD SYSTEM "chrome://komodo/locale/pref/pref.dtd">
   %prefDTD;
+  <!ENTITY % dialogsDTD SYSTEM "chrome://komodo/locale/dialogs.dtd">
+  %dialogsDTD;
 ]>
 
 <!-- ***** BEGIN LICENSE BLOCK *****
@@ -51,8 +53,11 @@
         orient="vertical"
         onload="parent.initPanel();">
 
-    <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
-    <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://xtk/content/xtk.js"                        type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/logging.js"         type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/uilayout.js"        type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/uriparse.js"        type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/pref/preview-properties.js" type="application/x-javascript;version=1.7"/>
 
     <!-- This main vbox is to ensure *all* the pref widgets are accessible,
          as it adds a scrollbar when the contents are too long. -->
@@ -60,6 +65,16 @@
 
         <groupbox orient="vertical">
             <caption label="&preview.label;"/>
+                <hbox id="browser-select-hbox"
+                      flex="1"
+                      align="center">
+                    <label value="&previewUsing.label;"/>
+                    <menulist id="browser-select-menulist"
+                              label="&previewUsingDefaultBrowser.value;">
+                        <menupopup id="browser-select-menupopup"/>
+                    </menulist>
+                </hbox>
+
                 <label value="&useThisUrlPreview.label;"
                        control="preview"/>
                 <textbox id="preview" pref="true" prefstring="preview_path"/>
@@ -67,7 +82,7 @@
                     <spring flex="1"/>
                     <button id="clear-preview" label="&clear.label;"
                             accesskey="&clearPreview.accesskey;"
-                            oncommand="document.getElementById('preview').value = null;"
+                            oncommand="ClearPreviewSettings();"
                             tooltiptext="&ifClearedYouWillBePromptedForThisValueTheNextTimeYouPreview.tooltiptext;"/>
                 </hbox>
         </groupbox>
