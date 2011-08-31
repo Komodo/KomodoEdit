@@ -33,7 +33,6 @@ this.createProjectMRUView = function() {
     if (!this.projectsTreeView) {
         throw new Error("couldn't create a KPF ProjectsTreeView");
     }
-    this.projectsTreeView.setDebugStatus(true);
     this.projectsTree.treeBoxObject
                         .QueryInterface(Components.interfaces.nsITreeBoxObject)
                         .view = this.projectsTreeView;
