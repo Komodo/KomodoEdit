@@ -157,7 +157,7 @@ this.ProjectCommandHelper.prototype.importPackage = function() {
 };
 this.ProjectCommandHelper.prototype._continueMakeCurrentProject = function(project) {
     ko.projects.manager.setCurrentProject(project);
-    this.projectsTreeView.invalidate();
+    this.owner.projectsTreeView.invalidate();
 }
 this.ProjectCommandHelper.prototype.makeCurrentProject = function() {
     this._getProjectItemAndOperate("makeCurrentProject", this,
