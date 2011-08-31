@@ -273,6 +273,7 @@ this.ProjectCommandHelper.prototype.injectHelperFunctions = function(receiver) {
                     importPackage:1,
                     exportAsProjectFile:1,
                     exportPackage:1,
+                editProjectProperties:1,
                 createProjectTemplate:1}) {
         // Force a closure (see above)
         (function(currName) {
