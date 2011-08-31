@@ -50,34 +50,12 @@
     -->
     <binding id="scintilla">
         <content>
-<!-- #if PLATFORM == "win" -->
             <html:embed type="application/x-scimoz-plugin"
                         xbl:inherits="flex,width,height"
                         anonid="scimoz"
-                        flex="1"
-                        width="0" height="0"
                         pluginAllowsFocusEvents="false"
                         pluginHandlesDomEvents="false"
                         />
-<!-- #elif PLATFORM == "linux" -->
-            <html:embed type="application/x-scimoz-plugin"
-                        xbl:inherits="flex,width,height"
-                        anonid="scimoz"
-                        flex="1"
-                        width="100%" height="100%"
-                        pluginAllowsFocusEvents="false"
-                        pluginHandlesDomEvents="false"
-                        />
-<!-- #elif PLATFORM == "darwin" -->
-            <html:embed type="application/x-scimoz-plugin"
-                        xbl:inherits="flex,width,height"
-                        anonid="scimoz"
-                        flex="1"
-                        width="100%" height="100%"
-                        pluginAllowsFocusEvents="false"
-                        pluginHandlesDomEvents="false"
-                        />
-<!-- #endif -->
         </content>
         <implementation implements="nsIObserver">
             <field name='_inMouseDown'>-1</field>
