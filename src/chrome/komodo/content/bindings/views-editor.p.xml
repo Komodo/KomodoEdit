@@ -1417,7 +1417,6 @@
 
             if (browserType != "komodo" && this.koDoc.file.isRemoteFile &&
                 previewPath == this.koDoc.file.displayPath) {
-                dump('previewPath before: ' + previewPath + '\n');
                 // Must ensure the URI uses the hostname, not a Komodo server
                 // alias, as external applications won't understand Komodo
                 // server aliases - bug 91046.
