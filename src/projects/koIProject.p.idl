@@ -59,6 +59,7 @@ interface koIPart_Common: nsIObserver {
     attribute wstring prettytype;  // A user-intended version of the type: e.g. "Group"
     attribute wstring iconurl;
     attribute wstring url;
+    attribute wstring uri; // This is for finding errors
     attribute wstring name;
     koIFileEx getFile();
     

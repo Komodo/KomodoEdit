@@ -448,6 +448,12 @@ class koPart(object):
 
     url = property(get_url, set_url)
 
+    def set_uri(self, uri):
+        raise ServerException(nsError.NS_ERROR_ILLEGAL_VALUE, "'project.uri' referenced, should be 'project.url'")
+        
+    def get_uri(self):
+        raise ServerException(nsError.NS_ERROR_ILLEGAL_VALUE, "'project.uri' referenced, should be 'project.url'")
+
     def _setPathAndName(self):
         self._hasset_koFile = False
         self._koFile = None
@@ -1458,6 +1464,9 @@ class koProject(koLiveFolderPart):
                     # create our new part instance
                     try:
                         part = self.createPartFromType(node.tagName)
+                    except TypeError, e:
+                        log.error("Problem creating part from type %s", node.tagName)
+                        raise
                     except KeyError, e:
                         # a bad part in the project, ignore for now
                         log.error("Unknown project element with name %s", node.tagName)
