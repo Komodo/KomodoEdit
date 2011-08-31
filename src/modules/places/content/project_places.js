@@ -263,7 +263,6 @@ this.createPlacesProjectView = function() {
     if (!this.projectsTreeView) {
         throw new Error("couldn't create a KPF ProjectsTreeView");
     }
-    this.projectsTreeView.setDebugStatus(false);
     this.projectsTree.treeBoxObject
                         .QueryInterface(Components.interfaces.nsITreeBoxObject)
                         .view = this.projectsTreeView;
