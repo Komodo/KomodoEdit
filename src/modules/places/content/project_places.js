@@ -62,60 +62,11 @@ var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
 
 this.XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
 
-this.createPlacesProjectView = function() {
-    _globalPrefs = (Components.classes["@activestate.com/koPrefService;1"].
-                   getService(Components.interfaces.koIPrefService).prefs);
-    _placePrefs = _globalPrefs.getPref("places");
-    _g_showProjectPath = _globalPrefs.getPref("places").getBooleanPref('showProjectPath');
-    this.projectsTree = document.getElementById("placesSubpanelProjects_MPV");
-    this.projectsTreeView = Components.classes["@activestate.com/koKPFTreeView;1"]
-                          .createInstance(Components.interfaces.koIKPFTreeView);
-    if (!this.projectsTreeView) {
-        throw new Error("couldn't create a PlaceProjectsTreeView");
-    }
-    this.projectsTree.treeBoxObject
-                        .QueryInterface(Components.interfaces.nsITreeBoxObject)
-                        .view = this.projectsTreeView;
-    this.projectsTreeView.initialize();
-    this.initProjectMRUCogMenu_MPV();
-    this.manager = new PlacesProjectManager(this);
-    ko.projects.manager.setViewMgr(this.manager);
-    if (_placePrefs.hasPref("project_sort_direction")) {
-        // See bug 89283 for an explanation of why all windows
-        // now have the same sort direction.
-        var direction = _placePrefs.getLongPref("project_sort_direction");
-        setTimeout(function(mgr, direction) {
-                mgr.sortProjects(direction);
-            }, 1, this.manager, direction);
-    } else {
-        // dump('loading... _placePrefs.hasPref("project_sort_direction"): not found\n');
-    }
-
-};
-
-this._copyTree = function(srcParentNode, destParentNode) {
-    var srcNodes = srcParentNode.childNodes;
-    var len = srcNodes.length;
-    var attr, destNode, attributes;
-    for (var i = 0; i < len; i++) {
-        var srcNode = srcNodes[i];
-        destNode = document.createElementNS(this.XUL_NS, srcNode.nodeName);
-        attributes = srcNode.attributes;
-        for (var j = 0; j < attributes.length; j++) {
-            attr = attributes[j];
-            destNode.setAttribute(attr.name, attr.value);
-        }
-        destNode.setAttribute("id", this._menuIdPrefix + srcNode.id);
-        destParentNode.appendChild(destNode);
-        this._copyTree(srcNode, destNode);
-    }
-}
-
-function PlacesProjectManager(owner) {
+this.PlacesProjectManager = function(owner) {
     this.owner = owner;
 }
 
-PlacesProjectManager.prototype = {
+this.PlacesProjectManager.prototype = {
   addProject: function(project, position) {
         if (typeof(position) == "undefined" || position === null) {
             this.owner.projectsTreeView.addProject(project);
@@ -301,6 +252,90 @@ PlacesProjectManager.prototype = {
   _EOF_ : null
 };
 
+this.createPlacesProjectView = function() {
+    _globalPrefs = (Components.classes["@activestate.com/koPrefService;1"].
+                   getService(Components.interfaces.koIPrefService).prefs);
+    _placePrefs = _globalPrefs.getPref("places");
+    _g_showProjectPath = _globalPrefs.getPref("places").getBooleanPref('showProjectPath');
+    this.projectsTree = document.getElementById("placesSubpanelProjects_MPV");
+    this.projectsTreeView = Components.classes["@activestate.com/koKPFTreeView;1"]
+                          .createInstance(Components.interfaces.koIKPFTreeView);
+    if (!this.projectsTreeView) {
+        throw new Error("couldn't create a KPF ProjectsTreeView");
+    }
+    this.projectsTreeView.setDebugStatus(false);
+    this.projectsTree.treeBoxObject
+                        .QueryInterface(Components.interfaces.nsITreeBoxObject)
+                        .view = this.projectsTreeView;
+    this.projectsTreeView.initialize();
+    this.initProjectMRUCogMenu_MPV();
+    this.manager = new this.PlacesProjectManager(this);
+    ko.projects.manager.setViewMgr(this.manager);
+    this.projectCommandHelper = new this.ProjectCommandHelper(this, this.manager);
+    // Delegate all the context-menu commands to the projectCommandHelper
+    this.projectCommandHelper.injectHelperFunctions(this);
+    this.projectCommandHelper.injectSpecificFunctions(this,
+        {
+            openProjectInNewWindow:1,
+            openProjectInCurrentWindow:1,
+         });
+
+    this.finishSCCProjectsMenu("menu_projCtxt_SCCmenu",
+                               "menu_SCCmenu",
+                               "menu_projCtxt_");
+    if (_placePrefs.hasPref("project_sort_direction")) {
+        // See bug 89283 for an explanation of why all windows
+        // now have the same sort direction.
+        var direction = _placePrefs.getLongPref("project_sort_direction");
+        setTimeout(function(mgr, direction) {
+                mgr.sortProjects(direction);
+            }, 1, this.manager, direction);
+    } else {
+        // dump('loading... _placePrefs.hasPref("project_sort_direction"): not found\n');
+    }
+};
+
+this.activateView = function() {
+    ko.projects.manager.setViewMgr(this.manager);
+};
+
+this.finishSCCProjectsMenu = function(destID, srcID, prefix) {
+    var menuNode = document.getElementById(destID);
+    if (!menuNode || menuNode.nodeName != "menu") {
+        log.debug("No " + destID + "\n");
+        return;
+    } else if (menuNode.childNodes.length > 0) {
+        log.debug("Menu " + destID + " already set up?\n");
+        return;
+    }
+    var srcMenu = parent.document.getElementById("menu_SCCmenu");
+    if (!srcMenu || !srcMenu.childNodes.length) {
+        log.debug("**** Can't find " + srcID + "\n");
+        return;
+    }
+    this._menuIdPrefix = prefix;
+    this._copyTree(srcMenu, menuNode);
+    delete this._menuIdPrefix;
+}
+
+this._copyTree = function(srcParentNode, destParentNode) {
+    var srcNodes = srcParentNode.childNodes;
+    var len = srcNodes.length;
+    var attr, destNode, attributes;
+    for (var i = 0; i < len; i++) {
+        var srcNode = srcNodes[i];
+        destNode = document.createElementNS(this.XUL_NS, srcNode.nodeName);
+        attributes = srcNode.attributes;
+        for (var j = 0; j < attributes.length; j++) {
+            attr = attributes[j];
+            destNode.setAttribute(attr.name, attr.value);
+        }
+        destNode.setAttribute("id", this._menuIdPrefix + srcNode.id);
+        destParentNode.appendChild(destNode);
+        this._copyTree(srcNode, destNode);
+    }
+}
+
 this.initProjectMRUCogMenu_MPV = function() {
     var srcMenu = parent.document.getElementById("popup_project");
     var destMenu = document.getElementById("placesSubpanelProjectsToolsPopup_MPV");
@@ -333,44 +368,24 @@ this.initProjectMRUCogMenu_MPV = function() {
 
 this.copyNewItemMenu = function(targetNode, targetPrefix) {
     var srcNodes = document.getElementById("placesSubpanelProjects_AddItemsMenu").childNodes;
-    var attr, node, attributes;
+    var attr, node, attributes, value;
     for (var i = 0; i < srcNodes.length; i++) {
         var srcNode = srcNodes[i];
         node = document.createElementNS(this.XUL_NS, srcNode.nodeName);
         attributes = srcNode.attributes;
         for (var j = 0; j < attributes.length; j++) {
             attr = attributes[j];
-            node.setAttribute(attr.name, attr.value);
+            value = attr.value;
+            if (targetPrefix == "SPV_projView_"
+                && attr.name == "oncommand") {
+                value = value.replace("ko.places.projects.manager.",
+                                      "ko.places.projects_SPV.manager.");
+            }
+            node.setAttribute(attr.name, value);
         }
         node.setAttribute("id", "projCtxt_" + srcNode.id);
         targetNode.appendChild(node);
     }
-};
-
-this.finishProjectsContextMenu = function(targetNode, targetPrefix) {
-    var srcNodes = document.getElementById("placesSubpanelProjects_AddItemsMenu").childNodes;
-    var target_tree = document.getElementById("menu_projCtxt_addMenu_Popup");
-    var target_toolbar = document.getElementById("projectView_AddItemPopup");
-    var attr, node, nodetb, attributes;
-    for (var i = 0; i < srcNodes.length; i++) {
-        var srcNode = srcNodes[i];
-        node = document.createElementNS(this.XUL_NS, srcNode.nodeName);
-        nodetb = document.createElementNS(this.XUL_NS, srcNode.nodeName);
-        attributes = srcNode.attributes;
-        for (var j = 0; j < attributes.length; j++) {
-            attr = attributes[j];
-            node.setAttribute(attr.name, attr.value);
-            nodetb.setAttribute(attr.name, attr.value);
-        }
-        node.setAttribute("id", "projCtxt_" + srcNode.id);
-        target_tree.appendChild(node);
-        nodetb.setAttribute("id", "projView__" + srcNode.id);
-        target_toolbar.appendChild(node);
-    }
-    //dump("# nodes added to menu_projCtxt_addMenu_Popup: \n");
-    //dump("  " + target_tree.childNodes.length + "\n");
-    //dump("# nodes added to projectView_AddItemPopup: \n");
-    //dump("  " + target_toolbar.childNodes.length + "\n");
 };
 
 this.refreshParentShowChild = function(parentPart, newPart) {
@@ -603,229 +618,6 @@ this.getFocusedProjectView = function() {
     return null;
 };
 
-this.onProjectTreeDblClick = function(event) {
-    if (event.which != 1) {
-        return;
-    }
-    var row = {};
-    this.projectsTree.treeBoxObject.getCellAt(event.pageX, event.pageY, row, {},{});
-    var index = row.value;
-    if (index != -1) {
-        var part = this.projectsTreeView.getRowItem(index);
-        if (!part) {
-            log.error("onProjectTreeDblClick(" + index + ") => null\n");
-        } else {
-            var uri = part.url;
-            var koFile;
-            switch (part.type) {
-                case "project":
-                    var currentProject = ko.projects.manager.currentProject;
-                    if (!currentProject || currentProject.id != part.id) {
-                        ko.projects.manager.setCurrentProject(part);
-                    }
-                    this.showProjectInPlaces(part);
-                    break;
-
-                case "livefolder":
-                    koFile = part.getFile();
-                    if (koFile.isLocal) {
-                        ko.places.manager.openDirectory(koFile.path);
-                    } else {
-                        ko.places.manager.openNamedRemoteDirectory(uri);
-                    }
-                    break;
-
-                case "file":
-                    ko.open.multipleURIs([uri]);
-                    break;
-            }
-        }
-    }
-    event.stopPropagation();
-    event.preventDefault();
-};
-
-this._getProjectItemAndOperate = function(context, obj, callback) {
-    if (typeof(callback) == "undefined") callback = context;
-    var items = this.manager.getSelectedItems();
-    if (items.filter(function(item) item.type != "project").length) {
-        log.warn("Function " + context + " is intended only for projects");
-        return;
-    }
-    items.map(function(project) {
-        obj[callback].call(obj, project);
-        });
-};
-        
-
-this.closeProject = function() {
-    this._getProjectItemAndOperate("closeProject", ko.projects.manager);
-};
-
-this.compareFileWith = function() {
-    var items = this.manager.getSelectedItems();
-    if (!items || !items[0]) {
-        return;
-    } else if (items.length != 1) {
-        log.warn("Function compareFileWith is intended only for a single file");
-        return;
-    } else if (["file", "project"].indexOf(items[0].type) == -1) {
-        log.warn("Function compareFileWith is intended only for files or projects, got an item of type:" + items[0].type);
-        return;
-    }
-    var url = items[0].url;
-    var file = Components.classes["@activestate.com/koFileEx;1"].
-    createInstance(Components.interfaces.koIFileEx);
-    file.URI = url;
-    var pickerDir = file.isLocal? file.dirName : '';
-    var otherfile = ko.filepicker.browseForFile(pickerDir);
-    if (otherfile) {
-        ko.fileutils.showDiffs(file.path, otherfile);
-    }
-};
-
-this.rebaseFolder = function() {
-    var items = this.manager.getSelectedItems();
-    if (!items || !items[0]) {
-        return;
-    } else if (items.length != 1) {
-        log.warn("Function rebaseFolder is intended only for a single file");
-        return;
-    } else if (items[0].type != "livefolder") {
-        log.warn("Function rebaseFolder is intended only for folders, got an item of type:" + items[0].type);
-        return;
-    }
-    ko.places.manager.openDirURI(items[0].url);
-};
-
-this.exportAsProjectFile = function() {
-    var items = this.manager.getSelectedItems();
-    if (items.length != 1 || !items[0] || items[0].type != "folder") {
-        log.warn("Function exportAsProjectFile is intended only for groups");
-        return;
-    }
-    ko.projects.exportItems(items);
-};
-
-this.exportPackage = function() {
-    var items = this.manager.getSelectedItems();
-    var validTypes = ["folder", "project"];
-    if (items.filter(function(item) validTypes.indexOf(item.type) == -1).length) {
-        log.warn("Function exportPackage is intended only for "
-                 + validTypes);
-        return;
-    }
-    ko.projects.exportPackageItems(items);
-};
-
-this.createProjectTemplate = function() {
-    this._getProjectItemAndOperate("createProjectTemplate",
-                                   ko.projects.manager, "saveProjectAsTemplate");
-};
-
-this.importPackage = function() {
-    var item = this.manager.getSelectedItem();
-    if (!item || item.type != "folder") {
-        log.warn("Function importPackage is intended only for groups");
-        return;
-    }
-    ko.projects.importFromPackage(this.manager, item);
-};
-
-this.makeCurrentProject = function() {
-    var this_ = this;
-    this._getProjectItemAndOperate("makeCurrentProject", this,
-                                   "_continueMakeCurrentProject");
-};
-
-this.openFiles = function() {
-    var items = this.manager.getSelectedItems();
-    if (items.filter(function(item) item.type != "file").length) {
-        log.warn("Function openFiles is intended only for files");
-        return;
-    }
-    ko.open.multipleURIs(items.map(function(item) item.url));
-};
-
-this._continueMakeCurrentProject = function(project) {
-    ko.projects.manager.setCurrentProject(project);
-    this.projectsTreeView.invalidate();
-}
-
-this.refreshFileStatus = function() {
-    var items = this.manager.getSelectedItems();
-    if (!items || items.length == 0) {
-        return;
-    }
-    var fileStatusSvc = Components.classes["@activestate.com/koFileStatusService;1"].getService(Components.interfaces.koIFileStatusService);
-    fileStatusSvc.updateStatusForUris(items.length,
-                                      items.map(function(item) item.url),
-                                      true /* forcerefresh */);
-};
-
-this.revertProject = function() {
-    this._getProjectItemAndOperate("revertProject", ko.projects.manager);
-};
-
-this.saveProject = function() {
-    this._getProjectItemAndOperate("saveProject", ko.projects.manager);
-};
-
-this.saveProjectAs = function() {
-    this._getProjectItemAndOperate("saveProjectAs", ko.projects);
-};
-
-this.showProjectInPlaces = function() {
-    this._getProjectItemAndOperate("showProjectInPlaces",
-                                   ko.places.manager, "moveToProjectDir");
-};
-
-this.openProjectInNewWindow = function() {
-    this._openProject(true);
-};
-
-this.openProjectInCurrentWindow = function() {
-    this._openProject(false);
-}
-
-this._openProject = function(inNewWindow) {
-    var defaultDirectory = null;
-    var defaultFilename = null;
-    var bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
-        .getService(Components.interfaces.nsIStringBundleService)
-        .createBundle("chrome://komodo/locale/projectManager.properties");
-    var title = bundle.GetStringFromName("openProject.title");
-    var defaultFilterName = bundle.GetStringFromName("komodoProject.message");
-    var filterNames = [bundle.GetStringFromName("komodoProject.message"),
-                       bundle.GetStringFromName("all.message")];
-    filename = ko.filepicker.openFile(defaultDirectory /* =null */,
-                                      defaultFilename /* =null */,
-                                      title /* ="Open File" */,
-                                      defaultFilterName /* ="All" */,
-                                      filterNames /* =null */)
-    if (filename == null) return;
-    uri = ko.uriparse.localPathToURI(filename);
-    if (inNewWindow) {
-        ko.launch.newWindow(uri);
-    } else {
-        ko.projects.open(uri);
-    }
-};
-
-this.editProjectProperties = function() {
-    var items = this.manager.getSelectedItems();
-    var filtered_items = items.filter(function(item) item.type != "project");
-    if (filtered_items.length) {
-        log.warn("Function editProjectProperties is intended only for projects");
-        return;
-    } else if (items.length != 1) {
-        log.warn("Function editProjectProperties is intended for only one project");
-        return;
-    }
-    var item = ko.places.getItemWrapper(items[0].url, 'project');
-    ko.projects.fileProperties(item, null, true);
-};
-
 this.toggleSubpanel = function() {
     var button = document.getElementById("placesSubpanelToggle");
     var state = button.getAttribute("state");
@@ -864,153 +656,6 @@ this.stopEvent = function(event) {
     event.preventDefault();
     event.stopPropagation();
     return false;
-};
-
-xtk.include("treeview");
-this.PlaceProjectsTreeView = function() {
-    xtk.dataTreeView.apply(this, []);
-    this._atomService = Components.classes["@mozilla.org/atom-service;1"].
-                            getService(Components.interfaces.nsIAtomService);
-}
-this.PlaceProjectsTreeView.prototype = new xtk.dataTreeView();
-this.PlaceProjectsTreeView.prototype.constructor = this.PlaceProjectsTreeView;
-
-this.PlaceProjectsTreeView.prototype.initialize = function() {
-    this._initRows();
-    var observerSvc = Components.classes["@mozilla.org/observer-service;1"].
-            getService(Components.interfaces.nsIObserverService);
-    this.pref_observer_names = [ "showProjectPath" ];
-    _placePrefs.prefObserverService.addObserverForTopics(this,
-                                         this.pref_observer_names.length,
-                                         this.pref_observer_names, true);
-};
-
-this.PlaceProjectsTreeView.prototype.terminate = function() {
-    _placePrefs.prefObserverService.removeObserverForTopics(this,
-                                            this.pref_observer_names.length,
-                                            this.pref_observer_names);
-};
-
-this.PlaceProjectsTreeView.prototype._initRows = function() {
-    this.rows = [];
-};
-
-this.PlaceProjectsTreeView.prototype._resetRows = function() {
-    var this_ = this;
-};
-
-this.PlaceProjectsTreeView.prototype.observe = function(subject, topic, data) {
-    if (data == "mruProjectList") {
-        this._resetRows();
-    } else if (topic == "showProjectPath") {
-        _g_showProjectPath = _globalPrefs.getPref("places").getBooleanPref('showProjectPath');
-        this._resetRows();
-    }
-};
-
-this.PlaceProjectsTreeView.prototype._getViewPart = function(uri) {
-    if (!_g_showProjectPath) {
-        var m = PROJECT_URI_REGEX.exec(uri);
-        if (m) {
-            return decodeURIComponent(m[1]);
-        }
-    }
-    var path = ko.uriparse.URIToPath(uri);
-    var name, lastSlash, lastDot;
-    if (!_g_showProjectPath) {
-        lastSlash = uri.lastIndexOf('/');
-        if (lastSlash > -1) {
-            lastDot = uri.lastIndexOf(".");
-            if (lastDot > -1
-                && ['.komodoproject', '.kpf'].indexOf(uri.substr(lastDot)) > -1) {
-                // Standard -- ends with ".komodoproject" or ".kpf"
-                path = path.substring(lastSlash + 1, lastDot);
-            } else {
-                path = path.substring(lastSlash + 1);
-            }
-        }
-        // else do nothing -- show the extension as well.
-    }
-    return path;
-}
-
-this.PlaceProjectsTreeView.prototype.replaceProject = function(oldURL, project) {
-    var listLen = this.rows.length;
-    for (var i = listLen - 1; i >= 0; --i) {
-        if (oldURL == this.rows[i][0]) {
-            this.rows[i][0] = project.url;
-            this.rows[i][1] = this._getViewPart(project.url);
-            this.tree.invalidateRow(i);
-            return;
-        }
-    }
-    dump("PlaceProjectsTreeView.replaceProject: Couldn't find "
-         + project.name
-         + " in the list of loaded projects\n");
-};
-
-// Context Menu Methods
-this.PlaceProjectsTreeView.prototype.doProjectContextMenu = function(event, sender, cmd) {
-    var index = this.getSelectedIndex();
-    if (index == -1) {
-        index = this.currentProjectIndex();
-        if (index == -1) {
-            dump("no selected or current project: leave\n");
-        }
-    }
-    var project = this.rows[index].project;
-    dump("**************** " + cmd  + "(" + index + ")\n");
-};
-
-// Project/Part Accessor Methods
-this.PlaceProjectsTreeView.prototype.currentProjectIndex = function() {
-    var currentProject = ko.projects.manager.currentProject;
-    if (!currentProject) {
-        return -1;
-    }
-    var lim = this.rows.length;
-    for (var i = 0; i < lim; i++) {
-        var row = this.rows[i];
-        if (row.type == "project" && row.url == currentProject.url) {
-            return i;
-        }
-    }
-    return -1;
-}
-
-this.PlaceProjectsTreeView.prototype.getSelectedProject = function() {
-    var index = this.getSelectedIndex();
-    if (index == -1) {
-        return null;
-    }
-    var item;
-    for (; i >= 0; --i) {
-        var node = this.rows[i];
-        if (node.type == "project") {
-            return node;
-        }
-    }
-    return null;
-}
-
-// NSITreeView methods.
-
-this.PlaceProjectsTreeView.prototype.getNextSiblingIndex = function(index) {
-/**
- * @param {int} index points to the node whose next-sibling we want to find.
- *
- * @return index of the sibling, or -1 if not found.
- */
-    var level = this.rows[index].level;
-    var listLen = this.rows.length;
-    index += 1
-    while (index < listLen) {
-        if (this.rows[index].level <= level) {
-            return index;
-        }
-        index += 1;
-    }
-    return -1;
 };
 
 }).apply(ko.places.projects);
