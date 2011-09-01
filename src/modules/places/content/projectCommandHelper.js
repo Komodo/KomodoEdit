@@ -14,11 +14,10 @@ if (!('projects' in ko.places)) {
     ko.places.projects = {};
 }
 
-dump(">> projectCommandHelper.js...\n");
 (function() {
 
 var log = ko.logging.getLogger("projectCommandHelper_js");
-log.setLevel(ko.logging.LOG_DEBUG);
+//log.setLevel(ko.logging.LOG_DEBUG);
 
 this.ProjectCommandHelper = function(owner, manager) {
     this.owner = owner;   // Either the single-project or multiple-project view
@@ -285,6 +284,3 @@ this.ProjectCommandHelper.prototype.injectHelperFunctions = function(receiver) {
 };
 
 }).apply(ko.places.projects);
-dump("<< projectCommandHelper.js: done defining ko.places.projects.ProjectCommandHelper = "
-     + typeof(ko.places.projects.ProjectCommandHelper)
-     + "\n");
