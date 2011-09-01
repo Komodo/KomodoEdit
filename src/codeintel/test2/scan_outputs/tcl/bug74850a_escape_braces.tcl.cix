@@ -1,0 +1,17 @@
+**** >> parse tcl test2/scan_inputs/bug74850a_escape_braces.tcl
+<?xml version="1.0" encoding="UTF-8"?>
+<codeintel version="2.0">
+  <file lang="Tcl" mtime="1314912866" path="bug74850a_escape_braces.tcl">
+    <scope ilk="blob" lang="Tcl" name="bug74850a_escape_braces" src="test2/scan_inputs/bug74850a_escape_braces.tcl">
+      <scope ilk="function" line="1" lineend="4" name="inner" signature="inner {item}">
+        <variable ilk="argument" name="item" />
+      </scope>
+      <scope ilk="function" line="6" lineend="19" name="inner2" signature="inner2 {item}">
+        <variable ilk="argument" name="item" />
+      </scope>
+      <scope ilk="function" line="21" lineend="22" name="main" signature="main {args}">
+        <variable attributes="varargs" ilk="argument" name="args" />
+      </scope>
+    </scope>
+  </file>
+</codeintel>

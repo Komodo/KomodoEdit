@@ -75,7 +75,9 @@ static void describeString(unsigned int end, int state, Accessor &styler) {
 #endif
 
 static inline bool isTclOperator(char ch) {
-    return strchr("(){}[];!%^&*-=+|<>?/", ch) != NULL;
+    // Fix bug 74850 -- the backslash acts as an operator outside strings
+    // Otherwise other code processors won't see escaped things, esp. \{ and \}
+    return strchr("(){}[];!%^&*-=+|<>?/\\", ch) != NULL;
 }
 
 static void classifyWordTcl(unsigned int start,
