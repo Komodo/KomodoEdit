@@ -633,7 +633,7 @@ else {
                             " -Wl,-executable_path,$mozDevelDist/bin " .
                             " -bundle " .
                             " $mozDevelDist/lib/libxpcomglue_s_nomozalloc.a " .
-                            " -lxpcom -lnspr4 -lplc4 -lplds4 -lscintilla";
+                            " -lxpcom -lnspr4 -lplc4 -lplds4 -lscintilla -lmozalloc";
     } else {
         $dllNameIME = "koSciMozIMEHelper.so";
 
@@ -652,6 +652,7 @@ else {
             " -lxpcomglue_s" .
             " -lnspr4" .
             " -lxpcom" .
+            " -lmozalloc" .
             "";
         $consIME{'LIBPATH'} .= "$mozLibPath";
         $consIME{'LDFLAGS'} .= " -shared";
