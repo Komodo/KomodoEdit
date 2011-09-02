@@ -114,56 +114,63 @@ interface koICodeIntelTrigger: nsISupports {
 
 // JS-implemented component to provide scintilla autocomplete/calltip UI
 // handling for a view.
-[scriptable, uuid(03B1DED3-9E65-4E7E-BC73-B21142F8DBDF)]
+[scriptable, uuid(26c394d7-16e2-4e2e-b56a-efdfac368d47)]
 interface koICodeIntelCompletionUIHandler : nsISupports {
-    // AIID: AutoComplete Image IDs
-    // Notes:
-    // - Not bothering with symbol attributes (private, protected, etc.) for
-    //   now.
-    // - Not sure if we need bother with Perl typeglobs, file handles, etc.
-    const long ACIID_CLASS = 0;
-    const long ACIID_FUNCTION = 1;
-    const long ACIID_MODULE = 2;  // David, could use cb_import.png for this. --TM
-    const long ACIID_VARIABLE = 3;           // the blue triangle
-    const long ACIID_VARIABLE_SCALAR = 4;    // ...with Perl's '$'
-    const long ACIID_VARIABLE_ARRAY = 5;     // ...with Perl's '@'
-    const long ACIID_VARIABLE_HASH = 6;      // ...with Perl's '%'
-    const long ACIID_INTERFACE = 7;
-    const long ACIID_NAMESPACE = 8;
-    const long ACIID_DIRECTORY = 9;
-    const long ACIID_XML_ELEMENT = 10;
-    const long ACIID_XML_ATTRIBUTE = 11;
-    const long ACIID_CONSTANT = 12;
-    const long ACIID_KEYWORD = 13;
+    /**
+     * Called by a koICodeIntelCompletionLanguageService (see
+     * src/languages/ko*Language.py) to provide data for these UIs.
+     */
 
-    // Called by a koICodeIntelCompletionLanguageService (see
-    // src/languages/ko*Language.py) to provide data for these UIs.
-    //
-    //  "completions" is a 'completionSeparator'-separated list of
-    //      completion strings (sorted).
-    //  "calltip" is a string to display at the given trigger position.
-    //  "triggerPos" is the buffer position at which the autocomplete was
-    //      triggered.
-    //
-    void setAutoCompleteInfo(in wstring completions,
+    /**
+     * Set autocomplete info for the user to choose from
+     * @param completions {wstring} sorted completion strings
+     * @param types {string} completion types (see
+     *        koScintillaAutoCompleteController.js for a list of default ones)
+     * @param trg {koICodeIntelTrigger} the trigger that caused autocompletion
+     */
+    void setAutoCompleteInfo([array, size_is(count)] in wstring completions,
+                             [array, size_is(count)] in string types,
+                             in PRUint32 count,
                              in koICodeIntelTrigger trg);
-    void setCallTipInfo(in wstring calltip,
+    /**
+     * Set calltip info, as a quick reference
+     * @param calltip {AString} the calltip to display
+     * @param trg {koICodeIntelTrigger} the trigger that caused the calltip
+     * @param explicit {boolean} Whether the calltip was manually triggered by
+     *        the user
+     */
+    void setCallTipInfo(in AString calltip,
                         in koICodeIntelTrigger trg,
                         in boolean explicit);
+    /**
+     * Set definition information
+     * @param defns {koICodeIntelDefinition} array of definitions
+     * @param trg {koICodeIntelTrigger} the trigger that caused the definition
+     *        request
+     */
     void setDefinitionsInfo(in PRUint32 count,
                             [array, size_is(count)] in koICodeIntelDefinition defns,
                             in koICodeIntelTrigger trg);
-    void setStatusMessage(in wstring msg, in boolean highlight);
+    /**
+     * Set CodeIntel-related status message
+     * @param msg {AString} The message to display
+     * @param hightlight {boolean} Whether the message should be highlighted
+     */
+    void setStatusMessage(in AString msg, in boolean highlight);
 
-    // If there is an active calltip, then update it as necessary (i.e.,
-    // the highlighted arg may need to change, perhaps it should be
-    // canceled).
+    /**
+     * If there is an active calltip, then update it as necessary (i.e.,
+     * the highlighted arg may need to change, perhaps it should be
+     * canceled).
+     */
     void updateCallTip();
 
-    // Synchronously find and trigger the preceding autocomplete or calltip
-    // trigger point. This searching should stop and the beginning of the
-    // current statement.
-    void triggerPrecedingCompletion(in wstring path);
+    /**
+     * Synchronously find and trigger the preceding autocomplete or calltip
+     * trigger point. This searching should stop and the beginning of the
+     * current statement.
+     */
+    void triggerPrecedingCompletion(in AString path);
 };
 
 [scriptable, uuid(5B6F1D4D-FB32-4462-A3A7-E6FA2B9FE128)]

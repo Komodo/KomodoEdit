@@ -1198,7 +1198,7 @@ sub cons::InstallXpcomComponent {
             while (my ($contractid, $cid) = each %$contracts) {
                 push @commands, qq(
                     $unsiloedPythonExe %3 %2 "contract $contractid $cid"
-                    $unsiloedPythonExe %3 %2 "component $cid $fileName"
+                    $unsiloedPythonExe %3 %2 "component $cid %1:f"
                 );
             }
             while (my $catEntry = shift) {

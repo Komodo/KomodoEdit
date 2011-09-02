@@ -41,7 +41,7 @@ import glob
 import string
 import logging
 
-iface = components.interfaces.koICodeIntelCompletionUIHandler
+iface = components.interfaces.koIScintillaAutoCompleteController
 
 
 log = logging.getLogger("koTclCompletion")
@@ -49,7 +49,8 @@ useCharSet = "_: " + string.ascii_uppercase + string.ascii_lowercase + string.di
 tipVersionStr = "version TclTip-1.0"
 
 class KoTclCompletion:
-    _com_interfaces_ = [components.interfaces.koICompletionLanguageService]
+    _com_interfaces_ = [components.interfaces.koICompletionLanguageService,
+                        components.interfaces.koIScintillaAutoCompleteListener]
     _reg_desc_       = "Tcl Calltip/AutoCompletion Service"
     _reg_clsid_      = "{1F3FD077-F98E-450a-8EA5-235F23921013}"
     _reg_contractid_ = "@activestate.com/koTclCompletionLanguageService;1"
@@ -188,17 +189,15 @@ class KoTclCompletion:
 
         self._lastcompletion = text
         self._lastlComplete = items
-        if not doTip:
-            items = ["%s?%s" % (i, iface.ACIID_FUNCTION ) for i in items]
-        return chr(self.completionSeparator).join(items), 1, doTip
+        return items, 1, doTip
 
-    def AutoComplete(self, ch, scimoz):
+    def AutoComplete(self, ch, scimoz, controller):
         if not self._ok: return
         # Don't assume that StartCallTip gets all the necessary events,
         # but we combine method completion and calltips together.
-        self.StartCallTip(ch, scimoz)
+        self.StartCallTip(ch, scimoz, controller)
 
-    def StartCallTip(self, ch, scimoz):
+    def StartCallTip(self, ch, scimoz, controller):
         if not self._ok: return
 
         # In Tcl CallTips and AutoComplete are the same.
@@ -206,6 +205,7 @@ class KoTclCompletion:
         # in our dict that matches the current command input.
         # Otherwise we use the CallTips.
         s = self._scintilla = scimoz
+        c = self._controller = controller;
 
         # Only do this if we have no selection
         if s.selectionStart == s.selectionEnd and s.selectionStart > 0:
@@ -231,28 +231,73 @@ class KoTclCompletion:
 
         if s.autoCActive():
             s.autoCCancel()
+        if c.active:
+            c.close()
+
+    # koIScintillaAutoCompleteListener
+    def onAutoCompleteEvent(self, controller, event):
+        if event.type == "command":
+            controller.applyCompletion(self._lastTriggerPos, -1, None)
+        elif event.type == "focus":
+            # Ugly hack: scimoz needs to keep accepting key presses while the
+            # autocomplete popup is actually focused.  This needs to be done in
+            # the 'focus' event (instead of, say, 'popupshown') because that is
+            # the first event that occurs; otherwise we can end up losing keys.
+            self._scintilla.isFocused = True
+        elif event.type in ("keydown", "keypress"):
+            completionCodes = [components.interfaces.nsIDOMKeyEvent.DOM_VK_RETURN,
+                               components.interfaces.nsIDOMKeyEvent.DOM_VK_ENTER,
+                               components.interfaces.nsIDOMKeyEvent.DOM_VK_TAB]
+            thread = components.classes["@mozilla.org/thread-manager;1"]\
+                               .getService()\
+                               .currentThread
+            if event.keyCode in completionCodes:
+                if event.type == "keydown":
+                    selectedText = controller.selectedText
+                    log.debug("will accept completion " + controller.selectedText)
+                    thread.dispatch(lambda: controller.applyCompletion(self._lastTriggerPos,
+                                                                       self._scintilla.currentPos,
+                                                                       selectedText),
+                                    components.interfaces.nsIEventTarget.DISPATCH_NORMAL)
+                event.stopPropagation()
+                event.preventDefault()
 
     def _DoTipComplete(self):
         s = self._scintilla
+        c = self._controller
         #s.autoCCancelAtStart = 0
         text = self._GetCmd()
         #print "Tcl _DoTipComplete text '" + text + "'"
         if len(text) < 3:
-            if s.autoCActive(): s.autoCCancel()
+            if c.active: c.close()
             return
 
         cmds, cancel, doTip = self.getmethods(text)
         #print "Tcl getmethods:", cmds, cancel, doTip
+        log.debug ("Tcl getmethods: %r", [cmds, cancel, doTip])
         if cmds:
             if doTip:
+                if c.active:
+                    c.close()
+                cmds = chr(self.completionSeparator).join(cmds)
                 self._scintilla.callTipShow(s.currentPos, cmds)
                 #XXX Better to not highlight any of it than to highlight
                 #    all of it.
                 #self._scintilla.callTipSetHlt(0, len(cmds))
             else:
-                s.autoCShow(len(text), cmds)
-        elif cancel and s.autoCActive():
-            s.autoCCancel()
+                c.listener = self
+                c.reset()
+                c.addColumn(iface.COLUMN_TYPE_IMAGE,
+                            ["chrome://komodo/skin/images/cb_function.png" for x in cmds],
+                            False)
+                c.addColumn(iface.COLUMN_TYPE_TEXT, cmds, True)
+                startPos = self._lastTriggerPos
+                c.show(startPos, s.currentPos, startPos, text)
+        elif cancel:
+            if s.autoCActive():
+                s.autoCCancel()
+            if c.active:
+                c.close()
 
     def _GetCmd(self):
         s = self._scintilla
@@ -273,5 +318,7 @@ class KoTclCompletion:
         # Strip off just the preceding : chars
         while index < last and buffer[index] in ": ":
             index += 1
+        # Remember where the text started
+        self._lastTriggerPos = index
         # Return the slice of the buffer that represents that last "word"
         return buffer[index:last]

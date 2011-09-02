@@ -56,6 +56,12 @@
                         pluginAllowsFocusEvents="false"
                         pluginHandlesDomEvents="false"
                         />
+            <xul:panel anonid="autocompletepopup" noautofocus="true">
+                <xul:hbox>
+                    <xul:grid/>
+                    <xul:scrollbar orient="vertical"/>
+                </xul:hbox>
+            </xul:panel>
         </content>
         <implementation implements="nsIObserver">
             <field name='_inMouseDown'>-1</field>
@@ -71,7 +77,6 @@
                               keypressed events. Function gets called in
                               the "keypress" event handler below. -->
             <!-- Currently used for:
-                    * interactive search
                     * raw key handling
                     * repeat next keypress N times
                  Note1: This will override all keypress events to scintilla,
@@ -546,12 +551,29 @@
             ]]></body>
             </method>
 
+            <field name="autocomplete">
+                (function() {
+                    var popup = document.getAnonymousElementByAttribute(this,
+                                                                        "anonid",
+                                                                        "autocompletepopup");
+                    var controller = Components.classes["@activestate.com/koScintillaAutoCompleteController;1"]
+                                               .createInstance(Components.interfaces.koIScintillaAutoCompleteController);
+                    controller.wrappedJSObject.init(this, popup);
+                    return controller;
+                }).bind(this)()
+            </field>
+
         </implementation>
 
         <handlers>
             <handler event="focus" phase="capturing">
                 <![CDATA[
                 //dump("scintilla:: focus\n");
+                var focusedElement = window.document.commandDispatcher.focusedElement;
+                if (focusedElement != this && focusedElement != this._embed) {
+                    // something else inside <scintilla>; ignore focus on that.
+                    return;
+                }
                 var scimoz = this.scimoz;
                 scimoz.indicatorCurrent = this.DECORATOR_SOFT_CHAR;
                 scimoz.indicatorClearRange(0, scimoz.textLength);
@@ -559,7 +581,7 @@
                 // Ensure the command dispatcher is referencing the scintilla
                 // element, not the plugin element. Otherwise commands will not
                 // work correctly.
-                if (window.document.commandDispatcher.focusedElement != this) {
+                if (focusedElement !== this) {
                     window.document.commandDispatcher.focusedElement = this;
                 }
                 ]]>
@@ -593,9 +615,13 @@
                 ]]>
             </handler>
 
-            <handler event="keypress" phase="capturing">
+            <handler event="keypress">
                 <![CDATA[
                 //dump("scintilla: keypress\n");
+                if (event.getPreventDefault()) {
+                    // somebody else already tried to cancel this event
+                    return;
+                }
 <!-- #if PLATFORM != "darwin" -->
                 var cmdkey = event.ctrlKey || event.altKey || event.metaKey;
 <!-- #else -->
@@ -762,7 +788,7 @@
                     event.stopPropagation();
                     event.preventDefault();
                     event.cancelBubble = true;
-                    if (typeof(ko.macros) != 'undefined' && ko.macros.recorder.mode == 'recording') {
+                    if (ko.macros && ko.macros.recorder.mode === 'recording') {
                         ko.macros.recorder.recordKeyPress(String.fromCharCode(event.charCode));
                     }
                 }
@@ -770,9 +796,9 @@
             </handler>
 
 <!-- #if PLATFORM != "darwin" -->
-            <handler event="keyup" phase="capturing"><![CDATA[
+            <handler event="keyup"><![CDATA[
                 //dump("scintilla: keyup\n");
-                if (event.keyCode == event.DOM_VK_ALT && this.needToStopAltPropagation) {
+                if (event.keyCode === event.DOM_VK_ALT && this.needToStopAltPropagation) {
                     event.stopPropagation();
                     event.preventDefault();
                     this.needToStopAltPropagation = false;
@@ -780,7 +806,7 @@
             ]]></handler>
 <!-- #endif -->
 
-            <handler event="keydown" phase="capturing">
+            <handler event="keydown">
                 <![CDATA[
                 //dump("scintilla: keydown\n");
                 if (this.key_handler) {
@@ -960,7 +986,7 @@
                 ]]>
             </handler>
 
-            <handler event="DOMMouseScroll" phase="capturing">
+            <handler event="DOMMouseScroll">
             <![CDATA[
             var rows = event.detail;
             if (event.ctrlKey && event.shiftKey) {
@@ -1236,6 +1262,9 @@
             </handler>
 
         </handlers>
+        <resources>
+            <stylesheet src="chrome://komodo/skin/codeintel/autocomplete-popup.css"/>
+        </resources>
     </binding>
 
 </bindings>

@@ -379,19 +379,6 @@
                 if (!this._commandCompletionSvc) {
                     this.log.debug('no completion service for '+this.languageObj.name);
                     return null;
-                } else if (languageName == "Tcl") {
-                    // Register AutoComplete images for languages that
-                    // (1) are not yet using CodeIntel for AutoComplete
-                    //     (images for those langs are registered in
-                    //     codeintel.js); and
-                    // (2) support AutoComplete images (not all do).
-                    var iface = Components.interfaces.koICodeIntelCompletionUIHandler;
-                    this.scimoz.registerImage(iface.ACIID_CLASS,            ko.markers.getPixmap("chrome://komodo/skin/images/ac_class.xpm"));
-                    this.scimoz.registerImage(iface.ACIID_FUNCTION,         ko.markers.getPixmap("chrome://komodo/skin/images/ac_function.xpm"));
-                    this.scimoz.registerImage(iface.ACIID_MODULE,           ko.markers.getPixmap("chrome://komodo/skin/images/ac_module.xpm"));
-                    this.scimoz.registerImage(iface.ACIID_VARIABLE,         ko.markers.getPixmap("chrome://komodo/skin/images/ac_variable.xpm"));
-                    this.scimoz.registerImage(iface.ACIID_INTERFACE,        ko.markers.getPixmap("chrome://komodo/skin/images/ac_interface.xpm"));
-                    this.scimoz.registerImage(iface.ACIID_NAMESPACE,        ko.markers.getPixmap("chrome://komodo/skin/images/ac_namespace.xpm"));
                 }
                 this.scimoz.autoCSeparator = this._commandCompletionSvc.completionSeparator;
             }
@@ -689,12 +676,12 @@
             if (this._doAutoComplete &&
                 (!this.commandCompletionSvc.triggers ||
                  this.commandCompletionSvc.triggers.indexOf(_lastCharAdded) > -1)) {
-                this.commandCompletionSvc.AutoComplete(_lastCharAdded, this.scimoz);
+                this.commandCompletionSvc.AutoComplete(_lastCharAdded, this.scimoz, this.scintilla.autocomplete);
             }
             // MUST have a trigger to do calltips!
             if (this._doStartCallTip && this.commandCompletionSvc.triggersCallTip &&
                 this.commandCompletionSvc.triggersCallTip.indexOf(_lastCharAdded) > -1) {
-                this.commandCompletionSvc.StartCallTip(_lastCharAdded, this.scimoz);
+                this.commandCompletionSvc.StartCallTip(_lastCharAdded, this.scimoz, this.scintilla.autocomplete);
             }
             return;
         ]]>
@@ -868,7 +855,7 @@
             // If there is an active calltip, then update it as necessary.
             if (this.isCICplnEnabled) { 
                 this.ciCompletionUIHandler.updateCallTip();
-            } else if (scimoz.callTipActive()) {
+            } else if (scimoz.callTipActive() || this.scintilla.autocomplete.active) {
                 // For languages NOT using CodeIntel-based completion, make
                 // sure an active CallTip gets canceled if the cursor moves
                 // off the CallTip line or before the start pos. (Komodo-only
@@ -877,11 +864,14 @@
                 var posStart = scimoz.callTipPosStart();
                 if (currentPos < posStart) {
                     scimoz.callTipCancel();
+                    this.scintilla.autocomplete.close();
                 } else {
-                    var currentLineNo = scimoz.lineFromPosition(curPos);
+                    var currentLineNo = scimoz.lineFromPosition(currentPos);
                     var posStartLine = scimoz.lineFromPosition(posStart);
-                    if (currentLineNo != posStartLine)
+                    if (currentLineNo != posStartLine) {
                         scimoz.callTipCancel();
+                        this.scintilla.autocomplete.close();
+                    }
                 }
             }
 
@@ -1308,13 +1298,6 @@
             //                        "\n  text: " + text +
             //                        "\n  modifiers: " + modifiers + "\n");
             switch(eventType) {
-                case Components.interfaces.ISciMozEvents.SME_AUTOCSELECTION:
-                    var data = {
-                        'position': position,
-                        'text': text,
-                    }
-                    xtk.domutils.fireDataEvent(this, "codeintel_autocomplete_selected", data);
-                    break;
                 case Components.interfaces.ISciMozEvents.SME_USERLISTSELECTION:
                     var data = {
                         'position': position,

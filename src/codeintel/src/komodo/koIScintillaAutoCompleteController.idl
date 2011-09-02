@@ -1,0 +1,121 @@
+#include "nsISupports.idl"
+
+interface ISciMoz;
+interface koIScintillaAutoCompleteListener;
+interface nsIDOMEvent;
+
+/**
+ * Auto-completion controller for scintilla editor widgets
+ */
+[scriptable, uuid(3422ef6b-dd97-4bf1-83b7-66899b21476b)]
+interface koIScintillaAutoCompleteController : nsISupports {
+    /**
+     * The listener to report any autocompletion events to
+     */
+    attribute koIScintillaAutoCompleteListener listener;
+
+    /**
+     * Clear any data currently in the controller (i.e. columns).
+     */
+    void reset();
+
+    /**
+     * Add a column to the autocomplete listing
+     * @param aColumnType The type of column; should be one of the COLUMN_TYPE_*
+     *        constants
+     * @param aData the strings to use for the column; interpretation depends
+     *        on the type.
+     * @param aPrimary if true, this column will be considered the primary
+     *        column. Only one column can be primary at a time, and it is used
+     *        for the selectedText convenience helper.
+     * @note Each call to addColumn must supply the same aCount; otherwise
+     *       NS_ERROR_INVALID_ARG will be thrown.  (Until reset() is called.)
+     */
+    void addColumn(in PRUint32 aColumnType,
+                   [array, size_is(aCount)] in wstring aData,
+                   in PRUint32 aCount,
+                   [optional] in boolean aPrimary);
+
+    /**
+     * The column is a text column (and the strings are user-visible text)
+     */
+    const PRUint32 COLUMN_TYPE_TEXT = 0;
+    /**
+     * The column is an image; the strings are image URLs.
+     */
+    const PRUint32 COLUMN_TYPE_IMAGE = 1;
+
+    /**
+     * Show the autocomplete popup.
+     * @param aSciMoz the scimoz relative to which to show
+     * @param aStartPos the first position of the relevant text
+     * @param aEndPos the end position of the relevant text
+     * @param aAnchorPos the anchor position near which to display the popup
+     * @param aPrefix the initial user-typed prefix to match
+     * @note This uses scimoz character positions in order to display the popup
+     * near the relevant text while trying hard to not cover up any of the text.
+     * The popup is ideally displayed below the anchor, but may be moved if
+     * there is not enough screen space.
+     */
+    void show(in PRUint32 aStartPos,
+              in PRUint32 aEndPos,
+              in PRUint32 aAnchorPos,
+              [optional] in AString aPrefix);
+
+    /**
+     * Hide the autocomplete popup (if it is open).
+     */
+    void close();
+
+    /**
+     * Apply the given completion to scintilla.
+     * @param aStartPos the position to start replacing text
+     * @param aEndPos the position to end replacing text
+     * @param aCompletion the completion string to use; if none given, the
+     *        currently selected completion string is used.
+     * @note Will notify the listener with a "completion" event.
+     */
+    void applyCompletion(in PRInt32 aStartPos,
+                         in PRInt32 aEndPos,
+                         [optional] in AString aCompletion);
+
+    /**
+     * Retrieve the text at a given index
+     * This retrieves the values from set()
+     */
+    AString getTextAt(in PRUint32 aIndex);
+
+    /**
+     *  The total number of autocomplete items available
+     */
+    readonly attribute PRInt32 itemCount;
+
+    /**
+     * The index of the currently selected item; -1 if nothing is selected.
+     */
+    attribute PRInt32 selectedIndex;
+
+    /**
+     * The text of the currently selected item; null if nothing is selected.
+     */
+    readonly attribute AString selectedText;
+
+    /**
+     *  Whether the autocomplete popup is currently active
+     */
+    readonly attribute boolean active;
+};
+
+/**
+ * listener interface for when the autocomplete controller is closed
+ */
+[scriptable, function, uuid(c4854579-b4c8-4d72-b734-4deeaa5921c5)]
+interface koIScintillaAutoCompleteListener : nsISupports {
+    /**
+     * Callback when the user interacts with the autocomplete list
+     * @param aUI the UI which triggered the callback
+     * @param aEvent a DOM event, if the user triggered one
+     */
+    void onAutoCompleteEvent(in koIScintillaAutoCompleteController aUI,
+                             in nsIDOMEvent aEvent);
+};

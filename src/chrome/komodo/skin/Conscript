@@ -69,6 +69,8 @@ $cons->InstallInChrome('templates/new.css');
 $cons->InstallInChrome('prefs/prefs.css');
 $cons->InstallInChrome('prefs/pref-codeintel.css');
 
+$cons->InstallInChrome('codeintel/autocomplete-popup.css');
+
 if ($platform eq "darwin") {
     $cons->InstallRecursive("$mozChromeDir/komodo/skin/",
                             cwd()."/src/chrome/komodo/skin/plat/mac/",

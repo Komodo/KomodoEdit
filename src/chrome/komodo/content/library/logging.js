@@ -64,6 +64,15 @@ if (typeof(ko) == 'undefined') {
 }
 ko.logging = {};
 
+if (typeof(window) == "undefined") {
+    // this is being used in Components.utils.import
+    __defineGetter__("logging", function() {
+        delete this.logging;
+        return this.logging = ko.logging;
+    });
+    Components.utils.getGlobalForObject({}).EXPORTED_SYMBOLS = ["logging"];
+}
+
 (function() {
 
 var _gLoggingMgr = null;
@@ -167,9 +176,10 @@ this.Logger.prototype.deprecated = function(message, reportDuplicates /* false *
  * @param deprecatedName {string}  The global variable name that is deprecated
  * @param replacementName {string}  The new replacement code (an expression to eval)
  * @param logger {Logger}  The logger to use (from ko.logging.getLogger), or null to use the default
+ * @note This doesn't work when used with Components.utils.import
  */
 this.globalDeprecatedByAlternative = function ko_logging_globalDeprecatedByAlternative(deprecatedName, replacementName, logger) {
-    window.__defineGetter__(deprecatedName,
+    Components.utils.getGlobalForObject({}).__defineGetter__(deprecatedName,
          function() {
             // Get the caller of the deprecated item - 2 levels up.
             var shortStack = "    " + getStack().split("\n")[2];

@@ -44,6 +44,7 @@
 
 interface ISciMoz;
 interface koIScintillaView;
+interface koIScintillaAutoCompleteController;
 
 
 [scriptable, uuid(96A8CC18-168B-4137-8435-E633D13F7925)]
@@ -238,13 +239,13 @@ interface koILexerLanguageService : koILanguageService {
 };
 
 // Note: This completions/calltips interface is only used by Tcl.
-[scriptable, uuid(8741C2BB-3FA2-4fc1-B737-60447CE8AD6D)]
+[scriptable, uuid(77500dfa-cf01-4298-b572-4e14791ab8b5)]
 interface koICompletionLanguageService : koILanguageService {
     readonly attribute wstring triggers; // actually a set of characters
     readonly attribute wstring triggersCallTip; // actually a set of characters
     readonly attribute long completionSeparator; // represents one char
-    void AutoComplete(in wstring character, in ISciMoz scimoz);
-    void StartCallTip(in wstring character, in ISciMoz scimoz);
+    void AutoComplete(in wstring character, in ISciMoz scimoz, in koIScintillaAutoCompleteController controller);
+    void StartCallTip(in wstring character, in ISciMoz scimoz, in koIScintillaAutoCompleteController controller);
 };
 
 

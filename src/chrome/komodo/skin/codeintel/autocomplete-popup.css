@@ -1,0 +1,62 @@
+/* Copyright (c) 2010-2011 ActiveState Software Inc. .
+   See the file LICENSE.txt for licensing information. */
+
+/*
+ * CSS for the autocompletion popup
+ */
+
+@media screen and (-moz-windows-compositor) {
+  scintilla > panel[anonid="autocompletepopup"] {
+    -moz-appearance: -moz-win-borderless-glass;
+    padding: 6px;
+  }
+}
+
+scintilla > panel[anonid="autocompletepopup"] > hbox {
+  -moz-appearance: listbox;
+}
+
+scintilla > panel[anonid="autocompletepopup"] > hbox > grid {
+  -moz-user-focus: normal;
+}
+
+scintilla > panel[anonid="autocompletepopup"] .ko-autocomplete-item {
+  -moz-box-align: center;
+  background-color: -moz-field;
+  color: -moz-fieldtext;
+  /* The default font; if possible, the item construction code will use the
+   * scintilla default style font instead.
+   */
+  font-family: monospace;
+}
+
+scintilla > panel[anonid="autocompletepopup"] .ko-autocomplete-item[selected] {
+  background-color: -moz-cellhighlight;
+  color: -moz-cellhighlighttext;
+}
+
+scintilla > panel[anonid="autocompletepopup"] > hbox > grid:focus .ko-autocomplete-item[selected] {
+  background-color: Highlight;
+  color: HighlightText;
+}
+
+scintilla > panel[anonid="autocompletepopup"] .ko-autocomplete-item > [column-type="image"] {
+  min-width: 18px;
+  -moz-box-pack: center;
+  -moz-box-align: center;
+}
+
+scintilla > panel[anonid="autocompletepopup"] .ko-autocomplete-item > [column-type="text"] text-wrapper {
+  /* this is needed to make cropping work correctly */
+  display: block;
+}
+scintilla > panel[anonid="autocompletepopup"] .ko-autocomplete-item > [column-type="text"] text-wrapper > description {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  /* Normally the margins are thicker on the bottom than the top. Try to make
+   * things look vaguely more centered here.
+   */
+  margin-top: 3px;
+  margin-bottom: 2px;
+}

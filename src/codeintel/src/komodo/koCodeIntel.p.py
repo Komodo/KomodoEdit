@@ -688,70 +688,13 @@ class KoCodeIntelEvalController(EvalController):
             components.interfaces.koICodeIntelCompletionUIHandler,
             self.ui_handler, PROXY_ALWAYS | PROXY_SYNC)
 
-    # ACIID == AutoComplete Image ID
-    koICodeIntelCompletionUIHandler \
-        = components.interfaces.koICodeIntelCompletionUIHandler
-    aciid_from_type = {
-        "class":    koICodeIntelCompletionUIHandler.ACIID_CLASS,
-        "function": koICodeIntelCompletionUIHandler.ACIID_FUNCTION,
-        "module":   koICodeIntelCompletionUIHandler.ACIID_MODULE,
-        "interface": koICodeIntelCompletionUIHandler.ACIID_INTERFACE,
-        "namespace": koICodeIntelCompletionUIHandler.ACIID_NAMESPACE,
-        "variable": koICodeIntelCompletionUIHandler.ACIID_VARIABLE,
-        "$variable": koICodeIntelCompletionUIHandler.ACIID_VARIABLE_SCALAR,
-        "@variable": koICodeIntelCompletionUIHandler.ACIID_VARIABLE_ARRAY,
-        "%variable": koICodeIntelCompletionUIHandler.ACIID_VARIABLE_HASH,
-        "directory": koICodeIntelCompletionUIHandler.ACIID_DIRECTORY,
-        "constant": koICodeIntelCompletionUIHandler.ACIID_CONSTANT,
-        "keyword": koICodeIntelCompletionUIHandler.ACIID_KEYWORD,
-
-        "element": koICodeIntelCompletionUIHandler.ACIID_XML_ELEMENT,
-        "attribute": koICodeIntelCompletionUIHandler.ACIID_XML_ATTRIBUTE,
-
-        # Added for CSS, may want to have a better name/images though...
-        "value": koICodeIntelCompletionUIHandler.ACIID_VARIABLE,
-        "property": koICodeIntelCompletionUIHandler.ACIID_CLASS,
-        "pseudo-class": koICodeIntelCompletionUIHandler.ACIID_INTERFACE,
-        "rule": koICodeIntelCompletionUIHandler.ACIID_FUNCTION,
-
-        #TODO: add the following (for CSS, XML/HTML, etc.)
-        # "comment"? (in use)
-        # "doctype"? (in use)
-        # "namespace"? (in use)
-        # "cdata"? (in use)
-        # "attribute_value"? (in use, I'd prefer the use of a hyphen)
-
-        # Handle fallbacks? "ACIID_VARIABLE" for Ruby. That should be done
-        # in post-processing.
-    }
-
-    def cplns_with_aciids_from_cplns(self, cplns):
-        """Translate a list of completion tuples
-            [(<type>, <value>), ...]
-        into a list of completions with image references as Scintilla
-        wants them
-            ["<value>?1", ...]
-
-        See the CodeIntelCompletionUIHandler ctor in codeintel.js for
-        registration of the image XPMs.
-        """
-        aciid_from_type = self.aciid_from_type
-        cplns_with_aciids = []
-        for t, v in cplns:
-            try:
-                cplns_with_aciids.append("%s?%d" % (v, aciid_from_type[t]))
-            except KeyError:
-                cplns_with_aciids.append(v)
-        return cplns_with_aciids
-
     def set_cplns(self, cplns):
         self.got_results = True
-        cplns_with_aciids = self.cplns_with_aciids_from_cplns(cplns)
-        cplns_str = self.buf.scintilla_cpln_sep.join(cplns_with_aciids)
+        types, strings = zip(*cplns) # split into separate lists
         #XXX Might want to include relevant string info leading up to
         #    the trigger char so the Completion Stack can decide
         #    whether the completion info is still relevant.
-        self.ui_handler_proxy_sync.setAutoCompleteInfo(cplns_str, self.trg)
+        self.ui_handler_proxy_sync.setAutoCompleteInfo(strings, types, self.trg)
 
     def set_calltips(self, calltips):
         self.got_results = True

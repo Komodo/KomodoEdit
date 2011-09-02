@@ -67,6 +67,11 @@ $cons->Preprocess('src/komodo/koCodeIntel.p.py',
 $cons->InstallXpcomComponent("src/komodo/koCodeIntel.py");
 $cons->InstallXpcomComponent("src/komodo/koCatalogsTree.py");
 
+$cons->BuildAndInstallXpt("src/komodo/koIScintillaAutoCompleteController.idl");
+$cons->InstallXpcomComponent("src/komodo/koScintillaAutoCompleteController.js",
+                             {'@activestate.com/koScintillaAutoCompleteController;1' => '{88febdcd-e6f0-4542-9d16-464413967757}'});
+
+
 my @codeintel2_files = (
     "lib/codeintel2/accessor.py",
     "lib/codeintel2/buffer.py",

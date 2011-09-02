@@ -43,13 +43,17 @@ if (typeof(ko) == 'undefined') {
     var ko = {};
 }
 
-if (typeof(ko.codeintel)!='undefined') {
+if (ko.codeintel) {
     ko.logging.getLogger('').warn("ko.codeintel was already loaded, re-creating it.\n");
 }
 ko.codeintel = {};
 
 
 (function() {
+
+    const Ci = Components.interfaces;
+    const Cc = Components.classes;
+    var {XPCOMUtils} = Components.utils.import("resource://gre/modules/XPCOMUtils.jsm", {});
 
     var log = ko.logging.getLogger("codeintel_js");
     //log.setLevel(ko.logging.LOG_DEBUG);
@@ -267,7 +271,7 @@ ko.codeintel = {};
         var trg = ciBuffer.trg_from_pos(scimoz.currentPos, true);
         if (!trg) {
             // Do nothing.
-        } else if (scimoz.autoCActive() && view._ciLastTrg &&
+        } else if (view.scintilla.autocomplete.active && view._ciLastTrg &&
                    trg.is_same(view._ciLastTrg))
         {
             // Bug 55378: Don't re-eval trigger if same one is showing.
@@ -299,47 +303,15 @@ ko.codeintel = {};
             var scimoz = view.scimoz;
             var ciBuf = this.view.koDoc.ciBuf;
             this.completionFillups = ciBuf.cpln_fillup_chars;
-            scimoz.autoCSeparator = ciBuf.scintilla_cpln_sep_ord;
-            scimoz.autoCStops(ciBuf.cpln_stop_chars);
-    
+            this.stopChars = ciBuf.cpln_stop_chars;
+            this.enableFillups = ko.prefs.getBooleanPref("codeintel_completion_auto_fillups_enabled");
+
             this._timeSvc = Components.classes["@activestate.com/koTime;1"].
                                 getService(Components.interfaces.koITime);
             this._lastRecentPrecedingCompletionAttemptPos = null;
             this._lastRecentPrecedingCompletionAttemptTime = null;
             this._lastRecentPrecedingCompletionAttemptTimeout = 3.0;
-            this._boundCompletionEventListener = null;
-    
-            if (ko.prefs.getBooleanPref("codeintel_completion_auto_fillups_enabled")) {
-                scimoz.autoCSetFillUps(this.completionFillups);
-            }
-            // Don't hide when there is no match: may just be mistyped character.
-            scimoz.autoCAutoHide = false;
-            // Order members as if all uppercase: "One result of this is that the
-            // list should be sorted with the punctuation characters '[', '\',
-            // ']', '^', '_', and '`' sorted after letters."
-            scimoz.autoCIgnoreCase = true;
-    
-            // Register images for autocomplete lists.
-            var iface = Components.interfaces.koICodeIntelCompletionUIHandler;
-            scimoz.registerImage(iface.ACIID_CLASS,            ko.markers.getPixmap("chrome://komodo/skin/images/ac_class.xpm"));
-            scimoz.registerImage(iface.ACIID_FUNCTION,         ko.markers.getPixmap("chrome://komodo/skin/images/ac_function.xpm"));
-            scimoz.registerImage(iface.ACIID_MODULE,           ko.markers.getPixmap("chrome://komodo/skin/images/ac_module.xpm"));
-            scimoz.registerImage(iface.ACIID_VARIABLE,         ko.markers.getPixmap("chrome://komodo/skin/images/ac_variable.xpm"));
-            scimoz.registerImage(iface.ACIID_VARIABLE_SCALAR,  ko.markers.getPixmap("chrome://komodo/skin/images/ac_variable_scalar.xpm"));
-            scimoz.registerImage(iface.ACIID_VARIABLE_ARRAY,   ko.markers.getPixmap("chrome://komodo/skin/images/ac_variable_array.xpm"));
-            scimoz.registerImage(iface.ACIID_VARIABLE_HASH,    ko.markers.getPixmap("chrome://komodo/skin/images/ac_variable_hash.xpm"));
-            scimoz.registerImage(iface.ACIID_INTERFACE,        ko.markers.getPixmap("chrome://komodo/skin/images/ac_interface.xpm"));
-            //XXX These two should change to a "directory" one and something
-            //    better than the crap namespace icon for Ruby modules
-            //    (different than what CodeIntel calls a "module").
-            scimoz.registerImage(iface.ACIID_DIRECTORY,        ko.markers.getPixmap("chrome://komodo/skin/images/ac_directory.xpm"));
-            scimoz.registerImage(iface.ACIID_NAMESPACE,        ko.markers.getPixmap("chrome://komodo/skin/images/ac_namespace.xpm"));
-            scimoz.registerImage(iface.ACIID_XML_ELEMENT,      ko.markers.getPixmap("chrome://komodo/skin/images/ac_xml_element.xpm"));
-            scimoz.registerImage(iface.ACIID_XML_ATTRIBUTE,    ko.markers.getPixmap("chrome://komodo/skin/images/ac_xml_attribute.xpm"));
-            scimoz.registerImage(iface.ACIID_CONSTANT,         ko.markers.getPixmap("chrome://komodo/skin/images/ac_constant.xpm"));
-            // XXX: Need a better image (a dedicated keyword image)
-            scimoz.registerImage(iface.ACIID_KEYWORD,          ko.markers.getPixmap("chrome://komodo/skin/images/ac_interface.xpm"));
-    
+
             this.callTipStack = [];
             // Can't use scimoz.{autoC|callTip}PosStart() for this because (1)
             // there is a bug in .callTipPosStart();
@@ -348,63 +320,85 @@ ko.codeintel = {};
             // if the call region is multi-line.
             this._lastTriggerPos = null;
             this._defns = [];
-    
-            ko.prefs.prefObserverService.addObserver(this,
-                "codeintel_completion_auto_fillups_enabled", 0);
+
+            ko.prefs.prefObserverService
+              .addObserver(this, "codeintel_completion_auto_fillups_enabled", 0);
         } catch(ex) {
             log.exception(ex);
         }
     }
     this.CompletionUIHandler.prototype.constructor = this.CompletionUIHandler;
-    
-    
-    this.CompletionUIHandler.prototype.QueryInterface = function(iid) {
-        if (iid.equals(Components.interfaces.koICodeIntelCompletionUIHandler) ||
-            iid.equals(Components.interfaces.nsIObserver) ||
-            iid.equals(Components.interfaces.nsISupports)) {
-            return this;
-        }
-        throw Components.results.NS_ERROR_NO_INTERFACE;
-    }
-    
-    
+
+    this.CompletionUIHandler.prototype.QueryInterface = XPCOMUtils.generateQI([
+        Ci.koICodeIntelCompletionUIHandler,
+        Ci.koIScintillaAutoCompleteListener,
+        Ci.nsIObserver]);
+
     this.CompletionUIHandler.prototype.finalize = function() {
         log.debug("CompletionUIHandler.finalize()");
         var view = this.view;
         this.view = null;
         try {
-            ko.prefs.prefObserverService.removeObserver(this,
-                "codeintel_completion_auto_fillups_enabled");
-            // Clean up bound event listeners.
-            if (this._boundCompletionEventListener) {
-                if (view) {
-                    view.removeEventListener("codeintel_autocomplete_selected", this._boundCompletionEventListener, false);
-                }
-                this._boundCompletionEventListener = null;
+            ko.prefs.prefObserverService
+              .removeObserver(this, "codeintel_completion_auto_fillups_enabled");
+            var autoc = view.scintilla.autocomplete;
+            if (autoc.listener && autoc.listener === this) {
+                autoc.listener = null;
             }
         } catch(ex) {
             log.exception(ex);
         }    
     }
-    
-    
+
+    /**
+     * A mapping of autocomplete type -> image url
+     * Note that this is public and expected to be modified by extensions/scripts
+     */
+    Object.defineProperty(this.CompletionUIHandler.prototype, "types", {
+        get: function() {
+            if ("_types" in this) {
+                return this._types;
+            }
+            this._types = {
+                "class":        "chrome://komodo/skin/images/cb_class.png",
+                "function":     "chrome://komodo/skin/images/cb_function.png",
+                "module":       "chrome://komodo/skin/images/cb_module.png",
+                "interface":    "chrome://komodo/skin/images/cb_interface.png",
+                "namespace":    "chrome://komodo/skin/images/cb_namespace.png",
+                "variable":     "chrome://komodo/skin/images/cb_variable.png",
+                "$variable":    "chrome://komodo/skin/images/cb_variable_scalar.png",
+                "@variable":    "chrome://komodo/skin/images/cb_variable_array.png",
+                "%variable":    "chrome://komodo/skin/images/cb_variable_hash.png",
+                "directory":    "chrome://komodo/skin/images/cb_directory.png",
+                "constant":     "chrome://komodo/skin/images/cb_constant.png",
+                // XXX: Need a better image (a dedicated keyword image)
+                "keyword":      "chrome://komodo/skin/images/cb_interface.png",
+
+                "element":      "chrome://komodo/skin/images/cb_xml_element.png",
+                "attribute":    "chrome://komodo/skin/images/cb_xml_attribute.png",
+
+                // Added for CSS, may want to have a better name/images though...
+                "value":        "chrome://komodo/skin/images/cb_variable.png",
+                "property":     "chrome://komodo/skin/images/cb_class.png",
+                "pseudo-class": "chrome://komodo/skin/images/cb_interface.png",
+                "rule":         "chrome://komodo/skin/images/cb_function.png",
+            };
+            return this._types;
+        },
+        configurable: true,
+        enumerable: true,
+    });
+
     this.CompletionUIHandler.prototype.observe = function(prefSet, prefName, prefSetID)
     {
         //log.debug("observe pref '"+prefName+"' change on '"+
         //                      this.view.koDoc.displayPath+"'s completion UI handler");
         try {
-            switch (prefName) {
-            case "codeintel_completion_auto_fillups_enabled":
-                if (ko.prefs.getBooleanPref("codeintel_completion_auto_fillups_enabled")) {
-                    this.view.scimoz.autoCSetFillUps(this.completionFillups);
-                } else {
-                    this.view.scimoz.autoCSetFillUps("");
-                }
-                break;
-            default:
-                log.error("unexpected pref name is "+
-                                      "CompletionUIHandler: '"+
-                                      prefName+"'\n");
+            if (prefName == "codeintel_completion_auto_fillups_enabled") {
+                this.enableFillups = ko.prefs.getBooleanPref(prefName);
+            } else {
+                log.error('CompletionUIHandler: observed unexpected pref name "' +
+                          prefName + '"');
             }
         } catch(ex) {
             log.exception(ex);
@@ -451,9 +445,10 @@ ko.codeintel = {};
                               "triggerPrecedingCompletion()");
         try {
             // Determine start position.
+            var autoc = this.view.scintilla.autocomplete;
             var scimoz = this.view.scimoz;
             var startPos = null;
-            if (scimoz.callTipActive() || scimoz.autoCActive()) {
+            if (scimoz.callTipActive() || autoc.active) {
                 startPos = this._lastTriggerPos - 1;
             } else {
                 var lastRecentAttemptPos = this._getLastRecentPrecedingCompletionAttemptPos();
@@ -485,9 +480,171 @@ ko.codeintel = {};
         }
     
     }
+
+    this.CompletionUIHandler.prototype.onAutoCompleteEvent = function CUIH_onAutoCompleteEvent(controller, event) {
+        var view = this.view;
+        var scintilla = view.scintilla;
+        var scimoz = view.scimoz;
+        var autoc = scintilla.autocomplete;
+        if (!autoc.active && event.type != "completion") return;
+
+        var triggerPos = this._lastTriggerPos;
+        var curPos = scimoz.currentPos;
+        var oldText = "";
+        if (curPos > triggerPos) {
+            oldText = scimoz.getTextRange(triggerPos, curPos);
+        }
+
+        var doShowPopup = (function doShowPopup() {
+            // Remember the currently selected item and text to compare
+            var lastCompletion = autoc.selectedText;
+            // Select items in the list as the user types. Do this on a
+            // delay in order to let scintilla accept the key first. (Note
+            // that this may also be a paste or other ways of inserting, as long as
+            // it's in one of the commands listed above)
+            setTimeout((function(){
+                log.debug("showing popup");
+                var triggerPos = this._lastTriggerPos;
+                var curPos = scimoz.currentPos;
+                if (curPos < triggerPos) {
+                    // we went back past the trigger, let's die
+                    log.debug("current position " + curPos + " is less than trigger " + triggerPos +
+                              ", closing popup");
+                    autoc.close();
+                    return;
+                }
+                var typedAlready = scimoz.getTextRange(triggerPos, curPos);
+                if (this.enableFillups &&
+                    typedAlready.length == oldText.length + 1 &&
+                    typedAlready.substr(0, oldText.length) == oldText &&
+                    this.completionFillups.indexOf(typedAlready[oldText.length]) != -1)
+                {
+                    // only one character was added, and it was a fillup character
+                    autoc.applyCompletion(this._lastTriggerPos, scimoz.currentPos,
+                                          lastCompletion + typedAlready[oldText.length]);
+                    return;
+                }
+                // abort if any of the "fillups" have been typed since
+                for each (var ch in typedAlready) {
+                    if (this.completionFillups.indexOf(ch) != -1) {
+                        log.debug("aborting autocomplete at " + triggerPos +
+                                  ": fillup character typed: '" + ch + "'");
+                        autoc.close();
+                        return;
+                    }
+                }
+                // Show the completions UI.
+                this._lastPrefix = typedAlready;
+                autoc.show(triggerPos, curPos, triggerPos, typedAlready);
+            }).bind(this), 0);
+        }).bind(this);
+
+        if (event.type === "focus") {
+            // Ugly hack: scimoz needs to keep accepting key presses while the
+            // autocomplete popup is actually focused.  This needs to be done in
+            // the 'focus' event (instead of, say, 'popupshown') because that is
+            // the first event that occurs; otherwise we can end up losing keys.
+            scimoz.isFocused = true;
+            // Check if the text has changed between the time we asked the popup
+            // to show and when the time it did; if yes, try again.
+            if (oldText !== this._lastPrefix) {
+                log.debug("new text " + JSON.stringify(oldText) + " does not match old text " +
+                          JSON.stringify(this._lastPrefix) + ", retriggering");
+                autoc.close();
+                // check for any stop characters - if there are, we should
+                // give up rather than show the popup incorrectly
+                for each (let ch in oldText) {
+                    if (this.stopChars.indexOf(ch) !== -1) {
+                        log.debug("found stop char '" + ch + "' in text, aborting");
+                        return;
+                    }
+                }
+                setTimeout(doShowPopup, 1);
+                return;
+            }
+        } else if (event.type === "command") {
+            // the user selected the item with the mouse
+            autoc.applyCompletion(this._lastTriggerPos, scimoz.currentPos);
+            return;
+        } else if (event.type === "completion") {
+            // completion was applied; re-trigger codeintel
+            if (this._retriggerOnCompletion) {
+                ko.codeintel.trigger(view);
+            }
+            return;
+        }
+        if (event.type !== "keydown" && event.type !== "keypress") {
+            // we don't care about non-key events
+            return;
+        }
+
+        var completionKeyCodes = [KeyEvent.DOM_VK_RETURN, KeyEvent.DOM_VK_ENTER, KeyEvent.DOM_VK_TAB];
+        if (completionKeyCodes.indexOf(event.keyCode) !== -1) {
+            // keys that should trigger autocompletion (but only on keydown,
+            // not again in keypress)
+            // log.debug(event.type + ": key " + event.keyCode + "(" +
+            //           Object.keys(KeyEvent).filter(function(n)KeyEvent[n] == event.keyCode) +
+            //           ") is a force-completion key; eating it");
+            if (event.type === "keydown") {
+                // we need to wait to apply the completion, in order to make
+                // sure we don't close the popup too early - we still need to
+                // capture the corresponding keypress event.
+                setTimeout(autoc.applyCompletion.bind(autoc,
+                                                      this._lastTriggerPos,
+                                                      scimoz.currentPos,
+                                                      autoc.selectedText),
+                           0);
+            }
+            event.stopPropagation();
+            event.preventDefault();
+            return;
+        }
+        if (event.type !== "keypress") {
+            return;
+        }
+
+        var keylabel = ko.keybindings.manager.event2keylabel(event,
+                                                             undefined,
+                                                             event.type === "keypress");
+        var command = ko.keybindings.manager.key2command[keylabel];
+
+        if (/cmd_vim_/.test(command) && gVimController && gVimController.enabled) {
+            // this is a vim command; check vim state
+            switch (gVimController.mode) {
+                case gVimController.constructor.MODE_INSERT:
+                case gVimController.constructor.MODE_OVERTYPE:
+                case gVimController.constructor.MODE_REPLACE_CHAR:
+                    // Ignore the command; we're in the wrong mode for Vi-mode
+                    // to actually execute this command
+                    command = undefined;
+            }
+        }
+
+        switch (command) {
+            case undefined: // no mapping, e.g. normal latin keypress
+            case "cmd_backSmart":
+            case "cmd_back":
+            case "cmd_paste":
+                // don't close autocomplete on these
+                break;
+            default:
+                // doing something interesting - e.g. opening a dialog, cursor
+                // navigation, etc
+                log.debug("Unknown command " + command + ", closing");
+                autoc.close();
+                return;
+        }
+
+        // check for stop chars
+        if (this.stopChars.indexOf(String.fromCharCode(event.charCode)) !== -1) {
+            autoc.close();
+        } else {
+            doShowPopup();
+        }
+    };
     
     this.CompletionUIHandler.prototype._setAutoCompleteInfo = function(
-        completions, trg)
+        completions, types, trg)
     {
         var triggerPos = trg.pos;
         log.debug("CompletionUIHandler.setAutoCompleteInfo"+
@@ -496,6 +653,7 @@ ko.codeintel = {};
             // If the trigger is no longer relevant, then drop the completions.
             // - if the current position is before the trigger pos
             var scimoz = this.view.scimoz;
+            var scintilla = this.view.scintilla;
             var curPos = scimoz.currentPos;
             if (curPos < triggerPos) {
                 log.info("aborting autocomplete at "+triggerPos+
@@ -536,75 +694,19 @@ ko.codeintel = {};
 
             // Show the completions UI.
             this._lastTriggerPos = triggerPos;
-            if (numTypedAlready) {
-                // Cancel when moving before the pos when the completion list is
-                // shown - bug 88292.
-                scimoz.autoCCancelAtStart = true;
-            } else {
-                scimoz.autoCCancelAtStart = false;
-            }
-            scimoz.autoCShow(numTypedAlready, completions);
-            if (numTypedAlready > 0) {
-                var typedAlready = scimoz.getTextRange(triggerPos, curPos);
-                scimoz.autoCSelect(typedAlready);
-            }
-            if (trg.retriggerOnCompletion) {
-                this.watchForCompletionEvent();
-            }
-        } catch(ex) {
-            log.exception(ex);
-        }
-    }
-    
-    this.CompletionUIHandler.prototype.onCompletionEvent = function(event)
-    {
-        log.debug("CompletionUIHandler.onCompletionEvent");
-        try {
-            // Stop listening for completions events.
-            this.view.removeEventListener("codeintel_autocomplete_selected", this._boundCompletionEventListener, false);
-            this._boundCompletionEventListener = null;
-            // Retrigger codeintel.
-            if (this.view) {
-                // Timeout required because the event fires prior to the
-                // completion insertion.
-                //var view = this.view;
-                window.setTimeout(
-                    function(view, pos) {
-                        // We have to colourise the line in order to get a
-                        // trigger - lang_css requires CSS styling, which
-                        // hasn't occurred yet for the inserted text.
-                        var scimoz = view.scimoz;
-                        var lineno = scimoz.lineFromPosition(pos);
-                        var lineStartPos = scimoz.positionFromLine(lineno);
-                        var lineEndPos = scimoz.getLineEndPosition(lineno);
-                        scimoz.colourise(lineStartPos, lineEndPos);
-                        // Give colourise some time to finish - so use another
-                        // setTimeout.
-                        window.setTimeout(
-                            function(view_) {
-                                ko.codeintel.trigger(view_);
-                            },
-                            1, view);
-                    },
-                    1, this.view, event.getData("position"));
-            }
-        } catch(ex) {
-            log.exception(ex);
-        }
-    }
-
-    this.CompletionUIHandler.prototype.watchForCompletionEvent = function()
-    {
-        log.debug("CompletionUIHandler.watchForCompletionEvent");
-        try {
-            if (this.view && !this._boundCompletionEventListener) {
-                // Create a wrapper for our listener function - to ensure we call with the wanted scope.
-                var self = this;
-                this._boundCompletionEventListener = function(event) {
-                    self.onCompletionEvent(event);
-                }
-                this.view.addEventListener("codeintel_autocomplete_selected", this._boundCompletionEventListener, false);
-            }
+            this._retriggerOnCompletion = trg.retriggerOnCompletion;
+            var autoc = scintilla.autocomplete;
+            autoc.listener = this;
+            autoc.reset();
+            autoc.addColumn(Ci.koIScintillaAutoCompleteController.COLUMN_TYPE_IMAGE,
+                            types.map((function(t)this.types[t]||null).bind(this)),
+                            types.length);
+            autoc.addColumn(Ci.koIScintillaAutoCompleteController.COLUMN_TYPE_TEXT,
+                            completions, completions.length, true);
+            var typedAlready = scimoz.getTextRange(triggerPos, curPos);
+            this._lastPrefix = typedAlready;
+            scintilla.autocomplete.show(triggerPos, curPos, triggerPos,
+                                        typedAlready);
         } catch(ex) {
             log.exception(ex);
         }
@@ -672,6 +774,7 @@ ko.codeintel = {};
                 triggerPos = scimoz.positionAtColumn(curLine, triggerColumn);
             }
     
+            this.view.scintilla.autocomplete.close();
             scimoz.callTipShow(triggerPos, calltip);
             scimoz.callTipSetHlt(hltStart, hltEnd);
             var callTipItem = {"triggerPos": triggerPos, "calltip": calltip};
@@ -730,6 +833,7 @@ ko.codeintel = {};
                         callTipPos = scimoz.positionAtColumn(
                                 curLine, triggerColumn);
                         this._lastTriggerPos = triggerPos;
+                        this.view.scintilla.autocomplete.close();
                         scimoz.callTipShow(callTipPos, calltip);
                         this.updateCallTip();
                     }
@@ -746,6 +850,7 @@ ko.codeintel = {};
                 triggerColumn = scimoz.getColumn(triggerPos);
                 var newCallTipPos = scimoz.positionAtColumn(curLine, triggerColumn);
                 this._lastTriggerPos = triggerPos;
+                this.view.scintilla.autocomplete.close();
                 scimoz.callTipShow(newCallTipPos, calltip);
                 //dump("XXX moved the calltip to "+newCallTipPos+
                 //     ", now it is at "+scimoz.callTipPosStart()+"\n");
@@ -833,10 +938,10 @@ ko.codeintel = {};
     }
     
     this.CompletionUIHandler.prototype.setAutoCompleteInfo = function(
-        completions, trg)
+        completions, types, count, trg)
     {
-        window.setTimeout(function (me, completions_, trg_) {me._setAutoCompleteInfo(completions_, trg_);},
-                          1, this, completions, trg);
+        setTimeout((function () {this._setAutoCompleteInfo(completions, types, trg);}).bind(this),
+                   0);
     }
     
     this.CompletionUIHandler.prototype.setCallTipInfo = function(

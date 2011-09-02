@@ -2293,6 +2293,10 @@ this.Manager.prototype.startPrefixCapture = function() {
 }
 
 var gKeyHandler = function (event) {
+    if (event.getPreventDefault()) {
+        // somebody wanted to skip this
+        return;
+    }
     ko.keybindings.manager.keypressHandler(event);
 }
 
