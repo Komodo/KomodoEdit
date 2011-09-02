@@ -2415,7 +2415,8 @@ this.Manager.prototype.keypressHandler = function (event, ignorePhase) {
         } else {
             this.startPrefixCapture();
             this.currentPrefixMap = this.currentPrefixMap[key]
-            ko.statusBar.AddMessage(this.currentPrefixString + " was pressed.  Awaiting further keys.", "prefix", 0, false)
+            ko.statusBar.AddMessage(this.currentPrefixString + " was pressed.  Awaiting further keys.",
+                                    "prefix", 0, false, false, false);
             event.cancelBubble = true;
             event.stopPropagation();
             event.preventDefault();

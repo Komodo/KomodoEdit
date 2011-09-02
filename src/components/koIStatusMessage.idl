@@ -45,6 +45,11 @@ interface koIStatusMessage : nsISupports {
     attribute PRUint32 timeout;
     attribute boolean highlight;
     attribute boolean interactive;
+    /**
+     * Whether to log this message in the notifications widget.
+     * Defaults to true.
+     */
+    attribute boolean log;
     
     // Used internally for implementation.
     attribute double expiresAt;

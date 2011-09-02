@@ -1,30 +1,118 @@
-#komodo-notifications-box {
-  -moz-binding: url("chrome://komodo/content/notifications/notification.xml#notificationbox");
-  width: 30em;
-  height: 30em;
-  overflow: auto;
+#toolbar {
+  padding-left: 3px;
 }
 
-#komodo-notifications-box notification {
-  -moz-binding: url("chrome://komodo/content/notifications/notification.xml#notification");
+#toolbar > spacer {
+  min-width: 5px;
 }
 
-#komodo-notifications-box .messageImage {
-  width: 24px;
-  height: 24px;
-  padding: 3px;
+#filter-error {
+  list-style-image: url("chrome://global/skin/icons/error-16.png");
 }
 
-/* Default icons for notifications */
-
-#komodo-notifications-box notification[type="info"] .messageImage {
-  list-style-image: url("chrome://global/skin/icons/information-24.png");
+#filter-warning {
+  list-style-image: url("chrome://global/skin/icons/warning-16.png");
 }
 
-#komodo-notifications-box notification[type="warning"] .messageImage {
-  list-style-image: url("chrome://global/skin/icons/warning-24.png");
+#filter-info {
+  list-style-image: url("chrome://global/skin/icons/information-16.png");
 }
 
-#komodo-notifications-box notification[type="critical"] .messageImage {
-  list-style-image: url("chrome://global/skin/icons/error-24.png");
+#filter-progress {
+  list-style-image: url("chrome://fugue/skin/icons/clock-history.png");
+}
+
+#filter-search {
+  -moz-box-flex: 1;
+}
+
+#message-container {
+  -moz-box-flex: 1;
+}
+
+notification {
+  -moz-binding: url("chrome://komodo/content/notifications/notification.xml#notificationMessage");
+}
+
+notification[selected] {
+  background-color: -moz-cellhighlight;
+  color: -moz-cellhighlighttext;
+}
+#message-container:focus > notification[selected] {
+  background-color: Highlight;
+  color: HighlightText;
+}
+
+notification .twisty > box {
+  -moz-box-orient: horizontal;
+  -moz-box-align: start;
+  padding: 4px;
+}
+
+notification[type="info"] .messageImage {
+  list-style-image: url("chrome://global/skin/icons/information-16.png");
+}
+
+notification[type="warning"] .messageImage {
+  list-style-image: url("chrome://global/skin/icons/warning-16.png");
+}
+
+notification[type="error"] .messageImage {
+  list-style-image: url("chrome://global/skin/icons/error-16.png");
+}
+
+notification .twistyImageWrapper {
+  -moz-box-pack: start;
+}
+
+notification:not([details]) .twistyImageWrapper {
+  display: none;
+}
+
+notification .twistyImage {
+  margin-top: -moz-calc(16px - 9px);
+  list-style-image: url("chrome://global/skin/tree/twisty-clsd.png"); 
+}
+
+notification[open] .twistyImage {
+  list-style-image: url("chrome://global/skin/tree/twisty-open.png"); 
+}
+
+notification [anonid="text"] {
+  width: 0;
+  -moz-box-flex: 1;
+}
+notification description[anonid="time"] {
+  margin-left: 0;
+}
+
+notification .tag {
+  background-color: rgb(96, 96, 96);
+  color: rgb(252, 252, 252);
+  border-radius: 10em; /* large enough to make rounded ends */
+  padding-left: 0.75em;
+  padding-right: 0.75em;
+}
+
+notification [anonid="details"] {
+  overflow-x: auto;
+  -moz-transition-property: height;
+  -moz-transition-duration: 40ms;
+}
+notification [anonid="detail-text"] {
+  font-family: monospace;
+  -moz-user-select: text;
+  cursor: text;
+  white-space: pre;
+  overflow-x: auto;
+}
+
+notification:not(:-moz-any([details][open])) [anonid="details"] {
+  /* height is !important to override the style= set at runtime that is needed
+   * to make things the right height.
+   */
+  height: 0 !important;
+  overflow-y: hidden;
+  -moz-transition-property: height;
+  -moz-transition-duration: 40ms;
 }

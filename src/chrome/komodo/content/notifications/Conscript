@@ -13,5 +13,6 @@ $cons->InstallXpcomModule('notifications.js');
 
 $cons->InstallInChrome('load-service.js');
 $cons->InstallInChrome('notification.xml');
-$cons->InstallInChrome('overlay.js');
 $cons->InstallInChrome('overlay.xul');
+$cons->InstallInChrome('notificationsWidget.xul');
+$cons->InstallInChrome('notificationsWidget.js');

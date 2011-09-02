@@ -2108,23 +2108,23 @@
                      src="chrome://komodo/content/find/findResultsTab.xul"/>
         </ko-pane>
     </vbox> <!-- main window box -->
-    <browser id="printBrowser" type="content-primary" flex="1" disablehistory="true"/>
-    </deck>
     <!-- we need a browser widget to do our printing for us, unfortunatly
         if we collapse or hide it, printing still fails.  So we have to
         hide it somehow, thus a deck widget will hide the browser behind
-        our statusbar.  -->
+        the main window box.  -->
+    <browser id="printBrowser" type="content-primary" flex="1" disablehistory="true"/>
+    </deck>
     <statusbar fullscreentoolbar="true" orient="horizontal"
                id="statusbarviewbox"
                class="chromeclass-status"
                style="min-height: 1.5em;">
         <statusbarpanel id="statusbar-message-panel" flex="1">
+            <!-- the deck is here to support vi mode -->
             <deck id="statusbar-message-deck" selectedIndex="0" flex="1">
                 <deck id="statusbar-message-internal-deck" selectedIndex="0" flex="1">
-                    <hbox align="center">
-                        <label id="statusbar-message" value="&ready.label;"
-                               flex="1" crop="right" />
-                    </hbox>
+                    <statusbarpanel id="statusbar-message" value="&ready.label;"
+                                    class="statusbarpanel-iconic-text"
+                                    flex="1" crop="right" />
                 </deck>
             </deck>
         </statusbarpanel>

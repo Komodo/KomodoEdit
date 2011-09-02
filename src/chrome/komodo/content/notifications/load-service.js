@@ -1,7 +1,11 @@
 if (typeof ko === 'undefined') var ko = {};
 
-ko.__defineGetter__("notifications", function() {
-    Components.utils.import("resource://gre/modules/notifications.js");
-    return NotificationSvc;
+Components.utils
+          .import("resource://gre/modules/XPCOMUtils.jsm", {})
+          .XPCOMUtils
+          .defineLazyGetter(ko, "notifications", function()
+{
+    var {KoNotificationManagerWrapper} =
+        Components.utils.import("resource://gre/modules/notifications.js", {});
+    return new KoNotificationManagerWrapper(window);
 });
-

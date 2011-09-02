@@ -112,7 +112,7 @@ menuitem.statusbar-label > label
   font: status-bar;
   text-align: left;
 }
-statusbarpanel > toolbarbutton[type="menu"] {
+statusbarpanel > toolbarbutton {
   padding: 0px;
   margin: 0px;
   border-style: none !important;
@@ -132,6 +132,28 @@ statusbarpanel > toolbarbutton[type="menu"] > dropmarker {
   */
   -moz-appearance: none !important;
   list-style-image: url("chrome://komodo/skin/images/menupopup_arrows.png");
+}
+
+
+/**
+ * Status bar messages
+ */
+
+#statusbar-message, #statusbar-message > label {
+  border: none;
+  min-width: 0;
+  width: 0;
+  -moz-appearance: none;
+  -moz-box-flex: 1;
+  -moz-box-pack: start;
+}
+#statusbar-message[category="notification-info"] {
+    list-style-image: url("chrome://global/skin/icons/information-16.png");
+}
+
+#statusbar-message[category="notification-warning"],
+#statusbar-message[category="notification-error"] {
+    list-style-image: url("chrome://global/skin/icons/warning-16.png");
 }
 
 

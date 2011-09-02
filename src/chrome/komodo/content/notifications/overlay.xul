@@ -1,22 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet href="chrome://komodo/skin/notifications.css" type="text/css"?>
 
-<!DOCTYPE overlay>
+<!DOCTYPE overlay PUBLIC "-//MOZILLA//DTD XUL V1.0//EN" "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % komodoDTD SYSTEM "chrome://komodo/locale/komodo.dtd">
+  %komodoDTD;
+]>
 <overlay id="sync-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
     <script type="application/x-javascript"
             src="chrome://komodo/content/notifications/load-service.js"/>
-    <script type="application/x-javascript"
-            src="chrome://komodo/content/notifications/overlay.js"/>
 
-    <statusbar id="statusbarviewbox">
-        <statusbarpanel id="komodo-notifications-button"
-                        class="statusbarpanel-iconic-text"
-                        hidden="true"
-                        popup="komodo-notifications-panel">
-        </statusbarpanel>
-        <panel id="komodo-notifications-panel" position="before_end">
-            <notificationbox id="komodo-notifications-box"/>
-        </panel>
-    </statusbar>
+    <ko-pane id="workspace_bottom_area">
+        <browser type="ko-widget" id="notifications-widget"
+                 label="&notifications.label;"
+                 src="chrome://komodo/content/notifications/notificationsWidget.xul"/>
+    </ko-pane>
+
 </overlay>

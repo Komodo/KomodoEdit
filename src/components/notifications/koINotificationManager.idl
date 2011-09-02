@@ -1,0 +1,141 @@
+interface koINotification;
+
+#include "nsISupports.idl"
+
+[scriptable, function, uuid(1d24349c-25b9-4fe3-9ebb-d27d07e26e65)]
+interface koINotificationListener : nsISupports {
+    /**
+     * The given notification has been changed (possibly added, possibly
+     * modified).
+     * @param aNotification The notification that has to be examined
+     * @param aOldIndex The index the notification was at before the operation.
+     *                  For add notifications, or if the notification was not
+     *                  found for some reason, this will be -1.
+     * @param aNewIndex The index the notification has moved to. This is
+     *                  -1 for removed notifications. Note that the
+     *                  notifications may have been further modified before the
+     *                  listener is invoked.
+     * @param aReason The reason for the notification; one of the REASON_*
+     *                constants listed.
+     * @note The notifications are delivered asynchronously, and always on the
+     *       main thread. This means the notification might no longer be at the
+     *       position indicated.
+     */
+    void onNotification(in koINotification aNotification,
+                        in PRInt32 aOldIndex,
+                        in PRInt32 aNewIndex,
+                        in PRUint32 aReason);
+    const PRUint32 REASON_ADDED   = 0;
+    const PRUint32 REASON_UPDATED = 1;
+    const PRUint32 REASON_REMOVED = 2;
+};
+
+[scriptable, uuid(2d399c6a-dc3f-4143-be2f-31cc481bd342)]
+interface koINotificationManager : nsISupports {
+    /**
+     * Add a notification
+     * @param aNotification a notificaiton to add
+     * @note If the notification already exists, it is updated (e.g. if the
+     *       state of the notification changed in some way), and the time stamp
+     *       will also change to the current time. The notification will also
+     *       be moved to the end of the list.
+     */
+    void addNotification(in koINotification aNotification);
+
+    /**
+     * Remove a notification
+     * @param aNotification the notification to remove
+     * @returns True if the notification was found and removed, false if the
+     *          notification was not found.
+     * @note If the notification has already been removed (or never added),
+     *       this is a no-op (silently succeeds without calling listeners)
+     */
+    boolean removeNotification(in koINotification aNotification);
+
+    /**
+     * Check if a given notification is in the list
+     * @param aNotification the notification to check
+     * @returns True if the notification exists
+     */
+    boolean hasNotification(in koINotification aNotification);
+
+    /**
+     * Get the current notifications.
+     * @param aCount the number of notifications returned
+     * @param aNotifications the notifications found
+     * @note It is not an error for aStart to be higher than the total number
+     *       of notifications. However, it must not be greater than aEnd.
+     */
+    void getAllNotifications([optional] in PRUint32 aStart,
+                             [optional] in PRUint32 aEnd,
+                             [optional] out PRUint32 aCount,
+                             [retval, array, size_is(aCount)]
+                                out koINotification aNotifications);
+
+    /**
+     * Get the notifications based on the given criteria.
+     * @param aContexts The contexts to include. May include an item of null
+     *        (for items with null context).  If empty, notifications of all
+     *        contexts are returned. If not empty, only notifications with
+     *        contexts matching one of the given values will be returned.
+     * @param aIdentifier The identifier to match. If not given, notifications
+     *        are returned regardless of identifiers. If given, only
+     *        notifications exactly matching the identifier will be returned.
+     * @returns All notifications matching the given contexts and identifier.
+     *          
+     */
+    void getNotifications([array, size_is(aContextCount)]
+                            in nsISupports aContexts,
+                          in PRUint32 aContextCount,
+                          [optional] in ACString aIdentifier,
+                          [optional] out PRUint32 aResultCount,
+                          [retval, array, size_is(aResultCount)]
+                            out koINotification aResults);
+
+    /**
+     * The total number of notifications
+     */
+    readonly attribute PRUint32 notificationCount;
+
+    /**
+     * Add a listener to be notified about changes
+     */
+    void addListener(in koINotificationListener aListener);
+    /**
+     * Remove a listener if it exists
+     */
+    void removeListener(in koINotificationListener aListener);
+
+    /**
+     * Create a new notification. Note that the notification is not
+     * automatically added; call addNotification() manually.
+     * @param aIdentifier the notification identifier (unique)
+     * @param aTags the tags of the notification
+     * @param aTagCount the number of tags
+     * @param aTypes bitmask of additional interfaces the notification supports
+     * @note If a notification with the given identifier and context pair has
+     *       already been added, the existing notification is returned instead.
+     */
+    koINotification createNotification(in ACString aIdentifier,
+                                       [array, size_is(aTagCount)] in string aTags,
+                                       in PRUint32 aTagCount,
+                                       [optional] in nsISupports aContext,
+                                       [optional] in PRUint32 aTypes);
+    /**
+     * Create a koINotificationActionable notification
+     */
+    const PRUint32 TYPE_ACTIONABLE = 1 << 0;
+    /**
+     * Create a koINotificationProgress notification
+     */
+    const PRUint32 TYPE_PROGRESS   = 1 << 1;
+    /**
+     * Create a koINotificationText notification
+     */
+    const PRUint32 TYPE_TEXT       = 1 << 2;
+    /**
+     * Create a status bar notification.
+     */
+    const PRUint32 TYPE_STATUS     = 1 << 3;
+
+};

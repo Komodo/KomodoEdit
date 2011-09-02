@@ -400,6 +400,7 @@ Build(
     "$build/main/Conscript",
     "$build/components/Conscript",
     "$build/components/contentUtils/Conscript",
+    "$build/components/notifications/Conscript",
     "$build/filesystem/Conscript",
     "$build/projects/Conscript",
     "$build/python-sitelib/Conscript",

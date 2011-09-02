@@ -482,3 +482,7 @@ if __name__ == '__main__':
             password = getpass.getpass("Password for %s@%s: " % (username, hostname))
             test_host[4] = password
     _test()
+
+# disable running tests when using the app-wide test harness
+def test_cases():
+    return []

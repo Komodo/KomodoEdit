@@ -10,145 +10,164 @@
           xmlns:xbl="http://www.mozilla.org/xbl"
           xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
-  <binding id="notificationbox" extends="chrome://global/content/bindings/notification.xml#notificationbox">
+  <binding id="notificationMessage"
+           extends="chrome://global/content/bindings/richlistbox.xml#richlistitem">
+    <!--
+      - This is one message in the list of notifications
+      -->
     <content>
-      <xul:vbox xbl:inherits="hidden=notificationshidden">
-        <xul:spacer/>
-        <children includes="notification"/>
+      <xul:vbox flex="1" contextmenu="notification-context-menu">
+        <xul:hbox align="center">
+          <xul:stack class="twisty" anonid="twisty"
+                     onclick="toggleTwisty()">
+            <xul:box class="messageImageWrapper">
+              <xul:image class="messageImage"/>
+            </xul:box>
+            <xul:box class="twistyImageWrapper">
+              <xul:image class="twistyImage"/>
+            </xul:box>
+          </xul:stack>
+          <xul:description anonid="text" crop="end"/>
+          <xul:progressmeter anonid="progress" collapsed="true"/>
+          <xul:hbox anonid="actions">
+            <!-- actions inserted here dynamically -->
+          </xul:hbox>
+          <xul:hbox anonid="tags-container">
+            <!-- tags inserted here dynamically -->
+          </xul:hbox>
+          <xul:description anonid="time" crop="start"/>
+        </xul:hbox>
+        <xul:hbox anonid="details">
+          <xul:description anonid="detail-text"/>
+        </xul:hbox>
       </xul:vbox>
-      <children/>
     </content>
 
     <implementation>
-
-<!-- FIXME: instantiate this._log for all objects -->
-
-      <constructor><![CDATA[
-        const Cc = Components.classes;
-        const Ci = Components.interfaces;
-        const Cr = Components.results;
-        const Cu = Components.utils;
-
-        Cu.import("resource://gre/modules/notifications.js");
-
-        for each (var notification in NotificationSvc.notifications)
-          this._appendNotification(notification);
-      ]]></constructor>
-
-      <method name="onNotificationAdded">
-        <parameter name="subject"/>
-        <parameter name="data"/>
-        <body><![CDATA[
-          this._appendNotification(subject);
-        ]]></body>
-      </method>
-
-      <method name="onNotificationRemoved">
-        <parameter name="subject"/>
-        <parameter name="data"/>
-        <body><![CDATA[
-          // If the view of the notification hasn't been removed yet, remove it.
-          var notifications = this.allNotifications;
-          for each (var notification in notifications) {
-            if (notification.notification == subject) {
-              notification.close();
-              break;
-            }
+      <property name="type" onget="return this.getAttribute('type')"
+                onset="this.setAttribute('type', val);"/>
+      <property name="text">
+        <getter>
+          return this._text.value
+        </getter>
+        <setter>
+          return this._text.value = val;
+        </setter>
+      </property>
+      <property name="details">
+        <getter>
+          return this._detailText.textContent;
+        </getter>
+        <setter><![CDATA[
+          if (!val) {
+            this.removeAttribute("details");
+            return;
           }
+          this.setAttribute("details", true);
+          this._detailText.textContent = val;
+          // Manually set the height. This is needed in order to get scrolling
+          // for horizontal overflow, but size-to-fit vertically.
+          // Note that this needs to include the height of the horizontal scroll
+          // bar; we get that by looking at the boxObject after forcing it to
+          // show up.
+          this._detailContainer.setAttribute("style",
+                                             "overflow-x: scroll");
+          var scrollbarHeight = this._detailContainer.boxObject.height;
+          this._detailContainer.setAttribute("style", "");
+          
+          var style = getComputedStyle(this._detailText);
+          var height = this._detailText.scrollHeight +
+                       parseInt(style.marginTop, 10) +
+                       parseInt(style.marginBottom, 10);
+          this._detailContainer.setAttribute("style",
+              "height: " + (height + scrollbarHeight) + "px");
+        ]]></setter>
+      </property>
+      <property name="time" onget="return this._timeVal">
+        <setter>
+          this._timeVal = val;
+          this._time.tooltipText = val.toLocaleString();
+          this._time.textContent = val.toLocaleTimeString();
+        </setter>
+      </property>
 
-          // If the user has just closed the last notification, close the panel.
-          // FIXME: this is not quite right, because it might not have been
-          // the user that caused weave:notification:removed to get called.
-          // We need to differentiate between "notification removed" and "user
-          // closed the notification" and only close the panel if it was
-          // the user who closed the last notification.  Maybe we should make
-          // the notification's close method handle closing the panel,
-          // but should the notification box or its notifications really know
-          // they are located inside the panel?
-          var panel = document.getElementById("komodo-notifications-panel");
-          if (panel.state == "open" &&
-            NotificationSvc.notifications.length == 0)
-            panel.hidePopup();
-        ]]></body>
+      <property name="searchText">
+        <!-- text used for quick searching -->
+        <getter>
+          return this._text.value.toLowerCase().replace(/\W/g, '');
+        </getter>
+      </property>
+
+      <property name="tags">
+        <setter>
+        <![CDATA[
+          while (this._tagsContainer.firstChild) {
+            this._tagsContainer.removeChild(this._tagsContainer.firstChild);
+          }
+          Array.slice(val).sort().forEach((function(tag) {
+            var elem = document.createElement("label");
+            elem.setAttribute("class", "tag");
+            elem.setAttribute("value", tag);
+            this._tagsContainer.appendChild(elem);
+            elem.addEventListener("click", function() {
+              var filter = document.getElementById("filter-search");
+              var values = filter.value.split(" ");
+              if (values.indexOf("[" + tag + "]") != -1) {
+                // already have the tag
+                return;
+              }
+              values = values.concat("[" + tag + "]");
+              values = values.filter(function(v)!!v);
+              filter.value = values.join(" ");
+              NotificationsWidgetController.updateFilters();
+            }, false);
+          }).bind(this));
+        ]]>
+        </setter>
+      </property>
+
+      <property name="open">
+        <setter>
+        <![CDATA[
+          if (val && this.hasAttribute("details")) {
+            this.setAttribute("open", true);
+          } else {
+            this.removeAttribute("open");
+          }
+        ]]>
+        </setter>
+        <getter>
+          return this.hasAttribute("open");
+        </getter>
+      </property>
+
+      <field name="_text">
+        document.getAnonymousElementByAttribute(this, "anonid", "text");
+      </field>
+      <field name="_time">
+        document.getAnonymousElementByAttribute(this, "anonid", "time");
+      </field>
+      <field name="_messageImage">
+        document.getAnonymousElementByAttribute(this, "anonid", "messageImage");
+      </field>
+      <field name="_detailContainer">
+        document.getAnonymousElementByAttribute(this, "anonid", "details");
+      </field>
+      <field name="_detailText">
+        document.getAnonymousElementByAttribute(this, "anonid", "detail-text");
+      </field>
+      <field name="_tagsContainer">
+        document.getAnonymousElementByAttribute(this, "anonid", "tags-container");
+      </field>
+
+      <method name="toggleTwisty">
+        <body>
+        <![CDATA[
+          this.open = !this.open;
+        ]]>
+        </body>
       </method>
 
-      <method name="_appendNotification">
-        <parameter name="notification"/>
-        <body><![CDATA[
-          var node = this.appendNotification(notification.title,
-                                             notification.description,
-                                             notification.iconURL,
-                                             notification.priority,
-                                             notification.buttons);
-          node.className = notification.constructor.name;
-          node.notification = notification;
-        ]]></body>
-      </method>
-
-    </implementation>
-  </binding>
-
-  <binding id="notification" extends="chrome://global/content/bindings/notification.xml#notification">
-    <content>
-      <xul:hbox class="notification-inner outset" flex="1" xbl:inherits="type" align="start">
-        <xul:image anonid="messageImage" class="messageImage" xbl:inherits="src=image" style="padding: 3px;"/>
-        <xul:vbox flex="1">
-          <xul:hbox anonid="details" align="center" flex="1">
-            <xul:description anonid="messageText" class="messageText" flex="1" xbl:inherits="xbl:text=label"/>
-            <xul:spacer flex="1"/>
-          </xul:hbox>
-          <xul:description xbl:inherits="xbl:text=value"/>
-
-          <!-- The children are the buttons defined by the notification. -->
-          <xul:hbox oncommand="document.getBindingParent(this)._doButtonCommand(event);">
-            <xul:spacer flex="1"/>
-            <children/>
-          </xul:hbox>
-
-        </xul:vbox>
-        <xul:spacer flex="1"/>
-        <xul:toolbarbutton ondblclick="event.stopPropagation();"
-                           class="messageCloseButton tabbable"
-                           xbl:inherits="hidden=hideclose"
-                           tooltiptext="&closeNotification.tooltip;"
-                           oncommand="document.getBindingParent(this).close()"/>
-      </xul:hbox>
-    </content>
-    <implementation>
-      <!-- Note: this used to be a field, but for some reason it kept getting
-         - reset to its default value for TabNotification elements.
-         - As a property, that doesn't happen, even though the property stores
-         - its value in a JS property |_notification| that is not defined
-         - in XBL as a field or property.  Maybe this is wrong, but it works.
-         -->
-         
-      <constructor><![CDATA[
-        /** Hack. If the notification XUL element is created before the
-         *  notificationbox has been shown for the first time, the XUL element
-         *  is apparently not bound and therefore, when the type on the element
-         *  is set, the type property code is not invoked. Thus, we set the type
-         *  here manually so that the notification gets styling in any case.
-         */
-        this.setAttribute('type', this.type);
-      ]]></constructor>
-      <property name="notification"
-                onget="return this._notification"
-                onset="this._notification = val; return val;"/>
-      <method name="close">
-        <body><![CDATA[
-          NotificationSvc.remove(this.notification);
-
-          // We should be able to call the base class's close method here
-          // to remove the notification element from the notification box,
-          // but we can't because of bug 373652, so instead we copied its code
-          // and execute it below.
-          var control = this.control;
-          if (control)
-            control.removeNotification(this);
-          else
-            this.hidden = true;
-        ]]></body>
-      </method>
     </implementation>
   </binding>
 

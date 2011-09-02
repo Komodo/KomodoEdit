@@ -1,0 +1,5 @@
+<!ENTITY filterErrorTooltip    "Toggle whether errors are shown">
+<!ENTITY filterWarningTooltip  "Toggle whether warnings are shown">
+<!ENTITY filterInfoTooltip     "Toggle whether informational messages are shown">
+<!ENTITY filterProgressTooltip "Toggle whether to limit to in-progress tasks">
+<!ENTITY filterSearchEmpty     "Filter messages">

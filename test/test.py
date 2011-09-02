@@ -56,6 +56,7 @@ testdir_from_ns = {
     "pyxpcom/views": join("..", "src", "views", "test"),
     "ci": join("..", "src", "codeintel", "test2"),
     "hist": join("..", "src", "history"),
+    "components": join("..", "src", "components", "test"),
 }
 default_tags = ["-knownfailure"]
 

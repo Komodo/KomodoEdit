@@ -1,0 +1,22 @@
+#!/usr/local/bin/perl
+# Copyright (c) 2010 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+Import(
+    'build',
+    'cons',
+    'idlExportDir',
+    'mozChromeDir',
+    'mozComponentsDir',
+    'mozIdlIncludePath',
+    'mozVersion',
+    'ranRegxpcomStateFileName',
+    'sdkDir',
+    'unsiloedPythonExe',
+);
+
+$cons->Install($idlExportDir, 'koINotification.idl');
+$cons->Install($idlExportDir, 'koINotificationManager.idl');
+$cons->BuildAndInstallXpt('koINotification.idl');
+$cons->BuildAndInstallXpt('koINotificationManager.idl');
+$cons->InstallXpcomComponent('koNotificationManager.py');

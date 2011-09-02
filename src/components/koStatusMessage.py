@@ -40,21 +40,22 @@
 from xpcom import components, nsError, COMException
 import sys, os, time
 
-
-class KoStatusMessage:
-    _com_interfaces_ = [components.interfaces.koIStatusMessage]
+# This is now purely a shim class to create a notification of type status.
+# This is necessary in order to allow people to still create status messages
+# by contract id.
+class KoStatusMessage(object):
+    _com_interfaces_ = []
     _reg_clsid_ = "{605ce7cb-a712-4b80-b3fb-49004cc14298}"
     _reg_contractid_ = "@activestate.com/koStatusMessage;1"
     _reg_desc_ = "Komodo Status Message"
 
-    def __init__(self):
-        self.category = None
-        self.msg = None
-        self.timeout = 0
-        self.highlight = 0
-        self.expiresAt = 0
-        self.interactive = 0
-
+    def __new__(cls):
+        nm = components.classes["@activestate.com/koNotification/manager;1"]\
+                       .getService(components.interfaces.koINotificationManager)
+        return nm.createNotification("status-notification-%s" % (time.time(),),
+                                     ["status"],
+                                     None,
+                                     components.interfaces.koINotificationManager.TYPE_STATUS)
 
 class KoStatusMessageStack:
     _com_interfaces_ = [components.interfaces.koIStatusMessageStack]

@@ -501,6 +501,7 @@
 <!ENTITY nextBookmark.label "Next Bookmark">
 <!ENTITY nextFile.label "Next Tab">
 <!ENTITY noSelection.label "No selection">
+<!ENTITY notifications.label "Notifications">
 <!ENTITY open.label "Open">
 <!ENTITY open.tooltiptext "Open">
 <!ENTITY openFile.label "Open File">

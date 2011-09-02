@@ -1115,6 +1115,37 @@ this.ensurePaneShown = function uilayout_ensurePaneShown(pane) {
     pane.tabbox.collapsed = false;
 };
 
+this.isTabShown = function uilayout_isTabShown(widgetId) {
+    var widget;
+    try {
+        var widget;
+        if ((typeof(widgetId) == "object") && ("localName" in widgetId)) {
+            if ("linkedpanel" in widgetId) {
+                // we literally got the <tab>.
+                widget = widgetId.linkedpanel;
+            } else {
+                // we actually got passed the widget instead
+                widget = widgetId;
+            }
+        } else {
+            var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                            .getService(Components.interfaces.nsIWindowMediator);
+            var mainWindow = wm.getMostRecentWindow('Komodo');
+            widget = mainWindow.document.getElementById(widgetId);
+            if (!widget) {
+                log.error("ko.uilayout.isTabShown: couldn't find tab: " + widgetId);
+                return false;
+            }
+        }
+
+        return this.isPaneShown(widget.tabbox) &&
+               widget.tabbox.selectedPanel == widget;
+    } catch (e) {
+        _log.exception(e);
+    }
+    return false;
+};
+
 this.ensureTabShown = function uilayout_ensureTabShown(widgetId, focusToo) {
     try {
         if (typeof(focusToo) == 'undefined') focusToo = false;
@@ -1136,7 +1167,7 @@ this.ensureTabShown = function uilayout_ensureTabShown(widgetId, focusToo) {
                 log.error("ko.uilayout.ensureTabShown: couldn't find tab: " + widgetId);
                 return;
             }
-        }        
+        }
 
         widget.tabbox.showWidget(widget);
 
