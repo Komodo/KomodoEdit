@@ -56,19 +56,19 @@ Import(
 my $imagesDir = "$mozChromeDir/komodo/skin/images";
 
 # Autocomplete UI images (named cb_* for codebrowser from IDE)
-$cons->Install($imagesDir, "icons/xpm/cb_class.png");
-$cons->Install($imagesDir, "icons/xpm/cb_directory.png");
-$cons->Install($imagesDir, "icons/xpm/cb_function.png");
-$cons->Install($imagesDir, "icons/xpm/cb_module.png");
-$cons->Install($imagesDir, "icons/xpm/cb_variable.png");
-$cons->Install($imagesDir, "icons/xpm/cb_variable_scalar.png");
-$cons->Install($imagesDir, "icons/xpm/cb_variable_array.png");
-$cons->Install($imagesDir, "icons/xpm/cb_variable_hash.png");
-$cons->Install($imagesDir, "icons/xpm/cb_constant.png");
-$cons->Install($imagesDir, "icons/xpm/cb_interface.png");
-$cons->Install($imagesDir, "icons/xpm/cb_namespace.png");
-$cons->Install($imagesDir, "icons/xpm/cb_xml_element.png");
-$cons->Install($imagesDir, "icons/xpm/cb_xml_attribute.png");
+$cons->Install($imagesDir, "icons/cb_class.png");
+$cons->Install($imagesDir, "icons/cb_directory.png");
+$cons->Install($imagesDir, "icons/cb_function.png");
+$cons->Install($imagesDir, "icons/cb_module.png");
+$cons->Install($imagesDir, "icons/cb_variable.png");
+$cons->Install($imagesDir, "icons/cb_variable_scalar.png");
+$cons->Install($imagesDir, "icons/cb_variable_array.png");
+$cons->Install($imagesDir, "icons/cb_variable_hash.png");
+$cons->Install($imagesDir, "icons/cb_constant.png");
+$cons->Install($imagesDir, "icons/cb_interface.png");
+$cons->Install($imagesDir, "icons/cb_namespace.png");
+$cons->Install($imagesDir, "icons/cb_xml_element.png");
+$cons->Install($imagesDir, "icons/cb_xml_attribute.png");
 
 # Find system icons
 $cons->Install($imagesDir, "icons/find_stop.png");
