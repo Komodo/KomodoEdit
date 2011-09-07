@@ -298,6 +298,7 @@ this.updateTabpickerMenu = function uilayout_updateTabpickerMenu(menupopup)
                 menuitem.setAttribute("hidden", true);
                 continue;
             }
+            menuitem.setAttribute("label", widget.getAttribute("label"));
             menuitem.removeAttribute('collapsed');
             menuitem.removeAttribute('hidden');
             var selected = !widget.tabbox.collapsed &&
