@@ -48,8 +48,35 @@ var _gBrowserLoadListener = null;
 
 var log = ko.logging.getLogger("printing");
 
+function _initPrintSettings() {
+    if (!PrintUtils._gOrigGetPrintSettings) {
+        // Replace the PrintUtils method with our own function, one that
+        // customizes the print settings according to the users preference.
+        PrintUtils._gOrigGetPrintSettings = PrintUtils.getPrintSettings;
+        PrintUtils.getPrintSettings = function() {
+            /** @type {Components.interfaces.nsIPrintSettings} */
+            var settings = PrintUtils._gOrigGetPrintSettings();
+            // Customize it.
+            settings.headerStrRight = ""; // Never print the URL.
+            var prefs = Components.classes['@activestate.com/koPrefService;1'].
+                            getService(Components.interfaces.koIPrefService).prefs;
+            if (!prefs.getBooleanPref("printHeaderFilepath")) {
+                settings.headerStrLeft = "";
+            }
+            if (!prefs.getBooleanPref("printFooterPageNumber")) {
+                settings.footerStrLeft = "";
+            }
+            if (!prefs.getBooleanPref("printFooterTimeStamp")) {
+                settings.footerStrRight = "";
+            }
+            return settings;
+        }
+    }
+}
+
 this.printPreview = function(view, preview, tofile, selectionOnly)
 {
+    _initPrintSettings();
     window.openDialog("chrome://komodo/content/printPreview.xul",
                       "Komodo:PrintPreview",
                       "chrome,all",
@@ -93,6 +120,7 @@ this.browserPrint = function()
 this.print = function(view, preview, tofile, selectionOnly)
 {
     try {
+        _initPrintSettings();
         var lang = view.koDoc.languageObj;
         var schemeService = Components.classes['@activestate.com/koScintillaSchemeService;1'].getService()
         var outputFile;

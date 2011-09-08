@@ -362,6 +362,9 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY previewInKomodoTabSameTabGroup.label "Preview in Komodo tab, same Split View">
 <!ENTITY printInColorAlwaysTrueWhenPrintingToFile.label "Print in color (always true when printing to file)">
 <!ENTITY printLineNumbers.label "Print line numbers">
+<!ENTITY printHeaderFilepath.label "Print the file path in the page header">
+<!ENTITY printFooterPageNumber.label "Print the page number in the page footer">
+<!ENTITY printFooterTimeStamp.label "Print a time stamp in the page footer">
 <!ENTITY printing.label "Printing">
 <!ENTITY printingStyle.label "Printing Style">
 <!ENTITY priority1.label "Priority 1">

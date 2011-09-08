@@ -64,6 +64,18 @@
                 pref="true" prefstring="print_showLineNos"
                 prefattribute="checked"/>
     
+            <checkbox id="printHeaderFilepath"
+                      label="&printHeaderFilepath.label;"
+                      pref="true" />
+
+            <checkbox id="printFooterPageNumber"
+                      label="&printFooterPageNumber.label;"
+                      pref="true" />
+
+            <checkbox id="printFooterTimeStamp"
+                      label="&printFooterTimeStamp.label;"
+                      pref="true" />
+
             <checkbox id="print_useColor" label="&printInColorAlwaysTrueWhenPrintingToFile.label;"
                 pref="true" prefstring="print_useColor"
                 prefattribute="checked"/>

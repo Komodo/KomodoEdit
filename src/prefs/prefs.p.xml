@@ -688,6 +688,9 @@
   <string id="keybinding-scheme">Default</string>
   <boolean id="keybindingDisableAccesskeys">0</boolean>
   <string id="default-keybinding-scheme">Default</string>
+  <boolean id="printHeaderFilepath">1</boolean>
+  <boolean id="printFooterPageNumber">1</boolean>
+  <boolean id="printFooterTimeStamp">1</boolean>
   <boolean id="print_showLineNos">1</boolean>
   <boolean id="print_useColor">0</boolean>
   <double id="print_scalingRatio">1.5</double>
