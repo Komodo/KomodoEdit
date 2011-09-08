@@ -270,7 +270,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY highlightCurrentLine.label "Highlight current line">
 <!ENTITY htmHTML.label ".htm: HTML">
 <!ENTITY htmlHTML.label ".html: HTML">
-<!ENTITY httpAspnActiveStateComASPNPHP.label "http://php.net/index.php">
+<!ENTITY httpAspnActiveStateComASPNPHP.label "http://php.net/">
 <!ENTITY httpWwwActiveStateComActivePerl.label "http://www.activestate.com/activeperl/">
 <!ENTITY httpWwwActiveStateComActivePython.label "http://www.activestate.com/activepython/">
 <!ENTITY httpWwwRubyLangOrg.label "http://www.ruby-lang.org/">
