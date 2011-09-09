@@ -133,7 +133,7 @@ FindController.prototype.do_cmd_find = function() ko.launch.find();
 
 // cmd_replace
 FindController.prototype.is_cmd_replace_enabled = function() {
-    ko.views.manager.getAllViews().length != 0;
+    return ko.views.manager.getAllViews().length != 0;
 }
 
 FindController.prototype.do_cmd_replace = function() ko.launch.replace();
