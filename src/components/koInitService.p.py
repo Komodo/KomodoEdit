@@ -382,7 +382,6 @@ class KoInitService(object):
         self.setEncoding()
         self.configureDefaultEncoding()
         self.initProcessUtils()
-        self.initExtensions()
 
     def observe(self, subject, topic, data):
         # this exists soley for app-startup support
@@ -393,6 +392,7 @@ class KoInitService(object):
             observerSvc.removeObserver(self, "app-startup")
         elif topic == "profile-after-change":
             # get all komodo-startup components and instantiate them
+            self.initExtensions()
             catman = components.classes["@mozilla.org/categorymanager;1"].\
                             getService(components.interfaces.nsICategoryManager)
             category = 'komodo-startup-service'
@@ -1123,10 +1123,9 @@ class KoInitService(object):
             for pylibDir in pylibDirs:
                 if pylibDir not in sys.path:
                     sys.path.append(pylibDir)
-            
             # Prime the pump for the `langinfo' database.
             import langinfo
-            lidb = langinfo.set_default_dirs(pylibDirs)
+            langinfo.set_default_dirs(pylibDirs)
         except Exception:
             log.exception("error initializing from extensions")
 
