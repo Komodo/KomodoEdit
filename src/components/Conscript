@@ -319,21 +319,19 @@ $cons->BuildAndInstallXpt('koIColorPicker.idl');
 #$cons->Install("$supportDir/test", "test_koObserverService.py");
 
 # XPCOM component registration (Gecko 2.0+)
-if ($mozVersion > 1.99) {
-    my $dllName = "libpyloader.so";
-    if ($platform eq "win") {
-        $dllName = "pyloader.dll";
-    } elsif ($platform eq "darwin") {
-        $dllName = "libpyloader.dylib";
-    }
-    $cons->Command("$mozComponentsDir/komodo.manifest",
-                   "$sdkDir/pylib/chromereg.py",
-                   "$mozResourcesDir/chrome.manifest",
-                   "$mozExe",
-                   qq(
-                     $unsiloedPythonExe %1 %0 "$mozComponentsDir/$dllName"
-                     $unsiloedPythonExe %1 %2 %0 "components"
-                   ));
-    $cons->Precious("$mozComponentsDir/komodo.manifest");
-    $cons->Precious("$mozBin/chrome.manifest");
+my $dllName = "libpyloader.so";
+if ($platform eq "win") {
+    $dllName = "pyloader.dll";
+} elsif ($platform eq "darwin") {
+    $dllName = "libpyloader.dylib";
 }
+$cons->Command("$mozComponentsDir/komodo.manifest",
+               "$sdkDir/pylib/chromereg.py",
+               "$mozResourcesDir/chrome.manifest",
+               "$mozExe",
+               qq(
+                 $unsiloedPythonExe %1 %0 "$mozComponentsDir/$dllName"
+                 $unsiloedPythonExe %1 %2 %0 "components"
+               ));
+$cons->Precious("$mozComponentsDir/komodo.manifest");
+$cons->Precious("$mozBin/chrome.manifest");
