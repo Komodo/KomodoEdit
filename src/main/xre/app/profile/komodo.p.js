@@ -515,6 +515,11 @@ pref("browser.preferences.animateFadeIn", true);
 #else
 pref("browser.preferences.animateFadeIn", false);
 #endif
+#ifdef XP_MACOSX
+pref("toolbar.customization.usesheet", true);
+#else
+pref("toolbar.customization.usesheet", false);
+#endif
 
 pref("browser.download.show_plugins_in_list", true);
 pref("browser.download.hide_plugins_without_extensions", true);

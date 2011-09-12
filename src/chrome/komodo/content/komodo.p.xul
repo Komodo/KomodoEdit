@@ -199,6 +199,12 @@
 
     </popupset>
 
+    <popupset id="komodoMainPopupSet">
+        <panel id="customizeToolbarSheetPopup" noautohide="true">
+            <iframe flex="1" style="width: 90ch; height: 40em;"/>
+        </panel>
+    </popupset>
+
     <popupset id="extensionPopupSet"/>
 
     <menupopup id="context-toolbox-menu">
@@ -207,6 +213,10 @@
             type="checkbox"
             observes="cmd_toggleButtonText"
             key="key_viewButtonText"/>
+        <menuitem id="context_customizeToolbars"
+                  command="cmd_CustomizeToolbars"
+                  label="&customizeToolbars.menu.label;"
+                  accesskey="&customizeToolbars.menu.accesskey;"/>
         <menuseparator/>
         <menuitem id="context_viewStandardToolbar"
                   label="&standardToolbar.label;"
@@ -238,6 +248,7 @@
                   type="checkbox"
                   observes="cmd_viewkomodotoolbar"
                   key="key_viewToolbarKomodo"/>
+
         <menuseparator collapsed="true"/>
     </menupopup>
 
@@ -1078,6 +1089,10 @@
                                               persist="checked"
                                               type="checkbox"
                                               />
+                                    <menuitem id="menu_customizeToolbars"
+                                              command="cmd_CustomizeToolbars"
+                                              label="&customizeToolbars.menu.label;"
+                                              accesskey="&customizeToolbars.menu.accesskey;"/>
 
                                     <menuseparator id="popup_toolbars_category_separator"/>
 
@@ -1574,9 +1589,9 @@
                         </menupopup>
                     </menu>
 <!-- #if PLATFORM != "darwin" -->
-                    <hbox id="fullscreenflex" flex="1" hidden="true" fullscreencontrol="true"  ordinal="9998"/>
-                    <hbox id="window-controls" flex="1" hidden="true" fullscreencontrol="true"
-                        ordinal="9999" align="right" pack="center">
+                    <hbox id="fullscreenflex" flex="1" hidden="true" fullscreencontrol="true" ordinal="9998"/>
+                    <hbox id="window-controls" hidden="true" fullscreencontrol="true"
+                          ordinal="9999" align="center" pack="end">
                         <toolbarbutton id="minimize-button" class="rightarrow-button-a"
                                         oncommand="window.minimize();"/>
             
@@ -1591,18 +1606,20 @@
         <!--    </toolbaritem>-->
         <!--</toolbar>-->
 
-        <toolbar id="main-toolboxrow" flex="1" align="start" persist="hidden mode" mode="icons"
+        <toolboxrow id="main-toolboxrow" flex="1" align="start" persist="hidden mode" mode="icons"
 <!-- #if PLATFORM == "darwin" -->
                  fullscreentoolbar="true"
 <!-- #endif -->
                  >
-            <toolbaritem
+            <toolbar
                 id="standardToolbar"
                 class="chromeclass-toolbar"
+                toolboxid="toolbox_main"
                 align="center"
                 persist="hidden collapsed buttonstyle"
                 buttonstyle="pictures"
                 grippyhidden="true"
+                customizable="true"
                 broadcaster="cmd_viewedittoolbar"
                 tooltiptext="&standardToolbar.tooltiptext;">
                     <toolbarbutton id="historyBackButton"
@@ -1712,11 +1729,13 @@
                     class="help-icon"
                     observes="cmd_helpHelp"
                     label="&help.label;"/>
-            </toolbaritem>
-            <toolbaritem class="chromeclass-toolbar"
+            </toolbar>
+            <toolbar class="chromeclass-toolbar"
                      id="toolsToolbar"
+                     toolboxid="toolbox_main"
                      broadcaster="cmd_viewtoolstoolbar"
                      grippyhidden="true"
+                     customizable="true"
                      align="center"
                      persist="hidden collapsed buttonstyle"
                      buttonstyle="pictures"
@@ -1730,11 +1749,13 @@
                                label="&preview.label;">
                     <menupopup id="buttonBrowserPreviewPopup" onpopupshowing="ko.uilayout.populatePreviewToolbarButton(this);"/>
                 </toolbarbutton>
-            </toolbaritem>
-            <toolbaritem class="chromeclass-toolbar"
+            </toolbar>
+            <toolbar class="chromeclass-toolbar"
                      id="workspaceToolbar"
+                     toolboxid="toolbox_main"
                      broadcaster="cmd_viewworkspacetoolbar"
                      grippyhidden="true"
+                     customizable="true"
                      align="center"
                      persist="hidden collapsed buttonstyle"
                      buttonstyle="pictures"
@@ -1773,11 +1794,13 @@
                     label="&showTab.label;">
                     <menupopup onpopupshowing="ko.uilayout.updateTabpickerMenu(this);"/>
                 </toolbarbutton>
-            </toolbaritem>
-            <toolbaritem class="chromeclass-toolbar"
+            </toolbar>
+            <toolbar class="chromeclass-toolbar"
                      id="macrosToolbar"
+                     toolboxid="toolbox_main"
                      broadcaster="cmd_viewmacrotoolbar"
                      grippyhidden="true"
+                     customizable="true"
                      align="center"
                      hidden="true"
                      persist="hidden collapsed buttonstyle"
@@ -1818,15 +1841,17 @@
                     class="macro-save-icon"
                     buttonstyle="pictures"
                     observes="cmd_saveMacroToToolbox"/>
-            </toolbaritem>
-            <toolbaritem id="komodoToolbar"
-                broadcaster="cmd_viewkomodotoolbar"
-                grippyhidden="true"
-                align="center"
-                class="chromeclass-toolbar"
-                persist="hidden collapsed buttonstyle"
-                buttonstyle="pictures"
-                tooltiptext="&komodoResourcesToolbar.tooltiptext;">
+            </toolbar>
+            <toolbar id="komodoToolbar"
+                     broadcaster="cmd_viewkomodotoolbar"
+                     toolboxid="toolbox_main"
+                     grippyhidden="true"
+                     customizable="true"
+                     align="center"
+                     class="chromeclass-toolbar"
+                     persist="hidden collapsed buttonstyle"
+                     buttonstyle="pictures"
+                     tooltiptext="&komodoResourcesToolbar.tooltiptext;">
                 <toolbarbutton id="komodoButtonCommunity"
                     tooltiptext="&komodoCommunity.tooltiptext;"
                     observes="cmd_helpCommunity"
@@ -1848,19 +1873,19 @@
                     class="komodo-button-bugs"
                     observes="cmd_helpViewBugs"
                     label="&bugs.label;"/>
-            </toolbaritem>
+            </toolbar>
 
 <!-- #if PLATFORM == "darwin" -->
-            <spacer id="fullscreenflex" flex="1" hidden="true" fullscreencontrol="true"  ordinal="9998"/>
+            <spacer id="fullscreenflex" flex="1" hidden="true" fullscreencontrol="true" ordinal="9998"/>
             <toolbaritem id="window-controls" hidden="true" fullscreencontrol="true"
-                ordinal="9999" pack="end">
+                         ordinal="9999" pack="end">
                 <!-- no minimize/close on mac -->
                 <toolbarbutton id="restore-button" class="rightarrow-button-a"
                                 oncommand="ko.uilayout.fullScreen();"/>
-            </toolbaritem>
+            </toolbaritem >
 <!-- #endif -->
 
-        </toolbar>
+        </toolboxrow>
         <toolbar id="findToolbar"
                  align="start"
                  hidden="true"
@@ -1973,9 +1998,12 @@
           </toolbaritem>
         </toolbar>
 
+        <toolbarpalette id="komodo-toolbarpalette"/>
+        <toolbarset id="customToolbars" context="context-toolbox-menu"/>
+
     </toolbox>
 
-    <hbox id="view-toolbar" collapsed="true">
+    <toolbar id="view-toolbar" collapsed="true">
         <!--
         This is the template to be used for Komodo's view toolbar. All of these
         elements will be copied into the views-editor element for each view when
@@ -2012,7 +2040,7 @@
                        position="before_end"
                        onpopupshowing="ko.viewtoolbar.encoding.initializeMenu(document.getBindingParent(this), this);" />
         </toolbarbutton>
-    </hbox>
+    </toolbar>
 
     <!-- main window box -->
     <notificationbox id="komodo-notificationbox"/>
@@ -2168,7 +2196,10 @@
                         style="min-width: 8em;"
                         insertafter="statusbar-line-col"/>
     </statusbar>
-    <commandset id="allcommands"/>
+    <commandset id="allcommands">
+        <command id="cmd_CustomizeToolbars"
+                 oncommand="ko.uilayout.customizeToolbars('toolbox_main');"/>
+    </commandset>
     <keyset id="widekeyset" persist="persisted_kb" persisted_kb="false"/>
 <!-- #if PLATFORM == "darwin" -->
     <keyset id="macAppMenuKeys">

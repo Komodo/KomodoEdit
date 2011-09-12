@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<!DOCTYPE dialog SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % customizeToolbarDTD SYSTEM "chrome://komodo/locale/dialogs/customizeToolbar.dtd">
+  %customizeToolbarDTD;
+]>
+
+<!-- Copyright (c) 2000-2011 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<!-- Dialog for customizing the main window toolbar -->
+
+<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/dialogs/customizeToolbar.css" type="text/css"?>
+
+<dialog id="dialog-customize-toolbar"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        title="&customizeToolbar.title;"
+        width="400" height="600" persist="width,height"
+        buttons="accept,cancel"
+        buttonlabelextra1="&customizeToolbar.extra1.label;"
+        ondialogaccept="onCustomizeToolbarFinished(true);"
+        ondialogcancel="onCustomizeToolbarFinished(false);">
+
+    <tree id="toolbarTree" flex="1" hidecolumnpicker="true" seltype="single">
+        <treecols>
+            <treecol id="colCheck" type="checkbox" cycler="true" hideheader="true"/>
+            <treecol id="colName" primary="true" flex="1" crop="end" hideheader="true"/>
+        </treecols>
+        <treechildren/>
+    </tree>
+    <box hidden="true" align="start">
+        <html:img id="image"/>
+        <html:canvas id="canvas"/>
+    </box>
+    <script src="chrome://xtk/content/treeview.js"/>
+    <script src="customizeToolbar.js"/>
+
+</dialog>

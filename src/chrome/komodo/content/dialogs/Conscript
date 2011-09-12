@@ -93,3 +93,5 @@ $cons->InstallInChrome('progress.xul');
 $cons->InstallInChrome('iconpicker.js');
 $cons->InstallInChrome('iconpicker.xul');
 
+$cons->InstallInChrome('customizeToolbar.js');
+$cons->InstallInChrome('customizeToolbar.xul');

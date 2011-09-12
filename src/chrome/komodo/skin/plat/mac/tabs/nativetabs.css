@@ -127,7 +127,7 @@ view[lastfocused="true"] .native tab[selected="true"] .tab-text {
 .native tabs {
   border: none;
   -moz-box-pack: center;
-  -moz-box-align: center;
+  -moz-box-align: stretch;
   background: url("chrome://komodo/skin/tabs/tabbrowser-tabs-bkgnd.png") repeat-x;
   height: 24px;
 }

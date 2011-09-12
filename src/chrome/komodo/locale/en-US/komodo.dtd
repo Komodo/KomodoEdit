@@ -88,6 +88,8 @@
 <!ENTITY createTemplateFromProject.label "Create Template From Project...">
 <!ENTITY createTemplateFromProject.accesskey "C">
 <!ENTITY currentFileSettings.label "Current File Settings...">
+<!ENTITY customizeToolbars.menu.label "Customize...">
+<!ENTITY customizeToolbars.menu.accesskey "C">
 <!ENTITY cut.label "Cut">
 <!ENTITY cut.tooltiptext "Cut">
 <!ENTITY cutButton.accesskey "T">

@@ -131,7 +131,8 @@ toolbar[mode="full"] > toolbaritem > toolbarbutton {
 /**
  * Put toolbar buttons in a bordered box.
  */
-toolbar:not([mode="full"]) > toolbaritem > toolbarbutton,
+#toolbox_main toolbar:not([mode="full"]) > toolbarbutton,
+#main-toolboxrow:not([mode="full"]) > toolbaritem > toolbarbutton,
 .solo-toolbaritem > toolbarbutton,
 .solo-button {
   border: 1px solid rgba(0,0,0,.5);
@@ -146,7 +147,7 @@ toolbar:not([mode="full"]) > toolbaritem > toolbarbutton,
 /**
  * Want to have the main toolbar buttons a little higher than normal.
  */
-#main-toolboxrow > toolbaritem > toolbarbutton {
+#main-toolboxrow toolbarbutton {
   min-width: 24px;
   height: 24px;
 }
@@ -168,7 +169,9 @@ toolbarbutton[checked="true"] {
   background-image: url(chrome://komodo/skin/images/button-gradient-inactive.png);
 }
 
-toolbar:not([mode="full"]) > toolbaritem > toolbarbutton:first-child,
+#toolbox_main toolbar:not([mode="full"]) > toolbarbutton:first-child,
+#toolbox_main toolbar:not([mode="full"]) > toolbarbutton.first-child,
+#main-toolboxrow:not([mode="full"]) > toolbaritem > toolbarbutton:first-child,
 .solo-toolbaritem > toolbarbutton:first-child {
   margin-left: 3px;
   padding-left: 3px;
@@ -176,7 +179,9 @@ toolbar:not([mode="full"]) > toolbaritem > toolbarbutton:first-child,
   -moz-border-radius-bottomleft: 4px;
 }
 
-toolbar:not([mode="full"]) > toolbaritem > toolbarbutton:last-child,
+#toolbox_main toolbar:not([mode="full"]) > toolbarbutton:last-child,
+#toolbox_main toolbar:not([mode="full"]) > toolbarbutton.last-child,
+#main-toolboxrow:not([mode="full"]) > toolbaritem > toolbarbutton:last-child,
 .solo-toolbaritem > toolbarbutton:last-child {
   margin-right: 3px;
   padding-right: 3px;

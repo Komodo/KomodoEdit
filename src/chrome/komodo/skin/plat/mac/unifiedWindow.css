@@ -18,7 +18,8 @@
   -moz-appearance: none;
 }
 
-#toolbox_main > toolbar,
+#main-toolboxrow,
+#main-toolboxrow > toolbar,
 #main-toolboxrow > toolbaritem,
 #findToolbar > toolbaritem
 {
@@ -28,7 +29,7 @@
 }
 
 #main-toolboxrow[mode="full"],
-#main-toolboxrow[mode="full"] > toolbaritem {
+#main-toolboxrow[mode="full"] > toolbar {
   border: none;
   background-image: none;
 }

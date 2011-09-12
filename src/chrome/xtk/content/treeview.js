@@ -667,6 +667,21 @@ xtk.hierarchicalTreeView.prototype._expand_and_sort_child_rows = function(rowIte
     return rows;
 };
 
+/**
+ * Sort sibling rows. This should be overridden by implementations that wish to
+ * implement useful sorting.
+ * 
+ * @param   {Array of rows} children  The row data to sort; see the hierarchicalTreeView constructor for a description.
+ * @param   {String} sortPropertyName The name of the property to sort by
+ * @param   {Function} sortFunction   The function callback for sorting
+ * @param   {Number} sortDir          The directory to sort in; may be either xtk.dataTreeView.SORT_DESCENDING or xtk.dataTreeView.SORT_ASCENDING
+ * 
+ * @returns {Array of rows} The sorted rows
+ */
+xtk.hierarchicalTreeView.prototype._sort_rows_of_same_depth = function(children, sortPropertyName, sortFunction, sortDir) {
+    return Array.slice(children);
+};
+
 xtk.hierarchicalTreeView.prototype.toggleOpenState = function(row) {
     var item = this._rows[row];
     if (!item.hasChildren) return;

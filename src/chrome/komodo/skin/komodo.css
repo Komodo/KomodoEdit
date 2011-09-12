@@ -45,6 +45,14 @@
   padding: 0 2px 0 4px;
 }
 
+#menubar_main > #window-controls > toolbarbutton {
+  -moz-appearance: none;
+}
+
+#menubar_main > #window-controls > toolbarbutton:hover {
+  border-color: transparent;
+}
+
 #minimize-button {
   list-style-image: url("chrome://global/skin/icons/Minimize.gif");
 }
@@ -63,8 +71,17 @@ toolbar[printpreview="true"] {
 
 #main-toolboxrow {
   overflow: hidden;
+  min-width: 1px;
+  min-height: 19px;
+  -moz-appearance: toolbar;
+  border-top: 1px solid ThreeDHighlight;
+  border-bottom: 1px solid ThreeDShadow;
 }
 
+#main-toolboxrow > toolbar {
+  -moz-appearance: none;
+  border: none;
+}
 
 #noPreviewAvailable 
 {

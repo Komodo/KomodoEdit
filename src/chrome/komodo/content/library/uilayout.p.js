@@ -176,6 +176,132 @@ this.updateToolbarArrangement = function uilayout_updateToolbarArrangement(butto
     }
 }
 
+/**
+ * Start toolbar customization
+ *
+ * @param   {<toolbox>} aToolbox [optional] The toolbox to customize
+ */
+this.customizeToolbars = function uilayout_customizeToolbars(aToolbox) {
+    var toolbox = aToolbox;
+    if (!(toolbox instanceof Element)) {
+        toolbox = document.getElementById(aToolbox);
+    }
+    if (!toolbox) {
+        _log.error("ko.uilayout.customizeToolbars: can't find toolbox " + aToolbox);
+    }
+
+    /**
+     * Update the menu checked states for the toolbox context menu
+     */
+    var updateMenuStates = (function() {
+        var toolbars = Array.slice(toolbox.childNodes).concat(toolbox.externalToolbars);
+        // #if PLATFORM == "darwin"
+        this._updateToolbarClasses(toolbox);
+        // #endif
+        var toolbaritems = toolbars.reduce(function(p, c) p.concat([c].concat(Array.slice(c.childNodes))), []);
+        for each (var toolbaritem in toolbaritems) {
+            if (/komodo/i.test(toolbaritem.id)) {
+                debugger;
+            }
+            var broadcasterId = toolbaritem.getAttribute("broadcaster");
+            if (broadcasterId) {
+                var broadcaster = document.getElementById(broadcasterId);
+                if (broadcaster) {
+                    if (toolbaritem.hidden) {
+                        broadcaster.removeAttribute("checked");
+                    } else {
+                        broadcaster.setAttribute("checked", "true");
+                    }
+                }
+            }
+        }
+    }).bind(this);
+
+    const DIALOG_URL = "chrome://komodo/content/dialogs/customizeToolbar.xul";
+    var sheet = document.getElementById("customizeToolbarSheetPopup");
+    var useSheet = false, dialog = null;
+    try {
+        Components.utils.import("resource://gre/modules/Services.jsm");
+        useSheet = Services.prefs.getBoolPref("toolbar.customization.usesheet");
+    } catch (e) {
+        // failed to get pref, use default of true
+    }
+    if (sheet && useSheet) {
+        var sheetFrame = sheet.firstElementChild;
+        sheetFrame.hidden = false;
+        sheetFrame.toolbox = toolbox;
+        sheetFrame.onCustomizeFinished = function(toolbox) {
+            updateMenuStates(toolbox);
+            sheet.hidePopup();
+        };
+
+        // Load the dialog if it hasn't been loaded. If it _has_ been loaded,
+        // force a reload anyway, to make sure it finds the right toolbox
+        if (sheetFrame.getAttribute("src") == DIALOG_URL) {
+            sheetFrame.contentWindow.location.reload();
+        } else {
+            sheetFrame.setAttribute("src", DIALOG_URL);
+        }
+
+        // only show things when we're all ready
+        sheet.style.visibility = "hidden";
+        sheetFrame.addEventListener("ready", function _() {
+            sheetFrame.removeEventListener("ready", _, false);
+            sheet.style.visibility = "";
+        }, false);
+        sheet.openPopup(toolbox, "after_start", 0, 0, false, false, null);
+        dialog = sheetFrame.contentWindow;
+    } else {
+        dialog = window.openDialog(DIALOG_URL,
+                                   "",
+                                   "chrome,dependent,centerscreen",
+                                   toolbox,
+                                   updateMenuStates);
+    }
+
+    if (dialog && !dialog.closed) {
+        dialog.addEventListener("customize", updateMenuStates, false);
+    }
+    return dialog;
+};
+
+// #if PLATFORM == "darwin"
+/**
+ * Mac only: update the toolbar classes to add first-child and last-child
+ * to the first/last toolbar items that are not hidden
+ * This is used to get the rounded corner effect; only on Mac because only that
+ * platform does rounded toolbar buttons.
+ * @param toolbox {<toolbox>} The toolbox to update
+ */
+this._updateToolbarClasses = (function uilayout__updateToolbarClasses(toolbox)
+{
+    if (!toolbox || !(toolbox instanceof Element)) {
+        // not a toolbox. Note that this can be used as an event listener, in
+        // which case the argument is an Event rather than a <toolbox>...
+        toolbox = document.getElementById("toolbox_main");
+    }
+    var toolbars = Array.slice(toolbox.childNodes).concat(toolbox.externalToolbars);
+    for each (var toolbar in toolbars) {
+        if (toolbar.localName != "toolbar") {
+            continue;
+        }
+        var children = Array.slice(toolbar.querySelectorAll(".first-child, .last-child"));
+        for each (var child in children) {
+            if (child.parentNode == toolbar) {
+                child.classList.remove("first-child");
+                child.classList.remove("last-child");
+            }
+        }
+        children = Array.slice(toolbar.querySelectorAll(":not([hidden='true']):not(toolbarseparator):not(spacer)"));
+        children = children.filter(function(child) child.parentNode === toolbar);
+        if (children.length > 0) {
+            children[0].classList.add("first-child");
+            children[children.length - 1].classList.add("last-child");
+        }
+    }
+}).bind(this);
+addEventListener("load", this._updateToolbarClasses, false);
+// #endif
 
 this.populatePreviewToolbarButton = function uilayout_populatePreviewToolbarButton(popup)
 {
@@ -479,9 +605,15 @@ var FullScreen =
   {
     var XULNS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
     var els = document.getElementsByTagNameNS(XULNS, aTag);
-    
+
+    var toolboxrow = document.getElementById("main-toolboxrow");
+
     var i;
     for (i = 0; i < els.length; ++i) {
+      // Don't touch the toolbars in the toolboxrow
+      if (els[i].parentNode === toolboxrow) {
+        continue;
+      }
       // XXX don't interfere with previously collapsed toolbars
       if (els[i].getAttribute("fullscreentoolbar") == "true") {
         this.setToolbarButtonMode(els[i], aShow ? "" : "small");

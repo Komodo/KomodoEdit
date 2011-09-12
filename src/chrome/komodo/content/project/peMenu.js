@@ -311,16 +311,20 @@ this.addToolbarFromPart = function peMenu_addToolbarFromPart(part) {
             // dump("peMenu.js -- Already have toolbox " + part.name + "\n");
             return;
         }
-        var toolbar = document.createElement('toolbaritem');
+        var toolbar = document.createElement('toolbar');
         toolbar.setAttribute('id', id);
         toolbar.setAttribute('class', "chromeclass-toolbar");
         // We need the last custom toolbox to have a flex of one
         toolbar.setAttribute('buttonstyle', "pictures");
         toolbar.setAttribute('grippyhidden', "true");
+        toolbar.setAttribute('customizable', "true");
+        toolbar.setAttribute('toolboxid', "toolbox_main");
+        toolbar.setAttribute('tooltiptext', part.name);
         toolbar.setAttribute('broadcaster', cmd_id);
         if (! visible) {
             toolbar.setAttribute('hidden', 'true');
         }
+        toolbar.setAttribute('mode', toolbox.getAttribute('mode'));
         var ordinal = base_ordinal + part.getLongAttribute('priority');
         toolbar.ordinal = ordinal;
 
