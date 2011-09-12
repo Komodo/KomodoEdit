@@ -1805,6 +1805,16 @@ def target_silo_python(argv=["silo_python"]):
     return argv[1:]
 
 
+def target_pyxpcom_distclean(argv=["pyxpcom_distclean"]):
+    log.info("target: pyxpcom")
+    config = _importConfig()
+    _setupMozillaEnv()
+    pyxpcom_src_dir = join(config.buildDir, config.srcTreeName, "mozilla",
+                           "extensions", "python")
+    if exists(pyxpcom_src_dir):
+        shutil.rmtree(pyxpcom_src_dir)
+    return argv[1:]
+
 def target_pyxpcom(argv=["pyxpcom"]):
     log.info("target: pyxpcom")
     config = _importConfig()
@@ -1812,8 +1822,6 @@ def target_pyxpcom(argv=["pyxpcom"]):
 
     pyxpcom_src_dir = join(config.buildDir, config.srcTreeName, "mozilla",
                            "extensions", "python")
-    if "distclean" in argv:
-        shutil.rmtree(pyxpcom_src_dir)
     if not exists(pyxpcom_src_dir):
         # Checkout pyxpcom - ensure we use the matching version to mozilla.
         repo_url = "http://hg.mozilla.org/pyxpcom/"
