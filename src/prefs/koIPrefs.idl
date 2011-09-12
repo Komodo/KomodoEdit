@@ -58,7 +58,7 @@ interface koISerializable : nsISupports {
      * The serialize method is now private
      * @deprecated since Komodo 7.0.0
      */
-  void serialize(in koIFile file, in wstring basedir);
+  [deprecated] void serialize(in koIFile file, in wstring basedir);
   void serializeToFile(in wstring filename);
 };
 
