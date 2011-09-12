@@ -1826,7 +1826,7 @@ def target_pyxpcom(argv=["pyxpcom"]):
         _run_in_dir(cmd, dirname(pyxpcom_src_dir), log.info)
 
         # Patch pyxpcom.
-        target_patch(patch_target='pyxpcom')
+        target_patch(patch_target='pyxpcom', logFilename="__patchlog_pyxpcom__.py")
 
     # Run the autoconf to generate the configure script.
     cmds = []
@@ -2254,7 +2254,7 @@ def target_all(argv):
     return argv[1:]
 
 
-def target_patch(argv=["patch"], patch_target="mozilla"):
+def target_patch(argv=["patch"], patch_target="mozilla", logFilename=None):
     """patch the mozilla source"""
     config = _importConfig()
     log.info("target: patch from %r" %config.patchesDirs)
@@ -2287,7 +2287,8 @@ def target_patch(argv=["patch"], patch_target="mozilla"):
                         config=config,
                         #dryRun=1,  # uncomment this line to dry-run patching
                         logDir=logDir,
-                        patchExe=patchExe)
+                        patchExe=patchExe,
+                        logFilename=logFilename)
     finally:
         del config.patch_target
     return argv[1:]
