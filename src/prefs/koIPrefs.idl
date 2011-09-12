@@ -245,7 +245,10 @@ interface koIPrefService : nsISupports {
 };
 
 /**
- * A preference serlializer.
+ * A preference serlializer - helper interface.
+ *
+ * A class/object can implement this interface, and use a generic serializer
+ * to easily save/store preference values, see './pref_serialization.py'.
  */
 [scriptable, uuid(c929dc80-3c37-4ba9-acaa-bc2d4e609a8e)]
 interface koIPreferenceSerializer : nsISupports {
