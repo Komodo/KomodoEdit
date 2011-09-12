@@ -150,33 +150,6 @@ _validationNamespace['nonnegative'] = nonnegative
 del positive
 del nonnegative
 
-# XXX not sure why this is commented out.
-#class koBooleanPref:
-#    """
-#    A boolean value -- to make XPCOM users happy.
-#    """
-#    type = 'boolean'
-#    def __init__(self, value, id=None):
-#        self._value = int(value)
-#        # the preference may not have an id, e.g. ordered preference set
-#        self._id = id
-#
-#    def __nonzero__(self):
-#        return self._value
-#
-#    def __int__(self):
-#        return int(self._value)
-#
-#    def serialize(self, stream):
-#        if self._id is None:
-#            stream.write('  <boolean>%s</boolean>%s'\
-#                         % (cgi.escape(str(self._value)), newl))
-#        else:
-#            stream.write('  <boolean id="%s">%s</boolean>%s'\
-#                         % (cgi.escape(self._id,1),
-#                            cgi.escape(str(self._value))), newl)
-
-
 class koPreferenceSetObjectFactory(koXMLPreferenceSetObjectFactory):
     """
     Creates new preference set objects from an input stream
