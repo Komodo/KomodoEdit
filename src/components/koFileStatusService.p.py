@@ -398,22 +398,6 @@ class KoFileStatusService:
         koIFiles = map(self._fileSvc.getFileFromURI, uris)
         self.updateStatusForFiles(koIFiles, forceRefresh, None)
 
-    ##
-    # These two have been deprecated in favour of the two functions above.
-    #
-    def getStatusForFile(self, koIFile, forceRefresh, reportWarning=True):
-        import warnings
-        warnings.warn("koIFileStatusService.getStatusForFile() is deprecated, "
-                      "use updateStatusForFiles instead.",
-                      DeprecationWarning)
-        self.updateStatusForFiles([koIFile], forceRefresh, None)
-    def getStatusForUri(self, URI, forceRefresh):
-        import warnings
-        warnings.warn("koIFileStatusService.getStatusForUri() is deprecated, "
-                      "use updateStatusForUris instead.",
-                      DeprecationWarning)
-        self.updateStatusForUris([URI], forceRefresh)
-
     def _process(self):
         #print "starting file status background thread"
         last_bg_check_time = time.time()

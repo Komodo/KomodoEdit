@@ -200,13 +200,4 @@ interface koIFileStatusService : nsISupports {
     void updateStatusForUris(in unsigned long count,
                              [array, size_is(count)] in wstring uris,
                              in boolean forceRefresh);
-
-        /**
-         * @deprecated since Komodo 4.3.0
-         */
-    void getStatusForFile(in koIFileEx file, in boolean forceRefresh);
-        /**
-         * @deprecated since Komodo 4.3.0
-         */
-    void getStatusForUri(in wstring URI, in boolean forceRefresh);
 };
