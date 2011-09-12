@@ -888,31 +888,41 @@ class RemoteURIHandler(FileHandlerBase):
         # file does an open, we check before we save to be safe (in koDocument).
         self._stats = None
 
-    def __del__(self):
-        if self._file:
-            self.close()
-
     def close(self):
-        if not self._file:
-            raise URILibError("file not opened: '%s'" % self._uri.path)
-        self._file.close()
+        pass
+
+    def _getConnection(self):
+        RFService = components.classes["@activestate.com/koRemoteConnectionService;1"].\
+                    getService(components.interfaces.koIRemoteConnectionService)
+        return RFService.getConnectionUsingUri(self._fulluri)
+        
+    def _getRemotePathInfo(self):
+        # Check that the file exists
+        conn = self._getConnection()
+        self._rfinfo = conn.list(self._uri.path, 0)
+        return self._rfinfo
 
     def open(self, mode):
+        # Note: We don't actually hold open a remote file object, we just store
+        #       the remote information (koIRemoteFileInfo).
         # Don't care if the mode has changed.
         #if mode != self._mode:
         #    self._file = None
         self._mode = mode
-        # we don't actually hold open a remote file object, but we do
-        # keep a handle on the connection using self._file
-        if not self._file:
-            self._file = components.classes["@activestate.com/koFTPFile;1"].\
-                         createInstance(components.interfaces.koIFTPFile)
-            self._file.init(self._fulluri, mode)
+        # Make a connection to the remote site to be sure that the file exists.
+        if self._getRemotePathInfo():
             self._stats = self.__get_stats(refresh=0)
-        return self._file is not None
+            return True
+        return False
+
+    def read(self, nBytes):
+        conn = self._getConnection()
+        # XXX: Doesn't support nBytes - reads in everything.
+        return conn.readFile(self._uri.path)
 
     def write(self, text):
-        FileHandlerBase.write(self, text)
+        conn = self._getConnection()
+        conn.writeFile(self._uri.path, text)
         # We need to update the stats now, as the timestamps will have changed
         self._stats = self.__get_stats()
 
@@ -926,30 +936,27 @@ class RemoteURIHandler(FileHandlerBase):
                     'isFile':0,'isSymlink':0,'isSpecial':0,'permissions':0,
                     'isHidden':0}
         if self._file:
-            if refresh or not self._file.rfinfo:
-                try:
-                    self._file.refreshStats()
-                except COMException:
-                    # Last error should already be set in this case
-                    raise ServerException(nsError.NS_ERROR_FAILURE)
-            if self._file.rfinfo:
-                _stats['fileSize']          = self._file.rfinfo.getFileSize()
+            rfInfo = self._rfinfo
+            if refresh or not self._rfinfo:
+                rfInfo = self._getRemotePathInfo()
+            if rfInfo:
+                _stats['fileSize']          = rfInfo.getFileSize()
                 # Use same values for Modified, Accessed and Created times
-                self.lastAccessedTime       = self._file.rfinfo.getModifiedTime()
+                self.lastAccessedTime       = rfInfo.getModifiedTime()
                 _stats['lastModifiedTime']  = self.lastAccessedTime
                 _stats['createdTime']       = self.lastAccessedTime
-                _stats['isReadable']        = self._file.rfinfo.isReadable()
-                _stats['isWriteable']       = self._file.rfinfo.isWriteable()
-                _stats['isExecutable']      = self._file.rfinfo.isExecutable()
+                _stats['isReadable']        = rfInfo.isReadable()
+                _stats['isWriteable']       = rfInfo.isWriteable()
+                _stats['isExecutable']      = rfInfo.isExecutable()
                 _stats['isReadOnly']        = _stats['isReadable'] and not _stats['isWriteable']
                 _stats['isReadWrite']       = _stats['isReadable'] and _stats['isWriteable']
                 _stats['exists']            = 1
-                _stats['isDirectory']       = self._file.rfinfo.isDirectory()
-                _stats['isFile']            = self._file.rfinfo.isFile()
-                _stats['isSymlink']         = self._file.rfinfo.isSymlink()
+                _stats['isDirectory']       = rfInfo.isDirectory()
+                _stats['isFile']            = rfInfo.isFile()
+                _stats['isSymlink']         = rfInfo.isSymlink()
                 _stats['isSpecial']         = 0
-                _stats['permissions']       = stat.S_IMODE(self._file.rfinfo.mode)
-                _stats['isHidden']          = self._file.rfinfo.isHidden()
+                _stats['permissions']       = stat.S_IMODE(rfInfo.mode)
+                _stats['isHidden']          = rfInfo.isHidden()
         return _stats
     
     def get_stats(self):
