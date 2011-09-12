@@ -66,9 +66,10 @@ procotcols, hostname, port, username, password, home_dir = test_hosts[0]
 
 filedata = """
         # Creating an actual Komodo file object to be used by buffer
-        #file = components.classes["@activestate.com/koFTPFile;1"].\
-        #             createInstance(components.interfaces.koIFTPFile)
-        #file.init(koremoteUri, mode)
+        #file = components.classes["@activestate.com/koFileEx;1"].\ 
+        #             createInstance(components.interfaces.koIFileEx)
+        #file.URI = koremoteUri
+        #file.open(mode)
         
         # Creating an actual connection for specific protocol, port etc...
         #RFService = components.classes["@activestate.com/koRemoteConnectionService;1"].\
