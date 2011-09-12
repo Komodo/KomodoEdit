@@ -295,29 +295,23 @@ function _makeSerializationPrefset() {
 }
 
 function testPrefSerialization() {
-  prefset = _makeSerializationPrefset();
-  tempFileFactory = Components.classes['@activestate.com/koTempFileFactory;1'].getService();
-  tempFile = tempFileFactory.MakeTempFile("preftest", "w");
-  prefset.serialize(tempFile);
-  var path = tempFile.file.path;
-  tempFile.close();
-  testPrefDeserialization(path, prefset);
+  var prefset = _makeSerializationPrefset();
+  var tempFileFactory = Components.classes['@activestate.com/koFileService;1'].getService(Components.interfaces.koIFileService);
+  var tempFilepath = tempFileFactory.makeTempName("preftest");
+  prefset.serializeToFile(tempFilepath);
+  testPrefDeserialization(tempFilepath, prefset);
   dump("Preference serialization/deserialization seemed to work\n");
 }
 
 function testClonedPrefSerialization() {
-  prefset = _makeSerializationPrefset();
-  tempFileFactory = Components.classes['@activestate.com/koTempFileFactory;1'].getService();
-  tempFile = tempFileFactory.MakeTempFile("preftest", "w");
-  prefset.clone().serialize(tempFile);
-  var path = tempFile.file.path;
-  tempFile.close();
-  testPrefDeserialization(path, prefset);
+  var prefset = _makeSerializationPrefset();
+  var tempFileFactory = Components.classes['@activestate.com/koFileService;1'].getService(Components.interfaces.koIFileService);
+  var tempFilepath = tempFileFactory.makeTempName("preftest");
+  prefset.clone().serializeToFile(tempFilepath);
+  testPrefDeserialization(tempFilepath, prefset);
 
   // Try again, with a cloned/updated prefset  
   prefset = _makeSerializationPrefset();
-  tempFileFactory = Components.classes['@activestate.com/koTempFileFactory;1'].getService();
-  tempFile = tempFileFactory.MakeTempFile("preftest", "w");
   new_prefset = prefset.clone()
   // change some values
   new_prefset.setBooleanPref("boolean", 1);
@@ -325,10 +319,9 @@ function testClonedPrefSerialization() {
   new_prefset.setLongPref('answer', 666);
 
   prefset.update(new_prefset)
-  prefset.serialize(tempFile);
-  var path = tempFile.file.path;
-  tempFile.close();
-  testPrefDeserialization(path, new_prefset);
+  tempFilepath = tempFileFactory.makeTempName("preftest");
+  prefset.serializeToFile(tempFilepath);
+  testPrefDeserialization(tempFilepath, new_prefset);
   dump("Cloned preference serialization/deserialization seemed to work\n");
 }
 
@@ -372,14 +365,11 @@ function testPreferenceSetCache() {
 	_check (indexes_found == cache.max_length, "Didn't enumerate all the items");
 
 	// Dump the preferences to a file.
-	tempFileFactory = Components.classes['@activestate.com/koTempFileFactory;1'].getService();
-	tempFile = tempFileFactory.MakeTempFile("preftest", "w");
-	cache.serialize(tempFile);
-	var path = tempFile.file.path;
-	tempFile.close();
-
+	var tempFileFactory = Components.classes['@activestate.com/koFileService;1'].getService(Components.interfaces.koIFileService);
+	var tempFilepath = tempFileFactory.makeTempName("preftest");
+	cache.serializeToFile(tempFilepath);
 	var factory = Components.classes["@activestate.com/koPreferenceSetObjectFactory;1"].getService();
-	new_cache = factory.deserializeFile(path);
+	new_cache = factory.deserializeFile(tempFilepath);
 
 	// Now check the deserialized version is the same as the original.
 	var enumer_orig = cache.enumPreferences();
