@@ -84,12 +84,6 @@ static int gTimelineEnabled = -1;
 	#define SCIMOZ_DEBUG_PRINTF(...) do { } while (0)
 #endif
 
-#if MOZ_VERSION == 191
-/* Gecko 1.9.1 was before a nasty silly npruntime.h compatibility break */
-#define UTF8Characters utf8characters
-#define UTF8Length     utf8length
-#endif
-
 #include "plugin.h"
 
 NS_INTERFACE_MAP_BEGIN(SciMoz)

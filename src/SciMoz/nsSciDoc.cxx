@@ -54,11 +54,7 @@
 #include "nsStringGlue.h"
 #include "ISciDoc.h"
 
-#if MOZ_VERSION < 200
-#include <nsIGenericFactory.h>
-#else
 #include <mozilla/ModuleUtils.h>
-#endif
 
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;
@@ -1043,21 +1039,6 @@ NS_IMETHODIMP SciDoc::BraceMatch(PRInt32 position, PRInt32 maxReStyle, PRInt32 *
 
 NS_GENERIC_FACTORY_CONSTRUCTOR(SciDoc)
 
-#if MOZ_VERSION < 200
-static nsModuleComponentInfo components[] =
-{
-  { 
-    "Scintilla Document",
-    SCIDOC_CID,
-    SCIDOC_CONTRACTID,
-    SciDocConstructor,
-    NULL, // RegistrationProc /* NULL if you dont need one */,
-    NULL // UnregistrationProc /* NULL if you dont need one */
-  }
-};
-
-NS_IMPL_NSGETMODULE("SciDoc", components)
-#else /* MOZ_VERSION >= 200 */
 NS_DEFINE_NAMED_CID(SCIDOC_CID);
 
 static const mozilla::Module::CIDEntry kSciDocCIDs[] = {
@@ -1082,5 +1063,3 @@ static const mozilla::Module kSampleModule = {
 };
 
 NSMODULE_DEFN(nsSampleModule) = &kSampleModule;
-
-#endif /* MOZ_VERSION */

@@ -67,11 +67,10 @@ Import(
     'idlExportDir',
     'unsiloedPythonExe',
     'build',
+    'mozVersion',
     'mozVersionNumber',
-    'architecture',
     'productType',
     'buildFlavour',
-    'mozVersion',
     'sdkDir',
     'universal',
     'compiler',
@@ -249,9 +248,6 @@ elsif ($platform eq "darwin") {
     $consLocal{'LIBS'} = "-bundle -lscintilla";
     $consLocal{'LIBS'} .= " -Wl,-dead_strip -L$mozDevelDist/bin ";
     $consLocal{'LIBS'} .= " -Wl,-executable_path,$mozDevelDist/bin ";
-    if ($mozVersionNumber == 190) {
-      $consLocal{'LIBS'} .= " -L$mozDevelDist/lib ";
-    }
     $consLocal{'LIBS'} .= " $mozDevelDist/lib/libxpcomglue_s.a -lxpcom -lnspr4 -lmozalloc ";
     # add required frameworks
     $consLocal{'LIBS'} .= "-framework Carbon -framework CoreFoundation ";
@@ -446,12 +442,8 @@ if ($platform eq "win") {
 
     $CXXFLAGS .= ' -I./include';
     $CXXFLAGS .= ' -I./include/private';
-    if ($mozVersionNumber > 199) {
-        $CXXFLAGS .= ' -DMOZ_NO_MOZALLOC';
-        $LDFLAGS .= " xpcomglue_s_nomozalloc.lib";
-    } else {
-        $LDFLAGS .= " xpcom_core.lib";
-    }
+    $CXXFLAGS .= ' -DMOZ_NO_MOZALLOC';
+    $LDFLAGS .= " xpcomglue_s_nomozalloc.lib";
     $LDFLAGS .= " xpcom.lib nspr4.lib SciLexer.lib ";
     $LDFLAGS .= " /dll";
     $CXXFLAGS .= " -DLAYERS -W3 -D_WINDOWS -DWIN32 ";
@@ -500,9 +492,7 @@ else {
 
     $consLocal{'CXX'} = "g++";
     $consLocal{'CC'} = "gcc";
-    if ($mozVersionNumber >= 190) {
-      $consLocal{'LIBS'} = "-lxpcomglue_s ";
-    }
+    $consLocal{'LIBS'} = "-lxpcomglue_s ";
     $consLocal{'LIBS'} .= "-bundle -lxpcomglue_s -lxpcom -lnspr4 -lplc4 -lplds4 -lscintilla -lmozalloc ";
     if ($platform eq "darwin") {
         $consLocal{'LDFLAGS'} = "-framework Carbon -bundle";
@@ -523,7 +513,7 @@ else {
     $consLocal{'CXXFLAGS'} .= " -include $mozObjDir/mozilla-config.h -DMOZ_VERSION=$mozVersionNumber";
     $consLocal{'CXXFLAGS'} .= " -fshort-wchar";
 
-    if ($platform eq "solaris" or ($platform eq "darwin" and $architecture ne "x86")) {
+    if ($platform eq "solaris") {
 
 	# big-endian byte order indicator to license code
         $consLocal{'CXXFLAGS'} .= " -DBYTEORDER=0x4321";
@@ -580,8 +570,7 @@ $consIME{'CPPPATH'} = [
     "$mozDevelDist/include/plugin",
     "$scintillaBuildDir/include",
     ".."];
-$consIME{'CXXFLAGS'} .=
-    " -DMOZ_VERSION=$mozVersionNumber";
+$consIME{'CXXFLAGS'} .= " -DMOZ_VERSION=$mozVersionNumber";
 if ($platform eq "win") {
     $dllNameIME = 'koSciMozIMEHelper.dll';
 

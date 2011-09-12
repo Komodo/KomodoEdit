@@ -80,10 +80,6 @@
 #include "nsObserverService.h"
 #include <nsIConsoleService.h>
 
-#if MOZ_VERSION < 199
-#include "nsIGenericFactory.h"
-#endif
-
 #include "nsCOMPtr.h"
 #include "nsIServiceManager.h"
 #include "nsISupports.h"
@@ -130,15 +126,8 @@
 
 #if BUILD_FLAVOUR == dev
 
-#if MOZ_VERSION < 190
-/* mozilla 1.8 */
-#include "nsIThread.h"
-#define IS_MAIN_THREAD() nsIThread::IsMainThread()
-#else
-/* mozilla 1.9 */
 #include "nsThreadUtils.h"
 #define IS_MAIN_THREAD() NS_IsMainThread()
-#endif // # MOZ_VERSION
 
 #define SCIMOZ_CHECK_THREAD(method, result) \
     if (!IS_MAIN_THREAD()) { \
