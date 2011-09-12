@@ -1812,6 +1812,8 @@ def target_pyxpcom(argv=["pyxpcom"]):
 
     pyxpcom_src_dir = join(config.buildDir, config.srcTreeName, "mozilla",
                            "extensions", "python")
+    if "distclean" in argv:
+        shutil.rmtree(pyxpcom_src_dir)
     if not exists(pyxpcom_src_dir):
         # Checkout pyxpcom - ensure we use the matching version to mozilla.
         repo_url = "http://hg.mozilla.org/pyxpcom/"
