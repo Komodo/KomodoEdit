@@ -9,6 +9,5 @@ locale fastopen en-US jar:fastopen.jar!/locale/en-US/
 # #endif
 overlay chrome://komodo/content/komodo.xul chrome://fastopen/content/overlay.xul
 overlay chrome://komodo/content/pref/pref.xul chrome://fastopen/content/pref-overlay.xul
-# #if MOZILLA_VERSION > 1.99
+
 manifest components/component.manifest
-# #endif
