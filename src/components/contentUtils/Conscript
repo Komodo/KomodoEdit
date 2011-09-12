@@ -60,11 +60,7 @@ if ($platform eq "win") {
 
     $CXXFLAGS .= ' -I./include';
     $CXXFLAGS .= ' -I./include/private';
-    if ($mozVersionNumber < 199) {
-	$LDFLAGS .= " xpcom.lib nspr4.lib xpcom_core.lib js3250.lib ";
-    } else {
-	$LDFLAGS .= " xpcomglue_s.lib xpcom.lib nspr4.lib mozjs.lib mozalloc.lib ";
-    }
+    $LDFLAGS .= " xpcomglue_s.lib xpcom.lib nspr4.lib mozjs.lib mozalloc.lib ";
     $LDFLAGS .= " /dll";
     $CXXFLAGS .= " -DLAYERS -W3 -D_WINDOWS -DWIN32 -DMOZILLA_INTERNAL_API=1 ";
     $CXXFLAGS .= " -D_IMPL_NS_LAYOUT -DMOZ_VERSION=$mozVersionNumber";
@@ -111,20 +107,14 @@ else {
 
     $consLocal{'CXX'} = "g++";
     $consLocal{'CC'} = "gcc";
-    if ($mozVersionNumber < 199) {
-        $consLocal{'LIBS'} = "-lxpcom -lnspr4 -lplds4 -lplc4 -lxpcom_core -lmozjs ";
-    } else {
-        $consLocal{'LIBS'} = "-lmozalloc -lxpcomglue_s -ljs_static -lxpcom -lnspr4 -lplds4 -lplc4 -lpthread ";
-    }
+    $consLocal{'LIBS'} = "-lmozalloc -lxpcomglue_s -ljs_static -lxpcom -lnspr4 -lplds4 -lplc4 -lpthread ";
     if ($platform eq "darwin") {
-        if ($mozVersionNumber >= 190) {
-          $consLocal{'LIBS'} .= " -Wl,-dead_strip -L$mozDevelDist/bin ";
-          $consLocal{'LIBS'} .= " -Wl,-executable_path,$mozDevelDist/bin ";
-          #TODO: should these two be used for Linux?
-          $consLocal{'LIBS'} .= " -L$mozDevelDist/lib";
-          $consLocal{'LIBS'} .= " $mozDevelDist/lib/libxpcomglue_s.a ";
-          $consLocal{'LIBS'} .= " $mozDevelDist/lib/XUL";
-        }
+	$consLocal{'LIBS'} .= " -Wl,-dead_strip -L$mozDevelDist/bin ";
+	$consLocal{'LIBS'} .= " -Wl,-executable_path,$mozDevelDist/bin ";
+	#TODO: should these two be used for Linux?
+	$consLocal{'LIBS'} .= " -L$mozDevelDist/lib";
+	$consLocal{'LIBS'} .= " $mozDevelDist/lib/libxpcomglue_s.a ";
+	$consLocal{'LIBS'} .= " $mozDevelDist/lib/XUL";
         $consLocal{'LDFLAGS'} .= " -framework Carbon -bundle";
     } else {
         $consLocal{'LDFLAGS'} .= " -lxul -fPIC -shared";
