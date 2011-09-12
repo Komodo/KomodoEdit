@@ -856,14 +856,6 @@ def target_configure(argv):
         
         --moz-src=<scheme>
             Specify what mozilla source to use. Can be:
-                cvs[:TAG[:DATE]]
-                    Grab the source directly from Mozilla CVS. E.g.
-                        cvs      # the latest CVS head
-                        cvs:MOZILLA_1_8_BRANCH
-                        cvs:1.8  # shortcut for 'MOZILLA_<ver>_BRANCH'
-                        cvs:1.8:02/14/2006  # Valentine's Day 2006
-                    See tinderbox.mozilla.org for hints on Mozilla CVS
-                    tags.
                 <path-to-tarball>
                     A path to a mozilla/firefox source tarball to use
                     for the source.
@@ -876,12 +868,12 @@ def target_configure(argv):
 
             Scheme      Tag                     KoVer   FFVer   MozVer
             ----------  ----------------------  ------  ------  ----------
-            cvs:1.8.0   MOZILLA_1_8_0_BRANCH    3.5.X   1.5.X   1.80
-            cvs:1.8.1   MOZILLA_1_8_BRANCH      4.X     2.0     1.81
-            cvs:1.8     MOZILLA_1_8_BRANCH      4.X     2.X     1.81
-            cvs         HEAD                    5.X     3.0.X   1.90
-            191         FIREFOX_3_5_3_RELEASE   5.3.X   3.5.3   1.91
-            192                                 6.0.X   3.6.X   1.92
+            200         FIREFOX_4_0_0_RELEASE   7.0.X   4.0.X   2.00
+            500         FIREFOX_5_0_0_RELEASE   7.0.X   5.0.X   5.00
+            600         FIREFOX_6_0_0_RELEASE   7.0.X   6.0.X   6.00
+            700         FIREFOX_7_0_0_RELEASE   7.0.X   7.0.X   7.00
+            800         FIREFOX_8_0_0_RELEASE   7.0.X   8.0.X   8.00
+            900         FIREFOX_9_0_0_RELEASE   7.0.X   9.0.X   9.00
 
     Other Options:
         -r, --reconfigure
@@ -1604,28 +1596,6 @@ You need to do one or more of the following to work around this problem
     return remainder
 
 
-def _get_js_standalone(buildDir):
-    cvsroot = ":pserver:anonymous@cvs-mirror.mozilla.org:/cvsroot"
-    jsconfig = os.path.join(buildDir, "mozilla", "js", "src", "config")
-    if not os.path.exists(jsconfig):
-        # check it out now
-        cmd = "cd %s && cvs -d %s co mozilla/js/src/config"\
-              % (buildDir, cvsroot)
-        log.info(cmd)
-        retval = os.system(cmd)
-        if retval:
-            raise BuildError("error running '%s'" % cmd)
-    jsconfig = os.path.join(buildDir, "mozilla", "js", "src", "editline")
-    if not os.path.exists(jsconfig):
-        # check it out now
-        cmd = "cd %s && cvs -d %s co mozilla/js/src/editline"\
-              % (buildDir, cvsroot)
-        log.info(cmd)
-        retval = os.system(cmd)
-        if retval:
-            raise BuildError("error running '%s'" % cmd)
-
-
 def _disablePythonUserSiteFeature(site_filepath):
     """Turn off the ENABLE_USER_SITE (PEP 370) feature (bug 85725)."""
 
@@ -1893,30 +1863,11 @@ def target_pyxpcom(argv=["pyxpcom"]):
     return argv[1:]
 
 
-def target_fastupdate(argv=["update"]):
-    """update mozilla source from cvs"""
-    config = _importConfig()
-    if not config.mozSrcType == "cvs":
-        raise BuildError("cannot update source from CVS: mozSrcType != 'cvs'")
-
-    # Abort if there is nothing to update.
-    buildDir = os.path.join(config.buildDir, config.srcTreeName)
-    landmark = os.path.join(buildDir, "mozilla")
-    if not os.path.exists(landmark):
-        raise BuildError("cannot update: '%s' does not exist (use "
-                         "'./build.py src' to checkout)" % landmark)
-
-    # Update.
-    os.environ["CVSROOT"] = ":pserver:anonymous@cvs-mirror.mozilla.org:/cvsroot"
-    _run("cd %s && make -f mozilla/client.mk fast-update" % buildDir,
-         log.info)
-    return argv[1:]
-    
 def target_update(argv=["update"]):
-    """update mozilla source from cvs or mercurial"""
+    """update mozilla source from mercurial"""
     config = _importConfig()
-    if not config.mozSrcType not in ("cvs", "hg"):
-        raise BuildError("cannot update source: mozSrcType: %r not one of ('cvs', 'hg')")
+    if not config.mozSrcType != "hg":
+        raise BuildError("cannot update source: mozSrcType must be 'hg', not %r" % (config.mozSrcType, ))
 
     # Abort if there is nothing to update.
     buildDir = os.path.join(config.buildDir, config.srcTreeName)
@@ -1925,14 +1876,7 @@ def target_update(argv=["update"]):
         raise BuildError("cannot update: '%s' does not exist (use "
                          "'./build.py src' to checkout)" % landmark)
 
-    # Update.
-    if config.mozSrcType == "cvs":
-        os.environ["CVSROOT"] = ":pserver:anonymous@cvs-mirror.mozilla.org:/cvsroot"
-        _run("cd %s && cvs update && make" % landmark,
-             log.info)
-    elif config.mozSrcType == "hg":
-        _run("cd %s && hg pull -u && make" % landmark,
-             log.info)
+    _run("cd %s && hg pull -u && make" % landmark, log.info)
 
     return argv[1:]
 
@@ -1965,19 +1909,12 @@ def target_src(argv=["src"]):
         log.info("it looks like the src already exists: '%s' exists"
                  % landmark)
 
-        # This is a HACK. If we determined that "the src already
-        # exists", then we should still be doing work.
-        if not config.official:
-            _get_js_standalone(buildDir)
-
         return argv[1:]
     
     # If there is a tarball to use, then get a local copy of it because:
     # 1. it might be a URL and
     # 2. cygwin tar cannot handle absolute paths
-    if config.mozSrcType == "cvs":
-        tarballPath = config.mozSrcCvsTarball
-    elif config.mozSrcType == "hg":
+    if config.mozSrcType == "hg":
         tarballPath = None
     else:
         tarballPath = config.mozSrcTarball
@@ -2018,51 +1955,7 @@ def target_src(argv=["src"]):
         log.info("mkdir `%s'", buildDir)
         os.makedirs(buildDir)
 
-    if mozSrcType == "cvs":
-        CVSROOT = ":pserver:anonymous@cvs-mirror.mozilla.org:/cvsroot"
-        log.info("set CVSROOT=%s", CVSROOT)
-        os.environ["CVSROOT"] = CVSROOT
-
-        if tarballLocalPath is not None:
-            # Extract tarball then cvs update.
-            _extract_tarball(tarballLocalPath, buildDir)
-            cvs_up_args = ''
-            if config.mozSrcCvsDate is not None:
-                cvs_up_args = ' -D "%s"' % config.mozSrcCvsDate
-            cmds = ["cd %s" % join(buildDir, "mozilla"),
-                    "cvs -f -z3 update %s" % cvs_up_args]
-            _run(" && ".join(cmds), log.info)
-        else:
-            cvs_co_args = _cvs_co_args_from_tag_and_date(
-                config.mozSrcCvsTag, config.mozSrcCvsDate)
-            mozApp = config.mozApp
-            moz_co_config = _determineMozCoProject(mozApp)
-            appCfg = config.mozApp
-            if mozApp == "komodo":
-                appCfg = moz_co_config
-
-            moz_co_date = ''
-            if config.mozSrcCvsDate is not None:
-                moz_co_date = ' MOZ_CO_DATE="%s"' % config.mozSrcCvsDate
-
-            cmds = ["cd %s" % buildDir,
-                    "cvs co %s mozilla/client.mk mozilla/%s/config"
-                        % (cvs_co_args, appCfg)]
-            _run(" && ".join(cmds), log.info)
-
-            cmds = ["cd %s" % join(buildDir, "mozilla"),
-                    #XXX Should we be setting MOZ_CO_PROJECT to *all* of
-                    #    these all the time? Why not use the appropriate
-                    #    'mozApp' configuration setting?
-                    # - "mozilla/other-licenses/bsdiff" is needed to build
-                    #   mbsdiff for update packaging.
-                    "make -f client.mk checkout "
-                        + "MOZ_CO_PROJECT=%s " % moz_co_config
-                        + "MOZ_CO_MODULE=mozilla/other-licenses/bsdiff "
-                        + moz_co_date]
-            _run(" && ".join(cmds), log.info)
-
-    elif mozSrcType == "hg":
+    if mozSrcType == "hg":
         if config.mozVer <= 2.00:
             repo_url = "http://hg.mozilla.org/releases/mozilla-2.0/"
         # 5.0 is gone? I cannot find it...
@@ -2092,9 +1985,6 @@ def target_src(argv=["src"]):
     else:
         raise BuildError("unknown mozSrcType: %r" % mozSrcType)
 
-    # Get any extra stuff.
-    _get_js_standalone(buildDir)
-
     if force_checkout:
         return argv[2:]
     return argv[1:]
@@ -2112,33 +2002,6 @@ def str2int(num, base=10):
             result += c
         return int(result)
 
-
-def _cvs_co_args_from_tag_and_date(tag_name, date_spec):
-    co_args = []
-    if tag_name:
-        co_args.append("-r "+tag_name)
-    if date_spec:
-        if ' ' in date_spec:
-            co_args.append(' -D "%s"' % date_spec)
-        else:
-            co_args.append(' -D %s' % date_spec)
-    return ''.join(co_args)
-
-
-def _moz_cvs_tag_from_tag_hint(tag_hint):
-    """Return an appropriate Mozilla CVS tag name for the given tag hint
-    string.
-    
-    Typically this "tag hint" is the TAG portion in:
-        build configure --moz-src=cvs:TAG[:DATE] ...
-    """
-    # A version string will be mapped to a "MOZILLA_<ver>_BRANCH".
-    if re.match(r"(\d+\.?)+$", tag_hint):
-        return "MOZILLA_%s_BRANCH" % tag_hint.replace('.', '_')
-    elif tag_hint == "HEAD":
-        return None
-    else:
-        return tag_hint
 
 def _get_mozilla_objdir(convert_to_native_win_path=False, force_echo_variable=False):
     config = _importConfig()
