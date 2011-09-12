@@ -39,38 +39,16 @@
 #ifdef XP_WIN
 #include <windows.h>
 #include <stdlib.h>
-#endif
-#ifdef MOZILLA_1_8_BRANCH
-#include "nsBuildID.h"
-#else
-#include "nsCOMPtr.h"
-#include "nsILocalFile.h"
-#include "nsStringGlue.h"
-#endif
-
-#ifdef XP_WIN
 #ifdef KOMODO_USE_WMAIN
 // we want a wmain entry point
 #include "nsWindowsWMain.cpp"
 #endif
 #endif
+#include "nsCOMPtr.h"
+#include "nsILocalFile.h"
+#include "nsStringGlue.h"
 
 #include "koStart.h"
-
-#ifdef MOZILLA_1_8_BRANCH
-// NS_XRE_ENABLE_EXTENSION_MANAGER is required for extension install/uninstall
-static const nsXREAppData kAppData = {
-  sizeof(nsXREAppData),
-  nsnull,
-  "ActiveState",
-  "PP_KO_PROD_NAME",
-  NS_STRINGIFY(APP_VERSION),
-  NS_STRINGIFY(PP_KO_BUILD_NUMBER),
-  "{b1042fb5-9e9c-11db-b107-000d935d3368}",
-  "Copyright (c) 1998 - 2007 ActiveState Software Inc.",
-  NS_XRE_ENABLE_EXTENSION_MANAGER
-};
-#endif
 
 int main(int argc, char* argv[])
 {
@@ -80,7 +58,6 @@ int main(int argc, char* argv[])
     KoStartHandle mutex = KS_BAD_HANDLE;
     KoStartHandle theMan = KS_BAD_HANDLE;
 
-#ifndef MOZILLA_1_8_BRANCH
     nsCOMPtr<nsILocalFile> appini;
     nsresult r = XRE_GetBinaryPath(argv[0], getter_AddRefs(appini));
     if (NS_FAILED(r)) {
@@ -96,10 +73,6 @@ int main(int argc, char* argv[])
       fprintf(stderr, "Couldn't read application.ini [%s]\n", pathName.get());
       return 255;
     }
-#else
-    const nsXREAppData *appData = &kAppData;
-#endif
-
 
     // Handle command line arguments.
     rv = KoStart_HandleArgV(argc, argv, &options);
