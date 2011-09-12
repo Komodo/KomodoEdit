@@ -547,7 +547,7 @@ def _applyPatch(patchExe, baseDir, patchRelPath, sourceDir, reverse=0,
 
 #---- public API
 
-def unpatch(sourceDir, logDir, dryRun=0, patchExe=None):
+def unpatch(sourceDir, logDir, dryRun=0, patchExe=None, logFilename=None):
     """Backout the given patches from the given source tree.
     
         "sourceDir" is the base directory of the source tree to unpatch.
@@ -569,7 +569,9 @@ def unpatch(sourceDir, logDir, dryRun=0, patchExe=None):
     log.debug("unpatch(logDir=%r, dryRun=%r)", logDir, dryRun)
 
     # Find the patch log and import it, or error out.
-    patchLogFile = os.path.join(logDir, "__patchlog__.py")
+    if logFilename is None:
+        logFilename = "__patchlog__.py"
+    patchLogFile = os.path.join(logDir, logFilename)
     patchLogName = os.path.splitext(os.path.basename(patchLogFile))[0]
     patchLogPyc = os.path.splitext(patchLogFile)[0] + ".pyc"
     if os.path.isfile(patchLogPyc):
@@ -664,7 +666,7 @@ def unpatch(sourceDir, logDir, dryRun=0, patchExe=None):
 
 
 def patch(patchesDir, sourceDir, config=None, logDir=None, dryRun=0,
-          patchExe=None):
+          patchExe=None, logFilename=None):
     """Patch the given source tree with the given patches.
     
         "patchesDir" is a directory tree of patches to apply or a single
@@ -843,7 +845,9 @@ def patch(patchesDir, sourceDir, config=None, logDir=None, dryRun=0,
 
         if logDir:
             # Log actions.
-            patchLogFile = os.path.join(workDir, "__patchlog__.py")
+            if logFilename is None:
+                logFilename = "__patchlog__.py"
+            patchLogFile = os.path.join(workDir, logFilename)
             patchLog = open(patchLogFile, "w")
             try:
                 patchLog.write("""\
