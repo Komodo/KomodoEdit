@@ -2,7 +2,8 @@
 """Apply these patches to the PyXPCOM Mercurial repository (default branch)."""
 
 def applicable(config):
-    return hasattr(config, "mozVer") and config.mozVer == 2.00
+    return config.mozVer == 2.0 and \
+           config.patch_target == "pyxpcom"
 
 def patch_args(config):
     # patch $topsrcdir/extensions/python

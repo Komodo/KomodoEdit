@@ -37,7 +37,9 @@
 """Apply these patches if the target mozApp is Komodo."""
 
 def applicable(config):
-    return config.mozApp == "komodo"
+    return config.mozApp == "komodo" and \
+           config.patch_target == "mozilla"
+
 
 def add(config):
     return [

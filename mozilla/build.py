@@ -1809,13 +1809,30 @@ def target_pyxpcom(argv=["pyxpcom"]):
     log.info("target: pyxpcom")
     config = _importConfig()
     _setupMozillaEnv()
+
+    pyxpcom_src_dir = join(config.buildDir, config.srcTreeName, "mozilla",
+                           "extensions", "python")
+    if not exists(pyxpcom_src_dir):
+        # Checkout pyxpcom - ensure we use the matching version to mozilla.
+        repo_url = "http://hg.mozilla.org/pyxpcom/"
+        repo_rev = None
+        if config.mozVer <= 6.99:
+            # Requires the matching branch.
+            import math
+            repo_rev = "TAG_MOZILLA_%d_0_0" % (int(config.mozVer), )
+        cmd = "hg clone %s python" % (repo_url, )
+        if repo_rev is not None:
+            cmd += " -r %s" % (repo_rev, )
+        _run_in_dir(cmd, dirname(pyxpcom_src_dir), log.info)
+
+        # Patch pyxpcom.
+        target_patch(patch_target='pyxpcom')
+
     # Run the autoconf to generate the configure script.
     cmds = []
     # Note: autoconf-2.13 has a special meaning for _get_exe_path()
     autoconf_command = "autoconf-2.13"
     autoconf_path = _get_exe_path(autoconf_command)
-    pyxpcom_src_dir = join(config.buildDir, config.srcTreeName, "mozilla",
-                           "extensions", "python")
     if sys.platform == "win32":
         cmds.append("sh -c %s" % _msys_path_from_path(autoconf_path))
     else:
@@ -1974,9 +1991,6 @@ def target_src(argv=["src"]):
             revision_arg = "--rev=%s" % (config.mozSrcHgTag)
         cmds = ["cd %s" % buildDir,
                 "hg clone %s %s mozilla" % (revision_arg, repo_url, )]
-        # Checkout pyxpcom as well.
-        cmds += ["cd mozilla/extensions",
-                 "hg clone http://hg.mozilla.org/pyxpcom/ python"]
         _run(" && ".join(cmds), log.info)
 
     elif mozSrcType == "tarball":
@@ -2240,7 +2254,7 @@ def target_all(argv):
     return argv[1:]
 
 
-def target_patch(argv=["patch"]):
+def target_patch(argv=["patch"], patch_target="mozilla"):
     """patch the mozilla source"""
     config = _importConfig()
     log.info("target: patch from %r" %config.patchesDirs)
@@ -2265,12 +2279,17 @@ def target_patch(argv=["patch"]):
             raise BuildError("Could not find a 'patch' executable.")
 
     patchtree.log.setLevel(logging.INFO)
-    patchtree.patch(config.patchesDirs,
-                    srcDir,
-                    config=config,
-                    #dryRun=1,  # uncomment this line to dry-run patching
-                    logDir=logDir,
-                    patchExe=patchExe)
+    # Temporarily add a patch target, which we'll remove when done patching.
+    config.patch_target = patch_target
+    try:
+        patchtree.patch(config.patchesDirs,
+                        srcDir,
+                        config=config,
+                        #dryRun=1,  # uncomment this line to dry-run patching
+                        logDir=logDir,
+                        patchExe=patchExe)
+    finally:
+        del config.patch_target
     return argv[1:]
 
 

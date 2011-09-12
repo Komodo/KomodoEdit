@@ -2,7 +2,8 @@
 """Apply these patches to the Mozilla-Central Mercurial branch."""
 
 def applicable(config):
-    return hasattr(config, "mozVer") and config.mozVer == 5.0
+    return config.mozVer == 5.0 and \
+           config.patch_target == "mozilla"
 
 def patch_args(config):
     # use -p1 to better match hg patches
