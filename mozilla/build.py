@@ -67,10 +67,10 @@ r"""
     Suggested configurations are:
     * Komodo 7.0.x release builds:
         python build.py configure -k 7.0 --moz-src=200:FIREFOX_4_0_RELEASE \
-            --release --no-strip --tools --with-crashreport-symbols
+            --release --no-strip --with-crashreport-symbols
     * Komodo 7.0 development builds:
         python build.py configure -k 7.10 --moz-src=200 \
-            --release --no-strip --tools
+            --release --no-strip
 """
 #
 # Development Notes:
@@ -461,12 +461,8 @@ def _setupMozillaEnv():
     if config.withCrashReportSymbols:
         os.environ['export MOZ_DEBUG_SYMBOLS'] = '1'
         if sys.platform == "darwin":
-            if config.mozVer >= 1.91:
-                os.environ['CFLAGS'] = "-gdwarf-2"
-                os.environ['CXXFLAGS'] = "-gdwarf-2"
-            else:
-                os.environ['CFLAGS'] = "-g -gfull"
-                os.environ['CXXFLAGS'] = "-g -gfull"
+            os.environ['CFLAGS'] = "-gdwarf-2"
+            os.environ['CXXFLAGS'] = "-gdwarf-2"
         elif sys.platform.startswith("linux"):
             os.environ['CFLAGS'] = "-gstabs+"
             os.environ['CXXFLAGS'] = "-gstabs+"
@@ -611,85 +607,32 @@ def _getMozSrcInfo(scheme, mozApp):
         "scheme" defines what mozilla source to use. This is the same as
             what was specified by the 'configure' target's --moz-src=
             option. It can have the following forms:
-                cvs[:TAG[:DATE]]
-                    Grab the source directly from Mozilla CVS. E.g.
-                        cvs      # the latest CVS head
-                        cvs:MOZILLA_1_8_BRANCH
-                        cvs:1.8  # shortcut for 'MOZILLA_<ver>_BRANCH'
-                        cvs:1.8:02/14/2006  # Valentine's Day 2006
-                        cvs:HEAD:02/14/2006  # Valentine's Day 2006
-                    See tinderbox.mozilla.org for hints on Mozilla CVS
-                    tags.
-                <path-to-tarball>
-                    A path to a mozilla/firefox source tarball to use
-                    for the source.
                 <ver>
                     A version string indicating a specific
                     mozilla/firefox source tarball package. E.g.:
-                         mozilla-<ver>-source.tar.gz
-                         firefox-<ver>-source.tar.gz
-        "mozApp" is one of komodo, xulrunner, suite, browser to indicate
-            (sort of) which source package or CVS branch to look for.
-            This is HACKy and hopefully this subtlety can be removed.
-    
+                         900 - correstponds to Mozilla 9.0
+                <path-to-tarball>
+                    A path to a mozilla/firefox source tarball to use
+                    for the source.
+
+        "mozApp" must be one of ("komodo", "xulrunner")
+
     The return value is a dict with the suggested configuration
     variables identifying the mozilla source.
-        {'mozSrcType':      <'cvs' or 'tarball'>,
-         'mozSrcName':      <an short string to *loosely* describing the
-                             mozilla src>,
-         # The following only if mozSrcType==cvs:
-         'mozSrcCvsTag':    <None for HEAD, otherwise a Mozilla CVS tag name>,
-         'mozSrcCvsDate':   <None or a date string that CVS understands>,
-         'mozSrcCvsTarball':<path to a Mozilla CVS tarball with a
-                             *baseline* source tree or None>,
+        {
+         'mozVer':          The Mozilla version number as a float, i.e. 9.0
+         'mozSrcType':      <'hg' or 'tarball'>,
+         'mozSrcName':      <a short string to *loosely* describing the mozilla src>,
+         # The following only if mozSrcType==hg:
+         'mozSrcHgRepo':    HG repository to checkout from.
+         'mozSrcHgTag':     HG repository tag.
          # The following only if mozSrcType==tarball:
          'mozSrcTarball':   <path to a Mozilla source tarball>,
         }
     """
     config = {}
 
-    if scheme.startswith("cvs"): # cvs[:TAG[:DATE]]
-        config["mozSrcType"] = "cvs"
-        config["mozVer"] = 1.90
-
-        if scheme.count(":") == 0:      # cvs
-            config.update(
-                mozSrcCvsTag=None,
-                mozSrcCvsDate=None,
-            )
-        elif scheme.count(":") == 1:    # cvs:TAG
-            tag_hint = scheme.split(":", 1)[1]
-            config.update(
-                mozSrcCvsTag=_moz_cvs_tag_from_tag_hint(tag_hint),
-                mozSrcCvsDate=None,
-            )
-        else:                           # cvs:TAG:DATE
-            _, tag_hint, date_spec = scheme.split(":", 2)
-            config.update(
-                mozSrcCvsTag=_moz_cvs_tag_from_tag_hint(tag_hint),
-                mozSrcCvsDate=date_spec,
-            )
-
-        # Determine a nice short name loosely describing this CVS
-        # source.
-        tag = config["mozSrcCvsTag"]
-        if tag is None:
-            config["mozSrcName"] = "cvs"
-        else:
-            # If the tag name matches MOZILLA_<ver>_BRANCH (e.g.
-            # MOZILLA_1_8_BRANCH) then use the ver.
-            match = re.search(r"MOZILLA_(?P<ver>(\d+_?)+)_BRANCH", tag)
-            if match:
-                ver = match.group("ver").replace("_", ".")
-                config["mozSrcName"] = "cvs"+ver
-                if ver == "1_8":
-                    config["mozSrcVer"] = 1.8
-            else:
-                config["mozSrcName"] = "cvs_"+tag
-
-        config["mozSrcCvsTarball"] = None
-
-    elif scheme.endswith(".tar.gz") or scheme.endswith(".tar.bz2"):
+    if scheme.endswith(".tar.gz") or scheme.endswith(".tar.bz2"):
         suffix = scheme.endswith(".tar.gz") and ".tar.gz" or ".tar.bz2"
         if not isfile(scheme):
             raise BuildError("Configured mozilla source tarball, '%s', "\
@@ -699,10 +642,7 @@ def _getMozSrcInfo(scheme, mozApp):
             mozSrcTarball=scheme,
         )
 
-        if mozApp == "suite":
-            patterns = [re.compile("^mozilla(?:-source)?-(.*?)(?:-source)?%s$"
-                                 % re.escape(suffix))]
-        elif mozApp in ("komodo", "browser"):
+        if mozApp in ("komodo", "browser"):
             patterns = [re.compile("^firefox-(.*?)-source%s$"
                                  % re.escape(suffix)),
                         re.compile("^xulrunner-(.*?)-source%s$"
@@ -721,15 +661,7 @@ def _getMozSrcInfo(scheme, mozApp):
                                      % (scheme_basename, ))
                 version_num = float(ver_match.group(1))
                 # Set the Mozilla version.
-                if scheme_basename.startswith("firefox"):
-                    config["mozVer"] = { 3.0: 1.90,
-                                         3.1: 1.91,
-                                         3.5: 1.91,
-                                         3.6: 1.92,
-                                         3.7: 1.93,
-                                        }.get(version_num)
-                else:
-                    config["mozVer"] = version_num
+                config["mozVer"] = version_num
                 break
         else:
             config["mozSrcName"] = name
@@ -745,41 +677,6 @@ def _getMozSrcInfo(scheme, mozApp):
         # source.
         config["mozSrcName"] = "moz%s" % (config["mozSrcHgRepo"], )
         config["mozVer"] = round(int(config["mozSrcHgRepo"]) / 100.0, 2)
-
-    else:
-        if mozApp == "suite":
-            candidates = ["mozilla-source-%s.tar.bz2" % scheme,
-                          "mozilla-source-%s.tar.gz" % scheme,
-                          "mozilla-%s-source.tar.bz2" % scheme,
-                          "mozilla-%s-source.tar.gz" % scheme]
-        elif mozApp in ("komodo", "browser"):
-            candidates = ["firefox-%s-source.tar.bz2" % scheme,
-                          "firefox-%s-source.tar.gz" % scheme]
-        else:
-            raise BuildError("do we use the 'firefox-*-source.tar.gz' "
-                             "tarballs for mozApp='%s' builds?" % mozApp)
-        log.info("looking for %r in src repositories" % candidates)
-        for repo, candidate in [(r,c) for r in gMozSrcRepositories
-                                      for c in candidates]:
-            if isdir(repo):
-                tarball = os.path.join(repo, candidate)
-                if os.path.isfile(tarball):
-                    config["mozSrcTarball"] = tarball
-                    break
-            elif is_remote_path(repo):
-                tarball = repo + '/' + candidate
-                if remote_exists(tarball, log=log.debug):
-                    config["mozSrcTarball"] = tarball
-                    break
-        else:
-            raise BuildError("Could not find mozilla/firefox '%s' source "
-                             "in any of the source repositories: %s"
-                             % (scheme, gMozSrcRepositories))
-        config.update(
-            mozSrcType="tarball",
-            mozSrcTarball=tarball,
-            mozSrcName=scheme,
-        )
 
     return config
 
@@ -1031,7 +928,6 @@ def target_configure(argv):
             Do not build the bsdiff and mar modules.
 
         --perf      build with timeline and profiling support
-        --tools     build with venkman, inspector and cview
 
         --options=
             additional mozilla build options that may
@@ -1156,7 +1052,7 @@ def target_configure(argv):
              "g4", "no-g4",
              "no-mar",
              "with-tests", "without-tests", 
-             "perf", "tools", "js",
+             "perf", "js",
              "options=", "extensions=", "moz-config=",
              "build-dir=",
              "src-tree-name=",
@@ -1209,8 +1105,6 @@ def target_configure(argv):
             config["enableMar"] = False
         elif opt == "--perf":
             config["buildOpt"].append("perf")
-        elif opt == "--tools":
-            config["buildOpt"].append("tools")
         elif opt in ("-k", "--komodo-version"):
             if not re.match("^\d+\.\d+$", optarg):
                 raise BuildError("illegal value for --komodo-version, it "\
@@ -1319,16 +1213,8 @@ def target_configure(argv):
         #   8:  Tiger (OS X 10.4)
 
         mozVer = config["mozVer"]
-        sdk_ver = None
-        if mozVer >= 1.92:
-            sdk_ver = "10.5"
-        elif pi.arch == "x86":
-            sdk_ver = "10.4"
-        else:
-            sdk_ver = "10.3"
-
-        sdk = "/Developer/SDKs/MacOSX%s.sdk" % ({"10.3": "10.3.9",
-                                                 "10.4": "10.4u"}.get(sdk_ver, sdk_ver))
+        sdk_ver = "10.5"
+        sdk = "/Developer/SDKs/MacOSX%s.sdk" % (sdk_ver, )
         if not os.path.exists("%s/Library" % sdk):
             raise BuildError("You must symlink %s/Library to /Library:\n"
                              "\tsudo ln -s /Library %s/Library"
@@ -1345,16 +1231,10 @@ def target_configure(argv):
             # Komodo needs to be built as a 32-bit application.
             # Snow Leopard specific build details from:
             #   https://developer.mozilla.org/en/Mac_OS_X_Build_Prerequisites
-            if mozVer <= 1.91:
-                # Mozilla <= 1.9.1 must use gcc 4.0, specify that now.
-                mozRawOptions.append('CC="gcc-4.0 -arch i386"')
-                mozRawOptions.append('CXX="g++-4.0 -arch i386"')
-            else:
-                # Mozilla 1.9.2 must use gcc 4.2, specify that now.
-                mozRawOptions.append('CC="gcc-4.2 -arch i386"')
-                mozRawOptions.append('CXX="g++-4.2 -arch i386"')
+            # Mozilla 1.9.2+ must use gcc 4.2, specify that now.
+            mozRawOptions.append('CC="gcc-4.2 -arch i386"')
+            mozRawOptions.append('CXX="g++-4.2 -arch i386"')
             mozBuildOptions.append("target=i386-apple-darwin%i" % (osx_major_ver))
-        if mozVer >= 1.91:
             mozRawOptions.append("mk_add_options AUTOCONF=autoconf213")
     elif sys.platform.startswith("linux"):
         gcc = config.get("gcc") or os.environ.get("CC")
@@ -1486,14 +1366,8 @@ def target_configure(argv):
     mozVer = config["mozVer"]
     if config["mozconfig"] is None:
         if not config["official"]:
-            if mozVer is None or mozVer >= 1.9:
-                # help viewer was removed from normal builds, enable it for Komodo
-                mozBuildOptions.append("enable-help-viewer")
-                # Pyxpcom is no longer a part of the Mozilla 1.9.2+ sources.
-                if mozVer < 1.92:
-                    mozBuildExtensions.append('python')
-            else:
-                mozBuildExtensions.append('python/xpcom')
+            # help viewer was removed from normal builds, enable it for Komodo
+            mozBuildOptions.append("enable-help-viewer")
 
         if "withTests" not in config:
             mozBuildOptions.append("disable-tests")
@@ -1527,12 +1401,8 @@ def target_configure(argv):
             if sys.platform == "win32":
                 mozBuildOptions.append('enable-debugger-info-modules=yes')
             elif sys.platform == "darwin":
-                if mozVer >= 1.91:
-                    mozRawOptions.append('export CFLAGS="-gdwarf-2"')
-                    mozRawOptions.append('export CXXFLAGS="-gdwarf-2"')
-                else:
-                    mozRawOptions.append('export CFLAGS="-g -gfull"')
-                    mozRawOptions.append('export CXXFLAGS="-g -gfull"')
+                mozRawOptions.append('export CFLAGS="-gdwarf-2"')
+                mozRawOptions.append('export CXXFLAGS="-gdwarf-2"')
             elif sys.platform.startswith("linux"):
                 mozRawOptions.append('export CFLAGS="-gstabs+"')
                 mozRawOptions.append('export CXXFLAGS="-gstabs+"')
@@ -1541,14 +1411,6 @@ def target_configure(argv):
             mozBuildOptions.append('enable-xpctools')
             mozBuildOptions.append('enable-timeline')
             
-        if "tools" in config["buildOpt"]:
-            # some extensions that may help us in
-            # development
-            if mozVer < 1.91:
-                mozBuildExtensions.append('venkman')
-                mozBuildExtensions.append('inspector')
-                mozBuildExtensions.append('cview')
-        
         if config["mozApp"] in ("browser", "komodo"):
             # Needed for building update-service packages.
             mozBuildOptions.append('enable-update-packaging')
@@ -1556,10 +1418,6 @@ def target_configure(argv):
             # these extensions are built into firefox, we need to figure out
             # what we dont want or need.
             mozBuildExtensions.append('cookie')
-            if mozVer < 1.91:
-                mozBuildExtensions.append('xml-rpc')
-                mozBuildExtensions.append('inspector')
-            
             mozBuildExtensions.append('spellcheck')
             
             # XXX these fail, but we probably dont care
@@ -1898,10 +1756,8 @@ def target_silo_python(argv=["silo_python"]):
         # Correct the shared object dependencies to point to the siloed
         # Python.
         log.info("relocating Python lib dependencies to the siloed Python...")
-        libnames = ["_xpcom.so", "lib_xpcom.dylib", "libpyloader.dylib"]
-        if config.mozVer >= 1.9:
-            libnames.append("libpyxpcom.dylib")
-            libnames.append("libpydom.dylib")
+        libnames = ["_xpcom.so", "lib_xpcom.dylib", "libpyloader.dylib",
+                    "libpyxpcom.dylib", "libpydom.dylib"]
         libs = []
         for libname in libnames:
             found = {}
@@ -1983,65 +1839,57 @@ def target_pyxpcom(argv=["pyxpcom"]):
     log.info("target: pyxpcom")
     config = _importConfig()
     _setupMozillaEnv()
-    if config.mozVer <= 1.91:
-        pyxpcom_dir = join(config.buildDir, config.srcTreeName, "mozilla",
-                           config.mozObjDir, "extensions", "python",
-                           "xpcom")
-        cmd = "cd %s && make" % pyxpcom_dir
-        log.info(cmd)
-        os.system(cmd)
+    # Run the autoconf to generate the configure script.
+    cmds = []
+    # Note: autoconf-2.13 has a special meaning for _get_exe_path()
+    autoconf_command = "autoconf-2.13"
+    autoconf_path = _get_exe_path(autoconf_command)
+    pyxpcom_src_dir = join(config.buildDir, config.srcTreeName, "mozilla",
+                           "extensions", "python")
+    if sys.platform == "win32":
+        cmds.append("sh -c %s" % _msys_path_from_path(autoconf_path))
     else:
-        # Run the autoconf to generate the configure script.
-        cmds = []
-        # Note: autoconf-2.13 has a special meaning for _get_exe_path()
-        autoconf_command = "autoconf-2.13"
-        autoconf_path = _get_exe_path(autoconf_command)
-        pyxpcom_src_dir = join(config.buildDir, config.srcTreeName, "mozilla",
-                               "extensions", "python")
-        if sys.platform == "win32":
-            cmds.append("sh -c %s" % _msys_path_from_path(autoconf_path))
-        else:
-            cmds.append(autoconf_path)
-        _run_in_dir(" && ".join(cmds), pyxpcom_src_dir, log.info)
+        cmds.append(autoconf_path)
+    _run_in_dir(" && ".join(cmds), pyxpcom_src_dir, log.info)
 
-        # Configure and build pyxpcom.
-        cmds = []
-        moz_obj_dir = join(config.buildDir, config.srcTreeName, "mozilla",
-                           config.mozObjDir)
-        pyxpcom_obj_dir = join(moz_obj_dir, "extensions", "python")
-        if not exists(pyxpcom_obj_dir):
-            os.makedirs(pyxpcom_obj_dir)
-        configure_flags = ''
-        configure_options = []
-        if sys.platform.startswith("linux"):
-            configure_flags += 'PYTHON="%s"' % (config.python, )
-            configure_flags += " ac_cv_visibility_pragma=no"
-            if config.gcc:
-                # Need to pass in the same compiler as used in the Moz build,
-                # otherwise Linux-x86_64 builds will complain about needing to
-                # recompile with -fPIC.
-                configure_options.append("CC=%s" % (config.gcc))
-        elif sys.platform == "darwin":
-            configure_flags += 'PYTHON="%s"' % (config.python, )
-            configure_flags += ' CC="gcc -arch i386" CXX="g++ -arch i386"'
-        if config.buildType == "debug":
-            configure_options.append("--enable-debug")
-        configure_path = join(pyxpcom_src_dir, "configure")
-        cmds = ["%s %s --with-libxul-sdk=%s --disable-tests %s" % (configure_flags, _msys_path_from_path(configure_path), _msys_path_from_path(join(moz_obj_dir, "dist")), " ".join(configure_options)),
-                "make"]
-        if sys.platform.startswith("win"):
-            # on Windows, we must run configure (a shell script) via /bin/sh, with quoting to pass args
-            cmds[0] = "sh -c '%s'" % (cmds[0])
-        _run_in_dir(" && ".join(cmds), pyxpcom_obj_dir, log.info)
+    # Configure and build pyxpcom.
+    cmds = []
+    moz_obj_dir = join(config.buildDir, config.srcTreeName, "mozilla",
+                       config.mozObjDir)
+    pyxpcom_obj_dir = join(moz_obj_dir, "extensions", "python")
+    if not exists(pyxpcom_obj_dir):
+        os.makedirs(pyxpcom_obj_dir)
+    configure_flags = ''
+    configure_options = []
+    if sys.platform.startswith("linux"):
+        configure_flags += 'PYTHON="%s"' % (config.python, )
+        configure_flags += " ac_cv_visibility_pragma=no"
+        if config.gcc:
+            # Need to pass in the same compiler as used in the Moz build,
+            # otherwise Linux-x86_64 builds will complain about needing to
+            # recompile with -fPIC.
+            configure_options.append("CC=%s" % (config.gcc))
+    elif sys.platform == "darwin":
+        configure_flags += 'PYTHON="%s"' % (config.python, )
+        configure_flags += ' CC="gcc -arch i386" CXX="g++ -arch i386"'
+    if config.buildType == "debug":
+        configure_options.append("--enable-debug")
+    configure_path = join(pyxpcom_src_dir, "configure")
+    cmds = ["%s %s --with-libxul-sdk=%s --disable-tests %s" % (configure_flags, _msys_path_from_path(configure_path), _msys_path_from_path(join(moz_obj_dir, "dist")), " ".join(configure_options)),
+            "make"]
+    if sys.platform.startswith("win"):
+        # on Windows, we must run configure (a shell script) via /bin/sh, with quoting to pass args
+        cmds[0] = "sh -c '%s'" % (cmds[0])
+    _run_in_dir(" && ".join(cmds), pyxpcom_obj_dir, log.info)
 
-        # The above pyxpcom build creates a "dist" directory in the
-        # "extensions/python" directory, we must copy over the details to the
-        # Komodo dist directory.
-        if sys.platform.startswith("win"):
-            copy_cmd = 'xcopy "%s" "%s" /E /K /Y' % (join(pyxpcom_obj_dir, "dist"), join(moz_obj_dir, "dist"))
-        else:
-            copy_cmd = 'cp -r %s %s' % (join(pyxpcom_obj_dir, "dist"), join(moz_obj_dir))
-        _run(copy_cmd, log.info)
+    # The above pyxpcom build creates a "dist" directory in the
+    # "extensions/python" directory, we must copy over the details to the
+    # Komodo dist directory.
+    if sys.platform.startswith("win"):
+        copy_cmd = 'xcopy "%s" "%s" /E /K /Y' % (join(pyxpcom_obj_dir, "dist"), join(moz_obj_dir, "dist"))
+    else:
+        copy_cmd = 'cp -r %s %s' % (join(pyxpcom_obj_dir, "dist"), join(moz_obj_dir))
+    _run(copy_cmd, log.info)
     return argv[1:]
 
 
@@ -2215,11 +2063,7 @@ def target_src(argv=["src"]):
             _run(" && ".join(cmds), log.info)
 
     elif mozSrcType == "hg":
-        if config.mozVer <= 1.91:
-            repo_url = "http://hg.mozilla.org/releases/mozilla-1.9.1/"
-        elif config.mozVer <= 1.92:
-            repo_url = "http://hg.mozilla.org/releases/mozilla-1.9.2/"
-        elif config.mozVer <= 2.00:
+        if config.mozVer <= 2.00:
             repo_url = "http://hg.mozilla.org/releases/mozilla-2.0/"
         # 5.0 is gone? I cannot find it...
         #elif config.mozVer <= 5.00:
@@ -2237,10 +2081,9 @@ def target_src(argv=["src"]):
             revision_arg = "--rev=%s" % (config.mozSrcHgTag)
         cmds = ["cd %s" % buildDir,
                 "hg clone %s %s mozilla" % (revision_arg, repo_url, )]
-        if config.mozVer >= 1.92:
-            # Checkout pyxpcom as well.
-            cmds += ["cd mozilla/extensions",
-                     "hg clone http://hg.mozilla.org/pyxpcom/ python"]
+        # Checkout pyxpcom as well.
+        cmds += ["cd mozilla/extensions",
+                 "hg clone http://hg.mozilla.org/pyxpcom/ python"]
         _run(" && ".join(cmds), log.info)
 
     elif mozSrcType == "tarball":
@@ -2376,18 +2219,17 @@ def target_configure_mozilla(argv=["configure_mozilla"]):
 
     # get the moz version
     extensions = config.mozBuildExtensions
-    if config.mozVer >= 1.9:
-        # XXX FIXME!!!!
-        #if sys.platform == "win32":
-        #    user_appdir = config.mozApp
-        #elif sys.platform == "darwin":
-        #    user_appdir = config.mozApp
-        #else:
-        #    user_appdir = ".%s" % config.mozApp
-        #config.mozconfig += "ac_add_options --with-user-appdir=%s\n"\
-        #                   % (user_appdir, config.komodoVersion)
-        # remove some extensions
-        extensions = [e for e in config.mozBuildExtensions if e not in moz18Only]
+    # XXX FIXME!!!!
+    #if sys.platform == "win32":
+    #    user_appdir = config.mozApp
+    #elif sys.platform == "darwin":
+    #    user_appdir = config.mozApp
+    #else:
+    #    user_appdir = ".%s" % config.mozApp
+    #config.mozconfig += "ac_add_options --with-user-appdir=%s\n"\
+    #                   % (user_appdir, config.komodoVersion)
+    # remove some extensions
+    extensions = [e for e in config.mozBuildExtensions if e not in moz18Only]
 
     config.mozconfig += "ac_add_options --enable-extensions=%s\n"\
                            % ','.join(extensions)
@@ -2468,41 +2310,6 @@ def target_symbols(argv=["symbols"]):
         _run_in_dir("make buildsymbols", native_objdir, log.info)
     return argv[1:]
 
-def target_jsstandalone(argv=["mozilla"]):
-    config = _importConfig()
-    if config.official and not config.jsStandalone:
-        return argv[1:]
-    if config.mozVer >= 1.91:
-        # Nothing to do - it's already all done.
-        return argv[1:]
-
-    # Build the javascript standalone interpreter seperately
-    # the standalone makefile doesn't seem to know about some things,
-    # we need to set a couple environment variables to get it
-    # building release or with msvc
-    _setupMozillaEnv()
-    buildDir = os.path.join(config.buildDir, config.srcTreeName, "mozilla")
-    topDir = os.getcwd()
-    native_objdir = _get_mozilla_objdir(convert_to_native_win_path=True)
-    unixy_objdir = _get_mozilla_objdir()
-    jsDir = os.path.join(topDir, buildDir, 'js', 'src')
-
-    make_env = []
-    if config.buildType == 'release':
-        make_env.append("BUILD_OPT=1")
-    if sys.platform.startswith("win"):
-        make_env.append("USE_MSVC=1")
-    make_env.append("MOZ_OBJDIR=%s" % unixy_objdir)
-    if sys.platform.startswith("darwin") and int(os.uname()[2].split(".")[0]) >= 10:
-        # Snow leopard - ensure to use gcc-4.0 to build the standalone js.
-        make_env.append('CC="gcc-4.0 -arch i386"')
-    log.info("entering directory '%s' (to build js separately)",
-             jsDir)
-    _run_in_dir('make -f Makefile.ref clean all distbin %s'
-                    % ' '.join(make_env),
-                jsDir, log.info)
-    return argv[1:]
-
 def target_pluginsdk(argv=["mozilla"]):
     # Build the plugin toolkit seperately
     # (Komodo's SciMoz build depends on the plugingate_s.lib from
@@ -2513,11 +2320,8 @@ def target_pluginsdk(argv=["mozilla"]):
     if config.mozVer >= 5.0:
         # Nothing to do - Komodo uses npapi sdk from google code.
         return argv[1:]
-    elif config.mozVer >= 1.91:
-        pluginDir = os.path.join(native_objdir, 'modules', 'plugin', 'sdk')
     else:
-        pluginDir = os.path.join(native_objdir, 'modules', 'plugin',
-                                 'tools', 'sdk')
+        pluginDir = os.path.join(native_objdir, 'modules', 'plugin', 'sdk')
     log.info("entering directory '%s' (to build plugin separately)",
              pluginDir)
     _run_in_dir('make', pluginDir, log.info)
@@ -2557,11 +2361,6 @@ def target_libmar(argv=["mozilla"]):
     return argv[1:]
 
 
-def target_js(argv):
-    """build the standalone javascript interpreter"""
-    target_jsstandalone()
-
-
 def target_all(argv):
     """get the source, patch it, and build mozilla"""
     log.info("target: all")
@@ -2569,7 +2368,6 @@ def target_all(argv):
     target_patch()
     target_configure_mozilla()
     target_mozilla()
-    target_jsstandalone()
     target_pluginsdk()
     target_mbsdiff()
     target_libmar()
