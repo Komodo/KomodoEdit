@@ -825,6 +825,9 @@ class FTPFile:
     _reg_clsid_ = "{010656B6-E830-45ae-B7D9-F22C1E4AFDEC}"
 
     def __init__(self):
+        import warnings
+        warnings.warn("'koIFTPFile' is deprecated, use koIFileEx instead.",
+                      DeprecationWarning)
         self.log = log_FTPFile
         #self.filename = ""
         #self.ftpfile = None

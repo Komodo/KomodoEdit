@@ -79,6 +79,9 @@ class URIFile(file.URIFile):
             return self.init(uri, mode)
 
         def init(*args):
+                import warnings
+                warnings.warn("'koURIFile' is deprecated, use koIFileEx instead.",
+                              DeprecationWarning)
                 return apply_raising_com(file.URIFile.init, args)
 
         def get_file(self): # readonly "file" property
@@ -96,6 +99,9 @@ class LocalFile(file.LocalFile):
         _reg_clsid_ = "{9C1A72FB-002F-43de-9E45-BD8C23C07076}"
 
         def init(*args):
+                import warnings
+                warnings.warn("'koILocalFile' is deprecated, use koIFileEx instead.",
+                              DeprecationWarning)
                 return apply_raising_com(file.LocalFile.init, args)
 
         def get_file(self): # readonly "file" property
@@ -159,6 +165,9 @@ class TempFileFactory:
         _reg_contractid_ = "@activestate.com/koTempFileFactory;1"
         _reg_clsid_ = "{e69ac472-29d7-4799-93e3-5d635d0691aa}"
         def __init__(self):
+                import warnings
+                warnings.warn("'koITempFileFactory' is deprecated, use koIFileService instead.",
+                              DeprecationWarning)
                 # Add a shutdown observer, so when xpcom shuts down we can destroy any remaining files.
                 svc = components.classes["@mozilla.org/observer-service;1"].getService(components.interfaces.nsIObserverService)
 

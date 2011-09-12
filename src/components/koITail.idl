@@ -50,7 +50,11 @@ interface koITailObserver : nsISupports
 interface koITail : nsISupports
 {
   void init(in ISciMoz scintilla, in wstring url);
-  void initFile(in ISciMoz scintilla, in koIFile file);
+      /**
+       * The initFile method is now
+       * @deprecated since Komodo 7.0.0
+       */
+  [deprecated] void initFile(in ISciMoz scintilla, in koIFile file);
   void terminate();
   void terminateSoon(in PRUint32 secs);
 };
