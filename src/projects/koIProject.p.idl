@@ -99,7 +99,11 @@ interface koIPart_Common: nsIObserver {
     void dump(in long indent);
     // This can raise an exception, in which case an appropriate error is
     // set on the last error service.
-    void serialize(in koIFile stream);
+        /**
+         * serialize method is private
+         * @deprecated since Komodo 7.0.0
+         */
+    [deprecated] void serialize(in koIFile stream);
 
     wstring getDragData(); 
     wstring getDragDataByFlavor(in wstring flavor); 
