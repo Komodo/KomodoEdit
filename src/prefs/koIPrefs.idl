@@ -54,6 +54,10 @@ interface koITestable : nsISupports {
 // and stored in a more "global" location.
 [scriptable, uuid(1912A0AE-D9A4-4f55-A4E0-A80DAD21396D)]
 interface koISerializable : nsISupports {
+    /**
+     * The serialize method is now private
+     * @deprecated since Komodo 7.0.0
+     */
   void serialize(in koIFile file, in wstring basedir);
   void serializeToFile(in wstring filename);
 };
