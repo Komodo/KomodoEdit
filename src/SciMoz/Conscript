@@ -291,10 +291,6 @@ elsif ($platform eq "darwin") {
         $consLocal{'CXXFLAGS'} .= " -DNS_DEBUG -DDEBUG "; # for debugging
     } else {
         $consLocal{'CXXFLAGS'} .= " -Os ";
-        # XXX - There may be an equivalent to -faltivec for mac x86
-        if ("$architecture" ne "x86") {
-            $consLocal{'CXXFLAGS'} .= " -faltivec -mcpu=7400 -mtune=7400 -mpowerpc -mpowerpc-gfxopt";
-        }
     }
 
     $consLocal = new cons(%consLocal);
