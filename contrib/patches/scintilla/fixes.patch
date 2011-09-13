@@ -164,8 +164,7 @@ diff -r -du src/Editor.cxx src/Editor.cxx
  	return MovePositionOutsideChar(SelectionPosition(pos), moveDir, checkLineEnd).Position();
  }
  
-@@ -5726,13 +5731,21 @@
- 		}
+@@ -5900,12 +5909,20 @@
  	}
  	lastClickTime = curTime;
  	lastXChosen = pt.x + xOffset;
@@ -187,7 +186,7 @@ diff -r -du src/Editor.cxx src/Editor.cxx
  
  bool Editor::PointIsHotspot(Point pt) {
  	int pos = PositionFromLocation(pt, true);
-@@ -8083,7 +8096,32 @@
+@@ -8291,7 +8308,32 @@
  		break;
  
  	case SCI_GETPASTECONVERTENDINGS:

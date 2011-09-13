@@ -106,6 +106,7 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 	const int MAIN_SUBSTATE_IN_DECLARATION_NAME = 2;
 	const int MAIN_SUBSTATE_IN_PROPERTY_VALUE = 3;
 	const int MAIN_SUBSTATE_AMBIGUOUS_SELECTOR_OR_PROPERTY_NAME = 4;
+	const int MAIN_SUBSTATE_SCSS_ASSIGNMENT = 5;
 	
 	int main_substate = MAIN_SUBSTATE_TOP_LEVEL;
 	int nested_declaration_count = 0;
@@ -238,7 +239,7 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 		case SCE_CSS_TAG:
 			if (!IsAWordChar(ch)) {
 				if (main_substate == MAIN_SUBSTATE_AMBIGUOUS_SELECTOR_OR_PROPERTY_NAME) {
-					classifyWordAndStyle(sc, styler, keywordlists, true, SCE_CSS_IDENTIFIER);
+					classifyWordAndStyle(sc, styler, keywordlists, false, SCE_CSS_TAG);
 				} else {
 					sc.SetState(SCE_CSS_DEFAULT);
 				}
@@ -430,7 +431,8 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 				break;
 	
 			case '#':
-				if (main_substate == MAIN_SUBSTATE_IN_PROPERTY_VALUE) {
+				if (main_substate == MAIN_SUBSTATE_IN_PROPERTY_VALUE
+				    || main_substate == MAIN_SUBSTATE_SCSS_ASSIGNMENT) {
 					sc.SetState(SCE_CSS_VALUE);
 				} else {
 					main_substate = MAIN_SUBSTATE_IN_SELECTOR;
@@ -444,12 +446,16 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 			case '$':
 				if (isScssDocument) {
 					identifier_substate = IDENTIFIER_SUBSTATE_SCSS_DOLLAR;
+					if (main_substate == MAIN_SUBSTATE_TOP_LEVEL) {
+						main_substate = MAIN_SUBSTATE_SCSS_ASSIGNMENT;
+					}
 					sc.SetState(SCE_CSS_IDENTIFIER);
 				}
 				break;
 	
 			case '.':
-				if (main_substate == MAIN_SUBSTATE_IN_PROPERTY_VALUE
+				if ((main_substate == MAIN_SUBSTATE_IN_PROPERTY_VALUE
+				     || main_substate == MAIN_SUBSTATE_SCSS_ASSIGNMENT)
 				    && IsADigit(sc.chNext)) {
 					sc.SetState(SCE_CSS_NUMBER);
 				} else {
@@ -560,13 +566,16 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 					    || main_substate == MAIN_SUBSTATE_AMBIGUOUS_SELECTOR_OR_PROPERTY_NAME) {
 						main_substate = MAIN_SUBSTATE_IN_PROPERTY_VALUE;
 					}
+					// MAIN_SUBSTATE_SCSS_ASSIGNMENT: stay
 					sc.SetState(SCE_CSS_OPERATOR);
 				}
 				break;
 			
 			case ';':
 				// Always change to DECL NAME
-				if (isLessDocument || isScssDocument) {
+				if (isScssDocument && main_substate == MAIN_SUBSTATE_SCSS_ASSIGNMENT) {
+					main_substate = MAIN_SUBSTATE_TOP_LEVEL;
+				} else if (isLessDocument || isScssDocument) {
 					main_substate = MAIN_SUBSTATE_AMBIGUOUS_SELECTOR_OR_PROPERTY_NAME;
 				} else if (in_top_level_directive) {
 					main_substate = MAIN_SUBSTATE_TOP_LEVEL;
@@ -641,9 +650,9 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 				break;
 			
 			case '-':
-				if (main_substate == MAIN_SUBSTATE_IN_PROPERTY_VALUE) {
+				if (main_substate == MAIN_SUBSTATE_IN_PROPERTY_VALUE || main_substate == MAIN_SUBSTATE_SCSS_ASSIGNMENT) {
 					if (IsADigit(sc.chNext)) {
-						  sc.SetState(SCE_CSS_NUMBER);
+						sc.SetState(SCE_CSS_NUMBER);
 					} else if (IsAWordChar(sc.chNext)) {
 						sc.SetState(SCE_CSS_VALUE);
 					} else {
@@ -681,7 +690,8 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 				if (IsADigit(sc.ch)) {
 				    sc.SetState(SCE_CSS_NUMBER);
 				} else if (IsSafeAlpha(sc.ch)) {
-					if (main_substate == MAIN_SUBSTATE_IN_PROPERTY_VALUE) {
+					if (main_substate == MAIN_SUBSTATE_IN_PROPERTY_VALUE
+					    || main_substate == MAIN_SUBSTATE_SCSS_ASSIGNMENT) {
 						sc.SetState(SCE_CSS_VALUE);
 					} else if (main_substate == MAIN_SUBSTATE_TOP_LEVEL) {
 						main_substate = MAIN_SUBSTATE_IN_SELECTOR;

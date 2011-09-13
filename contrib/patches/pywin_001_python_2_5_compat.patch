@@ -1,0 +1,51 @@
+diff
+Description:
+	Basic changes to make to wnd (pywin) to get it to work
+	with Python 2.5.	
+
+Differences:
+
+Index: pywin/wnd-0-1-20/dlgs/choosecolor.py
+===================================================================
+--- pywin/wnd-0-1-20/dlgs/choosecolor.py.~1~	Tue Aug 28 14:30:37 2007
++++ pywin/wnd-0-1-20/dlgs/choosecolor.py	Tue Aug 28 14:30:37 2007
+@@ -49,7 +49,7 @@
+ 						
+ 			customcolors= kwargs.get('customcolors')
+ 			if customcolors: 	
+-				for x, i in enumerate(customcolors):
++				for i, x in enumerate(customcolors):
+ 					self._dlgs_colors[i]= x
+ 			cc.lpCustColors=pointer(self._dlgs_colors)
+
+Index: pywin/wnd-0-1-20/fwtypes.py
+===================================================================
+--- pywin/wnd-0-1-20/fwtypes.py.orig	2007-10-11 14:09:20.671875000 -0700
++++ pywin/wnd-0-1-20/fwtypes.py	2007-10-11 14:09:24.562500000 -0700
+@@ -25,7 +25,6 @@
+ 												MAKELONG,
+ 												COPYDATASTRUCT) 
+ 
+-from ctypes.com import GUID
+ import sys, atexit
+ #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+ 
+Index: pywin/wnd-0-1-20/wintypes.py
+===================================================================
+--- pywin/wnd-0-1-20/wintypes.py	2007-10-10 12:58:43.546875000 -0700
++++ pywin/wnd-0-1-20/wintypes.py	2007-10-11 13:13:44.625000000 -0700
+@@ -3,6 +3,7 @@
+ 
+ import traceback
+ from ctypes.wintypes import *
++from ctypes import * # ctypes.wintypes  no longer exports the ctypes names
+ 
+ user32 = windll.user32
+ gdi32 = windll.gdi32
+@@ -310,4 +311,4 @@
+ 				Found ver %s.%s on your system'''.replace('\t', '')
+ 	Msg(0, msg % VER_COMCTL, 'wnd-module', 'ok', 'systemmodal')
+ 
+-#OS_NAME = winos.Name()
+\ No newline at end of file
++#OS_NAME = winos.Name()

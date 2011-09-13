@@ -34,7 +34,7 @@ Scintilla buffer before shutting down, bug 81293.
  	_ScintillaObject *sci;
  	Window wText;
 @@ -108,6 +118,8 @@
- 	GtkObject *adjustmenth;
+ 	GtkAdjustment *adjustmenth;
  	int scrollBarWidth;
  	int scrollBarHeight;
 +	// XXX ActiveState prevent recursive Resize
@@ -73,14 +73,15 @@ Scintilla buffer before shutting down, bug 81293.
  	static void DragBegin(GtkWidget *widget, GdkDragContext *context);
  	gboolean DragMotionThis(GdkDragContext *context, gint x, gint y, guint dragtime);
  	static gboolean DragMotion(GtkWidget *widget, GdkDragContext *context,
-@@ -286,6 +301,7 @@
+@@ -286,7 +301,8 @@
  	                             gint x, gint y, GtkSelectionData *selection_data, guint info, guint time);
  	static void DragDataGet(GtkWidget *widget, GdkDragContext *context,
  	                        GtkSelectionData *selection_data, guint info, guint time);
 +#endif
- 	static gint TimeOut(ScintillaGTK *sciThis);
- 	static gint IdleCallback(ScintillaGTK *sciThis);
- 	static void PopUpCB(ScintillaGTK *sciThis, guint action, GtkWidget *widget);
+ 	static gboolean TimeOut(ScintillaGTK *sciThis);
+ 	static gboolean IdleCallback(ScintillaGTK *sciThis);
+ 	static gboolean StyleIdle(ScintillaGTK *sciThis);
+ 	virtual void QueueStyling(int upTo);
 @@ -298,6 +314,10 @@
  
  	static sptr_t DirectFunction(ScintillaGTK *sciThis,
@@ -92,7 +93,7 @@ Scintilla buffer before shutting down, bug 81293.
  };
  
  enum {
-@@ -351,8 +371,9 @@
+@@ -351,7 +371,8 @@
  ScintillaGTK::ScintillaGTK(_ScintillaObject *sci_) :
  		adjustmentv(0), adjustmenth(0),
  		scrollBarWidth(30), scrollBarHeight(30),
@@ -101,9 +102,9 @@ Scintilla buffer before shutting down, bug 81293.
  		lastKey(0), rectangularSelectionModifier(SCMOD_CTRL), parentClass(0),
  		im_context(NULL),
  		lastWheelMouseDirection(0),
- 		wheelMouseIntensity(0),
-@@ -396,6 +416,30 @@
+@@ -396,8 +416,32 @@
  ScintillaGTK::~ScintillaGTK() {
+ 	g_idle_remove_by_data(this);
  }
  
 +// KOMODO HACK
@@ -132,12 +133,12 @@ Scintilla buffer before shutting down, bug 81293.
 +
  void ScintillaGTK::RealizeThis(GtkWidget *widget) {
  	//Platform::DebugPrintf("ScintillaGTK::realize this\n");
- 	GTK_WIDGET_SET_FLAGS(widget, GTK_REALIZED);
-@@ -654,8 +698,10 @@
+ #if GTK_CHECK_VERSION(2,20,0)
+ 	gtk_widget_set_realized(widget, TRUE);
+@@ -654,7 +698,10 @@
  
  gint ScintillaGTK::FocusInThis(GtkWidget *widget) {
  	try {
--		GTK_WIDGET_SET_FLAGS(widget, GTK_HAS_FOCUS);
 -		SetFocusState(true);
 +		ScintillaGTK *sciThis = ScintillaFromWidget(widget);
 +		sciThis->ChangeFocusState(true);  // KOMODO INSTEAD OF FOLLOWING TWO LINES
@@ -146,11 +147,10 @@ Scintilla buffer before shutting down, bug 81293.
  		if (im_context != NULL) {
  			gchar *str = NULL;
  			gint cursor_pos;
-@@ -692,8 +738,10 @@
+@@ -692,7 +738,10 @@
  
  gint ScintillaGTK::FocusOutThis(GtkWidget *widget) {
  	try {
--		GTK_WIDGET_UNSET_FLAGS(widget, GTK_HAS_FOCUS);
 -		SetFocusState(false);
 +		ScintillaGTK *sciThis = ScintillaFromWidget(widget);
 +		sciThis->ChangeFocusState(false);  // KOMODO INSTEAD OF FOLLOWING TWO LINES
@@ -164,27 +164,28 @@ Scintilla buffer before shutting down, bug 81293.
  
  void ScintillaGTK::SizeRequest(GtkWidget *widget, GtkRequisition *requisition) {
  	ScintillaGTK *sciThis = ScintillaFromWidget(widget);
--	requisition->width = 600;
+-	requisition->width = 1;
 +	// XXX ActiveState.  We need to figure out if there is a way to
 +	// initialize these values better.  They cause problems with the initial
 +	// scroll locations, and also are the cause of our flickering scrollbars
 +	// when opening multiple files on startup.  Increasing the width makes
 +	// the scrollbar flicker go away.  bug 29103
 +	requisition->width = 2000;
- 	requisition->height = gdk_screen_height();
+ 	requisition->height = 1;
  	GtkRequisition child_requisition;
- 	gtk_widget_size_request(PWidget(sciThis->scrollbarh), &child_requisition);
-@@ -762,7 +815,9 @@
- 	parentClass = reinterpret_cast<GtkWidgetClass *>(
- 	                  gtk_type_class(gtk_container_get_type()));
- 
+ #if GTK_CHECK_VERSION(3,0,0)
+@@ -726,8 +815,10 @@
+ 	gtk_widget_set_can_focus(PWidget(wMain), TRUE);
+ 	gtk_widget_set_sensitive(PWidget(wMain), TRUE);
+ #else
 +#ifndef KOMODO_NO_FOCUS
  	GTK_WIDGET_SET_FLAGS(PWidget(wMain), GTK_CAN_FOCUS);
 +#endif
  	GTK_WIDGET_SET_FLAGS(GTK_WIDGET(PWidget(wMain)), GTK_SENSITIVE);
+ #endif
  	gtk_widget_set_events(PWidget(wMain),
  	                      GDK_EXPOSURE_MASK
-@@ -820,7 +875,8 @@
+@@ -820,12 +875,14 @@
  	gtk_widget_set_parent(PWidget(scrollbarh), PWidget(wMain));
  	gtk_widget_show(PWidget(scrollbarh));
  
@@ -192,13 +193,6 @@ Scintilla buffer before shutting down, bug 81293.
 +	GrabFocus(); // KOMODO -- instead of following:
 +	// gtk_widget_grab_focus(PWidget(wMain));
  
- 	gtk_selection_add_targets(GTK_WIDGET(PWidget(wMain)), GDK_SELECTION_PRIMARY,
- 	                          clipboardCopyTargets, nClipboardCopyTargets);
-@@ -829,11 +885,11 @@
- 	gtk_selection_add_targets(GTK_WIDGET(PWidget(wMain)), atomClipboard,
- 	                          clipboardPasteTargets, nClipboardPasteTargets);
- #endif
--
 +#ifndef KOMODO_DISABLE_DRAG_DROP
  	gtk_drag_dest_set(GTK_WIDGET(PWidget(wMain)),
  	                  GTK_DEST_DEFAULT_ALL, clipboardPasteTargets, nClipboardPasteTargets,
@@ -224,8 +218,8 @@ Scintilla buffer before shutting down, bug 81293.
  	               reinterpret_cast<GdkEvent *>(&evbtn));
 +#endif
  }
- 
- #ifdef USE_CONVERTER
+
+ static char *ConvertText(int *lenResult, char *s, size_t len, const char *charSetDest,
 @@ -1014,7 +1074,8 @@
  		switch (iMessage) {
  
@@ -309,9 +303,9 @@ Scintilla buffer before shutting down, bug 81293.
  		} else {
  			// Pass up to container in case it is an accelerator
 @@ -1470,6 +1543,118 @@
- 		primary.Free();
- 	}
- }
+ static GdkAtom TypeOfGSD(GtkSelectionData *sd) { return sd->type; }
+ static GdkAtom SelectionOfGSD(GtkSelectionData *sd) { return sd->selection; }
+ #endif
 + 
 +
 +/* SMC UTF-8 detection code below taken from Apache mod_fileiri */
@@ -436,7 +430,7 @@ Scintilla buffer before shutting down, bug 81293.
  			// Unknown encoding so assume in Latin1
  			char *destPrevious = dest;
  			dest = UTF8FromLatin1(dest, len);
-@@ -1545,9 +1771,13 @@
+@@ -1545,8 +1771,12 @@
  					sel.Range(sel.Main()).Start();
  
  				if (selText.rectangular) {
@@ -444,13 +438,12 @@ Scintilla buffer before shutting down, bug 81293.
 +					PasteRectangular(selStart.Position(), selText.s, selText.len);
  				} else {
  					InsertPaste(selStart, selText.s, selText.len);
-+						// XXX ActiveState bug 33804
-+						if (ac.Active()) {
-+							AutoCompleteMoveToCurrentWord();
-+						}
++ 					// XXX ActiveState bug 33804
++ 					if (ac.Active()) {
++ 						AutoCompleteMoveToCurrentWord();
++					}
  				}
  				EnsureCaretVisible();
- 			}
 @@ -1563,6 +1752,7 @@
  	}
  }
@@ -458,7 +451,7 @@ Scintilla buffer before shutting down, bug 81293.
 +#ifndef KOMODO_DISABLE_DRAG_DROP
  void ScintillaGTK::ReceivedDrop(GtkSelectionData *selection_data) {
  	dragWasDropped = true;
- 	if (selection_data->type == atomUriList || selection_data->type == atomDROPFILES_DND) {
+ 	if (TypeOfGSD(selection_data) == atomUriList || TypeOfGSD(selection_data) == atomDROPFILES_DND) {
 @@ -1582,7 +1772,7 @@
  	}
  	Redraw();
@@ -488,7 +481,7 @@ Scintilla buffer before shutting down, bug 81293.
  }
  
  void ScintillaGTK::ClipboardGetSelection(GtkClipboard *, GtkSelectionData *selection_data, guint info, void *data) {
-@@ -1742,7 +1932,9 @@
+@@ -1742,8 +1932,10 @@
  void ScintillaGTK::Resize(int width, int height) {
  	//Platform::DebugPrintf("Resize %d %d\n", width, height);
  	//printf("Resize %d %d\n", width, height);
@@ -497,8 +490,9 @@ Scintilla buffer before shutting down, bug 81293.
 +	if (inResize) return;
 +	inResize = true;
  	// Not always needed, but some themes can have different sizes of scrollbars
- 	scrollBarWidth = GTK_WIDGET(PWidget(scrollbarv))->requisition.width;
- 	scrollBarHeight = GTK_WIDGET(PWidget(scrollbarh))->requisition.height;
+ #if GTK_CHECK_VERSION(3,0,0)
+ 	GtkRequisition requisition;
+ 	gtk_widget_get_requisition(PWidget(scrollbarv), &requisition);
 @@ -1794,6 +1986,9 @@
  	if (!verticalScrollBarVisible)
  		alloc.width += scrollBarWidth;
@@ -508,7 +502,7 @@ Scintilla buffer before shutting down, bug 81293.
 +	inResize = false;
  }
  
- static void SetAdjustmentValue(GtkObject *object, int value) {
+ static void SetAdjustmentValue(GtkAdjustment *object, int value) {
 @@ -1843,7 +2042,8 @@
  
  		bool ctrl = (event->state & GDK_CONTROL_MASK) != 0;
@@ -529,8 +523,8 @@ Scintilla buffer before shutting down, bug 81293.
  
  gint ScintillaGTK::Press(GtkWidget *widget, GdkEventButton *event) {
 @@ -2521,6 +2721,7 @@
+ 	return TRUE;
  }
- #endif
  
 +#ifndef KOMODO_DISABLE_DRAG_DROP
  void ScintillaGTK::DragBegin(GtkWidget *, GdkDragContext *) {
@@ -549,8 +543,8 @@ Scintilla buffer before shutting down, bug 81293.
  }
  
 @@ -2802,13 +3004,21 @@
- 	widget_class->selection_notify_event = SelectionNotify;
- #endif
+ 	widget_class->selection_get = SelectionGet;
+ 	widget_class->selection_clear_event = SelectionClear;
  
 +#ifdef KOMODO_DISABLE_DRAG_DROP
 +	widget_class->drag_data_received = NULL;
@@ -571,71 +565,14 @@ Scintilla buffer before shutting down, bug 81293.
  	widget_class->realize = Realize;
  	widget_class->unrealize = UnRealize;
  	widget_class->map = Map;
-@@ -2888,7 +3099,9 @@
- 
- static void scintilla_init(ScintillaObject *sci) {
- 	try {
+@@ -2888,8 +3099,10 @@
+ #if GTK_CHECK_VERSION(2,20,0)
+ 		gtk_widget_set_can_focus(GTK_WIDGET(sci), TRUE);
+ #else
 +#ifndef KOMODO_NO_FOCUS
  		GTK_WIDGET_SET_FLAGS(sci, GTK_CAN_FOCUS);
 +#endif
+ #endif
  		sci->pscin = new ScintillaGTK(sci);
  	} catch (...) {
  	}
-diff -u -r1.96 gtk/makefile
---- gtk/makefile	15 May 2007 00:11:31 -0000	1.96
-+++ gtk/makefile	23 May 2007 20:34:33 -0000
-@@ -72,9 +72,9 @@
- 
- LexOthers.o LexPascal.o LexPB.o LexPerl.o LexPLM.o LexPOV.o LexPowerPro.o \
- LexPowerShell.o LexProgress.o LexPS.o LexPython.o LexR.o LexRebol.o LexRuby.o \
- LexScriptol.o LexSmalltalk.o LexSML.o LexSorcus.o LexSpecman.o LexSpice.o \
--LexSQL.o LexTACL.o LexTADS3.o LexTAL.o LexTCL.o LexTeX.o LexVB.o LexVerilog.o \
--LexVHDL.o LexYAML.o
-+LexSQL.o LexTACL.o LexTADS3.o LexTAL.o LexTcl.o LexTeX.o LexVB.o LexVerilog.o \
-+LexUDL.o LexVHDL.o LexXSLT.o LexYAML.o LexCoffeeScript.o
- #--Autogenerated -- end of automatically generated section
- 
- all: $(COMPLIB)
-diff -u -r1.64 gtk/scintilla.mak
---- gtk/scintilla.mak	16 Apr 2007 12:28:51 -0000	1.64
-+++ gtk/scintilla.mak	23 May 2007 20:36:27 -0000
-@@ -199,12 +201,15 @@
- 	$(DIR_O)\LexTACL.obj \
- 	$(DIR_O)\LexTADS3.obj \
- 	$(DIR_O)\LexTAL.obj \
--	$(DIR_O)\LexTCL.obj \
- 	$(DIR_O)\LexTeX.obj \
- 	$(DIR_O)\LexVB.obj \
- 	$(DIR_O)\LexVerilog.obj \
- 	$(DIR_O)\LexVHDL.obj \
- 	$(DIR_O)\LexYAML.obj \
-+	$(DIR_O)\LexTcl.obj \
-+	$(DIR_O)\LexUDL.obj \
-+	$(DIR_O)\LexXSLT.obj \
-+	$(DIR_O)\LexCoffeeScript.obj \
- 
- #--Autogenerated -- end of automatically generated section
- 
-@@ -459,8 +467,6 @@
- 
- $(DIR_O)\LexTAL.obj: ..\src\LexTADS3.cxx $(LEX_HEADERS)
- 
--$(DIR_O)\LexTCL.obj: ..\src\LexTCL.cxx $(LEX_HEADERS)
--
- $(DIR_O)\LexTeX.obj: ..\src\LexTeX.cxx $(LEX_HEADERS)
- 
- $(DIR_O)\LexVB.obj: ..\src\LexVB.cxx $(LEX_HEADERS)
-@@ -471,6 +477,13 @@
- 
- $(DIR_O)\LexYAML.obj: ..\src\LexYAML.cxx $(LEX_HEADERS)
- 
-+$(DIR_O)\LexTcl.obj: ..\src\LexTcl.cxx $(LEX_HEADERS)
-+
-+$(DIR_O)\LexUDL.obj: ..\src\LexUDL.cxx $(LEX_HEADERS)
-+
-+$(DIR_O)\LexXSLT.obj: ..\src\LexXSLT.cxx $(LEX_HEADERS)
-+
-+$(DIR_O)\LexCoffeeScript.obj: ..\src\LexCoffeeScript.cxx $(LEX_HEADERS)
- 
- #--Autogenerated -- end of automatically generated section
- 

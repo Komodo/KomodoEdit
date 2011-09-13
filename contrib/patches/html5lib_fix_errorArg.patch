@@ -1,0 +1,13 @@
+Index: html5lib/src/html5lib/html5parser.py
+===================================================================
+--- html5lib/src/html5lib/html5parser.py	(revision 61839)
++++ html5lib/src/html5lib/html5parser.py	(working copy)
+@@ -1507,7 +1507,7 @@
+     
+     def processEOF(self):
+         self.parser.parseError("expected-named-closing-tag-but-got-eof", 
+-                               self.tree.openElements[-1].name)
++                               {name: self.tree.openElements[-1].name})
+         self.tree.openElements.pop()
+         self.parser.phase = self.parser.originalPhase
+         self.parser.phase.processEOF()
