@@ -456,16 +456,17 @@ class KoPerlCriticLinter(_CommonPerlLinter):
         # goes by the filename given in any #line directives
         perlCriticVersion = self._appInfoEx.getPerlCriticVersion();
         file = request.koDoc.file
+        baseFileName = None
         if file:
             baseFileName = file.baseName[0:-len(file.ext)]
-        if perlCriticVersion < 1.500:
-            munger = re.compile(r'''^\s*(?P<package1>package \s+ (?:[\w\d_]+::)*) 
+            if perlCriticVersion < 1.500:
+                munger = re.compile(r'''^\s*(?P<package1>package \s+ (?:[\w\d_]+::)*) 
                                          (?P<baseFileName>%s)
                                          (?P<space1>\s*;)
                                          (?P<space2>\s*)
                                          (?P<rest>(?:\#.*)?)$''' % (baseFileName,),
                                 re.MULTILINE|re.VERBOSE)
-            text = munger.sub(self._insertPerlCriticFilenameMatchInhibitor, text)
+                text = munger.sub(self._insertPerlCriticFilenameMatchInhibitor, text)
         elif perlCriticVersion >= 1.500 and file:
             text = "#line 1 " + file.baseName + "\n" + text
 
@@ -475,9 +476,9 @@ class KoPerlCriticLinter(_CommonPerlLinter):
             perlExe = self._selectPerlExe(prefset)
             lintOptions = prefset.getStringPref("perl_lintOption")
             option = '-' + lintOptions
-            if perlCriticVersion <= 1.100:
+            if perlCriticVersion <= 1.100 or not baseFileName:
                 pcOption = '-Mcriticism=' + criticLevel
-            else:
+            elif:
                 pcOption = '''-Mcriticism (-severity => '%s', 'as-filename' => '%s')''' % (criticLevel, baseFileName)
             perlExtraPaths = prefset.getStringPref("perlExtraPaths")
             if perlExtraPaths:
