@@ -1596,6 +1596,53 @@ You need to do one or more of the following to work around this problem
 
     return remainder
 
+def _relocatePyxpcom(config):
+    if sys.platform != "darwin":
+        return
+    # Correct the shared object dependencies to point to the siloed
+    # Python.
+    log.info("relocating Python lib dependencies to the siloed Python...")
+    libnames = ["_xpcom.so", "lib_xpcom.dylib", "libpyloader.dylib",
+                "libpyxpcom.dylib", "libpydom.dylib"]
+    libs = []
+    distDir = join(config.buildDir, config.srcTreeName, "mozilla",
+                   config.mozObjDir, "dist")
+    for libname in libnames:
+        found = {}
+        # we cant use -type f here because different apps will handle
+        # files differently, some symlinking while other copying.  We
+        # have to resolve the symlink then veryify this is a file
+        cmd = "find %s -name %s" % (distDir, libname)
+        for line in os.popen(cmd).readlines():
+            p = os.path.realpath(line.strip())
+            if os.path.isfile(p):
+                found[p]=1
+        libs += found.keys()
+    for lib in libs:
+        # Ensure the lib was built against a Python of the correct version.
+        landmark = "Python.framework/Versions/%s/Python" % config.pyVer
+        old = None
+        linkage = os.popen("otool -L %s" % lib).readlines()
+        for line in linkage:
+            if line.find(landmark) == -1: continue
+            old = line.strip().split(None, 1)[0]
+            break
+        if old:
+            if config.mozApp == "xulrunner":
+                # xulrunner is a framework, so the path layout is
+                # slightly different
+                new = "@executable_path/../../Frameworks/Python.framework/" \
+                      "Versions/%s/Python" % config.pyVer
+            else:
+                new = "@executable_path/../Frameworks/Python.framework/" \
+                      "Versions/%s/Python" % config.pyVer
+            cmd = "chmod +w %s && install_name_tool -change %s %s %s"\
+                  % (lib, old, new, lib)
+            log.info("\t%s", lib)
+            _run(cmd)
+        else:
+            log.error("PyXPCOM was not built correctly!\n%s", ''.join(linkage))
+
 
 def _disablePythonUserSiteFeature(site_filepath):
     """Turn off the ENABLE_USER_SITE (PEP 370) feature (bug 85725)."""
@@ -1724,47 +1771,7 @@ def target_silo_python(argv=["silo_python"]):
         _run("chmod +w %s && install_name_tool -change %s %s %s"
              % (newPybinPath, oldLibDep, newLibDep, newPybinPath), log.info)
 
-        # Correct the shared object dependencies to point to the siloed
-        # Python.
-        log.info("relocating Python lib dependencies to the siloed Python...")
-        libnames = ["_xpcom.so", "lib_xpcom.dylib", "libpyloader.dylib",
-                    "libpyxpcom.dylib", "libpydom.dylib"]
-        libs = []
-        for libname in libnames:
-            found = {}
-            # we cant use -type f here because different apps will handle
-            # files differently, some symlinking while other copying.  We
-            # have to resolve the symlink then veryify this is a file
-            cmd = "find %s -name %s" % (distDir, libname)
-            for line in os.popen(cmd).readlines():
-                p = os.path.realpath(line.strip())
-                if os.path.isfile(p):
-                    found[p]=1
-            libs += found.keys()
-        for lib in libs:
-            # Ensure the lib was built against a Python of the correct version.
-            landmark = "Python.framework/Versions/%s/Python" % config.pyVer
-            old = None
-            linkage = os.popen("otool -L %s" % lib).readlines()
-            for line in linkage:
-                if line.find(landmark) == -1: continue
-                old = line.strip().split(None, 1)[0]
-                break
-            if old:
-                if config.mozApp == "xulrunner":
-                    # xulrunner is a framework, so the path layout is
-                    # slightly different
-                    new = "@executable_path/../../Frameworks/Python.framework/" \
-                          "Versions/%s/Python" % config.pyVer
-                else:
-                    new = "@executable_path/../Frameworks/Python.framework/" \
-                          "Versions/%s/Python" % config.pyVer
-                cmd = "chmod +w %s && install_name_tool -change %s %s %s"\
-                      % (lib, old, new, lib)
-                log.info("\t%s", lib)
-                _run(cmd)
-            else:
-                log.error("PyXPCOM was not built correctly!\n%s", ''.join(linkage))
+        _relocatePyxpcom(config)
 
         siteFile = join(siloDir, "Python.framework", "Versions", config.pyVer,
                         "lib", "python%s" % (config.pyVer), "site.py")
@@ -1888,6 +1895,30 @@ def target_pyxpcom(argv=["pyxpcom"]):
     else:
         copy_cmd = 'cp -r %s %s' % (join(pyxpcom_obj_dir, "dist"), join(moz_obj_dir))
     _run(copy_cmd, log.info)
+
+    if sys.platform == 'darwin':
+        # Also copy into the Komodo.app directory if it exists.
+        # Note: Komodo build normally does this, but if we rebuilt pyxpcom then
+        #       this step needs to be done now.
+        distDir = join(config.buildDir, config.srcTreeName, "mozilla",
+                       config.mozObjDir, "dist")
+        komodo_app_name = "Komodo%s" % (config.buildType == 'debug'
+                                        and 'debug' or '')
+        frameworks_subpath_from_mozApp = {
+            "komodo": ["%s.app" % komodo_app_name, "Contents", "Frameworks"],
+            "browser": ["Firefox.app", "Contents", "Frameworks"],
+            "xulrunner": ["XUL.framework", "Frameworks"],
+            "suite": ["SeaMonkey.app", "Contents", "Frameworks"],
+        }
+        siloDir = join(distDir, *frameworks_subpath_from_mozApp[config.mozApp])
+        siloDir = join(distDir, *frameworks_subpath_from_mozApp[config.mozApp])
+        komodoAppPath = join(dirname(siloDir), "MacOS")
+        if exists(komodoAppPath):
+            copy_cmd = 'cp -r %s %s' % (join(pyxpcom_obj_dir, "dist", "bin", "*"), komodoAppPath)
+            _run(copy_cmd, log.info)
+
+    _relocatePyxpcom(config)
+
     return argv[1:]
 
 
