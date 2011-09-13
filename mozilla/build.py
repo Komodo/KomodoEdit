@@ -1434,8 +1434,9 @@ def target_configure(argv):
         
         if "parallel" in config:
             mozMakeOptions.append('MOZ_MAKE_FLAGS=-j%i' % config["parallel"])
-        elif sys.platform.startswith("sunos") or sys.platform == 'darwin':
-            # default -j2 for sunos and darwin
+        elif sys.platform.startswith("linux") or sys.platform == 'darwin':
+            # default -j2 for non-windows
+            # TODO: Should examine CPU info to determine a better value.
             mozMakeOptions.append('MOZ_MAKE_FLAGS=-j2')
 
         # Platform options
