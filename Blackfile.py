@@ -924,8 +924,6 @@ def ImageKomodo(cfg, argv):
         return join(cfg.supportDir, *parts)
     def sdkpath(*parts):
         return join(cfg.sdkDir, *parts)
-    def docpath(*parts):
-        return join(cfg.docDir, *parts)
     def docchromepath(*parts):
         return join(cfg.docChromeDir, *parts)
     def readmepath(*parts):
@@ -995,15 +993,6 @@ def ImageKomodo(cfg, argv):
             return iisupportpath("sdk", *parts)
         else:
             return iicorepath("lib", "sdk", *parts)
-    def iidocpath(*parts):
-        """Install image dir for the Komodo docs."""
-        if sys.platform == "win32":
-            return ipkgpath("feature-docs", "INSTALLDIR", "lib", "mozilla",
-                            "chrome", "komododoc", "locale", "en-US",
-                            *parts)
-        else:
-            return iimozbinpath("chrome", "komododoc", "locale",
-                                "en-US", *parts)
     def iidocchromepath(*parts):
         """Install image dir for the Komodo docs."""
         if sys.platform == "win32":
