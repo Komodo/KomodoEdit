@@ -647,6 +647,10 @@ def build_ext(base_dir, support_devinstall=True, unjarred=False,
         for src in xpi_manifest:
             if isdir(src):
                 _cp(src, join(xpi_build_dir, basename(src)), log.info)
+            elif not exists(src) and src == "chrome.manifest":
+                # When the chrome.manifest file doesn't exist yet, create an
+                # empty one in the build directory.
+                file(join(xpi_build_dir, "chrome.manifest"), "w")
             else:
                 _cp(src, xpi_build_dir, log.info)
 
