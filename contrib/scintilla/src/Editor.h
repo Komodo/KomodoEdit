@@ -2,7 +2,7 @@
 /** @file Editor.h
  ** Defines the main editor class.
  **/
-// Copyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>
+// Copyright 1998-2011 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
 #ifndef EDITOR_H
@@ -43,6 +43,26 @@ public:
 	IdlerID idlerID;
 
 	Idler();
+};
+
+/**
+ * When platform has a way to generate an event before painting,
+ * accumulate needed styling range in StyleNeeded to avoid unnecessary work.
+ */
+class StyleNeeded {
+public:
+	bool active;
+	Position upTo;
+
+	StyleNeeded() : active(false), upTo(0) {}
+	void Reset() {
+		active = false;
+		upTo = 0;
+	}
+	void NeedUpTo(Position pos) {
+		if (upTo < pos)
+			upTo = pos;
+	}
 };
 
 /**
@@ -111,6 +131,7 @@ protected:	// ScintillaBase subclass needs access to much of Editor
 	 * When a style attribute is changed, this cache is flushed. */
 	bool stylesValid;
 	ViewStyle vs;
+	Point sizeRGBAImage;
 	Palette palette;
 
 	int printMagnification;
@@ -118,6 +139,9 @@ protected:	// ScintillaBase subclass needs access to much of Editor
 	int printWrapState;
 	int cursorMode;
 	int controlCharSymbol;
+
+	// Highlight current folding block
+	HighlightDelimiter highlightDelimiter;
 
 	bool hasFocus;
 	bool hideSelection;
@@ -139,7 +163,8 @@ protected:	// ScintillaBase subclass needs access to much of Editor
 	int lineWidthMaxSeen;
 	bool verticalScrollBarVisible;
 	bool endAtLastLine;
-	bool caretSticky;
+	int caretSticky;
+	int marginOptions;
 	bool multipleSelection;
 	bool additionalSelectionTyping;
 	int multiPasteMode;
@@ -171,15 +196,19 @@ protected:	// ScintillaBase subclass needs access to much of Editor
 	int dwellDelay;
 	int ticksToDwell;
 	bool dwelling;
-	enum { selChar, selWord, selLine } selectionType;
+	enum { selChar, selWord, selSubLine, selWholeLine } selectionType;
 	Point ptMouseLast;
 	enum { ddNone, ddInitial, ddDragging } inDragDrop;
 	bool dropWentOutside;
 	SelectionPosition posDrag;
 	SelectionPosition posDrop;
+	int hotSpotClickPos;
 	int lastXChosen;
-	int lineAnchor;
+	int lineAnchorPos;
 	int originalAnchorPos;
+	int wordSelectAnchorStartPos;
+	int wordSelectAnchorEndPos;
+	int wordSelectInitialCaretPos;
 	int targetStart;
 	int targetEnd;
 	int searchFlags;
@@ -187,7 +216,7 @@ protected:	// ScintillaBase subclass needs access to much of Editor
 	int posTopLine;
 	int lengthForEncode;
 
-	bool needUpdateUI;
+	int needUpdateUI;
 	Position braces[2];
 	int bracesMatchStyle;
 	int highlightGuideColumn;
@@ -197,6 +226,7 @@ protected:	// ScintillaBase subclass needs access to much of Editor
 	enum { notPainting, painting, paintAbandoned } paintState;
 	PRectangle rcPaint;
 	bool paintingAllText;
+	StyleNeeded styleNeeded;
 
 	int modEventMask;
 
@@ -272,7 +302,7 @@ protected:	// ScintillaBase subclass needs access to much of Editor
 	bool AbandonPaint();
 	void RedrawRect(PRectangle rc);
 	void Redraw();
-	void RedrawSelMargin(int line=-1);
+	void RedrawSelMargin(int line=-1, bool allAfter=false);
 	PRectangle RectangleFromRange(int start, int end);
 	void InvalidateRange(int start, int end);
 
@@ -306,8 +336,20 @@ protected:	// ScintillaBase subclass needs access to much of Editor
 	void ScrollTo(int line, bool moveThumb=true);
 	virtual void ScrollText(int linesToMove);
 	void HorizontalScrollTo(int xPos);
+	void VerticalCentreCaret();
+	void MoveSelectedLines(int lineDelta);
+	void MoveSelectedLinesUp();
+	void MoveSelectedLinesDown();
 	void MoveCaretInsideView(bool ensureVisible=true);
 	int DisplayFromPosition(int pos);
+
+	struct XYScrollPosition {
+		int xOffset;
+		int topLine;
+		XYScrollPosition(int xOffset_, int topLine_) : xOffset(xOffset_), topLine(topLine_) {}
+	};
+	XYScrollPosition XYScrollToMakeVisible(const bool useMargin, const bool vert, const bool horiz);
+	void SetXYScroll(XYScrollPosition newXY);
 	void EnsureCaretVisible(bool useMargin=true, bool vert=true, bool horiz=true);
 	void ShowCaretAtCurrentPosition();
 	void DropCaret();
@@ -333,6 +375,8 @@ protected:	// ScintillaBase subclass needs access to much of Editor
 		int line, int lineEnd, int xStart, int subLine, int subLineStart,
 		bool overrideBackground, ColourAllocated background,
 		bool drawWrapMark, ColourAllocated wrapColour);
+	void DrawIndicator(int indicNum, int startPos, int endPos, Surface *surface, ViewStyle &vsDraw,
+		int xStart, PRectangle rcLine, LineLayout *ll, int subLine);
 	void DrawIndicators(Surface *surface, ViewStyle &vsDraw, int line, int xStart,
 		PRectangle rcLine, LineLayout *ll, int subLine, int lineEnd, bool under);
 	void DrawAnnotation(Surface *surface, ViewStyle &vsDraw, int line, int xStart,
@@ -360,7 +404,7 @@ protected:	// ScintillaBase subclass needs access to much of Editor
 	void AddChar(char ch);
 	virtual void AddCharUTF(char *s, unsigned int len, bool treatAsDBCS=false);
 	void InsertPaste(SelectionPosition selStart, const char *text, int len);
-	void ClearSelection();
+	void ClearSelection(bool retainMultipleSelections=false);
 	void ClearAll();
 	void ClearDocumentStyle();
 	void Cut();
@@ -379,6 +423,7 @@ protected:	// ScintillaBase subclass needs access to much of Editor
 
 	virtual void NotifyChange() = 0;
 	virtual void NotifyFocus(bool focus);
+	virtual void SetCtrlID(int identifier);
 	virtual int GetCtrlID() { return ctrlID; }
 	virtual void NotifyParent(SCNotification scn) = 0;
 	virtual void NotifyStyleToNeeded(int endStyleNeeded);
@@ -388,6 +433,7 @@ protected:	// ScintillaBase subclass needs access to much of Editor
 	virtual void NotifyDoubleClick(Point pt, bool shift, bool ctrl, bool alt);
 	void NotifyHotSpotClicked(int position, bool shift, bool ctrl, bool alt);
 	void NotifyHotSpotDoubleClicked(int position, bool shift, bool ctrl, bool alt);
+	void NotifyHotSpotReleaseClick(int position, bool shift, bool ctrl, bool alt);
 	void NotifyUpdateUI();
 	void NotifyPainted();
 	void NotifyIndicatorClick(bool click, int position, bool shift, bool ctrl, bool alt);
@@ -402,8 +448,11 @@ protected:	// ScintillaBase subclass needs access to much of Editor
 	void NotifyModified(Document *document, DocModification mh, void *userData);
 	void NotifyDeleted(Document *document, void *userData);
 	void NotifyStyleNeeded(Document *doc, void *userData, int endPos);
+	void NotifyLexerChanged(Document *doc, void *userData);
+	void NotifyErrorOccurred(Document *doc, void *userData, int status);
 	void NotifyMacroRecord(unsigned int iMessage, uptr_t wParam, sptr_t lParam);
 
+	void ContainerNeedsUpdate(int flags);
 	void PageMove(int direction, Selection::selTypes sel=Selection::noSel, bool stuttered = false);
 	enum { cmSame, cmUpper, cmLower } caseMap;
 	virtual std::string CaseMapString(const std::string &s, int caseMapping);
@@ -417,6 +466,7 @@ protected:	// ScintillaBase subclass needs access to much of Editor
 	int StartEndDisplayLine(int pos, bool start);
 	virtual int KeyCommand(unsigned int iMessage);
 	virtual int KeyDefault(int /* key */, int /*modifiers*/);
+	int KeyDownWithModifiers(int key, int modifiers, bool *consumed);
 	int KeyDown(int key, bool shift, bool ctrl, bool alt, bool *consumed=0);
 
 	int GetWhitespaceVisible();
@@ -445,7 +495,9 @@ protected:	// ScintillaBase subclass needs access to much of Editor
 	bool PositionInSelection(int pos);
 	bool PointInSelection(Point pt);
 	bool PointInSelMargin(Point pt);
-	void LineSelection(int lineCurrent_, int lineAnchor_);
+	Window::Cursor GetMarginCursor(Point pt);
+	void LineSelection(int lineCurrentPos_, int lineAnchorPos_, bool wholeLine);
+	void WordSelection(int pos);
 	void DwellEnd(bool mouseMoved);
 	void MouseLeave();
 	virtual void ButtonDown(Point pt, unsigned int curTime, bool shift, bool ctrl, bool alt);
@@ -460,6 +512,11 @@ protected:	// ScintillaBase subclass needs access to much of Editor
 	virtual bool HaveMouseCapture() = 0;
 	void SetFocusState(bool focusState);
 
+	int PositionAfterArea(PRectangle rcArea);
+	void StyleToPositionInView(Position pos);
+	void IdleStyling();
+	virtual void QueueStyling(int upTo);
+
 	virtual bool PaintContains(PRectangle rc);
 	bool PaintContainsMargin();
 	void CheckForChangeOutsidePaint(Range r);
@@ -472,6 +529,7 @@ protected:	// ScintillaBase subclass needs access to much of Editor
 
 	void Expand(int &line, bool doExpand);
 	void ToggleContraction(int line);
+	int ContractedFoldNext(int lineStart);
 	void EnsureLineVisible(int lineDoc, bool enforcePolicy);
 	int GetTag(char *tagValue, int tagNumber);
 	int ReplaceTarget(bool replacePatterns, const char *text, int length=-1);

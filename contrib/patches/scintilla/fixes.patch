@@ -104,35 +104,6 @@ diff -r -du src/CellBuffer.cxx src/CellBuffer.cxx
 diff -r -du src/Document.cxx src/Document.cxx
 --- src/Document.cxx	2005-08-29 18:09:20.000000000 -0700
 +++ src/Document.cxx	2007-05-01 17:00:17.000000000 -0700
-@@ -154,24 +154,27 @@
- 
- int Document::GetMark(int line) {
- 	return static_cast<LineMarkers *>(perLineData[ldMarkers])->MarkValue(line);
- }
- 
- int Document::AddMark(int line, int markerNum) {
--	if (line <= LinesTotal()) {
-+	if (line >= 0 && line <= LinesTotal()) {
- 		int prev = static_cast<LineMarkers *>(perLineData[ldMarkers])->
- 			AddMark(line, markerNum, LinesTotal());
- 		DocModification mh(SC_MOD_CHANGEMARKER, LineStart(line), 0, 0, 0, line);
- 		NotifyModified(mh);
- 		return prev;
- 	} else {
- 		return 0;
- 	}
- }
- 
- void Document::AddMarkSet(int line, int valueSet) {
-+	if (line < 0 || line > LinesTotal()) {
-+		return;
-+	}
- 	unsigned int m = valueSet;
- 	for (int i = 0; m; i++, m >>= 1)
- 		if (m & 1)
- 			static_cast<LineMarkers *>(perLineData[ldMarkers])->
- 				AddMark(line, i, LinesTotal());
- 	DocModification mh(SC_MOD_CHANGEMARKER, LineStart(line), 0, 0, 0, line);
 @@ -271,6 +271,18 @@
  	}
  }
@@ -164,16 +135,18 @@ diff -r -du src/Document.cxx src/Document.cxx
 diff -r -du src/Document.h src/Document.h
 --- src/Document.h	2005-08-29 18:09:20.000000000 -0700
 +++ src/Document.h	2007-05-01 17:00:17.000000000 -0700
-@@ -137,6 +137,9 @@
+@@ -137,8 +137,11 @@
  	int LenChar(int pos);
+ 	bool InGoodUTF8(int pos, int &start, int &end) const;
  	int MovePositionOutsideChar(int pos, int moveDir, bool checkLineEnd=true);
  
 +	// ACTIVESTATE	
 +	int GetBytePositionForCharOffset(int bytePos, int charOffset, bool checkLineEnd=true);
 +
- 	// Gateways to modifying document
- 	void ModifiedAt(int pos);
- 	bool DeleteChars(int pos, int len);
+ 	int NextPosition(int pos, int moveDir) const;
+ 	bool NextCharacter(int &pos, int moveDir);	// Returns true if pos changed
+ 	int SCI_METHOD CodePage() const;
+ 	bool SCI_METHOD IsDBCSLeadByte(char ch) const;
 diff -r -du src/Editor.cxx src/Editor.cxx
 --- src/Editor.cxx	2005-08-29 18:09:20.000000000 -0700
 +++ src/Editor.cxx	2007-05-01 17:00:17.000000000 -0700
@@ -250,7 +223,7 @@ diff -r -du src/Editor.cxx src/Editor.cxx
 diff -r -du src/Editor.h src/Editor.h
 --- src/Editor.h	2005-08-29 18:09:20.000000000 -0700
 +++ src/Editor.h	2007-05-01 17:00:17.000000000 -0700
-@@ -361,5 +361,9 @@
+@@ -361,7 +361,11 @@
  	void SetEmptySelection(int currentPos_);
  	bool RangeContainsProtected(int start, int end) const;
  	bool SelectionContainsProtected();
@@ -259,13 +232,13 @@ diff -r -du src/Editor.h src/Editor.h
 +	int GetBytePositionForCharOffset(int bytePos, int charOffset, bool checkLineEnd=true);
 +
  	int MovePositionOutsideChar(int pos, int moveDir, bool checkLineEnd=true) const;
-  	SelectionPosition MovePositionOutsideChar(SelectionPosition pos, int moveDir, bool checkLineEnd=true) const;
-	int MovePositionTo(SelectionPosition newPos, Selection::selTypes sel=Selection::noSel, bool ensureVisible=true);
+ 	SelectionPosition MovePositionOutsideChar(SelectionPosition pos, int moveDir, bool checkLineEnd=true) const;
+ 	int MovePositionTo(SelectionPosition newPos, Selection::selTypes sel=Selection::noSel, bool ensureVisible=true);
  	int MovePositionTo(int newPos, Selection::selTypes sel=Selection::noSel, bool ensureVisible=true);
-diff -r -du src/KeyWords.cxx src/KeyWords.cxx
---- src/KeyWords.cxx	2005-08-29 18:09:20.000000000 -0700
-+++ src/KeyWords.cxx	2007-05-01 17:00:17.000000000 -0700
-@@ -209,9 +213,8 @@
+diff -r -du src/Catalogue.cxx src/Catalogue.cxx
+--- src/Catalogue.cxx	2005-08-29 18:09:20.000000000 -0700
++++ src/Catalogue.cxx	2007-05-01 17:00:17.000000000 -0700
+@@ -209,10 +213,9 @@
  	LINK_LEXER(lmSpice);
  	LINK_LEXER(lmSQL);
  	LINK_LEXER(lmTACL);
@@ -273,6 +246,7 @@ diff -r -du src/KeyWords.cxx src/KeyWords.cxx
  	LINK_LEXER(lmTAL);
 -	LINK_LEXER(lmTCL);
  	LINK_LEXER(lmTeX);
+ 	LINK_LEXER(lmTxt2tags);
  	LINK_LEXER(lmVB);
  	LINK_LEXER(lmVBScript);
 @@ -217,6 +220,10 @@

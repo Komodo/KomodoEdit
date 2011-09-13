@@ -23,6 +23,6 @@ Index: komodo-devel/src/scintilla/macosx/ScintillaMacOSX.cxx
 +    notifyProc = NULL;
 +}
 +
- void ScintillaMacOSX::NotifyParent(SCNotification scn) { 
+ void ScintillaMacOSX::NotifyParent(SCNotification scn) {
      if (NULL != notifyProc) {
          scn.nmhdr.hwndFrom = (void*) this;

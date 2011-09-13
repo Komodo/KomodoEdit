@@ -29,6 +29,7 @@ CallTip::CallTip() {
 	rectUp = PRectangle(0,0,0,0);
 	rectDown = PRectangle(0,0,0,0);
 	lineHeight = 1;
+	offsetMain = 0;
 	startHighlight = 0;
 	endHighlight = 0;
 	tabSize = 0;
@@ -45,6 +46,8 @@ CallTip::CallTip() {
 	colourSel.desired = ColourDesired(0, 0, 0x80);
 	colourShade.desired = ColourDesired(0, 0, 0);
 	colourLight.desired = ColourDesired(0xc0, 0xc0, 0xc0);
+	codePage = 0;
+	clickPlace = 0;
 }
 
 CallTip::~CallTip() {
@@ -97,7 +100,7 @@ void CallTip::DrawChunk(Surface *surface, int &x, const char *s,
 	int ends[numEnds + 2];
 	for (int i=0; i<len; i++) {
 		if ((maxEnd < numEnds) &&
-		        (IsArrowCharacter(s[i]) || IsTabCharacter(s[i])) ) {
+		        (IsArrowCharacter(s[i]) || IsTabCharacter(s[i]))) {
 			if (i > 0)
 				ends[maxEnd++] = i;
 			ends[maxEnd++] = i+1;

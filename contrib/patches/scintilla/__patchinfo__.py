@@ -1,13 +1,13 @@
-"""Add these files to the src/scintilla tree."""
+"""Add these files to the lexers/scintilla tree."""
 
 def remove(config):
     return [
-        "src/LexTCL.cxx",
+        "lexers/LexTCL.cxx",
     ]
 
 def add(config):
     return [
         ("cons", "."),
-        ("src", "src", "force"),
+        ("lexers", "lexers", "force"),
     ]
 

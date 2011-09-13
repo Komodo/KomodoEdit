@@ -29,10 +29,11 @@ Index: C:\as\komodo-devel\src\scintilla\src\Selection.cxx
 Index: C:\as\komodo-devel\src\scintilla\src\Editor.cxx
 --- src/Editor.cxx 
 +++ src/Editor.cxx (unsaved) 
-@@ -866,6 +866,9 @@
- }
- 
+@@ -866,7 +866,10 @@
  int Editor::MovePositionTo(SelectionPosition newPos, Selection::selTypes selt, bool ensureVisible) {
+ 	bool simpleCaret = (sel.Count() == 1) && sel.Empty();
+ 	SelectionPosition spCaret = sel.Last();
+ 
 +	if (sel.enforceRectangular) {
 +		selt = Selection::selRectangle;
 +	}

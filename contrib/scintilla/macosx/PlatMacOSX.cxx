@@ -12,6 +12,9 @@
 
 #include <sys/time.h>
 
+#include <vector>
+#include <map>
+
 #include <Carbon/Carbon.h>
 #include "QuartzTextLayout.h"
 #include "TCarbonEvent.h"
@@ -315,7 +318,6 @@ void SurfaceImpl::Polygon(Scintilla::Point *pts, int npts, ColourAllocated fore,
 
     // Draw the polygon
     CGContextAddLines( gc, points, npts );
-    // TODO: Should the path be automatically closed, or is that the caller's responsability?
     // Explicitly close the path, so it is closed for stroking AND filling (implicit close = filling only)
     CGContextClosePath( gc );
     CGContextDrawPath( gc, kCGPathFillStroke );
@@ -334,7 +336,6 @@ void SurfaceImpl::RectangleDraw(PRectangle rc, ColourAllocated fore, ColourAlloc
         // Quartz integer -> float point conversion fun (see comment in SurfaceImpl::LineTo)
         // We subtract 1 from the Width() and Height() so that all our drawing is within the area defined
         // by the PRectangle. Otherwise, we draw one pixel too far to the right and bottom.
-        // TODO: Create some version of PRectangleToCGRect to do this conversion for us?
         CGContextAddRect( gc, CGRectMake( rc.left + 0.5, rc.top + 0.5, rc.Width() - 1, rc.Height() - 1 ) );
         CGContextDrawPath( gc, kCGPathFillStroke );
     }
@@ -407,8 +408,12 @@ void SurfaceImpl::FillRectangle(PRectangle rc, Surface &surfacePattern) {
 }
 
 void SurfaceImpl::RoundedRectangle(PRectangle rc, ColourAllocated fore, ColourAllocated back) {
-    // TODO: Look at the Win32 API to determine what this is supposed to do:
+    // This is only called from the margin marker drawing code for SC_MARK_ROUNDRECT
+    // The Win32 version does
     //  ::RoundRect(hdc, rc.left + 1, rc.top, rc.right - 1, rc.bottom, 8, 8 );
+    // which is a rectangle with rounded corners each having a radius of 4 pixels.
+    // It would be almost as good just cutting off the corners with lines at
+    // 45 degrees as is done on GTK+.
 
     // Create a rectangle with semicircles at the corners
     const int MAX_RADIUS = 4;
@@ -442,7 +447,6 @@ void SurfaceImpl::RoundedRectangle(PRectangle rc, ColourAllocated fore, ColourAl
         };
 
     // Align the points in the middle of the pixels
-    // TODO: Should I include these +0.5 in the array creation code above?
     for( int i = 0; i < 4*3; ++ i )
         {
         CGPoint* c = (CGPoint*) corners;
@@ -475,10 +479,14 @@ void Scintilla::SurfaceImpl::AlphaRectangle(PRectangle rc, int /*cornerSize*/, C
         ColourDesired colour( fill.AsLong() );
 
         // Set the Fill color to match
-        CGContextSetRGBFillColor( gc, colour.GetRed() / 255.0, colour.GetGreen() / 255.0, colour.GetBlue() / 255.0, alphaFill / 100.0 );
+        CGContextSetRGBFillColor( gc, colour.GetRed() / 255.0, colour.GetGreen() / 255.0, colour.GetBlue() / 255.0, alphaFill / 255.0 );
         CGRect rect = PRectangleToCGRect( rc );
         CGContextFillRect( gc, rect );
     }
+}
+
+void SurfaceImpl::DrawRGBAImage(PRectangle /* rc */, int /* width */, int /* height */, const unsigned char * /* pixelsImage*/) {
+	// Not supported for Carbon
 }
 
 void SurfaceImpl::Ellipse(PRectangle rc, ColourAllocated fore, ColourAllocated back) {
@@ -629,15 +637,15 @@ void SurfaceImpl::MeasureWidths(Font &font_, const char *s, int len, int *positi
     // OSX systems.  We should expand to using that on older systems as well.
     for (int i = 0; i < len; i++)
             positions [i] = 0;
-            
+
     // We need the right X coords, so we have to append a char to get the left coord of thast extra char
     char* buf = (char*) malloc (len+1);
     if (!buf)
             return;
-            
+
     memcpy (buf, s, len);
     buf [len] = '.';
-    
+
     textLayout->setText (reinterpret_cast<const UInt8*>(buf), len+1, *reinterpret_cast<QuartzTextStyle*>(font_.GetID()));
     ATSUGlyphInfoArray* theGlyphInfoArrayPtr;
     ByteCount theArraySize;
@@ -652,7 +660,7 @@ void SurfaceImpl::MeasureWidths(Font &font_, const char *s, int len, int *positi
             if (noErr == ATSUGetGlyphInfo (layout, 0, textLayout->getLength(), &theArraySize, theGlyphInfoArrayPtr))
             {
                 // do not count the first item, which is at the beginning of the line
-                for ( UniCharCount unicodePosition = 1, i = 0; i < len && unicodePosition < theGlyphInfoArrayPtr->numGlyphs; unicodePosition ++ )
+                for ( UniCharCount unicodePosition = 1, i = 0; i < (UniCharCount) len && unicodePosition < (UniCharCount)theGlyphInfoArrayPtr->numGlyphs; unicodePosition ++ )
                 {
                     // The ideal position is the x coordinate of the glyph, relative to the beginning of the line
                     int position = (int)( theGlyphInfoArrayPtr->glyphs[unicodePosition].idealX + 0.5 );    // These older APIs return float values
@@ -663,12 +671,12 @@ void SurfaceImpl::MeasureWidths(Font &font_, const char *s, int len, int *positi
                     // as 1 unicode character can map to multiple UTF8 characters.
                     // See: http://www.tbray.org/ongoing/When/200x/2003/04/26/UTF
                     // Or: http://www.cl.cam.ac.uk/~mgk25/unicode.html
-                    if ( unicodeMode ) 
+                    if ( unicodeMode )
                     {
                         unsigned char mask = 0xc0;
                         int count = 1;
                         // Add one additonal byte for each extra high order one in the byte
-                        while ( uch >= mask && count < 8 ) 
+                        while ( uch >= mask && count < 8 )
                         {
                             positions[i++] = position;
                             count ++;
@@ -1126,8 +1134,8 @@ public:
     int GetSelection();
     int Find(const char *prefix);
     void GetValue(int n, char *value, int len);
-    void Sort();
     void RegisterImage(int type, const char *xpm_data);
+    void RegisterRGBAImage(int type, int width, int height, const unsigned char *pixelsImage);
     void ClearRegisteredImages();
     void SetDoubleClickAction(CallBackAction action, void *data) {
         doubleClickAction = action;
@@ -1482,7 +1490,7 @@ PRectangle ListBoxImpl::GetDesiredRect() {
     rcDesired.bottom = itemHeight * rows;
     rcDesired.right = rcDesired.left + maxItemWidth + aveCharWidth;
 
-    if (Length() > rows) 
+    if (Length() > rows)
         rcDesired.right += kScrollBarWidth;
     rcDesired.right += IconWidth();
 
@@ -1597,7 +1605,7 @@ int ListBoxImpl::Find(const char *prefix) {
     char s[255];
     for (int i = 0; i < count; i++) {
         GetValue(i, s, 255);
-        if (s[0] != NULL && (0 == strncmp(prefix, s, strlen(prefix)))) {
+        if (s[0] && (0 == strncmp(prefix, s, strlen(prefix)))) {
             return i;
         }
     }
@@ -1631,13 +1639,12 @@ void ListBoxImpl::GetValue(int n, char *value, int len) {
     delete []text;
 }
 
-void ListBoxImpl::Sort() {
-    // TODO: Implement this
-    fprintf(stderr, "ListBox::Sort\n");
-}
-
 void ListBoxImpl::RegisterImage(int type, const char *xpm_data) {
     xset.Add(type, xpm_data);
+}
+
+void ListBoxImpl::RegisterRGBAImage(int /* type */, int /* width */, int /* height */, const unsigned char * /*pixelsImage */) {
+	// Not supported for Carbon
 }
 
 void ListBoxImpl::ClearRegisteredImages() {
@@ -1679,7 +1686,9 @@ void Menu::Show(Point pt, Window &) {
                                 );
 }
 
-// TODO: Consider if I should be using GetCurrentEventTime instead of gettimeoday
+// ElapsedTime is used for precise performance measurements during development
+// and not for anything a user sees.
+
 ElapsedTime::ElapsedTime() {
     struct timeval curTime;
     int retVal;
@@ -1837,7 +1846,7 @@ void Platform::Assert(const char *c, const char *file, int line) {
     sprintf(buffer, "Assertion [%s] failed at %s %d", c, file, line);
     strcat(buffer, "\r\n");
     Platform::DebugDisplay(buffer);
-#ifdef DEBUG 
+#ifdef DEBUG
     // Jump into debugger in assert on Mac (CL269835)
     ::Debugger();
 #endif

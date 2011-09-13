@@ -1,5 +1,5 @@
---- src/LexMarkdown.cxx	2011-08-26 11:44:17.000000000 -0700
-+++ src/LexMarkdown.cxx	2011-08-25 16:50:27.000000000 -0700
+--- lexers/LexMarkdown.cxx	2011-08-26 11:44:17.000000000 -0700
++++ lexers/LexMarkdown.cxx	2011-08-25 16:50:27.000000000 -0700
 @@ -106,16 +106,20 @@
          if (IsNewline(sc.GetRelative(i)))
              break;
@@ -18,7 +18,7 @@
      unsigned int i = 0;
      while (++i) {
          c = sc.GetRelative(i);
-         if (c == sc.ch) 
+         if (c == sc.ch)
              ++count;
          // hit a terminating character
 @@ -366,45 +370,48 @@

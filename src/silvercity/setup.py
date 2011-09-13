@@ -31,6 +31,7 @@ src_files.extend(
 src_files.extend(
         [os.path.join('Lib/Src', file) for file in
             ["BufferAccessor.cxx",
+             "LexState.cxx",
              "LineVector.cxx",
              "SC_PropSet.cxx",
              "Platform.cxx"]
@@ -40,24 +41,40 @@ src_files.extend(
 # Add Scintilla support files
 scintilla_scr = '../scintilla/src'
 scintilla_include = '../scintilla/include'
+scintilla_lexlib = '../scintilla/lexlib'
+scintilla_lexers = '../scintilla/lexers'
 src_files.extend(
         [os.path.join(scintilla_scr, file) for file in
             ["KeyMap.cxx",
-            "KeyWords.cxx",
-            "StyleContext.cxx",
+             "Catalogue.cxx",
             "UniConversion.cxx"]
+        ]
+    )
+src_files.extend(
+        [os.path.join(scintilla_lexlib, file) for file in
+            ["WordList.cxx",
+             "PropSetSimple.cxx",
+             "Accessor.cxx",
+             "CharacterSet.cxx",
+             "LexerBase.cxx",
+             "LexerNoExceptions.cxx",
+             "LexerSimple.cxx",
+             "LexerModule.cxx",
+             "StyleContext.cxx",]
         ]
     )
 
 # Add Scintilla lexers
-for file in os.listdir(scintilla_scr):
-    file = os.path.join(scintilla_scr, file)
+for file in os.listdir(scintilla_lexers):
+    file = os.path.join(scintilla_lexers, file)
     if os.path.basename(file).startswith('Lex') and \
        os.path.splitext(file)[1] == '.cxx':
         src_files.append(file)
         
 include_dirs = [scintilla_scr,
                 scintilla_include,
+                scintilla_lexlib,
+                scintilla_lexers,
                 'Lib/Src']
 
 data_files = ['CSS/default.css']

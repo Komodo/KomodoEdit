@@ -10,7 +10,8 @@
 
 #ifndef SC_PROPSET_H
 #define SC_PROPSET_H
-#include "SString.h"
+#include "SC_SString.h"
+#define SString SC_SString // for transition to scintilla v228
 
 bool SC_EqualCaseInsensitive(const char *a, const char *b);
 
@@ -43,7 +44,6 @@ protected:
 	}
 
 public:
-	SC_PropSet *superPS;
 	SC_PropSet();
 	~SC_PropSet();
 	void Set(const char *key, const char *val, int lenKey=-1, int lenVal=-1);

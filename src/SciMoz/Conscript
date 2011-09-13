@@ -72,7 +72,6 @@ Import(
     'productType',
     'buildFlavour',
     'sdkDir',
-    'universal',
     'compiler',
 );
 
@@ -261,12 +260,9 @@ elsif ($platform eq "darwin") {
     $consLocal{'CXXFLAGS'} .= " $consLocal{ENV}{'CXXFLAGS'}";
     $consLocal{'CFLAGS'} = $consLocal{ENV}{'CFLAGS'};
     $consLocal{'LDFLAGS'} = $consLocal{ENV}{'LDFLAGS'};
-    # XXX cannot build universal unless mozilla is universal
-    if ($universal) {
-        $consLocal{'CXXFLAGS'} .= " -isysroot /Developer/SDKs/MacOSX10.4u.sdk"; # -arch ppc -arch i386";
-        $consLocal{'CFLAGS'} .= " -isysroot /Developer/SDKs/MacOSX10.4u.sdk"; # -arch ppc -arch i386";
-        $consLocal{'LDFLAGS'} .= " -Wl,-syslibroot,/Developer/SDKs/MacOSX10.4u.sdk"; # -arch ppc -arch i386";
-    }
+    $consLocal{'CXXFLAGS'} .= " -isysroot /Developer/SDKs/MacOSX10.5.sdk";
+    $consLocal{'CFLAGS'} .= " -isysroot /Developer/SDKs/MacOSX10.5.sdk";
+    $consLocal{'LDFLAGS'} .= " -Wl,-syslibroot,/Developer/SDKs/MacOSX10.5.sdk";
     $consLocal{'CXXFLAGS'} .= " -DSCI_NAMESPACE=1 -DMACOSX=1 -DSCI_LEXER ".
                             " -DCONTAINER_HANDLES_EVENTS=1 -DINCLUDE_DEPRECATED_FEATURES".
                             " -DXP_MACOSX=1 -DNO_X11=1 -DUSE_SYSTEM_CONSOLE=1 ".
@@ -497,11 +493,9 @@ else {
         $consLocal{'CXXFLAGS'} .= " $consLocal{ENV}{'CXXFLAGS'}";
         $consLocal{'CFLAGS'} .= " $consLocal{ENV}{'CFLAGS'}";
         $consLocal{'LDFLAGS'} .= " $consLocal{ENV}{'LDFLAGS'}";
-        if ($universal) {
-            $consLocal{'CXXFLAGS'} .= " -isysroot /Developer/SDKs/MacOSX10.4u.sdk"; # -arch ppc -arch i386";
-            $consLocal{'CFLAGS'} .= " -isysroot /Developer/SDKs/MacOSX10.4u.sdk"; # -arch ppc -arch i386";
-            $consLocal{'LDFLAGS'} .= " -Wl,-syslibroot,/Developer/SDKs/MacOSX10.4u.sdk"; # -arch ppc -arch i386";
-        }
+	$consLocal{'CXXFLAGS'} .= " -isysroot /Developer/SDKs/MacOSX10.5.sdk";
+	$consLocal{'CFLAGS'} .= " -isysroot /Developer/SDKs/MacOSX10.5.sdk";
+	$consLocal{'LDFLAGS'} .= " -Wl,-syslibroot,/Developer/SDKs/MacOSX10.5.sdk";
     } else {
         $consLocal{'LDFLAGS'} = "-fPIC -shared";
     }
@@ -565,6 +559,7 @@ $consIME{'CPPPATH'} = [
     "$mozDevelDist/include/layout",
     "$mozDevelDist/include/plugin",
     "$scintillaBuildDir/include",
+    "$scintillaBuildDir/lexlib",
     ".."];
 $consIME{'CXXFLAGS'} .= " -DMOZ_VERSION=$mozVersionNumber";
 if ($platform eq "win") {

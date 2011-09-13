@@ -2,11 +2,16 @@
 // The License.txt file describes the conditions under which this 
 // software may be distributed.
 
-#include <stdio.h>  // For NULL, for KeyWords.h
-#include <ctype.h> // For ctypes..., for KeyWords.h
+#include <stdio.h>  // For NULL, for WordList.h
+#include <ctype.h> // For ctypes..., for WordList.h
+#include <assert.h>
 
+#include "ILexer.h"
+#include "Scintilla.h"
+#include <SciLexer.h>
+#include "WordList.h"
+#include <LexAccessor.h>
 #include <Accessor.h>
-#include <KeyWords.h>
 
 #include "PyWordList.h"
 
@@ -20,38 +25,14 @@ PyWordList_new(PyObject *, PyObject* args)
         return NULL;
 
     pyWordList = PyObject_New(PyWordList, &PyWordListType);
-    pyWordList->wordList = new WordList();
-
-    if (wordStr != NULL) {
-        // XXX Validate that the string is reasonable?
-        pyWordList->wordList->Set(wordStr);
+    if (wordStr) {
+        pyWordList->wordListAsString = PyString_FromString(wordStr);
+        Py_INCREF(pyWordList->wordListAsString);
+    } else {
+        pyWordList->wordListAsString = NULL;
     }
 
     return (PyObject*) pyWordList;
-}
-
-static PyObject*
-PyWordList_words(PyWordList *self)
-{
-    PyObject * wordList = PyList_New(self->wordList->len);
-
-    if (wordList == NULL)
-    return NULL;
-
-    for (int i = 0; i < self->wordList->len; ++i)
-    {
-        PyObject * word = PyString_FromString(self->wordList->words[i]);
-
-        if (word == NULL)
-        {
-            Py_DECREF(wordList);
-            return NULL;
-        }
-
-        PyList_SET_ITEM(wordList, i, word);
-        }
-
-    return wordList;
 }
 
 static PyMethodDef PyWordList_methods[] = 
@@ -64,7 +45,7 @@ static PyObject *
 PyWordList_getattr(PyWordList *self, char *name)
 {
     if (strcmp(name, "words") == 0)
-        return PyWordList_words(self);
+        return self->wordListAsString;
 
     return Py_FindMethod(PyWordList_methods, (PyObject *) self, name);
 }
@@ -72,7 +53,7 @@ PyWordList_getattr(PyWordList *self, char *name)
 static void
 PyWordList_dealloc(PyWordList* self)
 {
-    delete self->wordList;
+    Py_XDECREF(self->wordListAsString);
     PyObject_Del(self);
 }
 

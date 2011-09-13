@@ -35,7 +35,7 @@ public:
 	~LineVector();
 
     void Append(const LineData & lineData);
-    LineData& operator[](int pos);
+    LineData& operator[](int pos) const;
 
-    int GetNumLines() { return numLines; };
+    int GetNumLines() const { return numLines; };
 };

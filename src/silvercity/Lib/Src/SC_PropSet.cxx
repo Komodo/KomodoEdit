@@ -14,11 +14,20 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdio.h>
+#include <assert.h>
+
+#include "ILexer.h"
+#include "Scintilla.h"
+#include "SciLexer.h"
+
+#include "WordList.h"
+#include "LexAccessor.h"
+#include "Accessor.h"
+#include "StyleContext.h"
+#include "CharacterSet.h"
+#include "LexerModule.h"
 
 #include "Platform.h"
-
-#include <Accessor.h>
-#include <KeyWords.h>
 
 #include "SC_PropSet.h"
 
@@ -26,53 +35,12 @@
 // The comparison and case changing functions here assume ASCII
 // or extended ASCII such as the normal Windows code page.
 
-static inline char MakeUpperCase(char ch) {
-	if (ch < 'a' || ch > 'z')
-		return ch;
-	else
-		return static_cast<char>(ch - 'a' + 'A');
-}
-
 static inline bool IsLetter(char ch) {
 	return ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z'));
 }
 
 inline bool IsASpace(unsigned int ch) {
     return (ch == ' ') || ((ch >= 0x09) && (ch <= 0x0d));
-}
-
-int CompareCaseInsensitive(const char *a, const char *b) {
-	while (*a && *b) {
-		if (*a != *b) {
-			char upperA = MakeUpperCase(*a);
-			char upperB = MakeUpperCase(*b);
-			if (upperA != upperB)
-				return upperA - upperB;
-		}
-		a++;
-		b++;
-	}
-	// Either *a or *b is nul
-	return *a - *b;
-}
-
-int CompareNCaseInsensitive(const char *a, const char *b, size_t len) {
-	while (*a && *b && len) {
-		if (*a != *b) {
-			char upperA = MakeUpperCase(*a);
-			char upperB = MakeUpperCase(*b);
-			if (upperA != upperB)
-				return upperA - upperB;
-		}
-		a++;
-		b++;
-		len--;
-	}
-	if (len == 0)
-		return 0;
-	else
-		// Either *a or *b is nul
-		return *a - *b;
 }
 
 bool SC_EqualCaseInsensitive(const char *a, const char *b) {
@@ -338,13 +306,11 @@ char *SContainer::StringAllocate(const char *s, lenpos_t len) {
 // End SString functions
 
 SC_PropSet::SC_PropSet() {
-	superPS = 0;
 	for (int root = 0; root < hashRoots; root++)
 		props[root] = 0;
 }
 
 SC_PropSet::~SC_PropSet() {
-	superPS = 0;
 	Clear();
 }
 
@@ -435,12 +401,7 @@ SString SC_PropSet::Get(const char *key) const {
 			return p->val;
 		}
 	}
-	if (superPS) {
-		// Failed here, so try in base property set
-		return superPS->Get(key);
-	} else {
-		return "";
-	}
+    return "";
 }
 
 // There is some inconsistency between GetExpanded("foo") and Expand("$(foo)").
@@ -507,7 +468,7 @@ SString SC_PropSet::Expand(const char *withVars, int maxExpands) const {
 	ExpandAllInPlace(*this, val, maxExpands);
 	return val;
 }
-
+ 
 int SC_PropSet::GetInt(const char *key, int defaultValue) const {
 	SString val = GetExpanded(key);
 	if (val.length())

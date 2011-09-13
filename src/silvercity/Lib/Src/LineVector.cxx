@@ -56,7 +56,7 @@ void LineVector::Append(const LineData & lineData)
     ++numLines;
 }
 
-LineData& LineVector::operator[](int pos)
+LineData& LineVector::operator[](int pos) const
 {
     PLATFORM_ASSERT(pos < numLines);
     PLATFORM_ASSERT(pos >= 0);

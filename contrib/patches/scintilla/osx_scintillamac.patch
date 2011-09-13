@@ -1,17 +1,3 @@
-Index: macosx/ScintillaMacOSX.h
-===================================================================
---- macosx/ScintillaMacOSX.h	(revision 54834)
-+++ macosx/ScintillaMacOSX.h	(working copy)
-@@ -118,7 +118,8 @@
-     bool GetPasteboardData(PasteboardRef &pasteBoard,
-                            SelectionText *selectedText, bool *isFileURL);
-     void SetPasteboardData(PasteboardRef &pasteBoard,
--                           const SelectionText &selectedText);
-+                           const SelectionText &selectedText,
-+                           bool inDragDrop);
-     char *GetStringFromCFString(CFStringRef &textString, int *textLen);
- 
-     // Drag and drop
 Index: macosx/ScintillaMacOSX.cxx
 ===================================================================
 --- macosx/ScintillaMacOSX.cxx	(revision 19760)
@@ -80,14 +66,14 @@ Index: macosx/ScintillaMacOSX.cxx
 +            // step back a position if we're counting the newline
 +            ep = WndProc(SCI_GETLINEENDPOSITION, l, 0);
 +            if (endPos > ep) endPos = ep;
-   
+ 
 -        pt = LocationFromPosition(startPos); // top left of line selection
 -        if (pt.x < rcSel.left || rcSel.left < 0) rcSel.left = pt.x;
 -        if (pt.y < rcSel.top || rcSel.top < 0) rcSel.top = pt.y;
 +            pt = LocationFromPosition(startPos); // top left of line selection
 +            if (pt.x < rcSel.left || rcSel.left < 0) rcSel.left = pt.x;
 +            if (pt.y < rcSel.top || rcSel.top < 0) rcSel.top = pt.y;
-   
+ 
 -        pt = LocationFromPosition(endPos); // top right of line selection
 -        pt.y += vs.lineHeight; // get to the bottom of the line
 -        if (pt.x > rcSel.right || rcSel.right < 0) {
@@ -119,15 +105,6 @@ Index: macosx/ScintillaMacOSX.cxx
      }
  
      // must convert to global coordinates for drag regions, but also save the
-@@ -434,7 +434,7 @@
-     SelectionText selectedText;
-     CopySelectionRange(&selectedText);
-     PasteboardRef theClipboard;
--    SetPasteboardData(theClipboard, selectedText);
-+    SetPasteboardData(theClipboard, selectedText, true);
-     NewDragWithPasteboard( theClipboard, &inDrag);
-     CFRelease( theClipboard );
- 
 @@ -623,6 +623,7 @@
      kFormatText,
      kFormatUnicode,
@@ -136,26 +113,6 @@ Index: macosx/ScintillaMacOSX.cxx
      kFormatFile
  };
  
-@@ -639,7 +639,7 @@
-     return GetPasteboardData(pasteBoard, selectedText, isFileURL);
- }
- 
--void ScintillaMacOSX::SetPasteboardData(PasteboardRef &theClipboard, const SelectionText &selectedText)
-+void ScintillaMacOSX::SetPasteboardData(PasteboardRef &theClipboard, const SelectionText &selectedText, bool inDragDropSession)
- {
-     if (selectedText.len == 0)
-         return;
-@@ -649,7 +649,9 @@
-     // Create a CFString from the ASCII/UTF8 data, convert it to UTF16
-     CFStringRef string = CFStringCreateWithBytes( NULL, reinterpret_cast<UInt8*>( selectedText.s ), selectedText.len - 1, encoding, false );
- 
--    PasteboardCreate( kPasteboardClipboard, &theClipboard );
-+    PasteboardCreate((inDragDropSession
-+                      ? kPasteboardUniqueName
-+                      : kPasteboardClipboard), &theClipboard );
-     PasteboardClear( theClipboard );
- 
-     CFDataRef data = NULL;
 @@ -664,14 +666,22 @@
              CFRelease(data);
          }
@@ -164,7 +121,7 @@ Index: macosx/ScintillaMacOSX.cxx
 +
 +    data = CFStringCreateExternalRepresentation ( kCFAllocatorDefault, string, kCFStringEncodingUTF8, 0 );
      if (data) {
--        PasteboardPutItemFlavor( theClipboard, (PasteboardItemID)1, 
+-        PasteboardPutItemFlavor( theClipboard, (PasteboardItemID)1,
 -                                CFSTR("public.utf16-plain-text"),
 -                                data, 0 );
 +        // When created as kCFStringEncodingUTF16LE - no BOM is added, whereas
@@ -182,7 +139,7 @@ Index: macosx/ScintillaMacOSX.cxx
 +
      data = CFStringCreateExternalRepresentation ( kCFAllocatorDefault, string, kCFStringEncodingMacRoman, 0 );
      if (data) {
-         PasteboardPutItemFlavor( theClipboard, (PasteboardItemID)1, 
+         PasteboardPutItemFlavor( theClipboard, (PasteboardItemID)1,
 @@ -736,6 +743,9 @@
                      isRectangular = true;
                  }
@@ -193,7 +150,8 @@ Index: macosx/ScintillaMacOSX.cxx
                      format = kFormatUnicode;
                  }
                  else if (UTTypeConformsTo(flavorType, CFSTR("public.utf8-plain-text"))) {
-@@ -768,6 +778,10 @@
+@@ -768,7 +778,11 @@
+                         case kFormatUnicode:
                              data = CFDataCreate (NULL, dataBytes, dataSize);
                              textString = CFStringCreateFromExternalRepresentation (NULL, data, kCFStringEncodingUnicode);
                              break;
@@ -204,10 +162,11 @@ Index: macosx/ScintillaMacOSX.cxx
                          case kFormatUTF8:
                              data = CFDataCreate (NULL, dataBytes, dataSize);
                              textString = CFStringCreateFromExternalRepresentation (NULL, data, kCFStringEncodingUTF8);
-@@ -782,10 +815,16 @@
+@@ -782,11 +815,16 @@
+     }
  PasteboardDataRetrieved:
      if (flavorTypeArray != NULL) CFRelease(flavorTypeArray);
-         int newlen = 0;
+-        int newlen = 0;
      if (textString != NULL) {
 -        selectedText->s = GetStringFromCFString(textString, &selectedText->len);
 -        selectedText->rectangular = isRectangular;
@@ -225,7 +184,7 @@ Index: macosx/ScintillaMacOSX.cxx
      }
 @@ -1295,8 +1328,9 @@
      if (NULL != notifyProc)
-         notifyProc (notifyObj, WM_COMMAND, 
+         notifyProc (notifyObj, WM_COMMAND,
                  (uintptr_t) ((focus ? SCEN_SETFOCUS : SCEN_KILLFOCUS) << 16),
                  (uintptr_t) GetViewRef());
 +    SetTicking(focus);
@@ -233,15 +192,6 @@ Index: macosx/ScintillaMacOSX.cxx
  
  void ScintillaMacOSX::NotifyChange() {
      if (NULL != notifyProc)
-@@ -1477,7 +1479,7 @@
- 
- void ScintillaMacOSX::CopyToClipboard(const SelectionText &selectedText) {
-     PasteboardRef theClipboard;
--    SetPasteboardData(theClipboard, selectedText);
-+    SetPasteboardData(theClipboard, selectedText, false); // not in drag/drop
-     // Done with the CFString
-     CFRelease( theClipboard );
- }
 @@ -1534,9 +1568,9 @@
      pdoc->BeginUndoAction();
      ClearSelection();
@@ -249,7 +199,7 @@ Index: macosx/ScintillaMacOSX.cxx
          SelectionPosition selStart = sel.RangeMain().Start();
 -        PasteRectangular(selStart, selectedText.s, selectedText.len);
 +        PasteRectangular(selStart.Position(), selectedText.s, selectedText.len);
-     } else 
+     } else
      if ( pdoc->InsertString( sel.RangeMain().caret.Position(), selectedText.s, selectedText.len ) ) {
          SetEmptySelection( sel.RangeMain().caret.Position() + selectedText.len );
      }

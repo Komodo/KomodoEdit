@@ -59,22 +59,26 @@ class koFlagshipLanguage(KoLanguageBase):
     sciMozLexer = components.interfaces.ISciMoz.SCLEX_FLAGSHIP
 
     _stateMap = {
-        'default': ('SCE_FS_DEFAULT',),
-        'keywords': ('SCE_FS_KEYWORD', 'SCE_FS_KEYWORD2', 'SCE_FS_KEYWORD3',
+        'default': ('SCE_FS_DEFAULT', 'SCE_FS_DEFAULT_C',),
+        'keywords': ('SCE_FS_KEYWORD', 'SCE_FS_KEYWORD_C',
+                     'SCE_FS_KEYWORD2', 'SCE_FS_KEYWORD2_C',
+                     'SCE_FS_KEYWORD3',
                      'SCE_FS_KEYWORD4',),
-        'identifiers': ('SCE_FS_IDENTIFIER',),
+        'identifiers': ('SCE_FS_IDENTIFIER', 'SCE_FS_IDENTIFIER_C'),
         'comments': ('SCE_FS_COMMENT','SCE_FS_COMMENTLINE',
                      'SCE_FS_COMMENTDOC', 'SCE_FS_COMMENTLINEDOC',
+                     'SCE_FS_COMMENTLINEDOC_C',
+                     'SCE_FS_COMMENTDOC_C',
+                     'SCE_FS_DISABLEDCODE',
                      'SCE_FS_COMMENTDOCKEYWORD', 'SCE_FS_COMMENTDOCKEYWORDERROR',),
-        'operators': ('SCE_FS_OPERATOR',),
-        'numbers': ('SCE_FS_NUMBER', 'SCE_FS_HEXNUMBER', 'SCE_FS_BINNUMBER',),
-        'strings': ('SCE_FS_STRING', 'SCE_FS_STRINGEOL',),
+        'operators': ('SCE_FS_OPERATOR', 'SCE_FS_WORDOPERATOR',
+                      'SCE_FS_OPERATOR_C'),
+        'numbers': ('SCE_FS_NUMBER', 'SCE_FS_NUMBER_C',),
+        'strings': ('SCE_FS_STRING', 'SCE_FS_STRINGEOL',
+                    'SCE_FS_STRING_C', 'SCE_FS_STRINGEOL_C',),
         'constants': ('SCE_FS_CONSTANT',),
-        'preprocessor': ('SCE_FS_PREPROCESSOR',),
+        'preprocessor': ('SCE_FS_PREPROCESSOR', 'SCE_FS_PREPROCESSOR_C'),
         'date': ('SCE_FS_DATE',),
-        'asm': ('SCE_FS_ASM',),
-        'label': ('SCE_FS_LABEL',),
-        'error': ('SCE_FS_ERROR',),
         }
     sample = """
 SAMPLE NOT AVAILABLE

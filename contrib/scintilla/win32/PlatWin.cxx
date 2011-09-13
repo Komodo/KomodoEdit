@@ -11,18 +11,33 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <time.h>
+#include <limits.h>
 
-#define _WIN32_WINNT  0x0400
+#ifdef _MSC_VER
+#pragma warning(disable: 4786)
+#endif
+
+#include <vector>
+#include <map>
+
+#undef _WIN32_WINNT
+#define _WIN32_WINNT  0x0500
 #include <windows.h>
 #include <commctrl.h>
 #include <richedit.h>
 #include <windowsx.h>
 
 #include "Platform.h"
-#include "PlatformRes.h"
 #include "UniConversion.h"
 #include "XPM.h"
 #include "FontQuality.h"
+
+// We want to use multi monitor functions, but via LoadLibrary etc
+// Luckily microsoft has done the heavy lifting for us, so we'll just use their stub functions!
+#if defined(_MSC_VER) && (_MSC_VER > 1200)
+#define COMPILE_MULTIMON_STUBS
+#include <MultiMon.h>
+#endif
 
 #ifndef IDC_HAND
 #define IDC_HAND MAKEINTRESOURCE(32649)
@@ -72,7 +87,7 @@ static HINSTANCE hinstPlatformRes = 0;
 static bool onNT = false;
 static HMODULE hDLLImage = 0;
 static AlphaBlendSig AlphaBlendFn = 0;
-
+static HCURSOR reverseArrowCursor = NULL;
 
 bool IsNT() {
 	return onNT;
@@ -396,6 +411,7 @@ public:
 	void RoundedRectangle(PRectangle rc, ColourAllocated fore, ColourAllocated back);
 	void AlphaRectangle(PRectangle rc, int cornerSize, ColourAllocated fill, int alphaFill,
 		ColourAllocated outline, int alphaOutline, int flags);
+	void DrawRGBAImage(PRectangle rc, int width, int height, const unsigned char *pixelsImage);
 	void Ellipse(PRectangle rc, ColourAllocated fore, ColourAllocated back);
 	void Copy(PRectangle rc, Point from, Surface &surfaceSource);
 
@@ -434,7 +450,7 @@ SurfaceImpl::SurfaceImpl() :
 	bitmap(0), bitmapOld(0),
 	paletteOld(0) {
 	// Windows 9x has only a 16 bit coordinate system so break after 30000 pixels
-	maxWidthMeasure = IsNT() ? 1000000 : 30000;
+	maxWidthMeasure = IsNT() ? INT_MAX : 30000;
 	// There appears to be a 16 bit string length limit in GDI on NT and a limit of
 	// 8192 characters on Windows 95.
 	maxLenText = IsNT() ? 65535 : 8192;
@@ -685,6 +701,45 @@ void SurfaceImpl::AlphaRectangle(PRectangle rc, int cornerSize, ColourAllocated 
 		BrushColor(outline);
 		RECT rcw = RectFromPRectangle(rc);
 		FrameRect(hdc, &rcw, brush);
+	}
+}
+
+void SurfaceImpl::DrawRGBAImage(PRectangle rc, int width, int height, const unsigned char *pixelsImage) {
+	if (AlphaBlendFn && rc.Width() > 0) {
+		HDC hMemDC = ::CreateCompatibleDC(reinterpret_cast<HDC>(hdc));
+		if (rc.Width() > width)
+			rc.left += (rc.Width() - width) / 2;
+		rc.right = rc.left + width;
+		if (rc.Height() > height)
+			rc.top += (rc.Height() - height) / 2;
+		rc.bottom = rc.top + height;
+
+		BITMAPINFO bpih = {sizeof(BITMAPINFOHEADER), width, height, 1, 32, BI_RGB, 0, 0, 0, 0, 0};
+		unsigned char *image = 0;
+		HBITMAP hbmMem = CreateDIBSection(reinterpret_cast<HDC>(hMemDC), &bpih,
+			DIB_RGB_COLORS, reinterpret_cast<void **>(&image), NULL, 0);
+		HBITMAP hbmOld = SelectBitmap(hMemDC, hbmMem);
+		
+		for (int y=height-1; y>=0; y--) {
+			for (int x=0; x<width; x++) {
+				unsigned char *pixel = image + (y*width+x) * 4;
+				unsigned char alpha = pixelsImage[3];
+				// Input is RGBA, output is BGRA with premultiplied alpha
+				pixel[2] = (*pixelsImage++) * alpha / 255;
+				pixel[1] = (*pixelsImage++) * alpha / 255;
+				pixel[0] = (*pixelsImage++) * alpha / 255;
+				pixel[3] = *pixelsImage++;
+			}
+		}
+		
+		BLENDFUNCTION merge = { AC_SRC_OVER, 0, 255, AC_SRC_ALPHA };
+
+		AlphaBlendFn(reinterpret_cast<HDC>(hdc), rc.left, rc.top, rc.Width(), rc.Height(), hMemDC, 0, 0, width, height, merge);
+
+		SelectBitmap(hMemDC, hbmOld);
+		::DeleteObject(hbmMem);
+		::DeleteDC(hMemDC);
+
 	}
 }
 
@@ -1029,25 +1084,36 @@ void Window::SetPosition(PRectangle rc) {
 void Window::SetPositionRelative(PRectangle rc, Window w) {
 	LONG style = ::GetWindowLong(reinterpret_cast<HWND>(wid), GWL_STYLE);
 	if (style & WS_POPUP) {
-		RECT rcOther;
-		::GetWindowRect(reinterpret_cast<HWND>(w.GetID()), &rcOther);
-		rc.Move(rcOther.left, rcOther.top);
+		POINT ptOther = {0, 0};
+		::ClientToScreen(reinterpret_cast<HWND>(w.GetID()), &ptOther);
+		rc.Move(ptOther.x, ptOther.y);
 
-		// Retrieve desktop bounds and make sure window popup's origin isn't left-top of the screen.
-		RECT rcDesktop = {0, 0, 0, 0};
-#ifdef SM_XVIRTUALSCREEN
-		rcDesktop.left = ::GetSystemMetrics(SM_XVIRTUALSCREEN);
-		rcDesktop.top = ::GetSystemMetrics(SM_YVIRTUALSCREEN);
-		rcDesktop.right = rcDesktop.left + ::GetSystemMetrics(SM_CXVIRTUALSCREEN);
-		rcDesktop.bottom = rcDesktop.top + ::GetSystemMetrics(SM_CYVIRTUALSCREEN);
+		// This #ifdef is for VC 98 which has problems with MultiMon.h under some conditions.
+#ifdef MONITOR_DEFAULTTONULL
+		// We're using the stub functionality of MultiMon.h to decay gracefully on machines
+		// (ie, pre Win2000, Win95) that do not support the newer functions.
+		RECT rcMonitor;
+		memcpy(&rcMonitor, &rc, sizeof(rcMonitor));  // RECT and Rectangle are the same really.
+		MONITORINFO mi = {0};
+		mi.cbSize = sizeof(mi);
+
+		HMONITOR hMonitor = ::MonitorFromRect(&rcMonitor, MONITOR_DEFAULTTONEAREST);
+		// If hMonitor is NULL, that's just the main screen anyways.
+		::GetMonitorInfo(hMonitor, &mi);
+
+		// Now clamp our desired rectangle to fit inside the work area
+		// This way, the menu will fit wholly on one screen. An improvement even
+		// if you don't have a second monitor on the left... Menu's appears half on
+		// one screen and half on the other are just U.G.L.Y.!
+		if (rc.right > mi.rcWork.right)
+			rc.Move(mi.rcWork.right - rc.right, 0);
+		if (rc.bottom > mi.rcWork.bottom)
+			rc.Move(0, mi.rcWork.bottom - rc.bottom);
+		if (rc.left < mi.rcWork.left)
+			rc.Move(mi.rcWork.left - rc.left, 0);
+		if (rc.top < mi.rcWork.top)
+			rc.Move(0, mi.rcWork.top - rc.top);
 #endif
-
-		if (rc.left < rcDesktop.left) {
-			rc.Move(rcDesktop.left - rc.left,0);
-		}
-		if (rc.top < rcDesktop.top) {
-			rc.Move(0,rcDesktop.top - rc.top);
-		}
 	}
 	SetPosition(rc);
 }
@@ -1084,6 +1150,47 @@ void Window::SetFont(Font &font) {
 		reinterpret_cast<WPARAM>(font.GetID()), 0);
 }
 
+static void FlipBitmap(HBITMAP bitmap, int width, int height) {
+	HDC hdc = ::CreateCompatibleDC(NULL);
+	if (hdc != NULL) {
+		HGDIOBJ prevBmp = ::SelectObject(hdc, bitmap);
+		::StretchBlt(hdc, width - 1, 0, -width, height, hdc, 0, 0, width, height, SRCCOPY);
+		::SelectObject(hdc, prevBmp);
+		::DeleteDC(hdc);
+	}
+}
+
+static HCURSOR GetReverseArrowCursor() {
+	if (reverseArrowCursor != NULL)
+		return reverseArrowCursor;
+
+	::EnterCriticalSection(&crPlatformLock);
+	HCURSOR cursor = reverseArrowCursor;
+	if (cursor == NULL) {
+		cursor = ::LoadCursor(NULL, IDC_ARROW);
+		ICONINFO info;
+		if (::GetIconInfo(cursor, &info)) {
+			BITMAP bmp;
+			if (::GetObject(info.hbmMask, sizeof(bmp), &bmp)) {
+				FlipBitmap(info.hbmMask, bmp.bmWidth, bmp.bmHeight);
+				if (info.hbmColor != NULL)
+					FlipBitmap(info.hbmColor, bmp.bmWidth, bmp.bmHeight);
+				info.xHotspot = (DWORD)bmp.bmWidth - 1 - info.xHotspot;
+
+				reverseArrowCursor = ::CreateIconIndirect(&info);
+				if (reverseArrowCursor != NULL)
+					cursor = reverseArrowCursor;
+			}
+
+			::DeleteObject(info.hbmMask);
+			if (info.hbmColor != NULL)
+				::DeleteObject(info.hbmColor);
+		}
+	}
+	::LeaveCriticalSection(&crPlatformLock);
+	return cursor;
+}
+
 void Window::SetCursor(Cursor curs) {
 	switch (curs) {
 	case cursorText:
@@ -1104,19 +1211,8 @@ void Window::SetCursor(Cursor curs) {
 	case cursorHand:
 		::SetCursor(::LoadCursor(NULL,IDC_HAND));
 		break;
-	case cursorReverseArrow: {
-			if (!hinstPlatformRes)
-				hinstPlatformRes = ::GetModuleHandle(TEXT("Scintilla"));
-			if (!hinstPlatformRes)
-				hinstPlatformRes = ::GetModuleHandle(TEXT("SciLexer"));
-			if (!hinstPlatformRes)
-				hinstPlatformRes = ::GetModuleHandle(NULL);
-			HCURSOR hcursor = ::LoadCursor(hinstPlatformRes, MAKEINTRESOURCE(IDC_MARGIN));
-			if (hcursor)
-				::SetCursor(hcursor);
-			else
-				::SetCursor(::LoadCursor(NULL,IDC_ARROW));
-		}
+	case cursorReverseArrow:
+		::SetCursor(GetReverseArrowCursor());
 		break;
 	case cursorArrow:
 	case cursorInvalid:	// Should not occur, but just in case.
@@ -1131,15 +1227,15 @@ void Window::SetTitle(const char *s) {
 
 /* Returns rectangle of monitor pt is on, both rect and pt are in Window's
    coordinates */
-#ifdef MULTIPLE_MONITOR_SUPPORT
 PRectangle Window::GetMonitorRect(Point pt) {
+#ifdef MONITOR_DEFAULTTONULL
 	// MonitorFromPoint and GetMonitorInfo are not available on Windows 95 so are not used.
 	// There could be conditional code and dynamic loading in a future version
 	// so this would work on those platforms where they are available.
 	PRectangle rcPosition = GetPosition();
 	POINT ptDesktop = {pt.x + rcPosition.left, pt.y + rcPosition.top};
 	HMONITOR hMonitor = ::MonitorFromPoint(ptDesktop, MONITOR_DEFAULTTONEAREST);
-	MONITORINFOEX mi;
+	MONITORINFO mi = {0};
 	memset(&mi, 0, sizeof(mi));
 	mi.cbSize = sizeof(mi);
 	if (::GetMonitorInfo(hMonitor, &mi)) {
@@ -1149,13 +1245,13 @@ PRectangle Window::GetMonitorRect(Point pt) {
 			mi.rcWork.right - rcPosition.left,
 			mi.rcWork.bottom - rcPosition.top);
 		return rcMonitor;
+	} else {
+		return PRectangle();
 	}
-}
 #else
-PRectangle Window::GetMonitorRect(Point) {
 	return PRectangle();
-}
 #endif
+}
 
 struct ListItemData {
 	const char *text;
@@ -1219,7 +1315,7 @@ public:
 };
 
 char *LineToItem::AllocWord(const char *text) {
-	int chars = strlen(text) + 1;
+	int chars = static_cast<int>(strlen(text) + 1);
 	int newCount = wordsCount + chars;
 	if (newCount > wordsSize) {
 		wordsSize = _ROUND2(newCount * 2, 8192);
@@ -1269,7 +1365,7 @@ ListBox::~ListBox() {
 class ListBoxX : public ListBox {
 	int lineHeight;
 	FontID fontCopy;
-	XPMSet xset;
+	RGBAImageSet images;
 	LineToItem lti;
 	HWND lb;
 	bool unicodeMode;
@@ -1303,7 +1399,6 @@ class ListBoxX : public ListBox {
 	int NcHitTest(WPARAM, LPARAM) const;
 	void CentreItem(int);
 	void Paint(HDC);
-	void Erase(HDC);
 	static LRESULT PASCAL ControlWndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam);
 
 	static const Point ItemInset;	// Padding around whole item
@@ -1337,6 +1432,7 @@ public:
 	virtual int Find(const char *prefix);
 	virtual void GetValue(int n, char *value, int len);
 	virtual void RegisterImage(int type, const char *xpm_data);
+	virtual void RegisterRGBAImage(int type, int width, int height, const unsigned char *pixelsImage);
 	virtual void ClearRegisteredImages();
 	virtual void SetDoubleClickAction(CallBackAction action, void *data) {
 		doubleClickAction = action;
@@ -1417,7 +1513,7 @@ PRectangle ListBoxX::GetDesiredRect() {
 	HDC hdc = ::GetDC(lb);
 	HFONT oldFont = SelectFont(hdc, fontCopy);
 	SIZE textSize = {0, 0};
-	int len = widestItem ? strlen(widestItem) : 0;
+	int len = static_cast<int>(widestItem ? strlen(widestItem) : 0);
 	if (unicodeMode) {
 		const TextWide tbuf(widestItem, len, unicodeMode);
 		::GetTextExtentPoint32W(hdc, tbuf.buffer, tbuf.tlen, &textSize);
@@ -1443,7 +1539,7 @@ PRectangle ListBoxX::GetDesiredRect() {
 }
 
 int ListBoxX::TextOffset() const {
-	int pixWidth = const_cast<XPMSet*>(&xset)->GetWidth();
+	int pixWidth = images.GetWidth();
 	return pixWidth == 0 ? ItemInset.x : ItemInset.x + pixWidth + (ImageInset.x * 2);
 }
 
@@ -1502,11 +1598,16 @@ void ListBoxX::GetValue(int n, char *value, int len) {
 }
 
 void ListBoxX::RegisterImage(int type, const char *xpm_data) {
-	xset.Add(type, xpm_data);
+	XPM xpmImage(xpm_data);
+	images.Add(type, new RGBAImage(xpmImage));
+}
+
+void ListBoxX::RegisterRGBAImage(int type, int width, int height, const unsigned char *pixelsImage) {
+	images.Add(type, new RGBAImage(width, height, pixelsImage));
 }
 
 void ListBoxX::ClearRegisteredImages() {
-	xset.Clear();
+	images.Clear();
 }
 
 void ListBoxX::Draw(DRAWITEMSTRUCT *pDrawItem) {
@@ -1530,7 +1631,7 @@ void ListBoxX::Draw(DRAWITEMSTRUCT *pDrawItem) {
 		ListItemData item = lti.Get(pDrawItem->itemID);
 		int pixId = item.pixId;
 		const char *text = item.text;
-		int len = strlen(text);
+		int len = static_cast<int>(strlen(text));
 
 		RECT rcText = rcBox;
 		::InsetRect(&rcText, TextInset.x, TextInset.y);
@@ -1546,17 +1647,16 @@ void ListBoxX::Draw(DRAWITEMSTRUCT *pDrawItem) {
 		}
 
 		// Draw the image, if any
-		XPM *pxpm = xset.Get(pixId);
-		if (pxpm) {
+		RGBAImage *pimage = images.Get(pixId);
+		if (pimage) {
 			Surface *surfaceItem = Surface::Allocate();
 			if (surfaceItem) {
 				surfaceItem->Init(pDrawItem->hDC, pDrawItem->hwndItem);
-				//surfaceItem->SetUnicodeMode(unicodeMode);
-				//surfaceItem->SetDBCSMode(codePage);
 				int left = pDrawItem->rcItem.left + ItemInset.x + ImageInset.x;
 				PRectangle rcImage(left, pDrawItem->rcItem.top,
-					left + xset.GetWidth(), pDrawItem->rcItem.bottom);
-				pxpm->Draw(surfaceItem, rcImage);
+					left + images.GetWidth(), pDrawItem->rcItem.bottom);
+				surfaceItem->DrawRGBAImage(rcImage,
+					pimage->GetWidth(), pimage->GetHeight(), pimage->Pixels());
 				delete surfaceItem;
 				::SetTextAlign(pDrawItem->hDC, TA_TOP);
 			}
@@ -1590,7 +1690,7 @@ void ListBoxX::SetList(const char *list, char separator, char typesep) {
 	// the listbox is not visible.
 	SetRedraw(false);
 	Clear();
-	int size = strlen(list) + 1;
+	size_t size = strlen(list) + 1;
 	char *words = new char[size];
 	lti.SetWords(words);
 	memcpy(words, list, size);
@@ -1630,7 +1730,7 @@ void ListBoxX::AdjustWindowRect(PRectangle *rc) const {
 
 int ListBoxX::ItemHeight() const {
 	int itemHeight = lineHeight + (TextInset.y * 2);
-	int pixHeight = const_cast<XPMSet*>(&xset)->GetHeight() + (ImageInset.y * 2);
+	int pixHeight = images.GetHeight() + (ImageInset.y * 2);
 	if (itemHeight < pixHeight) {
 		itemHeight = pixHeight;
 	}
@@ -2288,6 +2388,8 @@ void Platform_Initialise(void *hInstance) {
 }
 
 void Platform_Finalise() {
+	if (reverseArrowCursor != NULL)
+		::DestroyCursor(reverseArrowCursor);
 	ListBoxX_Unregister();
 	::DeleteCriticalSection(&crPlatformLock);
 }

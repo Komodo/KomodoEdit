@@ -13,11 +13,10 @@ extern PyTypeObject PyWordListType;
 
 typedef struct {
     PyObject_HEAD
-    WordList * wordList;
+    PyObject *wordListAsString;
 } PyWordList;
 
 #define PyWordList_Check(op) ((op)->ob_type == &PyWordListType)
-#define PyWordList_GET_WORDLIST(op) (((PyWordList *)(op))->wordList)
 
 PyObject*
 PyWordList_new(PyObject *, PyObject* args);

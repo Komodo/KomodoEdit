@@ -168,7 +168,7 @@ onError:
 }
 
 static PyObject *
-PyLexerModule_keyvalue_wrap(PyPropSet *self, PyObject *args, bool want_key)
+PyLexState_keyvalue_wrap(PyPropSet *self, PyObject *args, bool want_key)
 {
     if (!PyArg_ParseTuple(args, ""))
         return NULL;
@@ -212,21 +212,21 @@ onError:
 }
 
 static PyObject *
-PyLexerModule_keys(PyPropSet *self, PyObject *args)
+PyLexState_keys(PyPropSet *self, PyObject *args)
 {
-    return PyLexerModule_keyvalue_wrap(self, args, true);
+    return PyLexState_keyvalue_wrap(self, args, true);
 }
 
 static PyObject *
-PyLexerModule_values(PyPropSet *self, PyObject *args)
+PyLexState_values(PyPropSet *self, PyObject *args)
 {
-    return PyLexerModule_keyvalue_wrap(self, args, false);
+    return PyLexState_keyvalue_wrap(self, args, false);
 }
 
 static PyMethodDef PyPropSet_methods[] = 
 {
-    {"keys", (PyCFunction) PyLexerModule_keys, METH_VARARGS, keys_doc},
-    {"values", (PyCFunction) PyLexerModule_values, METH_VARARGS, values_doc},
+    {"keys", (PyCFunction) PyLexState_keys, METH_VARARGS, keys_doc},
+    {"values", (PyCFunction) PyLexState_values, METH_VARARGS, values_doc},
     { NULL, NULL }
 };
 

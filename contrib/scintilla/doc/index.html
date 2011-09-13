@@ -9,7 +9,7 @@
     <meta name="keywords" content="Scintilla, SciTE, Editing Component, Text Editor" />
     <meta name="Description"
     content="www.scintilla.org is the home of the Scintilla editing component and SciTE text editor application." />
-    <meta name="Date.Modified" content="20100404" />
+    <meta name="Date.Modified" content="20110801" />
     <style type="text/css">
         #versionlist {
             margin: 0;
@@ -55,8 +55,8 @@
           GTK+</font>
         </td>
         <td width="40%" align="right">
-          <font color="#FFCC99" size="3"> Release version 2.10<br />
-           Site last modified April 4 2010</font>
+          <font color="#FFCC99" size="3"> Release version 2.28<br />
+           Site last modified August 1 2011</font>
         </td>
         <td width="20%">
           &nbsp;
@@ -65,18 +65,17 @@
     </table>
     <table bgcolor="#000000" width="100%" cellspacing="0" cellpadding="0" border="0">
       <tr>
-        <td width="100%" alt="Sci Break" style="background: url(http://www.scintilla.org/SciBreak.jpg) no-repeat;height:150px;">
+        <td width="100%" style="background: url(http://www.scintilla.org/SciBreak.jpg) no-repeat;height:150px;">
           &nbsp;
         </td>
       </tr>
     </table>
     <ul id="versionlist">
-      <li>Version 2.10 performs case insensitive search and upper and lower casing for non-ASCII characters.
-      Support for version 1.x of GTK+ removed.</li>
-      <li>Version 2.03 fixes some problems with rectangular selection.</li>
-      <li>Version 2.02 fixes some problems with rectangular selection.</li>
-      <li>Version 2.01 fixes some problems with multiple selection.</li>
-      <li>Version 2.0 supports multiple selection and virtual space.</li>
+      <li>Version 2.28 allows translucent images in RGBA format to be used for margin markers and in autocompletion lists.</li>
+      <li>Version 2.27 fixes incorrect colours on some versions of GTK+.</li>
+      <li>Version 2.26 can highlight folding margin symbols for the current folding block. Experimental support for GTK+ 3.</li>
+      <li>Version 2.25 improves ability of lexers to remember complex state between lines.</li>
+      <li>Version 2.24 fixes a memory leak on GTK+ with Cairo.</li>
     </ul>
     <ul id="menu">
       <li id="remote1"><a href="http://www.scintilla.org/SciTEImage.html">Screenshot</a></li>
@@ -109,11 +108,6 @@ if (!IsRemote()) { //if NOT remote...
        colours and multiple fonts.
     </p>
     <p>
-      The <a href="http://www.scintilla.org/SinkWorld.html">SinkWorld project</a>
-      investigates possible future directions for Scintilla to make it more flexible, robust, perform
-      better and run on the .NET and Java virtual machines.
-    </p>
-    <p>
        <a href="http://www.scintilla.org/SciTE.html">SciTE</a> is a SCIntilla based Text Editor. Originally built to
       demonstrate Scintilla, it has grown to be a generally useful editor with facilities for
       building and running programs. It is best used for jobs with simple configurations - I use it
@@ -129,8 +123,8 @@ if (!IsRemote()) { //if NOT remote...
     </p>
     <p>
        Scintilla and SciTE are currently available for Intel Win32 and Linux compatible operating
-      systems with GTK+. They have been run on Windows XP, Windows 7, and on Ubuntu 9.10
-      with GTK+ 2.18. <a href="http://www.scintilla.org/SciTEImage.html">Here is a screenshot of
+      systems with GTK+. They have been run on Windows XP, Windows 7, and on Ubuntu 10.10
+      with GTK+ 2.20. <a href="http://www.scintilla.org/SciTEImage.html">Here is a screenshot of
       SciTE.</a><br />
     </p>
     <p>
@@ -153,7 +147,6 @@ if (!IsRemote()) { //if NOT remote...
        <a href="http://www.scintilla.org/Icons.html">Icons that can be used with Scintilla.</a>
     </p>
     <p>
-      The scintilla-interest mailing list has moved from lyra.org to Google Groups.
       Questions and comments about Scintilla should be directed to the
       <a href="http://groups.google.com/group/scintilla-interest">scintilla-interest</a>
       mailing list,

@@ -8,10 +8,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <assert.h>
 
 #include "Platform.h"
 
-#include "CharClassify.h"
+#include "CharacterSet.h"
 #include "AutoComplete.h"
 
 #ifdef SCI_NAMESPACE
@@ -128,11 +129,11 @@ void AutoComplete::Select(const char *word) {
 	size_t lenWord = strlen(word);
 	int location = -1;
 	const int maxItemLen=1000;
-	char item[maxItemLen];
 	int start = 0; // lower bound of the api array block to search
 	int end = lb->Length() - 1; // upper bound of the api array block to search
 	while ((start <= end) && (location == -1)) { // Binary searching loop
 		int pivot = (start + end) / 2;
+		char item[maxItemLen];
 		lb->GetValue(pivot, item, maxItemLen);
 		int cond;
 		if (ignoreCase)

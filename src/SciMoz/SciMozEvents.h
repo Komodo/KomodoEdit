@@ -175,7 +175,7 @@ public:
 		pFirst = l;
 		return true;
 	}
-	bool Remove( NPP instance, NPObject *listener ) {
+	bool Remove( NPP /*instance*/, NPObject *listener ) {
 		// No real need to check for weak-reference support.
 		// If someone added a weak-reference, then almost
 		// by definition they dont want to manage the lifetime

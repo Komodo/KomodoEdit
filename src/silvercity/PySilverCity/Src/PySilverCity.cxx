@@ -10,6 +10,9 @@
 #include "PyPropSet.h"
 #include "PyWordList.h"
 
+#include "LexState.h" // LexState wraps LexerModule as of scintilla v220
+
+#include "Catalogue.h"
 #define MODULE_NAME "_SilverCity"
 
 static char module_doc[] = 
@@ -31,12 +34,12 @@ static char PropertySet_doc[] =
 static char find_lexer_module_by_name_doc[] =
 "find_lexer_module_by_name('python') => <Python LexerModule object>\n"
 "\n"
-"Returns a LexerModule object based on the name provided.\n";
+"Returns a LexState-wrapped LexerModule object based on the name provided.\n";
 
 static char find_lexer_module_by_id_doc[] =
 "find_lexer_module_by_id(SCLEX_PYTHON) => <Python LexerModule object>\n"
 "\n"
-"Returns a LexerModule object based on an integer constant. These\n"
+"Returns a LexState-wrapped LexerModule object based on an integer constant. These\n"
 "constants can be found in ScintillaConstants.py";
 
 static PyObject*
@@ -44,18 +47,21 @@ FindLexerModuleByName(PyObject *, PyObject* args)
 {
     char* lexerName;
     const LexerModule * lexerModule;
+    LexState *lexState;
 
     if (!PyArg_ParseTuple(args, "s", &lexerName))
         return NULL;
 
-    lexerModule = LexerModule::Find(lexerName);
+    lexerModule = Catalogue::Find(lexerName);
     if (lexerModule == NULL) {
         PyErr_Format(PyExc_ValueError, "could not find lexer %.200s",
             lexerName);
         return NULL;
     }
+    lexState = new LexState();
+    lexState->SetLexerModule(lexerModule);
 
-    return PyLexerModule_new(lexerModule);
+    return PyLexState_new(lexState);
 }
 
 static PyObject*
@@ -63,18 +69,22 @@ FindLexerModuleByID(PyObject *, PyObject* args)
 {
     int             lexerID;
     const LexerModule *   lexerModule;
+    LexState *lexState;
 
     if (!PyArg_ParseTuple(args, "i", &lexerID))
         return NULL;
 
-    lexerModule = LexerModule::Find(lexerID);
+    lexerModule = Catalogue::Find(lexerID);
+    // fprintf(stderr, "PySilverCity.cxx:: FindLexerModuleByID(lexerID:%d) => %p\n", lexerID, lexerModule);
     if (lexerModule == NULL) {
         PyErr_Format(PyExc_ValueError, "could not find lexer %d",
             lexerID);
         return NULL;
     }
+    lexState = new LexState();
+    lexState->SetLexerModule(lexerModule);
 
-    return PyLexerModule_new(lexerModule);
+    return PyLexState_new(lexState);
 }
 
 static PyMethodDef moduleMethods[] = 
@@ -105,7 +115,7 @@ init_SilverCity(void)
     m = Py_InitModule3(MODULE_NAME, moduleMethods, module_doc);
     moduleDict = PyModule_GetDict(m);
 
-    initPyLexerModule();
+    initPyLexState();
     initPyPropSet();
     initPyWordList();
 }

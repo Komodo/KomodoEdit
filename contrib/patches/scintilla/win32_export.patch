@@ -37,8 +37,8 @@ Index: src/Partitioning.h
 --- src/Partitioning.h	(revision 518)
 +++ src/Partitioning.h	(working copy)
 @@ -43,7 +43,7 @@
- /// Divide an interval into multiple partitions.
- /// Useful for breaking a document down into sections such as lines.
+ /// When needed, positions after the interval are considered part of the last partition
+ /// but the end of the last partition can be found with PositionFromPartition(last+1).
  
 -class Partitioning {
 +class SCIAPI Partitioning {
@@ -55,7 +55,7 @@ Index: src/RunStyles.h
  
 -class RunStyles {
 +class SCIAPI RunStyles {
- public:
+ private:
  	Partitioning *starts;
  	SplitVector<int> *styles;
 Index: src/Decoration.h
@@ -142,9 +142,10 @@ Index: src/CharClassify.h
 ===================================================================
 --- src/CharClassify.h	(revision 518)
 +++ src/CharClassify.h	(working copy)
-@@ -8,7 +8,9 @@
- #ifndef CHARCLASSIFY_H
- #define CHARCLASSIFY_H
+@@ -8,8 +8,10 @@
+ #ifdef SCI_NAMESPACE
+ namespace Scintilla {
+ #endif
  
 -class CharClassify {
 +#include "Platform.h"
@@ -170,8 +171,8 @@ Index: src/Document.h
  
  /**
   */
--class Document : PerLine {
-+class SCIAPI Document : PerLine {
+-class Document : PerLine, public IDocument {
++class SCIAPI Document : PerLine, public IDocument {
  
  public:
  	/** Used to pair watcher pointer with user data. */
@@ -211,8 +212,9 @@ Index: src/SplitVector.h
  protected:
  	T *body;
  	int size;
-@@ -240,4 +240,9 @@
- 
+@@ -240,5 +240,10 @@
+ 		return body;
+ 	}
  };
  
 +#ifdef SCIAPI_DLL

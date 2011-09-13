@@ -9,7 +9,7 @@ Index: /home/toddw/as/komodo-devel/contrib/scintilla/macosx/ScintillaMacOSX.cxx
  {
      if (!sel.Empty()) {
  #ifdef EXT_INPUT
-         ExtInput::stop (GetViewRef()); 
+         ExtInput::stop (GetViewRef());
  #endif
          SelectionText selectedText;
          CopySelectionRange(&selectedText);

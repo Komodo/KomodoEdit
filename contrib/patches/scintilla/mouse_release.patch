@@ -6,14 +6,16 @@ Index: src/Editor.cxx
 ===================================================================
 --- src/Editor.cxx	(revision 41207)
 +++ src/Editor.cxx	(working copy)
-@@ -8411,14 +8450,17 @@
- 		InvalidateSelection(sel.RangeMain(), true);
+@@ -8411,16 +8450,19 @@
+ 		pdoc->ChangeLexerState(wParam, lParam);
  		break;
- 
- 	case SCI_SWAPMAINANCHORCARET:
- 		InvalidateSelection(sel.RangeMain());
- 		sel.RangeMain() = SelectionRange(sel.RangeMain().anchor, sel.RangeMain().caret);
+ 	
+ 	case SCI_SETIDENTIFIER:
+ 		SetCtrlID(wParam);
  		break;
+ 	
+ 	case SCI_GETIDENTIFIER:
+ 		return GetCtrlID();
  
 +	case SCI_RELEASEMOUSECAPTURE:
 +                SetMouseCapture(false);
