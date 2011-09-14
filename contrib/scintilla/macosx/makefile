@@ -37,7 +37,7 @@ endif
 endif
 
 # See http://stackoverflow.com/questions/127426/gnu-compiler-warning-class-has-virtual-functions-but-non-virtual-destructor
-OPTIONS=-Wall -Wno-missing-braces -Wno-char-subscripts -Wno-non-vitual-dtor -DSCI_NAMESPACE -DMACOSX -DSCI_LEXER
+OPTIONS=-Wall -Wno-missing-braces -Wno-char-subscripts -Wno-non-virtual-dtor -DSCI_NAMESPACE -DMACOSX -DSCI_LEXER
 
 #DEBUG = 1
 
