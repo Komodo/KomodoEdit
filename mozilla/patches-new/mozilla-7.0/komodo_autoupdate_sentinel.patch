@@ -1,0 +1,225 @@
+# HG changeset patch
+# Parent 64a296b1d0e141926882f440c9a3a8b8699f7da8
+importing patch komodo_autoupdate_sentinel.patch
+
+Index: c:\as\komodo-devel_moz6\mozilla\build\moz600-ko7.16\mozilla\toolkit\mozapps\update\updater\updater.cpp
+--- a/toolkit/mozapps/update/updater/updater.cpp	Thu Aug 11 14:17:35 2011 -0700
++++ b/toolkit/mozapps/update/updater/updater.cpp	Tue Aug 23 12:01:18 2011 -0700
+@@ -71,6 +71,18 @@
+  */
+ 
+ #if defined(XP_WIN)
++#include <sys/utime.h>
++#else
++#include <utime.h>
++#endif
++
++#if defined(XP_WIN)
++#include <sys/utime.h>
++#else
++#include <utime.h>
++#endif
++
++#if defined(XP_WIN)
+ # include <windows.h>
+ # include <direct.h>
+ # include <io.h>
+@@ -1515,6 +1527,188 @@
+   PatchFile::Finish(status);
+ }
+ 
++
++class SentinelFile : public Action
++{
++public:
++  SentinelFile() : mFile(NULL) { }
++
++  virtual int Parse(NS_tchar *line);
++  virtual int Prepare();
++  virtual int Execute();
++  virtual void Finish(int status);
++
++private:
++#ifdef XP_WIN
++  int MyUtime(const NS_tchar *filename, struct utimbuf *buffer);
++#endif
++  int MyStat(const NS_tchar *filename, struct stat *statbuf);
++
++  const NS_tchar *mFile;
++};
++
++int
++SentinelFile::Parse(NS_tchar *line)
++{
++  // format "<sentinelfile>"
++
++  mFile = get_valid_path(&line);
++  if (!mFile)
++    return PARSE_ERROR;
++
++  return OK;
++}
++
++int
++SentinelFile::Prepare()
++{
++  LOG(("PREPARE SENTINEL %s\n", mFile));
++
++  return OK;
++}
++
++
++#ifdef XP_WIN
++/* Copied from License_V8's pristine.c (except for the NS_* usage for
++ * unicode conversions).
++ */
++
++/* Number of "clunks" (100-nanosecond intervals) in one second. */
++static const ULONGLONG clunks_per_second = 10000000L;
++
++/* The epoch of time_t values (00:00:00 Jan 01 1970 UTC) as a SYSTEMTIME. */
++static const SYSTEMTIME base_st = {
++    1970,    /* wYear         */
++    1,       /* wMonth        */
++    0,       /* wDayOfWeek    */
++    1,       /* wDay          */
++    0,       /* wHour         */
++    0,       /* wMinute       */
++    0,       /* wSecond       */
++    0        /* wMilliseconds */
++};
++
++static void
++FileTimeToUnixTime(const FILETIME *ft, time_t *ut)
++{
++    ULARGE_INTEGER it;
++    FILETIME base_ft;
++
++    SystemTimeToFileTime(&base_st, &base_ft);
++
++    /* Convert the FILETIME (which is expressed as the number of clunks
++     * since 00:00:00 Jan 01 1601 UTC) to a time_t value by subtracting the
++     * FILETIME representation of the epoch of time_t values and then
++     * converting clunks to seconds. */
++    it.QuadPart  = ((ULARGE_INTEGER *)ft)->QuadPart;
++    it.QuadPart -= ((ULARGE_INTEGER *)&base_ft)->QuadPart;
++    it.QuadPart /= clunks_per_second;
++
++    *ut = it.LowPart;
++}
++
++static void
++UnixTimeToFileTime(const time_t ut, FILETIME *ft)
++{
++    ULARGE_INTEGER it;
++    FILETIME base_ft;
++
++    SystemTimeToFileTime(&base_st, &base_ft);
++
++    /* Convert the time_t value to a FILETIME (which is expressed as the
++     * number of clunks since 00:00:00 Jan 01 1601 UTC) by converting
++     * seconds to clunks and then adding the FILETIME representation of the
++     * epoch of time_t values. */
++    it.LowPart   = (DWORD)ut;
++    it.HighPart  = 0;
++    it.QuadPart *= clunks_per_second;
++    it.QuadPart += ((ULARGE_INTEGER *)&base_ft)->QuadPart;
++
++    *(ULARGE_INTEGER *)ft = it;
++}
++
++int
++SentinelFile::MyUtime(const NS_tchar *filename, struct utimbuf *buffer)
++{
++  HANDLE handle;
++  int retval = -1;
++
++  handle = CreateFileW(filename, FILE_WRITE_ATTRIBUTES,
++                       FILE_SHARE_WRITE | FILE_SHARE_READ,
++                       NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
++  if (handle != INVALID_HANDLE_VALUE) {
++    FILETIME ft;
++    UnixTimeToFileTime(buffer->modtime, &ft);
++    retval = SetFileTime(handle, NULL, NULL, &ft) ? 0 : -1;
++    CloseHandle(handle);
++  }
++  return retval;
++}
++#endif
++
++int
++SentinelFile::MyStat(const NS_tchar *filename, struct stat *statbuf)
++{
++#ifdef XP_WIN
++    HANDLE handle;
++    int retval = -1;
++
++    handle = CreateFileW(filename, FILE_WRITE_ATTRIBUTES,
++                         FILE_SHARE_WRITE | FILE_SHARE_READ,
++                         NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
++    if (handle != INVALID_HANDLE_VALUE) {
++        BY_HANDLE_FILE_INFORMATION bhfi;
++        if (GetFileInformationByHandle(handle, &bhfi)) {
++            FileTimeToUnixTime(&bhfi.ftLastWriteTime, &statbuf->st_mtime);
++            retval = 0;
++        }
++        CloseHandle(handle);
++    }
++    return retval;
++#else
++    return stat(filename, statbuf);
++#endif
++}
++
++int
++SentinelFile::Execute()
++{
++  LOG(("EXECUTE SENTINEL %s\n", mFile));
++
++  /* WARNING: These must be kept in sync with License_V8. */
++  #define LIC_SENTINEL_MASK     0xFF  /* low byte of mtime is used for sentinel */
++  #define LIC_SENTINEL_PRISTINE 0     /* untouched sentinel file */
++
++  struct stat stat_buf;
++
++  if (MyStat(mFile, &stat_buf) == 0) {
++    struct utimbuf utime_buf;
++
++    utime_buf.modtime = (stat_buf.st_mtime & ~LIC_SENTINEL_MASK);
++    utime_buf.modtime |= LIC_SENTINEL_PRISTINE;
++
++    if (stat_buf.st_mtime != utime_buf.modtime) {
++      utime_buf.actime = stat_buf.st_atime;
++#ifdef XP_WIN
++      MyUtime(mFile, &utime_buf);
++#else
++      utime(mFile, &utime_buf);
++#endif
++    }
++  }
++  return 0;
++
++
++  return OK;
++}
++
++void
++SentinelFile::Finish(int status)
++{
++  LOG(("FINISH SENTINEL %s\n", mFile));
++}
++
++
+ //-----------------------------------------------------------------------------
+ 
+ #ifdef XP_WIN
+@@ -2437,6 +2631,9 @@
+     else if (NS_tstrcmp(token, NS_T("rmdir")) == 0) { // rmdir if  empty
+       action = new RemoveDir();
+     }
++    else if (NS_tstrcmp(token, NS_T("sentinel")) == 0) {
++      action = new SentinelFile();
++    }
+     else {
+       LOG(("AddPreCompleteActions: unknown token: " LOG_S "\n", token));
+       return PARSE_ERROR;

@@ -1,0 +1,16 @@
+# HG changeset patch
+# Parent d66c01702aaaaa543e86584167b1bdccc5dfc9f9
+add missing threadutils include
+
+
+diff --git a/xpcom/src/loader/pyloader.cpp b/xpcom/src/loader/pyloader.cpp
+--- a/xpcom/src/loader/pyloader.cpp
++++ b/xpcom/src/loader/pyloader.cpp
+@@ -56,6 +56,7 @@
+ #include "pyloader.h"
+ #include "nsXPCOM.h"
+ 
++#include <nsThreadUtils.h>
+ 
+ static PRLogModuleInfo *nsPythonModuleLoaderLog =
+     PR_NewLogModule("nsPythonModuleLoader");

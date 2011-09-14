@@ -1,0 +1,35 @@
+# HG changeset patch
+# Parent e35b5c8ed97a430728fa01a2f899124ffcc3b7c4
+importing patch pyxpcom_fixproxy.patch
+
+diff --git a/xpcom/src/module/_xpcom.cpp b/xpcom/src/module/_xpcom.cpp
+--- a/xpcom/src/module/_xpcom.cpp
++++ b/xpcom/src/module/_xpcom.cpp
+@@ -574,16 +574,27 @@ init_xpcom() {
+ 	REGISTER_IID(nsIVariant);
+ 
+ 	// No good reason not to expose this impl detail, and tests can use it
+ 	REGISTER_IID(nsIInternalPython);
+     // We have special support for proxies - may as well add their constants!
+     REGISTER_INT(NS_PROXY_SYNC);
+     REGISTER_INT(NS_PROXY_ASYNC);
+     REGISTER_INT(NS_PROXY_ALWAYS);
++
++    // Backwards compat names for proxy
++#define REGISTER_INT_NAME(val, name) { \
++	PyObject *ob = PyInt_FromLong(val); \
++	PyDict_SetItemString(dict, name, ob); \
++	Py_DECREF(ob); \
++	}
++    REGISTER_INT_NAME(NS_PROXY_SYNC, "PROXY_SYNC");
++    REGISTER_INT_NAME(NS_PROXY_ASYNC, "PROXY_ASYNC");
++    REGISTER_INT_NAME(NS_PROXY_ALWAYS, "PROXY_ALWAYS");
++
+     // Build flags that may be useful.
+     PyObject *ob = PyBool_FromLong(
+ #ifdef NS_DEBUG
+                                    1
+ #else
+                                    0
+ #endif
+                                    );

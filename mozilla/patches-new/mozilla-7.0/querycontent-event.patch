@@ -1,0 +1,710 @@
+# HG changeset patch
+# Parent fb4a99fed84dc18aafd48f4d42c5aeb0fd47210f
+# User marky
+# Date 1299619806 28800
+
+expose nsQueryContentEvent as DOM events
+
+incomplete so far, still need to
+- write unit tests
+- stop exposing it to untrusted script
+
+diff --git a/content/base/src/nsContentUtils.cpp b/content/base/src/nsContentUtils.cpp
+--- a/content/base/src/nsContentUtils.cpp
++++ b/content/base/src/nsContentUtils.cpp
+@@ -639,16 +639,24 @@ nsContentUtils::InitializeEventTable() {
+ #ifdef MOZ_SMIL
+     { nsGkAtoms::onbegin,                       NS_SMIL_BEGIN, EventNameType_SMIL, NS_EVENT_NULL },
+     { nsGkAtoms::onbeginEvent,                  NS_SMIL_BEGIN, EventNameType_None, NS_SMIL_TIME_EVENT },
+     { nsGkAtoms::onend,                         NS_SMIL_END, EventNameType_SMIL, NS_EVENT_NULL },
+     { nsGkAtoms::onendEvent,                    NS_SMIL_END, EventNameType_None, NS_SMIL_TIME_EVENT },
+     { nsGkAtoms::onrepeat,                      NS_SMIL_REPEAT, EventNameType_SMIL, NS_EVENT_NULL },
+     { nsGkAtoms::onrepeatEvent,                 NS_SMIL_REPEAT, EventNameType_None, NS_SMIL_TIME_EVENT },
+ #endif // MOZ_SMIL
++
++    { nsGkAtoms::onquerycontentselectedtext,    NS_QUERY_SELECTED_TEXT, EventNameType_None, NS_QUERY_CONTENT_EVENT },
++    { nsGkAtoms::onquerycontenttextcontent,     NS_QUERY_TEXT_CONTENT, EventNameType_None, NS_QUERY_CONTENT_EVENT },
++    { nsGkAtoms::onquerycontentcaretrect,       NS_QUERY_CARET_RECT, EventNameType_None, NS_QUERY_CONTENT_EVENT },
++    { nsGkAtoms::onquerycontenttextrect,        NS_QUERY_TEXT_RECT, EventNameType_None, NS_QUERY_CONTENT_EVENT },
++    { nsGkAtoms::onquerycontentcharacteratpoint,NS_QUERY_CHARACTER_AT_POINT, EventNameType_None, NS_QUERY_CONTENT_EVENT },
++    //{ nsGkAtoms::onquerycontentdomwidgethittest,NS_QUERY_DOM_WIDGET_HITTEST, EventNameType_None, NS_QUERY_CONTENT_EVENT },
++
+ #ifdef MOZ_MEDIA
+     { nsGkAtoms::onloadstart,                   NS_LOADSTART, EventNameType_HTML, NS_EVENT_NULL },
+     { nsGkAtoms::onprogress,                    NS_PROGRESS, EventNameType_HTML, NS_EVENT_NULL },
+     { nsGkAtoms::onsuspend,                     NS_SUSPEND, EventNameType_HTML, NS_EVENT_NULL },
+     { nsGkAtoms::onemptied,                     NS_EMPTIED, EventNameType_HTML, NS_EVENT_NULL },
+     { nsGkAtoms::onstalled,                     NS_STALLED, EventNameType_HTML, NS_EVENT_NULL },
+     { nsGkAtoms::onplay,                        NS_PLAY, EventNameType_HTML, NS_EVENT_NULL },
+     { nsGkAtoms::onpause,                       NS_PAUSE, EventNameType_HTML, NS_EVENT_NULL },
+diff --git a/content/base/src/nsGkAtomList.h b/content/base/src/nsGkAtomList.h
+--- a/content/base/src/nsGkAtomList.h
++++ b/content/base/src/nsGkAtomList.h
+@@ -700,16 +700,22 @@ GK_ATOM(onoverflowchanged, "onoverflowch
+ GK_ATOM(onpagehide, "onpagehide")
+ GK_ATOM(onpageshow, "onpageshow")
+ GK_ATOM(onpaint, "onpaint")
+ GK_ATOM(onpaste, "onpaste")
+ GK_ATOM(onpopuphidden, "onpopuphidden")
+ GK_ATOM(onpopuphiding, "onpopuphiding")
+ GK_ATOM(onpopupshowing, "onpopupshowing")
+ GK_ATOM(onpopupshown, "onpopupshown")
++GK_ATOM(onquerycontentcaretrect, "onquerycontentcaretrect")
++GK_ATOM(onquerycontentcharacteratpoint, "onquerycontentcharacteratpoint")
++GK_ATOM(onquerycontentdomwidgethittest, "onquerycontentdomwidgethittest")
++GK_ATOM(onquerycontentselectedtext, "onquerycontentselectedtext")
++GK_ATOM(onquerycontenttextcontent, "onquerycontenttextcontent")
++GK_ATOM(onquerycontenttextrect, "onquerycontenttextrect")
+ GK_ATOM(onreadystatechange, "onreadystatechange")
+ GK_ATOM(onRequest, "onRequest")
+ GK_ATOM(onreset, "onreset")
+ GK_ATOM(onMozBeforeResize, "onMozBeforeResize")
+ GK_ATOM(onresize, "onresize")
+ GK_ATOM(onscroll, "onscroll")
+ GK_ATOM(onselect, "onselect")
+ GK_ATOM(onset, "onset")
+diff --git a/content/events/public/Makefile.in b/content/events/public/Makefile.in
+--- a/content/events/public/Makefile.in
++++ b/content/events/public/Makefile.in
+@@ -45,12 +45,13 @@
+ MODULE		= content
+ XPIDL_MODULE	= content_events
+ 
+ EXPORTS		= \
+ 		nsMutationEvent.h \
+ 		nsIPrivateDOMEvent.h \
++		nsIPrivateQueryContentEvent.h \
+ 		nsIPrivateTextEvent.h \
+ 		nsIPrivateTextRange.h \
+ 		nsPLDOMEvent.h \
+ 		nsEventDispatcher.h \
+ 		nsEventStates.h \
+ 		$(NULL)
+diff --git a/content/events/public/nsIPrivateDOMEvent.h b/content/events/public/nsIPrivateDOMEvent.h
+--- a/content/events/public/nsIPrivateDOMEvent.h
++++ b/content/events/public/nsIPrivateDOMEvent.h
+@@ -145,7 +145,9 @@
+ nsresult
+ NS_NewDOMMozTouchEvent(nsIDOMEvent** aInstancePtrResult, nsPresContext* aPresContext, class nsMozTouchEvent* aEvent);
+ nsresult
+ NS_NewDOMTouchEvent(nsIDOMEvent** aInstancePtrResult, nsPresContext* aPresContext, class nsInputEvent *aEvent);
+ nsresult
+ NS_NewDOMCustomEvent(nsIDOMEvent** aInstancePtrResult, nsPresContext* aPresContext, nsEvent* aEvent);
++nsresult
++NS_NewDOMQueryContentEvent(nsIDOMEvent** aInstancePtrResult, nsPresContext* aPresContext, class nsQueryContentEvent *aEvent);
+ #endif // nsIPrivateDOMEvent_h__
+diff --git a/content/events/public/nsIPrivateQueryContentEvent.h b/content/events/public/nsIPrivateQueryContentEvent.h
+new file mode 100644
+--- /dev/null
++++ b/content/events/public/nsIPrivateQueryContentEvent.h
+@@ -0,0 +1,79 @@
++/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
++/* ***** BEGIN LICENSE BLOCK *****
++ * Version: MPL 1.1/GPL 2.0/LGPL 2.1
++ *
++ * The contents of this file are subject to the Mozilla Public License Version
++ * 1.1 (the "License"); you may not use this file except in compliance with
++ * the License. You may obtain a copy of the License at
++ * http://www.mozilla.org/MPL/
++ *
++ * Software distributed under the License is distributed on an "AS IS" basis,
++ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
++ * for the specific language governing rights and limitations under the
++ * License.
++ *
++ * The Original Code is mozilla.org code.
++ *
++ * The Initial Developer of the Original Code is
++ * ActiveState Software Inc.
++ * Portions created by the Initial Developer are Copyright (C) 2011
++ * the Initial Developer. All Rights Reserved.
++ *
++ * Contributor(s):
++ *
++ * Alternatively, the contents of this file may be used under the terms of
++ * either of the GNU General Public License Version 2 or later (the "GPL"),
++ * or the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
++ * in which case the provisions of the GPL or the LGPL are applicable instead
++ * of those above. If you wish to allow use of your version of this file only
++ * under the terms of either the GPL or the LGPL, and not to allow others to
++ * use your version of this file under the terms of the MPL, indicate your
++ * decision by deleting the provisions above and replace them with the notice
++ * and other provisions required by the GPL or the LGPL. If you do not delete
++ * the provisions above, a recipient may use your version of this file under
++ * the terms of any one of the MPL, the GPL or the LGPL.
++ *
++ * ***** END LICENSE BLOCK ***** */
++
++#ifndef nsIPrivateQueryContentEvent_h__
++#define nsIPrivateQueryContentEvent_h__
++
++#include "nsEvent.h"
++#include "nsISupports.h"
++#include "nsRect.h"
++
++#define NS_IPRIVATEQUERYCONTENTEVENT_IID \
++/* {FE08E893-8642-4d24-B055-B80FB8BF9175} */ \
++{ 0xfe08e893, 0x8642, 0x4d24, \
++  { 0xb0, 0x55, 0xb8, 0xf, 0xb8, 0xbf, 0x91, 0x75 } }
++
++class nsIPrivateQueryContentEvent : public nsISupports {
++
++public:
++  NS_DECLARE_STATIC_IID_ACCESSOR(NS_IPRIVATEQUERYCONTENTEVENT_IID)
++
++  NS_IMETHOD_(PRInt32) AppUnitsPerDevPixel() = 0;
++  NS_IMETHOD_(PRInt32) CSSPixelsToDevPixels(PRInt32 aPixels) = 0;
++  NS_IMETHOD_(float) DevPixelsToFloatCSSPixels(PRInt32 aPixels) = 0;
++
++  NS_IMETHOD_(PRUint32) GetOffset() = 0;
++  NS_IMETHOD_(PRUint32) GetLength() = 0;
++  NS_IMETHOD_(nscoord) GetRefPointX() = 0;
++  NS_IMETHOD_(nscoord) GetRefPointY() = 0;
++
++  NS_IMETHOD_(PRUint32) GetMessage() = 0;
++  NS_IMETHOD_(PRBool) GetSucceeded() = 0;
++  NS_IMETHOD_(void) SetSucceeded(PRBool aSucceeded) = 0;
++
++  NS_IMETHOD_(void) SetReplyOffset(PRInt32 aOffset) = 0;
++  NS_IMETHOD_(void) SetReplyString(nsAString& aString) = 0;
++  NS_IMETHOD_(nsIntRect) GetReplyRect() = 0;
++  NS_IMETHOD SetReplyRect(nsIntRect& aRect) = 0;
++  NS_IMETHOD_(void) SetReplyReversed(PRBool aIsReversed) = 0;
++  NS_IMETHOD_(void) SetReplyHasSelection(PRBool aHasSelection) = 0;
++};
++
++NS_DEFINE_STATIC_IID_ACCESSOR(nsIPrivateQueryContentEvent, NS_IPRIVATEQUERYCONTENTEVENT_IID)
++
++#endif // nsIPrivateQueryContentEvent_h__
++
+diff --git a/content/events/src/Makefile.in b/content/events/src/Makefile.in
+--- a/content/events/src/Makefile.in	Thu Jul 07 17:39:53 2011 -0700
++++ b/content/events/src/Makefile.in	Wed Jul 13 10:32:21 2011 -0700
+@@ -90,12 +90,13 @@
+ 		nsDOMScrollAreaEvent.cpp \
+ 		nsDOMTransitionEvent.cpp \
+ 		nsDOMAnimationEvent.cpp \
+ 		nsDOMPopStateEvent.cpp \
+ 		nsDOMHashChangeEvent.cpp \
+ 		nsDOMCloseEvent.cpp \
++		nsDOMQueryContentEvent.cpp \
+ 		nsDOMTouchEvent.cpp \
+ 		nsDOMCustomEvent.cpp \
+ 		$(NULL)
+ 
+ # we don't want the shared lib, but we want to force the creation of a static lib.
+ FORCE_STATIC_LIB = 1
+diff --git a/content/events/src/nsDOMEvent.cpp b/content/events/src/nsDOMEvent.cpp
+--- a/content/events/src/nsDOMEvent.cpp	Thu Jul 07 17:39:53 2011 -0700
++++ b/content/events/src/nsDOMEvent.cpp	Wed Jul 13 10:34:24 2011 -0700
+@@ -106,12 +106,15 @@
+   "MozTouchUp",
+   "MozScrolledAreaChanged",
+   "transitionend",
+   "animationstart",
+   "animationend",
+   "animationiteration",
++  "querycontentselectedtext", "querycontenttextcontent",
++  "querycontentcaretrect", "querycontenttextrect",
++  "querycontentcharacteratpoint", "querycontentdomwidgethittest",
+   "devicemotion",
+   "deviceorientation"
+ };
+ 
+ static char *sPopupAllowedEvents;
+ 
+@@ -790,16 +793,22 @@ NS_METHOD nsDOMEvent::DuplicatePrivateDa
+     case NS_SMIL_TIME_EVENT:
+     {
+       newEvent = new nsUIEvent(PR_FALSE, msg, 0);
+       NS_ENSURE_TRUE(newEvent, NS_ERROR_OUT_OF_MEMORY);
+       newEvent->eventStructType = NS_SMIL_TIME_EVENT;
+       break;
+     }
+ #endif // MOZ_SMIL
++    case NS_QUERY_CONTENT_EVENT:
++    {
++        newEvent = new nsQueryContentEvent(PR_FALSE, msg, nsnull);
++        NS_ENSURE_TRUE(newEvent, NS_ERROR_OUT_OF_MEMORY);
++        break;
++    }
+     case NS_SIMPLE_GESTURE_EVENT:
+     {
+       nsSimpleGestureEvent* oldSimpleGestureEvent = static_cast<nsSimpleGestureEvent*>(mEvent);
+       nsSimpleGestureEvent* simpleGestureEvent = 
+         new nsSimpleGestureEvent(PR_FALSE, msg, nsnull, 0, 0.0);
+       NS_ENSURE_TRUE(simpleGestureEvent, NS_ERROR_OUT_OF_MEMORY);
+       isInputEvent = PR_TRUE;
+       simpleGestureEvent->direction = oldSimpleGestureEvent->direction;
+@@ -1360,12 +1363,24 @@
+   case NS_ANIMATION_START:
+     return sEventNames[eDOMEvents_animationstart];
+   case NS_ANIMATION_END:
+     return sEventNames[eDOMEvents_animationend];
+   case NS_ANIMATION_ITERATION:
+     return sEventNames[eDOMEvents_animationiteration];
++  case NS_QUERY_SELECTED_TEXT:
++    return sEventNames[eDOMEvents_querycontentselectedtext];
++  case NS_QUERY_TEXT_CONTENT:
++    return sEventNames[eDOMEvents_querycontenttextcontent];
++  case NS_QUERY_CARET_RECT:
++    return sEventNames[eDOMEvents_querycontentcaretrect];
++  case NS_QUERY_TEXT_RECT:
++    return sEventNames[eDOMEvents_querycontenttextrect];
++  case NS_QUERY_CHARACTER_AT_POINT:
++    return sEventNames[eDOMEvents_querycontentcharacteratpoint];
++  //case NS_QUERY_DOM_WIDGET_HITTEST:
++  //  return sEventNames[eDOMEvents_querycontentdomwidgethittest];
+   case NS_DEVICE_MOTION:
+     return sEventNames[eDOMEvents_devicemotion];
+   case NS_DEVICE_ORIENTATION:
+     return sEventNames[eDOMEvents_deviceorientation];
+   default:
+     break;
+diff --git a/content/events/src/nsDOMEvent.h b/content/events/src/nsDOMEvent.h
+--- a/content/events/src/nsDOMEvent.h	Thu Jul 07 17:39:53 2011 -0700
++++ b/content/events/src/nsDOMEvent.h	Wed Jul 13 10:36:48 2011 -0700
+@@ -190,12 +190,18 @@
+     eDOMEvents_MozTouchUp,
+     eDOMEvents_MozScrolledAreaChanged,
+     eDOMEvents_transitionend,
+     eDOMEvents_animationstart,
+     eDOMEvents_animationend,
+     eDOMEvents_animationiteration,
++    eDOMEvents_querycontentselectedtext,
++    eDOMEvents_querycontenttextcontent,
++    eDOMEvents_querycontentcaretrect,
++    eDOMEvents_querycontenttextrect,
++    eDOMEvents_querycontentcharacteratpoint,
++    eDOMEvents_querycontentdomwidgethittest,
+     eDOMEvents_devicemotion,
+     eDOMEvents_deviceorientation
+   };
+ 
+   nsDOMEvent(nsPresContext* aPresContext, nsEvent* aEvent);
+   virtual ~nsDOMEvent();
+diff --git a/content/events/src/nsDOMQueryContentEvent.cpp b/content/events/src/nsDOMQueryContentEvent.cpp
+new file mode 100644
+--- /dev/null
++++ b/content/events/src/nsDOMQueryContentEvent.cpp
+@@ -0,0 +1,179 @@
++/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
++/* vim: set ts=2 sw=2 et tw=78: */
++/* ***** BEGIN LICENSE BLOCK *****
++ * Version: MPL 1.1/GPL 2.0/LGPL 2.1
++ *
++ * The contents of this file are subject to the Mozilla Public License Version
++ * 1.1 (the "License"); you may not use this file except in compliance with
++ * the License. You may obtain a copy of the License at
++ * http://www.mozilla.org/MPL/
++ *
++ * Software distributed under the License is distributed on an "AS IS" basis,
++ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
++ * for the specific language governing rights and limitations under the
++ * License.
++ *
++ * The Original Code is mozilla.org code.
++ *
++ * The Initial Developer of the Original Code is
++ * Netscape Communications Corporation.
++ * Portions created by the Initial Developer are Copyright (C) 1998
++ * the Initial Developer. All Rights Reserved.
++ *
++ * Contributor(s):
++ *   Ilya Konstantinov (mozilla-code@future.shiny.co.il)
++ *
++ * Alternatively, the contents of this file may be used under the terms of
++ * either the GNU General Public License Version 2 or later (the "GPL"), or
++ * the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
++ * in which case the provisions of the GPL or the LGPL are applicable instead
++ * of those above. If you wish to allow use of your version of this file only
++ * under the terms of either the GPL or the LGPL, and not to allow others to
++ * use your version of this file under the terms of the MPL, indicate your
++ * decision by deleting the provisions above and replace them with the notice
++ * and other provisions required by the GPL or the LGPL. If you do not delete
++ * the provisions above, a recipient may use your version of this file under
++ * the terms of any one of the MPL, the GPL or the LGPL.
++ *
++ * ***** END LICENSE BLOCK ***** */
++
++#include "nsDOMQueryContentEvent.h"
++#include "nsContentUtils.h"
++#include "nsIPrivateQueryContentEvent.h"
++#include <nsPresContext.h>
++
++nsDOMQueryContentEvent::nsDOMQueryContentEvent(nsPresContext* aPresContext,
++                                               nsQueryContentEvent* aEvent)
++  : nsDOMUIEvent(aPresContext, aEvent ? aEvent :
++                 new nsQueryContentEvent(PR_FALSE, 0, nsnull))
++{
++  NS_ASSERTION(mEvent->eventStructType == NS_QUERY_CONTENT_EVENT,
++               "event type mismatch");
++}
++
++nsDOMQueryContentEvent::~nsDOMQueryContentEvent()
++{
++    // make sure to delete it as the right class
++    if (mEventIsInternal && mEvent) {
++        delete static_cast<nsQueryContentEvent*>(mEvent);
++        mEvent = nsnull;
++    }
++}
++
++NS_IMPL_ADDREF_INHERITED(nsDOMQueryContentEvent, nsDOMUIEvent)
++NS_IMPL_RELEASE_INHERITED(nsDOMQueryContentEvent, nsDOMUIEvent)
++
++NS_INTERFACE_MAP_BEGIN(nsDOMQueryContentEvent)
++  NS_INTERFACE_MAP_ENTRY(nsIPrivateQueryContentEvent)
++NS_INTERFACE_MAP_END_INHERITING(nsDOMUIEvent)
++
++NS_IMETHODIMP_(PRInt32) nsDOMQueryContentEvent::AppUnitsPerDevPixel()
++{
++    return mPresContext->AppUnitsPerDevPixel();
++}
++
++NS_IMETHODIMP_(PRInt32) nsDOMQueryContentEvent::CSSPixelsToDevPixels(PRInt32 aPixels)
++{
++    return mPresContext->CSSPixelsToDevPixels(aPixels);
++}
++
++NS_IMETHODIMP_(float) nsDOMQueryContentEvent::DevPixelsToFloatCSSPixels(PRInt32 aPixels)
++{
++    return mPresContext->DevPixelsToFloatCSSPixels(aPixels);
++}
++
++NS_IMETHODIMP_(PRUint32) nsDOMQueryContentEvent::GetOffset()
++{
++    return static_cast<nsQueryContentEvent*>(mEvent)->mInput.mOffset;
++}
++
++NS_IMETHODIMP_(PRUint32) nsDOMQueryContentEvent::GetLength()
++{
++    return static_cast<nsQueryContentEvent*>(mEvent)->mInput.mLength;
++}
++
++NS_IMETHODIMP_(nscoord) nsDOMQueryContentEvent::GetRefPointX()
++{
++    return static_cast<nsQueryContentEvent*>(mEvent)->refPoint.x;
++}
++NS_IMETHODIMP_(nscoord) nsDOMQueryContentEvent::GetRefPointY()
++{
++    return static_cast<nsQueryContentEvent*>(mEvent)->refPoint.y;
++}
++
++NS_IMETHODIMP_(PRUint32) nsDOMQueryContentEvent::GetMessage()
++{
++    return static_cast<nsQueryContentEvent*>(mEvent)->message;
++}
++
++NS_IMETHODIMP_(PRBool) nsDOMQueryContentEvent::GetSucceeded()
++{
++    return static_cast<nsQueryContentEvent*>(mEvent)->mSucceeded;
++}
++
++NS_IMETHODIMP_(void) nsDOMQueryContentEvent::SetSucceeded(PRBool aSucceeded)
++{
++    static_cast<nsQueryContentEvent*>(mEvent)->mSucceeded = aSucceeded;
++}
++
++NS_IMETHODIMP_(void) nsDOMQueryContentEvent::SetReplyOffset(PRInt32 aOffset)
++{
++    static_cast<nsQueryContentEvent*>(mEvent)->mReply.mOffset = aOffset;
++}
++
++NS_IMETHODIMP_(void) nsDOMQueryContentEvent::SetReplyString(nsAString& aString)
++{
++    static_cast<nsQueryContentEvent*>(mEvent)->mReply.mString.Assign(aString);
++}
++
++NS_IMETHODIMP_(nsIntRect) nsDOMQueryContentEvent::GetReplyRect()
++{
++    switch (GetMessage()) {
++    case NS_QUERY_CARET_RECT:
++    case NS_QUERY_TEXT_RECT:
++    case NS_QUERY_EDITOR_RECT :
++    case NS_QUERY_CHARACTER_AT_POINT:
++        break;
++    default:
++        // this doesn't have a rect
++        return nsIntRect();
++    }
++    return static_cast<nsQueryContentEvent*>(mEvent)->mReply.mRect;
++}
++
++NS_IMETHODIMP nsDOMQueryContentEvent::SetReplyRect(nsIntRect& aRect)
++{
++    switch (GetMessage()) {
++    case NS_QUERY_CARET_RECT:
++    case NS_QUERY_TEXT_RECT:
++    case NS_QUERY_EDITOR_RECT :
++    case NS_QUERY_CHARACTER_AT_POINT:
++        break;
++    default:
++        return NS_ERROR_FAILURE;
++    }
++    static_cast<nsQueryContentEvent*>(mEvent)->mReply.mRect = aRect;
++    return NS_OK;
++}
++
++NS_IMETHODIMP_(void) nsDOMQueryContentEvent::SetReplyReversed(PRBool aIsReversed)
++{
++    static_cast<nsQueryContentEvent*>(mEvent)->mReply.mReversed = !!aIsReversed;
++}
++
++NS_IMETHODIMP_(void) nsDOMQueryContentEvent::SetReplyHasSelection(PRBool aHasSelection)
++{
++    static_cast<nsQueryContentEvent*>(mEvent)->mReply.mHasSelection = !!aHasSelection;
++}
++
++nsresult NS_NewDOMQueryContentEvent(nsIDOMEvent** aInstancePtrResult,
++                                    nsPresContext* aPresContext,
++                                    nsQueryContentEvent *aEvent)
++{
++    nsDOMQueryContentEvent* it = new nsDOMQueryContentEvent(aPresContext, aEvent);
++    if (nsnull == it) {
++        return NS_ERROR_OUT_OF_MEMORY;
++    }
++
++    return CallQueryInterface(it, aInstancePtrResult);
++}
+diff --git a/content/events/src/nsDOMQueryContentEvent.h b/content/events/src/nsDOMQueryContentEvent.h
+new file mode 100644
+--- /dev/null
++++ b/content/events/src/nsDOMQueryContentEvent.h
+@@ -0,0 +1,81 @@
++/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
++/* ***** BEGIN LICENSE BLOCK *****
++ * Version: MPL 1.1/GPL 2.0/LGPL 2.1
++ *
++ * The contents of this file are subject to the Mozilla Public License Version
++ * 1.1 (the "License"); you may not use this file except in compliance with
++ * the License. You may obtain a copy of the License at
++ * http://www.mozilla.org/MPL/
++ *
++ * Software distributed under the License is distributed on an "AS IS" basis,
++ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
++ * for the specific language governing rights and limitations under the
++ * License.
++ *
++ * The Original Code is mozilla.org code.
++ *
++ * The Initial Developer of the Original Code is
++ * Netscape Communications Corporation.
++ * Portions created by the Initial Developer are Copyright (C) 1998
++ * the Initial Developer. All Rights Reserved.
++ *
++ * Contributor(s):
++ *
++ * Alternatively, the contents of this file may be used under the terms of
++ * either the GNU General Public License Version 2 or later (the "GPL"), or
++ * the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
++ * in which case the provisions of the GPL or the LGPL are applicable instead
++ * of those above. If you wish to allow use of your version of this file only
++ * under the terms of either the GPL or the LGPL, and not to allow others to
++ * use your version of this file under the terms of the MPL, indicate your
++ * decision by deleting the provisions above and replace them with the notice
++ * and other provisions required by the GPL or the LGPL. If you do not delete
++ * the provisions above, a recipient may use your version of this file under
++ * the terms of any one of the MPL, the GPL or the LGPL.
++ *
++ * ***** END LICENSE BLOCK ***** */
++
++#ifndef nsDOMQueryContentEvent_h__
++#define nsDOMQueryContentEvent_h__
++
++#include "nsDOMUIEvent.h"
++#include "nsIPrivateQueryContentEvent.h"
++
++class nsDOMQueryContentEvent : public nsDOMUIEvent,
++                               public nsIPrivateQueryContentEvent
++{
++public:
++  nsDOMQueryContentEvent(nsPresContext* aPresContext, nsQueryContentEvent* aEvent);
++  ~nsDOMQueryContentEvent();
++
++  NS_DECL_ISUPPORTS_INHERITED
++
++  // Forward to base class
++  NS_FORWARD_TO_NSDOMUIEVENT
++
++  // nsIPrivateQueryContentEvent interface
++  NS_IMETHOD_(PRInt32) AppUnitsPerDevPixel();
++  NS_IMETHOD_(PRInt32) CSSPixelsToDevPixels(PRInt32 aPixels);
++  NS_IMETHOD_(float) DevPixelsToFloatCSSPixels(PRInt32 aPixels);
++
++  NS_IMETHOD_(PRUint32) GetOffset();
++  NS_IMETHOD_(PRUint32) GetLength();
++  NS_IMETHOD_(nscoord) GetRefPointX();
++  NS_IMETHOD_(nscoord) GetRefPointY();
++
++  NS_IMETHOD_(PRUint32) GetMessage();
++  NS_IMETHOD_(PRBool) GetSucceeded();
++  NS_IMETHOD_(void) SetSucceeded(PRBool aSucceeded);
++
++  NS_IMETHOD_(void) SetReplyOffset(PRInt32 aOffset);
++  NS_IMETHOD_(void) SetReplyString(nsAString& aString);
++  NS_IMETHOD_(nsIntRect) GetReplyRect();
++  NS_IMETHOD SetReplyRect(nsIntRect& aRect);
++  NS_IMETHOD_(void) SetReplyReversed(PRBool aIsReversed);
++  NS_IMETHOD_(void) SetReplyHasSelection(PRBool aHasSelection);
++  
++protected:
++
++};
++
++#endif // nsDOMQueryContentEvent_h__
+diff --git a/content/events/src/nsEventDispatcher.cpp b/content/events/src/nsEventDispatcher.cpp
+--- a/content/events/src/nsEventDispatcher.cpp	Thu Jul 07 17:39:53 2011 -0700
++++ b/content/events/src/nsEventDispatcher.cpp	Wed Jul 13 10:38:11 2011 -0700
+@@ -802,12 +802,15 @@
+     case NS_TRANSITION_EVENT:
+       return NS_NewDOMTransitionEvent(aDOMEvent, aPresContext,
+                                       static_cast<nsTransitionEvent*>(aEvent));
+     case NS_ANIMATION_EVENT:
+       return NS_NewDOMAnimationEvent(aDOMEvent, aPresContext,
+                                      static_cast<nsAnimationEvent*>(aEvent));
++    case NS_QUERY_CONTENT_EVENT:
++      return NS_NewDOMQueryContentEvent(aDOMEvent, aPresContext,
++                                        static_cast<nsQueryContentEvent*>(aEvent));
+     }
+ 
+     // For all other types of events, create a vanilla event object.
+     return NS_NewDOMEvent(aDOMEvent, aPresContext, aEvent);
+   }
+ 
+diff --git a/content/events/src/nsEventListenerManager.cpp b/content/events/src/nsEventListenerManager.cpp
+--- a/content/events/src/nsEventListenerManager.cpp
++++ b/content/events/src/nsEventListenerManager.cpp
+@@ -50,6 +50,7 @@
+ #include "nsIDOMCompositionListener.h"
+ #include "nsIDOMUIListener.h"
+ #include "nsITextControlFrame.h"
++#include "nsIDOMQueryContentListener.h"
+ #include "nsGkAtoms.h"
+ #include "nsPIDOMWindow.h"
+ #include "nsIPrivateDOMEvent.h"
+@@ -248,16 +249,25 @@ static const EventDispatchData sLoadEven
+ };
+ 
+ static const EventDispatchData sUIEvents[] = {
+   { NS_UI_ACTIVATE, HANDLER(&nsIDOMUIListener::Activate) },
+   { NS_UI_FOCUSIN,  HANDLER(&nsIDOMUIListener::FocusIn)  },
+   { NS_UI_FOCUSOUT, HANDLER(&nsIDOMUIListener::FocusOut) }
+ };
+ 
++static const EventDispatchData sQueryContentEvents[] = {
++  { NS_QUERY_SELECTED_TEXT,       HANDLER(&nsIDOMQueryContentListener::QuerySelectedText) },
++  { NS_QUERY_TEXT_CONTENT,        HANDLER(&nsIDOMQueryContentListener::QueryTextContent) },
++  { NS_QUERY_CARET_RECT,          HANDLER(&nsIDOMQueryContentListener::QueryCaretRect) },
++  { NS_QUERY_TEXT_RECT,           HANDLER(&nsIDOMQueryContentListener::QueryTextRect) },
++  { NS_QUERY_CHARACTER_AT_POINT,  HANDLER(&nsIDOMQueryContentListener::QueryCharacterAtPoint) },
++  //{ NS_QUERY_DOM_WIDGET_HITTEST,  HANDLER(&nsIDOMQueryContentListener::QueryDOMWidgetHitTest) },
++};
++
+ #define IMPL_EVENTTYPEDATA(type) \
+ { \
+   s##type##Events, \
+   NS_ARRAY_LENGTH(s##type##Events), \
+   &NS_GET_IID(nsIDOM##type##Listener) \
+ }
+  
+ // IMPORTANT: indices match up with eEventArrayType_ enum values
+@@ -263,6 +263,7 @@
+   IMPL_EVENTTYPEDATA(Form),
+   IMPL_EVENTTYPEDATA(Text),
+   IMPL_EVENTTYPEDATA(Composition),
+-  IMPL_EVENTTYPEDATA(UI)
++  IMPL_EVENTTYPEDATA(UI),
++  IMPL_EVENTTYPEDATA(QueryContent)
+ };
+ 
+ PRUint32 nsEventListenerManager::sCreatedCount = 0;
+diff --git a/dom/public/coreEvents/Makefile.in b/dom/public/coreEvents/Makefile.in
+--- a/dom/public/coreEvents/Makefile.in
++++ b/dom/public/coreEvents/Makefile.in
+@@ -50,12 +50,13 @@ EXPORTS =				\
+ 	nsIDOMKeyListener.h		\
+ 	nsIDOMLoadListener.h		\
+ 	nsIDOMMouseListener.h		\
+ 	nsIDOMMouseMotionListener.h	\
+ 	nsIDOMTextListener.h		\
+ 	nsIDOMCompositionListener.h	\
+ 	nsIDOMContextMenuListener.h	\
+ 	nsIDOMUIListener.h		\
++	nsIDOMQueryContentListener.h \
+ 	$(NULL)
+ 
+ include $(topsrcdir)/config/rules.mk
+ 
+diff --git a/dom/public/coreEvents/nsIDOMQueryContentListener.h b/dom/public/coreEvents/nsIDOMQueryContentListener.h
+new file mode 100644
+--- /dev/null
++++ b/dom/public/coreEvents/nsIDOMQueryContentListener.h
+@@ -0,0 +1,67 @@
++/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
++/* ***** BEGIN LICENSE BLOCK *****
++ * Version: MPL 1.1/GPL 2.0/LGPL 2.1
++ *
++ * The contents of this file are subject to the Mozilla Public License Version
++ * 1.1 (the "License"); you may not use this file except in compliance with
++ * the License. You may obtain a copy of the License at
++ * http://www.mozilla.org/MPL/
++ *
++ * Software distributed under the License is distributed on an "AS IS" basis,
++ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
++ * for the specific language governing rights and limitations under the
++ * License.
++ *
++ * The Original Code is mozilla.org code.
++ *
++ * The Initial Developer of the Original Code is
++ * Netscape Communications Corporation.
++ * Portions created by the Initial Developer are Copyright (C) 1998
++ * the Initial Developer. All Rights Reserved.
++ *
++ * Contributor(s):
++ *
++ * Alternatively, the contents of this file may be used under the terms of
++ * either of the GNU General Public License Version 2 or later (the "GPL"),
++ * or the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
++ * in which case the provisions of the GPL or the LGPL are applicable instead
++ * of those above. If you wish to allow use of your version of this file only
++ * under the terms of either the GPL or the LGPL, and not to allow others to
++ * use your version of this file under the terms of the MPL, indicate your
++ * decision by deleting the provisions above and replace them with the notice
++ * and other provisions required by the GPL or the LGPL. If you do not delete
++ * the provisions above, a recipient may use your version of this file under
++ * the terms of any one of the MPL, the GPL or the LGPL.
++ *
++ * ***** END LICENSE BLOCK ***** */
++
++#ifndef nsIDOMQueryContentListener_h__
++#define nsIDOMQueryContentListener_h__
++
++#include "nsIDOMEvent.h"
++#include "nsIDOMEventListener.h"
++
++/*
++ * Key pressed / released / typed listener interface.
++ */
++// {8B4A1EA4-A428-4ead-81A0-555BCCA667A8}
++#define NS_IDOMQUERYCONTENTLISTENER_IID \
++{ 0x8b4a1ea4, 0xa428, 0x4ead, { 0x81, 0xa0, 0x55, 0x5b, 0xcc, 0xa6, 0x67, 0xa8 } }
++
++class nsIDOMQueryContentListener : public nsIDOMEventListener
++{
++public:
++
++  NS_DECLARE_STATIC_IID_ACCESSOR(NS_IDOMQUERYCONTENTLISTENER_IID)
++
++  NS_IMETHOD QuerySelectedText    (nsIDOMEvent* aQueryContentEvent) = 0;
++  NS_IMETHOD QueryTextContent     (nsIDOMEvent* aQueryContentEvent) = 0;
++  NS_IMETHOD QueryCaretRect       (nsIDOMEvent* aQueryContentEvent) = 0;
++  NS_IMETHOD QueryTextRect        (nsIDOMEvent* aQueryContentEvent) = 0;
++  NS_IMETHOD QueryCharacterAtPoint(nsIDOMEvent* aQueryContentEvent) = 0;
++  NS_IMETHOD QueryDOMWidgetHitTest(nsIDOMEvent* aQueryContentEvent) = 0;
++};
++
++NS_DEFINE_STATIC_IID_ACCESSOR(nsIDOMQueryContentListener, NS_IDOMQUERYCONTENTLISTENER_IID)
++
++#endif // nsIDOMQueryContentListener_h__
