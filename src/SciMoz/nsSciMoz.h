@@ -91,6 +91,7 @@
 #include "nsILocalFile.h"
 #include "nsIProgrammingLanguage.h"
 
+#include "ILexer.h"
 #include "ISciMoz.h"
 #include "ISciMozEvents.h"
 #include "nsIClassInfo.h"
