@@ -437,8 +437,8 @@ KoScintillaAutoCompleteController.prototype = {
         this._updateDisplay(null);
       }
     } else {
-      // don't select anything
-      this._updateDisplay(null);
+      // Select the first item
+      this._updateDisplay(0);
     }
     this._grid.controllers.appendController(this);
     this._popup.ownerDocument.commandDispatcher.focusedElement = this._grid;
