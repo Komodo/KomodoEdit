@@ -222,7 +222,8 @@ PyLexState_tokenize_by_style(PyLexState* self, PyObject * args)
                     
     for (i = startIndex = startLine = startCol = 0; i <= bufSize; ++i) {
     //fprintf(stderr, "%s %d\n", __FILE__, __LINE__);
-        if ((i == bufSize) || ((i != 0) && (style[i] != style[i-1]))) {
+        if ((i > 0)
+            && (i == bufSize || style[i] != style[i-1])) {
     //fprintf(stderr, "%s %d\n", __FILE__, __LINE__);
             line = bufAccessor.LineFromPosition(i-1);
     //fprintf(stderr, "%s %d\n", __FILE__, __LINE__);
