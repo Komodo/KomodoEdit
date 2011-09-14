@@ -81,7 +81,7 @@ class CSSLintTest(CodeIntelTestCase):
             for lang in self.langs:
                 #sys.stderr.write("Test file %s\n" % basename(path))
                 results = self.csslinter.lint(code, language=lang)
-                self.assertEqual([], results, "Failed to parse file %s/%s" % (path, lang))
+                self.assertEqual([], results, "Failed to parse file %s (%s), results: %s" % (path, lang, [str(x) for x in results]))
 
     def test_jezdez(self):
         path = join(self.test_dir, "bits", "bad_css_files", "jezdez-reset-fonts-grids.css")
@@ -549,6 +549,20 @@ body {
   display: none;
 }
 """).decode("utf-8")
+        self._check_zero_results_show_error(code)
+
+    def test_css_moz_any_psuedo_class(self):
+        code = dedent("""\
+notification:not(:-moz-any([details][open])) [anonid="details"] {
+  /* height is !important to override the style= set at runtime that is needed
+   * to make things the right height.
+   */
+  height: 0 !important;
+  overflow-y: hidden;
+  -moz-transition-property: height;
+  -moz-transition-duration: 40ms;
+}
+""")
         self._check_zero_results_show_error(code)
 
     _nested_block_code_01 = dedent("""\

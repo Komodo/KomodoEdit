@@ -357,10 +357,10 @@ class _CSSParser(object):
                         return False
                     num_selected_names += 1
                     current_name = tok.text
-                    if tok.text == "not":
+                    if tok.text in ("not", "-moz-any"):
                         tok = self._tokenizer.get_next_token()
                         if self._classifier.is_operator(tok, "("):
-                            # It's the CSS3 "not" selector
+                            # It's the CSS3 "not" or -moz-any selector
                             self._parse_simple_selector(True, resolve_selector_property_ambiguity=False)
                             self._parse_required_operator(")")
                         else:
