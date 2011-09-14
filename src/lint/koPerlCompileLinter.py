@@ -478,7 +478,7 @@ class KoPerlCriticLinter(_CommonPerlLinter):
             option = '-' + lintOptions
             if perlCriticVersion <= 1.100 or not baseFileName:
                 pcOption = '-Mcriticism=' + criticLevel
-            elif:
+            else:
                 pcOption = '''-Mcriticism (-severity => '%s', 'as-filename' => '%s')''' % (criticLevel, baseFileName)
             perlExtraPaths = prefset.getStringPref("perlExtraPaths")
             if perlExtraPaths:
