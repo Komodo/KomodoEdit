@@ -1965,9 +1965,23 @@ class KoLanguageBase:
                 indentWidth = min(indentWidth, scimoz.getColumn(scimoz.currentPos))
                 return scimozindent.makeIndentFromWidth(scimoz, indentWidth)
             if self.supportsSmartIndent in ('brace', 'python'):
-                return self._getSmartBraceIndent(scimoz, continueComments, style_info)
+                retVal = self._getSmartBraceIndent(scimoz, continueComments, style_info)
+                if retVal or self.supportsSmartIndent == 'python':
+                    return retVal
             if self.supportsSmartIndent == 'XML':
-                return self._getSmartXMLIndent(scimoz, continueComments, style_info)
+                retVal = self._getSmartXMLIndent(scimoz, continueComments, style_info)
+                if retVal:
+                    return retVal
+            # If we're at column 0, return the previous line's indentation.
+            # But only do this if the current line is empty, and has a
+            # non-zero fold level.
+            pos = scimoz.currentPos
+            currentLineNo = scimoz.lineFromPosition(pos)
+            if (pos > 0
+                and scimoz.getColumn(pos) == 0
+                and scimoz.getLineEndPosition(currentLineNo) == pos
+                and (scimoz.getFoldLevel(currentLineNo) & 0x3ff) > 0):
+                return self._getIndentForLine(scimoz, currentLineNo - 1)
         except Exception, e:
             log.warn("Got exception computing indent", exc_info=1)
             return ''
