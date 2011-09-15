@@ -43,6 +43,7 @@ function OnPreferencePageLoading(prefset) {
             var project = parent.opener.ko.projects.manager.currentProject;
             var urls = {};
             project.getAllContainedURLs(urls, {});
+            //TODO: Get the language name here.
         }
         languageName = dialog.langlist.selection || null;
     } else  {
@@ -219,6 +220,8 @@ function htmlSetup(languageName) {
          "lintHTMLTidy_Details_vbox",
          "lintHTML5Lib",
          "lint_html5lib_groupbox",
+         "lint_html_perl_html_tidy_groupbox",
+         "lint_html_perl_html_lint_groupbox",
          "tidy_configpath"                  
          ].forEach(function(name) {
             dialog.HTML[name] = document.getElementById(name);
@@ -247,6 +250,8 @@ function htmlInfo() {
             pref_setElementEnabledState(dialog.HTML.lintHTML_CheckWith_Perl_HTML_Tidy, this.cachedAppInfo.Perl.htmlTidy);
             pref_setElementEnabledState(dialog.HTML.lintHTML_CheckWith_Perl_HTML_Lint, this.cachedAppInfo.Perl.htmlLint);
             dialog.HTML.lint_html5lib_groupbox.collapsed = languageName == "HTML";
+            dialog.HTML.lint_html_perl_html_tidy_groupbox.collapsed = languageName == "HTML5";
+            dialog.HTML.lint_html_perl_html_lint_groupbox.collapsed = languageName == "HTML5";
         },
         loadTidyConfigFile: function() {
             var textbox = dialog.HTML.tidy_configpath;

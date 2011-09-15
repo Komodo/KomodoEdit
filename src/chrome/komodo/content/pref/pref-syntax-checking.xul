@@ -235,14 +235,14 @@
                             pref="true" />
               </groupbox>          
               
-              <groupbox orient="vertical">
+              <groupbox orient="vertical" id="lint_html_perl_html_tidy_groupbox">
                   <caption label="&perlHTMLTidy.label;"/>
                   <checkbox id="lintHTML_CheckWith_Perl_HTML_Tidy"
                             label="&checkWithPerlsHTMLTidy.label;"
                             pref="true" />
               </groupbox>
           
-              <groupbox orient="vertical">
+              <groupbox orient="vertical" id="lint_html_perl_html_lint_groupbox">
                   <caption label="&perlHTMLLint.label;"/>
                   <checkbox id="lintHTML_CheckWith_Perl_HTML_Lint"
                             label="&checkWithPerlsHTMLLint.label;"

@@ -546,7 +546,6 @@ class KoHTMLPerl_HTMLLint_Linter(_invokePerlLinter):
     _reg_contractid_ = "@activestate.com/koLinter?language=HTML&type=Perl:HTML::Lint;1"
     _reg_categories_ = [
          ("category-komodo-linter", 'HTML&type=Perl:HTML::Lint'),
-         ("category-komodo-linter", 'HTML5&type=Perl:HTML::Lint'),
          ]
 
     def lint_with_text(self, request, text):
@@ -563,7 +562,6 @@ class KoHTMLPerl_HTMLTidy_Linter(_invokePerlLinter):
     _reg_contractid_ = "@activestate.com/koLinter?language=HTML&type=Perl:HTML::Tidy;1"
     _reg_categories_ = [
          ("category-komodo-linter", 'HTML&type=Perl:HTML::Tidy'),
-         ("category-komodo-linter", 'HTML5&type=Perl:HTML::Tidy'),
          ]
 
     def lint_with_text(self, request, text):
