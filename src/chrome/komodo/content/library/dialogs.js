@@ -94,7 +94,7 @@ if (typeof(ko.dialogs)=='undefined') {
 }
 (function() {
 
-var _log = ko.logging.getLogger("dialogs");
+var log = ko.logging.getLogger("dialogs");
 
 var _prefs = Components.classes['@activestate.com/koPrefService;1'].
                       getService(Components.interfaces.koIPrefService).prefs;
@@ -144,7 +144,7 @@ this.yesNoCancel = function dialog_yesNoCancel(prompt, response, text, title,
             if (action == "No" || action == "Yes") {
                 return action;
             } else {
-                _log.error("illegal action for Yes/No/Cancel dialog in '" +
+                log.error("illegal action for Yes/No/Cancel dialog in '" +
                                  spref + "' preference: '" + action + "'");
                 // Reset the boolean pref.
                 _prefs.setBooleanPref(bpref, false);
@@ -216,7 +216,7 @@ this.yesNo = function dialog_yesNo(prompt, response, text, title, doNotAskPref,
             if (action == "No" || action == "Yes") {
                 return action;
             } else {
-                _log.error("illegal action for Yes/No/Cancel dialog in '" +
+                log.error("illegal action for Yes/No/Cancel dialog in '" +
                                  spref + "' preference: '" + action + "'");
                 // Reset the boolean pref.
                 _prefs.setBooleanPref(bpref, false);
@@ -742,7 +742,7 @@ this.selectFromList = function dialog_selectFromList(title, prompt, items, selec
                 } else if (action == "None") {
                     return [];
                 } else {
-                    _log.error("illegal action for Select From List "+
+                    log.error("illegal action for Select From List "+
                                      "dialog in '"+spref+"' preference: '"+
                                      action+"'");
                     // Reset the prefs.
@@ -763,7 +763,7 @@ this.selectFromList = function dialog_selectFromList(title, prompt, items, selec
                         return [items[i]];
                     }
                 }
-                _log.warn("identified item, '"+id+"', for Select From "+
+                log.warn("identified item, '"+id+"', for Select From "+
                                 "List dialog not found in items: pref='" +
                                 spref+"'")
                 // Reset the prefs.
@@ -803,7 +803,7 @@ this.selectFromList = function dialog_selectFromList(title, prompt, items, selec
                 _prefs.setBooleanPref(bpref, true);
                 _prefs.setStringPref(spref, "None");
             } else {
-                _log.error("unexpected selected list, it was not all "+
+                log.error("unexpected selected list, it was not all "+
                                  "or none of the items as is required to "+
                                  "set the doNotAsk prefs");
             }
