@@ -44,6 +44,9 @@
 #include "nsWindowsWMain.cpp"
 #endif
 #endif
+#ifdef XP_MACOSX
+#include <CoreFoundation/CoreFoundation.h>
+#endif /* XP_MACOSX */
 #include "nsCOMPtr.h"
 #include "nsILocalFile.h"
 #include "nsStringGlue.h"
@@ -73,6 +76,14 @@ int main(int argc, char* argv[])
       fprintf(stderr, "Couldn't read application.ini [%s]\n", pathName.get());
       return 255;
     }
+
+    #ifdef XP_MACOSX
+        // MaC OSX: Disable press-and-hold for OSX 10.7, see bug 90870
+        CFPreferencesSetAppValue(CFSTR("ApplePressAndHoldEnabled"),
+                                 kCFBooleanFalse,
+                                 kCFPreferencesCurrentApplication);
+        CFPreferencesAppSynchronize(kCFPreferencesCurrentApplication);
+    #endif /* XP_MACOSX */
 
     // Handle command line arguments.
     rv = KoStart_HandleArgV(argc, argv, &options);
