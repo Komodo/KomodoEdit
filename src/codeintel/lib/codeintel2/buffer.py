@@ -110,12 +110,14 @@ class Buffer(object):
     # name.
     _style_name_from_style_num_from_lang = {}
 
-    def __init__(self, mgr, accessor, env=None, path=None, encoding=None):
+    def __init__(self, mgr, accessor, env=None, path=None, encoding=None, lang=None):
         self.mgr = mgr
         self.accessor = accessor # an Accessor instance
         self._env = env
         self.path = path
         self.encoding = encoding
+        if lang is not None:
+            self.lang = lang
 
         self.implicit_completion_skip_styles = dict(
             (s, True) for s in self.comment_styles() + self.string_styles())

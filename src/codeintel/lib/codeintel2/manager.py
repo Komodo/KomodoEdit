@@ -67,8 +67,9 @@ from codeintel2.udl import XMLParsingBufferMixin, UDLBuffer
 import langinfo
 
 if _xpcom_:
-    from xpcom import components
+    from xpcom import components, COMException
     from xpcom.client import WeakReference
+    from xpcom.server import UnwrapObject
 
 
 
@@ -334,7 +335,13 @@ class Manager(threading.Thread, Queue):
         try:
             buf_class = self.buf_class_from_lang[lang]
         except KeyError:
-            buf = ImplicitBuffer(lang, self, accessor, env, path, encoding)
+            # No langintel is defined for this class, check if the koILanguage
+            # defined is a UDL koILanguage.
+            from koUDLLanguageBase import KoUDLLanguage
+            if isinstance(UnwrapObject(doc.languageObj), KoUDLLanguage):
+                return UDLBuffer(self, accessor, env, path, encoding, lang=lang)
+            # Not a UDL language - use the implicit buffer then.
+            return ImplicitBuffer(lang, self, accessor, env, path, encoding)
         else:
             buf = buf_class(self, accessor, env, path, encoding)
         return buf
