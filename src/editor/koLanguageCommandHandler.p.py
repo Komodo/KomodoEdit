@@ -827,8 +827,6 @@ class GenericCommandHandler:
                 sm.newLine()
                 if indent:
                     sm.addText(self.sysUtils.byteLength(indent), indent) # consider using replaceTarget??
-                    sm.scrollCaret()
-            sm.chooseCaretX()
         finally:
             sm.endUndoAction()
 
