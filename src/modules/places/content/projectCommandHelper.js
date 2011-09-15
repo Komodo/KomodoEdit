@@ -183,6 +183,9 @@ this.ProjectCommandHelper.prototype.refreshFileStatus = function() {
 this.ProjectCommandHelper.prototype.revertProject = function() {
     this._getProjectItemAndOperate("revertProject", ko.projects.manager);
 };
+this.ProjectCommandHelper.prototype.renameProject = function() {
+    this._getProjectItemAndOperate("renameProject", ko.projects);
+};
 
 this.ProjectCommandHelper.prototype.saveProject = function() {
     this._getProjectItemAndOperate("saveProject", ko.projects.manager);
@@ -264,6 +267,7 @@ this.ProjectCommandHelper.prototype.injectHelperFunctions = function(receiver) {
                     closeProject:1,
                     saveProject:1,
                     saveProjectAs:1,
+                    renameProject:1,
                     revertProject:1,
                     openFiles:1,
                     refreshFileStatus:1,

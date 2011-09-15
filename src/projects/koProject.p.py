@@ -698,7 +698,8 @@ class koContainerBase(koPart):
     def getChildById(self, id):
         if self.id == id:
             return self
-        for child in self.children:
+        # Already-closed entries don't have children
+        for child in getattr(self, "children", []):
             if child.id == id:
                 return child
             if hasattr(child, "getChildById"):
@@ -1827,7 +1828,10 @@ class koProject(koLiveFolderPart):
             self.deactivate()
 
         self.set_isDirty(0)
-        del self._urlmap
+        try:
+            del self._urlmap
+        except AttributeError:
+            log.error("Trying to delete a _urlmap that no longer exists")
         self.destroy()
 
     def getPart(self, filename, url, project, live):

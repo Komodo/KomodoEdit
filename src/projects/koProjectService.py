@@ -317,15 +317,24 @@ class KoPartService(object):
         newName = os.path.basename(newPath)
         fd = open(oldPath, 'rb')
         contents = fd.read()
+        newContents = None
         ptn = re.compile(r'''(.*\bname\s*=\s*)(["'])%s\2(.*)''' % (re.escape(oldName),), re.DOTALL)
         m = ptn.match(contents)
-        if not m:
-            log.error("Can't find the name attribute in file %s", oldPath)
-            os.rename(oldPath, newPath)
-        else:
+        if m:
             newContents = m.group(1) + m.group(2) + newName + m.group(2) + m.group(3)
+        else:
+            log.warn("Can't find the name attribute %s in file %s", oldName, oldPath)
+            ptn = re.compile(r'''(.*?<project[^>]+ \bname\s*=\s*)(["'])[^'"]+\2(.*)$''', re.DOTALL)
+            m = ptn.match(contents)
+            if m:
+                newContents = m.group(1) + m.group(2) + newName + m.group(2) + m.group(3)
+            else:
+                log.error("Can't find any name attribute in file %s", oldPath)
+        if newContents:
             fd = open(newPath, 'wb')
             fd.write(newContents)
             fd.close()
-            os.unlink(oldPath)        
+            os.unlink(oldPath)
+        else:
+            os.rename(oldPath, newPath)
 

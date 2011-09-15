@@ -1460,6 +1460,7 @@ this.renameProject = function ProjectRename(project)
         ko.dialogs.alert("Sorry, only local projects can be renamed");
         return;
     }
+    var oldUrl = oldKoFile.URI;
     var newname = ko.dialogs.renameFileWrapper(project.name);
     if (!newname || newname == project.name) {
         return;
@@ -1467,6 +1468,14 @@ this.renameProject = function ProjectRename(project)
     if (!this.manager.closeProject(project)) {
         return;
     }
+    if (this.currentProject && this.currentProject.getFile().URI == oldUrl) {
+        this.currentProject = null;
+    }
+        
+    // closeProject added this field to the mru list, need to remove it
+    // since the project with the old name soon will no longer exist.
+    ko.mru.deleteValue('mruProjectList', oldUrl, true/* notify */);
+        
     var osPathSvc = Components.classes["@activestate.com/koOsPath;1"]
         .getService(Components.interfaces.koIOsPath);
     var newPath = osPathSvc.join(oldKoFile.dirName, newname);
@@ -1480,9 +1489,9 @@ this.renameProject = function ProjectRename(project)
         var newURL = ko.uriparse.localPathToURI(newPath);
         this.open(newURL);
         if (ko.places
-            && (ko.places.manager.currentPlace + "/").indexOf(newURL) == 0) {
+            && (oldUrl.indexOf(ko.places.manager.currentPlace + "/") == 0)) {
             // Need to get places to refresh its view to show the new project file.
-            ko.places.view.refreshView(-1);
+            ko.places.viewMgr.view.refreshView(-1);
             //XXX: The new name isn't showing up in places.
             // Not a critical bug, because .komodoproject files will
             // probably be hidden anyway.
@@ -1498,6 +1507,20 @@ this.renameProject = function ProjectRename(project)
         // Reopen the project.
         this.open(oldKoFile.URI);
     }
+    if (this.manager.single_project_view) {
+        setTimeout(function(this_) {
+                try {
+                    var part = ko.places.projects_SPV.projectsTreeView.getRowItem(1);
+                    var currentUrl = part.getFile().URI;
+                    if (currentUrl == oldUrl) {
+                        ko.places.projects_SPV.projectsTreeView.removeItems([part], 1);
+                    }
+                } catch(ex) {
+                    this.log.error("Error in renameProject post handler: " + ex + "\n");
+                }
+            }, 1000, this);
+    }
+    return;
 }
 
 this.onload = function() {

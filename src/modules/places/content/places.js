@@ -1904,6 +1904,14 @@ ManagerClass.prototype = {
     doRenameItem: function() {
         var index = gPlacesViewMgr.view.selection.currentIndex;
         var uri = gPlacesViewMgr.view.getURIForRow(index);
+        if (/\.(?:komodoproject|kpf)$/.test(uri)) {
+            var project = ko.projects.manager.getProjectByURL(uri);
+            if (project) {
+                // Do the project's own rename project
+                ko.projects.renameProject(project);
+                return;
+            }
+        }
         var oldname = ko.uriparse.baseName(uri);
         var newname = ko.dialogs.renameFileWrapper(oldname);
         if (!newname) return;

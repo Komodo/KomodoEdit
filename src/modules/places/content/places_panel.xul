@@ -504,6 +504,11 @@
                 hideUnless="project"
                 testDisableIf="t:multipleSelection"
                 oncommand="ko.places.projects.saveProjectAs();" />
+      <menuitem label="&renameProject.label;"
+                id="menu_projCtxt_renameProject"
+                class="menuitem-iconic"
+                hideUnless="project"
+                oncommand="ko.places.projects.renameProject();" />
       <menuitem label="&revertProject.label;"
                 id="menu_projCtxt_revertProject"
                 class="menuitem-iconic"
@@ -612,6 +617,7 @@
       close
       save
       save project as...
+      rename
       revert
       ======
       open in a new window (if not open)
@@ -634,6 +640,11 @@
           id="menu_saveProjectAs_projectsContext"
           disableUnless="currentProject"
           oncommand="ko.places.projects_SPV.saveProjectAs();" />
+      <menuitem label="&renameProject.label;"
+          id="menu_renameProject_projectsContext"
+          class="menuitem-iconic"
+          disableUnless="currentProject"
+          oncommand="ko.places.projects_SPV.renameProject();" />
       <menuitem label="&revertProject.label;"
           id="menu_revertProject_projectsContext"
           disableUnless="projectIsDirty"
