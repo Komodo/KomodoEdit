@@ -260,9 +260,6 @@ elsif ($platform eq "darwin") {
     $consLocal{'CXXFLAGS'} .= " $consLocal{ENV}{'CXXFLAGS'}";
     $consLocal{'CFLAGS'} = $consLocal{ENV}{'CFLAGS'};
     $consLocal{'LDFLAGS'} = $consLocal{ENV}{'LDFLAGS'};
-    $consLocal{'CXXFLAGS'} .= " -isysroot /Developer/SDKs/MacOSX10.5.sdk";
-    $consLocal{'CFLAGS'} .= " -isysroot /Developer/SDKs/MacOSX10.5.sdk";
-    $consLocal{'LDFLAGS'} .= " -Wl,-syslibroot,/Developer/SDKs/MacOSX10.5.sdk";
     $consLocal{'CXXFLAGS'} .= " -DSCI_NAMESPACE=1 -DMACOSX=1 -DSCI_LEXER ".
                             " -DCONTAINER_HANDLES_EVENTS=1 -DINCLUDE_DEPRECATED_FEATURES".
                             " -DXP_MACOSX=1 -DNO_X11=1 -DUSE_SYSTEM_CONSOLE=1 ".

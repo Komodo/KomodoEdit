@@ -283,11 +283,9 @@ if ($platform eq "win") {
     my $scintilla_plat_dir = "gtk";
     if ($platform eq "darwin") {
         $scintilla_plat_dir = "macosx";
-        if ($universal) {
-            $build_env='LDFLAGS="-Wl,-syslibroot,/Developer/SDKs/MacOSX10.4u.sdk -arch ppc -arch i386" ';
-            $build_env.= 'CFLAGS="-isysroot /Developer/SDKs/MacOSX10.4u.sdk -arch ppc -arch i386" ';
-            $build_env.= 'CXXFLAGS="-isysroot /Developer/SDKs/MacOSX10.4u.sdk -arch ppc -arch i386" ';
-        }
+        $build_env='LDFLAGS="-Wl,-syslibroot,/Developer/SDKs/MacOSX10.5.sdk -arch i386" ';
+        $build_env.= 'CFLAGS="-mmacosx-version-min=10.5 -isysroot /Developer/SDKs/MacOSX10.5.sdk -arch i386" ';
+        $build_env.= 'CXXFLAGS="-mmacosx-version-min=10.5 -isysroot /Developer/SDKs/MacOSX10.5.sdk -arch i386" ';
     }
 
     $landmark = "$scintilla_dir_for_cons/$scintilla_plat_dir/libpcre.a";
