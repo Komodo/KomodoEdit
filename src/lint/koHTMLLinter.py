@@ -290,7 +290,7 @@ class KoHTMLTidyLinter:
 
     def lint_with_text(self, request, text, argv_additions=None):
         prefset = getProxiedEffectivePrefs(request)
-        if not prefset.getBooleanPref("lintStandardHTMLTidy"):
+        if not prefset.getBooleanPref("lintHTMLTidy"):
             return
         cwd = request.cwd
 
