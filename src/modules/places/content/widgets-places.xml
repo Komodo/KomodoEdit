@@ -79,11 +79,11 @@
             </handler>
             <handler event="keypress" keycode="vk_return" phase="target">
                 <![CDATA[
-		    ko.places.viewMgr.view.set_handleNextToggleOpenState(false);
-		    setTimeout(function() {
-		        // Re-enable it later, after the events have blown through.
-			ko.places.viewMgr.view.set_handleNextToggleOpenState(true);
-		    }, 1);
+                    ko.places.viewMgr.view.set_handleNextToggleOpenState(false);
+                    setTimeout(function() {
+                        // Re-enable it later, after the events have blown through.
+                        ko.places.viewMgr.view.set_handleNextToggleOpenState(true);
+                    }, 1);
                     event.stopPropagation();
                     event.preventDefault();
                     return true;
@@ -104,13 +104,13 @@
         <handlers>
             <handler event="click" clickcount="2" phase="capturing">
                 <![CDATA[
-		    event.stopPropagation();
+                    event.stopPropagation();
                 ]]>
             </handler>
-	    
+            
             <handler event="keypress" keycode="vk_delete" phase="capturing">
                 <![CDATA[
-		    ko.places.projects.manager.removeItems(event, this);
+                    ko.places.projects.manager.removeItems(event, this);
                 ]]>
             </handler>
         </handlers>
