@@ -68,12 +68,26 @@ $cons->InstallXpcomComponent('koScintillaSchemeService.py');
 
 $cons->Preprocess('color_schemes/Default.p.ksf', 'color_schemes/Default.ksf');
 $cons->InstallAs("$supportDir/schemes/Default.ksf", 'color_schemes/Default.ksf');
-$cons->Preprocess('color_schemes/Dark.p.ksf', 'color_schemes/Dark.ksf');
-$cons->InstallAs("$supportDir/schemes/Dark.ksf", 'color_schemes/Dark.ksf');
 $cons->Preprocess('color_schemes/Medium.p.ksf', 'color_schemes/Medium.ksf');
 $cons->InstallAs("$supportDir/schemes/Medium.ksf", 'color_schemes/Medium.ksf');
 $cons->Preprocess('color_schemes/Bright.p.ksf', 'color_schemes/Bright.ksf');
 $cons->InstallAs("$supportDir/schemes/Bright.ksf", 'color_schemes/Bright.ksf');
+$cons->Preprocess('color_schemes/Dark_Default.p.ksf', 'color_schemes/Dark_Default.ksf');
+$cons->InstallAs("$supportDir/schemes/Dark_Default.ksf", 'color_schemes/Dark_Default.ksf');
+$cons->Preprocess('color_schemes/Dark_Chalkboard.p.ksf', 'color_schemes/Dark_Chalkboard.ksf');
+$cons->InstallAs("$supportDir/schemes/Dark_Chalkboard.ksf", 'color_schemes/Dark_Chalkboard.ksf');
+$cons->Preprocess('color_schemes/Dark_Cobalt.p.ksf', 'color_schemes/Dark_Cobalt.ksf');
+$cons->InstallAs("$supportDir/schemes/Dark_Cobalt.ksf", 'color_schemes/Dark_Cobalt.ksf');
+$cons->Preprocess('color_schemes/Dark_Luxury.p.ksf', 'color_schemes/Dark_Luxury.ksf');
+$cons->InstallAs("$supportDir/schemes/Dark_Luxury.ksf", 'color_schemes/Dark_Luxury.ksf');
+$cons->Preprocess('color_schemes/Dark_Oblivion.ksf.p.ksf', 'color_schemes/Dark_Oblivion.ksf.ksf');
+$cons->InstallAs("$supportDir/schemes/Dark_Oblivion.ksf.ksf", 'color_schemes/Dark_Oblivion.ksf.ksf');
+$cons->Preprocess('color_schemes/Dark_Soothing.ksf.p.ksf', 'color_schemes/Dark_Soothing.ksf.ksf');
+$cons->InstallAs("$supportDir/schemes/Dark_Soothing.ksf.ksf", 'color_schemes/Dark_Soothing.ksf.ksf');
+$cons->Preprocess('color_schemes/Dark_Wombatsosia.p.ksf', 'color_schemes/Dark_Wombatsosia.ksf');
+$cons->InstallAs("$supportDir/schemes/Dark_Wombatsosia.ksf", 'color_schemes/Dark_Wombatsosia.ksf');
+$cons->Preprocess('color_schemes/LowContrast_Zenburn.p.ksf', 'color_schemes/LowContrast_Zenburn.ksf');
+$cons->InstallAs("$supportDir/schemes/LowContrast_Zenburn.ksf", 'color_schemes/LowContrast_Zenburn.ksf');
 
 $cons->BuildAndInstallXpt('koIKeybindingSchemeService.idl');
 $cons->InstallXpcomComponent('koKeybindingSchemeService.py');
