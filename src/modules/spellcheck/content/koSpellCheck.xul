@@ -52,7 +52,7 @@ thunderbird/comm/content/editor/EdSpellCheck.xul
 <?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
 
 <!-- dialog containing a control requiring initial setup -->
-<dialog buttons="cancel" title="&checkSpelling.title;"
+<dialog buttons="cancel" id="komodo.spellchecker" title="&checkSpelling.title;"
     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
     persist="screenX screenY"
     onload = "spellchecker_Startup()"
