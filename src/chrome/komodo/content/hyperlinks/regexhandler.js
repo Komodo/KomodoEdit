@@ -212,7 +212,7 @@ ko.hyperlinks.handlers.imagePreviewHandler =
     new ko.hyperlinks.ImagePreviewHandler(
         "Image Previewer",
         new RegExp("https?://[^'\"<>()[\\]\\s]+", "i"),
-        ko.browse.openUrlInDefaultBrowser,
+        function(match) { ko.browse.openUrlInDefaultBrowser(match[0]); },
         null,  /* Use the found string instead of a replacement. */
         null   /* All language types */,
         Components.interfaces.ISciMoz.INDIC_PLAIN,
@@ -225,7 +225,7 @@ ko.hyperlinks.handlers.chromePreviewHandler =
     new ko.hyperlinks.ImagePreviewHandler(
         "Chrome Previewer",
         new RegExp("chrome://[^'\"<>()[\\]\\s]+", "i"),
-        ko.open.URI,
+        function(match) { ko.open.URI(match[0]); },
         null,  /* Use the found string instead of a replacement. */
         null   /* All language types */,
         Components.interfaces.ISciMoz.INDIC_PLAIN,
@@ -238,7 +238,7 @@ ko.hyperlinks.handlers.networkURIHandler =
     new ko.hyperlinks.RegexHandler(
         "Other File URIs",
         new RegExp("(ftp?|sftp|scp)://[^'\"<>()[\\]\\s]+", "i"),
-        ko.open.URI,
+        function(match) { ko.open.URI(match[0]); },
         null,  /* Use the found string instead of a replacement. */
         null   /* All language types */,
         Components.interfaces.ISciMoz.INDIC_PLAIN,
@@ -251,7 +251,7 @@ ko.hyperlinks.handlers.ipAddressHandler =
     new ko.hyperlinks.RegexHandler(
       "IP address",
       new RegExp("(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})"),
-      ko.browse.openUrlInDefaultBrowser,
+      function(match) { ko.browse.openUrlInDefaultBrowser(match[0]); },
       "http://$1",
       null,
       Components.interfaces.ISciMoz.INDIC_PLAIN,
@@ -264,7 +264,7 @@ ko.hyperlinks.handlers.activestateBugHandler =
     new ko.hyperlinks.RegexHandler(
         "ActiveState bugs",
         new RegExp("bug\\s+(\\d{4,5})", "i"),
-        ko.browse.openUrlInDefaultBrowser,
+        function(match) { ko.browse.openUrlInDefaultBrowser(match[0]); },
         "http://bugs.activestate.com/show_bug.cgi?id=$1",
         null   /* All language types */,
         Components.interfaces.ISciMoz.INDIC_PLAIN,
