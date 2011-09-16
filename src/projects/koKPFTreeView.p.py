@@ -606,6 +606,15 @@ class KPFTreeView(TreeView):
         if index >= 0 and index < len(self._rows):
             return self._rows[index].part
         return None
+
+    def getRowItemByURI(self, uri):
+        for row in self._rows:
+            node = row.part
+            try:
+                if node.url == uri:
+                    return node
+            except AttributeError:
+                pass
     
     def selectPart(self, part):
         index = self.getIndexByPart(part)

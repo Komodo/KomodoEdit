@@ -859,10 +859,8 @@ function(project)
 
 projectManager.prototype.setCurrentProject = function(project) {
     this.currentProject = project;
-    if (!this.single_project_view) {
-        if (this.viewMgr) {
-            this.viewMgr.setCurrentProject(project);
-        }
+    if (this.viewMgr) {
+        this.viewMgr.setCurrentProject(project);
     }
 }
 
@@ -1339,10 +1337,14 @@ projectManager.prototype.effectivePrefs = function () {
 this.open = function project_openProjectFromURL(url,
                                                 skipRecentOpenFeature /* false */,
                                                 ensureVisible /* true */) {
-    if (this.manager.single_project_view
-        && this.manager.currentProject
-        && !this.manager.closeProject(this.manager.currentProject)) {
-        return false;
+    if (this.manager.single_project_view) {
+        if (this.manager.currentProject
+            && !this.manager.closeProject(this.manager.currentProject)) {
+            return false;
+        }
+        if (ko.projects.manager.viewMgr) {
+            ko.projects.manager.viewMgr.removeUnopenedProject(url);
+        }
     }
     var action = null;
     var opened_files = [];

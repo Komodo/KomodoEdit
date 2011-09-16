@@ -107,6 +107,9 @@ this.PlacesProjectManager.prototype = {
   setCurrentProject: function(project) {
         this.owner.projectsTreeView.currentProject = project;
     },
+  removeUnopenedProject: function(url) {
+        this.owner.removeUnopenedProject(url);
+    },
   getSelectedItems: function(rootsOnly) {
         return this._getSelectedItems(rootsOnly);
     },

@@ -672,6 +672,12 @@
           oncommand="ko.places.projects_SPV.removeProjectListing();" />
 
       <menuseparator id="menu_project_properties_separator_projectsContext"/>
+      <menu id="menu_SCCmenu_projectsContext"
+            label="&sourceControl.label;"
+            events="SCC"
+            class="menu-iconic"	
+            disableUnless="currentProject"
+            accesskey="&menuSCCmenu.accesskey;"/>
 
       <menuitem label="&properties.label;"
           id="menu_projectProperties_projectsContext"

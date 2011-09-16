@@ -42,8 +42,16 @@ this.createProjectMRUView = function() {
     this.projectCommandHelper = new ko.places.projects.ProjectCommandHelper(this, this.manager);
     // Delegate all the context-menu commands to the projectCommandHelper
     this.projectCommandHelper.injectHelperFunctions(this);
+    ko.places.projects.finishSCCProjectsMenu("menu_SCCmenu_projectsContext",
+                                             "menu_SCCmenu",
+                                             "menu_projCtxt_SPV_");
     this.load_MRU_Projects();
+    document.getElementById("placesSubpanelProjects_SPV").addEventListener("keypress", this.handleOnTreeKeypress, true);
 };
+
+this.handleOnTreeKeypress = function(event) {
+    return ko.places.projects_SPV.onTreeKeyPress(event);
+}
 
 this.activateView = function() {
     ko.projects.manager.setViewMgr(this.manager);
@@ -87,6 +95,25 @@ this.load_MRU_Projects = function() {
         // dump('loading... _placePrefs.hasPref("project_sort_direction"): not found\n');
     }
 };
+
+this.removeUnopenedProject = function(url) {
+    // Remove the URI, if found
+    var part = this.projectsTreeView.getRowItemByURI(url)
+    if (part) {
+        if (part.url != url) {
+            log.debug("**************** Expecting part for <\n"
+                 + url
+                 + "\n>, got part with url <\n"
+                 + part.url
+                 + ">");
+            return;
+        }
+        this.projectsTreeView.removeItems([part], 1);
+    } else {
+        log.debug("Couldn't find a part for url " + url);
+    }
+};
+
 
 // Methods for dealing with the projects tree context menu.
 
@@ -206,6 +233,9 @@ this.removeProjectListing = function() {
     if (!part) {
         log.debug("removeProjectListing: No part at index:" + index);
         return;
+    } else if (part.type != "unopened_project") {
+        log.debug("removeProjectListing: opened-project part at index:" + index);
+        return;
     }
     ko.mru.deleteValue('mruProjectList', part.url, true/*notify */);
     this.projectsTreeView.removeProject(part);
@@ -246,5 +276,44 @@ this._openProject = function(inNewWindow) {
         ko.projects.open(part.url);
     }
 };
+
+this.onTreeKeyPress = function(event) {
+    var t = event.originalTarget;
+    if (t.localName != "treechildren" && t.localName != 'tree') {
+        return false;
+    }
+    // Special-case some commands, and then look at the keybinding set
+    // to determine a command to do.
+    if (!(event.shiftKey || event.ctrlKey || event.altKey)) {
+        if (ko.places.viewMgr.arrowKeys.indexOf(event.keyCode) >= 0) {
+            // Nothing to do but squelch the keycode
+            event.stopPropagation();
+            event.preventDefault();
+            return false;
+        } else if (event.keyCode == event.DOM_VK_ENTER
+                   || event.keyCode == event.DOM_VK_RETURN) {
+            // ENTER/RETURN should be handled by xbl bindings.
+            this.handleReturn();
+            event.stopPropagation();
+            event.preventDefault();
+            return true;
+        } else if (event.keyCode == event.DOM_VK_DELETE) {
+            this.removeProjectListing();
+            event.cancelBubble = true;
+            event.stopPropagation();
+            event.preventDefault();
+            return true;
+        }
+    }
+    return false;
+};
+
+this.handleReturn = function() {
+    var index = this.projectsTreeView.selection.currentIndex;
+    if (index == -1) {
+        return;
+    }
+    this.onProjectTreeDblClick(undefined, index);
+}
 
 }).apply(ko.places.projects_SPV);

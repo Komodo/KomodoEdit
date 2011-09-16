@@ -24,13 +24,20 @@ this.ProjectCommandHelper = function(owner, manager) {
     this.manager = manager;
 };
 
-this.ProjectCommandHelper.prototype.onProjectTreeDblClick = function(event) {
-    if (event.which != 1) {
+this.ProjectCommandHelper.prototype.onProjectTreeDblClick = function(event, index) {
+    if (typeof(event) != "undefined") {
+        if (event.which != 1) {
+            return;
+        }
+        var row = {};
+        this.owner.projectsTree.treeBoxObject.getCellAt(event.pageX, event.pageY, row, {},{});
+        index = row.value;
+    } else if (typeof(index) == "undefined") {
+        log.error("dbl click: neither event nor index specified");
         return;
+    } else {
+        event = null;
     }
-    var row = {};
-    this.owner.projectsTree.treeBoxObject.getCellAt(event.pageX, event.pageY, row, {},{});
-    var index = row.value;
     if (index != -1) {
         var part = this.owner.projectsTreeView.getRowItem(index);
         if (!part) {
@@ -68,8 +75,10 @@ this.ProjectCommandHelper.prototype.onProjectTreeDblClick = function(event) {
             }
         }
     }
-    event.stopPropagation();
-    event.preventDefault();
+    if (event) {
+        event.stopPropagation();
+        event.preventDefault();
+    }
 };
 
 this.ProjectCommandHelper.prototype._getProjectItemAndOperate = function(context, obj, callback) {

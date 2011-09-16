@@ -138,9 +138,9 @@ viewMgrClass.prototype = {
         }
         this.sortDirection = sortDir;
         this.view.sortBy("name", this._mozSortDirNameToKomodoSortDirValue[sortDir]);
-        //  _arrowKeys used by onTreeKeyPress, easier to init here.
+        //  arrowKeys used by onTreeKeyPress, easier to init here.
         var nsIDOMKeyEvent = Components.interfaces.nsIDOMKeyEvent;
-        this._arrowKeys = [nsIDOMKeyEvent.DOM_VK_UP,
+        this.arrowKeys = [nsIDOMKeyEvent.DOM_VK_UP,
                            nsIDOMKeyEvent.DOM_VK_DOWN,
                            nsIDOMKeyEvent.DOM_VK_LEFT,
                            nsIDOMKeyEvent.DOM_VK_RIGHT];
@@ -398,7 +398,7 @@ viewMgrClass.prototype = {
         // Special-case some commands, and then look at the keybinding set
         // to determine a command to do.
         if (!(event.shiftKey || event.ctrlKey || event.altKey)) {
-            if (this._arrowKeys.indexOf(event.keyCode) >= 0) {
+            if (this.arrowKeys.indexOf(event.keyCode) >= 0) {
                 // Nothing to do but squelch the keycode
                 event.stopPropagation();
                 event.preventDefault();

@@ -85,6 +85,7 @@ interface koIKPFTreeView : nsITreeView {
     koIPart getSelectedItem();
     long    getIndexByPart(in koIPart part);
     koIPart getRowItem(in long index);
+    koIPart getRowItemByURI(in wstring uri);
     void    selectPart(in koIPart part);
     
     // internal api
