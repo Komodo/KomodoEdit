@@ -65,14 +65,15 @@ $cons->BuildAndInstallXpt('koIScintillaSchemeService.idl');
 $cons->Preprocess('koScintillaSchemeService.p.py',
                   'koScintillaSchemeService.py');
 $cons->InstallXpcomComponent('koScintillaSchemeService.py');
-$cons->Preprocess('Default.p.ksf', 'Default.ksf');
-$cons->Install("$supportDir/schemes", 'Default.ksf');
-$cons->Preprocess('Dark.p.ksf', 'Dark.ksf');
-$cons->Install("$supportDir/schemes", 'Dark.ksf');
-$cons->Preprocess('Medium.p.ksf', 'Medium.ksf');
-$cons->Install("$supportDir/schemes", 'Medium.ksf');
-$cons->Preprocess('Bright.p.ksf', 'Bright.ksf');
-$cons->Install("$supportDir/schemes", 'Bright.ksf');
+
+$cons->Preprocess('color_schemes/Default.p.ksf', 'color_schemes/Default.ksf');
+$cons->InstallAs("$supportDir/schemes/Default.ksf", 'color_schemes/Default.ksf');
+$cons->Preprocess('color_schemes/Dark.p.ksf', 'color_schemes/Dark.ksf');
+$cons->InstallAs("$supportDir/schemes/Dark.ksf", 'color_schemes/Dark.ksf');
+$cons->Preprocess('color_schemes/Medium.p.ksf', 'color_schemes/Medium.ksf');
+$cons->InstallAs("$supportDir/schemes/Medium.ksf", 'color_schemes/Medium.ksf');
+$cons->Preprocess('color_schemes/Bright.p.ksf', 'color_schemes/Bright.ksf');
+$cons->InstallAs("$supportDir/schemes/Bright.ksf", 'color_schemes/Bright.ksf');
 
 $cons->BuildAndInstallXpt('koIKeybindingSchemeService.idl');
 $cons->InstallXpcomComponent('koKeybindingSchemeService.py');
