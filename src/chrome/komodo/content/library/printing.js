@@ -174,10 +174,12 @@ this.print = function(view, preview, tofile, selectionOnly)
         if (tofile) {
             ko.open.URI(URI);
         } else {
-            var browser = document.getElementById("printSource");
+            var browser = null;
             if (preview) {
+              browser = document.getElementById("printSource");
               _gBrowserLoadListener = function(evt) { setTimeout(ko.printing.browserPrintPreview, 0, evt); };
             } else {
+              browser = document.getElementById("printBrowser");
               _gBrowserLoadListener = function(evt) { setTimeout(ko.printing.browserPrint, 0, evt); };
             }
             browser.addEventListener("load", _gBrowserLoadListener , true);
