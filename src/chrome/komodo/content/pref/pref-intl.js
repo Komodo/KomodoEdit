@@ -89,7 +89,7 @@ function OnPreferencePageInitalize(prefset) {
         // set up the prefs
         langPrefs = prefset.getPref('languages');
         langPrefs.parent = prefset;
-        view = parent.opener.ko.views.manager.currentView;
+        view = getKoObject('views').manager.currentView;
         if (view)
             langToUse = view.koDoc.language;
         else   // default
@@ -304,7 +304,7 @@ function setEncoding()  {
             return false;
         }
         if (warning == "" ||
-            parent.opener.ko.dialogs.yesNo(
+            getKoObject('dialogs').yesNo(
                 warning +
                 " Are you sure that you want to change the encoding?",
                 "No"

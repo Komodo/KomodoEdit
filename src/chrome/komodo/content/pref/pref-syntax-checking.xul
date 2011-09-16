@@ -115,7 +115,7 @@
                             <button label="&lt;http://www.jslint.com/lint.html#options&gt;"
                                 class="button-link"
                                 style="margin: -10px; color: #b82619;"
-                                onclick="parent.opener.ko.browse.openUrlInDefaultBrowser('http://www.jslint.com/lint.html#options');"/>
+                                onclick="getKoObject('browse').openUrlInDefaultBrowser('http://www.jslint.com/lint.html#options');"/>
                        </hbox>
                     </vbox>
                 </groupbox>
@@ -149,7 +149,7 @@
                         <button label="&lt;http://jshint.com/&gt;"
                             class="button-link"
                             style="margin: -10px; color: #b82619;"
-                            onclick="parent.opener.ko.browse.openUrlInDefaultBrowser('http://www.jshint.com/');"/>
+                            onclick="getKoObject('browse').openUrlInDefaultBrowser('http://www.jshint.com/');"/>
                       </hbox>
                     </vbox>
                 </groupbox>
@@ -173,14 +173,14 @@
                         <button label="&lt;http://tidy.sourceforge.net/&gt;"
                             class="button-link"
                             style="margin: -10px; color: #b82619;"
-                            onclick="parent.opener.ko.browse.openUrlInDefaultBrowser('http://tidy.sourceforge.net/');"/>
+                            onclick="getKoObject('browse').openUrlInDefaultBrowser('http://tidy.sourceforge.net/');"/>
                         <separator/>
                         <label value="&moreInfoWai.label;"/>
                         <separator class="thin"/>
                         <button label="&lt;http://www.w3.org/TR/1999/WAI-WEBCONTENT-19990505&gt;"
                             class="button-link"
                             style="margin: -10px; color: #b82619;"
-                            oncommand="parent.opener.ko.browse.openUrlInDefaultBrowser('http://www.w3.org/TR/1999/WAI-WEBCONTENT-19990505/#priorities');"/>
+                            oncommand="getKoObject('browse').openUrlInDefaultBrowser('http://www.w3.org/TR/1999/WAI-WEBCONTENT-19990505/#priorities');"/>
                         <separator class="thin"/>
                     </vbox>
             

@@ -74,7 +74,7 @@
                 </description>
                 <button label="&httpWwwRubyLangOrg.label;"
                         class="button-link-a" style="cursor:pointer;"
-                        oncommand="alert('&noteRestartRuby.alert;'); parent.opener.ko.browse.openUrlInDefaultBrowser('http://www.ruby-lang.org/');"/>
+                        oncommand="alert('&noteRestartRuby.alert;'); getKoObject('browse').openUrlInDefaultBrowser('http://www.ruby-lang.org/');"/>
             </vbox>
             <vbox id="invalid-version-message" collapsed="true" flex="1" align="center">
                 <description style="font-weight: bold;">
@@ -82,7 +82,7 @@
                 </description>
                 <button label="&httpWwwRubyLangOrg.label;"
                         class="button-link-a" style="cursor:pointer;"
-                        oncommand="alert('&noteRestartRuby.alert;'); parent.opener.ko.browse.openUrlInDefaultBrowser('http://www.ruby-lang.org/');"/>
+                        oncommand="alert('&noteRestartRuby.alert;'); getKoObject('browse').openUrlInDefaultBrowser('http://www.ruby-lang.org/');"/>
             </vbox>
             <text value="&filePrefRubyUseThisInterpreter.label;" style="padding: 2px 6px 2px 6px"/>
             <hbox align="center">

@@ -41,7 +41,7 @@
                 </description>
                 <button label="&httpWwwActiveStateComActivePython.label;"
                         class="button-link-a" style="cursor:pointer;"
-                        oncommand="alert('&noteRestartPython.alert;'); parent.opener.ko.browse.openUrlInDefaultBrowser('http://www.activestate.com/activepython/');"/>
+                        oncommand="alert('&noteRestartPython.alert;'); getKoObject('browse').openUrlInDefaultBrowser('http://www.activestate.com/activepython/');"/>
             </vbox>
             <text value="&filePrefPythonUseThisInterpreter.label;" style="padding: 2px 6px 2px 6px"/>
             <hbox align="center">

@@ -75,7 +75,7 @@ function OnPreferencePageInitalize(prefset) {
         // set up the prefs
         langPrefs = prefset.getPref('languages');
         langPrefs.parent = prefset;
-        var view = parent.opener.ko.views.manager.currentView;
+        var view = getKoObject('views').manager.currentView;
         if (view)
             langToUse = view.koDoc.language;
         else   // default

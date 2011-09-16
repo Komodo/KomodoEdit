@@ -47,10 +47,12 @@ function PrefKeys_OnLoad() {
         dialog.configurations= document.getElementById('configurations');
         dialog.configpopup= document.getElementById('configpopup');
         dialog.filter = document.getElementById('commands-filter-textbox');
-        dialog.gKeybindingMgr = parent.opener.ko.keybindings.manager;
+        dialog.gKeybindingMgr = getKoObject('keybindings').manager;
         dialog.editkeybinding = document.getElementById('keybinding');
         dialog.editkeybinding.gKeybindingMgr = dialog.gKeybindingMgr;
-        dialog.mainwindow = dialog.editkeybinding.mainwindow = parent.opener;
+        dialog.mainwindow = dialog.editkeybinding.mainwindow =
+	    (('prefs' in opener.ko) ? parent.opener
+	     : opener.ko.windowManager.getMainWindow());
         dialog.gKeybindingMgr.parseGlobalData();
         dialog.deleteButton = document.getElementById('deleteConfiguration');
         dialog.viCheckbox = document.getElementById('enableViKeybindings');

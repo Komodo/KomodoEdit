@@ -156,3 +156,20 @@ function getOwningFileObject() {
     }
     return file;
 }
+
+function getKoObject(name) {
+    var ko = parent.opener.ko;
+    if (ko[name]) {
+        return ko[name];
+    }
+    return parent.opener.ko.windowManager.getMainWindow().ko[name];
+}
+
+function getMainWindow() {
+    return parent.opener.ko.windowManager.getMainWindow();
+}
+
+function globalPrefs() {
+    return Components.classes["@activestate.com/koPrefService;1"].
+        getService(Components.interfaces.koIPrefService).prefs;
+}

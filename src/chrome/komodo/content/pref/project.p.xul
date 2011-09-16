@@ -68,6 +68,7 @@
     <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/windowManager.js"/>
     <script type="application/x-javascript;version=1.7" src="chrome://global/content/nsWidgetStateManager.js"/>
     <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/pref/koPrefWindow.js"/>
+    <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/pref/koPrefUtils.js" />
     <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/pref/koFilteredPrefTree.js"/>
 
     <script><![CDATA[
@@ -110,7 +111,7 @@
             }
         } else {
             // XXX TODO get the main komodo window instead
-            part = opener.ko.projects.manager.getCurrentProject();
+            part = getKoObject('projects').manager.getCurrentProject();
             file = part.getFile();
             isfolder = true;
         }

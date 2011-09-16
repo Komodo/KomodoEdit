@@ -156,7 +156,7 @@ function SetDefaultLanguage() {
             if (prefset.hasStringPref(p)) {
                 selectedLanguageName = prefset.getStringPref(p);
             } else {
-                selectedLanguageName = parent.opener.ko.views.manager.currentView.koDoc.language;
+                selectedLanguageName = getKoObject('views').manager.currentView.koDoc.language;
             }
         } catch(ex) {
             selectedLanguageName = "Python";
@@ -661,9 +661,10 @@ function doDelete()
         if (oldScheme == name) {
             // we _must_ change the pref, since that scheme is gone even before the OK.
             gDialog.prefset.setStringPref('editor-scheme', 'Default');
-            // We must do it on the parent's opener because of the pref dialog's handling of prefs--
+            // We must do it on the global pref set because of the pref dialog's handling of prefs--
             // our prefset is ignored on Cancel.
-            parent.opener.ko.prefs.setStringPref('editor-scheme', 'Default');
+            Components.classes["@activestate.com/koPrefService;1"].
+                getService(Components.interfaces.koIPrefService).prefs.setStringPref('editor-scheme', 'Default');
         }
         // need to remove it from the popup
         var menuitem = document.getElementById(name);
@@ -1129,7 +1130,9 @@ try {
 
 function initFonts(encoding)  {
     if (typeof(encoding)=='undefined') {
-       encoding = parent.opener.ko.prefs.getStringPref('encodingDefault');
+       encoding = Components.classes["@activestate.com/koPrefService;1"].
+                  getService(Components.interfaces.koIPrefService).prefs.
+                  getStringPref('encodingDefault');
     }
     // Do all fonts list first
     var fixedElement = new listElement( 'fixed' );

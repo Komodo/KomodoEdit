@@ -51,7 +51,7 @@ function OnPreferencePageOK(prefset)
             continue;
         }
         broadcasterId = checkbox.getAttribute('broadcaster');
-        broadcaster = parent.opener.document.getElementById(broadcasterId);
+        broadcaster = getMainWindow().document.getElementById(broadcasterId);
         if (!broadcaster) {
             log.warn("couldn't find broadcaster: " + id);
             continue;
@@ -63,14 +63,15 @@ function OnPreferencePageOK(prefset)
         }
         if (currentState != data[id]) {
             var cmd = broadcaster.getAttribute('oncommand');
-            if (parent.opener) {
+            var mainWindow = getMainWindow();
+            if (mainWindow) {
                 // See bug 79113: "Multi-window: opener considered harmful"
                 // XXX Should send notifications to observers
                 var m = cmd_regex.exec(cmd);
                 if (m) {
-                    parent.opener.ko.commands.doCommandAsync(m[1]);
+                    mainWindow.ko.commands.doCommandAsync(m[1]);
                 } else {
-                    parent.opener.eval('var event;'+cmd);
+                    mainWindow.eval('var event;'+cmd);
                 }
             }
         }
@@ -100,7 +101,7 @@ function OnPreferencePageInitalize(prefset) {
             continue;
         }
         broadcasterId = checkbox.getAttribute('broadcaster');
-        broadcaster = parent.opener.document.getElementById(broadcasterId);
+        broadcaster = getMainWindow().document.getElementById(broadcasterId);
         if (!broadcaster) {
             log.warn("couldn't find broadcaster: " + id);
             continue;

@@ -41,9 +41,10 @@ function SetWindowLocation()
    var gLocation = document.getElementById("location");
    if (gLocation)
    {
-     window.screenX = Math.max(0, Math.min(window.opener.screenX + Number(gLocation.getAttribute("offsetX")),
+     var mainWindow = getMainWindow();
+     window.screenX = Math.max(0, Math.min(mainWindow.screenX + Number(gLocation.getAttribute("offsetX")),
                                            screen.availWidth - window.outerWidth));
-     window.screenY = Math.max(0, Math.min(window.opener.screenY + Number(gLocation.getAttribute("offsetY")),
+     window.screenY = Math.max(0, Math.min(mainWindow.screenY + Number(gLocation.getAttribute("offsetY")),
                                            screen.availHeight - window.outerHeight));
   }
 }
@@ -53,10 +54,11 @@ function SaveWindowLocation()
    var gLocation = document.getElementById("location");
    if (gLocation)
    {
-     var newOffsetX = window.screenX - window.opener.screenX;
-     var newOffsetY = window.screenY - window.opener.screenY;
-     gLocation.setAttribute("offsetX", window.screenX - window.opener.screenX);
-     gLocation.setAttribute("offsetY", window.screenY - window.opener.screenY);
+     var mainWindow = getMainWindow();
+     var newOffsetX = window.screenX - mainWindow.screenX;
+     var newOffsetY = window.screenY - mainWindow.screenY;
+     gLocation.setAttribute("offsetX", window.screenX - mainWindow.screenX);
+     gLocation.setAttribute("offsetY", window.screenY - mainWindow.screenY);
    }
 }
 

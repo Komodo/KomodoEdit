@@ -35,12 +35,12 @@ function OnPreferencePageLoading(prefset) {
     g_prefset = prefset;
     loadContext = parent.prefInvokeType;
     pref_lint_doEnabling();
-    currentView = parent.opener.window.ko.views.manager.currentView;
+    currentView = getKoObject('views').manager.currentView;
     var languageName;
     dialog.langlist.rebuildMenuTree(loadContext == "view", currentView);
     if (!currentView || !currentView.koDoc) {
         if (loadContext == "project") {
-            var project = parent.opener.ko.projects.manager.currentProject;
+            var project = getKoObject('projects').manager.currentProject;
             var urls = {};
             project.getAllContainedURLs(urls, {});
             //TODO: Get the language name here.
@@ -61,9 +61,9 @@ function OnPreferencePageOK(prefset) {
             var linterPrefName = "genericLinter:" + languageName;
             if (!prefset.hasPref(linterPrefName)) {
                 // Track changes to this pref.
-                parent.opener.ko.lint.addLintPreference(linterPrefName, [languageName]);
+                getKoObject('lint').addLintPreference(linterPrefName, [languageName]);
             } else if (!prefset.hasPrefHere(linterPrefName)) {
-                parent.opener.ko.lint.updateDocLintPreferences(prefset, linterPrefName);
+                getKoObject('lint').updateDocLintPreferences(prefset, linterPrefName);
             }
             prefset.setBooleanPref(linterPrefName,
                                    document.getElementById("generic_linter_for_current_language").checked);

@@ -74,7 +74,7 @@
                 </description>
                 <button label="&httpWwwActiveStateComActivePerl.label;"
                         class="button-link-a" style="cursor:pointer;"
-                        oncommand="alert('&noteRestartPerl.alert;'); parent.opener.ko.browse.openUrlInDefaultBrowser('http://www.activestate.com/activeperl/');"/>
+                        oncommand="alert('&noteRestartPerl.alert;'); getKoObject('browse').openUrlInDefaultBrowser('http://www.activestate.com/activeperl/');"/>
             </vbox>
             <text value="&filePrefPerlUseThisInterpreter.label;" style="padding: 2px 6px 2px 6px"/>
             <hbox align="center">

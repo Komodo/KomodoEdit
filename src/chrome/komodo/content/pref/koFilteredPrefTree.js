@@ -43,7 +43,8 @@ var log = ko.logging.getLogger('filtered-prefs');
 var _openPrefTreeNodes;
 
 function setupOpenPrefTreeNodes() {
-    var prefs = opener.ko.prefs;
+    var prefs = Components.classes["@activestate.com/koPrefService;1"].
+        getService(Components.interfaces.koIPrefService).prefs;
     var nativeJSON = Components.classes["@mozilla.org/dom/json;1"]
                         .createInstance(Components.interfaces.nsIJSON);
     if (!prefs.hasPref(OPEN_NODE_PREFS_NAME)) {
@@ -56,8 +57,9 @@ function setupOpenPrefTreeNodes() {
 function saveOpenPrefTreeNodes() {
     var nativeJSON = Components.classes["@mozilla.org/dom/json;1"]
                         .createInstance(Components.interfaces.nsIJSON);
-    opener.ko.prefs.setStringPref(OPEN_NODE_PREFS_NAME,
-                           nativeJSON.encode(_openPrefTreeNodes));
+    Components.classes["@activestate.com/koPrefService;1"].
+        getService(Components.interfaces.koIPrefService).prefs.setStringPref(OPEN_NODE_PREFS_NAME,
+                                nativeJSON.encode(_openPrefTreeNodes));
 }
 
 function TreeInfoItem(id, isContainer, isOpen, cls, url, label, helptag) {
@@ -142,6 +144,7 @@ this.buildTree = function(root, key) {
 };
 
 this.getPrefTreeView = function() {
+    debugger;
     setupOpenPrefTreeNodes();
     var rows = treeItemsByURI[""];
     if (!rows || rows.length == 0) {
