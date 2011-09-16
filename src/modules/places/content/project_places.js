@@ -553,7 +553,8 @@ this._processProjectsMenu_TopLevel = function(menuNode) {
                                   || selectionInfo.itemTypes[0] == 'folder'
                                   || selectionInfo.itemTypes[0] == 'file'
                                   || gPlacesViewMgr.view.isContainer(selectionInfo.index));
-        this.initProject_SCC_ContextMenu(menuNode);
+        commonMenuIdPart = "menu_projCtxt_sccMenu";
+        this.initProject_SCC_ContextMenu(menuNode, commonMenuIdPart);
         return;
     }
     var childNodes = menuNode.childNodes;
@@ -573,7 +574,7 @@ this._processProjectsMenu_TopLevel = function(menuNode) {
     }
 };
 
-this.initProject_SCC_ContextMenu = function(menuNode) {
+this.initProject_SCC_ContextMenu = function(menuNode, commonPart) {
     var popupmenu = menuNode.childNodes[0];
     var selectionInfo = this._selectionInfo;
     if (!selectionInfo.isLocal) {
@@ -605,7 +606,6 @@ this.initProject_SCC_ContextMenu = function(menuNode) {
     var status_by_name = ko.places.viewMgr.setupSCCStatus(fileObj, sccObj, isFolder);
     for (var menuitem, i = 0; menuitem = popupmenu.childNodes[i]; ++i) {
         var id = menuitem.id;
-        var commonPart = "menu_projCtxt_sccButton";
         var lastPart = id.substring(commonPart.length).toLowerCase();
         if (status_by_name[lastPart]) {
             menuitem.removeAttribute("disabled");

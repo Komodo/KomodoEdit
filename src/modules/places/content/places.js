@@ -395,31 +395,69 @@ viewMgrClass.prototype = {
         if (t.localName != "treechildren" && t.localName != 'tree') {
             return false;
         }
-        if (this._arrowKeys.indexOf(event.keyCode) >= 0) {
-            // Nothing to do but squelch the keycode
-            event.stopPropagation();
-            event.preventDefault();
+        // Special-case some commands, and then look at the keybinding set
+        // to determine a command to do.
+        if (!(event.shiftKey || event.ctrlKey || event.altKey)) {
+            if (this._arrowKeys.indexOf(event.keyCode) >= 0) {
+                // Nothing to do but squelch the keycode
+                event.stopPropagation();
+                event.preventDefault();
+                return false;
+            } else if (event.keyCode == event.DOM_VK_ENTER
+                       || event.keyCode == event.DOM_VK_RETURN) {
+                // ENTER/RETURN should be handled by xbl bindings.
+                event.stopPropagation();
+                event.preventDefault();
+                return true;
+            } else if (event.keyCode == event.DOM_VK_DELETE) {
+                ko.places.manager.doDeletePlace();
+                event.cancelBubble = true;
+                event.stopPropagation();
+                event.preventDefault();
+                return true;
+            }
+        }
+        var command = this._getCommandFromEvent(event);
+        if (!command) {
             return false;
         }
-        //dump("TODO: viewMgrClass.onTreeKeyPress\n");
-        if (event.shiftKey || event.ctrlKey || event.altKey) {
-            return false;
+        var newCommand = this._placeCommandsToTranslate[command];
+        if (newCommand) {
+            var controller = document.commandDispatcher.getControllerForCommand(newCommand);
+            if (controller) {
+                event.preventDefault();
+                event.stopPropagation();
+                controller.doCommand(newCommand);
+                return true;
+            }
         }
-        if (event.keyCode == event.DOM_VK_ENTER
-            || event.keyCode == event.DOM_VK_RETURN) {
-            // ENTER/RETURN should be handled by xbl bindings.
-            event.stopPropagation();
-            event.preventDefault();
-            return true;
-        } else if (event.keyCode == event.DOM_VK_DELETE) {
-            ko.places.manager.doDeletePlace();
-        } else {
-            return false;
+        return false;
+    },
+    _placeCommandsToTranslate: {
+        "cmd_startIncrementalSearch": "cmd_findInPlace",
+        "cmd_find": "cmd_findInPlace",
+        "cmd_replaceInFiles": "cmd_replaceInPlace",
+        "cmd_delete": "cmd_deletePlaceItem",
+        "cmd_lineScrollUp": "cmd_places_goUpOneFolder",
+        "cmd_historyForward": "cmd_goPreviousPlace",
+        "cmd_historyBack": "cmd_goNextPlace",
+        "cmd_undo": "cmd_undoTreeOperation",
+        
+        
+        "__NONE__": null
+    },
+    _getCommandFromEvent: function(event) {
+        var key = ko.keybindings.manager.event2keylabel(event, undefined, event.type == "keypress");
+        if (!key) {
+            dump("ko.places.keybindings._getCommandFromEvent: No key for " + event.charCode + "\n");
+            return null;
         }
-        event.cancelBubble = true;
-        event.stopPropagation();
-        event.preventDefault();
-        return true;
+        var command = ko.keybindings.manager.key2command[key];
+        if (!command) {
+            dump("ko.places.keybindings._getCommandFromEvent: No command for key " + key + "\n");
+            return null;
+        }
+        return command;
     },
 
     allowed_click_nodes: ["places-files-tree-body",
@@ -3015,7 +3053,7 @@ this.onUnload = function places_onUnload() {
 
 
 this.getFocusedPlacesView = function() {
-    if (xtk.domutils.elementInFocus(document.getElementById('placesViewbox'))) {
+    if (xtk.domutils.elementInFocus(document.getElementById('placesViewbox_places'))) {
         return this;
     }
     return null;
