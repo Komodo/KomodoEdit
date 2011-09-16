@@ -2723,7 +2723,7 @@ this.getRecentClosedWindowList = function() {
             }
             mruList.push(mru);
         } catch(ex) {
-            dump("getRecentClosedWindowList error: " + ex + "\n");
+            log.error("getRecentClosedWindowList error in workspace " + multiWindowWorkspacePrefName + ": " + ex);
         }
     }
     return mruList;
