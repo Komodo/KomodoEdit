@@ -371,28 +371,6 @@ this.PlacesController = PlacesController;  // expose thru this namespace.
 
 var controller = new PlacesController();
 
-function PlacesSCC_Controller() {
-    this.log = ko.logging.getLogger("PlacesSCCController");
-    this.log.setLevel(ko.logging.LOG_DEBUG);
-    this.commands = ['cmd_SCCedit', 'cmd_SCCadd', 'cmd_SCCremove', 'cmd_SCCupdate', 'cmd_SCCcommit', 'cmd_SCCdiff', 'cmd_SCChistory', 'cmd_SCCrevert', 'cmd_SCCcheckout'];
-    var this_ = this;
-    this.commands.forEach(function(cmd) { 
-            em.registerCommand(cmd, this_);
-        });
-};
-
-PlacesSCC_Controller.prototype.supportsCommand = function(command) {
-    return (this.commands.indexOf(command) != -1
-            && ko.projects.SCC.supportsCommand(command));
-};
-
-PlacesSCC_Controller.prototype.isCommandEnabled = function(command) {
-    return this.supportsCommand(command);
-};
-
-PlacesSCC_Controller.prototype.doCommand = function(command) {
-    return ko.projects.SCC.doCommand(command);
-};
 var placesController = new PlacesController();
 
 /*
@@ -402,7 +380,6 @@ var placesController = new PlacesController();
  window.addEventListener("load", function() {
  try {
 document.getElementById("places-files-tree").controllers.insertControllerAt(0, controller);
-document.getElementById("placesSubpanelProjects_MPV").controllers.insertControllerAt(0, controller);
  } catch(ex) {
      this.log.error("Failed to set a places controller: " + ex + "\n");
  }

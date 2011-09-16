@@ -278,10 +278,6 @@ this.createPlacesProjectView = function() {
             openProjectInNewWindow:1,
             openProjectInCurrentWindow:1,
          });
-
-    this.finishSCCProjectsMenu("menu_projCtxt_SCCmenu",
-                               "menu_SCCmenu",
-                               "menu_projCtxt_");
     if (_placePrefs.hasPref("project_sort_direction")) {
         // See bug 89283 for an explanation of why all windows
         // now have the same sort direction.
@@ -306,25 +302,6 @@ this.rebuildView = function() {
         this.projectsTree.treeBoxObject.endUpdateBatch();
     }
 };
-
-this.finishSCCProjectsMenu = function(destID, srcID, prefix) {
-    var menuNode = document.getElementById(destID);
-    if (!menuNode || menuNode.nodeName != "menu") {
-        log.debug("No " + destID + "\n");
-        return;
-    } else if (menuNode.childNodes.length > 0) {
-        log.debug("Menu " + destID + " already set up?\n");
-        return;
-    }
-    var srcMenu = parent.document.getElementById("menu_SCCmenu");
-    if (!srcMenu || !srcMenu.childNodes.length) {
-        log.debug("**** Can't find " + srcID + "\n");
-        return;
-    }
-    this._menuIdPrefix = prefix;
-    this._copyTree(srcMenu, menuNode);
-    delete this._menuIdPrefix;
-}
 
 this._copyTree = function(srcParentNode, destParentNode) {
     var srcNodes = srcParentNode.childNodes;
@@ -437,8 +414,7 @@ this.allowed_click_nodes = ["placesSubpanelProjectsTreechildren",
 this.initProjectsContextMenu = function(event, menupopup) {
     var clickedNodeId = event.explicitOriginalTarget.id;
     if (this.allowed_click_nodes.indexOf(clickedNodeId) == -1) {
-        // We don't want to fillup this context menu (i.e. it's likely a
-        // sub-menu such as the scc context menu).
+        // We don't want to fillup this context menu.
         return false;
     } else if (clickedNodeId == "menu_projCtxt_addMenu_Popup") {
         return true;
@@ -548,15 +524,6 @@ this._processProjectsMenu_TopLevel = function(menuNode) {
     } else {
         menuNode.removeAttribute('disabled');
     }
-    if (menuNode.id == "menu_projCtxt_SCCmenu") {
-        selectionInfo.isFolder = (selectionInfo.itemTypes[0] == 'project'
-                                  || selectionInfo.itemTypes[0] == 'folder'
-                                  || selectionInfo.itemTypes[0] == 'file'
-                                  || gPlacesViewMgr.view.isContainer(selectionInfo.index));
-        commonMenuIdPart = "menu_projCtxt_sccMenu";
-        this.initProject_SCC_ContextMenu(menuNode, commonMenuIdPart);
-        return;
-    }
     var childNodes = menuNode.childNodes;
     var childNodesLength = childNodes.length;
     if (childNodesLength) {
@@ -571,51 +538,6 @@ this._processProjectsMenu_TopLevel = function(menuNode) {
             selectionInfo.lastVisibleNode = null;
         }
         selectionInfo.needSeparator.shift();
-    }
-};
-
-this.initProject_SCC_ContextMenu = function(menuNode, commonPart) {
-    var popupmenu = menuNode.childNodes[0];
-    var selectionInfo = this._selectionInfo;
-    if (!selectionInfo.isLocal) {
-        ko.places.viewMgr._disable_all_items(popupmenu);
-        return;
-    }
-    var enabled_scc_components = ko.scc.getAvailableSCCComponents(true);
-    if (!enabled_scc_components.length) {
-        // No scc components are enabled for functional.
-        ko.places.viewMgr._disable_all_items(popupmenu);
-        return;
-    }
-    if (selectionInfo.multipleNodesSelected) {
-        ko.places.viewMgr._disable_all_items(popupmenu);
-        return;
-    }
-    var index = selectionInfo.index;
-    var uri = selectionInfo.selectedUrls[0];
-    var fileObj = (Components.classes["@activestate.com/koFileService;1"].
-                   getService(Components.interfaces.koIFileService).
-                   getFileFromURI(uri));
-    var sccObj = {};
-    var isFolder = selectionInfo.itemTypes[0] == "livefolder";
-    if (!ko.places.viewMgr._determineItemSCCSupport(fileObj, sccObj, isFolder)) {
-        // use this function to disable everything
-        ko.places.viewMgr._disable_all_items(popupmenu);
-        return;
-    }
-    var status_by_name = ko.places.viewMgr.setupSCCStatus(fileObj, sccObj, isFolder);
-    for (var menuitem, i = 0; menuitem = popupmenu.childNodes[i]; ++i) {
-        var id = menuitem.id;
-        var lastPart = id.substring(commonPart.length).toLowerCase();
-        if (status_by_name[lastPart]) {
-            menuitem.removeAttribute("disabled");
-            var command = ("ko.projects.SCC.doCommand('"
-                           + menuitem.getAttribute("observes")
-                           + "');");
-            menuitem.setAttribute("oncommand", command);
-        } else {
-            menuitem.setAttribute("disabled", "true");
-        }
     }
 };
 
