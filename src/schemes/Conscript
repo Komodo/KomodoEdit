@@ -81,6 +81,7 @@ $cons->InstallAs("$supportDir/schemes/Dark_Oblivion.ksf", 'color_schemes/Dark_Ob
 $cons->InstallAs("$supportDir/schemes/Dark_Soothing.ksf", 'color_schemes/Dark_Soothing.ksf');
 $cons->InstallAs("$supportDir/schemes/Dark_Wombatsosia.ksf", 'color_schemes/Dark_Wombatsosia.ksf');
 $cons->InstallAs("$supportDir/schemes/LowContrast_Zenburn.ksf", 'color_schemes/LowContrast_Zenburn.ksf');
+$cons->InstallAs("$supportDir/schemes/BlueWater.ksf", 'color_schemes/BlueWater.ksf');
 
 $cons->BuildAndInstallXpt('koIKeybindingSchemeService.idl');
 $cons->InstallXpcomComponent('koKeybindingSchemeService.py');
