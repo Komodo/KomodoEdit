@@ -42,9 +42,6 @@ this.createProjectMRUView = function() {
     this.projectCommandHelper = new ko.places.projects.ProjectCommandHelper(this, this.manager);
     // Delegate all the context-menu commands to the projectCommandHelper
     this.projectCommandHelper.injectHelperFunctions(this);
-    ko.places.projects.finishSCCProjectsMenu("menu_SCCmenu_projectsContext",
-                                             "menu_SCCmenu",
-                                             "menu_projCtxt_SPV_");
     this.load_MRU_Projects();
     document.getElementById("placesSubpanelProjects_SPV").addEventListener("keypress", this.handleOnTreeKeypress, true);
 };
