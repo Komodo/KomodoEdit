@@ -61,6 +61,7 @@ keywords [
                 "e_deprecated", "e_user_deprecated", "php_maxpathlen",
                 "goto", "namespace",
                 # new to php5
+                "clone",
                 "public", "private", "protected", "final",
                 "abstract", "interface", "implements",
                 "try", "catch", "throw", "instanceof",
