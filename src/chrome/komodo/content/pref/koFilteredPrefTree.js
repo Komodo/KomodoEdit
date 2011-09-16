@@ -144,7 +144,6 @@ this.buildTree = function(root, key) {
 };
 
 this.getPrefTreeView = function() {
-    debugger;
     setupOpenPrefTreeNodes();
     var rows = treeItemsByURI[""];
     if (!rows || rows.length == 0) {
@@ -187,7 +186,6 @@ PrefTreeView.prototype.getCellValue = function(row, column) {
         || typeof(this._rows[row]) == "undefined"
         || typeof([column.id]) == "undefined"
         || typeof(this._rows[row][column.id]) == "undefined") {
-        debugger;
     }
     return this._rows[row][column.id];
 };

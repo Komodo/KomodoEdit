@@ -91,7 +91,6 @@
      */
     function Onload()
     {
-        debugger;
         hPrefWindow = new koPrefWindow('panelFrame', null, true);
         prefPanelTree = document.getElementById( "prefsTree" );
 

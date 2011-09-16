@@ -166,7 +166,6 @@ function koPrefWindow( frame_id, prefset /* = null */, usesDeck /* = false */ )
     this.prefset           = null;
     this.prefservice      = null;
     this.orig_prefset = null;
-    debugger;
     if (usesDeck) {
         this.helper = this.stdHelper = new prefTreeHelper("filteredPrefsTree");
         this.prefDeckSwitched(document.getElementById("pref-deck").selectedIndex);
@@ -939,16 +938,13 @@ koPrefWindow.prototype =
 };
 
 function prefTreeHelper(treeid) {
-        debugger;
     this.tree = document.getElementById(treeid);
 }
 prefTreeHelper.prototype = {
     setTreeView: function(filteredTreeView) {
-        debugger;
         this.filteredTreeView = filteredTreeView;
     },
     selectRowById: function(id) {
-        debugger;
         var index = this.filteredTreeView.getIndexById(id);
         if (index == -1) {
             prefLog.debug("Can't find pref id '" + id + "'\n");
