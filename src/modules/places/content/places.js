@@ -1957,41 +1957,63 @@ ManagerClass.prototype = {
             ko.dialogs.alert(_bundle.formatStringFromName("Old file and new basename are the same.template", [oldname, newname], 2));
             return;
         }
-        try {
-            gPlacesViewMgr.view.renameItem(index, newname, false);
-        } catch(ex) {
-            var m = this._doRenameItem_file_exists_re.exec(ex.message);
-            var title;
-            if (m) {
-                var prompt = _bundle.formatStringFromName('FileExistsOverwrite.prompt',
-                                                          [m[1]], 1);
-                var response = _bundle.GetStringFromName("Yes.label");
-                title = _bundle.GetStringFromName("newFileExists.message");
-                var result = ko.dialogs.yesNo(prompt, response, null, title);
-                if (result == response) {
-                    try {
-                        gPlacesViewMgr.view.renameItem(index, newname, true);
-                    } catch(ex2) {
-                        if (this._doRenameItem_files_are_same_re.test(ex2.message)) {
-                            ko.dialogs.alert(_bundle.formatStringFromName("Files X and X are the same, rename stopped.template", [oldname, newname], 2));
-                        } else {
-                            ko.dialogs.alert(_bundle.formatStringFromName("Error when trying to rename a file.template", [ex2], 1));
+        var oldView = ko.views.manager.getViewForURI(uri);
+        if (!oldView) {
+            try {
+                gPlacesViewMgr.view.renameItem(index, newname, false);
+            } catch(ex) {
+                var m = this._doRenameItem_file_exists_re.exec(ex.message);
+                var title;
+                if (m) {
+                    var prompt = _bundle.formatStringFromName('FileExistsOverwrite.prompt',
+                                                              [m[1]], 1);
+                    var response = _bundle.GetStringFromName("Yes.label");
+                    title = _bundle.GetStringFromName("newFileExists.message");
+                    var result = ko.dialogs.yesNo(prompt, response, null, title);
+                    if (result == response) {
+                        try {
+                            gPlacesViewMgr.view.renameItem(index, newname, true);
+                        } catch(ex2) {
+                            if (this._doRenameItem_files_are_same_re.test(ex2.message)) {
+                                ko.dialogs.alert(_bundle.formatStringFromName("Files X and X are the same, rename stopped.template", [oldname, newname], 2));
+                            } else {
+                                ko.dialogs.alert(_bundle.formatStringFromName("Error when trying to rename a file.template", [ex2], 1));
+                            }
+                            dump("doRenameItem: " + ex2 + "\n");
                         }
-                        dump("doRenameItem: " + ex2 + "\n");
+                    }
+                } else {
+                    m = this._doRenameItem_dir_exists_re.exec(ex.message);
+                    if (m) {
+                        title = _bundle.GetStringFromName("fileRenameFailed.message");
+                        var prompt = _bundle.formatStringFromName(
+                            'cantRenameOverExistingDirectory.template',
+                            [m[1]], 1);
+                        ko.dialogs.alert(prompt, null, title);
+                    } else {
+                        ko.dialogs.alert(_bundle.formatStringFromName("Error when trying to rename a file.template", [ex], 1));
+                        dump("doRenameItem: " + ex + "\n");
                     }
                 }
-            } else {
-                m = this._doRenameItem_dir_exists_re.exec(ex.message);
-                if (m) {
-                    title = _bundle.GetStringFromName("fileRenameFailed.message");
-                    var prompt = _bundle.formatStringFromName(
-                        'cantRenameOverExistingDirectory.template',
-                        [m[1]], 1);
-                    ko.dialogs.alert(prompt, null, title);
-                } else {
-                    ko.dialogs.alert(_bundle.formatStringFromName("Error when trying to rename a file.template", [ex], 1));
-                    dump("doRenameItem: " + ex + "\n");
-                }
+            }
+        } else {
+            // Just get moreKomodo to do all the renaming on the filesystem,
+            // and updating the tabs.  And then the usual filesystem change
+            // will cause the tree to be updated.
+            var moreKomodoCommon = ko.moreKomodo.MoreKomodoCommon;
+            var viewDoc = oldView.koDoc;
+            var newPath = moreKomodoCommon.renameFile(viewDoc.displayPath, newname);
+            if (newPath) {
+                // Reopen file at same tab position
+                var newDoc = moreKomodoCommon.createDocumentFromURI(newPath);
+                // the observer will set the new document also for this view
+                var data = {document : viewDoc,
+                            newDocument : newDoc,
+                            command : "rename"
+                };
+                data.wrappedJSObject = data;
+                var obs = moreKomodoCommon.getObserverService();
+                obs.notifyObservers(data, "morekomodo_command", null);
             }
         }
     },

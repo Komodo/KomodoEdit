@@ -441,6 +441,9 @@ var moreKomodo = {
     }
 
 };
+// Give other parts of Komodo access to moreKomodo
+ko.moreKomodo = {MoreKomodoCommon: MoreKomodoCommon,
+                 moreKomodo: moreKomodo};
 
 window.addEventListener("load", function(event) { moreKomodo.onLoad(event); }, false);
 window.addEventListener("unload", function(event) { moreKomodo.onUnLoad(event); }, false);
