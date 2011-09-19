@@ -6214,7 +6214,6 @@
             <Component Id="component213" DiskId="1" Guid="$(autowix.guid)">
               <File Id="file151" Name="Bright.ksf" Vital="yes" src="feature-core\INSTALLDIR\lib\support\schemes\Bright.ksf"/>
               <File Id="file152" Name="Medium.ksf" Vital="yes" src="feature-core\INSTALLDIR\lib\support\schemes\Medium.ksf"/>
-              <File Id="file3881" Name="Dark.ksf" Vital="yes" src="feature-core\INSTALLDIR\lib\support\schemes\Dark.ksf"/>
               <File Id="file3882" Name="Default.kkf" Vital="yes" src="feature-core\INSTALLDIR\lib\support\schemes\Default.kkf"/>
               <File Id="file3883" Name="Default.ksf" Vital="yes" src="feature-core\INSTALLDIR\lib\support\schemes\Default.ksf"/>
               <File Id="file3884" Name="Emacs.kkf" Vital="yes" src="feature-core\INSTALLDIR\lib\support\schemes\Emacs.kkf"/>
