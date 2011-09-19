@@ -148,14 +148,18 @@ PyLexState_tokenize_by_style(PyLexState* self, PyObject * args)
        return NULL;
     }
 
-    style = new char[bufSize];
+    style = new char[bufSize + 1];
     // KOMODO - Ensure no style to begin with. This is required because the
     // lexers (at least the python lexer) will perform a lookahead to check for
     // IO Styles, which are needed/used by the interactive shell system.
     // Without the memset, the Lexer randomly finds IO styles and leaves these
     // in the style buffer, even though they may not have been set explicitly.
     // http://bugs.activestate.com/show_bug.cgi?id=48137
-    memset(style, 0, sizeof(char) * bufSize);
+    //
+    // http://bugs.activestate.com/show_bug.cgi?id=91179 - Some accessor,
+    // when told it has n bytes to work with, is overwriting styleBuf[n]
+    // So allocate one extra byte for it to work with.
+    memset(style, 0, sizeof(char) * (bufSize + 1));
 
     propset = PyPropSet_GET_PROPSET(pyPropSet);
     p_PropSetSimple = new(PropSetSimple);
