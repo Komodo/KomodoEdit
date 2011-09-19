@@ -42,6 +42,15 @@ var moreKomodo = {
         var obs = MoreKomodoCommon.getObserverService();
         obs.addObserver(this, "morekomodo_command", false);
         window.controllers.appendController(this);
+        if (!('moreKomodo' in ko)) {
+            ko.moreKomodo = {};
+        }
+        if (!('MoreKomodoCommon' in ko.moreKomodo)) {
+            ko.moreKomodo.MoreKomodoCommon = MoreKomodoCommon;
+        }
+        if (!('moreKomodo' in ko.moreKomodo)) {
+            ko.moreKomodo.moreKomodo = moreKomodo;
+        }
     },
 
     onUnLoad : function() {
@@ -441,9 +450,6 @@ var moreKomodo = {
     }
 
 };
-// Give other parts of Komodo access to moreKomodo
-ko.moreKomodo = {MoreKomodoCommon: MoreKomodoCommon,
-                 moreKomodo: moreKomodo};
 
 window.addEventListener("load", function(event) { moreKomodo.onLoad(event); }, false);
 window.addEventListener("unload", function(event) { moreKomodo.onUnLoad(event); }, false);
