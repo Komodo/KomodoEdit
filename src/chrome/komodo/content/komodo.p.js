@@ -69,6 +69,7 @@ this.windowIsClosing = false;
 this.quitApplication = function() {
     try {
         ko.main.windowIsClosing = true;
+        ko.workspace.markClosedWindows();
         saveWorkspaceIfNeeded();
         goQuitApplication();
     } catch(ex) {

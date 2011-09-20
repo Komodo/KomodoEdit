@@ -3019,6 +3019,38 @@ this.saveWorkspace = function view_saveWorkspace()
     }
 }
 
+this.markClosedWindows = function() {
+    /**
+     * markClosedWindows - get all the windows, and all the
+     * members of preference-set:windowWorkspace.  Find
+     * any that are set to restoreOnRestart to true, but are
+     * no longer open, and close them
+     */
+    if (!ko.prefs.hasPref(multiWindowWorkspacePrefName)) {
+        return;
+    }
+    var windowWorkspacePref = ko.prefs.getPref(multiWindowWorkspacePrefName);
+    var prefIds = {};
+    windowWorkspacePref.getPrefIds(prefIds, {});
+    prefIds = prefIds.value;
+    var lim = prefIds.length;
+    var workspacePrefs = [];
+    var pref;
+    var prefsByWindowNum = {};
+    var loadedWindowNums = {};
+    ko.windowManager.getWindows().forEach(function(win) {
+            loadedWindowNums[win._koNum] = 1;
+        });
+    for (var i = 0; i < lim; i++) {
+        pref = windowWorkspacePref.getPref(i);
+        var windowNum = pref.getLongPref("windowNum");
+        if (pref.getBooleanPref("restoreOnRestart")
+            && (!(windowNum in loadedWindowNums))) {
+            pref.setBooleanPref("restoreOnRestart", false);
+        }
+    }
+};
+    
 }).apply(ko.workspace);
 
 
