@@ -294,6 +294,14 @@ function setField(name, value)
     data.changedFields[name] = value;
 }
 
+function setLineEnding(value) {
+    if (data.originalLineEnding != "EOL_MIXED") {
+        var attrValue = (value == data.originalLineEnding).toString();
+        data.preserveLineEndings.setAttribute("disabled", attrValue);
+    }
+    setField('lineEndings', value);
+}
+
 // This function handles the disabled/enabled state of UI elements
 // depending on the language (or other view attributes).
 function initViewDependentUI()  {
@@ -455,19 +463,28 @@ function initDocumentSettings()
 
         // Line endings
         var nle = parent.view.koDoc.new_line_endings;
+        var lineEndingVal;
         if (nle == parent.view.koDoc.EOL_LF) {
-            data.lineEndings.value = "EOL_LF";
+            lineEndingVal = "EOL_LF";
         } else if (nle == parent.view.koDoc.EOL_CR) {
-            data.lineEndings.value = "EOL_CR";
+            lineEndingVal = "EOL_CR";
         } else if (nle == parent.view.koDoc.EOL_CRLF) {
-            data.lineEndings.value = "EOL_CRLF";
+            lineEndingVal = "EOL_CRLF";
+        } else {
+            lineEndingVal = null;
         }
 
         if (parent.view.koDoc.existing_line_endings == parent.view.koDoc.EOL_MIXED) {
-            if (data.mixedLineEndings.hasAttribute("collapsed"))
+            if (data.mixedLineEndings.hasAttribute("collapsed")) {
                 data.mixedLineEndings.removeAttribute("collapsed");
+            }
+            data.originalLineEnding = "EOL_MIXED";
+            // Leave data.lineEndings undefined.
+            data.preserveLineEndings.setAttribute("disabled", "false");
         } else {
             data.mixedLineEndings.setAttribute("collapsed", "true");
+            data.originalLineEnding = data.lineEndings.value = lineEndingVal;
+            data.preserveLineEndings.setAttribute("disabled", "true");
         }
         // Always preserve the current document by default.
         data.preserveLineEndings.checked = true;

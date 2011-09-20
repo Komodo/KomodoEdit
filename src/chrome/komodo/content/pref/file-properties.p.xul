@@ -206,7 +206,7 @@
                             <label value="&filePropertiesLineEndings.label;" control="lineEndings"
                                    accesskey="&filePropertiesLineEndings.accesskey;"/>
                             <menulist id="lineEndings"
-                                      oncommand="setField('lineEndings', this.value);">
+                                      oncommand="setLineEnding(this.value);">
                                 <menupopup>
                                     <menuitem label="&DOSWindowsRN.label;"
                                               value="EOL_CRLF"/>
