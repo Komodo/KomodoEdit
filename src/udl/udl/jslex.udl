@@ -73,9 +73,7 @@ delimiter: paint(upto, CSL_DEFAULT), paint(include, M_STRING) => IN_M_STAG_POST_
 /\/\*.*?\*\//: paint(upto, CSL_DEFAULT), paint(include, CSL_COMMENT)
 /[$WS]+/  : #stay
 /0[Xx][0-9a-fA-F]+/ : paint(upto, CSL_DEFAULT), paint(include, CSL_NUMBER)
-/[-+]?[0-9]/ : paint(upto, CSL_DEFAULT), => IN_CSL_NUMBER_1
-/\.\d/ : paint(upto, CSL_DEFAULT), => IN_CSL_NUMBER_2
-/[-+]\./ : paint(upto, CSL_DEFAULT), => IN_CSL_NUMBER_2
+/[-+]?\.?\d+/ : paint(upto, CSL_DEFAULT), paint(include, CSL_NUMBER)
 /[$NMSTART][$CS]*/ : paint(upto, CSL_DEFAULT), paint(include, CSL_IDENTIFIER)
 /[$OP]/: paint(upto, CSL_DEFAULT), paint(include, CSL_OPERATOR)
 
@@ -96,9 +94,7 @@ delimiter: paint(upto, CSL_DEFAULT), paint(include, M_STRING) => IN_M_STAG_POST_
 /\/\*.*?\*\//: paint(upto, CSL_DEFAULT), paint(include, CSL_COMMENT)
 /[$WS]+/  : #stay
 /0[Xx][0-9a-fA-F]+/ : paint(upto, CSL_DEFAULT), paint(include, CSL_NUMBER)
-/[-+]?[0-9]/ : paint(upto, CSL_DEFAULT), => IN_CSL_NUMBER_1
-/\.\d/ : paint(upto, CSL_DEFAULT), => IN_CSL_NUMBER_2
-/[-+]\./ : paint(upto, CSL_DEFAULT), => IN_CSL_NUMBER_2
+/[-+]?\.?\d+/ : paint(upto, CSL_DEFAULT), paint(include, CSL_NUMBER)
 /[$NMSTART][$CS]*/ : paint(upto, CSL_DEFAULT), paint(include, CSL_IDENTIFIER)
 /[$OP]/: paint(upto, CSL_DEFAULT), paint(include, CSL_OPERATOR)
 
