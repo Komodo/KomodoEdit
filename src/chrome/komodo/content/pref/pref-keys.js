@@ -51,8 +51,8 @@ function PrefKeys_OnLoad() {
         dialog.editkeybinding = document.getElementById('keybinding');
         dialog.editkeybinding.gKeybindingMgr = dialog.gKeybindingMgr;
         dialog.mainwindow = dialog.editkeybinding.mainwindow =
-	    (('prefs' in opener.ko) ? parent.opener
-	     : opener.ko.windowManager.getMainWindow());
+	    (('prefs' in parent.opener.ko) ? parent.opener
+	     : parent.opener.ko.windowManager.getMainWindow());
         dialog.gKeybindingMgr.parseGlobalData();
         dialog.deleteButton = document.getElementById('deleteConfiguration');
         dialog.viCheckbox = document.getElementById('enableViKeybindings');
