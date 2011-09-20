@@ -93,6 +93,8 @@ class _CommonHTMLLinter(object):
         return self._spaceOutNonNewlines(code)
         
     _cdata_ms_re = re.compile(r'\A(\s*)(<!\[CDATA\[)?(.*?)(\]\]>)?(\s*)\Z', re.DOTALL)
+    _return_re = re.compile(r'\breturn\b')
+    _function_re = re.compile(r'\bfunction\b')
     def _lint_common_html_request(self, request, udlMapping=None, linters=None, squelchTPLPatterns=None):
         self._mappedNames = udlMapping
         lintersByName = {}
@@ -102,6 +104,7 @@ class _CommonHTMLLinter(object):
             lintersByName.update(linters)
         koDoc = request.koDoc  # koDoc is a proxied object
         jsShouldBeWrapped = koDoc.language == "XBL"
+        jsWrapOneLiners = koDoc.language in ("HTML", "HTML5", "XUL")
         transitionPoints = koDoc.getLanguageTransitionPoints(0, koDoc.bufferLength)
         languageNamesAtTransitionPoints = [koDoc.languageForPosition(pt)
                                            for pt in transitionPoints[:-2]]
@@ -171,7 +174,12 @@ class _CommonHTMLLinter(object):
                         thisJSShouldBeWrapped = actualCode.strip()
                     else:
                         actualCode = subparts[2]
-                        thisJSShouldBeWrapped = False
+                        thisJSShouldBeWrapped = \
+                            (jsWrapOneLiners
+                             and "\n" not in subparts[2]
+                             and self._return_re.search(subparts[2])
+                             and not self._function_re.search(subparts[2]))
+                            # heuristic, wrap on-handlers in html*
                     if thisJSShouldBeWrapped:
                         bytesByLang[name].append("(function() { ")
                     bytesByLang[name].append(actualCode)
