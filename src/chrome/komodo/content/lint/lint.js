@@ -669,7 +669,7 @@ this.clearResults = function lint_clearResults() {
     try {
         var view = ko.views.manager.currentView;
         view.lintBuffer._clearResults();
-        StatusBar.ClearCheck(view);
+        view.lintBuffer._notify();
     } catch (e) {
         log.exception(e);
     }
