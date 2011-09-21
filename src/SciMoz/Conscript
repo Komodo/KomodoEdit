@@ -367,8 +367,11 @@ else {
     $consLocal{'CFLAGS'} .= " -DXP_UNIX=1";
     $consLocal{'CXXFLAGS'} .= " -DXP_UNIX=1";
 
-    $consLocal{'CXXFLAGS'} .= " -fshort-wchar";
-    #$consLocal{'CXXFLAGS'} .= " -std=c++0x";
+    if ($mozVersionNumber le 699) {
+	$consLocal{'CXXFLAGS'} .= " -fshort-wchar";
+    } else {
+	$consLocal{'CXXFLAGS'} .= " -std=c++0x";
+    }
 
     if ($platform eq "solaris") {
         # Solaris ships with broken X11 headers that do not specify int
@@ -498,7 +501,11 @@ else {
     }
     $consLocal{'CXXFLAGS'} .= " -fno-rtti -DLAYERS -Wall -Wno-non-virtual-dtor -D_IMPL_NS_LAYOUT";
     $consLocal{'CXXFLAGS'} .= " -include $mozObjDir/mozilla-config.h -DMOZ_VERSION=$mozVersionNumber";
-    $consLocal{'CXXFLAGS'} .= " -fshort-wchar";
+    if ($mozVersionNumber le 699) {
+	$consLocal{'CXXFLAGS'} .= " -fshort-wchar";
+    } else {
+	$consLocal{'CXXFLAGS'} .= " -std=c++0x";
+    }
 
     if ($platform eq "solaris") {
 
@@ -593,8 +600,12 @@ if ($platform eq "win") {
     );
 }
 else {
-    $consIME{'CXXFLAGS'} .= " -fshort-wchar" .
-                            " -include $mozObjDir/mozilla-config.h ";
+    if ($mozVersionNumber le 699) {
+	$consIME{'CXXFLAGS'} .= " -fshort-wchar";
+    } else {
+	$consIME{'CXXFLAGS'} .= " -std=c++0x";
+    }
+    $consIME{'CXXFLAGS'} .= " -include $mozObjDir/mozilla-config.h ";
     if ($platform eq "darwin") {
         $consIME{'DYLD_LIBRARY_PATH'} = "$mozSrc/mozilla/dist/bin";
         $consIME{'CXXFLAGS'} .= ' -DSCI_NAMESPACE';
