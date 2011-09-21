@@ -370,6 +370,7 @@ else {
     if ($mozVersionNumber le 699) {
 	$consLocal{'CXXFLAGS'} .= " -fshort-wchar";
     } else {
+	# TODO: Some versions may not support this - get CXXFLAGS from Moz build?
 	$consLocal{'CXXFLAGS'} .= " -std=c++0x";
     }
 
@@ -600,9 +601,10 @@ if ($platform eq "win") {
     );
 }
 else {
-    if ($mozVersionNumber le 699) {
+    if ($platform eq "darwin" or $mozVersionNumber le 699) {
 	$consIME{'CXXFLAGS'} .= " -fshort-wchar";
     } else {
+	# TODO: Some versions may not support this - get CXXFLAGS from Moz build?
 	$consIME{'CXXFLAGS'} .= " -std=c++0x";
     }
     $consIME{'CXXFLAGS'} .= " -include $mozObjDir/mozilla-config.h ";
