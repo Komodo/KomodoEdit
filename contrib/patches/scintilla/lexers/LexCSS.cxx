@@ -570,7 +570,7 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 				    && (main_substate == MAIN_SUBSTATE_TOP_LEVEL
 					|| main_substate == MAIN_SUBSTATE_IN_SELECTOR)
 					|| (main_substate == MAIN_SUBSTATE_AMBIGUOUS_SELECTOR_OR_PROPERTY_NAME
-                                            && followedByChars(sc.currentPos, finalLength, "{", ";}", styler)))) {
+					    && followedByChars(sc.currentPos, finalLength, "{", ";}", styler))) {
 					sc.SetState(SCE_CSS_OPERATOR);
 					if (sc.chNext == ':') {
 						sc.Forward();
