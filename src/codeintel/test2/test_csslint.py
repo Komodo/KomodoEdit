@@ -837,6 +837,19 @@ pre { .wrap }
 """).decode("utf-8")
         self._check_some_errors_on_line(code, "expecting a mixin name", ';', lineNo=5, language="SCSS")
         
+    def test_css_scss_minified_numeric_property(self):
+        code = dedent("""\
+body{margin:0; }
+
+// comment
+p {
+    margin: 3px;
+}
+""").decode("utf-8")
+        for lang in ("SCSS", "Less"):
+            self._check_zero_results_show_error(code, language=lang)
+        self._check_some_errors_on_line(code, "expecting a selector", '/', lineNo=0, language="CSS")
+
     def test_css_bad_missing_selector(self):
         code = "td,  {padding: 2px;}"
         for lang in self.langs:

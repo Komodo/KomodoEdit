@@ -353,6 +353,10 @@ class _CSSParser(object):
                             return False
                     prev_tok = tok
                     tok = self._tokenizer.get_next_token()
+                    if self._classifier.is_number(tok):
+                        self._tokenizer.put_back(prev_tok)
+                        self._tokenizer.put_back(tok)
+                        return False
                     if not self._check_special_identifier(prev_tok, tok):
                         return False
                     num_selected_names += 1
