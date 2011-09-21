@@ -502,9 +502,10 @@ else {
     }
     $consLocal{'CXXFLAGS'} .= " -fno-rtti -DLAYERS -Wall -Wno-non-virtual-dtor -D_IMPL_NS_LAYOUT";
     $consLocal{'CXXFLAGS'} .= " -include $mozObjDir/mozilla-config.h -DMOZ_VERSION=$mozVersionNumber";
-    if ($mozVersionNumber le 699) {
+    if ($platform eq "darwin" or $mozVersionNumber le 699) {
 	$consLocal{'CXXFLAGS'} .= " -fshort-wchar";
     } else {
+	# TODO: Some versions may not support this - get CXXFLAGS from Moz build?
 	$consLocal{'CXXFLAGS'} .= " -std=c++0x";
     }
 
