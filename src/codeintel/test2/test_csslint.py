@@ -541,7 +541,7 @@ body {
 """).decode("utf-8")
         self._check_zero_results_show_error(code)
 
-    def test_css_not_psuedo_class(self):
+    def test_css_not_pseudo_class(self):
         code = dedent("""\
 .file-status-icon:not([file_scc_status]):not([file_status]),
 .file-scc-status-extra-icon:not([file_scc_status_extra]) {
@@ -551,7 +551,7 @@ body {
 """).decode("utf-8")
         self._check_zero_results_show_error(code)
 
-    def test_css_moz_any_psuedo_class(self):
+    def test_css_moz_any_pseudo_class(self):
         code = dedent("""\
 notification:not(:-moz-any([details][open])) [anonid="details"] {
   /* height is !important to override the style= set at runtime that is needed
@@ -725,7 +725,7 @@ pre { .wrap }
 """).decode("utf-8")
         self._check_zero_results_show_error(code, language="Less")
         self._check_some_errors_on_line(code, "expecting a property name", '.', lineNo=1, language="CSS")
-        self._check_some_errors_on_line(code, "expecting a selector", '&', lineNo=2, language="SCSS")
+        self._check_zero_results_show_error(code, language="SCSS")
 
     def test_css_less_expressions(self):
         code = dedent("""\
@@ -849,6 +849,58 @@ p {
         for lang in ("SCSS", "Less"):
             self._check_zero_results_show_error(code, language=lang)
         self._check_some_errors_on_line(code, "expecting a selector", '/', lineNo=0, language="CSS")
+
+    def test_css_scss_parent_selector_01(self):
+        code = dedent("""\
+.DataTable {
+    width:100%;
+
+    & > thead {
+        & > tr {
+            & > th {
+                background: $mcsBlue;
+                color: #fff;
+                font-weight: bold;
+                text-align: left;
+                padding: $spaceS;
+            }
+        }
+    }
+}
+""").decode("utf-8")
+        for lang in ("SCSS",):
+            self._check_zero_results_show_error(code, language=lang)
+        self._check_some_errors_on_line(code, "expecting a property name",
+                                        '', lineNo=3, language="CSS")
+        self._check_some_errors_on_line(code,
+                        "expecting a class or pseudo-class selector",
+                                        '>', lineNo=3, language="Less")
+
+    def test_css_scss_parent_selector_02(self):
+        code = dedent("""\
+.DataTable {
+    & > tbody {
+        & > tr {
+            &:hover > td{
+                background: $grayish !important;
+                color: $text !important;
+            }
+            & > td {
+                padding: $spaceS;
+            }
+        }
+    }
+
+    &:hover > tbody > tr> td {
+        color: $finePrint;
+    }
+
+    &:hover > tbody > .even > td {
+        background: lighten($lightGray, 2%);
+    }
+}
+""").decode("utf-8")
+        self._check_zero_results_show_error(code, language="SCSS")
 
     def test_css_bad_missing_selector(self):
         code = "td,  {padding: 2px;}"

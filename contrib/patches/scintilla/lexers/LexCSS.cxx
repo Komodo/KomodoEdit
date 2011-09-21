@@ -87,6 +87,22 @@ static void classifyWordAndStyle(StyleContext &sc,
 	sc.SetState(SCE_CSS_DEFAULT);
 }
 
+// Ignore comments.  Resolve ambiguity by looking for particular characters.
+static bool followedByChars(int pos, int endPos,
+			    const char *posChars, const char *negChars,
+			    LexAccessor &styler ) {
+	int ch;
+	for (; pos < endPos; pos++) {
+		ch = styler.SafeGetCharAt(pos);
+		if (strchr(posChars, ch)) {
+			return true;
+		} else if (strchr(negChars, ch)) {
+			return false;
+		}
+	}
+	return false;
+}
+
 static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, WordList *keywordlists[], Accessor &styler) {
 	// WordList &css1Props = *keywordlists[0];
 	WordList &pseudoClasses = *keywordlists[1];
@@ -137,8 +153,8 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 
 	bool in_top_level_directive = false;
 
-	isLessDocument = styler.GetPropertyInt("lexer.css.less.language");
-	isScssDocument = styler.GetPropertyInt("lexer.css.scss.language");
+	isLessDocument = styler.GetPropertyInt("lexer.css.less.language") != 0;
+	isScssDocument = styler.GetPropertyInt("lexer.css.scss.language") != 0;
 
 	/*TODO: When we move to v 225, store some of the substate
 	* fields in the end-state for the line at end.  For now,
@@ -164,11 +180,12 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 	if (startPos < origStartPos) {
 		initStyle = SCE_CSS_DEFAULT;
 	}
-	
-	StyleContext sc(startPos, length + origStartPos - startPos, initStyle, styler);
+
+	int finalLength = length + origStartPos - startPos;
+	StyleContext sc(startPos, finalLength, initStyle, styler);
 
 	// This is now a straightforward state machine, with some
-    // sub-state tracking apart from the styles.
+	    // sub-state tracking apart from the styles.
     
 	for (; sc.More(); sc.Forward()) {
 		int ch = sc.ch;
@@ -471,7 +488,7 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 				break;
 	
 			case '&':
-				if (isLessDocument
+				if ((isLessDocument || isScssDocument)
 				    && sc.chNext == ':'
 				    && main_substate == MAIN_SUBSTATE_AMBIGUOUS_SELECTOR_OR_PROPERTY_NAME) {
 					char next2Char = styler.SafeGetCharAt(sc.currentPos + 2);
@@ -551,7 +568,9 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 			case ':':
 				if ((IsAWordChar(sc.chNext) || sc.chNext == ':')
 				    && (main_substate == MAIN_SUBSTATE_TOP_LEVEL
-					|| main_substate == MAIN_SUBSTATE_IN_SELECTOR)) {
+					|| main_substate == MAIN_SUBSTATE_IN_SELECTOR)
+					|| (main_substate == MAIN_SUBSTATE_AMBIGUOUS_SELECTOR_OR_PROPERTY_NAME
+                                            && followedByChars(sc.currentPos, finalLength, "{", ";}", styler)))) {
 					sc.SetState(SCE_CSS_OPERATOR);
 					if (sc.chNext == ':') {
 						sc.Forward();

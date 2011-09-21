@@ -405,6 +405,9 @@ class _CSSParser(object):
                     could_have_mixin = False
                     num_selected_names = 0
                     continue
+                elif tok.text == "&" and self.language == "SCSS":
+                    self._saw_selector = True
+                    num_selected_names += 1
                 elif tok.text == "&" and self.language == "Less":
                     tok = self._tokenizer.get_next_token()
                     if (self._classifier.is_operator_choose(tok, ("#", ".", ":", "::"))
@@ -413,7 +416,7 @@ class _CSSParser(object):
                         self._saw_selector = True
                         num_selected_names += 1
                     else:
-                        self._add_result("expecting a class or psuedo-class selector after '&'", tok)
+                        self._add_result("expecting a class or pseudo-class selector after '&'", tok)
                     self._tokenizer.put_back(tok)
                 else:
                     break
@@ -464,7 +467,8 @@ class _CSSParser(object):
     def _check_special_identifier(self, prev_tok, tok):
         if (self._classifier.is_special_identifier(tok)
             or (self._supportsNestedDeclaration
-                and self._classifier.is_unknown_identifier(tok))):
+                and (self._classifier.is_unknown_identifier(tok)
+                     or tok.style == ScintillaConstants.SCE_CSS_VALUE))):
             return True
         self._add_result("expecting an identifier after %s, got %s" % (prev_tok.text, tok.text), tok)
         # Give up looking at selectors
