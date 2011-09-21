@@ -225,12 +225,12 @@ body {
   color:red
 }
 """).decode("utf-8")
-        self._check_one_result_check_error_on_line(code, "expecting ';'", '}')
+        self._check_zero_results_show_error(code)
 
     def test_css_recover_02(self):
         code = dedent("""\
 body {
-  color:red
+  color:
 }
 @charset "utf-8";
 h {
@@ -240,7 +240,7 @@ h {
         results = self.csslinter.lint(code)
         self.assertEqual(2, len(results))
         r = results[0]
-        self.assertTrue(r.message.startswith("expecting ';'"),
+        self.assertTrue(r.message.startswith("expecting a value"),
                         r.message)
         self.assertEqual(code.splitlines()[2][r.col_start:r.col_end], "}")
         r = results[1]

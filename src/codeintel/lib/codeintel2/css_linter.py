@@ -571,6 +571,19 @@ class _CSSParser(object):
             self._add_result("expecting '%s'" % op, tok)
             self._parser_putback_recover(tok)
 
+    def _parse_optional_operator(self, op, alt_op):
+        tok = self._tokenizer.get_next_token()
+        have_problem = False
+        if not self._classifier.is_operator(tok):
+            have_problem = True
+        elif tok.text not in (op, alt_op):
+            have_problem = True
+        elif tok.text == alt_op:
+            self._parser_putback_recover(tok)
+        if have_problem:
+            self._add_result("expecting '%s'" % op, tok)
+            self._parser_putback_recover(tok)
+
     def _parse_charset(self, charset_tok):
         tok = self._tokenizer.get_next_token()
         if self._classifier.is_stringeol(tok):
@@ -746,7 +759,7 @@ class _CSSParser(object):
                 
         self._parse_expression()
         self._parse_priority()
-        self._parse_required_operator(";")
+        self._parse_optional_operator(";", "}")
     
     def _parse_scss_mixin_use(self):
         # Check for reading in a mixin
