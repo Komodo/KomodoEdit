@@ -760,7 +760,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY pycheckerWarning.descr "Warning: Pychecker will load modules and run top-level statements. ActiveState recommends using pylint instead.">
 <!ENTITY pycheckerWrapperLocation.label "Location of Pychecker executable">
 <!ENTITY pycheckerRCLocation.label "Location of pycheckrc config file">
-<!ENTITY pycheckerNeedsPath.descr "Pychecker checking needs an explicit path to the Pychecker script.">
+<!ENTITY pycheckerNeedsPath.descr "Pychecker needs an explicit path to the Pychecker script.">
 
 <!--pref-ruby.xul-->
 <!ENTITY noRubyInterpreter.description "No Ruby interpreter was found on your system. If you would like to debug and run Ruby programs in Komodo you will need to install Ruby. You can get Ruby from the Ruby home page at">
