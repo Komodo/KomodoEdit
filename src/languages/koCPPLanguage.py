@@ -34,13 +34,12 @@
 # 
 # ***** END LICENSE BLOCK *****
 
-from xpcom import components, nsError, ServerException
-from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC, getProxyForObject
+from xpcom import components, nsError
+from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, getProxyForObject
 from koLintResult import *
 from koLintResults import koLintResults
 import os, sys, re
 import tempfile
-import string
 import process
 import koprocessutils
 import which
@@ -264,13 +263,16 @@ class KoCPPCompileLinter:
             PROXY_ALWAYS | PROXY_SYNC)
         
     def lint(self, request):
+        text = request.content.encode(request.encoding.python_encoding_name)
+        return self.lint_with_text(request, text)
+    
+    def lint_with_text(self, request, text):
         """Lint the given C/C++ file.
         
         Raise an exception and set an error on koLastErrorService if there
         is a problem.
         """
         
-        text = request.content.encode(request.encoding.python_encoding_name)
         cwd = request.cwd
         
         #print "----------------------------"
@@ -279,9 +281,7 @@ class KoCPPCompileLinter:
         #print "----------------------------"
         cc = self.appInfoEx.executablePath
         if cc is None:
-            errmsg = "Could not find a suitable C/C++ interpreter for linting."
-            self._lastErrorSvc.setLastError(1, errmsg)
-            raise ServerException(nsError.NS_ERROR_NOT_AVAILABLE)
+            raise Exception("Could not find a suitable C/C++ interpreter for linting.")
 
         if request.koDoc.file:
             ext = request.koDoc.file.ext
@@ -290,21 +290,21 @@ class KoCPPCompileLinter:
         
         # save buffer to a temporary file
         try:
-            filename = "%s.%s" % (tempfile.mktemp(), ext)
+            filename = tempfile.mktemp(suffix=ext)
             fout = open(filename, 'wb')
             fout.write(text)
             fout.close()
-        except:
-            errmsg = "Unable to save temporary file for C/C++ linting."
-            self._lastErrorSvc.setLastError(1, errmsg)
-            raise ServerException(nsError.NS_ERROR_NOT_AVAILABLE)
+        except ex:
+            raise Exception("Unable to save temporary file for C/C++ linting: %s", str(ex))
 
-        if cc.startswith('cl'):
+        if cc.startswith('cl') or cc.lower().endswith("\\cl.exe"):
             argv = [cc, '-c']
+            isGCC = False
             # ms cl errors
             re_string = r'(?P<file>.+)?\((?P<line>\d+)\)\s:\s(?:(?P<type>.+)?\s(?P<number>C\d+)):\s(?P<message>.*)'
         else: # gcc or cc
-            argv = [cc, '-c', '-gnats']
+            argv = [cc, '-c']
+            isGCC = True
             # gcc errors
             re_string = r'(?P<file>[^:]+)?:(?P<line>\d+?)(?::(?P<column>\d+))?:\s(?P<type>.+)?:\s(?P<message>.*)'
             
@@ -320,10 +320,14 @@ class KoCPPCompileLinter:
             # test this with msvc.
             p = process.ProcessOpen(argv, cwd=cwd, env=env, stdin=None)
             stdout, stderr = p.communicate()
-            lines = stderr.splitlines(1)
+            if isGCC:
+                lineSource = stderr
+            else:
+                lineSource = stdout
+            lines = lineSource.splitlines(1)
             #print lines
         finally:
-            os.unlink(filename)
+            pass #os.unlink(filename)
         
         try:
             results = koLintResults()
