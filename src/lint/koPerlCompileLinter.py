@@ -36,10 +36,9 @@
 # ***** END LICENSE BLOCK *****
 
 from xpcom import components, nsError, ServerException
-from xpcom.server import UnwrapObject
 from koLintResult import KoLintResult, getProxiedEffectivePrefs
 from koLintResults import koLintResults
-import os, re, sys, string
+import os, re, sys
 import tempfile
 import process
 import koprocessutils
@@ -68,7 +67,6 @@ def PerlWarnsToLintResults(warns, perlfilename, actualFileName, perlcode):
     #   - remove 'perlfilename'
     #XXX it would be nice to find all hints and copy them up
     newwarns = []
-    hintRe = re.compile("\t\\(.*\\?\\)")
     for line in warns:
         # get rid if eols
         line = line[:-1]
@@ -333,7 +331,7 @@ class _CommonPerlLinter(object):
                 # OSError: [Errno 13] Permission denied: 'C:\\DOCUME~1\\trentm\\LOCALS~1\\Temp\\~1324-test'
                 errmsg = "error determining temporary filename for "\
                          "Perl content: %s" % ex
-                raise ServerException(nsError.NS_ERROR_UNEXPECTED)
+                raise ServerException(nsError.NS_ERROR_UNEXPECTED, errmsg)
             fout = open(tmpFileName, 'wb')
             fout.write(text)
             fout.close()
@@ -420,7 +418,7 @@ class KoPerlCompileLinter(_CommonPerlLinter):
             perlExtraPaths = prefset.getStringPref("perlExtraPaths")
             if perlExtraPaths:
                 if sys.platform.startswith("win"):
-                    perlExtraPaths = string.replace(perlExtraPaths, '\\', '/')
+                    perlExtraPaths = perlExtraPaths.replace('\\', '/')
                 perlExtraPaths = [x for x in perlExtraPaths.split(os.pathsep) if x.strip()]
             argv = [perlExe]
             for incpath in perlExtraPaths:
@@ -441,7 +439,7 @@ class KoPerlCompileLinter(_CommonPerlLinter):
             # We only need stderr output.
 
             p = process.ProcessOpen(argv, cwd=cwd, env=env, stdin=None)
-            stdout, stderr = p.communicate()
+            _, stderr = p.communicate()
             lintResults = PerlWarnsToLintResults(stderr.splitlines(1),
                                                  tmpFileName, 
                                                  request.koDoc.displayPath,
@@ -460,7 +458,7 @@ class KoPerlCriticLinter(_CommonPerlLinter):
          ("category-komodo-linter", 'Perl&type=Critic'),
          ]
 
-    def lint(self):
+    def lint(self, request):
         text = request.content.encode(request.encoding.python_encoding_name)
         return self.lint_with_text(request, text)        
         
@@ -483,11 +481,11 @@ class KoPerlCriticLinter(_CommonPerlLinter):
         # lint results.
         # This is no longer needed with Perl-Critic 1.5, which
         # goes by the filename given in any #line directives
-        perlCriticVersion = self._appInfoEx.getPerlCriticVersion();
-        file = request.koDoc.file
+        perlCriticVersion = self._appInfoEx.getPerlCriticVersion()
+        currFile = request.koDoc.file
         baseFileName = None
-        if file:
-            baseFileName = file.baseName[0:-len(file.ext)]
+        if currFile:
+            baseFileName = currFile.baseName[0:-len(currFile.ext)]
             if perlCriticVersion < 1.500:
                 munger = re.compile(r'''^\s*(?P<package1>package \s+ (?:[\w\d_]+::)*) 
                                          (?P<baseFileName>%s)
@@ -496,8 +494,8 @@ class KoPerlCriticLinter(_CommonPerlLinter):
                                          (?P<rest>(?:\#.*)?)$''' % (baseFileName,),
                                 re.MULTILINE|re.VERBOSE)
                 text = munger.sub(self._insertPerlCriticFilenameMatchInhibitor, text)
-        elif perlCriticVersion >= 1.500 and file:
-            text = "#line 1 " + file.baseName + "\n" + text
+        elif perlCriticVersion >= 1.500 and currFile:
+            text = "#line 1 " + currFile.baseName + "\n" + text
 
         cwd = request.cwd or None # convert '' to None (cwd=='' for new files)
         tmpFileName = self._writeTempFile(cwd, text)
@@ -512,7 +510,7 @@ class KoPerlCriticLinter(_CommonPerlLinter):
             perlExtraPaths = prefset.getStringPref("perlExtraPaths")
             if perlExtraPaths:
                 if sys.platform.startswith("win"):
-                    perlExtraPaths = string.replace(perlExtraPaths, '\\', '/')
+                    perlExtraPaths = perlExtraPaths.replace('\\', '/')
                 perlExtraPaths = [x for x in perlExtraPaths.split(os.pathsep) if x.strip()]
             argv = [perlExe]
             for incpath in perlExtraPaths:
@@ -533,7 +531,7 @@ class KoPerlCriticLinter(_CommonPerlLinter):
             # We only need stderr output.
 
             p = process.ProcessOpen(argv, cwd=cwd, env=env, stdin=None)
-            stdout, stderr = p.communicate()
+            _, stderr = p.communicate()
             lintResults = PerlWarnsToLintResults(stderr.splitlines(1),
                                                  tmpFileName,
                                                  request.koDoc.displayPath,
@@ -544,9 +542,9 @@ class KoPerlCriticLinter(_CommonPerlLinter):
         return lintResults
             
     def _insertPerlCriticFilenameMatchInhibitor(self, matchObj):
-        dict = matchObj.groupdict()
-        dict['moduleOff'] = ' ##no critic(RequireFilenameMatchesPackage)'
-        return "%(package1)s%(baseFileName)s%(space1)s%(moduleOff)s%(space2)s" % dict
+        currDict = matchObj.groupdict()
+        currDict['moduleOff'] = ' ##no critic(RequireFilenameMatchesPackage)'
+        return "%(package1)s%(baseFileName)s%(space1)s%(moduleOff)s%(space2)s" % currDict
 
 #---- script mainline testing 
 
