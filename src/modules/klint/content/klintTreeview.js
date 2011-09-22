@@ -185,9 +185,16 @@ KlintTreeView.prototype = {
         this.filterVisibleItems(info);
     },
 
+    _itemFields: ["columnEnd", "columnStart", "description", "lineEnd", "lineStart"],
+    
+    _itemsAreSame: function(oldItem, newItem) {
+        return this._itemFields.filter(function(s) oldItem[s] != newItem[s]).length == 0;
+    },
+
     filterVisibleItems : function(info, sortItems) {
         var currentCount = this._visibleItems.length;
-        this._visibleItems = [];
+        var previousVisibleItems = this._visibleItems;
+        var newItems = [];
 
         if (typeof sortItems == "undefined" || sortItems == null) {
             sortItems = true;
@@ -197,26 +204,67 @@ KlintTreeView.prototype = {
             for (var i = 0; i < this._count; i++) {
                 var result = this._resultsObj.value[i];
                 if (info.isResultVisible(result)) {
-                    this._visibleItems.push(result);
+                    newItems.push(result);
                 }
             }
             // sort at every new filter, very inefficient
             if (sortItems) {
-                this.sort(info.getCurrentSortInfo());
+                this.sort(info.getCurrentSortInfo(), newItems);
             }
         }
-        var offsetCount = this._visibleItems.length - currentCount;
-        this.treebox.rowCountChanged(this._visibleItems.length, offsetCount);
+        var actions = [];
+        var changeStart = -1;
+        var oldLen = previousVisibleItems.length;
+        var newLen = newItems.length;
+        var oldItem, newItem;
+        var thisLen = Math.min(oldLen, newLen);
+        for (i = 0; i < thisLen; i++) {
+            oldItem = previousVisibleItems[i];
+            newItem = newItems[i];
+            var areSame = this._itemsAreSame(oldItem, newItem);
+            if (changeStart == -1) {
+                if (!areSame) {
+                    changeStart = i;
+                }
+            } else if (areSame) {
+                actions.push([changeStart, i]);
+                changeStart = -1;
+            }
+        }
+        if (changeStart != -1) {
+            actions.push([changeStart, thisLen]);
+        }
+        try {
+            var action, startIndex, endIndex;
+            for (var i = 0; i < actions.length; i++) {
+                [startIndex, endIndex] = actions[i];
+                if (startIndex + 1 == endIndex) {
+                    this.treebox.invalidateRow(startIndex);
+                } else {
+                    this.treebox.invalidateRange(startIndex, endIndex);
+                }
+            }
+            if (oldLen < newLen) {
+                this.treebox.rowCountChanged(0, newLen - oldLen);
+            } else if (oldLen > newLen) {
+                this.treebox.rowCountChanged(0, newLen - oldLen);
+            }
+        } catch(ex) {
+            //dump("Error invalidating: " + ex + "\n");
+        }
+        this._visibleItems = newItems;
     },
 
     invalidate : function() {
         this.treebox.invalidate();
     },
 
-    sort : function (sortInfo) {
+    sort : function (sortInfo, items) {
         var direction = sortInfo.isAscending ? 1 : -1;
-
-        this._visibleItems.sort(sortInfo.sorter(direction));
+        if (typeof(items) == "undefined") {
+            items = this._visibleItems;
+        }
+        items.sort(sortInfo.sorter(direction));
     },
 
     removeAllItems : function() {
@@ -224,10 +272,10 @@ KlintTreeView.prototype = {
     },
 
     refresh : function() {
-        this.selection.clearSelection();
-        this.selection.select(0);
+        //this.selection.clearSelection();
+        //this.selection.select(0);
         this.treebox.invalidate();
-        this.treebox.ensureRowIsVisible(0);
+        //this.treebox.ensureRowIsVisible(0);
     },
 
     getCellText : function(row, column){

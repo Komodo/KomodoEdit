@@ -64,14 +64,6 @@ if (typeof(ko)=='undefined') {
 ko.lint = {};
 (function() {
     
-__defineGetter__("_lintDisplayer",
-function()
-{
-    return Components.classes["@activestate.com/koLintDisplayer;1"].
-               getService(Components.interfaces.koILintDisplayer);
-
-});
-
 __defineGetter__("_lintSvc",
 function()
 {
@@ -360,7 +352,7 @@ this.lintBuffer.prototype.request = function(reason /* = "" */)
                   reason+"')");
     try {
         _lintSvc.cancelPendingRequests(this.view.uid);
-        this._clearResults();
+        //this._clearResults();
 
         // Increment this here instead of in ._issueRequest() to ensure that
         // a request issued at time T1 is not considered current when its
@@ -404,7 +396,7 @@ this.lintBuffer.prototype.reportResults = function(request)
             this.lintResults = request.results;
             this.errorString = request.errorString;
             if (this.lintResults) {
-                _lintDisplayer.display(this.view.scimoz, this.lintResults,
+                ko.lint.displayer.display(this.view.scimoz, this.lintResults,
                                        this.view.koDoc.languageObj.indicatorBits,
                                        0, this.view.scimoz.length);
             }
@@ -469,13 +461,12 @@ this.lintBuffer.prototype._clearResults = function()
             // a scintilla onModified event handler (linting is most
             // common requested for a buffer modification).
             window.setTimeout(
-                function(lintDisplayer, view) {
+                function(view) {
                     if (view && view.koDoc) {
-                        lintDisplayer.displayClear(view.scimoz,
-                            view.koDoc.languageObj.indicatorBits);
+                        ko.lint.displayer.displayClear(view.scimoz);
                     }
                 },
-                0, _lintDisplayer, this.view
+                0, this.view
             );
             this.lintResults = null;
         }
@@ -657,7 +648,7 @@ this.jumpToNextLintResult = function lint_jumpToNextLintResult()
 this.doRequest = function lint_doRequest() {
     try {
         var view = ko.views.manager.currentView;
-        view.lintBuffer._clearResults();
+        //view.lintBuffer._clearResults();
         view.lintBuffer._notify();
         view.lintBuffer._issueRequest()
     } catch (e) {

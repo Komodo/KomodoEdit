@@ -39,3 +39,4 @@
 Import('cons', 'mozChromeDir');
 
 $cons->InstallInChrome('lint.js');
+$cons->InstallInChrome('lintDisplay.js');

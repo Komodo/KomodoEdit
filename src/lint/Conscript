@@ -56,7 +56,6 @@ Import(
 $cons->Install($idlExportDir, 'koILinter.idl');
 $cons->BuildAndInstallXpt('koILinter.idl');
 
-$cons->InstallXpcomComponent('koLintDisplayer.py');
 $cons->InstallPythonUtility('koLintResult.py');
 $cons->InstallXpcomComponent('koPerlCompileLinter.py');
 $cons->InstallXpcomComponent('koPythonLinter.py');
