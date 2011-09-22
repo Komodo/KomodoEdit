@@ -301,6 +301,8 @@
                             label="&pylintCheckingStatus.label;"
                             pref="true"
                             oncommand="languageInfo.Python.onTogglePylintChecking(this);" />
+                  <description id="pylint_failure" class="pref_hide" />
+
                   <vbox id="pylint_checking_vbox_rcfile" class="indentedPref01">
                      <label id="pylint_checking_rcfile_label"
                               control="pylint_checking_rcfile"
@@ -310,7 +312,6 @@
                                 prefstring="pylint_checking_rcfile" flex="1"/>
                        <button id="pylint_browse_rcfile" label="&browse.label;" oncommand="languageInfo.Python.loadPylintRcfile();"/>
                     </hbox>
-                    <description id="pylint_failure" class="pref_hide" />
                   </vbox>
                   <separator class="thin"/>
                   
