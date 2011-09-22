@@ -143,20 +143,6 @@ interface koILinter : nsISupports
 };
 
 
-[scriptable, uuid(21648851-492F-11d4-AC24-0090273E6A60)]
-interface koILintDisplayer : nsISupports
-{
-    // display the visible koILintResult's in the given editor buffer
-    void display(in ISciMoz scin,
-                 in koILintResults lintResults,
-                 in unsigned long numBits,
-                 in unsigned long startPos,
-                 in unsigned long styleLen);
-    void displayClear(in ISciMoz scin,
-                      in unsigned long numBits);
-};
-
-
 // JS-implemented interface to enable the Python backend to pass results
 // back to the UI. (XXX: a nsIObserver-mechanism was being clumsily used
 // for this before.)

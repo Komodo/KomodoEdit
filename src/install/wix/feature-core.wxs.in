@@ -713,7 +713,6 @@
               <File Id="file2097" Name="KOLANG_0.PY" LongName="koLanguage.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koLanguage.py"/>
               <File Id="file2098" Name="KOLANG_1.PY" LongName="koLanguageCommandHandler.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koLanguageCommandHandler.py"/>
               <File Id="file2099" Name="KOLAST_0.PY" LongName="koLastErrorService.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koLastErrorService.py"/>
-              <File Id="file2101" Name="KOLINT_0.PY" LongName="koLintDisplayer.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koLintDisplayer.py"/>
               <File Id="file2102" Name="KOLINT_1.PY" LongName="koLintService.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koLintService.py"/>
               <File Id="file2103" Name="KOLISP_0.PY" LongName="koLispLanguage.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koLispLanguage.py"/>
               <File Id="file2104" Name="KOLOGG_0.PY" LongName="koLoggingService.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koLoggingService.py"/>
