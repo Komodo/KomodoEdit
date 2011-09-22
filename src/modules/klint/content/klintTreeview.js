@@ -185,16 +185,9 @@ KlintTreeView.prototype = {
         this.filterVisibleItems(info);
     },
 
-    _itemFields: ["columnEnd", "columnStart", "description", "lineEnd", "lineStart"],
-    
-    _itemsAreSame: function(oldItem, newItem) {
-        return this._itemFields.filter(function(s) oldItem[s] != newItem[s]).length == 0;
-    },
-
     filterVisibleItems : function(info, sortItems) {
-        var currentCount = this._visibleItems.length;
-        var previousVisibleItems = this._visibleItems;
-        var newItems = [];
+        var oldLen = this._visibleItems.length;
+        this._visibleItems = [];
 
         if (typeof sortItems == "undefined" || sortItems == null) {
             sortItems = true;
@@ -204,67 +197,34 @@ KlintTreeView.prototype = {
             for (var i = 0; i < this._count; i++) {
                 var result = this._resultsObj.value[i];
                 if (info.isResultVisible(result)) {
-                    newItems.push(result);
+                    this._visibleItems.push(result);
                 }
             }
             // sort at every new filter, very inefficient
             if (sortItems) {
-                this.sort(info.getCurrentSortInfo(), newItems);
+                this.sort(info.getCurrentSortInfo());
             }
-        }
-        var actions = [];
-        var changeStart = -1;
-        var oldLen = previousVisibleItems.length;
-        var newLen = newItems.length;
-        var oldItem, newItem;
-        var thisLen = Math.min(oldLen, newLen);
-        for (i = 0; i < thisLen; i++) {
-            oldItem = previousVisibleItems[i];
-            newItem = newItems[i];
-            var areSame = this._itemsAreSame(oldItem, newItem);
-            if (changeStart == -1) {
-                if (!areSame) {
-                    changeStart = i;
-                }
-            } else if (areSame) {
-                actions.push([changeStart, i]);
-                changeStart = -1;
-            }
-        }
-        if (changeStart != -1) {
-            actions.push([changeStart, thisLen]);
         }
         try {
-            var action, startIndex, endIndex;
-            for (var i = 0; i < actions.length; i++) {
-                [startIndex, endIndex] = actions[i];
-                if (startIndex + 1 == endIndex) {
-                    this.treebox.invalidateRow(startIndex);
-                } else {
-                    this.treebox.invalidateRange(startIndex, endIndex);
-                }
-            }
+            var newLen = this._visibleItems.length;
             if (oldLen < newLen) {
-                this.treebox.rowCountChanged(0, newLen - oldLen);
+                this.treebox.rowCountChanged(oldLen, newLen - oldLen);
             } else if (oldLen > newLen) {
-                this.treebox.rowCountChanged(0, newLen - oldLen);
+                this.treebox.rowCountChanged(newLen, newLen - oldLen);
             }
+            this.treebox.invalidate();
         } catch(ex) {
             dump("Error invalidating: " + ex + "\n");
         }
-        this._visibleItems = newItems;
     },
 
     invalidate : function() {
         this.treebox.invalidate();
     },
 
-    sort : function (sortInfo, items) {
+    sort : function (sortInfo) {
         var direction = sortInfo.isAscending ? 1 : -1;
-        if (typeof(items) == "undefined") {
-            items = this._visibleItems;
-        }
-        items.sort(sortInfo.sorter(direction));
+        this._visibleItems.sort(sortInfo.sorter(direction));
     },
 
     removeAllItems : function() {
