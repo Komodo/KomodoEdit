@@ -107,6 +107,15 @@ class koLintResults:
         part of a lint result and values being a list of lint results on
         any part of that line will allow faster lookup.
         """
+        for r in self._results:
+            # Because we can now use multiple linters for a document,
+            # some linters will report identical results.  Cull the duplicates.
+            if (r.lineStart == result.lineStart
+                and r.lineEnd == result.lineEnd
+                and r.columnStart == result.columnStart
+                and r.columnEnd == result.columnEnd
+                and r.description == result.description):
+                continue
         self._results.append(result)
         for lineNum in range(result.lineStart, result.lineEnd+1):
             if self._resultMap.has_key(lineNum):

@@ -49,8 +49,18 @@ import logging
 log = logging.getLogger("koPerlCompileLinter")
 #log.setLevel(logging.DEBUG)
 
+def _combineTextParts(pendingLines, basePart=None):
+    if pendingLines:
+        if basePart:
+            return "\n".join(pendingLines) + "\n" + basePart
+        else:
+            return "\n".join(pendingLines)
+    elif basePart:
+        return basePart
+    else:
+        return ""
 
-def PerlWarnsToLintResults(warns, perlfilename, perlcode):
+def PerlWarnsToLintResults(warns, perlfilename, actualFileName, perlcode):
     perllines = perlcode.split('\n')
 
     # preprocess the perl warnings
@@ -77,21 +87,36 @@ def PerlWarnsToLintResults(warns, perlfilename, perlcode):
     warns = newwarns
 
     results = []
-    warnRe = re.compile(r'(?P<description>.*) at %s line (?P<lineNum>\d+)(?P<hint>.*)' % re.escape(perlfilename))
-    successRe = re.compile(r'syntax OK')
-    failureRe = re.compile(r'had compilation errors')
+    escPerlName = re.escape(perlfilename)
+    warnRe = re.compile(r'(?P<description>.*) at %s line (?P<lineNum>\d+)(?P<hint>.*)' % escPerlName)
+    successRe = re.compile(r'%s syntax OK' % escPerlName)
+    compilationFailedRe = re.compile(r'Compilation failed in require at %s' % escPerlName)
+    compilationErrorsRe = re.compile(r'%s had compilation errors\.' % escPerlName)
+    beginFailedRe = re.compile(r'BEGIN failed--compilation aborted')
+
     pendingLines = []
+    sawSyntaxOK = False
+    sawSyntaxBad = False
     for warn in warns:
+        if successRe.match(warn):
+            sawSyntaxOK = True
+            continue
         match = warnRe.search(warn)
         if match:
+            if compilationFailedRe.match(warn) or beginFailedRe.match(warn) or compilationErrorsRe.match(warn):
+                sawSyntaxBad = True
+                if results:
+                    # Don't bother displaying this
+                    continue
             lineNum = int(match.group('lineNum'))
             varName = match.groupdict().get('varName', None)
             lr = KoLintResult()
             
-            lr.description = match.group('description') + match.group('hint')
-            if not lr.description.strip() and pendingLines:
-                lr.description = "  ".join(pendingLines)
-                pendingLines = []
+            lr.description = _combineTextParts(pendingLines, match.group('description') + match.group('hint')).replace(perlfilename, actualFileName)
+            pendingLines = []
+            while lr.description.endswith("\n"):
+                lr.description = lr.description[:-1]
+                
             lr.lineStart = lineNum 
             lr.lineEnd = lineNum
             if varName:
@@ -106,10 +131,8 @@ def PerlWarnsToLintResults(warns, perlfilename, perlcode):
             results.append(lr)
         else:
             pendingLines.append(warn)
-    if (len(results) == 1
-        and results[0].description == "BEGIN failed--compilation aborted."
-        and pendingLines):
-        results[0].description = "  ".join(pendingLines)
+    if pendingLines and results:
+        results[-1].description = _combineTextParts(pendingLines, results[-1].description).replace(perlfilename, actualFileName)
 
 # XXX
 #
@@ -128,15 +151,19 @@ def PerlWarnsToLintResults(warns, perlfilename, perlcode):
 
     # under some conditions, Perl will spit out messages after the
     # "syntax Ok", so check the entire output.
-    if successRe.search("\n".join(warns)):
-        for lr in results:
-            lr.severity = KoLintResult.SEV_WARNING
-    else:
-        for lr in results:
-            lr.severity = KoLintResult.SEV_ERROR
-
+    
+    if results:
+        if sawSyntaxOK and not sawSyntaxBad:
+            severity = KoLintResult.SEV_WARNING
+        elif sawSyntaxBad and not sawSyntaxOK:
+            severity = KoLintResult.SEV_ERROR
+        elif successRe.search("\n".join(warns)):
+            severity = KoLintResult.SEV_WARNING
+        else:
+            severity = KoLintResult.SEV_ERROR
     lintResults = koLintResults()
     for lr in results:
+        lr.severity = severity
         lintResults.addResult(lr)
 
     return lintResults
@@ -416,7 +443,9 @@ class KoPerlCompileLinter(_CommonPerlLinter):
             p = process.ProcessOpen(argv, cwd=cwd, env=env, stdin=None)
             stdout, stderr = p.communicate()
             lintResults = PerlWarnsToLintResults(stderr.splitlines(1),
-                                                 tmpFileName, text)
+                                                 tmpFileName, 
+                                                 request.koDoc.displayPath,
+                                                 text)
         finally:
             os.unlink(tmpFileName)
 
@@ -506,7 +535,9 @@ class KoPerlCriticLinter(_CommonPerlLinter):
             p = process.ProcessOpen(argv, cwd=cwd, env=env, stdin=None)
             stdout, stderr = p.communicate()
             lintResults = PerlWarnsToLintResults(stderr.splitlines(1),
-                                                 tmpFileName, text)
+                                                 tmpFileName,
+                                                 request.koDoc.displayPath,
+                                                 text)
         finally:
             os.unlink(tmpFileName)
 
