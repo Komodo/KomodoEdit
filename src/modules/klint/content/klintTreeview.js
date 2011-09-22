@@ -250,7 +250,7 @@ KlintTreeView.prototype = {
                 this.treebox.rowCountChanged(0, newLen - oldLen);
             }
         } catch(ex) {
-            //dump("Error invalidating: " + ex + "\n");
+            dump("Error invalidating: " + ex + "\n");
         }
         this._visibleItems = newItems;
     },
@@ -272,10 +272,7 @@ KlintTreeView.prototype = {
     },
 
     refresh : function() {
-        //this.selection.clearSelection();
-        //this.selection.select(0);
         this.treebox.invalidate();
-        //this.treebox.ensureRowIsVisible(0);
     },
 
     getCellText : function(row, column){

@@ -115,7 +115,6 @@ this._display = function(scimoz, lintResults, startPos, styleLen) {
                 pos = iEnd;
             }
         }
-    //dump("Have " + existingIndicators.length + " existing indicators\n");
     existingIndicators.sort(this._compareIndicators);
     for (var i = 0; i < lim; i++) {
         r = displayableResults[i];
@@ -197,7 +196,6 @@ this._display = function(scimoz, lintResults, startPos, styleLen) {
                 if (thisIndic[0] == start
                     && thisIndic[1] == start + length
                     && thisIndic[2] == value) {
-                    //dump("!!!!!!!!!!!!!!!! Skip existing indicator\n");
                     drawIndicator = false;
                     indicIndex++;
                     break;
@@ -207,10 +205,6 @@ this._display = function(scimoz, lintResults, startPos, styleLen) {
                 } else {
                     // It's before or overlaps with the current one, so we need
                     // to clear it and redraw it
-                    //dump("    Clear existing indicator " + thisIndic[0]
-                    //     + "... "
-                    //     + thisIndic[1]
-                    //     + "\n");
                     scimoz.indicatorCurrent = thisIndic[2];
                     scimoz.indicatorClearRange(thisIndic[0], thisIndic[1]);
                 }
@@ -225,21 +219,11 @@ this._display = function(scimoz, lintResults, startPos, styleLen) {
         thisIndic = existingIndicators[indicIndex];
         // It's before or overlaps with the current one, so we need
         // to clear it and redraw it
-        //dump("    Clear pending existing indicator " + thisIndic[0]
-        //     + "... "
-        //     + thisIndic[1]
-        //     + "\n");
         scimoz.indicatorCurrent = thisIndic[2];
         scimoz.indicatorClearRange(thisIndic[0], thisIndic[1]);
     }
     for each (var finalNewIndicator in finalNewIndicators) {
             [start, length, value] = finalNewIndicator;
-            //dump("    Draw indicator " + value
-            //     + " @ "
-            //     + start
-            //     + ":"
-            //     + (start + length)
-            //     + "\n");
             scimoz.indicatorCurrent = value;
             scimoz.indicatorFillRange(start, length);
         }
