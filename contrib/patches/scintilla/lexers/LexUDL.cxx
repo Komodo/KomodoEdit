@@ -3309,7 +3309,7 @@ static void ColouriseTemplate1Doc(unsigned int startPos,
                 if (lookingAtString(p_TranBlock->p_search_string,
                                     i, newPos, lengthDoc, styler)) {
 #if UDL_DEBUG_OTHER
-                    fprintf(stderr, "Matched [%s] at pos %d\n",
+                    fprintf(stderr, "Matched [%s](1) at pos %d\n",
                             p_TranBlock->p_search_string, i);
 #endif
                     passedPart1 = true;
@@ -3324,7 +3324,7 @@ static void ColouriseTemplate1Doc(unsigned int startPos,
                                    p_MainInfo, p_BufferStateInfo,
                                    styler)) {
 #if UDL_DEBUG_OTHER
-                    fprintf(stderr, "Matched [%s] at pos %d\n",
+                    fprintf(stderr, "Matched [%s](2) at pos %d\n",
                             p_TranBlock->p_search_string, i);
 #endif
                     passedPart1 = true;
