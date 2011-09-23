@@ -1414,7 +1414,7 @@ class PHPArg:
 class PHPVariable:
 
     # PHPDoc variable type sniffer.
-    _re_var = re.compile(r'^\s*@var\s+(\$(?P<variable>\w+)\s+)?(?P<type>\w+)(?:\s+(?P<doc>.*?))?', re.M|re.U)
+    _re_var = re.compile(r'^\s*@var\s+(\$(?P<variable>\w+)\s+)?(?P<type>[\w\\]+)(?:\s+(?P<doc>.*?))?', re.M|re.U)
     _ignored_php_types = ("object", "mixed")
 
     def __init__(self, name, line, vartype='', attributes='', doc=None,
@@ -1680,8 +1680,8 @@ class PHPInterface:
 class PHPClass:
 
     # PHPDoc magic property sniffer.
-    _re_magic_property = re.compile(r'^\s*@property(-(?P<type>read|write))?\s+((?P<citdl>\w+)\s+)?(?P<name>\$\w+)(?:\s+(?P<doc>.*?))?', re.M|re.U)
-    _re_magic_method = re.compile(r'^\s*@method\s+((?P<citdl>\w+)\s+)?(?P<name>\w+)(\(\))?(?P<doc>.*?)$', re.M|re.U)
+    _re_magic_property = re.compile(r'^\s*@property(-(?P<type>read|write))?\s+((?P<citdl>[\w\\]+)\s+)?(?P<name>\$\w+)(?:\s+(?P<doc>.*?))?', re.M|re.U)
+    _re_magic_method = re.compile(r'^\s*@method\s+((?P<citdl>[\w\\]+)\s+)?(?P<name>\w+)(\(\))?(?P<doc>.*?)$', re.M|re.U)
 
     def __init__(self, name, extends, lineno, depth, attributes=None,
                  interfaces=None, doc=None):
