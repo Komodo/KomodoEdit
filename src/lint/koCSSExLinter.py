@@ -5,16 +5,19 @@
 # Use the silvercity tokenizer and parse text here
 # Support for SCSS (CSS-like Sass) and Less as well.
 
-from koLintResult import createAddResult, SEV_ERROR, SEV_WARNING, SEV_INFO, KoLintResult
+from koLintResult import createAddResult, KoLintResult
 from koLintResults import koLintResults
 import logging
-from xpcom import components, nsError, COMException
+from xpcom import components
 from codeintel2.css_linter import CSSLinter
 
 log = logging.getLogger("koCSSLinter")
 #log.setLevel(logging.DEBUG)
 
 class KoCSSLinter(object):
+    """
+    This class is mostly a parser.
+    """
     _com_interfaces_ = [components.interfaces.koILinter,
                         components.interfaces.nsIConsoleListener]
     _reg_desc_ = "Komodo CSS Linter"
@@ -25,10 +28,6 @@ class KoCSSLinter(object):
          ("category-komodo-linter", 'SCSS'),
          ("category-komodo-linter", 'Less'),
          ]
-
-    """
-    This class is mostly a parser.
-    """
     
     def lint(self, request):
         """Lint the given CSS content.
@@ -37,17 +36,16 @@ class KoCSSLinter(object):
         """
         text = request.content.encode(request.encoding.python_encoding_name)
         return self.lint_with_text(request, text)
-
-    def lint_with_text(self, request, text):
+        
+    def lint_with_text(self, request, text): #pylint: disable=R0201
         textlines = text.splitlines()
         results = CSSLinter().lint(text, request.koDoc.language)
         lintResults = koLintResults()
         for r in results:
             if r.line_start is None:
-                lastLine = textlines
                 createAddResult(lintResults, textlines, r.status + 1,
                                 len(textlines) - 1,
-                                r.message);
+                                r.message)
             else:
                 result = KoLintResult(description=r.message,
                                       severity=r.status + 1,
