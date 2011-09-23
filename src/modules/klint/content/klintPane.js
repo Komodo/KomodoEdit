@@ -41,7 +41,7 @@ var gKlint = {
 
             var obs = extensions.dafizilla.klint.commonUtils.getObserverService();
             obs.addObserver(this, "current_view_changed", false);
-            obs.addObserver(this, "current_view_check_status", false);
+            obs.addObserver(this, "current_view_lint_results_done", false);
             obs.addObserver(this, "view_opened", false);
             this.addListeners();
 
@@ -122,7 +122,7 @@ var gKlint = {
 
     onDblClick : function(event) {
         try {
-        if (event.button == 0) {
+        if (event.button === 0) {
             var view = this.lintTree.view;
             var selection = view.selection;
             if (selection.count) {
@@ -150,7 +150,7 @@ var gKlint = {
     onUnLoad : function() {
         var obs = extensions.dafizilla.klint.commonUtils.getObserverService();
         obs.removeObserver(this, "current_view_changed");
-        obs.removeObserver(this, "current_view_check_status");
+        obs.removeObserver(this, "current_view_lint_results_done");
         obs.removeObserver(this, "view_opened");
         this.removeListeners();
     },
@@ -163,7 +163,7 @@ var gKlint = {
                 this.updateSortIndicator(subject);
                 this.fillLintTree(subject);
                 break;
-            case "current_view_check_status":
+            case "current_view_lint_results_done":
                 this.fillLintTree(ko.views.manager.currentView);
                 break;
             case "view_opened":
@@ -177,14 +177,14 @@ var gKlint = {
 
     addListeners : function() {
         this.onCurrentViewChanged = this.onCurrentViewChanged.bind(this);
-        this.onCurrentViewCheckStatus = this.onCurrentViewCheckStatus.bind(this);
+        this.onCurrentViewUpdateDisplay = this.onCurrentViewUpdateDisplay.bind(this);
         this.onCurrentViewOpened = this.onCurrentViewOpened.bind(this);
         this.onCurrentViewClosed = this.onCurrentViewClosed.bind(this);
 
         parent.addEventListener('current_view_changed',
                                 this.onCurrentViewChanged, false);
-        parent.addEventListener('current_view_check_status',
-                                this.onCurrentViewCheckStatus, false);
+        parent.addEventListener('current_view_lint_results_done',
+                                this.onCurrentViewUpdateDisplay, false);
         parent.addEventListener('view_opened',
                                 this.onCurrentViewOpened, false);
 
@@ -196,8 +196,8 @@ var gKlint = {
     removeListeners : function() {
         parent.removeEventListener('current_view_changed',
                                    this.onCurrentViewChanged, false);
-        parent.removeEventListener('current_view_check_status',
-                                   this.onCurrentViewCheckStatus, false);
+        parent.removeEventListener('current_view_lint_results_done',
+                                   this.onCurrentViewUpdateDisplay, false);
         parent.removeEventListener('view_opened',
                                    this.onCurrentViewOpened, false);
     },
@@ -210,7 +210,7 @@ var gKlint = {
         this.fillLintTree(currView);
     },
 
-    onCurrentViewCheckStatus : function(event) {
+    onCurrentViewUpdateDisplay : function(event) {
         this.fillLintTree(ko.views.manager.currentView);
     },
 

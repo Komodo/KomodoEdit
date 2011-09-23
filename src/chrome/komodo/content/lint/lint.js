@@ -400,7 +400,9 @@ this.lintBuffer.prototype.reportResults = function(request)
                                        this.view.koDoc.languageObj.indicatorBits,
                                        0, this.view.scimoz.length);
             }
-            this._notify();
+            if (this.view == ko.views.manager.currentView) {
+                xtk.domutils.fireEvent(window, "current_view_lint_results_done");
+            }
         }
     } catch(ex) {
         _log.exception(ex);
