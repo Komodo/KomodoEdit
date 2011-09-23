@@ -28,19 +28,8 @@ const DECORATOR_WARNING = Components.interfaces.koILintResult.DECORATOR_WARNING;
 
 this._in_display = 0; // recursion protection.
 
-this._getIndicMask = function(scimoz) {
-    if (scimoz.styleBits < 6) {
-        return scimoz.INDICS_MASK;
-    } else if (scimoz.styleBits == 6) {
-        return scimoz.INDIC1_MASK | scimoz.INDIC2_MASK;
-    } else {
-        return scimoz.INDIC2_MASK;
-    }
-};
-
 this.displayClear = function(scimoz) {
-    // Clear all lint results from this scimoztilla.
-    var mask = this._getIndicMask(scimoz);
+    // Clear all lint results from this scimoz.
     this._in_display = 1;
     [DECORATOR_ERROR, DECORATOR_WARNING].forEach(function(val) {
             scimoz.indicatorCurrent = val;
@@ -111,19 +100,19 @@ this._display = function(scimoz, lintResults, startPos, styleLen) {
     var r, newValue;
     var existingIndicators = [];
     for each (var indicType in [DECORATOR_ERROR, DECORATOR_WARNING]) {
-            var pos = startPos;
-            while (pos < doclen) {
-                var iStart = scimoz.indicatorStart(indicType, pos);
-                var iEnd = scimoz.indicatorEnd(indicType, pos);
-                if (iEnd > iStart && scimoz.indicatorValueAt(indicType, iStart)) {
-                    existingIndicators.push([iStart, iEnd, indicType]);
-                }
-                if (iEnd <= pos) {
-                    break;
-                }
-                pos = iEnd;
+        var pos = startPos;
+        while (pos < doclen) {
+            var iStart = scimoz.indicatorStart(indicType, pos);
+            var iEnd = scimoz.indicatorEnd(indicType, pos);
+            if (iEnd > iStart && scimoz.indicatorValueAt(indicType, iStart)) {
+                existingIndicators.push([iStart, iEnd, indicType]);
             }
+            if (iEnd <= pos) {
+                break;
+            }
+            pos = iEnd;
         }
+    }
     existingIndicators.sort(this._compareIndicators);
     for (var i = 0; i < lim; i++) {
         r = displayableResults[i];
@@ -232,10 +221,10 @@ this._display = function(scimoz, lintResults, startPos, styleLen) {
         scimoz.indicatorClearRange(thisIndic[0], thisIndic[1]);
     }
     for each (var finalNewIndicator in finalNewIndicators) {
-            [start, length, value] = finalNewIndicator;
-            scimoz.indicatorCurrent = value;
-            scimoz.indicatorFillRange(start, length);
-        }
+        [start, length, value] = finalNewIndicator;
+        scimoz.indicatorCurrent = value;
+        scimoz.indicatorFillRange(start, length);
+    }
             
     if (prevEndStyled != scimoz.endStyled) {
         log.error("unexpected end styled prevEndStyled:"
