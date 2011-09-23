@@ -92,15 +92,24 @@ this._display = function(scimoz, lintResults, startPos, styleLen) {
 
     // stash these for efficiency
     var firstLine = scimoz.lineFromPosition(startPos);
-    var endLine = scimoz.lineFromPosition(startPos + styleLen);
+    var doclen = startPos + styleLen;
+    var endLine = scimoz.lineFromPosition(doclen);
 
     var displayableResults = {};
     lintResults.getResultsInLineRange(firstLine + 1, endLine + 1, displayableResults, {});
     displayableResults = displayableResults.value;
+    var lim = displayableResults.length;
+    // optimization: if there aren't any lint results, clear the indicators and leave.
+    if (lim === 0) {
+        for each (var indicType in [DECORATOR_ERROR, DECORATOR_WARNING]) {
+            scimoz.indicatorCurrent = indicType;
+            scimoz.indicatorClearRange(startPos, doclen);
+        }
+        return;
+    }
     var offsetsAndValues = [];
-    var r, lim = displayableResults.length, newValue;
+    var r, newValue;
     var existingIndicators = [];
-    var doclen = startPos + styleLen;
     for each (var indicType in [DECORATOR_ERROR, DECORATOR_WARNING]) {
             var pos = startPos;
             while (pos < doclen) {
