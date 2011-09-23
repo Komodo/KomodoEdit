@@ -159,9 +159,11 @@ var gKlint = {
         try {
         switch (topic) {
             case "current_view_changed":
-                this.updateUI(subject);
-                this.updateSortIndicator(subject);
-                this.fillLintTree(subject);
+                if (!ko.views.manager.batchMode) {
+                    this.updateUI(subject);
+                    this.updateSortIndicator(subject);
+                    this.fillLintTree(subject);
+                }
                 break;
             case "current_view_lint_results_done":
                 this.fillLintTree(ko.views.manager.currentView);
@@ -203,6 +205,9 @@ var gKlint = {
     },
 
     onCurrentViewChanged : function(event) {
+        if (ko.views.manager.batchMode) {
+            return;
+        }
         var currView = event.originalTarget;
 
         this.updateUI(currView);
