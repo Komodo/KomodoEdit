@@ -689,6 +689,8 @@ class KoCodeIntelEvalController(EvalController):
             self.ui_handler, PROXY_ALWAYS | PROXY_SYNC)
 
     def set_cplns(self, cplns):
+        if not cplns:
+            return
         self.got_results = True
         types, strings = zip(*cplns) # split into separate lists
         #XXX Might want to include relevant string info leading up to
