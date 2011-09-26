@@ -137,22 +137,10 @@ this.updateDisplayedIndicators = function(scimoz, startPos, docLen,
     //var time1 = new Date();
     var offsetsAndValues = [];
     var r, newValue;
-    var existingIndicators = [];
     for each (var indicType in [DECORATOR_ERROR, DECORATOR_WARNING]) {
-        var pos = startPos;
-        while (pos < docLen) {
-            var iStart = scimoz.indicatorStart(indicType, pos);
-            var iEnd = scimoz.indicatorEnd(indicType, pos);
-            if (iEnd > iStart && scimoz.indicatorValueAt(indicType, iStart)) {
-                existingIndicators.push([iStart, iEnd, indicType]);
-            }
-            if (iEnd <= pos) {
-                break;
-            }
-            pos = iEnd;
-        }
+        scimoz.indicatorCurrent = indicType;
+        scimoz.indicatorClearRange(startPos, docLen);
     }
-    existingIndicators.sort(this._compareIndicators);
     var lim = displayableResults.length;
     for (var i = 0; i < lim; i++) {
         r = displayableResults[i];
@@ -205,7 +193,7 @@ this.updateDisplayedIndicators = function(scimoz, startPos, docLen,
         }
     }
 
-    if (!offsetsAndValues.length && !existingIndicators.length) {
+    if (!offsetsAndValues.length) {
         return;
     }
     offsetsAndValues.sort(this._compareIndicators);
@@ -215,9 +203,6 @@ this.updateDisplayedIndicators = function(scimoz, startPos, docLen,
     //dump("                                   calculating: " + (time2 - time1) + "msec\n");
     var prevEndStyled = scimoz.endStyled;
     var start, length, value;
-    var indicIndex = 0;
-    var indicLength = existingIndicators.length;
-    var thisIndic;
     var finalNewIndicators = [];
     for each (var offsetAndValue in offsetsAndValues) {
         [start, length, value] = offsetAndValue;
@@ -228,44 +213,9 @@ this.updateDisplayedIndicators = function(scimoz, startPos, docLen,
             //          start - scimoz.positionFromLine(scimoz.lineFromPosition(start)),
             //          scimoz.lineFromPosition(start + length - 1),
             //          start + length - 1 - scimoz.positionFromLine(scimoz.lineFromPosition(start + length - 1)))
-            
-            // Look at the current indicator to decide what to do
-            var drawIndicator = true;
-            for (; indicIndex < indicLength; indicIndex++) {
-                thisIndic = existingIndicators[indicIndex];
-                if (thisIndic[0] == start
-                    && thisIndic[1] == start + length
-                    && thisIndic[2] == value) {
-                    drawIndicator = false;
-                    indicIndex++;
-                    break;
-                } else if (thisIndic[0] > start + length) {
-                    // The current indicator will come later
-                    break;
-                } else {
-                    // It's before or overlaps with the current one, so we need
-                    // to clear it and redraw it
-                    scimoz.indicatorCurrent = thisIndic[2];
-                    scimoz.indicatorClearRange(thisIndic[0], thisIndic[1]);
-                }
-            }
-            if (drawIndicator) {
-                finalNewIndicators.push([start, length, value]);
-            }
+            scimoz.indicatorCurrent = value;
+            scimoz.indicatorFillRange(start, length);
         }
-    }
-    // Clear any old indicators from last time
-    for (; indicIndex < indicLength; indicIndex++) {
-        thisIndic = existingIndicators[indicIndex];
-        // It's before or overlaps with the current one, so we need
-        // to clear it and redraw it
-        scimoz.indicatorCurrent = thisIndic[2];
-        scimoz.indicatorClearRange(thisIndic[0], thisIndic[1]);
-    }
-    for each (var finalNewIndicator in finalNewIndicators) {
-        [start, length, value] = finalNewIndicator;
-        scimoz.indicatorCurrent = value;
-        scimoz.indicatorFillRange(start, length);
     }
     //var time3 = new Date();
     //dump("                                       drawing: " + (time3 - time2) + "msec\n");
@@ -279,7 +229,7 @@ this.updateDisplayedIndicators = function(scimoz, startPos, docLen,
 };
 
 this.doConstrainedUpdate = function(scimoz, lintResults, lintBuffer) {
-    var time1 = new Date();
+    //var time1 = new Date();
     var firstVisibleLine = scimoz.firstVisibleLine;
     var firstActualLine = scimoz.docLineFromVisible(firstVisibleLine);
     var firstActualPos = scimoz.positionFromLine(firstActualLine);
@@ -294,7 +244,7 @@ this.doConstrainedUpdate = function(scimoz, lintResults, lintBuffer) {
     var displayableResults = {};
     lintResults.getResultsInLineRange(firstActualLine + 1, lastActualLine + 1, displayableResults, {});
     displayableResults = displayableResults.value;
-    var time2 = new Date();
+    //var time2 = new Date();
     //dump("                                regathering: " + (time2 - time1) + "msec\n");
     this.updateDisplayedIndicators(scimoz, firstActualPos, lastActualPos, lintResults, displayableResults);
 };
