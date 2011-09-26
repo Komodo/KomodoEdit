@@ -194,7 +194,7 @@ class _GenericAggregator(object):
         
     def lint(self, request):
         text = request.content.encode(request.encoding.python_encoding_name)
-        return self.lint_with_text(request, text)        
+        return self.lint_with_text(request, text)
         
     def lint_with_text(self, request, text):
         linters = self._koLintService.getTerminalLintersForLanguage(self._languageName)
@@ -616,10 +616,15 @@ class KoLintService:
                 except:
                     # Any exceptions that are not ServerException or
                     # COMException are unexpected internal errors.
-                    err = "unexpected internal error checking '%s' with '%s' linter"\
-                          % (request.koDoc.baseName, request.linterType)
-                    log.exception(err)
-                    request.errorString = err
+                    try:
+                        err = "unexpected internal error checking '%s' with '%s' linter"\
+                            % (request.koDoc.baseName, request.linterType)
+                        log.exception(err)
+                        request.errorString = err
+                    except:
+                        err = "Unexpected error in koLintService.run"
+                        log.error(err)
+                        request.errorString = err
                 else:
                     log.info("manager thread: lint results for uid %s: %r",
                              request.uid, results)
