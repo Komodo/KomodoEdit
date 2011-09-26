@@ -2598,7 +2598,9 @@ class JavaScriptCiler:
         # Add it to scope if it's not already in there
         if toScope:
             if isinstance(toScope, JSVariable):
-                if toScope.type.lower() not in ("object", ):
+                # toScope.type can be None if it's an implicitly defined scope
+                # (i.e. ones we picked up by observing properties being set on it)
+                if toScope.type is not None and toScope.type.lower() not in ("object", ):
                     # Not going to add sub-variables, as it's likely a class
                     # object already, which has this variable information set
                     #if not toScope.type:
