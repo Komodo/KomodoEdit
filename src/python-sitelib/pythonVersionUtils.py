@@ -444,7 +444,7 @@ class JavaScriptDistinguisher(object):
                     currToken = buffer[bufStart: i + 2]
                     self._transitionState(self.ST_IN_COMMENTBLOCK, currToken)
                     state = self.ST_DEFAULT
-                    i += 1; c_next = c_next2; c_next2 = buffer[i + 3]
+                    i += 1; c_next = c_next2; c_next2 = buffer[i + 1]
             elif state == self.ST_IN_NAME and not c_next.isalnum():
                     currToken = buffer[bufStart: i + 1]
                     self._transitionState(self.ST_IN_NAME, currToken)
