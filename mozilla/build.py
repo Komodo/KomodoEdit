@@ -1219,15 +1219,39 @@ def target_configure(argv):
         mozBuildOptions.append("enable-macos-target=%s" % sdk_ver)
         mozBuildOptions.append("with-macos-sdk=%s" % sdk)
 
+        gcc = config.get("gcc") or os.environ.get("CC")
+        gxx = config.get("gxx") or os.environ.get("CXX")
+        if gcc is None:
+            try:
+                # prefer gcc/g++ 4.2
+                gcc = which.which("gcc-4.2")
+                gxx = which.which("g++-4.2")
+            except which.WhichError:
+                pass
+        if gcc is None:
+            gcc = which.which("gcc")
+            gxx = which.which("g++")
+        assert gcc
+        assert gxx
         if osx_major_ver >= 10: # aka Snow Leopard or greater
+            version = _capture_output("%s --version" % (gcc,)).split(" ")[2]
+            from distutils.version import LooseVersion
+            if LooseVersion(version) < "4.2":
+                raise BuildError("GCC 4.2 or higher is required, " \
+                                 "you have GCC %s, please install a " \
+                                 "newer version." \
+                                 % version)
             # Komodo needs to be built as a 32-bit application.
             # Snow Leopard specific build details from:
             #   https://developer.mozilla.org/en/Mac_OS_X_Build_Prerequisites
             # Mozilla 1.9.2+ must use gcc 4.2, specify that now.
-            mozRawOptions.append('CC="gcc-4.2 -arch i386"')
-            mozRawOptions.append('CXX="g++-4.2 -arch i386"')
+            mozRawOptions.append('CC="%s -arch i386"' % (gcc, ))
+            mozRawOptions.append('CXX="%s -arch i386"' % (gxx, ))
             mozBuildOptions.append("target=i386-apple-darwin%i" % (osx_major_ver))
             mozRawOptions.append("mk_add_options AUTOCONF=autoconf213")
+        config["gcc"] = gcc
+        config["gxx"] = gxx
+
     elif sys.platform.startswith("linux"):
         gcc = config.get("gcc") or os.environ.get("CC")
         gxx = config.get("gxx") or os.environ.get("CXX")
