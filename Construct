@@ -89,7 +89,13 @@ my @toExport = (
     'userDataDir',
 
     'compiler',
+    'mozCFlags',
+    'mozCxxFlags',
+    'mozLdFlags',
     'idlExportDir',
+    'mozCFlags',
+    'mozCxxFlags',
+    'mozLdFlags',
     'mozSrc',
     'mozObjDir',
     'mozResourcesDir',

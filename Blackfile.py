@@ -691,6 +691,9 @@ configuration = {
     #---- Microsoft Visual Studio setup ----
     "msvcrtDebugDllsInstalled": black.configure.std.MsvcrtDebugDllsInstalled(), 
     "compiler": SetupCompiler(),
+    "mozCFlags": MozCFlags(),
+    "mozCxxFlags": MozCxxFlags(),
+    "mozLdFlags": MozCFlags(),
     "setupMozEnv": SetupMozEnv(),
 
     #---- komodo stuff

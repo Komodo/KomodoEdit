@@ -277,6 +277,8 @@ map { _addLexer($cons, $_); } @lexers;
 $consLocal{ENV}{'CXXFLAGS'} .= " $makeFlags";
 # scintilla has no visibility markers, so don't default to hidden
 $consLocal{ENV}{'CXXFLAGS'} =~ s/-fvisibility=hidden//;
+# Scintilla uses exceptions - remove any disabling of it from CXXFLAGS.
+$consLocal{ENV}{'CXXFLAGS'} =~ s/-fno-exceptions //g;
 $consLocal{ENV}{'LDFLAGS'} .= " $makeFlags";
 $consLocal = new cons(%consLocal);
 

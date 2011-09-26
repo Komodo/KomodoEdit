@@ -107,19 +107,12 @@ def _getPrettyVersion(version):
               % version
 
 
-def _capture_stdout(argv, ignore_retval=False):
-    # XXX - Remove python 2.3 code once we've fully moved to VC7, VC8
-    try:
-        # Only available on python 2.4 and above
-        import subprocess
-        p = subprocess.Popen(argv, stdout=subprocess.PIPE)
-        stdout = p.stdout.read()
-        retval = p.wait()
-    except ImportError:
-        # This should be sufficient for python 2.3
-        o = os.popen(' '.join(argv)) # this will fail if spaces in args
-        stdout = o.read()
-        retval = o.close()
+def _capture_stdout(argv, ignore_retval=False, cwd=None):
+    # Only available on python 2.4 and above
+    import subprocess
+    p = subprocess.Popen(argv, cwd=cwd, stdout=subprocess.PIPE)
+    stdout = p.stdout.read()
+    retval = p.wait()
     if retval and not ignore_retval:
         raise RuntimeError("error running '%s'" % ' '.join(argv))
     return stdout
@@ -3859,4 +3852,43 @@ class SetupCompiler(black.configure.Datum):
             self.value = ''
         self.determined = 1
 
+
+
+class MozCFlags(black.configure.Datum):
+    def __init__(self):
+        black.configure.Datum.__init__(self, "mozCFlags",
+            desc="CFLAGS used for Mozilla build")
+
+    def _Determine_Do(self):
+        self.applicable = 1
+        mozObjDir = black.configure.items['mozObjDir'].Get()
+        cmd = ["make", "echo-variable-CFLAGS"]
+        self.value = _capture_stdout(cmd, cwd=mozObjDir).strip()
+        self.determined = 1
+
+
+class MozCxxFlags(black.configure.Datum):
+    def __init__(self):
+        black.configure.Datum.__init__(self, "mozCxxFlags",
+            desc="CXXFLAGS used for Mozilla build")
+
+    def _Determine_Do(self):
+        self.applicable = 1
+        mozObjDir = black.configure.items['mozObjDir'].Get()
+        cmd = ["make", "echo-variable-CXXFLAGS"]
+        self.value = _capture_stdout(cmd, cwd=mozObjDir).strip()
+        self.determined = 1
+
+
+class MozLdFlags(black.configure.Datum):
+    def __init__(self):
+        black.configure.Datum.__init__(self, "mozLdFlags",
+            desc="LDFLAGS used for Mozilla build")
+
+    def _Determine_Do(self):
+        self.applicable = 1
+        mozObjDir = black.configure.items['mozObjDir'].Get()
+        cmd = ["make", "echo-variable-LDFLAGS"]
+        self.value = _capture_stdout(cmd, cwd=mozObjDir).strip()
+        self.determined = 1
 
