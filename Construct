@@ -340,13 +340,15 @@ foreach my $envvar (keys %ENV) {
 
 $cons = new cons(
     'ENV' => \%environ,
-    'CC' => $environ{'CC'},
-    'CXX' => $environ{'CXX'},
     'CFLAGS' => $environ{'CFLAGS'},
     'CXXFLAGS' => $environ{'CXXFLAGS'},
     'LDFLAGS' => $environ{'LDFLAGS'},
 );
 
+my %cons = $cons->copy();
+$cons{'CC'} = $environ{'CC'} if defined($environ{'CC'});
+$cons{'CXX'} = $environ{'CXX'} if defined($environ{'CXX'});
+$cons = new cons(%cons);
 
 #---- what to build
 

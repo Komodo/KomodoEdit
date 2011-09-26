@@ -3860,9 +3860,12 @@ class MozGcc(black.configure.Datum):
             desc="gcc compiler used for Mozilla build")
 
     def _Determine_Do(self):
-        self.applicable = 1
-        mozConfig = MozConfig().Get()
-        self.value = mozConfig.gcc
+        if sys.platform.startswith("win"):
+            self.applicable = 0
+        else:
+            self.applicable = 1
+            mozConfig = MozConfig().Get()
+            self.value = mozConfig.gcc
         self.determined = 1
 
 
@@ -3872,9 +3875,12 @@ class MozGxx(black.configure.Datum):
             desc="g++ compiler used for Mozilla build")
 
     def _Determine_Do(self):
-        self.applicable = 1
-        mozConfig = MozConfig().Get()
-        self.value = mozConfig.gxx
+        if sys.platform.startswith("win"):
+            self.applicable = 0
+        else:
+            self.applicable = 1
+            mozConfig = MozConfig().Get()
+            self.value = mozConfig.gxx
         self.determined = 1
 
 
