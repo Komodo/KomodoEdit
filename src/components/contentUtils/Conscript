@@ -120,7 +120,7 @@ else {
     $consLocal{'CXXFLAGS'} .= " -DMOZILLA_INTERNAL_API=1 -D_IMPL_NS_LAYOUT";
     $consLocal{'CXXFLAGS'} .= " -include $mozObjDir/mozilla-config.h -DMOZ_VERSION=$mozVersionNumber";
 
-    if ($platform eq "solaris" or ($platform eq "darwin" and $architecture ne "x86")) {
+    if ($platform eq "solaris") {
 
 	# big-endian byte order indicator to license code
         $consLocal{'CXXFLAGS'} .= " -DBYTEORDER=0x4321";
