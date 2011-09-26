@@ -340,7 +340,6 @@ else {
 
     $consLocal{'CPPPATH'} = "$mozIncludePath:$scintillaBuildDir/include:$mozDevelDist/include/java";
     $consLocal{'LIBPATH'} = "$mozLibPath:$pluginSdkObjDir/samples/common:../scintilla/bin";
-    $consLocal{'CC'} = "gcc";
 
     ## XXX PKG_CONFIG_PATH env var will point to pgkconfig dir for the platform.
     ## -DGTK is required to properly include the Scintilla headers.
@@ -471,8 +470,6 @@ else {
                             " -DUSE_SYSTEM_CONSOLE=1 ".
                             " -DMOZ_VERSION=$mozVersionNumber ";
 
-    $consLocal{'CXX'} = "g++";
-    $consLocal{'CC'} = "gcc";
     $consLocal{'LIBS'} = "-lxpcomglue_s ";
     $consLocal{'LIBS'} .= "-bundle -lxpcomglue_s -lxpcom -lnspr4 -lplc4 -lplds4 -lscintilla -lmozalloc ";
     if ($platform eq "darwin") {

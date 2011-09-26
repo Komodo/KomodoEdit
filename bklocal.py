@@ -3854,6 +3854,30 @@ class SetupCompiler(black.configure.Datum):
 
 
 
+class MozGcc(black.configure.Datum):
+    def __init__(self):
+        black.configure.Datum.__init__(self, "mozGcc",
+            desc="gcc compiler used for Mozilla build")
+
+    def _Determine_Do(self):
+        self.applicable = 1
+        mozConfig = MozConfig().Get()
+        self.value = mozConfig.gcc
+        self.determined = 1
+
+
+class MozGxx(black.configure.Datum):
+    def __init__(self):
+        black.configure.Datum.__init__(self, "mozGxx",
+            desc="g++ compiler used for Mozilla build")
+
+    def _Determine_Do(self):
+        self.applicable = 1
+        mozConfig = MozConfig().Get()
+        self.value = mozConfig.gxx
+        self.determined = 1
+
+
 class MozCFlags(black.configure.Datum):
     def __init__(self):
         black.configure.Datum.__init__(self, "mozCFlags",

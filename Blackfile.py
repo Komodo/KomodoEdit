@@ -691,6 +691,8 @@ configuration = {
     #---- Microsoft Visual Studio setup ----
     "msvcrtDebugDllsInstalled": black.configure.std.MsvcrtDebugDllsInstalled(), 
     "compiler": SetupCompiler(),
+    "mozGcc": MozGcc(),
+    "mozGxx": MozGxx(),
     "mozCFlags": MozCFlags(),
     "mozCxxFlags": MozCxxFlags(),
     "mozLdFlags": MozCFlags(),
