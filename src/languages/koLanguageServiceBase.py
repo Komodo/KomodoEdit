@@ -2732,7 +2732,6 @@ class KoLanguageBaseDedentMixin(object):
         currLine = scimoz.getTextRange(currLineStart, currLineEnd)
         m1 = self._caseOrDefaultStmtRE.match(currLine)
         if (not m1) or m1.group(2):
-            print "Giving up due to post-: of %s" % m1.group(2)
             # Don't accept if this isn't the first ":" on the line.
             return None
         prevLineNo = currLineNo - 1
