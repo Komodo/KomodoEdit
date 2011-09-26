@@ -352,6 +352,7 @@ this.lintBuffer.prototype.request = function(reason /* = "" */)
                   reason+"')");
     try {
         _lintSvc.cancelPendingRequests(this.view.uid);
+        ko.lint.displayer.cancelPendingItems(this);
         //this._clearResults();
 
         // Increment this here instead of in ._issueRequest() to ensure that
@@ -396,9 +397,7 @@ this.lintBuffer.prototype.reportResults = function(request)
             this.lintResults = request.results;
             this.errorString = request.errorString;
             if (this.lintResults) {
-                ko.lint.displayer.display(this.view.scimoz, this.lintResults,
-                                       this.view.koDoc.languageObj.indicatorBits,
-                                       0, this.view.scimoz.length);
+                ko.lint.displayer.display(this, this.lintResults);
             }
             if (this.view == ko.views.manager.currentView) {
                 xtk.domutils.fireEvent(window, "current_view_lint_results_done");

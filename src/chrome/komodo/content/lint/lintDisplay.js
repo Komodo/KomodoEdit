@@ -27,6 +27,15 @@ const DECORATOR_ERROR = Components.interfaces.koILintResult.DECORATOR_ERROR;
 const DECORATOR_WARNING = Components.interfaces.koILintResult.DECORATOR_WARNING;
 
 this._in_display = 0; // recursion protection.
+this._segmenting_updates = false;
+
+this.cancelPendingItems = function(lintBuffer) {
+    if (this._segmenting_updates) {
+        this._segmenting_updates = false;
+        lintBuffer.view.removeEventListener("current_view_linecol_changed", lintBuffer.handleScroll, false);
+        lintBuffer.view.removeEventListener("current_view_scroll_changed", lintBuffer.handleScroll, false);
+    }
+};
 
 this.displayClear = function(scimoz) {
     // Clear all lint results from this scimoz.
@@ -37,16 +46,18 @@ this.displayClear = function(scimoz) {
         });
     this._in_display = 0;
 };
-    
-this.display = function(scimoz, lintResults, numBits, startPos, styleLen) {
-    // numBits no longer used, but part of xpcom interface.
+
+this.continueDisplay = function(lintBuffer, lintResults) {
+};
+
+this.display = function(lintBuffer, lintResults) {
     var res = null;
     if (this._in_display) {
         return res;
     }
     this._in_display = 1;
     try {
-        res = this._display(scimoz, lintResults, startPos, styleLen);
+        res = this._display(lintBuffer, lintResults);
     } finally {
         this._in_display = 0;
     }
@@ -70,16 +81,21 @@ this._uniquify = function(a) {
     return newArray;
 };
 
-this._display = function(scimoz, lintResults, startPos, styleLen) {
+this._display = function(lintBuffer, lintResults) {
     if (!lintResults) {
         log.error("Should always have results to display");
         return;
     }
+    var view = lintBuffer.view;
+    var scimoz = view.scimoz;
+    var startPos = 0;
+    var styleLen = scimoz.length;
     if (scimoz.length == 0) {
         return;
     }
 
     // stash these for efficiency
+    //var time1 = new Date();
     var firstLine = scimoz.lineFromPosition(startPos);
     var doclen = startPos + styleLen;
     var endLine = scimoz.lineFromPosition(doclen);
@@ -89,19 +105,42 @@ this._display = function(scimoz, lintResults, startPos, styleLen) {
     displayableResults = displayableResults.value;
     var lim = displayableResults.length;
     // optimization: if there aren't any lint results, clear the indicators and leave.
+    //var time2 = new Date();
+    //dump("lintDisplay.js display: time spent deciding: " + (time2 - time1) + "msec\n");
     if (lim === 0) {
         for each (var indicType in [DECORATOR_ERROR, DECORATOR_WARNING]) {
             scimoz.indicatorCurrent = indicType;
             scimoz.indicatorClearRange(startPos, doclen);
         }
         return;
+    } else if (lim > 50) {
+        // Do only the indicators in the current view
+        this.doConstrainedUpdate(scimoz, lintResults, lintBuffer);
+        var this_ = this;
+        var handleScroll = function(event) {
+            this_.doConstrainedUpdate(scimoz, lintResults, lintBuffer);
+        };
+        lintBuffer.handleScroll = handleScroll;
+        lintBuffer.processedLines = [firstLine, endLine];
+        this._segmenting_updates = true;
+        view.addEventListener("current_view_linecol_changed", handleScroll, false);
+        view.addEventListener("current_view_scroll_changed", handleScroll, false);
+    } else {
+        // No change
+        this.updateDisplayedIndicators(scimoz, 0, scimoz.length, lintResults,
+                                       displayableResults);
     }
+};
+
+this.updateDisplayedIndicators = function(scimoz, startPos, docLen,
+                                          lintResults, displayableResults) {
+    //var time1 = new Date();
     var offsetsAndValues = [];
     var r, newValue;
     var existingIndicators = [];
     for each (var indicType in [DECORATOR_ERROR, DECORATOR_WARNING]) {
         var pos = startPos;
-        while (pos < doclen) {
+        while (pos < docLen) {
             var iStart = scimoz.indicatorStart(indicType, pos);
             var iEnd = scimoz.indicatorEnd(indicType, pos);
             if (iEnd > iStart && scimoz.indicatorValueAt(indicType, iStart)) {
@@ -114,6 +153,7 @@ this._display = function(scimoz, lintResults, startPos, styleLen) {
         }
     }
     existingIndicators.sort(this._compareIndicators);
+    var lim = displayableResults.length;
     for (var i = 0; i < lim; i++) {
         r = displayableResults[i];
         if (!r) continue;
@@ -171,6 +211,8 @@ this._display = function(scimoz, lintResults, startPos, styleLen) {
     offsetsAndValues.sort(this._compareIndicators);
     offsetsAndValues = this._uniquify(offsetsAndValues);
 
+    //var time2 = new Date();
+    //dump("                                   calculating: " + (time2 - time1) + "msec\n");
     var prevEndStyled = scimoz.endStyled;
     var start, length, value;
     var indicIndex = 0;
@@ -225,6 +267,8 @@ this._display = function(scimoz, lintResults, startPos, styleLen) {
         scimoz.indicatorCurrent = value;
         scimoz.indicatorFillRange(start, length);
     }
+    //var time3 = new Date();
+    //dump("                                       drawing: " + (time3 - time2) + "msec\n");
             
     if (prevEndStyled != scimoz.endStyled) {
         log.error("unexpected end styled prevEndStyled:"
@@ -232,6 +276,27 @@ this._display = function(scimoz, lintResults, startPos, styleLen) {
                   + "/ scimoz.endStyled:"
                   + scimoz.endStyled);
     }
+};
+
+this.doConstrainedUpdate = function(scimoz, lintResults, lintBuffer) {
+    var time1 = new Date();
+    var firstVisibleLine = scimoz.firstVisibleLine;
+    var firstActualLine = scimoz.docLineFromVisible(firstVisibleLine);
+    var firstActualPos = scimoz.positionFromLine(firstActualLine);
+    var lastVisibleLine = firstVisibleLine + scimoz.linesOnScreen;
+    var lastActualLine = scimoz.docLineFromVisible(lastVisibleLine);
+    var lastActualPos;
+    if (lastActualLine < scimoz.lineCount + 1) {
+        lastActualPos = scimoz.positionFromLine(lastActualLine + 1);
+    } else {
+        lastActualPos = scimoz.length;
+    }
+    var displayableResults = {};
+    lintResults.getResultsInLineRange(firstActualLine + 1, lastActualLine + 1, displayableResults, {});
+    displayableResults = displayableResults.value;
+    var time2 = new Date();
+    //dump("                                regathering: " + (time2 - time1) + "msec\n");
+    this.updateDisplayedIndicators(scimoz, firstActualPos, lastActualPos, lintResults, displayableResults);
 };
 
 }).apply(ko.lint.displayer);

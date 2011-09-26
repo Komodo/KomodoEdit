@@ -815,7 +815,7 @@
         </body>
         </method>
 
-        <field name="_lastPosLineAndCol">[-1, -1, -1]</field>
+        <field name="_lastPosLineAndCol">[-1, -1, -1, -1]</field>
 
         <!-- Called in a timer from onUpdateUI. -->
         <method name="doUpdateUI">
@@ -831,7 +831,8 @@
             var currentPos = scimoz.currentPos;
             var currentLineNo = scimoz.lineFromPosition(currentPos);
             var columnNo = scimoz.getColumn(currentPos);
-            var newPosLineAndCol = [currentPos, currentLineNo, columnNo];
+            var firstVisibleLine = scimoz.firstVisibleLine;
+            var newPosLineAndCol = [currentPos, currentLineNo, columnNo, firstVisibleLine];
             if ((this._lastPosLineAndCol[0] != newPosLineAndCol[0]) ||
                 (this._lastPosLineAndCol[1] != newPosLineAndCol[1]) ||
                 (this._lastPosLineAndCol[2] != newPosLineAndCol[2])) {
@@ -840,14 +841,22 @@
                 var data = {
                     "currentPos": currentPos,
                     "line": currentLineNo,
-                    "column": columnNo,
+                    "column": columnNo
                 }
                 xtk.domutils.fireDataEvent(this, 'current_view_linecol_changed', data);
 
-            } else if (!this.textChangeUndoPending && !this.lastCharAdded) {
-                // Position hasn't changed, no chars were added and no text
-                // was modified - we've got nothing to do.
-                return;
+            } else {
+	        if (this._lastPosLineAndCol[3] != newPosLineAndCol[3]) {
+                    this._lastPosLineAndCol = newPosLineAndCol;
+		    if (this.lintBuffer) {
+                        xtk.domutils.fireDataEvent(this, 'current_view_scroll_changed', data);
+		    }
+		}
+	        if (!this.textChangeUndoPending && !this.lastCharAdded) {
+                    // Position hasn't changed, no chars were added and no text
+                    // was modified - we've got nothing to do.
+                    return;
+		}
             }
 
             scimoz.doBraceMatch();
