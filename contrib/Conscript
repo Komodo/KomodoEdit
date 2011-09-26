@@ -283,7 +283,7 @@ if ($platform eq "win") {
     my $scintilla_plat_dir = "gtk";
     if ($platform eq "darwin") {
         $scintilla_plat_dir = "macosx";
-        $build_env='LDFLAGS="-Wl,-syslibroot,/Developer/SDKs/MacOSX10.5.sdk -arch i386" ';
+        $build_env='LDFLAGS="-mmacosx-version-min=10.5 -Wl,-syslibroot,/Developer/SDKs/MacOSX10.5.sdk -arch i386" ';
         $build_env.= 'CFLAGS="-mmacosx-version-min=10.5 -isysroot /Developer/SDKs/MacOSX10.5.sdk -arch i386" ';
         $build_env.= 'CXXFLAGS="-mmacosx-version-min=10.5 -isysroot /Developer/SDKs/MacOSX10.5.sdk -arch i386" ';
     }
