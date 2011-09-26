@@ -1828,7 +1828,6 @@ class SetupMozEnv(black.configure.RunEnvScript):
             mozillaDevDir = black.configure.items['mozillaDevDir'].Get()
             compiler = black.configure.items['compiler'].Get()
             setenvFile = {
-                "vc6": "setenv-moz-msvc6.bat",
                 "vc8": "setenv-moz-msvc8.bat",
                 "vc9": "setenv-moz-msvc9.bat",
             }[compiler]
@@ -3846,7 +3845,7 @@ class SetupCompiler(black.configure.Datum):
             desc="compiler used for Mozilla build")
 
     def _Determine_Sufficient(self):
-        if sys.platform == "win32" and self.value not in ("vc6", "vc7", "vc8", "vc9"):
+        if sys.platform == "win32" and self.value not in ("vc8", "vc9"):
             raise black.configure.ConfigureError(\
                 "unexpected compiler value for win32: %r" % self.value)
 
