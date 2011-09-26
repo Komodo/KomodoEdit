@@ -103,8 +103,8 @@ void SciMoz::PlatformNew(void) {
     wEditor = scintilla_new();
 
     // disable scintilla's builtin context menu.
-    scintilla_send_message(SCINTILLA(wEditor), SCI_USEPOPUP, FALSE, 0);
-    scintilla_send_message(SCINTILLA(wEditor), SCI_SETFOCUS, FALSE, 0);
+    SendEditor(SCI_USEPOPUP, 0, 0);
+    SendEditor(SCI_SETFOCUS, 0, 0);
 
     gtk_container_add(GTK_CONTAINER(wParkingLot), wEditor);
     gtk_signal_connect(GTK_OBJECT(wEditor), SCINTILLA_NOTIFY,
