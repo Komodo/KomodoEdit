@@ -279,6 +279,8 @@ $consLocal{ENV}{'CXXFLAGS'} .= " $makeFlags";
 $consLocal{ENV}{'CXXFLAGS'} =~ s/-fvisibility=hidden//;
 # Scintilla uses exceptions - remove any disabling of it from CXXFLAGS.
 $consLocal{ENV}{'CXXFLAGS'} =~ s/-fno-exceptions //g;
+# This flag isn't support on gcc-4.2; remove it if it exists
+$consLocal{ENV}{'CXXFLAGS'} =~ s/-Werror=return-type //g;
 $consLocal{ENV}{'LDFLAGS'} .= " $makeFlags";
 $consLocal = new cons(%consLocal);
 
