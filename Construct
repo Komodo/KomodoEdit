@@ -301,6 +301,9 @@ elsif ($platform eq "darwin") {
     $environ{CFLAGS} .= " -fvisibility=hidden";
     $environ{CXXFLAGS} .= " -fvisibility=hidden";
 
+    # we currenly only support i386
+    $environ{CXXFLAGS} .= " -arch i386";
+
     # Use 10.5 SDK for now
     $envrion{CFLAGS} .= ' -isysroot /Developer/SDKs/MacOSX10.5.sdk -mmacosx-version-min=10.5';
     $envrion{CXXFLAGS} .= ' -isysroot /Developer/SDKs/MacOSX10.5.sdk -mmacosx-version-min=10.5';
