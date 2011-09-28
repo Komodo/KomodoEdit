@@ -1823,6 +1823,7 @@ void _KoStart_SetupEnvironment(const char* programDir)
             envVar = environ[i];
             if (envVar == NULL) break;
             if (strncmp("MOZILLA_FIVE_HOME=", envVar, 18) == 0
+                || strncmp("MOZ_MAXWINSDK=", envVar, 14) == 0
                 || strncmp("MOZ_PLUGIN_PATH=", envVar, 16) == 0
                 || strncmp("XRE_PROFILE_PATH=", envVar, 17) == 0
                 || strncmp("MOZ_SRC=", envVar, 8) == 0
