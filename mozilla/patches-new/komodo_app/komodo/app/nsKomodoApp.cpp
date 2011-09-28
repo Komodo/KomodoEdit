@@ -5,13 +5,9 @@
 #include <windows.h>
 #include <stdlib.h>
 #endif
-#ifdef MOZILLA_1_8_BRANCH
-#include "nsBuildID.h"
-#else
 #include "nsCOMPtr.h"
 #include "nsILocalFile.h"
 #include "nsStringGlue.h"
-#endif
 
 #ifdef XP_WIN
 #ifdef KOMODO_USE_WMAIN
@@ -22,30 +18,8 @@
 
 #include "koStart.h"
 
-#ifdef MOZILLA_1_8_BRANCH
-// NS_XRE_ENABLE_EXTENSION_MANAGER is required for extension install/uninstall
-static const nsXREAppData kAppData = {
-  sizeof(nsXREAppData),
-  nsnull,
-  "ActiveState",
-  "Komodo",
-  NS_STRINGIFY(APP_VERSION),
-  NS_STRINGIFY(BUILD_ID),
-#ifdef KOMODO_EDIT
-  // XXX we need a different guid for edit, and it must match the guid
-  // in licenseUtil.cpp
-  "{36E66FA0-F259-11D9-850E-000D935D3368}",
-#else
-  "{36E66FA0-F259-11D9-850E-000D935D3368}",
-#endif
-  "Copyright (c) 2000 - 2008 ActiveState Software Inc.",
-  NS_XRE_ENABLE_EXTENSION_MANAGER
-};
-#endif
-
 int main(int argc, char* argv[])
 {
-#ifndef MOZILLA_1_8_BRANCH
     nsCOMPtr<nsILocalFile> appini;
     nsresult rv = XRE_GetBinaryPath(argv[0], getter_AddRefs(appini));
     if (NS_FAILED(rv)) {
@@ -59,9 +33,6 @@ int main(int argc, char* argv[])
       fprintf(stderr, "Couldn't read application.ini");
       return 255;
     }
-#else
-    const nsXREAppData *appData = &kAppData;
-#endif
 
 #ifdef KOSTART_PLACEHOLDER
     // The special Komodo startup gymnastics are only done when the
