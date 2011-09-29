@@ -1118,7 +1118,16 @@ class koScintillaController:
 
     def _do_cmd_home(self):
         sm = self.scimoz()
-        sm.currentPos = min(sm.currentPos, sm.anchor)
+        if sm.currentPos != sm.anchor:
+            # bug 91199: set things up so after processing VCHomeWrap(),
+            # the cursor will be at the non-white start of the first
+            # line in the selection.
+            #
+            # Note that Shift-Home behaves differently, as it lets
+            # scintilla decide how to modify an existing selection.
+            sm.currentPos = sm.anchor = \
+                sm.positionFromLine(min(sm.lineFromPosition(sm.currentPos),
+                                        sm.lineFromPosition(sm.anchor)))
         sm.vCHomeWrap()  # XXX should make this a pref.
 
     def _do_cmd_end(self):
