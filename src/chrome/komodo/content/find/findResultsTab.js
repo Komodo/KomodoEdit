@@ -919,7 +919,14 @@ this.FindResultsTabManager.prototype._doubleClick = function()
                 //       callback from an asynchronous function (if new view).
                 setTimeout(function() {
                     var scimoz_ = view.scimoz;
-                    scimoz_.setSel(start, end);
+                    if (start > end) {
+                        // bug 91224: reverse them
+                        [start, end] = [end, start];
+                    }
+                    // bug 91224: set currentPos explicitly so following vertical cursor
+                    // movement makes sense.
+                    scimoz_.currentPos = start;
+                    scimoz_.anchor = end;
                     scimoz_.chooseCaretX();
                     view.setFocus();
                 } , 0);
