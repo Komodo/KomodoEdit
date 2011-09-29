@@ -141,16 +141,9 @@ class KoPartService(object):
 
     def __init__(self):
         self.wrapped = WrapObject(self, components.interfaces.nsIObserver)
-
-        self.ww = components.classes["@mozilla.org/embedcomp/window-watcher;1"].\
-                        getService(components.interfaces.nsIWindowWatcher);
-        self.ww.registerNotification(self.wrapped)
-
-        self.wm = components.classes["@mozilla.org/appshell/window-mediator;1"].\
-                        getService(components.interfaces.nsIWindowMediator);
-
-        self._contentUtils = components.classes["@activestate.com/koContentUtils;1"].\
-                    getService(components.interfaces.koIContentUtils)
+        ww = components.classes["@mozilla.org/embedcomp/window-watcher;1"].\
+                        getService(components.interfaces.nsIWindowWatcher)
+        ww.registerNotification(self.wrapped)
 
         self._data = {} # Komodo nsIDOMWindow -> KomodoWindowData instance
 
@@ -158,6 +151,14 @@ class KoPartService(object):
         if not window:
             return None
         return window.document.documentElement.getAttribute("windowtype")
+
+    __contentUtils = None
+    @property
+    def _contentUtils(self):
+        if self.__contentUtils is None:
+            self._contentUtils = components.classes["@activestate.com/koContentUtils;1"].\
+                        getService(components.interfaces.koIContentUtils)
+        return self.__contentUtils
 
     def get_window(self):
         """Return the appropriate top-level Komodo window for this caller."""
@@ -184,7 +185,9 @@ class KoPartService(object):
         # window and live with it.
         if not window:
             # Window here is nsIDOMWindowInternal, change it.
-            window = self.wm.getMostRecentWindow('Komodo')
+            wm = components.classes["@mozilla.org/appshell/window-mediator;1"].\
+                            getService(components.interfaces.nsIWindowMediator)
+            window = wm.getMostRecentWindow('Komodo')
             if window:
                 window.QueryInterface(components.interfaces.nsIDOMWindow)
             else:
