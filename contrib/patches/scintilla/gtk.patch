@@ -239,7 +239,7 @@ Scintilla buffer before shutting down, bug 81293.
 +		case WM_UNICHAR:
 +			if (IsUnicodeMode()) {
 +				char utfval[4];
-+				wchar_t wcs[2] = {wParam, 0};
++				wchar_t wcs[2] = {static_cast<wchar_t>(wParam), 0};
 +				unsigned int len = UTF8Length(wcs, 1);
 +				UTF8FromUTF16(wcs, 1, utfval, len);
 +				AddCharUTF(utfval, len);
