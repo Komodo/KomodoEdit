@@ -156,7 +156,7 @@ class KoPartService(object):
     @property
     def _contentUtils(self):
         if self.__contentUtils is None:
-            self._contentUtils = components.classes["@activestate.com/koContentUtils;1"].\
+            self.__contentUtils = components.classes["@activestate.com/koContentUtils;1"].\
                         getService(components.interfaces.koIContentUtils)
         return self.__contentUtils
 
