@@ -11,6 +11,7 @@ tabs[type="scrollable"]
 tab[type="file-tab"]
 {
   -moz-binding: url('chrome://komodo/content/bindings/scrolltabs.xml#file-status-tab');
+  max-width: 250px;
 }
 
 .tabs-select-button {
