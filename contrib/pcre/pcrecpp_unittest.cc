@@ -932,16 +932,16 @@ int main(int argc, char** argv) {
 
     // Three Japanese characters (nihongo)
     const char utf8_string[] = {
-         0xe6, 0x97, 0xa5, // 65e5
-         0xe6, 0x9c, 0xac, // 627c
-         0xe8, 0xaa, 0x9e, // 8a9e
-         0
+         (char) 0xe6, (char) 0x97, (char) 0xa5, // 65e5
+         (char) 0xe6, (char) 0x9c, (char) 0xac, // 627c
+         (char) 0xe8, (char) 0xaa, (char) 0x9e, // 8a9e
+         (char) 0
     };
     const char utf8_pattern[] = {
          '.',
-         0xe6, 0x9c, 0xac, // 627c
+         (char) 0xe6, (char) 0x9c, (char) 0xac, // 627c
          '.',
-         0
+         (char) 0
     };
 
     // Both should match in either mode, bytes or UTF-8
