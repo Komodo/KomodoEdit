@@ -574,10 +574,19 @@
                     // something else inside <scintilla>; ignore focus on that.
                     return;
                 }
+
                 var scimoz = this.scimoz;
-                scimoz.indicatorCurrent = this.DECORATOR_SOFT_CHAR;
-                scimoz.indicatorClearRange(0, scimoz.textLength);
+                if (Date.now() - this._lastBlurTime > 10) {
+                    // Harden the soft characters.  Only do this if the time
+                    // from the last time the <scintilla> was blurred to now is
+                    // larger than 10 milliseconds; otherwise it probably means
+                    // the focus switched from the autocomplete popup to the
+                    // emebed element, in which case we shouldn't harden.
+                    scimoz.indicatorCurrent = this.DECORATOR_SOFT_CHAR;
+                    scimoz.indicatorClearRange(0, scimoz.textLength);
+                }
                 scimoz.isFocused = true;
+
                 // Ensure the command dispatcher is referencing the scintilla
                 // element, not the plugin element. Otherwise commands will not
                 // work correctly.
@@ -612,6 +621,9 @@
 <!-- #endif -->
                 }
                 this.scimoz.isFocused = false;
+                // save the time the last blur happened, so we can check in the
+                // focus handler if we blurred from the autocomplete
+                this._lastBlurTime = Date.now();
                 ]]>
             </handler>
 
