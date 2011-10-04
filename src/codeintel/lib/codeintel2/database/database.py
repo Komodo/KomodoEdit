@@ -401,10 +401,10 @@ class Database(object):
         self.event_reporter = event_reporter
 
         if import_everything_langs is None:
-            self.import_everything_langs = set(["JavaScript", "PHP"])
+            self.import_everything_langs = set()
         else:
+            assert isinstance(import_everything_langs, set)
             self.import_everything_langs = import_everything_langs
-        assert isinstance(self.import_everything_langs, set)
 
         self.corruptions = [] # list of noted errors during db operation
 

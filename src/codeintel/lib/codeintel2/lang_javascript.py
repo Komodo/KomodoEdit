@@ -3998,5 +3998,6 @@ def register(mgr):
                       langintel_class=JavaScriptLangIntel,
                       import_handler_class=JavaScriptImportHandler,
                       cile_driver_class=JavaScriptCILEDriver,
-                      is_cpln_lang=True)
+                      is_cpln_lang=True,
+                      import_everything=True)
 

@@ -3189,4 +3189,5 @@ def register(mgr):
                       langintel_class=PHPLangIntel,
                       import_handler_class=PHPImportHandler,
                       cile_driver_class=PHPCILEDriver,
-                      is_cpln_lang=True)
+                      is_cpln_lang=True,
+                      import_everything=True)

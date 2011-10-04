@@ -378,7 +378,8 @@ class KoCodeIntelManager(Manager):
 
     def set_lang_info(self, lang, silvercity_lexer=None, buf_class=None,
                       import_handler_class=None, cile_driver_class=None,
-                      is_cpln_lang=False, langintel_class=None):
+                      is_cpln_lang=False, langintel_class=None,
+                      import_everything=False):
         """Override some specific lang handling for Komodo.
 
         Currently just need to tweak some of the import handlers.
@@ -386,7 +387,8 @@ class KoCodeIntelManager(Manager):
         Manager.set_lang_info(self, lang, silvercity_lexer, buf_class,
                               import_handler_class, cile_driver_class,
                               is_cpln_lang,
-                              langintel_class=langintel_class)
+                              langintel_class=langintel_class,
+                              import_everything=import_everything)
 
         if lang not in ("Python", "Python3", "PHP", "Perl", "Tcl", "Ruby"):
             return
