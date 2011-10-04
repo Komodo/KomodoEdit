@@ -119,8 +119,9 @@ KoScintillaAutoCompleteController.prototype = {
       }
       var buf = {};
       scimoz.styleGetFont(STYLE_DEFAULT, buf);
+      var fontSize = scimoz.styleGetSize(STYLE_DEFAULT) + scimoz.zoom;
       // On GTK, a ! prefix indicates Pango fonts. Strip that.
-      fontString = scimoz.styleGetSize(STYLE_DEFAULT) + sizeUnit + " " +
+      fontString = fontSize + sizeUnit + " " +
                    '"' + buf.value.replace(/^!/, "") + '"';
     }
 
