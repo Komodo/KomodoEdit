@@ -96,7 +96,6 @@ class koDocumentSettingsManager:
             scimoz.emptyUndoBuffer()
             scimoz.readOnly = 0
             buffer = koDoc.buffer
-            scimoz.codePage = koDoc.codePage
             scimoz.text = buffer
             scimoz.undoCollection = 1
             scimoz.setSavePoint()
