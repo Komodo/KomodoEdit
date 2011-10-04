@@ -112,10 +112,16 @@ KoScintillaAutoCompleteController.prototype = {
     var scimoz = this._scimoz;
     if (scimoz) {
       const STYLE_DEFAULT = Components.interfaces.ISciMoz.STYLE_DEFAULT;
+      var sizeUnit = "pt";
+      if (Cc["@mozilla.org/xre/app-info;1"].getService(Ci.nsIXULRuntime).OS == "Darwin") {
+        // on Max OSX, use px instead of pt due to odd sizing issues
+        sizeUnit = "px";
+      }
       var buf = {};
       scimoz.styleGetFont(STYLE_DEFAULT, buf);
-      fontString = scimoz.styleGetSize(STYLE_DEFAULT) + "pt " +
-                   '"' + buf.value + '"';
+      // On GTK, a ! prefix indicates Pango fonts. Strip that.
+      fontString = scimoz.styleGetSize(STYLE_DEFAULT) + sizeUnit + " " +
+                   '"' + buf.value.replace(/^!/, "") + '"';
     }
 
     var document = this._grid.ownerDocument;
