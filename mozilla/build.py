@@ -1838,7 +1838,7 @@ def target_silo_python(argv=["silo_python"]):
 
 
 def target_pyxpcom_distclean(argv=["pyxpcom_distclean"]):
-    log.info("target: pyxpcom")
+    log.info("target: pyxpcom_distclean")
     config = _importConfig()
     _setupMozillaEnv()
     pyxpcom_src_dir = join(config.buildDir, config.srcTreeName, "mozilla",
