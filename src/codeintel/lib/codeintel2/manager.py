@@ -130,14 +130,17 @@ class Manager(threading.Thread, Queue):
         self._is_citadel_from_lang = {} # registered langs that are Citadel-based
         self._is_cpln_from_lang = {} # registered langs for which completion is supported
         self._hook_handlers_from_lang = defaultdict(list)
-        self.lidb = langinfo.get_default_database()
-        self._register_modules(extra_module_dirs)
 
         self.env = env or DefaultEnvironment() 
+        # The database must be enabled before registering modules.
         self.db = Database(self, base_dir=db_base_dir,
                            catalog_dirs=db_catalog_dirs,
                            event_reporter=db_event_reporter,
                            import_everything_langs=db_import_everything_langs)
+
+        self.lidb = langinfo.get_default_database()
+        self._register_modules(extra_module_dirs)
+
         self.idxr = indexer.Indexer(self, on_scan_complete)
 
     def upgrade(self):
@@ -225,7 +228,8 @@ class Manager(threading.Thread, Queue):
 
     def set_lang_info(self, lang, silvercity_lexer=None, buf_class=None,
                       import_handler_class=None, cile_driver_class=None,
-                      is_cpln_lang=False, langintel_class=None):
+                      is_cpln_lang=False, langintel_class=None,
+                      import_everything=False):
         """Called by register() functions in language support modules."""
         if silvercity_lexer:
             self.silvercity_lexer_from_lang[lang] = silvercity_lexer
@@ -241,6 +245,8 @@ class Manager(threading.Thread, Queue):
                                        is_cpln_lang=is_cpln_lang)
         if is_cpln_lang:
             self._is_cpln_from_lang[lang] = True
+        if import_everything:
+            self.db.import_everything_langs.add(lang)
 
     def add_hook_handler(self, hook_handler):
         """Add a handler for various codeintel hooks.
