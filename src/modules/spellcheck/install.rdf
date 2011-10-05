@@ -43,7 +43,7 @@
 	
 		<em:id>komodospellchecker@ActiveState.com</em:id>
 		<em:name>Komodo Spellchecker</em:name>
-		<em:version>0.1</em:version>
+		<em:version>1.0</em:version>
 		<em:description>An interactive, multi-lingual, dialog-based spell-checker that uses the Mozilla-supported, Open Office-based dictionaries.</em:description>
 		<em:creator>Eric Promislow</em:creator>
 		<em:homepageURL>http://komodo.activestate.com/addons/komodospellchecker</em:homepageURL>

@@ -41,7 +41,7 @@
     <Description about="urn:mozilla:install-manifest">
         <em:id>places@activestate.com</em:id>
         <em:name>Places</em:name>
-        <em:version>0.1</em:version>
+        <em:version>1.0</em:version>
         <em:description>A better project system</em:description>
         <em:creator>Eric Promislow</em:creator>
         <em:homepageURL>http://komodo.activestate.com/addons/places/</em:homepageURL>
