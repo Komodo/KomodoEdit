@@ -1101,9 +1101,11 @@ class CplnTestCase(CodeIntelTestCase):
         # If this is ActivePython, let's make sure we can 'import
         # activestate'. This is essentially a test of a Python buffer's
         # "sitelib".
+        import subprocess
+        cmd = ["python", "-m", "activestate"]
         try:
-            import activestate
-        except ImportError:
+            subprocess.check_call(cmd)
+        except subprocess.CalledProcessError:
             pass # not ActivePython, can't test
         else:
             self.assertCompletionsInclude("import <|>",
