@@ -200,8 +200,31 @@ treechildren::-moz-tree-cell-text( {
         self._check_one_result_check_error_on_line(code, "expecting a property name", '{')
 
     def test_css_no_selector_01(self):
-        code = "{ font: red; }"  # missing semi-colon
+        code = dedent("""\
+stib + 1xya { /* bad name */
+  margin: 3px
+}
+toolbarbutton#stb_update { /* verify the linter recovered */
+  width: 10
+}
+""")
+        self._check_one_result_check_error_on_line(code, "expecting a selector, got", '1')
+
+    def test_css_no_selector_02(self):
+        code = dedent("""\
+stib + { /* no name */
+  margin: 3px
+}
+toolbarbutton#stb_update { /* verify the linter recovered */
+  width: 10
+}
+""")
         self._check_one_result_check_error_on_line(code, "expecting a selector, got", '{')
+
+    def test_css_missing_second_selector(self):
+        code = "@charset moo"
+        self._check_one_result_check_error_on_line(code, "expecting a string after @charset", 'moo')
+
 
     def test_css_empty(self):
         code = ""

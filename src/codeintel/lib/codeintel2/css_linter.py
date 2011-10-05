@@ -304,6 +304,8 @@ class _CSSParser(object):
             self._check_tag_tok(tok, 2)
             if not self._classifier.is_operator_choose(tok, ("+",">")):
                 self._tokenizer.put_back(tok)
+            else:
+                require_simple_selector = True
                 
     def _pseudo_element_check(self, tok, saw_pseudo_element):
         if saw_pseudo_element:
@@ -1098,7 +1100,7 @@ class _CSSParser(object):
                 if do_declarations_this_time:
                     do_declarations_this_time = False
                     self._parse_declarations()
-                if self._classifier.is_operator(tok, "@"):
+                elif self._classifier.is_operator(tok, "@"):
                     self._parse_directive(tok)
                 elif self._is_scss_variable(tok):
                     self._parse_assignment()
