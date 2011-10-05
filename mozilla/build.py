@@ -909,7 +909,7 @@ def target_configure(argv):
         -P <pyver>, --python-version=<pyver>
             Specify the version of the local prebuilt Python to build with
             and siloed into this Mozilla build. By default the latest
-            version is used (currently 2.5). 
+            version is used (currently 2.6).
 
         --python=<path>
             Instead of -P|--python-version you may use this option to
@@ -1297,9 +1297,9 @@ def target_configure(argv):
     if config["python"] is None:
         if config["pythonVersion"] is None:
             config["pythonVersion"] = "2.6"
-        if config["pythonVersion"] in ("2.5", "2.6"):
+        if config["pythonVersion"] in ("2.6", ):
             config["pyVer"] = config["pythonVersion"]
-            # New Python 2.5 builds.
+            # Extract the prebuilt Python directory.
             if sys.platform == "win32":
                 buildName = config["platform"] + '-' + config["compiler"]
             elif sys.platform == "darwin":
