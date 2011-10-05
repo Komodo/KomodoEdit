@@ -988,7 +988,6 @@
               <File Id="file1470" Name="TXEXSL_0.MAN" LongName="txEXSLTRegExFunctions.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\txEXSLTRegExFunctions.manifest"/>
               <File Id="file1471" Name="webapps.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\webapps.xpt"/>
               <File Id="file1472" Name="XPCOM__6.XPT" LongName="xpcom_threads.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\xpcom_threads.xpt"/>
-              <File Id="file774" LongName="koLintDisplayer.py" Name="KOLINT_0.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koLintDisplayer.py" />
 <?if $(var.MozMajorVersion) = "4" ?>
               <File Id="file1919" Name="CONTEN_3.XPT" LongName="content_xmldoc.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\content_xmldoc.xpt"/>
               <File Id="file1936" Name="DOM_VI_0.XPT" LongName="dom_views.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\dom_views.xpt"/>
