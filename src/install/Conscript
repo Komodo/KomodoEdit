@@ -101,6 +101,7 @@ if ($buildFlavour eq "full") {
                 "PP_MSI_VCCRT_POLICY_MSM_PATH" => $msiVccrtPolicyMsmPath,
                 "PP_VER_MAJOR" => $majorVer,
                 "PP_VER_MINOR" => $minorVer,
+                "PP_MOZ_MAJOR_VERSION" => substr($mozVersion, 0, 1),
 
                 # Using "AVEC" instead of "WITH" to not collide with the
                 # standard "WITH_*" defines for Komodo's preprocessing
