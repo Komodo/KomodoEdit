@@ -336,7 +336,17 @@ bool SCI_METHOD BufferAccessor::SetStyleFor(int length, char style) {
 
 bool SCI_METHOD BufferAccessor::SetStyles(int length, const char *styles) {
     //fprintf(stderr, "BufferAccessor::SetStyles(length:%d), endStyled:%d\n", length, endStyled);
-    PLATFORM_ASSERT(endStyled + length < Length());
+    //PLATFORM_ASSERT(endStyled + length <= Length());
+    int bufLen = Length();
+    if (length > bufLen - endStyled) {
+        //TODO: Bug 91322: Why is this happening after moving to Scintilla 228?
+        //fprintf(stderr, "Komodo: SilverCity: Assertion Failure: endStyled:%d, length:%d, Length():%d\n  expected: endStyled + length=%d < %d\n",
+        //        endStyled, length, bufLen, endStyled + length, bufLen);
+        //
+        //I'd say the assertion is wrong.  Because we don't color styleBuf[bufLen],
+        // but stop at bufLen - 1,  the "<" should have been "<="
+        length = bufLen - endStyled;
+    }
     //fprintf(stderr, "  Length(): %d\n", Length());
     //fprintf(stderr, "  styleBuf:%p\n", styleBuf);
     for (int iPos = 0; iPos < length; iPos++, endStyled++) {
