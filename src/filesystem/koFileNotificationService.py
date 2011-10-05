@@ -106,28 +106,16 @@ class koFileNotificationService:
                 # We just poll for now
                 self.__os_file_service = koFileNotificationServiceUnavailable()
 
-            if 0:
-                # These have not been converted to addObserver, removeObserver format
-    
-                if sys.platform.startswith("darwin") or sys.platform.startswith("mac"):
-                    # Apple / Mac OS
-                    log.info("Setting up OS File Notifications for Apple")
-                    from osFileNotifications_darwin import DarwinFileWatcherService
-                    self.__os_file_service = DarwinFileWatcherService(log)
-                elif sys.platform.startswith("linux") or \
-                     sys.platform.startswith("sunos") or \
-                     sys.platform.startswith("solaris") or \
-                     sys.platform.startswith("hp-ux") or \
-                     sys.platform.startswith("aix"):
-                    # Unix
-                    # XXX - Any others here ??
-                    log.info("Setting up OS File Notifications for Unix")
-                    from osFileNotifications_unix import UnixFileWatcherService
-                    self.__os_file_service = UnixFileWatcherService(log)
-                else:
-                    # XXX - Raise exception?
-                    log.warn("Unknown platform: %s", sys.platform)
-                    self.__os_file_service = koFileNotificationServiceUnavailable()
+            # The watchdog-based service is currently not installed by default.
+            # If it is installed, use it.
+            hasWatchdogNotifications = True
+            try:
+                from watchdogFileNotifications import \
+                    WatchdogFileNotificationService
+            except ImportError:
+                hasWatchdogNotifications = False
+            if hasWatchdogNotifications:
+                self.__os_file_service = WatchdogFileNotificationService()
     
             self.startNotificationService()
 

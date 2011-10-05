@@ -1525,6 +1525,23 @@ class WithKomodoCix(black.configure.BooleanDatum):
                 self.value = 0
         self.determined = 1
 
+class WithWatchdogFSNotifications(black.configure.BooleanDatum):
+    def __init__(self):
+        black.configure.Datum.__init__(self, "withWatchdogFSNotifications",
+            desc="Use the new filesystem notification module based on watchdog",
+            acceptedOptions=("", ["with-watchdog-fs-notifications", "without-watchdog-fs-notifications"]))
+    def _Determine_Do(self):
+        self.applicable = 1
+        configTokens = black.configure.items["configTokens"].Get()
+        productType = black.configure.items["productType"].Get()
+        self.value = 0 # exclude by default for now
+        for opt, optarg in self.chosenOptions:
+            if opt == "--with-watchdog-fs-notifications":
+                self.value = 1
+            elif opt == "--without-watchdog-fs-notifications":
+                self.value = 0
+        self.determined = 1
+
 
 class LudditeVersion(black.configure.Datum):
     def __init__(self):

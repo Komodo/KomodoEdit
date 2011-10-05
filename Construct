@@ -61,6 +61,7 @@ my @toExport = (
     'withTests',
     'withCasper',
     'withJSLib',
+    'withWatchdogFSNotifications',
     'withDocs', 'withDocJarring',
     'withKomodoCix',
     'withPlaces',

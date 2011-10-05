@@ -814,6 +814,7 @@ configuration = {
     "withDocs": WithDocs(),
     "withDocJarring": WithDocJarring(),
     "withKomodoCix": WithKomodoCix(),
+    "withWatchdogFSNotifications": WithWatchdogFSNotifications(),
     "xulrunner": XULRunnerApp(), # xulrunner based builds
     "universal": UniversalApp(), # ppc+i386 builds
 

@@ -1,0 +1,7 @@
+include README
+include AUTHORS
+include LICENSE
+recursive-include pathtools *.py
+recursive-include docs/source *
+include docs/Makefile
+include docs/make.bat

@@ -62,6 +62,7 @@ Import(
     'komodoDevDir',
     'withDocs',
     'withKomodoCix',
+    'withWatchdogFSNotifications',
 );
 
 # Various setup.py-based things need extra flags for debbugging
@@ -443,6 +444,32 @@ $cons->InstallRecursive($landmark,
 # jslint
 $cons->Install("$supportDir/lint/javascript", "jslint/fulljslint.js");
 $cons->Install("$supportDir/lint/javascript", "jslint/jshint.js");
+
+
+#----  Watchdog for file notifcations
+if ($withWatchdogFSNotifications) {
+    # Watchdog has further requirements: PyYAML, argh (and argparse for < 2.7)
+    # and select-backport (for < 2.7). However, we don't use any of the features
+    # that require those.
+    
+    my $landmark = "$komodoPythonUtilsDir/pathtools";
+    $cons->Command($landmark,
+                   "pathtools/setup.py",
+                   qq(
+                    cd %1:d && $siloedPython %1:f build $debugFlags
+                    cd %1:d && $siloedPython %1:f install --skip-build --install-lib=$komodoPythonUtilsDir
+                   ));
+    $cons->DependsRecursive($landmark, "pathtools", ("build", '\.git'));
+
+    $landmark = "$komodoPythonUtilsDir/watchdog";
+    $cons->Command($landmark,
+                   "watchdog/setup.py",
+                   qq(
+                    cd %1:d && $siloedPython %1:f build $debugFlags
+                    cd %1:d && $siloedPython %1:f install --skip-build --install-lib=$komodoPythonUtilsDir
+                   ));
+    $cons->DependsRecursive($landmark, "watchdog", ("build", '\.git'));
+}
 
 
 #---- komododoc
