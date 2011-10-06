@@ -452,23 +452,23 @@ if ($withWatchdogFSNotifications) {
     # and select-backport (for < 2.7). However, we don't use any of the features
     # that require those.
     
-    my $landmark = "$komodoPythonUtilsDir/pathtools";
+    my $landmark = "$komodoPythonUtilsDir/pathtools/__init__.py";
     $cons->Command($landmark,
                    "pathtools/setup.py",
                    qq(
                     cd %1:d && $siloedPython %1:f build $debugFlags
                     cd %1:d && $siloedPython %1:f install --skip-build --install-lib=$komodoPythonUtilsDir
                    ));
-    $cons->DependsRecursive($landmark, "pathtools", ("build", '\.git'));
+    $cons->DependsRecursive($landmark, "pathtools", ("build", '\.svn', '\.consign'));
 
-    $landmark = "$komodoPythonUtilsDir/watchdog";
+    $landmark = "$komodoPythonUtilsDir/watchdog/__init__.py";
     $cons->Command($landmark,
                    "watchdog/setup.py",
                    qq(
                     cd %1:d && $siloedPython %1:f build $debugFlags
                     cd %1:d && $siloedPython %1:f install --skip-build --install-lib=$komodoPythonUtilsDir
                    ));
-    $cons->DependsRecursive($landmark, "watchdog", ("build", '\.git'));
+    $cons->DependsRecursive($landmark, "watchdog", ("build", '\.svn', '\.consign'));
 }
 
 
