@@ -595,6 +595,15 @@ notification:not(:-moz-any([details][open])) [anonid="details"] {
 }
 """)
         self._check_zero_results_show_error(code)
+        
+    def test_css_tight_comment(self):
+        code = dedent("""\
+/*/ ? in a comment !
+*/
+""")
+        for lang in self.langs:
+            self._check_zero_results_show_error(code, language=lang)
+        
 
     _nested_block_code_01 = dedent("""\
 body.abc {

@@ -529,6 +529,7 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 				if (sc.chNext == '*') {
 					comment_substate = COMMENT_SUBSTATE_BLOCK;
 					sc.SetState(SCE_CSS_COMMENT);
+					sc.Forward();
 				} else if ((isLessDocument || isScssDocument) && sc.chNext == '/') {
 					comment_substate = COMMENT_SUBSTATE_LINE;
 					sc.SetState(SCE_CSS_COMMENT);
