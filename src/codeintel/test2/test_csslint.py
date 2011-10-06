@@ -409,6 +409,33 @@ div.flip {
         code = '@page { background: red;'
         self._check_one_result_check_error_at_eof(code, "expecting '}'")
 
+    def test_css_namespace_str_01(self):
+        code = dedent("""\
+@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+@namespace 's1';
+@namespace flip1 url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+@namespace blatz2 's1';
+""").decode("utf-8")
+        self._check_zero_results_show_error(code)
+        
+    def test_css_namespace_missing_value_02(self):
+        code = dedent("""\
+@namespace ;
+""").decode("utf-8")
+        self._check_some_errors_on_line(code, "expecting a string or url", ';')
+        
+    def test_css_namespace_missing_value_03(self):
+        code = dedent("""\
+@namespace 35 ;
+""").decode("utf-8")
+        self._check_some_errors_on_line(code, "expecting a string or url", '35')
+        
+    def test_css_namespace_missing_semicolon_04(self):
+        code = dedent("""\
+@namespace flip "blatz" "extra";
+""").decode("utf-8")
+        self._check_some_errors_on_line(code, "expecting ';'", '"extra"')
+        
     def test_css_ruleset_bad_04(self):
         code = 'h1 { background'
         self._check_one_result_check_error_at_eof(code, "expecting ':'")

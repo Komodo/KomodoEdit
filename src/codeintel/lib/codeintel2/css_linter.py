@@ -543,6 +543,9 @@ class _CSSParser(object):
 
         elif tok.text.lower() == "page":
             self._parse_page()
+
+        elif tok.text.lower() == "namespace":
+            self._parse_namespace()
             
         elif self.language == "Less":
             self._parse_assignment()
@@ -633,6 +636,18 @@ class _CSSParser(object):
             else:
                 tok = None # refresh in _parse_declarations
         self._parse_declarations(tok)
+        
+    def _parse_namespace(self):
+        tok = self._tokenizer.get_next_token()
+        if (not self._classifier.is_value(tok)) or tok.text == "url(":
+            self._tokenizer.put_back(tok)
+        if (not self._parse_url()) and (not self._parse_string()):
+            self._add_result("expecting a string or url", tok)
+            tok = self._recover(allowEOF=True, opTokens=(';',"{"))
+            if not self._classifier.is_operator(tok, ';'):
+                self._tokenizer.put_back(tok)
+            return
+        self._parse_required_operator(";")
         
     def _parse_mixin_declaration(self, current_name):
         """
