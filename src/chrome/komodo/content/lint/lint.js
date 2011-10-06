@@ -672,9 +672,9 @@ this.doClick = function lint_doClick(event) {
     }
 }
 
-this.initializeGenericPrefs = function() {
+this.initializeGenericPrefs = function(prefset) {
     var ids = {};
-    ko.prefs.getPrefIds(ids, {});
+    prefset.getPrefIds(ids, {});
     var idNames = ids.value.filter(function(x) x.indexOf("genericLinter:") == 0);
     idNames.forEach(function(prefName) {
         var langName = prefName.substr(prefName.indexOf(":") + 1);
@@ -687,7 +687,7 @@ this.initializeGenericPrefs = function() {
     var ko_lint_observer = {
         observe: function(subject, topic, data) {
             if (subject == "komodo-ui-started") {
-                ko.lint.initializeGenericPrefs();
+                ko.lint.initializeGenericPrefs(ko.prefs);
             }
         }
     }
