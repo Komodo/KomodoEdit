@@ -985,7 +985,6 @@ class KoToolbox2HTreeView(TreeView):
 
     def getCellText(self, index, column):
         col_id = column.id
-        assert col_id == "Name"
         #log.debug(">> getCellText:%d, %s", row, col_id)
         try:
             return self._rows_view[index].name
@@ -995,7 +994,6 @@ class KoToolbox2HTreeView(TreeView):
         
     def getImageSrc(self, index, column):
         col_id = column.id
-        assert col_id == "Name"
         node = self._rows_view[index]
         method = getattr(node, "getImageSrc", None)
         if method:
