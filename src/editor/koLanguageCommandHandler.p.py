@@ -39,6 +39,7 @@ from xpcom import components, nsError, ServerException, COMException
 sci_constants = components.interfaces.ISciMoz
 from xpcom.server import WrapObject, UnwrapObject
 import scimozindent
+import itertools
 import logging
 import re
 import eollib
@@ -70,6 +71,7 @@ def _fold_level(scimoz, line):
 class GenericCommandHandler:
     _com_interfaces_ = [components.interfaces.koIViewController,
                         components.interfaces.nsIController,
+                        components.interfaces.nsICommandController,
                         components.interfaces.nsIObserver]
     _reg_desc_ = "Command Handler for All files"
     _reg_contractid_ = "@activestate.com/koGenericCommandHandler;1"
@@ -708,6 +710,68 @@ class GenericCommandHandler:
                 #    self.wrapper.endBatchOperation()
         except KeyboardInterrupt: # User cancelled a dialog.
             pass
+
+    def doCommandWithParams(self, command_name, command_params):
+        """
+        nsICommandController::doCommandWithParams
+        @param command_name {str} THe command to execute
+        @param command_params {nsICommandParams} command parameters
+        @returns None
+        @note This assumes parameters with integer keys (starting from 0) are
+            positional arguments, and all other parameters are keyword arguments
+        """
+        args = []
+        kwargs = {}
+        seen_keys = set()
+
+        def get_param(name, val_type):
+            """Get a single argument out of the nsICommandParams
+                @param name {str} The parameter name
+                @param val_type {int} The parameter type, one of the
+                    nsICommandParams::e*Type enumerations as returned by
+                    nsICommandParams::getValueType
+                @returns The argument, converted depending on the type
+                """
+            if val_type == components.interfaces.nsICommandParams.eBooleanType:
+                return command_params.getBooleanValue(name)
+            elif val_type == components.interfaces.nsICommandParams.eLongType:
+                return command_params.getLongValue(name)
+            elif val_type == components.interfaces.nsICommandParams.eDoubleType:
+                return command_params.getDoubleValue(name)
+            elif val_type == components.interfaces.nsICommandParams.eWStringType:
+                return command_params.getStringValue(name)
+            elif val_type == components.interfaces.nsICommandParams.eISupportsType:
+                return command_params.getISupportsValue(name)
+            elif val_type == components.interfaces.nsICommandParams.eStringType:
+                return command_params.getCStringValue(name)
+            else:
+                raise COMException(nsError.NS_ERROR_UNEXPECTED,
+                                   "Unexpected parameter type %r for argument %r" % (val_type, name))
+
+        # get positional arguments
+        for i in itertools.count():
+            key = str(i)
+            try:
+                val_type = command_params.getValueType(key)
+            except COMException, e:
+                # out of positional arguments, probably
+                break
+            args.append(get_param(key, val_type))
+            seen_keys.add(key)
+
+        # get keyword arguments
+        command_params.first()
+        while command_params.hasMoreElements():
+            key = command_params.getNext()
+            if key in seen_keys:
+                # we've already seen this key (probably as a position argument)
+                continue
+            val_type = command_params.getValueType(key)
+            kwargs[key] = get_param(key, val_type)
+
+        # actually call the method
+        meth = getattr(self, "_do_" + command_name)
+        meth(*args, **kwargs)
 
     def _do_cmd_newlineExtra(self):
         self._do_cmd_newline(None, 1)
