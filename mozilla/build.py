@@ -1858,7 +1858,7 @@ def target_pyxpcom(argv=["pyxpcom"]):
         # Checkout pyxpcom - ensure we use the matching version to mozilla.
         repo_url = "http://hg.mozilla.org/pyxpcom/"
         repo_rev = None
-        if config.mozVer <= 6.99:
+        if config.mozVer <= 8.99:
             # Requires the matching branch.
             import math
             repo_rev = "TAG_MOZILLA_%d_0_0" % (int(config.mozVer), )
