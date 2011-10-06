@@ -226,6 +226,14 @@ toolbarbutton#stb_update { /* verify the linter recovered */
         self._check_one_result_check_error_on_line(code, "expecting a string after @charset", 'moo')
 
 
+    def test_css_tilde_selector_01(self):
+        code = dedent("""\
+gortz[zoom ~= "toolbar"] {
+    margin: 3px;
+}
+""")
+        self._check_zero_results_show_error(code)
+
     def test_css_empty(self):
         code = ""
         self._check_zero_results_show_error(code)
@@ -790,8 +798,8 @@ pre { .wrap }
 }
 """).decode("utf-8")
         self._check_zero_results_show_error(code, language="Less")
-        self._check_some_errors_on_line(code, "expecting a value", ' ~', lineNo=1, language="CSS")
-        self._check_some_errors_on_line(code, "expecting a value", ' ~', lineNo=1, language="SCSS")
+        self._check_some_errors_on_line(code, "expecting a value", '~', lineNo=1, language="CSS")
+        self._check_some_errors_on_line(code, "expecting a value", '~', lineNo=1, language="SCSS")
    
     def test_css_less_tilde_escape_02(self):
         code = dedent("""\

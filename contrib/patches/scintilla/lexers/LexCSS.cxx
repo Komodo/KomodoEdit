@@ -653,12 +653,10 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 				break;
 			
 			case '~':
-				if (isLessDocument) {
-					sc.SetState(SCE_CSS_OPERATOR);
-					if (sc.chNext == '"') {
-						sc.Forward();
-						string_substate = STRING_SUBSTATE__IN_LESS_CSS_ESCAPE;
-					}
+				sc.SetState(SCE_CSS_OPERATOR);
+				if (isLessDocument && sc.chNext == '"') {
+					sc.Forward();
+					string_substate = STRING_SUBSTATE__IN_LESS_CSS_ESCAPE;
 				}
 				break;
 			
