@@ -72,7 +72,8 @@ class GenericCommandHandler:
     _com_interfaces_ = [components.interfaces.koIViewController,
                         components.interfaces.nsIController,
                         components.interfaces.nsICommandController,
-                        components.interfaces.nsIObserver]
+                        components.interfaces.nsIObserver,
+                        components.interfaces.nsIDOMEventListener]
     _reg_desc_ = "Command Handler for All files"
     _reg_contractid_ = "@activestate.com/koGenericCommandHandler;1"
     _reg_clsid_ = "{B383592C-5343-4AA7-9419-04D1B34EC906}"
@@ -90,8 +91,11 @@ class GenericCommandHandler:
         log.info("in __del__ for GenericCommandHandler")
         
     def set_view(self, view):
+        if self._view:
+            self._view.removeEventListener("codeintel_autocomplete_selected", self, False)
         if view:
             self._view = view.QueryInterface(components.interfaces.koIScintillaView)
+            view.addEventListener("codeintel_autocomplete_selected", self, False, False)
         else:
             self._view = None
 
@@ -782,35 +786,31 @@ class GenericCommandHandler:
     def _do_cmd_newlineSame(self):
         self._do_cmd_newline('plain', 0)
 
-    def _finish_autocomplete(self, view, sm):
-        assert sm.autoCActive()
-        shouldAdjust = 0
+    def handleEvent(self, event):
+        if event.type == "codeintel_autocomplete_selected":
+            event.QueryInterface(components.interfaces.nsIDOMDataContainerEvent)
+            self._finish_autocomplete(event.getData("position"))
+
+    def _finish_autocomplete(self, start_pos):
+        shouldAdjust = False
         # if we're closing a </ tag, then adjust it.
-        # Closing a </ tag is defined as "in XML, going backwards,
-        # we hit a < before a whitespace character, and
-        # there is a / to the right of that <.
-        if view.languageObj.supportsXMLIndentHere(sm, sm.currentPos):
-            lineno = sm.lineFromPosition(sm.currentPos)
-            startofLinePos = sm.positionFromLine(lineno)
-            line = sm.getStyledText(startofLinePos, sm.currentPos)[0::2]
-            lastWS = max(line.rfind(' '), line.rfind('\t'))
-            lastBracket = line.rfind('<')
-            if lastWS < lastBracket and \
-                    lastBracket+1 < len(line) and \
-                    line[lastBracket+1] == '/':
-                shouldAdjust = 1
-        sm.autoCComplete()
+        # Closing a tag means "the selected autocomplete text is preceeded by
+        # "</" (since the autocomplete is the tag name plus ">")
+        sm = self._view.scimoz
+        langObj = self._view.languageObj
+        if start_pos > 1 and langObj.supportsXMLIndentHere(sm, sm.currentPos):
+            text = sm.getStyledText(start_pos - 2, sm.currentPos)[0::2]
+            # text is "</foo>", hopefully
+            if text.startswith("</"):
+                shouldAdjust = True
         if shouldAdjust:
-            scimozindent.adjustClosingXMLTag(sm, view.languageObj.isHTMLLanguage)
+            scimozindent.adjustClosingXMLTag(sm, langObj.isHTMLLanguage)
         sm.scrollCaret()
         return
 
     def _do_cmd_newline(self, indentStyle=None, continueComments=0):
         view = self._view
         sm = view.scimoz
-        # Do tab autocompletion, if it's in progress.
-        if sm.autoCActive():
-            return self._finish_autocomplete(view, sm)
         if indentStyle is None:
             indentStyle = view.prefs.getStringPref('editAutoIndentStyle')
             # allowExtraNewline deals with the default of adding an extra
@@ -1815,10 +1815,6 @@ class GenericCommandHandler:
     def _do_cmd_indent(self):
         view = self._view
         sm = view.scimoz
-
-        # Do tab autocompletion, assuming it's in progress.
-        if sm.autoCActive():
-            return self._finish_autocomplete(view, sm)
 
         if self._handle_tabstop():
             return
