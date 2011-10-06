@@ -123,6 +123,7 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 	const int MAIN_SUBSTATE_IN_PROPERTY_VALUE = 3;
 	const int MAIN_SUBSTATE_AMBIGUOUS_SELECTOR_OR_PROPERTY_NAME = 4;
 	const int MAIN_SUBSTATE_SCSS_ASSIGNMENT = 5;
+	const int MAIN_SUBSTATE_IN_MEDIA_TOP_LEVEL = 6;
 	
 	int main_substate = MAIN_SUBSTATE_TOP_LEVEL;
 	int nested_declaration_count = 0;
@@ -272,11 +273,11 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 				if (*p_buf == '@') p_buf += 1;
 				if (!CompareCaseInsensitive(p_buf, "import")
 				    || !CompareCaseInsensitive(p_buf, "charset")
-				    || !CompareCaseInsensitive(p_buf, "media")) {
+				    || !CompareCaseInsensitive(p_buf, "namespace")) {
 					in_top_level_directive = true;
 					main_substate = MAIN_SUBSTATE_IN_PROPERTY_VALUE;
 				} else if (!CompareCaseInsensitive(p_buf, "media")) {
-					main_substate = MAIN_SUBSTATE_IN_SELECTOR;
+					main_substate = MAIN_SUBSTATE_IN_MEDIA_TOP_LEVEL;
 				}
 				sc.SetState(SCE_CSS_DEFAULT);
 			}
@@ -474,7 +475,8 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 	
 			case '.':
 				if ((main_substate == MAIN_SUBSTATE_IN_PROPERTY_VALUE
-				     || main_substate == MAIN_SUBSTATE_SCSS_ASSIGNMENT)
+				     || main_substate == MAIN_SUBSTATE_SCSS_ASSIGNMENT
+				     || main_substate == MAIN_SUBSTATE_IN_MEDIA_TOP_LEVEL)
 				    && IsADigit(sc.chNext)) {
 					sc.SetState(SCE_CSS_NUMBER);
 				} else {
@@ -552,7 +554,7 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 					}
 					nested_declaration_count += 1;
 				} else if (main_substate == MAIN_SUBSTATE_IN_PROPERTY_VALUE) {
-					// Happens in @media or @page blocks
+					// Happens in @page blocks
 					nested_declaration_count += 1;
 					if (isScssDocument) {
 					    // Nested property names with a common parent, like
@@ -564,6 +566,8 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 					} else {
 					    main_substate = MAIN_SUBSTATE_IN_SELECTOR;
 					}
+				} else if (main_substate == MAIN_SUBSTATE_IN_MEDIA_TOP_LEVEL) {
+					main_substate = MAIN_SUBSTATE_IN_SELECTOR;
 				}
 				sc.SetState(SCE_CSS_OPERATOR);
 				break;
@@ -711,7 +715,8 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 				    sc.SetState(SCE_CSS_NUMBER);
 				} else if (IsSafeAlpha(sc.ch)) {
 					if (main_substate == MAIN_SUBSTATE_IN_PROPERTY_VALUE
-					    || main_substate == MAIN_SUBSTATE_SCSS_ASSIGNMENT) {
+					    || main_substate == MAIN_SUBSTATE_SCSS_ASSIGNMENT
+					    || main_substate == MAIN_SUBSTATE_IN_MEDIA_TOP_LEVEL) {
 						sc.SetState(SCE_CSS_VALUE);
 					} else if (main_substate == MAIN_SUBSTATE_TOP_LEVEL) {
 						main_substate = MAIN_SUBSTATE_IN_SELECTOR;

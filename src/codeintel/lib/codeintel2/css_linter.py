@@ -618,13 +618,77 @@ class _CSSParser(object):
             tok = self._tokenizer.get_next_token()
         self._parse_required_operator(";", tok)
 
-    def _parse_media(self):
+    def _parse_media_list(self):
+        # See w3.org/TR/css3-mediaqueries/#syntax
+        self._parse_media_query()
+        while True:
+            tok = self._tokenizer.get_next_token()
+            if tok.style == EOF_STYLE:
+                self._add_result("expecting '{'", tok)
+                raise SyntaxErrorEOF()
+            if not self._classifier.is_operator(tok, ","):
+                self._tokenizer.put_back(tok)
+                break
+            self._parse_media_query()
+            
+    def _parse_media_query(self):
+        tok = self._tokenizer.get_next_token()
+        if self._classifier.is_operator(tok, "("):
+            # expression [ AND expression ]*
+            self._tokenizer.put_back(tok)
+            self._parse_media_expression()
+        else:
+            # [ONLY | NOT]? media_type [ AND expression ]*
+            if not (self._classifier.is_value(tok) and self._lex_identifier(tok)):
+                self._add_result("expecting an identifier or a parenthesized expression", tok)
+                tok = self._recover(allowEOF=True, opTokens=("{",))
+                if not self._classifier.is_operator(tok, "{"):
+                    raise SyntaxErrorEOF()
+                self._tokenizer.put_back(tok)
+                return
+            if tok.text.lower() in ("only", "not"):
+                tok = self._tokenizer.get_next_token()
+                if not (self._classifier.is_value(tok) and self._lex_identifier(tok)):
+                    self._add_result("an identifier", tok)
+                    tok = self._recover(allowEOF=True, opTokens=("{",))
+                    if not self._classifier.is_operator(tok, "{"):
+                        raise SyntaxError()
+                    self._tokenizer.put_back(tok)
+                    return
+        # And parse [ AND expression ]*
+        while True:
+            tok = self._tokenizer.get_next_token()
+            if self._classifier.is_value(tok) and tok.text.lower() == "and":
+                self._parse_media_expression()
+            else:
+                self._tokenizer.put_back(tok)
+                break
+            
+    def _parse_media_expression(self):
+        self._parse_required_operator("(") 
         tok = self._tokenizer.get_next_token()
         if not (self._classifier.is_value(tok) and self._lex_identifier(tok)):
-            self._add_result("expecting an identifier for a media list", tok)
-            self._parser_putback_recover(tok)
-        self._parse_identifier_list(self._classifier.is_value, ",")
-        self._parse_declarations()
+            self._add_result("expecting an identifier", tok)
+        tok = self._tokenizer.get_next_token()
+        if self._classifier.is_operator(tok, ":"):
+            self._parse_expression()
+            tok = self._tokenizer.get_next_token()
+        if not self._classifier.is_operator(tok, ")"):
+            self._add_result("expecting ':' or ')'", tok)
+            self._tokenizer.put_back(tok)
+        
+    def _parse_media(self):
+        self._parse_media_list()
+        self._parse_required_operator("{")
+        while True:
+            tok = self._tokenizer.get_next_token()
+            if tok.style == EOF_STYLE:
+                self._add_result("expecting '}'", tok)
+                return
+            elif self._classifier.is_operator(tok, "}"):
+                break
+            self._tokenizer.put_back(tok)
+            self._parse_ruleset()
         
     def _parse_page(self):
         tok = self._tokenizer.get_next_token()

@@ -308,7 +308,7 @@ body {
         code = '@import url(http://wawa.moose/);'
         self._check_zero_results_show_error(code)
 
-    def test_css_import_good_medialist_01(self):
+    def test_css_import_good_url_02(self):
         code = '@import url(http://example.com/) print;'
         self._check_zero_results_show_error(code)
 
@@ -328,55 +328,135 @@ body {
 @import url(http://example.com/) print;
 """).decode("utf-8")
         self._check_one_result_check_error_on_line(code, "@import allowed only near start of file", 'import')
+        
+    def test_css_media_good_basic_01(self):
+        code = dedent("""\
+@media screen {
+  body {
+    padding: 6px;
+  }
+}
+""").decode("utf-8")
+        self._check_zero_results_show_error(code)
 
-    def test_css_import_bad_media_01(self):
+    def test_css_media_bad_missing_second_close_brace(self):
+        code = dedent("""\
+        @media screen {
+  body {
+    padding: 6px;
+  }
+""").decode("utf-8")
+        self._check_one_result_check_error_at_eof(code, "expecting '}'")
+
+    _media_list_error_1 = "expecting an identifier or a parenthesized expression"
+    def test_css_media_bad_01(self):
         code = '@media'
-        self._check_one_result_check_error_at_eof(code, "expecting an identifier for a media list")
+        self._check_one_result_check_error_at_eof(code, self._media_list_error_1)
 
-    def test_css_import_bad_media_02(self):
+    def test_css_media_bad_02(self):
         code = '@media ;'
-        self._check_one_result_check_error_on_line(code, "expecting an identifier for a media list", ';')
+        self._check_one_result_check_error_on_line(code, self._media_list_error_1, ';')
 
-    def test_css_import_bad_media_03(self):
+    def test_css_media_bad_03(self):
         code = '@media @walrus'
-        self._check_one_result_check_error_on_line(code, "expecting an identifier for a media list", '@')
+        self._check_one_result_check_error_on_line(code, self._media_list_error_1, '@')
 
-    def test_css_import_bad_media_04(self):
+    def test_css_media_bad_04(self):
         code = '@media walrus'
         self._check_one_result_check_error_at_eof(code, "expecting '{'")
 
-    def test_css_import_bad_media_05(self):
+    def test_css_media_bad_05(self):
         code = '@media walrus chomps'
         self._check_one_result_check_error_on_line(code, "expecting '{'", 'chomps')
 
-    def test_css_import_bad_media_06(self):
+    def test_css_media_bad_06(self):
         code = '@media walrus "chomps"'
         self._check_one_result_check_error_on_line(code, "expecting '{'", '"chomps"')
 
-    def test_css_import_bad_media_07(self): #XXX:Finish
+    def test_css_media_bad_07(self):
         code = '@media walrus {'
         self._check_one_result_check_error_at_eof(code, "expecting '}'")
 
-    def test_css_import_bad_media_08(self): #XXX:Finish
+    def test_css_media_bad_08(self):
         code = '@media walrus { "chomps"'
-        self._check_one_result_check_error_on_line(code, "expecting a property name", '"chomps"')
+        self._check_one_result_check_error_on_line(code, "expecting a selector", '"chomps"')
 
-    def test_css_import_bad_media_09(self):
+    def test_css_media_bad_09(self):
         code = '@media abc,'
         self._check_one_result_check_error_at_eof(code, "expecting an identifier")
 
-    def test_css_import_bad_media_10(self):
+    def test_css_media_bad_10(self):
         code = '@media abc, {'
         self._check_one_result_check_error_on_line(code, "expecting an identifier", '{')
 
-    def test_css_import_bad_media_11(self):
+    def test_css_media_bad_11(self):
         code = '@media abc, 765 {'
         self._check_one_result_check_error_on_line(code, "expecting an identifier", '765')
         
-    def test_css_import_bad_media_12(self):
+    def test_css_media_bad_12(self):
         code = '@media abc, { color: red; }'
         self._check_one_result_check_error_on_line(code, "expecting an identifier", '{')
 
+    def test_css_media_bad_13(self):
+        code = '@media abc, "not a string" { color: red; }'
+        self._check_one_result_check_error_on_line(code, "expecting an identifier", '"not a string"')
+
+    def test_css_media_mediaqueries_bad_01(self):
+        code = '@media only stuff extraIdentifier { color: red; }'
+        self._check_one_result_check_error_on_line(code, "expecting '{'", 'extraIdentifier')
+
+    def test_css_media_mediaqueries_bad_01(self):
+        code = '@media only stuff mediaqueries_bad_01 { color: red; }'
+        self._check_one_result_check_error_on_line(code, "expecting '{'", 'mediaqueries_bad_01')
+
+    def test_css_media_mediaqueries_bad_02(self):
+        code = '@media onlyx stuff mediaqueries_bad_02 { color: red; }'
+        self._check_one_result_check_error_on_line(code, "expecting '{'", 'stuff')
+
+    def test_css_media_mediaqueries_bad_03(self):
+        code = '@media not stuff mediaqueries_bad_03 { color: red; }'
+        self._check_one_result_check_error_on_line(code, "expecting '{'", 'mediaqueries_bad_03')
+
+    def test_css_media_mediaqueries_bad_04(self):
+        code = '@media media_type1 and mediaqueries_bad_04 { color: red; }'
+        self._check_one_result_check_error_on_line(code, "expecting '('", 'mediaqueries_bad_04')
+
+    def test_css_media_mediaqueries_bad_05(self):
+        # Should be an identifier
+        code = '@media media_type1 and ( "mediaqueries_bad_05") { p { color: red } }'
+        self._check_one_result_check_error_on_line(code, "expecting an identifier", '"mediaqueries_bad_05"')
+
+    def test_css_media_mediaqueries_bad_06(self):
+        # Multiple terms in media_expression
+        code = '@media media_type1 and ( ident mediaqueries_bad_06) { p { color: red } }'
+        self._check_one_result_check_error_on_line(code, "expecting ':' or ')'", 'mediaqueries_bad_06')
+
+    def test_css_media_mediaqueries_bad_07(self):
+        # Multiple terms in media_expression
+        code = '@media media_type1 and ( ident : ) { p { color: red } }'
+        self._check_one_result_check_error_on_line(code, "expecting a value", ')')
+
+    def test_css_media_mediaqueries_bad_08(self):
+        # Multiple terms in media_expression
+        code = '@media media_type1 and ( ident : 3 ) and { p { color: red } }'
+        self._check_one_result_check_error_on_line(code, "expecting '('", '{')
+
+    def test_css_media_mediaqueries_bad_09(self):
+        # Multiple terms in media_expression
+        code = '@media media_type1 and ( ident : 3 ), { p { color: red } }'
+        self._check_one_result_check_error_on_line(code, "expecting an identifier or a parenthesized expression", '{')
+
+    def test_css_media_good_unrecognized_tag(self):
+        code = dedent("""\
+        @media screen {
+  scintilla > panel[anonid="autocompletepopup"] {
+    -moz-appearance: -moz-win-borderless-glass;
+    padding: 6px;
+  }
+}
+""").decode("utf-8")
+        self._check_zero_results_show_error(code)
+        
     def test_css_good_property_function(self):
         code = dedent("""\
 div.flip {
