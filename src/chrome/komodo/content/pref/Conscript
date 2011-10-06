@@ -52,7 +52,6 @@ $cons->InstallInChrome('prefs.js');
 $cons->InstallInChrome('koPrefUtils.js');
 $cons->InstallInChrome('koPrefWindow.js');
 $cons->InstallInChrome('koFilteredPrefTree.js');
-$cons->InstallInChrome('stopWords.txt');
 
 $cons->Preprocess('pref.p.xul', 'pref.xul');
 $cons->InstallInChrome('pref.xul');

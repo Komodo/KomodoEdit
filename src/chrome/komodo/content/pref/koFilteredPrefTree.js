@@ -496,29 +496,10 @@ URLManager.prototype = {
 function FullTextManager() {
     this._hits_for_word = {};
     this._hits_list = {};
-    this.stopWords = {};
 };
 FullTextManager.prototype = {
-    loadStopWords: function() {
-        var indexURI = "chrome://komodo/content/pref/stopWords.txt";
-        var req = new XMLHttpRequest();
-        var this_ = this; // bind isn't working.
-        req.onreadystatechange = function() {
-            if (req.readyState == 4 && (req.status == 200 || req.status == 0)) { // 0? it happens...
-                var contents = req.responseText.toLowerCase();
-                var words = contents.split(/\s+/);
-                words.forEach(function(word) {
-                    this_.stopWords[word] = 1;
-                });
-            }
-        };
-        req.open("GET", indexURI, true);
-        req.overrideMimeType('text/plain; charset=x-user-defined');
-        req.send(null);
-    },
-
     record: function(word, urlNum) {
-        if (word && !(word in this.stopWords)) {
+        if (word) {
             if (!(word in this._hits_for_word)) {
                 this._hits_for_word[word] = {};
             }
@@ -567,7 +548,6 @@ this.loadPrefsFullText = function() {
     var this_ = this;
     this.urlManager = new URLManager();
     this.fullTextManager = new FullTextManager();
-    this.fullTextManager.loadStopWords();
     
     var DocLoader = function() {
         this.urlIndex = 0;
