@@ -414,25 +414,6 @@ this._intersectSets = function(set1, set2) {
     }
     return iset;
 };
-this._unionSets = function(setList) {
-    if (setList.length == 1) {
-        return setList[0];
-    }
-    var uset = {};
-    for each (var thisSet in setList) {
-        for (var p in thisSet) {
-            uset[p] = thisSet[p];
-        }
-    }
-    return uset;
-};
-this._isSetEmpty = function(set) {
-    for (var p in set) {
-        return false;
-    }
-    return true;
-};
-
 this.updateFilter = function(target) {
     if (!target) {
         this.prefTreeView.removeFilter();
@@ -451,22 +432,12 @@ this.updateFilter = function(target) {
     var lim = targets.length;
     var i;
     var currentSet = this.getHitsForWord(targets[0]);
-    var runs = [];
-    var nextSet, iSet, uSet;
     for (i = 1; i < lim; i++) {
-        nextSet = this.getHitsForWord(targets[i]);
-        iSet = this._intersectSets(currentSet, nextSet);
-        if (this._isSetEmpty(iSet)) {
-            runs.push(currentSet);
-            currentSet = nextSet;
-        } else {
-            currentSet = iSet;
-        }
+        currentSet = this._intersectSets(currentSet,
+                                         this.getHitsForWord(targets[i]));
     }
-    runs.push(currentSet);
-    var hits = this._unionSets(runs);
     var urls = [];
-    for (var num in hits) {
+    for (var num in currentSet) {
         urls.push(this.urlManager.URLsFromNums(num));
     }
     this.prefTreeView.updateFilter(urls); 
