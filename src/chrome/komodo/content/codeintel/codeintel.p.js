@@ -486,7 +486,17 @@ ko.codeintel = {};
         var scintilla = view.scintilla;
         var scimoz = view.scimoz;
         var autoc = scintilla.autocomplete;
-        if (!autoc.active && event.type != "completion") return;
+        if (!autoc.active) {
+            switch (event.type) {
+                case "completion":
+                case "popuphiding":
+                case "popuphidden":
+                    break;
+                default:
+                    // ignore anything else when autoc is no longer active
+                    return;
+            }
+        }
 
         var triggerPos = this._lastTriggerPos;
         var curPos = scimoz.currentPos;
@@ -571,6 +581,12 @@ ko.codeintel = {};
             if (this._retriggerOnCompletion) {
                 ko.codeintel.trigger(view);
             }
+            return;
+        } else if (event.type == "popuphiding") {
+            scintilla.suppressSoftCharHardeningOnFocus = true;
+            return;
+        } else if (event.type == "popuphidden") {
+            scintilla.suppressSoftCharHardeningOnFocus = false;
             return;
         }
         if (event.type !== "keydown" && event.type !== "keypress") {

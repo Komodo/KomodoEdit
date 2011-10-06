@@ -255,6 +255,9 @@
             <field name="bracketedDecoratedChars">null</field>
             <field name="inLinkedTabstop">false</field>
 
+            <!-- If true, gaining focus will not cause soft characters to harden -->
+            <field name="suppressSoftCharHardeningOnFocus">false</field>
+
             <destructor>
             <![CDATA[
             this.unload();
@@ -575,8 +578,10 @@
                     return;
                 }
                 var scimoz = this.scimoz;
-                scimoz.indicatorCurrent = this.DECORATOR_SOFT_CHAR;
-                scimoz.indicatorClearRange(0, scimoz.textLength);
+                if (!this.suppressSoftCharHardeningOnFocus) {
+                    scimoz.indicatorCurrent = this.DECORATOR_SOFT_CHAR;
+                    scimoz.indicatorClearRange(0, scimoz.textLength);
+                }
                 scimoz.isFocused = true;
                 // Ensure the command dispatcher is referencing the scintilla
                 // element, not the plugin element. Otherwise commands will not
