@@ -74,9 +74,6 @@ function()
 var _log = ko.logging.getLogger("lint");
 //_log.setLevel(ko.logging.LOG_INFO);
 
-var _prefs = Components.classes["@activestate.com/koPrefService;1"].
-                        getService(Components.interfaces.koIPrefService).prefs;
-
 var _linterLanguageNames = {};
 //---- The new LintBuffer class (replacement for jsLintBuffer)
 //
@@ -176,7 +173,7 @@ this.addLintPreference = function(preferenceName, subLanguageNameList) {
             var view = views[i];
             if (view.lintBuffer) {
                 // Add all prefs in case the buffer's language changes
-                _prefs.prefObserverService.
+                ko.prefs.prefObserverService.
                     addObserverForTopics(view.lintBuffer, 1,
                                          [preferenceName],
                                          false);
@@ -200,7 +197,7 @@ this.lintBuffer = function LintBuffer(view) {
         this.errorString = null;
         this._lastRequestId = 0; // used to ensure only the last request is used
 
-        var globalPrefObserverService = _prefs.prefObserverService;
+        var globalPrefObserverService = ko.prefs.prefObserverService;
         globalPrefObserverService.addObserverForTopics(this,
                                                        global_pref_observer_topic_names.length,
                                                        global_pref_observer_topic_names, false);
@@ -244,7 +241,7 @@ this.lintBuffer.prototype.destructor = function()
                                                         global_pref_observer_topic_names.length,
                                                         global_pref_observer_topic_names);
 
-        var globalPrefObserverService = _prefs.prefObserverService;
+        var globalPrefObserverService = ko.prefs.prefObserverService;
         globalPrefObserverService.removeObserverForTopics(this,
                                                           global_pref_observer_topic_names.length,
                                                           global_pref_observer_topic_names);
@@ -371,7 +368,7 @@ this.lintBuffer.prototype.request = function(reason /* = "" */)
         if (!this.view.koDoc.getEffectivePrefs().getBooleanPref('editUseLinting')) {
             delay = 0;
         } else {
-            delay = _prefs.getLongPref('lintDelay'); // lint request delay (in ms)
+            delay = ko.prefs.getLongPref('lintDelay'); // lint request delay (in ms)
         }
         this._lintTimer.startTimeout(delay);
 
@@ -675,31 +672,30 @@ this.doClick = function lint_doClick(event) {
     }
 }
 
-this.initializeGenericPrefs = function(prefset, attemptNo) {
-    if (!prefset || !ko.views || !ko.views.manager) {
-        if (typeof(attemptNo) == "undefined") {
-            attemptNo = 0;
-        } else if (attemptNo >= 10) {
-            log.error("Can't get prefset on initializeGenericPrefs");
-            return;
-        }
-        setTimeout(ko.lint.initializeGenericPrefs, 4000, prefset || ko.prefs, attemptNo + 1);
-        return;
-    }
+this.initializeGenericPrefs = function() {
     var ids = {};
-    prefset.getPrefIds(ids, {});
+    ko.prefs.getPrefIds(ids, {});
     var idNames = ids.value.filter(function(x) x.indexOf("genericLinter:") == 0);
-    var that = ko.lint;
     idNames.forEach(function(prefName) {
         var langName = prefName.substr(prefName.indexOf(":") + 1);
         if (!(prefName in global_pref_observer_topics)) {
-            that.addLintPreference(prefName, [langName]);
+            ko.lint.addLintPreference(prefName, [langName]);
         }
     });
 }
 
+    var ko_lint_observer = {
+        observe: function(subject, topic, data) {
+            if (subject == "komodo-ui-started") {
+                ko.lint.initializeGenericPrefs();
+            }
+        }
+    }
+    var obsSvc = Components.classes["@mozilla.org/observer-service;1"].
+                        getService(Components.interfaces.nsIObserverService);
+    obsSvc.addObserver(ko_lint_observer, 'komodo-ui-started', false);
+
 }).apply(ko.lint);
-setTimeout(ko.lint.initializeGenericPrefs, 4000, ko.prefs, 0);
 
 /**
  * @deprecated since 7.0
