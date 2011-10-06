@@ -275,6 +275,8 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 				    || !CompareCaseInsensitive(p_buf, "media")) {
 					in_top_level_directive = true;
 					main_substate = MAIN_SUBSTATE_IN_PROPERTY_VALUE;
+				} else if (!CompareCaseInsensitive(p_buf, "media")) {
+					main_substate = MAIN_SUBSTATE_IN_SELECTOR;
 				}
 				sc.SetState(SCE_CSS_DEFAULT);
 			}
