@@ -71,8 +71,9 @@ class CSSLintTest(CodeIntelTestCase):
             self.assertEqual([], results, "Failed to parse file %s" % path)
          
     _skin_dir = join(dirname(dirname(dirname(abspath(__file__)))), "chrome", "komodo", "skin")
+    _modules_dir = join(dirname(dirname(dirname(abspath(__file__)))), "modules")
     _skipSkinFiles = [
-        join(_skin_dir, 'codeintel', 'autocomplete-popup.css'),
+        join(_modules_dir, 'publishing', 'skin', 'publishing_settings.css'),
     ]   
     def _walk_skin_files(self, data, dirname, fnames):
         for fname in fnames:
@@ -92,8 +93,11 @@ class CSSLintTest(CodeIntelTestCase):
         # Test these under CSS, SCSS, and Less
         self.assertTrue(os.path.exists(join(self._skin_dir, "codeintel.css")), "%s: missing codeintel.css" % self._skin_dir)
         os.path.walk(self._skin_dir, self._walk_skin_files, None)
+
+    def test_komodo_skin_files_02(self):
+        os.path.walk(self._modules_dir, self._walk_skin_files, None)
         
-    def test_komodo_skin_files_problem_02(self):
+    def test_komodo_skin_files_problem_01(self):
         fpath = self._skipSkinFiles[0]
         fd = open(fpath, 'r')
         code = fd.read().decode("utf-8")
@@ -492,6 +496,35 @@ b {
 }
 """).decode("utf-8")
         self._check_zero_results_show_error(code)
+        
+    def test_css_attr_after_star_01(self):
+        code = dedent("""\
+*[dub] {
+  margin:44;
+}
+""").decode("utf-8")
+        for lang in self.langs:
+            self._check_zero_results_show_error(code, language=lang)
+        
+    def test_css_namespace_selector_01(self):
+        code = dedent("""\
+xul|textbox[invalid="true"] .textbox-input-box
+{
+  background-color: #FC8D8D;
+}
+""").decode("utf-8")
+        for lang in self.langs:
+            self._check_zero_results_show_error(code, language=lang)
+
+    def test_css_preceding_sibling_selector_01(self):
+        code = dedent("""\
+a ~ b
+{
+  background-color: #FC8D8D;
+}
+""").decode("utf-8")
+        for lang in self.langs:
+            self._check_zero_results_show_error(code, language=lang)
 
     def test_css_import_good_page_01(self):
         code = '@page { background: red; }'

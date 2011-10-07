@@ -510,12 +510,12 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 				}
 				// else fall through
 			case '^':
-			case '|':
 				if (isLessDocument || isScssDocument) {
 					sc.SetState(SCE_CSS_OPERATOR);
 				}
 				break;
                 
+			case '|': // Used in CSS3 Namespaces extension
 			case '%':
 			case '*':
 			case '+':

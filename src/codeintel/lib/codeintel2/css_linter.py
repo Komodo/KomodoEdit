@@ -325,7 +325,7 @@ class _CSSParser(object):
             require_simple_selector = False
             tok = self._tokenizer.get_next_token()
             self._check_tag_tok(tok, 2)
-            if not self._classifier.is_operator_choose(tok, ("+",">")):
+            if not self._classifier.is_operator_choose(tok, ("+",">", "~")):
                 self._tokenizer.put_back(tok)
             else:
                 require_simple_selector = True
@@ -480,6 +480,15 @@ class _CSSParser(object):
             self._check_tag_tok(tok, 3)
             log.debug("_parse_simple_selector: got tok %s", tok.dump_ret())
             if self._classifier.is_tag(tok):
+                # Namespace check
+                tok = self._tokenizer.get_next_token()
+                if self._classifier.is_operator(tok, "|"):
+                    tok = self._tokenizer.get_next_token()
+                    if not self._classifier.is_tag(tok):
+                        self._add_result("expecting an element name", tok)
+                        self._tokenizer.put_back(tok)
+                else:
+                    self._tokenizer.put_back(tok)
                 num_selected_names += 1
                 self._pseudo_element_check(tok, saw_pseudo_element)
                 current_name = tok.text
@@ -644,6 +653,8 @@ class _CSSParser(object):
         tok = self._tokenizer.get_next_token()
         if not (self._classifier.is_attribute(tok)
                 or self._classifier.is_identifier(tok)):
+                # tags can happen after *[foo] due to confused lexing
+                ####or self._classifier.is_tag(tok)):
             self._add_result("expecting an identifier", tok)
         else:
             tok = self._tokenizer.get_next_token()
