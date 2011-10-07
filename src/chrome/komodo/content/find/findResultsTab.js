@@ -925,6 +925,7 @@ this.FindResultsTabManager.prototype._doubleClick = function()
                     }
                     // bug 91224: set currentPos explicitly so following vertical cursor
                     // movement makes sense.
+                    scimoz_.setSel(start, end);
                     scimoz_.currentPos = start;
                     scimoz_.anchor = end;
                     scimoz_.chooseCaretX();
