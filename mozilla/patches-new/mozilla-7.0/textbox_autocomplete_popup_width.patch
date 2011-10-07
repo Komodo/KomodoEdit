@@ -19,13 +19,22 @@ See: https://bugzilla.mozilla.org/show_bug.cgi?id=416250
 diff --git a/toolkit/content/widgets/autocomplete.xml b/toolkit/content/widgets/autocomplete.xml
 --- a/toolkit/content/widgets/autocomplete.xml
 +++ b/toolkit/content/widgets/autocomplete.xml
-@@ -726,12 +726,22 @@
-                               .getInterface(Components.interfaces.nsIWebNavigation);
-             var docShell = nav.QueryInterface(Components.interfaces.nsIDocShell);
-             var docViewer = docShell.contentViewer.QueryInterface(Components.interfaces.nsIMarkupDocumentViewer);
-             var width = (rect.right - rect.left) * docViewer.fullZoom;
-             this.setAttribute("width", width > 100 ? width : 100);
+@@ -721,23 +721,25 @@
+           if (!this.mPopupOpen) {
+             this.mInput = aInput;
+             this.view = aInput.controller.QueryInterface(Components.interfaces.nsITreeView);
+             this.invalidate();
  
+             this.showCommentColumn = this.mInput.showCommentColumn;
+             this.showImageColumn = this.mInput.showImageColumn;
+ 
+-            var rect = aElement.getBoundingClientRect();
+-            var nav = aElement.ownerDocument.defaultView.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+-                              .getInterface(Components.interfaces.nsIWebNavigation);
+-            var docShell = nav.QueryInterface(Components.interfaces.nsIDocShell);
+-            var docViewer = docShell.contentViewer.QueryInterface(Components.interfaces.nsIMarkupDocumentViewer);
+-            var width = (rect.right - rect.left) * docViewer.fullZoom;
+-            this.setAttribute("width", width > 100 ? width : 100);
 +            if (aElement.sizetopopup == "always" || aElement.sizetopopup == "pref") {
 +              var rect = aElement.getBoundingClientRect();
 +              var nav = aElement.ownerDocument.defaultView.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
@@ -35,14 +44,15 @@ diff --git a/toolkit/content/widgets/autocomplete.xml b/toolkit/content/widgets/
 +              var width = (rect.right - rect.left) * docViewer.fullZoom;
 +              this.setAttribute("width", width > 100 ? width : 100);
 +            }
-+
+ 
              // Adjust the direction of the autocomplete popup list based on the textbox direction, bug 649840
              var popupDirection = aElement.ownerDocument.defaultView.getComputedStyle(aElement).direction;
              this.style.direction = popupDirection;
  
              // setConsumeRollupEvent() before we call openPopup()
              var nsIPopupBO = Components.interfaces.nsIPopupBoxObject;
-@@ -803,17 +805,20 @@
+             this.popupBoxObject.setConsumeRollupEvent(
+@@ -818,17 +820,20 @@
        <property name="popupOpen" readonly="true"
                  onget="return this.mPopupOpen;"/>
  
@@ -64,7 +74,7 @@ diff --git a/toolkit/content/widgets/autocomplete.xml b/toolkit/content/widgets/
        <!-- This is the default number of rows that we give the autocomplete
             popup when the textbox doesn't have a "maxrows" attribute
             for us to use. -->
-@@ -957,20 +962,22 @@
+@@ -972,20 +977,22 @@
          <parameter name="aElement"/>
          <body>
            <![CDATA[
