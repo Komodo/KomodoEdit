@@ -703,6 +703,136 @@ notification:not(:-moz-any([details][open])) [anonid="details"] {
 """)
         self._check_zero_results_show_error(code)
         
+    def test_css_structual_pseudo_class_good01(self):
+        code = dedent("""\
+table tr:nth-child(odd) {
+  margin: 1px;
+}
+
+table tr:nth-child(2n + 1) {
+  margin: 1px;
+}
+
+table tr:nth-child(-n) {
+  margin: 1px;
+}
+
+table tr:nth-child(+3N) {
+  margin: 1px;
+}
+
+table tr:nth-child(3n-2) {
+  margin: 1px;
+}
+
+table tr:nth-child(-5N + 3) {
+  margin: 1px;
+}
+
+table tr:nth-child(+N) {
+  margin: 1px;
+}
+
+table tr:nth-child(-012) {
+  margin: 1px;
+}
+
+table tr:nth-child(+44) {
+  margin: 1px;
+}
+
+table tr:nth-child(odD) {
+  margin: 1px;
+}
+
+table tr:nth-child(EvEn) {
+  margin: 1px;
+}
+""")
+        self._check_zero_results_show_error(code)
+        
+    def test_css_structual_pseudo_class_bad01(self):
+        code = dedent("""\
+/* bad ones:*/
+
+table tr:nth-child() {
+  margin: 1px;
+}
+""")
+        self._check_some_errors_on_line(code, "expecting a value", ')', lineNo=2)
+        
+    def test_css_structual_pseudo_class_bad02(self):
+        code = dedent("""\
+table tr:nth-child(-) {
+  margin: 1px;
+}
+""")
+        self._check_one_result_check_error_on_line(code, "expecting a number", ')')
+        
+    def test_css_structual_pseudo_class_bad03(self):
+        code = dedent("""\
+table tr:nth-child(- 3) {
+  margin: 1px;
+}
+""")
+        self._check_one_result_check_error_on_line(code, "expecting no space before 3", '3')
+        
+    def test_css_structual_pseudo_class_bad04(self):
+        code = dedent("""\
+table tr:nth-child(4 n+5) {
+  margin: 1px;
+}
+""")
+        self._check_one_result_check_error_on_line(code, "expecting no space before n", 'n')
+        
+    def test_css_structual_pseudo_class_bad05(self):
+        code = dedent("""\
+table tr:nth-child(3 even) {
+  margin: 1px;
+}
+""")
+        self._check_one_result_check_error_on_line(code, "expecting ')'", 'even')
+        
+    def test_css_structual_pseudo_class_bad06(self):
+        code = dedent("""\
+table tr:nth-child(odd 5) {
+  margin: 1px;
+}
+""")
+        self._check_one_result_check_error_on_line(code, "expecting ')'", '5')
+        
+    def test_css_structual_pseudo_class_bad07(self):
+        code = dedent("""\
+table tr:nth-child(3 5) {
+  margin: 1px;
+}
+""")
+        self._check_one_result_check_error_on_line(code, "expecting ')'", '5')
+        
+    def test_css_structual_pseudo_class_bad08(self):
+        code = dedent("""\
+table tr:nth-child(squirt) {
+  margin: 1px;
+}
+""")
+        self._check_one_result_check_error_on_line(code, "expecting a number or N", 'squirt')
+        
+    def test_css_structual_pseudo_class_bad09(self):
+        code = dedent("""\
+table tr:nth-child(3 {
+  margin: 1px;
+}
+""")
+        self._check_one_result_check_error_on_line(code, "expecting ')'", '{')
+        
+    def test_css_structual_pseudo_class_bad10(self):
+        code = dedent("""\
+table tr:nth-child("bink") {
+  margin: 1px;
+}
+""").decode("utf-8")
+        self._check_one_result_check_error_on_line(code, "expecting a number or N", '"bink"')
+        
     def test_css_tight_comment(self):
         code = dedent("""\
 /*/ ? in a comment !

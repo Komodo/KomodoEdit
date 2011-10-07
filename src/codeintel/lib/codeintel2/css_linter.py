@@ -225,6 +225,26 @@ class _CSSParser(object):
     def __init__(self, language):
         self._supportsNestedDeclaration = language in ("Less", "SCSS")
         self.language = language
+        self._structural_pseudo_classes_with_args = [
+            "nth-child",
+            "nth-last-child",
+            "nth-of-type",
+            "nth-last-of-type",
+            ]
+        self._structural_pseudo_classes_no_args = [
+            "root",
+            "empty",
+            "first-child",
+            "only-child",
+            "last-child",
+            "first-of-type",
+            "last-of-type",
+            "only-of-type",
+            ]
+        self._structural_pseudo_classes_other = [
+            "not",
+            "-moz-any",
+            ]
 
     def _add_result(self, message, tok, status=1):
         self._add_result_tok_parts(message,
@@ -313,6 +333,137 @@ class _CSSParser(object):
                                        tok.start_line, tok.start_column,
                                        tok.end_line, tok.end_column,
                                        "", 1)
+            
+    def _reparse_structural_tokens(self, tok):
+        # Just pull in all the text up to ')', and build a text part,
+        # keeping spaces, keeping whitespace
+        # Look for this:
+        # ['-'|'+']? INTEGER? {N} [S* ['-'|'+'] S* INTEGER]?
+        
+        # This routine repackages the tokens, because strings like "-3n"
+        # appear as an unknown identifier, but should be three separate
+        # tokens.  The last token will be the end-token, normally a ")" op.
+        
+        ret_toks = []
+        num_ptn = re.compile(r'(\d+)(.*)')
+        while True:
+            if (tok.style == EOF_STYLE or
+                (self._classifier.is_operator(tok) and tok.text in ");}{}")):
+                ret_toks.append(tok)
+                self._tokenizer.put_back(tok)
+                return ret_toks
+            tokText = tok.text
+            while True:
+                if tokText.startswith("-") or tokText.startswith("+"):
+                    newTok = tok.clone('')
+                    tok.text = tokText[0]
+                    tok.end_column = tok.start_column + 1
+                    tok.style = ScintillaConstants.SCE_CSS_OPERATOR
+                    ret_toks.append(tok)
+                    newTok.start_column = tok.end_column
+                    tok = newTok
+                    tokText = tokText[1:]
+                else:
+                    m = num_ptn.match(tokText)
+                    if m:
+                        newTok = tok.clone('')
+                        tok.text = m.group(1)
+                        tok.end_column = tok.start_column + len(tok.text)
+                        tok.style = ScintillaConstants.SCE_CSS_NUMBER
+                        ret_toks.append(tok)
+                        newTok.start_column = tok.end_column
+                        tok = newTok
+                        tokText = m.group(2)
+                    elif tokText[0].lower() == "n":
+                        newTok = tok.clone('')
+                        tok.text = tokText[0]
+                        tok.end_column = tok.start_column + 1
+                        tok.style = ScintillaConstants.SCE_CSS_VALUE
+                        ret_toks.append(tok)
+                        newTok.start_column = tok.end_column
+                        tok = newTok
+                        tokText = tokText[1:]
+                    else:
+                        # Just append it and deal with it later
+                        ret_toks.append(tok)
+                        tok = self._tokenizer.get_next_token()
+                        break # break inner loop, go back to outer loop
+                if not tokText:
+                    # Start working on another token.
+                    tok = self._tokenizer.get_next_token()
+                    break # break inner loop, go back to outer loop
+                        
+                
+            # end while tokText
+        # end while looping over tokens waiting for a ")"
+            
+    def _parse_structural_pseudo_class_arg(self):
+        """ Weird grammar:
+        nth : S* nthPart S* ;
+        
+        nthPart: ['-'|'+']? INTEGER? {N} [S* ['-'|'+'] S* INTEGER]?
+               | ['-'|'+']? INTEGER
+               | {ODD}
+               | {EVEN}
+               ;
+               
+        Note that + will be colored as an op, but - will be colored as
+        an unknown identifier
+        """
+        tok = self._tokenizer.get_next_token()
+        if self._classifier.is_tag(tok) and tok.text.lower() in ("odd", "even"):
+            return
+        tokens = self._reparse_structural_tokens(tok)
+        end_tok = tokens.pop() # This was also put back
+        if not tokens:
+            self._add_result("expecting a value", end_tok)
+            return
+        tok = tokens.pop(0)
+        if self._classifier.is_operator(tok) and tok.text in ('-', '+'):
+            tokSign = tok
+            if not tokens:
+                self._add_result("expecting a number or N", end_tok)
+                return
+            tok = tokens.pop(0)
+            if tokSign.end_line != tok.start_line or tokSign.end_column != tok.start_column:
+                self._add_result("expecting no space before %s" % tok.text, tok)
+        met_requirement = False
+        tokNum = None
+        if self._classifier.is_number(tok):
+            if not tokens:
+                return # all ok
+            met_requirement = True
+            tokNum = tok
+            tok = tokens.pop(0)
+        if self._classifier.is_value(tok) and tok.text.lower() == 'n':
+            if not tokens:
+                return # all ok
+            if tokNum and (tokNum.end_line != tok.start_line
+                           or tokNum.end_column != tok.start_column):
+                self._add_result("expecting no space before %s" % tok.text, tok)
+            tok = tokens.pop(0)
+        elif not met_requirement:
+            self._add_result("expecting a number or N", tok)
+            # Complain and give up
+            return
+        else:
+            # If we didn't see an 'n', we need to leave
+            self._add_result("expecting ')'", tok)
+            return
+        # Look for a second 'sign'
+        require_number = False
+        if self._classifier.is_operator(tok) and tok.text in ('-', '+'):
+            if not tokens:
+                self._add_result("expecting a number", end_tok)
+                return
+            tok = tokens.pop(0)
+        if self._classifier.is_number(tok):
+            if not tokens:
+                return
+        else:
+            self._add_result("expecting a number", tok)
+        if tokens:
+            self._add_result("expecting ')'", tokens[0])
     
     def _parse_simple_selector(self, match_required, resolve_selector_property_ambiguity):
         saw_pseudo_element = False
@@ -334,7 +485,7 @@ class _CSSParser(object):
                 num_selected_names += 1
                 self._pseudo_element_check(tok, saw_pseudo_element)
                 if not self._supportsNestedDeclaration:
-                    self._add_result("treating unrecognized name %s (%d) as a tag name" % (tok.text, tok.style),
+                    self._add_result("expecting a tag name, got unrecognized name %s (style %d)" % (tok.text, tok.style),
                                      tok, status=0)
                 current_name = tok.text
                 could_have_mixin = False
@@ -363,14 +514,23 @@ class _CSSParser(object):
                         return False
                     num_selected_names += 1
                     current_name = tok.text
-                    if tok.text in ("not", "-moz-any"):
+                    if (tok.text in self._structural_pseudo_classes_with_args
+                        or tok.text in self._structural_pseudo_classes_other): # "not", "-moz-any"
+                        prev_tok = tok
                         tok = self._tokenizer.get_next_token()
                         if self._classifier.is_operator(tok, "("):
-                            # It's the CSS3 "not" or -moz-any selector
-                            self._parse_simple_selector(True, resolve_selector_property_ambiguity=False)
+                            if prev_tok.text in self._structural_pseudo_classes_with_args:
+                                self._parse_structural_pseudo_class_arg()
+                            else:
+                                # It's the CSS3 "not" or -moz-any selector
+                                self._parse_simple_selector(True, resolve_selector_property_ambiguity=False)
                             self._parse_required_operator(")")
                         else:
+                            if prev_tok.text in self._structural_pseudo_classes_args:
+                                self._add_result("expecting a parenthesized structural pseudo-class argument")
                             self._tokenizer.put_back(tok)
+                    #elif tok.text in self._structural_pseudo_classes_no_args:
+                    #    pass # Nothing to do
                     could_have_mixin = False
                 elif tok.text in ("#", ".", "::",):
                     prev_tok = tok
