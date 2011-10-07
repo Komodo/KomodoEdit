@@ -66,22 +66,42 @@ class CSSLintTest(CodeIntelTestCase):
             fd = open(path, 'r')
             code = fd.read().decode("utf-8")
             fd.close()
-            print "Test file %s" % basename(path)
+            #print "Test file %s" % basename(path)
             results = self.csslinter.lint(code)
             self.assertEqual([], results, "Failed to parse file %s" % path)
+         
+    _skin_dir = join(dirname(dirname(dirname(abspath(__file__)))), "chrome", "komodo", "skin")
+    _skipSkinFiles = [
+        join(_skin_dir, 'codeintel', 'autocomplete-popup.css'),
+    ]   
+    def _walk_skin_files(self, data, dirname, fnames):
+        for fname in fnames:
+            if fname.endswith(".css"):
+                fpath = join(dirname, fname)
+                if fpath in self._skipSkinFiles:
+                    continue
+                fd = open(fpath, 'r')
+                code = fd.read().decode("utf-8")
+                fd.close()
+                for lang in self.langs:
+                    #sys.stderr.write("Test file %s\n" % basename(fpath))
+                    results = self.csslinter.lint(code, language=lang)
+                    self.assertEqual([], results, "Failed to parse file %s (%s), results: %s" % (fpath, lang, [str(x) for x in results]))
 
     def test_komodo_skin_files_01(self):
         # Test these under CSS, SCSS, and Less
-        skin_dir = join(dirname(dirname(dirname(abspath(__file__)))), "chrome", "komodo", "skin")
-        self.assertTrue(os.path.exists(join(skin_dir, "codeintel.css")), skin_dir)
-        for path in glob.glob(join(skin_dir, "*.css")):
-            fd = open(path, 'r')
-            code = fd.read().decode("utf-8")
-            fd.close()
-            for lang in self.langs:
-                #sys.stderr.write("Test file %s\n" % basename(path))
-                results = self.csslinter.lint(code, language=lang)
-                self.assertEqual([], results, "Failed to parse file %s (%s), results: %s" % (path, lang, [str(x) for x in results]))
+        self.assertTrue(os.path.exists(join(self._skin_dir, "codeintel.css")), "%s: missing codeintel.css" % self._skin_dir)
+        os.path.walk(self._skin_dir, self._walk_skin_files, None)
+        
+    def test_komodo_skin_files_problem_02(self):
+        fpath = self._skipSkinFiles[0]
+        fd = open(fpath, 'r')
+        code = fd.read().decode("utf-8")
+        fd.close()
+        for lang in self.langs:
+            #sys.stderr.write("Test file %s\n" % basename(fpath))
+            results = self.csslinter.lint(code, language=lang)
+            self.assertEqual([], results, "Failed to parse file %s (%s), results: %s" % (fpath, lang, [str(x) for x in results]))
 
     def test_jezdez(self):
         path = join(self.test_dir, "bits", "bad_css_files", "jezdez-reset-fonts-grids.css")
@@ -456,11 +476,19 @@ body {
 }
 """).decode("utf-8")
         self._check_zero_results_show_error(code)
-        
+
     def test_css_good_property_function(self):
         code = dedent("""\
 div.flip {
     background-image: -moz-linear-gradient(rgba(0, 255, 0, 0.05), rgba(0, 255, 0, 0.01));
+}
+""").decode("utf-8")
+        self._check_zero_results_show_error(code)
+
+    def test_css_good_function_with_equal_val(self):
+        code = dedent("""\
+b {
+    filter: alpha(opacity=10);
 }
 """).decode("utf-8")
         self._check_zero_results_show_error(code)

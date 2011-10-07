@@ -10,7 +10,7 @@ import logging
 import SilverCity
 from SilverCity import CSS, ScintillaConstants
 from codeintel2.shared_lexer import EOF_STYLE, Lexer
-from codeintel2.lang_css import CSSLangIntel
+from codeintel2.lang_css import CSSLangIntel, raw_word_lists
 
 log = logging.getLogger("css_linter")
 #log.setLevel(logging.DEBUG)
@@ -87,6 +87,9 @@ class _CSSLexerClassifier(object):
             return True
         else:
             return tok.text == target
+
+    def is_value_or_identifier(self, tok):
+        return self.is_value(tok) or self.is_identifier(tok)
 
     def is_comment(self, ttype):
         return ttype in (ScintillaConstants.SCE_CSS_COMMENT,)
@@ -799,7 +802,7 @@ class _CSSParser(object):
             self._parse_media_expression()
         else:
             # [ONLY | NOT]? media_type [ AND expression ]*
-            if not (self._classifier.is_value(tok) and self._lex_identifier(tok)):
+            if not (self._classifier.is_value_or_identifier(tok) and self._lex_identifier(tok)):
                 self._add_result("expecting an identifier or a parenthesized expression", tok)
                 tok = self._recover(allowEOF=True, opTokens=("{",))
                 if not self._classifier.is_operator(tok, "{"):
@@ -808,7 +811,7 @@ class _CSSParser(object):
                 return
             if tok.text.lower() in ("only", "not"):
                 tok = self._tokenizer.get_next_token()
-                if not (self._classifier.is_value(tok) and self._lex_identifier(tok)):
+                if not (self._classifier.is_value_or_identifier(tok) and self._lex_identifier(tok)):
                     self._add_result("an identifier", tok)
                     tok = self._recover(allowEOF=True, opTokens=("{",))
                     if not self._classifier.is_operator(tok, "{"):
@@ -827,7 +830,7 @@ class _CSSParser(object):
     def _parse_media_expression(self):
         self._parse_required_operator("(") 
         tok = self._tokenizer.get_next_token()
-        if not (self._classifier.is_value(tok) and self._lex_identifier(tok)):
+        if not (self._classifier.is_value_or_identifier(tok) and self._lex_identifier(tok)):
             self._add_result("expecting an identifier", tok)
         tok = self._tokenizer.get_next_token()
         if self._classifier.is_operator(tok, ":"):
@@ -1037,30 +1040,38 @@ class _CSSParser(object):
         if self.language == "SCSS":
             if self._parse_scss_mixin_use():
                 return
-        self._parse_selector(resolve_selector_property_ambiguity=True)
+        # Try categorizing the next token to remove ambiguity
         tok = self._tokenizer.get_next_token()
-        if self._classifier.is_operator(tok, ","):
-            self._parse_ruleset()
-            return
-        if self._classifier.is_operator(tok, "{"):
-            return self._parse_declarations(tok)
-        if self._inserted_mixin:
-            # Nothing left to do.
-            # ; is optional before '}'
-            if self._classifier.is_operator(tok, ";"):
-                return
-            elif self._classifier.is_operator(tok, "}"):
-                self._tokenizer.put_back(tok)
-                return
-            
-        if self._saw_selector:
-            self._add_result("expecting '{'", tok)
-        if self._classifier.is_operator(tok, ":"):
-            self._parse_remaining_declaration()
+        self._tokenizer.put_back(tok)
+        if (self._classifier.is_identifier(tok)
+            and (tok.text in raw_word_lists[0] or tok.text in raw_word_lists[2])):
+            # We have a property
+            self._parse_declaration()
+            # Don't continue parsing declarations -- the next item could start a nested block.
         else:
-            #@NO TEST YET
-            self._add_result("expecting ':' or '{'", tok)
-            self._parser_putback_recover(tok)
+            self._parse_selector(resolve_selector_property_ambiguity=True)
+            tok = self._tokenizer.get_next_token()
+            if self._classifier.is_operator(tok, ","):
+                self._parse_ruleset()
+                return
+            if self._classifier.is_operator(tok, "{"):
+                return self._parse_declarations(tok)
+            if self._inserted_mixin:
+                # Nothing left to do.
+                # ; is optional before '}'
+                if self._classifier.is_operator(tok, ";"):
+                    return
+                elif self._classifier.is_operator(tok, "}"):
+                    self._tokenizer.put_back(tok)
+                    return
+            if self._saw_selector:
+                self._add_result("expecting '{'", tok)
+            if self._classifier.is_operator(tok, ":"):
+                self._parse_remaining_declaration()
+            else:
+                #@NO TEST YET
+                self._add_result("expecting ':' or '{'", tok)
+                self._parser_putback_recover(tok)
 
     def _parse_property(self):
         tok = self._tokenizer.get_next_token()
@@ -1094,7 +1105,6 @@ class _CSSParser(object):
 
     def _parse_operator(self):
         tok = self._tokenizer.get_next_token()
-        self._check_tag_tok(tok, 7)
         if not self._classifier.is_operator(tok):
             self._tokenizer.put_back(tok)
         elif tok.text in (",", "/"):
@@ -1217,6 +1227,9 @@ class _CSSParser(object):
                     return prev_tok is not None
             prev_tok = tok
             tok = self._tokenizer.get_next_token()
+            if self._classifier.is_operator(tok, "="):
+                self._parse_expression()
+                return prev_tok # tok = self._tokenizer.get_next_token()
             if not (self._classifier.is_operator(tok)
                     and tok.text in (":", ".")): # Microsoft additions
                 self._tokenizer.put_back(tok)
