@@ -1,13 +1,18 @@
 # HG changeset patch
-# Date 1300482971 25200
-# User marky
-# Parent cf5e2b71540bf883e67c8473e8517849e3b0ef3c
+# Date 1318029799 25200
+# User Mook <marky@activestate.com>
+# Parent d60e4e3025a370b6075e798950427d7a6cfa4ca5
 pyxpcom: allow callables for interfaces marked as [function]
 
 diff --git a/xpcom/server/policy.py b/xpcom/server/policy.py
 --- a/xpcom/server/policy.py
 +++ b/xpcom/server/policy.py
-@@ -60,20 +60,38 @@ VARIANT_UNICODE_TYPES = xpcom_consts.VTY
+@@ -55,50 +55,75 @@ VARIANT_INT_TYPES = xpcom_consts.VTYPE_I
+ VARIANT_LONG_TYPES = xpcom_consts.VTYPE_INT64, xpcom_consts.VTYPE_UINT64
+ VARIANT_FLOAT_TYPES = xpcom_consts.VTYPE_FLOAT, xpcom_consts.VTYPE_DOUBLE
+ VARIANT_STRING_TYPES = xpcom_consts.VTYPE_CHAR, xpcom_consts.VTYPE_CHAR_STR, xpcom_consts.VTYPE_STRING_SIZE_IS, \
+                        xpcom_consts.VTYPE_CSTRING
+ VARIANT_UNICODE_TYPES = xpcom_consts.VTYPE_WCHAR, xpcom_consts.VTYPE_DOMSTRING, xpcom_consts.VTYPE_WSTRING_SIZE_IS, \
                          xpcom_consts.VTYPE_ASTRING 
  
  _supports_primitives_map_ = {} # Filled on first use.
@@ -32,9 +37,16 @@ diff --git a/xpcom/server/policy.py b/xpcom/server/policy.py
 +                while not enum.IsDone():
 +                    interface_info = enum.CurrentItem(xpcom._xpcom.IID_nsIInterfaceInfo)
 +                    enum.Next()
-+                    if interface_info.isFunction():
-+                        real_ret.add(interface_info.GetIID())
-+                        assert interface_info.GetParent().GetIID() == IID_nsISupports
++                    try:
++                        if interface_info.isFunction():
++                            real_ret.add(interface_info.GetIID())
++                            assert interface_info.GetParent().GetIID() == IID_nsISupports
++                    except COMException, e:
++                        # this can happen if the interface failed to resolve.
++                        if e.errno != nsError.NS_ERROR_UNEXPECTED:
++                            raise
++                        logger.warning("Warning: failed to inspect interface %s for [function] flag",
++                                       interface_info.name)
 +                _function_interfaces_ = list(real_ret)
 +            return _function_interfaces_
 +        return None
@@ -49,7 +61,11 @@ diff --git a/xpcom/server/policy.py b/xpcom/server/policy.py
      for interface in ret:
          # Allow interface name or IID.
          interface_info = None
-@@ -85,15 +103,15 @@ def _GetNominatedInterfaces(obj):
+         if type(interface) in _string_types_:
+             try:
+                 interface_info = iim.GetInfoForName(interface)
+             except COMException:
+                 pass
          if interface_info is None:
              # Allow a real IID
              interface_info = iim.GetInfoForIID(interface)
@@ -68,7 +84,17 @@ diff --git a/xpcom/server/policy.py b/xpcom/server/policy.py
  
  ##
  ## ClassInfo support
-@@ -141,6 +159,7 @@ class DefaultPolicy:
+ ##
+ ## We cache class infos by class
+ class_info_cache = {}
+ 
+ def GetClassInfoForObject(ob):
+@@ -136,16 +161,17 @@ class DefaultClassInfo:
+     def getHelperForLanguage(self, language):
+         return None # Not sure what to do here.
+ 
+ class DefaultPolicy:
+     def __init__(self, instance, iid):
          self._obj_ = instance
          self._nominated_interfaces_ = ni = _GetNominatedInterfaces(instance)
          self._iid_ = iid
@@ -76,7 +102,17 @@ diff --git a/xpcom/server/policy.py b/xpcom/server/policy.py
          if ni is None:
              raise ValueError, "The object '%r' can not be used as a COM object" % (instance,)
          # This is really only a check for the user - the same thing is
-@@ -271,10 +290,17 @@ class DefaultPolicy:
+         # done by the framework.
+         # XXXmarkh - this should probably die now we have better error
+         # reporting in the framework!
+         if __debug__:
+             if iid != IID_nsISupports and iid not in ni:
+@@ -266,20 +292,27 @@ class DefaultPolicy:
+             # Look for a function of that name
+             func = getattr(self._obj_, "set_" + name, None)
+             if func is None:
+                 assert len(param_descs)==1 and len(params)==1, "Can only handle a single [in] arg for a default setter"
+                 setattr(self._obj_, name, params[0]) # Let attribute error go here!
              else:
                  func(*params)
              return 0
@@ -97,11 +133,21 @@ diff --git a/xpcom/server/policy.py b/xpcom/server/policy.py
 +        return 0, func(*params)
  
      def _doHandleException(self, func_name, exc_info):
-         try:
+         exc_val = exc_info[1]
+         is_server_exception = isinstance(exc_val, ServerException)
+         if is_server_exception:
+             # When a component raised an explicit COM exception, it is
+             # considered 'normal' - however, we still write a debug log
+             # record to help track these otherwise silent exceptions.
 diff --git a/xpcom/src/PyIInterfaceInfo.cpp b/xpcom/src/PyIInterfaceInfo.cpp
 --- a/xpcom/src/PyIInterfaceInfo.cpp
 +++ b/xpcom/src/PyIInterfaceInfo.cpp
-@@ -390,6 +390,25 @@ static PyObject *PyGetInterfaceIsArgNumb
+@@ -385,16 +385,35 @@ static PyObject *PyGetInterfaceIsArgNumb
+         PRUint8 ret;
+ 	const nsXPTParamInfo& param_info = pmi->GetParam((PRUint8)pi);
+ 	nsresult n = pii->GetInterfaceIsArgNumberForParam(mi, &param_info, &ret);
+ 	if (NS_FAILED(n))
+ 		return PyXPCOM_BuildPyException(n);
  	return PyInt_FromLong(ret);
  }
  
@@ -127,7 +173,17 @@ diff --git a/xpcom/src/PyIInterfaceInfo.cpp b/xpcom/src/PyIInterfaceInfo.cpp
  struct PyMethodDef 
  PyMethods_IInterfaceInfo[] =
  {
-@@ -408,6 +427,7 @@ PyMethods_IInterfaceInfo[] =
+ 	{ "GetName", PyGetName, 1},
+ 	{ "GetIID", PyGetIID, 1},
+ 	{ "IsScriptable", PyIsScriptable, 1},
+ 	{ "GetParent", PyGetParent, 1},
+ 	{ "GetMethodCount", PyGetMethodCount, 1},
+@@ -403,16 +422,17 @@ PyMethods_IInterfaceInfo[] =
+ 	{ "GetMethodInfoForName", PyGetMethodInfoForName, 1},
+ 	{ "GetConstant", PyGetConstant, 1},
+ 	{ "GetInfoForParam", PyGetInfoForParam, 1},
+ 	{ "GetIIDForParam", PyGetIIDForParam, 1},
+ 	{ "GetTypeForParam", PyGetTypeForParam, 1},
  	{ "GetSizeIsArgNumberForParam", PyGetSizeIsArgNumberForParam, 1},
  	{ "GetLengthIsArgNumberForParam", PyGetLengthIsArgNumberForParam, 1},
  	{ "GetInterfaceIsArgNumberForParam", PyGetInterfaceIsArgNumberForParam, 1},
@@ -135,10 +191,20 @@ diff --git a/xpcom/src/PyIInterfaceInfo.cpp b/xpcom/src/PyIInterfaceInfo.cpp
  	{NULL}
  };
  
+ /*
+   NS_IMETHOD GetMethodInfo(PRUint16 index, const nsXPTMethodInfo * *info) = 0;
+   NS_IMETHOD GetMethodInfoForName(const char *methodName, PRUint16 *index, const nsXPTMethodInfo * *info) = 0;
+   NS_IMETHOD GetConstant(PRUint16 index, const nsXPTConstant * *constant) = 0;
+   NS_IMETHOD GetInfoForParam(PRUint16 methodIndex, const nsXPTParamInfo * param, nsIInterfaceInfo **_retval) = 0;
 diff --git a/xpcom/xpcom_consts.py b/xpcom/xpcom_consts.py
 --- a/xpcom/xpcom_consts.py
 +++ b/xpcom/xpcom_consts.py
-@@ -180,11 +180,13 @@ def XPT_TDP_IS_UNIQUE_POINTER(flags): re
+@@ -175,21 +175,23 @@ XPT_TDP_FLAGMASK         = 0xe0
+ XPT_TDP_TAGMASK          = (~XPT_TDP_FLAGMASK)
+ def XPT_TDP_TAG(tdp): return (tdp & XPT_TDP_TAGMASK)
+ 
+ def XPT_TDP_IS_POINTER(flags): return (flags & XPT_TDP_POINTER)
+ def XPT_TDP_IS_UNIQUE_POINTER(flags): return (flags & XPT_TDP_UNIQUE_POINTER)
  def XPT_TDP_IS_REFERENCE(flags): return (flags & XPT_TDP_REFERENCE)
  
  XPT_ID_SCRIPTABLE           = 0x80
@@ -153,3 +219,8 @@ diff --git a/xpcom/xpcom_consts.py b/xpcom/xpcom_consts.py
  
  XPT_PD_IN       = 0x80
  XPT_PD_OUT      = 0x40
+ XPT_PD_RETVAL   = 0x20
+ XPT_PD_SHARED   = 0x10
+ XPT_PD_DIPPER   = 0x08
+ XPT_PD_OPTIONAL = 0x04
+ XPT_PD_FLAGMASK = 0xf0
