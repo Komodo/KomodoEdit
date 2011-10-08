@@ -199,5 +199,5 @@ interface koIFileStatusService : nsISupports {
          */
     void updateStatusForUris(in unsigned long count,
                              [array, size_is(count)] in wstring uris,
-                             in boolean forceRefresh);
+                             [optional] in boolean forceRefresh);
 };

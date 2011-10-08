@@ -394,7 +394,7 @@ class KoFileStatusService:
             t.setDaemon(True)
             t.start()
 
-    def updateStatusForUris(self, uris, forceRefresh):
+    def updateStatusForUris(self, uris, forceRefresh=False):
         koIFiles = map(self._fileSvc.getFileFromURI, uris)
         self.updateStatusForFiles(koIFiles, forceRefresh, None)
 
