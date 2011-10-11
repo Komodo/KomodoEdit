@@ -85,7 +85,7 @@ if _xpcom_:
 
 lang = "PHP"
 log = logging.getLogger("codeintel.php")
-#log.setLevel(logging.DEBUG)
+log.setLevel(logging.DEBUG)
 util.makePerformantLogger(log)
 
 #---- language support
@@ -2632,7 +2632,7 @@ class PHPParser:
         while p < len(styles):
             if styles[p] in self.PHP_STRINGS:
                 constant_name += self._unquoteString(text[p])
-            elif styles[p] == self.PHP_IDENTIFIER and \
+            elif styles[p] == self.PHP_WORD and \
                  text[p] == "__NAMESPACE__" and self.currentNamespace:
                 # __NAMESPACE__ is a special constant - we can expand this as we
                 # know what the current namespace is.
