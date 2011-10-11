@@ -107,13 +107,7 @@ diff --git a/xpcom/server/policy.py b/xpcom/server/policy.py
          # reporting in the framework!
          if __debug__:
              if iid != IID_nsISupports and iid not in ni:
-@@ -266,20 +292,27 @@ class DefaultPolicy:
-             # Look for a function of that name
-             func = getattr(self._obj_, "set_" + name, None)
-             if func is None:
-                 assert len(param_descs)==1 and len(params)==1, "Can only handle a single [in] arg for a default setter"
-                 setattr(self._obj_, name, params[0]) # Let attribute error go here!
-             else:
+@@ -268,8 +294,15 @@
                  func(*params)
              return 0
 -        else:
@@ -133,12 +127,6 @@ diff --git a/xpcom/server/policy.py b/xpcom/server/policy.py
 +        return 0, func(*params)
  
      def _doHandleException(self, func_name, exc_info):
-         exc_val = exc_info[1]
-         is_server_exception = isinstance(exc_val, ServerException)
-         if is_server_exception:
-             # When a component raised an explicit COM exception, it is
-             # considered 'normal' - however, we still write a debug log
-             # record to help track these otherwise silent exceptions.
 diff --git a/xpcom/src/PyIInterfaceInfo.cpp b/xpcom/src/PyIInterfaceInfo.cpp
 --- a/xpcom/src/PyIInterfaceInfo.cpp
 +++ b/xpcom/src/PyIInterfaceInfo.cpp
