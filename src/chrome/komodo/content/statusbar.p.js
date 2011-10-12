@@ -494,6 +494,8 @@ function StatusBarObserver() {
                             this.handle_current_view_check_status, false);
     window.addEventListener('current_view_linecol_changed',
                             this.handle_current_view_linecol_changed, false);
+    window.addEventListener('current_view_lint_results_done',
+                            this.handle_current_lint_results_done, false);
     window.addEventListener('view_closed',
                             this.handle_current_view_open_or_closed, false);
     window.addEventListener('load', function() {
@@ -519,6 +521,8 @@ StatusBarObserver.prototype.destroy = function()
 
     window.removeEventListener('current_view_changed',
                                this.handle_current_view_changed, false);
+    window.removeEventListener('current_view_lint_results_done',
+                               this.handle_current_lint_results_done, false);
     window.removeEventListener('current_view_check_status',
                                this.handle_current_view_check_status, false);
     window.removeEventListener('current_view_linecol_changed',
@@ -561,6 +565,10 @@ StatusBarObserver.prototype.handle_current_view_changed = function(event) {
 };
 
 StatusBarObserver.prototype.handle_current_view_check_status = function(event) {
+    _updateCheck(ko.views.manager.currentView);
+};
+
+StatusBarObserver.prototype.handle_current_lint_results_done = function(event) {
     _updateCheck(ko.views.manager.currentView);
 };
 
