@@ -70,11 +70,18 @@ class CSSLintTest(CodeIntelTestCase):
             results = self.csslinter.lint(code)
             self.assertEqual([], results, "Failed to parse file %s" % path)
          
-    _skin_dir = join(dirname(dirname(dirname(abspath(__file__)))), "chrome", "komodo", "skin")
-    _modules_dir = join(dirname(dirname(dirname(abspath(__file__)))), "modules")
+    _test_dir = abspath(__file__)
+    # Running these tests via bk test gives strange results for abspath,
+    # so manually adjust
+    _m = re.compile(r'(.*)src[/\\]codeintel[/\\](src[/\\](?:codeintel|modules))(.*)').match(_test_dir)
+    if _m:
+        _test_dir = ''.join(_m.groups())
+    _ko_src_dir = dirname(dirname(dirname(_test_dir)))
+    _skin_dir = join(_ko_src_dir, "chrome", "komodo", "skin")
+    _modules_dir = join(_ko_src_dir, "modules")
     _skipSkinFiles = [
         join(_modules_dir, 'publishing', 'skin', 'publishing_settings.css'),
-    ]   
+    ]
     def _walk_skin_files(self, data, dirname, fnames):
         for fname in fnames:
             if fname.endswith(".css"):
