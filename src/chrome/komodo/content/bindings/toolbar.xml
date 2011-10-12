@@ -46,7 +46,9 @@
           xmlns:html="http://www.w3.org/1999/xhtml"
           xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
-    <!-- Toolbar that will make any overflowed items visible through a -->
+    <!-- A toolbar that will allow overflowed items to be accessible through
+         a separate menu dropdown widget at the edge of the toolbar.
+    -->
     <binding id="toolbar-overflow"
              extends="chrome://global/content/bindings/general.xml#basecontrol">
 
