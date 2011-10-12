@@ -1534,7 +1534,7 @@ class WithWatchdogFSNotifications(black.configure.BooleanDatum):
         self.applicable = 1
         configTokens = black.configure.items["configTokens"].Get()
         productType = black.configure.items["productType"].Get()
-        self.value = 0 # exclude by default for now
+        self.value = 1 # included by default
         for opt, optarg in self.chosenOptions:
             if opt == "--with-watchdog-fs-notifications":
                 self.value = 1
