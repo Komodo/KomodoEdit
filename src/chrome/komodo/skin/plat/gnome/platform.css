@@ -79,6 +79,10 @@ menubar {
 }
 
 
+/* for the toolbar overflow menupopup, always display icons */
+#main-toolboxrow .overflow-menupopup menuitem.menuitem-iconic .menu-iconic-left {
+  visibility: visible;
+}
 
 
 /*---- history toolbar items

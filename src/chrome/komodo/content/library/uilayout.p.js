@@ -215,6 +215,12 @@ this.customizeToolbars = function uilayout_customizeToolbars(aToolbox) {
                 }
             }
         }
+
+        // make the overflow button rebuild the next time it's open
+        var toolboxRow = document.getElementById("main-toolboxrow");
+        if (toolboxRow) {
+            toolboxRow.dirty = true;
+        }
     }).bind(this);
 
     const DIALOG_URL = "chrome://komodo/content/dialogs/customizeToolbar.xul";

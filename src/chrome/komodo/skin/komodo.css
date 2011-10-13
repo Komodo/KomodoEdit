@@ -70,12 +70,28 @@ toolbar[printpreview="true"] {
 }
 
 #main-toolboxrow {
-  overflow: hidden;
   min-width: 1px;
   min-height: 19px;
   -moz-appearance: toolbar;
   border-top: 1px solid ThreeDHighlight;
   border-bottom: 1px solid ThreeDShadow;
+  -moz-binding: url('chrome://komodo/content/bindings/toolbar.xml#toolboxrow-overflow');
+}
+
+#main-toolboxrow > [first-overflow] ~ *,
+#main-toolboxrow > [first-overflow] > [first-child-overflow],
+#main-toolboxrow > [first-overflow] > [first-child-overflow] ~ * {
+  /* things that would overflow in the toolboxrow */
+  visibility: hidden;
+}
+
+#main-toolboxrow > .overflow-toolbarbutton > .toolbarbutton-menu-dropmarker {
+  /* the dropmarker on the toolboxrow overflow button */
+  visibility: collapse;
+}
+
+#main-toolboxrow .overflow-menupopup [disabled] .menu-iconic-icon {
+  opacity: 0.5;
 }
 
 #main-toolboxrow > toolbar {

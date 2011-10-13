@@ -148,5 +148,231 @@
 
     </binding>
 
+    <!-- similar to toolbar-overflow, but meant to contain child toolbars -->
+    <binding id="toolboxrow-overflow" extends="#toolbar-overflow">
+        <content>
+            <xul:hbox anonid="overflow-container"
+                      style="overflow: hidden; -moz-box-orient: horizontal;"
+                      flex="1">
+                <children/>
+            </xul:hbox>
+            <xul:toolbarbutton anonid="overflow-toolbarbutton"
+                               class="overflow-toolbarbutton"
+                               collapsed="true"
+                               type="menu"
+                               label="&#0187;">
+                <xul:menupopup anonid="overflow-menupopup"
+                               class="overflow-menupopup"/>
+            </xul:toolbarbutton>
+        </content>
+
+        <implementation>
+
+            <field name="container">
+                document.getAnonymousElementByAttribute(this, "anonid", "overflow-container")
+            </field>
+            <field name="button">
+                document.getAnonymousElementByAttribute(this, "anonid", "overflow-toolbarbutton")
+            </field>
+            <field name="popup">
+                document.getAnonymousElementByAttribute(this, "anonid", "overflow-menupopup")
+            </field>
+
+            <property name="dirty">
+                <!--
+                  - Whether the popup menu is dirty.  It is considered dirty
+                  - when it needs to be rebuilt; this can be due to the window
+                  - resizing (see the listener in #toolbar-overflow) or due to
+                  - toolbar customization (see uilayout.js,
+                  - ko.uilayout.customizeToolbars)
+                  -->
+                <getter>
+                    return this.button.hasAttribute("dirty");
+                </getter>
+                <setter>
+                    if (val) {
+                        this.button.setAttribute("dirty", true);
+                    } else {
+                        this.button.removeAttribute("dirty");
+                    }
+                </setter>
+            </property>
+
+            <method name="_updateChildVisibility_callback">
+              <parameter name="event" />
+              <body>
+              <![CDATA[
+                var scrollRect = this.container.getBoundingClientRect();
+                var children = Array.slice(this.childNodes); // XBL, so this.childNodes is right :|
+                var first_overflow = this.querySelector("[first-overflow]");
+                var first_child_overflow = this.querySelector("[first-overflow] > [first-child-overflow]");
+                var overflow = false;
+
+                for (var [i, child] in Iterator(children)) {
+                    var childRect = child.getBoundingClientRect();
+                    if (childRect.right > scrollRect.right) {
+                        // overflowed
+                        child.setAttribute("first-overflow", true);
+                        if (child != first_overflow) {
+                            // the previously first overflowing element changed;
+                            // we're definitely dirty.
+                            if (first_overflow) {
+                                first_overflow.removeAttribute("first-overflow");
+                            }
+                            this.dirty = true;
+                        }
+                        overflow = true;
+                        first_overflow = child;
+                        break; // once a child overflows, the rest will too
+                    }
+                }
+
+                if (!overflow) {
+                    // nothing overflowed at all
+                    if (first_overflow) {
+                        // ... but something previously did. (we got more space)
+                        first_overflow.removeAttribute("first-overflow");
+                        this.button.setAttribute("collapsed", true);
+                        this.dirty = true;
+                    }
+                    if (first_child_overflow) {
+                        first_child_overflow.removeAttribute("first-child-overflow");
+                        this.dirty = true;
+                    }
+                    return;
+                }
+
+                // getting here means something overflowed
+                this.button.removeAttribute("collapsed");
+                switch (first_overflow.localName) {
+                    case "toolboxrow":
+                    case "toolbar":
+                    case "toolbaritem":
+                        // these are containers; we will look at its children
+                        // later to find the first item to hide.
+                        break;
+                    default:
+                        // the first overflowing item is a toolbaritem itself
+                        // don't look at its children
+                        if (first_child_overflow) {
+                            first_child_overflow.removeAttribute("first-child-overflow");
+                            this.dirty = true;
+                        }
+                        return;
+                }
+
+                // need to figure out which children to hide
+                children = Array.slice(first_overflow.childNodes);
+                for ([i, child] in Iterator(children)) {
+                    childRect = child.getBoundingClientRect();
+                    if (childRect.right > scrollRect.right) {
+                        if (child != first_child_overflow) {
+                            if (first_child_overflow) {
+                                first_child_overflow.removeAttribute("first-child-overflow");
+                            }
+                            this.dirty = true;
+                        }
+                        child.setAttribute("first-child-overflow", true);
+                        break;
+                    }
+                }
+              ]]>
+              </body>
+            </method>
+        </implementation>
+        <handlers>
+            <handler event="popupshowing">
+            <![CDATA[
+                if (!this.dirty) {
+                    // not dirty, no need to do anything
+                    return;
+                }
+                
+                while (this.popup.firstChild) {
+                    this.popup.removeChild(this.popup.firstChild);
+                }
+                
+                var build = (function build_(elem) {
+                    var {height, width} = elem.getBoundingClientRect();
+                    if (width == 0 && height == 0) {
+                        // this item is hidden, don't do anything here
+                        return;
+                    }
+                    switch (elem.localName) {
+                        case "toolboxrow":
+                        case "toolbar":
+                        case "toolbaritem":
+                            // these elements are containers; create menuitems
+                            // for their children instead
+                            Array.slice(elem.childNodes).forEach(build);
+                            return;
+                        case "spacer":
+                        case "separator":
+                        case "toolbarseparator":
+                            // these can just be skipped
+                            return;
+                    }
+                    // build a single menu item
+                    var item = document.createElement("menuitem");
+                    item.setAttribute("label", elem.getAttribute("label"));
+                    if (elem.hasAttribute("image")) {
+                        item.setAttribute("image", elem.getAttribute("image"));
+                        item.classList.add("menuitem-iconic");
+                    } else {
+                        var style = getComputedStyle(elem);
+                        var image = style.listStyleImage;
+                        if (image) {
+                            item.style.listStyleImage = image;
+                            item.style.MozImageRegion = style.MozImageRegion;
+                            item.classList.add("menuitem-iconic");
+                        }
+                    }
+                    item.addEventListener("command", function(evt) {
+                        var event = document.createEvent("XULCommandEvent");
+                        event.initCommandEvent(evt.type,
+                                               evt.canBubble,
+                                               evt.cancelable,
+                                               evt.view,
+                                               evt.detail,
+                                               evt.ctrlKey,
+                                               evt.altKey,
+                                               evt.shiftKey,
+                                               evt.metaKey,
+                                               evt);
+                        elem.dispatchEvent(event);
+                    }, false);
+                    if (elem.id) {
+                        var observes = document.createElement("observes");
+                        observes.setAttribute("element", elem.id);
+                        observes.setAttribute("attribute", "disabled");
+                        item.appendChild(observes);
+                    }
+                    this.popup.appendChild(item);
+                }).bind(this);
+                var child = this.querySelector("[first-overflow]");
+                if (child) {
+                    var grandchild = child.querySelector("[first-child-overflow]");
+                    if (grandchild) {
+                        // the fist overflowing element is itself a container;
+                        // figure out if any of its children need hiding
+                        for (; grandchild; grandchild = grandchild.nextSibling) {
+                            build(grandchild);
+                        }
+                    } else {
+                        // the first overflowing element is not a child.
+                        // just hide it.
+                        build(child);
+                    }
+                }
+                for (child = child.nextSibling; child; child = child.nextSibling) {
+                    build(child);
+                }
+
+                this.dirty = false;
+            ]]>
+            </handler>
+        </handlers>
+    </binding>
+
 </bindings>
 

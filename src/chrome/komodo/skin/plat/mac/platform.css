@@ -131,8 +131,7 @@ toolbar[mode="full"] > toolbaritem > toolbarbutton {
 /**
  * Put toolbar buttons in a bordered box.
  */
-#toolbox_main toolbar:not([mode="full"]) > toolbarbutton,
-#main-toolboxrow:not([mode="full"]) > toolbaritem > toolbarbutton,
+#toolbox_main[mode]:not([mode="full"]) :not(toolbarbutton) > toolbarbutton,
 .solo-toolbaritem > toolbarbutton,
 .solo-button {
   border: 1px solid rgba(0,0,0,.5);
@@ -160,6 +159,10 @@ toolbar[mode="full"] > toolbaritem > toolbarbutton {
 #komodo_main #restore-button {
   list-style-image: url(chrome://komodo/skin/images/fullscreen.png);
   -moz-image-region: rect(0, 40px, 20px, 20px);
+}
+
+#window-controls {
+  -moz-appearance: toolbar;
 }
 
 /**
@@ -193,6 +196,19 @@ toolbarbutton[checked="true"] {
   -moz-border-radius: 4px;
 }
 
+/**
+ * Toolboxrow overflow chevron
+ */
+#toolbox_main #main-toolboxrow > .overflow-toolbarbutton {
+  border: none;
+  background: none;
+  list-style-image: url("chrome://global/skin/icons/chevron.png");
+  -moz-box-pack: center;
+  margin-top: 4px;
+}
+#main-toolboxrow > .overflow-toolbarbutton > .toolbarbutton-text {
+  display: none; /* use the image instead */
+}
 
 /*---- history toolbar items
  * Based on FF back/forward buttons,
