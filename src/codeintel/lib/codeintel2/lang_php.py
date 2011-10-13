@@ -2511,6 +2511,10 @@ class PHPParser:
                     typeNames = ["boolean"];
                 elif keyword == "array":
                     typeNames = ["array()"];
+                elif keyword == "clone":
+                    # clone is a special method - bug 85534.
+                    typeNames, p = self._getIdentifiersFromPos(styles, text, p,
+                                            identifierStyle=self.PHP_VARIABLE)
             elif styles[p] in self.PHP_STRINGS:
                 p += 1
                 typeNames = ["string"]
@@ -2522,10 +2526,6 @@ class PHPParser:
                 if text[p].lower() in ("true", "false"):
                     p += 1
                     typeNames = ["boolean"]
-                elif text[p] == "clone":
-                    # clone is a special method - bug 85534.
-                    typeNames, p = self._getIdentifiersFromPos(styles, text, p+1,
-                                            identifierStyle=self.PHP_VARIABLE)
                 else:
                     typeNames, p = self._getIdentifiersFromPos(styles, text, p)
                     # Don't record null, as it doesn't help us with anything
