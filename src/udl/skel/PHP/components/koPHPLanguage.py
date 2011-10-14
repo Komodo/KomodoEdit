@@ -80,8 +80,7 @@ class KoPHPLanguage(KoUDLLanguage, KoLanguageBaseDedentMixin):
     namedBlockDescription = 'PHP functions and classes'
     defaultExtension = ".php"
     variableIndicators = '$'
-    # XXX read from config somewhere, download from ActiveState?
-    downloadURL = 'http://aspn.ActiveState.com/ASPN/PHP/'
+    downloadURL = 'http://php.net/'
     commentDelimiterInfo = {
         "line": [ "//", "#" ],
         "block": [ ("/*", "*/") ],
