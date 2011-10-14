@@ -51,7 +51,7 @@
           return this._text.value
         </getter>
         <setter>
-          return this._text.value = val;
+          return this._text.value = this._text.tooltipText = val;
         </setter>
       </property>
       <property name="details">
