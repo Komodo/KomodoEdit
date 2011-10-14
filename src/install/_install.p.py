@@ -508,10 +508,12 @@ Or you could create a symbolic link to 'komodo', e.g.:
     ln -s "%s/bin/komodo" /usr/local/bin/komodo
 
 Documentation is available in Komodo or on the web here:
-    http://aspn.activestate.com/ASPN/docs/Komodo
+    http://docs.activestate.com/komodo
 
-Please send us any feedback you might have or log bugs here:
-    komodo-feedback@ActiveState.com
+Please send us any feedback you have through one of the
+channels below:
+    komodo-feedback@activestate.com
+    irc://irc.mozilla.org/komodo
     http://bugs.activestate.com/
 
 Thank you for using Komodo.
