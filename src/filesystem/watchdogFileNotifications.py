@@ -101,15 +101,16 @@ class WatchdogFileNotificationService(object):
     def removeObserver(self, ko_observer, path):
         try:
             handler, watch = self._handler_and_watch_map.pop((ko_observer, path))
+            # If this is the last handler of the watch, remove the emitter, the
+            # watch, and all its handlers. Remove just the handler else.
+            last_handler = len(self._observer._get_handlers_for_watch(watch)) == 1
+            if last_handler:
+                self._observer.unschedule(watch)
+            else:
+                self._observer.remove_handler_for_watch(handler, watch)
         except KeyError:
+            # The watch doesn't exist anymore - must have been already removed.
             return False
-        # If this is the last handler of the watch, remove the emitter, the
-        # watch, and all its handlers. Remove just the handler else.
-        last_handler = len(self._observer._get_handlers_for_watch(watch)) == 1
-        if last_handler:
-            self._observer.unschedule(watch)
-        else:
-            self._observer.remove_handler_for_watch(handler, watch)
         return True
 
     @property
