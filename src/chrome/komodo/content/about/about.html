@@ -36,7 +36,15 @@
     font-size: 14px;
     text-align: right;
     color: #666;
-    background: #fff url("img/bodybg.gif") repeat-x;
+    background-color: #fff;
+    background-image: url("img/bodybg.gif"),
+                      url("img/komodo.png");
+    background-repeat: repeat-x,
+                       no-repeat;
+    background-position: top,
+                         -moz-calc(100% - 10px) -moz-calc(100% - 10px);
+    background-attachment: scroll,
+                           fixed;
   }
   
   #content {
@@ -45,12 +53,6 @@
   
   #logo {
     color: black;
-  }
-  #icon {
-    position: fixed;
-    bottom: 0px;
-    right: 0px;
-    padding: 10px;
   }
   h1 {
     margin: 20px 0 5px 0;
@@ -80,8 +82,6 @@
   </style>
 </head>
 <body>
-  <img id="icon" src="img/komodo.png" />
-
   <div id="content">
     <div id="logo" class="as_font_swiss721cnbold" style="font-size: 36px;">Active<span class="as_brand_red">State</span> Komodo Edit</div>
 
