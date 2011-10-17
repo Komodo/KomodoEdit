@@ -371,6 +371,7 @@
         // Handle escape manually so one press with the autocomplete popup open
         // will close the whole findbar, rather than just the popup.
         event.stopPropagation();
+        event.preventDefault();
         this.close();
       </handler>
       <handler event="keypress" keycode="VK_RETURN" modifiers="shift any">
