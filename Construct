@@ -90,9 +90,6 @@ my @toExport = (
     'userDataDir',
 
     'compiler',
-    'mozCFlags',
-    'mozCxxFlags',
-    'mozLdFlags',
     'idlExportDir',
     'mozGcc',
     'mozGxx',
@@ -293,10 +290,12 @@ if ($platform ne "win") {
     }
 }
 # Global compiler flags.
+$environ{CFLAGS} .= " $mozCFlags";
+$environ{CXXFLAGS} .= " $mozCxxFlags";
+$environ{LDFLAGS} .= " $mozLdFlags";
 if ($platform eq "linux") {
     $environ{CFLAGS} .= " -fPIC";
     $environ{CXXFLAGS} .= " -fPIC";
-    #$environ{LDFLAGS} .= " -Wl,-z,defs";
 }
 elsif ($platform eq "darwin") {
     $environ{CFLAGS} .= " -fvisibility=hidden";
@@ -307,31 +306,9 @@ elsif ($platform eq "darwin") {
     $environ{LDFLAGS} .= " -arch i386";
 
     # Use 10.5 SDK for now
-    $envrion{CFLAGS} .= ' -isysroot /Developer/SDKs/MacOSX10.5.sdk -mmacosx-version-min=10.5';
-    $envrion{CXXFLAGS} .= ' -isysroot /Developer/SDKs/MacOSX10.5.sdk -mmacosx-version-min=10.5';
+    $envrion{CFLAGS} .= ' -mmacosx-version-min=10.5';
+    $envrion{CXXFLAGS} .= ' -mmacosx-version-min=10.5';
     $environ{LDFLAGS} .= ' -Wl,-syslibroot,/Developer/SDKs/MacOSX10.5.sdk';
-}
-
-if ($withSymbols) {
-    # Only applies to Linux
-    if ($platform eq "linux") {
-	$environ{'CFLAGS'} .= " -g";
-	$environ{'CXXFLAGS'} .= " -g";
-    }
-}
-
-if ($withCrashReportSymbols) {
-    if ($platform eq "win") {
-	$environ{'CFLAGS'} .= " -Zi";
-	$environ{'CXXFLAGS'} .= " -Zi";
-	$environ{'LDFLAGS'} .= " /DEBUG /OPT:REF";
-    } elsif ($platform eq "darwin") {
-	$environ{'CFLAGS'} .= " -gdwarf-2";
-	$environ{'CXXFLAGS'} .= " -gdwarf-2";
-    } elsif ($platform eq "linux") {
-	$environ{'CFLAGS'} .= " -gstabs+";
-	$environ{'CXXFLAGS'} .= " -gstabs+";
-    }
 }
 
 
