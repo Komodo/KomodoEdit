@@ -1185,29 +1185,31 @@ function _findFontName(name) {
 
 function customColor(colorpickerid) {
     var colorpicker = document.getElementById(colorpickerid);
-    var color = colorpicker.color;
+    var color = "#" + colorpicker.color.replace(/^#/, "");
     // Prefer the locally preferenced color picker:
-    var cpSvc;
+    var picker = null;
     var cid = gDialog.prefset.getStringPref("colorpicker_cid");
-    try {
-        cpSvc = Components.classes[cid].getService(Components.interfaces.koIColorPicker);
-    } catch (ex) {
-        // Only log an exception if a cid has been explicitly set.
-        if (cid) {
+    if (cid) {
+        try {
+            picker = Components.classes[cid]
+                               .getService(Components.interfaces.koIColorPickerAsync);
+        } catch (ex) {
             log.exception(ex, "Unable to load the colorpicker with CID: " + cid);
+            picker = null;
         }
+    }
+    if (!picker) {
         // Use the sysUtils color picker then:
-        cpSvc = Components.classes['@activestate.com/koSysUtils;1'].
-                    getService(Components.interfaces.koISysUtils);
+        picker = Components.classes['@activestate.com/koSysUtils;1']
+                           .getService(Components.interfaces.koIColorPickerAsync);
     }
-    var newcolor = cpSvc.pickColorWithPositioning(color,
-                                        colorpicker.boxObject.screenX,
-                                        colorpicker.boxObject.screenY);
-    if (newcolor) {
-        if (!ensureWriteableScheme()) return;
-        colorpicker.color = newcolor;
-        setColour(colorpicker);
-    }
+    picker.pickColorAsync(function(newcolor) {
+        if (newcolor) {
+            if (!ensureWriteableScheme()) return;
+            colorpicker.color = newcolor;
+            setColour(colorpicker);
+        }
+    }, color, 1.0, colorpicker.boxObject.screenX, colorpicker.boxObject.screenY);
 }
 
 function updateLanguage()
@@ -1544,10 +1546,11 @@ function testColorpicker() {
     if (menulist.selectedItem) {
         var cid = menulist.selectedItem.getAttribute("cid");
         try {
-            var cp = Components.classes[cid].createInstance(Components.interfaces.koIColorPicker);
-            cp.pickColorWithPositioning("#00ACDC",
-                                        menulist.boxObject.screenX,
-                                        menulist.boxObject.screenY);
+            var cp = Components.classes[cid]
+                               .createInstance(Components.interfaces.koIColorPickerAsync);
+            cp.pickColorAsync(function(){}, "#00ACDC", 1.0,
+                              menulist.boxObject.screenX,
+                              menulist.boxObject.screenY);
         } catch (ex) {
             ko.dialogs.alert("Could not instantiate this color picker", ex);
         }

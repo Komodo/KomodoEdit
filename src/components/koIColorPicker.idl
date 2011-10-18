@@ -36,19 +36,72 @@
 
 #include "nsISupports.idl"
 
-[scriptable, uuid(4e03a4be-ab01-4ce1-bc8a-104130d558a7)]
+/**
+ * Synchronous color picker interface
+ * @deprecated since Komodo 7.0b1 - This launches UI; being synchronus means if
+ *      the user goes away for a bit the app will think it has hung.  It can
+ *      also introduce bad reentrancy hazards, see bug 91299.  Use
+ *      koIColorPickerAsync instead.
+ */
+[scriptable, deprecated, uuid(4e03a4be-ab01-4ce1-bc8a-104130d558a7)]
 interface koIColorPicker : nsISupports {
         /**
          * Open the color picker dialog with the startingcolor.
          * @param startingcolor - Color string, must use the format "#ABCDEF".
          */
-    string pickColor(in string startingcolor);
+    [deprecated] string pickColor(in string startingcolor);
         /**
          * Open the color picker dialog with the startingcolor at position x,y.
          * @param startingcolor - Color string, must use the format "#ABCDEF".
          * @param screenX - the X screen position to open the dialog at.
          * @param screenY - the Y screen position to open the dialog at.
          */
-    string pickColorWithPositioning(in string startingcolor, in long screenX,
-                                    in long screenY);
+    [deprecated] string pickColorWithPositioning(in string startingcolor,
+                                                 in long screenX,
+                                                 in long screenY);
+};
+
+/**
+ * Color picker callback interface
+ */
+[scriptable, function, uuid(3120484a-2255-46be-8c8f-267042940233)]
+interface koIColorPickerAsyncCallback : nsISupports {
+    /**
+     * Callback for the color picker.
+     * @param aColor the resulting color, as a hexidecimal string of the form
+     *      #rrggbb.  For example, #000000 is black, and #ff00ff is magenta.
+     *      If the user cancelled or an error occurred, this is instead a void
+     *      string (in JavaScript, null).
+     * @param aAlpha the resulting alpha value, as a double between 0.0 and 1.0
+     *      inclusive.
+     */
+    void handleResult(in ACString aColor, in double aAlpha);
+};
+
+/**
+ * Color picker interface
+ */
+[scriptable, uuid(1fcc26be-8db2-48b2-9a67-fc95b0b4712e)]
+interface koIColorPickerAsync : nsISupports {
+    /**
+     * Open the color picker dialog.
+     * @param aCallback - The callback to invoke when a color has been picked
+     *      (or if the user has cancelled the dialog).
+     * @param aStartingColor - The initial colour the picker has selected; must
+     *      be a hexidecimal string of the form #rrggbb.  For example, #00ffff
+     *      is cyan, and #00ff00 is bright green.  Must not be null.
+     * @param aStartingAlpha - The alpha value of the starting color.
+     * @param aScreenX - The X screen position to open the dialog at.
+     * @param aScreenY - The Y screen position to open the dialog at.  Must be
+     *      supplied if aScreenX is supplied.
+     * @note this may actually be implemented synchronusly depending on platform
+     * @note If the color picker does _not_ support selecting alpha values, then
+     *      it should attempt to maintain the input alpha.
+     */
+    [optional_argc]
+    void pickColorAsync(in koIColorPickerAsyncCallback aCallback,
+                        in ACString aStartingColor,
+                        in double aStartingAlpha,
+                        [optional] in long aScreenX,
+                        [optional] in long aScreenY);
 };

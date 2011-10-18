@@ -137,7 +137,7 @@ ko.hyperlinks.ColorPickerHandler.prototype.show = function(
             div.style.background = color;
         } else {
             color = this.colorToHex(color);
-            div.style.background = "#" + color;
+            div.style.background = color;
         }
 
         var x, y;
@@ -187,67 +187,170 @@ ko.hyperlinks.ColorPickerHandler.prototype.jump = function(view, hyperlink)
     this.showColorPicker(view, hyperlink);
 }
 
+/**
+ * Convert a CSS color specification to hexidecimal representation
+ *
+ * @param   {String} color Any CSS color value
+ *
+ * @returns {String} A color, as "#nnnnnn" (no alpha, leading hash)
+ */
 ko.hyperlinks.ColorPickerHandler.prototype.colorToHex = function(color) {
     // If color is not in hexa format (#XXXXXX, #XXX with/without hash)
     // convert the color to hexa format before passing it to color picker
+    return this.constructor.rgb2hex(this.colorToRGB(color));
+}
+
+/**
+ * Convert a CSS color specification to rgb() representation
+ *
+ * @param   {String} color Any CSS color value
+ *
+ * @returns {String} A color, as "rgb(x,x,x)" or "rgba(x,x,x,x)".
+ */
+ko.hyperlinks.ColorPickerHandler.prototype.colorToRGB = function(color) {
     var span = document.createElement('span');
     span.style.color = color;
-    var color_rgb = window.getComputedStyle(span, null).color;
-    var color_hex = ko.hyperlinks.ColorPickerHandler.rgb2hex(color_rgb);
-    span = null;
-    return color_hex;
+    return window.getComputedStyle(span, null).color;
 }
 
 ko.hyperlinks.ColorPickerHandler.prototype.showColorPicker = function(view, hyperlink) {
     var scimoz = view.scimoz;
-    var color = scimoz.getTextRange(hyperlink.startPos, hyperlink.endPos);
-    color = this.colorToHex(color);
+    var oldcolor = scimoz.getTextRange(hyperlink.startPos, hyperlink.endPos);
+    var colors = this.constructor._rgbToComponents(this.colorToRGB(oldcolor));
+    var alpha = colors.pop();
+    var color = "#" + colors.map(function(x) ("00" + x.toString(16)).substr(-2))
+                            .join("");
 
     // This function must be called in a setTimeout for the Mac, otherwise
     // the scimoz editor does not receive the mouseup event, which results
     // in Komodo scrolling/selecting text when the mouse if moved over the
     // just opened color picker dialog.
-    window.setTimeout(function(view_, hyperlink_, color_) {
+    window.setTimeout((function() {
         var sysUtils = Components.classes['@activestate.com/koSysUtils;1'].
-                        getService(Components.interfaces.koISysUtils);
-        var x, y;
-        [x,y] = view_._last_mousemove_xy;
+                        getService(Components.interfaces.koIColorPickerAsync);
+        var [x, y] = view._last_mousemove_xy;
         // The X and Y positions are relative to the scimoz top-left corner,
         // but we need screen positions.
-        x += view_.boxObject.screenX;
-        y += view_.boxObject.screenY;
-        var newcolor = sysUtils.pickColorWithPositioning("#" + color_, x, y);
-        if (newcolor) {
-            var sm = view_.scimoz;
-            sm.targetStart = hyperlink_.startPos;
-            sm.targetEnd = hyperlink_.endPos;
-            sm.replaceTarget(newcolor.length, newcolor);
-            // Move cursor position to end of the inserted color
-            // Note: currentPos is a byte offset, so we need to corrext the length
-            var newCurrentPos = sm.currentPos + ko.stringutils.bytelength(newcolor);
-            sm.currentPos = newCurrentPos;
+        x += view.boxObject.screenX;
+        y += view.boxObject.screenY;
+        var callback = (function callback(newcolor, newalpha) {
+            if (!newcolor) {
+                // user cancelled
+                return;
+            }
+            // convert colors to an array of [r, g, b]
+            var colors = this.constructor._rgbToComponents(newcolor).slice(0, 3);
+            if (newalpha < 1.0) {
+                // alpha required; only rgba() works
+                newcolor = "rgba(" + colors.concat([newalpha]).join(", ") + ")";
+            } else {
+                if (/^rgb/.test(oldcolor)) {
+                    // previously "rgb()" or "rgba()", use rgb()
+                    newcolor = "rgb(" + colors.join(", ") + ")";
+                } else {
+                    // it didn't used to be rgb(); prefer the #xxxxxx form
+                    // (this also covers color names like "red" and "cornsilk")
+                    // (do nothing, this is what we got as the first argument)
+                }
+            }
+            scimoz.targetStart = hyperlink.startPos;
+            scimoz.targetEnd = hyperlink.endPos;
+            scimoz.replaceTarget(newcolor.length, newcolor);
+            // replaceTarget has moved the cursor to the start of the inserted
+            // color; move cursor position to end of the inserted color instead.
+            // Note: currentPos is a byte offset, so we need to correct the length
+            var newCurrentPos = scimoz.currentPos + ko.stringutils.bytelength(newcolor);
+            scimoz.currentPos = newCurrentPos;
             // Move the anchor as well, so we don't have a selection
-            sm.anchor = newCurrentPos;
-        }
-    }, 1, view, hyperlink, color);
+            scimoz.anchor = newCurrentPos;
+        }).bind(this);
+        sysUtils.pickColorAsync(callback, color, alpha, x, y);
+    }).bind(this), 1);
 }
 
+/**
+ * Convert a CSS rgb() color string to an array of [r, g, b, a]
+ *
+ * @param   {String} rgb_color The rgb() / rgba() string
+ *
+ * @returns {Array} Array of colors, as [r, g, b, a]; r, g, and b are the color
+ *      components as integers between 0 and 255 inclusive; a is the alpha value
+ *      as a double between 0.0 and 1.0 inclusive.  If there was an error
+ *      parsing the number, returns null.
+ */
+ko.hyperlinks.ColorPickerHandler._rgbToComponents = function(rgb_color)
+{
+    if (/^#?[0-9a-f]{6}$/i.test(rgb_color)) {
+        // the color was a hex string. eh, deal with it anyway
+        rgb_color = rgb_color.replace(/^#/, "");
+        var result = [];
+        for (var i = 0; i <= rgb_color.length - 2; i += 2) {
+            result.push(parseInt(rgb_color.substr(i, 2), 16));
+        }
+        if (result.length > 3) {
+            result[3] /= 255.0; // alpha is between 0 and 1
+        } else {
+            result[3] = 1.0; // assume opaque
+        }
+        return result;
+    }
+    if (/\w\s+\w/.test(rgb_color)) {
+        // contains words separated by space; this is never right for rgb()
+        return null;
+    }
+    // strip whitespace, easier to deal with
+    rgb_color = rgb_color.replace(/\s+/g, '');
+    // match rgb(0, 0, 0) or rgba(0, 0, 0, 0)
+    if (!/^rgba?\((?:\d+%?,){2}(?:\d+%?)(?:,[0-9.]+)?\)$/i.test(rgb_color)) {
+        // not an rgb() / rgba() color
+        return null;
+    }
+    // ["rgb" / "rgba", red, green, blue, alpha?]
+    var colors = Array.slice(rgb_color.split(/[(,)]/), 0, -1);
+    var type = colors.shift();
+    if (type.length != colors.length) {
+        // not "rgb", [0,0,0] / "rgba", [0,0,0,0]; malformed.
+        return null;
+    }
+    var alpha = 1.0;
+    if (type == "rgba") {
+        alpha = parseFloat(colors.pop());
+        if (!(alpha >= 0.0 && alpha <= 1.0)) {
+            return null; // out of bounds or parse error
+        }
+    }
+    for each (var [i, color] in Iterator(colors)) {
+        if (/%$/.test(colors[i])) {
+            color = parseFloat(color) * 2.55 >>> 0; // force integer
+        } else {
+            color = parseInt(color, 10);
+        }
+        if (!(color >= 0 && color <= 255)) {
+            return null; // out of bounds or parse error
+        }
+        colors[i] = color;
+    }
+    return colors.concat([alpha]);
+};
+
+/**
+ * Convert a CSS rgb() color string to hex "#nnnnnn"
+ *
+ * @param   {String} rgb_color The rgb() string
+ *
+ * @returns {String} The equivalent "#nnnnnn" color
+ */
 ko.hyperlinks.ColorPickerHandler.rgb2hex = function(rgb_color)
 {
-    var match = rgb_color.match(/rgb\((\d+\%?),\s*(\d+\%?),\s*(\d+\%?)\)/i);
-    if (!match)
-        return "#000000";
-    match.shift();
-    var val;
-    for(var i = 0; i < match.length; ++i) {
-        val = parseInt(match[i]);
-        if (match[i][match[i].length -1] == "%") {
-            val *= 2.55;
-        }
-        match[i] = (val < 16 ? '0' : '') + val.toString(16).toLowerCase();
+    var colors = this._rgbToComponents(rgb_color);
+    if (colors === null) {
+        return "#000000"; // invalid color
     }
-   
-    return match.join('');
+    var val, result = "#";
+    for (var i = 0; i < 3; ++i) { // NOTE: disgarding alpha
+        result += ("00" + colors[i].toString(16)).substr(-2).toLowerCase();
+    }
+    return result;
 }
 
 ko.hyperlinks.handlers.colorPreviewHandler = new ko.hyperlinks.ColorPickerHandler();

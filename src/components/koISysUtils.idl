@@ -94,16 +94,21 @@ interface koISysUtils : nsISupports {
         /**
          * Open the color picker dialog with the startingcolor.
          * @param startingcolor - Color string, must use the format "#ABCDEF".
+         * @deprecated since Komodo 7.0b1 - QI to koIColorPickerAsync and use
+         *      pickColorAsync instead. See reasoning in koIColorPicker.idl.
          */
-    AString pickColor(in AString startingcolor);
+    [deprecated] AString pickColor(in AString startingcolor);
         /**
          * Open the color picker dialog with the startingcolor at position x,y.
          * @param startingcolor - Color string, must use the format "#ABCDEF".
          * @param screenX - the X screen position to open the dialog at.
          * @param screenY - the Y screen position to open the dialog at.
+         * @deprecated since Komodo 7.0b1 - QI to koIColorPickerAsync and use
+         *      pickColorAsync instead. See reasoning in koIColorPicker.idl.
          */
-    AString pickColorWithPositioning(in AString startingcolor, in long screenX,
-                                     in long screenY);
+    [deprecated] AString pickColorWithPositioning(in AString startingcolor,
+                                                  in long screenX,
+                                                  in long screenY);
 
     long byteLength(in AString unicodestr);
     long charIndexFromPosition(in AString unicodestr, in long bytePos);

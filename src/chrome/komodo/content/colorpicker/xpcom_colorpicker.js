@@ -7,6 +7,8 @@
  * http://johndyer.name/post/2007/09/PhotoShop-like-JavaScript-Color-Picker.aspx
  */
 
+const Cc = Components.classes;
+const Ci = Components.interfaces;
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 /***********************************************************
@@ -27,35 +29,15 @@ koColorPicker.prototype = {
     classDescription: _bundle.GetStringFromName("johnDyersColorPicker.desc"),
     
     classID:          Components.ID("{57dbf673-ce91-4858-93f9-2e47fea3495d}"),
-    contractID:       "@activestate.com/koColorPicker;1",
-    
-    // Category: An array of categories to register this component in.
-    _xpcom_categories: [{
-  
-      // Each object in the array specifies the parameters to pass to
-      // nsICategoryManager.addCategoryEntry(). 'true' is passed for both
-      // aPersist and aReplace params.
-      category: "colorpicker",
-  
-      // optional, defaults to the object's classDescription
-      //entry: "",
-  
-      // optional, defaults to the object's contractID (unless 'service' is specified)
-      //value: "...",
-  
-      // optional, defaults to false. When set to true, and only if 'value' is
-      // not specified, the concatenation of the string "service," and the
-      // object's contractID is passed as aValue parameter of addCategoryEntry.
-       service: false
-    }],
 
-    // QueryInterface implementation, e.g. using the generateQI helper (remove argument if skipped steps above)
-    QueryInterface: XPCOMUtils.generateQI([Components.interfaces.koIColorPicker]),
+    QueryInterface: XPCOMUtils.generateQI([Ci.koIColorPicker,
+                                           Ci.koIColorPickerAsync]),
 
     chromeURL: "chrome://komodo/content/colorpicker/colorpicker.html",
 
     /**
      * Select a color from the Komodo color picker dialog.
+     * @deprecated since Komodo 7.0b1 - use pickColorAsync instead
      * 
      * @param {string} hexColor - The initial color.
      */
@@ -63,6 +45,16 @@ koColorPicker.prototype = {
         return this.pickColorWithPositioning(hexColor, -1, -1);
     },
 
+    /**
+     * Select a color from the Komodo color picker dialog, attempting to
+     * position the dialog at the given coordinates.
+     *
+     * @param   {String} hexColor - The initial color, as "#nnnnnn".
+     * @param   {Number} screenX  - The initial X position, or null.
+     * @param   {Number} screenY  - The initial Y position, or nul.
+     *
+     * @returns {String} The picked color, as "#nnnnnn", or null.
+     */
     pickColorWithPositioning: function(hexColor, screenX, screenY) {
         /**
          * @type {Components.interfaces.koIPreferenceSet}
@@ -98,7 +90,76 @@ koColorPicker.prototype = {
             return args.hexColor;
         }
         return null;
-    }
+    },
+
+    /**
+     * Select a color from the Komodo color picker dialog.  The picking may be
+     * asynchronous.
+     *
+     * @param   {koIColorPickerAsyncCallback} aCallback - the callback to invoke
+     *              When the color has been chosen.
+     * @param   {String} aStartingColor - The initial color, as a hex string of
+     *              #rrggbb.
+     * @param   {double} aStartingAlpha - The initial alpha component, as a
+     *              number between 0.0 and 1.0 inclusive.
+     * @param   {Number} aScreenX - The initial dialog X position, or null.
+     * @param   {Number} aScreenY - The initial dialog Y position, or null.
+     */
+    pickColorAsync: function koColorPicker_pickColorAsync(aCallback,
+                                                          aStartingColor,
+                                                          aStartingAlpha,
+                                                          aScreenX, aScreenY)
+    {
+        if (!aCallback || !(aCallback instanceof Ci.koIColorPickerAsyncCallback)) {
+            throw Components.results.NS_ERROR_INVALID_ARG;
+        }
+
+        var colorString = aStartingColor.replace(/^#/, "");
+        if (!/^[0-9a-f]{6}$/i.test(colorString)) {
+            throw Components.results.NS_ERROR_INVALID_ARG;
+        }
+
+        if (aScreenX !== null && aScreenY === null) {
+            // if screenX is given, screenY must also be given
+            throw Components.results.NS_ERROR_INVALID_ARG;
+        }
+        /**
+         * @type {Components.interfaces.koIPreferenceSet}
+         */
+        var prefs = Components.classes["@activestate.com/koPrefService;1"].
+                        getService(Components.interfaces.koIPrefService).prefs;
+        var colorMode = 'h';
+        if (prefs.hasStringPref("colorpicker.colorMode")) {
+            colorMode = prefs.getStringPref("colorpicker.colorMode");
+        }
+
+        var args = {
+            hexColor: colorString,
+            colorMode: colorMode,
+            retval: 0
+        };
+        args.wrappedJSObject = args;
+
+        var win = Components.classes['@mozilla.org/appshell/window-mediator;1']
+                      .getService(Components.interfaces.nsIWindowMediator)
+                      .getMostRecentWindow(null);
+        var windowFeatures = 'chrome,modal,titlebar,resizable';
+        if (aScreenX !== null)
+            windowFeatures += ",left=" + aScreenX;
+        if (aScreenY !== null)
+            windowFeatures += ",top=" + aScreenY;
+        win.openDialog(this.chromeURL, 'Color Picker',
+                       windowFeatures, args);
+
+        if (args.retval) {
+            // Remember the last color mode used, for next time.
+            prefs.setStringPref("colorpicker.colorMode", args.colorMode);
+            colorString = "#" + args.hexColor.replace(/^#/, "");
+            aCallback.handleResult(colorString, aStartingAlpha);
+        } else {
+            aCallback.handleResult(null, aStartingAlpha);
+        }
+    },
 };
 
 // XPCOM registration of class.

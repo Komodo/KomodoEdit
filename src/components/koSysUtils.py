@@ -57,7 +57,8 @@ if sys.platform.startswith('win'):
         colorDialog.SetWindowPos(pos[0], pos[1])
             
 class koSysUtils:
-    _com_interfaces_ = [components.interfaces.koISysUtils]
+    _com_interfaces_ = [components.interfaces.koISysUtils,
+                        components.interfaces.koIColorPickerAsync]
     _reg_clsid_ = "{56F686E0-A989-4714-A5D6-D77BC850C5C0}"
     _reg_contractid_ = "@activestate.com/koSysUtils;1"
     _reg_desc_ = "System Utilities Service"
@@ -410,6 +411,27 @@ class koSysUtils:
                         getService(components.interfaces.koIColorPicker)
         return cpSvc.pickColorWithPositioning(startingcolor, screenX, screenY)
 
+    def pickColorAsync(self, callback, color, alpha, screenX=None, screenY=None):
+        prefSvc = components.classes["@activestate.com/koPrefService;1"]\
+                  .getService(components.interfaces.koIPrefService)
+        cid = prefSvc.prefs.getStringPref("colorpicker_cid")
+        try:
+            cpSvc = components.classes[cid].\
+                        getService(components.interfaces.koIColorPickerAsync)
+        except COMException, ex:
+            # Only log an exception if a cid has been explicitly set.
+            if cid:
+                log.exception("Unable to load the colorpicker with CID: %r", cid)
+            if sys.platform.startswith("win") or sys.platform.startswith("darwin"):
+                # Default to the system color picker.
+                cid = "@activestate.com/koSystemColorPicker;1"
+            else:
+                # Default to the Komodo JavaScript color picker.
+                cid = "@activestate.com/koColorPicker;1"
+            cpSvc = components.classes[cid].\
+                        getService(components.interfaces.koIColorPickerAsync)
+        return cpSvc.pickColorAsync(callback, color, alpha, screenX, screenY)
+
     def byteLength(self, unicodestr):
         utf8 = unicodestr.encode('utf-8')
         return len(utf8)
@@ -423,7 +445,8 @@ if sys.platform.startswith("win"):
              .getService(components.interfaces.nsIStringBundleService)\
              .createBundle("chrome://komodo/locale/library.properties")
     class WindowsSystemColorPicker:
-        _com_interfaces_ = [components.interfaces.koIColorPicker]
+        _com_interfaces_ = [components.interfaces.koIColorPicker,
+                            components.interfaces.koIColorPickerAsync]
         _reg_clsid_ = "{a482cb10-823b-4142-9f39-65991a94f0fa}"
         _reg_contractid_ = "@activestate.com/koSystemColorPicker;1"
         _reg_desc_ = _bundle.GetStringFromName("windowsColorPicker.desc")
@@ -458,18 +481,84 @@ if sys.platform.startswith("win"):
                     customColors[i] = int(x)
                 return '#'+r+g+b            
 
+        def pickColorAsync(self, callback, startingcolor, startingalpha, screenX=None, screenY=None):
+            from wnd.dlgs.choosecolor import ChooseColor
+            global colorDialog
+            global customColors
+
+            def _adjustWindow(hwnd, msg, wp, lp):
+                #log.debug("pos = (%d, %d)", pos[0], pos[1])
+                colorDialog.SetWindowPos(screenX, screenY)
+
+            if not callback or not hasattr(callback, "handleResult"):
+                raise COMException(nsError.NS_ERROR_INVALID_ARG,
+                                   "pickColorAsync got invalid callback %r" % (callback,))
+            if screenX is not None and screenY is None:
+                raise COMException(nsError.NS_ERROR_INVALID_ARG,
+                                   "pickColorAsync: can't have screenX without screenY")
+
+            # parse the starting colors
+            try:
+                startingcolor = startingcolor.lstrip("#")
+                colors = [int(startingcolor[x:x+2], 16) for x in range(0, 6, 2)]
+            except Exception:
+                raise COMException(nsError.NS_ERROR_INVALID_ARG,
+                                   "pickColorAsync: invalid starting color %r" % (startingcolor,))
+
+            if colorDialog is None:
+                colorDialog = ChooseColor()
+            bgr = colors[2] * 2**16 + colors[1] * 2**8 + colors[0]
+            #log.debug("bgr in: %r -> %x (%r)", colors, bgr, bgr)
+            if screenX or screenY:
+                colorDialog.onINIT = _adjustWindow
+            res = colorDialog.Run(None, 'fullopen', 'hook',
+                                  customcolors=customColors, initcolor=bgr)
+            if res is not None:
+                b, g, r = [(res & (2**x-1)) >> (x - 8) for x in range(24, 0, -8)]
+                #log.debug("bgr out: %r -> %x (%r)", [r,g,b], res, res)
+                for i, x in enumerate(colorDialog._dlgs_colors):
+                    customColors[i] = int(x)
+                callback.handleResult("#%02x%02x%02x" % (r, g, b), startingalpha)
+            else:
+                callback.handleResult(None, startingalpha)
+
 elif sys.platform.startswith("darwin"):
+    import ctypes
     _bundle = components.classes["@mozilla.org/intl/stringbundle;1"]\
              .getService(components.interfaces.nsIStringBundleService)\
              .createBundle("chrome://komodo/locale/library.properties")
     class MacOSXSystemColorPicker:
-        _com_interfaces_ = [components.interfaces.koIColorPicker]
+        _com_interfaces_ = [components.interfaces.koIColorPicker,
+                            components.interfaces.koIColorPickerAsync]
         _reg_clsid_ = "{434c3a68-5485-4b27-a852-e220358333f3}"
         _reg_contractid_ = "@activestate.com/koSystemColorPicker;1"
         _reg_desc_ = _bundle.GetStringFromName("macosxColorPicker.desc")
         _reg_categories_ = [
              ("colorpicker", "macosx_system_color_picker"),
         ]
+
+        class Point(ctypes.Structure):
+            _fields_ = [("v", ctypes.c_ushort),
+                        ("h", ctypes.c_ushort)]
+
+        class RGBColor(ctypes.Structure):
+            _fields_ = [("red", ctypes.c_ushort),
+                        ("green", ctypes.c_ushort),
+                        ("blue", ctypes.c_ushort)]
+
+        @property
+        def GetColor(self):
+            if hasattr(self, "_GetColor"):
+                return self._GetColor
+            carbon = ctypes.cdll.LoadLibrary("/System/Library/Carbon.framework/Carbon")
+            GetColor = carbon.GetColor
+            GetColor.restype = ctypes.c_bool
+            GetColor.argtypes = [MacOSXSystemColorPicker.Point, # where
+                                 ctypes.c_char_p, # prompt
+                                 ctypes.POINTER(MacOSXSystemColorPicker.RGBColor), # inColor
+                                 ctypes.POINTER(MacOSXSystemColorPicker.RGBColor)] # outColor
+            setattr(self, "_GetColor", GetColor)
+            return self._GetColor
 
         def pickColor(self, startingcolor):
             return self.pickColorWithPositioning(startingcolor, -1, -1)
@@ -488,6 +577,62 @@ elif sys.platform.startswith("darwin"):
                  b = "%02X" % (resp[0][2]/256)
                  c = "#%s%s%s" %(r,g,b)
                  return c
+
+        def pickColorAsync(self, callback, startingcolor, startingalpha, screenX=None, screenY=None):
+            if not callback or not hasattr(callback, "handleResult"):
+                raise COMException(nsError.NS_ERROR_INVALID_ARG,
+                                   "pickColorAsync got invalid callback %r" % (callback,))
+            if screenX is not None and screenY is None:
+                raise COMException(nsError.NS_ERROR_INVALID_ARG,
+                                   "pickColorAsync: can't have screenX without screenY")
+
+            # parse the starting colors
+            try:
+                startingcolor = startingcolor.lstrip("#")
+                colors = [int(startingcolor[x:x+2], 16) for x in range(0, 6, 2)]
+            except Exception:
+                raise COMException(nsError.NS_ERROR_INVALID_ARG,
+                                   "pickColorAsync: invalid starting color %r" % (startingcolor,))
+
+            # The Carbon GetColor API takes RGBColors with 16-bit components
+            where = MacOSXSystemColorPicker.Point(screenX or -1, screenY or -1)
+            inColor = MacOSXSystemColorPicker.RGBColor(*map(lambda x: x * 256, colors))
+            outColor = MacOSXSystemColorPicker.RGBColor()
+            resp = [False, outColor]
+
+            def run_picker():
+                """ runnable used to open the color picker on a background thread """
+                try:
+                    success = self.GetColor(where, "Colors",
+                                            ctypes.pointer(inColor),
+                                            ctypes.pointer(resp[1]))
+                    if success:
+                        resp[0] = True
+                except Exception, e:
+                    log.exception("An error occurred: %r", e)
+                originalThread.dispatch(run_callback,
+                                        components.interfaces.nsIThread.DISPATCH_NORMAL)
+
+            def run_callback():
+                """ runnable used to invoke the callback on the original thread """
+                thread.shutdown()
+                if resp[0]:
+                    # convert from 48bit to 24bit rgb
+                    r, g, b = map(lambda x: x / 256,
+                                  [outColor.red, outColor.green, outColor.blue])
+                    callback.handleResult("#%02x%02x%02x" % (r, g, b), startingalpha)
+                else:
+                    callback.handleResult(None, startingalpha)
+
+            # create a new thread and run the color picker on that to prevent
+            # bad re-entrancy; see bug 91299
+            tm = components.classes["@mozilla.org/thread-manager;1"]\
+                           .getService(components.interfaces.nsIThreadManager)
+            originalThread = tm.currentThread
+            thread = tm.newThread(0)
+            thread.dispatch(run_picker,
+                            components.interfaces.nsIThread.DISPATCH_NORMAL)
+
 
 def _escapeArg(arg):
     """Escape the given command line argument for the shell."""

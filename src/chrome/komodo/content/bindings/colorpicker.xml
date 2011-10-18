@@ -184,10 +184,16 @@
           <body><![CDATA[
             var cpSvc = Components.classes["@activestate.com/koColorPicker;1"].
                         getService(Components.interfaces.koIColorPicker);
-            var newcolor = cpSvc.pickColor(this.color);
-            if (newcolor && newcolor != this.color) {
-                this.color = newcolor;
-                this._fireEvent(this, "change");
+            var handleResult = (function handleResult(newcolor) {
+                if (newcolor && newcolor != this.color) {
+                    this.color = newcolor;
+                    this._fireEvent(this, "change");
+                }
+            }).bind(this);
+            if (cpSvc instanceof Components.interfaces.koIColorPickerAsync) {
+                cpSvc.pickColorAsync(handleResult, this.color, 1.0);
+            } else {
+                handleResult(cpSvc.pickColor(this.color));
             }
           ]]></body>
         </method>
