@@ -303,9 +303,11 @@ class Database(object):
             else:
                 langSvc = components.classes["@activestate.com/koLanguageRegistryService;1"] \
                             .getService(components.interfaces.koILanguageRegistryService)
+                # Note: When the language does not exist, we get a fallback of
+                #       koILang.Text
                 koLang = langSvc.getLanguage(komodo_lang)
-                if koLang is not None:
-                    # Someone's define a koILanguage for this lang - create
+                if koLang is not None and koLang.name in (komodo_lang, norm_komodo_lang):
+                    # Someone's defined a koILanguage for this lang - create
                     # dummy langinfo for it.
                     log.warn("no LangInfo class found for %r, creating a fallback for it",
                              komodo_lang)
