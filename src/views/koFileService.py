@@ -198,22 +198,17 @@ class koFileService(object):
     def makeTempFile(self, suffix, mode):
         fname = self.makeTempName(suffix)
         self._tmpfiles[fname] = 1
-        # With doNotification=True, it sends a "file_added" notification to the
-        # koFileStatusService, which results in a update status check, which
-        # we don't need to happen for just a temporary file.
-        # Note: When set True, it can stuff up CVS and SVN commit actions, as
-        # the file status service and the commit action occur near
-        # simultaneously.
-        f = self._getFileFromURI(fname, doNotification=False)
+        # We don't want temporaty files to be cached, as cached files will end
+        # up being checked by the Komodo file status service.
+        f = self.getFileFromURINoCache(fname)
         f.open(mode)
         return f
     
     def makeTempFileInDir(self, dir, suffix, mode):
         fname = self.makeTempNameInDir(dir, suffix)
-        # With doNotification=True, it sends a "file_added" notification to the
-        # koFileStatusService, which results in a update status check, which
-        # we don't need to happen for just a temporary file.
-        f = self._getFileFromURI(fname, doNotification=False)
+        # We don't want temporaty files to be cached, as cached files will end
+        # up being checked by the Komodo file status service.
+        f = self.getFileFromURINoCache(fname)
         f.open(mode)
         return f
 
