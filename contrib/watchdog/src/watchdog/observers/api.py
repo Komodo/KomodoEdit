@@ -247,7 +247,12 @@ class EventDispatcher(DaemonThread):
             :class:`queue.Empty`
         """
         event, watch = event_queue.get(block=True, timeout=timeout)
-        self.dispatch_event(event, watch)
+        try:
+            self.dispatch_event(event, watch)
+        except KeyError:
+            # Watch was removed before we could emit the events, issue:
+            # https://github.com/gorakhargosh/watchdog/issues/77
+            pass
         event_queue.task_done()
 
     def on_thread_exit(self):
