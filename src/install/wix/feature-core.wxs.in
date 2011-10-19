@@ -419,6 +419,7 @@
 
 <?if $(var.MozMajorVersion) = "7" ?>
       <ComponentRef Id="component650"/>
+      <ComponentRef Id="component386"/>
 <?endif ?>
 
 <?endif ?> <!-- $(var.IsMSIDebugBuild) = "no" -->
@@ -1001,6 +1002,11 @@
               <File Id="file1470" Name="TXEXSL_0.MAN" LongName="txEXSLTRegExFunctions.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\txEXSLTRegExFunctions.manifest"/>
               <File Id="file1471" Name="webapps.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\webapps.xpt"/>
               <File Id="file1472" Name="XPCOM__6.XPT" LongName="xpcom_threads.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\xpcom_threads.xpt"/>
+              <File Id="file3844" Name="KOINOT_0.XPT" LongName="koINotification.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koINotification.xpt"/>
+              <File Id="file3881" Name="KOINOT_1.XPT" LongName="koINotificationManager.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koINotificationManager.xpt"/>
+              <File Id="file3905" Name="KOISCI_3.XPT" LongName="koIScintillaAutoCompleteController.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIScintillaAutoCompleteController.xpt"/>
+              <File Id="file3909" Name="KONOTI_0.PY" LongName="koNotificationManager.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koNotificationManager.py"/>
+              <File Id="file3910" Name="KOSCIN_0.JS" LongName="koScintillaAutoCompleteController.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koScintillaAutoCompleteController.js"/>
 <?if $(var.MozMajorVersion) = "4" ?>
               <File Id="file1919" Name="CONTEN_3.XPT" LongName="content_xmldoc.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\content_xmldoc.xpt"/>
               <File Id="file1936" Name="DOM_VI_0.XPT" LongName="dom_views.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\dom_views.xpt"/>
@@ -1768,6 +1774,13 @@
             <Component Id="component59" DiskId="1" Guid="$(autowix.guid)">
             </Component>
           </Directory> <!-- lib\mozilla\greprefs -->
+<?if $(var.MozMajorVersion) = "7" ?>
+          <Directory Id="directory447" Name="HYPHEN_0" LongName="hyphenation">
+            <Component Id="component386" DiskId="1" Guid="$(autowix.guid)">
+              <File Id="file3915" Name="HYPH_E_0.DIC" LongName="hyph_en_US.dic" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\hyphenation\hyph_en_US.dic"/>
+            </Component>
+          </Directory> <!-- lib\mozilla\hyphenation -->
+<?endif ?>
           <Directory Id="directory255" Name="modules">
             <Component Id="component223" DiskId="1" Guid="$(autowix.guid)">
               <File Id="file583" Name="debug.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\modules\debug.js"/>
@@ -5351,6 +5364,9 @@
               <File Id="file3880" Name="XPCIJS_1.IDL" LongName="xpcIJSModuleLoader.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\xpcIJSModuleLoader.idl"/>
               <File Id="file3885" Name="XPCIJS_2.IDL" LongName="xpcIJSWeakReference.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\xpcIJSWeakReference.idl"/>
               <File Id="file3886" Name="xpcjsid.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\xpcjsid.idl"/>
+              <File Id="file3916" Name="KOINOT_0.IDL" LongName="koINotification.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koINotification.idl"/>
+              <File Id="file3917" Name="KOINOT_1.IDL" LongName="koINotificationManager.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koINotificationManager.idl"/>
+              <File Id="file3918" Name="KOISCI_3.IDL" LongName="koIScintillaAutoCompleteController.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIScintillaAutoCompleteController.idl"/>
 <?if $(var.MozMajorVersion) = "4" ?>
               <File Id="file4124" Name="NSIDOM_0.IDL" LongName="nsIDOM3DocumentEvent.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIDOM3DocumentEvent.idl"/>
               <File Id="file4125" Name="NSIDOM_1.IDL" LongName="nsIDOM3EventTarget.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIDOM3EventTarget.idl"/>
