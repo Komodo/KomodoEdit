@@ -2052,6 +2052,8 @@ def target_src(argv=["src"]):
                 hgTag = "FIREFOX_6_0_2_RELEASE"
         elif config.mozVer <= 7.00:
             repo_url = "http://hg.mozilla.org/releases/mozilla-release/"
+            if not hgTag:
+                hgTag = "FIREFOX_7_0_1_RELEASE"
         elif config.mozVer <= 8.00:
             repo_url = "http://hg.mozilla.org/releases/mozilla-beta/"
         elif config.mozVer <= 9.00:
