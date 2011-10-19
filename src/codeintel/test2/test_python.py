@@ -1556,8 +1556,29 @@ class CplnTestCase(CodeIntelTestCase):
         buf = self.mgr.buf_from_path(join(test_dir, "foo/bar3.py"), lang="Python")
         self.assertCompletionsInclude2(buf, positions3[1],
             [("function", "morgenstern"),])
-    
-    
+
+    @tag("bug91393")
+    def test_relative_imports_3(self):
+        test_dir = join(self.test_dir, "test_relative_imports_3")
+
+        content, positions = unmark_text(dedent(r'''
+            from .module_b import my_func_1
+            import os
+            os.<1>xxx
+        '''))
+
+        manifest = [
+            ('module_a.py', content),
+            ('module_b.py', "def my_func_1(): return 1\n"),
+        ]
+        for f, c in manifest:
+            path = join(test_dir, f)
+            writefile(path, c)
+
+        buf = self.mgr.buf_from_path(join(test_dir, "module_a.py"), lang="Python")
+        self.assertCompletionsInclude2(buf, positions[1],
+            [("function", "rename"),])
+
     @tag("bug86644", "knownfailure")
     def test_binary_imports(self):
         lang = "Python"
