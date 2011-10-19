@@ -137,6 +137,14 @@ var gkoAMActionObserver = {
 
 // Hook up and teardown for observers
 addEventListener("load", function() {
+
+  // Hide the themes category - as Komodo doesn't support themes.
+  document.getElementById('category-theme').setAttribute('collapsed', 'true');
+
+  // Hide the plugin check button in the Plugins category.
+  Array.forEach(document.getElementsByClassName('global-info-plugincheck'),
+                function(elem) { elem.setAttribute('collapsed', 'true')});
+
   for each (var topic in gkoAMActionObserver.topics) {
     Services.obs.addObserver(gkoAMActionObserver, topic, false);
   }
