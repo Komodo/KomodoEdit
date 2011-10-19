@@ -1,0 +1,98 @@
+This patch is required in order to properly intercept the clicking on ".xpi"
+download links in the add-on dialog. Without this patch the user gets prompted
+to save the xpi file instead.
+
+Index: /home/toddw/as/komodo-devel/mozilla/build/moz700-ko7.9/mozilla/toolkit/mozapps/extensions/content/extensions.js
+--- a/toolkit/mozapps/extensions/content/extensions.js	Thu Sep 29 11:24:41 2011 -0700
++++ b/toolkit/mozapps/extensions/content/extensions.js	Wed Oct 19 13:44:14 2011 -0700
+@@ -102,20 +102,57 @@
+ document.addEventListener("load", initialize, true);
+ window.addEventListener("unload", shutdown, false);
+ 
+ var gPendingInitializations = 1;
+ __defineGetter__("gIsInitializing", function() gPendingInitializations > 0);
+ 
++/**
++ * This web request observer is designed to intercept xpi links and redirect
++ * those requests into the add-on install process, otherwise the user will be
++ * prompted to download the xpi instead of installing it.
++ */
++var discoverHttpRequestObserver =
++{
++  observe: function(subject, topic, data) 
++  {
++    if (topic == "http-on-modify-request") {
++      var httpChannel = subject.QueryInterface(Components.interfaces.nsIHttpChannel);
++      let uri = httpChannel.URI.spec;
++      if (uri.substr(-4).toLowerCase() == ".xpi") {
++        try {
++          var notificationCallbacks = 
++            httpChannel.notificationCallbacks ? httpChannel.notificationCallbacks : httpChannel.loadGroup.notificationCallbacks;
++        }
++        catch (e) {
++          return;
++        }
++        if (notificationCallbacks) {
++          var domWin = notificationCallbacks.getInterface(Components.interfaces.nsIDOMWindow);
++          if (domWin != window) {
++            httpChannel.cancel(Components.results.NS_BINDING_ABORTED);
++            gViewController.loadView("addons://list/extension");
++            AddonManager.getInstallForURL(uri, function(aInstall) {
++              AddonManager.installAddonsFromWebpage("application/x-xpinstall", this,
++                                                    null, [aInstall]);
++            }, "application/x-xpinstall");
++          }
++        }
++      }
++    }
++  }
++};
++
+ function initialize() {
+   document.removeEventListener("load", initialize, true);
+   gViewController.initialize();
+   gCategories.initialize();
+   gHeader.initialize();
+   gEventManager.initialize();
+   Services.obs.addObserver(sendEMPong, "EM-ping", false);
+   Services.obs.notifyObservers(window, "EM-loaded", "");
++  Services.obs.addObserver(discoverHttpRequestObserver, "http-on-modify-request", false);
+ 
+   // If the initial view has already been selected (by a call to loadView from
+   // the above notifications) then bail out now
+   if (gViewController.initialViewSelected)
+     return;
+ 
+@@ -152,12 +189,13 @@
+ function shutdown() {
+   gCategories.shutdown();
+   gSearchView.shutdown();
+   gEventManager.shutdown();
+   gViewController.shutdown();
+   Services.obs.removeObserver(sendEMPong, "EM-ping");
++  Services.obs.removeObserver(discoverHttpRequestObserver, "http-on-modify-request");
+ }
+ 
+ function sendEMPong(aSubject, aTopic, aData) {
+   Services.obs.notifyObservers(window, "EM-pong", "");
+ }
+ 
+@@ -1978,14 +2016,16 @@
+     if (aRequest instanceof Ci.nsIChannel && aRequest.URI.spec == "about:blank")
+       return;
+ 
+     // If there was an error loading the page or the new hostname is not the
+     // same as the default hostname or the default scheme is secure and the new
+     // scheme is insecure then show the error page
+-    if (!Components.isSuccessCode(aStatus) ||
+-        (aRequest && aRequest instanceof Ci.nsIHttpChannel && !aRequest.requestSucceeded)) {
++    // ACTIVESTATE: Don't show the error if we explicitly aborted the load.
++    if ((aStatus != Components.results.NS_BINDING_ABORTED) &&
++        (!Components.isSuccessCode(aStatus) ||
++        (aRequest && aRequest instanceof Ci.nsIHttpChannel && !aRequest.requestSucceeded))) {
+       this.showError();
+     } else {
+       // Got a successful load, make sure the browser is visible
+       this.node.selectedPanel = this._browser;
+       gViewController.updateCommands();
+     }
