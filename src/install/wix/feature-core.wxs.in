@@ -510,8 +510,13 @@
             <File Id="file1898" Name="ssl3.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\ssl3.dll"/>
 <?endif ?>
 <?if $(var.MozMajorVersion) = "7" ?>
+<?if $(var.KomodoUpdateChannel) = "nightly" ?>
             <File Id="file751" LongName="D3DCompiler_43.dll" Name="D3DCOM_0.DLL" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\D3DCompiler_43.dll" />
             <File Id="file752" Name="d3dx9_43.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\d3dx9_43.dll" />
+<?else?>
+            <File Id="file3838" LongName="D3DCompiler_42.dll" Name="D3DCOM_1.DLL" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\D3DCompiler_42.dll" />
+            <File Id="file3840" Name="d3dx9_42.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\d3dx9_42.dll" />
+<?endif ?>
             <File Id="file753" Name="libEGL.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\libEGL.dll" />
             <File Id="file754" LongName="libGLESv2.dll" Name="LIBGLE_0.DLL" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\libGLESv2.dll" />
 <?endif ?>

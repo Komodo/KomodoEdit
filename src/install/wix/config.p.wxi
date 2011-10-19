@@ -47,6 +47,7 @@
   <?define ProductType = "PRODUCT_TYPE" ?> <!-- e.g., edit -->
   <?define ProductTagLine = "PP_PRODUCT_TAG_LINE" ?>
   <?define MozMajorVersion = "PP_MOZ_MAJOR_VERSION" ?> <!-- string, e.g. "7" -->
+  <?define KomodoUpdateChannel = "PP_UPDATE_CHANNEL" ?> <!-- string, e.g. "nightly" -->
 
   <?define WithDocJarring = "PP_MSI_AVEC_DOC_JARRING" ?> <!-- yes|no -->
   <?define WithCrypto = "PP_MSI_AVEC_CRYPTO" ?> <!-- yes|no -->
