@@ -11,6 +11,38 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 var gkoAMActionObserver = {
   // observer callback; dispatches to topic-specific methods
   observe: function gkoAMActionObserver_observe(subject, topic, data) {
+
+    if (topic == "http-on-modify-request") {
+      /**
+       * Intercept xpi links and redirect those requests into the add-on install
+       * process, otherwise the user will be prompted to download the xpi
+       * instead of installing it.
+       */
+      var httpChannel = subject.QueryInterface(Components.interfaces.nsIHttpChannel);
+      let uri = httpChannel.URI.spec;
+      if (uri.substr(-4).toLowerCase() == ".xpi") {
+        try {
+          var notificationCallbacks = 
+            httpChannel.notificationCallbacks ? httpChannel.notificationCallbacks : httpChannel.loadGroup.notificationCallbacks;
+        }
+        catch (e) {
+          return;
+        }
+        if (notificationCallbacks) {
+          var domWin = notificationCallbacks.getInterface(Components.interfaces.nsIDOMWindow);
+          if (domWin != window) {
+            httpChannel.cancel(Components.results.NS_BINDING_ABORTED);
+            gViewController.loadView("addons://list/extension");
+            AddonManager.getInstallForURL(uri, function(aInstall) {
+              AddonManager.installAddonsFromWebpage("application/x-xpinstall", this,
+                                                    null, [aInstall]);
+            }, "application/x-xpinstall");
+          }
+        }
+      }
+      return;
+    }
+
     var method = topic.replace(/^addon-install-/, "");
     subject instanceof Ci.amIWebInstallInfo; // silent QI
     if (method in this) {
@@ -118,6 +150,7 @@ var gkoAMActionObserver = {
     "addon-install-blocked",
     "addon-install-failed",
     "addon-install-complete",
+    "http-on-modify-request",
   ],
 
   // The notification box in which to display the errors
@@ -153,6 +186,18 @@ addEventListener("load", function() {
   box.setAttribute("id", "ko-notificationbox");
   var spacer = document.querySelector("#header > spacer");
   spacer.parentNode.replaceChild(box, spacer);
+
+  // Replace the onStateChange handler to not show an error when the request was
+  // deliberately cancelled by the "http-on-modify-request" observer (see above).
+  gDiscoverView.__orig_onStateChange__ = gDiscoverView.onStateChange;
+  gDiscoverView.onStateChange = function(aWebProgress, aRequest, aStateFlags, aStatus) {
+    if (aStatus == Components.results.NS_BINDING_ABORTED) {
+      // Aborted because it's an XPI file, but we want to treat it as a success.
+      aStatus = Components.results.NS_OK;
+      aRequest = null;
+    }
+    return gDiscoverView.__orig_onStateChange__(aWebProgress, aRequest, aStateFlags, aStatus);
+  }
 }, false);
 
 addEventListener("unload", function() {
