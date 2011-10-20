@@ -123,6 +123,7 @@
               <File Id="file391" LongName="osxkeybind.html" Name="OSXKEY_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\osxkeybind.html" />
               <File Id="file392" LongName="pdk.html" Name="PDK_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\pdk.html" />
               <File Id="file393" LongName="prefs.html" Name="PREFS_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\prefs.html" />
+              <File Id="file3919" LongName="profiling.html" Name="PROFIL_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\profiling.html" />
               <File Id="file394" LongName="project.html" Name="PROJEC_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\project.html" />
               <File Id="file395" LongName="regex-intro.html" Name="REGEXI_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\regex-intro.html" />
               <File Id="file396" LongName="regex.html" Name="REGEX_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\regex.html" />
