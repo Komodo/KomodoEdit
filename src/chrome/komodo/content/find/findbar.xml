@@ -391,6 +391,22 @@
         event.stopPropagation();
       ]]>
       </handler>
+      <handler event="blur" phase="capturing">
+      <![CDATA[
+        // we want to capture when the tab key is pressed in the textbox while
+        // the autocomplete textbox is open; when in that state, we want to
+        // accept the input before switching focus. See bug 91433.
+        var textbox = document.getBindingParent(event.originalTarget);
+        if (textbox != this._textbox) {
+          // wrong element
+          return;
+        }
+        if (textbox.popupOpen && textbox.popup.selectedIndex >= 0) {
+          textbox.value = textbox.controller.getValueAt(textbox.popup.selectedIndex);
+          // don't cancel the event, let it do the normal unfcous thing
+        }
+      ]]>
+      </handler>
     </handlers>
 
     <resources>
