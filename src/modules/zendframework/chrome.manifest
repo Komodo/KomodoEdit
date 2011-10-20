@@ -1,3 +1,3 @@
 content zendframework jar:zendframework.jar!/content/
-skin zendframework jar:zendframework.jar!/skin/
+skin zendframework classic/1.0 jar:zendframework.jar!/skin/
 overlay chrome://komodo/content/komodo.xul chrome://zendframework/content/overlay.xul
