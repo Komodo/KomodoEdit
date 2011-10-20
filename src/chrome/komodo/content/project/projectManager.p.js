@@ -1340,9 +1340,13 @@ this.open = function project_openProjectFromURL(url,
                                                 skipRecentOpenFeature /* false */,
                                                 ensureVisible /* true */) {
     if (this.manager.single_project_view) {
-        if (this.manager.currentProject
-            && !this.manager.closeProject(this.manager.currentProject)) {
-            return false;
+        if (this.manager.currentProject) {
+            if (this.manager.currentProject.url == url) {
+                return true;
+            }
+            if (!this.manager.closeProject(this.manager.currentProject)) {
+                return false;
+            }
         }
         if (ko.projects.manager.viewMgr) {
             ko.projects.manager.viewMgr.removeUnopenedProject(url);
