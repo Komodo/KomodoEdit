@@ -3042,7 +3042,7 @@ this.markClosedWindows = function() {
             loadedWindowNums[win._koNum] = 1;
         });
     for (var i = 0; i < lim; i++) {
-        pref = windowWorkspacePref.getPref(i);
+        pref = windowWorkspacePref.getPref(prefIds[i]);
         var windowNum = pref.getLongPref("windowNum");
         if (pref.getBooleanPref("restoreOnRestart")
             && (!(windowNum in loadedWindowNums))) {
