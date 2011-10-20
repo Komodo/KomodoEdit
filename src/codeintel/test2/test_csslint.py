@@ -80,7 +80,7 @@ class CSSLintTest(CodeIntelTestCase):
     _skin_dir = join(_ko_src_dir, "chrome", "komodo", "skin")
     _modules_dir = join(_ko_src_dir, "modules")
     _skipSkinFiles = [
-        join(_modules_dir, 'publishing', 'skin', 'publishing_settings.css'),
+        # No openkomodo files in this category.
     ]
     def _walk_skin_files(self, data, dirname, fnames):
         for fname in fnames:
@@ -105,6 +105,9 @@ class CSSLintTest(CodeIntelTestCase):
         os.path.walk(self._modules_dir, self._walk_skin_files, None)
         
     def test_komodo_skin_files_problem_01(self):
+        if not self._skipSkinFiles:
+            self.assertTrue(1)
+            return
         fpath = self._skipSkinFiles[0]
         fd = open(fpath, 'r')
         code = fd.read().decode("utf-8")
@@ -1130,12 +1133,15 @@ pre { .wrap }
 
     def test_css_scss_parse_mixins(self):
         code = dedent("""\
+$flip: #334455;
+$other: 34px;
+
 @mixin table-base {
   th {
     text-align: center;
     font-weight: bold;
   }
-  td, th {padding: 2px;}
+  td, th {padding: $other;}
 }
 
 @mixin left($dist) {
