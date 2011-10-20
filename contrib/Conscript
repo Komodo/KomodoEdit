@@ -452,23 +452,34 @@ if ($withWatchdogFSNotifications) {
     # and select-backport (for < 2.7). However, we don't use any of the features
     # that require those.
     
+    my $consLocal = $cons;
+    if ($platform eq "darwin") {
+        # Ensure we don't default to hidden symbols on the Mac, as this will
+        # cause us to be unable to import the _watchdog_fsevents module.
+        my %consLocal = $cons->copy();
+        $consLocal{'CFLAGS'} =~ s/-fvisibility=hidden//g;
+        $consLocal{'CXXFLAGS'} =~ s/-fvisibility=hidden//g;
+        $consLocal = new cons(ENV => \%consLocal,
+                              CFLAGS => $consLocal{'CFLAGS'});
+    }
+
     my $landmark = "$komodoPythonUtilsDir/pathtools/__init__.py";
-    $cons->Command($landmark,
+    $consLocal->Command($landmark,
                    "pathtools/setup.py",
                    qq(
                     cd %1:d && $siloedPython %1:f build $debugFlags
                     cd %1:d && $siloedPython %1:f install --skip-build --install-lib=$komodoPythonUtilsDir
                    ));
-    $cons->DependsRecursive($landmark, "pathtools", ("build", '\.svn', '\.consign'));
+    $consLocal->DependsRecursive($landmark, "pathtools", ("build", '\.svn', '\.consign'));
 
     $landmark = "$komodoPythonUtilsDir/watchdog/__init__.py";
-    $cons->Command($landmark,
+    $consLocal->Command($landmark,
                    "watchdog/setup.py",
                    qq(
                     cd %1:d && $siloedPython %1:f build $debugFlags
                     cd %1:d && $siloedPython %1:f install --skip-build --install-lib=$komodoPythonUtilsDir
                    ));
-    $cons->DependsRecursive($landmark, "watchdog", ("build", '\.svn', '\.consign'));
+    $consLocal->DependsRecursive($landmark, "watchdog", ("build", '\.svn', '\.consign'));
 }
 
 
