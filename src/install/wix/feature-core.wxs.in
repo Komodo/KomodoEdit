@@ -418,7 +418,6 @@
 <?endif ?>
 
 <?if $(var.MozMajorVersion) = "7" ?>
-      <ComponentRef Id="component650"/>
       <ComponentRef Id="component386"/>
 <?endif ?>
 
