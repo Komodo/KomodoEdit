@@ -652,9 +652,9 @@ class _CSSParser(object):
     def _parse_attribute(self):
         tok = self._tokenizer.get_next_token()
         if not (self._classifier.is_attribute(tok)
-                or self._classifier.is_identifier(tok)):
+                or self._classifier.is_identifier(tok)
                 # tags can happen after *[foo] due to confused lexing
-                ####or self._classifier.is_tag(tok)):
+                or self._classifier.is_tag(tok)):
             self._add_result("expecting an identifier", tok)
         else:
             tok = self._tokenizer.get_next_token()
