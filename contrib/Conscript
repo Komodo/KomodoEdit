@@ -474,6 +474,9 @@ if ($withWatchdogFSNotifications) {
 
 #---- komododoc
 # The Komodo documentation project.
+#
+# Note: must use $cons for the komododoc build, as it depends upon files that
+#       reside outside of the contrib area.
 
 if ($withDocs) {
     my @opts = (
@@ -489,7 +492,7 @@ if ($withDocs) {
     my $opts = join ' ', @opts;
     my $komodoCix = "$komodoPythonUtilsDir/codeintel2/catalogs/komodo.cix";
     if ($withKomodoCix) {
-        $consLocal->Command(
+        $cons->Command(
             "komododoc/config.py",          # %0
             "komododoc/configure.py",       # %1
             "../license_text/LICENSE.mpl.txt",     # %2
@@ -499,7 +502,7 @@ if ($withDocs) {
             }
         );
     } else {
-        $consLocal->Command(
+        $cons->Command(
             "komododoc/config.py",          # %0
             "komododoc/configure.py",       # %1
             "../license_text/LICENSE.mpl.txt",     # %2
@@ -510,7 +513,7 @@ if ($withDocs) {
     }
     
     $landmark = "$mozChromeDir/komododoc.manifest";  # just a landmark file for now
-    $consLocal->Command(
+    $cons->Command(
         $landmark,
         "komododoc/Makefile.py",
         "komododoc/config.py",
@@ -522,14 +525,14 @@ if ($withDocs) {
         }
     );
     if ($withKomodoCix) {
-        $consLocal->Depends($landmark, $komodoCix);
+        $cons->Depends($landmark, $komodoCix);
     }
-    $consLocal->DependsRecursive($landmark, "komododoc",
+    $cons->DependsRecursive($landmark, "komododoc",
                             ("build", '\.svn', '\.consign'));
 
     if ($platform ne "win") {
         $landmark = "$readmeDir/relnotes.html";
-        $consLocal->Command(
+        $cons->Command(
             $landmark,
             "komododoc/Makefile.py",
             "komododoc/config.py",
@@ -537,7 +540,7 @@ if ($withDocs) {
                 cd %1:d && mk miniset
             }
         );
-        $consLocal->DependsRecursive($landmark, "komododoc",
+        $cons->DependsRecursive($landmark, "komododoc",
                                 ("build", '\.svn', '\.consign'));
     }
 }
