@@ -71,7 +71,8 @@ class TestKoFileStatusService(unittest.TestCase):
         unittest.TestCase.__init__(self, methodName)
         self.__fileStatusSvc = components.classes["@activestate.com/koFileStatusService;1"] \
                          .getService(components.interfaces.koIFileStatusService)
-        self.__fileStatusSvc.init()
+        from xpcom.server import UnwrapObject
+        UnwrapObject(self.__fileStatusSvc).init()
         self.__filesvc = components.classes["@activestate.com/koFileService;1"] \
                          .getService(components.interfaces.koIFileService)
 
