@@ -94,13 +94,13 @@ if ($platform eq "darwin") {
 #     codeintel system use ElementTree.
 # Python ElementTree (cElementTree depends upon this)
 my $landmark = "$komodoPythonUtilsDir/elementtree/__init__.py";
-$cons->Command($landmark,
+$consLocal->Command($landmark,
                "elementtree/setup.py",
                qq(
                 cd %1:d && $siloedPython %1:f build $debugFlags
                 cd %1:d && $siloedPython %1:f install --skip-build --install-lib=$komodoPythonUtilsDir
                ));
-$cons->DependsRecursive($landmark, "elementtree", ("build", '\.svn'));
+$consLocal->DependsRecursive($landmark, "elementtree", ("build", '\.svn'));
 # cElementTree
 my $pydExt = ($platform eq "win" ? ".pyd" : ".so");
 my $landmark = "$komodoPythonUtilsDir/cElementTree$pydExt";
@@ -110,22 +110,22 @@ $consLocal->Command($landmark,
                      cd %1:d && $siloedPython %1:f build $debugFlags
                      cd %1:d && $siloedPython %1:f install --skip-build --install-lib=$komodoPythonUtilsDir
                     ));
-$cons->DependsRecursive($landmark, "cElementTree", ("build", '\.svn'));
+$consLocal->DependsRecursive($landmark, "cElementTree", ("build", '\.svn'));
 
 #---- sgmlop (used for HTML parsing for HTML autocomplete)
 my $pydExt = ($platform eq "win" ? ".pyd" : ".so");
 my $landmark = "$komodoPythonUtilsDir/sgmlop$pydExt";
-$cons->Command($landmark,
+$consLocal->Command($landmark,
                "sgmlop/setup.py",
                qq(
                 cd %1:d && $siloedPython %1:f build $debugFlags
                 cd %1:d && $siloedPython %1:f install --skip-build --install-lib=$komodoPythonUtilsDir
                ));
-$cons->DependsRecursive($landmark, "sgmlop", ("build", '\.svn'));
+$consLocal->DependsRecursive($landmark, "sgmlop", ("build", '\.svn'));
 
 
 #---- Stock XML catalogs
-$cons->InstallRecursive("$supportDir/catalogs",
+$consLocal->InstallRecursive("$supportDir/catalogs",
                         #XXX must be absolute path (bug in InstallRecursive)
                         cwd()."/contrib/catalogs",
                         ('\.svn'));
@@ -135,19 +135,19 @@ $cons->InstallRecursive("$supportDir/catalogs",
 if ($withCrypto) {
     # PyCrypto (http://www.amk.ca/python/code/crypto)
     my $landmark = "$komodoPythonUtilsDir/Crypto/__init__.py";
-    $cons->Command($landmark,
+    $consLocal->Command($landmark,
                    "pycrypto/setup.py",
                    qq(
                     cd %1:d && $siloedPython %1:f build $debugFlags
                     cd %1:d && $siloedPython %1:f install --skip-build --install-lib=$komodoPythonUtilsDir
                    ));
-    $cons->DependsRecursive($landmark, "pycrypto", ("build", '\.svn'));
+    $consLocal->DependsRecursive($landmark, "pycrypto", ("build", '\.svn'));
     
     # paramiko (http://www.lag.net/paramiko/)
     # See bug 73155 for a long discussion on why we are NOT using
     # paramiko's setup.py for installation.
     $landmark = "$komodoPythonUtilsDir/paramiko";
-    $cons->InstallRecursive($landmark,
+    $consLocal->InstallRecursive($landmark,
                             #XXX must be absolute path (bug in InstallRecursive)
                             cwd()."/contrib/paramiko/paramiko",
                             ('\.svn'));
@@ -182,7 +182,7 @@ if ($withJSLib or $buildFlavour eq "dev") {
     if ($buildFlavour eq "dev") {
         # install into komodo dev build
         my $baseDir = "$mozExtensionDir/{DF8E5247-8E0A-4de6-B393-0735A39DFD80}/";
-        $cons->InstallRecursive(
+        $consLocal->InstallRecursive(
             $baseDir,
             #XXX must be absolute path (bug in InstallRecursive)
             cwd()."/contrib/jslib",
@@ -205,14 +205,14 @@ if ($withJSLib or $buildFlavour eq "dev") {
         #                        (".consign", "install.p.rdf", "jslib.xpi", '\.svn'));
     }
 
-    $cons->Command(
+    $consLocal->Command(
         "jslib/jslib.xpi",
         "jslib/install.rdf",
         qq(
             $unsiloedPythonExe bin/run-in-dir.py %1:d zip -r %0:f "*" -x .consign chrome/.consign chrome/jsliblive/.consign components/.consign META-INF/.consign
         ));
-    $cons->DependsRecursive("jslib/jslib.xpi", "jslib", (".consign", '\.svn'));
-    $cons->Install("$supportDir/modules", 'jslib/jslib.xpi');
+    $consLocal->DependsRecursive("jslib/jslib.xpi", "jslib", (".consign", '\.svn'));
+    $consLocal->Install("$supportDir/modules", 'jslib/jslib.xpi');
 }
 
 
@@ -238,7 +238,7 @@ if ($platform eq "win") {
 
     $landmark = "$scintilla_dir_for_cons/win32/libpcre.lib";
     if ($compiler eq "vc6") {
-        $cons->Command([$landmark,
+        $consLocal->Command([$landmark,
                         "$scintilla_dir_for_cons/include/pcre.h",
                         "$silvercity_dir_for_cons/libpcre.lib"],
                        "pcre/pcreposix.h",
@@ -257,7 +257,7 @@ if ($platform eq "win") {
     } else {
         # Building with the .mak files here should work with any VC
         # version.
-        $cons->Command([$landmark,
+        $consLocal->Command([$landmark,
                         "$scintilla_dir_for_cons/include/pcre.h",
                         "$silvercity_dir_for_cons/libpcre.lib"],
                        "pcre/pcreposix.h",
@@ -271,7 +271,7 @@ if ($platform eq "win") {
                         copy %1:d\\Win32\\Release\\libpcre.lib $silvercity_dir\\libpcre.lib
                        ));
     }
-    $cons->DependsRecursive($landmark, "pcre",
+    $consLocal->DependsRecursive($landmark, "pcre",
                             ('\.svn', 'doc', 'testdata'));
 
 } else {
@@ -290,7 +290,7 @@ if ($platform eq "win") {
     }
 
     $landmark = "$scintilla_dir_for_cons/$scintilla_plat_dir/libpcre.a";
-    $cons->Command([$landmark,
+    $consLocal->Command([$landmark,
                     "$scintilla_dir_for_cons/include/pcre.h",
                     "$silvercity_dir_for_cons/libpcre.a"],
                    "pcre/configure",
@@ -309,7 +309,7 @@ if ($platform eq "win") {
                     cp %1:d/.libs/libpcre.a $silvercity_dir/libpcre.a
                     ranlib $silvercity_dir/libpcre.a
                    ));
-    $cons->DependsRecursive($landmark, "pcre",
+    $consLocal->DependsRecursive($landmark, "pcre",
                             ('\.svn', 'doc', 'testdata'));
 }
 
@@ -322,7 +322,7 @@ if ($platform eq "win") {
 
 if ($platform eq "win") {
     my $landmark = "$komodoPythonUtilsDir/wnd";
-    $cons->InstallRecursive($landmark,
+    $consLocal->InstallRecursive($landmark,
                             cwd() . "/contrib/pywin/wnd-0-1-20",
                             ('\.svn', '\.consign'));
 }
@@ -338,12 +338,12 @@ if ($platform eq "win") {
 #
 # Note: Not using InstallRecursive because don't want
 # inflector/tests.py.
-$cons->InstallPythonUtility("inflector/__init__.py", "inflector");
-$cons->InstallPythonUtility("inflector/Inflector.py", "inflector");
-$cons->InstallPythonUtility("inflector/Rules/__init__.py", "inflector/Rules");
-$cons->InstallPythonUtility("inflector/Rules/Base.py", "inflector/Rules");
-$cons->InstallPythonUtility("inflector/Rules/English.py", "inflector/Rules");
-$cons->InstallPythonUtility("inflector/Rules/Spanish.py", "inflector/Rules");
+$consLocal->InstallPythonUtility("inflector/__init__.py", "inflector");
+$consLocal->InstallPythonUtility("inflector/Inflector.py", "inflector");
+$consLocal->InstallPythonUtility("inflector/Rules/__init__.py", "inflector/Rules");
+$consLocal->InstallPythonUtility("inflector/Rules/Base.py", "inflector/Rules");
+$consLocal->InstallPythonUtility("inflector/Rules/English.py", "inflector/Rules");
+$consLocal->InstallPythonUtility("inflector/Rules/Spanish.py", "inflector/Rules");
 
 
 #---- htmltidy 
@@ -367,12 +367,12 @@ if ($platform eq "win") {
 }
 
 
-my %consLocal = $cons->copy();
-$consLocal{CPPPATH} = "include";
-$consLocal{LIBPATH} = "obj";
-my $consLocal = new cons(%consLocal);
+my %consTidy = $consLocal->copy();
+$consTidy{CPPPATH} = "include";
+$consTidy{LIBPATH} = "obj";
+my $consTidy = new cons(%consTidy);
 
-$consLocal->Command($exeName, 
+$consTidy->Command($exeName, 
                     "tidy/build/gmake/Makefile",
                     "tidy/build/msvc/Makefile.vc6",
                     "tidy/console/tab2space.c",
@@ -432,18 +432,18 @@ $consLocal->Command($exeName,
                     "tidy/obj/empty.txt",
                     qq{cd $tidyDir && $make -f $makefile}
                    );
-$consLocal->Install("$supportDir/html", $exeName);
+$consTidy->Install("$supportDir/html", $exeName);
 }
 
 my $landmark = "$komodoPythonUtilsDir/html5lib";
-$cons->InstallRecursive($landmark,
+$consLocal->InstallRecursive($landmark,
                         #XXX must be absolute path (bug in InstallRecursive)
                         cwd()."/contrib/html5lib/src/html5lib",
                         ('\.svn'));
 
 # jslint
-$cons->Install("$supportDir/lint/javascript", "jslint/fulljslint.js");
-$cons->Install("$supportDir/lint/javascript", "jslint/jshint.js");
+$consLocal->Install("$supportDir/lint/javascript", "jslint/fulljslint.js");
+$consLocal->Install("$supportDir/lint/javascript", "jslint/jshint.js");
 
 
 #----  Watchdog for file notifcations
@@ -452,17 +452,6 @@ if ($withWatchdogFSNotifications) {
     # and select-backport (for < 2.7). However, we don't use any of the features
     # that require those.
     
-    my $consLocal = $cons;
-    if ($platform eq "darwin") {
-        # Ensure we don't default to hidden symbols on the Mac, as this will
-        # cause us to be unable to import the _watchdog_fsevents module.
-        my %consLocal = $cons->copy();
-        $consLocal{'CFLAGS'} =~ s/-fvisibility=hidden//g;
-        $consLocal{'CXXFLAGS'} =~ s/-fvisibility=hidden//g;
-        $consLocal = new cons(ENV => \%consLocal,
-                              CFLAGS => $consLocal{'CFLAGS'});
-    }
-
     my $landmark = "$komodoPythonUtilsDir/pathtools/__init__.py";
     $consLocal->Command($landmark,
                    "pathtools/setup.py",
@@ -500,7 +489,7 @@ if ($withDocs) {
     my $opts = join ' ', @opts;
     my $komodoCix = "$komodoPythonUtilsDir/codeintel2/catalogs/komodo.cix";
     if ($withKomodoCix) {
-        $cons->Command(
+        $consLocal->Command(
             "komododoc/config.py",          # %0
             "komododoc/configure.py",       # %1
             "../license_text/LICENSE.mpl.txt",     # %2
@@ -510,7 +499,7 @@ if ($withDocs) {
             }
         );
     } else {
-        $cons->Command(
+        $consLocal->Command(
             "komododoc/config.py",          # %0
             "komododoc/configure.py",       # %1
             "../license_text/LICENSE.mpl.txt",     # %2
@@ -521,7 +510,7 @@ if ($withDocs) {
     }
     
     $landmark = "$mozChromeDir/komododoc.manifest";  # just a landmark file for now
-    $cons->Command(
+    $consLocal->Command(
         $landmark,
         "komododoc/Makefile.py",
         "komododoc/config.py",
@@ -533,14 +522,14 @@ if ($withDocs) {
         }
     );
     if ($withKomodoCix) {
-        $cons->Depends($landmark, $komodoCix);
+        $consLocal->Depends($landmark, $komodoCix);
     }
-    $cons->DependsRecursive($landmark, "komododoc",
+    $consLocal->DependsRecursive($landmark, "komododoc",
                             ("build", '\.svn', '\.consign'));
 
     if ($platform ne "win") {
         $landmark = "$readmeDir/relnotes.html";
-        $cons->Command(
+        $consLocal->Command(
             $landmark,
             "komododoc/Makefile.py",
             "komododoc/config.py",
@@ -548,11 +537,11 @@ if ($withDocs) {
                 cd %1:d && mk miniset
             }
         );
-        $cons->DependsRecursive($landmark, "komododoc",
+        $consLocal->DependsRecursive($landmark, "komododoc",
                                 ("build", '\.svn', '\.consign'));
     }
 }
 
 if ($platform eq "win") {
-    $cons->InstallPythonUtility('smallstuff/winprocess.py');
+    $consLocal->InstallPythonUtility('smallstuff/winprocess.py');
 }
