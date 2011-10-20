@@ -273,6 +273,7 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 				if (*p_buf == '@') p_buf += 1;
 				if (!CompareCaseInsensitive(p_buf, "import")
 				    || !CompareCaseInsensitive(p_buf, "charset")
+				    || !CompareCaseInsensitive(p_buf, "font-face")
 				    || !CompareCaseInsensitive(p_buf, "namespace")) {
 					in_top_level_directive = true;
 					main_substate = MAIN_SUBSTATE_IN_PROPERTY_VALUE;

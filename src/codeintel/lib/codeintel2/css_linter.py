@@ -751,6 +751,9 @@ class _CSSParser(object):
         elif tok.text.lower() == "page":
             self._parse_page()
 
+        elif tok.text.lower() == "font-face":
+            self._parse_declarations()
+
         elif tok.text.lower() == "namespace":
             self._parse_namespace()
             

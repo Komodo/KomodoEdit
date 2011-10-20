@@ -560,6 +560,18 @@ a ~ b
         code = '@page { background: red;'
         self._check_one_result_check_error_at_eof(code, "expecting '}'")
 
+    def test_css_font_face_good_01(self):
+        code = dedent("""\
+  @font-face {
+      font-family: 'Swis721CnBTBold';
+      src: url('font/swis721_cn_bt_bold-webfont.woff') format('woff'), url('font/swis721_cn_bt_bold-webfont.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+  }
+""")
+        for lang in self.langs:
+            self._check_zero_results_show_error(code, lang)
+
     def test_css_namespace_str_01(self):
         code = dedent("""\
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
