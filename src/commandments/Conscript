@@ -68,13 +68,3 @@ $cons->Preprocess('koCommandmentService.p.py', 'koCommandmentService.py',
 $cons->InstallXpcomComponent('koCommandmentService.py');
 $cons->Install($idlExportDir, 'koICommandmentService.idl');
 $cons->BuildAndInstallXpt('koICommandmentService.idl');
-
-#XXX kocommandments.py is out of date since the Commandment changes
-#    for Firefox/XRE-based Komodo. I don't think it is used, so
-#    don't install it for now.
-#my $kmm = $version;
-#$kmm =~ s/^(\d+\.\d+).*$/$1/;
-#$cons->Preprocess('kocommandments.p.py', 'kocommandments.py',
-#                  {'KOMODO_MAJOR_MINOR' => $kmm});
-#$cons->InstallPythonUtility('kocommandments.py');
-
