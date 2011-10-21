@@ -338,13 +338,13 @@
         <!-- This is set to true to indicate that the searched-for text is not
              found. -->
         <getter>
-          return this.classList.contains("ko-findbar-notfound");
+          return this.classList.contains("ko-findbar-status-not-found");
         </getter>
         <setter>
           if (val) {
-            this.classList.add("ko-findbar-notfound");
+            this.classList.add("ko-findbar-status-not-found");
           } else {
-            this.classList.remove("ko-findbar-notfound");
+            this.classList.remove("ko-findbar-status-not-found");
           }
           return val;
         </setter>
