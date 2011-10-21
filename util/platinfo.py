@@ -849,32 +849,28 @@ def _get_linux_lib_info():
             f.write("""
 #include <stdio.h>
 #include <stdlib.h>
+#include <iostream>
 int main(int argc, char **argv) { exit(0); }
 """)
         finally:
             f.close()
-        currdir = os.getcwd()
-        os.chdir(tmpdir)
         try:
-            try:
-                _run(['g++', cxxfile], ignore_stderr=True)
-            except RunError, e:
-                log.debug("could not compile test C++ file with g++: %s", e)
-                return {}
-            objdump = os.popen('objdump -p a.out').read()
-            ldd = os.popen('ldd a.out').read()
-        finally:
-            os.chdir(currdir)
+            subprocess.check_call("g++ " + cxxfile, cwd=tmpdir, shell=True)
+        except RunError, e:
+            log.debug("could not compile test C++ file with g++: %s", e)
+            return {}
+        p = subprocess.Popen("ldd a.out", cwd=tmpdir, shell=True, stdout=subprocess.PIPE)
+        ldd, _ = p.communicate()
 
         # Parse the lib versions from the object dump.
         # e.g.: libstdc++-libc6.2-2.so.3
         patterns = {
-            "libstdc++": re.compile(r'NEEDED\s+libstdc\+\+(-libc\d+\.\d+\-\d+)?\.so\.(?P<ver>.*)'),
-            "libc": re.compile(r'NEEDED\s+libc\.so\.(?P<ver>.*)'),
+            "libstdc++": re.compile(r'libstdc\+\+(-libc\d+\.\d+\-\d+)?\.so\.(?P<ver>\d+)'),
+            "libc": re.compile(r'libc\.so\.(?P<ver>\d+)'),
         }
         lib_info = {}
         for name, pattern in patterns.items():
-            match = pattern.search(objdump)
+            match = pattern.search(ldd)
             if not match:
                 raise InternalError("could not find 'NEEDED %s...' in "
                                     "objdump of compiled test C++ file"
