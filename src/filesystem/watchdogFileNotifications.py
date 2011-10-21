@@ -87,6 +87,7 @@ class WatchdogFileNotificationService(object):
         return watch_path, patterns
 
     def addObserver(self, ko_observer, path, watch_type, flags):
+        log.info('addObserver: %d %r', flags, path)
         watch_path, patterns = self._get_watch_path_and_patterns(path)
         if not os.path.exists(watch_path):
             raise ValueError("Neither path nor its parent is a directory.")
@@ -99,6 +100,7 @@ class WatchdogFileNotificationService(object):
         return True
 
     def removeObserver(self, ko_observer, path):
+        log.info('removeObserver: %s', path)
         try:
             handler, watch = self._handler_and_watch_map.pop((ko_observer, path))
             # If this is the last handler of the watch, remove the emitter, the
