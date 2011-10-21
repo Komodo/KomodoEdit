@@ -71,14 +71,6 @@ class koFileNotificationService:
                     getService(components.interfaces.nsIFileProtocolHandler)
         # Service enabled
         self.__enabled = self.__prefs.getBooleanPref("fileNotificationServiceEnabled")
-        # OS API watching enabled
-        self.__os_notifications_enabled = True
-        if self.__prefs.hasBooleanPref("osControlledFileNotificationsEnabled"):
-            self.__os_notifications_enabled = self.__prefs.getBooleanPref("osControlledFileNotificationsEnabled")
-        # Polling enabled
-        self.__polling_enabled = True
-        if self.__prefs.hasBooleanPref("filePollingServiceEnabled"):
-            self.__polling_enabled = self.__prefs.getBooleanPref("filePollingServiceEnabled")
 
         # Short names for flags
         self.available_file_flags = components.interfaces.koIFileNotificationService.FS_FILE_CREATED | \
@@ -86,37 +78,24 @@ class koFileNotificationService:
                                     components.interfaces.koIFileNotificationService.FS_FILE_MODIFIED
 
         # Setup the OS dependant (underlying) services
-        self.__polling_notifier = None
+        self.__polling_service = None
         self.__os_file_service = None
         if self.__enabled:
-            if self.__polling_enabled:
-                # Setup the fallback polling notifier thread
+            if not self.__prefs.hasBooleanPref("filePollingServiceEnabled") or \
+               self.__prefs.getBooleanPref("filePollingServiceEnabled"):
+                # Polling is enabled - setup the fallback polling handler.
                 poll_period = osFilePollingNotifier.DEFAULT_POLL_PERIOD
                 if self.__prefs.hasLongPref("filePollingServicePeriod"):
                     poll_period = self.__prefs.getLongPref("filePollingServicePeriod")
-                self.__polling_notifier = osFilePollingNotifier.osFilePollingNotifier(poll_period)
+                self.__polling_service = osFilePollingNotifier.osFilePollingNotifier(poll_period)
 
-            # Setup os file notifications service
-            if sys.platform.startswith("win") and self.__os_notifications_enabled:
-                # Windows
-                log.info("Setting up OS File Notifications for Windows")
-                import osFileNotifications_win32
-                self.__os_file_service = osFileNotifications_win32.WindowsFileWatcherService()
-            else:
-                # We just poll for now
-                self.__os_file_service = koFileNotificationServiceUnavailable()
-
-            # The watchdog-based service is currently not installed by default.
-            # If it is installed, use it.
-            hasWatchdogNotifications = True
-            try:
-                from watchdogFileNotifications import \
-                    WatchdogFileNotificationService
-            except ImportError:
-                hasWatchdogNotifications = False
-            if hasWatchdogNotifications:
+            if not self.__prefs.hasBooleanPref("osControlledFileNotificationsEnabled") or \
+               self.__prefs.getBooleanPref("osControlledFileNotificationsEnabled"):
+                # OS filesystem notifications are enabled - import watchdog to
+                # do the handling.
+                from watchdogFileNotifications import WatchdogFileNotificationService
                 self.__os_file_service = WatchdogFileNotificationService()
-    
+
             self.startNotificationService()
 
             # Are OS notifications available to use on this machine?
@@ -126,7 +105,7 @@ class koFileNotificationService:
                 log.info("OS file notifications: NOT available on this platform: %s", sys.platform)
 
             # Are file polling notifications enabled
-            if self.__polling_enabled:
+            if self.__polling_service:
                 log.info("Polling file notifications: available.")
             else:
                 log.info("Polling file notifications: DISABLED")
@@ -168,16 +147,16 @@ class koFileNotificationService:
     # long startNotificationService();    // Ready to receiving file change notifications from OS
     def startNotificationService(self):
         if self.__enabled:
-            if self.__polling_enabled:
-                self.__polling_notifier.startNotificationService()
+            if self.__polling_service:
+                self.__polling_service.startNotificationService()
             if self.os_notifications_available:
                 self.__os_file_service.startNotificationService()
 
     # long stopNotificationService();     // Stop listening to file change notifications from OS
     def stopNotificationService(self):
         if self.__enabled:
-            if self.__polling_enabled:
-                self.__polling_notifier.stopNotificationService()
+            if self.__polling_service:
+                self.__polling_service.stopNotificationService()
             if self.os_notifications_available:
                 self.__os_file_service.stopNotificationService()
 
@@ -212,8 +191,8 @@ class koFileNotificationService:
         # Try using os file notifications, if that fails, then use polling
         if not self.os_notifications_available or \
            not self.__os_file_service.addObserver(observer, nsIFile.path, watch_type, flags):
-            if self.__polling_enabled:
-                self.__polling_notifier.addObserver(observer, nsIFile.path, watch_type, flags)
+            if self.__polling_service:
+                self.__polling_service.addObserver(observer, nsIFile.path, watch_type, flags)
         #self.dump()
 
     # Stop watching this location for the given observer.
@@ -230,17 +209,17 @@ class koFileNotificationService:
         # them both to stop watching it though!
         if self.os_notifications_available:
             self.__os_file_service.removeObserver(observer, nsIFile.path)
-        if self.__polling_enabled:
-            self.__polling_notifier.removeObserver(observer, nsIFile.path)
+        if self.__polling_service:
+            self.__polling_service.removeObserver(observer, nsIFile.path)
         #self.dump()
 
     # URI's that are being polled by the file polling service
     def getAllPolledUris(self):
-        if not self.__enabled or not self.__polling_enabled:
+        if not self.__enabled or not self.__polling_service:
             return []
 
-        # self.__polling_notifier.polled_files is a list of uri's (strings)
-        return self.__polling_notifier.polled_uris
+        # self.__polling_service.polled_files is a list of uri's (strings)
+        return self.__polling_service.polled_uris
 
     # XXX - RFU
     # Send observer notification the file has changed
@@ -253,28 +232,12 @@ class koFileNotificationService:
         if not self.__enabled:
             return
 
-        self.__os_file_service.dump()
-        if self.__polling_enabled:
-            self.__polling_notifier.dump()
+        if self.__os_file_service:
+            self.__os_file_service.dump()
+        if self.__polling_service:
+            self.__polling_service.dump()
 
-    def __are_os_notifications_available(self):
-        return self.__os_file_service.available
-    os_notifications_available = property(__are_os_notifications_available,
-            doc="Does the os supports file notifications from the kernel level")
-
-
-class koFileNotificationServiceUnavailable:
-    """Dummy class for when OS file notifications not available"""
-    def __init__(self):
-        self.available = False
-    def startNotificationService(self):
-        pass
-    def stopNotificationService(self):
-        pass
-    def addObserver(self, observer, path, watch_type, flags):
-        raise ServerException( nsError.NS_ERROR_NOT_IMPLEMENTED,
-                              "No file notifications available" )
-    def removeObserver(self, observer, path, watch_type, flags):
-        pass
-    def dump(self):
-        pass
+    @property
+    def os_notifications_available(self):
+        """Does the os supports file notifications from the kernel level"""
+        return self.__os_file_service and self.__os_file_service.available
