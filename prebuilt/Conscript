@@ -12,8 +12,6 @@ Import(
     "docDir",
     "platform",
     "architecture",
-    "libcppVersion",
-    "glibcVersion",
     "buildType",
     "komodoDevDir",
     "mozBin",

@@ -704,7 +704,6 @@ configuration = {
     "platform": Platform(),
     "architecture": Architecture(),
     "libcppVersion": LibCPPVersion(),
-    "glibcVersion": GLibCVersion(),
 
     # Komodo build/version configuration vars.
     "sourceId": SourceId(),                                         #   e.g., 1234M

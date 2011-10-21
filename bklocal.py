@@ -118,11 +118,11 @@ def _capture_stdout(argv, ignore_retval=False, cwd=None):
     return stdout
 
 
-def _getValidPlatforms(libcppVersion=False, linuxDistro=False):
+def _getValidPlatforms(linuxDistro=False):
     """Return a list of platforms for which Mozilla can be built from
     the current machine.
 
-        "libcppVersion", "linuxDistro" are booleans indicating if that
+        "linuxDistro" is a boolean indicating if that
             condition should be included in the platform start (in the
             <config> part). By default they are all false.
     
@@ -138,15 +138,11 @@ def _getValidPlatforms(libcppVersion=False, linuxDistro=False):
             config = ""
             if linuxDistro:
                 config += "-" + _getLinuxDistro()
-            if libcppVersion:
-                config += "-libcpp" + black.configure.items["libcppVersion"].Get()
             validPlats = ["linux%s-x86" % config]
         elif uname[4] == "x86_64":
             config = ""
             if linuxDistro:
                 config += "-" + _getLinuxDistro()
-            if libcppVersion:
-                config += "-libcpp" + black.configure.items["libcppVersion"].Get()
             validPlats = ["linux%s-x86_64" % config]
         else:
             raise ConfigureError("unknown Linux architecture: '%s'"
@@ -174,18 +170,17 @@ def _getValidPlatforms(libcppVersion=False, linuxDistro=False):
     return validPlats
 
 
-def _getDefaultPlatform(libcppVersion=False, linuxDistro=False):
+def _getDefaultPlatform(linuxDistro=False):
     """Return an appropriate default target platform for the current machine.
     
-        "libcppVersion", "linuxDistro" are booleans indicating if that
+        "linuxDistro" is a boolean indicating if that
             condition should be included in the platform start (in the
             <config> part). By default they are all false.
     
     A "platform" is a string of the form "<os>[-<config>]-<arch>".
     """
     try:
-        return _getValidPlatforms(libcppVersion=libcppVersion,
-                                  linuxDistro=linuxDistro)[0]
+        return _getValidPlatforms(linuxDistro=linuxDistro)[0]
     except IndexError, ex:
         raise ConfigureError("cannot build mozilla on this platform: '%s'"
                              % sys.platform)
@@ -832,12 +827,7 @@ class PrebuiltPaths(black.configure.Datum):
         platform = black.configure.items["platform"].Get()
         buildType = black.configure.items["buildType"].Get()
         if sys.platform.startswith("linux"):
-            libcppVersion = black.configure.items["libcppVersion"].Get()
-            if libcppVersion:
-                libcppVersion = platform+"-libcpp"+libcppVersion
             candidates = [os.path.abspath(os.path.join(
-                            "prebuilt", libcppVersion, buildType)),
-                          os.path.abspath(os.path.join(
                             "prebuilt", platform, buildType))]
             self.value = [c for c in candidates if os.path.exists(c)]
         elif sys.platform.startswith("darwin") and \
@@ -2559,58 +2549,6 @@ class Architecture(black.configure.Datum):
                 self.value = uname[4]
         self.determined = 1
 
-class LibCPPVersion(black.configure.Datum):
-    def __init__(self):
-        black.configure.Datum.__init__(self, "libcppVersion",
-            desc="the libc++ version")
-
-    def _Determine_Sufficient(self):
-        if self.value is None:
-            raise black.configure.ConfigureError(\
-                "Could not determine %s.\n" % self.desc)
-
-    def _Determine_Do(self):
-        self.applicable = 1
-        self.value = ''
-        if sys.platform.startswith('linux'):
-            komodoDevDir = black.configure.items["komodoDevDir"].Get()
-            
-            # determine libstdc++ version
-            os.system('g++ '+komodoDevDir+'/util/libstdc-version.cxx')
-            data = os.popen('objdump -p a.out').read()
-            os.remove('a.out')
-            # this returns a tuple, in which the third item is the stdc++ version
-            version = re.findall('.*?NEEDED.*?libstdc\+\+(-libc.*(-.*))?\.so\.(.*)', data)[0][2]
-            if '.' in version:
-                version = ''.join(version.split('.')[:2])
-            self.value = version
-        self.determined = 1
-
-class GLibCVersion(black.configure.Datum):
-    def __init__(self):
-        black.configure.Datum.__init__(self, "glibcVersion",
-            desc="the glibc version")
-
-    def _Determine_Sufficient(self):
-        if self.value is None:
-            raise black.configure.ConfigureError(\
-                "Could not determine %s.\n" % self.desc)
-
-    def _Determine_Do(self):
-        self.applicable = 1
-        self.value = ''
-        if sys.platform.startswith('linux'):
-            # platform.py available since python 2.3
-            import platform
-            # determine libc version
-            libc = '/lib/libc.so.6'
-            if not os.path.exists(libc):
-                libc = sys.executable
-            lib,ver = platform.libc_ver(libc)
-            ver = ver.split('.')[:2]
-            self.value  = ''.join(ver) # make string '23'
-        self.determined = 1
-
 class BuildNum(black.configure.Datum):
     def __init__(self):
         black.configure.Datum.__init__(self, "buildNum",
@@ -3179,7 +3117,7 @@ class InstallRelDir(black.configure.Datum):
             assert ' ' not in productName
             komodoMarketingVersion = black.configure.items["komodoMarketingVersion"].Get()
             buildNum = black.configure.items["buildNum"].Get()
-            platName = _getDefaultPlatform(libcppVersion=True)
+            platName = _getDefaultPlatform()
             base = "%s-%s-%s-%s" % (productName, komodoMarketingVersion,
                                       buildNum, platName)
             self.value = os.path.join("install", buildType, base)
