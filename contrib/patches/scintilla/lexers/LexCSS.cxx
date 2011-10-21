@@ -124,6 +124,7 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 	const int MAIN_SUBSTATE_AMBIGUOUS_SELECTOR_OR_PROPERTY_NAME = 4;
 	const int MAIN_SUBSTATE_SCSS_ASSIGNMENT = 5;
 	const int MAIN_SUBSTATE_IN_MEDIA_TOP_LEVEL = 6;
+	const int MAIN_SUBSTATE_IN_FONT_FACE = 7;
 	
 	int main_substate = MAIN_SUBSTATE_TOP_LEVEL;
 	int nested_declaration_count = 0;
@@ -273,18 +274,38 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 				if (*p_buf == '@') p_buf += 1;
 				if (!CompareCaseInsensitive(p_buf, "import")
 				    || !CompareCaseInsensitive(p_buf, "charset")
-				    || !CompareCaseInsensitive(p_buf, "font-face")
 				    || !CompareCaseInsensitive(p_buf, "namespace")) {
 					in_top_level_directive = true;
 					main_substate = MAIN_SUBSTATE_IN_PROPERTY_VALUE;
 				} else if (!CompareCaseInsensitive(p_buf, "media")) {
 					main_substate = MAIN_SUBSTATE_IN_MEDIA_TOP_LEVEL;
+				} else if (!CompareCaseInsensitive(p_buf, "font-face")) {
+					main_substate = MAIN_SUBSTATE_IN_FONT_FACE;
 				}
 				sc.SetState(SCE_CSS_DEFAULT);
 			}
 			break;
 
 		case SCE_CSS_CLASS:
+			if (!IsAWordChar(ch)) {
+				if (isLessDocument) {
+					// Allow white-space before one of ( ; or }
+					int currentPos = sc.currentPos;
+					char nextCh;
+					for (; currentPos < finalLength; ++currentPos) {
+						nextCh = styler.SafeGetCharAt(currentPos);
+						if (strchr("(;}", nextCh)) {
+							sc.ChangeState(SCE_CSS_MIXIN);
+							break;
+						} else if (!strchr("\r\n\f \t", nextCh)) {
+							break;
+						}
+					}
+				}
+				sc.SetState(SCE_CSS_DEFAULT);
+			}
+			break;
+
 		case SCE_CSS_ID:
 		case SCE_CSS_ATTRIBUTE:
 		case SCE_CSS_PSEUDOELEMENT:
@@ -554,6 +575,9 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 						main_substate = MAIN_SUBSTATE_IN_DECLARATION_NAME;
 					}
 					nested_declaration_count += 1;
+				} else if (main_substate == MAIN_SUBSTATE_IN_FONT_FACE) {
+					nested_declaration_count += 1;
+					main_substate = MAIN_SUBSTATE_IN_DECLARATION_NAME;
 				} else if (main_substate == MAIN_SUBSTATE_IN_PROPERTY_VALUE) {
 					// Happens in @page blocks
 					nested_declaration_count += 1;

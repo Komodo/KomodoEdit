@@ -81,6 +81,9 @@ class _CSSLexerClassifier(object):
         return (tok.style == ScintillaConstants.SCE_CSS_IMPORTANT
                 and tok.text == text) 
 
+    def is_mixin(self, tok):
+        return tok.style == ScintillaConstants.SCE_CSS_MIXIN
+
     _number_re = re.compile(r'-?(?:\d+(?:\.\d*)?|\.\d+)')
     def is_number(self, tok):
         return (tok.style == ScintillaConstants.SCE_CSS_NUMBER
@@ -579,15 +582,18 @@ class _CSSParser(object):
                     could_have_mixin = False
                 elif tok.text in ("#", ".", "::",):
                     prev_tok = tok
+                    could_have_mixin = (self.language == "Less"
+                                        and prev_tok.text == '.'
+                                        and num_selected_names == 0)
                     tok = self._tokenizer.get_next_token()
-                    if not self._check_special_identifier(prev_tok, tok):
+                    if could_have_mixin and self._classifier.is_mixin(tok):
+                        pass
+                        # keep going...
+                    elif not self._check_special_identifier(prev_tok, tok):
                         return False
                     num_selected_names += 1
                     self._pseudo_element_check(tok, saw_pseudo_element)
                     current_name = tok.text
-                    could_have_mixin = (self.language == "Less"
-                                        and prev_tok.text == '.'
-                                        and num_selected_names == 1)
                     if prev_tok.text == "::":
                         saw_pseudo_element = True
                 elif tok.text == '[':
@@ -966,7 +972,12 @@ class _CSSParser(object):
             return
         self._tokenizer.put_back(tok)
         while True:
-            self._parse_expression()
+            tok = self._tokenizer.get_next_token()
+            if self._classifier.is_tag(tok):
+                pass
+            else:
+                self._tokenizer.put_back(tok)
+                self._parse_expression()
             tok = self._tokenizer.get_next_token()
             if self._classifier.is_operator(tok, ","):
                 tok = self._tokenizer.get_next_token()

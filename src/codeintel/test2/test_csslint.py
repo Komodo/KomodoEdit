@@ -571,6 +571,40 @@ a ~ b
 """)
         for lang in self.langs:
             self._check_zero_results_show_error(code, lang)
+            
+    def test_less_mixins_01(self):
+        code = dedent("""\
+.box-shadow (@radius: 5px) {
+    margin: 1px;
+}
+.border-radius () {
+    margin: 2px;
+}
+.wrap() {
+    text-wrap: wrap;
+}
+
+pre {
+    .wrap
+}
+
+.container {
+     .box-shadow(none);
+     .border-radius(0);
+
+     .content {
+         padding: 10px;
+     }
+
+     border: 0;
+
+     color: #FFF;
+     font-size: 12px;
+     font-weight: normal;
+
+ }
+""")
+        self._check_zero_results_show_error(code, language="Less")
 
     def test_css_namespace_str_01(self):
         code = dedent("""\

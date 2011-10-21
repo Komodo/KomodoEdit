@@ -496,6 +496,7 @@ StateMap['Fortran'] = StateMap['Fortran 77'].copy()
 StateMap['Python3'] = StateMap['Python'].copy()
 StateMap['SCSS'] = StateMap['CSS'].copy()
 StateMap['Less'] = StateMap['CSS'].copy()
+StateMap['Less']['mixins'] = ('SCE_CSS_MIXIN',)
 
 SharedStates = {
     'bracebad' : ('STYLE_BRACEBAD',),
