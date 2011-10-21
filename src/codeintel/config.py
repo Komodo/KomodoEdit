@@ -42,8 +42,25 @@ from os.path import expanduser, exists, join, isfile, isdir, dirname, \
 from glob import glob
 
 import which
-from platinfo import PlatInfo
-
+try:
+    from platinfo import PlatInfo
+except ImportError:
+    # Fall back to using the platinfo in the "komodo-devel/util" directory.
+    # Note: there is two possible scenarios - one when building Komodo, and the
+    #       other for building directly in the "src/codeintel" tree.
+    _alt_dirs = [join(dirname(dirname(dirname(abspath(__file__)))), "util"),
+                 join(dirname(dirname(dirname(dirname(abspath(__file__))))), "util")]
+    for _alt_dir in _alt_dirs:
+        sys.path.insert(0, _alt_dir)
+        try:
+            from platinfo import PlatInfo
+            break
+        except:
+            pass
+        finally:
+            sys.path = sys.path[1:]
+    else:
+        raise
 
 #---- internal support stuff
 
