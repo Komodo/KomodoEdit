@@ -703,7 +703,6 @@ configuration = {
     #       state of the MOZ_SRC
     "platform": Platform(),
     "architecture": Architecture(),
-    "libcppVersion": LibCPPVersion(),
 
     # Komodo build/version configuration vars.
     "sourceId": SourceId(),                                         #   e.g., 1234M
