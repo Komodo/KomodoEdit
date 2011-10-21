@@ -1,0 +1,13 @@
+Index: /volatile/as/komodo-devel/contrib/pcre/configure
+===================================================================
+--- configure	(revision 67037)
++++ configure	(working copy)
+@@ -5885,7 +5885,7 @@
+   exit 1
+ fi
+ gentoo_lt_version="1.5.18"
+-gentoo_ltmain_version=`grep '^[:space:]*VERSION=' $ltmain | sed -e 's|^[:space:]*VERSION=||'`
++gentoo_ltmain_version=`grep '^[[:space:]]*VERSION=' $ltmain | sed -e 's|^[[:space:]]*VERSION=||'`
+ if test "$gentoo_lt_version" != "$gentoo_ltmain_version"; then
+   echo "$as_me:$LINENO: result: no" >&5
+ echo "${ECHO_T}no" >&6
