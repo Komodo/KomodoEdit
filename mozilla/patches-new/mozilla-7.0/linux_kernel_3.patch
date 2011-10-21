@@ -1,0 +1,57 @@
+Patch to enable building on Linux 3.0 kernels, from bugzilla here:
+https://bugzilla.mozilla.org/attachment.cgi?id=543656
+Note: This can be dropped when upgrading to mozilla 8.
+Index: mozilla/security/coreconf/Linux.mk
+===================================================================
+RCS file: /cvsroot/mozilla/security/coreconf/Linux.mk,v
+retrieving revision 1.48
+diff -u -8 -r1.48 Linux.mk
+--- mozilla/security/coreconf/Linux.mk	13 Aug 2010 01:31:13 -0000	1.48
++++ mozilla/security/coreconf/Linux.mk	3 Jul 2011 06:00:38 -0000
+@@ -187,8 +187,20 @@
+ ifeq ($(BUILD_SUN_PKG), 1)
+ ifeq ($(USE_64), 1)
+ RPATH = -Wl,-rpath,'$$ORIGIN:/opt/sun/private/lib64:/opt/sun/private/lib'
+ else
+ RPATH = -Wl,-rpath,'$$ORIGIN:/opt/sun/private/lib'
+ endif
+ endif
+ 
++OS_REL_CFLAGS   += -DLINUX2_1
++MKSHLIB         = $(CC) $(DSO_LDOPTS) -Wl,-soname -Wl,$(@:$(OBJDIR)/%.so=%.so) $(RPATH)
++
++ifdef MAPFILE
++	MKSHLIB += -Wl,--version-script,$(MAPFILE)
++endif
++PROCESS_MAP_FILE = grep -v ';-' $< | \
++        sed -e 's,;+,,' -e 's; DATA ;;' -e 's,;;,,' -e 's,;.*,;,' > $@
++
++ifeq ($(OS_RELEASE),2.4)
++DEFINES += -DNO_FORK_CHECK
++endif
+Index: mozilla/security/coreconf/config.mk
+===================================================================
+RCS file: /cvsroot/mozilla/security/coreconf/config.mk,v
+retrieving revision 1.30
+diff -u -8 -r1.30 config.mk
+--- mozilla/security/coreconf/config.mk	25 Aug 2009 22:35:11 -0000	1.30
++++ mozilla/security/coreconf/config.mk	3 Jul 2011 06:00:39 -0000
+@@ -58,17 +58,17 @@
+ #       (dependent upon <architecture> tags)                          #
+ #                                                                     #
+ #       We are moving towards just having a $(OS_TARGET).mk file      #
+ #       as opposed to multiple $(OS_TARGET)$(OS_RELEASE).mk files,    #
+ #       one for each OS release.                                      #
+ #######################################################################
+ 
+ TARGET_OSES = FreeBSD BSD_OS NetBSD OpenUNIX OS2 QNX Darwin BeOS OpenBSD \
+-              AIX RISCOS WINNT WIN95 WINCE
++              AIX RISCOS WINNT WIN95 WINCE Linux
+ 
+ ifeq (,$(filter-out $(TARGET_OSES),$(OS_TARGET)))
+ include $(CORE_DEPTH)/coreconf/$(OS_TARGET).mk
+ else
+ include $(CORE_DEPTH)/coreconf/$(OS_TARGET)$(OS_RELEASE).mk
+ endif
+ 
+ #######################################################################
