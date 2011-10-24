@@ -92,3 +92,6 @@ class koViewService:
         for viewMgr in self._viewMgr.values():
             all_views += viewMgr.getAllViews(viewtype)
         return all_views
+
+    def getAllViewMgrs(self):
+        return self._viewMgr.values()
