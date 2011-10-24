@@ -314,6 +314,9 @@ $cons->InstallXpcomComponent('koLoggingService.py');
 # koIColorPicker
 $cons->BuildAndInstallXpt('koIColorPicker.idl');
 
+# Komodo memory reporter.
+$cons->InstallXpcomComponent('koMemoryReporter.py');
+
 ## Install test cases.
 #$cons->Install("$supportDir/test", "test_koIndexer.py");
 #$cons->Install("$supportDir/test", "test_koObserverService.py");
