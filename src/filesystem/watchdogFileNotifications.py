@@ -9,7 +9,6 @@ import watchdog.observers
 import watchdog.observers.api
 
 from osFileNotificationUtils import * # FIXME
-from osFileNotificationUtils import ObserverMonitior as ObserverMonitor 
 
 # Monkey patch watchdog with Komodo API modifications
 import watchdog_patches

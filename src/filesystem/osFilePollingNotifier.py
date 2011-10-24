@@ -416,10 +416,10 @@ class _MonitoredPath:
                 observerMonitor = self.__observer_monitors[i]
                 if observerMonitor.getUnWrappedObserver() == UnwrapObject(observer):
                     self.__removeObserverMonitor(observerMonitor)
-                    observerMonitor = ObserverMonitior(observer, self.path, watch_type, flags, log)
+                    observerMonitor = ObserverMonitor(observer, self.path, watch_type, flags, log)
                     break
             else:
-                observerMonitor = ObserverMonitior(observer, self.path, watch_type, flags, log)
+                observerMonitor = ObserverMonitor(observer, self.path, watch_type, flags, log)
             # Initialise the file stats that this monitor watches
             observerMonitor.initCache()
             #log.debug("MonitoredPath: addObserver: type:%s, path:%s", watch_type, self.path)

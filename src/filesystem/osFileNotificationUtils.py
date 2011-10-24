@@ -172,7 +172,7 @@ class FileStat:
 # An observer wrapper class used by all file notification systems.
 #   - Wraps the koIFileNotificationObserver and ensures a weakreference used.
 #
-class ObserverMonitior:
+class ObserverMonitor:
     """Storage of observer information, used by _MonitoredPath"""
     def __init__(self, observer, path, watch_type, flags, log):
         # XXX - WeakRef this observer (xpcom)
@@ -200,7 +200,7 @@ class ObserverMonitior:
         self.__dirCache = {}
 
     def __str__(self):
-        return "ObserverMonitior: f:%02x, r:%-5r, path:%s" % (self.flags, self.__recursive, self.path)
+        return "ObserverMonitor: f:%02x, r:%-5r, path:%s" % (self.flags, self.__recursive, self.path)
 
     def getAliveObserver(self):
         if callable(self.__observer_weakref):
@@ -364,3 +364,14 @@ class ObserverMonitior:
                                                   observer, PROXY_ASYNC | PROXY_ALWAYS)
                 ob.fileNotification(uri, change)
         return isDeleted
+
+
+##
+# Deprecated since Komodo 7.0.0b1 - typo in the name.
+#
+class ObserverMonitior(ObserverMonitor):
+    def __init__(self, *args, **kwargs):
+        import warnings
+        warnings.warn("ObserverMonitior is deprecated - use ObserverMonitor instead",
+                      category=DeprecationWarning)
+        ObserverMonitor.__init__(self, *args, **kwargs)
