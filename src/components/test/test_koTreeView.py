@@ -9,6 +9,9 @@ class View(object):
     @property
     def _tree(self):
         return self
+    @property
+    def selection(self):
+        return None
     def invalidateRange(self, start, end):
         log.debug("invalidate range: %r -> %r", start, end)
     def rowCountChanged(self, index, delta):
