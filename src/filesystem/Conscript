@@ -68,22 +68,6 @@ $cons->InstallPythonUtility('osFileNotificationUtils.py');
 $cons->Preprocess('fileStatusUtils.p.py', 'fileStatusUtils.py');
 $cons->InstallPythonUtility('fileStatusUtils.py');
 
-if ($platform eq "win") {
-    $cons->InstallPythonUtility('osFileNotifications_win32.py');
-#} elsif ($platform eq "darwin") {
-#    $cons->InstallPythonUtility('osFileNotifications_darwin.py');
-#} elsif (($platform eq "linux") or
-#         ($platform eq "solaris") or
-#         ($platform eq "sunos") or
-#         ($platform eq "aix") or
-#         ($platform eq "hp-ux")) {
-#    $cons->InstallPythonUtility('osFileNotifications_unix.py');
-#} else {
-#    print "UNKNOWN PLATFORM!!! Platform is ";
-#    print $platform;
-#    print "\n";
-}
-
 if ($withWatchdogFSNotifications) {
     $cons->InstallPythonUtility('watchdogFileNotifications.py');
     $cons->InstallPythonUtility('watchdog_patches.py');
