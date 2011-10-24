@@ -9,7 +9,7 @@ import logging
 from xpcom import components
 
 log = logging.getLogger("koMemoryReporter")
-log.setLevel(logging.DEBUG)
+#log.setLevel(logging.DEBUG)
 
 class KoMemoryReporter:
     _com_interfaces_ = [components.interfaces.nsIMemoryMultiReporter,
@@ -36,8 +36,9 @@ class KoMemoryReporter:
         process = ""
         kind_other = components.interfaces.nsIMemoryReporter.KIND_OTHER
         units_count = components.interfaces.nsIMemoryReporter.UNITS_COUNT
+
         reportHandler.callback(process,
-                               "python-active-threads", # name
+                               "komodo python active threads",
                                kind_other,
                                units_count,
                                threading.activeCount(), # amount
@@ -47,9 +48,40 @@ class KoMemoryReporter:
         import gc
         gc.collect()
         reportHandler.callback(process,
-                               "python-total-objects",
+                               "komodo python objects",
                                kind_other,
                                units_count,
                                len(gc.get_objects()), # amount
                                "Total number of referenced Python objects",
                                closure)
+
+        koViewSvc = components.classes["@activestate.com/koViewService;1"] \
+                        .getService(components.interfaces.koIViewService)
+        reportHandler.callback(process,
+                               "komodo koIView instances", # name
+                               kind_other,
+                               units_count,
+                               len(koViewSvc.getAllViews("")), # amount
+                               "The number of koIView instances being referenced", # tooltip description
+                               closure)
+
+        koDocumentSvc = components.classes["@activestate.com/koDocumentService;1"] \
+                        .getService(components.interfaces.koIDocumentService)
+        reportHandler.callback(process,
+                               "komodo koIDocument instances", # name
+                               kind_other,
+                               units_count,
+                               len(koDocumentSvc.getAllDocuments()), # amount
+                               "The number of koIDocument instances being referenced", # tooltip description
+                               closure)
+
+        koFileSvc = components.classes["@activestate.com/koFileService;1"] \
+                        .getService(components.interfaces.koIFileService)
+        reportHandler.callback(process,
+                               "komodo koIFile instances", # name
+                               kind_other,
+                               units_count,
+                               len(koFileSvc.getAllFiles()), # amount
+                               "The number of koIFileEx instances being referenced", # tooltip description
+                               closure)
+
