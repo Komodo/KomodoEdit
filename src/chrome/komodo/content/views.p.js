@@ -876,14 +876,18 @@ viewManager.prototype.openViewAsync = function(viewType, uri, tabGroup, tabIndex
  * @since Komodo 5.2.0
  * 
  * @param {string} viewType optional, type of views to return, default is all
+ * @param {object} xpcomCount optional, only used when called via XPCOM.
  * @return {array}  The array of views.
  */
-viewManager.prototype.getAllViews = function(viewType /* all */) {
+viewManager.prototype.getAllViews = function(viewType /* all */, xpcomCount) {
     var views = ko.views.manager.topView.getDocumentViewList(true);
-    if (!viewType || viewType == "all") {
-        return views;
+    if (viewType && viewType != "all") {
+        views = views.filter(function(elem, index, array) { return elem.getAttribute("type") == viewType; });
     }
-    return views.filter(function(elem, index, array) { return elem.getAttribute("type") == viewType; });
+    if (xpcomCount /* only provided in XPCOM calls */) {
+        xpcomCount.value = views.length;
+    }
+    return views;
 }
 
 /**

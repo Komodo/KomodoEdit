@@ -78,8 +78,8 @@ interface koIViewList : nsISupports
      * Return all view instances for the given type. If viewtype is given, it
      * must be one of the know view types, i.e. "editor", "browser", etc...
      */
-    void getAllViews([optional] in AString viewtype,
-                     [optional] out PRUint32 count,
+    void getAllViews(in AString viewtype,
+                     out PRUint32 count,
                      [array, size_is(count), retval] out koIView views);
 
     // Getting views. The following methods return a list of views matching
