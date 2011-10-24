@@ -1001,6 +1001,7 @@
               <File Id="file3905" Name="KOISCI_3.XPT" LongName="koIScintillaAutoCompleteController.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIScintillaAutoCompleteController.xpt"/>
               <File Id="file3909" Name="KONOTI_0.PY" LongName="koNotificationManager.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koNotificationManager.py"/>
               <File Id="file3910" Name="KOSCIN_0.JS" LongName="koScintillaAutoCompleteController.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koScintillaAutoCompleteController.js"/>
+              <File Id="file890" Name="KOMEMO_0.PY" LongName="koMemoryReporter.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koMemoryReporter.py" />
 <?if $(var.MozMajorVersion) = "4" ?>
               <File Id="file1919" Name="CONTEN_3.XPT" LongName="content_xmldoc.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\content_xmldoc.xpt"/>
               <File Id="file1936" Name="DOM_VI_0.XPT" LongName="dom_views.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\dom_views.xpt"/>
