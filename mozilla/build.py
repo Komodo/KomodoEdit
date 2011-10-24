@@ -66,11 +66,10 @@ r"""
     
     Suggested configurations are:
     * Komodo 7.0.x release builds:
-        python build.py configure -k 7.0 --moz-src=200:FIREFOX_4_0_RELEASE \
+        python build.py configure -k 7.0 --moz-src=700:FIREFOX_7_0_1_RELEASE \
             --release --no-strip --with-crashreport-symbols
     * Komodo 7.0 development builds:
-        python build.py configure -k 7.10 --moz-src=200 \
-            --release --no-strip
+        python build.py configure -k 7.10 --moz-src=700 --release --no-strip
 """
 #
 # Development Notes:
