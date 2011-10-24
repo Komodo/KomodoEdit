@@ -86,3 +86,9 @@ class koViewService:
             return self._viewMgr[window].topView
         else:
             log.error("Trying to get topView from the koViewService but no viewMgr has been set")
+
+    def getAllViews(self, viewtype=""):
+        all_views = []
+        for viewMgr in self._viewMgr.values():
+            all_views += viewMgr.getAllViews(viewtype)
+        return all_views
