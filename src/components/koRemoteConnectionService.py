@@ -47,7 +47,6 @@ import urllib
 from xpcom import components, ServerException, COMException, nsError
 
 import URIlib
-import remotefilelib
 
 log = logging.getLogger('koRemoteConnectionService')
 #log.setLevel(logging.DEBUG)
@@ -311,7 +310,8 @@ class koRemoteConnectionService:
 
         protocol = protocol.lower()
         if port < 0:
-            port = remotefilelib.koRFProtocolDefaultPort[protocol]
+            from remotefilelib import koRFProtocolDefaultPort
+            port = koRFProtocolDefaultPort[protocol]
         if useConnectionCache:
             conn_key = self._generateCachekey(protocol, server, port, username)
             c = self._connection_cache.getConnection(conn_key)
@@ -459,6 +459,7 @@ class koRemoteConnectionService:
 
     # We have the lock already
     def _setCachedRFInfo(self, cache_key, path, rfinfo):
+        from remotefilelib import addslash
         log.debug("_setCachedRFInfo: Adding rfinfo to cache: '%s'", path)
         # Start with a new cache for this item.
         cache = {path: rfinfo}
@@ -467,7 +468,7 @@ class koRemoteConnectionService:
         children = rfinfo.getChildren()
         for i in range(len(children)):
             childRFInfo = children[i]
-            child_path = remotefilelib.addslash(path) + childRFInfo.getFilename()
+            child_path = addslash(path) + childRFInfo.getFilename()
             if cache.has_key(child_path):
                 # It's already cached, update the child to be the cached object
                 log.debug("_setCachedRFInfo: Adding new child rfinfo to cache: '%s'", child_path)
@@ -495,7 +496,8 @@ class koRemoteConnectionService:
                 del cache[path]
             if removeChildPaths:
                 # Remove all cached paths that are under this directory
-                dirPath = remotefilelib.addslash(path)
+                from remotefilelib import addslash
+                dirPath = addslash(path)
                 for keypath in cache.keys():
                     if keypath.startswith(dirPath):
                         del cache[keypath]
@@ -537,10 +539,11 @@ class koRemoteConnectionService:
         path = rfInfo.getFilepath()
         if not server:
             # Build one up from the connection details, don't include password
+            from remotefilelib import koRFProtocolDefaultPort
             server = "%s@%s" % (urllib.quote(connection.username),
                                 urllib.quote(connection.server))
             port = connection.port
-            if port != remotefilelib.koRFProtocolDefaultPort[protocol]:
+            if port != koRFProtocolDefaultPort[protocol]:
                 server += ":%d" % (port)
         # Remove base slash, it's added when we make the uri
         if path and path[0] == "/":
