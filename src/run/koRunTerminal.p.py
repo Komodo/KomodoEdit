@@ -378,11 +378,11 @@ class koTerminalHandler:
 
 
 class KoRunTerminal(koTerminalHandler, TreeView):
-    """This is the interface between run sub-processes and Komodo's command
-    output window (or _one_ of the command output windows if there are ever
-    more than one). This acts as the handler for events on the output
-    window's <scintilla> widget. It also acts as the tree view for the output
-    window's <tree> widget.
+    """This is the interface between run sub-processes and an output
+    window, which is implemented as a view element with type=terminal
+    (such as the command output window). This acts as the handler for
+    events on the output window's <scintilla> widget. It also acts as
+    the tree view for the output window's <tree> widget.
 
     The embedded Scintilla is kept in a 'readOnly' state unless
     currently interacting with the child process (self.active is True).
