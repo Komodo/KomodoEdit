@@ -480,6 +480,13 @@
                 box.appendChild(v);
                 v.init();
                 v.makeCurrent();
+                var viewSvc = Components.classes['@activestate.com/koViewService;1'].
+                                getService(Components.interfaces.koIViewService);
+                try {
+                    viewSvc.registerView(v);
+                } catch (ex) {
+                    this.log.error("Unable to register view: " + v);
+                }
                 return v;
             } catch(e) {
                 this.log.exception(e);

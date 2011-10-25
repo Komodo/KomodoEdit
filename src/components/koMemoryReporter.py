@@ -61,7 +61,7 @@ class KoMemoryReporter:
                                "komodo koIView instances", # name
                                kind_other,
                                units_count,
-                               len(koViewSvc.getAllViews("")), # amount
+                               koViewSvc.getReferencedViewCount(), # amount
                                "The number of koIView instances being referenced", # tooltip description
                                closure)
 

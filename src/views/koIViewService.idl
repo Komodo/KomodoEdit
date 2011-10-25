@@ -48,6 +48,15 @@ interface koIViewService : nsISupports
     void setViewMgr(in koIViewList viewMgr);
 
     /**
+     * These two methods are used to keep track of the number of alive views.
+     * When a view is created it is registered, then the view service holds a
+     * weak reference to this view. Calling getReferencedViewCount will return
+     * the number of these views that are still alive.
+     */
+    void registerView(in koIView view);
+    long getReferencedViewCount();
+
+    /**
      * Return all view instances for the given type. If viewtype is set, it
      * must be one of the know view types, i.e. "editor", "browser", etc...
      */

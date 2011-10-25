@@ -60,6 +60,7 @@ class koViewService:
         self.wm = components.classes["@mozilla.org/appshell/window-mediator;1"].\
                         getService(components.interfaces.nsIWindowMediator);
         self.wm.addListener(self.wrapped)
+        self._all_views_wr_list = []
 
     def onWindowTitleChange(self, window, newTitle):
         pass
@@ -87,11 +88,19 @@ class koViewService:
         else:
             log.error("Trying to get topView from the koViewService but no viewMgr has been set")
 
+    def registerView(self, view):
+        self._all_views_wr_list.append(WeakReference(view))
+
     def getAllViews(self, viewtype=""):
         all_views = []
         for viewMgr in self._viewMgr.values():
             all_views += viewMgr.getAllViews(viewtype)
         return all_views
+
+    def getReferencedViewCount(self, viewtype=""):
+        views = [x() for x in self._all_views_wr_list]
+        live_views = [x for x in views if x is not None]
+        return len(live_views)
 
     def getAllViewMgrs(self):
         return self._viewMgr.values()
