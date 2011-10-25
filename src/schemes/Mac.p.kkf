@@ -70,7 +70,6 @@ binding cmd_findPreviousFunction  Shift+F8
 binding cmd_focusEditor Ctrl+Shift+E
 binding cmd_focusSource Ctrl+K Ctrl+S
 binding cmd_fontZoomIn Meta++
-binding cmd_fontZoomIn Meta+=
 binding cmd_fontZoomOut Meta+_
 binding cmd_fontZoomOut Meta+-
 binding cmd_fontZoomReset Meta+0
