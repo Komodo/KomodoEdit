@@ -58,6 +58,7 @@ class KoFindResultsView(TreeView):
         #TODO: lock guard for this data
         self._data = []
         self._unfiltered_data = []
+        # When set (not None), it's a tuple of (include_word_list, exclude_word_list)
         self._filter_words = None
         self._tree = None
         self._sortedBy = None
@@ -294,8 +295,8 @@ class KoFindResultsView(TreeView):
             self._columns = columns
         return columns
 
-    def _filterMatchesDatam(self, datum, words):
-        matched = False
+    def _filterMatchesDatam(self, datum, filterData):
+        column_texts = []
         for column in self.columns:
             # Modified form of getCellText:
             celltext = datum[column.id]
@@ -303,13 +304,26 @@ class KoFindResultsView(TreeView):
                 celltext = str(celltext)
             else:
                 celltext = celltext.lower()
+            column_texts.append(celltext)
 
-            for word in words:
-                if word not in celltext:
+        # Match can be against any column.
+        matched = False
+        include_words, exclude_words = filterData
+        for text in column_texts:
+            for word in include_words:
+                if word not in text:
                     break
             else:
                 matched = True
                 break
+        if matched and exclude_words:
+           for word in exclude_words:
+                for text in column_texts:
+                    if word in text:
+                        matched = False
+                        break
+                if not matched:
+                    break
         return matched
 
     def _filterData(self, data, words):
@@ -330,7 +344,19 @@ class KoFindResultsView(TreeView):
         if not text:
             self._filter_words = None
         else:
-            self._filter_words = text.lower().split()
+            import shlex
+            # Note: shlex does not handle Unicode - so we encode as utf8.
+            try:
+                words = shlex.split(text.lower().encode("utf8"))
+                words = [x.decode("utf8") for x in words]
+            except ValueError:
+                # Shlex couldn't handle it - default to space separated.
+                words = text.lower().split()
+            out_words = [x for x in words if x.startswith("-")]
+            # Tuple of (in_words, out_words)
+            self._filter_words = (tuple(set(words).difference(out_words)),
+                                  tuple([x[1:] for x in out_words if len(x) > 1]))
+            print 'self._filter_words: %r' % (self._filter_words, )
 
         if old_words != self._filter_words:
             # Re-filter the unfiltered rows.
