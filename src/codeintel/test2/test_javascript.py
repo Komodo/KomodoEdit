@@ -982,6 +982,22 @@ class CplnTestCase(CodeIntelTestCase):
         self.assertCompletionsInclude2(buf, target_js_positions[3],
             [("namespace", "implicit")])
 
+    @tag("bug91476")
+    def test_function_alias_no_parens(self):
+        """Test that assigning to method aliases does not result in completions
+           that end with parentheses"""
+        content, positions = unmark_text(dedent("""\
+            (function () {
+                var a = obj.foo();
+                a.v = b;
+                obj.<1>;
+            })();
+        """))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+            [("namespace", "foo")])
+        self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[1]),
+            [("namespace", "foo()")])
+
 class DOMTestCase(CodeIntelTestCase):
     lang = "JavaScript"
     @tag("bug86391")

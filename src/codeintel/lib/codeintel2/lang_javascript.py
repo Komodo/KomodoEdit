@@ -1907,6 +1907,9 @@ class JavaScriptCiler:
             if isinstance(foundVar, JSAlias) and aliasDepth < 10:
                 lastScope = scope = foundVar.scope
                 namelist = foundVar.target + namelist
+                if namelist[-1].endswith("()"):
+                    # resolved to a function call; drop the call syntax
+                    namelist[-1] = namelist[-1][:-2]
                 lastNamelist = namelist[:]
                 aliasDepth += 1
                 log.debug("_resolveAlias: found alias %r on %r; new names %r",
