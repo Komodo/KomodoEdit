@@ -1892,7 +1892,6 @@
                 <File Id="file202" LongName="koXMLLanguageBase.py" Name="KOXMLL_2.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\koXMLLanguageBase.py" />
                 <File Id="file2948" Name="OSFILE_0.PY" LongName="osFilePollingNotifier.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\osFilePollingNotifier.py"/>
                 <File Id="file2949" Name="OSFILE_1.PY" LongName="osFileNotificationUtils.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\osFileNotificationUtils.py"/>
-                <File Id="file2956" Name="OSFILE_2.PY" LongName="osFileNotifications_win32.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\osFileNotifications_win32.py"/>
                 <File Id="file1385" Name="kotaclib.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\kotaclib.py" />
                 <File Id="file602" LongName="koAsyncOperationUtils.py" Name="KOASYN_3.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\koAsyncOperationUtils.py" />
                 <File Id="file352" Name="sgmlop.pyd" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\sgmlop.pyd"/>
