@@ -2688,11 +2688,11 @@ this.getRecentClosedWindowList = function() {
                 continue;
             }
             var workspace = windowWorkspacePref.getPref(idx);
-            if (! workspace.hasPref('restoreOnRestart')) {
-                continue;
-            }
-            var restoreOnRestart = workspace.getBooleanPref('restoreOnRestart');
-            if (restoreOnRestart) {
+            if (! workspace.hasPref('restoreOnRestart')
+                || workspace.getBooleanPref('restoreOnRestart')) {
+                // If restoreOnRestart is on or missing,
+                // it means that the window wasn't opened at startup,
+                // so we should offer to open it now
                 continue;
             }
             var topview = workspace.getPref("topview");
@@ -3013,7 +3013,7 @@ this.markClosedWindows = function() {
      * markClosedWindows - get all the windows, and all the
      * members of preference-set:windowWorkspace.  Find
      * any that are set to restoreOnRestart to true, but are
-     * no longer open, and close them
+     * no longer open, and turn the pref off.
      */
     if (!ko.prefs.hasPref(multiWindowWorkspacePrefName)) {
         return;
