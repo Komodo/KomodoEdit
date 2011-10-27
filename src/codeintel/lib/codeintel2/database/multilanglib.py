@@ -740,9 +740,10 @@ class MultiLangDirsLib(object):
         return self.dirs
 
     def get_basenames(self):
+        # TODO: Is this method even used? Of so, can we get a controller here?
+        self.ensure_all_dirs_scanned()
         basenames = {}
         for dir in self.dirs:
-            self.ensure_dir_scanned(dir)
             dbfile_from_blobname = lang_zone.dfb_from_dir(blobdir, self.sublang)
             for key in dbfile_from_blobname:
                 basenames[key] = join(blobdir, key)
@@ -799,6 +800,11 @@ class MultiLangDirsLib(object):
         """
         assert isinstance(lpath, tuple)  # common mistake to pass in a string
 
+        # Need to have (at least once) scanned all importables.
+        # Responsibility for ensuring the scan data is *up-to-date*
+        # is elsewhere.
+        self.ensure_all_dirs_scanned(ctlr=ctlr)
+
         if curr_buf:
             curr_blobname = curr_buf.blob_from_lang.get(self.lang, {}).get("name")
             curr_buf_dir = dirname(curr_buf.path)
@@ -809,11 +815,6 @@ class MultiLangDirsLib(object):
             if ctlr and ctlr.is_aborted():
                 log.debug("ctlr aborted")
                 break
-            
-            # Need to have (at least once) scanned all importables.
-            # Responsibility for ensuring the scan data is *up-to-date*
-            # is elsewhere.
-            self.ensure_dir_scanned(dir, ctlr=ctlr)
 
             hit_lpath = lpath
             toplevelname_index = self.lang_zone.load_index(
@@ -868,14 +869,13 @@ class MultiLangDirsLib(object):
         is required for the different completion evaluators that might use
         this API.
         """
+        self.ensure_all_dirs_scanned(ctlr=ctlr)
         cplns = []
         # Naive implementation (no caching)
         for dir in self.dirs:
             if ctlr and ctlr.is_aborted():
                 log.debug("ctlr aborted")
                 break
-
-            self.ensure_dir_scanned(dir, ctlr=ctlr)
 
             try:
                 toplevelname_index = self.lang_zone.load_index(
@@ -887,6 +887,28 @@ class MultiLangDirsLib(object):
             cplns += toplevelname_index.toplevel_cplns(
                 self.lang, prefix=prefix, ilk=ilk)
         return cplns
+
+    def ensure_all_dirs_scanned(self, ctlr=None):
+        """Ensure that all importables in this dir have been scanned
+        into the db at least once.
+
+        Note: This is identical to LangDirsLib.ensure_dir_scanned().
+        Would be good to share.
+        """
+        # TODO: Wrap with a progress notification - we know how many directories
+        #       are going to be scanned. We should be tieing the notification
+        #       with the controller/ui_handler somehow - as it's going to be
+        #       window specific.
+        #progressEvent = createProgressEvent(len(self.dirs))
+        #try:
+        for dir in self.dirs:
+            if ctlr and ctlr.is_aborted():
+                log.debug("ctlr aborted")
+                break
+            self.ensure_dir_scanned(dir, ctlr)
+            #progressEvent.incrementProgress(1)
+        #finally:
+        #    progressEvent.finished()
 
     def ensure_dir_scanned(self, dir, ctlr=None):
         """Ensure that all importables in this dir have been scanned

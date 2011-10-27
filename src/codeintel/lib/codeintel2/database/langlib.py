@@ -195,6 +195,7 @@ class LangDirsLib(object):
 
         Returns the empty list if no hits.
         """
+        self.ensure_all_dirs_scanned(ctlr=ctlr)
         blobs = []
         # we can't use self.get_blob because that only returns one answer; we
         # we need all of them.
@@ -202,7 +203,6 @@ class LangDirsLib(object):
         self._acquire_lock()
         try:
             for dir in self.dirs:
-                self.ensure_dir_scanned(dir)
                 dbfile_from_blobname = self.lang_zone.dfb_from_dir(dir, {})
                 blobbase = dbfile_from_blobname.get(basename)
                 if blobbase is not None:
@@ -265,6 +265,11 @@ class LangDirsLib(object):
         """
         assert isinstance(lpath, tuple)  # common mistake to pass in a string
 
+        # Need to have (at least once) scanned all importables.
+        # Responsibility for ensuring the scan data is *up-to-date*
+        # is elsewhere.
+        self.ensure_all_dirs_scanned(ctlr=ctlr)
+
         if curr_buf:
             curr_blobname = curr_buf.blob_from_lang.get(self.lang, {}).get("name")
             curr_buf_dir = dirname(curr_buf.path)
@@ -275,11 +280,6 @@ class LangDirsLib(object):
             if ctlr and ctlr.is_aborted():
                 log.debug("ctlr aborted")
                 break
-
-            # Need to have (at least once) scanned all importables.
-            # Responsibility for ensuring the scan data is *up-to-date*
-            # is elsewhere.
-            self.ensure_dir_scanned(dir, ctlr=ctlr)
 
             toplevelname_index = self.lang_zone.load_index(
                     dir, "toplevelname_index", {})
@@ -325,14 +325,13 @@ class LangDirsLib(object):
         is required for the different completion evaluators that might use
         this API.
         """
+        self.ensure_all_dirs_scanned(ctlr=ctlr)
         cplns = []
         # Naive implementation (no caching)
         for dir in self.dirs:
             if ctlr and ctlr.is_aborted():
                 log.debug("ctlr aborted")
                 break
-
-            self.ensure_dir_scanned(dir, ctlr=ctlr)
 
             try:
                 toplevelname_index = self.lang_zone.load_index(
@@ -351,11 +350,20 @@ class LangDirsLib(object):
         Note: This is identical to MultiLangDirsLib.ensure_dir_scanned().
         Would be good to share.
         """
+        # TODO: Wrap with a progress notification - we know how many directories
+        #       are going to be scanned. We should be tieing the notification
+        #       with the controller/ui_handler somehow - as it's going to be
+        #       window specific.
+        #progressEvent = createProgressEvent(len(self.dirs))
+        #try:
         for dir in self.dirs:
             if ctlr and ctlr.is_aborted():
                 log.debug("ctlr aborted")
                 break
             self.ensure_dir_scanned(dir, ctlr)
+            #progressEvent.incrementProgress(1)
+        #finally:
+        #    progressEvent.finished()
 
     def ensure_dir_scanned(self, dir, ctlr=None):
         """Ensure that all importables in this dir have been scanned
