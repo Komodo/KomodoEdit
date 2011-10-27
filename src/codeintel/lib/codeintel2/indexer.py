@@ -603,13 +603,11 @@ class Indexer(threading.Thread):
             elif isinstance(request, PreloadBufLibsRequest):
                 for lib in request.buf.libs:
                     if isinstance(lib, (LangDirsLib, MultiLangDirsLib)):
-                        for dir in lib.dirs:
-                            lib.ensure_dir_scanned(dir)
+                        lib.ensure_all_dirs_scanned()
             elif isinstance(request, PreloadLibRequest):
                 lib = request.lib
                 assert isinstance(lib, (LangDirsLib, MultiLangDirsLib))
-                for dir in lib.dirs:
-                    lib.ensure_dir_scanned(dir)
+                lib.ensure_all_dirs_scanned()
 
         finally:
             if isinstance(request, ScanRequest):
