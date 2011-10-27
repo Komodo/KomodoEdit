@@ -736,6 +736,18 @@ class MultiLangDirsLib(object):
     def _release_lock(self):
         self._lock.release()
 
+    def get_dirs(self):
+        return self.dirs
+
+    def get_basenames(self):
+        basenames = {}
+        for dir in self.dirs:
+            self.ensure_dir_scanned(dir)
+            dbfile_from_blobname = lang_zone.dfb_from_dir(blobdir, self.sublang)
+            for key in dbfile_from_blobname:
+                basenames[key] = join(blobdir, key)
+        return basenames
+
     def has_blob(self, blobname, ctlr=None):
         dbsubpath = self._dbsubpath_from_blobname(blobname, ctlr=ctlr)
         return dbsubpath is not None

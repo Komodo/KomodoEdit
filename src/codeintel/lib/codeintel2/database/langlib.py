@@ -213,6 +213,35 @@ class LangDirsLib(object):
             self._release_lock()
         return blobs
 
+    def blobs_with_basename(self, basename, ctlr=None):
+        """Return all blobs that match the given base path.
+        
+        I.e. a filename lookup across all files in the dirs of this lib.
+
+            "basename" is a string, e.g. 'Http.js'
+            "ctlr" (optional) is an EvalController instance. If
+                specified it should be used in the normal way (logging,
+                checking .is_aborted()).
+
+        A "blob" is a global scope-tag hit in all of the blobs for the execution
+        set buffers.
+
+        Returns the empty list if no hits.
+        """
+        blobs = []
+        #for dir in self.dirs:
+        #    self.ensure_dir_scanned(dir)
+        #    dbfile_from_blobname = self.lang_zone.dfb_from_dir(dir, self.lang)
+        #    blobbase = dbfile_from_blobname.get(basename)
+        #    if blobbase is not None:
+        #        dhash = self.dhash_from_dir(dir)
+        #        dbsubpath = join(dhash, blobbase)
+        #        blob = self.load_blob(dbsubpath)
+        blob = self.get_blob(basename, ctlr=ctlr)
+        if blob is not None:
+            blobs.append(blob)
+        return blobs
+
     def hits_from_lpath(self, lpath, ctlr=None, curr_buf=None):
         """Return all hits of the given lookup path.
         
