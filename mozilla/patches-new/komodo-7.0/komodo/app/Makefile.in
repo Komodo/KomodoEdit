@@ -38,21 +38,18 @@
 #
 # ***** END LICENSE BLOCK *****
 
-DEPTH           = ../..
-topsrcdir       = @top_srcdir@
-srcdir          = @srcdir@
-VPATH           = @srcdir@
+DEPTH		= ../..
+topsrcdir	= @top_srcdir@
+srcdir		= @srcdir@
+VPATH		= @srcdir@
 
 include $(DEPTH)/config/autoconf.mk
 
-DIRS            = profile/extensions
+DIRS		= profile/extensions
 
 PREF_JS_EXPORTS = $(srcdir)/profile/komodo.js \
 		  $(NULL)
 
-#ifndef MOZ_BRANDING_DIRECTORY
-#PREF_JS_EXPORTS += $(srcdir)/komodo-branding.js
-#endif
 
 # hardcode en-US for the moment
 AB_CD = en-US
@@ -64,8 +61,6 @@ DEFINES += -DAPP_VERSION="$(APP_VERSION)"
 APP_UA_NAME = $(shell echo $(MOZ_APP_DISPLAYNAME) | sed -e's/[^A-Za-z]//g')
 DEFINES += -DAPP_UA_NAME="$(APP_UA_NAME)"
 
-# Build application.ini for a XULRunner app
-
 DIST_FILES = application.ini
 
 GRE_MILESTONE = $(shell $(PYTHON) $(topsrcdir)/config/printconfigsetting.py $(LIBXUL_DIST)/bin/platform.ini Build Milestone)
@@ -73,64 +68,45 @@ GRE_BUILDID = $(shell $(PYTHON) $(topsrcdir)/config/printconfigsetting.py $(LIBX
 
 DEFINES += -DGRE_MILESTONE=$(GRE_MILESTONE) -DGRE_BUILDID=$(GRE_BUILDID)
 
-ifdef LIBXUL_SDK
-include $(topsrcdir)/config/rules.mk
-
-else
-# Build a binary bootstrapping with XRE_main
-
-ifeq ($(OS_TARGET), WINNT)
-PROGRAM = $(MOZ_APP_NAME)$(BIN_SUFFIX)
-else
-PROGRAM = $(MOZ_APP_NAME)-bin$(BIN_SUFFIX)
+MOZ_SOURCE_STAMP ?= $(shell hg -R $(topsrcdir) parent --template="{node|short}\n" 2>/dev/null)
+ifdef MOZ_SOURCE_STAMP
+DEFINES += -DMOZ_SOURCE_STAMP="$(MOZ_SOURCE_STAMP)"
 endif
 
-REQUIRES = \
-	xpcom \
-	xulapp \
-	$(NULL)
+SOURCE_REPO := $(shell hg -R $(topsrcdir) showconfig paths.default 2>/dev/null | sed -e "s/^ssh:/http:/")
+ifdef SOURCE_REPO
+DEFINES += -DMOZ_SOURCE_REPO="$(SOURCE_REPO)"
+endif
+
+DEFINES += -DMOZ_APP_BASENAME="$(MOZ_APP_BASENAME)" \
+           -DMOZ_APP_VENDOR="$(MOZ_APP_VENDOR)"
+
+ifdef MOZ_APP_PROFILE
+DEFINES += -DMOZ_APP_PROFILE="$(MOZ_APP_PROFILE)"
+endif
+
+LIBS += $(JEMALLOC_LIBS)
+
+# Build a binary bootstrapping with XRE_main
+
+PROGRAM = $(MOZ_APP_NAME)$(BIN_SUFFIX)
 
 CPPSRCS = nsKomodoApp.cpp
 CSRCS = my_getopt.c \
 	koStart.c \
 	$(NULL)
 
-LOCAL_INCLUDES += -I$(topsrcdir)/toolkit/xre -I$(topsrcdir)/xpcom/string/public
+LOCAL_INCLUDES += -I$(topsrcdir)/toolkit/xre
+LOCAL_INCLUDES += -I$(topsrcdir)/xpcom/base
+LOCAL_INCLUDES += -I$(topsrcdir)/xpcom/build
 
-ifdef BUILD_STATIC_LIBS
-ifdef _MSC_VER
-STATIC_COMPONENTS_LINKER_PATH = -LIBPATH:$(DEPTH)/staticlib
-else
-STATIC_COMPONENTS_LINKER_PATH = -L$(DEPTH)/staticlib
-endif
-LIBS += $(DEPTH)/toolkit/xre/$(LIB_PREFIX)xulapp_s.$(LIB_SUFFIX)
-else
-ifneq (,$(filter mac cocoa,$(MOZ_WIDGET_TOOLKIT)))
-LIBS += $(DIST)/bin/XUL
-else
-EXTRA_DSO_LIBS += xul
-endif
-endif
-
-ifneq (,$(filter mac cocoa,$(MOZ_WIDGET_TOOLKIT)))
-TK_LIBS := -framework Cocoa $(TK_LIBS)
-endif
+DEFINES += -DXPCOM_GLUE
+STL_FLAGS=
 
 LIBS += \
-	$(XPCOM_GLUE_LDOPTS) \
-	$(STATIC_COMPONENTS_LINKER_PATH) \
 	$(EXTRA_DSO_LIBS) \
-	$(MOZ_JS_LIBS) \
-	$(XPCOM_LIBS) \
-	$(NSPR_LIBS) \
-	$(TK_LIBS) \
+	$(XPCOM_STANDALONE_GLUE_LDOPTS) \
 	$(NULL)
-
-# Add explicit X11 dependency when building against X11 toolkits
-ifneq (,$(filter gtk2,$(MOZ_WIDGET_TOOLKIT)))
-LIBS += $(XLDFLAGS) $(XLIBS)
-LIBS += $(ZLIB_LIBS)
-endif
 
 ifdef MOZ_JPROF
 LIBS += -ljprof
@@ -144,90 +120,45 @@ MOZ_WINCONSOLE = 0
 endif
 endif
 
+# This switches $(INSTALL) to copy mode, like $(SYSINSTALL), so things that
+# shouldn't get 755 perms need $(IFLAGS1) for either way of calling nsinstall.
 NSDISTMODE = copy
 
 include $(topsrcdir)/config/config.mk
-ifndef BUILD_STATIC_LIBS
 
-ifdef NS_TRACE_MALLOC
-EXTRA_DSO_LIBS += tracemalloc
-endif
-
-else
-include $(topsrcdir)/config/static-config.mk
-
-EXTRA_DEPS      += \
-	$(STATIC_EXTRA_DEPS) \
-	$(NULL)
-DEFINES         += $(STATIC_DEFINES)
-CPPSRCS         += $(STATIC_CPPSRCS)
-EXTRA_DSO_LIBS  += $(STATIC_EXTRA_DSO_LIBS)
-REQUIRES        += $(STATIC_REQUIRES)
-EXTRA_LIBS      += $(STATIC_EXTRA_LIBS)
+ifdef _MSC_VER
+# Always enter a Windows program through wmain, whether or not we're
+# a console application.
+WIN32_EXE_LDFLAGS += -ENTRY:wmainCRTStartup
 endif
 
 ifeq ($(OS_ARCH),WINNT)
 OS_LIBS += $(call EXPAND_LIBNAME,comctl32 comdlg32 uuid shell32 ole32 oleaut32 version winspool)
 OS_LIBS += $(call EXPAND_LIBNAME,usp10 msimg32)
-ifdef MOZ_ENABLE_GLITZ
-OS_LIBS += $(call EXPAND_LIBNAME,opengl32)
 endif
 
+ifeq ($(OS_ARCH),WINNT)
 RCINCLUDE = splash.rc
 ifndef GNU_CC
 RCFLAGS += -DMOZ_PHOENIX -I$(srcdir)
 else
 RCFLAGS += -DMOZ_PHOENIX --include-dir $(srcdir)
 endif
-ifdef BUILD_STATIC_LIBS
-RCFLAGS += -DMOZ_STATIC_BUILD
-endif
 ifdef DEBUG
 RCFLAGS += -DDEBUG
-endif
-endif
-
-ifeq ($(OS_ARCH),BeOS)
-BEOS_PROGRAM_RESOURCE = $(srcdir)/apprunner-beos.rsrc
-ifdef BUILD_STATIC_LIBS
-OS_LIBS += -ltracker -lgame
 endif
 endif
 
 ifeq ($(OS_ARCH),OS2)
 RESFILE=splashos2.res
 RCFLAGS += -DMOZ_PHOENIX
-ifdef BUILD_STATIC_LIBS
-EXE_DEF_FILE = browser.def
-RCFLAGS += -DMOZ_STATIC_BUILD -i $(DIST)/include/widget
-endif
 ifdef DEBUG
 RCFLAGS += -DDEBUG
 endif
-RCFLAGS += -DKOMODO_ICO=\"$(DIST)/branding/komodo.ico\"
+RCFLAGS += -DKOMODO_ICO=\"$(DIST)/branding/firefox-os2.ico\" -DDOCUMENT_ICO=\"$(DIST)/branding/document-os2.ico\"
 endif
 
 include $(topsrcdir)/config/rules.mk
-
-DEFINES += -DKOMODO_ICO=\"$(DIST)/branding/komodo.ico\"
-
-ifdef MOZILLA_OFFICIAL
-DEFINES += -DMOZILLA_OFFICIAL
-endif
-
-ifdef BUILD_STATIC_LIBS
-include $(topsrcdir)/config/static-rules.mk
-
-DEFINES += -DIMPL_XREAPI
-endif
-
-ifneq (,$(filter mac cocoa,$(MOZ_WIDGET_TOOLKIT)))
-ifdef BUILD_STATIC_LIBS
-ifdef USE_PREBINDING
-BIN_FLAGS += -Wl,-headerpad -Wl,5a0c
-endif
-endif
-endif
 
 ifeq ($(MOZ_WIDGET_TOOLKIT),photon)
 LIBS += -lphexlib
@@ -246,91 +177,50 @@ ifeq ($(OS_ARCH),WINNT)
 #
 ifndef GNU_CC
 LDFLAGS += /HEAP:0x40000
+ifeq ($(OS_TEST),x86_64)
+# set stack to 2MB on x64 build.  See bug 582910
+LDFLAGS += -STACK:2097152
 endif
-endif
-
-$(PROGRAM): $(DEPTH)/toolkit/xre/$(LIB_PREFIX)xulapp_s.$(LIB_SUFFIX)
-
-ifeq ($(OS_ARCH),OS2)
-ifdef BUILD_STATIC_LIBS
-$(EXE_DEF_FILE):
-	rm -f $@
-	@echo NAME komodo >$(EXE_DEF_FILE)
-	@echo IMPORTS >>$(EXE_DEF_FILE)
-	@echo   WinQueryProperty                = PMMERGE.5450 >>$(EXE_DEF_FILE)
-	@echo   WinRemoveProperty               = PMMERGE.5451 >>$(EXE_DEF_FILE)
-	@echo   WinSetProperty                  = PMMERGE.5452 >>$(EXE_DEF_FILE)
-
-LDFLAGS += -Zlinker /NOE
 endif
 endif
 
 ifneq (,$(filter-out OS2 WINNT,$(OS_ARCH)))
 
-$(MOZ_APP_NAME):: mozilla.in Makefile.in Makefile $(DEPTH)/config/autoconf.mk
-	cat $< | sed -e "s|%MOZAPPDIR%|$(mozappdir)|" \
-		-e "s|%MOZ_USER_DIR%|.komodo|" \
-		-e "s|%MREDIR%|$(mredir)|" > $@
-	chmod +x $@
+ifneq ($(MOZ_WIDGET_TOOLKIT),gtk2)
 
-libs:: $(MOZ_APP_NAME)
-	$(INSTALL) $< $(DIST)/bin
+libs:: 
+	cp -p $(MOZ_APP_NAME)$(BIN_SUFFIX) $(DIST)/bin/$(MOZ_APP_NAME)-bin$(BIN_SUFFIX)
 
-install:: $(MOZ_APP_NAME)
-	$(SYSINSTALL) $< $(DESTDIR)$(bindir)
+endif
 
-GARBAGE += $(MOZ_APP_NAME)
 GARBAGE += $(addprefix $(DIST)/bin/defaults/pref/, komodo.js)
 
 endif
 
-ifneq (,$(filter gtk2,$(MOZ_WIDGET_TOOLKIT)))
+DEFINES += -DKOMODO_ICO=\"$(srcdir)/komodo.ico\" -DDOCUMENT_ICO=\"$(DIST)/branding/document.ico\"
 
-ICON_FILES      = \
-		$(DIST)/branding/mozicon128.png \
-		$(DIST)/branding/mozicon50.xpm \
-		$(DIST)/branding/mozicon16.xpm \
-		$(NULL)
+DEFINES += -DKOMODO_USE_WMAIN
 
-libs:: $(ICON_FILES)
-	$(INSTALL) $^ $(DIST)/bin/icons
-
-install::
-	$(SYSINSTALL) $(IFLAGS1) $(ICON_FILES) $(DESTDIR)$(mozappdir)/icons
+ifdef MOZILLA_OFFICIAL
+DEFINES += -DMOZILLA_OFFICIAL
 endif
 
 ifeq ($(MOZ_WIDGET_TOOLKIT),gtk2)
 libs::
-	$(INSTALL) $(DIST)/branding/default.xpm $(DIST)/bin/chrome/icons/default
-
-install::
-	$(SYSINSTALL) $(IFLAGS1) $(DIST)/branding/default.xpm $(DESTDIR)$(mozappdir)/chrome/icons/default
+	$(INSTALL) $(IFLAGS1) $(srcdir)/default.xpm    $(DIST)/bin/chrome/icons/default
 endif
 
-export::
-ifndef MOZ_BRANDING_DIRECTORY
-	$(NSINSTALL) -D $(DIST)/branding
-ifeq ($(OS_ARCH),WINNT)
-	cp $(srcdir)/komodo.ico   $(DIST)/branding/komodo.ico
-	cp $(srcdir)/komodo.ico   $(DIST)/branding/app.ico
-endif
-ifneq (,$(filter mac cocoa,$(MOZ_WIDGET_TOOLKIT)))
-	cp $(srcdir)/macbuild/komodo.icns  $(DIST)/branding/komodo.icns
-endif
-ifneq (,$(filter gtk2,$(MOZ_WIDGET_TOOLKIT)))
-	cp $(srcdir)/mozicon128.png $(DIST)/branding/mozicon128.png
-	cp $(srcdir)/mozicon16.xpm $(DIST)/branding/mozicon16.xpm
-	cp $(srcdir)/mozicon50.xpm $(DIST)/branding/mozicon50.xpm
-endif
-ifeq ($(MOZ_WIDGET_TOOLKIT),gtk2)
-	cp $(srcdir)/default.xpm   $(DIST)/branding/default.xpm 
-endif
-endif
-
+ifdef MOZ_SPLASHSCREEN
+ifeq ($(MOZ_WIDGET_TOOLKIT),windows)
 libs::
-	touch $(DIST)/bin/.autoreg
+	$(INSTALL) $(IFLAGS1) $(DIST)/branding/splash.bmp $(DIST)/bin
+endif
+endif
 
-ifneq (,$(filter mac cocoa,$(MOZ_WIDGET_TOOLKIT)))
+libs:: $(srcdir)/profile/prefs.js
+	$(INSTALL) $(IFLAGS1) $^ $(DIST)/bin/defaults/profile
+
+ifeq (cocoa,$(MOZ_WIDGET_TOOLKIT))
 
 APP_NAME = $(MOZ_APP_DISPLAYNAME)
 
@@ -338,38 +228,32 @@ ifdef MOZ_DEBUG
 APP_NAME := $(APP_NAME)Debug
 endif
 
+LOWER_APP_NAME = $(shell echo $(APP_NAME) | tr '[A-Z]' '[a-z]')
+
 AB_CD = $(MOZ_UI_LOCALE)
 
 AB := $(firstword $(subst -, ,$(AB_CD)))
 
 clean clobber repackage::
-	rm -rf $(DIST)/$(APP_NAME).app
+	$(RM) -r $(DIST)/$(APP_NAME).app
+
+APPFILES = MacOS
 
 libs repackage:: $(PROGRAM) application.ini
-	mkdir -p $(DIST)/$(APP_NAME).app/Contents/MacOS
+	$(MKDIR) -p $(DIST)/$(APP_NAME).app/Contents/MacOS
 	rsync -a --exclude CVS --exclude "*.in" $(srcdir)/macbuild/Contents $(DIST)/$(APP_NAME).app --exclude English.lproj
-	mkdir -p $(DIST)/$(APP_NAME).app/Contents/Resources/$(AB).lproj
+	$(MKDIR) -p $(DIST)/$(APP_NAME).app/Contents/Resources/$(AB).lproj
 	rsync -a --exclude CVS --exclude "*.in" $(srcdir)/macbuild/Contents/Resources/English.lproj/ $(DIST)/$(APP_NAME).app/Contents/Resources/$(AB).lproj
-	sed -e "s/%APP_VERSION%/$(APP_VERSION)/" -e "s/%APP_NAME%/$(APP_NAME)/" $(srcdir)/macbuild/Contents/Info.plist.in > $(DIST)/$(APP_NAME).app/Contents/Info.plist
-	sed -e "s/%APP_VERSION%/$(APP_VERSION)/" -e "s/%APP_NAME%/$(APP_NAME)/" $(srcdir)/macbuild/Contents/Resources/English.lproj/InfoPlist.strings.in | iconv -f UTF-8 -t UTF-16 > $(DIST)/$(APP_NAME).app/Contents/Resources/$(AB).lproj/InfoPlist.strings
-	rsync -a $(DIST)/bin/ $(DIST)/$(APP_NAME).app/Contents/MacOS
-	rm -f $(DIST)/$(APP_NAME).app/Contents/MacOS/$(PROGRAM) $(DIST)/$(APP_NAME).app/Contents/MacOS/mangle $(DIST)/$(APP_NAME).app/Contents/MacOS/shlibsign
+	sed -e "s/%APP_VERSION%/$(APP_VERSION)/" -e "s/%APP_NAME%/$(APP_NAME)/" -e "s/%LOWER_APP_NAME%/$(LOWER_APP_NAME)/" $(srcdir)/macbuild/Contents/Info.plist.in > $(DIST)/$(APP_NAME).app/Contents/Info.plist
+	sed -e "s/%APP_NAME%/$(APP_NAME)/" $(srcdir)/macbuild/Contents/Resources/English.lproj/InfoPlist.strings.in | iconv -f UTF-8 -t UTF-16 > $(DIST)/$(APP_NAME).app/Contents/Resources/$(AB).lproj/InfoPlist.strings
+	rsync -a $(DIST)/bin/ $(DIST)/$(APP_NAME).app/Contents/$(APPFILES)
+	$(RM) $(DIST)/$(APP_NAME).app/Contents/$(APPFILES)/mangle $(DIST)/$(APP_NAME).app/Contents/$(APPFILES)/shlibsign
+	$(RM) $(DIST)/$(APP_NAME).app/Contents/MacOS/$(PROGRAM)
 	rsync -aL $(PROGRAM) $(DIST)/$(APP_NAME).app/Contents/MacOS
-	-cp -L $(DIST)/bin/mangle $(DIST)/bin/shlibsign $(DIST)/$(APP_NAME).app/Contents/MacOS
-	cp -RL $(DIST)/branding/komodo.icns $(DIST)/$(APP_NAME).app/Contents/Resources/komodo.icns
-	echo -n APPLKOMO > $(DIST)/$(APP_NAME).app/Contents/PkgInfo
+	-cp -L $(DIST)/bin/mangle $(DIST)/bin/shlibsign $(DIST)/$(APP_NAME).app/Contents/$(APPFILES)
+	cp -RL $(srcdir)/macbuild/komodo.icns $(DIST)/$(APP_NAME).app/Contents/Resources/komodo.icns
+	printf APPLMOZB > $(DIST)/$(APP_NAME).app/Contents/PkgInfo
 #       remove CVS dirs from packaged app
 	find $(DIST)/$(APP_NAME).app -type d -name "CVS" -prune -exec rm -rf {} \;
 
 endif
-
-endif # LIBXUL_SDK
-
-libs::
-	$(INSTALL) $(topsrcdir)/LICENSE $(DIST)/bin
-
-libs:: $(srcdir)/profile/prefs.js
-	$(INSTALL) $^ $(DIST)/bin/defaults/profile
-
-install:: $(srcdir)/profile/prefs.js
-	$(SYSINSTALL) $(IFLAGS1) $^ $(DESTDIR)$(mozappdir)/defaults/profile
