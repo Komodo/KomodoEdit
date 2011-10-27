@@ -2626,28 +2626,13 @@ this._getNextWorkspaceIndexToRestore = function(currIdx) {
     var lim = prefIds.length;
     for (var i = 0; i < lim; i++) {
         var newIdx = prefIds[i];
-        //dump("Try windowWorkspacePref[" + newIdx + "]\n");
         if (windowWorkspacePref.hasPref(newIdx)) {
             var workspace = windowWorkspacePref.getPref(newIdx);
-            /*
-            if (!workspace.hasPref('restoreOnRestart')) {
-                dump("!workspace.hasPref('restoreOnRestart')) {\n");
-            } else {
-                dump("workspace.getBooleanPref('restoreOnRestart'): "
-                     + workspace.getBooleanPref('restoreOnRestart')
-                     + ") {\n");
-            }
-            */
             if (!workspace.hasPref('restoreOnRestart')
                 || workspace.getBooleanPref('restoreOnRestart')) {
-                // dump("**************** Go launch workspace " + newIdx + "\n");
                 return newIdx;
-            }/* else {
-                dump("**************** Don't launch workspace " + newIdx + "\n");
-                }*/
-        }/* else {
-            dump("Not found: windowWorkspacePref.hasPref(" + newIdx + ")\n");
-            }*/
+            }
+        }
     }
     return -1;
 };
@@ -3048,8 +3033,7 @@ this.markClosedWindows = function() {
     for (var i = 0; i < lim; i++) {
         pref = windowWorkspacePref.getPref(prefIds[i]);
         var windowNum = pref.getLongPref("windowNum");
-        if (pref.getBooleanPref("restoreOnRestart")
-            && (!(windowNum in loadedWindowNums))) {
+        if (!(windowNum in loadedWindowNums)) {
             pref.setBooleanPref("restoreOnRestart", false);
         }
     }
