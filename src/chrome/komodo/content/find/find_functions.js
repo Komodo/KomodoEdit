@@ -2001,7 +2001,7 @@ this.replaceAllInFiles = function Find_ReplaceAllInFiles(editor, context, patter
     
         try {
             _findSvc.replaceallinfiles(resultsMgr.id, pattern, repl,
-                                      resultsMgr);
+                                       resultsMgr);
         } catch (ex) {
             var msg = _ffBundle.GetStringFromName("replace all in files");
             ko.find._uiForFindServiceError(msg, ex, msgHandler);
