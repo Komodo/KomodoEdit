@@ -38,7 +38,7 @@
 
 def applicable(config):
     return config.mozApp == "komodo" and \
-           config.patch_target == "mozilla" and \
+           config.patch_target == "komodoapp" and \
            config.mozVer <= 6.99
 
 def add(config):

@@ -2260,6 +2260,31 @@ def target_symbols(argv=["symbols"]):
         _run_in_dir("make buildsymbols", native_objdir, log.info)
     return argv[1:]
 
+def target_komodoapp_distclean(argv=["komodoapp_distclean"]):
+    """remove the komodo bits"""
+    config = _importConfig()
+    buildDir = os.path.join(config.buildDir, config.srcTreeName, "mozilla")
+    native_objdir = _get_mozilla_objdir(convert_to_native_win_path=True)
+    paths = [
+        join(buildDir, "komodo", "app"),
+        join(buildDir, "komodo", "config"),
+        join(native_objdir, "komodo", "app"),
+    ]
+    for path in paths:
+        if exists(path):
+            shutil.rmtree(path)
+    return argv[1:]
+
+def target_komodoapp(argv=["komodoapp"]):
+    """add the komodo bits and build them"""
+    config = _importConfig()
+    target_patch(patch_target='komodoapp', logFilename="__patchlog_komodoapp__.py")
+    native_objdir = _get_mozilla_objdir(convert_to_native_win_path=True)
+    komodo_objdir = join(native_objdir, "komodo")
+    log.info("entering directory '%s' (to build komodo app)", komodo_objdir)
+    _run_in_dir('make', komodo_objdir, log.info)
+    return argv[1:]
+
 def target_pluginsdk(argv=["mozilla"]):
     # Build the plugin toolkit seperately
     # (Komodo's SciMoz build depends on the plugingate_s.lib from
@@ -2316,6 +2341,7 @@ def target_all(argv):
     log.info("target: all")
     target_src()
     target_patch()
+    target_patch(patch_target='komodoapp', logFilename="__patchlog_komodoapp__.py")
     target_configure_mozilla()
     target_mozilla()
     target_pluginsdk()
