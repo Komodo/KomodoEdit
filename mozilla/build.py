@@ -1861,9 +1861,10 @@ def target_pyxpcom(argv=["pyxpcom"]):
             # Requires the matching branch.
             import math
             repo_rev = "TAG_MOZILLA_%d_0_0" % (int(config.mozVer), )
-        cmd = "hg clone %s python" % (repo_url, )
+        cmd = "hg clone"
         if repo_rev is not None:
             cmd += " -r %s" % (repo_rev, )
+        cmd += " %s python" % (repo_url, )
         _run_in_dir(cmd, dirname(pyxpcom_src_dir), log.info)
 
         # Patch pyxpcom.
