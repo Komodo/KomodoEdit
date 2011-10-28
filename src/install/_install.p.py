@@ -384,7 +384,7 @@ def _selinux_prepare(absInstallDir):
     # We must allow Komodo to have stack execution privileges, which is
     # required by certain Python modules (ssl, hashlib), otherwise Komodo
     # will fail to register some core PyXPCOM components - bug 85504.
-    komodoBin = join(absInstallDir, "lib", "mozilla", "komodo-bin")
+    komodoBin = join(absInstallDir, "lib", "mozilla", "komodo")
     selinux.allow_stack_execution(komodoBin)
 
     for so_path in _gen_so_paths(absInstallDir):
