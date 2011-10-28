@@ -2165,7 +2165,6 @@ def CleanKomodoBuild(cfg, argv):
         bits.append(join(mozKomodoAppDir, "komodo.exe"))
     else:
         bits.append(join(mozKomodoAppDir, "*.o"))
-        bits.append(join(mozKomodoAppDir, "komodo-bin"))
 
     for bit in bits:
         paths = glob.glob(bit)
