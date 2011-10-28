@@ -419,6 +419,22 @@ def _selinux_prepare(absInstallDir):
                                "not use SELinux on your system)")
                 break
 
+def _symlink_komodo_executable(absInstallDir):
+    # Komodo comes with a stub shell script that will execute the main
+    # Komodo executable, we often don't need the stub and can instead use
+    # a symlink to the main executable. The stub is just uses as a backup
+    # for when we cannot use symlinks.
+    komodoBin = join(absInstallDir, "lib", "mozilla", "komodo")
+    komodoStub = join(absInstallDir, "bin", "komodo")
+    komodoStubBackup = komodoStub+".sh"
+    os.rename(komodoStub, komodoStubBackup)
+    try:
+        os.symlink(komodoBin, komodoStub)
+        os.remove(komodoStubBackup)
+    except:
+        # Couldn't make a symlink - keep using the stub.
+        os.rename(komodoStub, komodoStubBackup)
+
 def _install(installDir, userDataDir, suppressShortcut, destDir=None):
     normInstallDir = normpath(expanduser(installDir))
     absInstallDir = abspath(normInstallDir)
@@ -489,6 +505,7 @@ def _install(installDir, userDataDir, suppressShortcut, destDir=None):
         finally:
             fout.close()
 
+    _symlink_komodo_executable(absInstallDir)
     _install_desktop_shortcut(absInstallDir, suppressShortcut)
     _selinux_prepare(absInstallDir)
 
