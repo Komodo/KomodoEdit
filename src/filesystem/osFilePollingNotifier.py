@@ -462,6 +462,7 @@ class osFilePollingNotifier(threading.Thread):
     def __init__(self, poll_period=DEFAULT_POLL_PERIOD):
         threading.Thread.__init__(self, name="File Notifications - Polling")
         self.setDaemon(1)   # If Komodo goes down, we go down
+        self._isRunning = False
 
         # How often polling occurs
         self.__polling_period = poll_period
@@ -618,15 +619,16 @@ class osFilePollingNotifier(threading.Thread):
     ####################################################
 
     def startNotificationService(self):
-        self.start()    # Start the thread - calls self.run()
+        pass  # The thread is started lazily through the addObserver call.
 
     def stopNotificationService(self):
-        self._isRunning = 0
-        # Notify the thread to shutdown
-        self.__shutdown_event.set()
-        self._shutdown.acquire()
-        self._shutdown.wait(5)
-        self._shutdown.release()
+        if self._isRunning:
+            self._isRunning = 0
+            # Notify the thread to shutdown
+            self.__shutdown_event.set()
+            self._shutdown.acquire()
+            self._shutdown.wait(5)
+            self._shutdown.release()
 
     # Watch this location and notify when the given flag is changed
     #   observer   - koIFileNotificationObserver to which notifications get sent
@@ -637,6 +639,10 @@ class osFilePollingNotifier(threading.Thread):
         # We have to wait until the run starts
         self.__lock_observer_changes.acquire()
         try:
+            # Lazily start the polling thread.
+            if not self._isRunning:
+                self.start()
+                self._isRunning = 1
             self._removeDeadMonitors()
             self._addObserverForPath(observer, path, watch_type, flags)
             #self.__observers_to_add.append((observer, path, watch_type, flags))
