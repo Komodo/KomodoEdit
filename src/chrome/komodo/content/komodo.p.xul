@@ -1719,7 +1719,8 @@
                     <toolbarseparator/>
                     <toolbarbutton id="printButton"
                         tooltiptext="&print.tooltiptext;"
-                        persist="buttonstyle"
+                        kohidden="true"
+                        persist="buttonstyle kohidden"
                         buttonstyle="pictures"
                         class="native-print-icon"
                         observes="cmd_print"
