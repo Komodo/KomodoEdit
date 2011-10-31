@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="Perl" mtime="42" path="scan_inputs/ExtUtils/MakeMaker.pm">
-    <scope ilk="blob" lang="Perl" name="ExtUtils::MakeMaker" src="scan_inputs/ExtUtils/MakeMaker.pm">
+  <file lang="Perl" mtime="42" path="scan_inputs/perl/ExtUtils/MakeMaker.pm">
+    <scope ilk="blob" lang="Perl" name="ExtUtils::MakeMaker" src="scan_inputs/perl/ExtUtils/MakeMaker.pm">
       <scope classrefs="Exporter" ilk="class" line="1" lineend="969" name="ExtUtils::MakeMaker">
         <import line="8" module="Exporter" />
         <import line="9" module="Config" symbol="*" />

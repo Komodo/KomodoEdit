@@ -1,6 +1,6 @@
 <codeintel version="2.0">
-  <file lang="Perl" mtime="42" path="scan_inputs/Date/Calc.pm">
-    <scope ilk="blob" lang="Perl" name="Date::Calc" src="scan_inputs/Date/Calc.pm">
+  <file lang="Perl" mtime="42" path="scan_inputs/perl/Date/Calc.pm">
+    <scope ilk="blob" lang="Perl" name="Date::Calc" src="scan_inputs/perl/Date/Calc.pm">
       <scope classrefs="Exporter DynaLoader" ilk="class" line="12" lineend="315" name="Date::Calc">
         <import line="17" module="Exporter" />
         <import line="18" module="DynaLoader" />
