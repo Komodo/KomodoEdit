@@ -72,11 +72,11 @@ this.toggleToolbarVisibility = function uilayout_toggleToolbarVisibility(toolbar
         _log.error("Couldn't find broadcaster: " + broadcasterId);
         return;
     }
-    if (toolbaritem.hidden) {
-        toolbaritem.setAttribute("hidden", "false");
+    if (toolbaritem.getAttribute("kohidden") == "true") {
+        toolbaritem.setAttribute("kohidden", "false");
         broadcaster.setAttribute("checked", "true");
     } else {
-        toolbaritem.setAttribute("hidden", "true");
+        toolbaritem.setAttribute("kohidden", "true");
         broadcaster.setAttribute("checked", "false");
     }
 
@@ -102,8 +102,8 @@ this.toggleToolbarVisibility = function uilayout_toggleToolbarVisibility(toolbar
     var all_hidden = true;
     for (var i=0; i < toolbar.childNodes.length; i++) {
         child = toolbar.childNodes.item(i);
-        if (!child.hasAttribute("hidden") ||
-            child.getAttribute("hidden") == "false") {
+        if (!child.hasAttribute("kohidden") ||
+            child.getAttribute("kohidden") == "false") {
             all_hidden = false;
             break;
         }
@@ -200,14 +200,11 @@ this.customizeToolbars = function uilayout_customizeToolbars(aToolbox) {
         // #endif
         var toolbaritems = toolbars.reduce(function(p, c) p.concat([c].concat(Array.slice(c.childNodes))), []);
         for each (var toolbaritem in toolbaritems) {
-            if (/komodo/i.test(toolbaritem.id)) {
-                debugger;
-            }
             var broadcasterId = toolbaritem.getAttribute("broadcaster");
             if (broadcasterId) {
                 var broadcaster = document.getElementById(broadcasterId);
                 if (broadcaster) {
-                    if (toolbaritem.hidden) {
+                    if (toolbaritem.getAttribute("kohidden") == "true") {
                         broadcaster.removeAttribute("checked");
                     } else {
                         broadcaster.setAttribute("checked", "true");
@@ -298,7 +295,7 @@ this._updateToolbarClasses = (function uilayout__updateToolbarClasses(toolbox)
                 child.classList.remove("last-child");
             }
         }
-        children = Array.slice(toolbar.querySelectorAll(":not([hidden='true']):not(toolbarseparator):not(spacer)"));
+        children = Array.slice(toolbar.querySelectorAll(":not([kohidden='true']):not(toolbarseparator):not(spacer)"));
         children = children.filter(function(child) child.parentNode === toolbar);
         if (children.length > 0) {
             children[0].classList.add("first-child");

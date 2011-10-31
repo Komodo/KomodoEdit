@@ -61,6 +61,17 @@ toolbarbutton {
     padding-bottom: 4px;
 }
 
+/*
+ * We use our custom attribute for controlling whether a toolbar/button is
+ * visible. This is so we can persist it's hidden-ness (as XUL cannot persist
+ * "collapsed|hidden" attributes in a useful way).
+*/
+toolbar[kohidden="true"],
+toolbarbutton[kohidden="true"]
+{
+    visibility: collapse;
+}
+
 #main-toolboxrow toolbarbutton {
     -moz-box-orient: vertical;
 }

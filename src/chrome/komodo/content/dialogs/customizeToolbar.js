@@ -74,7 +74,7 @@ window.addEventListener("load", function() {
     }
 
     ToolboxTreeView.prototype.getCellValue = function(index, column) {
-        return !this._rows[index].elem.hidden;
+        return this._rows[index].elem.getAttribute("kohidden") != "true";
     };
 
     ToolboxTreeView.prototype.getCellProperties = function(row, col, properties) {
@@ -171,13 +171,13 @@ window.addEventListener("load", function() {
         var parent = this.getParentIndex(row);
         if (parent !== -1) {
             // valid parent
-            if (this._rows[parent].elem.hidden) {
+            if (this._rows[parent].elem.hidden || this._rows[parent].elem.getAttribute("kohidden") == "true") {
                 // but it's hidden; this is disabled
                 return;
             }
         }
         var elem = this._rows[row].elem;
-        elem.hidden = !elem.hidden;
+        elem.setAttribute("kohidden", (elem.getAttribute("kohidden") == "true") ? "false" : "true");
         // Fire an event so the caller can tell something changed
         var event = document.createEvent("XULCommandEvent");
         event.initCommandEvent("customize", true, true,
@@ -208,7 +208,7 @@ window.addEventListener("load", function() {
      */
     function ToolbarItem(item) {
         this.elem = item;
-        this.original = this.elem.hidden;
+        this.original = this.elem.getAttribute("kohidden");
         this._id = this.elem.id;
     }
     ToolbarItem.prototype.isContainer = false;
@@ -235,7 +235,7 @@ window.addEventListener("load", function() {
             this.children = [];
         }
         this.elem = toolbar;
-        this.original = this.elem.hidden;
+        this.original = this.elem.getAttribute("kohidden");
         this._id = this.elem.id;
     }
     Toolbar.prototype.isContainer = true;
@@ -309,9 +309,9 @@ function onCustomizeToolbarFinished(aAccept) {
     for each (var obj in objs) {
         if ("elem" in obj && "original" in obj) {
             if (!aAccept) {
-                obj.elem.hidden = obj.original;
+                obj.elem.setAttribute("kohidden", obj.original);
             }
-            obj.elem.ownerDocument.persist(obj.elem.id, "hidden");
+            obj.elem.ownerDocument.persist(obj.elem.id, "kohidden");
         }
     }
 
