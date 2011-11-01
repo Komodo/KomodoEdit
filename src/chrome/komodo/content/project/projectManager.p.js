@@ -814,11 +814,9 @@ projectManager.prototype._addProject = function(project, inTimeout/*=false*/) {
     this.setCurrentProject(project);
     ko.lint.initializeGenericPrefs(project.prefset)
     if (this.single_project_view) {
-        ko.toolbox2.manager.toolbox2Svc.activateProjectToolbox(project);
         ko.mru.addURL("mruProjectList", project.url);
-    } else {
-        ko.toolbox2.manager.addProject(project);
     }
+    ko.toolbox2.manager.addProject(project);
 
     // Let the file status service know it has work to do.
     var fileStatusSvc = Components.classes["@activestate.com/koFileStatusService;1"].
