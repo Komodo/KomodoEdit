@@ -194,14 +194,38 @@ class _kplFolder(_kplBase):
     def __init__(self, level, uri):
         _kplBase.__init__(self, level, uri)
         self.childNodes = [_kplPlaceholder(level + 1, None)]
-        self.isOpen = self._nodeOpenStatusFromName.get(uri, False)
+        self.__isOpen = self._nodeOpenStatusFromName.get(uri, False)
 
-    def getCellPropertyNames(self, col_id):
-        if self.propertyNames is None:
-            self.propertyNames = self.getCellPropertyNames_aux(col_id)
-            #qlog.debug("folder.getCellPropertyNames: folder.propertyNames: %s", self.propertyNames)
-        return self.propertyNames
-    
+    @property
+    def koFile(self):
+        if self._koFile is None:
+            # We only want to cause file status checks on the folder if the
+            # folder is open, otherwise we just want an uncached koIFileEx which
+            # will not perform any file status checking.
+            if self.__isOpen:
+                self._koFile = components.classes["@activestate.com/koFileService;1"].\
+                               getService(components.interfaces.koIFileService).\
+                               getFileFromURI(self.uri)
+            else:
+                self._koFile = components.classes["@activestate.com/koFileService;1"].\
+                               getService(components.interfaces.koIFileService).\
+                               getFileFromURINoCache(self.uri)
+####            qlog.debug("koFile getter: file:%s, isLink:%r",
+####                       self._koFile.path,
+####                       self._koFile.isSymlink)
+                       
+        return self._koFile
+
+    @property
+    def isOpen(self):
+        return self.__isOpen
+    @isOpen.setter
+    def isOpen(self, value):
+        if self.__isOpen != value:
+            self.__isOpen = value
+            # Open state has changed - reset the koFile.
+            self._koFile = None
+
     def getCellPropertyNames_aux(self, col_id):
         if col_id == 'name':
             if self.image_icon == 'places_busy':
