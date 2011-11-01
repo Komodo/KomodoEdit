@@ -730,14 +730,6 @@ KoScintillaAutoCompleteController.prototype = {
             }
             break;
           }
-          case Ci.nsIDOMKeyEvent.DOM_VK_HOME: {
-            this._updateDisplay(Number.NEGATIVE_INFINITY);
-            break;
-          }
-          case Ci.nsIDOMKeyEvent.DOM_VK_END: {
-            this._updateDisplay(Number.POSITIVE_INFINITY);
-            break;
-          }
           default:
             break specific_handler;
         }
