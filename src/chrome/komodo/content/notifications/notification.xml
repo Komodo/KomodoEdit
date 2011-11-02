@@ -126,6 +126,46 @@
         </setter>
       </property>
 
+      <property name="maxProgress">
+        <!-- The maximum progress possible; setting it to
+           - koINotificationProgress.PROGRESS_NOT_APPLICABLE will hide the
+           - progress metere, and setting to
+           - koINotificationProgress.PROGRESS_INDETERMINATE will result in an
+           - indeterminate progress meter. Otherwise should be a positive
+           - integer.
+           -->
+        <getter>
+          return this._progress.max;
+        </getter>
+        <setter>
+        <![CDATA[
+          const koINotificationProgress = Components.interfaces.koINotificationProgress;
+          this._progress.max = val;
+          switch (val) {
+            case koINotificationProgress.PROGRESS_NOT_APPLICABLE:
+              this._progress.collapsed = true;
+              return;
+            case koINotificationProgress.PROGRESS_INDETERMINATE:
+              this._progress.mode = "undetermined";
+              this._progress.collapsed = false;
+              return;
+            default:
+              this._progress.mode = "determined";
+              this._progress.collapsed = false;
+          }
+        ]]>
+        </setter>
+      </property>
+
+      <property name="progress">
+        <getter>
+          return this._progress.value;
+        </getter>
+        <setter>
+          return this._progress.value = val;
+        </setter>
+      </property>
+
       <property name="open">
         <setter>
         <![CDATA[
@@ -158,6 +198,9 @@
       </field>
       <field name="_tagsContainer">
         document.getAnonymousElementByAttribute(this, "anonid", "tags-container");
+      </field>
+      <field name="_progress">
+        document.getAnonymousElementByAttribute(this, "anonid", "progress");
       </field>
 
       <method name="toggleTwisty">

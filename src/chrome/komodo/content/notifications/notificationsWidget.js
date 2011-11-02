@@ -57,6 +57,13 @@ this.addNotification = (function NWC_addNotification(notification) {
     elem.details = notification.details;
   }
   elem.collapsed = !this.shouldShowItem(elem);
+  // progress information
+  if (notification instanceof Ci.koINotificationProgress) {
+    elem.maxProgress = notification.maxProgress;
+    elem.progress = notification.progress;
+  } else {
+    elem.maxProgress = Ci.koINotificationProgress.PROGRESS_NOT_APPLICABLE;
+  }
 
   // build a map of notifications to make removes faster
   if (notification.identifier in this._map) {
