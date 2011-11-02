@@ -51,12 +51,15 @@ interface koINotificationAsyncCallbackAdapter : nsISupports {
      * @param aIdentifier The identifier for the koINotification
      * @param aTags The tags for the koINotification
      * @param aContext The context for the koINotification
+     * @param aTypes Extra interfaces this notification should support;
+     *               see koINotificationManager.TYPE_* constants
      */
     void initAsyncAdapter(in koIAsyncOperation aOperation,
                           in ACString aIdentifier,
                           [array, size_is(aTagCount)] in wstring aTags,
                           in PRUint32 aTagCount,
-                          [optional] in nsISupports aContext);
+                          [optional] in nsISupports aContext,
+                          [optional] in PRUint32 aTypes);
 
     /**
      * The chained callback

@@ -181,6 +181,10 @@
         </getter>
       </property>
 
+      <field name="notification">
+        /* a reference to the notification */
+      </field>
+
       <field name="_text">
         document.getAnonymousElementByAttribute(this, "anonid", "text");
       </field>
@@ -203,10 +207,73 @@
         document.getAnonymousElementByAttribute(this, "anonid", "progress");
       </field>
 
+      <!-- actions, as a dict of identifier -> { "element": element,
+         -                                       "action": koINotificationAction,
+         -                                       "listener": function }
+         -->
+      <field name="_actions">({})</field>
+
+      <property name="actions">
+        <!-- The list of actions, as an Array of koINotificationAction -->
+        <getter>
+          return [x.action for ([,x] in Iterator(this._actions))];
+        </getter>
+      </property>
+
       <method name="toggleTwisty">
         <body>
         <![CDATA[
           this.open = !this.open;
+        ]]>
+        </body>
+      </method>
+
+      <method name="addAction">
+        <parameter name="action"/>
+        <body>
+        <![CDATA[
+          var info;
+          if (action.identifier in this._actions) {
+            // action update
+            info = this._actions[action.identifier];
+            info.element.removeEventListener("command", info.listener, false);
+          } else {
+            // new action
+            var container = 
+              document.getAnonymousElementByAttribute(this, "anonid", "actions");
+            var elem = document.createElement("button");
+            container.appendChild(elem);
+            info = { element: elem };
+            this._actions[action.identifier] = info
+          }
+          elem.label = action.label;
+          elem.accessKey = action.accessKey || "";
+          elem.image = action.iconURL;
+          elem.collapsed = !action.visible;
+          elem.disabled = !action.enabled;
+          info.action = action;
+          info.listener = (function() {
+              action.handler.handleAction(this.notification, action.identifier);
+            }).bind(this);
+          elem.addEventListener("command", info.listener, false);
+        ]]>
+        </body>
+      </method>
+
+      <method name="removeAction">
+        <!-- Remove the given action
+           - @param actionId {String} The identifier of the action to remove.
+           - If the action is not found, this is a no-op.
+          -->
+        <parameter name="actionId"/>
+        <body>
+        <![CDATA[
+          var info = this._actions[actionId];
+          if (!info) {
+            return;
+          }
+          info.element.parentNode.removeChild(info.element);
+          delete this._actions[actionId];
         ]]>
         </body>
       </method>

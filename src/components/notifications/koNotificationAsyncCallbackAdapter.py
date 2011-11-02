@@ -57,7 +57,7 @@ class KoNotificationAsyncCallbackAdapter(object):
         self.notification = None
 
     # koINotificationAsyncCallbackAdapter
-    def initAsyncAdapter(self, operation, identifier, tags, context):
+    def initAsyncAdapter(self, operation, identifier, tags, context, types):
         log.debug("initAsyncAdapter: %r = %r/%r/%r", operation, identifier,
                   tags, context)
         self._nm = components.classes["@activestate.com/koNotification/manager;1"]\
@@ -67,7 +67,8 @@ class KoNotificationAsyncCallbackAdapter(object):
                                         tags,
                                         context,
                                         koINotificationManager.TYPE_PROGRESS |
-                                          koINotificationManager.TYPE_TEXT)
+                                          koINotificationManager.TYPE_TEXT |
+                                          types)
         self.notification.QueryInterface(Ci.koINotificationProgress)
         self.notification.progress = 0
         self.notification.maxProgress = Ci.koINotificationProgress.PROGRESS_INDETERMINATE
@@ -117,7 +118,7 @@ class KoNotificationAsyncCallbackAdapter(object):
                 self.next.QueryInterface(components.interfaces.koIAsyncCallback)
                 self.next.callback(result, data)
             except COMException, e:
-                if e.number != nsError.NS_ERROR_NO_INTERFACE:
+                if getattr(e, "number", None) != nsError.NS_ERROR_NO_INTERFACE:
                     raise
 
     # koIAsyncCallbackWithProgress

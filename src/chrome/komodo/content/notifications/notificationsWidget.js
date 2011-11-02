@@ -64,6 +64,19 @@ this.addNotification = (function NWC_addNotification(notification) {
   } else {
     elem.maxProgress = Ci.koINotificationProgress.PROGRESS_NOT_APPLICABLE;
   }
+  if (notification instanceof Ci.koINotificationActionable) {
+    var actions = {};
+    for each (let action in elem.actions) {
+      actions[action.identifier] = true;
+    }
+    notification.getActions().forEach(function(action) {
+      elem.addAction(action);
+      delete actions[action.identifier];
+    });
+    for each (let action in Object.keys(actions)) {
+      elem.removeAction(action);
+    }
+  }
 
   // build a map of notifications to make removes faster
   if (notification.identifier in this._map) {
@@ -78,7 +91,7 @@ this.addNotification = (function NWC_addNotification(notification) {
     maxItems = this.prefs.getLongPref("notifications.ui.maxItems");
   }
   while (this.container.children.length > maxItems) {
-    this.removeNotification(this.container.children[0].notification);
+    this.removeNotification(this.container.firstChild.notification);
   }
 }).bind(this);
 
