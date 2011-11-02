@@ -68,7 +68,7 @@ this.addNotification = (function NWC_addNotification(notification) {
 }).bind(this);
 
 this.updateNotification = (function NWC_updateNotification(notification, elem) {
-  var top = this.container._scrollbox.scrollTop;
+  var {scrollTop, scrollLeft} = this.container._scrollbox;
   elem.text = [notification.summary, notification.description]
               .filter(function(n) n).join(": ");
   elem.tags = notification.getTags();
@@ -98,7 +98,8 @@ this.updateNotification = (function NWC_updateNotification(notification, elem) {
       elem.removeAction(action);
     }
   }
-  this.container._scrollbox.scrollTop = top;
+  this.container._scrollbox.scrollTop = scrollTop;
+  this.container._scrollbox.scrollLeft = scrollLeft;
 }).bind(this);
 
 /**
