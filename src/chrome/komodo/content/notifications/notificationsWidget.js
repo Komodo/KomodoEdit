@@ -68,6 +68,7 @@ this.addNotification = (function NWC_addNotification(notification) {
 }).bind(this);
 
 this.updateNotification = (function NWC_updateNotification(notification, elem) {
+  var top = this.container._scrollbox.scrollTop;
   elem.text = [notification.summary, notification.description]
               .filter(function(n) n).join(": ");
   elem.tags = notification.getTags();
@@ -97,6 +98,7 @@ this.updateNotification = (function NWC_updateNotification(notification, elem) {
       elem.removeAction(action);
     }
   }
+  this.container._scrollbox.scrollTop = top;
 }).bind(this);
 
 /**
@@ -289,8 +291,8 @@ notificationsController.do_cmd_copy = function notificationsController_do_copy()
       // right align time to 80 columns
       time = Array(Math.max(0, 81 - time.length)).join(" ") + time;
       var entry = [child.text, time];
-      if (child.details)
-        entry = entry.concat(["  " + details for each (details in child.details.split("\n"))]);
+      if (child.notification.details)
+        entry = entry.concat(["  " + details for each (details in child.notification.details.split("\n"))]);
       buffers.push(entry.join("\n"));
     }
     buffer = buffers.join("\n" + Array(81).join("-") + "\n");

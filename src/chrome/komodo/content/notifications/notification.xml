@@ -55,16 +55,27 @@
         </setter>
       </property>
       <property name="details">
-        <getter>
-          return this._detailText.textContent;
-        </getter>
         <setter><![CDATA[
           if (!val) {
             this.removeAttribute("details");
             return;
           }
           this.setAttribute("details", true);
-          this._detailText.textContent = val;
+          // Set the detail text.  This really isn't useful with _lots_ of lines,
+          // so just show the first 10 + the last 30 (... but don't repeat)
+          const CHUNK_START = 10;
+          const CHUNK_END = 30;
+          const CHUNK_SKIP_MIN = 10;
+          var lines = val.split("\n");
+          if (lines.length > CHUNK_START + CHUNK_END + CHUNK_SKIP_MIN) {
+            var filler = "(..." + (lines.length - CHUNK_START - CHUNK_END) + " more lines; copy to clipboard to view full text...)";
+            var text = lines.slice(0, CHUNK_START)
+                            .concat([filler])
+                            .concat(lines.slice(-CHUNK_END));
+            this._detailText.textContent = text.join("\n");
+          } else {
+            this._detailText.textContent = val;
+          }
           // Manually set the height. This is needed in order to get scrolling
           // for horizontal overflow, but size-to-fit vertically.
           // Note that this needs to include the height of the horizontal scroll
