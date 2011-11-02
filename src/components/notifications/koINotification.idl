@@ -148,11 +148,4 @@ interface koINotificationText : koINotification {
      * For example, this may be the output of running a command.
      */
     attribute AString details;
-    /**
-     * Some HTML markup describing additional information about the
-     * notification. This is preferred, but optional - the plain text version
-     * will be used if this is a void string. (Note that if this is an _empty_ string,
-     * it will be used.)
-     */
-    attribute AString detailsHTML;
 };

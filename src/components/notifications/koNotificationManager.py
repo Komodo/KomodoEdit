@@ -5,6 +5,7 @@ from threading import Lock
 import time, weakref
 from xpcom import components, COMException, nsError
 from xpcom.server import UnwrapObject
+from koNotification import KoNotification
 
 log = logging.getLogger("koNotification")
 #log.setLevel(logging.DEBUG)
@@ -27,6 +28,9 @@ class KoNotificationManager:
                                                              ["notifications.core.maxItems"],
                                                              True)
         self.observe(None, "notifications.core.maxItems", None)
+
+        self._constructors = {}
+        """Map of flags -> KoNotification constructors"""
 
     def _unwrap(self, aObject):
         try:
@@ -316,149 +320,6 @@ class KoNotificationManager:
         return components.classes["@activestate.com/koPrefService;1"]\
                          .getService(components.interfaces.koIPrefService)\
                          .effectivePrefs
-
-class KoNotification(object):
-    _com_interfaces_ = [] # see __init__
-    _reg_desc_ = "Komodo Notification Object"
-
-    def __init__(self, identifier, tags, context, types, mgr):
-        self.identifier = str(identifier)
-        self._com_interfaces_ = [Ci.koINotification, Ci.nsIClassInfo]
-        if types & Ci.koINotificationManager.TYPE_ACTIONABLE:
-            self._com_interfaces_.append(Ci.koINotificationActionable)
-        if types & Ci.koINotificationManager.TYPE_PROGRESS:
-            self._com_interfaces_.append(Ci.koINotificationProgress)
-        if types & Ci.koINotificationManager.TYPE_TEXT:
-            self._com_interfaces_.append(Ci.koINotificationText)
-        if types & Ci.koINotificationManager.TYPE_STATUS:
-            self._com_interfaces_.append(Ci.koIStatusMessage)
-            self.category = None
-            self.timeout = 0
-            self.highlight = 0
-            self.expiresAt = 0
-            self.interactive = 0
-            self._log = True
-
-        self.__manager = weakref.ref(mgr)
-        tags = map(lambda s: s.lower(), filter(None, tags)) # drop empty tags
-        self.tags = list(set(tags)) # drop repeated tags
-        self.actions = []
-        self.contxt = context
-
-    @property
-    def _manager(self):
-        """Get the notification manager, if this notification is currently being
-        tracked by the manager. Return None if the manager is unaware of us.
-        """
-        manager = self.__manager()
-        if manager and self in manager:
-            return manager
-        return None
-
-    def _createProperty(name, defaultValue=None, setCheck=None):
-        """Define a property
-        @param name {str} The name of the real property
-        @param defaultValue The default value for the property
-        @param setCheck {callable} A method to call to ensure the value being
-            set is valid. Takes two arguments, self and the new value.
-            Return True to allow the set, False to stop it.
-        """
-        def getter(self):
-            return getattr(self, name, defaultValue)
-
-        def setter(self, value):
-            if setCheck is not None and not setCheck(self, value):
-                raise COMException(nsError.NS_ERROR_ILLEGAL_VALUE)
-            oldVal = getattr(self, name, defaultValue)
-            setattr(self, name, value)
-            if oldVal != value:
-                manager = self._manager
-                if manager:
-                    manager.addNotification(self)
-
-        return property(getter, setter)
-
-    for attr in ("summary", "iconURL", "description", "details",
-                 "detailsHTML"):
-        locals()[attr] = _createProperty("_" + attr, None)
-    severity = _createProperty("_severity", 0)
-    time = 0 # updating time does _not_ fire notifications
-    contxt = context = _createProperty("_context")
-    maxProgress = _createProperty("_maxProgress", 0, lambda self, v: v > 0)
-    progress = _createProperty("_progress", 0,
-                               lambda self, v: v >= 0 and v <= self.maxProgress)
-
-    def getTags(self):
-        return self.tags
-
-    def getActions(self, actionId=None):
-        if not actionId:
-            return list(self.actions)
-        return filter(lambda a: a.identifier == actionId, self.actions)
-
-    def updateAction(self, action):
-        if not action.identifier:
-            raise COMException(nsError.NS_ERROR_NOT_INITIALIZED,
-                               "action has no identifier")
-        oldaction = self.getActions(action.identifier)
-        if oldaction:
-            self.actions[self.actions.index(oldaction[0])] = action
-        else:
-            self.actions.append(action)
-        manager = self._manager
-        if manager:
-            try:
-                index = manager.index(manager._wrap(self))
-                manager._notify(self, Ci.koINotificationListener.REASON_UPDATED,
-                                aOldIndex=index, aNewIndex=index)
-            except ValueError:
-                # we have a manager, but we're not in it?
-                pass
-        return len(oldaction) > 0
-
-    def removeAction(self, actionId):
-        action = self.getActions(actionId)
-        if action:
-            self.actions.remove(action[0])
-            manager = self._manager
-            if manager:
-                try:
-                    index = manager.index(manager._wrap(self))
-                    manager._notify(self, Ci.koINotificationListener.REASON_UPDATED,
-                                    aOldIndex=index, aNewIndex=index)
-                except ValueError:
-                    # we have a manager, but we're not in it?
-                    pass
-            return True
-        return False
-
-    # koIStatusMessage
-    msg = _createProperty("_summary", None)
-    @property
-    def log(self):
-        return self._log
-    @log.setter
-    def log(self, value):
-        if value != self._log:
-            manager = self._manager
-            if manager:
-                if value:
-                    manager.addNotification(self)
-                else:
-                    manager.removeNotification(self)
-        self._log = value
-
-    # nsIClassInfo - the way we play with _com_interfaces_ makes PyXPCOM confused
-    # and it won't implement ClassInfo for us
-    def getInterfaces(self):
-        return self._com_interfaces_[:]
-    def getHelperForLanguage(self, language):
-        return None
-    contractID = None
-    classDescription = _reg_desc_
-    classID = None
-    implementationLanguage = Ci.nsIProgrammingLanguage.PYTHON
-    flags = Ci.nsIClassInfo.THREADSAFE
 
 class KoNotificationAction(object):
     _com_interfaces_ = [Ci.koINotificationAction]

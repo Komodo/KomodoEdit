@@ -13,6 +13,7 @@ Import(
     'ranRegxpcomStateFileName',
     'sdkDir',
     'unsiloedPythonExe',
+    'komodoPythonUtilsDir',
 );
 
 $cons->Install($idlExportDir, 'koINotification.idl');
@@ -20,3 +21,4 @@ $cons->Install($idlExportDir, 'koINotificationManager.idl');
 $cons->BuildAndInstallXpt('koINotification.idl');
 $cons->BuildAndInstallXpt('koINotificationManager.idl');
 $cons->InstallXpcomComponent('koNotificationManager.py');
+$cons->Install($komodoPythonUtilsDir, 'koNotification.py');
