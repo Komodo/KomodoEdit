@@ -127,15 +127,20 @@ interface koINotificationProgress : koINotification {
     /**
      * The maximum possible progress of the notification. Must be greater
      * than zero. Use PROGRESS_INDETERMINATE to indicate the maximum is unknown
-     * (i.e. indeterminate). Set this to a different value (e.g. 0) when it is
-     * completed.
+     * (i.e. indeterminate). Use PROGRESS_NOT_APPLICABLE to indicate that no
+     * progress should be shown.
      */
     attribute long maxProgress;
     /**
      * Special value for maxProgress to indicate that the total progress is unknown, but
      * progress exists.
      */
-    const long PROGRESS_INDETERMINATE = -1;
+    const long PROGRESS_INDETERMINATE = 0;
+    /**
+     * Special value for maxProgress to indicate that, although this notification
+     * implements koINotificationProgress, no progress information should be shown
+     */
+    const long PROGRESS_NOT_APPLICABLE = -1;
 };
 
 /**

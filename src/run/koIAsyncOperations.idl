@@ -37,7 +37,7 @@
 #include "nsISupports.idl"
 #include "nsIVariant.idl"
 
-[scriptable, uuid(efa88a1b-34f0-48b1-8e11-f0e5b6eb32bf)]
+[function, scriptable, uuid(efa88a1b-34f0-48b1-8e11-f0e5b6eb32bf)]
 interface koIAsyncCallback: nsISupports {
         // Results for the callback function call
     const long RESULT_SUCCESSFUL = 0;

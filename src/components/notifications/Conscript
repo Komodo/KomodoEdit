@@ -22,3 +22,5 @@ $cons->BuildAndInstallXpt('koINotification.idl');
 $cons->BuildAndInstallXpt('koINotificationManager.idl');
 $cons->InstallXpcomComponent('koNotificationManager.py');
 $cons->Install($komodoPythonUtilsDir, 'koNotification.py');
+$cons->BuildAndInstallXpt('koINotificationAsyncCallbackAdapter.idl');
+$cons->InstallXpcomComponent('koNotificationAsyncCallbackAdapter.py');

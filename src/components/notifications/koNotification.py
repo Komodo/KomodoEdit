@@ -193,7 +193,10 @@ class KoNotificationActionable(KoNotificationBase):
 class KoNotificationProgress(KoNotificationBase):
     """Mixin to implement koINotificationProgress"""
     def __init__(self): pass
-    maxProgress = _createProperty("_maxProgress", 0, lambda self, v: v > 0)
+    maxProgress = _createProperty("_maxProgress", 0,
+                                  lambda self, v: v in (Ci.koINotificationProgress.PROGRESS_INDETERMINATE,
+                                                        Ci.koINotificationProgress.PROGRESS_NOT_APPLICABLE) or
+                                                  v > 0)
     progress = _createProperty("_progress", 0,
                                lambda self, v: v >= 0 and v <= self.maxProgress)
 
