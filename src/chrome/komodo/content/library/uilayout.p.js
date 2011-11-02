@@ -58,14 +58,14 @@ this.toggleToolbarVisibility = function uilayout_toggleToolbarVisibility(toolbar
     /**
      * @type {Node}
      */
-    var toolbaritem = document.getElementById(toolbarId);
-    if (!toolbaritem) {
-        _log.error("Couldn't find toolbaritem: " + toolbarId);
+    var toolbar = document.getElementById(toolbarId);
+    if (!toolbar) {
+        _log.error("Couldn't find toolbar: " + toolbarId);
         return;
     }
-    var broadcasterId = toolbaritem.getAttribute('broadcaster');
+    var broadcasterId = toolbar.getAttribute('broadcaster');
     if (!broadcasterId) {
-        _log.info("No broadcaster associated with toolbaritem: " + toolbarId);
+        _log.info("No broadcaster associated with toolbar: " + toolbarId);
         return;
     }
     var broadcaster = document.getElementById(broadcasterId);
@@ -73,47 +73,14 @@ this.toggleToolbarVisibility = function uilayout_toggleToolbarVisibility(toolbar
         _log.error("Couldn't find broadcaster: " + broadcasterId);
         return;
     }
-    if (toolbaritem.getAttribute("kohidden") == "true") {
-        toolbaritem.setAttribute("kohidden", "false");
+    if (toolbar.getAttribute("kohidden") == "true") {
+        toolbar.setAttribute("kohidden", "false");
         broadcaster.setAttribute("checked", "true");
     } else {
-        toolbaritem.setAttribute("kohidden", "true");
+        toolbar.setAttribute("kohidden", "true");
         broadcaster.setAttribute("checked", "false");
     }
-
-    // Check whether to hide the toolbox row.
-    if (toolbaritem.nodeName == "toolbar") {
-        // If this is an actual toolbar, such as the open/find toolbar then
-        // we don't need to check the child contents.
-        return;
-    }
-    /**
-     * @type {Node}
-     */
-    var toolbar = toolbaritem.parentNode;
-    while (toolbar && toolbar.nodeName != "toolbar") {
-        dump('toolbar.nodeName: ' + toolbar.nodeName + '\n');
-        toolbar = toolbaritem.parent;
-    }
-    if (!toolbar) {
-        _log.warn("Could not find the parent toolbar for: " + toolbarId);
-        return;
-    }
-    var child;
-    var all_hidden = true;
-    for (var i=0; i < toolbar.childNodes.length; i++) {
-        child = toolbar.childNodes.item(i);
-        if (!child.hasAttribute("kohidden") ||
-            child.getAttribute("kohidden") == "false") {
-            all_hidden = false;
-            break;
-        }
-    }
-    if (all_hidden) {
-        toolbar.setAttribute("hidden", "true");
-    } else {
-        toolbar.removeAttribute("hidden");
-    }
+    document.persist(toolbarId, "kohidden");
 }
 
 // 'toolbarId' is the id of the toolbar that should be affected
@@ -199,13 +166,12 @@ this.customizeToolbars = function uilayout_customizeToolbars(aToolbox) {
         // #if PLATFORM == "darwin"
         this._updateToolbarClasses(toolbox);
         // #endif
-        var toolbaritems = toolbars.reduce(function(p, c) p.concat([c].concat(Array.slice(c.childNodes))), []);
-        for each (var toolbaritem in toolbaritems) {
-            var broadcasterId = toolbaritem.getAttribute("broadcaster");
+        for each (var toolbar in toolbars) {
+            var broadcasterId = toolbar.getAttribute("broadcaster");
             if (broadcasterId) {
                 var broadcaster = document.getElementById(broadcasterId);
                 if (broadcaster) {
-                    if (toolbaritem.getAttribute("kohidden") == "true") {
+                    if (toolbar.getAttribute("kohidden") == "true") {
                         broadcaster.removeAttribute("checked");
                     } else {
                         broadcaster.setAttribute("checked", "true");
