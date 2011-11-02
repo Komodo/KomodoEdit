@@ -40,7 +40,7 @@
 from __future__ import with_statement
 
 import os
-from os.path import join, isabs, expanduser, normpath
+from os.path import abspath, islink, dirname, join, isabs, expanduser, normpath, realpath
 import sys
 import string, types
 import re
@@ -58,6 +58,7 @@ from koTreeView import TreeView
 import findlib2
 import textutils
 import langinfo
+import textinfo
 
 
 
@@ -82,7 +83,7 @@ ISciMoz = components.interfaces.ISciMoz
 # services setup in Find Service ctor
 gPrefSvc = None
 gLastErrorSvc = None
-
+_g_loaded_path_accessor = None
 
 
 #---- Runtime Environment
@@ -143,7 +144,8 @@ class _FindReplaceThread(threading.Thread):
 
     MAX_XUL_TREE_CELL_LENGTH = 256
     
-    def __init__(self, id, regex, repl, desc, paths, resultsMgr, env):
+    def __init__(self, id, regex, repl, desc, paths, resultsMgr, env,
+                 loaded_path_accessor=None):
         """Create a find/replace thread.
         
         @param id {string} the ID for this find/replace session
@@ -178,6 +180,7 @@ class _FindReplaceThread(threading.Thread):
 
         self._stopped = False # when true the processing thread should terminate
         self._reset_hit_cache()
+        self.loadedFileTextFactory = LoadedFileTextFactory(loaded_path_accessor)
 
     def stop(self):
         """Stop processing."""
@@ -188,7 +191,6 @@ class _FindReplaceThread(threading.Thread):
         # Rule: if self._stopped is true then this code MUST NOT use
         #       self.resultsMgrProxy or self.resultsViewProxy, because they
         #       may have been destroyed.
-
         errmsg = None
         self.num_hits = 0
         self.num_paths_with_hits = 0
@@ -233,7 +235,7 @@ class _FindReplaceThread(threading.Thread):
             fileStatusSvc = components.classes["@activestate.com/koFileStatusService;1"] \
                 .getService(components.interfaces.koIFileStatusService)
             fileStatusSvc.updateStatusForAllFiles(
-                components.interfaces.koIFileStatusChecker.REASON_FILE_CHANGED);
+                components.interfaces.koIFileStatusChecker.REASON_FILE_CHANGED)
 
     def _reset_hit_cache(self):
         self._r_types = []
@@ -265,7 +267,8 @@ class _FindReplaceThread(threading.Thread):
     def _find_in_paths(self, regex, paths):
         last_path_with_hits = None
         for event in findlib2.grep(regex, paths, env=self.env,
-                                   skip_filesizes_larger_than=self.skip_filesizes_larger_than):
+                                   skip_filesizes_larger_than=self.skip_filesizes_larger_than,
+                                   textInfoFactory=self.loadedFileTextFactory):
             if self._stopped:
                 return
 
@@ -285,6 +288,7 @@ class _FindReplaceThread(threading.Thread):
     def _replace_in_paths(self, regex, repl, desc, paths):
         for event in findlib2.replace(regex, repl, paths, summary=desc,
                                       skip_filesizes_larger_than=self.skip_filesizes_larger_than,
+                                      textInfoFactory=self.loadedFileTextFactory,
                                       env=self.env):
             if self._stopped:
                 return
@@ -309,7 +313,7 @@ class _FindReplaceThread(threading.Thread):
                 # Note: we must `event.commit()` before
                 # `self._cache_replace_hits()` because the former
                 # determines `event.rhits` that the latter needs
-                event.commit()
+                event.commit(loadedFileManager=self.loadedFileTextFactory)
                 self._cache_replace_hits(event, self.repl)
             self._report()
 
@@ -462,7 +466,7 @@ class _ConfirmReplacerInFiles(threading.Thread, TreeView):
     REPORT_EVERY_N_PATHS_WITH_HITS = 5
     REPORT_EVERY_N_PATHS_SEARCHED = 100
 
-    def __init__(self, regex, repl, desc, paths, controller, env):
+    def __init__(self, regex, repl, desc, paths, controller, env, loaded_path_accessor):
         threading.Thread.__init__(self, name="ConfirmReplacerInFiles")
         TreeView.__init__(self)
 
@@ -493,7 +497,7 @@ class _ConfirmReplacerInFiles(threading.Thread, TreeView):
         atomSvc = components.classes["@mozilla.org/atom-service;1"].\
                   getService(components.interfaces.nsIAtomService)
         self._warning_atom = atomSvc.getAtom("warning")
-
+        self.loadedFileTextFactory = LoadedFileTextFactory(loaded_path_accessor)
 
     def stop(self):
         self._stopped = True
@@ -512,6 +516,7 @@ class _ConfirmReplacerInFiles(threading.Thread, TreeView):
             for event in findlib2.replace(self.regex, self.repl,
                                           self.paths, summary=self.desc,
                                           skip_filesizes_larger_than=skip_filesizes_larger_than,
+                                          textInfoFactory=self.loadedFileTextFactory,
                                           env=self.env):
                 if self._stopped:
                     return
@@ -602,6 +607,8 @@ class _ConfirmReplacerInFiles(threading.Thread, TreeView):
     
         num_hits = 0
         num_paths_with_hits = 0
+        loadedFileTextFactory = LoadedFileTextFactory(_get_loaded_path_accessor(),
+                                                      need_proxy=False)
         try:
             for event in self.events:
                 if not isinstance(event, findlib2.ReplaceHitGroup):
@@ -625,7 +632,7 @@ class _ConfirmReplacerInFiles(threading.Thread, TreeView):
                     continue
 
                 # Make the actual changes on disk.
-                rgroup.commit()
+                rgroup.commit(loadedFileTextFactory)
                 num_paths_with_hits += 1
                 num_hits += rgroup.length
 
@@ -811,7 +818,12 @@ class _ConfirmReplacerInFiles(threading.Thread, TreeView):
         if isinstance(event, findlib2.SkipPath):
             properties.AppendElement(self._warning_atom)
 
-
+def _get_loaded_path_accessor():
+    global _g_loaded_path_accessor
+    if _g_loaded_path_accessor is None:
+        _g_loaded_path_accessor = components.classes["@activestate.com/koLoadedPathAccessor;1"].\
+            getService(components.interfaces.koILoadedPathAccessor)
+    return _g_loaded_path_accessor
 
 class _ReplaceUndoer(threading.Thread, TreeView):
     _com_interfaces_ = [components.interfaces.koIReplaceUndoer]
@@ -840,6 +852,7 @@ class _ReplaceUndoer(threading.Thread, TreeView):
         self.num_paths = 0
 
         self._lock = threading.RLock()  # A guard for `self.records`.
+        self.loadedFileTextFactory = LoadedFileTextFactory(_get_loaded_path_accessor())
 
     def stop(self):
         self._stopped = True
@@ -850,7 +863,8 @@ class _ReplaceUndoer(threading.Thread, TreeView):
                 return
 
             #TODO (later): Allow individual file errors, but still continue?
-            for event in findlib2.undo_replace(self.journal_id):
+            for event in findlib2.undo_replace(self.journal_id,
+                               loadedFileManager=self.loadedFileTextFactory):
                 if isinstance(event, findlib2.LoadJournal):
                     self.controllerProxy.set_summary(
                         "Undo %s in %s files." % (event.journal.summary,
@@ -883,7 +897,7 @@ class _ReplaceUndoer(threading.Thread, TreeView):
             fileStatusSvc = components.classes["@activestate.com/koFileStatusService;1"] \
                 .getService(components.interfaces.koIFileStatusService)
             fileStatusSvc.updateStatusForAllFiles(
-                components.interfaces.koIFileStatusChecker.REASON_FILE_CHANGED);
+                components.interfaces.koIFileStatusChecker.REASON_FILE_CHANGED)
 
     _last_report_num_paths = 0
     def _report(self, flush=False):
@@ -939,7 +953,151 @@ class _ReplaceUndoer(threading.Thread, TreeView):
             return "%s (%d replacements undone)" % (record.path, record.length)
 
 
+def _getKoReplaceHit(hit):
+    koHit = components.classes["@activestate.com/koFindReplaceHit;1"].\
+            createInstance(components.interfaces.koIFinderReplaceHit)
+    koHit.initialize(hit.start_pos,
+                     hit.end_pos,
+                     hit.start_line,
+                     hit.before,
+                     hit.after)
+    return koHit
 
+
+class LoadedFileTextFactory(object):
+    def __init__(self, loaded_path_accessor, need_proxy=True):
+        """
+        @param loaded_path_accessor {koILoadedPathAccessor} - object for getting
+           information about dirty loaded paths from Komodo instead of via textinfo.TextInfo()
+        """
+        viewSvc = components.classes["@activestate.com/koViewService;1"].getService()
+        dirtyDocs = [view.koDoc for view in viewSvc.getAllViews("editor")
+                     if (view.koDoc
+                         and view.koDoc.file
+                         and view.koDoc.file.isLocal
+                         and view.koDoc.isDirty)]
+        dirtyPaths = [koDoc.displayPath for koDoc in dirtyDocs]
+        self.dirtyDocInfo = {}
+        for koDoc in dirtyDocs:
+            if koDoc.displayPath not in self.dirtyDocInfo:
+                self.dirtyDocInfo[koDoc.displayPath] = {
+                    # If the user edits this document during a search, tough....
+                    # Komodo will show how things used to be
+                    'text': koDoc.getView().scimoz.text,
+                    'encoding': koDoc.encoding.python_encoding_name,
+                    'koDoc': koDoc,
+                }
+        if loaded_path_accessor:
+            if need_proxy:
+                self.loaded_path_accessor = loaded_path_accessor
+                self.loadedPathAccessorProxy = getProxyForObject(None,
+                     components.interfaces.koILoadedPathAccessor,
+                     loaded_path_accessor, PROXY_ALWAYS | PROXY_SYNC)
+            else:
+                self.loaded_path_accessor =\
+                    self.loadedPathAccessorProxy = loaded_path_accessor
+        else:
+            self.loaded_path_accessor = self.loadedPathAccessorProxy = None
+        
+    def init_from_path(self, path, follow_symlinks=True, env=None):
+        if follow_symlinks and islink(path):
+            path = realpath(path)
+        ti = textinfo.TextInfo.init_from_path(path, follow_symlinks=False, env=env)
+        if path in self.dirtyDocInfo:
+            docInfo = self.dirtyDocInfo[path]
+            ti.is_loaded_path = True
+            ti.text = docInfo['text']
+            ti.encoding = docInfo['encoding']
+        else:
+            ti.is_loaded_path = False
+        return ti
+
+    def _koDoc_from_path(self, path):
+        return self.dirtyDocInfo[path]['koDoc']
+
+    # This method can be called from a background thread, and needs
+    # to use the proxy
+    def applyChanges(self, path, after_text, changeHits):
+        changeHits = [_getKoReplaceHit(hit) for hit in reversed(changeHits)]
+        self.loadedPathAccessorProxy.applySetText(self._koDoc_from_path(path),
+                                                  after_text, changeHits)
+
+    def bufferHasChanged(self, path, after_md5sum):
+        return self.loadedPathAccessorProxy.bufferHasChanged(self._koDoc_from_path(path),
+                                                             after_md5sum)
+
+    def undoChanges(self, path):
+        self.loadedPathAccessorProxy.undoChanges(self._koDoc_from_path(path))
+
+class koLoadedPathAccessor:
+    """
+    This is a service used as a PyXPCOM proxy
+    """
+    _com_interfaces_ = [components.interfaces.koILoadedPathAccessor]
+    _reg_clsid_ = "{faa65697-6710-4c5e-a2d2-f1eaf9bd3e19}"
+    _reg_contractid_ = "@activestate.com/koLoadedPathAccessor;1"
+
+    def applySetText(self, koDoc, text, changeHits):
+        scimoz = koDoc.getView().scimoz
+        scimoz.beginUndoAction()
+        bailOut = False
+        try:
+            for hit in changeHits:
+                # Convert from character to byte coordinates
+                start_pos = scimoz.positionAtChar(0, hit.start_pos)
+                end_pos = scimoz.positionAtChar(0, hit.end_pos)
+                scimoz.targetStart = start_pos
+                scimoz.targetEnd = end_pos
+                targetReplacedText = scimoz.getTextRange(scimoz.targetStart,
+                                                         scimoz.targetEnd)
+                if targetReplacedText != hit.before:
+                    #log.debug("Expecting target text of %s, got %s",
+                    #          hit.before, targetReplacedText)
+                    bailOut = True
+                    break
+                scimoz.replaceTarget(len(hit.after), hit.after)
+        finally:
+            scimoz.endUndoAction()
+        if not bailOut:
+            return
+        #log.debug("Internal nuisance: have to replace text wholesale")
+                                                         
+        scimoz.beginUndoAction()
+        try:
+            currentPos = scimoz.currentPos
+            anchor = scimoz.anchor
+            firstVisibleLine = scimoz.firstVisibleLine
+            xOffset = scimoz.xOffset
+            selectionStart = scimoz.selectionStart
+            selectionEnd = scimoz.selectionEnd
+            scimoz.text = text
+            scimoz.currentPos = currentPos
+            scimoz.anchor = anchor
+            scimoz.selectionStart = selectionStart
+            scimoz.selectionEnd = selectionEnd
+            scimoz.firstVisibleLine = firstVisibleLine
+            scimoz.xOffset = xOffset
+        finally:
+            scimoz.endUndoAction()
+
+    def bufferHasChanged(self, koDoc, after_md5sum):
+        return md5(koDoc.getView().scimoz.text).hexdigest() != after_md5sum
+
+    def undoChanges(self, koDoc):
+        koDoc.getView().scimoz.undo()
+
+class KoFindReplaceHit:
+    _com_interfaces_ = [components.interfaces.koIFinderReplaceHit]
+    _reg_clsid_ = "{433cf3db-69b8-4627-8f6b-8f65d057fdbb}"
+    _reg_contractid_ = "@activestate.com/koFindReplaceHit;1"
+
+    def initialize(self, start_pos, end_pos, start_line, before, after):
+        self.start_pos = start_pos
+        self.end_pos = end_pos
+        self.start_line = start_line
+        self.before = before
+        self.after = after
+                        
 #---- find and replace components
 
 class KoFindResult(object):
@@ -1663,8 +1821,7 @@ class KoFindService(object):
             paths = UnwrapObject(context).paths
         else:
             assert context.type == koIFindContext.FCT_IN_FILES
-            paths = _paths_from_ko_info(self.options,
-                                        cwd=resultsMgr.context_.cwd)
+            paths = _paths_from_ko_info(self.options, cwd=context.cwd)
 
         t = _FindReplaceThread(id, regex, None, desc, paths, resultsMgr,
                                self.env)
@@ -1706,11 +1863,11 @@ class KoFindService(object):
             paths = UnwrapObject(context).paths
         else:
             assert context.type == koIFindContext.FCT_IN_FILES
-            paths = _paths_from_ko_info(self.options,
-                                        cwd=resultsMgr.context_.cwd)
+            paths = _paths_from_ko_info(self.options, cwd=context.cwd)
 
         t = _FindReplaceThread(id, regex, munged_repl, desc, paths,
-                               resultsMgr, self.env)
+                               resultsMgr, self.env,
+                               loaded_path_accessor=_get_loaded_path_accessor())
         self._threadMap[id] = t
         resultsMgr.searchStarted()
         self._threadMap[id].start()
@@ -1752,7 +1909,8 @@ class KoFindService(object):
             paths = _paths_from_ko_info(self.options, cwd=context.cwd)
 
         t = _ConfirmReplacerInFiles(regex, munged_repl, desc, paths,
-                                    controller, self.env)
+                                    controller, self.env,
+                                    _get_loaded_path_accessor())
         return t
 
     def undoreplaceallinfiles(self, journal_id, controller):

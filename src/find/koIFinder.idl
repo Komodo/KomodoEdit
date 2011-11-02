@@ -38,6 +38,7 @@
 #include "nsITreeView.idl"
 
 interface ISciMoz;
+interface koIDocument;
 interface koIFindSession;
 interface koIFindResultsTabManager;
 interface koIFindResultsView;
@@ -356,3 +357,44 @@ interface koIFindService : nsISupports {
     attribute koIFindOptions options;
 };
 
+[scriptable, uuid(f35485c9-a501-4d6b-98f3-f865b2ff0666)]
+interface koIFinderReplaceHit: nsISupports {
+    attribute PRUint32 start_pos;
+    attribute PRUint32 end_pos;
+    attribute PRUint32 start_line;
+    attribute wstring before;
+    attribute wstring after;
+
+    void initialize(in PRUint32 start_pos,
+                    in PRUint32 end_pos,
+                    in PRUint32 start_line,
+                    in AString before,
+                    in AString after);
+};
+
+[scriptable, uuid(d352066e-67ff-44a6-a192-9eb9e9be704a)]
+interface koILoadedPathAccessor: nsISupports {
+    // The main purpose of this interface is to give the find/replace
+    // background thread methods the ability to access and modify
+    // scimoz objects through a proxy, as they aren't threadsafe.
+    // Only the first method isn't trivial.
+    
+    // Apply text-changes to scimoz objects.
+    // The method can either walk the list of hits to apply changes one at a time,
+    // or it can simply replace the document with the supplied after_text object.
+    // Note that the hits should be provided in reverse document-order, because
+    // the locations in each hit are in terms of the pre-change locations, not the
+    // post-change.
+    void applySetText(in koIDocument koDoc,
+                      in AString after_text,
+                      in PRUint32 count,
+                      [array, size_is(count)] in koIFinderReplaceHit hits);
+
+
+    // These are simple wrappers used to get to the main thread via a
+    // background thread object.
+    boolean bufferHasChanged(in koIDocument koDoc,
+                             in wstring after_md5sum);
+    
+    void undoChanges(in koIDocument koDoc);
+};

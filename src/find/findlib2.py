@@ -38,8 +38,8 @@
 """A find/replace backend for Komodo."""
 
 import os
-from os.path import (expanduser, join, basename, splitext, exists, dirname,
-                     abspath, islink, normpath)
+from os.path import (expanduser, join, basename, exists, dirname,
+                     abspath, isdir, islink, lexists, normpath, realpath)
 import time
 import sys
 import re
@@ -127,6 +127,7 @@ def grep(regex, paths, files_with_matches=False,
          skip_filesizes_larger_than=None,
          first_on_line=False,
          includes=None, excludes=None,
+         textInfoFactory=None,
          env=None):
     """Grep for `regex` in the given paths.
 
@@ -151,6 +152,9 @@ def grep(regex, paths, files_with_matches=False,
         filters on textinfo data: (<textinfo-field>, <value>).
     @param excludes {list} is a sequence of 2-tuples defining exclude
         filters on textinfo data: (<textinfo-field>, <value>).
+    @param textInfoFactory {object}
+        either a standard textinfo.TextInfo object, or a
+        duck-type-equivalent object based on a loaded, modified document.
     @param env {runtime environment}
     """
     if log.isEnabledFor(logging.DEBUG):
@@ -168,8 +172,12 @@ def grep(regex, paths, files_with_matches=False,
                 yield SkipPath(path, "error determining file info: %s" % ex)
                 continue
         try:
-            ti = textinfo.TextInfo.init_from_path(path,
-                    follow_symlinks=True, env=env)
+            if textInfoFactory:
+                ti = textInfoFactory.init_from_path(path, follow_symlinks=True, env=env)
+            else:
+                ti = textinfo.TextInfo.init_from_path(path,
+                        follow_symlinks=True, env=env)
+                ti.is_loaded_path = False
         except EnvironmentError, ex:
             yield SkipPath(path, "error determining file info: %s" % ex)
             continue
@@ -212,7 +220,7 @@ def grep(regex, paths, files_with_matches=False,
             if files_with_matches:
                 yield PathHit(path)
                 break
-            hit = FindHit(path, ti.encoding, match, accessor)
+            hit = FindHit(path, ti.encoding, match, accessor, ti.is_loaded_path)
             if first_on_line:
                 line, _ = hit.line_num_range
                 if line == last_hit_line:
@@ -229,6 +237,7 @@ def replace(regex, repl, paths,
             skip_filesizes_larger_than=None,
             first_on_line=False,
             includes=None, excludes=None,
+            textInfoFactory=None,
             summary=None, env=None):
     """Make the given regex replacement in the given paths.
 
@@ -265,6 +274,9 @@ def replace(regex, repl, paths,
         filters on textinfo data: (<textinfo-field>, <value>).
     @param excludes {list} is a sequence of 2-tuples defining exclude
         filters on textinfo data: (<textinfo-field>, <value>).
+    @param textInfoFactory {object}
+        returns either a standard textinfo.TextInfo object, or returns a
+        duck-type-equivalent object based on a loaded, modified document.
     @param summary {str} an optional summary string for the replacement
         journal.
     @param env {runtime environment}
@@ -273,7 +285,9 @@ def replace(regex, repl, paths,
     grepper = grep(regex, paths, skip_unknown_lang_paths=True,
                    skip_filesizes_larger_than=skip_filesizes_larger_than,
                    first_on_line=first_on_line,
-                   includes=includes, excludes=excludes, env=env)
+                   includes=includes, excludes=excludes,
+                   textInfoFactory=textInfoFactory,
+                   env=env)
     for fhits in grouped_by_path(grepper):
         if not isinstance(fhits[0], Hit):
             yield fhits[0]
@@ -306,6 +320,7 @@ def replace(regex, repl, paths,
             after_text = regex.sub(repl, before_text)
         if before_text == after_text:
             continue
+            
 
         # If this is the first path, start the journal for this
         # replacment (for undo).
@@ -320,7 +335,7 @@ def replace(regex, repl, paths,
                               fhits, after_text, journal)
 
 
-def undo_replace(journal_id, dry_run=False):
+def undo_replace(journal_id, dry_run=False, loadedFileManager=None):
     """Undo the given replacement.
 
     For now the undo ability is the easy way out: it only works if none
@@ -348,7 +363,26 @@ def undo_replace(journal_id, dry_run=False):
 
     # 2. Ensure can complete the undo.
     changed_paths = []
-    for group in journal:
+
+    if loadedFileManager is None:
+        disk_based_groups = journal
+        dirty_buffer_groups = []
+    else:
+        disk_based_groups = []
+        dirty_buffer_groups = []
+        for group in journal:
+            if isinstance(group, JournalReplaceLoadedBufferRecord):
+                dirty_buffer_groups.append(group)
+            elif isinstance(group, JournalReplaceRecord):
+                disk_based_groups.append(group)
+            else:
+                raise FindError("Unknown kind of group")
+            
+    for group in dirty_buffer_groups:
+        if loadedFileManager.bufferHasChanged(group.path,
+                                              group.after_md5sum):
+            changed_paths.append(group.path)
+    for group in disk_based_groups:
         f = open(group.path, 'rb') #TODO: handle path being missing
         bytes = f.read()
         f.close()
@@ -364,7 +398,11 @@ def undo_replace(journal_id, dry_run=False):
     #TODO: Bullet-proof backups to '~/.frep/backups/<id>/<hash>' and
     #      restoration on any failure.
     paths_failing_sanity_check = []
-    for group in journal:
+    for group in dirty_buffer_groups:
+        loadedFileManager.undoChanges(group.path)
+        yield group
+            
+    for group in disk_based_groups:
         log.debug("undo changes to `%s'", group.path)
         f = codecs.open(group.path, 'rb', group.encoding)
         text = f.read()
@@ -628,11 +666,12 @@ class _HitWithAccessorMixin(object):
 
 
 class FindHit(Hit, _HitWithAccessorMixin):
-    def __init__(self, path, encoding, match, accessor):
+    def __init__(self, path, encoding, match, accessor, is_loaded_path=False):
         self.path = path
         self.encoding = encoding
         self.match = match
         self.accessor = accessor
+        self.is_loaded_path = is_loaded_path
 
     def __repr__(self):
         hit_summary = repr(self.match.group(0))
@@ -697,6 +736,13 @@ class ReplaceHit(Hit, _HitWithAccessorMixin):
         return "<ReplaceHit %s -> %s at %s#%s>" \
                % (before_summary, after_summary, self.path, self.start_line+1)
 
+class ChangeHit(object):
+    def __init__(self, findHit, replaceHit):
+        self.start_pos = findHit.start_pos
+        self.end_pos = findHit.end_pos
+        self.start_line = replaceHit.start_line
+        self.before = replaceHit.before
+        self.after = replaceHit.after
 
 class ReplaceHitGroup(Hit):
     """A group of ReplaceHit's for a single path. This class knows how
@@ -750,7 +796,7 @@ class ReplaceHitGroup(Hit):
             self._diff_cache = ''.join(diff_lines)
         return self._diff_cache
 
-    def commit(self):
+    def commit(self, loadedFileManager=None):
         """Log changes to the journal and make the replacements."""
         # Gather and log (to the journal) the data needed for undo:
         # - The file encoding (encoding).
@@ -785,23 +831,35 @@ class ReplaceHitGroup(Hit):
             end_pos = fhit.end_pos + pos_offset
             start_line = fhit.line_num_range[0] + line_offset
             line_offset += after.count('\n') - before.count('\n')
-
             rhit = ReplaceHit(self.path, before, after,
                               start_pos, end_pos, start_line,
                               fhit, accessor)
             self.rhits.append(rhit)
 
-        self.journal.add_replace_group(self.path, self.encoding,
-            before_md5sum, after_md5sum, self.rhits)
-
         # Apply the changes.
         #TODO: catch any exception and restore file (or
         #      create a backup somewhere) if write fails
-        f = codecs.open(self.path, 'wb', self.encoding)
-        try:
-            f.write(self.after_text)
-        finally:
-            f.close()
+        if not self.fhits[0].is_loaded_path:
+            self.journal.add_replace_group(self.path, self.encoding,
+                                           before_md5sum, after_md5sum,
+                                           self.rhits)
+            f = codecs.open(self.path, 'wb', self.encoding)
+            try:
+                f.write(self.after_text)
+            finally:
+                f.close()
+        else:
+            if not loadedFileManager:
+                raise FindError("Can't apply changes to loaded dirty file %s", self.path)
+            changeHits = []
+            for fhit, rhit in zip(self.fhits, self.rhits):
+                changeHit = ChangeHit(fhit, rhit)
+                changeHits.append(changeHit)
+            self.journal.add_replace_loaded_file_group(self.path,
+                                                       self.encoding,
+                                                       before_md5sum, after_md5sum,
+                                                       changeHits)
+            loadedFileManager.applyChanges(self.path, self.after_text, changeHits)
 
     #TODO: Figure out how this works with the other data bits.
     #      E.g., do we calc the diff before caching?
@@ -848,6 +906,8 @@ class JournalReplaceRecord(Event):
         else:
             return a
 
+class JournalReplaceLoadedBufferRecord(JournalReplaceRecord):
+    pass
 
 class Journal(list):
     """A replacement journal.
@@ -1021,6 +1081,15 @@ class Journal(list):
         #      test case for this!
         record = JournalReplaceRecord(path, encoding, before_md5sum,
                                       after_md5sum, rhits)
+        self.append(record)
+
+    def add_replace_loaded_file_group(self, path, encoding,
+                                      before_md5sum, after_md5sum, 
+                                      changeHits):
+        #TODO: Do I need eol-style here as well? Yes, I think so. Add a
+        #      test case for this!
+        record = JournalReplaceLoadedBufferRecord(path, encoding, before_md5sum,
+                                                  after_md5sum, changeHits)
         self.append(record)
 
     def close(self):
@@ -1387,9 +1456,6 @@ def paths_from_path_patterns(path_patterns, files=True, dirs="never",
 
     TODO: perf improvements (profile, stat just once)
     """
-    from os.path import basename, exists, isdir, join, normpath, abspath, \
-                        lexists, islink, realpath
-    from glob import glob
 
     assert not isinstance(path_patterns, basestring), \
         "'path_patterns' must be a sequence, not a string: %r" % path_patterns
