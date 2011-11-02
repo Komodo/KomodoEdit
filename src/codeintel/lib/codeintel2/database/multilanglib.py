@@ -52,9 +52,9 @@ import copy
 
 import ciElementTree as ET
 from codeintel2.common import *
+from codeintel2.database.langlibbase import LangDirsLibBase
 from codeintel2.database.langlib import LangZone
 from codeintel2 import util
-
 
 
 #---- globals
@@ -698,7 +698,7 @@ class MultiLangZone(LangZone):
 
 
 
-class MultiLangDirsLib(object):
+class MultiLangDirsLib(LangDirsLibBase):
     """A zone providing a view into an ordered list of dirs in a
     db/$multilang/... area of the db.
 
@@ -708,6 +708,7 @@ class MultiLangDirsLib(object):
     language.
     """
     def __init__(self, lang_zone, lock, lang, name, dirs, sublang):
+        LangDirsLibBase.__init__(self)
         self.lang_zone = lang_zone
         self._lock = lock
         self.mgr = lang_zone.mgr
@@ -717,7 +718,6 @@ class MultiLangDirsLib(object):
         self.sublang = sublang
         self.import_handler \
             = self.mgr.citadel.import_handler_from_lang(sublang)
-        self._have_ensured_scanned_from_dir_cache = {}
 
         # We keep a "weak" merged cache of blobname lookup for all dirs
         # in this zone -- where "weak" means that we verify a hit by
@@ -887,78 +887,6 @@ class MultiLangDirsLib(object):
             cplns += toplevelname_index.toplevel_cplns(
                 self.lang, prefix=prefix, ilk=ilk)
         return cplns
-
-    def ensure_all_dirs_scanned(self, ctlr=None):
-        """Ensure that all importables in this dir have been scanned
-        into the db at least once.
-
-        Note: This is identical to LangDirsLib.ensure_dir_scanned().
-        Would be good to share.
-        """
-        # TODO: Wrap with a progress notification - we know how many directories
-        #       are going to be scanned. We should be tieing the notification
-        #       with the controller/ui_handler somehow - as it's going to be
-        #       window specific.
-        #progressEvent = createProgressEvent(len(self.dirs))
-        #try:
-        for dir in self.dirs:
-            if ctlr and ctlr.is_aborted():
-                log.debug("ctlr aborted")
-                break
-            self.ensure_dir_scanned(dir, ctlr)
-            #progressEvent.incrementProgress(1)
-        #finally:
-        #    progressEvent.finished()
-
-    def ensure_dir_scanned(self, dir, ctlr=None):
-        """Ensure that all importables in this dir have been scanned
-        into the db at least once.
-
-        Note: This is identical to LangDirsLib.ensure_dir_scanned().
-        Would be good to share.
-        """
-        #TODO: should "self.lang" in this function be "self.sublang"?
-        if dir not in self._have_ensured_scanned_from_dir_cache:
-            event_reported = False
-            res_index = self.lang_zone.load_index(dir, "res_index", {})
-            importables = self._importables_from_dir(dir)
-            importable_values = [i[0] for i in importables.values()
-                                 if i[0] is not None]
-            for base in importable_values:
-                if ctlr and ctlr.is_aborted():
-                    log.debug("ctlr aborted")
-                    return
-                if base not in res_index:
-                    if not event_reported:
-                        self.lang_zone.db.report_event(
-                            "scanning %s files in '%s'" % (self.lang, dir))
-                        event_reported = True
-                    try:
-                        buf = self.mgr.buf_from_path(join(dir, base),
-                                                     lang=self.lang)
-                    except (EnvironmentError, CodeIntelError), ex:
-                        # This can occur if the path does not exist, such as a
-                        # broken symlink, or we don't have permission to read
-                        # the file, or the file does not contain text.
-                        continue
-                    if ctlr is not None:
-                        ctlr.info("load %r", buf)
-                    buf.scan_if_necessary()
-
-            # Remove scanned paths that don't exist anymore.
-            removed_values = set(res_index.keys()).difference(importable_values)
-            for base in removed_values:
-                if ctlr and ctlr.is_aborted():
-                    log.debug("ctlr aborted")
-                    return
-                if not event_reported:
-                    self.lang_zone.db.report_event(
-                        "scanning %s files in '%s'" % (self.lang, dir))
-                    event_reported = True
-                basename = join(dir, base)
-                self.lang_zone.remove_path(basename)
-
-            self._have_ensured_scanned_from_dir_cache[dir] = True
 
     def _importables_from_dir(self, dir):
         if dir not in self._importables_from_dir_cache:

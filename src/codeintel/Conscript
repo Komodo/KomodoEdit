@@ -159,6 +159,7 @@ my @codeintel2_database_files = (
     "lib/codeintel2/database/__init__.py",
     "lib/codeintel2/database/catalog.py",
     "lib/codeintel2/database/database.py",
+    "lib/codeintel2/database/langlibbase.py",
     "lib/codeintel2/database/langlib.py",
     "lib/codeintel2/database/multilanglib.py",
     "lib/codeintel2/database/projlib.py",
