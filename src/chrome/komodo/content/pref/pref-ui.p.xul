@@ -81,7 +81,83 @@
                 </vbox>
             </hbox>
         </groupbox>
-      
+
+        <groupbox id="ui.tabs.sidepanes.groupbox">
+            <caption label="&sidePaneTabStyles.caption;" />
+            <hbox id="ui.tabs.sidepanes.left.hbox"
+                  align="center">
+                <label id="ui.tabs.sidepanes.left.label"
+                       value="&uiPaneSidepanes.left.layout.label;" />
+                <menulist id="ui.tabs.sidepanes.left.layout"
+                          pref="true"
+                          prefattribute="value">
+                    <menupopup id="ui.tabs.sidepanes.left.menupopup">
+                        <menuitem id="ui.tabs.sidepanes.left.sidebar.menu"
+                                  label="&uiPaneSidebars.menuitem.label;"
+                                  value="sidebar"
+                                  />
+                        <menuitem id="ui.tabs.sidepanes.left.vertical.menu"
+                                  label="&uiPaneVerticalTabs.menuitem.label;"
+                                  value="vertical"
+                                  />
+                        <menuitem id="ui.tabs.sidepanes.left.horizontal.menu"
+                                  label="&uiPaneHorizontalTabs.menuitem.label;"
+                                  value="horizontal"
+                                  />
+                    </menupopup>
+                </menulist>
+            </hbox>
+    
+            <hbox id="ui.tabs.sidepanes.right.hbox"
+                  align="center">
+                <label id="ui.tabs.sidepanes.right.label"
+                       value="&uiPaneSidepanes.right.layout.label;" />
+                <menulist id="ui.tabs.sidepanes.right.layout"
+                          pref="true"
+                          prefattribute="value">
+                    <menupopup id="ui.tabs.sidepanes.right.menupopup">
+                        <menuitem id="ui.tabs.sidepanes.right.sidebar.menu"
+                                  label="&uiPaneSidebars.menuitem.label;"
+                                  value="sidebar"
+                                  />
+                        <menuitem id="ui.tabs.sidepanes.right.vertical.menu"
+                                  label="&uiPaneVerticalTabs.menuitem.label;"
+                                  value="vertical"
+                                  />
+                        <menuitem id="ui.tabs.sidepanes.right.horizontal.menu"
+                                  label="&uiPaneHorizontalTabs.menuitem.label;"
+                                  value="horizontal"
+                                  />
+                    </menupopup>
+                </menulist>
+            </hbox>
+    
+            <hbox id="ui.tabs.sidepanes.bottom.hbox"
+                  align="center">
+                <label id="ui.tabs.sidepanes.bottom.label"
+                       value="&uiPaneSidepanes.bottom.layout.label;" />
+                <menulist id="ui.tabs.sidepanes.bottom.layout"
+                          pref="true"
+                          prefattribute="value">
+                    <menupopup id="ui.tabs.sidepanes.bottom.menupopup">
+                        <menuitem id="ui.tabs.sidepanes.bottom.sidebar.menu"
+                                  label="&uiPaneSidebars.menuitem.label;"
+                                  value="sidebar"
+                                  />
+                        <!-- No need for vertical tabs on the bottom pane. -->
+                        <!--<menuitem id="ui.tabs.sidepanes.bottom.vertical.menu"-->
+                        <!--          label="&uiPaneVerticalTabs.menuitem.label;"-->
+                        <!--          value="vertical"-->
+                        <!--          />-->
+                        <menuitem id="ui.tabs.sidepanes.bottom.horizontal.menu"
+                                  label="&uiPaneHorizontalTabs.menuitem.label;"
+                                  value="horizontal"
+                                  />
+                    </menupopup>
+                </menulist>
+            </hbox>
+        </groupbox>
+
         <groupbox>
             <caption label="&mostRecentlyUsed.label;"/>
             <hbox align="center">
