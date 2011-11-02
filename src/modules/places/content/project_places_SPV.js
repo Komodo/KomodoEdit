@@ -177,6 +177,7 @@ this.initProjectsContextMenu = function(event, menupopup) {
             menuNode.setAttribute('collapsed', true);
             continue;
         }
+        menuNode.removeAttribute('collapsed');
         directive = menuNode.getAttribute('disableIf');
         if (directive) {
             if ((directive in selectionInfo) && selectionInfo[directive]) {
