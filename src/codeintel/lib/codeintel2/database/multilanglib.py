@@ -107,16 +107,6 @@ class MultiLangDirsLib(LangDirsLibBase):
     def get_dirs(self):
         return self.dirs
 
-    def get_basenames(self):
-        # TODO: Is this method even used? Of so, can we get a controller here?
-        self.ensure_all_dirs_scanned()
-        basenames = {}
-        for dir in self.dirs:
-            dbfile_from_blobname = lang_zone.dfb_from_dir(blobdir, self.sublang)
-            for key in dbfile_from_blobname:
-                basenames[key] = join(blobdir, key)
-        return basenames
-
     def has_blob(self, blobname, ctlr=None):
         dbsubpath = self._dbsubpath_from_blobname(blobname, ctlr=ctlr)
         return dbsubpath is not None

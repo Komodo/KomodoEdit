@@ -813,7 +813,6 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
         for lib in self.libs:
             blobs = None
             if isinstance(lib, (LangDirsLib, MultiLangDirsLib)):
-                #print "keys: %r" % (lib.get_basenames().keys(), )
                 blobs = lib.blobs_with_basename(requirename, ctlr=self.ctlr)
             elif isinstance(lib, CatalogLib):
                 blob = lib.get_blob(requirename)
