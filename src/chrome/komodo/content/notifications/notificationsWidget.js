@@ -44,19 +44,39 @@ this.onunload = (function NotificationsWidgetController_onunload() {
  */
 this.addNotification = (function NWC_addNotification(notification) {
   var elem = document.createElement("notification");
+  elem.identifier = notification.identifier;
+  elem.notification = notification;
   this.container.appendChild(elem);
+  elem.collapsed = !this.shouldShowItem(elem);
+  this.updateNotification(notification, elem);
+
+  // build a map of notifications to make removes faster
+  if (notification.identifier in this._map) {
+    this._map[notification.identifier].push(elem);
+  } else {
+    this._map[notification.identifier] = [elem];
+  }
+
+  // Limit the number of notifications
+  var maxItems = 50;
+  if (this.prefs.hasLongPref("notifications.ui.maxItems")) {
+    maxItems = this.prefs.getLongPref("notifications.ui.maxItems");
+  }
+  while (this.container.children.length > maxItems) {
+    this.removeNotification(this.container.firstChild.notification);
+  }
+}).bind(this);
+
+this.updateNotification = (function NWC_updateNotification(notification, elem) {
   elem.text = [notification.summary, notification.description]
               .filter(function(n) n).join(": ");
   elem.tags = notification.getTags();
-  elem.identifier = notification.identifier;
-  elem.notification = notification;
   elem.iconURL = notification.iconURL;
   elem.time = new Date(notification.time / 1000); // usec_per_msec
   elem.type = ["info", "warning", "error"][notification.severity];
   if (notification instanceof Ci.koINotificationText) {
     elem.details = notification.details;
   }
-  elem.collapsed = !this.shouldShowItem(elem);
   // progress information
   if (notification instanceof Ci.koINotificationProgress) {
     elem.maxProgress = notification.maxProgress;
@@ -76,22 +96,6 @@ this.addNotification = (function NWC_addNotification(notification) {
     for each (let action in Object.keys(actions)) {
       elem.removeAction(action);
     }
-  }
-
-  // build a map of notifications to make removes faster
-  if (notification.identifier in this._map) {
-    this._map[notification.identifier].push(elem);
-  } else {
-    this._map[notification.identifier] = [elem];
-  }
-
-  // Limit the number of notifications
-  var maxItems = 50;
-  if (this.prefs.hasLongPref("notifications.ui.maxItems")) {
-    maxItems = this.prefs.getLongPref("notifications.ui.maxItems");
-  }
-  while (this.container.children.length > maxItems) {
-    this.removeNotification(this.container.firstChild.notification);
   }
 }).bind(this);
 
@@ -117,20 +121,30 @@ this.removeNotification = (function NWC_removeNotification(notification) {
  * Handler for a notification change from the notification manager
  */
 this.onNotification = (function NWC_onNotification(notification, oldIndex, newIndex, reason) {
-  if (reason == Ci.koINotificationListener.REASON_UPDATED) {
-    if (notification instanceof Ci.koIStatusMessage && !notification.summary) {
-      // a status message with no text and no description - this is it being removed
-      // ignore this change, we'd rather keep the old text
-      return;
-    }
-  }
-  // unconditionally kill the old one if it exists
-  this.removeNotification(notification);
-  if (reason != Ci.koINotificationListener.REASON_REMOVED) {
-    // updated or added - add it (back) in
-    if (!notification.contxt || notification.contxt == parent) {
-      this.addNotification(notification);
-    }
+  switch (reason) {
+    case Ci.koINotificationListener.REASON_ADDED:
+      if (!notification.contxt || notification.contxt == parent) {
+        this.addNotification(notification);
+      }
+      break;
+    case Ci.koINotificationListener.REASON_UPDATED:
+      if (notification instanceof Ci.koIStatusMessage && !notification.summary) {
+        // a status message with no text and no description - this is it being removed
+        // ignore this change, we'd rather keep the old text
+        return;
+      }
+      var candidates = this._map[notification.identifier] || [];
+      for (var [index, elem] in Iterator(candidates)) {
+        if (elem.notification.contxt == notification.contxt) {
+          // found it
+          this.updateNotification(notification, elem);
+          break;
+        }
+      }
+      break;
+    case Ci.koINotificationListener.REASON_REMOVED:
+      this.removeNotification(notification);
+      break;
   }
 }).bind(this);
 

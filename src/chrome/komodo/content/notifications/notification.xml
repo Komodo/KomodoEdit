@@ -88,6 +88,7 @@
           this._timeVal = val;
           this._time.tooltipText = val.toLocaleString();
           this._time.textContent = val.toLocaleTimeString();
+          this.setAttribute("ordinal", val);
         </setter>
       </property>
 
@@ -232,16 +233,17 @@
         <parameter name="action"/>
         <body>
         <![CDATA[
-          var info;
+          var info, elem;
           if (action.identifier in this._actions) {
             // action update
             info = this._actions[action.identifier];
-            info.element.removeEventListener("command", info.listener, false);
+            elem = info.element;
+            elem.removeEventListener("command", info.listener, false);
           } else {
             // new action
             var container = 
               document.getAnonymousElementByAttribute(this, "anonid", "actions");
-            var elem = document.createElement("button");
+            elem = document.createElement("button");
             container.appendChild(elem);
             info = { element: elem };
             this._actions[action.identifier] = info
