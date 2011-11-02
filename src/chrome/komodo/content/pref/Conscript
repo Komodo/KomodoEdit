@@ -108,8 +108,6 @@ $cons->InstallInChrome('pref-intl.js');
 
 $cons->Preprocess('pref-ui.p.xul', 'pref-ui.xul');
 $cons->InstallInChrome('pref-ui.xul');
-$cons->Preprocess('pref-ui.p.js', 'pref-ui.js');
-$cons->InstallInChrome('pref-ui.js');
 
 $cons->InstallInChrome('pref-ui-tabs.xul');
 

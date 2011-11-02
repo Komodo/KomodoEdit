@@ -48,7 +48,7 @@
 <window xmlns:html="http://www.w3.org/1999/xhtml"
     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
     orient="vertical"
-    onload="PrefUI_OnLoad();">
+    onload="parent.hPrefWindow.onpageload();">
 
     <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
@@ -60,31 +60,6 @@
          as it adds a scrollbar when the contents are too long. -->
     <vbox id="ui-prefs-vbox" flex="1" class="autoscroll">
 
-        <groupbox orient="vertical">
-            <caption label="&toolbars.label;"/>
-        
-            <checkbox id="showTextButtons"
-                      label="&showButtonText.label;"
-                      broadcaster="cmd_toggleButtonText"
-                      oncommand="updateData('showTextButtons')"/>
-            <checkbox id="showStandardToolbar"
-                      label="&showStandardToolbar.label;"
-                      broadcaster="cmd_viewedittoolbar"
-                      oncommand="updateData('showStandardToolbar')"/>
-            <checkbox id="showFindToolbar"
-                      label="&showOpenFindToolbar.label;"
-                      broadcaster="cmd_viewfindtoolbar"
-                      oncommand="updateData('showFindToolbar')"/>
-            <checkbox id="showMacroToolbar"
-                      label="&showMacroToolbar.label;"
-                      broadcaster="cmd_viewmacrotoolbar"
-                      oncommand="updateData('showMacroToolbar')"/>
-            <checkbox id="showKomodoToolbar"
-                      label="&showKomodoResourcesToolbar.label;"
-                      broadcaster="cmd_viewkomodotoolbar"
-                      oncommand="updateData('showKomodoToolbar')"/>
-        </groupbox>
-      
         <groupbox orient="vertical">
             <caption label="&startPage.label;"/>
       

@@ -413,16 +413,11 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY settingOnlyAppliesWhenTheCursorStyleIsLine.tooltiptext "Setting only applies when the cursor style is line">
 <!ENTITY setupCommonKomodoFileAssociations.title "Setup Common Komodo File Associations">
 <!ENTITY shortNameYouWishToCallThisServerConnection.tooltiptext "Short name you wish to call this server connection.">
-<!ENTITY showButtonText.label "Show button text">
 <!ENTITY showEdgeLine.label "Draw the edge line column">
 <!ENTITY showEndOfLineCharacters.label "Show end-of-line (EOL) characters">
 <!ENTITY showIndentationGuides.label "Show indentation guides">
-<!ENTITY showKomodoResourcesToolbar.label "Show Komodo resources toolbar">
 <!ENTITY showKomodoStartPageOnStartup.label "Show Komodo Start Page on startup">
 <!ENTITY showLineNumbers.label "Show line numbers">
-<!ENTITY showMacroToolbar.label "Show macro toolbar">
-<!ENTITY showOpenFindToolbar.label "Show Open/Find toolbar">
-<!ENTITY showStandardToolbar.label "Show standard toolbar">
 <!ENTITY showWhitespaceCharacters.label "Show whitespace characters">
 <!ENTITY signatureBOM.label "Signature (BOM)">
 <!ENTITY signs.label "+/- signs">
