@@ -45,8 +45,13 @@
 
 <binding id="view-editor"
     extends="chrome://komodo/content/bindings/views-buffer.xml#view-buffer-base">
+
     <content orient="vertical">
         <xul:hbox anonid="view-toolbar-container">
+            <xul:scrollbox anonid="view-toolbar"
+                           class="view-toolbar"
+                           flex="1"
+                           />
             <xul:toolbarbutton anonid="overflow-toolbarbutton"
                                collapsed="true"
                                label="&#0187;">
@@ -62,6 +67,7 @@
                        mozcontext="editorContextMenu"/>
         <xul:ko-findbar anonid="findbar"/>
     </content>
+
     <implementation name="vieweditor" implements="koIScintillaView, koIBookmarkableView, ISciMozEvents, nsIObserver">
 
         <constructor>
@@ -218,6 +224,8 @@
             } else {
                 this.language = "Text";
             }
+
+            ko.viewtoolbar.encoding.updateLabel(this);
         ]]>
         </setter>
         </property>
@@ -537,10 +545,9 @@
                 }
                 break;
             case 'encoding_changed':
-                // got notification from document, update the statusbar
-                if (this.isCurrent) {
-                    xtk.domutils.fireEvent(window, 'current_view_encoding_changed');
-                }
+                // Got notification from koIDocument, update the view toolbar.
+                ko.viewtoolbar.encoding.updateLabel(this);
+                xtk.domutils.fireEvent(window, 'current_view_encoding_changed');
                 break;
             case 'ySlop':
                 //multi-window: this applies to all windows, as it's a pref
