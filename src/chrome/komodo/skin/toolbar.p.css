@@ -69,7 +69,7 @@ toolbarbutton {
 toolbar[kohidden="true"],
 toolbarbutton[kohidden="true"]
 {
-    visibility: collapse;
+    display: none;
 }
 
 #main-toolboxrow toolbarbutton {

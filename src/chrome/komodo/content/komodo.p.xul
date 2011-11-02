@@ -1619,7 +1619,7 @@
                     class="chromeclass-toolbar"
                     toolboxid="toolbox_main"
                     align="center"
-                    persist="hidden collapsed buttonstyle"
+                    persist="kohidden collapsed buttonstyle"
                     buttonstyle="pictures"
                     grippyhidden="true"
                     customizable="true"
@@ -1740,7 +1740,7 @@
                          grippyhidden="true"
                          customizable="true"
                          align="center"
-                         persist="hidden collapsed buttonstyle"
+                         persist="kohidden collapsed buttonstyle"
                          buttonstyle="pictures"
                          tooltiptext="&toolsToolbar.tooltiptext;">
                     <toolbarbutton id="buttonBrowserPreview"
@@ -1760,7 +1760,7 @@
                          grippyhidden="true"
                          customizable="true"
                          align="center"
-                         persist="hidden collapsed buttonstyle"
+                         persist="kohidden collapsed buttonstyle"
                          buttonstyle="pictures"
                          tooltiptext="&workspaceToolbar.tooltiptext;">
                     <toolbarbutton id="toggleLeftPane"
@@ -1805,8 +1805,8 @@
                          grippyhidden="true"
                          customizable="true"
                          align="center"
-                         hidden="true"
-                         persist="hidden collapsed buttonstyle"
+                         kohidden="true"
+                         persist="kohidden collapsed buttonstyle"
                          buttonstyle="pictures"
                          tooltiptext="&macroToolbar.tooltiptext;">
                     <toolbarbutton id="macroRecord"
@@ -1852,7 +1852,7 @@
                          customizable="true"
                          align="center"
                          class="chromeclass-toolbar"
-                         persist="hidden collapsed buttonstyle"
+                         persist="kohidden collapsed buttonstyle"
                          buttonstyle="pictures"
                          tooltiptext="&komodoResourcesToolbar.tooltiptext;">
                     <toolbarbutton id="komodoButtonCommunity"
@@ -1891,9 +1891,9 @@
         </hbox>
         <toolbar id="findToolbar"
                  align="start"
-                 hidden="true"
+                 kohidden="true"
                  broadcaster="cmd_viewfindtoolbar"
-                 persist="hidden collapsed buttonstyle"
+                 persist="kohidden collapsed buttonstyle"
                  tooltiptext="&openFindToolbar.tooltiptext;"
                 >
           <toolbaritem id="findToolbaritem"

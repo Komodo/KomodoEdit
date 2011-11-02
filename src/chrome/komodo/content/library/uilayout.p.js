@@ -49,6 +49,7 @@ var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
 var XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
 
 var _log = ko.logging.getLogger('uilayout');
+_log.setLevel(ko.logging.LOG_DEBUG);
 
 // Toggle the visibility of the specified toolbar,
 // along with the corresponding broadcaster if it exists.
@@ -1404,6 +1405,7 @@ this.onload = function uilayout_onload()
     _prefobserver = new _PrefObserver();
     _prefobserver.init();
     _updateAccesskeys();
+    _updateHiddenToolbars();
     ko.main.addWillCloseHandler(ko.uilayout.unload);
 }
 
@@ -1510,6 +1512,28 @@ function _enableAccesskey(elt, enable) {
         if (elt.hasAttribute('accesskey')) {
             elt.setAttribute('_accesskey', elt.getAttribute('accesskey'));
             elt.removeAttribute('accesskey');
+        }
+    }
+}
+
+/**
+ * Change from use "hidden" attribute to using the "kohidden" attribute.
+ *
+ * Note: This function can be dropped in Komodo 7.1.
+ */
+function _updateHiddenToolbars()
+{
+    var mainToolbox = document.getElementById("toolbox_main");
+    var toolbars = mainToolbox.getElementsByTagName('toolbar');
+    for (var i=0; i < toolbars.length; i++ ) {
+        if (toolbars[i].getAttribute("hidden")) {
+            if (toolbars[i].getAttribute("hidden") == "true") {
+                toolbars[i].setAttribute("kohidden", "true");
+            } else {
+                toolbars[i].setAttribute("kohidden", "false");
+            }
+            toolbars[i].removeAttribute("hidden");
+            _log.debug("Migrating hidden toolbar " + toolbars[i].id);
         }
     }
 }
