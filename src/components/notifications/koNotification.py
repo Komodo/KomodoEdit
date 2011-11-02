@@ -198,7 +198,9 @@ class KoNotificationProgress(KoNotificationBase):
                                                         Ci.koINotificationProgress.PROGRESS_NOT_APPLICABLE) or
                                                   v > 0)
     progress = _createProperty("_progress", 0,
-                               lambda self, v: v >= 0 and v <= self.maxProgress)
+                               lambda self, v: v >= 0 and (self.maxProgress in (Ci.koINotificationProgress.PROGRESS_INDETERMINATE,
+                                                                                Ci.koINotificationProgress.PROGRESS_NOT_APPLICABLE) or
+                                                           v <= self.maxProgress))
 
 class KoNotificationText(KoNotificationBase):
     """Mixin to implement koINotificationText"""

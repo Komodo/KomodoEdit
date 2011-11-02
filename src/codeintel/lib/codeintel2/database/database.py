@@ -607,6 +607,7 @@ class Database(object):
         Guidelines:
         - report an event before doing a *long* action (e.g. importing a
           stdlib CIX file)
+        - report None when that long action is completed
         """
         log.info("event: %s", desc)
         if self.event_reporter:

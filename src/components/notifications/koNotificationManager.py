@@ -41,26 +41,27 @@ class KoNotificationManager:
             return aObject
 
     def _wrap(self, aObject, aInterface=None):
-        sip = getattr(self, "__sip", None)
-        if sip is None:
-            sip = components.classes["@mozilla.org/supports-interface-pointer;1"]\
-                            .createInstance(Ci.nsISupportsInterfacePointer)
-            setattr(self, "__sip", sip)
+        # note that we can't cache sip on the manager because multiple threads
+        # may attempt to wrap at once, and that leads to a race
+        assert aObject, "Can't wrap nothing"
+        sip = components.classes["@mozilla.org/supports-interface-pointer;1"]\
+                        .createInstance(Ci.nsISupportsInterfacePointer)
         sip.data = aObject
         result = sip.data
         sip.data = None
+        assert result, "Failed to get XPCOM-wrapped notification for %r" % (aObject,)
         if aInterface is not None:
             result.QueryInterface(aInterface)
         return result
 
     def _notify(self, aNotification, aReason, aOldIndex=None, aNewIndex=None):
-        assert not self._lock.locked(), \
-            "KoNotificationManager::_notify called with lock held!"
+        # This should be called with the lock _not_ held; however, we can't
+        # assert that the lock isn't held by any thread (since it may be locked
+        # by a different thread).
 
         # always use wrapped notifications
         aNotification = self._wrap(aNotification)
 
-        # make a copy of the listeners to deal with things removing themselves
         if aOldIndex is None:
             aOldIndex = -1
 
@@ -73,6 +74,7 @@ class KoNotificationManager:
                         aNewIndex = -1
                 except ValueError:
                     aNewIndex = -1
+            # make a copy of the listeners to deal with things removing themselves
             listeners = list(self._listeners)
 
         log.debug("Notifying: notification %r, reason %r, index %r -> %r",
@@ -83,9 +85,11 @@ class KoNotificationManager:
         self._notifier.push(listeners, aNotification, aOldIndex, aNewIndex, aReason)
 
     def addNotification(self, aNotification):
+        assert aNotification, "Can't add no notification"
         reason = components.interfaces.koINotificationListener.REASON_ADDED
         aNotification = self._wrap(aNotification, Ci.koINotification)
         removed = []
+        
         with self._lock:
             try:
                 oldIndex = self._notifications.index(aNotification)
@@ -190,6 +194,8 @@ class KoNotificationManager:
         # all supported interfaces and let PyXPCOM cache the wrappers.
         notification = KoNotification(aIdentifier, aTags, context, aTypes, self)
         interfaces = notification._com_interfaces_
+        assert Ci.koINotification in interfaces, \
+            "createNotification created a KoNotification that is not a koINotification"
         notification = self._wrap(notification)
         for interface in interfaces:
             notification.QueryInterface(interface)

@@ -455,6 +455,7 @@ class Manager(threading.Thread, Queue):
                     pass
             finally:
                 self._curr_eval_sess = None
+        self.db.report_event(None)
     
     def _handle_eval_sess_error(self, eval_sess):
         exc_info = sys.exc_info()

@@ -53,6 +53,7 @@ import operator
 from bisect import bisect_left
 import traceback
 import shutil
+from collections import defaultdict
 
 from xpcom import components, nsError, ServerException, COMException
 from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC, getProxyForObject
@@ -240,6 +241,11 @@ class KoCodeIntelEnvironment(Environment):
         if name not in self._pref_observer_callbacks_from_name:
             log.debug("%s: start observing '%s' pref", self, name)
             for prefset in self.prefsets:
+                try:
+                    prefset.QueryInterface(components.interfaces.koIPreferenceObserver)
+                except COMException:
+                    # doesn't support the pref observer interface?
+                    continue
                 prefset.prefObserverService.addObserver(
                     self, name, 0)
 
@@ -911,6 +917,7 @@ class KoCodeIntelDBPreloader(threading.Thread):
                 errmsg = "Error preloading DB: %s" % ex
                 errtext = traceback.format_exc()
         finally:
+            self._mgr.db.report_event(None)
             self.controller.done(errmsg, errtext)
 
     def progress_cb(self, desc, value):
@@ -928,6 +935,152 @@ class KoCodeIntelDBPreloader(threading.Thread):
             self.controller.set_progress_value(scaled_value)
 
 
+
+class KoCodeIntelEventReporter(object):
+    """An event reporter object to report on code intel progress
+    """
+    def __init__(self):
+        obsSvc = components.classes["@mozilla.org/observer-service;1"]\
+            .getService(components.interfaces.nsIObserverService)
+        self._proxiedObsSvc = getProxyForObject(1,
+            components.interfaces.nsIObserverService,
+            obsSvc, PROXY_ALWAYS | PROXY_ASYNC)
+
+        # hash of (unicode: dir name) ->
+        #    [int: number of outstanding scans, bool: scanned]
+        self._dirs = defaultdict(lambda: list([0, False]))
+
+    def __call__(self, msg):
+        """Old-style status messages before long-running jobs
+        @param msg {str} The message to display
+        """
+        if not msg and len(self._dirs):
+            # there are new-style scans outstanding; don't do anything
+            return
+        self._sendStatusMessage(msg)
+
+    @property
+    def _notification(self):
+        if hasattr(self, "__notification"):
+            return getattr(self, "__notification")
+        nm = components.classes["@activestate.com/koNotification/manager;1"]\
+                       .getService(components.interfaces.koINotificationManager)
+        n = nm.createNotification("codeintel-status-message",
+                                  ["codeintel"],
+                                  None,
+                                  components.interfaces.koINotificationManager.TYPE_PROGRESS |
+                                    components.interfaces.koINotificationManager.TYPE_STATUS)
+        n.log = True
+        setattr(self, "__notification", n)
+        setattr(self, "_nm", nm)
+        return n
+
+    def _sendStatusMessage(self, msg, highlight=0, timeout=5000):
+        koINP= components.interfaces.koINotificationProgress
+        if msg is None:
+            if self._notification.maxProgress == koINP.PROGRESS_NOT_APPLICABLE:
+                # it's already done; don't refresh the notification
+                return
+            self._notification.maxProgress = koINP.PROGRESS_NOT_APPLICABLE
+        else:
+            self._notification.maxProgress = koINP.PROGRESS_INDETERMINATE
+            self._notification.msg = msg
+            self._notification.timeout = timeout
+            self._notification.highlight = highlight
+
+        try:
+            if msg is None:
+                # don't send as a status bar message, there's no text to update
+                self._nm.addNotification(self._notification)
+            else:
+                self._proxiedObsSvc.notifyObservers(self._notification, "status_message", None)
+        except COMException, ex:
+            pass
+
+    def onScanStarted(self, description, dirs=set()):
+        """Called when a directory scan is about to start
+        @param description {unicode} A string suitable for showing the user
+            about the upcoming operation
+        @param dirs {set of unicode} The directories about to be scanned
+        """
+        log.debug("onScanStarted: started scanning %r dirs: [%s]",
+                  len(dirs), description)
+        assert dirs, "onScanStarted expects non-empty directories"
+        if not dirs: # empty set - we shouldn't have gotten here, but be nice
+            return
+        for dir in dirs:
+            self._dirs[dir][0] += 1
+        if len(self._dirs) < 2:
+            # use indeterminate for one item, since jumping from empty progress
+            # bar to full (and invisible) is useless
+            self._notification.maxProgress = \
+                components.interfaces.koINotificationProgress.PROGRESS_INDETERMINATE
+        else:
+            self._notification.maxProgress = len(self._dirs)
+            self._notification.progress = \
+                reduce(lambda p, v: p + v[1], self._dirs.values(), 0)
+        self._notification.msg = description
+        try:
+            self._proxiedObsSvc.notifyObservers(self._notification, "status_message", None)
+        except COMExecption:
+            pass
+
+    def onScanDirectory(self, description, dir, current=None, total=None):
+        """Called when a directory is being scanned (out of possibly many)
+        @param description {unicode} A string suitable for showing the user
+                regarding the progress
+        @param dir {unicode} The directory currently being scanned
+        @param current {int} The current progress
+        @param total {int} The total number of directories to scan in this
+                request
+        """
+        assert dir, "onScanDirectory got no directory"
+        if not dir: # shouldn't happen, but be nice
+            return
+        self._dirs[dir][1] = True
+        self._notification.maxProgress = len(self._dirs)
+        self._notification.progress = \
+            reduce(lambda p, v: p + v[1], self._dirs.values(), 0)
+        self._notification.msg = description
+        log.debug("onScanDirectory: scanning %r [%s] %r/%r",
+                  dir, description, self._notification.progress, len(self._dirs))
+        try:
+            self._proxiedObsSvc.notifyObservers(self._notification, "status_message", None)
+        except COMException:
+            pass
+
+    def onScanComplete(self, dirs, scanned=set()):
+        """Called when a scan operation is complete
+        @param dirs {set of unicode} The directories that were intially
+                requested to be scanned (as pass in onScanStarted)
+        @param scanned {set of unicode} Directories which were successfully
+                scanned.  This may be a subset of dirs if the scan was aborted.
+        """
+        log.debug("onScanComplete: scanned %r/%r dirs",
+                  len(scanned), len(dirs))
+        for dir in dirs:
+            self._dirs[dir][0] -= 1
+            if self._dirs[dir][0] < 1:
+                del self._dirs[dir]
+        if self._dirs:
+            # there are outstanding scans from other scans
+            self._notification.maxProgress = len(self._dirs)
+            self._notification.progress = \
+                reduce(lambda p, v: p + v[1], self._dirs.values(), 0)
+        else:
+            # all done
+            self._notification.maxProgress = \
+                components.interfaces.koINotificationProgress.PROGRESS_NOT_APPLICABLE
+        try:
+            if self._dirs:
+                self._proxiedObsSvc.notifyObservers(self._notification,
+                                                    "status_message", None)
+            else:
+                # since we're not updating the message, don't send it to
+                # the status bar.
+                self._nm.addNotification(self._notification)
+        except COMException:
+            pass
 
 class KoCodeIntelService:
     _com_interfaces_ = [components.interfaces.koICodeIntelService,
@@ -959,19 +1112,15 @@ class KoCodeIntelService:
         self.mgr = KoCodeIntelManager(
             os.path.join(self._koDirSvc.userDataDir, "codeintel"),
             extension_pylib_dirs=extension_pylib_dirs,
-            db_event_reporter=self._reportDBEvent,
+            db_event_reporter=KoCodeIntelEventReporter(),
             db_catalog_dirs=list(self._genDBCatalogDirs()))
 
         obsSvc = components.classes["@mozilla.org/observer-service;1"]\
             .getService(components.interfaces.nsIObserverService)
-        self._proxiedObsSvc = getProxyForObject(1,
-            components.interfaces.nsIObserverService,
-            obsSvc, PROXY_ALWAYS | PROXY_ASYNC)
         self.partSvc = components.classes["@activestate.com/koPartService;1"]\
             .getService(components.interfaces.koIPartService)
 
-        self._wrappedSelf = WrapObject(self, components.interfaces.nsIObserver)
-        obsSvc.addObserver(self._wrappedSelf, 'quit-application', True)
+        obsSvc.addObserver(self, 'quit-application', True)
 
     def _genDBCatalogDirs(self):
         """Yield all possible dirs in which to look for API Catalogs.
@@ -983,9 +1132,6 @@ class KoCodeIntelService:
             yield join(extensionDir, "apicatalogs")             # user-install exts
         yield join(self._koDirSvc.commonDataDir, "apicatalogs")  # site/common
         # factory: handled by codeintel system (codeintel2/catalogs/...)
-
-    def _reportDBEvent(self, desc):
-        self._sendStatusMessage(desc)
 
     def needToUpgradeDB(self):
         """Return true if the db needs to be upgraded. Raise an
@@ -1039,6 +1185,9 @@ class KoCodeIntelService:
         try:
             if topic == 'quit-application':
                 self._deactivate()
+                obsSvc = components.classes["@mozilla.org/observer-service;1"]\
+                    .getService(components.interfaces.nsIObserverService)
+                obsSvc.removeObserver(self, topic)
         except Exception, e:
             log.exception("Unexpected error observing notification.")
 
@@ -1140,18 +1289,6 @@ class KoCodeIntelService:
         return self.mgr.getAdjustedCurrentScope(scimoz, position)[:3]
     def getAdjustedCurrentScopeInfo(self, scimoz, position):
         return self.mgr.getAdjustedCurrentScopeInfo(scimoz, position)
-
-    def _sendStatusMessage(self, msg, highlight=0, timeout=5000):
-        sm = components.classes["@activestate.com/koStatusMessage;1"]\
-             .createInstance(components.interfaces.koIStatusMessage)
-        sm.category = "codeintel"
-        sm.msg = msg
-        sm.timeout = timeout
-        sm.highlight = highlight
-        try:
-            self._proxiedObsSvc.notifyObservers(sm, "status_message", None)
-        except COMException, ex:
-            pass
 
 #XXX Obsolete
 #    def getMembers(self, language, path, line, citdl, explicit,

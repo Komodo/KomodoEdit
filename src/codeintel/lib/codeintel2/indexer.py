@@ -609,6 +609,8 @@ class Indexer(threading.Thread):
                 assert isinstance(lib, (LangDirsLib, MultiLangDirsLib))
                 lib.ensure_all_dirs_scanned()
 
+            self.mgr.db.report_event(None)
+
         finally:
             if isinstance(request, ScanRequest):
                 request.complete(status)

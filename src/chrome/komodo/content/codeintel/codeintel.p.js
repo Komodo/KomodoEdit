@@ -939,6 +939,30 @@ ko.codeintel = {};
         }
     }
     
+
+    /**
+     * a koINotification used for this completion UI
+     */
+    Object.defineProperty(this.CompletionUIHandler.prototype, "_notification", {
+        get: function() {
+            var nm = Cc["@activestate.com/koNotification/manager;1"]
+                       .getService(Ci.koINotificationManager)
+            var n = nm.createNotification("codeintel-status-message",
+                                          ["codeintel"],
+                                          1,
+                                          window,
+                                          Ci.koINotificationManager.TYPE_STATUS |
+                                            Ci.koINotificationManager.TYPE_PROGRESS);
+            n instanceof Ci.koIStatusMessage;
+            n instanceof Ci.koINotificationProgress;
+            n.maxProgress = Ci.koINotificationProgress.PROGRESS_NOT_APPLICABLE;
+            n.log = true;
+            n.timeout = 4000;
+            return n;
+        },
+        configurable: true,
+        enumerable: true,
+    });
     
     // XXX WARNING these setXXX functions are called via sync proxy from a python
     // thread in koCodeIntel.py.  To prevent blocking on the ui thread, do
@@ -949,8 +973,13 @@ ko.codeintel = {};
     this.CompletionUIHandler.prototype.setStatusMessage = function(
         msg, highlight)
     {
-        window.setTimeout(ko.statusBar.AddMessage, 1, msg, "codeintel", 4000,
-                          highlight);
+        setTimeout((function() {
+            var n = this._notification;
+            n.msg = msg;
+            n.highlight = highlight;
+            n.maxProgress = Ci.koINotificationProgress.PROGRESS_NOT_APPLICABLE;
+            ko.statusBar.AddMessage(n);
+        }).bind(this), 0);
     }
     
     this.CompletionUIHandler.prototype.setAutoCompleteInfo = function(

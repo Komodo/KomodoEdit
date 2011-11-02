@@ -36,6 +36,8 @@
 
 (function() {
 
+    const Ci = Components.interfaces;
+    var {XPCOMUtils} = Components.utils.import("resource://gre/modules/XPCOMUtils.jsm", {});
     var log = ko.logging.getLogger('hyperlinks::GotoDefinition');
 
     /**
@@ -417,13 +419,8 @@
     var GotoDefinitionUIHandler = function() {
     }
 
-    GotoDefinitionUIHandler.prototype.QueryInterface = function(iid) {
-        if (iid.equals(Components.interfaces.koICodeIntelCompletionUIHandler) ||
-            iid.equals(Components.interfaces.nsISupports)) {
-            return this;
-        }
-        throw Components.results.NS_ERROR_NO_INTERFACE;
-    }
+    GotoDefinitionUIHandler.prototype.QueryInterface =
+        XPCOMUtils.generateQI([Ci.koICodeIntelCompletionUIHandler]);
     GotoDefinitionUIHandler.prototype.setStatusMessage = function() {
         // Do nothing...
     }

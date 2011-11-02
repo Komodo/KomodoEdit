@@ -417,6 +417,7 @@ function _updateMessage()
         } else {
             messageWidget.removeAttribute("highlite");
         }
+        _lastNotification = sm;
     } else {
         var notifications = ko.notifications.getNotifications([window, null], 2);
         notifications =
@@ -725,6 +726,10 @@ this.ClearCheck = function() { _clearCheck(); }
  *  ko.statusBar.addMessage("hello there", "my_category", 3000, true)
  */
 this.AddMessage = function(msg, category, timeout, highlight, interactive, log /* true */) {
+    if (msg && (msg instanceof Ci.koIStatusMessage)) {
+        // this is already a message object
+        return _addMessageObject(msg);
+    }
     if (typeof(log) == "undefined") log = !interactive;
     return _addMessage(msg, category, timeout, highlight, interactive, log);
 };
