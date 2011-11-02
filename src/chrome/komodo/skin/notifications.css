@@ -116,3 +116,8 @@ notification:not(:-moz-any([details][open])) [anonid="details"] {
   -moz-transition-property: height;
   -moz-transition-duration: 40ms;
 }
+
+notification button[action-id="stop"],
+notification button[action-id="abort"] {
+  list-style-image: url("chrome://global/skin/icons/error-16.png");
+}

@@ -251,6 +251,7 @@
           elem.image = action.iconURL;
           elem.collapsed = !action.visible;
           elem.disabled = !action.enabled;
+          elem.setAttribute("action-id", action.identifier);
           info.action = action;
           info.listener = (function() {
               action.handler.handleAction(this.notification, action.identifier);
