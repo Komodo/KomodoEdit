@@ -1,5 +1,4 @@
 #komodo_main[chromehidden~="toolbar"][chromehidden~="location"][chromehidden~="directories"] {
-  border-top: 1px solid rgba(0,0,0,0.65);
   -moz-appearance: none;
   background-color: #C9C9C9;
 }
@@ -18,12 +17,15 @@
   -moz-appearance: none;
 }
 
-#main-toolboxrow,
+#main-toolboxrow
+{
+  border-style: none;
+}
 #main-toolboxrow > toolbar,
 #main-toolboxrow > toolbaritem,
 #findToolbar > toolbaritem
 {
-  border: none;
+  border-style: none;
   /* height same as background image */
   height: 31px;
 }

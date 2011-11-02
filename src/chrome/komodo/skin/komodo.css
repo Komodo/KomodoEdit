@@ -71,7 +71,6 @@ toolbar[printpreview="true"] {
 
 #main-toolboxrow {
   min-width: 1px;
-  min-height: 19px;
   -moz-appearance: toolbar;
   border-top: 1px solid ThreeDHighlight;
   border-bottom: 1px solid ThreeDShadow;
