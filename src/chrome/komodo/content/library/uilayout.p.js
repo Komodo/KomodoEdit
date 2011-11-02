@@ -49,7 +49,7 @@ var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
 var XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
 
 var _log = ko.logging.getLogger('uilayout');
-_log.setLevel(ko.logging.LOG_DEBUG);
+//_log.setLevel(ko.logging.LOG_DEBUG);
 
 // Toggle the visibility of the specified toolbar,
 // along with the corresponding broadcaster if it exists.
