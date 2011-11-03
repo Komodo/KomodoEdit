@@ -997,8 +997,10 @@
               <File Id="file1471" Name="webapps.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\webapps.xpt"/>
               <File Id="file1472" Name="XPCOM__6.XPT" LongName="xpcom_threads.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\xpcom_threads.xpt"/>
               <File Id="file3844" Name="KOINOT_0.XPT" LongName="koINotification.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koINotification.xpt"/>
+              <File Id="file891" Name="KOINOT_2.XPT" LongName="koINotificationAsyncCallbackAdapter.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koINotificationAsyncCallbackAdapter.xpt" />
               <File Id="file3881" Name="KOINOT_1.XPT" LongName="koINotificationManager.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koINotificationManager.xpt"/>
               <File Id="file3905" Name="KOISCI_3.XPT" LongName="koIScintillaAutoCompleteController.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIScintillaAutoCompleteController.xpt"/>
+              <File Id="file892" Name="KONOTI_1.PY" LongName="koNotificationAsyncCallbackAdapter.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koNotificationAsyncCallbackAdapter.py" />
               <File Id="file3909" Name="KONOTI_0.PY" LongName="koNotificationManager.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koNotificationManager.py"/>
               <File Id="file3910" Name="KOSCIN_0.JS" LongName="koScintillaAutoCompleteController.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koScintillaAutoCompleteController.js"/>
               <File Id="file890" Name="KOMEMO_0.PY" LongName="koMemoryReporter.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koMemoryReporter.py" />
@@ -1901,7 +1903,7 @@
                 <File Id="file599" Name="SGMLOP_1.EGG" LongName="sgmlop-1.1.1_20040207-py2.6.egg-info" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\sgmlop-1.1.1_20040207-py2.6.egg-info"/>
                 <File Id="file609" Name="SILVER_1.EGG" LongName="SilverCity-0.9.5-py2.6.egg-info" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\SilverCity-0.9.5-py2.6.egg-info"/>
                 <File Id="file299" Name="mozutils.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\mozutils.py" />
-
+                <File Id="file2956" Name="KONOTI_2.PY" LongName="koNotification.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\koNotification.py" />
 <?if $(var.WithCrypto) = "yes" ?>
                 <File Id="file554" LongName="pycrypto-2.3-py2.6.egg-info" Name="PYCRYP_0.EGG" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\pycrypto-2.3-py2.6.egg-info" />
                 <File Id="file710" LongName="ctypesutils.py" Name="CTYPES_0.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\ctypesutils.py" />
@@ -1996,6 +1998,7 @@
                     <File Id="file14" Name="catalog.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\database\catalog.py" />
                     <File Id="file216" Name="database.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\database\database.py" />
                     <File Id="file217" Name="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\database\__init__.py" />
+                    <File Id="file3838" Name="LANGLI_0.PY" LongName="langlibbase.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\database\langlibbase.py" />
                     <File Id="file218" Name="langlib.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\database\langlib.py" />
                     <File Id="file250" LongName="multilanglib.py" Name="MULTIL_0.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\database\multilanglib.py" />
                     <File Id="file219" Name="projlib.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\database\projlib.py" />
@@ -5358,6 +5361,7 @@
               <File Id="file3916" Name="KOINOT_0.IDL" LongName="koINotification.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koINotification.idl"/>
               <File Id="file3917" Name="KOINOT_1.IDL" LongName="koINotificationManager.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koINotificationManager.idl"/>
               <File Id="file3918" Name="KOISCI_3.IDL" LongName="koIScintillaAutoCompleteController.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIScintillaAutoCompleteController.idl"/>
+              <File Id="file3840" Name="KOINOT_2.IDL" LongName="koINotificationAsyncCallbackAdapter.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koINotificationAsyncCallbackAdapter.idl" />
 <?if $(var.MozMajorVersion) = "4" ?>
               <File Id="file4124" Name="NSIDOM_0.IDL" LongName="nsIDOM3DocumentEvent.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIDOM3DocumentEvent.idl"/>
               <File Id="file4125" Name="NSIDOM_1.IDL" LongName="nsIDOM3EventTarget.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\nsIDOM3EventTarget.idl"/>
