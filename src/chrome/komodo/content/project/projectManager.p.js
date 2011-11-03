@@ -1112,7 +1112,16 @@ projectManager.prototype.addItem = function(/* koIPart */ part, /* koIPart */ pa
                 return false;
         }
         parent.addChild(part);
+        if (ko.places) {
+            var treeOwner = (this.single_project_view
+                             ? ko.places.projects_SPV
+                             : ko.places.projects);
+            // Ensure the added item is visible, bug 71373.
+            // Broken with v7 work: bug 91491 (SPV only?)
+            treeOwner.refreshParentShowChild(parent, part);
+        }
         window.updateCommands('project_dirty');
+        
         return true;
     } catch(e) { }
     return false;

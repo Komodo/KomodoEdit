@@ -503,35 +503,27 @@ class KPFTreeView(TreeView):
                 node = self._rows[index].part
 
         # if we get a part, we just refresh that
-        if node:
-            # remove the children from the rows
-            sibling = self.getNextSiblingIndex(index)
-            self._rows = self._rows[:index+1] + self._rows[sibling:]
-            #print "rowCountChanged(%d, %d)" %(index+1, (index+1) - sibling)
-            self._tree.rowCountChanged(index+1, (index+1) - sibling)
-            changed = 1
-
-        if changed:
-            num_rows = len(self._rows)
-            if len(self._rows) != num_rows:
-                #print "rowCountChanged(%d, %d)" % (index+1, len(self._rows) - num_rows)
-                self._tree.rowCountChanged(index+1, len(self._rows) - num_rows)
-            # Ensure the toggle state is correctly redrawn, fixes bug:
-            #   http://bugs.activestate.com/show_bug.cgi?id=71942
-            self._tree.invalidateRow(index)
-
-            # Restore the treeview position back to how it originally was
-            if firstVisiblePart:
-                index = self._getIndexByPart(firstVisiblePart)
-                if index >= 0:
-                    #print "Scrolling to firstVisiblePart: %d" % (index)
-                    self._tree.scrollToRow(index)
-                elif firstVisibleRow < len(self._rows):
-                    #print "Scrolling to firstVisibleRow: %d" % (firstVisibleRow)
-                    self._tree.scrollToRow(firstVisibleRow)
-            # Restore the selections
-            if selectedParts:
-                self.selectParts(selectedParts)
+        if not node:
+            log.debug("No node for part %s", part.name)
+            return -1
+        
+        if self.isContainerOpen(index):
+            # bink the parent node so we can see the new children
+            self.toggleOpenState(index)
+            self.toggleOpenState(index)
+            
+        # Restore the treeview position back to how it originally was
+        if firstVisiblePart:
+            index = self._getIndexByPart(firstVisiblePart)
+            if index >= 0:
+                #print "Scrolling to firstVisiblePart: %d" % (index)
+                self._tree.scrollToRow(index)
+            elif firstVisibleRow < len(self._rows):
+                #print "Scrolling to firstVisibleRow: %d" % (firstVisibleRow)
+                self._tree.scrollToRow(firstVisibleRow)
+        # Restore the selections
+        if selectedParts:
+            self.selectParts(selectedParts)
 
         return retval
 

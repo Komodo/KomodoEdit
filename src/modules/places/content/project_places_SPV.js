@@ -93,6 +93,12 @@ this.load_MRU_Projects = function() {
     }
 };
 
+this.refreshParentShowChild = function(parentPart, newPart) {
+    ko.places.projects.refreshParentShowChildWithTreeview(parentPart, newPart,
+                                                          this.projectsTree,
+                                                          this.projectsTreeView);
+};
+
 this.removeUnopenedProject = function(url) {
     // Remove the URI, if found
     var part = this.projectsTreeView.getRowItemByURI(url)

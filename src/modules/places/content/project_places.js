@@ -376,9 +376,9 @@ this.copyNewItemMenu = function(targetNode, targetPrefix) {
     }
 };
 
-this.refreshParentShowChild = function(parentPart, newPart) {
+this.refreshParentShowChildWithTreeview = function(parentPart, newPart,
+                                                   projectsTree, treeview) {
     // Expand the extracted folder part and then select it.
-    var treeview = this.projectsTreeView
     treeview.refresh(parentPart);
     var parentPartIndex = treeview.getIndexByPart(parentPart);
     if (parentPartIndex == -1) {
@@ -398,7 +398,13 @@ this.refreshParentShowChild = function(parentPart, newPart) {
         return;
     }
     treeview.selection.select(childPartIndex);
-    this.projectsTree.treeBoxObject.ensureRowIsVisible(childPartIndex);
+    projectsTree.treeBoxObject.ensureRowIsVisible(childPartIndex);
+};
+
+this.refreshParentShowChild = function(parentPart, newPart) {
+    this.refreshParentShowChildWithTreeview(parentPart, newPart,
+                                            this.projectsTree,
+                                            this.projectsTreeView);
 };
 
 this.terminate = function() {

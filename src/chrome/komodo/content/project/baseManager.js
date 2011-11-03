@@ -435,9 +435,6 @@ this.invalidateItem = function invalidateItem(item)
 this.addItem = function(item, parent) {
     var manager = ko.projects.manager;
     manager.addItem(item,parent);
-    // Ensure the added item is visible, bug 71373.
-    var partindex = ko.projects.active.getIndexByPart(item);
-    manager.viewMgr.tree.treeBoxObject.ensureRowIsVisible(partindex);
 }
 
 this._toolboxParts = ['macro', 'snippet', 'command', 'template',
