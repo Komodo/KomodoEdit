@@ -1,0 +1,78 @@
+# HG changeset patch
+# Parent f96994886d3420ddad841350dc58f06996ecc387
+# User Mook <marky@activestate.com>
+# Date 1320272987 25200
+bug 91513 - file pickers on Windows Vista+ are using XP-style ones
+
+patches adapted from mozilla bug 665987 and bug 684506
+http://hg.mozilla.org/mozilla-central/rev/bd9dd7e4c7ff
+http://hg.mozilla.org/mozilla-central/rev/2b84c0ca82b6
+
+diff --git a/widget/src/windows/nsFilePicker.cpp b/widget/src/windows/nsFilePicker.cpp
+--- a/widget/src/windows/nsFilePicker.cpp
++++ b/widget/src/windows/nsFilePicker.cpp
+@@ -295,28 +295,38 @@ NS_IMETHODIMP nsFilePicker::ShowW(PRInt1
+     MOZ_SEH_TRY {
+       if (mMode == modeOpen) {
+         // FILE MUST EXIST!
+         ofn.Flags |= OFN_FILEMUSTEXIST;
+         result = ::GetOpenFileNameW(&ofn);
+       }
+       else if (mMode == modeOpenMultiple) {
+         ofn.Flags |= OFN_FILEMUSTEXIST | OFN_ALLOWMULTISELECT | 
+-                     OFN_EXPLORER | OFN_ENABLEHOOK;
++                     OFN_EXPLORER;
+ 
+         // The hook set here ensures that the buffer returned will always be
+-        // long enough to hold all selected files.  The hook may modify the
++        // large enough to hold all selected files.  The hook may modify the
+         // value of ofn.lpstrFile and deallocate the old buffer that it pointed
+         // to (fileBuffer). The hook assumes that the passed in value is heap 
+         // allocated and that the returned value should be freed by the caller.
+         // If the hook changes the buffer, it will deallocate the old buffer.
+-        ofn.lpfnHook = FilePickerHook;
+-        fileBuffer.forget();
+-        result = ::GetOpenFileNameW(&ofn);
+-        fileBuffer = ofn.lpstrFile;
++        // This fix would be nice to have in Vista and up, but it would force
++        // the file picker to use the old style dialogs because hooks are not
++        // allowed in the new file picker UI.  We need to eventually move to
++        // the new Common File Dialogs for Vista and up.
++        if (nsWindow::GetWindowsVersion() < VISTA_VERSION) {
++          ofn.Flags |= OFN_ENABLEHOOK;
++          ofn.lpfnHook = FilePickerHook;
++          fileBuffer.forget();
++          result = ::GetOpenFileNameW(&ofn);
++          fileBuffer = ofn.lpstrFile;
++        }
++        else {
++          result = ::GetOpenFileNameW(&ofn);
++        }
+       }
+       else if (mMode == modeSave) {
+         ofn.Flags |= OFN_NOREADONLYRETURN;
+ 
+         // Don't follow shortcuts when saving a shortcut, this can be used
+         // to trick users (bug 271732)
+         NS_ConvertUTF16toUTF8 ext(mDefault);
+         ext.Trim(" .", PR_FALSE, PR_TRUE); // watch out for trailing space and dots
+@@ -350,16 +360,19 @@ NS_IMETHODIMP nsFilePicker::ShowW(PRInt1
+                   MB_ICONERROR);
+       result = PR_FALSE;
+     }
+ 
+     if (result) {
+       // Remember what filter type the user selected
+       mSelectedType = (PRInt16)ofn.nFilterIndex;
+ 
++      // Clear out any files from previous Show calls
++      mFiles.Clear();
++
+       // Set user-selected location of file or directory
+       if (mMode == modeOpenMultiple) {
+         
+         // from msdn.microsoft.com, "Open and Save As Dialog Boxes" section:
+         // If you specify OFN_EXPLORER,
+         // The directory and file name strings are NULL separated, 
+         // with an extra NULL character after the last file name. 
+         // This format enables the Explorer-style dialog boxes
