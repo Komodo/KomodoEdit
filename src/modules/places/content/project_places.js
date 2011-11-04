@@ -470,10 +470,13 @@ this.initProjectsContextMenu = function(event, menupopup) {
 this._processProjectsMenu_TopLevel = function(menuNode) {
     var selectionInfo = this._selectionInfo;
     var itemTypes = selectionInfo.itemTypes;
-    if (ko.places.matchAnyType(menuNode.getAttribute('hideIf'), itemTypes)) {
+    var directive;
+    if (!!(directive = menuNode.getAttribute('hideIf'))
+        && ko.places.matchAnyType(directive, itemTypes)) {
         menuNode.setAttribute('collapsed', true);
         return; // No need to do anything else
-    } else if (!ko.places.matchAllTypes(menuNode.getAttribute('hideUnless'), itemTypes)) {
+    } else if (!!(directive = menuNode.getAttribute('hideUnless'))
+               && !ko.places.matchAnyType(directive, itemTypes)) {
         menuNode.setAttribute('collapsed', true);
         return; // No need to do anything else
     }
@@ -497,9 +500,11 @@ this._processProjectsMenu_TopLevel = function(menuNode) {
     var disableNode = false;
     if (selectionInfo.noneSelected) {
         disableNode = true;
-    } else if (ko.places.matchAnyType(menuNode.getAttribute('disableIf'), itemTypes)) {
+    } else if (!!(directive = menuNode.getAttribute('disableIf'))
+               && ko.places.matchAnyType(directive, itemTypes)) {
         disableNode = true;
-    } else if (!ko.places.matchAllTypes(menuNode.getAttribute('disableUnless'), itemTypes)) {
+    } else if (!!(directive = menuNode.getAttribute('disableUnless'))
+               && !ko.places.matchAnyType(directive, itemTypes)) {
         disableNode = true;
     }
     if (!disableNode) {

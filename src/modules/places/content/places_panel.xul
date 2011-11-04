@@ -443,7 +443,7 @@
       <menuitem id="folder_context_remoteFolder"
                 label="&existingRemoteFolder.label;"
                 class="menuitem-iconic"
-		accesskey="&existingRemoteFolder.accesskey;"
+                accesskey="&existingRemoteFolder.accesskey;"
                 image="chrome://famfamfamsilk/skin/icons/folder_link.png"
                 oncommand="ko.places.projects.manager.addRemoteFolder(event, this);"
                 />
@@ -473,7 +473,7 @@
                 class="menuitem-iconic"
                 disableIf="projectIsOpen"
                 oncommand="ko.places.projects.openProjectInNewWindow();" 
-                hideUnless="root" />
+                hideUnless="root project" />
 
       <menuitem label="&showProjectInPlaces.label;"
                 id="menu_projCtxt_showProjectInPlaces"
@@ -592,6 +592,7 @@
       <menuitem id="menu_projCtxt_showInFinder"
                 label="&ShowInExplorer.label;"
                 class="menuitem-iconic"
+                disableIf="folder"
                 testDisableIf="t:multipleSelection t:isRemote"
                 oncommand="ko.places.projects.manager.showInFinder(event, this);" />
       <menuitem label="&remove.label;"
@@ -607,7 +608,8 @@
                 oncommand="ko.places.projects.editProjectProperties();"
                 accesskey="&projectProperties.accesskey;"
                 testDisableIf="t:multipleSelection"
-                hideUnless="project" />
+                hideIf="file folder livefolder"
+                disableUnless="project" />
     </menupopup>
     
     <menupopup id="placesSubpanelProjectsContextMenu_SPV"
@@ -621,6 +623,9 @@
       revert
       add
       ======
+      show in finder
+      remove // files and groups only
+      ======
       open in a new window (if not open)
       open here (if not open)
       properties
@@ -628,53 +633,81 @@
       <menuitem label="&showProjectInPlaces.label;"
           id="menu_showProjectInPlaces_projectsContext"
           disableUnless="currentProject"
+          hideUnless="project unopened_project"
           oncommand="ko.places.projects_SPV.showProjectInPlaces();" />
       <menuitem label="&closeProject.label;"
           id="menu_closeProject_projectsContext"
+          hideUnless="project unopened_project"
           disableUnless="currentProject"
           oncommand="ko.places.projects_SPV.closeProject();" />
       <menuitem label="&saveProject.label;"
           id="menu_saveProject_projectsContext"
           disableUnless="projectIsDirty"
+          hideUnless="project unopened_project"
           oncommand="ko.places.projects_SPV.saveProject();" />
       <menuitem label="&saveProjectAs.label;"
           id="menu_saveProjectAs_projectsContext"
+          hideUnless="project unopened_project"
           disableUnless="currentProject"
           oncommand="ko.places.projects_SPV.saveProjectAs();" />
       <menuitem label="&renameProject.label;"
           id="menu_renameProject_projectsContext"
           class="menuitem-iconic"
+          hideUnless="project unopened_project"
           disableUnless="currentProject"
           oncommand="ko.places.projects_SPV.renameProject();" />
       <menuitem label="&revertProject.label;"
           id="menu_revertProject_projectsContext"
+          hideUnless="project unopened_project"
           disableUnless="projectIsDirty"
           oncommand="ko.places.projects_SPV.revertProject();" />
 
       <menu label="&add.label;"
             id="menu_addItemToProject_projectsContext"
             class="menu-iconic"
-            hideUnless="folder project">
+            hideIf="file livefolder"
+            disableIf="unopened_project" >
         <menupopup id="menu_addMenu_popup_projectsContext" />
       </menu>
-
-      <menuseparator id="menu_project_save_separator_projectsContext"/>
+      <!-- No need for a menuseparate here because everything above is for
+      projects or containers, and everything below is for
+      files and livefolders
+      -->
+      <menuitem label="&ShowInExplorer.label;"
+                id="menu_showInFinder_projectsContext"
+                class="menuitem-iconic"
+                disableIf="folder"
+                hideUnless="file livefolder folder"
+                testDisableIf="t:multipleSelection t:isRemote"
+                oncommand="ko.places.projects_SPV.manager.showInFinder(event, this);" />
+      <menuitem label="&remove.label;"
+                id="menu_removeItem_projectsContext"
+                class="menuitem-iconic"
+                hideUnless="file livefolder folder"
+                oncommand="ko.places.projects_SPV.manager.removeItems(event, this);" />
+      <menuseparator id="menu_project_remove_separator_projectsContext" 
+                     hideIf="file folder livefolder" />
 
       <menuitem label="&openProject.label;"
           id="menu_openProject_projectsContext"
+          hideIf="file folder livefolder"
+          disableIf="currentProject"
           oncommand="ko.places.projects_SPV.openProjectInCurrentWindow();" />
       <menuitem label="&openProjectInNewWindow.label;"
           id="menu_projectOpenProject_projectsContext"
-          disableIf="projectIsOpen"
+          hideIf="file folder livefolder"
+          disableIf="currentProject"
           oncommand="ko.places.projects_SPV.openProjectInNewWindow();" />
       <menuitem label="&removeProjectListing.label;"
           id="menu_removeProjectListing_projectsContext"
+          hideIf="file folder livefolder"
           disableIf="currentProject"
           oncommand="ko.places.projects_SPV.removeProjectListing();" />
 
-      <menuseparator id="menu_project_properties_separator_projectsContext"/>
+      <menuseparator id="menu_project_properties_separator_projectsContext" hideIf="file folder livefolder"/>
       <menuitem label="&properties.label;"
           id="menu_projectProperties_projectsContext"
+          hideIf="file folder livefolder"
           disableUnless="currentProject"
           oncommand="ko.places.projects_SPV.editProjectProperties();"
           accesskey="&projectProperties.accesskey;" />
@@ -687,12 +720,12 @@
     <menupopup id="projectPlacesCog_SortMenu">
         <menuitem id="projectPlacesSortAscending"
                   observes="cmd_sortProjectsAscending"
-		  label="&sortAscending.label;"
-		  />
+                  label="&sortAscending.label;"
+                  />
         <menuitem id="projectPlacesSortDescending"
                   observes="cmd_sortProjectsDescending"
-		  label="&sortDescending.label;"
-		  />
+                  label="&sortDescending.label;"
+                  />
         <menuseparator id="placesContextMenu_separatorSort" />
     </menupopup>
   </popupset>
