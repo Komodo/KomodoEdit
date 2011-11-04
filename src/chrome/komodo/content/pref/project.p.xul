@@ -289,181 +289,180 @@
                        oncommand="updateFilter(event);"
                        tooltiptext="&amp; koFilteredTreeView.tooltiptext;"/>
             <deck id="pref-deck" selectedIndex="0" flex="1">
-                <!-- tree sidebar -->
-                <tree id="prefsTree" style="min-width: 14em;"
-                      class="inset"
-                      persist="width"
-                      hidecolumnpicker="true" seltype="single"
-                      onselect="if( hPrefWindow ) hPrefWindow.switchPage();">
-        
-                    <treecols>
-                        <treecol id="category" primary="true"
-                                 class="treecell-header outset" url="__header"
-                                 label="&category.label;" flex="1"/>
-                    </treecols>
-        
-                    <treechildren id="panelChildren" flex="1">
-                        <treeitem container="false" id="fileProperties">
-                            <treerow>
-                                <treecell class="treecell-indent"
-                                          url="chrome://komodo/content/pref/file-properties.xul"
-                                          label="&properties.label;"/>
-                            </treerow>
-                        </treeitem>
-        
-        
-                        <treeitem container="true" id="editorProperties">
-                            <treerow>
-                                <treecell class="treecell-indent"
-                                          url="chrome://komodo/content/pref/pref-editor.xul"
-                                          label="&editor.label;"
-                                          helptag="editor"/>
-                            </treerow>
-                            <treechildren id="editingChildren">
-                                <treeitem container="false" id="indentationProperties">
-                                    <treerow>
-                                        <treecell class="treecell-indent"
-                                                  url="chrome://komodo/content/pref/pref-indentation.xul"
-                                                  label="&indentation.label;"
-                                                  helptag="indentation"/>
-                                    </treerow>
-                                </treeitem>
-                                <treeitem container="false" id="editsmartItem">
-                                    <treerow>
-                                        <treecell class="treecell-indent"
-                                                  url="chrome://komodo/content/pref/pref-editsmart.xul"
-                                                  label="&smartEditing.label;"
-                                                  helptag="smart_editing"/>
-                                    </treerow>
-                                </treeitem>
-                            </treechildren>
-                        </treeitem>
-                        <treeitem container="false" id="syntaxCheckingItem">
-                            <treerow>
-                                <treecell class="treecell-indent"
-                                          url="chrome://komodo/content/pref/pref-syntax-checking.xul"
-                                          label="&syntaxChecking.label;"
-                                          helptag="syntax_checking"/>
-                            </treerow>
-                        </treeitem>
-                        <treeitem container="false" id="internationalItem">
-                            <treerow>
-                                <treecell class="treecell-indent"
-                                          url="chrome://komodo/content/pref/pref-intl.xul"
-                                          label="&internationalization.label;"
-                                          helptag="internationalization_preferences"/>
-                            </treerow>
-                        </treeitem>
-        
-                        <treeitem container="false" id="environItem">
-                            <treerow>
-                                <treecell class="treecell-indent"
-                                          url="chrome://komodo/content/pref/pref-environ.xul"
-                                          label="&environment.label;"/>
-                            </treerow>
-                        </treeitem>
-        
-                        <treeitem container="false" id="previewProperties">
-                            <treerow>
-                                <treecell class="treecell-indent"
-                                          url="chrome://komodo/content/pref/preview-properties.xul"
-                                          label="&browserPreview.label;"/>
-                            </treerow>
-                        </treeitem>
-        
-                        <treeitem container="false" id="advancedFileProperties">
-                            <treerow>
-                                <treecell class="treecell-indent"
-                                          url="chrome://komodo/content/pref/file-advanced-properties.xul"
-                                          label="&fileAdvancedProperties.label;"/>
-                            </treerow>
-                        </treeitem>
-        
-                        <treeitem container="true" id="languagesItem" persist="open">
-                            <treerow>
-                                <treecell class="treecell-indent" label="&languages.label;"
-                                          url="chrome://komodo/content/pref/pref-languages.xul"
-                                          helptag="language_configuration_preferences"/>
-                            </treerow>
-                            <treechildren id="languagesChildren">
-                                <treeitem container="false" id="javascriptItem">
-                                    <treerow>
-                                        <treecell class="treecell-indent"
-                                                  url="chrome://komodo/content/pref/pref-javascript.xul"
-                                                  label="&javaScript.label;"
-                                                  helptag="javascript_configuration"/>
-                                    </treerow>
-                                </treeitem>
-                                <treeitem container="false" id="nodejsItem">
-                                    <treerow>
-                                        <treecell class="treecell-indent"
-                                                  url="chrome://komodo/content/pref/pref-nodejs.xul"
-                                                  label="&nodejs.label;"
-                                                  helptag="nodejs_configuration"/>
-                                    </treerow>
-                                </treeitem>
-                                <treeitem container="false" id="perlItem">
-                                    <treerow>
-                                        <treecell class="treecell-indent"
-                                                  url="chrome://komodo/content/pref/pref-perl.xul"
-                                                  label="&perl.label;"
-                                                  helptag="perl_configuration"/>
-                                    </treerow>
-                                </treeitem>
-                                <treeitem container="false" id="phpItem">
-                                    <treerow>
-                                        <treecell class="treecell-indent"
-                                                  url="chrome://komodo/content/pref/pref-php.xul"
-                                                  label="&PHP.label;"
-                                                  helptag="php_configuration"/>
-                                    </treerow>
-                                </treeitem>
-                                <treeitem container="false" id="pythonItem">
-                                    <treerow>
-                                        <treecell class="treecell-indent"
-                                                  url="chrome://komodo/content/pref/pref-python.xul"
-                                                  label="&python.label;"
-                                                  helptag="python_configuration"/>
-                                    </treerow>
-                                </treeitem>
-                                <treeitem container="false" id="python3Item">
-                                    <treerow>
-                                        <treecell class="treecell-indent"
-                                                  url="chrome://komodo/content/pref/pref-python3.xul"
-                                                  label="&python3.label;"
-                                                  helptag="python_configuration"/>
-                                    </treerow>
-                                </treeitem>
-                                <treeitem container="false" id="rubyItem">
-                                    <treerow>
-                                        <treecell class="treecell-indent"
-                                                  url="chrome://komodo/content/pref/pref-ruby.xul"
-                                                  label="&ruby.label;"
-                                                  helptag="ruby_configuration"/>
-                                    </treerow>
-                                </treeitem>
-                              </treechildren>
-                        </treeitem>
-        
-                        <treeitem container="false" id="mappedURIsItem">
-                            <treerow>
-                                <treecell class="treecell-indent"
-                                          url="chrome://komodo/content/pref/pref-mappeduri.xul"
-                                          label="&mappedURIs.label;"
-                                          helptag="mapped_uris"/>
-                            </treerow>
-                        </treeitem>
-        <!--
-                        <treeitem container="false" id="newFilesItem">
-                            <treerow>
-                                <treecell class="treecell-indent"
-                                          url="chrome://komodo/content/pref/pref-newfiles.xul"
-                                          label="&newFiles.label;"/>
-                            </treerow>
-                        </treeitem>
-        -->
-                    </treechildren>
-                </tree>
+               <!-- tree sidebar -->
+               <tree id="prefsTree" style="min-width: 14em;"
+                     class="inset"
+                     persist="width"
+                     hidecolumnpicker="true" seltype="single"
+                     onselect="if( hPrefWindow ) hPrefWindow.switchPage();">
+       
+                   <treecols>
+                       <treecol id="category" primary="true"
+                                class="treecell-header outset" url="__header"
+                                label="&category.label;" flex="1"/>
+                   </treecols>
+       
+                   <treechildren id="panelChildren" flex="1">
+                       <treeitem container="false" id="fileProperties">
+                           <treerow>
+                               <treecell class="treecell-indent"
+                                         url="chrome://komodo/content/pref/file-properties.xul"
+                                         label="&properties.label;"/>
+                           </treerow>
+                       </treeitem>
+       
+                       <treeitem container="true" id="editorProperties">
+                           <treerow>
+                               <treecell class="treecell-indent"
+                                         url="chrome://komodo/content/pref/pref-editor.xul"
+                                         label="&editor.label;"
+                                         helptag="editor"/>
+                           </treerow>
+                           <treechildren id="editingChildren">
+                               <treeitem container="false" id="indentationProperties">
+                                   <treerow>
+                                       <treecell class="treecell-indent"
+                                                 url="chrome://komodo/content/pref/pref-indentation.xul"
+                                                 label="&indentation.label;"
+                                                 helptag="indentation"/>
+                                   </treerow>
+                               </treeitem>
+                               <treeitem container="false" id="editsmartItem">
+                                   <treerow>
+                                       <treecell class="treecell-indent"
+                                                 url="chrome://komodo/content/pref/pref-editsmart.xul"
+                                                 label="&smartEditing.label;"
+                                                 helptag="smart_editing"/>
+                                   </treerow>
+                               </treeitem>
+                           </treechildren>
+                       </treeitem>
+                       <treeitem container="false" id="internationalItem">
+                           <treerow>
+                               <treecell class="treecell-indent"
+                                         url="chrome://komodo/content/pref/pref-intl.xul"
+                                         label="&internationalization.label;"
+                                         helptag="internationalization_preferences"/>
+                           </treerow>
+                       </treeitem>
+       
+                       <treeitem container="false" id="environItem">
+                           <treerow>
+                               <treecell class="treecell-indent"
+                                         url="chrome://komodo/content/pref/pref-environ.xul"
+                                         label="&environment.label;"/>
+                           </treerow>
+                       </treeitem>
+       
+                       <treeitem container="false" id="previewProperties">
+                           <treerow>
+                               <treecell class="treecell-indent"
+                                         url="chrome://komodo/content/pref/preview-properties.xul"
+                                         label="&browserPreview.label;"/>
+                           </treerow>
+                       </treeitem>
+       
+                       <treeitem container="false" id="advancedFileProperties">
+                           <treerow>
+                               <treecell class="treecell-indent"
+                                         url="chrome://komodo/content/pref/file-advanced-properties.xul"
+                                         label="&fileAdvancedProperties.label;"/>
+                           </treerow>
+                       </treeitem>
+       
+                       <treeitem container="true" id="languagesItem" persist="open">
+                           <treerow>
+                               <treecell class="treecell-indent" label="&languages.label;"
+                                         url="chrome://komodo/content/pref/pref-languages.xul"
+                                         helptag="language_configuration_preferences"/>
+                           </treerow>
+                           <treechildren id="languagesChildren">
+                               <treeitem container="false" id="javascriptItem">
+                                   <treerow>
+                                       <treecell class="treecell-indent"
+                                                 url="chrome://komodo/content/pref/pref-javascript.xul"
+                                                 label="&javaScript.label;"
+                                                 helptag="javascript_configuration"/>
+                                   </treerow>
+                               </treeitem>
+                               <treeitem container="false" id="nodejsItem">
+                                   <treerow>
+                                       <treecell class="treecell-indent"
+                                                 url="chrome://komodo/content/pref/pref-nodejs.xul"
+                                                 label="&nodejs.label;"
+                                                 helptag="nodejs_configuration"/>
+                                   </treerow>
+                               </treeitem>
+                               <treeitem container="false" id="perlItem">
+                                   <treerow>
+                                       <treecell class="treecell-indent"
+                                                 url="chrome://komodo/content/pref/pref-perl.xul"
+                                                 label="&perl.label;"
+                                                 helptag="perl_configuration"/>
+                                   </treerow>
+                               </treeitem>
+                               <treeitem container="false" id="phpItem">
+                                   <treerow>
+                                       <treecell class="treecell-indent"
+                                                 url="chrome://komodo/content/pref/pref-php.xul"
+                                                 label="&PHP.label;"
+                                                 helptag="php_configuration"/>
+                                   </treerow>
+                               </treeitem>
+                               <treeitem container="false" id="pythonItem">
+                                   <treerow>
+                                       <treecell class="treecell-indent"
+                                                 url="chrome://komodo/content/pref/pref-python.xul"
+                                                 label="&python.label;"
+                                                 helptag="python_configuration"/>
+                                   </treerow>
+                               </treeitem>
+                               <treeitem container="false" id="python3Item">
+                                   <treerow>
+                                       <treecell class="treecell-indent"
+                                                 url="chrome://komodo/content/pref/pref-python3.xul"
+                                                 label="&python3.label;"
+                                                 helptag="python_configuration"/>
+                                   </treerow>
+                               </treeitem>
+                               <treeitem container="false" id="rubyItem">
+                                   <treerow>
+                                       <treecell class="treecell-indent"
+                                                 url="chrome://komodo/content/pref/pref-ruby.xul"
+                                                 label="&ruby.label;"
+                                                 helptag="ruby_configuration"/>
+                                   </treerow>
+                               </treeitem>
+                             </treechildren>
+                       </treeitem>
+      
+                       <treeitem container="false" id="mappedURIsItem">
+                           <treerow>
+                               <treecell class="treecell-indent"
+                                         url="chrome://komodo/content/pref/pref-mappeduri.xul"
+                                         label="&mappedURIs.label;"
+                                         helptag="mapped_uris"/>
+                           </treerow>
+                       </treeitem>
+       <!--
+                       <treeitem container="false" id="newFilesItem">
+                           <treerow>
+                               <treecell class="treecell-indent"
+                                         url="chrome://komodo/content/pref/pref-newfiles.xul"
+                                         label="&newFiles.label;"/>
+                           </treerow>
+                       </treeitem>
+       -->
+                       <treeitem container="false" id="syntaxCheckingItem">
+                           <treerow>
+                               <treecell class="treecell-indent"
+                                         url="chrome://komodo/content/pref/pref-syntax-checking.xul"
+                                         label="&syntaxChecking.label;"
+                                         helptag="syntax_checking"/>
+                           </treerow>
+                       </treeitem>
+                   </treechildren>
+               </tree>
                 <!-- The dynamically built nsITreeView tree -->
                 <tree id="filteredPrefsTree" style="min-width: 14em;"
                       class="inset"
