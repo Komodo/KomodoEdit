@@ -620,7 +620,9 @@ class Indexer(threading.Thread):
             if not isinstance(request, CullMemRequest) and self.mode == self.MODE_DAEMON:
                 # we did something; ask for a memory cull after 5 minutes
                 log.debug("staging new cull mem request")
-                self.stage_request(CullMemRequest(), 300)
+                # XXX marky: Don't actually cull memory for now due to risk.
+                # Turn this back on in Komodo 8.
+                # self.stage_request(CullMemRequest(), 300)
             self.mgr.db.report_event(None)
 
         finally:
