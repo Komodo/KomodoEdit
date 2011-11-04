@@ -3148,30 +3148,24 @@ function _notify(label, value, image, priority, buttons) {
     notificationBox.appendNotification(label, value, image, priority, buttons);
 }
 
-this.matchAnyType = function(typeListAttr, typesSelectedArray) {
-    if (!typeListAttr) {
-        return false;
-    }
+this._possibleTypes = ['file', 'folder', 'project', 'unopened_project', 'livefolder'];
+this._intersectWithPossibleTypes = function(typeListAttr) {
+    if (!typeListAttr) return [];
     var targetTypeList = typeListAttr.split(/\s+/);
-    for (var typeName, i = 0; typeName = typesSelectedArray[i]; i++) {
-        if (targetTypeList.indexOf(typeName) != -1) {
-            return true;
-        }
-    }
-    return false;
+    var possibleTypes = this._possibleTypes;
+    return targetTypeList.filter(function(typeName) possibleTypes.indexOf(typeName) != -1);
+}
+
+this.matchAnyType = function(typeListAttr, typesSelectedArray) {
+    var targetTypeList = this._intersectWithPossibleTypes(typeListAttr);
+    return typesSelectedArray.some(function(typeName)
+                                   targetTypeList.indexOf(typeName) != -1);
 };
 
 this.matchAllTypes = function(typeListAttr, typesSelectedArray) {
-    if (!typeListAttr) {
-        return true;
-    }
-    var targetTypeList = typeListAttr.split(/\s+/);
-    for (var typeName, i = 0; typeName = typesSelectedArray[i]; i++) {
-        if (targetTypeList.indexOf(typeName) == -1) {
-            return false;
-        }
-    }
-    return true;
+    var targetTypeList = this._intersectWithPossibleTypes(typeListAttr);
+    return typesSelectedArray.every(function(typeName)
+                                    targetTypeList.indexOf(typeName) != -1);
 };
 
 }).apply(ko.places);

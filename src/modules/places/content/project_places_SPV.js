@@ -178,23 +178,28 @@ this.initProjectsContextMenu = function(event, menupopup) {
     var childNodes = menupopup.childNodes;
     for (var menuNode, i = 0; menuNode = childNodes[i]; i++) {
         var directive, disableNode = false;
-        if (!ko.places.matchAllTypes(menuNode.getAttribute('hideUnless'), itemTypes)) {
+        if (!!(directive = menuNode.getAttribute('hideIf'))
+            && ko.places.matchAnyType(menuNode.getAttribute('hideIf'), itemTypes)) {
             // hide the node
+            menuNode.setAttribute('collapsed', true);
+            continue; // No need to do anything else
+        } else if (!!(directive = menuNode.getAttribute('hideUnless'))
+                   && !ko.places.matchAnyType(directive, itemTypes)) {
             menuNode.setAttribute('collapsed', true);
             continue;
         }
         menuNode.removeAttribute('collapsed');
-        directive = menuNode.getAttribute('disableIf');
-        if (directive) {
-            if ((directive in selectionInfo) && selectionInfo[directive]) {
-                disableNode = true;
-            } 
-        }
-        if (!disableNode
-            && !!(directive = menuNode.getAttribute('disableUnless'))
-            && (!(directive in selectionInfo)
-                || !selectionInfo[directive])) {
+        
+        if (!!(directive = menuNode.getAttribute('disableIf'))
+            && (ko.places.matchAnyType(directive, itemTypes)
+                || ((directive in selectionInfo) && selectionInfo[directive]))) {
             disableNode = true;
+        } else if (!!(directive = menuNode.getAttribute('disableUnless'))) {
+            if ((directive in selectionInfo) && selectionInfo[directive]) {
+                // don't disable
+            } else if (!ko.places.matchAnyType(directive, itemTypes)) {
+                disableNode = true;
+            }
         }
         if (disableNode) {
             menuNode.setAttribute('disabled', true);
@@ -203,7 +208,7 @@ this.initProjectsContextMenu = function(event, menupopup) {
         }
         if (menuNode.id == "menu_addItemToProject_projectsContext"
             && selectionInfo.currentProject) {
-            var menupopup = menuNode.firstChild;
+            menupopup = menuNode.firstChild;
             if (menupopup.childNodes.length == 0) {
                 ko.places.projects.copyNewItemMenu(menupopup, "SPV_projView_");
             }

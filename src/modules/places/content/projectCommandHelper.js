@@ -255,6 +255,26 @@ this.ProjectCommandHelper.prototype.editProjectProperties = function() {
     ko.projects.fileProperties(item, null, true);
 };
 
+this.ProjectCommandHelper.prototype.showInFinder_XXXX = function() {
+    var items = this.manager.getSelectedItems();
+    if (items.length != 1) {
+        log.warn("Function showInFinder is intended for only one item");
+        return;
+    }
+    var part = items[0];
+    var path = ko.uriparse.displayPath(part.url);
+    if (!path) {
+        log.error("showInFinder: no path for url " + path.url);
+        return;
+    }
+    if (part.type == "livefolder") {
+        path = ko.uriparse.dirName(path);
+    }
+    var sysUtilsSvc = Components.classes["@activestate.com/koSysUtils;1"].
+    getService(Components.interfaces.koISysUtils);
+    sysUtilsSvc.ShowFileInFileManager(path);
+};
+
 this.ProjectCommandHelper.prototype.injectSpecificFunctions = function(receiver, functionList) {
     var this_ = this;
     for (var p in functionList) {
