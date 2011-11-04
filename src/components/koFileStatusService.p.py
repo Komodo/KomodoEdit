@@ -266,22 +266,13 @@ class KoFileStatusService:
             # Ensure the URI format is the same as used by koIFile.
             # http://bugs.activestate.com/show_bug.cgi?id=79065
             uri = uriparse.pathToURI(uri)
-            if flags & self.FNS_FILE_DELETED:
-                # File was deleted, remove it from our list of paths checked.
-                # The file notification system observer automatically removes
-                # our observer for this file. The uri may not be yet monitored
-                # through the file status service though:
-                #   http://bugs.activestate.com/show_bug.cgi?id=72865
-                if uri in self._monitoredUrls:
-                    self._monitoredUrls.remove(uri)
-            else:
-                # We only want to trigger background checking for the files we
-                # are actually monitoring. Other file modifications should be
-                # ignored.
-                if uri in self._monitoredUrls:
-                    self._items_to_check.add((UnwrapObject(self._fileSvc.getFileFromURI(uri)),
-                                              uri, self.REASON_FILE_CHANGED))
-                    self._cv.notify()
+            # We only want to trigger background checking for the files we
+            # are actually monitoring. Other file modifications should be
+            # ignored.
+            if uri in self._monitoredUrls:
+                self._items_to_check.add((UnwrapObject(self._fileSvc.getFileFromURI(uri)),
+                                          uri, self.REASON_FILE_CHANGED))
+                self._cv.notify()
         finally:
             self._cv.release()
 
