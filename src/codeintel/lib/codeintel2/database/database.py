@@ -974,6 +974,10 @@ class Database(object):
             fin = open(path, 'rb')
             try:
                 return pickle.load(fin)
+            except:
+                if default is not None:
+                    return default
+                raise
             finally:
                 fin.close()
         elif default is not None:
