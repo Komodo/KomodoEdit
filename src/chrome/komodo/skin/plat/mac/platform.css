@@ -56,6 +56,12 @@ splitter[orient="horizontal"].multiview_splitter {
   /* breaks single click on twisty margin-right: -8px; */
 }
 
+/* bug 91561: projects list needs to be at least 56 pixels high on mac to have
+   a working scrollbar */
+#placesSubpanelDeck {
+  min-height: 56px;
+}
+
 
 /* output pane toolbars and other toolbar backgrounds */
 
