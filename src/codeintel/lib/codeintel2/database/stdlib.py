@@ -314,6 +314,13 @@ class StdLibsZone(object):
             self.db.save_pickle(join(self.base_dir, "res_index"),
                                 self._res_index)
 
+    def cull_mem(self):
+        """Cull memory usage as appropriate.
+        This is a no-op for StdLibsZone because its memory use is bounded and
+        doesn't really need culling.
+        """
+        pass
+
     def get_lib(self, lang, ver_str=None):
         """Return a view into the stdlibs zone for a particular language
         and version's stdlib.
