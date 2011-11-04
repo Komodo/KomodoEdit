@@ -165,6 +165,27 @@ class KoFileCheckerBase(object):
                 prefObserverSvc.removeObserver(self, prefName)
         self._observerSvc.removeObserver(self, 'xpcom-shutdown')
 
+            # also calculate the size in bytes
+            seen = set()
+            def calculate(obj):
+                if id(obj) in seen:
+                    # already say this object; don't double-count
+                    return 0
+                size = sys.getsizeof(obj, 0)
+                seen.add(id(obj))
+                if isinstance(obj, dict):
+                    # also account for things in the dict
+                    size += sum(calculate(o) for o in obj.keys() + obj.values())
+                return size
+            amount = calculate(self._cached_info)
+            reportHandler.callback(process,
+                                   "explicit/komodo/scc/%s/known-files" % (self.name,),
+                                   components.interfaces.nsIMemoryReporter.KIND_HEAP,
+                                   components.interfaces.nsIMemoryReporter.UNITS_BYTES,
+                                   amount,
+                                   "The number of bytes %s is holding for file status" % (self.name,),
+                                   closure)
+
     ##
     # nsIObserver interface: listens for preference changes
     # @private
