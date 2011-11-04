@@ -42,7 +42,6 @@ class FileSystemPatternEventHandler(watchdog.events.PatternMatchingEventHandler)
         return self.flags & flags
 
     def notify_observer_monitor(self, path, flags):
-        log.debug('Notifying %r: %s', path, flags)
         with self._lock:
             self.observer_monitor.notifyChanges({path: flags})
 
