@@ -393,6 +393,10 @@ class PreloadLibRequest(_Request):
         return "pre-load %s %s (%d dirs)" \
                % (self.lib.lang, self.lib.name, len(self.lib.dirs))
 
+class CullMemRequest(_Request):
+    id = "cull memory request"
+    priority = PRIORITY_BACKGROUND
+
 
 class IndexerStopRequest(_Request):
     id = "indexer stop request"
@@ -595,6 +599,10 @@ class Indexer(threading.Thread):
             elif isinstance(request, XMLParseRequest):
                 request.buf.xml_parse()
 
+            elif isinstance(request, CullMemRequest):
+                log.debug("cull memory requested")
+                self.mgr.db.cull_mem()
+
             # Currently these two are somewhat of a DB zone-specific hack.
             #TODO: The standard DB "lib" iface should grow a
             #      .preload() (and perhaps .can_preload()) with a
@@ -609,6 +617,10 @@ class Indexer(threading.Thread):
                 assert isinstance(lib, (LangDirsLib, MultiLangDirsLib))
                 lib.ensure_all_dirs_scanned()
 
+            if not isinstance(request, CullMemRequest) and self.mode == self.MODE_DAEMON:
+                # we did something; ask for a memory cull after 5 minutes
+                log.debug("staging new cull mem request")
+                self.stage_request(CullMemRequest(), 300)
             self.mgr.db.report_event(None)
 
         finally:

@@ -1251,9 +1251,10 @@ class LangZone(object):
         until process completion. The plan is to have a thread
         periodically cull memory.
         """
-        #TODO: Database.cull_mem(). Add it. Get indexer to call it.
         #TOTEST: Does Python/Komodo actually release this memory or
         #        are we kidding ourselves?
+        log.debug("LangZone: culling memory")
+        TIME_SINCE_ACCESS = 300.0 # 5 minutes since last access
         self._acquire_lock()
         try:
             N = 30
@@ -1261,15 +1262,16 @@ class LangZone(object):
                 # Too few indeces in memory to bother culling.
                 return
 
-            print "XXX culling memory..."
             now = time.time()
             for dbsubpath, (index, atime) \
                     in self._index_and_atime_from_dbsubpath.items():
-                if now - atime > 300.0: # >5 minutes since last access
+                if now - atime > TIME_SINCE_ACCESS:
                     if dbsubpath in self._is_index_dirty_from_dbsubpath:
                         self.save_index(dbsubpath, index)
                         del self._is_index_dirty_from_dbsubpath[dbsubpath]
                     del self._index_and_atime_from_dbsubpath[dbsubpath]
+        except:
+            log.exception("Exception culling memory")
         finally:
             self._release_lock()
 

@@ -629,12 +629,18 @@ class Database(object):
             lang_zone.save()
 
     def cull_mem(self):
-        #XXX Not yet being called. The plan is that a bookkeeper thread
-        #    should periodically call this.
-        if self._catalogs_zone:
-            self._catalogs_zone.cull_mem()
-        for lang_zone in self._lang_zone_from_lang.values():
-            lang_zone.cull_mem()
+        """Cull memory usage as necessary"""
+        # this is currently called via the indexer (see _iteration)
+        for zone in self.get_all_zones():
+            try:
+                zone.cull_mem()
+            except:
+                log.exception("Failed to cull memory for zone %r", zone)
+        try:
+            import gc
+            gc.collect()
+        except:
+            pass
 
     _non_lang_db_dirs = ["catalogs", "stdlibs", "projs"]
     def _gen_langs_in_db(self):
@@ -941,6 +947,17 @@ class Database(object):
 
     def get_proj_lib(self, proj, lang):
         return self.get_proj_zone(proj).get_lib(lang)
+
+    def get_all_zones(self):
+        """ Get all LangZones for debugging """
+        if self._catalogs_zone:
+            yield self._catalogs_zone
+        if self._stdlibs_zone:
+            yield self._stdlibs_zone
+        for zone in self._lang_zone_from_lang.values()[:]:
+            yield zone
+        for zone in self._proj_zone_from_proj_path.values()[:]:
+            yield zone
 
     def load_blob(self, dbsubpath):
         """Load the blob and all persisted blob cache keys from disk."""
