@@ -60,7 +60,7 @@
          as it adds a scrollbar when the contents are too long. -->
     <vbox id="ui-prefs-vbox" flex="1" class="autoscroll">
 
-        <groupbox orient="vertical">
+        <groupbox orient="vertical" id="pref_appearance_toolbars">
             <caption label="&startPage.label;"/>
       
             <checkbox id="show_start_page"
