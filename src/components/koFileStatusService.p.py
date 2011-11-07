@@ -395,7 +395,7 @@ class KoFileStatusService:
         active_checker_names = []
         while not self.shutdown:
             # Give at least a brief respite between loops.
-            time.sleep(0.1)
+            time.sleep(0.25)
             try:
                 # Initialize the working variables, this ensures we don't hold
                 # on to any koIFileEx references between runs, allowing the
