@@ -57,6 +57,7 @@
         ondialogaccept="return doOk();"
         ondialogcancel="return doCancel();"
         onload="Startup();"
+        persist="screenX screenY"
         onunload="doUnLoad();">
 
 <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>

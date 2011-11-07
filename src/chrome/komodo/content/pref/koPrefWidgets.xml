@@ -622,7 +622,7 @@
                    window.openDialog
                      ("chrome://komodo/content/pref/editenvironvar.xul",
                       "Komodo:EnvironmentVariable",
-                      "chrome,dialog=yes,close=yes,dependent=yes,modal=yes", obj);
+                      "chrome,centerscreen,dialog=yes,close=yes,dependent=yes,modal=yes", obj);
                    if (obj && obj.name && obj.res != "cancel") {
                        return obj;
                    }
