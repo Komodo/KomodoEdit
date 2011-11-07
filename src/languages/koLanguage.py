@@ -635,7 +635,7 @@ class KoLanguageRegistryService:
 
         return localVars
 
-    htmldoctype_re = re.compile('<!DOCTYPE\s+html',
+    _htmldoctype_re = re.compile('<!DOCTYPE\s+html',
                                 re.IGNORECASE)
     def guessLanguageFromContents(self, head, tail):
         """Guess the language (e.g. Perl, Tcl) of a file from its contents.
@@ -704,7 +704,7 @@ class KoLanguageRegistryService:
                         langs.append(self._systemIdMap[tree.doctype[3]])
                     if tree.doctype[0].lower() == "html":
                         langs.append("HTML")
-                elif "<!doctype html>" in lhead:
+                elif self._htmldoctype_re.search(lhead):
                     langs.append("HTML5")
             except Exception, e:
                 # log this, but keep on going, it's just a failure in xml
