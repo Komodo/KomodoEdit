@@ -1120,7 +1120,7 @@ class KoCodeIntelService:
         self.partSvc = components.classes["@activestate.com/koPartService;1"]\
             .getService(components.interfaces.koIPartService)
 
-        obsSvc.addObserver(self, 'quit-application', True)
+        obsSvc.addObserver(self, 'quit-application', False)
 
     def _genDBCatalogDirs(self):
         """Yield all possible dirs in which to look for API Catalogs.
