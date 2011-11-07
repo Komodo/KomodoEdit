@@ -319,11 +319,17 @@ function newConfiguration()
     var i, ok;
     var fnameRe = /^[\w\d ]*$/;
     var knownConfigs = dialog.gKeybindingMgr.getConfigurations();
+    var _viewsBundle = Components.classes["@mozilla.org/intl/stringbundle;1"].
+        getService(Components.interfaces.nsIStringBundleService).
+        createBundle("chrome://komodo/locale/views.properties");
     while (1) {
-        newSchemeName = ko.dialogs.prompt("Enter a new scheme name.  The new scheme will be based on the currently selected '" +
-                                      shortname + "' scheme.", "New Scheme Name:",
-                                      newSchemeName // default value
-                                      );
+        newSchemeName = ko.dialogs.prompt(
+                          _viewsBundle.formatStringFromName(
+                                    "enterNewSchemeNameBasedOnScheme.template",
+                                    [shortname], 1),
+                          _viewsBundle.GetStringFromName("newSchemeName.label"),
+                          newSchemeName // default value
+                                          );
         if (!newSchemeName) {
             return false;
         }
