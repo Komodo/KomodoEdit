@@ -63,6 +63,6 @@
 +        if (!self->extra)
 +            element_new_extra(self, NULL);
 +	    res = element_get_cache(self);
-     } else if (strcmp(name, "localName") == 0)
-         res = self->localName;
-     else if (strcmp(name, "ns") == 0)
+     } else {
+         PyErr_SetString(PyExc_AttributeError, name);
+         return NULL;
