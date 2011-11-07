@@ -11,10 +11,11 @@ function PrefLanguages_OnLoad() {
         document.getElementById("languageStatus-filter-textbox");
     parent.hPrefWindow.onpageload();
     var primary_selector = document.getElementById("pref-languages-primary-selector-groupbox");
+    var classList = primary_selector.classList;
     if (getOwningFileObject()) {
-        addClass(primary_selector, "collapse");
+        classList.add("collapse");
     } else {
-        removeClass(primary_selector, "collapse");
+        classList.remove("collapse");
     }
 }
 
