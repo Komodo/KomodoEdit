@@ -246,7 +246,7 @@ this.doConstrainedUpdate = function(scimoz, lintResults, lintBuffer) {
     displayableResults = displayableResults.value;
     //var time2 = new Date();
     //dump("                                regathering: " + (time2 - time1) + "msec\n");
-    this.updateDisplayedIndicators(scimoz, firstActualPos, lastActualPos, lintResults, displayableResults);
+    this.updateDisplayedIndicators(scimoz, firstActualPos, lastActualPos - firstActualPos, lintResults, displayableResults);
 };
 
 }).apply(ko.lint.displayer);
