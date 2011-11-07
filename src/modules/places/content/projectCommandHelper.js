@@ -227,11 +227,11 @@ this.ProjectCommandHelper.prototype._openProject = function(inNewWindow) {
     var defaultFilterName = bundle.GetStringFromName("komodoProject.message");
     var filterNames = [bundle.GetStringFromName("komodoProject.message"),
                        bundle.GetStringFromName("all.message")];
-    filename = ko.filepicker.openFile(defaultDirectory /* =null */,
-                                      defaultFilename /* =null */,
-                                      title /* ="Open File" */,
-                                      defaultFilterName /* ="All" */,
-                                      filterNames /* =null */)
+    var filename = ko.filepicker.browseForFile(defaultDirectory /* =null */,
+                                               defaultFilename /* =null */,
+                                               title /* ="Open File" */,
+                                               defaultFilterName /* ="All" */,
+                                               filterNames /* =null */)
     if (filename == null) return;
     uri = ko.uriparse.localPathToURI(filename);
     if (inNewWindow) {
