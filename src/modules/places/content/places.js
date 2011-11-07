@@ -871,7 +871,7 @@ viewMgrClass.prototype = {
         var srcFileInfoObjs = {}, targetFileInfoObjs = {};
         var simple_callback = {
             callback: function(result, data) {
-                if (data != Components.interfaces.koIAsyncCallback.RESULT_SUCCESSFUL) {
+                if (result != Components.interfaces.koIAsyncCallback.RESULT_SUCCESSFUL) {
                     ko.dialogs.alert(data);
                 } else {
                     window.updateCommands("did_tree_operation");
@@ -1049,7 +1049,7 @@ viewMgrClass.prototype = {
                 var from_view = ko.views.manager.getViewForURI(srcURI);
                 callback = {
                 callback: function(result, data) {
-                        if (data != Components.interfaces.koIAsyncCallback.RESULT_SUCCESSFUL) {
+                        if (result != Components.interfaces.koIAsyncCallback.RESULT_SUCCESSFUL) {
                             ko.dialogs.alert(data);
                         } else {
                             // Update the Komodo view
@@ -1709,7 +1709,7 @@ ManagerClass.prototype = {
         var callback = {    // koIAsyncCallback
             callback: function(result, data) {
                 statusNode.setAttribute('image', widgets.defaultFolderIconSrc);
-                if (data != Components.interfaces.koIAsyncCallback.RESULT_SUCCESSFUL) {
+                if (result != Components.interfaces.koIAsyncCallback.RESULT_SUCCESSFUL) {
                     widgets.rootButton.label = "";
                     widgets.rootButton.tooltipText = "";
                     this_.currentPlace = null;
