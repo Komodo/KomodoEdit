@@ -2347,45 +2347,36 @@ def _addFiles(cfg, sourceSubdir, targetSubdir, extensions, preserveSubtrees=0):
     count = 0
     sourceSubdir = os.path.normpath(os.path.abspath(sourceSubdir))
     
-    # XXX find on osx doesn't build paths correctly, hack around it
-    if sys.platform != 'darwin':
-        sourceSubdir += os.sep
-    
     assert targetSubdir
 
     # find possible files of interest
-    possibles = []
-    for extension in extensions:
-        if sys.platform[:3] == 'win':
-            cmd = "DIR %(sourceSubdir)s /A-D /S /B | grep \\.%(extension)s" % locals()
-        else:
-            cmd = "find %(sourceSubdir)s -name '*.%(extension)s'" % locals()
-        possibles += os.popen(cmd).readlines()
-    possibles = [line[:-1] for line in possibles if line[-1] == '\n']
-    # XXX find on osx doesn't build paths correctly, hack around it
-    if sys.platform == 'darwin':
-        sourceSubdir += os.sep
-
-    # determine target location for files
-    for possible in possibles:
-        if preserveSubtrees:
-            # We are working with files which maintain their subdirectory
-            # structure in the target subtree.
-            target = os.path.normpath(os.path.join(targetSubdir, possible[len(sourceSubdir):]))
-        else:
-            # We are working with files which are in one of the target
-            # subdirectories.
-            target = os.path.normpath(os.path.join(targetSubdir, os.path.basename(possible)))
-        pext = os.path.splitext(os.path.splitext(target)[0])[1]
-        if pext in [".unprocessed", ".p"]:
-            # This is a file that will be run through the preprocessor and
-            # whose actual target name should drop the ".unprocessed".
-            base, ext = os.path.splitext(target)
-            base = os.path.splitext(base)[0]
-            target = base + ext
-        if os.path.exists(target):
-            _table[possible] = (os.path.abspath(target), md5(open(possible, 'rb').read()).hexdigest())
-            count += 1
+    for dirpath, dirnames, filenames in os.walk(sourceSubdir):
+        #relpath = dirpath[len(sourceSubdir)+1:]
+        for fname in filenames:
+            bname, ext = splitext(fname)
+            if ext[1:].lower() in extensions:
+                srcpath = join(dirpath, fname)
+                # Target names are used for pre-processed files.
+                pname = fname
+                psrcpath = srcpath
+                pbname, pext = splitext(bname)
+                if pext in [".unprocessed", ".p"]:
+                    # This is a file that will be run through the preprocessor and
+                    # whose actual target name should drop the ".unprocessed".
+                    pname = pbname + ext
+                    psrcpath = join(dirpath, pname)
+                # determine target location for files
+                if preserveSubtrees:
+                    # We are working with files which maintain their subdirectory
+                    # structure in the target subtree.
+                    target = normpath(join(targetSubdir, psrcpath[len(sourceSubdir):].lstrip(os.sep)))
+                else:
+                    # We are working with files which are in one of the target
+                    # subdirectories.
+                    target = normpath(join(targetSubdir, pname))
+                if os.path.exists(target):
+                    _table[srcpath] = (abspath(target), md5(open(srcpath, 'rb').read()).hexdigest())
+                    count += 1
     #print 'Found %d %s files in %s' % (count, extensions, sourceSubdir)
     
 def BuildQuickBuildDB(cfg, argv):
