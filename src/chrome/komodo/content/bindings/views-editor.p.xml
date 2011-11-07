@@ -1409,7 +1409,7 @@
                                                   undefined, undefined,
                                                   browserType);
                 if (pick == null)
-                    return null;
+                    return [null, null];
                 previewPath = pick.preview;
                 if (pick.browserType) {
                     browserType = pick.browserType;
@@ -1457,6 +1457,10 @@
             var browserType;
             // Ignore the browserType setting.
             [previewURI, browserType] = this._getPreviewPathAndBrowserType("komodo");
+            if (previewURI === null) {
+                /* Action was cancelled by the user. */
+                return;
+            }
             previewURI = ko.uriparse.pathToURI(previewURI);
         }
         if (!previewURI) {
