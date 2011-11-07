@@ -10,6 +10,12 @@ function PrefLanguages_OnLoad() {
     dialog.languageStatusFilterTextbox =
         document.getElementById("languageStatus-filter-textbox");
     parent.hPrefWindow.onpageload();
+    var primary_selector = document.getElementById("pref-languages-primary-selector-groupbox");
+    if (getOwningFileObject()) {
+        addClass(primary_selector, "collapse");
+    } else {
+        removeClass(primary_selector, "collapse");
+    }
 }
 
 function OnPreferencePageLoading(prefset) {

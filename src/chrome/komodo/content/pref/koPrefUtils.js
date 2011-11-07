@@ -157,6 +157,23 @@ function getOwningFileObject() {
     return file;
 }
 
+function addClass(elt, className) {
+    var classes = elt.getAttribute("class");
+    var newClasses = !classes ? className : (classes + " " + className);
+    elt.setAttribute("class", newClasses);
+}
+
+function removeClass(elt, className) {
+    var classes = elt.getAttribute("class").split(/\s+/);
+    var idx = classes.indexOf(className);
+    if (idx == -1) {
+        return;
+    }
+    classes.splice(index, 1);
+    elt.setAttribute("class", classes.join(" "));
+}
+       
+
 function getKoObject(name) {
     var ko = parent.opener.ko;
     if (ko[name]) {

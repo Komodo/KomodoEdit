@@ -27,3 +27,10 @@ description#pychecker_dangerous.pref_show {
 .indentedPref02 {
     margin-left: 54px;
 }
+
+groupbox#pref-languages-primary-selector-groupbox {
+    visibility:visible;
+}
+groupbox#pref-languages-primary-selector-groupbox.collapse {
+    visibility:collapse;
+}

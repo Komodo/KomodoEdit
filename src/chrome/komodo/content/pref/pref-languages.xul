@@ -54,13 +54,14 @@
 
     <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/pref/koPrefUtils.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/pref/pref-languages.js" type="application/x-javascript;version=1.7"/>
 
     <!-- This main vbox is to ensure *all* the pref widgets are accessible,
          as it adds a scrollbar when the contents are too long. -->
     <vbox id="languages-prefs-vbox" flex="1" class="autoscroll">
 
-        <groupbox>
+        <groupbox id="pref-languages-intro-groupbox">
             <caption label="&languageConfigurations.label;"/>
             <description style="margin-top: 10px;">
             &languagesSettings.description;
@@ -70,7 +71,7 @@
         </groupbox>
         <separator class="thin"/>
         
-        <groupbox>
+        <groupbox id="pref-languages-primary-selector-groupbox">
             <caption label="&primaryLanguages.label;"/>
             <description>&primaryLanguages.description;</description>
             <hbox align="center">
