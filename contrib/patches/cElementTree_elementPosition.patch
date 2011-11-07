@@ -1,3 +1,4 @@
+This patch is required for codeintel's HTML/XML end tag completions.
 --- cElementTree/cElementTree.c.orig	2007-03-19 13:09:30.000000000 -0700
 +++ cElementTree/cElementTree.c	2007-03-19 13:09:47.000000000 -0700
 @@ -253,6 +253,11 @@
