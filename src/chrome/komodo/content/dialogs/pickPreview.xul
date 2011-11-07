@@ -95,6 +95,7 @@
                   align="center">
                 <label value="&previewUsing.label;"/>
                 <menulist id="browser-select-menulist"
+                          flex="1"
                           label="&previewUsingDefaultBrowser.value;">
                     <menupopup id="browser-select-menupopup"/>
                 </menulist>
