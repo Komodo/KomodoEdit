@@ -245,6 +245,21 @@ viewMgrClass.prototype = {
         event.cancelBubble = true;
         event.preventDefault();
     },
+
+  
+  displayCurrentFullPath: function(event, sender) {
+        var index = this._currentRow(event);
+        if (index < 0) {
+            event.preventDefault();
+            event.stopPropagation();
+            return false;
+        }
+        var uri = this.view.getURIForRow(index);
+        var popup = sender;
+        var label = sender.childNodes[0];
+        label.setAttribute("value", ko.uriparse.URIToLocalPath(uri));
+        return true;
+    },
     
     refreshViewByIndex: function(index) {
         this.view.refreshView(index);

@@ -142,6 +142,7 @@
               ondragenter="return ko.places.viewMgr.doDragEnter(event, this);"
               ondblclick="ko.places.viewMgr.onDblClick(event, this);"
               ondrop="return ko.places.viewMgr.doDrop(event, this);"
+              tooltip="places-files-tree-popup"
               class="placesTree" />
       </tree>
     </vbox>
@@ -226,6 +227,7 @@
             flex="1"
             ondblclick="ko.places.projects.onProjectTreeDblClick(event, this);"
             context="placesSubpanelProjectsContextMenu_MPV"
+            tooltip="places-projects-MPV-tree-popup"
             class="recentProjectsTree projectTree" />
       </tree>
       <!-- subpanel 1: v6.0-style Projects -->
@@ -244,6 +246,7 @@
             flex="1"
             ondblclick="ko.places.projects_SPV.onProjectTreeDblClick(event, this);"
             context="placesSubpanelProjectsContextMenu_SPV"
+            tooltip="places-projects-SPV-tree-popup"
             class="recentProjectsTree" />
       </tree>
     </deck>
@@ -728,6 +731,19 @@
                   />
         <menuseparator id="placesContextMenu_separatorSort" />
     </menupopup>
+    
+    <tooltip id="places-files-tree-popup"
+             onpopupshowing="ko.places.viewMgr.displayCurrentFullPath(event, this);">
+        <label id="places-files-tree-popup-label" value=""/>
+    </tooltip>
+    <tooltip id="places-projects-MPV-tree-popup"
+             onpopupshowing="ko.places.projects.displayCurrentFullPath(event, this);">
+        <label id="places-projects-MPV-tree-popup-label" value=""/>
+    </tooltip>
+    <tooltip id="places-projects-SPV-tree-popup"
+             onpopupshowing="ko.places.projects_SPV.displayCurrentFullPath(event, this);">
+        <label id="places-projects-SPV-tree-popup-label" value=""/>
+    </tooltip>
   </popupset>
 
   <commandset id="panel-proxy-commandset"/>

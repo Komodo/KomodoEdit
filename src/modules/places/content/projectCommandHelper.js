@@ -287,6 +287,32 @@ this.ProjectCommandHelper.prototype.injectSpecificFunctions = function(receiver,
     }
 };
 
+this.ProjectCommandHelper.prototype.displayCurrentFullPath = function(event, sender) {
+    var row = {};
+    this.owner.projectsTree.treeBoxObject.getCellAt(event.pageX, event.pageY, row, {},{});
+    var index = row.value;
+    try {
+        if (index < 0) throw new Error("index: " + index);
+        var uri = this.owner.projectsTreeView.getRowItem(index).url;
+        if (!uri) throw new Error("No url at index: " + index);
+        var label = sender.childNodes[0];
+        if (!label) {
+            throw new Error("No child at index: " + index);
+        } else if (label.nodeName != "label") {
+            throw new Error("Expected label child at index: " + index
+                            + ", got " + label.nodeName);
+        }
+        label.setAttribute("value", ko.uriparse.URIToLocalPath(uri));
+    } catch(ex) {
+        dump("displayCurrentFullPath: " + ex + "\n");
+        log.debug("displayCurrentFullPath: " + ex + "\n");
+        event.preventDefault();
+        event.stopPropagation();
+        return false;
+    }
+    return true;
+};
+
 this.ProjectCommandHelper.prototype.injectHelperFunctions = function(receiver) {
     var this_ = this;
     for (var p in { onProjectTreeDblClick: 1,
@@ -303,6 +329,7 @@ this.ProjectCommandHelper.prototype.injectHelperFunctions = function(receiver) {
                     compareFileWith:1,
                     rebaseFolder:1,
                     importPackage:1,
+                    displayCurrentFullPath:1,
                     exportAsProjectFile:1,
                     exportPackage:1,
                 editProjectProperties:1,
