@@ -372,6 +372,16 @@ KoScintillaAutoCompleteController.prototype = {
       this._popupHasHeight = true;
     }
 
+    /* At this point, we have the popup dimensions, and therefore we won't have
+     * any more large pauses before trying to open the popup.  Check that the
+     * relevant scimoz still has the focus, to avoid showing the popup after
+     * the user has already moved on.
+     */
+    if (!scintilla.scimoz.isFocused) {
+      // scimoz lost focus while we're trying to sort things out
+      return;
+    }
+
     /* Position the popup. We want to try, in order:
      *   1. Just below the anchor position (shifted horizontally if needed),
      *      as long as this doesn't cover up the start pos...end pos range
