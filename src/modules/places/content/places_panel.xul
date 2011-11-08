@@ -236,7 +236,7 @@
           height="100"
           hidecolumnpicker="true"
           context="places-projects-popup-SPV"
-          seltype="single">
+          seltype="multiple">
         <treecols id="placesSubpanelProjectsTreecols_SPV">
           <treecol id="placesSubpanelProjectNameTreecol_SPV"
                    flex="1" primary="true" hideheader="true" crop="start"/>

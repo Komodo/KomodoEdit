@@ -3185,11 +3185,4 @@ this.matchAllTypes = function(typeListAttr, typesSelectedArray) {
 
 }).apply(ko.places);
 
-window.addEventListener("focus", function(event) {
-    if (event.originalTarget == window) {
-        ko.places.viewMgr.focus();
-        ko.places.viewMgr.updateView();
-    }
-}, false);
-
 parent.addEventListener("workspace_restored", ko.places.onLoad, false);

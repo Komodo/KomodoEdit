@@ -19,13 +19,17 @@ if (!('projects' in ko.places)) {
 var log = ko.logging.getLogger("projectCommandHelper_js");
 //log.setLevel(ko.logging.LOG_DEBUG);
 
+var placesBundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+    .getService(Components.interfaces.nsIStringBundleService)
+    .createBundle("chrome://places/locale/places.properties");
+
 this.ProjectCommandHelper = function(owner, manager) {
     this.owner = owner;   // Either the single-project or multiple-project view
     this.manager = manager;
 };
 
 this.ProjectCommandHelper.prototype.onProjectTreeDblClick = function(event, index) {
-    if (typeof(event) != "undefined") {
+    if (event) {
         if (event.which != 1) {
             return;
         }
@@ -55,7 +59,11 @@ this.ProjectCommandHelper.prototype.onProjectTreeDblClick = function(event, inde
                 case "project":
                     var currentProject = ko.projects.manager.currentProject;
                     if (!currentProject || currentProject.id != part.id) {
+                        var oldRow = this.owner.projectsTreeView.getIndexByPart(currentProject);
                         ko.projects.manager.setCurrentProject(part);
+                        if (oldRow != -1) {
+                            this.owner.projectsTree.treeBoxObject.invalidateRow(oldRow);
+                        }
                     }
                     this.owner.showProjectInPlaces(part);
                     break;
@@ -79,6 +87,118 @@ this.ProjectCommandHelper.prototype.onProjectTreeDblClick = function(event, inde
         event.stopPropagation();
         event.preventDefault();
     }
+};
+
+this.ProjectCommandHelper.prototype.onTreeKeyPress = function(event, sender) {
+    var t = event.originalTarget;
+    if (t.localName != "treechildren" && t.localName != 'tree') {
+        return false;
+    }
+    var retVal = null;
+    // Special-case some commands, and then look at the keybinding set
+    // to determine a command to do.
+    var row, index, indices, i, item, items, o1, unopened_projects, other_items;
+    try {
+        if (!(event.shiftKey || event.ctrlKey || event.altKey)) {
+            if (ko.places.viewMgr.arrowKeys.indexOf(event.keyCode) >= 0) {
+                // Nothing to do but squelch the keycode
+                retVal = false;
+                throw new Error("");
+            }
+            if (event.keyCode == event.DOM_VK_ENTER
+                || event.keyCode == event.DOM_VK_RETURN) {
+                o1 = {};
+                this.owner.projectsTreeView.getSelectedItems(true, o1, {});
+                items = o1.value;
+                if (items.length == 0) {
+                    retVal = false;
+                    throw new Error("no items selected");
+                } else if (items.every(function(part) part.type == "unopened_project")) {
+                    if (items.length == 1) {
+                        this.onProjectTreeDblClick(null,
+                                                   this.owner.projectsTreeView.getIndexByPart(items[0]));
+                        retVal = true;
+                    } else {
+                        ko.dialogs.alert(placesBundle.formatStringFromName("cant open X projects at the same time", [items.length], 1));
+                        retVal = false;
+                    }
+                    
+                } else if (items.every(function(part)
+                                ~["project", "livefolder"].indexOf(part.type))) {
+                    if (items.length == 1) {
+                        this.onProjectTreeDblClick(null,
+                                                   this.owner.projectsTreeView.getIndexByPart(items[0]));
+                        retVal = true;
+                    } else {
+                        ko.dialogs.alert(placesBundle.formatStringFromName("cant go to X directories at the same time", [items.length], 1));
+                        retVal = false;
+                    }
+                } else if (items.every(function(part)
+                                       ~["file", "folder"].indexOf(part.type))) {
+                    for (i = items.length - 1; i >= 0; --i) {
+                        item = items[i];
+                        this.onProjectTreeDblClick(null,
+                                                   this.owner.projectsTreeView.getIndexByPart(item));
+                    }
+                    retVal = true;
+                } else {
+                    ko.dialogs.alert(placesBundle.GetStringFromName("Return action not defined on a mixture of projects etc"));
+                    retVal = false;
+                }
+                throw new Error("");
+            } else if (event.keyCode == event.DOM_VK_DELETE) {
+                o1 = {};
+                this.owner.projectsTreeView.getSelectedItems(true, o1, {});
+                items = o1.value;
+                if (items.some(function(part) part.type == "project")) {
+                    ko.dialogs.alert(placesBundle.GetStringFromName("cant delete projects"));
+                    retVal = false;
+                } else {
+                    unopened_projects = [];
+                    other_items = [];
+                    for (i = 0; item = items[i]; i++) {
+                        if (item.type == "unopened_project") {
+                            unopened_projects.push(item);
+                        } else {
+                            other_items.push(item);
+                        }
+                    }
+                    for (var i = unopened_projects.length - 1; i >= 0; i--) {
+                        item = unopened_projects[i];
+                        ko.mru.deleteValue('mruProjectList', item.url, true/*notify */);
+                        this.owner.projectsTreeView.removeProject(item);
+                    }
+                    ko.projects.removeItems(other_items, this.owner.projectsTreeView.selection.count);
+                }
+                retVal = true;
+                throw new Error("");
+            }
+        }
+        var command = ko.places.viewMgr._getCommandFromEvent(event);
+        if (!command) {
+            return false;
+        }
+        var newCommand = command;
+        if (newCommand) {
+            var controller = document.commandDispatcher.getControllerForCommand(newCommand);
+            if (controller) {
+                event.preventDefault();
+                event.stopPropagation();
+                controller.doCommand(newCommand);
+                return true;
+            }
+        }
+    } catch(ex) {
+        if (ex.message != "") {
+            log.error("Error: " + ex + "\n");
+        }
+        event.stopPropagation();
+        event.preventDefault();
+        if (retVal !== null) {
+            return retVal;
+        }
+    }
+    return false;
 };
 
 this.ProjectCommandHelper.prototype._getProjectItemAndOperate = function(context, obj, callback) {
@@ -293,7 +413,11 @@ this.ProjectCommandHelper.prototype.displayCurrentFullPath = function(event, sen
     var index = row.value;
     try {
         if (index < 0) throw new Error("index: " + index);
-        var uri = this.owner.projectsTreeView.getRowItem(index).url;
+        var part = this.owner.projectsTreeView.getRowItem(index);
+        if (part.type == "folder") {
+            throw new Error();
+        }
+        var uri = part.url;
         if (!uri) throw new Error("No url at index: " + index);
         var label = sender.childNodes[0];
         if (!label) {
@@ -304,11 +428,12 @@ this.ProjectCommandHelper.prototype.displayCurrentFullPath = function(event, sen
         }
         label.setAttribute("value", ko.uriparse.URIToLocalPath(uri));
     } catch(ex) {
-        dump("displayCurrentFullPath: " + ex + "\n");
-        log.debug("displayCurrentFullPath: " + ex + "\n");
+        if (ex.message) {
+            log.debug("displayCurrentFullPath: " + ex + "\n");
+        }
         event.preventDefault();
         event.stopPropagation();
-        return false;
+        return !ex.message;
     }
     return true;
 };
@@ -316,6 +441,7 @@ this.ProjectCommandHelper.prototype.displayCurrentFullPath = function(event, sen
 this.ProjectCommandHelper.prototype.injectHelperFunctions = function(receiver) {
     var this_ = this;
     for (var p in { onProjectTreeDblClick: 1,
+                    onTreeKeyPress: 1,
                     openRemoteProject:1,
                     showProjectInPlaces:1,
                     makeCurrentProject:1,
