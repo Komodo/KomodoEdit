@@ -388,7 +388,7 @@ class KoCodeIntelManager(Manager):
         memMgr = components.classes["@mozilla.org/memory-reporter-manager;1"]. \
                     getService(components.interfaces.nsIMemoryReporterManager)
         memMgr.unregisterMultiReporter(self)
-        return Manager.finalize(*args, **kwargs)
+        return Manager.finalize(self, *args, **kwargs)
 
     def _on_scan_complete(self, request):
         if request.status == "changed":
