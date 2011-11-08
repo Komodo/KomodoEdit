@@ -1340,3 +1340,30 @@ class LangZone(object):
 
         return langdirslib
 
+
+    def reportMemory(self, reporter, closure=None):
+        """
+        Report on memory usage from this LangZone. See nsIMemoryMultiReporter
+        """
+        log.debug("%s LangZone: reporting memory", self.lang)
+        from xpcom import components
+        kind_other = components.interfaces.nsIMemoryReporter.KIND_OTHER
+        units_count = components.interfaces.nsIMemoryReporter.UNITS_COUNT
+        process = ""
+        reporter.callback(process,
+                          "komodo /codeintel/langzone/%s/index-cache" % (self.lang,),
+                          kind_other,
+                          units_count,
+                          len(self._index_and_atime_from_dbsubpath),
+                          "Number of cached indices",
+                          closure)
+
+        # also calculate the size in bytes
+        reporter.callback(process,
+                          "explicit/komodo/codeintel/%s/index-cache" % (self.lang,),
+                          components.interfaces.nsIMemoryReporter.KIND_HEAP,
+                          components.interfaces.nsIMemoryReporter.UNITS_BYTES,
+                          util.getMemoryUsage(self._index_and_atime_from_dbsubpath),
+                          "The number of bytes of %s codeintel index caches" % (self.lang,),
+                          closure)
+

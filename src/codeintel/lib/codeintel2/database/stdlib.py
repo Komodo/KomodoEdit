@@ -61,7 +61,7 @@ import Queue
 import ciElementTree as ET
 from codeintel2.common import *
 from codeintel2.buffer import Buffer
-from codeintel2.util import dedent, safe_lang_from_lang, banner
+from codeintel2.util import dedent, safe_lang_from_lang, banner, getMemoryUsage
 from codeintel2.tree import tree_from_cix_path
 from codeintel2.database.resource import AreaResource
 from codeintel2.database.util import (rmdir, filter_blobnames_for_prefix)
@@ -247,6 +247,20 @@ class StdLib(object):
         return cplns
         
 
+    def reportMemory(self, reporter, closure=None):
+        """
+        Report on memory usage from this StdLib. See nsIMemoryMultiReporter
+        """
+        log.debug("%s StdLib %s: reporting memory", self.lang, self.name)
+        from xpcom import components
+        reporter.callback("", # process id
+                          "explicit/komodo/codeintel/%s/stdlib/%s" % (self.lang, self.name),
+                          components.interfaces.nsIMemoryReporter.KIND_HEAP,
+                          components.interfaces.nsIMemoryReporter.UNITS_BYTES,
+                          getMemoryUsage(self._blob_from_blobname),
+                          "The number of bytes of %s codeintel stdlib %s blobs" % (self.lang, self.name),
+                          closure)
+
 
 class StdLibsZone(object):
     """Singleton zone managing the db/stdlibs/... area.
@@ -320,6 +334,14 @@ class StdLibsZone(object):
         doesn't really need culling.
         """
         pass
+
+    def reportMemory(self, reporter, closure=None):
+        """
+        Report on memory usage from this StdLibZone. See nsIMemoryMultiReporter
+        """
+        log.debug("StdLibZone: reporting memory")
+        for stdlib in self._stdlib_from_stdlib_ver_and_name.values():
+            stdlib.reportMemory(reporter, closure)
 
     def get_lib(self, lang, ver_str=None):
         """Return a view into the stdlibs zone for a particular language

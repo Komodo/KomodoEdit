@@ -351,7 +351,8 @@ class KoCodeIntelManager(Manager):
       (hopefully) -- by caching CIDB data on the current file -- and more
       correctly -- given recent edits and language-specific smarts.
     """
-    _com_interfaces_ = [components.interfaces.koICodeIntelManager]
+    _com_interfaces_ = [components.interfaces.koICodeIntelManager,
+                        components.interfaces.nsIMemoryMultiReporter]
 
     def __init__(self, db_base_dir=None, extension_pylib_dirs=None,
                  db_event_reporter=None, db_catalog_dirs=None):
@@ -375,6 +376,19 @@ class KoCodeIntelManager(Manager):
         self._currLanguage = None
         #self._flushCSCache()
         self._batchUpdateProgressUIHandler = None
+
+        try:
+            memMgr = components.classes["@mozilla.org/memory-reporter-manager;1"]. \
+                        getService(components.interfaces.nsIMemoryReporterManager)
+            memMgr.registerMultiReporter(self)
+        except:
+            log.exception("Failed to register codeintel manager as memory reporter")
+
+    def finalize(self, *args, **kwargs):
+        memMgr = components.classes["@mozilla.org/memory-reporter-manager;1"]. \
+                    getService(components.interfaces.nsIMemoryReporterManager)
+        memMgr.unregisterMultiReporter(self)
+        return Manager.finalize(*args, **kwargs)
 
     def _on_scan_complete(self, request):
         if request.status == "changed":
@@ -651,6 +665,14 @@ class KoCodeIntelManager(Manager):
         finally:
             self._csLock.release()
 
+    def collectReports(self, callback, closure):
+        """ nsIMemoryMultiReporter implementation """
+        log.debug("collecting memory reports")
+        for zone in self.db.get_all_zones():
+            try:
+                zone.reportMemory(callback, closure)
+            except:
+                log.exception("Failed to report memory for zone %r", zone)
 
 class KoCodeIntelEvalController(EvalController):
     _com_interfaces_ = [components.interfaces.koICodeIntelEvalController]

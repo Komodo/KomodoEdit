@@ -699,6 +699,69 @@ def makePerformantLogger(logger):
         if not logger.isEnabledFor(logging.DEBUG):
             logger.debug = _log_ignore
 
+def getMemoryUsage(obj):
+    """ Calculate the memory used by the given object
+    @param obj {object} The object to determine the memory usage of
+    @returns {int} The number of bytes the object is known to use
+    @note This may not accurately report memory usage for classes
+    """
+    
+    seen = set()
+
+    _ET = [] # need to be an object so we can modify it from within the getter
+    def ET():
+        """Get the ciElementTree module (with caching)
+        This is so we can delay importing it until necessary.
+        @return The module object, or False if it cannot be imported
+        """
+        if not len(_ET):
+            try:
+                import ciElementTree
+                _ET.append(ciElementTree)
+            except ImportError:
+                _ET.append(False)
+        return _ET[0]
+
+    def calc(obj):
+        if id(obj) in seen:
+            # already saw this object; don't double-count
+            return 0
+        try:
+            size = sys.getsizeof(obj, 0)
+            seen.add(id(obj))
+        except:
+            # failed to get the size of the object. (this happens sometimes with
+            # PyXPCOM objects)
+            size = 0
+        try:
+            if isinstance(obj, dict):
+                # also account for things in the dict
+                # note that we can't use obj.items() since that creates a
+                # temporary tuple, and its id may get re-used (causing us to
+                # under-count)
+                size += sum(getMemoryUsage(o) for o in obj.keys() + obj.values())
+            elif isinstance(obj, (list, tuple, set, frozenset)):
+                # these have children and support the iterator protocol
+                size += sum(getMemoryUsage(o) for o in obj)
+            elif isinstance(obj, (str, unicode, float, int)) or obj is None:
+                # these things are known to have no interesting children
+                pass
+            elif ET() and ET().iselement(obj):
+                # try to handle ciELement elements
+                size += sum(getMemoryUsage(o) for o in obj.items())
+                size += sum(getMemoryUsage(o) for o in obj)
+                size += getMemoryUsage(obj.tag)
+                size += getMemoryUsage(obj.attrib)
+            else:
+                # we don't know how to deal with this type of object
+                pass
+        except:
+            # we had problems looking at the object's properties
+            pass
+        return size
+
+    return calc(obj)
+
 
 #---- mainline self-test
 

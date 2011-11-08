@@ -62,7 +62,7 @@ import Queue
 import ciElementTree as ET
 from codeintel2.common import *
 from codeintel2.buffer import Buffer
-from codeintel2.util import dedent, safe_lang_from_lang, banner, hotshotit
+from codeintel2.util import dedent, safe_lang_from_lang, banner, hotshotit, getMemoryUsage
 from codeintel2.tree import tree_from_cix_path
 from codeintel2.database.util import filter_blobnames_for_prefix
 from codeintel2.database.resource import AreaResource
@@ -257,6 +257,26 @@ class CatalogsZone(object):
                         del blob_and_atime_from_blobname[blobname]
         finally:
             self._lock.release()
+
+    def reportMemory(self, reporter, closure=None):
+        """
+        Report on memory usage from this CatalogsZone. See nsIMemoryMultiReporter
+        """
+        log.debug("CatalogsZone: reporting memory")
+
+        from xpcom import components
+        process = ""
+
+        for lang, blob_and_atime_from_blobname in self._blob_and_atime_from_blobname_from_lang_cache.items():
+            for blobname, blob_and_atime in blob_and_atime_from_blobname.items():
+                blob, atime = blob_and_atime
+                reporter.callback(process,
+                                  "explicit/komodo/codeintel/%s/catalog/%s" % (lang, blobname),
+                                  components.interfaces.nsIMemoryReporter.KIND_HEAP,
+                                  components.interfaces.nsIMemoryReporter.UNITS_BYTES,
+                                  getMemoryUsage(blob),
+                                  "The number of bytes of %s codeintel %s catalog blobs" % (lang, blobname),
+                                  closure)
 
     def avail_catalogs(self, selections=None):
         """Generate a list of available catalogs.
