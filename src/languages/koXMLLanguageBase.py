@@ -263,11 +263,33 @@ class koXMLLanguageBase(KoUDLLanguage):
     def getMatchingTagInfo(self, scimoz, pos, constrainSearchInViewPort):
         return scimozindent.findMatchingTagPosition(scimoz, pos, self,
                                                     constrainSearchInViewPort)
-        
+
+    def getEndTagForStartTag(self, tag):
+        """Return the end tag for a start tag
+        @param tag {unicode} The start tag, e.g. "<window>", "<svg foo='bar'>"
+        @returns {unicode} The matching end tag, e.g., "</window>", "</svg>"
+        @note If the start tag is self-closing (e.g. "<br/>"), the returned end
+            tag is empty.
+        """
+        assert tag.startswith("<"), "getEndTagForStartTag: tag does not start with '<'"
+        assert tag.endswith(">"), "getEndTagForStartTag: tag does not end with '>'"
+        tag = tag[1:-1]
+        if tag.endswith("/"):
+            # self-closing
+            return ""
+        tagName = tag.split()[0]
+        assert not tagName.startswith("/"), \
+            "getEndTagForStartTag: got an end tag instead"
+        return u"</%s>" % (tagName,)
+
 
 class koHTMLLanguageBase(koXMLLanguageBase):
     isHTMLLanguage = True
-    
+
+    # Elements which do not have an end tag.  Naming follows
+    # http://www.whatwg.org/specs/web-apps/current-work/multipage/syntax.html#void-elements
+    _void_elements = set()
+
     def softchar_accept_styled_chars(self, scimoz, pos, style_info, candidate, constraints):
         """This method is used by some of the UDL languages to figure out
         when to generate a soft character based on typed text. Typical examples
@@ -313,6 +335,25 @@ class koHTMLLanguageBase(koXMLLanguageBase):
                 return (True, fixedLeadingWS)
         return (False, None)
 
+    def getEndTagForStartTag(self, tag):
+        """Return the end tag for a start tag
+        @param tag {unicode} The start tag, e.g. "<window>", "<svg foo='bar'>"
+        @returns {unicode} The matching end tag, e.g., "</window>", "</svg>"
+        """
+        assert tag.startswith("<"), "getEndTagForStartTag: tag does not start with '<'"
+        assert tag.endswith(">"), "getEndTagForStartTag: tag does not end with '>'"
+        tag = tag[1:-1].strip()
+        if tag.endswith("/"):
+            # fake self-closing tag, "<br />" - drop that.
+            # (we rely on the list of void elements instead)
+            tag = tag[:-1]
+        tagName = tag.split()[0]
+        assert not tagName.startswith("/"), \
+            "getEndTagForStartTag: got an end tag instead"
+        if tagName.lower() in self._void_elements:
+            # this is a void element (no close tag)
+            return ""
+        return u"</%s>" % (tagName,)
 
 def _findIndent(scimoz, bitmask, chars, styles, comment_styles, opening_styles):
     indenting = None

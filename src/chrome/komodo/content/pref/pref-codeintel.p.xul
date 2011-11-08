@@ -109,6 +109,11 @@
                          pref="true"/>
             </hbox>
 
+            <separator class="thin"/>
+            <checkbox id="codeintelAutoInsertEndTag"
+                      label="&codeintelAutoInsertEndTag.label;" pref="true"
+                      prefstring="codeintelAutoInsertEndTag"
+                      prefattribute="checked"/>
         </groupbox>
 
         <groupbox id="scanning_groupbox" orient="vertical">
@@ -129,7 +134,7 @@
                       prefattribute="checked" />
         </groupbox>
 
-        <groupbox id="groupbox-2" orient="vertical">
+        <groupbox id="groupbox-2" orient="vertical" flex="1">
             <caption label="&APICatalogs.label;"/>
             <description>
                 &codeIntelAPICatalogs.description;

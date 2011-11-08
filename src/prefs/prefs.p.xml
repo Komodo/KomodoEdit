@@ -926,6 +926,9 @@
   <long id="codeintel_max_recursive_dir_depth">10</long>
   <boolean id="codeintel_scan_files_in_project">1</boolean>
 
+  <!-- automatically insert the end tag on typing the start tag -->
+  <boolean id="codeintelAutoInsertEndTag">1</boolean>
+
   <!-- Used for codeintel goto definition when the definition is not found. -->
   <boolean id="donotask_gotoDefinitionOnline">0</boolean>
   <string id="donotask_action_gotoDefinitionOnline"></string>

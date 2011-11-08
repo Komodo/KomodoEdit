@@ -66,6 +66,14 @@ class KoHTMLLanguage(koHTMLLanguageBase):
     #    squigglies for linting.
     _lineup_chars = '' # don't indent ()'s and the like in HTML!
     _lineup_open_chars = "" # don't indent ()'s and the like in HTML!
+
+    # The set of elements which do not have a close tag. See
+    # http://www.w3.org/TR/html401/index/elements.html
+    # (with some sensible additions from HTML5 where tags are not standardized)
+    _void_elements = set(("area", "base", "basefont", "br", "col", "embed",
+                          "frame", "hr", "img", "input", "isindex", "keygen",
+                          "link", "meta", "param", "wbr"))
+
     sample = """<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -114,6 +122,12 @@ class KoHTML5Language(KoHTMLLanguage):
     _reg_categories_ = [("komodo-language", name)]
     
     lang_from_udl_family = {'CSL': 'JavaScript', 'M': 'HTML5', 'CSS': 'CSS'}
+
+    # The set of elements which do not have a close tag. See
+    # http://www.whatwg.org/specs/web-apps/current-work/multipage/syntax.html#void-elements
+    _void_elements = set(("area", "base", "br", "col", "command", "embed", "hr",
+                          "img", "input", "keygen", "link", "meta", "param",
+                          "source", "track", "wbr"))
 
     sample = """<!DOCTYPE html>
 <html lang-en>

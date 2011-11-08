@@ -981,9 +981,11 @@ class KoLanguageBase:
         prefObserver.addObserver(self, 'indentStringsAfterParens', True)
         prefObserver.addObserver(self, 'editSmartSoftCharacters', True)
         prefObserver.addObserver(self, 'dedentOnColon', True)
+        prefObserver.addObserver(self, 'codeintelAutoInsertEndTag', True)
         self._indentStringsAfterParens = self.prefset.getBooleanPref("indentStringsAfterParens")
         self._editSmartSoftCharacters = self.prefset.getBooleanPref("editSmartSoftCharacters")
         self._dedentOnColon = self.prefset.getBooleanPref("dedentOnColon")
+        self._codeintelAutoInsertEndTag = self.prefset.getBooleanPref("codeintelAutoInsertEndTag")
 
     def observe(self, subject, topic, data):
         if topic == 'xpcom-shutdown':
@@ -991,8 +993,10 @@ class KoLanguageBase:
             prefObserver.removeObserver(self, 'indentStringsAfterParens')
             prefObserver.removeObserver(self, 'editSmartSoftCharacters')
             prefObserver.removeObserver(self, 'dedentOnColon')
+            prefObserver.removeObserver(self, 'codeintelAutoInsertEndTag')
         elif topic in ('indentStringsAfterParens',
-                       'editSmartSoftCharacters', 'dedentOnColon'):
+                       'editSmartSoftCharacters', 'dedentOnColon',
+                       'codeintelAutoInsertEndTag'):
             setattr(self, "_" + topic,
                     self.prefset.getBooleanPref(topic))
 
@@ -2447,6 +2451,49 @@ class KoLanguageBase:
             state = self._findXMLState(scimoz, charPos, ch, style)
             if state == 'END_TAG_CLOSE':
                 scimozindent.adjustClosingXMLTag(scimoz, self.isHTMLLanguage)
+            elif state == 'START_TAG_CLOSE':
+                # try to insert the closing tag; i.e. if the user types
+                # "<html>|", insert "</html>" after the cursor
+                if not self._codeintelAutoInsertEndTag:
+                    # we don't want to automatically insert the closing tag
+                    return
+                if style != scimoz.SCE_UDL_M_STAGC:
+                    # _findXMLState returns START_TAG_CLOSE on things that are
+                    # wrong (e.g. "<window>>|") - don't trust it.
+                    return
+                targetStart = scimoz.targetStart
+                targetEnd = scimoz.targetEnd
+                searchFlags = scimoz.searchFlags
+                try:
+                    scimoz.targetStart = currentPos
+                    scimoz.targetEnd = 0
+                    scimoz.searchFlags = 0
+                    tagStart = scimoz.searchInTarget(1, "<")
+                    if tagStart == -1:
+                        # we shouldn't get here (how did we end up in
+                        # START_TAG_CLOSE!?), but we should deal gracefully
+                        log.warning("KoLanguageBase::_keyPressed: Failed to "
+                                    "find start of tag in START_TAG_CLOSE")
+                        return
+                    tagText = scimoz.getTextRange(tagStart, currentPos)
+                    endTag = self.getEndTagForStartTag(tagText)
+                    if endTag:
+                        try:
+                            scimoz.beginUndoAction()
+                            scimoz.insertText(currentPos, endTag)
+                            # Don't make the new text soft characters; that
+                            # produces odd problems (they never harden
+                            # correctly; deleting the start tag will only delete
+                            # the first soft character, not the range).  It
+                            # turns out to be a better experience to make
+                            # everything hard (but undo-able).
+                        finally:
+                            scimoz.endUndoAction()
+                finally:
+                    # restore search states
+                    scimoz.targetStart = targetStart
+                    scimoz.targetEnd = targetEnd
+                    scimoz.searchFlags = searchFlags
             return
 
         indent = self.getIndentForCloseChar(scimoz, charPos, ch, style, style_info, None)
