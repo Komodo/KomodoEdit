@@ -1542,6 +1542,12 @@
                                         observes="cmd_helpViewErrorLog"
                                     />
                                     <menuitem
+                                        id="troubleshootingAboutMemory"
+                                        accesskey="&helpTroubleshootingAboutMemory.accesskey;"
+                                        label="&helpTroubleshootingAboutMemory.label;"
+                                        observes="cmd_komodoMemoryUsage"
+                                    />
+                                    <menuitem
                                         id="troubleshootingViewBugsMenuItem"
                                         accesskey="&komodoBugDatabase.accesskey;"
                                         label="&komodoBugDatabase.label;"

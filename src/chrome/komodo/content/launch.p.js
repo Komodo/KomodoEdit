@@ -226,6 +226,13 @@ this.viewErrorLog = function() {
     }
 }
 
+/**
+ * Open the Komodo memory usage report.
+ */
+this.memoryUsage = function() {
+    ko.open.URI("about:memory", "browser");
+}
+
 }).apply(ko.help = {});
 
 if (!("launch" in ko))

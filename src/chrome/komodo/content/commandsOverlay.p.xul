@@ -280,6 +280,10 @@
             oncommand="ko.commands.doCommandAsync('cmd_helpViewErrorLog', event)"
             desc="&helpTroubleshootingViewErrorLog.desc;"/>
         <command
+            id="cmd_komodoMemoryUsage" key="key_cmd_komodoMemoryUsage"
+            oncommand="ko.commands.doCommandAsync('cmd_komodoMemoryUsage', event)"
+            desc="&komodoMemoryUsage.desc;"/>
+        <command
             id="cmd_helpContactUs" key="key_cmd_helpContactUs"
             oncommand="ko.commands.doCommandAsync('cmd_helpContactUs', event)"
             desc="&helpTroubleshootingContactUs.desc;"/>

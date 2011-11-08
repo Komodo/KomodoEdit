@@ -353,6 +353,8 @@
 <!ENTITY helpTroubleshootingViewErrorLog.accesskey "L">
 <!ENTITY helpTroubleshootingViewErrorLog.label "View Log File">
 <!ENTITY helpTroubleshootingViewErrorLog.desc "Help: Open the Komodo Error Log for viewing">
+<!ENTITY helpTroubleshootingAboutMemory.accesskey "M">
+<!ENTITY helpTroubleshootingAboutMemory.label "Memory Usage">
 <!ENTITY importExport.label "Import/Export">
 <!ENTITY importFromFileSystem.label "Import from File System...">
 <!ENTITY importPackage.label "Import Package...">
@@ -383,6 +385,7 @@
 <!ENTITY komodoCommunity.label "Komodo Community">
 <!ENTITY komodoCommunity.tooltiptext "Komodo Community">
 <!ENTITY komodoEmailLists.tooltiptext "Komodo Email Lists">
+<!ENTITY komodoMemoryUsage.desc "Utilities: Report of Komodo's Memory Usage">
 <!ENTITY komodoResources.label "Komodo Resources">
 <!ENTITY komodoResourcesToolbar.label "Komodo Resources Toolbar">
 <!ENTITY komodoResourcesToolbar.tooltiptext "Komodo Resources Toolbar">
