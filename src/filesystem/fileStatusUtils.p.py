@@ -168,15 +168,28 @@ class KoFileCheckerBase(object):
             # also calculate the size in bytes
             seen = set()
             def calculate(obj):
-                if id(obj) in seen:
-                    # already say this object; don't double-count
-                    return 0
-                size = sys.getsizeof(obj, 0)
-                seen.add(id(obj))
-                if isinstance(obj, dict):
-                    # also account for things in the dict
-                    size += sum(calculate(o) for o in obj.keys() + obj.values())
-                return size
+                try:
+                    if id(obj) in seen:
+                        # already say this object; don't double-count
+                        # (note that this means we can't have temporary things
+                        # in the recursion, since they report the same id)
+                        return 0
+                    size = sys.getsizeof(obj, 0)
+                    seen.add(id(obj))
+                    if isinstance(obj, dict):
+                        # also account for things in the dict
+                        size += sum(calculate(o) for o in obj.keys() + obj.values())
+                    elif isinstance(obj, (list, tuple, set)):
+                        size += sum(calculate(o) for o in obj)
+                    elif isinstance(obj, (str, unicode, float, int)) or obj is None:
+                        pass
+                    else:
+                        self.log.debug("KoSCCChecker::collectReports: skipping %r (%r @ %s)",
+                                       obj, type(obj), hex(id(obj)))
+                    return size
+                except:
+                    self.log.exception("error getting size for %r", obj)
+                    return float('inf')
             amount = calculate(self._cached_info)
             reportHandler.callback(process,
                                    "explicit/komodo/scc/%s/known-files" % (self.name,),
