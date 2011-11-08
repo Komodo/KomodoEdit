@@ -281,6 +281,8 @@ this.createPlacesProjectView = function() {
             openProjectInNewWindow:1,
             openProjectInCurrentWindow:1,
          });
+    document.getElementById("placesSubpanelProjects_MPV").addEventListener('keypress',
+                            this.handle_keypress_setup, true);
     if (_placePrefs.hasPref("project_sort_direction")) {
         // See bug 89283 for an explanation of why all windows
         // now have the same sort direction.
@@ -291,6 +293,10 @@ this.createPlacesProjectView = function() {
     } else {
         // dump('loading... _placePrefs.hasPref("project_sort_direction"): not found\n');
     }
+};
+
+this.handle_keypress_setup = function(event) {
+    return ko.places.projects.onTreeKeyPress(event);
 };
 
 this.activateView = function() {
