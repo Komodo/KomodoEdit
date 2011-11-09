@@ -226,7 +226,6 @@ this.ProjectCommandHelper.prototype.doDrop = function(event, sender) {
         if (from_uris.length == 0) {
             return false;
         } else if (from_uris.length == 1 && this._isProject(from_uris[0])) {
-            //XXX: What if source_uri is remote?
             // Projects don't get dropped on containers; they get dropped
             // on the tree as a whole, so we don't test for targets
             ko.projects.open(from_uris[0]);

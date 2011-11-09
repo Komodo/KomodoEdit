@@ -164,6 +164,9 @@ this.initProjectsContextMenu = function(event, menupopup) {
                                     && currentProject.url == selectedUrl);
     selectionInfo.projectIsDirty = selectionInfo.currentProject && currentProject.isDirty;
     selectionInfo.itemTypes = itemTypes;
+    selectionInfo.isLocal = selectedUrls.every(function(uri) uri.indexOf("file:/") == 0);
+    selectionInfo.isRemote = !selectionInfo.isLocal;
+    selectionInfo.multipleNodesSelected = selectedUrls.length != 1;
     var projectIsOpen = false;
     var windows = ko.windowManager.getWindows();
     for (var win, i = 0; win = windows[i]; i++) {
@@ -177,7 +180,7 @@ this.initProjectsContextMenu = function(event, menupopup) {
     
     var childNodes = menupopup.childNodes;
     for (var menuNode, i = 0; menuNode = childNodes[i]; i++) {
-        var directive, disableNode = false;
+        var directive;
         if (!!(directive = menuNode.getAttribute('hideIf'))
             && ko.places.matchAnyType(menuNode.getAttribute('hideIf'), itemTypes)) {
             // hide the node
@@ -189,23 +192,7 @@ this.initProjectsContextMenu = function(event, menupopup) {
             continue;
         }
         menuNode.removeAttribute('collapsed');
-        
-        if (!!(directive = menuNode.getAttribute('disableIf'))
-            && (ko.places.matchAnyType(directive, itemTypes)
-                || ((directive in selectionInfo) && selectionInfo[directive]))) {
-            disableNode = true;
-        } else if (!!(directive = menuNode.getAttribute('disableUnless'))) {
-            if ((directive in selectionInfo) && selectionInfo[directive]) {
-                // don't disable
-            } else if (!ko.places.matchAnyType(directive, itemTypes)) {
-                disableNode = true;
-            }
-        }
-        if (disableNode) {
-            menuNode.setAttribute('disabled', true);
-        } else {
-            menuNode.removeAttribute('disabled');
-        }
+        ko.places.testDisableNode(menuNode, selectionInfo);
         if (menuNode.id == "menu_addItemToProject_projectsContext"
             && selectionInfo.currentProject) {
             menupopup = menuNode.firstChild;
