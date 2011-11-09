@@ -317,9 +317,10 @@
 
                     menuitem.setAttribute("label", label);
                     menuitem.setAttribute("tooltiptext", tooltiptext);
+                    menuitem.setAttribute("type", "checkbox");
                     
                     if (tab.selected) {
-                        menuitem.setAttribute('style', 'font-weight: bold');
+                        menuitem.setAttribute('checked', 'true');
                     } else {
                         // Command also requires a setFocus - see bug 89163.
                         menuitem.setAttribute('oncommand', 'this.tab.control.selectedItem = this.tab; ko.views.manager.currentView.setFocus();');
