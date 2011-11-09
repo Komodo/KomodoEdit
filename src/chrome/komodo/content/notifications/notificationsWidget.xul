@@ -1,6 +1,10 @@
 <?xml version="1.0"?>
 
 <?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/platform.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/unifiedWindow.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/sidebar.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/toolbar.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/notifications.css" type="text/css"?>
 
 <!DOCTYPE page PUBLIC "-//MOZILLA//DTD XUL V1.0//EN" "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
@@ -13,20 +17,22 @@
 <page id="notificationWidget" title="(Notifications Widget)"
       xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <vbox flex="1">
-    <toolbar id="toolbar">
-      <toolbarbutton type="checkbox" id="filter-error"
-                     tooltiptext="&filterErrorTooltip;"
-                     oncommand="NotificationsWidgetController.updateFilters()"/>
-      <toolbarbutton type="checkbox" id="filter-warning"
-                     tooltiptext="&filterWarningTooltip;"
-                     oncommand="NotificationsWidgetController.updateFilters()"/>
-      <toolbarbutton type="checkbox" id="filter-info"
-                     tooltiptext="&filterInfoTooltip;"
-                     oncommand="NotificationsWidgetController.updateFilters()"/>
-      <spacer/>
-      <toolbarbutton type="checkbox" id="filter-progress"
-                     tooltiptext="&filterProgressTooltip;"
-                     oncommand="NotificationsWidgetController.updateFilters()"/>
+    <toolbar id="toolbar" class="toolbar-background">
+      <toolbargroup class="solo-toolbaritem">
+        <toolbarbutton type="checkbox" id="filter-error"
+                       tooltiptext="&filterErrorTooltip;"
+                       oncommand="NotificationsWidgetController.updateFilters()"/>
+        <toolbarbutton type="checkbox" id="filter-warning"
+                       tooltiptext="&filterWarningTooltip;"
+                       oncommand="NotificationsWidgetController.updateFilters()"/>
+        <toolbarbutton type="checkbox" id="filter-info"
+                       tooltiptext="&filterInfoTooltip;"
+                       oncommand="NotificationsWidgetController.updateFilters()"/>
+        <toolbarseparator/>
+        <toolbarbutton type="checkbox" id="filter-progress"
+                       tooltiptext="&filterProgressTooltip;"
+                       oncommand="NotificationsWidgetController.updateFilters()"/>
+      </toolbargroup>
       <toolbarseparator/>
       <textbox id="filter-search" emptytext="&filterSearchEmpty;" type="search"
                oninput="NotificationsWidgetController.updateFilters()"

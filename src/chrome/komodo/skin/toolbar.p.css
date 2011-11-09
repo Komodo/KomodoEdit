@@ -76,6 +76,10 @@ toolbarbutton[kohidden="true"]
     -moz-box-orient: vertical;
 }
 
+toolbarbutton > .toolbarbutton-text:empty:not([value]) {
+    display: none;
+}
+
 .toolbarbutton-text[buttonstyle="pictures"],
 .toolbarbutton-icon[buttonstyle="text"] {
     display: none;
