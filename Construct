@@ -306,8 +306,8 @@ elsif ($platform eq "darwin") {
     $environ{LDFLAGS} .= " -arch i386";
 
     # Use 10.5 SDK for now
-    $envrion{CFLAGS} .= ' -mmacosx-version-min=10.5';
-    $envrion{CXXFLAGS} .= ' -mmacosx-version-min=10.5';
+    $environ{CFLAGS} .= ' -mmacosx-version-min=10.5';
+    $environ{CXXFLAGS} .= ' -mmacosx-version-min=10.5';
     $environ{LDFLAGS} .= ' -Wl,-syslibroot,/Developer/SDKs/MacOSX10.5.sdk';
 }
 
