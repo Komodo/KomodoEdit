@@ -532,7 +532,7 @@
             ]]>
             </handler>
 
-            <handler event="dragenter">
+            <handler event="dragenter" phase="target">
             <![CDATA[
                 //dump("scrolltabs:: dragenter\n");
                 var sourceTab = this.getSourceTabFromDataTransfer(event.dataTransfer);
@@ -540,7 +540,7 @@
                     // Don't have the right drop data - hide the indicator.
                     this.dropIndicatorBar.collapsed = true;
                 } else {
-                    this.dropIndicatorBar.collapsed = false;
+                    // we will set the indicator in dragover
                     this.ensureTabPositionsAreSet();
                 }
             ]]>
@@ -550,10 +550,12 @@
             <![CDATA[
                 //dump("scrolltabs:: dragover\n");
                 var ib = this.dropIndicatorBar;
-                if (ib.collapsed) {
-                    // Wrong drag data, ignore the event.
+                var sourceTab = this.getSourceTabFromDataTransfer(event.dataTransfer);
+                if (!sourceTab) {
+                    ib.collapsed = true;
                     return false;
                 }
+                ib.collapsed = false;
 
                 var tabStrip = this.scrollbox;
                 var ltr = (window.getComputedStyle(this.parentNode, null).direction
@@ -637,7 +639,7 @@
             ]]>
             </handler>
 
-            <handler event="dragleave">
+            <handler event="dragleave" phase="target">
             <![CDATA[
                 //dump("scrolltabs:: dragleave\n");
                 this.dropIndicatorBar.collapsed = true;
