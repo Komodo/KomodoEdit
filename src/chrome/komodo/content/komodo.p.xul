@@ -2208,8 +2208,10 @@
         <statusbarpanel id="statusbar-selection"
                         label="&noSelection.label;"
                         tooltiptext="&selectionInformation.tooltiptext;"
-                        style="min-width: 8em;"
-                        insertafter="statusbar-line-col"/>
+                        style="min-width: 8em;"/>
+        <statisbarpanel id="komodo-notifications-button"
+                        class="statusbarpanel-iconic"
+                        oncommand="ko.uilayout.ensureTabShown('notifications-widget');"/>
     </statusbar>
     <commandset id="allcommands">
         <command id="cmd_CustomizeToolbars"

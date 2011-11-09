@@ -390,6 +390,15 @@ page tree {
     list-style-image: url('chrome://famfamfamsilk/skin/icons/error.png');
 }
 
+/* Notifications / progress button */
+#komodo-notifications-button {
+    -moz-box-align: center;
+    list-style-image: url("chrome://global/skin/icons/loading_16.png");
+}
+#komodo-notifications-button:not([active]) {
+    display: none;
+}
+
 /* toolbox2 styles */
 treechildren#toolbox2-hierarchy-treebody::-moz-tree-image {
     padding-right: 2px;
