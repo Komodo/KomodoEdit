@@ -2161,6 +2161,9 @@
                id="statusbarviewbox"
                class="chromeclass-status"
                style="min-height: 1.5em;">
+        <statisbarpanel id="statusbar-notifications-button"
+                        class="statusbarpanel-iconic"
+                        oncommand="ko.uilayout.ensureTabShown('notifications-widget');"/>
         <statusbarpanel id="statusbar-message-panel" flex="1">
             <!-- the deck is here to support vi mode -->
             <deck id="statusbar-message-deck" selectedIndex="0" flex="1">
@@ -2209,9 +2212,6 @@
                         label="&noSelection.label;"
                         tooltiptext="&selectionInformation.tooltiptext;"
                         style="min-width: 8em;"/>
-        <statisbarpanel id="komodo-notifications-button"
-                        class="statusbarpanel-iconic"
-                        oncommand="ko.uilayout.ensureTabShown('notifications-widget');"/>
     </statusbar>
     <commandset id="allcommands">
         <command id="cmd_CustomizeToolbars"

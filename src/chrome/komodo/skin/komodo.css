@@ -391,11 +391,15 @@ page tree {
 }
 
 /* Notifications / progress button */
-#komodo-notifications-button {
+#statusbar-notifications-button {
     -moz-box-align: center;
     list-style-image: url("chrome://global/skin/icons/loading_16.png");
+    /* play with the margins because the status bar label normally has a large
+       margin-left, but we want to sit near the text. */
+    margin-left: 8px;
+    margin-right: -8px;
 }
-#komodo-notifications-button:not([active]) {
+#statusbar-notifications-button:not([active]) {
     display: none;
 }
 

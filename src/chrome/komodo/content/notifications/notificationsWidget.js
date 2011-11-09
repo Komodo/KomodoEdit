@@ -304,7 +304,7 @@ XPCOMUtils.defineLazyGetter(this, "container",
  */
 
 XPCOMUtils.defineLazyGetter(this, "_throbber",
-                            function() top.document.getElementById("komodo-notifications-button"));
+                            function() top.document.getElementById("statusbar-notifications-button"));
 
 /**
  * The global prefs service

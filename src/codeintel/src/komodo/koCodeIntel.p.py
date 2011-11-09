@@ -1008,6 +1008,7 @@ class KoCodeIntelEventReporter(object):
             self._notification.timeout = timeout
             self._notification.highlight = highlight
         self._notification.maxProgress = koINP.PROGRESS_NOT_APPLICABLE
+        self._notification.iconURL = None # remove any markings
 
         try:
             if msg is None:
@@ -1031,7 +1032,7 @@ class KoCodeIntelEventReporter(object):
             return
         for dir in dirs:
             self._dirs[dir][0] += 1
-        self._notification.iconURL = "chrome://global/skin/icons/loading_16.png"
+        self._notification.iconURL = None # remove any markings
         if len(self._dirs) < 2:
             # use indeterminate for one item, since jumping from empty progress
             # bar to full (and invisible) is useless
