@@ -21,7 +21,7 @@
           <xul:stack class="twisty" anonid="twisty"
                      onclick="toggleTwisty()">
             <xul:box class="messageImageWrapper">
-              <xul:image class="messageImage"/>
+              <xul:image class="messageImage" xbl:inherits="src=iconURL"/>
             </xul:box>
             <xul:box class="twistyImageWrapper">
               <xul:image class="twistyImage"/>
@@ -193,6 +193,21 @@
         </getter>
       </property>
 
+      <property name="iconURL">
+        <setter>
+        <![CDATA[
+          if (val) {
+            this.setAttribute("iconURL", val);
+          } else {
+            this.removeAttribute("iconURL");
+          }
+        ]]>
+        </setter>
+        <getter>
+          return this.getAttribute("iconURL") || null;
+        </getter>
+      </property>
+
       <field name="notification">
         /* a reference to the notification */
       </field>
@@ -202,9 +217,6 @@
       </field>
       <field name="_time">
         document.getAnonymousElementByAttribute(this, "anonid", "time");
-      </field>
-      <field name="_messageImage">
-        document.getAnonymousElementByAttribute(this, "anonid", "messageImage");
       </field>
       <field name="_detailContainer">
         document.getAnonymousElementByAttribute(this, "anonid", "details");

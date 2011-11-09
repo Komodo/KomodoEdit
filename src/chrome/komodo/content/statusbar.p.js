@@ -412,6 +412,11 @@ function _updateMessage()
         messageWidget.setAttribute("category", sm.category);
         messageWidget.setAttribute("label", sm.msg);
         messageWidget.setAttribute("tooltiptext", sm.msg);
+        if (sm.iconURL) {
+            messageWidget.setAttribute("image", sm.iconURL);
+        } else {
+            messageWidget.removeAttribute("image");
+        }
         if (sm.highlight) {
             messageWidget.setAttribute("highlite","true");
         } else {
@@ -454,11 +459,17 @@ function _updateMessage()
                         .join(": ");
             messageWidget.setAttribute("label", label);
             messageWidget.setAttribute("tooltiptext", label);
+            if (notification.iconURL) {
+                messageWidget.setAttribute("image", notification.iconURL);
+            } else {
+                messageWidget.removeAttribute("image");
+            }
             _lastNotification = notification;
         } else {
             messageWidget.setAttribute("label", _bundle.GetStringFromName("ready.label"));
             messageWidget.removeAttribute("tooltiptext");
             messageWidget.removeAttribute("category");
+            messageWidget.removeAttribute("image");
         }
         messageWidget.removeAttribute("highlite");
     }

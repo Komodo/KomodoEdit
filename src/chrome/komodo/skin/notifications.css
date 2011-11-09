@@ -61,6 +61,16 @@ notification[type="error"] .messageImage {
   list-style-image: url("chrome://global/skin/icons/error-16.png");
 }
 
+notification[type="info"][progress="done"] .messageImage {
+  /* progress completed notifications with no errors */
+  list-style-image: url("chrome://fugue/skin/icons/tick.png");
+}
+
+notification[progress]:not([progress="done"]) .messageImage {
+  /* in-progress notifications */
+  list-style-image: url("chrome://global/skin/icons/loading_16.png");
+}
+
 notification .twistyImageWrapper {
   -moz-box-pack: start;
 }

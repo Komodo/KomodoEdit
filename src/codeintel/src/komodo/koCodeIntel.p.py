@@ -1003,12 +1003,11 @@ class KoCodeIntelEventReporter(object):
             if self._notification.maxProgress == koINP.PROGRESS_NOT_APPLICABLE:
                 # it's already done; don't refresh the notification
                 return
-            self._notification.maxProgress = koINP.PROGRESS_NOT_APPLICABLE
         else:
-            self._notification.maxProgress = koINP.PROGRESS_INDETERMINATE
             self._notification.msg = msg
             self._notification.timeout = timeout
             self._notification.highlight = highlight
+        self._notification.maxProgress = koINP.PROGRESS_NOT_APPLICABLE
 
         try:
             if msg is None:
@@ -1032,6 +1031,7 @@ class KoCodeIntelEventReporter(object):
             return
         for dir in dirs:
             self._dirs[dir][0] += 1
+        self._notification.iconURL = "chrome://global/skin/icons/loading_16.png"
         if len(self._dirs) < 2:
             # use indeterminate for one item, since jumping from empty progress
             # bar to full (and invisible) is useless
@@ -1093,6 +1093,7 @@ class KoCodeIntelEventReporter(object):
             # all done
             self._notification.maxProgress = \
                 components.interfaces.koINotificationProgress.PROGRESS_NOT_APPLICABLE
+            self._notification.iconURL = "chrome://fugue/skin/icons/tick.png"
         try:
             if self._dirs:
                 self._proxiedObsSvc.notifyObservers(self._notification,

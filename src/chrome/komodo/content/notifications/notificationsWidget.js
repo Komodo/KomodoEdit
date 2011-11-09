@@ -83,9 +83,21 @@ this.updateNotification = (function NWC_updateNotification(notification, elem) {
   // progress information
   if (notification instanceof Ci.koINotificationProgress) {
     elem.maxProgress = notification.maxProgress;
-    elem.progress = notification.progress;
+    if (notification.maxProgress == Ci.koINotificationProgress.PROGRESS_NOT_APPLICABLE) {
+      elem.removeAttribute("progress");
+    } else {
+      elem.progress = notification.progress;
+      if (notification.maxProgress == Ci.koINotificationProgress.PROGRESS_INDETERMINATE) {
+        elem.setAttribute("progress", "indeterminate");
+      } else if (notification.progress == notification.maxProgress) {
+        elem.setAttribute("progress", "done");
+      } else {
+        elem.setAttribute("progress", "incomplete");
+      }
+    }
   } else {
     elem.maxProgress = Ci.koINotificationProgress.PROGRESS_NOT_APPLICABLE;
+    elem.removeAttribute("progress");
   }
   if (notification instanceof Ci.koINotificationActionable) {
     var actions = {};
