@@ -1407,7 +1407,7 @@ this.open = function project_openProjectFromURL(url,
         ko.projects.manager._ensureProjectPaneVisible = ensureVisible;
         xtk.domutils.fireEvent(window, 'project_opened');
         ko.projects.manager._ensureProjectPaneVisible = true;
-    }, 10);
+    }, 100);
     return true;
 }
 
