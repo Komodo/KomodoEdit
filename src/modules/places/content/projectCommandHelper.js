@@ -201,6 +201,157 @@ this.ProjectCommandHelper.prototype.onTreeKeyPress = function(event, sender) {
     return false;
 };
 
+this.ProjectCommandHelper.prototype.doDragOver = function(event, sender) {
+    return this._checkDrag(event);
+};
+
+this.ProjectCommandHelper.prototype.doDragEnter = function(event, sender) {
+    return this._checkDrag(event);
+};
+
+this.ProjectCommandHelper.prototype._projectSuffices = ["kpf", "komodoproject"];
+this.ProjectCommandHelper.prototype._isProject = function(uri) {
+    var lastDot = uri.lastIndexOf(".");
+    if (lastDot === -1) {
+        return false;
+    }
+    return ~this._projectSuffices.indexOf(uri.substr(lastDot + 1));
+};
+
+this.ProjectCommandHelper.prototype.doDrop = function(event, sender) {
+    try {
+        var dt = event.dataTransfer;
+        var copying, dropEffect, from_uris, source_uri;
+        [from_uris, dropEffect] = ko.places.viewMgr._getDraggedURIs(event);
+        if (from_uris.length == 0) {
+            return false;
+        } else if (from_uris.length == 1 && this._isProject(from_uris[0])) {
+            //XXX: What if source_uri is remote?
+            // Projects don't get dropped on containers; they get dropped
+            // on the tree as a whole, so we don't test for targets
+            ko.projects.open(from_uris[0]);
+            event.stopPropagation();
+            event.preventDefault();
+            return false;
+        } else if (dropEffect == "none") {
+            return false;
+        } else if (dropEffect == "link") {
+            return false;
+        }
+
+        var index = this._currentRow(event);
+        if (index == -1) {
+            return false;
+        }
+        var treeview = this.owner.projectsTreeView;
+        var target_part = treeview.getRowItem(index);
+        if (!treeview.isContainer(index) || target_part.type == "livefolder") {
+            //dump("Not dumping on a containerable\n");
+            return false;
+        }
+        
+        var newPart;
+        for (var i = 0; i < from_uris.length; i++) {
+            source_uri = from_uris[i];
+            var fileObj = (Components.classes["@activestate.com/koFileService;1"].
+                           getService(Components.interfaces.koIFileService).
+                           getFileFromURI(source_uri));
+            if (fileObj.isDirectory) {
+                newPart = ko.projects.addPartWithURLAndType(source_uri, 'livefolder', target_part);
+            } else if (fileObj.isFile) {
+                newPart = ko.projects.addFileWithURL(source_uri, target_part);
+            } else {
+                log.debug("doDrop: Error: Can't add " + source_uri + "\n");
+                continue;
+            }
+            if (newPart) {
+                this.owner.projectsTreeView.showChild(target_part, newPart);
+            }
+        }
+        event.stopPropagation();
+        event.preventDefault();
+        return false;
+    } catch(ex) {
+        log.error("doDrop: " + ex);
+    } finally {
+        this.doEndDrag(event, sender);
+    }
+    return false;
+};
+
+this.ProjectCommandHelper.prototype.doEndDrag = function(event, sender) {
+    this.complainIfNotAContainer = false;
+};
+
+this.ProjectCommandHelper.prototype._currentRow = function(event) {
+    var row = {};
+    this.owner.projectsTree.treeBoxObject.getCellAt(event.pageX, event.pageY, row, {},{});
+    return row.value;
+};
+
+var isSameURI = function(u1, u2) {
+    // The dangers of doing equality on URIs...
+    if (u1 == u2) return true;
+    return unescape(u1) == unescape(u2);
+}
+
+this.ProjectCommandHelper.prototype._checkDrag = function(event) {
+    // Project files are droppable everywhere.
+    var from_uris, dropEffect;
+    var retVal = null;
+    [from_uris, dropEffect] = ko.places.viewMgr._getDraggedURIs(event);
+    var this_ = this;
+    if (from_uris.length == 0) {
+        retVal = false;
+    } else if (from_uris.some(function(uri) this_._isProject(uri))) {
+        if (from_uris.length !== 1) {
+            retVal = false;
+        } else {
+            // Don't support a drag of the current project
+            var currentProject = ko.projects.manager.currentProject;
+            retVal = !currentProject || !isSameURI(currentProject.url, from_uris[0]);
+        }
+        event.preventDefault();
+    }
+    if (retVal === null) {
+        var inDragSource = this._checkDragSource(event);
+        var index = this._currentRow(event);
+        var part = this.owner.projectsTreeView.getRowItem(index);
+        if (!inDragSource || ["unopened_project", "file", "livefolder"].indexOf(part.type) !== -1) {
+            retVal = false;
+        } else {
+            retVal = true;
+            event.preventDefault();
+        }
+    }
+    if (event.dataTransfer) {
+        event.dataTransfer.dropEffect = event.dataTransfer.effectAllowed = retVal ? "copy" : "none";
+    } else {
+        log.debug("_checkDrag: no event.dataTransfer");
+    }
+    return retVal;
+};
+
+this.ProjectCommandHelper.prototype._checkDragSource = function(event) {
+    // All dragged items must be URIs for the drag source to be valid.
+    var dt = event.dataTransfer;
+    if (!dt) {
+        log.info("_checkDragSource: No dataTransfer");
+        return false;
+    }
+    for (var i = 0; i < dt.mozItemCount; i++) {
+        if (!event.dataTransfer.mozTypesAt(i).contains("text/uri-list")
+            && !event.dataTransfer.mozTypesAt(i).contains("text/x-moz-url")) {
+            if (this.complainIfNotAContainer) {
+                log.debug("not a file data-transfer\n");
+                this.complainIfNotAContainer = false;
+            }
+            return false;
+        }
+    }
+    return true;
+};
+
 this.ProjectCommandHelper.prototype._getProjectItemAndOperate = function(context, obj, callback) {
     if (typeof(callback) == "undefined") callback = context;
     var items = this.manager.getSelectedItems();
@@ -285,7 +436,7 @@ this.ProjectCommandHelper.prototype.importPackage = function() {
 };
 this.ProjectCommandHelper.prototype._continueMakeCurrentProject = function(project) {
     ko.projects.manager.setCurrentProject(project);
-    this.owner.projectsTreeView.invalidate();
+    this.owner.projectsTree.treeBoxObject.invalidate();
 }
 this.ProjectCommandHelper.prototype.makeCurrentProject = function() {
     this._getProjectItemAndOperate("makeCurrentProject", this,
@@ -443,6 +594,10 @@ this.ProjectCommandHelper.prototype.injectHelperFunctions = function(receiver) {
     for (var p in { onProjectTreeDblClick: 1,
                     onTreeKeyPress: 1,
                     openRemoteProject:1,
+                    doDragOver:1,
+                    doDragEnter:1,
+                    doDrop:1,
+                    doEndDrag:1,
                     showProjectInPlaces:1,
                     makeCurrentProject:1,
                     closeProject:1,

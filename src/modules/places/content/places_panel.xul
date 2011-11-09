@@ -214,9 +214,6 @@
           hidecolumnpicker="true"
           context="places-projects-popup-MPV"
           class="projectPlacesTree"
-          ondragstart="ko.places.projects.stopEvent(event);"
-          ondragenter="ko.places.projects.stopEvent(event);"
-          ondrop="return ko.places.projects.stopEvent(event);"
           seltype="multiple">
         <treecols id="placesSubpanelProjectsTreecols_MPV">
           <treecol id="placesSubpanelProjectNameTreecol_MPV"
@@ -228,6 +225,11 @@
             ondblclick="ko.places.projects.onProjectTreeDblClick(event, this);"
             context="placesSubpanelProjectsContextMenu_MPV"
             tooltip="places-projects-MPV-tree-popup"
+            ondragstart="ko.places.projects.stopEvent(event);"
+            ondragover="return ko.places.projects.doDragOver(event, this);"
+            ondragenter="return ko.places.projects.doDragEnter(event, this);"
+            ondrop="return ko.places.projects.doDrop(event, this);"
+            ondragend="ko.places.projects.doEndDrag(event, this);"
             class="recentProjectsTree projectTree" />
       </tree>
       <!-- subpanel 1: v6.0-style Projects -->
@@ -247,6 +249,11 @@
             ondblclick="ko.places.projects_SPV.onProjectTreeDblClick(event, this);"
             context="placesSubpanelProjectsContextMenu_SPV"
             tooltip="places-projects-SPV-tree-popup"
+            ondragstart="ko.places.projects_SPV.stopEvent(event);"
+            ondragover="return ko.places.projects_SPV.doDragOver(event, this);"
+            ondragenter="return ko.places.projects_SPV.doDragEnter(event, this);"
+            ondrop="return ko.places.projects_SPV.doDrop(event, this);"
+            ondragend="ko.places.projects_SPV.doEndDrag(event, this);"
             class="recentProjectsTree" />
       </tree>
     </deck>
