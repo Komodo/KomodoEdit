@@ -82,7 +82,7 @@ menupopup[type='buffercontext']  {
 .view-toolbar {
   -moz-binding: url('chrome://komodo/content/bindings/toolbar.xml#toolbar-overflow');
   border: 0;
-  border-bottom: 1px inset;
+  border-bottom: 1px inset rgba(0, 0, 0, 0.5);
   padding-bottom: 2px;
   margin-bottom: 2px;
 }
