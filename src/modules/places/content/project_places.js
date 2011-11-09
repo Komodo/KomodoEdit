@@ -468,6 +468,7 @@ this.initProjectsContextMenu = function(event, menupopup) {
       isLocal: selectedUrls.length > 0 && selectedUrls[0].indexOf("file://") == 0,
       __END__:null
     };
+    this._selectionInfo.isRemote = !this._selectionInfo.isLocal;
     this._processProjectsMenu_TopLevel(menupopup);
     delete this._selectionInfo;
     return true;
@@ -503,47 +504,7 @@ this._processProjectsMenu_TopLevel = function(menuNode) {
     selectionInfo.needSeparator[0] = true;
     selectionInfo.lastVisibleNode = menuNode;
     menuNode.removeAttribute('collapsed');
-    var disableNode = false;
-    if (selectionInfo.noneSelected) {
-        disableNode = true;
-    } else if (!!(directive = menuNode.getAttribute('disableIf'))
-               && ko.places.matchAnyType(directive, itemTypes)) {
-        disableNode = true;
-    } else if (!!(directive = menuNode.getAttribute('disableUnless'))
-               && !ko.places.matchAnyType(directive, itemTypes)) {
-        disableNode = true;
-    }
-    if (!disableNode) {
-        var testDisableIf = menuNode.getAttribute('testDisableIf');
-        if (testDisableIf) {
-            testDisableIf = testDisableIf.split(/\s+/);
-            testDisableIf.map(function(s) {
-                    if (s == 't:currentProject' && selectionInfo.currentProject) {
-                        disableNode = true;
-                    } else if (s == "t:multipleSelection" && selectionInfo.multipleNodesSelected) {
-                        disableNode = true;
-                    }
-                });
-        }
-        if (!disableNode) {
-            var testDisableUnless = menuNode.getAttribute('testDisableUnless');
-            if (testDisableUnless) {
-                testDisableUnless = testDisableUnless.split(/\s+/);
-                var anyTestPasses = false;
-                testDisableUnless.map(function(s) {
-                        if (!anyTestPasses && s == 't:projectIsDirty' && selectionInfo.projectIsDirty) {
-                            anyTestPasses = true;
-                        }
-                });
-                disableNode = !anyTestPasses;
-            }
-        }
-    }
-    if (disableNode) {
-        menuNode.setAttribute('disabled', true);
-    } else {
-        menuNode.removeAttribute('disabled');
-    }
+    ko.places.testDisableNode(menuNode, selectionInfo);
     var childNodes = menuNode.childNodes;
     var childNodesLength = childNodes.length;
     if (childNodesLength) {

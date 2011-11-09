@@ -599,45 +599,7 @@ viewMgrClass.prototype = {
         }
     
         menuNode.removeAttribute('collapsed');
-        var disableNode = false;
-        if (ko.places.matchAnyType(menuNode.getAttribute('disableIf'), itemTypes)) {
-            disableNode = true;
-        } else {
-            var testDisableIf = menuNode.getAttribute('testDisableIf');
-            if (testDisableIf) {
-                testDisableIf = testDisableIf.split(/\s+/);
-                testDisableIf.map(function(s) {
-                        if (s == 't:multipleSelection' && selectionInfo.multipleNodesSelected) {
-                            disableNode = true;
-                        } else if (s == 't:isRemote' && !selectionInfo.isLocal) {
-                            disableNode = true;
-                        } else if (s == 't:classIsntProject' && selectionInfo.classIsntProject) {
-                            disableNode = true;
-                        }
-                    });
-            }
-            if (!disableNode) {
-                var testEval_DisableIf = menuNode.getAttribute('testEval_DisableIf');
-                if (testEval_DisableIf) {
-                    try {
-                        var res = eval(testEval_DisableIf);
-                        if (res) {
-                            disableNode = true;
-                        }
-                    } catch(ex) {
-                        log.exception("Failed to eval '"
-                                      + testEval_DisableIf
-                                      + ": " + ex);
-                        disableNode = true;
-                    }
-                }
-            }
-        }
-        if (disableNode) {
-            menuNode.setAttribute('disabled', true);
-        } else {
-            menuNode.removeAttribute('disabled');
-        }
+        ko.places.testDisableNode(menuNode, selectionInfo);
         var childNodes = menuNode.childNodes;
         for (var i = childNodes.length - 1; i >= 0; --i) {
             this._processMenu_TopLevel(childNodes[i]);
@@ -3174,6 +3136,73 @@ this._intersectWithPossibleTypes = function(typeListAttr) {
     var possibleTypes = this._possibleTypes;
     return targetTypeList.filter(function(typeName) possibleTypes.indexOf(typeName) != -1);
 }
+
+this.testDisableNode = function(menuNode, selectionInfo) {
+    // Context menu setup for the places and both project panels in the
+    // places sidebar.  Better to have all code in one area, even with overlap.
+    var directive, disableNode = false;
+    var itemTypes = selectionInfo.itemTypes;
+    if (selectionInfo.noneSelected) {
+        disableNode = true;
+    } else if (!!(directive = menuNode.getAttribute('disableIf'))
+        && (this.matchAnyType(directive, itemTypes)
+            || ((directive in selectionInfo) && selectionInfo[directive]))) {
+        disableNode = true;
+    } else if (!!(directive = menuNode.getAttribute('disableUnless'))) {
+        if ((directive in selectionInfo) && selectionInfo[directive]) {
+            // don't disable
+        } else if (!this.matchAnyType(directive, itemTypes)) {
+            disableNode = true;
+        }
+    }
+    if (!disableNode
+        && !!(directive = menuNode.getAttribute('testDisableIf'))) {
+        var testDisableIf = directive.split(/\s+/);
+        testDisableIf.map(function(s) {
+                if (s == 't:currentProject' && selectionInfo.currentProject) {
+                    disableNode = true;
+                } else if (s == "t:multipleSelection" && selectionInfo.multipleNodesSelected) {
+                    disableNode = true;
+                } else if (s == "t:isRemote" && !selectionInfo.isLocal) {
+                    disableNode = true;
+                } else if (s == 't:classIsntProject' && selectionInfo.classIsntProject) {
+                    disableNode = true;
+                }
+            });
+    }
+    if (!disableNode
+        && !!(directive = menuNode.getAttribute('testEval_DisableIf'))) {
+        try {
+            var res = eval(testEval_DisableIf);
+            if (res) {
+                disableNode = true;
+            }
+        } catch(ex) {
+            log.exception("Failed to eval '"
+                          + testEval_DisableIf
+                          + ": " + ex);
+            disableNode = true;
+        }
+    }
+
+    if (!disableNode
+        && !!(directive = menuNode.getAttribute('testDisableUnless'))) {
+        var testDisableUnless = directive.split(/\s+/);
+        var anyTestPasses = false;
+        testDisableUnless.map(function(s) {
+                if (!anyTestPasses && s == 't:projectIsDirty' && selectionInfo.projectIsDirty) {
+                    anyTestPasses = true;
+                }
+            });
+        disableNode = !anyTestPasses;
+    }
+    if (disableNode) {
+        menuNode.setAttribute('disabled', true);
+    } else {
+        menuNode.removeAttribute('disabled');
+    }
+    return disableNode;
+};
 
 this.matchAnyType = function(typeListAttr, typesSelectedArray) {
     var targetTypeList = this._intersectWithPossibleTypes(typeListAttr);

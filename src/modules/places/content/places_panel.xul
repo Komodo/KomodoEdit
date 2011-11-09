@@ -470,12 +470,14 @@
                 id="menu_projCtxt_openProject"
                 class="menuitem-iconic"
                 oncommand="ko.places.projects.openProjectInCurrentWindow();"
+                testDisableIf="t:multipleSelection"
                 hideUnless="root" />
 <!--
       <menuitem label="&openRemoteProject.label;"
                 id="menu_projCtxt_openRemoteProject"
                 class="menuitem-iconic"
                 oncommand="ko.places.projects.openRemoteProject();" 
+                testDisableIf="t:multipleSelection"
                 hideUnless="root" />
 -->
       <menuitem label="&openProjectInNewWindow.label;"
@@ -483,6 +485,7 @@
                 class="menuitem-iconic"
                 disableIf="projectIsOpen"
                 oncommand="ko.places.projects.openProjectInNewWindow();" 
+                testDisableIf="t:multipleSelection"
                 hideUnless="root project" />
 
       <menuitem label="&showProjectInPlaces.label;"
@@ -505,6 +508,7 @@
       <menuitem label="&saveProject.label;"
                 id="menu_projCtxt_saveProject"
                 class="menuitem-iconic"
+                testDisableIf="t:multipleSelection"
                 testDisableUnless="t:projectIsDirty"
                 hideUnless="project"
                 oncommand="ko.places.projects.saveProject();" />
@@ -518,10 +522,12 @@
                 id="menu_projCtxt_renameProject"
                 class="menuitem-iconic"
                 hideUnless="project"
+                testDisableIf="t:multipleSelection"
                 oncommand="ko.places.projects.renameProject();" />
       <menuitem label="&revertProject.label;"
                 id="menu_projCtxt_revertProject"
                 class="menuitem-iconic"
+                testDisableIf="t:multipleSelection"
                 testDisableUnless="t:projectIsDirty"
                 hideUnless="project"
                 oncommand="ko.places.projects.revertProject();" />
@@ -530,17 +536,19 @@
                 id="menu_projCtxt_openFile"
                 class="menuitem-iconic"
                 hideUnless="file"
+                testDisableIf="t:multipleSelection"
                 oncommand="ko.places.projects.openFiles();" />
       <menuitem label="&refreshStatus.label;"
                 id="menu_projCtxt_refreshFileStatus"
                 class="menuitem-iconic"
+                testDisableIf="t:multipleSelection"
                 hideUnless="file project"
                 oncommand="ko.places.projects.refreshFileStatus();" />
       <menuitem label="&compareFileWith.label;"
                 id="menu_projCtxt_compareFileWith"
                 class="menuitem-iconic"
-                hideUnless="file project"
                 testDisableIf="t:multipleSelection"
+                hideUnless="file project"
                 oncommand="ko.places.projects.compareFileWith();" />
       
       <menuitem label="&showInPlaces.label;"
@@ -643,21 +651,25 @@
       <menuitem label="&showProjectInPlaces.label;"
           id="menu_showProjectInPlaces_projectsContext"
           disableUnless="currentProject"
+          testDisableIf="t:multipleSelection"
           hideUnless="project unopened_project"
           oncommand="ko.places.projects_SPV.showProjectInPlaces();" />
       <menuitem label="&closeProject.label;"
           id="menu_closeProject_projectsContext"
           hideUnless="project unopened_project"
           disableUnless="currentProject"
+          testDisableIf="t:multipleSelection"
           oncommand="ko.places.projects_SPV.closeProject();" />
       <menuitem label="&saveProject.label;"
           id="menu_saveProject_projectsContext"
           disableUnless="projectIsDirty"
           hideUnless="project unopened_project"
+          testDisableIf="t:multipleSelection"
           oncommand="ko.places.projects_SPV.saveProject();" />
       <menuitem label="&saveProjectAs.label;"
           id="menu_saveProjectAs_projectsContext"
           hideUnless="project unopened_project"
+          testDisableIf="t:multipleSelection"
           disableUnless="currentProject"
           oncommand="ko.places.projects_SPV.saveProjectAs();" />
       <menuitem label="&renameProject.label;"
@@ -665,17 +677,20 @@
           class="menuitem-iconic"
           hideUnless="project unopened_project"
           disableUnless="currentProject"
+          testDisableIf="t:multipleSelection"
           oncommand="ko.places.projects_SPV.renameProject();" />
       <menuitem label="&revertProject.label;"
           id="menu_revertProject_projectsContext"
           hideUnless="project unopened_project"
           disableUnless="projectIsDirty"
+          testDisableIf="t:multipleSelection"
           oncommand="ko.places.projects_SPV.revertProject();" />
 
       <menu label="&add.label;"
             id="menu_addItemToProject_projectsContext"
             class="menu-iconic"
             hideIf="file livefolder"
+            testDisableIf="t:multipleSelection"
             disableIf="unopened_project" >
         <menupopup id="menu_addMenu_popup_projectsContext" />
       </menu>
@@ -702,16 +717,19 @@
           id="menu_openProject_projectsContext"
           hideIf="file folder livefolder"
           disableIf="currentProject"
+          testDisableIf="t:multipleSelection"
           oncommand="ko.places.projects_SPV.openProjectInCurrentWindow();" />
       <menuitem label="&openProjectInNewWindow.label;"
           id="menu_projectOpenProject_projectsContext"
           hideIf="file folder livefolder"
           disableIf="currentProject"
+          testDisableIf="t:multipleSelection"
           oncommand="ko.places.projects_SPV.openProjectInNewWindow();" />
       <menuitem label="&removeProjectListing.label;"
           id="menu_removeProjectListing_projectsContext"
           hideIf="file folder livefolder"
           disableIf="currentProject"
+          testDisableIf="t:multipleSelection"
           oncommand="ko.places.projects_SPV.removeProjectListing();" />
 
       <menuseparator id="menu_project_properties_separator_projectsContext" hideIf="file folder livefolder"/>
@@ -719,6 +737,7 @@
           id="menu_projectProperties_projectsContext"
           hideIf="file folder livefolder"
           disableUnless="currentProject"
+          testDisableIf="t:multipleSelection"
           oncommand="ko.places.projects_SPV.editProjectProperties();"
           accesskey="&projectProperties.accesskey;" />
     </menupopup>
