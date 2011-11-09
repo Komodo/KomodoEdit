@@ -256,13 +256,28 @@ this.ProjectCommandHelper.prototype.doDrop = function(event, sender) {
             var fileObj = (Components.classes["@activestate.com/koFileService;1"].
                            getService(Components.interfaces.koIFileService).
                            getFileFromURI(source_uri));
-            if (fileObj.isDirectory) {
-                newPart = ko.projects.addPartWithURLAndType(source_uri, 'livefolder', target_part);
-            } else if (fileObj.isFile) {
-                newPart = ko.projects.addFileWithURL(source_uri, target_part);
-            } else {
-                log.debug("doDrop: Error: Can't add " + source_uri + "\n");
-                continue;
+            if (fileObj.isLocal) {
+                if (fileObj.isDirectory) {
+                    newPart = ko.projects.addPartWithURLAndType(source_uri, 'livefolder', target_part);
+                } else if (fileObj.isFile) {
+                    newPart = ko.projects.addFileWithURL(source_uri, target_part);
+                } else {
+                    log.debug("doDrop: Error: Can't add " + source_uri + "\n");
+                    continue;
+                }
+            } else if (fileObj.isRemoteFile) {
+                // Don't trust fileObj -- grab a remote connection and test it.
+                var RFService = Components.classes["@activestate.com/koRemoteConnectionService;1"].getService();
+                var conn = RFService.getConnectionUsingUri(source_uri);
+                var rfInfo = conn.list(fileObj.path, 0);
+                if (rfInfo.isDirectory()) {
+                    newPart = ko.projects.addPartWithURLAndType(source_uri, 'livefolder', target_part);
+                } else if (rfInfo.isFile()) {
+                    newPart = ko.projects.addFileWithURL(source_uri, target_part);
+                } else {
+                    log.debug("doDrop: Error: Can't add " + source_uri + "\n");
+                    continue;
+                }
             }
             if (newPart) {
                 this.owner.projectsTreeView.showChild(target_part, newPart);
@@ -580,7 +595,11 @@ this.ProjectCommandHelper.prototype.displayCurrentFullPath = function(event, sen
             throw new Error("Expected label child at index: " + index
                             + ", got " + label.nodeName);
         }
-        label.setAttribute("value", ko.uriparse.URIToLocalPath(uri));
+        var fileObj = (Components.classes["@activestate.com/koFileService;1"].
+                       getService(Components.interfaces.koIFileService).
+                       getFileFromURI(uri));
+        var labelValue = fileObj.isLocal ? fileObj.path : uri;
+        label.setAttribute("value", labelValue);
     } catch(ex) {
         if (ex.message) {
             log.debug("displayCurrentFullPath: " + ex + "\n");

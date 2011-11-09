@@ -255,9 +255,13 @@ viewMgrClass.prototype = {
             return false;
         }
         var uri = this.view.getURIForRow(index);
+        var fileObj = (Components.classes["@activestate.com/koFileService;1"].
+                       getService(Components.interfaces.koIFileService).
+                       getFileFromURI(uri));
+        var labelValue = fileObj.isLocal ? fileObj.path : uri;
         var popup = sender;
         var label = sender.childNodes[0];
-        label.setAttribute("value", ko.uriparse.URIToLocalPath(uri));
+        label.setAttribute("value", labelValue);
         return true;
     },
     
