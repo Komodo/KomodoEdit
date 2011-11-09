@@ -304,7 +304,10 @@ this.ProjectCommandHelper.prototype._checkDrag = function(event) {
     if (from_uris.length == 0) {
         retVal = false;
     } else if (from_uris.some(function(uri) this_._isProject(uri))) {
-        if (from_uris.length !== 1) {
+        if (from_uris.length !== 1
+            || from_uris[0].indexOf("file:/") != 0) {
+            // Don't support drag sources that contain a project file
+            // and something else, and don't support remote project files.
             retVal = false;
         } else {
             // Don't support a drag of the current project
