@@ -349,6 +349,7 @@
             if (!this.prefs.getBooleanPref('colorizing_enabled')) {
                 this._turnColourizingOff();
             }
+            this._setDocumentToolbarColors();
             ko.lint.initializeGenericPrefs(this.prefs)
             ko.macros.eventHandler.hookPostFileOpen(this);
         } catch (e) {
@@ -477,6 +478,27 @@
         </body>
         </method>
 
+        <method name="_setDocumentToolbarColors">
+        <body>
+        <![CDATA[
+            // Set the document toolbar to use the same colors as the current
+            // Komodo color scheme.
+            var backColor = this.scheme.getBack(this.language, "default");
+            var foreColor = this.scheme.getFore(this.language, "default");
+            var style = "color: " + foreColor + " !important;" +
+                        "background-color: " + backColor + " !important;";
+            this.toolbar_container.setAttribute("style", style);
+            // Also have to set the colors manually on each element, as they do
+            // not inherit properly.
+            var elem = this.toolbar.firstChild;
+            while (elem) {
+                elem.setAttribute("style", style);
+                elem = elem.nextSibling;
+            }
+        ]]>
+        </body>
+        </method>
+
         <!--nsIObserver implementation-->
         <method name="observe">
         <!-- Generally the subject of the notification is the view's
@@ -589,6 +611,7 @@
             case 'scheme-changed': // Modified the current scheme
                 setTimeout(function(this_) {
                     // view.scintilla is still using the old scheme.
+                    this_._setDocumentToolbarColors();
                     this_._setupHighlightColors();
                 }, 1, this);
                 break;
