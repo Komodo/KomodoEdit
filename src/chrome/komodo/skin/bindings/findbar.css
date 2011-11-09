@@ -72,10 +72,10 @@ ko-findbar.ko-findbar-status-wrapped .ko-findbar-status {
 }
 
 ko-findbar .ko-findbar-next {
-  list-style-image: url("chrome://famfamfamsilk/skin/icons/resultset_next.png");
+  list-style-image: url("chrome://fugue/skin/icons/arrow-315.png");
 }
 ko-findbar .ko-findbar-prev {
-  list-style-image: url("chrome://famfamfamsilk/skin/icons/resultset_previous.png");
+  list-style-image: url("chrome://fugue/skin/icons/arrow-135.png");
 }
 ko-findbar .ko-findbar-next .toolbarbutton-text,
 ko-findbar .ko-findbar-prev .toolbarbutton-text {
