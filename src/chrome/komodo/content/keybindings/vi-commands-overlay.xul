@@ -500,7 +500,7 @@
     <statusbarpanel id="vim-statusbar-mode"
                     label="&normal.label;"
                     style="min-width: 6em;"
-                    insertbefore="statusbar-message-panel"
+                    insertbefore="statusbar-notifications-button"
                     tooltiptext="&viEmulationMode.tooltiptext;"
                     />
 </statusbar>
