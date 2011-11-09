@@ -24,8 +24,7 @@
                      tooltiptext="&filterInfoTooltip;"
                      oncommand="NotificationsWidgetController.updateFilters()"/>
       <spacer/>
-      <!-- XXX TODO: implement progress, at which point we can show this -->
-      <toolbarbutton type="checkbox" id="filter-progress" collapsed="true"
+      <toolbarbutton type="checkbox" id="filter-progress"
                      tooltiptext="&filterProgressTooltip;"
                      oncommand="NotificationsWidgetController.updateFilters()"/>
       <toolbarseparator/>

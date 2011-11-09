@@ -205,19 +205,32 @@ this.updateFilters = (function NWC_updateFilters() {
  */
 this.shouldShowItem = (function NWC_shouldShowItem(aElem) {
   var types = {};
-  var any = false;
+  var any = false; // whether any severity state has been checked
   for each (let type in ["info", "warning", "error"]) {
     let checked = document.getElementById("filter-" + type).checked;
     types[Ci.koINotification["SEVERITY_" + type.toUpperCase()]] = checked;
     any |= checked;
   }
-  types[Ci.koINotification.SEVERITY_ERROR] = document.getElementById("filter-error").checked;
-  var progress = document.getElementById("filter-progress").checked;
-  var textSearch = document.getElementById("filter-search").value.toLowerCase();
-  var show = types[aElem.notification.severity] || !any;
-  if (progress) {
-    show &= (aElem.notification instanceof Ci.koINotificationProgress);
+  if (any && !types[aElem.notification.severity]) {
+    // some severity is checked, but not anything we have
+    return false;
   }
+
+  if (document.getElementById("filter-progress").checked) {
+    if (aElem.notification instanceof Ci.koINotificationProgress) {
+      switch (aElem.notification.maxProgress) {
+        case Ci.koINotificationProgress.PROGRESS_NOT_APPLICABLE:
+        case aElem.notification.progress:
+          // no progress, or already complete
+          return false;
+      }
+    } else {
+      // element has no progress
+      return false;
+    }
+  }
+
+  var textSearch = document.getElementById("filter-search").value.toLowerCase();
   if (textSearch.replace(/\W/g, '').length > 0) {
     // check for summary matching complete search text
     var matchSearch = (aElem.searchText.indexOf(textSearch.replace(/\W/g, '')) != -1);
@@ -235,9 +248,12 @@ this.shouldShowItem = (function NWC_shouldShowItem(aElem) {
         }
       }
     }
-    show &= matchSearch;
+    if (!matchSearch) {
+      return false;
+    }
   }
-  return show;
+
+  return true;
 }).bind(this);
 
 /**
