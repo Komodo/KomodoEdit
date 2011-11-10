@@ -695,7 +695,7 @@ configuration = {
     "mozGxx": MozGxx(),
     "mozCFlags": MozCFlags(),
     "mozCxxFlags": MozCxxFlags(),
-    "mozLdFlags": MozCFlags(),
+    "mozLdFlags": MozLdFlags(),
     "setupMozEnv": SetupMozEnv(),
 
     #---- komodo stuff
