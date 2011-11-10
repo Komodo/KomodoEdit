@@ -183,6 +183,9 @@
         <![CDATA[
           if (val && this.hasAttribute("details")) {
             this.setAttribute("open", true);
+            if (this.parentNode && this.parentNode.ensureElementIsVisible) {
+              this.parentNode.ensureElementIsVisible(this);
+            }
           } else {
             this.removeAttribute("open");
           }
