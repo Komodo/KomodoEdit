@@ -399,7 +399,7 @@ class KoPythonCommonLinter(object):
         if leadingWS:
             del textlines[0]
         warningRe = re.compile("^(?P<fname>.*?):(?P<line>\d+): (?P<desc>.*)$")
-        results = []
+        results = koLintResults()
         for line in warntext.splitlines():
             match = warningRe.match(line)
             if match:
@@ -504,8 +504,7 @@ class KoPythonCommonLinter(object):
                     for d in dicts:
                         results.addResult( self._buildResult(d, leadingWS) )
                     # Parse warnings in the error.
-                    for r in self._parseWarnings(error, text, leadingWS):
-                        results.addResult(r)
+                    results.addResults(self._parseWarnings(error, text, leadingWS))
             finally:
                 os.unlink(tmpFileName)
         except ServerException:
