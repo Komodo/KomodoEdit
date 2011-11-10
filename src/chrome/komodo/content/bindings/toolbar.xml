@@ -46,6 +46,40 @@
           xmlns:html="http://www.w3.org/1999/xhtml"
           xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
+    <!-- A toolbox that auto-hides in full screen mode -->
+    <binding id="toolbox"
+             extends="chrome://global/content/bindings/toolbar.xml#toolbox">
+        <content orient="vertical">
+            <xul:vbox anonid="children-box">
+                <children/>
+            </xul:vbox>
+            <xul:box anonid="hover-box" bottom="0"/>
+        </content>
+        <implementation>
+            <constructor>
+            <![CDATA[
+                window.addEventListener("fullscreen",
+                                        setTimeout.bind(window,
+                                                        this.onFullScreen.bind(this),
+                                                        10),
+                                        false);
+            ]]>
+            </constructor>
+            <method name="onFullScreen">
+                <parameter name="event"/>
+                <body>
+                <![CDATA[
+                    if (window.fullScreen) {
+                        this.setAttribute("_fullscreen", "true");
+                    } else {
+                        this.removeAttribute("_fullscreen");
+                    }
+                ]]>
+                </body>
+            </method>
+        </implementation>
+    </binding>
+
     <!-- A toolbar that will allow overflowed items to be accessible through
          a separate menu dropdown widget at the edge of the toolbar.
     -->

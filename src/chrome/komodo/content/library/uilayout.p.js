@@ -529,8 +529,11 @@ this.toggleSplitter = function uilayout_toggleSplitter(aCommandID) {
     box.collapsed = !box.collapsed;
 }
 
+/**
+ * Update the menubar menu item to reflect whether the window is in full screen
+ * mode
+ */
 this.updateFullScreen = function uilayout_updateFullScreen() {
-    // Update whether the checkbox for full screen is checked or not.
     var menuitem = document.getElementById('menuitem_fullScreen');
     if (window.fullScreen) {
         menuitem.setAttribute('checked', 'true');
@@ -539,23 +542,25 @@ this.updateFullScreen = function uilayout_updateFullScreen() {
     }
 }
 
+/**
+ * Toggle the full screen state of the window
+ */
 this.fullScreen = function uilayout_FullScreen()
 {
-    window.fullScreen = !window.fullScreen;
-    var windowControls = document.getElementById('window-controls');
-    if (window.fullScreen) {
-        window.maximize();
-        windowControls.removeAttribute('hidden');
-    } else {
-        document.getElementById("toolbox_main").restoreFromFullScreen = true;
-        window.restore();
-        windowControls.setAttribute('hidden', 'true');
-    }
+  window.fullScreen = !window.fullScreen;
+  // all handling is done by the event handler (onFullScreen); don't do anything
+  // else here, in case somebody decides to trigger fullscreen without using
+  // this function
 }
 
+/**
+ * Event listener for full screen changes
+ */
 this.onFullScreen = function uilayout_onFullScreen()
 {
-  FullScreen.toggle();
+  // this can get called before the full screen actually happens (i.e. before
+  // window.fullScreen is set); delay the real processing just a bit.
+  setTimeout(FullScreen.update.bind(FullScreen), 0);
 }
 
 // for whatever reason, toolkit/content/fullScreen.js is not included
@@ -563,14 +568,28 @@ this.onFullScreen = function uilayout_onFullScreen()
 // also copies this into its own sources).
 var FullScreen = 
 {
-  toggle: function()
+  /**
+   * Update the UI to reflect the current full screen state
+   */
+  update: function FullScreen_update()
   {
-    // show/hide all menubars, toolbars, and statusbars (except the full screen toolbar)
-    this.showXULChrome("menubar", window.fullScreen);
-    this.showXULChrome("toolbar", window.fullScreen);
-    this.showXULChrome("statusbar", window.fullScreen);
+    this.showXULChrome("menubar", !window.fullScreen);
+    this.showXULChrome("toolbar", !window.fullScreen);
+    this.showXULChrome("statusbar", !window.fullScreen);
+    var windowControls = document.getElementById('window-controls');
+    if (window.fullScreen) {
+        windowControls.removeAttribute('hidden');
+    } else {
+        windowControls.setAttribute('hidden', 'true');
+    }
   },
-  
+
+  /**
+   * Show or hide all instances of a given tag for full screen
+   *
+   * @param   {String} aTag   The tag to show or hide, e.g. "menubar"
+   * @param   {Boolean} aShow Whether to show elements with that tag
+   */
   showXULChrome: function(aTag, aShow)
   {
     var XULNS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";

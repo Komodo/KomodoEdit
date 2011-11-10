@@ -45,10 +45,36 @@
   padding: 0 2px 0 4px;
 }
 
+/* Support full screen toolbar auto-hide */
+#toolbox_main {
+  -moz-binding: url("chrome://komodo/content/bindings/toolbar.xml#toolbox");
+}
+#toolbox_main[_fullscreen] > [anonid="children-box"] {
+  height: 0;
+  overflow-y: hidden;
+  -moz-transition-duration: 5s;
+  -moz-transition-delay: 0.25s;
+}
+#toolbox_main[_fullscreen]:hover > [anonid="children-box"] {
+  height: -moz-initial;
+  -moz-transition-duration: 5s;
+  -moz-transition-delay: 0.25s;
+}
+#toolbox_main:not([_fullscreen]) > [anonid="hover-box"] {
+  visibility: collapse;
+}
+#toolbox_main[_fullscreen] > [anonid="hover-box"] {
+  height: 1px;
+  margin-bottom: 0;
+}
+
+#toolbox_main #toolbar-menubar {
+  padding-top: 0;
+}
+
 #menubar_main {
   -moz-appearance: menubar;
   padding-top: 0;
-  margin-top: -2px;
 }
 
 #menubar_main > #window-controls > toolbarbutton {

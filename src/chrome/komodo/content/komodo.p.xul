@@ -464,8 +464,10 @@
              persist="mode"
              mode="icons"
              class="chromeclass-toolbar toolbox-top">
-        <toolbar id="toolbar-menubar">
-            <toolbaritem id="menubar-items" flex="1">
+        <toolbar id="toolbar-menubar"
+                 fullscreentoolbar="true">
+            <toolbaritem id="menubar-items"
+                         flex="1">
                 <menubar id="menubar_main"
                       class="chromeclass-menubar"
                     grippyhidden="true"
