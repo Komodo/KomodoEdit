@@ -3032,12 +3032,12 @@ this.markClosedWindows = function() {
         });
     for (var i = 0; i < lim; i++) {
         pref = windowWorkspacePref.getPref(prefIds[i]);
-	if (pref.hasLongPref("windowNum")) {
-	    var windowNum = pref.getLongPref("windowNum");
-	    if (!(windowNum in loadedWindowNums)) {
-	        pref.setBooleanPref("restoreOnRestart", false);
-	    }
-	}
+        if (pref.hasLongPref("windowNum")) {
+            var windowNum = pref.getLongPref("windowNum");
+            if (!(windowNum in loadedWindowNums)) {
+                pref.setBooleanPref("restoreOnRestart", false);
+            }
+        }
     }
 };
     
