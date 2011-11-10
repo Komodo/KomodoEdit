@@ -1653,6 +1653,7 @@ class GenericCommandHandler:
                 sm.replaceSel('\t')
             else:
                 sm.replaceSel(' ' * (targetCol - startCol))
+        sm.scrollCaret() # Ensure caret's visible: bug 91572
 
     def _insertDedent(self):
         sm = self._view.scimoz
