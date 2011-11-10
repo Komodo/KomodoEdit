@@ -308,7 +308,7 @@ elsif ($platform eq "darwin") {
     # Use 10.5 SDK for now
     $environ{CFLAGS} .= ' -mmacosx-version-min=10.5';
     $environ{CXXFLAGS} .= ' -mmacosx-version-min=10.5';
-    $environ{LDFLAGS} .= ' -Wl,-syslibroot,/Developer/SDKs/MacOSX10.5.sdk';
+    $environ{LDFLAGS} .= ' -isysroot /Developer/SDKs/MacOSX10.5.sdk';
 }
 
 
