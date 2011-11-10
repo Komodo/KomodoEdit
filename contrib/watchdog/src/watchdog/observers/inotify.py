@@ -549,9 +549,16 @@ if platform.is_linux():
                             del self._wd_for_path[move_src_path]
                             self._wd_for_path[inotify_event.src_path] = moved_wd
                             self._path_for_wd[moved_wd] = inotify_event.src_path
-                        src_path = absolute_path(os.path.join(wd_path, name))
-                        inotify_event = InotifyEvent(wd, mask, cookie, name,
-                                                  src_path)
+                        if move_src_path is None:
+                            # Don't know where it was moved from, so we just say
+                            # it got created instead.
+                            print "Re-mapping to a CREATE: %r %r" % (name, src_path)
+                            inotify_event = InotifyEvent(wd, InotifyConstants.IN_CREATE,
+                                                         0, name, src_path)
+                        else:
+                            src_path = absolute_path(os.path.join(wd_path, name))
+                            inotify_event = InotifyEvent(wd, mask, cookie, name,
+                                                         src_path)
 
                     if inotify_event.is_ignored:
                     # Clean up book-keeping for deleted watches.
