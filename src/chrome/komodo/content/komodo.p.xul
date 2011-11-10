@@ -464,10 +464,8 @@
              persist="mode"
              mode="icons"
              class="chromeclass-toolbar toolbox-top">
-        <!-- Mozilla 1.9.1 has a problem displaying the menu if it's wrapped
-             inside a toolbar element (Linux). See bug 86191. -->
-        <!--<toolbar id="toolbar-menubar">-->
-        <!--    <toolbaritem id="menubar-items">-->
+        <toolbar id="toolbar-menubar">
+            <toolbaritem id="menubar-items" flex="1">
                 <menubar id="menubar_main"
                       class="chromeclass-menubar"
                     grippyhidden="true"
@@ -1611,8 +1609,8 @@
                     </hbox>
 <!-- #endif -->
                 </menubar>
-        <!--    </toolbaritem>-->
-        <!--</toolbar>-->
+            </toolbaritem>
+        </toolbar>
 
         <hbox>
             <toolboxrow id="main-toolboxrow" flex="1" align="start" persist="hidden mode" mode="icons"

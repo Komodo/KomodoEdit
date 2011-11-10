@@ -45,6 +45,12 @@
   padding: 0 2px 0 4px;
 }
 
+#menubar_main {
+  -moz-appearance: menubar;
+  padding-top: 0;
+  margin-top: -2px;
+}
+
 #menubar_main > #window-controls > toolbarbutton {
   -moz-appearance: none;
 }
