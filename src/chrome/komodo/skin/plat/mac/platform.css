@@ -337,3 +337,18 @@ textbox[type="autocomplete"].search-box {
      list of menuitems a uniform width (16px for image, 4px for padding). */
   min-width: 20px;
 }
+
+@-moz-document url(chrome://komodo/content/notifications/notificationsWidget.xul) {
+  notification .twisty > .twistyImageWrapper {
+    padding-left: 0;
+    padding-bottom: 0;
+  }
+  notification .twistyImage {
+    list-style-image: none;
+    -moz-appearance: treetwisty;
+  }
+  notification[open] .twistyImage {
+    list-style-image: none;
+    -moz-appearance: treetwistyopen;
+  }
+}
