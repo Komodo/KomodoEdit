@@ -936,6 +936,9 @@
   <!-- Enable triggering of macros by Komodo events (turn off for troubleshooting) -->
   <boolean id="triggering_macros_enabled">1</boolean>
 
+  <!-- How to display project paths in MRU sequences -->
+  <string id="mru_project_path_display">full_path</string>
+  
   <!-- Environment-related preferences:
         "environ_userShell" (only used on non-Windows platforms) is a full path
             to the system shell from which to get the user's startup

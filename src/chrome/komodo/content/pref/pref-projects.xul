@@ -127,6 +127,32 @@
                       pref="true" prefstring="triggering_macros_enabled"
                       prefattribute="checked"/>
         </groupbox>
+    
+        <groupbox orient="vertical">
+        <!-- This is used for the "Manage Recent Projects list" only -->
+            <caption label="&displayingRecentProjects.label;"/>
+            <radiogroup id="mru_project_path_display"
+                        pref="true"
+                        prefstring="mru_project_path_display"
+                        flex="1"
+                        prefattribute="value"
+                        orient="horizontal">
+            <vbox flex="1">
+                <radio group="mru_project_path_display"
+                       id="mru_project_path_display_full_path" value="full_path"
+                       label="&fullPath.label;"  />
+                <radio group="mru_project_path_display"
+                       id="mru_project_path_display_child" value='basename'
+                       label="&basenameOnly.label;" />
+                <radio group="mru_project_path_display"
+                       id="mru_project_path_display_parent_1" value="parent_1"
+                       label="&parent1.label;" />
+                <radio group="mru_project_path_display"
+                       id="mru_project_path_display_parent_2" value="parent_2"
+                       label="&parent2.label;" />
+            </vbox>
+            </radiogroup>
+        </groupbox>
 
     </vbox>
 

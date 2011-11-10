@@ -560,12 +560,17 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY format.label "Format">
 <!ENTITY dateTimeExample.label "Example:">
 
-<!--pref-project.xul-->
+<!--pref-projects.xul-->
+<!ENTITY displayingRecentProjects.label "Displaying Recent Projects">
 <!ENTITY filePrefProjectWhenStart.label "When starting Komodo:">
 <!ENTITY filePrefProjectWhenOpenProject.label "When opening a project:">
 <!ENTITY filePrefProjectWhenCloseProject.label "When closing a project:">
 <!ENTITY filePrefProjectUpdateEvery.label "Update every">
 <!ENTITY filePrefProjectMinutes.label " minutes">
+<!ENTITY fullPath.label "Full Path">
+<!ENTITY basenameOnly.label "BaseName Only">
+<!ENTITY parent1.label "Last Parent">
+<!ENTITY parent2.label "Last Two Parents">
 
 <!--pref-editsmart.xul-->
 <!ENTITY msecs.label "msecs">

@@ -450,6 +450,65 @@ this._prettyPrefNamePlural_From_PrefName = {
     mruTemplateList: 'templates',
     __XXZZ__: null
 };
+
+var joinWithLeader = function(osPathSvc, partList) {
+    if (osPathSvc.dirname(partList[0]) != partList[0]) {
+        partList = ["..."].concat(partList);
+    }
+    return osPathSvc.joinlist(partList.length, partList);
+};
+
+var pathDisplayers = {
+  full_path: function(uri) {
+        try {
+            return ko.uriparse.displayPath(uri);
+        } catch(ex) {
+            dump("full_path failed:" + ex + "\n");
+        }
+        return uri;
+    },
+  basename: function(uri) {
+        try {
+            return ko.uriparse.baseName(uri);
+        } catch(ex) {
+            dump("basename failed:" + ex + "\n");
+        }
+        return uri;
+    },
+  parent_1: function(uri) {
+        try {
+            var path = ko.uriparse.displayPath(uri);
+            var osPathSvc = Components.classes["@activestate.com/koOsPath;1"].getService(Components.interfaces.koIOsPath);
+            var dirPart = osPathSvc.dirname(path);
+            if (!dirPart || dirPart == path) return this.full_path(uri);
+            return joinWithLeader(osPathSvc,
+                                  [osPathSvc.basename(dirPart),
+                                   osPathSvc.basename(path)]);
+        } catch(ex) {
+            dump("parent_1 failed:" + ex + "\n");
+        }
+        return uri;
+    },
+  parent_2: function(uri) {
+        try {
+            var path = ko.uriparse.displayPath(uri);
+            var osPathSvc = Components.classes["@activestate.com/koOsPath;1"].getService(Components.interfaces.koIOsPath);
+            var dirPart = osPathSvc.dirname(path);
+            if (!dirPart || dirPart == path) return this.full_path(uri);
+            var dir2Part = osPathSvc.dirname(dirPart);
+            if (!dir2Part || dir2Part == dirPart) return this.parent_1(uri);
+            return joinWithLeader(osPathSvc,
+                                  [osPathSvc.basename(dir2Part),
+                                   osPathSvc.basename(dirPart),
+                                   osPathSvc.basename(path)]);
+        } catch(ex) {
+            dump("parent_2 failed:" + ex + "\n");
+        }
+        return uri;
+    },
+  __EOF__: null
+};
+
 this.manageMRUList = function(prefName) {
     var prettyPrefNamePlural = this._prettyPrefNamePlural_From_PrefName[prefName];
     if (!prettyPrefNamePlural) {
@@ -461,13 +520,11 @@ this.manageMRUList = function(prefName) {
                                             [prettyPrefNamePlural], 1);
     var items = this.getAll(prefName);
     var selectionCondition = "zero-or-more-default-none";
-    var stringifier = function(uri) {
-        try {
-            return ko.uriparse.displayPath(uri);
-        } catch(ex) {
-        }
-        return uri;
-    };
+    var mru_project_path_display = (prefName == "mruProjectList"
+                                    ? ko.prefs.getStringPref("mru_project_path_display")
+                                    : "full_path");
+    var stringifier = (pathDisplayers[mru_project_path_display]
+                       || pathDisplayers["full_path"]);
     var res = ko.dialogs.selectFromList(title, prompt, items,
                                         selectionCondition, stringifier);
     if (res) {
