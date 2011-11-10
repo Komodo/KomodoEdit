@@ -58,18 +58,57 @@
         <implementation>
             <constructor>
             <![CDATA[
+                // make sure we have a reference to the bound method
+                this.onFullScreen = this.onFullScreen.bind(this);
                 window.addEventListener("fullscreen",
                                         setTimeout.bind(window,
-                                                        this.onFullScreen.bind(this),
+                                                        this.onFullScreen,
                                                         10),
+                                        false);
+                this._prefs.addObserver(this._kAutoHidePrefName,
+                                        this.onFullScreen,
                                         false);
             ]]>
             </constructor>
+            <destructor>
+            <![CDATA[
+                this._prefs.removeObserver(this._kAutoHidePrefName,
+                                           this.onFullScreen);
+            ]]>
+            </destructor>
+
+            <field name="_prefs">
+                Components.utils
+                          .import("resource://gre/modules/Services.jsm", {})
+                          .Services
+                          .prefs
+            </field>
+
+            <property name="_kAutoHidePrefName">
+                <getter>
+                    return "browser.fullscreen.autohide";
+                </getter>
+            </property>
+            <property name="_autoHideEnabled">
+                <getter>
+                    if (this._prefs.getPrefType(this._kAutoHidePrefName) !=
+                        this._prefs.PREF_BOOL)
+                    {
+                        return true;
+                    }
+                    return this._prefs.getBoolPref(this._kAutoHidePrefName);
+                </getter>
+                <setter>
+                    return this._prefs.setBoolPref(this._kAutoHidePrefName,
+                                                   val);
+                </setter>
+            </property>
+
             <method name="onFullScreen">
                 <parameter name="event"/>
                 <body>
                 <![CDATA[
-                    if (window.fullScreen) {
+                    if (window.fullScreen && this._autoHideEnabled) {
                         this.setAttribute("_fullscreen", "true");
                     } else {
                         this.removeAttribute("_fullscreen");
