@@ -7,6 +7,8 @@ outside of the monitored directories, I didn't receive a move_from event for
 the reverting of the file. Without this patch I would fail to see any updates
 for a file after reverting it in subversion.
 
+http://bugs.activestate.com/show_bug.cgi?id=91607
+
 Index: /home/toddw/as/komodo-devel/contrib/watchdog/src/watchdog/observers/inotify.py
 ===================================================================
 --- watchdog/src/watchdog/observers/inotify.py	(revision 67502)
