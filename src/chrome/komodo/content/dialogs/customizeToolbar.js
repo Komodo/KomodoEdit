@@ -53,6 +53,7 @@ window.addEventListener("load", function() {
                             .filter(function(elem) elem instanceof Element &&
                                                    elem.localName == "toolbar" &&
                                                    !elem.getAttribute("fullscreencontrol") &&
+                                                   elem.getAttribute("customizable") != "false" &&
                                                    !!elem.id)
                             .sort(sortComparator);
         this.wrappedJSObject = this;
