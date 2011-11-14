@@ -494,6 +494,7 @@ ko.codeintel = {};
                     break;
                 default:
                     // ignore anything else when autoc is no longer active
+                    log.debug("ignoring event, autoc inactive");
                     return;
             }
         }
@@ -651,8 +652,21 @@ ko.codeintel = {};
                 return;
         }
 
+        var newChar = String.fromCharCode(event.charCode);
+        // check for fillup chars
+        if (this.enableFillups &&
+            this.completionFillups.indexOf(newChar) != -1)
+        {
+            // Adding a new fillup character (and there's no command)
+            log.debug("Fillup character '" + newChar +
+                      "' detected, applying fillup '" + autoc.selectedText + "'");
+            autoc.applyCompletion(this._lastTriggerPos, scimoz.currentPos,
+                                  autoc.selectedText);
+            return;
+        }
+
         // check for stop chars
-        if (this.stopChars.indexOf(String.fromCharCode(event.charCode)) !== -1) {
+        if (this.stopChars.indexOf(newChar) !== -1) {
             autoc.close();
         } else {
             doShowPopup();
