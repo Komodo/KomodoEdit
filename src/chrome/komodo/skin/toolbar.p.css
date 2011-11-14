@@ -54,6 +54,7 @@ toolbar {
 /* #if PLATFORM != "darwin" */
     border-left: 1px outset ThreeDHighlight;
 /* #endif */
+    min-width: 0; /* deal with empty toolbars */
 }
   
 toolbarbutton {
@@ -67,7 +68,8 @@ toolbarbutton {
  * "collapsed|hidden" attributes in a useful way).
 */
 toolbar[kohidden="true"],
-toolbarbutton[kohidden="true"]
+toolbarbutton[kohidden="true"],
+toolbarseparator[kohidden="true"]
 {
     display: none;
 }

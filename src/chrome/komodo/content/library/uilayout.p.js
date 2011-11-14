@@ -159,13 +159,21 @@ this.customizeToolbars = function uilayout_customizeToolbars(aToolbox) {
     }
 
     /**
-     * Update the menu checked states for the toolbox context menu
+     * Update the UI to sync with the customization changes
      */
-    var updateMenuStates = (function() {
+    var syncUIWithReality = (function syncUIWithReality() {
         var toolbars = Array.slice(toolbox.childNodes).concat(toolbox.externalToolbars);
+
         // #if PLATFORM == "darwin"
+        // Update toolbar CSS classes (for the rounded buttons effect)
         this._updateToolbarClasses(toolbox);
         // #endif
+
+        // Hide separators if all elements before or after it in the toolbar
+        // are hidden
+        this._updateToolbarSeparators(toolbox);
+
+        // Update the menu states
         for each (var toolbar in toolbars) {
             var broadcasterId = toolbar.getAttribute("broadcaster");
             if (broadcasterId) {
@@ -201,7 +209,7 @@ this.customizeToolbars = function uilayout_customizeToolbars(aToolbox) {
         sheetFrame.hidden = false;
         sheetFrame.toolbox = toolbox;
         sheetFrame.onCustomizeFinished = function(toolbox) {
-            updateMenuStates(toolbox);
+            syncUIWithReality(toolbox);
             sheet.hidePopup();
         };
 
@@ -226,11 +234,11 @@ this.customizeToolbars = function uilayout_customizeToolbars(aToolbox) {
                                    "",
                                    "chrome,dependent,centerscreen",
                                    toolbox,
-                                   updateMenuStates);
+                                   syncUIWithReality);
     }
 
     if (dialog && !dialog.closed) {
-        dialog.addEventListener("customize", updateMenuStates, false);
+        dialog.addEventListener("customize", syncUIWithReality, false);
     }
     return dialog;
 };
@@ -272,6 +280,54 @@ this._updateToolbarClasses = (function uilayout__updateToolbarClasses(toolbox)
 }).bind(this);
 addEventListener("load", this._updateToolbarClasses, false);
 // #endif
+
+/**
+ * Show/hide toolbar separators in response to their surrounding elements being
+ * hidden
+ */
+this._updateToolbarSeparators = (function uilayout__updateToolbarSeparators(toolbox)
+{
+    // this exists separately because separators often don't have ids; rather
+    // than force them to have one, we just call this on startup and when
+    // toolbars get customized.
+    if (!toolbox || !(toolbox instanceof Element)) {
+        // not a toolbox. Note that this can be used as an event listener, in
+        // which case the argument is an Event rather than a <toolbox>...
+        toolbox = document.getElementById("toolbox_main");
+    }
+    function checkForSeparators(aFirstElem, aProperty) {
+        var hidden = true;
+        for (var elem = aFirstElem; elem; elem = elem[aProperty]) {
+            if (/separator/.test(elem.localName)) {
+                if (hidden) {
+                    // everything before this separator was hidden; hide
+                    // it too.
+                    elem.setAttribute("kohidden", "true");
+                } else {
+                    // something before this was not hidden; show it.
+                    elem.removeAttribute("kohidden");
+                }
+                // start a new run of (possibly) hidden elements
+                hidden = true;
+            } else {
+                var bounds = elem.getBoundingClientRect();
+                if (bounds.width * bounds.height > 0) {
+                    // This element is not hidden; look for the next
+                    // separator (and skip it).
+                    hidden = false;
+                    continue;
+                }
+                // Getting here means this element is hidden, and so are all
+                // the ones before it.  Nothing to do here, actually.
+            }
+        }
+    }
+    for each (var toolbar in Array.slice(toolbox.childNodes).concat(toolbox.externalToolbars)) {
+        checkForSeparators(toolbar.firstChild, "nextSibling");
+        checkForSeparators(toolbar.lastChild, "previousSibling");
+    }
+}).bind(this);
+addEventListener("load", this._updateToolbarSeparators, false);
 
 this.populatePreviewToolbarButton = function uilayout_populatePreviewToolbarButton(popup)
 {
