@@ -710,12 +710,12 @@
                         <menupopup id="popup_edit">
                             <menuitem label="&undo.label;"
                                       class="menuitem-iconic native-undo-icon"
-                                      id="undoButton"
+                                      id="menu_editUndo"
                                       accesskey="&undoButton.accesskey;"
                                       observes="cmd_undo"
                                       />
                             <menuitem label="&redo.label;"
-                                      id="redoButton"
+                                      id="menu_editRedo"
                                       class="menuitem-iconic native-redo-icon"
                                       accesskey="&redoButton.accesskey;"
                                       observes="cmd_redo"
@@ -724,19 +724,19 @@
                             <menuseparator id="edit_cut_menuseparator"/>
 
                             <menuitem label="&cut.label;"
-                                      id="cutButton"
+                                      id="menu_editCut"
                                       class="menuitem-iconic native-cut-icon"
                                       accesskey="&cutButton.accesskey;"
                                       observes="cmd_cut"
                                       />
                             <menuitem label="&copy.label;"
-                                      id="copyButton"
+                                      id="menu_editCopy"
                                       class="menuitem-iconic native-copy-icon"
                                       accesskey="&copyButton.accesskey;"
                                       observes="cmd_copy"
                                       />
                             <menuitem label="&paste.label;"
-                                      id="pasteButton"
+                                      id="menu_editPaste"
                                       class="menuitem-iconic native-paste-icon"
                                       accesskey="&pasteButton.accesskey;"
                                       observes="cmd_paste"
