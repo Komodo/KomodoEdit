@@ -47,9 +47,36 @@ var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
                 .getService(Components.interfaces.nsIStringBundleService)
                 .createBundle("chrome://komodo/locale/library.properties");
 var XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
+var {Services} = Components.utils.import("resource://gre/modules/Services.jsm", {});
 
 var _log = ko.logging.getLogger('uilayout');
 //_log.setLevel(ko.logging.LOG_DEBUG);
+
+/**
+ * Toggle whether the toolbox should auto-hide in full screen mode
+ */
+this.toggleFullScreenToolboxAutoHide = function uilayout_toggleFullScreenToolboxAutoHide()
+{
+  const kPrefName = "browser.fullscreen.autohide";
+  try {
+    Services.prefs.setBoolPref(kPrefName, !Services.prefs.getBoolPref(kPrefName));
+  } catch (ex) {
+    // this might happen if the pref doesn't exist (though it should!) or it was
+    // set to the wrong type.  Force clear it and set it to something sensible.
+    Services.prefs.clearUserPref(kPrefName);
+    Services.prefs.setBoolPref(kPrefName, true);
+  }
+  setTimeout(function() {
+    // We need to update the menu state on a timeout because <menuitem
+    // type="checkbox"> itself fiddles with it after our even handler exits
+    var menuitem = document.getElementById("menu_toolbars_fullscreen_autohide");
+    if (Services.prefs.getBoolPref(kPrefName)) {
+      menuitem.setAttribute("checked", true);
+    } else {
+      menuitem.removeAttribute("checked");
+    }
+  }, 0);
+};
 
 // Toggle the visibility of the specified toolbar,
 // along with the corresponding broadcaster if it exists.
