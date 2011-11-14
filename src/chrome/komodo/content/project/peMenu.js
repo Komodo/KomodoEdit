@@ -269,20 +269,18 @@ this.removeToolbarForPart = function peMenu_removeToolbarForPart(part) {
         }
         toolbar.parentNode.removeChild(toolbar)
 
-        var menuitem = document.getElementById('context_custom_toolbar_'+id)
-        menuitem.parentNode.removeChild(menuitem);
-
-        menuitem = document.getElementById('menu_custom_toolbar_'+id)
+        var menuitem = document.getElementById('menu_custom_toolbar_'+id)
         menuitem.parentNode.removeChild(menuitem);
 
         var broadcaster = document.getElementById('cmd_custom_toolbar_'+id)
         broadcaster.parentNode.removeChild(broadcaster);
 
-        var context = document.getElementById("context-toolbox-menu");
-        var menu = document.getElementById("popup_toolbars");
-        if (context.lastChild.nodeName == 'menuseparator') {
-            context.lastChild.setAttribute('collapsed', 'true');
-            menu.lastChild.setAttribute('collapsed', 'true');
+        var separator = document.getElementById("popup_toolbars_custom_separator");
+        var next = separator.nextSibling;
+        if (!next || !/^menu_custom_toolbar_/.test(next.id)) {
+            // nothing after the separator, or the thing after it is not a
+            // menu for a custom toolbar
+            separator.collapsed = true;
         }
 
     } catch(e) {
@@ -293,12 +291,9 @@ this.removeToolbarForPart = function peMenu_removeToolbarForPart(part) {
 this.addToolbarFromPart = function peMenu_addToolbarFromPart(part) {
     try {
         // uncollapse the seperator if necessary
-        var context = document.getElementById("context-toolbox-menu");
         var menu = document.getElementById("popup_toolbars");
-        if (context.lastChild.nodeName == 'menuseparator') {
-            context.lastChild.removeAttribute('collapsed');
-            menu.lastChild.removeAttribute('collapsed');
-        }
+        var separator = document.getElementById("popup_toolbars_custom_separator");
+        separator.collapsed = false;
 
         // minimal display ordinal an element will have
         var base_ordinal = 100;
@@ -332,7 +327,7 @@ this.addToolbarFromPart = function peMenu_addToolbarFromPart(part) {
 
         _fillToolbarFromPart(toolbar, part);
 
-        // append the toolboar to the toolbar context and view->toolbar menues
+        // append the toolboar to the view->toolbar menu
         var broadcasterset = document.getElementById("broadcasterset_global");
         var broadcaster = document.createElement("broadcaster");
         //<broadcaster
@@ -353,25 +348,6 @@ this.addToolbarFromPart = function peMenu_addToolbarFromPart(part) {
         broadcasterset.appendChild(broadcaster);
 
 
-        var menuitem = document.createElement('menuitem');
-        //<menuitem id="context_viewStandardToolbar"
-        //          label="Standard Toolbar"
-        //          type="checkbox"
-        //          observes="cmd_viewedittoolbar"
-        //          key="key_viewToolbarEdit"/>
-        menuitem.setAttribute('id', 'context_custom_toolbar_'+id);
-        menuitem.setAttribute('label', part.name);
-        menuitem.setAttribute('type', 'checkbox');
-        if (visible) {
-            menuitem.setAttribute('checked', 'true');
-        } else {
-            menuitem.setAttribute('checked', 'false');
-        }
-        menuitem.setAttribute('observes', cmd_id);
-        //menuitem.setAttribute('oncommand', 'ko.uilayout.toggleToolbarVisibility("'+id+'");');
-        menuitem.ordinal = ordinal;
-        context.appendChild(menuitem);
-
         //<menuitem label="Standard"
         //          id="menu_viewedittoolbar"
         //          observes="cmd_viewedittoolbar"
@@ -379,21 +355,17 @@ this.addToolbarFromPart = function peMenu_addToolbarFromPart(part) {
         //          checked="true"
         //          type="checkbox"
         //          />
-        menuitem = document.createElement('menuitem');
+        var menuitem = document.createElement('menuitem');
         menuitem.setAttribute('id', 'menu_custom_toolbar_'+id);
         menuitem.setAttribute('label', part.name);
         menuitem.setAttribute('type', 'checkbox');
         menuitem.setAttribute('persist', 'checkbox');
         if (visible) {
             menuitem.setAttribute('checked', 'true');
-        } else {
-            menuitem.setAttribute('checked', 'false');
         }
         menuitem.setAttribute('observes', cmd_id);
-        //menuitem.setAttribute('oncommand', 'ko.uilayout.toggleToolbarVisibility("'+id+'");');
         menuitem.ordinal = ordinal;
-        menu.appendChild(menuitem);
-
+        menu.insertBefore(menuitem, separator.nextSibling);
 
     } catch (e) {
         log.exception(e);

@@ -208,49 +208,9 @@
 
     <popupset id="extensionPopupSet"/>
 
-    <menupopup id="context-toolbox-menu">
-        <menuitem id="context_toggleButtonText"
-            label="&buttonText.label;"
-            type="checkbox"
-            observes="cmd_toggleButtonText"
-            key="key_viewButtonText"/>
-        <menuitem id="context_customizeToolbars"
-                  command="cmd_CustomizeToolbars"
-                  label="&customizeToolbars.menu.label;"
-                  accesskey="&customizeToolbars.menu.accesskey;"/>
-        <menuseparator/>
-        <menuitem id="context_viewStandardToolbar"
-                  label="&standardToolbar.label;"
-                  type="checkbox"
-                  observes="cmd_viewedittoolbar"
-                  key="key_viewToolbarEdit"/>
-        <menuitem id="context_viewtoolstoolbar"
-                  label="&toolsToolbar.label;"
-                  type="checkbox"
-                  observes="cmd_viewtoolstoolbar"
-                  key="key_viewToolbarTools"/>
-        <menuitem id="context_viewworkspacetoolbar"
-                  label="&workspaceToolbar.label;"
-                  type="checkbox"
-                  observes="cmd_viewworkspacetoolbar"
-                  key="key_viewToolbarWorkspace"/>
-        <menuitem id="context_viewfindtoolbar"
-                  label="&openFindToolbar.label;"
-                  type="checkbox"
-                  observes="cmd_viewfindtoolbar"
-                  key="key_viewToolbarFind"/>
-        <menuitem id="context_viewmacrotoolbar"
-                  label="&macroToolbar.label;"
-                  type="checkbox"
-                  observes="cmd_viewmacrotoolbar"
-                  key="key_viewToolbarMacro"/>
-        <menuitem id="context_viewkomodotoolbar"
-                  label="&komodoResourcesToolbar.label;"
-                  type="checkbox"
-                  observes="cmd_viewkomodotoolbar"
-                  key="key_viewToolbarKomodo"/>
-
-        <menuseparator collapsed="true"/>
+    <menupopup id="context-toolbox-menu"
+               onpopupshowing="ko.uilayout.updateToolboxContextMenu();">
+        <!-- This menu is built on popup showing by cloning #popup_toolbars -->
     </menupopup>
 
     <!-- this toolbox is used to provide a document link to menus we dynamicaly display -->
@@ -1141,7 +1101,8 @@
                                               checked="true"
                                               type="checkbox"
                                               />
-                                    <menuseparator collapsed="true"/>
+                                    <menuseparator id="popup_toolbars_custom_separator"
+                                                   collapsed="true"/>
                                 </menupopup>
                             </menu>
                             <menuitem

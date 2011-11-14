@@ -794,6 +794,25 @@ this.newFileFromTemplateOrTrimMRU = function uilayout_newFileFromTemplateOrTrimM
     ko.views.manager.doFileNewFromTemplateAsync(templateURI);
 }
 
+/**
+ * Update the context menu for the toolbox
+ */
+this.updateToolboxContextMenu = function uilayout_updateToolboxContextMenu()
+{
+  var source = document.getElementById("popup_toolbars");
+  var dest = document.getElementById("context-toolbox-menu");
+  while (dest.firstChild) {
+    dest.removeChild(dest.firstChild);
+  }
+  for each (var child in Array.slice(source.childNodes)) {
+    var clone = child.cloneNode(true);
+    for each (var elem in Array.slice(clone.querySelectorAll("[id]"))) {
+      elem.removeAttribute("id");
+    }
+    dest.appendChild(clone);
+  }
+};
+
 
 // Flags used to defer (re)building of the MRU menus until necessary.
 var _gNeedToUpdateFileMRUMenu = false;
