@@ -604,98 +604,10 @@ this.updateFullScreen = function uilayout_updateFullScreen() {
 this.fullScreen = function uilayout_FullScreen()
 {
   window.fullScreen = !window.fullScreen;
-  // all handling is done by the event handler (onFullScreen); don't do anything
-  // else here, in case somebody decides to trigger fullscreen without using
-  // this function
+  // We no longer need to do any extra handling; the UI changes are done via
+  // CSS.  If we do end up needing logic, we should do so in a "fullscreen"
+  // event handler attached to the window.
 }
-
-/**
- * Event listener for full screen changes
- */
-this.onFullScreen = function uilayout_onFullScreen()
-{
-  // this can get called before the full screen actually happens (i.e. before
-  // window.fullScreen is set); delay the real processing just a bit.
-  setTimeout(FullScreen.update.bind(FullScreen), 0);
-}
-
-// for whatever reason, toolkit/content/fullScreen.js is not included
-// in the base mozilla builds.  this is take from there (firefox browser
-// also copies this into its own sources).
-var FullScreen = 
-{
-  /**
-   * Update the UI to reflect the current full screen state
-   */
-  update: function FullScreen_update()
-  {
-    this.showXULChrome("menubar", !window.fullScreen);
-    this.showXULChrome("toolbar", !window.fullScreen);
-    this.showXULChrome("statusbar", !window.fullScreen);
-    var windowControls = document.getElementById('window-controls');
-    if (window.fullScreen) {
-        windowControls.removeAttribute('hidden');
-    } else {
-        windowControls.setAttribute('hidden', 'true');
-    }
-  },
-
-  /**
-   * Show or hide all instances of a given tag for full screen
-   *
-   * @param   {String} aTag   The tag to show or hide, e.g. "menubar"
-   * @param   {Boolean} aShow Whether to show elements with that tag
-   */
-  showXULChrome: function(aTag, aShow)
-  {
-    var XULNS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
-    var els = document.getElementsByTagNameNS(XULNS, aTag);
-
-    var toolboxrow = document.getElementById("main-toolboxrow");
-
-    var i;
-    for (i = 0; i < els.length; ++i) {
-      // Don't touch the toolbars in the toolboxrow
-      if (els[i].parentNode === toolboxrow) {
-        continue;
-      }
-      // XXX don't interfere with previously collapsed toolbars
-      if (els[i].getAttribute("fullscreentoolbar") == "true") {
-        this.setToolbarButtonMode(els[i], aShow ? "" : "small");
-      } else {
-        // use moz-collapsed so it doesn't persist hidden/collapsed,
-        // so that new windows don't have missing toolbars
-        if (aShow)
-          els[i].removeAttribute("moz-collapsed");
-        else
-          els[i].setAttribute("moz-collapsed", "true");
-      }
-    }
-
-    var controls = document.getElementsByAttribute("fullscreencontrol", "true");
-    for (i = 0; i < controls.length; ++i)
-      controls[i].hidden = aShow;
-  },
-  
-  setToolbarButtonMode: function(aToolbar, aMode)
-  {
-    aToolbar.setAttribute("toolbarmode", aMode);
-    this.setToolbarButtonModeFor(aToolbar, "toolbarbutton", aMode);
-    this.setToolbarButtonModeFor(aToolbar, "button", aMode);
-    this.setToolbarButtonModeFor(aToolbar, "textbox", aMode);
-  },
-  
-  setToolbarButtonModeFor: function(aToolbar, aTag, aMode)
-  {
-    var XULNS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
-    var els = aToolbar.getElementsByTagNameNS(XULNS, aTag);
-
-    for (var i = 0; i < els.length; ++i) {
-      els[i].setAttribute("toolbarmode", aMode);
-    }
-  }
-  
-};
 
 function _addManageMRUMenuItem(prefName, parentNode, MRUName) {
     var menuitem = document.createElementNS(XUL_NS, 'menuseparator');
@@ -1438,7 +1350,6 @@ this.unload = function uilayout_unload()
 this.onload = function uilayout_onload()
 {
     ko.uilayout.updateToolbarArrangement();
-    addEventListener("fullscreen", ko.uilayout.onFullScreen, false);
     _gNeedToUpdateFileMRUMenu = true;
     _gNeedToUpdateProjectMRUMenu = true;
     _gNeedToUpdateTemplateMRUMenu = true;
@@ -1504,10 +1415,10 @@ this.onloadDelayed = function uilayout_onloadDelayed()
 {
     try {
         if (_gPrefs.getBooleanPref("startupFullScreen")) {
-            ko.uilayout.fullScreen();
+            window.fullScreen = true;
         }
         else if (_gPrefs.getBooleanPref("startupMaximized")) {
-            window.maximize()
+            window.maximize();
         }
     
         ko.uilayout.setTabPaneLayout();
@@ -1752,7 +1663,7 @@ ko.logging.globalDeprecatedByAlternative("uilayout_toggleSplitter", "ko.uilayout
 ko.logging.globalDeprecatedByAlternative("uilayout_updateSplitterBroadcasterState", "(function(){/* This function is no longer necessary */})");
 ko.logging.globalDeprecatedByAlternative("uilayout_updateFullScreen", "ko.uilayout.updateFullScreen");
 ko.logging.globalDeprecatedByAlternative("uilayout_FullScreen", "ko.uilayout.fullScreen");
-ko.logging.globalDeprecatedByAlternative("uilayout_onFullScreen", "ko.uilayout.onFullScreen");
+ko.logging.globalDeprecatedByAlternative("uilayout_onFullScreen", "(function(){/* This function is no longer necessary */})");
 ko.logging.globalDeprecatedByAlternative("uilayout_newFileFromTemplateOrTrimMRU", "ko.uilayout.newFileFromTemplateOrTrimMRU");
 ko.logging.globalDeprecatedByAlternative("uilayout_UpdateMRUMenuIfNecessary", "ko.uilayout.updateMRUMenuIfNecessary");
 ko.logging.globalDeprecatedByAlternative("uilayout_updateWindowList", "ko.uilayout.updateWindowList");

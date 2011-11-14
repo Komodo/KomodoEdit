@@ -1598,8 +1598,8 @@
                         </menupopup>
                     </menu>
 <!-- #if PLATFORM != "darwin" -->
-                    <hbox id="fullscreenflex" flex="1" hidden="true" fullscreencontrol="true" ordinal="9998"/>
-                    <hbox id="window-controls" hidden="true" fullscreencontrol="true"
+                    <hbox id="fullscreenflex" flex="1" fullscreencontrol="true" ordinal="9998"/>
+                    <hbox id="window-controls" fullscreencontrol="true"
                           ordinal="9999" align="center" pack="end">
                         <toolbarbutton id="minimize-button" class="rightarrow-button-a"
                                         oncommand="window.minimize();"/>
@@ -1892,7 +1892,7 @@
 
             </toolboxrow>
 <!-- #if PLATFORM == "darwin" -->
-            <toolbaritem id="window-controls" hidden="true" fullscreencontrol="true"
+            <toolbaritem id="window-controls" fullscreencontrol="true"
                          ordinal="9999" pack="end">
                 <!-- no minimize/close on mac -->
                 <toolbarbutton id="restore-button" class="rightarrow-button-a"

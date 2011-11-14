@@ -67,6 +67,17 @@
   height: 1px;
   margin-bottom: 0;
 }
+/* when in fullscreen mode, hide menubars, toolbars, and statusbars that are
+   not marked with [fullscreentoolbar], except those that are immediate children
+   of the main toolbox row. */
+[sizemode="fullscreen"]:root :not(#main-toolboxrow) > :-moz-any(menubar, toolbar, statusbar):not([fullscreentoolbar]) {
+  visibility: collapse;
+}
+/* when not in fullscreen mode, hide any elements marked as [fullscreencontrol]
+   (i.e. those that should only be shown in full screen) */
+:root:not([sizemode="fullscreen"]) [fullscreencontrol] {
+  display: none;
+}
 
 #toolbox_main #toolbar-menubar {
   padding-top: 0;
