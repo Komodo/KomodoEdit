@@ -1108,7 +1108,7 @@
                                                    ordinal="1073741824"/>
                                     <menuitem id="menu_toolbars_fullscreen_autohide"
                                               fullscreencontrol="true"
-                                              label="XXX auto hide"
+                                              label="&menuViewToolbarsAutoHide.label;"
                                               type="checkbox"
                                               persist="checked"
                                               ordinal="1073741824"

@@ -472,6 +472,7 @@
 <!ENTITY menuUncomment.accesskey "U">
 <!ENTITY menuUntabify.accesskey "N">
 <!ENTITY menuView.accesskey "V">
+<!ENTITY menuViewToolbarsAutoHide.label "Hide Toolbars">
 <!ENTITY menuWatchThread.accesskey "W">
 <!ENTITY menuWindow.accesskey "W">
 <!ENTITY move.label "Move">
