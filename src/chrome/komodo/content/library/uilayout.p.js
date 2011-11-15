@@ -636,6 +636,31 @@ this.fullScreen = function uilayout_FullScreen()
   // event handler attached to the window.
 }
 
+//#if PLATFORM == "darwin"
+/**
+ * Event listener for full screen changes
+ * This is a workaround for https://bugzilla.mozilla.org/show_bug.cgi?id=539601
+ */
+this.onFullScreen = function uilayout_onFullScreen()
+{
+  // this needs to wait a bit to make sure things update
+  setTimeout(function() {
+    var docElem = document.documentElement;
+    if (window.fullScreen) {
+      docElem.setAttribute("kosizemode", "fullscreen");
+    } else {
+      switch (window.windowState) {
+        case window.STATE_MAXIMIZED:
+          docElem.setAttribute("kosizemode", "maximized");
+          break;
+        default:
+          docElem.setAttribute("kosizemode", "normal");
+      }
+    }
+  }, 0);
+};
+//#endif
+
 function _addManageMRUMenuItem(prefName, parentNode, MRUName) {
     var menuitem = document.createElementNS(XUL_NS, 'menuseparator');
     parentNode.appendChild(menuitem);
@@ -1396,6 +1421,7 @@ this.unload = function uilayout_unload()
 this.onload = function uilayout_onload()
 {
     ko.uilayout.updateToolbarArrangement();
+    addEventListener("fullscreen", ko.uilayout.onFullScreen, false);
     _gNeedToUpdateFileMRUMenu = true;
     _gNeedToUpdateProjectMRUMenu = true;
     _gNeedToUpdateTemplateMRUMenu = true;

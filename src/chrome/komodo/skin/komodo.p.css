@@ -70,14 +70,26 @@
 /* when in fullscreen mode, hide menubars, toolbars, and statusbars that are
    not marked with [fullscreentoolbar], except those that are immediate children
    of the main toolbox row. */
+/* #if PLATFORM == "darwin" */
+[sizemode="kofullscreen"]:root :not(#main-toolboxrow) > :-moz-any(menubar, toolbar, statusbar):not([fullscreentoolbar]) {
+  visibility: collapse;
+}
+/* #else */
 [sizemode="fullscreen"]:root :not(#main-toolboxrow) > :-moz-any(menubar, toolbar, statusbar):not([fullscreentoolbar]) {
   visibility: collapse;
 }
+/* #endif */
 /* when not in fullscreen mode, hide any elements marked as [fullscreencontrol]
    (i.e. those that should only be shown in full screen) */
+/* #if PLATFORM == "darwin" */
+:root:not([kosizemode="fullscreen"]) [fullscreencontrol] {
+  display: none;
+}
+/* #else */
 :root:not([sizemode="fullscreen"]) [fullscreencontrol] {
   display: none;
 }
+/* #endif */
 
 #toolbox_main #toolbar-menubar {
   padding-top: 0;
