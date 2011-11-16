@@ -60,7 +60,8 @@ monitoredPrefNames = { "enabledPrefName": types.BooleanType,
 class KoFileCheckerBase(object):
 
     _com_interfaces_ = [components.interfaces.nsIObserver,
-                        components.interfaces.koIFileStatusChecker]
+                        components.interfaces.koIFileStatusChecker,
+                        components.interfaces.nsIMemoryMultiReporter]
 
     # Save have to look this up all over the status checker code.
     _is_windows = sys.platform.startswith("win")
@@ -110,6 +111,28 @@ class KoFileCheckerBase(object):
         self.REASON_ONFOCUS_CHECK = components.interfaces.koIFileStatusChecker.REASON_ONFOCUS_CHECK
         self.REASON_FILE_CHANGED = components.interfaces.koIFileStatusChecker.REASON_FILE_CHANGED
         self.REASON_FORCED_CHECK = components.interfaces.koIFileStatusChecker.REASON_FORCED_CHECK
+
+        # Register ourself with the memory manager.
+        memMgr = components.classes["@mozilla.org/memory-reporter-manager;1"]. \
+                    getService(components.interfaces.nsIMemoryReporterManager)
+        memMgr.registerMultiReporter(self)
+
+    def collectReports(self, reportHandler, closure):
+        self.log.info("collectReports")
+
+        process = ""
+        kind_other = components.interfaces.nsIMemoryReporter.KIND_OTHER
+        units_count = components.interfaces.nsIMemoryReporter.UNITS_COUNT
+
+        amount = len(self._lastChecked)
+        if amount > 0:
+            reportHandler.callback(process,
+                                   "komodo scc-%s-checked-directories" % (self.name, ),
+                                   kind_other,
+                                   units_count,
+                                   amount, # amount
+                                   "The number of directories this checker was asked to check", # tooltip description
+                                   closure)
 
     ##
     # Helper function to ensure the cache key "uri" is consistently the same,
@@ -164,40 +187,6 @@ class KoFileCheckerBase(object):
             if prefName:
                 prefObserverSvc.removeObserver(self, prefName)
         self._observerSvc.removeObserver(self, 'xpcom-shutdown')
-
-            # also calculate the size in bytes
-            seen = set()
-            def calculate(obj):
-                try:
-                    if id(obj) in seen:
-                        # already say this object; don't double-count
-                        # (note that this means we can't have temporary things
-                        # in the recursion, since they report the same id)
-                        return 0
-                    size = sys.getsizeof(obj, 0)
-                    seen.add(id(obj))
-                    if isinstance(obj, dict):
-                        # also account for things in the dict
-                        size += sum(calculate(o) for o in obj.keys() + obj.values())
-                    elif isinstance(obj, (list, tuple, set)):
-                        size += sum(calculate(o) for o in obj)
-                    elif isinstance(obj, (str, unicode, float, int)) or obj is None:
-                        pass
-                    else:
-                        self.log.debug("KoSCCChecker::collectReports: skipping %r (%r @ %s)",
-                                       obj, type(obj), hex(id(obj)))
-                    return size
-                except:
-                    self.log.exception("error getting size for %r", obj)
-                    return float('inf')
-            amount = calculate(self._cached_info)
-            reportHandler.callback(process,
-                                   "explicit/komodo/scc/%s/known-files" % (self.name,),
-                                   components.interfaces.nsIMemoryReporter.KIND_HEAP,
-                                   components.interfaces.nsIMemoryReporter.UNITS_BYTES,
-                                   amount,
-                                   "The number of bytes %s is holding for file status" % (self.name,),
-                                   closure)
 
     ##
     # nsIObserver interface: listens for preference changes
