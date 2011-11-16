@@ -571,7 +571,12 @@ class _CSSParser(object):
                                 self._parse_structural_pseudo_class_arg()
                             else:
                                 # It's the CSS3 "not" or -moz-any selector
-                                self._parse_simple_selector(True, resolve_selector_property_ambiguity=False)
+				while True:
+				    self._parse_simple_selector(True, resolve_selector_property_ambiguity=False)
+				    tok = self._tokenizer.get_next_token()
+				    if not self._classifier.is_operator(tok) or tok.text != ",":
+					self._parser_putback_recover(tok)
+					break
                             self._parse_required_operator(")")
                         else:
                             if prev_tok.text in self._structural_pseudo_classes_args:

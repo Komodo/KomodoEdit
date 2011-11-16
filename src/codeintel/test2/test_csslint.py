@@ -817,6 +817,9 @@ notification:not(:-moz-any([details][open])) [anonid="details"] {
   -moz-transition-property: height;
   -moz-transition-duration: 40ms;
 }
+[sizemode="fullscreen"]:root :not(#main-toolboxrow) > :-moz-any(menubar, toolbar, statusbar):not([fullscreentoolbar]) {
+  visibility: collapse;
+}
 """)
         self._check_zero_results_show_error(code)
         
