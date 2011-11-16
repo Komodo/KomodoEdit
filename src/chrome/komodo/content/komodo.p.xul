@@ -2133,7 +2133,7 @@
                id="statusbarviewbox"
                class="chromeclass-status"
                style="min-height: 1.5em;">
-        <statisbarpanel id="statusbar-notifications-button"
+        <statusbarpanel id="statusbar-notifications-button"
                         class="statusbarpanel-iconic"
                         oncommand="ko.uilayout.ensureTabShown('notifications-widget');"/>
         <statusbarpanel id="statusbar-message-panel" flex="1">
