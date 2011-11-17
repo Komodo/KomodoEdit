@@ -721,6 +721,10 @@ viewMgrClass.prototype = {
 
     _getDraggedURIs: function(event) {
         var dt = event.dataTransfer;
+        if (!dt) {
+            log.debug("_getDraggedURIs: event.dataTransfer is null\n");
+            return [[], null];
+        }
         var koDropDataList = ko.dragdrop.unpackDropData(dt);
         var from_uris = [];
         for (var i = 0; i < koDropDataList.length; i++) {

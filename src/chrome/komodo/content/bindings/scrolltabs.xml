@@ -267,14 +267,13 @@
             <property name="menuListPopup" readonly="true"
                 onget="return document.getAnonymousElementByAttribute(this,'anonid','tabs-list-popup');"/>
 
-            <field name="dropIndicatorBar">
-                document.getAnonymousElementByAttribute(this, 'anonid', 'drop-indicator-bar');
-            </field>
+            <property name="dropIndicatorBar"
+                onget="return document.getAnonymousElementByAttribute(this, 'anonid', 'drop-indicator-bar');" />
 
             <method name="_createMenuItem">
                 <parameter name="tab"/>
                 <body>
-                <![CDATA[
+                // <![CDATA[
                 try {
                     const XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
                     var menuitem = document.createElementNS(XUL_NS, "menuitem");
@@ -334,7 +333,7 @@
                                                 "menuitem for '"+tab.label+"'");
                 }
                 return null;
-                ]]>
+                // ]]>
                 </body>
             </method>
 
@@ -525,7 +524,7 @@
 
             <handler event="dragstart">
             <![CDATA[
-                //dump("scrolltabs:: dragstart\n");
+                //dump(">> scrolltabs:: dragstart\n");
                 event.dataTransfer.mozSetDataAt("komodo/tab", event.target, 0);
                 this.ensureTabPositionsAreSet();
                 this.dropIndicatorBar.collapsed = false;

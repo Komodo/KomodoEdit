@@ -327,14 +327,19 @@ this.ProjectCommandHelper.prototype._checkDrag = function(event) {
             // Don't support a drag of the current project
             var currentProject = ko.projects.manager.currentProject;
             retVal = !currentProject || !isSameURI(currentProject.url, from_uris[0]);
+            //if (!retVal) {
+            //    log.debug("  _checkDrag: don't allow current project\n");
+            //}
         }
         event.preventDefault();
     }
     if (retVal === null) {
         var inDragSource = this._checkDragSource(event);
         var index = this._currentRow(event);
-        var part = this.owner.projectsTreeView.getRowItem(index);
-        if (!inDragSource || ["unopened_project", "file", "livefolder"].indexOf(part.type) !== -1) {
+        var part = index == -1 ? null : this.owner.projectsTreeView.getRowItem(index);
+        if (!inDragSource
+            || !part
+            || ["unopened_project", "file", "livefolder"].indexOf(part.type) !== -1) {
             retVal = false;
         } else {
             retVal = true;
@@ -349,6 +354,7 @@ this.ProjectCommandHelper.prototype._checkDrag = function(event) {
     return retVal;
 };
 
+this.ProjectCommandHelper.prototype.dragDropFlavors = ["text/uri-list", "text/x-moz-url", "komodo/tab"];
 this.ProjectCommandHelper.prototype._checkDragSource = function(event) {
     // All dragged items must be URIs for the drag source to be valid.
     var dt = event.dataTransfer;
@@ -357,8 +363,7 @@ this.ProjectCommandHelper.prototype._checkDragSource = function(event) {
         return false;
     }
     for (var i = 0; i < dt.mozItemCount; i++) {
-        if (!event.dataTransfer.mozTypesAt(i).contains("text/uri-list")
-            && !event.dataTransfer.mozTypesAt(i).contains("text/x-moz-url")) {
+        if (!this.dragDropFlavors.some(function(flav) dt.mozTypesAt(i).contains(flav) )) {
             if (this.complainIfNotAContainer) {
                 log.debug("not a file data-transfer\n");
                 this.complainIfNotAContainer = false;
