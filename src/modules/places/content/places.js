@@ -3173,13 +3173,13 @@ this.testDisableNode = function(menuNode, selectionInfo) {
     if (!disableNode
         && !!(directive = menuNode.getAttribute('testEval_DisableIf'))) {
         try {
-            var res = eval(testEval_DisableIf);
+            var res = eval(directive);
             if (res) {
                 disableNode = true;
             }
         } catch(ex) {
             log.exception("Failed to eval '"
-                          + testEval_DisableIf
+                          + directive
                           + ": " + ex);
             disableNode = true;
         }
