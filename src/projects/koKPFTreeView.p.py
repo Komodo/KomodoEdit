@@ -344,6 +344,11 @@ class KPFTreeView(TreeView):
         unwrapped_kpf = UnwrapObject(kpf)
         self._rows.append(_UnopenedProjectNode(unwrapped_kpf, 0, unwrapped_kpf))
         self._tree.rowCountChanged(newProjectIndex, 1)
+
+    def addUnopenedProjectAtPosition(self, kpf, newProjectIndex):
+        unwrapped_kpf = UnwrapObject(kpf)
+        self._rows.insert(newProjectIndex, _UnopenedProjectNode(unwrapped_kpf, 0, unwrapped_kpf))
+        self._tree.rowCountChanged(newProjectIndex, 1)
     
     def removeProject(self, kpfWrapped):
         self._partSvc.removeProject(kpfWrapped)

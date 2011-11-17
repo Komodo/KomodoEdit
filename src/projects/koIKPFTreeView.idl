@@ -63,6 +63,7 @@ interface koIKPFTreeView : nsITreeView {
     void addProject(in koIProject prj);
     void addProjectAtPosition(in koIProject prj, in long newProjectIndex);
     void addUnopenedProject(in koIProject prj);
+    void addUnopenedProjectAtPosition(in koIProject prj, in long newProjectIndex);
     void removeProject(in koIProject prj);
     void clearTree();
     

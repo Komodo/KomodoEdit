@@ -253,22 +253,7 @@ this._openProject = function(inNewWindow) {
     if (inNewWindow) {
         ko.launch.newWindow(part.url);
     } else {
-        var currentProject = ko.projects.manager.currentProject;
-        if (currentProject) {
-            this.projectsTreeView.removeProject(currentProject);
-        }
         this.projectsTreeView.removeProject(part);
-        if (currentProject) {
-            this.projectsTreeView.removeProject(currentProject);
-            ko.projects.manager.closeProject(currentProject);
-            var unopenedProject = Components.classes["@activestate.com/koUnopenedProject;1"]
-                    .createInstance(Components.interfaces.koIUnopenedProject);
-            unopenedProject.url = currentProject.url;
-            unopenedProject.isDirty = false;
-            this.projectsTreeView.addUnopenedProject(unopenedProject);
-            var direction = _placePrefs.getLongPref("project_sort_direction");
-            this.manager.sortProjects(direction);
-        }
         ko.projects.open(part.url);
     }
 };
