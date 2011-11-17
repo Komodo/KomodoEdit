@@ -227,8 +227,23 @@ projectManager.prototype.closeProjectEvenIfDirty_SingleProjectView = function(pr
     // the active project has been reset
     // Forget about any notifications made for this project.
     this.notifiedClearProject(project);
+    this._projects.splice(0, 1);
+    // Make an unopened project based on project, and add it at same position
+    var newUnopenedProject = Components.classes["@activestate.com/koUnopenedProject;1"]
+                    .createInstance(Components.interfaces.koIUnopenedProject);
+    newUnopenedProject.url = project.url;
+    newUnopenedProject.isDirty = false;
+    var projectsTreeView = ko.places.projects_SPV.projectsTreeView;
+    var index = projectsTreeView.getIndexByPart(project);
     project.close();
     this.currentProject = null;
+    projectsTreeView.removeProject(project);
+
+    if (index == -1) {
+        projectsTreeView.addUnopenedProject(newUnopenedProject);
+    } else {
+        projectsTreeView.addUnopenedProjectAtPosition(newUnopenedProject, index);
+    }
     ko.mru.addURL("mruProjectList", project.url);
     window.updateCommands('some_projects_open');
     return true;
@@ -1354,9 +1369,6 @@ this.open = function project_openProjectFromURL(url,
             if (!this.manager.closeProject(this.manager.currentProject)) {
                 return false;
             }
-        }
-        if (ko.projects.manager.viewMgr) {
-            ko.projects.manager.viewMgr.removeUnopenedProject(url);
         }
     }
     var action = null;
