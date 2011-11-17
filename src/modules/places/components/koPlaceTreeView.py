@@ -1569,8 +1569,12 @@ class KoPlaceTreeView(TreeView):
             return
         doInvalidate = False
         self._tree.beginUpdateBatch()
+        undeleted_paths = []
         try:
             for uri, index in reversed(zip(uris, indices)):
+                if not uri in nodes_to_remove:
+                    undeleted_paths.append(uriparse.URIToPath(uri))
+                    continue
                 try:
                     node = self._rows[index]
                 except IndexError:
@@ -1604,6 +1608,11 @@ class KoPlaceTreeView(TreeView):
                 self.invalidateTree()
         finally:
             self._tree.endUpdateBatch()
+        if undeleted_paths:
+            if len(undeleted_paths) == 1:
+                sendStatusMessage("Couldn't delete file %s" % (undeleted_paths[0],))
+            else:
+                sendStatusMessage("Couldn't %d delete files: %s" % (len(undeleted_paths), ", ".join(undeleted_paths)))            
 
     def _postRequestCommonNodeHandling(self, originalNode, index, context):
         originalNode.restore_icon()
@@ -2353,7 +2362,7 @@ class _WorkerThread(threading.Thread, Queue):
         for uri, index in reversed(zip(uris, indices)):
             try:
                 if self._do_deleteItem(requester, uri, index):
-                    nodes_to_remove.append(index)
+                    nodes_to_remove.append(uri)
             except:
                 log.exception("Failed to delete %s", uri)
         
@@ -2373,14 +2382,11 @@ class _WorkerThread(threading.Thread, Queue):
             except:
                 log.exception("sysUtils.MoveToTrash(%s) failed", path)
                 if os.path.isdir(path):
-                    if deleteContents:
-                        from distutils.dir_util import remove_tree
-                        remove_tree(path)
-                    else:
-                        os.rmdir(path)
+                    from distutils.dir_util import remove_tree
+                    remove_tree(path)
                 else:
                     os.unlink(path)
-            return not koFileEx.exists
+            return not os.path.exists(path)
         else:
             conn = requester._RCService.getConnectionUsingUri(uri)
             rfi = conn.list(path, True)
@@ -2389,7 +2395,7 @@ class _WorkerThread(threading.Thread, Queue):
                 conn.removeDirectory(path)
             else:
                 conn.removeFile(path)
-            rfi2 = conn.list(path, False)
+            rfi2 = conn.list(path, True)
             if rfi2:
                 log.error("deleteItem: failed to delete %s on server %s" % (path, conn.server))
                 return False
