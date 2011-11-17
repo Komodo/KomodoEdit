@@ -337,22 +337,22 @@ if (typeof(ko.dragdrop)=='undefined') {
                 // If it's dropped on a different Komodo window, then
                 // move that tab to the target window.
                 var sourceTab = dragData;
+                var sourceTabbox = sourceTab.parentNode;
+                while (sourceTabbox && sourceTabbox.localName != "tabbox") {
+                    sourceTabbox = sourceTabbox.parentNode;
+                }
+                if (!sourceTabbox) {
+                    return;
+                }
+                // Must hide the source drop indicator.
+                sourceTabbox._tabs.dropIndicatorBar.collapsed = true;
+
+                // Gather the data we need to open the view in the
+                // target window.
+                var sourceView = sourceTabbox.parentNode.currentView;
+                var uri = sourceView.koDoc.file.URI;
                 if (sourceTab.ownerDocument != document) {
                     // Moving a tab from one Komodo window to another.
-                    var sourceTabbox = sourceTab.parentNode;
-                    while (sourceTabbox && sourceTabbox.localName != "tabbox") {
-                        sourceTabbox = sourceTabbox.parentNode;
-                    }
-                    if (!sourceTabbox) {
-                        return;
-                    }
-                    // Must hide the source drop indicator.
-                    sourceTabbox._tabs.dropIndicatorBar.collapsed = true;
-
-                    // Gather the data we need to open the view in the
-                    // target window.
-                    var sourceView = sourceTabbox.parentNode.currentView;
-                    var uri = sourceView.koDoc.file.URI;
                     var viewType = sourceView.getAttribute("type");
                     var line = (viewType == "editor" ? sourceView.currentLine : null);
 
@@ -370,6 +370,9 @@ if (typeof(ko.dragdrop)=='undefined') {
                         ko.views.manager.doFileOpenAsync(uri, viewType);
                     }
                     window.focus();
+                } else {
+                    this.value = uri;
+                    this.isURL = true;
                 }
                 break;
             case "application/x-moz-file":
