@@ -1778,7 +1778,12 @@ class koProject(koLiveFolderPart):
             return self
         elif self.prefset and self.prefset.hasPrefHere("import_dirname"):
             projPath = self.prefset.getStringPref("import_dirname")
-            projURI = uriparse.localPathToURI(projPath)
+            koFileEx = components.classes["@activestate.com/koFileEx;1"] \
+                .createInstance(components.interfaces.koIFileEx)
+            koFileEx.path = projPath;
+            if koFileEx.scheme != "file":
+                return None
+            projURI = koFileEx.URI
             try:
                 if url.startswith(self._addTrailingSlash(projURI)):
                     return self
@@ -1797,6 +1802,7 @@ class koProject(koLiveFolderPart):
             # if the url is in a live folder, then make a part for the url
             # this part will have no parent, until the live folder it belongs
             # to is opened.
+            # This works only for local buffers (limitation while fixing bug 90607).
             ancestor = self.getLiveAncestor(url)
             if ancestor:
                 part = createPartFromType("file", self)
