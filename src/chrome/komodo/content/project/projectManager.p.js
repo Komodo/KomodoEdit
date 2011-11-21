@@ -1361,6 +1361,11 @@ projectManager.prototype.effectivePrefs = function () {
 this.open = function project_openProjectFromURL(url,
                                                 skipRecentOpenFeature /* false */,
                                                 ensureVisible /* true */) {
+    if (url.indexOf("file:/") != 0) {
+        ko.dialogs.alert(_bundle.formatStringFromName("remote projects arent supported for X",
+                                                      [url], 1));
+        return false;
+    }
     if (this.manager.single_project_view) {
         if (this.manager.currentProject) {
             if (this.manager.currentProject.url == url) {
