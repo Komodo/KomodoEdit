@@ -1227,6 +1227,12 @@
         }
         ko.history.note_curr_loc(this);
         try {
+            var oldLargeDocument = (this.koDoc.isLargeDocument
+                                    && (!this.koDoc.prefs.hasPrefHere("originalLanguage")
+                                        || this.koDoc.prefs.getStringPref("originalLanguage") != "Text"));
+            if (oldLargeDocument) {
+                var oldLanguage = this.koDoc.language;
+            }
             this.koDoc.docSettingsMgr.applyViewSettingsToDocument(this);
             var newdocument = this.__docsvc.createDocumentFromURI(uri);
             if (newdocument.file.exists && newdocument.file.isReadOnly) {
@@ -1245,9 +1251,15 @@
             this.saveLocation(locationInfo);
             newdocument.setBufferAndEncoding(this.koDoc.buffer, this.koDoc.encoding.python_encoding_name);
             var codePage = this.koDoc.codePage;
+            if (oldLargeDocument) {
+                ko.views.manager.showLargeFileProblem(this.koDoc.file.displayPath, oldLanguage);
+                newdocument.language = 'Text';
+            }
             this.koDoc = newdocument;
             this.koDoc.codePage = codePage;
-            this.koDoc.language = ''; // trigger a re-guessing of lang
+            if (!oldLargeDocument) {
+                this.koDoc.language = ''; // trigger a re-guessing of lang
+            }
             this._doSave();
             this.koDoc.docSettingsMgr.applyDocumentSettingsToView(this);
             this.restoreLocation(locationInfo);

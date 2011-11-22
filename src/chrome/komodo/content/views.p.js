@@ -606,12 +606,7 @@ viewManager.prototype._newViewFromURI = function(uri,
             && doc.prefs.hasPrefHere("originalLanguage")
             && ((originalLanguage = doc.prefs.getStringPref("originalLanguage"))
                 != "Text")) {
-            ko.dialogs.alert(_bundle.GetStringFromName("newFileHasLongLines.prompt"),
-                             _bundle.formatStringFromName("newFileAddedAsText.template",
-                                                          [doc.file.displayPath,
-                                                           originalLanguage], 2),
-                             null, // title
-                             "treat_large_documents_as_text");
+            this.showLargeFileProblem(doc.file.displayPath, originalLanguage);
         }
     } catch (e)  {
         var err = _lastErrorSvc.getLastErrorMessage();
@@ -953,6 +948,17 @@ viewManager.prototype.getViewForDocument = function(doc) {
     return this.topView.findViewForDocument(doc);
 }
 
+/**
+ * Show that we're opening/saving-as a large document:
+ */
+
+viewManager.prototype.showLargeFileProblem = function(path, languageName) {
+    ko.dialogs.alert(_bundle.GetStringFromName("newFileHasLongLines.prompt"),
+                     _bundle.formatStringFromName("newFileAddedAsText.template",
+                                                  [path, languageName], 2),
+                     null, // title
+                     "treat_large_documents_as_text");
+};
 
 /**
  * Used to reset the cached information for the current view
