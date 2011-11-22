@@ -324,7 +324,7 @@ class CommonTidyLinter(object):
         koDirs = components.classes["@activestate.com/koDirs;1"].\
                       getService(components.interfaces.koIDirs)
         argv = [os.path.join(koDirs.supportDir, "html", "tidy"),
-                '-errors', '-quiet', enc]
+                '-errors', '-quiet', enc, '--show-errors', '100']
         argv += getattr(self, "html5_tidy_argv_additions", [])
 
         if accessibility != '0':
