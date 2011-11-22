@@ -68,6 +68,7 @@ http://developer.mozilla.org/en/docs/XUL:textbox_%28Firefox_autocomplete%29
 
 import os
 from os.path import basename
+import sys
 import logging
 import re
 
@@ -77,7 +78,6 @@ from kotaclib import KoTACSearch, KoTACMatch
 
 log = logging.getLogger("koTAC")
 #log.setLevel(logging.DEBUG)
-
 
 #---- helper stuff for autocomplete implementations below
 
@@ -578,6 +578,21 @@ class KoTACItemAndMruSearch(KoTACSearch):
 
 #---- internal support routines
 
+if sys.platform == "win32":
+    import win32api
+    def _isHidden(path):
+        try:
+            return win32api.GetFileAttributes(path) & 0x02
+        except win32api.error:
+            # Assume if we can't access nothing else should either.
+            return True
+        except:
+            log.exception("Internal error: Unexpected exception while trying to access file %s", path)
+            return True
+else:
+    def _isHidden(path):
+        return False
+    
 def _genPathCompletions(pattern, cwd, dirsOnly=False):
     import sys, glob
     from os.path import isabs, join, isdir, ismount
@@ -601,7 +616,9 @@ def _genPathCompletions(pattern, cwd, dirsOnly=False):
                         and cwd or cwd+os.sep)
 
     for path in sorted(glob.glob(abspattern+"*")):
-        if isdir(path) or (sys.platform == "win32" and ismount(path)):
+        if _isHidden(path):
+            continue
+        elif isdir(path) or (sys.platform == "win32" and ismount(path)):
             path += os.sep
         elif dirsOnly:
             continue
