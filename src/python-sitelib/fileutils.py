@@ -37,6 +37,7 @@
 import os
 from os.path import islink, realpath, join
 import shutil
+import sys
 
 # Modified recipe: paths_from_path_patterns (0.5)
 def should_include_path(path, includes=None, excludes=None, isRemotePath=False):
@@ -133,3 +134,18 @@ def copyLocalFolder(srcPath, targetDirPath):
                 copyLocalFolder(candidate, targetFinalPath)
             else:
                 shutil.copy(candidate, os.path.join(targetFinalPath, d))
+
+if sys.platform == "win32":
+    import win32api
+    def isHiddenFile(path):
+        try:
+            return win32api.GetFileAttributes(path) & 0x02
+        except win32api.error:
+            # Assume if we can't access <path>, nothing else should either.
+            return True
+        except:
+            log.exception("Internal error: Unexpected exception while trying to access file %s", path)
+            return True
+else:
+    def isHiddenFile(path):
+        return False

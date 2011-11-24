@@ -2178,6 +2178,8 @@ class KoPlaceTreeView(TreeView):
         items = []
         for name in names:
             full_name = os.path.join(path, name)
+            if fileutils.isHiddenFile(full_name):
+                continue
             if os.path.isdir(full_name):
                 itemType = _PLACE_FOLDER
             elif os.path.isfile(full_name):

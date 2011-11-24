@@ -74,6 +74,7 @@ import re
 
 from xpcom import components, COMException, ServerException, nsError
 from xpcom.server import WrapObject, UnwrapObject
+import fileutils
 from kotaclib import KoTACSearch, KoTACMatch
 
 log = logging.getLogger("koTAC")
@@ -578,21 +579,6 @@ class KoTACItemAndMruSearch(KoTACSearch):
 
 #---- internal support routines
 
-if sys.platform == "win32":
-    import win32api
-    def _isHidden(path):
-        try:
-            return win32api.GetFileAttributes(path) & 0x02
-        except win32api.error:
-            # Assume if we can't access nothing else should either.
-            return True
-        except:
-            log.exception("Internal error: Unexpected exception while trying to access file %s", path)
-            return True
-else:
-    def _isHidden(path):
-        return False
-    
 def _genPathCompletions(pattern, cwd, dirsOnly=False):
     import sys, glob
     from os.path import isabs, join, isdir, ismount
@@ -616,7 +602,7 @@ def _genPathCompletions(pattern, cwd, dirsOnly=False):
                         and cwd or cwd+os.sep)
 
     for path in sorted(glob.glob(abspattern+"*")):
-        if _isHidden(path):
+        if fileutils.isHiddenFile(path):
             continue
         elif isdir(path) or (sys.platform == "win32" and ismount(path)):
             path += os.sep
