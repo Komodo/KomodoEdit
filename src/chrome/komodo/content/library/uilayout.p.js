@@ -1410,6 +1410,9 @@ this.updateTitlebar = function uilayout_updateTitlebar(view)  {
 
 this.unload = function uilayout_unload()
 {
+//#if PLATFORM == "darwin"
+    removeEventListener("fullscreen", ko.uilayout.onFullScreen, false);
+//#endif
     gUilayout_Observer.destroy();
     gUilayout_Observer = null;
     _prefobserver.destroy();
@@ -1421,7 +1424,9 @@ this.unload = function uilayout_unload()
 this.onload = function uilayout_onload()
 {
     ko.uilayout.updateToolbarArrangement();
+//#if PLATFORM == "darwin"
     addEventListener("fullscreen", ko.uilayout.onFullScreen, false);
+//#endif
     _gNeedToUpdateFileMRUMenu = true;
     _gNeedToUpdateProjectMRUMenu = true;
     _gNeedToUpdateTemplateMRUMenu = true;
