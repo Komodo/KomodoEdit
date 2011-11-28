@@ -327,6 +327,19 @@
             id="cmd_newTemplate" key="key_cmd_newTemplate"
             oncommand="ko.commands.doCommandAsync('cmd_newTemplate', event)"
             desc="&generalNewFile.desc;"/>
+<!-- #if PLATFORM == "darwin" -->
+        <!-- The "Hide Komodo" and "Hide Others" App menu items; these keys
+             aren't customizable, so don't give them desc= attributes (which
+             means they won't show up in the key bindings prefs).  Ideally they
+             would instead show up but can't be changed, though.  Ah well.
+          -->
+        <command
+            id="cmd_hideThisAppCmdMac" key="key_hideThisAppCmdMac"
+            oncommand="/* avoid double flash of app menu (bug 80666) */"/>
+        <command
+            id="cmd_hideOtherAppsCmdMac" key="key_hideOtherAppsCmdMac"
+            oncommand="/* avoid double flash of app menu (bug 80666) */"/>
+<!-- #endif -->
         <command
             id="cmd_quit" key="key_cmd_quit"
             oncommand="ko.commands.doCommandAsync('cmd_quit', event)"

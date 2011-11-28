@@ -2194,8 +2194,7 @@
     <keyset id="macAppMenuKeys">
         <key id="key_hideThisAppCmdMac"
              key="&hideThisAppCmdMac.commandkey;"
-             modifiers="&hideThisAppCmdMac.modifiers;"
-             oncommand="/* avoid double flash of app menu (bug 80666) */"/>
+             modifiers="&hideThisAppCmdMac.modifiers;"/>
         <key id="key_hideOtherAppsCmdMac"
              key="&hideOtherAppsCmdMac.commandkey;"
              modifiers="&hideOtherAppsCmdMac.modifiers;"/>
