@@ -5,16 +5,16 @@
 
 language EJS
 
-include "html2js.udl"
-
 include "html2css.udl"
 
 include "html2ejs.udl"
+include "html2js.udl"
 
 include "css2html.udl"
 
 include "ejs2html.udl"
 
+include "js2ejs.udl"  # transition on <% in js code...
 include "js2html.udl"
 
 include "html.udl"

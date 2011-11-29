@@ -1,0 +1,13 @@
+# In client-side JS, inserting some server-side JS
+# EJS contains two different JS's
+
+state IN_CSL_DEFAULT:
+/<%[=-]?/ : paint(upto, CSL_DEFAULT), paint(include, TPL_OPERATOR), spush_check(IN_CSL_DEFAULT) => IN_CSL_DEFAULT
+
+state IN_CSL_DSTRING
+/<%[=-]?/ : paint(upto, CSL_STRING), paint(include, TPL_OPERATOR), spush_check(IN_CSL_DSTRING) => IN_CSL_DEFAULT
+
+state IN_CSL_SSTRING
+/<%[=-]?/ : paint(upto, CSL_STRING), paint(include, TPL_OPERATOR), spush_check(IN_CSL_SSTRING) => IN_CSL_DEFAULT
+
+# What about comments?
