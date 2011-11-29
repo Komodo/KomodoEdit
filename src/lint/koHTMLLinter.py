@@ -95,7 +95,11 @@ class _CommonHTMLLinter(object):
     _cdata_ms_re = re.compile(r'\A(\s*)(<!\[CDATA\[)?(.*?)(\]\]>)?(\s*)\Z', re.DOTALL)
     _return_re = re.compile(r'\breturn\b')
     _function_re = re.compile(r'\bfunction\b')
-    def _lint_common_html_request(self, request, udlMapping=None, linters=None, squelchTPLPatterns=None):
+    _doctype_re = re.compile("<!doctype\s+html\s*?(.*?)\s*>",
+                             re.IGNORECASE|re.DOTALL)
+    def _lint_common_html_request(self, request, udlMapping=None, linters=None,
+                                  squelchTPLPatterns=None,
+                                  startCheck=None):
         self._mappedNames = udlMapping
         lintersByName = {}
         # Copy working set of linters into a local var
@@ -131,6 +135,7 @@ class _CommonHTMLLinter(object):
         htmlAllowedNames = ("HTML", "HTML5", "CSS", "JavaScript", "XML")
         currStartTag = None
         squelching = False
+        firstInsertedReplacement = False
         for i in range(1, lim):
             startPt = endPt
             endPt = transitionPoints[i]
@@ -146,10 +151,18 @@ class _CommonHTMLLinter(object):
                 if squelchTPLPatterns and origLangName == squelchTPLPatterns[0]:
                     if not squelching and squelchTPLPatterns[1].match(currText):
                         squelching = True
+                        firstInsertedReplacement = False
                     elif squelching and squelchTPLPatterns[2].match(currText):
                         squelching = False
                 elif squelching:
-                    bytesByLang[name].append(self._spaceOutNonNewlines(currText))
+                    if not firstInsertedReplacement:
+                        firstInsertedReplacement = True
+                        # Give JS etc. something to work with.
+                        # This might cause other false positives though.
+                        replText = "0" + self._spaceOutNonNewlines(currText[1:])
+                    else:
+                        replText = self._spaceOutNonNewlines(currText)
+                    bytesByLang[name].append(replText)
                 elif (origLangName == "CSS"
                     and langName == name
                     and "{" not in currText):
@@ -213,6 +226,21 @@ class _CommonHTMLLinter(object):
 
         finalLintResults = koLintResults()
         for langName, textSubset in charsByLang.items():
+            if startCheck and langName in startCheck:
+                startPtn, insertion = startCheck[langName]
+                if not startPtn.match(textSubset):
+                    textSubset = insertion + textSubset
+            if langName.startswith("HTML"):
+                # Is there an explicit doctype?
+                m = self._doctype_re.match(textSubset)
+                if m:
+                    if not m.group(1):
+                        langName = "HTML5"
+                    else:
+                        langName = "HTML"
+                elif langName == "HTML" and self.lang == "HTML5":
+                    # Use the correct aggregator class.
+                    langName = "HTML5"
             linter = self._linterByName(langName, lintersByName)
             if linter:
                 try:
@@ -241,9 +269,10 @@ class _Common_HTMLAggregator(_CommonHTMLLinter):
     # terminal linter will concern itself only with the full document,
     # and won't have to pick out sublanguages.
     def lint(self, request, udlMapping=None, linters=None,
-             squelchTPLPatterns=None):
+             squelchTPLPatterns=None,
+             startCheck=None):
         return self._lint_common_html_request(request, udlMapping, linters,
-                                              squelchTPLPatterns)
+                                              squelchTPLPatterns, startCheck)
 
     def lint_with_text(self, request, text):
         if not text:

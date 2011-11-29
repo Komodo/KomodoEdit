@@ -301,8 +301,10 @@ class KoRHTMLLinter(object):
     def _spaceOutNonNewlines(self, markup):
         return self._nonNewlineMatcher.sub(' ', markup)
 
+    _tplPatterns = ("RHTML", re.compile('<%.*'), re.compile('.*?%>'))
     def lint(self, request):
         return UnwrapObject(self._html_linter).lint(request,
+                                                    squelchTPLPatterns=self._tplPatterns,
                                                     udlMapping={"Ruby":"RHTML"})
 
     def lint_with_text(self, request, text):
