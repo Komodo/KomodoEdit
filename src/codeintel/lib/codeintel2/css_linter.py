@@ -571,12 +571,12 @@ class _CSSParser(object):
                                 self._parse_structural_pseudo_class_arg()
                             else:
                                 # It's the CSS3 "not" or -moz-any selector
-				while True:
-				    self._parse_simple_selector(True, resolve_selector_property_ambiguity=False)
-				    tok = self._tokenizer.get_next_token()
-				    if not self._classifier.is_operator(tok) or tok.text != ",":
-					self._parser_putback_recover(tok)
-					break
+                                while True:
+                                    self._parse_simple_selector(True, resolve_selector_property_ambiguity=False)
+                                    tok = self._tokenizer.get_next_token()
+                                    if not self._classifier.is_operator(tok) or tok.text != ",":
+                                        self._parser_putback_recover(tok)
+                                        break
                             self._parse_required_operator(")")
                         else:
                             if prev_tok.text in self._structural_pseudo_classes_args:
@@ -767,6 +767,9 @@ class _CSSParser(object):
 
         elif tok.text.lower() == "namespace":
             self._parse_namespace()
+
+        elif tok.text.lower() == "-moz-document":
+            self._parse_moz_document()
             
         elif self.language == "Less":
             self._parse_assignment()
@@ -900,6 +903,9 @@ class _CSSParser(object):
         
     def _parse_media(self):
         self._parse_media_list()
+        self._parse_inner_rulesets()
+
+    def _parse_inner_rulesets(self):
         self._parse_required_operator("{")
         while True:
             tok = self._tokenizer.get_next_token()
@@ -911,6 +917,31 @@ class _CSSParser(object):
             self._tokenizer.put_back(tok)
             self._parse_ruleset()
         
+    def _parse_moz_document(self):
+        """
+        docrule ::= "@-moz-document" S+ url-list "{" S* ruleset* "}"
+        url-list ::= url-item ( "," S* url-item )*
+        url-item ::= ( "url(" | "url-prefix(" | "domain(" ) URL ")" |
+                     "regexp(" string ")" S*
+        """
+        while True:
+            res = self._parse_moz_document_item()
+            if not res:
+                break
+            tok = self._tokenizer.get_next_token()
+            if not self._classifier.is_operator(tok):
+                # Stay in this loop, maybe we're seeing more moz-doc items
+                self._add_result("expecting ',' or '{'", tok)
+                self._tokenizer.put_back(tok)
+            elif tok.text == "{":
+                self._tokenizer.put_back(tok)
+                break
+            elif tok.text != ",":
+                # Stay in this loop
+                self._add_result("expecting ',' or '{'", tok)
+                self._tokenizer.put_back(tok)
+        self._parse_inner_rulesets()
+
     def _parse_page(self):
         tok = self._tokenizer.get_next_token()
         if self._classifier.is_operator(tok, ":"):
@@ -1330,6 +1361,42 @@ class _CSSParser(object):
                     return True
         self._tokenizer.put_back(tok)
         return False
+
+    _url_item_re = re.compile(r'(?:url|url-prefix|domain)\((.*)\)\Z')
+    def _parse_url_item(self):
+        tok = self._tokenizer.get_next_token()
+        if self._classifier.is_value(tok):
+            if self._url_re.match(tok.text):
+                return True
+            if tok.text == "url(":
+                # Verify that the actual URL is a string
+                if not self._parse_string():
+                    tok = self._tokenizer.get_next_token()
+                    self._add_result("expecting a quoted URL", tok)
+                    self._parser_putback_recover(tok)
+                tok = self._tokenizer.get_next_token()
+                if not (self._classifier.is_operator(tok, ")")
+                        or (self._classifier.is_value(tok) and tok.text == ')')):
+                    self._add_result("expecting ')'", tok)
+                    self._parser_putback_recover(tok)
+                else:
+                    return True
+        self._tokenizer.put_back(tok)
+        return False
+
+
+    moz_document_item_types = ("url", "url-prefix", "domain", "regexp")
+    moz_document_item_types_with_paren = tuple([x + "(" for x in moz_document_item_types])
+    def _parse_moz_document_item(self):
+        tok = self._tokenizer.get_next_token()
+        if not tok.text.startswith(self.moz_document_item_types_with_paren):
+            self._add_result("expecting a -moz-document url-item", tok)
+            self._parser_putback_recover(tok)
+        if tok.text in self.moz_document_item_types_with_paren:
+            self._parse_string()
+            self._parse_required_operator(")")
+        elif tok.text.startswith("regexp("):
+            self._add_result("the regexp argument must be a quoted string", tok)
 
     _hex_color_re = re.compile(r'#(?:[\da-fA-F]{3}){1,2}\Z')
     def _parse_hex_color(self):

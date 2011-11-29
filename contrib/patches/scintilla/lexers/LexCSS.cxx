@@ -154,6 +154,13 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 	int identifier_substate = IDENTIFIER_SUBSTATE_DEFAULT;
 
 	bool in_top_level_directive = false;
+	const char* moz_document_words[5] = {
+	  "url",
+	  "url-prefix",
+	  "domain",
+	  "regexp",
+	  NULL
+	};
 
 	isLessDocument = styler.GetPropertyInt("lexer.css.less.language") != 0;
 	isScssDocument = styler.GetPropertyInt("lexer.css.scss.language") != 0;
@@ -228,18 +235,38 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
             
 		case SCE_CSS_VALUE: // rgb hash values
 			if (!IsAWordChar(ch)) {
-				char buf[6];
+				char buf[12];
+				int moz_doc_word_idx = 0;
+				const char *docWord;
+				int docWordLen;
+				bool inURLLikeValue = false;
 				sc.GetCurrentLowered(buf, sizeof(buf));
-				if (!strcmp(buf, "url") && ch == '(') {
+				for (moz_doc_word_idx = 0;
+				     moz_doc_word_idx < 4;
+				     moz_doc_word_idx++) {
+					docWord = moz_document_words[moz_doc_word_idx];
+					if (!strcmp(buf, docWord) && ch == '(') {
+						inURLLikeValue = true;
+						break;
+					} else {
+						docWordLen = strlen(docWord);
+						if (!strncmp(buf, docWord, docWordLen)
+						    && buf[docWordLen] == '(') {
+							inURLLikeValue = true;
+							break;
+						}
+					}
+				}
+				if (inURLLikeValue) {
 					// Compatibility: make the ( in url( a value char
 					// EMPTY
-					if (sc.chNext == '"') {
-						sc.ForwardSetState(SCE_CSS_DOUBLESTRING);
-					} else if (sc.chNext == '\'') {
-						sc.ForwardSetState(SCE_CSS_SINGLESTRING);
-					}
-				} else if (!strncmp(buf, "url(", 4)) {
-					if (strchr("\r\n\f \t)", ch)) {
+					if (ch == '(') {
+						if (sc.chNext == '"') {
+							sc.ForwardSetState(SCE_CSS_DOUBLESTRING);
+						} else if (sc.chNext == '\'') {
+							sc.ForwardSetState(SCE_CSS_SINGLESTRING);
+						}
+					} else if (strchr("\r\n\f \t)", ch)) {
 						// Started with url(, have to end it now
 						if (ch == ')') {
 							// Keep the closing ')' with a value style so it
@@ -258,7 +285,27 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 		case SCE_CSS_TAG:
 			if (!IsAWordChar(ch)) {
 				if (main_substate == MAIN_SUBSTATE_AMBIGUOUS_SELECTOR_OR_PROPERTY_NAME) {
-					classifyWordAndStyle(sc, styler, keywordlists, false, SCE_CSS_TAG);
+					// If this is followed by '{', treat it as a tag.
+					// Otherwise it should be classified.
+					{
+						int i = sc.currentPos + 1;
+						char followChar = ' ';
+						int ch;
+						for (; i < finalLength; i++) {
+							ch = styler.SafeGetCharAt(i);
+							if (ch == ':' || ch == '{') {
+								followChar = ch;
+								break;
+							}
+						}
+						if (followChar == '{') {
+							// We're still nested
+							sc.SetState(SCE_CSS_DEFAULT);
+						} else {
+							// If we're at end, assume we saw a ":"
+							classifyWordAndStyle(sc, styler, keywordlists, false, SCE_CSS_UNKNOWN_IDENTIFIER);
+						}
+					}
 				} else {
 					sc.SetState(SCE_CSS_DEFAULT);
 				}
@@ -266,7 +313,7 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 			break;
             
 		case SCE_CSS_DIRECTIVE:
-			if (!IsAWordChar(ch)) {
+			if (!IsAWordChar(ch) && ch != '-') {
 				char s2[100], *p_buf = s2;
 				int wordStart = styler.GetStartSegment();
 				getCurrentWord(s2, sizeof(s2)/sizeof(s2[0]),
@@ -281,6 +328,8 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 					main_substate = MAIN_SUBSTATE_IN_MEDIA_TOP_LEVEL;
 				} else if (!CompareCaseInsensitive(p_buf, "font-face")) {
 					main_substate = MAIN_SUBSTATE_IN_FONT_FACE;
+				} else if (!CompareCaseInsensitive(p_buf, "-moz-document")) {
+					main_substate = MAIN_SUBSTATE_IN_MEDIA_TOP_LEVEL;
 				}
 				sc.SetState(SCE_CSS_DEFAULT);
 			}
@@ -708,31 +757,11 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 						sc.SetState(SCE_CSS_OPERATOR);
 					}
 				} else {
-					  sc.SetState(SCE_CSS_IDENTIFIER);
+					sc.SetState(SCE_CSS_IDENTIFIER);
 				}
 				break;
 			case ')':
-				// This might be a VALUE if it matches with a url( thing
-				{
-					int p = sc.currentPos - 1;
-					int p_stop = p - 200;
-					if (p_stop < 7) p_stop = 7;
-					bool setStyle = true;
-					for (; p >= p_stop; p--) {
-						if (styler[p] == '(') {
-							if (styler[p - 1] == 'l'
-							    && styler[p - 2] == 'r'
-							    && styler[p - 3] == 'u') {
-								sc.SetState(SCE_CSS_VALUE);
-								setStyle = false;
-							}
-							break;
-						}
-					}
-					if (setStyle) {
-					    sc.SetState(SCE_CSS_OPERATOR);
-					}
-				}
+					sc.SetState(SCE_CSS_OPERATOR);
 				break;
 			
 			default:

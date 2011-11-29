@@ -1205,6 +1205,82 @@ $other: 34px;
 """).decode("utf-8")
         self._check_zero_results_show_error(code, language="SCSS")
         
+    def test_moz_document_directive_01(self):
+        code = dedent("""\
+@-moz-document url(chrome://komodo/content/notifications/notificationsWidget.xul) {
+  notification .twisty > .twistyImageWrapper {
+    padding-left: 0;
+    padding-bottom: 0;
+  }
+  notification .twistyImage {
+    list-style-image: none;
+    -moz-appearance: treetwisty;
+  }
+  notification[open] .twistyImage {
+    list-style-image: none;
+    -moz-appearance: treetwistyopen;
+  }
+}
+""").decode("utf-8")
+        for lang in ("CSS", "SCSS", "Less"):
+            self._check_zero_results_show_error(code, language=lang)
+
+    def test_moz_document_directive_02_missing_close_brace(self):
+        code = dedent("""\
+@-moz-document url(chrome://komodo/content/notifications/notificationsWidget.xul) {
+  notification .twisty > .twistyImageWrapper {
+    padding-bottom: 0;
+  }
+""").decode("utf-8")
+        for lang in ("CSS", "SCSS", "Less"):
+            self._check_one_result_check_error_at_eof(code, "expecting '}'", language=lang)
+
+    def test_moz_document_directive_03_moz_items(self):
+        code = dedent("""\
+@-moz-document url(chrome://url0) { 
+  notification .twisty > .twistyImageWrapper {
+    padding-bottom: 0;
+  }}
+@-moz-document url('chrome://url1') { 
+  notification .twisty > .twistyImageWrapper {
+    padding-bottom: 0;
+  }}
+@-moz-document url-prefix(chrome://url2) {
+  notification .twisty > .twistyImageWrapper {
+    padding-bottom: 0;
+  } }
+@-moz-document url-prefix('chrome://url3') { 
+  notification .twisty > .twistyImageWrapper {
+    padding-bottom: 0;
+  }}
+@-moz-document domain(chrome://url4) {
+  notification .twisty > .twistyImageWrapper {
+    padding-bottom: 0;
+  } }
+@-moz-document domain('chrome://url5') { 
+  notification .twisty > .twistyImageWrapper {
+    padding-bottom: 0;
+  }}
+@-moz-document regexp('chrome://url6') {
+  notification .twisty > .twistyImageWrapper {
+    padding-bottom: 0;
+  }}
+""").decode("utf-8")
+        for lang in ("CSS", "SCSS", "Less"):
+            self._check_zero_results_show_error(code, language=lang)
+  
+    def test_moz_document_directive_unquoted_regex_bad(self):
+        code = dedent("""\
+@-moz-document regexp(chrome://url) {
+  notification .twisty > .twistyImageWrapper {
+    padding-bottom: 0;
+  }}
+""").decode("utf-8")
+        for lang in ("CSS", "SCSS", "Less"):
+            self._check_some_errors_on_line(code,
+                "the regexp argument must be a quoted string",
+                "regexp(chrome://url)", 2, language=lang)
+               
     def test_css_scss_bad_mixin_01(self):
         code = "@mixin  {"
         self._check_some_errors_on_line(code, "expecting a mixin name", '{', lineNo=0, language="SCSS")
