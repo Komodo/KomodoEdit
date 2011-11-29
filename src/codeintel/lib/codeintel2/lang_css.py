@@ -98,7 +98,8 @@ raw_word_lists = [
     background-position background-repeat border border-bottom
     border-bottom-width border-color border-left border-left-width
     border-right border-right-width border-style border-top
-    border-top-width border-width clear color display float font
+    border-top-width border-width
+    clear color display float font
     font-family font-size font-style font-variant font-weight height
     letter-spacing line-height list-style list-style-image
     list-style-position list-style-type margin margin-bottom margin-left
@@ -133,7 +134,13 @@ raw_word_lists = [
     z-index
     """,
     # CSS3 Properties
-    "",
+    """
+    border-top-left-radius
+    border-top-right-radius
+    border-bottom-left-radius
+    border-bottom-right-radius
+    border-radius
+    """,
     # Pseudo-elements
     "",
     # Browser-Specific CSS Properties
