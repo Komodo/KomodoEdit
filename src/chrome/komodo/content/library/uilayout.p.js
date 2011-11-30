@@ -1423,6 +1423,24 @@ this.unload = function uilayout_unload()
 
 this.onload = function uilayout_onload()
 {
+    // The main toolbox may be hidden from using Komodo 7.0b1.  If it is,
+    // unhide it (otherwise the app is pretty unusable).  This can probably
+    // go away by Komodo 8...
+    var maintoolboxrow = document.getElementById("main-toolboxrow");
+    if (maintoolboxrow && maintoolboxrow.hidden) {
+        maintoolboxrow.hidden = false;
+        // unassert things so we don't keep setting hidden=""
+        var rdfs = Components.classes["@mozilla.org/rdf/rdf-service;1"]
+                             .getService(Components.interfaces.nsIRDFService);
+        var ds = rdfs.GetDataSource("rdf:local-store");
+        var source = rdfs.GetResource(document.location.href + "#" + maintoolboxrow.id);
+        var prop = rdfs.GetResource("hidden");
+        var arcs = ds.GetTargets(source, prop, true);
+        while (arcs.hasMoreElements()) {
+            ds.Unassert(source, prop, arcs.getNext());
+        }
+    }
+
     ko.uilayout.updateToolbarArrangement();
 //#if PLATFORM == "darwin"
     addEventListener("fullscreen", ko.uilayout.onFullScreen, false);
