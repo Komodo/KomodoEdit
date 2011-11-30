@@ -657,6 +657,9 @@ this.onFullScreen = function uilayout_onFullScreen()
           docElem.setAttribute("kosizemode", "normal");
       }
     }
+    // Sadly, using CSS to hide menu items doesn't work on OSX.
+    document.getElementById("popup_toolbars_fullscreen_separator").hidden = !window.fullScreen;
+    document.getElementById("menu_toolbars_fullscreen_autohide").hidden = !window.fullScreen;
   }, 0);
 };
 //#endif
@@ -858,6 +861,7 @@ this.updateToolboxContextMenu = function uilayout_updateToolboxContextMenu()
   }
   for each (var child in Array.slice(source.childNodes)) {
     var clone = child.cloneNode(true);
+    clone.removeAttribute("id");
     for each (var elem in Array.slice(clone.querySelectorAll("[id]"))) {
       elem.removeAttribute("id");
     }
