@@ -95,7 +95,8 @@ class koViewService:
     def getAllViews(self, viewtype=""):
         all_views = []
         for viewMgr in self._viewMgr.values():
-            all_views += viewMgr.getAllViews(viewtype)
+            # Bug 91744: if no views, getAllViews() returns None, not []
+            all_views += (viewMgr.getAllViews(viewtype) or [])
         return all_views
 
     def getReferencedViewCount(self, viewtype=""):
