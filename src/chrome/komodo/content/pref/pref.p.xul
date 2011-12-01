@@ -209,7 +209,7 @@
     </keyset>
 
     <hbox flex="1" >
-        <vbox id="pref-deck-vbox" flex="1">
+        <vbox id="pref-deck-vbox">
             <textbox id="pref-filter-textbox"
                        style="min-width:40px;"
                        accesskey="&search.accesskey;"
@@ -537,12 +537,12 @@
         <splitter orient="horizontal"
                   style="margin: 0px; padding: 0px; border: none;"/>
         <!-- Main prefs panel -->
-        <vbox flex="1" style="min-width: 30em;">
+        <vbox flex="1">
             <deck id="panelFrame" name="panelFrame" style="width:0px"
                     flex="1"/>
             <separator/>
 
-            <hbox>
+            <hbox style="overflow-x: auto; overflow-y: hidden;">
                 <separator flex="1"/>
                 <button label="&OK.label;" default="true" oncommand="doOk();"/>
                 <button label="&cancel.label;" oncommand="doCancel();"/>
