@@ -117,12 +117,13 @@ class KoInfoService(object):
             prefIds = windowWorkspacePrefs.getPrefIds()
             for prefId in prefIds:
                 pref = windowWorkspacePrefs.getPref(prefId)
-                try:
-                    windowNum = pref.getLongPref('windowNum')
-                    loadedWindowNums.append(windowNum)
-                except:
-                    log.exception("nextWindowNum: can't get window # for workspace %r",
-                                  prefId)
+                if pref.hasLongPref('windowNum'):
+                    try:
+                        windowNum = pref.getLongPref('windowNum')
+                        loadedWindowNums.append(windowNum)
+                    except:
+                        log.exception("nextWindowNum: can't get window # for workspace %r",
+                                      prefId)
         retVal = self._nextAvailWindowNum
         if retVal in self._usedWindowNums:
             while True:
