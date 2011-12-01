@@ -118,7 +118,7 @@ class CommonJSLinter(object):
             result.columnEnd = result.columnStart + 1
         result.lineStart = lineNo
         result.lineEnd = lineNo
-        if (errorType.lower().find('warning') > 0):
+        if (errorType.lower().find('warning') >= 0):
             result.severity = result.SEV_WARNING
         else:
             result.severity = result.SEV_ERROR
