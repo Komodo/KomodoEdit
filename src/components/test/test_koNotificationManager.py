@@ -253,7 +253,7 @@ class NotificationManagerTestCase(unittest.TestCase):
 
         try:
             self.assertRaises(COMException,
-                              setattr, notif, "maxProgress", 0)
+                              setattr, notif, "maxProgress", -2)
             self.assertTrue(hasattr(Ci.koINotificationProgress,
                                     "PROGRESS_INDETERMINATE"))
             with self.check_called(notif, True, old_index=0, new_index=0):
