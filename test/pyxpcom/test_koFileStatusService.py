@@ -79,14 +79,12 @@ class TestKoFileStatusService(unittest.TestCase):
         self.__filesvc = components.classes["@activestate.com/koFileService;1"] \
                          .getService(components.interfaces.koIFileService)
 
-    def __del__(self):
-        self.__fileStatusSvc.unload()
-
     def setUp(self):
         self.__obs = TestKoFileStatusServiceObserver()
 
     def tearDown(self):
         self.__obs.removeObserver()
+        self.__fileStatusSvc.unload()
 
     def test_service(self):
         if sys.platform.startswith("win"):
