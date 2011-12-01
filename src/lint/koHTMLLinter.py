@@ -91,8 +91,20 @@ class _CommonHTMLLinter(object):
         if "\n" in code.strip():
             return code
         return self._spaceOutNonNewlines(code)
-        
-    _cdata_ms_re = re.compile(r'\A(\s*)(<!\[CDATA\[)?(.*?)(\]\]>)?(\s*)\Z', re.DOTALL)
+
+    # Allow script and style tags to be wrapped with one of
+    # <![CDATA[ ... ]]> or <!-- .. -->
+    _cdata_ms_re = re.compile(r'\A(\s*)(<!\[CDATA\[)(.*?)(\]\]>)(\s*)\Z', re.DOTALL)
+    _comment_re = re.compile(r'\A(\s*)(<!--)(.*?)(-->)(\s*)\Z', re.DOTALL)
+    _unwrapped_block = re.compile(r'\A(\s*)()(.*?)()(\s*)\Z', re.DOTALL)
+    def _get_subparts_from_text(self, currText):
+        m = self._cdata_ms_re.match(currText)
+        if m is None:
+            m = self._comment_re.match(currText)
+            if m is None:
+                m = self._unwrapped_block.match(currText)
+        return m.groups()
+
     _return_re = re.compile(r'\breturn\b')
     _function_re = re.compile(r'\bfunction\b')
     _doctype_re = re.compile("<!doctype\s+html\s*?(.*?)\s*>",
@@ -163,25 +175,26 @@ class _CommonHTMLLinter(object):
                     else:
                         replText = self._spaceOutNonNewlines(currText)
                     bytesByLang[name].append(replText)
-                elif (origLangName == "CSS"
-                    and langName == name
-                    and "{" not in currText):
-                    if (i > 0
-                        and i < lim - 1
+                elif origLangName == "CSS" and langName == name:
+                    if ("{" not in currText
+                        and i > 0 and i < lim - 1
                         and koDoc.languageForPosition(startPt - 1).startswith("HTML")
                         and koDoc.languageForPosition(endPt).startswith("HTML")):
                         bytesByLang[name].append("bogusTag { %s }" % currText)
                     else:
-                        bytesByLang[name].append(self._spaceOutNonNewlines(currText))
+                        subparts = self._get_subparts_from_text(currText)
+                        bytesByLang[name].append(subparts[0])
+                        bytesByLang[name].append(self._spaceOutNonNewlines(subparts[1]))
+                        bytesByLang[name].append(subparts[2])
+                        bytesByLang[name].append(self._spaceOutNonNewlines(subparts[3]))
+                        bytesByLang[name].append(subparts[4])
                 elif origLangName == "JavaScript" and langName == name:
                     # Convert uncommented cdata marked section markers
                     # into spaces.
-                    # 
-                    m = self._cdata_ms_re.match(currText)
-                    subparts = m.groups()
+                    #
+                    subparts = self._get_subparts_from_text(currText)
                     bytesByLang[name].append(subparts[0])
-                    if subparts[1]:
-                        bytesByLang[name].append(self._spaceOutNonNewlines(subparts[1]))
+                    bytesByLang[name].append(self._spaceOutNonNewlines(subparts[1]))
                     if jsShouldBeWrapped:
                         actualCode = self._blankOutOneLiners(subparts[2])
                         thisJSShouldBeWrapped = actualCode.strip()
@@ -196,8 +209,8 @@ class _CommonHTMLLinter(object):
                     if thisJSShouldBeWrapped:
                         bytesByLang[name].append("(function() { ")
                     bytesByLang[name].append(actualCode)
-                    if subparts[3]:
-                        bytesByLang[name].append(self._spaceOutNonNewlines(subparts[3]))
+                    
+                    bytesByLang[name].append(self._spaceOutNonNewlines(subparts[3]))
                     if thisJSShouldBeWrapped:
                         bytesByLang[name].append(" })();")
                     bytesByLang[name].append(subparts[4])
