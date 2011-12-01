@@ -288,7 +288,7 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 					// If this is followed by '{', treat it as a tag.
 					// Otherwise it should be classified.
 					{
-						int i = sc.currentPos + 1;
+						int i = sc.currentPos;
 						char followChar = ' ';
 						int ch;
 						for (; i < finalLength; i++) {
