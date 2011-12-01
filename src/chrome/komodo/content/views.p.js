@@ -2701,6 +2701,12 @@ this.getRecentClosedWindowList = function() {
                 // so we should offer to open it now
                 continue;
             }
+            if (!workspace.hasPref("topview")) {
+                //Observation: this can happen for windows that have no loaded views.
+                // Encountered while working on bug 91751 and bug 91744
+                log.debug("getRecentClosedWindowList: !workspace.hasPref(topview)\n");
+                continue;
+            }
             var topview = workspace.getPref("topview");
             var childState = topview.getPref("childState");
             var current_view_index = childState.getPref(0).getLongPref("current_view_index");
