@@ -113,9 +113,13 @@ class KoFileCheckerBase(object):
         self.REASON_FORCED_CHECK = components.interfaces.koIFileStatusChecker.REASON_FORCED_CHECK
 
         # Register ourself with the memory manager.
-        memMgr = components.classes["@mozilla.org/memory-reporter-manager;1"]. \
-                    getService(components.interfaces.nsIMemoryReporterManager)
-        memMgr.registerMultiReporter(self)
+        try:
+            # bk test often dies here, so run in a try/except
+            memMgr = components.classes["@mozilla.org/memory-reporter-manager;1"]. \
+                getService(components.interfaces.nsIMemoryReporterManager)
+            memMgr.registerMultiReporter(self)
+        except:
+            pass
 
     def collectReports(self, reportHandler, closure):
         self.log.info("collectReports")
