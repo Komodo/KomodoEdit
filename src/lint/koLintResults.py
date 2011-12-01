@@ -114,8 +114,10 @@ class koLintResults:
                 and r.lineEnd == result.lineEnd
                 and r.columnStart == result.columnStart
                 and r.columnEnd == result.columnEnd
+                and r.severity == result.severity
                 and r.description == result.description):
-                continue
+                # Cull duplicate results
+                return
         self._results.append(result)
         for lineNum in range(result.lineStart, result.lineEnd+1):
             if self._resultMap.has_key(lineNum):
