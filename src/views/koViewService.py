@@ -42,6 +42,7 @@ from xpcom.server import WrapObject, UnwrapObject
 
 import logging
 log = logging.getLogger('koViewService')
+#log.setLevel(logging.DEBUG)
 
 # XXX the view service needs some additional thought for supporting multi
 # window capability.
