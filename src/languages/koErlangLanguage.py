@@ -50,7 +50,12 @@ class koErlangLanguage(KoLanguageBase):
 
     _stateMap = {
         'default': ('SCE_ERLANG_DEFAULT',),
-        'comments': ('SCE_ERLANG_COMMENT',),
+        'comments': ('SCE_ERLANG_COMMENT',
+                     'SCE_ERLANG_COMMENT_FUNCTION',
+                     'SCE_ERLANG_COMMENT_MODULE',
+                     'SCE_ERLANG_COMMENT_DOC',
+                     'SCE_ERLANG_COMMENT_DOC_MACRO',
+                     ),
         'variables': ('SCE_ERLANG_VARIABLE',),
         'numbers': ('SCE_ERLANG_NUMBER',),
         'keywords': ('SCE_ERLANG_KEYWORD',),
