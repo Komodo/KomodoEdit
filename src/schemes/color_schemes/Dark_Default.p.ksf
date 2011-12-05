@@ -8,7 +8,7 @@ CommonStyles = {'attribute name': {'fore': 8904824},
  'bracehighlight': {'bold': 1, 'fore': 10197815},
  'classes': {'fore': 7632127},
  'comments': {'italic': 1, 'fore': 11382189},
- 'control characters': {'back': 16777215, 'fore': 0},
+ 'control characters': {'back': 0, 'fore': 16777215},
 'default_fixed': {
 # #if PLATFORM == 'win'
         'face': 'Courier New',
