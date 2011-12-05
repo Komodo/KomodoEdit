@@ -225,6 +225,19 @@ tooltipHandler.prototype.fillInTooltip = function(tipElement, x, y) {
     return false;
 }
 
+tooltipHandler.prototype.isOpen = function() {
+    return this._tooltip.state == "open";
+};
+
+tooltipHandler.prototype.updateTooltip = function(newText) {
+    // this function works with fillInTooltip
+    try {
+        this._tooltipTextNode.childNodes[0].data = newText;
+    } catch(ex) {
+        log.exception(ex);
+    }
+}
+
 var _handlers = {};
 this.getHandler = function(tooltipName) {
     if (!(tooltipName in _handlers))
