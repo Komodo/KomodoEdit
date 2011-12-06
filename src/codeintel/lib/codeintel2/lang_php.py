@@ -1070,11 +1070,13 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
 
             # Warn the user if there is a huge number of import dirs that
             # might slow down completion.
-            num_import_dirs = len(extra_dirs) + len(include_dirs)
+            all_dirs = list(extra_dirs) + list(include_dirs)
+            num_import_dirs = len(all_dirs)
             if num_import_dirs > 100:
-                db.report_event("This buffer is configured with %d PHP "
-                                "import dirs: this may result in poor "
-                                "completion performance" % num_import_dirs)
+                msg = "This buffer is configured with %d %s import dirs: " \
+                      "this may result in poor completion performance" % \
+                      (num_import_dirs, self.lang)
+                self.mgr.reportMessage(msg, "\n".join(all_dirs))
 
             # - cataloglib, stdlib
             catalog_selections = env.get_pref("codeintel_selected_catalogs")

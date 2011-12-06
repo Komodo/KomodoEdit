@@ -680,10 +680,10 @@ class JavaScriptLangIntel(CitadelLangIntel,
             # might slow down completion.
             num_import_dirs = len(extra_dirs)
             if num_import_dirs > 100:
-                db.report_event("This buffer is configured with %d %s "
-                                "import dirs: this may result in poor "
-                                "completion performance" %
-                                (num_import_dirs, self.lang))
+                msg = "This buffer is configured with %d %s import dirs: " \
+                      "this may result in poor completion performance" % \
+                      (num_import_dirs, self.lang)
+                self.mgr.reportMessage(msg, "\n".join(extra_dirs))
 
             if buf.lang == self.lang:
                 # - curdirlib (before extradirslib; only if pure JS file)

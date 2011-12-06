@@ -674,6 +674,28 @@ class KoCodeIntelManager(Manager):
             except:
                 log.exception("Failed to report memory for zone %r", zone)
 
+    def reportMessage(self, msg, details=None, notification_name="codeintel-message"):
+        """Reports a unique codeintel notification message."""
+        koINMgr = components.interfaces.koINotificationManager
+        nm = components.classes["@activestate.com/koNotification/manager;1"]\
+                       .getService(koINMgr)
+        notification_types = koINMgr.TYPE_STATUS
+        if details:
+            notification_types |= koINMgr.TYPE_TEXT
+        n = nm.createNotification(notification_name,
+                                  ["codeintel"],
+                                  None,
+                                  notification_types)
+        n.msg = msg
+        n.timeout = 5000
+        n.highlight = True
+        if details:
+            n.details = details
+        try:
+            self._proxiedObsSvc.notifyObservers(n, "status_message", None)
+        except COMException, ex:
+            pass
+
 class KoCodeIntelEvalController(EvalController):
     _com_interfaces_ = [components.interfaces.koICodeIntelEvalController]
     _reg_clsid_ = "{020FE3F2-BDFD-4F45-8F13-D70A1D6F4D82}"
