@@ -1122,13 +1122,10 @@ class KoCodeIntelEventReporter(object):
             self._notification.iconURL = "chrome://fugue/skin/icons/tick.png"
             self._notification.timeout = 5000
         try:
-            if self._dirs:
-                self._proxiedObsSvc.notifyObservers(self._notification,
-                                                    "status_message", None)
-            else:
-                # since we're not updating the message, don't send it to
-                # the status bar.
-                self._nm.addNotification(self._notification)
+            # always send the message to the status bar - otherwise the status
+            # bar will have a never-timing-out message.
+            self._proxiedObsSvc.notifyObservers(self._notification,
+                                                "status_message", None)
         except COMException:
             pass
 
