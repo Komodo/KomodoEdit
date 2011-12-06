@@ -217,6 +217,20 @@ toolbarbutton[type="checkbox"][checked]:-moz-window-inactive {
 }
 
 /**
+ * Specific toolbar elements
+ */
+#toolbox_main #findToolbar {
+  /* Add padding to make the last button not run into the window border */
+  padding-right: 2px;
+}
+#toolbox_main #find-toolbar-browsedirectory > image {
+  /* Add a little margin to make the image not run into the toolbar button
+   * borders. (This is only needed on Mac because others don't have borders.)
+   */
+  margin: 2px;
+}
+
+/**
  * Toolboxrow overflow chevron
  */
 #toolbox_main #main-toolboxrow > .overflow-toolbarbutton {
