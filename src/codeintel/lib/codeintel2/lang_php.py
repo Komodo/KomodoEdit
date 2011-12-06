@@ -1076,7 +1076,7 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                 msg = "This buffer is configured with %d %s import dirs: " \
                       "this may result in poor completion performance" % \
                       (num_import_dirs, self.lang)
-                self.mgr.reportMessage(msg, "\n".join(all_dirs))
+                self.mgr.report_message(msg, "\n".join(all_dirs))
 
             # - cataloglib, stdlib
             catalog_selections = env.get_pref("codeintel_selected_catalogs")

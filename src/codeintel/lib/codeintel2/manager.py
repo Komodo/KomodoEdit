@@ -277,6 +277,10 @@ class Manager(threading.Thread, Queue):
     def batch_update(self, join=True, updater=None):
         return self.citadel.batch_update(join=join, updater=updater)
 
+    def report_message(self, msg, details=None, notification_name="codeintel-message"):
+        """Reports a unique codeintel message."""
+        log.info("%s: %s: %r", notification_name, msg, details)
+
     def is_multilang(self, lang):
         """Return True iff this is a multi-lang language.
 

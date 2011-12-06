@@ -674,7 +674,7 @@ class KoCodeIntelManager(Manager):
             except:
                 log.exception("Failed to report memory for zone %r", zone)
 
-    def reportMessage(self, msg, details=None, notification_name="codeintel-message"):
+    def report_message(self, msg, details=None, notification_name="codeintel-message"):
         """Reports a unique codeintel notification message."""
         koINMgr = components.interfaces.koINotificationManager
         nm = components.classes["@activestate.com/koNotification/manager;1"]\
