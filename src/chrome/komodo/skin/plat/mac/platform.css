@@ -134,6 +134,10 @@ toolbar[mode="full"] > toolbaritem > toolbarbutton {
   border: none;
 }
 
+#toolbox_main toolbar[mode="full"] {
+  margin-bottom: 4px;
+}
+
 /**
  * Put toolbar buttons in a bordered box.
  */
@@ -174,8 +178,18 @@ toolbar[mode="full"] > toolbaritem > toolbarbutton {
 /**
  * Use a different background to distinguish when a toolbar button is checked.
  */
-toolbarbutton[checked="true"] {
-  background-image: url(chrome://komodo/skin/images/button-gradient-inactive.png);
+toolbarbutton[type="checkbox"][checked] {
+  box-shadow: inset #2A2A2A 0 3px 3.5px, 0 1px rgba(255, 255, 255, .4);
+  background-image: -moz-linear-gradient(center top,
+                                         rgb(255, 255, 255),
+                                         rgb(204, 204, 204));
+}
+
+toolbarbutton[type="checkbox"][checked]:-moz-window-inactive {
+  box-shadow: inset rgba(0, 0, 0, 0.5) 0 3px 3.5px, 0 1px rgba(255, 255, 255, .4);
+  background-image: -moz-linear-gradient(center top,
+                                         rgb(204, 204, 204),
+                                         rgb(135, 135, 135));
 }
 
 #toolbox_main toolbar:not([mode="full"]) > toolbarbutton:first-child,
