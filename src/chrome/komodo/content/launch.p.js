@@ -44,8 +44,8 @@ if (typeof(ko) == 'undefined') {
     var ko = {};
 }
 
-
-if (!("help" in ko))
+if (!("help" in ko)) {
+ko.help = {};
 (function () {
 var _log = ko.logging.getLogger("ko.help");
 
@@ -233,9 +233,11 @@ this.memoryUsage = function() {
     ko.open.URI("about:memory", "browser");
 }
 
-}).apply(ko.help = {});
+}).apply(ko.help);
+}
 
-if (!("launch" in ko))
+if (!("launch" in ko)) {
+ko.launch = {};
 (function () {
 var _log = ko.logging.getLogger("ko.launch");
 
@@ -625,7 +627,8 @@ this.newTemplate = function newTemplate(obj)
 }
 
 
-}).apply(ko.launch = {});
+}).apply(ko.launch);
+}
 
 /**
  * Input buffering
@@ -639,7 +642,8 @@ this.newTemplate = function newTemplate(obj)
  *      var contents = ko.inputBuffer.finish();
  *      // use the contents somehow
  */
-if (!("inputBuffer" in ko))
+if (!("inputBuffer" in ko)) {
+ko.inputBuffer = {};
 (function() { // ko.inputBuffer
 
 var _isActive = false;
@@ -672,7 +676,8 @@ this.finish = function()
     return contents;
 }
 
-}).apply(ko.inputBuffer = {});
+}).apply(ko.inputBuffer);
+}
 
 
 
