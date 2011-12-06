@@ -1033,6 +1033,7 @@ class KoCodeIntelEventReporter(object):
         for dir in dirs:
             self._dirs[dir][0] += 1
         self._notification.iconURL = None # remove any markings
+        self._notification.timeout = 5000
         if len(self._dirs) < 2:
             # use indeterminate for one item, since jumping from empty progress
             # bar to full (and invisible) is useless
@@ -1065,6 +1066,7 @@ class KoCodeIntelEventReporter(object):
         self._notification.progress = \
             reduce(lambda p, v: p + v[1], self._dirs.values(), 0)
         self._notification.msg = description
+        self._notification.timeout = 0
         log.debug("onScanDirectory: scanning %r [%s] %r/%r",
                   dir, description, self._notification.progress, len(self._dirs))
         try:
@@ -1090,11 +1092,13 @@ class KoCodeIntelEventReporter(object):
             self._notification.maxProgress = len(self._dirs)
             self._notification.progress = \
                 reduce(lambda p, v: p + v[1], self._dirs.values(), 0)
+            self._notification.timeout = 0
         else:
             # all done
             self._notification.maxProgress = \
                 components.interfaces.koINotificationProgress.PROGRESS_NOT_APPLICABLE
             self._notification.iconURL = "chrome://fugue/skin/icons/tick.png"
+            self._notification.timeout = 5000
         try:
             if self._dirs:
                 self._proxiedObsSvc.notifyObservers(self._notification,
