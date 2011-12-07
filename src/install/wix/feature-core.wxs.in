@@ -5513,6 +5513,7 @@
               <File Id="file94" Name="html2ttk.udl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\udl\html2ttk.udl"/>
               <File Id="file107" Name="JSMAIN_0.UDL" LongName="js-mainlex.udl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\udl\js-mainlex.udl"/>
               <File Id="file677" Name="JS2DJA_0.UDL" LongName="js2django.udl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\udl\js2django.udl"/>
+              <File Id="file3922" Name="js2ejs.udl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\udl\js2ejs.udl" />
               <File Id="file108" Name="js2html.udl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\udl\js2html.udl"/>
               <File Id="file109" Name="js2php.udl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\udl\js2php.udl"/>
               <File Id="file678" Name="js2ruby.udl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\udl\js2ruby.udl" />
