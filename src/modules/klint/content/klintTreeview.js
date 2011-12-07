@@ -284,7 +284,7 @@ KlintTreeView.prototype = {
     isContainerEmpty: function(index) {},
     canDrop: function(index, orientation, dataTransfer) {},
     drop: function(row, orientation, dataTransfer) {},
-    getParentIndex: function(rowIndex) {},
+    getParentIndex: function(rowIndex) -1,
     hasNextSibling: function(rowIndex, afterIndex) {},
     getProgressMode: function(row, col) {},
     getCellValue: function(row, col) {},
