@@ -237,7 +237,7 @@ class ObjectTreeViewItem(object):
     """The parent of this tree item; for the tree view itself, this will be None.
        (tree items of depth 0 will have the tree view as the parent)
        """
-    children = []
+    children = [] # this is overwritten in __init__; it's here for docs
     """The children of this tree item"""
     text = ""
     """The text to display"""
