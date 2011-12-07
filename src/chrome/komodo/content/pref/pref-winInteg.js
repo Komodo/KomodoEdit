@@ -342,9 +342,6 @@ function OnPreferencePageOK(prefset)
         return true;
     } catch(ex2) {
         log.exception(ex2);
-        var bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
-            .getService(Components.interfaces.nsIStringBundleService)
-            .createBundle("chrome://komodo/locale/pref/pref-languages.properties");
         return ignorePrefPageOKFailure(prefset,
                 bundle.GetStringFromName("AttemptSaveWindowsIntegrationSettingsFailed"),
                                        ex2.toString());
