@@ -532,7 +532,7 @@
             ]]>
             </handler>
 
-            <handler event="dragenter" phase="target">
+            <handler event="dragenter">
             <![CDATA[
                 //dump("scrolltabs:: dragenter\n");
                 var sourceTab = this.getSourceTabFromDataTransfer(event.dataTransfer);
@@ -622,7 +622,7 @@
             ]]>
             </handler>
 
-            <handler event="dragleave" phase="target">
+            <handler event="dragleave">
             <![CDATA[
                 //dump("scrolltabs:: dragleave\n");
                 this.dropIndicatorBar.collapsed = true;
