@@ -40,6 +40,10 @@ scintilla > panel[anonid="autocompletepopup"] > hbox > grid:focus .ko-autocomple
   color: HighlightText;
 }
 
+scintilla > panel[anonid="autocompletepopup"] > hbox > grid:focus .ko-autocomplete-item[focused]:not([selected]) {
+  outline: 1px dotted Highlight;
+}
+
 scintilla > panel[anonid="autocompletepopup"] .ko-autocomplete-item > [column-type="image"] {
   min-width: 18px;
   -moz-box-pack: center;

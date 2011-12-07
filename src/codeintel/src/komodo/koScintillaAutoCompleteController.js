@@ -48,6 +48,8 @@ KoScintillaAutoCompleteController.prototype = {
     this._popupHasHeight = false;
     // the last selected item
     this._selectedItem = null;
+    // the last focused item (only valid when nothing is selected)
+    this._focusedItem = null;
 
     // this is a list of events the listener might find useful; that can do its
     // own filtering.
@@ -68,6 +70,7 @@ KoScintillaAutoCompleteController.prototype = {
     this._itemsConstructed = false;
     this._popupHasHeight = false;
     this._selectedItem = null;
+    this._focusedItem = null;
   },
 
   addColumn: function KSACC_addColumn(aColumnType, aStrings, aCount, aPrimary) {
@@ -200,6 +203,9 @@ KoScintillaAutoCompleteController.prototype = {
   _updateDisplay: function KASCC__updateDisplay(aSelectedIndex, aTopIndex) {
     this._constructItems();
     if (aSelectedIndex === null) {
+      if (this._selectedItem) {
+        this._focusedItem = this._selectedItem;
+      }
       this._selectedItem = null;
       // set to NaN so the isNaN check below passes and we try to find a useful
       // selected index
@@ -238,8 +244,13 @@ KoScintillaAutoCompleteController.prototype = {
     log.debug("_updateDisplay: selecting " + aSelectedIndex + " (top " + aTopIndex + ")");
     var rows = Array.slice(this._rows.childNodes);
     if (this._selectedItem) {
+      this._focusedItem = this._selectedItem;
       this._selectedItem.removeAttribute("selected");
       this._selectedItem = null;
+    }
+    var focusedIndex = undefined;
+    if (this._focusedItem) {
+      focusedIndex = parseInt(this._focusedItem.getAttribute("index"), 10);
     }
     for (var i = 0; i < rows.length; ++i) {
       var row = rows[i];
@@ -260,8 +271,15 @@ KoScintillaAutoCompleteController.prototype = {
       if (index === aSelectedIndex) {
         row.setAttribute("selected", "true");
         this._selectedItem = row;
+        row.setAttribute("focused", "true");
+        this._focusedItem = row;
       } else {
         row.removeAttribute("selected");
+        if (isNaN(aSelectedIndex) && (index === focusedIndex)) {
+          row.setAttribute("focused", "true");
+        } else {
+          row.removeAttribute("focused");
+        }
       }
     }
     if (isNaN(aSelectedIndex)) {
@@ -695,6 +713,9 @@ KoScintillaAutoCompleteController.prototype = {
         // of within the editor; so we stop this from getting to the
         // scintilla, as well as not telling listeners about it (so that
         // it does not close the popup).
+        var focusedIndex = undefined;
+        if (this._focusedItem)
+          focusedIndex = parseInt(this._focusedItem.getAttribute("index"), 10);
         switch(event.keyCode) {
           case Ci.nsIDOMKeyEvent.DOM_VK_UP: {
             if (this._selectedItem) {
@@ -702,6 +723,8 @@ KoScintillaAutoCompleteController.prototype = {
               let top = Math.min(this._firstVisibleIndex,
                                  this.selectedIndex - 1);
               this._updateDisplay(this.selectedIndex - 1, top);
+            } else if (this._focusedItem) {
+              this._updateDisplay(focusedIndex);
             } else {
               // select the last visible item
               this._updateDisplay(this._firstVisibleIndex + this._visibleCount - 1);
@@ -714,6 +737,8 @@ KoScintillaAutoCompleteController.prototype = {
               let top = Math.max(this._firstVisibleIndex,
                                  this.selectedIndex - this._visibleCount + 2);
               this._updateDisplay(this.selectedIndex + 1, top);
+            } else if (this._focusedItem) {
+              this._updateDisplay(focusedIndex);
             } else {
               // select the first visible item
               this._updateDisplay(this._firstVisibleIndex);
