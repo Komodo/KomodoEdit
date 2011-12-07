@@ -1016,38 +1016,49 @@ class ObjectTreeView(TreeView, ObjectTreeViewItem):
             raise COMException(nsError.NS_ERROR_INVALID_ARG,
                 "getParentIndex with index %r >= %r" % (index, self.rowCount))
 
-        original_index = index
-        item = self
-        parent_index = -1
+        original_index = index # the index we started with
+        parent = self # the ancestor we're examining
+        parent_index = 0 # the index of the ancestor
+        # index is now the index relative to the parent-being-examined
         if self.log:
-            path = [(index, item.text)]
+            path = [(index, parent.text)]
 
         try:
-            while not index in item._index_to_children:
-                i = max(filter(lambda k: k < index, item._index_to_children.keys()))
-                item_self_row = 1 if not item.invisible else 0
-                index -= i - item_self_row
-                parent_index += i + item_self_row
-                item = item._index_to_children[i]
+            while not index in parent._index_to_children:
+                i = max(filter(lambda k: k < index, parent._index_to_children.keys()))
+                # i is the offset of the next parent to use (from the current parent)
+
+                parent_size = 1 if not parent.invisible else 0 # how many rows the parent itself takes
+                parent_index = parent_index + parent_size + i
+                parent = parent._index_to_children[i]
+                child_size = 1 if not parent.invisible else 0 # how many rows the new parent takes
+                index = index - i - child_size
+
                 if self.log:
-                    path.append((index, item.text))
+                    path.append((index, parent.text))
         except ValueError:
             # invalid, e.g. index -1
             if self.log:
                 self.log.debug("getParentIndex: error getting %r from %r (of %r)"
                                "; original index %r, path %r dirty %r",
-                               index, item, item.rowCount, original_index, path,
+                               index, parent, parent.rowCount, original_index, path,
                                self.invalidater.dirty)
             return -1
+
+        if parent == self:
+            # the parent is the root element
+            parent_index = -1
 
         if self.log:
             self.log.debug("getParentIndex: %r -> %r=%r",
                            original_index, index, parent_index)
+
         if parent_index == original_index:
             # ughh... that sounds broken!
             if self.log:
                 self.log.error("getParentIndex: parent of %r seems to be %r (%r)",
-                               original_index, parent_index, item)
+                               original_index, parent_index, parent)
+
             raise COMException(nsError.NS_ERROR_UNEXPECTED,
                                "getParentIndex claimed parent of %r is %r" % (
                                     original_index, parent_index))

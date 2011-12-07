@@ -275,5 +275,73 @@ class InvalidationRangeTestCase(unittest.TestCase):
             self.assertEquals(invalidater.ranges,
                               [[10, 21, -10]])
 
+class ParentIndexTestCase(unittest.TestCase):
+    """ Test cases for finding the parent index """
+    def setUp(self):
+        self.log = logging.getLogger("koTreeView::parentIndex")
+        #self.log.setLevel(logging.DEBUG)
+        self.view = ObjectTreeView() #debug="koTreeView::parentIndex")
+        self.view.setTree(View(self.log))
+
+        # This is a template of the tree we want to test with.  It's a tuple,
+        # where each item is a tuple of (name, subtree).  Each subtree is again
+        # a tuple of the same format.
+        template = (
+            ("root", (
+                ("prev-gp-sibling", ()),
+                ("grandparent", (
+                    ("parent", (
+                        ("one", ()),
+                        ("two", ()),
+                        ("three", ()),
+                        ("four", ()),
+                        ("five", ()),
+                        ("six", ()),
+                        ("seven", ()),
+                    )),
+                    ("next-p-sibling", (
+                        ("cousin-one", ()),
+                        ("cousin-two", ()),
+                        ("cousin-three", ()),
+                        ("cousin-four", ()),
+                        ("cousin-five", ()),
+                    )),
+                )),
+                ("next-gp-sibling", ()),
+            )),
+            ("next-root", ()),
+        )
+        def build_tree(parent, template):
+            assert isinstance(template, tuple), \
+                "Trying to build tree from a non-tuple template %r" % (template,)
+            for child in template:
+                assert isinstance(child, tuple), \
+                    "Trying to build template but found non-tuple child %r" % (child,)
+                assert len(child) == 2, \
+                    "Trying to build template but found invalid child %r" % (child,)
+                item = ObjectTreeViewItem(log = self.view.log)
+                setattr(item, "text", child[0])
+                build_tree(item, child[1])
+                parent.insertChild(item)
+
+        build_tree(self.view, template)
+
+    def test_template_construction(self):
+        def dump_item(item, indent=""):
+            self.log.debug("%03i %s%s", item.rowIndex, indent, item.text)
+            for child in item.children:
+                dump_item(child, "%s  " % (indent,))
+        dump_item(self.view)
+
+    def test_parentIndex_basic(self):
+        def check_item(parent):
+            for child in parent.children:
+                self.assertEquals(parent.rowIndex,
+                                  self.view.getParentIndex(child.rowIndex))
+                check_item(child)
+        for child in self.view.children:
+            self.assertEquals(self.view.getParentIndex(child.rowIndex), -1)
+            check_item(child)
+
 def test_cases():
-    return [InvalidationRangeTestCase]
+    return [InvalidationRangeTestCase, ParentIndexTestCase]
