@@ -98,6 +98,23 @@ ko-pane .pane-empty-container description {
   margin: 2em;
   text-align: center;
 }
+ko-pane .pane-drop-target {
+  display: none;
+}
+:root[ko-pane-dragging] ko-pane:not([ko-pane-dragging]) .pane-drop-target {
+  /* Show the drop target (but invisible) once we _start_ dragging, so that we
+   * trap mouse events, so that dragenter works correctly over <browser>s.
+   * This means you can't click things while dragging... but that's impossible.
+   */
+  display: -moz-box;
+  opacity: 0;
+}
+:root[ko-pane-dragging] ko-pane[ko-pane-drag-status] .pane-drop-target {
+  /* ko-pane elements that are being mouse-overed while dragging a pane around
+   */
+  background-color: rgba(0, 0, 255, 0.25);
+  opacity: 1;
+}
 ko-pane .pane-tabs-container tabs {
   -moz-box-flex: 1;
 }

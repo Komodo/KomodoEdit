@@ -429,11 +429,10 @@
               <parameter name="dataTransfer"/>
               <body>
                 <![CDATA[
-                if (!dataTransfer || dataTransfer.mozItemCount != 1) {
+                if (!dataTransfer) {
                     return false;
                 }
-                var mozTypes = dataTransfer.mozTypesAt(0);
-                if (mozTypes.length != "1" || mozTypes[0] != "komodo/tab") {
+                if (!dataTransfer.mozTypesAt(0).contains("komodo/tab")) {
                     return false;
                 }
                 return dataTransfer.mozGetDataAt("komodo/tab", 0);

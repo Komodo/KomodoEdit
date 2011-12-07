@@ -56,34 +56,40 @@
         <xul:vbox class="pane-empty-container" align="stretch" pack="center">
           <xul:description>&pane.empty.label;</xul:description>
         </xul:vbox>
-        <xul:box class="pane-container">
-          <xul:hbox class="pane-tabs-container">
-            <!-- this is for the "sidebar" and "horzontal" modes -->
-            <xul:tabs anonid="tabs"
-                      closecollapsed="false"
-                      orient="this is here to prevent the tabs binding setting it to horizontal"
-                      xbl:inherits="rotation,label=tabLabel"
-                      oncontextmenu="return document.getBindingParent(this)._onTabContext(event);"
-                      onclose="var elem = this;
-                               while (!/pane/.test(elem.localName))
-                                 elem = document.getBindingParent(elem);
-                               elem.collapsed = true;"/>
-          </xul:hbox>
-          <xul:vbox flex="1">
-            <!-- this is here for the "vertical" case -->
-            <xul:hbox class="tabs-vertical-label">
-              <xul:label class="tab-text" xbl:inherits="value=tabLabel"/>
-              <xul:spacer/>
-              <xul:toolbarbutton anonid="panel-close-button"
-                      class="tabs-closebutton"
-                      buttonstyle="pictures"
-                      oncommand="document.getBindingParent(this).collapsed = true;"/>
+        <xul:stack>
+          <xul:box class="pane-container">
+            <xul:hbox class="pane-tabs-container"
+                      ondragstart="_onTabsDragStart(event);"
+                      ondragend="_onTabsDragEnd(event);">
+              <!-- this is for the "sidebar" and "horzontal" modes -->
+              <xul:tabs anonid="tabs"
+                        closecollapsed="false"
+                        orient="this is here to prevent the tabs binding setting it to horizontal"
+                        xbl:inherits="rotation,label=tabLabel"
+                        oncontextmenu="return document.getBindingParent(this)._onTabContext(event);"
+                        onclose="var elem = this;
+                                 while (!/pane/.test(elem.localName))
+                                   elem = document.getBindingParent(elem);
+                                 elem.collapsed = true;"/>
             </xul:hbox>
-            <xul:tabpanels anonid="tabpanels" flex="1">
-              <children/>
-            </xul:tabpanels>
-          </xul:vbox>
-        </xul:box>
+            <xul:vbox flex="1">
+              <!-- this is here for the "vertical" case -->
+              <xul:hbox class="tabs-vertical-label">
+                <xul:label class="tab-text" xbl:inherits="value=tabLabel"/>
+                <xul:spacer/>
+                <xul:toolbarbutton anonid="panel-close-button"
+                        class="tabs-closebutton"
+                        buttonstyle="pictures"
+                        oncommand="document.getBindingParent(this).collapsed = true;"/>
+              </xul:hbox>
+              <xul:tabpanels anonid="tabpanels" flex="1">
+                <children/>
+              </xul:tabpanels>
+            </xul:vbox>
+          </xul:box>
+          <xul:box class="pane-drop-target">
+          </xul:box>
+        </xul:stack>
       </xul:deck>
 
       <xul:menupopup anonid="tabs_popup">
@@ -115,6 +121,15 @@
               this._updateMoveToPopup(event);
               var popup = document.getAnonymousElementByAttribute(this, "anonid", "tabs_popup");
               popup.openPopup(tab, "after_pointer", 0, 0, true, false, event);
+            }).bind(this), false);
+            tab.addEventListener("dragstart", (function(event) {
+              document.documentElement.setAttribute("ko-pane-dragging", true);
+              this.setAttribute("ko-pane-dragging", true);
+              event.dataTransfer.setData("application/x-komodo-pane", widget.id);
+            }).bind(this), false);
+            tab.addEventListener("dragend", (function(event) {
+              document.documentElement.removeAttribute("ko-pane-dragging");
+              this.removeAttribute("ko-pane-dragging");
             }).bind(this), false);
             // copy any attributes over that start with "tab_" without the prefix
             // so we can have things like oncommand
@@ -341,7 +356,35 @@
         ]]>
         </body>
       </method>
-      
+
+      <method name="_onTabsDragStart">
+        <parameter name="event"/>
+        <body>
+        <![CDATA[
+          var widget = this.selectedPanel;
+          if (!widget || !widget.id) {
+            return;
+          }
+          if (event.dataTransfer.types.contains("application/x-komodo-pane")) {
+            return;
+          }
+          document.documentElement.setAttribute("ko-pane-dragging", true);
+          this.setAttribute("ko-pane-dragging", true);
+          event.dataTransfer.setData("application/x-komodo-pane", widget.id);
+          event.dataTransfer.effectAllowed = "move";
+        ]]>
+        </body>
+      </method>
+      <method name="_onTabsDragEnd">
+        <parameter name="event"/>
+        <body>
+        <![CDATA[
+          document.documentElement.removeAttribute("ko-pane-dragging");
+          this.removeAttribute("ko-pane-dragging");
+        ]]>
+        </body>
+      </method>
+
       <method name="moveWidgetToPane">
         <!--
           - Move a widget to a given pane
@@ -577,6 +620,31 @@
           var panel = this.ownerDocument.getElementById(tab.linkedPanel);
           this.tabpanels.selectedPanel = panel;
         }
+      ]]>
+      </handler>
+      <handler event="dragenter" phase="bubbling">
+      <![CDATA[
+        if (!event.dataTransfer.types.contains("application/x-komodo-pane")) {
+          return;
+        }
+        this.setAttribute("ko-pane-drag-status", "dragover");
+        event.preventDefault();
+      ]]>
+      </handler>
+      <handler event="dragleave" phase="bubbling">
+      <![CDATA[
+        this.removeAttribute("ko-pane-drag-status");
+      ]]>
+      </handler>
+      <handler event="drop" phase="bubbling">
+      <![CDATA[
+        this.removeAttribute("ko-pane-drag-status");
+        if (!event.dataTransfer.types.contains("application/x-komodo-pane")) {
+          return;
+        }
+        var id = event.dataTransfer.getData("application/x-komodo-pane");
+        this.moveWidgetToPane(id, this, true);
+        event.preventDefault();
       ]]>
       </handler>
     </handlers>
