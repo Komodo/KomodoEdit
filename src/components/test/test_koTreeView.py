@@ -13,9 +13,9 @@ class View(object):
     def selection(self):
         return None
     def invalidateRange(self, start, end):
-        log.debug("invalidate range: %r -> %r", start, end)
+        self.log.debug("invalidate range: %r -> %r", start, end)
     def rowCountChanged(self, index, delta):
-        log.debug("row count changed: %r -> %r", index, delta)
+        self.log.debug("row count changed: %r -> %r", index, delta)
 
 """ Helper to keep the view's rowCount in sync with expected values """
 def rowCountChanged(invalidater, index, delta):
@@ -25,7 +25,7 @@ def rowCountChanged(invalidater, index, delta):
 class InvalidationRangeTestCase(unittest.TestCase):
     def setUp(self):
         self.log = logging.getLogger("InvalidationRange")
-        log.setLevel(logging.DEBUG)
+        #self.log.setLevel(logging.DEBUG)
         self.view = View(self.log)
 
     def test_rowcount_basic(self):

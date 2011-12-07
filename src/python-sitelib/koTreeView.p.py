@@ -374,31 +374,36 @@ class ObjectTreeViewItem(object):
         return self._open
     @open.setter
     def open(self, val):
-        if self._open != val:
-            if self.hidden:
-                # nothing will show up anyway
-                self._open = val
-                return
-            with self._invalidater:
-                row_index = self.rowIndex
-                if row_index is not None:
-                    # we may need to invalidate
-                    # the number of children that would be visible if we were open
-                    child_count = reduce(lambda count, child: count + child.rowCount,
-                                         self.children,
-                                         0)
-                    if child_count > 0:
-                        # some number of children exist; we need to adjust rows
-                        if not val:
-                            # children are going away, row count change is negative
-                            child_count *= -1
-                        if not self.invisible:
-                            self._invalidate(row_index, row_index)
-                            row_index += 1 # don't consider self
-                        self._rowCountChanged(row_index, child_count,
-                                              "%s.open=%s" % (self.text, val))
-                self._open = val
-                self.invalidate(recurse=(row_index is not None and child_count != 0))
+        if self._open == val:
+            # no change
+            return
+        if self.hidden:
+            # nothing will show up anyway
+            self._open = val
+            return
+        restoreSelection = (self.view.getSelectedItems() == [self])
+        with self._invalidater:
+            row_index = self.rowIndex
+            if row_index is not None:
+                # we may need to invalidate
+                # the number of children that would be visible if we were open
+                child_count = reduce(lambda count, child: count + child.rowCount,
+                                     self.children,
+                                     0)
+                if child_count > 0:
+                    # some number of children exist; we need to adjust rows
+                    if not val:
+                        # children are going away, row count change is negative
+                        child_count *= -1
+                    if not self.invisible:
+                        self._invalidate(row_index, row_index)
+                        row_index += 1 # don't consider self
+                    self._rowCountChanged(row_index, child_count,
+                                          "%s.open=%s" % (self.text, val))
+            self._open = val
+            self.invalidate(recurse=(row_index is not None and child_count != 0))
+        if restoreSelection:
+            self.view.selectRowByIndex(self.rowIndex)
 
     @property
     def _index_to_children(self):
@@ -461,6 +466,10 @@ class ObjectTreeViewItem(object):
             return child.item_from_index(index - child_index - offset)
         except KeyError:
             return None
+
+    @_checkState
+    def getSelectedItems(self):
+        return [self.item_from_index(i) for i in self.getAllIndices()]
 
     def invalidate(self, recurse=True):
         """Invalidate re-generatable data about this item - note that this
