@@ -238,6 +238,8 @@ class TextLangInfo(LangInfo):
 def _generateFallbackKoLangInfo(langinfo_db, koLangInst):
     """Generate a LangInfo instance from the koILanguage instance."""
     class FallbackKoLangInfo(LangInfo):
+        conforms_to_bases = ["Text"]
+        default_encoding = "utf-8"
         def __init__(self, db, koLang):
             LangInfo.__init__(self, db)
             self.name = koLang.name
