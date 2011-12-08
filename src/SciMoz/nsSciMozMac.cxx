@@ -251,7 +251,7 @@ nsresult SciMoz::PlatformSetWindow(NPWindow* npwindow) {
 #else
 		NP_CGContext* npport = (NP_CGContext*) portMain;
 		fPlatform.port = npport->context;
-		fPlatform.container = npport->window;
+		fPlatform.container = (OpaqueWindowPtr*) npport->window;
 #endif
 		parked = false;
 		if (fPlatform.container) {
