@@ -117,6 +117,7 @@
               <File Id="file384" LongName="intshell.html" Name="INTSHE_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\intshell.html" />
               <File Id="file385" LongName="keybind.html" Name="KEYBIN_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\keybind.html" />
               <File Id="file386" LongName="luddite.html" Name="LUDDIT_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\luddite.html" />
+              <File Id="file3923" LongName="linter-reference.html" Name="LINTER_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\linter-reference.html" />
               <File Id="file387" LongName="catalogs.html" Name="CATALO_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\catalogs.html" />
               <File Id="file388" LongName="macroapi.html" Name="MACROA_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\macroapi.html" />
               <File Id="file389" LongName="macros.html" Name="MACROS_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\macros.html" />
