@@ -426,28 +426,29 @@ FindController.prototype._stopIncrementalSearch = function(why, highlight) {
     // never add to the MRU; we only do that in searchAgain.
     this._incrementalSearchPattern = '';
 
-    if (!this._view) return;
+    var view = this._view;
+    if (!view) return;
 
     // clean up event handlers
-    if (this._view.scintilla.mouse_handler == this._mouseHandler) {
-        this._view.scintilla.mouse_handler = null;
+    if (view.scintilla.mouse_handler == this._mouseHandler) {
+        view.scintilla.mouse_handler = null;
     }
     document.removeEventListener("focus", this._focusHandler, true);
     this._focusHandler = null;
 
     var elem = document.commandDispatcher.focusedElement;
     if ((!elem) ||
-        (elem == this._view.findbar) ||
+        (elem == view.findbar) ||
         (elem.compareDocumentPosition(this._view.findbar) & Node.DOCUMENT_POSITION_CONTAINS))
     {
         // the focus is in the find bar; it gets confused if we send more key
         // events its way, so move the focus to its scintilla instead.
-        this._view.scintilla.focus();
+        view.scintilla.focus();
     }
 
     // clean up the find bar
-    this._view.findbar.controller = null;
-    this._view.findbar.collapsed = true;
+    view.findbar.controller = null;
+    view.findbar.collapsed = true;
     this._view = null;
 };
 
