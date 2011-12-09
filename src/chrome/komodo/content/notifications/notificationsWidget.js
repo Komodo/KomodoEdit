@@ -288,9 +288,21 @@ this.focusNotification = (function NWC_focusNotification(notification) {
     // select it and make sure it's visible
     this.container.selectedItem = elem;
     // need to wait a bit to make sure the element is properly opened
-    setTimeout(this.container.ensureElementIsVisible.bind(this.container, elem),
-               10);
-    }
+    setTimeout((function() {
+      // Can't just use this.container.ensureElementIsVisible because it tries
+      // to scroll to the bottom of the element if we're above it - which is bad
+      // for us.  Instead, manually poke into it to scroll such that the top of
+      // the notification is at the top of the listbox.
+      var targetRect = elem.getBoundingClientRect();
+      var scrollRect = this.container._scrollbox.getBoundingClientRect();
+      var offset = targetRect.top - scrollRect.top;
+      this.container._scrollbox.scrollTop += offset;
+    }).bind(this), 0);
+  } else if (arguments.length < 2) {
+    // no element found - perhaps it's just not there yet; try again later,
+    // but only once.
+    setTimeout(this.focusNotification, 0, notification, true);
+  }
 }).bind(this);
 
 /**
