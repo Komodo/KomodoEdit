@@ -1893,11 +1893,13 @@ def target_pyxpcom(argv=["pyxpcom"]):
     if sys.platform.startswith("linux"):
         configure_flags += 'PYTHON="%s"' % (config.python, )
         configure_flags += " ac_cv_visibility_pragma=no"
+        # Need to pass in the same compiler as used in the Moz build,
+        # otherwise Linux-x86_64 builds will complain about needing to
+        # recompile with -fPIC.
         if config.gcc:
-            # Need to pass in the same compiler as used in the Moz build,
-            # otherwise Linux-x86_64 builds will complain about needing to
-            # recompile with -fPIC.
-            configure_options.append("CC=%s" % (config.gcc))
+            configure_flags += " CC=%s" % (config.gcc)
+        if config.gxx:
+            configure_flags += " CXX=%s" % (config.gxx)
     elif sys.platform == "darwin":
         configure_flags += 'PYTHON="%s"' % (config.python, )
         configure_flags += ' CC="gcc -arch i386" CXX="g++ -arch i386"'
