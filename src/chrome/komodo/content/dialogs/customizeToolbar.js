@@ -315,6 +315,18 @@ function onCustomizeToolbarFinished(aAccept) {
             obj.elem.ownerDocument.persist(obj.elem.id, "kohidden");
         }
     }
+    // Also hide all toolbars with no visible children
+    for each (var toolbar in view._toolbars) {
+        if (toolbar.elem.getAttribute("kohidden") == "true") {
+            continue;
+        }
+        var visible = toolbar.children.some(function(item) {
+            return item.elem.getAttribute("kohidden") != "true";
+        });
+        if (!visible) {
+            toolbar.elem.setAttribute("kohidden", "true");
+        }
+    }
 
     // Call the customization complete callback
     // This needs to be fired from here because if the caller just listened to
