@@ -2478,17 +2478,24 @@ class KoLanguageBase:
                     tagText = scimoz.getTextRange(tagStart, currentPos)
                     endTag = self.getEndTagForStartTag(tagText)
                     if endTag:
-                        try:
-                            scimoz.beginUndoAction()
-                            scimoz.insertText(currentPos, endTag)
-                            # Don't make the new text soft characters; that
-                            # produces odd problems (they never harden
-                            # correctly; deleting the start tag will only delete
-                            # the first soft character, not the range).  It
-                            # turns out to be a better experience to make
-                            # everything hard (but undo-able).
-                        finally:
-                            scimoz.endUndoAction()
+                        # check that the end tag doesn't already exist at the
+                        # cursor position. (bug 91796)
+                        posEnd = currentPos
+                        for i in range(len(endTag)):
+                            posEnd = scimoz.positionAfter(posEnd)
+                        existingText = scimoz.getTextRange(currentPos, posEnd)
+                        if endTag != existingText:
+                            try:
+                                scimoz.beginUndoAction()
+                                scimoz.insertText(currentPos, endTag)
+                                # Don't make the new text soft characters; that
+                                # produces odd problems (they never harden
+                                # correctly; deleting the start tag will only delete
+                                # the first soft character, not the range).  It
+                                # turns out to be a better experience to make
+                                # everything hard (but undo-able).
+                            finally:
+                                scimoz.endUndoAction()
                 finally:
                     # restore search states
                     scimoz.targetStart = targetStart
