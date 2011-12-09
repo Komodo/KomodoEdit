@@ -458,7 +458,7 @@ def _setupMozillaEnv():
         = os.environ["MOZ_CO_PROJECT"] = _determineMozCoProject(config.mozApp)
     
     if config.withCrashReportSymbols:
-        os.environ['export MOZ_DEBUG_SYMBOLS'] = '1'
+        os.environ['MOZ_DEBUG_SYMBOLS'] = '1'
         if sys.platform == "darwin":
             os.environ['CFLAGS'] = "-gdwarf-2"
             os.environ['CXXFLAGS'] = "-gdwarf-2"
