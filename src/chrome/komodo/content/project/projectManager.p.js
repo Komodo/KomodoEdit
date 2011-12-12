@@ -1122,10 +1122,6 @@ projectManager.prototype.addItem = function(/* koIPart */ part, /* koIPart */ pa
             if (parent.getChildWithTypeAndStringAttribute(part.type,'url',url,false))
                 return false;
         }
-        if (part.hasAttribute('name')) {
-            if (parent.getChildWithTypeAndStringAttribute(part.type,'name',part.getStringAttribute('name'),false))
-                return false;
-        }
         parent.addChild(part);
         if (ko.places) {
             var treeOwner = (this.single_project_view
