@@ -1903,6 +1903,13 @@ def target_pyxpcom(argv=["pyxpcom"]):
     elif sys.platform == "darwin":
         configure_flags += 'PYTHON="%s"' % (config.python, )
         configure_flags += ' CC="gcc -arch i386" CXX="g++ -arch i386"'
+    # Add any custom build FLAGS using the command line args - bug 91389.
+    if os.environ.get('CFLAGS'):
+        configure_flags += ' CFLAGS="%s"' % (os.environ.get('CFLAGS'))
+    if os.environ.get('CXXFLAGS'):
+        configure_flags += ' CXXFLAGS="%s"' % (os.environ.get('CXXFLAGS'))
+    if os.environ.get('LDFLAGS'):
+        configure_flags += ' LDFLAGS="%s"' % (os.environ.get('LDFLAGS'))
     if config.buildType == "debug":
         configure_options.append("--enable-debug")
     configure_path = join(pyxpcom_src_dir, "configure")
