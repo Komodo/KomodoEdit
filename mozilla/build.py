@@ -1840,6 +1840,11 @@ def target_pyxpcom_distclean(argv=["pyxpcom_distclean"]):
     log.info("target: pyxpcom_distclean")
     config = _importConfig()
     _setupMozillaEnv()
+    moz_obj_dir = join(config.buildDir, config.srcTreeName, "mozilla",
+                       config.mozObjDir)
+    pyxpcom_obj_dir = join(moz_obj_dir, "extensions", "python")
+    if exists(pyxpcom_obj_dir):
+        shutil.rmtree(pyxpcom_obj_dir)
     pyxpcom_src_dir = join(config.buildDir, config.srcTreeName, "mozilla",
                            "extensions", "python")
     if exists(pyxpcom_src_dir):
