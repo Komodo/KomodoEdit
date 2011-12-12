@@ -672,6 +672,7 @@
               <File Id="file2028" Name="koIDirs.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIDirs.xpt"/>
               <File Id="file1062" LongName="koIDiffService.xpt" Name="KOIDIF_0.XPT" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIDiffService.xpt" />
               <File Id="file2029" Name="KOIDLL_0.PY" LongName="koIDLLanguage.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIDLLanguage.py"/>
+              <File Id="file3924" LongName="koIniLanguage.py" Name="KOINIL_0.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIniLanguage.py" />
               <File Id="file2030" Name="KOIDOC_0.XPT" LongName="koIDocument.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIDocument.xpt"/>
               <File Id="file2032" Name="KOIENC_0.XPT" LongName="koIEncoding.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIEncoding.xpt"/>
               <File Id="file2033" Name="KOIENC_1.XPT" LongName="koIEncodingServices.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIEncodingServices.xpt"/>
