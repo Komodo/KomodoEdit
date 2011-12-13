@@ -41,6 +41,20 @@
 }
 
 /**
+ * Fake the unified toolbar look
+ */
+#komodo_main > #toolbox_main > toolbar {
+  -moz-appearance: none;
+  background-color: -moz-mac-chrome-active;
+  margin-top: -2px; /* hide the bottom border of the toolbar above */
+  border-bottom: 1px solid rgba(0, 0, 0, 0.57);
+}
+#komodo_main > #toolbox_main > toolbar:-moz-window-inactive {
+  background-color: -moz-mac-chrome-inactive;
+  border-bottom-color: rgba(0, 0, 0, 0.32);
+}
+
+/**
  * Do not display the menubar toolbar on Mac - as it already has it's own
  * top-level menu - ToddW.
  */
