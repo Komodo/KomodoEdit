@@ -2456,7 +2456,7 @@ ManagerClass.prototype = {
             parts.shift();
         }
         parts.reverse();
-        parts.map(function(partName) {
+        parts.forEach(function(partName) {
                 menuitem = document.createElement("menuitem");
                 menuitem.setAttribute('label', unescape(partName));
                 if (i == 0) {
@@ -2466,7 +2466,7 @@ ManagerClass.prototype = {
                     menuitem.setAttribute("class", "menuitem_mru");
                 }
                 buildingURI = uriLeader + originalParts.slice(0, numParts - i).join("/");
-                if (i == numParts - 1) {
+                if (i == numParts - 1 && buildingURI[buildingURI.length - 1] != '/') {
                     buildingURI += "/";
                 }
                 menuitem.setAttribute('oncommand',
