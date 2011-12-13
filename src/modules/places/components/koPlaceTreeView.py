@@ -2215,7 +2215,11 @@ class KoPlaceTreeView(TreeView):
             else:
                 itemType = _PLACE_OTHER
             name = rfi.getFilename()
-            item = self._finishGettingItem(uri + "/" + name, name, itemType)
+            if uri.endswith('/') or name.startswith('/'):
+                slash = ''
+            else:
+                slash = '/'
+            item = self._finishGettingItem(uri + slash + name, name, itemType)
             items.append(item)
         return items
         
