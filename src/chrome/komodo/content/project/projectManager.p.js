@@ -97,6 +97,9 @@ function projectManager() {
     this._lastCurrentProject = null;
     this.viewMgr = null;
     this.single_project_view = !this.initProjectViewPref(ko.prefs);
+    window.addEventListener("view_document_detaching",
+                            this.handle_view_document_detaching,
+                            false);
 }
 
 // The following two lines ensure proper inheritance (see Flanagan, p. 144).
@@ -1349,6 +1352,38 @@ projectManager.prototype.effectivePrefs = function () {
     return globalPrefSvc.prefs;
 }
 
+projectManager.prototype.handle_view_document_detaching = function(event) {
+    var view = event.originalTarget;
+    if (!view) {
+        return;
+    }
+    var currentProject = ko.projects.manager.currentProject;
+    if (!currentProject)  {
+        return;
+    }
+    var projectURL = currentProject.getFile().URI;
+    var detaching_url = view.koDoc.file.URI;
+    var prefSvc = Components.classes["@activestate.com/koPrefService;1"].
+                getService(Components.interfaces.koIPrefService);
+    var viewStateMRU = prefSvc.getPrefs("viewStateMRU");
+    if (!viewStateMRU.hasPref(projectURL)) {
+        return;
+    }
+    var projectViewState = viewStateMRU.getPref(projectURL);
+    if (!projectViewState) {
+        return;
+    }
+    else if (!projectViewState.hasPref('opened_files')) {
+        return;
+    }
+    var openedURIs = projectViewState.getPref('opened_files');
+    var idx = openedURIs.findStringPref(detaching_url);
+    if (idx >= 0) {
+        openedURIs.deletePref(idx, 1);
+        projectViewState.setPref('opened_files', openedURIs);
+    }
+};
+
 //-------------------------------------------------------------------------
 // command implementations
 //
@@ -1556,6 +1591,12 @@ this.onload = function() {
     ko.projects.manager = new projectManager();
     ko.projects.active = this;
 }
+
+this.prepareForShutdown = function() {
+    window.removeEventListener("view_document_detaching",
+                          ko.projects.manager.handle_view_document_detaching,
+                               false);
+};
 
 this.handle_parts_reload = function() {
     this.manager.applyPartKeybindings();

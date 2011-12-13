@@ -107,6 +107,7 @@ this._onClose = function(event) {
         return;
     }
     ko.main.windowIsClosing = true;
+    ko.projects.prepareForShutdown();
     ko.main.runWillCloseHandlers();
 
     window.removeEventListener("close", ko.main._onClose, true);
