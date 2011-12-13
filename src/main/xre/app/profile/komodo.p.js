@@ -54,6 +54,7 @@ pref("komodo.chromeURL","chrome://komodo/content/");
 pref("toolkit.chromeURL","chrome://komodo/content/");
 pref("toolkit.defaultChromeURI","chrome://komodo/content/komodo.xul");
 pref("browser.chromeURL","chrome://komodo/content/");
+pref("toolkit.singletonWindowType", "Komodo");
 #ifdef XP_MACOSX
 // Special hidden window for the Mac, to allow file open dialog copy/paste.
 // See bug 85838 for details.
