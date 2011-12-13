@@ -341,6 +341,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY path.label "Path">
 <!ENTITY pathToAlternatePHPConfigurationFile.label "Path to alternate PHP configuration file">
 <!ENTITY patterns.label "Patterns">
+<!ENTITY nodejs.label "Node.js">
 <!ENTITY perl.label "Perl">
 <!ENTITY phpPHP.label ".php: PHP">
 <!ENTITY plPerl.label ".pl: Perl">

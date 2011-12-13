@@ -406,6 +406,7 @@ class koDocumentBase:
             if fileNameLanguage and language in ["XML", "HTML", "XHTML"]:
                 language = fileNameLanguage
             log.info("_guessLanguage: '%s' (content)", language)
+            self.prefs.setStringPref('language', language)
         if self._isConsideredLargeDocument(langRegistrySvc, language):
             self._setAsLargeDocument(language)
             language = "Text"
@@ -1808,6 +1809,13 @@ class koDocumentBase:
 
     _jsDistinguisher = None
     def _distinguishJavaScriptOrNode(self, buffer):
+        currentProject = components.classes["@activestate.com/koPartService;1"]\
+            .getService(components.interfaces.koIPartService).currentProject
+        if currentProject:
+            prefset = currentProject.prefset
+            if prefset.hasPref("currentInvocationLanguage") \
+               and prefset.getStringPref("currentInvocationLanguage") == "Node.js":
+                return ["Node.js"]
         if not buffer:
             return ["JavaScript"]
         nodeJSAppInfo = components.classes["@activestate.com/koAppInfoEx?app=NodeJS;1"].\
