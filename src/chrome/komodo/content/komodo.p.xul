@@ -140,8 +140,6 @@
     <script src="chrome://komodo/content/browse.js"                       type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/launch.js"                       type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/views.js"                        type="application/x-javascript;version=1.7"/>
-    <script src="chrome://komodo/content/viewtoolbar/encoding.js"         type="application/x-javascript;version=1.7"/>
-    <script src="chrome://komodo/content/viewtoolbar/overflow.js"         type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/statusbar.js"                    type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/editor.js"                       type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/markers.js"                      type="application/x-javascript;version=1.7"/>
@@ -1990,45 +1988,6 @@
 
     </toolbox>
 
-    <toolbar id="view-toolbar" collapsed="true">
-        <!--
-        This is the template to be used for Komodo's view toolbar. All of these
-        elements will be copied into the views-editor element for each view when
-        it gets initialized.
-        
-        These items should not used ids - as the id's will be lost when the
-        element gets copied across.
-
-        If there are too many elements to fix into the view's toolbar,
-        overflowed elements will be hidden and made accessible through a
-        special menu dropdown at the end of the view toolbar. The overflow
-        menu dropdown will get rebuilt everytime it neededs to be displayed.
-        See "./viewtoolbar/overflow.js" code.
-        -->
-        <spacer anonid="view-toolbar-spacer"
-                flex="1" />
-
-        <toolbarbutton anonid="language-toolbarbutton"
-                       class="languageicon"
-                       tooltiptext="&fileType.tooltiptext;"
-                       orient="horizontal"
-                       type="menu">
-            <menupopup anonid="language-menupopup"
-                       class="language-menupopup"
-                       position="before_end"
-                       onpopupshowing="ko.uilayout.updateViewAsLanguageMenu(this, document.getBindingParent(this));" />
-        </toolbarbutton>
-
-        <toolbarbutton anonid="encoding-toolbarbutton"
-                       orient="horizontal"
-                       type="menu">
-            <menupopup anonid="encoding-menupopup"
-                       class="encoding-menupopup"
-                       position="before_end"
-                       onpopupshowing="ko.viewtoolbar.encoding.initializeMenu(document.getBindingParent(this), this);" />
-        </toolbarbutton>
-    </toolbar>
-
     <!-- main window box -->
     <notificationbox id="komodo-notificationbox"/>
     <deck id="komodo-box" selectedIndex="0" flex="1">
@@ -2147,6 +2106,11 @@
             </deck>
         </statusbarpanel>
 
+        <statusbarpanel id="statusbar-section"
+                        style="min-width: 12em; max-width: 20em;">
+            <sectionlist id="statusbar-sectionlist" />
+        </statusbarpanel>
+
         <statusbarpanel id="statusbar-checker"
                         style="min-width: 36px;">
             <toolbarbutton id="statusbar-check"
@@ -2176,6 +2140,20 @@
                 </menupopup>
             </toolbarbutton>
         </statusbarpanel>
+        <statusbarpanel id="statusbar-encoding"
+                        tooltiptext="&fileEncoding.tooltiptext;"
+                        style="min-width: 6em;">
+            <toolbarbutton class="statusbar-label"
+                  id="statusbar-encoding-label"
+                  flex="1"
+                  orient="horizontal"
+                  type="menu"
+                  persist="buttonstyle"
+                  buttonstyle="text">
+                <menupopup id="statusbar-encoding-menupopup"
+                           onpopupshowing="ko.statusBar.setupEncodingMenu(this);" />
+            </toolbarbutton>
+        </statusbarpanel>
 
         <statusbarpanel id="statusbar-line-col"
                         tooltiptext="&filePosition.tooltiptext;"
@@ -2184,6 +2162,22 @@
                         label="&noSelection.label;"
                         tooltiptext="&selectionInformation.tooltiptext;"
                         style="min-width: 8em;"/>
+        <statusbarpanel id="statusbar-language"
+                        pack="end"
+                        style="min-width: 8em; max-width: 12em;">
+            <toolbarbutton class="statusbar-label languageicon"
+                  id="statusbar-language-menu"
+                  tooltiptext="&fileType.tooltiptext;"
+                  flex="1"
+                  orient="horizontal"
+                  type="menu"
+                  persist="buttonstyle"
+                  buttonstyle="text">
+                <menupopup id="statusbar-filetype-menu"
+                           position="before_end"
+                           onpopupshowing="ko.uilayout.updateViewAsLanguageMenu(this);" />
+            </toolbarbutton>
+        </statusbarpanel>
     </statusbar>
     <commandset id="allcommands">
         <command id="cmd_CustomizeToolbars"

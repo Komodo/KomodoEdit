@@ -76,17 +76,3 @@ menupopup[type='buffercontext']  {
   -moz-binding: url('chrome://komodo/content/bindings/views-buffer.xml#popup-buffer');
 }
 
-/**
- * View toolbar.
- */
-.view-toolbar {
-  -moz-binding: url('chrome://komodo/content/bindings/toolbar.xml#toolbar-overflow');
-  border: 0;
-  border-bottom: 1px inset rgba(0, 0, 0, 0.5);
-  padding-bottom: 2px;
-  margin-bottom: 2px;
-}
-
-toolbarbutton[anonid="language-toolbarbutton"] image {
-  margin-right: 3px;
-}

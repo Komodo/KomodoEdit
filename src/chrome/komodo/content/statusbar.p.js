@@ -125,6 +125,59 @@ var _lastNotificationTime = 0; // last time user interacted with statusbar notif
 
 //---- helper functions
 
+function _updateEncoding(view) {
+    if (typeof(view)=='undefined' || !view || !view.koDoc)
+        return;
+    try {
+        //XXX It would probably be cleaner to add an "encoding_name"
+        //    attribute to koIView and then let each view type override that.
+        //    Then the view-startpage could return null to indicate N/A.
+        if (view.getAttribute("type") == "startpage") {
+            _clearEncoding();
+        } else {
+            var encoding = view.koDoc.encoding.short_encoding_name;
+            var encodingWidget = document.getElementById('statusbar-encoding-label');
+            encodingWidget.setAttribute("label", encoding);
+        }
+    } catch(e) {
+        _clearEncoding();
+    }
+}
+
+function _clearEncoding() {
+    var encodingWidget = document.getElementById('statusbar-encoding');
+    encodingWidget.removeAttribute("label");
+}
+
+
+function _updateLanguage(view) {
+    if (typeof(view)=='undefined' || !view || !view.koDoc)
+        return;
+    try {
+        //XXX It would probably be cleaner to handle the "startpage language
+        //    is N/A" logic in the view system, but I don't know how to
+        //    easily do that right now.
+        var languageWidget = document.getElementById('statusbar-language-menu');
+        if (view.getAttribute("type") == "startpage") {
+            _clearLanguage();
+            languageWidget.setAttribute('collapsed', 'true');
+            languageWidget.removeAttribute('language');
+        } else {
+            var language = view.koDoc.language;
+            languageWidget.setAttribute("label", language);
+            languageWidget.setAttribute('language', language);
+            languageWidget.removeAttribute('collapsed');
+        }
+    } catch(e) {
+        _clearLanguage();
+    }
+}
+
+
+function _clearLanguage() {
+    var languageWidget = document.getElementById('statusbar-language-menu');
+    languageWidget.setAttribute("label", "");
+}
 
 function _updateLintMessage(view) {
     // The timeout has been called, remove the setTimeout id
@@ -487,6 +540,8 @@ function _statusBarClick(event) {
 }
 
 function _clear() {
+    _clearEncoding();
+    _clearLanguage();
     _clearLineCol();
     _clearCheck();
 }
@@ -504,6 +559,10 @@ function StatusBarObserver() {
                             this.handle_current_view_changed, false);
     window.addEventListener('current_view_check_status',
                             this.handle_current_view_check_status, false);
+    window.addEventListener('current_view_encoding_changed',
+                            this.handle_current_view_encoding_changed, false);
+    window.addEventListener('current_view_language_changed',
+                            this.handle_current_view_language_changed, false);
     window.addEventListener('current_view_linecol_changed',
                             this.handle_current_view_linecol_changed, false);
     window.addEventListener('current_view_lint_results_done',
@@ -537,6 +596,10 @@ StatusBarObserver.prototype.destroy = function()
                                this.handle_current_lint_results_done, false);
     window.removeEventListener('current_view_check_status',
                                this.handle_current_view_check_status, false);
+    window.removeEventListener('current_view_encoding_changed',
+                               this.handle_current_view_encoding_changed, false);
+    window.removeEventListener('current_view_language_changed',
+                               this.handle_current_view_language_changed, false);
     window.removeEventListener('current_view_linecol_changed',
                                this.handle_current_view_linecol_changed, false);
     window.removeEventListener('view_closed',
@@ -571,6 +634,8 @@ StatusBarObserver.prototype.observe = function(subject, topic, data)
 StatusBarObserver.prototype.handle_current_view_changed = function(event) {
     if (!ko.views.manager.batchMode) {
         var view = event.originalTarget;
+        _updateEncoding(view);
+        _updateLanguage(view);
         _updateLineCol(view);
         _updateCheck(view);
     }
@@ -582,6 +647,14 @@ StatusBarObserver.prototype.handle_current_view_check_status = function(event) {
 
 StatusBarObserver.prototype.handle_current_lint_results_done = function(event) {
     _updateCheck(ko.views.manager.currentView);
+};
+
+StatusBarObserver.prototype.handle_current_view_encoding_changed = function(event) {
+    _updateEncoding(ko.views.manager.currentView);
+};
+
+StatusBarObserver.prototype.handle_current_view_language_changed = function(event) {
+    _updateLanguage(ko.views.manager.currentView);
 };
 
 StatusBarObserver.prototype.handle_current_view_linecol_changed = function(event) {
@@ -751,6 +824,97 @@ this.AddMessage = function(msg, category, timeout, highlight, interactive, log /
  * clear all statusbar elements
  */
 this.Clear = function() { _clear(); }
+
+var _encodingMenuInitialized = false;
+
+/**
+ * Set the encoding menu for the current view.
+ * @param {DOMElement} menupopup
+ */
+this.setupEncodingMenu = function(menupopup)
+{
+    var view = ko.views.manager.currentView;
+    if (typeof(view)=='undefined' || !view || !view.koDoc) {
+        return;
+    }
+    if (!_encodingMenuInitialized) {
+        var encodingSvc = Components.classes["@activestate.com/koEncodingServices;1"].
+                           getService(Components.interfaces.koIEncodingServices);
+    
+        //var encodingName = view.koDoc.encoding.short_encoding_name;
+        var encodingMenupopup = document.getElementById('statusbar-encoding-menupopup');
+        // Build the menupopup.
+        var tempMenupopup = ko.widgets.getEncodingPopup(encodingSvc.encoding_hierarchy,
+                                                        true /* toplevel */,
+                                                        'ko.statusBar.changeEncoding(this)'); // action
+        while (tempMenupopup.childNodes.length > 0) {
+            encodingMenupopup.appendChild(tempMenupopup.removeChild(tempMenupopup.firstChild));
+        }
+        _encodingMenuInitialized = true;
+    }
+}
+
+/**
+ * Set the encoding menu for the current view.
+ * @param {DOMElement} menupopup
+ */
+this.changeEncoding = function(menuitem)
+{
+    var view = ko.views.manager.currentView;
+    if (typeof(view)=='undefined' || !view || !view.koDoc) {
+        return;
+    }
+
+    var encodingName = menuitem.getAttribute("data");
+    if (encodingName == view.koDoc.encoding.python_encoding_name) {
+        // No change.
+        return;
+    }
+
+    var enc = Components.classes["@activestate.com/koEncoding;1"].
+                     createInstance(Components.interfaces.koIEncoding);
+    enc.python_encoding_name = encodingName;
+    enc.use_byte_order_marker = view.koDoc.encoding.use_byte_order_marker;
+
+    var warning = view.koDoc.languageObj.getEncodingWarning(enc);
+    var question = _file_pref_bundle.formatStringFromName(
+        "areYouSureThatYouWantToChangeTheEncoding.message", [warning], 1);
+    if (warning == "" || ko.dialogs.yesNo(question, "No") == "Yes") {
+        try {
+            view.koDoc.encoding = enc;
+            // and reset the linting
+            view.lintBuffer.request();
+        } catch(ex) {
+            var err;
+            var lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"].
+                               getService(Components.interfaces.koILastErrorService);
+            var errno = lastErrorSvc.getLastErrorCode();
+            var errmsg = lastErrorSvc.getLastErrorMessage();
+            if (errno == 0) {
+                // koDocument.set_encoding() says this is an internal error
+                err = _file_pref_bundle.formatStringFromName("internalErrorSettingTheEncoding.message",
+                        [view.koDoc.displayPath, encodingName], 2);
+                ko.dialogs.internalError(err, err+"\n\n"+errmsg, ex);
+            } else {
+                question = _file_pref_bundle.formatStringFromName("force.conversion.message", [errmsg], 1);
+                var choice = ko.dialogs.customButtons(question,
+                        [_file_pref_bundle.GetStringFromName("force.message.one"),
+                         _file_pref_bundle.GetStringFromName("cancel.message")],
+                         _file_pref_bundle.GetStringFromName("cancel.message")); // default
+                if (choice == _file_pref_bundle.GetStringFromName("force.message.two")) {
+                    try {
+                        view.koDoc.forceEncodingFromEncodingName(encodingName);
+                    } catch (ex2) {
+                        err = _file_pref_bundle.formatStringFromName(
+                                "theSampleProjectCouldNotBeFound.message",
+                                [view.koDoc.baseName, encodingName], 2);
+                        ko.dialogs.internalError(err, err+"\n\n"+errmsg, ex);
+                    }
+                }
+            }
+        }
+    }
+}
 
 this.browserStatusHandler = {
     QueryInterface : XPCOMUtils.generateQI([Ci.nsISupportsWeakReference,

@@ -47,58 +47,13 @@
     extends="chrome://komodo/content/bindings/views-buffer.xml#view-buffer-base">
 
     <content orient="vertical">
-        <xul:hbox anonid="view-toolbar-container">
-            <xul:scrollbox anonid="view-toolbar"
-                           class="view-toolbar"
-                           flex="1"
-                           />
-            <xul:toolbarbutton anonid="overflow-toolbarbutton"
-                               collapsed="true"
-                               label="&#0187;">
-                <xul:menupopup anonid="overflow-menupopup"
-                               class="overflow-menupopup"
-                               onpopupshowing="ko.viewtoolbar.overflow.initializeMenu(document.getBindingParent(this), this);"
-                               onpopuphidden="ko.viewtoolbar.overflow.teardownMenu(document.getBindingParent(this), this);"/>
-            </xul:toolbarbutton>
-        </xul:hbox>
         <xul:scintilla xbl:inherits="flex,focused,context,mozcontext" flex="1"
                        anonid="scintilla"
                        allowIME="true"
                        mozcontext="editorContextMenu"/>
         <xul:ko-findbar anonid="findbar"/>
     </content>
-
     <implementation name="vieweditor" implements="koIScintillaView, koIBookmarkableView, ISciMozEvents, nsIObserver">
-
-        <constructor>
-        <![CDATA[
-            // Copy the global view toolbar elements into our local view toolbar.
-            var toolbar_template = document.getElementById('view-toolbar');
-            if (toolbar_template) {
-                let viewtoolbar = this.toolbar;
-                let tbclone = toolbar_template.cloneNode(true);
-                while (tbclone.firstChild) {
-                    let childnode = tbclone.removeChild(tbclone.firstChild);
-                    if (childnode.hasAttribute("id")) {
-                        childnode.removeAttribute("id");
-                    }
-                    viewtoolbar.appendChild(childnode);
-                }
-                // Link the toolbar with the overflow element.
-                viewtoolbar.toolbar_overflow = this.toolbar_overflow;
-            }
-        ]]>
-        </constructor>
-
-        <property name="toolbar" onget="return window.document.getAnonymousElementByAttribute(this, 'anonid', 'view-toolbar');"/>
-
-        <property name="toolbar_container" onget="return window.document.getAnonymousElementByAttribute(this, 'anonid', 'view-toolbar-container');"/>
-
-        <property name="toolbar_overflow" onget="return window.document.getAnonymousElementByAttribute(this, 'anonid', 'overflow-toolbarbutton');"/>
-
-        <property name="toolbar_encoding" onget="return window.document.getAnonymousElementByAttribute(this, 'anonid', 'encoding-toolbarbutton');"/>
-
-        <property name="toolbar_language" onget="return window.document.getAnonymousElementByAttribute(this, 'anonid', 'language-toolbarbutton');"/>
 
         <property name="cwd">
              <getter><![CDATA[
@@ -224,8 +179,6 @@
             } else {
                 this.language = "Text";
             }
-
-            ko.viewtoolbar.encoding.updateLabel(this);
         ]]>
         </setter>
         </property>
@@ -349,7 +302,6 @@
             if (!this.prefs.getBooleanPref('colorizing_enabled')) {
                 this._turnColourizingOff();
             }
-            this._setDocumentToolbarColors();
             ko.lint.initializeGenericPrefs(this.prefs)
             ko.macros.eventHandler.hookPostFileOpen(this);
         } catch (e) {
@@ -467,34 +419,6 @@
             this.isCICplnEnabled = (ko.codeintel.isActive && ko.codeintel.is_cpln_lang(language));
             this.isCICitadelStuffEnabled = (ko.codeintel.isActive && ko.codeintel.is_citadel_lang(language));
             this.isCIXMLStuffEnabled = (ko.codeintel.isActive && ko.codeintel.is_xml_lang(language));
-
-            // Update the view toolbar.
-            var languageWidget = this.toolbar_language;
-            if (languageWidget) {
-                languageWidget.setAttribute("label", language);
-                languageWidget.setAttribute('language', language);
-            }
-        ]]>
-        </body>
-        </method>
-
-        <method name="_setDocumentToolbarColors">
-        <body>
-        <![CDATA[
-            // Set the document toolbar to use the same colors as the current
-            // Komodo color scheme.
-            var backColor = this.scheme.getBack(this.language, "default");
-            var foreColor = this.scheme.getFore(this.language, "default");
-            var style = "color: " + foreColor + " !important;" +
-                        "background-color: " + backColor + " !important;";
-            this.toolbar_container.setAttribute("style", style);
-            // Also have to set the colors manually on each element, as they do
-            // not inherit properly.
-            var elem = this.toolbar.firstChild;
-            while (elem) {
-                elem.setAttribute("style", style);
-                elem = elem.nextSibling;
-            }
         ]]>
         </body>
         </method>
@@ -567,9 +491,10 @@
                 }
                 break;
             case 'encoding_changed':
-                // Got notification from koIDocument, update the view toolbar.
-                ko.viewtoolbar.encoding.updateLabel(this);
-                xtk.domutils.fireEvent(window, 'current_view_encoding_changed');
+                // got notification from document, update the statusbar
+                if (this.isCurrent) {
+                    xtk.domutils.fireEvent(window, 'current_view_encoding_changed');
+                }
                 break;
             case 'ySlop':
                 //multi-window: this applies to all windows, as it's a pref
@@ -611,7 +536,6 @@
             case 'scheme-changed': // Modified the current scheme
                 setTimeout(function(this_) {
                     // view.scintilla is still using the old scheme.
-                    this_._setDocumentToolbarColors();
                     this_._setupHighlightColors();
                 }, 1, this);
                 break;
