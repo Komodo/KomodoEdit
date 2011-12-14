@@ -958,7 +958,17 @@ class KPFTreeView(TreeView):
             self._tree.rowCountChanged(index + 1,(index + 1) - nextSiblingIndex)
         else:
             # just get the rows for the node, then insert them into our list
-            children = self.makeRowsFromParts(node.part.children, node.level, node.project)
+            try:
+                children = self.makeRowsFromParts(node.part.children, node.level, node.project)
+            except AttributeError, ex:
+                msg = ("Error trying to get children for row %d (%s)" %
+                       (index, node.part.get_name()))
+                if ex.message == "'koProject' object has no attribute 'children'":
+                    log.debug("%s", msg)
+                              
+                else:
+                    log.exception("%s", msg)
+                children = []
             self._rows = self._rows[:index + 1] + children + self._rows[nextSiblingIndex:]
             self._tree.rowCountChanged(index + 1, len(children))
             for child in children:
