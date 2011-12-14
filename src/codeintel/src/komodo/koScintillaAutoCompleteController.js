@@ -59,6 +59,11 @@ KoScintillaAutoCompleteController.prototype = {
     {
       this._popup.addEventListener(eventName, this, true);
     }
+    // and these need to be bubbling so they don't go to the editor
+    for each (var eventName in ["mousedown", "mouseup", "click", "dblclick"])
+    {
+      this._popup.addEventListener(eventName, this, false);
+    }
 
     this._scrollbar.addEventListener("mousemove", this, true);
   },
@@ -778,6 +783,13 @@ KoScintillaAutoCompleteController.prototype = {
           event.stopPropagation();
           event.preventDefault();
         }
+        return;
+      case "mousedown": case "mouseup":
+      case "click": case "dblclick":
+        // assert(event.eventPhase == event.BUBBLING_PHASE);
+        // don't allow any mouse clicking events to propagate outside the popup
+        event.stopPropagation();
+        // no need to prevent default here; the default behaviour is good.
         return;
     }
     if (event.target == this._scrollbar) {

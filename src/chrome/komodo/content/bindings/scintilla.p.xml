@@ -908,7 +908,7 @@
             </handler>
 <!-- #endif -->
 
-            <handler event="mousedown" phase="capturing">
+            <handler event="mousedown" phase="bubbling">
                 <![CDATA[
                 //dump("scintilla:: mousedown\n");
                 var scimoz = this.scimoz;
@@ -916,13 +916,12 @@
                     // Focus on this Scintilla now.
                     this.focus();
                 }
-                var x,y;
-                [x,y] = this.getClientCoordinates(event);
-<!-- #if PLATFORM == "darwin" -->
-                // Mac must inform SciMoz of mouse events - bug 89002.
+                var [x, y] = this.getClientCoordinates(event);
+/* #if PLATFORM == "darwin" */
+                // Mac must inform SciMoz of mouse events - bug 89902.
                 this.scimoz.buttonDown( x, y, event.button,
                                        event.shiftKey, event.ctrlKey, event.metaKey);
-<!-- #endif -->
+/* #endif */
                 this._mouseDownSelection = scimoz.selText;
                 this._lastMousePos = [x,y];
                 if (this._contextShowing && this._mozcontext) {
@@ -962,11 +961,11 @@
                     // on a selection
                     scimoz.selectionStart = scimoz.selectionEnd = pos;
                 }
-<!-- #if PLATFORM != "darwin" -->
+/* #if PLATFORM != "darwin" */
                 if (event.altKey) {
                     this.needToStopAltPropagation = true;
                 }
-<!-- #endif -->
+/* #endif */
                 ]]>
             </handler>
             <handler event="mousemove">
