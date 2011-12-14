@@ -71,6 +71,10 @@ notification[progress]:not([progress="done"]) .messageImage {
   list-style-image: url("chrome://global/skin/icons/loading_16.png");
 }
 
+notification[progress="done"] progressmeter {
+  display: none;
+}
+
 notification .twistyImageWrapper {
   -moz-box-pack: start;
 }
