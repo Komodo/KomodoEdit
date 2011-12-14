@@ -50,14 +50,14 @@ view[lastfocused="true"] .native tab[selected="true"] .tab-text {
 
 .native tab {
   -moz-appearance: none;
-  -moz-border-radius: 0 0 6px 6px;
+  -moz-border-radius: 6px 6px 0 0;
   color: #222;
   margin: 0;
   padding: 0;
-  border-style: none solid solid;
+  border-style: solid solid none;
   border-width: 3px;
   -moz-border-right-colors: rgba(0, 0, 0, .08) rgba(0, 0, 0, .17) rgba(180, 180, 180, .29);
-  -moz-border-bottom-colors: rgba(0, 0, 0, .08) rgba(0, 0, 0, .17) rgba(180, 180, 180, .29);
+  -moz-border-top-colors: rgba(0, 0, 0, .08) rgba(0, 0, 0, .17) rgba(180, 180, 180, .29);
   -moz-border-left-colors: rgba(0, 0, 0, .08) rgba(0, 0, 0, .17) rgba(180, 180, 180, .29);
   background-clip: padding-box;
   min-width: 1px !important;

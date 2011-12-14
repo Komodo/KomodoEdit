@@ -18,7 +18,7 @@ ko-pane[type="vertical"] tabs
 ko-pane[type="vertical"] tab
 {
   width: 2em;
-  -moz-border-top-colors: rgba(0, 0, 0, .08) rgba(0, 0, 0, .17) rgba(180, 180, 180, .29);
+  -moz-border-bottom-colors: rgba(0, 0, 0, .08) rgba(0, 0, 0, .17) rgba(180, 180, 180, .29);
 }
 
 ko-pane[type="vertical"] tabs[rotation="270"] tab
