@@ -354,40 +354,30 @@ ko.codeintel = {};
      * A mapping of autocomplete type -> image url
      * Note that this is public and expected to be modified by extensions/scripts
      */
-    Object.defineProperty(this.CompletionUIHandler.prototype, "types", {
-        get: function() {
-            if ("_types" in this) {
-                return this._types;
-            }
-            this._types = {
-                "class":        "chrome://komodo/skin/images/cb_class.png",
-                "function":     "chrome://komodo/skin/images/cb_function.png",
-                "module":       "chrome://komodo/skin/images/cb_module.png",
-                "interface":    "chrome://komodo/skin/images/cb_interface.png",
-                "namespace":    "chrome://komodo/skin/images/cb_namespace.png",
-                "variable":     "chrome://komodo/skin/images/cb_variable.png",
-                "$variable":    "chrome://komodo/skin/images/cb_variable_scalar.png",
-                "@variable":    "chrome://komodo/skin/images/cb_variable_array.png",
-                "%variable":    "chrome://komodo/skin/images/cb_variable_hash.png",
-                "directory":    "chrome://komodo/skin/images/cb_directory.png",
-                "constant":     "chrome://komodo/skin/images/cb_constant.png",
-                // XXX: Need a better image (a dedicated keyword image)
-                "keyword":      "chrome://komodo/skin/images/cb_interface.png",
+    this.CompletionUIHandler.prototype.types = {
+        "class":        "chrome://komodo/skin/images/cb_class.png",
+        "function":     "chrome://komodo/skin/images/cb_function.png",
+        "module":       "chrome://komodo/skin/images/cb_module.png",
+        "interface":    "chrome://komodo/skin/images/cb_interface.png",
+        "namespace":    "chrome://komodo/skin/images/cb_namespace.png",
+        "variable":     "chrome://komodo/skin/images/cb_variable.png",
+        "$variable":    "chrome://komodo/skin/images/cb_variable_scalar.png",
+        "@variable":    "chrome://komodo/skin/images/cb_variable_array.png",
+        "%variable":    "chrome://komodo/skin/images/cb_variable_hash.png",
+        "directory":    "chrome://komodo/skin/images/cb_directory.png",
+        "constant":     "chrome://komodo/skin/images/cb_constant.png",
+        // XXX: Need a better image (a dedicated keyword image)
+        "keyword":      "chrome://komodo/skin/images/cb_interface.png",
 
-                "element":      "chrome://komodo/skin/images/cb_xml_element.png",
-                "attribute":    "chrome://komodo/skin/images/cb_xml_attribute.png",
+        "element":      "chrome://komodo/skin/images/cb_xml_element.png",
+        "attribute":    "chrome://komodo/skin/images/cb_xml_attribute.png",
 
-                // Added for CSS, may want to have a better name/images though...
-                "value":        "chrome://komodo/skin/images/cb_variable.png",
-                "property":     "chrome://komodo/skin/images/cb_class.png",
-                "pseudo-class": "chrome://komodo/skin/images/cb_interface.png",
-                "rule":         "chrome://komodo/skin/images/cb_function.png",
-            };
-            return this._types;
-        },
-        configurable: true,
-        enumerable: true,
-    });
+        // Added for CSS, may want to have a better name/images though...
+        "value":        "chrome://komodo/skin/images/cb_variable.png",
+        "property":     "chrome://komodo/skin/images/cb_class.png",
+        "pseudo-class": "chrome://komodo/skin/images/cb_interface.png",
+        "rule":         "chrome://komodo/skin/images/cb_function.png",
+    };
 
     this.CompletionUIHandler.prototype.observe = function(prefSet, prefName, prefSetID)
     {
