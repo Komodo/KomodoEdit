@@ -205,7 +205,7 @@ function togglePassiveFTPSettings() {
 
 function checkAddButtonStatus() {
     var alias = dialog.alias.value;
-    var hostname = dialog.hostname.value;
+    var hostname = ko.stringutils.strip(dialog.hostname.value);
     if (alias && hostname) {
         // enable add button
         document.getElementById("buttonAdd").removeAttribute('disabled');
@@ -220,7 +220,7 @@ var current_server_idx = -1;
 function onAddServerEntry() {
     var protocol = dialog.server_types.selectedItem.getAttribute("label");
     var alias = dialog.alias.value;
-    var hostname = dialog.hostname.value;
+    var hostname = ko.stringutils.strip(dialog.hostname.value);
     var port = dialog.port.value;
     if (!port)
         port = -1;
