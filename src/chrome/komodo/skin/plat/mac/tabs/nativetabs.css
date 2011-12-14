@@ -68,6 +68,7 @@ view[lastfocused="true"] .native tab[selected="true"] .tab-text {
   -moz-user-focus: normal;
   /* Make the background color of the tab be the same color as the toolbar. */
   background-color: rgba(201,201,201,1);
+  margin-top: -2px;
 }
 
 .native tab[selected="true"]:focus > .tab-image-middle > .tab-text-stack > .tab-text {
@@ -130,6 +131,12 @@ view[lastfocused="true"] .native tab[selected="true"] .tab-text {
   -moz-box-align: stretch;
   background: url("chrome://komodo/skin/tabs/tabbrowser-tabs-bkgnd.png") repeat-x;
   height: 24px;
+}
+
+#tabbed-view tabs {
+  /* Give 3px box underneath the editor tabs, same color as the selected tab. */
+  height: 27px;
+  padding-bottom: 3px;
 }
 
 .native .tabs-left {
