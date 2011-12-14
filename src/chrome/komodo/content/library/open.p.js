@@ -115,6 +115,39 @@ this.URI = function open_openURI(uri, viewType /* ="editor" */,
     return ko.open.URIAtLine(uri, null, viewType, skipRecentOpenFeature, callback);
 }
 
+// Similar to this.URI, used to detect when a recent URI no longer
+// exists, and can be removed  from the 'file' MRU list.
+this.recentURI = function open_recentURI(uri,
+                                         viewType /* ="editor" */,
+                                         skipRecentOpenFeature /* =false */
+                                         ) {
+    if (typeof(viewType) == "undefined" || !viewType) viewType = "editor";
+    if (typeof(skipRecentOpenFeature) == "undefined") {
+        skipRecentOpenFeature = false;
+    }
+    if (uri.match(/\.(?:kpf|komodoproject)$/i)) {
+        // Verify the file exists, and remove from the project MRU list in
+        // advance if it doesn't, because there's no callback when
+        // opening projects.
+        var koFileEx = Components.classes["@activestate.com/koFileEx;1"].
+                       createInstance(Components.interfaces.koIFileEx);
+        koFileEx.URI = uri;
+        if (!koFileEx.exists) {
+            // Remove it in advance
+            ko.mru.removeURL('mruProjectList', uri);
+            if (ko.places && ko.projects.manager.single_project_view) {
+                ko.places.projects_SPV.rebuildView();
+            }
+        }
+    }
+    var callback = function(view) {
+        if (view === null) {
+            ko.mru.removeURL('mruFileList', uri);
+        }
+    };
+    this.URI(uri, viewType, skipRecentOpenFeature, callback);
+};
+
 /**
  * Asynchronously open the URI in a new Komodo tab, if the file is already
  * open then this existing tab becomes the currently focused tab.
@@ -429,9 +462,10 @@ this.startPage = function open_openStartPage() {
                                  "startpage");
 }
 
-this.multipleURIs = function open_openMultipleURIs(urls, viewType)
+this.multipleURIs = function open_openMultipleURIs(urls, viewType, isRecent)
 {
     var i,j;
+    if (typeof(isRecent) == "undefined") isRecent = false;
     if (urls.length) {
         var prefSvc = Components.classes["@activestate.com/koPrefService;1"].getService(Components.interfaces.koIPrefService);
         var viewStateMRU = prefSvc.getPrefs("viewStateMRU");
@@ -468,11 +502,12 @@ this.multipleURIs = function open_openMultipleURIs(urls, viewType)
         if (urls.length > 1) {
             ko.views.manager.batchMode = true;
         }
+        var openMethod = isRecent ? ko.open.recentURI : ko.open.URI;
         for (i=0; i < urls.length; i++) {
             if (i == urls.length-1) {
                 ko.views.manager.batchMode = false;
             }
-            ko.open.URI(urls[i], viewType, true);
+            openMethod.call(ko.open, urls[i], viewType, true);
         }
     }
 }

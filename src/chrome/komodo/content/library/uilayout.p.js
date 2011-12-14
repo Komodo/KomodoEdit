@@ -792,7 +792,7 @@ function _updateMRUMenu(prefName, limit, addManageItem, MRUName)
                     "ko.uilayout.newFileFromTemplateOrTrimMRU('"+url+"', '"+prefName+"',"+i+");");
             } else {
                 menuitem.setAttribute("oncommand",
-                                      "ko.open.URI('" + url + "')");
+                                      "ko.open.recentURI('" + url + "')");
             }
 
             menupopup.appendChild(menuitem);

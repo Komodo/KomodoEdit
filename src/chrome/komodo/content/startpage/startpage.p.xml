@@ -542,7 +542,7 @@
                         urls.push(url);
                 }
                 if (urls.length > 0)
-                    ko.open.multipleURIs(urls);
+                    ko.open.multipleURIs(urls, 'editor', /*isRecent=*/ true);
             } catch (ex) {
                 this.log.error("openSelected error: "+ex);
             }
