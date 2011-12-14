@@ -119,8 +119,9 @@ class _CommonHTMLLinter(object):
         if linters:
             lintersByName.update(linters)
         koDoc = request.koDoc  # koDoc is a proxied object
-        jsShouldBeWrapped = koDoc.language == "XBL"
-        jsWrapOneLiners = koDoc.language in ("HTML", "HTML5", "XUL")
+        koDoc_language = koDoc.language
+        jsShouldBeWrapped = koDoc_language == "XBL"
+        jsWrapOneLiners = koDoc_language in ("HTML", "HTML5", "XUL")
         transitionPoints = koDoc.getLanguageTransitionPoints(0, koDoc.bufferLength)
         languageNamesAtTransitionPoints = [koDoc.languageForPosition(pt)
                                            for pt in transitionPoints[:-2]]
@@ -254,6 +255,12 @@ class _CommonHTMLLinter(object):
                 elif langName == "HTML" and self.lang == "HTML5":
                     # Use the correct aggregator class.
                     langName = "HTML5"
+                elif koDoc_language not in ("HTML", "HTML5"):
+                    # For HTML markup langs and templating langs, use the
+                    # default HTML decl to see if they want HTML5 - bug 88884.
+                    prefset = getProxiedEffectivePrefs(request)
+                    if "HTML 5" in prefset.getStringPref("defaultHTMLDecl"):
+                        langName = "HTML5"
             linter = self._linterByName(langName, lintersByName)
             if linter:
                 try:

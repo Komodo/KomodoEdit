@@ -129,6 +129,7 @@ var global_pref_observer_topics = {
     "lintHTML5Lib" : ["HTML5"],
     "lintHTML_CheckWith_Perl_HTML_Lint" : HTML_LIST,
     "lintHTML_CheckWith_Perl_HTML_Tidy" : HTML_LIST,
+    "defaultHTMLDecl": HTML_LIST,
     "tidy_errorlevel" : HTML_LIST,
     "tidy_accessibility" : HTML_LIST,
     "tidy_configpath" : HTML_LIST
