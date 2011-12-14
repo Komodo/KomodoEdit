@@ -307,7 +307,6 @@ view[lastfocused="true"] .native tab[selected="true"] .tab-text {
     -moz-appearance: none;
     border: None;
     -moz-border-bottom-colors: none ;
-    border-top: 1px solid #404040;
     padding: 0px;
     margin: 0px;
 }
