@@ -420,6 +420,7 @@ Build(
     "prebuilt/Conscript",
       
     "$build/modules/fastopen/Conscript",
+    "$build/modules/koextgen/Conscript",
     "$build/modules/spellcheck/Conscript",
     "$build/modules/zendframework/Conscript",
 
