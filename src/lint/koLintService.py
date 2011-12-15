@@ -419,10 +419,6 @@ class KoLintService:
         request.encoding = request.koDoc.encoding
         if request.linterType:
             request.linter = self.getLinterForLanguage(request.linterType)
-        # Proxy this so the worker thread can report results on this iface.
-        request.lintBuffer = getProxyForObject(None,
-            components.interfaces.koILintBuffer, request.lintBuffer,
-            PROXY_ALWAYS | PROXY_SYNC)
 
         self.requests.put(request)
 
@@ -639,7 +635,11 @@ class KoLintService:
                 # to great lengths.
                 if not self._shuttingDown:
                     try:
-                        request.lintBuffer.reportResults(request)
+                        # Proxy this so the worker thread can report results on this iface.
+                        lintBufferProxy = getProxyForObject(1,
+                            components.interfaces.koILintBuffer, request.lintBuffer,
+                            PROXY_ALWAYS | PROXY_SYNC)
+                        lintBufferProxy.reportResults(request)
                     except COMException, ex:
                         # Ignore this error, which will happen if results
                         # are reported after the buffer has gone away (i.e.
