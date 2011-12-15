@@ -46,7 +46,7 @@ function setup() {
     } else {
       data = window.arguments[0];
       var vars = data.vars;
-      for(i in vars) {
+      for (var i in vars) {
         if(i == 'id' || i == 'ext_name') {
           //pass
         } else {
@@ -90,6 +90,7 @@ function update_id() {
 }
 
 function teardown() {
+  var i;
   try {
     for(i in data.vars) {
       if(i != 'ext_name') {

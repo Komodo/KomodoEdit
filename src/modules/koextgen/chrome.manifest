@@ -1,0 +1,12 @@
+
+content koextgen content/
+skin koextgen classic/1.0 skin/
+locale koextgen en-US locale/en-US/
+
+
+
+
+
+
+
+overlay chrome://komodo/content/komodo.xul chrome://koextgen/content/koextgen_overlay.xul

@@ -1,0 +1,12 @@
+# #if MODE == "dev"
+content koextgen content/
+skin koextgen classic/1.0 skin/
+locale koextgen en-US locale/en-US/
+
+# #else
+content koextgen jar:koextgen.jar!/content/ xpcnativewrappers=yes
+skin koextgen classic/1.0 jar:koextgen.jar!/skin/
+locale koextgen en-US jar:koextgen.jar!/locale/en-US/
+# #endif
+
+overlay chrome://komodo/content/komodo.xul chrome://koextgen/content/koextgen_overlay.xul

@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<!DOCTYPE overlay PUBLIC "-//MOZILLA//DTD XUL V1.0//EN" "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % koextgenDTD SYSTEM "chrome://koextgen/locale/koextgen.dtd">
+  %koextgenDTD;
+  <!ENTITY % komodoDTD SYSTEM "chrome://komodo/locale/komodo.dtd">
+  %komodoDTD;
+]>
+<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+
+<overlay id="koextgenOverlay"
+         xmlns:html="http://www.w3.org/1999/xhtml"
+         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+  <script src="chrome://koextgen/content/koextgen_lib.js"
+          type="application/x-javascript"/>
+  <script src="chrome://koextgen/content/createKoExtProject.js"
+          type="application/x-javascript"/>
+
+  <commandset id="allcommands">
+    <command id="Tasks:HelloWorld" oncommand="alert('Hello World from the Extension Generator');"/>
+  </commandset>
+
+  <menupopup id="popup_tools">
+    <menuitem id="menu_koextgen"
+              label="Komodo Extension Generator"
+              observes="Tasks:HelloWorld"
+              class="menu-iconic-wide"/>
+  </menupopup>
+  <menupopup id="popup_project">
+    <menuitem id="createKoExtProject"
+              label="Create Komodo Extension Project"
+	      oncommand="ko.koextgen.createExtGenProject('komodo');"
+              class="menu-iconic-wide"
+	      insertafter="menu_project_templates" />
+    <menuitem id="createFirefoxExtProject"
+              label="Create Firefox Extension Project"
+	      oncommand="ko.koextgen.createExtGenProject('firefox');"
+              class="menu-iconic-wide"
+	      insertafter="createKoExtProject" />
+  </menupopup>
+    
+</overlay>

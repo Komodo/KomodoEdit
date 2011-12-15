@@ -1,0 +1,12 @@
+
+content %extension_name% content/
+skin %extension_name% classic/1.0 skin/
+locale %extension_name% en-US locale/en-US/
+
+
+
+
+
+
+
+overlay chrome://komodo/content/komodo.xul chrome://%extension_name%/content/%extension_name%_overlay.xul
