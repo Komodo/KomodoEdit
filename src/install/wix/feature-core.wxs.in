@@ -1266,7 +1266,7 @@
             <Directory Id="directory224" Name="KOEXTG_0.COM" LongName="koextgen@activestate.com">
               <Component Id="component204" DiskId="1" Guid="$(autowix.guid)">
                 <File Id="file2361" Name="CHROM_28.MAN" LongName="chrome.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\koextgen@activestate.com\chrome.manifest"/>
-                <File Id="file2384" Name="install.rdf" Vital="yes&quot;" src="feature-core\INSTALLDIR\lib\mozilla\extensions\koextgen@activestate.com\install.rdf"/>
+                <File Id="file2384" Name="install.rdf" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\koextgen@activestate.com\install.rdf"/>
                 <File Id="file3925" Name="koextgen.jar" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\koextgen@activestate.com\koextgen.jar"/>
               </Component>
             </Directory> <!-- lib\mozilla\extensions\koextgen@activestate.com -->
