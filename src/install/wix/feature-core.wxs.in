@@ -377,6 +377,7 @@
       <ComponentRef Id="component182"/>
       <ComponentRef Id="component118"/>
       <ComponentRef Id="component680"/>
+      <ComponentRef Id="component204"/>
 
 <?if $(var.WithCrypto) = "yes" ?>
       <!-- Crypto and paramiko Python packages -->
@@ -1262,6 +1263,14 @@
                 </Directory> <!-- lib\mozilla\extensions\klint@dafizilla.sourceforge.net\defaults\preferences -->
               </Directory> <!-- lib\mozilla\extensions\klint@dafizilla.sourceforge.net\defaults -->
             </Directory> <!-- lib\mozilla\extensions\klint@dafizilla.sourceforge.net -->
+            <Directory Id="directory224" Name="KOEXTG_0.COM" LongName="koextgen@activestate.com">
+              <Component Id="component204" DiskId="1" Guid="$(autowix.guid)">
+                <File Id="file2361" Name="CHROM_28.MAN" LongName="chrome.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\koextgen@activestate.com\chrome.manifest"/>
+                <File Id="file2384" Name="install.rdf" Vital="yes&quot;" src="feature-core\INSTALLDIR\lib\mozilla\extensions\koextgen@activestate.com\install.rdf"/>
+                <File Id="file3925" Name="koextgen.jar" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\koextgen@activestate.com\koextgen.jar"/>
+              </Component>
+            </Directory> <!-- lib\mozilla\extensions\koextgen@activestate.com -->
+
             <Directory Id="directory238" Name="LUDDIT_0.COM" LongName="luddite_language@ActiveState.com">
               <Component Id="component225" DiskId="1" Guid="$(autowix.guid)">
                 <File Id="file4423" Name="CHROME_3.MAN" LongName="chrome.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\luddite_language@ActiveState.com\chrome.manifest"/>
