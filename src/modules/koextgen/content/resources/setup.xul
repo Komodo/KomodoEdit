@@ -56,7 +56,7 @@ function setup() {
       if(vars['id']) {
         var arr = vars.id.split('@');
         if(arr.length < 2) {
-          alert('Extension Id is not in the correct format?');
+          ko.dialogs.alert('Extension Id "' + vars.id + '" is not in the correct format?');
           return;
         }
         set_val('author-domain', arr[1]);
@@ -107,7 +107,7 @@ function teardown() {
 }
 
 function cancel() {
-  return confirm('Cancel Configuration?');
+  return true;
 }
 
 function keys(obj) {

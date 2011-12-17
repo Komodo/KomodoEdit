@@ -35,7 +35,31 @@ this.getTemplateContents = function(basename, targetName) {
     var sepDir = (!targetName ? "" : (targetName + "/"));
     var uri = "chrome://koextgen/content/resources/" + sepDir + basename;
     return this.readFile(uri);
-}
+};
+
+this.refTagSep = /<em:(?!type\b|min\b|max\b)([\w\d_\-\.]+).*?>([^<>]*)<\/em:/;
+this.getRDFVars = function(content) {
+    // Faked out XML parsing, since the RDF interface is inscrutable, and e4x is dead
+    var lines = content.split(/\r?\n/);
+    var i;
+    var lim = lines.length;
+    var skipUntil = null;
+    var line;
+    var results, ext_vars = {};
+    for (i = 0; i < lim; i++) {
+        line = lines[i];
+        if (skipUntil !== null) {
+            if (~line.indexOf(skipUntil)) {
+                skipUntil = null;
+            }
+        } else if (~line.indexOf("<em:targetApplication")) {
+            skipUntil = "</em:targetApplication";
+        } else if (!!(results = this.refTagSep.exec(line))) {
+            ext_vars[results[1]] = results[2];
+        }
+    }
+    return ext_vars;
+};
 
 this.readFile = function(filename) {
     // read the template file

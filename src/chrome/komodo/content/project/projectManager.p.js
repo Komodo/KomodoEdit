@@ -716,18 +716,27 @@ projectManager.prototype._finishUpdateProjectMenu = function(menuNode) {
 projectManager.prototype.loadTemplateMenuItems = function(event, menupopup) {
     //XXX: See places.js:initFilesContextMenu if there's a problem
     var childNodes = menupopup.childNodes;
-    while (childNodes[0].id != "menu_project_builtin_templates_separator") {
-        menupopup.removeChild(childNodes[0]);
-        if (childNodes.length == 0) {
-            // sanity check
+    var i = 0, childNode, lim = childNodes.length;
+    var refChild = null;
+    for (i = 0; i < lim; i++) {
+        childNode = childNodes[i]
+        if (childNode[0].id == "menu_project_builtin_templates_separator") {
+            refChild = childNode;
             break;
         }
+        if (childNode.getAttribute("keep") != "true") {
+            menupopup.removeChild(childNode);
+        }
+    }
+    if (refChild === null) {
+        ko.dialogs.internalError("Unexpected menu configuration",
+                                 "Komodo can't find menu_project_builtin_templates_separator in the templates menu.");
+        return false;
     }
     var templateSvc = Components.classes["@activestate.com/koTemplateService?type=project;1"].getService();
     templateSvc.loadTemplates();
     var tree = Components.classes["@mozilla.org/dom/json;1"]
     .createInstance(Components.interfaces.nsIJSON).decode(templateSvc.getJSONTree());
-    var refChild = childNodes[0];
     var needMenuSeparator = false;
     var menuitem;
     for (var i = 0; i < tree.length; i++) {

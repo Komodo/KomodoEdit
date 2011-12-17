@@ -23,10 +23,19 @@ var bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
             .getService(Components.interfaces.nsIStringBundleService)
             .createBundle("chrome://koextgen/locale/koextgen.properties");
 
+this.reconfigureExtGenProject = function() {
+    var project = ko.projects.manager.currentProject;
+    if (!project) {
+        ko.dialogs.alert("Unexpected error: invoking ")
+    }
+};
+
 this.createExtGenProject = function(targetName) {
+    try {
     var mainVersion = parseInt(Components.classes["@activestate.com/koInfoService;1"]
        .getService(Components.interfaces.koIInfoService).version.split('.')[0]);
     var project;
+    var projectURI;
     if (mainVersion < 7) {
         // Bug 90957 -- ko.projects.manager.createNewProject not in earlier versions, so use its code guts.
         var filename = ko.projects.manager._getNewProjectPath();
@@ -37,26 +46,27 @@ this.createExtGenProject = function(targetName) {
         project = Components.classes["@activestate.com/koProject;1"]
             .createInstance(Components.interfaces.koIProject);
         project.create();
-        project.url = uri;
+        project.url = projectURI = uri;
         if (!ko.projects.manager._saveNewProject(project)) {
             return;
         }
     } else {
         project = ko.projects.manager.createNewProject();
+        projectURI = project.url;
     }
     if (!project) {
         return;
     }
-    var projectURI = project.url;
     var projectFileEx = project.getFile();
     // Get the project's location, then from one point higher populate it.
     var projectPath = projectFileEx.path;
     var projectDirPath = projectFileEx.dirName;
-    var toolbox = ko.toolbox2.getProjectToolbox(project.url);
+    var toolbox = ko.toolbox2.getProjectToolbox(projectURI);
 
     var koExt = ko.koextgen.extensionLib;
     
     var prefset = project.prefset;
+    prefset.setStringPref("koextgen.target", targetName);
     var baseName = projectFileEx.baseName;
     var ext = projectFileEx.ext;
     baseName = baseName.substr(0, baseName.length - ext.length);
@@ -91,22 +101,34 @@ this.createExtGenProject = function(targetName) {
             var msg = 'Extension Project ' + data.vars.name + ' configured!';
             ko.statusBar.AddMessage(msg, 'project', 3000, true);
             ko.projects.manager.saveProject(project);
-
-            var buildMacroContents = ko.koextgen.extensionLib.getTemplateContents("build.js");
-            var buildMacro = ko.toolbox2.createPartFromType("macro");
-            buildMacro.name = 'Build';
-            buildMacro.value = buildMacroContents;
-            buildMacro.iconurl = "chrome://fugue/skin/icons/building--plus.png";
-            ko.toolbox2.addItem(buildMacro, toolbox, /*selectItem=*/true);
-            buildMacro.setBooleanAttribute('trigger_enabled', false);
             
-            buildMacro.setLongAttribute('rank', 100);
-            buildMacro.setBooleanAttribute('async', true);
-            buildMacro.setStringAttribute('language', "JavaScript");
-            buildMacro.save();
+            var macroInfo = [
+                ["build.js", "Build", "chrome://fugue/skin/icons/building--plus.png"],
+                ["reconfigure.js", "Reconfigure", "chrome://fugue/skin/icons/wrench.png"]
+            ];
+            macroInfo.forEach(function(parts) {
+                var fname = parts[0];
+                var macroName = parts[1];
+                var iconURI = parts[2];
+                var buildMacroContents = ko.koextgen.extensionLib.getTemplateContents(fname);
+                var buildMacro = ko.toolbox2.createPartFromType("macro");
+                buildMacro.name = macroName;
+                buildMacro.value = buildMacroContents;
+                buildMacro.iconurl = iconURI;
+                ko.toolbox2.addItem(buildMacro, toolbox, /*selectItem=*/true);
+                buildMacro.setBooleanAttribute('trigger_enabled', false);
+                
+                buildMacro.setLongAttribute('rank', 100);
+                buildMacro.setBooleanAttribute('async', true);
+                buildMacro.setStringAttribute('language', "JavaScript");
+                buildMacro.save();
+            });
         } else {
             alert('Error encountered: '+koExt.error+"\nConfiguration aborted.");
         }
+    }
+    } catch(ex) {
+        dump("\n\n*** Error in createExtProject: " + ex + "\n");
     }
 };
 }).apply(ko.koextgen);
