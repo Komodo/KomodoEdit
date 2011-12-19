@@ -85,7 +85,7 @@ interface koINotificationManager : nsISupports {
      *          
      */
     void getNotifications([array, size_is(aContextCount)]
-                            in nsISupports aContexts,
+                            in wstring aContexts,
                           in PRUint32 aContextCount,
                           [optional] in ACString aIdentifier,
                           [optional] out PRUint32 aResultCount,
@@ -119,7 +119,7 @@ interface koINotificationManager : nsISupports {
     koINotification createNotification(in ACString aIdentifier,
                                        [array, size_is(aTagCount)] in string aTags,
                                        in PRUint32 aTagCount,
-                                       [optional] in nsISupports aContext,
+                                       [optional] in wstring aContext,
                                        [optional] in PRUint32 aTypes);
     /**
      * Create a koINotificationActionable notification

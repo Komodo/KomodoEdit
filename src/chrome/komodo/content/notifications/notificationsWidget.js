@@ -176,7 +176,7 @@ this._updateThrobber = (function NWC__updateThrobber() {
 this.onNotification = (function NWC_onNotification(notification, oldIndex, newIndex, reason) {
   switch (reason) {
     case Ci.koINotificationListener.REASON_ADDED:
-      if (!notification.contxt || notification.contxt == parent) {
+      if (!notification.contxt || notification.contxt == this._context) {
         this.addNotification(notification);
       }
       break;
@@ -317,6 +317,15 @@ XPCOMUtils.defineLazyGetter(this, "container",
 
 XPCOMUtils.defineLazyGetter(this, "_throbber",
                             function() top.document.getElementById("statusbar-notifications-button"));
+
+/**
+ * The context value for this window
+ */
+XPCOMUtils.defineLazyGetter(this, "_context",
+                            function() "window-" +
+                              parent.QueryInterface(Ci.nsIInterfaceRequestor)
+                                    .getInterface(Ci.nsIDOMWindowUtils)
+                                    .outerWindowID);
 
 /**
  * The global prefs service

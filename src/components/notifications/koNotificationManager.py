@@ -179,7 +179,7 @@ class KoNotificationManager:
     def createNotification(self, aIdentifier, aTags, aContext, aTypes):
         log.debug("createNotification: id=%r tags=%r cxt=%r types=%r",
                   aIdentifier, aTags, aContext, aTypes)
-        context = self._wrap(aContext) if aContext else None
+        context = unicode(aContext) if aContext else None
         with self._lock:
             for notification in self._notifications:
                 assert notification == self._wrap(notification), \

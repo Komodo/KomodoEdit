@@ -62,7 +62,16 @@ function KoNotificationManagerWrapper(aContext) {
   // we define .context oddly like this so that it doesn't get enumerated;
   // this makes for each (i in this) properly give just the notifications
   Object.defineProperty(this, "context", {
-    value: typeof(aContext) == "undefined" ? null : aContext,
+    value: (function() {
+      if (!aContext) return null;
+      if (aContext instanceof Ci.nsIInterfaceRequestor) {
+        var winUtils = aContext.getInterface(Ci.nsIDOMWindowUtils);
+        if (winUtils) {
+          return "window-" + winUtils.outerWindowID;
+        }
+      }
+      return String(aContext);
+    })(),
     enumerable: false,
   });
 }

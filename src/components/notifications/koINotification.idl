@@ -22,11 +22,11 @@ interface koINotification : nsISupports {
      */
     readonly attribute ACString identifier;
     /**
-     * A notification-specific context. This is normally either a window (for
-     * window-specific notifications) or null (for app-wide notifications).
+     * A notification-specific context. This is typically an outer window ID
+     * (for a window-specific notification) or null.
      * (Sorry, "context" is a reserved word in XPIDL)
      */
-    readonly attribute nsISupports contxt;
+    readonly attribute wstring contxt;
     /**
      * An icon to use for the notification. Note that this may appear at various sizes
      */

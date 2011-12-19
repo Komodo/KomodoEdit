@@ -150,7 +150,7 @@ class NotificationManagerTestCase(unittest.TestCase):
             notif2 = self.nm.createNotification("test-notif-repeat", ["some", "tag"])
             self.assertEquals(notif1, notif2) # same identifier + context
             notif3 = self.nm.createNotification("test-notif-repeat", ["some", "tag"],
-                                                components.classes["@mozilla.org/array;1"].createInstance())
+                                                str(time.time()))
             self.assertNotEquals(notif1, notif3) # different context
         finally:
             self.nm.removeNotification(notif1)
@@ -224,17 +224,15 @@ class NotificationManagerTestCase(unittest.TestCase):
                 notif.severity = 1
             self.assertEquals(notif.severity, 1)
 
-            notif2 = self.nm.createNotification("notif-basic", [], self)
+            context = str(time.time())
+            notif2 = self.nm.createNotification("notif-basic", [], context)
             self.assertNotEquals(notif, notif2) # different context
-            sip = components.classes["@mozilla.org/supports-interface-pointer;1"]\
-                            .createInstance(Ci.nsISupportsInterfacePointer)
-            sip.data = self
-            self.assertEquals(notif2.contxt, sip.data)
+            self.assertEquals(notif2.contxt, context)
             with self.check_called(notif2, new_index=1,
                                    reason=Ci.koINotificationListener.REASON_ADDED):
                 self.nm.addNotification(notif2)
 
-            notif3 = self.nm.createNotification("notif-basic", [], self)
+            notif3 = self.nm.createNotification("notif-basic", [], context)
             self.assertEquals(notif2, notif3) # same context
             
             self.assertEquals(self.nm.getAllNotifications(), [notif, notif2])
@@ -337,12 +335,7 @@ class NotificationManagerTestCase(unittest.TestCase):
     def test_10_get_filtered(self):
         """Test getting notifications by contexts and identifiers"""
         self.assertEquals(self.nm.notificationCount, 0)
-        all_contexts = [None]
-        for i in range(1, 6):
-            context = components.classes["@mozilla.org/supports-PRInt32;1"]\
-                                .createInstance(Ci.nsISupportsPRInt32)
-            context.data = i
-            all_contexts.append(context)
+        all_contexts = [None] + map(str, range(1, 6))
         all_notifications = []
         try:
             for i in range(10 * len(all_contexts)):
@@ -358,7 +351,7 @@ class NotificationManagerTestCase(unittest.TestCase):
                     if context is None:
                         self.assertEquals(int(notification.identifier) % len(all_contexts), 0)
                     else:
-                        self.assertEquals(int(notification.identifier) % len(all_contexts), context.data)
+                        self.assertEquals(int(notification.identifier) % len(all_contexts), int(context))
                 self.assertEquals(len(notifications), 10 * len(contexts))
 
             for length in range(1, len(all_contexts) + 1):
