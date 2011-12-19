@@ -3659,7 +3659,7 @@ class BuildPlatform(black.configure.Datum):
 
     def _Determine_Do(self):
         self.applicable = 1
-        self.value = platinfo.platname("os", "libcpp", "arch")
+        self.value = platinfo.platname("os", "arch")
         self.determined = 1
 
 class BuildTime(black.configure.Datum):
