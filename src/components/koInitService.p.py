@@ -198,7 +198,8 @@ def _mkdir(newdir):
             os.mkdir(newdir)
 
 
-def _copy(src, dst, overwriteExistingFiles=True, ignoreErrors=False):
+def _copy(src, dst, overwriteExistingFiles=True, ignoreErrors=False,
+          ignoredDirNames=None):
     """works the way a good copy should :)
         - no source, raise an exception
         - destination directory, make a file in that dir named after src
@@ -254,6 +255,9 @@ def _copy(src, dst, overwriteExistingFiles=True, ignoreErrors=False):
             # make the new 'dstFile' writeable
             os.chmod(dstFile, mode)
         elif _isdir(srcFile):
+            if ignoredDirNames and os.path.basename(srcFile) in ignoredDirNames:
+                log.info("Ignoring directory %r", srcFile)
+                continue
             srcFiles = os.listdir(srcFile)
             if not os.path.exists(dst):
                 _mkdir(dst)
@@ -262,7 +266,8 @@ def _copy(src, dst, overwriteExistingFiles=True, ignoreErrors=False):
                 d = os.path.join(dst, f)
                 try:
                     _copy(s, d, overwriteExistingFiles=overwriteExistingFiles,
-                          ignoreErrors=ignoreErrors)
+                          ignoreErrors=ignoreErrors,
+                          ignoredDirNames=ignoredDirNames)
                 except (IOError, os.error), why:
                     if ignoreErrors:
                         log.warn("Failed to copy %r to %r - %r", s, d, why)
@@ -910,24 +915,13 @@ class KoInitService(object):
     def _upgradeXREDir(self, prevXREDir, currXREDir):
         if os.path.exists(prevXREDir):
             log.debug("upgrading XRE directory")
+            ignoredDirNames = [
+                # Bug 90294: klint is replaced by a builtin extension in 7.0a3
+                # Ensure we don't upgrade the user-profile version of it.
+                "klint@dafizilla.sourceforge.net"
+            ]
             _copy(prevXREDir, currXREDir, overwriteExistingFiles=False,
-                  ignoreErrors=True)
-            klintDir = os.path.join(currXREDir, "klint@dafizilla.sourceforge.net")
-            # Bug 90294: klint is replaced by a builtin extension in 7.0a3
-            # If people later install their own klint in this dir, don't delete it.
-            # The last version that would have this version is 7.0.0a2
-            prevXREVersion = float(os.path.basename(os.path.dirname(prevXREDir)))
-            currXREVersion = float(os.path.basename(os.path.dirname(currXREDir)))
-            if (prevXREVersion <= 7.01
-                and abs(currXREVersion - 7.0) <= 0.01  # floating pt math...
-                and os.path.exists(klintDir)):
-                try:
-                    import shutil
-                    shutil.rmtree(klintDir)
-                except:
-                    log.exception("Can't remove old klint extension directory %s.  This should be manually removed.",
-                                  klintDir)
-                
+                  ignoreErrors=True, ignoredDirNames=ignoredDirNames)
 
     def _upgradeUserDataDirFiles(self):
         """Upgrade files under the USERDATADIR if necessary.
