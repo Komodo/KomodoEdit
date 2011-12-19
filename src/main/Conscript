@@ -273,8 +273,13 @@ if (!$xulrunner) {
     $cons->Install("$mozBin/defaults/pref", "xre/app/profile/channel-prefs.js");
     
     
-    $cons->Command([$mozExe, "$mozChromeDir/icons/default/default.xpm"],
-                   $buildCmd);
+    my $buildOutputs;
+    if ($platform eq "win" || $platform eq "darwin") {
+        $buildOutputs = ["$mozExe"];
+    } else {
+        $buildOutputs = ["$mozExe", "$mozChromeDir/icons/default/default.xpm"];
+    }
+    $cons->Command($buildOutputs, $buildCmd);
     # Make sure we run before the regxpcom process (which currently tries to
     # do this build). (XXX Not sure this is necessary any more.)
     $cons->Depends($ranRegxpcomStateFileName, $mozExe);
