@@ -110,5 +110,4 @@ def test_main():
     runner.run(suite())
 
 if __name__ == "__main__":
-    __file__ = os.path.abspath(sys.argv[0]) # won't be necessary in Python 2.3
     test_main()
