@@ -75,8 +75,7 @@ g_pretty_platname_from_platname = {
     "macosx-x86": "Mac OS X/Intel",
     "macosx-powerpc": "Mac OS X/PowerPC",
     "linux-x86": "Linux/x86",
-    "linux-x86": "Linux/x86 libstdc++6",
-    "linux-x86_64": "Linux/x86_64 libstdc++6",
+    "linux-x86_64": "Linux/x86_64",
 }
 
 g_simple_platform_name_from_os = {
