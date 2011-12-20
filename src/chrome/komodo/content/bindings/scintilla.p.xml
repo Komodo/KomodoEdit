@@ -167,8 +167,10 @@
             <field name="_log">null</field>
             <property name="log">
                 <getter><![CDATA[
-                if (!this._log)
+                if (!this._log) {
                     this._log = ko.logging.getLogger('scintilla');
+                    //this._log.setLevel(ko.logging.LOG_DEBUG);
+                }
                 return this._log;
                 ]]></getter>
             </property>
@@ -968,6 +970,7 @@
 /* #endif */
                 ]]>
             </handler>
+
             <handler event="mousemove">
                 <![CDATA[
             try {
@@ -1103,151 +1106,190 @@
 
             <handler event="drop">
                 <![CDATA[
-                //dump("scintilla: drop\n");
+                //dump("scintilla:: drop\n");
+                this.log.info("drop");
 
-<!-- #if PLATFORM == "darwin" -->
-                if (this._inMouseDown != -1) {
-                    // As scimoz won't get a mouseup event when dropped.
-                    this.scimoz.buttonUp( this._lastMousePos[0], this._lastMousePos[1], this._inMouseDown, 0, 0, 0);
-                    this._inMouseDown = -1;
-                }
-<!-- #endif -->
+                try {
 
-<!-- #if PLATFORM != "darwin" -->
-                this._dragScrollHits = 0;
-<!-- #endif -->
-                var dataTransfer = event.dataTransfer;
-                if (!dataTransfer.mozItemCount) {
-                    // Nothing to do.
-                    this.scimoz.dragPosition = -1;
-                    return false;
-                }
+                    /* #if PLATFORM == "darwin" */
+                        var buttonForFakeMouseUp = -1;
+                        if (this._inMouseDown != -1) {
+                            // On Mac only, scimoz won't get a mouseup event
+                            // on drop. Mark ourselves as no longer being in
+                            // mousedown; but we only dispatch a fake mouseup
+                            // when we exit this handler, so that we don't
+                            // accidentally clear the selection while we still
+                            // need to handle the drop. See bug 89902, bug 87945
+                            buttonForFakeMouseUp = this._inMouseDown;
+                            this._inMouseDown = -1;
+                        }
+                    /* #endif */
 
-                var x = event.clientX < 0 ? 0 : event.clientX - this.boxObject.x;
-                var y = event.clientY - this.boxObject.y; // Must allow this to be -ve so we scroll up
-                var scimoz = this.scimoz;
-                var pos = scimoz.positionFromPoint(x, y);
-                var onselection = (pos > scimoz.selectionStart &&
-                                    pos < scimoz.selectionEnd);
-
-                scimoz.dragPosition = -1;
-                var text;
-                if (ko && typeof(ko.dragdrop) != 'undefined') {
-                    // Allows for text/html drop types as well.
-                    var dropFlavours = ko.dragdrop.genericSupportedFlavours.concat("text/html");
-                    dropFlavours.unshift('application/x-komodo-snippet');
-                    var koDragDropList = ko.dragdrop.unpackDropData(event.dataTransfer, dropFlavours);
-                    if (!koDragDropList) {
-                        // Cannot handle any of the dropped data.
+                    /* #if PLATFORM != "darwin" */
+                        this._dragScrollHits = 0;
+                    /* #endif */
+                    var dataTransfer = event.dataTransfer;
+                    if (!dataTransfer.mozItemCount) {
+                        // Nothing to do.
+                        this.scimoz.dragPosition = -1;
                         return false;
                     }
-                    var unhandledDropData = ko.dragdrop.openDroppedUrls(koDragDropList);
-                    if (unhandledDropData.length == 0) {
-                        // The generic Komodo drop handler did all the work.
-                        event.preventDefault();
-                        event.stopPropagation();
-                        return true;
-                    }
 
-                    if (unhandledDropData.length > 1) {
-                        this.log.warn('onDrop:: received multiple drop data, ' +
-                                      'only handling the first one.');
-                    }
-                    var koDropData;
-                    for (var i=0; i < unhandledDropData.length; i++) {
-                        koDropData = unhandledDropData[i];
-                        if (koDropData.isSnippet && koDropData.snippet) {
-                            if (!onselection) {
-                                scimoz.gotoPos(pos);
+                    var x = event.clientX < 0 ? 0 : event.clientX - this.boxObject.x;
+                    var y = event.clientY - this.boxObject.y; // Must allow this to be -ve so we scroll up
+                    var scimoz = this.scimoz;
+                    var pos = scimoz.positionFromPoint(x, y);
+                    var onselection = (pos > scimoz.selectionStart &&
+                                        pos < scimoz.selectionEnd);
+
+                    scimoz.dragPosition = -1;
+                    var text;
+                    if (ko && typeof(ko.dragdrop) != 'undefined') {
+                        // Allows for text/html drop types as well.
+                        var dropFlavours = ko.dragdrop.genericSupportedFlavours.concat("text/html");
+                        dropFlavours.unshift('application/x-komodo-snippet');
+                        var koDragDropList = ko.dragdrop.unpackDropData(event.dataTransfer, dropFlavours);
+                        if (!koDragDropList) {
+                            // Cannot handle any of the dropped data.
+                            this.log.info("scintilla: drop:: no data to handle\n");
+                            return false;
+                        }
+                        var unhandledDropData = ko.dragdrop.openDroppedUrls(koDragDropList);
+                        if (unhandledDropData.length == 0) {
+                            // The generic Komodo drop handler did all the work.
+                            this.log.info("scintilla: drop:: generic drop handler did the work\n");
+                            event.preventDefault();
+                            event.stopPropagation();
+                            return true;
+                        }
+
+                        this.log.info("scintilla: drop:: unhandledDropData.length: " + unhandledDropData.length + "\n");
+                        if (unhandledDropData.length > 1) {
+                            this.log.warn('onDrop:: received multiple drop data, ' +
+                                          'only handling the first one.');
+                        }
+                        var koDropData;
+                        for (var i=0; i < unhandledDropData.length; i++) {
+                            koDropData = unhandledDropData[i];
+                            if (koDropData.isSnippet && koDropData.snippet) {
+                                if (!onselection) {
+                                    scimoz.gotoPos(pos);
+                                }
+                                ko.projects.snippetInsert(koDropData.snippet);
+                                // We handled the snippet.
+                                event.preventDefault();
+                                event.stopPropagation();
+                                return true;
                             }
-                            ko.projects.snippetInsert(koDropData.snippet);
-                            // We handled the snippet.
-                            event.preventDefault();
-                            event.stopPropagation();
-                            return true;
-                        }
-                        if (koDropData.isHTML && koDropData.alternatives["text/plain"]) {
-                            // TODO: Should have some UI to choose between the
-                            // HTML version and the text version. For now we
-                            // just take the text.
-                            this.log.info("Both text and HTML data available - choosing text");
-                            text = koDropData.alternatives["text/plain"].value;
-                        } else {
-                            text = koDropData.dragData;
-                        }
-                        break;
-                    }
-                } else {
-                    // Get the first supported drop data.
-                    text = dataTransfer.mozGetDataAt(dataTransfer.mozTypesAt(0)[0], 0);
-                }
-
-                if (!text) {
-                    // Nothing to handle.
-                    return false;
-                }
-
-                // rules:
-                // 1. if it's a snippet, use the regular snippet handler to insert it
-                // 2. if from outside scimoz
-                //   a. dropped on selection, replace selection
-                //   b. insert text
-                // 3. if from inside scimoz (startdragdrop == true)
-                //   a. if droped on selection, cancel
-                //   b. if action copy, insert text
-                //   c. if action move, remove old, insert text
-
-                // first, convert line endings the correct style for this
-                // document, since the text could have come from anywhere
-                var eol = [];
-                eol[Components.interfaces.ISciMoz.SC_EOL_CR] = '\r';
-                eol[Components.interfaces.ISciMoz.SC_EOL_CRLF] = '\r\n';
-                eol[Components.interfaces.ISciMoz.SC_EOL_LF] = '\n';
-                text = text.replace(/(\r\n|\n|\r)/g, eol[scimoz.eOLMode]);
-                var endUndoAction = true;
-                scimoz.beginUndoAction();
-                try {
-                    if (this.inDragDrop) 
-                    {
-                        // data from inside scimoz
-                        if (onselection) {
-                            event.preventDefault();
-                            event.stopPropagation();
-                            return true;
-                        }
-                        var start = scimoz.selectionStart;
-                        var length = scimoz.selectionEnd - start;
-                        if (event.dataTransfer.dropEffect != "copy") {
-                            scimoz.replaceSel(''); // remove the dragged text
-                            if (start < pos) pos -= length; // adjust where we insert our data
+                            if (koDropData.isHTML && koDropData.alternatives["text/plain"]) {
+                                // TODO: Should have some UI to choose between the
+                                // HTML version and the text version. For now we
+                                // just take the text.
+                                this.log.info("Both text and HTML data available - choosing text");
+                                text = koDropData.alternatives["text/plain"].value;
+                            } else {
+                                text = koDropData.dragData;
+                            }
+                            break;
                         }
                     } else {
-                        // data from outside scimoz
-                        if (onselection) {
-                            pos = scimoz.selectionStart;
-                            scimoz.replaceSel('');
+                        // Get the first supported drop data.
+                        text = dataTransfer.mozGetDataAt(dataTransfer.mozTypesAt(0)[0], 0);
+                    }
+                    this.log.info("scintilla: drop:: text: " + text + "\n");
+
+                    if (!text) {
+                        // Nothing to handle.
+                        return false;
+                    }
+
+                    // rules:
+                    // 1. if it's a snippet, use the regular snippet handler to insert it
+                    // 2. if from outside scimoz
+                    //   a. dropped on selection, replace selection
+                    //   b. insert text
+                    // 3. if from inside scimoz (startdragdrop == true)
+                    //   a. if droped on selection, cancel
+                    //   b. if action copy, insert text
+                    //   c. if action move, remove old, insert text
+
+                    // first, convert line endings the correct style for this
+                    // document, since the text could have come from anywhere
+                    var eol = [];
+                    eol[Components.interfaces.ISciMoz.SC_EOL_CR] = '\r';
+                    eol[Components.interfaces.ISciMoz.SC_EOL_CRLF] = '\r\n';
+                    eol[Components.interfaces.ISciMoz.SC_EOL_LF] = '\n';
+                    text = text.replace(/(\r\n|\n|\r)/g, eol[scimoz.eOLMode]);
+                    var endUndoAction = true;
+                    scimoz.beginUndoAction();
+                    try {
+                        if (this.inDragDrop) 
+                        {
+                            // data from inside scimoz
+                            if (onselection) {
+                                event.preventDefault();
+                                event.stopPropagation();
+                                return true;
+                            }
+                            var start = scimoz.selectionStart;
+                            var length = scimoz.selectionEnd - start;
+                            if (event.dataTransfer.dropEffect == "move") {
+                                scimoz.replaceSel(''); // remove the dragged text
+                                if (start < pos) pos -= length; // adjust where we insert our data
+                            }
                         } else {
-                            scimoz.gotoPos(pos);
+                            // data from outside scimoz
+                            if (onselection) {
+                                pos = scimoz.selectionStart;
+                                scimoz.replaceSel('');
+                            } else {
+                                scimoz.gotoPos(pos);
+                            }
+                        }
+
+                        /* #if PLATFORM == "darwin" */
+                            if (buttonForFakeMouseUp != -1) {
+                                // On Mac only, we need a fake mouse up event to
+                                // scimoz; send this now, so that we don't screw
+                                // up cursor positions afterwards.
+                                // See bug 89902, bug 87945
+                                let [x,y] = this.getClientCoordinates(event);
+                                this.scimoz.buttonUp(x, y, buttonForFakeMouseUp,
+                                                     0, 0, 0);
+                                buttonForFakeMouseUp = -1;
+                            }
+                        /* #endif */
+
+                        this.focus();
+                        // Bug 81413: This must be done after `this.focus()`.
+                        // Don't know what about `this.focus()` is resetting the
+                        // current position.
+                        scimoz.insertText(pos, text);
+                        scimoz.selectionStart = pos;
+                        scimoz.selectionEnd = pos+ko.stringutils.bytelength(text);
+                    } finally {
+                        if (endUndoAction) {
+                            scimoz.endUndoAction();
                         }
                     }
-                    this.focus();
-                    // Bug 81413: This must be done after `this.focus()`.
-                    // Don't know what about `this.focus()` is resetting the
-                    // current position.
-                    scimoz.insertText(pos, text);
-                    scimoz.selectionStart = pos;
-                    scimoz.selectionEnd = pos+ko.stringutils.bytelength(text);
-                } finally {
-                    if (endUndoAction) {
-                        scimoz.endUndoAction();
-                    }
-                }
-                scimoz.endDrop();
+                    scimoz.endDrop();
 
-                // We're handling all (or at least part) of this drop data.
-                event.preventDefault();
-                event.stopPropagation();
-                return true;
+                    // We're handling all (or at least part) of this drop data.
+                    event.preventDefault();
+                    event.stopPropagation();
+                    return true;
+                } finally {
+                    /* #if PLATFORM == "darwin" */
+                        if (buttonForFakeMouseUp != -1) {
+                            // On Mac only, we need to dispatch a fake mouse up
+                            // event to scimoz as it wouldn't get a real one.
+                            // See bug 89902, bug 87945
+                            let [x,y] = this.getClientCoordinates(event);
+                            this.scimoz.buttonUp(x, y, buttonForFakeMouseUp,
+                                                 0, 0, 0);
+                        }
+                    /* #endif */
+                }
                 ]]>
             </handler>
 
