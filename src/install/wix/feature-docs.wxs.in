@@ -133,6 +133,7 @@
               <File Id="file452" LongName="sections_list.html" Name="SECTIO_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\sections_list.html" />
               <File Id="file441" LongName="shortcuts.html" Name="SHORTC_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\shortcuts.html" />
               <File Id="file442" LongName="snippets.html" Name="SNIPPE_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\snippets.html" />
+              <File Id="file3925" Name="STACKA_0.HTM" LongName="stackato.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\stackato.html"/>
               <File Id="file1266" LongName="sync.html" Name="SYNC_0.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\sync.html" />
               <File Id="file551" Name="TABSTO_0.HTM" LongName="tabstops.html" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\tabstops.html"/>
               <File Id="file443" LongName="templates.html" Name="TEMPLA_2.HTM" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\templates.html" />
