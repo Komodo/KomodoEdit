@@ -139,6 +139,14 @@ toolbar[mode="full"] > toolbaritem > toolbarbutton {
 }
 
 /**
+ * No menu icons on mac please
+ */
+#toolbar-menubar menu.menu-iconic,
+#toolbar-menubar menuitem.menuitem-iconic {
+  list-style-image: none;
+}
+
+/**
  * Put toolbar buttons in a bordered box.
  */
 #toolbox_main[mode]:not([mode="full"]) :not(toolbarbutton) > toolbarbutton,
