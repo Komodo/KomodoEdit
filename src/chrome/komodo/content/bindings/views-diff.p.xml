@@ -380,20 +380,26 @@
             <body><![CDATA[
                 // Walk up the window parent chain till we find a main Komodo
                 // window that supports view opening - bug 88078.
-                var ko_api = window.opener.ko;
-                var opener = window.opener;
-                while (!ko_api.views && opener) {
-                    opener = opener.opener;
-                    if (opener) {
-                        ko_api = opener.ko;
-                    }
+                var ko = null, win = window;
+                while (win && (!ko || !ko.views)) {
+                    ko = win.ko;
+                    win = win.opener;
                 }
-                if (!ko_api.views) {
+                if (!ko || !ko.views) {
+                    // Failed to find ko.* via openers; use any window we can
+                    // find.  See bug 91696.
+                    win = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                                    .getService(Components.interfaces.nsIWindowMediator)
+                                    .getMostRecentWindow("Komodo");
+                    ko = win.ko;
+                }
+                if (!ko || !ko.views) {
+                    // Ugh, we can't find a useful editor to move to
                     this.log.error("No parent editor view found for diff window");
                     return;
                 }
                 var text = this.scimoz.text;
-                ko_api.views.manager.doNewViewAsync('Diff', 'editor', function(view) {
+                ko.views.manager.doNewViewAsync('Diff', 'editor', function(view) {
                     view.koDoc.buffer = text;
                     view.koDoc.isDirty = false;
                 });
