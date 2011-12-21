@@ -1978,6 +1978,7 @@ class GenericCommandHandler:
         sm.vCHomeWrap()
         self._do_cmd_newline()
         sm.lineUp()
+        sm.vCHomeWrap()
 
     def _do_cmd_swapCase(self):
         sm = self._view.scimoz
