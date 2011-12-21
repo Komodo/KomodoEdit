@@ -946,9 +946,15 @@ test_vi_emulation.prototype.test_insert_commands = function() {
     this._runCommand("insert_newline_previous",
                      ["this is\r\nmy bu<|>ffer\r\n",
                       "this is\r\n<|>\r\nmy buffer\r\n"]);
+    this._runCommand("insert_newline_previous",
+                     ["    this is\r\n    my bu<|>ffer\r\n",
+                      "    this is\r\n    <|>\r\n    my buffer\r\n"]);
     this._runCommand("insert_newline_next",
                      ["this is\r\nmy bu<|>ffer\r\n",
                       "this is\r\nmy buffer\r\n<|>\r\n"]);
+    this._runCommand("insert_newline_next",
+                     ["    this is\r\n    my bu<|>ffer\r\n",
+                      "    this is\r\n    my buffer\r\n    <|>\r\n"]);
     this._runOperationCommands("append",
                                "this is\r\nmy bu<|>f<1>fer\r\n");
     //log.setLevel(Casper.Logging.DEBUG);
