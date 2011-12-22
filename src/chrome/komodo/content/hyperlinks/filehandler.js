@@ -180,8 +180,8 @@
     ko.hyperlinks.handlers.fileHandler =
         new ko.hyperlinks.RegexHandler(
             "File handler",
-            new RegExp(_is_windows ? "(file:|[\\.]{1,2}/|/|[A-Z]:\\\\|\\\\\\\\)[^'\"<>()[\\]\\s]+"
-                                   : "(file:|[\\.]{1,2}/|/)[^'\"<>()[\\]\\s]+",
+            new RegExp(_is_windows ? "(file:|[\\.]{1,2}/|/|[A-Z]:\\\\|\\\\\\\\)[^'\"<>(){}[\\]\\$\\s]+"
+                                   : "(file:|[\\.]{1,2}/|/)[^'\"<>(){}[\\]\\$\\s]+",
                        "i"),
             function(match, arg) { filename_jump_handler(arg); },
             null,  /* Use the found string instead of a replacement. */
