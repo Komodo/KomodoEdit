@@ -1292,6 +1292,8 @@ viewManager.prototype.do_cmd_closeAll = function() {
         // bug 85489.
         this._doCloseViews(null /* all */, false, false,  /* doNotOfferToSave */ true);
     }
+    // Ensure the title bar is correctly set - bug 91958.
+    ko.uilayout.updateTitlebar(this.currentView);
 }
 
 /**
