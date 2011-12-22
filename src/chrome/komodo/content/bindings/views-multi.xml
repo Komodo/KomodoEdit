@@ -514,14 +514,14 @@
             // directly within an observer that is called from an event, so we
             // have to do a timeout for it to work.  The timeout must also be > 0.
             if (view == this.currentView && this.otherView.currentView) {
-                window.setTimeout(function(newView) {
+                window.setTimeout(function(newView, log) {
                     try {
                         newView.makeCurrent();
                         xtk.domutils.fireEvent(newView, 'current_view_changed');
                     } catch(ex) {
-                        this.log.exception(ex);
+                        log.exception(ex);
                     }
-                }, 1, this.otherView.currentView);
+                }, 1, this.otherView.currentView, this.log);
             } else if (view == this.otherView && this.currentView.currentView) {
                 // XXX this isn't working, and doing a timeout similar to the above
                 // always fails.  This at least gets partial focus back to the
