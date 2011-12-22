@@ -261,6 +261,7 @@ class KoWebbrowser(object):
         "opera": "opera",
         "safari": "safari",
         "googlechrome": "chrome",
+        "chromium": "chromium",
         "konqueror": "konqueror",
         "kfm": "kfm",
     }
@@ -269,6 +270,7 @@ class KoWebbrowser(object):
     elif sys.platform != "darwin":
         _exe_name_from_browser_type['flock'] = 'flock-bin'
         _exe_name_from_browser_type['googlechrome'] = 'google-chrome'
+        _exe_name_from_browser_type['chromium'] = 'chromium-browser'
     else:
         _mac_app_name_from_browser_type = {
             "firefox": "Firefox",
@@ -356,6 +358,7 @@ class KoWebbrowser(object):
                                  "internetexplorer",
                                  "safari",
                                  "googlechrome",
+                                 "chromium",
                                  "opera",
                                  "mozilla",
                                  "msnexplorer",
@@ -372,6 +375,7 @@ class KoWebbrowser(object):
                                  "safari",
                                  "camino",
                                  "googlechrome",
+                                 "chromium",
                                  "opera",
                                  "mozilla",
                                  "flock"):
@@ -385,6 +389,7 @@ class KoWebbrowser(object):
                                  "konqueror",
                                  "mozilla",
                                  "googlechrome",
+                                 "chromium",
                                  "opera",
                                  "flock",
                                  "kfm"):
