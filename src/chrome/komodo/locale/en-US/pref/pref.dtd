@@ -799,7 +799,9 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 
 <!--pref-save.xul-->
 <!ENTITY fixWhiteSpace.label "Fix whitespace on save:">
-<!ENTITY autoSaveEvery.label "Auto-save every">
+<!ENTITY autoSave.caption "Auto-recovery">
+<!ENTITY autoSaveEvery.desc "When enabled, auto-recovery will create a temporary backup of any unsaved files in case Komodo does not shutdown correctly. Upon next start, any auto-recovery files that were not correctly saved will then be restored.">
+<!ENTITY autoSaveEvery.label "Create recovery info every">
 <!ENTITY secondsZeroDisables.label "seconds (0 to disable)">
 <!ENTITY ifFileNameHasNoExtension.label "If filename has no extension:">
 

@@ -70,11 +70,6 @@
                             label="&ensureFileEndsWithEOLMarker.label;"
                             pref="true"/>
             <separator/>
-            <hbox align="center">
-                <label value="&autoSaveEvery.label;"/>
-                <textbox id="autoSaveSeconds" size="4" pref="true"/>
-                <label value="&secondsZeroDisables.label;"/>
-            </hbox>
             <separator/>
             <label value="&ifFileNameHasNoExtension.label;"/>
             <menulist pref="true" prefattribute="data"
@@ -87,6 +82,17 @@
             </menulist>
         </groupbox>
 
+        <groupbox orient="vertical">
+            <caption label="&autoSave.caption;"/>
+            <description>
+                &autoSaveEvery.desc;
+            </description>
+            <hbox align="center">
+                <label value="&autoSaveEvery.label;"/>
+                <textbox id="autoSaveSeconds" size="4" pref="true"/>
+                <label value="&secondsZeroDisables.label;"/>
+            </hbox>
+        </groupbox>
     </vbox>
 
 </window>
