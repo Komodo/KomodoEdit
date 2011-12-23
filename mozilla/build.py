@@ -1390,20 +1390,8 @@ def target_configure(argv):
             mozBuildOptions.append("disable-tests")
 
         if buildType == "release":
-            if sys.platform.startswith("linux"):
-                mozBuildOptions.append('enable-optimize=-O2') # default -O
-
-            if sys.platform == 'darwin':
-                if config["optimizeForG4"]:
-                    mozBuildOptions.append('enable-optimize="-Os -faltivec -mcpu=7400 -mtune=7400 -mpowerpc -mpowerpc-gfxopt"') # default -O
-                else:
-                    # moz.org uses -O2 with gcc
-                    mozBuildOptions.append('enable-optimize=-O2') # default -O
-            else:
-                # -O2 buggy, moz.org does not use -O2
-                mozBuildOptions.append('enable-optimize')
+            mozBuildOptions.append('enable-optimize')
             mozBuildOptions.append('disable-debug')
-            mozBuildOptions.append('disable-dtd-debug')
         elif buildType == "debug":
             mozBuildOptions.append('enable-debug')
             mozBuildOptions.append('disable-optimize')
