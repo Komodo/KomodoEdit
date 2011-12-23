@@ -74,7 +74,7 @@ from codeintel2.gencix_utils import *
 from codeintel2.tree_php import PHPTreeEvaluator
 from codeintel2.langintel import (ParenStyleCalltipIntelMixin,
                                   ProgLangTriggerIntelMixin)
-from codeintel2.accessor import AccessorCache
+from codeintel2.accessor import AccessorCache, KoDocumentAccessor
 
 if _xpcom_:
     from xpcom.server import UnwrapObject
@@ -1168,12 +1168,13 @@ class PHPBuffer(UDLBuffer, XMLParsingBufferMixin):
 
     def __init__(self, *args, **kwargs):
         super(PHPBuffer, self).__init__(*args, **kwargs)
-        
-        # Encourage the database to pre-scan dirs relevant to completion
-        # for this buffer -- because of recursive-dir-include-everything
-        # semantics for PHP this first-time scan can take a while.
-        request = PreloadBufLibsRequest(self)
-        self.mgr.idxr.stage_request(request, 1.0)
+
+        if isinstance(self.accessor, KoDocumentAccessor):
+            # Encourage the database to pre-scan dirs relevant to completion
+            # for this buffer -- because of recursive-dir-include-everything
+            # semantics for PHP this first-time scan can take a while.
+            request = PreloadBufLibsRequest(self)
+            self.mgr.idxr.stage_request(request, 1.0)
 
     @property
     def libs(self):

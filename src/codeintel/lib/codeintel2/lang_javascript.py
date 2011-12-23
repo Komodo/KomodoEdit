@@ -88,7 +88,7 @@ from codeintel2.jsdoc import JSDoc, JSDocParameter, jsdoc_tags
 from codeintel2.gencix_utils import *
 from codeintel2.database.langlib import LangDirsLib
 from codeintel2.udl import UDLBuffer, is_udl_csl_style
-from codeintel2.accessor import AccessorCache
+from codeintel2.accessor import AccessorCache, KoDocumentAccessor
 from codeintel2.langintel import (ParenStyleCalltipIntelMixin,
                                   ProgLangTriggerIntelMixin,
                                   PythonCITDLExtractorMixin)
@@ -757,12 +757,13 @@ class JavaScriptBuffer(CitadelBuffer):
 
     def __init__(self, *args, **kwargs):
         CitadelBuffer.__init__(self, *args, **kwargs)
-        
-        # Encourage the database to pre-scan dirs relevant to completion
-        # for this buffer -- because of recursive-dir-include-everything
-        # semantics for JavaScript this first-time scan can take a while.
-        request = PreloadBufLibsRequest(self)
-        self.mgr.idxr.stage_request(request, 1.0)
+
+        if isinstance(self.accessor, KoDocumentAccessor):
+            # Encourage the database to pre-scan dirs relevant to completion
+            # for this buffer -- because of recursive-dir-include-everything
+            # semantics for JavaScript this first-time scan can take a while.
+            request = PreloadBufLibsRequest(self)
+            self.mgr.idxr.stage_request(request, 1.0)
 
     @property
     def libs(self):
