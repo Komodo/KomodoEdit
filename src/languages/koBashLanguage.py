@@ -90,6 +90,7 @@ perl -n -e 'chomp; printf(qq(%c%c%s,1%c), 12, 10, $_, 10);' > TAGS
             self._lexer = KoLexerLanguageService()
             self._lexer.setLexer(components.interfaces.ISciMoz.SCLEX_BASH)
             self._lexer.setKeywords(0, self.bash_keywords1 + self.bash_keywords2)
+            self._lexer.supportsFolding = 1
         return self._lexer
 
     bash_keywords1="""alias
