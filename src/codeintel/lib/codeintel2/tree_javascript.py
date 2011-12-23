@@ -108,8 +108,8 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
             if not cplns:
                 raise CodeIntelError("No completions found")
         # For logging messages every call
-        #print indent('\n'.join("%s: %s" % (lvl, m)
-        #                for lvl,m in self.ctlr.log))
+        #print indent('\n'.join("%s: %s" % (lvl, args and m % (args) or m)
+        #                for lvl,m, args in self.ctlr.log))
         #print indent('\n'.join(["Hit: %r" % (cpln, ) for cpln in cplns]))
         return cplns
 
