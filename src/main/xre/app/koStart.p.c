@@ -87,6 +87,7 @@
 #define KO_SHORT_VERSION "PP_KO_SHORT_VERSION"
 #define KO_MARKETING_SHORT_VERSION "PP_KO_MARKETING_SHORT_VERSION"
 #define KO_FULL_PRETTY_VERSION "PP_KO_FULL_PRETTY_VERSION"
+#define KO_BUILD_PLATFORM "PP_KO_BUILD_PLATFORM"
 #define KO_PROD_TYPE "PP_KO_PROD_TYPE"
 #define KO_APPDATADIR_NAME "PP_KO_APPDATADIR_NAME"
 #define KO_VERSION "PP_KO_VERSION"
@@ -2090,7 +2091,7 @@ int KoStart_HandleArgV(int argc, char** argv, KoStartOptions* pOptions)
 
         host_os_type = _GetOSName();
         _LogDebug("Komodo information:\n");
-        _LogDebug("  Version: %s\n", KO_FULL_PRETTY_VERSION);
+        _LogDebug("  Version: %s %s\n", KO_FULL_PRETTY_VERSION, KO_BUILD_PLATFORM);
         _LogDebug("  OS type: %s\n", host_os_type);
         _LogDebug("Komodo startup options:\n");
         _LogDebug("\tnFiles: %d\n", pOptions->nFiles);
