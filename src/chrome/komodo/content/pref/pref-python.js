@@ -36,7 +36,6 @@
 
 //---- globals
 var _findingInterps = false;
-var prefExecutable = null;
 var programmingLanguage = "Python";
 var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
             .getService(Components.interfaces.nsIStringBundleService)
@@ -50,9 +49,23 @@ function OnPreferencePageOK(prefset)
                                         programmingLanguage);
 }
 
+function checkValidPythonInterpreter(menulist)
+{
+    if (menulist.value) {
+        var appInfoEx = Components.classes["@activestate.com/koAppInfoEx?app=Python;1"].
+            getService(Components.interfaces.koIAppInfoEx);
+        appInfoEx.executablePath = menulist.value;
+        if (appInfoEx.version.substr(0, 2) != "2.") {
+            ko.dialogs.alert("The chosen Python has version " + appInfoEx.version +
+                             ", which will not work as a Python 2 interpreter.",
+                             appInfoEx.executablePath, "Invalid Python 2 Interpreter")
+        }
+    }
+}
+
 // Populate the (tree) list of available Python interpreters on the current
 // system.
-function prefPython_PopulatePythonInterps()
+function prefPython_PopulatePythonInterps(prefExecutable)
 {
     var availInterpList = document.getElementById("pythonDefaultInterpreter");
     var infoSvc = Components.classes["@activestate.com/koInfoService;1"].
@@ -68,9 +81,21 @@ function prefPython_PopulatePythonInterps()
         getService(Components.interfaces.koISysUtils);
     var availInterps = [];
     availInterps = sysUtils.WhichAll("python", {});
+    availInterps = availInterps.concat(sysUtils.WhichAll("python2", {}));
     if (infoSvc.platform == 'darwin') {
         availInterps = availInterps.concat(sysUtils.WhichAll("pythonw", {}));
     }
+    // Only include Python 2.x interpreters.
+    var availPy2Interps = [];
+    var appInfoEx = Components.classes["@activestate.com/koAppInfoEx?app=Python;1"].
+        getService(Components.interfaces.koIAppInfoEx);
+    for (var i = 0; i < availInterps.length; i++) {
+        appInfoEx.executablePath = availInterps[i];
+        if (appInfoEx.version.substr(0, 2) == "2.") {
+            availPy2Interps.push(availInterps[i]);
+        }
+    }
+    availInterps = availPy2Interps;
 
     availInterpList.removeAllItems();
     availInterpList.appendItem(_bundle.GetStringFromName("findOnPath.label"),'');
@@ -98,13 +123,12 @@ function prefPython_PopulatePythonInterps()
 
 function PrefPython_OnLoad()
 {
+    var prefExecutable = '';
     if (parent.hPrefWindow.prefset.hasStringPref('pythonDefaultInterpreter') &&
         parent.hPrefWindow.prefset.getStringPref('pythonDefaultInterpreter')) {
         prefExecutable = parent.hPrefWindow.prefset.getStringPref('pythonDefaultInterpreter');
-    } else {
-        prefExecutable = '';
     }
-    prefPython_PopulatePythonInterps();
+    prefPython_PopulatePythonInterps(prefExecutable);
     parent.hPrefWindow.onpageload();
 }
 

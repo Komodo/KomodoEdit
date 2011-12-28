@@ -3,7 +3,6 @@
 
 //---- globals
 var _findingInterps = false;
-var prefExecutable = null;
 var programmingLanguage = "Python3";
 var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
             .getService(Components.interfaces.nsIStringBundleService)
@@ -17,9 +16,23 @@ function OnPreferencePageOK(prefset)
                                         programmingLanguage);
 }
 
+function checkValidPythonInterpreter(menulist)
+{
+    if (menulist.value) {
+        var appInfoEx = Components.classes["@activestate.com/koAppInfoEx?app=Python;1"].
+            getService(Components.interfaces.koIAppInfoEx);
+        appInfoEx.executablePath = menulist.value;
+        if (appInfoEx.version.substr(0, 2) != "3.") {
+            ko.dialogs.alert("The chosen Python has version " + appInfoEx.version +
+                             ", which will not work as a Python 3 interpreter.",
+                             appInfoEx.executablePath, "Invalid Python 3 Interpreter")
+        }
+    }
+}
+
 // Populate the (tree) list of available Python interpreters on the current
 // system.
-function PrefPython3_PopulatePythonInterps()
+function PrefPython3_PopulatePythonInterps(prefExecutable)
 {
     var availInterpList = document.getElementById("python3DefaultInterpreter");
     var infoSvc = Components.classes["@activestate.com/koInfoService;1"].
@@ -35,9 +48,23 @@ function PrefPython3_PopulatePythonInterps()
         getService(Components.interfaces.koISysUtils);
     var availInterps = new Array();
     availInterps = sysUtils.WhichAll("python3", new Object());
+    // Include any that are explicitly labelled as "python" - as the specific
+    // versions will be filtered next.
+    availInterps = availInterps.concat(sysUtils.WhichAll("python", new Object()));
     if (infoSvc.platform == 'darwin') {
         availInterps = availInterps.concat(sysUtils.WhichAll("python3w", new Object()));
     }
+    // Only include Python 3.x interpreters.
+    var availPy3Interps = [];
+    var appInfoEx = Components.classes["@activestate.com/koAppInfoEx?app=Python;1"].
+        getService(Components.interfaces.koIAppInfoEx);
+    for (var i = 0; i < availInterps.length; i++) {
+        appInfoEx.executablePath = availInterps[i];
+        if (appInfoEx.version.substr(0, 2) == "3.") {
+            availPy3Interps.push(availInterps[i]);
+        }
+    }
+    availInterps = availPy3Interps;
 
     availInterpList.removeAllItems();
     availInterpList.appendItem(_bundle.GetStringFromName("findOnPath.label"),'');
@@ -62,12 +89,11 @@ function PrefPython3_PopulatePythonInterps()
 
 function PrefPython3_OnLoad()
 {
+    var prefExecutable = '';
     if (parent.hPrefWindow.prefset.hasStringPref('python3DefaultInterpreter') &&
         parent.hPrefWindow.prefset.getStringPref('python3DefaultInterpreter'))
         prefExecutable = parent.hPrefWindow.prefset.getStringPref('python3DefaultInterpreter');
-    else
-        prefExecutable = '';
-    PrefPython3_PopulatePythonInterps();
+    PrefPython3_PopulatePythonInterps(prefExecutable);
 
     var origWindow = ko.windowManager.getMainWindow();
     var cwd = origWindow.ko.window.getCwd();

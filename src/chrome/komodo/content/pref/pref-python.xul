@@ -82,6 +82,7 @@
                 <menulist id="pythonDefaultInterpreter"
                     flex="1"
                     pref="true"
+                    onselect="checkValidPythonInterpreter(this);"
                     prefstring="pythonDefaultInterpreter">
                     <menupopup id="avail-interp-list"/>
                 </menulist>
