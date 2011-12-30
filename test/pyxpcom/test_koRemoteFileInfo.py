@@ -223,3 +223,17 @@ class remoteInfoTests(unittest.TestCase):
         self.failIf(fileinfo.isFile() != False,
                     "Incorrect isFile: '%r'" % (fileinfo.isFile(),))
 
+    @tag("bug91990")
+    def test_space_in_group_name(self):
+        file_listing   = '-rw-------  1 incognito.guy Domain Users 11420 2011-12-29 18:51 .bash_history'
+        fileinfo = self._makeKoRemoteFileInfo()
+        self.failIf(fileinfo.initFromDirectoryListing("testingdir", file_listing) != True,
+                    "Could not parse file listing: %r" % (file_listing, ))
+        self.failIf(fileinfo.getFilename() != '.bash_history',
+                    "Incorrect filename: %r != '.bash_history'" % (fileinfo.getFilename(), ))
+        self.failIf(fileinfo.isDirectory() != False,
+                    "Incorrect isDirectory: '%r'" % (fileinfo.isDirectory(),))
+        self.failIf(fileinfo.isExecutable() != False,
+                    "Incorrect isExecutable: '%r'" % (fileinfo.isExecutable(),))
+        self.failIf(fileinfo.isFile() != True,
+                    "Incorrect isFile: '%r'" % (fileinfo.isFile(),))

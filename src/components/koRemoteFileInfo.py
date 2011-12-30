@@ -45,6 +45,7 @@ import stat
 import re
 import logging
 from string import digits as string_digits
+from string import ascii_lowercase
 
 try:
     from xpcom import components
@@ -220,6 +221,8 @@ class koRemoteFileInfo:
             #   "dr-xr-xr-x   2 root     other        512 Apr  8  1994 etc" */
             #   "dr-xr-xr-x   2 root     512 Apr  8  1994 etc" */
             #   "lrwxrwxrwx   1 root     other          7 Jan 25 00:17 bin -> usr/bin" */
+            # Note that UNIX-style listings can use names that contain a space:
+            #   "-rw-------  1 incognito.guy Domain Users 11420 2011-12-29 18:51 .bash_history"
             # Also produced by Microsoft's FTP servers for Windows: */
             #   "----------   1 owner    group         1803128 Jul 10 10:18 ls-lR.Z" */
             #   "d---------   1 owner    group               0 May  9 19:45 Softlib" */
@@ -275,6 +278,19 @@ class koRemoteFileInfo:
             elif mode_str[9:10] == "t": mode |= (stat.S_IXOTH | stat.S_ISVTX)
             elif mode_str[9:10] == "T": mode |= stat.S_ISVTX
 
+            # Deal with spaces in the user or group names - bug .
+            if fi[4] and fi[4][0].lower() in ascii_lowercase and \
+               fi[5] and fi[5][0] in string_digits and \
+               fi[7] and fi[7][0] in string_digits and \
+               " " in fi[7] and \
+               fi[3] and fi[3][0].lower() in ascii_lowercase and \
+               fi[2] and fi[2][0].lower() in ascii_lowercase:
+                while len(fi) >= 8:
+                    fi[3] += fi.pop(5)
+                    fi = fi[:6] + fi[6].split(None, 1)
+                    if fi[5] and fi[5][0] in string_digits:
+                        break
+                    
             if fi[4].lower() in self._3char_month_names:
                 # Not enough fields, pad it out.
                 fi.insert(1, "")
