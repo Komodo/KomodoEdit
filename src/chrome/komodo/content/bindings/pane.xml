@@ -74,7 +74,8 @@
             </xul:hbox>
             <xul:vbox flex="1">
               <!-- this is here for the "vertical" case -->
-              <xul:hbox class="tabs-vertical-label">
+              <xul:hbox class="tabs-vertical-label"
+                        oncontextmenu="return _onTabContext(event);">
                 <xul:label class="tab-text" xbl:inherits="value=tabLabel"/>
                 <xul:spacer/>
                 <xul:toolbarbutton anonid="panel-close-button"
@@ -344,6 +345,15 @@
               // this is a menu item
               tab = elem.tab;
               break;
+            }
+          }
+          if (!tab && elem) {
+            for (; elem; elem = elem.parentNode) {
+              if (elem.classList && elem.classList.contains("tabs-vertical-label")) {
+                // this is the header label for vertical tabs
+                tab = this.selectedTab;
+                break;
+              }
             }
           }
           if (tab) {
