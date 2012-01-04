@@ -1,0 +1,27 @@
+{
+  "keyboard_shortcut": "", 
+  "name": "run server", 
+  "language": "JavaScript", 
+  "trigger_enabled": 0, 
+  "rank": 100, 
+  "trigger": "trigger_postopen", 
+  "value": [
+    "(function() {", 
+    "    try {", 
+    "        var cmd_by_version = {", 
+    "            2: 'script/server',", 
+    "            3: 'script/rails server'", 
+    "        }", 
+    "        var versionNo = ko.extensions.rails.getRailsVersionInRange(2, 3);", 
+    "        var cmd = cmd_by_version[versionNo];", 
+    "        ko.extensions.rails.launchRubyAppInConsole(this, cmd);", 
+    "    } catch(ex) {", 
+    "        alert(ex + \"\\n\");", 
+    "    }", 
+    "})();"
+  ], 
+  "version": "1.0.7", 
+  "async": 0, 
+  "type": "macro", 
+  "icon": "chrome://famfamfamsilk/skin/icons/application_go.png"
+}

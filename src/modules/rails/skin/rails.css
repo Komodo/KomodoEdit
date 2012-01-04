@@ -1,0 +1,9 @@
+#rails-ruby-conflict-image {
+    list-style-image: url("chrome://famfamfamsilk/skin/icons/exclamation.png");
+}
+
+hbox#rails-ruby-conflict-box {
+    border: solid 1px red;
+    padding: 2px;
+    margin: 1px;
+}

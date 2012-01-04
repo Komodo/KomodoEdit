@@ -1,0 +1,7 @@
+content railstools content/
+skin railstools classic/1.0 skin/
+locale railstools en-US locale/en-US/
+
+overlay chrome://komodo/content/komodo.xul chrome://railstools/content/overlay_rails.xul
+overlay chrome://komodo/content/pref/pref.xul chrome://railstools/content/pref_overlay_rails.xul
+

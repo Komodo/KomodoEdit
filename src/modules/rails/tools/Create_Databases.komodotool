@@ -1,0 +1,25 @@
+{
+  "keyboard_shortcut": "", 
+  "name": "Create Databases", 
+  "language": "JavaScript", 
+  "trigger_enabled": 0, 
+  "rank": 100, 
+  "trigger": "trigger_postopen", 
+  "value": [
+    "(function() {", 
+    "    try {", 
+    "        ko.extensions.rails.manageDatabases(this, 'create', 'creation');", 
+    "    } catch(ex) {", 
+    "\tif (ex.message == \"You cancelled.\") {", 
+    "\t    return;", 
+    "\t}", 
+    "        var msg = ex + \"\\n\";", 
+    "        alert(msg);", 
+    "    }", 
+    "})();"
+  ], 
+  "version": "1.0.7", 
+  "async": 0, 
+  "type": "macro", 
+  "icon": "chrome://famfamfamsilk/skin/icons/database_add.png"
+}

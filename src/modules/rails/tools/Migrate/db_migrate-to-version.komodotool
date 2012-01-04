@@ -1,0 +1,30 @@
+{
+  "keyboard_shortcut": "", 
+  "name": "db:migrate-to-version", 
+  "language": "JavaScript", 
+  "trigger_enabled": 0, 
+  "rank": 100, 
+  "trigger": "trigger_postopen", 
+  "value": [
+    "try {", 
+    "    var obj = {base: 'rake', ruby: null, rake:null, env:null};", 
+    "    ko.extensions.rails.setup_associated_paths_env(obj);", 
+    "    var options = {", 
+    "        env: obj.env,", 
+    "        __END__ : null", 
+    "    };", 
+    "    var version = dialog_prompt(ko.extensions.rails.bundle.GetStringFromName(\"migrate to which version\"));", 
+    "    var cmd = obj.rake + ' db:migrate';", 
+    "    if (version && /^\\d+$/.test(version)) {", 
+    "        cmd += \" VERSION=\" + version;", 
+    "    }", 
+    "    ko.extensions.rails.runCommand(this, cmd, options);", 
+    "} catch(ex) {", 
+    "    alert(ex + \"\\n\");", 
+    "}"
+  ], 
+  "version": "1.0.7", 
+  "async": 0, 
+  "type": "macro", 
+  "icon": "chrome://famfamfamsilk/skin/icons/database_lightning.png"
+}
