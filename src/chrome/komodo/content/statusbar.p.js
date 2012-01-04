@@ -477,7 +477,7 @@ function _updateMessage()
         }
         _lastNotification = sm;
     } else {
-        var notifications = ko.notifications.getNotifications([window, null], 2);
+        var notifications = ko.notifications.getNotifications([ko.notifications.context, null], 2);
         notifications =
             notifications.filter(function (notification) !(notification instanceof(Ci.koIStatusMessage)))
                          .filter(function (notification) notification.time > _lastNotificationTime)

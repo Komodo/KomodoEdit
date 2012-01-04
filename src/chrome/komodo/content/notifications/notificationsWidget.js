@@ -19,7 +19,7 @@ this.onload = (function NotificationsWidgetController_onload() {
   this._map = {}; // identifier -> array of elem
   ko.notifications.addListener(this);
   // load the already existing notifications
-  for each (var notification in ko.notifications.getNotifications([parent, null], 2)) {
+  for each (var notification in ko.notifications.getNotifications([ko.notifications.context, null], 2)) {
     this.addNotification(notification);
   }
   this.container.controllers.insertControllerAt(0, notificationsController);
