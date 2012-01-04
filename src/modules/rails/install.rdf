@@ -4,7 +4,7 @@
     <Description about="urn:mozilla:install-manifest">
         <em:id>railstools@activestate.com</em:id>
         <em:name>Ruby on Rails Komodo Tools</em:name>
-        <em:version>0.2.9</em:version>
+        <em:version>0.3.0</em:version>
         <em:description>Tools for building, editing, and debugging Rails apps in Komodo</em:description>
         <em:creator>Eric Promislow</em:creator>
         <em:homepageURL>http://activestate.com/rails</em:homepageURL>
