@@ -94,16 +94,23 @@ class _CommonHTMLLinter(object):
 
     # Allow script and style tags to be wrapped with one of
     # <![CDATA[ ... ]]> or <!-- .. -->
-    _cdata_ms_re = re.compile(r'\A(\s*)(<!\[CDATA\[)(.*?)(\]\]>)(\s*)\Z', re.DOTALL)
-    _comment_re = re.compile(r'\A(\s*)(<!--)(.*?)(-->)(\s*)\Z', re.DOTALL)
-    _unwrapped_block = re.compile(r'\A(\s*)()(.*?)()(\s*)\Z', re.DOTALL)
-    def _get_subparts_from_text(self, currText):
-        m = self._cdata_ms_re.match(currText)
-        if m is None:
-            m = self._comment_re.match(currText)
-            if m is None:
-                m = self._unwrapped_block.match(currText)
-        return m.groups()
+    # Allow for bits of template code inside a style or script tag as well.
+
+    _leading_ignorables_re = re.compile(r'\A((?:<!\[CDATA\[|<!--|\s+)*)(.*?)((?:\]\]>|-->|\s+)*)\Z', re.DOTALL)
+    _non_ws_re = re.compile('\\S')
+
+    def _get_unwrappedText(self, currText, koDoc, i, startPt, endPt, lim):
+        parts = list(self._leading_ignorables_re.match(currText).groups())
+        if (self._non_ws_re.search(parts[0])
+            and i > 0
+            and koDoc.languageForPosition(startPt - 1).startswith("HTML")):
+            parts[0] = self._spaceOutNonNewlines(parts[0])
+        if (self._non_ws_re.search(parts[2])
+            and (i == lim - 1
+                 or (i < lim - 1
+                     and koDoc.languageForPosition(endPt).startswith("HTML")))):
+            parts[2] = self._spaceOutNonNewlines(parts[2])
+        return parts
 
     _return_re = re.compile(r'\breturn\b')
     _function_re = re.compile(r'\bfunction\b')
@@ -149,6 +156,7 @@ class _CommonHTMLLinter(object):
         currStartTag = None
         squelching = False
         firstInsertedReplacement = False
+        prevSegmentLangName = "HTML"
         for i in range(1, lim):
             startPt = endPt
             endPt = transitionPoints[i]
@@ -167,7 +175,11 @@ class _CommonHTMLLinter(object):
                         firstInsertedReplacement = False
                     elif squelching and squelchTPLPatterns[2].match(currText):
                         squelching = False
-                elif squelching:
+                elif squelching and prevSegmentLangName == "JavaScript":
+                    # If we have something like
+                    # var jsvar = <%= value %>
+                    # pull out the atomic server-side code, and insert
+                    # something that looks good to the js linter.
                     if not firstInsertedReplacement:
                         firstInsertedReplacement = True
                         # Give JS etc. something to work with.
@@ -177,50 +189,51 @@ class _CommonHTMLLinter(object):
                         replText = self._spaceOutNonNewlines(currText)
                     bytesByLang[name].append(replText)
                 elif origLangName == "CSS" and langName == name:
-                    if ("{" not in currText
-                        and i > 0 and i < lim - 1
+                    subparts = self._get_unwrappedText(currText, koDoc, i, startPt, endPt, lim)
+                    if ("{" not in subparts[1]
+                        and i > 0
+                        and i < lim - 1
                         and koDoc.languageForPosition(startPt - 1).startswith("HTML")
                         and koDoc.languageForPosition(endPt).startswith("HTML")):
-                        bytesByLang[name].append("bogusTag { %s }" % currText)
+                        # This won't pick up things like
+                        # <tag style="margin <?php echo ':' ?> 1px;">
+                        bytesByLang[name].append("bogusTag { %s }" % subparts[1])
+                        #TODO:  Adjust the amount of whitespace to minimize
+                        # the displacement of the actual CSS code.
                     else:
-                        subparts = self._get_subparts_from_text(currText)
-                        bytesByLang[name].append(subparts[0])
-                        bytesByLang[name].append(self._spaceOutNonNewlines(subparts[1]))
-                        bytesByLang[name].append(subparts[2])
-                        bytesByLang[name].append(self._spaceOutNonNewlines(subparts[3]))
-                        bytesByLang[name].append(subparts[4])
+                        bytesByLang[name].append("".join(subparts))
                 elif origLangName == "JavaScript" and langName == name:
                     # Convert uncommented cdata marked section markers
                     # into spaces.
                     #
-                    subparts = self._get_subparts_from_text(currText)
+                    subparts = self._get_unwrappedText(currText, koDoc, i, startPt, endPt, lim)
                     bytesByLang[name].append(subparts[0])
-                    bytesByLang[name].append(self._spaceOutNonNewlines(subparts[1]))
                     if jsShouldBeWrapped:
-                        actualCode = self._blankOutOneLiners(subparts[2])
+                        actualCode = self._blankOutOneLiners(subparts[1])
                         thisJSShouldBeWrapped = actualCode.strip()
                     else:
-                        actualCode = subparts[2]
+                        actualCode = subparts[1]
                         thisJSShouldBeWrapped = \
                             (jsWrapOneLiners
-                             and "\n" not in subparts[2]
-                             and self._return_re.search(subparts[2])
-                             and not self._function_re.search(subparts[2]))
+                             and "\n" not in subparts[1]
+                             and self._return_re.search(subparts[1])
+                             and not self._function_re.search(subparts[1]))
                             # heuristic, wrap on-handlers in html*
                     if thisJSShouldBeWrapped:
                         bytesByLang[name].append("(function() { ")
                     bytesByLang[name].append(actualCode)
                     
-                    bytesByLang[name].append(self._spaceOutNonNewlines(subparts[3]))
                     if thisJSShouldBeWrapped:
                         bytesByLang[name].append(" })();")
-                    bytesByLang[name].append(subparts[4])
+                    bytesByLang[name].append(subparts[2])
                 elif (name == langName
                     or ((name.startswith("HTML") or name == "XML")
                         and langName in htmlAllowedNames)):
                     bytesByLang[name].append(currText)
                 else:
                     bytesByLang[name].append(self._spaceOutNonNewlines(currText))
+            if origLangName in ("JavaScript", "HTML", "HTML5", "XML"):
+                prevSegmentLangName = origLangName
         
         for name in bytesByLang.keys():
             bytesByLang[name] = "".join(bytesByLang[name]).rstrip()
