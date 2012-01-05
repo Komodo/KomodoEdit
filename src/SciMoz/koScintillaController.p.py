@@ -1128,7 +1128,11 @@ class koScintillaController:
             sm.currentPos = sm.anchor = \
                 sm.positionFromLine(min(sm.lineFromPosition(sm.currentPos),
                                         sm.lineFromPosition(sm.anchor)))
-        sm.vCHomeWrap()  # XXX should make this a pref.
+        # bug 91964 - Allow people to map Home key to always go to column 0.
+        if self._koPrefs.getBooleanPref('editHomeKeyFavorsFirstNonSpace'):
+            sm.vCHomeWrap()
+        else:
+            sm.homeWrap()
 
     def _do_cmd_end(self):
         sm = self.scimoz()
