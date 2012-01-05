@@ -1362,16 +1362,25 @@ projectManager.prototype.effectivePrefs = function () {
 }
 
 projectManager.prototype.handle_view_document_detaching = function(event) {
+    // Don't remove the document immediately, in case we're closing
+    // files due to closing their owning project.
     var view = event.originalTarget;
-    if (!view) {
+    if (!view || !view.koDoc || !view.koDoc.file) {
         return;
     }
+    var detaching_url = view.koDoc.file.URI;
+    if (!detaching_url) {
+        return;
+    }
+    setTimeout(_finish_handle_view_document_detaching, 300, detaching_url);
+};
+
+function _finish_handle_view_document_detaching(detaching_url) {
     var currentProject = ko.projects.manager.currentProject;
     if (!currentProject)  {
         return;
     }
     var projectURL = currentProject.getFile().URI;
-    var detaching_url = view.koDoc.file.URI;
     var prefSvc = Components.classes["@activestate.com/koPrefService;1"].
                 getService(Components.interfaces.koIPrefService);
     var viewStateMRU = prefSvc.getPrefs("viewStateMRU");
@@ -1389,9 +1398,16 @@ projectManager.prototype.handle_view_document_detaching = function(event) {
     var idx = openedURIs.findStringPref(detaching_url);
     if (idx >= 0) {
         openedURIs.deletePref(idx, 1);
+        dump("**************** Remove URI "
+             + detaching_url
+             + " at posn "
+             + idx
+             + " from project "
+             + currentProject.url
+             + "\n");
         projectViewState.setPref('opened_files', openedURIs);
     }
-};
+}
 
 //-------------------------------------------------------------------------
 // command implementations
