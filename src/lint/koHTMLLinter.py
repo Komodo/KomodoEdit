@@ -251,7 +251,7 @@ class _CommonHTMLLinter(object):
         else:
             charsByLang = bytesByLang
 
-        finalLintResults = koLintResults()
+        lintResultsByLangName = {}
         for langName, textSubset in charsByLang.items():
             if startCheck and langName in startCheck:
                 startPtn, insertion = startCheck[langName]
@@ -281,17 +281,29 @@ class _CommonHTMLLinter(object):
                     # through another xpcom decoder/encoder
                     newLintResults = UnwrapObject(linter).lint_with_text(request, textSubset)
                     if newLintResults and newLintResults.getNumResults():
-                        if finalLintResults.getNumResults():
-                            finalLintResults = finalLintResults.addResults(newLintResults)
+                        lintResultSet = lintResultsByLangName.get(langName)
+                        if lintResultSet:
+                           lintResultSet.addResults(newLintResults)
                         else:
-                            finalLintResults = newLintResults
+                            lintResultsByLangName[langName] = newLintResults
                 except AttributeError:
                     log.exception("No lint_with_text method for linter for language %s", langName)
             else:
                 pass
                 #log.debug("no linter for %s", langName)
-        return finalLintResults
-            
+        # If we get results from more than one language, tag each one
+        numLintResultSets = len(lintResultsByLangName.keys())
+        if numLintResultSets == 0:
+            return koLintResults()
+        elif numLintResultSets == 1:
+            return lintResultsByLangName.values()[0]
+        else:
+            finalLintResults = koLintResults()
+            for langName, lintResultSet in lintResultsByLangName.items():
+                for lintResult in lintResultSet.getResults():
+                    lintResult.description = langName + ": " + lintResult.description
+                finalLintResults.addResults(lintResultSet)
+            return finalLintResults            
 
 class _Common_HTMLAggregator(_CommonHTMLLinter):
     def __init__(self):
