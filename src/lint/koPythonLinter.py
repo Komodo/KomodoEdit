@@ -69,13 +69,15 @@ log = logging.getLogger('koPythonLinter')
 
 _leading_ws_re = re.compile(r'(\s*)')
 
+def _getUserPath():
+    return koprocessutils.getUserEnv()["PATH"].split(os.pathsep)
+
 class _GenericPythonLinter(object):
     _com_interfaces_ = [components.interfaces.koILinter]
 
     def __init__(self):
         self._pythonInfo = components.classes["@activestate.com/koAppInfoEx?app=Python;1"]\
                .createInstance(components.interfaces.koIAppInfoEx)
-        self._userPath = koprocessutils.getUserEnv()["PATH"].split(os.pathsep)
         
     def lint(self, request):
         text = request.content.encode(request.encoding.python_encoding_name)
@@ -110,13 +112,10 @@ class KoPythonPyLintChecker(_GenericPythonLinter):
         if sys.platform.startswith("win"):
             pylintExe += ".exe"
         try:
-            pylintExe = which.which("pylint", path=self._userPath)
+            pylintExe = which.which("pylint", path=_getUserPath())
         except which.WhichError:
             log.warn("pylint not found")
-            return
-        if not pylintExe:
-            log.warn("pylint not found")
-            return
+            pylintExe = None
         rcfilePath = prefset.getStringPref("pylint_checking_rcfile")
         if rcfilePath and os.path.exists(rcfilePath):
             if self.nonIdentChar_RE.search(rcfilePath):
@@ -128,8 +127,12 @@ class KoPythonPyLintChecker(_GenericPythonLinter):
         preferredLineWidth = prefset.getLongPref("editAutoWrapColumn")
         if preferredLineWidth > 0:
             extraArgs.append("--max-line-length=%d" % preferredLineWidth)
-            
-        cmd = [pythonExe, pylintExe, "-f", "text", "-r", "n", "-i", "y"] + extraArgs
+
+        if pylintExe:
+            baseArgs = [pythonExe, pylintExe]
+        else:
+            baseArgs = [pythonExe] + ['-c', 'import sys; import pylint; pylint.lint.Run(sys.argv[1:])']
+        cmd = baseArgs + ["-f", "text", "-r", "n", "-i", "y"] + extraArgs
         # Put config file entry here: .rcfile=<file>
         cmd.append(tmpfilename)
         cwd = request.cwd or None
@@ -138,6 +141,10 @@ class KoPythonPyLintChecker(_GenericPythonLinter):
             p = process.ProcessOpen(cmd, cwd=cwd, env=koprocessutils.getUserEnv(), stdin=None)
             stdout, _ = p.communicate()
             warnLines = stdout.splitlines(0) # Don't need the newlines.
+        except:
+            log.exception("Failed to run %s", cmd)
+            stdout = ""
+            warnLines = []
         finally:
             os.unlink(tmpfilename)
         ptn = re.compile(r'^([A-Z])(\d+):\s*(\d+):\s*(.*)')
@@ -184,7 +191,7 @@ class KoPythonPyflakesChecker(_GenericPythonLinter):
         textlines = text.splitlines()
         cwd = request.cwd
         try:
-            checkerExe = which.which("pyflakes", path=self._userPath)
+            checkerExe = which.which("pyflakes", path=_getUserPath())
         except which.WhichError:
             log.warn("pyflakes not found")
             return
@@ -302,7 +309,6 @@ class KoPythonCommonLinter(object):
             getService(components.interfaces.koISysUtils)
         self._koDirSvc = components.classes["@activestate.com/koDirs;1"].\
             getService(components.interfaces.koIDirs)
-        self._userPath = koprocessutils.getUserEnv()["PATH"].split(os.pathsep)
 
     def _getInterpreterAndPyver(self, prefset):
         pref_name = "%sDefaultInterpreter" % (self.language_name_lc)
@@ -315,7 +321,7 @@ class KoPythonCommonLinter(object):
             else:
                 exts = None
             try:
-                python = which.which(self.language_name_lc, exts=exts, path=self._userPath)
+                python = which.which(self.language_name_lc, exts=exts, path=_getUserPath())
             except which.WhichError:
                 python = None
 
