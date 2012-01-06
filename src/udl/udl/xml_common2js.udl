@@ -37,7 +37,7 @@
 # Used by xbl2js, mxml2js (for Flex/MXML)
 
 state IN_H2CSL_STAG_POST_TAGNAME:
-'>' : paint(upto, M_TAGSPACE), paint(include, M_STAGC) => IN_CSL_DEFAULT
+'>' : paint(upto, M_TAGSPACE), paint(include, M_STAGC) => IN_H2CSL_STAG_POST_TAGNAME_IN_WS
 # empty tag : nothing to lex inside it.
 '/>' : paint(upto, M_TAGSPACE), paint(include, M_EMP_TAGC) => IN_M_DEFAULT
 # XXX case-insensitive
@@ -46,6 +46,10 @@ state IN_H2CSL_STAG_POST_TAGNAME:
 /src\b/i : paint(upto, M_TAGSPACE), paint(include, M_ATTRNAME), => IN_M_STAG_POST_ATTRNAME_1
 /[$CS]/ : paint(upto, M_TAGSPACE) => IN_H2CSL_STAG_IN_ATTRNAME
 '/>' : paint(upto, M_TAGSPACE), paint(include, M_EMP_TAGC) => IN_M_DEFAULT
+
+state IN_H2CSL_STAG_POST_TAGNAME_IN_WS:
+/^/: paint(include, M_DEFAULT), => IN_CSL_DEFAULT
+/\S/: paint(upto, M_DEFAULT), redo, => IN_CSL_DEFAULT
 
 state IN_H2CSL_STAG_IN_ATTRNAME
 /[^$CS]/ :  paint(upto, M_ATTRNAME), redo, => IN_H2CSL_STAG_POST_ATTRNAME_1
