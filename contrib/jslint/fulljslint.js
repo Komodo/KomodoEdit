@@ -4846,9 +4846,6 @@ loop:   for (;;) {
     reserve('private');
     reserve('protected');
     reserve('public');
-    if (!option.node) {
-        reserve('static');
-    }
 
 
 // Parse JSON
@@ -6257,6 +6254,9 @@ loop:   for (;;) {
             }
             if (option.adsafe) {
                 option.safe = true;
+            }
+            if (!option.node) {
+                reserve('static');
             }
             if (option.safe) {
                 option.browser     =
