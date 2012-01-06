@@ -144,6 +144,7 @@
                     </xul:toolbarbutton>
                     <xul:toolbarbutton anonid="panel-close-button"
                             class="tabs-closebutton"
+                            tooltiptext="&closePane.tooltiptext;"
                             collapsed="true"
                             buttonstyle="pictures"
                             xbl:inherits="onclick=onclose,collapsed=closecollapsed,disabled=closedisabled"/>
@@ -245,6 +246,7 @@
                         onpopupshowing="document.getBindingParent(this).getTabList();"/>
                 </xul:toolbarbutton>
                 <xul:toolbarbutton anonid="panel-close-button" class="tabs-closebutton"
+                            tooltiptext="&closePane.tooltiptext;"
                             collapsed="true"
                             buttonstyle="pictures"
                             xbl:inherits="onclick=onclose,

@@ -37,6 +37,8 @@
 <!DOCTYPE bindings PUBLIC "-//MOZILLA//DTD XBL V1.0//EN" "http://www.mozilla.org/xbl" [
   <!ENTITY % komodoDTD SYSTEM "chrome://komodo/locale/komodo.dtd">
   %komodoDTD;
+  <!ENTITY % bindingsDTD SYSTEM "chrome://komodo/locale/bindings.dtd">
+  %bindingsDTD;
 ]>
 
 <bindings
@@ -80,6 +82,7 @@
                 <xul:spacer/>
                 <xul:toolbarbutton anonid="panel-close-button"
                         class="tabs-closebutton"
+                        tooltiptext="&closePane.tooltiptext;"
                         buttonstyle="pictures"
                         oncommand="document.getBindingParent(this).collapsed = true;"/>
               </xul:hbox>

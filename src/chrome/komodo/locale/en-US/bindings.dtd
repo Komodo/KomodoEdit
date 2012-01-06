@@ -38,6 +38,7 @@
 <!ENTITY add.tooltiptext "Add...">
 <!ENTITY addEntry.tooltiptext "Add Entry...">
 <!ENTITY back.tooltiptext "Back">
+<!ENTITY closePane.tooltiptext "Close Pane">
 <!ENTITY copy.label "Copy">
 <!ENTITY cut.label "Cut">
 <!ENTITY delete.tooltiptext "Delete...">
