@@ -91,6 +91,7 @@ const PHP_LIST = ["PHP"];
 const RUBY_LIST = ["Ruby"];
 const JS_LIST = ["JavaScript"];
 const NODEJS_LIST = ["Node.js"];
+const JS_NODEJS_LIST = [JS_LIST[0], NODEJS_LIST[0]];
 const HTML_LIST = ["HTML", "XML", "HTML5"];
 
 var global_pref_observer_topics = {
@@ -116,13 +117,13 @@ var global_pref_observer_topics = {
     "rubyDefaultInterpreter" : RUBY_LIST,
     "ruby_lintOption" : RUBY_LIST,
 
-    "lintJavaScriptEnableWarnings" : JS_LIST,
-    "lintJavaScriptEnableStrict" : JS_LIST,
-    "lintJavaScript_SpiderMonkey" : JS_LIST,
-    "lintWithJSHint" : JS_LIST,
-    "jshintOptions" : JS_LIST,
-    "lintWithJSLint" : JS_LIST,
-    "jslintOptions" : JS_LIST,
+    "lintJavaScriptEnableWarnings" : JS_NODEJS_LIST,
+    "lintJavaScriptEnableStrict" : JS_NODEJS_LIST,
+    "lintJavaScript_SpiderMonkey" : JS_NODEJS_LIST,
+    "lintWithJSHint" : JS_NODEJS_LIST,
+    "jshintOptions" : JS_NODEJS_LIST,
+    "lintWithJSLint" : JS_NODEJS_LIST,
+    "jslintOptions" : JS_NODEJS_LIST,
     "lint_coffee_script" : ["CoffeeScript"],
 
     "lintHTMLTidy" : HTML_LIST,

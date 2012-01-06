@@ -278,8 +278,7 @@ class GenericJSLinter(CommonJSLinter):
         cmd = [jsInterp, jsLintApp, "--include=" + jsLintDir]
         if prefSwitchName == "lintWithJSHint":
             cmd.append("--jshint")
-        if (prefSwitchName == "lintWithJSLint"
-            and request.koDoc.language == "Node.js"
+        if (request.koDoc.language == "Node.js"
             and not "node=" in options):
             options += " node=1"
         if options:
@@ -379,6 +378,7 @@ class KoJSHintLinter(GenericJSLinter):
     _reg_contractid_ = "@activestate.com/koLinter?language=JavaScript&type=JSHint;1"
     _reg_categories_ = [
          ("category-komodo-linter", 'JavaScript&type=jshint'),
+         ("category-komodo-linter", 'Node.js&type=jshint'),
          ]
         
     def lint_with_text(self, request, text):
