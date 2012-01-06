@@ -43,12 +43,17 @@ state IN_M_STAG_EXP_TNAME:
 
 
 state IN_H2CSL_STAG_POST_TAGNAME:
-'>' : paint(upto, M_TAGSPACE), paint(include, M_STAGC) => IN_CSL_DEFAULT
+'>' : paint(upto, M_TAGSPACE), paint(include, M_STAGC) => IN_H2CSL_STAG_POST_TAGNAME_IN_WS
 # empty tag : nothing to lex inside it.
 '/>' : paint(upto, M_TAGSPACE), paint(include, M_EMP_TAGC) => IN_M_DEFAULT
 /[$CS]/ : paint(upto, M_TAGSPACE) => IN_H2CSL_STAG_IN_ATTRNAME
 # Assume a < means we're out of sync, bail
 '<'    : paint(upto, M_TAGSPACE), redo => IN_M_DEFAULT
+
+
+state IN_H2CSL_STAG_POST_TAGNAME_IN_WS:
+'\n': paint(include, M_DEFAULT), => IN_CSL_DEFAULT
+/\S/: paint(upto, M_DEFAULT), redo, => IN_CSL_DEFAULT
 
 state IN_H2CSL_STAG_IN_ATTRNAME
 /[^$CS]/ :  paint(upto, M_ATTRNAME), redo, => IN_H2CSL_STAG_POST_ATTRNAME_1

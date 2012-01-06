@@ -540,6 +540,37 @@ class KoUDLCommenterLanguageService(KoCommenterLanguageService):
         selStart = scimoz.selectionStart
         selEnd = scimoz.selectionEnd
 
+        # Bug 88741: when we transition from Markup at the end of the line,
+        # don't start the other family until the start of the next line.
+        # Now if we're selecting from <script...>|[EOL]
+        # to .... and try to comment it, act as if the commenting
+        # starts at the start of the next line.
+        selStart_Family = udl_family_from_style(getActualStyle(scimoz, selStart))
+        selStartNextPos = scimoz.positionAfter(selStart)
+        selStartNext_Family = udl_family_from_style(getActualStyle(scimoz, selStartNextPos))
+        selEnd_Family = udl_family_from_style(getActualStyle(scimoz, selEnd))
+        selEndPrevPos = scimoz.positionAfter(scimoz.positionBefore(selEnd))
+        selEndPrev_Family = udl_family_from_style(getActualStyle(scimoz, selEndPrevPos))
+        if (selEndPrev_Family != "M"
+            and selStart_Family == "M"
+            and selStartNext_Family == selEndPrev_Family):
+            scimoz.selectionStart = selStartNextPos
+            selStart = selStartNextPos
+        else:
+            # Watch out if we're selecting at the end of a line,
+            # but the start of that line isn't in the same family.
+            # If that's the case, move to the start of the next line.
+            startLineNo = scimoz.lineFromPosition(selStart)
+            endLinePos = scimoz.getLineEndPosition(startLineNo)
+            if endLinePos == selStart:
+                startLinePos = scimoz.positionFromLine(startLineNo)
+                startLineFamily = udl_family_from_style(getActualStyle(scimoz, startLinePos))
+                if (startLineFamily == "M"
+                    and selStart_Family != "M"
+                    and selStartNext_Family == selEndPrev_Family):
+                    scimoz.selectionStart = selStartNextPos
+                    selStart = selStartNextPos
+            
         sections = [
             udl_family_from_style(getActualStyle(scimoz, selStart)),
             udl_family_from_style(getActualStyle(scimoz, selEnd-1))
