@@ -96,7 +96,7 @@ class _CommonHTMLLinter(object):
     # <![CDATA[ ... ]]> or <!-- .. -->
     # Allow for bits of template code inside a style or script tag as well.
 
-    _leading_ignorables_re = re.compile(r'\A((?:<!\[CDATA\[|<!--|\s+)*)(.*?)((?:\]\]>|-->|\s+)*)\Z', re.DOTALL)
+    _leading_ignorables_re = re.compile(r'\A((?:<!\[CDATA\[|<!--|\s)*)(.*?)((?:\]\]>|-->|\s)*)\Z', re.DOTALL)
     _non_ws_re = re.compile('\\S')
 
     def _get_unwrappedText(self, currText, koDoc, i, startPt, endPt, lim):
@@ -303,7 +303,7 @@ class _CommonHTMLLinter(object):
                 for lintResult in lintResultSet.getResults():
                     lintResult.description = langName + ": " + lintResult.description
                 finalLintResults.addResults(lintResultSet)
-            return finalLintResults            
+            return finalLintResults
 
 class _Common_HTMLAggregator(_CommonHTMLLinter):
     def __init__(self):
