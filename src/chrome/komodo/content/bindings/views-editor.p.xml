@@ -176,8 +176,6 @@
                 this._setLanguage(language);
                 
                 xtk.domutils.fireEvent(this, 'view_document_attached');
-            } else {
-                this.language = "Text";
             }
         ]]>
         </setter>
