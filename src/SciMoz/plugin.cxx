@@ -299,6 +299,7 @@ SciMozPluginInstance::SciMozPluginInstance(NPP aInstance) :
 
 SciMozPluginInstance::~SciMozPluginInstance()
 {
+    delete scimozInstance;
 #ifdef SCIMOZ_DEBUG
     fprintf(stderr,"SciMozPluginInstance::~SciMozPluginInstance %p inst %p peer %p\n", this, nppInstance, scimozInstance);
 #endif
