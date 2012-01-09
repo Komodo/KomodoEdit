@@ -1232,9 +1232,100 @@ class KoScintillaSchemeService:
         observerSvc.notifyObservers(self, 'scheme-changed', newSchemeName)
         return oldSchemeName
 
+    def _addLogicalLinesWithTab(self, html, scimoz, lineStart, lineEnd,
+                                language, lineNo, useLineNos,
+                                style_bits, maxLineLength,
+                                selectionOnly):
+        if useLineNos:
+            lineNoStr = '%4d    ' % lineNo
+            prefixLen = len(lineNoStr)
+            lineNoStr = lineNoStr.replace(' ', '&nbsp;')
+            #lineNoStr = '%4d' % lineNo
+            #prefixLen = len(lineNoStr) + 4
+            #lineNoStr += '&nbsp;' * 4
+            html.write('<br /><span class="linenumbers">%s</span>' % lineNoStr)
+        else:
+            prefixLen = 0
+            html.write('<br />')
+        actualLineLength = scimoz.getColumn(lineEnd)
+        # Precondition: maxLineLength > 0
+        maxLineLength -= prefixLen
+        if maxLineLength <= 0:
+            # This is silly -- they've specified a max line-width
+            #    of 1 through 8, but we have a consistent story for it:
+            # Do more or less what they requested,
+            # and spit out one character per line.
+            log.warn("Maximum line-width of %d is less-than the line-number region of %d",
+                     maxLineLength, prefixLen)
+            maxLineLength = 1
+        if selectionOnly:
+            start = max(scimoz.selectionStart, lineStart)
+            end = min(lineEnd, scimoz.selectionEnd)
+            if start > lineStart:
+                leadingWS = ' ' * scimoz.getColumn(start)
+            else:
+                leadingWS = ''
+        else:
+            start = lineStart
+            end = lineEnd
+            leadingWS = ''
+        currColumn = 0
+        buff = scimoz.getStyledText(start, end)
+        origText = leadingWS + "".join(buff[0::2])
+        origStyles = [0] * len(leadingWS) + [ord(c) for c in buff[1::2]]
+        textExpanded = []
+        stylesExpanded = []
+        tabWidth = scimoz.tabWidth
+        while origText:
+            tabIdx = origText.find("\t")
+            if tabIdx == -1:
+                textExpanded.append(origText)
+                stylesExpanded += origStyles
+                break
+            part = origText[:tabIdx]
+            textExpanded.append(part)
+            currColumn += len(part)
+            part = origStyles[:tabIdx]
+            stylesExpanded += part
+            
+            part = " " * (tabWidth - (currColumn % tabWidth))
+            textExpanded.append(part)
+            tabStyle = origStyles[tabIdx]
+            stylesExpanded += [tabStyle] * len(part)
+            currColumn += len(part)
+
+            origText   = origText[tabIdx + 1:]
+            origStyles = origStyles[tabIdx + 1:]
+            
+        textWithoutTabs   = "".join(textExpanded)
+        stylesWithoutTabs = stylesExpanded
+
+        while textWithoutTabs:
+            textSegment = textWithoutTabs[:maxLineLength]
+            stylesSegment = stylesWithoutTabs[:maxLineLength]
+            textWithoutTabs = textWithoutTabs[maxLineLength:]
+            stylesWithoutTabs = stylesWithoutTabs[maxLineLength:]
+            self._addPhysicalLineWithoutTabs(html, scimoz,
+                                             textSegment,
+                                             stylesSegment,
+                                             language, lineNo,
+                                             useLineNos, style_bits)
+            if (textWithoutTabs):
+                html.write('<br />')
+                if useLineNos:
+                    spacer = '&nbsp;'*8
+                    html.write('<span class="linenumbers">' + spacer + '</span>')
+
     def _addLogicalLine(self, html, scimoz, lineStart, lineEnd, language,
                         lineNo, useLineNos, style_bits, maxLineLength,
                         selectionOnly):
+        if (maxLineLength != 0
+            and '\t' in scimoz.getTextRange(lineStart, lineEnd)):
+            self._addLogicalLinesWithTab(html, scimoz, lineStart, lineEnd,
+                                         language, lineNo,
+                                         useLineNos, style_bits, maxLineLength,
+                                         selectionOnly)
+            return
         if useLineNos:
             lineNoStr = '%4d    ' % lineNo
             prefixLen = len(lineNoStr)
@@ -1266,6 +1357,10 @@ class KoScintillaSchemeService:
                     continue
                 start = max(scimoz.selectionStart, start)
                 end = min(scimoz.selectionEnd, end)
+                if start >= scimoz.selectionEnd:
+                    return
+            if start == end:
+                continue
             self._addPhysicalLine(html, scimoz,
                                   start, end,
                                   language, lineNo,
@@ -1310,6 +1405,45 @@ class KoScintillaSchemeService:
             content = content.replace('<', '&lt;')
             content = content.replace('>', '&gt;')
             # replace leading whitespace with non-breaking spaces
+            line = styles[0] + content + styles[1]
+            html.write(line)
+
+    def _addPhysicalLineWithoutTabs(self, html, scimoz, 
+                                    textWithoutTabs,
+                                    stylesWithoutTabs,
+                                    language, lineNo, useLineNos, style_bits):
+        regions = []
+        mask = 0
+        currentStyle = 0
+        for bit in range(0, style_bits):
+            mask |= 2**bit
+        # Build a bunch of styled 'regions'
+        currentString = textWithoutTabs[0]
+        currentStyle = stylesWithoutTabs[0] & mask
+        for i in range(1, len(stylesWithoutTabs)):
+            c = textWithoutTabs[i]
+            if c == '\r':
+                # This causes problems when printing, so skip
+                continue
+            s = stylesWithoutTabs[i] & mask
+            if s != currentStyle:
+                regions.append((currentString, currentStyle))
+                currentStyle = s
+                currentString = c
+            else:
+                currentString += c
+        regions.append((currentString, currentStyle))
+        for region in regions:
+            content = region[0]
+            if content in ["\r","\r\n","\n"]:
+                html.write(content)
+                continue
+            content = content.replace('&', '&amp;')
+            content = content.replace(' ', '&nbsp;')
+            content = content.replace('<', '&lt;')
+            content = content.replace('>', '&gt;')
+            # replace leading whitespace with non-breaking spaces
+            styles = self.getStyleTags(language, region[1])
             line = styles[0] + content + styles[1]
             html.write(line)
 
