@@ -1994,6 +1994,7 @@ def _exc_info_summary():
 
 
 _high_bit_chr_re = re.compile(r'[^\x00-\x7f]')
+_wrapping_newlines_re = re.compile(r'^([\r\n]*)(.*?)([\r\n]*)$')
 def _regex_info_from_ko_find_data(pattern, repl=None,
                                   patternType=FOT_SIMPLE,
                                   caseSensitivity=FOC_SENSITIVE,
@@ -2033,17 +2034,26 @@ def _regex_info_from_ko_find_data(pattern, repl=None,
         flags |= re.UNICODE
 
     # Massage the pattern, if necessary.
-    if patternType == FOT_SIMPLE:
-        pattern = '\n'.join(re.escape(ln) for ln in pattern.splitlines(0))
-    elif patternType == FOT_WILDCARD:    # DEPRECATED
-        pattern = '\n'.join(re.escape(ln) for ln in pattern.splitlines(0))
-        pattern = pattern.replace("\\?", "\w")
-        pattern = pattern.replace("\\*", "\w*")
-    elif patternType == FOT_REGEX_PYTHON:
+    if patternType == FOT_REGEX_PYTHON:
         pass
     else:
-        raise ValueError("unrecognized find pattern type: %r"
-                         % patternType)
+        m = _wrapping_newlines_re.match(pattern)
+        if not m.group(2):
+            # Bug 88293 on newlines
+            # splitlines converts leading newline to "", drops trailing newline
+            # But we can't use splitlines(keepends=True) because then we'll
+            # escape the newlines to "\\\n" (r'\n') -- better to pull them
+            # off before calling splitlines, and then tack them off after.
+            pass
+        else:
+            pattern = '\n'.join(re.escape(ln) for ln in m.group(2).splitlines(0))
+            if patternType == FOT_WILDCARD:    # DEPRECATED
+                pattern = pattern.replace("\\?", "\w").replace("\\*", "\w*")
+            elif patternType != FOT_SIMPLE:
+                raise ValueError("unrecognized find pattern type: %r"
+                                 % patternType)
+            pattern = m.group(1) + pattern + m.group(2)
+
     if '\n' in pattern and '\r' not in pattern:
         pattern = pattern.replace('\n', '(?:\r\n|\n|\r)')
     if matchWord:
