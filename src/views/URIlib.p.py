@@ -1045,7 +1045,9 @@ class projectURIHandler(FileHandlerBase):
                 self.part = _partSvc.getPartById(self._uri.server)
                 self._stats = None
             if mode and mode[0] == 'r':
-                self._file = StringIO.StringIO(self.part.value)
+                # bug89131: work with read method, which returns octets
+                # file contents should always be utf-8
+                self._file = StringIO.StringIO(self.part.value.encode('utf-8'))
             else:
                 self._file = StringIO.StringIO()
         except Exception, e:
@@ -1059,6 +1061,12 @@ class projectURIHandler(FileHandlerBase):
                 self._stats['isReadable'] = 0
                 self._stats['isReadOnly'] = 0
         return self._file is not None
+
+    #def read(self, nBytes):
+    #    # bug89131: read returns (length, octets), but it mishandles
+    #    # returning a string of Unicode characters: it returns
+    #    # (# of Unicode characters, sequence of utf-8-encoded octets)
+    #    return FileHandlerBase.read(self, nBytes).encode('utf-8')
 
     def __get_stats(self):
         # exists must be true for an open file attempt to be made
@@ -1143,7 +1151,9 @@ class projectURI2_Handler(projectURIHandler):
                 except AttributeError:
                     log.exception("can't get content off %s", self.part)
                     raise
-                self._file = StringIO.StringIO(self.part.value)
+                # bug89131: work with read method, which returns octets
+                # file contents should always be utf-8
+                self._file = StringIO.StringIO(self.part.value.encode('utf-8'))
             else:
                 self._file = StringIO.StringIO()
         except Exception:

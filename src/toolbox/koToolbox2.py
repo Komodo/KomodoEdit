@@ -174,6 +174,8 @@ class Database(object):
             yield cu
         else:
             cx = sqlite3.connect(self.path)
+            # This is required 
+            cx.text_factory = lambda x:unicode(x, "utf-8", "ignore")
             cu = cx.cursor()
             try:
                 yield cu
@@ -824,8 +826,14 @@ class Database(object):
             cu.execute("""select value, keyboard_shortcut from common_tool_details
                           where path_id = ?""", (path_id,))
             row = cu.fetchone()
-            obj['value'] = row[0]
-            obj['keyboard_shortcut'] = row[1]
+            if row is None:
+                # Allow for a corrupt database that has a main entry
+                # but no common details.
+                obj['value'] = ""
+                obj['keyboard_shortcut'] = None
+            else:
+                obj['value'] = row[0]
+                obj['keyboard_shortcut'] = row[1]
             cu.execute("""select prop_name, prop_value from misc_properties
                           where path_id = ?""", (path_id,))
             rows = cu.fetchall()
@@ -1183,8 +1191,10 @@ class Database(object):
 
     def saveContent(self, path_id, value):
         with self.connect(commit=True) as cu:
+            # bug 89131: utf-8 encode, work with the unicode text factory
+            # Confusing, but this makes sure round-tripping works.
             self.updateValuesInTableByKey('common_tool_details',
-                                          ['value'], [value],
+                                          ['value'], [value.encode("utf-8")],
                                           ['path_id'], [path_id], cu)
         
     def save_commonToolDetails(self, path_id, oldMacroInfo, attributes, new_value, cu=None):
