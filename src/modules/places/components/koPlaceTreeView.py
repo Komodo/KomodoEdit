@@ -2271,7 +2271,15 @@ class _WorkerThread(threading.Thread, Queue):
                 rv = getattr(self, request)(args)
             except:
                 log.exception("Request:%s", request)
-                rv = "Exception: request:%s, message:%s" % (request, sys.exc_info()[1])
+                reason = sys.exc_info()[1]
+                if reason:
+                    rv = "Exception: request:%s, message:%s" % (request, reason)
+                else:
+                    # Bug 89496: We don't have a good message to relay,
+                    # so don't bother with the normal callback.  Build the
+                    # tree with whatever info the worker thread picked up.
+                    rv = ""
+                
             if not self._isShuttingDown:
                 treeView = args['requester']
                 treeView.proxySelf.handleCallback(callback, rv, args['requestID'])
