@@ -23,28 +23,22 @@ tabs {
 tab {
   -moz-appearance: none;
   background: url("chrome://komodo/skin/tabs/tab-bkgnd.png") repeat-x;
-  margin: 3px 0px 0px;
-  padding: 0px 4px 2px;
-  border: 2px solid;
+  margin-top: 0;
+  border-width: 0;
+  border-radius: 0;
   border-right-width: 1px;
-  border-bottom: none;
-  -moz-border-radius-topleft: 2px;
-  -moz-border-radius-topright: 2px;
-  -moz-border-top-colors: ThreeDShadow rgba(255,255,255,.3);
-  -moz-border-right-colors: rgba(0,0,0,.1);
-  -moz-border-left-colors: ThreeDShadow rgba(255,255,255,.3);
+  border-top-width: 3px;
+  -moz-border-top-colors: rgba(80, 80, 80, 0.35);
+  -moz-border-bottom-colors: rgba(80, 80, 80, 0.35);
+  -moz-border-left-colors: rgba(80, 80, 80, 0.35);
+  -moz-border-right-colors: rgba(80, 80, 80, 0.35);
 }
 
 tab[selected="true"] {
-  border-top-width: 1px;
-  -moz-border-radius-topleft: 4px;
-  -moz-border-radius-topright: 4px;
-  -moz-border-top-colors: ThreeDShadow;
+  border-left-width: 1px;
+  -moz-border-top-colors: #ff9000;
   -moz-border-right-colors: ThreeDShadow;
   -moz-border-left-colors: ThreeDShadow;
-  border-width: 1px;
-  margin: 2px 0px 0px;
-  padding: 1px 4px 1px;
   background-image: url("chrome://komodo/skin/tabs/tab-active-bkgnd.png");
   background-color: -moz-dialog;
 }

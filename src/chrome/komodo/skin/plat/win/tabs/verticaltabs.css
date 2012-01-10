@@ -25,10 +25,56 @@ ko-pane[type="vertical"] tabs[anonid="tabs"] tab
 {
   /* Let our own native tab styling above work on the vertical tabs. */
   -moz-appearance: none;
-  /* Undo horizontal-specific native tab css styling from above. */
-  border-bottom: solid 1px;
-  -moz-border-radius-bottomleft: 2px;
-  -moz-border-radius-bottomright: 2px;
+  margin-top: 0;
+  border-width: 0;
+  border-radius: 0;
+  border-left-style: solid;
+  -moz-border-top-colors: rgba(80, 80, 80, 0.35);
+  -moz-border-bottom-colors: rgba(80, 80, 80, 0.35);
+  -moz-border-left-colors: rgba(80, 80, 80, 0.35);
+  -moz-border-right-colors: rgba(80, 80, 80, 0.35);
+}
+
+ko-pane[type="vertical"][rotation="90"] tabs[anonid="tabs"] tab
+{
+  border-bottom-width: 1px;
+  border-right-width: 3px;
+}
+ko-pane[type="vertical"][rotation="90"] tabs[anonid="tabs"] tab:first-child
+{
+  border-top-width: 1px;
+}
+
+ko-pane[type="vertical"][rotation="270"] tabs[anonid="tabs"] tab
+{
+  border-top-width: 1px;
+  border-left-width: 3px;
+}
+ko-pane[type="vertical"][rotation="270"] tabs[anonid="tabs"] tab:last-child
+{
+  border-bottom-width: 1px;
+}
+
+ko-pane[type="vertical"] tabs[anonid="tabs"] tab[selected="true"]
+{
+  -moz-border-top-colors: ThreeDShadow;
+  -moz-border-bottom-colors: ThreeDShadow;
+  background-image: url("chrome://komodo/skin/tabs/tab-active-bkgnd.png");
+  background-color: -moz-dialog;
+}
+
+ko-pane[type="vertical"][rotation="90"] tabs[anonid="tabs"] tab[selected="true"]
+{
+  border-top-width: 1px;
+  border-left-style: none;
+  -moz-border-right-colors: #ff9000;
+}
+
+ko-pane[type="vertical"][rotation="270"] tabs[anonid="tabs"] tab[selected="true"]
+{
+  border-bottom-width: 1px;
+  border-right-style: none;
+  -moz-border-left-colors: #ff9000;
 }
 
 ko-pane[type="vertical"][rotation="90"] tab .tab-text
