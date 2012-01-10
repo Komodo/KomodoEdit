@@ -60,6 +60,10 @@ var gkoAMActionObserver = {
         "http://community.activestate.com/addons/recommended",
         "http://community.activestate.com/xpi/",
         "http://community.activestate.com/files/",
+        // Repeat for the support site (same server - different alias).
+        "http://support.activestate.com/addons/recommended",
+        "http://support.activestate.com/xpi/",
+        "http://support.activestate.com/files/",
       ];
       for each (var prefix in goodPrefixes) {
         if (uri.substring(0, prefix.length) == prefix) {
