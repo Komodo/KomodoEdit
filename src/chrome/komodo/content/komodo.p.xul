@@ -271,6 +271,16 @@
                 label="&jumpToCorrespondingLine.label;"
                 class="menuitem-iconic reveal-in-editor-icon"
                 observes="cmd_jumpToCorrespondingLine"/>
+        <menuitem id="editor-context-find"
+                label="&find.label;"
+                observes="cmd_find"
+                class="menuitem-iconic"
+                />
+        <menuitem id="editor-context-replace"
+                label="&replace.label;"
+                observes="cmd_replace"
+                class="menuitem-iconic"
+                />
         <menuitem label="&toggleBookmark.label;"
                 id="menu_bookmarkToggle"
                 observes="cmd_bookmarkToggle"/>
