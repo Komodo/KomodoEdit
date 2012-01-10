@@ -216,6 +216,23 @@ addEventListener("load", function() {
   var spacer = document.querySelector("#header > spacer");
   spacer.parentNode.replaceChild(box, spacer);
 
+  // Hide the community site navigation features.
+  gDiscoverView.hideCommunitySiteNavigation = function(browser) {
+    if (!browser)
+      return;
+    let browserSpec = browser.currentURI.spec.toLowerCase();
+    if ((browserSpec.indexOf('://support.activestate.com/') >= 0) ||
+        (browserSpec.indexOf('://community.activestate.com/') >= 0)) {
+      for each (var id in ["as_header_wrapper", "as_footer_wrapper", "breadcrumb"]) {
+        let elem = browser.contentDocument.getElementById(id);
+        if (elem) {
+          elem.hidden = true;
+        }
+      }
+    }
+  };
+  gDiscoverView.hideCommunitySiteNavigation(document.getElementById("discover-browser"));
+
   // Replace the onStateChange handler to not show an error when the request was
   // deliberately cancelled by the "http-on-modify-request" observer (see above).
   gDiscoverView.__orig_onStateChange__ = gDiscoverView.onStateChange;
@@ -225,8 +242,21 @@ addEventListener("load", function() {
       aStatus = Components.results.NS_OK;
       aRequest = null;
     }
-    return gDiscoverView.__orig_onStateChange__(aWebProgress, aRequest, aStateFlags, aStatus);
-  }
+    var result = gDiscoverView.__orig_onStateChange__(aWebProgress, aRequest, aStateFlags, aStatus);
+    // Hide the community site nav elements when loaded:
+    // Only care about the network events
+    if (!(aStateFlags & (Ci.nsIWebProgressListener.STATE_IS_NETWORK)))
+      return result;
+    // Ignore anything except stop events
+    if (!(aStateFlags & (Ci.nsIWebProgressListener.STATE_STOP)))
+      return result;
+    // Consider the successful load of about:blank as still loading
+    if (aRequest instanceof Ci.nsIChannel && aRequest.URI.spec == "about:blank") {
+      return result;
+    }
+    gDiscoverView.hideCommunitySiteNavigation(this._browser);
+    return result;
+  };
 
   // Force load everything in the same window, disable _blank
   var xulWindow = window.QueryInterface(Ci.nsIInterfaceRequestor)
