@@ -47,6 +47,7 @@ import logging
 import types
 from pprint import pprint, pformat
 import time
+import codecs
 
 from codeintel2.common import CodeIntelError
 
@@ -247,6 +248,12 @@ def parsePyFuncDoc(doc, fallbackCallSig=None, scope="?", funcname="?"):
         return ([], [])
     
     limit = LINE_LIMIT
+    if not isinstance(doc, unicode):
+        # try to convert from utf8 to unicode; if we fail, too bad.
+        try:
+            doc = codecs.utf_8_decode(doc)[0]
+        except UnicodeDecodeError:
+            pass
     doclines = doc.splitlines(0)
     index = 0
     siglines = []
@@ -300,14 +307,19 @@ def parsePyFuncDoc(doc, fallbackCallSig=None, scope="?", funcname="?"):
             index = len(doclines)
     if not siglines and fallbackCallSig:
         siglines = fallbackCallSig
-    
+
     # Parse out the description block.
     if desclines:
         # Use what we have already. Just need to wrap it.
         desclines = textwrap.wrap(' '.join(desclines), LINE_WIDTH)
     else:
-        limit -= len(siglines)
-        desclines = parseDocSummary(doclines[index:], limit=limit)
+        doclines = doclines[index:]
+        try:
+            skip_first_line = (doclines[0][0] not in (" \t"))
+        except IndexError:
+            skip_first_line = False # no lines, or first line is empty
+        desclines = dedent("\n".join(doclines), skip_first_line=skip_first_line)
+        desclines = desclines.splitlines(0)
 
     ## debug logging
     #f = open("parsePyFuncDoc.log", "a")

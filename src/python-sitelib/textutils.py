@@ -164,7 +164,11 @@ def break_up_lines(text, max_line_width=80):
     import textwrap
     lines = []
     for line in text.split("\n"):
-        lines += textwrap.wrap(line, max_line_width)
+        if not line:
+            # need to manually append, otherwise textwrap eats it
+            lines.append(line)
+        else:
+            lines += textwrap.wrap(line, max_line_width)
     return '\n'.join(lines)
 
 
