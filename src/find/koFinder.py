@@ -2052,7 +2052,7 @@ def _regex_info_from_ko_find_data(pattern, repl=None,
             elif patternType != FOT_SIMPLE:
                 raise ValueError("unrecognized find pattern type: %r"
                                  % patternType)
-            pattern = m.group(1) + pattern + m.group(2)
+            pattern = m.group(1) + pattern + m.group(3)
 
     if '\n' in pattern and '\r' not in pattern:
         pattern = pattern.replace('\n', '(?:\r\n|\n|\r)')
