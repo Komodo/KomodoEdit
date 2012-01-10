@@ -470,7 +470,7 @@ class FileHandlerBase(object):
         try:
             if nBytes >= 0xFFFFFFFF:
                 # XXX - Hack around the fact that the read nBytes is
-                #           marked as an unisigned int in the IDL, but some
+                #           marked as an unsigned int in the IDL, but some
                 #           parts of the code use read(-1), which makes a
                 #           really large unsigned int, causing exceptions!
                 # http://bugs.activestate.com/show_bug.cgi?id=72912
