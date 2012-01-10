@@ -1343,6 +1343,79 @@
                 <File Id="file12" Name="install.rdf" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\industrial@openoffice.org\install.rdf"/>
               </Component>
             </Directory> <!-- lib\mozilla\extensions\industrial@openoffice.org -->
+            <Directory Id="directory300" Name="RAILST_0.COM" LongName="railstools@activestate.com">
+              <Component Id="component271" DiskId="1" Guid="$(autowix.guid)">
+                <File Id="file155" Name="CHROM_29.MAN" LongName="chrome.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\railstools@activestate.com\chrome.manifest"/>
+                <File Id="file3926" Name="install.rdf" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\railstools@activestate.com\install.rdf"/>
+                <File Id="file3927" Name="RAILST_0.JAR" LongName="railstools.jar" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\railstools@activestate.com\railstools.jar"/>
+              </Component>
+              <Directory Id="directory301" Name="tools">
+                <Component Id="component272" DiskId="1" Guid="$(autowix.guid)">
+                  <File Id="file3928" Name="FOLDER_0" LongName=".folderdata" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\railstools@activestate.com\tools\.folderdata"/>
+                  <File Id="file3929" Name="CREATE_1.KOM" LongName="Create_Databases.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\railstools@activestate.com\tools\Create_Databases.komodotool"/>
+                  <File Id="file3932" Name="DELETE_0.KOM" LongName="Delete_Databases.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\railstools@activestate.com\tools\Delete_Databases.komodotool"/>
+                </Component>
+                <Directory Id="directory307" Name="GENERA_0" LongName="Generators">
+                  <Component Id="component277" DiskId="1" Guid="$(autowix.guid)">
+                    <File Id="file3938" Name="FOLDER_1" LongName=".folderdata" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\railstools@activestate.com\tools\Generators\.folderdata"/>
+                    <File Id="file3939" Name="CONTRO_0.KOM" LongName="controller-method.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\railstools@activestate.com\tools\Generators\controller-method.komodotool"/>
+                    <File Id="file3941" Name="CONTRO_1.KOM" LongName="controller.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\railstools@activestate.com\tools\Generators\controller.komodotool"/>
+                    <File Id="file3948" Name="MIGRAT_0.KOM" LongName="migration.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\railstools@activestate.com\tools\Generators\migration.komodotool"/>
+                    <File Id="file3949" Name="MODEL_0.KOM" LongName="model.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\railstools@activestate.com\tools\Generators\model.komodotool"/>
+                    <File Id="file3950" Name="SCAFFO_0.KOM" LongName="scaffold.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\railstools@activestate.com\tools\Generators\scaffold.komodotool"/>
+                  </Component>
+                </Directory> <!-- lib\mozilla\extensions\railstools@activestate.com\tools\Generators -->
+                <Directory Id="directory308" Name="Migrate">
+                  <Component Id="component278" DiskId="1" Guid="$(autowix.guid)">
+                    <File Id="file3951" Name="FOLDER_2" LongName=".folderdata" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\railstools@activestate.com\tools\Migrate\.folderdata"/>
+                    <File Id="file3952" Name="DB_MIG_0.KOM" LongName="db_migrate-to-version.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\railstools@activestate.com\tools\Migrate\db_migrate-to-version.komodotool"/>
+                    <File Id="file3953" Name="DB_MIG_1.KOM" LongName="db_migrate.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\railstools@activestate.com\tools\Migrate\db_migrate.komodotool"/>
+                  </Component>
+                </Directory> <!-- lib\mozilla\extensions\railstools@activestate.com\tools\Migrate -->
+                <Directory Id="directory309" Name="Plugins">
+                  <Component Id="component279" DiskId="1" Guid="$(autowix.guid)">
+                    <File Id="file3954" Name="FOLDER_3" LongName=".folderdata" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\railstools@activestate.com\tools\Plugins\.folderdata"/>
+                    <File Id="file3955" Name="AUTOCO_0.KOM" LongName="autocomplete.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\railstools@activestate.com\tools\Plugins\autocomplete.komodotool"/>
+                    <File Id="file3956" Name="INPLAC_0.KOM" LongName="in-place-editor.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\railstools@activestate.com\tools\Plugins\in-place-editor.komodotool"/>
+                    <File Id="file3957" Name="WILL_P_0.KOM" LongName="will_paginate.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\railstools@activestate.com\tools\Plugins\will_paginate.komodotool"/>
+                  </Component>
+                </Directory> <!-- lib\mozilla\extensions\railstools@activestate.com\tools\Plugins -->
+                <Directory Id="directory310" Name="Run">
+                  <Component Id="component280" DiskId="1" Guid="$(autowix.guid)">
+                    <File Id="file3958" Name="FOLDER_4" LongName=".folderdata" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\railstools@activestate.com\tools\Run\.folderdata"/>
+                    <File Id="file3959" Name="DEBUG__0.KOM" LongName="debug_rails_app.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\railstools@activestate.com\tools\Run\debug_rails_app.komodotool"/>
+                    <File Id="file3960" Name="RAILS__0.KOM" LongName="rails_console.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\railstools@activestate.com\tools\Run\rails_console.komodotool"/>
+                    <File Id="file3961" Name="RUN_SE_0.KOM" LongName="run_server.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\railstools@activestate.com\tools\Run\run_server.komodotool"/>
+                  </Component>
+                </Directory> <!-- lib\mozilla\extensions\railstools@activestate.com\tools\Run -->
+                <Directory Id="directory311" Name="Snippets">
+                  <Component Id="component281" DiskId="1" Guid="$(autowix.guid)">
+                    <File Id="file3962" Name="FOLDER_5" LongName=".folderdata" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\railstools@activestate.com\tools\Snippets\.folderdata"/>
+                  </Component>
+                  <Directory Id="directory312" Name="Views">
+                    <Component Id="component282" DiskId="1" Guid="$(autowix.guid)">
+                      <File Id="file3963" Name="FOLDER_6" LongName=".folderdata" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\railstools@activestate.com\tools\Snippets\Views\.folderdata"/>
+                      <File Id="file3964" Name="FORXIN_0.KOM" LongName="for-x-in-obj_xs.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\railstools@activestate.com\tools\Snippets\Views\for-x-in-obj_xs.komodotool"/>
+                      <File Id="file3965" Name="FOR_X__0.KOM" LongName="for_x_in_names.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\railstools@activestate.com\tools\Snippets\Views\for_x_in_names.komodotool"/>
+                      <File Id="file3966" Name="XHTMLT_0.KOM" LongName="xhtml-transitional.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\railstools@activestate.com\tools\Snippets\Views\xhtml-transitional.komodotool"/>
+                    </Component>
+                  </Directory> <!-- lib\mozilla\extensions\railstools@activestate.com\tools\Snippets\Views -->
+                </Directory> <!-- lib\mozilla\extensions\railstools@activestate.com\tools\Snippets -->
+                <Directory Id="directory313" Name="Test">
+                  <Component Id="component288" DiskId="1" Guid="$(autowix.guid)">
+                    <File Id="file3967" Name="FOLDER_7" LongName=".folderdata" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\railstools@activestate.com\tools\Test\.folderdata"/>
+                    <File Id="file3968" Name="UNIT_T_0.KOM" LongName="Unit_Tests.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\railstools@activestate.com\tools\Test\Unit_Tests.komodotool"/>
+                  </Component>
+                </Directory> <!-- lib\mozilla\extensions\railstools@activestate.com\tools\Test -->
+                <Directory Id="directory314" Name="_Misc">
+                  <Component Id="component289" DiskId="1" Guid="$(autowix.guid)">
+                    <File Id="file3969" Name="FOLDER_8" LongName=".folderdata" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\railstools@activestate.com\tools\_Misc\.folderdata"/>
+                    <File Id="file3970" Name="STATS_0.KOM" LongName="Stats.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\railstools@activestate.com\tools\_Misc\Stats.komodotool"/>
+                  </Component>
+                </Directory> <!-- lib\mozilla\extensions\railstools@activestate.com\tools\_Misc -->
+              </Directory> <!-- lib\mozilla\extensions\railstools@activestate.com\tools -->
+            </Directory> <!-- lib\mozilla\extensions\railstools@activestate.com -->
+
             <Directory Id="directory331" Name="SILKFA_0.COM" LongName="silk@famfamfam.com">
               <Component Id="component297" DiskId="1" Guid="$(autowix.guid)">
                 <File Id="file437" Name="CHROM_17.MAN" LongName="chrome.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\silk@famfamfam.com\chrome.manifest"/>
