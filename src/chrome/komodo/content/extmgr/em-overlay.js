@@ -28,8 +28,13 @@ var gkoAMActionObserver = {
 
       // Figure out what window we tried to load in; if it wasn't the addon
       // manager discover view, don't touch the request.
-      var domWin = notificationCallbacks.getInterface(Ci.nsIDOMWindow);
-      if (domWin.top !== document.getElementById("discover-browser").contentWindow) {
+      try {
+        var domWin = notificationCallbacks.getInterface(Ci.nsIDOMWindow);
+        if (domWin.top !== document.getElementById("discover-browser").contentWindow) {
+          return;
+        }
+      } catch (ex) {
+        // Not a valid DOM Window - we don't care about it then.
         return;
       }
 
