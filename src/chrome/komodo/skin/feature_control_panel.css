@@ -17,3 +17,8 @@ image.status-ready {
 image.status-error {
     list-style-image: url('chrome://fugue/skin/icons/cross-script.png');
 }
+
+row#rx-feature-row {
+    border-bottom: 1px solid #ddd;
+}
+
