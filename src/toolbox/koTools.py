@@ -31,7 +31,6 @@ log = logging.getLogger("koTools")
 #log.setLevel(logging.DEBUG)
 
 eol = None
-eol_re = re.compile(r'(?:\r?\n|\r)')
 
 _toolsManager = None
 
@@ -129,7 +128,7 @@ class _KoTool(object):
             if res is not None:
                 itemDetailsDict[name] = res
         itemDetailsDict['type'] = self.get_type()
-        itemDetailsDict['value'] = self.value.split(eol)
+        itemDetailsDict['value'] = self.value.splitlines()
         for name in self._attributes:
             itemDetailsDict[name] = self._attributes[name]
 
@@ -316,7 +315,7 @@ class _KoTool(object):
         else:
             refreshParent = False
             savePath = path
-        data['value'] = self.value.split(eol)
+        data['value'] = self.value.splitlines()
         data['name'] = self.name
         self._saveIconCheck(data)
         data.update(self._attributes)
@@ -328,7 +327,7 @@ class _KoTool(object):
 
     def saveNewToolToDisk(self, path):
         data = {}
-        data['value'] = eol_re.split(self.value)
+        data['value'] = self.value.splitlines()
         data['type'] = self.typeName
         data['name'] = self.name
         self._saveIconCheck(data)
@@ -351,7 +350,7 @@ class _KoTool(object):
         else:
             refreshParent = False
             savePath = path
-        data['value'] = eol_re.split(self.value)
+        data['value'] = self.value.splitlines()
         data['type'] = self.typeName
         data['name'] = getattr(self, 'name', data['name'])
         self._saveIconCheck(data)
