@@ -106,6 +106,14 @@
                 } catch(ex) {
                     return;
                 }
+                // We need to move focus off of the previously selected view;
+                // if we can focus the tab, use that, otherwise the root element.
+                // See bug 91945.  The current_view_changed handler might move
+                // the focus around, so do this before firing the event.
+                document.documentElement.focus();
+                if (val.tabbox && val.tabbox.selectedTab) {
+                    val.tabbox.selectedTab.focus();
+                }
                 if (currentView) {
                     try {
                         xtk.domutils.fireEvent(currentView, 'current_view_changed');
