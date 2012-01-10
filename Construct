@@ -1171,6 +1171,25 @@ sub cons::DependsOnRegxpcom {
 }
 
 
+sub cons::AddComponentManifestLines {
+    # Add the given array of lines to the components/komodo.manifest file.
+    my ($env, $fileName, $manifestLines) = (shift, shift, shift, shift);
+    defined($unsiloedPythonExe) or
+	die "When building rule for $fileName: Unsiloed Python not found, please Import 'unsiloedPythonExe'";
+    defined($mozSrc) or
+	die "When building rule for $fileName: Mozilla source not found, please Import 'mozSrc'";
+    defined($manifestLines) or
+	die "When building rule for $fileName: no manifest line was defined";
+    my $quotedEntries = '"' . join('" "', @$manifestLines) . '"';
+    $env->Command("$fileName.manifestlines.landmark",
+		  "$mozComponentsDir/komodo.manifest",
+		  "$mozSrc/mozilla/config/buildlist.py",
+		  qq(
+		    $unsiloedPythonExe %2 %1 $quotedEntries
+		    touch %>
+		  ));
+}
+
 sub cons::InstallXpcomComponent {
     # Install the component in the proper components directory and register it.
     my ($env, $fileName, $contracts) = (shift, shift, shift);
