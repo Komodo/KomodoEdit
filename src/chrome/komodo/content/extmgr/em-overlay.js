@@ -13,33 +13,62 @@ var gkoAMActionObserver = {
   observe: function gkoAMActionObserver_observe(subject, topic, data) {
 
     if (topic == "http-on-modify-request") {
-      /**
-       * Intercept xpi links and redirect those requests into the add-on install
-       * process, otherwise the user will be prompted to download the xpi
-       * instead of installing it.
-       */
-      var httpChannel = subject.QueryInterface(Components.interfaces.nsIHttpChannel);
-      let uri = httpChannel.URI.spec;
-      if (uri.substr(-4).toLowerCase() == ".xpi") {
-        try {
-          var notificationCallbacks = 
-            httpChannel.notificationCallbacks ? httpChannel.notificationCallbacks : httpChannel.loadGroup.notificationCallbacks;
-        }
-        catch (e) {
+      // Find the notificationCallbacks related to the request
+      var httpChannel = subject.QueryInterface(Ci.nsIHttpChannel);
+      try {
+        var notificationCallbacks = httpChannel.notificationCallbacks ||
+                                    httpChannel.loadGroup.notificationCallbacks;
+      }
+      catch (e) {
+        return;
+      }
+      if (!notificationCallbacks) {
+        return;
+      }
+
+      // Figure out what window we tried to load in; if it wasn't the addon
+      // manager discover view, don't touch the request.
+      var domWin = notificationCallbacks.getInterface(Ci.nsIDOMWindow);
+      if (domWin.top !== document.getElementById("discover-browser").contentWindow) {
+        return;
+      }
+
+      // Figure out the root document we tried to load
+      var documentChannel = notificationCallbacks.getInterface(Ci.nsIDocumentLoader).documentChannel || httpChannel;
+      let uri = documentChannel.URI.spec;
+
+      // this is a request from the discover pane; check for loads
+      if (/\.xpi$/i.test(uri)) {
+        // This is an extension installation; intercept the load, and force it
+        // into the addon manager instead.  Otherwise the user will be
+        // prompted to download the extension, which makes no sense.
+        httpChannel.cancel(Components.results.NS_BINDING_ABORTED);
+        gViewController.loadView("addons://list/extension");
+        AddonManager.getInstallForURL(uri, function(aInstall) {
+          AddonManager.installAddonsFromWebpage("application/x-xpinstall", this,
+                                                null, [aInstall]);
+        }, "application/x-xpinstall");
+        return;
+      }
+
+      var goodPrefixes = [
+        "http://community.activestate.com/addons/recommended",
+        "http://community.activestate.com/xpi/",
+        "http://community.activestate.com/files/",
+      ];
+      for each (var prefix in goodPrefixes) {
+        if (uri.substring(0, prefix.length) == prefix) {
+          // prefix match, this is a whitelisted URL; load in the app.
           return;
         }
-        if (notificationCallbacks) {
-          var domWin = notificationCallbacks.getInterface(Components.interfaces.nsIDOMWindow);
-          if (domWin != window) {
-            httpChannel.cancel(Components.results.NS_BINDING_ABORTED);
-            gViewController.loadView("addons://list/extension");
-            AddonManager.getInstallForURL(uri, function(aInstall) {
-              AddonManager.installAddonsFromWebpage("application/x-xpinstall", this,
-                                                    null, [aInstall]);
-            }, "application/x-xpinstall");
-          }
-        }
       }
+
+      // Not one of the whitelisted prefixes; load this externally
+      Cc["@mozilla.org/uriloader/external-protocol-service;1"]
+        .getService(Ci.nsIExternalProtocolService)
+        .loadURI(httpChannel.URI);
+      httpChannel.cancel(Components.results.NS_BINDING_ABORTED);
+
       return;
     }
 
@@ -197,6 +226,25 @@ addEventListener("load", function() {
       aRequest = null;
     }
     return gDiscoverView.__orig_onStateChange__(aWebProgress, aRequest, aStateFlags, aStatus);
+  }
+
+  // Force load everything in the same window, disable _blank
+  var xulWindow = window.QueryInterface(Ci.nsIInterfaceRequestor)
+                        .getInterface(Ci.nsIWebNavigation)
+                        .QueryInterface(Ci.nsIDocShellTreeItem).treeOwner
+                        .QueryInterface(Ci.nsIInterfaceRequestor)
+                        .getInterface(Ci.nsIXULWindow);
+  if (!xulWindow.XULBrowserWindow) {
+    xulWindow.XULBrowserWindow = {
+      setJSStatus: function(status) {},
+      setJSDefaultStatus: function(status) {},
+      setOverLink: function(link, element) {},
+      onBeforeLinkTraversal: function(target, linkURI, linkNode, isAppTab) {
+        // For some odd reason |target| can be quoted...
+        return (target.replace(/["']/g, '') == "_blank") ? "_top" : target;
+      },
+      QueryInterface: XPCOMUtils.generateQI([Ci.nsIXULBrowserWindow])
+    };
   }
 }, false);
 
