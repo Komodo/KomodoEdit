@@ -739,11 +739,7 @@
                 gEditorTooltipHandler.show(this, x, y, -1 /* no timeout */);
             }
 
-<!-- #if PLATFORM == "darwin" -->
-            if (this._hyperlink && this.isMetaKeyDown(false)) {
-<!-- #else -->
-            if (this._hyperlink && this.isCtrlKeyDown(false)) {
-<!-- #endif -->
+            if (this._hyperlink && this._isHyperlinkAllowed) {
                 this._hyperlink.dwell(this, position);
             }
             return true;
@@ -1403,16 +1399,19 @@
         -->
 
         <field name="INDICATOR_HYPERLINK" readonly="true">Components.interfaces.koILintResult.INDICATOR_HYPERLINK</field>
-        <field name="DOM_VK_CONTROL" readonly="true">Components.interfaces.nsIDOMKeyEvent.DOM_VK_CONTROL</field>
-        <field name="DOM_VK_META" readonly="true">Components.interfaces.nsIDOMKeyEvent.DOM_VK_META</field>
+        <field name="DOM_VK_ACCEL" readonly="true">
+            Components.classes["@mozilla.org/preferences-service;1"]
+                      .getService(Components.interfaces.nsIPrefBranch)
+                      .getIntPref("ui.key.accelKey")
+        </field>
         <!-- A hyperlink instance set on the view, ko.hyperlinks.Hyperlink -->
         <field name="_hyperlink">null</field>
         <field name="_last_mousemove_xy">[0,0]</field>
         <field name="_last_hyperlink_style">-1</field>
         <field name="_last_hyperlink_color">-1</field>
-        <!-- _keys_down is an array of keypress event attributes, indicating
-            the keys that are currently held down. -->
-        <field name="_keys_down">[]</field>
+        <!-- whether hyperlinks are allowed - they are when the accel key is
+           - down, but not after some other key has been pressed -->
+        <field name="_isHyperlinkAllowed">false</field>
 
         <method name="saveLocation">
         <parameter name="obj"/>
@@ -1448,71 +1447,6 @@
         </body>
         </method>
 
-        <method name="clearKeyDownValues">
-        <body>
-            <![CDATA[
-            this._keys_down = [];
-            ]]>
-        </body>
-        </method>
-            
-        <method name="isKeyDown">
-        <parameter name="keyCode"/>
-        <parameter name="onlyThisKey"/>
-        <body>
-            <![CDATA[
-            if (onlyThisKey) {
-                if (this._keys_down.length != 1) {
-                    return false;
-                }
-            }
-            for (var i=0; i < this._keys_down.length; i++) {
-                if (keyCode == this._keys_down[i]) {
-                    return true;
-                }
-            }
-            return false;
-            ]]>
-        </body>
-        </method>
-
-        <method name="isCtrlKeyDown">
-        <parameter name="onlyThisKey"/>
-        <body>
-            <![CDATA[
-            if (onlyThisKey) {
-                if (this._keys_down.length != 1) {
-                    return false;
-                }
-            }
-            for (var i=0; i < this._keys_down.length; i++) {
-                if (this._keys_down[i] /* event.keyCode */ == this.DOM_VK_CONTROL) {
-                    return true;
-                }
-            }
-            return false;
-            ]]>
-        </body>
-        </method>
-
-        <method name="isMetaKeyDown">
-        <parameter name="onlyThisKey"/>
-        <body>
-            <![CDATA[
-            if (onlyThisKey) {
-                if (this._keys_down.length != 1) {
-                    return false;
-                }
-            }
-            for (var i=0; i < this._keys_down.length; i++) {
-                if (this._keys_down[i] /* event.keyCode */ == this.DOM_VK_META) {
-                    return true;
-                }
-            }
-            return false;
-            ]]>
-        </body>
-        </method>
 
         <!-- Set from a hyperlink handler. -->
         <method name="setHyperlink">
@@ -1587,11 +1521,7 @@
             var x = event.clientX < 0 ? 0 : event.clientX - this.scintilla.boxObject.x;
             var y = event.clientY - this.scintilla.boxObject.y;
             this._last_mousemove_xy = [x, y];
-<!-- #if PLATFORM == "darwin" -->
-            if (this.isMetaKeyDown(false)) {
-<!-- #else -->
-            if (this.isCtrlKeyDown(false)) {
-<!-- #endif -->
+            if (this._isHyperlinkAllowed) {
                 // Check if the mouse has moved outside of the hyperlink, if
                 // it has then the hyperlink should be removed.
                 this.removeHyperlinks("mousemove");
@@ -1645,7 +1575,7 @@
                 }
             }
             this.removeHyperlinks("mouseup");
-            this.clearKeyDownValues();
+            this._isHyperlinkAllowed = false;
 
             window.setTimeout("window.updateCommands('scintilla-focus');", 1);
             ]]>
@@ -1656,7 +1586,7 @@
             if (gEditorTooltipHandler && typeof(this.getTooltipText) != 'undefined')
                 gEditorTooltipHandler.hide();
             this.removeHyperlinks("blur");
-            this.clearKeyDownValues();
+            this._isHyperlinkAllowed = false;
             this.clearMatchingTag();
             window.setTimeout(window.updateCommands, 1, 'scintilla-focus');
             ]]>
@@ -1664,35 +1594,32 @@
         <handler event="keydown" phase="capturing">
             <![CDATA[
             var keyCode = event.keyCode;
-<!-- #if PLATFORM == "darwin" -->
+/* #if PLATFORM == "darwin" */
             // Work around Synergy keypress problems on the Mac - bug 82430.
-            if (keyCode == 0) {
-                if (event.metaKey) {
-                    keyCode = this.DOM_VK_META;
-                }
+            if (keyCode == 0 && event.metaKey) {
+                keyCode = KeyEvent.DOM_VK_META;
             }
+/* #endif */
 
-            // Ensure the keydown event is not a duplicate, as the Mac will
-            // often send duplicate events for CMD+key keypresses, bug 82367.
-            for (var i=0; i < this._keys_down.length; i++) {
-                if (keyCode == this._keys_down[i]) {
-                    // Key is already there.
-                    return;
-                }
-            }
-<!-- #endif -->
-            //dump("keydown:: keyCode: " + keyCode + "\n");
-            this._keys_down.push(keyCode);
-<!-- #if PLATFORM == "darwin" -->
-            if (keyCode == this.DOM_VK_META) {
-<!-- #else -->
-            if (keyCode == this.DOM_VK_CONTROL) {
-<!-- #endif -->
-                var x, y;
-                [x,y] = this._last_mousemove_xy;
+            if (keyCode == this.DOM_VK_ACCEL) {
+                this._isHyperlinkAllowed = true;
+                var [x, y] = this._last_mousemove_xy;
                 var pos = this.scimoz.positionFromPointClose(x, y);
                 if (pos >= 0 && this.scimoz.dragPosition == -1) {
                     this.checkHyperlinks(pos, "keydown");
+                }
+            } else {
+                switch (keyCode) {
+                    case KeyEvent.DOM_VK_CONTROL:
+                    case KeyEvent.DOM_VK_ALT:
+                    case KeyEvent.DOM_VK_SHIFT:
+                    case KeyEvent.DOM_VK_META:
+                        // these keys shouldn't matter
+                        break;
+                    default:
+                        // other keys, disable hyperlinks - bug 89246
+                        this.removeHyperlinks("keydown");
+                        this._isHyperlinkAllowed = false;
                 }
             }
             ]]>
@@ -1703,26 +1630,21 @@
             //dump("keyup:: keyCode: " + keyCode + "\n");
             // This key removal is not that accurate on the Mac, as the keyCode
             // and charCode can both be 0 for Ctrl, Meta, Alt keypresses.
-            for (var i=(this._keys_down.length - 1); i >=0; i--) {
-                if (keyCode == this._keys_down[i]) {
-                    this._keys_down.splice(i, 1);
-                }
+            if (keyCode == this.DOM_VK_ACCEL) {
+                this._isHyperlinkAllowed = false;
             }
-<!-- #if PLATFORM == "darwin" -->
+/* #if PLATFORM == "darwin" */
             // Work around Synergy keypress problems on the Mac - bug 82430.
             // Note: The "event.metaKey" is false here even when the meta key
             //       is the key in question, so if this is some type of special
-            //       key (keyCode == 0), then we clear all the keypress entries,
+            //       key (keyCode == 0), then we clear the accel key state,
             //       which is good enough for our purposes.
-            this.clearKeyDownValues();
-<!-- #endif -->
-            // If the ctrl key is no longer held down, clear all hyperlinks.
-            if ((this._keys_down.length == 0) ||
-<!-- #if PLATFORM == "darwin" -->
-                !this.isMetaKeyDown()) {
-<!-- #else -->
-                !this.isCtrlKeyDown()) {
-<!-- #endif -->
+            if (keyCode == 0) {
+                this._isHyperlinkAllowed = false;
+            }
+/* #endif */
+            // If the accel key is no longer held down, clear all hyperlinks.
+            if (!this._isHyperlinkAllowed) {
                 this.removeHyperlinks("keyup");
             }
             ]]>
