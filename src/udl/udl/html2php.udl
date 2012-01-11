@@ -67,6 +67,23 @@ state IN_M_STAG_ATTR_SSTRING:
 
 # Support these other less likely combinations:
 
+# From html2js.udl:
+state IN_H2CSL_STAG_ATTR_DSTRING:
+/$ENTERPHP/i : paint(upto, M_STRING), \
+    paint(include, SSL_OPERATOR), \
+    spush_check(IN_H2CSL_STAG_ATTR_DSTRING), => IN_SSL_DEFAULT
+
+state IN_H2CSL_STAG_ATTR_SSTRING:
+/$ENTERPHP/i : paint(upto, M_STRING), \
+    paint(include, SSL_OPERATOR), \
+    spush_check(IN_H2CSL_STAG_ATTR_SSTRING), => IN_SSL_DEFAULT
+
+state IN_H2CSL_STAG_ATTR_USTRING:
+/$ENTERPHP/i : paint(upto, M_STRING), \
+    paint(include, SSL_OPERATOR), \
+    spush_check(IN_H2CSL_STAG_ATTR_USTRING), => IN_SSL_DEFAULT
+
+
 state IN_M_STAG_POST_TAGNAME:
 /$ENTERPHP/i : paint(upto, M_TAGSPACE), \
     paint(include, SSL_OPERATOR), \
