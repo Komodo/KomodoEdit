@@ -243,6 +243,8 @@ my @args = (
     "../src/ViewStyle.h",
     "../src/XPM.cxx",
     "../src/XPM.h",
+    "NSCursorWrappers.m",
+    "NSCursorWrappers.h",
     "PlatMacOSX.cxx",
     "PlatMacOSX.h",
     "QuartzTextLayout.h",
