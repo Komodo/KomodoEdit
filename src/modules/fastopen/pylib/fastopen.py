@@ -452,9 +452,9 @@ class Driver(threading.Thread):
                     dirQueries.append(join(request.dirShortcuts[shortcut], subpath))
 
             hitPaths = set()
+            pathExcludes = request.pathExcludes
             if dirQueries:
                 hitPaths = set()
-                pathExcludes = request.pathExcludes
                 for dirQuery in dirQueries:
                     dir, baseQuery = split(dirQuery)
                     try:
@@ -511,8 +511,12 @@ class Driver(threading.Thread):
                             if hit.filterDupePaths and path in hitPaths:
                                 pass
                             elif hit.match(queryWords):
-                                hits.append(hit)
-                                hitPaths.add(path)
+                                for exclude in pathExcludes:
+                                    if fnmatch(path, exclude):
+                                        break
+                                else:
+                                    hits.append(hit)
+                                    hitPaths.add(path)
                             if j >= BLOCK_SIZE - 1:
                                 break
                         else:
