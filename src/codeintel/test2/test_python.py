@@ -2054,7 +2054,7 @@ class OldCodeIntelTestCase(CodeIntelTestCase):
             [("function", "bar"), ("function", "foo"),
              ("variable", "ivar"), ("function", "__init__")])
         self.assertCalltipIs(markup_text(content, pos=positions[12]),
-                             "hello(a, b, msg=ContrivedDummy)\nsay hello")
+                             "hello(a, b, msg=ContrivedDummy)\nsay hello ")
 
     def test_dupes(self):
         content, positions = unmark_text(dedent(r'''

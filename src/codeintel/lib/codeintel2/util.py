@@ -314,6 +314,9 @@ def parsePyFuncDoc(doc, fallbackCallSig=None, scope="?", funcname="?"):
         desclines = textwrap.wrap(' '.join(desclines), LINE_WIDTH)
     else:
         doclines = doclines[index:]
+        # strip leading empty lines
+        while len(doclines) > 0 and not doclines[0].rstrip():
+            del doclines[0]
         try:
             skip_first_line = (doclines[0][0] not in (" \t"))
         except IndexError:

@@ -4,7 +4,7 @@
       <import line="4" module="handler" />
       <import line="6" module="_exceptions" symbol="SAXNotSupportedException" />
       <import line="6" module="_exceptions" symbol="SAXNotRecognizedException" />
-      <scope doc="Interface for reading an XML document using callbacks." ilk="class" line="11" lineend="89" name="XMLReader">
+      <scope doc="Interface for reading an XML document using callbacks.&#xA;&#xA;XMLReader is the interface that an XML parser&apos;s SAX2 driver must&#xA;implement. This interface allows an application to set and query&#xA;features and properties in the parser, to register event handlers&#xA;for document processing, and to initiate a document parse.&#xA;&#xA;All SAX interfaces are assumed to be synchronous: the parse&#xA;methods must not return until parsing is complete, and readers&#xA;must wait for an event-handler callback to return before reporting&#xA;the next event." ilk="class" line="11" lineend="89" name="XMLReader">
         <scope attributes="__ctor__" ilk="function" line="24" lineend="28" name="__init__" signature="XMLReader()">
           <variable citdl="XMLReader" ilk="argument" name="self" />
         </scope>
@@ -12,7 +12,7 @@
         <variable attributes="protected __instancevar__" citdl="handler.DTDHandler()" line="26" name="_dtd_handler" />
         <variable attributes="protected __instancevar__" citdl="handler.EntityResolver()" line="27" name="_ent_handler" />
         <variable attributes="protected __instancevar__" citdl="handler.ErrorHandler()" line="28" name="_err_handler" />
-        <scope doc="Parse an XML document from a system identifier or an&#xA;InputSource." ilk="function" line="30" lineend="32" name="parse" signature="parse(source)">
+        <scope doc="Parse an XML document from a system identifier or an InputSource." ilk="function" line="30" lineend="32" name="parse" signature="parse(source)">
           <variable citdl="XMLReader" ilk="argument" name="self" />
           <variable ilk="argument" name="source" />
         </scope>
@@ -44,7 +44,7 @@
           <variable citdl="XMLReader" ilk="argument" name="self" />
           <variable ilk="argument" name="handler" />
         </scope>
-        <scope doc="Allow an application to set the locale for errors and&#xA;warnings." ilk="function" line="66" lineend="73" name="setLocale" signature="setLocale(locale)">
+        <scope doc="Allow an application to set the locale for errors and warnings.&#xA;&#xA;SAX parsers are not required to provide localization for errors&#xA;and warnings; if they cannot support the requested locale,&#xA;however, they must throw a SAX exception. Applications may&#xA;request a locale change in the middle of a parse." ilk="function" line="66" lineend="73" name="setLocale" signature="setLocale(locale)">
           <variable citdl="XMLReader" ilk="argument" name="self" />
           <variable ilk="argument" name="locale" />
         </scope>
@@ -67,7 +67,7 @@
           <variable ilk="argument" name="value" />
         </scope>
       </scope>
-      <scope classrefs="XMLReader" doc="This interface adds three extra methods to the XMLReader&#xA;interface that allow XML parsers to support incremental&#xA;parsing." ilk="class" line="91" lineend="159" name="IncrementalParser">
+      <scope classrefs="XMLReader" doc="This interface adds three extra methods to the XMLReader&#xA;interface that allow XML parsers to support incremental&#xA;parsing. Support for this interface is optional, since not all&#xA;underlying XML parsers support this functionality.&#xA;&#xA;When the parser is instantiated it is ready to begin accepting&#xA;data from the feed method immediately. After parsing has been&#xA;finished with a call to close the reset method must be called to&#xA;make the parser ready to accept new data, either from feed or&#xA;using the parse method.&#xA;&#xA;Note that these methods must _not_ be called during parsing, that&#xA;is, after parse has been called and before it returns.&#xA;&#xA;By default, the class also implements the parse method of the XMLReader&#xA;interface using the feed, close and reset methods of the&#xA;IncrementalParser interface as a convenience to SAX 2.0 driver&#xA;writers." ilk="class" line="91" lineend="159" name="IncrementalParser">
         <scope attributes="__ctor__" ilk="function" line="111" lineend="113" name="__init__" signature="IncrementalParser(bufsize=2**16)">
           <variable citdl="IncrementalParser" ilk="argument" name="self" />
           <variable citdl="int" ilk="argument" name="bufsize" />
@@ -80,7 +80,7 @@
           <variable citdl="source.getByteStream()" line="120" name="file" />
           <variable citdl="file.read()" line="121" name="buffer" />
         </scope>
-        <scope doc="This method gives the raw XML data in the data parameter to&#xA;the parser and makes it parse the data, emitting the&#xA;corresponding events." ilk="function" line="127" lineend="134" name="feed" signature="feed(data)">
+        <scope doc="This method gives the raw XML data in the data parameter to&#xA;the parser and makes it parse the data, emitting the&#xA;corresponding events. It is allowed for XML constructs to be&#xA;split across several calls to feed.&#xA;&#xA;feed may raise SAXException." ilk="function" line="127" lineend="134" name="feed" signature="feed(data)">
           <variable citdl="IncrementalParser" ilk="argument" name="self" />
           <variable ilk="argument" name="data" />
         </scope>
@@ -88,14 +88,14 @@
           <variable citdl="IncrementalParser" ilk="argument" name="self" />
           <variable ilk="argument" name="source" />
         </scope>
-        <scope doc="This method is called when the entire XML document has been&#xA;passed to the parser through the feed method, to notify the&#xA;parser that there are no more data." ilk="function" line="141" lineend="152" name="close" signature="close()">
+        <scope doc="This method is called when the entire XML document has been&#xA;passed to the parser through the feed method, to notify the&#xA;parser that there are no more data. This allows the parser to&#xA;do the final checks on the document and empty the internal&#xA;data buffer.&#xA;&#xA;The parser will not be ready to parse another document until&#xA;the reset method has been called.&#xA;&#xA;close may raise SAXException." ilk="function" line="141" lineend="152" name="close" signature="close()">
           <variable citdl="IncrementalParser" ilk="argument" name="self" />
         </scope>
-        <scope doc="This method is called after close has been called to reset&#xA;the parser so that it is ready to parse new documents." ilk="function" line="154" lineend="159" name="reset" signature="reset()">
+        <scope doc="This method is called after close has been called to reset&#xA;the parser so that it is ready to parse new documents. The&#xA;results of calling parse or feed after close without calling&#xA;reset are undefined." ilk="function" line="154" lineend="159" name="reset" signature="reset()">
           <variable citdl="IncrementalParser" ilk="argument" name="self" />
         </scope>
       </scope>
-      <scope doc="Interface for associating a SAX event with a document&#xA;location." ilk="class" line="163" lineend="183" name="Locator">
+      <scope doc="Interface for associating a SAX event with a document&#xA;location. A locator object will return valid results only during&#xA;calls to DocumentHandler methods; at any other time, the&#xA;results are unpredictable." ilk="class" line="163" lineend="183" name="Locator">
         <scope doc="Return the column number where the current event ends." ilk="function" line="169" lineend="171" name="getColumnNumber" returns="int" signature="getColumnNumber()">
           <variable citdl="Locator" ilk="argument" name="self" />
         </scope>
@@ -109,7 +109,7 @@
           <variable citdl="Locator" ilk="argument" name="self" />
         </scope>
       </scope>
-      <scope doc="Encapsulation of the information needed by the XMLReader to&#xA;read entities." ilk="class" line="187" lineend="272" name="InputSource">
+      <scope doc="Encapsulation of the information needed by the XMLReader to&#xA;read entities.&#xA;&#xA;This class may include information about the public identifier,&#xA;system identifier, byte stream (possibly with character encoding&#xA;information) and/or the character stream of an entity.&#xA;&#xA;Applications will create objects of this class for use in the&#xA;XMLReader.parse method and for returning from&#xA;EntityResolver.resolveEntity.&#xA;&#xA;An InputSource belongs to the application, the XMLReader is not&#xA;allowed to modify InputSource objects passed to it from the&#xA;application, although it may make copies and modify those." ilk="class" line="187" lineend="272" name="InputSource">
         <scope attributes="__ctor__" ilk="function" line="203" lineend="208" name="__init__" signature="InputSource(system_id=None)">
           <variable citdl="InputSource" ilk="argument" name="self" />
           <variable ilk="argument" name="system_id" />
@@ -133,21 +133,21 @@
         <scope doc="Returns the system identifier of this InputSource." ilk="function" line="222" lineend="224" name="getSystemId" signature="getSystemId()">
           <variable citdl="InputSource" ilk="argument" name="self" />
         </scope>
-        <scope doc="Sets the character encoding of this InputSource." ilk="function" line="226" lineend="234" name="setEncoding" signature="setEncoding(encoding)">
+        <scope doc="Sets the character encoding of this InputSource.&#xA;&#xA;The encoding must be a string acceptable for an XML encoding&#xA;declaration (see section 4.3.3 of the XML recommendation).&#xA;&#xA;The encoding attribute of the InputSource is ignored if the&#xA;InputSource also contains a character stream." ilk="function" line="226" lineend="234" name="setEncoding" signature="setEncoding(encoding)">
           <variable citdl="InputSource" ilk="argument" name="self" />
           <variable ilk="argument" name="encoding" />
         </scope>
         <scope doc="Get the character encoding of this InputSource." ilk="function" line="236" lineend="238" name="getEncoding" signature="getEncoding()">
           <variable citdl="InputSource" ilk="argument" name="self" />
         </scope>
-        <scope doc="Set the byte stream (a Python file-like object which does&#xA;not perform byte-to-character conversion) for this input&#xA;source." ilk="function" line="240" lineend="251" name="setByteStream" signature="setByteStream(bytefile)">
+        <scope doc="Set the byte stream (a Python file-like object which does&#xA;not perform byte-to-character conversion) for this input&#xA;source.&#xA;&#xA;The SAX parser will ignore this if there is also a character&#xA;stream specified, but it will use a byte stream in preference&#xA;to opening a URI connection itself.&#xA;&#xA;If the application knows the character encoding of the byte&#xA;stream, it should set it with the setEncoding method." ilk="function" line="240" lineend="251" name="setByteStream" signature="setByteStream(bytefile)">
           <variable citdl="InputSource" ilk="argument" name="self" />
           <variable ilk="argument" name="bytefile" />
         </scope>
-        <scope doc="Get the byte stream for this input source." ilk="function" line="253" lineend="258" name="getByteStream" signature="getByteStream()">
+        <scope doc="Get the byte stream for this input source.&#xA;&#xA;The getEncoding method will return the character encoding for&#xA;this byte stream, or None if unknown." ilk="function" line="253" lineend="258" name="getByteStream" signature="getByteStream()">
           <variable citdl="InputSource" ilk="argument" name="self" />
         </scope>
-        <scope doc="Set the character stream for this input source." ilk="function" line="260" lineend="268" name="setCharacterStream" signature="setCharacterStream(charfile)">
+        <scope doc="Set the character stream for this input source. (The stream&#xA;must be a Python 2.0 Unicode-wrapped file-like that performs&#xA;conversion to Unicode strings.)&#xA;&#xA;If there is a character stream specified, the SAX parser will&#xA;ignore any byte stream and will not attempt to open a URI&#xA;connection to the system identifier." ilk="function" line="260" lineend="268" name="setCharacterStream" signature="setCharacterStream(charfile)">
           <variable citdl="InputSource" ilk="argument" name="self" />
           <variable ilk="argument" name="charfile" />
         </scope>
@@ -156,7 +156,7 @@
         </scope>
       </scope>
       <scope ilk="class" line="276" lineend="334" name="AttributesImpl">
-        <scope attributes="__ctor__" doc="Non-NS-aware implementation." ilk="function" line="278" lineend="282" name="__init__" signature="AttributesImpl(attrs)">
+        <scope attributes="__ctor__" doc="Non-NS-aware implementation.&#xA;&#xA;attrs should be of the form {name : value}." ilk="function" line="278" lineend="282" name="__init__" signature="AttributesImpl(attrs)">
           <variable citdl="AttributesImpl" ilk="argument" name="self" />
           <variable ilk="argument" name="attrs" />
         </scope>
@@ -220,7 +220,7 @@
         </scope>
       </scope>
       <scope classrefs="AttributesImpl" ilk="class" line="338" lineend="369" name="AttributesNSImpl">
-        <scope attributes="__ctor__" doc="NS-aware implementation." ilk="function" line="340" lineend="346" name="__init__" signature="AttributesNSImpl(attrs, qnames)">
+        <scope attributes="__ctor__" doc="NS-aware implementation.&#xA;&#xA;attrs should be of the form {(ns_uri, lname): value, ...}.&#xA;qnames of the form {(ns_uri, lname): qname, ...}." ilk="function" line="340" lineend="346" name="__init__" signature="AttributesNSImpl(attrs, qnames)">
           <variable citdl="AttributesNSImpl" ilk="argument" name="self" />
           <variable ilk="argument" name="attrs" />
           <variable ilk="argument" name="qnames" />

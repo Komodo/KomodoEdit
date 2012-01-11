@@ -38,12 +38,12 @@
         <variable ilk="argument" name="encoding" />
         <variable ilk="argument" name="is8bit" />
       </scope>
-      <scope doc="Create and return a temporary file (opened read-write by&#xA;default)." ilk="function" line="46" name="TemporaryFile" signature="TemporaryFile(mode=&apos;w+b&apos;, bufsize=-1, suffix=&apos;&apos;)">
+      <scope doc="Create and return a temporary file (opened read-write by default)." ilk="function" line="46" name="TemporaryFile" signature="TemporaryFile(mode=&apos;w+b&apos;, bufsize=-1, suffix=&apos;&apos;)">
         <variable citdl="str" ilk="argument" name="mode" />
         <variable citdl="int" ilk="argument" name="bufsize" />
         <variable citdl="str" ilk="argument" name="suffix" />
       </scope>
-      <scope doc="copy data from file-like object fsrc to file-like object&#xA;fdst" ilk="function" line="50" name="copyfileobj" signature="copyfileobj(fsrc, fdst, length=16*1024)">
+      <scope doc="copy data from file-like object fsrc to file-like object fdst" ilk="function" line="50" name="copyfileobj" signature="copyfileobj(fsrc, fdst, length=16*1024)">
         <variable ilk="argument" name="fsrc" />
         <variable ilk="argument" name="fdst" />
         <variable citdl="int" ilk="argument" name="length" />
