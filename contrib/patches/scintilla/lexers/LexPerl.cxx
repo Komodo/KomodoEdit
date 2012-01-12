@@ -2031,6 +2031,10 @@ void ColourisePerlDoc(unsigned int startPos, int length, int , // initStyle
                 }
                 state = SCE_PL_DEFAULT;
                 braceStartsBlock = false;
+                if (lookingAtBareword(styler, i + 1, actualLengthDoc)) {
+                    ch = colouriseBareword(styler, i, state, actualLengthDoc);
+                    chNext = styler.SafeGetCharAt(i + 1);
+                }
             } else if (ch == '(') {
                 // It's a function name, using indirect accessor
                 // notation:
