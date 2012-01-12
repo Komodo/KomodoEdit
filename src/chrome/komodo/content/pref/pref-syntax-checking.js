@@ -7,6 +7,7 @@ var currentView;
 
 var languageSetup = {}; // Map language names to functions
 var languageInfo = {}; // Map language names to objects
+// Make these available to extensions
 var cachedAppInfo = {}; // Map languages to whatever.  Avoid hitting appinfo during each session.
 var loadContext;
 var g_prefset;
@@ -16,6 +17,9 @@ var bundleLang = Components.classes["@mozilla.org/intl/stringbundle;1"]
             .createBundle("chrome://komodo/locale/pref/pref-languages.properties");
 function docSyntaxCheckingOnLoad() {
     try {
+        if (!('lint' in ko)) { ko.lint = {}; }
+        ko.lint.languageSetup = languageSetup;
+        ko.lint.languageInfo = languageInfo;
         dialog.lintEOLs = document.getElementById("lintEOLs");
         dialog.lintDelay = document.getElementById("lintDelay");
         dialog.editUseLinting = document.getElementById("editUseLinting");
@@ -158,7 +162,8 @@ function pref_lint_doEnabling() {
 }
 
 function changeLanguage(langList) {
-    showLanguageNamePanel(langList.selection);
+    // Give overlays a chance to load.
+    setTimeout(showLanguageNamePanel, 0, langList.selection);
 }
 
 function coffeeScript_setup() {
