@@ -59,8 +59,8 @@ state IN_M_DEFAULT:
 # Handle "downlevel" conditional comments with hidden HTML
 # Ref (as of 2007-04-11):
 # http://msdn.microsoft.com/library/default.asp?url=/workshop/author/dhtml/overview/ccomment_ovw.asp
-/<!--\[if\s[^\[\]]+\]>/ : paint(upto, M_DEFAULT), paint(include, M_COMMENT)
-/<!\[endif\s*\]\s*-->/ : paint(upto, M_DEFAULT), paint(include, M_COMMENT)
+/<!(?:--)?\[if\s[^\[\]]+\]>/ : paint(upto, M_DEFAULT), paint(include, M_COMMENT)
+/<!\[endif\s*\]\s*(?:--)?>/ : paint(upto, M_DEFAULT), paint(include, M_COMMENT)
 
 # And regular comments go here
 '<!--' : paint(upto, M_DEFAULT), => IN_M_COMMENT
