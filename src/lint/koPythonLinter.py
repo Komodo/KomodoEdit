@@ -60,7 +60,6 @@ from pprint import pprint# , pformat
 import koLintResult
 from koLintResult import KoLintResult, getProxiedEffectivePrefs
 from koLintResults import koLintResults
-import koprocessutils
 
 import projectUtils
 
