@@ -119,6 +119,7 @@
 #else /* Unix-y */
     #ifdef MACOSX
         #include <Carbon/Carbon.h>
+        #include <sys/acl.h>
     #endif
     #include <pwd.h>
     #include <unistd.h>
@@ -1245,6 +1246,12 @@ static int _GetVerUserDataDir(
                 _LogError("could not create user data dir: '%s'\n", lpBuffer);
                 return 0;
             }
+        }
+        /* Clear ACLs on the user data directory; bug 91899 */
+        acl_t acl = acl_init(0);
+        if (acl) {
+            acl_set_file(lpBuffer, ACL_TYPE_EXTENDED, acl);
+            acl_free(acl);
         }
 
 #else /* linux, solaris */
