@@ -20,7 +20,7 @@ ko-pane[type="vertical"] tabs[anonid="tabs"] tab
 ko-pane[type="vertical"] tabs[anonid="tabs"][rotation="270"] tab
 {
     /* This has the affect of centering the tab labels. */
-    padding-left        : 5px;
+    padding-left        : 6px;
 }
 
 ko-pane[type="vertical"] tab[selected="true"]
