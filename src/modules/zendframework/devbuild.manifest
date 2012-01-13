@@ -1,2 +1,3 @@
 content zendframework content/
+skin zendframework skin/
 overlay chrome://komodo/content/komodo.xul chrome://zendframework/content/overlay.xul
