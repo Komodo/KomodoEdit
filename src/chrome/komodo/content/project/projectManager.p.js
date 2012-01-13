@@ -649,12 +649,12 @@ projectManager.prototype.revertProject = function(project) {
     try {
         this.closeProjectEvenIfDirty(project);
     } catch(ex) {
-        dump("revertProject: closeProjectEvenIfDirty: " + ex + "\n");
+        this.log.exception(ex);
     }
     try {
         this.loadProject(project.url);
     } catch(ex) {
-        dump("revertProject: revertProject: " + ex + "\n");
+        this.log.exception(ex);
     }
 }
 
@@ -826,7 +826,7 @@ projectManager.prototype._addProject = function(project, inTimeout/*=false*/) {
             }, 100, this);
         return;
     } else if (inTimeout && !this.viewMgr) {
-        dump("_addProject: called inTimeout, this.viewMgr still null\n");
+        this.log.warn("_addProject: called inTimeout, this.viewMgr still null");
     }
     if (!this.single_project_view) {
         this._projects.push(project);
@@ -1398,13 +1398,13 @@ function _finish_handle_view_document_detaching(detaching_url) {
     var idx = openedURIs.findStringPref(detaching_url);
     if (idx >= 0) {
         openedURIs.deletePref(idx, 1);
-        dump("**************** Remove URI "
-             + detaching_url
-             + " at posn "
-             + idx
-             + " from project "
-             + currentProject.url
-             + "\n");
+        //dump("**************** Remove URI "
+        //     + detaching_url
+        //     + " at posn "
+        //     + idx
+        //     + " from project "
+        //     + currentProject.url
+        //     + "\n");
         projectViewState.setPref('opened_files', openedURIs);
     }
 }
