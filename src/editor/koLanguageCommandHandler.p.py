@@ -1592,7 +1592,7 @@ class GenericCommandHandler:
         # Note that untabify acts on all tabs in a line,
         # while tabify acts only on the leading spaces.
         if scimoz.selectionStart == scimoz.selectionEnd:
-            # New: tabify the full buffer
+            # New for 7.0: tabify the full buffer
             lineStart = 0
             lineEndPlusOne = scimoz.lineCount
             restorePos = scimoz.currentPos
@@ -1610,19 +1610,33 @@ class GenericCommandHandler:
             lineEndFunc = scimoz.getLineSelEndPosition
 
         scimoz.beginUndoAction()
+        origTargetStart = scimoz.targetStart
+        origTargetEnd = scimoz.targetEnd
         try:
             restoreLine, restoreCol = self._start_single_char_replacement(scimoz, restorePos)
             for lineNum in range(lineStart, lineEndPlusOne):
                 posStart = lineStartFunc(lineNum)
+                if posStart == -1:
+                    # Could happen in rectangular selections
+                    continue
                 posEnd   = lineEndFunc(lineNum)
+                #if posEnd == -1:
+                #    # Can we have posStart > -1, posEnd == -1?  Seems unlikely
+                #    continue
+                if posStart == posEnd:
+                    # Empty line selection
+                    continue
                 selText  = scimoz.getTextRange(posStart, posEnd)
                 replText = replFunc(selText, tabwidth)
-                scimoz.targetStart = posStart
-                scimoz.targetEnd = posEnd
-                scimoz.replaceTarget(len(replText), replText)
+                if replText != selText:
+                    scimoz.targetStart = posStart
+                    scimoz.targetEnd = posEnd
+                    scimoz.replaceTarget(len(replText), replText)
         finally:
             try:
                 self._finish_single_char_replacement(scimoz, restoreLine, restoreCol)
+                scimoz.targetStart = origTargetStart
+                scimoz.targetEnd = origTargetEnd
             finally:
                 scimoz.endUndoAction()
 
