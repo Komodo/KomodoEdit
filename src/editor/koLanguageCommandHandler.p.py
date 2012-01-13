@@ -68,6 +68,14 @@ def _is_header_line(scimoz, line):
 def _fold_level(scimoz, line):
     return scimoz.getFoldLevel(line) & scimoz.SC_FOLDLEVELNUMBERMASK
 
+def _tabify_repl_func(text, tabwidth):
+    raw, effective = classifyws(text, tabwidth)
+    ntabs, nspaces = divmod(effective, tabwidth)
+    return '\t' * ntabs + ' ' * nspaces + text[raw:]
+
+def _untabify_repl_func(text, tabwidth):
+    return text.expandtabs()
+
 class GenericCommandHandler:
     _com_interfaces_ = [components.interfaces.koIViewController,
                         components.interfaces.nsIController,
@@ -1552,33 +1560,77 @@ class GenericCommandHandler:
         else:
             return value
 
-    def _do_cmd_tabify(self):
-        sm = self._view.scimoz
-        if sm.selectionMode == sm.SC_SEL_RECTANGLE:
-            raise ServerException(nsError.NS_ERROR_NOT_IMPLEMENTED, "Not implemented: tabify rectangular selections")
-        selection = sm.selText
+    def _start_single_char_replacement(self, scimoz, restorePos):
+        restoreLine = scimoz.lineFromPosition(restorePos)
+        restoreCol = scimoz.getColumn(restorePos)
+        prevPos = scimoz.positionBefore(restorePos)
+        prevChar = scimoz.getTextRange(prevPos, restorePos)
+        scimoz.targetStart = prevPos
+        scimoz.targetEnd = restorePos
+        scimoz.replaceTarget(len(prevChar), prevChar)
+        return restoreLine, restoreCol
+
+    def _finish_single_char_replacement(self, scimoz, restoreLine, restoreCol):
+        restorePos = scimoz.positionAtColumn(restoreLine, restoreCol)
+        prevPos = scimoz.positionBefore(restorePos)
+        prevChar = scimoz.getTextRange(prevPos, restorePos)
+        scimoz.targetStart = prevPos
+        scimoz.targetEnd = restorePos
+        scimoz.replaceTarget(len(prevChar), prevChar)
+
+
+    def _marker_preserving_tabify(self, replFunc):
+        scimoz = self._view.scimoz
+        if scimoz.length == 0:
+            return
         tabwidth = self._asktabwidth()
         if tabwidth is None: return
-        lines = selection.splitlines(1)
-        for pos in range(len(lines)):
-            line = lines[pos]
-            if line:
-                raw, effective = classifyws(line, tabwidth)
-                ntabs, nspaces = divmod(effective, tabwidth)
-                lines[pos] = '\t' * ntabs + ' ' * nspaces + line[raw:]
-        sm.replaceSel(''.join(lines))
+        # bug 86400: Preserve markers by changing only one line at a time.
+        # Also, make a dummy change so an undo will
+        # put the cursor at its current location.  (See bug 75059)
+        # 
+        # Note that untabify acts on all tabs in a line,
+        # while tabify acts only on the leading spaces.
+        if scimoz.selectionStart == scimoz.selectionEnd:
+            # New: tabify the full buffer
+            lineStart = 0
+            lineEndPlusOne = scimoz.lineCount
+            restorePos = scimoz.currentPos
+            if restorePos == 0:
+                restorePos = scimoz.positionAfter(0)
+            lineStartFunc = scimoz.positionFromLine
+            lineEndFunc = scimoz.getLineEndPosition
+        else:
+            lineStart = scimoz.lineFromPosition(scimoz.selectionStart)
+            lineEndPlusOne = scimoz.lineFromPosition(scimoz.selectionEnd) + 1
+            restorePos = scimoz.getLineSelStartPosition(lineStart)
+            if restorePos == 0:
+                restorePos = scimoz.positionAfter(0)
+            lineStartFunc = scimoz.getLineSelStartPosition
+            lineEndFunc = scimoz.getLineSelEndPosition
+
+        scimoz.beginUndoAction()
+        try:
+            restoreLine, restoreCol = self._start_single_char_replacement(scimoz, restorePos)
+            for lineNum in range(lineStart, lineEndPlusOne):
+                posStart = lineStartFunc(lineNum)
+                posEnd   = lineEndFunc(lineNum)
+                selText  = scimoz.getTextRange(posStart, posEnd)
+                replText = replFunc(selText, tabwidth)
+                scimoz.targetStart = posStart
+                scimoz.targetEnd = posEnd
+                scimoz.replaceTarget(len(replText), replText)
+        finally:
+            try:
+                self._finish_single_char_replacement(scimoz, restoreLine, restoreCol)
+            finally:
+                scimoz.endUndoAction()
+
+    def _do_cmd_tabify(self):
+        self._marker_preserving_tabify(_tabify_repl_func)
 
     def _do_cmd_untabify(self):
-        sm = self._view.scimoz
-        if sm.selectionMode == sm.SC_SEL_RECTANGLE:
-            raise ServerException(nsError.NS_ERROR_NOT_IMPLEMENTED, "Not implemented: untabify rectangular selections")
-        selection = sm.selText
-        lines = selection.splitlines(1)
-        tabwidth = self._asktabwidth()
-        if tabwidth is None: return
-        for pos in range(len(lines)):
-            lines[pos] = lines[pos].expandtabs(tabwidth)
-        sm.replaceSel(''.join(lines))
+        self._marker_preserving_tabify(_untabify_repl_func)
 
     def _do_cmd_backSmart(self):
         view = self._view
