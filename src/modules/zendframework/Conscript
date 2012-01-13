@@ -54,6 +54,7 @@ if ($buildFlavour ne "full") {
       "content/zendutils.js",
       "content/zendMVCWizard.xul",
       "pylib/codeintel_zend.py",
+      "skin/zendframework_32x32.png",
       qq(
           $unsiloedPythonExe bin/run-in-dir.py %1:d zip -X -Dr zendframework.jar content skin
           $unsiloedPythonExe bin/run-in-dir.py %1:d zip -X -r zendframework.xpi zendframework.jar install.rdf chrome.manifest project-templates pylib -x .svn
