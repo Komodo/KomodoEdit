@@ -14,7 +14,7 @@
  * The Original Code is Komodo code.
  * 
  * The Initial Developer of the Original Code is ActiveState Software Inc.
- * Portions created by ActiveState Software Inc are Copyright (C) 2000-2010
+ * Portions created by ActiveState Software Inc are Copyright (C) 2000-2012
  * ActiveState Software Inc. All Rights Reserved.
  * 
  * Contributor(s):
