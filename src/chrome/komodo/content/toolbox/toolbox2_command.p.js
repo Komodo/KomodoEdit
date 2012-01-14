@@ -48,6 +48,8 @@ if (typeof(ko.toolbox2)=='undefined') {
 
 var log = ko.logging.getLogger("toolbox");
 
+var osSvc = (Components.classes["@activestate.com/koOs;1"]
+             .getService(Components.interfaces.koIOs));
 var osPathSvc = (Components.classes["@activestate.com/koOsPath;1"]
              .getService(Components.interfaces.koIOsPath));
     
@@ -510,23 +512,7 @@ this._selectCurrentItems = function(isCopying) {
         paths = [pathList];
     } else {
         this.selectedIndices = this.getSelectedIndices(/*rootsOnly=*/true);
-        var view = this.manager.view;
-        if (!isCopying) {
-            // Don't let them cut a toolbox
-            var index;
-            for (var j = 0; j < this.selectedIndices.length; j++) {
-                index = this.selectedIndices[j];
-                if (view.isToolboxRow(index)) {
-                    var msg = peFolder_bundle.formatStringFromName("cantCutToolbox.format",
-                                                                   [view.getCellText(index, {id:"name"})], 1);
-                    ko.dialogs.alert(msg);
-                    return;
-                }
-            }
-        }
-        paths = this.selectedIndices.map(function(index) {
-                return view.getPathFromIndex(index);
-            });
+        var paths = this.getToolboxResolvedPaths(this.selectedIndices);
         pathList = paths.join("\n");
     }
     var uriList = paths.map(ko.uriparse.localPathToURI).join("\n");
@@ -1035,13 +1021,45 @@ this._addFlavors = function(dt, currentFlavors, path, index) {
     if (currentFlavors.indexOf(textUnicodeFlavor) == -1) {
         dt.mozSetDataAt(textUnicodeFlavor, path, index);
     }
-},
+};
+
+this.getToolboxResolvedPaths = function(selectedIndices) {
+     var view = this.manager.view;
+     var index;
+     var path, paths = [];
+     for (var j = 0; j < selectedIndices.length; j++) {
+         index = selectedIndices[j];
+         path = view.getPathFromIndex(index);
+         if (view.isToolboxRow(index)) {
+             // Cut/Copy the contents of a toolbox, but not the top part.
+             var subPaths = osSvc.listdir(path, {}).
+                 filter(function(basename) {
+                         // Copy folders that start with a ".", but not
+                         // files, and of course skip "." and ".."
+                         return (basename != '.'
+                                 && basename != '..'
+                                 && (osPathSvc.isdir(osPathSvc.join(path, basename))
+                                     || basename[0] != "."));
+                     }).map(function(basename) osPathSvc.join(path, basename));
+             paths = paths.concat(subPaths);
+         } else {
+             paths.push(path);
+         }
+     }
+     return paths;
+};
 
 this.doStartDrag = function(event, tree) {
     var selectedIndices = this.getSelectedIndices(/*rootsOnly=*/true);
     var view = this.manager.view;
+    var paths;
     var dt = event.dataTransfer;
-    if (selectedIndices.length == 1) {
+    if (selectedIndices.some(function(index) view.isToolboxRow(index))) {
+        paths = this.getToolboxResolvedPaths(selectedIndices);
+        for (var i = 0; i < paths.length; i++) {
+            this._addFlavors(dt, [], paths[i], i);
+        }
+    } else if (selectedIndices.length == 1) {
         var index = selectedIndices[0];
         var tool = view.getTool(index);
         var flavors = {};
@@ -1096,7 +1114,7 @@ this.doDrop = function(event, tree) {
         event.preventDefault();
         return true;
     } catch(ex) {
-        alert("toolbox2_command.js: toDrop: error: " + ex);
+        alert("toolbox2_command.js: doDrop: error: " + ex);
         this.log.exception("ko.toolbox2.doDrop: " + ex);
         return false;
     }
@@ -1309,7 +1327,7 @@ this._handleDroppedURLs = function(index, koDropDataList, copying) {
                         refreshTree = true;
                     } else {
                         this.manager.toolbox2Svc.reloadToolsDirectory(srcParentDir);
-                        this.manager.view.reloadToolsDirectoryView(index);
+                        this.manager.view.reloadToolsDirectoryView(id);
                     }
                 }
             }
