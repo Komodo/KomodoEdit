@@ -107,14 +107,6 @@ class KoPythonPyLintChecker(_GenericPythonLinter):
         fout.close()
         textlines = text.splitlines()
         cwd = request.cwd
-        pylintExe = "pylint"
-        if sys.platform.startswith("win"):
-            pylintExe += ".exe"
-        try:
-            pylintExe = which.which("pylint", path=_getUserPath())
-        except which.WhichError:
-            log.warn("pylint not found")
-            pylintExe = None
         rcfilePath = prefset.getStringPref("pylint_checking_rcfile")
         if rcfilePath and os.path.exists(rcfilePath):
             if self.nonIdentChar_RE.search(rcfilePath):
@@ -127,10 +119,7 @@ class KoPythonPyLintChecker(_GenericPythonLinter):
         if preferredLineWidth > 0:
             extraArgs.append("--max-line-length=%d" % preferredLineWidth)
 
-        if pylintExe:
-            baseArgs = [pythonExe, pylintExe]
-        else:
-            baseArgs = [pythonExe] + ['-c', 'import sys; import pylint; pylint.lint.Run(sys.argv[1:])']
+        baseArgs = [pythonExe, '-c', 'import sys; from pylint.lint import Run; Run(sys.argv[1:])']
         cmd = baseArgs + ["-f", "text", "-r", "n", "-i", "y"] + extraArgs
         # Put config file entry here: .rcfile=<file>
         cmd.append(tmpfilename)
