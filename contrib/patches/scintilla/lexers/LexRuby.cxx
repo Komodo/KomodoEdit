@@ -369,6 +369,53 @@ static bool RE_CanFollowKeyword(const char *keyword) {
     return false;
 }
 
+static bool isHashRocketSuccessorColon(int i, Accessor &styler) {
+    // Precondition: i points to the current character, so move back one.
+    // Looking for instances of <letter+>: following ":" or "{"
+    int pos;
+    char ch;
+    for (pos = i - 1; pos > 0; --pos) {
+        ch = styler[pos];
+        if (!isSafeWordcharOrHigh(ch)) {
+            break;
+        }
+    }
+    if (pos == 0 || pos == i - 1) {
+        // Hit beginning, or didn't move back
+        return false;
+    }
+    bool flushed = false;
+    while (pos > 0) {
+        if (strchr(" t\r\n", ch)) {
+            pos -= 1;
+            if (pos <= 0) {
+                return false;
+            }
+            ch = styler[pos];
+        } else {
+            if (!flushed) {
+                // Flush styles so we can skip comments
+                styler.Flush();
+                flushed = true;
+            }
+            if (actual_style(styler.StyleAt(pos)) != SCE_RB_COMMENTLINE) {
+                // Not white-space or comment, so don't move back
+                break;
+            }
+            // Look for start of comment and then recheck whitespace
+            // This handles a block of comments
+            while (--pos > 0) {
+                if (actual_style(styler.StyleAt(pos)) != SCE_RB_COMMENTLINE) {
+                    ch = styler[pos];
+                    // start of comment.  Is it preceded by whitespace?
+                    break;
+                }
+            }
+        }
+    }
+    return (ch == ',' || ch == '{');
+}
+
 // Look at chars up to but not including endPos
 // Don't look at styles in case we're looking forward
 
@@ -1080,7 +1127,10 @@ static void ColouriseRbDoc(unsigned int startPos, int length, int initStyle,
                 }
             }
         } else if (state == SCE_RB_WORD) {
-            if (ch == '.' || !isSafeWordcharOrHigh(ch)) {
+            if (ch == ':' && chNext != ':' && isHashRocketSuccessorColon(i, styler)) {
+                styler.ColourTo(i, SCE_RB_SYMBOL);
+                state = SCE_RB_DEFAULT;
+            } else if (ch == '.' || !isSafeWordcharOrHigh(ch)) {
                 // Words include x? in all contexts,
                 // and <letters>= after either 'def' or a dot
                 // Move along until a complete word is on our left
