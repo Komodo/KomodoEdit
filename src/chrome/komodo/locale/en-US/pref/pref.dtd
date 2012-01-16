@@ -159,6 +159,7 @@
 <!ENTITY category.label "Category">
 <!ENTITY character.label "Character">
 <!ENTITY cleanTrailingWhitespaceAndEOLMarkers.label "Clean trailing whitespace and EOL markers">
+<!ENTITY cleanWhitespaceOnCurrentLine.label "Always clean current line">
 <!ENTITY clear.label "Clear">
 <!ENTITY clearButton.accesskey "n">
 <!ENTITY clearList.label "Clear list">

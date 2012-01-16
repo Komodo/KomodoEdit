@@ -96,6 +96,7 @@
 
   <!-- strip extra whitespace on file save -->
   <boolean id="cleanLineEnds">0</boolean>
+  <boolean id="cleanLineEnds_CleanCurrentLine">0</boolean>
   <!-- ensure file ends with a newline on file save -->
   <boolean id="ensureFinalEOL">0</boolean>
   

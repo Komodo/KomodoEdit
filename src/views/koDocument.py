@@ -1151,7 +1151,7 @@ class koDocumentBase:
             raise
 
     _cleanLineRe = re.compile("(.*?)([ \t]+?)?(\r\n|\n|\r)", re.MULTILINE)
-    def _clean(self, ensureFinalEOL, cleanLineEnds):
+    def _clean(self, ensureFinalEOL, cleanLineEnds, cleanLineCurrentLineEnd):
         """Clean the current document content.
         
             "ensureFinalEOL" is a boolean indicating if "cleaning" should
@@ -1161,7 +1161,8 @@ class koDocumentBase:
         
         There is one exception to "cleanLineEnds": trailing whitespace
         before the current cursor position on its line is not removed
-        (bug 32702).
+        (bug 32702), but only if the pref cleanLineEnds_CleanCurrentLine
+        is false (bug 86476).  By default both prefs are off.
         
         This function preserves the current cursor position and selection,
         if any, and should maintain fold points and markers.
@@ -1179,7 +1180,8 @@ class koDocumentBase:
             currPos = scimoz.currentPos
             currPosLine = scimoz.lineFromPosition(currPos)
             currPosCol = currPos - scimoz.positionFromLine(currPosLine)
-            anchorLine = scimoz.lineFromPosition(scimoz.anchor)
+            anchorPos = scimoz.anchor
+            anchorLine = scimoz.lineFromPosition(anchorPos)
             anchorCol = scimoz.anchor - scimoz.positionFromLine(anchorLine)
             firstVisibleLine = scimoz.firstVisibleLine
 
@@ -1212,7 +1214,11 @@ class koDocumentBase:
                             if eol: end -= len(eol)
                             start = end - len(trailingWS)
                             if i == currPosLine:
-                                start = max(start, currPos)
+                                if cleanLineCurrentLineEnd:
+                                    scimoz.currentPos = currPos = end
+                                else:
+                                    start = max(start, currPos)
+                                    
                             if DEBUG:
                                 print "REMOVE TRAILING WHITESPACE: %d-%d: %r"\
                                       % (start, end, scimoz.getTextRange(start, end))
@@ -1242,7 +1248,10 @@ class koDocumentBase:
                     # position.  The idea is to quietly remove empty lines
                     # at the end of a file, when the user is higher up.
 
-                    firstDeletableLine = scimoz.lineFromPosition(max(currPos, scimoz.selectionEnd)) + 1
+                    if cleanLineCurrentLineEnd:
+                        firstDeletableLine = 1
+                    else:
+                        firstDeletableLine = scimoz.lineFromPosition(max(currPos, scimoz.selectionEnd)) + 1
                     for i in range(scimoz.lineCount - 1, firstDeletableLine - 1, -1):
                         if scimoz.markerGet(i):
                             firstLineToDelete = i + 1
@@ -1268,10 +1277,21 @@ class koDocumentBase:
                 scimoz.endUndoAction()
 
             # Restore settings: selection, cursor position, etc.
-            scimoz.currentPos = scimoz.positionFromLine(currPosLine) + currPosCol
-            scimoz.anchor = scimoz.positionFromLine(anchorLine) + anchorCol
+            if not cleanLineCurrentLineEnd:
+                scimoz.currentPos = scimoz.positionFromLine(currPosLine) + currPosCol
+                scimoz.anchor = scimoz.positionFromLine(anchorLine) + anchorCol
+            else:
+                lastLine = scimoz.lineCount
+                if (currPosLine > lastLine
+                    or (currPosLine == lastLine and currPos > scimoz.length)):
+                    scimoz.currentPos = scimoz.length
+                if (anchorLine > lastLine
+                    or (anchorLine == lastLine and anchorPos > scimoz.length)):
+                    scimoz.anchor = scimoz.length
+            
             scimoz.lineScroll(0, min(firstVisibleLine-scimoz.firstVisibleLine,
                                      scimoz.lineCount-scimoz.firstVisibleLine))
+                    
             if DEBUG: print "-"*60
         except Exception, e:
             #XXX This is poor error handling.
@@ -1327,7 +1347,8 @@ class koDocumentBase:
                 else:
                     cleanWhiteSpace = not li.has_significant_trailing_ws
                 if cleanWhiteSpace:
-                    self._clean(ensureFinalEOL, cleanLineEnds)
+                    cleanLineCurrentLineEnd = self._globalPrefs.getBooleanPref("cleanLineEnds_CleanCurrentLine")
+                    self._clean(ensureFinalEOL, cleanLineEnds, cleanLineCurrentLineEnd)
     
             # Translate the buffer before opening the file so if it
             # fails, we haven't truncated the file.

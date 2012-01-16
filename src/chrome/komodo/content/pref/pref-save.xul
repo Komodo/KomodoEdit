@@ -49,10 +49,39 @@
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         class="kodialog"
         orient="vertical"
-        onload="parent.initPanel();">
+        onload="prefSave_onLoad();">
 
     <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
+    <script type="application/x-javascript;version=1.7">
+    <![CDATA[
+    var cleanLineEndsCheckbox = null, cleanCurrentLineEndCheckbox = null;
+    function prefSave_onLoad() {
+        dump(">>> ***************** prefSave_onLoad\n");
+        debugger;
+        try {
+        parent.initPanel();
+        cleanLineEndsCheckbox = document.getElementById("cleanLineEnds");
+        cleanCurrentLineEndCheckbox = document.getElementById("cleanLineEnds_CleanCurrentLine");
+        updateCleanCurrentLineCheckbox();
+        } catch(ex) {
+            alert("prefSave_onLoad: " + ex)
+        }
+    }
+    function onCleanLineEnds(event, cb) {
+        dump("onCleanLineEnds: " + cb.checked + "\n");
+        debugger;
+        updateCleanCurrentLineCheckbox();
+    }
+    
+    function updateCleanCurrentLineCheckbox() {
+        dump("updateCleanCurrentLineCheckbox: cleanLineEndsCheckbox.checked: "
+             + cleanLineEndsCheckbox.checked
+             + "\n")
+        cleanCurrentLineEndCheckbox.disabled = !cleanLineEndsCheckbox.checked;
+    }
+    ]]>
+    </script>
 
     <!-- This main vbox is to ensure *all* the pref widgets are accessible,
          as it adds a scrollbar when the contents are too long. -->
@@ -64,6 +93,11 @@
                 <checkbox style="margin-left: 40px;"
                             id="cleanLineEnds"
                             label="&cleanTrailingWhitespaceAndEOLMarkers.label;"
+                            pref="true"
+                            oncommand="onCleanLineEnds(event, this);"/>
+                <checkbox style="margin-left: 100px;"
+                            id="cleanLineEnds_CleanCurrentLine"
+                            label="&cleanWhitespaceOnCurrentLine.label;"
                             pref="true"/>
                 <checkbox style="margin-left: 40px;"
                             id="ensureFinalEOL"
