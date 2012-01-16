@@ -178,12 +178,6 @@ ko.hyperlinks.ColorPickerHandler.prototype.jump = function(view, hyperlink)
     if (popup) {
         popup.hidePopup();
     }
-    // XXX: This is a hack, used to stop hyperlinks from continuing to be shown
-    //      after the color picker window gets closed, as the color picker
-    //      window is stealing the keyup events, so the view thinks the ctrl
-    //      key is still down. Required on Linux and Mac, Windows doesn't seem
-    //      to capture the keypresses but no harm in doing it there as well.
-    view.clearKeyDownValues();
     this.showColorPicker(view, hyperlink);
 }
 
