@@ -859,7 +859,7 @@ class KoInitService(object):
             prefs.deletePref("autoSaveMinutes")
 
     # This value must be kept in sync with the value in "../prefs/prefs.p.xml"
-    _current_pref_version = 3
+    _current_pref_version = 5
 
     def _upgradeUserPrefs(self):
         """Upgrade any specific info in the user's prefs.xml.
@@ -897,6 +897,21 @@ class KoInitService(object):
                     import_exclude_matches = orig_str_2 + suffix
                     prefs.setStringPref("import_exclude_matches",
                                         import_exclude_matches)
+            except:
+                log.exception("Error updating import_exclude_matches")
+
+        if version < 5:
+            # Add __pycache__ to excludes
+            try:
+                import_exclude_matches = prefs.getStringPref("import_exclude_matches")
+                if import_exclude_matches.endswith(";"):
+                    import_exclude_matches = import_exclude_matches[:-1]
+                if ("*.pyc;" in import_exclude_matches
+                    and ";__pycache__" not in import_exclude_matches):
+                    import_exclude_matches = import_exclude_matches + ";__pycache__"
+                    prefs.setStringPref("import_exclude_matches",
+                                        import_exclude_matches)
+                                
             except:
                 log.exception("Error updating import_exclude_matches")
 
