@@ -58,7 +58,7 @@ var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
 const CURRENT_PROJECT_FILTER_NAME = _bundle.GetStringFromName("currentProject.filterName");
 const DEFAULT_FILTER_NAME = _bundle.GetStringFromName("default.filterName");
 const VIEW_ALL_FILTER_NAME = _bundle.GetStringFromName("viewAll.filterName");
-const VERSION = 1;
+const VERSION = 2;
 
 var _placePrefs;
 var filterPrefs;
@@ -71,7 +71,11 @@ var XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
 var widgets = {};
 var osPathSvc;
 
-const DEFAULT_EXCLUDE_MATCHES = "*~;#*;CVS;*.bak;*.pyo;*.pyc;.svn;.git;.hg;.bzr;.DS_Store";
+
+const DEFAULT_EXCLUDE_MATCHES_PART1 = "*~;#*;CVS;*.bak;*.pyo;*.pyc";
+const DEFAULT_EXCLUDE_MATCHES_PART2 = ".svn;.git;.hg;.bzr;.DS_Store;.komodotools;.tools;__pycache__";
+const DEFAULT_EXCLUDE_MATCHES = [DEFAULT_EXCLUDE_MATCHES_PART1,
+                                 DEFAULT_EXCLUDE_MATCHES_PART2].join(";");
 const DEFAULT_INCLUDE_MATCHES = "";
 
 const PROJECT_URI_REGEX = /^.*\/(.+?)\.(?:kpf|komodoproject)$/;
@@ -2864,6 +2868,49 @@ this.onLoad = function places_onLoad() {
     }
 };
 
+this._updatePrefs = function(placePrefs) {
+    // This code is an unrolled for/switch loop. See
+    // http://bugs.activestate.com/show_bug.cgi?id=87813#c12
+    // for an explanation.
+    
+    // 0 => 1: we started at version 1
+    
+    // 1 => 2:
+    // VERSION == 2
+    var v = 2;
+    var filterPrefs = placePrefs.getPref("filters");
+    [DEFAULT_FILTER_NAME, CURRENT_PROJECT_FILTER_NAME].forEach(function(prefName) {
+        try {
+            var defaultPrefs = filterPrefs.getPref(prefName);
+            var savedVersion = defaultPrefs.getLongPref("version");
+            if (savedVersion < v) {
+                var exclude_matches;
+                try {
+                    exclude_matches = defaultPrefs.getStringPref("exclude_matches");
+                } catch(ex) {
+                    exclude_matches = null;
+                }
+                if (!exclude_matches) {
+                    defaultPrefs.setStringPref("exclude_matches", DEFAULT_EXCLUDE_MATCHES);
+                } else {
+                    var parts = exclude_matches.split(/;/);
+                    var newParts = DEFAULT_EXCLUDE_MATCHES_PART2.split(";").
+                        filter(function(name) parts.indexOf(name) === -1);
+                    if (newParts.length) {
+                        parts = parts.concat(newParts);
+                        defaultPrefs.setStringPref("exclude_matches", parts.join(";"));
+                    }
+                }
+                defaultPrefs.setLongPref("version", v);
+            }
+        } catch(ex) {
+            log.exception(ex, "Failed in _updatePrefs");
+        }
+    });
+    
+    // Next change will be 2 => 3 when VERSION = 3
+};
+
 this.onLoad_aux = function places_onLoad_aux() {
     ko.main.addWillCloseHandler(ko.places.onUnload);
     osPathSvc = (Components.classes["@activestate.com/koOsPath;1"]
@@ -2942,6 +2989,8 @@ this.onLoad_aux = function places_onLoad_aux() {
         // writable from the places filter as well.
         filterPrefs.getPref(CURRENT_PROJECT_FILTER_NAME).setBooleanPref("readonly", false);
     }
+
+    this._updatePrefs(_placePrefs);
     
     if (!_placePrefs.hasPref('current_filter_by_uri')) {
         uriSpecificPrefs = Components.classes["@activestate.com/koPreferenceSet;1"].createInstance();

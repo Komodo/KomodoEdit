@@ -511,7 +511,7 @@ def build_ext(base_dir, support_devinstall=True, unjarred=False,
 
     zip_exe = _get_zip_exe()
     exclude_pats = [".svn", "CVS", ".hg", ".bzr", ".git",
-        ".DS_Store", "*~", "*.pyo", "*.pyc"]
+        ".DS_Store", "*~", "*.pyo", "*.pyc", "__pycache__"]
 
     # files that do not need to cause <em:unpack>
     unpack_excludes = ["install.rdf", "chrome.manifest", "chrome", "content",

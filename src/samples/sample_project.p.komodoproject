@@ -2,7 +2,7 @@
 <!-- Komodo Project File - DO NOT EDIT -->
 <project id="7e3fffd0-d187-d04b-8269-0e177ad5566d" kpf_version="5" name="sample_project.komodoproject">
 <preference-set idref="7e3fffd0-d187-d04b-8269-0e177ad5566d">
-  <string id="import_exclude_matches">*.*~;*.bak;*.tmp;CVS;.hg;.bzr;.git;.#*;*.pyo;*.pyc;.svn;*%25*;tmp*.html;.DS_Store;tools;actions;*.komodoproject;.komodotools</string>
+  <string id="import_exclude_matches">*.*~;*.bak;*.tmp;CVS;.hg;.bzr;.git;.#*;*.pyo;*.pyc;.svn;*%25*;tmp*.html;.DS_Store;tools;actions;*.komodoproject;.komodotools,__pycache__</string>
   <string id="import_include_matches"></string>
 </preference-set>
 </project>

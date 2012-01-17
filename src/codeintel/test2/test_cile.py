@@ -314,6 +314,7 @@ def _fillScanInputsTestCase():
             if fname == ".DS_Store": continue
             if fpath.endswith(".swp"): continue
             if fpath.endswith("~"): continue
+            if fpath.endswith("__pycache__"): continue
             if fpath.endswith(".pyc"): continue
             if fpath.endswith(".pyo"): continue
             if fpath.endswith(".pod"): continue

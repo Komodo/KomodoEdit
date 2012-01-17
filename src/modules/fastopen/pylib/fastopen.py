@@ -71,7 +71,7 @@ MDASH = u"\u2014"
 # Default path search exclusions used by `DirGatherer`.
 DEFAULT_PATH_EXCLUDES = ["*.pyc", "*.pyo", "*.gz", "*.exe", "*.obj",
     ".DS_Store",
-    ".svn", "_svn", ".git", "CVS", ".hg", ".bzr"]
+    ".svn", "_svn", ".git", "CVS", ".hg", ".bzr", "__pycache__"]
 
 KOMODO_PROJECT_EXT = ".komodoproject"
 
@@ -785,7 +785,7 @@ class MockKomodoProject(object):
         else:
             self._includes = includes
         if excludes is None:
-            self._excludes = "*.*~;*.bak;*.tmp;CVS;.#*;*.pyo;*.pyc;.svn;.hg;.git;.bzr;*%*;*.kpf;*.komodoproject".split(';')
+            self._excludes = "*.*~;*.bak;*.tmp;CVS;.#*;*.pyo;*.pyc;.svn;.hg;.git;.bzr;*%*;*.kpf;*.komodoproject;__pycache__".split(';')
         else:
             self._excludes = excludes
         self._prefset = MockKomodoPrefset(import_live=is_live)
