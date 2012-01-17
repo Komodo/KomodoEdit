@@ -1928,6 +1928,17 @@ ManagerClass.prototype = {
 
     _doRenameItem_files_are_same_re: /renameItem failure.*indicate the same file/,
 
+    promptForNewName: function(uri) {
+        var oldname = ko.uriparse.baseName(uri);
+        var newname = ko.dialogs.renameFileWrapper(oldname);
+        if (!newname) return [null, null, false];
+        else if (newname == oldname) {
+            ko.dialogs.alert(_bundle.formatStringFromName("Old file and new basename are the same.template", [oldname, newname], 2));
+            return [null, null, false];
+        }
+        return [oldname, newname, true];
+    },
+
     doRenameItem: function() {
         var index = gPlacesViewMgr.view.selection.currentIndex;
         var uri = gPlacesViewMgr.view.getURIForRow(index);
@@ -1939,15 +1950,11 @@ ManagerClass.prototype = {
                 return;
             }
         }
-        var oldname = ko.uriparse.baseName(uri);
-        var newname = ko.dialogs.renameFileWrapper(oldname);
-        if (!newname) return;
-        else if (newname == oldname) {
-            ko.dialogs.alert(_bundle.formatStringFromName("Old file and new basename are the same.template", [oldname, newname], 2));
-            return;
-        }
         var oldView = ko.views.manager.getViewForURI(uri);
+        var oldname, newname, carryOn;
         if (!oldView) {
+            [oldname, newname, carryOn] = this.promptForNewName(uri);
+            if (!carryOn) return;
             try {
                 gPlacesViewMgr.view.renameItem(index, newname, false);
             } catch(ex) {
@@ -1991,6 +1998,11 @@ ManagerClass.prototype = {
             // will cause the tree to be updated.
             var moreKomodoCommon = ko.moreKomodo.MoreKomodoCommon;
             var viewDoc = oldView.koDoc;
+            if (!moreKomodoCommon.dirtyDocCheck(viewDoc)) {
+                return;
+            }
+            [oldname, newname, carryOn] = this.promptForNewName(uri);
+            if (!carryOn) return;
             var newPath = moreKomodoCommon.renameFile(viewDoc.displayPath, newname);
             if (newPath) {
                 // Reopen file at same tab position

@@ -130,6 +130,24 @@ MoreKomodoCommon.createDocumentFromURI = function(uri) {
     return newDoc;
 }
 
+MoreKomodoCommon.dirtyDocCheck = function(viewDoc) {
+    if (viewDoc.isDirty) {
+        var fileXIsDirty = MoreKomodoCommon.getFormattedMessage("rename.dirty.file.confirm", [viewDoc.displayPath]);
+        var res = ko.dialogs.yesNoCancel(fileXIsDirty, "Cancel");
+        if (res == "Cancel") {
+            return false;
+        } else if (res == "Yes") {
+            try {
+                viewDoc.save(false);
+            } catch(ex) {
+                dump("onRenameFile: save: " + ex + "\n");
+                return false;
+            }
+        }
+    }
+    return true;
+};
+
 MoreKomodoCommon.renameFile = function(uri, newName, askConfirm) {
     askConfirm = typeof(askConfirm) == "undefined" || askConfirm == null ? true : askConfirm;
     function canRename(isFile, newName) {
