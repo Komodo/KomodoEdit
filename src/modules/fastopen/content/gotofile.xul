@@ -28,7 +28,14 @@
   <script src="chrome://komodo/content/library/windowManager.js" type="application/x-javascript;version=1.7"/>
   <script src="chrome://komodo/content/library/uriparse.js" type="application/x-javascript;version=1.7"/>
   <script src="chrome://fastopen/content/gotofile.js" type="application/x-javascript;version=1.7"/>
-    
+
+  <commandset id="allcommands">
+    <command id="cmd_close" oncommand="close()"/>
+  </commandset>
+  <keyset id="mainKeyset">
+    <key id="key_close" key="&cmd_close.commandkey;" modifiers="accel" command="cmd_close"/>
+  </keyset>
+
   <vbox flex="1">
     <hbox style="margin: 10px;">
       <textbox id="query" type="search" timeout="50"

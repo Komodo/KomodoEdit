@@ -16,3 +16,4 @@
 <!ENTITY goToolIntegration.description "go-tool is a small command-line tool for changing directories quickly.">
 <!ENTITY invokeTool.accesskey "K">
 <!ENTITY invokeTool.menuitem "Invoke Tool">
+<!ENTITY cmd_close.commandkey "W">
