@@ -386,7 +386,7 @@ static bool isHashRocketSuccessorColon(int i, Accessor &styler) {
     }
     bool flushed = false;
     while (pos > 0) {
-        if (strchr(" t\r\n", ch)) {
+        if (strchr(" \t\r\n", ch)) {
             pos -= 1;
             if (pos <= 0) {
                 return false;
