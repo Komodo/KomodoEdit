@@ -310,8 +310,12 @@ KoScintillaAutoCompleteController.prototype = {
      *       construction.
      */
     function Rect(props) {
-      this.left = props.screenX || props.left;
-      this.top = props.screenY || props.top;
+      this.left = "screenX" in props ? props.screenX :
+                  "left" in props ? props.left :
+                  Number.POSITIVE_INFINITY;
+      this.top = "screenY" in props ? props.screenY :
+                 "top" in props ? props.top :
+                 Number.POSITIVE_INFINITY;
       this.width = props.width; this.height = props.height;
       Object.defineProperty(this, "bottom", {
         get: function() this.top + this.height,
@@ -326,66 +330,18 @@ KoScintillaAutoCompleteController.prototype = {
     }
 
     /**
-     * Get the pixel coordinates (in CSS pixels relative to the <scimoz>
-     * element) for a given scintilla position
+     * Get a rectangle representing the cursor position (in CSS pixels relative
+     * to the <scimoz> element) for a given scintilla position
      * @param aPos {Number} The scintilla position
-     * @param aBelow {Boolean} If true, return the coordinates for the point
-     *        at the bottom left of the rectangle for the line; otherwise,
-     *        return the top-left corner.
      * @returns {Rect} Pixel coordinates of the position
      */
-    function getPointAtPosition(aPos, aBelow) {
+    function getRectAtPosition(aPos) {
       var left = scintilla.scimoz.pointXFromPosition(aPos);
       var top = scintilla.scimoz.pointYFromPosition(aPos);
-      if (aBelow) {
-        log.debug("getPointAtPosition: " + aBelow + ", from " + left + "," + top);
-        top += scintilla.scimoz.textHeight(scintilla.scimoz.lineFromPosition(aPos));
-        log.debug(" to " + left + "," + top);
-      }
-      return new Rect({left: left, top: top, width: 0, height: 0});
+      var line = scintilla.scimoz.lineFromPosition(aPos);
+      var height = scintilla.scimoz.textHeight(line);
+      return new Rect({left: left, top: top, width: 1, height: height});
     }
-
-    /**
-     * Adjust aTargetBounds horizontally so that it fits in aScreenBounds
-     * @param aTargetBounds bounds for the target
-     * @param aScreenBounds bounds for the screen
-     * @returns adjusted bounds, or null if it won't usefully fit
-     */
-    function adjustBounds(aTargetBounds, aScreenBounds) {
-      log.debug("adjustBounds: target=" + aTargetBounds + " / screen = " + aScreenBounds);
-      if (aTargetBounds.top < aScreenBounds.top) return null;
-      if (aTargetBounds.bottom > aScreenBounds.bottom) return null;
-      var bounds = new Rect(aTargetBounds);
-      if (bounds.left < aScreenBounds.left) {
-        // too far to the left, move it towards the right
-        bounds.left = aScreenBounds.left;
-      }
-      if (bounds.right > aScreenBounds.right) {
-        // too far to the right, move it to the left
-        bounds.left = aScreenBounds.right - bounds.width;
-      }
-      if (bounds.left < aScreenBounds.left) {
-        // just can't fit both left and right
-        return null;
-      }
-      log.debug("adjustBounds: success " + bounds);
-      return bounds;
-    }
-
-    var scintillaRect = new Rect(scintilla.boxObject);
-    var window = scintilla.ownerDocument.defaultView;
-    var sm = Cc["@mozilla.org/gfx/screenmanager;1"]
-               .getService(Ci.nsIScreenManager)
-    var screen = sm.screenForRect(scintillaRect.left,
-                                  scintillaRect.top,
-                                  scintillaRect.width,
-                                  scintillaRect.height);
-    var screenRect = { left: {}, top: {}, width: {}, height: {}};
-    screen.GetAvailRect(screenRect.left, screenRect.top, screenRect.width, screenRect.height);
-    log.debug('screenRect: ' + JSON.stringify(screenRect));
-    screenRect = new Rect({left: screenRect.left.value, top: screenRect.top.value,
-                           width: screenRect.width.value,
-                           height: screenRect.height.value});
 
     this._constructItems(); // construct items if necessary
 
@@ -395,61 +351,34 @@ KoScintillaAutoCompleteController.prototype = {
       this._popupHasHeight = true;
     }
 
-    /* At this point, we have the popup dimensions, and therefore we won't have
-     * any more large pauses before trying to open the popup.  Check that the
-     * relevant scimoz still has the focus, to avoid showing the popup after
-     * the user has already moved on.
-     */
     if (!scintilla.scimoz.isFocused) {
       // scimoz lost focus while we're trying to sort things out
       return;
     }
 
-    /* Position the popup. We want to try, in order:
-     *   1. Just below the anchor position (shifted horizontally if needed),
-     *      as long as this doesn't cover up the start pos...end pos range
-     *   2. Just above the anchor position (shifted horizontally if needed),
-     *      as long as this doesn't cover up the start pos...end pos range
-     *   3. Steps 1 and 2 for end pos instead of anchor pos
-     *   4. Steps 1 and 2 for start pos instead of anchor pos
-     *   5. Give up and show it anywhere
-     */
-    var foundPosition = false;
-    for each (var anchor in [aAnchorPos, aEndPos, aStartPos]) {
-      var popupRect = new Rect(this._popup.getBoundingClientRect());
-
-      // prefer showing below the anchor
-      var anchorPos = getPointAtPosition(anchor, true);
-      var targetBounds = new Rect({
-        left: scintillaRect.left + anchorPos.left,
-        top: scintillaRect.top + anchorPos.top,
-        width: popupRect.width, height: popupRect.height
-      });
-      targetBounds = adjustBounds(targetBounds, screenRect);
-      if (targetBounds) {
-        this._popup.openPopupAtScreen(targetBounds.left, targetBounds.top, false);
-        break;
+    // Display the popup.  It's less error-prone to just create a dummy box,
+    // position it at the cursor, and tell Mozilla to use that as the popup
+    // anchor.  See, among other things, bug 92199.
+    var scintillaRect = new Rect(scintilla.boxObject);
+    var cursorRect = getRectAtPosition(aAnchorPos);
+    var document = scintilla.ownerDocument;
+    var windowRect = new Rect(document.documentElement.boxObject);
+    var box = document.createElement("box");
+    box.setAttribute("top", cursorRect.top);
+    box.setAttribute("left", cursorRect.left);
+    box.setAttribute("width", cursorRect.width);
+    box.setAttribute("height", cursorRect.height);
+    scintilla.appendChild(box);
+    var _destroyAnchor = (function _destroyAnchor(event) {
+      this._popup.removeEventListener(event.type, _destroyAnchor, false);
+      if (box.parentNode) {
+        box.parentNode.removeChild(box);
       }
-      // try above it
-      anchorPos = getPointAtPosition(aAnchorPos, false);
-      targetBounds = new Rect({
-        left: scintillaRect.left + anchorPos.left,
-        top: scintillaRect.top + anchorPos.top - popupRect.height,
-        width: popupRect.width, height: popupRect.height
-      });
-      targetBounds = adjustBounds(targetBounds, screenRect);
-      if (targetBounds) {
-        this._popup.openPopupAtScreen(targetBounds.left, targetBounds.top, false);
-        foundPosition = true;
-        break;
-      }
-    }
-    if (!foundPosition) {
-      // didn't manage to find somewhere sensible; pick anywhere
-      let anchorPos = getPointAtPosition(aAnchorPos, true);
-      this._popup.openPopupAtScreen(anchorPos.left, anchorPos.top, false);
-    }
+    }).bind(this);
+    this._popup.addEventListener("popuphiding", _destroyAnchor, false);
+    this._popup.openPopup(box, "after_start", 0, 0, false, false, null);
 
+    // Try to select an appropriate item (if there's partial typing)
     if (aPrefix) {
       log.debug("prefix: " + aPrefix);
       let index, string, found = false;
@@ -480,6 +409,7 @@ KoScintillaAutoCompleteController.prototype = {
       // Select the first item
       this._updateDisplay(0);
     }
+
     this._grid.controllers.appendController(this);
     this._popup.ownerDocument.commandDispatcher.focusedElement = this._grid;
   },
