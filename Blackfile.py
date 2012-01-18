@@ -2028,27 +2028,13 @@ def GetScintillaSource(cfg, argv):
     log.info("copy clean scintilla sources in src/scintilla")
     _cp(join("contrib", "scintilla"), join("src", "scintilla"))
 
-    # Find a sane patch executable.
-    # - on Windows the cygwin patch can do screwy things
-    # - on Solaris /usr/bin/patch isn't good enough (note that we
-    #   usually *do* have GNU patch at /usr/local/bin/patch).
-    ko_bin_dir = join("util", "bin-"+platinfo.platname())
-    try:
-        patch_exe = which.which("patch", path=[ko_bin_dir])
-    except which.WhichError:
-        try:
-            patch_exe = which.which("patch")
-        except which.WhichError:
-            raise Error("Could not find a 'patch' executable.")
-
     # Patch it with patches in "contrib/patches/scintilla".
     patchtree.log.setLevel(logging.INFO)
     patchtree.patch([join("contrib", "patches", "scintilla")],
                     join("src", "scintilla"),
                     config=cfg,
                     #dryRun=1,  # uncomment this line to dry-run patching
-                    logDir=join(cfg.buildAbsDir, "scintilla-patch-log"),
-                    patchExe=patch_exe)
+                    logDir=join(cfg.buildAbsDir, "scintilla-patch-log"))
 
 
 def BuildKomodo(cfg, argv):
