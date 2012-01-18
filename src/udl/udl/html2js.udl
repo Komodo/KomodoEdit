@@ -52,7 +52,7 @@ state IN_H2CSL_STAG_POST_TAGNAME:
 
 
 state IN_H2CSL_STAG_POST_TAGNAME_IN_WS:
-'\n': paint(include, M_DEFAULT), => IN_CSL_DEFAULT
+/^/: paint(include, M_DEFAULT), => IN_CSL_DEFAULT
 /\S/: paint(upto, M_DEFAULT), redo, => IN_CSL_DEFAULT
 
 state IN_H2CSL_STAG_IN_ATTRNAME

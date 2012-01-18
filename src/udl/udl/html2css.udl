@@ -65,7 +65,7 @@ state IN_H2CSS_STAG_POST_TAGNAME:
 '<'    : paint(upto, M_TAGSPACE), redo => IN_M_DEFAULT
 
 state IN_H2CSS_STAG_POST_TAGNAME_IN_WS:
-'\n': paint(include, M_DEFAULT), =>    IN_CSS_DEFAULT
+/^/: paint(include, M_DEFAULT), =>    IN_CSS_DEFAULT
 /\S/: paint(upto, M_DEFAULT), redo, => IN_CSS_DEFAULT
 
 state IN_H2CSS_STAG_IN_ATTRNAME
