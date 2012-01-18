@@ -635,6 +635,7 @@ KoScintillaAutoCompleteController.prototype = {
    */
   handleEvent: function KASCC_handleEvent(event) {
     log.debug("event: " + event.type);
+    var skipListeners = false;
     specific_handler:
     switch (event.type) {
       case "popuphidden":
@@ -720,14 +721,14 @@ KoScintillaAutoCompleteController.prototype = {
         // don't allow any mouse clicking events to propagate outside the popup
         event.stopPropagation();
         // no need to prevent default here; the default behaviour is good.
-        return;
+        skipListeners = true;
     }
     if (event.target == this._scrollbar) {
       // scrollbar events - just update the scroll position
       this._updateDisplay(parseInt(this._scrollbar.getAttribute("curpos"), 10));
       return;
     }
-    if (this.listener) {
+    if (!skipListeners && this.listener) {
       this.listener.onAutoCompleteEvent(this, event);
     }
   },
