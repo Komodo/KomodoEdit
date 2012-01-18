@@ -707,7 +707,7 @@ class KPFTreeView(TreeView):
         """
         nodeList = [self._nodeTypeName_from_partTypeName[child.type](child, level + 1, project)
                   for child in children]
-        return nodeList
+        return sorted(nodeList, key=lambda row: row.part.get_name().lower())
         
     # nsITreeView
     def isSeparator(self, index):
