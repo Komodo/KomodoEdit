@@ -328,6 +328,17 @@ def make_src_elementtree(maker, log):
     found_some_patches = False
     for patchfile in sorted(glob("src/patches/ciElementTree-*.patch")):
         found_some_patches = True
+        if sys.platform.startswith("win"):
+            # on Windows, we need to make sure the patch file has CRLF line
+            # endings, because patch.exe is crap
+            with open(patchfile, "r") as f:
+                data = f.read()
+            if not "\r\n" in data:
+                sys.stderr.write("Warning: converting \"%s\" to DOS line endings" %
+                                 (abspath(patchfile),))
+                with open(patchfile, "w") as f:
+                    f.write(data)
+
         _run_in_dir("patch -p0 < %s" % abspath(patchfile), "src",
                     logstream=log.info)
     assert found_some_patches, "something wrong with finding ciElementTree patches"
