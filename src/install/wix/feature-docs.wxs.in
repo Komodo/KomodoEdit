@@ -194,6 +194,7 @@
                 <File Id="file4697" Name="EDITOR_5.GIF" LongName="editor_calltips.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\editor_calltips.png"/>
                 <File Id="file4698" Name="EDITOR_6.GIF" LongName="editor_pane.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\editor_pane.gif"/>
                 <File Id="file4699" Name="EDITOR_7.GIF" LongName="editor_syncol.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\editor_syncol.gif"/>
+                <File Id="file303" LongName="fast_find.png" Name="FAST_F_0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\fast_find.png" />
                 <File Id="file875" LongName="hyperlinks_color.png" Name="HYPERL_0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\hyperlinks_color.png" />
                 <File Id="file876" LongName="hyperlinks_definition.png" Name="HYPERL_1.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\hyperlinks_definition.png" />
                 <File Id="file877" LongName="hyperlinks_url.png" Name="HYPERL_2.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\hyperlinks_url.png" />
