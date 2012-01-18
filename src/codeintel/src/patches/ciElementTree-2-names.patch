@@ -143,16 +143,14 @@ This is useful for namespace-lookup for completion eval.
      Py_DECREF(old);
  
      return 0;
-@@ -1596,7 +1596,11 @@
-         res = self->start;
-     else if (strcmp(name, "end") == 0)
-         res = self->end;
--    else {
-+    else if (strcmp(name, "names") == 0) {
+@@ -1437,6 +1510,10 @@
+         if (!self->extra)
+             element_new_extra(self, NULL);
+ 	res = element_get_attrib(self);
++    } else if (strcmp(name, "names") == 0) {
 +        if (!self->extra)
 +            element_new_extra(self, NULL);
 +	    res = element_get_names(self);
-+    } else {
+     } else {
          PyErr_SetString(PyExc_AttributeError, name);
          return NULL;
-     }
