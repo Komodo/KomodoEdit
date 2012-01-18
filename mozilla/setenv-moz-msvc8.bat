@@ -140,4 +140,8 @@ if "%USESDK%"=="1" (
     )
 )
 
+rem Force the first directory on the path to be our own custom bin directory,
+rem so the build will find and use our own patch.exe.
+set "PATH=%~dp0\bin-win32;%PATH%"
+
 echo ========================== done ==================================
