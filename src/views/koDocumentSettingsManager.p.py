@@ -401,6 +401,7 @@ class koDocumentSettingsManager:
                     scintilla.scimoz.edgeMode = scintilla.scimoz.EDGE_BACKGROUND
         else:
             for scintilla in self._scintillas:
+                scintilla.scimoz.edgeColumn = prefSet.getLongPref('editAutoWrapColumn')
                 scintilla.scimoz.edgeMode = scintilla.scimoz.EDGE_NONE
             
     def _apply_editAutoWrapColumn(self, prefSet):
