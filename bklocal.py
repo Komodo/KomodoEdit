@@ -1718,7 +1718,7 @@ class KomodoPythonUtilsDir(black.configure.Datum):
 
 class SetPath(black.configure.SetPathEnvVar):
     # On Windows 7 this must be serialized to `bkconfig.bat` *after* the call to
-    # "setenv-moz-msvcN.bat" to ensure that "util\bin-win32-x86" is on the PATH
+    # "setenv-moz-msvcN.bat" to ensure that "mozilla\bin-win32" is on the PATH
     # before "C:\mozilla-build\msys\bin" so that Komodo's "patch.exe" is the
     # one that gets used.
     serializationOrdinal = 150
@@ -1746,10 +1746,10 @@ class SetPath(black.configure.SetPathEnvVar):
             systemDirs = []
 
         # Add the local plat-specific bin dir, if any.
-        utilBinDir = join(dirname(abspath(__file__)), "util",
-            "bin-" + platinfo.platname())
-        if exists(utilBinDir):
-            self.value.append(utilBinDir)
+        platBinDir = join(dirname(abspath(__file__)), "mozilla",
+            "bin-%s" % (sys.platform))
+        if exists(platBinDir):
+            self.value.append(platBinDir)
 
         # add the Python bin directory
         applicable = black.configure.items["siloedPythonBinDir"].Determine()
