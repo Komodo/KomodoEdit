@@ -626,14 +626,6 @@ alert(str);
 }
 };
 
-this.createRailsProject = function() {
-    try {
-        
-    } catch(ex) {
-        
-    }
-};
-
 this.setDefaultPreferences = function(prefset /* undef */) {
     if (!prefset) {
         prefset = this.gprefs; 
