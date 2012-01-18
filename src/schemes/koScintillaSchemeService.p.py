@@ -703,12 +703,17 @@ class Scheme:
             # fold symbols drawn.
         foldmargin_color = self._colors.get("foldMarginColor")
         if foldmargin_color is not None:
-            scimoz.setFoldMarginColour(1, foldmargin_color)
-            scimoz.setFoldMarginHiColour(1, foldmargin_color)
+            scimoz.setFoldMarginColour(True, foldmargin_color)
+            scimoz.setFoldMarginHiColour(True, foldmargin_color)
+        else:
+            scimoz.setFoldMarginColour(False, 0)
+            scimoz.setFoldMarginHiColour(False, 0)
 
         whitespace_color = self._colors.get("whitespaceColor")
         if whitespace_color is not None:
             scimoz.setWhitespaceFore(True, whitespace_color)
+        else:
+            scimoz.setWhitespaceFore(False, 0)
 
         # Indicators: UDL transition (internal only)
         DECORATOR_UDL_FAMILY_TRANSITION = components.interfaces.koILintResult.DECORATOR_UDL_FAMILY_TRANSITION
