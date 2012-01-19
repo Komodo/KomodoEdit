@@ -47,13 +47,15 @@
   <script src="chrome://railstools/content/rails_init.js" type="application/x-javascript"/>
   <script src="chrome://railstools/content/createRailsProject.js" type="application/x-javascript"/>
 
-  <menupopup id="popup_project">
-    <menuitem id="createRailsProject"
+  <menu id="menu_project_templates">
+      <menupopup id="popup_project_templates">
+        <menuitem id="createRailsProject"
               label="Create Ruby on Rails Project"
-              
-	      oncommand="ko.extensions.rails.createRailsProject();"
+              oncommand="ko.extensions.rails.createRailsProject();"
+              insertbefore="menu_project_builtin_templates_separator"
               class="menu-iconic-wide"
-	      insertafter="menu_project_templates" />
-  </menupopup>
+              keep="true" />
+      </menupopup>
+  </menu>
     
 </overlay>

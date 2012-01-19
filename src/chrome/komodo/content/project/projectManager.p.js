@@ -718,13 +718,12 @@ projectManager.prototype.loadTemplateMenuItems = function(event, menupopup) {
     var childNodes = menupopup.childNodes;
     var i = 0, childNode, lim = childNodes.length;
     var refChild = null;
-    for (i = 0; i < lim; i++) {
-        childNode = childNodes[i]
-        if (childNode[0].id == "menu_project_builtin_templates_separator") {
+    // Always walk backwards when deleting nodes by index
+    for (i = lim - 1; i >= 0; i--) {
+        childNode = childNodes[i];
+        if (childNode.id == "menu_project_builtin_templates_separator") {
             refChild = childNode;
-            break;
-        }
-        if (childNode.getAttribute("keep") != "true") {
+        } else if (childNode.getAttribute("_from_template") == "true") {
             menupopup.removeChild(childNode);
         }
     }
@@ -735,8 +734,7 @@ projectManager.prototype.loadTemplateMenuItems = function(event, menupopup) {
     }
     var templateSvc = Components.classes["@activestate.com/koTemplateService?type=project;1"].getService();
     templateSvc.loadTemplates();
-    var tree = Components.classes["@mozilla.org/dom/json;1"]
-    .createInstance(Components.interfaces.nsIJSON).decode(templateSvc.getJSONTree());
+    var tree = JSON.parse(templateSvc.getJSONTree());
     var needMenuSeparator = false;
     var menuitem;
     for (var i = 0; i < tree.length; i++) {
@@ -746,6 +744,7 @@ projectManager.prototype.loadTemplateMenuItems = function(event, menupopup) {
             if (needMenuSeparator) {
                 menuitem = document.createElementNS(XUL_NS, 'menuseparator');
                 menuitem.id = "menu_project_popup_templates_" + i + "_separator";
+                menuitem.setAttribute("_from_template", "true");
                 menupopup.insertBefore(menuitem, refChild);
             } else {
                 needMenuSeparator = true;
@@ -765,6 +764,7 @@ projectManager.prototype.loadTemplateMenuItems = function(event, menupopup) {
                              + path.replace(/\\/g, '\\\\')
                              + "');"));
             menuitem.setAttribute("accesskey", baseName.substring(0, 1));
+            menuitem.setAttribute("_from_template", "true");
             menupopup.insertBefore(menuitem, refChild);
         }
     }
