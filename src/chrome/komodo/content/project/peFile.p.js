@@ -508,7 +508,12 @@ this.setFileStatusAttributesFromView = function peFile_setFileStatusAttributesFr
         if (koFile) {
             this.setFileStatusAttributesFromFile(element, koFile);
         } else {
-            element.removeAttribute('file_image_url');
+            if (view.koDoc) {
+                // Deal with untitled documents (that do not have a koFile).
+                element.setAttribute('file_image_url', 'moz-icon://' + view.koDoc.baseName + '?size=16');
+            } else {
+                element.removeAttribute('file_image_url');
+            }
             element.removeAttribute('file_status');
             if (!view.icon_type) {
                 element.removeAttribute('alt_image');
