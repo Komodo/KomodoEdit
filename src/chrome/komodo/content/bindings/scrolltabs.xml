@@ -655,7 +655,7 @@
                 //     +")\n");
 
                 this.dropIndicatorBar.collapsed = true;
-                sourceTabbox._tabs.dropIndicatorBar.collapsed = true;
+                sourceTabbox.tabs.dropIndicatorBar.collapsed = true;
 
                 if (sourceTab.ownerDocument != document) {
                     // 1. Moving a tab from one Komodo window to another.
