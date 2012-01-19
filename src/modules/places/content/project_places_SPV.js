@@ -193,8 +193,7 @@ this.initProjectsContextMenu = function(event, menupopup) {
         }
         menuNode.removeAttribute('collapsed');
         ko.places.testDisableNode(menuNode, selectionInfo);
-        if (menuNode.id == "menu_addItemToProject_projectsContext"
-            && selectionInfo.currentProject) {
+        if (menuNode.id == "menu_addItemToProject_projectsContext") {
             menupopup = menuNode.firstChild;
             if (menupopup.childNodes.length == 0) {
                 ko.places.projects.copyNewItemMenu(menupopup, "SPV_projView_");
