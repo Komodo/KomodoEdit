@@ -962,7 +962,9 @@ class InvalidationRange(object):
             self._broken = True
         if self._broken:
             # something's busted! invalidate the whole thing
-            self.view._tree.invalidate()
+            # by faking a batch we force the tree to also look up the new row count
+            self.view._tree.beginUpdateBatch()
+            self.view._tree.endUpdateBatch()
             self.ranges = []
             self._broken = False
         else:
