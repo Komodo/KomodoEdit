@@ -166,6 +166,7 @@ interface koIDocument : nsISupports
     // prefs, if not, find it in any open project and use those prefs.
     // if the document is not in a project, the return is the prefs above
     koIPreferenceSet getEffectivePrefs();
+    koIPreferenceSet getEffectivePrefsByName(in AString prefName);
     
     void saveState(in koIScintillaView scintilla);
     

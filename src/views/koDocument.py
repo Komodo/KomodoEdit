@@ -312,6 +312,23 @@ class koDocumentBase:
                 return prefset
         return self.prefs
     
+    def getEffectivePrefsByName(self, prefName):
+        # this returns either a prefset from a project, or the document's own prefset
+        # Differs from getEffectivePrefs because it queries each prefSet to see
+        # if it directly contains the supplied pref. Otherwise a project that
+        # doesn't set a pref can hide a file's setting, because the file happens
+        # to be a member of the file. Use with discretion
+        docPrefset = self.prefs
+        if docPrefset.hasPrefHere(prefName):
+            return docPrefset
+        if self.file and self.file.URI:
+            partSvc = components.classes["@activestate.com/koPartService;1"]\
+                .getService(components.interfaces.koIPartService)
+            projPrefset = partSvc.getEffectivePrefsForURL(self.file.URI)
+            if prefset:
+                return prefset
+        return docPrefset
+    
     def _setLangPrefs(self):
         lprefs = self._globalPrefs.getPref("languages")
         if lprefs.hasPref("languages/"+self._language):

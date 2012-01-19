@@ -46,6 +46,12 @@ def getProxiedEffectivePrefs(request):
                              request.koDoc.getEffectivePrefs(),
                              PROXY_ALWAYS | PROXY_SYNC)
 
+def getProxiedEffectivePrefsByName(request, prefName):
+    return getProxyForObject(None,
+                             components.interfaces.koIPreferenceSet,
+                             request.koDoc.getEffectivePrefsByName(prefName),
+                             PROXY_ALWAYS | PROXY_SYNC)
+
 SEV_ERROR = 2   # No xpcom here :(
 SEV_WARNING = 1
 SEV_INFO = 0
