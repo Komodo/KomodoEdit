@@ -184,9 +184,9 @@
             // if the tab is already selected, and we're already focused,
             // we don't want to reset the focus again, which would do a notify
             // on current_view_changed
-            if (this.tabbox._tabs.selectedItem != tab) {
-                this.tabbox._tabs.selectedItem = tab;
-            } else if (this.tabbox._tabs.selectedItem == tab &&
+            if (this.tabbox.tabs.selectedItem != tab) {
+                this.tabbox.tabs.selectedItem = tab;
+            } else if (this.tabbox.tabs.selectedItem == tab &&
                      this.getAttribute('lastfocused')=='false') {
                 this.select(event);
             }
@@ -216,8 +216,8 @@
         <body>
         <![CDATA[
         try {
-            var newTab = this.tabbox._tabs.selectedItem;
-            if (tab == this.tabbox._tabs.selectedItem) {
+            var newTab = this.tabbox.tabs.selectedItem;
+            if (tab == this.tabbox.tabs.selectedItem) {
                 if (tab.nextSibling) {
                     newTab = tab.nextSibling;
                 } else {
@@ -233,8 +233,8 @@
             }
 
             var tabpanel = document.getElementById(tab.linkedPanel);
-            this.tabbox._tabs.removeChild(tab);
-            this.tabbox._tabpanels.removeChild(tabpanel);
+            this.tabbox.tabs.removeChild(tab);
+            this.tabbox.tabpanels.removeChild(tabpanel);
 
             // Must re-select the new tab after removing the old one, otherwise
             // can end up with a blank tabpanel or weird borders - bug 92203.
@@ -242,7 +242,7 @@
                 this.tabbox.selectedIndex = this.tabbox.tabs.getIndexOfItem(newTab);
             }
 
-            if (this.tabbox._tabs.childNodes.length < 1) {
+            if (this.tabbox.tabs.childNodes.length < 1) {
                 this.tabbox.firstChild.setAttribute('closedisabled','true');
                 this.setAttribute('collapsed','true');
                 // this focus is required so that controllers continue
@@ -358,8 +358,8 @@
             var views = this.getViews(recursive);
             // sort the views based on view.parentNode._tab.ordinal
             var tabs = [];
-            for (var i=0; i < this.tabbox._tabs.childNodes.length; i++) {
-                tabs.push(this.tabbox._tabs.childNodes[i]);
+            for (var i=0; i < this.tabbox.tabs.childNodes.length; i++) {
+                tabs.push(this.tabbox.tabs.childNodes[i]);
             }
             function ordinalSort(a, b) {
                 if (tabs.indexOf(a.parentNode._tab) < tabs.indexOf(b.parentNode._tab))
