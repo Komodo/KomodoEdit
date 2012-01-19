@@ -151,6 +151,8 @@ this.PlacesProjectManager.prototype = {
         var callback = function(part) {
             if (part) {
                 this_.owner.projectsTreeView.showChild(parentPart, part);
+            } else {
+                ko.dialogs.alert(_bundle.GetStringFromName("cant associate nondisk file with a project"));
             }
         };
         // This has to be done via a callback because creating a file
