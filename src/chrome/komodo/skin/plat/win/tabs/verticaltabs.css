@@ -29,6 +29,7 @@ ko-pane[type="vertical"] tabs[anonid="tabs"] tab
   border-width: 0;
   border-radius: 0;
   border-left-style: solid;
+  border-right-style: solid;
   -moz-border-top-colors: rgba(80, 80, 80, 0.35);
   -moz-border-bottom-colors: rgba(80, 80, 80, 0.35);
   -moz-border-left-colors: rgba(80, 80, 80, 0.35);
