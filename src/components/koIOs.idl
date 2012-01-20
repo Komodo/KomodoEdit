@@ -76,17 +76,17 @@ interface koIOs : nsISupports {
   
     void chdir(in wstring directory);
     void chmod(in wstring directory, in long mode);
-    wstring getenv(in wstring key);
+    AString getenv(in AString key);
     wstring getcwd();
-    wstring readfile(in wstring path);
-    void writefile(in wstring path, in wstring data);
+    AString readfile(in wstring path);
+    void writefile(in wstring path, in AString data);
   
     // Uses the lastErrorSvc to report errors.
     void listdir(in wstring dir,
                  out PRUint32 count,
                  [retval, array, size_is(count)] out wstring contents);
     
-    PRUint32 system(in wstring command);
+    PRUint32 system(in AString command);
     void startfile(in wstring command);
     void mkdir(in wstring path); /* uses lastErrorSvc to report errors */
     void rename(in wstring from, in wstring to);
