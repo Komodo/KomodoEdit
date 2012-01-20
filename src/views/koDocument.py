@@ -325,8 +325,8 @@ class koDocumentBase:
             partSvc = components.classes["@activestate.com/koPartService;1"]\
                 .getService(components.interfaces.koIPartService)
             projPrefset = partSvc.getEffectivePrefsForURL(self.file.URI)
-            if prefset:
-                return prefset
+            if projPrefset:
+                return projPrefset
         return docPrefset
     
     def _setLangPrefs(self):
