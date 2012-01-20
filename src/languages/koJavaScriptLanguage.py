@@ -87,7 +87,7 @@ class koJavaScriptLanguage(koJSLikeLanguage, KoLanguageBaseDedentMixin):
     _reg_categories_ = [("komodo-language", name)]
 
     shebangPatterns = [
-        re.compile(r'\A#!.*(node|javascript).*$', re.I | re.M),
+        re.compile(r'\A#!.*(javascript).*$', re.I | re.M),
     ]
 
     accessKey = 'j'
@@ -192,7 +192,7 @@ class koCoffeeScriptLanguage(koJSLikeLanguage):
     _reg_categories_ = [("komodo-language", name)]
 
     shebangPatterns = [
-        re.compile(r'\A#!.*(node|javascript).*$', re.I | re.M),
+        re.compile(r'\A#!.*(coffee).*$', re.I | re.M),
     ]
 
     accessKey = 'C'

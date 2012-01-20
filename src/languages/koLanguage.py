@@ -635,9 +635,26 @@ class KoLanguageRegistryService:
 
         return localVars
 
+    def guessLanguageFromFullContents(self, fileNameLanguage, buffer, koDoc):
+        langs, modelineLangs, shebangLangs = \
+               self.guessLanguageFromContents(buffer[:1000],
+                                              buffer[-1000:],
+                                              returnDetails=True)
+        if not modelineLangs and not shebangLangs:
+            # Deal with variants of languages here.
+            if fileNameLanguage == "Python":
+                newLang = self._distinguishPythonVersion(buffer, koDoc)
+                if newLang:
+                    langs.insert(0, newLang)
+            elif fileNameLanguage == "JavaScript":
+                newLang = self._distinguishJavaScriptOrNode(buffer)
+                if newLang:
+                    langs.insert(0, newLang)
+        return langs
+        
     _htmldoctype_re = re.compile('<!DOCTYPE\s+html',
                                 re.IGNORECASE)
-    def guessLanguageFromContents(self, head, tail):
+    def guessLanguageFromContents(self, head, tail, returnDetails=False):
         """Guess the language (e.g. Perl, Tcl) of a file from its contents.
         
             "head" is a sufficient amount of text from the start of the file
@@ -655,6 +672,8 @@ class KoLanguageRegistryService:
         empty list is returned.
         """
         langs = []
+        modelineLangs = []
+        shebangLangs = []
 
         # Specification of the language via Emacs-style local variables
         # wins, so we check for it first.
@@ -676,6 +695,7 @@ class KoLanguageRegistryService:
                         log.warn("unknown emacs mode: '%s'", mode)
                     else:
                         langs = [langName]
+                        modelineLangs = [langName]
 
         # Detect if this is an XML file.
         if self._globalPrefs.getBooleanPref('xmlDeclDetection') and \
@@ -728,7 +748,6 @@ class KoLanguageRegistryService:
         # Detect the type from a possible shebang line.
         if (self._globalPrefs.getBooleanPref('shebangDetection') and
             not langs and head.startswith(u'#!')):
-            shebangLangs = []
             for language, pattern in self.shebangPatterns:
                 if pattern.match(head):
                     shebangLangs.append(language)
@@ -739,8 +758,87 @@ class KoLanguageRegistryService:
             else:
                 langs = shebangLangs
 
-        return langs
+        if returnDetails:
+            return langs, modelineLangs, shebangLangs
+        else:
+            return langs
         
+    _jsDistinguisher = None
+    def _distinguishJavaScriptOrNode(self, buffer):
+        currentProject = components.classes["@activestate.com/koPartService;1"]\
+            .getService(components.interfaces.koIPartService).currentProject
+        if currentProject:
+            prefset = currentProject.prefset
+            if prefset.hasPref("currentInvocationLanguage") \
+               and prefset.getStringPref("currentInvocationLanguage") == "Node.js":
+                return "Node.js"
+        if not buffer:
+            return "JavaScript"
+        nodeJSAppInfo = components.classes["@activestate.com/koAppInfoEx?app=NodeJS;1"].\
+                        getService(components.interfaces.koIAppInfoEx)
+        if not nodeJSAppInfo.executablePath:
+            return "JavaScript"
+        import pythonVersionUtils
+        if self._jsDistinguisher is None:
+            self._jsDistinguisher = pythonVersionUtils.JavaScriptDistinguisher()
+        if self._jsDistinguisher.isNodeJS(buffer):
+            return "Node.js"
+        return "JavaScript"
+
+    _pythonNameByVersion = {2: "Python", 3: "Python3"}
+    def _distinguishPythonVersion(self, buffer, koDoc):
+        """
+        If the user has an installation for only one of the Python
+        versions, favor that.  Otherwise, analyze the buffer.
+        """
+        import pythonVersionUtils
+        python2 = self._getPython2Path(koDoc)
+        python3 = self._getPython3Path(koDoc)
+        # If the buffer's empty, favor v2 over v3.
+        if (not python2) == (not python3):
+            # Either we have both, or neither, so we need to do
+            # further analysis.
+            isPython3 = pythonVersionUtils.isPython3(buffer)
+            if isPython3:
+                versionNo = 3
+            else:
+                versionNo = 2
+        elif python2:
+            versionNo = 2
+        else:
+            versionNo = 3
+        return self._pythonNameByVersion[versionNo]
+
+    def _getPython2Path(self, koDoc):
+        python2Path = koDoc.getEffectivePrefs().getStringPref("pythonDefaultInterpreter")
+        if python2Path and os.path.isfile(python2Path):
+            return python2Path
+        python2Info = components.classes["@activestate.com/koAppInfoEx?app=%s;1"
+                                        % 'Python'] \
+                        .getService(components.interfaces.koIAppInfoEx)
+        python2Path = python2Info.executablePath
+        if not python2Path or not os.path.exists(python2Path):
+            try:
+                python2Path = which.which("python")
+            except which.WhichError:
+                python2Path = None
+        return python2Path
+
+    def _getPython3Path(self, koDoc):
+        python3Path = koDoc.getEffectivePrefs().getStringPref("python3DefaultInterpreter")
+        if python3Path and os.path.isfile(python3Path):
+            return python3Path
+        python3Info = components.classes["@activestate.com/koAppInfoEx?app=%s;1"
+                                        % 'Python3'] \
+                        .getService(components.interfaces.koIAppInfoEx)
+        python3Path = python3Info.executablePath
+        if not python3Path or not os.path.exists(python3Path):
+            try:
+                python3Path = which.which("python3")
+            except which.WhichError:
+                python3Path = None
+        return python3Path
+
     def __initPrefs(self):
         self.__prefs = components \
                        .classes["@activestate.com/koPrefService;1"] \
