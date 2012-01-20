@@ -68,7 +68,12 @@ this.addNewFileFromTemplate = function peFolder_addNewFileFromTemplate(/*koIPart
     var this_ = this;
     var view_callback = function(view) {
         if (view) {
-            var part = this_.addPartWithURLAndType(view.koDoc.file.URI, 'file', parent);
+            var part;
+            try {
+                part = this_.addPartWithURLAndType(view.koDoc.file.URI, 'file', parent);
+            } catch(ex) {
+                part = null;
+            }
             if (callback) {
                 callback(part);
             }
