@@ -177,6 +177,7 @@ function _updateLanguage(view) {
 function _clearLanguage() {
     var languageWidget = document.getElementById('statusbar-language-menu');
     languageWidget.setAttribute("label", "");
+    languageWidget.setAttribute("language", "");
 }
 
 function _updateLintMessage(view) {

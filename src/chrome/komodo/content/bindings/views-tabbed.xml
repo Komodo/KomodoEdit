@@ -217,7 +217,14 @@
         <![CDATA[
         try {
             var newTab = this.tabbox.tabs.selectedItem;
-            if (tab == this.tabbox.tabs.selectedItem) {
+            if (newTab) {
+                // Un-mark the currently selected tab as selected so that 1) we
+                // update the "beforeselected" attribute correctly, and 2)
+                // update the selectedPanel index after tab removal; see bug
+                // 92203.
+                newTab._selected = false;
+            }
+            if (tab == newTab) {
                 if (tab.nextSibling) {
                     newTab = tab.nextSibling;
                 } else {
@@ -225,25 +232,15 @@
                 }
             }
 
-            // Must select the new tab before removing the old one, otherwise
-            // properties like "beforeselected" are not correctly reset,
-            // causing tab CSS anomalies - bug 92203.
-            if (newTab) {
-                this.tabbox.selectedIndex = this.tabbox.tabs.getIndexOfItem(newTab);
-            }
-
-            var tabpanel = document.getElementById(tab.linkedPanel);
+            var tabpanel = this.tabbox.tabs.getRelatedElement(tab);
             this.tabbox.tabs.removeChild(tab);
             this.tabbox.tabpanels.removeChild(tabpanel);
-
-            // Must re-select the new tab after removing the old one, otherwise
-            // can end up with a blank tabpanel or weird borders - bug 92203.
             if (newTab) {
-                this.tabbox.selectedIndex = this.tabbox.tabs.getIndexOfItem(newTab);
+                this.tabbox.selectedTab = newTab;
             }
 
-            if (this.tabbox.tabs.childNodes.length < 1) {
-                this.tabbox.firstChild.setAttribute('closedisabled','true');
+            if (this.tabbox.tabs.itemCount < 1) {
+                this.tabbox.tabs.setAttribute('closedisabled','true');
                 this.setAttribute('collapsed','true');
                 // this focus is required so that controllers continue
                 // to work correctly.  Before this, it is likely that embed
