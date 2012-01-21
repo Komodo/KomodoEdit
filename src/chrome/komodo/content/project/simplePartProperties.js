@@ -231,6 +231,7 @@ function Cancel()  {
 function Help() {
     switch (gItemType) {
     case "url":
+    case "URL":
         ko.help.open("url_shortcut_options");
         break;
     case "template":

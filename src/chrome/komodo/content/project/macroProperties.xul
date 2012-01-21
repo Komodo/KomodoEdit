@@ -69,7 +69,7 @@
         buttons="accept,extra1,cancel,help"
         ondialogaccept="return OK(event)"
         ondialogextra1="return Apply()"
-        ondialoghelp="ko.help.open('macro_options');"
+        ondialoghelp="ko.help.open('macro_properties');"
         ondialogcancel="return Cancel()">
 
     <script src="chrome://xtk/content/xtk.js"                         type="application/x-javascript;version=1.7"/>
@@ -77,6 +77,7 @@
     <script src="chrome://komodo/content/library/uriparse.js"         type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/dialogs.js"          type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/filepickers.js"      type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/launch.js"                   type="application/x-javascript;version=1.7" />
     <script src="chrome://komodo/content/project/macroProperties.js"  type="application/x-javascript;version=1.7"/>
 
     <hbox id="scintillaOverlayXul"/>
