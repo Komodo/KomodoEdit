@@ -345,7 +345,7 @@ if (typeof(ko.dragdrop)=='undefined') {
                     return;
                 }
                 // Must hide the source drop indicator.
-                sourceTabbox._tabs.dropIndicatorBar.collapsed = true;
+                sourceTabbox.tabs.dropIndicatorBar.collapsed = true;
 
                 // Gather the data we need to open the view in the
                 // target window.
