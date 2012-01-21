@@ -1339,7 +1339,13 @@ this.ensureTabShown = function uilayout_ensureTabShown(widgetId, focusToo) {
         // See if we want to focus the newly selected widget
         if (focusToo) {
             if (widget.contentWindow) {
-                widget.contentWindow.focus();
+                var win = widget.contentWindow;
+                win.focus();
+                // Dispatch an event to say we're programmatically focusing the
+                // widget.
+                var event = win.document.createEvent("Events");
+                event.initEvent("ko-widget-focus", true, false);
+                win.dispatchEvent(event);
             } else {
                 widget.focus();
             }
