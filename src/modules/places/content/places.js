@@ -2894,7 +2894,11 @@ this._updatePrefs = function(placePrefs) {
     [DEFAULT_FILTER_NAME, CURRENT_PROJECT_FILTER_NAME].forEach(function(prefName) {
         try {
             var defaultPrefs = filterPrefs.getPref(prefName);
-            var savedVersion = defaultPrefs.getLongPref("version");
+            if (!defaultPrefs.hasPrefHere("version")) {
+                // Force an update, and get a version pref in this prefset.
+                defaultPrefs.setLongPref("version", v - 1);
+            }
+            var savedVersion = defaultPrefs.getLongPref
             if (savedVersion < v) {
                 var exclude_matches;
                 try {
