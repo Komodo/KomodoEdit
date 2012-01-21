@@ -418,7 +418,7 @@ class koRemoteConnectionService:
         return [ protocol, server_alias, hostname, str(port), username,
                  password, path, str(passive) ]
 
-    # We have the lock already
+    # We do *not* have the lock.
     def _getConnectionUsingUri(self, uri, useConnectionCache=True):
         protocol, server_alias, hostname, port, username, password, \
                     path, passive = self._getServerDetailsFromUri(uri)
@@ -439,9 +439,10 @@ class koRemoteConnectionService:
             passive = 1
 
         # Now we have all the info, lets go make the connection
-        connection = self._getConnection(protocol, hostname, port, username,
-                                         password, path, passive,
-                                         useConnectionCache=useConnectionCache)
+        with self._lock:
+            connection = self._getConnection(protocol, hostname, port, username,
+                                             password, path, passive,
+                                             useConnectionCache=useConnectionCache)
         if connection:
             # Set the alias used to get the connection (if there was one)
             connection.alias = server_alias;
@@ -593,21 +594,13 @@ class koRemoteConnectionService:
     #   URI ex: ftp://test:tesuser@somesite.com:22/web/info.php
     #   URI ex: ftp://my_test_site/web/info.php
     def getConnectionUsingUri(self, uri):
-        self._lock.acquire()
-        try:
-            return self._getConnectionUsingUri(uri)
-        finally:
-            self._lock.release()
+        return self._getConnectionUsingUri(uri)
 
     # Return the connection object for the given URI, all the connection
     # details should be included in the URI. Will not cache the connection or
     # re-use any existing cached connection.
     def getConnectionUsingUriNoCache(self, uri):
-        self._lock.acquire()
-        try:
-            return self._getConnectionUsingUri(uri, useConnectionCache=False)
-        finally:
-            self._lock.release()
+        return self._getConnectionUsingUri(uri, useConnectionCache=False)
 
     # Return the connection object for the given server alias.
     def getConnectionUsingServerAlias(self, server_alias):
@@ -677,6 +670,8 @@ class koRemoteConnectionService:
             self._lock.release()
 
     # Return the sorted list of servers, in koIServerInfo objects.
+    # Note: The "_lock" must *not* be acquired by the thread making this call,
+    #       otherwise Komodo can become deadlocked - bug 92273.
     @components.ProxyToMainThread
     def getServerInfoList(self):
         if self.__serverinfo_list is None:
