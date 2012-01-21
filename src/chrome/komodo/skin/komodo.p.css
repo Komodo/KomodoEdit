@@ -269,7 +269,7 @@ statusbarpanel > toolbarbutton[type="menu"] > dropmarker {
 /**
  * Language icons for the language menulists and tree views.
  */
-menuitem.languageicon,
+.languageicon,
 treechildren::-moz-tree-image(DefaultLanguage) {
   /* The default language icon. */
   list-style-image: url("moz-icon://.txt?size=16");
