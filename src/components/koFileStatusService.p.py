@@ -646,9 +646,6 @@ class KoFileStatusService:
                                  checker.name,
                                  "\n".join([file_item[1] for file_item in updated_items]))
 
-                #for koIFile in files:
-                #    koIFile.dofileupdate = 0
-
             except:
                 # Ensure there is no tight infinite loop on the periodic
                 # background checking.

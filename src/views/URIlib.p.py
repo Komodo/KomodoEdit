@@ -434,9 +434,6 @@ class FileHandlerBase(object):
         self._path = None
         self._mode = 'rb'
         
-        # used by file status service
-        self.dofileupdate = 0
-        
         # lastAccessedTime is special, in that it can change
         # but we don't care if it does.  It's only used in ko
         # for display purposes.  If we keep this in the stat
@@ -671,7 +668,6 @@ class FileHandler(FileHandlerBase):
         tmpstats = self.__get_stats()
         if self._stats != tmpstats:
             self._stats = tmpstats
-            self.dofileupdate = 1
             return 1
         return 0
     hasChanged = property(get_hasChanged)
@@ -961,7 +957,6 @@ class RemoteURIHandler(FileHandlerBase):
         tmpstats = self.__get_stats()
         if self._stats != tmpstats:
             self._stats = tmpstats
-            self.dofileupdate = 1
             return 1
         return 0
     hasChanged = property(get_hasChanged)
