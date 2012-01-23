@@ -818,6 +818,11 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY timeoutSeconds.label "Timeout (seconds):">
 
 <!--pref-web.xul-->
+<!ENTITY askToSaveCurrentFile.label "Ask to save changed file">
+<!ENTITY alwaysSaveCurrentFile.label "Always save changed file">
+<!ENTITY dontSaveCurrentFile.label "Don't save changed file">
+<!ENTITY saveChangedFiles.label "Save changes before previewing?">
+<!ENTITY whenStartingPreviewOnUnsavedFile.label "When starting a preview on an unsaved file:">
 <!ENTITY whichBrowserUse.description "Which browser should Komodo use when opening URLs?">
 <!ENTITY whichMethodUse.description "Which method should be used to preview files in the browser?">
 

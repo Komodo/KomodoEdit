@@ -92,6 +92,19 @@
                        label="&previewInExternalBrowserSpecifiedAbove.label;"/>
             </radiogroup>
         </groupbox>
+    
+        <groupbox orient="vertical">
+            <caption label="&saveChangedFiles.label;"/>
+            <label>&whenStartingPreviewOnUnsavedFile.label;</label>
+            <menulist pref="true" prefattribute="data"
+                      prefstrings="donotask_save_buffer_before_preview,donotask_action_save_buffer_before_preview">
+                <menupopup>
+                    <menuitem data="false,"   label="&askToSaveCurrentFile.label;"/>
+                    <menuitem data="true,All" label="&alwaysSaveCurrentFile.label;"/>
+                    <menuitem data="true,None"  label="&dontSaveCurrentFile.label;"/>
+                </menupopup>
+            </menulist>
+        </groupbox>
         
         <groupbox id="connectionGroup">
             <caption label="&connection.label;"/>

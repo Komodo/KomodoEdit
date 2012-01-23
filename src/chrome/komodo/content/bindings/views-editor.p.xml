@@ -1361,6 +1361,26 @@
             if (!browserType && this.koDoc.prefs.hasStringPref("preview_browser")) {
                 browserType = this.koDoc.prefs.getStringPref("preview_browser");
             }
+            try {
+                var dirtyItems = ko.views.manager.offerToSave([this.koDoc.file.URI],
+                                    null, // title
+                                    "Save file before previewing?" , // prompt
+                                    "save_buffer_before_preview", // doNotAskPref,
+                                    true, // skipProjects
+                                    false // aboutToClose
+                                    );
+                if (dirtyItems === false) {
+                    // cancelled out
+                    return;
+                } else if (dirtyItems === true) {
+                    //  nothing to do
+                } else {
+                    dirtyItems.forEach(function(item) { item.view.save() });
+                }
+            } catch(ex) {
+                this.log.exception(ex, "_getPreviewPathAndBrowserType error");
+            }
+
             if (!previewPath) {
                 var pick = ko.dialogs.pickPreview(this.koDoc.file.displayPath,
                                                   undefined, undefined,
@@ -1378,7 +1398,6 @@
                     }
                 }
             }
-
             if (browserType != "komodo" && this.koDoc.file.isRemoteFile &&
                 previewPath == this.koDoc.file.displayPath) {
                 // Must ensure the URI uses the hostname, not a Komodo server
