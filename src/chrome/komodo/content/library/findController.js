@@ -392,6 +392,8 @@ FindController.prototype._startIncrementalSearch = function(backwards) {
     this._view.findbar.caseSensitivity = this._findSvc.options.caseSensitivity;
     this._incrementalSearchContext.type = this._findSvc.options.FCT_CURRENT_DOC;
     this._incrementalSearchPattern = pattern;
+    this._lastIncrementalSearchText = pattern;
+
     this._view.findbar.text = pattern;
     if (pattern) {
         this._view.findbar.selectText();
