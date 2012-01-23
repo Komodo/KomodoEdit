@@ -574,15 +574,8 @@ KoScintillaAutoCompleteController.prototype = {
    */
   get _prefs() {
     if (!("__prefs" in this)) {
-      var prefsvc = Cc["@activestate.com/koPrefService;1"]
-                      .getService(Ci.koIPrefService).effectivePrefs;
-      if (prefsvc.hasPref("autocomplete")) {
-        this.__prefs = prefsvc.getPref("autocomplete");
-      } else {
-        this.__prefs = Cc["@activestate.com/koPreferenceSet;1"]
-                         .createInstance(Ci.koIPreferenceSet);
-        prefsvc.setPref("autocomplete", this.__prefs);
-      }
+      this.__prefs = Cc["@activestate.com/koPrefService;1"]
+                       .getService(Ci.koIPrefService).effectivePrefs;
     }
     return this.__prefs;
   },
@@ -591,11 +584,15 @@ KoScintillaAutoCompleteController.prototype = {
    * The number of items to display
    * (This depends on the number of items available)
    */
-  get _visibleCount()
+  get _visibleCount() {
+    const kPrefName = "codeintel_autocomplete_max_rows";
+    var val = 5; // default to 5 rows
+    if (this._prefs.hasLongPref(kPrefName)) {
+      val = this._prefs.getLongPref(kPrefName);
+    }
     // minimum of 2, otherwise we can't show the scrollbar correctly
-    Math.min(this._prefs.hasLongPref("maxHeight") ?
-               Math.max(2, this._prefs.getLongPref("maxHeight")) : 5,
-             this.itemCount),
+    return Math.min(Math.max(2, val), this.itemCount);
+  },
 
   /**
    * The index of the first visible item; Number.NEGATIVE_INFINITY if there

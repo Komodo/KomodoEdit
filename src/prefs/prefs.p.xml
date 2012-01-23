@@ -937,6 +937,9 @@
   <long id="codeintel_max_recursive_dir_depth">10</long>
   <boolean id="codeintel_scan_files_in_project">1</boolean>
 
+  <!-- The maximum number of rows to display in autocomplete popups -->
+  <long id="codeintel_autocomplete_max_rows">5</long>
+
   <!-- automatically insert the end tag on typing the start tag -->
   <boolean id="codeintelAutoInsertEndTag">1</boolean>
 
