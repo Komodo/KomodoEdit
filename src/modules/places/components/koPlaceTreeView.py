@@ -578,7 +578,8 @@ class KoPlaceTreeView(TreeView):
         self.lock.acquire()
         try:
             del self._nodeOpenStatusFromName[uri]
-            parent_node.markForRefreshing()
+            if parent_node:
+                parent_node.markForRefreshing()
         except KeyError:
             pass
         finally:
@@ -667,20 +668,41 @@ class KoPlaceTreeView(TreeView):
                 # Refresh this directory.  refreshView will rebuild
                 # the list of children and child view only if the
                 # parent node is open.
-                self.refreshView(index)
+                parent_node = self._rows[index]
+                if not parent_node.isOpen:
+                    self.onRefreshClosedRow(index)
+                    return
+                nextIndex = self.getNextSiblingIndex(index)
+                if nextIndex == -1:
+                    nextIndex = len(self._rows)
+                newLevel = parent_node.level + 1
+                if not self._insertNewURI(index + 1, nextIndex, uri, newLevel):
+                    self.refreshView(index)
+                return
             elif parent_uri == self._currentPlace_uri:
                 # Insert in self._rows top-level
-                self.refreshFullTreeView()  # partly async
+                if not self._insertNewURI(0, len(self._rows), uri, 0):
+                    self.refreshFullTreeView()  # partly async
             else:
                 log.warn("**** Places: Can't find parent for created file %s", uri)
         elif flags & _deletedFlags:
             index = self.getRowIndexForURI(uri)
             if index != -1:
                 #log.debug("fileNotification: About to remove uri %s from row %d", uri, row)
-                del self._rows[index]
-                self._tree.rowCountChanged(index, -1)
-                self._removeWatchForChanges(koFileEx.path)
-                self.removeNodeFromModel(uri)
+                node = self._rows[index]
+                if isinstance(node, _kplFolder):
+                    endIndex = self.getNextSiblingIndex(index)
+                    if endIndex == -1:
+                        endIndex = len(self._rows)
+                else:
+                    endIndex = index + 1
+                for i in range(index, endIndex):
+                    uri = self._rows[i].uri
+                    koFileEx.URI = uri
+                    self._removeWatchForChanges(koFileEx.path)
+                    self.removeNodeFromModel(uri)
+                del self._rows[index:endIndex]
+                self._tree.rowCountChanged(index, index - endIndex)
                 self.resetDirectoryWatches()
             elif uri == self._currentPlace_uri:
                 self._moveToExistingPlace()
@@ -689,6 +711,56 @@ class KoPlaceTreeView(TreeView):
             index = self.getRowIndexForURI(uri)
             if index >= 0:
                 self._invalidateRow(index)
+
+    def _insertNewURI(self, startIndex, endIndex, uri, level):
+        #log.debug("_insertNewURI(startIndex:%d, endIndex:%d, uri:%s, level:%d)", startIndex, endIndex, uri, level)
+        try:
+            koFileEx = components.classes["@activestate.com/koFileEx;1"].\
+                createInstance(components.interfaces.koIFileEx)
+            koFileEx.URI = uri
+            if koFileEx.isDirectory:
+                nodeType = _PLACE_FOLDER
+                nodeClass = _kplFolder
+            else:
+                nodeType = _PLACE_FILE
+                nodeClass = _kplFile
+            newNode = placeObject[nodeType](level, uri)
+            lc_uri = uri.lower()
+            self._finishGettingItem(uri, koFileEx.baseName, nodeType)
+            allow_case_insensitivity = not sys.platform.startswith("linux")
+            for i in range(startIndex, endIndex):
+                node = self._rows[i]
+                current_lc_uri = node.uri.lower()
+                if (node.uri == uri
+                    or (allow_case_insensitivity and lc_uri == current_lc_uri)): 
+                    return True
+                elif self._sortDir == self.SORT_DIRECTION_NAME_NATURAL:
+                    # Group folders with folders, files with files
+                    if isinstance(node, nodeClass):
+                        # They're the same type
+                        if lc_uri < current_lc_uri:
+                            break
+                    elif isinstance(node, _kplFile):
+                        #log.debug("insert folder before first file")
+                        # Insert the new folder here, before first file
+                        break
+                elif self._sortDir == self.SORT_DIRECTION_NAME_ASCENDING:
+                    if lc_uri < current_lc_uri:
+                        break
+                elif lc_uri > current_lc_uri:
+                    break
+            else:
+                # When you fall off the end of i in range(a, b), i == b - 1
+                i = endIndex
+            self._rows.insert(i, newNode)
+            self._tree.rowCountChanged(i, 1)
+            if nodeType == _PLACE_FOLDER:
+                self._addWatchForChanges(koFileEx.path)
+            return True
+        except:
+            log.exception("_insertNewURI(%d, %d, %s, %d) exception:",
+                          startIndex, endIndex, uri, level)
+            return False
 
     def _invalidateRow(self, rowIndex):
         self._updateFileProperties(rowIndex)
@@ -1780,6 +1852,14 @@ class KoPlaceTreeView(TreeView):
             index += 1
         return -1
 
+    def onRefreshClosedRow(self, index):
+        # We'll get the refreshed view when we toggle the node.
+        uri = self._rows[index].uri
+        modelNode = self.getNodeForURI(uri)
+        if modelNode:
+            modelNode.markForRefreshing()
+        #qlog.debug("not rowNode.isOpen:")
+       
     def refreshView(self, index):
         if index == -1:
             self.refreshFullTreeView()
@@ -1787,12 +1867,7 @@ class KoPlaceTreeView(TreeView):
         rowNode = self._rows[index]
         #qlog.debug("refreshView(index:%d)", index)
         if not rowNode.isOpen:
-            # We'll get the refreshed view when we toggle the node.
-            uri = self._rows[index].uri
-            modelNode = self.getNodeForURI(uri)
-            if modelNode:
-                modelNode.markForRefreshing()
-            #qlog.debug("not rowNode.isOpen:")
+            self.onRefreshClosedRow(index)
             return
         nextIndex = self.getNextSiblingIndex(index)
         #qlog.debug("nextIndex: %d", nextIndex)
@@ -2020,8 +2095,16 @@ class KoPlaceTreeView(TreeView):
         self._tree.invalidate()
 
     def sortBy(self, sortKey, direction):
+        # sortedBy: 'name'
+        # sortDir: NATURAL (1), ASCENDING (2), DESCENDING (3)
         if sortKey != "name":
             log.exception("sortBy called with key %r instead of name", sortKey)
+            return
+        if direction not in (self.SORT_DIRECTION_NAME_NATURAL,
+                             self.SORT_DIRECTION_NAME_ASCENDING,
+                             self.SORT_DIRECTION_NAME_DESCENDING):
+            log.exception("sortBy called with unrecognized direction %d", direction)
+            return
         self._sortedBy = sortKey
         self._sortDir = direction
 

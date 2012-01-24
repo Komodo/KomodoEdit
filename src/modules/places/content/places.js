@@ -200,7 +200,7 @@ viewMgrClass.prototype = {
     },
     
     sortByDirection: function(sortDirection) {
-        this.view.sortBy("Name", this._mozSortDirNameToKomodoSortDirValue[sortDirection]);
+        this.view.sortBy("name", this._mozSortDirNameToKomodoSortDirValue[sortDirection]);
         this.view.sortRows();
         this.sortDirection = sortDirection;
     },
