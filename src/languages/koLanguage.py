@@ -50,6 +50,7 @@ import xpcom.server
 from xpcom.server import WrapObject, UnwrapObject
 from koTreeView import TreeView
 import directoryServiceUtils
+import which
 
 import koXMLTreeService
 

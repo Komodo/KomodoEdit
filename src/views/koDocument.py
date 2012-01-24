@@ -49,7 +49,6 @@ import stat, os, time
 import eollib
 import difflibex
 import langinfo
-import which
 from koLanguageServiceBase import getActualStyle
 from koUDLLanguageBase import udl_family_from_style
 import koUnicodeEncoding, codecs, types
