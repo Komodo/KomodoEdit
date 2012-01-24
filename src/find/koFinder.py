@@ -1449,7 +1449,7 @@ class KoFindService(object):
                 if scimoz.indicatorValueAt(self.DECORATOR_FIND_HIGHLIGHT,
                                            startByte):
                     # It's still highlighted from a previous search.
-                    return
+                    return True
             else:
                 # It's different. Perform a new find all now.
                 hightlight_matches = []
@@ -1489,9 +1489,11 @@ class KoFindService(object):
             finally:
                 scimoz.indicatorCurrent = prevIndicator
                 scimoz.indicatorValue = prevIndicatorValue
+            return len(hightlight_matches) > 0
         except (re.error, ValueError, findlib2.FindError), ex:
             gLastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
+        return False # not reached
 
     def highlightlastresults(self, scimoz):
         """Highlight the last find/replace patterns in the scimoz text."""

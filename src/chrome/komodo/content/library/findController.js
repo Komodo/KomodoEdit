@@ -60,6 +60,7 @@ var _bundle = Cc["@mozilla.org/intl/stringbundle;1"]
                 .getService(Ci.nsIStringBundleService)
                 .createBundle("chrome://komodo/locale/library.properties");
 var _log = ko.logging.getLogger('findController');
+//_log.setLevel(ko.logging.LOG_DEBUG);
 
 function FindController(viewManager) {
     if (!(this instanceof FindController)) {
@@ -70,6 +71,7 @@ function FindController(viewManager) {
     this._viewManager = viewManager;
     this._incrementalSearchPattern = ''; // only used for incremental search
     this._lastIncrementalSearchText = ''; // only used for incremental search
+    this._lastResult = false; // whether the last search was successful
     this._findSvc = Cc["@activestate.com/koFindService;1"]
                       .getService(Ci.koIFindService);
     var win = Components.utils.getGlobalForObject(this._viewManager);
@@ -399,11 +401,16 @@ FindController.prototype._startIncrementalSearch = function(backwards) {
         this._view.findbar.selectText();
         // we have something selected; highlight the other occurrences without
         // moving the cursor, please
-        ko.find.highlightAllMatches(scimoz,
-                                    this._incrementalSearchContext,
-                                    pattern,
-                                    this.highlightTimeout);
+        this._lastResult =
+            ko.find.highlightAllMatches(scimoz,
+                                        this._incrementalSearchContext,
+                                        pattern,
+                                        this.highlightTimeout);
+    } else {
+        this._lastResult = false;
     }
+    _log.debug("_startIncrementalSearch: pattern=" +
+               JSON.stringify(pattern) + ", lastResult=" + this._lastResult);
 }
 
 FindController.prototype._stopIncrementalSearch = function(why, highlight) {
@@ -413,6 +420,12 @@ FindController.prototype._stopIncrementalSearch = function(why, highlight) {
                                                              [why], 1),
                                 "isearch", 3000, highlight, true);
     }
+    if (this._incrementalSearchPattern && this._lastResult) {
+        // Found something; force add to the MRU.
+        ko.mru.add("find-patternMru", this._incrementalSearchPattern, true)
+    }
+    _log.debug("lastResult: " + this._lastResult + " pattern: " +
+               JSON.stringify(this._incrementalSearchPattern));
     if (this._origFindOptions) {
         // Save the incremental search settings
         ko.prefs.setStringPref('isearchType', this.patternType);
@@ -425,7 +438,8 @@ FindController.prototype._stopIncrementalSearch = function(why, highlight) {
         }
         this._origFindOptions = null;
     }
-    // never add to the MRU; we only do that in searchAgain.
+    // Don't automatically add things to the MRU; we do that in searchAgain if
+    // needed, or just above if we found something last time.
     this._incrementalSearchPattern = '';
 
     var view = this._view;
@@ -505,6 +519,7 @@ FindController.prototype.search = function(pattern, highlight) {
         scimoz.setSel(oldStart, oldEnd);
         this._view.findbar.notFound = true;
     }
+    this._lastResult = findres;
 };
 
 /**
@@ -558,6 +573,7 @@ FindController.prototype.searchAgain = function(isBackwards) {
             }
         }
     }
+    this._lastResult = findres;
 }
 
 Object.defineProperty(FindController.prototype, "caseSensitivity", {

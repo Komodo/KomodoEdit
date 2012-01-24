@@ -1258,6 +1258,7 @@ this.highlightClearPosition = function Find_HighlightClearPosition(scimoz, posit
  * @param {Components.interfaces.koIFindContext} context - a koIFindContext instance
  * @param {string} pattern - the pattern being sought
  * @param {Number} timeout - [optional] number of milliseconds before timing out
+ * @returns {boolean} Whether any matches have been found
  */
 this.highlightAllMatches = function Find_HighlightAllMatches(scimoz, context, pattern, timeout) {
     var prefsSvc = Components.classes["@activestate.com/koPrefService;1"].
@@ -1268,11 +1269,11 @@ this.highlightAllMatches = function Find_HighlightAllMatches(scimoz, context, pa
     if (timeout <= 0) {
         timeout = 500;  /* When set to zero, use minimum of 1/2 a second. */
     }
-    _findSvc.highlightall(scimoz,
-                         pattern,
-                         context.startIndex,
-                         context.endIndex,
-                         timeout /* timeout in ms */);
+    return _findSvc.highlightall(scimoz,
+                                 pattern,
+                                 context.startIndex,
+                                 context.endIndex,
+                                 timeout /* timeout in ms */);
 }
 
 /**

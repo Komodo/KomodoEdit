@@ -288,12 +288,14 @@ interface koIFindService : nsISupports {
      *                   scimoz text will be searched.
      * @param timeout  - stop highlighting after this number of milliseconds
      *                   have passed by.
+     * @returns Whether any results have been found. (If nothing has been found
+     *                  before the timeout expires, this will be false.)
      */
-    void highlightall(in ISciMoz scimoz,
-                      in AString pattern,
-                      in long start,
-                      in long end,
-                      in long timeout);
+    boolean highlightall(in ISciMoz scimoz,
+                         in AString pattern,
+                         in long start,
+                         in long end,
+                         in long timeout);
 
     /**
      * Hightlight all the last find/replace matches in the scintilla buffer.
