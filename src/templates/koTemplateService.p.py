@@ -137,7 +137,6 @@ See "Custom Templates" in Komodo's on-line help for more information.
         self.rootTemplateNode = None
         self.loaded = 0
         self.initializeUserTemplateTree()
-        self._JSONTreeData = None
 
     def initializeUserTemplateTree(self):
         """Create an empty personal templates tree if there isn't one.
@@ -321,10 +320,8 @@ to use Komodo's numerous standard %s templates.""" % (self.type, str(ex), self.t
         return [self._sortPaths(systemItems), self._sortPaths(userItems)]
         
     def getJSONTree(self):
-        if self._JSONTreeData is None:
-            self._JSONTreeData = self._getJSONTreeData();
         import json
-        return json.dumps(self._JSONTreeData)
+        return json.dumps(self._getJSONTreeData())
 
 class KoProjectTemplateService(KoTemplateService):
     type = "project"

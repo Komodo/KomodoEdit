@@ -527,8 +527,11 @@ projectManager.prototype._saveNewProject = function(project) {
 
 projectManager.prototype._getNewProjectPath = function() {
     const projectSuffix = ".komodoproject";
+    var defaultDir = (this.currentProject
+                      ? this.currentProject.getFile().dirName
+                      : ko.window.getHomeDirectory());
     var path = ko.filepicker.saveFile(
-        null, // defaultDir
+        defaultDir,
         _bundle.GetStringFromName("newProject.defaultFileName") + projectSuffix, // defaultFilename
         _bundle.GetStringFromName("newProject.title"), // title
         _bundle.GetStringFromName("komodoProject.message"), // defaultFilterName

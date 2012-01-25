@@ -210,14 +210,14 @@ class koProjectPackageService:
                             else:
                                 self._archiveDirUnderBasename(zf, p)
                                 part = newproject.getChildByURL(url)
-                                part.url = part.name
+                                part.url = UnwrapObject(part).name
                         elif os.path.isfile(p):
                             if p.startswith(projectDirName):
                                 zf.write(p, p[len(projectDirName) + 1:])
                             else:
                                 zf.write(p, os.path.basename(p))
                                 part = newproject.getChildByURL(url)
-                                part.url = part.name
+                                part.url = UnwrapObject(part).get_name()
 
             # get a list of all the icons that are not in chrome so we can package
             # them
