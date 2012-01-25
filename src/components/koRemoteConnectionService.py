@@ -442,6 +442,37 @@ class koRemoteConnectionService:
             connection.alias = server_alias;
         return connection
 
+    # Return the sorted list of servers, in koIServerInfo objects.
+    # Note: The "_lock" must *not* be acquired by the thread making this call,
+    #       otherwise Komodo can become deadlocked - bug 92273.
+    @components.ProxyToMainThread
+    def _getServerInfoList(self):
+        serverinfo_list = []
+        try:
+            loginmanager = components.classes["@mozilla.org/login-manager;1"].\
+                                getService(components.interfaces.nsILoginManager)
+            logins = loginmanager.getAllLogins() # array of nsILoginInfo
+        except COMException, ex:
+            # TODO: Check if this is a testing environment, if it's not then
+            #       this should be an exception.
+            log.warn("Could not obtain logins from the nsILoginManager")
+            logins = []
+        #print "_getServerInfoList:: logins: %r" % (logins, )
+        if logins:
+            for logininfo in logins:
+                logininfo.QueryInterface(components.interfaces.nsILoginInfo)
+                serverinfo = koServerInfo()
+                try:
+                    if logininfo.password == self.EMPTY_PASSWORD_SENTINEL:
+                        logininfo.password = ''
+                    serverinfo.initFromLoginInfo(logininfo)
+                    serverinfo_list.append(serverinfo)
+                except BadServerInfoException:
+                    # Ignore non Komodo server entries.
+                    pass
+            serverinfo_list.sort(lambda a,b: cmp(a.alias.lower(), b.alias.lower()))
+        return serverinfo_list
+    
     # We have the lock already
     def _saveSessionInfo(self, key, data):
         self._sessionData[key] = data
@@ -655,36 +686,9 @@ class koRemoteConnectionService:
             self._lock.release()
 
     # Return the sorted list of servers, in koIServerInfo objects.
-    # Note: The "_lock" must *not* be acquired by the thread making this call,
-    #       otherwise Komodo can become deadlocked - bug 92273.
-    @components.ProxyToMainThread
     def getServerInfoList(self):
         if self.__serverinfo_list is None:
-            serverinfo_list = []
-            try:
-                loginmanager = components.classes["@mozilla.org/login-manager;1"].\
-                                    getService(components.interfaces.nsILoginManager)
-                logins = loginmanager.getAllLogins() # array of nsILoginInfo
-            except COMException, ex:
-                # TODO: Check if this is a testing environment, if it's not then
-                #       this should be an exception.
-                log.warn("Could not obtain logins from the nsILoginManager")
-                logins = []
-            #print "getServerInfoList:: logins: %r" % (logins, )
-            if logins:
-                for logininfo in logins:
-                    logininfo.QueryInterface(components.interfaces.nsILoginInfo)
-                    serverinfo = koServerInfo()
-                    try:
-                        if logininfo.password == self.EMPTY_PASSWORD_SENTINEL:
-                            logininfo.password = ''
-                        serverinfo.initFromLoginInfo(logininfo)
-                        serverinfo_list.append(serverinfo)
-                    except BadServerInfoException:
-                        # Ignore non Komodo server entries.
-                        pass
-                serverinfo_list.sort(lambda a,b: cmp(a.alias.lower(), b.alias.lower()))
-            self.__serverinfo_list = serverinfo_list
+            self.__serverinfo_list = self._getServerInfoList()
         return self.__serverinfo_list
     
     def clearServerInfoListCache(self):
