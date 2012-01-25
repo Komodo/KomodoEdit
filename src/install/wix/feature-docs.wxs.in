@@ -183,7 +183,7 @@
                 <File Id="file278" Name="komodo.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\komodo.png" />
                 <File Id="file279" Name="ribbons.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\ribbons.png" />
                 <File Id="file1393" LongName="cc_attr_noncom_sharealike.png" Name="CC_ATT_0.PNG" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\cc_attr_noncom_sharealike.png" />
-                <File Id="file4404" Name="BOTTOM_1.GIF" LongName="bottom_pane.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\bottom_pane.gif"/>
+                <File Id="file4404" Name="BOTTOM_1.PNG" LongName="bottom_pane.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\bottom_pane.png"/>
                 <File Id="file4405" Name="button.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\button.gif"/>
                 <File Id="file4415" Name="CODEI_23.GIF" LongName="codeintel_filter.png" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\codeintel_filter.png"/>
                 <File Id="file4420" Name="CODEI_28.GIF" LongName="codeintel_scope.gif" Vital="yes" src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc\locale\en-US\img\codeintel_scope.gif"/>
