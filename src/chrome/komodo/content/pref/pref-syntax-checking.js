@@ -572,13 +572,14 @@ function python_setup() {
          "pychecker_browse_wrapper_location",
          "pychecker_checking_rcfile",
          "pychecker_dangerous",
+         "pychecker_info_vbox",
          "pychecker_failure",
          "pychecker_wrapper_location",
          "pyflakes_failure",
          "pylint_browse_rcfile",
          "pylint_checking_rcfile",
-         "pylint_checking_rcfile",
          "pylint_failure",
+         "pylint_checking_vbox_rcfile",
          "python_lintOption"
          ].forEach(function(name) {
             dialog.Python[name] = document.getElementById(name);
@@ -655,21 +656,25 @@ function pythonInfo() {
             
             // Update UI for pychecker
             checkbox = dialog.Python.lint_python_with_pychecker;
+            if (checkbox.checked && !dialog.Python.pychecker_wrapper_location.value) {
+                
+                var sysUtils = Components.classes['@activestate.com/koSysUtils;1'].
+                    getService(Components.interfaces.koISysUtils);
+                var path = sysUtils.Which("pychecker");
+                if (path) {
+                    dialog.Python.pychecker_wrapper_location.value = path;
+                }
+            }
             this.onTogglePycheckerChecking(checkbox);
         },
             
         onTogglePylintChecking: function(checkbox) {
-            var pylintEnabled = checkbox.checked;
-            dialog.Python.pylint_checking_rcfile.disabled = !pylintEnabled;
-            dialog.Python.pylint_browse_rcfile.disabled = !pylintEnabled;
+            dialog.Python.pylint_checking_vbox_rcfile.collapsed = !checkbox.checked;
         },
 
         onTogglePycheckerChecking: function(checkbox) {
             var pycheckerEnabled = checkbox.checked;
-            dialog.Python.pychecker_wrapper_location.disabled = !pycheckerEnabled;
-            dialog.Python.pychecker_browse_wrapper_location.disabled = !pycheckerEnabled;
-            dialog.Python.pychecker_checking_rcfile.disabled = !pycheckerEnabled;
-            dialog.Python.pychecker_browse_rcfile.disabled = !pycheckerEnabled;
+            dialog.Python.pychecker_info_vbox.collapsed = !pycheckerEnabled;
             this.updatePycheckerPathStatus();
             var pychecker_dangerous = dialog.Python.pychecker_dangerous;
             if (pycheckerEnabled) {
