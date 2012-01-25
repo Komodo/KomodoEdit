@@ -235,9 +235,7 @@ class RemoteConnectionCache(object):
             self._lock.release()
 
 
-# The underscore names are private, and should only be used internally
-# All underscore names require locking, which should happen through the
-# the use of the exposed (non-underscore) functions.
+# The underscore names are private, and should only be used internally.
 class koRemoteConnectionService:
     _com_interfaces_ = [components.interfaces.koIRemoteConnectionService,
                         components.interfaces.nsIObserver]
@@ -269,7 +267,8 @@ class koRemoteConnectionService:
         # The sub-dictionary will contain filepaths as the keys, whilst
         # the value will be a rf_info object containing the file information.
         self._cachedFiles = {}
-        # Global lock for the Remote Connection service
+        # Global lock for the Remote Connection service - used to maintain
+        # control over the _sessionData and _cachedFiles.
         self._lock = threading.Lock()
 
         # Listen for network status changes.
@@ -279,7 +278,6 @@ class koRemoteConnectionService:
         obsSvc.addObserver(self, "xpcom-shutdown", True)
 
     ## Private, internal functions
-    ## The lock has been acquired, just do the internal work
 
     def _generateCachekey(self, protocol, server, port, username):
         """Generate a key to be used for caching the connection object.
@@ -291,7 +289,6 @@ class koRemoteConnectionService:
                                        protocol, server, port, username)
         return conn_key
 
-    # We have the lock already
     def _getConnection(self, protocol, server, port, username, password, path,
                        passive=True, useConnectionCache=True):
         if password:
@@ -318,7 +315,7 @@ class koRemoteConnectionService:
             if c is not None:
                 log.debug("getConnection, found cached connection")
                 return c
-        log.debug("getConnection, no cached connection found")
+            log.debug("getConnection, no cached connection found: %r", conn_key)
 
         sessionkey = "%s:%s:%s" % (server, port, username)
         if username and not password:
@@ -347,8 +344,6 @@ class koRemoteConnectionService:
             # COMException passes out of the Python run-time.
             raise ServerException(ex.errno, str(ex))
 
-    # Return the server prefs for the given server alias
-    # We have the lock already
     def _getServerPrefSettings(self, server_alias):
         serverInfo = self.getServerInfoForAlias(server_alias)
         if serverInfo:
@@ -418,7 +413,6 @@ class koRemoteConnectionService:
         return [ protocol, server_alias, hostname, str(port), username,
                  password, path, str(passive) ]
 
-    # We do *not* have the lock.
     def _getConnectionUsingUri(self, uri, useConnectionCache=True):
         protocol, server_alias, hostname, port, username, password, \
                     path, passive = self._getServerDetailsFromUri(uri)
@@ -439,10 +433,10 @@ class koRemoteConnectionService:
             passive = 1
 
         # Now we have all the info, lets go make the connection
-        with self._lock:
-            connection = self._getConnection(protocol, hostname, port, username,
-                                             password, path, passive,
-                                             useConnectionCache=useConnectionCache)
+        connection = self._getConnection(protocol, hostname, port, username,
+                                         password, path, passive,
+                                         useConnectionCache=useConnectionCache)
+
         if connection:
             # Set the alias used to get the connection (if there was one)
             connection.alias = server_alias;
@@ -505,7 +499,6 @@ class koRemoteConnectionService:
 
 
     ## Public, exposed functions from IDL
-    ## Acquire the lock and call the private methods
 
     def observe(self, subject, topic, data):
         # https://developer.mozilla.org/en/Observer_Notifications
@@ -571,11 +564,7 @@ class koRemoteConnectionService:
             lastErrorSvc.setLastError(0, self._lasterror)
             raise ServerException(nsError.NS_ERROR_FAILURE, self._lasterror)
 
-        self._lock.acquire()
-        try:
-            return self._getConnection(protocol, server, port, username, password, path, passive)
-        finally:
-            self._lock.release()
+        return self._getConnection(protocol, server, port, username, password, path, passive)
 
     # getConnection2 is the same as getConnection, except it also offers to set
     # the passive ftp mode.
@@ -604,30 +593,26 @@ class koRemoteConnectionService:
 
     # Return the connection object for the given server alias.
     def getConnectionUsingServerAlias(self, server_alias):
-        self._lock.acquire()
-        try:
-            server_prefs = self._getServerPrefSettings(server_alias)
-            if server_prefs:
-                protocol = server_prefs[0]
-                #aliasname = server_prefs[1]
-                hostname = server_prefs[2]
-                port     = server_prefs[3]
-                username = server_prefs[4]
-                password = server_prefs[5]
-                path     = server_prefs[6]
-                passive  = server_prefs[7]
-                connection =  self._getConnection(protocol, hostname, port,
-                                                  username, password, path,
-                                                  passive)
-                if connection:
-                    # Remember the alias used to get the connection.
-                    connection.alias = server_alias;
-                return connection
-            raise ServerException(nsError.NS_ERROR_FAILURE,
-                                  "No server found for alias: %r" % (
-                                        server_alias))
-        finally:
-            self._lock.release()
+        server_prefs = self._getServerPrefSettings(server_alias)
+        if server_prefs:
+            protocol = server_prefs[0]
+            #aliasname = server_prefs[1]
+            hostname = server_prefs[2]
+            port     = server_prefs[3]
+            username = server_prefs[4]
+            password = server_prefs[5]
+            path     = server_prefs[6]
+            passive  = server_prefs[7]
+            connection =  self._getConnection(protocol, hostname, port,
+                                              username, password, path,
+                                              passive)
+            if connection:
+                # Remember the alias used to get the connection.
+                connection.alias = server_alias;
+            return connection
+        raise ServerException(nsError.NS_ERROR_FAILURE,
+                              "No server found for alias: %r" % (
+                                    server_alias))
 
     # Set the session information for this key
     def saveSessionInfo(self, key, data):

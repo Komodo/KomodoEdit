@@ -912,9 +912,9 @@ class RemoteURIHandler(FileHandlerBase):
         conn = self._getConnection()
         conn.writeFile(self._uri.path, text)
         # We need to update the stats now, as the timestamps will have changed
-        self._stats = self.__get_stats()
+        self._stats = self.__get_stats(refresh=1)
 
-    def __get_stats(self, refresh=1, rfInfo=None):
+    def __get_stats(self, refresh=0, rfInfo=None):
         # XXX need to implement this stuff for ftp/http
         _stats = {'mode':'','ino':'','dev':'','nlink':'',
                     'uid':'','gid':'','fileSize':0,
@@ -954,7 +954,7 @@ class RemoteURIHandler(FileHandlerBase):
     def get_hasChanged(self):
         if not self._stats:
             return 0
-        tmpstats = self.__get_stats()
+        tmpstats = self.__get_stats(refresh=1)
         if self._stats != tmpstats:
             self._stats = tmpstats
             return 1
@@ -962,7 +962,7 @@ class RemoteURIHandler(FileHandlerBase):
     hasChanged = property(get_hasChanged)
 
     def get_hasChangedNoStatUpdate(self):
-        if not self._stats or self._stats == self.__get_stats():
+        if not self._stats or self._stats == self.__get_stats(refresh=1):
             return 0
         return 1
     hasChangedNoStatUpdate = property(get_hasChangedNoStatUpdate)
