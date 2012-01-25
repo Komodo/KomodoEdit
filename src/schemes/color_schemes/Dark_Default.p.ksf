@@ -17,7 +17,7 @@ CommonStyles = {'attribute name': {'fore': 8904824},
         'face': 'Monaco',
         'size': 12,
 # #else
-        'face': 'Bitstream Vera Sans Mono',
+        'face': 'DejaVu Sans Mono',
         'size': 10,
 # #endif
         'eolfilled': 0,
@@ -36,7 +36,7 @@ CommonStyles = {'attribute name': {'fore': 8904824},
         'face': 'Helvetica',
         'size': 12,
 # #else
-        'face': 'Bitstream Vera Sans Mono',
+        'face': 'DejaVu Sans Mono',
         'size': 10,
 # #endif
         'eolfilled': 0,
