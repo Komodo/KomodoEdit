@@ -1675,24 +1675,17 @@ ManagerClass.prototype = {
         var busyURI = "chrome://global/skin/icons/loading_16.png";
         statusNode.setAttribute('image', busyURI);
 
-        var koFile = Components.classes["@activestate.com/koFileEx;1"].
-                createInstance(Components.interfaces.koIFileEx);
-        koFile.URI = dirURI;
-        this.currentPlaceIsLocal = koFile.isLocal;
         // Do this to update the SCC info, fixes bug 88254
-        Components.classes["@activestate.com/koFileService;1"].
+        var koFile = Components.classes["@activestate.com/koFileService;1"].
                        getService(Components.interfaces.koIFileService).
                        getFileFromURI(dirURI);
-
+        this.currentPlaceIsLocal = koFile.isLocal;
         this.currentPlace = dirURI;
-        var file = Components.classes["@activestate.com/koFileEx;1"].
-            createInstance(Components.interfaces.koIFileEx);
-        file.URI = dirURI;
         // watch out: baseName("/") => ""
-        widgets.rootButton.label = file.baseName || file.path;
+        widgets.rootButton.label = koFile.baseName || koFile.path;
         this._checkProjectMatch();
         widgets.rootButton.tooltipText = (
-            file.scheme == "file" ? file.displayPath : dirURI);
+            koFile.scheme == "file" ? koFile.displayPath : dirURI);
 
         var this_ = this;
         var callback = {    // koIAsyncCallback
