@@ -329,6 +329,16 @@ class KPFTreeView(TreeView):
         unwrapped_kpf = UnwrapObject(kpf)
         self.restorePrefs(unwrapped_kpf)
         self._partSvc.currentProject = unwrapped_kpf
+        url = kpf.url
+        # If the project is being added while restoring the view state,
+        # it's possible that this project is already in the tree as
+        # an unopened project in single-project view mode.
+        # Ref bug 92356
+        for i, row in enumerate(self._rows):
+            if row.uri == url:
+                del self._rows[i]
+                self._tree.rowCountChanged(i, 1)
+                break
         return unwrapped_kpf
 
     def _addProjectEpilogue(self, kpf, newProjectIndex):
