@@ -901,6 +901,7 @@ class GenericCommandHandler:
                     sm.addText(self.sysUtils.byteLength(indent), indent) # consider using replaceTarget??
         finally:
             sm.endUndoAction()
+            sm.chooseCaretX() # Keep up/down arrow on new currentPos: bug 92376
 
     def _actualLangSvcAndStyleFromPos(self, languageObj, scimoz, pos):
         if languageObj.isUDL():
@@ -1720,6 +1721,7 @@ class GenericCommandHandler:
             else:
                 sm.replaceSel(' ' * (targetCol - startCol))
         sm.scrollCaret() # Ensure caret's visible: bug 91572
+        sm.chooseCaretX() # Keep up/down arrow on new currentPos: bug 92376
 
     def _insertDedent(self):
         sm = self._view.scimoz
