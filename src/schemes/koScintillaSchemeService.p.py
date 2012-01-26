@@ -111,7 +111,7 @@ class Scheme:
         self._loadSchemeSettings(namespace, upgradeSettings=(not unsaved))
         return True
 
-    _current_scheme_version = 5
+    _current_scheme_version = 7
 
     def _execfile(self, fname, namespace):
         try:
@@ -210,6 +210,31 @@ class Scheme:
                     else:
                         # Use the lighter fg style.
                         pythonStyles["keywords2"] = { 'fore': 15989931 }
+                version += 1
+
+            if version == 5:
+                # this version only appeared in Komodo IDE
+                version += 1
+
+            if version == 6:
+                # Migrate "Bitstream Vera Sans Mono" to "DejaVu Sans Mono"
+                # (but only if the user doesn't have that font)
+                if sys.platform.startswith("linux"):
+                    if not hasattr(Scheme, "__has_bitstream_vera_sans_mono"):
+                        fontenum = components.classes["@mozilla.org/gfx/fontenumerator;1"]\
+                                             .getService(components.interfaces.nsIFontEnumerator)
+                        setattr(Scheme, "__has_bitstream_vera_sans_mono",
+                                "Bitstream Vera Sans Mono" in fontenum.EnumerateAllFonts())
+                    if not getattr(Scheme, "__has_bitstream_vera_sans_mono", False):
+                        def check_item(item):
+                            if not isinstance(item, dict):
+                                return
+                            if item.get("face", None) == "Bitstream Vera Sans Mono":
+                                item["face"] = "DejaVu Sans Mono"
+                            for value in item.values():
+                                check_item(value)
+                        for language in self._languageStyles.values() + [self._commonStyles]:
+                            check_item(language)
                 version += 1
 
             try:
