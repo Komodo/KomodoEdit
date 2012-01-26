@@ -16,20 +16,36 @@ CommonStyles = {'attribute name': {'fore': 7872391},
  'default_fixed': {'back': 4144959,
                    'bold': 0,
                    'eolfilled': 0,
-                   'face': 'Inconsolata',
+# #if PLATFORM == 'win'
+                   'face': 'Courier New',
+                   'size': 10,
+# #elif PLATFORM == 'darwin'
+                   'face': 'Monaco',
+                   'size': 12,
+# #else
+                   'face': 'DejaVu Sans Mono',
+                   'size': 10,
+# #endif
                    'fore': 12767697,
                    'hotspot': 0,
                    'italic': 0,
-                   'size': 11,
                    'useFixed': 1},
  'default_proportional': {'back': 4144959,
                           'bold': 0,
                           'eolfilled': 0,
-                          'face': 'Inconsolata',
+# #if PLATFORM == 'win'
+                          'face': 'Verdana',
+                          'size': 10,
+# #elif PLATFORM == 'darwin'
+                          'face': 'Helvetica',
+                          'size': 12,
+# #else
+                          'face': 'DejaVu Sans Mono',
+                          'size': 10,
+# #endif
                           'fore': 12767697,
                           'hotspot': 0,
                           'italic': 0,
-                          'size': 11,
                           'useFixed': 0},
  'fold markers': {'fore': 6184542},
  'functions': {'back': 4144959, 'fore': 9168614},
