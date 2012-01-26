@@ -1361,26 +1361,6 @@
             if (!browserType && this.koDoc.prefs.hasStringPref("preview_browser")) {
                 browserType = this.koDoc.prefs.getStringPref("preview_browser");
             }
-            try {
-                var dirtyItems = ko.views.manager.offerToSave([this.koDoc.file.URI],
-                                    null, // title
-                                    "Save file before previewing?" , // prompt
-                                    "save_buffer_before_preview", // doNotAskPref,
-                                    true, // skipProjects
-                                    false // aboutToClose
-                                    );
-                if (dirtyItems === false) {
-                    // cancelled out
-                    return;
-                } else if (dirtyItems === true) {
-                    //  nothing to do
-                } else {
-                    dirtyItems.forEach(function(item) { item.view.save() });
-                }
-            } catch(ex) {
-                this.log.exception(ex, "_getPreviewPathAndBrowserType error");
-            }
-
             if (!previewPath) {
                 var pick = ko.dialogs.pickPreview(this.koDoc.file.displayPath,
                                                   undefined, undefined,
@@ -1477,6 +1457,23 @@
                              "' before you can preview it in the browser.");
                 return;
             }
+            try {
+                var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+                    .getService(Components.interfaces.nsIStringBundleService)
+                    .createBundle("chrome://komodo/locale/views.properties");
+                if (false === ko.views.manager.offerToSave([this.koDoc.file.URI],
+                              null, // title
+                              _bundle.GetStringFromName("Save file before previewing"), // prompt
+                              "save_buffer_before_preview", // doNotAskPref,
+                              true, // skipProjects
+                              false // aboutToClose
+                              )) {
+                    // cancelled out
+                    return;
+                }
+            } catch(ex) {
+                this.log.exception(ex, "viewPreview error");
+            }
 
             var previewPath;
             // If a browser is specified then use it.
@@ -1488,7 +1485,7 @@
                 this.preview.makeCurrent();
                 this.preview.reload();
             } else {
-                // Ppen the browser preview as specified by the user's prefs.
+                // Open the browser preview as specified by the user's prefs.
                 [previewPath, browserType] = this._getPreviewPathAndBrowserType();
             }
             if (previewPath) {
