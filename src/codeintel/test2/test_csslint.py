@@ -1404,3 +1404,17 @@ gL0K.2n9ux@@_co:
 """)
         results = self.csslinter.lint(code)
         self.assertTrue(len(results) > 0)
+
+    @tag("bug92368", "knownfailure")
+    def test_css_ignore_leading_space(self):
+        code = "\n    " * 10 + "   ^"
+        results = self.csslinter.lint(code)
+        self.assertTrue(len(results) > 0)
+        r = results[0]
+        actualError = "Actual error: %s" % r
+        self.assertTrue(r.message.startswith("expecting a selector"),
+                        actualError)
+        self.assertTrue(r.line_start == 11, actualError)
+        self.assertTrue(r.line_end == 11, actualError)
+        self.assertTrue(r.col_start == 4, actualError)
+        self.assertTrue(r.col_end == 5, actualError)
