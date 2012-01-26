@@ -418,6 +418,9 @@ class JSDoc:
             doc = " ".join(sp[1:3])
         cp = JSDocParameter(paramname, paramtype, doc)
         self.params.append(cp)
+    # Same as param.
+    def _handle_argument(self, value):
+        return self._handle_param(value)
 
     def _handle_tags(self, value):
         self.tags = value
