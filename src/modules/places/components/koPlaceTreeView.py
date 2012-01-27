@@ -863,8 +863,16 @@ class KoPlaceTreeView(TreeView):
         self._wrap_refreshTreeOnOpen_buildTree()
 
     def getRowIndexForURI(self, uri):
+        # First look for a match respecting case.
         for (i, row) in enumerate(self._rows):
-            if row.uri == uri:
+            if uri == row.uri:
+                return i
+        if sys.platform.startswith("linux") and uri.startswith("file:/"):
+            # Local files on a case-sensitive file system: no match
+            return -1
+        uri_to_find = uri.lower()
+        for (i, row) in enumerate(self._rows):
+            if row.uri.lower() == uri_to_find:
                 return i
         return -1
 
