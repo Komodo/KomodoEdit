@@ -343,6 +343,29 @@ static char opposite(char ch) {
     return ch;
 }
 
+/* getNumUtf8ContinuationBytes
+ * Mask the char with a 1 in a spot to determine what kind of
+ * lead byte we have.  For example, any 7-bit value masked
+ * with 0x80 will always give 0.
+ * A 2-byte lead-byte masked with 0b11100000 => 0b11000000, etc.
+ *
+ * Return value: either number of internal utf8 bytes, or -1
+ * to indicate something went wrong, and further checking might be needed.
+ */
+static int getNumUtf8ContinuationBytes(char ch) {
+    unsigned int cval = (unsigned int) ch;
+    if ((cval & 0x80) == 0) return 0;         // 1000 0000  ==> 0000 0000
+    else if ((cval & 0xe0) == 0xc0) return 1; // 1110 0000  ==> 1100 0000
+    else if ((cval & 0xf0) == 0xe0) return 2; // 1111 0000  ==> 1110 0000
+    else if ((cval & 0xf8) == 0xf0) return 3; // 1111 1000  ==> 1111 0000
+    else if ((cval & 0xfc) == 0xf8) return 4; // 1111 1100  ==> 1111 1000
+    else if ((cval & 0xfe) == 0xfc) return 5; // 1111 1110  ==> 1111 1100
+    // Otherwise we're either at an internal byte or a non-utf8 char.
+    // Return -1 and let the caller decide what to do.
+    assert("Perl colorizer: Internal Error in getNumUtf8ContinuationBytes: didn't match anything" && 0);
+    return -1;
+}
+
 // Calculates the current fold level (for the relevant line) when the lexer has 
 // parsed up to the given index.
 int getFoldLevelModifier(Accessor& styler, int startIndex, int endIndex) {
@@ -2220,6 +2243,16 @@ void ColourisePerlDoc(unsigned int startPos, int length, int , // initStyle
                 if (Quote.Count == 0) {
                     Quote.Rep--;
                     if (Quote.Rep <= 0) {
+                        int numBytesToSkip = getNumUtf8ContinuationBytes(ch);
+                        if (numBytesToSkip <= 0) {
+                            // Do nothing
+                        } else if (numBytesToSkip == 1) {
+                            advanceOneChar(i, ch, chNext, chNext2);
+                        } else {
+                            i += numBytesToSkip;
+                            ch = styler.SafeGetCharAt(i);
+                            chNext = styler.SafeGetCharAt(i + 1);
+                        }
                         styler.ColourTo(i, state);
                         state = SCE_PL_DEFAULT;
                         braceStartsBlock = true;
