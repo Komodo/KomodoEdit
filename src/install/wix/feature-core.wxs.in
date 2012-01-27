@@ -6209,6 +6209,7 @@
               <File Id="file3848" Name="PERL_S_0.PL" LongName="perl_sample.pl" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\perl_sample.pl"/>
               <File Id="file3849" Name="PHP_SA_0.PHP" LongName="php_sample.php" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\php_sample.php"/>
               <File Id="file3850" Name="PYTHO_10.PY" LongName="python_sample.py" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\python_sample.py"/>
+              <File Id="file3974" LongName="python3_sample.py" Name="PYTHO_14.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\python3_sample.py" />
               <File Id="file3851" Name="RUBY_S_0.RB" LongName="ruby_sample.rb" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\ruby_sample.rb"/>
               <File Id="file1244" LongName="sample_project.komodoproject" Name="SAMPLE_1.KOM" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\sample_project.komodoproject" />
               <File Id="file3854" Name="TCL_SA_0.TCL" LongName="tcl_sample.tcl" Vital="yes" src="feature-core\INSTALLDIR\lib\support\samples\tcl_sample.tcl"/>
