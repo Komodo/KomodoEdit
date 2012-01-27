@@ -51,6 +51,7 @@ my @samples = (
     ["sample_project.p.komodoproject", "sample_project.komodoproject"],
     ["perl_sample.p.pl", "perl_sample.pl"],
     ["python_sample.p.py", "python_sample.py"],
+    ["python3_sample.p.py", "python3_sample.py"],
     ["ruby_sample.p.rb", "ruby_sample.rb"],
     ["javascript_sample.p.js", "javascript_sample.js"],
     ["php_sample.p.php", "php_sample.php"],
