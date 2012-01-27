@@ -450,7 +450,7 @@ function Apply()
     gPart.setStringAttribute('name', gDlg.nameTextbox.value);
     gPart.setStringAttribute('cwd', gDlg.cwdTextbox.value);
     var env = gEnvView.GetEnvironmentStrings();
-    gPart.setStringAttribute('env', stringutils_escapeWhitespace(env));
+    gPart.setStringAttribute('env', ko.stringutils.escapeWhitespace(env));
     gPart.setBooleanAttribute('insertOutput', gDlg.insertOutputWidget.checked);
     gPart.setBooleanAttribute('operateOnSelection', gDlg.opOnSelWidget.checked);
     gPart.setBooleanAttribute('doNotOpenOutputWindow', gDlg.doNotOpenOutWinWidget.checked);
