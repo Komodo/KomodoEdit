@@ -5713,6 +5713,7 @@
                 <File Id="file3738" Name="Makefile.mak" Vital="yes" src="feature-core\INSTALLDIR\lib\support\default-templates\All Languages\Makefile.mak"/>
                 <File Id="file3739" Name="Matlab.m" Vital="yes" src="feature-core\INSTALLDIR\lib\support\default-templates\All Languages\Matlab.m"/>
                 <File Id="file3740" Name="NNCRON_0.TAB" LongName="nnCrontab.tab" Vital="yes" src="feature-core\INSTALLDIR\lib\support\default-templates\All Languages\nnCrontab.tab"/>
+                <File Id="file3975" Name="Node.js" Vital="yes" src="feature-core\INSTALLDIR\lib\support\default-templates\All Languages\Node.js" />
                 <File Id="file3741" Name="Pascal.pas" Vital="yes" src="feature-core\INSTALLDIR\lib\support\default-templates\All Languages\Pascal.pas"/>
                 <File Id="file3742" Name="Perl.pl" Vital="yes" src="feature-core\INSTALLDIR\lib\support\default-templates\All Languages\Perl.pl"/>
                 <File Id="file3744" Name="PYTHON_3.PY" LongName="Python.py" Vital="yes" src="feature-core\INSTALLDIR\lib\support\default-templates\All Languages\Python.py"/>
@@ -5731,8 +5732,10 @@
               <Component Id="component189" DiskId="1" Guid="$(autowix.guid)">
                 <File Id="file3752" Name="C_1.CPP" LongName="C++.cpp" Vital="yes" src="feature-core\INSTALLDIR\lib\support\default-templates\Common\C++.cpp"/>
                 <File Id="file3753" Name="C_0.C" LongName="C.c" Vital="yes" src="feature-core\INSTALLDIR\lib\support\default-templates\Common\C.c"/>
+                <File Id="file3976" LongName="CoffeeScript.coffee" Name="COFFEE_2.COF" Vital="yes" src="feature-core\INSTALLDIR\lib\support\default-templates\Common\CoffeeScript.coffee" />
                 <File Id="file3756" Name="JAVA_1.JAV" LongName="Java.java" Vital="yes" src="feature-core\INSTALLDIR\lib\support\default-templates\Common\Java.java"/>
                 <File Id="file3757" Name="JAVASC_1.JS" LongName="JavaScript.js" Vital="yes" src="feature-core\INSTALLDIR\lib\support\default-templates\Common\JavaScript.js"/>
+                <File Id="file3977" LongName="Node.js" Name="NODE_0.JS" Vital="yes" src="feature-core\INSTALLDIR\lib\support\default-templates\Common\Node.js" />
                 <File Id="file3758" Name="PERLMO_0.PM" LongName="Perl Module (OO).pm" Vital="yes" src="feature-core\INSTALLDIR\lib\support\default-templates\Common\Perl Module (OO).pm"/>
                 <File Id="file3759" Name="PERLMO_1.PM" LongName="Perl Module.pm" Vital="yes" src="feature-core\INSTALLDIR\lib\support\default-templates\Common\Perl Module.pm"/>
                 <File Id="file3760" Name="PERL_0.PL" LongName="Perl.pl" Vital="yes" src="feature-core\INSTALLDIR\lib\support\default-templates\Common\Perl.pl"/>
@@ -5792,6 +5795,7 @@
                 <File Id="file3893" Name="COFFEE_1.COF" LongName="CoffeeScript.coffee" Vital="yes" src="feature-core\INSTALLDIR\lib\support\default-templates\Web\CoffeeScript.coffee"/>
                 <File Id="file3800" Name="CSS_0.CSS" LongName="CSS.css" Vital="yes" src="feature-core\INSTALLDIR\lib\support\default-templates\Web\CSS.css"/>
                 <File Id="file3803" Name="JAVASC_4.JS" LongName="JavaScript.js" Vital="yes" src="feature-core\INSTALLDIR\lib\support\default-templates\Web\JavaScript.js"/>
+                <File Id="file3978" LongName="Node.js" Name="NODE_1.JS" Vital="yes" src="feature-core\INSTALLDIR\lib\support\default-templates\Web\Node.js" />
                 <File Id="file3804" Name="PERL_2.PL" LongName="Perl.pl" Vital="yes" src="feature-core\INSTALLDIR\lib\support\default-templates\Web\Perl.pl"/>
                 <File Id="file310" LongName="RJS.rjs" Name="RJS_0.RJS" Vital="yes" src="feature-core\INSTALLDIR\lib\support\default-templates\Web\RJS.rjs" />
                 <File Id="file889" Name="Ruby.rb" Vital="yes" src="feature-core\INSTALLDIR\lib\support\default-templates\Web\Ruby.rb" />
