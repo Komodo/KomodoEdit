@@ -99,7 +99,7 @@ class koJavaScriptLanguage(koJSLikeLanguage, KoLanguageBaseDedentMixin):
         "markup": "*",
     }
     _dedenting_statements = [u'throw', u'return', u'break', u'continue']
-    searchURL = "https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference"
+    searchURL = "https://developer.mozilla.org/en/JavaScript/Reference"
     
     # matches:
     # function name
@@ -172,6 +172,7 @@ class koNodeJSLanguage(koJavaScriptLanguage):
     accessKey = 'n'
     primary = 1
     defaultExtension = ".js"
+    searchURL = "http://nodejs.org/docs/latest/api/index.html"
 
     sample = """
 var fs = require('fs');
@@ -208,7 +209,7 @@ class koCoffeeScriptLanguage(koJSLikeLanguage):
                            u'catch', u'finally', u'switch', u'when']
     _dedenting_statements = [u'throw', u'return', u'break', u'continue']
     _indenting_statements = [u'case']
-    searchURL = "http://jashkenas.github.com/coffee-script/"
+    searchURL = "http://coffeescript.org/#language"
     
     # matches:
     # function name
