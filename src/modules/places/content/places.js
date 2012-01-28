@@ -1021,7 +1021,7 @@ viewMgrClass.prototype = {
             title = _bundle.GetStringFromName("notMovingFileAnywhere.label");
             prompt = _bundle.GetStringFromName("cantMoveFileIntoItsOwnDirectory.label");
             text = (_bundle.GetStringFromName("forFollowingFiles.label")
-                    + existingSrcDirectories.map(function(srcFileInfo) {
+                    + selfDirectories.map(function(srcFileInfo) {
                             return (_bundle.GetStringFromName("sourceFilePrefix")
                                     + srcFileInfo.baseName
                                     + _bundle.GetStringFromName("directoryPrefix")
