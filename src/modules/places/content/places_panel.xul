@@ -674,7 +674,6 @@
           oncommand="ko.places.projects_SPV.saveProjectAs();" />
       <menuitem label="&renameProject.label;"
           id="menu_renameProject_projectsContext"
-          class="menuitem-iconic"
           hideUnless="project unopened_project"
           disableUnless="currentProject"
           testDisableIf="t:multipleSelection"
@@ -688,7 +687,6 @@
 
       <menu label="&add.label;"
             id="menu_addItemToProject_projectsContext"
-            class="menu-iconic"
             hideIf="file livefolder"
             testDisableIf="t:multipleSelection"
             disableIf="unopened_project" >
@@ -700,14 +698,12 @@
       -->
       <menuitem label="&ShowInExplorer.label;"
                 id="menu_showInFinder_projectsContext"
-                class="menuitem-iconic"
                 disableIf="folder"
                 hideUnless="file livefolder folder"
                 testDisableIf="t:multipleSelection t:isRemote"
                 oncommand="ko.places.projects_SPV.manager.showInFinder(event, this);" />
       <menuitem label="&remove.label;"
                 id="menu_removeItem_projectsContext"
-                class="menuitem-iconic"
                 hideUnless="file livefolder folder"
                 oncommand="ko.places.projects_SPV.manager.removeItems(event, this);" />
       <menuseparator id="menu_project_remove_separator_projectsContext" 
