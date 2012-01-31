@@ -330,6 +330,31 @@ static bool atStartOfFormatStmt(unsigned int &pos,
     return true;
 }
 
+/** inputsymbolScan
+ * look ahead to see if we have a glob expression (Camel 3rd pg. 83
+ * or `perldoc -f glob`
+ * Input: styler ref, pos ref, docLength
+ * Output: if we have a '>' on the same line, assume it's a glob expn.
+ *
+ * Note that we can resolve the ambiguity of '<' the following ways:
+ * If binaryOperatorExpected, then '<' can't start a glob expn.  Simple.
+ *
+ */
+static int inputsymbolScan(LexAccessor &styler, unsigned int pos, unsigned int endPos) {
+    // looks forward for matching > on same line; a bit ugly
+    unsigned int fw = pos;
+    while (++fw < endPos) {
+        int fwch = static_cast<unsigned char>(styler.SafeGetCharAt(fw));
+        if (fwch == '\r' || fwch == '\n') {
+            return 0;
+        } else if (fwch == '>') {
+            if (styler.Match(fw - 2, "<=>"))	// '<=>' case
+                return 0;
+            break;
+        }
+    }
+    return fw - pos;
+}
 
 static char opposite(char ch) {
     if (ch == '(')
@@ -1547,9 +1572,8 @@ void ColourisePerlDoc(unsigned int startPos, int length, int , // initStyle
 
                 } else {
                     styler.ColourTo(i-1, state);
-                    preferRE = false;
-                    binaryOperatorExpected = false;
-                    braceStartsBlock = true;
+                    // Check for glob expressions first
+                    bool doDefaultHandling = true;
                     if (chNext == '=') {
                         if (chNext2 == '>') {
                             i += 2;
@@ -1557,9 +1581,37 @@ void ColourisePerlDoc(unsigned int startPos, int length, int , // initStyle
                         } else {
                             advanceOneChar(i, ch, chNext, chNext2);
                         }
+                    } else if (!binaryOperatorExpected) {
+                        if (chNext == '>') {
+                            // <> reads from argv, returns a value in scalar context
+                            advanceOneChar(i, ch, chNext, chNext2);
+                            styler.ColourTo(i, SCE_PL_OPERATOR);
+                            preferRE = false;
+                            binaryOperatorExpected = true;
+                            braceStartsBlock = false;
+                            doDefaultHandling = false;
+                        } else {
+                            int numCharsToSkip = inputsymbolScan(styler, i + 1, lengthDoc);
+                            if (numCharsToSkip > 0) {
+                                i += numCharsToSkip + 1;
+                                styler.ColourTo(i, SCE_PL_STRING);
+                                ch = styler.SafeGetCharAt(i);
+                                chNext = styler.SafeGetCharAt(i + 1);
+                                preferRE = false;
+                                binaryOperatorExpected = true;
+                                braceStartsBlock = false;
+                                doDefaultHandling = false;
+                                // Stay in default state.
+                            }
+                        }
                     }
-                    // Leave state at default for all three operators
-                    styler.ColourTo(i,SCE_PL_OPERATOR);
+                    if (doDefaultHandling) {
+                        preferRE = false;
+                        binaryOperatorExpected = false;
+                        braceStartsBlock = true;
+                        // Leave state at default for all interpretations but glob
+                        styler.ColourTo(i,SCE_PL_OPERATOR);
+                    }
                 }
             } else if (ch == '=' && isSafeAlpha(chNext) && (i == 0 || isEOLChar(chPrev))) {
                 styler.ColourTo(i - 1, state);
