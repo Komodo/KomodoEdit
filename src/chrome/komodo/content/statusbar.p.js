@@ -713,7 +713,7 @@ function _addMessage(msg, category, timeout, highlight,
     var sm = ko.notifications
                .createNotification("status-message-" + category,
                                    ["status"], 1,
-                                   window,
+                                   ko.notifications.context,
                                    Ci.koINotificationManager.TYPE_STATUS)
                .QueryInterface(Ci.koIStatusMessage);
     sm.msg = msg;
