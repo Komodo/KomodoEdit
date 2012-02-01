@@ -185,17 +185,29 @@ class _CommonHTMLLinter(object):
                 if not squelching and origLangName == "CSS" and langName == name:
                     subparts = self._get_unwrappedText(currText, koDoc, i, startPt, endPt, lim)
                     if ("{" not in subparts[1]
+                        and "@" not in subparts[1]
                         and i > 0
                         and i < lim - 1
                         and koDoc.languageForPosition(startPt - 1).startswith("HTML")
                         and koDoc.languageForPosition(endPt).startswith("HTML")):
                         # This won't pick up things like
-                        # <tag style="margin <?php echo ':' ?> 1px;">
-                        bytesByLang[name].append("bogusTag { %s }" % subparts[1])
-                        #TODO:  Adjust the amount of whitespace to minimize
-                        # the displacement of the actual CSS code.
-                    else:
-                        bytesByLang[name].append("".join(subparts))
+                        # <tag style="margin <?php echo 'div{' ?> 1px;">
+
+                        # Assume we're processing a style attribute with no
+                        # top-level statements, so insert a bogus selector,
+                        # and remove as much white-space as possible around
+                        # the actual code so squiggly highlighting is in sync.
+
+                        replString = "_x{"
+                        # Remove as many trailing spaces as we need, and have
+                        subparts[0] = re.sub(re.compile(' {0,%d}$' % len(replString)),
+                                             replString,
+                                             subparts[0]);
+                        # If the last part as a leading space, replace it with
+                        # a "}" to end the inserted bogus tag
+                        subparts[2] = re.sub(re.compile('^ ?'),
+                                             "}", subparts[2])
+                    bytesByLang[name].append("".join(subparts))
                 elif origLangName == "JavaScript" and langName == name:
                     if squelching and prevSegmentLangName == "JavaScript":
                         if not firstInsertedReplacement:
