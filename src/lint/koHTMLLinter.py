@@ -168,27 +168,21 @@ class _CommonHTMLLinter(object):
             #log.debug("segment: raw lang name: %s, lang:%s, %d:%d [[%s]]",
             #          koDoc.languageForPosition(startPt),
             #          langName, startPt, endPt, currText)
+            
+            
+            if (squelchTPLPatterns
+                and origLangName == squelchTPLPatterns[0]
+                and not squelching
+                and squelchTPLPatterns[1].match(currText)):
+                # If we have something like
+                # var jsvar = <%= value %>
+                # pull out the atomic server-side code, and insert
+                # something that looks good to the js linter.
+                squelchedText = self._spaceOutNonNewlines(currText)
+                squelching = True
+                firstInsertedReplacement = False
             for name in bytesByLang.keys():
-                if squelchTPLPatterns and origLangName == squelchTPLPatterns[0]:
-                    if not squelching and squelchTPLPatterns[1].match(currText):
-                        squelching = True
-                        firstInsertedReplacement = False
-                    elif squelching and squelchTPLPatterns[2].match(currText):
-                        squelching = False
-                elif squelching and prevSegmentLangName == "JavaScript":
-                    # If we have something like
-                    # var jsvar = <%= value %>
-                    # pull out the atomic server-side code, and insert
-                    # something that looks good to the js linter.
-                    if not firstInsertedReplacement:
-                        firstInsertedReplacement = True
-                        # Give JS etc. something to work with.
-                        # This might cause other false positives though.
-                        replText = "0" + self._spaceOutNonNewlines(currText[1:])
-                    else:
-                        replText = self._spaceOutNonNewlines(currText)
-                    bytesByLang[name].append(replText)
-                elif origLangName == "CSS" and langName == name:
+                if not squelching and origLangName == "CSS" and langName == name:
                     subparts = self._get_unwrappedText(currText, koDoc, i, startPt, endPt, lim)
                     if ("{" not in subparts[1]
                         and i > 0
@@ -203,6 +197,15 @@ class _CommonHTMLLinter(object):
                     else:
                         bytesByLang[name].append("".join(subparts))
                 elif origLangName == "JavaScript" and langName == name:
+                    if squelching and prevSegmentLangName == "JavaScript":
+                        if not firstInsertedReplacement:
+                            # Give JS etc. something to work with.
+                            # This might cause other false positives though.
+                            bytesByLang[prevSegmentLangName].append("0" + squelchedText[1:])
+                            firstInsertedReplacement = True
+                        else:
+                            bytesByLang[prevSegmentLangName].append(squelchedText)
+                        continue
                     # Convert uncommented cdata marked section markers
                     # into spaces.
                     #
@@ -231,7 +234,15 @@ class _CommonHTMLLinter(object):
                         and langName in htmlAllowedNames)):
                     bytesByLang[name].append(currText)
                 else:
+                    # This includes squelching.
                     bytesByLang[name].append(self._spaceOutNonNewlines(currText))
+            
+            if (squelchTPLPatterns
+                and origLangName == squelchTPLPatterns[0]
+                and squelching
+                and squelchTPLPatterns[2].match(currText)):
+                squelching = False
+                    
             if origLangName in ("JavaScript", "HTML", "HTML5", "XML"):
                 prevSegmentLangName = origLangName
         
