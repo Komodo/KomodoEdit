@@ -1446,3 +1446,49 @@ gL0K.2n9ux@@_co:
 }
 """).decode("utf-8")
         self._check_zero_results_show_error(code, language="SCSS")
+
+    @tag("bug92561", "knownfailure")
+    def test_less_parameterless_mixin(self):
+        code = dedent("""\
+.error {
+  border: 1px #f00;
+  background-color: #fdd;
+}
+div#error {
+  .error;
+  border-width: 3px;
+}
+""").decode("utf-8")
+        self._check_zero_results_show_error(code, language="Less")
+
+    @tag("bug92561", "knownfailure")
+    def test_less_continued_selectors(self):
+        code = dedent("""\
+body {
+    > div {
+        color: blue;
+    }
+    + p {
+        color: pink;
+    }
+}
+""").decode("utf-8")
+        self._check_zero_results_show_error(code, language="Less")
+
+    @tag("bug92561", "knownfailure")
+    def test_less_continued_selectors_with_mixin(self):
+        code = dedent("""\
+.mixin {
+    color: red;
+    }
+body {
+    .mixin;
+    > div {
+        color: blue;
+    }
+    + p {
+        color: pink;
+    }
+}
+""").decode("utf-8")
+        self._check_zero_results_show_error(code, language="Less")
