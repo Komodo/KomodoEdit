@@ -1482,13 +1482,13 @@ class koDocumentBase:
     # we want to watch for changes in the prefs we derive from
     def observe(self, subject, topic, data):
         #print "observe: subject:%r, topic:%s, data:%r" % (subject, topic, data)
-        if data == 'useTabs':
+        if topic == 'useTabs':
             self._useTabs = self.prefs.getBooleanPref('useTabs')
-        elif data == 'indentWidth':
+        elif topic == 'indentWidth':
             val = self._indentWidth = self.prefs.getLongPref('indentWidth')
             for view in self._views:
                 view.scimoz.indent = val
-        elif data == 'tabWidth':
+        elif topic == 'tabWidth':
             val = self._tabWidth = self.prefs.getLongPref('tabWidth')
             for view in self._views:
                 view.scimoz.tabWidth = val
