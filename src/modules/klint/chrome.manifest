@@ -1,6 +1,6 @@
 
 content klint             jar:klint.jar!/content/
-skin    klint classic/1.0 jar:klint.jar!/skin/
+skin    klint classic/1.0 jar:klint.jar!/skin/classic/
 locale  klint en-US       jar:klint.jar!/locale/en-US/
 
 overlay	chrome://komodo/content/komodo.xul	chrome://klint/content/klintOverlay.xul
