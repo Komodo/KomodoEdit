@@ -382,7 +382,7 @@ PrefTreeView.prototype.findChild = function(id) {
         }
     }
     return -1;
-};.
+};
 
 PrefTreeView.prototype._openNodes = function(nodePath) {
     var i, lim, row, idx, prevIdx = 0;
