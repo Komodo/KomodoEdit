@@ -103,6 +103,11 @@ function DiffWindow()
         view.message = window.arguments[0].message;
     }
     window.controllers.appendController(this);
+
+    // Update the imported commands
+    for each (let commandset in Array.slice(document.getElementsByTagName("commandset"))) {
+        ko.commands.updateCommandset(commandset);
+    }
 }
 
 //
