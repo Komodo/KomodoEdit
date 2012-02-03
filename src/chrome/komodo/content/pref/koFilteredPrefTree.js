@@ -62,6 +62,8 @@ function saveOpenPrefTreeNodes() {
                                 nativeJSON.encode(_openPrefTreeNodes));
 }
 
+var treeItemsByURI = {}; // URI => array of TreeInfoItem;
+
 function TreeInfoItem(id, isContainer, isOpen, cls, url, label, helptag) {
     this.id = id;
     this.isContainer = isContainer;
@@ -92,8 +94,6 @@ TreeInfoItem.prototype.toString = function() {
     }
     return "{ " + s.join(", ") + " }";
 }
-
-var treeItemsByURI = {}; // URI => array of TreeInfoItem;
 
 this.buildTree = function(root, key) {
     var i, lim, currentList, rootChildren = root.childNodes, isContainer, isOpen, url, item;
@@ -360,7 +360,110 @@ PrefTreeView.prototype.getIndexById = function(id) {
         }
     }
     return -1;
+};
+
+/** findChild
+ * Look at the children of closed items to find a buried pref item.
+ * Open the tree around each node in the path to the target row,
+ * and return the new index.
+ */
+PrefTreeView.prototype.findChild = function(id) {
+    var row, nodePath;
+    for (var i = this._rows.length - 1; i >= 0; i--) {
+        row = this._rows[i];
+        if (row.isContainer && row.state === xtk.hierarchicalTreeView.STATE_CLOSED) {
+            nodePath = [];
+            if (this._burrowForChildren(id, row, nodePath)) {
+                nodePath.unshift([row, i]);
+                this._openNodes(nodePath);
+                // Return the location of the exposed node
+                return this.getIndexById(id);
+            }
+        }
+    }
+    return -1;
+};.
+
+PrefTreeView.prototype._openNodes = function(nodePath) {
+    var i, lim, row, idx, prevIdx = 0;
+    while (nodePath.length > 0) {
+        [row, idx] = nodePath.shift();
+        if (row.isContainer && row.state === xtk.hierarchicalTreeView.STATE_CLOSED) {
+            if (row == this._rows[idx]) {
+                this.toggleOpenState(idx);
+                prevIdx = idx;
+            } else {
+                lim = this._rows.length;
+                prevIdx = -1;
+                for (i = prevIdx; i < lim; i++) {
+                    if (this._rows[i].id == row.id) {
+                        this.toggleOpenState(i);
+                        prevIdx = i;
+                    }
+                }
+                if (prevIdx == -1) {
+                    break;
+                }
+            }
+        } else {
+            prevIdx = idx;
+        }
+    }
 }
+
+PrefTreeView.prototype._burrowForChildren = function(id, rowItem, nodePath) {
+    var i, row, children = rowItem.getChildren();
+    if (!children) {
+        return false;
+    }
+    var lim = children.length;
+    for (i = 0; i < lim; i++) {
+        row = children[i];
+        if (row.id == id) {
+            nodePath.push([row, i]);
+            return true;
+        }
+    }
+    for (i = 0; i < lim; i++) {
+        row = children[i];
+        if (row.isContainer && this._burrowForChildren(id, row, nodePath)) {
+            nodePath.unshift([row, i]);
+            return true;
+        }
+    }
+    return false;
+};
+
+PrefTreeView.prototype.getCurrentSelectedId = function() {
+    var selectedRowIdx = this.selection.currentIndex;
+    return selectedRowIdx === -1 ? null : this._rows[selectedRowIdx].id;
+};
+PrefTreeView.prototype.tryToSelectPanelId = function(selectedId) {
+    if (selectedId === null) {
+        return;
+    }
+    var newRows = this._rows;
+    var i;
+    if (newRows.length > 0) {
+        if (selectedId !== null) {
+            for (i = 0; i < newRows.length; i++) {
+                if (newRows[i].id === selectedId) {
+                    break;
+                }
+            }
+            if (i < newRows.length) {
+                this.selection.select(i); // currentIndex = i;
+            } else {
+                this.selection.select(0);
+                i = 0;
+            }
+            this.tree.ensureRowIsVisible(i);
+            this.tree.invalidateRow(i);
+        }
+    } else {
+        // No need to do anything
+    }
+};
 
 this.PrefTreeView = PrefTreeView;
 
@@ -415,32 +518,37 @@ this._intersectSets = function(set1, set2) {
     return iset;
 };
 this.updateFilter = function(target) {
-    if (!target) {
-        this.prefTreeView.removeFilter();
-        return;
+    var selectedId = this.prefTreeView.getCurrentSelectedId();
+    try {
+        if (!target) {
+            this.prefTreeView.removeFilter();
+            return;
+        }
+        // Support multi-word queries by splitting target on spaces
+        // Interpret w1 w2 w3 ... wn into groups, where each run of
+        // words w[i] w[i+1] ... w[j] is a run if its intersection is non-empty.
+        // Then take the union of all runs.
+        var targets = target.replace(/^\s+/, "").replace(/\s+$/,"").
+            toLowerCase().split(/\s+/);
+        if (!targets.length || !targets[0]) {
+            this.prefTreeView.removeFilter();
+            return;
+        }
+        var lim = targets.length;
+        var i;
+        var currentSet = this.getHitsForWord(targets[0]);
+        for (i = 1; i < lim; i++) {
+            currentSet = this._intersectSets(currentSet,
+                                             this.getHitsForWord(targets[i]));
+        }
+        var urls = [];
+        for (var num in currentSet) {
+            urls.push(this.urlManager.URLsFromNums(num));
+        }
+        this.prefTreeView.updateFilter(urls);
+    } finally {
+        this.prefTreeView.tryToSelectPanelId(selectedId);
     }
-    // Support multi-word queries by splitting target on spaces
-    // Interpret w1 w2 w3 ... wn into groups, where each run of
-    // words w[i] w[i+1] ... w[j] is a run if its intersection is non-empty.
-    // Then take the union of all runs.
-    var targets = target.replace(/^\s+/, "").replace(/\s+$/,"").
-                         toLowerCase().split(/\s+/);
-    if (!targets.length || !targets[0]) {
-        this.prefTreeView.removeFilter();
-        return;
-    }
-    var lim = targets.length;
-    var i;
-    var currentSet = this.getHitsForWord(targets[0]);
-    for (i = 1; i < lim; i++) {
-        currentSet = this._intersectSets(currentSet,
-                                         this.getHitsForWord(targets[i]));
-    }
-    var urls = [];
-    for (var num in currentSet) {
-        urls.push(this.urlManager.URLsFromNums(num));
-    }
-    this.prefTreeView.updateFilter(urls); 
 };
 
 function URLManager() {

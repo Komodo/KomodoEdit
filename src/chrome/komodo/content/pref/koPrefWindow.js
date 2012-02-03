@@ -948,7 +948,11 @@ prefTreeHelper.prototype = {
         var index = this.filteredTreeView.getIndexById(id);
         if (index == -1) {
             prefLog.debug("Can't find pref id '" + id + "'\n");
-            return;
+            index = this.filteredTreeView.findChild(id);
+            if (index == -1) {
+                prefLog.debug("Still can't find id '" + id + "' after burrowing");
+                return;
+            }
         }
         this.filteredTreeView.tree.ensureRowIsVisible(index);
         this.filteredTreeView.selection.select(index);
