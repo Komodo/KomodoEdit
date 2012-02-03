@@ -164,10 +164,9 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
         """
         The type of the global variable
         """
-        return {
-            "JavaScript": "Window",
-            "Node.js":    "global",
-        }.get(self.lang)
+        if self.trg.lang == "Node.js":
+            return "global"
+        return "Window"
 
     _langintel = None
     @property
