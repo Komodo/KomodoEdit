@@ -378,7 +378,8 @@ class _CommonPerlLinter(object):
             raise ServerException(nsError.NS_ERROR_NOT_AVAILABLE, errmsg)
 
         return perlExe
-    
+
+_begin_to_init_re = re.compile(r'\bBEGIN(?=(?:\s|#.*$\n?)*\{)', re.MULTILINE)
 class KoPerlCompileLinter(_CommonPerlLinter):
     _com_interfaces_ = [components.interfaces.koILinter]
     _reg_desc_ = "Komodo Perl Compile Linter"
@@ -408,6 +409,8 @@ class KoPerlCompileLinter(_CommonPerlLinter):
             text = "\n".join([firstLine, splitText[1]])
         else:
             text = firstLine
+        if prefset.getBooleanPref("perl_lintOption_disableBeginBlocks"):
+            text = _begin_to_init_re.sub("INIT", text)
         # Save perl buffer to a temporary file.
 
         tmpFileName = self._writeTempFile(cwd, text)

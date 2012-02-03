@@ -103,6 +103,7 @@ var global_pref_observer_topics = {
     "perl_lintOption" : PERL_LIST,
     "perl_lintOption_perlCriticLevel" : PERL_LIST,
     "perl_lintOption_includeCurrentDirForLinter" : PERL_LIST,
+    "perl_lintOption_disableBeginBlocks" : PERL_LIST,
     "pythonDefaultInterpreter" : PYTHON_LIST,
     "python3DefaultInterpreter" : PYTHON3_LIST,
     "lint_python_with_pylint" : PYTHON_LIST,

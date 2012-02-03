@@ -267,6 +267,9 @@
                       </menupopup>
                   </menulist>
               </hbox>
+              <checkbox id="perl_lintOption_disableBeginBlocks"
+                        label="&disableBEGINBlockExecution.label;"
+                        pref="true" />
               <separator class="thin"/>
               <hbox id="perl_lintOptions_perlCriticBox_hbox"
                     align="center"
