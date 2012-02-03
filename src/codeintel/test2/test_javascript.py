@@ -1013,6 +1013,36 @@ class DOMTestCase(CodeIntelTestCase):
              ("function", "getPropertyCSSValue"),
              ("function", "setProperty")])
 
+class HTMLJavaScriptTestCase(CodeIntelTestCase):
+    lang = "HTML"
+
+    @tag("bug92394")
+    def test_inside_html(self):
+        content, positions = unmark_text(dedent("""\
+            <html>
+            <head>
+                <script type="application/x-javascript" src="bar.js" />
+                <script type="application/x-javascript">
+                    document.<1>getElementById(<2>).<3>;
+                </script>
+            </head>
+            <body>
+            </html>
+        """))
+
+        self.assertCompletionsInclude(
+                markup_text(content, pos=positions[1]),
+                [("function", "getElementById")])
+        self.assertCalltipIs(
+                markup_text(content, pos=positions[2]),
+                dedent("""\
+                    getElementById(elementId)
+                    Returns the Element whose ID is given by elementId. If no
+                    such element exists, returns null."""))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[3]),
+                [("variable", "nodeName"),
+                 ("function", "appendChild"),])
+
 class JSDocTestCase(CodeIntelTestCase):
     lang = "JavaScript"
     def test_jsdoc_extends(self):
