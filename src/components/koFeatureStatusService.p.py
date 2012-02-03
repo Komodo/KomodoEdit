@@ -37,6 +37,7 @@
 
 import os
 import sys
+import re
 import types
 import threading
 import Queue
@@ -119,6 +120,8 @@ class KoFeatureStatusService:
                                 self._prefSvc,
                                 PROXY_ALWAYS | PROXY_SYNC)
 
+        self._nodejsInfoEx = components.classes["@activestate.com/koAppInfoEx?app=NodeJS;1"].\
+            createInstance(components.interfaces.koIAppInfoEx)
         self._perlInfoEx = components.classes["@activestate.com/koAppInfoEx?app=Perl;1"].\
             createInstance(components.interfaces.koIAppInfoEx)
         self._phpInfoEx = components.classes["@activestate.com/koAppInfoEx?app=PHP;1"].\
@@ -205,6 +208,13 @@ class KoFeatureStatusService:
                     else:
                         status = "Not Functional"
                         reason = self._lastErrorProxy.getLastErrorMessage()
+                elif featureName == "Node.js Syntax Checking":
+                    if self._haveSufficientNodeJS():
+                        status = "Ready"
+                    else:
+                        status = "Not Functional"
+                        reason = self._lastErrorProxy.getLastErrorMessage()
+                        
                 elif featureName == "PHP Syntax Checking":
                     if self._haveSufficientPHP(minVersion="4.0.5"):
                         status = "Ready"
@@ -381,6 +391,99 @@ class KoFeatureStatusService:
                 return 0
         
         errmsg = "Could not find a suitable Perl installation."
+        self._lastErrorProxy.setLastError(0, errmsg)
+        return 0
+
+    def _isSufficientNodeJS(self, nodejsInfoEx, minVersion=None):
+        """Return true iff the given nodejs installation meets the given
+        criteria.
+            "nodejsInfoEx" is a koNodeJSInfoEx instance loaded with the nodejs
+                installation to check.
+
+        If false is returned, then the last error (see koILastErrorService)
+        is set with a reason why.
+        """
+        installDir = nodejsInfoEx.installationPath
+        exePath = nodejsInfoEx.executablePath
+        log.info("%s: is sufficient nodejs?", installDir)
+
+        if not os.path.exists(exePath):
+            log.info("%s: does not exist", exePath)
+            self._lastErrorProxy.setLastError(0,
+                "NodeJS installation does not exist: \"%s\"" % exePath)
+            return 0
+        else:
+            log.info("%s: exists", exePath)
+
+        if minVersion is not None:
+            try:
+                version = nodejsInfoEx.version
+            except COMException:
+                log.info("%s: couldn't get version", installDir)
+                self._lastErrorProxy.setLastError(0,
+                    "Could not determine NodeJS version: %s. " % installDir)
+                return 0
+            else:
+                if (invocationutils.split_short_ver(version, intify=True)
+                    < invocationutils.split_short_ver(minVersion, intify=True)):
+                    log.info("%s: %s < %s", installDir, version, minVersion)
+                    self._lastErrorProxy.setLastError(0,
+                        "Insufficient NodeJS version (\"%s\" is version %s). "\
+                        "Require at least version %s."\
+                        % (installDir, version, minVersion))
+                    return 0
+                else:
+                    log.info("%s: %s >= %s", installDir, version, minVersion)
+        return 1
+
+    def _haveSufficientNodeJS(self, stopOnFirst=1, minVersion=None):
+        """Return true iff a NodeJS installation meeting the above conditions
+        can be found.
+            "stopOnFirst" is a boolean indicating if the search should stop
+                on the "first" found interpreter. This is because things like
+                syntax checking are just going to use this
+                one anyway. Default is true.
+
+        If false is returned, then the last error (see koILastErrorService)
+        is set with a reason why.
+        """
+        # Try the user's selected nodejs interpreter.
+        nodejsDefaultInterp = self._prefProxy.prefs.getStringPref("nodejsDefaultInterpreter")
+        if nodejsDefaultInterp:
+            log.debug("nodejsDefaultInterp")
+            self._nodejsInfoEx.installationPath =\
+                self._nodejsInfoEx.getInstallationPathFromBinary(nodejsDefaultInterp)
+            log.debug("self._nodejsInfoEx.installationPath=%r",
+                      self._nodejsInfoEx.installationPath)
+            if self._isSufficientNodeJS(self._nodejsInfoEx, minVersion):
+                log.debug("self._isSufficientNodeJS: 1")
+                return 1
+            elif stopOnFirst:
+                log.debug("self._isSufficientNodeJS: 0, stopOnFirst")
+                return 0
+            else:
+                log.debug("self._isSufficientNodeJS: 0")
+        else:
+            log.debug("no nodejsDefaultInterp")
+            
+        # Look on PATH.
+        if sys.platform.startswith('win'):
+            exts = ['.exe']
+        else:
+            exts = None
+        nodejses = which.whichall('node', exts=exts, path=self._userPath)
+        log.debug("no nodejsDefaultInterp")
+        for nodejs in nodejses:
+            self._nodejsInfoEx.installationPath =\
+                self._nodejsInfoEx.getInstallationPathFromBinary(nodejs)
+            log.debug("self._nodejsInfoEx.installationPath=%r",
+                      self._nodejsInfoEx.installationPath)
+            if self._isSufficientNodeJS(self._nodejsInfoEx, minVersion):
+                return 1
+            elif stopOnFirst:
+                return 0
+        
+        errmsg = "Could not find a suitable NodeJS installation."
         self._lastErrorProxy.setLastError(0, errmsg)
         return 0
 

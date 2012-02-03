@@ -55,6 +55,7 @@
 <!ENTITY browserConfiguredBrowser.label "[[&#37;browser]] : Configured browser">
 <!ENTITY clearAll.accesskey "l">
 <!ENTITY clearAll.label "Clear All">
+<!ENTITY configureNodeJS.tooltiptext "Configure Node.js">
 <!ENTITY configurePHP.tooltiptext "Configure PHP">
 <!ENTITY configurePerl.tooltiptext "Configure Perl">
 <!ENTITY configurePython.tooltiptext "Configure Python">
@@ -126,6 +127,7 @@
 
 <!--featureControlPanel.xul-->
 <!ENTITY languageFeatures.label "Language Features">
+<!ENTITY nodejs.label "Node.js">
 <!ENTITY perl.label "Perl">
 <!ENTITY php.label "Php">
 <!ENTITY python.label "Python">

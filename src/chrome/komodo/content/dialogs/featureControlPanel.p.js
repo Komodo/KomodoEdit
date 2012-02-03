@@ -57,6 +57,7 @@ var gFeatureStatusSvc = null;
 
 // all prefs we want to observe
 var gPrefsList = [
+        "nodejsDefaultInterpreter",
         "perlDefaultInterpreter","phpDefaultInterpreter",
         "pythonDefaultInterpreter","rubyDefaultInterpreter",
         "python3DefaultInterpreter",
@@ -113,6 +114,9 @@ FeatureStatusObserver.prototype.observe = function(subject, topic, data)
                                        featureStatus.status,
                                        featureStatus.reason);
             break;
+        case "nodejsDefaultInterpreter":
+            _requestFeatureStatus('Node.js Syntax Checking');
+            break;
         case "perlDefaultInterpreter":
             _requestFeatureStatus('Perl Syntax Checking');
             break;
@@ -144,7 +148,8 @@ function _requestFeatureStatus(featureName)
 
         var dummy = new Object();
         if (featureName == "*") {
-            var allFeatureNames = ["Perl Syntax Checking",
+            var allFeatureNames = ["Node.js Syntax Checking",
+                                   "Perl Syntax Checking",
                                    "PHP Syntax Checking",
                                    "Python Syntax Checking",
                                    "Python3 Syntax Checking",
@@ -191,6 +196,10 @@ function _updateFeatureControlPanel(featureName, status, reason)
 
         var widget = null;
         switch (featureName) {
+        case "Node.js Syntax Checking":
+            status = "Syntax Checking: " + status;
+            widget = gWidgets.nodejsSyntaxCheckingStatus;
+            break;
         case "Perl Syntax Checking":
             status = "Syntax Checking: " + status;
             widget = gWidgets.perlSyntaxCheckingStatus;
@@ -249,6 +258,7 @@ function OnLoad()
     try {
         gWidgets.dialog = document.getElementById("dialog-featurecontrolpanel");
         gWidgets.cancelButton = gWidgets.dialog.getButton("cancel");
+        gWidgets.nodejsSyntaxCheckingStatus = document.getElementById("nodejs-syntax-checking-status");
         gWidgets.perlSyntaxCheckingStatus = document.getElementById("perl-syntax-checking-status");
         gWidgets.phpSyntaxCheckingStatus = document.getElementById("php-syntax-checking-status");
         gWidgets.pythonSyntaxCheckingStatus = document.getElementById("python-syntax-checking-status");

@@ -88,6 +88,25 @@
                         </hbox>
                         <hbox style="background-color: #E7E3DE;"/>
                     </row>
+                    <row id="nodejs-feature-row">
+                        <hbox class="sp-mru-row" align="center" pack="start">
+                            <label value="&nodejs.label;"/>
+                        </hbox>
+                        <hbox class="sp-mru-row" flex="1" align="center" pack="start">
+                            <label id="nodejs-syntax-checking-status"
+                                   value="&sintaxCheckingUnknown.label;"/>
+                            <image id="nodejs-syntax-checking-status-image"
+                                   class="status-pending"
+                                   />
+                            <button class="help-icon button-toolbar-a" style="background-color: transparent;"
+                                    tooltiptext="&helpOnBackgroundSyntaxChecking.tooltiptext;"
+                                    oncommand="LaunchHelp('background_syntax_checking');"/>
+                            <separator flex="1"/>
+                            <button class="configure-icon button-toolbar-a" style="background-color: transparent;"
+                                    tooltiptext="&configureNodeJS.tooltiptext;"
+                                    oncommand="LaunchPrefs('nodejsItem')"/>
+                        </hbox>
+                    </row>
                     <row id="perl-feature-row">
                         <hbox class="sp-mru-row" align="center" pack="start">
                             <label value="&perl.label;"/>
