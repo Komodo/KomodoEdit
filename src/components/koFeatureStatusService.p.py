@@ -517,7 +517,10 @@ class KoFeatureStatusService:
         if minVersion is not None:
             version = rubyInfoEx.version
             try:
-                versionToCompare = map(int, version.split('.'))
+                # At some point Ruby started using a "p" to separate subversion
+                # from patch value, instead of a "."
+                versionToCompare = map(int,
+                                       re.sub("p.*$", "", version).split('.'))
                 minVersionToCompare = map(int, minVersion.split('.'))
             except ValueError:
                 log.warn("couldn't process Ruby version as expected for "
