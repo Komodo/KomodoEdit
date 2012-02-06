@@ -216,6 +216,13 @@
             nextTab = tabbox ? tabbox.selectedTab : null;
           }
 
+          if (nextTab) {
+            // Select the new tab now, so the dying tab knows it's going to lose
+            // its selected state (and clear "beforeselected" correctly).
+            // See bug 92203.
+            tabbox.selectedIndex = tabbox.tabs.getIndexOfItem(nextTab);
+          }
+
           if (widget.tab && widget.tab.parentNode) {
             widget.tab.parentNode.removeChild(widget.tab);
           }
@@ -225,12 +232,12 @@
           }
 
           if (nextTab) {
-            // Select the new tab.  Note that we need to set selectedPanel here
-            // too, because panels go by indicies but tabs don't, meaning if we
-            // removed a lower-numbered panel we would end up showing the wrong
-            // element here.
+            // Select the new tab _again_, now that the old one is gone, so we
+            // don't end up with weird borders if we removed a tab to the left;
+            // bug 92203 again.  Also, need to select the panel manually too
+            // for much the same reason (avoids blank panels).
+            tabbox.selectedIndex = tabbox.tabs.getIndexOfItem(nextTab);
             tabbox.tabpanels.selectedPanel = nextTab.linkedpanel;
-            tabbox.selectedTab = nextTab;
           }
 
           // update the menu listing the widgets
