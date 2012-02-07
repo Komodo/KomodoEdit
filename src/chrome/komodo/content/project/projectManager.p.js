@@ -174,7 +174,7 @@ projectManager.prototype._getOpenURLsInProject = function(project) {
     for (var i = 0; i < docs.length; i++) {
         if (docs[i].koDoc && docs[i].koDoc.file) {
             url = docs[i].koDoc.file.URI;
-            if (project.getChildByURL(url)) {
+            if (project.belongsToProject(url)) {
                 opened.push(url);
             }
         }

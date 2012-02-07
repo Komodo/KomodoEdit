@@ -232,6 +232,12 @@ interface koIProject: koIPart_livefolder {
     // Return NULL if the project contains no such child.
     koIPart getChildByURL(in wstring url);
 
+    // This method is the usual replacement for getChildByURL, where we only
+    // care if a particular file is associated with a specific project,
+    // but not if it's linked in or just lives in the project's base
+    // directory.
+    boolean belongsToProject(in wstring url);
+
     // A registry of contained url-addressable koIParts(where
     // "contained" is of arbitrary depth) is maintained in a koIProject
     // for convenient (and efficient) use of getChildByURL().

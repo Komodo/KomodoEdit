@@ -68,21 +68,14 @@ class KomodoWindowData(object):
 
     def getProjectForURL(self, url):
         for p in self._projects:
-            part = p.getChildByURL(url)
-            if part:
+            if p.belongsToProject(url):
                 return p
         else:
             return None
 
     def getEffectivePrefsForURL(self, url):
-        if not self._currentProject:
-            return None
-        part = self._currentProject.getChildByURL(url)
-        if part:
-            try:
-                return part.prefset
-            except:
-                log.exception("No prefset for part %s", part)
+        if self._currentProject and self._currentProject.belongsToProject(url):
+            return self._currentProject.prefset
         return None
 
     def getPartById(self, id):

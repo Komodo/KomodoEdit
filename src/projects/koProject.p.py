@@ -1792,6 +1792,21 @@ class koProject(koLiveFolderPart):
                               self._name, projPath)
         return None
 
+    def belongsToProject(self, url):
+        try:
+            if self._urlmap.get(url, None):
+                return True
+        except:
+            pass
+            #log.exception("Can't get part for url %s", url)
+        project_dir_url = self.get_importDirectoryURI()
+        if not sys.platform.startswith("linux"):
+            url = url.lower()
+            project_dir_url = project_dir_url.lower()
+            
+        return url == project_dir_url or \
+               url.startswith(self._addTrailingSlash(project_dir_url))
+
     def getChildByURL(self, url):
         try:
             part = self._urlmap.get(url, None)
