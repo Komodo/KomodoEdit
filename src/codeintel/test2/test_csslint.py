@@ -1492,3 +1492,15 @@ body {
 }
 """).decode("utf-8")
         self._check_zero_results_show_error(code, language="Less")
+
+    @tag("bug92561", "knownfailure")
+    def test_less_continued_selectors_with_amp(self):
+        code = dedent("""\
+input {
+    color: red;
+    &[disabled] {
+        color: grey;
+    }
+}
+""").decode("utf-8")
+        self._check_zero_results_show_error(code, language="Less")
