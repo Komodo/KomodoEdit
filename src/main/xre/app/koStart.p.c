@@ -189,12 +189,6 @@
 #    define environ _environ
 #endif
 
-#ifdef __CYGWIN__
-/* On Cygwin, the environment is imported from the Cygwin DLL. */
-     DLLIMPORT extern char **__cygwin_environ;
-#    define environ __cygwin_environ
-#endif /* __CYGWIN__ */
-
 #else /* !WIN32 */
 
 /* Bug: http://bugs.activestate.com/show_bug.cgi?id=39273 
