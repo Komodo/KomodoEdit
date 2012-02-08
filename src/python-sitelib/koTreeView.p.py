@@ -717,8 +717,7 @@ class InvalidationRange(object):
         self.ranges = []
         self.depth = 0 # the number of nested operations
         self.dirty = False
-        if self.log:
-            self.log.debug("starting with %r rows", view.rowCount)
+        self.log_debug("starting with %r rows", view.rowCount)
         self._count = 0 # for debugging: tracks the row count this has seen
         self._broken = False
 
@@ -801,6 +800,9 @@ class InvalidationRange(object):
             return
         # we should merge the two ranges
         dirty_count = self.ranges[index + 1][1] - self.ranges[index + 1][0]
+        if self.ranges[index][2] * self.ranges[index + 1][2] < 0:
+            # convert remove-and-add or add-and-remove to invalidate
+            dirty_count += max(abs(self.ranges[0][2]), abs(self.ranges[1][2]))
         if dirty_count > 0:
             # there's an invalidation, make sure the dirty count covers the
             # start of the first range as well
@@ -821,9 +823,7 @@ class InvalidationRange(object):
                 and end to the same value. To invalidate two rows, set end to be
                 one more than start.
             """
-        if self.log:
-            self.log.debug("invalidate: %r -> %r",
-                           (start, end, debug), self.ranges)
+        self.log_debug("invalidate: %r -> %r", (start, end, debug), self.ranges)
 
         if start is None:
             if end is None:
@@ -898,8 +898,7 @@ class InvalidationRange(object):
             self._maybeMerge(index)
 
         except Exception, e:
-            if self.log:
-                self.log.exception(e)
+            self.log_exception(e)
             # mark this is being broken; the next commit will simply refresh
             # the whole tree and discard all changes.
             self._broken = True
@@ -914,10 +913,11 @@ class InvalidationRange(object):
             """
         if start is None or not count:
             # the element isn't visible, don't do any work
+            self.log_debug("rowCountChanged: ignoring %r because it's invisible",
+                           (start, count, debug))
             return
-        if self.log:
-            self.log.debug("rowCountChanged: %r -> %r",
-                           (start, count, debug), self.ranges)
+        self.log_debug("rowCountChanged: %r -> %r",
+                       (start, count, debug), self.ranges)
         self._count += count # for debugging only, not used
         try:
             self.dirty = True
@@ -944,19 +944,20 @@ class InvalidationRange(object):
                 self._maybeMerge(len(self.ranges) - 2)
 
         except Exception, e:
-            if self.log:
-                self.log.exception(e)
+            self.log_exception(e)
             # mark this is being broken; the next commit will simply refresh
             # the whole tree and discard all changes.
             self._broken = True
+
+        self.log_debug("rowCountChanged: result: %r -> %r",
+                       (start, count, debug), self.ranges)
 
     @_checkState
     def commit(self):
         """Commit the invalidations / row count changes"""
         if self.view.rowCount != self._count:
             # we got into a broken state without detecting it
-            if self.log:
-                self.log.warn("InvalidationRange::commit: Undetected row count mismatch")
+            self.log_warn("InvalidationRange::commit: Undetected row count mismatch")
             self.view._tree.rowCountChanged(0, self.view.rowCount - self._count)
             self._count = self.view.rowCount
             self._broken = True
@@ -970,16 +971,14 @@ class InvalidationRange(object):
         else:
             ranges = self.ranges
             self.ranges = []
-            if self.log:
-                self.log.debug("InvalidationRange::commit: %r", ranges)
+            self.log_debug("InvalidationRange::commit: %r", ranges)
             for range in reversed(ranges):
                 self.view._tree.invalidateRange(range[0], range[1])
                 if range[2] != 0:
                     self.view._tree.rowCountChanged(range[0], range[2])
-            if self.log:
-                self.log.debug("InvalidationRange::committed; view rows %r, "
-                    "invalidater rows %r",
-                    self.view.rowCount, self._count)
+            self.log_debug("InvalidationRange::committed; view rows %r, "
+                           "invalidater rows %r",
+                           self.view.rowCount, self._count)
         if self.view and self.view.selection:
             if self.view.selection.currentIndex >= self.view.rowCount:
                 # okay, the selection is busted. Not sure what's up here,
@@ -990,6 +989,19 @@ class InvalidationRange(object):
     def check(self):
         # the _checkState decorator does the hard work here
         pass
+
+    def log_debug(self, *args, **kwargs):
+        """Wrapper for self.log.debug"""
+        if self.log:
+            self.log.debug(*args, **kwargs)
+    def log_warn(self, *args, **kwargs):
+        """Wrapper for self.log.warn"""
+        if self.log:
+            self.log.warn(*args, **kwargs)
+    def log_exception(self, *args, **kwargs):
+        """Wrapper for self.log.exception"""
+        if self.log:
+            self.log.exception(*args, **kwargs)
 
 class ObjectTreeView(TreeView, ObjectTreeViewItem):
     """A object-oriented tree view implementation, for single-column trees with

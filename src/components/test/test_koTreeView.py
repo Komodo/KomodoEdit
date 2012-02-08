@@ -1,6 +1,7 @@
 import logging
 import unittest
 from koTreeView import *
+from testlib import tag
 
 class View(object):
     def __init__(self, log):
@@ -75,11 +76,11 @@ class InvalidationRangeTestCase(unittest.TestCase):
             #             e, g
             rowCountChanged(invalidater, 1, -1)
             self.assertEquals(invalidater.ranges,
-                              [[0, 0, -4], [5, 5, 0]])
+                              [[0, 0, -4], [5, 6, 0]])
             # h,          e, g
             rowCountChanged(invalidater, 0, 1)
             self.assertEquals(invalidater.ranges,
-                              [[0, 0, -3], [5, 5, 0]])
+                              [[0, 4, -3], [5, 6, 0]])
 
     def test_invalidate(self):
         # this one is from actually running komodo
@@ -274,6 +275,29 @@ class InvalidationRangeTestCase(unittest.TestCase):
             invalidater.invalidate(13, 18)
             self.assertEquals(invalidater.ranges,
                               [[10, 21, -10]])
+
+    @tag("bug92682")
+    def test_remove_and_readd(self):
+        """Test that removing and adding rows will invalidate the newly-exposed
+           rows"""
+        invalidater = InvalidationRange(self.view, log=self.log)
+        with invalidater:
+            rowCountChanged(invalidater, 1, -17)
+            self.assertEquals(invalidater.ranges,
+                              [[1, 1, -17]])
+            invalidater.invalidate(1, 2)
+            self.assertEquals(invalidater.ranges,
+                              [[1, 3, -17]])
+            rowCountChanged(invalidater, 2, 18)
+            self.assertEquals(invalidater.ranges,
+                              [[1, 19, 1]])
+        with invalidater:
+            rowCountChanged(invalidater, 1, -17)
+            self.assertEquals(invalidater.ranges,
+                              [[1, 1, -17]])
+            rowCountChanged(invalidater, 1, 17)
+            self.assertEquals(invalidater.ranges,
+                              [[1, 18, 0]])
 
 class ParentIndexTestCase(unittest.TestCase):
     """ Test cases for finding the parent index """
