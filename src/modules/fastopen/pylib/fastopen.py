@@ -637,7 +637,7 @@ class GoGatherer(Gatherer):
                 "python-sitelib"))
             import applib
         if path is None:
-            dir = applib.user_data_dir("Go", "TrentMick")
+            dir = applib.roaming_user_data_dir("Go", "TrentMick")
             path = join(dir, "shortcuts.xml")
         return path
     
