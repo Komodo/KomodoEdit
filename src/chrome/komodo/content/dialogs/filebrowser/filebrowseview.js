@@ -77,6 +77,10 @@ function sortDate(a, b) {
 }
 
 function formatDate(date) {
+  if (date > (4000000000000)) {
+    // Year is greater than 2096 - bug 82484.
+    return "(Unknown date)";
+  }
   var modDate = new Date(date);
     if (!modDate.getFullYear()) return 0;
   return gDateService.FormatDateTime("", gDateService.dateFormatShort,

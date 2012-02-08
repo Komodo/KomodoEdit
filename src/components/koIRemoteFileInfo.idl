@@ -49,7 +49,7 @@ interface koIRemoteFileInfo : nsISupports {
     // - decided to use strings because resolving these issues would only fix
     //   the problem for gid/uid, not for size
     void initFromStats(in wstring dirname, in wstring filename, in wstring size,
-                       in wstring uid, in wstring gid, in long mode, in long mtime);
+                       in wstring uid, in wstring gid, in long mode, in PRUint64 mtime);
     // returns false if initialization fails
     boolean initFromDirectoryListing(in wstring dirname, in wstring line);
 
@@ -78,7 +78,7 @@ interface koIRemoteFileInfo : nsISupports {
     wstring getDirname();
     wstring getLinkTarget();
     wstring getFileSize();
-    long getModifiedTime();
+    PRUint64 getModifiedTime();
     long getTimeRefreshed();
     void getChildren(out unsigned long count, [array, size_is(count), retval] out koIRemoteFileInfo children);
 
@@ -92,6 +92,6 @@ interface koIRemoteFileInfo : nsISupports {
     readonly attribute long mode;
     readonly attribute wstring uid;
     readonly attribute wstring gid;
-    readonly attribute long mtime;
+    readonly attribute PRUint64 mtime;
     attribute wstring encoding;
 };
