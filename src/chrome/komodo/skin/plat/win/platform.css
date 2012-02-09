@@ -92,8 +92,19 @@ menuitem.menuitem-file-status label {
 menuitem.languageicon[type="checkbox"] image {
   /* Make sure the image is visible, otherwise no language icon appears. */
   display: inherit;
+}
+menuitem.languageicon[type="checkbox"] image:not(:-moz-system-metric(windows-classic)) {
+  /* This needs the explicit :not(:windows-classic) to be more specific than
+   * the rules in platform-agnostic komodo.css
+   */
   /* Push the image to the right of the menuitem checkbox. */
-  margin-left: 30px;
+  margin-left: 26px;
   /* Move the label (on the right) closer to the image. */
   margin-right: -7px;
+}
+menuitem.languageicon[type="checkbox"]:-moz-system-metric(windows-classic) {
+  /* On Windows with the classic theme, drop the excessive left margin next to
+   * the checkbox.
+   */
+  margin-left: -10px;
 }
