@@ -165,15 +165,12 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 	isLessDocument = styler.GetPropertyInt("lexer.css.less.language") != 0;
 	isScssDocument = styler.GetPropertyInt("lexer.css.scss.language") != 0;
 
-	/*TODO: When we move to v 225, store some of the substate
-	* fields in the end-state for the line at end.  For now,
-	* we just move back until we're at a zero-level outside folding.
-	*/
 	unsigned int origStartPos = startPos;
-	    int lineCurrent = styler.GetLine(origStartPos);
-	while (lineCurrent >= 0
-	       && (styler.LevelAt(lineCurrent)
-		   & (SC_FOLDLEVELNUMBERMASK & ~SC_FOLDLEVELBASE)) > 0) {
+	int lineCurrent = styler.GetLine(origStartPos);
+	while (lineCurrent > 0
+	       && (styler.GetLineState(lineCurrent) != MAIN_SUBSTATE_TOP_LEVEL
+		   || (styler.LevelAt(lineCurrent)
+		       & (SC_FOLDLEVELNUMBERMASK & ~SC_FOLDLEVELBASE)) > 0)) {
 		lineCurrent -= 1;
 	}
 	startPos = styler.LineStart(lineCurrent);
@@ -194,7 +191,7 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 	StyleContext sc(startPos, finalLength, initStyle, styler);
 
 	// This is now a straightforward state machine, with some
-	    // sub-state tracking apart from the styles.
+	// sub-state tracking apart from the styles.
     
 	for (; sc.More(); sc.Forward()) {
 		int ch = sc.ch;
@@ -420,6 +417,11 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 		case SCE_CSS_SINGLESTRING:
 			if (ch == '\\') {
 				if (sc.Match('\r', '\n')) {
+					if (sc.Match('\n')) {
+						lineCurrent += 1;
+						styler.SetLineState(lineCurrent,
+								    main_substate);
+					}
 					sc.Forward();
 				}
 				sc.Forward();
@@ -428,6 +430,7 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 				   || ch == '\f') {
 				sc.ChangeState(SCE_CSS_STRINGEOL);
 				sc.SetState(SCE_CSS_DEFAULT);
+				// No need to set line state inside a string
 			} else if (ch ==
 				   (sc.state == SCE_CSS_DOUBLESTRING ? '\"' : '\'')) {
 				sc.Forward();
@@ -486,15 +489,23 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 			} else if (comment_substate == COMMENT_SUBSTATE_LINE
 				   && (ch == '\n' || ch == '\r')) {
 				sc.SetState(SCE_CSS_DEFAULT);
+			} else if (ch == '\n') {
+				lineCurrent += 1;
+				styler.SetLineState(lineCurrent, main_substate);
 			}
 			break;
 		}
 
-        // Now figure out where to go next.
+		// Now figure out where to go next.
 		if (sc.state == SCE_CSS_DEFAULT) {
 			// Get all the white space recognized in one spot.
 			if (strchr(" \t\r\n\f", ch)) {
-			    continue;
+				if (ch == '\n') {
+					lineCurrent += 1;
+					styler.SetLineState(lineCurrent,
+							    main_substate);
+				}
+				continue;
 			}
 			switch (sc.ch) {
 			case '!':
@@ -794,6 +805,11 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 	sc.Complete();
 }
 
+static bool isNonNegativeFoldingLevel(int level) {
+	return ((level & SC_FOLDLEVELNUMBERMASK)
+		& ~SC_FOLDLEVELBASE) > 0;
+}
+
 static void FoldCSSDoc(unsigned int startPos, int length, int, WordList *[], Accessor &styler) {
 	bool foldComment = styler.GetPropertyInt("fold.comment") != 0;
 	bool foldCompact = styler.GetPropertyInt("fold.compact", 1) != 0;
@@ -812,14 +828,17 @@ static void FoldCSSDoc(unsigned int startPos, int length, int, WordList *[], Acc
 		if (foldComment) {
 			if (!inComment && (style == SCE_CSS_COMMENT))
 				levelCurrent++;
-			else if (inComment && (style != SCE_CSS_COMMENT))
+			else if (inComment
+				 && (style != SCE_CSS_COMMENT)
+				 && isNonNegativeFoldingLevel(levelCurrent)) {
 				levelCurrent--;
+			}
 			inComment = (style == SCE_CSS_COMMENT);
 		}
 		if (style == SCE_CSS_OPERATOR) {
 			if (ch == '{') {
 				levelCurrent++;
-			} else if (ch == '}') {
+			} else if (ch == '}' && isNonNegativeFoldingLevel(levelCurrent)) {
 				levelCurrent--;
 			}
 		}
