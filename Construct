@@ -462,6 +462,12 @@ if ($withPlaces) {
     Build(
 	"$build/modules/places/Conscript",
     );
+    # Add the gtkstock icons for Komodo Linux dev builds.
+    if ($platform eq "linux") {
+	Build(
+	    "$build/images/gtkstock/Conscript",
+	);
+    }
 }
 
 if ($platform eq "win") {
