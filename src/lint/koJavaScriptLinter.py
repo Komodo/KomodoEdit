@@ -142,6 +142,8 @@ class CommonJSLinter(object):
 
         # Set the JS linting preferences.
         prefset = getProxiedEffectivePrefsByName(request, 'lintJavaScriptEnableWarnings')
+        if not prefset.getBooleanPref("lintJavaScript_SpiderMonkey"):
+            return
         enableWarnings = prefset.getBooleanPref('lintJavaScriptEnableWarnings')
         if enableWarnings:
             cmd.append("-w")

@@ -128,7 +128,7 @@ class _CommonHTMLLinter(object):
         koDoc = request.koDoc  # koDoc is a proxied object
         koDoc_language = koDoc.language
         jsShouldBeWrapped = koDoc_language == "XBL"
-        jsWrapOneLiners = koDoc_language in ("HTML", "HTML5", "XUL")
+        jsWrapOneLiners = koDoc_language in ("HTML", "HTML5", "XUL", "PHP")
         transitionPoints = koDoc.getLanguageTransitionPoints(0, koDoc.bufferLength)
         languageNamesAtTransitionPoints = [koDoc.languageForPosition(pt)
                                            for pt in transitionPoints[:-2]]
@@ -241,10 +241,21 @@ class _CommonHTMLLinter(object):
                     if thisJSShouldBeWrapped:
                         bytesByLang[name].append(" })();")
                     bytesByLang[name].append(subparts[2])
+                    if squelching:
+                        # We're writing out some JS in an EJS tag, for example
+                        # We don't want to insert a "0" when we hit the %> EJS end-tag
+                        firstInsertedReplacement = True
                 elif (name == langName
                     or ((name.startswith("HTML") or name == "XML")
                         and langName in htmlAllowedNames)):
                     bytesByLang[name].append(currText)
+                elif (squelching
+                      and name == "JavaScript"
+                      and langName == squelchTPLPatterns[0]
+                      and prevSegmentLangName == "JavaScript"
+                      and not firstInsertedReplacement):
+                    bytesByLang[prevSegmentLangName].append("0" + squelchedText[1:])
+                    firstInsertedReplacement = True
                 else:
                     # This includes squelching.
                     bytesByLang[name].append(self._spaceOutNonNewlines(currText))

@@ -37,6 +37,7 @@
 
 from xpcom import components, nsError, COMException
 from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC
+from xpcom.server import UnwrapObject
 from koLintResult import *
 from koLintResults import koLintResults
 import os, sys, re
@@ -69,7 +70,7 @@ class KoPHPCompileLinter:
         self.phpInfoEx = components.classes["@activestate.com/koAppInfoEx?app=PHP;1"].\
                     getService(components.interfaces.koIPHPInfoEx)
         koLintService = components.classes["@activestate.com/koLintService;1"].getService(components.interfaces.koILintService)
-        self._html_linter = koLintService.getLinterForLanguage("HTML")
+        self._html_linter = UnwrapObject(koLintService.getLinterForLanguage("HTML"))
     
     # linting versions are different than what is required for xdebug
     # debugging, so we have our own version checking
@@ -87,8 +88,11 @@ class KoPHPCompileLinter:
                      "linting, need 4.0.5 or later."
             raise COMException(nsError.NS_ERROR_NOT_AVAILABLE, errmsg)
         
+    _tplPatterns = ("PHP", re.compile('<\?(?:php\b|=)?.*', re.IGNORECASE),
+                    re.compile('.*\?>'))
     def lint(self, request):
-        return self._html_linter.lint(request)
+        return self._html_linter.lint(request,
+                                      squelchTPLPatterns=self._tplPatterns)
     
     def lint_with_text(self, request, text):
         """Lint the given PHP content.
