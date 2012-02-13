@@ -40,6 +40,8 @@
 # Authors: 
 #  Eric Promislow <ericp@activestate.com>
 
+family csl
+
 state IN_CSL_DSTRING:
 /<\?(?:php\b|=)?/ : paint(upto, CSL_STRING), paint(include, SSL_OPERATOR), \
 spush_check(IN_CSL_DSTRING) => IN_SSL_DEFAULT
@@ -68,3 +70,12 @@ state IN_CSL_REGEX:
 /<\?(?:php\b|=)?/ : paint(upto, CSL_REGEX), paint(include, SSL_OPERATOR), \
 spush_check(IN_CSL_REGEX) => IN_SSL_DEFAULT
 
+# Handle PHP expressions inside on* handlers
+
+state IN_CSL_STAG_ATTR_DEFAULT_DOUBLEQUOTE:
+/<\?(?:php\b|=)?/ : paint(upto, CSL_DEFAULT), paint(include, SSL_OPERATOR), \
+spush_check(IN_CSL_STAG_ATTR_DEFAULT_DOUBLEQUOTE) => IN_SSL_DEFAULT
+
+state IN_CSL_STAG_ATTR_DEFAULT_SINGLEQUOTE:
+/<\?(?:php\b|=)?/ : paint(upto, CSL_DEFAULT), paint(include, SSL_OPERATOR), \
+spush_check(IN_CSL_STAG_ATTR_DEFAULT_SINGLEQUOTE) => IN_SSL_DEFAULT
