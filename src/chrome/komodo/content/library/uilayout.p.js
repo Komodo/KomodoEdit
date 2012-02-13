@@ -222,6 +222,16 @@ this.customizeToolbars = function uilayout_customizeToolbars(aToolbox) {
         }
     }).bind(this);
 
+    // set up drag-and-drop states
+    var toolboxrow = toolbox.querySelector("toolboxrow");
+    if (toolboxrow) {
+        Array.slice(toolboxrow.childNodes).forEach(function(elem) {
+            if ((elem instanceof Element) && elem.localName == "toolbar") {
+                elem.setAttribute("can-drag", "true");
+            }
+        });
+    }
+
     const DIALOG_URL = "chrome://komodo/content/dialogs/customizeToolbar.xul";
     var sheet = document.getElementById("customizeToolbarSheetPopup");
     var useSheet = false, dialog = null;

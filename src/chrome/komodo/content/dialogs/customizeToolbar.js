@@ -48,6 +48,7 @@ window.addEventListener("load", function() {
      * @note    This constructs a nsITreeView via xtk.hierarchicalTreeView
      */
     function ToolboxTreeView(toolbox) {
+        this._toolbox = toolbox;
         var toolbars = Array.slice(toolbox.childNodes)
                             .concat(toolbox.externalToolbars)
                             .filter(function(elem) elem instanceof Element &&
@@ -59,6 +60,28 @@ window.addEventListener("load", function() {
         this.wrappedJSObject = this;
         this._toolbars = toolbars.map(function(t) new Toolbar(t));
         xtk.hierarchicalTreeView.call(this, this._toolbars);
+
+        // set up ordinals for reordering support
+        var container = toolbox.querySelector("toolboxrow") || toolbox;
+        var elems = toolbars.filter(function(n) n.parentNode === container)
+                            .filter(function(n) n.hasAttribute("can-drag"))
+                            .sort(sortComparator);
+        var ordinal = 0;
+        for (var i = 0; i < elems.length; ++i) {
+            var elem = elems[i];
+            if (elem.hasAttribute("ordinal")) {
+                var thisOrdinal = parseInt(elem.getAttribute("ordinal", 10));
+                if (thisOrdinal <= ordinal) {
+                    // ordinal overlap
+                    elem.setAttribute("ordinal", ordinal);
+                } else {
+                    ordinal = parseInt(elem.getAttribute("ordinal", 10));
+                }
+            } else {
+                elem.setAttribute("ordinal", ordinal);
+            }
+            ++ordinal;
+        }
     }
     ToolboxTreeView.prototype = new xtk.hierarchicalTreeView();
     ToolboxTreeView.prototype.constructor = ToolboxTreeView;
@@ -186,6 +209,86 @@ window.addEventListener("load", function() {
         this.tree.element.dispatchEvent(event);
     };
 
+    ToolboxTreeView.prototype.canDrop = function(index, orientation, dataTransfer) {
+        switch (orientation) {
+            case Ci.nsITreeView.DROP_AFTER:
+                ++index;
+                // fallthrough
+            case Ci.nsITreeView.DROP_BEFORE:
+                break;
+            default:
+                return false;
+        }
+        if (dataTransfer.mozItemCount != 1) {
+            return false;
+        }
+        var source = dataTransfer.mozGetDataAt("komodo/toolbar-customize-tree", 0);
+        if (!source) {
+            return false;
+        }
+
+        var target = this._rows[index];
+        if (!(target instanceof Toolbar)) {
+            // not a toolbar
+            return false;
+        }
+
+        if (source === target) {
+            // dropping next to (before) the source; no point
+            return false;
+        }
+        if (index > 0 && this._rows[index - 1] === source) {
+            // dropping next to (after) the source; no point
+            return false;
+        }
+        return target;
+    };
+
+    ToolboxTreeView.prototype.drop = function(rowIndex, orientation, dataTransfer) {
+        var target = this.canDrop(rowIndex, orientation, dataTransfer);
+        if (!target) {
+            return;
+        }
+        var source = dataTransfer.mozGetDataAt("komodo/toolbar-customize-tree", 0);
+
+        var dropIndex = this._rows.indexOf(target);
+        var start = this._rows.indexOf(source);
+        var end = start + 1;
+        while (end in this._rows && this._rows[end].level > source.level) {
+            ++end;
+        }
+        var cut = this._rows.splice(start, end - start);
+        if (start < dropIndex) {
+            dropIndex -= (end - start);
+        }
+        this._rows.splice.apply(this._rows, [dropIndex, 0].concat(cut));
+        this.tree.invalidate();
+
+        // fix the ordinals
+        var ordinal = -1;
+        var level = target.level;
+        source.elem.setAttribute("ordinal", ordinal);
+        for (var index = 0; index < this._rows.length; ++index) {
+            var row = this._rows[index];
+            if (row.level != target.level) {
+                continue;
+            }
+            if (!row.elem.hasAttribute("can-drag")) {
+                continue;
+            }
+            var elem = row.elem;
+            var stored = parseInt(elem.getAttribute("ordinal") || 1, 10);
+            if (stored > ordinal) {
+                ordinal = stored;
+            } else {
+                elem.setAttribute("ordinal", ++ordinal);
+                if (elem.id) {
+                    elem.ownerDocument.persist(elem.id, "ordinal");
+                }
+            }
+        }
+    };
+
     XPCOMUtils.defineLazyGetter(ToolboxTreeView.prototype, "_atomSvc",
         function() Cc["@mozilla.org/atom-service;1"].getService(Ci.nsIAtomService));
 
@@ -209,7 +312,9 @@ window.addEventListener("load", function() {
      */
     function ToolbarItem(item) {
         this.elem = item;
-        this.original = this.elem.getAttribute("kohidden");
+        this.original = {"hidden": this.elem.getAttribute("kohidden"),
+                         "ordinal": this.elem.hasAttribute("ordinal") ?
+                                        this.elem.getAttribute("ordinal") : null};
         this._id = this.elem.id;
     }
     ToolbarItem.prototype.isContainer = false;
@@ -236,7 +341,9 @@ window.addEventListener("load", function() {
             this.children = [];
         }
         this.elem = toolbar;
-        this.original = this.elem.getAttribute("kohidden");
+        this.original = {"hidden": this.elem.getAttribute("kohidden"),
+                         "ordinal": this.elem.hasAttribute("ordinal") ?
+                                        this.elem.getAttribute("ordinal") : null};
         this._id = this.elem.id;
     }
     Toolbar.prototype.isContainer = true;
@@ -263,6 +370,19 @@ window.addEventListener("load", function() {
             view.cycleCell(tree.currentIndex, col);
             tree.boxObject.invalidate();
         }
+    }, false);
+
+    tree.addEventListener("dragstart", function(event) {
+        if (!view.selection.single || !view.selection.getRangeCount()) {
+            return;
+        }
+        var item =  view._rows[view.selection.currentIndex];
+        if (!(item instanceof Toolbar) || !item.elem.hasAttribute("can-drag")) {
+            return;
+        }
+        event.dataTransfer.mozSetDataAt("komodo/toolbar-customize-tree",
+                                        view._rows[view.selection.currentIndex],
+                                        0);
     }, false);
 
     // Fix up buttons for instant apply
@@ -310,7 +430,12 @@ function onCustomizeToolbarFinished(aAccept) {
     for each (var obj in objs) {
         if ("elem" in obj && "original" in obj) {
             if (!aAccept) {
-                obj.elem.setAttribute("kohidden", obj.original);
+                obj.elem.setAttribute("kohidden", obj.original.hidden);
+                if (obj.original.ordinal === null) {
+                    obj.elem.removeAttribute("ordinal");
+                } else {
+                    obj.elem.setAttribute("ordinal", obj.original.ordinal);
+                }
             }
             obj.elem.ownerDocument.persist(obj.elem.id, "kohidden");
         }
@@ -327,6 +452,11 @@ function onCustomizeToolbarFinished(aAccept) {
             toolbar.elem.setAttribute("kohidden", "true");
         }
     }
+    // Force reflow :| (This works around problems where many elements without
+    // ordinal= can be in an unexpected order.)
+    view._toolbox.style.direction = "rtl";
+    view._toolbox.boxObject.height;
+    view._toolbox.style.direction = "";
 
     // Call the customization complete callback
     // This needs to be fired from here because if the caller just listened to
