@@ -54,6 +54,7 @@
   <?define WithCasper = "PP_MSI_AVEC_CASPER" ?> <!-- yes|no -->
   <?define WithJSLib = "PP_MSI_AVEC_JSLIB" ?> <!-- yes|no -->
   <?define WithPlaces = "PP_MSI_AVEC_PLACES" ?> <!-- yes|no -->
+  <?define WithStackato = "PP_MSI_AVEC_STACKATO" ?> <!-- yes|no -->
   <?define WithWatchdogFSNotifications = "PP_MSI_AVEC_WATCHDOG_FS_NOTIFICATIONS" ?> <!-- yes|no -->
 
   <!-- Basic configuration data -->

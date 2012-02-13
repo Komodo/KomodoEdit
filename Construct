@@ -65,6 +65,7 @@ my @toExport = (
     'withDocs', 'withDocJarring',
     'withKomodoCix',
     'withPlaces',
+    'withStackato',
     'xulrunner', # xulrunner based builds
     'xulrunnerBuildId',
     'universal', # universal binary builds for osx
@@ -468,6 +469,12 @@ if ($withPlaces) {
 	    "$build/images/gtkstock/Conscript",
 	);
     }
+}
+
+if ($withStackato) {
+    Build(
+	"$build/modules/stackato/Conscript",
+    );
 }
 
 if ($platform eq "win") {

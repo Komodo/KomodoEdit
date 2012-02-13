@@ -1,0 +1,686 @@
+<?xml version="1.0"?>
+<!DOCTYPE window SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % stackatoDTD SYSTEM "chrome://stackatotools/locale/stackato.dtd">
+  %stackatoDTD;
+  <!ENTITY % komodoDTD SYSTEM "chrome://komodo/locale/komodo.dtd">
+  %komodoDTD;
+]>
+
+<!-- Copyright (c) 2011 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/komodo.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/autocomplete.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/listbox.css" type="text/css"?>
+<?xml-stylesheet href="chrome://stackatotools/skin/stackato.css" type="text/css"?>
+
+<?xml-stylesheet href="chrome://komodo/skin/bindings/views.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/scrolltabs.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/platform.css" type="text/css"?>
+
+<!--For the terminal-output-window tab-->
+<?xul-overlay href="chrome://komodo/content/bindings/scintilla-overlay.xul"?>
+
+<window id="komodo_stackato_interface"
+        title="&stackatoInterface;"
+        xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+        xmlns:nc="http://home.netscape.com/NC-rdf#"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        windowtype="komodo_stackato_interface"
+        orient="vertical"
+        onload="ko.stackato.onLoad();"
+        onunload="ko.stackato.onUnload();"
+        height="600"
+        width="900"
+        persist="screenX screenY width height">
+
+    <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://xtk/content/treeview.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/dialogs.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/windowManager.js" type="application/x-javascript;version=1.7"/>
+    <!-- Scintilla overlay - required files. -->
+    <script src="chrome://komodo/content/library/timers.js"       type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/stringutils.js"  type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/commands.js"     type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/dragdrop.js"     type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/markers.js"              type="application/x-javascript;version=1.7"/>
+    
+    <script src="chrome://stackatotools/content/stackato.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://stackatotools/content/stackatoTrees.js" type="application/x-javascript;version=1.7"/>
+
+  <!-- Commands -->
+    <commandset id="stackato_commandset">
+        <command id="cmd_stackato_doSomething"
+                 key="key_cmd_stackato_doSomething"
+                 oncommand="ko.stackato.doSomething();"
+                 desc="ko.stackato.doSomething.desc;"/>
+
+      <!-- Toolbox contextual menu's -->
+
+      <!-- Contextual menu's -->
+    </commandset>
+
+<!-- Keep the menu around for Mac's, otherwise it looks wierd. -->
+<!-- #if PLATFORM == "darwin" -->
+  <!-- Menu -->
+<!-- #endif -->
+
+    <toolbox id="stackato_toolbox" >
+    </toolbox>
+
+  <!-- Window layout -->
+    <vbox id="stackato_vbox" flex="1" class="autoscroll" >
+        <hbox id="hbox_target" flex="0" >
+            <caption id="target_label" class="target-label"
+                     label="&targetColon.label;" control="change_target_button" />
+            <menulist id="target_textbox" flex="1" editable="true"
+                      onkeyup="ko.stackato.checkUpdateTarget(event, this);"
+                      oncommand="ko.stackato.updateTarget();">
+              <menupopup id="target_textbox_menupopup">
+              </menupopup>
+            </menulist>
+            <button id="change_target_button" label="&changeTarget.label;"
+                    oncommand="ko.stackato.updateTarget();" />
+        </hbox>
+        <!--<separator id="post_target_separator" />-->
+        <hbox id="user_logged_in" hidden="true">
+            <caption id="user1_label" class="user-label"
+                     label="&userColon.label;" control="change_user1_button" />
+            <textbox class="stackatoUserTextBox" id="user1_textbox" readonly="true" value="" />
+            <button id="change_user1_button" label="&logout.label;" oncommand="ko.stackato.logout();" />
+        </hbox>
+        <hbox id="user_logged_out" hidden="true">
+            <caption id="user2_label" class="user-label"
+                     label="&userColon.label;" control="change_user2_button" />
+            <textbox class="stackatoUserTextBox" id="user2_textbox" onkeyup="ko.stackato.checkLogin()"
+                     type="autocomplete"
+                     autocompletesearch="mru"
+                     autocompletepopup="popupTextboxAutoComplete"
+                     autocompletesearchparam="stackato-usernameMru"
+                     enablehistory="true"
+                     completeselectedindex="true"
+                     />
+            <textbox class="stackatoUserTextBox" id="user2_password" type="password" onkeyup="ko.stackato.checkLogin()"/>
+            <button id="change_user2_button" label="&login.label;" oncommand="ko.stackato.login();" />
+            <checkbox id="login_show_password" label="&showPassword.label;" checked="false"
+                          oncommand="ko.stackato.toggleShowPassword(this, 'user2_password');" />
+        </hbox>
+        <hbox id="hbox_toggle_deck_panel">
+          <button id="showTargetInfo"
+                  label="&showTargetInfo.label;"
+                  oncommand="ko.stackato.showTargetInfo();" />
+          <button id="showRuntimes"
+                  label="&showRuntimes.label;"
+                  oncommand="ko.stackato.showRuntimes();" />
+          <button id="showFrameworks"
+                  label="&showFrameworks.label;"
+                  oncommand="ko.stackato.showFrameworks();" />
+          <button id="showServices"
+                  label="&showServices.label;"
+                  oncommand="ko.stackato.showServices();" />
+           <button id="showStackatoWebSite"
+                  label="&stackatoHomePage.label;"
+                  oncommand="ko.stackato.visitStackatoHomePage();" />
+           <button id="showStackatoHelpPage"
+                  label="&stackatoHelpPage.label;"
+                  oncommand="ko.stackato.visitStackatoHelpPage();" />
+          <spacer flex="1"/>
+        </hbox>
+          
+        <deck id="stackato_deck" selectedIndex="0" flex="1">
+          <!-- Clever/lazy hack warning: the static info is still stored in
+               trees in the second page of this deck, but there's nothing
+               in the UI that makes the second page available.
+          -->
+            <vbox id="deck_specific_info">
+              <vbox id="vbox_applications" class="stackato_vbox_part" flex="2">
+                  <hbox id="hbox_applications_caption" class="stackato_header">
+                      <image id="applications_button" class="applications_button" />
+                      <separator />
+                      <label id="applications_label" class="stackato_section_header" value="&applications.label;" />
+                      <button id="maintree_refresh" label="&refresh.label;"
+                                oncommand="ko.stackato.application_refresh();" />
+                      <checkbox id="maintree_show_env" label="&showEnvironment.label;" checked="false" 
+                                oncommand="ko.stackato.toggleShowEnvironment(this);" />
+                      <separator />
+                      <toolbar id="stackato_apps_toolbar"
+                               flex="0"
+                               align="stretch"
+                               persist="hidden collapsed mode"
+                               grippyhidden="true"
+                               mode="icons" >
+                        <!-- These items inherit from menu nodes under mainTreeContextMenu,
+                        updated by ko.stackato.finishBuildingToolbar
+                        -->
+                        <toolbarbutton id="stb_update"
+                                       class="stackato_toolbar_icon"
+                                       tooltiptext="&updateTheApp.tooltiptext;"
+                                       inheritFrom="mtcm_update"
+                                       disabled="true"
+                                       />
+                        <toolbarbutton id="stb_restart"
+                                       class="stackato_toolbar_icon"
+                                       tooltiptext="&restartTheApp.tooltiptext;"
+                                       inheritFrom="mtcm_restart"
+                                       disabled="true"
+                                       />
+                        <toolbarbutton id="stb_start"
+                                       class="stackato_toolbar_icon"
+                                       tooltiptext="&startTheApp.tooltiptext;"
+                                       inheritFrom="mtcm_start"
+                                       disabled="true"
+                                       />
+                        <toolbarbutton id="stb_stop"
+                                       class="stackato_toolbar_icon"
+                                       tooltiptext="&stopTheApp.tooltiptext;"
+                                       inheritFrom="mtcm_stop"
+                                       disabled="true"
+                                       />
+                        <toolbarbutton id="stb_rename"
+                                       class="stackato_toolbar_icon"
+                                       tooltiptext="&renameTheApp.tooltiptext;"
+                                       inheritFrom="mtcm_rename"
+                                       disabled="true"
+                                       />
+                        <toolbarbutton id="stb_delete"
+                                       class="stackato_toolbar_icon"
+                                       tooltiptext="&deleteTheApp.tooltiptext;"
+                                       inheritFrom="mtcm_delete"
+                                       disabled="true"
+                                       />
+                        <toolbarbutton id="stb_add"
+                                       class="stackato_toolbar_icon"
+                                       tooltiptext="&newApp.tooltiptext;"
+                                       inheritFrom="mtcm_add"
+                                       disabled="true"
+                                       disabled_tooltiptext="&notLoggedIn.tooltiptext;"
+                                       />
+                          </toolbar>
+                      <spring id="applications_caption_spring" flex="1" />
+                  </hbox>
+                  <tree id="mainTree"
+                        flex="2"
+                        enableColumnDrag="true"
+                        onselect="return ko.stackato.mainTree_OnSelect();"
+                        ondblclick="ko.stackato.mainTree_onDoubleClick(event);"
+                        onkeypress="ko.stackato.mainTree_onKeyPress(event);"
+                        context="mainTreeContextMenu"
+                        persist="height"
+                        hidecolumnpicker="true"
+                        style="margin: 2px">
+                        <!--context="stackato_popupset"-->
+                      <treecols id="stackato_mainTree_treecols">
+                          <treecol id="name"
+                                   label="&projectPanelName.label;"
+                                   primary="true"
+                                   flex="1"
+                                   crop="right"
+                                   persist="width ordinal hidden"/>
+                          <splitter class="tree-splitter"/>
+                          <treecol id="health"
+                                   label="&health.label;"
+                                   flex="1"
+                                   crop="right"
+                                   persist="width ordinal hidden"/>
+                          <splitter class="tree-splitter"/>
+                          <treecol id="num_instances"
+                                   label="&numInstances.label;"
+                                   tooltiptext="&numInstances.tooltiptext;"
+                                   flex="1"
+                                   persist="width ordinal"/>
+                          <splitter class="tree-splitter"/>
+                          <treecol id="serviceName"
+                                   label="&serviceName.label;"
+                                   flex="1"
+                                   crop="right"
+                                   persist="width ordinal"/>
+                          <splitter class="tree-splitter"/>
+                          <treecol id="url"
+                                   label="&URL.label;"
+                                   flex="1"
+                                   crop="right"
+                                   persist="width ordinal"/>
+                          <splitter class="tree-splitter"
+                                    id="post_url"
+                                    hidden="true"/>
+                          <!-- View environment variables -->
+                          <treecol id="env_name"
+                                   label="&envVarName.label;"
+                                   flex="1"
+                                   crop="right"
+                                   persist="width ordinal"
+                                   hidden="true"/>
+                          <splitter class="tree-splitter"
+                                    id="post_env_name"
+                                    hidden="true"/>
+                          <treecol id="env_value"
+                                   label="&envVarValue.label;"
+                                   flex="1"
+                                   crop="right"
+                                   persist="width ordinal"
+                                   hidden="true"/>
+                      </treecols>
+                      <!-- Tree children are dynamically generated, we use our own custom tree view -->
+                      <treechildren id="mainTree_treechildren" flex="1"/>
+                  </tree>
+              </vbox>
+              <splitter id="post_applications_splitter"
+                        orient="vertical"
+                        class="section_splitter"
+                        resizeafter="farthest"
+                        ondblclick="ko.stackato.onDblClickPostApplicationsSplitter()"
+                        collapse="none">
+                <hbox id="hbox_provisioned_services_caption"
+                      flex="1"
+                      class="stackato_header" label="&provisionedServices.label;" >
+                  <image id="provisioned_services_button"  class="provisioned_services_button"/>
+                  <separator />
+                  <label id="provisioned_services_label" class="stackato_section_header" value="&provisionedServices.label;" />
+                  <spring id="provisioned_services_caption_spring" flex="1"/>
+                  <toolbarbutton id="toggleProvisionedServicesButton"
+                                 buttonstyle="pictures"
+                                 class="splitter_toggle_button"
+                                 oncommand="ko.stackato.toggleProvisionedServices(this, true)"
+                                 persist="state"
+                                 state="open" />
+                </hbox>
+              </splitter>
+              <!--<separator id="post_mainTree_separator" />-->
+              <vbox id="vbox_provisioned_services" class="stackato_vbox_part" flex="1" >
+                  <tree id="servicesProvisionedTree"
+                        flex="2"
+                        enableColumnDrag="true"
+                        persist="height"
+                        hidecolumnpicker="true"
+                        context="provisionedServicesTreeContextMenu"
+                        style="margin: 0px">
+                      <treecols id="servicesProvisionedTree_treecols">
+                          <treecol id="servicesProvisionedTree_name"
+                                   label="&projectPanelName.label;"
+                                   flex="1"
+                                   crop="right"
+                                   persist="width ordinal"/>
+                          <splitter class="tree-splitter" id="post_servicesProvisionedTree_name"/>
+                          <treecol id="servicesProvisionedTree_type"
+                                   label="&type.label;"
+                                   flex="1"
+                                   crop="right"
+                                   persist="width ordinal"/>
+                          <splitter class="tree-splitter" id="post_servicesProvisionedTree_type"/>
+                          <treecol id="servicesProvisionedTree_version"
+                                   label="&version.label;"
+                                   flex="1"
+                                   crop="right"
+                                   persist="width ordinal"/>
+                      </treecols>
+                      <treechildren id="servicesProvisionedTree_treechildren" flex="1"/>
+                  </tree>
+              </vbox>
+              <splitter id="post_provisionedServices_splitter"
+                        orient="vertical"
+                        resizeafter="farthest"
+                        class="section_splitter"
+                        ondblclick="ko.stackato.onDblClickPostProvisionedServicesSplitter()"
+                        collapse="none">
+                <hbox id="hbox_output_view_caption" align="start" flex="1">
+                  <image id="output_view_button" class="output_view_button" />
+                  <separator />
+                  <label id="provisioned_services_label"
+                         class="stackato_section_header"
+                         value="&stackatoOutputWindow.label;" />
+                  <spring id="output_window_spring" flex="1"/>
+                  <toolbarbutton id="toggleOutputWindowButton"
+                                 buttonstyle="pictures"
+                                 oncommand="ko.stackato.toggleOutputView(this, true)"
+                                 class="splitter_toggle_button"
+                                 persist="state"
+                                 state="open" />
+                </hbox>
+              </splitter>
+              <view id="stackato_output_view"
+                  type="terminal"
+                  flex="1" />
+            </vbox>
+            <vbox id="deck_global_info">
+        <vbox id="vbox_system_services" class="stackato_vbox_part" flex="1" >
+            <hbox id="hbox_system_services_caption" class="stackato_header" label="&systemServices.label;" >
+                <image id="system_services_button" class="system_services_button" />
+                <label id="system_services_label" class="stackato_section_header" value="&systemServices.label;"/>
+                <spring id="system_services_caption_spring" flex="1"/>
+            </hbox>
+            <tree id="servicesSystemTree"
+                  flex="2"
+                  enableColumnDrag="true"
+                  context="servicesSystemTreeContextMenu"
+                  persist="height"
+                  hidecolumnpicker="true"
+                  style="margin: 0px">
+                <treecols id="servicesSystemTree_treecols">
+                    <treecol id="servicesSystemTree_name"
+                             label="&projectPanelName.label;"
+                             flex="1"
+                             crop="right"
+                             persist="width ordinal"/>
+                    <splitter class="tree-splitter" id="post_servicesSystemTree_name"/>
+                    <treecol id="servicesSystemTree_type"
+                             label="&type.label;"
+                             flex="1"
+                             crop="right"
+                             persist="width ordinal"/>
+                    <splitter class="tree-splitter" id="post_servicesSystemTree_type"/>
+                    <treecol id="servicesSystemTree_version"
+                             label="&version.label;"
+                             flex="1"
+                             crop="right"
+                             persist="width ordinal"/>
+                    <splitter class="tree-splitter" id="post_servicesSystemTree_version"/>
+                    <treecol id="servicesSystemTree_description"
+                             label="&description.label;"
+                             flex="1"
+                             crop="right"
+                             persist="width ordinal"/>
+                </treecols>
+                <treechildren id="servicesSystemTree_treechildren" flex="1"/>
+            </tree>
+            <!-- }}} -->
+        </vbox>
+        <splitter id="post_system_services_splitter"
+                        orient="vertical"
+                        class="section_splitter"
+                        resizeafter="farthest"
+                        ondblclick="ko.stackato.onDblClickPostSystemServicesSplitter()"
+                        collapse="none">
+            <hbox id="hbox_frameworks_runtimes_caption" class="stackato_header"
+                  align="start" flex="1" >
+                <image id="frameworks_runtimes_button" class="frameworks_runtimes_button" />
+                  <separator />
+                <label id="frameworks_runtimes_label" class="stackato_section_header" value="&frameworksAndRuntimes.label;" />
+                <spring id="frameworks_runtimes_caption_spring" flex="1" />
+                  <toolbarbutton id="toggleFrameworksAndRuntimesButton"
+                                 buttonstyle="pictures"
+                                 class="splitter_toggle_button"
+                                 oncommand="ko.stackato.toggleFrameworksAndRuntimes(this, true)"
+                                 persist="state"
+                                 state="open" />
+            </hbox>
+        </splitter>
+        <hbox id="frameworks_runtimes_hbox" flex="1">
+          <vbox id="vbox_frameworks_runtimes" class="stackato_vbox_part" flex="1" >
+            <hbox id="hbox_frameworks_runtimes" flex="1">
+              <vbox id="vbox_frameworks" flex="1">
+                <label id="frameworks_label" class="stackato_section_header" value="&frameworks.label;" />
+                <tree id="frameworksTree"
+                      flex="1"
+                      enableColumnDrag="true"
+                      context="frameworksTreeContextMenu"
+                      persist="height"
+                      hidecolumnpicker="true"
+                      style="margin: 0px">
+                    <treecols id="frameworksTree_treecols">
+                        <treecol id="frameworksTree_name"
+                                 label="&projectPanelName.label;"
+                                 flex="1"
+                                 crop="right"
+                                 persist="width ordinal"/>
+                    </treecols>
+                    <treechildren id="frameworksTree_treechildren" flex="1"/>
+                </tree>
+              </vbox>
+              <vbox id="vbox_runtimes" flex="1">
+                <label id="runtimes_label" class="stackato_section_header" value="&runtimes.label;" />
+                <tree id="runtimesTree"
+                      flex="1"
+                      enableColumnDrag="true"
+                      context="runtimesTreeContextMenu"
+                      persist="height"
+                      hidecolumnpicker="true"
+                      style="margin: 0px">
+                    <treecols id="runtimesTree_treecols">
+                        <treecol id="runtimesTree_name"
+                                 label="&projectPanelName.label;"
+                                 flex="1"
+                                 crop="right"
+                                 persist="width ordinal"/>
+                        <splitter class="tree-splitter" id="post_runtimesTree_name"/>
+                        <treecol id="runtimesTree_description"
+                                 label="&description.label;"
+                                 flex="1"
+                                 crop="right"
+                                 persist="width ordinal"/>
+                        <splitter class="tree-splitter" id="post_runtimesTree_description"/>
+                        <treecol id="runtimesTree_version"
+                                 label="&version.label;"
+                                 flex="1"
+                                 crop="right"
+                                 persist="width ordinal"/>
+                    </treecols>
+                    <treechildren id="runtimesTree_treechildren" flex="1"/>
+                </tree>
+              </vbox>
+            </hbox>
+        </vbox>
+        </hbox>
+        
+        <splitter id="post_frameworks_runtimes_splitter"
+                        orient="vertical"
+                        class="section_splitter"
+                        resizeafter="farthest"
+                        ondblclick="ko.stackato.onDblClickPostFrameworksRuntimesSplitter()"
+                        collapse="none">
+            <hbox id="hbox_targets_caption" class="stackato_header"
+                  align="start" flex="1" >
+                <image id="targets_button" class="targets_button" />
+                <label id="targets_label" class="stackato_section_header" value="&targets.label;" />
+                <spring id="targets_caption_spring" flex="1" />
+                  <toolbarbutton id="toggleTargetsButton"
+                                 buttonstyle="pictures"
+                                 class="splitter_toggle_button"
+                                 oncommand="ko.stackato.toggleTargets(this, true)"
+                                 persist="state"
+                                 state="open" />
+            </hbox>
+        </splitter>
+        <vbox id="vbox_targets" class="stackato_vbox_part" flex="1">
+            <tree id="targetsTree"
+                  flex="1"
+                  enableColumnDrag="true"
+                  context="targetsTreeContextMenu"
+                  persist="height"
+                  hidecolumnpicker="true"
+                  style="margin: 0px">
+                <treecols id="targetsTree_treecols">
+                    <treecol id="targetsTree_target"
+                             label="&target.label;"
+                             flex="1"
+                             crop="right"
+                             persist="width ordinal"/>
+                    <splitter class="tree-splitter" id="post_targetsTree_target"/>
+                    <treecol id="targetsTree_authorization"
+                             label="&authorization.label;"
+                             flex="1"
+                             crop="right"
+                             persist="width ordinal"/>
+                </treecols>
+                <treechildren id="targetsTree_treechildren" flex="1"/>
+            </tree>
+          </vbox>
+        </vbox>
+        </deck>
+    </vbox>
+
+    <popupset id="stackato_popupset">
+      <menupopup id="mainTreeContextMenu"
+                 onpopupshowing="return ko.stackato.initMainTreeContextMenu(event, this);" >
+        <menuitem id="mtcm_browseCode"
+                oncommand="ko.stackato.application_browseCode(event)"
+                label="&browseCode.label;"
+                class="menuitem-iconic"
+                disableIf="loggedOut;empty"
+                />
+        <menuitem id="mtcm_update"
+                oncommand="ko.stackato.application_update(event)"
+                label="&update.label;"
+                class="menuitem-iconic"
+                disableIf="loggedOut;empty"
+                />
+        <menuitem id="mtcm_resetDirectory"
+                oncommand="ko.stackato.application_reset_directory(event)"
+                label="&setAppsDirectory.label;"
+                class="menuitem-iconic"
+                disableIf="loggedOut;empty"
+                />
+        <menuitem id="mtcm_restart"
+                oncommand="ko.stackato.application_restart(event)"
+                label="&restart.label;"
+                class="menuitem-iconic"
+                disableUnless="field:health=STARTED"
+                disableIf="loggedOut;empty"
+                />
+        <menuitem id="mtcm_start"
+                oncommand="ko.stackato.application_start(event)"
+                label="&start.label;"
+                class="menuitem-iconic"
+                disableUnless="field:health=STOPPED"
+                disableIf="loggedOut;empty"
+                />
+        <menuitem id="mtcm_stop"
+                oncommand="ko.stackato.application_stop(event)"
+                label="&stop.label;"
+                class="menuitem-iconic"
+                disableIf="loggedOut;empty;field:health=STOPPED"
+                />
+        <menuitem id="mtcm_rename"
+                oncommand="ko.stackato.application_rename(event)"
+                label="&rename.label;"
+                class="menuitem-iconic"
+                disableIf="loggedOut;empty"
+                />
+        <menuitem id="mtcm_delete"
+                oncommand="ko.stackato.application_delete(event)"
+                label="&delete.label;"
+                class="menuitem-iconic"
+                disableIf="loggedOut;empty;hasService"
+                disabled_tooltiptext="Provisioned services must be unbound before an application can be deleted"
+                />
+        <menuitem id="mtcm_add"
+                oncommand="ko.stackato.application_add(event)"
+                label="&addEllipse.label;"
+                class="menuitem-iconic"
+                disableIf="loggedOut"
+                />
+       <menuseparator id="mtcm_separatorUpdate" />
+        <menuitem id="mtcm_mapUrl"
+                oncommand="ko.stackato.application_mapUrl(event)"
+                label="&mapURL.label;"
+                class="menuitem-iconic"
+                disableIf="loggedOut;empty"
+                />
+        <menuitem id="mtcm_unmapUrl"
+                oncommand="ko.stackato.application_unmapUrl(event)"
+                label="&unmapURL.label;"
+                class="menuitem-iconic"
+                disableIf="loggedOut;empty"
+                disableUnless="field:url"
+                />
+        <menuitem id="mtcm_changeInstances"
+                oncommand="ko.stackato.application_changeInstances(event)"
+                label="&changeInstances.label;"
+                class="menuitem-iconic"
+                disableIf="loggedOut;empty"
+                />
+        <menuitem id="mtcm_changeMemory"
+                oncommand="ko.stackato.application_changeMemory(event)"
+                label="&changeMemory.label;"
+                class="menuitem-iconic"
+                disableIf="loggedOut;empty"
+                disableUnless="field:health=STARTED"
+                disabled_tooltiptext="&applicationsMustBeRunningInOrderToChangeTheirMemorySetting.label;"
+                />
+        <menuseparator id="mtcm_separator02" />
+        <menu id="mtcm_bindService"
+                label="&bindProvisionedService.label;"
+                class="menuitem-iconic"
+                disableIf="loggedOut;empty"
+                >
+          <menupopup id="mtcm_bindService_popup"
+                     onpopupshowing="ko.stackato.bindService_show_services(event, this)" />
+        </menu>
+        <menuitem id="mtcm_unbindService"
+                oncommand="ko.stackato.application_unbindService(event)"
+                label="&unbindProvisionedService.label;"
+                class="menuitem-iconic"
+                disableIf="loggedOut;empty"
+                />
+        <menuseparator id="mtcm_separator03" />
+        <menuitem id="mtcm_addEnvVar"
+                label="&addEnvironmentVariable.label;"
+                oncommand="ko.stackato.application_addEnvVar(event)"
+                class="menuitem-iconic"
+                disableIf="loggedOut"
+                hideUnless="showingEnvironmentVariables"
+                />
+        <menuitem id="mtcm_removeEnvVar"
+                oncommand="ko.stackato.application_removeEnvVar(event)"
+                label="&removeEnvironmentVariable.label;"
+                class="menuitem-iconic"
+                disableIf="loggedOut"
+                disableUnless="field:env_name"
+                hideUnless="showingEnvironmentVariables"
+                />
+        <menuseparator id="mtcm_separator04"
+                       hideUnless="showingEnvironmentVariables" />
+        <menuitem id="mtcm_showCrashes"
+                oncommand="ko.stackato.application_showInfo(event, 'crashes')"
+                label="&showCrashes.label;"
+                class="menuitem-iconic"
+                disableIf="loggedOut;empty"
+                />
+        <menuitem id="mtcm_showCrashLogs"
+                oncommand="ko.stackato.application_showInfo(event, 'crashlogs')"
+                label="&showCrashLogs.label;"
+                class="menuitem-iconic"
+                disableIf="loggedOut;empty"
+                />
+        <menuitem id="mtcm_showFiles"
+                oncommand="ko.stackato.application_showFiles(event)"
+                label="&showFiles.label;"
+                class="menuitem-iconic"
+                disableIf="loggedOut;empty"
+                />
+        <menuitem id="mtcm_showInstances"
+                oncommand="ko.stackato.application_showInfo(event, 'instances')"
+                label="&showInstances.label;"
+                class="menuitem-iconic"
+                disableIf="loggedOut;empty"
+                />
+        <menuitem id="mtcm_showStats"
+                oncommand="ko.stackato.application_showInfo(event, 'stats')"
+                label="&showStats.label;"
+                class="menuitem-iconic"
+                disableIf="loggedOut;empty"
+                />
+      </menupopup>
+      
+      <menupopup id="provisionedServicesTreeContextMenu"
+                 onpopupshowing="return ko.stackato.initProvisionedServicesContextMenu(event, this);" >
+        <menuitem id="pstcm_createService"
+                oncommand="ko.stackato.provisionedServices_createService(event)"
+                label="&createService.label;"
+                class="menuitem-iconic"
+                />
+        <menuitem id="pstcm_deleteService"
+                oncommand="ko.stackato.provisionedServices_deleteService(event)"
+                label="&deleteService.label;"
+                class="menuitem-iconic"
+                />
+      </menupopup>
+      <panel type="autocomplete" id="popupTextboxAutoComplete"
+             noautofocus="true" />
+    </popupset>
+    <statusbar id="stackato_statusbar">
+        <statusbarpanel id="stackato_statusbar_message" crop="right" flex="1"/>
+    </statusbar>
+</window>

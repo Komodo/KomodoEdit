@@ -1,0 +1,174 @@
+<?xml version="1.0"?>
+<!DOCTYPE wizard PUBLIC "-//MOZILLA//DTD XUL V1.0//EN" "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % stackatoDTD SYSTEM "chrome://stackatotools/locale/stackato.dtd">
+  %stackatoDTD;
+  <!ENTITY % komodoDTD SYSTEM "chrome://komodo/locale/komodo.dtd">
+  %komodoDTD;
+  <!ENTITY % dialogsDTD SYSTEM "chrome://komodo/locale/dialogs.dtd">
+  %dialogsDTD;
+]>
+<!-- Copyright (c) 2000-2011 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information.
+-->
+<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+
+<?xml-stylesheet href="chrome://komodo/skin/toolbar.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
+<?xml-stylesheet href="chrome://stackatotools/skin/stackato.css" type="text/css"?>
+
+<wizard id="getNewAppWizard"
+        title="&newStackatoAppWizard.label;"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        persist="screenX screenY width height"
+        height="450"
+        width="640"
+        onload="onLoad();"
+        onwizardback="return onWizardBack();"
+        onwizardfinish="return doFinish();"
+        onwizardcancel="return onCancel();">
+<script type="application/x-javascript;version=1.7" src="chrome://stackatotools/content/stackatoNewApp.js" />
+
+<wizardpage id="page1_addApp_define"
+            pageid="page1_addApp_define"
+            label="&stackatoPushStep1of5.label;"
+            description="&defineApplicationParameters.label;"
+            next="page2_addApp_serviceChoicePage"
+            onpageshow="return onPage1_Show();"
+            onpageadvanced="return onPage1_Next();">
+<vbox flex="1">
+  <caption label="&pushApplication.label;"/>
+  <grid flex="1">
+    <columns>
+      <column/>
+      <column flex="1"/>
+      <column/>
+    </columns>
+    <rows>
+      <row align="center">
+        <label value="&applicationName.label;"/>
+        <textbox id="appname" />
+      </row>
+      <row align="center">
+        <label value="&pathColon.label;"/>
+        <textbox id="path"/>
+        <button label="&browse.label;" oncommand="browsePath();"/>
+      </row>
+      <row align="center">
+          <label value="&URLColon.label;"/>
+          <textbox id="url" />
+      </row>
+      <row align="center">
+          <label value="&numInstancesColon.label;"/>
+          <textbox id="numInstances" value="1" />
+      </row>
+      <row align="center">
+          <label value="&memoryLimitColon.label;"/>
+          <menulist id="memoryLimit" value="64M" editable="true">
+            <menupopup id="memoryLimitPopup" >
+              <menuitem id="memoryLimit_64MB" label="64M" />
+              <menuitem id="memoryLimit_128M" label="128M" />
+              <menuitem id="memoryLimit_256M" label="256M" />
+              <menuitem id="memoryLimit_512M" label="512M" />
+              <menuitem id="memoryLimit_1G" label="1G" />
+            </menupopup>
+          </menulist>
+      </row>
+      <row align="center">
+          <label value="&frameworkColon.label;"/>
+          <menulist id="framework" value="" oncommand="queueUpdateEnabledOK();">
+            <menupopup id="framework_menupopup">
+            </menupopup>
+          </menulist>
+      </row>
+      <row align="center">
+          <label value="&runtimeColon.label;"/>
+          <menulist id="runtime" value="" oncommand="queueUpdateEnabledOK();">
+            <menupopup id="runtime_menupopup">
+            </menupopup>
+          </menulist>
+      </row>
+      <row align="center">
+          <label value="&startImmediately.label;"/>
+          <checkbox id="startImmediately" checked="true" />
+      </row>
+    </rows>
+  </grid>
+</vbox>
+</wizardpage>
+<wizardpage id="page2_addApp_serviceChoicePage"
+            pageid="page2_addApp_serviceChoicePage"
+            label="Stackato Push - Step 2 of 5"
+            next="page3_addApp_defineNewServicePage"
+            onpageshow="return onPage2_Show();"
+            onpageadvanced="return onPage2_Next();"
+            description="&bindDataService.label;">
+  <description id="offerToBindService" />
+  <radiogroup id="serviceGroup">
+    <radio id="chooseService_noService" label="&chooseService_No.label;" />
+    <radio id="chooseService_existingService" label="&chooseService_UseExistingProvisionedService.label;" />
+    <radio id="chooseService_defineNewService" label="&chooseService_DefineNewProvisionedService.label;" />
+  </radiogroup>
+</wizardpage>
+<wizardpage id="page3_addApp_defineNewServicePage"
+            pageid="page3_addApp_defineNewServicePage"
+            label="Stackato Push - Step 3 of 5"
+            description="&chooseService_DefineNewDataService.label;"
+            onpageshow="return onPage3_Show();"
+            onpageadvanced="return onPage3_Next();"
+            onpagerewound="return onPage3_Rewound();"
+            next="page5_addApp_reviewAndFinish">
+    <caption id="new-service-groupbox-caption" label="&addANewService.label;" />
+    <grid flex="1">
+      <columns>
+        <column/>
+        <column flex="1"/>
+        <column/>
+      </columns>
+      <rows>
+        <row align="center">
+            <label value="&systemServiceColon.label;"/>
+            <menulist id="system_services" value="&systemServiceColon.label;" oncommand="onMenuitemChanged(this)">
+              <menupopup id="systemServices_menupopup">
+              </menupopup>
+            </menulist>
+        </row>
+        <row align="center">
+          <label value="&newServiceNameColon.label;" id="new_provisioned_service_label" />
+          <textbox id="new_provisioned_service_name" />
+          <button id="new_provisioned_button"
+                  label="&addService.label;"
+                  disabled="true"
+                  oncommand="addProvisionedService()" />
+            <box class="icon-wrapper">
+                <image id="new-service-icon" class="user-icon" />
+            </box>
+                  
+        </row>
+      </rows>
+    </grid>
+</wizardpage>
+<wizardpage id="page4_addApp_addExistingServicePage"
+            pageid="page4_addApp_addExistingServicePage"
+            label="Stackato Push - Step 4 of 5"
+            description="&bindExistingDataService.label;"
+            onpageshow="return onPage4_Show();"
+            onpageadvanced="return onPage4_Next();"
+            onpagerewound="return onPage4_Rewound();"
+            next="page5_addApp_reviewAndFinish">
+  <hbox>
+        <label value="&currentProvisionedServicesColon.label;"/>
+        <menulist id="provisioned_services" value="&systemServiceColon.label;" oncommand="onMenuitemChanged(this)">
+          <menupopup id="provisionedService_menupopup">
+          </menupopup>
+        </menulist>
+  </hbox>
+</wizardpage>
+<wizardpage id="page5_addApp_reviewAndFinish"
+            pageid="page5_addApp_reviewAndFinish"
+            onpageshow="return onPage5_Show();"
+            label="Stackato Push - Step 5 of 5"
+            description="&pushTheService.label;" >
+  <vbox id="outlineCreationParameters" />
+</wizardpage>
+</wizard>

@@ -68,6 +68,7 @@ Import(
     "withCasper",
     "withJSLib",
     "withPlaces",
+    "withStackato",
     "withDocJarring",
     "withWatchdogFSNotifications",
     "komodoTitleBarName",

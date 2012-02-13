@@ -1,0 +1,125 @@
+<!ENTITY stackatoLocation.label "Stackato location">
+<!ENTITY stackatoInstallLocations.caption "Stackato Install Locations">
+<!ENTITY stackatoEmailAddress.label "Stackato Email Address:">
+<!ENTITY stackatoEmailAddress.accesskey "E">
+<!ENTITY stackatoInterface "Stackato Interface">
+<!ENTITY stackato.label "Stackato">
+<!ENTITY stackatoToolbar.tooltiptext "Stackato Toolbar">
+<!ENTITY stackatoOutputWindow.label "Stackato Output Window">
+
+<!ENTITY addEllipse.label "Add...">
+<!ENTITY addEnvironmentVariable.label "Add Environment Variable...">
+<!ENTITY removeEnvironmentVariable.label "Remove Environment Variable">
+<!ENTITY applications.label "Applications">
+<!ENTITY authorization.label "Authorization">
+<!ENTITY bindProvisionedService.label "Bind Provisioned Service">
+<!ENTITY unbindProvisionedService.label "Unbind Provisioned Service">
+<!ENTITY browseCode.label "Browse Code">
+<!ENTITY changeInstances.label "Change Instances ...">
+<!ENTITY changeMemory.label "Change Memory ...">
+<!ENTITY changeTarget.label "Target">
+<!ENTITY applicationsMustBeRunningInOrderToChangeTheirMemorySetting.label "Applications must be running in order to change their memory setting.">
+<!ENTITY createService.label "Create Service...">
+<!ENTITY deleteService.label "Delete Service...">
+<!ENTITY description.label "Description">
+<!ENTITY envVarName.label "Env. Variable">
+<!ENTITY envVarValue.label "Value">
+<!ENTITY frameworks.label "Frameworks">
+<!ENTITY frameworksAndRuntimes.label "Frameworks and Runtimes">
+<!ENTITY health.label "Health">
+<!ENTITY health.label "Health">
+<!ENTITY logout.label "Logout">
+<!ENTITY login.label "Login...">
+<!ENTITY mapURL.label "Map URL...">
+<!ENTITY unmapURL.label "Unmap URL...">
+<!ENTITY noApplicationIsCurrentlyUsingThisService.tooltiptext "No application is currently using this service">
+<!ENTITY notLoggedIn.tooltiptext "Log in to add a new app.">
+<!ENTITY numInstances.label "# Instances">
+<!ENTITY provisionedServices.label "Provisioned Services">
+<!ENTITY refresh.label "Refresh">
+<!ENTITY restart.label "Restart">
+<!ENTITY runtimes.label "Runtimes">
+<!ENTITY serviceName.label "Service Name">
+<!ENTITY setAppsDirectory.label "Set Directory...">
+<!ENTITY showCrashes.label "Show Crashes">
+<!ENTITY showCrashLogs.label "Show Crash Logs">
+<!ENTITY showEnvironment.label "Show Environment">
+<!ENTITY showFiles.label "Show Files...">
+<!ENTITY showFrameworks.label "Show Frameworks">
+<!ENTITY showInstances.label "Show Instances...">
+<!ENTITY showRuntimes.label "Show Runtimes">
+<!ENTITY showPassword.label "Show Password">
+<!ENTITY showServices.label "Show Services">
+<!ENTITY showStats.label "Show Stats">
+<!ENTITY stop.label "Stop">
+<!ENTITY start.label "Start">
+<!ENTITY showTargetInfo.label "Show Target Info">
+<!ENTITY stackatoHelpPage.label "Stackato Help Page">
+<!ENTITY stackatoHomePage.label "Stackato Home Page">
+<!ENTITY systemServices.label "System Services">
+<!ENTITY target.label "Target">
+<!ENTITY targets.label "Targets">
+<!ENTITY targetColon.label "Target:">
+<!ENTITY type.label "Type">
+<!ENTITY update.label "Update">
+
+<!ENTITY deleteTheApp.tooltiptext "Delete the App">
+<!ENTITY hidePane.tooltiptext "Hide Pane">
+<!ENTITY newApp.tooltiptext "Add a new App">
+<!ENTITY numInstances.tooltiptext "Change Number of Instances">
+<!ENTITY renameTheApp.tooltiptext "Rename the App">
+<!ENTITY restartTheApp.tooltiptext "Restart the App">
+<!ENTITY startTheApp.tooltiptext "Start the App">
+<!ENTITY stopTheApp.tooltiptext "Stop the App">
+<!ENTITY updateTheApp.tooltiptext "Update the App">
+<!ENTITY userColon.label "User:">
+<!ENTITY URL.label "URL">
+<!ENTITY URLColon.label "URL">
+<!ENTITY version.label "Version">
+
+<!-- createService.xul -->
+
+<!ENTITY serviceName.label "Service name:">
+<!ENTITY whichApp.label "Which app?">
+<!ENTITY whichService.label "Which service?">
+<!ENTITY updateTheApp.tooltiptext "Update the App">
+
+<!-- stackatoFilesArgs.xul -->
+
+<!ENTITY filesArguments.label "Files Arguments">
+<!ENTITY instanceNum.label "Instances #:">
+<!ENTITY showAll.label "Show All:">
+
+<!-- stackatoNewApp.xul -->
+
+<!ENTITY pushApplication.label "Push Application">
+<!ENTITY applicationName.label "Application Name:">
+<!ENTITY addService.label "Add Service">
+<!ENTITY addANewService.label "Add a New Service">
+<!ENTITY numInstancesColon.label "# Instances:">
+<!ENTITY memoryLimitColon.label "Memory Limit:">
+<!ENTITY newServiceNameColon.label "New Service Name:">
+<!ENTITY newStackatoAppWizard.label "New Stackato App Wizard">
+<!ENTITY pathColon.label "Path:">
+<!ENTITY frameworkColon.label "Framework:">
+<!ENTITY runtimeColon.label "Runtime:">
+<!ENTITY serviceToUseColon.label "Service to use (optional):">
+<!ENTITY startImmediately.label "Start Immediately">
+<!ENTITY systemServiceColon.label "System Service:">
+<!ENTITY stackatoPushStep1of5.label "Stackato Push - Step 1 of 5">
+<!ENTITY stackatoPushStep2of5.label "Stackato Push - Step 2 of 5">
+<!ENTITY stackatoPushStep3of5.label "Stackato Push - Step 3 of 5">
+<!ENTITY stackatoPushStep4of5.label "Stackato Push - Step 4 of 5">
+<!ENTITY stackatoPushStep5of5.label "Stackato Push - Step 5 of 5">
+<!ENTITY defineApplicationParameters.label "Define application parameters">
+<!ENTITY bindDataService.label "Bind a Data Service">
+<!ENTITY bindExistingDataService.label "Bind an Existing Data Service">
+<!ENTITY chooseService_No.label "No">
+<!ENTITY chooseService_UseExistingProvisionedService.label "Use an existing provisioned service">
+<!ENTITY chooseService_DefineNewProvisionedService.label "Define a new provisioned service">
+<!ENTITY chooseService_DefineNewDataService.label "Define a New Data Service">
+<!ENTITY currentProvisionedServicesColon.label "Current Provisioned Services:">
+<!ENTITY pushTheService.label "Push the Service">
+<!ENTITY systemServiceColon.label "System Service:">
+
+<!-- stackatoNewService.xul -->

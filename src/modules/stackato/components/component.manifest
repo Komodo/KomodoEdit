@@ -1,0 +1,5 @@
+contract @activestate.com/KoStackatoResultBlock;1 {37c5cad5-31aa-4b93-ae12-98a7cc912bce}
+component {37c5cad5-31aa-4b93-ae12-98a7cc912bce} koStackatoData.py
+component {e15aec1e-6f38-477d-afca-1524b3e2ecb8} koStackatoData.py
+contract @activestate.com/koStackatoServices;1 {e15aec1e-6f38-477d-afca-1524b3e2ecb8}
+interfaces koIStackatoData.xpt

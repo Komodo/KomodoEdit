@@ -1,0 +1,45 @@
+/* Copyright (c) 2004-2011 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+#include "nsISupports.idl"
+#include "koIAsyncOperations.idl"
+
+interface koITerminalHandler; // Forward definition
+
+[scriptable, uuid(a2d0015e-ef8d-4bde-80a7-caaa9e8e3040)]
+interface koIStackatoResultBlock: nsISupports {
+    readonly attribute wstring stdout;
+    readonly attribute wstring stderr;
+};
+
+[scriptable, uuid(ee975c0a-b30a-4592-a786-4867c680d92e)]
+interface koIStackatoServices: nsISupports {
+    // Most of the calls return a koIResultBlock.  stdout is either a json
+    // payload or a simple message.
+    // stderr contains any error message.
+    koIAsyncOperation getApplications(in koIAsyncCallback cb);
+    koIAsyncOperation getStatsForApplication(in wstring appName,
+                                             in koIAsyncCallback cb);
+    koIAsyncOperation getEnvironmentVariablesForApplication(in wstring appName,
+                                                            in koIAsyncCallback cb);
+    koIAsyncOperation getServices(in koIAsyncCallback cb);
+    koIAsyncOperation getFrameworks(in koIAsyncCallback cb);
+    koIAsyncOperation getRuntimes(in koIAsyncCallback cb);
+    koIAsyncOperation getTargets(in koIAsyncCallback cb);
+    
+    koIAsyncOperation login(in wstring userName, in wstring password,
+                            in koIAsyncCallback cb);
+    koIAsyncOperation logout(in koIAsyncCallback cb);
+    koIAsyncOperation runCommand(in koIAsyncCallback cb,
+                                 in unsigned long count,
+                                 [array, size_is(count)] in wstring args);
+    koIAsyncOperation runCommandInTerminal(in koIAsyncCallback cb,
+                                           in koITerminalHandler terminalHandler,
+                                           in unsigned long count,
+                                           [array, size_is(count)] in wstring args,
+                                           in wstring env);
+    
+    void initialize();
+    attribute wstring target;
+    attribute wstring user;
+};
