@@ -1149,6 +1149,10 @@ class _CSSParser(object):
                 return
         # Try categorizing the next token to remove ambiguity
         tok = self._tokenizer.get_next_token()
+        if (self.language == "Less"
+            and self._classifier.is_operator_choose(tok, ("+",">"))):
+            self._parse_ruleset()
+            return
         self._tokenizer.put_back(tok)
         if (self._classifier.is_identifier(tok)
             and (tok.text in raw_word_lists[0] or tok.text in raw_word_lists[2])):

@@ -1461,7 +1461,7 @@ div#error {
 """).decode("utf-8")
         self._check_zero_results_show_error(code, language="Less")
 
-    @tag("bug92561", "knownfailure")
+    @tag("bug92561")
     def test_less_continued_selectors(self):
         code = dedent("""\
 body {
@@ -1475,7 +1475,7 @@ body {
 """).decode("utf-8")
         self._check_zero_results_show_error(code, language="Less")
 
-    @tag("bug92561", "knownfailure")
+    @tag("bug92561")
     def test_less_continued_selectors_with_mixin(self):
         code = dedent("""\
 .mixin {
