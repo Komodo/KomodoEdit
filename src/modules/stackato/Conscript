@@ -17,7 +17,7 @@ Import(
     'mozIdlIncludePath',
 );
 
-# $cons->KoExt("koinstall");
+$cons->KoExt("koinstall");
 
 # For quick development, comment out the "KoExt" call above and 
 # use the following. The first time this is run, it will setup the
@@ -30,4 +30,4 @@ Import(
 # need to build at all, just re-start Komodo.
 #
 
-$cons->KoExtSourceDevInstall();
+# $cons->KoExtSourceDevInstall();
