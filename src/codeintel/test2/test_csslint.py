@@ -1447,7 +1447,7 @@ gL0K.2n9ux@@_co:
 """).decode("utf-8")
         self._check_zero_results_show_error(code, language="SCSS")
 
-    @tag("bug92561", "knownfailure")
+    @tag("bug92561")
     def test_less_parameterless_mixin(self):
         code = dedent("""\
 .error {

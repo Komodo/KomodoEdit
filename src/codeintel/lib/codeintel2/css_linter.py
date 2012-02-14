@@ -623,6 +623,10 @@ class _CSSParser(object):
                     could_have_mixin = False
                     num_selected_names = 0
                     continue
+                elif tok.text == ';' and could_have_mixin and num_selected_names == 1:
+                    self._inserted_mixin = True
+                    self._tokenizer.put_back(tok)
+                    return
                 elif tok.text == "&" and self.language == "SCSS":
                     self._saw_selector = True
                     num_selected_names += 1
@@ -977,27 +981,35 @@ class _CSSParser(object):
         tok = self._tokenizer.get_next_token()
         if self._classifier.is_operator(tok, ")"):
             return
-        while True:
-            if not self._classifier.is_operator(tok, "@"):
-                self._add_result("expecting ')' or a directive", tok)
-                raise SyntaxError()
-            tok = self._tokenizer.get_next_token()
-            if not self._classifier.is_directive(tok):
-                self._add_result("expecting a variable name", tok)
-                raise SyntaxError()
-            mixin_vars.append(tok.text)
-            tok = self._tokenizer.get_next_token()
-            if self._classifier.is_operator(tok, ":"):
-                self._parse_expression()
+        if self._classifier.is_operator(tok, "@"):
+            while True:
+                if not self._classifier.is_operator(tok, "@"):
+                    self._add_result("expecting ')' or a directive", tok)
+                    raise SyntaxError()
                 tok = self._tokenizer.get_next_token()
-            if self._classifier.is_operator(tok, ","):
+                if not self._classifier.is_directive(tok):
+                    self._add_result("expecting a variable name", tok)
+                    raise SyntaxError()
+                mixin_vars.append(tok.text)
                 tok = self._tokenizer.get_next_token()
-                # Stay in loop
-            elif self._classifier.is_operator(tok, ")"):
-                return
-            else:
-                self._add_result("expecting ',' or ')'", tok)
-                raise SyntaxError()
+                if self._classifier.is_operator(tok, ":"):
+                    self._parse_expression()
+                    tok = self._tokenizer.get_next_token()
+                if self._classifier.is_operator(tok, ","):
+                    tok = self._tokenizer.get_next_token()
+                    # Stay in loop
+                elif self._classifier.is_operator(tok, ")"):
+                    return
+                else:
+                    self._add_result("expecting ',' or ')'", tok)
+                    raise SyntaxError()
+                    
+        # Just parse a mixin insertion.  This happens when
+        # a parameterless mixin was defined, but they look
+        # exactly like class selectors.
+        self._parse_mixin_invocation()
+        self._inserted_mixin = True
+
                 
     def _parse_mixin_invocation(self):
         """
