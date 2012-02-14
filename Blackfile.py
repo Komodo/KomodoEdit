@@ -1534,11 +1534,6 @@ def _PackageKomodoUpdates(cfg, dryRun=False):
             r"-c lib/python/bin/2to3",
             r"-c lib/python/lib/python%s/config/Makefile" % cfg.siloedPyVer,
             r"-c lib/python/lib/python%s/site-packages/activestate.py" % cfg.siloedPyVer,
-
-            # This is only needed for the 4.2.0 (final) release to ensure
-            # that the Linux partial update 4.2b7 -> 4.2 works. See bug
-            # 72119 for details.
-            r"-c bin/komodo",
         ])
 
     # Partial update package(s).
