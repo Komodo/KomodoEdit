@@ -1562,12 +1562,16 @@ def _PackageKomodoUpdates(cfg, dryRun=False):
         pkg_path = join(packagesDir, pkg_name)
         print "creating '%s' (for 'nightly' channel)" % pkg_name
         if not dryRun:
-            _run('python %s -q partial %s --force %s "%s" "%s"'
-                 % (mozupdate, mozupdate_clobber_arg,
-                    pkg_path, ref_mar_dir, image_dir))
-        print "created '%s' (for 'nightly' channel)" % pkg_path
+            try:
+                _run('python %s -q partial %s --force %s "%s" "%s"'
+                     % (mozupdate, mozupdate_clobber_arg,
+                        pkg_path, ref_mar_dir, image_dir))
+                print "created '%s' (for 'nightly' channel)" % pkg_path
+            except OSError, ex:
+                log.warn("'nightly' mar failed: %r", ex)
+                print "failed to create mar for 'nightly' channel - ignoring"
         built_at_least_one_nightly_update = True
-        
+
         # ...and a changelog for this.
         changelog_path = join(packagesDir,
             "%s-partial-%s.html" % (cfg.komodoPackageBase, ref_mar_ver))
