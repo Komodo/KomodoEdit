@@ -637,8 +637,6 @@ class _CSSParser(object):
                         # Parse the qualifier next time around
                         self._saw_selector = True
                         num_selected_names += 1
-                    else:
-                        self._add_result("expecting a class or pseudo-class selector after '&'", tok)
                     self._tokenizer.put_back(tok)
                 else:
                     break
@@ -1150,7 +1148,7 @@ class _CSSParser(object):
         # Try categorizing the next token to remove ambiguity
         tok = self._tokenizer.get_next_token()
         if (self.language == "Less"
-            and self._classifier.is_operator_choose(tok, ("+",">"))):
+            and self._classifier.is_operator_choose(tok, ("+", ">"))):
             self._parse_ruleset()
             return
         self._tokenizer.put_back(tok)

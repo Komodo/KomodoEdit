@@ -1349,7 +1349,7 @@ p {
         self._check_some_errors_on_line(code, "expecting a property name",
                                         '', lineNo=3, language="CSS")
         self._check_some_errors_on_line(code,
-                        "expecting a class or pseudo-class selector",
+                        "expecting a selector",
                                         '>', lineNo=3, language="Less")
 
     def test_css_scss_parent_selector_02(self):
@@ -1377,6 +1377,19 @@ p {
 }
 """).decode("utf-8")
         self._check_zero_results_show_error(code, language="SCSS")
+
+    def test_less_parent_selector_03(self):
+        code = dedent("""\
+.bordered {
+    &.float {
+        float: left;
+    }
+    .top {
+        margin: 5px;
+    }
+}
+""").decode("utf-8")
+        self._check_zero_results_show_error(code, language="Less")
 
     def test_css_bad_missing_selector(self):
         code = "td,  {padding: 2px;}"
@@ -1493,7 +1506,7 @@ body {
 """).decode("utf-8")
         self._check_zero_results_show_error(code, language="Less")
 
-    @tag("bug92561", "knownfailure")
+    @tag("bug92561")
     def test_less_continued_selectors_with_amp(self):
         code = dedent("""\
 input {
