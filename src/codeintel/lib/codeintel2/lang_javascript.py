@@ -1306,7 +1306,7 @@ class JSObject:
         # handler combine the completions from the citdl and also the child
         # elements, but this is not yet possible.
         if allValues and self.cixname == 'variable' and \
-           cixobject.get("citdl") and cixobject.get("citdl") != "Object":
+           cixobject.get("citdl") and cixobject.get("citdl") not in ("Object", "require()"):
             log.info("Variable of type: %r contains %d child elements, "
                      "ignoring them.", cixobject.get("citdl"), len(allValues))
             return None

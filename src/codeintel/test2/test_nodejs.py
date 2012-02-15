@@ -306,7 +306,7 @@ class CplnTestCase(CodeIntelTestCase):
         self.assertCompletionsInclude2(buf, positions[1],
             [("function", "method"), ])
 
-    @tag("bug90331", "knownfailure")
+    @tag("bug90331")
     def test_require_extras(self):
         """
         Check that we can tack extra properties onto require()d objects
