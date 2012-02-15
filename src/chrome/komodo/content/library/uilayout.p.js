@@ -421,7 +421,7 @@ this.populatePreviewToolbarButton = function uilayout_populatePreviewToolbarButt
 this.focusPane = function uilayout_focusPane(paneId)
 {
     var pane = document.getElementById(paneId);
-    var widgetId = pane.selectedItem.getAttribute('id');
+    var widgetId = pane.selectedPanel.getAttribute('id');
     ko.uilayout.toggleTab(widgetId, false);
 }
 
