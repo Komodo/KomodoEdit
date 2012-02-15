@@ -418,6 +418,15 @@
       <ComponentRef Id="component179"/>
 <?endif ?>
 
+<?if $(var.WithStackato) = "yes" ?>
+      <ComponentRef Id="component372"/>
+      <ComponentRef Id="component373"/>
+      <ComponentRef Id="component374"/>
+      <ComponentRef Id="component375"/>
+      <ComponentRef Id="component376"/>
+      <ComponentRef Id="component377"/>
+<?endif ?>
+
 <?if $(var.WithWatchdogFSNotifications) = "yes" ?>
       <ComponentRef Id="component701"/>
       <ComponentRef Id="component733"/>
@@ -1630,6 +1639,46 @@
                 <File Id="file1400" Name="KOMODO_1.JAR" LongName="komodospellchecker.jar" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\komodospellchecker@ActiveState.com\komodospellchecker.jar"/>
               </Component>
             </Directory> <!-- lib\mozilla\extensions\komodospellchecker@ActiveState.com -->
+
+<?if $(var.WithStackato) = "yes" ?>
+            <Directory Id="directory409" Name="STACKA_0.COM" LongName="stackatotools@activestate.com">
+              <Component Id="component372" DiskId="1" Guid="$(autowix.guid)">
+                <File Id="file3979" Name="CHROM_30.MAN" LongName="chrome.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\stackatotools@activestate.com\chrome.manifest"/>
+                <File Id="file3980" Name="install.rdf" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\stackatotools@activestate.com\install.rdf"/>
+                <File Id="file3981" Name="STACKA_0.JAR" LongName="stackatotools.jar" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\stackatotools@activestate.com\stackatotools.jar"/>
+              </Component>
+              <Directory Id="directory410" Name="COMPO_36" LongName="components">
+                <Component Id="component373" DiskId="1" Guid="$(autowix.guid)">
+                  <File Id="file3982" Name="COMPON_2.MAN" LongName="component.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\stackatotools@activestate.com\components\component.manifest"/>
+                  <File Id="file4012" Name="KOISTA_1.XPT" LongName="koIStackatoData.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\stackatotools@activestate.com\components\koIStackatoData.xpt"/>
+                  <File Id="file4013" Name="KOSTAC_0.PY" LongName="koStackatoData.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\stackatotools@activestate.com\components\koStackatoData.py"/>
+                </Component>
+              </Directory> <!-- lib\mozilla\extensions\stackatotools@activestate.com\components -->
+              <Directory Id="directory411" Name="IDL_3" LongName="idl">
+                <Component Id="component374" DiskId="1" Guid="$(autowix.guid)">
+                  <File Id="file4014" Name="KOISTA_1.IDL" LongName="koIStackatoData.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\stackatotools@activestate.com\idl\koIStackatoData.idl"/>
+                </Component>
+              </Directory> <!-- lib\mozilla\extensions\stackatotools@activestate.com\idl -->
+              <Directory Id="directory412" Name="TOOLS_1" LongName="tools">
+                <Component Id="component375" DiskId="1" Guid="$(autowix.guid)">
+                  <File Id="file4019" Name="FOLDER_9" LongName=".folderdata" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\stackatotools@activestate.com\tools\.folderdata"/>
+                  <File Id="file4020" Name="MIGRAT_0" LongName=".migrated" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\stackatotools@activestate.com\tools\.migrated"/>
+                </Component>
+                <Directory Id="directory413" Name="SNIPPE_0" LongName="Snippets">
+                  <Component Id="component376" DiskId="1" Guid="$(autowix.guid)">
+                    <File Id="file4021" Name="FOLDE_10" LongName=".folderdata" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\stackatotools@activestate.com\tools\Snippets\.folderdata"/>
+                  </Component>
+                  <Directory Id="directory414" Name="Django">
+                    <Component Id="component377" DiskId="1" Guid="$(autowix.guid)">
+                      <File Id="file4025" Name="FOLDE_11" LongName=".folderdata" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\stackatotools@activestate.com\tools\Snippets\Django\.folderdata"/>
+                      <File Id="file4026" Name="SETTIN_0.KOM" LongName="settings_py.komodotool" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\stackatotools@activestate.com\tools\Snippets\Django\settings_py.komodotool"/>
+                    </Component>
+                  </Directory> <!-- lib\mozilla\extensions\stackatotools@activestate.com\tools\Snippets\Django -->
+                </Directory> <!-- lib\mozilla\extensions\stackatotools@activestate.com\tools\Snippets -->
+              </Directory> <!-- lib\mozilla\extensions\stackatotools@activestate.com\tools -->
+            </Directory> <!-- lib\mozilla\extensions\stackatotools@activestate.com -->
+<?endif ?>
+
             <Directory Id="directory336" Name="TEMPLA_0.COM" LongName="templatetoolkit_language@ActiveState.com">
               <Component Id="component313" DiskId="1" Guid="$(autowix.guid)">
                 <File Id="file73" Name="CHROME_8.MAN" LongName="chrome.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\templatetoolkit_language@ActiveState.com\chrome.manifest"/>
