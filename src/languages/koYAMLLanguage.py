@@ -40,15 +40,13 @@ from koLanguageServiceBase import *
 
 # yaml.org
 
-def registerLanguage(registery):
-    registery.registerLanguage(koYAMLLanguage())
-    
 class koYAMLLanguage(KoLanguageBase):
     name = "YAML"
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
     _reg_clsid_ = "{9a7eb39b-5e5a-44a7-9161-94b4b82ce9be}"
+    _reg_categories_ = [("komodo-language", name)]
 
     _stateMap = {
         'default': ('SCE_YAML_DEFAULT',),

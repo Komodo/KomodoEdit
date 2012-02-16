@@ -51,6 +51,7 @@ Import(
     'buildFlavour',
     'mozVersion',
     'sdkDir',
+    'mozSrc',
     'withWatchdogFSNotifications',
 );
 
