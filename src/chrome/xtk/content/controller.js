@@ -97,3 +97,121 @@ onEvent: function(event) {
 
 };
 
+/**
+ * Controller that forwards everything to sub-controllers
+ * @constructor
+ * @param aController {XULElement or nsIControllers or nsIController} A
+ *      controller to forward to; this may be a nsIController, or a
+ *      nsIControllers (in which case the best controller is used), or a XUL
+ *      element (in which case its controllers are used)
+ */
+xtk.ForwardingController = function ForwardingController(aController) {
+    this.wrappedJSObject = this;
+    this.commandAliases = {
+        /**
+         * Merge in the given alias map
+         * @param aObject {Object} Hash to merge
+         */
+        merge: function(aObject) {
+            for (let [k, v] in Iterator(aObject)) this[k] = v;
+        }
+    };
+    if (aController instanceof Components.interfaces.nsIController ||
+        aController instanceof Components.interfaces.nsIControllers)
+    {
+        this._controller = aController;
+    } else if (aController instanceof Components.interfaces.nsIDOMXULElement) {
+        this._controller = aController.controllers;
+    } else {
+        throw new Error("Invalid controller");
+    }
+}
+
+/**
+ * Default set of aliases useful for normal text boxes; these are useful on
+ * <textbox>s so that we actually do the expected things instead of editing in
+ * some related <scintilla> widget.  The keys are the Komodo command names, and
+ * the values are the Mozilla ones.
+ */
+xtk.ForwardingController.aliases_textEntry = {
+    "cmd_left": "cmd_charPrevious",
+    "cmd_right": "cmd_charNext",
+    "cmd_home": "cmd_beginLine",
+    "cmd_end": "cmd_endLine",
+    "cmd_selectHome": "cmd_selectBeginLine",
+    "cmd_selectEnd": "cmd_selectEndLine",
+    "cmd_selectDocumentHome": "cmd_selectTop",
+    "cmd_selectDocumentEnd": "cmd_selectBottom",
+    "cmd_documentHome": "cmd_moveTop",
+    "cmd_documentEnd": "cmd_moveBottom",
+    "cmd_wordLeft": "cmd_wordPrevious",
+    "cmd_wordRight": "cmd_wordNext",
+    "cmd_selectWordLeft": "cmd_selectWordPrevious",
+    "cmd_selectWordRight": "cmd_selectWordNext",
+    "cmd_cut": "cmd_cutOrDelete",
+    "cmd_deleteWordRight": "cmd_deleteWordForward",
+    "cmd_deleteWordLeft": "cmd_deleteWordBackward",
+    "cmd_pageUp": "cmd_movePageUp",
+    "cmd_pageDown": "cmd_movePageDown",
+    "cmd_back": null,
+    "cmd_backSmart": null,
+};
+
+xtk.ForwardingController.prototype._getControllerForCommand =
+function ForwardingController__getControllerForCommand(aCommand) {
+    let controller = this._controller;
+    if (aCommand in this.commandAliases) {
+        if (this.commandAliases[aCommand]) {
+            let alternate = this._getControllerForCommand(this.commandAliases[aCommand]);
+            if (alternate) {
+                controller = alternate;
+            }
+        } else {
+            // disable this command
+            controller = null;
+        }
+    } else if (controller instanceof Components.interfaces.nsIControllers) {
+        controller = controller.getControllerForCommand(aCommand);
+    }
+    return controller || {
+        isCommandEnabled: function(aCommand) false,
+        supportsCommand: function(aCommand) false,
+        doCommand: function(aCommand) {},
+        onEvent: function(aEventName) {},
+    };
+};
+
+xtk.ForwardingController.prototype.isCommandEnabled =
+function ForwardingController_isCommandEnabled(aCommand)
+    this._getControllerForCommand(aCommand).isCommandEnabled(aCommand);
+
+xtk.ForwardingController.prototype.supportsCommand =
+function ForwardingController_supportsCommand(aCommand)
+    this._getControllerForCommand(aCommand).supportsCommand(aCommand);
+
+xtk.ForwardingController.prototype.doCommand =
+function ForwardingController_doCommand(aCommand)
+    this._getControllerForCommand(aCommand).doCommand(aCommand);
+
+xtk.ForwardingController.prototype.onEvent =
+function ForwardingController_onEvent(aEventName) {
+    if (this._controller instanceof Components.interfaces.nsIControllers) {
+        let controllers = [];
+        for (let i = 0; i < this._controller.getControllerCount(); ++i) {
+            controllers.push(this._controller.getControllerById(i));
+        }
+        for each (let controller in controllers) {
+            try {
+                controller.onEvent(aEventName);
+            } catch (e) {
+                Components.utils.reportError(e);
+            }
+        }
+    } else {
+        try {
+            this._controller.onEvent(aEventName);
+        } catch (e) {
+            Components.utils.reportError(e);
+        }
+    }
+};

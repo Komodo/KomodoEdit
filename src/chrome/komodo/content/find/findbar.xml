@@ -134,12 +134,35 @@
       </xul:hbox>
     </content>
     <implementation>
+      <constructor><![CDATA[
+        // The Mozilla controller system only looks at 1) the focused element's
+        // controller, 2) the focused window's controller, and 3) that window's
+        // ancestor windows' controllers.  In our case, when the textbox has
+        // focus, we also want to look at the <scintilla>'s controllers (where
+        // all the interesting commands live).  Forward commands from the
+        // textbox to this (<findbar>), then forward from there to the
+        // <scintilla> binding.
+        this._textbox.controllers.appendController(new xtk.ForwardingController(this));
+        let controller = new xtk.ForwardingController(this._view.scintilla);
+        this.controllers.appendController(controller);
+        // Disable forwarding editing commands that are needed in the textbox
+        controller.commandAliases.merge(xtk.ForwardingController.aliases_textEntry);
+        // Map newline-related commands to actually do find prev/next; this is
+        // somewhat of a hack, but works close enough.
+        controller.commandAliases.merge({
+          "cmd_newline": "cmd_findNext",
+          "cmd_newlineBare": "cmd_findNext",
+          "cmd_newlineSame": "cmd_findNext",
+          "cmd_newlineExtra": "cmd_findPrevious",
+        });
+      ]]></constructor>
+
       <method name="close">
         <body>
           if (this.controller) {
             this.controller._stopIncrementalSearch("User cancelled", false);
           }
-          this._scintilla.focus();
+          this._view.focus();
         </body>
       </method>
       <method name="next">
@@ -271,7 +294,7 @@
       <field name="_openDialog">
         document.getAnonymousElementByAttribute(this, 'anonid', 'open-dialog')
       </field>
-      <field name="_scintilla">
+      <field name="_view">
         /* the scintilla this find bar belongs to */
         document.getBindingParent(this);
       </field>
@@ -385,7 +408,7 @@
         }
         // shift-right at the end of the textbox; try to extend the text using
         // the scintilla selection
-        var scimoz = this._scintilla.scimoz;
+        var scimoz = this._view.scimoz;
         this.text += scimoz.getWCharAt(Math.max(scimoz.currentPos, scimoz.anchor));
         this.controller.search(this.text, true);
         event.stopPropagation();
