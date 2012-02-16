@@ -220,9 +220,10 @@ this.doCommandAsync = function command_doCommandAsync(command, event) {
 }
 
 // Execute a command.
-this.doCommand = function command_doCommand(command) {
-    _log.debug("doCommand(" + command + ")");
+this.doCommand = function command_doCommand(command, options) {
+    _log.debug("doCommand(" + command + ", " + JSON.stringify(options) + ")");
 
+    var suppressExceptions = options && !!options.suppressExceptions;
     var rc = false;
     try {
         var controller = top.document.commandDispatcher.getControllerForCommand(command);
@@ -262,9 +263,11 @@ this.doCommand = function command_doCommand(command) {
             _log.info("Command " + command + " has no controller.");
         }
     } catch (e) {
-        _log.exception(e,"An error occurred executing the "+command+" command");
-        ko.statusBar.AddMessage(e, "commands", 5000, true, false);
-        throw Components.results.NS_ERROR_FAILURE;
+        if (!suppressExceptions) {
+            _log.exception(e,"An error occurred executing the "+command+" command");
+            ko.statusBar.AddMessage(e, "commands", 5000, true, false);
+            throw Components.results.NS_ERROR_FAILURE;
+        }
     }
     return rc;
 }
