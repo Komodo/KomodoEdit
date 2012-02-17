@@ -116,12 +116,12 @@ xtk.ForwardingController = function ForwardingController(aController) {
             for (let [k, v] in Iterator(aObject)) this[k] = v;
         }
     };
-    if (aController instanceof Components.interfaces.nsIController ||
+    if (aController instanceof Components.interfaces.nsIDOMXULElement) {
+        this._controller = aController.controllers;
+    } else if (aController instanceof Components.interfaces.nsIController ||
         aController instanceof Components.interfaces.nsIControllers)
     {
         this._controller = aController;
-    } else if (aController instanceof Components.interfaces.nsIDOMXULElement) {
-        this._controller = aController.controllers;
     } else {
         throw new Error("Invalid controller");
     }

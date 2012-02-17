@@ -133,7 +133,7 @@
         </xul:hbox>
       </xul:hbox>
     </content>
-    <implementation>
+    <implementation implements="nsIController">
       <constructor><![CDATA[
         // The Mozilla controller system only looks at 1) the focused element's
         // controller, 2) the focused window's controller, and 3) that window's
@@ -149,6 +149,7 @@
         }
         xtk.include('controller');
         this._textbox.controllers.appendController(new xtk.ForwardingController(this));
+        this.controllers.appendController(this);
         let controller = new xtk.ForwardingController(this._view.scintilla);
         this.controllers.appendController(controller);
         // Disable forwarding editing commands that are needed in the textbox
@@ -389,6 +390,37 @@
           return !(this._openDialog.collapsed = !val);
         </setter>
       </property>
+
+      <!-- nsIController -->
+      <method name="isCommandEnabled">
+        <parameter name="aCommand"/>
+        <body>
+          return this.supportsCommand(aCommand);
+        </body>
+      </method>
+
+      <method name="supportsCommand">
+        <parameter name="aCommand"/>
+        <body>
+          return ["cmd_cancel"].indexOf(aCommand) != -1;
+        </body>
+      </method>
+
+      <method name="doCommand">
+        <parameter name="aCommand"/>
+        <body>
+          switch (aCommand) {
+            case "cmd_cancel":
+              this.close();
+              break;
+          }
+        </body>
+      </method>
+
+      <method name="onEvent">
+        <parameter name="aEventName"/>
+        <body/>
+      </method>
 
     </implementation>
 
