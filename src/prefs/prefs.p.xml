@@ -711,6 +711,7 @@
   <string id="isearchType">0</string> <!-- plain text search -->
   <string id="isearchCaseSensitivity">2</string> <!-- case sensitive if patterns contains uppercase char -->
   <long id="isearchHighlightTimeout">35</long> <!-- msecs to abort highlighting in isearch -->
+  <boolean id="isearchKeysToEditor">0</boolean>
 
   <string id="import_include_matches"></string>
 <!-- #if PLATFORM == "win" -->

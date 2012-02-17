@@ -100,12 +100,12 @@ onEvent: function(event) {
 /**
  * Controller that forwards everything to sub-controllers
  * @constructor
- * @param aController {XULElement or nsIControllers or nsIController} A
- *      controller to forward to; this may be a nsIController, or a
- *      nsIControllers (in which case the best controller is used), or a XUL
- *      element (in which case its controllers are used)
+ * @param aController {Array of (XULElement or nsIControllers or nsIController)}
+ *      Array of controllers to forward to; each element may be a nsIController,
+ *      or a nsIControllers (in which case the best controller is used), or a
+ *      XUL element (in which case its controllers are used)
  */
-xtk.ForwardingController = function ForwardingController(aController) {
+xtk.ForwardingController = function ForwardingController(aControllers) {
     this.wrappedJSObject = this;
     this.commandAliases = {
         /**
@@ -116,14 +116,20 @@ xtk.ForwardingController = function ForwardingController(aController) {
             for (let [k, v] in Iterator(aObject)) this[k] = v;
         }
     };
-    if (aController instanceof Components.interfaces.nsIDOMXULElement) {
-        this._controller = aController.controllers;
-    } else if (aController instanceof Components.interfaces.nsIController ||
-        aController instanceof Components.interfaces.nsIControllers)
-    {
-        this._controller = aController;
-    } else {
-        throw new Error("Invalid controller");
+    if (!Array.isArray(aControllers)) {
+        aControllers = [aControllers];
+    }
+    this._controllers = [];
+    for each (let controller in aControllers) {
+        if (controller instanceof Components.interfaces.nsIDOMXULElement) {
+            this._controllers.push(controller.controllers);
+        } else if (controller instanceof Components.interfaces.nsIController ||
+                   controller instanceof Components.interfaces.nsIControllers)
+        {
+            this._controllers.push(controller);
+        } else {
+            throw new Error("Invalid controller");
+        }
     }
 }
 
@@ -157,61 +163,84 @@ xtk.ForwardingController.aliases_textEntry = {
     "cmd_backSmart": null,
 };
 
+/**
+ * Get the controller for a given command
+ * @returns Two-element array, [controller, command name]
+ * The command name returned may be different if the was mapping involved, or
+ * it may be null if it's not found.
+ * The returned controller will always implement the nsIController interface,
+ * though it may not do anything useful if no matching controller is found.
+ */
 xtk.ForwardingController.prototype._getControllerForCommand =
 function ForwardingController__getControllerForCommand(aCommand) {
-    let controller = this._controller;
-    if (aCommand in this.commandAliases) {
-        if (this.commandAliases[aCommand]) {
-            let alternate = this._getControllerForCommand(this.commandAliases[aCommand]);
-            if (alternate) {
-                controller = alternate;
-            }
-        } else {
-            // disable this command
-            controller = null;
-        }
-    } else if (controller instanceof Components.interfaces.nsIControllers) {
-        controller = controller.getControllerForCommand(aCommand);
-    }
-    return controller || {
+    let defaultController = {
+        /* default disabled controller if not found */
         isCommandEnabled: function(aCommand) false,
         supportsCommand: function(aCommand) false,
         doCommand: function(aCommand) {},
         onEvent: function(aEventName) {},
     };
+    if (aCommand in this.commandAliases) {
+        if (this.commandAliases[aCommand]) {
+            let [alternate, command] = this._getControllerForCommand(this.commandAliases[aCommand]);
+            if (alternate) {
+                return [alternate, command];
+            }
+        } else {
+            // disable the command
+            return [defaultController, null];
+        }
+    }
+    for each (let controller in this._controllers) {
+        if (controller instanceof Components.interfaces.nsIControllers) {
+            controller = controller.getControllerForCommand(aCommand);
+        }
+        if (controller && controller.supportsCommand(aCommand)) {
+            return [controller, aCommand];
+        }
+    }
+    return [defaultController, null];
 };
 
 xtk.ForwardingController.prototype.isCommandEnabled =
-function ForwardingController_isCommandEnabled(aCommand)
-    this._getControllerForCommand(aCommand).isCommandEnabled(aCommand);
+function ForwardingController_isCommandEnabled(aCommand) {
+    let [controller, command] =  this._getControllerForCommand(aCommand);
+    return command && controller.isCommandEnabled(command);
+};
 
 xtk.ForwardingController.prototype.supportsCommand =
-function ForwardingController_supportsCommand(aCommand)
-    this._getControllerForCommand(aCommand).supportsCommand(aCommand);
+function ForwardingController_supportsCommand(aCommand) {
+    let [controller, command] =  this._getControllerForCommand(aCommand);
+    return command && controller.supportsCommand(command);
+};
 
 xtk.ForwardingController.prototype.doCommand =
-function ForwardingController_doCommand(aCommand)
-    this._getControllerForCommand(aCommand).doCommand(aCommand);
+function ForwardingController_doCommand(aCommand) {
+    let [controller, command] =  this._getControllerForCommand(aCommand);
+    controller.doCommand(command);
+}
 
 xtk.ForwardingController.prototype.onEvent =
 function ForwardingController_onEvent(aEventName) {
-    if (this._controller instanceof Components.interfaces.nsIControllers) {
-        let controllers = [];
-        for (let i = 0; i < this._controller.getControllerCount(); ++i) {
-            controllers.push(this._controller.getControllerById(i));
-        }
-        for each (let controller in controllers) {
+    for each (let controller in this._controllers) {
+        if (controller instanceof Components.interfaces.nsIControllers) {
+            let controllers = [];
+            for (let i = 0; i < this._controller.getControllerCount(); ++i) {
+                controllers.push(this._controller.getControllerById(i));
+            }
+            for each (let subcontroller in controllers) {
+                try {
+                    subcontroller.onEvent(aEventName);
+                } catch (e) {
+                    Components.utils.reportError(e);
+                }
+            }
+        } else {
             try {
-                controller.onEvent(aEventName);
+                this._controller.onEvent(aEventName);
             } catch (e) {
                 Components.utils.reportError(e);
             }
-        }
-    } else {
-        try {
-            this._controller.onEvent(aEventName);
-        } catch (e) {
-            Components.utils.reportError(e);
         }
     }
 };

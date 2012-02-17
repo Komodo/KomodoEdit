@@ -139,29 +139,59 @@
         // controller, 2) the focused window's controller, and 3) that window's
         // ancestor windows' controllers.  In our case, when the textbox has
         // focus, we also want to look at the <scintilla>'s controllers (where
-        // all the interesting commands live).  Forward commands from the
-        // textbox to this (<findbar>), then forward from there to the
-        // <scintilla> binding.
+        // all the interesting commands live), plus the window's controllers
+        // (where the actual find controller lives).  Forward stuff from here
+        // to those controllers.
         if (typeof(xtk) == "undefined") {
           Components.classes['@mozilla.org/moz/jssubscript-loader;1']
                     .getService(Components.interfaces.mozIJSSubScriptLoader)
                     .loadSubScript('chrome://xtk/content/xtk.js');
         }
         xtk.include('controller');
-        this._textbox.controllers.appendController(new xtk.ForwardingController(this));
         this.controllers.appendController(this);
-        let controller = new xtk.ForwardingController(this._view.scintilla);
+        let controller = new xtk.ForwardingController([this._view.scintilla,
+                                                       this.ownerDocument.defaultView.controllers]);
         this.controllers.appendController(controller);
         // Disable forwarding editing commands that are needed in the textbox
-        controller.commandAliases.merge(xtk.ForwardingController.aliases_textEntry);
-        // Map newline-related commands to actually do find prev/next; this is
-        // somewhat of a hack, but works close enough.
-        controller.commandAliases.merge({
-          "cmd_newline": "cmd_findNext",
-          "cmd_newlineBare": "cmd_findNext",
-          "cmd_newlineSame": "cmd_findNext",
-          "cmd_newlineExtra": "cmd_findPrevious",
-        });
+        // Some users prefer not having this behaviour, see bug 92559
+        if (this._prefs.hasBooleanPref("isearchKeysToEditor") &&
+            this._prefs.getBooleanPref("isearchKeysToEditor"))
+        {
+          // we want our controller to be used before the textbox's default
+          // controller, so that things like cursor movement go into the editor
+          // instead of the textbox
+          this._textbox.controllers.insertControllerAt(0, new xtk.ForwardingController([this]));
+          // When the user presses backspace, though, let the textbox handle it
+          // instead - must be able to correct mis-typed search text
+          controller.commandAliases.merge({
+            "cmd_back": null,
+            "cmd_backSmart": null,
+          });
+          // Whenever we do any commands, automatically close the find bar
+          let doCommand = controller.doCommand;
+          controller.doCommand = (function(aCommand) {
+            if (controller.supportsCommand(aCommand)) {
+              this.close();
+              doCommand.call(controller, aCommand);
+            }
+          }).bind(this);
+          // Tell the textbox to not eat up/down for autocomplete
+          this._textbox.disableKeyNavigation = true;
+        } else {
+          // Put our controller after the textbox's default controllers, so that
+          // it can handle things like cursor movement, and we can handle things
+          // it doesn't, like editor commands
+          this._textbox.controllers.appendController(new xtk.ForwardingController([this]));
+          controller.commandAliases.merge(xtk.ForwardingController.aliases_textEntry);
+          // Map newline-related commands to actually do find prev/next; this is
+          // somewhat of a hack, but works close enough.
+          controller.commandAliases.merge({
+            "cmd_newline": "cmd_findNext",
+            "cmd_newlineBare": "cmd_findNext",
+            "cmd_newlineSame": "cmd_findNext",
+            "cmd_newlineExtra": "cmd_findPrevious",
+          });
+        }
       ]]></constructor>
 
       <method name="close">
@@ -308,6 +338,11 @@
       <field name="_statusText">
         document.getAnonymousElementByAttribute(this, 'anonid', 'status-text')
       </field>
+      <field name="_prefs">
+        Components.classes["@activestate.com/koPrefService;1"]
+                  .getService(Components.interfaces.koIPrefService)
+                  .effectivePrefs
+      </field>
 
       <field name="_log">
         ko.logging.getLogger("findbar")
@@ -434,10 +469,6 @@
         event.stopPropagation();
         event.preventDefault();
         this.close();
-      </handler>
-      <handler event="keypress" keycode="VK_RETURN" modifiers="shift any">
-        this.controller.searchAgain(event.shiftKey);
-        event.stopPropagation();
       </handler>
       <handler event="keypress" keycode="VK_RIGHT" modifiers="shift">
       <![CDATA[
