@@ -25,7 +25,7 @@
 -DYN_FLAGS=$(LINK_FLAGS) -framework Carbon -bundle
 +DYN_FLAGS=$(LINK_FLAGS) -framework Carbon -framework Cocoa -install_name @executable_path/$(DYNAMICLIB)
 +else
-+DYN_FLAGS=-arch i386 -framework Carbon -framework Cocoa -install_name @executable_path/$(DYNAMICLIB)
++DYN_FLAGS=$(LDFLAGS) -arch i386 -framework Carbon -framework Cocoa -install_name @executable_path/$(DYNAMICLIB)
  endif
  endif
  
