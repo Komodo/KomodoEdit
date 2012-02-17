@@ -624,6 +624,8 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY findSkipFilesLargerThan.label "Larger than:">
 <!ENTITY findIncrementalHighlightTimeout.label.pre "Incremental highlighting will timeout after ">
 <!ENTITY findIncrementalHighlightTimeout.label.post " msecs (set to 0 to never timeout)">
+<!ENTITY findIncrementalKeysToEditor.label "Editing keys affect buffer when searching" >
+<!ENTITY findIncrementalKeysToEditor.tooltiptext "When enabled, pressing editing keys such as Home and Enter will modify the editing buffer instead of changing the text to search for." >
 
 <!--pref-folderimport.xul-->
 <!ENTITY filesToInclude.label "Files to include: (empty means 'all')">
