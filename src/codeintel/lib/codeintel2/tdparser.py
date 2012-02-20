@@ -35,7 +35,7 @@ def gen_python_tokens(source):
     for token, value, begin, end in (t[:4] for t in stream):
         if token in type_map:
             yield type_map[token], value, begin, end
-        elif token == tokenize.NL:
+        elif token == tokenize.NEWLINE:
             continue
         elif token == tokenize.ENDMARKER:
             break
