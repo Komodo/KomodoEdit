@@ -1776,11 +1776,22 @@ def target_silo_python(argv=["silo_python"]):
         newPybinPath = join(dirname(siloDir), "MacOS", "mozpython")
         _run("mv -f %s %s" % (oldPybinPath, newPybinPath), log.info)
         _run("rm -rf %s" % pythonAppDir, log.info)
+        _run("chmod +w %s" % (newPybinPath,), log.info)
         # (c) correct the runtime dependency path.
-        oldLibDep = "@executable_path/../../../../Python"
-        newLibDep = "@executable_path/../Frameworks/Python.framework/Versions/Current/Python"
-        _run("chmod +w %s && install_name_tool -change %s %s %s"
-             % (newPybinPath, oldLibDep, newLibDep, newPybinPath), log.info)
+        try:
+            oldLibDeps = _capture_output('otool -L %s' % (newPybinPath,))
+        except OSError:
+            # failed to run otool :(
+            oldLibDeps = ""
+        for line in oldLibDeps.splitlines():
+            if not "(compatibility version" in line:
+                continue
+            oldLibDep = line.split("(compatibility version", 1)[0].strip()
+            if oldLibDep.startswith("/Library/Frameworks/Python.framework/"):
+                newLibDep = oldLibDep.replace("/Library/Frameworks/Python.framework/",
+                                              "@executable_path/../Frameworks/Python.framework/")
+                _run("install_name_tool -change %s %s %s"
+                    % (oldLibDep, newLibDep, newPybinPath), log.info)
 
         _relocatePyxpcom(config)
 
@@ -2577,14 +2588,6 @@ def _relpath(path, relto=None):
 
 
 #---- some remote file utils
-
-def _capture_output(cmd):
-    o = os.popen(cmd)
-    output = o.read()
-    retval = o.close()
-    if retval:
-        raise OSError("error capturing output of `%s': %r" % (cmd, retval))
-    return output
 
 def _capture_output(cmd):
     o = os.popen(cmd)
