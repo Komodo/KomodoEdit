@@ -449,7 +449,7 @@ def py_expr_grammar():
         self.first = []
         while self.token.id != "}":
             self.first.append(self.expression())
-            advance(":")
+            self.advance(":")
             self.first.append(self.expression())
             if token.id == ",":
                 self.advance(",")
