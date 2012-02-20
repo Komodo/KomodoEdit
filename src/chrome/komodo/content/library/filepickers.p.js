@@ -115,6 +115,15 @@ function _appendFilter(fp, title, types) {
     fp.appendFilter(title, types.join('; '));
 }
 
+// Some languages map to the same extension, and this isn't
+// reflected in the language registry.
+var _altLanguageNames = {
+    "Python3": "Python",
+}
+var _reverseAltLanguageNames = {
+    "Python": "Python3"
+}
+
 /**
  * Append Komodo's standard set of file filters to the given filepicker.
  *
@@ -209,6 +218,10 @@ function _appendFilters(fp, limitTo /* =null */) {
             if (names[i] in limitToDict) {
                 limitedNames.push(names[i]);
                 limitedFilters.push(filters[i]);
+            } else if ((names[i] in _reverseAltLanguageNames)
+                       && (_reverseAltLanguageNames[names[i]] in limitToDict)) {
+                limitedNames.push(_reverseAltLanguageNames[names[i]]);
+                limitedFilters.push(filters[i]);
             }
         }
         if (limitedNames.length == 0) {
@@ -255,6 +268,23 @@ function _getFilePicker(mode, title, defaultFilterName, limitTo)
              createInstance(Components.interfaces.nsIFilePicker);
     fp.init(window, title, mode);
     if (mode != Ci.nsIFilePicker.modeGetFolder) {
+        if (limitTo == null && defaultFilterName != null) {
+            var langRegistry = Components.classes["@activestate.com/koLanguageRegistryService;1"].
+                getService(Components.interfaces.koILanguageRegistryService);
+            var filetypesObj = {};
+            var countObj = {};
+            var altLanguageName;
+            langRegistry.patternsFromLanguageName(defaultFilterName,
+                                                  filetypesObj, countObj);
+            if (countObj.value == 0
+                && !!(altLanguageName = _altLanguageNames[defaultFilterName])) {
+                langRegistry.patternsFromLanguageName(altLanguageName,
+                                                      filetypesObj, countObj);
+            }
+            if (countObj.value > 0) {
+                limitTo = [defaultFilterName, "All"];
+            }
+        }
         var filterNames = _appendFilters(fp, limitTo);
 
         // Set the filter index to that of the named default filter.
