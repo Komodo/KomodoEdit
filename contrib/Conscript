@@ -358,7 +358,7 @@ if ($platform eq "win") {
 } else {
     $exeName = "tidy/bin/tidy";
     if ($platform eq "darwin") {
-      $make = "RANLIB=ranlib make";
+      $make = "RANLIB=ranlib make OTHERCFLAGS='-D_DEBUG=1 -mmacosx-version-min=10.5' ";
     } else {
       $make = "make";
     }
