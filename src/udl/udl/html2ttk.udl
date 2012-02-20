@@ -53,3 +53,10 @@ state IN_M_STAG_ATTR_SSTRING:
 '[%' : paint(upto, M_STRING), paint(include, TPL_OPERATOR), \
 	spush_check(IN_M_STAG_ATTR_SSTRING), \
 	=> IN_TPL_DEFAULT 
+
+# Bug 92843
+# Allow <p class="foo"[% extra_attributes %]>...</p>
+state IN_M_STAG_POST_TAGNAME:
+'[%' : paint(upto, M_ATTRNAME), paint(include, TPL_OPERATOR), \
+	spush_check(IN_M_STAG_POST_TAGNAME), \
+	=> IN_TPL_DEFAULT 
