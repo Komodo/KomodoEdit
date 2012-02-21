@@ -320,6 +320,7 @@ function cloneObject(what) {
  * the keybinding files in sync as the keybinding system gets changed.
  *
  * Version history:
+ * 33: Komodo 7.0.1 - drop Cmd++ for cmd_fontZoomIn, still conflicts with cmd_replace
  * 32: Komodo 7.0.0b2 - remove Cmd+= for font zoom, conflicts with cmd_replace.
  * 30: Komodo 7.0.0a5 - added Alt+Backspace for Default keybinding scheme.
  * 29: Komodo 7.0.0a4 - switch to incremental find for Ctrl+F/Ctrl+Shift+F
@@ -353,7 +354,7 @@ function cloneObject(what) {
  * 2: Komodo 4.2.0-beta2 and above
  * 1: Komodo 4.2.0-beta1 and before
  */
-const currentKeybindingVersionNumber = 32;
+const currentKeybindingVersionNumber = 33;
 
 /**
  * Remove this dictionary of keybinds.
@@ -852,6 +853,13 @@ this.Manager.prototype._upgradeKeybingings = function (from_version,
 // #if PLATFORM == 'darwin'
             this._remove_keybinding_sequences({
                 'cmd_fontZoomIn' : ["Meta+="],
+            });
+// #endif
+            break;
+        case 32:
+// #if PLATFORM == 'darwin'
+            this._remove_keybinding_sequences({
+                'cmd_fontZoomIn': ["Meta++"],
             });
 // #endif
             break;
