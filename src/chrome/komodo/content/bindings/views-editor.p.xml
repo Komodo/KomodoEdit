@@ -859,7 +859,13 @@
             // new objects will be recreated on request
             this.item = null;
             if (this.preview && this.preview.reload) {
-                this.preview.reload();
+                try {
+                    this.preview.reload();
+                } catch(ex) {
+                    // Bug 92875: We don't care about this exception, no point in
+                    // displaying it to user.
+                    this.log.debug("this.preview.reload: " + ex);
+                }
             }
 
             ko.macros.eventHandler.hookPostFileSave(this);
@@ -1483,7 +1489,13 @@
             } else if (this.preview) {
                 // When the view already has an open browser preview, switch to it.
                 this.preview.makeCurrent();
-                this.preview.reload();
+                try {
+                    this.preview.reload();
+                } catch(ex) {
+                    // Bug 92875: We don't care about this exception, no point in
+                    // displaying it to user.
+                    this.log.debug("this.preview.reload: " + ex);
+                }
             } else {
                 // Open the browser preview as specified by the user's prefs.
                 [previewPath, browserType] = this._getPreviewPathAndBrowserType();
