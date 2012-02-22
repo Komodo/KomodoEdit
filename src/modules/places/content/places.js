@@ -58,7 +58,7 @@ var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
 const CURRENT_PROJECT_FILTER_NAME = _bundle.GetStringFromName("currentProject.filterName");
 const DEFAULT_FILTER_NAME = _bundle.GetStringFromName("default.filterName");
 const VIEW_ALL_FILTER_NAME = _bundle.GetStringFromName("viewAll.filterName");
-const VERSION = 2;
+const VERSION = 3;
 
 var _placePrefs;
 var filterPrefs;
@@ -74,8 +74,10 @@ var osPathSvc;
 
 const DEFAULT_EXCLUDE_MATCHES_PART1 = "*~;#*;CVS;*.bak;*.pyo;*.pyc";
 const DEFAULT_EXCLUDE_MATCHES_PART2 = ".svn;.git;.hg;.bzr;.DS_Store;.komodotools;.tools;__pycache__";
+const DEFAULT_EXCLUDE_MATCHES_PART3 = "hg-checklink-*;hg-checkexec-*";
 const DEFAULT_EXCLUDE_MATCHES = [DEFAULT_EXCLUDE_MATCHES_PART1,
-                                 DEFAULT_EXCLUDE_MATCHES_PART2].join(";");
+                                 DEFAULT_EXCLUDE_MATCHES_PART2,
+                                 DEFAULT_EXCLUDE_MATCHES_PART3].join(";");
 const DEFAULT_INCLUDE_MATCHES = "";
 
 const PROJECT_URI_REGEX = /^.*\/(.+?)\.(?:kpf|komodoproject)$/;
@@ -2754,11 +2756,6 @@ ManagerClass.prototype = {
                 // Delay, because at startup the tree might not be
                 // fully initialized.
                 setTimeout(function() {
-                        var currentProjectFilterPrefs = filterPrefs.getPref(CURRENT_PROJECT_FILTER_NAME);
-                        ["include_matches", "exclude_matches"].map(function(name) {
-                                currentProjectFilterPrefs.setStringPref(name,
-                                                                        project.prefset.getStringPref("import_" + name));
-                });
                         ko.places.manager.openDirURI(targetDirURI, null, successFunction);
                     }, 100);
             }
@@ -2874,6 +2871,19 @@ this.onLoad = function places_onLoad() {
 };
 
 this._updatePrefs = function(placePrefs) {
+    var filterPrefs = placePrefs.getPref("filters");
+    var this_ = this;
+    [DEFAULT_FILTER_NAME, CURRENT_PROJECT_FILTER_NAME].forEach(function(prefName) {
+            var defaultPrefs = filterPrefs.getPref(prefName);
+            if (!defaultPrefs) {
+                log.error("Can't get filter prefs for " + prefName + "\n");
+            } else {
+                this_.updatePrefsForPref(defaultPrefs);
+            }
+        });
+};
+
+this.updatePrefsForPref = function(defaultPrefs) {
     // This code is an unrolled for/switch loop. See
     // http://bugs.activestate.com/show_bug.cgi?id=87813#c12
     // for an explanation.
@@ -2881,43 +2891,43 @@ this._updatePrefs = function(placePrefs) {
     // 0 => 1: we started at version 1
     
     // 1 => 2:
-    // VERSION == 2
-    var v = 2;
-    var filterPrefs = placePrefs.getPref("filters");
-    [DEFAULT_FILTER_NAME, CURRENT_PROJECT_FILTER_NAME].forEach(function(prefName) {
-        try {
-            var defaultPrefs = filterPrefs.getPref(prefName);
-            if (!defaultPrefs.hasPrefHere("version")) {
-                // Force an update, and get a version pref in this prefset.
-                defaultPrefs.setLongPref("version", v - 1);
-            }
-            var savedVersion = defaultPrefs.getLongPref
-            if (savedVersion < v) {
-                var exclude_matches;
-                try {
-                    exclude_matches = defaultPrefs.getStringPref("exclude_matches");
-                } catch(ex) {
-                    exclude_matches = null;
-                }
-                if (!exclude_matches) {
-                    defaultPrefs.setStringPref("exclude_matches", DEFAULT_EXCLUDE_MATCHES);
-                } else {
-                    var parts = exclude_matches.split(/;/);
-                    var newParts = DEFAULT_EXCLUDE_MATCHES_PART2.split(";").
-                        filter(function(name) parts.indexOf(name) === -1);
-                    if (newParts.length) {
-                        parts = parts.concat(newParts);
-                        defaultPrefs.setStringPref("exclude_matches", parts.join(";"));
-                    }
-                }
-                defaultPrefs.setLongPref("version", v);
-            }
-        } catch(ex) {
-            log.exception(ex, "Failed in _updatePrefs");
+    // (VERSION == 3)
+    try {
+        if (!defaultPrefs.hasPrefHere("version")) {
+            // Force an update, and get a version pref in this prefset.
+            defaultPrefs.setLongPref("version", 1);
         }
-    });
-    
-    // Next change will be 2 => 3 when VERSION = 3
+        var savedVersion = defaultPrefs.getLongPref("version");
+        if (savedVersion < 2) {
+            this.updateDefaultPrefsForVersion(defaultPrefs, DEFAULT_EXCLUDE_MATCHES_PART2);
+        }
+        if (savedVersion < 3) {
+            this.updateDefaultPrefsForVersion(defaultPrefs, DEFAULT_EXCLUDE_MATCHES_PART3);
+            defaultPrefs.setLongPref("version", VERSION);
+        }
+    } catch(ex) {
+        log.exception(ex, "Failed in _updatePrefs");
+    }
+};
+
+this.updateDefaultPrefsForVersion = function(defaultPrefs, newDefaultFilters) {
+    var exclude_matches;
+    try {
+        exclude_matches = defaultPrefs.getStringPref("exclude_matches");
+    } catch(ex) {
+        exclude_matches = null;
+    }
+    if (!exclude_matches) {
+        defaultPrefs.setStringPref("exclude_matches", DEFAULT_EXCLUDE_MATCHES);
+    } else {
+        var parts = exclude_matches.split(/;/);
+        var newParts = newDefaultFilters.split(";").
+            filter(function(name) parts.indexOf(name) === -1);
+        if (newParts.length) {
+            var updatedParts = parts.concat(newParts);
+            defaultPrefs.setStringPref("exclude_matches", updatedParts.join(";"));
+        }
+    }
 };
 
 this.onLoad_aux = function places_onLoad_aux() {
