@@ -2662,7 +2662,7 @@ this.restoreWorkspaceByIndex = function(currentWindow, idx, thisIndexOnly)
     try {
         this._restoreWindowWorkspace(windowWorkspacePref.getPref(idx), currentWindow, idx > 0 || _mozPersistPositionDoesNotWork);
     } catch(ex) {
-        log.exception("Can't restore workspace for window " + idx + ", exception: " + ex);
+        log.exception(ex, "Can't restore workspace for window " + idx);
     }
     if (thisIndexOnly) {
         // _restoreFocusToMainWindow();
