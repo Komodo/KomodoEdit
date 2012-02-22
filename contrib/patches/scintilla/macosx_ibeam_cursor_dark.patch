@@ -222,7 +222,7 @@ Index: src/scintilla/macosx/PlatMacOSX.cxx
  }
  
  bool Window::HasFocus() {
-@@ -961,6 +966,18 @@
+@@ -961,6 +966,20 @@
      // TODO: Do I need to implement this? MSDN: specifies the font that a control is to use when drawing text.
  }
  
@@ -238,19 +238,26 @@ Index: src/scintilla/macosx/PlatMacOSX.cxx
 +    0x8c, 0xac, 0xe9, 0x2a, 0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4e, 0x44, 0xae, 0x42, 0x60, 0x82,
 +};
 +
++extern double NSAppKitVersionNumber;
++
  void Window::SetCursor(Cursor curs) {
      if (wid) {
          // TODO: This isn't really implemented correctly. I should be using
-@@ -969,7 +986,11 @@
+@@ -969,7 +988,16 @@
  
          switch ( curs ) {
              case cursorText:
 -                cursor = kThemeIBeamCursor;
-+                if (!cursorIBeam) {
-+                    cursorIBeam = CreateCocoaCursorFromBytes(kIBeamData, sizeof(kIBeamData), 6, 10);
++                if (NSAppKitVersionNumber < 1138 /* NSAppKitVersionNumber10_7 */) {
++                    // kThemeIBeamCursor works fine, and wallpapers a crash on 10.5
++                    cursor = kThemeIBeamCursor;
++                } else {
++                    if (!cursorIBeam) {
++                        cursorIBeam = CreateCocoaCursorFromBytes(kIBeamData, sizeof(kIBeamData), 6, 10);
++                    }
++                    SetCocoaCursor(cursorIBeam);
++                    return;
 +                }
-+                SetCocoaCursor(cursorIBeam);
-+                return;
                  break;
              case cursorArrow:
                  cursor = kThemeArrowCursor;
