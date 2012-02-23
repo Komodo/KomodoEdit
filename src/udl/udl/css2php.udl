@@ -40,6 +40,8 @@
 # Authors: 
 #  Eric Promislow <ericp@activestate.com>
 
+family css
+
 state IN_CSS_DSTRING:
 /<\?(?:php\b|=)?/ : paint(upto, CSL_STRING), paint(include, SSL_OPERATOR), \
 spush_check(IN_CSS_DSTRING) => IN_SSL_DEFAULT
