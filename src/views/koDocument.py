@@ -651,7 +651,7 @@ class koDocumentBase:
         family = udl_family_from_style(style)
         return self.get_languageObj().getLanguageForFamily(family)
         
-    def languageForPosition(self, pos):
+    def familyForPosition(self, pos):
         if not self._language or not self._docPointer:
             return None
         languages = self.get_languageObj().getSubLanguages()
@@ -662,7 +662,10 @@ class koDocumentBase:
         if pos >= scimoz.length and pos > 0:
             pos = scimoz.positionBefore(scimoz.length)
         style = getActualStyle(scimoz, pos)
-        family = udl_family_from_style(style)
+        return udl_family_from_style(style)
+
+    def languageForPosition(self, pos):
+        family = self.familyForPosition(pos)
         return self.get_languageObj().getLanguageForFamily(family)
 
     DECORATOR_UDL_FAMILY_TRANSITION = components.interfaces.koILintResult.DECORATOR_UDL_FAMILY_TRANSITION

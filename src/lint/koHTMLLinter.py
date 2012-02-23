@@ -103,12 +103,12 @@ class _CommonHTMLLinter(object):
         parts = list(self._leading_ignorables_re.match(currText).groups())
         if (self._non_ws_re.search(parts[0])
             and i > 0
-            and koDoc.languageForPosition(startPt - 1).startswith("HTML")):
+            and koDoc.familyForPosition(startPt - 1) == "M"):
             parts[0] = self._spaceOutNonNewlines(parts[0])
         if (self._non_ws_re.search(parts[2])
             and (i == lim - 1
                  or (i < lim - 1
-                     and koDoc.languageForPosition(endPt).startswith("HTML")))):
+                     and koDoc.familyForPosition(endPt) == "M"))):
             parts[2] = self._spaceOutNonNewlines(parts[2])
         return parts
 
@@ -157,6 +157,7 @@ class _CommonHTMLLinter(object):
         squelching = False
         firstInsertedReplacement = False
         prevSegmentLangName = "HTML"
+        jsNeedsSemiColon = False
         for i in range(1, lim):
             startPt = endPt
             endPt = transitionPoints[i]
@@ -188,8 +189,8 @@ class _CommonHTMLLinter(object):
                         and "@" not in subparts[1]
                         and i > 0
                         and i < lim - 1
-                        and koDoc.languageForPosition(startPt - 1).startswith("HTML")
-                        and koDoc.languageForPosition(endPt).startswith("HTML")):
+                        and koDoc.familyForPosition(startPt - 1) == "M"
+                        and koDoc.familyForPosition(endPt) == "M"):
                         # This won't pick up things like
                         # <tag style="margin <?php echo 'div{' ?> 1px;">
 
@@ -236,10 +237,20 @@ class _CommonHTMLLinter(object):
                             # heuristic, wrap on-handlers in html*
                     if thisJSShouldBeWrapped:
                         bytesByLang[name].append("(function() { ")
+                    elif jsNeedsSemiColon:
+                        # bug 92809: Make sure two JS snippets on same line are separated by a ; or }
+                        bytesByLang[name].append(";")
+                        jsNeedsSemiColon = False
                     bytesByLang[name].append(actualCode)
                     
                     if thisJSShouldBeWrapped:
                         bytesByLang[name].append(" })();")
+                    elif re.compile(r'[^\n\}; \t][ \t]*$').search(actualCode) and i < lim - 1:
+                        # bug 92809: this JS doesn't end with a ; } or \n, make sure
+                        # next JS snippet either starts on a new line or insert a ; separator.
+                        # If this JS snippet ends with a comment do nothing.  Unlikely in HTML on-handlers,
+                        # but if there is one, other JS code on the same line will just be ignored by the linter.
+                        jsNeedsSemiColon = True
                     bytesByLang[name].append(subparts[2])
                     if squelching:
                         # We're writing out some JS in an EJS tag, for example
@@ -257,9 +268,12 @@ class _CommonHTMLLinter(object):
                     bytesByLang[prevSegmentLangName].append("0" + squelchedText[1:])
                     firstInsertedReplacement = True
                 else:
-                    # This includes squelching.
                     bytesByLang[name].append(self._spaceOutNonNewlines(currText))
             
+            # This includes squelching.
+            if jsNeedsSemiColon and langName != "JavaScript" and "\n" in currText:
+                jsNeedsSemiColon = False
+                
             if (squelchTPLPatterns
                 and origLangName == squelchTPLPatterns[0]
                 and squelching
@@ -315,9 +329,11 @@ class _CommonHTMLLinter(object):
                     # through another xpcom decoder/encoder
                     newLintResults = UnwrapObject(linter).lint_with_text(request, textSubset)
                     if newLintResults and newLintResults.getNumResults():
+                        #log.debug("**** Errors: ***** lang: %s, text:%s", langName, textSubset)
+                        #log.debug("results: %s", ", ".join([str(x) for x in newLintResults.getResults()]))
                         lintResultSet = lintResultsByLangName.get(langName)
                         if lintResultSet:
-                           lintResultSet.addResults(newLintResults)
+                            lintResultSet.addResults(newLintResults)
                         else:
                             lintResultsByLangName[langName] = newLintResults
                 except AttributeError:

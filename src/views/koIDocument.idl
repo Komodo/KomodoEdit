@@ -121,6 +121,8 @@ interface koIDocument : nsISupports
     readonly attribute wstring subLanguage; 
     // Return the language (or sub-language in the UDL case) for the given pos.
     string languageForPosition(in long position);
+    // Return the family for the given pos
+    string familyForPosition(in long position);
 
     /**
      * Return the positions in the provided region where the language changes.
