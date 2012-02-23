@@ -2740,6 +2740,10 @@ this.getRecentClosedWindowList = function() {
             var childState = topview.getPref("childState");
             var current_view_index = childState.getPref(0).getLongPref("current_view_index");
             var view_prefs = childState.getPref(0).getPref('view_prefs');
+            if (view_prefs.length <= current_view_index) {
+                // Oops, this view doesn't actually exist?
+                current_view_index = view_prefs.length - 1;
+            }
             var currentFile = view_prefs.getPref(current_view_index).getStringPref("URI");
             var mru = {
               windowNum: idx,
