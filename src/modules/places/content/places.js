@@ -1681,6 +1681,16 @@ ManagerClass.prototype = {
         var koFile = Components.classes["@activestate.com/koFileService;1"].
                        getService(Components.interfaces.koIFileService).
                        getFileFromURI(dirURI);
+        if (!koFile.dirName
+            && !koFile.path
+            && !dirURI[dirURI.length - 1] != "/") {
+            // Bug 92121: URIs like ftp://ftp.mozilla.org have no
+            // associated path info.
+            dirURI += "/";
+            koFile = Components.classes["@activestate.com/koFileService;1"].
+                getService(Components.interfaces.koIFileService).
+                getFileFromURI(dirURI);
+        }
         this.currentPlaceIsLocal = koFile.isLocal;
         this.currentPlace = dirURI;
         // watch out: baseName("/") => ""

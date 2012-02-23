@@ -1399,6 +1399,13 @@ class KoPlaceTreeView(TreeView):
         placeFileEx = components.classes["@activestate.com/koFileEx;1"].\
                 createInstance(components.interfaces.koIFileEx)
         placeFileEx.URI = uri
+        if (not placeFileEx.dirName
+            and not placeFileEx.path
+            and not uri.endswith("/")):
+            # Bug 92121: URIs like ftp://ftp.mozilla.org have no
+            # associated path info.
+            uri += "/"
+            placeFileEx.URI = uri
         self.lock.acquire()
         try:
             isLocal = self._isLocal = placeFileEx.isLocal
