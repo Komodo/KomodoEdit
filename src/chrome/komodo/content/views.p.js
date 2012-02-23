@@ -2612,19 +2612,45 @@ this.restoreWorkspace = function view_restoreWorkspace(currentWindow)
         setTimeout(ko.uilayout.restoreTabSelections, 10, ko.prefs);
         return;
     }
+
+    // Fix up the stored window numbers
+    var windowWorkspacePref = ko.prefs.getPref(multiWindowWorkspacePrefName);
+    let prefIds = {};
+    windowWorkspacePref.getPrefIds(prefIds, {});
+    prefIds = prefIds.value.map(function(n) parseInt(n, 10)).sort(function(a, b) a - b);
+    if (prefIds[0] < 1) {
+        // Invalid ids; shift everything over :|
+        let prefs = prefIds.map(function(n) windowWorkspacePref.getPref(n));
+        prefIds.map(function(n) windowWorkspacePref.deletePref(n));
+        for (let i = 1; prefs.length; ++i) {
+            windowWorkspacePref.setPref(i, prefs.shift());
+        }
+        windowWorkspacePref.getPrefIds(prefIds, {});
+        prefIds = prefIds.value;
+    }
+    for each (let prefId in prefIds) {
+        let pref = windowWorkspacePref.getPref(prefId);
+        if (pref.hasLongPref("windowNum")) {
+            pref.setLongPref("windowNum", prefId);
+        }
+    }
+
     // Restore the first workspace directly, and restore other
     // workspaces indirectly each new window's init routine in ko.main
     
-    var windowWorkspacePref = ko.prefs.getPref(multiWindowWorkspacePrefName);
     var checkWindowBounds = _mozPersistPositionDoesNotWork || windowWorkspacePref.hasPref(1);
-    this._restoreWindowWorkspace(windowWorkspacePref.getPref(0), currentWindow, checkWindowBounds);
-    var nextIdx = this._getNextWorkspaceIndexToRestore(0);
-    if (nextIdx != -1) {
-        ko.launch.newWindowFromWorkspace(nextIdx);
+    var nextIdx = this._getNextWorkspaceIndexToRestore(Number.NEGATIVE_INFINITY);
+    if (nextIdx !== undefined) {
+        let workspace = windowWorkspacePref.getPref(nextIdx);
+        this._restoreWindowWorkspace(workspace, currentWindow, checkWindowBounds);
+        nextIdx = this._getNextWorkspaceIndexToRestore(nextIdx);
+        if (nextIdx !== undefined) {
+            ko.launch.newWindowFromWorkspace(nextIdx);
+        }
     }
 };
 
-this._getNextWorkspaceIndexToRestore = function(currIdx) {
+this._getNextWorkspaceIndexToRestore = function _getNextWorkspaceIndexToRestore(currIdx) {
     var windowWorkspacePref = ko.prefs.getPref(multiWindowWorkspacePrefName);
     var prefIds = {};
     windowWorkspacePref.getPrefIds(prefIds, {});
@@ -2634,15 +2660,16 @@ this._getNextWorkspaceIndexToRestore = function(currIdx) {
     var lim = prefIds.length;
     for (var i = 0; i < lim; i++) {
         var newIdx = prefIds[i];
-        if (windowWorkspacePref.hasPref(newIdx)) {
-            var workspace = windowWorkspacePref.getPref(newIdx);
-            if (!workspace.hasPref('restoreOnRestart')
-                || workspace.getBooleanPref('restoreOnRestart')) {
-                return newIdx;
-            }
+        if (!windowWorkspacePref.hasPref(newIdx)) {
+            continue;
+        }
+        var workspace = windowWorkspacePref.getPref(newIdx);
+        if (!workspace.hasPref('restoreOnRestart')
+            || workspace.getBooleanPref('restoreOnRestart')) {
+            return newIdx;
         }
     }
-    return -1;
+    return undefined;
 };
 
 this.restoreWorkspaceByIndex = function(currentWindow, idx, thisIndexOnly)
@@ -2669,7 +2696,7 @@ this.restoreWorkspaceByIndex = function(currentWindow, idx, thisIndexOnly)
         //dump("**************** restoreWorkspaceByIndex: Don't restore any other windows\n");
     } else {
         var nextIdx = this._getNextWorkspaceIndexToRestore(idx);
-        if (nextIdx != -1) {
+        if (nextIdx !== undefined) {
             ko.launch.newWindowFromWorkspace(nextIdx);
         } else {
             _restoreFocusToMainWindow();
@@ -2916,7 +2943,7 @@ this._saveWorkspaceForIdx_aux =
                                       thisWindow, mainWindow,
                                       windowWorkspace, saveCoordinates) {
     var workspace = Components.classes['@activestate.com/koPreferenceSet;1'].createInstance();
-    windowWorkspace.setPref(idx, workspace);
+    windowWorkspace.setPref(thisWindow._koNum, workspace);
     if (saveCoordinates) {
         var coordinates = Components.classes['@activestate.com/koPreferenceSet;1'].createInstance();
         workspace.setPref('coordinates', coordinates);
