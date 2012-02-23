@@ -1110,8 +1110,8 @@ class koGlobalPrefService:
 
         obsvc = components.classes["@mozilla.org/observer-service;1"].\
                     getService(components.interfaces.nsIObserverService)
-        self._observer = WrapObject(self, components.interfaces.nsIObserver)
-        obsvc.addObserver(self._observer, 'xpcom-shutdown', 1)
+        obsvc.addObserver(self, 'xpcom-shutdown', True)
+        obsvc.addObserver(self, 'profile-before-change', True)
 
     def _setupGlobalPreference(self, prefName):
         import timeline
@@ -1226,12 +1226,17 @@ class koGlobalPrefService:
 
     def shutDown(self):
         log.debug("koGlobalPrefService shutting down...")
-        # For now, just save state.
-        # In future, shutDown may perform other cleanup tasks.
         self.saveState()
+        obsvc = components.classes["@mozilla.org/observer-service;1"].\
+                    getService(components.interfaces.nsIObserverService)
+        obsvc.removeObserver(self, 'xpcom-shutdown')
+        obsvc.removeObserver(self, 'profile-before-change')
 
     def observe(self, subject, topic, data):
-        if topic == 'xpcom-shutdown':
+        if topic == 'profile-before-change':
+            log.debug("global prefs: profile-before-change")
+            self.saveState()
+        elif topic == 'xpcom-shutdown':
             log.debug("pref service status got xpcom-shutdown, unloading");
             self.shutDown()
 

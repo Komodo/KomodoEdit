@@ -57,6 +57,10 @@ function saveWorkspaceIfNeeded() {
     if (!_savedWorkspace) {
         ko.workspace.saveWorkspace(true);
         ko.prefs.setBooleanPref("komodo_normal_shutdown", true);
+        // Save prefs
+        Components.classes["@activestate.com/koPrefService;1"]
+                  .getService(Components.interfaces.koIPrefService)
+                  .saveState();
         _savedWorkspace = true;
     }
 }
