@@ -2844,6 +2844,21 @@ this._restoreWindowWorkspace = function(workspace, currentWindow, checkWindowBou
         if (ko.prefs.getBooleanPref("show_start_page")) {
             ko.open.startPage();
         }
+
+        if (workspace.hasPref('windowNum')) {
+            let windowNum = workspace.getLongPref('windowNum');
+            let infoService = Components.classes["@activestate.com/koInfoService;1"].
+                                         getService(Components.interfaces.koIInfoService);
+            currentWindow._koNum = windowNum;
+            try {
+                infoService.setUsedWindowNum(windowNum);
+            } catch(ex) {
+                // It turns out that the window # saved in the old workspace
+                // has already been assigned.
+                currentWindow._koNum = infoService.nextWindowNum();
+            }
+        }
+
         workspace.getPrefIds(ids, cnt);
         for (var i = 0; i < ids.value.length; i++) {
             id = ids.value[i];
@@ -2860,7 +2875,7 @@ this._restoreWindowWorkspace = function(workspace, currentWindow, checkWindowBou
             wko.history.restore_prefs(workspace);
         }
         // Don't open startPage here (bug 87854)
-        this.initializeEssentials(currentWindow, workspace, false);
+        this.initializeEssentials(currentWindow, false);
 
         // Now projects depends on places, so open it after
         // In Version 7 Komodo saves opened projects in a different prefset,
@@ -2907,26 +2922,14 @@ this._restoreWindowWorkspace = function(workspace, currentWindow, checkWindowBou
 };
 
 this._calledInitializeEssentials = false;
-this.initializeEssentials = function(currentWindow, workspace /*=null*/,
-                                     showStartPage /*true*/) {
+this.initializeEssentials = function(currentWindow, showStartPage /*true*/) {
     if (this._calledInitializeEssentials) {
         return;
     }
-    if (typeof(workspace) == "undefined") workspace=null;
     if (typeof(showStartPage) == "undefined") showStartPage=true;
     var infoService = Components.classes["@activestate.com/koInfoService;1"].
-    getService(Components.interfaces.koIInfoService);
-    if (workspace && workspace.hasPref('windowNum')) {
-        var windowNum = workspace.getLongPref('windowNum');
-        currentWindow._koNum = windowNum;
-        try {
-            infoService.setUsedWindowNum(windowNum);
-        } catch(ex) {
-            // It turns out that the window # saved in the old workspace
-            // has already been assigned.
-            currentWindow._koNum = infoService.nextWindowNum();
-        }
-    } else {
+                                 getService(Components.interfaces.koIInfoService);
+    if (!("__koNum" in currentWindow.ko.main)) {
         currentWindow._koNum = infoService.nextWindowNum();
     }
     if (showStartPage && ko.prefs.getBooleanPref("show_start_page")) {
