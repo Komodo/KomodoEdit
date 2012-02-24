@@ -520,6 +520,8 @@
 <!ENTITY splitLine.desc "Editor: Split Line">
 <!ENTITY openProject.label "Open Project...">
 <!ENTITY openProjectInNewWindow.label "Open Project In New Window...">
+<!ENTITY openThisProject.label "Open Project">
+<!ENTITY openThisProjectInNewWindow.label "Open Project In New Window">
 <!ENTITY openRemoteProject.label "Open Remote Project...">
 <!ENTITY replaceProject.label "Replace Project...">
 <!ENTITY openTabInNewWindow.label "Open Tab in a New Window">

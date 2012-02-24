@@ -466,7 +466,7 @@
       @@@@
       -->
       <!-- This is the context menu, shared by files, folders, and groups-->
-      <menuitem label="&openProject.label;"
+      <menuitem label="&openThisProject.label;"
                 id="menu_projCtxt_openProject"
                 class="menuitem-iconic"
                 oncommand="ko.places.projects.openProjectInCurrentWindow();"
@@ -480,7 +480,7 @@
                 testDisableIf="t:multipleSelection"
                 hideUnless="root" />
 -->
-      <menuitem label="&openProjectInNewWindow.label;"
+      <menuitem label="&openThisProjectInNewWindow.label;"
                 id="menu_projCtxt_projectOpenProject"
                 class="menuitem-iconic"
                 disableIf="projectIsOpen"
@@ -709,13 +709,13 @@
       <menuseparator id="menu_project_remove_separator_projectsContext" 
                      hideIf="file folder livefolder" />
 
-      <menuitem label="&openProject.label;"
+      <menuitem label="&openThisProject.label;"
           id="menu_openProject_projectsContext"
           hideIf="file folder livefolder"
           disableIf="currentProject"
           testDisableIf="t:multipleSelection"
           oncommand="ko.places.projects_SPV.openProjectInCurrentWindow();" />
-      <menuitem label="&openProjectInNewWindow.label;"
+      <menuitem label="&openThisProjectInNewWindow.label;"
           id="menu_projectOpenProject_projectsContext"
           hideIf="file folder livefolder"
           disableIf="currentProject"
