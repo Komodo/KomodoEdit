@@ -1280,7 +1280,6 @@ static void ColouriseRbDoc(unsigned int startPos, int length, int initStyle,
                     state = SCE_RB_DEFAULT;
                     i--;
                     chNext = ch;
-                    chNext2 = chNext;
                     preferRE = false;
                 } else if (HereDoc.Quoted) {
                     if (ch == HereDoc.Quote) { // closing quote => end of delimiter
@@ -1447,7 +1446,6 @@ static void ColouriseRbDoc(unsigned int startPos, int length, int initStyle,
                         }
                     }
                     chNext = styler.SafeGetCharAt(i + 1);
-                    chNext2 = styler.SafeGetCharAt(i + 2);
                 }
             }
         // Quotes of all kinds...
