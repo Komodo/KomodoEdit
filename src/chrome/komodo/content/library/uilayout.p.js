@@ -1695,22 +1695,25 @@ this.restoreTabSelections = function uilayout_RestoreTabSelections(prefs) {
 
     if (typeof(prefs) == "undefined") prefs = _gPrefs;
     try {
-        // restore which pane each of the widgets are in
-        for each (var pane in ko.widgets._panes) {
-            for each (var widget in pane.widgets) {
-                var prefId = "uilayout_widget_position_" + widget.id;
-                if (!prefs.hasStringPref(prefId)) {
-                    continue;
+        // restore which pane each of the widgets are in; this needs to be on a
+        // delay to allow the panes to be bound first
+        setTimeout(function() {
+            for each (var pane in ko.widgets._panes) {
+                for each (var widget in pane.widgets) {
+                    var prefId = "uilayout_widget_position_" + widget.id;
+                    if (!prefs.hasStringPref(prefId)) {
+                        continue;
+                    }
+                    var paneId = prefs.getStringPref(prefId, pane.id);
+                    var pane = document.getElementById(paneId);
+                    if (!pane) {
+                        // the pane went away?
+                        continue;
+                    }
+                    widget.tabbox.moveWidgetToPane(widget, pane)
                 }
-                var paneId =  prefs.getStringPref(prefId, pane.id);
-                var pane = document.getElementById(paneId);
-                if (!pane) {
-                    // the pane went away?
-                    continue;
-                }
-                widget.tabbox.moveWidgetToPane(widget, pane);
             }
-        }
+        }, 0);
 
         // restore the state of the panes
 
@@ -1725,7 +1728,6 @@ this.restoreTabSelections = function uilayout_RestoreTabSelections(prefs) {
                        'uilayout_bottomTabBoxSelectedTabId');
 
     } catch (e) {
-        Components.utils.reportError(e);
         _log.exception("Couldn't restore selected tab: " + e);
     }
 }
