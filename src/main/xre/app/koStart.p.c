@@ -1427,7 +1427,7 @@ static char* _KoStart_GetMutexName()
 }
 
 /* Return the running lock (file)name.
- *  Windows:  komodo-[ide|edit]-<ver>-running
+ *  Windows:  %APPDATA%\ActiveState\Komodo[IDE|Edit]\<ver>\running.lock
  *  Mac OS X: ~/Library/Application Support/ActiveState/KomodoIDE/<ver>/running.lock
  *  Unix:     ~/.komodoide/<ver>/running.lock
  */
@@ -1436,20 +1436,11 @@ static char* _KoStart_GetRunningName()
     static int determined = 0;
     static char buffer[MAXPATHLEN+1];
     if (!determined) {
-#ifdef WIN32
-        size_t overflow = snprintf(buffer, MAXPATHLEN, 
-                "komodo-%s-%s-running", KO_PROD_TYPE, KO_SHORT_VERSION);
-        if (overflow > MAXPATHLEN || overflow < 0) {
-            _LogError("buffer overflow while determining mutex name\n");
-            exit(1);
-        }
-#else
         if (!_GetVerUserDataDir(MAXPATHLEN, buffer)) {
             _LogError("could not determine the user data dir\n");
             exit(1);
         }
         strncat(buffer, "running.lock", MAXPATHLEN-strlen(buffer));
-#endif /* !WIN32 */
         _LogDebug("running lock name: '%s'\n", buffer);
         determined = 1;
     }
@@ -2142,33 +2133,46 @@ KoStartHandle KoStart_WantToBeTheMan(void)
     char* runningName = _KoStart_GetRunningName();
 
 #ifdef WIN32
-    /* running = win32event.CreateMutex(None, 0, gRunningName)
-     * rv = win32event.WaitForSingleObject(running, 0)
-     * if rv == win32event.WAIT_OBJECT_0:
-     *     return running # we *are* the man
-     * else:
-     *     win32api.CloseHandle(running)
-     *     return None # we are *not* the man
+    /* - Open the running lock for reading
+     * - Open the running lock again, for exclusive writing
+     * - If open for writing fails, we are *not* the man
+     * - Else, write pid into running lock
      */
-    HANDLE running;
-    DWORD rv;
-
-    running = CreateMutex(NULL, FALSE, runningName);
-    rv = WaitForSingleObject(running, 0); /* non-blocking, i.e. poll */
-    if (rv == WAIT_OBJECT_0) {
-        _LogDebug("No current running Komodo - Ok: handle=0x%x\n", running);
-        return running; /* we _are_ the man */
-    } else {
-        if (rv != WAIT_TIMEOUT) {
-            _LogError("unexpected error acquiring 'running' mutex: %d: %d\n",
-                      rv, GetLastError());
-        }
-        if (! CloseHandle(running)) {
-            _LogError("error closing 'running' handle: %d\n", GetLastError());
-        }
+    HANDLE hRead, hWrite;
+    char buffer[MAXPATHLEN];
+    DWORD byteCount, pid;
+    hRead = CreateFile(runningName, GENERIC_READ,
+                       FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+                       NULL, OPEN_ALWAYS,
+                       FILE_ATTRIBUTE_TEMPORARY | FILE_ATTRIBUTE_HIDDEN,
+                       NULL);
+    if (hRead == INVALID_HANDLE_VALUE) {
+        _LogError("Failed to create %s: %08x\n", runningName, GetLastError());
+        exit(1);
+    }
+    hWrite = CreateFile(runningName, GENERIC_WRITE,
+                        FILE_SHARE_READ, NULL, TRUNCATE_EXISTING,
+                        FILE_ATTRIBUTE_TEMPORARY | FILE_FLAG_DELETE_ON_CLOSE,
+                        NULL);
+    if (hWrite == INVALID_HANDLE_VALUE) {
+        /* we are not the man */
         _LogDebug("Another instance of Komodo is already running.\n");
+        if (ReadFile(hRead, buffer, MAXPATHLEN - 1, &byteCount, NULL)) {
+            buffer[byteCount] = '\0';
+            if (sscanf(buffer, "%u", &pid)) {
+                AllowSetForegroundWindow(pid);
+            }
+        }
+        CloseHandle(hRead);
         return KS_BAD_HANDLE;
     }
+    /* we are the man */
+    _LogDebug("No current running Komodo - Ok: handle=0x%x\n", hWrite);
+    CloseHandle(hRead);
+    snprintf(buffer, MAXPATHLEN - 1, "%u", GetCurrentProcessId());
+    buffer[MAXPATHLEN-1] = '\0';
+    WriteFile(hWrite, buffer, strlen(buffer), &byteCount, NULL);
+    return hWrite;
 #else
     /* fd = os.open(gRunningName, os.O_WRONLY|os.O_CREAT)
      * try:
@@ -2227,10 +2231,6 @@ KoStartHandle KoStart_WantToBeTheMan(void)
 void KoStart_ReleaseTheMan(KoStartHandle theMan)
 {
 #ifdef WIN32
-    if (! ReleaseMutex(theMan)) {
-        _LogError("error releasing theMan: %d\n", GetLastError());
-        exit(1);
-    }
     if (! CloseHandle(theMan)) {
         _LogError("error closing theMan handle: %d\n", GetLastError());
         exit(1);
