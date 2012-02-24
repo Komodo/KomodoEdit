@@ -78,6 +78,8 @@ $cons->Preprocess('launch.p.js', 'launch.js');
 $cons->InstallInChrome('launch.js');
 $cons->Preprocess('views.p.js', 'views.js');
 $cons->InstallInChrome('views.js');
+$cons->Preprocess('workspace.p.js', 'workspace.js');
+$cons->InstallInChrome('workspace.js');
 $cons->Preprocess('statusbar.p.js', 'statusbar.js');
 $cons->InstallInChrome('statusbar.js');
 $cons->InstallInChrome('editor.js');
