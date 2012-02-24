@@ -1066,6 +1066,31 @@ class JSDocTestCase(CodeIntelTestCase):
              ("variable", "foo2"),
              ("variable", "x")])
 
+    @tag("bug92803")
+    def test_jsdoc_type_comments(self):
+        content, positions = unmark_text(dedent("""\
+            function Foopy() {
+                this.poit = 1;
+            }
+            var obj = {
+                /** @type Foopy */
+                foo: undefined,
+                /** @type {Foopy} */
+                bar: undefined,
+                /** @type {Foopy} Now With Comments */
+                baz: undefined,
+            };
+            obj.foo.<1>x;
+            obj.bar.<2>y;
+            obj.bar.<3>z;
+        """))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+            [("variable", "poit")])
+        self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
+            [("variable", "poit")])
+        self.assertCompletionsInclude(markup_text(content, pos=positions[3]),
+            [("variable", "poit")])
+
 class MochiKitTestCase(CodeIntelTestCase):
     lang = "JavaScript"
 

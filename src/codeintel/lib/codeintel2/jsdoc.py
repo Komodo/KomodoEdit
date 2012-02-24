@@ -426,7 +426,7 @@ class JSDoc:
         self.tags = value
 
     def _handle_type(self, value):
-        self.type = self._getTypeField(value)
+        self.type = self._getTypeFieldFromString(value)[0]
 
     def _handle_return(self, value):
         returntype, doc = self._getTypeFieldFromString(value)
@@ -642,6 +642,10 @@ def _test():
 
     short_type_comment_with_tab = """/**\t@type String */"""
     jd = JSDoc(short_type_comment_with_tab)
+    assert(jd.type == "String")
+
+    short_type_command_with_fluff = """/** @type {String} Fluff */"""
+    jd = JSDoc(short_type_command_with_fluff)
     assert(jd.type == "String")
 
 # Main function
