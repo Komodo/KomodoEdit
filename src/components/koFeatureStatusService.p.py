@@ -275,7 +275,7 @@ class KoFeatureStatusService:
         exePath = perlInfoEx.executablePath
         log.info("%s: is sufficient perl?", installDir)
 
-        if not os.path.exists(exePath):
+        if not exePath or not os.path.exists(exePath):
             log.info("%s: does not exist", exePath)
             self._lastErrorProxy.setLastError(0,
                 "Perl installation does not exist: \"%s\"" % exePath)
@@ -407,7 +407,7 @@ class KoFeatureStatusService:
         exePath = nodejsInfoEx.executablePath
         log.info("%s: is sufficient nodejs?", installDir)
 
-        if not os.path.exists(exePath):
+        if not exePath or not os.path.exists(exePath):
             log.info("%s: does not exist", exePath)
             self._lastErrorProxy.setLastError(0,
                 "NodeJS installation does not exist: \"%s\"" % exePath)
@@ -500,7 +500,7 @@ class KoFeatureStatusService:
         exePath = phpInfoEx.executablePath
         log.info("%s: is sufficient php?", installDir)
         
-        if not os.path.exists(exePath):
+        if not exePath or not os.path.exists(exePath):
             log.info("%s: does not exist", exePath)
             self._lastErrorProxy.setLastError(0,
                 "PHP installation does not exist: \"%s\"" % exePath)
@@ -609,7 +609,7 @@ class KoFeatureStatusService:
         exePath = rubyInfoEx.executablePath
         log.info("%s: is sufficient ruby?", installDir)
         
-        if not os.path.exists(exePath):
+        if not exePath or not os.path.exists(exePath):
             log.info("%s: does not exist", exePath)
             self._lastErrorProxy.setLastError(0,
                 "Ruby installation does not exist: \"%s\"" % exePath)

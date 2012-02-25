@@ -1167,16 +1167,27 @@ class KoNodeJSInfoEx(KoAppInfoEx):
         else:
             path = self.installationPath
             paths = None
-        if sys.platform.startswith("win"):
-            res = os.path.join(path, "bin", "node.exe")
+
+        binaryName = "node.exe" if sys.platform.startswith("win") else "node"
+        for relPath in (("bin", binaryName), (binaryName,)):
+            res = os.path.join(path, *relPath)
+            if os.path.exists(res):
+                break
         else:
-            res = os.path.join(path, "bin", "node")
+            res = None
+
         if paths is not None:
             self.set_executablePath(res)
         return res
 
     def getInstallationPathFromBinary(self, binaryPath):
-        return os.path.dirname(os.path.dirname(binaryPath))
+        # The Node binary is expected to be in a bin/ subdirectory, except on
+        # Windows it isn't :\
+        dirname = os.path.dirname(binaryPath)
+        parent, leaf = os.path.split(dirname)
+        if leaf == "bin":
+            dirname = parent
+        return dirname
 
     def get_executablePath(self):
         nodejsExePath = self._GetNodeJSExeName()
