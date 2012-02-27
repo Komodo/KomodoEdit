@@ -792,7 +792,7 @@ this.rctabs_build_menu = function(menupopup) {
             rctab.hasDuplicateViewType ? rctab.viewType : null
             );
         menuitem.setAttribute("label", (actual_index + 1) + " " + pathPart);
-        menuitem.setAttribute("tooltiptext", pathPart);
+        menuitem.setAttribute("tooltiptext", koFile.isLocal && koFile.path || koFile.URI);
         menuitem.setAttribute('class', 'menuitem-file-status');
         ko.fileutils.setFileStatusAttributesFromFile(menuitem, koFile);
         menuitem.setAttribute("crop", "center");
