@@ -162,6 +162,23 @@ class KoPythonPyflakesChecker(_GenericPythonLinter):
     _reg_categories_ = [
          ("category-komodo-linter", 'Python&type=pyflakes'),
          ]
+    
+    warnLinePtn = re.compile(r'^(.+?):(\d+):\s+(.*)')
+    def _createAddResult(self, results, textlines, errorLines, severity):
+        for line in errorLines:
+            m = self.warnLinePtn.match(line)
+            if m:
+                lineNo = int(m.group(2))
+                desc = "pyflakes: %s" % (m.group(3),)
+                targetLine = textlines[lineNo - 1]
+                columnEnd = len(targetLine) + 1
+                result = KoLintResult(description=desc,
+                                      severity=severity,
+                                      lineStart=lineNo,
+                                      lineEnd=lineNo,
+                                      columnStart=1,
+                                      columnEnd=columnEnd)
+                results.addResult(result)
         
     def lint_with_text(self, request, text):
         if not text:
@@ -189,22 +206,20 @@ class KoPythonPyflakesChecker(_GenericPythonLinter):
             
         cmd = [pythonExe, checkerExe, tmpfilename]
         cwd = request.cwd or None
-        # We only need the stdout result.
+        # stdout for pyflakes.checker.Checker
+        # stderr for __builtin__.compile()
         try:
             p = process.ProcessOpen(cmd, cwd=cwd, env=koprocessutils.getUserEnv(), stdin=None)
-            _, stderr = p.communicate()
-            warnLines = stderr.splitlines(0) # Don't need the newlines.
+            stdout, stderr = p.communicate()
+            errorLines = stderr.splitlines(0) # Don't need the newlines.
+            warnLines = stdout.splitlines() 
         finally:
             os.unlink(tmpfilename)
-        ptn = re.compile(r'^(.+?):(\d+):\s+(.*)')
         results = koLintResults()
-        for line in warnLines:
-            m = ptn.match(line)
-            if m:
-                lineNo = int(m.group(2))
-                desc = "pyflakes: %s" % (m.group(3),)
-                severity = koLintResult.SEV_ERROR
-                koLintResult.createAddResult(results, textlines, severity, lineNo, desc)
+
+        # "createAddResult" will change lineno in some situation, so we use our version
+        self._createAddResult(results, textlines, errorLines, koLintResult.SEV_ERROR)
+        self._createAddResult(results, textlines, warnLines, koLintResult.SEV_WARNING)
         return results
 
 class KoPythonPycheckerLinter(_GenericPythonLinter):
