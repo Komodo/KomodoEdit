@@ -184,16 +184,14 @@ binding cmd_fontZoomReset Ctrl+0
 binding cmd_viewFullScreen Ctrl+C F11
 binding cmd_uncomment  Ctrl+2
 binding cmd_uncomment  Ctrl+Shift+3
-binding cmd_uncomment  Ctrl+C u
 binding cmd_comment  Ctrl+3
-binding cmd_comment  Ctrl+C c
 binding cmd_comment  Ctrl+C #
 binding cmd_quit Ctrl+X Ctrl+C
 binding cmd_refreshStatus Ctrl+C R
 
 binding cmd_startMacroMode Ctrl+X (
 binding cmd_stopMacroMode Ctrl+X )
-binding cmd_executeLastMacro Ctrl+X e
+binding cmd_executeLastMacro Ctrl+X E
 binding cmd_startIncrementalSearch Ctrl+S
 binding cmd_startIncrementalSearchBackwards Ctrl+R
 binding cmd_browserPreview Ctrl+C Ctrl+V
