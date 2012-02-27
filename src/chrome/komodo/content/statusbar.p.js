@@ -305,7 +305,15 @@ function _updateLineCol(view, currentLine, currentColumn) {
         currentLine = view.currentLine;
     if (typeof(currentColumn)=='undefined')
         currentColumn = view.currentColumn;
-
+    var redoLintRequestAtEndOfBuffer = false;
+    if (view && view.getAttribute("type") == "editor") {
+        var scimoz = view.scimoz;
+        var lastCurrentLine = scimoz.lineFromPosition(scimoz.currentPos);
+        var lastLine = scimoz.lineCount - 1;
+        redoLintRequestAtEndOfBuffer = (lastCurrentLine != currentLine
+                                        && (lastCurrentLine == lastLine
+                                            || currentLine == lastLine));
+    }
     try {
         var lineColText = _bundle.formatStringFromName("lineColCount.label",
             [currentLine, currentColumn], 2);
@@ -330,6 +338,9 @@ function _updateLineCol(view, currentLine, currentColumn) {
         return;
 
     _updateLintMessageTimer = setTimeout(_updateLintMessage, 500, view);
+    if (redoLintRequestAtEndOfBuffer) {
+        ko.lint.doRequest();   
+    }
 }
 
 
