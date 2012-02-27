@@ -787,6 +787,7 @@ function _updateMRUMenu(prefName, limit, addManageItem, MRUName)
                     }
                 }
                 menuitem.setAttribute("label", labelNum + " " + pathPart);
+                menuitem.setAttribute("tooltiptext", pathPart);
             }
 
             menuitem.setAttribute('class', 'menuitem-file-status');
