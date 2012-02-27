@@ -717,11 +717,11 @@ this.sanityCheck_then_getCurrentTarget = function() {
                                                          [(data || "<null>")], 1));
         },
       setData: function(data) {
-            if (!data || !/^stackato +[\d\.a-z]+/.test(data)) {
-                var prompt = "Help Komodo find Stackato?";
-                var response = "Yes";
+            if (!data || !/[\d\a-zA-z]\.\d/.test(data)) {
+                var prompt = bundle.GetStringFromName("Help Komodo find Stackato");
+                var response = bundle.GetStringFromName("Yes");
                 var text = bundle.formatStringFromName("Is Komodo currently using a valid version", [(data || "<null>")], 1);
-                var title = "Problems running Stackato";
+                var title = bundle.GetStringFromName("Problems running Stackato version");
                 var res = ko.dialogs.yesNo(prompt, response, text, title);
                 if (res == "Yes") {
                     opener.prefs_doGlobalPrefs('stackatoItem');
