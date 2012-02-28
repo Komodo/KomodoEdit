@@ -859,7 +859,8 @@ sub cons::GenerateIdlDependencies {
         # Skip the warning for some well-known IDL files where there is no
         # harm.
         if ($idlName ne "ISciMoz.idl" &&
-	    $idlName ne "koITest.idl") {
+	    $idlName ne "koITest.idl" &&
+	    $idlName ne "koIJSTest.idl") {
             carp("warning: not generating IDL depenencies for '$idlName': none "
                  . "of the following exist: $idlPathInSrc, $idlPathInSrc_p, "
                  . "$idlPathInSrc_unprocessed\n");
