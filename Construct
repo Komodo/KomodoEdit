@@ -434,6 +434,7 @@ Build(
 if ($withTests) {
     Build(
 	"$testBuild/pyxpcom/Conscript",
+	"$testBuild/jstest/Conscript",
     );
 }
 

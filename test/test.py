@@ -57,6 +57,7 @@ testdir_from_ns = {
     "ci": join("..", "src", "codeintel", "test2"),
     "hist": join("..", "src", "history"),
     "components": join("..", "src", "components", "test"),
+    "jstest": "jstest",
 }
 default_tags = ["-knownfailure"]
 

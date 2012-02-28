@@ -1,0 +1,42 @@
+#!/usr/local/bin/perl
+# Copyright (c) 2012 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+
+Import(
+    'build',
+    'buildFlavour',
+    'cons',
+    'idlExportDir',
+    'mozBin',
+    'mozChromeDir',
+    'mozComponentsDir',
+    'mozIdlIncludePath',
+    'mozSrc',
+    'mozVersion',
+    'platform',
+    'productType',
+    'ranRegxpcomStateFileName',
+    'sdkDir',
+    'unsiloedPythonExe',
+);
+
+$cons->Install($idlExportDir, 'koIJSTest.idl');
+$cons->BuildAndInstallXpt('koIJSTest.idl');
+$cons->InstallXpcomComponent("koJSTest.js",
+                             {'@activestate.com/koJSTestService;1' =>
+                                '{036dc8b2-7527-469c-828e-50655b56880a}'});
+$cons->Install("$mozChromeDir/komodo-jstest", "JSTest.jsm");
+$cons->Command("$mozChromeDir/komodo-jstest.manifest",
+               "$mozSrc/mozilla/config/buildlist.py",
+               qq(
+                $unsiloedPythonExe %1 "$mozBin/chrome.manifest" "manifest chrome/komodo-jstest.manifest"
+                touch %>
+               ));
+$cons->Command("komodo-jstest.manifest.landmark",
+               "$mozChromeDir/komodo-jstest.manifest",
+               "$mozSrc/mozilla/config/buildlist.py",
+               qq(
+                $unsiloedPythonExe %2 %1 "resource komodo-jstest komodo-jstest/"
+                touch %>
+               ));

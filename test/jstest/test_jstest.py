@@ -1,0 +1,137 @@
+import re, sys, testlib, unittest
+from os.path import abspath, basename, dirname, join, splitext
+from xpcom import components
+from testsupport import paths_from_path_patterns
+
+class JSTestResult:
+    _com_interfaces_ = [components.interfaces.koIJSTestResult]
+    class TracebackFrame:
+        """A fake traceback frame"""
+
+        lineno_re = re.compile(r":(\d+)$")
+        filename_re = re.compile(r"@([^@]+)$")
+
+        def __init__(self, line, tb_next):
+            class attrdict(dict):
+                def __getattr__(self, attr):
+                    return self.get(attr, None)
+                __setattr__= dict.__setitem__
+                __delattr__= dict.__delitem__
+
+            self.tb_next = tb_next
+            self.tb_frame = attrdict()
+            self.tb_frame.f_globals = []
+            self.tb_frame.f_code = attrdict()
+            self.tb_lineno = 0
+
+            match = JSTestResult.TracebackFrame.lineno_re.search(line)
+            if match:
+                self.tb_lineno = int(match.group(1))
+                line = line[:match.start(0)]
+
+            match = JSTestResult.TracebackFrame.filename_re.search(line)
+            if match:
+                self.tb_frame.f_code.co_filename = match.group(1)
+                line = line[:match.start(0)]
+            else:
+                self.tb_frame.f_code.co_filename = "<unknown file>"
+
+            self.tb_frame.f_code.co_name = line
+
+    def __init__(self):
+        self.clear()
+    def clear(self):
+        self.exception = None
+    def reportError(self, aErrorMessage, aStack, aErrorType=None):
+        tb_frame = None
+        for frame in aStack:
+            if not frame:
+                continue
+            tb_frame = JSTestResult.TracebackFrame(frame, tb_frame)
+        self.exception = (aErrorType, aErrorMessage, tb_frame)
+
+class _JSTestTestCase(unittest.TestCase):
+    def __init__(self, *args, **kwargs):
+        self._jstest_result = JSTestResult()
+        unittest.TestCase.__init__(self, *args, **kwargs)
+
+    def run(self, result=None):
+        """
+        Override unittest.TestCase.run so we can access the TestResult
+        """
+        if result is None: result = self.defaultTestResult()
+        self._jstest_result.clear()
+        return unittest.TestCase.run(self, result=result)
+
+    def setUp(self):
+        self._jstest_result.clear()
+        self._case.setUp(self._jstest_result)
+        if self._jstest_result.exception:
+            if self._jstest_result.exception[0] is not None:
+                raise self.failureException()
+            raise Exception()
+
+    def tearDown(self):
+        self._jstest_result.clear()
+        self._case.tearDown(self._jstest_result)
+        if self._jstest_result.exception:
+            if self._jstest_result.exception[0] is not None:
+                raise self.failureException()
+            raise Exception()
+
+    def _run_one_test(self, testName):
+        self._case.runTest(self._jstest_result, testName)
+        if self._jstest_result.exception:
+            if self._jstest_result.exception[0] is not None:
+                raise self.failureException()
+            raise Exception()
+
+    def _exc_info(self):
+        """
+        Override the exception info fetching to report exceptions raised from JS
+        """
+        if self._jstest_result.exception is not None:
+            return self._jstest_result.exception
+        return unittest.TestCase._exc_info(self)
+
+def test_paths():
+    """Generate the potential JS test files."""
+    self_dir = dirname(abspath(__file__))
+    komodo_src_dir = dirname(dirname(self_dir))
+    komodo_chrome_dir = join(komodo_src_dir, "src", "chrome", "komodo",
+                             "content")
+    for path in paths_from_path_patterns([komodo_chrome_dir, self_dir],
+                                         includes=["test_*.jsm"]):
+        yield path
+
+def test_cases():
+    """
+    This is a hook for testlib.testcases_from_testmod() to find the tests we
+    want to be able to deal with.
+    """
+    # The current module (we're going to define class objects on it).
+    mod = sys.modules[test_cases.__module__]
+
+    # Hackily get a handle on the "classobj" type so we can dynamically
+    # create classes. Note that these are old-style Python classes
+    # -- unittest.TestCase is still as old-style class in Python <=2.6; this
+    # changed in Python 2.7
+    classobj = type(_JSTestTestCase)
+    test_svc = components.classes['@activestate.com/koJSTestService;1']\
+                         .getService(components.interfaces.koIJSTestService)
+
+    for path in test_paths():
+        for case in test_svc.getTestsForPath(path) or []:
+            path_tag = splitext(basename(path))[0][len("test_"):]
+            clazz = classobj(case.name, (_JSTestTestCase,),
+                             {"__tags__": [path_tag],
+                              "_case": case})
+            setattr(mod, case.name, clazz)
+
+            # add no-op test_* functions
+            for test_name in case.getTestNames():
+                def new_func(test_name):
+                    return lambda self: self._run_one_test(test_name)
+                setattr(clazz, test_name, new_func(test_name))
+
+            yield clazz

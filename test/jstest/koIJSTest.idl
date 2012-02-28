@@ -1,0 +1,74 @@
+#include "nsISupports.idl"
+
+/**
+ * Interface for JS-based tests
+ */
+
+/**
+ * A test result; this is used to hold results of a test run.  Errors may be
+ * added to the result, and it should be told about tests starting and ending.
+ */
+[scriptable, uuid(af78c3ed-a3b9-4ab2-950d-cd6c3e0acc17)]
+interface koIJSTestResult : nsISupports {
+
+    /**
+     * Report that an error has occurred while attempting to run a single test
+     * @param aErrorMessage The error message
+     * @param aStack The JS stack associated with the error; the stack should
+     *      be in the form normally found in SpiderMonkey's Error.stack
+     * @param aErrorType The type of the error
+     */
+    void reportError(in AString aErrorMessage,
+                     [array, size_is(aCount)] in wstring aStack,
+                     in unsigned long aCount,
+                     [optional] in ACString aErrorType);
+};
+
+/**
+ * A single test case (the equivalent of a unittest.TestCase)
+ */
+[scriptable, uuid(803054ed-545d-46cd-9642-b7007b33066d)]
+interface koIJSTestCase : nsISupports {
+    /**
+     * The name of the test case (required by testlib)
+     */
+    readonly attribute ACString name;
+
+    /**
+     * Get the names of all tests supported by this test case
+     * @returns Array of test case names, e.g. ["test_foo", "test_bar"]
+     */
+    void getTestNames([optional] out unsigned long aCount,
+                      [retval, array, size_is(aCount)] out string aTestNames);
+
+    /**
+     * Run a single test
+     * @param aResult the result of running the tests
+     * @param aTestName The name of the test to run
+     */
+    void runTest(in koIJSTestResult aResult,
+                 in ACString aTestName);
+
+    /**
+     * Set up the test case.  This may be overridden by the test case.
+     * @param aResult the result of running the tests
+     */
+    void setUp(in koIJSTestResult aResult);
+    /**
+     * Tear down the test case.  This may be overridden by the test case.
+     * @param aResult the result of running the tests
+     */
+    void tearDown(in koIJSTestResult aResult);
+};
+
+[scriptable, uuid(0f97aa7b-2270-46f2-8936-5485a3e662be)]
+interface koIJSTestService : nsISupports {
+    /**
+     * Get test cases from a given path
+     * @param aPath The absolute path of the file to load tests from
+     * @returns The test cases found
+     */
+    void getTestsForPath(in ACString aPath,
+                         [optional] out unsigned long aCount,
+                         [retval, array, size_is(aCount)] out koIJSTestCase aTestCases);
+};
