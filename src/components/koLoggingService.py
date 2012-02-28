@@ -59,8 +59,19 @@ logging.Logger.root = logging.root
 #      Cannot do this:
 #           logging.Logger.manager.root = logging.root
 #      because the existing loggers aren't XPCOM components.
+#      Try to at least maintain as much of the levels as we can...
+levels = {}
+for key in logging.Logger.manager.loggerDict.keys():
+    try:
+        level = logging.Logger.manager.loggerDict[key].level
+        if level != logging.NOTSET:
+            levels[key] = level
+    except Exception, e:
+        pass
 logging.Logger.manager = logging.Manager(logging.Logger.root)
-
+for key, level in levels.items():
+    logging.getLogger(key).setLevel(level)
+del levels
 
 
 #---- XPCOM logging service
