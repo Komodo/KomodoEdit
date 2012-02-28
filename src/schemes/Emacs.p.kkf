@@ -32,6 +32,7 @@ binding cmd_wordLeft Meta+B
 binding cmd_splitLine Meta+Ctrl+O
 binding cmd_paraUp Meta+P
 binding cmd_paraDown Meta+N
+binding cmd_editReflow Meta+Q
 # #else
 binding cmd_editProperties Alt+Return
 binding cmd_copyRegion Alt+W
@@ -59,6 +60,8 @@ binding cmd_splitLine Alt+Ctrl+O
 binding cmd_paraUp Escape P
 binding cmd_paraUp Alt+P
 binding cmd_paraDown Escape N
+binding cmd_paraDown Alt+N
+binding cmd_editReflow Alt+Q
 # #endif
 binding cmd_transientMarkSet Ctrl+Space
 binding cmd_completeWordBack Ctrl+Shift+Space
@@ -102,7 +105,7 @@ binding cmd_toolsRunCommand Ctrl+R
 binding cmd_save Ctrl+X Ctrl+S
 binding cmd_saveAll Ctrl+Shift+S
 binding cmd_transpose Ctrl+T
-binding cmd_splittab Ctrl+X 5 2
+binding cmd_splittab Ctrl+X 2
 binding cmd_cutRegion Ctrl+W
 binding cmd_beginningOfWordExtend Ctrl+Shift+W
 binding cmd_undo Ctrl+X U
