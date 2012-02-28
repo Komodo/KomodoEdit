@@ -57,8 +57,11 @@ SEV_WARNING = 1
 SEV_INFO = 0
 
 def createAddResult(results, textlines, severity, lineNo, desc, leadingWS=None):
-    if lineNo >= len(textlines):
-        lineNo = len(textlines) - 1
+    """
+    lineNo is 1-based
+    """
+    if lineNo > len(textlines):
+        lineNo = len(textlines)
     while lineNo >= 0 and len(textlines[lineNo - 1]) == 0:
         lineNo -= 1
     if lineNo == 0:
