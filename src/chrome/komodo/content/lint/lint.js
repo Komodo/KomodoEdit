@@ -118,6 +118,15 @@ var global_pref_observer_topics = {
     "rubyDefaultInterpreter" : RUBY_LIST,
     "ruby_lintOption" : RUBY_LIST,
 
+    "javascriptExtraPaths": JS_LIST,
+    "nodejsExtraPaths": NODEJS_LIST,
+    "phpExtraPaths": PHP_LIST,
+    "pythonExtraPaths": PYTHON_LIST,
+    "python3ExtraPaths": PYTHON3_LIST,
+    "perlExtraPaths": PERL_LIST,
+    "rubyExtraPaths": RUBY_LIST,
+    "tclExtraPaths": ["Tcl"],
+
     "lintJavaScriptEnableWarnings" : JS_NODEJS_LIST,
     "lintJavaScriptEnableStrict" : JS_NODEJS_LIST,
     "lintJavaScript_SpiderMonkey" : JS_NODEJS_LIST,
