@@ -51,7 +51,7 @@ xtk.include("controller");
 var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
     .getService(Components.interfaces.nsIStringBundleService)
     .createBundle("chrome://komodo/locale/editor.properties");
-    
+
 function editor_editorController() {
 }
 
@@ -74,8 +74,8 @@ editor_editorController.prototype._is_bool_pref_command_supported = function(pre
 // See _is_bool_real_pref_command_enabled
 editor_editorController.prototype._is_bool_pref_command_enabled = function(sci_prop_name) {
     var v = ko.views.manager.currentView;
-    if (v) {
-        var exist = v.scintilla.scimoz[sci_prop_name];
+    if (v && v.scimoz) {
+        var exist = v.scimoz[sci_prop_name];
         return exist;
     }
     return false;
@@ -90,12 +90,19 @@ editor_editorController.prototype._is_bool_real_pref_command_enabled = function(
 }
 
 editor_editorController.prototype._do_bool_pref_command = function(pref_name, existing_val) {
-    ko.views.manager.currentView.prefs.setBooleanPref(pref_name, !existing_val);
+    var v = ko.views.manager.currentView;
+    if (!v) {
+        return;
+    }
+    v.prefs.setBooleanPref(pref_name, !existing_val);
     // DONT update SciMoz here - let the preference notify mechanism
     // trigger the normal preference handling code.
 }
 
-
+function _getCurrentScimozView() {
+    var v = ko.views.manager.currentView;
+    return v && v.scimoz ? v : null;
+}
 //---- find stuff
 
 editor_editorController.prototype.is_cmd_findNextSelected_enabled = function() {
@@ -106,9 +113,11 @@ editor_editorController.prototype.do_cmd_findNextSelected = function(backwards /
     if (typeof(backwards) == 'undefined' || backwards == null) {
         backwards = false;
     }
-    var v = ko.views.manager.currentView;
-    var scimoz = v.scintilla.scimoz
-    if (!scimoz) return;
+    var v = _getCurrentScimozView();
+    if (!v) {
+        return;
+    }
+    var scimoz = v.scimoz
     var pattern = scimoz.selText;
     if (pattern == '') {
         scimoz.wordLeft();
@@ -131,7 +140,8 @@ editor_editorController.prototype.do_cmd_findNextSelected = function(backwards /
 }
 
 editor_editorController.prototype.is_cmd_findPreviousSelected_enabled = function() {
-    return ko.views.manager.currentView ? true : false;
+    var v = ko.views.manager.currentView;
+    return v && !!v.scimoz;
 }
 
 editor_editorController.prototype.do_cmd_findPreviousSelected = function() {
@@ -139,39 +149,45 @@ editor_editorController.prototype.do_cmd_findPreviousSelected = function() {
 }
 
 editor_editorController.prototype.is_cmd_bookmarkToggle_enabled = function() {
-    return ko.views.manager.currentView != null;
+    return !!_getCurrentScimozView();
 }
 editor_editorController.prototype.do_cmd_bookmarkToggle = function() {
-    var v = ko.views.manager.currentView;
-    var line_no = v.scintilla.scimoz.lineFromPosition(v.scintilla.scimoz.selectionStart);
-    var markerState = v.scintilla.scimoz.markerGet(line_no);
+    var v = _getCurrentScimozView();
+    if (!v) {
+        return;
+    }
+    var line_no = v.scimoz.lineFromPosition(v.scimoz.selectionStart);
+    var markerState = v.scimoz.markerGet(line_no);
     if (markerState & (1 << ko.markers.MARKNUM_BOOKMARK)) {
-        v.scintilla.scimoz.markerDelete(line_no, ko.markers.MARKNUM_BOOKMARK);
+        v.scimoz.markerDelete(line_no, ko.markers.MARKNUM_BOOKMARK);
     } else {
         ko.history.note_curr_loc(v);
-        v.scintilla.scimoz.markerAdd(line_no, ko.markers.MARKNUM_BOOKMARK);
+        v.scimoz.markerAdd(line_no, ko.markers.MARKNUM_BOOKMARK);
     }
 }
 
 editor_editorController.prototype.is_cmd_bookmarkRemoveAll_enabled = function() {
-    return ko.views.manager.currentView != null;
+    return !!_getCurrentScimozView();
 }
 editor_editorController.prototype.do_cmd_bookmarkRemoveAll = function() {
-    var v = ko.views.manager.currentView;
-    if (v) v.scintilla.scimoz.markerDeleteAll(ko.markers.MARKNUM_BOOKMARK);
+    var v = _getCurrentScimozView();
+    if (v) v.scimoz.markerDeleteAll(ko.markers.MARKNUM_BOOKMARK);
 }
 
 editor_editorController.prototype.is_cmd_bookmarkGotoNext_enabled = function() {
-    return ko.views.manager.currentView != null;
+    return !!_getCurrentScimozView();
 }
 editor_editorController.prototype.do_cmd_bookmarkGotoNext = function() {
-    var v = ko.views.manager.currentView;
-    var thisLine = v.scintilla.scimoz.lineFromPosition(v.scintilla.scimoz.selectionStart);
+    var v = _getCurrentScimozView();
+    if (!v) {
+        return;
+    }
+    var thisLine = v.scimoz.lineFromPosition(v.scimoz.selectionStart);
     var marker_mask = 1 << ko.markers.MARKNUM_BOOKMARK;
-    var nextLine = v.scintilla.scimoz.markerNext(thisLine+1, marker_mask);
+    var nextLine = v.scimoz.markerNext(thisLine+1, marker_mask);
     if (nextLine < 0) {
         // try for search from top of file.
-        nextLine = v.scintilla.scimoz.markerNext(0, marker_mask);
+        nextLine = v.scimoz.markerNext(0, marker_mask);
     }
     if (nextLine < 0 || nextLine == thisLine) {
         ko.statusBar.AddMessage(_bundle.GetStringFromName("noNextBookmark.message"),
@@ -179,23 +195,26 @@ editor_editorController.prototype.do_cmd_bookmarkGotoNext = function() {
                              3000, true);
     } else {
         ko.history.note_curr_loc(v);
-        v.scintilla.scimoz.ensureVisibleEnforcePolicy(nextLine);
-        v.scintilla.scimoz.gotoLine(nextLine);
+        v.scimoz.ensureVisibleEnforcePolicy(nextLine);
+        v.scimoz.gotoLine(nextLine);
     }
 }
 
 
 editor_editorController.prototype.is_cmd_bookmarkGotoPrevious_enabled = function() {
-    return ko.views.manager.currentView != null;
+    return !!_getCurrentScimozView();
 }
 editor_editorController.prototype.do_cmd_bookmarkGotoPrevious = function() {
-    var v = ko.views.manager.currentView;
-    var thisLine = v.scintilla.scimoz.lineFromPosition(v.scintilla.scimoz.selectionStart);
+    var v = _getCurrentScimozView();
+    if (!v) {
+        return;
+    }
+    var thisLine = v.scimoz.lineFromPosition(v.scimoz.selectionStart);
     var marker_mask = 1 << ko.markers.MARKNUM_BOOKMARK;
-    var prevLine = v.scintilla.scimoz.markerPrevious(thisLine-1, marker_mask);
+    var prevLine = v.scimoz.markerPrevious(thisLine-1, marker_mask);
     if (prevLine < 0) {
         // try for search from bottom of file.
-        prevLine = v.scintilla.scimoz.markerPrevious(v.scintilla.scimoz.lineCount-1, marker_mask);
+        prevLine = v.scimoz.markerPrevious(v.scimoz.lineCount-1, marker_mask);
     }
     if (prevLine < 0 || prevLine == thisLine) {
         ko.statusBar.AddMessage(_bundle.GetStringFromName("noPreviousBookmark.message"),
@@ -203,8 +222,8 @@ editor_editorController.prototype.do_cmd_bookmarkGotoPrevious = function() {
                              3000, true);
     } else {
         ko.history.note_curr_loc(v);
-        v.scintilla.scimoz.ensureVisibleEnforcePolicy(prevLine);
-        v.scintilla.scimoz.gotoLine(prevLine);
+        v.scimoz.ensureVisibleEnforcePolicy(prevLine);
+        v.scimoz.gotoLine(prevLine);
     }
 }
 
@@ -254,10 +273,14 @@ editor_editorController.prototype.is_cmd_viewAsGuessedLanguage_enabled = functio
 }
 
 editor_editorController.prototype.do_cmd_viewAsGuessedLanguage = function() {
+    var v = _getCurrentScimozView();
+    if (!v) {
+        return;
+    }
     try {
-        ko.views.manager.currentView.koDoc.language = '';
-        ko.views.manager.currentView.koDoc.language = ko.views.manager.currentView.koDoc.language;
-        ko.views.manager.currentView.scimoz.colourise(0, -1);
+        v.koDoc.language = '';
+        v.koDoc.language = v.koDoc.language;
+        v.scimoz.colourise(0, -1);
     } catch (e) {
         log.exception(e);
     }
@@ -315,11 +338,16 @@ editor_editorController.prototype.do_cmd_browserPreviewInternalSameTabGroup = fu
  * handle raw key commands (i.e. insert literal key)
  */
 editor_editorController.prototype.is_cmd_rawKey_enabled = function() {
-    return ko.views.manager.currentView != null;
+    return !!_getCurrentScimozView();
 }
 
 editor_editorController.prototype.do_cmd_rawKey= function() {
-    var scintilla = ko.views.manager.currentView.scintilla;
+    var v = _getCurrentScimozView();
+    var scintilla;
+    if (!v || !(scintilla = v.scintilla)) {
+        return;
+    }
+    var scintilla = v.scintilla;
     scintilla.key_handler = this.rawHandler;
     scintilla.addEventListener('blur', gCancelRawHandler, false);
     scintilla.scimoz.isFocused = true;
@@ -330,8 +358,11 @@ editor_editorController.prototype.do_cmd_rawKey= function() {
 function gCancelRawHandler(event) {
     if (this.key_handler) {
         this.key_handler = null;
-        ko.views.manager.currentView.scintilla.
-            removeEventListener('blur', gCancelRawHandler, false);
+        var v = _getCurrentScimozView();
+        if (!v) {
+            return;
+        }
+        v.scintilla.removeEventListener('blur', gCancelRawHandler, false);
     }
     ko.statusBar.AddMessage(null, "raw_input", 0, false, true)
 }
@@ -339,7 +370,11 @@ function gCancelRawHandler(event) {
 editor_editorController.prototype.rawHandler= function(event) {
     try {
         if (event.type != 'keypress') return;
-        var scintilla = ko.views.manager.currentView.scintilla;
+        var v = _getCurrentScimozView();
+        var scintilla;
+        if (!v || !(scintilla = v.scintilla)) {
+            return;
+        }
         scintilla.key_handler = null;
         var scimoz = scintilla.scimoz;
         event.cancelBubble = true;
@@ -367,7 +402,7 @@ editor_editorController.prototype.rawHandler= function(event) {
         }
         ko.statusBar.AddMessage(null, "raw_input", 0, false, true)
     } catch (e) {
-        _log.error(e);
+        log.error(e);
     }
 };
 
