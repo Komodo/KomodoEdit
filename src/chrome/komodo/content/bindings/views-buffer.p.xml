@@ -307,6 +307,7 @@
             <setter>
                 <![CDATA[
                 try {
+                    this._clearTransientSelection();
                     if (this._transientMarkRing.length >= this._transientMarkRingSize) { // emacs default size
                         this._transientMarkRing.shift();
                     }
@@ -332,11 +333,27 @@
                 ]]>
             </setter>
         </property>
+        
+        <method name="_clearTransientSelection">
+        <body>
+        <![CDATA[
+            try {
+                var indicator = Components.interfaces.koILintResult.DECORATOR_TAG_MATCH_HIGHLIGHT;
+                var scimoz = this.scimoz;
+                scimoz.indicatorCurrent = indicator;
+                scimoz.indicatorClearRange(0, scimoz.length);
+            } catch (e) {
+                this.log.exception(e);
+            }
+        ]]>
+        </body>
+        </method>
 
         <method name="rotateTransientMarkRing">
                 <body>
                 <![CDATA[
                 try {
+                    this._clearTransientSelection();
                     this._transientMarkRing = [this._transientMarkRing.pop()].concat(this._transientMarkRing);
                 } catch (e) {
                     this.log.exception(e);
@@ -345,6 +362,54 @@
             </body>
         </method>
 
+        <method name="transientMarkPop">
+            <body>
+            <![CDATA[
+            var msg;
+            if (this._transientMarkRing.length > 0) {
+                this._transientMarkRing.pop();
+                if (this._transientMarkRing.length > 0) {
+                    this.displayTransientSelection();
+                } else {
+                    this._clearTransientSelection();
+                }
+                msg = (this._transientMarkRing.length
+                       + " transient mark"
+                       + (this._transientMarkRing.length != 1 ? "s" : "")
+                       + " remaining");
+            } else {
+                msg = "No transient marks to pop";
+            }
+            ko.statusBar.AddMessage(msg, "mark", 3000, false);
+            ]]>
+            </body>
+        </method>
+
+        <method name="displayTransientSelection">
+            <body>
+            <![CDATA[
+            var transientMarkRingArray = this._transientMarkRing;
+            var dict = transientMarkRingArray[transientMarkRingArray.length - 1];
+            var indicator = Components.interfaces.koILintResult.DECORATOR_TAG_MATCH_HIGHLIGHT;
+            var handle = dict['handle'];
+            var column = dict['column'];
+            var scimoz = this.scimoz;
+            var lineNo = scimoz.markerLineFromHandle(handle);
+            var pos = ko.views.ScimozOffsetFromUCS2Offset(scimoz,
+                         scimoz.positionFromLine(lineNo), column);
+            var currentPos = scimoz.currentPos;
+            scimoz.indicatorCurrent = indicator;
+            scimoz.indicatorClearRange(0, scimoz.length);
+            if (currentPos != pos) {
+                if (currentPos > pos) {
+                    [currentPos, pos] = [pos, currentPos];
+                }
+                scimoz.indicatorFillRange(currentPos, pos - currentPos);
+            }
+            ]]>
+            </body>
+        </method>
+                    
         <method name="moveToNextTabstop">
             <body>
             <![CDATA[

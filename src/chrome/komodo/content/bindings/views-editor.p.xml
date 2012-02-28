@@ -261,11 +261,15 @@
                     return;
                 }
                 if (!view.updateCurrentLineColor()) {
-                    this._listeningLineCol = false;
+                    this_._listeningLineCol = false;
                     window.removeEventListener('current_view_linecol_changed',
-                                                this.handle_current_view_linecol_changed, false);
+                                                this_.handle_current_view_linecol_changed, false);
                 }
-            };
+                var transientMarkRingArray = this_._transientMarkRing;
+                if (transientMarkRingArray && transientMarkRingArray.length) {
+                    this_.displayTransientSelection();
+                }
+            }; 
         ]]>
         </body>
         </method>

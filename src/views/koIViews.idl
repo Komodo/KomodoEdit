@@ -149,6 +149,7 @@ interface koIScintillaView : koIView
     attribute AString selection;
     attribute long transientMark;
     void rotateTransientMarkRing();
+    void transientMarkPop();
     attribute string encoding;
     attribute boolean alternateFaceType;
     attribute ISciMoz scimoz;

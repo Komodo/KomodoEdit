@@ -203,6 +203,7 @@ binding cmd_replaceInFiles Ctrl+Shift+H
 
 binding cmd_transientMarkExchangeWithPoint Ctrl+X Ctrl+X
 binding cmd_transientMarkMoveBack Ctrl+U Ctrl+Space
+binding cmd_transientMarkPop Ctrl+X Ctrl+Space
 binding cmd_editMoveCurrentLineToTop Ctrl+X !
 binding cmd_repeatNextCommandBy Ctrl+U
 binding cmd_pageDown Ctrl+V

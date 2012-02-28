@@ -1107,6 +1107,11 @@
             disabled="true"
             desc="&editorMoveToPreviousMarkInMarkRing.desc;"/>
         <command
+            id="cmd_transientMarkPop" key="key_cmd_transientMarkPop"
+            oncommand="ko.commands.doCommandAsync('cmd_transientMarkPop', event)"
+            disabled="true"
+            desc="&editorPopTransientMark.desc;"/>
+        <command
             id="cmd_braceMatch" key="key_cmd_braceMatch"
             oncommand="ko.commands.doCommandAsync('cmd_braceMatch', event)"
             disabled="true"

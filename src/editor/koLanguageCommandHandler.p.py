@@ -273,6 +273,9 @@ class GenericCommandHandler:
     def _do_cmd_transientMarkSet(self):
         self._view.transientMark = self._view.scimoz.currentPos
 
+    def _do_cmd_transientMarkPop(self):
+        self._view.transientMarkPop();
+
     def _do_cmd_transientMarkMoveBack(self):
         view = self._view
         sm = view.scimoz
@@ -320,18 +323,22 @@ class GenericCommandHandler:
         # view.transientMark = currentPos;
         sm.gotoPos(lineStartPos)
         sm.anchor = currentPos
-        
+
     def _do_cmd_transientMarkExchangeWithPoint(self):
         view = self._view
         mark = view.transientMark
         if mark == -1:
             return
+        try:
+            view.transientMarkPop()
+        except:
+            log.exception("No transientMark to pop")
         sm = view.scimoz
         view.transientMark = view.scimoz.currentPos
         self._koHistorySvc.note_curr_editor_loc(view)
         sm.currentPos = sm.anchor = mark
         sm.scrollCaret()
-
+        
     def _do_cmd_openLine(self):
         """ emacs keybinding: insert a newline here, position to
         left of newline after"""
