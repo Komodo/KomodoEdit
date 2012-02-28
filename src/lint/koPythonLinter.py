@@ -135,7 +135,7 @@ class KoPythonPyLintChecker(_GenericPythonLinter):
             warnLines = []
         finally:
             os.unlink(tmpfilename)
-        ptn = re.compile(r'^([A-Z])(\d+):\s*(\d+):\s*(.*)')
+        ptn = re.compile(r'^([A-Z])(\d+):\s*(\d+)(?:,\d+)?:\s*(.*)')
         results = koLintResults()
         for line in warnLines:
             m = ptn.match(line)
