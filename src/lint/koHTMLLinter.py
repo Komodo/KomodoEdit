@@ -245,11 +245,17 @@ class _CommonHTMLLinter(object):
                     
                     if thisJSShouldBeWrapped:
                         bytesByLang[name].append(" })();")
-                    elif re.compile(r'[^\n\}; \t][ \t]*$').search(actualCode) and i < lim - 1:
+                    elif (re.compile(r'[^\n\}; \t][ \t]*$').search(actualCode)
+                          and i < lim - 1
+                          and koDoc.familyForPosition(startPt - 1) == "M"
+                          and koDoc.familyForPosition(endPt) == "M"):
                         # bug 92809: this JS doesn't end with a ; } or \n, make sure
                         # next JS snippet either starts on a new line or insert a ; separator.
                         # If this JS snippet ends with a comment do nothing.  Unlikely in HTML on-handlers,
                         # but if there is one, other JS code on the same line will just be ignored by the linter.
+                        # Also do this only if the JS is surrounded on both
+                        # ends by markup code.  If it's PHP (see bug92742)
+                        # don't insert anything.
                         jsNeedsSemiColon = True
                     bytesByLang[name].append(subparts[2])
                     if squelching:
