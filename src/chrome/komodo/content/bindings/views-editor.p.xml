@@ -251,25 +251,24 @@
                     this._familyAtPosition[style] = part[0];
                 }
             }
-            var this_ = this;
-            this.handle_current_view_linecol_changed = function(event) {
+            this.handle_current_view_linecol_changed = (function(event) {
                 // TODO: We shouldn't need to use this updateCurrentLineColor
                 //       hack, we should be using Scintilla caretLineBackAlpha
                 //       setting instead, removing the need for this function.
                 var view = event.originalTarget;
-                if (view != this_) {
+                if (view != this) {
                     return;
                 }
                 if (!view.updateCurrentLineColor()) {
-                    this_._listeningLineCol = false;
+                    this._listeningLineCol = false;
                     window.removeEventListener('current_view_linecol_changed',
-                                                this_.handle_current_view_linecol_changed, false);
+                                                this.handle_current_view_linecol_changed, false);
                 }
-                var transientMarkRingArray = this_._transientMarkRing;
+                var transientMarkRingArray = this._transientMarkRing;
                 if (transientMarkRingArray && transientMarkRingArray.length) {
-                    this_.displayTransientSelection();
+                    this.displayTransientSelection();
                 }
-            }; 
+            }).bind(this); 
         ]]>
         </body>
         </method>
