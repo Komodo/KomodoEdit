@@ -69,9 +69,9 @@ interface koISerializableFast : koISerializable {
 
 // A preference.
 // Every preference has an id.
-[scriptable, uuid(73CAF531-9512-4627-9685-262E41FAA545)]
+[scriptable, uuid(b0504b20-ab16-46bd-868a-9b3f9f9ed3c6)]
 interface koIPreference : koISerializable {
-  attribute string id;
+  attribute AString id;
   attribute string type;
 
   // clone a copy of this preference set and all child preferences.
@@ -126,19 +126,19 @@ interface koIPreferenceObserver: nsISupports {
 // A set of preferences -- a dictionary-like object with
 // strings as keys and preferences as values having a one-to-one
 // relationship between keys and values.
-[scriptable, uuid(18A3E62A-E947-4001-A6C0-8AB26DA954CD)]
+[scriptable, uuid(d52b54f3-9229-4690-81d3-14dcc5971b30)]
 interface koIPreferenceSet : koIPreference {
   // A reference to the parent of this preference set,
   // or null if this preference set has no parent set.
   attribute koIPreferenceSet parent;
 
   // Returns the ids of all prefs stored in the preference set.
-  void getPrefIds([array, size_is(count)] out string ids,
+  void getPrefIds([array, size_is(count)] out wstring ids,
                 out unsigned long count);
 
   // Returns the ids of all prefs stored in the preference set,
   // *including* those in the parent (recursive)
-  void getAllPrefIds([array, size_is(count)] out string ids,
+  void getAllPrefIds([array, size_is(count)] out wstring ids,
                 out unsigned long count);
   
   // Set a preference in the preference set. If the preference does not
@@ -149,36 +149,36 @@ interface koIPreferenceSet : koIPreference {
   // They must use setPref().
   
   // If any of these fail, use the lastErrorSvc to find out why
-  void setPref(in string prefName, in koIPreference pref);
-  void setStringPref(in string prefName, in AString pref);
-  void setLongPref(in string prefName, in long pref);
-  void setDoublePref(in string prefName, in double pref);
-  void setBooleanPref(in string prefName, in boolean pref);
+  void setPref(in AString prefName, in koIPreference pref);
+  void setStringPref(in AString prefName, in AString pref);
+  void setLongPref(in AString prefName, in long pref);
+  void setDoublePref(in AString prefName, in double pref);
+  void setBooleanPref(in AString prefName, in boolean pref);
   
   // Retrieve a particular preference from the preference set.
   // It is an error to "get" a preference which does not exist or is of the
   // wrong type. Use "has*Pref" to ensure the pref exists.
-  koIPreference getPref(in string prefName);
-  wstring getPrefType(in string prefName);
-  AString getStringPref(in string prefName);
-  long getLongPref(in string prefName);
-  double getDoublePref(in string prefName);
-  boolean getBooleanPref(in string prefName);
+  koIPreference getPref(in AString prefName);
+  wstring getPrefType(in AString prefName);
+  AString getStringPref(in AString prefName);
+  long getLongPref(in AString prefName);
+  double getDoublePref(in AString prefName);
+  boolean getBooleanPref(in AString prefName);
     
   // Return true iff a preference with the specified name and type exists
   // in the preference set.
-  boolean hasPref(in string prefName);
-  boolean hasStringPref(in string prefName);
-  boolean hasLongPref(in string prefName);
-  boolean hasDoublePref(in string prefName);
-  boolean hasBooleanPref(in string prefName);
+  boolean hasPref(in AString prefName);
+  boolean hasStringPref(in AString prefName);
+  boolean hasLongPref(in AString prefName);
+  boolean hasDoublePref(in AString prefName);
+  boolean hasBooleanPref(in AString prefName);
 
   // Return true iff a preference with the specified name and type exists
   // in the preference set.
-  boolean hasPrefHere(in string prefName);
+  boolean hasPrefHere(in AString prefName);
 
   // Remove a preference from the preference set.
-  void deletePref(in string prefName);
+  void deletePref(in AString prefName);
   // Reset to an empty preference set.
   void reset();
 
@@ -189,20 +189,20 @@ interface koIPreferenceSet : koIPreference {
   // and returns a true value if the value is corect.
   // e.g. "value > 3" or "positive(3)", where positive() is 
   // defined in koPrefs.py
-  void setValidation(in wstring prefName, in wstring validation);
+  void setValidation(in AString prefName, in AString validation);
   // These return true if the proposed value is valid for the 
   // specified preference.  No preference change occurs.
-  boolean validateLong(in wstring prefName, in long value);
-  boolean validateString(in wstring prefName, in AString value);
+  boolean validateLong(in AString prefName, in long value);
+  boolean validateString(in AString prefName, in AString value);
 };
 
-[scriptable, uuid(022e7c64-5097-4aa7-9270-a27bfc858937)]
+[scriptable, uuid(ee911269-fb16-48c4-84ff-9eeb415831e7)]
 interface koIUIPreferenceSet : koIPreference {
-    koIPreference getPref( in string prefType );
-    void setPref(in string prefType, in koIPreference pref);
+    koIPreference getPref( in AString prefType );
+    void setPref(in AString prefType, in koIPreference pref);
     // XXX enumPrefs unused, commented to prevent usage
     // if needed, reimplement to not use enumerator!
-    //nsISimpleEnumerator enumPrefs(in string prefType);
+    //nsISimpleEnumerator enumPrefs(in AString prefType);
 };
 
 /* A preference set cache - a collection of preference sets that can
@@ -210,11 +210,11 @@ interface koIUIPreferenceSet : koIPreference {
    size.
 
 */
-[scriptable, uuid(68d73b86-c1f2-48fe-8b14-02f5a296863c)]
+[scriptable, uuid(7d095530-d432-4e0c-9575-2405a5cc47b5)]
 interface koIPreferenceCache : koIPreference {
     void setPref(in koIPreference pref);
-    koIPreferenceSet getPref(in wstring id);
-    boolean hasPref(in wstring id);
+    koIPreferenceSet getPref(in AString id);
+    boolean hasPref(in AString id);
     attribute PRUint32 length;
     attribute PRUint32 max_length; // defaults to 0, meaning no max size.
     nsISimpleEnumerator enumPreferences();
@@ -226,11 +226,11 @@ interface koIPreferenceCache : koIPreference {
 // We should have some decent way of "registering" well known
 // preference sets, but have punted for now.  See
 // |koGlobalPreferenceDefinition| in koPrefs.py
-[scriptable, uuid(4a263fc0-f763-4e9b-a2f4-4588f6f6d9ad)]
+[scriptable, uuid(213246d1-16c4-4c84-8b51-ca218008b013)]
 interface koIPrefService : nsISupports {
   
   // Get a well-known preference set.
-  koIPreference getPrefs(in wstring name);
+  koIPreference getPrefs(in AString name);
 
   // Get the global preference set.  Equivalent to |getPrefs("global")|
   readonly attribute koIPreference prefs;
@@ -245,7 +245,7 @@ interface koIPrefService : nsISupports {
   void saveState();
 
   // Save the named preference set to disk.
-  void savePrefsState(in wstring prefName);
+  void savePrefsState(in AString prefName);
 };
 
 /**

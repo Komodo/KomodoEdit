@@ -272,7 +272,7 @@ class koDocumentBase:
             if self.isUntitled:
                 self.prefs.id = self._untitledName
             else:
-                self.prefs.id = self.file.encodedURI
+                self.prefs.id = self.file.URI
             docStateMRU.setPref(self.prefs)
         self.prefs.parent = self._globalPrefs
 
