@@ -56,7 +56,7 @@ TestCase.prototype.failIf = function TestCase_failIf(expr, msg) {
                             "AsertFalse");
     }
 };
-TestCase.prototype.assert_ = TestCase.prototype.assertTrue =
+TestCase.prototype.assert = TestCase.prototype.assert_ = TestCase.prototype.assertTrue =
 TestCase.prototype.failUnless = function TestCase_failUnless(expr, msg) {
     if (!expr) {
         throw new TestError(msg || ("failUnless: " + expr + " != false"),
@@ -94,14 +94,14 @@ function isObjectEqual(ar1, ar2) {
 TestCase.prototype.assertEqual = TestCase.prototype.assertEquals =
 TestCase.prototype.failUnlessEqual = function TestCase_failUnlessEqual(first, second, msg) {
     if (!isValueEqual(first, second)) {
-        throw new TestError(msg || ("failUnlessEqual: " + first + " != " + second),
+        throw new TestError((msg || "failUnlessEqual") + ": " + first + " != " + second,
                             "AssertEquals");
     }
 };
 TestCase.prototype.assertNotEqual = TestCase.prototype.assertNotEquals =
 TestCase.prototype.failIfEqual = function TestCase_failUnless(first, second, msg) {
     if (isValueEqual(first, second)) {
-        throw new TestError(msg || ("failIfEqual: " + first + " == " + second),
+        throw new TestError((msg || "failIfEqual") + ": " + first + " == " + second,
                             "AssertNotEquals");
     }
 };
