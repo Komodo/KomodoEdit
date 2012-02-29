@@ -5,6 +5,8 @@ Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 
 const {TestCase, TestError} = Cu.import("resource://komodo-jstest/JSTest.jsm", {});
 
+var log = null;
+
 /**
  * Komodo JS Test Service - this is a thunk between the Python unittest
  * framework and simple JS-based tests; see /test/jstest/Readme.txt
@@ -92,16 +94,17 @@ KoJSTestCase.prototype.runTest = function KoJSTestCase_runTest(aResult, aTestNam
                             ex.type);
     } catch (ex if ex instanceof Error) {
         let stack = this._getStackForException(ex);
-        aResult.reportError("While testing " + testName + ": " + (ex.message || ex),
+        aResult.reportError("While testing " + aTestName + ": " + (ex.message || ex),
                             stack, stack.length,
                             ex.constructor.name);
     } catch (ex) {
-        aResult.reportError("While testing " + testName + ": " + (ex.message || ex),
+        aResult.reportError("While testing " + aTestName + ": " + (ex.message || ex),
                             [], 0, null);
     }
 };
 
 KoJSTestCase.prototype.setUp = function KoJSTestCase_setUp(aResult) {
+    Cc["@mozilla.org/consoleservice;1"].getService(Ci.nsIConsoleService).reset();
     this.instance = new this.clazz();
     try {
         this.instance.setUp();
@@ -129,6 +132,32 @@ KoJSTestCase.prototype.tearDown = function KoJSTestCase_tearDown(aResult) {
                             [], 0, ex.constructor ? ex.constructor.name : "Error");
     }
     delete this.instance;
+    try {
+        let messages = {};
+        Cc["@mozilla.org/consoleservice;1"].getService(Ci.nsIConsoleService).getMessageArray(messages, {});
+        if (!messages.value) {
+            return;
+        }
+        if (!log) {
+            let logging = Cu.import("chrome://komodo/content/library/logging.js", {}).logging;
+            log = logging.getLogger("jstest");
+        }
+        for each (let message in messages.value) {
+            if (message instanceof Ci.nsIScriptError) {
+                let severity = "info";
+                if (message.flags & Ci.nsIScriptError.exceptionFlag) {
+                    severity = "exception";
+                } else if (message.flags & Ci.nsIScriptError.errorFlag) {
+                    severity = "error";
+                }
+                log[severity](message.toString());
+            } else {
+                log.info(message.message);
+            }
+        }
+    } catch (ex) {
+        dump(ex);
+    }
 }
 
 /**
