@@ -355,7 +355,7 @@ class koPreferenceSet:
     def validateLong(self, prefName, value):
         self._checkPrefType(prefName, "long", 0, pref)
 
-    def _getPref(self, prefName, parentMethodName, expectedPrefType):
+    def _getPref(self, prefName, parentMethodName, expectedPrefType, defaultPref=None):
         """get a pref from the current set, else retrieve from the parent"""
         pref = None
         if self.prefs.has_key(prefName):
@@ -372,6 +372,8 @@ class koPreferenceSet:
                 pref = getattr(self.parent, parentMethodName)(prefName)
 
         if pref is None:
+            if defaultPref is not None:
+                return defaultPref
             raise COMException(nsError.NS_ERROR_UNEXPECTED, "The preference '%s' does not exist in '%r'." % (prefName, self))
         if expectedPrefType is not None and pref_type is not None and pref_type != expectedPrefType:
             raise COMException(nsError.NS_ERROR_UNEXPECTED, "The preference %s has type '%s', but was requested as type '%s'." % (prefName, pref_type, expectedPrefType))
@@ -391,6 +393,18 @@ class koPreferenceSet:
 
     def getBooleanPref(self, prefName):
         return operator.truth(self._getPref(prefName, 'getBooleanPref', "boolean"))
+
+    def getString(self, prefName, defaultValue=""):
+        return unicode(self._getPref(prefName, 'getStringPref', "string", defaultValue))
+    
+    def getLong(self, prefName, defaultValue=0):
+        return long(self._getPref(prefName, 'getLongPref', "long", defaultValue))
+
+    def getDouble(self, prefName, defaultValue=0.0):
+        return float(self._getPref(prefName, 'getDoublePref', "double", defaultValue))
+
+    def getBoolean(self, prefName, defaultValue=False):
+        return operator.truth(self._getPref(prefName, 'getBooleanPref', "boolean", defaultValue))
 
     def getPrefType(self, prefName):
         if self.prefs.has_key(prefName):

@@ -173,6 +173,15 @@ interface koIPreferenceSet : koIPreference {
   boolean hasDoublePref(in AString prefName);
   boolean hasBooleanPref(in AString prefName);
 
+  // Retrieve a particular preference from the preference set, or in the case
+  // of the preference not existing, return the default value provided.
+  // If no default value is provided, then the default will be
+  // "", 0, 0.0 or False respectively.
+  AString getString(in AString prefName, [optional] in AString defaultValue);
+  long getLong(in AString prefName, [optional] in long defaultValue);
+  double getDouble(in AString prefName, [optional] in double defaultValue);
+  boolean getBoolean(in AString prefName, [optional] in boolean defaultValue);
+
   // Return true iff a preference with the specified name and type exists
   // in the preference set.
   boolean hasPrefHere(in AString prefName);
