@@ -1237,8 +1237,8 @@ class koProject(koLiveFolderPart):
         if prefset is not None:
             prefset.idref = self.id
             prefset.chainNotifications = 1
-            prefset.parent = components.classes["@activestate.com/koPrefService;1"].\
-                getService(components.interfaces.koIPrefService).prefs
+            prefset.set_parent(components.classes["@activestate.com/koPrefService;1"].\
+                getService(components.interfaces.koIPrefService).prefs)
         self.prefset = prefset
         if prefset is not None:
             prefset.get_prefObserverService().addObserver(self, "", 1)
