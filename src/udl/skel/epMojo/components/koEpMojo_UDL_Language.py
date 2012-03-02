@@ -71,7 +71,7 @@ class koEpMojoLanguage(koHTMLLanguageBase):
     defaultExtension = '.ep'
     searchURL = "http://mojolicio.us/perldoc"
 
-    lang_from_udl_family = {'CSL': 'JavaScript', 'TPL': 'epMojo', 'M': 'HTML', 'CSS': 'CSS'}
+    lang_from_udl_family = {'CSL': 'JavaScript', 'TPL': 'epMojo', 'M': 'HTML', 'CSS': 'CSS', 'SSL': 'Perl'}
 
     sample = """
 <!doctype html><html>
@@ -125,13 +125,14 @@ class KoEpMojoLinter():
     
     epMatcher = re.compile(r'''(
                                 (?:<%(?:.|[\r\n])*?%>)   # Anything in <%...%>
-                                |(?:^%.*)                # % to eol is one-line of Perl
+                                |(?:^\s*%.*)                # % to eol is one-line of Perl
                                 |(?:\r?\n)               # Newline
                                 |(?:(?:<(?!%)|[^<\n]+)+) # Most other non-Perl
                                 |.)''',                  # Catchall
                                 re.MULTILINE|re.VERBOSE)
 
-    _leading_name = re.compile(r'\s+(\w+)')
+    _leading_name = re.compile(r'\s*(\w+)')
+    _leading_percent = re.compile(r'\s*%(.*)')
     def _fixPerlPart(self, text):
         parts = self.epMatcher.findall(text)
         if not parts:
@@ -148,8 +149,9 @@ class KoEpMojoLinter():
             elif part.startswith("<%"):
                 # Watch out for block comments
                 perlTextParts.append(self._fixTemplateMarkup(part))
-            elif part.startswith("%") and (i == 0 or parts[i - 1].endswith("\n")):
-                part = part[1:]
+            elif self._leading_percent.match(part) and (i == 0 or parts[i - 1].endswith("\n")):
+                m = self._leading_percent.match(part)
+                part = m.group(1)
                 m = self._leading_name.match(part)
                 if m:
                     term = m.group(1)
