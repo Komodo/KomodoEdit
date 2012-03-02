@@ -1153,13 +1153,14 @@ class koGlobalPrefService:
             if prefs is None:
                 # No prefs?  Create a default set.
                 prefs = components.classes[defn.contract_id].createInstance()
+            prefs = UnwrapObject(prefs)
+            if defaultPrefs is not None:
+                prefs.set_parent(defaultPrefs)
         else:
             # No user filename - so the prefset is just the defaults.
             assert defaultPrefs is not None, "No default prefs, and no user prefs - what do you expect me to do?"
-            prefs = defaultPrefs
+            prefs = UnwrapObject(defaultPrefs)
 
-        if defaultPrefs is not None and prefs is not defaultPrefs:
-            prefs.parent = defaultPrefs
         self.pref_map[prefName] = prefs, defn
         timeline.stopTimer("Komodo global preferences")
         timeline.leave("Komodo global preferences loading")
@@ -1213,8 +1214,8 @@ class koGlobalPrefService:
         # insert shared prefs in between default and user
         if sharedPrefs is not None:
             defaultPrefs = self.prefs.parent
-            self.prefs.parent = sharedPrefs
-            sharedPrefs.parent = defaultPrefs
+            self.prefs.set_parent(sharedPrefs)
+            sharedPrefs.set_parent(defaultPrefs)
         
     def getPrefs(self, name):
         if not self.pref_map.has_key(name):
