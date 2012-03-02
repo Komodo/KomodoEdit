@@ -364,12 +364,12 @@ class koPreferenceSet:
             # Try to find the preference in this preference set's
             # parent. And thusly preferences bubble up through the
             # tree of preference sets.
-            pref_type = None # the parent itself will check for us.
-            if hasattr(self.parent, "QueryInterface"):
-                parent = self.parent.QueryInterface(components.interfaces.koIPreferenceSet)
-                pref = getattr(parent, parentMethodName)(prefName)
-            else:
-                pref = getattr(self.parent, parentMethodName)(prefName)
+            try:
+                return self.parent._getPref(prefName, parentMethodName, expectedPrefType)
+            except AttributeError:
+                # Fallback - it's likely an xpcom object, so try unwrapping it.
+                self.parent = UnwrapObject(self.parent)
+                return self.parent._getPref(prefName, parentMethodName, expectedPrefType)
 
         if pref is None:
             if defaultPref is not None:
