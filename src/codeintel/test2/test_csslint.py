@@ -1528,3 +1528,15 @@ body {
 }
 """).decode("utf-8")
         self._check_zero_results_show_error(code, language="Less")
+
+    @tag("bug93115")
+    def test_less_ampersand_comma_selector(self):
+        code = dedent("""\
+body {
+    margin: 0;
+    &, input {
+        font-family: sans-serif;
+    }
+}
+""").decode("utf-8")
+        self._check_zero_results_show_error(code, language="Less")

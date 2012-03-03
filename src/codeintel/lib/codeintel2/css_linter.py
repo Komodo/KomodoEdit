@@ -632,7 +632,7 @@ class _CSSParser(object):
                     num_selected_names += 1
                 elif tok.text == "&" and self.language == "Less":
                     tok = self._tokenizer.get_next_token()
-                    if (self._classifier.is_operator_choose(tok, ("#", ".", ":", "::"))
+                    if (self._classifier.is_operator_choose(tok, ("#", ".", ":", "::", ","))
                         or self._classifier.is_special_identifier(tok)):
                         # Parse the qualifier next time around
                         self._saw_selector = True
