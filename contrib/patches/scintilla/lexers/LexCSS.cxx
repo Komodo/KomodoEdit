@@ -103,6 +103,14 @@ static bool followedByChars(int pos, int endPos,
 	return false;
 }
 
+static bool startsArg(int pos, Accessor &styler) {
+    char c;
+    while (pos > 0 && ((c = styler[pos]) == ' ' || c == '\t')) {
+        pos -= 1;
+    }
+    return (c = styler[pos]) == '(' || c == ',';
+}
+
 static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, WordList *keywordlists[], Accessor &styler) {
 	// WordList &css1Props = *keywordlists[0];
 	WordList &pseudoClasses = *keywordlists[1];
@@ -759,7 +767,7 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 				break;
 			
 			case '-':
-				if (main_substate == MAIN_SUBSTATE_IN_PROPERTY_VALUE || main_substate == MAIN_SUBSTATE_SCSS_ASSIGNMENT) {
+                if (main_substate == MAIN_SUBSTATE_IN_PROPERTY_VALUE || main_substate == MAIN_SUBSTATE_SCSS_ASSIGNMENT) {
 					if (IsADigit(sc.chNext)) {
 						sc.SetState(SCE_CSS_NUMBER);
 					} else if (IsAWordChar(sc.chNext)) {
@@ -767,7 +775,13 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 					} else {
 						sc.SetState(SCE_CSS_OPERATOR);
 					}
-				} else {
+				} else if (isLessDocument
+                           && (main_substate == MAIN_SUBSTATE_IN_SELECTOR
+                               || main_substate == MAIN_SUBSTATE_AMBIGUOUS_SELECTOR_OR_PROPERTY_NAME)
+                           && startsArg(sc.currentPos - 1, styler)
+                           && IsADigit(sc.chNext)) {
+                    sc.SetState(SCE_CSS_NUMBER);
+                } else {
 					sc.SetState(SCE_CSS_IDENTIFIER);
 				}
 				break;

@@ -1503,3 +1503,28 @@ input {
 }
 """).decode("utf-8")
         self._check_zero_results_show_error(code, language="Less")
+
+    @tag("bug93115")
+    def test_less_negative_mixin_args(self):
+        code = dedent("""\
+.negative_margin(@margin: 0) {
+    margin-right: @margin;
+}
+
+.other_margin(@foo:0, @margin: 0) {
+    margin-right: @margin;
+    margin-left: @foo;
+}
+
+body {
+    margin: 0;
+    & input {
+        font-family: sans-serif;
+        .other_margin(20px, -12px);
+    }
+    p {
+        .negative_margin(-10px);
+    }
+}
+""").decode("utf-8")
+        self._check_zero_results_show_error(code, language="Less")

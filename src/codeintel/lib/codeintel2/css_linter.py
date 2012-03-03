@@ -991,7 +991,7 @@ class _CSSParser(object):
                 mixin_vars.append(tok.text)
                 tok = self._tokenizer.get_next_token()
                 if self._classifier.is_operator(tok, ":"):
-                    self._parse_expression()
+                    self._parse_expression(consumeCommas=False)
                     tok = self._tokenizer.get_next_token()
                 if self._classifier.is_operator(tok, ","):
                     tok = self._tokenizer.get_next_token()
@@ -1205,18 +1205,18 @@ class _CSSParser(object):
                 # Put the token back, trigger an error-message later
                 self._tokenizer.put_back(tok)
 
-    def _parse_expression(self):
+    def _parse_expression(self, consumeCommas=True):
         if self._parse_term(required=True):
             while True:
-                self._parse_operator()
+                self._parse_operator(consumeCommas)
                 if not self._parse_term(required=False):
                     break
 
-    def _parse_operator(self):
+    def _parse_operator(self, consumeCommas=True):
         tok = self._tokenizer.get_next_token()
         if not self._classifier.is_operator(tok):
             self._tokenizer.put_back(tok)
-        elif tok.text in (",", "/"):
+        elif tok.text == "/" or (tok.text == "," and consumeCommas):
             # use up
             pass
         elif self.language == "Less" and tok.text in ("~", "*", "^", "-", "+", "/", "|", "&", "||", "&&",):
@@ -1301,16 +1301,20 @@ class _CSSParser(object):
             self._tokenizer.put_back(tok)
         return False
 
+    _simple_number_re=re.compile(r'\d+')
     def _parse_number(self, exp_num):
         tok = self._tokenizer.get_next_token()
-        if not self._classifier.is_number(tok):
-            if exp_num:
-                self._add_result("expecting a number", tok)
-                self._parser_putback_recover(tok)
-            else:
-                self._tokenizer.put_back(tok)
-            return False
-        return True
+        if self._classifier.is_number(tok):
+            return True
+        elif (tok.style == ScintillaConstants.SCE_CSS_UNKNOWN_PSEUDOCLASS
+              and self._simple_number_re.match(tok.text)):
+            return True
+        elif exp_num:
+            self._add_result("expecting a number", tok)
+            self._parser_putback_recover(tok)
+        else:
+            self._tokenizer.put_back(tok)
+        return False
 
     def _parse_string(self):
         tok = self._tokenizer.get_next_token()
