@@ -38,12 +38,20 @@ family markup
 
 state IN_M_DEFAULT:
 
-/{%\s*comment\s*%\}/ : paint(upto, M_DEFAULT), => IN_TPL_COMMENTBLOCK
+'{#': paint(upto, M_DEFAULT), paint(include, TPL_OPERATOR), => IN_TPL_COMMENT
+
+/\{%\s*(?=comment\s*%\})/ : paint(upto, TPL_DEFAULT), paint(include, TPL_OPERATOR) => TRANSITION_TO_COMMENTBLOCK_1
 
 '{%' : paint(upto, M_DEFAULT), paint(include, TPL_OPERATOR) => IN_TPL_DEFAULT
 
 '{{'  : paint(upto, M_DEFAULT), paint(include, TPL_OPERATOR), \
 	spush_check(IN_M_DEFAULT), => IN_TPL_DEFAULT
+
+state TRANSITION_TO_COMMENTBLOCK_1:
+'comment' : paint(upto, TPL_DEFAULT), paint(include, TPL_WORD), => TRANSITION_TO_COMMENTBLOCK_2
+
+state TRANSITION_TO_COMMENTBLOCK_2:
+'%}': paint(upto, TPL_DEFAULT), paint(include, TPL_OPERATOR), => IN_TPL_COMMENTBLOCK
 
 # See djangolex.txt for details on this state
 

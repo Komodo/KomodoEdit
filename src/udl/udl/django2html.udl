@@ -39,8 +39,18 @@
 family tpl
 
 state IN_TPL_COMMENTBLOCK:
-/{%\s*endcomment\s*%\}/ : paint(include, TPL_COMMENT), => IN_M_DEFAULT
+/\{%(?=\s*endcomment\s*%\})/ : paint(upto, TPL_COMMENT), paint(include, TPL_OPERATOR), => TRANSITION_FROM_COMMENTBLOCK_1
+
+state TRANSITION_FROM_COMMENTBLOCK_1:
+'endcomment' : paint(upto, TPL_DEFAULT), paint(include, TPL_WORD), \
+   => TRANSITION_FROM_COMMENTBLOCK_2
+
+state TRANSITION_FROM_COMMENTBLOCK_2:
+'%}' : paint(upto, TPL_DEFAULT), paint(include, TPL_OPERATOR), => IN_M_DEFAULT
 
 state IN_TPL_DEFAULT:
 '%}' : paint(upto, TPL_DEFAULT), paint(include, TPL_OPERATOR), spop_check, => IN_M_DEFAULT
 '}}' : paint(upto, TPL_DEFAULT), paint(include, TPL_OPERATOR), spop_check, => IN_M_DEFAULT
+
+state IN_TPL_COMMENT:
+'#}' : paint(upto, TPL_COMMENT), paint(include, TPL_OPERATOR), => IN_M_DEFAULT
