@@ -82,6 +82,8 @@ $cons->Preprocess('color_schemes/Dark_Luxury.p.ksf', 'color_schemes/Dark_Luxury.
 $cons->InstallAs("$supportDir/schemes/Dark_Luxury.ksf", 'color_schemes/Dark_Luxury.ksf');
 $cons->Preprocess('color_schemes/Dark_Oblivion.p.ksf', 'color_schemes/Dark_Oblivion.ksf');
 $cons->InstallAs("$supportDir/schemes/Dark_Oblivion.ksf", 'color_schemes/Dark_Oblivion.ksf');
+$cons->Preprocess('color_schemes/Dark_Solarized.p.ksf', 'color_schemes/Dark_Solarized.ksf');
+$cons->InstallAs("$supportDir/schemes/Dark_Solarized.ksf", 'color_schemes/Dark_Solarized.ksf');
 $cons->Preprocess('color_schemes/Dark_Soothing.p.ksf', 'color_schemes/Dark_Soothing.ksf');
 $cons->InstallAs("$supportDir/schemes/Dark_Soothing.ksf", 'color_schemes/Dark_Soothing.ksf');
 $cons->Preprocess('color_schemes/Dark_Wombatsosia.p.ksf', 'color_schemes/Dark_Wombatsosia.ksf');
@@ -90,6 +92,8 @@ $cons->Preprocess('color_schemes/LowContrast_Zenburn.p.ksf', 'color_schemes/LowC
 $cons->InstallAs("$supportDir/schemes/LowContrast_Zenburn.ksf", 'color_schemes/LowContrast_Zenburn.ksf');
 $cons->Preprocess('color_schemes/BlueWater.p.ksf', 'color_schemes/BlueWater.ksf');
 $cons->InstallAs("$supportDir/schemes/BlueWater.ksf", 'color_schemes/BlueWater.ksf');
+$cons->Preprocess('color_schemes/Solarized.p.ksf', 'color_schemes/Solarized.ksf');
+$cons->InstallAs("$supportDir/schemes/Solarized.ksf", 'color_schemes/Solarized.ksf');
 
 $cons->BuildAndInstallXpt('koIKeybindingSchemeService.idl');
 $cons->InstallXpcomComponent('koKeybindingSchemeService.py');
