@@ -225,6 +225,12 @@ if (typeof(ko.dragdrop)=='undefined') {
         }
     );
 
+    KomodoDropData.prototype.__defineGetter__("isKomodoProjectURL",
+        function KoDropData_get_isKomodoProjectURL() {
+            return this.isURL && this.value.match(/\.komodoproject$/i);
+        }
+    );
+
     KomodoDropData.prototype.__defineGetter__("isKomodoToolURL",
         function KoDropData_get_isKomodoToolURL() {
             return this.isURL && this.value.match(/\.komodotool$/i);
@@ -527,7 +533,8 @@ if (typeof(ko.dragdrop)=='undefined') {
                 if (koDropData.isHttpURL &&
                     !koDropData.isXpiURL &&
                     !koDropData.isKpzURL &&
-                    !koDropData.isKpfURL) {
+                    !koDropData.isKpfURL &&
+                    !koDropData.isKomodoProjectURL) {
                     // Ask the user to if they'd like to:
                     //   * view the URL source
                     //   * add a uri mapping
