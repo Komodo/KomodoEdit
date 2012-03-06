@@ -534,6 +534,7 @@ if (typeof(ko.dragdrop)=='undefined') {
                     !koDropData.isXpiURL &&
                     !koDropData.isKpzURL &&
                     !koDropData.isKpfURL &&
+                    !koDropData.isKsfURL &&
                     !koDropData.isKomodoProjectURL) {
                     // Ask the user to if they'd like to:
                     //   * view the URL source
