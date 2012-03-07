@@ -1024,8 +1024,8 @@ class koScintillaController:
     # The cursor group sets where we want to be in relation to the regex
     sentenceRegexString = r"""[\.\!\?]['"\)\]]*\s+(?P<cursor>\S)"""
     #paragraphRegexStringBack = r"""[^\r\n]\r?\n\r?\n(?P<cursor>\S)"""
-    paragraphRegexString = r""".\r?\n(?P<cursor>\r?\n)."""
-    #paragraphRegexString = r"""(\r?\n){2}\s*(?P<cursor>\S)"""
+    #paragraphRegexString = r""".\r?\n(?P<cursor>\r?\n)."""
+    paragraphRegexString = r"""(\r?\n){2}\s*(?P<cursor>\S)"""
     #sectionRegexString = r"""\r?\n(?P<cursor>\r?\n)"""
     sectionRegexString = r"""(\r?\n){2}[\S\s]*?\r?\n(?P<cursor>(def|class)\s)"""
 
