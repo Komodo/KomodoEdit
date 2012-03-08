@@ -994,9 +994,28 @@ class NonMsysPerlExe(black.configure.Datum):
             if self.value is None:
                 systemDrive = os.environ.get("SystemDrive", "C:")
                 self.candidates = [
-                    os.path.join(systemDrive, os.sep, "Perl%s%s" % self.version),
                     os.path.join(systemDrive, os.sep, "Perl"),
                 ]
+                if hasattr(self, "version"):
+                    self.candidates.insert(0,
+                        os.path.join(systemDrive, os.sep, "Perl%s%s" % self.version))
+
+                # check the registry for AS Perl installs
+                import _winreg, itertools
+                for flags in 0, _winreg.KEY_WOW64_32KEY, _winreg.KEY_WOW64_64KEY:
+                    try:
+                        parent = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE,
+                                                 r"Software\ActiveState\ActivePerl",
+                                                 0,
+                                                 _winreg.KEY_READ | flags)
+                        for i in itertools.count():
+                            # EnumKey will raise WindowsError when done
+                            version = _winreg.EnumKey(parent, i)
+                            directory = _winreg.QueryValue(parent, version)
+                            self.candidates.append(os.path.join(directory, "bin"))
+                    except WindowsError:
+                        pass
+
                 for bindir in self.candidates:
                     perl = os.path.join(bindir, "perl.exe")
                     if os.path.isfile(perl) and self._isNotMsysPerl(perl):
