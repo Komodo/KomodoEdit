@@ -169,4 +169,20 @@ TestFindInOpenFiles.prototype.test_findAll = function test_findAll() {
     this.assertEquals(tab.view.GetEndIndex(2), 17, "Bad third result end position");
 };
 
+TestFindInOpenFiles.prototype.test_markAll = function test_markAll() {
+    this.context.type = Ci.koIFindContext.FCT_CURRENT_DOC;
+    let view = ko.views.currentView = new ko.views.ViewBookmarkableMock();
+    let scimoz = view.scimoz = new ko.views.SciMozMock();
+    scimoz.text = ["hello", "world", "hello", "world", "hello", "world"].join("\n");
+    let result;
+    result = ko.find.markAll(this.scope, /* editor */
+                             this.context, /* find context */
+                             "hello", /* pattern */
+                             "hello_alias", /* pattern alias */
+                             this.msgHandler.bind(this) /* message handler */);
+    this.assertTrue(result, "Bookmarks should have been created");
+    this.assertEquals(view.bookmarks, [0, 2, 4],
+                      "Bookmarks in the wrong places");
+};
+
 const JS_TESTS = ["TestFindInOpenFiles"];
