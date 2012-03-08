@@ -245,11 +245,23 @@ class _kplNonFolder(_kplBase):
 class _kplFile(_kplNonFolder):
     image_icon = 'places_file'
     _cellImageURL = None
+    _nativeMozIconEnabled = None
+
+    @property
+    def nativeMozIconEnabled(self):
+        if _kplFile._nativeMozIconEnabled is None:
+            prefs = components.classes["@activestate.com/koPrefService;1"].\
+                getService(components.interfaces.koIPrefService).prefs
+            _kplFile._nativeMozIconEnabled = prefs.getBooleanPref("native_mozicons_available")
+        return _kplFile._nativeMozIconEnabled
 
     @property
     def cellImageURL(self):
         if self._cellImageURL is None:
-            self._cellImageURL = "moz-icon://" + self.koFile.baseName + "?size=16"
+            if self.nativeMozIconEnabled:
+                self._cellImageURL = "moz-icon://" + self.koFile.baseName + "?size=16"
+            else:
+                self._cellImageURL = "chrome://komodo/skin/images/existing_file.png"
         return self._cellImageURL
 
 class _kplOther(_kplNonFolder):
@@ -404,6 +416,7 @@ class KoPlaceTreeView(TreeView):
             self._atomsFromName[name] = self.atomSvc.getAtom(name)
         prefs = components.classes["@activestate.com/koPrefService;1"].\
             getService(components.interfaces.koIPrefService).prefs
+        prefs.prefObserverService.addObserver(self, 'native_mozicons_available', 0)
         if not prefs.hasPref("places"):
             placesPrefs = components.classes["@activestate.com/koPreferenceSet;1"].createInstance()
             prefs.setPref("places", placesPrefs)
@@ -440,6 +453,7 @@ class KoPlaceTreeView(TreeView):
     def terminate(self): # should be finalize
         prefs = components.classes["@activestate.com/koPrefService;1"].\
             getService(components.interfaces.koIPrefService).prefs
+        prefs.prefObserverService.removeObserver(self, 'native_mozicons_available')
         if prefs.hasPref("places-open-nodes-size"):
             lim = prefs.getLongPref("places-open-nodes-size")
         else:
@@ -485,6 +499,9 @@ class KoPlaceTreeView(TreeView):
                     self._invalidateRow(row)
             finally:
                 self._tree.endUpdateBatch()
+        elif topic == "native_mozicons_available":
+            # Unset the _nativeMozIconEnabled setting - and it will redetect.
+            _kplFile._nativeMozIconEnabled = None
         #qlog.debug("<< observe")
 
     # row generator interface

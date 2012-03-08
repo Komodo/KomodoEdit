@@ -409,6 +409,25 @@ this.fileProperties = function peFile_Properties(item, view, folder)
 var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
       .getService(Components.interfaces.nsIStringBundleService)
       .createBundle("chrome://komodo/locale/project/peFile.properties");
+var _nativeMozIconsAvailable = true;
+
+// Preference change observer.
+var _fileutils_pref_observer = {
+    observe: function fileutils_observe(subject, topic, data) {
+        if (topic == "native_mozicons_available") {
+            _nativeMozIconsAvailable = ko.prefs.getBooleanPref("native_mozicons_available");
+        }
+    }
+}
+
+function _init_fileutils() {
+    _nativeMozIconsAvailable = ko.prefs.getBooleanPref("native_mozicons_available");
+    ko.prefs.prefObserverService.addObserver(_fileutils_pref_observer, 'native_mozicons_available', 0);
+}
+
+function _finalize_fileutils() {
+    ko.prefs.prefObserverService.removeObserver(_fileutils_pref_observer, 'native_mozicons_available');
+}
 
 function _openDiffWindowForFiles(fname1, fname2) {
     window.setCursor("wait");
@@ -462,7 +481,11 @@ this.setFileStatusAttributesFromFile = function peFile_setFileStatusAttributesFr
     // file_readonly=[readonly]
 
     // File image url.
-    element.setAttribute('file_image_url', 'moz-icon://' + koFile.baseName + '?size=16');
+    if (_nativeMozIconsAvailable) {
+        element.setAttribute('file_image_url', 'moz-icon://' + koFile.baseName + '?size=16');
+    } else {
+        element.setAttribute('file_image_url', 'chrome://komodo/skin/images/existing_file.png');
+    }
 
     // Readonly status.
     if (!koFile.exists || koFile.isWriteable) {
@@ -510,7 +533,11 @@ this.setFileStatusAttributesFromView = function peFile_setFileStatusAttributesFr
         } else {
             if (view.koDoc) {
                 // Deal with untitled documents (that do not have a koFile).
-                element.setAttribute('file_image_url', 'moz-icon://' + view.koDoc.baseName + '?size=16');
+                if (_nativeMozIconsAvailable) {
+                    element.setAttribute('file_image_url', 'moz-icon://' + view.koDoc.baseName + '?size=16');
+                } else {
+                    element.setAttribute('file_image_url', 'chrome://komodo/skin/images/existing_file.png');
+                }
             } else {
                 element.removeAttribute('file_image_url');
             }
@@ -532,5 +559,8 @@ this.setFileStatusAttributesFromView = function peFile_setFileStatusAttributesFr
         }
     }
 }
+
+window.addEventListener("load", _init_fileutils, false);
+window.addEventListener("unload", _finalize_fileutils, false);
 
 }).apply(ko.fileutils);

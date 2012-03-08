@@ -989,4 +989,9 @@
   <boolean id="fastopen_enable_project_dir_gatherer">1</boolean>
   <long id="fastopen_history_num_entries">50</long>
 
+  <!-- Whether there are native file icons available, i.e. for "moz-icon://.js"
+       URLs. We assume they are available and then auto-detect them at Komodo
+       startup for Linux users. -->
+  <boolean id="native_mozicons_available">1</boolean>
+
 </preference-set>

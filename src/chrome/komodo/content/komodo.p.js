@@ -385,6 +385,25 @@ function onloadDelay() {
     }
 }
 
+/**
+ * Hack to detect if the native file icons "moz-icon://.js" are available.
+ */
+function _check_native_mozicon_availability() {
+    // We load a moz-icon image and then examine the width/height of it to see
+    // if the images are available. Note that the icon must be in a portion of
+    // the UI that is visible.
+    let image = document.createElement("image");
+    image.setAttribute("id", "_check_mozicon_availability");
+    image.setAttribute("src", "moz-icon://.js");
+    let komodo_vbox = document.getElementById('komodo-vbox');
+    komodo_vbox.appendChild(image);
+    window.setTimeout(function() {
+        let image = document.getElementById("_check_mozicon_availability");
+        ko.prefs.setBooleanPref("native_mozicons_available", image.boxObject.height > 0);
+        image.parentNode.removeChild(image);
+    }, 0);
+}
+
 window.onload = function(event) {
     _log.debug(">> window.onload");
     //dump(">>> window.onload\n");
@@ -392,6 +411,10 @@ window.onload = function(event) {
     try {
 // #if BUILD_FLAVOUR == "dev"
         enableDevOptions();
+// #endif
+
+// #if PLATFORM == "linux"
+        _check_native_mozicon_availability();
 // #endif
 
         /* services needed for even the most basic operation of komodo */
