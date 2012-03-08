@@ -410,24 +410,27 @@ class CatalogsZone(object):
                 try:
                     if action == "add":
                         desc = "Adding '%s' API catalog" % basename(res.subpath)
-                        self.db.report_event(desc)
                         if progress_cb:
                             try:    progress_cb(desc, (5 + 95/len(todos)*i))
                             except: log.exception("error in progress_cb (ignoring)")
+                        else:
+                            self.db.report_event(desc)
                         self._add_res(res)
                     elif action == "remove":
                         desc = "Removing '%s' API catalog" % basename(res.subpath)
-                        self.db.report_event(desc)
                         if progress_cb:
                             try:    progress_cb(desc, (5 + 95/len(todos)*i))
                             except: log.exception("error in progress_cb (ignoring)")
+                        else:
+                            self.db.report_event(desc)
                         self._remove_res(res)
                     elif action == "update":
                         desc = "Updating '%s' API catalog" % basename(res.subpath)
-                        self.db.report_event(desc)
                         if progress_cb:
                             try:    progress_cb(desc, (5 + 95/len(todos)*i))
                             except: log.exception("error in progress_cb (ignoring)")
+                        else:
+                            self.db.report_event(desc)
                         #XXX Bad for filesystem. Change this to do it
                         #    more intelligently if possible.
                         self._remove_res(res)
@@ -436,7 +439,7 @@ class CatalogsZone(object):
                     log.warn("%s (skipping)" % ex)
     
             if progress_cb:
-                try:    progress_cb("Saving catalog indeces...", 95)
+                try:    progress_cb("Saving catalog indices...", 95)
                 except: log.exception("error in progress_cb (ignoring)")
             self._res_ids_from_selector_cache = None # invalidate this cache
             if self._res_index is not None:

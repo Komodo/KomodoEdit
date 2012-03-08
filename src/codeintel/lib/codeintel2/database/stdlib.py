@@ -553,10 +553,11 @@ class StdLibsZone(object):
             verb = {"add": "Adding", "remove": "Removing",
                     "update": "Updating"}[action]
             desc = "%s %s stdlib" % (verb, name)
-            self.db.report_event(desc)
             if progress_cb:
                 try:    progress_cb(desc, (5 + 95/len(todo)*i))
                 except: log.exception("error in progress_cb (ignoring)")
+            else:
+                self.db.report_event(desc)
 
             if action == "add":
                 self._add_res(res, lang, name, ver)

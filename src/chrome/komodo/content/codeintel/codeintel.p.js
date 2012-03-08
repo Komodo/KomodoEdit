@@ -109,16 +109,8 @@ ko.codeintel = {};
         try {
             if (! ko.prefs.getBooleanPref("codeintel_have_preloaded_database")) {
                 var preloader = Components.classes["@activestate.com/koCodeIntelDBPreloader;1"]
-                                .createInstance(Components.interfaces.koIShowsProgress);
-                ko.dialogs.progress(preloader,
-                                "Pre-loading Code Intelligence Database. "
-                                    +"This process will improve the speed of first "
-                                    +"time autocomplete and calltips. It typically "
-                                    +"takes less than a minute.",
-                                "Code Intelligence",
-                                true,   // cancellable
-                                null,   // cancel warning
-                                false); // modal
+                                .createInstance(Components.interfaces.koICodeIntelDBPreloader);
+                preloader.start();
             }
         } catch(e) {
             log.exception(e);

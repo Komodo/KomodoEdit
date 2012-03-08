@@ -208,16 +208,21 @@ class KoNotificationManager:
         if "actions" in kwargs:
             types |= Ci.koINotificationManager.TYPE_ACTIONABLE
         if "maxProgress" in kwargs:
-            assert kwargs["maxProgress"] > 0, \
+            assert kwargs["maxProgress"] > 0 or \
+                kwargs["maxProgress"] in (Ci.koINotificationProgress.PROGRESS_INDETERMINATE,
+                                          Ci.koINotificationProgress.PROGRESS_NOT_APPLICABLE), \
                 "adding notification with maxProgress %r not >0" % (kwargs["maxProgress"],)
             types |= Ci.koINotificationManager.TYPE_PROGRESS
         if "details" in kwargs:
             types |= Ci.koINotificationManager.TYPE_TEXT
+        if any(x in kwargs for x in ("timeout", "highlight", "interactive", "log")):
+            types |= Ci.koINotificationManager.TYPE_STATUS
         notification = self.createNotification(identifier, tags, context, types)
         notification.summary = summary
         kwargs = kwargs.copy() # shallow copy
         for prop in ("iconURL", "severity", "description", "details",
-                     "maxProgress", "progress"):
+                     "maxProgress", "progress",
+                     "timeout", "highlight", "interactive", "log"):
             if prop in kwargs:
                 setattr(notification, prop, kwargs[prop])
                 del kwargs[prop]

@@ -46,6 +46,7 @@ interface koIProject;
 interface koIPreference;
 interface koICodeIntelBuffer;
 interface koICodeIntelService;
+interface koINotificationProgress;
 
 [scriptable, uuid(8BFCA31B-3781-4F96-A7D2-60D6D6294889)]
 interface koICodeIntelCatalogsTreeView : nsITreeView {
@@ -336,4 +337,24 @@ interface koICodeIntelService: nsISupports {
                        out PRUint32 count,
                        [retval, array, size_is(count)] out wstring subimports);
 
+};
+
+[scriptable, uuid(aca8a5c6-7ae2-4646-8706-e1e7790ee416)]
+interface koICodeIntelDBPreloader : nsISupports {
+    /**
+     * A notification to indicate the preloading progress
+     */
+    readonly attribute koINotificationProgress notification;
+
+    /**
+     * Start the preloading.  Raises NS_ERROR_IN_PROGRESS if preloading is
+     * already in progress.
+     */
+    void start();
+
+    /**
+     * Attempt to stop any currently running preloading.  Has no effect if
+     * preloading is not currently in progress.
+     */
+    void cancel();
 };

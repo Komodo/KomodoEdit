@@ -862,14 +862,13 @@ class KoCodeIntelDBUpgrader(threading.Thread):
 
 
 class KoCodeIntelDBPreloader(threading.Thread):
-    _com_interfaces_ = [components.interfaces.koIShowsProgress]
+    _com_interfaces_ = [components.interfaces.koICodeIntelDBPreloader]
     _reg_clsid_ = "{A456B064-2A30-4F87-8BCF-39F6B19C4D53}"
     _reg_contractid_ = "@activestate.com/koCodeIntelDBPreloader;1"
     _reg_desc_ = "Komodo CodeIntel Database Preloader"
 
-    controller = None
-    _progress_mode_cache = None
     cancelling = False
+    _notification = None
 
     def __init__(self):
         threading.Thread.__init__(self)
@@ -884,111 +883,165 @@ class KoCodeIntelDBPreloader(threading.Thread):
             components.interfaces.koIPreferenceSet,
             prefs, PROXY_ALWAYS | PROXY_ASYNC)
 
-    def set_controller(self, controller):
-        self.controller = getProxyForObject(1,
-            components.interfaces.koIProgressController,
-            controller, PROXY_ALWAYS | PROXY_SYNC)
-        self.controller.set_progress_mode("undetermined")
-        self.start()
+        nm = components.classes["@activestate.com/koNotification/manager;1"]\
+                .getService(components.interfaces.koINotificationManager)
+        self._nm = UnwrapObject(nm)
+
+        threadMgr = components.classes["@mozilla.org/thread-manager;1"]\
+                        .getService(components.interfaces.nsIThreadManager)
+        self._mainThread = threadMgr.mainThread
+
+    def start(self):
+        if self.is_alive():
+            raise COMException(nsError.NS_ERROR_IN_PROGRESS,
+                               "CodeIntel preloading is already running")
+        self.notification.progress = 0
+        self.cancelling = False
+        threading.Thread.start(self)
+        log.debug("Starting codeintel preloader")
 
     def cancel(self):
-        self.cancelling = True
+        if self.is_alive():
+            self.notification.details += "\nAborting..."
+            action = self.notification.getActions("stop")[0]
+            action.enabled = False
+            action.label = "Aborting..."
+            self.cancelling = True
+
+    @property
+    def notification(self):
+        if self._notification is None:
+            stopAction = {
+                "identifier": "stop",
+                "label": "Abort",
+                "handler": lambda notification, action: self.cancel(),
+            }
+            self._notification = self._nm.add("Pre-loading code intelligence database",
+                                              ["codeintel"], "codeintel-db-preload",
+                                              timeout=0,
+                                              progress=0,
+                                              maxProgress=components.interfaces.koINotificationProgress.PROGRESS_INDETERMINATE,
+                                              actions=[stopAction],
+                                              details=
+                                              "Pre-loading code intelligence database. "
+                                              "This process will improve the speed of first "
+                                              "time autocomplete and calltips. It typically "
+                                              "takes less than a minute.")
+        return self._notification
+
+    def _updateStatus(self):
+        """ When notifications explicitly support status messages, they must
+        be updated via the status_message observer topic to get pushed into
+        the status bar.  This method is a wrapper to do that on the main
+        thread, since the observer service is only accessible from there.
+        """
+        def runnable():
+            obs = components.classes["@mozilla.org/observer-service;1"]\
+                    .getService(components.interfaces.nsIObserverService)
+            obs.notifyObservers(self.notification, "status_message", None)
+        # must dispatch synchronously to make sure self.notification is
+        # still alive when this thread ends
+        self._mainThread.dispatch(runnable,
+                                  components.interfaces.nsIEventTarget.DISPATCH_SYNC)
 
     def run(self):
-        errmsg = None
-        errtext = None
         try:
-            try:
-                # Stage 1: stdlibs zone
-                # Currently updates the stdlibs for languages that Komodo is
-                # configured to use (first found on the PATH or set in prefs).
-                # TODO: Eventually would want to tie this to answers from a
-                #       "Komodo Startup Wizard" that would ask the user what
-                #       languages they use.
-                self.controller.set_stage("Preloading standard library data...")
-                stdlibs_zone = self._mgr.db.get_stdlibs_zone()
-                if stdlibs_zone.can_preload():
-                    stdlibs_zone.preload(self.progress_cb)
-                else:
-                    self.controller.set_progress_value(0)
-                    #self.controller.set_progress_mode("determined")
-                    langs = ["JavaScript", "Ruby", "Perl", "PHP", "Python",
-                             "Python3"]
-                    value_base = 5
-                    value_incr = 95/len(langs)
-                    for i, lang in enumerate(langs):
-                        if self.cancelling:
-                            return
-                        self.controller.set_progress_value(value_base)
-                        self.value_span = (value_base, value_base+value_incr)
-                        ver = None
-                        try:
-                            langAppInfo = components.classes["@activestate.com/koAppInfoEx?app=%s;1" % lang] \
-                                         .getService(components.interfaces.koIAppInfoEx)
-                        except COMException:
-                            # No AppInfo, update everything for this lang.
-                            stdlibs_zone.update_lang(lang, self.progress_cb)
+            # Stage 1: stdlibs zone
+            # Currently updates the stdlibs for languages that Komodo is
+            # configured to use (first found on the PATH or set in prefs).
+            # TODO: Eventually would want to tie this to answers from a
+            #       "Komodo Startup Wizard" that would ask the user what
+            #       languages they use.
+            self.notification.description = "Pre-loading standard library data..."
+            stdlibs_zone = self._mgr.db.get_stdlibs_zone()
+            if stdlibs_zone.can_preload():
+                stdlibs_zone.preload(self.progress_cb)
+            else:
+                self.notification.progress = 0
+                langs = ["JavaScript", "Ruby", "Perl", "PHP", "Python",
+                         "Python3"]
+                value_base = 5
+                value_incr = 80/len(langs) # stage 1 goes up to 80%
+                self.notification.maxProgress = 100
+                for i, lang in enumerate(langs):
+                    if self.cancelling:
+                        return
+                    self.notification.description = "%s standard library..." % (lang,)
+                    self.value_span = (value_base, value_base+value_incr)
+                    self.progress_cb(None, 0)
+                    ver = None
+                    try:
+                        langAppInfo = components.classes["@activestate.com/koAppInfoEx?app=%s;1" % lang] \
+                                     .getService(components.interfaces.koIAppInfoEx)
+                    except COMException:
+                        # No AppInfo, update everything for this lang.
+                        stdlibs_zone.update_lang(lang, self.progress_cb)
+                    else:
+                        if langAppInfo.executablePath:
+                            # Get the version and update this lang.
+                            try:
+                                ver_match = re.search("([0-9]+.[0-9]+)", langAppInfo.version)
+                                if ver_match:
+                                    ver = ver_match.group(1)
+                                self.notification.description = "%s %s standard library..." % (lang, ver)
+                            except:
+                                log.error("KoCodeIntelDBPreloader.run: failed to get langAppInfo.version for language %s", lang)
+                            stdlibs_zone.update_lang(lang, self.progress_cb, ver=ver)
                         else:
-                            if langAppInfo.executablePath:
-                                # Get the version and update this lang.
-                                try:
-                                    ver_match = re.search("([0-9]+.[0-9]+)", langAppInfo.version)
-                                    if ver_match:
-                                        ver = ver_match.group(1)
-                                except:
-                                    log.error("KoCodeIntelDBPreloader.run: failed to get langAppInfo.version for language %s", lang)
-                                stdlibs_zone.update_lang(lang, self.progress_cb, ver=ver)
-                            else:
-                                # Just update the progress.
-                                self.progress_cb("", value_base)
-                        value_base += value_incr
+                            # Just update the progress.
+                            self.progress_cb(None, value_base)
+                    value_base += value_incr
+                    self._updateStatus()
 
-                # Stage 2: catalog zone
-                # Preload catalogs that are enabled by default (or perhaps
-                # more than that). For now we preload all of them.
-                self.controller.set_stage("Preloading catalogs...")
-                self.controller.set_progress_value(0)
-                self.value_span = (0, 100)
-                self.controller.set_desc("")
-                self.controller.set_progress_mode("determined")
-                catalogs_zone = self._mgr.db.get_catalogs_zone()
-                catalog_selections = self._mgr.env.get_pref("codeintel_selected_catalogs")
-                catalogs_zone.update(catalog_selections,
-                                     progress_cb=self.progress_cb)
+            # Stage 2: catalog zone
+            # Preload catalogs that are enabled by default (or perhaps
+            # more than that). For now we preload all of them.
+            self.notification.description = "Pre-loading catalogs..."
+            self._updateStatus()
+            self.value_span = (self.value_span[-1], 100)
+            catalogs_zone = self._mgr.db.get_catalogs_zone()
+            catalog_selections = self._mgr.env.get_pref("codeintel_selected_catalogs")
+            catalogs_zone.update(catalog_selections,
+                                 progress_cb=self.progress_cb)
 
-                self._proxiedPrefs.setBooleanPref("codeintel_have_preloaded_database", 1)
-            except Exception, ex:
-                errmsg = "Error preloading DB: %s" % ex
-                errtext = traceback.format_exc()
+            self._proxiedPrefs.setBooleanPref("codeintel_have_preloaded_database", 1)
+            self.notification.summary = "Code intelligence database preloaded."
+            self.progress_cb("Done.", self.value_span[-1])
+            self.notification.description = ""
+        except Exception, ex:
+            self.notification.severity = components.interfaces.koINotification.SEVERITY_ERROR
+            self.notification.description = "Error preloading DB: %s" % ex
+            self.notification.details += "\n\n" + traceback.format_exc()
         finally:
-            self._mgr.db.report_event(None)
-            self.controller.done(errmsg, errtext)
+            self.notification.timeout = 3000
+            self.notification.maxProgress = components.interfaces.koINotificationProgress.PROGRESS_NOT_APPLICABLE
+            self.notification.getActions("stop")[0].visible = False
+            self._updateStatus()
 
     def progress_cb(self, desc, value):
         """Progress callback passed to db .update() methods.
         Scale the given value by `self.value_span'.
         """
-        progress_mode = value is None and "undetermined" or "determined"
-        if progress_mode != self._progress_mode_cache:
-            self.controller.set_progress_mode(progress_mode)
-            self._progress_mode_cache = progress_mode
-        self.controller.set_desc(desc)
-        if progress_mode == "determined":
+        if value is None:
+            self.notification.maxProgress = components.interfaces.koINotificationProgress.PROGRESS_INDETERMINATE
+        else:
+            # value is a percentage within ths span, bounded by self.value_span
             lower, upper = self.value_span
-            scaled_value = (upper-lower) * value / 100 + lower
-            self.controller.set_progress_value(scaled_value)
-
-
+            self.notification.progress = int((upper - lower) * (value / 100.0) + lower)
+            log.debug("preload progress: %r / %r ( %r of %r)",
+                      self.notification.progress, self.notification.maxProgress,
+                      value, self.value_span)
+        if desc is not None:
+            self.notification.details += "\n" + desc
+        self._updateStatus()
 
 class KoCodeIntelEventReporter(object):
     """An event reporter object to report on code intel progress
     """
     def __init__(self):
-        obsSvc = components.classes["@mozilla.org/observer-service;1"]\
-            .getService(components.interfaces.nsIObserverService)
-        self._proxiedObsSvc = getProxyForObject(1,
-            components.interfaces.nsIObserverService,
-            obsSvc, PROXY_ALWAYS | PROXY_ASYNC)
+        threadMgr = components.classes["@mozilla.org/thread-manager;1"]\
+                        .getService(components.interfaces.nsIThreadManager)
+        self._mainThread = threadMgr.mainThread
 
         # hash of (unicode: dir name) ->
         #    [int: number of outstanding scans, bool: scanned]
@@ -1001,7 +1054,27 @@ class KoCodeIntelEventReporter(object):
         if not msg and len(self._dirs):
             # there are new-style scans outstanding; don't do anything
             return
-        self._sendStatusMessage(msg)
+
+        koINP= components.interfaces.koINotificationProgress
+        if msg is None:
+            if self._notification.maxProgress == koINP.PROGRESS_NOT_APPLICABLE:
+                # it's already done; don't refresh the notification
+                return
+        else:
+            self._notification.msg = msg
+            self._notification.timeout = 5000
+            self._notification.highlight = False
+        self._notification.maxProgress = koINP.PROGRESS_NOT_APPLICABLE
+        self._notification.iconURL = None # remove any markings
+
+        try:
+            if msg is None:
+                # don't send as a status bar message, there's no text to update
+                self._nm.addNotification(self._notification)
+            else:
+                self._updateStatusMessage()
+        except COMException, ex:
+            pass
 
     @property
     def _notification(self):
@@ -1019,25 +1092,25 @@ class KoCodeIntelEventReporter(object):
         setattr(self, "_nm", nm)
         return n
 
-    def _sendStatusMessage(self, msg, highlight=0, timeout=5000):
-        koINP= components.interfaces.koINotificationProgress
-        if msg is None:
-            if self._notification.maxProgress == koINP.PROGRESS_NOT_APPLICABLE:
-                # it's already done; don't refresh the notification
-                return
-        else:
-            self._notification.msg = msg
-            self._notification.timeout = timeout
-            self._notification.highlight = highlight
-        self._notification.maxProgress = koINP.PROGRESS_NOT_APPLICABLE
-        self._notification.iconURL = None # remove any markings
-
+    def _updateStatusMessage(self):
+        """ When notifications explicitly support status messages, they must
+        be updated via the status_message observer topic to get pushed into
+        the status bar.  This method is a wrapper to do that on the main
+        thread, since the observer service is only accessible from there.
+        """
+        def runnable():
+            obs = components.classes["@mozilla.org/observer-service;1"]\
+                    .getService(components.interfaces.nsIObserverService)
+            obs.notifyObservers(self._notification, "status_message", None)
+        # must dispatch synchronously to make sure self.notification is
+        # still alive when this thread ends
         try:
-            if msg is None:
-                # don't send as a status bar message, there's no text to update
+            if self._notification.msg is not None:
                 self._nm.addNotification(self._notification)
+                self._mainThread.dispatch(runnable,
+                                          components.interfaces.nsIEventTarget.DISPATCH_SYNC)
             else:
-                self._proxiedObsSvc.notifyObservers(self._notification, "status_message", None)
+                self._nm.removeNotification(self._notification)
         except COMException, ex:
             pass
 
@@ -1065,11 +1138,9 @@ class KoCodeIntelEventReporter(object):
             self._notification.maxProgress = len(self._dirs)
             self._notification.progress = \
                 reduce(lambda p, v: p + v[1], self._dirs.values(), 0)
+        assert description, "Blank description in onScanStarted"
         self._notification.msg = description
-        try:
-            self._proxiedObsSvc.notifyObservers(self._notification, "status_message", None)
-        except COMExecption:
-            pass
+        self._updateStatusMessage()
 
     def onScanDirectory(self, description, dir, current=None, total=None):
         """Called when a directory is being scanned (out of possibly many)
@@ -1087,14 +1158,12 @@ class KoCodeIntelEventReporter(object):
         self._notification.maxProgress = len(self._dirs)
         self._notification.progress = \
             reduce(lambda p, v: p + v[1], self._dirs.values(), 0)
+        assert description, "Blank description in onScanDirectory"
         self._notification.msg = description
         self._notification.timeout = 0
         log.debug("onScanDirectory: scanning %r [%s] %r/%r",
                   dir, description, self._notification.progress, len(self._dirs))
-        try:
-            self._proxiedObsSvc.notifyObservers(self._notification, "status_message", None)
-        except COMException:
-            pass
+        self._updateStatusMessage()
 
     def onScanComplete(self, dirs, scanned=set()):
         """Called when a scan operation is complete
@@ -1121,13 +1190,11 @@ class KoCodeIntelEventReporter(object):
                 components.interfaces.koINotificationProgress.PROGRESS_NOT_APPLICABLE
             self._notification.iconURL = "chrome://fugue/skin/icons/tick.png"
             self._notification.timeout = 5000
-        try:
-            # always send the message to the status bar - otherwise the status
-            # bar will have a never-timing-out message.
-            self._proxiedObsSvc.notifyObservers(self._notification,
-                                                "status_message", None)
-        except COMException:
-            pass
+
+        assert self._notification.msg is not None, "Blank description in onScanComplete"
+        # always send the message to the status bar - otherwise the status
+        # bar will have a never-timing-out message.
+        self._updateStatusMessage()
 
 class KoCodeIntelService:
     _com_interfaces_ = [components.interfaces.koICodeIntelService,
