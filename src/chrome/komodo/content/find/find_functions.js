@@ -398,7 +398,7 @@ this._setupAndFindNext = function _SetupAndFindNext(editor, context, pattern, mo
             if (!_findSvc.options.searchBackward) {
                 startOffset = 0;
             } else {
-                startOffset = ko.stringutils.bytelength(text.slice(0, text.length-1));
+                startOffset = ko.stringutils.bytelength(text);
             }
             continue;
         }

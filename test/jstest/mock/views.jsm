@@ -35,9 +35,29 @@ SciMozMock.prototype.lineFromPosition =
     function SciMozMock_lineFromPosition(pos)
         (this.text.substr(0, pos).match(/\n/g) || []).length;
 
+SciMozMock.prototype.setSelection =
 SciMozMock.prototype.setSel =
-    function SciMozMock_setSel(start, end)
+    function SciMozMock_setSel(start, end) {
+        if (end < 0) end = this.text.length;
+        if (start < 0) start = end;
         [this.anchor, this.currentPos] = [start, end];
+    };
+
+Object.defineProperty(SciMozMock.prototype, "selText", {
+    get: function() this.text.substring(this.anchor, this.currentPos),
+    enumerable: true, configurable: true});
+
+Object.defineProperty(SciMozMock.prototype, "selectionStart", {
+    get: function() Math.min(this.anchor, this.currentPos),
+    enumerable: true, configurable: true});
+
+Object.defineProperty(SciMozMock.prototype, "selectionEnd", {
+    get: function() Math.max(this.anchor, this.currentPos),
+    enumerable: true, configurable: true});
+
+SciMozMock.prototype.positionAtChar =
+    function SciMozMock_positionAtChar(charPos)
+        charPos;
 
 SciMozMock.prototype.chooseCaretX =
     function SciMozMock_chooseCaretX()
