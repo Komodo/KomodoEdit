@@ -3,7 +3,7 @@ import unittest
 from koTreeView import *
 from testlib import tag
 
-class View(object):
+class TreeBoxObject(object):
     def __init__(self, log):
         self.log = log
         self.rowCount = 0
@@ -27,7 +27,7 @@ class InvalidationRangeTestCase(unittest.TestCase):
     def setUp(self):
         self.log = logging.getLogger("InvalidationRange")
         #self.log.setLevel(logging.DEBUG)
-        self.view = View(self.log)
+        self.view = TreeBoxObject(self.log)
 
     def test_rowcount_basic(self):
         invalidater = InvalidationRange(self.view, log=self.log)
@@ -302,10 +302,11 @@ class InvalidationRangeTestCase(unittest.TestCase):
 class ParentIndexTestCase(unittest.TestCase):
     """ Test cases for finding the parent index """
     def setUp(self):
-        self.log = logging.getLogger("koTreeView::parentIndex")
+        self.log = logging.getLogger("koTreeView.parentIndex")
         #self.log.setLevel(logging.DEBUG)
-        self.view = ObjectTreeView() #debug="koTreeView::parentIndex")
-        self.view.setTree(View(self.log))
+        self.view = ObjectTreeView() #debug="koTreeView.parentIndex")
+        boxObject = TreeBoxObject(self.log)
+        self.view.setTree(boxObject)
 
         # This is a template of the tree we want to test with.  It's a tuple,
         # where each item is a tuple of (name, subtree).  Each subtree is again
@@ -335,20 +336,48 @@ class ParentIndexTestCase(unittest.TestCase):
             )),
             ("next-root", ()),
         )
-        def build_tree(parent, template):
-            assert isinstance(template, tuple), \
-                "Trying to build tree from a non-tuple template %r" % (template,)
-            for child in template:
-                assert isinstance(child, tuple), \
-                    "Trying to build template but found non-tuple child %r" % (child,)
-                assert len(child) == 2, \
-                    "Trying to build template but found invalid child %r" % (child,)
-                item = ObjectTreeViewItem(log = self.view.log)
-                setattr(item, "text", child[0])
-                build_tree(item, child[1])
-                parent.insertChild(item)
 
-        build_tree(self.view, template)
+        self.build_tree(self.view, template)
+
+    def build_tree(self, parent, template):
+        assert isinstance(template, tuple), \
+            "Trying to build tree from a non-tuple template %r" % (template,)
+        for child in template:
+            assert isinstance(child, tuple), \
+                "Trying to build template but found non-tuple child %r" % (child,)
+            assert len(child) == 2, \
+                "Trying to build template but found invalid child %r" % (child,)
+            item = ObjectTreeViewItem(log = self.view.log)
+            setattr(item, "text", child[0])
+            self.build_tree(item, child[1])
+            parent.insertChild(item)
+
+    def dump(self):
+        """Dump the current tree"""
+        def dump_node(node, indent):
+            attrs = filter(lambda name: getattr(node, name, False),
+                           ("open", "invisible", "hidden"))
+            attrs = " %s" % (" ".join(attrs)) if attrs else ""
+            self.log.info("%s<%s%s @ %r + %r>",
+                          indent, node.text, attrs, node.rowIndex, node.rowCount)
+            for child in node.children:
+                dump_node(child, "  %s" % (indent,))
+        self.log.info("-" * 10)
+        dump_node(self.view, "")
+
+    def get_item(self, text):
+        """Get the first item with the given text"""
+        found = []
+        def do_filter(node):
+            if node.text == text:
+                found.append(node)
+                raise StopIteration
+            for child in node.children:
+                do_filter(child)
+        try:
+            do_filter(self.view)
+        except StopIteration:
+            return found[0] if len(found) > 0 else None
 
     def test_template_construction(self):
         def dump_item(item, indent=""):
@@ -366,6 +395,23 @@ class ParentIndexTestCase(unittest.TestCase):
         for child in self.view.children:
             self.assertEquals(self.view.getParentIndex(child.rowIndex), -1)
             check_item(child)
+
+    def test_close_flush(self):
+        """Closing a not-visible child should still cause its parents to
+        recalculate children row count data so that things are in sync once the
+        child becomes visible again"""
+        items = {}
+        for name in ("root", "grandparent", "parent", "next-p-sibling"):
+            items[name] = self.get_item(name)
+            self.assertEquals(name, items[name].text, "got the wrong item")
+            items[name].rowIndex # populate the cache
+            items[name].rowCount # populate the cache
+        items["root"].open = False
+        items["grandparent"].invisible = True
+        items["parent"].open = False
+        items["next-p-sibling"].open = False
+        items["root"].open = True
+        self.assertEquals(items["grandparent"].rowCount, 2)
 
 def test_cases():
     return [InvalidationRangeTestCase, ParentIndexTestCase]

@@ -176,10 +176,11 @@ class TreeView(object):
     def getAllIndices(self):
         treeSelection = self.selection
         a = []
-        numRanges = treeSelection.getRangeCount()
-        for i in range(numRanges):
-            min_index, max_index = treeSelection.getRangeAt(i)
-            a += range(min_index, max_index + 1)
+        if treeSelection is not None:
+            numRanges = treeSelection.getRangeCount()
+            for i in range(numRanges):
+                min_index, max_index = treeSelection.getRangeAt(i)
+                a += range(min_index, max_index + 1)
         return a
 
     def getSelectedIndices(self, rootsOnly=False):
@@ -401,7 +402,7 @@ class ObjectTreeViewItem(object):
                     self._rowCountChanged(row_index, child_count,
                                           "%s.open=%s" % (self.text, val))
             self._open = val
-            self.invalidate(recurse=(row_index is not None and child_count != 0))
+            self.invalidate(recurse=True)
         if restoreSelection:
             self.view.selectRowByIndex(self.rowIndex)
 
