@@ -2,9 +2,9 @@ const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 Cu.import("resource://komodo-jstest/JSTest.jsm");
 
 var ko = {};
-ko.logging = Cu.import("chrome://komodo/content/library/logging.js", {}).logging;
 Cu.import("resource://komodo-jstest/mock/mock.jsm", {})
-  .import(ko, "views", "macros", "history", "stringutils");
+  .import(ko, "logging", "views", "macros", "mru", "history", "stringutils",
+          "findresults");
 
 function TestFindInOpenFiles() {
     this.scope = null;
@@ -37,7 +37,7 @@ TestFindInOpenFiles.prototype.msgHandler =
 function TestFindInOpenFiles_msgHandler(level, context, message) {
     this.fail("Message handler called in quiet mode: " +
               "level=" + level + " context=" + context +
-              "message=" + message);
+              " message=" + message + "\n");
 };
 
 TestFindInOpenFiles.prototype.test_findNext = function test_findNext() {
@@ -126,6 +126,47 @@ TestFindInOpenFiles.prototype.test_findPrevious = function test_findPrevious() {
     this.assertTrue(result, "Failed to find results");
     this.assertEquals(scimoz.anchor, 12, "Incorrect start position");
     this.assertEquals(scimoz.currentPos, 17, "Incorrect end position");
+};
+
+TestFindInOpenFiles.prototype.test_findAll = function test_findAll() {
+    this.context.type = Ci.koIFindContext.FCT_CURRENT_DOC;
+    let scimoz = ko.views.currentView.scimoz = new ko.views.SciMozMock();
+    scimoz.text = "hello hello hello";
+    let result;
+    result = ko.find.findAll(this.scope, /* editor window */
+                             this.context, /* find context */
+                             "hello", /* pattern */
+                             "hello_alias", /* pattern alias */
+                             this.msgHandler.bind(this), /* message handler */
+                             false /* hightlight matches */);
+    this.assertTrue(result, "Failed to find all");
+    let tab = ko.findresults.getTab();
+    this.assertTrue(tab.success, "Find results claimed failure");
+    this.assertEquals(tab.numResults, 3, "Did not find all results");
+    this.assertEquals(tab.numFiles, null, "Not expecting file counts for current doc");
+    this.assertEquals(tab.numFilesSearched, null, "Not expecting file counts for current doc");
+
+    this.assertEquals(tab.journalId, undefined, "Journal id given for non-replace findAll");
+    this.assertEquals(tab.view.GetNumUrls(), 1, "Expected 1 URL");
+    this.assertEquals(ko.views.currentView.koDoc.displayPath, tab.view.GetUrl(0),
+                      "Unexpected URL for the document");
+
+    this.assertEquals(tab.view.rowCount, 3, "Expected 3 results");
+    for (let i = 0; i < tab.view.rowCount; ++i) {
+        this.assertEquals(tab.view.getCellText(i, {id: "value"}), "hello", "Unexpected text");
+        this.assertEquals(tab.view.GetValue(i), "hello", "Unexpected value");
+        this.assertEquals(tab.view.GetType(i), "hit", "Unexpected tpe");
+        this.assertEquals(tab.view.GetReplacement(i), "", "Should not have a replacement");
+        this.assertEquals(tab.view.GetLineNum(i), 1, "Should have no lines involved");
+        this.assertEquals(tab.view.GetColumnNum(i), tab.view.GetStartIndex(i) + 1,
+                          "Column numbers should match start indices");
+    }
+    this.assertEquals(tab.view.GetStartIndex(0), 0, "Bad first result start position");
+    this.assertEquals(tab.view.GetEndIndex(0), 5, "Bad first result end position");
+    this.assertEquals(tab.view.GetStartIndex(1), 6, "Bad second result start position");
+    this.assertEquals(tab.view.GetEndIndex(1), 11, "Bad second result end position");
+    this.assertEquals(tab.view.GetStartIndex(2), 12, "Bad third result start position");
+    this.assertEquals(tab.view.GetEndIndex(2), 17, "Bad third result end position");
 };
 
 const JS_TESTS = ["TestFindInOpenFiles"];

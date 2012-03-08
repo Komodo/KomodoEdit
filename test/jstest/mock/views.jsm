@@ -4,6 +4,8 @@ ko.views = {
 (function() {
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
+let logging = Cu.import("chrome://komodo/content/library/logging.js", {}).logging;
+let log = logging.getLogger("views.mock");
 
 /**
  * Create a new mock scimoz
@@ -19,13 +21,28 @@ SciMozMock.prototype.charPosAtPosition =
     function SciMozMock_charPosAtPosition(pos)
         pos < 0 ? this.currentPos : pos;
 
-SciMozMock.prototype.gotoPos =
-    function SciMozMock_gotoPos(pos)
-        this.currentPos = pos;
+SciMozMock.prototype.chooseCaretX =
+    function SciMozMock_chooseCaretX()
+        void(0);
 
 SciMozMock.prototype.ensureVisibleEnforcePolicy =
     function SciMozMock_ensureVisibleEnforcePolicy()
         void(0);
+
+SciMozMock.prototype.getLineEndPosition =
+    function SciMozMock_getLineEndPosition(aLine) {
+        let lines = this.text.match(new RegExp("(?:[^\n]*\n){" + (aLine + 1) + "}", "m")) || [""];
+        let lastLine = lines.pop().replace(/\n$/, "");
+        return lines.reduce(function(n, s) n + s.length, 0) + lastLine.length;
+    };
+
+SciMozMock.prototype.getTextRange =
+    function SciMozMock_getTextRange(aStart, aEnd)
+        this.text.substring(aStart, aEnd);
+
+SciMozMock.prototype.gotoPos =
+    function SciMozMock_gotoPos(pos)
+        this.currentPos = pos;
 
 SciMozMock.prototype.hideSelection =
     function SciMozMock_hideSelection(aHide)
@@ -35,33 +52,37 @@ SciMozMock.prototype.lineFromPosition =
     function SciMozMock_lineFromPosition(pos)
         (this.text.substr(0, pos).match(/\n/g) || []).length;
 
-SciMozMock.prototype.setSelection =
-SciMozMock.prototype.setSel =
-    function SciMozMock_setSel(start, end) {
-        if (end < 0) end = this.text.length;
-        if (start < 0) start = end;
-        [this.anchor, this.currentPos] = [start, end];
-    };
+SciMozMock.prototype.positionAtChar =
+    function SciMozMock_positionAtChar(start, charoffset)
+        start + charoffset;
 
-Object.defineProperty(SciMozMock.prototype, "selText", {
-    get: function() this.text.substring(this.anchor, this.currentPos),
+SciMozMock.prototype.positionFromLine =
+    function SciMozMock_positionFromLine(aLine)
+        this.text.match(new RegExp("(?:[^\n]*\n){" + aLine + "}", "m"))
+            .reduce(function(n, s) n + s.length, 0);
+
+Object.defineProperty(SciMozMock.prototype, "selectionEnd", {
+    get: function() Math.max(this.anchor, this.currentPos),
     enumerable: true, configurable: true});
 
 Object.defineProperty(SciMozMock.prototype, "selectionStart", {
     get: function() Math.min(this.anchor, this.currentPos),
     enumerable: true, configurable: true});
 
-Object.defineProperty(SciMozMock.prototype, "selectionEnd", {
-    get: function() Math.max(this.anchor, this.currentPos),
+Object.defineProperty(SciMozMock.prototype, "selText", {
+    get: function() this.text.substring(this.anchor, this.currentPos),
     enumerable: true, configurable: true});
 
-SciMozMock.prototype.positionAtChar =
-    function SciMozMock_positionAtChar(charPos)
-        charPos;
+SciMozMock.prototype.setSelection =
+SciMozMock.prototype.setSel =
+    function SciMozMock_setSel(start, end) {
+        if (end < 0) end = this.text.length;
+        if (start < 0) start = end;
+        log.debug("setSelection: [" + start + "," + end + "] = " +
+                  this.getTextRange(start, end));
+        [this.anchor, this.currentPos] = [start, end];
+    };
 
-SciMozMock.prototype.chooseCaretX =
-    function SciMozMock_chooseCaretX()
-        void(0);
 
 /**
  * Create a new mock KoDoc
@@ -81,6 +102,18 @@ function KoDocMock(aParams) {
 }
 
 /**
+ * Create a mock <scintilla> element
+ */
+function ScintillaMock(aView) {
+    this._view = aView;
+}
+
+Object.defineProperty(ScintillaMock.prototype, "scimoz", {
+    get: function() this._view.scimoz,
+    configurable: true, enumerable: true,
+});
+
+/**
  * Create a new mock view
  * @note The parameters are all optional, and use a dictionary.
  * @param text {String} The text to pre-fill
@@ -96,6 +129,7 @@ function ViewMock(aParams) {
                  .number;
     this.koDoc = new KoDocMock({});
     this.scimoz = new SciMozMock();
+    this.scintilla = new ScintillaMock(this);
 }
 this.ViewMock = ViewMock;
 

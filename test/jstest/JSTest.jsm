@@ -46,6 +46,7 @@ TestCase.prototype.setUp = function TestCase_setUp() {};
  */
 TestCase.prototype.tearDown = function TestCase_teardown() {};
 
+TestCase.fail =
 TestCase.prototype.fail = function TestCase_fail(msg) {
     throw new TestError(msg || ("Unknown failure"), "Assert");
 };
@@ -59,7 +60,7 @@ TestCase.prototype.failIf = function TestCase_failIf(expr, msg) {
 TestCase.prototype.assert = TestCase.prototype.assert_ = TestCase.prototype.assertTrue =
 TestCase.prototype.failUnless = function TestCase_failUnless(expr, msg) {
     if (!expr) {
-        throw new TestError(msg || ("failUnless: " + expr + " != false"),
+        throw new TestError((msg || ("failUnless: " + expr + " != false")) + ": " + expr,
                             "AssertTrue");
     }
 };
