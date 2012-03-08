@@ -386,7 +386,8 @@ function onloadDelay() {
 }
 
 /**
- * Hack to detect if the native file icons "moz-icon://.js" are available.
+ * Hack to detect if the native file icons "moz-icon://.js" are available -
+ * bug 92863.
  */
 function _check_native_mozicon_availability() {
     // We load a moz-icon image and then examine the width/height of it to see
