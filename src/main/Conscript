@@ -285,7 +285,17 @@ if (!$xulrunner) {
     # Make sure we run before the regxpcom process (which currently tries to
     # do this build). (XXX Not sure this is necessary any more.)
     $cons->Depends($ranRegxpcomStateFileName, $mozExe);
-    
+
+    if ($platform eq "darwin") {
+        # need to rebuild the PkgInfo file to have a matching application ID
+        $cons->Command("$mozApp/Contents/PkgInfo",
+                       "$mozKomodoSrcDir/app/macbuild/Contents/Info.plist.in",
+                       "$mozExe",
+                       # the printf splits the %s on purpose to get around cons :/
+                       qq(
+                        printf "APPL%"s `grep -A1 CFBundleSignature %1 | tail -n1 | cut -d '<' -f 2 | cut -d '>' -f 2` > %0
+                       ));
+    }
     
     if ($platform eq "win") {
         # Build the Komodo stub exe for Windows
