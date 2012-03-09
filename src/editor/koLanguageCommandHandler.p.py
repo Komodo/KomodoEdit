@@ -1305,30 +1305,6 @@ class GenericCommandHandler:
     _is_cmd_jumpToMatchingBrace_enabled = _is_cmd_selectToMatchingBrace_enabled
     _is_cmd_braceMatch_enabled = _is_cmd_selectToMatchingBrace_enabled
 
-    def _do_cmd_braceMatch(self):
-        view = self._view
-        sm = view.scimoz
-        braceAtCaret, braceOpposite, isInside = self._findMatchingBracePosition(sm.currentPos)
-        
-        if braceAtCaret != -1 and braceOpposite == -1:
-            sm.braceBadLight(braceAtCaret)
-            sm.highlightGuide = 0
-        else:
-            chBrace = sm.getWCharAt(braceAtCaret)
-            sm.braceHighlight(braceAtCaret, braceOpposite)
-            columnAtCaret = sm.getColumn(braceAtCaret)
-            if chBrace == ':':
-                lineStart = sm.lineFromPosition(braceAtCaret)
-                indentPos = sm.getLineIndentPosition(lineStart)
-                indentPosNext = sm.getLineIndentPosition(lineStart+1)
-                columnAtCaret = sm.getColumn(indentPos)
-                columnAtCaretNext = sm.getColumn(indentPosNext)
-                indentSize = sm.indent
-                if (columnAtCaretNext - indentSize > 1):
-                    columnAtCaret = columnAtCaretNext - indentSize 
-            columnOpposite = sm.getColumn(braceOpposite)
-            sm.highlightGuide = min(columnAtCaret, columnOpposite)
-
     def _do_cmd_selectToMatchingBrace(self):
         self._goMatchingBrace(1)
 

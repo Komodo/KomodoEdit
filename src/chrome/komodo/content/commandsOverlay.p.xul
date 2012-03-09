@@ -1112,11 +1112,6 @@
             disabled="true"
             desc="&editorPopTransientMark.desc;"/>
         <command
-            id="cmd_braceMatch" key="key_cmd_braceMatch"
-            oncommand="ko.commands.doCommandAsync('cmd_braceMatch', event)"
-            disabled="true"
-            desc="&sourceCodeMatchBraces.desc;"/>
-        <command
             id="cmd_fontZoomIn" key="key_cmd_fontZoomIn"
             oncommand="ko.commands.doCommandAsync('cmd_fontZoomIn', event)"
             disabled="true"

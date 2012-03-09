@@ -662,7 +662,6 @@
 <!ENTITY sourceCodeGoToDefinition.desc "Code: Go to Definition">
 <!ENTITY sourceCodeJumpToCorrespondingLine.desc "Code: Jump to corresponding line">
 <!ENTITY sourceCodeJumpToMatchingBrace.desc "Code: Jump to Matching Brace">
-<!ENTITY sourceCodeMatchBraces.desc "Code: Match Braces">
 <!ENTITY sourceCodeNextSyntaxErrorWarning.desc "Code: Next Syntax Error/Warning">
 <!ENTITY sourceCodeRunSyntaxCheck.desc "Code: Run Syntax Check">
 <!ENTITY sourceCodeSelectBlock.desc "Code: Select Block">
