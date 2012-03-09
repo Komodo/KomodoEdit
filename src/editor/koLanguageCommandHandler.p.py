@@ -1303,7 +1303,6 @@ class GenericCommandHandler:
             return 0
 
     _is_cmd_jumpToMatchingBrace_enabled = _is_cmd_selectToMatchingBrace_enabled
-    _is_cmd_braceMatch_enabled = _is_cmd_selectToMatchingBrace_enabled
 
     def _do_cmd_selectToMatchingBrace(self):
         self._goMatchingBrace(1)
