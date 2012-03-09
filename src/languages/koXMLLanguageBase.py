@@ -49,7 +49,6 @@ class koXMLLanguageBase(KoUDLLanguage):
 
     primary = 1
     styleBits = 8
-    supportsBraceHighlighting = 0
     commentDelimiterInfo = { "block": [ ("<!--", "-->") ]  }
     _indent_chars = u'<>'
     _indent_open_chars = u'>'

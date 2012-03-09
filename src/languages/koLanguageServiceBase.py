@@ -844,7 +844,6 @@ class KoLanguageBase:
     styleBits = 5
     stylingBitsMask = None # set by setter below
     indicatorBits = 2
-    supportsBraceHighlighting = 1
     sample = '' # used in the fonts & colors dialog
     downloadURL = '' # location to download the language
     searchURL = '' # used by the language help system

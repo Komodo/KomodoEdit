@@ -107,10 +107,6 @@ interface koILanguage : nsISupports {
     void getNamespaces(out unsigned long count,
                           [retval, array, size_is(count)] out wstring namespaces);
 
-    // If true, then enable the cmd_braceMatch command -- requires
-    // that the lexer assign the same style to matching braces
-    readonly attribute boolean supportsBraceHighlighting;
-    
     void getLanguageService(in nsIIDRef iid, 
                             [retval,iid_is(iid)] out nsISupports result);
     wstring getEncodingWarning(in koIEncoding encoding);
