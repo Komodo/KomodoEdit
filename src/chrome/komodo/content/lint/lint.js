@@ -64,12 +64,8 @@ if (typeof(ko)=='undefined') {
 ko.lint = {};
 (function() {
     
-__defineGetter__("_lintSvc",
-function()
-{
-    return Components.classes["@activestate.com/koLintService;1"].
+var _lintSvc = Components.classes["@activestate.com/koLintService;1"].
                 getService(Components.interfaces.koILintService);
-});
 
 var _log = ko.logging.getLogger("lint");
 //_log.setLevel(ko.logging.LOG_INFO);
