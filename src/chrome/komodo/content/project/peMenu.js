@@ -44,11 +44,11 @@ if (typeof(ko.projects)=='undefined') {
     ko.projects = {};
 }
 
+(function() {
+
 function _IDFromPart(part) {
     return "ko_custom_" + part.type + "_" + part.id;
 };
-
-(function() {
 
 function peMenu() {
     try {
