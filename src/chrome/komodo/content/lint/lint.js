@@ -275,13 +275,6 @@ this.lintBuffer.prototype.usingSubLanguage = function(subLanguageList) {
         filter(function(val) val >= 0).length > 0;
 }
 
-this.lintBuffer.prototype.processPendingRequests = function() {
-    if (this.pendingRequest) {
-        this.pendingRequest = false;
-        this.request();
-    }
-};
-
 // nsIObserver.observe()
 this.lintBuffer.prototype.observe = function(subject, topic, data)
 {
