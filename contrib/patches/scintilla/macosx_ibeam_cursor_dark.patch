@@ -243,7 +243,7 @@ Index: src/scintilla/macosx/PlatMacOSX.cxx
  void Window::SetCursor(Cursor curs) {
      if (wid) {
          // TODO: This isn't really implemented correctly. I should be using
-@@ -969,7 +988,16 @@
+@@ -969,7 +988,17 @@
  
          switch ( curs ) {
              case cursorText:
@@ -253,7 +253,8 @@ Index: src/scintilla/macosx/PlatMacOSX.cxx
 +                    cursor = kThemeIBeamCursor;
 +                } else {
 +                    if (!cursorIBeam) {
-+                        cursorIBeam = CreateCocoaCursorFromBytes(kIBeamData, sizeof(kIBeamData), 6, 10);
++                        // The non-blank area of the image is only 8x16, so the hotspot is ~ middle of that
++                        cursorIBeam = CreateCocoaCursorFromBytes(kIBeamData, sizeof(kIBeamData), 4, 8);
 +                    }
 +                    SetCocoaCursor(cursorIBeam);
 +                    return;
