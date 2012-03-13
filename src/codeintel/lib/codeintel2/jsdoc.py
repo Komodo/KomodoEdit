@@ -369,6 +369,9 @@ class JSDoc:
         self.baseclasses.append(value)
 
     # Same as base
+    def _handle_augments(self, value):
+        self._handle_base(value)
+    # Same as base
     def _handle_extends(self, value):
         self._handle_base(value)
 
