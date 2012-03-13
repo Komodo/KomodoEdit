@@ -1293,6 +1293,10 @@ class JSObject:
         if self.cixname == "class":
             for baseclass in self.classrefs:
                 addClassRef(cixobject, baseclass)
+        if self.jsdoc and self.jsdoc.baseclasses:
+            for baseclass in self.jsdoc.baseclasses:
+                if baseclass not in self.classrefs:
+                    addClassRef(cixobject, baseclass)
 
         allValues = self.functions.values() + self.members.values() + \
                     self.classes.values() + self.variables.values() + \
