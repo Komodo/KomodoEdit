@@ -1066,6 +1066,25 @@ class JSDocTestCase(CodeIntelTestCase):
              ("variable", "foo2"),
              ("variable", "x")])
 
+    @tag("bug93261")
+    def test_jsdoc_object_extends(self):
+        content, positions = unmark_text(dedent("""\
+            var Foo = {
+                'f1': 1
+            }
+            /**
+             * @extends Foo
+             */
+            var Foo2 = {
+                'f2': 2
+            }
+            var myfoo2 = new Foo2();
+            myfoo2.<1>x = 1;
+        """))
+        self.assertCompletionsAre(markup_text(content, pos=positions[1]),
+            [("variable", "f1"),
+             ("variable", "f2")])
+
     @tag("bug92803")
     def test_jsdoc_type_comments(self):
         content, positions = unmark_text(dedent("""\
