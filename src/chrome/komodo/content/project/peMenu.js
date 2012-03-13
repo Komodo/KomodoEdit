@@ -46,10 +46,6 @@ if (typeof(ko.projects)=='undefined') {
 
 (function() {
 
-function _IDFromPart(part) {
-    return "ko_custom_" + part.type + "_" + part.id;
-};
-
 function peMenu() {
     try {
         ko.main.addWillCloseHandler(this.finalize, this);
@@ -122,7 +118,7 @@ peMenu.prototype.observe_aux = function(part, topic, data)
                 break;
             case 'part_changed':
                 try {
-                    id = _IDFromPart(part);
+                    id = ko.projects.customIdFromPart(part);
                     var xulelt = document.getElementById(id);
                     if (xulelt) {
                         xulelt.setAttribute('image', part.iconurl)
@@ -135,7 +131,7 @@ peMenu.prototype.observe_aux = function(part, topic, data)
             case 'menu_changed':
                 try {
                     // First get rid of the old menu
-                    id = _IDFromPart(part);
+                    id = ko.projects.customIdFromPart(part);
                     menu = document.getElementById(id);
                     if (!menu) {
                         break;
@@ -187,6 +183,16 @@ var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
       .createBundle("chrome://komodo/locale/project/peMenu.properties");
 var log = ko.logging.getLogger('peMenu');
 
+/**
+ * Return a custom id that can be used for the part's menu or toolbar element.
+ * 
+ * @param   {Components.interfaces.koIPart} part  The toolbox part.
+ * @returns {String} The id for a DOM element.
+ */
+this.customIdFromPart = function _IDFromPart(part) {
+    return "ko_custom_" + part.type + "_" + part.id;
+};
+
 this.partAcceptsMenuToolbar = function peMenu_partAcceptsMenuToolbar(part) {
     // Used to check early whether a part can be added
     while (part) {
@@ -216,7 +222,7 @@ this.addMenuFromPart = function peMenu_addMenuFromPart(part) {
         var base_ordinal = 100;
 
         var name = part.name;
-        var id = _IDFromPart(part);
+        var id = ko.projects.customIdFromPart(part);
         var menubar = document.getElementById('menubar_main');
         if (menubar.getElementsByAttribute('id', id).length >= 1) {
             // Multi-window filter.
@@ -246,7 +252,7 @@ this.addMenuFromPart = function peMenu_addMenuFromPart(part) {
 this.removeMenuForPart = function peMenu_removeMenuForPart(part) {
     try {
         // First get rid of the old menu
-        var id = _IDFromPart(part);
+        var id = ko.projects.customIdFromPart(part);
         var menu = document.getElementById(id);
         if (!menu) {
             log.warn("removeMenuForPart: can't find menu with id: " + id);
@@ -261,7 +267,7 @@ this.removeMenuForPart = function peMenu_removeMenuForPart(part) {
 this.removeToolbarForPart = function peMenu_removeToolbarForPart(part) {
     try {
         // First get rid of the old menu
-        var id = _IDFromPart(part);
+        var id = ko.projects.customIdFromPart(part);
         var toolbar = document.getElementById(id);
         if (!toolbar) {
             log.error("Couldn't find toolbar with id: '" + id + "'");
@@ -297,7 +303,7 @@ this.addToolbarFromPart = function peMenu_addToolbarFromPart(part) {
 
         // minimal display ordinal an element will have
         var base_ordinal = 100;
-        var id = _IDFromPart(part);
+        var id = ko.projects.customIdFromPart(part);
         var cmd_id = 'cmd_custom_toolbar_'+id;
         var visible = ! ko.projects.isToolbarRememberedAsHidden(id);
 
@@ -402,7 +408,7 @@ this.onToolboxUnloaded = function(toolboxDir) {
 
 this.updateToolbarForPart = function(part) {
     // First get rid of the old menu
-    var toolbar = document.getElementById(_IDFromPart(part));
+    var toolbar = document.getElementById(ko.projects.customIdFromPart(part));
     if (!toolbar) {
         return;
     }
@@ -517,7 +523,7 @@ function _createToolbaritemFromPart(toolbar, part)
     button.setAttribute('tooltiptext', name);
     button.setAttribute('tooltip', 'aTooltip');
     button.setAttribute('label', name);
-    button.setAttribute('id', _IDFromPart(part));
+    button.setAttribute('id', ko.projects.customIdFromPart(part));
     return button;
   } catch (e) {
     log.exception(e);
@@ -552,7 +558,7 @@ function _createMenuItemFromPart(menupopup, part)
             menuitem.setAttribute('oncommand', "ko.projects.invokePartById('" + part.id + "');");
             break;
         }
-    menuitem.setAttribute('id', _IDFromPart(part));
+    menuitem.setAttribute('id', ko.projects.customIdFromPart(part));
     menuitem.setAttribute('image', part.iconurl);
     menuitem.setAttribute('label', name);
     if (part.hasAttribute('keyboard_shortcut')) {
