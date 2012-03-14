@@ -1038,7 +1038,7 @@
                 this.scimoz.currentPos = position;
                 this.scimoz.anchor = position;
                 if (results.length == 2) {
-                    fname = results[0];
+                    var fname = results[0];
                     lineNo = results[1];
                     lineNo = Number(lineNo);
                     var os = Components.classes["@activestate.com/koOs;1"].createInstance();
