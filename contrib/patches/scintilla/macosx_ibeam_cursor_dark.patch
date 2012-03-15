@@ -105,7 +105,7 @@ Index: src/scintilla/macosx/NSCursorWrappers.m
 ===================================================================
 --- macosx/NSCursorWrappers.m	1969-12-31 16:00:00.000000000 -0800
 +++ macosx/NSCursorWrappers.m	2012-01-10 17:02:02.000000000 -0800
-@@ -0,0 +1,93 @@
+@@ -0,0 +1,94 @@
 +/*
 + File:    NSCursorWrappers.m
 + 
@@ -168,15 +168,16 @@ Index: src/scintilla/macosx/NSCursorWrappers.m
 + */
 +CursorRef CreateCocoaCursorFromBytes( const void* bytes, unsigned int length, float hotSpotX, float hotSpotY )
 +{
++    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 +    NSData *data = [NSData dataWithBytes:bytes length:length];
 +    NSImage *image = [[NSImage alloc] initWithData:data];
-+    [data release];
 +    if (!image) {
-+        [image release];
++        [pool release];
 +        return (CursorRef)0;
 +    }
 +    NSCursor *cursor = [[NSCursor alloc] initWithImage:image hotSpot:NSMakePoint(hotSpotX, hotSpotY)];
-+    [image release];
++    [cursor retain];
++    [pool release];
 +    return (CursorRef)cursor;
 +}
 +
