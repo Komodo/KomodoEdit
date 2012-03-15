@@ -1,11 +1,24 @@
-Scintilla: Mac OSX: use custom I-beam cursor to be visible on dark backgrounds
-http://bugs.activestate.com/show_bug.cgi?id=91591
+From 1ce6f8f6adf30be6d78e4e78448dd18b8e1235d0 Mon Sep 17 00:00:00 2001
+From: Mark Yen <marky+git@activestate.com>
+Date: Thu, 15 Mar 2012 16:37:01 -0700
+Subject: [PATCH] Scintilla: Mac OSX: use custom I-beam cursor to be visible on dark backgrounds
+ http://bugs.activestate.com/show_bug.cgi?id=91591
 
-Index: src/scintilla/include/Platform.h
-===================================================================
---- include/Platform.h	2012-01-10 17:03:53.000000000 -0800
-+++ include/Platform.h	2012-01-10 17:01:07.000000000 -0800
-@@ -399,18 +399,23 @@
+---
+ include/Platform.h        |    5 ++
+ macosx/NSCursorWrappers.h |   67 ++++++++++++++++++++++++++++++++
+ macosx/NSCursorWrappers.m |   94 +++++++++++++++++++++++++++++++++++++++++++++
+ macosx/PlatMacOSX.cxx     |   33 +++++++++++++++-
+ macosx/makefile           |    6 +-
+ 5 files changed, 201 insertions(+), 4 deletions(-)
+ create mode 100644 macosx/NSCursorWrappers.h
+ create mode 100644 macosx/NSCursorWrappers.m
+
+diff --git include/Platform.h include/Platform.h
+index de7093e..af6fdf5 100644
+--- include/Platform.h
++++ include/Platform.h
+@@ -399,18 +399,23 @@ protected:
  #if PLAT_MACOSX
  	void *windowRef;
  	void *control;
@@ -29,10 +42,11 @@ Index: src/scintilla/include/Platform.h
  #endif
  	}
  	virtual ~Window();
-Index: src/scintilla/macosx/NSCursorWrappers.h
-===================================================================
---- macosx/NSCursorWrappers.h	1969-12-31 16:00:00.000000000 -0800
-+++ macosx/NSCursorWrappers.h	2012-01-10 17:02:02.000000000 -0800
+diff --git macosx/NSCursorWrappers.h macosx/NSCursorWrappers.h
+new file mode 100644
+index 0000000..fe1de0e
+--- /dev/null
++++ macosx/NSCursorWrappers.h
 @@ -0,0 +1,67 @@
 +/*
 + Disclaimer: IMPORTANT:  This Apple software is supplied to you by Apple Computer, Inc.
@@ -101,10 +115,11 @@ Index: src/scintilla/macosx/NSCursorWrappers.h
 +#ifdef __cplusplus
 +} /* extern "C" */
 +#endif /* __cplusplus */
-Index: src/scintilla/macosx/NSCursorWrappers.m
-===================================================================
---- macosx/NSCursorWrappers.m	1969-12-31 16:00:00.000000000 -0800
-+++ macosx/NSCursorWrappers.m	2012-01-10 17:02:02.000000000 -0800
+diff --git macosx/NSCursorWrappers.m macosx/NSCursorWrappers.m
+new file mode 100644
+index 0000000..feed489
+--- /dev/null
++++ macosx/NSCursorWrappers.m
 @@ -0,0 +1,94 @@
 +/*
 + File:    NSCursorWrappers.m
@@ -200,10 +215,10 @@ Index: src/scintilla/macosx/NSCursorWrappers.m
 +{
 +  [NSCursor unhide];
 +}
-Index: src/scintilla/macosx/PlatMacOSX.cxx
-===================================================================
---- macosx/PlatMacOSX.cxx	2012-01-10 17:03:53.000000000 -0800
-+++ macosx/PlatMacOSX.cxx	2012-01-10 17:00:54.000000000 -0800
+diff --git macosx/PlatMacOSX.cxx macosx/PlatMacOSX.cxx
+index 9b80db0..da92742 100644
+--- macosx/PlatMacOSX.cxx
++++ macosx/PlatMacOSX.cxx
 @@ -23,6 +23,7 @@
  #include "Scintilla.h"
  #include "PlatMacOSX.h"
@@ -212,8 +227,17 @@ Index: src/scintilla/macosx/PlatMacOSX.cxx
  
  using namespace Scintilla;
  
-@@ -852,6 +853,10 @@
+@@ -845,13 +846,19 @@ Surface *Surface::Allocate() {
+ }
+ 
+ Window::~Window() {
++    Destroy();
+ }
+ 
+ void Window::Destroy() {
+     if (windowRef) {
          DisposeWindow(reinterpret_cast<WindowRef>( windowRef ));
++        windowRef = 0;
      }
      wid = 0;
 +    if (cursorIBeam) {
@@ -223,7 +247,7 @@ Index: src/scintilla/macosx/PlatMacOSX.cxx
  }
  
  bool Window::HasFocus() {
-@@ -961,6 +966,20 @@
+@@ -961,6 +968,20 @@ void Window::SetFont(Font &) {
      // TODO: Do I need to implement this? MSDN: specifies the font that a control is to use when drawing text.
  }
  
@@ -244,7 +268,7 @@ Index: src/scintilla/macosx/PlatMacOSX.cxx
  void Window::SetCursor(Cursor curs) {
      if (wid) {
          // TODO: This isn't really implemented correctly. I should be using
-@@ -969,7 +988,17 @@
+@@ -969,7 +990,17 @@ void Window::SetCursor(Cursor curs) {
  
          switch ( curs ) {
              case cursorText:
@@ -263,10 +287,10 @@ Index: src/scintilla/macosx/PlatMacOSX.cxx
                  break;
              case cursorArrow:
                  cursor = kThemeArrowCursor;
-Index: src/scintilla/macosx/makefile
-===================================================================
---- macosx/makefile	2012-01-10 17:03:53.000000000 -0800
-+++ macosx/makefile	2012-01-10 17:19:19.000000000 -0800
+diff --git macosx/makefile macosx/makefile
+index bcca48a..b92c781 100644
+--- macosx/makefile
++++ macosx/makefile
 @@ -5,7 +5,7 @@
  # This makefile assumes that Apple's version of GCC 3.1 is used and changes will be needed to use other compilers.
  # GNU make does not like \r\n line endings so should be saved to CVS in binary form.
@@ -276,7 +300,7 @@ Index: src/scintilla/macosx/makefile
  CC = g++
  CCOMP = gcc
  LIBTOOL = libtool
-@@ -76,14 +76,14 @@
+@@ -78,14 +78,14 @@ clean:
  	rm -f *.o $(COMPLIB)
  
  deps:
@@ -293,3 +317,6 @@ Index: src/scintilla/macosx/makefile
  	$(LEXOBJS)
  
  ../bin/$(STATICLIB): $(COMPLIB) libpcre.a
+-- 
+1.7.4.1
+
