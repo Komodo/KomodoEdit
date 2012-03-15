@@ -651,7 +651,7 @@ this.doRequest = function lint_doRequest() {
         view.lintBuffer._notify();
         view.lintBuffer._issueRequest()
     } catch (e) {
-        log.exception(e);
+        _log.exception(e);
     }
 }
 
@@ -661,7 +661,7 @@ this.clearResults = function lint_clearResults() {
         view.lintBuffer._clearResults();
         view.lintBuffer._notify();
     } catch (e) {
-        log.exception(e);
+        _log.exception(e);
     }
 }
 
@@ -669,7 +669,7 @@ this.doClick = function lint_doClick(event) {
     try {
         if (event.shiftKey) ko.lint.doRequest();
     } catch (e) {
-        log.exception(e);
+        _log.exception(e);
     }
 }
 
