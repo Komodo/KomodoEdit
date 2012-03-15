@@ -766,7 +766,6 @@
               <File Id="file2116" Name="KONSIS_0.PY" LongName="koNsisLanguage.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koNsisLanguage.py"/>
               <File Id="file2117" Name="KOOBSE_0.PY" LongName="koObserverService.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koObserverService.py"/>
               <File Id="file2118" Name="koOs.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koOs.py"/>
-              <File Id="file2119" Name="KOOTHE_0.PY" LongName="koOthersLanguage.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koOthersLanguage.py"/>
               <File Id="file2121" Name="KOPASC_0.PY" LongName="koPascalLanguage.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koPascalLanguage.py"/>
               <File Id="file2124" Name="KOPERL_2.PY" LongName="koPerlCompileLinter.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koPerlCompileLinter.py"/>
               <File Id="file2126" Name="KOPERL_4.PY" LongName="koPerlLanguage.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koPerlLanguage.py"/>
