@@ -113,7 +113,6 @@ $cons->InstallXpcomComponent('koMSSQLLanguage.py');
 $cons->InstallXpcomComponent('konnCrontabLanguage.py');
 $cons->InstallXpcomComponent('koNimrodLanguage.py');
 $cons->InstallXpcomComponent('koNsisLanguage.py');
-$cons->InstallXpcomComponent('koOthersLanguage.py');
 $cons->InstallXpcomComponent('koPascalLanguage.py');
 $cons->InstallXpcomComponent('koPowerBasicLanguage.py');
 $cons->InstallXpcomComponent('koPowerProLanguage.py');
