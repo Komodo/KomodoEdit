@@ -83,8 +83,7 @@ function OnPreferencePageOK(prefset) {
  *    language we're showing prefs for.
  */
 var _mappedNames = {
-    "HTML5": "HTML",
-    "Node.js": "JavaScript"
+    "HTML5": "HTML"
 }
 function getMappedName(languageName) {
     return (languageName in _mappedNames
@@ -94,6 +93,7 @@ function getMappedName(languageName) {
 
 function showLanguageNamePanel(languageName) {
     var deckID = null;
+    debugger;
     if (languageName) {
         if (languageName in languageSetup) {
             languageSetup[languageName](languageName);
@@ -309,13 +309,7 @@ function javaScript_setup(languageName) {
         pref_setElementEnabledState(djs.lintJavaScriptEnableStrict, djs.lintJavaScriptEnableWarnings.checked);
     }
     languageInfo.JavaScript.doWarningEnabling(djs.lintWithJSLint);
-    if (languageName === "JavaScript") {
-        djs.jshintGroupbox.removeAttribute("collapsed");
-        languageInfo.JavaScript.doWarningEnabling(djs.lintWithJSHint);
-    } else {
-        //  (languageName === "Node.js") {
-        djs.jshintGroupbox.setAttribute("collapsed", "true");
-    }
+    languageInfo.JavaScript.doWarningEnabling(djs.lintWithJSHint);
 }
 
 languageSetup.JavaScript = javaScript_setup;
@@ -512,7 +506,63 @@ function javaScriptInfo() {
         __EOD__: null
     };
 }
-languageSetup["Node.js"] = javaScript_setup;
+
+
+function nodeJS_setup(languageName) {
+    var djs;
+    if (!('Node.js' in dialog)) {
+        djs = dialog['Node.js'] = {};
+        ["lintNodeJS_SpiderMonkey",
+         "lintNodeJSEnableWarnings",
+         "lintNodeJSEnableStrict",
+         "jslint_NodeJS_BrutalMode",
+         "jslint_NodeJS_GoodPartsButton",
+         "jslintOptions_NodeJS",
+         "jslint_NodeJS_PrefsVbox",
+         "lintWithJSLint_NodeJS"
+         ].forEach(function(name) {
+            djs[name] = document.getElementById(name);
+        });
+        languageInfo['Node.js'] = nodeJSInfo();
+    } else {
+        djs = dialog['Node.js'];
+    }
+    if (!djs.lintNodeJS_SpiderMonkey.checked) {
+        pref_setElementEnabledState(djs.lintNodeJSEnableWarnings, false);
+        pref_setElementEnabledState(djs.lintNodeJSEnableStrict, false);
+    } else {
+        pref_setElementEnabledState(djs.lintNodeJSEnableWarnings, true);
+        pref_setElementEnabledState(djs.lintNodeJSEnableStrict, djs.lintNodeJSEnableWarnings.checked);
+    }
+}
+
+languageSetup['Node.js'] = nodeJS_setup;
+
+function nodeJSInfo() {
+    var jsInfo = javaScriptInfo();
+    delete jsInfo.allJSHintStrictSettings;
+    delete jsInfo.jsInfoaddAllJSHintOptions;
+    jsInfo.doWarningEnabling = function(checkbox) {
+        var djs = dialog.NodeJS;
+        var isChecked = checkbox.checked;
+        switch (checkbox) {
+        case djs.lintNodeJS_SpiderMonkey:
+            pref_setElementEnabledState(djs.lintNodeJSEnableWarnings, isChecked);
+            pref_setElementEnabledState(djs.lintNodeJSEnableStrict, isChecked && djs.lintJavaScriptEnableWarnings.checked);
+            break;
+        case djs.lintNodeJSEnableWarnings:
+            pref_setElementEnabledState(djs.lintNodeJSEnableStrict, isChecked);
+            break;
+        case djs.lintWithJSLint_NodeJS:
+            pref_setElementEnabledState(djs.jslint_NodeJS_GoodPartsButton, isChecked);
+            pref_setElementEnabledState(djs.jslint_NodeJS_BrutalMode, isChecked);
+            pref_setElementEnabledState(djs.jslint_NodeJS_Options, isChecked);
+            djs.jslint_NodeJS_PrefsVbox.collapsed = !isChecked;
+            break;
+        }
+    };
+    return jsInfo;
+}
 
 function perl_setup() {
     if (!('Perl' in dialog)) {

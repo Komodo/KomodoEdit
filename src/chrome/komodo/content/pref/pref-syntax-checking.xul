@@ -155,6 +155,62 @@
                 </groupbox>
             </vbox>
             
+            <vbox id="langSyntaxCheck-Node.js">
+                <groupbox orient="vertical" >
+                    <caption label="&basicChecking.label;"/>
+                    <checkbox id="lintNodeJS_SpiderMonkey"
+                              label="&lintJavaScript_SpiderMonkey.label;"
+                              pref="true"
+                              oncommand="languageInfo.NodeJS.doWarningEnabling(this);"/>
+                    <checkbox id="lintNodeJSEnableWarnings"
+                              label="&lintJavaScriptEnableWarnings.label;"
+                              class="indentedPref01"
+                              pref="true"
+                              oncommand="languageInfo.NodeJS.doWarningEnabling(this);"/>
+                    <checkbox id="lintNodeJSEnableStrict"
+                              class="indentedPref02"
+                              label="&lintJavaScriptEnableStrict.label;"
+                              pref="true"/>
+                </groupbox>
+                <groupbox orient="vertical" >
+                    <caption label="&JSLint.label;"/>
+                    <checkbox id="lintWithJSLint_NodeJS"
+                              label="&lintJavaScriptWithJSLint.label;"
+                              pref="true"
+                              oncommand="languageInfo.NodeJS.doWarningEnabling(this);" />
+                    <vbox id="jslint_NodeJS_PrefsVbox">
+                       <hbox id="jslint_NodeJS_OptionsBox" flex="1">
+                         <vbox id="jslint_NodeJS_OptionsBox-vbox">
+                           <label id="&lintJSLintOptions.label;" control="jslint_NodeJS_Options"
+                                  value="JSLint Options:" />
+                           <button id="jslint_NodeJS_GoodPartsButton"
+                                   label="&lintJSLint_ActivateGoodPartsOptions.label;"
+                                   oncommand="languageInfo.NodeJS.addGoodParts();" />
+                           <button id="jslint_NodeJS_BrutalMode"
+                                   label="&lintJSLint_ActivateAllOptions.label;"
+                                   oncommand="languageInfo.NodeJS.addAllOptions();" />
+                         </vbox>
+                         <textbox id="jslintOptions_NodeJS" multiline="true" rows="5" value=""
+                                  flex="1"
+                                  pref="true" />
+                       </hbox>
+                       <separator class="thin"/>
+                       <description id="jslint_NodeJS_OptionsExplanation">
+                             &lintJSLint_Explanation.descr;
+                       </description>
+                       <separator class="thin"/>
+                       <hbox>
+                            <label value="&lintJSLint_WebSiteLabel.label;"/>
+                            <button label="&lt;http://www.jslint.com/lint.html#options&gt;"
+                                class="button-link"
+                                style="margin: -10px; color: #b82619;"
+                                onclick="getKoObject('browse').openUrlInDefaultBrowser('http://www.jslint.com/lint.html#options');"/>
+                       </hbox>
+                    </vbox>
+                </groupbox>
+                <!-- No jshint for node (yet) -->
+            </vbox>
+            
             <vbox id="langSyntaxCheck-HTML">
               <groupbox orient="vertical">
                   <caption label="&HTMLTidy.label;"/>
