@@ -234,7 +234,6 @@
             
             this._currentFamily = "";
             this._highlightColors = null;
-            this._listeningLineCol = false;
             // Duplicate of koUDLLanguageBase.familyAtPosition to avoid
             // making the xpcom call on every call.  We know we're in
             // a UDL file.
@@ -259,10 +258,9 @@
                 if (view != this) {
                     return;
                 }
-                if (!view.updateCurrentLineColor()) {
-                    this._listeningLineCol = false;
-                    window.removeEventListener('current_view_linecol_changed',
-                                                this.handle_current_view_linecol_changed, false);
+                if (this._doHighlightColors && !view.updateCurrentLineColor()) {
+                    // It failed, so don't highlight anymore.
+                    this._doHighlightColors = false;
                 }
                 var transientMarkRingArray = this._transientMarkRing;
                 if (transientMarkRingArray && transientMarkRingArray.length) {
@@ -296,6 +294,8 @@
 
             this._setupHighlightColors();
             xtk.domutils.fireEvent(this, 'current_view_changed');
+            this.addEventListener('current_view_linecol_changed',
+                                    this.handle_current_view_linecol_changed, false);
             this.scintilla.scimoz.hookEvents(this);
             this._inInitPhase = false;
             // This field is used by views-buffer.isCICplnEnabled
@@ -562,28 +562,20 @@
                 scheme.getHighlightColorInfo(this.languageObj,
                                              colorInfo, {});
                 colorInfo = colorInfo.value;
-                if (colorInfo.length == 0) {
-                    if (this._listeningLineCol) {
-                        this._listeningLineCol = false;
-                        window.removeEventListener('current_view_linecol_changed',
-                                                    this.handle_current_view_linecol_changed, false);
-                        return;
+                this._doHighlightColors = colorInfo.length > 0;
+                if (this._doHighlightColors) {
+                    for (var i = 0; i < colorInfo.length; i++) {
+                        var familyName, color;
+                        [familyName, color] = colorInfo[i].split(":");
+                        this._highlightColors[familyName] = parseInt(color);
                     }
-                } else if (!this._listeningLineCol) {
-                        this._listeningLineCol = true;
-                        window.addEventListener('current_view_linecol_changed',
-                                                    this.handle_current_view_linecol_changed, false);
+                    // Force an update so the sub-highlighting gets redone.
+                    // Fixes bug 84707
+                    this._currentFamily = "";
+                    this.updateCurrentLineColor();
                 }
-                for (var i = 0; i < colorInfo.length; i++) {
-                    var familyName, color;
-                    [familyName, color] = colorInfo[i].split(":");
-                    this._highlightColors[familyName] = parseInt(color);
-                }
-                // Force an update so the sub-highlighting gets redone.
-                // Fixes bug 84707
-                this._currentFamily = "";
-                this.updateCurrentLineColor();
             } else {
+                this._doHighlightColors = false;
                 this.log.info("Couldn't get the scheme off the view");
             }
         ]]>
@@ -668,15 +660,8 @@
                         this._doc_pref_observer_topics.length,
                         this._doc_pref_observer_topics);
                 }
-
-                window.removeEventListener('view_document_attached',
-                    this.handle_view_document_attached, false);
-                window.removeEventListener('view_document_detaching',
-                    this.handle_view_document_detaching, false);
-                if (this._listeningLineCol) {
-                    window.removeEventListener('current_view_linecol_changed',
-                        this.handle_current_view_linecol_changed, false);
-                }
+                this.removeEventListener('current_view_linecol_changed',
+                    this.handle_current_view_linecol_changed, false);
 
                 return this.close_viewbufferbase();
             ]]></body>
