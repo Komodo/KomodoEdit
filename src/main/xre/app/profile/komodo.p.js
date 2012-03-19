@@ -200,6 +200,11 @@ pref("general.autoScroll", false);
 pref("general.autoScroll", true);
 #endif
 
+#ifndef XP_WIN
+// Show hidden files in the file picker; bug 81075
+pref("filepicker.showHiddenFiles", true);
+#endif
+
 // Whether or not the application should check at startup each time if it 
 // is the default browser.
 pref("browser.shell.checkDefaultBrowser", false);
