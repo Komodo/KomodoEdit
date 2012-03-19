@@ -633,6 +633,10 @@ this.updateFullScreen = function uilayout_updateFullScreen() {
     } else {
         menuitem.removeAttribute('checked');
     }
+    // bug 92669 - full screen is broken on Mac.
+    if (Services.appinfo.OS == "Darwin") {
+        menuitem.hidden = true;
+    }
 }
 
 /**
@@ -640,6 +644,11 @@ this.updateFullScreen = function uilayout_updateFullScreen() {
  */
 this.fullScreen = function uilayout_FullScreen()
 {
+    // bug 92669 - full screen is broken on Mac.
+    if (Services.appinfo.OS == "Darwin") {
+        window.fullScreen = false;
+        return;
+    }
   window.fullScreen = !window.fullScreen;
   // We no longer need to do any extra handling; the UI changes are done via
   // CSS.  If we do end up needing logic, we should do so in a "fullscreen"
@@ -1530,7 +1539,8 @@ this.setTabPaneLayout = function uilayout_setTabPaneLayout() {
 this.onloadDelayed = function uilayout_onloadDelayed()
 {
     try {
-        if (_gPrefs.getBooleanPref("startupFullScreen")) {
+        // XXX Disable full screen on MacOSX due to SciMoz corruption, bug 92669
+        if (_gPrefs.getBooleanPref("startupFullScreen") && Services.appinfo.OS != "Darwin") {
             window.fullScreen = true;
         }
         else if (_gPrefs.getBooleanPref("startupMaximized")) {
