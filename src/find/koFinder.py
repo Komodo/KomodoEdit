@@ -1996,7 +1996,7 @@ def _exc_info_summary():
 
 
 _high_bit_chr_re = re.compile(r'[^\x00-\x7f]')
-_wrapping_newlines_re = re.compile(r'^([\r\n]*)(.*?)([\r\n]*)$')
+_wrapping_newlines_re = re.compile(r'^([\r\n]*)(.*?)([\r\n]*)$', flags=re.DOTALL)
 def _regex_info_from_ko_find_data(pattern, repl=None,
                                   patternType=FOT_SIMPLE,
                                   caseSensitivity=FOC_SENSITIVE,
