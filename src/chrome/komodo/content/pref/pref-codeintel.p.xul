@@ -95,6 +95,13 @@
                 &codeIntelAutocompleteFillUpCharacters.description;
             </description>
 
+            <hbox align="center">
+                <label value="&codeIntelAutocompleteMaxRows.label;"/>
+                <textbox id="codeintel_autocomplete_max_rows"
+                         size="3"
+                         pref="true"/>
+            </hbox>
+
             <separator class="thin"/>
             <hbox flex="1" align="center">
                 <label value="&codeIntelCalltipMaxLength.label;"/>
