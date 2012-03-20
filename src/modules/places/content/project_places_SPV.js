@@ -160,8 +160,16 @@ this.initProjectsContextMenu = function(event, menupopup) {
     } else {
         itemTypes = selectedItems.map(function(item) item.type);
     }
-    selectionInfo.currentProject = (currentProject
-                                    && currentProject.url == selectedUrl);
+    if (!currentProject) {
+        selectionInfo.currentProject = false;
+    } else {
+        for (var j = index; j >= 0 && treeView.getLevel(j) > 0; j--) {
+            //EMPTY
+        }
+        selectionInfo.currentProject = (j >= 0
+                                        && (currentProject.url ==
+                                            treeView.getRowItem(j).url));
+    }
     selectionInfo.projectIsDirty = selectionInfo.currentProject && currentProject.isDirty;
     selectionInfo.itemTypes = itemTypes;
     selectionInfo.isLocal = selectedUrls.every(function(uri) uri.indexOf("file:/") == 0);
@@ -198,6 +206,14 @@ this.initProjectsContextMenu = function(event, menupopup) {
             if (menupopup.childNodes.length == 0) {
                 ko.places.projects.copyNewItemMenu(menupopup, "SPV_projView_");
             }
+        } else if (menuNode.id == "menu_SCCmenu_projectsContext") {
+            var commonMenuIdPart = "menu_projCtxt_SPV_sccMenu";
+            this._selectionInfo = selectionInfo;
+            // ko.places.projects.initProject_SCC_ContextMenu expects
+            // these fields on selectionInfo
+            selectionInfo.index = index;
+            selectionInfo.selectedUrls = selectedUrls;
+            ko.places.projects.initProject_SCC_ContextMenu.call(this, menuNode, commonMenuIdPart);
         }
     }
     return true;
