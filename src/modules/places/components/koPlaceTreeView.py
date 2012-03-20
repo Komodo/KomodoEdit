@@ -751,7 +751,13 @@ class KoPlaceTreeView(TreeView):
             for i in range(startIndex, endIndex):
                 node = self._rows[i]
                 current_lc_uri = node.uri.lower()
-                if (node.uri == uri
+                if node.level > level:
+                    # bug 93133: we can never insert a new node at a
+                    # row that's occupied by a child of one of
+                    # the new node's siblings.  Otherwise it will look like
+                    # the new node has another parent's child nodes.
+                    pass
+                elif (node.uri == uri
                     or (allow_case_insensitivity and lc_uri == current_lc_uri)): 
                     return True
                 elif self._sortDir == self.SORT_DIRECTION_NAME_NATURAL:
