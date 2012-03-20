@@ -119,7 +119,7 @@ class KoFileCheckerBase(object):
                 getService(components.interfaces.nsIMemoryReporterManager)
             memMgr.registerMultiReporter(self)
         except:
-            pass
+            self.log.warn("Unable to register self as a memory reporter")
 
     def collectReports(self, reportHandler, closure):
         self.log.info("collectReports")
