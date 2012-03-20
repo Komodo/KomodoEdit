@@ -615,6 +615,11 @@ function find_all() {
         }
         ko.mru.addFromACTextbox(widgets.pattern);
 
+        // Always reset the find session for find all
+        var findSessionSvc = Components.classes["@activestate.com/koFindSession;1"].
+                                getService(Components.interfaces.koIFindSession);
+        findSessionSvc.Reset();
+
         if (_g_find_context.type == koIFindContext.FCT_IN_COLLECTION) {
             if (ko.find.findAllInFiles(opener, _g_find_context,
                                     pattern, null,
@@ -682,6 +687,11 @@ function mark_all() {
             widgets.pattern.value = widgets.curr_pattern.value;
         }
         ko.mru.addFromACTextbox(widgets.pattern);
+
+        // Always reset the find session for mark all
+        var findSessionSvc = Components.classes["@activestate.com/koFindSession;1"].
+                                getService(Components.interfaces.koIFindSession);
+        findSessionSvc.Reset();
 
         var found_some = ko.find.markAll(opener, _g_find_context, pattern,
                                       null,          // patternAlias
@@ -771,6 +781,11 @@ function replace_all() {
         ko.mru.addFromACTextbox(widgets.pattern);
         if (repl)
             ko.mru.addFromACTextbox(widgets.repl);
+
+        // Always reset the find session for replace all
+        var findSessionSvc = Components.classes["@activestate.com/koFindSession;1"].
+                                getService(Components.interfaces.koIFindSession);
+        findSessionSvc.Reset();
 
         if (_g_find_context.type == koIFindContext.FCT_IN_COLLECTION) {
             if (ko.find.replaceAllInFiles(opener, _g_find_context,
