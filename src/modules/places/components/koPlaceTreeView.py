@@ -671,6 +671,9 @@ class KoPlaceTreeView(TreeView):
         koFileEx = components.classes["@activestate.com/koFileEx;1"].\
                 createInstance(components.interfaces.koIFileEx)
         koFileEx.URI = uri
+        # bug 93336 -- Incoming URIs aren't necessarily canonical, but
+        # they are after assigned to a koFileEx object.
+        uri = koFileEx.URI
         #print "   path is [%r] dirname [%r]"%(koFileEx.path, koFileEx.dirName)
 
         dirname = koFileEx.dirName
