@@ -75,7 +75,7 @@ class Node(dict):
     def isContainer(self):
         return len(self.keys()) > 0
 
-    _ambiguous_language_names = ('JavaScript', 'Python')
+    _ambiguous_language_names = ('JavaScript', 'Python', 'HTML')
     _filenames_by_path = {}
     def addTemplate(self, path):
         name = _templateNameFromPath(path)

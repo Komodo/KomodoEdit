@@ -719,7 +719,7 @@ class KoLanguageRegistryService:
             try:
                 # find the primary namespace of the first node
                 tree = koXMLTreeService.getService().getTreeForContent(head)
-                if tree.root is not None:
+                if tree and tree.root is not None:
                     ns = tree.namespace(tree.root)
                     #print "XML NS [%s]" % ns
                     if ns in self._namespaceMap:
@@ -727,7 +727,7 @@ class KoLanguageRegistryService:
                         langs.append(self._namespaceMap[ns])
     
                 # use the doctype decl if one exists
-                if tree.doctype:
+                if tree and tree.doctype:
                     #print "XML doctype [%s]" % repr(tree.doctype)
                     if tree.doctype[2] in self._publicIdMap:
                         langs.append(self._publicIdMap[tree.doctype[2]])
