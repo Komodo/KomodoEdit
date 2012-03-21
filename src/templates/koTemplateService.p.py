@@ -75,11 +75,28 @@ class Node(dict):
     def isContainer(self):
         return len(self.keys()) > 0
 
+    _ambiguous_language_names = ('JavaScript', 'Python')
+    _filenames_by_path = {}
     def addTemplate(self, path):
         name = _templateNameFromPath(path)
         langRegistrySvc = components.classes['@activestate.com/koLanguageRegistryService;1'].\
                           getService(components.interfaces.koILanguageRegistryService)
         fileNameLanguage = langRegistrySvc.suggestLanguageForFile(path)
+        if fileNameLanguage in self._ambiguous_language_names:
+            if path in self._filenames_by_path:
+                fileNameLanguage = self._filenames_by_path[path]
+            else:
+                try:
+                    fd = open(path, 'r')
+                    buffer = "".join(fd.readlines()[:2])
+                    fd.close()
+                    candidateLanguages = langRegistrySvc.guessLanguageFromContents(buffer, "")
+                    if candidateLanguages:
+                        fileNameLanguage = candidateLanguages[0]
+                        self._filenames_by_path[path] = fileNameLanguage
+                except:
+                    log.exception("Error determining actual language for file %s", path)
+                    pass
         fdata = {"path": path,
                  "template-name": name,
                  "language": fileNameLanguage,
