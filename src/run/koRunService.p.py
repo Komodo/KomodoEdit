@@ -138,8 +138,29 @@ class KoInterpolationService:
         code = "(%s)" % interp
         prefName = interp+"DefaultInterpreter"
         path = None
-        if self._prefs.hasStringPref(prefName):
-            path = self._prefs.getStringPref(prefName)
+        if self._viewPrefs and self._viewPrefs.hasPrefHere(prefName):
+            try:
+                path = self._viewPrefs.getStringPref(prefName)
+                if path:
+                    return path
+            except:
+                pass
+        if self._effectivePrefs is None:
+            self._effectivePrefs = self._prefSvc.effectivePrefs
+        if self._effectivePrefs.hasPrefHere(prefName):
+            try:
+                path = self._effectivePrefs.getStringPref(prefName)
+                if path:
+                    return path
+            except:
+                pass
+        elif self._effectivePrefs != self._prefs and self._prefs.hasStringPref(prefName):
+            try:
+                path = self._prefs.getStringPref(prefName)
+                if path:
+                    return path
+            except:
+                pass
         if not path:
             path = self._FindInterpreterOnPath(interp)
         
@@ -484,7 +505,9 @@ class KoInterpolationService:
                 
             elif code == "pref":
                 if prefSet is None:
-                    prefSet = self._prefSvc.effectivePrefs
+                    if self._effectivePrefs is None:
+                        self._effectivePrefs = self._prefSvc.effectivePrefs
+                    prefSet = self._effectivePrefs
                 if prefSet.hasPref(prefName):
                     prefType = prefSet.getPrefType(prefName)
                     if prefType == "string":
@@ -634,6 +657,8 @@ class KoInterpolationService:
 
     def Interpolate1(self, strings, bracketedStrings, fileName, lineNum, word, selection,
                      projectFile, prefSet):
+        self._viewPrefs = prefSet
+        self._effectivePrefs = None
         try:
             #print "Interpolate1(strings=%r, fileName=%r, lineNum=%r, word=%r, "\
             #      "selection=%r, projectFile, prefSet, bracketed=%r)"\
