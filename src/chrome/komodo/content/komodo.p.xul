@@ -2117,11 +2117,6 @@
             </deck>
         </statusbarpanel>
 
-        <statusbarpanel id="statusbar-section"
-                        style="min-width: 12em; max-width: 20em;">
-            <sectionlist id="statusbar-sectionlist" />
-        </statusbarpanel>
-
         <statusbarpanel id="statusbar-checker"
                         style="min-width: 36px;">
             <toolbarbutton id="statusbar-check"
