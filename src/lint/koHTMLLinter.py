@@ -116,6 +116,7 @@ class _CommonHTMLLinter(object):
     _function_re = re.compile(r'\bfunction\b')
     _doctype_re = re.compile("<!doctype\s+html\s*?(.*?)\s*>",
                              re.IGNORECASE|re.DOTALL)
+    _xml_decln_re = re.compile(r'<<\?\?>\?xml\b')
     def _lint_common_html_request(self, request, udlMapping=None, linters=None,
                                   squelchTPLPatterns=None,
                                   startCheck=None):
@@ -139,6 +140,12 @@ class _CommonHTMLLinter(object):
         # request.content contains a Unicode representation, even if the
         # buffer's encoding is utf-8 -- content is an AString
         textAsBytes = request.content.encode("utf-8")
+        if koDoc_language == 'PHP':
+            m = self._xml_decln_re.match(textAsBytes)
+            if m:
+                # Hide the special escape for XML declarations in PHP files
+                textAsBytes = '<?xml' + "    " + textAsBytes[m.end():]
+            
         uniqueLanguageNames = dict([(k, None) for k in languageNamesAtTransitionPoints])
         if udlMapping:
             for targetName in udlMapping.values():
@@ -313,21 +320,24 @@ class _CommonHTMLLinter(object):
                     textSubset = insertion + textSubset
             if langName.startswith("HTML"):
                 # Is there an explicit doctype?
-                m = self._doctype_re.match(textSubset)
-                if m:
-                    if not m.group(1):
+                if textSubset.startswith('<?xml '):
+                    langName = "HTML"
+                else:
+                    m = self._doctype_re.match(textSubset)
+                    if m:
+                        if not m.group(1):
+                            langName = "HTML5"
+                        else:
+                            langName = "HTML"
+                    elif langName == "HTML" and self.lang == "HTML5":
+                        # Use the correct aggregator class.
                         langName = "HTML5"
-                    else:
-                        langName = "HTML"
-                elif langName == "HTML" and self.lang == "HTML5":
-                    # Use the correct aggregator class.
-                    langName = "HTML5"
-                elif koDoc_language not in ("HTML", "HTML5"):
-                    # For HTML markup langs and templating langs, use the
-                    # default HTML decl to see if they want HTML5 - bug 88884.
-                    prefset = getProxiedEffectivePrefs(request)
-                    if "HTML 5" in prefset.getStringPref("defaultHTMLDecl"):
-                        langName = "HTML5"
+                    elif koDoc_language not in ("HTML", "HTML5"):
+                        # For HTML markup langs and templating langs, use the
+                        # default HTML decl to see if they want HTML5 - bug 88884.
+                        prefset = getProxiedEffectivePrefs(request)
+                        if "HTML 5" in prefset.getStringPref("defaultHTMLDecl"):
+                            langName = "HTML5"
             linter = self._linterByName(langName, lintersByName)
             if linter:
                 try:
@@ -373,7 +383,8 @@ class _Common_HTMLAggregator(_CommonHTMLLinter):
              squelchTPLPatterns=None,
              startCheck=None):
         return self._lint_common_html_request(request, udlMapping, linters,
-                                              squelchTPLPatterns, startCheck)
+                                              squelchTPLPatterns,
+                                              startCheck)
 
     def lint_with_text(self, request, text):
         if not text:

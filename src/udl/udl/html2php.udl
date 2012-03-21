@@ -53,7 +53,12 @@ state IN_M_DEFAULT:
 state IN_M_PI_1:
 /php\b/i : paint(include, SSL_OPERATOR), spush_check(IN_M_DEFAULT), => IN_SSL_DEFAULT
 /\W/ : paint(upto, SSL_OPERATOR), spush_check(IN_M_DEFAULT), redo, => IN_SSL_DEFAULT
+/./: redo, paint(upto, SSL_OPERATOR), spush_check(IN_M_DEFAULT), => IN_SSL_DEFAULT
 /$/ : paint(upto, SSL_OPERATOR), spush_check(IN_M_DEFAULT), => IN_SSL_DEFAULT
+
+# Allow for escaped processing/xml declarations in PHP files
+state IN_M_STAG_EXP_TNAME:
+/<\?\?>\?[-\w._\x80-\xff]?[-\w\d._\x80-\xff:]*/: paint(include, M_PI), => IN_M_PI_2
 
 state IN_M_STAG_ATTR_DSTRING:
 /$ENTERPHP/i : paint(upto, M_STRING), \
