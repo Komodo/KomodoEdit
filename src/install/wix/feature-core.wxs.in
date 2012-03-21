@@ -5765,6 +5765,7 @@
                 <File Id="file3741" Name="Pascal.pas" Vital="yes" src="feature-core\INSTALLDIR\lib\support\default-templates\All Languages\Pascal.pas"/>
                 <File Id="file3742" Name="Perl.pl" Vital="yes" src="feature-core\INSTALLDIR\lib\support\default-templates\All Languages\Perl.pl"/>
                 <File Id="file3744" Name="PYTHON_3.PY" LongName="Python.py" Vital="yes" src="feature-core\INSTALLDIR\lib\support\default-templates\All Languages\Python.py"/>
+                <File Id="file2119" Name="Python3.py" Vital="yes" src="feature-core\INSTALLDIR\lib\support\default-templates\All Languages\Python3.py" />
                 <File Id="file3745" Name="Ruby.rb" Vital="yes" src="feature-core\INSTALLDIR\lib\support\default-templates\All Languages\Ruby.rb"/>
                 <File Id="file308" Name="RJS.rjs" Vital="yes" src="feature-core\INSTALLDIR\lib\support\default-templates\All Languages\RJS.rjs" />
                 <File Id="file309" LongName="RXML.rxml" Name="RXML_0.RXM" Vital="yes" src="feature-core\INSTALLDIR\lib\support\default-templates\All Languages\RXML.rxml" />
@@ -5788,6 +5789,7 @@
                 <File Id="file3759" Name="PERLMO_1.PM" LongName="Perl Module.pm" Vital="yes" src="feature-core\INSTALLDIR\lib\support\default-templates\Common\Perl Module.pm"/>
                 <File Id="file3760" Name="PERL_0.PL" LongName="Perl.pl" Vital="yes" src="feature-core\INSTALLDIR\lib\support\default-templates\Common\Perl.pl"/>
                 <File Id="file3762" Name="PYTHON_4.PY" LongName="Python.py" Vital="yes" src="feature-core\INSTALLDIR\lib\support\default-templates\Common\Python.py"/>
+                <File Id="file4027" LongName="Python3.py" Name="PYTHO_15.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\support\default-templates\Common\Python3.py" />
                 <File Id="file3815" Name="RUBY_0.RB" LongName="Ruby.rb" Vital="yes" src="feature-core\INSTALLDIR\lib\support\default-templates\Common\Ruby.rb"/>
                 <File Id="file3763" Name="TCL_0.TCL" LongName="Tcl.tcl" Vital="yes" src="feature-core\INSTALLDIR\lib\support\default-templates\Common\Tcl.tcl"/>
                 <File Id="file3764" Name="TEXT_0.TXT" LongName="Text.txt" Vital="yes" src="feature-core\INSTALLDIR\lib\support\default-templates\Common\Text.txt"/>
