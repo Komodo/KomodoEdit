@@ -89,7 +89,7 @@ class KoPHPCompileLinter:
             raise COMException(nsError.NS_ERROR_NOT_AVAILABLE, errmsg)
         
     _tplPatterns = ("PHP", re.compile('<\?(?:php\b|=)?.*', re.IGNORECASE),
-                    re.compile('.*\?>'))
+                    re.compile('.*\?>\s*$'))
     def lint(self, request):
         return self._html_linter.lint(request,
                                       squelchTPLPatterns=self._tplPatterns)

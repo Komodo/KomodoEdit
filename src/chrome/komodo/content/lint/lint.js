@@ -526,7 +526,8 @@ this.lintBuffer.prototype._colouriseIfNecessary = function(view) {
     // We have to finish lexing the doc in the main thread, because
     // if the linter is relying on styles to determine the segments,
     // it can't get scimoz to finish colourising on a background thread.
-    if (this.view.koDoc.languageObj.supportsSmartIndent != "XML") {
+    if (this.view.koDoc.languageObj.supportsSmartIndent != "XML"
+        && this.view.koDoc.language != "PHP") {
         // non-HTML linters don't use sub-language styles
         return;
     }

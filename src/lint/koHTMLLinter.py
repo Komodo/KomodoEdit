@@ -290,8 +290,9 @@ class _CommonHTMLLinter(object):
             if (squelchTPLPatterns
                 and origLangName == squelchTPLPatterns[0]
                 and squelching
-                and squelchTPLPatterns[2].match(currText)):
+                and squelchTPLPatterns[2].search(currText)):
                 squelching = False
+                
                     
             if origLangName in ("JavaScript", "HTML", "HTML5", "XML"):
                 prevSegmentLangName = origLangName
