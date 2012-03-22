@@ -276,7 +276,7 @@
                 oncommand="ko.places.manager.refreshView(event)"
                 label="&refreshView.label;"
                 class="menuitem-iconic"
-                hideIf="file project"
+                hideIf="file"
                 />
       <menuitem id="placesContextMenu_file_open"
                 oncommand="ko.places.viewMgr.openFilesByIndex(event)"
@@ -298,8 +298,7 @@
                 hideIf="folder project"
                 testHideIf="t:selectedTwoItems"
                 />
-      <menuseparator id="placesContextMenu_separatorCut"
-                hideIf="project"/>
+      <menuseparator id="placesContextMenu_separatorCut" />
       <menuitem id="placesContextMenu_cut"
                 observes="cmd_cut"
                 label="&cut.label;"

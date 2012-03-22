@@ -272,7 +272,11 @@ viewMgrClass.prototype = {
     },
     
     refreshViewByIndex: function(index) {
-        this.view.refreshView(index);
+        if (index == -1) {
+            this.view.refreshFullTreeView();
+        } else {
+            this.view.refreshView(index);
+        }
     },
     
     refreshStatus: function(index) {
@@ -2783,9 +2787,6 @@ ManagerClass.prototype = {
     
     refreshItem: function(item) {
         var index = gPlacesViewMgr.view.getRowIndexForURI(item.uri);
-        if (index == -1) {
-            return;
-        }
         gPlacesViewMgr.refreshViewByIndex(index);
     },
 
@@ -2803,9 +2804,6 @@ ManagerClass.prototype = {
     refreshView: function(event) {
         var view = gPlacesViewMgr.view;
         var index = view.selection.currentIndex;
-        if (index == -1) {
-            return;
-        }
         gPlacesViewMgr.refreshViewByIndex(index);
     },
     __ZIP__: null
