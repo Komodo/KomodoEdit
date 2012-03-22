@@ -1391,7 +1391,12 @@ function gotoDirectory(remoteDir) {
     window.setCursor("wait");
     try {
         treeView.setDirectory(path);
-        textInput.value = "";
+        if (filePickerMode != modeSave) {
+            // See bug 89373 which always clears this field,
+            // bug 92099 complains that the filename is cleared when
+            //           trying to save a file with a different name.
+            textInput.value = "";
+        }
         addToHistory(path);
     
         sfile = remoteDir;
