@@ -238,13 +238,14 @@ this.propertyDeprecatedByAlternative = function ko_logging_propertyDeprecatedByA
 };
 
 
-this.Logger.prototype.error = function(message) {
+this.Logger.prototype.error = function(message, noTraceback /* false */) {
     try {
         if (this._logger.getEffectiveLevel() <= LOG_ERROR) {
-            // I would prefer to have this be a separate log.exception(). --TM
-            dump("Traceback from ERROR in '" +
-                 this._logger_name + "' logger:\n    " +
-                 getStack().replace('\n', '\n    ', 'g').slice(0, -4));
+            if (!noTraceback) {
+                message += "Traceback from ERROR in '" +
+                           this._logger_name + "' logger:\n    " +
+                           getStack().replace('\n', '\n    ', 'g').slice(0, -4);
+            }
             this._logger.error(message);
         }
     } catch(ex) {
@@ -267,11 +268,18 @@ this.Logger.prototype.exception = function(e, message) {
     try {
         if (this._logger.getEffectiveLevel() <= LOG_ERROR) {
             var objDump = getObjectTree(e,1);
-            if (typeof(e) == 'object' && 'stack' in e)
-                objDump += e.stack;
+            if (typeof(e) == 'object' && 'stack' in e) {
+                objDump += '+ stack\n    ' +
+                           e.stack.toString().replace('\n', '\n    ', 'g').slice(0, -4);
+            }
             if (typeof(message)=='undefined' || !message)
                 message='';
-            this.error(message+'\n-- EXCEPTION START --\n'+objDump+'-- EXCEPTION END --\n');
+            this.error(message+'\n' +
+                       '-- EXCEPTION START --\n' +
+                       e + '\n' +
+                       objDump +
+                       '-- EXCEPTION END --',
+                       true /* noTraceback */);
         }
     } catch(ex) {
         dump("*** Error in logger.exception: "+ex+"\n");
@@ -408,7 +416,7 @@ function getObjectTree(o, recurse, compress, level)
 
     }
 
-    s += pfx + "*\n";
+    s += pfx;
 
     return s;
 }
