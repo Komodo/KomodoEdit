@@ -488,8 +488,10 @@ class KoUDLLanguage(KoLanguageBase):
     
     def computeIndent(self, scimoz, indentStyle, continueComments):
         (lang_svc_obj, style_info) = self._getLangSvcAndStyleInfoFromScimoz(scimoz)
-        if lang_svc_obj.isUDL():
+        if lang_svc_obj == self:
             # Bug 90371: Avoid infinite recursion.  Always call towards the superclass.
+            # Bug 93387: Call the superclass only if _getLangSvcAndStyleInfoFromScimoz
+            #           gives the same language service as the composite UDL one.
             return KoLanguageBase._computeIndent(self, scimoz, indentStyle, continueComments, style_info)
         else:
             return lang_svc_obj._computeIndent(scimoz, indentStyle, continueComments, style_info)
