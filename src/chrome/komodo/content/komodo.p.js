@@ -230,6 +230,8 @@ this.runWillCloseHandlers = function() {
                       "' shutdown handler (object='"+callback.object+"':");
         }
     }
+    Components.classes["@activestate.com/koPrefService;1"]
+              .getService(Components.interfaces.koIPrefService).saveState();
     _log.debug("<< ko.main.runWillCloseHandlers");
 }
 
