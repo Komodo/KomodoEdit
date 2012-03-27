@@ -161,12 +161,12 @@
                     <checkbox id="lintNodeJS_SpiderMonkey"
                               label="&lintJavaScript_SpiderMonkey.label;"
                               pref="true"
-                              oncommand="languageInfo.NodeJS.doWarningEnabling(this);"/>
+                              oncommand="languageInfo['Node.js'].doWarningEnabling(this);"/>
                     <checkbox id="lintNodeJSEnableWarnings"
                               label="&lintJavaScriptEnableWarnings.label;"
                               class="indentedPref01"
                               pref="true"
-                              oncommand="languageInfo.NodeJS.doWarningEnabling(this);"/>
+                              oncommand="languageInfo['Node.js'].doWarningEnabling(this);"/>
                     <checkbox id="lintNodeJSEnableStrict"
                               class="indentedPref02"
                               label="&lintJavaScriptEnableStrict.label;"
@@ -177,7 +177,7 @@
                     <checkbox id="lintWithJSLint_NodeJS"
                               label="&lintJavaScriptWithJSLint.label;"
                               pref="true"
-                              oncommand="languageInfo.NodeJS.doWarningEnabling(this);" />
+                              oncommand="languageInfo['Node.js'].doWarningEnabling(this);" />
                     <vbox id="jslint_NodeJS_PrefsVbox">
                        <hbox id="jslint_NodeJS_OptionsBox" flex="1">
                          <vbox id="jslint_NodeJS_OptionsBox-vbox">
@@ -185,10 +185,10 @@
                                   value="JSLint Options:" />
                            <button id="jslint_NodeJS_GoodPartsButton"
                                    label="&lintJSLint_ActivateGoodPartsOptions.label;"
-                                   oncommand="languageInfo.NodeJS.addGoodParts();" />
+                                   oncommand="languageInfo['Node.js'].addGoodParts();" />
                            <button id="jslint_NodeJS_BrutalMode"
                                    label="&lintJSLint_ActivateAllOptions.label;"
-                                   oncommand="languageInfo.NodeJS.addAllOptions();" />
+                                   oncommand="languageInfo['Node.js'].addAllOptions();" />
                          </vbox>
                          <textbox id="jslintOptions_NodeJS" multiline="true" rows="5" value=""
                                   flex="1"

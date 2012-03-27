@@ -297,7 +297,7 @@ function javaScript_setup(languageName) {
          ].forEach(function(name) {
             djs[name] = document.getElementById(name);
         });
-        languageInfo.JavaScript = javaScriptInfo();
+        languageInfo.JavaScript = javaScriptInfo("JavaScript");
     } else {
         djs = dialog.JavaScript;
     }
@@ -314,7 +314,9 @@ function javaScript_setup(languageName) {
 
 languageSetup.JavaScript = javaScript_setup;
 
-function javaScriptInfo() {
+function javaScriptInfo(languageName) {
+    // languageName could be "JavaScript" or "Node.js"
+    if (languageName === undefined) languageName = "JavaScript";
     return {
         goodPartsFactorySettings: {
             white: "true",
@@ -381,7 +383,7 @@ function javaScriptInfo() {
 
         addParts: function(includeOtherStrictSettings) {
             var optName, i, idx, name, newTextParts;
-            var textField = dialog.JavaScript.jslintOptions;
+            var textField = dialog[languageName].jslintOptions;
             var currentSettings = {};
             var currentSettingNames = [];
             var text = textField.value;
@@ -409,6 +411,7 @@ function javaScriptInfo() {
         },
 
         addGoodParts: function() {
+            debugger;
             this.addParts(false);
         },
 
@@ -463,7 +466,7 @@ function javaScriptInfo() {
 
         addAllJSHintOptions: function() {
             var optName, i, idx, name, newTextParts;
-            var textField = dialog.JavaScript.jshintOptions;
+            var textField = dialog[languageName].jshintOptions;
             var currentSettings = {};
             var currentSettingNames = [];
             var text = textField.value;
@@ -480,7 +483,7 @@ function javaScriptInfo() {
         },
         
         doWarningEnabling: function(checkbox) {
-            var djs = dialog.JavaScript;
+            var djs = dialog[languageName];
             var isChecked = checkbox.checked;
             switch (checkbox) {
             case djs.lintJavaScript_SpiderMonkey:
@@ -523,6 +526,8 @@ function nodeJS_setup(languageName) {
          ].forEach(function(name) {
             djs[name] = document.getElementById(name);
         });
+        // And add aliases so the JS code can be used by Node.js
+        djs.jslintOptions = djs.jslintOptions_NodeJS;
         languageInfo['Node.js'] = nodeJSInfo();
     } else {
         djs = dialog['Node.js'];
@@ -539,16 +544,18 @@ function nodeJS_setup(languageName) {
 languageSetup['Node.js'] = nodeJS_setup;
 
 function nodeJSInfo() {
-    var jsInfo = javaScriptInfo();
+    debugger;
+    var jsInfo = javaScriptInfo("Node.js");
     delete jsInfo.allJSHintStrictSettings;
     delete jsInfo.jsInfoaddAllJSHintOptions;
     jsInfo.doWarningEnabling = function(checkbox) {
-        var djs = dialog.NodeJS;
+        debugger;
+        var djs = dialog['Node.js'];
         var isChecked = checkbox.checked;
         switch (checkbox) {
         case djs.lintNodeJS_SpiderMonkey:
             pref_setElementEnabledState(djs.lintNodeJSEnableWarnings, isChecked);
-            pref_setElementEnabledState(djs.lintNodeJSEnableStrict, isChecked && djs.lintJavaScriptEnableWarnings.checked);
+            pref_setElementEnabledState(djs.lintNodeJSEnableStrict, isChecked && djs.lintNodeJSEnableWarnings.checked);
             break;
         case djs.lintNodeJSEnableWarnings:
             pref_setElementEnabledState(djs.lintNodeJSEnableStrict, isChecked);
