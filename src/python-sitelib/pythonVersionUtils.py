@@ -425,7 +425,18 @@ class JavaScriptDistinguisher(object):
                     pass
             elif state == self.ST_IN_STRING:
                 if c == '\\' and c_next != '\n':
-                    i += 1; c_next = c_next2; c_next2 = buffer[i + 3]
+                    # Before:
+                    # c == buffer[i]
+                    # c_next == buffer[i + 1]
+                    # c_next2 == buffer[i + 2]
+                    # After:
+                    # c == buffer[i + 1] == c_next
+                    # c_next == buffer[i + 2] = c_next2
+                    # c_next2 == buffer[i + 3]
+                    # i < lim3 == len(buffer) - 3, so we're ok
+                    c_next = c_next2;
+                    c_next2 = buffer[i + 3]
+                    i += 1
                 elif c == strStart:
                     currToken = buffer[bufStart: i]
                     self._transitionState(self.ST_IN_STRING, currToken)
