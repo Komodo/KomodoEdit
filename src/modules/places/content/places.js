@@ -1454,6 +1454,18 @@ ManagerClass.prototype = {
         this.openDirURI(dirURI, baseName);
         this._enterMRU_Place(dirURI);
     },
+    
+    _placeableSchemes: {'file':1, 'ftp':1, 'ftps':1, 'sftp':1, 'scp':1},
+    _schemeIsPlaceable: function(scheme) {
+        return scheme in this._placeableSchemes;
+    },
+    _uriIsPlaceable: function(uri) {
+        var schemeEnd = uri.indexOf(":");
+        if (schemeEnd === -1) {
+            return false;
+        }
+        return this._schemeIsPlaceable(uri.substr(0, schemeEnd));
+    },
 
     /* Set the given directory URI as the root in places.
      *
@@ -1463,6 +1475,9 @@ ManagerClass.prototype = {
      */
     openDirURI: function(dirURI, baseName, successFunc) {
         if (typeof(successFunc) == "undefined") successFunc = this._setDirURI_successFunc_show_tab;
+        if (!this._uriIsPlaceable(dirURI)) {
+            return;
+        };
         this._enterMRU_Place(dirURI);
         this._setDirURI(dirURI,
                         {save:true,
@@ -1477,8 +1492,10 @@ ManagerClass.prototype = {
             || !view.koDoc) {
             return;
         }
-        var file = view.koDoc.file;
-        if (!file) {
+        var scheme, file = view.koDoc.file;
+        if (!file
+            || !(scheme = file.scheme)
+            || !this._schemeIsPlaceable(scheme)) {
             return;
         }
         if (forceNewPlaceDir) {
@@ -2161,19 +2178,17 @@ ManagerClass.prototype = {
                 log.debug("ManagerClass.initialize on homeDir: " + e+ "\n");
             }
         }
-        if (uri) {
+        if (uri && this._uriIsPlaceable(uri)) {
             try {
                 var successFunc = function() {
                     // If we're moving to a URI that's in the history list,
                     // pull it out.
-                    var names = {'history_prevPlaces':null,
-                                 'history_forwardPlaces':null};
-                    for (var name in names) {
+                    for each (var name in ['history_prevPlaces', 'history_forwardPlaces']) {
                         var index = this[name].indexOf(uri);
                         if (index > -1) {
                             this[name].splice(index, 1);
                         }
-                    }
+                    };
                 };
                 this._setDirURI(uri, {save:false, onSuccess:successFunc});
             } catch(ex) {}
@@ -2181,7 +2196,7 @@ ManagerClass.prototype = {
         try {
             var placesPrefs = _globalPrefs.getPref("places");
             var name_list = ['lastLocalDirectoryChoice', 'lastRemoteDirectoryChoice', 'lastHomePlace'];
-            name_list.map(function(name) {
+            name_list.forEach(function(name) {
                 if (placesPrefs.hasStringPref(name)) {
                     this[name] = placesPrefs.getStringPref(name);
                 }
