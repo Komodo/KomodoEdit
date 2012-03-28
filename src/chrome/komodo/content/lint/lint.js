@@ -324,7 +324,7 @@ this.lintBuffer.prototype.observe = function(subject, topic, data)
             } else {
                 // dump("Ignoring a lint pref change for doc "
                 //      + (this.view.document
-                //         ? (this.view.document.displayPath || "<untitled>")
+                //         ? (this.view.koDoc.displayPath || "<untitled>")
                 //         : "<no doc>")
                 //      + "\n");
                 this.pendingRequest = true;
@@ -648,6 +648,12 @@ this.jumpToNextLintResult = function lint_jumpToNextLintResult()
 this.doRequest = function lint_doRequest() {
     try {
         var view = ko.views.manager.currentView;
+        if (!view.lintBuffer) {
+            _log.debug("lint.doRequest: view "
+                       + (view.koDoc.displayPath || "<unnamed>")
+                       + " has no lintBuffer");
+            return;
+        }
         //view.lintBuffer._clearResults();
         view.lintBuffer._notify();
         view.lintBuffer._issueRequest()
