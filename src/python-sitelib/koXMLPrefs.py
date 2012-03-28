@@ -50,6 +50,7 @@ import logging
 import shutil
 import timeline
 import uriparse
+import urllib2
 
 log = logging.getLogger('koXMLPrefs')
 #log.setLevel(logging.DEBUG)
@@ -378,7 +379,21 @@ def serializePref(stream, pref, prefType, prefName=None, basedir=None):
                         attrs['relative']='url'
                     else:
                         attrs['relative']='path'
-                    pref = relative
+                    if not pref.endswith(relative):
+                        # The problem with relativizing is that it also %-encodes
+                        # the usual characters, but that will happen later in
+                        # the serialization process, so don't do it here.
+                        relative2 = urllib2.unquote(relative)
+                        if pref.endswith(relative2):
+                            pref = relative2
+                        else:
+                            log.warn(("Possible problem in serializePref: "
+                                      + "RelativizeURL(pref:%s) => %s not "
+                                      + "found at end of pref, unquoted to %s"),
+                                      pref, relative, relative2)
+                            pref = relative
+                    else:
+                        pref = relative
             except Exception, e:
                 # XXX quick fix bug 65913
                 log.exception(e)
