@@ -39,7 +39,10 @@ Cu.getGlobalForObject({}).import = function _import(ko) {
             // already loaded
             continue;
         }
-        let url = "resource://komodo-jstest/mock/" + module + ".jsm";
+        let url = module;
+        if (url.indexOf("://") == -1) {
+            url = "resource://komodo-jstest/mock/" + module + ".jsm";
+        }
         if (Object.hasOwnProperty.call(kSpecialCaseURLs, module)) {
             url = kSpecialCaseURLs[module];
         }

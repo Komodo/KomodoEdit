@@ -10,19 +10,23 @@ function FindResultsTab(aId) {
     this.id = aId;
     this._locked = false;
     this._shown = false;
-    this._inProgress = false;
+    this.inProgress = false;
     this.view = Cc["@activestate.com/koFindResultsView;1"]
                   .createInstance(Ci.koIFindResultsView);
     this.view.id = this.id;
     this.treeBoxObject = new ko.TreeBoxObject(this.view);
     this.view.setTree(this.treeBoxObject);
+    this._reset();
+}
 
+FindResultsTab.prototype._reset = function FindResultsTab__reset() {
+    this.view.Clear();
     this.success = false;
     this.numResults = -1;
     this.numFiles = -1;
     this.numFilesSearched = -1;
     this.journalId = "<No journal id>";
-}
+};
 
 FindResultsTab.prototype.configure =
 function FindResultsTab_configure(aPattern, aPatternAlias, aReplacement,
@@ -34,6 +38,8 @@ function FindResultsTab_configure(aPattern, aPatternAlias, aReplacement,
     this._replacement = aReplacement;
     this._options = aOptions;
     this._supportsUndo = !!aSupportsUndo;
+    this._desc = undefined;
+    this._important = false;
 };
 
 Object.defineProperty(FindResultsTab.prototype, "locked", {
@@ -41,18 +47,28 @@ Object.defineProperty(FindResultsTab.prototype, "locked", {
     configurable: true, enumerable: true,
 });
 
+FindResultsTab.prototype.setDescription = function FindResultsTab_setDescription(aDesc, aImportant) {
+    this._desc = aDesc;
+    this._important = aImportant;
+    var marker = aImportant ? "***" : "";
+    log.debug("setDescription: " + [marker, aDesc, marker].join(" ").replace(/^ | $/g, ""));
+};
+
 FindResultsTab.prototype.searchStarted = function FindResultsTab_searchStarted() {
-    this._inProgress = true;
+    log.debug("searchStarted(" + this.id + ")");
+    this.inProgress = true;
+    this._reset();
 };
 
 FindResultsTab.prototype.searchFinished =
 function FindResultsTab_searchFinished(aSuccess, aNumResults, aNumFiles, aNumFilesSearched, aJournalId) {
-    log.debug("searchFinished: " + Array.slice(arguments));
+    log.debug("searchFinished(" + this.id + "): " + Array.slice(arguments));
     this.success = aSuccess;
     this.numResults = aNumResults;
     this.numFiles = aNumFiles;
     this.numFilesSearched = aNumFilesSearched;
     this.journalId = aJournalId;
+    this.inProgress = false;
 };
 
 FindResultsTab.prototype.show = function FindResultsTab_show(aFocus) {

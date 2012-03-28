@@ -1173,7 +1173,7 @@ this.replaceAllInMacro = function Find_ReplaceAllInMacro(editor, contexttype, pa
                                 patternType, caseSensitivity, searchBackward, matchWord)
 {
     var old_patternType, old_caseSensitivity, old_searchBackward, old_matchWord;
-    var context = Components.classes["@activestate.com/koFindContext;1"]
+    var context = Components.classes["@activestate.com/koRangeFindContext;1"]
             .createInstance(Components.interfaces.koIRangeFindContext);
     context.type = contexttype;
     if (contexttype == Components.interfaces.koIFindContext.FCT_SELECTION) {

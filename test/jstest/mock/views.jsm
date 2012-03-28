@@ -17,8 +17,37 @@ function SciMozMock(aText) {
     this.text = aText || "";
     this.currentPos = this.anchor = 0;
     this.eOLMode = Ci.ISciMoz.SC_EOL_LF;
+    this.indicatorValue = Ci.ISciMoz.INDIC_PLAIN;
+    this.indicatorCurrent = 0;
+    this.tabWidth = 8;
+    this.targetStart = this.targetEnd = 0;
+
+    /**
+     * Indexed by indicator id, then is an array of RLE things where the index
+     * is the start of the run, and the value is a hash {length, value}.
+     * (This relies on arrays being sparse.)
+     */
+    this._indicators = [];
 }
 this.SciMozMock = SciMozMock;
+
+/**
+ * Get the keys for the given indicator
+ * @param start {Number} The lowest index to get
+ * @param end {Number} One more than the highest index to get
+ * @param indicator {Number} The indicator; default to current
+ * @returns {Array of Number} The indicator keys
+ */
+SciMozMock.prototype._indicatorKeys =
+    function SciMozMock__indicatorKeys(start, end, indicator)
+        Object.keys(this._indicators[indicator === undefined ? this.indicatorCurrent : indicator]
+                        .slice(start, end))
+              .map(function(n) parseInt(n, 10) + start)
+              .sort(function(a, b) a - b);
+
+SciMozMock.prototype.beginUndoAction =
+    function SciMozMock_beginUndoAction()
+        /* no undo yet */ void(0);
 
 SciMozMock.prototype.charPosAtPosition =
     function SciMozMock_charPosAtPosition(pos)
@@ -28,9 +57,30 @@ SciMozMock.prototype.chooseCaretX =
     function SciMozMock_chooseCaretX()
         void(0);
 
+SciMozMock.prototype.endUndoAction =
+    function SciMozMock_endUndoAction()
+        /* no undo yet */ void(0);
+
 SciMozMock.prototype.ensureVisibleEnforcePolicy =
     function SciMozMock_ensureVisibleEnforcePolicy()
         void(0);
+
+SciMozMock.prototype.getColumn =
+    function SciMozMock_getColumn(aPos) {
+        let lineStart = this.positionFromLine(this.lineFromPosition(aPos));
+        let column = 0;
+        let piece = this.text.substring(lineStart, aPos + 1);
+        for(let i = 0; i < piece.length; ++i) {
+            switch (piece[i]) {
+                case "\t":
+                    column = (Math.floor(column / this.tabWidth) + 1) * this.tabWidth;
+                    break;
+                default:
+                    ++column;
+            }
+        }
+        return column;
+    };
 
 SciMozMock.prototype.getLineEndPosition =
     function SciMozMock_getLineEndPosition(aLine) {
@@ -51,18 +101,228 @@ SciMozMock.prototype.hideSelection =
     function SciMozMock_hideSelection(aHide)
         void(0);
 
+SciMozMock.prototype.indicatorAllOnFor =
+    function SciMozMock_indicatorAllOnFor(pos) {
+        let result = 0;
+        for each (let [indic, runs] in Iterator(this._indicators)) {
+            if (this.indicatorValueAt(indic, pos) != 0) {
+                result |= 1 << indic;
+            }
+        }
+        log.debug("indicatorAllOnFor(" + pos +")=" + result);
+        return result;
+    };
+
+SciMozMock.prototype.indicatorClearRange =
+    function SciMozMock_indicatorClearRange(start, length) {
+        log.debug("indicatorClearRange: " + this.indicatorCurrent + " @ " +
+                  start + ":" + (start + length));
+        if (!(this.indicatorCurrent in this._indicators)) {
+            return;
+        }
+        let runs = this._indicators[this.indicatorCurrent];
+        let min = this._indicatorKeys(0, start).pop();
+        if (min < start && (min + runs[min] >= start)) {
+            // the previous run intersects start; chop it off
+            if (start == min) {
+                delete runs[min];
+            } else {
+                runs[min].length = (start - min);
+            }
+        }
+        for each (let next in this._indicatorKeys(start, start + length)) {
+            if (next + runs[next].length > start + length) {
+                // this run extends past the end of the range to clear
+                let run = runs[next];
+                run.length = next + run.length - (start + length);
+                delete runs[next];
+                runs[start + length] = run;
+                break;
+            }
+            // this run is covered by the range to clear
+            delete runs[next];
+        }
+    };
+
+SciMozMock.prototype.indicatorFillRange =
+    function SciMozMock_indicatorFillRange(start, length) {
+        if (start < 0) {
+            log.debug("indicatorFillRange: invalid start " + start);
+            return;
+        }
+        if (length < 1) {
+            log.debug("indicatorFillRange: invalid length " + length);
+            return;
+        }
+        log.debug("indicatorFillRange: " + this.indicatorCurrent + " @ " +
+                  start + ":" + (start + length) + "=" + this.indicatorValue);
+
+        if (!(this.indicatorCurrent in this._indicators)) {
+            this._indicators[this.indicatorCurrent] = [];
+        }
+        let runs = this._indicators[this.indicatorCurrent];
+        let min = this._indicatorKeys(0, start).pop();
+        if (min < start && (min + runs[min] >= start)) {
+            // the previous run intersects start; extend or truncate
+            if (runs[min].value == this.indicatorValue) {
+                // extend
+                runs[min].length = start + length - min;
+                let keys = this._indicatorKeys(start, start + length);
+                for each (let next in keys) {
+                    if (runs[next].length + next > start + length) {
+                        // this run extends beyond the range
+                        let run = runs[next];
+                        delete runs[next];
+                        run.length = next + run.length - (start + length);
+                        if (run.value == this.indicatorValue) {
+                            // join the runs
+                            runs[min].length += run.length;
+                        } else {
+                            // different value, move the run
+                            runs[start + length] = run;
+                        }
+                        break;
+                    }
+                    // this run is completely covered by the new range
+                    delete runs[next];
+                }
+                return;
+            }
+            // reaching here means min value is different; truncate it.
+            runs[min] .length = start - min;
+        }
+        runs[start] = {length: length, value: this.indicatorValue};
+        for each (let next in this._indicatorKeys(start + 1, start + length)) {
+            if (runs[next].length + next > start + length) {
+                // this run extends beyond the range
+                let run = runs[next];
+                delete runs[next];
+                run.length = next + run.length - (start + length);
+                if (run.value == this.indicatorValue) {
+                    // join the runs
+                    runs[start].length += run.length;
+                } else {
+                    // different value, move the run
+                    runs[start + length] = run;
+                }
+                break;
+            }
+            // this run is completely covered by the new range
+            delete runs[next];
+        }
+    };
+
+SciMozMock.prototype.indicatorStart =
+    function SciMozMock_indicatorStart(indicator, position) {
+        log.debug("indicatorStart: " + indicator + " @ " + position);
+        if (!(indicator in this._indicators)) {
+            return 0;
+        }
+        let runs = this._indicators[indicator];
+        let min = this._indicatorKeys(0, position + 1, indicator).pop();
+        if (min !== undefined) {
+            if (min + runs[min].length > position) {
+                return min; // covered by previous range
+            }
+            return min + runs[min].length; // after previous range
+        }
+        return 0; // no range before pos, it starts at 0
+    };
+
+SciMozMock.prototype.indicatorEnd =
+    function SciMozMock_indicatorEnd(indicator, position) {
+        log.debug("indicatorEnd: " + indicator + " @ " + position);
+        if (!(indicator in this._indicators)) {
+            return 0;
+        }
+        let runs = this._indicators[indicator];
+        let min = this._indicatorKeys(0, position + 1, indicator).pop();
+        if (min !== undefined && min + runs[min].length > position) {
+            return min + runs[min].length; // covered by the given range
+        }
+        let max = this._indicatorKeys(position + 1, undefined, indicator).shift();
+        if (max === undefined) {
+            return this.length; // no ranges at all...
+        }
+        return max; // there's a following range
+    };
+
+SciMozMock.prototype.indicatorValueAt =
+    function SciMozMock_indicatorValueAt(indicator, position) {
+        log.debug("indicatorValueAt: " + indicator + " @ " + position);
+        if (!(indicator in this._indicators)) {
+            return 0;
+        }
+        let runs = this._indicators[indicator];
+        let min = this._indicatorKeys(0, position + 1, indicator).pop();
+        if (typeof(min) == "undefined") {
+            return 0;
+        }
+        let run = runs[min];
+        if (min + run.length > position) {
+            return run.value;
+        }
+        return 0;
+    };
+
+Object.defineProperty(SciMozMock.prototype, "length", {
+    get: function() this.text.length,
+    enumerable: true, configurable: true});
+
 SciMozMock.prototype.lineFromPosition =
     function SciMozMock_lineFromPosition(pos)
         (this.text.substr(0, pos).match(/\n/g) || []).length;
+
+SciMozMock.prototype.markerNext =
+    function SciMozMock_markerNext(lineStart, markerMask) {
+        log.warn("SciMozMock: markerNext: markers not implemented");
+        return -1;
+    };
+
+SciMozMock.prototype.positionAfter =
+    function SciMozMock_positionAfter(pos)
+        pos + 1;
 
 SciMozMock.prototype.positionAtChar =
     function SciMozMock_positionAtChar(start, charoffset)
         start + charoffset;
 
+SciMozMock.prototype.positionAtColumn =
+    function SciMozMock_positionAtColumn(line, column) {
+        let offset = this.positionFromLine(line - 1), pos = 0;
+        let lines = this.text.match(new RegExp("(?:[^\n]*\n){" + (line + 1) + "}", "m")) || [""];
+        let lastLine = lines.pop().replace(/\n$/, "");
+        for(; column > 0; --column) {
+            switch (lastLine[column]) {
+                case "\t":
+                    pos = (Math.floor(pos / this.tabWidth) + 1) * this.tabWidth;
+                    break;
+                case "\r":
+                case "\n":
+                    return offset + pos;
+                default:
+                    ++pos;
+            }
+        }
+        return offset + pos;
+    };
+
+SciMozMock.prototype.positionBefore =
+    function SciMozMock_positionBefore(pos)
+        pos - 1;
+
 SciMozMock.prototype.positionFromLine =
     function SciMozMock_positionFromLine(aLine)
-        this.text.match(new RegExp("(?:[^\n]*\n){" + aLine + "}", "m"))
-            .reduce(function(n, s) n + s.length, 0);
+        (this.text.match(new RegExp("(?:[^\n]*\n){" + aLine + "}", "m")) || [])
+             .reduce(function(n, s) n + s.length, 0);
+
+SciMozMock.prototype.replaceTarget =
+    function SciMozMock_replaceTarget(length, text) {
+        if (length >= 0) text = text.substring(0, length);
+        this.text = this.text.substr(0, this.targetStart) + text + this.text.substr(this.targetEnd);
+        this.targetEnd = this.targetStart + text.length;
+        return text.length;
+    };
 
 Object.defineProperty(SciMozMock.prototype, "selectionEnd", {
     get: function() Math.max(this.anchor, this.currentPos),
@@ -86,6 +346,20 @@ SciMozMock.prototype.setSel =
         [this.anchor, this.currentPos] = [start, end];
     };
 
+(function() {
+    var interfaces = [Ci.ISciMoz, Ci.ISciMozLite];
+    for (let i = 0; ("ISciMoz_Part" + i) in Ci; ++i) {
+        interfaces.push(Ci["ISciMoz_Part" + i]);
+    }
+    SciMozMock.prototype.classInfo = XPCOMUtils.generateCI({
+        classID: null,
+        contractID: null,
+        classDescription: "Mock SciMoz",
+        interfaces: interfaces,
+        flags: 0,
+    });
+    SciMozMock.prototype.QueryInterface = XPCOMUtils.generateQI(interfaces);
+})();
 
 /**
  * Create a new mock KoDoc

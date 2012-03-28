@@ -351,7 +351,8 @@ interface koIFindService : nsISupports {
 
     // Abort a running findallinfiles, replaceallinfiles or
     // findallincollection session.
-    void stopfindreplaceinfiles(in long id);
+    // Returns true if the session was still running.
+    boolean stopfindreplaceinfiles(in long id);
 
     AString regex_escape_string(in AString s);
 

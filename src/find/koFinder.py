@@ -1822,7 +1822,9 @@ class KoFindService(object):
         if context.type == koIFindContext.FCT_IN_COLLECTION:
             paths = UnwrapObject(context).paths
         else:
-            assert context.type == koIFindContext.FCT_IN_FILES
+            if context.type != koIFindContext.FCT_IN_FILES:
+                raise ServerException(nsError.NS_ERROR_INVALID_ARG,
+                                      "Context has invalid type %r" % (context.type,))
             paths = _paths_from_ko_info(self.options, cwd=context.cwd)
 
         t = _FindReplaceThread(id, regex, None, desc, paths, resultsMgr,
@@ -1927,8 +1929,11 @@ class KoFindService(object):
     def stopfindreplaceinfiles(self, id):
         #XXX Do I need a lock-guard around usage of self._threadMap?
         if id in self._threadMap:
+            isAlive = self._threadMap[id].isAlive()
             self._threadMap[id].stop()
             del self._threadMap[id]
+            return isAlive
+        return False
 
     def regex_escape_string(self, s):
         return re.escape(s)

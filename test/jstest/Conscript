@@ -32,6 +32,7 @@ $cons->Install("$mozChromeDir/komodo-jstest/mock", "mock/findresults.jsm");
 $cons->Install("$mozChromeDir/komodo-jstest/mock", "mock/history.jsm");
 $cons->Install("$mozChromeDir/komodo-jstest/mock", "mock/macros.jsm");
 $cons->Install("$mozChromeDir/komodo-jstest/mock", "mock/mru.jsm");
+$cons->Install("$mozChromeDir/komodo-jstest/mock", "mock/statusbar.jsm");
 $cons->Install("$mozChromeDir/komodo-jstest/mock", "mock/TreeBoxObject.jsm");
 $cons->Install("$mozChromeDir/komodo-jstest/mock", "mock/views.jsm");
 $cons->Command("$mozChromeDir/komodo-jstest.manifest",
