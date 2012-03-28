@@ -70,7 +70,7 @@ if (typeof(ko.find)!='undefined') {
 
 //---- locals
 
-var findLog = ko.logging.getLogger("find_functions");
+var findLog = ko.logging.getLogger("find.functions");
 //findLog.setLevel(ko.logging.LOG_DEBUG);
 // ---------- localizing with stringbundle -------
 var _ffBundle = Components.classes["@mozilla.org/intl/stringbundle;1"]

@@ -47,7 +47,7 @@
 
 //---- globals
 
-var log = ko.logging.getLogger("find");
+var log = ko.logging.getLogger("find.dialog");
 //log.setLevel(ko.logging.LOG_DEBUG);
 
 var koIFindContext = Components.interfaces.koIFindContext;

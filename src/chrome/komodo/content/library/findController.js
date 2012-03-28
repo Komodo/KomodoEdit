@@ -59,7 +59,7 @@ const Ci = Components.interfaces;
 var _bundle = Cc["@mozilla.org/intl/stringbundle;1"]
                 .getService(Ci.nsIStringBundleService)
                 .createBundle("chrome://komodo/locale/library.properties");
-var _log = ko.logging.getLogger('findController');
+var _log = ko.logging.getLogger('find.controller');
 //_log.setLevel(ko.logging.LOG_DEBUG);
 
 function FindController(viewManager) {
