@@ -648,7 +648,10 @@ this.jumpToNextLintResult = function lint_jumpToNextLintResult()
 this.doRequest = function lint_doRequest() {
     try {
         var view = ko.views.manager.currentView;
-        if (!view.lintBuffer) {
+        if (!view || view.getAttribute("type") != "editor") {
+            // Current view not lintable.
+            return;
+        } else if (!view.lintBuffer) {
             _log.debug("lint.doRequest: view "
                        + ((view.koDoc && view.koDoc.displayPath) || "<unnamed>")
                        + " has no lintBuffer");
