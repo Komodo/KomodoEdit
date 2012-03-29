@@ -8,6 +8,41 @@ Cu.import("resource://komodo-jstest/mock/mock.jsm", {})
           "findresults", "statusbar",
           "chrome://komodo/content/library/tabstops.js");
 
+/**
+ * Premute the given arrays
+ * Each parameter given should be an array (an axis); the generator will yield
+ * the combination of each axis.  For example,
+ *      permute([1, 2], [3, 4], [5, 6])
+ * will yield (in some undefined order)
+ *      [1, 3, 5], [1, 3, 6], [1, 4, 5], [1, 4, 6], [2, 3, 5], [2, 3, 6],
+ *      [2, 4, 5], [2, 4, 6]
+ */
+function permute(/* axis, axis, axis... */) {
+    let axes = Array.slice(arguments);
+    let indices = [0 for (i in axes)];
+    let last = axes.length - 1;
+    for(;;) {
+        let results = [];
+        for (let i = 0; i < axes.length; ++i) {
+            results.push(axes[i][indices[i]]);
+        }
+        yield results;
+        ++indices[last];
+        if (indices[last] >= axes[last].length) {
+            // hit end of this axes, try the next one
+            let i = last;
+            for(;;) {
+                indices[i] = 0;
+                if (--i < 0) return;
+                ++indices[i];
+                if (indices[i] < axes[i].length) {
+                    break;
+                }
+            }
+        }
+    }
+}
+
 function TestKoFind() {
     this.scope = null;
     this.context = null;
@@ -27,9 +62,11 @@ TestKoFind.prototype.setUp = function TestKoFind_setUp() {
     this.findSvc = Cc["@activestate.com/koFindService;1"]
                      .getService(Ci.koIFindService);
     this.options = this.findSvc.options;
+    this.options.patternType = Ci.koIFindOptions.FOT_SIMPLE;
 };
 
 TestKoFind.prototype.tearDown = function TestKoFind_tearDown() {
+    this.options.patternType = Ci.koIFindOptions.FOT_SIMPLE;
     this.options.searchBackward = false;
     this.scope = null;
     this.context = null;
@@ -45,44 +82,95 @@ function TestKoFind_msgHandler(level, context, message) {
 };
 
 TestKoFind.prototype.test_findNext = function test_findNext() {
+    /**
+     * Each of these functions do what's necessary to set up a different pattern
+     * type then return the pattern to use for searching
+     */
+    let patterns = [
+        function plain() {
+            this.options.patternType = Ci.koIFindOptions.FOT_SIMPLE;
+            return "hello";
+        },
+        function wildcard() {
+            this.options.patternType = Ci.koIFindOptions.FOT_WILDCARD;
+            return "h*o";
+        },
+        function re_python() {
+            this.options.patternType = Ci.koIFindOptions.FOT_REGEX_PYTHON;
+            return "h.(.)\\1o";
+        },
+    ];
+    let higlightOptions = [false, true, false, true];
+
     this.context.type = Ci.koIFindContext.FCT_CURRENT_DOC;
     let scimoz = ko.views.currentView.scimoz = new ko.views.SciMozMock();
     scimoz.text = "hello hello hello";
+    let highlightBits = [1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1];
 
-    var findNext = (function findNext(pattern) {
-        return ko.find.findNext(this.scope, /* editor window */
-                                this.context, /* find context */
-                                pattern, /* pattern */
-                                "find", /* mode */
-                                true, /* quiet */
-                                false, /* use MRU */
-                                this.msgHandler.bind(this), /* message handler */
-                                false, /* highlight matches */
-                                0 /* highlight timeout */);
-    }).bind(this);
+    for each (let [setup, highlight] in permute(patterns, higlightOptions)) {
+        try {
+            let pattern = setup.call(this);
+            Components.classes["@activestate.com/koFindSession;1"]
+                      .getService(Components.interfaces.koIFindSession)
+                      .Reset();
+            scimoz.indicatorCurrent = Ci.koILintResult.DECORATOR_FIND_HIGHLIGHT;
+            scimoz.indicatorValue = 0;
+            scimoz.indicatorFillRange(0, scimoz.text.length);
+            scimoz.setSel(0, 0);
 
-    let result = findNext("hello");
-    this.assertTrue(result, "Failed to find results");
-    this.assertEquals(scimoz.anchor, 0, "Incorrect start position");
-    this.assertEquals(scimoz.currentPos, 5, "Incorrect end position");
-    result = findNext("hello");
-    this.assertTrue(result, "Failed to find results");
-    this.assertEquals(scimoz.anchor, 6, "Incorrect start position");
-    this.assertEquals(scimoz.currentPos, 11, "Incorrect end position");
-    result = findNext("hello");
-    this.assertTrue(result, "Failed to find results");
-    this.assertEquals(scimoz.anchor, 12, "Incorrect start position");
-    this.assertEquals(scimoz.currentPos, 17, "Incorrect end position");
-    result = findNext("hello");
-    this.assertFalse(result, "Unexpectedly wrapped find result: [" +
-                     scimoz.anchor + "," + scimoz.currentPos + "]");
-    scimoz.setSel(0, 0);
-    result = findNext("world");
-    this.assertFalse(result, "Unexpected found result");
-    result = findNext("hello");
-    this.assertTrue(result, "Failed to find results");
-    this.assertEquals(scimoz.anchor, 0, "Incorrect start position");
-    this.assertEquals(scimoz.currentPos, 5, "Incorrect end position");
+            var findNext = (function findNext(pattern) {
+                return ko.find.findNext(this.scope, /* editor window */
+                                        this.context, /* find context */
+                                        pattern, /* pattern */
+                                        "find", /* mode */
+                                        true, /* quiet */
+                                        false, /* use MRU */
+                                        this.msgHandler.bind(this), /* message handler */
+                                        highlight, /* highlight matches */
+                                        -1 /* highlight timeout */);
+            }).bind(this);
+
+            var checkHighlights = (function checkHighlights() {
+                for (let i = 0; i < scimoz.text.length; ++i) {
+                    let expected = highlightBits[i] && (1 << Ci.koILintResult.DECORATOR_FIND_HIGHLIGHT);
+                    if (!highlight) expected = 0;
+                    this.assertEquals(expected, scimoz.indicatorAllOnFor(i),
+                                      "Unexpected indicators at " + i);
+                }
+            }).bind(this);
+
+            let result = findNext(pattern);
+            this.assertTrue(result, "Failed to find results for " + pattern);
+            this.assertEquals(scimoz.anchor, 0, "Incorrect start position");
+            this.assertEquals(scimoz.currentPos, 5, "Incorrect end position");
+            checkHighlights();
+            result = findNext(pattern);
+            this.assertTrue(result, "Failed to find results for " + pattern);
+            this.assertEquals(scimoz.anchor, 6, "Incorrect start position");
+            this.assertEquals(scimoz.currentPos, 11, "Incorrect end position");
+            checkHighlights();
+            result = findNext(pattern);
+            this.assertTrue(result, "Failed to find results for " + pattern);
+            this.assertEquals(scimoz.anchor, 12, "Incorrect start position");
+            this.assertEquals(scimoz.currentPos, 17, "Incorrect end position");
+            checkHighlights();
+            result = findNext(pattern);
+            this.assertFalse(result, "Unexpectedly wrapped find result: [" +
+                             scimoz.anchor + "," + scimoz.currentPos + "]");
+            scimoz.setSel(0, 0);
+            result = findNext("world");
+            this.assertFalse(result, "Unexpected found result");
+            result = findNext(pattern);
+            this.assertTrue(result, "Failed to find results for " + pattern);
+            this.assertEquals(scimoz.anchor, 0, "Incorrect start position");
+            this.assertEquals(scimoz.currentPos, 5, "Incorrect end position");
+            checkHighlights();
+        } catch (ex if ex instanceof TestCase.TestError) {
+            // Tack on additional information about the parameters
+            ex.message += " (setup=" + setup.name + " highlight=" + highlight + ")";
+            throw ex;
+        }
+    }
 };
 
 TestKoFind.prototype.test_findPrevious = function test_findPrevious() {

@@ -4,6 +4,9 @@
 
 const EXPORTED_SYMBOLS = ["TestCase"];
 
+let logging = Components.utils.import("chrome://komodo/content/library/logging.js", {}).logging;
+let log = logging.getLogger("jstest.TestCase");
+
 /**
  * Base class for unit test errors.  Note that this isn't directly exported
  * from this module; it can only be obtained via BackstagePass
@@ -34,6 +37,8 @@ function TestCase() {
     /* Nothing to see here - actual test cases should be more exciting */
 }
 
+TestCase.TestError = TestError;
+
 /**
  * Optional method: setUp
  * This is run before test cases
@@ -56,6 +61,7 @@ TestCase.prototype.failIf = function TestCase_failIf(expr, msg) {
         throw new TestError(msg || ("failIf: " + expr + " != true"),
                             "AsertFalse");
     }
+    log.debug("PASS: " + msg);
 };
 TestCase.prototype.assert = TestCase.prototype.assert_ = TestCase.prototype.assertTrue =
 TestCase.prototype.failUnless = function TestCase_failUnless(expr, msg) {
@@ -63,6 +69,7 @@ TestCase.prototype.failUnless = function TestCase_failUnless(expr, msg) {
         throw new TestError((msg || ("failUnless: " + expr + " != false")) + ": " + expr,
                             "AssertTrue");
     }
+    log.debug("PASS: " + msg);
 };
 TestCase.prototype.assertRaises =
 TestCase.prototype.failUnlessRaises = function TestCase_failUnlessRaises(excClass, callableObj, args, msg) {
@@ -70,6 +77,7 @@ TestCase.prototype.failUnlessRaises = function TestCase_failUnlessRaises(excClas
         callableObj.apply(this, args);
     } catch (ex if ex instanceof excClass) {
         // test passed
+        log.debug("PASS: " + msg);
         return;
     }
     throw new TestError(msg || "Exception was not raised",
@@ -98,6 +106,7 @@ TestCase.prototype.failUnlessEqual = function TestCase_failUnlessEqual(first, se
         throw new TestError((msg || "failUnlessEqual") + ": " + first + " != " + second,
                             "AssertEquals");
     }
+    log.debug("PASS: " + msg);
 };
 TestCase.prototype.assertNotEqual = TestCase.prototype.assertNotEquals =
 TestCase.prototype.failIfEqual = function TestCase_failUnless(first, second, msg) {
@@ -105,6 +114,7 @@ TestCase.prototype.failIfEqual = function TestCase_failUnless(first, second, msg
         throw new TestError((msg || "failIfEqual") + ": " + first + " == " + second,
                             "AssertNotEquals");
     }
+    log.debug("PASS: " + msg);
 };
 TestCase.prototype.assertAlmostEqual = TestCase.prototype.assertAlmostEquals =
 TestCase.prototype.failUnlessAlmostEqual = function TestCase_failUnlessAlmostEqual(first, second, places, msg) {
@@ -116,6 +126,7 @@ TestCase.prototype.failUnlessAlmostEqual = function TestCase_failUnlessAlmostEqu
         throw new TestError(msg || (difference + " != 0"),
                             "AssertAlmostEqual");
     }
+    log.debug("PASS: " + msg);
 };
 TestCase.prototype.assertNotAlmostEqual = TestCase.prototype.assertNotAlmostEquals =
 TestCase.prototype.failIfAlmostEqual = function TestCase_failIfAlmostEqual(first, second, places, msg) {
@@ -127,4 +138,5 @@ TestCase.prototype.failIfAlmostEqual = function TestCase_failIfAlmostEqual(first
         throw new TestError(msg || (difference + " == 0"),
                             "AssertNotAlmostEqual");
     }
+    log.debug("PASS: " + msg);
 };

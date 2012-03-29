@@ -140,7 +140,7 @@ KoJSTestCase.prototype.tearDown = function KoJSTestCase_tearDown(aResult) {
         }
         if (!log) {
             let logging = Cu.import("chrome://komodo/content/library/logging.js", {}).logging;
-            log = logging.getLogger("jstest");
+            log = logging.getLogger("jstest.driver");
         }
         for each (let message in messages.value) {
             if (message instanceof Ci.nsIScriptError) {
