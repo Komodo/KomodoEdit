@@ -650,7 +650,7 @@ this.doRequest = function lint_doRequest() {
         var view = ko.views.manager.currentView;
         if (!view.lintBuffer) {
             _log.debug("lint.doRequest: view "
-                       + (view.koDoc.displayPath || "<unnamed>")
+                       + ((view.koDoc && view.koDoc.displayPath) || "<unnamed>")
                        + " has no lintBuffer");
             return;
         }
