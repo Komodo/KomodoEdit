@@ -174,9 +174,12 @@ class KoHistoryService(History):
         @returns {Location}
         """
         if view is None:
-            view = components.classes["@activestate.com/koViewService;1"]\
-                .getService(components.interfaces.koIViewService).currentView \
-                .QueryInterface(components.interfaces.koIScintillaView)
+            try:
+                view = components.classes["@activestate.com/koViewService;1"]\
+                       .getService(components.interfaces.koIViewService).currentView \
+                       .QueryInterface(components.interfaces.koIScintillaView)
+            except:
+                return None
         loc = self.loc_from_view_info("editor",
                                       view.windowNum, view.tabbedViewId, 
                                       view, view.scimoz.currentPos,
