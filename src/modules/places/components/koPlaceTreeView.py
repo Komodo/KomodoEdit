@@ -1914,12 +1914,16 @@ class KoPlaceTreeView(TreeView):
         #qlog.debug("nextIndex: %d", nextIndex)
         if nextIndex == -1:
             nextIndex = len(self._rows)
+            nextIndexURI = None
             #qlog.debug("adjust for -1, nextIndex: %d", nextIndex)
+        else:
+            nextIndexURI = self._rows[nextIndex].uri
         requestID = self.getRequestID()
         self.lock.acquire()
         try:
             self._data[requestID] = {'index':index,
                                      'nextIndex':nextIndex,
+                                     'nextIndexURI':nextIndexURI,
                                      'firstVisibleRow':self._tree.getFirstVisibleRow(),
                                      'node':rowNode}
         finally:
@@ -1936,8 +1940,8 @@ class KoPlaceTreeView(TreeView):
                                'post_refreshView'))
         
     def post_refreshView(self, rv, requestID):
-        index, nextIndex, originalNode, firstVisibleRow =\
-            self.getItemsByRequestID(requestID, 'index', 'nextIndex', 'node', 'firstVisibleRow')
+        index, nextIndex, nextIndexURI, originalNode, firstVisibleRow =\
+            self.getItemsByRequestID(requestID, 'index', 'nextIndex', 'nextIndexURI', 'node', 'firstVisibleRow')
         try:
             if self._currentRefreshRequests[index] > requestID:
                 # Another refreshView request on this node is underway
@@ -1963,6 +1967,20 @@ class KoPlaceTreeView(TreeView):
             nextIndex = self.getNextSiblingIndex(index)
             if nextIndex == -1:
                 nextIndex = len(self._rows)
+        if nextIndexURI:
+            # Verify that we're pointing at the correct nextIndex
+            # Because this method is called asynchronously the tree could
+            # have changed size between the time refreshView() dispatched
+            # the workerThread item and this method was invoked.
+            if self._rows[nextIndex].uri != nextIndexURI:
+                newNextIndex = self.getRowIndexForURI(nextIndexURI)
+                if newNextIndex == -1:
+                    log.error("Can't find the end URI %s in the tree",
+                              nextIndexURI)
+                    return
+                nextIndex = newNextIndex
+        elif nextIndex != len(self._rows):
+            nextIndex = len(self._rows)
         doInvalidate = True
         self._finishRefreshingView(index, nextIndex, doInvalidate, rowNode,
                                    firstVisibleRow)
