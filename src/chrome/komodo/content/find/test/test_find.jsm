@@ -43,6 +43,35 @@ function permute(/* axis, axis, axis... */) {
     }
 }
 
+let {FOT_SIMPLE, FOT_WILDCARD, FOT_REGEX_PYTHON,
+     FOC_INSENSITIVE, FOC_SENSITIVE, FOC_SMART } = Ci.koIFindOptions;
+/**
+ * pre-canned test cases - given a type/case sensitivity/pattern, should we
+ * expect to match the string "Hello"? (sometimes-case-sensitive)
+ */
+let setups = [
+    // type,            case,            pattern,  match expected?
+    [ FOT_SIMPLE,       FOC_INSENSITIVE, "hEllO",  true  ],
+    [ FOT_SIMPLE,       FOC_SENSITIVE,   "Hello",  true  ],
+    [ FOT_SIMPLE,       FOC_SENSITIVE,   "hello",  false ],
+    [ FOT_SIMPLE,       FOC_SMART,       "hello",  true  ],
+    [ FOT_SIMPLE,       FOC_SMART,       "Hello",  true  ],
+    [ FOT_SIMPLE,       FOC_SMART,       "helLO",  false ],
+    [ FOT_WILDCARD,     FOC_INSENSITIVE, "h?L?O",  true  ],
+    [ FOT_WILDCARD,     FOC_SENSITIVE,   "H?l?o",  true  ],
+    [ FOT_WILDCARD,     FOC_SENSITIVE,   "H?L?o",  false ],
+    [ FOT_WILDCARD,     FOC_SMART,       "h?l?o",  true  ],
+    [ FOT_WILDCARD,     FOC_SMART,       "H?l?o",  true  ],
+    [ FOT_WILDCARD,     FOC_SMART,       "h?L?o",  false ],
+    [ FOT_REGEX_PYTHON, FOC_INSENSITIVE, "h\\w+o", true  ],
+    [ FOT_REGEX_PYTHON, FOC_SENSITIVE,   "H\\w+o", true  ],
+    [ FOT_REGEX_PYTHON, FOC_SENSITIVE,   "h\\w+o", false ],
+    [ FOT_REGEX_PYTHON, FOC_SMART,       "h\\w+o", true  ],
+    [ FOT_REGEX_PYTHON, FOC_SMART,       "H\\w+o", true  ],
+    [ FOT_REGEX_PYTHON, FOC_SMART,       "h\\w+O", false ],
+];
+
+
 function TestKoFind() {
     this.scope = null;
     this.context = null;
@@ -81,35 +110,34 @@ function TestKoFind_msgHandler(level, context, message) {
               " message=" + message + "\n");
 };
 
+/**
+ * Check indicator status
+ * @param scimoz {SciMoz} The scimoz to check
+ * @param indic {Number} The indicator to set, 0 through 31 inclusive
+ * @param expected {Array} Any non-zero elements are expected to have indicators set
+ */
+TestKoFind.prototype.checkIndicators =
+function checkIndicators(scimoz, indic, expected) {
+    for (let i = 0; i < scimoz.text.length; ++i) {
+        let bitmap = scimoz.indicatorAllOnFor(i);
+        let mask = expected[i] ? (1 << indic) : 0;
+        this.assertEquals(mask, bitmap,
+                          "Unexpected indicators at " + i);
+    }
+};
+
 TestKoFind.prototype.test_findNext = function test_findNext() {
-    /**
-     * Each of these functions do what's necessary to set up a different pattern
-     * type then return the pattern to use for searching
-     */
-    let patterns = [
-        function plain() {
-            this.options.patternType = Ci.koIFindOptions.FOT_SIMPLE;
-            return "hello";
-        },
-        function wildcard() {
-            this.options.patternType = Ci.koIFindOptions.FOT_WILDCARD;
-            return "h*o";
-        },
-        function re_python() {
-            this.options.patternType = Ci.koIFindOptions.FOT_REGEX_PYTHON;
-            return "h.(.)\\1o";
-        },
-    ];
-    let higlightOptions = [false, true, false, true];
+    let highlightOptions = [false, true, false, true];
 
     this.context.type = Ci.koIFindContext.FCT_CURRENT_DOC;
     let scimoz = ko.views.currentView.scimoz = new ko.views.SciMozMock();
-    scimoz.text = "hello hello hello";
+    scimoz.text = "Hello Hello Hello";
     let highlightBits = [1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1];
 
-    for each (let [setup, highlight] in permute(patterns, higlightOptions)) {
+    for each (let [[fot, foc, pattern, matchExpected], highlight] in permute(setups, highlightOptions)) {
         try {
-            let pattern = setup.call(this);
+            this.options.patternType = fot;
+            this.options.caseSensitivity = foc;
             Components.classes["@activestate.com/koFindSession;1"]
                       .getService(Components.interfaces.koIFindSession)
                       .Reset();
@@ -130,30 +158,31 @@ TestKoFind.prototype.test_findNext = function test_findNext() {
                                         -1 /* highlight timeout */);
             }).bind(this);
 
-            var checkHighlights = (function checkHighlights() {
-                for (let i = 0; i < scimoz.text.length; ++i) {
-                    let expected = highlightBits[i] && (1 << Ci.koILintResult.DECORATOR_FIND_HIGHLIGHT);
-                    if (!highlight) expected = 0;
-                    this.assertEquals(expected, scimoz.indicatorAllOnFor(i),
-                                      "Unexpected indicators at " + i);
-                }
-            }).bind(this);
-
             let result = findNext(pattern);
+            if (!matchExpected) {
+                this.assertFalse(result, "Unexpected match for " + pattern);
+                this.assertEquals(scimoz.anchor, 0, "Unexpected anchor movement");
+                this.assertEquals(scimoz.currentPos, 0, "Unexpected position movement");
+                continue;
+            }
+
             this.assertTrue(result, "Failed to find results for " + pattern);
             this.assertEquals(scimoz.anchor, 0, "Incorrect start position");
             this.assertEquals(scimoz.currentPos, 5, "Incorrect end position");
-            checkHighlights();
+            this.checkIndicators(scimoz, Ci.koILintResult.DECORATOR_FIND_HIGHLIGHT,
+                                 highlight ? highlightBits : []);
             result = findNext(pattern);
             this.assertTrue(result, "Failed to find results for " + pattern);
             this.assertEquals(scimoz.anchor, 6, "Incorrect start position");
             this.assertEquals(scimoz.currentPos, 11, "Incorrect end position");
-            checkHighlights();
+            this.checkIndicators(scimoz, Ci.koILintResult.DECORATOR_FIND_HIGHLIGHT,
+                                 highlight ? highlightBits : []);
             result = findNext(pattern);
             this.assertTrue(result, "Failed to find results for " + pattern);
             this.assertEquals(scimoz.anchor, 12, "Incorrect start position");
             this.assertEquals(scimoz.currentPos, 17, "Incorrect end position");
-            checkHighlights();
+            this.checkIndicators(scimoz, Ci.koILintResult.DECORATOR_FIND_HIGHLIGHT,
+                                 highlight ? highlightBits : []);
             result = findNext(pattern);
             this.assertFalse(result, "Unexpectedly wrapped find result: [" +
                              scimoz.anchor + "," + scimoz.currentPos + "]");
@@ -164,10 +193,13 @@ TestKoFind.prototype.test_findNext = function test_findNext() {
             this.assertTrue(result, "Failed to find results for " + pattern);
             this.assertEquals(scimoz.anchor, 0, "Incorrect start position");
             this.assertEquals(scimoz.currentPos, 5, "Incorrect end position");
-            checkHighlights();
+            this.checkIndicators(scimoz, Ci.koILintResult.DECORATOR_FIND_HIGHLIGHT,
+                                 highlight ? highlightBits : []);
         } catch (ex if ex instanceof TestCase.TestError) {
             // Tack on additional information about the parameters
-            ex.message += " (setup=" + setup.name + " highlight=" + highlight + ")";
+            ex.message += " (type=" + fot + " case=" + foc +
+                           " pattern=" + pattern + " match=" + matchExpected +
+                           " highlight=" + highlight + ")";
             throw ex;
         }
     }
@@ -177,104 +209,191 @@ TestKoFind.prototype.test_findPrevious = function test_findPrevious() {
     this.context.type = Ci.koIFindContext.FCT_CURRENT_DOC;
     this.options.searchBackward = true;
     let scimoz = ko.views.currentView.scimoz = new ko.views.SciMozMock();
-    scimoz.text = "hello hello hello";
+    scimoz.text = "Hello Hello Hello";
 
-    var findNext = (function findNext(pattern) {
-        return ko.find.findNext(this.scope, /* editor window */
-                                this.context, /* find context */
-                                pattern, /* pattern */
-                                "find", /* mode */
-                                true, /* quiet */
-                                false, /* use MRU */
-                                this.msgHandler.bind(this), /* message handler */
-                                false, /* highlight matches */
-                                0 /* highlight timeout */);
-    }).bind(this);
+    let highlightOptions = [false, true, false, true];
+    let highlightBits = [1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1];
 
-    let result;
-    scimoz.setSelection(-1, -1);
-    this.assertEquals(scimoz.anchor, scimoz.text.length);
-    result = findNext("hello");
-    this.assertTrue(result, "Failed to find last result");
-    this.assertEquals(scimoz.anchor, 12, "Incorrect start position");
-    this.assertEquals(scimoz.currentPos, 17, "Incorrect end position");
-    result = findNext("hello");
-    this.assertTrue(this.options.searchBackward);
-    this.assertTrue(result, "Failed to find second result");
-    this.assertEquals(scimoz.anchor, 6, "Incorrect start position");
-    this.assertEquals(scimoz.currentPos, 11, "Incorrect end position");
-    result = findNext("hello");
-    this.assertTrue(this.options.searchBackward);
-    this.assertTrue(result, "Failed to find first result");
-    this.assertEquals(scimoz.anchor, 0, "Incorrect start position");
-    this.assertEquals(scimoz.currentPos, 5, "Incorrect end position");
-    result = findNext("hello");
-    this.assertFalse(result, "Unexpectedly wrapped find result: [" +
-                     scimoz.anchor + "," + scimoz.currentPos + "]");
-    scimoz.setSelection(-1, -1);
-    result = findNext("world");
-    this.assertFalse(result, "Unexpected found result");
-    result = findNext("hello");
-    this.assertTrue(result, "Failed to find results");
-    this.assertEquals(scimoz.anchor, 12, "Incorrect start position");
-    this.assertEquals(scimoz.currentPos, 17, "Incorrect end position");
+    for each (let [[fot, foc, pattern, matchExpected], highlight] in permute(setups, highlightOptions)) {
+        try {
+            var findNext = (function findNext(pattern) {
+                return ko.find.findNext(this.scope, /* editor window */
+                                        this.context, /* find context */
+                                        pattern, /* pattern */
+                                        "find", /* mode */
+                                        true, /* quiet */
+                                        false, /* use MRU */
+                                        this.msgHandler.bind(this), /* message handler */
+                                        highlight, /* highlight matches */
+                                        -1 /* highlight timeout */);
+            }).bind(this);
+
+            this.options.patternType = fot;
+            this.options.caseSensitivity = foc;
+            scimoz.indicatorCurrent = Ci.koILintResult.DECORATOR_FIND_HIGHLIGHT;
+            scimoz.indicatorValue = 0;
+            scimoz.indicatorFillRange(0, scimoz.text.length);
+
+            let result;
+            scimoz.setSelection(-1, -1);
+            this.assertEquals(scimoz.anchor, scimoz.text.length, "Anchor not at EOF");
+            result = findNext(pattern);
+
+            if (!matchExpected) {
+                this.assertFalse(result, "Unexpectedly found result");
+                this.assertEquals(scimoz.anchor, scimoz.length, "Incorrect start position");
+                this.assertEquals(scimoz.currentPos, scimoz.length, "Incorrect end position");
+                continue;
+            }
+
+            this.assertTrue(result, "Failed to find last result");
+            this.assertEquals(scimoz.anchor, 12, "Incorrect start position");
+            this.assertEquals(scimoz.currentPos, 17, "Incorrect end position");
+            this.checkIndicators(scimoz, Ci.koILintResult.DECORATOR_FIND_HIGHLIGHT,
+                                 highlight ? highlightBits : []);
+            result = findNext(pattern);
+            this.assertTrue(this.options.searchBackward, "searchBackward flag changed");
+            this.assertTrue(result, "Failed to find second result");
+            this.assertEquals(scimoz.anchor, 6, "Incorrect start position");
+            this.assertEquals(scimoz.currentPos, 11, "Incorrect end position");
+            this.checkIndicators(scimoz, Ci.koILintResult.DECORATOR_FIND_HIGHLIGHT,
+                                 highlight ? highlightBits : []);
+            result = findNext(pattern);
+            this.assertTrue(this.options.searchBackward, "searchBackward flag changed");
+            this.assertTrue(result, "Failed to find first result");
+            this.assertEquals(scimoz.anchor, 0, "Incorrect start position");
+            this.assertEquals(scimoz.currentPos, 5, "Incorrect end position");
+            this.checkIndicators(scimoz, Ci.koILintResult.DECORATOR_FIND_HIGHLIGHT,
+                                 highlight ? highlightBits : []);
+            result = findNext(pattern);
+            this.assertFalse(result, "Unexpectedly wrapped find result: [" +
+                             scimoz.anchor + "," + scimoz.currentPos + "]");
+            scimoz.setSelection(-1, -1);
+            result = findNext("world");
+            this.assertFalse(result, "Unexpected found result");
+            result = findNext(pattern);
+            this.assertTrue(result, "Failed to find results");
+            this.assertEquals(scimoz.anchor, 12, "Incorrect start position");
+            this.assertEquals(scimoz.currentPos, 17, "Incorrect end position");
+            this.checkIndicators(scimoz, Ci.koILintResult.DECORATOR_FIND_HIGHLIGHT,
+                                 highlight ? highlightBits : []);
+        } catch (ex if ex instanceof TestCase.TestError) {
+            // Tack on additional information about the parameters
+            ex.message += " (type=" + fot + " case=" + foc +
+                           " pattern=" + pattern + " match=" + matchExpected +
+                           " highlight=" + highlight + ")";
+            throw ex;
+        }
+    }
 };
 
 TestKoFind.prototype.test_findAll = function test_findAll() {
     this.context.type = Ci.koIFindContext.FCT_CURRENT_DOC;
     let scimoz = ko.views.currentView.scimoz = new ko.views.SciMozMock();
-    scimoz.text = "hello hello hello";
-    let result;
-    result = ko.find.findAll(this.scope, /* editor window */
-                             this.context, /* find context */
-                             "hello", /* pattern */
-                             "hello_alias", /* pattern alias */
-                             this.msgHandler.bind(this), /* message handler */
-                             false /* hightlight matches */);
-    this.assertTrue(result, "Failed to find all");
-    let tab = ko.findresults.getTab();
-    this.assertTrue(tab.success, "Find results claimed failure");
-    this.assertEquals(tab.numResults, 3, "Did not find all results");
-    this.assertEquals(tab.numFiles, null, "Not expecting file counts for current doc");
-    this.assertEquals(tab.numFilesSearched, null, "Not expecting file counts for current doc");
+    scimoz.text = "Hello Hello Hello";
 
-    this.assertEquals(tab.journalId, undefined, "Journal id given for non-replace findAll");
-    this.assertEquals(tab.view.GetNumUrls(), 1, "Expected 1 URL");
-    this.assertEquals(ko.views.currentView.koDoc.displayPath, tab.view.GetUrl(0),
-                      "Unexpected URL for the document");
+    let highlightOptions = [false, true, false, true];
+    let highlightBits = [1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1];
 
-    this.assertEquals(tab.view.rowCount, 3, "Expected 3 results");
-    for (let i = 0; i < tab.view.rowCount; ++i) {
-        this.assertEquals(tab.view.getCellText(i, {id: "value"}), "hello", "Unexpected text");
-        this.assertEquals(tab.view.GetValue(i), "hello", "Unexpected value");
-        this.assertEquals(tab.view.GetType(i), "hit", "Unexpected tpe");
-        this.assertEquals(tab.view.GetReplacement(i), "", "Should not have a replacement");
-        this.assertEquals(tab.view.GetLineNum(i), 1, "Should have no lines involved");
-        this.assertEquals(tab.view.GetColumnNum(i), tab.view.GetStartIndex(i) + 1,
-                          "Column numbers should match start indices");
+    for each (let [[fot, foc, pattern, matchExpected], highlight] in permute(setups, highlightOptions)) {
+        try {
+            this.options.patternType = fot;
+            this.options.caseSensitivity = foc;
+            scimoz.indicatorCurrent = Ci.koILintResult.DECORATOR_FIND_HIGHLIGHT;
+            scimoz.indicatorValue = 0;
+            scimoz.indicatorFillRange(0, scimoz.text.length);
+
+            let result;
+            let msgHandler = matchExpected ? this.msgHandler.bind(this) : function(){};
+            result = ko.find.findAll(this.scope, /* editor window */
+                                     this.context, /* find context */
+                                     pattern, /* pattern */
+                                     "hello_alias", /* pattern alias */
+                                     msgHandler, /* message handler */
+                                     highlight /* hightlight matches */);
+
+            let tab = ko.findresults.getTab();
+            this.assertTrue(tab.success, "Find results claimed failure");
+            this.assertEquals(tab.numFiles, null, "Not expecting file counts for current doc");
+            this.assertEquals(tab.numFilesSearched, null, "Not expecting file counts for current doc");
+            this.assertEquals(tab.journalId, undefined, "Journal id given for non-replace findAll");
+
+            if (!matchExpected) {
+                this.assertFalse(result, "Unexpected match");
+                this.assertEquals(tab.numResults, 0, "Unexpected match count");
+                this.assertEquals(tab.view.GetNumUrls(), 0, "Expected no URLs");
+                this.assertEquals(tab.view.rowCount, 0, "Expected 0 rows");
+                continue;
+            }
+
+            this.assertTrue(result, "Failed to find all");
+            this.assertEquals(tab.view.GetNumUrls(), 1, "Expected 1 URL");
+            this.assertEquals(ko.views.currentView.koDoc.displayPath, tab.view.GetUrl(0),
+                              "Unexpected URL for the document");
+
+            this.assertEquals(tab.view.rowCount, 3, "Expected 3 results");
+            for (let i = 0; i < tab.view.rowCount; ++i) {
+                this.assertEquals(tab.view.getCellText(i, {id: "value"}), "Hello", "Unexpected text");
+                this.assertEquals(tab.view.GetValue(i), "Hello", "Unexpected value");
+                this.assertEquals(tab.view.GetType(i), "hit", "Unexpected tpe");
+                this.assertEquals(tab.view.GetReplacement(i), "", "Should not have a replacement");
+                this.assertEquals(tab.view.GetLineNum(i), 1, "Should have no lines involved");
+                this.assertEquals(tab.view.GetColumnNum(i), tab.view.GetStartIndex(i) + 1,
+                                  "Column numbers should match start indices");
+            }
+
+            this.assertEquals(tab.view.GetStartIndex(0), 0, "Bad first result start position");
+            this.assertEquals(tab.view.GetEndIndex(0), 5, "Bad first result end position");
+            this.assertEquals(tab.view.GetStartIndex(1), 6, "Bad second result start position");
+            this.assertEquals(tab.view.GetEndIndex(1), 11, "Bad second result end position");
+            this.assertEquals(tab.view.GetStartIndex(2), 12, "Bad third result start position");
+            this.assertEquals(tab.view.GetEndIndex(2), 17, "Bad third result end position");
+
+            this.checkIndicators(scimoz, Ci.koILintResult.DECORATOR_FIND_HIGHLIGHT,
+                                 highlight ? highlightBits : []);
+        } catch (ex if ex instanceof TestCase.TestError) {
+            // Tack on additional information about the parameters
+            ex.message += " (type=" + fot + " case=" + foc +
+                           " pattern=" + pattern + " match=" + matchExpected +
+                           " highlight=" + highlight + ")";
+            throw ex;
+        }
     }
-    this.assertEquals(tab.view.GetStartIndex(0), 0, "Bad first result start position");
-    this.assertEquals(tab.view.GetEndIndex(0), 5, "Bad first result end position");
-    this.assertEquals(tab.view.GetStartIndex(1), 6, "Bad second result start position");
-    this.assertEquals(tab.view.GetEndIndex(1), 11, "Bad second result end position");
-    this.assertEquals(tab.view.GetStartIndex(2), 12, "Bad third result start position");
-    this.assertEquals(tab.view.GetEndIndex(2), 17, "Bad third result end position");
 };
 
 TestKoFind.prototype.test_markAll = function test_markAll() {
     this.context.type = Ci.koIFindContext.FCT_CURRENT_DOC;
     let view = ko.views.currentView = new ko.views.ViewBookmarkableMock();
     let scimoz = view.scimoz = new ko.views.SciMozMock();
-    scimoz.text = ["hello", "world", "hello", "world", "hello", "world"].join("\n");
-    let result;
-    result = ko.find.markAll(this.scope, /* editor */
-                             this.context, /* find context */
-                             "hello", /* pattern */
-                             "hello_alias", /* pattern alias */
-                             this.msgHandler.bind(this) /* message handler */);
-    this.assertTrue(result, "Bookmarks should have been created");
-    this.assertEquals(view.bookmarks, [0, 2, 4],
-                      "Bookmarks in the wrong places");
+    scimoz.text = ["Hello", "world", "Hello", "world", "Hello", "world"].join("\n");
+
+    for each (let [fot, foc, pattern, matchExpected] in setups) {
+        this.options.patternType = fot;
+        this.options.caseSensitivity = foc;
+        view.removeAllBookmarks();
+        let result;
+        try {
+            let msgHandler = matchExpected ? this.msgHandler.bind(this) : function(){};
+            result = ko.find.markAll(this.scope, /* editor */
+                                     this.context, /* find context */
+                                     pattern, /* pattern */
+                                     "hello_alias", /* pattern alias */
+                                     msgHandler /* message handler */);
+            if (matchExpected) {
+                this.assertTrue(result, "Bookmarks should have been created");
+                this.assertEquals(view.bookmarks, [0, 2, 4],
+                                  "Bookmarks in the wrong places");
+            } else {
+                this.assertFalse(result, "Bookmarks should not have been created");
+                this.assertEquals(view.bookmarks, [], "Unexpected bookmarks");
+            }
+        } catch (ex if ex instanceof TestCase.TestError) {
+            // Tack on additional information about the parameters
+            ex.message += " (type=" + fot + " case=" + foc +
+                           " pattern=" + pattern + " match=" + matchExpected + ")";
+            throw ex;
+        }
+    }
 };
 
 TestKoFind.prototype.test_findAllInFiles = function test_findAllInFiles() {
@@ -282,153 +401,221 @@ TestKoFind.prototype.test_findAllInFiles = function test_findAllInFiles() {
                      .createInstance(Ci.koIFindInFilesContext);
     this.context.type = Ci.koIFindContext.FCT_IN_FILES;
     var fileSvc = Cc["@activestate.com/koFileService;1"].getService(Ci.koIFileService);
-    var dirName = fileSvc.makeTempDir(".tmp", "komodo_test_find_findAllInFiles_");
-    this.context.cwd = dirName;
-    var abort = false;
-    try {
-        var resultsTab = ko.findresults.getTab();
-        var data = {
-            "hello.txt": ["hello", "hello", "hello"],
-            "world.txt": ["hello, world!"],
-            "boring.txt": ["This file", "does not mention", "the magic word"],
-        };
-        for each (let [name, contents] in Iterator(data)) {
-            let file = Cc["@activestate.com/koFileEx;1"]
-                         .createInstance(Ci.koIFileEx);
-            file.path = dirName + "/" + name;
-            file.open("w");
-            file.puts(contents.join("\n"));
-            file.close();
-        }
-        let result;
-        this.options.encodedFolders = ".";
-        result = ko.find.findAllInFiles(this.scope, /* editor */
-                                        this.context, /* find context */
-                                        "hello", /* pattern */
-                                        "hello_alias", /* pattern alias */
-                                        this.msgHandler.bind(this) /* message handler */);
-        this.assertTrue(result, "Failed to start find in files");
-        var findSvc = Cc["@activestate.com/koFindService;1"]
-                        .getService(Ci.koIFindService);
-        var stopTime = Date.now() + 10 * 1000; // 10 seconds
-        while (!abort && resultsTab.inProgress) {
-            abort = Date.now() > stopTime;
-            Services.tm.mainThread.processNextEvent(false);
-        }
-        if (abort) {
-            findSvc.stopfindreplaceinfiles(resultsTab.id);
-            this.fail("Timed out waiting for the search to complete");
-        }
-        // Spin the event loop for a bit to let the session thread shut down :(
-        stopTime = Date.now() + 200; // 0.2 seconds
-        while (Date.now() < stopTime) {
-            Services.tm.mainThread.processNextEvent(false);
-        }
-        if (findSvc.stopfindreplaceinfiles(resultsTab.id)) {
-            // Getting here means the find-in-files session was stuck on the
-            // background thread; give it a bit more time to shutdown, then
-            // report this, assuming it's a hang
-            stopTime = Date.now() + 5 * 1000; // 10 seconds
+
+    for each (let [fot, foc, pattern, matchExpected] in setups) {
+        this.options.patternType = fot;
+        this.options.caseSensitivity = foc;
+        var dirName = fileSvc.makeTempDir(".tmp", "komodo_test_find_findAllInFiles_");
+        this.context.cwd = dirName;
+        var abort = false;
+        try {
+            var resultsTab = ko.findresults.getTab();
+            var data = {
+                "hello.txt": ["Hello Hello", "Hello"],
+                "world.txt": ["Hello, world!"],
+                "boring.txt": ["This file", "does not mention", "the magic word"],
+            };
+            for each (let [name, contents] in Iterator(data)) {
+                let file = Cc["@activestate.com/koFileEx;1"]
+                             .createInstance(Ci.koIFileEx);
+                file.path = dirName + "/" + name;
+                file.open("w");
+                try {
+                    file.puts(contents.join("\n"));
+                } finally {
+                    file.close();
+                }
+            }
+            let result;
+            this.options.encodedFolders = ".";
+            result = ko.find.findAllInFiles(this.scope, /* editor */
+                                            this.context, /* find context */
+                                            pattern, /* pattern */
+                                            "hello_alias", /* pattern alias */
+                                            this.msgHandler.bind(this) /* message handler */);
+            this.assertTrue(result, "Failed to start find in files");
+            var findSvc = Cc["@activestate.com/koFindService;1"]
+                            .getService(Ci.koIFindService);
+            var stopTime = Date.now() + 10 * 1000; // 10 seconds
+            while (!abort && resultsTab.inProgress) {
+                abort = Date.now() > stopTime;
+                Services.tm.mainThread.processNextEvent(false);
+            }
+            if (abort) {
+                findSvc.stopfindreplaceinfiles(resultsTab.id);
+                this.fail("Timed out waiting for the search to complete");
+            }
+            // Spin the event loop for a bit to let the session thread shut down :(
+            stopTime = Date.now() + 200; // 0.2 seconds
             while (Date.now() < stopTime) {
                 Services.tm.mainThread.processNextEvent(false);
             }
-            this.fail("Find session was stuck in the background");
+            if (findSvc.stopfindreplaceinfiles(resultsTab.id)) {
+                // Getting here means the find-in-files session was stuck on the
+                // background thread; give it a bit more time to shutdown, then
+                // report this, assuming it's a hang
+                stopTime = Date.now() + 5 * 1000; // 10 seconds
+                while (Date.now() < stopTime) {
+                    Services.tm.mainThread.processNextEvent(false);
+                }
+                this.fail("Find session was stuck in the background");
+            }
+            this.assertTrue(resultsTab.success, "Failed to find results");
+            if (matchExpected) {
+                this.assertEquals(resultsTab.numResults, 4, "Expected 4 results");
+                this.assertEquals(resultsTab.numFiles, 2, "Expected 2 files");
+            } else {
+                this.assertEquals(resultsTab.numResults, 0, "Expected no results");
+                this.assertEquals(resultsTab.numFiles, 0, "Expected no files");
+            }
+            this.assertEquals(resultsTab.numFilesSearched, 3, "Expected 3 files searched");
+        } catch (ex if ex instanceof TestCase.TestError) {
+            // Tack on additional information about the parameters
+            ex.message += " (type=" + fot + " case=" + foc +
+                           " pattern=" + pattern + " match=" + matchExpected + ")";
+            throw ex;
+        } finally {
+            fileSvc.deleteTempDir(dirName);
         }
-        this.assertTrue(resultsTab.success, "Failed to find results");
-        this.assertEquals(resultsTab.numResults, 4, "Expected 4 results");
-        this.assertEquals(resultsTab.numFiles, 2, "Expected 2 files");
-        this.assertEquals(resultsTab.numFilesSearched, 3, "Expected 3 files searched");
-    } finally {
-        fileSvc.deleteTempDir(dirName);
     }
 };
 
 
 TestKoFind.prototype.test_findAllInMacro = function test_findAllInMacro() {
     let scimoz = ko.views.currentView.scimoz = new ko.views.SciMozMock();
-    scimoz.text = "hello hello hello";
-    ko.find.findAllInMacro(this.scope, /* editor window */
-                           Ci.koIFindContext.FCT_CURRENT_DOC, /* context type */
-                           "hello", /* pattern */
-                           Ci.koIFindOptions.FOT_SIMPLE, /* pattern type */
-                           Ci.koIFindOptions.FOC_SENSITIVE, /* case sensitivity */
-                           false, /* search backward */
-                           true); /* match word */
-    let tab = ko.findresults.getTab();
-    this.assertTrue(tab.success, "Find results claimed failure");
-    this.assertEquals(tab.numResults, 3, "Did not find all results");
-    this.assertEquals(tab.numFiles, null, "Not expecting file counts for current doc");
-    this.assertEquals(tab.numFilesSearched, null, "Not expecting file counts for current doc");
+    scimoz.text = "Hello Hello Hello";
 
-    this.assertEquals(1, tab.view.GetNumUrls(), "Expected one URL in find results");
-    this.assertEquals(ko.views.currentView.koDoc.displayPath, tab.view.GetUrl(0),
-                      "Unexpected URL for the document");
+    for each (let [[fot, foc, pattern, shouldMatch], backwards] in permute(setups, [false, true])) {
+        try {
+            let tab = ko.findresults.getTab();
+            ko.find.findAllInMacro(this.scope, /* editor window */
+                                   Ci.koIFindContext.FCT_CURRENT_DOC, /* context type */
+                                   pattern, /* pattern */
+                                   fot, /* pattern type */
+                                   foc, /* case sensitivity */
+                                   backwards, /* search backward */
+                                   true); /* match word */
 
-    this.assertEquals(tab.view.rowCount, 3, "Expected 3 results");
-    for (let i = 0; i < tab.view.rowCount; ++i) {
-        this.assertEquals(tab.view.getCellText(i, {id: "value"}), "hello", "Unexpected text");
-        this.assertEquals(tab.view.GetValue(i), "hello", "Unexpected value");
-        this.assertEquals(tab.view.GetType(i), "hit", "Unexpected tpe");
-        this.assertEquals(tab.view.GetReplacement(i), "", "Should not have a replacement");
-        this.assertEquals(tab.view.GetLineNum(i), 1, "Should have no lines involved");
-        this.assertEquals(tab.view.GetColumnNum(i), tab.view.GetStartIndex(i) + 1,
-                          "Column numbers should match start indices");
+            // "success" can mean 0 matches
+            this.assertTrue(tab.success, "Find results claimed failure");
+            this.assertEquals(tab.numFiles, null, "Not expecting file counts for current doc");
+            this.assertEquals(tab.numFilesSearched, null, "Not expecting file counts for current doc");
+
+            if (!shouldMatch) {
+                this.assertEquals(tab.numResults, 0, "Did not find all results");
+                this.assertEquals(tab.view.rowCount, 0, "Expected 0 results");
+                this.assertEquals(0, tab.view.GetNumUrls(), "Not expecting URLs in find results");
+                continue;
+            }
+            this.assertEquals(tab.numResults, 3, "Did not find all results");
+            this.assertEquals(1, tab.view.GetNumUrls(), "Expected one URL in find results");
+            this.assertEquals(ko.views.currentView.koDoc.displayPath, tab.view.GetUrl(0),
+                              "Unexpected URL for the document");
+
+            this.assertEquals(tab.view.rowCount, 3, "Expected 3 results");
+            for (let i = 0; i < tab.view.rowCount; ++i) {
+                this.assertEquals(tab.view.getCellText(i, {id: "value"}), "Hello", "Unexpected text");
+                this.assertEquals(tab.view.GetValue(i), "Hello", "Unexpected value");
+                this.assertEquals(tab.view.GetType(i), "hit", "Unexpected tpe");
+                this.assertEquals(tab.view.GetReplacement(i), "", "Should not have a replacement");
+                this.assertEquals(tab.view.GetLineNum(i), 1, "Should have no lines involved");
+                this.assertEquals(tab.view.GetColumnNum(i), tab.view.GetStartIndex(i) + 1,
+                                  "Column numbers should match start indices");
+            }
+            this.assertEquals(tab.view.GetStartIndex(0), 0, "Bad first result start position");
+            this.assertEquals(tab.view.GetEndIndex(0), 5, "Bad first result end position");
+            this.assertEquals(tab.view.GetStartIndex(1), 6, "Bad second result start position");
+            this.assertEquals(tab.view.GetEndIndex(1), 11, "Bad second result end position");
+            this.assertEquals(tab.view.GetStartIndex(2), 12, "Bad third result start position");
+            this.assertEquals(tab.view.GetEndIndex(2), 17, "Bad third result end position");
+        } catch (ex if ex instanceof TestCase.TestError) {
+            // Tack on additional information about the parameters
+            ex.message += " (type=" + fot + " case=" + foc +
+                           " pattern=" + pattern +
+                           " shouldMatch=" + shouldMatch +
+                           " backwards=" + backwards + ")";
+            throw ex;
+        }
     }
-    this.assertEquals(tab.view.GetStartIndex(0), 0, "Bad first result start position");
-    this.assertEquals(tab.view.GetEndIndex(0), 5, "Bad first result end position");
-    this.assertEquals(tab.view.GetStartIndex(1), 6, "Bad second result start position");
-    this.assertEquals(tab.view.GetEndIndex(1), 11, "Bad second result end position");
-    this.assertEquals(tab.view.GetStartIndex(2), 12, "Bad third result start position");
-    this.assertEquals(tab.view.GetEndIndex(2), 17, "Bad third result end position");
 };
 
 TestKoFind.prototype.test_findNextInMacro = function test_findNextInMacro() {
     let scimoz = ko.views.currentView.scimoz = new ko.views.SciMozMock();
-    scimoz.text = "hello hello hello";
+    scimoz.text = "Hello Hello Hello";
 
-    var findNextInMacro = (function findNext(pattern) {
-        ko.find.findNextInMacro(this.scope, /* editor window */
-                                Ci.koIFindContext.FCT_CURRENT_DOC, /* context type */
-                                pattern, /* pattern */
-                                Ci.koIFindOptions.FOT_SIMPLE, /* pattern type */
-                                Ci.koIFindOptions.FOC_SENSITIVE, /* case sensitivity */
-                                false, /* search backward */
-                                false, /* match word */
-                                "find", /* find */
-                                true, /* quiet */
-                                false); /* use MRU */
-    }).bind(this);
+    for each (let [[fot, foc, pattern, shouldMatch], backwards] in permute(setups, [false, true])) {
+        try {
+            let findNextInMacro = (function findNext(pattern) {
+                ko.find.findNextInMacro(this.scope, /* editor window */
+                                        Ci.koIFindContext.FCT_CURRENT_DOC, /* context type */
+                                        pattern, /* pattern */
+                                        fot, /* pattern type */
+                                        foc, /* case sensitivity */
+                                        backwards, /* search backward */
+                                        false, /* match word */
+                                        "find", /* find */
+                                        true, /* quiet */
+                                        false); /* use MRU */
+            }).bind(this);
 
-    findNextInMacro("hello");
-    this.assertEquals(scimoz.anchor, 0, "Incorrect start position");
-    this.assertEquals(scimoz.currentPos, 5, "Incorrect end position");
-    findNextInMacro("hello");
-    this.assertEquals(scimoz.anchor, 6, "Incorrect start position");
-    this.assertEquals(scimoz.currentPos, 11, "Incorrect end position");
-    findNextInMacro("hello");
-    this.assertEquals(scimoz.anchor, 12, "Incorrect start position");
-    this.assertEquals(scimoz.currentPos, 17, "Incorrect end position");
-    findNextInMacro("hello");
-    scimoz.setSel(0, 0);
-    findNextInMacro("world");
-    this.assertEquals(scimoz.anchor, 0, "Unexpected anchor movement for failed find");
-    this.assertEquals(scimoz.currentPos, 0, "Unexpected end movement for failed find");
-    findNextInMacro("hello");
-    this.assertEquals(scimoz.anchor, 0, "Incorrect start position");
-    this.assertEquals(scimoz.currentPos, 5, "Incorrect end position");
+            let startPosition = backwards ? scimoz.length : 0;
+            scimoz.setSel(startPosition, startPosition);
+            let positions = [[0, 5], [6, 11], [12, 17]];
+            if (backwards) positions.reverse();
+            for each (let [i, pos] in Iterator(positions)) {
+                findNextInMacro(pattern);
+                if (!shouldMatch) {
+                    this.assertEquals(scimoz.anchor, startPosition, "Unexpected anchor movement for failed find");
+                    this.assertEquals(scimoz.currentPos, startPosition, "Unexpected end movement for failed find");
+                    break;
+                } else {
+                    this.assertEquals(scimoz.anchor, pos[0], "Incorrect start position " + i);
+                    this.assertEquals(scimoz.currentPos, pos[1], "Incorrect end position " + i);
+                }
+            }
+            scimoz.setSel(startPosition, startPosition);
+            findNextInMacro("world");
+            this.assertEquals(scimoz.anchor, startPosition, "Unexpected anchor movement for failed find");
+            this.assertEquals(scimoz.currentPos, startPosition, "Unexpected end movement for failed find");
+            findNextInMacro(pattern);
+            if (!shouldMatch) {
+                this.assertEquals(scimoz.anchor, startPosition, "Unexpected anchor movement for failed find");
+                this.assertEquals(scimoz.currentPos, startPosition, "Unexpected end movement for failed find");
+            } else {
+                this.assertEquals(scimoz.anchor, positions[0][0], "Incorrect start position");
+                this.assertEquals(scimoz.currentPos, positions[0][1], "Incorrect end position");
+            }
+        } catch (ex if ex instanceof TestCase.TestError) {
+            // Tack on additional information about the parameters
+            ex.message += " (type=" + fot + " case=" + foc +
+                           " pattern=" + pattern +
+                           " shouldMatch=" + shouldMatch +
+                           " backwards=" + backwards + ")";
+            throw ex;
+        }
+    }
 };
 
 TestKoFind.prototype.test_highlightAllMatches = function test_highlightAllMatches() {
     this.context.type = Ci.koIFindContext.FCT_CURRENT_DOC;
     let scimoz = ko.views.currentView.scimoz = new ko.views.SciMozMock();
-    scimoz.text = "hello hello hello";
+    scimoz.text = "Hello Hello Hello";
 
-    ko.find.highlightAllMatches(scimoz, this.context, "hello", 1000);
-    let expected = [1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1];
-    for (let i = 0; i < scimoz.text.length; ++i) {
-        let target = expected[i] && (1 << Ci.koILintResult.DECORATOR_FIND_HIGHLIGHT);
-        this.assertEquals(target, scimoz.indicatorAllOnFor(i),
-                          "Unexpected indicators at " + i);
+    for each (let [fot, foc, pattern, matchExpected] in setups) {
+        this.options.patternType = fot;
+        this.options.caseSensitivity = foc;
+        try {
+            ko.find.highlightAllMatches(scimoz, this.context, pattern, 1000);
+            let expected = [1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1];
+            if (!matchExpected) expected = [0 for (i in expected)];
+            this.checkIndicators(scimoz, Ci.koILintResult.DECORATOR_FIND_HIGHLIGHT,
+                                 expected);
+        } catch (ex if ex instanceof TestCase.TestError) {
+            // Tack on additional information about the parameters
+            ex.message += " (type=" + fot + " case=" + foc +
+                           " pattern=" + pattern + " match=" + matchExpected + ")";
+            throw ex;
+        }
     }
 };
 
@@ -439,16 +626,11 @@ TestKoFind.prototype.test_highlightClearAll = function test_highlightClearAll() 
 
     ko.find.highlightAllMatches(scimoz, this.context, "hello", 1000);
     let expected = [1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1];
-    for (let i = 0; i < scimoz.text.length; ++i) {
-        let target = expected[i] && (1 << Ci.koILintResult.DECORATOR_FIND_HIGHLIGHT);
-        this.assertEquals(target, scimoz.indicatorAllOnFor(i),
-                          "Unexpected indicators at " + i);
-    }
+    this.checkIndicators(scimoz, Ci.koILintResult.DECORATOR_FIND_HIGHLIGHT,
+                         expected);
     ko.find.highlightClearAll(scimoz);
-    for (let i = 0; i < scimoz.text.length; ++i) {
-        this.assertEquals(0, scimoz.indicatorAllOnFor(i),
-                          "Unexpected indicators at " + i);
-    }
+    this.checkIndicators(scimoz, Ci.koILintResult.DECORATOR_FIND_HIGHLIGHT,
+                         [0 for (i in expected)]);
 };
 
 TestKoFind.prototype.test_highlightClearPosition = function test_highlightClearPosition() {
@@ -459,11 +641,7 @@ TestKoFind.prototype.test_highlightClearPosition = function test_highlightClearP
 
     ko.find.highlightAllMatches(scimoz, this.context, "hello", 1000);
     let expected = [1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1];
-    for (let i = 0; i < scimoz.text.length; ++i) {
-        let target = expected[i] && (1 << INDIC);
-        this.assertEquals(target, scimoz.indicatorAllOnFor(i),
-                          "Unexpected indicators at " + i);
-    }
+    this.checkIndicators(scimoz, INDIC, expected);
     let start = [0,0,0,0,0,5,6,6,6,6,6,11,12,12,12,12,12];
     let end = [5,5,5,5,5,6,11,11,11,11,11,12,17,17,17,17,17];
     for (let i = 0; i < scimoz.text.length; ++i) {
@@ -474,71 +652,126 @@ TestKoFind.prototype.test_highlightClearPosition = function test_highlightClearP
     }
     ko.find.highlightClearPosition(scimoz, 6, 2);
     expected = [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1];
-    for (let i = 0; i < scimoz.text.length; ++i) {
-        let target = expected[i] && (1 << INDIC);
-        this.assertEquals(target, scimoz.indicatorAllOnFor(i),
-                          "Unexpected indicators at " + i);
-    }
+    this.checkIndicators(scimoz, INDIC, expected);
 };
 
 TestKoFind.prototype.test_markAllInMacro = function test_markAllInMacro() {
     let view = ko.views.currentView = new ko.views.ViewBookmarkableMock();
     let scimoz = view.scimoz = new ko.views.SciMozMock();
-    scimoz.text = ["hello", "world", "hello", "world", "hello", "world"].join("\n");
-    ko.find.markAllInMacro(this.scope, /* editor */
-                           Ci.koIFindContext.FCT_CURRENT_DOC, /* context type */
-                           "hello", /* pattern */
-                           Ci.koIFindOptions.FOT_SIMPLE, /* pattern type */
-                           Ci.koIFindOptions.FOC_SENSITIVE, /* case sensitivity */
-                           false, /* search backward */
-                           false); /* match word */
-    this.assertEquals(view.bookmarks, [0, 2, 4],
-                      "Bookmarks in the wrong places");
+    scimoz.text = ["Hello", "world", "Hello", "world", "Hello", "world"].join("\n");
+
+    for each (let [fot, foc, pattern, matchExpected] in setups) {
+        try {
+            view.removeAllBookmarks();
+            ko.find.markAllInMacro(this.scope, /* editor */
+                                   Ci.koIFindContext.FCT_CURRENT_DOC, /* context type */
+                                   pattern, /* pattern */
+                                   fot, /* pattern type */
+                                   foc, /* case sensitivity */
+                                   false, /* search backward */
+                                   false); /* match word */
+            if (matchExpected) {
+                this.assertEquals(view.bookmarks, [0, 2, 4],
+                                  "Bookmarks in the wrong places");
+            } else {
+                this.assertEquals(view.bookmarks, [], "Unexpected bookmarks");
+            }
+        } catch (ex if ex instanceof TestCase.TestError) {
+            // Tack on additional information about the parameters
+            ex.message += " (type=" + fot + " case=" + foc +
+                           " pattern=" + pattern + " match=" + matchExpected + ")";
+            throw ex;
+        }
+    }
 };
 
 TestKoFind.prototype.test_replace = function test_replace() {
     this.context.type = Ci.koIFindContext.FCT_CURRENT_DOC;
     let scimoz = ko.views.currentView.scimoz = new ko.views.SciMozMock();
-    scimoz.text = "hello hello hello";
-    let expected = ["hello hello hello", /* first time just highlights */
-                    "world hello hello",
-                    "world world hello",
-                    "world world world"];
 
-    let result;
-    while (expected.length > 0) {
-        result = ko.find.replace(this.scope, /* editor */
-                                 this.context, /* context */
-                                 "hello", /* pattern */
-                                 "world", /* replacement */
-                                 function(){}); /* msg handler */
+    for each (let [fot, foc, pattern, matchExpected] in setups) {
+        scimoz.text = "Hello Hello Hello";
+        this.options.patternType = fot;
+        this.options.caseSensitivity = foc;
+        try {
+            let expected = ["Hello Hello Hello", /* first time just highlights */
+                            "World Hello Hello",
+                            "World World Hello",
+                            "World World World"];
 
-        if (expected.length > 1) {
-            this.assertTrue(result, "Replace didn't find next result");
-        } else {
-            this.assertFalse(result, "Replace found unexpected next result");
+            let result;
+            while (expected.length > 0) {
+                result = ko.find.replace(this.scope, /* editor */
+                                         this.context, /* context */
+                                         pattern, /* pattern */
+                                         "World", /* replacement */
+                                         function(){}); /* msg handler */
+
+                if (!matchExpected) {
+                    this.assertFalse(result, "Replace shouldn't have found a match");
+                    expected = [expected[0]]; // breaks the loop
+                } else {
+                    if (expected.length > 1) {
+                        this.assertTrue(result, "Replace didn't find next result");
+                    } else {
+                        this.assertFalse(result, "Replace found unexpected next result");
+                    }
+                }
+
+                this.assertEquals(expected.shift(), scimoz.text,
+                                  "Replace didn't change the text");
+            }
+        } catch (ex if ex instanceof TestCase.TestError) {
+            // Tack on additional information about the parameters
+            ex.message += " (type=" + fot + " case=" + foc +
+                           " pattern=" + pattern + " match=" + matchExpected + ")";
+            throw ex;
         }
-        this.assertEquals(expected.shift(), scimoz.text,
-                          "Replace didn't change the text");
     }
 };
 
 TestKoFind.prototype.test_replaceAll = function test_replaceAll() {
     this.context.type = Ci.koIFindContext.FCT_CURRENT_DOC;
     let scimoz = ko.views.currentView.scimoz = new ko.views.SciMozMock();
-    scimoz.text = "hello hello hello";
-    let result;
-    result = ko.find.replaceAll(this.scope, /* editor */
-                                this.context, /* context */
-                                "hello", /* pattern */
-                                "world", /* replacement */
-                                false, /* show replace results */
-                                false, /* first on line */
-                                function() {}, /* msg handler */
-                                false); /* highlight replacements */
-    this.assertTrue(result, "Expected replace to find things");
-    this.assertEquals(scimoz.text, "world world world",
-                      "Replace all didn't replace correctly");
+    for each (let [[fot, foc, pattern, matchExpected], highlight] in permute(setups, [false, true])) {
+        this.options.patternType = fot;
+        this.options.caseSensitivity = foc;
+        try {
+            scimoz.text = "Hello Hello Hello";
+            scimoz.indicatorCurrent = Ci.koILintResult.DECORATOR_FIND_HIGHLIGHT;
+            scimoz.indicatorValue = 0;
+            scimoz.indicatorFillRange(0, scimoz.text.length);
+            let result;
+            result = ko.find.replaceAll(this.scope, /* editor */
+                                        this.context, /* context */
+                                        pattern, /* pattern */
+                                        "World", /* replacement */
+                                        false, /* show replace results */
+                                        false, /* first on line */
+                                        function() {}, /* msg handler */
+                                        highlight); /* highlight replacements */
+            expectedHighlight = [1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1];
+            if (!highlight) expectedHighlight = [0 for (i in expectedHighlight)];
+            if (matchExpected) {
+                this.assertTrue(result, "Expected replace to find things");
+                this.assertEquals(scimoz.text, "World World World",
+                                  "Replace all didn't replace correctly");
+            } else {
+                this.assertFalse(result, "Expected replace to find nothing");
+                this.assertEquals(scimoz.text, "Hello Hello Hello",
+                                  "Replace unexpected");
+                expectedHighlight = [0 for (i in expectedHighlight)];
+            }
+            this.checkIndicators(scimoz, Ci.koILintResult.DECORATOR_FIND_HIGHLIGHT,
+                                 expectedHighlight);
+        } catch (ex if ex instanceof TestCase.TestError) {
+            // Tack on additional information about the parameters
+            ex.message += " (type=" + fot + " case=" + foc +
+                           " pattern=" + pattern + " match=" + matchExpected +
+                           " highlight=" + highlight + ")";
+            throw ex;
+        }
+    }
 };
 
 TestKoFind.prototype.test_replaceAllInFiles = function test_replaceAllInFiles() {
@@ -624,40 +857,73 @@ TestKoFind.prototype.test_replaceAllInFiles = function test_replaceAllInFiles() 
 
 TestKoFind.prototype.test_replaceAllInMacro = function test_replaceAllInMacro() {
     let scimoz = ko.views.currentView.scimoz = new ko.views.SciMozMock();
-    scimoz.text = "hello hello hello";
-    ko.find.replaceAllInMacro(this.scope, /* editor */
-                              Ci.koIFindContext.FCT_CURRENT_DOC, /* context type */
-                              "hello", /* pattern */
-                              "world", /* replacement */
-                              true, /* quiet */
-                              Ci.koIFindOptions.FOT_SIMPLE, /* pattern type */
-                              Ci.koIFindOptions.FOC_SENSITIVE, /* case sensitivity */
-                              false, /* search backward */
-                              false); /* match word */
-    this.assertEquals(scimoz.text, "world world world",
-                      "Replace all didn't replace correctly");
+    for each (let [fot, foc, pattern, matchExpected] in setups) {
+        try {
+            scimoz.text = "Hello Hello Hello";
+            ko.find.replaceAllInMacro(this.scope, /* editor */
+                                      Ci.koIFindContext.FCT_CURRENT_DOC, /* context type */
+                                      pattern, /* pattern */
+                                      "World", /* replacement */
+                                      true, /* quiet */
+                                      fot, /* pattern type */
+                                      foc, /* case sensitivity */
+                                      false, /* search backward */
+                                      false); /* match word */
+            if (matchExpected) {
+                this.assertEquals(scimoz.text, "World World World",
+                                  "Replace all didn't replace correctly");
+            } else {
+                this.assertEquals(scimoz.text, "Hello Hello Hello",
+                                  "Unexpected replace");
+            }
+        } catch (ex if ex instanceof TestCase.TestError) {
+            // Tack on additional information about the parameters
+            ex.message += " (type=" + fot + " case=" + foc +
+                           " pattern=" + pattern + " match=" + matchExpected + ")";
+            throw ex;
+        }
+    }
 };
 
 TestKoFind.prototype.test_replaceInMacro = function test_replaceInMacro() {
     let scimoz = ko.views.currentView.scimoz = new ko.views.SciMozMock();
-    scimoz.text = "hello hello hello";
-    let expected = ["hello hello hello", /* first time just highlights */
-                    "world hello hello",
-                    "world world hello",
-                    "world world world"];
 
-    while (expected.length > 0) {
-        ko.find.replaceInMacro(this.scope, /* editor */
-                               Ci.koIFindContext.FCT_CURRENT_DOC, /* context type */
-                               "hello", /* pattern */
-                               "world", /* replacement */
-                               Ci.koIFindOptions.FOT_SIMPLE, /* pattern type */
-                               Ci.koIFindOptions.FOC_SENSITIVE, /* case sensitivity */
-                               false, /* search backward */
-                               false); /* match word */
+    for each (let [[fot, foc, pattern, matchExpected], backwards] in permute(setups, [false, true])) {
+        try {
+            scimoz.text = "Hello Hello Hello";
+            let expected = ["Hello Hello Hello", /* first time just highlights */
+                            "World Hello Hello",
+                            "World World Hello",
+                            "World World World"];
 
-        this.assertEquals(expected.shift(), scimoz.text,
-                          "Replace didn't change the text");
+            if (backwards) {
+                scimoz.setSel(-1, -1);
+                expected = expected.map(function(s) s.split(" ").reverse().join(" "));
+            }
+
+            while (expected.length > 0) {
+                ko.find.replaceInMacro(this.scope, /* editor */
+                                       Ci.koIFindContext.FCT_CURRENT_DOC, /* context type */
+                                       pattern, /* pattern */
+                                       "World", /* replacement */
+                                       fot, /* pattern type */
+                                       foc, /* case sensitivity */
+                                       backwards, /* search backward */
+                                       false); /* match word */
+
+                this.assertEquals(expected.shift(), scimoz.text,
+                                  "Replace didn't change the text");
+                if (!matchExpected) {
+                    break;
+                }
+            }
+        } catch (ex if ex instanceof TestCase.TestError) {
+            // Tack on additional information about the parameters
+            ex.message += " (type=" + fot + " case=" + foc +
+                           " pattern=" + pattern + " match=" + matchExpected +
+                           " backwards=" + backwards + ")";
+            throw ex;
+        }
     }
 };
 
