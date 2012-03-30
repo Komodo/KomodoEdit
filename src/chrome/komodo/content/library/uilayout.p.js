@@ -1721,7 +1721,7 @@ this.restoreTabSelections = function uilayout_RestoreTabSelections(prefs) {
                         // the pane went away?
                         continue;
                     }
-                    widget.tabbox.moveWidgetToPane(widget, pane)
+                    widget.tabbox.moveWidgetToPane(widget, pane, false);
                 }
             }
         }, 0);
