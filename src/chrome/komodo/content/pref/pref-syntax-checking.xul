@@ -349,6 +349,13 @@
               </hbox>
               <description id="perl_lintOption_perlCriticEnableNote"
                            collapsed="true">&prefPerl.perlCriticOptionsEnable.description;</description>
+              
+              <checkbox id="perl_lintOption_includeCurrentDirForLinter"
+                        label="&filePrefPerlIncludeCurrDirForLinting.label;"
+                        pref="true" 
+                        prefstring="perl_lintOption_includeCurrentDirForLinter"
+                        prefattribute="checked"/>
+            
             </vbox>
             <vbox id="langSyntaxCheck-Python">
               <groupbox orient="vertical">
