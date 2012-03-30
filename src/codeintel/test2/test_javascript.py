@@ -433,6 +433,24 @@ class CplnTestCase(CodeIntelTestCase):
             content,
             [("function", "bar"), ("variable", "baz")])
 
+    @tag("bug93496")
+    def test_prototype_class(self):
+        content = dedent("""\
+            function Player() {}
+            Player.prototype = {};
+            Player.prototype.FighterStyles = {
+                Blue : 0,
+                Cyan : 1,
+                Green : 2
+            };
+            Player.prototype.hitBox = [4, 4];
+            var player = new Player();
+            player.<|>
+        """)
+        self.assertCompletionsInclude(content,
+            [("namespace", "FighterStyles"),
+             ("variable", "hitBox")])
+
     def test_intermixed_class_definitions(self):
         # JS completion when intermixing class definitions
         content, positions = unmark_text(dedent("""\

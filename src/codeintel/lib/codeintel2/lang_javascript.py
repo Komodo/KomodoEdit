@@ -2648,7 +2648,11 @@ class JavaScriptCiler:
 
         if len(namelist) > 1:
             # Ensure the scope exists, else create it
-            toScope = self._findOrCreateScope(namelist[:-1], ("variables", "classes", "functions"), toScope)
+            if "prototype" in namelist:
+                classnames = namelist[:namelist.index("prototype")]
+                toScope = self.addClass(classnames, doc=self.comment)
+            else:
+                toScope = self._findOrCreateScope(namelist[:-1], ("variables", "classes", "functions"), toScope)
             # Assignment to a function, outside the function scope... create a class for it
             if isinstance(toScope, JSFunction):
                 toScope = self._convertFunctionToClass(toScope)
