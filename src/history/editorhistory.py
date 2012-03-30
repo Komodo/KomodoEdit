@@ -335,7 +335,7 @@ class Database(object):
             `create_if_new=False`.
         """
         cache = self._uri_id_from_uri_cache
-        if uri in cache:
+        if uri in cache and cache[uri]:
             return cache[uri]
         
         uri_id = None
@@ -469,24 +469,37 @@ class Database(object):
             if row is None:
                 raise HistoryError("cannot get visit %r: id does not exist" % id)
             
-            uri_id = int(row[1])
-            uri = self.uri_from_id(uri_id, cu=cu)
-            loc = Location(
-                uri=uri,
-                line=int(row[2]),
-                col=int(row[3]),
-                view_type=row[4],
-                id=id,
-                uri_id=uri_id,
-                referer_id=_int_or_none(row[0]),
-                session_name=row[6],
-                marker_handle=row[7],
-                window_num=row[8],
-                tabbed_view_id=row[9],
-                section_title=row[10],
-                is_obsolete=row[11]
-            )
-
+            try:
+                uri_id = int(row[1])
+                uri = self.uri_from_id(uri_id, cu=cu)
+                loc = Location(
+                    uri=uri,
+                    line=int(row[2]),
+                    col=int(row[3]),
+                    view_type=row[4],
+                    id=id,
+                    uri_id=uri_id,
+                    referer_id=_int_or_none(row[0]),
+                    session_name=row[6],
+                    marker_handle=row[7],
+                    window_num=row[8],
+                    tabbed_view_id=row[9],
+                    section_title=row[10],
+                    is_obsolete=row[11]
+                )
+            except TypeError:
+                # Bug 93488 -- a corrupted/invalid history database can
+                # prevent Komodo from opening new tabs.  So delete it.
+                log.exception("Internal error: found invalid data in the history database, deleting...")
+                try:
+                    num_nulls = cu.execute('select count(*) from history_visit WHERE uri_id is null').fetchone()[0]
+                    if num_nulls > 0:
+                        cu.execute("DELETE FROM history_visit WHERE uri_id is null")
+                    else:
+                        log.error("Corrupted history.sqlite: invalid record but with non-null uri_id")
+                except:
+                    log.exception("Error trying to delete null uri_id entries")
+                raise HistoryError("cannot finish getting info on visit %r" % id)
         return loc
             
     def update_marker_handles_on_close(self, uri, scimoz, forward_visits, back_visits):
