@@ -63,13 +63,24 @@ class koViewService:
         self.wm.addListener(self.wrapped)
         self._all_views_wr_list = []
 
-    def onWindowTitleChange(self, window, newTitle):
+    def onWindowTitleChange(self, xulwindow, newTitle):
         pass
-    def onOpenWindow(self, window):
+    def onOpenWindow(self, xulwindow):
         pass
-    def onCloseWindow(self, window):
-        if window in self._viewMgr:
-            del self._viewMgr[window]
+    def onCloseWindow(self, xulwindow):
+        # we're given a nsIXULWindow, not a nsIDOMWindow; so we need to check
+        # everything we know to see if it belongs to that nsIXULWindow and
+        # remove everything that matches (usually just one).
+        ci = components.interfaces
+        for window in self._viewMgr.keys():
+            xw = window.QueryInterface(ci.nsIInterfaceRequestor).\
+                        getInterface(ci.nsIWebNavigation).\
+                        QueryInterface(ci.nsIDocShellTreeItem).\
+                        treeOwner.\
+                        QueryInterface(ci.nsIInterfaceRequestor).\
+                        getInterface(ci.nsIXULWindow)
+            if xw == xulwindow:
+                del self._viewMgr[window]
 
     def setViewMgr(self, viewMgr):
         window = self.wm.getMostRecentWindow('Komodo')
