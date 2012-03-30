@@ -319,6 +319,6 @@ class KoTclCompletion:
         while index < last and buffer[index] in ": ":
             index += 1
         # Remember where the text started
-        self._lastTriggerPos = index
+        self._lastTriggerPos = s.selectionStart
         # Return the slice of the buffer that represents that last "word"
         return buffer[index:last]
