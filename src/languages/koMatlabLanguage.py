@@ -56,9 +56,26 @@ class koMatlabLanguage(KoLanguageBase):
             self._lexer.setKeywords(0, self._keywords)
         return self._lexer
 
-    _keywords = """break case catch continue else elseif end for
-                function global if otherwise persistent return
-                switch try while""".split()
+    _keywords = """break case catch classdef continue else elseif end for
+                function global if otherwise parfor persistent return
+                spmd switch try while""".split()
+
+    sample = r"""function b = acyclic(adj_mat, directed)
+% ACYCLIC Returns true iff the graph has no (directed) cycles.
+% b = acyclic(adj_mat, directed)
+
+adj_mat = double(adj_mat);
+if nargin < 2, directed = 1; end
+
+!echo this is a matlab command
+if directed
+  R = reachability_graph(adj_mat);
+  b = ~any(diag(R)==1);
+else
+  [d, pre, post, cycle] = dfs(adj_mat,[],directed);
+  b = ~cycle;    
+end
+"""
 
 
 class koOctaveLanguage(koMatlabLanguage):

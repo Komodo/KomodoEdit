@@ -424,6 +424,13 @@ StateMap = {
     },
     'Matlab': {
         'comments': ('SCE_MATLAB_COMMENT',),
+        'strings': ('SCE_MATLAB_STRING',
+                    'SCE_MATLAB_DOUBLEQUOTESTRING'),
+        'operators': ('SCE_MATLAB_OPERATOR',),
+        'keywords': ('SCE_MATLAB_KEYWORD',),
+        'commands': ('SCE_MATLAB_COMMAND',),
+        'identifiers': ('SCE_MATLAB_IDENTIFIER',),
+        'numbers': ('SCE_MATLAB_NUMBER',),
     },
     'Bullant': {
         'comments': ('SCE_C_COMMENTLINE', 'SCE_C_COMMENT'),
