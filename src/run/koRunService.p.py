@@ -236,6 +236,7 @@ class KoInterpolationService:
             'S': ValueError("The command string includes %S, but there is no selection"),
             'P': ValueError("The command string includes %P, but there is no active project"),
             'p': ValueError("The command string includes %p, but there is no active project"),
+            'nodejs': lambda interp='nodejs', lang='Node.js':self._GetInterpreter(interp, lang),
             'perl':   lambda interp='perl',   lang='Perl':   self._GetInterpreter(interp, lang),
             'php':    lambda interp='php',    lang='PHP':    self._GetInterpreter(interp, lang),
             'python': lambda interp='python', lang='Python': self._GetInterpreter(interp, lang),
@@ -257,6 +258,9 @@ class KoInterpolationService:
             'path': None,
             'debugger': None,
             }
+        # Alternative Node.js aliases.
+        codeMap['node'] = codeMap["nodejs"]
+        codeMap['node.js'] = codeMap["nodejs"]
         from os.path import basename, dirname, splitext
         if fileName is not None:
             codeMap['b'] = splitext(basename(fileName))[0]
