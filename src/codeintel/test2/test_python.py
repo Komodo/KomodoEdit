@@ -1751,6 +1751,34 @@ class CplnTestCase(CodeIntelTestCase):
              ('variable', "__name__ == '__main__':"),
              ('variable', '__package__')])
 
+    @tag("bug88419", "knownfailure")
+    def test_set_literals(self):
+        content, positions = unmark_text(dedent("""\
+            a_set = set([3, 4, 'blab'])
+            func = a_set.<1>update
+            a_set_literal = {'a', 'b'}
+            func = a_set_literal.<2>update
+            a_dict = {'a': 'b', 'c': 34}
+            func = a_dict.<3>update
+        """))
+        self.assertTriggerMatches(markup_text(content, pos=positions[1]))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+          [('function', 'difference'),
+           ('function', 'intersection'),
+           ('function', 'update'),
+           ('function', 'issuperset'),])
+        self.assertTriggerMatches(markup_text(content, pos=positions[2]))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
+          [('function', 'difference'),
+           ('function', 'intersection'),
+           ('function', 'update'),
+           ('function', 'issuperset'),])
+        self.assertTriggerMatches(markup_text(content, pos=positions[3]))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[3]),
+          [('function', 'keys'),
+          ('function', 'items'),
+          ('function', 'update'),
+          ('function', 'values'),])
 
 class OldCodeIntelTestCase(CodeIntelTestCase):
     """Test case from the old codeintel v1 test/test_citdl/... dir."""
