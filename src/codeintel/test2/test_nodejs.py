@@ -344,6 +344,10 @@ class CplnTestCase(CodeIntelTestCase):
                 cle<5>;
                 set<6>;
                 __d<7>;
+                glo<8>;
+                Buf<9>;
+                mod<10>;
+                exp<11>;
                 """,
         }
         buf, positions = write_files(self, manifest=manifest, name="globals")
@@ -370,6 +374,18 @@ class CplnTestCase(CodeIntelTestCase):
         self.assertCompletionsInclude2(buf, positions[7],
             [("variable", "__dirname"),
             ])
+        self.assertCompletionsInclude2(buf, positions[8],
+            [("variable", "global"),
+            ])
+        self.assertCompletionsInclude2(buf, positions[9],
+            [("variable", "Buffer"),
+            ])
+        self.assertCompletionsInclude2(buf, positions[10],
+            [("namespace", "module"),
+            ])
+        self.assertCompletionsInclude2(buf, positions[11],
+            [("variable", "exports"),
+            ])
 
     def test_globals_props(self):
         """
@@ -380,17 +396,20 @@ class CplnTestCase(CodeIntelTestCase):
                 require.<1>;
                 process.<2>;
                 console.<3>;
+                Buffer.<4>;
+                module.<5>;
                 """,
         }
         buf, positions = write_files(self, manifest=manifest, name="globals")
         self.assertCompletionsInclude2(buf, positions[1],
             [("function", "resolve"),
-             ("variable", "paths"),
+             ("variable", "cache"),
             ])
         self.assertCompletionsInclude2(buf, positions[2],
             [("variable", "stdout"),
              ("variable", "stderr"),
              ("variable", "stdin"),
+             ("function", "exit"),
              # the rest are tested in test_nodejs_process
             ])
         self.assertCompletionsInclude2(buf, positions[3],
@@ -398,6 +417,14 @@ class CplnTestCase(CodeIntelTestCase):
              ("function", "info"),
              ("function", "warn"),
              # the rest are tested in test_nodejs_console
+            ])
+        self.assertCompletionsInclude2(buf, positions[4],
+            [("function", "isBuffer"),
+             ("function", "byteLength"),
+             # the rest are tested in test_nodejs_buffer
+            ])
+        self.assertCompletionsInclude2(buf, positions[5],
+            [("namespace", "exports"),
             ])
 
     def test_global_accessor(self):
@@ -493,7 +520,12 @@ class StdLibTestCase(CodeIntelTestCase):
         """
         Test the Node.js process module
         """
-        manifest = {"test.js": "require('process').<1>;"}
+        manifest = {"test.js": """
+            process.<1>;
+            process.stdin.<2>;
+            process.stdout.<3>;
+            process.stderr.<4>;
+            """}
         buf, positions = write_files(self, manifest=manifest, name="process")
         self.assertCompletionsInclude2(buf, positions[1],
             [("variable", "stdout"),
@@ -510,6 +542,7 @@ class StdLibTestCase(CodeIntelTestCase):
              ("function", "getuid"),
              ("function", "setuid"),
              ("variable", "version"),
+             ("variable", "versions"),
              ("variable", "installPrefix"),
              ("function", "kill"),
              ("variable", "pid"),
@@ -518,7 +551,14 @@ class StdLibTestCase(CodeIntelTestCase):
              ("function", "memoryUsage"),
              ("function", "nextTick"),
              ("function", "umask"),
+             ("function", "uptime"),
             ])
+        self.assertCompletionsInclude2(buf, positions[2],
+            [("function", "resume")])
+        self.assertCompletionsInclude2(buf, positions[3],
+            [("function", "write")])
+        self.assertCompletionsInclude2(buf, positions[4],
+            [("function", "write")])
 
     def test_util(self):
         """
@@ -527,9 +567,14 @@ class StdLibTestCase(CodeIntelTestCase):
         manifest = {"test.js": "require('util').<1>;"}
         buf, positions = write_files(self, manifest=manifest, name="util")
         self.assertCompletionsInclude2(buf, positions[1],
-            [("function", "debug"),
+            [("function", "format"),
+             ("function", "debug"),
              ("function", "log"),
              ("function", "inspect"),
+             ("function", "isArray"),
+             ("function", "isRegExp"),
+             ("function", "isDate"),
+             ("function", "isError"),
              ("function", "pump"),
              ("function", "inherits"),
             ])
@@ -571,7 +616,9 @@ class StdLibTestCase(CodeIntelTestCase):
             """}
         buf, positions = write_files(self, manifest=manifest, name="buffer")
         self.assertCompletionsInclude2(buf, positions[1],
-            [("class", "Buffer")])
+            [("class", "Buffer"),
+             ("variable", "INSPECT_MAX_BYTES"),
+            ])
         self.assertCompletionsInclude2(buf, positions[2],
             [("function", "isBuffer"),
              ("function", "byteLength"),
@@ -583,6 +630,71 @@ class StdLibTestCase(CodeIntelTestCase):
              ("variable", "length"),
              ("function", "copy"),
              ("function", "slice"),
+             ("function", "readUInt8"),
+             ("function", "readUInt16LE"),
+             ("function", "readUInt16BE"),
+             ("function", "readUInt32LE"),
+             ("function", "readUInt32BE"),
+             ("function", "readInt8"),
+             ("function", "readInt16LE"),
+             ("function", "readInt16BE"),
+             ("function", "readInt32LE"),
+             ("function", "readInt32BE"),
+             ("function", "readFloatLE"),
+             ("function", "readFloatBE"),
+             ("function", "readDoubleLE"),
+             ("function", "readDoubleBE"),
+             ("function", "writeUInt8"),
+             ("function", "writeUInt16LE"),
+             ("function", "writeUInt16BE"),
+             ("function", "writeUInt32LE"),
+             ("function", "writeUInt32BE"),
+             ("function", "writeInt8"),
+             ("function", "writeInt16LE"),
+             ("function", "writeInt16BE"),
+             ("function", "writeInt32LE"),
+             ("function", "writeInt32BE"),
+             ("function", "writeFloatLE"),
+             ("function", "writeFloatBE"),
+             ("function", "writeDoubleLE"),
+             ("function", "writeDoubleBE"),
+             ("function", "fill"),
+            ])
+
+    def test_stream(self):
+        """
+        Test the Node.js stream module
+        """
+        manifest = {"test.js": """
+            var stream = require('stream');
+            stream.<1>;
+            var readStream = new stream.ReadableStream();
+            readStream.<2>;
+            var writeStream = new stream.WritableStream();
+            writeStream.<3>;
+            """}
+        buf, positions = write_files(self, manifest=manifest, name="buffer")
+        self.assertCompletionsInclude2(buf, positions[1],
+            [("class", "ReadableStream"),
+             ("class", "WritableStream"),
+            ])
+        self.assertCompletionsInclude2(buf, positions[2],
+            [("function", "on"), # from EventEmitter
+             ("variable", "readable"),
+             ("function", "setEncoding"),
+             ("function", "pause"),
+             ("function", "resume"),
+             ("function", "destroy"),
+             ("function", "destroySoon"),
+             ("function", "pipe"),
+            ])
+        self.assertCompletionsInclude2(buf, positions[3],
+            [("function", "on"), # from EventEmitter
+             ("variable", "writable"),
+             ("function", "write"),
+             ("function", "end"),
+             ("function", "destroy"),
+             ("function", "destroySoon"),
             ])
 
     def test_crypto(self):
@@ -598,6 +710,7 @@ class StdLibTestCase(CodeIntelTestCase):
             crypto.createDecipher("aes192", null).<5>;
             crypto.createSign("RSA-SHA256").<6>;
             crypto.createVerify("RSA-SHA256").<7>;
+            crypto.createDiffieHellman(0).<8>;
             """}
         buf, positions = write_files(self, manifest=manifest, name="crypto")
         self.assertCompletionsInclude2(buf, positions[1],
@@ -605,9 +718,14 @@ class StdLibTestCase(CodeIntelTestCase):
              ("function", "createHash"),
              ("function", "createHmac"),
              ("function", "createCipher"),
+             ("function", "createCipheriv"),
              ("function", "createDecipher"),
+             ("function", "createDecipheriv"),
              ("function", "createSign"),
              ("function", "createVerify"),
+             ("function", "createDiffieHellman"),
+             ("function", "pbkdf2"),
+             ("function", "randomBytes"),
             ])
         self.assertCompletionsInclude2(buf, positions[2],
             [("function", "update"),
@@ -633,6 +751,16 @@ class StdLibTestCase(CodeIntelTestCase):
             [("function", "update"),
              ("function", "verify"),
             ])
+        self.assertCompletionsInclude2(buf, positions[8],
+            [("function", "generateKeys"),
+             ("function", "computeSecret"),
+             ("function", "getPrime"),
+             ("function", "getGenerator"),
+             ("function", "getPublicKey"),
+             ("function", "getPrivateKey"),
+             ("function", "setPublicKey"),
+             ("function", "setPrivateKey"),
+            ])
 
     def test_tls(self):
         """
@@ -641,17 +769,37 @@ class StdLibTestCase(CodeIntelTestCase):
         manifest = {"test.js": """
             require('tls').<1>;
             require('tls').createServer({}, function(s){}).<2>;
+            require('tls').connect(80).<3>;
+            require('tls').createSecurePair().<4>;
             """}
         buf, positions = write_files(self, manifest=manifest, name="tls")
         self.assertCompletionsInclude2(buf, positions[1],
             [("function", "connect"),
              ("function", "createServer"),
+             ("function", "createSecurePair"),
             ])
         self.assertCompletionsInclude2(buf, positions[2],
             [("function", "listen"),
              ("function", "close"),
+             ("function", "address"),
+             ("function", "addContext"),
              ("variable", "maxConnections"),
              ("variable", "connections"),
+             ("function", "on"), # from EventEmitter
+            ])
+        self.assertCompletionsInclude2(buf, positions[3],
+            [("variable", "authorized"),
+             ("variable", "authorizationError"),
+             ("function", "getPeerCertificate"),
+             ("function", "address"),
+             ("variable", "remoteAddress"),
+             ("variable", "remotePort"),
+             ("function", "on"), # from EventEmitter
+             ("function", "resume"), # from ReadableStream
+             ("function", "write"), # from WritableStream
+            ])
+        self.assertCompletionsInclude2(buf, positions[4],
+            [("function", "on"), # from EventEmitter
             ])
 
     def test_fs(self):
@@ -670,8 +818,18 @@ class StdLibTestCase(CodeIntelTestCase):
              ("function", "renameSync"),
              ("function", "truncate"),
              ("function", "truncateSync"),
+             ("function", "chown"),
+             ("function", "chownSync"),
+             ("function", "fchown"),
+             ("function", "fchownSync"),
+             ("function", "lchown"),
+             ("function", "lchownSync"),
              ("function", "chmod"),
              ("function", "chmodSync"),
+             ("function", "fchmod"),
+             ("function", "fchmodSync"),
+             ("function", "lchmod"),
+             ("function", "lchmodSync"),
              ("function", "stat"),
              ("function", "lstat"),
              ("function", "fstat"),
@@ -698,6 +856,12 @@ class StdLibTestCase(CodeIntelTestCase):
              ("function", "closeSync"),
              ("function", "open"),
              ("function", "openSync"),
+             ("function", "utimes"),
+             ("function", "utimesSync"),
+             ("function", "futimes"),
+             ("function", "futimesSync"),
+             ("function", "fsync"),
+             ("function", "fsyncSync"),
              ("function", "write"),
              ("function", "writeSync"),
              ("function", "read"),
@@ -756,6 +920,7 @@ class StdLibTestCase(CodeIntelTestCase):
             [("function", "normalize"),
              ("function", "join"),
              ("function", "resolve"),
+             ("function", "relative"),
              ("function", "dirname"),
              ("function", "basename"),
              ("function", "extname"),
@@ -772,12 +937,13 @@ class StdLibTestCase(CodeIntelTestCase):
             net.<1>;
             var server = net.createServer();
             server.<2>;
-            var socket = new net.Socket();
-            socket.<3>;
+            net.connect().<3>;
+            net.createConnection().<4>;
             """}
         buf, positions = write_files(self, manifest=manifest, name="net")
         self.assertCompletionsInclude2(buf, positions[1],
             [("function", "createServer"),
+             ("function", "connect"),
              ("function", "createConnection"),
              ("function", "isIP"),
              ("function", "isIPv4"),
@@ -786,30 +952,32 @@ class StdLibTestCase(CodeIntelTestCase):
         self.assertCompletionsInclude2(buf, positions[2],
             [("function", "on"), # from EventEmitter
              ("function", "listen"),
-             ("function", "listenFD"),
-             ("function", "pause"),
              ("function", "close"),
              ("function", "address"),
              ("variable", "maxConnections"),
              ("variable", "connections"),
             ])
-        self.assertCompletionsInclude2(buf, positions[3],
-            [("function", "on"), # from EventEmitter
-             ("function", "connect"),
-             ("variable", "bufferSize"),
-             ("function", "setEncoding"),
-             ("function", "setSecure"),
-             ("function", "write"),
-             ("function", "end"),
-             ("function", "destroy"),
-             ("function", "pause"),
-             ("function", "resume"),
-             ("function", "setTimeout"),
-             ("function", "setNoDelay"),
-             ("function", "setKeepAlive"),
-             ("function", "address"),
-             ("variable", "remoteAddress"),
-            ])
+        for pos in 3, 4:
+            self.assertCompletionsInclude2(buf, positions[pos],
+                [("function", "on"), # from EventEmitter
+                 ("function", "connect"),
+                 ("variable", "bufferSize"),
+                 ("function", "setEncoding"),
+                 ("function", "setSecure"),
+                 ("function", "write"),
+                 ("function", "end"),
+                 ("function", "destroy"),
+                 ("function", "pause"),
+                 ("function", "resume"),
+                 ("function", "setTimeout"),
+                 ("function", "setNoDelay"),
+                 ("function", "setKeepAlive"),
+                 ("function", "address"),
+                 ("variable", "remoteAddress"),
+                 ("variable", "remotePort"),
+                 ("variable", "bytesRead"),
+                 ("variable", "bytesWritten"),
+                ])
 
     def test_dgram(self):
         """
@@ -867,16 +1035,13 @@ class StdLibTestCase(CodeIntelTestCase):
         manifest = {"test.js": """
             http = require('http');
             http.<1>;
-            var server = http.createServer();
-            server.<2>;
+            http.createServer().<2>;
             var request = new http.ServerRequest(); /* not actually valid */
             request.<3>;
             var response = new http.ServerResponse(); /* not actually valid */
             response.<4>;
-            var agent = http.getAgent();
-            agent.<5>;
-            var clientRequest = http.request();
-            clientRequest.<6>;
+            http.globalAgent.<5>;
+            http.request().<6>;
             var clientResponse = new http.ClientResponse(); /* not actually valid */
             clientResponse.<7>;
             """}
@@ -885,8 +1050,7 @@ class StdLibTestCase(CodeIntelTestCase):
             [("function", "createServer"),
              ("function", "request"),
              ("function", "get"),
-             ("class", "Agent"),
-             ("function", "getAgent"),
+             ("variable", "globalAgent"),
             ])
         self.assertCompletionsInclude2(buf, positions[2],
             [("function", "on"), # inherited from EventEmitter
@@ -921,16 +1085,21 @@ class StdLibTestCase(CodeIntelTestCase):
         self.assertCompletionsInclude2(buf, positions[5],
             [("variable", "maxSockets"),
              ("variable", "sockets"),
-             ("variable", "queue"),
+             ("variable", "requests"),
             ])
         self.assertCompletionsInclude2(buf, positions[6],
             [("function", "on"), # inherited from EventEmitter
+             ("variable", "writable"), # inherited from WritableStream
              ("function", "write"),
              ("function", "end"),
              ("function", "abort"),
+             ("function", "setTimeout"),
+             ("function", "setNoDelay"),
+             ("function", "setSocketKeepAlive"),
             ])
         self.assertCompletionsInclude2(buf, positions[7],
             [("function", "on"), # inherited from EventEmitter
+             ("variable", "readable"), # inherited from ReadableStream
              ("variable", "statusCode"),
              ("variable", "httpVersion"),
              ("variable", "headers"),
@@ -945,29 +1114,33 @@ class StdLibTestCase(CodeIntelTestCase):
         Test the Node.js https module
         """
         manifest = {"test.js": """
-            https = require('https');
-            https.<1>;
-            var server = https.createServer();
-            server.<2>;
-            var request = https.request();
-            request.<3>;
+            require('https').<1>;
+            require('https').createServer().<2>;
+            require('https').request().<3>;
+            require('https').get().<4>;
+            require('https').globalAgent.<5>;
             """}
         buf, positions = write_files(self, manifest=manifest, name="https")
         self.assertCompletionsInclude2(buf, positions[1],
             [("function", "createServer"),
              ("function", "request"),
              ("function", "get"),
+             ("class", "Agent"),
+             ("variable", "globalAgent"),
             ])
         self.assertCompletionsInclude2(buf, positions[2],
             [("function", "on"), # inherited from EventEmitter
-             ("function", "listen"),
-             ("function", "close"),
+             ("function", "listen"), # inherited from tls.Server
             ])
-        self.assertCompletionsInclude2(buf, positions[3],
-            [("function", "on"), # inherited from EventEmitter
-             ("function", "write"),
-             ("function", "end"),
-             ("function", "abort"),
+        for pos in 3, 4:
+            self.assertCompletionsInclude2(buf, positions[pos],
+                [("function", "on"), # inherited from EventEmitter
+                 ("function", "write"),
+                 ("function", "end"),
+                 ("function", "abort"),
+                ])
+        self.assertCompletionsInclude2(buf, positions[5],
+            [("variable", "maxSockets"), # inherited from http.Agent
             ])
 
     def test_url(self):
@@ -995,6 +1168,7 @@ class StdLibTestCase(CodeIntelTestCase):
              ("variable", "port"),
              ("variable", "pathname"),
              ("variable", "search"),
+             ("variable", "path"),
              ("variable", "query"),
              ("variable", "hash"),
             ])
@@ -1013,6 +1187,29 @@ class StdLibTestCase(CodeIntelTestCase):
              ("function", "parse"),
              ("function", "escape"),
              ("function", "unescape"),
+            ])
+
+    def test_readline(self):
+        """
+        Test the Node.js readline module
+        """
+        manifest = {"test.js": """
+            require('readline').<1>;
+            require('readline').createInterface().<2>;
+            """}
+        buf, positions = write_files(self, manifest=manifest, name="querystring")
+        self.assertCompletionsInclude2(buf, positions[1],
+            [("function", "createInterface"),
+            ])
+        self.assertCompletionsInclude2(buf, positions[2],
+            [("function", "on"), # inherited from events.EventEmitter
+             ("function", "setPrompt"),
+             ("function", "prompt"),
+             ("function", "question"),
+             ("function", "close"),
+             ("function", "pause"),
+             ("function", "resume"),
+             ("function", "write"),
             ])
 
     def test_repl(self):
@@ -1042,6 +1239,8 @@ class StdLibTestCase(CodeIntelTestCase):
         self.assertCompletionsInclude2(buf, positions[1],
             [("function", "runInThisContext"),
              ("function", "runInNewContext"),
+             ("function", "runInContext"),
+             ("function", "createContext"),
              ("function", "createScript"),
             ])
         self.assertCompletionsInclude2(buf, positions[2],
@@ -1066,6 +1265,8 @@ class StdLibTestCase(CodeIntelTestCase):
         self.assertCompletionsInclude2(buf, positions[1],
             [("function", "spawn"),
              ("function", "exec"),
+             ("function", "execFile"),
+             ("function", "fork"),
             ])
         self.assertCompletionsInclude2(buf, positions[2],
             [("variable", "stdin"),
@@ -1073,6 +1274,7 @@ class StdLibTestCase(CodeIntelTestCase):
              ("variable", "stderr"),
              ("variable", "pid"),
              ("function", "kill"),
+             ("function", "send"),
             ])
         self.assertCompletionsInclude2(buf, positions[3],
             [("function", "on"), # from EventEmitter
@@ -1117,19 +1319,50 @@ class StdLibTestCase(CodeIntelTestCase):
         manifest = {"test.js": """
             tty = require('tty');
             tty.<1>;
-            tty.open().<2>;
             """}
         buf, positions = write_files(self, manifest=manifest, name="tty")
         self.assertCompletionsInclude2(buf, positions[1],
-            [("function", "open"),
-             ("function", "isatty"),
+            [("function", "isatty"),
              ("function", "setRawMode"),
-             ("function", "setWindowSize"),
-             ("function", "getWindowSize"),
             ])
-        self.assertCompletionsInclude2(buf, positions[2],
-            [("function", "kill"),
+
+    def test_zlib(self):
+        """
+        Test the Node.js zlib module
+        """
+        manifest = {"test.js": """
+            require('zlib').<1>;
+            require('zlib').createGzip().<2>;
+            require('zlib').createGunzip().<3>;
+            require('zlib').createDeflate().<4>;
+            require('zlib').createInflate().<5>;
+            require('zlib').createDeflateRaw().<6>;
+            require('zlib').createInflateRaw().<7>;
+            require('zlib').createUnzip().<8>;
+            """}
+        buf, positions = write_files(self, manifest=manifest, name="tty")
+        self.assertCompletionsInclude2(buf, positions[1],
+            [("function", "createGzip"),
+             ("function", "createGunzip"),
+             ("function", "createDeflate"),
+             ("function", "createInflate"),
+             ("function", "createDeflateRaw"),
+             ("function", "createInflateRaw"),
+             ("function", "createUnzip"),
+             ("function", "deflate"),
+             ("function", "deflateRaw"),
+             ("function", "gzip"),
+             ("function", "gunzip"),
+             ("function", "inflate"),
+             ("function", "inflateRaw"),
+             ("function", "unzip"),
             ])
+        for pos in range(2, 9):
+            self.assertCompletionsInclude2(buf, positions[pos],
+                [("function", "on"), # inherited from events.EventEmitter
+                 ("function", "pause"), # inherited from stream.ReadableStream
+                 ("function", "write"), # inherited from stream.WritableStream
+                ])
 
     def test_os(self):
         """
@@ -1144,12 +1377,29 @@ class StdLibTestCase(CodeIntelTestCase):
         self.assertCompletionsInclude2(buf, positions[1],
             [("function", "hostname"),
              ("function", "type"),
+             ("function", "platform"),
+             ("function", "arch"),
              ("function", "release"),
              ("function", "uptime"),
              ("function", "loadavg"),
              ("function", "totalmem"),
              ("function", "freemem"),
              ("function", "cpus"),
+             ("function", "networkInterfaces"),
+            ])
+
+    def test_cluster(self):
+        """
+        Test the Node.js cluster module
+        """
+        manifest = {"test.js": """
+            require('cluster').<1>;
+            """}
+        buf, positions = write_files(self, manifest=manifest, name="tty")
+        self.assertCompletionsInclude2(buf, positions[1],
+            [("function", "fork"),
+             ("variable", "isMaster"),
+             ("variable", "isWorker"),
             ])
 
 class CallTipTestCase(CodeIntelTestCase):

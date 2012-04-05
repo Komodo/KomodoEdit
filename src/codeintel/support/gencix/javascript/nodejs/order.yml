@@ -1,0 +1,91 @@
+assert:
+    [ notEqual, doesNotThrow, ok, ifError, equal, notDeepEqual, notStrictEqual,
+      fail, throws, strictEqual, deepEqual ]
+buffer.Buffer:
+    [ byteLength, slice, write, length, toString, copy, isBuffer ]
+child_process:
+    [ spawn, child_process.ChildProcess, exec ]
+child_process.ChildProcess:
+    [ kill, stdin, pid, stderr, stdout ]
+console: [ info, assert, log, trace, error, timeEnd, warn, time, dir ]
+crypto:
+    [ crypto.Hash, createCipher, createHmac, crypto.Verify, createCredentials,
+    createSign, crypto.Signer, crypto.Cipher, createHash, crypto.Decipher,
+    crypto.Credentials, createDecipher, createVerify, crypto.Hmac ]
+crypto.Hash: [ update, digest ]
+crypto.Verify: [ verify, update ]
+crypto.Signer: [ update, sign ]
+crypto.Cipher: [ update, final ]
+crypto.Decipher: [ update, final ]
+crypto.Hmac: [ update, digest ]
+dgram: [ createSocket, Socket ]
+dgram.Socket:
+    [ addMembership, bind, setMulticastTTL, send, setMulticastLoopback, setTTL,
+      setBroadcast, address, close, dropMembership ]
+dns:
+    [ resolve, reverse, resolveMx, resolveTxt, resolve4, resolveSrv, resolve6,
+      lookup, resolveCname, resolveNs ]
+events.EventEmitter:
+    [ on, addListener, removeAllListeners, setMaxListeners, listeners, emit,
+      removeListener, once ]
+fs:
+    [ rename, writeSync, fs.WriteStream, chmodSync, fs.Stats, chmod,
+      readdirSync, readlinkSync, closeSync, close, open, lstatSync, linkSync,
+      statSync, mkdir, readFile, write, realpathSync, writeFile, rmdir,
+      unwatchFile, fstat, fs.ReadStream, realpath, stat, readSync, truncate,
+      lstat, fstatSync, writeFileSync, symlink, symlinkSync, rmdirSync, link,
+      readdir, createReadStream, readFileSync, unlink, truncateSync, read,
+      renameSync, mkdirSync, watchFile, createWriteStream, openSync, readlink,
+      unlinkSync ]
+global_objects:
+    [ global, console, process, require, __filename, clearTimeout,
+      clearInterval, module, setInterval, __dirname, setTimeout ]
+http:
+    [ get, http.ServerRequest, http.ClientResponse, request, http.Agent,
+      http.Server, createServer, http.ServerResponse, http.ClientRequest,
+      getAgent ]
+http.ServerRequest:
+    [ pause, setEncoding, resume, url, trailers, headers, connection, method,
+      httpVersion ]
+http.ClientResponse:
+    [ pause, setEncoding, resume, trailers, headers, statusCode, httpVersion ]
+http.Server:
+    [ close, listen ]
+http.ServerResponse:
+    [ removeHeader, end, getHeader, writeHead, write, writeContinue,
+      addTrailers, setHeader, statusCode ]
+http.ClientRequest:
+    [ write, abort, end ]
+http.Agent:
+    [ queue, sockets, maxSockets ]
+https:
+    [ createServer, get, request, http.Server ]
+net:
+    [ net.Socket, isIP, isIPv6, isIPv4, createServer, net.Server,
+    createConnection]
+net.Socket:
+    [ setNoDelay, pause, end, setTimeout, resume, setSecure, address,
+      remoteAddress, write, connect, destroy, setEncoding, setKeepAlive,
+      bufferSize ]
+net.Server:
+    [ pause, listenFD, connections, maxConnections, close, address, listen ]
+os:
+    [ uptime, totalmem, hostname, cpus, loadavg, release, type, freemem ]
+path:
+    [ normalize, resolve, join, exists, basename, extname, existsSync, dirname ]
+process:
+    [ setuid, nextTick, stdout, pid, memoryUsage, kill, getgid, title, umask,
+      platform, version, exit, env, cwd, installPrefix, setgid, argv, chdir,
+      getuid, stdin, stderr, execPath ]
+querystring: [ parse, stringify, unescape, escape ]
+stream.ReadableStream:
+    [pause, setEncoding, resume, readable, pipe, destroy, destroySoon]
+stream.WritableStream:
+    [ writable, write, end, destroySoon, destroy ]
+timers: [ setInterval, setTimeout, clearTimeout, clearInterval ]
+tls: [ createServer, connect, tls.Server ]
+tls.Server: [ connections, close, maxConnections, listen ]
+url: [ parse, resolve, format ]
+util: [ debug, inherits, pump, inspect, log ]
+vm: [ createScript, runInThisContext, runInNewContext, vm.Script ]
+vm.Script: [ runInThisContext, runInNewContext ]

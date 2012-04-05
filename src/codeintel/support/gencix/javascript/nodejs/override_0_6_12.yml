@@ -1,0 +1,434 @@
+buffer:
+    module:
+        buffer.Buffer:
+            copy:
+                params:
+                    sourceEnd:
+                        default: "buffer.length"
+            write:
+                params:
+                    length:
+                        default: "buffer.length - offset"
+
+child_process:
+    module:
+        child_process.ChildProcess:
+            kill:
+                params:
+                    signal:
+                        default: "'SIGTERM'"
+            pid:
+                value: 0
+            stdin:
+                type: stream.WritableStream
+            stdout:
+                type: stream.ReadableStream
+            stderr:
+                type: stream.ReadableStream
+            __events__:
+                exit:
+                    - code:
+                        type: Number
+                        default: "null"
+                    - signal:
+                        type: String
+                        default: "null"
+        spawn:
+            returns: child_process.ChildProcess
+    extra: |
+        /* used for giving types to ChildProcess.std* */
+        var stream = require('stream');
+
+console:
+    globals:
+        console:
+            type: Object
+
+crypto:
+    module:
+        createCipher:
+            returns: crypto.Cipher
+        createHmac:
+            returns: crypto.Hmac
+        crypto.Verify:
+            verify:
+                params:
+                    signature_format:
+                        default: "'binary'"
+        createSign:
+            returns: crypto.Signer
+        createHash:
+            returns: crypto.Hash
+        crypto.Decipher:
+            update:
+                params:
+                    input_encoding:
+                        default: "'binary'"
+                    output_encoding:
+                        default: "'binary'"
+        createDecipher:
+            returns: crypto.Decipher
+        createVerify:
+            returns: crypto.Verify
+        createCipheriv:
+            returns: crypto.Cipher
+        createDecipheriv:
+            returns: crypto.Decipher
+        createDiffieHellman:
+            returns: crypto.DiffieHellman
+        crypto.DiffieHellman:
+            computeSecret:
+                params:
+                    input_encoding:
+                        default: "'binary'"
+            getPrime:
+                params:
+                    encoding:
+                        default: "'binary'"
+            getGenerator:
+                params:
+                    encoding:
+                        default: "'binary'"
+            getPublicKey:
+                params:
+                    encoding:
+                        default: "'binary'"
+            getPrivateKey:
+                params:
+                    encoding:
+                        default: "'binary'"
+            setPublicKey:
+                params:
+                    encoding:
+                        default: "'binary'"
+            setPrivateKey:
+                params:
+                    encoding:
+                        default: "'binary'"
+
+dgram:
+    module:
+        createSocket:
+            returns: dgram.Socket
+        dgram.Socket:
+            __events__:
+                message:
+                    - msg: buffer.Buffer
+                    - rinfo: Object
+                listening:
+                close:
+                error:
+                    - exception: Error
+
+events:
+    module:
+        events.EventEmitter:
+            __events__:
+                newListener:
+                    - event: String
+                    - listener: Function
+
+fs:
+    module:
+        createReadStream:
+            returns: stream.ReadableStream
+        createWriteStream:
+            returns: stream.WritableStream
+        properties:
+            WriteStream:
+                kind: classes
+            ReadStream:
+                kind: classes
+        fs.ReadStream:
+            __events__:
+                open:
+                    - fd: Number
+        fs.WriteStream:
+            __events__:
+                open:
+                    - fd: Number
+        fs.FSWatcher:
+            __events__:
+                change:
+                    - event: String
+                    - filename: String
+                error:
+                    - exception: Error
+    extra: |
+        /* see http://nodejs.org/docs/v0.6.12/api/fs.html#fs.Stats */
+        fs.Stats.prototype = {
+            isFile: function() {},
+            isDirectory: function() {},
+            isBlockDevice: function() {},
+            isCharacterDevice: function() {},
+            isSymbolicLink: function() {},
+            isFIFO: function() {},
+            isSocket: function() {},
+        };
+        /* required for createReadStream() / createWriteStream() */
+        var stream = require('stream');
+
+globals:
+    name: global_objects
+
+global_objects:
+    globals:
+        clearInterval:
+            kind: methods
+        require:
+            kind: methods
+        exports:
+            kind: hidden
+
+http:
+    module:
+        request:
+            returns: http.ClientRequest
+        get:
+            returns: http.ClientRequest
+        createServer:
+            params:
+                requestListener:
+                    type: http.Server.__events__.request
+            returns: http.Server
+        globalAgent:
+            type: http.Agent
+        properties:
+            ClientResponse:
+                kind: classes
+        http.Server:
+            __proto__: events.EventEmitter
+            __events__:
+                request:
+                    - request: http.ServerRequest
+                    - response: http.ServerResponse
+                connection:
+                    - socket: net.Socket
+                checkContinue:
+                    - request: http.ServerRequest
+                    - response: http.ServerResponse
+                upgrade:
+                    - request: http.ServerRequest
+                    - socket: net.Socket
+                    - head: buffer.Buffer
+                clientError:
+                    - exception: Error
+        http.ServerRequest:
+            setEncoding:
+                params:
+                    encoding:
+                        default: "null"
+            __proto__: events.EventEmitter
+            __events__:
+                data:
+                    - chunk: buffer.Buffer
+        http.ServerResponse:
+            __proto__: stream.WritableStream
+        http.ClientRequest:
+            __proto__: events.EventEmitter
+            __events__:
+                response:
+                    - response: http.ClientResponse
+                socket:
+                    - socket: net.Socket
+                upgrade:
+                    - response: http.ClientResponse
+                    - socket: net.Socket
+                    - head: buffer.Buffer
+        http.ClientResponse:
+            setEncoding:
+                params:
+                    encoding:
+                        default: "null"
+            __proto__: events.EventEmitter
+            __events__:
+                data:
+                    - chunk: buffer.Buffer
+                close:
+                    - err: Error
+
+
+    extra: |
+        var events = require('events');
+        var stream = require('stream');
+        var buffer = require('buffer');
+
+https:
+    module:
+        https.Server:
+            __proto__:
+                - tls.Server
+                - http.Server
+            __events__: http.Server
+        createServer:
+            returns: https.Server
+        get:
+            returns: http.ClientRequest
+        request:
+            returns: http.ClientRequest
+        globalAgent:
+            type: https.Agent
+    extra: |
+        var http = require('http');
+
+net:
+    module:
+        createServer:
+            returns: net.Server
+        net.Server:
+            __proto__: events.EventEmitter
+            __events__:
+                connection:
+                    - socket: net.Socket
+                error:
+                    - error: Error
+        net.Socket:
+            setNoDelay:
+                params:
+                    noDelay:
+                        type: Boolean
+                        default: "true"
+            address:
+                returns: Object
+            write:
+                params:
+                    encoding:
+                        default: "'utf-8'"
+            setEncoding:
+                params:
+                    encoding:
+                        default: "null"
+            __proto__: events.EventEmitter
+            __events__:
+                data:
+                    data: buffer.Buffer
+                error:
+                    error: Error
+                close:
+                    had_error: Boolean
+        isIP:
+            returns: Number
+        isIPv4:
+            returns: Boolean
+        isIPv6:
+            returns: Boolean
+        connect:
+            returns: net.Socket
+    extra: |
+        var events = require('events');
+
+process:
+    globals:
+        process:
+            type: Object
+            arch:
+                type: String
+            exit:
+                params:
+                    code:
+                        default: "0"
+            kill:
+                params:
+                    signal:
+                        default: "'SIGTERM'"
+            stderr:
+                type: stream.WritableStream
+            uptime:
+                type: Number
+            __proto__: events.EventEmitter
+            __events__:
+                uncaughtException:
+                    - err: Error
+    extra: |
+        /* required for stdin/stdout/stderr */
+        var stream = require('stream');
+
+querystring:
+    module:
+        properties:
+            escape:
+                kind: methods
+            unescape:
+                kind: methods
+
+readline:
+    module:
+        readline.Interface:
+            __events__:
+                line:
+                    - line: String
+
+stdio:
+    # rename this module to "console"; see that section for overrides
+    name: console
+
+stream:
+    module:
+        stream.Readable Stream:
+            name: stream.ReadableStream
+            readable:
+                type: Boolean
+            __proto__: events.EventEmitter
+            __events__:
+                data:
+                    - data: buffer.Buffer
+                error:
+                    - exception: Error
+        stream.Writable Stream:
+            name: stream.WritableStream
+            writable:
+                type: Boolean
+            __proto__: events.EventEmitter
+            __events__:
+                error:
+                    - exception: Error
+                pipe:
+                    - src: stream.ReadableStream
+    extra: |
+        var events = require('events');
+
+tls:
+    module:
+        connect:
+            returns: tls.CleartextStream
+        createSecurePair:
+            returns: tls.SecurePair
+        tls.Server:
+            address:
+                returns: Object
+            __events__:
+                secureConnection:
+                    cleartextStream: tls.CleartextStream
+                clientError:
+                    exception: Error
+        tls.CleartextStream:
+            getPeerCertificate:
+                returns: Object
+            address:
+                returns: Object
+
+url:
+    module:
+        parse:
+            returns: URL
+    extra: |
+        /* see http://nodejs.org/docs/v0.6.12/api/url.html#url_url */
+        function URL() {}
+        URL.prototype = {
+            "href": "",
+            "protocol": "",
+            "host": "",
+            "auth": "",
+            "hostname": "",
+            "port": "",
+            "pathname": "",
+            "search": "",
+            "path": "",
+            "query": "",
+            "hash": "",
+        };
+
+vm:
+    module:
+        createScript:
+            returns: vm.Script
