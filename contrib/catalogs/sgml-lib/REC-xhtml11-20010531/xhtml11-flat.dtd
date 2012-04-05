@@ -3375,7 +3375,7 @@
       %XHTML.xmlns.attrib;
       %title.attrib;
       %I18n.attrib;
-      type         %ContentType.datatype;   #REQUIRED
+      type         ( text/css )             #REQUIRED
       media        %MediaDesc.datatype;     #IMPLIED
       xml:space    ( preserve )             #FIXED 'preserve'
 >
