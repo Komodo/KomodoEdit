@@ -95,6 +95,7 @@
 <!ENTITY optRegex.accesskey "x">
 <!ENTITY optReplace.accesskey "R">
 <!ENTITY options.label "Options">
+<!ENTITY pin.tooltiptext "Pin this window">
 <!ENTITY regularExpr.label "Regular Expr.">
 <!ENTITY regularExpressionShortcuts.tooltiptext "Regular Expression Shortcuts">
 <!ENTITY replace.label "Replace">

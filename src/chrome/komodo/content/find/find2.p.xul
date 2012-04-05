@@ -49,6 +49,7 @@
 <!-- #define ENTER_FILETYPES_TO_INCLUDE_ENTITY &enterFiletypesToIncludeUnix.tooltiptext; -->
 <!-- #define ENTER_FILETYPES_TO_EXCLUDE_ENTITY &enterFiletypesToExcludeUnix.tooltiptext; -->
 <!-- #endif -->
+<?xml-stylesheet href="chrome://komodo/skin/dialogs/find2.css" type="text/css"?>
 
 <?xml-stylesheet href="chrome://global/skin" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
@@ -462,10 +463,14 @@
                 accesskey="&markAll.accesskey;" oncommand="mark_all();" />
         <!-- Exclude for lack of space. This isn't crucial.
         <button id="close-btn" label="&close.label;"
-                accesskey="6findCloseButton.accesskey;" oncommand="window.close();"/> -->
+                accesskey="&findCloseButton.accesskey;" oncommand="window.close();"/> -->
         <!-- Exclude for lack of space. This isn't crucial.
         <button id="help-btn" label="&help.label;" accesskey="&helpButton.accesskey;"
                 oncommand="ko.help.open('find2_dialog');"/> -->
+        <hbox pack="end" flex="1" align="end">
+            <toolbarbutton id="pin-btn" type="checkbox" oncommand="toggle_pin();"
+                           tooltiptext="&pin.tooltiptext;"/>
+        </hbox>
       </vbox>
     </hbox>
 

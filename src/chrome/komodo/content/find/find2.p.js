@@ -47,6 +47,8 @@
 
 //---- globals
 
+var { classes: Cc, interfaces: Ci, utils: Cu } = Components;
+
 var log = ko.logging.getLogger("find.dialog");
 //log.setLevel(ko.logging.LOG_DEBUG);
 
@@ -884,6 +886,7 @@ function _init_widgets()
     widgets.mark_all_btn = document.getElementById('mark-all-btn');
     //widgets.close_btn = document.getElementById('close-btn');
     //widgets.help_btn = document.getElementById('help-btn');
+    widgets.pin_btn = document.getElementById('pin-btn');
 }
 
 /**
@@ -1425,4 +1428,26 @@ function _enable_widget(widget) {
     }
 }
 
+/**
+ * Toggle whether the window is raised
+ */
+function toggle_pin() {
+    function getXULWindowForDOMWindow(win)
+        win.QueryInterface(Ci.nsIInterfaceRequestor)
+           .getInterface(Ci.nsIWebNavigation)
+           .QueryInterface(Ci.nsIDocShellTreeItem)
+           .treeOwner
+           .QueryInterface(Ci.nsIInterfaceRequestor)
+           .getInterface(Ci.nsIXULWindow);
 
+    let rootWin = getXULWindowForDOMWindow(window);
+    let parentWin = null;
+    if (opener && !opener.closed) {
+        parentWin = getXULWindowForDOMWindow(opener);
+    }
+    let pinned = widgets.pin_btn.checked;
+    Cc["@activestate.com/koIWindowManagerUtils;1"]
+      .getService(Ci.koIWindowManagerUtils)
+      .setOnTop(rootWin, parentWin, pinned);
+}
+ 

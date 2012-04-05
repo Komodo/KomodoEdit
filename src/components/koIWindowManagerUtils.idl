@@ -1,0 +1,13 @@
+#include "nsISupports.idl"
+
+interface nsIXULWindow;
+
+[scriptable, uuid(368e9fb1-8bc7-4e77-a3cf-6c21e87e26d4)]
+interface koIWindowManagerUtils : nsISupports {
+    /**
+     * Set a given window to be on top of another window
+     */
+    void setOnTop(in nsIXULWindow aWindow,
+                  in nsIXULWindow aRelativeWindow,
+                  in boolean aOnTop);
+};
