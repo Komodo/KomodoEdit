@@ -342,7 +342,7 @@
                 // - margin 1: folding (controlled by Python code,
                 //             koDocumentSettingsManager)
                 // - margin 2: symbols (iff this.symbolMargin)
-                var symbolMarginMask = ko.markers.setup(scimoz);
+                var symbolMarginMask = ko.markers.setup(scimoz, this.scheme.isDarkBackground);
                 scimoz.setMarginTypeN(0, scimoz.SC_MARGIN_NUMBER);
                 scimoz.setMarginWidthN(1, 0);
                 if (this.symbolMargin) {

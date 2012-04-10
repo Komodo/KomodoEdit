@@ -95,8 +95,9 @@ ko.markers =  function markers_module() {
      * return an appropriate mask for ISciMoz.setMarginMaskN(<n>, <mask>).
      * 
      * @param {Components.interfaces.ISciMoz} scimoz - A plugin instance.
+     * @param {Boolean} isDarkBackground - whether scimoz is using a dark bg.
      */
-    setup: function(scimoz) {
+    setup: function(scimoz, isDarkBackground) {
         scimoz.markerDefine(ko.markers.MARKNUM_BOOKMARK, scimoz.SC_MARK_ARROWDOWN);
         scimoz.markerSetFore(ko.markers.MARKNUM_BOOKMARK, xtk.color.RGB(0x00, 0x00, 0x00)); // black
         scimoz.markerSetBack(ko.markers.MARKNUM_BOOKMARK, xtk.color.RGB(0x00, 0xFF, 0xFF)); // cyan
