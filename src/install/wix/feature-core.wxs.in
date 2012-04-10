@@ -743,6 +743,7 @@
               <File Id="file2090" Name="KOIVIE_1.XPT" LongName="koIViewService.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIViewService.xpt"/>
               <File Id="file2091" Name="KOIWEB_0.XPT" LongName="koIWebbrowser.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIWebbrowser.xpt"/>
               <File Id="file2092" Name="KOIWIN_0.XPT" LongName="koIWindowsIntegration.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIWindowsIntegration.xpt"/>
+              <File Id="file4033" Name="KOIWIN_1.XPT" LongName="koIWindowManagerUtils.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIWindowManagerUtils.xpt"/>
               <File Id="file2093" Name="KOJAVA_0.PY" LongName="koJavaLanguage.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koJavaLanguage.py"/>
               <File Id="file2094" Name="KOJAVA_1.PY" LongName="koJavaScriptLanguage.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koJavaScriptLanguage.py"/>
               <File Id="file2095" Name="KOKEYB_0.PY" LongName="koKeybindingSchemeService.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koKeybindingSchemeService.py"/>
@@ -806,6 +807,7 @@
               <File Id="file2172" Name="KOVIEW_0.PY" LongName="koViewService.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koViewService.py"/>
               <File Id="file2173" Name="KOWEBB_0.PY" LongName="koWebbrowser.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koWebbrowser.py"/>
               <File Id="file2174" Name="KOWIND_0.PY" LongName="koWindowsIntegration.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koWindowsIntegration.py"/>
+              <File Id="file4034" Name="KOWIND_1.PY" LongName="koWindowManagerUtils.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koWindowManagerUtils.py"/>
               <File Id="file1511" LongName="koJavaScriptLinter.py" Name="KOJAVA_2.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koJavaScriptLinter.py" />
               <File Id="file2182" Name="KOYAML_0.PY" LongName="koYAMLLanguage.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koYAMLLanguage.py"/>
               <File Id="file2570" Name="KOIKPF_0.XPT" LongName="koIKPFTreeView.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIKPFTreeView.xpt"/>
@@ -4354,6 +4356,7 @@
               <File Id="file4103" Name="KOIVIE_1.IDL" LongName="koIViewService.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIViewService.idl"/>
               <File Id="file4104" Name="KOIWEB_0.IDL" LongName="koIWebbrowser.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIWebbrowser.idl"/>
               <File Id="file4105" Name="KOIWIN_0.IDL" LongName="koIWindowsIntegration.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIWindowsIntegration.idl"/>
+              <File Id="file4041" Name="KOIWIN_1.IDL" LongName="koIWindowManagerUtils.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIWindowManagerUtils.idl"/>
               <File Id="file4106" Name="KOIXML_0.IDL" LongName="koIXMLCatalogService.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIXMLCatalogService.idl"/>
               <File Id="file812" Name="KOICON_0.IDL" LongName="koIContentUtils.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\koIContentUtils.idl"/>
               <File Id="file4107" Name="MOZIJS_0.IDL" LongName="mozIJSSubScriptLoader.idl" Vital="yes" src="feature-core\INSTALLDIR\lib\sdk\idl\mozIJSSubScriptLoader.idl"/>
