@@ -848,6 +848,9 @@ class Scheme:
     def _hasDarkColoredBackground(self):
         return not self._hasLightColoredBackground()
 
+    def get_isDarkBackground(self):
+        return self._hasDarkColoredBackground()
+
     def getHighlightColorInfo(self, languageObj):
         """
         This function also serves as a gatekeeper.

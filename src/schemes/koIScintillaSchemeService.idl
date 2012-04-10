@@ -50,7 +50,12 @@ interface koIScintillaScheme : nsISupports {
     attribute boolean caretLineVisible;
     attribute boolean useSelFore;
     attribute boolean isDirty;
-    
+    /**
+     * The isDarkBackground attribute returns whether the default background
+     * color is dark or light.
+     */
+    attribute boolean isDarkBackground;
+
     koIScintillaScheme clone(in wstring newname);
     
     /*
