@@ -2165,9 +2165,11 @@
                 <Directory Id="directory455" Name="lib_srcs">
                   <Directory Id="directory456" Name="node.js">
                     <Component Id="component407" DiskId="1" Guid="$(autowix.guid)">
+                      <File Id="file4035" Name="addons.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\lib_srcs\node.js\addons.js"/>
                       <File Id="file128" Name="assert.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\lib_srcs\node.js\assert.js"/>
                       <File Id="file344" Name="buffer.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\lib_srcs\node.js\buffer.js"/>
                       <File Id="file346" Name="CHILD__0.JS" LongName="child_process.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\lib_srcs\node.js\child_process.js"/>
+                      <File Id="file4036" Name="cluster.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\lib_srcs\node.js\cluster.js"/>
                       <File Id="file347" Name="console.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\lib_srcs\node.js\console.js"/>
                       <File Id="file351" Name="crypto.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\lib_srcs\node.js\crypto.js"/>
                       <File Id="file356" Name="debugger.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\lib_srcs\node.js\debugger.js"/>
@@ -2178,11 +2180,13 @@
                       <File Id="file474" Name="GLOBAL_0.JS" LongName="global_objects.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\lib_srcs\node.js\global_objects.js"/>
                       <File Id="file478" Name="http.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\lib_srcs\node.js\http.js"/>
                       <File Id="file562" Name="https.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\lib_srcs\node.js\https.js"/>
+                      <File Id="file4037" Name="modules.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\lib_srcs\node.js\modules.js"/>
                       <File Id="file576" Name="net.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\lib_srcs\node.js\net.js"/>
                       <File Id="file578" Name="os.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\lib_srcs\node.js\os.js"/>
                       <File Id="file610" Name="path.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\lib_srcs\node.js\path.js"/>
                       <File Id="file621" Name="process.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\lib_srcs\node.js\process.js"/>
                       <File Id="file624" Name="QUERYS_0.JS" LongName="querystring.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\lib_srcs\node.js\querystring.js"/>
+                      <File Id="file4038" Name="readline.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\lib_srcs\node.js\readline.js"/>
                       <File Id="file668" Name="repl.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\lib_srcs\node.js\repl.js"/>
                       <File Id="file669" Name="stream.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\lib_srcs\node.js\stream.js"/>
                       <File Id="file670" Name="timers.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\lib_srcs\node.js\timers.js"/>
@@ -2191,6 +2195,7 @@
                       <File Id="file673" Name="url.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\lib_srcs\node.js\url.js"/>
                       <File Id="file674" Name="util.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\lib_srcs\node.js\util.js"/>
                       <File Id="file675" Name="vm.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\lib_srcs\node.js\vm.js"/>
+                      <File Id="file4040" Name="zlib.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\codeintel2\lib_srcs\node.js\zlib.js"/>
                     </Component>
                   </Directory> <!-- lib\mozilla\python\komodo\codeintel2\lib_srcs\node.js -->
                 </Directory> <!-- lib\mozilla\python\komodo\codeintel2\lib_srcs -->
