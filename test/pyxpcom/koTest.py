@@ -42,7 +42,7 @@ import sys
 import re
 import logging
 
-from xpcom import components, ServerException, nsError
+from xpcom import components, ServerException, nsError, COMException
 from xpcom.server.enumerator import SimpleEnumerator
 
 log = logging.getLogger("koTest")
@@ -116,7 +116,9 @@ class KoTestDirectoryProvider:
 
 
 class KoTestService:
-    _com_interfaces_ = [components.interfaces.koITestService]
+    _com_interfaces_ = [components.interfaces.koITestService,
+                        components.interfaces.nsIXULAppInfo,
+                        components.interfaces.nsIXULRuntime]
     _reg_clsid_ = "{7f720f03-312f-4d51-8dbe-7701eabd6f0b}"
     _reg_contractid_ = "@activestate.com/koTestService;1"
     _reg_desc_ = "Komodo Test Support Service"
@@ -143,5 +145,52 @@ class KoTestService:
             .getService(components.interfaces.nsIDirectoryService)
         dirSvc.registerProvider(KoTestDirectoryProvider())
 
+        # Register the app info stuff
+        appinfo = components.classes["@mozilla.org/xre/app-info;1"].getService()
+        try:
+            appinfo.QueryInterface(components.interfaces.nsIXULAppInfo)
+        except COMException, e:
+            if e.errno != nsError.NS_ERROR_NO_INTERFACE:
+                raise
+            # need to register our own app info
+            self._appinfo = appinfo
+            import types
+            iim = components.interfaceInfoManager
+            nsISupports = iim.GetInfoForName("nsISupports")
+            nsIXULRuntime = iim.GetInfoForName("nsIXULRuntime")
+            # skip QueryInterface, AddRef, and Release
+            for i in range(nsISupports.getMethodCount(), nsIXULRuntime.getMethodCount()):
+                name = nsIXULRuntime.GetMethodInfo(i)[1]
+                if isinstance(getattr(appinfo, name), types.MethodType):
+                    # just stash the bound method over
+                    setattr(self, name, getattr(appinfo, name))
+                else:
+                    # assume property and make getters and setters
+                    def prop(p):
+                        getter = lambda self: getattr(self._appinfo, p)
+                        setter = lambda self, v: setattr(self._appinfo, p, v)
+                        setattr(KoTestService, p, getter, setter)
+                    prop(name) # force binding
+
+            components.registrar.registerFactory(self._reg_clsid_,
+                                                 self._reg_desc_,
+                                                 "@mozilla.org/xre/app-info;1",
+                                                 None)
+            self._infoSvc = components.classes["@activestate.com/koInfoService;1"]\
+                .getService(components.interfaces.koIInfoService)
         self.__initialized = True
 
+    # nsIXULAppInfo
+    vendor = "ActiveState"
+    @property
+    def name(self):
+        return "Komodo %s" % (self._infoSvc.prettyProductType)
+    ID = "{dca9ceb7-9e48-47d5-84a1-a2623764b4cb}"
+    @property
+    def version(self):
+        return self._infoSvc.version
+    @property
+    def appBuildID(self):
+        return self._infoSvc.appBuildID
+    platformVersion = "0"
+    platformBuildID = ""

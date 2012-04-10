@@ -150,10 +150,29 @@ class KoWindowsIntegrationService:
         koDirs = components.classes["@activestate.com/koDirs;1"]\
             .getService(components.interfaces.koIDirs)
         self._komodo = os.path.join(koDirs.binDir, "komodo.exe")
+        appinfo = components.classes["@mozilla.org/xre/app-info;1"]\
+                            .getService(components.interfaces.nsIXULAppInfo)
+        self._appName = appinfo.name
+        self._appKeyPath = r"Software\%s\%s" % (appinfo.vendor, appinfo.name)
 
     def _addFileAssociation(self, ext, action):
         import wininteg
         try:
+            if action.endswith(self._appName):
+                untypedAction = action[:-len(self._appName)] + "Komodo"
+                try:
+                    if wininteg.removeFileAssociation(ext, untypedAction,
+                                                      self._komodo, fromHKLM=True):
+                        log.info("Removed untyped action %r", untypedAction)
+                except WindowsError, ex:
+                    if ex.winerror != 5: # ERROR_ACCESS_DENIED
+                        raise
+                    # can't remove the untyped action, don't add
+                    # the new one either (to prevent duplicates)
+                    log.info("Failed to remove untyped action %r, not adding typed action %r",
+                             untypedAction, action)
+                    return
+
             wininteg.addFileAssociation(ext, action, self._komodo)
         except WindowsError, ex:
             self.lastErrorSvc.setLastError(ex.errno, ex.strerror)
@@ -165,7 +184,40 @@ class KoWindowsIntegrationService:
     def _removeFileAssociation(self, ext, action):
         import wininteg
         try:
-            wininteg.removeFileAssociation(ext, action, self._komodo)
+            if action.endswith(self._appName):
+                untypedAction = action[:-len(self._appName)] + "Komodo"
+                wininteg.removeFileAssociation(ext, untypedAction,
+                                               self._komodo, fromHKLM=True)
+            try:
+                wininteg.removeFileAssociation(ext, action, self._komodo)
+            except WindowsError, ex:
+                if ex.winerror != 2: # FILE_NOT_FOUND
+                    raise
+                # perhaps it's under HKLM
+                wininteg.removeFileAssociation(ext, action, self._komodo, fromHKLM=True)
+        except WindowsError, ex:
+            self.lastErrorSvc.setLastError(ex.errno, ex.strerror)
+            raise ServerException(nsError.NS_ERROR_UNEXPECTED, ex.strerror)
+        except EnvironmentError, ex:
+            self.lastErrorSvc.setLastError(0, str(ex))
+            raise ServerException(nsError.NS_ERROR_UNEXPECTED, str(ex))
+
+    def _migrateEditWith(self, ext):
+        """ Migrate older "Edit with Komodo" to "Edit with Komodo IDE|EDIT",
+            also from HKLM to HKCU"""
+        import wininteg
+        try:
+            try:
+                found = wininteg.removeFileAssociation(ext, "Edit with Komodo",
+                                                       self._komodo, fromHKLM=True)
+            except WindowsError, ex:
+                if ex.winerror != 5: # ERROR_ACCESS_DENIED
+                    raise
+                return False
+            if not found:
+                return False
+            wininteg.addFileAssociation(ext, "Edit with %s" % (self._appName,), self._komodo)
+            return True
         except WindowsError, ex:
             self.lastErrorSvc.setLastError(ex.errno, ex.strerror)
             raise ServerException(nsError.NS_ERROR_UNEXPECTED, ex.strerror)
@@ -179,7 +231,11 @@ class KoWindowsIntegrationService:
         """
         import wininteg
         try:
-            return wininteg.checkFileAssociation(ext, action, self._komodo)
+            result = wininteg.checkFileAssociation(ext, action, self._komodo)
+            if result is not None and action.endswith(self._appName):
+                untypedAction = action[:-len(self._appName)] + "Komodo"
+                return wininteg.checkFileAssociation(ext, untypedAction, self._komodo)
+            return result
         except WindowsError, ex:
             self.lastErrorSvc.setLastError(ex.errno, ex.strerror)
             raise ServerException(nsError.NS_ERROR_UNEXPECTED, ex.strerror)
@@ -187,30 +243,69 @@ class KoWindowsIntegrationService:
             self.lastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_UNEXPECTED, str(ex))
 
-    def _setHKLMRegistryStringValue(self, keyName, valueName, value):
-        import wininteg, _winreg
+    def _setRegistryStringValue(self, keyName, valueName, value, root="HKCU"):
+        """Set the given string data to the named registry value
+        @param keyName {unicode} The key in which to set
+        @param valueName {unicode} The value (name) to set; use empty string for default
+        @param value {unicode} The value (data) to set to.
+        @param root {HKEY or str} The root to start from; defaults to HKCU
+        """
+        import _winreg
+        root = ({ "HKCU": _winreg.HKEY_CURRENT_USER,
+                  "HKLM": _winreg.HKEY_LOCAL_MACHINE,
+                  "HKCR": _winreg.HKEY_CLASSES_ROOT,
+            }).get(root, root)
         try:
-            wininteg.setHKLMRegistryValue(keyName, valueName, _winreg.REG_SZ,
-                                          value)
+            try:
+                key = _winreg.OpenKey(root, keyName, 0, _winreg.KEY_SET_VALUE)
+            except WindowsError, ex:
+                if ex.winerror != 2: # ERROR_FILE_NOT_FOUND
+                    raise
+                _winreg.CreateKey(root, keyName)
+                key = _winreg.OpenKey(_winreg.HKEY_CURRENT_USER, keyName,
+                                      0, _winreg.KEY_SET_VALUE)
+            _winreg.SetValueEx(key, valueName, 0, _winreg.REG_SZ, value)
         except EnvironmentError, ex:
             self.lastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_UNEXPECTED, str(ex))
 
-    def _getHKLMRegistryStringValue(self, keyName, valueName):
-        """Get the given string value from the registry or the empty
-        string iff it does not exist.
+    def _getRegistryStringValue(self, keyName, valueName, root="HKCU"):
+        """Get the given string value from the registry or None iff it does not
+        exist.
         """
-        import wininteg, _winreg
+        import _winreg
+        root = ({ "HKCU": _winreg.HKEY_CURRENT_USER,
+                  "HKLM": _winreg.HKEY_LOCAL_MACHINE,
+                  "HKCR": _winreg.HKEY_CLASSES_ROOT,
+            }).get(root, root)
         try:
-            value, valueType = wininteg.getHKLMRegistryValue(keyName,
-                                                             valueName)
-        except EnvironmentError, ex:
-            return ""
+            key = _winreg.OpenKey(root, keyName)
+            value, valueType = _winreg.QueryValueEx(key, valueName)
+            if valueType != _winreg.REG_SZ:
+                return None
+            return value.strip('\x00') # see bug 33333
+        except WindowsError:
+            return None
 
-        if valueType != _winreg.REG_SZ:
-            return ""
-        else:
-            return value
+    def _deleteKeyIfEmpty(self, root, keyName):
+        import _winreg
+        while keyName:
+            with _winreg.OpenKey(root, keyName) as key:
+                try:
+                    _winreg.EnumValue(key, 0)
+                except WindowsError:
+                    pass
+                else:
+                    return # not empty
+                try:
+                    _winreg.EnumKey(key, 0)
+                except WindowsError:
+                    pass
+                else:
+                    return # not empty
+            _winreg.DeleteKey(root, keyName)
+            keyName = keyName.rsplit("\\")[0]
+            # try again with the parent
 
     def _normalizeEncodedAssocs(self, encodedAssocs):
         assocs = [a.strip() for a in _gExtSplitter.split(encodedAssocs)
@@ -218,8 +313,15 @@ class KoWindowsIntegrationService:
         return ';'.join(assocs)
 
     def getEditAssociations(self):
-        encodedAssocs = self._getHKLMRegistryStringValue(
-            "SOFTWARE\\ActiveState\\Komodo", "editAssociations")
+        encodedAssocs = self._getRegistryStringValue(
+            self._appKeyPath, "editAssociations")
+        if encodedAssocs is None:
+            # try the old value in HKLM
+            encodedAssocs = self._getRegistryStringValue(
+                r"Software\ActiveState\Komodo",
+                "editAssociations", root="HKLM")
+        if encodedAssocs is None:
+            encodedAssocs = ""
         encodedAssocs = self._normalizeEncodedAssocs(encodedAssocs)
         return encodedAssocs.lower()
 
@@ -236,12 +338,30 @@ class KoWindowsIntegrationService:
                 self._removeFileAssociation(currAssoc, "Edit")
         for newAssoc in newAssocs:
             self._addFileAssociation(newAssoc, "Edit")
-        self._setHKLMRegistryStringValue("SOFTWARE\\ActiveState\\Komodo",
-                                         "editAssociations", encodedAssocs)
+        self._setRegistryStringValue(self._appKeyPath, "editAssociations",
+                                     encodedAssocs)
+        # remove the obsolete HKLM value if it exists
+        try:
+            import _winreg
+            with _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE,
+                                 r"Software\ActiveState\Komodo", 0,
+                                 _winreg.KEY_ALL_ACCESS) as key:
+                _winreg.DeleteValue(key, "editAssociations")
+            self._deleteKeyIfEmpty(_winreg.HKEY_LOCAL_MACHINE,
+                                   r"Software\ActiveState\Komodo")
+        except WindowsError:
+            pass # not elevated
 
     def getEditWithAssociations(self):
-        encodedAssocs = self._getHKLMRegistryStringValue(
-            "SOFTWARE\\ActiveState\\Komodo", "editWithAssociations")
+        encodedAssocs = self._getRegistryStringValue(
+            self._appKeyPath, "editWithAssociations")
+        if encodedAssocs is None:
+            # try the old value in HKLM
+            encodedAssocs = self._getRegistryStringValue(
+                r"Software\ActiveState\Komodo",
+                "editWithAssociations", root="HKLM")
+        if encodedAssocs is None:
+            encodedAssocs = ""
         encodedAssocs = self._normalizeEncodedAssocs(encodedAssocs)
         return encodedAssocs.lower()
 
@@ -255,12 +375,26 @@ class KoWindowsIntegrationService:
             if a.strip()]
         for currAssoc in currAssocs:
             if currAssoc not in newAssocs:
-                self._removeFileAssociation(currAssoc, "Edit with Komodo")
+                self._removeFileAssociation(currAssoc,
+                                            "Edit with %s" % (self._appName))
+            else:
+                self._migrateEditWith(currAssoc)
         for newAssoc in newAssocs:
-            self._addFileAssociation(newAssoc, "Edit with Komodo")
-        self._setHKLMRegistryStringValue("SOFTWARE\\ActiveState\\Komodo",
-                                         "editWithAssociations",
-                                         encodedAssocs)
+            self._addFileAssociation(newAssoc, "Edit with %s" % (self._appName))
+        self._setRegistryStringValue(self._appKeyPath,
+                                     "editWithAssociations",
+                                     encodedAssocs)
+        # remove the obsolete HKLM value if it exists
+        try:
+            import _winreg
+            with _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE,
+                                 r"Software\ActiveState\Komodo", 0,
+                                 _winreg.KEY_ALL_ACCESS) as key:
+                _winreg.DeleteValue(key, "editWithAssociations")
+            self._deleteKeyIfEmpty(_winreg.HKEY_LOCAL_MACHINE,
+                                   r"Software\ActiveState\Komodo")
+        except WindowsError:
+            pass # not elevated
 
     def checkAssociations(self):
         messages = []
@@ -271,7 +405,7 @@ class KoWindowsIntegrationService:
                 messages.append(msg)
         editWithAssocs = [a for a in self.getEditWithAssociations().split(';') if a]
         for assoc in editWithAssocs:
-            msg = self._checkFileAssociation(assoc, "Edit with Komodo")
+            msg = self._checkFileAssociation(assoc, "Edit with %s" % (self._appName))
             if msg is not None:
                 messages.append(msg)
         if not messages:
