@@ -6512,9 +6512,11 @@
               <File Id="file745" LongName="Dark_Default.ksf" Name="DARK_D_0.KSF" Vital="yes" src="feature-core\INSTALLDIR\lib\support\schemes\Dark_Default.ksf" />
               <File Id="file746" LongName="Dark_Luxury.ksf" Name="DARK_L_0.KSF" Vital="yes" src="feature-core\INSTALLDIR\lib\support\schemes\Dark_Luxury.ksf" />
               <File Id="file747" LongName="Dark_Oblivion.ksf" Name="DARK_O_0.KSF" Vital="yes" src="feature-core\INSTALLDIR\lib\support\schemes\Dark_Oblivion.ksf" />
+              <File Id="file5437" LongName="Dark_Solarized.ksf" Name="DARK_S_1.KSF" Vital="yes" src="feature-core\INSTALLDIR\lib\support\schemes\Dark_Solarized.ksf"/>
               <File Id="file748" LongName="Dark_Soothing.ksf" Name="DARK_S_0.KSF" Vital="yes" src="feature-core\INSTALLDIR\lib\support\schemes\Dark_Soothing.ksf" />
               <File Id="file749" LongName="Dark_Wombatsosia.ksf" Name="DARK_W_0.KSF" Vital="yes" src="feature-core\INSTALLDIR\lib\support\schemes\Dark_Wombatsosia.ksf" />
               <File Id="file750" LongName="LowContrast_Zenburn.ksf" Name="LOWCON_0.KSF" Vital="yes" src="feature-core\INSTALLDIR\lib\support\schemes\LowContrast_Zenburn.ksf" />
+              <File Id="file5438" LongName="Solarized.ksf" Name="SOLARI_0.KSF" Vital="yes" src="feature-core\INSTALLDIR\lib\support\schemes\Solarized.ksf"/>
             </Component>
           </Directory> <!-- lib\support\schemes -->
           <Directory Id="directory226" Name="TCL_0" LongName="tcl">
