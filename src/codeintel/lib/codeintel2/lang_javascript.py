@@ -2013,19 +2013,6 @@ class JavaScriptCiler:
         log.debug("NO scope found for: %r", namelist)
         return None
 
-    def _lookupVariableTypeFromScope(self, typeNames):
-        """See if we can determine what type this is"""
-        scope = self._locateScopeForName(typeNames[:-1])
-        if scope:
-            scope = scope.variables[typeNames[-2]]
-            while isinstance(scope, JSVariable) and scope.type not in ("int", "string", "object"):
-                scopeType = scope.type
-                #print "scope:%r, scope.type:%r" % (scope.name, scopeType)
-                scope = self._locateScopeForName(scopeType, attrlist=("variables", "classes"))
-            if hasattr(scope, "type"):
-                return scope.type
-        return []
-
     ##
     # Create a JSFunction and add it to the current scope
     # @param namelist {list} list of names for the function
