@@ -220,15 +220,6 @@ for mod, path in gen_modules():
     module_names.append(mod)
     module_paths[mod] = path
 
-if sys.version_info >= (2, 4):
-    import operator
-    module_names.sort(key=operator.methodcaller('lower')) # canonicalize the sort order
-else:
-    # Necessary for earlier versions of python, before 2.4.
-    def module_name_cmp(a, b):
-        return cmp(a.lower, b.lower)
-    module_names.sort(module_name_cmp)
-
 print("Found %d modules" % len(module_names))
 
 if sys.platform.startswith('win'):
@@ -253,6 +244,16 @@ if sys.version_info >= (2, 4):
 elif sys.version_info >= (2, 3):
     num_expected_modules = 350
 assert len(module_names) > num_expected_modules
+
+# Sort the module names.
+if sys.version_info >= (2, 4):
+    import operator
+    module_names.sort(key=operator.methodcaller('lower')) # canonicalize the sort order
+else:
+    # Necessary for earlier versions of python, before 2.4.
+    def module_name_cmp(a, b):
+        return cmp(a.lower, b.lower)
+    module_names.sort(module_name_cmp)
 
 def merge_cix_elements(elem1, elem2, appendChildrenAsPrivate=False):
     """Merge additional details from elem2 into elem1"""
