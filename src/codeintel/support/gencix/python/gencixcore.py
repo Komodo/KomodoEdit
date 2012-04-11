@@ -156,8 +156,12 @@ def getsdoc(obj):
         if not _gPyModelineOrHashBangPat.match(doclines[index]):
             break
         index += 1
-    #doclines = parseDocSummary(doclines)
-    doc = '\n'.join(doclines[index:index+3])
+    #doclines = parseDocSummary(doclines, limit=12)
+    if len(doclines) > (index + 1):
+        if not doclines[index+1].strip():
+            doclines.pop(index+1)
+    doc = doclines[index] + '\n' + \
+          ' '.join([x.strip() for x in doclines[index+1:index+11]])
 
     if not _gIsPy3:
         # Try encoding the docs, otherwise we'll run into problems when we want to
