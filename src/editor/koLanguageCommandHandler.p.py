@@ -74,7 +74,7 @@ def _tabify_repl_func(text, tabwidth):
     return '\t' * ntabs + ' ' * nspaces + text[raw:]
 
 def _untabify_repl_func(text, tabwidth):
-    return text.expandtabs()
+    return text.expandtabs(tabwidth)
 
 class GenericCommandHandler:
     _com_interfaces_ = [components.interfaces.koIViewController,
