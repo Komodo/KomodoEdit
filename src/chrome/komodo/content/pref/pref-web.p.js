@@ -121,3 +121,10 @@ function configureProxies() {
         null);
 }
 
+function showCertificates() {
+    ko.windowManager.openDialog(
+        "chrome://pippki/content/certManager.xul",
+        "mozilla:certmanager",
+        "",
+        null);
+}

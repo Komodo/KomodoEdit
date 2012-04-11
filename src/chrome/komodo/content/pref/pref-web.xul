@@ -115,6 +115,13 @@
                       accesskey="&connectionSettings.accesskey;"
                       oncommand="configureProxies();"/>
             </hbox>
+            <hbox align="center">
+                <description flex="1" control="showCertificates">&certManager.description;</description>
+                <button id="showCertificates" icon="network"
+                        label="&certManager.label;"
+                        accesskey="&certManager.accesskey;"
+                        oncommand="showCertificates();"/>
+            </hbox>
         </groupbox>
 
     </vbox>

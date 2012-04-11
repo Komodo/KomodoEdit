@@ -829,6 +829,9 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY whenStartingPreviewOnUnsavedFile.label "When starting a preview on an unsaved file:">
 <!ENTITY whichBrowserUse.description "Which browser should Komodo use when opening URLs?">
 <!ENTITY whichMethodUse.description "Which method should be used to preview files in the browser?">
+<!ENTITY certManager.description "Manager certificates that Komodo will accept for HTTPS connections">
+<!ENTITY certManager.label "View Certificates">
+<!ENTITY certManager.accesskey "C">
 
 <!-- pref-winInteg.xul -->
 <!ENTITY makeKomodoTheDefaultEditor.desc "Make Komodo the default editor for these file extensions:">
