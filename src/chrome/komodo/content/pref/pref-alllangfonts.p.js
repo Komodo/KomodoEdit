@@ -293,15 +293,14 @@ function OnPreferencePageCancel(prefset)  {
         var schemeName = gDialog.currentScheme.name;
         // If we've modified an existing scheme, revert it
         if (!gDialog.currentScheme.unsaved && gDialog.currentScheme.isDirty) {
-            gDialog.currentScheme.revert()
+            gDialog.currentScheme.revert();
         }
-        var schemeService = Components.classes['@activestate.com/koScintillaSchemeService;1'].getService()
+        var schemeService = Components.classes['@activestate.com/koScintillaSchemeService;1'].getService();
         schemeService.purgeUnsavedSchemes();
-        return true;
     } catch (e) {
         log.exception(e);
     }
-    return false;
+    return true;
 }
 
 function loadSample()
