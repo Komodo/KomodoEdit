@@ -2119,6 +2119,8 @@ def CleanKomodoBuild(cfg, argv):
         mozbinpath("chrome", "ascore"),
         mozbinpath("chrome", "ascore.jar"),
         mozbinpath("chrome", "ascore.manifest"),
+        mozbinpath("chrome", "komodo-jstest"),
+        mozbinpath("chrome", "komodo-jstest.manifest"),
         mozbinpath("chrome", "komodo"),
         mozbinpath("chrome", "komodo.jar"),
         mozbinpath("chrome", "komodo.manifest"),
