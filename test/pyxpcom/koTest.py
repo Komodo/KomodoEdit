@@ -146,7 +146,8 @@ class KoTestService:
         dirSvc.registerProvider(KoTestDirectoryProvider())
 
         # Register the app info stuff
-        appinfo = components.classes["@mozilla.org/xre/app-info;1"].getService()
+        appinfo = components.classes["@mozilla.org/xre/app-info;1"] \
+                            .getService(components.interfaces.nsIXULRuntime)
         try:
             appinfo.QueryInterface(components.interfaces.nsIXULAppInfo)
         except COMException, e:
@@ -159,7 +160,7 @@ class KoTestService:
             nsISupports = iim.GetInfoForName("nsISupports")
             nsIXULRuntime = iim.GetInfoForName("nsIXULRuntime")
             # skip QueryInterface, AddRef, and Release
-            for i in range(nsISupports.getMethodCount(), nsIXULRuntime.getMethodCount()):
+            for i in range(nsISupports.GetMethodCount(), nsIXULRuntime.GetMethodCount()):
                 name = nsIXULRuntime.GetMethodInfo(i)[1]
                 if isinstance(getattr(appinfo, name), types.MethodType):
                     # just stash the bound method over
@@ -167,9 +168,9 @@ class KoTestService:
                 else:
                     # assume property and make getters and setters
                     def prop(p):
-                        getter = lambda self: getattr(self._appinfo, p)
+                        getter = lambda self: getattr(self._appinfo, p, None)
                         setter = lambda self, v: setattr(self._appinfo, p, v)
-                        setattr(KoTestService, p, getter, setter)
+                        setattr(KoTestService, p, property(getter, setter))
                     prop(name) # force binding
 
             components.registrar.registerFactory(self._reg_clsid_,
