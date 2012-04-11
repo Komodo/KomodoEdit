@@ -245,14 +245,13 @@ ko.hyperlinks.handlers.networkURIHandler =
         xtk.color.RGB(0x60,0x90,0xff));
 ko.hyperlinks.addHandler(ko.hyperlinks.handlers.networkURIHandler);
 
-
 // IP address handler - contributed by Trent Mick (Mar 2011).
 ko.hyperlinks.handlers.ipAddressHandler =
     new ko.hyperlinks.RegexHandler(
       "IP address",
       new RegExp("(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})"),
-      function(match) { ko.browse.openUrlInDefaultBrowser(match[0]); },
-      "http://$1",
+      function(match) { ko.browse.openUrlInDefaultBrowser("http://" + match[0]); },
+      null,
       null,
       Components.interfaces.ISciMoz.INDIC_PLAIN,
       xtk.color.RGB(0x60,0x90,0xff));
@@ -264,8 +263,8 @@ ko.hyperlinks.handlers.activestateBugHandler =
     new ko.hyperlinks.RegexHandler(
         "ActiveState bugs",
         new RegExp("bug\\s+(\\d{4,5})", "i"),
-        function(match) { ko.browse.openUrlInDefaultBrowser(match[0]); },
-        "http://bugs.activestate.com/show_bug.cgi?id=$1",
+        function(match) { ko.browse.openUrlInDefaultBrowser("http://bugs.activestate.com/show_bug.cgi?id=" + match[1]); },
+        null,
         null   /* All language types */,
         Components.interfaces.ISciMoz.INDIC_PLAIN,
         xtk.color.RGB(0x60,0x90,0xff));
