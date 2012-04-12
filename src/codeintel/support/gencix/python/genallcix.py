@@ -332,17 +332,26 @@ def merge_module_scopes(mod, root, tree, use_init_fallback=False, log=False):
         print(", *not found*")
         pass
 
-_py_26_executable = None
-def get_py_26_executable():
-    global _py_26_executable
-    if _py_26_executable is None:
+_py_ci_executable = None
+def get_py_ci_executable():
+    global _py_ci_executable
+    if _py_ci_executable is None:
+        from glob import glob
+        from os.path import abspath, dirname, join
+        ci_dir = dirname(dirname(dirname(dirname(abspath(__file__)))))
+        eggfiles = glob(join(ci_dir, "lib", "ciElementTree-*.egg-info"))
+        if not eggfiles:
+            raise RuntimeError("No ciElementTree .egg-info file found in %r" %
+                               (join(ci_dir, "lib")))
+        if len(eggfiles) > 1:
+            raise RuntimeError("Too many ciElementTree .egg-info files in %r" %
+                               (join(ci_dir, "lib")))
+        wanted_version = re.match(".*-py(\d.\d).egg-info$", eggfiles[0]).group(1)
         import subprocess
         try:
             import which
         except ImportError:
             # Try adding support to the PYTHONPATH.
-            from os.path import abspath, dirname, join
-            ci_dir = dirname(dirname(dirname(dirname(abspath(__file__)))))
             sys.path.append(join(ci_dir, "support"))
             import which
         python_exe = "python"
@@ -365,12 +374,13 @@ def get_py_26_executable():
                 match = version_re.match(stdout)
                 if match:
                     version = match.group(1)
-            if version.startswith("2.6"):
-                _py_26_executable = python_exe
+            if version.startswith(wanted_version):
+                _py_ci_executable = python_exe
                 break
-        if _py_26_executable is None:
-            raise RuntimeError("No Python 2.6 executable found for ciling.")
-    return _py_26_executable
+        if _py_ci_executable is None:
+            raise RuntimeError("No Python %s executable found for ciling." %
+                               (wanted_version, ))
+    return _py_ci_executable
 
 def get_pythoncile_cix_tree_for_path(mod_path):
     try:
@@ -407,7 +417,7 @@ def get_pythoncile_cix_tree_for_path(mod_path):
                              "so removing it", key)
             env = _enc_env
 
-        cmd = [get_py_26_executable(), ci2_path, "scan", mod_path]
+        cmd = [get_py_ci_executable(), ci2_path, "scan", mod_path]
         p = subprocess.Popen(cmd, cwd=ci_dir, env=env, stdout=subprocess.PIPE)
         cix, stderr = p.communicate()
         tree = tree_from_cix(cix)
