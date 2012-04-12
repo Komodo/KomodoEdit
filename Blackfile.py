@@ -64,7 +64,6 @@ import time
 from os.path import join, dirname, exists, isfile, basename, abspath, \
                     isdir, splitext
 from fnmatch import fnmatch
-import pprint
 import glob
 import shutil
 try:
