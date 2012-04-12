@@ -318,18 +318,18 @@ def merge_module_scopes(mod, root, tree, use_init_fallback=False, log=False):
                                tree_file_children[lastname],
                                appendChildrenAsPrivate=True)
         except KeyError:
-            print("%r not found in tree" % (mod, ))
+            print("  %r not found in tree" % (mod, ))
             if not use_init_fallback:
                 raise
-            print(", trying '__init__'")
+            print("    trying '__init__'")
             # Try the "__init__" package name then.
             # http://bugs.activestate.com/show_bug.cgi?id=76056
             merge_cix_elements(root_file_children[mod],
                                tree_file_children["__init__"],
                                appendChildrenAsPrivate=True)
-            print(", found it")
+            print("      found it")
     except KeyError:
-        print(", *not found*")
+        print("      *not found*")
         pass
 
 _py_ci_executable = None
