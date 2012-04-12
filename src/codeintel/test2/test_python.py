@@ -429,9 +429,18 @@ class TrgTestCase(CodeIntelTestCase):
         self.assertTriggerMatches("if __<|>", name=name, symbolstype="global",
                                   text="if")
 
-
-class CplnTestCase(CodeIntelTestCase):
+class CodeintelPythonTestCase(CodeIntelTestCase):
     lang = "Python"
+    _pyversion = None
+    def python_version(self):
+        if self._pyversion is None:
+            langintel = self.mgr.langintel_from_lang(self.lang)
+            ver, _, _, _, _ = langintel.python_info_from_env(self.mgr.env)
+            # ver is a string like "2.7"
+            self._pyversion = float(ver)
+        return self._pyversion
+
+class CplnTestCase(CodeintelPythonTestCase):
     test_dir = join(os.getcwd(), "tmp")
 
     def test_bug66812(self):
