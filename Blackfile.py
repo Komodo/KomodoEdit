@@ -2315,20 +2315,27 @@ def TestKomodoPerf(cfg, argv):
 
 def _addExtensionFiles(cfg, sourceSubdir, targetSubdir, extensions, preserveSubtrees=0,
               targetSubdirPattern=None):
-    if not os.path.exists(sourceSubdir):
+    if not exists(sourceSubdir):
         return
+    extensionsdir = join(cfg.mozBin, 'extensions')
     # our extensions in src are just the name, but get installed to name@ActiveState.com
     dirlist = os.listdir(sourceSubdir)
     modules = {}
-    for dir in dirlist:
-        if os.path.isdir(os.path.join(sourceSubdir, dir)):
-            modules[dir] = "%s@ActiveState.com"%dir
-    for srcDir, targetDir in modules.items():
-        _addFiles(cfg, sourceSubdir='%s/%s' % (sourceSubdir,srcDir),
-                  targetSubdir=os.path.join(cfg.mozBin, 'extensions', targetDir),
+    for name in dirlist:
+        if not isdir(join(sourceSubdir, name)):
+            continue
+        # We don't have consistent naming for add-ons, some use "@ActiveState"
+        # and others use "@activestate".
+        for possible in ("@ActiveState.com", "@activestate.com"):
+            extdir = join(extensionsdir, name + possible)
+            if isdir(extdir):
+                modules[name] = extdir
+                break
+    for name, targetDir in modules.items():
+        _addFiles(cfg, sourceSubdir='%s/%s' % (sourceSubdir, name),
+                  targetSubdir=targetDir,
                   extensions=['xul', 'xml', 'js', 'css', 'dtd', 'gif', 'png', 'html', 'py'],
                   preserveSubtrees=1)
-        
 
 def _addFiles(cfg, sourceSubdir, targetSubdir, extensions, preserveSubtrees=0):
     count = 0
