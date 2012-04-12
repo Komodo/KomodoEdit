@@ -121,7 +121,6 @@ koGlobalPreferenceSets = [
     koGlobalPreferenceDefinition(name="global",
                                  contract_id = "@activestate.com/koPreferenceSet;1",
                                  user_filename="prefs",
-                                 shared_filename="prefs",
                                  defaults_filename="prefs"),
     koGlobalPreferenceDefinition(name="viewStateMRU",
                                  contract_id = "@activestate.com/koPrefCache;1",
@@ -1112,9 +1111,6 @@ class koGlobalPrefService:
             self.pref_map[defn.name] = None, defn
         # And do the "global" one now, so that self.prefs "just works"
         self.prefs = self.getPrefs("global")
-        # insert shared prefs after the default and user prefs are
-        # configured
-        self._setupSharedPrefs("global")
         self._partSvc = components.classes["@activestate.com/koPartService;1"]\
             .getService(components.interfaces.koIPartService)
 
@@ -1182,56 +1178,6 @@ class koGlobalPrefService:
         timeline.markTimer("Komodo global preferences")
         timeline.resetTimer("Komodo global preferences")
 
-    # XXX this is very similar to the koIDirs.commonDataDir function,
-    # however we cannot use that since we're building our shared
-    # prefs in the init of this service, and using koIDirs to get
-    # the information requires this service to already be started.
-    # ie. chicken and egg situation here
-    def _get_commonDataDir(self):
-        method = "default"
-        if self.prefs.hasStringPref("commonDataDirMethod"):
-            method = self.prefs.getStringPref("commonDataDirMethod")
-        if method not in ("default", "custom"):
-            log.error("bogus Common Data Dir determination method, '%s', "
-                      "falling back to default", method)
-        if method == "custom":
-            return self.prefs.getStringPref("customCommonDataDir")
-        else:
-            return self._koDirSvc.factoryCommonDataDir
-
-    def _setupSharedPrefs(self, prefName):
-        # get the shared prefs now.  It is only possible to insert
-        # shared prefs on startup.  If the shared dir is changed, or
-        # the shared prefs are changed, a running komodo instance will
-        # not get those changes until restarted.
-        existing, defn = self.pref_map[prefName]
-        assert existing is not None, "Asked to setup a shared preference but global does not exist"
-        if not defn.shared_filename:
-            return
-        
-        defn.shared_filename = os.path.join(self._get_commonDataDir(), defn.shared_filename)
-        if not os.path.exists(defn.shared_filename + ".xml"):
-            return
-
-        try:
-            sharedPrefs = self.factory.deserializeFile(defn.shared_filename + ".xml")
-        except:
-            # Error loading the user file - presumably they edited it poorly.
-            # Just ignore the error, and continue as if no user preferences existed at all.
-            log.exception("There was an error loading the shared preference file %r", defn.shared_filename + ".xml")
-            # Save the prefs.xml file, in case the user can fix it themselves.
-            old_name = defn.shared_filename + ".xml"
-            new_name = "%s.corrupt_%s" % (old_name, time.strftime("%Y%m%d_%H%M%S"))
-            os.rename(old_name, new_name)
-            sharedPrefs = None
-            
-        # insert shared prefs in between default and user
-        if sharedPrefs is not None:
-            sharedPrefs = UnwrapObject(sharedPrefs)
-            defaultPrefs = self.prefs.parent
-            self.prefs.set_parent(sharedPrefs)
-            sharedPrefs.set_parent(defaultPrefs)
-        
     def getPrefs(self, name):
         if not self.pref_map.has_key(name):
             raise ServerException(nsError.NS_ERROR_UNEXPECTED, "No preference set with name '%s'" % (name,) )
