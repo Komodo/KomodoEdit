@@ -2340,8 +2340,8 @@ def _addExtensionFiles(cfg, sourceSubdir, targetSubdir, extensions, preserveSubt
     for name, targetDir in modules.items():
         _addFiles(cfg, sourceSubdir='%s/%s' % (sourceSubdir, name),
                   targetSubdir=targetDir,
-                  extensions=['xul', 'xml', 'js', 'css', 'dtd', 'gif', 'png', 'html', 'py'],
-                  preserveSubtrees=1)
+                  extensions=extensions,
+                  preserveSubtrees=preserveSubtrees)
 
 def _addFiles(cfg, sourceSubdir, targetSubdir, extensions, preserveSubtrees=0):
     count = 0
