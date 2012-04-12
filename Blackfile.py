@@ -2314,7 +2314,7 @@ def TestKomodoPerf(cfg, argv):
                                  [ 'cd "%s"' % testDir, cmd ])
 
 def _addExtensionFiles(cfg, sourceSubdir, targetSubdir, extensions, preserveSubtrees=0,
-              targetSubdirPattern=None):
+              targetSubdirPattern=None, extNameMappings=None):
     if not exists(sourceSubdir):
         return
     extensionsdir = join(cfg.mozBin, 'extensions')
@@ -2324,13 +2324,19 @@ def _addExtensionFiles(cfg, sourceSubdir, targetSubdir, extensions, preserveSubt
     for name in dirlist:
         if not isdir(join(sourceSubdir, name)):
             continue
+        extname = name
+        if extNameMappings:
+            extname = extNameMappings.get(extname, extname)
         # We don't have consistent naming for add-ons, some use "@ActiveState"
         # and others use "@activestate".
         for possible in ("@ActiveState.com", "@activestate.com"):
-            extdir = join(extensionsdir, name + possible)
+            extdir = join(extensionsdir, extname + possible)
             if isdir(extdir):
                 modules[name] = extdir
                 break
+    #    else:
+    #        print "No extension dir for %r" % (extname, )
+    #pprint(modules)
     for name, targetDir in modules.items():
         _addFiles(cfg, sourceSubdir='%s/%s' % (sourceSubdir, name),
                   targetSubdir=targetDir,
@@ -2387,7 +2393,14 @@ def BuildQuickBuildDB(cfg, argv):
     _addExtensionFiles(cfg, sourceSubdir='src/modules/',
               targetSubdir=os.path.join(cfg.mozBin, 'extensions'),
               extensions=['xul', 'xml', 'js', 'css', 'dtd', 'gif', 'png', 'html', 'py'],
-              preserveSubtrees=1)
+              preserveSubtrees=1,
+              # These extensions use a different directory name.
+              # TODO: We should fix some of these in Komodo 8.
+              extNameMappings={
+                    'rails': 'railstools',
+                    'spellcheck': 'komodospellchecker',
+                    'stackato': 'stackatotools',
+                    })
     _addFiles(cfg, sourceSubdir='src/',
               targetSubdir=os.path.join(cfg.mozBin, 'components'),
               extensions=['py', 'js'])
