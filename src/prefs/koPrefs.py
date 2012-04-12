@@ -1227,6 +1227,7 @@ class koGlobalPrefService:
             
         # insert shared prefs in between default and user
         if sharedPrefs is not None:
+            sharedPrefs = UnwrapObject(sharedPrefs)
             defaultPrefs = self.prefs.parent
             self.prefs.set_parent(sharedPrefs)
             sharedPrefs.set_parent(defaultPrefs)
