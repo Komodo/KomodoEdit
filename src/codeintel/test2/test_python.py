@@ -900,9 +900,24 @@ class CplnTestCase(CodeintelPythonTestCase):
         # This tests a case you can't get from pythoncile'd files:
         # - a class with a docstring
         # - has a ctor with*out* a docstring or a signature
-        self.assertCalltipIs("enumerate(<|>",
-            "enumerate(iterable) -> iterator for index, value of iterable\n"
-            "Return an enumerate object.  iterable must be an other object that supports")
+        if self.python_version >= 2.7:
+            self.assertCalltipIs("enumerate(<|>",
+                "enumerate(iterable[, start]) -> iterator for index, value of iterable\n"
+                "Return an enumerate object.  iterable must be another object "
+                "that supports iteration.  The enumerate object yields pairs "
+                "containing a count (from start, which defaults to zero) and "
+                "a value yielded by the iterable argument. enumerate is useful "
+                "for obtaining an indexed list: (0, seq[0]), (1, seq[1]), "
+                "(2, seq[2]), ...")
+        else:
+            self.assertCalltipIs("enumerate(<|>",
+                "enumerate(iterable) -> iterator for index, value of iterable\n"
+                "Return an enumerate object.  iterable must be another object "
+                "that supports iteration.  The enumerate object yields pairs "
+                "containing a count (from zero) and "
+                "a value yielded by the iterable argument. enumerate is useful "
+                "for obtaining an indexed list: (0, seq[0]), (1, seq[1]), "
+                "(2, seq[2]), ...")
 
 
     def test_wacky_imports(self):
@@ -1310,9 +1325,14 @@ class CplnTestCase(CodeintelPythonTestCase):
             [('function', 'strip'),
              ('function', 'lower'),
              ('function', 'capitalize')])
-        self.assertCalltipIs(markup_text(content, pos=positions[2]),
-            "S.join(sequence) -> string\nReturn a string which is the "
-            "concatenation of the strings in\nthe sequence.")
+        if self.python_version >= 2.7:
+            self.assertCalltipIs(markup_text(content, pos=positions[2]),
+                "S.join(iterable) -> string\nReturn a string which is the "
+                "concatenation of the strings in\nthe iterable.")
+        else:
+            self.assertCalltipIs(markup_text(content, pos=positions[2]),
+                "S.join(sequence) -> string\nReturn a string which is the "
+                "concatenation of the strings in\nthe sequence.")
         self.assertCompletionsInclude(markup_text(content, pos=positions[3]),
             [('function', 'strip'),
              ('function', 'lower'),
