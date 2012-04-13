@@ -183,9 +183,20 @@ def process_class_using_instance(rootElt, obj, name, callables):
     callables[name] = classElt
     classElt.set('attributes', '__hidden__')
 
-    for name, value in inspect.getmembers(obj, inspect.isbuiltin):
-        if visiblename(name):
-            process_routine(classElt, value, name, callables)
+    for key, value in sorted(inspect.getmembers(obj)):
+        if not visiblename(key):
+            continue
+        if inspect.isbuiltin(value):
+            process_routine(classElt, value, key, callables)
+        elif (_gIsPy3 and hasattr(value, 'class')) or (not _gIsPy3 and isinstance(value, types.InstanceType)):
+            klass = value.__class__
+            if klass.__module__ == name:
+                t = klass.__name__
+            else:
+                t = "%s.%s" % (klass.__module__, klass.__name__)
+            varElt = SubElement(classElt, "variable", name=key, citdl=t)
+        elif isdata(value):
+            varElt = SubElement(classElt, "variable", name=key, citdl=type(value).__name__)
     
 def process_class(rootElt, obj, name, callables, __hidden__=False):
     doc = getsdoc(obj) or None
