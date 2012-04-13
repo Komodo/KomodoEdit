@@ -246,6 +246,28 @@ assert len(module_names) > num_expected_modules
 import operator
 module_names.sort(key=operator.methodcaller('lower')) # canonicalize the sort order
 
+def apply_module_overrides(modname, modelem):
+    assert modelem
+    helpername = os.path.join("helpers", modname + '_helper.py')
+    namespace = {}
+    if os.path.exists(helpername):
+        sys.stderr.write("Found helper module: %r\n" % helpername)
+        if major >= 3:
+            exec(compile(open(helpername).read(), os.path.basename(helpername), 'exec'), namespace, namespace)
+        else:
+            execfile(helpername, namespace, namespace)
+
+        childelems = create_names_dict(modelem)
+        function_overrides = namespace.get('function_overrides')
+        if function_overrides is not None:
+            for name in function_overrides:
+                override_elem = childelems[name]
+                overrides = function_overrides[name]
+                for setting, value in overrides.items():
+                    if override_elem.get(setting) != value:
+                        print("  overriding %s.%s %s attribute from %r to %r" % (modname, name, setting, override_elem.get(setting), value))
+                        override_elem.set(setting, value)
+
 def merge_cix_elements(elem1, elem2, appendChildrenAsPrivate=False):
     """Merge additional details from elem2 into elem1"""
     # Add better docs if they exist.
@@ -328,6 +350,11 @@ def merge_module_scopes(mod, root, tree, use_init_fallback=False, log=False):
                                tree_file_children["__init__"],
                                appendChildrenAsPrivate=True)
             print("      found it")
+
+        # Need to re-apply module overrides, as the ciling gets priority from
+        # the above merge, e.g. "string.split" method.
+        apply_module_overrides(mod, root_file_children[mod])
+
     except KeyError:
         print("      *not found*")
         pass
