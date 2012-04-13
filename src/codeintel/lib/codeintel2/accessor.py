@@ -349,8 +349,6 @@ class SciMozAccessor(Accessor):
     def gen_tokens(self):
         if self.silvercity_lexer:
             #PERF: This is not a great solution but see bug 54217.
-            import time
-            t = time.time()
             acc = SilverCityAccessor(self.silvercity_lexer, self.text)
             for token in acc.gen_tokens():
                 yield token
