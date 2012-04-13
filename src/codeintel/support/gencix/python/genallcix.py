@@ -430,6 +430,9 @@ def get_pythoncile_cix_tree_for_path(mod_path):
                    join(ko_dir, "contrib", "smallstuff"),
                   ]
         env['PYTHONPATH'] = os.pathsep.join(pypaths)
+        if sys.platform == "darwin":
+            # Komodo only has 32-bit versions on the Mac.
+            env['VERSIONER_PYTHON_PREFER_32_BIT'] = 'yes'
 
         if major < 3:
             # Convert env to strings (not unicode).
