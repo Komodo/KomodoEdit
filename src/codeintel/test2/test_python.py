@@ -1809,6 +1809,56 @@ class CplnTestCase(CodeintelPythonTestCase):
           ('function', 'update'),
           ('function', 'values'),])
 
+    @tag("bug82014")
+    def test_re_module(self):
+        # Test the regular expressions module.
+        content, positions = unmark_text(dedent("""\
+            import re
+            re.compile().<1>x
+            re.escape().<2>x
+            re.findall().<3>x
+            re.match().<4>x
+            re.search().<5>x
+            re.split().<6>x
+            re.sub().<7>x
+            re.subn().<8>x
+            re.template().<9>x
+            re.compile().findall().<10>x
+            re.compile().match().<11>x
+            re.compile().search().<12>x
+            re.compile().split().<13>x
+            re.compile().sub().<14>x
+            re.compile().subn().<15>x
+        """))
+        for pos in (1, 9):
+            self.assertCompletionsInclude(markup_text(content, pos=positions[pos]),
+                    # re pattern object completions
+                    [('function', 'findall'),
+                     ('variable', 'flags'),
+                     ('function', 'match'),
+                     ('function', 'search')])
+        for pos in (2, 7, 8, 14, 15):
+            self.assertCompletionsInclude(markup_text(content, pos=positions[pos]),
+                    # string completions
+                    [('function', 'strip'),
+                     ('function', 'lower'),
+                     ('function', 'capitalize')])
+        for pos in (3, 6, 10, 13):
+            self.assertCompletionsInclude(markup_text(content, pos=positions[pos]),
+                    # list completions
+                    [('function', 'append'),
+                     ('function', 'index'),
+                     ('function', 'remove')])
+        for pos in (4, 5, 11, 12):
+            self.assertCompletionsInclude(markup_text(content, pos=positions[pos]),
+                    # re match object completions
+                    [('function', 'end'),
+                     ('function', 'group'),
+                     ('function', 'groups'),
+                     ('variable', 'lastgroup'),
+                     ('variable', 'pos'),
+                     ('function', 'start')])
+
 class OldCodeIntelTestCase(CodeIntelTestCase):
     """Test case from the old codeintel v1 test/test_citdl/... dir."""
     lang = "Python"
