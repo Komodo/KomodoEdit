@@ -247,7 +247,7 @@ import operator
 module_names.sort(key=operator.methodcaller('lower')) # canonicalize the sort order
 
 def apply_module_overrides(modname, modelem):
-    assert modelem
+    assert modelem is not None
     helpername = os.path.join("helpers", modname + '_helper.py')
     namespace = {}
     if os.path.exists(helpername):
