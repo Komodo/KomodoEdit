@@ -194,6 +194,7 @@ KoScintillaAutoCompleteController.prototype = {
 
     // at this point we have all the items, so we know if we need a scrollbar.
     this._scrollbar.collapsed = !(this.itemCount > this._visibleCount);
+    this._scrollbar.setAttribute("pageincrement", this._visibleCount);
 
     this._popupHasHeight = false;
     this._itemsConstructed = true;
