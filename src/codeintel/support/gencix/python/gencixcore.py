@@ -391,21 +391,33 @@ def docmodule(modname, root, force=False, usefile=False, dir=None):
             else:
                 print("Don't know about: %r" % expr)
                 
-        function_overrides = namespace.get('function_overrides')
-        if function_overrides is not None:
-            for name in function_overrides:
-                callableElt = callables[name]
-                overrides = function_overrides[name]
-                for setting, value in overrides.items():
-                    print("  overriding %s.%s %s attribute from %r to %r" % (modname, name, setting, callableElt.get(setting), value))
-                    callableElt.set(setting, value)
-
         hidden_classes_exprs = namespace.get('hidden_classes_exprs', [])
         for expr in hidden_classes_exprs:
             playarea = module.__dict__
             var = eval(expr, playarea)
             name = type(var).__name__
             process_class_using_instance(moduleElt, var, name, callables)
+
+        function_overrides = namespace.get('function_overrides')
+        if function_overrides is not None:
+            for name in function_overrides:
+                namesplit = name.split(".")
+                callableElt = callables[namesplit[0]]
+                for subname in namesplit[1:]:
+                    for childElt in callableElt:
+                        if childElt.get("name") == subname:
+                            callableElt = childElt
+                            break
+                    else:
+                        callableElt = None
+                        break
+                if callableElt is None:
+                    print("  couldn't find elem with name: %r" % (name, ))
+                    continue
+                overrides = function_overrides[name]
+                for setting, value in overrides.items():
+                    print("  overriding %s.%s %s attribute from %r to %r" % (modname, name, setting, callableElt.get(setting), value))
+                    callableElt.set(setting, value)
 
 def writeCixFileForElement(filename, root):
     stream = open(filename, 'wb')
