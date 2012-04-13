@@ -1236,21 +1236,13 @@ this.highlightClearAll = function Find_HighlightClearAll(scimoz) {
  * @param {int} length - The number of affected bytes at this position.
  */
 this.highlightClearPosition = function Find_HighlightClearPosition(scimoz, position, length) {
-    var DECORATOR_FIND_HIGHLIGHT = Components.interfaces.koILintResult.DECORATOR_FIND_HIGHLIGHT;
-    var hl_start, hl_end;
-    [hl_start, hl_end] = ko.tabstops.findByIndicator(scimoz, DECORATOR_FIND_HIGHLIGHT, position);
-    if (hl_start >= 0) {
-        // There are indicators in the document.
-        var end_position = position + length;
-        //dump("ko.find.highlightClearPosition:: position: " + position + ", end_position: " + end_position + "\n");
-        //dump("ko.find.highlightClearPosition:: hl_start: " + hl_start + ", hl_end: " + hl_end + "\n");
-        if (hl_end < position)
-            return;
-        if (hl_start >= end_position)
-            return;
-        scimoz.indicatorCurrent = DECORATOR_FIND_HIGHLIGHT;
-        scimoz.indicatorClearRange(hl_start, hl_end - hl_start);
-    }
+    var indic = Components.interfaces.koILintResult.DECORATOR_FIND_HIGHLIGHT;
+    var range_start = scimoz.indicatorValueAt(indic, position) ?
+                      scimoz.indicatorStart(indic, position) : position;
+    var range_end = scimoz.indicatorValueAt(indic, position + length - 1) ?
+                    scimoz.indicatorEnd(indic, position + length - 1) : position + length;
+    scimoz.indicatorCurrent = indic;
+    scimoz.indicatorClearRange(range_start, range_end - range_start);
 }
 
 /**

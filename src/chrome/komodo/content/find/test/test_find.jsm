@@ -653,6 +653,13 @@ TestKoFind.prototype.test_highlightClearPosition = function test_highlightClearP
     ko.find.highlightClearPosition(scimoz, 6, 2);
     expected = [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1];
     this.checkIndicators(scimoz, INDIC, expected);
+    this.options.patternType = Ci.koIFindOptions.FOT_REGEX_PYTHON;
+    ko.find.highlightAllMatches(scimoz, this.context, "he|lo", 1000);
+    expected = [1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1];
+    this.checkIndicators(scimoz, INDIC, expected);
+    ko.find.highlightClearPosition(scimoz, 4, 6);
+    expected = [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1];
+    this.checkIndicators(scimoz, INDIC, expected);
 };
 
 TestKoFind.prototype.test_markAllInMacro = function test_markAllInMacro() {
