@@ -1691,7 +1691,7 @@ class KoLanguageBase:
                         return None
                 # we have a comment end!
                 # find the matching comment start
-                text = scimoz.getStyledText(0, p)[0::2]
+                text = scimoz.getTextRange(0, p)
                 startOfComment = text.rfind(blockCommentStart)
                 if startOfComment == -1:
                     indentlog.info("could not find the beginning of the block comment")
