@@ -243,8 +243,14 @@ if sys.platform.startswith("linux"):
 assert len(module_names) > num_expected_modules
 
 # Sort the module names.
-import operator
-module_names.sort(key=operator.methodcaller('lower')) # canonicalize the sort order
+if sys.version_info >= (2, 6):
+    import operator
+    module_names.sort(key=operator.methodcaller('lower')) # canonicalize the sort order
+else:
+    # Python 2.5 doesn't have "operator.methodcaller"
+    def sort_cmp(a, b):
+        return cmp(a.lower(), b.lower())
+    module_names.sort(cmp=sort_cmp)
 
 def apply_module_overrides(modname, modelem):
     assert modelem is not None
