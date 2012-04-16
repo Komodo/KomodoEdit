@@ -1703,7 +1703,6 @@ class GenericCommandHandler:
             else:
                 sm.replaceSel(' ' * (targetCol - startCol))
         sm.scrollCaret() # Ensure caret's visible: bug 91572
-        sm.chooseCaretX() # Keep up/down arrow on new currentPos: bug 92376
 
     def _insertDedent(self):
         sm = self._view.scimoz
