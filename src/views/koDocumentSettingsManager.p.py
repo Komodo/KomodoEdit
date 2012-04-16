@@ -273,7 +273,7 @@ class koDocumentSettingsManager:
         # Do a quick check to see if any lines are folded - as most of the time
         # there will be zero folded lines.
         # FUTURE: This can later use "if not scimoz.allLinesVisible:".
-        if effectivePrefs.getBooleanPref("editRestoreFoldPoints") and \
+        if prefs.getBooleanPref("editRestoreFoldPoints") and \
            scimoz.visibleFromDocLine(lineCount) != lineCount:
             # TODO: Perf: This could be optimized using a bisect approach, using
             #       visibleFromDocLine to find where the folded lines are. Even
@@ -284,7 +284,7 @@ class koDocumentSettingsManager:
                     foldParent = scimoz.getFoldParent(i)
                     if (not scimoz.getFoldExpanded(foldParent) and 
                         foldParent not in foldedLines):
-                        haveThem[foldedLines] = 1
+                        foldedLines[foldParent] = 1
         if foldedLines:
             foldPoints = components.classes[
                 '@activestate.com/koOrderedPreference;1'].createInstance()
