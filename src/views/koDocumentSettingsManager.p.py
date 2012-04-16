@@ -305,12 +305,10 @@ class koDocumentSettingsManager:
         bookmarks.id = "bookmarks"
         prefs.setPref("bookmarks", bookmarks)
         marker_mask = 1 << MARKNUM_BOOKMARK
-        lineNo = -1
-        while 1:
-            lineNo = scimoz.markerNext(lineNo+1, marker_mask)
-            if lineNo < 0:
-                break
+        lineNo = scimoz.markerNext(0, marker_mask)
+        while lineNo >= 0:
             bookmarks.appendLongPref(lineNo)
+            lineNo = scimoz.markerNext(lineNo+1, marker_mask)
 
         #XXX Breakpoint restoring is now done elsewhere. Note that taking this
         #    out of the view prefs here breaks the transfer of breakpoints
