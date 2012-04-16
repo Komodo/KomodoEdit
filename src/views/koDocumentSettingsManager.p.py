@@ -271,16 +271,24 @@ class koDocumentSettingsManager:
             '@activestate.com/koOrderedPreference;1'].createInstance()
         foldPoints.id = "foldPoints"
         foldPoints.reset();
-        lineLength = scimoz.lineCount;
+        lineCount = scimoz.lineCount;
         i = 0
         haveThem = {}
-        for i in range(lineLength):
-            if not scimoz.getLineVisible(i):
-                foldParent = scimoz.getFoldParent(i)
-                if (not scimoz.getFoldExpanded(foldParent) and 
-                    foldParent not in haveThem):
-                    foldPoints.appendLongPref(foldParent)
-                    haveThem[foldParent] = 1
+        # Do a quick check to see if any lines are folded - as most of the time
+        # there will be zero folded lines.
+        # FUTURE: This can later use "if not scimoz.allLinesVisible:".
+        if scimoz.visibleFromDocLine(lineCount) != lineCount:
+            # TODO: Perf: This could be optimized using a bisect approach, using
+            #       visibleFromDocLine to find where the folded lines are. Even
+            #       better to create a SciMoz specific method to return the
+            #       folded lines (as a string, like "3,11,33,39,101,105").
+            for i in range(lineCount):
+                if not scimoz.getLineVisible(i):
+                    foldParent = scimoz.getFoldParent(i)
+                    if (not scimoz.getFoldExpanded(foldParent) and 
+                        foldParent not in haveThem):
+                        foldPoints.appendLongPref(foldParent)
+                        haveThem[foldParent] = 1
         if haveThem:
             prefs.setPref("foldPoints", foldPoints)
         else:
