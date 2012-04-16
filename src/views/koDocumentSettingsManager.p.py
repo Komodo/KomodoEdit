@@ -267,17 +267,14 @@ class koDocumentSettingsManager:
         if prefs.hasPrefHere('tabWidth'):
             prefs.setLongPref('tabWidth', scimoz.tabWidth)
 
-        foldPoints = components.classes[
-            '@activestate.com/koOrderedPreference;1'].createInstance()
-        foldPoints.id = "foldPoints"
-        foldPoints.reset();
         lineCount = scimoz.lineCount;
         i = 0
-        haveThem = {}
+        foldedLines = {}
         # Do a quick check to see if any lines are folded - as most of the time
         # there will be zero folded lines.
         # FUTURE: This can later use "if not scimoz.allLinesVisible:".
-        if scimoz.visibleFromDocLine(lineCount) != lineCount:
+        if effectivePrefs.getBooleanPref("editRestoreFoldPoints") and \
+           scimoz.visibleFromDocLine(lineCount) != lineCount:
             # TODO: Perf: This could be optimized using a bisect approach, using
             #       visibleFromDocLine to find where the folded lines are. Even
             #       better to create a SciMoz specific method to return the
@@ -286,10 +283,15 @@ class koDocumentSettingsManager:
                 if not scimoz.getLineVisible(i):
                     foldParent = scimoz.getFoldParent(i)
                     if (not scimoz.getFoldExpanded(foldParent) and 
-                        foldParent not in haveThem):
-                        foldPoints.appendLongPref(foldParent)
-                        haveThem[foldParent] = 1
-        if haveThem:
+                        foldParent not in foldedLines):
+                        haveThem[foldedLines] = 1
+        if foldedLines:
+            foldPoints = components.classes[
+                '@activestate.com/koOrderedPreference;1'].createInstance()
+            foldPoints.id = "foldPoints"
+            foldPoints.reset()
+            for lineNo in foldedLines:
+                foldPoints.appendLongPref(lineNo)
             prefs.setPref("foldPoints", foldPoints)
         else:
             # we don't want to store foldpoints if there are none
