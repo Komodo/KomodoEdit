@@ -1472,15 +1472,12 @@ class KoLanguageBase:
                 return shouldIndent
             indentlog.info("did not detect indentation")
 
-            while 1:
-                jumped = self._skipOverParentheticalStatement(scimoz, pos, style_info)
-                log.debug("pos = %d, jumped = %d" % (pos, jumped))
-                if pos == jumped:
-                    log.debug('breaking out of the jumping code')
-                    break # nothing to go back to.
+            jumped = self._skipOverParentheticalStatement(scimoz, pos, style_info)
+            log.debug("pos = %d, jumped = %d" % (pos, jumped))
+            if pos != jumped:
                 # recurse from the beginning of the statement
                 return self._analyzeIndentNeededAtPos(scimoz, jumped, continueComments, style_info)
-    
+
             # We're not indenting.  We may be doing a line-up,
             # having just finished a line-up
             # closing a comment, or doing a comment prefix
