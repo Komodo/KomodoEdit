@@ -64,7 +64,7 @@ class LexRHTMLTestCase(CodeIntelTestCase):
         self.assertLex(dedent("""
             <html><head><title>foo</title><head> 
             <body>
-            <SCE_UDL_SSL_COMMENTBLOCK><%# foo %></SCE_UDL_SSL_COMMENTBLOCK>
+            <SCE_UDL_TPL_OPERATOR><%</SCE_UDL_TPL_OPERATOR><SCE_UDL_SSL_COMMENTBLOCK># foo </SCE_UDL_SSL_COMMENTBLOCK><SCE_UDL_TPL_OPERATOR>%></SCE_UDL_TPL_OPERATOR>
             <body></html>
         """))
 
