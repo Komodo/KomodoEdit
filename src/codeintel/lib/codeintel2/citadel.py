@@ -510,20 +510,6 @@ class ImportHandler:
         path += self.corePath
         return path
 
-    #DEPRECATED: Though still used in one place by `lang_ruby.py`.
-    def findSubImportsOnDisk(self, module, cwd):
-        """Return a list of importable submodules to the given module.
-        
-        The returned list is a list of strings that would be appropriate for
-        direct use in the language's specific import statement. I.e.: for
-        Perl:
-            ["ConnCache", "Protocol", "UserAgent", ...]
-        not:
-            ["ConnCache.pm", "Protocol.pm", "UserAgent.pm", ...]
-        For PHP, however, including the .php extension might be appropriate.
-        """
-        raise NotImplementedError("findSubImportsOnDisk: pure virtual method call")
-
     #---- new citree-based eval stuff
 
     # The string that separates dir levels in import names. For example,

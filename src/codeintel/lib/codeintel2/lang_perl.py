@@ -80,7 +80,6 @@ line_end_re = re.compile("(?:\r\n|\r)")
 lang = "Perl"
 log = logging.getLogger("codeintel.perl")
 #log.setLevel(logging.DEBUG)
-CACHING = True #XXX obsolete, kill it
 
 
 
@@ -1244,22 +1243,6 @@ class PerlBuffer(CitadelBuffer):
 class PerlImportHandler(ImportHandler):
     PATH_ENV_VAR = "PERL5LIB"
     sep = "::"
-
-    # Try to speed up self._getPath() a little bit. This is called
-    # *very* frequently for Perl.
-    def __init__(self, mgr):
-        ImportHandler.__init__(self, mgr)
-        self._pathCache = None
-        self._findModuleOnDiskCache = {}
-
-    if CACHING:
-        def _getPath(self, cwd=None):
-            if self._pathCache is None:
-                self._pathCache = ImportHandler._getPath(self) # intentionally exclude cwd
-            if cwd:
-                return [cwd] + self._pathCache
-            else:
-                return self._pathCache
 
     def _shellOutForPath(self, compiler):
         import process
