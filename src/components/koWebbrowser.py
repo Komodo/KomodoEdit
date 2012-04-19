@@ -175,7 +175,11 @@ class KoWebbrowser(object):
         Mainly this is to escape spaces.
         """
         import urllib
-        return urllib.quote(url, safe="/:\\#?&= ")
+        try:
+            return urllib.quote(url, safe="/:\\#?&= ")
+        except KeyError:
+            # Unicode paths will fail, fallback to the existing url - bug 93767.
+            return url
         
     def open_new(self, url):
         """Open the given URL in the user's default browser.
