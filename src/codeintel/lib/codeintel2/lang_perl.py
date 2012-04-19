@@ -1323,26 +1323,6 @@ class PerlImportHandler(ImportHandler):
                 #    extension: need to grow filetype-from-content smarts.
                 files.append(path)
 
-    def genScannableFiles(self, path=None, skipRareImports=False,
-                          importableOnly=False):
-        if path is None:
-            path = self._getPath()
-        searchedDirs = {}
-        for dirname in path:
-            if dirname == os.curdir:
-                # Do NOT traverse the common '.' element of @INC. It is
-                # environment-dependent so not useful for the typical call
-                # of this method.
-                continue
-            skipTheseDirs = [join(dirname, "auto")]
-            skipTheseDirs = [normcase(d) for d in skipTheseDirs]
-            files = []
-            os.path.walk(dirname, self._findScannableFiles,
-                         (files, searchedDirs, skipTheseDirs,
-                          skipRareImports))
-            for file in files:
-                yield file
-
     def find_importables_in_dir(self, dir):
         """See citadel.py::ImportHandler.find_importables_in_dir() for
         details.

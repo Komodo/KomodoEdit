@@ -1493,24 +1493,6 @@ class RubyImportHandler(ImportHandler):
                 #    extension: need to grow filetype-from-content smarts.
                 files.append(path)
 
-    def genScannableFiles(self, path=None, skipRareImports=False,
-                          importableOnly=False):
-        if path is None:
-            path = self._getPath()
-        searchedDirs = {}
-        for dirname in path:
-            if dirname in ("", "."):
-                # Do NOT traverse the common '.' element of '$:'. It is
-                # environment-dependent so not useful for the typical call
-                # of this method.
-                continue
-            files = []
-            os.path.walk(dirname, self._findScannableFiles,
-                         (files, searchedDirs, skipRareImports,
-                          importableOnly))
-            for file in files:
-                yield file
-
     def find_importables_in_dir(self, dir):
         """See citadel.py::ImportHandler.find_importables_in_dir() for
         details.

@@ -524,26 +524,6 @@ class ImportHandler:
         """
         raise NotImplementedError("findSubImportsOnDisk: pure virtual method call")
 
-    #DEPRECATED: `indexer.py` is still using this
-    def genScannableFiles(self, path=None, skipRareImports=False,
-                          importableOnly=False):
-        """Generate scannable files on the import path.
-        
-            "path" (optional) is an import path to load. If not specified
-                the default import path is used.
-            "skipRareImports" (optional, default false) is a boolean
-                indicating if files unlikely to be imported/searched-for/used
-                should be skipped. This can be specified to speed up, for
-                example, scanning *all* files during a batch update of a
-                language installation.
-            "importableOnly" (optional, default false) is a boolean
-                indicating if only those files that are importable from
-                the given path should be included. For example a Python
-                file in a subdirectory cannot be imported if that dir
-                does not have a package-defining "__init__.py" file.
-        """
-        raise NotImplementedError("genScannableFiles: pure virtual method call")
-
     #---- new citree-based eval stuff
 
     # The string that separates dir levels in import names. For example,

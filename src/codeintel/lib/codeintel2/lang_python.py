@@ -1059,20 +1059,6 @@ class PythonImportHandler(ImportHandler):
                 #    extension: need to grow filetype-from-content smarts.
                 files.append(path)
 
-    def genScannableFiles(self, path=None, skipRareImports=False,
-                          importableOnly=False):
-        if path is None:
-            path = self._getPath()
-        searchedDirs = {}
-        for dirname in path:
-            #XXX Use os.walk().
-            files = []
-            os.path.walk(dirname, self._findScannableFiles,
-                         (files, searchedDirs, skipRareImports,
-                          importableOnly))
-            for file in files:
-                yield file
-
     def _gen_suffixes(self):
         """Generate a sequence of scannable file suffixes in the
            preferred order of scanning. 
