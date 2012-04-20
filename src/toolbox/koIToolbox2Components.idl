@@ -78,7 +78,7 @@ interface koIToolbox2Service: nsISupports {
     // Get a toolbox that an extension provides, if there is one
     // The extensionName argument is the [em:name] value from
     // the extension's install.rdf file.
-    koITool getExtensionToolbox(in wstring extensionName); // The em:name from install.rdf
+    koITool getExtensionToolbox(in wstring extensionName); // The em:id from install.rdf
     long getProjectToolboxId(in wstring uri);
     long getStandardToolboxID();
     void importDirectory(in wstring parentPath,
