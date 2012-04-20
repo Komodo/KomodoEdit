@@ -143,6 +143,10 @@ def _handleCommandment(commandment):
         for f in filenames:
             # "open_file" notification allows position/selection optional
             # argument after the filename (tab-separated).
+            try:
+                f = f.decode("utf-8")
+            except UnicodeDecodeError:
+                pass # eh, assume Latin1
             if selection:
                 f += "\t" + selection
             try:

@@ -95,6 +95,7 @@
     #include <process.h>
     #include <direct.h>
     #include <shlwapi.h>
+    #include "nsWindowsWMain.cpp"
 #else /* unix */
     #include <pwd.h>
     #include <unistd.h>
@@ -153,7 +154,9 @@
 
 //---- globals
 
+#ifndef DEBUG
 int DEBUG = 0;
+#endif /* DEBUG */
 
 char* _gProgramName = NULL;
 char* _gProgramPath = NULL;
@@ -238,6 +241,23 @@ void _LogInfo KO_VARARGS_DEF(const char *, format)
 
 //---- utilities functions
 
+#ifdef PLAT_WIN32
+/**
+ * Helper function to convert a UTF-8 string to UTF-16
+ * @param str The UTF-8 string
+ * @returns The equivalent UTF-16 string; it should be free()ed.
+ */
+static wchar_t* _ToUTF16(const char* str)
+{
+    wchar_t *buffer;
+    int size;
+    size = MultiByteToWideChar(CP_UTF8, 0, str, -1, NULL, 0);
+    buffer = reinterpret_cast<wchar_t*>(malloc(size * sizeof(wchar_t)));
+    (void)MultiByteToWideChar(CP_UTF8, 0, str, -1, buffer, size);
+    return buffer;
+}
+#endif /* PLAT_WIN32 */
+
 
 /* _IsLink: Is the given filename a symbolic link */
 static int _IsLink(char *filename)
@@ -260,7 +280,11 @@ static int _IsLink(char *filename)
 static int _IsFile(const char *filename)
 {
 #ifdef PLAT_WIN32
-    return (int)PathFileExists(filename);
+    int result;
+    wchar_t *filenamew = _ToUTF16(filename);
+    result = PathFileExistsW(filenamew);
+    free(filenamew);
+    return result;
 #else /* i.e. linux */
     struct stat buf;
 
@@ -279,7 +303,7 @@ static int _IsFile(const char *filename)
 static int _IsExecutableFile(const char *filename)
 {
 #ifdef PLAT_WIN32
-    return (int)PathFileExists(filename);
+    return _IsFile(filename);
 #else /* i.e. linux */
     struct stat buf;
 
@@ -294,7 +318,7 @@ static int _IsExecutableFile(const char *filename)
 }
 
 
-/* _GetProgramPath: Determine the absolute path to the given program name.
+/* _GetProgramPath: Determine the absolute path to the currently executing process
  *
  *    Takes into account the current working directory, etc.
  *    The implementations require the global '_gProgramName' to be set.
@@ -303,23 +327,26 @@ static int _IsExecutableFile(const char *filename)
 static char* _GetProgramPath(void)
 {
     //XXX this is ugly but I didn't want to use malloc, no reason
+    static wchar_t progPathW[MAXPATHLEN+1];
     static char progPath[MAXPATHLEN+1];
-    char *p;
+    wchar_t *p;
 
     // get absolute path to module
-    if (!GetModuleFileName(NULL, progPath, MAXPATHLEN)) {
+    if (!GetModuleFileNameW(NULL, progPathW, MAXPATHLEN)) {
         _LogError("could not get absolute program name from "\
                   "GetModuleFileName\n");
         exit(1);
     }
     // just need dirname
-    for (p = progPath+strlen(progPath);
+    for (p = progPathW+wcslen(progPathW);
          *p != SEP && *p != ALTSEP;
          --p)
         {
-            *p = '\0';
+            /* nothing */
         }
-    *p = '\0';  // remove the trailing SEP as well
+    *p = L'\0';  // remove the trailing SEP as well
+    WideCharToMultiByte(CP_UTF8, 0, progPathW, -1, progPath,
+                        sizeof(progPath) / sizeof(progPath[0]), NULL, NULL);
 
     return progPath;
 }
@@ -543,9 +570,10 @@ int _SetupAndLaunchKomodo(int argc, char** argv)
     int nKoArgs = 0;
     char komodoExe[MAXPATHLEN+1];
 #ifdef PLAT_WIN32
-    STARTUPINFO startupInfo;
+    STARTUPINFOW startupInfo;
     PROCESS_INFORMATION processInfo;
     char cmdln[BUF_LENGTH+1];
+    wchar_t *cmdlnw;
     char **pArg;
     int pid;
 #else
@@ -617,17 +645,18 @@ int _SetupAndLaunchKomodo(int argc, char** argv)
     if (DEBUG) {
         printf("%s: running '%s'...\n", _gProgramName, cmdln);
     }
+    cmdlnw = _ToUTF16(cmdln);
 
-    if (!CreateProcess(NULL,            /* path name of executable */
-                       cmdln,           /* executable, and its arguments */
-                       NULL,            /* default process attributes */
-                       NULL,            /* default thread attributes */
-                       TRUE,            /* inherit handles */
-                       0,               /* creation flags */
-                       (LPVOID)NULL,    /* inherit environment */
-                       NULL,            /* inherit cwd */
-                       &startupInfo,
-                       &processInfo))
+    if (!CreateProcessW(NULL,            /* path name of executable */
+                        cmdlnw,          /* executable, and its arguments */
+                        NULL,            /* default process attributes */
+                        NULL,            /* default thread attributes */
+                        TRUE,            /* inherit handles */
+                        0,               /* creation flags */
+                        (LPVOID)NULL,    /* inherit environment */
+                        NULL,            /* inherit cwd */
+                        &startupInfo,
+                        &processInfo))
     {
         errno = ENOENT;
         return -1;
@@ -642,7 +671,7 @@ int _SetupAndLaunchKomodo(int argc, char** argv)
         SetThreadAffinityMask(processInfo.hThread, 0x01);
     }
     
-
+    free(cmdlnw);
     pid = (int)processInfo.dwProcessId;
     CloseHandle(processInfo.hThread);
     return 0;
@@ -712,14 +741,14 @@ int main(int argc, char** argv)
 
 //---- mainline for win32 subsystem:windows app
 #ifdef PLAT_WIN32
-int WINAPI WinMain(
+int WINAPI wWinMain(
     HINSTANCE hInstance,      /* handle to current instance */
     HINSTANCE hPrevInstance,  /* handle to previous instance */
-    LPSTR lpCmdLine,          /* pointer to command line */
+    LPWSTR lpCmdLine,         /* pointer to command line */
     int nCmdShow              /* show state of window */
     )
 {
-    return main(__argc, __argv);
+    return wmain(__argc, __wargv);
 }
 #endif
 

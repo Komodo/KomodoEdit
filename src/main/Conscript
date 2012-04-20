@@ -300,7 +300,15 @@ if (!$xulrunner) {
     if ($platform eq "win") {
         # Build the Komodo stub exe for Windows
         #XXX May want to build a komodow.exe for double-clicking as well.
-    
+
+        # copy over the Unicode handling helper
+        $cons->Command(
+            "stub/nsWindowsWMain.cpp",
+            "$mozSrc/mozilla/toolkit/xre/nsWindowsWMain.cpp",
+            qq(
+                $cp %1 %0
+            ));
+
         # Preprocess the Komodo resource file.
         #XXX Technically using our $buildNum (which is the Perforce change
         #    number) is not valid for a Windows file version string: each
@@ -322,8 +330,9 @@ if (!$xulrunner) {
                          "xre/app/komodo.$productType.ico");
     
         # Build the Komodo starter stub (ko.exe: console, komodo.exe: windows)
-        my $CFLAGS = " /W3 /Ox /DNDEBUG /D_NDEBUG /DWIN32 /MD";
-        my $LDFLAGS = "kernel32.lib user32.lib gdi32.lib advapi32.lib shlwapi.lib ws2_32.lib";
+        my $CFLAGS = " /W3 /Ox /DNDEBUG /D_NDEBUG /DWIN32 /DXP_WIN /DXRE_DONT_PROTECT_DLL_LOAD /MD /Zi";
+        my $stub_CFLAGS = " -DMOZ_NO_MOZALLOC -TP -I$mozObjDir/dist/include -FI $mozObjDir/dist/include/mozilla-config.h";
+        my $LDFLAGS = "kernel32.lib user32.lib gdi32.lib advapi32.lib shlwapi.lib ws2_32.lib shell32.lib";
         $cons->Command(
             "stub/ko.exe",                  # 0
             "stub/komodo.c",                # 1
@@ -337,15 +346,16 @@ if (!$xulrunner) {
             "stub/komodo.exe.manifest",     # 9
             "stub/getopt.h",                # 10
             "stub/my_getopt.h",             # 11
+            "stub/nsWindowsWMain.cpp",      # 12
             qq(
                 copy %3 %0:d
                 copy %4 %0:d
                 copy %5 %0:d
-                cl /nologo $CFLAGS /D_CONSOLE /D_MBCS /Fo%1:b.obj /c %1
+                cl /nologo $CFLAGS $stub_CFLAGS /D_CONSOLE /D_MBCS /Fo%1:b.obj /c %1
                 cl /nologo $CFLAGS /D_CONSOLE /D_MBCS /Fo%6:b.obj /c %6
                 cl /nologo $CFLAGS /D_CONSOLE /D_MBCS /Fo%8:b.obj /c %8
                 rc /fo%2:b.res %2
-                link /nologo $LDFLAGS /subsystem:console /out:%0 %1:b.obj %6:b.obj %8:b.obj %2:b.res
+                link /nologo $LDFLAGS /debug /subsystem:console /out:%0 %1:b.obj %6:b.obj %8:b.obj %2:b.res
                 mt -manifest %9 -outputresource:%0
             )
         );
@@ -364,15 +374,16 @@ if (!$xulrunner) {
             "stub/komodo.exe.manifest",     # 9
             "stub/getopt.h",                # 10
             "stub/my_getopt.h",             # 11
+            "stub/nsWindowsWMain.cpp",      # 12
             qq(
                 copy %3 %0:d
                 copy %4 %0:d
                 copy %5 %0:d
-                cl /nologo $CFLAGS /D_WINDOWS /Fo%1:b.obj /c %1
+                cl /nologo $CFLAGS $stub_CFLAGS /D_WINDOWS /Fo%1:b.obj /c %1
                 cl /nologo $CFLAGS /D_WINDOWS /Fo%6:b.obj /c %6
                 cl /nologo $CFLAGS /D_WINDOWS /Fo%8:b.obj /c %8
                 rc /fo%2:b.res %2
-                link /nologo $LDFLAGS /subsystem:windows /out:%0 %1:b.obj %6:b.obj %8:b.obj %2:b.res
+                link /nologo $LDFLAGS /debug /subsystem:windows /out:%0 %1:b.obj %6:b.obj %8:b.obj %2:b.res
                 mt -manifest %9 -outputresource:%0
             )
         );

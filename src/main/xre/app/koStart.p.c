@@ -390,6 +390,21 @@ static DWORD _FriendlyWaitForObject(HANDLE h)
     _LogError("unreachable code\n");
     return E_UNEXPECTED;
 }
+
+/**
+ * Helper function to convert a UTF-8 string to UTF-16
+ * @param str The UTF-8 string
+ * @returns The equivalent UTF-16 string; it should be free()ed.
+ */
+static wchar_t* _ToUTF16(const char* str)
+{
+    wchar_t *buffer;
+    int size;
+    size = MultiByteToWideChar(CP_UTF8, 0, str, -1, NULL, 0);
+    buffer = (wchar_t*)malloc(size * sizeof(wchar_t));
+    (void)MultiByteToWideChar(CP_UTF8, 0, str, -1, buffer, size);
+    return buffer;
+}
 #endif
 
 
@@ -398,7 +413,9 @@ static int _IsDir(char *dirname)
 {
 #ifdef WIN32
     DWORD dwAttrib;
-    dwAttrib = GetFileAttributes(dirname);
+    wchar_t *dirnamew = _ToUTF16(dirname);
+    dwAttrib = GetFileAttributesW(dirnamew);
+    free(dirnamew);
 
     if (dwAttrib == -1) {
         return 0;
@@ -440,7 +457,10 @@ static int _IsLink(char *filename)
 static int _IsFile(char *filename)
 {
 #ifdef WIN32
-    return (int)PathFileExists(filename);
+    wchar_t *filenamew = _ToUTF16(filename);
+    int result = PathFileExistsW(filenamew);
+    free(filenamew);
+    return result;
 #else /* i.e. linux */
     struct stat buf;
 
@@ -459,7 +479,7 @@ static int _IsFile(char *filename)
 static int _IsExecutableFile(char *filename)
 {
 #ifdef WIN32
-    return (int)PathFileExists(filename);
+    return _IsFile(filename);
 #else /* i.e. linux */
     struct stat buf;
 
@@ -533,7 +553,12 @@ static int _MakeDirs(char *dirpath)
     }
 
 #ifdef WIN32
-    retval = _mkdir(dirpath);
+    {
+        wchar_t *dirpathw = _ToUTF16(dirpath);
+        BOOL success = CreateDirectoryW(dirpathw, NULL);
+        free(dirpathw);
+        retval = success ? 0 : -1;
+    }
 #else /* i.e. linux */
     retval = mkdir(dirpath, 0777);
 #endif /* WIN32 */
@@ -546,6 +571,69 @@ static int _MakeDirs(char *dirpath)
 
 
 #ifdef WIN32
+/* xpgetenv - mimic getenv(); needed on Windows to return UTF8 strings.
+*/
+static char *xpgetenv(const char* name)
+{
+    static char buffer[BUF_LENGTH];
+    static wchar_t buffer_w[BUF_LENGTH];
+    wchar_t *namew = _ToUTF16(name);
+    DWORD result = GetEnvironmentVariableW(namew, buffer_w, BUF_LENGTH);
+    free(namew);
+    if (!result) {
+        return NULL;
+    }
+    (void)WideCharToMultiByte(CP_UTF8, 0, buffer_w, -1, buffer, BUF_LENGTH,
+                              NULL, NULL);
+    return buffer;
+}
+#else
+static char *xpgetenv(const char *name)
+{
+    return getenv(name);
+}
+#endif
+
+/* xpsetenv - mimic the Linux std call to set an environment variable
+ * this is needed since Windows needs to deal with Unicode
+ */
+static int xpsetenv(const char *name, const char *value, int overwrite)
+{
+#ifdef WIN32
+    BOOL success;
+    wchar_t *namew = _ToUTF16(name), *valuew = NULL;
+    if (value) {
+        valuew = _ToUTF16(value);
+    }
+    success = SetEnvironmentVariableW(namew, valuew);
+    free(namew);
+    if (valuew) {
+        free(valuew);
+    }
+    return success ? 0 : -1;
+#else
+    return setenv(name, value, 1);
+#endif
+}
+
+/* xpunsetenv - mimic the Linux std call to unset an environment variable
+ *
+ * This is needed since Windows needs to deal with Unicode
+ */
+static int xpunsetenv(const char *name)
+{
+#ifdef WIN32
+    BOOL success;
+    wchar_t *namew = _ToUTF16(name);
+    success = SetEnvironmentVariableW(namew, NULL);
+    free(namew);
+    return success ? 0 : -1;
+#else
+    return unsetenv(name);
+#endif
+}
+
+#ifdef WIN32
 /* Determine the absolute path to the dir containing this binary.
  *
  *    Takes into account the current working directory, etc.
@@ -553,23 +641,26 @@ static int _MakeDirs(char *dirpath)
 static char* _GetProgramDir(char* argv0)
 {
     /*XXX this is ugly but I didn't want to use malloc, no reason */
+    static wchar_t progPathW[MAXPATHLEN+1];
     static char progPath[MAXPATHLEN+1];
-    char *p;
+    wchar_t *p;
 
     /* get absolute path to module */
-    if (!GetModuleFileName(NULL, progPath, MAXPATHLEN)) {
+    if (!GetModuleFileNameW(NULL, progPathW, MAXPATHLEN)) {
         _LogError("could not get absolute program name from "\
                   "GetModuleFileName\n");
         exit(1);
     }
     /* just need dirname */
-    for (p = progPath+strlen(progPath);
+    for (p = progPathW+wcslen(progPathW);
          *p != SEP && *p != ALTSEP;
          --p)
         {
-            *p = '\0';
+            /* nothing */
         }
-    *p = '\0';  /* remove the trailing SEP as well */
+    *p = L'\0';  /* remove the trailing SEP and anything after */
+    WideCharToMultiByte(CP_UTF8, 0, progPathW, -1, progPath,
+                        sizeof(progPath) / sizeof(progPath[0]), NULL, NULL);
 
     return progPath;
 }
@@ -619,7 +710,7 @@ _ExpandUser(char *path)
         ; /* do nothing */
 
     if (i == 1) {
-        char *home = getenv("HOME");
+        char *home = xpgetenv("HOME");
         if (!home) {
             uid_t uid = getuid();
             pw = getpwuid(uid);
@@ -657,7 +748,7 @@ _GetProgramDir(char* argv0)
 {
     /* XXX this routine does *no* error checking */
     static char progPath[MAXPATHLEN+1];
-    char* path = getenv("PATH");
+    char* path = xpgetenv("PATH");
     char* pLetter;
 
     /* If there is no slash in the argv0 path, then we have to
@@ -765,18 +856,15 @@ typedef void (WINAPI *PGNSI) (LPSYSTEM_INFO);
 
 static char* _GetOSName(void)
 {
-    ssize_t len, len_left;
     static int haveOSName = 0;
     static char osName[MAX_OS_NAME+1]; /* static to cheaply avoid malloc/free */
 
 #ifdef WIN32
-    /* Windows information, this code comes from MSDN:
-     *   http://msdn.microsoft.com/library/default.asp?url=/library/en-us/sysinfo/base/getting_the_system_version.asp
+    /* Windows information, this code comes from MSDN OSVERSIONINFOEX:
+     *   http://msdn.microsoft.com/en-us/library/windows/desktop/ms724833.aspx
      *   XXX - If Windows add a new OS type, then this will have to be updated.
      */
-    OSVERSIONINFO osvi;
-    SYSTEM_INFO si;
-    PGNSI pGNSI;
+    OSVERSIONINFOEX osvi;
     DWORD version;
 
     /* Return early if already have value from previous runs. */
@@ -784,11 +872,8 @@ static char* _GetOSName(void)
         return osName;
     }
     
-    // Try calling GetVersionEx using the OSVERSIONINFOEX structure.
-    // If that fails, try using the OSVERSIONINFO structure.
-
-    ZeroMemory(&osvi, sizeof(OSVERSIONINFO));
-    osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+    ZeroMemory(&osvi, sizeof(osvi));
+    osvi.dwOSVersionInfoSize = sizeof(osvi);
 
     strncpy(osName, "Unknown windows machine", MAX_OS_NAME);
     osName[MAX_OS_NAME] = '\0'; // Should not be needed, but I err on the side of caution
@@ -800,28 +885,37 @@ static char* _GetOSName(void)
     version = (osvi.dwMajorVersion * 10) + (osvi.dwMinorVersion / 10) + (osvi.dwMinorVersion % 10);
     switch (version) {
         // Test for the Windows NT product family.
+        case 62:
+            if (osvi.wProductType == VER_NT_WORKSTATION) {
+                strncpy (osName, "Windows 8 ", MAX_OS_NAME);
+            } else {
+                strncpy (osName, "Windows Server 2012 ", MAX_OS_NAME);
+            }
+            break;
+        case 61:
+            if (osvi.wProductType == VER_NT_WORKSTATION) {
+                strncpy (osName, "Windows 7 ", MAX_OS_NAME);
+            } else {
+                strncpy (osName, "Windows Server 2008 R2 ", MAX_OS_NAME);
+            }
+            break;
         case 60:
-            // VC6 limitation: We don't know which of these it is
-            strncpy (osName, "Windows Vista ", MAX_OS_NAME);
-            //strncpy (osName, "Windows Server \"Longhorn\" ", MAX_OS_NAME);
+            if (osvi.wProductType == VER_NT_WORKSTATION) {
+                strncpy (osName, "Windows Vista ", MAX_OS_NAME);
+            } else {
+                strncpy (osName, "Windows Server 2008 ", MAX_OS_NAME);
+            }
             break;
         case 52:
-            // VC6 limitation: We don't know which of these it is
-            strncpy (osName, "Windows Server 2003 ", MAX_OS_NAME);
-            //strncpy (osName, "Windows Server 2003 R2 ", MAX_OS_NAME);
-            //strncpy (osName, "Windows XP Professional x64 Edition ", MAX_OS_NAME);
-
-            // Use GetProcAddress to avoid load issues on Windows 2000
-            pGNSI = (PGNSI) GetProcAddress(GetModuleHandle("kernel32.dll"),
-                                           "GetNativeSystemInfo");
-            if (NULL != pGNSI)
-                 pGNSI(&si);
-
-            if ( GetSystemMetrics(SM_SERVERR2) ) {
-                strncpy (osName, "Windows Server 2003 \"R2\" ", MAX_OS_NAME);
-            //} else if (osvi.wProductType == VER_NT_WORKSTATION &&
-            //             si.wProcessorArchitecture==PROCESSOR_ARCHITECTURE_AMD64) {
-            //    strncpy (osName, "Windows XP Professional x64 Edition ", MAX_OS_NAME);
+            if (GetSystemMetrics(SM_SERVERR2) != 0) {
+                strncpy (osName, "Windows Server 2003 R2 ", MAX_OS_NAME);
+            } else if (osvi.wSuiteMask & VER_SUITE_WH_SERVER) {
+                strncpy (osName, "Windows Home Server ", MAX_OS_NAME);
+            } else if (osvi .wProductType == VER_NT_WORKSTATION) {
+                /* the only 5.2 workstation was XP64 */
+                strncpy (osName, "Windows XP Professional x64 Edition ", MAX_OS_NAME);
+            } else {
+                strncpy (osName, "Windows Server 2003 ", MAX_OS_NAME);
             }
             break;
         case 51:
@@ -829,6 +923,15 @@ static char* _GetOSName(void)
             break;
         case 50:
             strncpy (osName, "Windows 2000 ", MAX_OS_NAME);
+            break;
+        default:
+            if (osvi.wProductType == VER_NT_WORKSTATION) {
+                snprintf (osName, MAX_OS_NAME, "Unknown Windows version %i.%i ",
+                          osvi.dwMajorVersion, osvi.dwMinorVersion);
+            } else {
+                snprintf (osName, MAX_OS_NAME, "Unknown Windows server version %i.%i ",
+                          osvi.dwMajorVersion, osvi.dwMinorVersion);
+            }
             break;
     }
 #else /* !WIN32 */
@@ -895,7 +998,7 @@ static int _GetVerUserDataDir(
     char*  lpBuffer          /* path buffer */
 )
 {
-    char *envPath = getenv("KOMODO_USERDATADIR");
+    char *envPath = xpgetenv("KOMODO_USERDATADIR");
     ssize_t overflow;
 
     if (envPath && strlen(envPath)) {
@@ -1073,55 +1176,19 @@ static int _GetVerUserDataDir(
             } 
             RegCloseKey(hKey);
         }
-        /* create the AppData dir if it does not exist */
-        if (! _IsDir(lpBuffer)) {
-            int retval = _mkdir(lpBuffer);
-            if (retval == -1) {
-                _LogError("error creating '%s': %s\n", lpBuffer, strerror(errno));
-                return 0;
-            }
-        }
-        /* append "ActiveState" and create it if necessary */
+        /* append "ActiveState\Komodo[IDE|Edit]\[Major].[Minor]" and create it
+         * if necessary.
+         */
         overflow = snprintf(lpBuffer, nBufferLength,
-                            "%s%cActiveState", lpBuffer, SEP);
+                            "%s%cActiveState%c%s%c%s", lpBuffer, SEP, SEP,
+                            KO_APPDATADIR_NAME, SEP, KO_SHORT_VERSION);
         if (overflow > (ssize_t)nBufferLength || overflow < 0) {
             _LogError("buffer overflow while determining "\
                 "Komodo user data directory\n");
             return 0;
         }
         if (! _IsDir(lpBuffer)) {
-            int retval = _mkdir(lpBuffer);
-            if (retval == -1) {
-                _LogError("error creating '%s': %s\n", lpBuffer, strerror(errno));
-                return 0;
-            }
-        }
-        /* append "Komodo[IDE|Edit]" and create it if necessary */
-        overflow = snprintf(lpBuffer, nBufferLength,
-            "%s%c%s", lpBuffer, SEP, KO_APPDATADIR_NAME);
-        if (overflow > (ssize_t)nBufferLength || overflow < 0) {
-            _LogError("buffer overflow while determining "\
-                "Komodo user data directory\n");
-            return 0;
-        }
-        if (! _IsDir(lpBuffer)) {
-            int retval = _mkdir(lpBuffer);
-            if (retval == -1) {
-                _LogError("error creating '%s': %s\n", lpBuffer, strerror(errno));
-                return 0;
-            }
-        }
-        /* append "Major.Minor" and create it if necessary */
-        overflow = snprintf(lpBuffer, nBufferLength,
-            "%s%c%s", lpBuffer, SEP, KO_SHORT_VERSION);
-        if (overflow > (ssize_t)nBufferLength || overflow < 0) {
-            _LogError("buffer overflow while determining "\
-                "Komodo user data directory\n");
-            return 0;
-        }
-        if (! _IsDir(lpBuffer)) {
-            int retval = _mkdir(lpBuffer);
-            if (retval == -1) {
+            if (!_MakeDirs(lpBuffer)) {
                 _LogError("error creating '%s': %s\n", lpBuffer, strerror(errno));
                 return 0;
             }
@@ -1171,7 +1238,7 @@ static int _GetVerUserDataDir(
 #else /* linux, solaris */
         /* use ~/.komodo[ide|edit] */
         char tmpBuffer[MAXPATHLEN];
-        char* home = getenv("HOME");
+        char* home = xpgetenv("HOME");
         size_t overflow;
         if (home) {
             overflow = snprintf(lpBuffer, nBufferLength,
@@ -1273,84 +1340,9 @@ static char *_fullpath( char *absPath, const char *relPath, size_t maxLength )
 #endif
 
 
-/* xpsetenv - mimic the Linux std call to set an environment variable
- * this is needed since Windows and some Unices do not support setenv(). 
- */
-static int xpsetenv(const char *name, const char *value, int overwrite)
-{
-    ssize_t len, overflow;
-    char* setString;
-
-    /* _putenv does support overwrite=0 */
-    if (!overwrite) {
-        return -1;
-    }
-
-    /* _putenv and putenv both place a pointer to the argument directly
-     * in the enviroment.  Therefore, the argument must be malloced and
-     * never freed or modified.
-     */
-
-    len       = strlen(name) + strlen(value) + 1;
-    setString = (char*) malloc((len+1)*sizeof(char));
-    if (!setString) {
-        _LogError("Could not allocate memory while setting "\
-                  "environment variable '%s' to '%s'\n", name, value);
-        exit(1);
-    }
-    overflow  = snprintf(setString, len + 1, "%s=%s", name, value);
-    if (overflow > len || overflow < 0) {
-        _LogError("buffer overflow while setting "\
-                  "environment variable '%s' to '%s'\n", name, value);
-        exit(1);
-    }
-#ifdef WIN32
-    return _putenv(setString);
-#else
-    return putenv(setString);
-#endif
-}
-
-
-/* xpunsetenv - mimic the Linux std call to unset an environment variable
- *
- * This is needed since Windows and, I [TM] am guessing, the same Unices
- * that do not support setenv() do not support unsetenv(). 
- */
-static int xpunsetenv(const char *name)
-{
-    ssize_t len, overflow;
-    char* unsetString;
-
-    /* _putenv and putenv both place a pointer to the argument directly
-     * in the enviroment.  Therefore, the argument must be malloced and
-     * never freed or modified.
-     */
-
-    len = strlen(name) + 1; /* name plus '='-sign */
-    unsetString = (char*) malloc((len+1)*sizeof(char));
-    if (!unsetString) {
-        _LogError("Could not allocate memory while unsetting "\
-                  "environment variable '%s'\n", name);
-        exit(1);
-    }
-    overflow  = snprintf(unsetString, len + 1, "%s=", name);
-    if (overflow > len || overflow < 0) {
-        _LogError("buffer overflow while unsetting "\
-                  "environment variable '%s'\n", name);
-        exit(1);
-    }
-#ifdef WIN32
-    return _putenv(unsetString);
-#else
-    return putenv(unsetString);
-#endif
-}
-
-
 /* Return true if the given executable name is on the PATH env var */
 static int _IsExecutableOnPath(char* exeName) {
-    char* path = getenv("PATH");
+    char* path = xpgetenv("PATH");
     char* firstChar = path;   /* first char of one path element */
     char* lastChar;
     char* delim;
@@ -1668,7 +1660,7 @@ void _KoStart_SetupEnvironment(const char* programDir)
      *   XXX I'm not sure, then, if we should NOT remove it here. Try
      *       both ways on Linux and Mac OS X.
      */
-    envVar = getenv("MOZILLA_FIVE_HOME");
+    envVar = xpgetenv("MOZILLA_FIVE_HOME");
     if (envVar) {
         _LogDebug("unsetting MOZILLA_FIVE_HOME env var\n");
         xpunsetenv("MOZILLA_FIVE_HOME");
@@ -1680,7 +1672,7 @@ void _KoStart_SetupEnvironment(const char* programDir)
      *   However there is still one usage of MOZ_PLUGIN_PATH in the
      *   Mozilla 1.8 sources, so keep this in for now.
      */
-    envVar = getenv("MOZ_PLUGIN_PATH");
+    envVar = xpgetenv("MOZ_PLUGIN_PATH");
     if (envVar) {
         _LogDebug("unsetting MOZ_PLUGIN_PATH env var\n");
         xpunsetenv("MOZ_PLUGIN_PATH");
@@ -1706,7 +1698,7 @@ void _KoStart_SetupEnvironment(const char* programDir)
      * toolkit/xre/nsNativeAppSupportWin.cpp) to disable the DDE code
      * path.
      */
-    envVar = getenv("MOZ_NO_REMOTE");
+    envVar = xpgetenv("MOZ_NO_REMOTE");
     if (envVar) {
         _LogDebug("unsetting MOZ_NO_REMOTE env var\n");
         xpunsetenv("MOZ_NO_REMOTE");
@@ -1719,7 +1711,7 @@ void _KoStart_SetupEnvironment(const char* programDir)
      * the hash libraries from pyCrypto. See bug:
      *   http://bugs.activestate.com/show_bug.cgi?id=66125
      */
-    envVar = getenv("PYTHONCASEOK");
+    envVar = xpgetenv("PYTHONCASEOK");
     if (envVar) {
         _LogDebug("unsetting PYTHONCASEOK env var\n");
         xpunsetenv("PYTHONCASEOK");
@@ -1762,7 +1754,7 @@ void _KoStart_SetupEnvironment(const char* programDir)
      *   It is the job of Komodo's invocations to restore the user's
      *   PYTHONPATH for debugging, etc.
      */
-    envVar = getenv("PYTHONPATH");
+    envVar = xpgetenv("PYTHONPATH");
     if (envVar) {
         _LogDebug("unsetting PYTHONPATH env var\n");
         xpunsetenv("PYTHONPATH");
@@ -1899,7 +1891,7 @@ int KoStart_HandleArgV(int argc, char** argv, KoStartOptions* pOptions)
     int opt;
     memset(pOptions, 0, sizeof(KoStartOptions));
 
-    if (getenv("KOMODO_VERBOSE") != NULL) {
+    if (xpgetenv("KOMODO_VERBOSE") != NULL) {
         _KoStart_verbose = 1;
     }
 
@@ -1933,7 +1925,7 @@ int KoStart_HandleArgV(int argc, char** argv, KoStartOptions* pOptions)
         return KS_CONTINUE;
     }
     /* 3. This internal env var is set in _KoStart_SetupEnvironment(). */
-    if (getenv("_KOMODO_VERUSERDATADIR") != NULL) {
+    if (xpgetenv("_KOMODO_VERUSERDATADIR") != NULL) {
         _LogDebug("internal '_KOMODO_VERUSERDATADIR' envvar set: skipping argv processing\n");
         return KS_CONTINUE;
     }
@@ -2141,19 +2133,21 @@ KoStartHandle KoStart_WantToBeTheMan(void)
     HANDLE hRead, hWrite;
     char buffer[MAXPATHLEN];
     DWORD byteCount, pid;
-    hRead = CreateFile(runningName, GENERIC_READ,
-                       FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
-                       NULL, OPEN_ALWAYS,
+    wchar_t *runningNameW = _ToUTF16(runningName);
+    hRead = CreateFileW(runningNameW, GENERIC_READ,
+                        FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+                        NULL, OPEN_ALWAYS,
                        FILE_ATTRIBUTE_TEMPORARY | FILE_ATTRIBUTE_HIDDEN,
                        NULL);
     if (hRead == INVALID_HANDLE_VALUE) {
         _LogError("Failed to create %s: %08x\n", runningName, GetLastError());
         exit(1);
     }
-    hWrite = CreateFile(runningName, GENERIC_WRITE,
-                        FILE_SHARE_READ, NULL, TRUNCATE_EXISTING,
+    hWrite = CreateFileW(runningNameW, GENERIC_WRITE,
+                         FILE_SHARE_READ, NULL, TRUNCATE_EXISTING,
                         FILE_ATTRIBUTE_TEMPORARY | FILE_FLAG_DELETE_ON_CLOSE,
                         NULL);
+    free(runningNameW);
     if (hWrite == INVALID_HANDLE_VALUE) {
         /* we are not the man */
         _LogDebug("Another instance of Komodo is already running.\n");
@@ -2271,7 +2265,8 @@ void KoStart_InitCommandments()
     char* commandmentsFileName = _KoStart_GetCommandmentsFileName();
 
 #ifdef WIN32
-    BOOL rv = DeleteFile(commandmentsFileName);
+    wchar_t *commandmentsFileNameW = _ToUTF16(commandmentsFileName);
+    BOOL rv = DeleteFileW(commandmentsFileNameW);
     if (!rv) {
         DWORD lasterr = GetLastError();
         if (lasterr == ERROR_INVALID_NAME
@@ -2283,6 +2278,7 @@ void KoStart_InitCommandments()
             exit(1);
         }
     }
+    free(commandmentsFileNameW);
 #else
     int rv;
 
@@ -2351,6 +2347,7 @@ void KoStart_IssueCommandments(const KoStartOptions* pOptions,
     int i;
     ssize_t overflow;
 #ifdef WIN32
+    wchar_t * commandmentsFileNameW;
     HANDLE lock;
     DWORD rv;
     HANDLE event;
@@ -2390,7 +2387,13 @@ void KoStart_IssueCommandments(const KoStartOptions* pOptions,
         commandmentsFileName = _KoStart_GetCommandmentsFileName();
     }
 #endif
+#ifdef WIN32
+    commandmentsFileNameW = _ToUTF16(commandmentsFileName);
+    commandmentsFile = _wfopen(commandmentsFileNameW, L"a");
+    free(commandmentsFileNameW);
+#else
     commandmentsFile = fopen(commandmentsFileName, "a");
+#endif
     if (commandmentsFile == NULL) {
         _LogError("could not open '%s' for writing\n",
                   commandmentsFileName);
@@ -2512,7 +2515,7 @@ void KoStart_PrepareForXRE(int argc, char** argv,
      * XPCOM registration) then we've already prepared (saved startup
      * env, modified the env, and constructed the XRE argv).
      */
-    if (getenv("_KOMODO_VERUSERDATADIR") != NULL) {
+    if (xpgetenv("_KOMODO_VERUSERDATADIR") != NULL) {
         while (tmpArgc < argc) {
             tmpArgv[tmpArgc] = argv[tmpArgc];
             ++tmpArgc;
