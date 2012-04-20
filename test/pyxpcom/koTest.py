@@ -143,7 +143,25 @@ class KoTestService:
         # the nsXREDirProvider not having been registered.
         dirSvc = components.classes["@mozilla.org/file/directory_service;1"] \
             .getService(components.interfaces.nsIDirectoryService)
-        dirSvc.registerProvider(KoTestDirectoryProvider())
+        provider = KoTestDirectoryProvider()
+        dirSvc.registerProvider(provider)
+
+        # register components from the extensions (so we can test them)
+        enum = provider.getFiles("koTestExtDirL")
+        while enum.hasMoreElements():
+            d = enum.getNext()
+            if os.path.split(d.path)[-1].lower() == "publishing@activestate.com":
+                # skip publishing, that causes excessive errors during tests
+                # because it gets created on the wrong thread
+                continue
+            f = d.clone()
+            f.append("pylib")
+            if f.exists():
+                sys.path.append(f.path)
+            f = d.clone()
+            f.append("chrome.manifest")
+            if f.exists():
+                components.registrar.autoRegister(f)
 
         # Register the app info stuff
         appinfo = components.classes["@mozilla.org/xre/app-info;1"] \
