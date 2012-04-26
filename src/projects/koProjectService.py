@@ -123,27 +123,13 @@ class KomodoWindowData(object):
 
 
 class KoPartService(object):
-    _com_interfaces_ = [components.interfaces.koIPartService,
-                        components.interfaces.nsIObserver]
+    _com_interfaces_ = [components.interfaces.koIPartService]
     _reg_desc_ = "Komodo Part Service Component"
     _reg_contractid_ = "@activestate.com/koPartService;1"
     _reg_clsid_ = "{96DB159A-E772-4985-91B0-55A7FB7FEE19}"
-    _reg_categories_ = [
-         ("komodo-startup-service", "koProjectService", True),
-         ]
 
     def __init__(self):
-        self.wrapped = WrapObject(self, components.interfaces.nsIObserver)
-        ww = components.classes["@mozilla.org/embedcomp/window-watcher;1"].\
-                        getService(components.interfaces.nsIWindowWatcher)
-        ww.registerNotification(self.wrapped)
-
-        self._data = {} # Komodo nsIDOMWindow -> KomodoWindowData instance
-
-    def _windowTypeFromWindow(self, window):
-        if not window:
-            return None
-        return window.document.documentElement.getAttribute("windowtype")
+        self._data = {} # Komodo windowId -> KomodoWindowData instance
 
     __contentUtils = None
     @property
@@ -153,8 +139,9 @@ class KoPartService(object):
                         getService(components.interfaces.koIContentUtils)
         return self.__contentUtils
 
-    def get_window(self):
-        """Return the appropriate top-level Komodo window for this caller."""
+    @property
+    def project_window_data(self):
+        """Returns project-specific toolbox data for the current call stack."""
         window = None
 
         # Try to use koIContentUtils, which can find the nsIDOMWindow for
@@ -164,7 +151,7 @@ class KoPartService(object):
         while sentinel:
             if not w:
                 break
-            elif self._windowTypeFromWindow(w) == "Komodo":
+            elif w.document.documentElement.getAttribute("windowtype") == "Komodo":
                 window = w
                 break
             elif w.parent == w:
@@ -172,7 +159,7 @@ class KoPartService(object):
             w = w.parent
             sentinel -= 1
         else:
-            log.warn("hit sentinel in KoPartService.get_window()!")
+            log.warn("hit sentinel in KoPartService.project_window_data()!")
         
         # If we do not have a window from caller, then get the most recent
         # window and live with it.
@@ -181,23 +168,17 @@ class KoPartService(object):
             wm = components.classes["@mozilla.org/appshell/window-mediator;1"].\
                             getService(components.interfaces.nsIWindowMediator)
             window = wm.getMostRecentWindow('Komodo')
-            if window:
-                window.QueryInterface(components.interfaces.nsIDOMWindow)
-            else:
+            if not window:
                 # This is common when running Komodo standalone tests via
                 # xpcshell, but should not occur when running Komodo normally.
-                log.error("get_window:: getMostRecentWindow did not return a window")
-        if window not in self._data:
-            self._data[window] = KomodoWindowData()
-        return window
-
-    def get_data_for_window(self, window):
-        if not window:
-            return None
-        data = self._data.get(window)
+                log.error("project_window_data:: getMostRecentWindow did not return a window")
+        window_id = window.QueryInterface(components.interfaces.nsIInterfaceRequestor) \
+                        .getInterface(components.interfaces.nsIDOMWindowUtils) \
+                        .outerWindowID
+        data = self._data.get(window_id)
         if data is None:
             data = KomodoWindowData()
-            self._data[window] = data
+            self._data[window_id] = data
         return data
 
     def _deprecate_runningMacro(self):
@@ -224,7 +205,7 @@ class KoPartService(object):
     
     @components.ProxyToMainThread
     def isCurrent(self, project):
-        return self._data[self.get_window()].isCurrent(project)
+        return self.project_window_data.isCurrent(project)
 
     def set_toolbox(self, project):
         raise ServerException(nsError.NS_ERROR_ILLEGAL_VALUE,
@@ -248,58 +229,46 @@ class KoPartService(object):
 
     @components.ProxyToMainThread
     def set_currentProject(self, project):
-        return self._data[self.get_window()].set_currentProject(project)
+        return self.project_window_data.set_currentProject(project)
 
     @components.ProxyToMainThread
     def get_currentProject(self):
-        return self._data[self.get_window()].get_currentProject()
+        return self.project_window_data.get_currentProject()
 
     @components.ProxyToMainThread
     def addProject(self, project):
-        return self._data[self.get_window()].addProject(project)
+        return self.project_window_data.addProject(project)
 
     @components.ProxyToMainThread
     def removeProject(self, project):
-        return self._data[self.get_window()].removeProject(project)
+        return self.project_window_data.removeProject(project)
 
     @components.ProxyToMainThread
     def getProjects(self):
-        return self._data[self.get_window()].getProjects()
+        return self.project_window_data.getProjects()
 
     @components.ProxyToMainThread
     def getProjectForURL(self, url):
-        return self._data[self.get_window()].getProjectForURL(url)
+        return self.project_window_data.getProjectForURL(url)
 
     @components.ProxyToMainThread
     def getEffectivePrefsForURL(self, url):
-        return self._data[self.get_window()].getEffectivePrefsForURL(url)
+        return self.project_window_data.getEffectivePrefsForURL(url)
 
     def getPartById(self, id):
         return findPartById(id)
 
     @components.ProxyToMainThread
     def findPart(self, partType, name, where, part):
-        return self._data[self.get_window()].findPart(partType, name, where, part)
+        return self.project_window_data.findPart(partType, name, where, part)
 
     @components.ProxyToMainThread
     def getPart(self, type, attrname, attrvalue, where, container):
-        return self._data[self.get_window()].getPart(type, attrname, attrvalue, where, container)
+        return self.project_window_data.getPart(type, attrname, attrvalue, where, container)
 
     @components.ProxyToMainThread
     def getParts(self, type, attrname, attrvalue, where, container):
-        return self._data[self.get_window()].getParts(type, attrname, attrvalue, where, container)
-
-    def observe(self, subject, topic, data):
-        if not subject:
-            return
-        window = subject.QueryInterface(components.interfaces.nsIDOMWindow)
-        if self._windowTypeFromWindow(window) != "Komodo":
-            return
-        if topic == "domwindowopened":
-            self._data[window] = KomodoWindowData()
-        elif topic == "domwindowclosed":
-            if window in self._data:
-                del self._data[window]
+        return self.project_window_data.getParts(type, attrname, attrvalue, where, container)
 
     def renameProject(self, oldPath, newPath):
         """
