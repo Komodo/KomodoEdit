@@ -812,6 +812,7 @@ class KoCodeIntelEvalController(EvalController):
                 msg, (self.trg and not self.trg.implicit or False))
 
         EvalController.done(self, reason)
+        self.close()
         self.ui_handler_proxy_sync = None
         self.ui_handler = None
 

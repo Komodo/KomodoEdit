@@ -45,7 +45,6 @@ state IN_H2CSL_STAG_POST_TAGNAME:
 # so bail back to the regular html state.
 /src\b/i : paint(upto, M_TAGSPACE), paint(include, M_ATTRNAME), => IN_M_STAG_POST_ATTRNAME_1
 /[$CS]/ : paint(upto, M_TAGSPACE) => IN_H2CSL_STAG_IN_ATTRNAME
-'/>' : paint(upto, M_TAGSPACE), paint(include, M_EMP_TAGC) => IN_M_DEFAULT
 
 state IN_H2CSL_STAG_POST_TAGNAME_IN_WS:
 /^/: paint(include, M_DEFAULT), => IN_CSL_DEFAULT

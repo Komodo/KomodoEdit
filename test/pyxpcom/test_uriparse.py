@@ -169,8 +169,8 @@ class URIParseTestCase(unittest.TestCase):
 
 
 class _dummyPrefsClass(object):
-    def __init__(self, string_prefs=None):
-        self.parent = None
+    def __init__(self, string_prefs=None, parent=None):
+        self.parent = parent
         if string_prefs is None:
             self.string_dict = {}
         else:
@@ -236,6 +236,7 @@ class URIMappingTestCase(unittest.TestCase):
                                      "Mapped URI was not expected: %r != %r" %
                                      (mapped_uri, expected_uri))
 
+    @tag("76389")
     def test_getMappedPathForHost(self):
         mappingdata_for_mappedPaths = {
             "": ({
@@ -268,6 +269,18 @@ class URIMappingTestCase(unittest.TestCase):
         for mappedPath, mappingData in mappingdata_for_mappedPaths.items():
             mappingData, host = mappingData
             prefs = _dummyPrefsClass({"mappedPaths": mappedPath})
+            for path, expected_uri in mappingData.items():
+                mapped_uri = uriparse.getMappedPath(path, prefs, host)
+                self.failUnlessEqual(mapped_uri, expected_uri,
+                                     "Mapped URI was not expected: %r != %r" %
+                                     (mapped_uri, expected_uri))
+
+        # Now try the same tests using a parent pref chain.
+        # http://bugs.activestate.com/show_bug.cgi?id=76389
+        for mappedPath, mappingData in mappingdata_for_mappedPaths.items():
+            mappingData, host = mappingData
+            prefs_parent = _dummyPrefsClass({"mappedPaths": mappedPath})
+            prefs = _dummyPrefsClass(parent=prefs_parent)
             for path, expected_uri in mappingData.items():
                 mapped_uri = uriparse.getMappedPath(path, prefs, host)
                 self.failUnlessEqual(mapped_uri, expected_uri,

@@ -39,7 +39,7 @@ from xpcom import components, ServerException
 from koLanguageServiceBase import *
 
 # yaml.org
-
+    
 class koYAMLLanguage(KoLanguageBase):
     name = "YAML"
     _reg_desc_ = "%s Language" % name

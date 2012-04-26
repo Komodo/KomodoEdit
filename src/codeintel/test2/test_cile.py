@@ -304,6 +304,9 @@ def _fillScanInputsTestCase():
             # The scan_inputs/unicode is where the unicode test files
             # are placed. Don't descend into here. They are handled elsewhere.
             dnames.remove("unicode")
+        if ".svn" in dpath.split(os.sep):
+            # Skip subversion directories.
+            continue
         for fname in fnames:
             fpath = os.path.join(dpath, fname)[len(gInputsDir)+len(os.sep):]
             if not isfile(join(dpath, fname)):

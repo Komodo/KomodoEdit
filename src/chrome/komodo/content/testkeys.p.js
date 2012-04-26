@@ -41,22 +41,21 @@ var gMainWindow = null;
 function onload() {
     try {
     gMainWindow = ko.windowManager.getMainWindow();
-    document.documentElement.appendChild(
-                            gMainWindow.document.
-                            getElementById('widekeyset').
-                            cloneNode(1));
+    var keyset = document.importNode(gMainWindow.document.
+                           getElementById('widekeyset'), true);
 
-    var keyset = document.getElementById('widekeyset');
-    for (var i in keyset.childNodes) {
+    for (var i=0; i < keyset.childNodes.length; i++) {
         try {
-            //keyset.childNodes[i].setAttribute('command', 'cmd_showkey');
             keyset.childNodes[i].removeAttribute('command');
-            keyset.childNodes[i].setAttribute('oncommand', 'showkey(event, this);');
             //dump(keyset.childNodes[i].getAttribute('id')+': '+keyset.childNodes[i].getAttribute('oncommand')+'\n');
+            //ko.logging.dumpDOM(keyset.childNodes[i]);
         } catch(e) {
             dump(e+'\n');
+            dump(keyset.childNodes[i]+"\n");
         }
     }
+    document.documentElement.appendChild(keyset);
+
     window.addEventListener('keypress',handleKeyUp, false);
     window.addEventListener('keydown', handleKeyDown, false);
     window.addEventListener('keyup', handleKeyPress, false);
@@ -169,19 +168,20 @@ function handle (event) {
 
     var labels = null;
     if (event.type == 'keydown') {
-// #if PLATFORM != 'darwin'
+//// #if PLATFORM != 'darwin'
         gKeyDownKeys = event2keylabel(event);
-// #endif
+//// #endif
         labels = eventBindings(event, true);
+        document.getElementById('keyevent').setAttribute('value', "");
     } else
     if (event.type == 'keypress') {
         labels = eventBindings(event);
-// #if PLATFORM != 'darwin'
+//// #if PLATFORM != 'darwin'
         if (gKeyDownKeys) {
             combineBindingList(gKeyDownKeys, labels);
         }
         gKeyDownKeys = null;
-// #endif
+//// #endif
     } else
     if (event.type == 'keyup') {
         labels = eventBindings(event, true);
@@ -220,35 +220,36 @@ function handle (event) {
     }
     
     var match = "1st Miss";
+    var keyname = "No Keyname";
+    var keyevent = null;
 
-    if (document.getElementById(labels[0]) ||
-        document.getElementsByAttribute("name", labels[0]).length > 0) {
-        match = "1st Match";
+    if (labels && labels.length > 0) {
+        keyname = labels[0];
+        var matches = document.getElementsByAttribute("name", keyname);
+        if (matches.length > 0) {
+            keyevent = matches[0].getAttribute("id");
+            match = "1st Match";
+        }
+    } else {
+        match = "No Label";
     }
-    if (labels.length > 1) {
-        if (document.getElementById(labels[1]) ||
-            document.getElementsByAttribute("name", labels[1]).length > 0) {
+    if (labels && labels.length > 1) {
+        keyname = labels.join(', ');
+        var matches = document.getElementsByAttribute("name", labels[1]);
+        if (matches.length > 0) {
+            keyevent += " - "+matches[0].getAttribute("id");
             match += " - 2st Match";
         } else {
             match += " - 2nd Miss";
         }
     }
     document.getElementById(exists).setAttribute('value', match);
-    document.getElementById(eventkeycode).setAttribute('value', labels.join(', '));
+    document.getElementById(eventkeycode).setAttribute('value', keyname);
+    if (keyevent)
+        document.getElementById('keyevent').setAttribute('value', keyevent);
     document.getElementById(charcodeid).setAttribute('value', event.charCode);
     document.getElementById(keycodeid).setAttribute('value', event.keyCode);
     //dump('---\n');
-}
-
-function showkey(event, el) {
-    try {
-        if (el == undefined)
-            el = event.target;
-        var val = el.getAttribute('id') + ': ' + el.getAttribute('name')
-        document.getElementById('keyevent').setAttribute('value', val);
-    } catch (e) {
-        dump(e+'\n');
-    }
 }
 
 

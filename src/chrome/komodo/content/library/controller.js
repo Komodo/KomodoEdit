@@ -109,13 +109,22 @@ var handlers = {
 // that doesn't fit into any other controller.  It is generally
 // used for commands that don't ever get disabled.
 
-function broadcasterController() {}
+function broadcasterController() {
+    if (typeof(ko.main) != "undefined") {
+        ko.main.addWillCloseHandler(this.destructor, this);
+    } else {
+        // ko.main will not be defined in dialogs that load controller.js.
+        var self = this;
+        window.addEventListener("unload", function() { self.destructor(); }, false);
+    }
+}
 
 // The following two lines ensure proper inheritance (see Flanagan, p. 144).
 broadcasterController.prototype = new xtk.Controller();
 broadcasterController.prototype.constructor = broadcasterController;
 
 broadcasterController.prototype.destructor = function() {
+    window.controllers.removeController(this);
 }
 
 broadcasterController.prototype.isCommandEnabled = function(cmdName) {

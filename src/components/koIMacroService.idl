@@ -42,7 +42,7 @@ interface koIMacroService: nsISupports {
     //  "language" is the language of the macro code. One of
     //      "javascript" or "python".
     //  "code" is the macro code.
-    //  "filename" is the path to a macro file or the given langauge.
+    //  "filename" is the path to a macro file or the given language.
     //
     // An exception is raised if there is a problem and the error code
     // and string are set on the LastErrorService in case of a problem.

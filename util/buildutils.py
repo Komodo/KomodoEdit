@@ -456,7 +456,6 @@ def remote_symlink(src, dst, log=None):
     cmd = "ln -s %s %s" % (src_path, dst_path)
     remote_run(src_login, cmd, log=log)
 
-
 def remote_rm(rpath, log=None):
     assert ' ' not in rpath
     login, path = rpath.split(':', 1)
@@ -504,6 +503,23 @@ def remote_glob(rpattern, log=None):
                 continue
             rpaths.append("%s:%s" % (login, line.strip()))
     return rpaths
+
+def remote_find(rdir, options={}, log=None):
+    argv = ["find", rdir]
+    for opt, val in options:
+        argv.append(opt)
+        if val is not None:
+            argv.append(val)
+
+    try:
+        # Don't use `capture_stdout` -- results in hang with plink on
+        # Windows (see Komodo bug 79857). Eventual best fix is probably
+        # to use `subprocess.Popen().communicate()`.
+        output = capture_output(argv)
+    except OSError, ex:
+        pass
+    else:
+        remote_run(src_login, " ".join(cmd), log=log)
 
 def remote_walk(rdir, log=None):
     """Like os.walk(dir), but for a remote dir.

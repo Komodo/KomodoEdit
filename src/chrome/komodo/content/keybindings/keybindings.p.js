@@ -174,7 +174,9 @@ this.Manager.prototype.finalize = function(part, topic, partId) {
     window.removeEventListener("unload", this.removeListener, false);
     var observerSvc = Components.classes["@mozilla.org/observer-service;1"].
         getService(Components.interfaces.nsIObserverService);
+    observerSvc.removeObserver(this, "kb-unload");
     observerSvc.removeObserver(this, "kb-unload-global");
+    observerSvc.removeObserver(this, "kb-load");
     observerSvc.removeObserver(this, "kb-load-global");
     observerSvc.removeObserver(this, 'toolbox-loaded-local');
     observerSvc.removeObserver(this, 'toolbox-loaded-global');

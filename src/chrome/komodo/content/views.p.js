@@ -132,7 +132,7 @@ function viewManager() {
     this._viewCount = 0;
     this.batchMode = false;
     this.lastviewcache = this.cacheCommandData(null);
-    window.controllers.appendController(this); // XXX need to uninstall on quit
+    window.controllers.appendController(this);
 };
 
 // The following two lines ensure proper inheritance (see Flanagan, p. 144).
@@ -143,6 +143,7 @@ viewManager.prototype.shutdown = function()
 {
     this._shuttingDown = true;
     try {
+        window.controllers.removeController(this);
         _observerSvc.removeObserver(this, "open_file");  // commandment
         _observerSvc.removeObserver(this, "open-url");
         _observerSvc.removeObserver(this, "file_status");

@@ -134,6 +134,7 @@ interface koIScintillaScheme : nsISupports {
 
 [scriptable, uuid(D116A318-F894-42C5-A7D5-1F37171832AC)]
 interface koIScintillaSchemeService : nsISupports {
+    void reloadAvailableSchemes();
     void addScheme(in koIScintillaScheme scheme);
     void removeScheme(in koIScintillaScheme scheme);
     void getSchemeNames([array, size_is(count)] out wstring schemes,

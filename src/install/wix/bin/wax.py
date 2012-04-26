@@ -517,7 +517,7 @@ class Guru:
                         % SENTINEL)
 
     def get_directory_id(self):
-        SENTINEL = 1000
+        SENTINEL = 1500
         for i in range(self.directory_index, SENTINEL):
             id = "directory%s" % i
             if id not in self.directory_ids:

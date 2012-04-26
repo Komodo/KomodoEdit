@@ -51,7 +51,7 @@ sublanguage JavaScript
 # From http://www.mozilla.org/js/language/E262-3.pdf
 
 keywords [as break case catch class const continue default delete do else
-export extends false finally for function if import in instanceof is 'namespace'
+export extends false finally for function if import in instanceof is let 'namespace'
 new null package private public return super switch this throw true try typeof
 use var void while with
 get "include" set

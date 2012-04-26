@@ -607,6 +607,7 @@
                         return items.join(':');
                     } catch (e) {
                         log.exception(e);
+                        return [];
                     }
                     ]]>
                 </body>

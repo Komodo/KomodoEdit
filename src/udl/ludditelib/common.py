@@ -78,9 +78,27 @@ def generate_guid():
         {12345678-90ab-cdef-1234-567890abcdef}
     format (*with* the braces).
     """
-    try:
-        import uuid
-    except ImportError:
+    guid = None
+
+    # On Windows, try pythoncom.CreateGuid().
+    if sys.platform == "win32":
+        try:
+            import pythoncom
+        except ImportError:
+            pass
+        else:
+            guid = str(pythoncom.CreateGuid())
+
+    # Try Ka-Ping Yee's uuid.py module.
+    if guid is None:
         from ludditelib import uuid
-    guid = str(uuid.uuid4())
+        guid = str(uuid.uuid4())
+    
+    # Fallback to PyXPCOM.
+    if guid is None:
+        from xpcom import components
+        uuidGenerator = components.classes["@mozilla.org/uuid-generator;1"] \
+            .getService(components.interfaces.nsIUUIDGenerator)
+        guid = str(uuidGenerator.generateUUID())
+
     return guid

@@ -41,6 +41,7 @@
 
  * ***** END LICENSE BLOCK ***** */}
 gDialog = {};
+
 var ko = {
     extensions : {
         spellchecker : {

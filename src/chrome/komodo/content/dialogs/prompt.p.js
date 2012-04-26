@@ -270,7 +270,6 @@ function OnLoad()
                 dialog.moveToAlertPosition(); // requires a loaded opener
             }
         }
-
         if (window.arguments[0].selectionStart != null
             && window.arguments[0].selectionEnd != null) {
             textboxWidget.setSelectionRange(window.arguments[0].selectionStart,

@@ -484,6 +484,16 @@ treechildren::-moz-tree-image(remotefile)
   list-style-image: url('chrome://komodo/skin/images/file_icon.png');
 }
 
+.small-stop-sign-icon
+{
+    list-style-image : url("chrome://komodo/content/icons/stop.png");
+}
+
+.small-cut-icon
+{
+    list-style-image : url("chrome://komodo/content/icons/cut.png");
+}
+
 /* Komodo icons */
 
 .komodo-16x16 {

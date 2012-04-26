@@ -23,12 +23,12 @@ I'm lazy, just show me how to build it
 If any of these steps break, please first look at the full instructions
 below (especially the "prerequisites" sections).
 
-Build steps on Windows:
+Build steps on Windows (creating a Komodo 7.10 version):
 
     REM ---- Build Mozilla
     cd openkomodo\mozilla
     setenv-moz-msvc9.bat
-    python build.py configure -k 7.10 --moz-src=700 --release --no-strip --moz-objdir=ko-obj
+    python build.py configure -k 7.10 --moz-src=700 --release --no-strip --moz-objdir=koobj
     python build.py distclean all
     cd ..
     REM ---- Build Komodo
@@ -105,13 +105,15 @@ Build Prerequisites for Mac OS X
   as well.
 
 - Xcode. Install the latest one (avoid Xcode 2.0, though).
+
   <http://developer.apple.com/tools/download/>
+
   Be sure to install the Cross-Development SDKs, which is
   only available by choosing a Customized build in the Xcode installer.
 
 - MacPorts (<http://www.macports.org/>).
 
-  (Note: Fink works too but most of the build testing and instructions is
+  (Note: Fink may work too but most of the build testing and instructions is
   done with MacPorts.)
 
 - libIDL-2.0 >= 0.8.0. Once you have MacPorts installed you need just run::
@@ -163,7 +165,8 @@ Build Prerequisites for Linux
 
 - Everything mentioned in the Mozilla Linux build prerequisites:
 
-    <http://developer.mozilla.org/en/docs/Linux_Build_Prerequisites>
+  <http://developer.mozilla.org/en/docs/Linux_Build_Prerequisites>
+
 
 
 Prerequisite packages by Distro
@@ -176,16 +179,19 @@ listed here and/or corrections, please start a Documentation bug for this:
     <http://bugs.activestate.com/enter_bug.cgi?product=Komodo&component=Documentation>
 
 
-- Ubuntu 7.10 & 8.04:
-  
-    sudo apt-get install g++ patch libgtk2.0-dev libidl-dev \
-        libcurl4-gnutls-dev libdbus-glib-1-dev
+- Ubuntu:
+    sudo apt-get build-dep firefox
 
 - Fedora 9:
 
     sudo yum install gcc-c++ patch gtk2-devel libIDL-devel libcurl-devel
 
 - Others ...
+
+  Please add a bug (http://bugs.activestate.com/enter_bug.cgi?product=Komodo)
+  if you know the package-prerequisite install steps for another particular
+  distro. Thanks!
+
 
 
 
@@ -248,7 +254,7 @@ for Komodo, you should only need to do this once (in a while).
 3. Configure for the mozilla build. On Windows you currently want
    something like:
 
-        python build.py configure -k 7.10 --moz-src=700 --release --no-strip --moz-objdir=ko-obj
+        python build.py configure -k 7.10 --moz-src=700 --release --no-strip --moz-objdir=koobj
 
    On other platforms:
    
@@ -339,18 +345,12 @@ IDL changes -- you still need to run the slower "bk build".
 Build Troubleshooting Notes
 ===========================
 
-- If you run into Java errors when building mozilla, you may need to
-  disable Java XPCOM. You can do this by adding "--options=disable-javaxpcom"
-  to your Mozilla configure step:
-
-    python build.py configure ... --options=disable-javaxpcom
-
 - [Windows] The Mozilla build fails with::
 
         target: patch from ['patches-new']
-        preprocess: warn: defaulting content type for 'patches-new\MOZILLA_1_9_1\silo-mo
+        preprocess: warn: defaulting content type for 'patches-new\mozilla-2.0\silo-mo
         zilla-profiles.ppatch' to 'Text'
-        preprocess: warn: defaulting content type for 'patches-new\MOZILLA_1_9_1\silo-mo
+        preprocess: warn: defaulting content type for 'patches-new\mozilla-2.0\silo-mo
         zilla-runtime.ppatch' to 'Text'
         Traceback (most recent call last):
           File "build.py", line 3199, in <module>

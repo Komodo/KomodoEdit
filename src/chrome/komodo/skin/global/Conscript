@@ -47,4 +47,3 @@ Import(
 
 $cons->Preprocess('global.p.css', 'global.css');
 $cons->InstallInChrome('global.css');
-

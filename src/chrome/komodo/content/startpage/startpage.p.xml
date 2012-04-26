@@ -1300,8 +1300,8 @@
                     }
                 }
 
-                var sampleProjectPath = ko.uriparse.pathToURI(sampleProjectPath);
-                ko.projects.open(sampleProjectPath);
+                var sampleProjectUrl = ko.uriparse.pathToURI(sampleProjectPath);
+                ko.projects.open(sampleProjectUrl);
             } catch (ex) {
                 this.log.exception(ex,"openSampleProject error: "+ex);
             }

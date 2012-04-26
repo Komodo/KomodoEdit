@@ -122,7 +122,10 @@ class koAsyncService(object):
             except Exception, ex:
                 if aOpCallback:
                     log.debug("operation: %r raised exception: %r", aOp, ex)
-                    e = ServerException(nsError.NS_ERROR_FAILURE, repr(ex))
+                    if isinstance(ex, ServerException):
+                        e = ex
+                    else:
+                        e = ServerException(nsError.NS_ERROR_FAILURE, repr(ex))
                     aOpCallback.callback(self.RESULT_ERROR, e)
             else:
                 if aOpCallback:

@@ -664,14 +664,6 @@ class JavaScriptLangIntel(CitadelLangIntel,
                                   self._invalidate_cache)
             env.add_pref_observer("codeintel_scan_files_in_project",
                                   self._invalidate_cache)
-            # (Bug 68850) Both of these 'live_*' prefs on the *project*
-            # prefset can result in a change of project base dir. It is
-            # possible that we can get false positives here if there is ever
-            # a global pref of this name.
-            env.add_pref_observer("import_live",
-                self._invalidate_cache_and_rescan_extra_dirs)
-            env.add_pref_observer("import_dirname",
-                self._invalidate_cache_and_rescan_extra_dirs)
 
             db = self.mgr.db
             libs = []

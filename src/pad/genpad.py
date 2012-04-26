@@ -84,7 +84,6 @@ g_simple_platform_name_from_os = {
     "linux": "linux",
 }
 
-
 class GenPadError(Exception):
     pass
 

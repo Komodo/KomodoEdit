@@ -103,6 +103,7 @@ binding cmd_viewToolbox Ctrl+Shift+L
 binding cmd_reopenLastClosedTab Ctrl+Shift+T
 binding cmd_toolsRunCommand Ctrl+R
 binding cmd_save Ctrl+X Ctrl+S
+binding cmd_saveAs Ctrl+X Ctrl+W
 binding cmd_saveAll Ctrl+Shift+S
 binding cmd_transpose Ctrl+T
 binding cmd_splittab Ctrl+X 2

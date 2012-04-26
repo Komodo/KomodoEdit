@@ -422,15 +422,16 @@ function getObjectTree(o, recurse, compress, level)
 }
 this.getObjectTree = getObjectTree;
 
-
-function _repeatStr(str, aCount) {
-   var res = "";
-   while (--aCount >= 0)
-     res += str;
-   return res;
-};
-
 function dumpDOM(node, level, recursive) {
+  if (!this._repeatStr) {
+    this._repeatStr= function _repeatStr(str, aCount) {
+        var res = "";
+        while (--aCount >= 0)
+          res += str;
+        return res;
+     };
+  };
+
   if (level == undefined) {
     level = 0
   }
@@ -438,24 +439,24 @@ function dumpDOM(node, level, recursive) {
     recursive = true;
   }
 
-  dump(_repeatStr(" ", 2*level) + "<" + node.nodeName + "\n");
+  dump(this._repeatStr(" ", 2*level) + "<" + node.nodeName + "\n");
   var i;
   if (node.nodeType == 3) {
-      dump(_repeatStr(" ", (2*level) + 4) + node.nodeValue + "'\n");
+      dump(this._repeatStr(" ", (2*level) + 4) + node.nodeValue + "'\n");
   } else {
     if (node.attributes) {
       for (i = 0; i < node.attributes.length; i++) {
-        dump(_repeatStr(" ", (2*level) + 4) + node.attributes[i].nodeName + "='" + node.attributes[i].nodeValue + "'\n");
+        dump(this._repeatStr(" ", (2*level) + 4) + node.attributes[i].nodeName + "='" + node.attributes[i].nodeValue + "'\n");
       }
     }
     if (node.childNodes.length == 0) {
-      dump(_repeatStr(" ", (2*level)) + "/>\n");
+      dump(this._repeatStr(" ", (2*level)) + "/>\n");
     } else if (recursive) {
-      dump(_repeatStr(" ", (2*level)) + ">\n");
+      dump(this._repeatStr(" ", (2*level)) + ">\n");
       for (i = 0; i < node.childNodes.length; i++) {
         dumpDOM(node.childNodes[i], level + 1);
       }
-      dump(_repeatStr(" ", 2*level) + "</" + node.nodeName + ">\n");
+      dump(this._repeatStr(" ", 2*level) + "</" + node.nodeName + ">\n");
     }
   }
 }

@@ -473,7 +473,12 @@ koPrefWindow.prototype =
 
         case "radiogroup":
             prefattribute = _getPrefAttributeForElement(elt);
-            items = elt.getElementsByTagName("radio");
+            // bug89184 - deal with xbl too. Currently only needed for PHP invocation
+            // prefs, but add more as needed.
+            // Also, watch out -- XUL_NS is defined as a global constant when
+            // this file is loaded for invocation prefs, but not for std preferences.
+            var XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
+            items = elt.getElementsByTagNameNS(XUL_NS, "radio");
             for (i = 0; i < items.length; i++) {
                 item = items[i];
                 if (prefIds.length > 1) {

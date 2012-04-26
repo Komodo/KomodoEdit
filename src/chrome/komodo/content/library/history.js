@@ -69,12 +69,15 @@ function HistoryController() {
     this.historySvc = Components.classes["@activestate.com/koHistoryService;1"].
                 getService(Components.interfaces.koIHistoryService);
     window.controllers.appendController(this);
+    ko.main.addWillCloseHandler(this.destructor, this);
     window.updateCommands("history_changed");
 }
 
 HistoryController.prototype = new xtk.Controller();
 HistoryController.prototype.constructor = HistoryController;
-HistoryController.prototype.destructor = function() { };
+HistoryController.prototype.destructor = function() {
+    window.controllers.removeController(this);
+};
 
 HistoryController.prototype.is_cmd_historyForward_supported = function() {
     return true;

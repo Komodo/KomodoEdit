@@ -53,6 +53,7 @@ var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
     .createBundle("chrome://komodo/locale/editor.properties");
 
 function editor_editorController() {
+    ko.main.addWillCloseHandler(this.destructor, this);
 }
 
 // The following two lines ensure proper inheritance (see Flanagan, p. 144).
@@ -60,6 +61,7 @@ editor_editorController.prototype = new xtk.Controller();
 editor_editorController.prototype.constructor = editor_editorController;
 
 editor_editorController.prototype.destructor = function() {
+    window.controllers.removeController(this);
 }
 
 // boolean prefs are marked "not supported" if there is no view

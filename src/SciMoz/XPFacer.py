@@ -1385,7 +1385,7 @@ def generate_wrapper(face, interfaceCount):
     for name in getters:
         _("""
           koSciMozWrapper.prototype.__defineGetter__("%(name)s",
-                                                     function()this.__scimoz.%(name)s);
+                                                     function get_%(name)s()this.__scimoz.%(name)s);
           """,
           replacements={
             "name": name
@@ -1395,7 +1395,7 @@ def generate_wrapper(face, interfaceCount):
     for name in setters:
         _("""
           koSciMozWrapper.prototype.__defineSetter__("%(name)s",
-                                                     function(v)this.__scimoz.%(name)s=v);
+                                                     function set_%(name)s(v)this.__scimoz.%(name)s=v);
           """,
           replacements={
             "name": name
@@ -1405,7 +1405,7 @@ def generate_wrapper(face, interfaceCount):
     for name in methods:
         _("""
           koSciMozWrapper.prototype.%(name)s =
-              function() this.__scimoz.%(name)s.apply(this.__scimoz, arguments);
+              function meth_%(name)s() this.__scimoz.%(name)s.apply(this.__scimoz, arguments);
           """,
           replacements={
             "name": idlName(name)

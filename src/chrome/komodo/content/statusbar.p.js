@@ -218,6 +218,8 @@ function _updateLintMessage(view) {
     }
 }
 
+
+
 function _updateSelectionInformation(view) {
     var selectionLabel = "";
     if (view.scintilla) {
@@ -626,7 +628,7 @@ StatusBarObserver.prototype.destroy = function()
     }    
     _messageStack = null;
     _observer = null;
-    _prefObserver = null; 
+    _prefObserver = null;
 }
 StatusBarObserver.prototype.observe = function(subject, topic, data)
 {
@@ -670,15 +672,14 @@ StatusBarObserver.prototype.handle_current_view_language_changed = function(even
 };
 
 StatusBarObserver.prototype.handle_current_view_linecol_changed = function(event) {
-    if (!ko.views.manager) return; // no manager yet
     _updateLineCol(event.originalTarget,
                    event.getData("line")+1, // Human line numbers start from 1.
                    event.getData("column"));
-}; 
+};
 
 StatusBarObserver.prototype.handle_current_view_open_or_closed = function(event) {
     _clear()
-}; 
+};
 
 StatusBarObserver.prototype.onNotification = function(notif, oldIndex, newIndex, reason) {
     _updateMessage();

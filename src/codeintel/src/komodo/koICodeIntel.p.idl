@@ -216,7 +216,7 @@ interface koICodeIntelBuffer: nsISupports {
 
 [scriptable, uuid(f0396f8e-2d40-4c59-a616-ec1bcb41c07d)]
 interface koICodeIntelManager: nsISupports {
-}; 
+};
 
 [scriptable, uuid(2FDAB19C-B243-49C8-916C-BEAD369FCF97)]
 interface koICodeIntelService: nsISupports {

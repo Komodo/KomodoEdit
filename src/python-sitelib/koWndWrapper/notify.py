@@ -38,6 +38,9 @@
 
 from ctypes import *
 from ctypes.wintypes import *
+import logging
+log = logging.getLogger("koWndWrapper.notify")
+#log.setLevel(logging.DEBUG)
 
 class OVERLAPPED(Structure):
     _fields_ = [("Internal", POINTER(ULONG)),
@@ -90,8 +93,15 @@ def GetOverlappedResult(hFile, overlappedObj, waitFlag):
 def getFILE_NOTIFY_INFORMATION(readBuffer, nbytes):
     results = []
     #print "getFILE_NOTIFY_INFORMATION - process %d bytes" % (nbytes, )
+    if nbytes < sizeof(FILE_NOTIFY_INFORMATION):
+        log.error("getFILE_NOTIFY_INFORMATION: Expecting nbytes = at least %d bytes, got %d",
+                  sizeof(FILE_NOTIFY_INFORMATION), nbytes)
+        return results
     while nbytes > 0:
         fni = cast(readBuffer, LPFNI).contents
+        if not fni:
+            log.error("getFILE_NOTIFY_INFORMATION: fni is null")
+            return results
         fnameLocn = addressof(fni) + FILE_NOTIFY_INFORMATION.FileName.offset
         actualFileName = wstring_at(fnameLocn, fni.FileNameLength / 2)
         #print "FNI Size = ", fni.NextEntryOffset

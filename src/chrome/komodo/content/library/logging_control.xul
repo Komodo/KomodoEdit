@@ -62,15 +62,7 @@
 <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/logging.js"/>
 <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/logging_control.js"/>
 
-<menupopup id="set_level_menu">
-    <menuitem id="NOTSET" label="&unset.label;" oncommand="setLevel(this, ko.logging.LOG_NOTSET);"/>
-    <menuitem id="DEBUG" label="&DEBUG10.label;" oncommand="setLevel(this, ko.logging.LOG_DEBUG);"/>
-    <menuitem id="INFO" label="&INFO20.label;" oncommand="setLevel(this, ko.logging.LOG_INFO);"/>
-    <menuitem id="WARN" label="&WARN30.label;" oncommand="setLevel(this, ko.logging.LOG_WARN);"/>
-    <menuitem id="ERROR" label="&ERROR40.label;" oncommand="setLevel(this, ko.logging.LOG_ERROR);"/>
-    <menuitem id="CRITICAL" label="&CRITICAL50.label;" oncommand="setLevel(this, ko.logging.LOG_CRITICAL);"/>
-</menupopup>
-    <tree context="set_level_menu" seltype="single" id="loggers" flex="1">
+    <tree context="_child" seltype="single" id="loggers" flex="1">
         <treecols>
         <treecol id="logger" label="&logger.label;"
             flex="1"
@@ -88,28 +80,13 @@
         />
         </treecols>
         <treechildren flex="1" onselect="gLoggerView.selectionChanged();"/>
+        <menupopup>
+            <menuitem id="NOTSET" label="&unset.label;" oncommand="setLevel(this, ko.logging.LOG_NOTSET);"/>
+            <menuitem id="DEBUG" label="&DEBUG10.label;" oncommand="setLevel(this, ko.logging.LOG_DEBUG);"/>
+            <menuitem id="INFO" label="&INFO20.label;" oncommand="setLevel(this, ko.logging.LOG_INFO);"/>
+            <menuitem id="WARN" label="&WARN30.label;" oncommand="setLevel(this, ko.logging.LOG_WARN);"/>
+            <menuitem id="ERROR" label="&ERROR40.label;" oncommand="setLevel(this, ko.logging.LOG_ERROR);"/>
+            <menuitem id="CRITICAL" label="&CRITICAL50.label;" oncommand="setLevel(this, ko.logging.LOG_CRITICAL);"/>
+        </menupopup>
     </tree>
-    <splitter>
-        <grippy/>
-    </splitter>
-    <tree id="logs" flex="2">
-        <treecols>
-        <treecol id="logger"
-            label="&logger.label;"
-            flex="1"
-            class="treecol-header treecell-inset-header sortDirectionIndicator"/>
-        <splitter class="tree-splitter"/>
-        <treecol id="level" label="&level.label;"
-            flex="1"
-            class="treecol-header treecell-inset-header sortDirectionIndicator"/>
-        <splitter class="tree-splitter"/>
-        <treecol id="message" label="&message.label;"
-            flex="3"
-            class="treecol-header treecell-inset-header sortDirectionIndicator"/>
-        </treecols>
-        <treechildren flex="1" onselect="gLogView.selectionChanged();"/>
-    </tree>
-    <hbox>
-        <button label="&clearLog.label;" oncommand="gLogView.clear();" flex="1"/>
-    </hbox>
 </dialog>

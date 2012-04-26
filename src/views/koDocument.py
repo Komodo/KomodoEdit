@@ -1396,6 +1396,11 @@ class koDocumentBase:
             self.setSavePoint()
 
             try:
+                self._obsSvc.notifyObservers(self, "document_saved", self.file.URI)
+            except:
+                pass # ignore, noone listening
+
+            try:
                 self._obsSvc.notifyObservers(self, "file_changed",
                                              self.file.URI)
             except:

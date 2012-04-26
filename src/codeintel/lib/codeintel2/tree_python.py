@@ -122,16 +122,16 @@ class PythonImportLibGenerator(object):
             #print "Lazily loading the parent import libs: %r" % (self.imp_prefix, )
             self.index += 1
             lookuppath = dirname(self.bufpath)
-            parent_dirs_left = 10
+            parent_dirs_left = 5
+            import_name = self.imp_prefix[0]
+            if "." in import_name:
+                import_name = import_name.split(".", 1)[0]
             while lookuppath and parent_dirs_left > 0:
-                #print 'lookuppath: %r' % (lookuppath, )
+                #print '    exists: %r - %r' % (exists(join(lookuppath, import_name, "__init__.py")), join(lookuppath, import_name, "__init__.py"))
                 parent_dirs_left -= 1
-                parent_name = basename(lookuppath)
-                if parent_name == self.imp_prefix[0] and \
-                   exists(join(lookuppath, "__init__.py")):
+                if exists(join(lookuppath, import_name, "__init__.py")):
                     # Matching directory - return that as a library.
-                    lookuppath = dirname(lookuppath)
-                    #print "Adding parent dir lib: %r" % (lookuppath)
+                    #print "  adding parent dir lib: %r" % (lookuppath)
                     return self.mgr.db.get_lang_lib(self.lang, "parentdirlib",
                                                     [lookuppath])
                 lookuppath = dirname(lookuppath)
@@ -509,7 +509,7 @@ class PythonTreeEvaluator(TreeEvaluator):
                 while module_name.startswith("."):
                     lookuppath = dirname(lookuppath)
                     module_name = module_name[1:]
-                libs = [self.mgr.db.get_lang_lib("Python", "curdirlib",
+                libs = [self.mgr.db.get_lang_lib(self.trg.lang, "curdirlib",
                                                  [lookuppath])]
                 if not module_name:
                     module_name = symbol_name
@@ -543,7 +543,7 @@ class PythonTreeEvaluator(TreeEvaluator):
                     submodule_name = import_handler.sep.join(
                                         [module_name, symbol_name])
                     if allow_parentdirlib:
-                        libs = self._add_parentdirlib(libs, (module_name, symbol_name))
+                        libs = self._add_parentdirlib(libs, submodule_name.split("."))
                     try:
                         subblob = import_handler.import_blob_name(
                                     submodule_name, libs, self.ctlr)

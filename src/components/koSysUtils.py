@@ -479,7 +479,7 @@ if sys.platform.startswith("win"):
                 b,g,r = bgr[:2], bgr[2:4], bgr[4:]
                 for i, x in enumerate(colorDialog._dlgs_colors):
                     customColors[i] = int(x)
-                return '#'+r+g+b            
+                return '#'+r+g+b
 
         def pickColorAsync(self, callback, startingcolor, startingalpha, screenX=None, screenY=None):
             from wnd.dlgs.choosecolor import ChooseColor

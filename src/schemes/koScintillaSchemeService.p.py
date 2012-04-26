@@ -70,9 +70,9 @@ ValidStyles = {}
 _re_udl_style_name = re.compile(r'SCE_UDL_([^_]+)')
 _re_color_parts = re.compile(r'(..)')
 _no_background_colors = {
-        'PHP' : ['PHP'],
-        'HTML' : ['HTML'],
-        };
+    'PHP' : ['PHP'],
+    'HTML' : ['HTML'],
+}
 
 
 #---- scheme handling classes
@@ -313,7 +313,7 @@ class Scheme:
     def save(self):
         log.info("Doing save of %r", self.fname)
         if not self.writeable:
-            log.error("Scheme %s is not writeable")
+            log.error("Scheme %s is not writeable", self.name)
             return
         f = open(self.fname, 'wt')
         f.write(self.serialize())
@@ -947,7 +947,17 @@ class KoScintillaSchemeService:
                                 getService(components.interfaces.koILastErrorService)
         self._systemSchemeDir = os.path.join(self._koDirSvc.supportDir, 'schemes')
         _initializeStyleInfo()
+
+        self.reloadAvailableSchemes()
+
+        currentScheme = self._globalPrefs.getStringPref('editor-scheme')
+        if currentScheme not in self._schemes:
+            log.error("The scheme specified in prefs (%s) is unknown -- reverting to default", currentScheme)
+            self._globalPrefs.setStringPref('editor-scheme', 'Default')
+
+    def reloadAvailableSchemes(self):
         self._schemes = {}
+
         #print self._systemSchemeDir, os.path.exists(self._systemSchemeDir)
         if os.path.isdir(self._systemSchemeDir):
             schemes = self._loadSchemesFromDirectory(self._systemSchemeDir, 0)
@@ -957,15 +967,11 @@ class KoScintillaSchemeService:
             os.mkdir(self._userSchemeDir)
         else:
             schemes += self._loadSchemesFromDirectory(self._userSchemeDir, 1)
-                        
+
         #print schemes
         for scheme in schemes:
             self.addScheme(scheme)
-        assert len(self._schemes) != 0
-        currentScheme = self._globalPrefs.getStringPref('editor-scheme')
-        if currentScheme not in self._schemes:
-            log.error("The scheme specified in prefs (%s) is unknown -- reverting to default", currentScheme)
-            self._globalPrefs.setStringPref('editor-scheme', 'Default')
+        assert len(self._schemes) != 0 # We should always have Komodo schemes.
 
     def addScheme(self, scheme):
         #print "ADDING ", scheme.name

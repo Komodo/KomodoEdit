@@ -3,7 +3,7 @@
   <!ENTITY % komodoDTD SYSTEM "chrome://komodo/locale/komodo.dtd">
   %komodoDTD;
   <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
-  %brandDTD; 
+  %brandDTD;
 ]>
 <!-- ***** BEGIN LICENSE BLOCK *****
  Version: MPL 1.1/GPL 2.0/LGPL 2.1
@@ -439,11 +439,11 @@
             <toolbaritem id="menubar-items"
                          flex="1">
                 <menubar id="menubar_main"
-                      class="chromeclass-menubar"
-                    grippyhidden="true"
-                    fullscreentoolbar="true"
-                    align="start"
-                    flex="1"
+                         class="chromeclass-menubar"
+                         grippyhidden="true"
+                         fullscreentoolbar="true"
+                         align="start"
+                         flex="1"
                     >
                     <menu id="menu_file" label="&file.label;" accesskey="&menuFile.accesskey;">
                         <menupopup id="popup_file">
@@ -1032,8 +1032,8 @@
 
 
                     <menu id="menu_view" label="&view.label;" accesskey="&menuView.accesskey;">
-                      <menupopup id="popup_view"
-                                 onpopupshowing="ko.uilayout.updateFullScreen(this)">
+                        <menupopup id="popup_view"
+                                   onpopupshowing="ko.uilayout.updateFullScreen(this)">
                             <menu label="&tabs.label;" id="menu_view_tabs">
                                 <menupopup
                                     id="menu_view_tabs_popup"
@@ -1598,9 +1598,9 @@
         <hbox>
             <toolboxrow id="main-toolboxrow" flex="1" align="start" persist="hidden mode" mode="icons"
 <!-- #if PLATFORM == "darwin" -->
-                 fullscreentoolbar="true"
+                fullscreentoolbar="true"
 <!-- #endif -->
-                 >
+                >
                 <toolbar
                     id="standardToolbar"
                     class="chromeclass-toolbar"
@@ -1879,7 +1879,6 @@
                                oncommand="ko.uilayout.fullScreen();"/>
             </toolbaritem>
 <!-- #endif -->
-
         </hbox>
         <toolbar id="findToolbar"
                  align="start"

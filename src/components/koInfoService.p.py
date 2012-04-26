@@ -92,7 +92,6 @@ class KoInfoService(object):
             self.osVersion = platform.version()
         else:
             self.osSystem,node,self.osRelease,self.osVersion,machine = os.uname()
-        
         # We are in non-interactive mode if KOMODO_NONINTERACTIVE is set
         # and non-zero.
         KOMODO_NONINTERACTIVE = os.environ.get("KOMODO_NONINTERACTIVE")

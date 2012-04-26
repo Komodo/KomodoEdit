@@ -45,7 +45,6 @@
 
 <binding id="view-editor"
     extends="chrome://komodo/content/bindings/views-buffer.xml#view-buffer-base">
-
     <content orient="vertical">
         <xul:scintilla xbl:inherits="flex,focused,context,mozcontext" flex="1"
                        anonid="scintilla"
@@ -153,6 +152,7 @@
                                                              this._view_pref_observer_topics.length,
                                                              this._view_pref_observer_topics,
                                                              false);
+
                 var obsSvc = Components.classes["@mozilla.org/observer-service;1"].
                                 getService(Components.interfaces.nsIObserverService);
                 obsSvc.addObserver(this, 'scheme-changed', false);
@@ -468,7 +468,7 @@
                     this.koDoc.docSettingsMgr.applyDocumentSettingsToView(this);
 
                     // The change in language may affect controllers
-                    window.setTimeout("window.updateCommands('current_view_language_changed');", 1);
+                    window.setTimeout("window.updateCommands('language_changed');", 1);
                     window.setTimeout("window.updateCommands('foldability_changed');", 1);
                 }
                 this._setupHighlightColors();
@@ -533,6 +533,7 @@
                 this.scintilla.focus();
                 this.restoreLocation(locationInfo);
                 break;
+
             case 'editor-scheme': // Chose a different scheme
             case 'scheme-changed': // Modified the current scheme
                 setTimeout(function(this_) {

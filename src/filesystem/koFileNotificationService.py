@@ -114,8 +114,7 @@ class koFileNotificationService:
 
         obsSvc = components.classes["@mozilla.org/observer-service;1"].\
                        getService(components.interfaces.nsIObserverService)
-        self._wrappedSelf = WrapObject(self,components.interfaces.nsIObserver)
-        obsSvc.addObserver(self._wrappedSelf, 'xpcom-shutdown', 1)
+        obsSvc.addObserver(self, 'xpcom-shutdown', False)
 
     # Return both the URI (string) and nsIFile (xpcom object) for a given URI or
     # a given file path.
@@ -143,6 +142,9 @@ class koFileNotificationService:
     def observe(self, subject, topic, data):
         if topic == "xpcom-shutdown":
             self.stopNotificationService()
+            obsSvc = components.classes["@mozilla.org/observer-service;1"].\
+                           getService(components.interfaces.nsIObserverService)
+            obsSvc.removeObserver(self, 'xpcom-shutdown')
 
     # long startNotificationService();    // Ready to receiving file change notifications from OS
     def startNotificationService(self):

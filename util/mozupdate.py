@@ -804,13 +804,9 @@ def _get_mar():
     if "MAR" in os.environ:
         return os.environ["MAR"]
 
-    try:
-        return which.which("mar")
-    except which.WhichError, ex:
-        pass
-
-    # If this is a Komodo-devel tree, attempt to use the configured
-    # Mozilla build's mar.exe.
+    # If this is a komodo dev tree, attempt to use the configured
+    # mozilla build's mar.exe.
+    build_mar_instructions = ""
     config_path = join(dirname(dirname(abspath(__file__))), "bkconfig.py")
     if exists(config_path):
         try:
@@ -822,13 +818,24 @@ def _get_mar():
             mar = join(config.mozObjDir, "dist", "host", "bin", "mar"+exe)
             if exists(mar):
                 return mar
+            build_mar_instructions = '\n'.join([
+                "- build mar in your mozilla build:",
+                "    cd %s" % join(config.mozObjDir, "modules", "libmar"),
+                "    make"
+                ])
+
+    # Use the first one found on the path, if any.
+    try:
+        return which.which("mar")
+    except which.WhichError, ex:
+        pass
 
     raise Error(_dedent("""\
-        No 'mar' executable could be found on your PATH. Add mar to your
-        PATH or define a MAR environment variable pointing to one.
-        
-        'mar' is the Mozilla ARchiver. It can be built from source in
-        'mozilla/modules/libmar'."""))
+        No 'mar' (Mozilla ARchiver) executable could be found. You can:
+        - set a MAR envvar pointing to one
+        - put a mar executable directory on your PATH
+        %s
+        """) % build_mar_instructions)
 
 def _get_mbsdiff():
     """Return path to a mbsdiff executable."""

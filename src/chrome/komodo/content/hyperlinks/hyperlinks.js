@@ -79,10 +79,14 @@ ko.hyperlinks = {};
 
     // Add a controller for the invoke hyperlink command.
     function hyperlinksController() {
+        ko.main.addWillCloseHandler(this.destructor, this);
     }
     // The following two lines ensure proper inheritance (see Flanagan, p. 144).
     hyperlinksController.prototype = new xtk.Controller();
     hyperlinksController.prototype.constructor = hyperlinksController;
+    hyperlinksController.prototype.destructor = function() {
+        window.controllers.removeController(this);
+    }
     hyperlinksController.prototype.is_cmd_invokeHyperlink_supported = function() {
         return ko.views.manager.currentView != null;
     }

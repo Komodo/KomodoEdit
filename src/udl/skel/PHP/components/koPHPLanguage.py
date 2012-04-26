@@ -135,3 +135,4 @@ echo $foo1->mul()."";
         if self._interpreter is None:
             self._interpreter = components.classes["@activestate.com/koAppInfoEx?app=PHP;1"].getService()
         return self._interpreter
+

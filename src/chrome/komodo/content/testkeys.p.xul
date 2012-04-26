@@ -62,11 +62,6 @@
     <script src="chrome://komodo/content/testkeys.js"
             type="application/x-javascript;version=1.7" />
 
-    <commandset>
-        <command id="cmd_showkey"
-            oncommand="showkey(event)"/>
-    </commandset>
-    <menubar id="menubar_main"/>
 
 <grid flex="1">
   <columns>

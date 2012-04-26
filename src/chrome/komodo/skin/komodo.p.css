@@ -37,7 +37,6 @@
 @import url("chrome://komodo/skin/unifiedWindow.css");  /* only exists on Mac */
 @import url("chrome://komodo/skin/splitter.css");
 
-
 /* ::::: fullscreen window controls ::::: */
 
 #window-controls {
@@ -127,7 +126,6 @@ toolbar[printpreview="true"] {
 #main-toolboxrow {
   min-width: 1px;
   -moz-appearance: toolbar;
-  border-top: 1px solid ThreeDHighlight;
   border-bottom: 1px solid ThreeDShadow;
   -moz-binding: url('chrome://komodo/content/bindings/toolbar.xml#toolboxrow-overflow');
 }
@@ -179,7 +177,7 @@ popup[type="tooltip"] {
   margin: 0px !important;
 }
 
-label[highlite="true"], 
+label[highlite="true"],
 statusbarpanel[highlite="true"] {
   margin: 0px;
   padding: 0px;

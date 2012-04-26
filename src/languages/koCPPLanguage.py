@@ -34,7 +34,7 @@
 # 
 # ***** END LICENSE BLOCK *****
 
-from xpcom import components, nsError
+from xpcom import components
 from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, getProxyForObject
 from koLintResult import *
 from koLintResults import koLintResults

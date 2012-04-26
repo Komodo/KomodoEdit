@@ -160,7 +160,6 @@ class KoToolbox2Service(object):
 
         self._data = {} # Komodo nsIDOMWindow -> KomodoWindowData instance
         self._standardToolbox = None  # Stores the top-level folder's ID
-        self._loadedToolboxes = {}    # Map project uri to top-level folder's 
         self._loadedToolboxes = {}    # Map project uri to top-level folder's id
         self._tbFromExtension = {}    # Map folder ID to a boolean
         self._db = None
@@ -741,17 +740,18 @@ class KoToolbox2Service(object):
         #    return
         elif True:
             return
-        elif topic == "domwindowopened":
-            self._data[window] = KomodoWindowData()
-        elif topic == "domwindowclosed":
-            if window in self._data:
-                del self._data[window]
+        #elif topic == "domwindowopened":
+        #    self._data[window] = KomodoWindowData()
+        #elif topic == "domwindowclosed":
+        #    if window in self._data:
+        #        del self._data[window]
         elif topic == "xpcom-shutdown":
+            self._prefs.prefObserverService.removeObserverForTopics(self._wrapped,
+                                                self._pref_observer_names)
             _observerSvc = components.classes["@mozilla.org/observer-service;1"]\
                 .getService(components.interfaces.nsIObserverService)
             _observerSvc.removeObserver(self._wrapped,
                                         "project_renamed")
+            _observerSvc.removeObserver(self._wrapped,
+                                        "xpcom-shutdown")
             return
-
-
-

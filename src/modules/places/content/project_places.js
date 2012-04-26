@@ -420,6 +420,8 @@ this.terminate = function() {
     _placePrefs.setLongPref("project_sort_direction",
                             this.projectsTreeView.sortDirection);
     this.projectsTreeView.terminate();
+    if (this.projectsTree.treeBoxObject)
+        this.projectsTree.treeBoxObject.view = null;
 };
 
 // Methods for dealing with the projects tree context menu.

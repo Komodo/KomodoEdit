@@ -473,12 +473,12 @@ this.showDiffs = function peFile_ShowDiffs(fname1, fname2) {
     window.setTimeout(_openDiffWindowForFiles, 0, fname1, fname2);
 }
 
-this.setFileStatusAttributesFromFile = function peFile_setFileStatusAttributesFromView(element, koFile) {
+this.setFileStatusAttributesFromFile = function peFile_setFileStatusAttributesFromFile(element, koFile) {
     // Here we set the attributes for our file status indicators. The following
     // attributes on the element can be set:
 
     // alt_image = [async_operation];
-    // file_readonly=[readonly]
+    // file_readonly = [readonly]
 
     // File image url.
     if (_nativeMozIconsAvailable) {

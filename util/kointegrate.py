@@ -292,7 +292,7 @@ class P4Branch(Branch):
                     XXX
                     dst_path = join(dst_branch.base_dir, f["rel_path"])
                     origDstContent = open(dst_path, 'rb').read()
-                    newDstContent = re.sub(r"\$Id$]+\$", "$Id$", origDstContent)
+                    newDstContent = re.sub(r"\$Id: [^$]+\$", "$Id$", origDstContent)
                     if newDstContent != origDstContent:
                         open(dst_path, 'wb').write(newDstContent)
                 
@@ -866,7 +866,7 @@ class SVNBranch(Branch):
                     if "$Id$" in patchContent:
                         dst_path = join(dst_branch.base_dir, f["rel_path"])
                         origDstContent = open(dst_path, 'rb').read()
-                        newDstContent = re.sub(r"\$Id$]+\$", "$Id$", origDstContent)
+                        newDstContent = re.sub(r"\$Id: [^$]+\$", "$Id$", origDstContent)
                         if newDstContent != origDstContent:
                             open(dst_path, 'wb').write(newDstContent)
 
@@ -1668,7 +1668,7 @@ def main(argv=sys.argv):
     parser.add_option("-i", "--interactive", action="store_true",
                       help="interactively verify steps of integration "
                            "(default)")
-    parser.add_option("--non-interactive", action="store_false",
+    parser.add_option("-n", "--non-interactive", action="store_false",
                       dest="interactive", help="no interaction")
     parser.add_option("-f", "--force", action="store_true",
         help="force application of patches that won't apply cleanly; ignore files missing in the target")

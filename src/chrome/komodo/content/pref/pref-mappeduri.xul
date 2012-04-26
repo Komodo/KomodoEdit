@@ -65,6 +65,9 @@ function onload() {
     // for project prefs, we do not want to inherit the parent prefs
     if (parent.part) {
         document.getElementById("mappings").setAttribute("prefhere","true");
+        // Don't want to show the drag/drop preferences for a project.
+        var remove = document.getElementById("dropask_groupbox");
+        remove.parentNode.removeChild(remove);
     }
     parent.initPanel();
 }

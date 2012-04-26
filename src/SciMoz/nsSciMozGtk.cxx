@@ -56,19 +56,17 @@ NS_IMETHODIMP SciMoz::_DoButtonUpDown(PRBool up,
                                       PRUint16 button,
                                       PRBool /* bShift */,
                                       PRBool /* bCtrl */,
-                                      PRBool /* bAlt */)
-{
+                                      PRBool /* bAlt */) {
 	if (up and button == 0) {
                 SendEditor(SCI_RELEASEMOUSECAPTURE, 0, 0);
         }
-	return NS_OK;
+        return NS_OK;
 }
 
 
 /* void ButtonMove( in long x, in long y); */
 NS_IMETHODIMP SciMoz::ButtonMove(PRInt32 /* x */,
-                                 PRInt32 /* y */)
-{
+                                 PRInt32 /* y */) {
 	SCIMOZ_CHECK_VALID("ButtonMove");
 	return NS_OK;
 }

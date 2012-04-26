@@ -99,6 +99,7 @@ class CallStack:
     def top(self):
         """get the head element of the stack, stack is unchanged."""
         return self.stack[-1:][0]
+
     def handleLineCost(self, tdelta):
         p, c = self.stack.pop()
         self.stack.append( (p,c + tdelta) )
@@ -218,7 +219,14 @@ def convertProfFile(inputfilename, caller_stack, call_dict, cost_per_pos, cost_p
         logreader = log.LogReader(inputfilename)
         current_cost = 0
         hc = handleCostPerPos # shortcut
-        for item in logreader:
+        while 1:
+            try:
+                item = logreader.next()
+            except StopIteration, e:
+                break
+            except IndexError, e:
+                # we get a couple extra EXIT occurances with PyXPCOM, ignore them
+                continue
             what, pos ,tdelta = item
             (file, lineno, func) = pos
             #line = "%s %s %d %s %d" % (what2text[what], file, lineno, func, tdelta)
@@ -313,7 +321,7 @@ def dumpResults(output, call_dict, total_cost, cost_per_pos, cost_per_function):
                 tagwriter.write("fl", caller_x[0])
                 tagwriter.write("cob", file)
                 tagwriter.write("cfn", called_x) #pretty_name(file, called_x))
-                #tagwriter.write("cfl", file)
+                tagwriter.write("cfl", file)
                 cost, count = per_caller_dict[caller_x]
                 #print "called_x:",called_x
                 output.write("calls=%d\n%d %d\n" % (count, caller_x[1], cost))

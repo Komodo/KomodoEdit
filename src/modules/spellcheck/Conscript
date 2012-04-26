@@ -64,6 +64,7 @@ Import(
 my $ext_name = "komodospellchecker";
 my $ext_dir = "$mozExtensionDir/$ext_name\@ActiveState.com";
 
+
 if ($buildFlavour eq "full") {
     $cons->Command(
         ["komodospellchecker.xpi", "komodospellchecker.jar"],

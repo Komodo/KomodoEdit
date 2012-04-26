@@ -79,31 +79,31 @@
             <vbox flex="1">
                 <text value="&filePrefPhpUseThisInterpreter.label;" style="padding: 2px 6px 2px 6px"/>
                 <hbox align="center">
-                <menulist id="phpDefaultInterpreter"
-                    flex="1"
-                    pref="true"
-                    prefstring="phpDefaultInterpreter"
-                    oncommand="PrefPhp_DebuggerConfiguredMessage();">
-                    <menupopup id="avail-interp-list"/>
-                </menulist>
-                <button label="&browse.label;" oncommand="loadPHPExecutable();"/>
+                    <menulist id="phpDefaultInterpreter"
+                        flex="1"
+                        pref="true"
+                        prefstring="phpDefaultInterpreter"
+                        oncommand="PrefPhp_DebuggerConfiguredMessage();">
+                        <menupopup id="avail-interp-list"/>
+                    </menulist>
+                    <button label="&browse.label;" oncommand="loadPHPExecutable();"/>
                 </hbox>
             </vbox>
         </groupbox>
-
+    
         <groupbox orient="vertical">
             <caption label="&pathToAlternatePHPConfigurationFile.label;"/>
             <vbox>
-            <description id="iniExplain">&filePrefPhpInifileDirectory.description;</description>
-    
-            <hbox align="center">
-                <textbox id="phpConfigFile" flex="1"
-                         pref="true"
-                         prefstring="phpConfigFile"
-                         prefattribute="value"
-                         onblur="PrefPhp_SelectIni();"/>
-                <button label="&browse.label;" oncommand="loadIniFile();"/>
-            </hbox>
+                <description id="iniExplain">&filePrefPhpInifileDirectory.description;</description>
+        
+                <hbox align="center">
+                    <textbox id="phpConfigFile" flex="1"
+                             pref="true"
+                             prefstring="phpConfigFile"
+                             prefattribute="value"
+                             onblur="PrefPhp_SelectIni();"/>
+                    <button label="&browse.label;" oncommand="loadIniFile();"/>
+                </hbox>
             </vbox>
         </groupbox>
         <groupbox orient="vertical">
@@ -123,15 +123,15 @@
                   class="load-context-check" showIfLoadContext="global">
             <caption label="&otherOptions.label;"/>
             <hbox align="center">
-            <label value="&commentStyle.label;"/>
-            <menulist id="commentStyle"
-                          pref="true" prefstring="phpCommentStyle"
-                          prefattribute="data">
-                <menupopup>
-                    <menuitem data="//,#" label="&doubleSlash.label;"/>
-                    <menuitem data="#,//" label="&hash.label;"/>
-                </menupopup>
-            </menulist>
+                <label value="&commentStyle.label;"/>
+                <menulist id="commentStyle"
+                              pref="true" prefstring="phpCommentStyle"
+                              prefattribute="data">
+                    <menupopup>
+                        <menuitem data="//,#" label="&doubleSlash.label;"/>
+                        <menuitem data="#,//" label="&hash.label;"/>
+                    </menupopup>
+                </menulist>
             </hbox>
         </groupbox>
 

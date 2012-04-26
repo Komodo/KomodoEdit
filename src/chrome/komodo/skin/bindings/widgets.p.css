@@ -168,9 +168,6 @@ ko-pane[type="vertical"] tabs[anonid="tabs"] tab {
   margin              : 0;
   padding             : 0;
 }
-ko-pane[type="vertical"] tabs[anonid="tabs"] tab[selected] {
-  font-weight: bold;
-}
 ko-pane[type="vertical"] tabs[anonid="tabs"] tab:-moz-focusring {
   outline: none;
 }
@@ -197,7 +194,6 @@ browser[type="ko-widget"] {
   -moz-binding: url("chrome://komodo/content/bindings/pane.xml#widget");
   -moz-box-flex: 1;
 }
-
 
 /**
  * Vertical text label.

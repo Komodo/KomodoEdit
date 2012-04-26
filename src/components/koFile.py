@@ -179,6 +179,8 @@ class TempFileFactory:
 
         def observe(self, service, topic, extra):
                 DeleteAllTempFiles()
+                svc = components.classes["@mozilla.org/observer-service;1"].getService(components.interfaces.nsIObserverService)
+                svc.removeObserver(self._shutdownObserver, "xpcom-shutdown")
 
         def MakeTempName(self, suffix):
                 ret = tempfile.mktemp(suffix)

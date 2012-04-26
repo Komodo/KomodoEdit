@@ -1487,6 +1487,47 @@ class CplnTestCase(CodeintelPythonTestCase):
         self.assertCompletionsInclude2(buf, positions[2],
             [("function", "createZip")])
 
+    def test_smart_parent_imports(self):
+        content, positions = unmark_text(dedent(r'''
+            from komodo_and.<1>models import <2>Topic
+            from komodo_or import <3>xxx
+            t = Topic(<4>)
+            t.<5>xxx
+        '''))
+
+        test_dir = join(self.test_dir, "test_smart_parent_imports")
+        manifest = [
+            ("komodo_and/views.py", content),
+            ("komodo_and/__init__.py", ""),
+            ("komodo_and/models.py", dedent("""
+                class Topic(object):
+                    def createTopic(self, name):
+                        pass
+                def Something():
+                    pass
+             """)),
+            ("komodo_or/__init__.py", ""),
+            ("komodo_or/kor.py", ""),
+        ]
+        for f, c in manifest:
+            path = join(test_dir, f)
+            writefile(path, c)
+
+        buf = self.mgr.buf_from_path(join(test_dir, "komodo_and", "views.py"),
+                                     lang="Python")
+        self.assertCompletionsAre2(buf, positions[1],
+            [("module", "models"),
+             ("module", "views")])
+        self.assertCompletionsAre2(buf, positions[2],
+            [("function", "Something"),
+             ("class", "Topic")])
+        self.assertCompletionsAre2(buf, positions[3],
+            [("module", "kor")])
+        self.assertCalltipIs2(buf, positions[4],
+            "Topic()")
+        self.assertCompletionsInclude2(buf, positions[5],
+            [("function", "createTopic")])
+
     @tag("bug78165")
     def test_dotdot_imports_completions(self):
         content1, positions1 = unmark_text(dedent(r'''

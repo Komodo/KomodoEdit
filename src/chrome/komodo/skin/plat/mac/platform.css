@@ -199,6 +199,12 @@ toolbarbutton[type="checkbox"][checked]:-moz-window-inactive {
                                          rgb(204, 204, 204),
                                          rgb(135, 135, 135));
 }
+/* Also requires to override this CSS style from bordered toolbox above. */
+toolbar:not([mode="full"]) > toolbaritem > toolbarbutton[checked="true"],
+.solo-toolbaritem > toolbarbutton[checked="true"],
+.solo-button[checked="true"] {
+  background-image: url(chrome://komodo/skin/images/button-gradient-inactive.png);
+}
 
 #toolbox_main toolbar:not([mode="full"]) > toolbarbutton:first-child,
 #toolbox_main toolbar:not([mode="full"]) > toolbarbutton.first-child,

@@ -154,7 +154,7 @@ class KoUDLLanguage(KoLanguageBase):
     # 'primary' indicates if this is a language that Komodo "cares about"
     # more that others. Mainly this mean it shows up in the "View as
     # Language" menulists at the top-level. Presumably if the user bothered
-    # to create a UDL-based custom langauge, then yes this should be
+    # to create a UDL-based custom language, then yes this should be
     # considered primary.
     primary = 1
     

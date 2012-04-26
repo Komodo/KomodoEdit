@@ -453,6 +453,9 @@ def gencix(major, minor):
     for file in root.getiterator('file'):
         print >> sys.stderr, "Processing", file.get('path')
         for blob in file:
+            if blob.get("src"):
+                # Don't want the src string.
+                del blob.attrib["src"]
             cixfile.append(blob)
     
     cix = genPerlStdCIX(cixfile)

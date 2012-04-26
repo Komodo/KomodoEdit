@@ -87,8 +87,7 @@ class KoDocumentService:
 
         obsSvc = components.classes["@mozilla.org/observer-service;1"].\
                        getService(components.interfaces.nsIObserverService)
-        self._wrappedSelf = WrapObject(self,components.interfaces.nsIObserver)
-        obsSvc.addObserver(self._wrappedSelf, 'xpcom-shutdown', 1)
+        obsSvc.addObserver(self, 'xpcom-shutdown', 1)
         
         # set up the background thread
         self.shutdown = 0
@@ -104,6 +103,9 @@ class KoDocumentService:
     def observe(self, subject, topic, data):
         if topic == "xpcom-shutdown":
             self.shutdownAutoSave()
+            obsSvc = components.classes["@mozilla.org/observer-service;1"].\
+                           getService(components.interfaces.nsIObserverService)
+            obsSvc.removeObserver(self, 'xpcom-shutdown')
 
     def getAutoSaveDocuments(self):
         # this does about the same as getAllDocuments, but doesn't

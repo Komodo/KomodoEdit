@@ -1144,6 +1144,11 @@ class KoInitService(object):
             #XXX The best target directory might vary for other OSes.
             dstDir = os.path.join(koDirSvc.userDataDir, "samples")
             if os.path.exists(dstDir):
+                # If the older format ".kpf" files still exist, re-create the
+                # samples folder.
+                sampleKpfPath = os.path.join(dstDir, "sample_project.kpf")
+                if os.path.exists(sampleKpfPath):
+                    force = True
                 if force:
                     log.info("removing old samples directory: '%s'" % dstDir)
                     _rmtree(dstDir) #XXX should handle error here
@@ -1211,3 +1216,4 @@ class KoInitService(object):
                         getService(components.interfaces.koITemplateService)
         except Exception:
             log.exception("installTemplates")
+

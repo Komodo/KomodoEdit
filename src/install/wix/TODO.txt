@@ -1,4 +1,3 @@
-- test on Win9x
 - Ensure that all files (and dirs) get removed on uninstall. Check for
   non-admin install as well: it might work differently.
 - drop the customaction build stuff: not used anymore

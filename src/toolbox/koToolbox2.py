@@ -854,7 +854,7 @@ class Database(object):
         with self.connect() as cu:
             cu.execute(stmt, (toolType, name))
             return [x[0] for x in cu.fetchall()]
-    
+            
     def _searchAbbrevFolderSnippet(self, abbrev, subnames, cu):
         """
         In this SQL, p1 points to the Abbreviations folder,

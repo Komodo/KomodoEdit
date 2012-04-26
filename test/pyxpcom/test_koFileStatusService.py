@@ -46,7 +46,7 @@ class TestKoFileStatusServiceObserver:
             self.subject = subject
             self.topic = topic
             for URI in data.split("\n"):
-                print "Got a file_status notification: %r" % (URI, )
+                #print "Got a file_status notification: %r" % (URI, )
                 self.updated_uris.add(URI)
             self.lock.notifyAll()
         finally:
@@ -91,9 +91,14 @@ class TestKoFileStatusService(unittest.TestCase):
             uri = "file:///" + os.path.abspath(__file__).replace("\\", "/")
         else:
             uri = "file://" + os.path.abspath(__file__)
-        file = self.__filesvc.getFileFromURI(uri)
-        assert file.exists
-        self.__fileStatusSvc.updateStatusForFiles([file], False, None)
+        diruri = os.path.dirname(uri)  # this does correct thing on Windows too
+        koFileEx_file = self.__filesvc.getFileFromURI(uri)
+        koFileEx_dir = self.__filesvc.getFileFromURI(diruri)
+        assert koFileEx_file.exists
+        assert koFileEx_file.isFile
+        assert koFileEx_dir.exists
+        assert koFileEx_dir.isDirectory
+        self.__fileStatusSvc.updateStatusForFiles([koFileEx_file, koFileEx_dir], False, None)
         # Give some time to get the status.
         # Note: Edit does not have scc handling.
         #self.__obs.wait(file.URI, 5)

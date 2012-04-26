@@ -43,7 +43,6 @@ Import(
 
 $cons->InstallInChrome('startpageDefaultLanding.png');
 $cons->InstallInChrome('project_icon_16x16.png');
-$cons->InstallInChrome('project_icon_16x16.png');
 $cons->InstallInChrome('file_icon_16x16.png');
 
 $cons->InstallInChrome('config_icon.gif');

@@ -144,7 +144,6 @@ import langinfo
 
 
 
-
 #---- exceptions and warnings
 
 class TextInfoError(Exception):

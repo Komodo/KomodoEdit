@@ -106,8 +106,7 @@ class KoPerlInfoEx(KoAppInfoEx):
         self._havePerlCritic = None
         self._perlCriticVersion = None
         try:
-            self._wrapped = WrapObject(self,components.interfaces.nsIObserver)
-            self._prefSvc.prefs.prefObserverService.addObserver(self._wrapped, "perlDefaultInterpreter", 0)
+            self._prefSvc.prefs.prefObserverService.addObserver(self, "perlDefaultInterpreter", 0)
         except Exception, e:
             print e
 
@@ -265,8 +264,7 @@ class KoPythonCommonInfoEx(KoAppInfoEx):
         self.koInfoService = components.classes["@activestate.com/koInfoService;1"].getService();
         self._userPath = koprocessutils.getUserEnv()["PATH"].split(os.pathsep)
         try:
-            self._wrapped = WrapObject(self,components.interfaces.nsIObserver)
-            self._prefSvc.prefs.prefObserverService.addObserver(self._wrapped, "pythonDefaultInterpreter", 0)
+            self._prefSvc.prefs.prefObserverService.addObserver(self, "pythonDefaultInterpreter", 0)
         except Exception, e:
             print e
 
@@ -434,7 +432,6 @@ class KoPythonCommonInfoEx(KoAppInfoEx):
         retval = p.wait()
         return not retval
 
-
 class KoPythonInfoEx(KoPythonCommonInfoEx):
     _com_interfaces_ = [components.interfaces.koIAppInfoEx,
                         components.interfaces.nsIObserver]
@@ -475,8 +472,7 @@ class KoRubyInfoEx(KoAppInfoEx):
         self._executables = []
         self._digits_re = re.compile(r'(\d+)')
         try:
-            self._wrapped = WrapObject(self,components.interfaces.nsIObserver)
-            self._prefSvc.prefs.prefObserverService.addObserver(self._wrapped, "rubyDefaultInterpreter", 0)
+            self._prefSvc.prefs.prefObserverService.addObserver(self, "rubyDefaultInterpreter", 0)
         except Exception, e:
             print e
 
@@ -620,8 +616,7 @@ class KoTclInfoEx(KoAppInfoEx):
         KoAppInfoEx.__init__(self)
         self._userPath = koprocessutils.getUserEnv()["PATH"].split(os.pathsep)
         try:
-            self._wrapped = WrapObject(self,components.interfaces.nsIObserver)
-            self._prefSvc.prefs.prefObserverService.addObserver(self._wrapped, "tclshDefaultInterpreter", 0)
+            self._prefSvc.prefs.prefObserverService.addObserver(self, "tclshDefaultInterpreter", 0)
         except Exception, e:
             print e
 
@@ -788,10 +783,11 @@ class KoPHPInfoInstance(KoAppInfoEx):
         self._info = {}
         self._userPath = koprocessutils.getUserEnv()["PATH"].split(os.pathsep)
         try:
-            self._wrapped = WrapObject(self,components.interfaces.nsIObserver)
             prefObserverService = self._prefSvc.prefs.prefObserverService
-            prefObserverService.addObserver(self._wrapped, "phpDefaultInterpreter", 0)
-            prefObserverService.addObserver(self._wrapped, "phpConfigFile", 0)
+            prefObserverService.addObserverForTopics(self,
+                                                     ["phpDefaultInterpreter",
+                                                      "phpConfigFile"],
+                                                     0)
         except Exception, e:
             print e
 
@@ -1213,7 +1209,7 @@ class KoNodeJSInfoEx(KoAppInfoEx):
         argv = [nodejsExe, "-v"]
         p = process.ProcessOpen(argv, stdin=None)
         nodejsVersionDump, stderr = p.communicate()
-        pattern = re.compile("v([\w\.]+) ")
+        pattern = re.compile("v([\w\.]+)")
         match = pattern.match(nodejsVersionDump)
         if match:
             return match.group(1)
@@ -1289,8 +1285,7 @@ class KoCVSInfoEx(KoAppInfoEx):
         KoAppInfoEx.__init__(self)
         self._userPath = koprocessutils.getUserEnv()["PATH"].split(os.pathsep)
         try:
-            self._wrapped = WrapObject(self,components.interfaces.nsIObserver)
-            self._prefSvc.prefs.prefObserverService.addObserver(self._wrapped, "cvsExecutable", 0)
+            self._prefSvc.prefs.prefObserverService.addObserver(self, "cvsExecutable", 0)
         except Exception, e:
             print e
 

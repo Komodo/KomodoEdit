@@ -365,7 +365,7 @@ def create_udl_lang_skel(base_dir, lang, ext=None, is_html_based=False,
                 #           SSL (server-side language), e.g. Perl, PHP, Python
                 #           TPL (template language), e.g. RHTML, Django, Smarty
                 #      'lang_from_udl_family' maps each UDL family code (M,
-                #      CSL, ...) to the sub-langauge name in your language.
+                #      CSL, ...) to the sub-language name in your language.
                 #      Some examples:
                 #        lang_from_udl_family = {   # A PHP file can contain
                 #           'M': 'HTML',            #   HTML
@@ -794,7 +794,9 @@ def komodo_unpack_xpi(xpi_path, log=None):
     if not isfile(xpi_path):
         raise KoExtError('%s is not a file' % xpi_path)
     ko_info = KomodoInfo()
-    tmp_dir = join(ko_info.ext_base_dir, '__', basename(xpi_path))
+    # We don't know the extension directory name, until we have extracted the
+    # xpi. Extract it to a temp dir and move that once we figured out the name.
+    tmp_dir = join(ko_info.ext_base_dir, '__%s' % basename(xpi_path))
     if exists(tmp_dir):
         _rm(tmp_dir, logstream=log.info)
     _mkdir(tmp_dir, logstream=log.info)

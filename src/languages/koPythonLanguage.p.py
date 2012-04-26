@@ -158,6 +158,7 @@ class KoPython3LexerLanguageService(KoPythonCommonLexerLanguageService):
         self.setKeywords(0, list(kwlist))
         self.setKeywords(1, list(kwlist2))
 
+
 class KoPythonCommonLanguage(KoLanguageBase):
     accessKey = 'y'
     primary = 1

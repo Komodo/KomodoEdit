@@ -135,15 +135,15 @@ class KoFeatureStatusService:
 
         self._userPath = koprocessutils.getUserEnv()["PATH"].split(os.pathsep)
 
-        self._observer = WrapObject(self, components.interfaces.nsIObserver)
-        self._observerSvc.addObserver(self._observer, 'xpcom-shutdown', 1)
-        self._observerSvc.addObserver(self._observer, "feature_status_request",0)
+        self._observerSvc.addObserver(self, 'xpcom-shutdown', 0)
+        self._observerSvc.addObserver(self, "feature_status_request",0)
         self._ignoreExceptions = 0
 
     def finalize(self):
         log.info("finalize")
         try:
             self._observerProxy.removeObserver(self, "feature_status_request")
+            self._observerProxy.removeObserver(self, 'xpcom-shutdown')
         except:
             log.error("Unable to remove observer feature_status_request")
         # Would like to .join() on the acquirer thread but that results
@@ -243,7 +243,7 @@ class KoFeatureStatusService:
                 else:
                     errmsg = "Unexpected feature name: %s" % featureName
                     log.error(errmsg)
-                    raise ServerException(nsError.NS_ERROR_UNEXPECTED, errmsg)
+                    raise ServerException(nsError.NS_ERROR_UNEXPECTED)
                 
                 log.info("status of %r feature: %s (%s)", featureName, status,
                          reason)

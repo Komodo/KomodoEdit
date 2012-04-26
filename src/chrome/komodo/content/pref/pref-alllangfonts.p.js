@@ -68,7 +68,6 @@ function PrefLangFonts_OnLoad()  {
         gDialog.bufferView.initWithBuffer("", "Text");
         onSampleBlur();
         parent.hPrefWindow.onpageload();
-        gDialog.bufferView.onPosChangedCB = onPosChanged;
     } catch (e) {
         log.error(e);
     }
@@ -323,6 +322,9 @@ function onSampleClick()
 
 function onPosChanged(position)
 {
+    // As of Scintilla 2.0.2, the only way to get to this function
+    // is via a mouse click.  But the onPosChanged callback wasn't
+    // working, and was implemented incorrectly anyway.
     try {
         var styleno = gDialog.bufferView.scimoz.getStyleAt(position);
         var common = gDialog.currentScheme.getCommonName(gDialog.currentLanguage,

@@ -30,7 +30,7 @@ this.saveInProgress = function() {
 }
 
 const multiWindowWorkspacePrefName = "windowWorkspace";
-const _mozPersistPositionDoesNotWork = 
+const _mozPersistPositionDoesNotWork =
 // #if PLATFORM == 'win' or PLATFORM == 'darwin'
 false;
 // #else
@@ -106,7 +106,7 @@ this.restoreWorkspace = function view_restoreWorkspace(currentWindow)
 
     // Restore the first workspace directly, and restore other
     // workspaces indirectly each new window's init routine in ko.main
-    
+
     var checkWindowBounds = _mozPersistPositionDoesNotWork || windowWorkspacePref.hasPref(1);
     var nextIdx = this._getNextWorkspaceIndexToRestore(Number.NEGATIVE_INFINITY);
     if (nextIdx !== undefined) {
@@ -158,7 +158,7 @@ this.restoreWorkspaceByIndex = function(currentWindow, idx, thisIndexOnly)
     try {
         this._restoreWindowWorkspace(windowWorkspacePref.getPref(idx), currentWindow, idx > 0 || _mozPersistPositionDoesNotWork);
     } catch(ex) {
-        log.exception(ex, "Can't restore workspace for window " + idx);
+        log.exception("Can't restore workspace for window " + idx + ", exception: " + ex);
     }
     if (thisIndexOnly) {
         // _restoreFocusToMainWindow();
@@ -473,7 +473,7 @@ this._getWindowWorkspace = function() {
     }
     var windowWorkspace = Components.classes['@activestate.com/koPreferenceSet;1'].createInstance();
     ko.prefs.setPref(multiWindowWorkspacePrefName, windowWorkspace);
-    return windowWorkspace;    
+    return windowWorkspace;
 }
 
 this.saveWorkspaceForIdx = function saveWorkspaceForIdx(idx) {
@@ -557,6 +557,5 @@ this.markClosedWindows = function() {
         }
     }
 };
-    
-}).apply(ko.workspace);
 
+}).apply(ko.workspace);

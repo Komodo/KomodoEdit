@@ -266,6 +266,7 @@
                     <![CDATA[
                     try {
                         if (!this.prefsdialog) {
+                            var currentkey;
                             if (this.currentkey.hasAttribute('collapsed')){
                                 currentkey = this.currentlist.label;
                             } else {
@@ -273,7 +274,7 @@
                             }
 
                             // We find the label being changed
-                            for (i = this.keylabels.length-1; i >= 0; i--) {
+                            for (var i = this.keylabels.length-1; i >= 0; i--) {
                                 if (this.keylabels[i] == currentkey) {
                                     this.keylabels = this.keylabels.slice(0, i).concat(this.keylabels.slice(i+1,this.keylabels.length));
                                     break;

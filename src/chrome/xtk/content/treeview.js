@@ -389,6 +389,18 @@ xtk.dataTreeView.prototype = {
         this._sortColumn = column;
         this._sortDirection = newSortDirection;
     },
+    clearSortIndicators : function() {
+        var colElem;
+        for (var i=0 ; i < this.tree.columns.count; i++) {
+            colElem = this.tree.columns.getColumnAt(i).element;
+            if (colElem.getAttribute("sortActive")) {
+                colElem.removeAttribute("sortActive");
+            }
+            if (colElem.getAttribute("sortDirection")) {
+                colElem.removeAttribute("sortDirection");
+            }
+        }
+    },
     sortByColumn : function(col, sortDirection)
     {
         if (!col || typeof(sortDirection) == 'undefined') {
