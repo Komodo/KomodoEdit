@@ -70,4 +70,5 @@ spush_check(IN_CSS_COMMENT_LINE_1) => IN_SSL_DEFAULT
 # Handle PHP <?...?> transitions in HTML style attributes
 state IN_CSS_STAG_ATTR_DEFAULT:
 /<\?(?:php\b|=)?/: paint(upto, CSL_DEFAULT), \
-                               paint(include, SSL_OPERATOR) => IN_SSL_DEFAULT 
+      spush_check(IN_CSS_STAG_ATTR_DEFAULT), \
+      paint(include, SSL_OPERATOR) => IN_SSL_DEFAULT 
