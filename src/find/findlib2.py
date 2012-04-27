@@ -1318,10 +1318,6 @@ def _walk(top, topdown=True, onerror=None, follow_symlinks=False):
     2. follow_symlinks=True: A symlink to a dir is returned in the
        *dirs* list (as with `os.walk()`) but it *is conditionally*
        recursed into (unlike `os.walk()`).
-       
-       A symlinked dir is only recursed into if it is to a deeper dir
-       within the same tree. This is my understanding of how `find -L
-       DIR` works.
 
     TODO: put as a separate recipe
     """
@@ -1360,12 +1356,6 @@ def _walk(top, topdown=True, onerror=None, follow_symlinks=False):
         yield top, dirs, nondirs
     for name in dirs:
         path = join(top, name)
-        if follow_symlinks and islink(path):
-            # Only walk this path if it links deeper in the same tree.
-            top_abs = abspath(top)
-            link_abs = abspath(join(top, os.readlink(path)))
-            if not link_abs.startswith(top_abs + os.sep):
-                continue
         for x in _walk(path, topdown, onerror, follow_symlinks=follow_symlinks):
             yield x
     if not topdown:
@@ -1402,12 +1392,10 @@ def paths_from_path_patterns(path_patterns, files=True, dirs="never",
             option which only excludes *files*.  I.e. you cannot exclude
             a ".svn" dir.)
         "skip_dupe_dirs" can be set True to watch for and skip
-            descending into a dir that has already been yielded. Note
-            that this currently does not dereference symlinks.
+            descending into a dir that has already been yielded.
         "follow_symlinks" is a boolean indicating whether to follow
-            symlinks (default False). To guard against infinite loops
-            with circular dir symlinks, only dir symlinks to *deeper*
-            are followed.
+            symlinks (default False). Use "skip_dupe_dirs" to guard
+            against infinite loops with circular dir symlinks.
         "on_error" is an error callback called when a given path pattern
             matches nothing:
                 on_error(PATH_PATTERN)
