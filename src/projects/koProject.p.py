@@ -1041,7 +1041,7 @@ class koLiveFolderPart(koFolderPart):
                 excludes=excludes,
                 on_error=None,
                 follow_symlinks=True,
-                skip_dupe_dirs=False):
+                skip_dupe_dirs=True):
             yield path
 
 
