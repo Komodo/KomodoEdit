@@ -168,13 +168,15 @@ class KoPartService(object):
             wm = components.classes["@mozilla.org/appshell/window-mediator;1"].\
                             getService(components.interfaces.nsIWindowMediator)
             window = wm.getMostRecentWindow('Komodo')
-            if not window:
-                # This is common when running Komodo standalone tests via
-                # xpcshell, but should not occur when running Komodo normally.
-                log.error("project_window_data:: getMostRecentWindow did not return a window")
-        window_id = window.QueryInterface(components.interfaces.nsIInterfaceRequestor) \
-                        .getInterface(components.interfaces.nsIDOMWindowUtils) \
-                        .outerWindowID
+        if window:
+            window_id = window.QueryInterface(components.interfaces.nsIInterfaceRequestor) \
+                            .getInterface(components.interfaces.nsIDOMWindowUtils) \
+                            .outerWindowID
+        else:
+            # This is common when running Komodo standalone tests via
+            # xpcshell, but should not occur when running Komodo normally.
+            log.error("project_window_data:: getMostRecentWindow did not return a window")
+            window_id = 1
         data = self._data.get(window_id)
         if data is None:
             data = KomodoWindowData()
