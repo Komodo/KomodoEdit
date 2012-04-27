@@ -2851,7 +2851,14 @@ class JavaScriptCiler:
                 # Keyword
                 keyword = text[p]
                 if keyword == "new":
-                    typeNames, p = self._getIdentifiersFromPos(styles, text, p+1)
+                    typeNames, p = self._getCitdlTypeInfo(styles, text, p+1)
+                    p -= 1   # We are already at the next position, step back
+                    # When resolving a class, we want to drop the function call
+                    # from the citdl and just use the identifier itself.
+                    for i, t in enumerate(typeNames):
+                        if t.endswith("()"):
+                            typeNames[i] = t[:-2]
+                            break
                     #if not typeNames:
                     #    typeNames = ["object"]
                     isNew = True

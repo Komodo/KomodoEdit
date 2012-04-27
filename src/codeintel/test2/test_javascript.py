@@ -59,6 +59,30 @@ log = logging.getLogger("test")
 
 
 
+class LangJavaScriptTestCase(unittest.TestCase):
+    """Direct testing of the lang_javascript ciler."""
+    @tag("bug92884")
+    def test_getVariableType(self):
+        # Ensure variable ciling is working for "new this."
+        from codeintel2 import lang_javascript
+        pure = lang_javascript.PureJavaScriptStyleClassifier()
+        OP = pure.operator_style
+        KW = pure.keyword_style
+        ID = pure.identifier_style
+        text =   ['x', '=', 'new', 'this', '.', 'Internal1', '(', ')', ';']
+        styles = [ KW,  OP,  KW,    KW,     OP,  ID,          OP,  OP,  OP]
+        self.assertEqual(len(text), len(styles))
+        ciler = lang_javascript.JavaScriptCiler(None)
+        # Test the citdl type handler.
+        citdl, p = ciler._getCitdlTypeInfo(styles, text, p=3)
+        self.assertEqual(citdl, ["this", "Internal1()"])
+        self.assertEqual(p, 8)
+        # Test the variable type handler.
+        citdl, p, isAlias = ciler._getVariableType(styles, text, p=1)
+        self.assertEqual(citdl, ["this", "Internal1"])
+        self.assertEqual(p, 8)
+
+
 class TriggerTestCase(CodeIntelTestCase):
     lang = "JavaScript"
 
