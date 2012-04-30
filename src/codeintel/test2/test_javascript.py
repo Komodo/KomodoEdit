@@ -122,6 +122,11 @@ class TriggerTestCase(CodeIntelTestCase):
                                   form=TRG_FORM_CALLTIP)
         # assert no trig from non-identifer words
         self.assertNoTrigger('function parseInt("22",<|>')
+        # More complicated example.
+        self.assertTriggerMatches("parseInt(document.getElementById('foo').value,<|>);",
+                                  name="javascript-calltip-call-signature",
+                                  form=TRG_FORM_CALLTIP,
+                                  pos=9)
 
     def test_doctags(self):
         # Triggers after @ in a comment block

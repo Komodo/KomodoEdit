@@ -222,10 +222,16 @@ class JavaScriptLangIntel(CitadelLangIntel,
             p, c, style = ac.getPrecedingPosCharStyle(ignore_styles=jsClassifier.comment_styles)
             if DEBUG:
                 print '  p: %r, ch: %r, st: %d' % (p, c, style)
-            if style == jsClassifier.operator_style:
+            loopcount = 0
+            while style == jsClassifier.operator_style and loopcount < 10:
+                loopcount += 1
                 if c == ")":
                     paren_count += 1
+                    if DEBUG:
+                        print '    paren_count: %r' % (paren_count, )
                 elif c == "(":
+                    if DEBUG:
+                        print '    paren_count: %r' % (paren_count, )
                     if paren_count == 0:
                         # We found the open brace of the func
                         trg_from_pos = p+1
@@ -246,6 +252,7 @@ class JavaScriptLangIntel(CitadelLangIntel,
                             return Trigger(lang, TRG_FORM_CALLTIP,
                                            "call-signature",
                                            trg_from_pos, implicit=True)
+                        return None
                     else:
                         paren_count -= 1
                 elif c in ";{}":
@@ -253,6 +260,9 @@ class JavaScriptLangIntel(CitadelLangIntel,
                     if DEBUG:
                         print "  no function found, hit stop char: %s at p: %d" % (c, p)
                     return None
+                p, c, style = ac.getPrevPosCharStyle()
+                if DEBUG:
+                    print '  p: %r, ch: %r, st: %d' % (p, c, style)
         # Did not find the function open paren
         if DEBUG:
             print "  no function found, ran out of chars to look at, p: %d" % (p,)
