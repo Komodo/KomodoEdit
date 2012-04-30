@@ -1040,6 +1040,17 @@ class CplnTestCase(CodeIntelTestCase):
         self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[1]),
             [("namespace", "foo()")])
 
+    @tag("bug93858")
+    def test_local_variable_completions(self):
+        content, positions = unmark_text(dedent("""\
+            function _somefunction() {
+                var myWin;
+                myW<1>;
+            }
+        """))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+            [("variable", "myWin")])
+
 class DOMTestCase(CodeIntelTestCase):
     lang = "JavaScript"
     @tag("bug86391")
