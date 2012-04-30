@@ -2721,6 +2721,11 @@ class PHPParser:
             if style == "const":
                 namelist, p = self._getIdentifiersFromPos(styles, text, p,
                                                           self.PHP_IDENTIFIER)
+            elif text[p:p+3] == ["self", ":", ":"]:
+                # Handle things like: "self::$instance = FOO", bug 92813.
+                classVar = True
+                namelist, p = self._getIdentifiersFromPos(styles, text, p+3,
+                                                          self.PHP_VARIABLE)
             else:
                 namelist, p = self._getIdentifiersFromPos(styles, text, p,
                                                           self.PHP_VARIABLE)
@@ -2972,7 +2977,11 @@ class PHPParser:
                     self._addAllVariables(styles, text, pos)
     
             elif firstStyle == self.PHP_IDENTIFIER:
-                log.debug("Ignoring when starting with identifier")
+                if text[0] == "self":
+                    self._variableHandler(styles, text, pos, attributes,
+                                          doc=self.comment)
+                else:
+                    log.debug("Ignoring when starting with identifier")
             elif firstStyle == self.PHP_VARIABLE:
                 # Defining scope for action
                 self._variableHandler(styles, text, pos, attributes,

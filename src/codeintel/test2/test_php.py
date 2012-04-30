@@ -2792,6 +2792,27 @@ EOD;
             [("namespace", "AAAIterator"),
              ("namespace", "AppendIterator"),])
 
+    @tag("bug92813")
+    def test_static_class_instance(self):
+        content, positions = unmark_text(php_markup(dedent(r"""
+            class Singleton {
+                static private $instance = null;
+                static public function getInstance()
+                {
+                    if (null === self::$instance) {
+                        self::$instance = new self;
+                    }
+                    return self::$instance;
+                }
+                public function test_method() { }
+            }
+            $mySingleton = Singleton::getInstance();
+            $mySingleton-><1>;
+        """)))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+            [("function", "getInstance"),
+             ("function", "test_method"),])
+
 
 class IncludeEverythingTestCase(CodeIntelTestCase):
     lang = "PHP"
