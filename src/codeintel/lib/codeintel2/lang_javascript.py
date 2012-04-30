@@ -1080,6 +1080,24 @@ class JSObject:
         if baseclass not in self.classrefs:
             self.classrefs.append(baseclass)
 
+    def _mergeVariables(self, existingvar, newvar):
+        # If there is no citdl type yet, assign it the given type
+        if newvar.type and not existingvar.type:
+            log.debug("marging VAR:%s, setting type: %r", existingvar.name, newvar.type)
+            existingvar.type = newvar.type
+        # TODO: We could choose the simpler type, i.e. if types were "foo" or
+        #       "int", then we should choose "int" as it's a base JS type.
+        #if newvar.type and newvar.type != existingvar.type:
+        #    print "  %r existing type: %r,  new type: %r" % (existingvar.name, existingvar.type, newvar.type)
+        # See if the locality has changed - bug 93726.
+        if "__file_local__" in existingvar.attributes and \
+           not "__file_local__" in newvar.attributes:
+            existingvar.removeAttribute("__file_local__")
+            # This should be the main definition of this variable - so prefer
+            # other fields (like citdl) too.
+            if newvar.type:
+                existingvar.type = newvar.type
+
     def addVariable(self, name, value=None, metadata=None):
         """Add a variable in this scope (possibly as a property)
         @param name {unicode} The name of the variable
@@ -1096,10 +1114,8 @@ class JSObject:
                      name, value.line, value.type, self.name, metadata)
             v = value
             self.variables[name] = v
-        # Else if there is no citdl type yet, assign it the given type
-        elif value.type and not v.type:
-            log.debug("existing VAR:%s, setting type: %r", name, value.type)
-            v.type = value.type
+        else:
+            self._mergeVariables(v, value)
         if metadata:
             if v.metadata is None:
                 v.metadata = metadata
@@ -1122,10 +1138,8 @@ class JSObject:
         if v is None:
             log.info("CLASSMBR: %r, in %s %r", name, self.cixname, self.name)
             self.members[name] = v = value
-        # Else if there is no citdl type yet, assign it the given type
-        elif value.type and not v.type:
-            log.debug("existing VAR:%s, setting type: %r", name, value.type)
-            v.type = value.type
+        else:
+            self._mergeVariables(v, value)
         return v
 
     def getReturnType(self):
