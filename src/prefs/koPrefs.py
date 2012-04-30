@@ -364,11 +364,11 @@ class koPreferenceSet:
             # parent. And thusly preferences bubble up through the
             # tree of preference sets.
             try:
-                return self.parent._getPref(prefName, parentMethodName, expectedPrefType)
+                return self.parent._getPref(prefName, parentMethodName, expectedPrefType, defaultPref=defaultPref)
             except AttributeError:
                 # Fallback - it's likely an xpcom object, so try unwrapping it.
                 self.parent = UnwrapObject(self.parent)
-                return self.parent._getPref(prefName, parentMethodName, expectedPrefType)
+                return self.parent._getPref(prefName, parentMethodName, expectedPrefType, defaultPref=defaultPref)
 
         if pref is None:
             if defaultPref is not None:
