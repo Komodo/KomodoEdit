@@ -193,7 +193,7 @@ class JavaScriptLangIntel(CitadelLangIntel,
     # global vars is just annoying.
     cb_group_global_vars = False
     # Define the trigger chars we use, used by ProgLangTriggerIntelMixin
-    trg_chars = tuple(".(@'\" ")
+    trg_chars = tuple(".(,@'\" ")
     calltip_trg_chars = tuple('(')   # excluded ' ' for perf (bug 55497)
     # Define literal mapping to citdl member, used in PythonCITDLExtractorMixin
     citdl_from_literal_type = {"string": "String"}
@@ -206,6 +206,57 @@ class JavaScriptLangIntel(CitadelLangIntel,
         if len(elem) and data["img"].startswith("variable"):
             data["img"] = data["img"].replace("variable", "namespace")
         return data
+
+    def _functionCalltipTrigger(self, ac, jsClassifier, pos, DEBUG=False):
+        # Implicit calltip triggering from an arg separater ",", we trigger a
+        # calltip if we find a function open paren "(" and function identifier
+        #   http://bugs.activestate.com/show_bug.cgi?id=93864
+        if DEBUG:
+            print "Arg separater found, looking for start of function, pos: %r" % (pos, )
+        ac.getPrevPosCharStyle()
+        # Move back to the open paren of the function
+        paren_count = 0
+        p = pos
+        min_p = max(0, p - 100) # look back max 100 chars
+        while p > min_p:
+            p, c, style = ac.getPrecedingPosCharStyle(ignore_styles=jsClassifier.comment_styles)
+            if DEBUG:
+                print '  p: %r, ch: %r, st: %d' % (p, c, style)
+            if style == jsClassifier.operator_style:
+                if c == ")":
+                    paren_count += 1
+                elif c == "(":
+                    if paren_count == 0:
+                        # We found the open brace of the func
+                        trg_from_pos = p+1
+                        p, ch, style = ac.getPrevPosCharStyle()
+                        if DEBUG:
+                            print "  function start found, pos: %d" % (p, )
+                        if style in jsClassifier.ignore_styles:
+                            # Find previous non-ignored style then
+                            p, c, style = ac.getPrecedingPosCharStyle(style, jsClassifier.ignore_styles)
+                        if style == jsClassifier.identifier_style:
+                            # Ensure that this isn't a new function declaration.
+                            p, c, style = ac.getPrecedingPosCharStyle(style, jsClassifier.ignore_styles)
+                            if style == jsClassifier.keyword_style:
+                                p, prev_text = ac.getTextBackWithStyle(style, jsClassifier.ignore_styles, max_text_len=len("function")+1)
+                                if prev_text in ("function", ):
+                                    # Don't trigger here
+                                    return None
+                            return Trigger(lang, TRG_FORM_CALLTIP,
+                                           "call-signature",
+                                           trg_from_pos, implicit=True)
+                    else:
+                        paren_count -= 1
+                elif c in ";{}":
+                    # Gone too far and noting was found
+                    if DEBUG:
+                        print "  no function found, hit stop char: %s at p: %d" % (c, p)
+                    return None
+        # Did not find the function open paren
+        if DEBUG:
+            print "  no function found, ran out of chars to look at, p: %d" % (p,)
+        return None
 
     def trg_from_pos(self, buf, pos, implicit=True,
                      lang=None):
@@ -447,10 +498,14 @@ class JavaScriptLangIntel(CitadelLangIntel,
                         return None
                 return Trigger(lang, TRG_FORM_CPLN,
                                "object-members", pos, implicit)
-            elif last_char == "(":
+            elif last_char in "(,":
                 # p is now at the end of the identifier, go back and check
                 # that we are not defining a function
                 ac = AccessorCache(accessor, p)
+                # Implicit calltip triggering from an arg separater ","
+                #   http://bugs.activestate.com/show_bug.cgi?id=93864
+                if implicit and last_char == ',':
+                    return self._functionCalltipTrigger(ac, jsClassifier, p, DEBUG)
                 # Get the previous style, if it's a keyword style, check that
                 # the keyword is not "function"
                 prev_pos, prev_char, prev_style = ac.getPrecedingPosCharStyle(jsClassifier.identifier_style, jsClassifier.ignore_styles)

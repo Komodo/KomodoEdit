@@ -114,6 +114,15 @@ class TriggerTestCase(CodeIntelTestCase):
         self.assertNoTrigger('/* myfunc.callthis(<|>arg1); */')
         self.assertNoTrigger('// myfunc.callthis(<|>arg1);')
 
+    def test_calltip_call_signature_comma(self):
+        # Triggers after open bracket:
+        #        abc(<|>
+        self.assertTriggerMatches("parseInt('22',<|>);",
+                                  name="javascript-calltip-call-signature",
+                                  form=TRG_FORM_CALLTIP)
+        # assert no trig from non-identifer words
+        self.assertNoTrigger('function parseInt("22",<|>')
+
     def test_doctags(self):
         # Triggers after @ in a comment block
         #        /** @param
