@@ -600,17 +600,26 @@ static char *xpgetenv(const char *name)
 static int xpsetenv(const char *name, const char *value, int overwrite)
 {
 #ifdef WIN32
-    BOOL success;
+    int failed;
     wchar_t *namew = _ToUTF16(name), *valuew = NULL;
     if (value) {
         valuew = _ToUTF16(value);
     }
-    success = SetEnvironmentVariableW(namew, valuew);
+    /* We need to set the environment two ways: SetEnvironmentVariableW modifies
+     * the Windows environment block, and is used for spawned sub-processes
+     * (which is required to pass things to the real Komodo from the stub);
+     * _wputenv_s modifies the current process's CRT environment block, which is
+     * reflected in things like what Python sees.  See bug 93912 for details.
+     */
+    /* SetEnvironmentVariableW returns non-zero on success */
+    failed = !SetEnvironmentVariableW(namew, valuew);
+    /* _wputenv_s returns zero on success */
+    failed |= _wputenv_s(namew, valuew);
     free(namew);
     if (valuew) {
         free(valuew);
     }
-    return success ? 0 : -1;
+    return failed;
 #else
     return setenv(name, value, 1);
 #endif
