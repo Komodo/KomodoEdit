@@ -736,6 +736,7 @@ class KoHTML5CompileLinter(_Common_HTMLAggregator):
 class CommonTidyLinter(object):
     _com_interfaces_ = [components.interfaces.koILinter]
 
+    _xhtml_doctype_re = re.compile(r'(?:<\?xml[^>]*>)?<!doctype\b[^>]*?(?://W3C//DTD XHTML|/xhtml\d*\.dtd)[^>]*>', re.DOTALL|re.IGNORECASE)
     def lint_with_text(self, request, text):
         prefset = getProxiedEffectivePrefs(request)
         if not prefset.getBooleanPref("lintHTMLTidy"):
@@ -778,6 +779,8 @@ class CommonTidyLinter(object):
         argv = [os.path.join(koDirs.supportDir, "html", "tidy"),
                 '-errors', '-quiet', enc, '--show-errors', '100']
         argv += getattr(self, "html5_tidy_argv_additions", [])
+        if request.koDoc.language == "HTML" and self._xhtml_doctype_re.match(text):
+            argv.append("-xml")
 
         if accessibility != '0':
             argv += ['-access', accessibility]
