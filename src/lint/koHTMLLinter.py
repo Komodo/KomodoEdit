@@ -506,6 +506,7 @@ class _CommonHTMLLinter(object):
                             if m:
                                 # Hide the special escape for XML declarations in PHP files
                                 bytesByLang[name] = m.group(1) + m.group(2)
+                                self._emittedCodeLineNumbers.add(currLineNum)
                             else:
                                 bytesByLang[name] = currText
                         else:
