@@ -217,7 +217,7 @@ class _CommonHTMLLinter(object):
     _xbl_method_name_re = re.compile(r'<(?:\w+:)?method\b.*?name\s*=\s*[\'\"](\w+)', re.DOTALL)
     _xbl_method_parameter_re = re.compile(r'<(?:\w+:)?parameter\b.*?name\s*=\s*[\'\"](\w+)[\'\"].*?>', re.DOTALL)
     _xbl_setter_re = re.compile(r'<(?:\w+:)?setter[^>]*>\s*\Z', re.DOTALL)
-    _xml_decln_re = re.compile(r'<<\?\?>\?xml\b')
+    _xml_decln_re = re.compile(r'(<)<\?\?>(\?.*)', re.DOTALL)
     
     # Matching state values.  Tracking when we're in CSS or JS, and when we're in SSL code.
     _IN_M = 0x0001
@@ -339,12 +339,6 @@ class _CommonHTMLLinter(object):
         # request.content contains a Unicode representation, even if the
         # buffer's encoding is utf-8 -- content is an AString
         textAsBytes = request.content.encode("utf-8")
-        if koDoc_language == 'PHP':
-            m = self._xml_decln_re.match(textAsBytes)
-            if m:
-                # Hide the special escape for XML declarations in PHP files
-                textAsBytes = '<?xml' + "    " + textAsBytes[m.end():]
-            
         uniqueLanguageNames = dict([(k, None) for k in languageNamesAtTransitionPoints])
         if udlMapping:
             for targetName in udlMapping.values():
@@ -507,7 +501,15 @@ class _CommonHTMLLinter(object):
                                 bytesByLang.replace_ending_white_space("JavaScript", "})();", currLineNum)
                                 self._emittedCodeLineNumbers.add(currLineNum)
                             currState = self._IN_M
-                        bytesByLang[name] = currText
+                        if TPLInfo:
+                            m = self._xml_decln_re.match(currText)
+                            if m:
+                                # Hide the special escape for XML declarations in PHP files
+                                bytesByLang[name] = m.group(1) + m.group(2)
+                            else:
+                                bytesByLang[name] = currText
+                        else:
+                            bytesByLang[name] = currText
                         prevLanguageFamily = "M"
                     elif langName == "CSS"  or langName == "JavaScript":
                         # Keep these
