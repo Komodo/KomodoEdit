@@ -590,12 +590,15 @@ div.code .tags        { color: red; }
         if self.lang not in self._style_name_from_style_num_from_lang:
             name_from_num \
                 = self._style_name_from_style_num_from_lang[self.lang] = {}
-            if self.sce_prefixes is None:
-                raise CodeIntelError("'sce_prefixes' not set on class %s: cannot "
-                                     "determine style constant names"
-                                     % self.__class__.__name__)
+            sce_prefixes = self.sce_prefixes
+            if sce_prefixes is None:
+                # Try and guess the prefix then.
+                log.warn("Guessing sce_prefix as 'SCE_%s_' - if that's not "
+                         "correct then define 'sce_prefixes' on your buffer"
+                         "class", self.lang.upper())
+                sce_prefixes = ["SCE_%s_" % (self.lang.upper())]
             for attr in dir(ScintillaConstants):
-                for sce_prefix in self.sce_prefixes:
+                for sce_prefix in sce_prefixes:
                     if attr.startswith(sce_prefix):
                         name_from_num[getattr(ScintillaConstants, attr)] = attr
         else:
