@@ -43,19 +43,19 @@
 family css
 
 state IN_CSS_DSTRING:
-/<\?(?:php\b|=)?/ : paint(upto, CSL_STRING), paint(include, SSL_OPERATOR), \
+/<\?(?:php\b|=)?/ : paint(upto, CSS_STRING), paint(include, SSL_OPERATOR), \
 spush_check(IN_CSS_DSTRING) => IN_SSL_DEFAULT
 
 state IN_CSS_SSTRING:
-/<\?(?:php\b|=)?/ : paint(upto, CSL_STRING), paint(include, SSL_OPERATOR), \
+/<\?(?:php\b|=)?/ : paint(upto, CSS_STRING), paint(include, SSL_OPERATOR), \
 spush_check(IN_CSS_SSTRING) => IN_SSL_DEFAULT
 
 state IN_CSS_DEFAULT:
-/<\?(?:php\b|=)?/ : paint(upto, CSL_DEFAULT), paint(include, SSL_OPERATOR), \
+/<\?(?:php\b|=)?/ : paint(upto, CSS_DEFAULT), paint(include, SSL_OPERATOR), \
 spush_check(IN_CSS_DEFAULT) => IN_SSL_DEFAULT
 
 state IN_CSS_COMMENT_1:
-/<\?(?:php\b|=)?/ : paint(upto, CSL_COMMENTBLOCK), paint(include, SSL_OPERATOR), \
+/<\?(?:php\b|=)?/ : paint(upto, CSS_COMMENT), paint(include, SSL_OPERATOR), \
 spush_check(IN_CSS_COMMENT_1) => IN_SSL_DEFAULT
 
 # This one can be completely wrong, because we don't know how many lines of code
@@ -63,7 +63,7 @@ spush_check(IN_CSS_COMMENT_1) => IN_SSL_DEFAULT
 # we'll do it anyway.
 
 state IN_CSS_COMMENT_LINE_1:
-/<\?(?:php\b|=)?/ : paint(upto, CSL_COMMENT), paint(include, SSL_OPERATOR), \
+/<\?(?:php\b|=)?/ : paint(upto, CSS_COMMENT), paint(include, SSL_OPERATOR), \
 spush_check(IN_CSS_COMMENT_LINE_1) => IN_SSL_DEFAULT
 
 # Bug 92805:

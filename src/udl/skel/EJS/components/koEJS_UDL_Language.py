@@ -207,7 +207,7 @@ class KoEJSLanguage(koHTMLLanguageBase):
 		i += 1
         return delta, numTags
 
-_tplPatterns = ("EJS", re.compile('<%.*'), re.compile('.*?%>'))
+_tplPatterns = ("EJS", re.compile('<%='), re.compile(r'%>\s*\Z', re.DOTALL))
 # If the text starts with a doctype decl'n or HTML, don't insert doctype in.
 _startCheck = { "HTML": (re.compile(r'<!doctype\b|<html\b', re.I), "<!DOCTYPE html>") }
 class KoEJSLinter(object):
@@ -225,7 +225,7 @@ class KoEJSLinter(object):
         
     def lint(self, request):
 	#TODO: Hook on parts to pull templatized-parts out of jslint
-        return self._html_linter.lint(request, squelchTPLPatterns=_tplPatterns,
+        return self._html_linter.lint(request, TPLInfo=_tplPatterns,
                                       startCheck=_startCheck)
 
     def lint_with_text(self, request, text):

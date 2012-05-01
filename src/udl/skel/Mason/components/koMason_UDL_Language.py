@@ -356,8 +356,10 @@ class KoMasonLinter(object):
             finalText += payload + ";"
         return finalText
 
+    _tplPatterns = ("Mason", re.compile('<%'), re.compile(r'%>\s*\Z', re.DOTALL))
     def lint(self, request):
-        return self._html_linter.lint(request, udlMapping={"Perl":"Mason"})
+        return self._html_linter.lint(request, udlMapping={"Perl":"Mason"},
+                                                    TPLInfo=self._tplPatterns)
 
     def lint_with_text(self, request, text):
         perlText, masonLintResults = self._fixPerlPart(text)

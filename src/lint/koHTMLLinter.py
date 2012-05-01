@@ -54,6 +54,69 @@ logging.basicConfig()
 log = logging.getLogger("KoHTMLLinter")
 #log.setLevel(logging.DEBUG)
 
+class MultiLangStringBuilder(dict):
+    """
+    The HTML linter takes in its document's text, and then writes out subsets
+    of that text destined for each separate language's linter.  It also sometimes
+    needs to wrap snippets, usually with either a function definition wrapper or
+    a CSS declaration, and that causes the <line,column> coordinates of some of the text
+    the linter sees to deviate from the text the user sees.  This class pushes
+    the injected text into the pending white space, when possible.
+    """
+    def __init__(self, names):
+        dict.__init__(self, dict([(k, []) for k in names]))
+        self._pendingWhiteSpace = dict([(k, '') for k in names])
+        
+    def addWhiteSpace(self, name, s):
+        self._pendingWhiteSpace[name] += s
+        
+    def _pushBlanks(self, name):
+        if self._pendingWhiteSpace[name]:
+            self[name].append(self._pendingWhiteSpace[name])
+        self._pendingWhiteSpace[name] = ''
+        
+    def __setitem__(self, name, s):
+        self._pushBlanks(name)
+        self[name].append(s)
+        
+    def finish(self):
+        for name in self.keys():
+            self._pushBlanks(name)
+    
+    def last_text_matches_pattern(self, name, ptn):
+        if not self[name]:
+            # If there is no text at all, count as True
+            return True
+        for s in self[name][-1 : -len(self[name]) - 1: -1]:
+            s1 = s.rstrip()
+            if not s1:
+                # Ignore sequences with white-space only
+                continue
+            if ptn.search(s1):
+                return True
+            return False
+    
+    def replace_ending_white_space(self, name, newStr, lineNum):
+        if not newStr:
+            return
+        numChars = len(newStr)
+        ending_spaces_re = re.compile(r'[ \t]{1,%d}\Z' % numChars)
+        m = ending_spaces_re.search(self._pendingWhiteSpace[name])
+        if m:
+            mglen = len(m.group())
+            if mglen >= numChars:
+                self[name].append(self._pendingWhiteSpace[name][:-numChars])
+            else:
+                self[name].append(self._pendingWhiteSpace[name][:-mglen])
+            # Manually push everything to the 
+            self._pendingWhiteSpace[name] = ''
+            self[name].append(newStr)
+        else:
+            # Make sure the non-white item is preceded by start or a space.
+            if self[name] and not self._pendingWhiteSpace[name] and not self[name][-1].isspace():
+                self._pendingWhiteSpace[name] += ' '
+            self[name] = newStr
+            
 #---- component implementation
 
 class _CommonHTMLLinter(object):
@@ -111,16 +174,154 @@ class _CommonHTMLLinter(object):
                      and koDoc.familyForPosition(endPt) == "M"))):
             parts[2] = self._spaceOutNonNewlines(parts[2])
         return parts
+    
+    def addLineNumbers(self, s, currLineNum):
+        lines = s.splitlines(True)
+        nums = range(0, len(lines))
+        return "".join(["%4d:%s" % (num + currLineNum, line) for num, line in zip(nums, lines)])
+    
+    def _getLastMarkupText(self, koDoc, transitionPoints, i, textAsBytes):
+        """
+        Return the most recent chunk of markup text
+        """
+        startPt = transitionPoints[i]
+        i -= 1
+        while i >= 0:
+            endPt = startPt
+            startPt = transitionPoints[i]
+            if startPt == endPt:
+                continue
+            origLangName = koDoc.languageForPosition(startPt)
+            if origLangName in ('HTML', 'HTML5', 'XUL', 'XBL'):
+                currText = textAsBytes[startPt:endPt]
+                return currText
+            i -= 1
+        return "" # Give up.
 
-    _return_re = re.compile(r'\breturn\b')
+    
+    _doctype_re = re.compile("<!doctype\s+html\s*?(.*?)\s*>", re.IGNORECASE|re.DOTALL)
+    _ends_with_cdata_re = re.compile(r'(?:\s*\]\]>|\s*-->)+\s*\Z', re.DOTALL)
+    _ends_with_gt = re.compile(r'>\s*\Z');
+    _ends_with_quote_re = re.compile(r'[\"\']\Z');
+    _ends_with_zero = re.compile(r'0\s*\Z', re.DOTALL)
+    _event_re = re.compile(r'\bevent\b')
     _function_re = re.compile(r'\bfunction\b')
-    _doctype_re = re.compile("<!doctype\s+html\s*?(.*?)\s*>",
-                             re.IGNORECASE|re.DOTALL)
+    _js_code_end_re = re.compile(r'[\};]\s*$', re.DOTALL)
+    _nl_re = re.compile('\\n')
+    _return_re = re.compile(r'\breturn\b')
+    _script_start_re = re.compile(r'<script[^>]*>\s*\Z', re.DOTALL)
+    _starts_with_cdata_re = re.compile(r'(?:\s*<!\[CDATA\[|\s*<!--)+\s*', re.DOTALL)
+    _xbl_field_tag_re = re.compile(r'<(?:\w+:)?field[^>]*>\s*\Z', re.DOTALL)
+    _xbl_handler_re = re.compile(r'<(?:\w+:)?handler[^>]*>\s*\Z', re.DOTALL)
+    _xbl_method_re = re.compile(r'<(?:\w+:)?method\b.*?<body[^>]*>\s*\Z', re.DOTALL)
+    _xbl_method_name_re = re.compile(r'<(?:\w+:)?method\b.*?name\s*=\s*[\'\"](\w+)', re.DOTALL)
+    _xbl_method_parameter_re = re.compile(r'<(?:\w+:)?parameter\b.*?name\s*=\s*[\'\"](\w+)[\'\"].*?>', re.DOTALL)
+    _xbl_setter_re = re.compile(r'<(?:\w+:)?setter[^>]*>\s*\Z', re.DOTALL)
     _xml_decln_re = re.compile(r'<<\?\?>\?xml\b')
+    
+    # Matching state values.  Tracking when we're in CSS or JS, and when we're in SSL code.
+    _IN_M = 0x0001
+    _IN_JS_SCRIPT = 0x0002
+    _IN_JS_FUNCTION_DEF = 0x0004
+    _IN_JS_FUNCTION_DEF_INVOCN = 0x0008
+    _IN_JS_OTHER = 0x0010
+    _IN_JS_SQUELCH = 0x0020
+    _IN_JS_EMIT = _IN_JS_SCRIPT|_IN_JS_FUNCTION_DEF|_IN_JS_FUNCTION_DEF_INVOCN|_IN_JS_OTHER
+    _IN_JS = _IN_JS_EMIT|_IN_JS_SQUELCH
+
+    _IN_CSS_STYLE = 0x0040
+    _IN_CSS_ATTR = 0x0080
+    _IN_CSS_SQUELCH = 0x0100
+    _IN_CSS_EMIT = _IN_CSS_STYLE|_IN_CSS_ATTR
+    _IN_CSS = _IN_CSS_EMIT|_IN_CSS_ATTR
+    
+    _IN_SSL_EMITTER = 0x0200
+    _IN_SSL_BLOCK = 0x0400
+    _IN_SSL = _IN_SSL_EMITTER|_IN_SSL_BLOCK
+
+    _take_all_languages = ("PHP",)
+    # Hand these SSL languages the whole document
+    # Are there others beside PHP?
+    
     def _lint_common_html_request(self, request, udlMapping=None, linters=None,
-                                  squelchTPLPatterns=None,
+                                  TPLInfo=None,
                                   startCheck=None):
+        """
+        Hand off bits of text to each lexer.
+        @param udlMapping:
+        Example: udlMapping={"Perl":"Mason"} -- used for mapping SSL code to the actual multi-lang language
+        
+        @param startCheck:
+        Some languages need to insert a doctype.  If there's a startCheck, it contains
+        a language, a pattern, and text to insert if the pattern fails to match
+        
+        @param TPLInfo  (languageName, emitPattern)
+        If we're matching language <languageName> and we match <emitPattern>, it means
+        that an SSL language will be inserting some text into the eventual HTML document.
+        If this follows CSS or JS, we need to insert some text to keep the respective
+        CSS/JS linter happy.
+        
+        The markup lexer (HTML/HTML5/XML) sees all the core text: markup, CSS, JS
+        
+        PHP is handled off everything
+        
+        All other languages see only their own language.
+        
+        There are tricks for wrapping bits of JS and CSS, see below.
+        
+        Start in state _IN_M
+        
+        The JS lexer gets text between script tags passed as is.  But then there
+        are other wrinkles:
+        M -> JS after: /on\w+\s*=\s*["']/ ::
+             If the terms 'return' and 'event' aren't used here, insert a ';' if needed
+             Otherwise, insert 'function _kof##() {';, => _IN_JS_FUNCTION_DEF
+             and add an 'event' arg.
+        M -> JS after: /<field.*?>\s*/       :: => _IN_JS_SQUELCH
+        M -> JS after: /<script.*?>\s*/       :: blank <![CDATA[, => _IN_JS_SCRIPT
+        M -> JS after: />\s*/       :: insert 'function _kof##() {';  blank <![CDATA[ -- Assume not a script tag, => _IN_JS_FUNCTION_DEF_INVOCN
+        M -> JS after: other:  , => _IN_JS_SQUELCH
+        M -> CSS after: />\s*/ :: nothing, => _IN_CSS_STYLE
+        M -> CSS after: ["'] :: insert  '_x {', => _IN_CSS_ATTR
+        M -> CSS after: other:  => _IN_CSS_SQUELCH
+        
+        land at M, currState & _IN_JS:
+            blank  /]]>\s*/
+            _IN_JS_SQUELCH: emit nothing
+            _IN_JS_SCRIPT: emit nothing
+            _IN_JS_FUNCTION_DEF: emit '}'
+        land at M, currState & _IN_CSS:
+            _IN_CSS_STYLE: emit nothing
+            _IN_CSS_ATTR: emit '}'
+            
+        (currState & _IN_JS_EMIT|_IN_CSS_EMIT) on TPL_EMITTER_START:
+            insert '0' (number, not a string)'
+            add state _IN_SSL_EMITTER
+        
+        find TPL_BLOCK_START => _IN_SSL_BLOCK
+        SSL code emitted to SSL lang _IN_SSL_BLOCK
+        find TPL_EMITTER_START => _IN_SSL_EMITTER
+        SSL code not emitted to SSL lang when _IN_SSL_EMITTER is on
+        
+        find TPL_END => drop _IN_SSL
+        
+        Two points about this state machine:
+        1. SSL_EMITTERS start with patterns like /<\?=/ or /<\?php\s+echo\b/.  They emit
+           a value that the browser will see.  SSL_BLOCK doesn't emit code, so it all gets squelched.
+        2. States will overlap across families.  For example, we can have JS_SQUELCH and SSL_BLOCK at the same time
+        3. Whenever we end up in markup, we can end whatever is pending, and clear all
+           overlapped states, ending at _IN_M
+        """
+        
+        
         self._mappedNames = udlMapping
+        # These are lines where we added text.  If the linter complains about
+        # any of these lines, make sure the error message spans the entire line.
+        self._emittedCodeLineNumbers = set()
+        # These refer to lines where the SSL and JS and/or CSS are interleaved,
+        # which could lead to possible false-positives.  Just don't report JS/CSS
+        # errors/warnings on these lines.
+        self._multiLanguageLineNumbers = set()
         lintersByName = {}
         # Copy working set of linters into a local var
         lintersByName.update(self._lintersByLangName)
@@ -128,8 +329,6 @@ class _CommonHTMLLinter(object):
             lintersByName.update(linters)
         koDoc = request.koDoc  # koDoc is a proxied object
         koDoc_language = koDoc.language
-        jsShouldBeWrapped = koDoc_language == "XBL"
-        jsWrapOneLiners = koDoc_language in ("HTML", "HTML5", "XUL", "PHP")
         transitionPoints = koDoc.getLanguageTransitionPoints(0, koDoc.bufferLength)
         languageNamesAtTransitionPoints = [koDoc.languageForPosition(pt)
                                            for pt in transitionPoints[:-2]]
@@ -156,150 +355,223 @@ class _CommonHTMLLinter(object):
         uniqueLanguageNames = uniqueLanguageNames.keys()
         #log.debug("transitionPoints:%s", transitionPoints)
         #log.debug("uniqueLanguageNames:%s", uniqueLanguageNames)
-        bytesByLang = dict([(k, []) for k in uniqueLanguageNames])
+        ###bytesByLang =OLD### dict([(k, []) for k in uniqueLanguageNames])
+        bytesByLang = MultiLangStringBuilder(uniqueLanguageNames)
         lim = len(transitionPoints)
         endPt = 0
         htmlAllowedNames = ("HTML", "HTML5", "CSS", "JavaScript", "XML")
-        currStartTag = None
-        squelching = False
-        firstInsertedReplacement = False
-        prevSegmentLangName = "HTML"
-        jsNeedsSemiColon = False
+        currState = self._IN_M
+        prevText = ""
+        prevLanguageFamily = "M"
+        currLineNum = 1
+        js_func_num = 0
+        js_func_name_prefix = "__kof_"
         for i in range(1, lim):
             startPt = endPt
             endPt = transitionPoints[i]
             if startPt == endPt:
                 continue
             currText = textAsBytes[startPt:endPt]
+            numNewLinesInCurrText = len(self._nl_re.findall(currText))
             origLangName = koDoc.languageForPosition(startPt)
             langName = self._getMappedName(origLangName)
             #log.debug("segment: raw lang name: %s, lang:%s, %d:%d [[%s]]",
             #          koDoc.languageForPosition(startPt),
-            #          langName, startPt, endPt, currText)
-            
-            
-            if (squelchTPLPatterns
-                and origLangName == squelchTPLPatterns[0]
-                and not squelching
-                and squelchTPLPatterns[1].match(currText)):
-                # If we have something like
-                # var jsvar = <%= value %>
-                # pull out the atomic server-side code, and insert
-                # something that looks good to the js linter.
-                squelchedText = self._spaceOutNonNewlines(currText)
-                squelching = True
-                firstInsertedReplacement = False
+            #          langName, startPt, endPt, self.addLineNumbers(currText, currLineNum))
+            if TPLInfo and origLangName == TPLInfo[0]:
+                for j in range(currLineNum, currLineNum + numNewLinesInCurrText + 1):
+                    self._multiLanguageLineNumbers.add(j)
+            squelchedText = self._spaceOutNonNewlines(currText)
             for name in bytesByLang.keys():
-                if not squelching and origLangName == "CSS" and langName == name:
-                    subparts = self._get_unwrappedText(currText, koDoc, i, startPt, endPt, lim)
-                    if ("{" not in subparts[1]
-                        and "@" not in subparts[1]
-                        and i > 0
-                        and i < lim - 1
-                        and koDoc.familyForPosition(startPt - 1) == "M"
-                        and koDoc.familyForPosition(endPt) == "M"):
-                        # This won't pick up things like
-                        # <tag style="margin <?php echo 'div{' ?> 1px;">
-
-                        # Assume we're processing a style attribute with no
-                        # top-level statements, so insert a bogus selector,
-                        # and remove as much white-space as possible around
-                        # the actual code so squiggly highlighting is in sync.
-
-                        replString = "_x{"
-                        # Remove as many trailing spaces as we need, and have
-                        subparts[0] = re.sub(re.compile(' {0,%d}$' % len(replString)),
-                                             replString,
-                                             subparts[0]);
-                        # If the last part as a leading space, replace it with
-                        # a "}" to end the inserted bogus tag
-                        subparts[2] = re.sub(re.compile('^ ?'),
-                                             "}", subparts[2])
-                    bytesByLang[name].append("".join(subparts))
-                elif origLangName == "JavaScript" and langName == name:
-                    if squelching and prevSegmentLangName == "JavaScript":
-                        if not firstInsertedReplacement:
-                            # Give JS etc. something to work with.
-                            # This might cause other false positives though.
-                            bytesByLang[prevSegmentLangName].append("0" + squelchedText[1:])
-                            firstInsertedReplacement = True
-                        else:
-                            bytesByLang[prevSegmentLangName].append(squelchedText)
-                        continue
-                    # Convert uncommented cdata marked section markers
-                    # into spaces.
-                    #
-                    subparts = self._get_unwrappedText(currText, koDoc, i, startPt, endPt, lim)
-                    bytesByLang[name].append(subparts[0])
-                    if jsShouldBeWrapped:
-                        actualCode = self._blankOutOneLiners(subparts[1])
-                        thisJSShouldBeWrapped = actualCode.strip()
+                if origLangName == "CSS" and langName == name:
+                    if currState & self._IN_CSS:
+                        # We're in a run of CSS, could be separated by SSL blocks
+                        pass
                     else:
-                        actualCode = subparts[1]
-                        thisJSShouldBeWrapped = \
-                            (jsWrapOneLiners
-                             and "\n" not in subparts[1]
-                             and self._return_re.search(subparts[1])
-                             and not self._function_re.search(subparts[1]))
-                            # heuristic, wrap on-handlers in html*
-                    if thisJSShouldBeWrapped:
-                        bytesByLang[name].append("(function() { ")
-                    elif jsNeedsSemiColon:
-                        # bug 92809: Make sure two JS snippets on same line are separated by a ; or }
-                        bytesByLang[name].append(";")
-                        jsNeedsSemiColon = False
-                    bytesByLang[name].append(actualCode)
-                    
-                    if thisJSShouldBeWrapped:
-                        bytesByLang[name].append(" })();")
-                    elif (re.compile(r'[^\n\}; \t][ \t]*$').search(actualCode)
-                          and i < lim - 1
-                          and koDoc.familyForPosition(startPt - 1) == "M"
-                          and koDoc.familyForPosition(endPt) == "M"):
-                        # bug 92809: this JS doesn't end with a ; } or \n, make sure
-                        # next JS snippet either starts on a new line or insert a ; separator.
-                        # If this JS snippet ends with a comment do nothing.  Unlikely in HTML on-handlers,
-                        # but if there is one, other JS code on the same line will just be ignored by the linter.
-                        # Also do this only if the JS is surrounded on both
-                        # ends by markup code.  If it's PHP (see bug92742)
-                        # don't insert anything.
-                        jsNeedsSemiColon = True
-                    bytesByLang[name].append(subparts[2])
-                    if squelching:
-                        # We're writing out some JS in an EJS tag, for example
-                        # We don't want to insert a "0" when we hit the %> EJS end-tag
-                        firstInsertedReplacement = True
-                elif (name == langName
-                    or ((name.startswith("HTML") or name == "XML")
-                        and langName in htmlAllowedNames)):
-                    bytesByLang[name].append(currText)
-                elif (squelching
-                      and name == "JavaScript"
-                      and langName == squelchTPLPatterns[0]
-                      and prevSegmentLangName == "JavaScript"
-                      and not firstInsertedReplacement):
-                    bytesByLang[prevSegmentLangName].append("0" + squelchedText[1:])
-                    firstInsertedReplacement = True
+                        if prevLanguageFamily != "M":
+                            # Handle the case of <style><?php...?><?php ... ?>foo { ... }
+                            prevText = self._getLastMarkupText(koDoc, transitionPoints, i, textAsBytes)
+                        if self._ends_with_quote_re.search(prevText):
+                            bytesByLang.replace_ending_white_space(name, "_x{", currLineNum)
+                            self._emittedCodeLineNumbers.add(currLineNum)
+                            currState |= self._IN_CSS_ATTR
+                            
+                        elif self._ends_with_gt.search(prevText):
+                            currState |= self._IN_CSS_STYLE
+                        else:
+                            log.error("Hit weird block of CSS (%s) starting with HTML %s", currText, prevText)
+                            currState |= self._IN_CSS_SQUELCH
+                        m = self._starts_with_cdata_re.match(currText)
+                        if m:
+                            bytesByLang.addWhiteSpace(name, self._spaceOutNonNewlines(m.group()))
+                            currText = currText[m.end():]
+                    if currState & self._IN_CSS_SQUELCH:
+                        bytesByLang.addWhiteSpace(name, self._spaceOutNonNewlines(currText))
+                    else:
+                        m = self._ends_with_cdata_re.search(currText)
+                        if m:
+                            bytesByLang[name] = currText[:m.start()]
+                            bytesByLang.addWhiteSpace(name, self._spaceOutNonNewlines(m.group()))
+                        else:
+                            bytesByLang[name] = currText
+                    prevLanguageFamily = "CSS"
+                elif origLangName == "JavaScript" and langName == name:
+                    if currState & self._IN_JS:
+                        # We're in a run of JS, could be separated by SSL blocks
+                        pass
+                    else:
+                        if prevLanguageFamily != "M":
+                            # Handle the case of <script><?php...?><?php ... ?>foo { ... }
+                            prevText = self._getLastMarkupText(koDoc, transitionPoints, i, textAsBytes)
+                        if self._ends_with_quote_re.search(prevText):
+                            # onfoo="..." -- function __kof_###() { ... }
+                            if (self._return_re.search(currText)
+                                or self._event_re.search(currText)):
+                                if self._event_re.search(currText):
+                                    args = "event"
+                                else:
+                                    args = ""
+                                js_func_num += 1
+                                bytesByLang.replace_ending_white_space(name, "function %s%d(%s) {" % (js_func_name_prefix, js_func_num, args), currLineNum)
+                                self._emittedCodeLineNumbers.add(currLineNum)
+                                currState |= self._IN_JS_FUNCTION_DEF
+                            else:
+                                if not bytesByLang.last_text_matches_pattern(name, self._js_code_end_re):
+                                    bytesByLang.replace_ending_white_space(name, ';', currLineNum);
+                                    self._emittedCodeLineNumbers.add(currLineNum)
+                                # Don't wrap the code, because it doesn't need to look like a function
+                                currState |= self._IN_JS_SCRIPT
+                        elif self._script_start_re.search(prevText):
+                            currState |= self._IN_JS_SCRIPT
+                        elif koDoc_language == "XBL" and self._xbl_field_tag_re.search(prevText):
+                            # too many jslint false positives, so squelch
+                            currState |= self._IN_JS_SQUELCH
+                        elif koDoc_language == "XBL" and self._xbl_setter_re.search(prevText):
+                            # XBL setter elements have an implicit argument called 'val'
+                            js_func_num += 1;
+                            bytesByLang.replace_ending_white_space(name, "function %s%d(val) {" % (js_func_name_prefix, js_func_num), currLineNum)
+                            self._emittedCodeLineNumbers.add(currLineNum)
+                            currState |= self._IN_JS_FUNCTION_DEF
+                        elif koDoc_language == "XBL" and self._xbl_handler_re.search(prevText):
+                            # XBL setter elements have an implicit argument called 'val'
+                            js_func_num += 1;
+                            bytesByLang.replace_ending_white_space(name, "function %s%d(event) {" % (js_func_name_prefix, js_func_num), currLineNum)
+                            self._emittedCodeLineNumbers.add(currLineNum)
+                            currState |= self._IN_JS_FUNCTION_DEF
+                        elif koDoc_language == "XBL" and self._xbl_method_re.search(prevText):
+                            # XBL method elements define arguments in parameter elements
+                            t1 = self._xbl_method_re.search(prevText).group()
+                            method_name = self._xbl_method_name_re.search(t1)
+                            if method_name:
+                                func_name = method_name.group(1)
+                            else:
+                                func_name = "%s%d" % (js_func_name_prefix, js_func_num)
+                                js_func_num += 1;
+                            names = self._xbl_method_parameter_re.findall(t1)
+                            bytesByLang.replace_ending_white_space(name, "function %s(%s) {" % (func_name, ", ".join(names)), currLineNum)
+                            self._emittedCodeLineNumbers.add(currLineNum)
+                            currState |= self._IN_JS_FUNCTION_DEF
+                        elif self._ends_with_gt.search(prevText):
+                            # Probably XBL JS elements of some kind
+                            js_func_num += 1;
+                            bytesByLang.replace_ending_white_space(name, "function %s%d() {" % (js_func_name_prefix, js_func_num), currLineNum)
+                            self._emittedCodeLineNumbers.add(currLineNum)
+                            currState |= self._IN_JS_FUNCTION_DEF
+                        else:
+                            log.error("Hit weird block of JS (%s) starting with HTML %s", currText, prevText)
+                            currState |= self._IN_JS_SQUELCH
+                        m = self._starts_with_cdata_re.match(currText)
+                        if m:
+                            bytesByLang.addWhiteSpace(name, self._spaceOutNonNewlines(m.group()))
+                            currText = currText[m.end():]
+                    if currState & self._IN_JS_SQUELCH:
+                        bytesByLang.addWhiteSpace(name, self._spaceOutNonNewlines(currText))
+                    else:
+                        m = self._ends_with_cdata_re.search(currText)
+                        if m:
+                            bytesByLang[name] = currText[:m.start()]
+                            bytesByLang.addWhiteSpace(name, self._spaceOutNonNewlines(m.group()))
+                        else:
+                            bytesByLang[name] = currText
+                    prevLanguageFamily = "CSL"
+                elif name in ('HTML', 'HTML5', 'XML', 'XUL', 'XBL', 'XSLT'):
+                    if name == langName:
+                        if currState & ~self._IN_M:
+                            if currState & self._IN_CSS_ATTR:
+                                bytesByLang.replace_ending_white_space("CSS", "}", currLineNum)
+                                self._emittedCodeLineNumbers.add(currLineNum)
+                            elif currState & self._IN_JS_FUNCTION_DEF:
+                                bytesByLang.replace_ending_white_space("JavaScript", "}", currLineNum)
+                                self._emittedCodeLineNumbers.add(currLineNum)
+                            elif currState & self._IN_JS_FUNCTION_DEF_INVOCN:
+                                bytesByLang.replace_ending_white_space("JavaScript", "})();", currLineNum)
+                                self._emittedCodeLineNumbers.add(currLineNum)
+                            currState = self._IN_M
+                        bytesByLang[name] = currText
+                        prevLanguageFamily = "M"
+                    elif langName == "CSS"  or langName == "JavaScript":
+                        # Keep these
+                        bytesByLang[name] = currText
+                    else:
+                        bytesByLang.addWhiteSpace(name, squelchedText)
+                elif name == langName:
+                    # It's either TPL or SSL.  TPL has transitions, SSL would be pieces of SSL code
+                    # surrounded by TPL bits.
+                    if TPLInfo and name == langName and origLangName == TPLInfo[0]:
+                        # So here we're either going to start squelching or not
+                        # Also if the prev state is JS or CSS and this is an emitter, we
+                        # need to emit a 0
+                        # Watch out for <style> foo { a:<?php if 1 ?><?php echo x ?>... }
+                        if TPLInfo[1].match(currText):
+                            currState |= self._IN_SSL_EMITTER
+                        else:
+                            currState |= self._IN_SSL_BLOCK
+                    if ((currState & self._IN_SSL_EMITTER)
+                        and (currState & (self._IN_CSS_EMIT|self._IN_JS_EMIT))):
+                            # Give the JS/CSS processor something to work with
+                            if currState & self._IN_CSS_EMIT:
+                                checkLangName = "CSS"
+                            else:
+                                checkLangName = "JavaScript"
+                            if not bytesByLang.last_text_matches_pattern(checkLangName, self._ends_with_zero):
+                                # Avoid duplicates for multiple subsequent SSL emitters.
+                                bytesByLang.replace_ending_white_space(checkLangName, "0", currLineNum)
+                                self._emittedCodeLineNumbers.add(currLineNum)
+                                self._multiLanguageLineNumbers.add(currLineNum)
+                                
+                    if (currState & self._IN_SSL_EMITTER) and name not in self._take_all_languages:
+                        # Don't try to evaluate snippets.  Most of them won't make sense on their own.
+                        bytesByLang.addWhiteSpace(name, squelchedText)
+                    else:
+                        bytesByLang[name] = currText
+                    prevLanguageFamily = "SSL"
+                elif (currState & self._IN_SSL_EMITTER
+                      and ((name == "CSS" and (currState & self._IN_CSS_EMIT))
+                           or (name == "JavaScript" and (currState & self._IN_JS_EMIT)))
+                      and currText.find("\n") == -1):
+                        # Emit nothing, including white space
+                        pass
+                elif TPLInfo and name == TPLInfo[0] and name in self._take_all_languages:
+                        bytesByLang[name] = currText
                 else:
-                    bytesByLang[name].append(self._spaceOutNonNewlines(currText))
+                    # All other mismatches: blank out the text.
+                    # For example if the current text is CSS (langName), but we're looking at
+                    # a snippet of Ruby code, write out blanked CSS to the Ruby stream.
+                    bytesByLang.addWhiteSpace(name, squelchedText)
+            # end of loop through all languages for this segment
+            if TPLInfo and origLangName == TPLInfo[0] and TPLInfo[2].search(currText):
+                currState &= ~self._IN_SSL
+            prevText = currText
+            currLineNum += numNewLinesInCurrText
+        # end of main loop through the document
             
-            # This includes squelching.
-            if jsNeedsSemiColon and langName != "JavaScript" and "\n" in currText:
-                jsNeedsSemiColon = False
-                
-            if (squelchTPLPatterns
-                and origLangName == squelchTPLPatterns[0]
-                and squelching
-                and squelchTPLPatterns[2].search(currText)):
-                squelching = False
-                
-                    
-            if origLangName in ("JavaScript", "HTML", "HTML5", "XML"):
-                prevSegmentLangName = origLangName
-        
+        #bytesByLang.finish()
+        # We don't need to worry about trailing pending whitespace, so don't bother.
+        bytesByLangFinal = {}
         for name in bytesByLang.keys():
-            bytesByLang[name] = "".join(bytesByLang[name]).rstrip()
+            bytesByLangFinal[name] = "".join(bytesByLang[name]).rstrip()
             #log.debug("Lint doc(%s):[\n%s\n]", name, bytesByLang[name])
+        bytesByLang = bytesByLangFinal
 
         python_encoding_name = request.encoding.python_encoding_name
         if python_encoding_name not in ('ascii', 'utf-8'):
@@ -315,6 +587,10 @@ class _CommonHTMLLinter(object):
 
         lintResultsByLangName = {}
         for langName, textSubset in charsByLang.items():
+            #if not textSubset.strip():
+            #    # Don't bother linting empty documents.  XML-based languages
+            #    # require at least one element, but that could be annoying.
+            #    continue
             if startCheck and langName in startCheck:
                 startPtn, insertion = startCheck[langName]
                 if not startPtn.match(textSubset):
@@ -346,8 +622,10 @@ class _CommonHTMLLinter(object):
                     # through another xpcom decoder/encoder
                     newLintResults = UnwrapObject(linter).lint_with_text(request, textSubset)
                     if newLintResults and newLintResults.getNumResults():
-                        #log.debug("**** Errors: ***** lang: %s, text:%s", langName, textSubset)
+                        #log.debug("**** Errors: ***** lang: %s, text:%s", langName, self.addLineNumbers(textSubset, 1))
                         #log.debug("results: %s", ", ".join([str(x) for x in newLintResults.getResults()]))
+                        if langName in ("CSS", "JavaScript"):
+                            newLintResults = self._filter_guessed_emitted_hits(newLintResults)
                         lintResultSet = lintResultsByLangName.get(langName)
                         if lintResultSet:
                             lintResultSet.addResults(newLintResults)
@@ -358,19 +636,48 @@ class _CommonHTMLLinter(object):
             else:
                 pass
                 #log.debug("no linter for %s", langName)
-        # If we get results from more than one language, tag each one
-        numLintResultSets = len(lintResultsByLangName.keys())
+        # If we have more than one sub-language, tag each message with the originating language.
+        numLintResultSets = len(lintResultsByLangName)
         if numLintResultSets == 0:
             return koLintResults()
-        elif numLintResultSets == 1:
-            return lintResultsByLangName.values()[0]
+        elif len(charsByLang) == 1:
+            return self._check_emitted_code_lines(lintResultsByLangName.values()[0], textAsBytes)
         else:
             finalLintResults = koLintResults()
             for langName, lintResultSet in lintResultsByLangName.items():
+                mLangName = self._getMappedName(langName)
                 for lintResult in lintResultSet.getResults():
-                    lintResult.description = langName + ": " + lintResult.description
+                    lintResult.description = mLangName + ": " + lintResult.description
                 finalLintResults.addResults(lintResultSet)
-            return finalLintResults
+            return self._check_emitted_code_lines(finalLintResults, textAsBytes)
+    
+    def _filter_guessed_emitted_hits(self, lintResults):
+        if not self._multiLanguageLineNumbers:
+            return lintResults
+        keepers = [lr for lr in lintResults.getResults() if
+                   (lr.lineStart != lr.lineEnd
+                    or lr.lineStart not in self._multiLanguageLineNumbers)]
+        if len(keepers) == lintResults.getNumResults():
+            return lintResults
+        res = koLintResults()
+        for r in keepers:
+            res.addResult(r)
+        return res
+        
+    def _check_emitted_code_lines(self, lintResults, textAsBytes):
+        if not self._emittedCodeLineNumbers:
+            return lintResults
+        sepLines = None
+        for result in lintResults.getResults():
+            if result.lineStart == result.lineEnd and result.lineStart in self._emittedCodeLineNumbers:
+                if sepLines is None:
+                    sepLines = textAsBytes.splitlines()
+                try:
+                    result.columnEnd = len(sepLines[result.lineStart - 1]) + 1
+                    result.columnStart = 1
+                except:
+                    log.exception("Problem getting length of line %d", result.lineStart)
+        return lintResults
 
 class _Common_HTMLAggregator(_CommonHTMLLinter):
     def __init__(self):
@@ -381,10 +688,10 @@ class _Common_HTMLAggregator(_CommonHTMLLinter):
     # terminal linter will concern itself only with the full document,
     # and won't have to pick out sublanguages.
     def lint(self, request, udlMapping=None, linters=None,
-             squelchTPLPatterns=None,
+             TPLInfo=None,
              startCheck=None):
         return self._lint_common_html_request(request, udlMapping, linters,
-                                              squelchTPLPatterns,
+                                              TPLInfo,
                                               startCheck)
 
     def lint_with_text(self, request, text):

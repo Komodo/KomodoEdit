@@ -274,9 +274,11 @@ class KoTemplateToolkitLinter(object):
     def _spaceOutNonNewlines(self, markup):
         return self._nonNewlineMatcher.sub(' ', markup)
 
+    _tplPatterns = ("TemplateToolkit", re.compile(r'\[%\s*(?![A-Z])'), re.compile(r'%\]\s*\Z', re.DOTALL))
     def lint(self, request):
         return self._html_linter.lint(request,
-                                      udlMapping={"Perl":"TemplateToolkit"})
+                                      udlMapping={"Perl":"TemplateToolkit"},
+                                      TPLInfo=self._tplPatterns)
 
     def lint_with_text(self, request, text):
         perlText = self._fixPerlPart(text)

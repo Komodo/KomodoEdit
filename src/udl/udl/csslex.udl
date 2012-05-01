@@ -347,7 +347,7 @@ state IN_CSS_COMMENT_1 :
 
 state IN_CSS_DSTRING:
 '"' : paint(include, CSS_STRING), => IN_CSS_DEFAULT
-/\\[\r\n]/ : paint(include, CSL_STRING), => IN_CSS_DSTRING_LINECONT
+/\\[\r\n]/ : paint(include, CSS_STRING), => IN_CSS_DSTRING_LINECONT
 /\\./ : #stay, don't miscount backslash at end
 /$/ : paint(upto, CSS_STRING), => IN_CSS_DEFAULT
 '\r' : paint(upto, CSS_STRING), => IN_CSS_DEFAULT

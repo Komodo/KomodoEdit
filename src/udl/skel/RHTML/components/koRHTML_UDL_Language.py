@@ -301,13 +301,13 @@ class KoRHTMLLinter(object):
     def _spaceOutNonNewlines(self, markup):
         return self._nonNewlineMatcher.sub(' ', markup)
 
-    _tplPatterns = ("RHTML", re.compile('<%.*'), re.compile('.*?%>'))
+    _tplPatterns = ("RHTML", re.compile('<%='), re.compile(r'%>\s*\Z', re.DOTALL))
     def lint(self, request):
         # With the "squelching" the multi-language linter does to pull
         # <% and %>-like tokens out of the lint input stream, there's no
         # need to map all Ruby code to RHTML
         return UnwrapObject(self._html_linter).lint(request,
-                                                    squelchTPLPatterns=self._tplPatterns)
+                                                    TPLInfo=self._tplPatterns)
 
     def lint_with_text(self, request, text):
         log.debug("rhtml lint: %s", text)
