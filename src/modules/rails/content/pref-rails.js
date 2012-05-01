@@ -40,9 +40,7 @@ var log = ko.logging.getLogger("rails");
 log.setLevel(ko.logging.LOG_DEBUG);
 
 var prefExecutable = null;  // path to Rails
-var appInfoEx = null;
 var programmingLanguage = "Ruby";
-var appInfoEx = null;
 var osPathSvc = null;
 var widgets = {};
 var gPrefset = null;
@@ -55,8 +53,6 @@ var rubyPrefFrame = null;
 function PrefRails_OnLoad()
 {
     var rubyDefaultInterpreter = null;
-    appInfoEx = Components.classes["@activestate.com/koAppInfoEx?app=Ruby;1"].
-            createInstance(Components.interfaces.koIRubyInfoEx);
     widgets.railsLocation = document.getElementById("rails.location");
     widgets.railsDatabase = document.getElementById("rails.database");
     widgets.railsDBDeck = document.getElementById("railsDBDeck");
@@ -138,6 +134,8 @@ function OnPreferencePageLoading(prefset) {
             rubyDefaultInterpreter = null;
         }
         if (!rubyDefaultInterpreter) {
+            var appInfoEx = Components.classes["@activestate.com/koAppInfoEx?app=Ruby;1"].
+                        createInstance(Components.interfaces.koIAppInfoEx);
             rubyDefaultInterpreter = appInfoEx.executablePath;
         }
         if (rubyDefaultInterpreter && rubyDefaultInterpreter != currentRubyPath) {
