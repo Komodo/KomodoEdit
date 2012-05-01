@@ -531,16 +531,16 @@ class _CommonHTMLLinter(object):
                             currState |= self._IN_SSL_BLOCK
                     if ((currState & self._IN_SSL_EMITTER)
                         and (currState & (self._IN_CSS_EMIT|self._IN_JS_EMIT))):
-                            # Give the JS/CSS processor something to work with
-                            if currState & self._IN_CSS_EMIT:
-                                checkLangName = "CSS"
-                            else:
-                                checkLangName = "JavaScript"
-                            if not bytesByLang.last_text_matches_pattern(checkLangName, self._ends_with_zero):
-                                # Avoid duplicates for multiple subsequent SSL emitters.
-                                bytesByLang.replace_ending_white_space(checkLangName, "0", currLineNum)
-                                self._emittedCodeLineNumbers.add(currLineNum)
-                                self._multiLanguageLineNumbers.add(currLineNum)
+                        # Give the JS/CSS processor something to work with
+                        if currState & self._IN_CSS_EMIT:
+                            checkLangName = "CSS"
+                        else:
+                            checkLangName = "JavaScript"
+                        if not bytesByLang.last_text_matches_pattern(checkLangName, self._ends_with_zero):
+                            # Avoid duplicates for multiple subsequent SSL emitters.
+                            bytesByLang.replace_ending_white_space(checkLangName, "0", currLineNum)
+                            self._emittedCodeLineNumbers.add(currLineNum)
+                            self._multiLanguageLineNumbers.add(currLineNum)
                                 
                     if (currState & self._IN_SSL_EMITTER) and name not in self._take_all_languages:
                         # Don't try to evaluate snippets.  Most of them won't make sense on their own.
@@ -552,10 +552,10 @@ class _CommonHTMLLinter(object):
                       and ((name == "CSS" and (currState & self._IN_CSS_EMIT))
                            or (name == "JavaScript" and (currState & self._IN_JS_EMIT)))
                       and currText.find("\n") == -1):
-                        # Emit nothing, including white space
-                        pass
+                    # Emit nothing, including white space
+                    pass
                 elif TPLInfo and name == TPLInfo[0] and name in self._take_all_languages:
-                        bytesByLang[name] = currText
+                    bytesByLang[name] = currText
                 else:
                     # All other mismatches: blank out the text.
                     # For example if the current text is CSS (langName), but we're looking at
@@ -568,11 +568,11 @@ class _CommonHTMLLinter(object):
             currLineNum += numNewLinesInCurrText
         # end of main loop through the document
             
-        #bytesByLang.finish()
-        # We don't need to worry about trailing pending whitespace, so don't bother.
+        # Dump pending white-space to end so we see last-line messages on each stream.
+        bytesByLang.finish()
         bytesByLangFinal = {}
         for name in bytesByLang.keys():
-            bytesByLangFinal[name] = "".join(bytesByLang[name]).rstrip()
+            bytesByLangFinal[name] = "".join(bytesByLang[name])
             #log.debug("Lint doc(%s):[\n%s\n]", name, bytesByLang[name])
         bytesByLang = bytesByLangFinal
 
