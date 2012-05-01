@@ -604,8 +604,8 @@ div.code .tags        { color: red; }
         else:
             name_from_num \
                 = self._style_name_from_style_num_from_lang[self.lang]
-        const_name = self._style_name_from_style_num_from_lang[self.lang][style_num]
-        style_names.append(const_name)
+        const_name = self._style_name_from_style_num_from_lang[self.lang].get(style_num, "Unknown style")
+        style_names.append("%d - %s" % (style_num, const_name))
         
         # Get a style group from styles.py.
         if self.lang in styles.StateMap:
