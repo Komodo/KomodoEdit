@@ -264,17 +264,17 @@ class KoPythonCommonInfoEx(KoAppInfoEx):
         self.koInfoService = components.classes["@activestate.com/koInfoService;1"].getService();
         self._userPath = koprocessutils.getUserEnv()["PATH"].split(os.pathsep)
         try:
-            self._prefSvc.prefs.prefObserverService.addObserver(self, "pythonDefaultInterpreter", 0)
+            self._prefSvc.prefs.prefObserverService.addObserver(self, self.defaultInterpreterPrefName, 0)
         except Exception, e:
             print e
 
     def observe(self, subject, topic, data):
-        if topic == ("%sDefaultInterpreter" % (self.languageName_lc,)):
+        if topic == self.defaultInterpreterPrefName:
             self.installationPath = None
         
     def _GetPythonExeName(self):
         if not self.installationPath:
-            pythonExe = self.prefService.prefs.getStringPref("%sDefaultInterpreter" % (self.languageName_lc,))
+            pythonExe = self.prefService.prefs.getStringPref(self.defaultInterpreterPrefName)
             if pythonExe: return pythonExe
             paths = self.FindInstallationPaths()
             if paths:
@@ -316,7 +316,7 @@ class KoPythonCommonInfoEx(KoAppInfoEx):
 
     def getExecutableFromDocument(self, koDoc):
         return self.get_executable_from_doc_pref(koDoc,
-                                                 'pythonDefaultInterpreter')
+                                                 self.defaultInterpreterPrefName)
 
     def get_haveLicense(self):
         return 1
@@ -439,6 +439,7 @@ class KoPythonInfoEx(KoPythonCommonInfoEx):
     _reg_contractid_ = "@activestate.com/koAppInfoEx?app=Python;1"
     _reg_desc_ = "Extended Python Information"
     languageName_lc = "python"
+    defaultInterpreterPrefName = "pythonDefaultInterpreter"
     def __init__(self):
         KoPythonCommonInfoEx.__init__(self)
 
@@ -449,6 +450,7 @@ class KoPython3InfoEx(KoPythonCommonInfoEx):
     _reg_contractid_ = "@activestate.com/koAppInfoEx?app=Python3;1"
     _reg_desc_ = "Extended Python3 Information"
     languageName_lc = "python3"
+    defaultInterpreterPrefName = "python3DefaultInterpreter"
     def __init__(self):
         KoPythonCommonInfoEx.__init__(self)
 
