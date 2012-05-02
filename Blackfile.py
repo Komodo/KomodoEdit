@@ -2404,6 +2404,9 @@ def BuildQuickBuildDB(cfg, argv):
     _addFiles(cfg, sourceSubdir='src/',
               targetSubdir=os.path.join(cfg.mozBin, 'components'),
               extensions=['py', 'js'])
+    _addFiles(cfg, sourceSubdir='src/chrome/komodo/content',
+              targetSubdir=os.path.join(cfg.mozBin, 'modules'),
+              extensions=['js', 'jsm'])
     _addFiles(cfg, sourceSubdir='src/',
               targetSubdir=cfg.komodoPythonUtilsDir,
               extensions=['py'])
