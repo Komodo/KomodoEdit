@@ -90,6 +90,16 @@
             <caption id="user1_label" class="user-label"
                      label="&userColon.label;" control="change_user1_button" />
             <textbox class="stackatoUserTextBox" id="user1_textbox" readonly="true" value="" />
+            <caption id="user1_group_label" class="user-label"
+                     label="Switch group:" control="change_target_button" />
+            <menulist id="user1_group_textbox" editable="false"
+                      onkeyup="ko.stackato.checkUpdateGroup(event, this);"
+                      oncommand="ko.stackato.switchGroup(this);">
+              <menupopup id="user1_group_textbox_menupopup">
+                <menuitem id="user1_no_group" keep="true" label="-None-" value="-None-" />
+                <menuseparator id="user1_group_popup_separator" />
+              </menupopup>
+            </menulist>
             <button id="change_user1_button" label="&logout.label;" oncommand="ko.stackato.logout();" />
         </hbox>
         <hbox id="user_logged_out" hidden="true">
@@ -105,6 +115,16 @@
                      />
             <textbox class="stackatoUserTextBox" id="user2_password" type="password" onkeyup="ko.stackato.checkLogin()"/>
             <button id="change_user2_button" label="&login.label;" oncommand="ko.stackato.login();" />
+            <caption id="user2_group_label" class="user-label"
+                     label="Group:" control="change_target_button" />
+            <menulist id="user2_group_textbox" flex="1" editable="false"
+                      onkeyup="ko.stackato.checkUpdateGroup(event, this);"
+                      oncommand="ko.stackato.switchGroup(this);">
+              <menupopup id="user2_group_textbox_menupopup">
+                <menuitem id="user2_no_group" keep="true" label="-None-" value="-None-" />
+                <menuseparator id="user2_group_popup_separator" />
+              </menupopup>
+            </menulist>
             <checkbox id="login_show_password" label="&showPassword.label;" checked="false"
                           oncommand="ko.stackato.toggleShowPassword(this, 'user2_password');" />
         </hbox>

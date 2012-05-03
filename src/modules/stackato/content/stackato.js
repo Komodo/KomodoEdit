@@ -134,6 +134,16 @@ this.initialize = function() {
         // No longer needed: use mozilla persist to track state of collapsers
         gStackatoPrefs.deletePref("boxIsClosed");
     }
+    if (gStackatoPrefs.hasPref("groupNamesByTarget")) {
+        try {
+            this.groupNamesByTarget = JSON.parse(gStackatoPrefs.getStringPref("groupNamesByTarget"));
+        } catch(ex) {
+            log.exception(ex, "Error json-parsing " + gStackatoPrefs.getStringPref("groupNamesByTarget"));
+            this.groupNamesByTarget = {};
+        }
+    } else {
+        this.groupNamesByTarget = {};
+    }
     this.showEnvironmentVariables = false;
     
     // Init the panel splitters.
@@ -621,7 +631,9 @@ this.wrapCallbackFunction = function(methodName,
                 && !(methodName == "logout"
                      || (methodName == "runCommand"
                          && (args[0] == "target"
-                             || args[0] == "user")))) {
+                             || args[0] == "user"
+                             || args[0] == "version"
+                             || args[0] == "groups")))) {
                 return;
             }
             delete this_.pendingRequests[methodName];
@@ -679,6 +691,9 @@ this.wrapCallbackFunction = function(methodName,
         }
     };
     if (methodName == "runCommand") {
+        if (useJSON && args.indexOf("--json") === -1) {
+            args.push("--json");
+        }
         return this.pendingRequests[methodName] = this.stackatoService.runCommand(async_callback, args.length, args);
     } else {
         // grumble must be a better way to do this
@@ -728,6 +743,9 @@ this.sanityCheck_then_getCurrentTarget = function() {
                 }
                 return;
             }
+            var m = /v?(\d+\.\d+)([\w\d\.]*)/.exec(data);
+            this_.clientVersion = m[1];
+            this_.clientSubVersion = m[2];
             this_.getCurrentTarget();
         }
     };
@@ -802,6 +820,7 @@ this.getUserWithCurrentTarget = function() {
                               ["user", "--json"]);
 };
 
+
 this.tryLoggingInWithCredentials = function() {
     var newUser, newPassword;
     //dump("In tryLoggingInWithCredentials, current target "
@@ -819,7 +838,9 @@ this.tryLoggingInWithCredentials = function() {
     //     + "\n"
     //     );
     if (!newUser) {
+        this.hasLoggedOut = true;
         this._showLoggedOutFields("", "");
+        this.updateGroupsMenu();
         return;
     }
     var this_ = this;
@@ -828,7 +849,9 @@ this.tryLoggingInWithCredentials = function() {
       onError: function(msg) {
             this_.user = "";
             this_.password = "";
+            this_.hasLoggedOut = true;
             this_._showLoggedOutFields(newUser, newPassword);
+            this.updateGroupsMenu();
             ko.dialogs.alert(bundle.formatStringFromName("Stackato X ERROR", ["login", msg], 2));
         },
       setData: function(data) {
@@ -844,7 +867,9 @@ this.tryLoggingInWithCredentials = function() {
                 if (data && data.indexOf("Problem with login, invalid account or password") == 0) {
                     ko.dialogs.alert(data);
                 }
+                this_.hasLoggedOut = true;
                 this_._updateButtons();
+                this_.updateGroupsMenu();
                 this_._showLoggedOutFields(newUser, newPassword);
             }
         }
@@ -981,6 +1006,113 @@ this.updateTargetsMenu = function(names) {
     gko.mru.getAll("stackato.mru").forEach(function(newName) {
         this_._addNewItem(menupopup, newName);
         });
+    if (this.clientVersion) {
+        var versionParts = this.clientVersion.split(".").map(function(p) parseInt(p));
+        if (versionParts[0] > 1 || (versionParts[0] == 1 && versionParts[1] >= 2)) {
+            this.getGroupNames();
+        } else {
+            this.groupNames = null;
+            this.updateGroupsMenu();
+        }
+    }
+};
+
+this.getGroupNames = function() {
+    var this_ = this;
+    var handler = {
+        onError: function(data) {
+            this_.updateGroupsMenu();
+        },
+        setData: function(data) {
+            this_.groupNamesByTarget[this_._target] = data;
+            this_.updateGroupsMenu();
+        }
+    };
+    this.wrapCallbackFunction("runCommand",
+                              "target_label",
+                              handler,
+                              null,
+                              /*useJSON=*/true,
+                              /*args=*/['groups']
+                              );
+};
+
+this.updateGroupsMenu = function() {
+    var all_gnames = [];
+    var user_specific_gnames = [];
+    if (this._target in this.groupNamesByTarget) {
+        var groupInfo = this.groupNamesByTarget[this._target];
+        for (var p in groupInfo) {
+            all_gnames.push(p);
+            if (!this.hasLoggedOut && groupInfo[p].indexOf(this.user) !== -1) {
+                user_specific_gnames.push(p);
+            }
+        }
+    }
+    all_gnames.sort(); //TODO: ignore case
+    user_specific_gnames.sort(); //TODO: ignore case
+    this.updateGroupsMenuForIndex(user_specific_gnames, 1); // logged in
+    this.updateGroupsMenuForIndex(all_gnames, 2);           // logged out
+};
+
+this.updateGroupsMenuForIndex = function(gnames, idx) {
+    var menulist = document.getElementById("user" + idx + "_group_textbox");
+    if (!gnames.length) {
+        menulist.disabled = true;
+        return;
+    }
+    menulist.disabled = false;
+    var sep = document.getElementById("user" + idx + "_group_popup_separator");
+    var popup = sep;
+    var parentNode = popup.parentNode;
+    var nextSib = popup.nextSibling;
+    while (nextSib) {
+        popup = nextSib;
+        nextSib = popup.nextSibling;
+        parentNode.removeChild(popup);
+    }
+    var menupopup = document.getElementById("user" + idx + "_group_textbox_menupopup");
+    var menuitem;
+    for each (var name in gnames) {
+        menuitem = document.createElement("menuitem");
+        menuitem.setAttribute("label", name);
+        menupopup.appendChild(menuitem);
+    }
+};
+
+this.switchGroup = function(sender) {
+    if (this.hasLoggedOut) {
+        //dump("not logged in...\n");
+        return;
+    }
+    if (sender.selectedIndex === 0) {
+        this.switchToGroup(null);
+    } else {
+        var gname = sender.selectedItem.label;
+        if (gname) {
+            this.switchToGroup(gname);
+        }
+    }
+};
+
+this.switchToGroup = function(gname) {
+    var this_ = this;
+    var handler = {
+        onError: function(data) {
+            //dump("group " + gname + " => error: " + data + "\n");
+        },
+        setData: function(data) {
+            //dump("group " + gname + "; output: " + data + "\n");
+            this_.refreshAppTree();
+        }
+    };
+    this.wrapCallbackFunction("runCommand",
+                              "user2_group_label",
+                              handler,
+                              null,
+                              /*useJSON=*/false,
+                              /*args=*/['group', gname || 'reset']
+                              );
 };
 
 this._addNewItem = function(menupopup, newLabel) {
@@ -1064,6 +1196,8 @@ this.onUnload = function() {
     try {
         // endSession is used to ensure the terminal handler does not try to
         // continue to use scintilla or the view elements.
+        gStackatoPrefs.setStringPref("groupNamesByTarget",
+                                     JSON.stringify(this.groupNamesByTarget));
         g_shuttingDown = true;
         terminalView.endSession();
         g_terminalHandler.endSession();
