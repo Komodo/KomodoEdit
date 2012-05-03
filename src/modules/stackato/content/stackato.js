@@ -1021,7 +1021,12 @@ this.getGroupNames = function() {
     var this_ = this;
     var handler = {
         onError: function(data) {
-            this_.updateGroupsMenu();
+            if (data.indexOf("does not support groups") !== -1) {
+                this_.updateGroupsMenuForIndex([], 1); // logged in
+                this_.updateGroupsMenuForIndex([], 2);           // logged out
+            } else {
+                this_.updateGroupsMenu();
+            }
         },
         setData: function(data) {
             this_.groupNamesByTarget[this_._target] = data;
