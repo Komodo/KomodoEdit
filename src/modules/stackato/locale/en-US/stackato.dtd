@@ -53,6 +53,9 @@
 <!ENTITY showStats.label "Show Stats">
 <!ENTITY stop.label "Stop">
 <!ENTITY start.label "Start">
+<!ENTITY switchGroup.label "Switch group:">
+<!ENTITY group.label "Group:">
+<!ENTITY switchToNoGroup.label "- None -">
 <!ENTITY showTargetInfo.label "Show Target Info">
 <!ENTITY stackatoHelpPage.label "Stackato Help Page">
 <!ENTITY stackatoHomePage.label "Stackato Home Page">
