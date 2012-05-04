@@ -163,9 +163,9 @@ this.initialize = function() {
     var mruTargetNames = this.Credentials.getTargets();
     if (mruTargetNames.length) {
         this.targetNames = mruTargetNames;
-        this.updateTargetsMenu(this.targetNames);
+        this.updateTargetsMenu(this.targetNames, /*getGroups=*/false);
     }
-                
+
     //TODO: Prevent sorting in the main tree.  The problem is that the
     // tree.xml handler handles the eventPhase = atTarget value, which
     // addEventListener doesn't handle, and an attempt to set up a binding failed.
@@ -746,6 +746,15 @@ this.sanityCheck_then_getCurrentTarget = function() {
             var m = /v?(\d+\.\d+)([\w\d\.]*)/.exec(data);
             this_.clientVersion = m[1];
             this_.clientSubVersion = m[2];
+            this_.supportsGroups = this_.versionCheck(1, 2);
+            var groupEltNames = ["user1_group_label",
+                                 "user1_group_textbox",
+                                 "user2_group_label",
+                                 "user2_group_textbox"];
+            var collapse = !this_.supportsGroups;
+            for each (var eltName in groupEltNames) {
+                    document.getElementById(eltName).collapsed = collapse;
+                }
             this_.getCurrentTarget();
         }
     };
@@ -753,6 +762,23 @@ this.sanityCheck_then_getCurrentTarget = function() {
                               null,
                               handler, null, false,
                               ["version"]);
+};
+
+this.versionCheck = function(majorPart, minorPart, subMinorPart) {
+    var versionParts = this.clientVersion.split(".").map(function(p) parseInt(p));
+    if (typeof(minorPart) == "undefined") minorPart == 0;
+    if (typeof(subMinorPart) == "undefined") subMinorPart == 0;
+    if (versionParts[0] < majorPart) {
+        return false;
+    } else if (versionParts[0] > majorPart
+               || (versionParts.length == 1
+                   || versionParts[1] > minorPart)) {
+        return true;
+    } else if (versionParts[1] < minorPart) {
+        return false;
+    }
+    return (versionParts.length == 2
+            || versionParts[2] >= subMinorPart);
 };
 
 this.getCurrentTarget = function() {
@@ -981,7 +1007,7 @@ this.setupTargetsTree = function() {
         this_.targetNames = targetNames;
         g_finishedInit = true;
         this_._updateButtons();
-        this_.updateTargetsMenu(this_.targetNames);
+        this_.updateTargetsMenu(this_.targetNames, /*getGroups=*/true);
     };
     this.wrapCallbackFunction("getTargets",
                               "provisioned_services_button",
@@ -989,7 +1015,7 @@ this.setupTargetsTree = function() {
                               callback);
 };
 
-this.updateTargetsMenu = function(names) {
+this.updateTargetsMenu = function(names, getGroups) {
     names.sort();
     var menupopup = document.getElementById("target_textbox_menupopup");
     while (menupopup.firstChild) {
@@ -1006,14 +1032,8 @@ this.updateTargetsMenu = function(names) {
     gko.mru.getAll("stackato.mru").forEach(function(newName) {
         this_._addNewItem(menupopup, newName);
         });
-    if (this.clientVersion) {
-        var versionParts = this.clientVersion.split(".").map(function(p) parseInt(p));
-        if (versionParts[0] > 1 || (versionParts[0] == 1 && versionParts[1] >= 2)) {
-            this.getGroupNames();
-        } else {
-            this.groupNames = null;
-            this.updateGroupsMenu();
-        }
+    if (this.supportsGroups && getGroups) {
+        this.getGroupNames();
     }
 };
 
@@ -1045,17 +1065,19 @@ this.getGroupNames = function() {
 this.updateGroupsMenu = function() {
     var all_gnames = [];
     var user_specific_gnames = [];
-    if (this._target in this.groupNamesByTarget) {
-        var groupInfo = this.groupNamesByTarget[this._target];
-        for (var p in groupInfo) {
-            all_gnames.push(p);
-            if (!this.hasLoggedOut && groupInfo[p].indexOf(this.user) !== -1) {
-                user_specific_gnames.push(p);
+    if (this.supportsGroups) {
+        if (this._target in this.groupNamesByTarget) {
+            var groupInfo = this.groupNamesByTarget[this._target];
+            for (var p in groupInfo) {
+                all_gnames.push(p);
+                if (!this.hasLoggedOut && groupInfo[p].indexOf(this.user) !== -1) {
+                    user_specific_gnames.push(p);
+                }
             }
         }
+        all_gnames.sort(); //TODO: ignore case
+        user_specific_gnames.sort(); //TODO: ignore case
     }
-    all_gnames.sort(); //TODO: ignore case
-    user_specific_gnames.sort(); //TODO: ignore case
     this.updateGroupsMenuForIndex(user_specific_gnames, 1); // logged in
     this.updateGroupsMenuForIndex(all_gnames, 2);           // logged out
 };
