@@ -71,7 +71,7 @@
     }
 
     /**
-     * Expand and return the absolute path of the given relative path.
+     * Expand and return the URI of the given relative path.
      *
      * @param {koIView} view - The editor view.
      * @param {String} filepath - The path to expand.
@@ -79,7 +79,7 @@
      *
      * @returns {String}
      */
-    function getAbsFilepath(view, filepath, alternativePaths /* [] */) {
+    function getUriForPath(view, filepath, alternativePaths /* [] */) {
         var absFilepath = null;
         if (filepath[0] == "\\" || filepath[0] == "/") {
             // It's an absolute path already.
@@ -113,6 +113,15 @@
                     }
                 }
             }
+        }
+        if (absFilepath) {
+            // Turn absFilepath into a URI.
+            var filler = "";
+            absFilepath = absFilepath.replace("\\", "/");
+            if (_is_windows && absFilepath[1] == ":" && absFilepath[0] != "/") {
+                filler = "/";
+            }
+            return view.koDoc.file.prePath + filler + absFilepath;
         }
         return absFilepath;
     }
@@ -150,7 +159,7 @@
                                             "hyperlinks", 3000, true);
                 }
             } else {
-                ko.open.URI(getAbsFilepath(view, filepath, alternativePaths));
+                ko.open.URI(getUriForPath(view, filepath, alternativePaths));
             }
         }
     }
