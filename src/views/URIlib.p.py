@@ -87,18 +87,16 @@ class URILibError(Exception):
 # Split up a server field, of the form "me:mypass@servername:portnum"
 # into it's components
 class URIServerParser(object):
+    _serveruri = None
+    _username = None
+    _password = None
+    _hostname = None
+    _port     = None
+
     def __init__(self, serveruri=None):
-        self._clear()
         if serveruri:
             self.parseServerUri(serveruri)
     
-    def _clear(self):
-        self._serveruri = None
-        self._username = None
-        self._password = None
-        self._hostname = None
-        self._port     = None
-
     def dump(self):
         print
         print "serveruri:[%s]"%self._serveruri
