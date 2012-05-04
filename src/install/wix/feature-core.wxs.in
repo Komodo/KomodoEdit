@@ -229,6 +229,7 @@
       <ComponentRef Id="component463"/>
       <ComponentRef Id="component464"/>
       <ComponentRef Id="component465"/>
+      <ComponentRef Id="component469"/>
       <ComponentRef Id="component470"/>
       <ComponentRef Id="component471"/>
       <ComponentRef Id="component472"/>
@@ -315,6 +316,7 @@
       <ComponentRef Id="component520"/>
       <ComponentRef Id="component521"/>
       <ComponentRef Id="component513"/>
+      <ComponentRef Id="component545"/>
       <ComponentRef Id="component587"/>
       <ComponentRef Id="component26"/>
       <ComponentRef Id="component43"/>
@@ -2059,6 +2061,7 @@
                 <File Id="file2191" LongName="watchdogFileNotifications.py" Name="WATCHD_0.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\watchdogFileNotifications.py" />
                 <File Id="file2211" LongName="watchdog_patches.py" Name="WATCHD_1.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\watchdog_patches.py" />
 <?endif ?>
+                <File Id="file4044" Name="ZOPECA_0.EGG" LongName="zope.cachedescriptors-3.5.1-py2.6.egg-info" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\zope.cachedescriptors-3.5.1-py2.6.egg-info"/>
               </Component>
               <Directory Id="directory262" Name="CODEIN_3" LongName="codeintel2">
                 <Component Id="component245" DiskId="1" Guid="$(autowix.guid)">
@@ -2766,10 +2769,20 @@
                 </Component>
               </Directory> <!-- lib\mozilla\python\komodo\SilverCity -->
               <Directory Id="directory432" Name="toolbox">
-                  <Component Id="component404" DiskId="1" Guid="$(autowix.guid)">
-                    <File Id="file1080" Name="KOTOOL_0.SQL" LongName="koToolbox.sql" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\toolbox\koToolbox.sql"/>
+                <Component Id="component404" DiskId="1" Guid="$(autowix.guid)">
+                  <File Id="file1080" Name="KOTOOL_0.SQL" LongName="koToolbox.sql" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\toolbox\koToolbox.sql"/>
+                </Component>
+              </Directory> <!-- lib\mozilla\python\komodo\toolbox -->
+              <Directory Id="directory594" Name="zope">
+                <Directory Id="directory600" Name="CACHED_0" LongName="cachedescriptors">
+                  <Component Id="component545" DiskId="1" Guid="$(autowix.guid)">
+                    <File Id="file4045" Name="method.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\zope\cachedescriptors\method.py"/>
+                    <File Id="file4046" Name="property.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\zope\cachedescriptors\property.py"/>
+                    <File Id="file4047" Name="tests.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\zope\cachedescriptors\tests.py"/>
+                    <File Id="file4048" Name="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\zope\cachedescriptors\__init__.py"/>
                   </Component>
-                </Directory> <!-- lib\mozilla\python\komodo\toolbox -->
+                </Directory> <!-- lib\mozilla\python\komodo\zope\cachedescriptors -->
+              </Directory> <!-- lib\mozilla\python\komodo\zope -->
             </Directory> <!-- lib\mozilla\python\komodo -->
             <Directory Id="directory333" Name="nsdom">
               <Component Id="component301" DiskId="1" Guid="$(autowix.guid)">
