@@ -220,16 +220,26 @@ function simpleYamlParser(contents) {
 }
 
 function onPage1_Next() {
-    if (!widgets.getNewAppWizard.canAdvance) {
-        log.debug("onPage1_Next: can't advance!\n");
-        return false;
+    try {
+        if (!widgets.getNewAppWizard.canAdvance) {
+            log.debug("onPage1_Next: can't advance!\n");
+            return false;
+        }
+        clearPage1();
+        ["appname", "path", "url", "numInstances", "memoryLimit"].forEach(function(name) {
+                finalDataItems[name] = widgets[name].value;
+            });
+        finalDataItems.startImmediately = widgets.startImmediately.checked;
+        var rt = widgets.runtime;
+        if (!rt.selectedItem) {
+            finalDataItems.runtime = null;
+        } else {
+            finalDataItems.runtime = rt.selectedItem.label;
+        }
+    } catch(ex) {
+        log.exception(ex, "onPage1_Next error");
     }
-    clearPage1();
-    ["appname", "path", "url", "numInstances", "memoryLimit", "runtime"].forEach(function(name) {
-            finalDataItems[name] = widgets[name].value;
-        });
-    finalDataItems.startImmediately = widgets.startImmediately.checked;
-  return true;
+    return true;
 }
 
 function onPage2_Show() {
