@@ -377,6 +377,10 @@ class URIParser(object):
             self._setFileNames(sortaURI, doUnquote=False)
     path = property(get_path,set_path)
 
+    @property
+    def prePath(self):
+        return self.scheme + "://" + self.server
+
     #attribute string leafName; 
     def get_leafName(self):
         return self.baseName

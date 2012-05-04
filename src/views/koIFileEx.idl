@@ -84,6 +84,7 @@ interface koIFileEx : nsISupports
     attribute wstring server;
     attribute wstring path;
     attribute wstring leafName; // XXX get rid of this
+    readonly attribute wstring prePath;  // Everything before the path.
     readonly attribute wstring baseName;
     readonly attribute wstring dirName;
     readonly attribute string scheme;

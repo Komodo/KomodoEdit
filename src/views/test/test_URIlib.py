@@ -55,38 +55,44 @@ class TestURIParser(unittest.TestCase):
                      'about:blank',  # path
                      'about:blank',  # baseName
                      ''              # dirName
+                     'about:blank',  # prePath
                      ])
     filelist.append(['file:///test/path/to/some:file.txt',  # uri
                      '/test/path/to/some:file.txt',  # path
                      'some:file.txt',  # baseName
                      '/test/path/to',  # dirName
+                     'file://',  # prePath
                      ])
     filelist.append(['file:///test/path/to/somefile.txt',  # uri
                      '/test/path/to/somefile.txt',  # path
                      'somefile.txt',  # baseName
                      '/test/path/to',  # dirName
+                     'file://',  # prePath
                      ])
     if win32:
         filelist.append(['file:///c:/test/path/to/somefile.txt',  # uri
                          r'c:\test\path\to\somefile.txt',  # path
                          'somefile.txt',  # baseName
                          r'c:\test\path\to',  # dirName
+                         'file://',  # prePath
                          ])
         filelist.append(['file:///C:/Documents%20and%20Settings/shanec/Application%20Data/ActiveState/Komodo/2.4/toolbox.kpf',  # uri
                          r'C:\Documents and Settings\shanec\Application Data\ActiveState\Komodo\2.4\toolbox.kpf',  # path
                          'toolbox.kpf',  # baseName
                          r'C:\Documents and Settings\shanec\Application Data\ActiveState\Komodo\2.4'  # dirName
+                         'file://',  # prePath
                          ])
         filelist.append(['file:///C:/Program%20Files/Microsoft%20Visual%20Studio/VC98/Include/WINUSER.H',  # uri
                          r'C:\Program Files\Microsoft Visual Studio\VC98\Include\WINUSER.H',  # path
                          'WINUSER.H',  # baseName
                          r'C:\Program Files\Microsoft Visual Studio\VC98\Include'  # dirName
+                         'file://',  # prePath
                          ])
     
     if win32:
         # linux basename/dirname/etc just choke on this
-        filelist.append(['file:///c:/', 'c:\\', '', 'c:\\'])
-        filelist.append(['file:///c:', 'c:', '', 'c:'])
+        filelist.append(['file:///c:/', 'c:\\', '', 'c:\\', 'file://'])
+        filelist.append(['file:///c:', 'c:', '', 'c:', 'file://'])
 
     if sys.platform.startswith('win'):
         # Windows provides support for UNC file paths.
@@ -94,6 +100,7 @@ class TestURIParser(unittest.TestCase):
                          '//netshare/apps/Komodo/Naming Rules for Tarballs.txt',  # path
                          'Naming Rules for Tarballs.txt',  # baseName
                          '//netshare/apps/Komodo',  # dirName
+                         'file://netshare',  # prePath
                          ])
     else:
         # Other platforms do not use UNC file paths.
@@ -101,27 +108,32 @@ class TestURIParser(unittest.TestCase):
                          '/apps/Komodo/Naming Rules for Tarballs.txt',  # path
                          'Naming Rules for Tarballs.txt',  # baseName
                          '/apps/Komodo',  # dirName
+                         'file://',  # prePath
                          ])
     urllist = list(filelist)
     urllist.append(['http://server.com/test/path/to/somefile.txt',  # uri
                     '/test/path/to/somefile.txt',  # path
                     'somefile.txt',  # baseName
                     '/test/path/to',  # dirName
+                    'http://server.com',  # prePath
                     ])
     urllist.append(['ftp://somesite.com/web/info.php',  # uri
                     '/web/info.php',  # path
                     'info.php',  # baseName
                     '/web',  # dirName
+                    'ftp://somesite.com',  # prePath
                     ])
     urllist.append(['ftp://somesite.com/web/info.php',  # uri
                     '/web/info.php',  # path
                     'info.php',  # baseName
                     '/web',  # dirName
+                    'ftp://somesite.com',  # prePath
                     ])
     urllist.append(['ftp://somesite.com/web%20with%20space/info.php',  # uri
                     '/web with space/info.php',  # path
                     'info.php',  # baseName
                     '/web with space',  # dirName
+                    'ftp://somesite.com',  # prePath
                     ])
 
     def failUnlessSamePath(self, p1, p2, errmsg = None):
@@ -142,6 +154,8 @@ class TestURIParser(unittest.TestCase):
             "leafName %r != %r" % (uri.leafName, test[2]))
         self.failUnlessSamePath(uri.dirName, test[3],
             "dirName %r != %r" % (uri.dirName, test[3]))
+        self.failUnlessSamePath(uri.prePath, test[4],
+            "prePath %r != %r" % (uri.prePath, test[4]))
 
     def test_constructFileURI(self):
         for test in self.urllist:
