@@ -518,7 +518,18 @@ this.FrameworksTree.prototype.contructor = this.FrameworksTree;
 
 this.FrameworksTree.prototype.setData =  function(results) {
     var newRow, rows = [];
-    for each (var item in results) {
+    var names;
+    // The format of 'stackato frameworks --json' changed going
+    // into client version 1.2
+    if (('length' in results) && (0 in results)) {
+        names = results;
+    } else {
+        names = [];
+        for (var p in results) {
+            names.push(p);
+        }
+    }
+    for each (var item in names) {
         newRow = new ko.stackato.trees.ApplicationRow(0);
         newRow.fields = {
             'frameworksTree_name': item
