@@ -51,59 +51,78 @@ def _koFileSymlinkMatchesOSPath(path, koFile):
 class TestURIParser(unittest.TestCase):
     filelist = []
     urllist = []
-    # uri, path, leafName, baseName, dirName
-    filelist.append(["about:blank",
-                     'about:blank', 'about:blank',
-                     'about:blank', ''])
-    filelist.append(["file:///test/path/to/some:file.txt",
-                     '/test/path/to/some:file.txt', 'some:file.txt',
-                     'some:file.txt', '/test/path/to'])
-    filelist.append(["file:///test/path/to/somefile.txt",
-                     '/test/path/to/somefile.txt', 'somefile.txt',
-                     'somefile.txt', '/test/path/to'])
+    filelist.append(['about:blank',  # uri
+                     'about:blank',  # path
+                     'about:blank',  # baseName
+                     ''              # dirName
+                     ])
+    filelist.append(['file:///test/path/to/some:file.txt',  # uri
+                     '/test/path/to/some:file.txt',  # path
+                     'some:file.txt',  # baseName
+                     '/test/path/to',  # dirName
+                     ])
+    filelist.append(['file:///test/path/to/somefile.txt',  # uri
+                     '/test/path/to/somefile.txt',  # path
+                     'somefile.txt',  # baseName
+                     '/test/path/to',  # dirName
+                     ])
     if win32:
-        filelist.append(["file:///c:/test/path/to/somefile.txt",
-                         r'c:\test\path\to\somefile.txt', 'somefile.txt',
-                         'somefile.txt', r'c:\test\path\to'])
-        filelist.append(["file:///C:/Documents%20and%20Settings/shanec/Application%20Data/ActiveState/Komodo/2.4/toolbox.kpf",
-                         r'C:\Documents and Settings\shanec\Application Data\ActiveState\Komodo\2.4\toolbox.kpf',
-                         'toolbox.kpf', 'toolbox.kpf',
-                         r'C:\Documents and Settings\shanec\Application Data\ActiveState\Komodo\2.4'
+        filelist.append(['file:///c:/test/path/to/somefile.txt',  # uri
+                         r'c:\test\path\to\somefile.txt',  # path
+                         'somefile.txt',  # baseName
+                         r'c:\test\path\to',  # dirName
                          ])
-        filelist.append(["file:///C:/Program%20Files/Microsoft%20Visual%20Studio/VC98/Include/WINUSER.H",
-                         r'C:\Program Files\Microsoft Visual Studio\VC98\Include\WINUSER.H',
-                         'WINUSER.H', 'WINUSER.H',
-                         r'C:\Program Files\Microsoft Visual Studio\VC98\Include'
+        filelist.append(['file:///C:/Documents%20and%20Settings/shanec/Application%20Data/ActiveState/Komodo/2.4/toolbox.kpf',  # uri
+                         r'C:\Documents and Settings\shanec\Application Data\ActiveState\Komodo\2.4\toolbox.kpf',  # path
+                         'toolbox.kpf',  # baseName
+                         r'C:\Documents and Settings\shanec\Application Data\ActiveState\Komodo\2.4'  # dirName
+                         ])
+        filelist.append(['file:///C:/Program%20Files/Microsoft%20Visual%20Studio/VC98/Include/WINUSER.H',  # uri
+                         r'C:\Program Files\Microsoft Visual Studio\VC98\Include\WINUSER.H',  # path
+                         'WINUSER.H',  # baseName
+                         r'C:\Program Files\Microsoft Visual Studio\VC98\Include'  # dirName
                          ])
     
     if win32:
         # linux basename/dirname/etc just choke on this
-        filelist.append(["file:///c:/", 'c:\\', '', '', 'c:\\'])
-        filelist.append(["file:///c:", 'c:', '', '', 'c:'])
+        filelist.append(['file:///c:/', 'c:\\', '', 'c:\\'])
+        filelist.append(['file:///c:', 'c:', '', 'c:'])
 
     if sys.platform.startswith('win'):
         # Windows provides support for UNC file paths.
-        filelist.append(["file://netshare/apps/Komodo/Naming%20Rules%20for%20Tarballs.txt",
-                         '//netshare/apps/Komodo/Naming Rules for Tarballs.txt', 'Naming Rules for Tarballs.txt',
-                         'Naming Rules for Tarballs.txt', '//netshare/apps/Komodo'])
+        filelist.append(['file://netshare/apps/Komodo/Naming%20Rules%20for%20Tarballs.txt',  # uri
+                         '//netshare/apps/Komodo/Naming Rules for Tarballs.txt',  # path
+                         'Naming Rules for Tarballs.txt',  # baseName
+                         '//netshare/apps/Komodo',  # dirName
+                         ])
     else:
         # Other platforms do not use UNC file paths.
-        filelist.append(["file:///apps/Komodo/Naming%20Rules%20for%20Tarballs.txt",
-                         '/apps/Komodo/Naming Rules for Tarballs.txt', 'Naming Rules for Tarballs.txt',
-                         'Naming Rules for Tarballs.txt', '/apps/Komodo'])
+        filelist.append(['file:///apps/Komodo/Naming%20Rules%20for%20Tarballs.txt',  # uri
+                         '/apps/Komodo/Naming Rules for Tarballs.txt',  # path
+                         'Naming Rules for Tarballs.txt',  # baseName
+                         '/apps/Komodo',  # dirName
+                         ])
     urllist = list(filelist)
-    urllist.append(["http://server.com/test/path/to/somefile.txt",
-                    r'/test/path/to/somefile.txt', 'somefile.txt',
-                    'somefile.txt', '/test/path/to'])
-    urllist.append([r'ftp://somesite.com/web/info.php',
-                    r'/web/info.php','info.php','info.php',
-                    r'/web'])
-    urllist.append([r'ftp://somesite.com/web/info.php',
-                    r'/web/info.php','info.php','info.php',
-                    r'/web'])
-    urllist.append([r'ftp://somesite.com/web%20with%20space/info.php',
-                    r'/web with space/info.php','info.php','info.php',
-                    r'/web with space'])
+    urllist.append(['http://server.com/test/path/to/somefile.txt',  # uri
+                    '/test/path/to/somefile.txt',  # path
+                    'somefile.txt',  # baseName
+                    '/test/path/to',  # dirName
+                    ])
+    urllist.append(['ftp://somesite.com/web/info.php',  # uri
+                    '/web/info.php',  # path
+                    'info.php',  # baseName
+                    '/web',  # dirName
+                    ])
+    urllist.append(['ftp://somesite.com/web/info.php',  # uri
+                    '/web/info.php',  # path
+                    'info.php',  # baseName
+                    '/web',  # dirName
+                    ])
+    urllist.append(['ftp://somesite.com/web%20with%20space/info.php',  # uri
+                    '/web with space/info.php',  # path
+                    'info.php',  # baseName
+                    '/web with space',  # dirName
+                    ])
 
     def failUnlessSamePath(self, p1, p2, errmsg = None):
         p1 = p1.replace('\\','/')
@@ -116,12 +135,13 @@ class TestURIParser(unittest.TestCase):
             "URI %r != %r" % (uri.URI, test[0]))
         self.failUnlessSamePath(uri.path, test[1],
             "path %r != %r" % (uri.path, test[1]))
-        self.failUnlessSamePath(uri.dirName, test[4],
-            "dirName %r != %r" % (uri.dirName, test[4]))
+        self.failUnlessSamePath(uri.baseName, test[2],
+            "baseName %r != %r" % (uri.baseName, test[2]))
+        # Note: leafName is just an alias for baseName
         self.failUnlessSamePath(uri.leafName, test[2],
             "leafName %r != %r" % (uri.leafName, test[2]))
-        self.failUnlessSamePath(uri.baseName, test[3],
-            "baseName %r != %r" % (uri.baseName, test[3]))
+        self.failUnlessSamePath(uri.dirName, test[3],
+            "dirName %r != %r" % (uri.dirName, test[3]))
 
     def test_constructFileURI(self):
         for test in self.urllist:
