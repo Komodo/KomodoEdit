@@ -151,8 +151,22 @@ class URIServerParser(object):
 
 
 class URIParser(object):
+    fileName = None
+    _uri = None
+    _path = None
+    _server = None
+    _baseName = None
+    _dirName = None
+    _ext = None
+
     def __init__(self, uri=None):
-        self._clear()
+        # _fileParsed contains broken up parts of the URI, indexes are:
+        #   0  scheme
+        #   1  netloc
+        #   2  path      (the path is *always* unquoted)
+        #   3  query
+        #   4  fragment
+        self._fileParsed = ['', '', '', '', '']
         if uri:
             self.set_URI(uri)
     
@@ -161,16 +175,10 @@ class URIParser(object):
         self._uri = None
         self._path = None
         self._server = None
-        # _fileParsed contains broken up parts of the URI, indexes are:
-        #   0  scheme
-        #   1  netloc
-        #   2  path      (the path is *always* unquoted)
-        #   3  query
-        #   4  fragment
-        self._fileParsed = ['','','','','']
         self._baseName = None
         self._dirName = None
         self._ext = None
+        self._fileParsed = ['', '', '', '', '']
     
     def dump(self):
         print
