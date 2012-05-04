@@ -471,6 +471,16 @@ if ($withWatchdogFSNotifications) {
     $consLocal->DependsRecursive($landmark, "watchdog", ("build", '\.svn', '\.consign'));
 }
 
+#----  Zope property descriptors.
+my $landmark = "$komodoPythonUtilsDir/zope/cachedescriptors/__init__.py";
+$consLocal->Command($landmark,
+               "zope/cachedescriptors/setup.py",
+               qq(
+                cd %1:d && $siloedPython %1:f build $debugFlags
+                cd %1:d && $siloedPython %1:f install --skip-build --install-lib=$komodoPythonUtilsDir
+               ));
+$consLocal->DependsRecursive($landmark, "zope/cachedescriptors", ("build", '\.svn', '\.consign'));
+
 
 #---- komododoc
 # The Komodo documentation project.
