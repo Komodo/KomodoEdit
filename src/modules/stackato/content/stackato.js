@@ -1133,12 +1133,15 @@ this.switchToGroup = function(gname) {
             this_.refreshAppTree();
         }
     };
+    if (!gname) {
+        gname = this_.versionCheck(1, 3) ? "--reset" : "reset";
+    }
     this.wrapCallbackFunction("runCommand",
                               "user2_group_label",
                               handler,
                               null,
                               /*useJSON=*/false,
-                              /*args=*/['group', gname || 'reset']
+                              /*args=*/['group', gname]
                               );
 };
 
