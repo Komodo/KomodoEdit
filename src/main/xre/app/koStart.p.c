@@ -1687,29 +1687,6 @@ void _KoStart_SetupEnvironment(const char* programDir)
         xpunsetenv("MOZ_PLUGIN_PATH");
     }
 
-#if !defined(MACOSX)
-    /* On Linux, manually set LD_LIBRARY_PATH to pick up the correct Python
-     * libraries. Without this, Komodo (pyxpcom) may load the system Python
-     * library which will cause Komodo to crash - bug 92707.
-     */
-    envVar = xpgetenv("LD_LIBRARY_PATH");
-    if (envVar) {
-        overflow = snprintf(buffer, MAXPATHLEN,
-                            "%s:%s/../python/lib:%s",
-                            programDir, programDir, envVar);
-    } else {
-        overflow = snprintf(buffer, MAXPATHLEN,
-                            "%s:%s/../python/lib",
-                            programDir, programDir);
-    }
-    if (overflow > MAXPATHLEN || overflow < 0) {
-        _LogError("buffer overflow while setting LD_LIBRARY_PATH\n");
-        exit(1);
-    }
-    _LogDebug("setting LD_LIBRARY_PATH=%s\n", buffer);
-    xpsetenv("LD_LIBRARY_PATH", buffer, 1);
-#endif /* !MACOSX */
-
 #endif /* !WIN32 */
 
 #if defined(WIN32)
