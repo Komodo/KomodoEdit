@@ -54,8 +54,8 @@ class TestURIParser(unittest.TestCase):
     filelist.append(['about:blank',  # uri
                      'about:blank',  # path
                      'about:blank',  # baseName
-                     ''              # dirName
-                     'about:blank',  # prePath
+                     '',             # dirName
+                     'about://',     # prePath
                      ])
     filelist.append(['file:///test/path/to/some:file.txt',  # uri
                      '/test/path/to/some:file.txt',  # path
