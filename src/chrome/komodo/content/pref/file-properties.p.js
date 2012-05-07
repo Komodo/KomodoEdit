@@ -609,7 +609,7 @@ function applyEncodingAndBOM(encodingName, bom)
                         parent.view.koDoc.forceEncodingFromEncodingName(encodingName);
                     } catch (ex2) {
                         err = this._bundle.formatStringFromName(
-                                "theSampleProjectCouldNotBeFound.message",
+                                "internalErrorSettingTheEncoding.message",
                                 [parent.view.koDoc.baseName, encodingName], 2);
                         ko.dialogs.internalError(err, err+"\n\n"+errmsg, ex);
                         return false;
