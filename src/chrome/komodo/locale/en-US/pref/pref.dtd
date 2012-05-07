@@ -372,6 +372,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY priority1.label "Priority 1">
 <!ENTITY priority2.label "Priority 2">
 <!ENTITY priority3.label "Priority 3">
+<!ENTITY projectPreferences.label "Project Preferences">
 <!ENTITY projectsAndWorkspace.label "Projects and Workspace">
 <!ENTITY properties.label "Properties">
 <!ENTITY proportional.label "Proportional">
