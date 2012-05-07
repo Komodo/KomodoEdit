@@ -595,7 +595,7 @@ function applyEncodingAndBOM(encodingName, bom)
             var errmsg = lastErrorSvc.getLastErrorMessage();
             if (errno == 0) {
                 // koDocument.set_encoding() says this is an internal error
-                err = this._bundle.formatStringFromName("internalErrorSettingTheEncoding.message",
+                err = bundle.formatStringFromName("internalErrorSettingTheEncoding.message",
                         [parent.view.koDoc.displayPath, encodingName], 2);
                 ko.dialogs.internalError(err, err+"\n\n"+errmsg, ex);
             } else {
@@ -608,7 +608,7 @@ function applyEncodingAndBOM(encodingName, bom)
                     try {
                         parent.view.koDoc.forceEncodingFromEncodingName(encodingName);
                     } catch (ex2) {
-                        err = this._bundle.formatStringFromName(
+                        err = bundle.formatStringFromName(
                                 "internalErrorSettingTheEncoding.message",
                                 [parent.view.koDoc.baseName, encodingName], 2);
                         ko.dialogs.internalError(err, err+"\n\n"+errmsg, ex);
