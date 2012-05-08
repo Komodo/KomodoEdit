@@ -1912,8 +1912,18 @@ def target_pyxpcom(argv=["pyxpcom"]):
         configure_flags += ' CFLAGS="%s"' % (os.environ.get('CFLAGS'))
     if os.environ.get('CXXFLAGS'):
         configure_flags += ' CXXFLAGS="%s"' % (os.environ.get('CXXFLAGS'))
-    if os.environ.get('LDFLAGS'):
-        configure_flags += ' LDFLAGS="%s"' % (os.environ.get('LDFLAGS'))
+    ldFlags = os.environ.get('LDFLAGS', '')
+    if sys.platform.startswith("linux"):
+        # On Linux, manually set the runtime library path (rpath) to pick up the
+        # correct Python libraries. Without this, Komodo (pyxpcom) may load the
+        # system Python library which will cause Komodo to crash - bug 92707.
+        #
+        # The magic sauce - need to escape the $ so it's not shell-translated.
+        # Note that we want to end up with:
+        #   "$ORIGIN:$ORIGIN/../python/lib"
+        ldFlags += " -Wl,-rpath=\\\\$\\$ORIGIN:\\\\$\\$ORIGIN/../python/lib"
+    if ldFlags:
+        configure_flags += ' LDFLAGS="%s"' % (ldFlags, )
     if config.buildType == "debug":
         configure_options.append("--enable-debug")
     configure_path = join(pyxpcom_src_dir, "configure")
