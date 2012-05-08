@@ -491,6 +491,7 @@ class PythonTreeEvaluator(TreeEvaluator):
         #      python/cpln/wacky_imports.
         #      XXX Not totally confident that this is the right answer.
         first_token = tokens[0]
+        possible_submodule_tokens = []
 
         self._check_infinite_recursion(first_token)
         orig_libs = self.libs
@@ -596,16 +597,25 @@ class PythonTreeEvaluator(TreeEvaluator):
                     #XXX Is this correct scoperef for module object?
                     return (blob, (blob, [])),  len(module_tokens)
                 else:
-                    # E.g. tokens:   ('os', 'sep', ...)
-                    #      imp_elem: <import os.path>
-                    #      return:   <blob 'os'> for first token
-                    for i in range(len(module_tokens)-1, 0, -1):
-                        if module_tokens[:i] == tokens[:i]:
-                            blob = import_handler.import_blob_name(
-                                        '.'.join(module_tokens[:i]),
-                                        libs, self.ctlr)
-                            #XXX Is this correct scoperef for module object?
-                            return (blob, (blob, [])),  i
+                    # To check later if there are no exact import matches.
+                    possible_submodule_tokens.append(module_tokens)
+
+        # No matches, check if there is a partial import match.
+        if module_tokens:
+            libs = orig_libs # reset libs back to the original
+            if allow_parentdirlib:
+                libs = self._add_parentdirlib(libs, module_tokens)
+            for module_tokens in possible_submodule_tokens:
+                # E.g. tokens:   ('os', 'sep', ...)
+                #      imp_elem: <import os.path>
+                #      return:   <blob 'os'> for first token
+                for i in range(len(module_tokens)-1, 0, -1):
+                    if module_tokens[:i] == tokens[:i]:
+                        blob = import_handler.import_blob_name(
+                                    '.'.join(module_tokens[:i]),
+                                    libs, self.ctlr)
+                        #XXX Is this correct scoperef for module object?
+                        return (blob, (blob, [])),  i
 
         return None, None
 

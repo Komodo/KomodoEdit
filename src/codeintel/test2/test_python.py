@@ -1686,6 +1686,33 @@ class CplnTestCase(CodeintelPythonTestCase):
             [("function", "to_be_or_not_to_be"),
              ("class", "Dilemma"),])
     
+    @tag("bug94009")
+    def test_multiple_package_imports(self):
+        content, positions = unmark_text(dedent(r'''
+            import foo.bar.bar1
+            import foo.bar.bar2
+            foo.bar.bar1.<1>xxx
+            foo.bar.bar2.<2>xxx
+        '''))
+
+        test_dir = join(self.test_dir, "test_multiple_package_imports")
+        manifest = [
+            ('testcode.py', content),
+            ('foo/__init__.py', ""),
+            ('foo/bar/__init__.py', ""),
+            ('foo/bar/bar1.py', "def bar1_method(): pass"),
+            ('foo/bar/bar2.py', "def bar2_method(): pass"),
+        ]
+        for f, c in manifest:
+            path = join(test_dir, f)
+            writefile(path, c)
+
+        buf = self.mgr.buf_from_path(join(test_dir, "testcode.py"), lang="Python")
+        self.assertCompletionsInclude2(buf, positions[1],
+            [("function", "bar1_method"),])
+        self.assertCompletionsInclude2(buf, positions[2],
+            [("function", "bar2_method"),])
+
     
     @tag("bug55687")
     def test_hit_from_function_call(self):
