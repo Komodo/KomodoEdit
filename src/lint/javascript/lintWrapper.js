@@ -95,8 +95,10 @@ if (!badArgs) {
         }
         var input = lines.join("\n");
         var stoppingLineRE = /Stopping\.\s*\(\d+\%\s+scanned/;
+        var printedHeader = false;
         if (!MAIN_OBJECT(input, options)) {
             print("++++JSLINT OUTPUT:");  // Handler expects this line.
+            printedHeader = true;
             for (var i = 0; i < MAIN_OBJECT.errors.length; i += 1) {
                 var e = MAIN_OBJECT.errors[i];
                 if (e) {
@@ -109,6 +111,26 @@ if (!badArgs) {
                 }
             }
         }
-
+        try {
+            var jsData = MAIN_OBJECT.data();
+            var unusedVars = jsData.unused;
+            if (unusedVars.length && !printedHeader) {
+                print("++++JSLINT OUTPUT:");  // Handler expects this line.
+                printedHeader = true;
+            }
+            for each (var unusedVar in unusedVars) {
+                    var msg = ('jslint error: at line '
+                               + unusedVar.line
+                               + ' column 1: unused var: '
+                               + unusedVar.name);
+                    if (unusedVar['function'] && unusedVar['function'] !== "'anonymous'") {
+                        msg += ", defined in " + unusedVar['function'];
+                    }
+                    print(msg);
+                    print("");
+                }
+        } catch(ex) {
+            print("++++ Error getting unusedVars: " + ex);
+        }
     })(options);
 }
