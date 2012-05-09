@@ -274,11 +274,30 @@ class GenericJSLinter(CommonJSLinter):
         jsInterp = self._get_js_interp_path()
         jsLintDir = os.path.join(self.koDirs.supportDir, "lint", "javascript")
         jsLintApp = os.path.join(jsLintDir, "lintWrapper.js")
+        jsLintBasename = None
+        if prefSwitchName == "lintWithJSLint":
+            appName = "jslint"
+        else:
+            appName = "jshint"
+        try:
+            customJSLint = prefset.getStringPref(appName + "_linter_chooser")
+            if customJSLint == "specific":
+                p = prefset.getStringPref(appName + "_linter_specific")
+                if p and os.path.exists(p):
+                    jsLintDir = os.path.dirname(p) + "/"
+                    jsLintBasename = os.path.basename(p)
+        except:
+            log.exception("Problem finding the custom lintjs file")
         options = prefset.getStringPref(prefOptionsName).strip()
         # Lint the temp file, the jsInterp options are described here:
         # https://developer.mozilla.org/en/Introduction_to_the_JavaScript_shell
         cmd = [jsInterp, jsLintApp, "--include=" + jsLintDir]
-        if prefSwitchName == "lintWithJSHint":
+        if jsLintBasename:
+            if prefSwitchName == "lintWithJSLint":
+                cmd.append("--jslint-basename=" + jsLintBasename)
+            else:
+                cmd.append("--jshint-basename=" + jsLintBasename)
+        elif prefSwitchName == "lintWithJSHint":
             cmd.append("--jshint")
         if (request.koDoc.language == "Node.js"
             and not "node=" in options):

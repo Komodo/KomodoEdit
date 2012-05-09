@@ -24,13 +24,30 @@ while (i < arguments.length) {
         } else if (arg == "--jshint") {
             isJSHint = true;
             includeBaseName = "jshint.js";
-            options.adsafe = false; // otherwise jshint gives weird "ADsafe" warnings
+            //options.adsafe = false; // otherwise jshint gives weird "ADsafe" warnings
         } else if (arg.indexOf("--include") == 0) {
             idx = arg.indexOf("=");
             if (idx > -1) {
                 includePath = arg.substr(idx + 1);
             } else {
                 print("**** Unrecognized argument(1): " + arg);
+                badArgs = true;
+            }
+        } else if (arg.indexOf("--jslint-basename") == 0) {
+            idx = arg.indexOf("=");
+            if (idx > -1) {
+                includeBaseName = arg.substr(idx + 1);
+            } else {
+                print("**** Unrecognized argument(3): " + arg);
+                badArgs = true;
+            }
+        } else if (arg.indexOf("--jshint-basename") == 0) {
+            isJSHint = true;
+            idx = arg.indexOf("=");
+            if (idx > -1) {
+                includeBaseName = arg.substr(idx + 1);
+            } else {
+                print("**** Unrecognized argument(4): " + arg);
                 badArgs = true;
             }
         } else {

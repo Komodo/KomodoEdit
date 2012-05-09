@@ -117,6 +117,34 @@
                                 style="margin: -10px; color: #b82619;"
                                 onclick="getKoObject('browse').openUrlInDefaultBrowser('http://www.jslint.com/lint.html#options');"/>
                        </hbox>
+                       <separator class="thin"/>
+                        <groupbox>
+                            <caption label="&chooseACustomOrUpdatedJslint.js.label;" />
+                                <radiogroup id="jslint_linter_chooser"
+                                            pref="true"
+                                            flex="1"
+                                            prefattribute="value"
+                                            orient="horizontal" >
+                                    <vbox flex="1">
+                                        <radio group="jslint_linter_chooser" id="jslint_default_linter"
+                                               value="default"
+                                               label="&defaultJslintLinterWithDate.label;" />
+                                        <hbox align="center" flex="1">
+                                            <radio group="jslint_linter_chooser" id="jslint_specific_linter"
+                                                   value="specific"
+                                                   label="&customJslintLinter.label;" />
+                                            <textbox id="jslint_linter_specific"
+                                                     pref="true"
+                                                     onchange="languageInfo.JavaScript.handleChangedJSLinter_JSLint();"
+                                                     flex="1"/>
+                                            <button id='jslint_linter_browse'
+                                                    label="&browse.label;"
+                                                    oncommand="languageInfo.JavaScript.browseForJSLinter_JSLint('jslint_linter_specific');"/>
+                                        </hbox>
+                                        <label id="jslint_linter_specific_version" value=""/>
+                                    </vbox>
+                                </radiogroup>
+                        </groupbox>
                     </vbox>
                 </groupbox>
         
@@ -149,8 +177,35 @@
                         <button label="&lt;http://jshint.com/&gt;"
                             class="button-link"
                             style="margin: -10px; color: #b82619;"
-                            onclick="getKoObject('browse').openUrlInDefaultBrowser('http://www.jshint.com/');"/>
+                            onclick="getKoObject('browse').openUrlInDefaultBrowser('http://www.jshint.com/options/');"/>
                       </hbox>
+                      <separator class="thin"/>
+                      <groupbox>
+                          <caption label="&chooseACustomOrUpdatedJshint.js.label;" />
+                              <radiogroup id="jshint_linter_chooser"
+                                          pref="true"
+                                          flex="1"
+                                          prefattribute="value"
+                                          orient="horizontal" >
+                                  <vbox flex="1">
+                                      <radio group="jshint_linter_chooser" id="jshint_default_linter"
+                                             value="default"
+                                             label="&defaultJshintLinter.label;" />
+                                      <hbox align="center" flex="1">
+                                          <radio group="jshint_linter_chooser" id="jshint_specific_linter"
+                                                 value="specific"
+                                                 label="&customJshintLinter.label;" />
+                                          <textbox id="jshint_linter_specific"
+                                                   pref="true"
+                                                   onchange="languageInfo.JavaScript.handleChangedJSLinter_JSHint();"
+                                                   flex="1"/>
+                                          <button id='jshint_linter_browse'
+                                                  label="&browse.label;"
+                                                  oncommand="languageInfo.JavaScript.browseForJSLinter_JSHint('jshint_linter_specific');"/>
+                                      </hbox>
+                                  </vbox>
+                              </radiogroup>
+                      </groupbox>
                     </vbox>
                 </groupbox>
             </vbox>

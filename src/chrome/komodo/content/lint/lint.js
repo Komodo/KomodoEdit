@@ -130,6 +130,11 @@ var global_pref_observer_topics = {
     "jshintOptions" : JS_NODEJS_LIST,
     "lintWithJSLint" : JS_NODEJS_LIST,
     "jslintOptions" : JS_NODEJS_LIST,
+    "jslint_linter_specific" : JS_NODEJS_LIST,
+    "jslint_linter_chooser" : JS_NODEJS_LIST,
+    "jslint_linter_specific_version" : JS_NODEJS_LIST,
+    "jshint_linter_specific" : JS_NODEJS_LIST,
+    "jshint_linter_chooser" : JS_NODEJS_LIST,
     "lint_coffee_script" : ["CoffeeScript"],
 
     "lintHTMLTidy" : HTML_LIST,

@@ -293,7 +293,12 @@ function javaScript_setup(languageName) {
          "jshintPrefsVbox",
          "jslintPrefsVbox",
          "lintWithJSHint",
-         "lintWithJSLint"
+         "lintWithJSLint",
+         "jslint_linter_specific",
+         "jslint_linter_chooser",
+         "jshint_linter_specific",
+         "jshint_linter_chooser",
+         "jslint_linter_specific_version"
          ].forEach(function(name) {
             djs[name] = document.getElementById(name);
         });
@@ -310,6 +315,7 @@ function javaScript_setup(languageName) {
     }
     languageInfo.JavaScript.doWarningEnabling(djs.lintWithJSLint);
     languageInfo.JavaScript.doWarningEnabling(djs.lintWithJSHint);
+    languageInfo.JavaScript.updateJSLinter_selectedVersionField(djs.jslint_linter_specific.value);
 }
 
 languageSetup.JavaScript = javaScript_setup;
@@ -318,7 +324,7 @@ function javaScriptInfo(languageName) {
     // languageName could be "JavaScript" or "Node.js"
     if (languageName === undefined) languageName = "JavaScript";
     return {
-        goodPartsFactorySettings: {
+        goodPartsFactorySettings_2011_05_11: {
             white: "true",
             indent: "4",
             onevar: "true",
@@ -330,7 +336,7 @@ function javaScriptInfo(languageName) {
             bitwise: "true"
         },
 
-        otherStrictSettings: {
+        otherStrictSettings_2011_05_11: {
             strict: "true",
             passfail: "true",
             browser: "false",
@@ -348,6 +354,48 @@ function javaScriptInfo(languageName) {
             on: "false",
             fragment: "false",
             es5: "false" 
+        },
+
+        goodPartsFactorySettings_current: {
+            bitwise: "false",
+            cap: "false",
+            eqeq: "false",
+            indent: "4",
+            nomen: "false",
+            plusplus: "false",
+            regexp: "false",
+            'undef': "undef",
+            vars: "false",
+            white: "false",
+        },
+
+        otherStrictSettings_current: {
+            adsafe: "false",
+            browser: "true",
+            'continue': "true",
+            css: "false",
+            'debug': "false",
+            devel: "false",
+            es5: "false",
+            evil: "false",
+            forin: "false",
+            fragment: "false",
+            htmlCase: "false",
+            maxerr: 100,
+            maxlen: 80,
+            newcap: "false",
+            on: "false",
+            passfail: "false",
+            predef: '["window","document"]',
+            rhino: "false",
+            safe: "false",
+            sloppy: "true",
+            stupid: "false",
+            sub: "false",
+            undef: "false",
+            unparam: "false",
+            widget: "false",
+            windows: "false",
         },
 
         updateSettings : function(optName, optValue, settingNames, settings) {
@@ -382,20 +430,47 @@ function javaScriptInfo(languageName) {
         },
 
         addParts: function(includeOtherStrictSettings) {
+            var djs = dialog[languageName];
             var optName, i, idx, name, newTextParts;
-            var textField = dialog[languageName].jslintOptions;
+            var textField = djs.jslintOptions;
             var currentSettings = {};
             var currentSettingNames = [];
             var text = textField.value;
             this.setCurrentSettings(text, currentSettingNames, currentSettings);
-            this.addSettings(this.goodPartsFactorySettings, currentSettingNames, currentSettings);
+            var goodPartsFactorySettings, otherStrictSettings;
+            if (djs.jslint_linter_chooser.selectedIndex == 0) {
+                goodPartsFactorySettings = this.goodPartsFactorySettings_current;
+                otherStrictSettings = this.otherStrictSettings_current;
+            } else {
+                var label = djs.jslint_linter_specific_version.value;
+                var m = /Selected Version: (\d{4})-(\d{2})-(\d{2})/.exec(label);
+                if (!m) {
+                    goodPartsFactorySettings = this.goodPartsFactorySettings_current;
+                    otherStrictSettings = this.otherStrictSettings_current;
+                } else {
+                    var year = parseInt(m[1]);
+                    var month = parseInt(m[2]);
+                    var day = parseInt(m[3]);
+                    if ((year > 2011)
+                        || (year == 2011 && month >= 6)) {
+                        goodPartsFactorySettings = this.goodPartsFactorySettings_current;
+                        otherStrictSettings = this.otherStrictSettings_current;
+                    } else {
+                        goodPartsFactorySettings = this.goodPartsFactorySettings_2011_05_11;
+                        otherStrictSettings = this.otherStrictSettings_2011_05_11;
+                    }
+                }
+            }
+                    
+            this.addSettings(goodPartsFactorySettings, currentSettingNames, currentSettings);
+            
             if (includeOtherStrictSettings) {
-                this.addSettings(this.otherStrictSettings, currentSettingNames, currentSettings);
+                this.addSettings(otherStrictSettings, currentSettingNames, currentSettings);
             } else {
                 // Remove any factory strict settings from the text view
-                for (optName in this.otherStrictSettings) {
+                for (optName in otherStrictSettings) {
                     idx = currentSettingNames.indexOf(optName);
-                    if (idx > -1 && currentSettings[optName] === this.otherStrictSettings[optName]) {
+                    if (idx > -1 && currentSettings[optName] === otherStrictSettings[optName]) {
                         currentSettingNames.splice(idx, 1);
                     }
                 }
@@ -411,7 +486,6 @@ function javaScriptInfo(languageName) {
         },
 
         addGoodParts: function() {
-            debugger;
             this.addParts(false);
         },
 
@@ -421,46 +495,69 @@ function javaScriptInfo(languageName) {
 
         allJSHintStrictSettings: {
             // adsafe     : true, // if ADsafe should be enforced
-            asi: "false", // true if automatic semicolon insertion should be tolerated
+            asi: "true", // true if automatic semicolon insertion should be tolerated
             bitwise    : "true", // if bitwise operators should not be allowed
             boss       : "true", // if advanced usage of assignments and == should be allowed
             browser    : "false", // if the standard browser globals should be predefined
-            cap        : "false", // if upper case HTML should be allowed
             couch      : "false", // if CouchDB globals should be predefined
-            css        : "false", // if CSS workarounds should be tolerated
             curly      : "true", // if curly braces around blocks should be required (even in if/for/while)
             debug      : "false", // if debugger statements should be allowed
             devel      : "false", // if logging should be allowed (console, alert, etc.)
+            dojo        : "false", // if Dojo Toolkit globals should be predefined
             eqeqeq     : "true", // if === should be required
+            eqnull     : "true", // if == null comparisons should be tolerated
             es5        : "false", // if ES5 syntax should be allowed
+            esnext      :"true", // if es.next specific syntax should be allowed
             evil       : "false", // if eval should be allowed
+            expr        : "true", // if ExpressionStatement should be allowed as Programs
             forin      : "true", // if for in statements must filter
-            fragment   : "false", // if HTML fragments should be allowed
+            funcscope   : "true", // if only function scope should be used for scope tests
+            globalstrict: "true", // if global "use strict"; should be allowed (also
             immed      : "true", // if immediate invocations must be wrapped in parens
+            iterator    : "false", // if the `__iterator__` property should be allowed
             jquery     : "false", // if jQuery globals should be predefined
+            lastsemic   : "false", // if semicolons may be ommitted for the trailing
+                                // statements inside of a one-line blocks.
             latedef    : "true", // if the use before definition should not be tolerated
-            laxbreak   : "false", // if line breaks should not be checked
+            laxbreak   : "true", // if line breaks should not be checked
+            laxcomma   : "true", // if line breaks should not be checked around commas
             loopfunc   : "false", // if functions should be allowed to be defined within loops
+            mootools    : "false", // if MooTools globals should be predefined
+            multistr    : "false", // allow multiline strings
             newcap     : "true", // if constructor names must be capitalized
             noarg      : "true", // if arguments.caller and arguments.callee should be disallowed
             node       : "false", // if the Node.js environment globals should be predefined
             noempty    : "false", // if empty blocks should be disallowed
             nonew      : "false", // if using `new` for side-effects should be disallowed
+            nonstandard : "false", // if non-standard (but widely adopted) globals should
+                                // be predefined
             nomen      : "false", // if names should be checked
-            on         : "true", // if HTML event handlers should be allowed
             onevar     : "false", // if only one var statement per function should be allowed
-            passfail   : "true", // if the scan should stop on first error
+            onecase     : "false", // if one case switch statements should be allowed
+            passfail   : "false", // if the scan should stop on first error
             plusplus   : "true", // if increment/decrement should not be allowed
+            proto       : "true", // if the `__proto__` property should be allowed
+            prototypejs : "false", // if Prototype and Scriptaculous globals should be
+                                // predefined
+            regexdash   : "false", // if unescaped first/last dash (-) inside brackets
+                                // should be tolerated
             regexp     : "true", // if the . should not be allowed in regexp literals
             rhino      : "false", // if the Rhino environment globals should be predefined
             undef      : "true", // if variables should be declared before used
-            safe       : "true", // if use of some browser features should be restricted
+            scripturl   : "false", // if script-targeted URLs should be tolerated
             shadow     : "false", // if variable shadowing should be tolerated
-            windows    : "false", // if MS Windows-specific globals should be predefined
-            strict     : "true", // require the "use strict"; pragma
+            smarttabs   : "false", // if smarttabs should be tolerated
+                                // (http://www.emacswiki.org/emacs/SmartTabs)
+            strict     : "false", // require the "use strict"; pragma
             sub        : "false", // if all forms of subscript notation are tolerated
+            supernew    : "false", // if `new function () { ... };` and `new Object;`
+                                // should be tolerated
+            trailing    : "false", // if trailing whitespace rules apply
+            validthis   : "true", // if 'this' inside a non-constructor function is valid.
+                                // This is a function scoped option only.
+            withstmt    : "false", // if with statements should be allowed
             white      : "true", // if strict whitespace rules apply
-            widget     : "false"  // if the Yahoo Widgets globals should be predefined
+            wsh         : "false"  // if the Windows Scripting Host environment globals
         },
 
 
@@ -504,6 +601,73 @@ function javaScriptInfo(languageName) {
                 pref_setElementEnabledState(djs.jshintOptions, isChecked);
                 djs.jshintPrefsVbox.collapsed = !isChecked;
                 break;
+            }
+        },
+        updateJSLinter_selectedVersionField: function(path) {
+            var specificText;
+            if (!path) {
+                specificText = "";
+            } else {
+                var koFileEx = Components.classes["@activestate.com/koFileEx;1"]
+                    .createInstance(Components.interfaces.koIFileEx);
+                try {
+                    dump("updateJSLinter_selectedVersionField(path:  " + path + ")\n");
+                    koFileEx.path = path;
+                    if (!koFileEx.exists) {
+                        specificText = bundleLang.GetStringFromName("No such file");
+                    } else {
+                        koFileEx.open('r');
+                        var s = koFileEx.read(512, {}, {}).map(function(c) String.fromCharCode(c)).join("");
+                        koFileEx.close();
+                        var p = /(?:^|\n)\s*\/\/\s*(\d\d\d\d-\d\d-\d\d)/;
+                        var m = p.exec(s);
+                        if (m) {
+                            specificText = bundleLang.formatStringFromName("Selected Version X", [m[1]], 1);
+                        } else {
+                            specificText = bundleLang.formatStringFromName("Selected Version X", [bundleLang.GetStringFromName("Unknown")]);
+                        }
+                    }
+                } catch(ex) {
+                    specificText = bundleLang.formatStringFromName("Trying to get version X", [ex], 1);
+                    log.exception(ex, "Failed to read linter file: ")
+                }
+            }
+            dialog[languageName].jslint_linter_specific_version.value = specificText;
+        },
+        
+        browseForJSLinter_JSLint: function(eltId) {
+            var djs = dialog[languageName];
+            var jslint_linter_specific = djs.jslint_linter_specific;
+            var currentPath = djs[eltId].value;
+            var path = ko.filepicker.browseForExeFile(null, currentPath || "");
+            if (path) {
+                jslint_linter_specific.value = path;
+                djs.jslint_linter_chooser.selectedIndex = 1;
+                this.updateJSLinter_selectedVersionField(path);
+            }
+        },
+        
+        handleChangedJSLinter_JSLint: function() {
+            var djs = dialog[languageName];
+            var selectedIndex = djs.jslint_linter_specific.value ? 1 : 0;
+            djs.jslint_linter_chooser.selectedIndex = selectedIndex;
+            this.updateJSLinter_selectedVersionField(djs.jslint_linter_specific.value);
+        },
+        
+        handleChangedJSLinter_JSHint: function() {
+            var djs = dialog[languageName];
+            var selectedIndex = djs.jshint_linter_specific.value ? 1 : 0;
+            djs.jshint_linter_chooser.selectedIndex = selectedIndex;
+        },
+        
+        browseForJSLinter_JSHint: function(eltId) {
+            var djs = dialog[languageName];
+            var jshint_linter_specific = djs.jshint_linter_specific;
+            var currentPath = djs[eltId].value;
+            var path = ko.filepicker.browseForExeFile(null, currentPath || "");
+            if (path) {
+                jshint_linter_specific.value = path;
+                djs.jshint_linter_chooser.selectedIndex = 1;
             }
         },
         __EOD__: null
