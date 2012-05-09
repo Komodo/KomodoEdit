@@ -114,21 +114,30 @@ if (!badArgs) {
         try {
             var jsData = MAIN_OBJECT.data();
             var unusedVars = jsData.unused;
-            if (unusedVars.length && !printedHeader) {
-                print("++++JSLINT OUTPUT:");  // Handler expects this line.
-                printedHeader = true;
-            }
-            for each (var unusedVar in unusedVars) {
-                    var msg = ('jslint error: at line '
-                               + unusedVar.line
-                               + ' column 1: unused var: '
-                               + unusedVar.name);
-                    if (unusedVar['function'] && unusedVar['function'] !== "'anonymous'") {
-                        msg += ", defined in " + unusedVar['function'];
-                    }
-                    print(msg);
-                    print("");
+            if (unusedVars) {
+                if (unusedVars.length && !printedHeader) {
+                    print("++++JSLINT OUTPUT:");  // Handler expects this line.
+                    printedHeader = true;
                 }
+                for each (var unusedVar in unusedVars) {
+                        var msg = ('jslint error: at line '
+                                   + unusedVar.line
+                                   + ' column 1: unused var: '
+                                   + unusedVar.name);
+                        if (unusedVar['function']) {
+                            var funcName = unusedVar['function'];
+                            // jslint likes single-quotes
+                            // jshint likes double-quotes
+                            // settle on one so we can fold duplicate hits
+                            funcName = funcName.replace(/^[\"\']/, '').replace(/[\"\']$/, '');
+                            if (!/'?anonymous'?/.test(funcName)) {
+                                msg += ", defined in '" + funcName + "'";
+                            }
+                        }
+                        print(msg);
+                        print("");
+                    }
+            }
         } catch(ex) {
             print("++++ Error getting unusedVars: " + ex);
         }
