@@ -596,20 +596,20 @@ class PythonTreeEvaluator(TreeEvaluator):
                                 module_name, libs, self.ctlr)
                     #XXX Is this correct scoperef for module object?
                     return (blob, (blob, [])),  len(module_tokens)
-                else:
+                elif module_tokens[0] == tokens[0]:
                     # To check later if there are no exact import matches.
                     possible_submodule_tokens.append(module_tokens)
 
         # No matches, check if there is a partial import match.
-        if module_tokens:
+        if possible_submodule_tokens:
             libs = orig_libs # reset libs back to the original
             if allow_parentdirlib:
                 libs = self._add_parentdirlib(libs, module_tokens)
-            for module_tokens in possible_submodule_tokens:
-                # E.g. tokens:   ('os', 'sep', ...)
-                #      imp_elem: <import os.path>
-                #      return:   <blob 'os'> for first token
-                for i in range(len(module_tokens)-1, 0, -1):
+            # E.g. tokens:   ('os', 'sep', ...)
+            #      imp_elem: <import os.path>
+            #      return:   <blob 'os'> for first token
+            for i in range(len(module_tokens)-1, 0, -1):
+                for module_tokens in possible_submodule_tokens:
                     if module_tokens[:i] == tokens[:i]:
                         blob = import_handler.import_blob_name(
                                     '.'.join(module_tokens[:i]),
