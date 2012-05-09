@@ -153,7 +153,7 @@ this.yesNoCancel = function dialog_yesNoCancel(prompt, response, text, title,
     }
 
     // Show the dialog.
-    var obj = new Object();
+    var obj = {};
     obj.prompt = prompt;
     obj.response = response;
     obj.text = text;
@@ -171,7 +171,7 @@ this.yesNoCancel = function dialog_yesNoCancel(prompt, response, text, title,
         _prefs.setStringPref(spref, obj.response);
     }
     return obj.response;
-}
+};
 
 
 // Ask the user a Yes/No question.
@@ -225,7 +225,7 @@ this.yesNo = function dialog_yesNo(prompt, response, text, title, doNotAskPref,
     }
 
     // Show the dialog.
-    var obj = new Object();
+    var obj = {};
     obj.prompt = prompt;
     obj.response = response;
     obj.text = text;
@@ -242,7 +242,7 @@ this.yesNo = function dialog_yesNo(prompt, response, text, title, doNotAskPref,
         _prefs.setStringPref(spref, obj.response);
     }
     return obj.response;
-}
+};
 
 
 // Ask the user a OK/Cancel question.
@@ -283,7 +283,7 @@ this.okCancel = function dialog_okCancel(prompt, response, text, title,
     }
 
     // Show the dialog.
-    var obj = new Object();
+    var obj = {};
     obj.prompt = prompt;
     obj.response = response;
     obj.text = text;
@@ -299,7 +299,7 @@ this.okCancel = function dialog_okCancel(prompt, response, text, title,
         _prefs.setBooleanPref(bpref, true);
     }
     return obj.response;
-}
+};
 
 // Show the user some prompt and request one of a number of responses.
 //
@@ -349,14 +349,14 @@ this.customButtons = function dialog_customButtons(prompt, buttons, response, te
     }
 
     // Show the dialog.
-    var obj = new Object();
+    var obj = {};
     obj.prompt = prompt;
     obj.buttons = buttons;
     obj.response = response;
     obj.text = text;
     obj.title = title;
     obj.doNotAskUI = doNotAskPref != null;
-    obj.style = style
+    obj.style = style;
     window.openDialog("chrome://komodo/content/dialogs/customButtons.xul",
                       "_blank",
                       "chrome,modal,titlebar,centerscreen",
@@ -367,7 +367,7 @@ this.customButtons = function dialog_customButtons(prompt, buttons, response, te
         _prefs.setStringPref(spref, obj.response);
     }
     return obj.response;
-}
+};
 
 // Display an alert.
 // NOTE: If the standard alert() meets your needs, then USE IT. Basically this
@@ -404,7 +404,7 @@ this.alert = function dialog_alert(prompt, text, title, doNotAskPref, options)
     }
 
     // Show the dialog.
-    var obj = new Object();
+    var obj = {};
     obj.prompt = prompt;
     obj.text = text;
     obj.title = title;
@@ -416,7 +416,7 @@ this.alert = function dialog_alert(prompt, text, title, doNotAskPref, options)
     if (doNotAskPref && obj.doNotAsk) {
         _prefs.setBooleanPref(bpref, true);
     }
-}
+};
 
 
 // A dialog to query the user for a string in a textbox.
@@ -475,7 +475,7 @@ this.prompt = function dialog_prompt(prompt, label, value, title, mruName,
         mruName = null;
     }
 
-    var obj = new Object();
+    var obj = {};
     obj.prompt = prompt;
     obj.label = label;
     obj.value = value;
@@ -499,7 +499,7 @@ this.prompt = function dialog_prompt(prompt, label, value, title, mruName,
     } else {
         return null;
     }
-}
+};
 
 
 // A dialog to query the user for a string in a textbox.
@@ -561,7 +561,7 @@ this.prompt2 = function dialog_prompt2(prompt, label1, value1, label2, value2, t
         mruName2 = null;
     }
 
-    var obj = new Object();
+    var obj = {};
     obj.prompt = prompt;
     obj.label = label1;
     obj.label2 = label2;
@@ -584,7 +584,7 @@ this.prompt2 = function dialog_prompt2(prompt, label1, value1, label2, value2, t
     } else {
         return null;
     }
-}
+};
 
 
 // This dialog has the same API as the old authDialog. However it is a
@@ -604,7 +604,7 @@ this.authenticate = function dialog_authenticate(title, message, loginname, allo
                                        allowAnonymous,
                                        title, // title
                                        null); // login
-}
+};
 
 
 // A dialog to get a user's username and password.
@@ -638,7 +638,7 @@ this.authenticate2 = function dialog_authenticate2(prompt, server, username, all
     if (typeof(title) == 'undefined') title = null;
     if (typeof(login) == 'undefined') login = null;
 
-    var obj = new Object();
+    var obj = {};
     obj.prompt = prompt;
     obj.server = server;
     obj.username = username;
@@ -654,7 +654,7 @@ this.authenticate2 = function dialog_authenticate2(prompt, server, username, all
     } else {
         return obj;
     }
-}
+};
 
 
 
@@ -777,7 +777,7 @@ this.selectFromList = function dialog_selectFromList(title, prompt, items, selec
     }
 
     // Show the dialog.
-    var obj = new Object();
+    var obj = {};
     obj.title = title;
     obj.prompt = prompt;
     obj.items = items;
@@ -859,7 +859,7 @@ this.editEnvVar = function dialog_editEnvVar(name, value, title, mruName /* dial
     if (typeof(mruName) == 'undefined' || mruName == null) mruName = "dialog_editEnvVar";
     if (typeof(interpolateValues) == 'undefined') interpolateValues = false;
 
-    var obj = new Object();
+    var obj = {};
     obj.name = name;
     obj.value = value;
     obj.title = title;
@@ -907,7 +907,7 @@ this.internalError = function dialog_internalError(error, text, exception)
             text += "\n\nTraceback:\n" + traceback;
         }
     }
-    var obj = new Object();
+    var obj = {};
     obj.error = error;
     obj.text = text;
     window.openDialog("chrome://komodo/content/dialogs/internalError.xul",
@@ -961,7 +961,7 @@ this.handleEnterKey = function dialogs_handleEnterKey() {
 
 this.pickIcon = function dialog_pickIcon()
 {
-    var obj = new Object();
+    var obj = {};
     window.openDialog("chrome://komodo/content/dialogs/iconpicker.xul",
                       "_blank",
                       "chrome,modal,titlebar,resizable=yes,centerscreen",
