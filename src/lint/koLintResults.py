@@ -108,16 +108,27 @@ class koLintResults:
         any part of that line will allow faster lookup.
         """
         for r in self._results:
-            # Because we can now use multiple linters for a document,
-            # some linters will report identical results.  Cull the duplicates.
             if (r.lineStart == result.lineStart
-                and r.lineEnd == result.lineEnd
-                and r.columnStart == result.columnStart
-                and r.columnEnd == result.columnEnd
-                and r.severity == result.severity
-                and r.description == result.description):
-                # Cull duplicate results
-                return
+                and r.lineEnd == result.lineEnd):
+                # Because we can now use multiple linters for a document,
+                # some linters will report identical results.  Cull the duplicates.
+                if (r.columnStart == result.columnStart
+                    and r.columnEnd == result.columnEnd
+                    and r.severity == result.severity
+                    and r.description == result.description):
+                    # Cull duplicate results
+                    return
+                # Bug 93326: If we have overlapping errors and warnings on the same line,
+                # hoist both of them up to a warning
+                if r.severity != result.severity:
+                    #XXX: If we add a third kind of severity, this is wrong
+                    if (r.columnEnd >= result.columnStart
+                        or result.columnEnd >= r.columnStart):
+                        if result.severity == r.SEV_WARNING:
+                            result.severity = r.SEV_ERROR
+                        else:
+                            r.severity = r.SEV_ERROR
+                
         self._results.append(result)
         for lineNum in range(result.lineStart, result.lineEnd+1):
             if self._resultMap.has_key(lineNum):
