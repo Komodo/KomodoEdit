@@ -668,7 +668,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY lintJSLintOptions.label "JSLint Options">
 <!ENTITY lintJSLint_ActivateGoodPartsOptions.label "&quot;Good Parts&quot; Options">
 <!ENTITY lintJSLint_ActivateAllOptions.label "All Options">
-<!ENTITY lintJSLint_Explanation.descr "Use a format like bitwise=false debug=true maxerr=5">
+<!ENTITY lintJSLint_Explanation.descr "Use a format like bitwise=false debug=true maxerr=5 predef=['document','window']">
 <!ENTITY lintJSLint_WebSiteLabel.label "See all allowed options at: ">
 <!ENTITY chooseACustomOrUpdatedJslint.js.label "Choose a custom or updated jslint.js">
 <!ENTITY defaultJslintLinterWithDate.label "Default linter (2012-04-15)">
@@ -688,7 +688,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY lintJSHintOptions.label "JSHint Options">
 <!ENTITY lintJSHint_ActivateGoodPartsOptions.label "&quot;Good Parts&quot; Options">
 <!ENTITY lintJSHint_ActivateAllOptions.label "All Options">
-<!ENTITY lintJSHint_Explanation.descr "Use a format like bitwise=false debug=true maxerr=5">
+<!ENTITY lintJSHint_Explanation.descr "Use a format like bitwise=false debug=true maxerr=5 predef=['document','window']">
 <!ENTITY lintJSHint_WebSiteLabel.label "See all allowed options at: ">
 <!ENTITY chooseACustomOrUpdatedJshint.js.label "Choose a custom or updated jshint.js">
 <!ENTITY defaultJshintLinter.label "Default linter">
