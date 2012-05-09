@@ -4,7 +4,7 @@
     <Description about="urn:mozilla:install-manifest">
         <em:id>stackatotools@activestate.com</em:id>
         <em:name>Stackato Tools for Komodo</em:name>
-        <em:version>0.1</em:version>
+        <em:version>0.2</em:version>
         <em:description>Tools to ease deploying applications to ActiveState Stackato</em:description>
         <em:creator>ActiveState Software Inc.</em:creator>
         <em:homepageURL>http://activestate.com/stackato_komodo</em:homepageURL>
