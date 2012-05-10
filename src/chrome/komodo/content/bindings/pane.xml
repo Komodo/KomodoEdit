@@ -509,8 +509,8 @@
           }
           oldPane.removeWidget(widget);
 
-          // set the focus if requested
-          if (focus) {
+          // set the focus if requested, or if no other tabs are in the pane
+          if (focus || pane.tabs.itemCount < 2) {
             ko.uilayout.ensureTabShown(newWidget.id, true);
           }
 
