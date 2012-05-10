@@ -42,8 +42,8 @@
     <?define ProductCode = "1129f857-396f-459b-8bd6-f64fe9b5afdb" ?>
     <?define UpgradeCode = "e253c9d4-348f-48e7-9d2e-302c4d2838df" ?>
 <!-- #else -->
-    <?define ProductCode = "c9befdfb-a2dd-4d88-881c-3b303cce384e" ?>
-    <?define UpgradeCode = "1a715341-d8de-45ef-bcf8-cf9aa24bbbf3" ?>
+    <?define ProductCode = "f69166f9-0171-49da-8b63-6b8dd8279770" ?>
+    <?define UpgradeCode = "cf0f25ce-99e8-4292-9130-ec5e7e120087" ?>
 <!-- #endif -->
 <!-- #else -->
 <!-- #error "Invalid product type." -->
