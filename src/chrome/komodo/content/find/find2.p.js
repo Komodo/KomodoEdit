@@ -899,6 +899,12 @@ function _init() {
         opener.ko.launch.find2_dialog_args = null;
     }
 
+    // Close this dialog when the opener goes away
+    opener.addEventListener("unload", function unload(event) {
+        window.close();
+        event.target.removeEventListener(event.type, unload, false);
+    }, false);
+
     // If there is selected text then preload the find pattern with it.
     // Unless it spans a line, then set the search context to the
     // selection.
