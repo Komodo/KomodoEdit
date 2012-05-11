@@ -30,7 +30,6 @@ function initJSLintData() {
       eqeq: "false",
       newcap: "false",
       nomen: "false",
-      nomen: "false",
       passfail: "false",
       plusplus: "false",
       regexp: "false",
