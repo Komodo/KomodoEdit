@@ -41,9 +41,9 @@ function OnPreferencePageLoading(prefset) {
     pref_lint_doEnabling();
     currentView = getKoObject('views').manager.currentView;
     var languageName;
-    dialog.langlist.rebuildMenuTree(loadContext == "view", currentView);
+    dialog.langlist.rebuildMenuTree(loadContext === "view", currentView);
     if (!currentView || !currentView.koDoc) {
-        if (loadContext == "project") {
+        if (loadContext === "project") {
             var project = getKoObject('projects').manager.currentProject;
             var urls = {};
             project.getAllContainedURLs(urls, {});
@@ -59,7 +59,7 @@ function OnPreferencePageLoading(prefset) {
 }
 
 function OnPreferencePageOK(prefset) {
-    if (dialog.deck.selectedPanel == dialog.genericLinterFallback) {
+    if (dialog.deck.selectedPanel === dialog.genericLinterFallback) {
         var languageName = dialog.langlist.selection;
         if (languageName) {
             var linterPrefName = "genericLinter:" + languageName;
@@ -84,7 +84,7 @@ function OnPreferencePageOK(prefset) {
  */
 var _mappedNames = {
     "HTML5": "HTML"
-}
+};
 function getMappedName(languageName) {
     return (languageName in _mappedNames
             ? _mappedNames[languageName]
@@ -253,9 +253,9 @@ function htmlInfo() {
         htmlSetupFinish: function(languageName) {
             pref_setElementEnabledState(dialog.HTML.lintHTML_CheckWith_Perl_HTML_Tidy, this.cachedAppInfo.Perl.htmlTidy);
             pref_setElementEnabledState(dialog.HTML.lintHTML_CheckWith_Perl_HTML_Lint, this.cachedAppInfo.Perl.htmlLint);
-            dialog.HTML.lint_html5lib_groupbox.collapsed = languageName == "HTML";
-            dialog.HTML.lint_html_perl_html_tidy_groupbox.collapsed = languageName == "HTML5";
-            dialog.HTML.lint_html_perl_html_lint_groupbox.collapsed = languageName == "HTML5";
+            dialog.HTML.lint_html5lib_groupbox.collapsed = languageName === "HTML";
+            dialog.HTML.lint_html_perl_html_tidy_groupbox.collapsed = languageName === "HTML5";
+            dialog.HTML.lint_html_perl_html_lint_groupbox.collapsed = languageName === "HTML5";
         },
         loadTidyConfigFile: function() {
             var textbox = dialog.HTML.tidy_configpath;
@@ -311,7 +311,8 @@ function javaScript_setup(languageName) {
     }
     languageInfo.JavaScript.doWarningEnabling(djs.lintWithJSLint);
     languageInfo.JavaScript.doWarningEnabling(djs.lintWithJSHint);
-    languageInfo.JavaScript.updateJSLinter_selectedVersionField(djs.jslint_linter_specific.value);
+    languageInfo.JavaScript.updateJSLinter_selectedVersionField(djs.jslint_linter_specific.value,
+                                                                djs.jslint_linter_specific_version);
 }
 
 languageSetup.JavaScript = javaScript_setup;
@@ -319,17 +320,43 @@ languageSetup.JavaScript = javaScript_setup;
 function javaScriptInfo(languageName) {
     // languageName could be "JavaScript" or "Node.js"
     if (languageName === undefined) languageName = "JavaScript";
+    // IDs for the combination of NodeJS x jshint/jslint
+    // 0: JS, jshint; 1: JS, jslint; 2: NodeJS, jshint; 3: NodeJS, jslint
+    var jslintIds = {
+      optionsId: [ 'jshintOptions', 'jslintOptions',
+                   'jshint_NodeJS_Options', 'jslint_NodeJS_Options' ],
+      linterChooserId: ['jshint_linter_chooser',
+                        'jslint_linter_chooser',
+                        'jshint_NodeJS_linter_chooser',
+                        'jslint_NodeJS_linter_chooser'],
+      linterSpecificId: ['jshint_linter_specific',
+                        'jslint_linter_specific',
+                        'jshint_NodeJS_linter_specific',
+                        'jslint_NodeJS_linter_specific'],
+      linterSpecificVersionId: [null, 
+                                'jslint_linter_specific_version',
+                                null,
+                                'jslint_NodeJS_linter_specific_version'],
+      defaultLinterName: ["jshint.js", "fulljslint.js",
+                          "jshint.js", "fulljslint.js"],
+    };
+
+    var getIdxFor_linter_language = function(isJSHint, isNodeJS) {
+        return 2 * (isNodeJS ? 1 : 0) + (isJSHint ? 0 : 1);
+    };
+      
     return {        
-      launchJSHintOptionGetter: function(isJSHint) {
+      launchJSHintOptionGetter: function(isJSHint, isNodeJS) {
             var djs = dialog[languageName];
             var currentValues = {};
-            var currentValuesText = djs.jshintOptions.value;
             var m;
             var pattern = /(\w+)\s*=\s*((?:\[.*?\]|[\w\d]+))/g;
+            var idx = getIdxFor_linter_language(isJSHint, isNodeJS);
+            var currentValuesText = djs[jslintIds.optionsId[idx]].value;
             while (!!(m = pattern.exec(currentValuesText))) {
                 var name = m[1];
                 var value = m[2];
-                if (value[0] == '[') {
+                if (value[0] === '[') {
                     // stringify this
                     // ["ko","Components","window"]  => "ko, Components, window" for cleaner input.
                     currentValues[name] = value.substring(1, value.length - 1).split(/\s*,\s*/).map(function(s) s.replace(/[\"\']/g, '')).join(", ");
@@ -339,27 +366,21 @@ function javaScriptInfo(languageName) {
                 }
             }
             var path;
-            if ((isJSHint
-                 ? djs.jshint_linter_chooser.value
-                 : djs.jslint_linter_chooser.value).selectedIndex == 0) {
-                // default path to jshint.js
+            if (djs[jslintIds.linterChooserId[idx]].selectedIndex === 0
+                || !(path = djs[jslintIds.linterSpecificId[idx]].value)) {
                 var koDirs = Components.classes["@activestate.com/koDirs;1"]
                             .getService(Components.interfaces.koIDirs);
                 var osPathSvc = Components.classes["@activestate.com/koOsPath;1"]
                             .getService(Components.interfaces.koIOsPath);
                 var parts = [koDirs.supportDir, "lint", "javascript",
-                             (isJSHint ? "jshint.js" : "fulljslint.js")];
+                             jslintIds.defaultLinterName[idx]];
                 path = osPathSvc.joinlist(parts.length, parts);
-            } else {
-                path = (isJSHint
-                        ? djs.jshint_linter_specific.value
-                        : djs.jslint_linter_specific.value);
             }
             var obj = {
                 isJSHint: isJSHint,
                 path: path,
                 currentValues: currentValues
-            }
+            };
             window.openDialog("chrome://komodo/content/pref/pref-jshint-options.xul",
                               "_blank",
                               "chrome,modal,titlebar,resizable=yes,centerscreen",
@@ -369,7 +390,7 @@ function javaScriptInfo(languageName) {
                 var newValues = obj.newValues, predef;
                 if ('predef' in newValues) {
                     // remove extra quotes, and then reformat
-                    predef = newValues.predef.replace(/[/[/]\"\']/g, '').split(/\s*,\s*/);
+                    predef = newValues.predef.replace(/[\[\]\"\']/g, '').split(/\s*,\s*/);
                     delete newValues.predef;
                 }
                 var newValuesA = [];
@@ -381,9 +402,7 @@ function javaScriptInfo(languageName) {
                                     + predef.map(function(s) '"' + s + '"').join(',')
                                     + ']');
                 }
-                (isJSHint
-                 ? djs.jshintOptions
-                 : djs.jslintOptions).value = newValuesA.join(" ");
+                djs[jslintIds.optionsId[idx]].value = newValuesA.join(" ");
             }
         },
         
@@ -408,7 +427,7 @@ function javaScriptInfo(languageName) {
                 break;
             }
         },
-        updateJSLinter_selectedVersionField: function(path) {
+        updateJSLinter_selectedVersionField: function(path, labelField) {
             var specificText;
             if (!path) {
                 specificText = "";
@@ -434,47 +453,38 @@ function javaScriptInfo(languageName) {
                     }
                 } catch(ex) {
                     specificText = bundleLang.formatStringFromName("Trying to get version X", [ex], 1);
-                    log.exception(ex, "Failed to read linter file: ")
+                    log.exception(ex, "Failed to read linter file: ");
                 }
             }
-            dialog[languageName].jslint_linter_specific_version.value = specificText;
+            labelField.value = specificText;
         },
         
-        browseForJSLinter_JSLint: function(eltId) {
+        browseForJSLinter: function(isJSHint, isNodeJS) {
+            var idx = getIdxFor_linter_language(isJSHint, isNodeJS);
             var djs = dialog[languageName];
-            var jslint_linter_specific = djs.jslint_linter_specific;
-            var currentPath = djs[eltId].value;
+            var jslint_linter_specific = djs[jslintIds.linterSpecificId[idx]];
+            var currentPath = jslint_linter_specific.value;
             var path = ko.filepicker.browseForExeFile(null, currentPath || "");
             if (path) {
                 jslint_linter_specific.value = path;
-                djs.jslint_linter_chooser.selectedIndex = 1;
-                this.updateJSLinter_selectedVersionField(path);
+                djs[jslintIds.linterChooserId[idx]].selectedIndex = 1;
+                if (!isJSHint) {
+                    this.updateJSLinter_selectedVersionField(path,
+                                                             djs[jslintIds.linterSpecificVersionId[idx]]);
+                }
             }
         },
         
-        handleChangedJSLinter_JSLint: function() {
+        handleChangedJSLinter: function(isJSHint, isNodeJS) {
+            var idx = getIdxFor_linter_language(isJSHint, isNodeJS);
             var djs = dialog[languageName];
-            var selectedIndex = djs.jslint_linter_specific.value ? 1 : 0;
-            djs.jslint_linter_chooser.selectedIndex = selectedIndex;
-            this.updateJSLinter_selectedVersionField(djs.jslint_linter_specific.value);
+            var jslint_linter_specific = djs[jslintIds.linterSpecificId[idx]];
+            var selectedIndex = jslint_linter_specific.value ? 1 : 0;
+            djs[jslintIds.linterChooserId[idx]].selectedIndex = selectedIndex;
+            this.updateJSLinter_selectedVersionField(jslint_linter_specific.value,
+                                                     djs[jslintIds.linterSpecificVersionId[idx]]);
         },
         
-        handleChangedJSLinter_JSHint: function() {
-            var djs = dialog[languageName];
-            var selectedIndex = djs.jshint_linter_specific.value ? 1 : 0;
-            djs.jshint_linter_chooser.selectedIndex = selectedIndex;
-        },
-        
-        browseForJSLinter_JSHint: function(eltId) {
-            var djs = dialog[languageName];
-            var jshint_linter_specific = djs.jshint_linter_specific;
-            var currentPath = djs[eltId].value;
-            var path = ko.filepicker.browseForExeFile(null, currentPath || "");
-            if (path) {
-                jshint_linter_specific.value = path;
-                djs.jshint_linter_chooser.selectedIndex = 1;
-            }
-        },
         __EOD__: null
     };
 }
@@ -488,14 +498,22 @@ function nodeJS_setup(languageName) {
          "lintNodeJSEnableWarnings",
          "lintNodeJSEnableStrict",
          "jslint_NodeJS_LaunchOptionGetter",
-         "jslintOptions_NodeJS",
+         "jslint_NodeJS_Options",
          "jslint_NodeJS_PrefsVbox",
-         "lintWithJSLint_NodeJS"
+         "jslint_NodeJS_linter_chooser",
+         "jslint_NodeJS_linter_specific",
+         "jslint_NodeJS_linter_specific_version",
+         "lintWithJSLint_NodeJS",
+         "lintWithJSHint_NodeJS",
+         "jshint_NodeJS_LaunchOptionGetter",
+         "jshint_NodeJS_Options",
+         "jshint_NodeJS_PrefsVbox",
+         "jshint_NodeJS_linter_chooser",
+         "jshint_NodeJS_linter_specific",
+         "jshint_NodeJS_linter_specific_version",
          ].forEach(function(name) {
             djs[name] = document.getElementById(name);
         });
-        // And add aliases so the JS code can be used by Node.js
-        djs.jslintOptions = djs.jslintOptions_NodeJS;
         languageInfo['Node.js'] = nodeJSInfo();
     } else {
         djs = dialog['Node.js'];
@@ -513,7 +531,6 @@ languageSetup['Node.js'] = nodeJS_setup;
 
 function nodeJSInfo() {
     var jsInfo = javaScriptInfo("Node.js");
-    delete jsInfo.launchJSHintOptionGetter;
     jsInfo.doWarningEnabling = function(checkbox) {
         var djs = dialog['Node.js'];
         var isChecked = checkbox.checked;
@@ -529,6 +546,12 @@ function nodeJSInfo() {
             pref_setElementEnabledState(djs.jslint_NodeJS_LaunchOptionGetter, isChecked);
             pref_setElementEnabledState(djs.jslint_NodeJS_Options, isChecked);
             djs.jslint_NodeJS_PrefsVbox.collapsed = !isChecked;
+            break;
+            
+        case djs.lintWithJSHint_NodeJS:
+            pref_setElementEnabledState(djs.jshint_NodeJS_LaunchOptionGetter, isChecked);
+            pref_setElementEnabledState(djs.jshint_NodeJS_Options, isChecked);
+            djs.jshint_NodeJS_PrefsVbox.collapsed = !isChecked;
             break;
         }
     };
@@ -660,7 +683,7 @@ function pythonInfo() {
             } else {
                 checkbox.checked = false;
                 checkbox.disabled = true;
-                this._updateFailureBox(failureNode, pythonExe, "pylint")
+                this._updateFailureBox(failureNode, pythonExe, "pylint");
             }
             this.onTogglePylintChecking(checkbox);
             
@@ -672,7 +695,7 @@ function pythonInfo() {
             } else {
                 checkbox.checked = false;
                 checkbox.disabled = true;
-                this._updateFailureBox(failureNode, pythonExe, "pyflakes")
+                this._updateFailureBox(failureNode, pythonExe, "pyflakes");
             }
             
             // Update UI for pychecker

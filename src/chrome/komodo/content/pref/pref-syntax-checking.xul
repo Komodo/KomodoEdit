@@ -83,68 +83,6 @@
                               label="&lintJavaScriptEnableStrict.label;"
                               pref="true"/>
                 </groupbox>
-                <groupbox orient="vertical" >
-                    <caption label="&JSLint.label;"/>
-                    <checkbox id="lintWithJSLint"
-                              label="&lintJavaScriptWithJSLint.label;"
-                              pref="true"
-                              oncommand="languageInfo.JavaScript.doWarningEnabling(this);" />
-                    <vbox id="jslintPrefsVbox">
-                       <hbox id="jslintOptionsBox" flex="1">
-                         <vbox id="jslintOptionsBox-vbox">
-                           <label id="&lintJSLintOptions.label;" control="jslintOptions"
-                                  value="JSLint Options:" />
-                           <button id="jslintLaunchOptionGetter"
-                                   label="&lintJSHint_OptionWizard.label;"
-                                   oncommand="languageInfo.JavaScript.launchJSHintOptionGetter(false);" />
-                         </vbox>
-                         <textbox id="jslintOptions" multiline="true" rows="5" value=""
-                                  flex="1"
-                                  pref="true" />
-                       </hbox>
-                       <separator class="thin"/>
-                       <description id="jslintOptionsExplanation">
-                             &lintJSLint_Explanation.descr;
-                       </description>
-                       <separator class="thin"/>
-                       <hbox>
-                            <label value="&lintJSLint_WebSiteLabel.label;"/>
-                            <button label="&lt;http://www.jslint.com/lint.html#options&gt;"
-                                class="button-link"
-                                style="margin: -10px; color: #b82619;"
-                                onclick="getKoObject('browse').openUrlInDefaultBrowser('http://www.jslint.com/lint.html#options');"/>
-                       </hbox>
-                       <separator class="thin"/>
-                        <groupbox>
-                            <caption label="&chooseACustomOrUpdatedJslint.js.label;" />
-                                <radiogroup id="jslint_linter_chooser"
-                                            pref="true"
-                                            flex="1"
-                                            prefattribute="value"
-                                            orient="horizontal" >
-                                    <vbox flex="1">
-                                        <radio group="jslint_linter_chooser" id="jslint_default_linter"
-                                               value="default"
-                                               label="&defaultJslintLinterWithDate.label;" />
-                                        <hbox align="center" flex="1">
-                                            <radio group="jslint_linter_chooser" id="jslint_specific_linter"
-                                                   value="specific"
-                                                   label="&customJslintLinter.label;" />
-                                            <textbox id="jslint_linter_specific"
-                                                     pref="true"
-                                                     onchange="languageInfo.JavaScript.handleChangedJSLinter_JSLint();"
-                                                     flex="1"/>
-                                            <button id='jslint_linter_browse'
-                                                    label="&browse.label;"
-                                                    oncommand="languageInfo.JavaScript.browseForJSLinter_JSLint('jslint_linter_specific');"/>
-                                        </hbox>
-                                        <label id="jslint_linter_specific_version" value=""/>
-                                    </vbox>
-                                </radiogroup>
-                        </groupbox>
-                    </vbox>
-                </groupbox>
-        
                 <groupbox orient="vertical" id="jshintGroupbox">
                     <caption label="&JSHint.label;"/>
                     <checkbox id="lintWithJSHint"
@@ -154,11 +92,11 @@
                     <vbox id="jshintPrefsVbox">
                       <hbox id="jshintOptionsBox" flex="1">
                          <vbox id="jshintOptionsBox-vbox">
-                           <label id="&lintJSHintOptions.label;" control="jshintOptions"
-                                  value="JSHint Options:" />
+                           <label id="jshintOptionsLabel" control="jshintOptions"
+                                  value="&lintJSHintOptions.label;" />
                            <button id="jshintLaunchOptionGetter"
                                    label="&lintJSHint_OptionWizard.label;"
-                                   oncommand="languageInfo.JavaScript.launchJSHintOptionGetter(true);" />
+                                   oncommand="languageInfo.JavaScript.launchJSHintOptionGetter(true, false);" />
                          </vbox>
                          <textbox id="jshintOptions" multiline="true" rows="5" value=""
                                   flex="1"
@@ -194,17 +132,79 @@
                                                  label="&customJshintLinter.label;" />
                                           <textbox id="jshint_linter_specific"
                                                    pref="true"
-                                                   onchange="languageInfo.JavaScript.handleChangedJSLinter_JSHint();"
+                                                   onchange="languageInfo.JavaScript.handleChangedJSLinter(true, false);"
                                                    flex="1"/>
                                           <button id='jshint_linter_browse'
                                                   label="&browse.label;"
-                                                  oncommand="languageInfo.JavaScript.browseForJSLinter_JSHint('jshint_linter_specific');"/>
+                                                  oncommand="languageInfo.JavaScript.browseForJSLinter(true, false);"/>
                                       </hbox>
                                   </vbox>
                               </radiogroup>
                       </groupbox>
                     </vbox>
                 </groupbox>
+                <groupbox orient="vertical" >
+                    <caption label="&JSLint.label;"/>
+                    <checkbox id="lintWithJSLint"
+                              label="&lintJavaScriptWithJSLint.label;"
+                              pref="true"
+                              oncommand="languageInfo.JavaScript.doWarningEnabling(this);" />
+                    <vbox id="jslintPrefsVbox">
+                       <hbox id="jslintOptionsBox" flex="1">
+                         <vbox id="jslintOptionsBox-vbox">
+                           <label id="jslintOptionsLabel" control="jslintOptions"
+                                  value="&lintJSHintOptions.label;" />
+                           <button id="jslintLaunchOptionGetter"
+                                   label="&lintJSHint_OptionWizard.label;"
+                                   oncommand="languageInfo.JavaScript.launchJSHintOptionGetter(false, false);" />
+                         </vbox>
+                         <textbox id="jslintOptions" multiline="true" rows="5" value=""
+                                  flex="1"
+                                  pref="true" />
+                       </hbox>
+                       <separator class="thin"/>
+                       <description id="jslintOptionsExplanation">
+                             &lintJSLint_Explanation.descr;
+                       </description>
+                       <separator class="thin"/>
+                       <hbox>
+                            <label value="&lintJSLint_WebSiteLabel.label;"/>
+                            <button label="&lt;http://www.jslint.com/lint.html#options&gt;"
+                                class="button-link"
+                                style="margin: -10px; color: #b82619;"
+                                onclick="getKoObject('browse').openUrlInDefaultBrowser('http://www.jslint.com/lint.html#options');"/>
+                       </hbox>
+                       <separator class="thin"/>
+                        <groupbox>
+                            <caption label="&chooseACustomOrUpdatedJslint.js.label;" />
+                                <radiogroup id="jslint_linter_chooser"
+                                            pref="true"
+                                            flex="1"
+                                            prefattribute="value"
+                                            orient="horizontal" >
+                                    <vbox flex="1">
+                                        <radio group="jslint_linter_chooser" id="jslint_default_linter"
+                                               value="default"
+                                               label="&defaultJslintLinterWithDate.label;" />
+                                        <hbox align="center" flex="1">
+                                            <radio group="jslint_linter_chooser" id="jslint_specific_linter"
+                                                   value="specific"
+                                                   label="&customJslintLinter.label;" />
+                                            <textbox id="jslint_linter_specific"
+                                                     pref="true"
+                                                     onchange="languageInfo.JavaScript.handleChangedJSLinter(false, false);"
+                                                     flex="1"/>
+                                            <button id='jslint_linter_browse'
+                                                    label="&browse.label;"
+                                                    oncommand="languageInfo.JavaScript.browseForJSLinter(false, false);"/>
+                                        </hbox>
+                                        <label id="jslint_linter_specific_version" value=""/>
+                                    </vbox>
+                                </radiogroup>
+                        </groupbox>
+                    </vbox>
+                </groupbox>
+        
             </vbox>
             
             <vbox id="langSyntaxCheck-Node.js">
@@ -224,6 +224,67 @@
                               label="&lintJavaScriptEnableStrict.label;"
                               pref="true"/>
                 </groupbox>
+                <groupbox orient="vertical" id="jshintGroupbox">
+                    <caption label="&JSHint.label;"/>
+                    <checkbox id="lintWithJSHint_NodeJS"
+                              label="&lintJavaScriptWithJSHint.label;"
+                              pref="true"
+                              oncommand="languageInfo['Node.js'].doWarningEnabling(this);" />
+                    <vbox id="jshint_NodeJS_PrefsVbox">
+                      <hbox id="jshint_NodeJS_OptionsBox" flex="1">
+                         <vbox id="jshint_NodeJS_OptionsBox-vbox">
+                           <label id="jshint_NodeJS_OptionsLabel" control="jshint_NodeJS_LaunchOptionGetter"
+                                  value="&lintJSHintOptions.label;" />
+                           <button id="jshint_NodeJS_LaunchOptionGetter"
+                                   label="&lintJSHint_OptionWizard.label;"
+                                   oncommand="languageInfo['Node.js'].launchJSHintOptionGetter(true, true);" />
+                         </vbox>
+                         <textbox id="jshint_NodeJS_Options" multiline="true" rows="5" value=""
+                                  flex="1"
+                                  pref="true" />
+                      </hbox>
+                      <separator class="thin"/>
+                      <description id="jshint_NodeJS_OptionsExplanation">
+                            &lintJSHint_Explanation.descr;
+                      </description>
+                      <separator class="thin"/>
+                      <hbox>
+                        <label value="&lintJSHint_WebSiteLabel.label;" />
+                        <button label="&lt;http://jshint.com/&gt;"
+                            class="button-link" 
+                            style="margin: -10px; color: #b82619;"
+                            onclick="getKoObject('browse').openUrlInDefaultBrowser('http://www.jshint.com/options/');"/>
+                      </hbox>
+                      <separator class="thin"/>
+                      <groupbox>
+                          <caption label="&chooseACustomOrUpdatedJshint.js.label;" />
+                              <radiogroup id="jshint_NodeJS_linter_chooser"
+                                          pref="true"
+                                          flex="1"
+                                          prefattribute="value"
+                                          orient="horizontal" >
+                                  <vbox flex="1">
+                                      <radio group="jshint_NodeJS_linter_chooser" id="jshint_NodeJS_default_linter"
+                                             value="default"
+                                             label="&defaultJshintLinter.label;" />
+                                      <hbox align="center" flex="1">
+                                          <radio group="jshint_NodeJS_linter_chooser" id="jshint_NodeJS_specific_linter"
+                                                 value="specific"
+                                                 label="&customJshintLinter.label;" />
+                                          <textbox id="jshint_NodeJS_linter_specific"
+                                                   pref="true"
+                                                   onchange="languageInfo['Node.js'].handleChangedJSLinter(true, true);"
+                                                   flex="1"/>
+                                          <button id='jshint_NodeJS_linter_browse'
+                                                  label="&browse.label;"
+                                                  oncommand="languageInfo['Node.js'].browseForJSLinter(true, true);"/>
+                                      </hbox>
+                                  </vbox>
+                              </radiogroup>
+                      </groupbox>
+                    </vbox>
+                </groupbox>
+                
                 <groupbox orient="vertical" >
                     <caption label="&JSLint.label;"/>
                     <checkbox id="lintWithJSLint_NodeJS"
@@ -233,13 +294,14 @@
                     <vbox id="jslint_NodeJS_PrefsVbox">
                        <hbox id="jslint_NodeJS_OptionsBox" flex="1">
                          <vbox id="jslint_NodeJS_OptionsBox-vbox">
-                           <label id="&lintJSLintOptions.label;" control="jslint_NodeJS_Options"
-                                  value="JSLint Options:" />
+                           <label id="jslint_NodeJS_OptionsLabel"
+			          control="jslint_NodeJS_LaunchOptionGetter"
+                                  value="&lintJSHintOptions.label;" />
                            <button id="jslint_NodeJS_LaunchOptionGetter"
                                    label="&lintJSHint_OptionWizard.label;"
-                                   oncommand="languageInfo['Node.js'].launchJSHintOptionGetter(false);" />
+                                   oncommand="languageInfo['Node.js'].launchJSHintOptionGetter(false, true);" />
                          </vbox>
-                         <textbox id="jslintOptions_NodeJS" multiline="true" rows="5" value=""
+                         <textbox id="jslint_NodeJS_Options" multiline="true" rows="5" value=""
                                   flex="1"
                                   pref="true" />
                        </hbox>
@@ -255,6 +317,34 @@
                                 style="margin: -10px; color: #b82619;"
                                 onclick="getKoObject('browse').openUrlInDefaultBrowser('http://www.jslint.com/lint.html#options');"/>
                        </hbox>
+                       <separator class="thin"/>
+                        <groupbox>
+                            <caption label="&chooseACustomOrUpdatedJslint.js.label;" />
+                                <radiogroup id="jslint_NodeJS_linter_chooser"
+                                            pref="true"
+                                            flex="1"
+                                            prefattribute="value"
+                                            orient="horizontal" >
+                                    <vbox flex="1">
+                                        <radio group="jslint_NodeJS_linter_chooser" id="jslint_default_linter"
+                                               value="default"
+                                               label="&defaultJslintLinterWithDate.label;" />
+                                        <hbox align="center" flex="1">
+                                            <radio group="jslint_NodeJS_linter_chooser" id="jslint_specific_linter"
+                                                   value="specific"
+                                                   label="&customJslintLinter.label;" />
+                                            <textbox id="jslint_NodeJS_linter_specific"
+                                                     pref="true"
+                                                     onchange="languageInfo['Node.js'].handleChangedJSLinter(false, true);"
+                                                     flex="1"/>
+                                            <button id='jslint_NodeJS_linter_browse'
+                                                    label="&browse.label;"
+                                                    oncommand="languageInfo['Node.js'].browseForJSLinter(false, true);"/>
+                                        </hbox>
+                                        <label id="jslint_NodeJS_linter_specific_version" value=""/>
+                                    </vbox>
+                                </radiogroup>
+                        </groupbox>
                     </vbox>
                 </groupbox>
                 <!-- No jshint for node (yet) -->
