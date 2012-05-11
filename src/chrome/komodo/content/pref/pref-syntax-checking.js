@@ -93,7 +93,6 @@ function getMappedName(languageName) {
 
 function showLanguageNamePanel(languageName) {
     var deckID = null;
-    debugger;
     if (languageName) {
         if (languageName in languageSetup) {
             languageSetup[languageName](languageName);
@@ -284,7 +283,6 @@ function javaScript_setup(languageName) {
         ["lintJavaScript_SpiderMonkey",
          "lintJavaScriptEnableWarnings",
          "lintJavaScriptEnableStrict",
-         "jshintBrutalMode",
          "jshintGroupbox",
          "jshintOptions",
          "jslintBrutalMode",
@@ -492,91 +490,65 @@ function javaScriptInfo(languageName) {
         addAllOptions: function() {
             this.addParts(true);
         },
-
-        allJSHintStrictSettings: {
-            // adsafe     : true, // if ADsafe should be enforced
-            asi: "true", // true if automatic semicolon insertion should be tolerated
-            bitwise    : "true", // if bitwise operators should not be allowed
-            boss       : "true", // if advanced usage of assignments and == should be allowed
-            browser    : "false", // if the standard browser globals should be predefined
-            couch      : "false", // if CouchDB globals should be predefined
-            curly      : "true", // if curly braces around blocks should be required (even in if/for/while)
-            debug      : "false", // if debugger statements should be allowed
-            devel      : "false", // if logging should be allowed (console, alert, etc.)
-            dojo        : "false", // if Dojo Toolkit globals should be predefined
-            eqeqeq     : "true", // if === should be required
-            eqnull     : "true", // if == null comparisons should be tolerated
-            es5        : "false", // if ES5 syntax should be allowed
-            esnext      :"true", // if es.next specific syntax should be allowed
-            evil       : "false", // if eval should be allowed
-            expr        : "true", // if ExpressionStatement should be allowed as Programs
-            forin      : "true", // if for in statements must filter
-            funcscope   : "true", // if only function scope should be used for scope tests
-            globalstrict: "true", // if global "use strict"; should be allowed (also
-            immed      : "true", // if immediate invocations must be wrapped in parens
-            iterator    : "false", // if the `__iterator__` property should be allowed
-            jquery     : "false", // if jQuery globals should be predefined
-            lastsemic   : "false", // if semicolons may be ommitted for the trailing
-                                // statements inside of a one-line blocks.
-            latedef    : "true", // if the use before definition should not be tolerated
-            laxbreak   : "true", // if line breaks should not be checked
-            laxcomma   : "true", // if line breaks should not be checked around commas
-            loopfunc   : "false", // if functions should be allowed to be defined within loops
-            mootools    : "false", // if MooTools globals should be predefined
-            multistr    : "false", // allow multiline strings
-            newcap     : "true", // if constructor names must be capitalized
-            noarg      : "true", // if arguments.caller and arguments.callee should be disallowed
-            node       : "false", // if the Node.js environment globals should be predefined
-            noempty    : "false", // if empty blocks should be disallowed
-            nonew      : "false", // if using `new` for side-effects should be disallowed
-            nonstandard : "false", // if non-standard (but widely adopted) globals should
-                                // be predefined
-            nomen      : "false", // if names should be checked
-            onevar     : "false", // if only one var statement per function should be allowed
-            onecase     : "false", // if one case switch statements should be allowed
-            passfail   : "false", // if the scan should stop on first error
-            plusplus   : "true", // if increment/decrement should not be allowed
-            proto       : "true", // if the `__proto__` property should be allowed
-            prototypejs : "false", // if Prototype and Scriptaculous globals should be
-                                // predefined
-            regexdash   : "false", // if unescaped first/last dash (-) inside brackets
-                                // should be tolerated
-            regexp     : "true", // if the . should not be allowed in regexp literals
-            rhino      : "false", // if the Rhino environment globals should be predefined
-            undef      : "true", // if variables should be declared before used
-            scripturl   : "false", // if script-targeted URLs should be tolerated
-            shadow     : "false", // if variable shadowing should be tolerated
-            smarttabs   : "false", // if smarttabs should be tolerated
-                                // (http://www.emacswiki.org/emacs/SmartTabs)
-            strict     : "false", // require the "use strict"; pragma
-            sub        : "false", // if all forms of subscript notation are tolerated
-            supernew    : "false", // if `new function () { ... };` and `new Object;`
-                                // should be tolerated
-            trailing    : "false", // if trailing whitespace rules apply
-            validthis   : "true", // if 'this' inside a non-constructor function is valid.
-                                // This is a function scoped option only.
-            withstmt    : "false", // if with statements should be allowed
-            white      : "true", // if strict whitespace rules apply
-            wsh         : "false"  // if the Windows Scripting Host environment globals
-        },
-
-
-        addAllJSHintOptions: function() {
-            var optName, i, idx, name, newTextParts;
-            var textField = dialog[languageName].jshintOptions;
-            var currentSettings = {};
-            var currentSettingNames = [];
-            var text = textField.value;
-            this.setCurrentSettings(text, currentSettingNames, currentSettings);
-            this.addSettings(this.allJSHintStrictSettings, currentSettingNames, currentSettings);
-            newTextParts = currentSettingNames.map(function (name) {
-                if (name in currentSettings) {
-                    return name + "=" + currentSettings[name];
+        
+        launchJSHintOptionGetter: function() {
+            var djs = dialog[languageName];
+            var currentValues = {};
+            var currentValuesText = djs.jshintOptions.value;
+            var m;
+            var pattern = /(\w+)\s*=\s*((?:\[.*?\]|[\w\d]+))/g;
+            while (!!(m = pattern.exec(currentValuesText))) {
+                var name = m[1];
+                var value = m[2];
+                if (value[0] == '[') {
+                    // stringify this
+                    // ["ko","Components","window"]  => "ko, Components, window" for cleaner input.
+                    currentValues[name] = value.substring(1, value.length - 1).split(/\s*,\s*/).map(function(s) s.replace(/["']/g, '')).join(", ");
                 } else {
-                    return name;
+                    // Just add the stringified value
+                    currentValues[name] = value;
                 }
-            });
-            textField.value = newTextParts.join(" ");
+            }
+            var path;
+            if (djs.jshint_linter_chooser.selectedIndex == 0) {
+                // default path to jshint.js
+                var koDirs = Components.classes["@activestate.com/koDirs;1"]
+                            .getService(Components.interfaces.koIDirs);
+                var osPathSvc = Components.classes["@activestate.com/koOsPath;1"]
+                            .getService(Components.interfaces.koIOsPath);
+                var parts = [koDirs.supportDir, "lint", "javascript", "jshint.js"];
+                path = osPathSvc.joinlist(parts.length, parts);
+            } else {
+                path = djs.jshint_linter_specific.value;
+            }
+            var obj = {
+                isJSHint: true,
+                path: path,
+                currentValues: currentValues
+            }
+            window.openDialog("chrome://komodo/content/pref/pref-jshint-options.xul",
+                              "_blank",
+                              "chrome,modal,titlebar,resizable=yes,centerscreen",
+                              obj);
+            if (obj.result) {
+                var predef = null;
+                var newValues = obj.newValues, predef;
+                if ('predef' in newValues) {
+                    // remove extra quotes, and then reformat
+                    predef = newValues.predef.replace(/[/[/]"']/g, '').split(/\s*,\s*/);
+                    delete newValues.predef;
+                }
+                var newValuesA = [];
+                for (var p in newValues) {
+                    newValuesA.push(p + '=' + newValues[p]);
+                }
+                if (predef) {
+                    newValuesA.push('predef=['
+                                    + predef.map(function(s) '"' + s + '"').join(',')
+                                    + ']');
+                }
+                djs.jshintOptions.value = newValuesA.join(" ");
+            }
         },
         
         doWarningEnabling: function(checkbox) {
@@ -597,7 +569,6 @@ function javaScriptInfo(languageName) {
                 djs.jslintPrefsVbox.collapsed = !isChecked;
                 break;
             case djs.lintWithJSHint:
-                pref_setElementEnabledState(djs.jshintBrutalMode, isChecked);
                 pref_setElementEnabledState(djs.jshintOptions, isChecked);
                 djs.jshintPrefsVbox.collapsed = !isChecked;
                 break;
@@ -708,12 +679,9 @@ function nodeJS_setup(languageName) {
 languageSetup['Node.js'] = nodeJS_setup;
 
 function nodeJSInfo() {
-    debugger;
     var jsInfo = javaScriptInfo("Node.js");
-    delete jsInfo.allJSHintStrictSettings;
-    delete jsInfo.jsInfoaddAllJSHintOptions;
+    delete jsInfo.launchJSHintOptionGetter;
     jsInfo.doWarningEnabling = function(checkbox) {
-        debugger;
         var djs = dialog['Node.js'];
         var isChecked = checkbox.checked;
         switch (checkbox) {

@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<!DOCTYPE window SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % prefDTD SYSTEM "chrome://komodo/locale/pref/pref.dtd">
+  %prefDTD;
+]>
+<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://global/skin" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/listbox.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/prefs/prefs.css" type="text/css"?>
+
+<!-- Copyright (c) 2000-2012 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+<dialog id="pref-jshint-options"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        persist="screenX screenY width height"
+        title="&amp;JSHint Options Picker"
+        buttons="accept,cancel"
+        onload="onLoad();"
+        onunload="onUnload();"
+        ondialogaccept="return OK();"
+        ondialogcancel="return Cancel();">
+
+    <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/pref/koPrefUtils.js" type="application/x-javascript;version=1.7" />
+    <script src="chrome://komodo/content/pref/pref-jshint-options.js" type="application/x-javascript;version=1.7"/>
+
+    <vbox id="pref-jshint-options-vbox" flex="1" class="autoscroll">
+        <groupbox id="pref-jshint-groupbox">
+            <caption id="pref-jshint-caption" label="All JSHint Options" />
+            <grid id="pref-jshint-grid" flex="1">
+                <columns>
+                    <column flex="1" />
+                    <column flex="1" />
+                    <column flex="1" />
+                </columns>
+                <rows id="pref-jshint-rows" />
+            </grid>
+            <hbox id="pref-jshint-vbox">
+                <label id="pref-jshint-predef-label" value="Predefined names:" />
+                <textbox id="pref-jshint-predef" flex="1" />
+            </hbox>
+            <hbox>
+            <button id="pref-jshint-set-strictness-button"
+                    label="Set Strict Settings"
+                    oncommand="ApplyStrictness();" />
+            <spacer flex="1" />
+            </hbox>
+        </groupbox>
+    </vbox>
+</dialog>

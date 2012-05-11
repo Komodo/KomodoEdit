@@ -159,9 +159,9 @@
                          <vbox id="jshintOptionsBox-vbox">
                            <label id="&lintJSHintOptions.label;" control="jshintOptions"
                                   value="JSHint Options:" />
-                           <button id="jshintBrutalMode"
-                                   label="&lintJSHint_ActivateAllOptions.label;"
-                                   oncommand="languageInfo.JavaScript.addAllJSHintOptions();" />
+                           <button id="jshintLaunchOptionGetter"
+                                   label="&lintJSHint_OptionWizard.label;"
+                                   oncommand="languageInfo.JavaScript.launchJSHintOptionGetter();" />
                          </vbox>
                          <textbox id="jshintOptions" multiline="true" rows="5" value=""
                                   flex="1"
@@ -173,9 +173,9 @@
                       </description>
                       <separator class="thin"/>
                       <hbox>
-                        <label value="&lintJSHint_WebSiteLabel.label;"/>
+                        <label value="&lintJSHint_WebSiteLabel.label;" />
                         <button label="&lt;http://jshint.com/&gt;"
-                            class="button-link"
+                            class="button-link" 
                             style="margin: -10px; color: #b82619;"
                             onclick="getKoObject('browse').openUrlInDefaultBrowser('http://www.jshint.com/options/');"/>
                       </hbox>

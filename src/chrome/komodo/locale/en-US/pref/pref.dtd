@@ -657,6 +657,10 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 
 <!--pref-javascript.xul-->
 <!--pref-project-javascript.xul-->
+<!ENTITY switchFromJSToNode.caption "Switch JS files to Node.js when debugging?">
+<!ENTITY alwaysSwitchToNode.label "Always switch" >
+<!ENTITY neverSwitchToNode.label "Never switch" >
+<!ENTITY askToSwitchToNode.label "Always ask" >
 
 
 <!ENTITY lintJavaScript_SpiderMonkey.label "Check with Mozilla JS (SpiderMonkey)">
@@ -686,8 +690,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY JSHint.label "JSHint">
 <!ENTITY lintJavaScriptWithJSHint.label "Check Code With JSHint">
 <!ENTITY lintJSHintOptions.label "JSHint Options">
-<!ENTITY lintJSHint_ActivateGoodPartsOptions.label "&quot;Good Parts&quot; Options">
-<!ENTITY lintJSHint_ActivateAllOptions.label "All Options">
+<!ENTITY lintJSHint_OptionWizard.label "Option Wizard">
 <!ENTITY lintJSHint_Explanation.descr "Use a format like bitwise=false debug=true maxerr=5 predef=['document','window']">
 <!ENTITY lintJSHint_WebSiteLabel.label "See all allowed options at: ">
 <!ENTITY chooseACustomOrUpdatedJshint.js.label "Choose a custom or updated jshint.js">
