@@ -285,8 +285,6 @@ function javaScript_setup(languageName) {
          "lintJavaScriptEnableStrict",
          "jshintGroupbox",
          "jshintOptions",
-         "jslintBrutalMode",
-         "jslintGoodPartsButton",
          "jslintOptions",
          "jshintPrefsVbox",
          "jslintPrefsVbox",
@@ -321,177 +319,8 @@ languageSetup.JavaScript = javaScript_setup;
 function javaScriptInfo(languageName) {
     // languageName could be "JavaScript" or "Node.js"
     if (languageName === undefined) languageName = "JavaScript";
-    return {
-        goodPartsFactorySettings_2011_05_11: {
-            white: "true",
-            indent: "4",
-            onevar: "true",
-            'undef': "true",
-            cap: "true",
-            nomen: "true",
-            regexp: "true",
-            plusplus: "true",
-            bitwise: "true"
-        },
-
-        otherStrictSettings_2011_05_11: {
-            strict: "true",
-            passfail: "true",
-            browser: "false",
-            devel: "false",
-            rhino: "false",
-            widget: "false",
-            windows: "false",
-            'debug': "false",
-            evil: "false",
-            forin: "false",
-            subscript: "false",
-            'continue': "false",
-            css: "false",
-            htmlCase: "false",
-            on: "false",
-            fragment: "false",
-            es5: "false" 
-        },
-
-        goodPartsFactorySettings_current: {
-            bitwise: "false",
-            cap: "false",
-            eqeq: "false",
-            indent: "4",
-            nomen: "false",
-            plusplus: "false",
-            regexp: "false",
-            'undef': "undef",
-            vars: "false",
-            white: "false",
-        },
-
-        otherStrictSettings_current: {
-            adsafe: "false",
-            browser: "true",
-            'continue': "true",
-            css: "false",
-            'debug': "false",
-            devel: "false",
-            es5: "false",
-            evil: "false",
-            forin: "false",
-            fragment: "false",
-            htmlCase: "false",
-            maxerr: 100,
-            maxlen: 80,
-            newcap: "false",
-            on: "false",
-            passfail: "false",
-            predef: '["window","document"]',
-            rhino: "false",
-            safe: "false",
-            sloppy: "true",
-            stupid: "false",
-            sub: "false",
-            undef: "false",
-            unparam: "false",
-            widget: "false",
-            windows: "false",
-        },
-
-        updateSettings : function(optName, optValue, settingNames, settings) {
-            if (settingNames.indexOf(optName) === -1) {
-                settingNames.push(optName);
-            }
-            settings[optName] = optValue;
-        },
-
-        setCurrentSettings: function (text, settingNames, settings) {
-            var i, idx, opt, optName, optValue;
-            var options = text.split(/\s+/);
-            for (i = 0; i < options.length; i++) {
-                opt = options[i];
-                idx = opt.indexOf("=");
-                if (idx >= 0) {
-                    optName = opt.substr(0, idx);
-                    optValue = opt.substr(idx + 1);
-                    this.updateSettings(optName, optValue, settingNames, settings);
-                } else {
-                    settingNames.push(opt);
-                }
-            }
-        },
-
-        addSettings: function(factorySettings, settingNames, settings) {
-            var optName, optValue;
-            for (optName in factorySettings) {
-                optValue = factorySettings[optName].toString();
-                this.updateSettings(optName, optValue, settingNames, settings);
-            }
-        },
-
-        addParts: function(includeOtherStrictSettings) {
-            var djs = dialog[languageName];
-            var optName, i, idx, name, newTextParts;
-            var textField = djs.jslintOptions;
-            var currentSettings = {};
-            var currentSettingNames = [];
-            var text = textField.value;
-            this.setCurrentSettings(text, currentSettingNames, currentSettings);
-            var goodPartsFactorySettings, otherStrictSettings;
-            if (djs.jslint_linter_chooser.selectedIndex == 0) {
-                goodPartsFactorySettings = this.goodPartsFactorySettings_current;
-                otherStrictSettings = this.otherStrictSettings_current;
-            } else {
-                var label = djs.jslint_linter_specific_version.value;
-                var m = /Selected Version: (\d{4})-(\d{2})-(\d{2})/.exec(label);
-                if (!m) {
-                    goodPartsFactorySettings = this.goodPartsFactorySettings_current;
-                    otherStrictSettings = this.otherStrictSettings_current;
-                } else {
-                    var year = parseInt(m[1]);
-                    var month = parseInt(m[2]);
-                    var day = parseInt(m[3]);
-                    if ((year > 2011)
-                        || (year == 2011 && month >= 6)) {
-                        goodPartsFactorySettings = this.goodPartsFactorySettings_current;
-                        otherStrictSettings = this.otherStrictSettings_current;
-                    } else {
-                        goodPartsFactorySettings = this.goodPartsFactorySettings_2011_05_11;
-                        otherStrictSettings = this.otherStrictSettings_2011_05_11;
-                    }
-                }
-            }
-                    
-            this.addSettings(goodPartsFactorySettings, currentSettingNames, currentSettings);
-            
-            if (includeOtherStrictSettings) {
-                this.addSettings(otherStrictSettings, currentSettingNames, currentSettings);
-            } else {
-                // Remove any factory strict settings from the text view
-                for (optName in otherStrictSettings) {
-                    idx = currentSettingNames.indexOf(optName);
-                    if (idx > -1 && currentSettings[optName] === otherStrictSettings[optName]) {
-                        currentSettingNames.splice(idx, 1);
-                    }
-                }
-            }
-            newTextParts = currentSettingNames.map(function (name) {
-                if (name in currentSettings) {
-                    return name + "=" + currentSettings[name];
-                } else {
-                    return name;
-                }
-            });
-            textField.value = newTextParts.join(" ");
-        },
-
-        addGoodParts: function() {
-            this.addParts(false);
-        },
-
-        addAllOptions: function() {
-            this.addParts(true);
-        },
-        
-        launchJSHintOptionGetter: function() {
+    return {        
+      launchJSHintOptionGetter: function(isJSHint) {
             var djs = dialog[languageName];
             var currentValues = {};
             var currentValuesText = djs.jshintOptions.value;
@@ -503,26 +332,31 @@ function javaScriptInfo(languageName) {
                 if (value[0] == '[') {
                     // stringify this
                     // ["ko","Components","window"]  => "ko, Components, window" for cleaner input.
-                    currentValues[name] = value.substring(1, value.length - 1).split(/\s*,\s*/).map(function(s) s.replace(/["']/g, '')).join(", ");
+                    currentValues[name] = value.substring(1, value.length - 1).split(/\s*,\s*/).map(function(s) s.replace(/[\"\']/g, '')).join(", ");
                 } else {
                     // Just add the stringified value
                     currentValues[name] = value;
                 }
             }
             var path;
-            if (djs.jshint_linter_chooser.selectedIndex == 0) {
+            if ((isJSHint
+                 ? djs.jshint_linter_chooser.value
+                 : djs.jslint_linter_chooser.value).selectedIndex == 0) {
                 // default path to jshint.js
                 var koDirs = Components.classes["@activestate.com/koDirs;1"]
                             .getService(Components.interfaces.koIDirs);
                 var osPathSvc = Components.classes["@activestate.com/koOsPath;1"]
                             .getService(Components.interfaces.koIOsPath);
-                var parts = [koDirs.supportDir, "lint", "javascript", "jshint.js"];
+                var parts = [koDirs.supportDir, "lint", "javascript",
+                             (isJSHint ? "jshint.js" : "fulljslint.js")];
                 path = osPathSvc.joinlist(parts.length, parts);
             } else {
-                path = djs.jshint_linter_specific.value;
+                path = (isJSHint
+                        ? djs.jshint_linter_specific.value
+                        : djs.jslint_linter_specific.value);
             }
             var obj = {
-                isJSHint: true,
+                isJSHint: isJSHint,
                 path: path,
                 currentValues: currentValues
             }
@@ -535,7 +369,7 @@ function javaScriptInfo(languageName) {
                 var newValues = obj.newValues, predef;
                 if ('predef' in newValues) {
                     // remove extra quotes, and then reformat
-                    predef = newValues.predef.replace(/[/[/]"']/g, '').split(/\s*,\s*/);
+                    predef = newValues.predef.replace(/[/[/]\"\']/g, '').split(/\s*,\s*/);
                     delete newValues.predef;
                 }
                 var newValuesA = [];
@@ -547,7 +381,9 @@ function javaScriptInfo(languageName) {
                                     + predef.map(function(s) '"' + s + '"').join(',')
                                     + ']');
                 }
-                djs.jshintOptions.value = newValuesA.join(" ");
+                (isJSHint
+                 ? djs.jshintOptions
+                 : djs.jslintOptions).value = newValuesA.join(" ");
             }
         },
         
@@ -563,8 +399,6 @@ function javaScriptInfo(languageName) {
                 pref_setElementEnabledState(djs.lintJavaScriptEnableStrict, isChecked);
                 break;
             case djs.lintWithJSLint:
-                pref_setElementEnabledState(djs.jslintGoodPartsButton, isChecked);
-                pref_setElementEnabledState(djs.jslintBrutalMode, isChecked);
                 pref_setElementEnabledState(djs.jslintOptions, isChecked);
                 djs.jslintPrefsVbox.collapsed = !isChecked;
                 break;
@@ -653,8 +487,7 @@ function nodeJS_setup(languageName) {
         ["lintNodeJS_SpiderMonkey",
          "lintNodeJSEnableWarnings",
          "lintNodeJSEnableStrict",
-         "jslint_NodeJS_BrutalMode",
-         "jslint_NodeJS_GoodPartsButton",
+         "jslint_NodeJS_LaunchOptionGetter",
          "jslintOptions_NodeJS",
          "jslint_NodeJS_PrefsVbox",
          "lintWithJSLint_NodeJS"
@@ -693,8 +526,7 @@ function nodeJSInfo() {
             pref_setElementEnabledState(djs.lintNodeJSEnableStrict, isChecked);
             break;
         case djs.lintWithJSLint_NodeJS:
-            pref_setElementEnabledState(djs.jslint_NodeJS_GoodPartsButton, isChecked);
-            pref_setElementEnabledState(djs.jslint_NodeJS_BrutalMode, isChecked);
+            pref_setElementEnabledState(djs.jslint_NodeJS_LaunchOptionGetter, isChecked);
             pref_setElementEnabledState(djs.jslint_NodeJS_Options, isChecked);
             djs.jslint_NodeJS_PrefsVbox.collapsed = !isChecked;
             break;

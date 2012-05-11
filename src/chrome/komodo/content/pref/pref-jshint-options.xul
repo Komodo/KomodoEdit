@@ -16,7 +16,7 @@
 <dialog id="pref-jshint-options"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         persist="screenX screenY width height"
-        title="&amp;JSHint Options Picker"
+        title="&optionsPicker.label;"
         buttons="accept,cancel"
         onload="onLoad();"
         onunload="onUnload();"
@@ -30,7 +30,16 @@
 
     <vbox id="pref-jshint-options-vbox" flex="1" class="autoscroll">
         <groupbox id="pref-jshint-groupbox">
-            <caption id="pref-jshint-caption" label="All JSHint Options" />
+            <caption id="pref-jshint-caption" label="&allOptions.label;" />
+            <hbox>
+            <button id="pref-jshint-set-strictness-button"
+                    label="&setStrictSettings.label;"
+                    oncommand="ApplyStrictness();" />
+            <button id="pref-jshint-set-good-parts-button"
+                    label="&setRecommendedSettings.label;"
+                    oncommand="ApplyGoodParts();" />
+            <spacer flex="1" />
+            </hbox>
             <grid id="pref-jshint-grid" flex="1">
                 <columns>
                     <column flex="1" />
@@ -40,13 +49,16 @@
                 <rows id="pref-jshint-rows" />
             </grid>
             <hbox id="pref-jshint-vbox">
-                <label id="pref-jshint-predef-label" value="Predefined names:" />
+                <label id="pref-jshint-predef-label" value="&predefinedNames.label;" />
                 <textbox id="pref-jshint-predef" flex="1" />
             </hbox>
             <hbox>
             <button id="pref-jshint-set-strictness-button"
-                    label="Set Strict Settings"
+                    label="&setStrictSettings.label;"
                     oncommand="ApplyStrictness();" />
+            <button id="pref-jshint-set-good-parts-button"
+                    label="&setRecommendedSettings.label;"
+                    oncommand="ApplyGoodParts();" />
             <spacer flex="1" />
             </hbox>
         </groupbox>

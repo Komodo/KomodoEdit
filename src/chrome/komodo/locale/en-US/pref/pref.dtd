@@ -670,13 +670,18 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY lintJavaScriptWithJSLint.label "Check Code With JSLint">
 <!ENTITY JSLint.label "JSLint">
 <!ENTITY lintJSLintOptions.label "JSLint Options">
-<!ENTITY lintJSLint_ActivateGoodPartsOptions.label "&quot;Good Parts&quot; Options">
-<!ENTITY lintJSLint_ActivateAllOptions.label "All Options">
 <!ENTITY lintJSLint_Explanation.descr "Use a format like bitwise=false debug=true maxerr=5 predef=['document','window']">
 <!ENTITY lintJSLint_WebSiteLabel.label "See all allowed options at: ">
 <!ENTITY chooseACustomOrUpdatedJslint.js.label "Choose a custom or updated jslint.js">
 <!ENTITY defaultJslintLinterWithDate.label "Default linter (2012-04-15)">
 <!ENTITY customJslintLinter.label "Custom linter">
+
+<!-- pref-jshint-options.xul -->
+<!ENTITY optionsPicker.label "Options Picker">
+<!ENTITY allOptions.label "All Options">
+<!ENTITY predefinedNames.label "Predefined names:">
+<!ENTITY setStrictSettings.label "Set Strict Settings">
+<!ENTITY setRecommendedSettings.label "Set Recommended Settings">
 
 <!--pref-nodejs.xul-->
 <!ENTITY nodejs.label "Node.js">

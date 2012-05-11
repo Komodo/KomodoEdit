@@ -94,12 +94,9 @@
                          <vbox id="jslintOptionsBox-vbox">
                            <label id="&lintJSLintOptions.label;" control="jslintOptions"
                                   value="JSLint Options:" />
-                           <button id="jslintGoodPartsButton"
-                                   label="&lintJSLint_ActivateGoodPartsOptions.label;"
-                                   oncommand="languageInfo.JavaScript.addGoodParts();" />
-                           <button id="jslintBrutalMode"
-                                   label="&lintJSLint_ActivateAllOptions.label;"
-                                   oncommand="languageInfo.JavaScript.addAllOptions();" />
+                           <button id="jslintLaunchOptionGetter"
+                                   label="&lintJSHint_OptionWizard.label;"
+                                   oncommand="languageInfo.JavaScript.launchJSHintOptionGetter(false);" />
                          </vbox>
                          <textbox id="jslintOptions" multiline="true" rows="5" value=""
                                   flex="1"
@@ -161,7 +158,7 @@
                                   value="JSHint Options:" />
                            <button id="jshintLaunchOptionGetter"
                                    label="&lintJSHint_OptionWizard.label;"
-                                   oncommand="languageInfo.JavaScript.launchJSHintOptionGetter();" />
+                                   oncommand="languageInfo.JavaScript.launchJSHintOptionGetter(true);" />
                          </vbox>
                          <textbox id="jshintOptions" multiline="true" rows="5" value=""
                                   flex="1"
@@ -238,12 +235,9 @@
                          <vbox id="jslint_NodeJS_OptionsBox-vbox">
                            <label id="&lintJSLintOptions.label;" control="jslint_NodeJS_Options"
                                   value="JSLint Options:" />
-                           <button id="jslint_NodeJS_GoodPartsButton"
-                                   label="&lintJSLint_ActivateGoodPartsOptions.label;"
-                                   oncommand="languageInfo['Node.js'].addGoodParts();" />
-                           <button id="jslint_NodeJS_BrutalMode"
-                                   label="&lintJSLint_ActivateAllOptions.label;"
-                                   oncommand="languageInfo['Node.js'].addAllOptions();" />
+                           <button id="jslint_NodeJS_LaunchOptionGetter"
+                                   label="&lintJSHint_OptionWizard.label;"
+                                   oncommand="languageInfo['Node.js'].launchJSHintOptionGetter(false);" />
                          </vbox>
                          <textbox id="jslintOptions_NodeJS" multiline="true" rows="5" value=""
                                   flex="1"
