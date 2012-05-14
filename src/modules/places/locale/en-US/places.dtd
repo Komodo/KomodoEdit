@@ -53,10 +53,6 @@
 
 <!ENTITY loadPlace.label "Open Directory...">
 <!ENTITY loadRemotePlace.label "Open Remote Directory...">
-<!ENTITY recentPlaces.label "Recent Places">
-<!ENTITY recentPlaces.accesskey "R">
-<!ENTITY placesView.tooltiptext "Places Tools">
-<!ENTITY addItemToCurrentPlace.tooltiptext "Add Item to current place">
 <!ENTITY defaultView.label "Default View">
 <!ENTITY currentProjectView.label "Current Project View">
 <!ENTITY exportAsProjectFile.label "Export As Project File...">
@@ -82,16 +78,12 @@
 
 <!ENTITY ShowInExplorer.label "Show in Explorer">
 <!ENTITY rename.label "Rename">
-<!ENTITY recentPlaces.accesskey "R">
 <!ENTITY placesDirectoryMenu.tooltiptext "Directory-related functions">
 <!ENTITY placesProjectMenu.tooltiptext "Project-related functions">
 <!ENTITY placesBack.tooltiptext "Previous directory in history">
 <!ENTITY placesForward.tooltiptext "Next directory in history">
-<!ENTITY placesRecentPlaces.tooltiptext "Pick a recent place...">
 <!ENTITY goNextPlace.desc "Places: Load previous place">
 <!ENTITY goPreviousPlace.desc "Places: Reload next place">
-<!ENTITY placesParentDirectories.tooltiptext "Parent and recent directories">
-<!ENTITY parentDirectories.label "Parent folders">
 
 <!ENTITY showInFinder.desc "Places: Show file/folder in the system's file manager">
 <!ENTITY renamePlaceItem.label "Rename...">

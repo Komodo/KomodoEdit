@@ -5,7 +5,6 @@
 <!ENTITY fastOpenGoToFile.desc "Fast Open: Go to File...">
 <!ENTITY fastOpenInvokeTool.desc "Fast Open: Invoke Tool...">
 <!ENTITY goToFile.window.title "Go to File">
-<!ENTITY goToFileDialogIntro.desc "Preferences for the 'Go to File...' dialog.">
 <!ENTITY enableCwdGatherer.label "Enable 'Current Working Directory(ies)' gatherer">
 <!ENTITY goToFileDialogFilters.desc "Exclude files matching the following patterns (leave empty for the default):">
 <!ENTITY enableGoToolIntegration.label "Enable go-tool integration">

@@ -4,7 +4,6 @@
 <!ENTITY stackatoEmailAddress.accesskey "E">
 <!ENTITY stackatoInterface "Stackato Interface">
 <!ENTITY stackato.label "Stackato">
-<!ENTITY stackatoToolbar.tooltiptext "Stackato Toolbar">
 <!ENTITY stackatoOutputWindow.label "Stackato Output Window">
 
 <!ENTITY addEllipse.label "Add...">
@@ -32,7 +31,6 @@
 <!ENTITY login.label "Login...">
 <!ENTITY mapURL.label "Map URL...">
 <!ENTITY unmapURL.label "Unmap URL...">
-<!ENTITY noApplicationIsCurrentlyUsingThisService.tooltiptext "No application is currently using this service">
 <!ENTITY notLoggedIn.tooltiptext "Log in to add a new app.">
 <!ENTITY numInstances.label "# Instances">
 <!ENTITY provisionedServices.label "Provisioned Services">
@@ -67,7 +65,6 @@
 <!ENTITY update.label "Update">
 
 <!ENTITY deleteTheApp.tooltiptext "Delete the App">
-<!ENTITY hidePane.tooltiptext "Hide Pane">
 <!ENTITY newApp.tooltiptext "Add a new App">
 <!ENTITY numInstances.tooltiptext "Change Number of Instances">
 <!ENTITY renameTheApp.tooltiptext "Rename the App">
@@ -106,14 +103,9 @@
 <!ENTITY pathColon.label "Path:">
 <!ENTITY frameworkColon.label "Framework:">
 <!ENTITY runtimeColon.label "Runtime:">
-<!ENTITY serviceToUseColon.label "Service to use (optional):">
 <!ENTITY startImmediately.label "Start Immediately">
 <!ENTITY systemServiceColon.label "System Service:">
 <!ENTITY stackatoPushStep1of5.label "Stackato Push - Step 1 of 5">
-<!ENTITY stackatoPushStep2of5.label "Stackato Push - Step 2 of 5">
-<!ENTITY stackatoPushStep3of5.label "Stackato Push - Step 3 of 5">
-<!ENTITY stackatoPushStep4of5.label "Stackato Push - Step 4 of 5">
-<!ENTITY stackatoPushStep5of5.label "Stackato Push - Step 5 of 5">
 <!ENTITY defineApplicationParameters.label "Define application parameters">
 <!ENTITY bindDataService.label "Bind a Data Service">
 <!ENTITY bindExistingDataService.label "Bind an Existing Data Service">
