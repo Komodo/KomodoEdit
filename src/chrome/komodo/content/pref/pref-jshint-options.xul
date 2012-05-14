@@ -51,7 +51,7 @@
             <hbox id="pref-jshint-vbox" align="center">
                 <label id="pref-jshint-predef-label" value="&predefinedNames.label;" />
                 <textbox id="pref-jshint-predef" flex="1" tooltip="_child" >
-                    <tooltip id="pref-jshint-predef-tooltip" orient="vertical" style="background-color #33DD00;">
+                    <tooltip id="pref-jshint-predef-tooltip" orient="vertical" style="background-color: #33DD00;">
                         <label id="pref-jshint-predef-tooltip-label"
                                value="&separateNamesWithCommas.tooltip;" />
                     </tooltip>
