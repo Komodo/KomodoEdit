@@ -263,6 +263,7 @@ class GenericJSLinter(CommonJSLinter):
         text = request.content.encode(request.encoding.python_encoding_name)
         return self.lint_with_text(request, text)
 
+    strict_option_re = re.compile(r'\bstrict=')
     def _jslint_with_text(self, request, text, prefSwitchName, prefOptionsName):
         if not text:
             #log.debug("<< no text")
@@ -299,17 +300,24 @@ class GenericJSLinter(CommonJSLinter):
                 cmd.append("--jshint-basename=" + jsLintBasename)
         elif prefSwitchName == "lintWithJSHint":
             cmd.append("--jshint")
-        if (request.koDoc.language == "Node.js"
-            and not "node=" in options):
-            options += " node=1"
         if options:
-            cmd += re.compile(r'\s+').split(options)
+            # Drop empty parts.
+            otherParts = [s for s in re.compile(r'\s+').split(options)]
+            cmd += [s for s in re.compile(r'\s+').split(options)]
+        if request.koDoc.language == "Node.js":
+            if not "node=" in options:
+                cmd.append("node=1")
+        if (prefSwitchName == "lintWithJSHint"
+            and not self.strict_option_re.match(options)
+            and 'globalstrict=' not in options):
+            # jshint tests options.strict !== false, otherwise strict is on
+            # Other options are tested as simply !options.strict
+            cmd.append('strict=false')
 
         fd = open(jsfilename)
         cwd = request.cwd or None
         # We only need the stderr result.
         try:
-            #log.debug("linting... %s", cmd)
             p = process.ProcessOpen(cmd, cwd=cwd, stdin=fd)
             stdout, stderr = p.communicate()
             #log.debug("jslint(%s): stdout: %s, stderr: %s", prefSwitchName, stdout, stderr)

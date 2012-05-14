@@ -83,7 +83,8 @@ function OnPreferencePageOK(prefset) {
  *    language we're showing prefs for.
  */
 var _mappedNames = {
-    "HTML5": "HTML"
+    "HTML5": "HTML",
+    "Node.js": "JavaScript"
 };
 function getMappedName(languageName) {
     return (languageName in _mappedNames
@@ -298,7 +299,7 @@ function javaScript_setup(languageName) {
          ].forEach(function(name) {
             djs[name] = document.getElementById(name);
         });
-        languageInfo.JavaScript = javaScriptInfo("JavaScript");
+        languageInfo.JavaScript = javaScriptInfo('JavaScript');
     } else {
         djs = dialog.JavaScript;
     }
@@ -315,43 +316,35 @@ function javaScript_setup(languageName) {
                                                                 djs.jslint_linter_specific_version);
 }
 
-languageSetup.JavaScript = javaScript_setup;
-
+languageSetup.JavaScript = languageSetup['Node.js'] = javaScript_setup;
 function javaScriptInfo(languageName) {
     // languageName could be "JavaScript" or "Node.js"
-    if (languageName === undefined) languageName = "JavaScript";
-    // IDs for the combination of NodeJS x jshint/jslint
-    // 0: JS, jshint; 1: JS, jslint; 2: NodeJS, jshint; 3: NodeJS, jslint
+    // Just use "JavaScript"
+    languageName = "JavaScript";
+    // IDs for jshint/jslint
+    // 0:  jshint; 2: jshint;
     var jslintIds = {
-      optionsId: [ 'jshintOptions', 'jslintOptions',
-                   'jshint_NodeJS_Options', 'jslint_NodeJS_Options' ],
+      optionsId: [ 'jshintOptions', 'jslintOptions'],
       linterChooserId: ['jshint_linter_chooser',
-                        'jslint_linter_chooser',
-                        'jshint_NodeJS_linter_chooser',
-                        'jslint_NodeJS_linter_chooser'],
+                        'jslint_linter_chooser'],
       linterSpecificId: ['jshint_linter_specific',
-                        'jslint_linter_specific',
-                        'jshint_NodeJS_linter_specific',
-                        'jslint_NodeJS_linter_specific'],
+                        'jslint_linter_specific'],
       linterSpecificVersionId: [null, 
-                                'jslint_linter_specific_version',
-                                null,
-                                'jslint_NodeJS_linter_specific_version'],
-      defaultLinterName: ["jshint.js", "fulljslint.js",
-                          "jshint.js", "fulljslint.js"],
+                                'jslint_linter_specific_version'],
+      defaultLinterName: ["jshint.js", "fulljslint.js"],
     };
 
-    var getIdxFor_linter_language = function(isJSHint, isNodeJS) {
-        return 2 * (isNodeJS ? 1 : 0) + (isJSHint ? 0 : 1);
+    var getIdxFor_linter_language = function(isJSHint) {
+        return (isJSHint ? 0 : 1);
     };
       
     return {        
-      launchJSHintOptionGetter: function(isJSHint, isNodeJS) {
+      launchJSHintOptionGetter: function(isJSHint) {
             var djs = dialog[languageName];
             var currentValues = {};
             var m;
             var pattern = /(\w+)\s*=\s*((?:\[.*?\]|[\w\d]+))/g;
-            var idx = getIdxFor_linter_language(isJSHint, isNodeJS);
+            var idx = getIdxFor_linter_language(isJSHint);
             var currentValuesText = djs[jslintIds.optionsId[idx]].value;
             while (!!(m = pattern.exec(currentValuesText))) {
                 var name = m[1];
@@ -459,8 +452,8 @@ function javaScriptInfo(languageName) {
             labelField.value = specificText;
         },
         
-        browseForJSLinter: function(isJSHint, isNodeJS) {
-            var idx = getIdxFor_linter_language(isJSHint, isNodeJS);
+        browseForJSLinter: function(isJSHint) {
+            var idx = getIdxFor_linter_language(isJSHint);
             var djs = dialog[languageName];
             var jslint_linter_specific = djs[jslintIds.linterSpecificId[idx]];
             var currentPath = jslint_linter_specific.value;
@@ -475,8 +468,8 @@ function javaScriptInfo(languageName) {
             }
         },
         
-        handleChangedJSLinter: function(isJSHint, isNodeJS) {
-            var idx = getIdxFor_linter_language(isJSHint, isNodeJS);
+        handleChangedJSLinter: function(isJSHint) {
+            var idx = getIdxFor_linter_language(isJSHint);
             var djs = dialog[languageName];
             var jslint_linter_specific = djs[jslintIds.linterSpecificId[idx]];
             var selectedIndex = jslint_linter_specific.value ? 1 : 0;
@@ -489,74 +482,6 @@ function javaScriptInfo(languageName) {
     };
 }
 
-
-function nodeJS_setup(languageName) {
-    var djs;
-    if (!('Node.js' in dialog)) {
-        djs = dialog['Node.js'] = {};
-        ["lintNodeJS_SpiderMonkey",
-         "lintNodeJSEnableWarnings",
-         "lintNodeJSEnableStrict",
-         "jslint_NodeJS_LaunchOptionGetter",
-         "jslint_NodeJS_Options",
-         "jslint_NodeJS_PrefsVbox",
-         "jslint_NodeJS_linter_chooser",
-         "jslint_NodeJS_linter_specific",
-         "jslint_NodeJS_linter_specific_version",
-         "lintWithJSLint_NodeJS",
-         "lintWithJSHint_NodeJS",
-         "jshint_NodeJS_LaunchOptionGetter",
-         "jshint_NodeJS_Options",
-         "jshint_NodeJS_PrefsVbox",
-         "jshint_NodeJS_linter_chooser",
-         "jshint_NodeJS_linter_specific",
-         "jshint_NodeJS_linter_specific_version",
-         ].forEach(function(name) {
-            djs[name] = document.getElementById(name);
-        });
-        languageInfo['Node.js'] = nodeJSInfo();
-    } else {
-        djs = dialog['Node.js'];
-    }
-    if (!djs.lintNodeJS_SpiderMonkey.checked) {
-        pref_setElementEnabledState(djs.lintNodeJSEnableWarnings, false);
-        pref_setElementEnabledState(djs.lintNodeJSEnableStrict, false);
-    } else {
-        pref_setElementEnabledState(djs.lintNodeJSEnableWarnings, true);
-        pref_setElementEnabledState(djs.lintNodeJSEnableStrict, djs.lintNodeJSEnableWarnings.checked);
-    }
-}
-
-languageSetup['Node.js'] = nodeJS_setup;
-
-function nodeJSInfo() {
-    var jsInfo = javaScriptInfo("Node.js");
-    jsInfo.doWarningEnabling = function(checkbox) {
-        var djs = dialog['Node.js'];
-        var isChecked = checkbox.checked;
-        switch (checkbox) {
-        case djs.lintNodeJS_SpiderMonkey:
-            pref_setElementEnabledState(djs.lintNodeJSEnableWarnings, isChecked);
-            pref_setElementEnabledState(djs.lintNodeJSEnableStrict, isChecked && djs.lintNodeJSEnableWarnings.checked);
-            break;
-        case djs.lintNodeJSEnableWarnings:
-            pref_setElementEnabledState(djs.lintNodeJSEnableStrict, isChecked);
-            break;
-        case djs.lintWithJSLint_NodeJS:
-            pref_setElementEnabledState(djs.jslint_NodeJS_LaunchOptionGetter, isChecked);
-            pref_setElementEnabledState(djs.jslint_NodeJS_Options, isChecked);
-            djs.jslint_NodeJS_PrefsVbox.collapsed = !isChecked;
-            break;
-            
-        case djs.lintWithJSHint_NodeJS:
-            pref_setElementEnabledState(djs.jshint_NodeJS_LaunchOptionGetter, isChecked);
-            pref_setElementEnabledState(djs.jshint_NodeJS_Options, isChecked);
-            djs.jshint_NodeJS_PrefsVbox.collapsed = !isChecked;
-            break;
-        }
-    };
-    return jsInfo;
-}
 
 function perl_setup() {
     if (!('Perl' in dialog)) {

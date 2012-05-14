@@ -32,12 +32,15 @@
         <groupbox id="pref-jshint-groupbox">
             <caption id="pref-jshint-caption" label="&allOptions.label;" />
             <hbox>
-            <button id="pref-jshint-set-strictness-button"
+            <button id="pref-jshint-set-strictness-button-1"
                     label="&setStrictSettings.label;"
                     oncommand="ApplyStrictness();" />
-            <button id="pref-jshint-set-good-parts-button"
+            <button id="pref-jshint-set-good-parts-button-1"
                     label="&setRecommendedSettings.label;"
                     oncommand="ApplyGoodParts();" />
+            <button id="pref-jshint-clear-1"
+                    label="&clear.label;"
+                    oncommand="ClearSettings();" />
             <spacer flex="1" />
             </hbox>
             <grid id="pref-jshint-grid" flex="1">
@@ -58,12 +61,15 @@
                 </textbox>
             </hbox>
             <hbox>
-            <button id="pref-jshint-set-strictness-button"
+            <button id="pref-jshint-set-strictness-button-2"
                     label="&setStrictSettings.label;"
                     oncommand="ApplyStrictness();" />
-            <button id="pref-jshint-set-good-parts-button"
+            <button id="pref-jshint-set-good-parts-button-2"
                     label="&setRecommendedSettings.label;"
                     oncommand="ApplyGoodParts();" />
+            <button id="pref-jshint-clear-2"
+                    label="&clear.label;"
+                    oncommand="ClearSettings();" />
             <spacer flex="1" />
             </hbox>
         </groupbox>

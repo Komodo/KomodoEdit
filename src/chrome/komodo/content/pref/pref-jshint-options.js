@@ -186,16 +186,16 @@ function OK() {
                 newValues[prefName] = widget.checked ? "true" : "false";
             }
         } else if (option.typeName == INT_NAME) {
-            // don't require comma-separating
-            // the filter removes empty strings at either end.
-            currentValue = widget.value.split(/\W+/).filter(function(x) x);
-            if (option.defaultValue !== currentValue) {
-                newValues[prefName] = widget.value;
+            var currentValue = widget.value.replace(/^\s+/, "").replace(/\s+$/, "");
+            if (currentValue && option.defaultValue !== currentValue) {
+                newValues[prefName] = currentValue;
             }
         }
     }
+    // don't require comma-separating
+    // the filter removes empty strings at either end.
     var predef = document.getElementById("pref-jshint-predef");
-    var predefText = predef.value.replace(/^\s+/, "").replace(/\s+$/, "");
+    var predefText = predef.value.split(/\W+/).filter(function(x) x).join(", ");
     if (predefText) {
         newValues.predef = predefText;
     }
@@ -259,7 +259,7 @@ function initOptions() {
                 }
                 comment = null;
                 options.push(new JSLintOption(m[1], INT_NAME,
-                                              gValOptions[name] || "",
+                                              gValOptions[m[1]] || "",
                                               m[2]));
             }
         } else {
@@ -297,6 +297,10 @@ function initOptions() {
                 newItem.setAttribute("id", "jshint-option-widget-" + eltNum);
                 newItem.setAttribute("label", option.comment || "");
                 newItem.setAttribute("prefName", option.name);
+                // Create a closure
+                newItem._ko_clear = (function(currElt) {
+                    return function() { currElt.checked = false; }
+                })(newItem);
                 // remember all values are stringified
                 if (name in currentValues) {
                     newItem.setAttribute('checked', currentValues[name] === "true");
@@ -314,6 +318,10 @@ function initOptions() {
                 newItem.setAttribute("prefName", option.name);
                 newItem.setAttribute("cols", "4");
                 newItem.setAttribute("style", "width: 6em;");
+                // Create a closure
+                newItem._ko_clear = (function(currElt, currOption) {
+                    return function() { currElt.value = currOption.defaultValue; }
+                })(newItem, option);
                 if (name in currentValues) {
                     newItem.setAttribute('value', currentValues[name]);
                 } else {
@@ -367,6 +375,13 @@ function ApplySuggestions(settings, which) {
                 }
             }
         }
+    }
+}
+
+function ClearSettings() {
+    var elt, i;
+    for (i = 1; !!(elt = document.getElementById("jshint-option-widget-" + i)); i += 1) {
+        elt._ko_clear();
     }
 }
 
