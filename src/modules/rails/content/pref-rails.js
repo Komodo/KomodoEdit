@@ -94,7 +94,6 @@ function getCurrentRubyInterpreterPath() {
         }
     }
     var contentFrames = parent.hPrefWindow.contentFrames;
-    var rubyDir, currentRubyPath = null;
     if (rubyPrefFrame in contentFrames) {
         try {
             return contentFrames[rubyPrefFrame].contentDocument.getElementById("rubyDefaultInterpreter").value;
@@ -111,9 +110,11 @@ function OnPreferencePageLoading(prefset) {
      * So look at the Ruby path to figure out where Rails should be.
      */
     var railsPath = widgets.railsLocation.value;
+    var currentRubyPath;
+    var rubyDir;
     var possiblePaths = [];
     if (!railsPath) {
-        var currentRubyPath = getCurrentRubyInterpreterPath();
+        currentRubyPath = getCurrentRubyInterpreterPath();
         if (currentRubyPath) {
             rubyDir = ko.uriparse.dirName(currentRubyPath);
             if (rubyDir) {
