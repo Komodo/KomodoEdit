@@ -166,9 +166,6 @@ def _getChangeNum():
 
 log = logging.getLogger("build")
 
-# The target platform for which Python is being built, e.g. "win32-ix86".
-gPlatform = None  
-
 # Mapping of sys.platform -> support bin directory
 gPlat2BinDir = {
     'win32': os.path.abspath('bin-win32'),
@@ -185,18 +182,9 @@ gPlat2BinDir = {
 
 gConfigFileName = "config.py" # default config file name
 
-# These extensions are now standard in moz 1.9, so remove them from
-# config.
-moz18Only = ['xmlextras', 'pref', 'universalchardet', 'webservices',
-             'transformiix']
-
-
 #---- directory structure globals
 
 gPackagesDir = "packages"
-gMozSrcRepositories = [
-    os.curdir, "crimper:/home/apps/Komodo/support/mozilla-source"]
-
 
 
 #---- internal support stuff
@@ -2198,18 +2186,6 @@ def target_configure_mozilla(argv=["configure_mozilla"]):
 
     # get the moz version
     extensions = config.mozBuildExtensions
-    # XXX FIXME!!!!
-    #if sys.platform == "win32":
-    #    user_appdir = config.mozApp
-    #elif sys.platform == "darwin":
-    #    user_appdir = config.mozApp
-    #else:
-    #    user_appdir = ".%s" % config.mozApp
-    #config.mozconfig += "ac_add_options --with-user-appdir=%s\n"\
-    #                   % (user_appdir, config.komodoVersion)
-    # remove some extensions
-    extensions = [e for e in config.mozBuildExtensions if e not in moz18Only]
-
     config.mozconfig += "ac_add_options --enable-extensions=%s\n"\
                            % ','.join(extensions)
     # Copy in .mozconfig and set MOZCONFIG.
