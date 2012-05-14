@@ -186,7 +186,9 @@ function OK() {
                 newValues[prefName] = widget.checked ? "true" : "false";
             }
         } else if (option.typeName == INT_NAME) {
-            currentValue = widget.value.replace(/^\s+/, "").replace(/\s+$/, "");
+            // don't require comma-separating
+            // the filter removes empty strings at either end.
+            currentValue = widget.value.split(/\W+/).filter(function(x) x);
             if (option.defaultValue !== currentValue) {
                 newValues[prefName] = widget.value;
             }
