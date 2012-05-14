@@ -212,6 +212,8 @@ class KoTclCompileLinter:
         self._platformDir = join(dirname(dirname(os.path.abspath(__file__))),
                                  "platform",
                                  nsXulRuntime.OS)
+        if nsXulRuntime.OS == "Linux":
+            self._platformDir += "_" + os.uname()[4]
         log.debug("Using kotcllint from directory: %r", self._platformDir)
         self._initialize_prefs()
 
@@ -287,6 +289,7 @@ class KoTclCompileLinter:
             env["TCLLIBPATH"] = TCLLIBPATH
 
         cwd = request.cwd or None
+        print 'argv: %r' % (argv, )
         p = process.ProcessOpen(argv, cwd=cwd, env=env)
         lOutput, lErrOut = p.communicate(text)
         lOutput = lOutput.splitlines(1)
