@@ -48,7 +48,7 @@
                 </columns>
                 <rows id="pref-jshint-rows" />
             </grid>
-            <hbox id="pref-jshint-vbox">
+            <hbox id="pref-jshint-vbox" align="center">
                 <label id="pref-jshint-predef-label" value="&predefinedNames.label;" />
                 <textbox id="pref-jshint-predef" flex="1" />
             </hbox>

@@ -247,7 +247,7 @@ function initOptions() {
             }
             name = m[1];
             defaultValue = 'false'; // stringification makes comparison easier.
-            comment = m[2] + ", " + m[3];
+            comment = m[3];
         } else if (!!(m = nextLinePtn.exec(line))) {
             if (isJSHint) {
                 comment += " " + m[1];
@@ -288,6 +288,7 @@ function initOptions() {
         newLabel.setAttribute("value", name);
         newLabel.control = "jshint-option-widget-" + eltNum;
         newRow.appendChild(newLabel);
+        newRow.setAttribute("align", "center");
         switch(option.typeName) {
             case BOOLEAN_NAME:
                 newItem = document.createElement("checkbox");
