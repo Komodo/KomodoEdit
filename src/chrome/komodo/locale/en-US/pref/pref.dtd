@@ -652,7 +652,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!-- pref-jshint-options.xul -->
 <!ENTITY optionsPicker.label "Options Picker">
 <!ENTITY allOptions.label "All Options">
-<!ENTITY predefinedNames.label "Predefined names:">
+<!ENTITY predefinedNames.label "Predefined Globals:">
 <!ENTITY setStrictSettings.label "Set Strict Settings">
 <!ENTITY setRecommendedSettings.label "Set Recommended Settings">
 
