@@ -69,6 +69,20 @@
                       prefwidget="true"
                       prefstring="nodejsExtraPaths"/>
         </groupbox>
+        <groupbox orient="vertical" >
+            <caption label="&javaScriptDebugging.label;" />
+            <label id="js_debug_ask_about_node" value="&switchFromJSToNode.caption;" />
+            <menulist id="debugger_switch_to_nodejs"
+                      pref="true"
+                      prefattribute="data"
+                      prefstrings="donotask_debugger_switch_to_nodejs,donotask_action_debugger_switch_to_nodejs">
+                <menupopup>
+                    <menuitem data="true,Yes" label="&alwaysSwitchToNode.label;" />
+                    <menuitem data="true,No" label="&neverSwitchToNode.label;" />
+                    <menuitem data="false," label="&askToSwitchToNode.label;" />
+                </menupopup>
+            </menulist>
+        </groupbox>
 
     </vbox>
 
