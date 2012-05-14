@@ -1328,11 +1328,11 @@ class CplnTestCase(CodeintelPythonTestCase):
         if self.python_version >= 2.7:
             self.assertCalltipIs(markup_text(content, pos=positions[2]),
                 "S.join(iterable) -> string\nReturn a string which is the "
-                "concatenation of the strings in\nthe iterable.")
+                "concatenation of the strings in the iterable.")
         else:
             self.assertCalltipIs(markup_text(content, pos=positions[2]),
                 "S.join(sequence) -> string\nReturn a string which is the "
-                "concatenation of the strings in\nthe sequence.")
+                "concatenation of the strings in the sequence.")
         self.assertCompletionsInclude(markup_text(content, pos=positions[3]),
             [('function', 'strip'),
              ('function', 'lower'),
