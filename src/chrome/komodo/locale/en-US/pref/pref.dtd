@@ -83,15 +83,12 @@
 <!ENTITY AFullWeekdayName.label "&#37;A : full weekday name">
 <!ENTITY APICatalogs.label "API Catalogs">
 <!ENTITY BFullMonthName.label "&#37;B : full month name">
-<!ENTITY C.accesskey "C">
 <!ENTITY DOSWindowsRN.label "DOS/Windows (\r\n)">
-<!ENTITY E.accesskey "E">
 <!ENTITY FTP.label "FTP">
 <!ENTITY FTPS.label "FTPS">
 <!ENTITY FTP.servermode.label "Mode:">
 <!ENTITY FTP.activemode.label "Active">
 <!ENTITY FTP.passivemode.label "Passive">
-<!ENTITY G.accesskey "G">
 <!ENTITY GET.label "GET">
 <!ENTITY HHour24HourClock.label "&#37;H : hour (24-hour clock)">
 <!ENTITY HTML.label "HTML">
@@ -102,18 +99,15 @@
 <!ENTITY PHP.label "PHP">
 <!ENTITY PHPDirectories.label "PHP Directories">
 <!ENTITY POST.label "POST">
-<!ENTITY S.accesskey "S">
 <!ENTITY SCP.label "SCP">
 <!ENTITY SFTP.label "SFTP">
 <!ENTITY SSecond.label "&#37;S : second">
-<!ENTITY T.accesskey "T">
 <!ENTITY UNIXN.label "UNIX (\n)">
 <!ENTITY URLEncoded.label "URL Encoded">
 <!ENTITY W.accesskey "W">
 <!ENTITY XDefaultTimeRepresentation.label "&#37;X : default time representation">
 <!ENTITY XMLCatalogs.label "XML Catalogs">
 <!ENTITY XSLT.label "XSLT">
-<!ENTITY Y.accesskey "Y">
 <!ENTITY YYearWithCentury.label "&#37;Y : year with century">
 <!ENTITY ZTimeZoneName.label "&#37;Z : time zone name">
 <!ENTITY aAbbreviatedWeekdayName.label "&#37;a : abbreviated weekday name">
@@ -206,7 +200,6 @@
 <!ENTITY detectWhenNetworkFilesAreChangedOutsideTheEnvironment.label "Detect when networked files are changed outside the environment">
 <!ENTITY determineFromContent.label "Determine from content">
 
-<!ENTITY directoryAndPlaceViews.label "Directory and File Filters">
 <!ENTITY directoryImportSettings.label "Settings used for Directory Importing">
 
 <!ENTITY doNotAlertMeIfTheBufferIsUnsavedAndTheFileOnDiskChanged.label "Do not alert me if the buffer is unsaved and the file on disk changed">
@@ -227,7 +220,6 @@
 <!ENTITY editor.label "Editor">
 <!ENTITY enableAutocompleteFillUpCharacters.label "Enable autocomplete fill-up characters">
 <!ENTITY enableAutomaticAutocompleteAndCalltipTriggeringWhileYouType.label "Enable automatic autocomplete and calltip triggering while you type">
-<!ENTITY enableBackgroundSyntaxChecking.label "Enable background syntax checking">
 <!ENTITY enableBackgroundSyntaxCheckingAfter.label "Enable background syntax checking after">
 <!ENTITY enableScrollingPastEndOfBufferOnlyAppliesToNewBuffers.label "Enable scrolling past end of buffer (only applies to new buffers)">
 <!ENTITY enableSoftCharacters.label "Enable soft characters">
@@ -283,9 +275,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY ifNoPathIsGivenTheDefaultPathIsTheCurrentDirectoryAfterLogin.tooltiptext "If no path is given, the default path is the current directory after login.">
 <!ENTITY ifNoPortIsGivenTheDefaultProtocolPortIsUsed.tooltiptext "If no port is given, the default protocol port is used.">
 <!ENTITY ifSearchStringContainsCapitalLetters.label "If search string contains capital letters">
-<!ENTITY importDirectoryStructure.label "Import directory structure">
 <!ENTITY importFromFileSystem.title "Import from File System">
-<!ENTITY importSubdirectoriesRecursively.label "Import Subdirectories Recursively">
 <!ENTITY incrementalSearch.label "Incremental Search">
 <!ENTITY indentStringsAfterParens.label "Force shallow indent at string start">
 <!ENTITY indentToFirstNonEmptyColumn.label "Indent to first non-empty column">
@@ -312,11 +302,8 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY leaveFilenameAlone.label "Leave filename alone">
 <!ENTITY lineCursor.label "Line cursor">
 <!ENTITY lintEOLs.label "Enable checking of mixed end-of-line (EOL) characters">
-<!ENTITY liveImport.label "Live Import">
 <!ENTITY mMonth0112.label "&#37;m : month [01,12]">
 <!ENTITY macClassicR.label "Mac Classic (\r)">
-<!ENTITY makeAFolderPerLanguage.label "Make a folder per language">
-<!ENTITY makeOneFlatList.label "Make one flat list">
 <!ENTITY mappedURIs.label "Mapped URIs">
 <!ENTITY mostRecentlyUsed.label "Most Recently Used">
 <!ENTITY multipart.label "Multipart">
@@ -377,7 +364,6 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY properties.label "Properties">
 <!ENTITY proportional.label "Proportional">
 <!ENTITY pyflakesChecking.label "Pyflakes Checking">
-<!ENTITY pylintChecking.label "Pylint Checking">
 <!ENTITY pylintCheckingStatus.label "Do Pylint Checking">
 <!ENTITY pylintRCFileLocation.label "Location of .pylintrc file to use">
 <!ENTITY pyPython.label ".py: Python">
@@ -393,8 +379,6 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY reloadAllFiles.label "Reload all files">
 <!ENTITY reloadNoFiles.label "Reload no files">
 <!ENTITY remoteAccounts.label "Remote Accounts">
-<!ENTITY remoteSaveWarning.message "Saving through a temporary file is safer, but will break hard links.">
-<!ENTITY remoteSaveViaTempFile.label "Save Remote Files Via Temporary Files.">
 <!ENTITY remove.label "Remove">
 <!ENTITY removeCatalog.label "Remove catalog">
 <!ENTITY requestVariable.label "Request Variable">
@@ -425,7 +409,6 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY signatureBOM.label "Signature (BOM)">
 <!ENTITY signs.label "+/- signs">
 <!ENTITY smartEditing.label "Smart Editing">
-<!ENTITY sourceCodeControlProperties.label "Source Code Control Properties">
 <!ENTITY specifyDefaultProjectFilters.label "Specify the default filters for new projects">
 <!ENTITY specifyTheProjectsActualLocation.label "Project base directory">
 <!ENTITY squareTrees.label "Square trees">
@@ -494,12 +477,8 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY filePerformanceTweakLintSettingLocation.description "Syntax-checking on the current document is controlled in the [Editor|Syntax Checking] preference pane.">
 
 <!--editing-properties.xul-->
-<!ENTITY fileEditingPropertiesWrapLines.label "Wrap long lines by:">
-<!ENTITY fileEditingPropertiesEdgeLine.label "Line edge column">
 
 <!--indent-properties.xul-->
-<!ENTITY fileIndentPropertiesSpacePerIndent.label "Number of spaces per indent">
-<!ENTITY fileIndentPropertiesWhidtTabChar.label "Width of each Tab character">
 
 <!--pref.xul-->
 <!ENTITY webAndBrowser.label "Web &amp; Browser">
@@ -632,7 +611,6 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!--pref-folderimport.xul-->
 <!ENTITY filesToInclude.label "Files to include: (empty means 'all')">
 <!ENTITY filesToExclude.label "Files and directories to exclude: (empty means 'none')">
-<!ENTITY typeFolderStructure.label "Type of folder structure to create:">
 
 <!--pref-html.xul-->
 <!ENTITY syntaxControlHtml.description "Komodo uses Tidy, an HTML syntax checking tool from the W3C, to check for errors in your HTML files.  Here you can set error levels, and the WAI Accessibility Conformance level you wish to support. If you need a deeper level of customization for Tidy, you can customize the way Tidy works by creating a Tidy configuration file. You can find more details on Tidy configuration at the website below.">
@@ -657,10 +635,6 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 
 <!--pref-javascript.xul-->
 <!--pref-project-javascript.xul-->
-<!ENTITY switchFromJSToNode.caption "Switch JS files to Node.js when debugging?">
-<!ENTITY alwaysSwitchToNode.label "Always switch" >
-<!ENTITY neverSwitchToNode.label "Never switch" >
-<!ENTITY askToSwitchToNode.label "Always ask" >
 
 
 <!ENTITY lintJavaScript_SpiderMonkey.label "Check with Mozilla JS (SpiderMonkey)">
@@ -669,7 +643,6 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY javascriptFolder.description "Specify any directories that you want Komodo to use for autocomplete and calltips. Komodo will recursively scan these directories for information.">
 <!ENTITY lintJavaScriptWithJSLint.label "Check Code With JSLint">
 <!ENTITY JSLint.label "JSLint">
-<!ENTITY lintJSLintOptions.label "JSLint Options">
 <!ENTITY lintJSLint_Explanation.descr "Use a format like bitwise=false debug=true maxerr=5 predef=['document','window']">
 <!ENTITY lintJSLint_WebSiteLabel.label "See all allowed options at: ">
 <!ENTITY chooseACustomOrUpdatedJslint.js.label "Choose a custom or updated jslint.js">
@@ -713,7 +686,6 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 
 <!--pref-languages.xul-->
 <!ENTITY languagesSettings.description "Komodo comes with support for a variety of languages. Core editing features are enabled by default for a large set of languages.  For additional configuration of Core languages, select the language in the tree to the left.">
-<!ENTITY filterPrimaryLanguageNames.tooltip "Filter Language Names">
 <!ENTITY languageNames.label "Language names:">
 <!ENTITY languageNames.accesskey "L">
 <!ENTITY primaryLanguage.tooltip "Primary Language">
@@ -769,8 +741,6 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY filePrefPhpInifileDirectory.description "Directory containing php.ini">
 <!ENTITY phpFolder.description "Specify any directories that you want Komodo to use for autocomplete and calltips. Komodo will recursively scan these directories for information.">
 <!ENTITY commentStyle.label "Comment Style:">
-<!ENTITY syntaxCheckWithINIFile.label "Load php.ini during syntax checking:">
-<!ENTITY useINI.accesskey "I">
 
 <!--pref-python.xul-->
 <!ENTITY noPythonInterpreter.description "No Python interpreter was found on your system PATH. If you would like to debug and run Python programs in Komodo you will need to have Python installed and then enter the path to your Python interpreter below. You can get Python from ActiveState at">
@@ -808,16 +778,12 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY printingScaleSizes.label "Scale font sizes from screen to print by">
 
 <!--pref-project.perl.xul-->
-<!ENTITY filePrefProjectPerlAdditionalDirectory.description "Specify any additional directories that you want Komodo to add to the Perl path when debugging, syntax checking or in the interactive shell. Komodo will also scan these directories for Autocompletion and Calltips information.">
 
 <!--pref-project.php.xul-->
-<!ENTITY filePrefProjectPhpAdditionalDirectory.description "Specify any directories that you want Komodo to use for autocomplete and calltips. Komodo will recursively scan these directories for information.">
 
 <!--pref-project.python.xul-->
-<!ENTITY filePrefProjectPythonAdditionalDirectory.description "Specify any additional directories that you want Komodo to add to the Python path when debugging, syntax checking or in the interactive shell. Komodo will also scan these directories for Autocompletion and Calltips information.">
 
 <!--pref-project.ruby.xul-->
-<!ENTITY filePrefProjectRubyAdditionalDirectory.description "Specify any additional directories that you want Komodo to add to the Ruby path when debugging, syntax checking or in the interactive shell. Komodo will also scan these directories for Autocompletion and Calltips information.">
 
 <!--pref-save.xul-->
 <!ENTITY fixWhiteSpace.label "Fix whitespace on save:">

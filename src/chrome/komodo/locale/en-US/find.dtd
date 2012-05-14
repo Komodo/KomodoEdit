@@ -36,16 +36,12 @@
 
 <!ENTITY ABeginningOfTheString.label "\A : beginning of the string">
 <!ENTITY BAnythingBUTTheBeginningOrEndOfAWord.label "\B : anything BUT the beginning or end of a word">
-<!ENTITY D.accesskey "D">
 <!ENTITY DAnyNonDigit.label "\D : any non-digit">
-<!ENTITY I.accesskey "I">
 <!ENTITY PNameTheContentsOfTheGroupOfTheGivenName.label "(?P=name) : the contents of the group of the given name">
 <!ENTITY SAnyNonWhitespaceCharacter.label "\S : any non-whitespace character">
 <!ENTITY WAnyNonAlphanumericCharacter.label "\W : any non-alphanumeric character">
 <!ENTITY ZEndOfTheString.label "\Z : end of the string">
 <!ENTITY aCommentTheContentsAreIgnored.label "(?#...) : a comment, the contents are ignored">
-<!ENTITY allOpenDocuments.label "All open documents">
-<!ENTITY allOpenFiles.label "All open files">
 <!ENTITY anyCharacterExceptANewline.label ". : any character except a newline">
 <!ENTITY bTheBeginningOrEndOfAWord.label "\b : the beginning or end of a word">
 <!ENTITY beginningOfLine.label "^ : beginning of line">
@@ -73,45 +69,29 @@
 <!ENTITY findCloseButton.accesskey "s">
 <!ENTITY findNext.label "Find Next">
 <!ENTITY findNextButton.accesskey "F">
-<!ENTITY findPrevButton.accesskey "P">
 <!ENTITY findPrevious.label "Find Previous">
 <!ENTITY group.label "(...) : group">
 <!ENTITY help.label "Help">
 <!ENTITY helpButton.accesskey "H">
-<!ENTITY ignoreCase.label "Ignore Case">
 <!ENTITY mExactlyMCopiesOfThePrecedingBlock.label "{m} : exactly 'm' copies of the preceding block">
 <!ENTITY mNMToNCopiesOfThePrecedingBlock.label "{m,n} : 'm' to 'n' copies of the preceding block">
 <!ENTITY mNMToNCopiesOfThePrecedingBlockNonGreedy.label "{m,n}? : 'm' to 'n' copies of the preceding block (non-greedy)">
 <!ENTITY markAll.label "Mark All">
-<!ENTITY markAllButton.accesskey "M">
 <!ENTITY multiline.label "Multiline">
 <!ENTITY nonGroupingGroup.label "(?:...) : non-grouping group">
 <!ENTITY numberTheContentsOfTheGroupOfTheGivenNumber.label "\number : the contents of the group of the given number">
 <!ENTITY oneOrMoreOfThePrecedingBlock.label "+ : one or more of the preceding block">
 <!ENTITY oneOrMoreOfThePrecedingBlockNonGreedy.label "+? : one or more of the preceding block (non-greedy)">
-<!ENTITY openInRx.tooltiptext "Open in Rx">
-<!ENTITY optCase.accesskey "c">
-<!ENTITY optMultiline.accesskey "M">
-<!ENTITY optRegex.accesskey "x">
-<!ENTITY optReplace.accesskey "R">
 <!ENTITY options.label "Options">
 <!ENTITY pin.tooltiptext "Pin this window">
-<!ENTITY regularExpr.label "Regular Expr.">
-<!ENTITY regularExpressionShortcuts.tooltiptext "Regular Expression Shortcuts">
 <!ENTITY replace.label "Replace">
 <!ENTITY replaceAll.label "Replace All">
 <!ENTITY replaceAllButton.accesskey "A">
 <!ENTITY replaceButton.accesskey "R">
-<!ENTITY replaceIn.label "Replace in">
-<!ENTITY replacementLabel.accesskey "p">
-<!ENTITY rxButton.accesskey "x">
 <!ENTITY sAnyWhitespaceCharacter.label "\s : any whitespace character">
 <!ENTITY searchIn.label "Search in">
 <!ENTITY searchIn.title "Search In">
-<!ENTITY searchUp.label "Search up">
 <!ENTITY selection.label "Selection">
-<!ENTITY selectionOnly.label "Selection only">
-<!ENTITY showReplaceAllResults.label "Show 'Replace All' Results">
 <!ENTITY theResultOfTheMatchIsNOTAssignedAGroupNumber.tooltiptext "the result of the match is NOT assigned a group number">
 <!ENTITY wAnyAlphanumericCharacter.label "\w : any alphanumeric character">
 <!ENTITY x.accesskey "x">
@@ -130,12 +110,10 @@
 <!ENTITY checkToApplyChanges.tooltiptext "Check to apply changes to this file">
 <!ENTITY showSelectedChanges.label "Show Selected Changes">
 <!ENTITY showSelectedChanges.tooltiptext "Show the changes for the selected paths.">
-<!ENTITY showSelectedChanges.accesskey "l">
 <!ENTITY showMarkedChanges.label "Show Changes">
 <!ENTITY showMarkedChanges.tooltiptext "Show the changes to be made for all paths that have been checked.">
 <!ENTITY showMarkedChanges.accesskey "S">
 <!ENTITY context_menu_check.label "Check">
-<!ENTITY context_menu_diff.label "Diff">
 <!ENTITY context_menu_uncheck.label "Uncheck">
 
 <!--find2.xul-->
@@ -198,8 +176,6 @@
 <!ENTITY findbar.next.tooltiptext "Find the next occurrence">
 <!ENTITY findbar.previous.label "Previous">
 <!ENTITY findbar.previous.tooltiptext "Find the previous occurrence">
-<!ENTITY findbar.word.label "Word">
-<!ENTITY findbar.word.tooltiptext "Match whole words only">
 <!ENTITY findbar.case.insensitive.label "Insensitive">
 <!ENTITY findbar.case.insensitive.tooltiptext "Search case-insensitively">
 <!ENTITY findbar.case.sensitive.label "Sensitive">

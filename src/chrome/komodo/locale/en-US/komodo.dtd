@@ -43,12 +43,10 @@
 <!ENTITY aboutName.accesskey "A">
 <!ENTITY add.label "Add">
 <!ENTITY addAsSnippetInToolbox.label "Add as Snippet into Toolbox">
-<!ENTITY addItemToCurrentProject.tooltiptext "Add Item to current project">
 <!ENTITY browseForDirectoriesToAddToSearchList.tooltiptext "Browse for directories to add to search list">
 <!ENTITY browserPreview.menu.accesskey "B">
 <!ENTITY browserPreview.menu.label "Browser Preview">
 <!ENTITY bugs.label "Bugs">
-<!ENTITY buttonText.label "Button Text">
 <!ENTITY checkForUpdates.label "Check for Updates...">
 <!ENTITY checkSyntaxNow.label "Check syntax now">
 <!ENTITY cleanLineEndings.label "Clean Line Endings">
@@ -212,12 +210,9 @@
 <!ENTITY editorZoomFontSizeDown.desc "Editor: Zoom Font Size Down">
 <!ENTITY editorZoomFontSizeUp.desc "Editor: Zoom Font Size Up">
 <!ENTITY enterNextCharacterAsRawLiteral.label "Enter Next Character as Raw Literal">
-<!ENTITY exchangePositionAndMark.label "Exchange Position and Mark">
 <!ENTITY executeMacro.label "Execute Macro">
-<!ENTITY existingFileS.label "Existing File(s)...">
 <!ENTITY existingFile.label "Existing File...">
 <!ENTITY existingRemoteFile.label "Existing Remote File...">
-<!ENTITY exit.label "Exit">
 <!ENTITY expand.label "Expand">
 <!ENTITY expandAll.label "Expand All">
 <!ENTITY expandRecursively.label "Expand Recursively">
@@ -230,7 +225,6 @@
 <!ENTITY fileEncoding.tooltiptext "File Encoding">
 <!ENTITY filePosition.tooltiptext "File Position">
 <!ENTITY fileType.tooltiptext "File Type">
-<!ENTITY filterSymbols.tooltiptext "Filter Symbols">
 <!ENTITY find.label "Find...">
 <!ENTITY findAllFunctions.label "Find All Functions">
 <!ENTITY findFilter.tooltiptext "Only show matches containing these space-separated words. Use minus '-' at the start of a word to exclude matches.">
@@ -265,13 +259,11 @@
 <!ENTITY folderContextNewLiveFolder.accesskey "L">
 <!ENTITY folderContextNewMacro.accesskey "m">
 <!ENTITY folderContextNewMenu.accesskey "n">
-<!ENTITY folderContextNewShortcut.accesskey ".">
 <!ENTITY folderContextNewSnippet.accesskey "s">
 <!ENTITY folderContextNewTemplate.accesskey "t">
 <!ENTITY folderContextNewToolbar.accesskey "b">
 <!ENTITY folderContextNewURL.accesskey "u">
 <!ENTITY folderContextRemoteFile.accesskey "r">
-<!ENTITY font.label "Font">
 <!ENTITY fullScreen.accesskey "F">
 <!ENTITY fullScreen.label "Full Screen">
 <!ENTITY generalCloseProject.desc "General: Close Project">
@@ -286,7 +278,6 @@
 <!ENTITY generalNewFile.desc "General: New File...">
 <!ENTITY generalNewFileDefaultType.desc "General: New File (default type)">
 <!ENTITY generalNewProject.desc "General: New Project...">
-<!ENTITY generalNewProjectFromTemplate.desc "General: New Project From Template...">
 <!ENTITY generalNewWindow.desc "General: New Window">
 <!ENTITY generalNextFile.desc "General: Next File">
 <!ENTITY generalNextWindow.desc "General: Change to the Next Komodo Window">
@@ -336,8 +327,6 @@
 <!ENTITY help.label "Help">
 <!ENTITY help.tooltiptext "Help">
 <!ENTITY helpAboutKomodo.desc "Help: About Komodo">
-<!ENTITY helpActiveStateProgrammerNetwork.desc "Help: ActiveState Programmer Network">
-<!ENTITY helpActiveStateWebsite.desc "Help: ActiveState Website">
 <!ENTITY helpAlternateHelpOnSelection.desc "Help: Alternate Help on Selection">
 <!ENTITY helpHelp.desc "Help: Help...">
 <!ENTITY helpKomodoBugDatabase.desc "Help: Komodo Bug Database">
@@ -358,7 +347,6 @@
 <!ENTITY helpTroubleshootingAboutMemory.accesskey "M">
 <!ENTITY helpTroubleshootingAboutMemory.label "Memory Usage">
 <!ENTITY importExport.label "Import/Export">
-<!ENTITY importFromFileSystem.label "Import from File System...">
 <!ENTITY importPackage.label "Import Package...">
 <!ENTITY increaseFont.accesskey "I">
 <!ENTITY increaseFont.label "Increase Font Size">
@@ -389,18 +377,15 @@
 <!ENTITY komodoEmailLists.tooltiptext "Komodo Email Lists">
 <!ENTITY komodoMemoryUsage.desc "Utilities: Report of Komodo's Memory Usage">
 <!ENTITY komodoResources.label "Komodo Resources">
-<!ENTITY komodoResourcesToolbar.label "Komodo Resources Toolbar">
 <!ENTITY komodoResourcesToolbar.tooltiptext "Komodo Resources Toolbar">
 <!ENTITY line.label "Line">
 <!ENTITY listKeyBindings.label "List Key Bindings">
-<!ENTITY localFile.label "Local File">
 <!ENTITY macro.label "Macro">
 <!ENTITY macroEndRecording.desc "Macro: End Recording">
 <!ENTITY macroExecuteLastMacro.desc "Macro: Execute Last Macro">
 <!ENTITY macroPauseRecording.desc "Macro: Pause Recording">
 <!ENTITY macroSaveToToolbox.desc "Macro: Save to Toolbox">
 <!ENTITY macroStartResumeRecording.desc "Macro: Start/Resume Recording">
-<!ENTITY macroToolbar.label "Macro Toolbar">
 <!ENTITY macroToolbar.tooltiptext "Macro Toolbar">
 <!ENTITY macros.label "Macros">
 <!ENTITY mailLists.label "Mail Lists">
@@ -433,7 +418,6 @@
 <!ENTITY menuFile.accesskey "F">
 <!ENTITY menuFileNew.accesskey "N">
 <!ENTITY menuFileOpen.accesskey "O">
-<!ENTITY menuFileQuitItem.accesskey "x">
 <!ENTITY menuFind.accesskey "F">
 <!ENTITY menuFindNext.accesskey "N">
 <!ENTITY menuHelpHelp.accesskey "H">
@@ -443,7 +427,6 @@
 <!ENTITY menuMacros.accesskey "M">
 <!ENTITY menuMoveTab.accesskey "M">
 <!ENTITY menuMruFiles.accesskey "F">
-<!ENTITY menuMruProjects.accesskey "t">
 <!ENTITY menuMruWindows.accesskey "w">
 <!ENTITY menuOpenStartPage.accesskey "t">
 <!ENTITY menuPreferences.accesskey "e">
@@ -451,7 +434,6 @@
 <!ENTITY menuPrintPreview.accesskey "e">
 <!ENTITY menuPrintSettings.accesskey "g">
 <!ENTITY menuProject.accesskey "P">
-<!ENTITY menuProjectAdd.accesskey "a">
 <!ENTITY menuReflow.accesskey "R">
 <!ENTITY menuRefreshStatus.accesskey "R">
 <!ENTITY menuReplace.accesskey "R">
@@ -468,19 +450,13 @@
 <!ENTITY menuTools.accesskey "T">
 <!ENTITY menuToolsRecentCommands.accesskey "e">
 <!ENTITY menuToolsRunCommand.accesskey "R">
-<!ENTITY menuTransientMarkExchangeWithPoint.accesskey "E">
-<!ENTITY menuTransientMarkMoveBack.accesskey "M">
-<!ENTITY menuTransientMarkSet.accesskey "T">
 <!ENTITY menuUncomment.accesskey "U">
 <!ENTITY menuUntabify.accesskey "N">
 <!ENTITY menuView.accesskey "V">
 <!ENTITY menuViewToolbarsAutoHide.label "Hide Toolbars">
 <!ENTITY menuWatchThread.accesskey "W">
-<!ENTITY menuWindow.accesskey "W">
 <!ENTITY move.label "Move">
-<!ENTITY moveButton.accesskey "M">
 <!ENTITY moveToOtherTabGroup.label "Move to Split View">
-<!ENTITY moveToPreviousMark.label "Move to Previous Mark">
 <!ENTITY moveTabToNewWindow.label "Move Tab to a New Window">
 <!ENTITY navigation.menu.accesskey "N">
 <!ENTITY navigation.menu.label "Navigation">
@@ -492,13 +468,10 @@
 <!ENTITY newFile.label "New File...">
 <!ENTITY newFileFromTemplate.accesskey "T">
 <!ENTITY newFileFromTemplate.label "File from Template...">
-<!ENTITY newNewFileFromTemplate.label "New File from Template...">
 <!ENTITY newFileUsingDefaultLanguage.tooltiptext "New File Using Default Language">
 <!ENTITY newFolder.label "New Folder...">
 <!ENTITY newFromTemplate.label "New From Template">
-<!ENTITY newLiveFolder.label "New Live Folder...">
 <!ENTITY newMacro.label "New Macro...">
-<!ENTITY newOpenShortcut.label "New Open... Shortcut">
 <!ENTITY newProject.label "New Project...">
 <!ENTITY newProjectFromTemplate.label "New Project From Template...">
 <!ENTITY newSnippet.label "New Snippet...">
@@ -515,7 +488,6 @@
 <!ENTITY openFile.label "Open File">
 <!ENTITY openFile.tooltiptext "Open File">
 <!ENTITY openFind.label "Open/Find">
-<!ENTITY openFindToolbar.label "Open/Find Toolbar">
 <!ENTITY openFindToolbar.tooltiptext "Open / Find Toolbar">
 <!ENTITY openLabel.accesskey "n">
 <!ENTITY openLine.desc "Editor: Open Line">
@@ -525,7 +497,6 @@
 <!ENTITY openThisProject.label "Open Project">
 <!ENTITY openThisProjectInNewWindow.label "Open Project In New Window">
 <!ENTITY openRemoteProject.label "Open Remote Project...">
-<!ENTITY replaceProject.label "Replace Project...">
 <!ENTITY openTabInNewWindow.label "Open Tab in a New Window">
 <!ENTITY openURLInBrowser.label "Open URL In Browser">
 <!ENTITY openURLInTab.label "Open URL In Tab">
@@ -571,7 +542,6 @@
 <!ENTITY quitApplicationCmdWin.label "Exit">
 <!ENTITY quitApplicationCmdWin.accesskey "x">
 <!ENTITY rename.label "Rename...">
-<!ENTITY reImportFromFileSystemWithSameSettings.tooltiptext "Re-import from File System with same settings">
 <!ENTITY reImportFromFileSystemWithTheSameSettings.tooltiptext "Re-Import from File System with the same settings">
 <!ENTITY ready.label "Ready">
 <!ENTITY recentCommands.label "Recent Commands">
@@ -602,18 +572,14 @@
 <!ENTITY save.label "Save">
 <!ENTITY saveAll.label "Save All">
 <!ENTITY saveAllFiles.tooltiptext "Save All Files">
-<!ENTITY saveAs.label "Save As">
 <!ENTITY saveAsDotDotDot.label "Save As...">
-<!ENTITY saveAsLocal.label "Local...">
 <!ENTITY saveAsOther.label "Save As Other">
-<!ENTITY saveAsTemplate.label "Save As Template...">
 <!ENTITY saveFile.label "Save File">
 <!ENTITY saveFile.tooltiptext "Save File">
 <!ENTITY saveLastMacroToToolbox.tooltiptext "Save Last Macro to Toolbox">
 <!ENTITY saveProject.label "Save Project">
 <!ENTITY saveProjectAs.label "Save Project As...">
 <!ENTITY renameProject.label "Rename Project...">
-<!ENTITY saveRemotelyAs.label "Save Remotely As...">
 <!ENTITY saveToToolbox.label "Save to Toolbox">
 <!ENTITY scrollCurrentLineToCenterOfScreen.label "Scroll Current Line to Center of Screen">
 <!ENTITY scrollCurrentLineToTopOfScreen.label "Scroll Current Line to Top of Screen">
@@ -626,7 +592,6 @@
 <!ENTITY selectToMatchingBrace.menu.accesskey "C">
 <!ENTITY selection.label "selection">
 <!ENTITY selectionInformation.tooltiptext "Selection Information">
-<!ENTITY setTransientMark.label "Set Transient Mark">
 <!ENTITY showButtonText.label "Show Button Text">
 <!ENTITY showHideBottomPane.tooltiptext "Show/Hide Bottom Pane">
 <!ENTITY showHideLeftPane.tooltiptext "Show/Hide Left Pane">
@@ -673,7 +638,6 @@
 <!ENTITY sourceCodeUnTabifyRegion.desc "Code: Un-tabify Region...">
 <!ENTITY splitView.label "Split View">
 <!ENTITY standard.label "Standard">
-<!ENTITY standardToolbar.label "Standard Toolbar">
 <!ENTITY standardToolbar.tooltiptext "Standard Toolbar">
 <!ENTITY startPage.label "Start Page">
 <!ENTITY startRecording.label "Start Recording">
@@ -691,18 +655,15 @@
 <!ENTITY thisToolboxIsReadOnly.locktip "This toolbox is read-only.">
 <!ENTITY toggleBookmark.label "Toggle Bookmark">
 <!ENTITY toggleBottom.label "Toggle Bottom">
-<!ENTITY toggleFixedProportionalFonts.label "Toggle Fixed/Proportional Fonts">
 <!ENTITY toggleLeft.label "Toggle Left">
 <!ENTITY toggleRawParsedOutputView.tooltiptext "Toggle Raw/Parsed Output View">
 <!ENTITY toggleRight.label "Toggle Right">
 <!ENTITY toolbars.label "Toolbars">
-<!ENTITY toolbox.label "Toolbox">
 <!ENTITY toolbox2.label "Toolbox">
 <!ENTITY toolboxExportPackage.desc "Toolbox: Export Package">
 <!ENTITY toolboxTab.accesskey "b">
 <!ENTITY tools.label "Tools">
 <!ENTITY toolsRunCommand.desc "Tools: Run Command...">
-<!ENTITY toolsToolbar.label "Tools Toolbar">
 <!ENTITY toolsToolbar.tooltiptext "Tools Toolbar">
 <!ENTITY toolsWatchFile.desc "Tools: Watch File...">
 <!ENTITY tryKomodoIDE.label "Try Komodo IDE">
@@ -725,7 +686,6 @@
 <!ENTITY userInterfaceMoveTabToAnotherTabWindow.desc "User Interface: Move tab to another tab window">
 <!ENTITY userInterfaceMoveTabToANewWindow.desc "User Interface: Move tab to a new window">
 <!ENTITY userInterfaceOpenTabInANewWindow.desc "User Interface: Open tab in a new window">
-<!ENTITY userInterfaceShowHideCodeBrowserTab.desc "User Interface: Show/Hide Code Browser Tab">
 <!ENTITY userInterfaceShowHideEndOfLines.desc "User Interface: Show/Hide End of Lines">
 <!ENTITY userInterfaceShowHideKomodoResourcesToolbar.desc "User Interface: Show/Hide Komodo Resources Toolbar">
 <!ENTITY userInterfaceShowHideMacrosToolbar.desc "User Interface: Show/Hide Macros Toolbar">
@@ -758,11 +718,9 @@
 <!ENTITY viewWhitespace.accesskey "H">
 <!ENTITY viewWhitespace.label "View Whitespace">
 <!ENTITY watchFile.label "Watch File...">
-<!ENTITY window.label "Window">
 <!ENTITY wordWrap.accesskey "W">
 <!ENTITY wordWrap.label "Word Wrap">
 <!ENTITY workspace.label "Workspace">
-<!ENTITY workspaceToolbar.label "Workspace Toolbar">
 <!ENTITY workspaceToolbar.tooltiptext "Workspace Toolbar">
 
 <!ENTITY helpForLanguages.label "Help for Languages">
@@ -800,12 +758,9 @@
 <!ENTITY XSLTReferenceWeb.label "XSLT Reference (Web)">
 
 <!--about.dtd-->
-<!ENTITY buildInformation.label "Build Information:">
 
 <!--komodo.xul-->
 <!ENTITY projectPanelName.label "Name">
-<!ENTITY sortBy.label "Sort By">
-<!ENTITY sortBy_menu.accesskey "R">
 <!ENTITY lockUnlockFindResults.tooltiptext "Lock/Unlock Find Results">
 <!ENTITY komodoFindToolbarFind.label "Find">
 <!ENTITY komodoFindToolbarOpen.label "Open">

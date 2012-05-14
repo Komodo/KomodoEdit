@@ -54,7 +54,6 @@
 <!ENTITY changeIcon.label "Change Icon...">
 <!ENTITY dDirectoryBaseNameOfFile.label "[[&#37;d]]: directory base name of file">
 <!ENTITY dateCurrentDate.label "[[&#37;date]]: Current date">
-<!ENTITY directoryFilter.label "Directory Filter">
 <!ENTITY fFileBaseName.label "[[&#37;f]]: file base name">
 <!ENTITY general.label "General">
 <!ENTITY guidANewGUID.label "[[&#37;guid]]: A new GUID">
@@ -64,7 +63,6 @@
 <!ENTITY javaScript.label "JavaScript">
 <!ENTITY k.accesskey "k">
 <!ENTITY keyBinding.label "Key Binding">
-<!ENTITY locally.label "Locally...">
 <!ENTITY m.accesskey "m">
 <!ENTITY macro.label "Macro">
 <!ENTITY macroShouldTriggerOnAKomodoEvent.label "Macro should trigger on a Komodo event">
@@ -81,7 +79,6 @@
 <!ENTITY properties.label "Properties">
 <!ENTITY python.accesskey "p">
 <!ENTITY python.label "Python">
-<!ENTITY remotely.label "Remotely...">
 <!ENTITY renameItem.title "Rename Item">
 <!ENTITY reset.label "Reset">
 <!ENTITY reseticon.accesskey "t">
@@ -91,7 +88,6 @@
 <!ENTITY shortcuts.tooltiptext "Shortcuts">
 <!ENTITY snippet.label "Snippet">
 <!ENTITY snippetTab.accesskey "n">
-<!ENTITY specifyFilesToAddIntoTheCurrentProject.label "Specify files to add into the current project">
 <!ENTITY tabstopTabStopReplace.label "[[&#37;tabstop]]: Tab Stop/Replace">
 <!ENTITY triggerPostopen.accesskey "o">
 <!ENTITY triggerPreclose.accesskey "c">

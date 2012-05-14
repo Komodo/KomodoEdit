@@ -34,10 +34,6 @@
  
  ***** END LICENSE BLOCK ***** -->
 
-<!ENTITY D.accesskey "D">
-<!ENTITY addTheNewFileToYourCurrentProject.tooltiptext "Add the new file to your current project">
-<!ENTITY addToCurrentProject.label "Add to Current Project">
-<!ENTITY addToProject.accesskey "P">
 <!ENTITY g.accesskey "g">
 <!ENTITY local.label "Local...">
 <!ENTITY localFileDir.accesskey "L">

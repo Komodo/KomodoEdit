@@ -39,7 +39,6 @@
 <!ENTITY LCurrentLineNumber.label "[[&#37;L]] : current line number">
 <!ENTITY PPathOfTheActiveProject.label "[[&#37;P]]: path of the active project">
 <!ENTITY SURLEscapedSelection.label "[[&#37;S]] : URL-escaped selection">
-<!ENTITY U.accesskey "U">
 <!ENTITY URIMapping.title "URI Mapping">
 <!ENTITY URI.label "URI:">
 <!ENTITY WURLEscapedSelectionOrWordUnderCursor.label "[[&#37;W]] : URL-escaped selection or word under cursor">

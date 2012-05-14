@@ -38,7 +38,6 @@
 <!ENTITY FFilePath.label "&#37;F : file path">
 <!ENTITY LCurrentLineNumber.label "&#37;L : current line number">
 <!ENTITY PPathOfTheActiveProject.label "&#37;P : path of the active project">
-<!ENTITY S.accesskey "S">
 <!ENTITY SURLEscapedSelection.label "&#37;S : URL-escaped selection">
 <!ENTITY WURLEscapedSelectionOrWordUnderCursor.label "&#37;W : URL-escaped selection or word under cursor">
 <!ENTITY addToToolbox.label "Add to Toolbox">
