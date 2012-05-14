@@ -35,7 +35,6 @@
  * ***** END LICENSE BLOCK ***** */
 
 //---- globals
-var _findingInterps = false;
 var dialog;
 var wishExecutable = null;
 var tclExecutable = null;
@@ -47,7 +46,7 @@ function PrefTcl_OnLoad()
 {
     try {
         dialog = {};
-        // This ensures all of our preferences get loaded correctly.
+
         if (parent.hPrefWindow.prefset.hasStringPref('tclshDefaultInterpreter') &&
             parent.hPrefWindow.prefset.getStringPref('tclshDefaultInterpreter')) {
             tclExecutable = parent.hPrefWindow.prefset.getStringPref('tclshDefaultInterpreter');
@@ -68,7 +67,6 @@ function PrefTcl_OnLoad()
             parent.hPrefWindow.prefset.setStringPref('tclExtraPaths', '');
         }
 
-        _findingInterps = true;
         PrefTcl_InsertFindingMessage(document.getElementById("wishDefaultInterpreter"));
         PrefTcl_InsertFindingMessage(document.getElementById("tclshDefaultInterpreter"));
         PrefTcl_PopulateTclInterps();
@@ -80,10 +78,10 @@ function PrefTcl_OnLoad()
 }
 
 function OnPreferencePageLoading() {
-    var extraPaths = document.getElementById("tclExtraPaths");
-    extraPaths.init();
     var file = getOwningFileObject();
     if (file && file.dirName) {
+        var extraPaths = document.getElementById("tclExtraPaths");
+        extraPaths.init();
         extraPaths.setCwd(file.dirName)
     }
 }
@@ -125,19 +123,19 @@ function PrefTcl_PopulateTclInterps()
     var unlicensedInstalls = Array();
 
     for (var i = 0; i < availInterps.length; ++i){
-        tclInfoEx.installationPath = availInterps[i]
-        if (tclInfoEx.tclsh_path && os.path.exists(tclInfoEx.tclsh_path)) {
-            licensedTclsh.push(tclInfoEx.tclsh_path)
+        tclInfoEx.installationPath = availInterps[i];
+        var tclsh_path = tclInfoEx.tclsh_path;
+        if (os.path.exists(tclsh_path) && licensedTclsh.indexOf(tclsh_path) == -1) {
+            licensedTclsh.push(tclsh_path)
         }
-        if (tclInfoEx.wish_path && os.path.exists(tclInfoEx.wish_path)) {
-            licensedWish.push(tclInfoEx.wish_path)
+        var wish_path = tclInfoEx.wish_path;
+        if (os.path.exists(wish_path) && licensedWish.indexOf(wish_path) == -1) {
+            licensedWish.push(wish_path)
         }
     }
 
     PrefTcl_PopulateTclshInterps(licensedTclsh);
     PrefTcl_PopulateWishInterps(licensedWish);
-
-    _findingInterps = false;
 }
 
 function PrefTcl_InsertFindingMessage(availInterpList)
