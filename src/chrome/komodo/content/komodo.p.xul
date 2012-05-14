@@ -970,6 +970,7 @@
                                       />
                             <menuitem id="menu_goToDefinition"
                                       label="&goToDefinition.label;"
+                                      accesskey="&goToDefinition.accesskey;"
                                       observes="cmd_goToDefinition"/>
                             <menuitem label="&jumpToMatchingBrace.label;"
                                       id="menu_jumpToMatchingBrace"
