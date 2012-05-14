@@ -79,13 +79,13 @@ class TestURIParser(unittest.TestCase):
         filelist.append(['file:///C:/Documents%20and%20Settings/shanec/Application%20Data/ActiveState/Komodo/2.4/toolbox.kpf',  # uri
                          r'C:\Documents and Settings\shanec\Application Data\ActiveState\Komodo\2.4\toolbox.kpf',  # path
                          'toolbox.kpf',  # baseName
-                         r'C:\Documents and Settings\shanec\Application Data\ActiveState\Komodo\2.4'  # dirName
+                         r'C:\Documents and Settings\shanec\Application Data\ActiveState\Komodo\2.4',  # dirName
                          'file://',  # prePath
                          ])
         filelist.append(['file:///C:/Program%20Files/Microsoft%20Visual%20Studio/VC98/Include/WINUSER.H',  # uri
                          r'C:\Program Files\Microsoft Visual Studio\VC98\Include\WINUSER.H',  # path
                          'WINUSER.H',  # baseName
-                         r'C:\Program Files\Microsoft Visual Studio\VC98\Include'  # dirName
+                         r'C:\Program Files\Microsoft Visual Studio\VC98\Include',  # dirName
                          'file://',  # prePath
                          ])
     
