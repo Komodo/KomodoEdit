@@ -286,7 +286,12 @@ function enableDevOptions() {
         moz_user_pref("javascript.options.strict", true);
         moz_user_pref("javascript.options.showInConsole", true);
         moz_user_pref("layout.css.report_errors", true);
-        
+
+        // Ensure caches and fast load are invalidated on the next restart.
+        var nsXulAppInfo = Components.classes["@mozilla.org/xre/app-info;1"].getService(Components.interfaces.nsIXULAppInfo);
+        var nsXulRuntime = nsXulAppInfo.QueryInterface(Components.interfaces.nsIXULRuntime);
+        nsXulRuntime.invalidateCachesOnRestart();
+
         // get all console messages and dump them, then hook up the
         // console listener so we can dump console messages
         var cs = Components.classes['@mozilla.org/consoleservice;1'].getService(Components.interfaces.nsIConsoleService);
