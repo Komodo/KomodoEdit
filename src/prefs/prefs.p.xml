@@ -163,6 +163,15 @@
   <boolean id="lint_coffee_script">1</boolean>
 
   <!-- JavaScript linting options -->
+  <!-- Note that all Node.js files use the JS linter options.  If they didn't,
+       switching a file's language from JS to Node would lose its doc-specific
+       syntax-checking options, and people using jslint/jshint are likely to
+       end up with many doc-specific options.
+       
+       Also note that Komodo will automatically add a node=true option to
+       jshint or jslint when linting a Node.js file.  User can override by
+       putting 'node=false' in the options box.
+  -->
   <boolean id="lintJavaScriptEnableWarnings">1</boolean>
   <boolean id="lintJavaScriptEnableStrict">1</boolean>
   <boolean id="lintJavaScript_SpiderMonkey">1</boolean>
