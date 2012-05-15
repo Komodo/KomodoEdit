@@ -1902,7 +1902,7 @@ class CplnTestCase(CodeintelPythonTestCase):
             self.assertCompletionsInclude(markup_text(content, pos=positions[pos]),
                     # re pattern object completions
                     [('function', 'findall'),
-                     ('variable', 'flags'),
+                     #('variable', 'flags'),   # Some interpreters don't expose flags.
                      ('function', 'match'),
                      ('function', 'search')])
         for pos in (2, 7, 8, 14, 15):
@@ -1923,8 +1923,8 @@ class CplnTestCase(CodeintelPythonTestCase):
                     [('function', 'end'),
                      ('function', 'group'),
                      ('function', 'groups'),
-                     ('variable', 'lastgroup'),
-                     ('variable', 'pos'),
+                     #('variable', 'lastgroup'), # Some interpreters don't expose lastgroup
+                     #('variable', 'pos'),       # Some interpreters don't expose pos
                      ('function', 'start')])
 
 class OldCodeIntelTestCase(CodeIntelTestCase):
