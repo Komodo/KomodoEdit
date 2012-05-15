@@ -89,7 +89,7 @@ function PrefPhp_PopulatePHPInterps()
 
     // get a list of installed PHP interpreters
     var numFound = new Object();
-    availInterps = phpAppInfoEx.FindInstallationExecutables(numFound);
+    availInterps = phpAppInfoEx.FindExecutables(numFound);
 
     availInterpList.removeAllItems();
     availInterpList.appendItem(_bundle.GetStringFromName("findOnPath.label"),'');

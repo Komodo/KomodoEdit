@@ -63,7 +63,7 @@ function PrefRuby_PopulateRubyInterps()
 
     // get a list of installed Ruby interpreters
     var numFound = new Object();
-    var availInterps = appInfoEx.FindInstallationExecutables(numFound);
+    var availInterps = appInfoEx.FindExecutables(numFound);
     availInterpList.removeAllItems();
     availInterpList.appendItem(_bundle.GetStringFromName("findOnPath.label"),'');
 
@@ -93,7 +93,7 @@ function PrefRuby_checkVersion()
     var availInterpList = document.getElementById('rubyDefaultInterpreter');
     var interpreter = availInterpList.value;
     var numFound = new Object();
-    var availInterps = appInfoEx.FindInstallationExecutables(numFound);
+    var availInterps = appInfoEx.FindExecutables(numFound);
     if (availInterpList.selectedItem && typeof(availInterpList.selectedItem.value) != 'undefined') {
         interpreter = availInterpList.selectedItem.value;
     }
@@ -112,7 +112,7 @@ function PrefRuby_checkVersion()
 function PrefRuby_OnLoad()
 {
     appInfoEx = Components.classes["@activestate.com/koAppInfoEx?app=Ruby;1"].
-            createInstance(Components.interfaces.koIRubyInfoEx);
+            createInstance(Components.interfaces.koIAppInfoEx);
     if (parent.hPrefWindow.prefset.hasStringPref('rubyDefaultInterpreter') &&
         parent.hPrefWindow.prefset.getStringPref('rubyDefaultInterpreter'))
         prefExecutable = parent.hPrefWindow.prefset.getStringPref('rubyDefaultInterpreter');
