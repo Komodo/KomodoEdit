@@ -752,6 +752,9 @@ class KoTclInfoEx(KoAppInfoEx):
             return 0
             
     def get_tclsh_path(self):
+        exe = self.prefService.prefs.getStringPref("tclshDefaultInterpreter")
+        if exe and os.path.exists(exe):
+            return exe
         if not self.installationPath and not self.selectDefault():
             return None
         exe = os.path.join(self.installationPath, "bin",
@@ -761,6 +764,9 @@ class KoTclInfoEx(KoAppInfoEx):
         return None
         
     def get_wish_path(self):
+        exe = self.prefService.prefs.getStringPref("wishDefaultInterpreter")
+        if exe and os.path.exists(exe):
+            return exe
         if not self.installationPath and not self.selectDefault():
             return None
         exe = os.path.join(self.installationPath, "bin",
