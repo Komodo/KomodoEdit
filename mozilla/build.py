@@ -122,6 +122,7 @@ import pprint
 import time
 import glob
 import urllib
+import urllib2
 import string
 import types
 import logging
@@ -2050,38 +2051,36 @@ def target_src(argv=["src"]):
         os.makedirs(buildDir)
 
     if mozSrcType == "hg":
+        import sys
+        supportDir = os.path.abspath("support")
+        try:
+            sys.path.append(supportDir)
+            from get_mozilla_tree import getTreeFromVersion, getRepoFromTree, fixRemoteRepo
+        finally:
+            sys.path.remove(supportDir)
         hgTag = config.mozSrcHgTag
-        if config.mozVer <= 2.00:
-            repo_url = "http://hg.mozilla.org/releases/mozilla-2.0/"
-        elif config.mozVer <= 5.00:
-            repo_url = "http://hg.mozilla.org/releases/mozilla-release/"
-            if not hgTag:
-                hgTag = "FIREFOX_5_0_1_RELEASE"
-        elif config.mozVer <= 6.00:
-            repo_url = "http://hg.mozilla.org/releases/mozilla-release/"
-            if not hgTag:
-                hgTag = "FIREFOX_6_0_2_RELEASE"
-        elif config.mozVer <= 7.00:
-            repo_url = "http://hg.mozilla.org/releases/mozilla-release/"
-            if not hgTag:
-                hgTag = "FIREFOX_7_0_1_RELEASE"
-        elif config.mozVer <= 8.00:
-            repo_url = "http://hg.mozilla.org/releases/mozilla-release/"
-            if not hgTag:
-                hgTag = "FIREFOX_8_0_0_RELEASE"
-            repo_url = "http://hg.mozilla.org/releases/mozilla-release/"
-        elif config.mozVer <= 9.00:
-            repo_url = "http://hg.mozilla.org/releases/mozilla-beta/"
-        elif config.mozVer <= 10.00:
-            repo_url = "http://hg.mozilla.org/releases/mozilla-aurora/"
-        else:
-            repo_url = "http://hg.mozilla.org/mozilla-central/"
-        revision_arg = ""
+        treeName, hgTag = getTreeFromVersion(hgTag)
+        repoURL = getRepoFromTree(treeName)
+        hgRepo = os.path.join(buildDir, "mozilla")
+        bundleFile = os.path.abspath("%s.hg" % (treeName,))
+        try:
+            bundleURL = "http://komodo.nas.activestate.com/build-support/mozilla-build/%s.hg" % (treeName,)
+            # check that the URL can be opened (not 404, etc.) We don't need to read it.
+            urllib2.urlopen(bundleURL, None, 10).close()
+        except IOError:
+            # assume we're not in ActiveState's internal network and can't get
+            # access to the local mirror; use the canonical mozilla.org server
+            log.info("Failed to reach ActiveState internal mercurial mirror, "
+                     "using Mozilla canonical server")
+            bundleURL = "http://ftp.mozilla.org/pub/mozilla.org/firefox/bundles/%s.hg" % (treeName,)
+        _run("wget -t 5 -T 30 --progress=dot:mega -O %s %s" % (bundleFile, bundleURL), log.info)
+        _run("hg init %s" % (hgRepo,), log.info)
+        _run("hg --cwd %s unbundle %s" % (hgRepo, bundleFile), log.info)
+        os.unlink(bundleFile)
+        fixRemoteRepo(treeName, hgRepo)
+        _run("hg --cwd %s pull" % (hgRepo,), log.info)
         if hgTag:
-            revision_arg = "--rev=%s" % (hgTag)
-        cmds = ["cd %s" % buildDir,
-                "hg clone %s %s mozilla" % (revision_arg, repo_url, )]
-        _run(" && ".join(cmds), log.info)
+            _run("hg --cwd %s up --rev %s" % (hgRepo, hgTag), log.info)
 
     elif mozSrcType == "tarball":
         _extract_tarball(tarballLocalPath, buildDir)
