@@ -179,23 +179,6 @@
   <boolean id="lintWithJSHint">false</boolean>
   <string id="jshintOptions"></string>
 
-  <!-- NodeJS linting options -->
-  <boolean id="lintNodeJSEnableWarnings">1</boolean>
-  <boolean id="lintNodeJSEnableStrict">1</boolean>
-  <boolean id="lintNodeJS_SpiderMonkey">1</boolean>
-  <string id="jshint_NodeJS_Options"></string>
-  <!-- JSLint linting options -->
-  <boolean id="lintWithJSLint_NodeJS">false</boolean>
-  <boolean id="lintWithJSHint_NodeJS">false</boolean>
-  <string id="jslint_NodeJS_Options"></string>
-  <string id="jslint_NodeJS_linter_chooser"></string>
-  <string id="jslint_NodeJS_linter_specific"></string>
-  <string id="jshint_NodeJS_Options"></string>
-  <string id="jshint_NodeJS_linter_chooser"></string>
-  <string id="jshint_NodeJS_linter_specific"></string>
-
-  <!-- jshint currently not available for NodeJS -->
-
   <!-- HTML linters -->
   <boolean id="lintHTMLTidy">true</boolean>
   <boolean id="lintHTML5Lib">false</boolean>
