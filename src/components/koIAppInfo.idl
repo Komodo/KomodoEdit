@@ -37,11 +37,22 @@
 #include "nsISupports.idl"
 #include "koIDocument.idl"
 
-// This allows for querying of
-// information on a particular installation of an application.
+/**
+ * This allows for querying of information on a particular installation of an
+ * application.
+ *
+ * Application information (like executable paths and version information) will
+ * be cached for each instance.
+ */
 [scriptable, uuid(61a45a55-0cb0-4019-b1a7-8096ab2cca88)]
 interface koIAppInfoEx : nsISupports {
-    // Query for a list of found installations of this application.
+    // Query for a list of found installation executables for this application.
+    void FindExecutables(out PRUint32 count,
+                         [retval, array, size_is(count)] out wstring strs);
+
+    // Query for a list of found installation paths for this application. These
+    // are the installation directories for the paths found by
+    // FindExecutables, typically the parent directories.
     void FindInstallationPaths(out PRUint32 count,
                                [retval,
                                 array,
@@ -49,6 +60,9 @@ interface koIAppInfoEx : nsISupports {
     // Given the path to an interpreter binary, return the
     // path of the installation
     wstring getInstallationPathFromBinary(in wstring binaryPath);
+
+    // Resets any cached information.
+    void reset();
 
     // The specific installation path for which the other attributes
     // apply to. It may be required for this to be set for certain
@@ -74,14 +88,20 @@ interface koIAppInfoEx : nsISupports {
     attribute wstring localHelpFile;
     // Web URL to main help file (null if none)
     attribute wstring webHelpURL;
+    
+    // Return true if the language's current installation has the given modules.
+    boolean haveModules(in PRUint32 count,
+                        [array, size_is(count)] in wstring modules);
+
+    // A few methods from several of the subclasses should go here:
+    wstring getVersionForBinary(in wstring binaryPath);
+    
+    // determines if php is 4.0.5 or later
+    readonly attribute boolean valid_version;
 };
 
 [scriptable, uuid(3E2D6B06-3488-4069-B471-2510DE0109C2)]
 interface koIPerlInfoEx : koIAppInfoEx {
-    // Return true if the current Perl installation has the given modules.
-    boolean haveModules(in PRUint32 count,
-                        [array, size_is(count)] in wstring modules);
-    wstring getVersionForBinary(in wstring binaryPath);
     boolean isPerlCriticInstalled(in boolean forceCheck);
     double getPerlCriticVersion();
 };
@@ -99,11 +119,6 @@ interface koIPHPInfoEx : koIAppInfoEx {
     readonly attribute wstring cliExecutable;
     readonly attribute wstring cgiExecutable;
 
-    void FindInstallationExecutables(out PRUint32 count,
-                               [retval,
-                                array,
-                                size_is(count)] out wstring strs);
-
     // Configuration items of interest.
     // where php looks for included files
     readonly attribute wstring include_path;
@@ -113,21 +128,10 @@ interface koIPHPInfoEx : koIAppInfoEx {
                               size_is(count)] out wstring strs);
     // where activedebug extension is located
     readonly attribute wstring extension_dir;
-    // determines if php is 4.0.5 or later
-    readonly attribute boolean valid_version;
     // True if the ActiveState debugging extension is loadable.
     readonly attribute boolean isDebuggerExtensionLoadable;
     
     wstring autoConfigureDebugger();
-};
-
-[scriptable, uuid(6e94fcbf-4e62-11db-9b45-000d935d3368)]
-interface koIRubyInfoEx : koIAppInfoEx {
-    readonly attribute boolean valid_version;
-    void FindInstallationExecutables(out PRUint32 count,
-                               [retval,
-                                array,
-                                size_is(count)] out wstring strs);
 };
 
 [scriptable, uuid(7f582dbf-b88a-407e-a3b5-726b3e766afa)]

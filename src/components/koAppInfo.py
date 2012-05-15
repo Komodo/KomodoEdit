@@ -50,15 +50,27 @@ log = logging.getLogger('koAppInfo')
 
 #---- components
 class KoAppInfoEx:
+
+    _com_interfaces_ = [components.interfaces.koIAppInfoEx,
+                        components.interfaces.nsIObserver]
+
+    # Class variables.
+    exenames = []  # List of possible executable names.
+    defaultInterpreterPrefName = ''
+    haveLicense = 0
+    buildNumber = 0
+    localHelpFile = ''
+    webHelpURL = ''
+    installed = 0
+    _configPath = ''
+    _executables = None
+    # The installationPath and executablePath can be used to manually override
+    # the executables found and used by the AppInfo classes. Setting these will
+    # manually inject the path as the first postition in the _executables list.
+    _installationPath = ''
+    _executablePath = ''
+
     def __init__(self):
-        self.installationPath = ''
-        self.executablePath = ''
-        self.haveLicense = 0
-        self.buildNumber = 0
-        self.localHelpFile = ''
-        self.webHelpURL = ''
-        self._configPath = ''
-        self.installed = 0
 
         self._prefSvc = components.classes["@activestate.com/koPrefService;1"].\
             getService(components.interfaces.koIPrefService)
@@ -66,98 +78,189 @@ class KoAppInfoEx:
             components.interfaces.koIPrefService, self._prefSvc,
             PROXY_ALWAYS | PROXY_SYNC)
 
-        
-    def FindInstallationPaths(self):
-        return []
-    
-    def getInstallationPathFromBinary(self, binaryPath):
-        return ''
-    
-    def set_installationPath(self, path):
-        self.installationPath = path
-        self.executablePath = ''
-    
-    # pulled over from koIInterpreterLanguageService for BC
-    def get_interpreterPath(self):
-        return self.get_executablePath()
-    
-    # pulled over from koIInterpreterLanguageService for BC
-    def get_includePath(self):
-        return self._configPath
+        self._userPath = koprocessutils.getUserEnv()["PATH"].split(os.pathsep)
 
-    def get_executable_from_doc_pref(self, koDoc, prefName):
+        try:
+            self._prefSvc.prefs.prefObserverService.addObserver(self, self.defaultInterpreterPrefName, 0)
+        except Exception, e:
+            log.warn("Unable to listen for preference change for: %r",
+                     self.defaultInterpreterPrefName)
+
+    def observe(self, subject, topic, data):
+        if topic == self.defaultInterpreterPrefName:
+            self.reset()
+
+    def reset(self):
+        self._installationPath = ''
+        self._executablePath = ''
+        self._executables = None
+
+    def haveModules(self, _):
+        raise ServerException(nsError.NS_ERROR_NOT_IMPLEMENTED)
+
+    # Unimplemented base stubs - to be implemented by the AppInfo class.
+    def getVersionForBinary(self, exe):
+        raise ServerException(nsError.NS_ERROR_NOT_IMPLEMENTED)
+    def get_buildNumber(self):
+        raise ServerException(nsError.NS_ERROR_NOT_IMPLEMENTED)
+    def get_localHelpFile(self):
+        raise ServerException(nsError.NS_ERROR_NOT_IMPLEMENTED)
+    def get_webHelpURL(self):
+        raise ServerException(nsError.NS_ERROR_NOT_IMPLEMENTED)
+
+    def get_installationPath(self):
+        if self._installationPath:
+            # Return the manually set path.
+            return self._installationPath
+        # Else, go and look for it from prefs or on the system.
+        installPaths = self.FindInstallationPaths()
+        if installPaths:
+            return installPaths[0]
+        return ''
+
+    def set_installationPath(self, path):
+        if not os.path.isdir(path):
+            log.warn("_installationPath should be a directory, but was: %r",
+                     path)
+            path = os.path.dirname(path)
+        exepath = ""
+        for installpath in (path, os.path.join(path, "bin")):
+            for exename in self.exenames:
+                if os.path.exists(os.path.join(installpath, exename)):
+                    exepath = os.path.join(installpath, exename)
+                    self.set_executablePath(exepath)
+                    break
+            if exepath:
+                break
+
+        # Reset the executable path as well.
+        self.set_executablePath('')
+        self._installationPath = path
+
+    def get_executablePath(self):
+        if self._executablePath:
+            # Return the manually set path.
+            return self._executablePath
+        # Else, go and look for it from prefs or on the system.
+        executables = self.FindExecutables()
+        if executables:
+            return executables[0]
+        return ''
+
+    def set_executablePath(self, path):
+        # Remove any previous manually set executable.
+        if self._executablePath and \
+           self._executables and self._executables[0] == self._executablePath:
+            self._executables = self._executables[1:]
+
+        path = path or ''  # Ensure it's always a string (not None)
+        self._executablePath = path
+        self._installationPath = ''
+        self._executables = self.FindExecutables()
+        if path:
+            self._executables.insert(0, path)
+
+    def get_version(self):
+        return self.getVersionForBinary(self.get_executablePath())
+
+    def get_valid_version(self):
+        """Return if the version is valid for Komodo usage."""
+        # Class may optionally set a minVersionSupported and maxVersionTuple that
+        # will be used to perform this check.
+        if not hasattr(self, "minVersionSupported"):
+            raise ServerException(nsError.NS_ERROR_NOT_IMPLEMENTED)
+        exe = self.get_executablePath()
+        if not exe:
+            return False
+        try:
+            ver = self.getVersionForBinary(exe)
+            versionParts = split_short_ver(ver, intify=True)
+            if tuple(versionParts) < self.minVersionSupported:
+                return False
+            if hasattr(self, "maxVersionTuple"):
+                if tuple(versionParts) > self.maxVersionTuple:
+                    return False
+            return True
+        except AttributeError:
+            return False
+        except ServerException, ex:
+            if ex.errno != nsError.NS_ERROR_FILE_NOT_FOUND:
+                raise
+        return False
+
+    def getExecutableFromDocument(self, koDoc):
         prefset = koDoc.getEffectivePrefs()
-        if prefset.hasPref(prefName):
-            interpPath = prefset.getStringPref(prefName)
+        if prefset.hasPref(self.defaultInterpreterPrefName):
+            interpPath = prefset.getStringPref(self.defaultInterpreterPrefName)
             if interpPath and os.path.exists(interpPath):
                 return interpPath
         return self.get_executablePath()
 
+    def _locateExecutables(self, exeName, interpreterPrefName=None, exts=None, paths=None):
+        if exts is None and sys.platform.startswith('win'):
+            exts = ['.exe']
+        if paths is None:
+            paths = self._userPath
+        executables = which.whichall(exeName, exts=exts, path=paths)
+        if interpreterPrefName:
+            prefs = self.prefService.prefs
+            if prefs.hasStringPref(interpreterPrefName):
+                prefexe = prefs.getStringPref(interpreterPrefName)
+                if prefexe not in executables and os.path.exists(prefexe):
+                    # The user chosen interpreter is always first!
+                    executables.insert(0, prefexe)
+        return executables
+
+    def FindExecutables(self):
+        if self._executables is None:
+            self._executables = []
+            for count, exename in enumerate(self.exenames):
+                if count == 0:
+                    # First time around, include the configured interpreter.
+                    self._executables += self._locateExecutables(exename, self.defaultInterpreterPrefName)
+                else:
+                    self._executables += self._locateExecutables(exename)
+        return self._executables
+
+    def FindInstallationPaths(self):
+        exepaths = self.FindExecutables()
+        return [self.getInstallationPathFromBinary(p) for p in exepaths]
+
+    def getInstallationPathFromBinary(self, binaryPath):
+        # The binary is expected to be in a bin/ subdirectory, except on
+        # Windows when sometimes it isn't :\
+        dirname = os.path.dirname(binaryPath)
+        parent, leaf = os.path.split(dirname)
+        if leaf == "bin":
+            dirname = parent
+        return dirname
+
+
 class KoPerlInfoEx(KoAppInfoEx):
-    _com_interfaces_ = [components.interfaces.koIPerlInfoEx,
+    _com_interfaces_ = [components.interfaces.koIAppInfoEx,
+                        components.interfaces.koIPerlInfoEx,
                         components.interfaces.nsIObserver]
     _reg_clsid_ = "adb73505-eed5-46c5-8425-ce0bd8a5ec47"
     _reg_contractid_ = "@activestate.com/koAppInfoEx?app=Perl;1"
     _reg_desc_ = "Extended Perl Information"
     
-    def __init__(self):
-        KoAppInfoEx.__init__(self)
-        self._userPath = koprocessutils.getUserEnv()["PATH"].split(os.pathsep)
-        self._havePerlCritic = None
-        self._perlCriticVersion = None
-        try:
-            self._prefSvc.prefs.prefObserverService.addObserver(self, "perlDefaultInterpreter", 0)
-        except Exception, e:
-            print e
+    exenames = ["perl"]
+    defaultInterpreterPrefName = "perlDefaultInterpreter"
+    minVersionSupported = (5, 6, 0)
 
-    def observe(self, subject, topic, data):
-        if topic == "perlDefaultInterpreter":
-            self.installationPath = None
-            self._havePerlCritic = None
-            self._perlCriticVersion = None
-
-    def _GetPerlExeName(self):
-        if not self.installationPath:
-            perlExe = self.prefService.prefs.getStringPref("perlDefaultInterpreter")
-            if perlExe: return perlExe
-            paths = self.FindInstallationPaths()
-            if paths:
-                self.installationPath = paths[0]
-            else:
-                return None
-
-        if sys.platform.startswith("win"):
-            return os.path.join(self.installationPath, "bin", "perl.exe")
-        else:
-            return os.path.join(self.installationPath, "bin", "perl")
+    _havePerlCritic = None
+    _perlCriticVersion = None
 
     # koIAppInfoEx routines
-    def FindInstallationPaths(self):
-        if sys.platform.startswith('win'):
-            exts = ['.exe']
-        else:
-            exts = None
-        perlExes = which.whichall("perl", exts=exts, path=self._userPath)
-        perlInstallationPaths = [self.getInstallationPathFromBinary(p)\
-                                 for p in perlExes]
-        return perlInstallationPaths
-
-    def getInstallationPathFromBinary(self, binaryPath):
-        return os.path.dirname(os.path.dirname(binaryPath))
-
-    def get_executablePath(self):
-        return self._GetPerlExeName()
-
-    def getExecutableFromDocument(self, koDoc):
-        return self.get_executable_from_doc_pref(koDoc,
-                                                 'perlDefaultInterpreter')
-
     def get_haveLicense(self):
         return 1
 
+    _perlVersionFromPath = {}
     def getVersionForBinary(self, perlExe):
         if not os.path.exists(perlExe):
             raise ServerException(nsError.NS_ERROR_FILE_NOT_FOUND)
+        if perlExe in self._perlVersionFromPath:
+            return self._perlVersionFromPath.get(perlExe)
         argv = [perlExe, "-v"]
         p = process.ProcessOpen(argv, stdin=None)
         perlVersionDump, stderr = p.communicate()
@@ -166,15 +269,15 @@ class KoPerlInfoEx(KoAppInfoEx):
         patterns = ["This is perl, v(?:ersion )?([0-9._]+)",
                     "This is perl \d+, version \d+, subversion \d+ \(v([0-9._]+)\)",
                     ]
+        version = ''
         for ptn in patterns:
             perlVersionMatch = re.search(ptn, perlVersionDump)
             if perlVersionMatch:
-                return perlVersionMatch.group(1)
-        return ''
-        
-    def get_version(self):
-        perlExe = self._GetPerlExeName()
-        return self.getVersionForBinary(perlExe)
+                version = perlVersionMatch.group(1)
+                break
+        # Cache the result.
+        self._perlVersionFromPath[perlExe] = version
+        return version
 
     def get_buildNumber(self):
         argv = [self.get_executablePath(), "-v"]
@@ -196,7 +299,7 @@ class KoPerlInfoEx(KoAppInfoEx):
         of Perl installation likely to have the html/index.html subfile.
         However the current suffices.
         """
-        perlExe = self._GetPerlExeName()
+        perlExe = self.get_executablePath()
         if perlExe:
             indexHtml = os.path.join(os.path.dirname(perlExe),
                                      "..", "html", "index.html")
@@ -259,69 +362,11 @@ class KoPerlInfoEx(KoAppInfoEx):
         
 
 class KoPythonCommonInfoEx(KoAppInfoEx):
-    def __init__(self):
-        KoAppInfoEx.__init__(self)
-        self.koInfoService = components.classes["@activestate.com/koInfoService;1"].getService();
-        self._userPath = koprocessutils.getUserEnv()["PATH"].split(os.pathsep)
-        try:
-            self._prefSvc.prefs.prefObserverService.addObserver(self, self.defaultInterpreterPrefName, 0)
-        except Exception, e:
-            print e
-
-    def observe(self, subject, topic, data):
-        if topic == self.defaultInterpreterPrefName:
-            self.installationPath = None
-        
-    def _GetPythonExeName(self):
-        if not self.installationPath:
-            pythonExe = self.prefService.prefs.getStringPref(self.defaultInterpreterPrefName)
-            if pythonExe: return pythonExe
-            paths = self.FindInstallationPaths()
-            if paths:
-                self.installationPath = paths[0]
-            else:
-                return None
-        assert self.installationPath is not None
-
-        if sys.platform.startswith("win"):
-            return os.path.join(self.installationPath, "%s.exe" % (self.languageName_lc,))
-        else:
-           return os.path.join(self.installationPath, "bin", self.languageName_lc)
-
     # koIAppInfoEx routines
-    def FindInstallationPaths(self):
-        if sys.platform.startswith('win'):
-            exts = ['.exe']
-        else:
-            exts = None
-        pythonExes = which.whichall(self.languageName_lc, exts=exts,
-                                    path=self._userPath)
-        pythonInstallationPaths = [self.getInstallationPathFromBinary(p)\
-                                   for p in pythonExes]
-        return pythonInstallationPaths
-
-    def getInstallationPathFromBinary(self, binaryPath):
-        if sys.platform.startswith("win"):
-            return os.path.dirname(binaryPath)
-        else:
-            return os.path.dirname(os.path.dirname(binaryPath))
-
-    def set_executablePath(self, path):
-        self.executablePath = path
-
-    def get_executablePath(self):
-        if self.executablePath:
-            return self.executablePath
-        return self._GetPythonExeName()
-
-    def getExecutableFromDocument(self, koDoc):
-        return self.get_executable_from_doc_pref(koDoc,
-                                                 self.defaultInterpreterPrefName)
-
     def get_haveLicense(self):
         return 1
 
-    def get_version(self):
+    def getVersionForBinary(self, pythonExe):
         """Get the $major.$minor version (as a string) of the current
         Python executable. Returns the empty string if cannot determine
         version.
@@ -330,9 +375,11 @@ class KoPythonCommonInfoEx(KoAppInfoEx):
         - Specify cwd to avoid accidentally running in a dir with a
           conflicting Python DLL.
         """
+        if not os.path.exists(pythonExe):
+            raise ServerException(nsError.NS_ERROR_FILE_NOT_FOUND)
+
         version = ""
 
-        pythonExe = self.get_executablePath()
         if pythonExe is None:
             return version
         cwd = os.path.dirname(pythonExe)
@@ -410,7 +457,7 @@ class KoPythonCommonInfoEx(KoAppInfoEx):
             return None
         else:
             try:
-                pythonExe = which.which(self.languageName_lc, path=self._userPath)
+                pythonExe = which.which(self.exenames[0], path=self._userPath)
             except which.WhichError:
                 return None
             indexHtml = os.path.join(os.path.dirname(pythonExe),
@@ -433,96 +480,37 @@ class KoPythonCommonInfoEx(KoAppInfoEx):
         return not retval
 
 class KoPythonInfoEx(KoPythonCommonInfoEx):
-    _com_interfaces_ = [components.interfaces.koIAppInfoEx,
-                        components.interfaces.nsIObserver]
     _reg_clsid_ = "{b76bc2ee-261e-4597-b1ef-446e9bb89d7c}"
     _reg_contractid_ = "@activestate.com/koAppInfoEx?app=Python;1"
     _reg_desc_ = "Extended Python Information"
-    languageName_lc = "python"
+    exenames = ["python"]
     defaultInterpreterPrefName = "pythonDefaultInterpreter"
-    def __init__(self):
-        KoPythonCommonInfoEx.__init__(self)
+    minVersionSupported = (2, 4, 0)
+    maxVersionTuple = (2, 99, 99)
 
 class KoPython3InfoEx(KoPythonCommonInfoEx):
-    _com_interfaces_ = [components.interfaces.koIAppInfoEx,
-                        components.interfaces.nsIObserver]
     _reg_clsid_ = "{e98c16e6-0b9f-4f11-8505-5012555a19b2}"
     _reg_contractid_ = "@activestate.com/koAppInfoEx?app=Python3;1"
     _reg_desc_ = "Extended Python3 Information"
-    languageName_lc = "python3"
+    exenames = ["python3"]
     defaultInterpreterPrefName = "python3DefaultInterpreter"
-    def __init__(self):
-        KoPythonCommonInfoEx.__init__(self)
+    minVersionSupported = (3, 0, 0)
+    maxVersionTuple = (3, 99, 99)
 
     def get_webHelpURL(self):
         """Return a web URL for help on this app, else return None."""
-        return "http://docs.activestate.com/activepython/3.1/"
+        return "http://docs.activestate.com/activepython/3.2/"
 
 #---- components
 
 class KoRubyInfoEx(KoAppInfoEx):
-    _com_interfaces_ = [components.interfaces.koIAppInfoEx,
-                        components.interfaces.koIRubyInfoEx,
-                        components.interfaces.nsIObserver]
     _reg_clsid_ = "{e1ce6f0d-839e-480a-b131-36de0dc35965}"
     _reg_contractid_ = "@activestate.com/koAppInfoEx?app=Ruby;1"
     _reg_desc_ = "Extended Ruby Information"
 
-    def __init__(self):
-        KoAppInfoEx.__init__(self)
-        self._userPath = koprocessutils.getUserEnv()["PATH"].split(os.pathsep)
-        self._executables = []
-        self._digits_re = re.compile(r'(\d+)')
-        try:
-            self._prefSvc.prefs.prefObserverService.addObserver(self, "rubyDefaultInterpreter", 0)
-        except Exception, e:
-            print e
-
-    def observe(self, subject, topic, data):
-        if topic == "rubyDefaultInterpreter":
-            self.installationPath = None
-        
-    def _GetRubyExeName(self):
-        if not self.installationPath:
-            rubyExe = self.prefService.prefs.getStringPref("rubyDefaultInterpreter")
-            if rubyExe:
-                return rubyExe
-            paths = self.FindInstallationPaths()
-            if paths:
-                path = paths[0]
-            else:
-                return None
-        else:
-            path = self.installationPath
-            paths = None
-        if sys.platform.startswith("win"):
-            res = os.path.join(path, "bin", "ruby.exe")
-        else:
-            res = os.path.join(path, "bin", "ruby")
-        if paths is not None:
-            self.set_executablePath(res)
-        return res
-
-    def getInstallationPathFromBinary(self, binaryPath):
-        return os.path.dirname(os.path.dirname(binaryPath))
-
-    def get_executablePath(self):
-        rubyExePath = self._GetRubyExeName()
-        if not rubyExePath:
-            # which("non-existent-app) can return empty string, map it to None
-            return None
-        if not os.path.exists(rubyExePath):
-            log.info("KoRubyInfoEx:get_executablePath: file %r doesn't exist",
-                     rubyExePath)
-            return None
-        return rubyExePath
-    
-    def getExecutableFromDocument(self, koDoc):
-        return self.get_executable_from_doc_pref(koDoc,
-                                                 'rubyDefaultInterpreter')
-
-    def set_executablePath(self, path):
-        self.installationPath = os.path.dirname(os.path.dirname(path))
+    exenames = ["ruby"]
+    defaultInterpreterPrefName = "rubyDefaultInterpreter"
+    minVersionSupported = (1, 8, 4)
 
     def get_haveLicense(self):
         return 1
@@ -541,37 +529,6 @@ class KoRubyInfoEx(KoAppInfoEx):
             msg = "Can't find a version in `%s -v` output of '%s'/'%s'" % (rubyExe, rubyVersionDump, stderr)
             raise ServerException(nsError.NS_ERROR_UNEXPECTED, msg)
     
-    def get_version(self):
-        rubyExe = self._GetRubyExeName()
-        return self.getVersionForBinary(rubyExe)
-        
-    def _get_version_num_parts(self, ver):
-        """Allow experimental versions like '1.8.8a'.
-        Assume that every version has exactly three parts.
-        """
-        parts = ver.split('.')
-        if len(parts) != 3:
-            raise AttributeError("Version %r doesn't have exactly 3 parts" % (ver,))
-        return [int(self._digits_re.match(part).group(1)) for part in parts]
-
-    def get_valid_version(self):
-        rubyExe = self._GetRubyExeName()
-        if not rubyExe:
-            return False
-        try:
-            ver = self.getVersionForBinary(rubyExe)
-            versionParts = self._get_version_num_parts(ver)
-            return tuple(versionParts) >= (1,8,4) # minimum version
-        except AttributeError:
-            return False
-        except ServerException, ex:
-            if ex.errno != nsError.NS_ERROR_FILE_NOT_FOUND:
-                raise
-            return False
-
-    def get_buildNumber(self):
-        raise ServerException(nsError.NS_ERROR_NOT_IMPLEMENTED)
- 
     def get_localHelpFile(self):
         #XXX Return rdoc or something
         return None
@@ -580,114 +537,41 @@ class KoRubyInfoEx(KoAppInfoEx):
         """Return a web URL for help on this app, else return None."""
         return "http://www.ruby-doc.org/"
 
-    def FindInstallationPaths(self):
-        if sys.platform.startswith('win'):
-            exts = ['.exe']
-        else:
-            exts = None
-        self._executables = []
-        installationPaths = None
-        self._executables = which.whichall('ruby', exts=exts, path=self._userPath)
-        if not self._executables:
-            current_ruby_path = self.prefService.prefs.getStringPref("rubyDefaultInterpreter")
-            if current_ruby_path:
-                self._executables = [current_ruby_path]
-        if self._executables:
-            installationPaths = [self.getInstallationPathFromBinary(p)\
-                                   for p in self._executables]
-        return installationPaths
-
-    def FindInstallationExecutables(self):
-        if not self._executables:
-            self.FindInstallationPaths()
-        return self._executables
-
-    def set_installationPath(self, path):
-        self.installationPath = path
-        self.executablePath = ''
-
 
 class KoTclInfoEx(KoAppInfoEx):
-    _com_interfaces_ = [components.interfaces.koITclInfoEx,
+    _com_interfaces_ = [components.interfaces.koIAppInfoEx,
+                        components.interfaces.koITclInfoEx,
                         components.interfaces.nsIObserver]
     _reg_clsid_ = "DF64A66F-FD69-4F5E-92B2-B3C9F8638F66"
     _reg_contractid_ = "@activestate.com/koAppInfoEx?app=Tcl;1"
     _reg_desc_ = "Extended Tcl Information"
 
-    def __init__(self):
-        KoAppInfoEx.__init__(self)
-        self._userPath = koprocessutils.getUserEnv()["PATH"].split(os.pathsep)
-        try:
-            self._prefSvc.prefs.prefObserverService.addObserver(self, "tclshDefaultInterpreter", 0)
-        except Exception, e:
-            print e
-
-    def observe(self, subject, topic, data):
-        if topic == "tclshDefaultInterpreter":
-            self.installationPath = None
-
-    def get_executablePath(self):
-        # XXX invoke interpreters has logic for using wish, do we need
-        # it here also?
-        if not self.installationPath:
-            tclExe = self.prefService.prefs.\
-                     getStringPref("tclshDefaultInterpreter")
-            if tclExe: return tclExe
-            paths = self.FindInstallationPaths()
-            if not paths:
-                return None
-            self.installationPath = paths[0]
-        assert self.installationPath is not None
-
-        if sys.platform.startswith("win"):
-            return os.path.join(self.installationPath, "tclsh.exe")
-        else:
-           return os.path.join(self.installationPath, "bin", "tclsh")
-    
-    def getExecutableFromDocument(self, koDoc):
-        return self.get_executable_from_doc_pref(koDoc,
-                                                 'tclshDefaultInterpreter')
-
-    def _getTclshExeName(self):
-        if sys.platform.startswith('win'):
-            return 'tclsh.exe'
-        else:
-            return 'tclsh'
-
-    def _getWishExeName(self):
-        if sys.platform.startswith('win'):
-            return 'wish.exe'
-        else:
-            return 'wish'
+    exenames = ["tclsh"]
+    defaultInterpreterPrefName = "tclshDefaultInterpreter"
+    minVersionSupported = (8, 4, 0)
 
     # koIAppInfoEx routines
-    def FindInstallationPaths(self):
-        if sys.platform.startswith('win'):
-            exts = ['.exe']
-        else:
-            exts = None
-        tclshs = which.whichall("tclsh", exts=exts, path=self._userPath)
-        installPaths = [self.getInstallationPathFromBinary(tclsh)\
-                        for tclsh in tclshs]
-        uniqueInstallPaths = {}
-        for installPath in installPaths:
-            uniqueInstallPaths[installPath] = 1
-        installPaths = uniqueInstallPaths.keys()
-        installPaths.sort()
-        return installPaths
-
     def _isInstallationLicensed(self, installationPath):
         return 1
-    
-    def get_haveLicense(self):
-        return self._isInstallationLicensed(self.installationPath)
 
-    def get_version(self):
-        raise ServerException(nsError.NS_ERROR_NOT_IMPLEMENTED)
- 
-    def get_buildNumber(self):
-        raise ServerException(nsError.NS_ERROR_NOT_IMPLEMENTED)
- 
+    def get_haveLicense(self):
+        return self._isInstallationLicensed(self.get_installationPath())
+
+    def getVersionForBinary(self, tclshExe):
+        if not os.path.exists(tclshExe):
+            raise ServerException(nsError.NS_ERROR_FILE_NOT_FOUND)
+        argv = [tclshExe]
+        p = process.ProcessOpen(argv)
+        p.stdin.write("puts [info tclversion]\n")
+        stdout, stderr = p.communicate()
+        pattern = re.compile("([\w\.]+)")
+        match = pattern.search(stdout)
+        if match:
+            return match.group(1)
+        else:
+            msg = "Can't determine tcl version\n  stdout: %r\n  stderr: %r" % (stdout, stderr)
+            raise ServerException(nsError.NS_ERROR_UNEXPECTED, msg)
+
     def get_localHelpFile(self):
         """Return a path to a launchable local help file, else return None.
         Windows:
@@ -732,55 +616,26 @@ class KoTclInfoEx(KoAppInfoEx):
     def get_webHelpURL(self):
         return "http://docs.activestate.com/activetcl/"
 
-    def getInstallationPathFromBinary(self, binaryPath):
-        return os.path.dirname(os.path.dirname(binaryPath))
-
-    def selectDefault(self):
-        paths = self.FindInstallationPaths()
-        
-        for installationPath in paths: 
-            if self._isInstallationLicensed(installationPath):
-                self.installationPath = installationPath
-                return 1
-        
-        # Otherwise use whatever is left
-        if paths:
-            self.installationPath = paths[0]
-            return 1
-        else:
-            self.installationPath = None
-            return 0
-            
     def get_tclsh_path(self):
-        exe = self.prefService.prefs.getStringPref("tclshDefaultInterpreter")
-        if exe and os.path.exists(exe):
-            return exe
-        if not self.installationPath and not self.selectDefault():
-            return None
-        exe = os.path.join(self.installationPath, "bin",
-                            self._getTclshExeName())
-        if exe and os.path.exists(exe):
-            return exe
-        return None
-        
+        return self.get_executablePath()
+
     def get_wish_path(self):
-        exe = self.prefService.prefs.getStringPref("wishDefaultInterpreter")
-        if exe and os.path.exists(exe):
-            return exe
-        if not self.installationPath and not self.selectDefault():
-            return None
-        exe = os.path.join(self.installationPath, "bin",
-                            self._getWishExeName())
-        if exe and os.path.exists(exe):
-            return exe
+        wish_exes = self._locateExecutables("wish", "wishDefaultInterpreter")
+        if wish_exes:
+            return wish_exes[0]
         return None
 
 class KoPHPInfoInstance(KoAppInfoEx):
-    _com_interfaces_ = [components.interfaces.koIPHPInfoEx,
+    _com_interfaces_ = [components.interfaces.koIAppInfoEx,
+                        components.interfaces.koIPHPInfoEx,
                         components.interfaces.nsIObserver]
     _reg_clsid_ = "E2066A3A-FC6D-4157-961E-E03C020594BE"
     _reg_contractid_ = "@activestate.com/koPHPInfoInstance;1"
     _reg_desc_ = "PHP Information"
+
+    exenames = ['php', 'php4', 'php-cli', 'php-cgi']
+    defaultInterpreterPrefName = "phpDefaultInterpreter"
+    minVersionSupported = (4, 4, 0)
 
     # the purpose of KoPHPInfoInstance is to be able to define
     # what executable and ini path are used without prefs getting
@@ -789,56 +644,34 @@ class KoPHPInfoInstance(KoAppInfoEx):
         KoAppInfoEx.__init__(self)
         self._executable = None
         self._info = {}
-        self._userPath = koprocessutils.getUserEnv()["PATH"].split(os.pathsep)
         try:
-            prefObserverService = self._prefSvc.prefs.prefObserverService
-            prefObserverService.addObserverForTopics(self,
-                                                     ["phpDefaultInterpreter",
-                                                      "phpConfigFile"],
-                                                     0)
+            self._prefSvc.prefs.prefObserverService.addObserver(self, "phpConfigFile", 0)
         except Exception, e:
-            print e
+            log.warn("Unable to listen for preference change for: 'phpConfigFile'")
 
     def observe(self, subject, topic, data):
-        if topic in ["phpDefaultInterpreter", "phpConfigFile"]:
-            self.installationPath = None
-            self._info = {}
+        KoAppInfoEx.observe(self, subject, topic, data)
+        if topic == "phpConfigFile":
+            self.reset()
 
-    def _findPHP(self):
-        if not self.installationPath:
-            paths = self.FindInstallationPaths()
-            if paths:
-                self.installationPath = paths[0]
-            else:
-                return None
-        
-        for phpname in ['php','php4','php-cgi','php-cli']:
-            if sys.platform.startswith("win"):
-                phpname += '.exe'
-            php = os.path.join(self.installationPath, phpname)
-            if os.path.exists(php):
-                break
-
-        return php
-        
-    def _GetPHPExeName(self):
-        if self._executable:
-            return self._executable
-        return self._findPHP()
+    def reset(self):
+        KoAppInfoEx.reset(self)
+        self._info = {}
 
     def _getInterpreterConfig(self):
         if 'cfg_file_path' in self._info:
             return self._info['cfg_file_path']
         return None
 
-    def _GetPHPOutputAndError(self, phpCode):
+    def _GetPHPOutputAndError(self, phpCode, php=None):
         """Run the given PHP code and return the output.
 
         If some error occurs then the error is logged and the empty
         string is returned. (Basically we are taking the position that
         PHP is unreliable.)
         """
-        php = self._GetPHPExeName()
+        if php is None:
+            php = self.get_executablePath()
         if not php:
             # XXX Would be better, IMO, to raise an exception here.
             return None, "No PHP executable could be found."
@@ -931,80 +764,60 @@ class KoPHPInfoInstance(KoAppInfoEx):
                                   % varName)
         return self._parsedOutput(out)
 
+    def _findInstallationExecutables(self, paths=None, defaultInterpreterPrefName=None):
+        return self._locateExecutables("php", defaultInterpreterPrefName, paths=paths) + \
+                            self._locateExecutables('php-cgi', paths=paths) + \
+                            self._locateExecutables('php4',    paths=paths) + \
+                            self._locateExecutables('php-cli', paths=paths)
+
     # koIAppInfoEx routines
-    def FindInstallationPaths(self):
-        phpExes = self.FindInstallationExecutables()
-        phpInstallationPaths = [self.getInstallationPathFromBinary(p)\
-                                   for p in phpExes]            
-        return phpInstallationPaths
-
-    def _findInstallationExecutables(self, path):
-        if sys.platform.startswith('win'):
-            exts = ['.exe']
-        else:
-            exts = None
-        phpExes = which.whichall('php', exts=exts, path=path) + \
-               which.whichall('php-cgi', exts=exts, path=path) + \
-               which.whichall('php4', exts=exts, path=path) + \
-               which.whichall('php-cli', exts=exts, path=path)
-        return phpExes
-
-    def FindInstallationExecutables(self):
-        return self._findInstallationExecutables(self._userPath)
-
-    def getInstallationPathFromBinary(self, binaryPath):
-        return os.path.dirname(binaryPath)
-
-    def get_executablePath(self):
-        return self._GetPHPExeName()
-    
-    def getExecutableFromDocument(self, koDoc):
-        return self.get_executable_from_doc_pref(koDoc,
-                                                 'phpDefaultInterpreter')
-
     def set_executablePath(self, exe):
-        self.set_installationPath(exe)
-        self._executable = exe
+        KoAppInfoEx.set_executablePath(self, exe)
         self._info = {}
-        
+
+    def set_installationPath(self, path):
+        KoAppInfoEx.set_installationPath(self, path)
+        self._info = {}
+
     def get_haveLicense(self):
         return 1
 
-    def get_version(self):
-        if 'version' not in self._info:
-            out, err = self._GetPHPOutputAndError(
-                "<?php echo(phpversion().\"\\n\"); ?>")
-            if not out:
-                # (Bug 73485) With some esp. borked PHP setups, even
-                # getting the version dies. Logging this case is the least
-                # we can do. A better (but more onerous to verify as being
-                # safe) change would be to pass up the error and show it
-                # in the using UI (e.g. the PHP prefs panel).
-                log.error("could not determine PHP version number for "
-                          "'%s':\n----\n%s\n----",
-                          self._GetPHPExeName(), err)
-            self._info['version'] =  self._parsedOutput(out)
-        return self._info['version']
+    def getVersionForBinary(self, phpExe):
+        if not os.path.exists(phpExe):
+            raise ServerException(nsError.NS_ERROR_FILE_NOT_FOUND)
+        out, err = self._GetPHPOutputAndError(
+            "<?php echo(phpversion().\"\\n\"); ?>", php=phpExe)
+        if not out:
+            # (Bug 73485) With some esp. borked PHP setups, even
+            # getting the version dies. Logging this case is the least
+            # we can do. A better (but more onerous to verify as being
+            # safe) change would be to pass up the error and show it
+            # in the using UI (e.g. the PHP prefs panel).
+            log.error("could not determine PHP version number for "
+                      "'%s':\n----\n%s\n----",
+                      self.get_executablePath(), err)
+        return self._parsedOutput(out)
 
     def get_valid_version(self):
+        # Versions of php that xdebug works with, highest versions must
+        # be first.  5.0.0-5.0.1 and before 4.3.10 dont work due to
+        # missing symbols.
+        if not KoAppInfoEx.get_valid_version(self):
+            return False
         version = self.get_version()
         if version:
             try:
-                # convert various php version strings into a tuple for
-                # comparison of versions that work with xdebug.
-                # unfortunately, this is STILL A MOVING TARGET
-                version = tuple([int(x) for x in re.match(r"(\d+)\.(\d+)\.(\d+)", version).groups()])
-                # versions of php that xdebug works with, highest versions must
-                # be first.  5.0.0-5.0.1 and before 4.3.10 dont work due to
-                # missing symbols
-                if version >= (5,0,3):
-                    return 1
-                elif version < (5,0,0) and version >= (4,3,10):
-                    return 1
-            except ValueError,e:
+                versionParts = split_short_ver(version, intify=True)
+                if tuple(versionParts) >= (5,0,0) and \
+                   tuple(versionParts) < (5,0,3):
+                    return False
+            except AttributeError:
                 pass
-        return 0
-        
+            except ServerException, ex:
+                if ex.errno != nsError.NS_ERROR_FILE_NOT_FOUND:
+                    raise
+        return True
+
     def get_localHelpFile(self):
         """Return a path to a launchable local help file, else return None.
         Nada for PHP. There is no *standard* local documentation link or any
@@ -1029,21 +842,12 @@ class KoPHPInfoInstance(KoAppInfoEx):
         if path:
             self._info['cfg_file_path'] = path
         
-    def get_includePath(self):
-        return self.get_include_path()
-    
     def get_include_path(self):
         if 'include_path' not in self._info:
             out = self._GetPHPIniVar("include_path")
             self._info['include_path'] =  self._parsedOutput(out)
         return self._info['include_path']
 
-    def set_installationPath(self,value):
-        if not os.path.isdir(value):
-            self.installationPath = os.path.dirname(value)
-        else:
-            self.installationPath = value
-        
     def GetIncludePathArray(self):
         includePath = self.get_include_path().split(os.pathsep)
         # cull out any empty entries (resulting from, say, include_path="a;;b")
@@ -1086,16 +890,6 @@ class KoPHPInfoEx(KoPHPInfoInstance):
     _reg_contractid_ = "@activestate.com/koAppInfoEx?app=PHP;1"
     _reg_desc_ = "PHP Information"
 
-    def _GetPHPExeName(self):
-        phpDefaultInterpreter = None
-        # Not using the proxied pref observer due to getting Komodo lockups
-        # at start time:
-        # http://bugs.activestate.com/show_bug.cgi?id=74474
-        prefset = self._prefSvc.prefs
-        if prefset.hasStringPref("phpDefaultInterpreter"):
-            phpDefaultInterpreter = prefset.getStringPref("phpDefaultInterpreter")
-        return phpDefaultInterpreter or self._findPHP()
-
     def _getInterpreterConfig(self):
         phpConfigFile = None
         # Not using the proxied pref observer due to getting Komodo lockups
@@ -1107,12 +901,12 @@ class KoPHPInfoEx(KoPHPInfoInstance):
         return phpConfigFile or KoPHPInfoInstance._getInterpreterConfig(self)
 
     def _get_namedExe(self, name):
-        exe = self._GetPHPExeName()
+        exe = self.get_executablePath()
         if self.get_sapi()[:3] != name:
             phpAppInfoEx = components.classes["@activestate.com/koPHPInfoInstance;1"].\
                     createInstance(components.interfaces.koIPHPInfoEx);
             # find the cgi executable
-            avail = self._findInstallationExecutables([os.path.dirname(exe)])
+            avail = self._findInstallationExecutables(paths=[os.path.dirname(exe)])
             if len(avail) == 1: # only have a cli executable
                 return None
             avail = [x for x in avail if x is not exe]
@@ -1138,79 +932,14 @@ class KoPHPInfoEx(KoPHPInfoInstance):
         return self._info.get('cgi-executable')
 
 class KoNodeJSInfoEx(KoAppInfoEx):
-    _com_interfaces_ = [components.interfaces.koIAppInfoEx,
-                        components.interfaces.nsIObserver]
     _reg_clsid_ = "{d5f5f120-2322-4cdf-8fbf-cd4a5861cc5a}"
     _reg_contractid_ = "@activestate.com/koAppInfoEx?app=NodeJS;1"
     _reg_desc_ = "Extended NodeJS Information"
 
-    def __init__(self):
-        KoAppInfoEx.__init__(self)
-        self._userPath = koprocessutils.getUserEnv()["PATH"].split(os.pathsep)
-        self._executables = []
-        self._digits_re = re.compile(r'(\d+)')
-        try:
-            self._prefSvc.prefs.prefObserverService.addObserver(self, "nodejsDefaultInterpreter", 0)
-        except Exception, e:
-            print e
+    exenames = ["node"]
+    defaultInterpreterPrefName = "nodejsDefaultInterpreter"
+    minVersionSupported = (0, 4, 0)
 
-    def observe(self, subject, topic, data):
-        if topic == "nodejsDefaultInterpreter":
-            self.installationPath = None
-        
-    def _GetNodeJSExeName(self):
-        if not self.installationPath:
-            nodejsExe = self.prefService.prefs.getStringPref("nodejsDefaultInterpreter")
-            if nodejsExe and os.path.exists(nodejsExe):
-                return nodejsExe
-            paths = self.FindInstallationPaths()
-            if paths:
-                path = paths[0]
-            else:
-                return None
-        else:
-            path = self.installationPath
-            paths = None
-
-        binaryName = "node.exe" if sys.platform.startswith("win") else "node"
-        for relPath in (("bin", binaryName), (binaryName,)):
-            res = os.path.join(path, *relPath)
-            if os.path.exists(res):
-                break
-        else:
-            res = None
-
-        if paths is not None:
-            self.set_executablePath(res)
-        return res
-
-    def getInstallationPathFromBinary(self, binaryPath):
-        # The Node binary is expected to be in a bin/ subdirectory, except on
-        # Windows it isn't :\
-        dirname = os.path.dirname(binaryPath)
-        parent, leaf = os.path.split(dirname)
-        if leaf == "bin":
-            dirname = parent
-        return dirname
-
-    def get_executablePath(self):
-        nodejsExePath = self._GetNodeJSExeName()
-        if not nodejsExePath:
-            # which("non-existent-app) can return empty string, map it to None
-            return None
-        if not os.path.exists(nodejsExePath):
-            log.info("KoNodeJSInfoEx:get_executablePath: file %r doesn't exist",
-                     nodejsExePath)
-            return None
-        return nodejsExePath
-    
-    def getExecutableFromDocument(self, koDoc):
-        return self.get_executable_from_doc_pref(koDoc,
-                                                 'nodejsDefaultInterpreter')
-
-    def set_executablePath(self, path):
-        self.installationPath = os.path.dirname(os.path.dirname(path))
-        
     def getVersionForBinary(self, nodejsExe):
         if not os.path.exists(nodejsExe):
             raise ServerException(nsError.NS_ERROR_FILE_NOT_FOUND)
@@ -1225,28 +954,6 @@ class KoNodeJSInfoEx(KoAppInfoEx):
             msg = "Can't find a version in `%s -v` output of '%s'/'%s'" % (nodejsExe, nodejsVersionDump, stderr)
             raise ServerException(nsError.NS_ERROR_UNEXPECTED, msg)
     
-    def get_version(self):
-        nodejsExe = self._GetNodeJSExeName()
-        return self.getVersionForBinary(nodejsExe)
-        
-    def get_valid_version(self):
-        nodejsExe = self._GetNodeJSExeName()
-        if not nodejsExe:
-            return False
-        try:
-            ver = self.getVersionForBinary(nodejsExe)
-            versionParts = invocationutils.split_short_ver(ver, intify=True)
-            return tuple(versionParts) >= (0, 2, 0) # minimum version, assume 0.1 was experimental
-        except AttributeError:
-            return False
-        except ServerException, ex:
-            if ex.errno != nsError.NS_ERROR_FILE_NOT_FOUND:
-                raise
-            return False
-
-    def get_buildNumber(self):
-        raise ServerException(nsError.NS_ERROR_NOT_IMPLEMENTED)
- 
     def get_localHelpFile(self):
         return None
 
@@ -1256,107 +963,19 @@ class KoNodeJSInfoEx(KoAppInfoEx):
         # On newer systems the docs are at nodejs.org/docs/<version>/api,
         # but this varies for older versions, and could change in the future.
 
-    def FindInstallationPaths(self):
-        if sys.platform.startswith('win'):
-            exts = ['.exe']
-        else:
-            exts = None
-        self._executables = []
-        installationPaths = None
-        self._executables = which.whichall('node', exts=exts, path=self._userPath)
-        if not self._executables:
-            current_nodejs_path = self.prefService.prefs.getStringPref("nodejsDefaultInterpreter")
-            if current_nodejs_path:
-                self._executables = [current_nodejs_path]
-        if self._executables:
-            installationPaths = [self.getInstallationPathFromBinary(p)\
-                                   for p in self._executables]
-        return installationPaths
-
-    def FindInstallationExecutables(self):
-        if not self._executables:
-            self.FindInstallationPaths()
-        return self._executables
-
-    def set_installationPath(self, path):
-        self.installationPath = path
-        self.executablePath = ''
-
 class KoCVSInfoEx(KoAppInfoEx):
-    _com_interfaces_ = [components.interfaces.koIAppInfoEx,
-                        components.interfaces.nsIObserver]
     _reg_clsid_ = "C3A7A887-D0D3-426A-8C67-2CC3E2946636"
     _reg_contractid_ = "@activestate.com/koAppInfoEx?app=CVS;1"
     _reg_desc_ = "CVS Information"
 
-    def __init__(self):
-        KoAppInfoEx.__init__(self)
-        self._userPath = koprocessutils.getUserEnv()["PATH"].split(os.pathsep)
-        try:
-            self._prefSvc.prefs.prefObserverService.addObserver(self, "cvsExecutable", 0)
-        except Exception, e:
-            print e
-
-    def observe(self, subject, topic, data):
-        if topic == "cvsExecutable":
-            self.installationPath = None
-
-    def _getCVSExeName(self):
-        if not self.installationPath:
-            cvsExe = self.prefService.prefs.getStringPref("cvsExecutable")
-            if cvsExe:
-                self.installationPath = self.getInstallationPathFromBinary(cvsExe)
-                return os.path.basename(cvsExe)
-            else:
-                paths = self.FindInstallationPaths()
-                if len(paths) > 0:
-                    self.installationPath = paths[0]
-                else:
-                    return None
-        
-        if sys.platform.startswith('win'):
-            return 'cvs.exe'
-        else:
-            return 'cvs'
+    exenames = ["cvs"]
+    defaultInterpreterPrefName = "cvsExecutable"
 
     # koIAppInfoEx routines
-    def FindInstallationPaths(self):
-        if sys.platform.startswith('win'):
-            exts = ['.exe']
-        else:
-            exts = None
-        cvss = which.whichall("cvs", exts=exts, path=self._userPath)
-        cvsInstallationPaths = [self.getInstallationPathFromBinary(cvs)\
-                                for cvs in cvss]
-        return cvsInstallationPaths
-
-    def getInstallationPathFromBinary(self, binaryPath):
-        if sys.platform.startswith("win"):
-            return os.path.dirname(binaryPath)
-        else:
-            return os.path.dirname(os.path.dirname(binaryPath))
-
-    def get_executablePath(self):
-        if not self.executablePath:
-            exename = self._getCVSExeName()
-            if not exename: return None
-            if sys.platform.startswith("win"):
-                self.executablePath = os.path.join(self.installationPath, exename)
-            else:
-                self.executablePath = os.path.join(self.installationPath, "bin", exename)
-        return self.executablePath
-
-    def set_executablePath(self,path):
-        self.executablePath = path
-        if sys.platform.startswith('win'):
-            self.installationPath = os.path.dirname(path)
-        else:
-            self.installationPath = os.path.dirname(os.path.dirname(path))
-
     def get_haveLicense(self):
         return 1
 
-    def get_version(self):
+    def getVersionForBinary(self, cvsExe):
         """A CVS version include not only the standard 1.2.3-type numbers
         but also the "build family", of which CVSNT is a different one.
         For example:
@@ -1364,8 +983,8 @@ class KoCVSInfoEx(KoAppInfoEx):
             1.11.1.3 CVSNT
         Returns None if the version cannot be determined.
         """
-        cvsExe = self.get_executablePath()
-        if not cvsExe: return None
+        if not os.path.exists(cvsExe):
+            raise ServerException(nsError.NS_ERROR_FILE_NOT_FOUND)
         p = process.ProcessOpen([cvsExe, '-v'], stdin=None)
         output, error = p.communicate()
         retval = p.returncode
@@ -1381,13 +1000,67 @@ class KoCVSInfoEx(KoAppInfoEx):
             log.warn('Could not determine CVS version [%s] "%s"', cvsExe, output)
             return None
  
-    def get_buildNumber(self):
-        raise ServerException(nsError.NS_ERROR_NOT_IMPLEMENTED)
-    def get_localHelpFile(self):
-        raise ServerException(nsError.NS_ERROR_NOT_IMPLEMENTED)
-    def get_webHelpURL(self):
-        raise ServerException(nsError.NS_ERROR_NOT_IMPLEMENTED)
 
+# ------------ Utility functions ---------------- #
+
+_short_ver_re = re.compile("(\d+)(\.\d+)*([a-z](\d+)?)?")
+def split_short_ver(ver_str, intify=False, pad_zeros=None):
+    """Parse the given version into a tuple of "significant" parts.
+
+    @param intify {bool} indicates if numeric parts should be converted
+        to integers.
+    @param pad_zeros {int} is a number of numeric parts before any
+        "quality" letter (e.g. 'a' for alpha).
+   
+    >>> split_short_ver("4.1.0")
+    ('4', '1', '0')
+    >>> split_short_ver("1.3a2")
+    ('1', '3', 'a', '2')
+    >>> split_short_ver("1.3a2", intify=True)
+    (1, 3, 'a', 2)
+    >>> split_short_ver("1.3a2", intify=True, pad_zeros=3)
+    (1, 3, 0, 'a', 2)
+    >>> split_short_ver("1.3x", intify=True)
+    (1, 3, 'x')
+    >>> split_short_ver("1.3x", intify=True, pad_zeros=3)
+    (1, 3, 0, 'x')
+    >>> split_short_ver("1.3", intify=True, pad_zeros=3)
+    (1, 3, 0)
+    >>> split_short_ver("1", pad_zeros=3)
+    ('1', '0', '0')
+    """
+    def isint(s):
+        try:
+            int(s)
+        except ValueError:
+            return False
+        else:
+            return True
+    def do_intify(s):
+        try:
+            return int(s)
+        except ValueError:
+            return s
+
+    if not _short_ver_re.match(ver_str):
+        raise ValueError("%r is not a valid short version string" % ver_str)
+
+    hit_quality_bit = False
+    bits = []
+    for bit in re.split("(\.|[a-z])", ver_str):
+        if len(bit) == 0 or bit == '.':
+            continue
+        if intify:
+            bit = do_intify(bit)
+        if pad_zeros and not hit_quality_bit and not isint(bit):
+            hit_quality_bit = True
+            while len(bits) < pad_zeros:
+                bits.append(not intify and "0" or 0)
+        bits.append(bit)
+    if pad_zeros and not hit_quality_bit:
+        while len(bits) < pad_zeros:
+            bits.append(not intify and "0" or 0)
+    return tuple(bits)
 
 
 #---- self test code
