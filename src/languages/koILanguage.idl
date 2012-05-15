@@ -60,7 +60,11 @@ interface koILanguageService : nsISupports {
 [scriptable, uuid(29098AA5-7F16-4671-823D-FC0817250A7C)]
 interface koILanguage : nsISupports {
     readonly attribute string name;
+    // A regular expression to match a "named block" (e.g. a function or class
+    // definition).
     readonly attribute string namedBlockRE;
+    // A plaintext description of what namedBlockRE matches (e.g. functions and
+    // classes).
     readonly attribute string namedBlockDescription;
     readonly attribute string defaultExtension;
     readonly attribute string sample;
@@ -68,7 +72,9 @@ interface koILanguage : nsISupports {
     readonly attribute long stylingBitsMask;
     readonly attribute long indicatorBits;
     readonly attribute wstring downloadURL;
-    readonly attribute wstring searchURL; // used by the language help system
+    // The URL used by the language help system, use %W as a replacement for the
+    // the currently selected word.
+    readonly attribute wstring searchURL;
     readonly attribute string variableIndicators;
     readonly attribute boolean foldable;
     readonly attribute wstring supportsSmartIndent; // 'text', 'brace', 'python', 'XML'

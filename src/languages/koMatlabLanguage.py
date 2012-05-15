@@ -60,6 +60,14 @@ class koMatlabLanguage(KoLanguageBase):
                 function global if otherwise parfor persistent return
                 spmd switch try while""".split()
 
+    # matches:
+    # function [output] = name(input)
+    # classdef name < super
+    # %% cell title
+    namedBlockDescription = 'Matlab functions and classes'
+    namedBlockRE = r'(?:\b(?:function|classdef)\s+\w+|^\s*%%\s+\w+.*)'
+    searchURL = "http://www.mathworks.com/help/search/doc/en/?qdoc=%W"
+
     sample = r"""function b = acyclic(adj_mat, directed)
 % ACYCLIC Returns true iff the graph has no (directed) cycles.
 % b = acyclic(adj_mat, directed)
@@ -87,6 +95,7 @@ class koOctaveLanguage(koMatlabLanguage):
     _reg_categories_ = [("komodo-language", name)]
 
     defaultExtension = ".m"
+    commentDelimiterInfo = { "line": [ "#", "%" ]  }
 
     _keywords = """break case catch continue do else elseif end
                 end_unwind_protect endfor endif endswitch endwhile
