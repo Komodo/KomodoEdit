@@ -9,7 +9,6 @@ try {
         ko.dialogs.alert("Unexpected error: no project associated with macro "
                          + macro.name);
     }
-    var targetName;
     var prefset = project.prefset;
     if (!prefset.hasPrefHere("koextgen.target")) {
         ko.dialogs.alert("Project "
@@ -17,19 +16,13 @@ try {
                          + " doesn't seem to be an extension project.");
         return;
     }
-    targetName = prefset.getStringPref("koextgen.target");
+    var targetName = prefset.getStringPref("koextgen.target");
     var projectFileEx = project.getFile();
     // Get the project's location, then from one point higher populate it.
-    var projectPath = projectFileEx.path;
     var projectDirPath = projectFileEx.dirName;
 
     var koExt = ko.koextgen.extensionLib;
     
-    var prefset = project.prefset;
-    prefset.setStringPref("koextgen.target", targetName);
-    var baseName = projectFileEx.baseName;
-    var ext = projectFileEx.ext;
-    baseName = baseName.substr(0, baseName.length - ext.length);
     var rdfFile = koExt.os.path.join(projectDirPath, "install.rdf");
     var rdfVars = koExt.getRDFVars(koExt.readFile(rdfFile));
     var data = {
