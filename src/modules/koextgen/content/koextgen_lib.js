@@ -20,6 +20,42 @@ this.os = Components.classes['@activestate.com/koOs;1'].
     getService(Components.interfaces.koIOs);
 this.error = false;
 
+/**
+ * Run koext command line with the given arguments.
+ *
+ * Any paths in the koext_args should be surrounded by double quotes.
+ * 
+ * @param {String} koext_args  The arguments to pass to koext.
+ * @param {Function} callback  The function to be called when done.
+ */
+this.command = function koextgen_runKoext(koext_args, callback) {
+    var os = Components.classes['@activestate.com/koOs;1'].
+      getService(Components.interfaces.koIOs);
+    var appInfo = Components.classes["@mozilla.org/xre/app-info;1"].
+      getService(Components.interfaces.nsIXULRuntime);
+    var koDirs = Components.classes['@activestate.com/koDirs;1'].
+      getService(Components.interfaces.koIDirs);
+    
+    var pythonExe = koDirs.pythonExe;
+    var projectDir = ko.interpolate.interpolateString('%p');
+    var scriptName = 'koext';
+    if (appInfo.OS == 'WINNT') {
+      scriptName += ".py"; 
+    }
+
+    var arr = [koDirs.sdkDir, 'bin', scriptName];
+    var app = os.path.joinlist(arr.length, arr);
+    var cmd = ('"' + pythonExe + '" ' +
+               '"' + app + '" ' +
+               koext_args);
+    if (appInfo.OS == 'WINNT') {
+      cmd = '"' + cmd + '"';
+    }
+    cmd += " {'cwd': u'" + koDirs.mozBinDir + "'}";
+    
+    ko.run.runEncodedCommand(window, cmd, callback);
+}
+
 this.getProjectPath = function(relative) {
     try {
         var prj_path = ko.interpolate.interpolateString('%p');
