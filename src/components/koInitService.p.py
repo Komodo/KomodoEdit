@@ -1207,10 +1207,12 @@ class KoInitService(object):
 
     def installTemplates(self):
         try:
-            # Simply creating these services will initialize the template
-            # directory on the filesystem (if it doesn't already exist).
-            components.classes["@activestate.com/koTemplateService?type=file;1"].\
-                    getService(components.interfaces.koITemplateService)
+            for type in ("file", "project"):
+                # Simply creating these services will initialize the template
+                # directories on the filesystem (if they don't already exist).
+                cid = "@activestate.com/koTemplateService?type=%s;1" % (type, )
+                components.classes[cid].\
+                        getService(components.interfaces.koITemplateService)
         except Exception:
             log.exception("installTemplates")
 
