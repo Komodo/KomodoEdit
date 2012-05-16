@@ -896,6 +896,7 @@ class CplnTestCase(CodeintelPythonTestCase):
         self.assertCalltipIs(markup_text(content, pos=positions[6]),
                              "Gehry()")
 
+    @tag("bug94079", "knownfailure")
     def test_enumerate_calltip(self):
         # This tests a case you can't get from pythoncile'd files:
         # - a class with a docstring
