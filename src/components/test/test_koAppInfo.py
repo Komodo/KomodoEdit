@@ -202,7 +202,7 @@ class PerlAppInfoTestCase(_BaseAppInfoTestCase):
         appInfo = self.freshAppInfo
         exe = appInfo.executablePath
         if exe:
-            self.assertTrue(appInfo.haveModules(["Socket", "Thread"]))
+            self.assertTrue(appInfo.haveModules(["Socket", "warnings"]))
 
 class NodejsAppInfoTestCase(_BaseAppInfoTestCase):
     lang = "NodeJS"
