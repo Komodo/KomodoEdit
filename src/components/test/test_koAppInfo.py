@@ -29,6 +29,19 @@ class _BaseAppInfoTestCase(unittest.TestCase):
             self._cachedAppInfo = self.freshAppInfo
         return self._cachedAppInfo
 
+    def _getExecutableFromRegistry(self, exeName):
+        """Windows allow application paths to be registered in the registry."""
+        import _winreg
+        try:
+            key = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\" +\
+                  exeName
+            registered = _winreg.QueryValue(_winreg.HKEY_LOCAL_MACHINE, key)
+            if registered and os.path.exists(registered):
+                return registered
+        except _winreg.error:
+            pass
+        return None
+
     def _getPathsForInterpreters(self, interpNames):
         exe_paths = []
         possible_paths = koprocessutils.getUserEnv()["PATH"].split(os.pathsep)
@@ -39,6 +52,13 @@ class _BaseAppInfoTestCase(unittest.TestCase):
                 exe = join(dirpath, interpName)
                 if exists(exe) and exe not in exe_paths:
                     exe_paths.append(exe)
+            # To be compatible with which.whichall (called by koAppInfoEx), when
+            # running on Windows we must also check the registry for any
+            # registered executables.
+            if sys.platform.startswith('win'):
+                registry_exe = self._getExecutableFromRegistry(interpName)
+                if registry_exe and registry_exe.lower() not in [x.lower() for x in exe_paths]:
+                    exe_paths.append(registry_exe)
         return exe_paths
 
     def _getInstallLocationsForInterpreters(self, interpNames):
