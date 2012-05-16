@@ -197,7 +197,8 @@ class KoAppInfoEx:
         return self.get_executablePath()
 
     def _locateExecutables(self, exeName, interpreterPrefName=None, exts=None, paths=None):
-        if exts is None and sys.platform.startswith('win'):
+        is_windows = sys.platform.startswith('win')
+        if exts is None and is_windows:
             exts = ['.exe']
         if paths is None:
             paths = self._userPath
@@ -207,8 +208,11 @@ class KoAppInfoEx:
             if prefs.hasStringPref(interpreterPrefName):
                 prefexe = prefs.getStringPref(interpreterPrefName)
                 if prefexe not in executables and os.path.exists(prefexe):
-                    # The user chosen interpreter is always first!
-                    executables.insert(0, prefexe)
+                    # Have to also check case-insensitively for Windows.
+                    if not is_windows or \
+                       prefexe.lower() not in [x.lower() for x in executables]:
+                        # The user chosen interpreter is always first!
+                        executables.insert(0, prefexe)
         return executables
 
     def FindExecutables(self):
