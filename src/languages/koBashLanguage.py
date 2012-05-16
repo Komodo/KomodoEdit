@@ -34,9 +34,18 @@
 # 
 # ***** END LICENSE BLOCK *****
 
+import re, os, sys, tempfile
 from xpcom import components, ServerException
+import koprocessutils
+import logging
+from koLintResult import KoLintResult, createAddResult
+from koLintResults import koLintResults
+import process
 
-from koLanguageServiceBase import *
+log = logging.getLogger("koBashLanguage")
+#log.setLevel(logging.DEBUG)
+
+from koLanguageServiceBase import KoLanguageBase, KoLexerLanguageService
 
 class koBashLanguage(KoLanguageBase):
     name = "Bash"
@@ -119,3 +128,69 @@ perl -n -e 'chomp; printf(qq(%c%c%s,1%c), 12, 10, $_, 10);' > TAGS
         factor groups hostid install link md5sum mkfifo
         mknod nice pinky printenv ptx readlink seq
         sha1sum shred stat su tac unlink users vdir whoami yes""".split()
+
+class KoBashLinter(object):
+    _com_interfaces_ = [components.interfaces.koILinter]
+    _reg_clsid_ = "{6da201cd-5507-4cdd-a180-746c011d16d5}"
+    _reg_contractid_ = "@activestate.com/koLinter?language=Bash;1"
+    _reg_categories_ = [
+         ("category-komodo-linter", 'Bash'),
+         ]
+    
+    def __init__(self):
+        if sys.platform.startswith("win"):
+            self._bash = None
+        elif os.path.exists("/bin/bash"):
+            self._bash = "/bin/bash"
+        elif os.path.exists("/bin/sh"):
+            self._bash = "/bin/sh"
+        else:
+            self._bash = None
+    
+    def lint(self, request):
+        if self._bash is None:
+            return
+        text = request.content.encode(request.encoding.python_encoding_name)
+        return self.lint_with_text_aux(request, text)
+        
+    def lint_with_text(self, request, text):
+        """This routine exists only if someone uses bash in a multi-lang document
+        """
+        if self._bash is None:
+            return
+        return self.lint_with_text_aux(request, text)
+    
+    _ptn_err = re.compile(r'.*?:\s+line\s+(\d+):\s+(syntax\s+error\b.*)')
+    _leading_ws_ptn = re.compile(r'(\s+)')
+    def lint_with_text_aux(self, request, text):
+        tmpfilename = tempfile.mktemp() + '.sh'
+        fout = open(tmpfilename, 'w')
+        fout.write(text)
+        fout.close()
+        cwd = request.cwd
+        cmd = [self._bash, "-n", tmpfilename]
+        cwd = request.cwd or None
+        # We only need the stderr result.
+        try:
+            p = process.ProcessOpen(cmd, cwd=cwd, env=koprocessutils.getUserEnv(), stdin=None)
+            _, stderr = p.communicate()
+            stderr = stderr.splitlines(0) # Don't need the newlines.
+            textLines = None
+        except:
+            log.exception("Failed to run %s, cwd %r", cmd, cwd)
+            return None
+        finally:
+            os.unlink(tmpfilename)
+        results = koLintResults()
+        
+        for line in stderr:
+            m = self._ptn_err.match(line)
+            if m:
+                if textLines is None:
+                    textLines = text.splitlines()
+                    SEV_ERROR = components.interfaces.koILintResult.SEV_ERROR
+                m1 = self._leading_ws_ptn.match(line)
+                createAddResult(results, textLines, SEV_ERROR, m.group(1),
+                                m.group(2),
+                                m1 and m1.group(1) or None)
+        return results        
