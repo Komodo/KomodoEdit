@@ -21,14 +21,14 @@
   <menu id="menu_project_templates">
       <menupopup id="popup_project_templates">
         <menuitem id="createKoExtProject"
-                  label="Create Komodo Extension Project"
+                  label="Create Komodo Extension"
                   oncommand="ko.koextgen.createExtGenProject('komodo');"
                   accesskey="&komodoExtension.accesskey;"
                   class="menu-iconic-wide"
                   insertbefore="menu_project_builtin_templates_separator"
                   keep="true" />
         <menuitem id="createFirefoxExtProject"
-                  label="Create Firefox Extension Project"
+                  label="Create Firefox Extension"
                   oncommand="ko.koextgen.createExtGenProject('firefox');"
                   accesskey="&firefoxExtension.accesskey;"
                   class="menu-iconic-wide"
