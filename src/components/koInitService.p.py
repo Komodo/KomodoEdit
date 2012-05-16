@@ -966,7 +966,6 @@ class KoInitService(object):
             "komodo-user-prefs.xml": "prefs.xml",
             "prefs.xml": "prefs.xml",
             "templates": "templates",
-            "project-templates": "project-templates",
             "schemes": "schemes",
             "toolbox.sqlite": "toolbox.sqlite",
             "tools": "tools",
