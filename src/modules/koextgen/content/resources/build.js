@@ -7,9 +7,6 @@ var project = ko.macros.current.project;
 var os = Components.classes['@activestate.com/koOs;1'].
   getService(Components.interfaces.koIOs);
 
-var koSysUtils = Components.classes["@activestate.com/koSysUtils;1"].
-  getService(Components.interfaces.koISysUtils);
-
 var appInfo = Components.classes["@mozilla.org/xre/app-info;1"].
   getService(Components.interfaces.nsIXULRuntime);
 
