@@ -60,6 +60,7 @@ def createAddResult(results, textlines, severity, lineNo, desc, leadingWS=None):
     """
     lineNo is 1-based
     """
+    lineNo = int(lineNo)
     if lineNo > len(textlines):
         lineNo = len(textlines)
     while lineNo >= 0 and len(textlines[lineNo - 1]) == 0:
