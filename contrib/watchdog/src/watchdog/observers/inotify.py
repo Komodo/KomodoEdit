@@ -552,7 +552,6 @@ if platform.is_linux():
                         if move_src_path is None:
                             # Don't know where it was moved from, so we just say
                             # it got created instead.
-                            print "Re-mapping to a CREATE: %r %r" % (name, src_path)
                             inotify_event = InotifyEvent(wd, InotifyConstants.IN_CREATE,
                                                          0, name, src_path)
                         else:
