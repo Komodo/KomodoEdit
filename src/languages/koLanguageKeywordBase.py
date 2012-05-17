@@ -78,14 +78,18 @@ class KoLanguageKeywordBase(KoLanguageBase):
             getService(components.interfaces.koIPrefService)
         self._prefs = self.prefService.prefs
         self._dedent_on_last_char = self._prefs.getBooleanPref("edit.indent.keyword.dedent_on_last_char")
+        self._editAutoIndentStyle = self._prefs.getStringPref("editAutoIndentStyle")
         try:
             self._prefs.prefObserverService.addObserver(self, "edit.indent.keyword.dedent_on_last_char", 0)
+            self._prefs.prefObserverService.addObserver(self, "editAutoIndentStyle", 0)
         except Exception, e:
             print e
 
     def observe(self, subject, topic, data):
         if topic == "edit.indent.keyword.dedent_on_last_char":
             self._dedent_on_last_char = self._prefs.getBooleanPref(topic)
+        elif topic == "editAutoIndentStyle":
+            self._editAutoIndentStyle = self._prefs.getStringPref("editAutoIndentStyle")
         
     def _get_line_tokens(self, scimoz, start_pos, end_pos, style_info):
         test_line = scimoz.lineFromPosition(start_pos)
@@ -245,6 +249,8 @@ class KoLanguageKeywordBase(KoLanguageBase):
         5. Assume self._keyword_dedenting_keywords is non-empty.
            Otherwise why would the subclass be using this as a superclass?
         """
+        if self._editAutoIndentStyle != "smart":
+            return
         if ch in ('\n', '\r'):
             return self._checkIndentingCurrentAndPreviousLine(ch, scimoz, style_info)
         currentPos = scimoz.currentPos
