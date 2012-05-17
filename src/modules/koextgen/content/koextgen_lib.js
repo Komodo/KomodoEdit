@@ -33,8 +33,6 @@ this.error = false;
  * @param {Function} callback  The function to be called when done.
  */
 this.command = function koextgen_runKoext(koext_args, callback) {
-    var os = Components.classes['@activestate.com/koOs;1'].
-      getService(Components.interfaces.koIOs);
     var appInfo = Components.classes["@mozilla.org/xre/app-info;1"].
       getService(Components.interfaces.nsIXULRuntime);
     var koDirs = Components.classes['@activestate.com/koDirs;1'].
@@ -48,7 +46,7 @@ this.command = function koextgen_runKoext(koext_args, callback) {
     }
 
     var arr = [koDirs.sdkDir, 'bin', scriptName];
-    var app = os.path.joinlist(arr.length, arr);
+    var app = this.osPath.joinlist(arr.length, arr);
     var cmd = ('"' + pythonExe + '" ' +
                '"' + app + '" ' +
                koext_args);
