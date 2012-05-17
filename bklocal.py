@@ -1476,27 +1476,7 @@ class WithDocs(black.configure.BooleanDatum):
                 if not self.value: configTokens.append("docs")
                 self.value = True
             elif opt == "--without-docs":
-                if self.value: configTokens.append("nodocjar")
                 self.value = False
-        self.determined = 1
-
-class WithDocJarring(black.configure.BooleanDatum):
-    def __init__(self):
-        black.configure.Datum.__init__(self, "withDocJarring",
-            desc="jar-up Komodo's docs",
-            acceptedOptions=("", ["with-doc-jarring", "without-doc-jarring"]))
-    def _Determine_Do(self):
-        self.applicable = 1
-        configTokens = black.configure.items["configTokens"].Get()
-        productType = black.configure.items["productType"].Get()
-        self.value = 0  # do NOT jar docs by default (c.f. bug 65574)
-        for opt, optarg in self.chosenOptions:
-            if opt == "--with-doc-jarring":
-                if not self.value: configTokens.append("docjar")
-                self.value = 1
-            elif opt == "--without-doc-jarring":
-                if self.value: configTokens.append("nodocjar")
-                self.value = 0
         self.determined = 1
 
 class WithKomodoCix(black.configure.BooleanDatum):

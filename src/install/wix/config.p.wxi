@@ -46,7 +46,6 @@
   <?define MozMajorVersion = "PP_MOZ_MAJOR_VERSION" ?> <!-- string, e.g. "7" -->
   <?define KomodoUpdateChannel = "PP_UPDATE_CHANNEL" ?> <!-- string, e.g. "nightly" -->
 
-  <?define WithDocJarring = "PP_MSI_AVEC_DOC_JARRING" ?> <!-- yes|no -->
   <?define WithStackato = "PP_MSI_AVEC_STACKATO" ?> <!-- yes|no -->
   <?define WithWatchdogFSNotifications = "PP_MSI_AVEC_WATCHDOG_FS_NOTIFICATIONS" ?> <!-- yes|no -->
 

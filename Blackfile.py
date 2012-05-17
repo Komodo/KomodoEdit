@@ -808,7 +808,6 @@ configuration = {
     "withCasper": WithCasper(),
     "withJSLib": WithJSLib(),
     "withDocs": WithDocs(),
-    "withDocJarring": WithDocJarring(),
     "withKomodoCix": WithKomodoCix(),
     "withWatchdogFSNotifications": WithWatchdogFSNotifications(),
     "xulrunner": XULRunnerApp(), # xulrunner based builds
@@ -1092,18 +1091,8 @@ def ImageKomodo(cfg, argv):
             ("cp", chromepath("komododoc.manifest"),
              ipkgpath("feature-docs", "INSTALLDIR", "lib", "mozilla", 
                       "chrome", "komododoc.manifest")),
+            ("cp", docchromepath(), iidocchromepath()),
         ]
-        if cfg.withDocJarring:
-            ibits += [
-                ("rm", iicorepath("lib", "mozilla", "chrome", "komododoc.jar")),
-                ("cp", chromepath("komododoc.jar"),
-                 ipkgpath("feature-docs", "INSTALLDIR", "lib", "mozilla", 
-                          "chrome", "komododoc.jar")),
-            ]
-        else:
-            ibits += [
-                ("cp", docchromepath(), iidocchromepath()),
-            ]
 
     # - Installer support files
     ibits += [
@@ -2079,8 +2068,6 @@ def BuildKomodo(cfg, argv):
         retval = JarChrome("xtk", cfg, argv)
     if not retval and cfg.jarring:
         retval = JarChrome("komodo", cfg, argv)
-    if not retval and cfg.withDocJarring:
-        retval = JarChrome("komododoc", cfg, argv)
     if not retval and not noquick:
         BuildQuickBuildDB(cfg, argv)
     return retval
@@ -2491,8 +2478,6 @@ def QuickBuild(cfg, argv, _table):
     if cfg.jarring:
         retval = JarChrome("xtk", cfg, argv)
         retval = JarChrome("komodo", cfg, argv)
-    if cfg.withDocJarring:
-        retval = JarChrome("komododoc", cfg, argv)
 
     # save the new state of affairs
     pickle.dump(_table, open('qbtable.pik', 'w'))

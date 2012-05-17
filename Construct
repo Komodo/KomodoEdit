@@ -61,7 +61,7 @@ my @toExport = (
     'withCasper',
     'withJSLib',
     'withWatchdogFSNotifications',
-    'withDocs', 'withDocJarring',
+    'withDocs',
     'withKomodoCix',
     'withStackato',
     'xulrunner', # xulrunner based builds
