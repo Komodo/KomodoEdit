@@ -441,6 +441,8 @@
      if true, adjust position of closing brace to indent of matching brace line
   -->
   <boolean id="editElectricBrace">1</boolean>
+  
+  <boolean id="edit.indent.keyword.dedent_on_last_char">1</boolean>
   <long id="editAutoWrapColumn">80</long>
   <boolean id="editSmartSoftCharacters">1</boolean>
   <boolean id="enableSmartSoftCharactersInsideLine">0</boolean>

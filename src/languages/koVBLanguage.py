@@ -36,7 +36,8 @@
 
 from xpcom import components, ServerException
 
-from koLanguageServiceBase import *
+from koLanguageServiceBase import KoLexerLanguageService
+from koLanguageKeywordBase import KoCommonBasicLanguageService
 
 # list obtained from http://msdn.microsoft.com/library/default.asp?url=/library/en-us/vblr7/html/vaorivblangkeywordsall.asp
 keywords =  """addhandler addressof alias and
@@ -75,7 +76,7 @@ keywords =  """addhandler addressof alias and
                 while with withevents writeonly 
                 xor""".split()
 
-class koVisualBasicLanguage(KoLanguageBase):
+class koVisualBasicLanguage(KoCommonBasicLanguageService):
     name = "VisualBasic"
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
@@ -88,10 +89,9 @@ class koVisualBasicLanguage(KoLanguageBase):
         "line": [ "'",  "rem ", "REM "  ],
     }
 
-    supportsSmartIndent = "brace"
-   
+    # Problems: 'private' and 'public' and 'shared' can come before a function name.
     def __init__(self):
-        KoLanguageBase.__init__(self)
+        KoCommonBasicLanguageService.__init__(self)
         del self.matchingSoftChars["'"]
      
     def get_lexer(self):

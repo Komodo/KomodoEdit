@@ -36,11 +36,12 @@
 
 from xpcom import components, ServerException
 
-from koLanguageServiceBase import *
+from koLanguageServiceBase import KoLexerLanguageService
+from koLanguageKeywordBase import KoCommonBasicLanguageService
 
 # Power Basic at http://www.powerbasic.com/
 
-class koPowerBasicLanguage(KoLanguageBase):
+class koPowerBasicLanguage(KoCommonBasicLanguageService):
     name = "PowerBasic"
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \

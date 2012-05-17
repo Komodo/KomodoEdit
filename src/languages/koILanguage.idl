@@ -77,7 +77,7 @@ interface koILanguage : nsISupports {
     readonly attribute wstring searchURL;
     readonly attribute string variableIndicators;
     readonly attribute boolean foldable;
-    readonly attribute wstring supportsSmartIndent; // 'text', 'brace', 'python', 'XML'
+    readonly attribute wstring supportsSmartIndent; // 'text', 'brace', 'python', 'XML', 'keyword'
     
     attribute boolean primary;
 

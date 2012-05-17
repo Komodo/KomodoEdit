@@ -794,10 +794,10 @@ class koLangSvcStyleInfo_Default(koLangSvcStyleInfo_Base):
         # Should be overriden by the lang-specific
         # implementation if that lang has block
         # comments.
-        self._indent_open_styles = (10,)
-        self._indent_close_styles = (10,)
-        self._lineup_close_styles = (10,)
-        self._lineup_styles = (10,)
+        self._indent_open_styles = [10,]
+        self._indent_close_styles = [10,]
+        self._lineup_close_styles = [10,]
+        self._lineup_styles = [10,]
         # These are all automatically calculated from styles.StateMap
         # for pure languages, overridden by UDL
             
@@ -806,19 +806,19 @@ class koLangSvcStyleInfo_Default(koLangSvcStyleInfo_Base):
         # strings.
     
         # Put in all values as empty tuples or None, and override
-        self._block_comment_styles = ()
-        self._comment_styles = ()
-        self._datasection_styles = ()
-        self._default_styles = ()
-        self._ignorable_styles = ()
-        self._regex_styles = ()
-        self._indent_styles = ()
-        self._keyword_styles = ()
-        self._multiline_styles = ()
-        self._modified_keyword_styles = ()
-        self._number_styles = ()
-        self._string_styles = ()
-        self._variable_styles = ()
+        self._block_comment_styles = []
+        self._comment_styles = []
+        self._datasection_styles = []
+        self._default_styles = []
+        self._ignorable_styles = []
+        self._regex_styles = []
+        self._indent_styles = []
+        self._keyword_styles = []
+        self._multiline_styles = []
+        self._modified_keyword_styles = []
+        self._number_styles = []
+        self._string_styles = []
+        self._variable_styles = []
 
 class koLangSvcStyleInfo(koLangSvcStyleInfo_Default):
     def __init__(self, **attrs):
@@ -874,7 +874,13 @@ class KoLanguageBase:
     _dedent_chars = ""
 
     # These should be overriden by the language implementation
-    _dedenting_statements = []
+    # "statements" should have been "keywords"
+    # These mark what should be the last line in the block.
+    # They don't work for Perl-like languages where you can say
+    #     return if <test>
+    _dedenting_statements = []  # eg: break, continue, return
+
+    # These are used in both brace- and keyword-based languages
     _indenting_statements = []
 
     _stateMap = {}
@@ -1599,11 +1605,13 @@ class KoLanguageBase:
         or an indenting statement (e.g. an if or else that is not
         followed by a brace). 
         """
-        if pos < scimoz.length:
-            currLineNo = scimoz.lineFromPosition(pos)
+        originalPos = self._originalPos
+        if originalPos < scimoz.length:
+            currLineNo = scimoz.lineFromPosition(originalPos)
             currLineEndPos = scimoz.getLineEndPosition(currLineNo)
-            if pos < currLineEndPos and scimoz.getTextRange(pos, currLineEndPos).strip():
+            if originalPos < currLineEndPos and scimoz.getTextRange(originalPos, currLineEndPos).strip():
                 # Bug 80748: dedent/indent only when return is at end of line
+                
                 # Bug 80960: don't get the text at start of last line of the buffer
                 return None
         
@@ -1964,7 +1972,7 @@ class KoLanguageBase:
                 indentWidth = self._getIndentWidthForLine(scimoz, lineNo)
                 indentWidth = min(indentWidth, scimoz.getColumn(scimoz.currentPos))
                 return scimozindent.makeIndentFromWidth(scimoz, indentWidth)
-            if self.supportsSmartIndent in ('brace', 'python'):
+            if self.supportsSmartIndent in ('brace', 'python', 'keyword'):
                 retVal = self._getSmartBraceIndent(scimoz, continueComments, style_info)
                 if retVal or self.supportsSmartIndent == 'python':
                     return retVal
@@ -2060,6 +2068,9 @@ class KoLanguageBase:
         if (scimoz.getColumn(currentPos) == 0):
             return None
         try:
+            # Save the current pos in case we end up checking for an
+            # indenting/dedenting keyword
+            self._originalPos = currentPos
             analysis = self._analyzeIndentNeededAtPos(scimoz, currentPos, continueComments, style_info)
             #indentlog.debug("_getSmartBraceIndent: self._analyzeIndentNeededAtPos(%d,%d) => <<%s>>", currentPos, continueComments, repr(analysis))
             if analysis == None:

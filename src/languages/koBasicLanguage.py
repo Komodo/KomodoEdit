@@ -36,9 +36,10 @@
 
 from xpcom import components, ServerException
 
-from koLanguageServiceBase import *
+from koLanguageServiceBase import KoLexerLanguageService
+from koLanguageKeywordBase import KoCommonBasicLanguageService
 
-class basicBase(KoLanguageBase):
+class basicBase(KoCommonBasicLanguageService):
     _keywords = None
     _keywords2 = None
     sciMozLexer = None
@@ -90,7 +91,7 @@ PRINT
 """
     
     def __init__(self):
-        KoLanguageBase.__init__(self)
+        KoCommonBasicLanguageService.__init__(self)
         del self.matchingSoftChars["'"]
         
     def get_lexer(self):
@@ -158,8 +159,6 @@ class koPureBasicLanguage(basicBase):
     sciMozLexer = components.interfaces.ISciMoz.SCLEX_PUREBASIC
     defaultExtension = ".pb"
 
-    supportsSmartIndent = "brace"
-
     _keywords="""and break case continue data 
                 datasection declare declarecdll declaredll default deftype dim else 
                 elseif end enddatasection endenumeration endif endinterface endprocedure 
@@ -180,8 +179,6 @@ class koBlitzBasicLanguage(basicBase):
     
     sciMozLexer = components.interfaces.ISciMoz.SCLEX_BLITZBASIC
     defaultExtension = ".bb"
-
-    supportsSmartIndent = "brace"
 
     _keywords = """abs accepttcpstream acos after and apptitle asc asin atan atan2
                     automidhandle autosuspend availvidmem backbuffer banksize before bin calldll

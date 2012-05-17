@@ -62,6 +62,7 @@ $cons->Preprocess('koPythonLanguage.p.py', 'koPythonLanguage.py');
 $cons->InstallXpcomComponent('koPythonLanguage.py');
 $cons->InstallXpcomComponent('koLanguage.py');
 $cons->InstallPythonUtility('koLanguageServiceBase.py');
+$cons->InstallPythonUtility('koLanguageKeywordBase.py');
 $cons->InstallPythonUtility('koUDLLanguageBase.py');
 $cons->InstallPythonUtility('koXMLLanguageBase.py');
 

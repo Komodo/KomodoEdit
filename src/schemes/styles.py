@@ -504,6 +504,7 @@ StateMap['Python3'] = StateMap['Python'].copy()
 StateMap['SCSS'] = StateMap['CSS'].copy()
 StateMap['Less'] = StateMap['CSS'].copy()
 StateMap['Less']['mixins'] = ('SCE_CSS_MIXIN',)
+StateMap['Octave'] = StateMap['Matlab'].copy()
 
 SharedStates = {
     'bracebad' : ('STYLE_BRACEBAD',),
