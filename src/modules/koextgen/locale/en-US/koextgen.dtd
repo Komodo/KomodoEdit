@@ -1,2 +1,4 @@
+<!ENTITY komodoExtensionCreate.label "Create Komodo Extension">
 <!ENTITY komodoExtension.accesskey "k">
+<!ENTITY firefoxExtensionCreate.label "Create Firefox Extension">
 <!ENTITY firefoxExtension.accesskey "f">

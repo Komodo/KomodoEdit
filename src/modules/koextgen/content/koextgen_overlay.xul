@@ -2,8 +2,6 @@
 <!DOCTYPE overlay PUBLIC "-//MOZILLA//DTD XUL V1.0//EN" "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
   <!ENTITY % koextgenDTD SYSTEM "chrome://koextgen/locale/koextgen.dtd">
   %koextgenDTD;
-  <!ENTITY % komodoDTD SYSTEM "chrome://komodo/locale/komodo.dtd">
-  %komodoDTD;
 ]>
 <?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
@@ -21,14 +19,14 @@
   <menu id="menu_project_templates">
       <menupopup id="popup_project_templates">
         <menuitem id="createKoExtProject"
-                  label="Create Komodo Extension"
+                  label="&komodoExtensionCreate.label;"
                   oncommand="ko.koextgen.createExtGenProject('komodo');"
                   accesskey="&komodoExtension.accesskey;"
                   class="menu-iconic-wide"
                   insertbefore="menu_project_builtin_templates_separator"
                   keep="true" />
         <menuitem id="createFirefoxExtProject"
-                  label="Create Firefox Extension"
+                  label="&firefoxExtensionCreate.label;"
                   oncommand="ko.koextgen.createExtGenProject('firefox');"
                   accesskey="&firefoxExtension.accesskey;"
                   class="menu-iconic-wide"
