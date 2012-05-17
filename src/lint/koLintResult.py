@@ -36,9 +36,15 @@
 # ***** END LICENSE BLOCK *****
 
 
+import os
+import re
+import tempfile
+
+import koprocessutils
+import process
 from xpcom import components
 from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, getProxyForObject
-import re
+from koLintResults import koLintResults
 
 def getProxiedEffectivePrefs(request):
     return getProxyForObject(None,
@@ -81,6 +87,42 @@ def createAddResult(results, textlines, severity, lineNo, desc, leadingWS=None):
                           columnStart=1,
                           columnEnd=columnEnd)
     results.addResult(result)
+
+_leading_ws_ptn = re.compile(r'(\s+)')
+def runGenericLinter(text, extension, cmd_start, err_ptns, warn_ptns, cwd, useStderr):
+    tmpfilename = tempfile.mktemp() + extension
+    fout = open(tmpfilename, 'w')
+    fout.write(text)
+    fout.close()
+    cmd = cmd_start + [tmpfilename]
+    try:
+        p = process.ProcessOpen(cmd, cwd=cwd, env=koprocessutils.getUserEnv(), stdin=None)
+        stdout, stderr = p.communicate()
+        if useStderr:
+            errLines = stderr.splitlines(0) # Don't need the newlines.
+        else:
+            errLines = stdout.splitlines(0) # Don't need the newlines.
+        textLines = None
+    except:
+        log.exception("Failed to run %s, cwd %r", cmd, cwd)
+        return None
+    finally:
+        os.unlink(tmpfilename)
+    results = koLintResults()
+    all_ptns = (zip(err_ptns, [SEV_ERROR] * len(err_ptns))
+                + zip(warn_ptns, [SEV_WARNING] * len(warn_ptns)))
+    for line in errLines:
+        for ptn, sev in all_ptns:
+            m = ptn.match(line)
+            if m:
+                if textLines is None:
+                    textLines = text.splitlines()
+                m1 = _leading_ws_ptn.match(line)
+                createAddResult(results, textLines, sev, m.group(1),
+                                m.group(2),
+                                m1 and m1.group(1) or None)
+                break
+    return results        
     
 class KoLintResult:
     _com_interfaces_ = [components.interfaces.koILintResult]

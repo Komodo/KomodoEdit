@@ -34,12 +34,10 @@
 # 
 # ***** END LICENSE BLOCK *****
 
-import re, os, sys, tempfile
+import re, os
 from xpcom import components, ServerException
-import koprocessutils
 import logging
-from koLintResult import KoLintResult, createAddResult
-from koLintResults import koLintResults
+from koLintResult import runGenericLinter
 import process
 
 from koLanguageKeywordBase import KoLanguageKeywordBase
@@ -163,6 +161,7 @@ class KoLuaLinter(object):
         import which
         try:
             self._luac = which.which("luac")
+            self._cmd_start = [self._luac, "-p"]
         except which.WhichError:
             self._luac = None
     
@@ -180,39 +179,11 @@ class KoLuaLinter(object):
         return self.lint_with_text_aux(request, text)
     
     _ptn_err = re.compile(r'.*?:.*?:(\d+)\s*:\s*(.*)')
-    _leading_ws_ptn = re.compile(r'(\s+)')
     def lint_with_text_aux(self, request, text):
-        tmpfilename = tempfile.mktemp() + '.sh'
-        fout = open(tmpfilename, 'w')
-        fout.write(text)
-        fout.close()
-        cwd = request.cwd
-        cmd = [self._luac, "-p", tmpfilename]
         cwd = request.cwd or None
-        # We only need the stderr result.
-        try:
-            p = process.ProcessOpen(cmd, cwd=cwd, env=koprocessutils.getUserEnv(), stdin=None)
-            _, stderr = p.communicate()
-            stderr = stderr.splitlines(0) # Don't need the newlines.
-            log.debug("luac stderr: %s", stderr)
-            textLines = None
-        except:
-            log.exception("Failed to run %s, cwd %r", cmd, cwd)
-            return None
-        finally:
-            os.unlink(tmpfilename)
-        results = koLintResults()
-        
-        for line in stderr:
-            m = self._ptn_err.match(line)
-            if m:
-                if textLines is None:
-                    textLines = text.splitlines()
-                    SEV_ERROR = components.interfaces.koILintResult.SEV_ERROR
-                m1 = self._leading_ws_ptn.match(line)
-                createAddResult(results, textLines, SEV_ERROR, m.group(1),
-                                m.group(2),
-                                m1 and m1.group(1) or None)
-        return results        
+        extension = ".lua"
+        return runGenericLinter(text, extension, self._cmd_start,
+                                [self._ptn_err], [],
+                                cwd=cwd, useStderr=True)
         
     
