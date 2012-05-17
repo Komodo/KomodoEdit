@@ -410,11 +410,9 @@
       <ComponentRef Id="component351"/>
       <ComponentRef Id="component352"/>
 
-<?if $(var.WithPlaces) = "yes" ?>
       <ComponentRef Id="component177"/>
       <ComponentRef Id="component178"/>
       <ComponentRef Id="component179"/>
-<?endif ?>
 
 <?if $(var.WithStackato) = "yes" ?>
       <ComponentRef Id="component372"/>
@@ -1876,7 +1874,6 @@
                 </Component>
               </Directory> <!-- lib\mozilla\extensions\zendframework@ActiveState.com\pylib -->
             </Directory> <!-- lib\mozilla\extensions\zendframework@ActiveState.com -->
-<?if $(var.WithPlaces) = "yes" ?>
             <Directory Id="directory192" Name="PLACES_0.COM" LongName="places@activestate.com">
               <Component Id="component177" DiskId="1" Guid="$(autowix.guid)">
                 <File Id="file1055" Name="CHROM_21.MAN" LongName="chrome.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\extensions\places@activestate.com\chrome.manifest"/>
@@ -1896,7 +1893,6 @@
                 </Component>
               </Directory> <!-- lib\mozilla\extensions\places@activestate.com\idl -->
             </Directory> <!-- lib\mozilla\extensions\places@activestate.com -->
-<?endif ?>
           </Directory> <!-- lib\mozilla\extensions -->
           <Directory Id="directory65" Name="greprefs">
             <Component Id="component59" DiskId="1" Guid="$(autowix.guid)">

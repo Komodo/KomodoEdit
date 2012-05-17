@@ -64,7 +64,6 @@ Import(
     "msiVccrtMsmPath",
     "msiVccrtPolicyMsmPath",
     "mozVersion",
-    "withPlaces",
     "withStackato",
     "withDocJarring",
     "withWatchdogFSNotifications",
@@ -108,7 +107,6 @@ if ($buildFlavour eq "full") {
                 # preprocess.py does better explicit marking of
                 # substitutions.
                 "PP_MSI_AVEC_DOC_JARRING" => ($withDocJarring ? "yes" : "no"),
-                "PP_MSI_AVEC_PLACES" => ($withPlaces ? "yes" : "no"),
                 "PP_MSI_AVEC_STACKATO" => ($withStackato ? "yes" : "no"),
                 "PP_MSI_AVEC_WATCHDOG_FS_NOTIFICATIONS" => ($withWatchdogFSNotifications ? "yes" : "no"),
             }

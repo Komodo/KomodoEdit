@@ -63,7 +63,6 @@ my @toExport = (
     'withWatchdogFSNotifications',
     'withDocs', 'withDocJarring',
     'withKomodoCix',
-    'withPlaces',
     'withStackato',
     'xulrunner', # xulrunner based builds
     'xulrunnerBuildId',
@@ -421,6 +420,7 @@ Build(
       
     "$build/modules/fastopen/Conscript",
     "$build/modules/koextgen/Conscript",
+    "$build/modules/places/Conscript",
     "$build/modules/rails/Conscript",
     "$build/modules/spellcheck/Conscript",
     "$build/modules/zendframework/Conscript",
@@ -457,17 +457,11 @@ if ($buildFlavour ne "full") {
         "$build/chrome/komodo/content/test/Conscript",
         "$build/chrome/komodo/content/test/jsdb/Conscript",
     );
-}
-
-if ($withPlaces) {
-    Build(
-	"$build/modules/places/Conscript",
-    );
     # Add the gtkstock icons for Komodo Linux dev builds.
     if ($platform eq "linux") {
-	Build(
-	    "$build/images/gtkstock/Conscript",
-	);
+    Build(
+        "$build/images/gtkstock/Conscript",
+    );
     }
 }
 

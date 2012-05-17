@@ -803,7 +803,6 @@ configuration = {
     "docsPackageName": DocsPackageName(),
     "mozPatchesPackageName": MozPatchesPackageName(),
 
-    "withPlaces": WithPlaces(),
     "withStackato": WithStackato(),
     "withTests": WithTests(),
     "withCasper": WithCasper(),
