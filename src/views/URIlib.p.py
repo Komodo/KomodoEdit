@@ -74,12 +74,10 @@ addSchemeToParser('macro2')
 
 RemoteURISchemeTypes = [ 'ftp' ]
 
-# #if WITH_CRYPTO
 protocolsWithCrypto = ['ftps', 'sftp', 'scp']
 for protocol in protocolsWithCrypto:
     addSchemeToParser(protocol)
     RemoteURISchemeTypes.append(protocol)
-# #endif
 
 class URILibError(Exception):
     pass

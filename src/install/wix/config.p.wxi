@@ -47,7 +47,6 @@
   <?define KomodoUpdateChannel = "PP_UPDATE_CHANNEL" ?> <!-- string, e.g. "nightly" -->
 
   <?define WithDocJarring = "PP_MSI_AVEC_DOC_JARRING" ?> <!-- yes|no -->
-  <?define WithCrypto = "PP_MSI_AVEC_CRYPTO" ?> <!-- yes|no -->
   <?define WithCasper = "PP_MSI_AVEC_CASPER" ?> <!-- yes|no -->
   <?define WithJSLib = "PP_MSI_AVEC_JSLIB" ?> <!-- yes|no -->
   <?define WithPlaces = "PP_MSI_AVEC_PLACES" ?> <!-- yes|no -->

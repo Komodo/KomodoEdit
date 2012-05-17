@@ -52,7 +52,6 @@ Import(
     'mozChromeDir',
     'komodoShortVersion',
     'mozBin',
-    'withCrypto',
     'withJSLib',
     'ranRegxpcomStateFileName',
     'siloedPython',
@@ -132,26 +131,24 @@ $consLocal->InstallRecursive("$supportDir/catalogs",
 
 
 #----  Komodo's SFTP support uses 'paramiko' which, in turn, uses PyCrypto.
-if ($withCrypto) {
-    # PyCrypto (http://www.amk.ca/python/code/crypto)
-    my $landmark = "$komodoPythonUtilsDir/Crypto/__init__.py";
-    $consLocal->Command($landmark,
-                   "pycrypto/setup.py",
-                   qq(
-                    cd %1:d && $siloedPython %1:f build $debugFlags
-                    cd %1:d && $siloedPython %1:f install --skip-build --install-lib=$komodoPythonUtilsDir
-                   ));
-    $consLocal->DependsRecursive($landmark, "pycrypto", ("build", '\.svn'));
-    
-    # paramiko (http://www.lag.net/paramiko/)
-    # See bug 73155 for a long discussion on why we are NOT using
-    # paramiko's setup.py for installation.
-    $landmark = "$komodoPythonUtilsDir/paramiko";
-    $consLocal->InstallRecursive($landmark,
-                            #XXX must be absolute path (bug in InstallRecursive)
-                            cwd()."/contrib/paramiko/paramiko",
-                            ('\.svn'));
-}
+# PyCrypto (http://www.amk.ca/python/code/crypto)
+my $landmark = "$komodoPythonUtilsDir/Crypto/__init__.py";
+$consLocal->Command($landmark,
+               "pycrypto/setup.py",
+               qq(
+                cd %1:d && $siloedPython %1:f build $debugFlags
+                cd %1:d && $siloedPython %1:f install --skip-build --install-lib=$komodoPythonUtilsDir
+               ));
+$consLocal->DependsRecursive($landmark, "pycrypto", ("build", '\.svn'));
+
+# paramiko (http://www.lag.net/paramiko/)
+# See bug 73155 for a long discussion on why we are NOT using
+# paramiko's setup.py for installation.
+$landmark = "$komodoPythonUtilsDir/paramiko";
+$consLocal->InstallRecursive($landmark,
+                        #XXX must be absolute path (bug in InstallRecursive)
+                        cwd()."/contrib/paramiko/paramiko",
+                        ('\.svn'));
 
 
 

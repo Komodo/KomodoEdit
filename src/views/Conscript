@@ -50,7 +50,6 @@ Import(
     'productType',
     'buildFlavour',
     'mozVersion',
-    'withCrypto',
     'sdkDir',
     'mozSrc',
 );

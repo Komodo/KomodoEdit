@@ -389,7 +389,6 @@
       <ComponentRef Id="component680"/>
       <ComponentRef Id="component204"/>
 
-<?if $(var.WithCrypto) = "yes" ?>
       <!-- Crypto and paramiko Python packages -->
       <ComponentRef Id="component284"/>
       <ComponentRef Id="component308"/>
@@ -410,7 +409,6 @@
       <ComponentRef Id="component350"/>
       <ComponentRef Id="component351"/>
       <ComponentRef Id="component352"/>
-<?endif ?>
 
 <?if $(var.WithPlaces) = "yes" ?>
       <ComponentRef Id="component177"/>
@@ -511,7 +509,6 @@
             <File Id="file1275" Name="MOZSQL_0.DLL" LongName="mozsqlite3.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\mozsqlite3.dll"/>
             <File Id="file1276" Name="NSINST_0.EXE" LongName="nsinstall.exe" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\nsinstall.exe"/>
             <File Id="file1277" Name="PLUGIN_0.EXE" LongName="plugin-container.exe" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\plugin-container.exe"/>
-<?if $(var.WithCrypto) = "yes" ?>
             <File Id="file1889" Name="freebl3.chk" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\freebl3.chk"/>
             <File Id="file1890" Name="freebl3.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\freebl3.dll"/>
             <File Id="file1891" Name="mangle.exe" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\mangle.exe"/>
@@ -524,7 +521,6 @@
             <File Id="file1896" Name="softokn3.chk" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\softokn3.chk"/>
             <File Id="file1897" Name="softokn3.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\softokn3.dll"/>
             <File Id="file1898" Name="ssl3.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\ssl3.dll"/>
-<?endif ?>
 <?if $(var.MozMajorVersion) = "7" ?>
             <File Id="file751" LongName="D3DCompiler_43.dll" Name="D3DCOM_0.DLL" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\D3DCompiler_43.dll" />
             <File Id="file752" Name="d3dx9_43.dll" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\d3dx9_43.dll" />
@@ -543,10 +539,8 @@
               <File Id="file1737" Name="KOMODO_0.MAN" LongName="komodo.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\chrome\komodo.manifest"/>
               <File Id="file312" Name="xtk.jar" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\chrome\xtk.jar"/>
               <File Id="file253" Name="komodo.jar" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\chrome\komodo.jar"/>
-<?if $(var.WithCrypto) = "yes" ?>
               <File Id="file2912" Name="pippki.jar" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\chrome\pippki.jar"/>
               <File Id="file2913" Name="PIPPKI_0.MAN" LongName="pippki.manifest" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\chrome\pippki.manifest"/>
-<?endif ?>
             </Component>
             <Directory Id="directory7" Name="icons">
               <Directory Id="directory8" Name="default">
@@ -929,11 +923,9 @@
               <File Id="file580" Name="TXEXSL_0.JS" LongName="txEXSLTRegExFunctions.js" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\txEXSLTRegExFunctions.js"/>
               <File Id="file581" Name="XPCOM__5.XPT" LongName="xpcom_system.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\xpcom_system.xpt"/>
               <File Id="file582" Name="ZIPWRI_0.XPT" LongName="zipwriter.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\zipwriter.xpt"/>
-<?if $(var.WithCrypto) = "yes" ?>
               <File Id="file3946" Name="koSFTP.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koSFTP.py"/>
               <File Id="file4016" Name="koSCP.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koSCP.py"/>
               <File Id="file2916" Name="pippki.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\pippki.xpt"/>
-<?endif ?>
               <File Id="file2978" Name="KOIVIC_0.XPT" LongName="koIViCommandDetail.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIViCommandDetail.xpt"/>
               <File Id="file2983" Name="KOVICO_0.PY" LongName="koViCommandDetail.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koViCommandDetail.py"/>
               <File Id="file1074" Name="KOITOO_0.XPT" LongName="koIToolbox2Components.xpt" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\components\koIToolbox2Components.xpt"/>
@@ -2044,11 +2036,9 @@
                 <File Id="file609" Name="SILVER_1.EGG" LongName="SilverCity-0.9.5-py2.6.egg-info" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\SilverCity-0.9.5-py2.6.egg-info"/>
                 <File Id="file299" Name="mozutils.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\mozutils.py" />
                 <File Id="file2956" Name="KONOTI_2.PY" LongName="koNotification.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\koNotification.py" />
-<?if $(var.WithCrypto) = "yes" ?>
                 <File Id="file554" LongName="pycrypto-2.3-py2.6.egg-info" Name="PYCRYP_0.EGG" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\pycrypto-2.3-py2.6.egg-info" />
                 <File Id="file710" LongName="ctypesutils.py" Name="CTYPES_0.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\ctypesutils.py" />
                 <File Id="file420" Name="runutils.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\runutils.py" />
-<?endif ?>
                 <File Id="file932" LongName="pythonVersionUtils.py" Name="PYTHON_0.PY" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\pythonVersionUtils.py" />
                 <File Id="file1078" Name="KOMIGR_0.PY" LongName="koMigrateV5Toolboxes.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\koMigrateV5Toolboxes.py"/>
                 <File Id="file1079" Name="KOTOOL_2.PY" LongName="koToolbox2.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\koToolbox2.py"/>
@@ -2470,7 +2460,6 @@
                   </Directory> <!-- lib\mozilla\python\komodo\gencix\python -->
                 </Directory> <!-- lib\mozilla\python\komodo\gencix -->
 
-<?if $(var.WithCrypto) = "yes" ?>
               <Directory Id="directory362" Name="Crypto">
                 <Component Id="component327" DiskId="1" Guid="$(autowix.guid)">
                   <File Id="file597" Name="__init__.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\Crypto\__init__.py"/>
@@ -2645,9 +2634,7 @@
                   </Component>
                 </Directory> <!-- lib\mozilla\python\komodo\Crypto\Util -->
               </Directory> <!-- lib\mozilla\python\komodo\Crypto -->
-<?endif ?>
 
-<?if $(var.WithCrypto) = "yes" ?>
               <Directory Id="directory303" Name="paramiko">
                 <Component Id="component284" DiskId="1" Guid="$(autowix.guid)">
                   <RemoveFile Id="removefile284" On="uninstall" Name="*.pyo" />
@@ -2688,7 +2675,6 @@
                   <File Id="file884" Name="resource.py" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\python\komodo\paramiko\resource.py"/>
                 </Component>
               </Directory> <!-- lib\mozilla\python\komodo\paramiko -->
-<?endif ?>
 
 <?if $(var.WithWatchdogFSNotifications) = "yes" ?>
               <Directory Id="directory790" Name="PATHTO_0" LongName="pathtools">

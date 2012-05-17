@@ -44,7 +44,6 @@ Import(
     'buildFlavour',
     'unsiloedPythonExe',
     'mozVersion',
-    'withCrypto',
 );
 
 $cons->InstallInChrome('filebrowser.xul');

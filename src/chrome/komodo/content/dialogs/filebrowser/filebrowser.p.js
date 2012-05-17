@@ -67,12 +67,10 @@ const nsIDirectoryServiceProvider_CONTRACTID = "@mozilla.org/file/directory_serv
 const nsITreeBoxObject = Components.interfaces.nsITreeBoxObject;
 
 const remotefile_scheme_types = [ "ftp",
-// #if WITH_CRYPTO
-                               "ftps",
-                               "sftp",
-                               "scp",
-// #endif
-                             ];
+                                  "ftps",
+                                  "sftp",
+                                  "scp",
+                                ];
 
 // for now, we're only doing remote file browsing with this file browser
 var RemoteFileBrowserOnly = true;

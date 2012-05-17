@@ -58,11 +58,9 @@ log = logging.getLogger('remotefilelib.p.py')
 # Known protocols and their default ports
 koRFProtocolDefaultPort = {
     'ftp': 21,
-# #if WITH_CRYPTO
     'ftps': 21,
     'sftp': 22,
     'scp': 22,
-# #endif
 }
 
 
@@ -743,7 +741,6 @@ class koRFConnection:
     def get_lastError(self):
         return self._lasterror
 
-# #if WITH_CRYPTO
 
 # SSH support using paramiko, http://www.lag.net/paramiko/
 import paramiko
@@ -932,8 +929,6 @@ class koRemoteSSH(koRFConnection):
         #if stderr:
         #    print "runCommand: stderr\n%s" % (stderr, )
         return status, stdout, stderr
-
-# #endif
 
 
 # Debug the directory cache

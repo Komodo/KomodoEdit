@@ -57,7 +57,6 @@ my @toExport = (
 
     'withSymbols',              # should include debug syms for C/C++ comps
     'withCrashReportSymbols',   # should include crash report syms for C/C++
-    'withCrypto',               # should build include crypto code
     'withTests',
     'withCasper',
     'withJSLib',
@@ -698,7 +697,6 @@ sub cons::Preprocess {
     #    vars have to _require_ that they be defined. This will avoid
     #    accidentally forgetting to Import one of these in a needed
     #    Conscript.
-    $substStr .= " -D WITH_CRYPTO=$withCrypto" if defined($withCrypto);
     $substStr .= " -D WITH_CASPER=$withCasper" if defined($withCasper);
     $substStr .= " -D WITH_JSLIB=$withJSLib" if defined($withJSLib);
 

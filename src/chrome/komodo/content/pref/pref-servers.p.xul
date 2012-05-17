@@ -88,11 +88,9 @@
                     <menulist id="server_types" oncommand="checkAddButtonStatus();">
                         <menupopup id ="server_typesPopup">
                             <menuitem label="&FTP.label;" value="ftp"/>
-        <!-- #if WITH_CRYPTO -->
                             <menuitem label="&FTPS.label;" value="ftps"/>
                             <menuitem label="&SFTP.label;" value="sftp"/>
                             <menuitem label="&SCP.label;" value="scp"/>
-        <!-- #endif -->
                         </menupopup>
                     </menulist>
                 </vbox>

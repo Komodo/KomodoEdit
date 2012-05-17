@@ -1390,25 +1390,6 @@ class WithCrashReportSymbols(black.configure.BooleanDatum):
         self.determined = 1
 
 
-class WithCrypto(black.configure.BooleanDatum):
-    """Control for the following Komodo components:
-        SFTP, SCP and password store cyptography.
-    self.value == 0 and these components are disabled
-    """
-    def __init__(self):
-        black.configure.Datum.__init__(self, "withCrypto",
-            desc="should include crypto functionality in Komodo",
-            acceptedOptions=("", ["with-crypto", "without-crypto"]))
-    def _Determine_Do(self):
-        self.applicable = 1
-        self.value = 1   # IS included by default
-        for opt, optarg in self.chosenOptions:
-            if opt == "--with-crypto":
-                self.value = 1
-            elif opt == "--without-crypto":
-                self.value = 0
-        self.determined = 1
-
 class WithPlaces(black.configure.BooleanDatum):
     def __init__(self):
         black.configure.Datum.__init__(self, "withPlaces",

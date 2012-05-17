@@ -64,7 +64,6 @@ Import(
     "msiVccrtMsmPath",
     "msiVccrtPolicyMsmPath",
     "mozVersion",
-    "withCrypto",
     "withCasper",
     "withJSLib",
     "withPlaces",
@@ -85,7 +84,6 @@ if ($buildFlavour eq "full") {
         my $majorVer = $1;
         my $minorVer = $2;
         my $isPreReleaseVersion = ($komodoVersion =~ /-/ ? "yes" : "no");
-        my $msiWithCrypto = ($withCrypto ? "yes" : "no");
         $cons->Preprocess(
             "wix/config.p.wxi",
             "wix/config.wxi",
@@ -112,7 +110,6 @@ if ($buildFlavour eq "full") {
                 # preprocess.py does better explicit marking of
                 # substitutions.
                 "PP_MSI_AVEC_DOC_JARRING" => ($withDocJarring ? "yes" : "no"),
-                "PP_MSI_AVEC_CRYPTO" => ($withCrypto ? "yes" : "no"),
                 "PP_MSI_AVEC_CASPER" => ($withCasper ? "yes" : "no"),
                 "PP_MSI_AVEC_JSLIB" => ($withJSLib ? "yes" : "no"),
                 "PP_MSI_AVEC_PLACES" => ($withPlaces ? "yes" : "no"),

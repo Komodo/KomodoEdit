@@ -803,7 +803,6 @@ configuration = {
     "docsPackageName": DocsPackageName(),
     "mozPatchesPackageName": MozPatchesPackageName(),
 
-    "withCrypto": WithCrypto(), # configure with Crypto support
     "withPlaces": WithPlaces(),
     "withStackato": WithStackato(),
     "withTests": WithTests(),
@@ -2481,7 +2480,6 @@ def QuickBuild(cfg, argv, _table):
                                                "MOZILLA_VERSION": cfg.mozVersion,
                                                "BUILD_FLAVOUR": cfg.buildFlavour,
                                                "UPDATE_CHANNEL": cfg.updateChannel,
-                                               "WITH_CRYPTO": cfg.withCrypto,
                                                "WITH_PLACES": cfg.withPlaces,
                                                "WITH_CASPER": cfg.withCasper},
                                       force=1,
