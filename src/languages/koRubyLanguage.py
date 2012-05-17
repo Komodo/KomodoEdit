@@ -14,7 +14,7 @@
 # The Original Code is Komodo code.
 # 
 # The Initial Developer of the Original Code is ActiveState Software Inc.
-# Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
+# Portions created by ActiveState Software Inc are Copyright (C) 2000-2012
 # ActiveState Software Inc. All Rights Reserved.
 # 
 # Contributor(s):
@@ -52,9 +52,12 @@ import which
 
 import sciutils
 from koLanguageServiceBase import *
+from koLanguageKeywordBase import KoLanguageKeywordBase
 
 log = logging.getLogger("RubyLanguage")
 #log.setLevel(logging.DEBUG)
+qlog = logging.getLogger("RubyLanguage.q")
+qlog.setLevel(logging.DEBUG)
 indentlog = logging.getLogger("RubyLanguage.indent")
 #indentlog.setLevel(logging.DEBUG)
 
@@ -73,16 +76,11 @@ def isident(char):
 def isdigit(char):
     return "0" <= char <= "9"
 
-class Token:
-    def __init__(self, style, text, start_pos):
-        self.style = style
-        self.text = text
-        self.start_pos = start_pos
+# Inherit from KoLanguageKeywordBase instead of KoLanguageBase
+# so the generic KoLanguageKeywordBase class can share code written
+# specifically for Ruby.
 
-    def explode(self):
-        return (self.style, self.text, self.start_pos)
-
-class KoRubyLanguage(KoLanguageBase):
+class KoRubyLanguage(KoLanguageKeywordBase):
     name = "Ruby"
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
@@ -106,7 +104,7 @@ class KoRubyLanguage(KoLanguageBase):
     styleStderr = sci_constants.SCE_RB_STDERR
     
     def __init__(self):
-        KoLanguageBase.__init__(self)
+        KoLanguageKeywordBase.__init__(self)
         self.prefService = components.classes["@activestate.com/koPrefService;1"].\
             getService(components.interfaces.koIPrefService)
         self._prefs = self.prefService.prefs
@@ -270,40 +268,6 @@ end section
         if self._interpreter is None:
             self._interpreter = components.classes["@activestate.com/koAppInfoEx?app=Ruby;1"].getService()
         return self._interpreter
-
-    def _get_line_tokens(self, scimoz, start_pos, end_pos, style_info):
-        test_line = scimoz.lineFromPosition(start_pos)
-        tokens = []
-        prev_style = -1
-        curr_text = ""
-        if chr(scimoz.getCharAt(end_pos)) in self._indent_close_chars + self._lineup_close_chars:
-            end_pos -= 1 
-        for pos in range(start_pos, end_pos + 1):
-            curr_style = self.actual_style(scimoz.getStyleAt(pos))
-            curr_char = chr(scimoz.getCharAt(pos)) #XXX unichr?
-            if (curr_style in style_info._ignorable_styles
-                or curr_style != prev_style) and len(curr_text) > 0:
-                tokens.append(Token(prev_style, curr_text, prev_pos))
-                curr_text = ""
-
-            if curr_style in style_info._ignorable_styles:
-                pass # nothing to do
-            elif curr_style in style_info._indent_styles:
-                # No reason to keep it for another round
-                tokens.append(Token(curr_style, curr_char, pos))
-                curr_text = ""
-            elif len(curr_text) == 0:
-                # Start a token
-                prev_style = curr_style
-                curr_text = curr_char
-                prev_pos = pos
-            else:
-                # Keep appending
-                curr_text += curr_char
-        # end while
-        if len(curr_text) > 0:
-            tokens.append(Token(prev_style, curr_text, prev_pos))
-        return tokens
 
     def _do_preceded_by_looper(self, tokens, do_style, style_info):
         # Don't process 'noise' do words -- if this 'do' is preceded
@@ -537,7 +501,7 @@ end section
             #after_time = time.clock()
             #log.debug("self._checkForSlider needed %r msecs", 1000 * (after_time - before_time))
         # Have the base class do its stuff
-        KoLanguageBase._keyPressed(self, ch, scimoz, style_info)
+        KoLanguageKeywordBase._keyPressed(self, ch, scimoz, style_info)
 
     def _is_special_variable(self, scimoz, pos, opStyle):
         if pos == 0:
@@ -552,7 +516,7 @@ end section
         if self._is_special_variable(scimoz, pos,
                                      self.isUDL() and scimoz.SCE_UDL_SSL_VARIABLE or scimoz.SCE_RB_GLOBAL):
             return None
-        return KoLanguageBase.softchar_accept_matching_backquote(self, scimoz, pos, style_info, candidate);
+        return KoLanguageKeywordBase.softchar_accept_matching_backquote(self, scimoz, pos, style_info, candidate);
 
     def softchar_accept_matching_double_quote(self, scimoz, pos, style_info, candidate):
         """First verify that we aren't seeing $"
@@ -560,11 +524,11 @@ end section
         if self._is_special_variable(scimoz, pos,
                                      self.isUDL() and scimoz.SCE_UDL_SSL_VARIABLE or scimoz.SCE_RB_GLOBAL):
             return None
-        return KoLanguageBase.softchar_accept_matching_double_quote(self, scimoz, pos, style_info, candidate);
+        return KoLanguageKeywordBase.softchar_accept_matching_double_quote(self, scimoz, pos, style_info, candidate);
 
     def _softchar_accept_match_outside_strings(self, scimoz, pos, style_info, candidate):
         """
-        See KoLanguageBase._softchar_accept_match_outside_strings for docs
+        See KoLanguageKeywordBase._softchar_accept_match_outside_strings for docs
         """
         if pos == 0:
             return candidate
@@ -685,10 +649,14 @@ end section
         return self._computeIndent(scimoz, indentStyle, continueComments, self._style_info)
 
     def _computeIndent(self, scimoz, indentStyle, continueComments, style_info):
-        super_indent = KoLanguageBase._computeIndent(self, scimoz, indentStyle, continueComments, style_info)
-        if super_indent is not None:
-            return super_indent
+        # Don't rely on KoLanguageKeywordBase here.
+        qlog.debug(">> _computeIndent")
+        #super_indent = KoLanguageKeywordBase._computeIndent(self, scimoz, indentStyle, continueComments, style_info)
+        #qlog.debug("super_indent: %r", super_indent)
+        #if super_indent is not None:
+        #    return super_indent
         if continueComments:
+            qlog.debug("continueComments: %r", continueComments)
             inBlockCommentIndent, inLineCommentIndent = self._inCommentIndent(scimoz, scimoz.currentPos, continueComments, style_info)
             if inLineCommentIndent is not None:
                 return inLineCommentIndent
@@ -699,6 +667,7 @@ end section
         try:
             try:
                 new_indent_string = self._calcIndentLevel(scimoz, scimoz.currentPos, style_info)
+                qlog.debug("new_indent_string: %r", new_indent_string)
                 return new_indent_string
             except:
                 log.warn("Got exception computing _calcIndentLevel", exc_info=1)

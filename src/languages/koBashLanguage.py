@@ -14,7 +14,7 @@
 # The Original Code is Komodo code.
 # 
 # The Initial Developer of the Original Code is ActiveState Software Inc.
-# Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
+# Portions created by ActiveState Software Inc are Copyright (C) 2000-2012
 # ActiveState Software Inc. All Rights Reserved.
 # 
 # Contributor(s):
@@ -42,12 +42,15 @@ from koLintResult import KoLintResult, createAddResult
 from koLintResults import koLintResults
 import process
 
+from koLanguageKeywordBase import KoLanguageKeywordBase
+from koLanguageServiceBase import KoLexerLanguageService
+
 log = logging.getLogger("koBashLanguage")
 #log.setLevel(logging.DEBUG)
 
-from koLanguageServiceBase import KoLanguageBase, KoLexerLanguageService
+sci_constants = components.interfaces.ISciMoz
 
-class koBashLanguage(KoLanguageBase):
+class koBashLanguage(KoLanguageKeywordBase):
     name = "Bash"
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
@@ -77,10 +80,22 @@ class koBashLanguage(KoLanguageBase):
         re.compile(ur'\A#!.*/(ba)?sh.*$', re.IGNORECASE | re.MULTILINE),
     ]
     
+    # Ignore parens due to case statements.
     _lineup_chars = u"{}"
     _lineup_open_chars = "{"
     _lineup_close_chars = "}"
-    supportsSmartIndent = "brace"
+
+    supportsSmartIndent = "keyword"
+    # 'then' is kind of weird, but can be treated just like 'else'
+    _indenting_statements = ['if', 'for', 'until', 'while', 'else', 'then', 'do']
+    _dedenting_statements = ['break', 'continue', 'return']
+    # These trigger a dedent when entered, but then count +1
+    # This might be better than putting 'else' in both
+    # _indenting_statements and _keyword_dedenting_keywords
+    
+    # Don't count 'esac' as a dedenter because case stmts need to get
+    # indented with ")" and ";;"
+    _keyword_dedenting_keywords = ['done', 'fi', 'else', 'then', 'do']
     searchURL = "http://www.gnu.org/software/bash/manual/html_node"
     
     sample = """# build our tags file
@@ -94,10 +109,27 @@ sed -e 's@/cygdrive/c@c:@' -e 's@/\./@/@' |
 perl -n -e 'chomp; printf(qq(%c%c%s,1%c), 12, 10, $_, 10);' > TAGS
 """
 
+    def __init__(self):
+        KoLanguageKeywordBase.__init__(self)
+        self._style_info.update(
+            _indent_styles = [sci_constants.SCE_SH_OPERATOR],
+            _variable_styles = [sci_constants.SCE_SH_IDENTIFIER,
+                                sci_constants.SCE_SH_SCALAR],
+            _lineup_close_styles = [sci_constants.SCE_SH_OPERATOR],
+            _lineup_styles = [sci_constants.SCE_SH_OPERATOR],
+            _multiline_styles = [sci_constants.SCE_SH_STRING,
+                                 sci_constants.SCE_SH_CHARACTER],
+            _keyword_styles = [sci_constants.SCE_SH_WORD],
+            _default_styles = [sci_constants.SCE_SH_DEFAULT],
+            _ignorable_styles = [sci_constants.SCE_SH_ERROR,
+                                 sci_constants.SCE_SH_COMMENTLINE,
+                                 sci_constants.SCE_SH_NUMBER],
+            )
+
     def get_lexer(self):
         if self._lexer is None:
             self._lexer = KoLexerLanguageService()
-            self._lexer.setLexer(components.interfaces.ISciMoz.SCLEX_BASH)
+            self._lexer.setLexer(sci_constants.SCLEX_BASH)
             self._lexer.setKeywords(0, self.bash_keywords1 + self.bash_keywords2)
             self._lexer.supportsFolding = 1
         return self._lexer

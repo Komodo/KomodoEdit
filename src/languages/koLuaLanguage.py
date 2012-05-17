@@ -14,7 +14,7 @@
 # The Original Code is Komodo code.
 # 
 # The Initial Developer of the Original Code is ActiveState Software Inc.
-# Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
+# Portions created by ActiveState Software Inc are Copyright (C) 2000-2012
 # ActiveState Software Inc. All Rights Reserved.
 # 
 # Contributor(s):
@@ -34,11 +34,23 @@
 # 
 # ***** END LICENSE BLOCK *****
 
+import re, os, sys, tempfile
 from xpcom import components, ServerException
+import koprocessutils
+import logging
+from koLintResult import KoLintResult, createAddResult
+from koLintResults import koLintResults
+import process
 
-from koLanguageServiceBase import *
+from koLanguageKeywordBase import KoLanguageKeywordBase
+from koLanguageServiceBase import KoLexerLanguageService
 
-class koLuaLanguage(KoLanguageBase):
+log = logging.getLogger("koLuaLanguage")
+log.setLevel(logging.DEBUG)
+
+sci_constants = components.interfaces.ISciMoz
+
+class koLuaLanguage(KoLanguageKeywordBase):
     name = "Lua"
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
@@ -51,12 +63,71 @@ class koLuaLanguage(KoLanguageBase):
         "line": [ "--" ],
         "block": [ ("--[[", "]]") ],
     }
+    supportsSmartIndent = "keyword"
+    _indenting_statements = ['function', 'if', 'for', 'repeat', 'while', 'else',
+                             'elseif', 'do']
+    _dedenting_statements = ['break', 'continue', 'return', 'error']
+    # These trigger a dedent when entered, but then count +1
+    # This might be better than putting 'else' in both
+    # _indenting_statements and _keyword_dedenting_keywords
+    _keyword_dedenting_keywords = ['end', 'else', 'elseif', 'until']
+    
+    sample = """require "lfs"
+
+function dirtree(dir)
+  assert(dir and dir ~= "", "directory parameter is missing or empty")
+  if string.sub(dir, -1) == "/" then
+    dir=string.sub(dir, 1, -2)
+  end
+
+  local diriters = {lfs.dir(dir)}
+  local dirs = {dir}
+
+  return function()
+    repeat 
+      local entry = diriters[#diriters]()
+      if entry then 
+        if entry ~= "." and entry ~= ".." then 
+          local filename = table.concat(dirs, "/").."/"..entry
+          local attr = lfs.attributes(filename)
+          if attr.mode == "directory" then 
+            table.insert(dirs, entry)
+            table.insert(diriters, lfs.dir(filename))
+          end
+          return filename, attr
+        end
+      else
+        table.remove(dirs)
+        table.remove(diriters)
+      end
+    until #diriters==0
+  end
+end
+    """
 
     def __init__(self):
-        KoLanguageBase.__init__(self)
+        KoLanguageKeywordBase.__init__(self)
         self._style_info.update(
-            _block_comment_styles = [sci_constants.SCE_LUA_COMMENT,
-                                     sci_constants.SCE_LUA_COMMENTDOC]
+            _block_comment_styles = [sci_constants.SCE_LUA_COMMENTLINE,
+                                     sci_constants.SCE_LUA_COMMENTDOC],
+            _indent_styles = [sci_constants.SCE_LUA_OPERATOR],
+            _variable_styles = [sci_constants.SCE_LUA_IDENTIFIER],
+            _lineup_close_styles = [sci_constants.SCE_LUA_OPERATOR],
+            _lineup_styles = [sci_constants.SCE_LUA_OPERATOR],
+            _keyword_styles = [sci_constants.SCE_LUA_WORD,
+                               sci_constants.SCE_LUA_WORD2,
+                               sci_constants.SCE_LUA_WORD3,
+                               sci_constants.SCE_LUA_WORD4,
+                               sci_constants.SCE_LUA_WORD5,
+                               sci_constants.SCE_LUA_WORD6,
+                               sci_constants.SCE_LUA_WORD7,
+                               sci_constants.SCE_LUA_WORD8,
+                               ],
+            _default_styles = [sci_constants.SCE_LUA_DEFAULT],
+            _ignorable_styles = [sci_constants.SCE_LUA_COMMENT,
+                                 sci_constants.SCE_LUA_COMMENTLINE,
+                                 sci_constants.SCE_LUA_COMMENTDOC,
+                                 sci_constants.SCE_LUA_NUMBER],
             )
 
     def get_lexer(self):
@@ -64,10 +135,84 @@ class koLuaLanguage(KoLanguageBase):
             self._lexer = KoLexerLanguageService()
             self._lexer.setLexer(components.interfaces.ISciMoz.SCLEX_LUA)
             self._lexer.setKeywords(0, self._keywords)
+            self._lexer.setKeywords(1, self._keywords1)
         return self._lexer
 
 
     _keywords = ["and", "break", "do", "else", "elseif", "end", "false", "for", "function",
                  "if", "in", "local", "nil", "not", "or", "repeat", "return", "then",
-                 "true", "until", "while"]  
+                 "true", "until", "while"]
+    _keywords1 = ['require', 'assert', 'string', 'table',
+                  'collectgarbage', 'dofile', 'error', '_G', 'getmetatable',
+                  'ipairs', 'load', 'loadfile', 'next', 'pairs', 'pcall',
+                  'print', 'rawequal', 'rawget', 'rawlen', 'rawset', 'select',
+                  'setmetatable', 'tonumber', 'tostring', 'type', '_VERSION', 'xpcall',]
+    
+    #XXX: Override _indentingOrDedentingStatement looking for things like
+    # "return function ..." and indent, don't dedent
 
+class KoLuaLinter(object):
+    _com_interfaces_ = [components.interfaces.koILinter]
+    _reg_clsid_ = "{8892d2ab-a76c-4512-a02f-a0b31b4ee124}"
+    _reg_contractid_ = "@activestate.com/koLinter?language=Lua;1"
+    _reg_categories_ = [
+         ("category-komodo-linter", 'Lua'),
+         ]
+    
+    def __init__(self):
+        import which
+        try:
+            self._luac = which.which("luac")
+        except which.WhichError:
+            self._luac = None
+    
+    def lint(self, request):
+        if self._luac is None:
+            return
+        text = request.content.encode(request.encoding.python_encoding_name)
+        return self.lint_with_text_aux(request, text)
+        
+    def lint_with_text(self, request, text):
+        """This routine exists only if someone uses Lua in a multi-lang document
+        """
+        if self._luac is None:
+            return
+        return self.lint_with_text_aux(request, text)
+    
+    _ptn_err = re.compile(r'.*?:.*?:(\d+)\s*:\s*(.*)')
+    _leading_ws_ptn = re.compile(r'(\s+)')
+    def lint_with_text_aux(self, request, text):
+        tmpfilename = tempfile.mktemp() + '.sh'
+        fout = open(tmpfilename, 'w')
+        fout.write(text)
+        fout.close()
+        cwd = request.cwd
+        cmd = [self._luac, "-p", tmpfilename]
+        cwd = request.cwd or None
+        # We only need the stderr result.
+        try:
+            p = process.ProcessOpen(cmd, cwd=cwd, env=koprocessutils.getUserEnv(), stdin=None)
+            _, stderr = p.communicate()
+            stderr = stderr.splitlines(0) # Don't need the newlines.
+            log.debug("luac stderr: %s", stderr)
+            textLines = None
+        except:
+            log.exception("Failed to run %s, cwd %r", cmd, cwd)
+            return None
+        finally:
+            os.unlink(tmpfilename)
+        results = koLintResults()
+        
+        for line in stderr:
+            m = self._ptn_err.match(line)
+            if m:
+                if textLines is None:
+                    textLines = text.splitlines()
+                    SEV_ERROR = components.interfaces.koILintResult.SEV_ERROR
+                m1 = self._leading_ws_ptn.match(line)
+                createAddResult(results, textLines, SEV_ERROR, m.group(1),
+                                m.group(2),
+                                m1 and m1.group(1) or None)
+        return results        
+        
+    

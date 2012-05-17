@@ -14,7 +14,7 @@
 # The Original Code is Komodo code.
 # 
 # The Initial Developer of the Original Code is ActiveState Software Inc.
-# Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
+# Portions created by ActiveState Software Inc are Copyright (C) 2000-2012
 # ActiveState Software Inc. All Rights Reserved.
 # 
 # Contributor(s):
@@ -36,9 +36,12 @@
 
 from xpcom import components, ServerException
 
-from koLanguageServiceBase import *
+from koLanguageKeywordBase import KoLanguageKeywordBase
+from koLanguageServiceBase import KoLexerLanguageService
 
-class koMatlabLanguage(KoLanguageBase):
+sci_constants = components.interfaces.ISciMoz
+
+class koMatlabLanguage(KoLanguageKeywordBase):
     name = "Matlab"
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
@@ -48,6 +51,34 @@ class koMatlabLanguage(KoLanguageBase):
 
     defaultExtension = ".m.matlab"
     commentDelimiterInfo = { "line": [ "%" ]  }
+    supportsSmartIndent = "keyword"
+    # See comment in koLuaLanguage.py for why some keywords are in both
+    # _indenting_statements and _keyword_dedenting_keywords
+    _indenting_statements = ['function', 'if', 'for', 'parfor',
+                             'while', 'else', 'do',
+                             'elseif',
+                             'switch', 'case', 'otherwise']
+    _dedenting_statements = ['break', 'continue', 'return', 'error']
+    _keyword_dedenting_keywords = ['end', 'else', 'elseif',
+                                   'case', 'otherwise', 'until']
+
+    _keywords = """break case catch classdef continue else elseif end error for
+                function global if otherwise parfor persistent return
+                spmd switch try while""".split()
+
+    def __init__(self):
+        KoLanguageKeywordBase.__init__(self)
+        self._style_info.update(
+            _block_comment_styles = [sci_constants.SCE_MATLAB_COMMENT,],
+            _indent_styles = [sci_constants.SCE_MATLAB_OPERATOR],
+            _variable_styles = [sci_constants.SCE_MATLAB_IDENTIFIER],
+            _lineup_close_styles = [sci_constants.SCE_MATLAB_OPERATOR],
+            _lineup_styles = [sci_constants.SCE_MATLAB_OPERATOR],
+            _keyword_styles = [sci_constants.SCE_MATLAB_KEYWORD],
+            _default_styles = [sci_constants.SCE_MATLAB_DEFAULT],
+            _ignorable_styles = [sci_constants.SCE_MATLAB_COMMENT,
+                                 sci_constants.SCE_MATLAB_NUMBER],
+            )
 
     def get_lexer(self):
         if self._lexer is None:
@@ -55,10 +86,6 @@ class koMatlabLanguage(KoLanguageBase):
             self._lexer.setLexer(components.interfaces.ISciMoz.SCLEX_MATLAB)
             self._lexer.setKeywords(0, self._keywords)
         return self._lexer
-
-    _keywords = """break case catch classdef continue else elseif end for
-                function global if otherwise parfor persistent return
-                spmd switch try while""".split()
 
     # matches:
     # function [output] = name(input)
@@ -97,8 +124,32 @@ class koOctaveLanguage(koMatlabLanguage):
     defaultExtension = ".m"
     commentDelimiterInfo = { "line": [ "#", "%" ]  }
 
-    _keywords = """break case catch continue do else elseif end
+    _keywords = """break case catch continue else elseif end
+                   endif endfor endwhile endfunction endparfor
+               error end_try_catch
                 end_unwind_protect endfor endif endswitch endwhile
-                for function endfunction global if otherwise persistent
+                for function global if otherwise persistent
                 return switch try until unwind_protect unwind_protect_cleanup
                 while""".split()
+
+    def __init__(self):
+        koMatlabLanguage.__init__(self)
+        # Don't use += or you'll continue to work with the parent class's
+        # arrays.
+        self._indenting_statements = (self._indenting_statements
+                                      + ['try', 'catch', 'unwind_protect',
+                                         'unwind_protect_cleanup',])
+        self._dedenting_statements = (self._dedenting_statements
+                                      + ['unwind_protect_cleanup',])
+        self._keyword_dedenting_keywords = (self._keyword_dedenting_keywords
+                                            + ['catch',
+                                               'end_try_catch',
+                                               'end_unwind_protect',
+                                               'endfor',
+                                               'endfunction',
+                                               'endif',
+                                               'endparfor',
+                                               'endswitch',
+                                               'endwhile',
+                                               'unwind_protect_cleanup',
+                                               ])

@@ -1,6 +1,39 @@
 #!python
-# Copyright (c) 2001-2012 ActiveState Software Inc.
-# See the file LICENSE.txt for licensing information.
+# ***** BEGIN LICENSE BLOCK *****
+# Version: MPL 1.1/GPL 2.0/LGPL 2.1
+# 
+# The contents of this file are subject to the Mozilla Public License
+# Version 1.1 (the "License"); you may not use this file except in
+# compliance with the License. You may obtain a copy of the License at
+# http://www.mozilla.org/MPL/
+# 
+# Software distributed under the License is distributed on an "AS IS"
+# basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+# License for the specific language governing rights and limitations
+# under the License.
+# 
+# The Original Code is Komodo code.
+# 
+# The Initial Developer of the Original Code is ActiveState Software Inc.
+# Portions created by ActiveState Software Inc are Copyright (C) 2000-2012
+# ActiveState Software Inc. All Rights Reserved.
+# 
+# Contributor(s):
+#   ActiveState Software Inc
+# 
+# Alternatively, the contents of this file may be used under the terms of
+# either the GNU General Public License Version 2 or later (the "GPL"), or
+# the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+# in which case the provisions of the GPL or the LGPL are applicable instead
+# of those above. If you wish to allow use of your version of this file only
+# under the terms of either the GPL or the LGPL, and not to allow others to
+# use your version of this file under the terms of the MPL, indicate your
+# decision by deleting the provisions above and replace them with the notice
+# and other provisions required by the GPL or the LGPL. If you do not delete
+# the provisions above, a recipient may use your version of this file under
+# the terms of any one of the MPL, the GPL or the LGPL.
+# 
+# ***** END LICENSE BLOCK *****
 
 """Language service base class for keyword-based languages"""
 import os, sys, re
@@ -113,7 +146,9 @@ class KoLanguageKeywordBase(KoLanguageBase):
         if not leadingWS:
             return False
         leadingWS = leadingWS.group(1)
-        if len(leadingWS) > len(expected_indent):
+        leadingWS_sp = leadingWS.expandtabs(scimoz.tabWidth)
+        expected_indent_sp = expected_indent.expandtabs(scimoz.tabWidth)
+        if len(leadingWS_sp) > len(expected_indent_sp):
             return True
         
     def _checkIndentingCurrentAndPreviousLine(self, ch, scimoz, style_info):
@@ -157,13 +192,16 @@ class KoLanguageKeywordBase(KoLanguageBase):
             expected_indent = self._computeIndent(scimoz, 'keyword', False, style_info)
         finally:
             scimoz.currentPos = currentPos
-        if expected_indent != prevTokens[0].text:
+        expected_indent_sp = expected_indent.expandtabs(scimoz.tabWidth)
+        leadingWS_sp = prevTokens[0].text.expandtabs(scimoz.tabWidth)
+        currWSLen = len(leadingWS_sp)
+        
+        if len(expected_indent_sp) != currWSLen:
             return
         if self._thisLineAlreadyDedented(scimoz, prevLineNo, expected_indent):
             return
         # Dedent!
         ws_reduced = [None, None]
-        currWSLen = len(tokens[0].text.expandtabs(scimoz.tabWidth))
         newWSLen = currWSLen - scimoz.indent
         if newWSLen <= 0:
             ws_reduced[0] = ""
@@ -244,7 +282,10 @@ class KoLanguageKeywordBase(KoLanguageBase):
             expected_indent = self._computeIndent(scimoz, 'keyword', False, style_info)
         finally:
             scimoz.currentPos = currentPos
-        if expected_indent != tokens[0].text:
+        leadingWS_sp = tokens[0].text.expandtabs(scimoz.tabWidth)
+        currWSLen = len(leadingWS_sp)
+        expected_indent_sp = expected_indent.expandtabs(scimoz.tabWidth)
+        if len(expected_indent_sp) != currWSLen:
             return
         # If the parent line triggered a dedent (expected_indent < that line's
         # leading white-space, then we've already done it.
@@ -253,7 +294,6 @@ class KoLanguageKeywordBase(KoLanguageBase):
             return
                        
         # Dedent!
-        currWSLen = len(tokens[0].text.expandtabs(scimoz.tabWidth))
         newWSLen = currWSLen - scimoz.indent
         if newWSLen <= 0:
             ws_reduced = ""

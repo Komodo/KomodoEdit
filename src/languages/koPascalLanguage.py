@@ -14,7 +14,7 @@
 # The Original Code is Komodo code.
 # 
 # The Initial Developer of the Original Code is ActiveState Software Inc.
-# Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
+# Portions created by ActiveState Software Inc are Copyright (C) 2000-2012
 # ActiveState Software Inc. All Rights Reserved.
 # 
 # Contributor(s):
@@ -36,9 +36,12 @@
 
 from xpcom import components, ServerException
 
-from koLanguageServiceBase import *
+from koLanguageKeywordBase import KoLanguageKeywordBase
+from koLanguageServiceBase import KoLexerLanguageService
 
-class koPascalLanguage(KoLanguageBase):
+sci_constants = components.interfaces.ISciMoz
+
+class koPascalLanguage(KoLanguageKeywordBase):
     name = "Pascal"
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
@@ -57,7 +60,11 @@ class koPascalLanguage(KoLanguageBase):
                    ("(*", "*)") ],
         "markup": "*",
     }
-    supportsSmartIndent = "brace"
+    supportsSmartIndent = "keyword"
+    _indenting_statements = ['begin', 'record', 'repeat', 'case', ]
+    _dedenting_statements = ['goto', 'halt', ]
+    _keyword_dedenting_keywords = ['end', 'until', ]
+
     _stateMap = {
         'default': ('SCE_PAS_DEFAULT',),
         'keywords': ('SCE_PAS_WORD', 'SCE_PAS_ASM'),
@@ -84,11 +91,21 @@ program MyProg(input, output)
 end.
 """    
     def __init__(self):
-        KoLanguageBase.__init__(self)
+        KoLanguageKeywordBase.__init__(self)
         self._style_info.update(
             _block_comment_styles = [sci_constants.SCE_PAS_COMMENT,
                                      sci_constants.SCE_PAS_COMMENT2,
-                                     sci_constants.SCE_PAS_COMMENTLINE]
+                                     sci_constants.SCE_PAS_COMMENTLINE],
+            _indent_styles = [sci_constants.SCE_PAS_OPERATOR],
+            _variable_styles = [sci_constants.SCE_PAS_IDENTIFIER],
+            _lineup_close_styles = [sci_constants.SCE_PAS_OPERATOR],
+            _lineup_styles = [sci_constants.SCE_PAS_OPERATOR],
+            _keyword_styles = [sci_constants.SCE_PAS_WORD],
+            _default_styles = [sci_constants.SCE_PAS_DEFAULT],
+            _ignorable_styles = [sci_constants.SCE_PAS_COMMENT,
+                                 sci_constants.SCE_PAS_COMMENT2,
+                                 sci_constants.SCE_PAS_COMMENTLINE,
+                                 sci_constants.SCE_PAS_NUMBER],
             )
 
     def get_lexer(self):
