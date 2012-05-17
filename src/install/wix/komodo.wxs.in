@@ -165,13 +165,11 @@
 
       </Feature>
 
-<?if $(var.IsMSIDebugBuild) = "no" ?>
       <Feature Id="docs" Title="Documentation" Description="Komodo documentation (currently must be installed)"
           Level="1" AllowAdvertise="no" Absent="disallow"
           InstallDefault="followParent">
         <ComponentRef Id="KomodoDocsManifest"/> <!-- Same BUG as above. -->
       </Feature>
-<?endif ?>
     </Feature>
 
     <!-- Custom Actions -->

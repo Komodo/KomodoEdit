@@ -37,9 +37,6 @@
  ***** END LICENSE BLOCK ***** -->
 
 <Include>
-  <!-- Is this a build for debugging the MSI? "yes" or "no" -->
-  <?define IsMSIDebugBuild = "no" ?>
-
   <!-- Conditional values (i.e. upon which WiX preprocessor conditional
        statements key) -->
   <!-- Is this a final or a pre-release version of Komodo: "yes" or "no" -->
@@ -58,11 +55,7 @@
   <?define WithWatchdogFSNotifications = "PP_MSI_AVEC_WATCHDOG_FS_NOTIFICATIONS" ?> <!-- yes|no -->
 
   <!-- Basic configuration data -->
-  <?if $(var.IsMSIDebugBuild) = "yes" ?>
-    <?define ProductName = "PP_MSI_PRODUCT_NAME [MSIDebug]" ?>
-  <?else ?>
-    <?define ProductName = "PP_MSI_PRODUCT_NAME" ?>
-  <?endif ?>
+  <?define ProductName = "PP_MSI_PRODUCT_NAME" ?>
   <?define InstallName = "PP_MSI_INSTALL_NAME" ?>
   <?define KomodoPrettyId = "PP_MSI_KOMODO_PRETTY_ID" ?>
   <?define KomodoId = "PP_MSI_KOMODO_ID" ?>

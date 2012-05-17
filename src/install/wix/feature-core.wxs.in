@@ -52,7 +52,6 @@
       <ComponentRef Id="ReadMeFiles" />
       <ComponentRef Id="component2"/>
 
-<?if $(var.IsMSIDebugBuild) = "no" ?>
       <ComponentRef Id="component3"/>
       <ComponentRef Id="component5"/>
       <ComponentRef Id="component6"/>
@@ -440,7 +439,6 @@
       <ComponentRef Id="component386"/>
 <?endif ?>
 
-<?endif ?> <!-- $(var.IsMSIDebugBuild) = "no" -->
     </FeatureRef>
 
     <DirectoryRef Id="INSTALLDIR">
@@ -476,7 +474,6 @@
                 Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\komodo.exe">
             </File>
           </Component>
-<?if $(var.IsMSIDebugBuild) = "no" ?>
           <Component Id="component5" DiskId="1" Guid="$(autowix.guid)">
 <?if $(var.MozMajorVersion) = "4" ?>
             <File Id="file325" Name="FILE_0.AUT" LongName=".autoreg" Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\.autoreg"/>
@@ -2906,10 +2903,8 @@
               </Component>
             </Directory> <!-- lib\mozilla\updates\0 -->
           </Directory> <!-- lib\mozilla\updates -->
-<?endif ?>
         </Directory> <!-- lib\mozilla -->
 
-<?if $(var.IsMSIDebugBuild) = "no" ?>
         <Directory Id="PythonDir" Name="python">
           <Component Id="component3" DiskId="1" Guid="$(autowix.guid)">
             <File Id="file5" Name="python.exe" Vital="yes" src="feature-core\INSTALLDIR\lib\python\python.exe"/>
@@ -6539,7 +6534,6 @@
             </Component>
           </Directory> <!-- lib\support\tcl -->
         </Directory> <!-- lib\support -->
-<?endif ?> <!-- if $(var.IsMSIDebugBuild) = "no" -->
       </Directory> <!-- lib -->
     </DirectoryRef>
 
