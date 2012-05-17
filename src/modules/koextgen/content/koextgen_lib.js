@@ -16,8 +16,12 @@ if (!('extensionLib' in ko.koextgen)) {
 }
 (function() {
 
-this.os = Components.classes['@activestate.com/koOs;1'].
-    getService(Components.interfaces.koIOs);
+XPCOMUtils.defineLazyServiceGetter(this, "os",
+                                   "@activestate.com/koOs;1",
+                                   "koIOs");
+XPCOMUtils.defineLazyServiceGetter(this, "osPath",
+                                   "@activestate.com/koOsPath;1",
+                                   "koIOsPath");
 this.error = false;
 
 /**
@@ -59,7 +63,7 @@ this.command = function koextgen_runKoext(koext_args, callback) {
 this.getProjectPath = function(relative) {
     try {
         var prj_path = ko.interpolate.interpolateString('%p');
-        var path = this.os.path.join(prj_path, relative);
+        var path = this.osPath.join(prj_path, relative);
         return path;
     } catch(e) {
         alert(e+"\n arg name: "+name);
@@ -151,12 +155,12 @@ this.updateProject = function(projectDirPath, targetName, vars) {
         var koFileEx = ko.projects.manager.currentProject.getFile();
         var basename = vars.name + "_overlay.xul";
         // The overlay goes in the contents dir
-        var contentPath = this.os.path.join(projectDirPath, "content");
-        if (!this.os.path.exists(contentPath)) {
+        var contentPath = this.osPath.join(projectDirPath, "content");
+        if (!this.osPath.exists(contentPath)) {
             this.os.mkdir(contentPath);
         }
 
-        var overlayPath = this.getProjectPath(this.os.path.join("content", basename));
+        var overlayPath = this.getProjectPath(this.osPath.join("content", basename));
         origContents = this.getTemplateContents("overlay.xul", targetName);
         this.writeFile(overlayPath, this.replaceAll(newVars, origContents));
 
