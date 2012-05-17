@@ -1,0 +1,14 @@
+# UDL lexer for %(lang)s.
+#
+# Note: UDL is a state machine and it uses regular expressions to move between
+#       the different language states.
+#
+
+language %(lang)s
+
+# Define the namespace URI
+namespace "http://www.w3.org/1999/xhtml"
+# Define the public/system identifier.
+system_id "-//XML Catalog//DTD XHTML Strict 1.0//EN"
+
+# TODO... enter you language transitions below.

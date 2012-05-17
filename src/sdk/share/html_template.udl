@@ -1,0 +1,47 @@
+# UDL lexer for %(lang)s.
+#
+# Note: UDL is a state machine and it uses regular expressions to move between
+#       the different language states. Ordering matters - so include the highest
+#       priority rules at the top.
+#
+
+language %(lang)s
+
+# Define the HTML language transition points first.
+
+# ------------- html2%(lang)s ------------- #
+
+# Transition to %(lang)s from HTML when encountering "<%".
+family markup
+state IN_M_DEFAULT:
+'<%%' : paint(upto, M_STRING), paint(include, SSL_OPERATOR) => IN_SSL_DEFAULT
+
+# ------------- %(lang)s2html ------------- #
+
+# Transition back to HTML when encountering "%%>".
+family ssl
+state IN_SSL_DEFAULT:
+'%%>' : paint(upto, SSL_DEFAULT), paint(include, SSL_OPERATOR), => IN_M_DEFAULT
+
+
+# ------------- Common HTML related language transitions ------------- #
+
+# Uncomment to allow HTML to CSS transitions, also requires "csslex.udl" below
+#include "html2css.udl"  # Defines the transition from HTML to CSS
+#include "css2html.udl"  # Defines the transition from CSS to HTML
+
+# Uncomment to allow HTML to JavaScript transitions, also requires "jslex.udl" below
+#include "html2js.udl"  # Defines the transition from HTML to JS
+#include "js2html.udl"  # Defines the transition from JS to HTML
+
+# ------------- HTML styling ------------- #
+
+# Ordering matters - include these after all of the language transitions.
+include "html.udl"  # Performs styling for HTML
+#include "csslex.udl"    # Performs CSS styling.
+#include "jslex.udl"    # Performs JavaScript styling.
+
+
+###############################################
+# ------------- %(lang) styling ------------- #
+

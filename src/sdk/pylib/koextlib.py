@@ -287,6 +287,7 @@ def create_udl_lang_skel(base_dir, lang, ext=None, is_html_based=False,
                          "lang=%r, is_html_based=%r, is_xml_based=%r"
                          % (lang, is_html_based, is_xml_based))
     safe_lang = _code_safe_lang_from_lang(lang)
+    ko_info = KomodoInfo()
 
     # Create udl/${lang}-mainlex.udl
     mainlex_path = normpath(join(base_dir, "udl",
@@ -298,13 +299,15 @@ def create_udl_lang_skel(base_dir, lang, ext=None, is_html_based=False,
             _mkdir(dirname(mainlex_path), log.debug)
         log.info("create %s (lexer definition)", mainlex_path)
         if not dry_run:
-            open(mainlex_path, 'w').write(_dedent("""
-                # UDL for %(lang)s
-                
-                language %(lang)s
-                
-                #...
-                """ % locals()).lstrip())
+            if is_html_based:
+                template = file(join(ko_info.sdk_dir, "share", "html_template.udl")).read() + \
+                           file(join(ko_info.sdk_dir, "share", "ssl_template.udl")).read()
+            elif is_xml_based:
+                template = file(join(ko_info.sdk_dir, "share", "xml_template.udl")).read()
+            else:
+                template = file(join(ko_info.sdk_dir, "share", "ssl_template_boilerplate.udl")).read() + \
+                           file(join(ko_info.sdk_dir, "share", "ssl_template.udl")).read()
+            open(mainlex_path, 'w').write(template % locals())
 
     # Create components/ko${lang}_UDL_Language.py
     lang_svc_path = normpath(join(base_dir, "components",
@@ -327,68 +330,20 @@ def create_udl_lang_skel(base_dir, lang, ext=None, is_html_based=False,
         elif is_html_based:
             base_module = "koXMLLanguageBase"
             base_class = "koHTMLLanguageBase"
-            lang_from_udl_family = {'M': 'HTML'}
+            lang_from_udl_family = {'M': 'HTML',
+                                    'SSL': lang}
         else:
             base_module = "koUDLLanguageBase"
             base_class = "KoUDLLanguage"
-            lang_from_udl_family = {}
-    
-        lang_svc = _dedent("""
-            # Komodo %(lang)s language service.
-            
-            import logging
-            from %(base_module)s import %(base_class)s
-    
-    
-            log = logging.getLogger("ko%(safe_lang)sLanguage")
-            #log.setLevel(logging.DEBUG)
-    
-    
-            def registerLanguage(registry):
-                log.debug("Registering language %(lang)s")
-                registry.registerLanguage(Ko%(safe_lang)sLanguage())
-    
-    
-            class Ko%(safe_lang)sLanguage(%(base_class)s):
-                name = "%(lang)s"
-                lexresLangName = "%(safe_lang)s"
-                _reg_desc_ = "%%s Language" %% name
-                _reg_contractid_ = "@activestate.com/koLanguage?language=%%s;1" %% name
-                _reg_categories_ = [("komodo-language", name)]
-                _reg_clsid_ = "%(guid)s"
-                %(default_ext_assign)s
-            
-                #TODO: Update 'lang_from_udl_family' as appropriate for your
-                #      lexer definition. There are four UDL language families:
-                #           M (markup), i.e. HTML or XML
-                #           CSL (client-side language), e.g. JavaScript
-                #           SSL (server-side language), e.g. Perl, PHP, Python
-                #           TPL (template language), e.g. RHTML, Django, Smarty
-                #      'lang_from_udl_family' maps each UDL family code (M,
-                #      CSL, ...) to the sub-language name in your language.
-                #      Some examples:
-                #        lang_from_udl_family = {   # A PHP file can contain
-                #           'M': 'HTML',            #   HTML
-                #           'SSL': 'PHP',           #   PHP
-                #           'CSL': 'JavaScript',    #   JavaScript
-                #        }
-                #        lang_from_udl_family = {   # An RHTML file can contain
-                #           'M': 'HTML',            #   HTML
-                #           'SSL': 'Ruby',          #   Ruby
-                #           'CSL': 'JavaScript',    #   JavaScript
-                #           'TPL': 'RHTML',         #   RHTML template code
-                #        }
-                #        lang_from_udl_family = {   # A plain XML can just contain
-                #           'M': 'XML',             #   XML
-                #        }
-                lang_from_udl_family = %(lang_from_udl_family)r
-            """ % locals()).lstrip()
-    
+            lang_from_udl_family = {'SSL': lang}
+
         if not dry_run and not exists(dirname(lang_svc_path)):
             _mkdir(dirname(lang_svc_path), log.debug)
         log.info("create %s (language service)", lang_svc_path)
         if not dry_run:
-            open(lang_svc_path, 'w').write(lang_svc)
+            template_path = join(ko_info.sdk_dir, "share", "koLANG_UDL_Language.py")
+            lang_svc_template = file(template_path).read() % locals()
+            open(lang_svc_path, 'w').write(lang_svc_template)
 
     # Create templates.
     if not ext:

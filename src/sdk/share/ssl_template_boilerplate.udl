@@ -1,0 +1,17 @@
+# UDL lexer for %(lang)s.
+#
+# Note: UDL is a state machine and it uses regular expressions to move between
+#       the different language states.
+#
+
+language %(lang)s
+
+# Boilerplate - need to start with family set to markup and IN_M_DEFAULT state,
+# we'll later perform a null-transition change to get into the SSL state.
+family markup
+initial IN_M_DEFAULT
+# Null-transition to get into SSL state
+state IN_M_DEFAULT:
+/./ : redo, => IN_SSL_DEFAULT
+
+
