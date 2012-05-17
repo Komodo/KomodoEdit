@@ -14,21 +14,6 @@ if (!('koextgen' in ko)) {
 }
 
 (function() {
-var os = Components.classes["@activestate.com/koOs;1"].getService();
-var ospath = os.path;
-
-var firstRun = true;
-
-var bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
-            .getService(Components.interfaces.nsIStringBundleService)
-            .createBundle("chrome://koextgen/locale/koextgen.properties");
-
-this.reconfigureExtGenProject = function() {
-    var project = ko.projects.manager.currentProject;
-    if (!project) {
-        ko.dialogs.alert("Unexpected error: invoking ")
-    }
-};
 
 this.createExtGenProject = function(targetName) {
     try {
