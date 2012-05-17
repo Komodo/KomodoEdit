@@ -53,11 +53,15 @@ class koFileEx:
 
     def __get_handler(self):
         handler = self._handler
-        if handler is None and self._URI.scheme:
-            if self._URI.scheme == 'file':
+        if handler is None:
+            scheme = self._URI.scheme
+            if not scheme:
+                return None
+
+            if scheme == 'file':
                 handler = FileHandler(self._URI.path)
 
-            elif self._URI.scheme in RemoteURISchemeTypes: # Imported from URIlib
+            elif scheme in RemoteURISchemeTypes: # Imported from URIlib
                 handler = RemoteURIHandler(self._URI.URI)
 
             # XXX TODO we don't really need this now, can use the below
@@ -65,14 +69,14 @@ class koFileEx:
             elif self._URI.URI == "chrome://komodo/content/startpage/startpage.xml#view-startpage":
                 handler = StartPageHandler(self._URI.URI)
 
-            elif self._URI.scheme in ['chrome','dbgp']:
+            elif scheme in ['chrome', 'dbgp']:
                 # pass through to mozilla's uri handling
                 handler = xpURIHandler(self._URI.URI)
 
-            elif self._URI.scheme in ['macro','snippet']:
+            elif scheme in ['macro', 'snippet']:
                 handler = projectURIHandler(self._URI)
 
-            elif self._URI.scheme == 'macro2':
+            elif scheme == 'macro2':
                 handler = projectURI2_Handler(self._URI)
 
             else:
