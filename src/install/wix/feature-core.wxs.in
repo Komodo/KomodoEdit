@@ -5880,16 +5880,6 @@
                 </Component>
               </Directory> <!-- lib\support\lint\perl -->
             </Directory> <!-- lib\support\lint -->
-          <Directory Id="directory210" Name="modules">
-            <Component Id="component199" DiskId="1" Guid="$(autowix.guid)">
-<?if $(var.WithJSLib) = "yes" ?>
-              <File Id="file1170" Name="jslib.xpi" Vital="yes" src="feature-core\INSTALLDIR\lib\support\modules\jslib.xpi"/>
-<?endif ?>
-<?if $(var.WithCasper) = "yes" ?>
-              <File Id="file331" Name="casper.xpi" Vital="yes" src="feature-core\INSTALLDIR\lib\support\modules\casper.xpi"/>
-<?endif ?>
-            </Component>
-          </Directory> <!-- lib\support\modules -->
           <Directory Id="directory212" Name="PERL_0" LongName="perl">
             <Directory Id="directory650" Name="perltray">
               <Component Id="component596" DiskId="1" Guid="$(autowix.guid)">
