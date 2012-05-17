@@ -44,7 +44,7 @@ from koLanguageKeywordBase import KoLanguageKeywordBase
 from koLanguageServiceBase import KoLexerLanguageService
 
 log = logging.getLogger("koLuaLanguage")
-log.setLevel(logging.DEBUG)
+#log.setLevel(logging.DEBUG)
 
 sci_constants = components.interfaces.ISciMoz
 
@@ -147,7 +147,33 @@ end
                   'setmetatable', 'tonumber', 'tostring', 'type', '_VERSION', 'xpcall',]
     
     #XXX: Override _indentingOrDedentingStatement looking for things like
-    # "return function ..." and indent, don't dedent
+    #   return function ...
+    
+    def _computeIndent(self, scimoz, indentStyle, continueComments, style_info):
+        #super_indent = KoLanguageKeywordBase._computeIndent(self, scimoz, indentStyle, continueComments, style_info)
+        #qlog.debug("super_indent: %r", super_indent)
+        #if super_indent is not None:
+        #    return super_indent
+        if continueComments:
+            qlog.debug("continueComments: %r", continueComments)
+            inBlockCommentIndent, inLineCommentIndent = self._inCommentIndent(scimoz, scimoz.currentPos, continueComments, style_info)
+            if inLineCommentIndent is not None:
+                return inLineCommentIndent
+            elif inBlockCommentIndent is not None:
+                return inBlockCommentIndent
+        
+        timeline.enter('_calcIndentLevel')
+        try:
+            try:
+                new_indent_string = self._calcIndentLevel(scimoz, scimoz.currentPos, style_info)
+                qlog.debug("new_indent_string: %r", new_indent_string)
+                return new_indent_string
+            except:
+                log.warn("Got exception computing _calcIndentLevel", exc_info=1)
+                return ''
+        finally:
+            timeline.leave('_calcIndentLevel')
+
 
 class KoLuaLinter(object):
     _com_interfaces_ = [components.interfaces.koILinter]
