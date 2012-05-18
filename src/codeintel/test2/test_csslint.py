@@ -1007,6 +1007,7 @@ body.abc {
             cdo = code.splitlines()[4][r.col_start:r.col_end]
             self.assertEqual(code.splitlines()[4][r.col_start:r.col_end], '.', r)
 
+    @tag("knownfailure", "causes unsupported utf8 exceptions on kobuild-snow")
     def test_css_bad_random_input_01(self):
         import string, random
         chars = string.letters + string.digits\
