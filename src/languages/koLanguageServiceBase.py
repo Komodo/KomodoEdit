@@ -1508,11 +1508,12 @@ class KoLanguageBase:
             # See if we just closed a block comment, in which case we need to
             # dedent by a variable amount depending on the commenting style.
 
-            finishedBlockCommentIndents = self._finishedBlockComment(scimoz, pos, style_info)
-            if finishedBlockCommentIndents is not None:
-                indentlog.info("detected block comment close")
-                return finishedBlockCommentIndents[0]
-            indentlog.info("did not detect block comment close")
+            if 'block' in self.commentDelimiterInfo:
+                finishedBlockCommentIndents = self._finishedBlockComment(scimoz, pos, style_info)
+                if finishedBlockCommentIndents is not None:
+                    indentlog.info("detected block comment close")
+                    return finishedBlockCommentIndents[0]
+                indentlog.info("did not detect block comment close")
 
             # See if we just closed a block comment, in which case we need to
             # dedent by a variable amount depending on the commenting style.
