@@ -125,6 +125,41 @@ class KoLanguageKeywordBase(KoLanguageBase):
             tokens.append(Token(prev_style, curr_text, prev_pos))
         return tokens
 
+    def computeIndent(self, scimoz, indentStyle, continueComments):
+        indent = self._computeIndent(scimoz, indentStyle, continueComments, self._style_info)
+        if indent is not None:
+            return indent
+        return KoLanguageBase._computeIndent(self, scimoz, indentStyle, continueComments, self._style_info)
+
+    def _computeIndent(self, scimoz, indentStyle, continueComments, style_info):
+        """
+        If the current line starts with an indenter, count all the keywords
+        on the line to decide what the final indent should be.
+        """
+        currentPos = scimoz.currentPos
+        lineNo = scimoz.lineFromPosition(currentPos)
+        lineStartPos = scimoz.positionFromLine(lineNo)
+        tokens = self._get_line_tokens(scimoz, lineStartPos, currentPos, style_info)
+        non_ws_tokens = [tok for tok in tokens
+                         if tok.style not in style_info._default_styles]
+        if len(non_ws_tokens) == 0:
+            return
+        if non_ws_tokens[0].style not in style_info._keyword_styles:
+            return
+        if non_ws_tokens[0].text not in self._indenting_statements:
+            return
+        delta = 1
+        for tok in non_ws_tokens[1:]:
+            if tok.style in style_info._keyword_styles:
+                text = tok.text
+                if text in self._indenting_statements:
+                    delta += 1
+                elif text in self._keyword_dedenting_keywords:
+                    delta -= 1
+        currentIndentWidth = self._getIndentWidthForLine(scimoz, lineNo)
+        nextIndentWidth = currentIndentWidth + delta * scimoz.indent
+        return scimozindent.makeIndentFromWidth(scimoz, nextIndentWidth)
+
     def _keyPressed(self, ch, scimoz, style_info):
         # This returns True if it did something....
         try:
@@ -143,17 +178,8 @@ class KoLanguageKeywordBase(KoLanguageBase):
         #XXX: There's a flaw here -- if the parent line encompasses 
         # several lines due to parens and line-continuations,
         # we might get it wrong.
-        startPrevLine = scimoz.positionFromLine(currLineNo - 1)
-        endPrevLine = scimoz.getLineEndPosition(currLineNo - 1)
-        prevLineText = scimoz.getTextRange(startPrevLine, endPrevLine)
-        leadingWS = re.compile(r'^(\s+)').match(prevLineText)
-        if not leadingWS:
-            return False
-        leadingWS = leadingWS.group(1)
-        leadingWS_sp = leadingWS.expandtabs(scimoz.tabWidth)
-        expected_indent_sp = expected_indent.expandtabs(scimoz.tabWidth)
-        if len(leadingWS_sp) > len(expected_indent_sp):
-            return True
+        prevLineIndentWidth = self._getIndentWidthForLine(scimoz, currLineNo - 1)
+        return prevLineIndentWidth > len(expected_indent.expandtabs(scimoz.tabWidth))
         
     def _checkIndentingCurrentAndPreviousLine(self, ch, scimoz, style_info):
         # This is complicated because the computeIndent was called to calculate
@@ -193,7 +219,7 @@ class KoLanguageKeywordBase(KoLanguageBase):
         currentPos = scimoz.currentPos
         scimoz.currentPos = scimoz.getLineEndPosition(prevLineNo - 1)
         try:
-            expected_indent = self._computeIndent(scimoz, 'keyword', False, style_info)
+            expected_indent = self.computeIndent(scimoz, 'keyword', False)
         finally:
             scimoz.currentPos = currentPos
         expected_indent_sp = expected_indent.expandtabs(scimoz.tabWidth)
@@ -285,7 +311,7 @@ class KoLanguageKeywordBase(KoLanguageBase):
         # bother second-guessing the user.
         scimoz.currentPos = scimoz.getLineEndPosition(currLineNo - 1)
         try:
-            expected_indent = self._computeIndent(scimoz, 'keyword', False, style_info)
+            expected_indent = self.computeIndent(scimoz, 'keyword', False)
         finally:
             scimoz.currentPos = currentPos
         leadingWS_sp = tokens[0].text.expandtabs(scimoz.tabWidth)
