@@ -147,7 +147,8 @@ class KoLanguageKeywordBase(KoLanguageBase):
         calculatedData: a dict containing info already calculated by
         a lower method
         """
-        indent = self._computeIndent(scimoz, indentStyle, continueComments, self._style_info, calculatedData)
+        # Don't end up calling a subclass routine.
+        indent = KoLanguageKeywordBase._computeIndent(self, scimoz, indentStyle, continueComments, self._style_info, calculatedData)
         if indent is not None:
             return indent
         return KoLanguageBase._computeIndent(self, scimoz, indentStyle, continueComments, self._style_info)

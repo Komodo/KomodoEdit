@@ -1960,7 +1960,9 @@ class KoLanguageBase:
             return indent, None
 
     def computeIndent(self, scimoz, indentStyle, continueComments):
-        return self._computeIndent(scimoz, indentStyle, continueComments, self._style_info)
+        # Make sure we call this method on this class, and not on a subclass
+        # that's bubbling up.
+        return KoLanguageBase._computeIndent(self, scimoz, indentStyle, continueComments, self._style_info)
 
     def _computeIndent(self, scimoz, indentStyle, continueComments, style_info):
         try:
