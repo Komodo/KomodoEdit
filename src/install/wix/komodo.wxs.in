@@ -80,9 +80,9 @@
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="ProgramFilesFolder" Name="PFILES">
         <Directory Id="INSTALLDIR" Name="$(var.KomodoId)" LongName="$(var.InstallName)">
-          <Component DiskId="1" Guid="$(autowix.guid)" Id="component4">
-            <RemoveFile Id="removefile15" Name="pod2htmd.tmp" On="uninstall" />
-            <RemoveFile Id="removefile16" Name="pod2htmi.tmp" On="uninstall" />
+          <Component DiskId="1" Guid="$(autowix.guid)" Id="comp.INSTALLDIR">
+            <RemoveFile Id="remove.pod2htmd.tmp" Name="pod2htmd.tmp" On="uninstall" />
+            <RemoveFile Id="remove.pod2htmi.tmp" Name="pod2htmi.tmp" On="uninstall" />
           </Component>
 
           <Merge Id="CRT" Language="0" src="$(var.VccrtMsmPath)" DiskId="1" />
@@ -97,8 +97,8 @@
       <Directory Id="DesktopFolder" Name="DESKTOP" />
 
       <Directory Id="AppDataFolder" Name="APPDATA">
-        <Directory Id="directory0" Name="MS" LongName="Microsoft">
-          <Directory Id="directory1" Name="IE" LongName="Internet Explorer">
+        <Directory Id="dir.MS" Name="MS" LongName="Microsoft">
+          <Directory Id="dir.MS.IE" Name="IE" LongName="Internet Explorer">
             <Directory Id="QuickLaunchFolder" Name="QuickDir" LongName="Quick Launch">
             </Directory>
           </Directory>
@@ -135,7 +135,7 @@
            before the feature tree installer dialog asking user to wait until
            the "Installer calculates disk requirements". -->
       <ComponentRef Id="KomodoConsoleExe" />
-      <ComponentRef Id="component4" />
+      <ComponentRef Id="comp.INSTALLDIR" />
 
       <MergeRef Id="CRT" />
       <MergeRef Id="CRT Policy" />

@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- ***** BEGIN LICENSE BLOCK *****
+ Version: MPL 1.1/GPL 2.0/LGPL 2.1
+
+ The contents of this file are subject to the Mozilla Public License
+ Version 1.1 (the "License"); you may not use this file except in
+ compliance with the License. You may obtain a copy of the License at
+ http://www.mozilla.org/MPL/
+
+ Software distributed under the License is distributed on an "AS IS"
+ basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+ License for the specific language governing rights and limitations
+ under the License.
+
+ The Original Code is Komodo code.
+
+ The Initial Developer of the Original Code is ActiveState Software Inc.
+ Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
+ ActiveState Software Inc. All Rights Reserved.
+
+ Contributor(s):
+   ActiveState Software Inc
+
+ Alternatively, the contents of this file may be used under the terms of
+ either the GNU General Public License Version 2 or later (the "GPL"), or
+ the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+ in which case the provisions of the GPL or the LGPL are applicable instead
+ of those above. If you wish to allow use of your version of this file only
+ under the terms of either the GPL or the LGPL, and not to allow others to
+ use your version of this file under the terms of the MPL, indicate your
+ decision by deleting the provisions above and replace them with the notice
+ and other provisions required by the GPL or the LGPL. If you do not delete
+ the provisions above, a recipient may use your version of this file under
+ the terms of any one of the MPL, the GPL or the LGPL.
+
+ ***** END LICENSE BLOCK ***** -->
+
+<!-- The components for Komodo "core" MSI feature. -->
+
+<?include config.wxi ?>
+<?include guids.wxi ?>
+
+<Wix xmlns="http://schemas.microsoft.com/wix/2003/01/wi">
+  <Fragment>
+
+    <FeatureRef Id="core">
+      <!-- See "BUG" note in komodo.wxs:
+        <ComponentRef Id="KomodoConsoleExe" /> -->
+      <ComponentRef Id="KomodoWindowsExe" />
+      <ComponentRef Id="RegistryBase" />
+      <ComponentRef Id="ReadMeFiles" />
+      <ComponentRef Id="comp.KomodoExe"/>
+      <ComponentRef Id="comp.core._lib_mozilla_chrome"/>
+      <ComponentRef Id="comp._lib_mozilla_defaults"/>
+      <ComponentRef Id="comp._lib_mozilla_defaults_profile"/>
+      <ComponentRef Id="comp._lib_mozilla_defaults_profile_extensions"/>
+      <ComponentRef Id="comp._lib_mozilla_updates"/>
+      <ComponentRef Id="comp._lib_mozilla_updates_0"/>
+
+    </FeatureRef>
+
+    <DirectoryRef Id="INSTALLDIR">
+      <Component Id="RegistryBase" Guid="$(autowix.guid)">
+        <Registry Id="RegKomodoId" Action="createKeyAndRemoveKeyOnUninstall"
+            Root="HKMU" Key="Software\ActiveState\Komodo\$(var.KomodoRegistryId)" />
+      </Component>
+      <Component Id="KomodoWindowsExe" Guid="$(autowix.guid)">
+        <File Id="KomodoWindowsExe" Name="komodo.exe" LongName="komodo.exe"
+            DiskId="1" src="feature-core\INSTALLDIR\komodo.exe" Vital="yes">
+          <Shortcut Id="StartMenuKomodoShortcut" Directory="StartMenuDir"
+              Name="$(var.KomodoId)" LongName="$(var.KomodoPrettyId)"
+              WorkingDirectory="INSTALLDIR"
+              Icon="$(var.KomodoId).exe" IconIndex="0" />
+        </File>
+        <Shortcut Id="StartMenuUninstallShortcut" Directory="StartMenuDir"
+            Name="UNINST" LongName="$(var.UninstallText)"
+            Target="[SystemFolder]msiexec.exe"
+            Arguments="/i{$(var.ProductCode)}"/>
+      </Component>
+      <Component Id="KomodoConsoleExe" Guid="$(autowix.guid)">
+        <File Id="KomodoConsoleExe" Name="ko.exe" LongName="ko.exe"
+            DiskId="1" src="feature-core\INSTALLDIR\ko.exe" Vital="yes" />
+      </Component>
+      <Component Id="ReadMeFiles" DiskId="1" Guid="$(autowix.guid)">
+        <File Id="LicenseText" Name="LICENSE.txt"   src="feature-core\INSTALLDIR\LICENSE.txt"/>
+      </Component>
+
+      <Directory Id="LibDir" Name="lib">
+        <Directory Id="MozillaDir" Name="mozilla">
+          <Component Id="comp.KomodoExe" DiskId="1" Guid="$(autowix.guid)">
+            <File Id="KomodoExe" Name="KOMODO_0.EXE" LongName="komodo.exe"
+                Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\komodo.exe"/>
+          </Component>
+          <Directory Id="ChromeDir" Name="chrome">
+            <Component Id="comp.core._lib_mozilla_chrome" DiskId="1" Guid="$(autowix.guid)">
+              <RemoveFile Id="remove.appchrome.manifest" On="uninstall" Name="APPCHR_1.MAN"
+                          LongName="app-chrome.manifest" />
+            </Component>
+          </Directory> <!-- lib\mozilla\chrome -->
+          <Directory Id="dir._lib_mozilla_defaults" Name="defaults">
+            <Component Id="comp._lib_mozilla_defaults" DiskId="1" Guid="$(autowix.guid)"/>
+            <Directory Id="dir._lib_mozilla_defaults_profile" Name="profile">
+              <Component Id="comp._lib_mozilla_defaults_profile" DiskId="1" Guid="$(autowix.guid)"/>
+              <Directory Id="dir._lib_mozilla_defaults_profile_extensions" Name="EXTENS_0" LongName="extensions">
+                <Component Id="comp._lib_mozilla_defaults_profile_extensions" DiskId="1" Guid="$(autowix.guid)">
+                  <RemoveFolder Id="rmdir._lib_mozilla_defaults_profile_extensions" On="uninstall" />
+                </Component>
+              </Directory> <!-- lib\mozilla\defaults\profile\extensions -->
+            </Directory> <!-- lib\mozilla\defaults\profile -->
+          </Directory> <!-- lib\mozilla\defaults -->
+          <Directory Id="dir._lib_mozilla_updates" Name="updates">
+            <Component Id="comp._lib_mozilla_updates" DiskId="1" Guid="$(autowix.guid)">
+              <RemoveFolder Id="rmdir._lib_mozilla_updates" On="uninstall"/>
+            </Component>
+           <Directory Id="dir._lib_mozilla_updates_0" Name="0">
+              <Component Id="comp._lib_mozilla_updates_0" DiskId="1" Guid="$(autowix.guid)">
+                <RemoveFolder Id="removefolder218" On="uninstall"/>
+              </Component>
+            </Directory> <!-- lib\mozilla\updates\0 -->
+          </Directory> <!-- lib\mozilla\updates -->
+        </Directory> <!-- lib\mozilla -->
+      </Directory> <!-- lib -->
+    </DirectoryRef>
+
+  </Fragment>
+</Wix>

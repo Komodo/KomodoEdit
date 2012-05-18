@@ -1406,39 +1406,22 @@ def _PackageKomodoMSI(cfg):
          % (join(cfg.buildRelDir, "license_text", "LICENSE.rtf"),
             join(wrkDir, "aswixui", "License.rtf")))
 
+    # build the file lists
+    features = ("feature-core", "feature-docs")
+    for feature in features:
+        _run_in_dir("%s bin/gen-wxs.py %s.template.in %s.ini %s.wxs.in" %
+                        (cfg.unsiloedPythonExe, feature, feature, feature),
+                    wrkDir)
+
     # Run "autowix" to configure the WiX sources.
     # (I.e., convert '*.wxs.in' to '*.wxs'.)
     _run_in_dir("python bin\\autowix.py --force", wrkDir)
 
-    # Use "wax.py" (WiX project file update tool) to see if the WiX
-    # Project files are out of date. If wax generates any
-    # "feature-*-wax.wxs" files then we need to incorporate those
-    # changes.
-    print "---- see if WiX Project files are out of date"
-    pattern = join(wrkDir, "feature-*-wax.wxs")
-    if glob.glob(pattern):
-        _run("del /f/q %s" % pattern)
-    wax = join("src", "install", "wix", "bin", "wax.py")
-    cmd = "python %s --project-file *.wxs --write-files" % abspath(wax)
-    _run_in_dir(cmd, wrkDir)
-    updates = glob.glob(pattern)
-    if updates:
-        msg = []
-        for filename in updates:
-            msg.append("\n%s:" % (filename, ))
-            lines = file(filename).readlines()
-            if len(lines) > 200:
-                lines = lines[:200]
-                lines.append("... (truncated)")
-            msg.append("  " + "  ".join(lines))
-        raise Error("""\
-The Komodo WiX Project files are out of date. I.e. there are
-new files in the Komodo install image that are not included in the
-WiX project files. You need to incorporate these WiX fragment(s)
-into the appropriate .wxs files in "src/install/wix":
-
-%s
-""" % '\n'.join(msg))
+    # Check if we're unexpectedly imaging files we're not shipping
+    print "---- Checking for new files we're accidentally not shipping"
+    _run_in_dir("%s bin/check-wxs.py %s" %
+                    (cfg.unsiloedPythonExe, " ".join(features)),
+                wrkDir)
 
     print "---- build the MSI"
     dirs = [os.curdir] # implied by Windows shell
