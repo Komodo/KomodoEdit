@@ -69,6 +69,12 @@ class KoLanguageKeywordBase(KoLanguageBase):
     # These mark the end of a block
     # Note that 'else' can also be an indenter.
     _keyword_dedenting_keywords = [] # eg: 'end', 'esac', 'done', 'fi', 'else'
+
+    # Allow all these characters to work as line-up, as the keywords
+    # manage indenting.
+    _lineup_chars = u"{}()[]"
+    _lineup_open_chars = "([{"
+    _lineup_close_chars = ")]}"
     
     def __init__(self):
         KoLanguageBase.__init__(self)
