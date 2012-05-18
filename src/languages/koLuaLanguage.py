@@ -42,6 +42,7 @@ import process
 
 from koLanguageKeywordBase import KoLanguageKeywordBase
 from koLanguageServiceBase import KoLexerLanguageService
+import scimozindent
 
 log = logging.getLogger("koLuaLanguage")
 #log.setLevel(logging.DEBUG)
@@ -149,31 +150,38 @@ end
     #XXX: Override _indentingOrDedentingStatement looking for things like
     #   return function ...
     
-    def _computeIndent(self, scimoz, indentStyle, continueComments, style_info):
-        #super_indent = KoLanguageKeywordBase._computeIndent(self, scimoz, indentStyle, continueComments, style_info)
-        #qlog.debug("super_indent: %r", super_indent)
-        #if super_indent is not None:
-        #    return super_indent
-        if continueComments:
-            qlog.debug("continueComments: %r", continueComments)
-            inBlockCommentIndent, inLineCommentIndent = self._inCommentIndent(scimoz, scimoz.currentPos, continueComments, style_info)
-            if inLineCommentIndent is not None:
-                return inLineCommentIndent
-            elif inBlockCommentIndent is not None:
-                return inBlockCommentIndent
-        
-        timeline.enter('_calcIndentLevel')
-        try:
-            try:
-                new_indent_string = self._calcIndentLevel(scimoz, scimoz.currentPos, style_info)
-                qlog.debug("new_indent_string: %r", new_indent_string)
-                return new_indent_string
-            except:
-                log.warn("Got exception computing _calcIndentLevel", exc_info=1)
-                return ''
-        finally:
-            timeline.leave('_calcIndentLevel')
 
+    # Override:
+    # Handle return ... function differently
+
+    def computeIndent(self, scimoz, indentStyle, continueComments):
+        indent = self._computeIndent(scimoz, indentStyle, continueComments, self._style_info)
+        if indent is not None:
+            return indent
+        return KoLanguageKeywordBase.computeIndent(self, scimoz, indentStyle, continueComments)
+
+    def _computeIndent(self, scimoz, indentStyle, continueComments, style_info):
+        currentPos = scimoz.currentPos
+        curr_line = scimoz.lineFromPosition(currentPos)
+        lineStartPos = scimoz.positionFromLine(curr_line)
+        tokens = self._get_line_tokens(scimoz, lineStartPos, currentPos, style_info)
+        non_ws_tokens = [tok for tok in tokens
+                         if tok.style not in style_info._default_styles]
+        if self._lookingAtReturnFunction(non_ws_tokens, style_info):
+            if tokens[0].style in style_info._default_styles:
+                currWSLen = len(tokens[0].text.expandtabs(scimoz.tabWidth))
+                newWSLen = currWSLen + scimoz.indent
+            else:
+                newWSLen = scimoz.indent
+            return scimozindent.makeIndentFromWidth(scimoz, newWSLen)
+        return None
+
+    def _lookingAtReturnFunction(self, non_ws_tokens, style_info):
+        return (len(non_ws_tokens) >= 2
+                and non_ws_tokens[0].style in style_info._keyword_styles
+                and non_ws_tokens[0].text == "return"
+                and non_ws_tokens[1].style in style_info._keyword_styles
+                and non_ws_tokens[1].text == "function")
 
 class KoLuaLinter(object):
     _com_interfaces_ = [components.interfaces.koILinter]
