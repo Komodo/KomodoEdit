@@ -125,28 +125,44 @@ class KoLanguageKeywordBase(KoLanguageBase):
             tokens.append(Token(prev_style, curr_text, prev_pos))
         return tokens
 
-    def computeIndent(self, scimoz, indentStyle, continueComments):
-        indent = self._computeIndent(scimoz, indentStyle, continueComments, self._style_info)
+    def computeIndent(self, scimoz, indentStyle, continueComments,
+                      calculatedData=None):
+        """
+        calculatedData: a dict containing info already calculated by
+        a lower method
+        """
+        indent = self._computeIndent(scimoz, indentStyle, continueComments, self._style_info, calculatedData)
         if indent is not None:
             return indent
-        return KoLanguageBase._computeIndent(self, scimoz, indentStyle, continueComments, self._style_info)
+        return KoLanguageBase._computeIndent(self, scimoz, indentStyle, continueComments, self._style_info, tokens)
 
-    def _computeIndent(self, scimoz, indentStyle, continueComments, style_info):
+    def _computeIndent(self, scimoz, indentStyle, continueComments, style_info,
+                       calculatedData=None):
         """
         If the current line starts with an indenter, count all the keywords
         on the line to decide what the final indent should be.
         """
-        currentPos = scimoz.currentPos
-        lineNo = scimoz.lineFromPosition(currentPos)
-        lineStartPos = scimoz.positionFromLine(lineNo)
-        tokens = self._get_line_tokens(scimoz, lineStartPos, currentPos, style_info)
-        non_ws_tokens = [tok for tok in tokens
-                         if tok.style not in style_info._default_styles]
+        if calculatedData is None:
+            currentPos = scimoz.currentPos
+            lineNo = scimoz.lineFromPosition(currentPos)
+            lineStartPos = scimoz.positionFromLine(lineNo)
+            tokens = self._get_line_tokens(scimoz, lineStartPos, currentPos, style_info)
+            non_ws_tokens = [tok for tok in tokens
+                             if tok.style not in style_info._default_styles]
+        else:
+            currentPos = calculatedData['currentPos']
+            lineNo = calculatedData['lineNo']
+            lineStartPos = calculatedData['lineStartPos']
+            tokens = calculatedData['tokens']
+            non_ws_tokens = calculatedData['non_ws_tokens']
         if len(non_ws_tokens) == 0:
             return
         if non_ws_tokens[0].style not in style_info._keyword_styles:
             return
         if non_ws_tokens[0].text not in self._indenting_statements:
+            # Do this only if the line starts with an indenter.
+            # Otherwise we want to use the general language-service's indenter
+            # to look for braces to match.
             return
         delta = 1
         for tok in non_ws_tokens[1:]:
@@ -156,7 +172,11 @@ class KoLanguageKeywordBase(KoLanguageBase):
                     delta += 1
                 elif text in self._keyword_dedenting_keywords:
                     delta -= 1
-        currentIndentWidth = self._getIndentWidthForLine(scimoz, lineNo)
+        tok0 = tokens[0]
+        if tok0.style not in style_info._default_styles:
+            currentIndentWidth = 0
+        else:
+            currentIndentWidth = len(tok0.text.expandtabs(scimoz.tabWidth))
         nextIndentWidth = currentIndentWidth + delta * scimoz.indent
         return scimozindent.makeIndentFromWidth(scimoz, nextIndentWidth)
 

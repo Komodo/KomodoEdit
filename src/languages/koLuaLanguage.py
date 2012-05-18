@@ -155,21 +155,31 @@ end
     # Handle return ... function differently
 
     def computeIndent(self, scimoz, indentStyle, continueComments):
-        indent = self._computeIndent(scimoz, indentStyle, continueComments, self._style_info)
-        if indent is not None:
-            return indent
-        return KoLanguageKeywordBase.computeIndent(self, scimoz, indentStyle, continueComments)
-
-    def _computeIndent(self, scimoz, indentStyle, continueComments, style_info):
         currentPos = scimoz.currentPos
         curr_line = scimoz.lineFromPosition(currentPos)
         lineStartPos = scimoz.positionFromLine(curr_line)
         tokens = self._get_line_tokens(scimoz, lineStartPos, currentPos, style_info)
         non_ws_tokens = [tok for tok in tokens
                          if tok.style not in style_info._default_styles]
+        calculatedData = {
+            'currentPos': currentPos,
+            'lineNo': lineNo,
+            'lineStartPos': lineStartPos,
+            'tokens':tokens,
+            'non_ws_tokens':non_ws_tokens,
+        }
+        indent = self._computeIndent(scimoz, indentStyle, continueComments, self._style_info, calculatedData)
+        if indent is not None:
+            return indent
+        return KoLanguageKeywordBase.computeIndent(self, scimoz, indentStyle, continueComments, calculatedData=calculatedData)
+
+    def _computeIndent(self, scimoz, indentStyle, continueComments, style_info,
+                       calculatedData):
+        non_ws_tokens = calculatedData['non_ws_tokens']
         if self._lookingAtReturnFunction(non_ws_tokens, style_info):
-            if tokens[0].style in style_info._default_styles:
-                currWSLen = len(tokens[0].text.expandtabs(scimoz.tabWidth))
+            tok0 = calculatedData['tokens'][0]
+            if tok0.style in style_info._default_styles:
+                currWSLen = len(tok0.text.expandtabs(scimoz.tabWidth))
                 newWSLen = currWSLen + scimoz.indent
             else:
                 newWSLen = scimoz.indent
