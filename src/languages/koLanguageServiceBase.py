@@ -1386,12 +1386,12 @@ class KoLanguageBase:
         # If we encounter a line-up brace, we skip to the matching brace
         # and keep going.
 
+        #indentlog.debug("indent_close_chars = %r, indent_close_styles = %r", self._indent_close_chars, style_info._indent_close_styles)
         while p > startPos:
             p = p - 1
             char = data[(p-startPos)*2]
             style = ord(data[(p-startPos)*2+1]) & self.stylingBitsMask
             #indentlog.debug("in _statementStartingLineFromPos: char = %s, style = %d", char, style)
-            #indentlog.debug("indent_close_chars = %r, indent_clos_styles = %r", self._indent_close_chars, style_info._indent_close_styles)
             lineNo = scimoz.lineFromPosition(p)
             indentlog.debug("\np = %d (%r) - going until %d" % (p, char, startPos))
             if char in self._lineup_close_chars and \
