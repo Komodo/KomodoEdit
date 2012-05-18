@@ -72,7 +72,7 @@ keywords =  """addhandler addressof alias and
                 step stop string structure 
                 sub synclock then throw 
                 to true try typeof 
-                unicode until variant when 
+                unicode until variant wend when 
                 while with withevents writeonly 
                 xor""".split()
 
