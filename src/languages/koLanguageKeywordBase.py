@@ -125,6 +125,22 @@ class KoLanguageKeywordBase(KoLanguageBase):
             tokens.append(Token(prev_style, curr_text, prev_pos))
         return tokens
 
+    def getTokenDataForComputeIndent(self, scimoz, style_info):
+        currentPos = scimoz.currentPos
+        lineNo = scimoz.lineFromPosition(currentPos)
+        lineStartPos = scimoz.positionFromLine(lineNo)
+        tokens = self._get_line_tokens(scimoz, lineStartPos, currentPos, style_info)
+        non_ws_tokens = [tok for tok in tokens
+                         if tok.style not in style_info._default_styles]
+        calculatedData = {
+            'currentPos': currentPos,
+            'lineNo': lineNo,
+            'lineStartPos': lineStartPos,
+            'tokens':tokens,
+            'non_ws_tokens':non_ws_tokens,
+        }
+        return calculatedData
+
     def computeIndent(self, scimoz, indentStyle, continueComments,
                       calculatedData=None):
         """
@@ -134,7 +150,7 @@ class KoLanguageKeywordBase(KoLanguageBase):
         indent = self._computeIndent(scimoz, indentStyle, continueComments, self._style_info, calculatedData)
         if indent is not None:
             return indent
-        return KoLanguageBase._computeIndent(self, scimoz, indentStyle, continueComments, self._style_info, tokens)
+        return KoLanguageBase._computeIndent(self, scimoz, indentStyle, continueComments, self._style_info)
 
     def _computeIndent(self, scimoz, indentStyle, continueComments, style_info,
                        calculatedData=None):
@@ -143,18 +159,8 @@ class KoLanguageKeywordBase(KoLanguageBase):
         on the line to decide what the final indent should be.
         """
         if calculatedData is None:
-            currentPos = scimoz.currentPos
-            lineNo = scimoz.lineFromPosition(currentPos)
-            lineStartPos = scimoz.positionFromLine(lineNo)
-            tokens = self._get_line_tokens(scimoz, lineStartPos, currentPos, style_info)
-            non_ws_tokens = [tok for tok in tokens
-                             if tok.style not in style_info._default_styles]
-        else:
-            currentPos = calculatedData['currentPos']
-            lineNo = calculatedData['lineNo']
-            lineStartPos = calculatedData['lineStartPos']
-            tokens = calculatedData['tokens']
-            non_ws_tokens = calculatedData['non_ws_tokens']
+            calculatedData = self.getTokenDataForComputeIndent(scimoz, style_info)
+        non_ws_tokens = calculatedData['non_ws_tokens']
         if len(non_ws_tokens) == 0:
             return
         if non_ws_tokens[0].style not in style_info._keyword_styles:
@@ -172,7 +178,8 @@ class KoLanguageKeywordBase(KoLanguageBase):
                     delta += 1
                 elif text in self._keyword_dedenting_keywords:
                     delta -= 1
-        tok0 = tokens[0]
+        
+        tok0 = calculatedData['tokens'][0]
         if tok0.style not in style_info._default_styles:
             currentIndentWidth = 0
         else:
@@ -392,3 +399,45 @@ class KoCommonBasicLanguageService(KoLanguageKeywordBase):
                                  sci_constants.SCE_B_COMMENT,
                                  sci_constants.SCE_B_NUMBER],
             )
+
+    # Look for private/protected/public modifiers on sub/function definitions
+    def computeIndent(self, scimoz, indentStyle, continueComments):
+        calculatedData = self.getTokenDataForComputeIndent(scimoz, self._style_info)
+        indent = self._computeIndent(scimoz, indentStyle, continueComments, self._style_info, calculatedData)
+        if indent is not None:
+            return indent
+        return KoLanguageKeywordBase.computeIndent(self, scimoz, indentStyle, continueComments, calculatedData=calculatedData)
+
+    def _computeIndent(self, scimoz, indentStyle, continueComments, style_info,
+                       calculatedData):
+        if not self._lookingAtReturnFunction(calculatedData['non_ws_tokens'],
+                                             style_info):
+            return None
+        tok0 = calculatedData['tokens'][0]
+        if tok0.style in style_info._default_styles:
+            currWSLen = len(tok0.text.expandtabs(scimoz.tabWidth))
+            newWSLen = currWSLen + scimoz.indent
+        else:
+            newWSLen = scimoz.indent
+        return scimozindent.makeIndentFromWidth(scimoz, newWSLen)
+
+    def _lookingAtReturnFunction(self, non_ws_tokens, style_info):
+        if len(non_ws_tokens) <= 1:
+            return False
+        if non_ws_tokens[0].style not in style_info._keyword_styles:
+            return False
+        if non_ws_tokens[1].style not in style_info._keyword_styles:
+            return False
+        function_idx = 1
+        if non_ws_tokens[0].text.lower() == 'public':
+            if non_ws_tokens[1].text.lower() == 'default':
+                if len(non_ws_tokens) == 2:
+                    return False
+                if non_ws_tokens[2].style not in style_info._keyword_styles:
+                    return False
+                function_idx = 2
+        elif non_ws_tokens[0].text.lower() != 'private':
+            return False
+        if non_ws_tokens[function_idx].text.lower() not in ('sub', 'function'):
+            return False
+        return True
