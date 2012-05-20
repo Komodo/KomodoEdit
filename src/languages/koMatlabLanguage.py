@@ -50,7 +50,7 @@ class koMatlabLanguage(KoLanguageKeywordBase):
     _reg_categories_ = [("komodo-language", name)]
 
     defaultExtension = ".m.matlab"
-    commentDelimiterInfo = { "line": [ "%" ]  }
+    commentDelimiterInfo = { "line": [ "%", "#" ]  }
     supportsSmartIndent = "keyword"
     # See comment in koLuaLanguage.py for why some keywords are in both
     # _indenting_statements and _keyword_dedenting_keywords

@@ -183,7 +183,9 @@ class KoLanguageKeywordBase(KoLanguageBase):
                 text = tok.text
                 if text in self._indenting_statements:
                     delta += 1
-                elif text in self._keyword_dedenting_keywords:
+                # not an elif, because some keywords are both indenters and dedenters
+                # This works because if the first keyword is only counted as an indenter.
+                if text in self._keyword_dedenting_keywords:
                     delta -= 1
         
         tok0 = calculatedData['tokens'][0]
