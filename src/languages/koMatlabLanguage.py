@@ -65,6 +65,7 @@ class koMatlabLanguage(KoLanguageKeywordBase):
     _keywords = """break case catch classdef continue else elseif end error for
                 function global if otherwise parfor persistent return
                 spmd switch try while""".split()
+    sciLexer = components.interfaces.ISciMoz.SCLEX_MATLAB
 
     def __init__(self):
         KoLanguageKeywordBase.__init__(self)
@@ -83,7 +84,7 @@ class koMatlabLanguage(KoLanguageKeywordBase):
     def get_lexer(self):
         if self._lexer is None:
             self._lexer = KoLexerLanguageService()
-            self._lexer.setLexer(components.interfaces.ISciMoz.SCLEX_MATLAB)
+            self._lexer.setLexer(self.sciLexer)
             self._lexer.setKeywords(0, self._keywords)
         return self._lexer
 
@@ -131,6 +132,7 @@ class koOctaveLanguage(koMatlabLanguage):
                 for function global if otherwise persistent
                 return switch try until unwind_protect unwind_protect_cleanup
                 while""".split()
+    sciLexer = components.interfaces.ISciMoz.SCLEX_OCTAVE
 
     def __init__(self):
         koMatlabLanguage.__init__(self)
