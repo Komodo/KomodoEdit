@@ -86,6 +86,7 @@ class koMatlabLanguage(KoLanguageKeywordBase):
             self._lexer = KoLexerLanguageService()
             self._lexer.setLexer(self.sciLexer)
             self._lexer.setKeywords(0, self._keywords)
+            self._lexer.supportsFolding = 1
         return self._lexer
 
     # matches:

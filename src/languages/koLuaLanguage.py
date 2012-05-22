@@ -135,6 +135,7 @@ end
             self._lexer.setLexer(components.interfaces.ISciMoz.SCLEX_LUA)
             self._lexer.setKeywords(0, self._keywords)
             self._lexer.setKeywords(1, self._keywords1)
+            self._lexer.supportsFolding = 1
         return self._lexer
 
 
