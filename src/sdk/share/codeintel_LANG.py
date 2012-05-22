@@ -83,8 +83,8 @@ log = logging.getLogger("codeintel.${safe_lang_lower}")
 # HTML buffer uses the JavaScriptLangIntel and the CSSLangIntel for
 # handling codeintel functionality in <script> and <style> tags.
 #
-# See other lang_*.py files in your Komodo installation for examples of
-# usage.
+# See other lang_*.py and codeintel_*.py files in your Komodo installation for
+# examples of usage.
 class ${safe_lang}LangIntel(LangIntel):
     lang = lang
 

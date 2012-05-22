@@ -72,8 +72,8 @@ A Komodo extension source dir looks like this:
     apicatalogs/        # API Catalog ".cix" files for custom autocomplete
                         #   and calltips.
     pylib/              # This dir will be added to Komodo's runtime sys.path.
-                        #   As well, "lang_LANG.py" files here define codeintel
-                        #   language support.
+                        #   As well, "codeintel_LANG.py" files here define
+                        #   codeintel language support.
 
 A Mozilla extension source dir can also contain these:
 
@@ -383,9 +383,9 @@ def create_codeintel_lang_skel(base_dir, lang, dry_run=False, force=False,
     safe_lang = _code_safe_lang_from_lang(lang)
     log.debug("safe lang: %r", safe_lang)
 
-    # Create codeintel/lang_${lang}.py
+    # Create pylib/codeintel_${lang}.py
     lang_path = normpath(join(base_dir, "pylib",
-                              "lang_%s.py" % safe_lang.lower()))
+                              "codeintel_%s.py" % safe_lang.lower()))
     if exists(lang_path) and not force:
         log.warn("`%s' exists (skipping, use --force to override)",
                  lang_path)
@@ -395,7 +395,7 @@ def create_codeintel_lang_skel(base_dir, lang, dry_run=False, force=False,
         log.info("create %s (codeintel language master)", lang_path)
         if not dry_run:
             template_path = join(ko_info.sdk_dir, "share",
-                                 "lang_LANG.py")
+                                 "codeintel_LANG.py")
             import string
             template = string.Template(open(template_path).read())
             content = template.safe_substitute(
