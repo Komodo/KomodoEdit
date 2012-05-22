@@ -22,7 +22,9 @@ XPCOMUtils.defineLazyServiceGetter(this, "os",
 XPCOMUtils.defineLazyServiceGetter(this, "osPath",
                                    "@activestate.com/koOsPath;1",
                                    "koIOsPath");
+XPCOMUtils.defineLazyGetter(this, "log", function() ko.logging.getLogger("koextgen"));
 this.error = false;
+
 
 /**
  * Run koext command line with the given arguments.
@@ -110,7 +112,7 @@ this.readFile = function(filename) {
         fileEx.close();
         return content;
     } catch(e) {
-        alert(e+"\narg filename: "+filename);
+        this.log.warn("Unable to read file: " + filename);
         return "";
     }
 }
@@ -149,26 +151,30 @@ this.updateProject = function(projectDirPath, targetName, vars) {
             // Assume that all tagnames match /^%[\w_]+$/
             newVars[rawPtn] = [new RegExp(rawPtn, "g"), vars[p]];
         }
-          
-        var koFileEx = ko.projects.manager.currentProject.getFile();
-        var basename = vars.name + "_overlay.xul";
-        // The overlay goes in the contents dir
-        var contentPath = this.osPath.join(projectDirPath, "content");
-        if (!this.osPath.exists(contentPath)) {
-            this.os.mkdir(contentPath);
-        }
 
-        var overlayPath = this.getProjectPath(this.osPath.join("content", basename));
-        origContents = this.getTemplateContents("overlay.xul", targetName);
-        this.writeFile(overlayPath, this.replaceAll(newVars, origContents));
+        if (targetName != "komodolang") {
+            origContents = this.getTemplateContents("overlay.xul", targetName);
+            if (origContents) {
+                // The overlay goes in the contents dir
+                var contentPath = this.os.path.join(projectDirPath, "content");
+                if (!this.os.path.exists(contentPath)) {
+                    this.os.mkdir(contentPath);
+                }
+                var basename = vars.name + "_overlay.xul";
+                var overlayPath = this.os.path.join(contentPath, basename);
+                this.writeFile(overlayPath, this.replaceAll(newVars, origContents));
+            }
+        }
 
         var this_ = this;
         var manifestPath;
         ["chrome.manifest", "chrome.p.manifest", "install.rdf"].forEach(
             function(fname) {
                 origContents = this_.getTemplateContents(fname, targetName);
-                manifestPath = this_.getProjectPath(fname);
-                this_.writeFile(manifestPath, this_.replaceAll(newVars, origContents));
+                if (origContents) {
+                    manifestPath = this_.getProjectPath(fname);
+                    this_.writeFile(manifestPath, this_.replaceAll(newVars, origContents));
+                }
             });
         
     } catch(e) {

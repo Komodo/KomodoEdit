@@ -8,6 +8,15 @@ var callback = function() {
   ko.statusBar.AddMessage('Build complete', 'projects', 5000, true);
   ko.projects.manager.saveProject(project);
 };
-ko.koextgen.extensionLib.command('build -i chrome.manifest -i chrome.p.manifest -d ' +
-                                 '"' + projectDir + '"',
-                                 callback);
+var osPath = Components.classes["@activestate.com/koOsPath;1"].
+                getService(Components.interfaces.koIOsPath);
+var preprocessedChromePath = osPath.join(projectDir, "chrome.p.manifest");
+if (osPath.exists(preprocessedChromePath)) {
+  ko.koextgen.extensionLib.command('build -i chrome.manifest -i chrome.p.manifest ' +
+                                   '-d "' + projectDir + '"',
+                                   callback);
+} else {
+  ko.koextgen.extensionLib.command('build -i chrome.manifest ' +
+                                   '-d "' + projectDir + '"',
+                                   callback);
+}

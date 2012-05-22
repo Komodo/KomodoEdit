@@ -1,167 +1,315 @@
 <?xml version="1.0"?>
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
 
-<dialog
+<wizard
   id="test"
-  title="Komodo Extension configuration"
+  title="New Komodo Extension"
   xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-  onload="setup()"
-  width="400px"
-  height="480px"
+  width="600px"
+  height="600px"
   buttons="accept,cancel"
   buttonlabelcancel="Cancel"
   buttonlabelaccept="Save"
-  ondialogaccept="return teardown();"
-  ondialogcancel="return cancel();"
+  onload="setup()"
+  onwizardfinish="return onWizardFinish();"
   defaultButton="accept"
   buttonalign="horizontal"
   buttonorient="horizontal"
   orient="vertical"
   >
   
-<script type="application/x-javascript">
-<![CDATA[
-
-var data = {};
-var ext_name = '';
-
-function get_id(strId) { return document.getElementById(strId); }
-function get_val(strId) { return get_id(strId).value; }
-function set_val(strId, val) { get_id(strId).value = val; }
-function get_nice_name(name) { return trim(name).replace(/[\W]/g,'').toLowerCase(); }
-function trim(str) { return str.replace(/^\s*/, '').replace(/\s*$/, ''); }
-function _dump(obj) {
-  try{
-    var str = ''; for(i in obj) {
-        str += i+': '+obj[i]+'\n';
-    }
-  } catch(e) {alert(e);}
-  return str;
-}
-
-function setup() {
-  try {
-    if(typeof(window.arguments) == 'undefined') {
-      alert('Error: No Window arguments?');
-    } else {
-      data = window.arguments[0];
-      var vars = data.vars;
-      for (var i in vars) {
-        if(i == 'id' || i == 'ext_name') {
-          //pass
-        } else {
-          set_val(i, vars[i]);
-        }
-      }
-      if(vars['id']) {
-        var arr = vars.id.split('@');
-        if(arr.length < 2) {
-          ko.dialogs.alert('Extension Id "' + vars.id + '" is not in the correct format?');
-          return;
-        }
-        set_val('author-domain', arr[1]);
-      }
-      update_id();
-      if(!data.vars['homepageUrl']) {
-        update_url();
-      }
-    }
-  } catch(e) { alert(e); }
-}
-
-function update_url() {
-  var domain = get_id('author-domain').value;
-  var ext_name = get_nice_name(get_val('name'));
-  set_val('homepageURL', 'http://'+domain+'/'+ext_name);
-}
-
-function update_id() {
-  try {
-    var name = get_val('name');
-    data.vars.ext_name = get_nice_name(name);
+    <script type="application/x-javascript">
+    <![CDATA[
     
-    var domain = get_id('author-domain').value;
-    var newId = data.vars.ext_name+'@'+domain;
+    var data = {};
+    var ext_name = '';
     
-    get_id('id').value = newId;
-  } catch(e) {
-    alert(e);
-  }
-}
+    function get_val(strId) { return document.getElementById(strId).value; }
+    function set_val(strId, val) { document.getElementById(strId).value = val; }
+    function is_checked(strId) { return document.getElementById(strId).checked; }
+    function set_unchecked(strId) { document.getElementById(strId).checked = false; }
+    function get_nice_name(name) { return trim(name).replace(/[\W]/g,'_').toLowerCase(); }
+    function trim(str) { return str.replace(/^\s*/, '').replace(/\s*$/, ''); }
 
-function teardown() {
-  var i;
-  try {
-    for(i in data.vars) {
-      if(i != 'ext_name') {
-        data.vars[i] = get_val(i);
-      }
+    function update_url() {
+        var domain = get_val('author-domain');
+        var ext_name = get_nice_name(get_val('name'));
+        set_val('homepageURL', 'http://'+domain+'/'+ext_name);
     }
-    data.vars.ext_name = get_nice_name(data.vars.name);
-    data.valid = true;
-    data.configured = true;
-    window.close();
-  } catch(e) {
-    alert(e);
-  }
-}
+    
+    function update_id() {
+        try {
+            var name = get_val('name');
+            data.vars.ext_name = get_nice_name(name);
+            var domain = get_val('author-domain');
+            var newId = data.vars.ext_name+'@'+domain;
+            set_val('id', newId);
+        } catch(e) {
+            alert(e);
+        }
+    }
+    
+    function setup() {
+        try {
+            if (typeof(window.arguments) == 'undefined') {
+                alert('Error: No Window arguments?');
+                return;
+            }
+            data = window.arguments[0];
+            var vars = data.vars;
+            for (var i in vars) {
+                if (i == 'id' || i == 'ext_name') {
+                    //pass
+                } else {
+                    set_val(i, vars[i]);
+                }
+            }
+            if (vars['id']) {
+                var arr = vars.id.split('@');
+                if (arr.length < 2) {
+                    ko.dialogs.alert('Extension Id "' + vars.id + '" is not in the correct format?');
+                    return;
+                }
+                set_val('author-domain', arr[1]);
+            }
+            update_id();
+            if (!data.vars['homepageUrl']) {
+                update_url();
+            }
 
-function cancel() {
-  return true;
-}
+            if (data.extensiontype == "komodolang") {
+                // Don't skip page2.
+                document.getElementById("page1").setAttribute("next", "page2");
+            }
+        } catch(e) {
+            alert(e);
+        }
+    }
 
-function keys(obj) {
-  var out = new Array(); for(i in obj) {
-    out.push(i);
-  } return out;
-}
+    function onWizardFinish() {
+        try {
+            //var data = window.arguments[0];
+            for (var i in data.vars) {
+                if (i != 'ext_name') {
+                    data.vars[i] = get_val(i);
+                }
+            }
+            data.vars.ext_name = get_nice_name(data.vars.name);
+            data.valid = true;
+            data.configured = true;
 
-]]>
-</script>
+            // Page 2 - Language details.
+            data.lang = trim(get_val("lang"));
+            data.ext = trim(get_val("ext"));
+            data.html_based = is_checked("html_based");
+            data.xml_based = is_checked("xml_based");
+            data.line_comment_slashslash = is_checked("line_comment_slashslash");
+            data.line_comment_hash = is_checked("line_comment_hash");
+            data.line_comment_dashdash = is_checked("line_comment_dashdash");
+            data.line_comment_semicolan = is_checked("line_comment_semicolan");
+            data.line_comment_percent = is_checked("line_comment_percent");
+            data.block_comment_c = is_checked("block_comment_c");
+            data.block_comment_pascal = is_checked("block_comment_pascal");
+            data.keywords = trim(get_val("keywords")).split(/\s+/);
+            data.enable_codeintel = is_checked("codeintel");
+            // Filter out empty strings.
+            data.keywords = data.keywords.filter(function(word) { if (trim(word)) return true; return false; });
 
+            // Fire the callback.
+            data.callback(data);
+        } catch(e) {
+            alert(e);
+        }
+    }
 
-<commandset id="koext_commands">
-  <command id="update_id" oncommand="update_id();"/>
-</commandset>
+    function validate_page2() {
+        if (!trim(get_val("lang"))) {
+            alert("You must define a language name");
+            return false;
+        }
+        if (!trim(get_val("ext"))) {
+            alert("You must define a filename extension");
+            return false;
+        }
+        return true;
+    }
 
-<vbox flex="1">
-  <caption label="Extension Options"/>
-  <grid flex="1">
-    <columns>
-      <column/>
-      <column flex="1"/>
-    </columns>
-    <rows>
-      <row align="center">
-        <label value="Name:"/>
-        <textbox id="name" type="timed" timeout="1000" command="update_id"/>
-      </row>
-      <row align="center">
-        <label value="Version:"/>
-        <textbox id="version"/>
-      </row>
-      <row align="top">
-          <label value="Description:"/>
-          <textbox id="description" multiline="true" value=""/>
-      </row>
-      <row align="center">
-          <label value="Author:"/>
-          <textbox id="creator" value=""/>
-      </row>
-      <row align="center">
-          <label value="Domain:"/>
-          <textbox id="author-domain" value="yourdomain.org"  type="timed" timeout="1000" command="update_id"/>
-      </row>
-      <row align="center">
-          <label value="Home Page:"/>
-          <textbox id="homepageURL" value=""/>
-      </row>
-      <row align="center">
-          <label value="Extension Id:"/>
-          <label style="font-weight: bolder;" id="id"/>
-      </row>
-    </rows>
-  </grid>
-</vbox>
-  
-</dialog>
+    function checkbox_validate(event) {
+        var id = event.originalTarget.id;
+        var checked = event.originalTarget.checked;
+        if (id == "html_based" && checked) {
+            set_unchecked("xml_based");
+        } else if (id == "xml_based" && checked) {
+            set_unchecked("html_based");
+        }
+    }
+
+    ]]>
+    </script>
+
+    <wizardpage id="page1" pageid="page1" next="page3">
+        <!--<vbox flex="1">-->
+            <caption label="Extension Information" />
+            <grid flex="1">
+                <columns>
+                    <column />
+                    <column flex="1" />
+                </columns>
+                <rows>
+                    <row align="center">
+                        <label value="Name:" />
+                        <textbox id="name" type="search" timeout="1000" oncommand="update_id()" />
+                    </row>
+                    <row align="center">
+                        <label value="Version:" />
+                        <textbox id="version" />
+                    </row>
+                    <row align="top">
+                        <label value="Description:" />
+                        <textbox id="description" multiline="true" value="" />
+                    </row>
+                    <row align="center">
+                        <label value="Author:" />
+                        <textbox id="creator" value="" />
+                    </row>
+                    <row align="center">
+                        <label value="Domain:" />
+                        <textbox id="author-domain" value="yourdomain.org" type="search" timeout="1000" oncommand="update_id()" />
+                    </row>
+                    <row align="center">
+                        <label value="Home Page:" />
+                        <textbox id="homepageURL" value="" />
+                    </row>
+                    <row align="center">
+                        <label value="Extension Id:" />
+                        <label style="font-weight: bolder;" id="id" />
+                    </row>
+                </rows>
+            </grid>
+        <!--</vbox>-->
+    </wizardpage>
+
+    <wizardpage id="page2"
+                pageid="page2"
+                next="page3"
+                onpageadvanced="return validate_page2();"
+                >
+        <!-- For defining the Komodo language properties -->
+        <caption label="Language Settings" />
+        <radiogroup id="lang_base_group" />
+        <groupbox>
+            <grid flex="1">
+                <columns>
+                    <column />
+                    <column flex="1" />
+                </columns>
+                <rows>
+                    <row align="center">
+                        <label value="Language Name:" />
+                        <textbox id="lang"
+                                 placeholder="Python"
+                                 tooltiptext="The language name should begin with a captial letter."
+                                 />
+                    </row>
+                    <row align="center">
+                        <label value="Filename Extension:" />
+                        <textbox id="ext"
+                                 placeholder=".py"
+                                 tooltiptext="Files with this extension will be associated to the above language name."
+                                 />
+                    </row>
+                    <row align="top">
+                        <label value="HTML based language" />
+                        <checkbox id="html_based"
+                                  oncommand="checkbox_validate(event);"
+                                  label=" "
+                                  tooltiptext="HTML based - like PHP, Django and Smarty. If unsure - leave unchecked."
+                                  group="lang_base_group"
+                                  />
+                    </row>
+                    <row align="center">
+                        <label value="XML based language" />
+                        <checkbox id="xml_based"
+                                  oncommand="checkbox_validate(event);"
+                                  label=" "
+                                  tooltiptext="XML based - like XSLT, XUL and MXML. If unsure - leave unchecked."
+                                  group="lang_base_group"
+                                  />
+                    </row>
+                    <row>
+                        <groupbox>
+                            <caption label="Line Comments" />
+                                <checkbox id="line_comment_slashslash"
+                                          label="//"
+                                          tooltiptext="C-style one-line comments."
+                                          />
+                                <checkbox id="line_comment_hash"
+                                          label="#"
+                                          tooltiptext="Perl/Python one-line hash comments."
+                                          />
+                                <checkbox id="line_comment_dashdash"
+                                          label="--"
+                                          tooltiptext="SQL style one-line comments."
+                                          />
+                                <checkbox id="line_comment_semicolan"
+                                          label=";"
+                                          tooltiptext="Lisp style one-line comments."
+                                          />
+                                <checkbox id="line_comment_percent"
+                                          label="%"
+                                          tooltiptext="Erlang style one-line comments."
+                                          />
+                        </groupbox>
+                        <groupbox>
+                            <caption label="Block Comments" />
+                                <checkbox id="block_comment_c"
+                                          label="/* ... */"
+                                          tooltiptext="C-style block comments."
+                                          />
+                                <checkbox id="block_comment_pascal"
+                                          label="(* ... *)"
+                                          tooltiptext="Pascal-style block comments."
+                                          />
+                        </groupbox>
+                    </row>
+                </rows>
+            </grid>
+        </groupbox>
+        <groupbox>
+            <caption label="Keywords" />
+            <textbox id="keywords"
+                     multiline="true"
+                     rows="4"
+                     placeholder="Separate the keywords using spaces"
+                     tooltiptext="Keywords are special identifiers for a programming language. Examples are 'import' for Python, or 'int' for C."
+                     />
+        </groupbox>
+        <groupbox>
+            <caption label="Code Intelligence" />
+                <checkbox id="codeintel"
+                          label="Enable Code Intelligence"
+                          tooltiptext="Code Intelligence will be enable and provide completions for the above keywords."
+                          />
+        </groupbox>
+    </wizardpage>
+
+    <wizardpage id="page3" pageid="page3">
+        <!-- For creating the extension. -->
+        <groupbox>
+            <caption label="Building it" />
+            <description>
+                After creating the extension, you can use the "Build" button in
+                the bottom of the Komodo toolbox (in the right pane) to build
+                the extension (.xpi) file.
+            </description>
+        </groupbox>
+        <groupbox>
+            <caption label="Installing it" />
+            <description>
+                Once the xpi file is built, you can open (double-click) it from
+                Places which will start the installation process.
+            </description>
+        </groupbox>
+    </wizardpage>
+
+</wizard>

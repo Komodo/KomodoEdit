@@ -25,7 +25,13 @@ try {
     
     var rdfFile = koExt.os.path.join(projectDirPath, "install.rdf");
     var rdfVars = koExt.getRDFVars(koExt.readFile(rdfFile));
+    var callbackFn = function(data) {
+        if (data.valid) {
+            koExt.updateProject(projectDirPath, targetName, data.vars);
+        }
+    }
     var data = {
+        'callback': callbackFn,
         'valid': false,
         'configured': true,
         'vars': rdfVars,
@@ -35,11 +41,8 @@ try {
     window.openDialog(
         setup_xul_uri,
         "_blank",
-        "centerscreen,chrome,resizable,scrollbars,dialog=no,close,modal=yes",
+        "centerscreen,chrome,resizable,scrollbars,dialog=no,close,modal=no",
         data);
-    if (data.valid) {
-        koExt.updateProject(projectDirPath, targetName, data.vars);
-    }
 } catch(ex) {
     ko.dialogs.alert("Error in reconfigure: " + ex)
 }

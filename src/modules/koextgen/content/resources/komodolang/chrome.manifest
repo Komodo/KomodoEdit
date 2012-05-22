@@ -1,0 +1,4 @@
+content %extension_name% content/
+skin %extension_name% classic/1.0 skin/
+locale %extension_name% en-US locale/en-US/
+
