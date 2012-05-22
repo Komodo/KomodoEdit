@@ -172,6 +172,7 @@ this.createExtGenProject = function(targetName) {
             }
             if (targetName == "komodolang") {
                 macroInfo.push([fromString, "ko.help.open('user-defined_languages');", "Docs - UDL", "chrome://fugue/skin/icons/information-white.png"]);
+                macroInfo.push([fromFile, "udl_visualize.py", "UDL Visualization", "chrome://fugue/skin/icons/magnifier-zoom-actual-equal.png"]);
             }
             macroInfo.forEach(function(parts) {
                 var readFrom = parts[0];
@@ -190,8 +191,12 @@ this.createExtGenProject = function(targetName) {
                 buildMacro.setBooleanAttribute('trigger_enabled', false);
 
                 buildMacro.setLongAttribute('rank', 100);
-                buildMacro.setBooleanAttribute('async', true);
-                buildMacro.setStringAttribute('language', "JavaScript");
+                if (fname.substr(-3) == ".py") {
+                    buildMacro.setStringAttribute('language', "Python");
+                } else {
+                    buildMacro.setStringAttribute('language', "JavaScript");
+                    buildMacro.setBooleanAttribute('async', true);
+                }
                 buildMacro.save();
             });
         }
