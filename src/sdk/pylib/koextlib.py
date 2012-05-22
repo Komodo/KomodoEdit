@@ -300,13 +300,11 @@ def create_udl_lang_skel(base_dir, lang, ext=None, is_html_based=False,
         log.info("create %s (lexer definition)", mainlex_path)
         if not dry_run:
             if is_html_based:
-                template = file(join(ko_info.sdk_dir, "share", "html_template.udl")).read() + \
-                           file(join(ko_info.sdk_dir, "share", "ssl_template.udl")).read()
+                template = file(join(ko_info.sdk_dir, "share", "html_template.udl")).read()
             elif is_xml_based:
                 template = file(join(ko_info.sdk_dir, "share", "xml_template.udl")).read()
             else:
-                template = file(join(ko_info.sdk_dir, "share", "ssl_template_boilerplate.udl")).read() + \
-                           file(join(ko_info.sdk_dir, "share", "ssl_template.udl")).read()
+                template = file(join(ko_info.sdk_dir, "share", "ssl_template.udl")).read()
             open(mainlex_path, 'w').write(template % locals())
 
     # Create components/ko${lang}_UDL_Language.py
@@ -396,13 +394,30 @@ def create_codeintel_lang_skel(base_dir, lang, dry_run=False, force=False,
         if not dry_run:
             template_path = join(ko_info.sdk_dir, "share",
                                  "codeintel_LANG.py")
+            file_contents = open(template_path).read()
+            buffer_subclass = "CitadelBuffer"
+            cile_subclass = "CileDriver"
+            if exists(join(base_dir, "udl")):
+                buffer_subclass = "UDLBuffer"
+                cile_subclass = "UDLCILEDriver"
+                # We know it's udl, so update the lexer class now.
+                file_contents = file_contents.replace("# LexerClass",
+                                                      """
+from codeintel2.udl import UDLLexer
+class ${safe_lang}Lexer(UDLLexer):
+        lang = lang
+""")
             import string
-            template = string.Template(open(template_path).read())
+            template = string.Template(file_contents)
             content = template.safe_substitute(
                 {"lang": lang,
                  "safe_lang": safe_lang,
                  "safe_lang_lower": safe_lang.lower(),
-                 "safe_lang_upper": safe_lang.upper()})
+                 "safe_lang_upper": safe_lang.upper(),
+                 "buffer_subclass": buffer_subclass,
+                 "cile_subclass": cile_subclass,
+                })
+
             open(lang_path, 'w').write(content)
 
     # Create codeintel/cile_${lang}.py

@@ -11,6 +11,9 @@ def registerLanguage(registry):
     registry.registerLanguage(Ko%(safe_lang)sLanguage())
 
 class Ko%(safe_lang)sLanguage(%(base_class)s):
+
+    # ------------ Komodo Registration Information ------------ #
+
     name = "%(lang)s"
     lexresLangName = "%(safe_lang)s"
     _reg_desc_ = "%%s Language" %% name
@@ -18,6 +21,35 @@ class Ko%(safe_lang)sLanguage(%(base_class)s):
     _reg_categories_ = [("komodo-language", name)]
     _reg_clsid_ = "%(guid)s"
     %(default_ext_assign)s
+
+    # ------------ Commenting Controls ------------ #
+
+    commentDelimiterInfo = {
+        "line": [
+                #'//',   # C-style one line comments
+                #'#',    # Hash-style one line comments
+                #'--',   # SQL-style one line comments
+                #';',    # Lisp-style one line comments
+                #'%%',    # Erlang-style one line comments
+                ],
+        "block": [
+                #('/*', '*/')   # C-style block comments
+                #('(*', '*)')   # Pascal-style block comments
+                ],
+    }
+
+    # ------------ Indentation Controls ------------ #
+
+    # To support automatic indenting and dedenting after "{([" and "})]"
+    supportsSmartIndent = "brace"
+    # Other smart indenting types are:
+    #   'text', 'python', 'XML' and 'keyword'
+
+    # Indent/dedent after these words.
+    #_indenting_statements = ['case']
+    #_dedenting_statements = ['return', 'break', 'continue']
+
+    # ------------ Sub-language Controls ------------ #
 
     #Check: Update 'lang_from_udl_family' as appropriate for your
     #      lexer definition. There are four UDL language families:

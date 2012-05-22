@@ -11,17 +11,17 @@ language %(lang)s
 
 # ------------- html2%(lang)s ------------- #
 
-# Transition to %(lang)s from HTML when encountering "<%".
+# Transition to %(lang)s from HTML when encountering "{{".
 family markup
 state IN_M_DEFAULT:
-'<%%' : paint(upto, M_STRING), paint(include, SSL_OPERATOR) => IN_SSL_DEFAULT
+'{{'  : paint(upto, M_DEFAULT), paint(include, TPL_OPERATOR), => IN_TPL_DEFAULT
 
 # ------------- %(lang)s2html ------------- #
 
-# Transition back to HTML when encountering "%%>".
-family ssl
-state IN_SSL_DEFAULT:
-'%%>' : paint(upto, SSL_DEFAULT), paint(include, SSL_OPERATOR), => IN_M_DEFAULT
+# Transition back to HTML when encountering the ending "}}".
+family tpl # template language
+state IN_TPL_DEFAULT:
+'}}' : paint(upto, TPL_OPERATOR), paint(include, TPL_OPERATOR), => IN_M_DEFAULT
 
 
 # ------------- Common HTML related language transitions ------------- #
@@ -44,4 +44,76 @@ include "html.udl"  # Performs styling for HTML
 
 ###############################################
 # ------------- %(lang) styling ------------- #
+
+family tpl # template language
+sublanguage %(lang)
+
+# Specify the min and max styles we'll be referring to.
+start_style TPL_DEFAULT
+end_style TPL_VARIABLE
+
+# If the language has keywords, specify which style needs to be transformed
+keyword_style TPL_IDENTIFIER => TPL_WORD
+keywords [
+        # Keywords
+]
+
+# Set the basic patterns we'll be using for styling transitions.
+# For most programming languages, names cannot start with a number, but they
+# often allow a number after the first character - e.g. "bar21a"
+pattern FIRSTNAMECHAR = '_a-zA-Z\x80-\xff' # names (identifier, keyword, variable...) only can start with these chars
+pattern NAMECHAR = '$FIRSTNAMECHAR\d'      # rest of the name, after the first char
+pattern WS = '\s\t\r\n'                    # whitespace
+pattern OP = '!%%\(\)\*\+-\.{}%:;,<=>'     # operator characters - escaping special regex values
+
+################ Default Style ################
+
+# Define what happens when in default (initial) state. This is where we set up
+# the transitions to other states.
+
+state IN_TPL_DEFAULT:
+
+# ----------- Entering Whitespace ---------- #
+
+# Just stay in whatever style we currently are using.
+/[$WS]+/  : #stay
+
+# ----------- Entering Strings ---------- #
+
+'"' : paint(upto, TPL_DEFAULT), => IN_TPL_DSTRING
+'\'' : paint(upto, TPL_DEFAULT), => IN_TPL_SSTRING
+
+# ----------- Entering Numbers ---------- #
+
+# Go process a number, try to do it in regexes octal and hex first.
+/0[Xx][0-9a-fA-F]+/ : paint(upto, TPL_DEFAULT), paint(include, TPL_NUMBER)  # Hex numbers
+/[-+]?0[0-7]*/ : paint(upto, TPL_DEFAULT), paint(include, TPL_NUMBER)       # Octal numbers
+/[-+]?[1-9]+/ : paint(upto, TPL_DEFAULT), paint(include, TPL_NUMBER)        # Regular numbers
+
+# ----------- Entering Identifiers ---------- #
+
+/[$FIRSTNAMECHAR][$NAMECHAR]*/ : paint(upto, TPL_DEFAULT), paint(include, TPL_IDENTIFIER)
+
+# ----------- Entering Operators ---------- #
+
+/[$OP]/ : paint(upto, TPL_DEFAULT), paint(include, TPL_OPERATOR) #stay
+
+################ Strings ################
+
+state IN_TPL_DSTRING:
+'"' : paint(include, TPL_STRING), => IN_TPL_DEFAULT
+/\\./ : #stay, Don't miscount backslash at end
+/$/ : paint(upto, TPL_STRING), => IN_TPL_DEFAULT  #don't paint past the EOL
+'\r' : paint(upto, TPL_STRING), => IN_TPL_DEFAULT #don't paint past the EOL
+
+state IN_TPL_SSTRING:
+'\'' : paint(include, TPL_STRING), => IN_TPL_DEFAULT
+/\\./ : #stay, Don't miscount backslash at end
+/$/ : paint(upto, TPL_STRING), => IN_TPL_DEFAULT  #don't paint past the EOL
+'\r' : paint(upto, TPL_STRING), => IN_TPL_DEFAULT #don't paint past the EOL
+
+################ Folding Directives ################
+
+#fold "{{" TPL_OPERATOR +
+#fold "}}" TPL_OPERATOR -
 

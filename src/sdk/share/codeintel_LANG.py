@@ -14,7 +14,13 @@ import logging
 from codeintel2.common import *
 from codeintel2.citadel import CitadelBuffer
 from codeintel2.langintel import LangIntel
+from codeintel2.udl import UDLBuffer, UDLCILEDriver, UDLLexer
+from codeintel2.util import CompareNPunctLast
 
+from SilverCity.ScintillaConstants import (
+    SCE_UDL_SSL_DEFAULT, SCE_UDL_SSL_IDENTIFIER,
+    SCE_UDL_SSL_OPERATOR, SCE_UDL_SSL_VARIABLE, SCE_UDL_SSL_WORD,
+)
 
 try:
     from xpcom.server import UnwrapObject
@@ -31,6 +37,11 @@ log = logging.getLogger("codeintel.${safe_lang_lower}")
 #log.setLevel(logging.DEBUG)
 
 
+# These keywords are copied from "${lang}-mainlex.udl" - be sure to keep both
+# of them in sync.
+keywords = [
+    # Keywords
+]
 
 #---- Lexer class
 
@@ -68,6 +79,7 @@ log = logging.getLogger("codeintel.${safe_lang_lower}")
 #               # implementation.
 #           ]
 
+# LexerClass
 
 #---- LangIntel class
 
@@ -87,6 +99,90 @@ log = logging.getLogger("codeintel.${safe_lang_lower}")
 # examples of usage.
 class ${safe_lang}LangIntel(LangIntel):
     lang = lang
+
+    ##
+    # Implicit codeintel triggering event, i.e. when typing in the editor.
+    #
+    # @param buf {components.interfaces.koICodeIntelBuffer}
+    # @param pos {int} The cursor position in the editor/text.
+    # @param implicit {bool} Automatically called, else manually called?
+    #
+    def trg_from_pos(self, buf, pos, implicit=True, DEBUG=False, ac=None):
+        #DEBUG = True
+        if pos < 1:
+            return None
+
+        # accessor {codeintel2.accessor.Accessor} - Examine text and styling.
+        accessor = buf.accessor
+        last_pos = pos-1
+        char = accessor.char_at_pos(last_pos)
+        style = accessor.style_at_pos(last_pos)
+        if DEBUG:
+            print "trg_from_pos: char: %r, style: %d" % (char, accessor.style_at_pos(last_pos), )
+        if style in (SCE_UDL_SSL_WORD, SCE_UDL_SSL_IDENTIFIER):
+            # Functions/builtins completion trigger.
+            start, end = accessor.contiguous_style_range_from_pos(last_pos)
+            if DEBUG:
+                print "identifier style, start: %d, end: %d" % (start, end)
+            # Trigger when two characters have been typed.
+            if (last_pos - start) == 1:
+                if DEBUG:
+                    print "triggered:: complete identifiers"
+                return Trigger(self.lang, TRG_FORM_CPLN, "identifiers",
+                               start, implicit)
+        return None
+
+    ##
+    # Explicit triggering event, i.e. Ctrl+J.
+    #
+    # @param buf {components.interfaces.koICodeIntelBuffer}
+    # @param pos {int} The cursor position in the editor/text.
+    # @param implicit {bool} Automatically called, else manually called?
+    #
+    def preceding_trg_from_pos(self, buf, pos, curr_pos,
+                               preceding_trg_terminators=None, DEBUG=False):
+        #DEBUG = True
+        if pos < 1:
+            return None
+
+        # accessor {codeintel2.accessor.Accessor} - Examine text and styling.
+        accessor = buf.accessor
+        last_pos = pos-1
+        char = accessor.char_at_pos(last_pos)
+        style = accessor.style_at_pos(last_pos)
+        if DEBUG:
+            print "pos: %d, curr_pos: %d" % (pos, curr_pos)
+            print "char: %r, style: %d" % (char, style)
+        if style in (SCE_UDL_SSL_WORD, SCE_UDL_SSL_IDENTIFIER):
+            # Functions/builtins completion trigger.
+            start, end = accessor.contiguous_style_range_from_pos(last_pos)
+            if DEBUG:
+                print "triggered:: complete identifiers"
+            return Trigger(self.lang, TRG_FORM_CPLN, "identifiers",
+                           start, implicit=False)
+        return None
+
+    ##
+    # Provide the list of completions or the calltip string.
+    # Completions are a list of tuple (type, name) items.
+    #
+    # Note: This example is *not* asynchronous.
+    def async_eval_at_trg(self, buf, trg, ctlr):
+        if _xpcom_:
+            trg = UnwrapObject(trg)
+            ctlr = UnwrapObject(ctlr)
+        pos = trg.pos
+        ctlr.start(buf, trg)
+
+        if trg.id == (self.lang, TRG_FORM_CPLN, "identifiers"):
+            # Return all known keywords.
+            cplns = [("keyword", x) for x in sorted(keywords, cmp=CompareNPunctLast)]
+            ctlr.set_cplns(cplns)
+            ctlr.done("success")
+            return
+
+        ctlr.error("Unknown trigger type: %r" % (trg, ))
+        ctlr.done("error")
 
 
 #---- Buffer class
@@ -110,7 +206,7 @@ class ${safe_lang}LangIntel(LangIntel):
 #   http://listserv.activestate.com/mailman/listinfo/komodo-discuss
 #   http://listserv.activestate.com/mailman/listinfo/komodo-beta
 #
-class ${safe_lang}Buffer(CitadelBuffer):
+class ${safe_lang}Buffer(${buffer_subclass}):
     # Dev Note: What to sub-class from?
     # - If this is a UDL-based language: codeintel2.udl.UDLBuffer
     # - Else if this is a programming language (it has functions,
@@ -118,9 +214,17 @@ class ${safe_lang}Buffer(CitadelBuffer):
     # - Otherwise: codeintel2.buffer.Buffer
     lang = lang
 
+    # Uncomment and assign the appropriate languages - these are used to
+    # determine which language controls the completions for a given UDL family.
+    #m_lang = "HTML"
+    #m_lang = "XML"
+    #css_lang = "CSS"
+    #csl_lang = "JavaScript"
+    #ssl_lang = "${lang}"
+    #tpl_lang = "${lang}"
+
     cb_show_if_empty = True
 
-    # Dev Note: many details elided.
 
 
 #---- CILE Driver class
@@ -134,7 +238,7 @@ class ${safe_lang}Buffer(CitadelBuffer):
 # multi-lang (i.e. can contain sections of different language content,
 # e.g. HTML can contain markup, JavaScript and CSS), then you will need
 # to also implement "scan_multilang()".
-class ${safe_lang}CILEDriver(CILEDriver):
+class ${safe_lang}CILEDriver(${cile_subclass}):
     lang = lang
 
     def scan_purelang(self, buf):
