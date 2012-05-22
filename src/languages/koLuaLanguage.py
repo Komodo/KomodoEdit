@@ -156,6 +156,8 @@ end
     # Handle return ... function differently
 
     def computeIndent(self, scimoz, indentStyle, continueComments):
+        if continueComments:
+            return KoLanguageKeywordBase.computeIndent(self, scimoz, indentStyle, continueComments)
         calculatedData = self.getTokenDataForComputeIndent(scimoz, self._style_info)
         indent = self._computeIndent(scimoz, indentStyle, continueComments, self._style_info, calculatedData)
         if indent is not None:

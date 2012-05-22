@@ -487,6 +487,8 @@ class KoUDLLanguage(KoLanguageBase):
     # Python only method obj._foo(args, styleInfo) instead of obj.foo(args)
     
     def computeIndent(self, scimoz, indentStyle, continueComments):
+        if continueComments:
+            return KoLanguageBase.computeIndent(self, scimoz, indentStyle, continueComments)
         (lang_svc_obj, style_info) = self._getLangSvcAndStyleInfoFromScimoz(scimoz)
         if lang_svc_obj == self:
             # Bug 90371: Avoid infinite recursion.  Always call towards the superclass.

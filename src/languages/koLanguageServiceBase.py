@@ -1452,10 +1452,6 @@ class KoLanguageBase:
             if scimoz.getColumn(pos) == 0:
                 # If we're in column zero, do me no favors
                 return None
-            curLineNo = scimoz.lineFromPosition(pos)
-            lineStart = scimoz.positionFromLine(curLineNo)
-            lineEnd = scimoz.getLineEndPosition(curLineNo)
-            curLine = scimoz.getTextRange(lineStart, lineEnd)
             
             inBlockCommentIndent, inLineCommentIndent = self._inCommentIndent(scimoz, pos, continueComments, style_info)
 
@@ -1472,6 +1468,9 @@ class KoLanguageBase:
                 if res:
                     return 1
 
+            curLineNo = scimoz.lineFromPosition(pos)
+            lineStart = scimoz.positionFromLine(curLineNo)
+            lineEnd = scimoz.getLineEndPosition(curLineNo)
             shouldIndent = self._shouldIndent(scimoz, pos, style_info)
             if shouldIndent is not None:
                 indentlog.info("detected indent")
@@ -1535,10 +1534,71 @@ class KoLanguageBase:
                 return indentingOrDedentingStatementIndent
             indentlog.info("did not detect indenting/dedenting statement")
 
+            # Look for a case where we're ending a list of hanging comments:
+            """
+            if 1: # start line *press shift-newline*
+                  # another line  *press shift-newline*
+                  # last line[|] (*press newline*) -- should indent based on first line containing comments
+            """
+            if 'line' in self.commentDelimiterInfo and not continueComments:
+                # If we're at ^[leading white-space][comments]<cursor>
+                # walk up lines looking for the same situtation,
+                # and do an indent at the first line that doesn't match.
+                current_line_style_runs = self._getCommentStyleRunsForLine(scimoz, curLineNo, style_info, lineStartPos=lineStart, lineEndPos=pos)
+                if current_line_style_runs:
+                    prevLineNo = curLineNo - 1
+                    while prevLineNo >= 1:
+                        prev_line_style_runs = self._getCommentStyleRunsForLine(scimoz, prevLineNo, style_info)
+                        if not prev_line_style_runs:
+                            break
+                        if prev_line_style_runs[0][1] != current_line_style_runs[0][1]:
+                            break
+                        prevLineNo = prevLineNo - 1
+                    # Find the indent based on the line we end up at.
+                    prevLine_LineEndPos = scimoz.getLineEndPosition(prevLineNo)
+                    currentPos = scimoz.currentPos
+                    scimoz.currentPos = prevLine_LineEndPos
+                    try:
+                        indent = self._getSmartBraceIndent(scimoz, continueComments, style_info)
+                    finally:
+                        scimoz.currentPos = currentPos
+                    if indent:
+                        return indent
+
             indentlog.info("not in comment, doing plain")
             return None
         finally:
             timeline.leave('_analyzeIndentNeededAtPos')
+
+    def _getCommentStyleRunsForLine(self, scimoz, curLineNo, style_info, lineStartPos=None, lineEndPos=None):
+        if lineStartPos is None:
+            lineStartPos = scimoz.positionFromLine(curLineNo)
+        if lineEndPos is None:
+            lineEndPos = scimoz.getLineEndPosition(curLineNo)
+        data = scimoz.getStyledText(lineStartPos, lineEndPos)
+        if len(data) <= 2:
+            return None
+        styles = [ord(x) for x in data[1::2]]
+        if styles[0] not in style_info._default_styles and styles[0] != 0:
+            return None
+        if styles[-1] not in style_info._comment_styles:
+            return None
+        styleRuns = [[styles[0], 0], [styles[-1], 0]]
+        currStyle = styles[0]
+        currIndex = 0
+        for s in styles:
+            if s != currStyle:
+                if currIndex == 1:
+                    return None
+                if s != styles[-1]:
+                    return None
+                currStyle = s
+                currIndex += 1
+            styleRuns[currIndex][1] += 1
+        leading_chars = data[:styleRuns[0][1] * 2:2]
+        if leading_chars.strip():
+            return None
+        return styleRuns
             
     def _atOpeningStringDelimiter(self, scimoz, pos, style_info):
         if pos < 3:
@@ -1926,7 +1986,7 @@ class KoLanguageBase:
             # comments, then continue it (except if continueComments is false)
             # If there was code on the line, then don't do anything special.
             fromStartToCommentStart = curLine[0:commentStart]
-            if not continueComments or fromStartToCommentStart.strip():
+            if not continueComments:# or fromStartToCommentStart.strip():
                 return None, None
             indent = scimozindent.makeIndentFromWidth(scimoz, indentWidth) + commentStartMarker
         else:

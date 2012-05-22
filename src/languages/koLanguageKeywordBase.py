@@ -153,6 +153,8 @@ class KoLanguageKeywordBase(KoLanguageBase):
         calculatedData: a dict containing info already calculated by
         a lower method
         """
+        if continueComments:
+            return KoLanguageBase.computeIndent(self, scimoz, indentStyle, continueComments)
         # Don't end up calling a subclass routine.
         indent = KoLanguageKeywordBase._computeIndent(self, scimoz, indentStyle, continueComments, self._style_info, calculatedData)
         if indent is not None:

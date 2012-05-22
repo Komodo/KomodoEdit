@@ -646,6 +646,8 @@ end section
         
     # Override computeIndent
     def computeIndent(self, scimoz, indentStyle, continueComments):
+        if continueComments:
+            return KoLanguageKeywordBase.computeIndent(self, scimoz, indentStyle, continueComments)
         return self._computeIndent(scimoz, indentStyle, continueComments, self._style_info)
 
     def _computeIndent(self, scimoz, indentStyle, continueComments, style_info):
