@@ -138,7 +138,7 @@ my @lexers = (
                language_name => "Twig",
                codename => "twig_language",
                udl_path => "twig-mainlex.udl",
-               ext => ".twig.html",
+               ext => ".twig",
                skel => "skel/Twig",
               },
               {

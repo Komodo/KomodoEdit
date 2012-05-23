@@ -27,7 +27,7 @@ class KoTwigLanguage(KoDjangoTemplateFamilyBase):
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" % name
     _reg_clsid_ = "{2ae17256-e73f-4318-bb11-aeb07e68f1d6}"
     _reg_categories_ = [("komodo-language", name)]
-    defaultExtension = '.twig.html'
+    defaultExtension = '.twig'
     searchURL = "http://twig.sensiolabs.org/documentation"
 
     lang_from_udl_family = {'CSL': 'JavaScript', 'TPL': 'Twig', 'M': 'HTML', 'CSS': 'CSS'}

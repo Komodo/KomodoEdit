@@ -73,7 +73,7 @@ class DjangoHTMLTemplateLangInfo(DjangoTemplateLangInfo):
 
 class TwigTemplateLangInfo(DjangoTemplateLangInfo):
     name = "Twig"
-    exts = [".twig.html"]
+    exts = [".twig"]
 
 class DjangoXHTMLTemplateLangInfo(DjangoTemplateLangInfo):
     name = "Django XHTML Template"
