@@ -3311,6 +3311,31 @@ this.matchAllTypes = function(typeListAttr, typesSelectedArray) {
                                     targetTypeList.indexOf(typeName) != -1);
 };
 
+/**
+ * Returns the current places directory (as a URI).
+ * 
+ * @returns {String} The URI of the current places directory.
+ */
+this.getDirectory = function() {
+    return ko.places.manager.currentPlace;
+};
+
+/**
+ * Set places to the given directory.
+ * 
+ * @param {String} uri - The path or uri of the wanted directory.
+ */
+this.setDirectory = function(uri) {
+    var file = Components.classes["@activestate.com/koFileEx;1"].
+            createInstance(Components.interfaces.koIFileEx);
+    file.URI = uri;
+    if (file.isLocal) {
+        this.manager.openDirectory(file.path);
+    } else {
+        this.manager.openNamedRemoteDirectory(file.URI);
+    }
+};
+
 }).apply(ko.places);
 
 parent.addEventListener("workspace_restored", ko.places.onLoad, false);
