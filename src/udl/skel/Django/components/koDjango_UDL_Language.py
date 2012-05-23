@@ -183,7 +183,10 @@ class KoDjangoLinter(object):
             return None
         prefset = getProxiedEffectivePrefs(request)
         cwd = request.cwd
-        settingsDir = self._getSettingsDir(cwd)
+        env = koprocessutils.getUserEnv()
+        settingsDir = env.get("DJANGO_SETTINGS_MODULE", None)
+        if not settingsDir:
+            settingsDir = self._getSettingsDir(cwd)
         if settingsDir:
             # Save the current buffer to a temporary file.
             tmpFileName = tempfile.mktemp()
@@ -195,7 +198,6 @@ class KoDjangoLinter(object):
                 #XXX: How to tell whether we're using Python or Python3?
                 prefName = "pythonExtraPaths"
                 pythonPath =  prefset.hasPref(prefName) and prefset.getStringPref(prefName) or None
-                env = koprocessutils.getUserEnv()
                 pythonPathEnv = env.get("PYTHONPATH", "")
                 if pythonPathEnv:
                     if pythonPath:
