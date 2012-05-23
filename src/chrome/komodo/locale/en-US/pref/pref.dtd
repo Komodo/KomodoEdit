@@ -302,6 +302,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY leaveFilenameAlone.label "Leave filename alone">
 <!ENTITY lineCursor.label "Line cursor">
 <!ENTITY lintEOLs.label "Enable checking of mixed end-of-line (EOL) characters">
+<!ENTITY lintClearResultsOnEachChange.label "Clear Lint Results On Each Change">
 <!ENTITY mMonth0112.label "&#37;m : month [01,12]">
 <!ENTITY macClassicR.label "Mac Classic (\r)">
 <!ENTITY mappedURIs.label "Mapped URIs">

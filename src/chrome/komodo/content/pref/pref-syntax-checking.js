@@ -21,6 +21,7 @@ function docSyntaxCheckingOnLoad() {
         ko.lint.languageSetup = languageSetup;
         ko.lint.languageInfo = languageInfo;
         dialog.lintEOLs = document.getElementById("lintEOLs");
+        dialog.lintClearOnTextChange = document.getElementById("lintClearOnTextChange");
         dialog.lintDelay = document.getElementById("lintDelay");
         dialog.editUseLinting = document.getElementById("editUseLinting");
         dialog.langlist = document.getElementById("languageList");
@@ -159,6 +160,7 @@ function pref_lint_doEnabling() {
     var enabled = dialog.editUseLinting.checked;
     pref_setElementEnabledState(dialog.lintDelay, enabled);
     pref_setElementEnabledState(dialog.lintEOLs, enabled);
+    pref_setElementEnabledState(dialog.lintClearOnTextChange, enabled);
 }
 
 function changeLanguage(langList) {

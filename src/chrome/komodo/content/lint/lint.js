@@ -94,6 +94,7 @@ var global_pref_observer_topics = {
     "editUseLinting" : null,
     "lintEOLs" : null,
     "endOfLine" : null,
+    "lintClearOnTextChange" : null,
     "nodejsDefaultInterpreter" : NODEJS_LIST,
     "perlDefaultInterpreter" : PERL_LIST,
     "perl_lintOption" : PERL_LIST,
@@ -206,6 +207,7 @@ this.lintBuffer = function LintBuffer(view) {
     try {
         this.view = view;
         this.lintingEnabled = this.view.koDoc.getEffectivePrefs().getBooleanPref("editUseLinting");
+        this._lintClearOnTextChange = this.view.koDoc.getEffectivePrefs().getBooleanPref("lintClearOnTextChange");
         this.lintResults = null;
         this.errorString = null;
         this._lastRequestId = 0; // used to ensure only the last request is used
@@ -321,6 +323,10 @@ this.lintBuffer.prototype.observe = function(subject, topic, data)
                         this._notify();
                     }
                 }
+                break;
+                case "lintClearOnTextChange":
+                this._lintClearOnTextChange = this.view.koDoc.getEffectivePrefs().getBooleanPref("lintClearOnTextChange");
+                break;
             }
         }
         if (setupRequest) {
@@ -356,7 +362,9 @@ this.lintBuffer.prototype.request = function(reason /* = "" */)
     try {
         _lintSvc.cancelPendingRequests(this.view.uid);
         ko.lint.displayer.cancelPendingItems(this);
-        //this._clearResults();
+        if (this._lintClearOnTextChange) {
+            this._clearResults();
+        }
 
         // Increment this here instead of in ._issueRequest() to ensure that
         // a request issued at time T1 is not considered current when its
@@ -662,7 +670,9 @@ this.doRequest = function lint_doRequest() {
                        + " has no lintBuffer");
             return;
         }
-        //view.lintBuffer._clearResults();
+        if (this._lintClearOnTextChange) {
+            this._clearResults();
+        }
         view.lintBuffer._notify();
         view.lintBuffer._issueRequest()
     } catch (e) {

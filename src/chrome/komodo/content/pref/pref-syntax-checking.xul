@@ -45,6 +45,10 @@
                       style="margin-left: 27px;"
                       label="&lintEOLs.label;"
                       pref="true"/>
+            <checkbox id="lintClearOnTextChange"
+                      style="margin-left: 27px;"
+                      label="&lintClearResultsOnEachChange.label;"
+                      pref="true"/>
         </groupbox>
         <groupbox>
           <caption label="&langSpecificSyntaxCheckingProperties.label;" />
