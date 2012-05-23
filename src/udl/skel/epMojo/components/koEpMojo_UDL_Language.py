@@ -102,7 +102,7 @@ Inline perl:   <% Inline Perl %>, and continue...
         self._indent_open_chars = u'{'
         self._indent_close_chars = u'}'
 
-class KoEpMojoLinter():
+class KoEpMojoLinter(object):
     _com_interfaces_ = [components.interfaces.koILinter]
     _reg_desc_ = "epMojo Template Linter"
     _reg_clsid_ = "{3b69f94f-4fb6-47bb-a387-9d3ac372195a}"
