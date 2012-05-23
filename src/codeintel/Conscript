@@ -92,6 +92,7 @@ my @codeintel2_files = (
     "lib/codeintel2/jsdoc.py",
     "lib/codeintel2/langintel.py",
     "lib/codeintel2/lang_django.py",
+    "lib/codeintel2/lang_twig.py",
     "lib/codeintel2/lang_css.py",
     "lib/codeintel2/lang_html.py",
     "lib/codeintel2/lang_html5.py",
