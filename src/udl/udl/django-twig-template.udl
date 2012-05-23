@@ -1,0 +1,83 @@
+# Shared by djangolex.udl and twiglex.udl
+
+pattern NMSTART = '_\w\x80-\xff'   # inside cset
+pattern CS = '$NMSTART\d'   # inside cset
+pattern WS = '\s\t\r\n'           # inside cset
+pattern OP = '|\.{}%:,'
+
+initial IN_TPL_DEFAULT
+
+state IN_TPL_DEFAULT:
+
+/[$WS]+/  : #stay
+'"' : paint(upto, TPL_DEFAULT), => IN_TPL_DSTRING
+'\'' : paint(upto, TPL_DEFAULT), => IN_TPL_SSTRING
+
+# Go process a number, try to do it in regexes
+# octal and hex first
+/0[Xx][0-9a-fA-F]+/ : paint(upto, TPL_DEFAULT), paint(include, TPL_NUMBER)
+/[-+]?0[0-7]*/ : paint(upto, TPL_DEFAULT), paint(include, TPL_NUMBER)
+/[1-9]/ : paint(upto, TPL_DEFAULT), => IN_TPL_NUMBER_1
+/\.\d+/ : paint(upto, TPL_DEFAULT), => IN_TPL_NUMBER_2
+/\.(?=[$NMSTART])/ : paint(upto, TPL_DEFAULT), paint(include, TPL_OPERATOR), \
+=> IN_TPL_DEFAULT_OR_IDENTIFIER_1
+'.' : paint(upto, TPL_DEFAULT), => IN_TPL_NUMBER_2b
+/ssi(?![$CS])/ : paint(upto, TPL_DEFAULT), paint(include, TPL_WORD), => IN_TPL_SSI_1 # Allow unquoted path as an argument
+
+/[$NMSTART][$CS]*/ : paint(upto, TPL_DEFAULT), paint(include, TPL_IDENTIFIER)
+
+# Now a bunch of operators
+
+# First track braces
+
+'{{' : paint(upto, TPL_DEFAULT), paint(include, TPL_OPERATOR), \
+	spush_check(IN_TPL_DEFAULT), => IN_TPL_DEFAULT
+
+'}}' : paint(upto, TPL_DEFAULT), paint(include, TPL_OPERATOR), spop_check, => IN_TPL_DEFAULT
+
+/[$OP]/ : paint(upto, TPL_DEFAULT), paint(include, TPL_OPERATOR) #stay
+
+################# Post-dot identifiers
+
+# This always matches because we arrive here via lookahead.
+state IN_TPL_DEFAULT_OR_IDENTIFIER_1:
+/./ : no_keyword, paint(include, TPL_IDENTIFIER), => IN_TPL_DEFAULT_OR_IDENTIFIER_2
+
+state IN_TPL_DEFAULT_OR_IDENTIFIER_2:
+/[$CS]/ : #stay
+/[^$CS]/ : paint(upto, TPL_IDENTIFIER), redo, no_keyword, => IN_TPL_DEFAULT
+
+################ Strings ################
+
+# We need counting to handle ${...} expressions, like in Ruby
+
+state IN_TPL_DSTRING:
+'"' : paint(include, TPL_STRING), => IN_TPL_DEFAULT
+/\\./ : #stay, Don't miscount backslash at end
+/$/ : paint(upto, TPL_STRING), => IN_TPL_DEFAULT
+'\r' : paint(upto, TPL_STRING), => IN_TPL_DEFAULT
+
+state IN_TPL_SSTRING:
+'\'' : paint(include, TPL_STRING), => IN_TPL_DEFAULT
+/\\./ : #stay, Don't miscount backslash at end
+/$/ : paint(upto, TPL_STRING), => IN_TPL_DEFAULT
+'\r' : paint(upto, TPL_STRING), => IN_TPL_DEFAULT
+
+################ Numbers ################
+
+include "tpl_number.udl"
+
+################ Pathnames (SSI arg) ################
+
+state IN_TPL_SSI_1:
+/[$WS]+/  : #stay
+/$/ : paint(upto, TPL_DEFAULT), => IN_TPL_DEFAULT #Give up
+'"' : paint(upto, TPL_DEFAULT), => IN_TPL_DSTRING
+'\'' : paint(upto, TPL_DEFAULT), => IN_TPL_SSTRING
+/[%\}]/ : paint(upto, TPL_DEFAULT), paint(include, TPL_OPERATOR), => IN_TPL_DEFAULT
+/./ : paint(upto, TPL_DEFAULT), => IN_TPL_SSI_2
+
+state IN_TPL_SSI_2:
+/$/ : paint(upto, TPL_STRING) => IN_TPL_DEFAULT 
+/\\./ : #stay
+/[$WS]+/ paint(upto, TPL_STRING),  => IN_TPL_DEFAULT

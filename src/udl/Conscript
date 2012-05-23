@@ -135,6 +135,13 @@ my @lexers = (
                skel => "skel/TemplateToolkit",
               },
               {
+               language_name => "Twig",
+               codename => "twig_language",
+               udl_path => "twig-mainlex.udl",
+               ext => ".twig.html",
+               skel => "skel/Twig",
+              },
+              {
                language_name => "XBL",
                codename => "xbl_language",
                udl_path => "xbl-mainlex.udl",

@@ -1,0 +1,128 @@
+# Lexer for Twig, a Django-like language for PHP
+
+family tpl
+sublanguage Twig
+
+start_style TPL_DEFAULT
+end_style TPL_VARIABLE
+
+keyword_style TPL_IDENTIFIER => TPL_WORD
+
+keywords [
+autoescape
+block
+do
+embed
+extends
+filter
+flush
+for
+from
+if
+import
+'include'
+macro
+raw
+sandbox
+set
+spaceless
+use
+    
+# end tags
+
+endautoescape
+endblock
+endcomment
+endembed
+endfilter
+endfor
+endif
+endmacro
+endraw
+endsandbox
+endspaceless
+endwith
+
+
+capitalize
+convert_encoding
+date
+default
+escape
+format
+join
+json_encode
+keys
+length
+lower
+merge
+nl2br
+number_format
+raw
+replace
+reverse
+slice
+sort
+striptags
+title
+trim
+upper
+url_encode
+
+attribute
+block
+constant
+cycle
+date
+dump
+parent
+random
+range
+
+constant
+defined
+divisibleby
+empty
+even
+iterable
+null
+odd
+sameas
+
+in
+is
+and
+or
+not
+'b-and'
+'b-xor'
+'b-or'
+]
+
+include "django-twig-template.udl"
+
+################ Folding Directives ################
+
+fold "autoescape" TPL_WORD +
+fold "comment" TPL_WORD +
+fold "{#" TPL_OPERATOR +
+fold "embed" TPL_WORD +
+fold "filter" TPL_WORD +
+fold "for" TPL_WORD +
+fold "if" TPL_WORD +
+fold "macro" TPL_WORD +
+fold "raw" TPL_WORD +
+fold "sandbox" TPL_WORD +
+fold "spaceless" TPL_WORD +
+
+fold "endautoescape" TPL_WORD -
+fold "endcomment" TPL_WORD -
+fold "#}" TPL_OPERATOR -
+fold "endembed" TPL_WORD -
+fold "endfilter" TPL_WORD -
+fold "endfor" TPL_WORD -
+fold "endif" TPL_WORD -
+fold "endmacro" TPL_WORD -
+fold "endraw" TPL_WORD -
+fold "endsandbox" TPL_WORD -
+fold "endspaceless" TPL_WORD -

@@ -1,0 +1,28 @@
+# Documentation at http://twig.sensiolabs.org/documentation
+# 
+# Copyright (C) ActiveState Software Inc. 2005-2012
+# Author(s):
+#   Eric Promislow <ericp@activestate.com>
+
+# This language is a lot like Django, see the Django files for any comments.
+
+include "html2js.udl"
+
+include "html2css.udl"
+
+include "html2django.udl"
+
+include "css2html.udl"
+
+include "js2html.udl"
+include "js2django.udl"
+
+include "django2html.udl"
+
+language Twig
+
+include "html.udl"
+include "csslex.udl"
+include "jslex.udl"
+
+include "twiglex.udl"
