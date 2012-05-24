@@ -2653,6 +2653,12 @@ function _view_checkDiskFiles(event) {
             item.view = view;
             item.file = file;
             if (!file.exists) {
+                // Force a file stat update by calling hasChanged, this is so we
+                // get the latest information for this file, as sometimes this
+                // information is stale - bug 94121.
+                file.hasChanged;
+            }
+            if (!file.exists) {
                 removedItems.push(item);
                 view.koDoc.isDirty = true;
             } else {
@@ -2688,6 +2694,12 @@ function _view_checkDiskFiles(event) {
                 item.type = 'project';
                 item.project = projects[i];
                 item.file = file;
+                if (!file.exists) {
+                    // Force a file stat update by calling hasChanged, this is
+                    // so we get the latest information for this file, as
+                    // sometimes this information is stale - bug 94121.
+                    file.hasChanged;
+                }
                 if (!file.exists) {
                     removedItems.push(item);
                     // XXX: I don't agree with the setting to dirty here, this
