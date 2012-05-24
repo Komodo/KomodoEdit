@@ -469,6 +469,11 @@ class KoFileStatusService:
                                 all_local_files.append(u)
                             elif u.isDirectory:
                                 all_local_dirs.append(u)
+                            elif not u.exists:
+                                # File was deleted, but something still holds a
+                                # reference to it, keep checking it in case it
+                                # gets recreated - bug 94121.
+                                all_local_files.append(u)
                     except:
                         log.exception("unexpected error from koIFile.isLocal or koIFile.isFile")
                         continue # skip status update for this file
