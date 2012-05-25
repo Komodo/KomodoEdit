@@ -242,7 +242,7 @@ class PHPTreeEvaluator(TreeEvaluator):
                 blob, lpath = start_scope
                 if len(lpath) > 1:
                     elem = self._elem_from_scoperef((blob, lpath[:-1]))
-            if elem.get("ilk") == "class":
+            if elem.get("ilk") in ("class", "trait"):
                 # All looks good, return the magic class methods.
                 return self.php_magic_class_method_cplns
             else:
@@ -308,7 +308,7 @@ class PHPTreeEvaluator(TreeEvaluator):
                 blob, lpath = start_scope
                 if len(lpath) > 1:
                     elem = self._elem_from_scoperef((blob, lpath[:-1]))
-            if elem.get("ilk") == "class":
+            if elem.get("ilk") in ("class", "trait"):
                 # Use the class magic methods.
                 return [ php_magic_class_method_data[expr] ]
             # Else, let the tree work it out.
@@ -320,7 +320,7 @@ class PHPTreeEvaluator(TreeEvaluator):
                 blob, lpath = start_scope
                 if len(lpath) > 1:
                     elem = self._elem_from_scoperef((blob, lpath[:-1]))
-            if elem.get("ilk") == "class":
+            if elem.get("ilk") in ("class", "trait"):
                 # Not available inside a class.
                 return []
             return [ php_magic_global_method_data[expr] ]
@@ -561,6 +561,13 @@ class PHPTreeEvaluator(TreeEvaluator):
             else:
                 raise NotImplementedError("unexpected scope ilk for "
                                           "calltip hit: %r" % elem)
+        elif elem.tag == "alias":
+            # Find the resolving function to get the signature, then we replace
+            # the function name in the signature with the aliased name.
+            funcelem, scoperef = self._hit_from_variable_type_inference(elem, scoperef)
+            ctip = self._calltip_from_func(funcelem, scoperef)
+            ctip = ctip.replace(funcelem.get("name"), elem.get("name"), 1)
+            calltips.append(ctip)
         else:
             raise NotImplementedError("unexpected elem for calltip "
                                       "hit: %r" % elem)
@@ -634,12 +641,16 @@ class PHPTreeEvaluator(TreeEvaluator):
         '*'-imports
         """
         members = set()
-        if elem.tag == "import":
+        tag = elem.tag
+        if tag == "import":
             module_name = elem.get("module")
             cpln_name = module_name.split('.', 1)[0]
             members.add( ("module", cpln_name) )
+        elif tag == "alias":
+            members.add( ("function",
+                          name_prefix + elem.get("name")) )
         else:
-            members.add( (elem.get("ilk") or elem.tag,
+            members.add( (elem.get("ilk") or tag,
                           name_prefix + elem.get("name")) )
         return members
 
@@ -726,14 +737,16 @@ class PHPTreeEvaluator(TreeEvaluator):
             # add the element, we've already checked private|protected scopes
             members.update(self._members_from_elem(child, name_prefix))
         elem_ilk = elem.get("ilk")
-        if elem_ilk == "class":
-            for classref in elem.get("classrefs", "").split():
+        if elem_ilk == "class" or elem_ilk == "trait":
+            for classref in elem.get("classrefs", "").split() + \
+                            elem.get("traitrefs", "").split():
                 ns_elem = self._namespace_elem_from_scoperef(scoperef)
                 if ns_elem is not None:
                     # For class reference inside a namespace, *always* use the
                     # fully qualified name - bug 85643.
                     classref = "\\" + self._fqn_for_expression(classref, scoperef)
-                self.debug("_members_from_hit: Getting members for inherited class: %r", classref)
+                self.debug("_members_from_hit: Getting members for inherited %r: %r",
+                           elem_ilk, classref)
                 try:
                     subhit = self._hit_from_citdl(classref, scoperef)
                 except CodeIntelError, ex:
@@ -1031,7 +1044,7 @@ class PHPTreeEvaluator(TreeEvaluator):
             self.log("_hits_from_first_part:: Special handling for %r",
                      first_token)
             elem = self._elem_from_scoperef(scoperef)
-            while elem is not None and elem.get("ilk") != "class":
+            while elem is not None and elem.get("ilk") not in ("class", "trait"):
                 # Return the class element
                 blob, lpath = scoperef
                 if not lpath:
@@ -1241,7 +1254,7 @@ class PHPTreeEvaluator(TreeEvaluator):
             # *not* resolve. And we don't support function
             # attributes.
             pass
-        elif ilk == "class":
+        elif ilk == "class" or ilk == "trait":
             static_member = False
             if first_token.startswith("$"):
                 # Cix doesn't use "$" in member names, remove it - bug 90968.
@@ -1261,16 +1274,17 @@ class PHPTreeEvaluator(TreeEvaluator):
                 else:
                     class_scoperef = scoperef
                 return (attr, class_scoperef), 1
-            for classref in elem.get("classrefs", "").split():
+            for classref in elem.get("traitrefs", "").split() + \
+                            elem.get("classrefs", "").split():
                 #TODO: update _hit_from_citdl to accept optional node type,
                 #      i.e. to only return classes in this case.
                 self.log("_hit_from_getattr:: is '%s' available on parent "
                          "class: %r?", first_token, classref)
                 base_elem, base_scoperef \
                     = self._hit_from_citdl(classref, scoperef)
-                if base_elem is not None and base_elem.get("ilk") == "class":
-                    self.log("_hit_from_getattr:: is '%s' from %s base class?",
-                             first_token, base_elem)
+                if base_elem is not None and base_elem.get("ilk") in ("class", "trait"):
+                    self.log("_hit_from_getattr:: is '%s' from %s base %s?",
+                             first_token, base_elem, base_elem.get("ilk"))
                     try:
                         hit, nconsumed = self._hit_from_getattr(tokens,
                                                                 base_elem,

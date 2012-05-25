@@ -1338,6 +1338,7 @@ S_IGNORE_SCOPE = 3
 S_OBJECT_ARGUMENT = 4
 S_GET_HEREDOC_MARKER = 5
 S_IN_HEREDOC = 6
+S_TRAIT_RESOLUTION = 7
 # Special tags for multilang handling (i.e. through UDL)
 S_OPEN_TAG  = 10
 S_CHECK_CLOSE_TAG = 11
@@ -1666,6 +1667,7 @@ class PHPInterface:
 
 class PHPClass:
 
+    cixtype = "CLASS"
     # PHPDoc magic property sniffer.
     _re_magic_property = re.compile(r'^\s*@property(-(?P<type>read|write))?\s+((?P<citdl>[\w\\]+)\s+)?(?P<name>\$\w+)(?:\s+(?P<doc>.*?))?', re.M|re.U)
     _re_magic_method = re.compile(r'^\s*@method\s+((?P<citdl>[\w\\]+)\s+)?(?P<name>\w+)(\(\))?(?P<doc>.*?)$', re.M|re.U)
@@ -1681,6 +1683,8 @@ class PHPClass:
         self.members = {} # declared class variables
         self.variables = {} # all variables used in class
         self.functions = {}
+        self.traits = {}
+        self.traitOverrides = {}
         if interfaces:
             self.interfaces = interfaces.split(',')
         else:
@@ -1713,7 +1717,7 @@ class PHPClass:
 
     def __repr__(self):
         # dump our contents to human readable form
-        r = "CLASS %s" % self.name
+        r = "%s %s" % (self.cixtype, self.name)
         if self.extends:
             r += " EXTENDS %s" % self.extends
         r += '\n'
@@ -1738,10 +1742,24 @@ class PHPClass:
             for v in self.variables.values():
                 r += "    %r" % v
             
+        if self.traits:
+            r += "traits:\n"
+            for k, v in self.traits.items():
+                r += "    %r" % k
+            if self.traitOverrides:
+                r += "trait overrides:\n"
+                for k, v in self.traitOverrides.items():
+                    r += "    %r, %r" % (k, v)
+
         return r + '\n'
 
-    def toElementTree(self, cixblob):
-        cixelement = createCixClass(cixblob, self.name)
+    def addTraitReference(self, name):
+        self.traits[name] = []
+
+    def addTraitOverride(self, namelist, alias, visibility=None, insteadOf=False):
+        self.traitOverrides[".".join(namelist)] = (alias, visibility, insteadOf)
+
+    def _toElementTree(self, cixblob, cixelement):
         cixelement.attrib["line"] = str(self.linestart)
         if self.lineend is not None:
             cixelement.attrib["lineend"] = str(self.lineend)
@@ -1754,6 +1772,20 @@ class PHPClass:
         if self.extends:
             addClassRef(cixelement, self.extends)
 
+        if self.traits:
+            cixelement.attrib["traitrefs"] = " ".join(self.traits)
+            for citdl, data in self.traitOverrides.items():
+                alias, vis, insteadOf = data
+                if alias and not insteadOf:
+                    name = alias
+                else:
+                    name = citdl.split(".")[-1]
+                override_elem = SubElement(cixelement, "alias", name=name, citdl=citdl)
+                if insteadOf:
+                    override_elem.attrib["insteadof"] = alias
+                if vis:
+                    override_elem.attrib["attributes"] = vis
+
         for i in self.interfaces:
             addInterfaceRef(cixelement, i.strip())
 
@@ -1761,6 +1793,16 @@ class PHPClass:
                     self.members.values() + self.variables.values()
         for v in sortByLine(allValues):
             v.toElementTree(cixelement)
+
+    def toElementTree(self, cixblob):
+        cixelement = createCixClass(cixblob, self.name)
+        self._toElementTree(cixblob, cixelement)
+
+class PHPTrait(PHPClass):
+    cixtype = "TRAIT"
+    def toElementTree(self, cixblob):
+        cixelement = SubElement(cixblob, "scope", ilk="trait", name=self.name)
+        self._toElementTree(cixblob, cixelement)
 
 class PHPImport:
     def __init__(self, name, lineno, alias=None, symbol=None):
@@ -2071,13 +2113,14 @@ class PHPParser:
         else:
             log.debug("addReturnType: No current function for return value!?")
 
-    def addClass(self, name, extends=None, attributes=None, interfaces=None, doc=None):
+    def addClass(self, name, extends=None, attributes=None, interfaces=None, doc=None, isTrait=False):
         toScope = self.currentNamespace or self.fileinfo
         if name not in toScope.classes:
             # push the current class onto the class stack
             self.classStack.append(self.currentClass)
             # make this class the current class
-            self.currentClass = PHPClass(name,
+            cixClass = isTrait and PHPTrait or PHPClass
+            self.currentClass = cixClass(name,
                                          extends,
                                          self.lineno,
                                          self.depth,
@@ -2085,7 +2128,8 @@ class PHPParser:
                                          interfaces,
                                          doc=doc)
             toScope.classes[self.currentClass.name] = self.currentClass
-            log.debug("CLASS: %s extends %s interfaces %s attributes %s on line %d in %s at depth %d\nDOCS: %s",
+            log.debug("%s: %s extends %s interfaces %s attributes %s on line %d in %s at depth %d\nDOCS: %s",
+                     self.currentClass.cixtype,
                      self.currentClass.name, self.currentClass.extends, 
                      self.currentClass.interfaces, self.currentClass.attributes,
                      self.currentClass.linestart, self.filename, self.depth,
@@ -2805,8 +2849,8 @@ class PHPParser:
                     self.addVariable(name, ".".join(typeNames),
                                      attributes=attributes, doc=self.comment)
 
-    def _useNamespaceHandler(self, styles, text, p):
-        log.debug("_useNamespaceHandler:: text: %r", text[p:])
+    def _useKeywordHandler(self, styles, text, p):
+        log.debug("_useKeywordHandler:: text: %r", text[p:])
         looped = False
         while p < len(styles):
             if looped:
@@ -2828,7 +2872,64 @@ class PHPParser:
                         alias, p = self._getIdentifiersFromPos(styles, text, p+1)
                         if alias:
                             alias = alias[0]
-                self.addNamespaceImport(namelist[0], alias)
+                if self.currentClass:
+                    # Must be a trait.
+                    self.currentClass.addTraitReference(namelist[0])
+                else:
+                    # Must be a namespace reference.
+                    self.addNamespaceImport(namelist[0], alias)
+
+    def _handleTraitResolution(self, styles, text, p, doc=None):
+        log.debug("_handleTraitResolution:: text: %r", text[p:])
+        # Examples:
+        #       B::smallTalk insteadof A;
+        #       B::bigTalk as talk;
+        #       sayHello as protected;
+        #       sayHello as private myPrivateHello;
+
+        # Can only be defined on a trait or a class.
+        if not self.currentClass:
+            log.warn("_handleTraitResolution:: not in a class|trait definition")
+            return
+
+        # Look for the identifier first.
+        # 
+        namelist, p = self._getIdentifiersFromPos(styles, text, p,
+                                                  self.PHP_IDENTIFIER)
+        log.debug("namelist:%r, p:%d", namelist, p)
+        if not namelist or p+2 >= len(text):
+            log.warn("Not enough arguments in trait use statement: %r", text)
+            return
+
+        # Get the keyword "as", "insteadof"
+        keyword = text[p]
+        log.debug("keyword:%r", keyword)
+        p += 1
+
+        # Get the settings.
+        alias = None
+        visibility = None
+        # Get special attribute keywords.
+        if keyword == "as" and \
+           text[p] in ("public", "protected", "private"):
+            visibility = text[p]
+            p += 1
+            log.debug("_handleTraitResolution: visibility %r", visibility)
+        if p < len(text):
+            # Get the alias name.
+            names, p = self._getIdentifiersFromPos(styles, text, p)
+            if names:
+                alias = names[0]
+                if len(names) > 1:
+                    log.warn("Ignoring multiple alias identifiers in text: %r",
+                             text)
+        if alias or visibility:
+            # Set override.
+            self.currentClass.addTraitOverride(namelist, alias,
+                                               visibility=visibility,
+                                               insteadOf=(keyword=="insteadof"))
+        else:
+            self.warn("Unknown trait resolution: %r", text)
 
     def _addCodePiece(self, newstate=S_DEFAULT, varnames=None):
         styles = self.styles
@@ -2914,7 +3015,7 @@ class PHPParser:
                         self.addFunction(namelist[0], phpArgs, attributes,
                                          doc=self.comment,
                                          returnByRef=returnByRef)
-                elif keyword == "class":
+                elif keyword == "class" or keyword == "trait":
                     # Examples:
                     #   class SimpleClass {
                     #   class SimpleClass2 extends SimpleClass {
@@ -2933,7 +3034,8 @@ class PHPParser:
                         #print "implements: %r" % (implements)
                         self.addClass(namelist[0], extends=extends,
                                       attributes=attributes,
-                                      interfaces=implements, doc=self.comment)
+                                      interfaces=implements, doc=self.comment,
+                                      isTrait=(keyword == "trait"))
                 elif keyword == "interface":
                     # Examples:
                     #   interface Foo {
@@ -2971,7 +3073,10 @@ class PHPParser:
                         self.setNamespace(namelist, usesBraces,
                                           doc=self.comment)
                 elif keyword == "use":
-                    self._useNamespaceHandler(styles, text, pos)
+                    self._useKeywordHandler(styles, text, pos)
+                    if text and text[-1] == "{":
+                        self.return_to_state = newstate
+                        newstate = S_TRAIT_RESOLUTION
                 else:
                     log.debug("Ignoring keyword: %s", keyword)
                     self._addAllVariables(styles, text, pos)
@@ -2980,6 +3085,11 @@ class PHPParser:
                 if text[0] == "self":
                     self._variableHandler(styles, text, pos, attributes,
                                           doc=self.comment)
+                elif self.state == S_TRAIT_RESOLUTION:
+                    self._handleTraitResolution(styles, text, pos, doc=self.comment)
+                    log.debug("Trait resolution: text: %r, pos: %d", text, pos)
+                    # Stay in this state.
+                    newstate = S_TRAIT_RESOLUTION
                 else:
                     log.debug("Ignoring when starting with identifier")
             elif firstStyle == self.PHP_VARIABLE:
@@ -3094,7 +3204,7 @@ class PHPParser:
                         self.incBlock()
                     elif op == "}":
                         # Decreasing depth/scope
-                        if len(text) == 1 and text[0] == "}":
+                        if len(self.text) == 1:
                             self._resetState()
                         else:
                             self._addCodePiece()

@@ -2813,6 +2813,282 @@ EOD;
             [("function", "getInstance"),
              ("function", "test_method"),])
 
+    @tag("bug93402", "php54")
+    def test_traits(self):
+        content, positions = unmark_text(dedent(php_markup("""\
+            trait SayWorld {
+                public function sayHello($sayworld) {
+                    echo 'World!';
+                }
+            }
+            
+            class MyHelloWorld {
+                use SayWorld;
+            }
+            
+            $o = new MyHelloWorld();
+            $o-><1>sayHello(<2>);
+        """)))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+                [("function", "sayHello")])
+        self.assertCalltipIs(markup_text(content, pos=positions[2]),
+                             "sayHello($sayworld)")
+
+    @tag("bug93402", "php54")
+    def test_traits_self_access(self):
+        content, positions = unmark_text(dedent(php_markup("""\
+            trait SayWorld {
+                public function sayHello($sayhello) {
+                    echo 'Hello';
+                }
+                public function sayWorld($sayworld) {
+                    echo 'World!';
+                }
+                public function say() {
+                    self::<1>;
+                    $this-><2>;
+                }
+            }
+        """)))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+                [
+                    ("function", "sayHello"),
+                    ("function", "sayWorld"),
+                ])
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+                [
+                    ("function", "sayHello"),
+                    ("function", "sayWorld"),
+                ])
+
+    @tag("bug93402", "php54")
+    def test_traits_static_methods(self):
+        content, positions = unmark_text(dedent(php_markup("""\
+            trait StaticExample {
+                public static function doSomething() {
+                    return 'Doing something';
+                }
+            }
+            class Example {
+                use StaticExample;
+            }
+            Example::<1>xxx();
+        """)))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+                [
+                    ("function", "doSomething"),
+                ])
+
+    @tag("bug93402", "php54")
+    def test_traits_properties(self):
+        content, positions = unmark_text(dedent(php_markup("""\
+            trait PropertiesTrait {
+                public $x = 1;
+            }
+            class PropertiesExample {
+                use PropertiesTrait;
+            }
+            $example = new PropertiesExample;
+            $example-><1>;
+        """)))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+                [
+                    ("variable", "x"),
+                ])
+
+    @tag("bug93402", "php54")
+    def test_traits_base_override(self):
+        content, positions = unmark_text(dedent(php_markup("""\
+            class Base {
+                public function sayHello($base) {
+                    echo 'Hello ';
+                }
+            }
+            
+            trait SayWorld {
+                public function sayHello($sayworld) {
+                    parent::<3>sayHello();
+                    echo 'World!';
+                }
+            }
+            
+            class MyHelloWorld extends Base {
+                use SayWorld;
+            }
+            
+            $o = new MyHelloWorld();
+            $o-><1>sayHello(<2>);
+        """)))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+                [("function", "sayHello")])
+        self.assertCalltipIs(markup_text(content, pos=positions[2]),
+                             "sayHello($sayworld)")
+        self.assertCompletionsAre(markup_text(content, pos=positions[3]),
+                                  None)
+
+    @tag("bug93402", "php54")
+    def test_traits_class_override(self):
+        content, positions = unmark_text(dedent(php_markup("""\
+            trait HelloWorld {
+                public function sayHello($world) {
+                    echo 'Hello World!';
+                }
+            }
+            
+            class TheWorldIsNotEnough {
+                use HelloWorld;
+                public function sayHello($universe) {
+                    echo 'Hello Universe!';
+                }
+            }
+            
+            $o = new TheWorldIsNotEnough();
+            $o-><1>sayHello(<2>);
+        """)))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+                [("function", "sayHello")])
+        self.assertCalltipIs(markup_text(content, pos=positions[2]),
+                             "sayHello($universe)")
+
+    @tag("bug93402", "php54")
+    def test_traits_multiples(self):
+        content, positions = unmark_text(dedent(php_markup("""\
+            trait Hello {
+                public function sayHello() {
+                    echo 'Hello ';
+                }
+            }
+            
+            trait World {
+                public function sayWorld() {
+                    echo 'World';
+                }
+            }
+            
+            class MyHelloWorld {
+                use Hello, World;
+                public function sayExclamationMark() {
+                    echo '!';
+                }
+            }
+            
+            $o = new MyHelloWorld();
+            $o-><1>sayHello();
+            $o->sayWorld();
+            $o->sayExclamationMark();
+        """)))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+                [
+                    ("function", "sayExclamationMark"),
+                    ("function", "sayHello"),
+                    ("function", "sayWorld"),
+                ])
+
+    @tag("bug93402", "php54")
+    def test_trait_from_trait(self):
+        content, positions = unmark_text(dedent(php_markup("""\
+            trait Hello {
+                public function sayHello() { }
+            }
+            trait World {
+                public function sayWorld() { }
+            }
+            trait HelloWorld {
+                use Hello, World;
+            }
+            class MyHelloWorld {
+                use HelloWorld;
+            }
+            
+            $o = new MyHelloWorld();
+            $o-><1>xxx();
+        """)))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+                [
+                    ("function", "sayHello"),
+                    ("function", "sayWorld"),
+                ])
+
+    @tag("bug93402", "php54")
+    def test_traits_multiple_conflict_resolution(self):
+        content, positions = unmark_text(dedent(php_markup("""\
+            trait A {
+                public function smallTalk($argA) { }
+                public function bigTalk($argA) { }
+            }
+            trait B {
+                public function smallTalk($argB) { }
+                public function bigTalk($argB) { }
+            }
+            class Talker {
+                use A, B {
+                    B::smallTalk insteadof A;
+                    A::bigTalk insteadof B;
+                    B::bigTalk as talk;
+                }
+            }
+            $t = new Talker();
+            $t-><1>smallTalk(<2>);
+            $t->bigTalk(<3>);
+            $t->talk(<4>);
+        """)))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+                [
+                    ("function", "bigTalk"),
+                    ("function", "smallTalk"),
+                    ("function", "talk"),
+                ])
+        self.assertCalltipIs(markup_text(content, pos=positions[2]),
+                             "smallTalk($argB)")
+        self.assertCalltipIs(markup_text(content, pos=positions[3]),
+                             "bigTalk($argA)")
+        self.assertCalltipIs(markup_text(content, pos=positions[4]),
+                             "talk($argB)")
+
+    @tag("bug93402", "php54")
+    def test_trait_method_visibilitity(self):
+        content, positions = unmark_text(dedent(php_markup("""\
+            trait HelloWorld {
+                public function sayHello() { }
+            }
+            // Change visibility of sayHello
+            class MyClass1 {
+                use HelloWorld { sayHello as protected; }
+                public function foo1() {
+                    self::<1>xxx;
+                }
+            }
+            $myc1 = new MyClass1();
+            $myc1-><2>xxx;
+            // Alias method with changed visibility
+            // sayHello visibility not changed
+            class MyClass2 {
+                use HelloWorld { sayHello as private myPrivateHello; }
+                public function foo2() {
+                    self::<3>xxx;
+                }
+            }
+            $myc2 = new MyClass2();
+            $myc2-><4>xxx;
+        """)))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+                [
+                    ("function", "foo1"),
+                    ("function", "sayHello"),
+                ])
+        self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
+                [
+                    ("function", "foo1"),
+                ])
+        self.assertCompletionsInclude(markup_text(content, pos=positions[3]),
+                [
+                    ("function", "foo2"),
+                    ("function", "myPrivateHello"),
+                ])
+        self.assertCompletionsInclude(markup_text(content, pos=positions[4]),
+                [
+                    ("function", "foo2"),
+                ])
 
 class IncludeEverythingTestCase(CodeIntelTestCase):
     lang = "PHP"
