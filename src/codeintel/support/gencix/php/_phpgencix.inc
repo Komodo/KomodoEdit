@@ -443,7 +443,7 @@ class phpSrcParser {
         $rx = '([\S]+?)::(([\S]+?)\([\S\ ]*?\))([\S\s]+)';
         $c_matches = array();
         preg_match_all("/$rx/", $match[1], $c_matches, PREG_SET_ORDER);
-        if (count($c_matches == 0)) {
+        if (count($c_matches) == 0) {
             return NULL;
         }
         $c_matches = $c_matches[0];
