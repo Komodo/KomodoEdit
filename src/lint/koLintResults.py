@@ -107,9 +107,9 @@ class koLintResults:
         part of a lint result and values being a list of lint results on
         any part of that line will allow faster lookup.
         """
-        for r in self._results:
-            if (r.lineStart == result.lineStart
-                and r.lineEnd == result.lineEnd):
+        lineStart = result.lineStart
+        for r in self._resultMap.get(lineStart, []):
+            if r.lineEnd == result.lineEnd:
                 # Because we can now use multiple linters for a document,
                 # some linters will report identical results.  Cull the duplicates.
                 if (r.columnStart == result.columnStart
@@ -130,7 +130,7 @@ class koLintResults:
                             r.severity = r.SEV_ERROR
                 
         self._results.append(result)
-        for lineNum in range(result.lineStart, result.lineEnd+1):
+        for lineNum in range(lineStart, result.lineEnd+1):
             if self._resultMap.has_key(lineNum):
                 self._resultMap[lineNum].append(result)
             else:

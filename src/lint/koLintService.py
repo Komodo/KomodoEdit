@@ -503,18 +503,37 @@ class KoLintService:
         if not mixedEOLs:
             return
 
+        def collapseContinuousLineNumbers(lineNos):
+            """Return a collapsed group of continuous line numbers."""
+            results = []
+            start = -10
+            last = -10
+            for lineNo in lineNos:
+                if lineNo == last+1:
+                    pass
+                else:
+                    if start >= 0:
+                        results.append((start, last))
+                    start = lineNo
+                last = lineNo
+            if start >= 0:
+                results.append((start, last))
+            return results
+
         # Add a warning lint result for each such line.
         expectedEOLStr = eollib.eol2eolPref[expectedEOL]
         lines = content.splitlines(1)
-        for lineNum in mixedEOLs:
+        # For performance reasons, we collapse groups of continuous line
+        # numbers into the one line result - bug 92733.
+        for lineStart, lineEnd in collapseContinuousLineNumbers(mixedEOLs):
             r = KoLintResult()
             r.description = "This line does not end with the expected "\
                             "EOL: '%s' (select View | View EOL Markers)"\
                             % expectedEOLStr
-            r.lineStart = lineNum+1
-            r.lineEnd = lineNum+1
+            r.lineStart = lineStart+1
+            r.lineEnd = lineEnd+1
             r.columnStart = 1
-            r.columnEnd = len(lines[lineNum]) + 1
+            r.columnEnd = len(lines[lineEnd]) + 1
             r.severity = r.SEV_WARNING
             results.addResult(r)
 
