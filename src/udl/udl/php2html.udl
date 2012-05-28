@@ -40,3 +40,6 @@ family ssl
 
 state IN_SSL_DEFAULT:
 /[\?%]>/ : paint(upto, SSL_DEFAULT), paint(include, SSL_OPERATOR), spop_check, => IN_M_DEFAULT
+# Bug 94167: <script language="php"... => php script mode ... </script>
+# Let the standard end-tag handler color most of this tag.
+/<\/(?=script\s*>)/i: paint(upto, SSL_DEFAULT), paint(include, M_ETAGO), => IN_M_ETAG_1

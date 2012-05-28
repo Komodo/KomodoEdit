@@ -57,11 +57,13 @@
 
 language PHP
 
+# Bug 94167: <script language="php"... => php script mode
+# so html2php.udl needs to precede the others.
+include "html2php.udl"
+
 include "html2js.udl"
 
 include "html2css.udl"
-
-include "html2php.udl"
 
 include "css2html.udl"
 include "css2php.udl"
