@@ -109,7 +109,7 @@ class KoPythonLexerLanguageService(KoPythonCommonLexerLanguageService):
     def __init__(self):
         KoPythonCommonLexerLanguageService.__init__(self)
         kwlist = set(keyword.kwlist)
-        kwlist2 = set(['False', 'None', 'True',
+        kwlist2 = set(['False', 'None', 'True', 'as', 'self',
                        ## built-in functions
                        'abs', 'all', 'any', 'apply', 'basestring', 'bin',
                        'bool', 'buffer', 'bytearray', 'bytes', 'callable',
@@ -140,7 +140,7 @@ class KoPython3LexerLanguageService(KoPythonCommonLexerLanguageService):
                       'import', 'in', 'is', 'lambda', 'nonlocal', 'not', 'or',
                       'pass', 'raise', 'return', 'try', 'while', 'with', 'yield']
                      )
-        kwlist2 = set(['False', 'None', 'True',
+        kwlist2 = set(['False', 'None', 'True', 'self',
                        ## built-in functions
                        'abs', 'all', 'any', 'ascii', 'bin', 'bool', 'bytearray',
                        'bytes', 'callable', 'chr', 'classmethod', 'compile',
