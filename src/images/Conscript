@@ -67,6 +67,7 @@ $cons->Install($imagesDir, "icons/cb_variable_hash.png");
 $cons->Install($imagesDir, "icons/cb_constant.png");
 $cons->Install($imagesDir, "icons/cb_interface.png");
 $cons->Install($imagesDir, "icons/cb_namespace.png");
+$cons->Install($imagesDir, "icons/cb_trait.png");
 $cons->Install($imagesDir, "icons/cb_xml_element.png");
 $cons->Install($imagesDir, "icons/cb_xml_attribute.png");
 

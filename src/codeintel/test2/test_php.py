@@ -262,7 +262,7 @@ class TriggerTestCase(CodeIntelTestCase):
         #
         #    Samples:
         #        use <|>
-        name = "php-complete-use-namespace"
+        name = "php-complete-use"
         self.assertTriggerMatches(php_markup("use <|>"),
                                   name=name, pos=10)
 
@@ -3089,6 +3089,32 @@ EOD;
                 [
                     ("function", "foo2"),
                 ])
+
+    @tag("bug93402", "php54")
+    def test_traits_use_completions(self):
+        content, positions = unmark_text(dedent(php_markup("""\
+            class SomeClass { }
+            trait A { }
+            trait B { }
+            trait C { }
+            class TraitCompletions {
+                use <1>A, <2>B;
+            }
+        """)))
+        for pos in (1, 2):
+            self.assertCompletionsInclude(markup_text(content, pos=positions[pos]),
+                    [
+                        ("trait", "A"),
+                        ("trait", "B"),
+                        ("trait", "C"),
+                    ])
+            self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[pos]),
+                    [
+                        ("class", "SomeClass"),
+                        ("class", "TraitCompletions"),
+                        ("class", "ArrayIterator"),
+                        ("class", "DOMDocument"),
+                    ])
 
 class IncludeEverythingTestCase(CodeIntelTestCase):
     lang = "PHP"

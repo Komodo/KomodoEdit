@@ -218,11 +218,18 @@ class PHPTreeEvaluator(TreeEvaluator):
         elif trg.type == "classes":
             return self._classes_from_scope(None, start_scope) + \
                    self._imported_namespaces_from_scope(None, start_scope)
-        elif trg.type == "use-namespace":
-            # All available namespaces and all available/global classes.
+        elif trg.type == "use":
+            # When inside of a trait or a class - return trait completions, else
+            # look for namespace completions.
             global_scoperef = self._get_global_scoperef(start_scope)
-            return self._namespaces_from_scope(self.expr, start_scope) + \
-                   self._classes_from_scope(None, global_scoperef, allowGlobalClasses=True)
+            elem = self._elem_from_scoperef(start_scope)
+            if elem.get("ilk") in ("class", "trait"):
+                return self._traits_from_scope(None, global_scoperef)
+            else:
+                # All available namespaces and all available/global classes.
+                return self._namespaces_from_scope(self.expr, start_scope) + \
+                       self._classes_from_scope(None, global_scoperef,
+                                                allowGlobalClasses=True)
         elif trg.type == "namespace-members" and (not self.expr or self.expr == "\\"):
             # All available namespaces and include all available global
             # functions/classes/constants as well.
@@ -501,6 +508,14 @@ class PHPTreeEvaluator(TreeEvaluator):
                             "class",
                             lookup_scopes,
                             self.class_names_from_elem)
+
+    def _traits_from_scope(self, expr, scoperef, allowGlobalClasses=False):
+        """Return all available class names beginning with expr"""
+        return self._element_names_from_scope_starting_with_expr(expr,
+                            scoperef,
+                            "trait",
+                            ("globals", ),
+                            self.trait_names_from_elem)
 
     def _imported_namespaces_from_scope(self, expr, scoperef):
         """Return all available class names beginning with expr"""
@@ -1609,6 +1624,16 @@ class PHPTreeEvaluator(TreeEvaluator):
             class_names = [ x.get("name") for x in classes ]
             cache[cache_item_name] = class_names
         return class_names
+
+    def trait_names_from_elem(self, elem, cache_item_name='trait_names'):
+        cache = self._php_cache_from_elem(elem)
+        trait_names = cache.get(cache_item_name)
+        if trait_names is None:
+            traits = self._get_all_children_with_details(elem, "scope",
+                                                            {"ilk": "trait"})
+            trait_names = [ x.get("name") for x in traits ]
+            cache[cache_item_name] = trait_names
+        return trait_names
 
     def imported_namespace_names_from_elem(self, elem, cache_item_name='imported_namespace_names'):
         cache = self._php_cache_from_elem(elem)

@@ -352,6 +352,7 @@ ko.codeintel = {};
         "module":       "chrome://komodo/skin/images/cb_module.png",
         "interface":    "chrome://komodo/skin/images/cb_interface.png",
         "namespace":    "chrome://komodo/skin/images/cb_namespace.png",
+        "trait":        "chrome://komodo/skin/images/cb_trait.png",
         "variable":     "chrome://komodo/skin/images/cb_variable.png",
         "$variable":    "chrome://komodo/skin/images/cb_variable_scalar.png",
         "@variable":    "chrome://komodo/skin/images/cb_variable_array.png",
