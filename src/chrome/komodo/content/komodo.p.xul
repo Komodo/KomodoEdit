@@ -1632,7 +1632,6 @@
                             type="menu"
                             tooltiptext="&historyRecentLocations.tooltiptext;">
                             <menupopup id="historyRecentLocationsMenu"
-                                       context=""
                                        position="after_start"
                                        onpopupshowing="ko.history.init_popup_menu_recent_locations(event);"
                                        oncommand="event.stopPropagation();"
