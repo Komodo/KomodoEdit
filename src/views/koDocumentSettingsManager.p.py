@@ -205,7 +205,7 @@ class koDocumentSettingsManager:
             scimoz.xOffset = 0
 
         if languageOb.variableIndicators:
-            scimoz.setWordChars(_letters + languageOb.variableIndicators)
+            scimoz.wordChars = _letters + languageOb.variableIndicators
         else:
             # Do this for cases where we change languages.
             scimoz.setCharsDefault()
