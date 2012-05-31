@@ -1033,54 +1033,39 @@ bool SciMoz::ClearCmdKey(const NPVariant *args, uint32_t argCount, NPVariant */*
 /* string getTextRange (in long min, in long max); */
 NS_IMETHODIMP SciMoz::GetTextRange(PRInt32 min, PRInt32 max, nsAString & _retval) 
 {
-	SCIMOZ_CHECK_VALID("GetTextRange");
-#ifdef SCIMOZ_DEBUG
-	fprintf(stderr,"SciMoz::GetTextRange\n");
-#endif
-	if (max == -1)
-		max = SendEditor(SCI_GETTEXTLENGTH, 0, 0);
-	PRInt32 length = max - min;
-	if (length < 0 || min < 0 || max < 0) {
-		return NS_ERROR_INVALID_ARG;
-	}
-	char *buffer = new char[length + 1];
-	if (!buffer)
-		return NS_ERROR_OUT_OF_MEMORY;
-	buffer[length]=0;
-#ifdef USE_SCIN_DIRECT
-	::GetTextRange(fnEditor, ptrEditor, min, max, buffer);
-#else
-	::GetTextRange(wEditor, min, max, buffer);
-#endif
-        NS_ASSERTION(buffer[length] == NULL, "Buffer overflow");
-
-	int codePage = SendEditor(SCI_GETCODEPAGE, 0, 0);
-	if (codePage == 0) {
-	    _retval =  NS_ConvertASCIItoUTF16(buffer, length);
-	} else {
-	    _retval =  NS_ConvertUTF8toUTF16(buffer, length);
-	}
-
-	delete []buffer;
-	return NS_OK;
+	// OBSOLETE; see the NPAPI version (which doesn't require excessively
+	// converting the string UTF8->UTF16->UTF8)
+	return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 bool SciMoz::GetTextRange(const NPVariant *args, uint32_t argCount, NPVariant *result) {
+#ifdef SCIMOZ_DEBUG
+	fprintf(stderr,"SciMoz::GetTextRange\n");
+#endif
 	if (argCount != 2) return false;
 	if (!NPVARIANT_IS_INT32(args[0])) return false;
 	if (!NPVARIANT_IS_INT32(args[1])) return false;
-	nsString retval;
-	nsresult rv = GetTextRange(NPVARIANT_TO_INT32(args[0]),
-				   NPVARIANT_TO_INT32(args[1]),
-				   retval);
-	if (NS_FAILED(rv)) return false;
+	int min = NPVARIANT_TO_INT32(args[0]);
+	int max = NPVARIANT_TO_INT32(args[1]);
+	if (max == -1)
+		max = SendEditor(SCI_GETTEXTLENGTH, 0, 0);
+	int length = max - min;
+	if (length < 0 || min < 0 || max < 0) {
+		return false;
+	}
+	NPUTF8* buf = reinterpret_cast<NPUTF8*>(NPN_MemAlloc(length + 1));
+	if (!buf)
+		return false;
+	buf[length] = 0;
+#ifdef USE_SCIN_DIRECT
+	::GetTextRange(fnEditor, ptrEditor, min, max, buf);
+#else
+	::GetTextRange(wEditor, min, max, buf);
+#endif
+        NS_ASSERTION(buf[length] == 0, "Buffer overflow");
 
-	NS_ConvertUTF16toUTF8 retvalUtf8(retval);
-	NPUTF8* buf = reinterpret_cast<NPUTF8*>(NPN_MemAlloc(retvalUtf8.Length()));
-	if (!buf) return false;
-	memcpy(buf, retvalUtf8.get(), retvalUtf8.Length());
 	NPN_ReleaseVariantValue(result);
-	STRINGN_TO_NPVARIANT(buf, retvalUtf8.Length(), *result);
+	STRINGN_TO_NPVARIANT(buf, length, *result);
 	return true;
 }
 
