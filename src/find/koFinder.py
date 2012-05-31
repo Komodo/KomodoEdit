@@ -176,7 +176,6 @@ class _FindReplaceThread(threading.Thread):
         self.resultsViewProxy = getProxyForObject(None,
             components.interfaces.koIFindResultsView,
             resultsMgr.view, PROXY_ALWAYS | PROXY_SYNC)
-        self._resultsView = UnwrapObject(resultsMgr.view)
 
         self._stopped = False # when true the processing thread should terminate
         self._reset_hit_cache()
