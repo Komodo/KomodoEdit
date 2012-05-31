@@ -1,7 +1,7 @@
 # Copyright (c) 2000-2011 ActiveState Software Inc.
 # See the file LICENSE.txt for licensing information.
 
-import os, sys, uuid
+import os, sys, uuid, logging
 
 # Some MH hacks to avoid duplicate files.
 # "Face.py" and 'Scintilla.iface' are in the scintilla directory
@@ -10,6 +10,8 @@ import os, sys, uuid
 # the relevant scintilla!
 
 scintillaFilesPath = ""
+
+log = logging.getLogger("xpfacer")
 
 try:
     import Face
@@ -136,6 +138,33 @@ manualGetterProperties = {
             PRBool myresult;
             GetInDragSession(&myresult);
             BOOLEAN_TO_NPVARIANT(myresult, *result);
+            return true;
+            """,
+    },
+    "wordChars": {
+        # this needs a manual getter because the scintilla method returns an int
+        # plus a stringresult, which we can't deal with automatically yet (the
+        # stringresult argument confuses it into being a function instead of a
+        # getter)
+        "ReturnType": "string",
+        "code": """
+            size_t length = SendEditor(SCI_GETWORDCHARS, 0, 0);
+            char *bufBytes = reinterpret_cast<char*>(NPN_MemAlloc(length));
+            if (!bufBytes) {
+                return false;
+            }
+            SendEditor(SCI_GETWORDCHARS, 0, reinterpret_cast<long>(bufBytes));
+            // Scintilla actually gives raw bytes; we need to convert it to UTF8
+            // for use by NPAPI/NPRuntime.
+            NS_ConvertASCIItoUTF16 buf16(nsDependentCString(bufBytes, length));
+            NPN_MemFree(bufBytes);
+            NS_ConvertUTF16toUTF8 buf8(buf16);
+            NPUTF8 *p = reinterpret_cast<NPUTF8*>(NPN_MemAlloc(buf8.Length()));
+            if (!p) {
+                return false;
+            }
+            memcpy(p, buf8.BeginReading(), buf8.Length());
+            STRINGN_TO_NPVARIANT(p, buf8.Length(), %(target)s);
             return true;
             """,
     },
@@ -331,6 +360,7 @@ def fixup_iface_data(face):
     """
     for name in face.features.keys():
         feature = face.features[name]
+        log.debug("Fixing up feature %s: %r", name, feature)
         if not "Name" in feature:
             feature["Name"] = name
 
@@ -352,6 +382,12 @@ def fixup_iface_data(face):
             len(filter(lambda p: p["Type"] != "void", feature["Params"]))
 
         if feature["FeatureType"] == "get":
+            if attributeName(name) in manualGetterProperties.keys():
+                # this has a matching manual getter, skip it
+                del face.features[name]
+                if name in face.order:
+                    face.order.remove(name)
+                continue
             if feature["ParamCount"] != 0:
                 # this is a getter with an arg; treat as function
                 feature["FeatureType"] = "fun"
@@ -359,6 +395,12 @@ def fixup_iface_data(face):
                 feature["MatchingFeature"] = setterVersion(feature, face)
 
         if feature["FeatureType"] == "set":
+            if attributeName(name) in manualSetterProperties.keys():
+                # this has a matching manual setter, skip it
+                del face.features[name]
+                if name in face.order:
+                    face.order.remove(name)
+                continue
             if feature["ParamCount"] != 1:
                 # this is a setter with zero or two args; treat as function
                 feature["FeatureType"] = "fun"
@@ -372,7 +414,8 @@ def fixup_iface_data(face):
 
         if feature["FeatureType"] == "fun":
             if attributeName(feature["Name"]) in manualGetterProperties.keys():
-                feature["FeatureType"] = "overridden"
+                if not idlName(feature["Name"]) in manualFunctions:
+                    feature["FeatureType"] = "overridden"
 
     # loop again, and check for setters with no getters
     for feature in face.features.values():
@@ -450,6 +493,7 @@ def generate_idl_method_fragment(feature, file, indent=8):
                 typeInfo[param["Type"]]["idlDirection"],
                 typeInfo[param["Type"]]["idlType"],
                 param["Name"]))
+    log.debug("Writing IDL method %s", feature.get("Name"))
     if missingType is not None:
         _("/* method %(name)s has missing type %(type)s */",
           indent,
@@ -482,6 +526,7 @@ def generate_idl_attribute_fragment(feature, file, indent=8):
     if "suppressIdl" in feature:
         # don't generate this feature in the idl (usually because it's hand-
         # written and this is a manual getter)
+        log.debug("Skipping IDL attribute %s", feature.get("Name"))
         return 0
 
     if "Comment" in feature:
@@ -491,6 +536,7 @@ def generate_idl_attribute_fragment(feature, file, indent=8):
         "idl type for return type %s missing while generating attribute %s" % (
             feature["ReturnType"], feature["Name"])
 
+    log.debug("Writing IDL attribute %s", feature.get("Name"))
     _("%(readonly)sattribute %(type)s %(name)s;",
       file=file,
       indent=indent,
@@ -977,6 +1023,7 @@ def generate_npapi_invoke_manual_fragment(name, file):
     @param name: the name of the method
     @param file: the file to write to
     """
+    log.debug("Writing manual invoke stub for method %s", name)
     _(r"""
       if (name == SM_METHOD_%(defineName)s) {
           /* ## manually implemented method: %(idlName)s ## */
@@ -1016,6 +1063,8 @@ def generate_npapi_invoke(face, file):
     for name in face.order:
         feature = face.features[name]
         if feature["FeatureType"] != "fun" or idlName(name) in discardedFeatures:
+            log.debug("Skipping invoke method %s (type %s)",
+                      name, feature.get("FeatureType"))
             continue
         if idlName(name) in manualFunctions:
             generate_npapi_invoke_manual_fragment(name, file)
@@ -1024,6 +1073,7 @@ def generate_npapi_invoke(face, file):
 
     for name in manualFunctions:
         if interCaps(name, 1) in face.order:
+            log.debug("Skipping manual method %s, already found", name)
             continue
         generate_npapi_invoke_manual_fragment(name, file)
 
@@ -1451,7 +1501,7 @@ typeInfo = {
                                                 NPVARIANT_TO_OBJECT(%(arg)s),
                                                 NPN_GetStringIdentifier("value"),
                                                 &_variant_%(i)s);
-                                """
+                                """,
     },
     "int": {
         "idlDirection": "in",
@@ -1583,6 +1633,14 @@ typeInfo = {
 }
 
 def main():
+    logging.basicConfig()
+    from optparse import OptionParser
+    parser = OptionParser()
+    parser.add_option("-v", "--verbose", dest="verbose", action="count",
+                      help="Increase verbosity for debugging", default=0)
+    (options, args) = parser.parse_args()
+    log.setLevel(logging.INFO - options.verbose * 10)
+
     # Generate the interface information and dump them to separate files
     face = Face.Face()
     face.ReadFromFile(os.path.join(scintillaFilesPath, "Scintilla.iface"))
