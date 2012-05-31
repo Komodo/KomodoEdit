@@ -141,6 +141,13 @@ FindController.prototype.is_cmd_replace_enabled = function() {
 FindController.prototype.do_cmd_replace = function() ko.launch.replace();
 
 FindController.prototype._cmd_findNextPrev = function(searchBackward) {
+    if (this._currentView.findbar && this._currentView.findbar.controller === this) {
+        // Special case for the incremental search - the find bar is active,
+        // just do a searchAgain instead of trying to find the MRU.  See
+        // bug 94120.
+        this.searchAgain(searchBackward);
+        return;
+    }
     var pattern = ko.mru.get("find-patternMru");
     if (pattern) {
         var context = Cc["@activestate.com/koFindContext;1"]
