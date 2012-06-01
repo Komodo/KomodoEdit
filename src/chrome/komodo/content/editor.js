@@ -124,7 +124,7 @@ editor_editorController.prototype.do_cmd_findNextSelected = function(backwards /
     if (pattern == '') {
         scimoz.wordLeft();
         var curChar = scimoz.getWCharAt(scimoz.currentPos);
-        while (curChar.search(/\W/) == -1) {
+        while (scimoz.wordChars.indexOf(curChar) != -1) {
             pattern += curChar;
             scimoz.charRight();
             curChar = scimoz.getWCharAt(scimoz.currentPos);
