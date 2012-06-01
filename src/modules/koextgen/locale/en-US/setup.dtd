@@ -1,0 +1,117 @@
+<!ENTITY setup.WizardNewKomodoExtension "New Komodo Extension">
+<!ENTITY setup.WizardCancel "Cancel">
+<!ENTITY setup.WizardSave "Save">
+<!ENTITY setup.CaptionExtensionInformation "Extension Information">
+<!ENTITY setup.LabelName "Name:">
+<!ENTITY setup.LabelVersion "Version:">
+<!ENTITY setup.LabelDescription "Description:">
+<!ENTITY setup.LabelAuthor "Author:">
+<!ENTITY setup.LabelDomain "Domain:">
+<!ENTITY setup.TextboxYourdomainOrg "yourdomain.org">
+<!ENTITY setup.LabelHomePage "Home Page:">
+<!ENTITY setup.LabelExtensionId "Extension Id:">
+<!ENTITY setup.CaptionLanguageSettings "Language Settings">
+<!ENTITY setup.LabelLanguageName "Language Name:">
+<!ENTITY setup.TextboxTheLanguageNameShouldBeginWithCapital "The language name should begin with a capital letter.">
+<!ENTITY setup.LabelFilenameExtension "Filename Extension:">
+<!ENTITY setup.TextboxFilesWithThisExtensionWillBeAssociated "Files with this extension will be associated to the above language name.">
+<!ENTITY setup.LabelHtmlBasedLanguage "HTML based language">
+<!ENTITY setup.CheckboxHtmlBasedLikePhpDjango "HTML based - like PHP, Django and Smarty. If unsure - leave unchecked.">
+<!ENTITY setup.LabelXmlBasedLanguage "XML based language">
+<!ENTITY setup.CheckboxXmlBasedLikeXsltXulAndMxml "XML based - like XSLT, XUL and MXML. If unsure - leave unchecked.">
+<!ENTITY setup.CaptionLineComments "Line Comments">
+<!ENTITY setup.CheckboxCStyleOneLineComments "C-style one-line comments.">
+<!ENTITY setup.CheckboxPerlPythonOneLineHashComments "Perl/Python one-line hash comments.">
+<!ENTITY setup.CheckboxSqlStyleOneLineComments "SQL style one-line comments.">
+<!ENTITY setup.CheckboxLispStyleOneLineComments "Lisp style one-line comments.">
+<!ENTITY setup.CheckboxErlangStyleOneLineComments "Erlang style one-line comments.">
+<!ENTITY setup.CaptionBlockComments "Block Comments">
+<!ENTITY setup.CheckboxCStyleBlockComments "C-style block comments.">
+<!ENTITY setup.CheckboxPascalStyleBlockComments "Pascal-style block comments.">
+<!ENTITY setup.CaptionKeywords "Keywords">
+<!ENTITY setup.TextboxKeywordsAreSpecialIdentifiers "Keywords are special identifiers for a programming language. Examples are 'import' for Python, or 'int' for C.">
+<!ENTITY setup.CaptionCodeIntelligence "Code Intelligence">
+<!ENTITY setup.CheckboxEnableCodeIntelligence "Enable Code Intelligence">
+<!ENTITY setup.CheckboxCodeIntelligenceWillBeEnabled "Code Intelligence will be enabled and provide completions for the above keywords.">
+<!ENTITY setup.CaptionBuildingIt "Building it">
+<!ENTITY setup.DescriptionAfterCreatingTheExtension "After creating the extension, you can use the &quot;Build&quot; button in the bottom of the Komodo toolbox (in the right pane) to build the extension (.xpi) file.">
+<!ENTITY setup.CaptionInstallingIt "Installing it">
+<!ENTITY setup.DescriptionOnceTheXpiFileIsBuilt "Once the xpi file is built, you can open (double-click) it from Places which will start the installation process.">
+<!ENTITY setup.WizardNewKomodoExtension "New Komodo Extension">
+<!ENTITY setup.WizardCancel "Cancel">
+<!ENTITY setup.WizardSave "Save">
+<!ENTITY setup.CaptionExtensionInformation "Extension Information">
+<!ENTITY setup.LabelName "Name:">
+<!ENTITY setup.LabelVersion "Version:">
+<!ENTITY setup.LabelDescription "Description:">
+<!ENTITY setup.LabelAuthor "Author:">
+<!ENTITY setup.LabelDomain "Domain:">
+<!ENTITY setup.TextboxYourdomainOrg "yourdomain.org">
+<!ENTITY setup.LabelHomePage "Home Page:">
+<!ENTITY setup.LabelExtensionId "Extension Id:">
+<!ENTITY setup.CaptionLanguageSettings "Language Settings">
+<!ENTITY setup.LabelLanguageName "Language Name:">
+<!ENTITY setup.TextboxTheLanguageNameShouldBeginWithCapital "The language name should begin with a capital letter.">
+<!ENTITY setup.LabelFilenameExtension "Filename Extension:">
+<!ENTITY setup.TextboxFilesWithThisExtensionWillBeAssociated "Files with this extension will be associated to the above language name.">
+<!ENTITY setup.LabelHtmlBasedLanguage "HTML based language">
+<!ENTITY setup.CheckboxHtmlBasedLikePhpDjango "HTML based - like PHP, Django and Smarty. If unsure - leave unchecked.">
+<!ENTITY setup.LabelXmlBasedLanguage "XML based language">
+<!ENTITY setup.CheckboxXmlBasedLikeXsltXulAndMxml "XML based - like XSLT, XUL and MXML. If unsure - leave unchecked.">
+<!ENTITY setup.CaptionLineComments "Line Comments">
+<!ENTITY setup.CheckboxCStyleOneLineComments "C-style one-line comments.">
+<!ENTITY setup.CheckboxPerlPythonOneLineHashComments "Perl/Python one-line hash comments.">
+<!ENTITY setup.CheckboxSqlStyleOneLineComments "SQL style one-line comments.">
+<!ENTITY setup.CheckboxLispStyleOneLineComments "Lisp style one-line comments.">
+<!ENTITY setup.CheckboxErlangStyleOneLineComments "Erlang style one-line comments.">
+<!ENTITY setup.CaptionBlockComments "Block Comments">
+<!ENTITY setup.CheckboxCStyleBlockComments "C-style block comments.">
+<!ENTITY setup.CheckboxPascalStyleBlockComments "Pascal-style block comments.">
+<!ENTITY setup.CaptionKeywords "Keywords">
+<!ENTITY setup.TextboxKeywordsAreSpecialIdentifiers "Keywords are special identifiers for a programming language. Examples are 'import' for Python, or 'int' for C.">
+<!ENTITY setup.CaptionCodeIntelligence "Code Intelligence">
+<!ENTITY setup.CheckboxEnableCodeIntelligence "Enable Code Intelligence">
+<!ENTITY setup.CheckboxCodeIntelligenceWillBeEnabled "Code Intelligence will be enabled and provide completions for the above keywords.">
+<!ENTITY setup.CaptionBuildingIt "Building it">
+<!ENTITY setup.DescriptionAfterCreatingTheExtension "After creating the extension, you can use the &quot;Build&quot; button in the bottom of the Komodo toolbox (in the right pane) to build the extension (.xpi) file.">
+<!ENTITY setup.CaptionInstallingIt "Installing it">
+<!ENTITY setup.DescriptionOnceTheXpiFileIsBuilt "Once the xpi file is built, you can open (double-click) it from Places which will start the installation process.">
+<!ENTITY setup.WizardNewKomodoExtension "New Komodo Extension">
+<!ENTITY setup.WizardCancel "Cancel">
+<!ENTITY setup.WizardSave "Save">
+<!ENTITY setup.CaptionExtensionInformation "Extension Information">
+<!ENTITY setup.LabelName "Name:">
+<!ENTITY setup.LabelVersion "Version:">
+<!ENTITY setup.LabelDescription "Description:">
+<!ENTITY setup.LabelAuthor "Author:">
+<!ENTITY setup.LabelDomain "Domain:">
+<!ENTITY setup.TextboxYourdomainOrg "yourdomain.org">
+<!ENTITY setup.LabelHomePage "Home Page:">
+<!ENTITY setup.LabelExtensionId "Extension Id:">
+<!ENTITY setup.CaptionLanguageSettings "Language Settings">
+<!ENTITY setup.LabelLanguageName "Language Name:">
+<!ENTITY setup.TextboxTheLanguageNameShouldBeginWithCapital "The language name should begin with a capital letter.">
+<!ENTITY setup.LabelFilenameExtension "Filename Extension:">
+<!ENTITY setup.TextboxFilesWithThisExtensionWillBeAssociated "Files with this extension will be associated to the above language name.">
+<!ENTITY setup.LabelHtmlBasedLanguage "HTML based language">
+<!ENTITY setup.CheckboxHtmlBasedLikePhpDjango "HTML based - like PHP, Django and Smarty. If unsure - leave unchecked.">
+<!ENTITY setup.LabelXmlBasedLanguage "XML based language">
+<!ENTITY setup.CheckboxXmlBasedLikeXsltXulAndMxml "XML based - like XSLT, XUL and MXML. If unsure - leave unchecked.">
+<!ENTITY setup.CaptionLineComments "Line Comments">
+<!ENTITY setup.CheckboxCStyleOneLineComments "C-style one-line comments.">
+<!ENTITY setup.CheckboxPerlPythonOneLineHashComments "Perl/Python one-line hash comments.">
+<!ENTITY setup.CheckboxSqlStyleOneLineComments "SQL style one-line comments.">
+<!ENTITY setup.CheckboxLispStyleOneLineComments "Lisp style one-line comments.">
+<!ENTITY setup.CheckboxErlangStyleOneLineComments "Erlang style one-line comments.">
+<!ENTITY setup.CaptionBlockComments "Block Comments">
+<!ENTITY setup.CheckboxCStyleBlockComments "C-style block comments.">
+<!ENTITY setup.CheckboxPascalStyleBlockComments "Pascal-style block comments.">
+<!ENTITY setup.CaptionKeywords "Keywords">
+<!ENTITY setup.TextboxKeywordsAreSpecialIdentifiers "Keywords are special identifiers for a programming language. Examples are 'import' for Python, or 'int' for C.">
+<!ENTITY setup.CaptionCodeIntelligence "Code Intelligence">
+<!ENTITY setup.CheckboxEnableCodeIntelligence "Enable Code Intelligence">
+<!ENTITY setup.CheckboxCodeIntelligenceWillBeEnabled "Code Intelligence will be enabled and provide completions for the above keywords.">
+<!ENTITY setup.CaptionBuildingIt "Building it">
+<!ENTITY setup.DescriptionAfterCreatingTheExtension "After creating the extension, you can use the &quot;Build&quot; button in the bottom of the Komodo toolbox (in the right pane) to build the extension (.xpi) file.">
+<!ENTITY setup.CaptionInstallingIt "Installing it">
+<!ENTITY setup.DescriptionOnceTheXpiFileIsBuilt "Once the xpi file is built, you can open (double-click) it from Places which will start the installation process.">

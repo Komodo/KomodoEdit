@@ -1,15 +1,19 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE overlay PUBLIC "-//MOZILLA//DTD XUL V1.0//EN" "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % setupDTD SYSTEM "chrome://koextgen/locale/setup.dtd">
+  %setupDTD;
+]>
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
 
 <wizard
   id="test"
-  title="New Komodo Extension"
+  title="&setup.WizardNewKomodoExtension;"
   xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   width="600px"
   height="600px"
   buttons="accept,cancel"
-  buttonlabelcancel="Cancel"
-  buttonlabelaccept="Save"
+  buttonlabelcancel="&setup.WizardCancel;"
+  buttonlabelaccept="&setup.WizardSave;"
   onload="setup()"
   onwizardfinish="return onWizardFinish();"
   defaultButton="accept"
@@ -24,6 +28,9 @@
     var data = {};
     var ext_name = '';
     
+    var bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+    .getService(Components.interfaces.nsIStringBundleService)
+    .createBundle("chrome://koextgen/locale/setup.properties");
     function get_val(strId) { return document.getElementById(strId).value; }
     function set_val(strId, val) { document.getElementById(strId).value = val; }
     function is_checked(strId) { return document.getElementById(strId).checked; }
@@ -52,7 +59,7 @@
     function setup() {
         try {
             if (typeof(window.arguments) == 'undefined') {
-                alert('Error: No Window arguments?');
+                alert(bundle.GetStringFromName("errorNoWindowsArguments"));
                 return;
             }
             data = window.arguments[0];
@@ -67,7 +74,7 @@
             if (vars['id']) {
                 var arr = vars.id.split('@');
                 if (arr.length < 2) {
-                    ko.dialogs.alert('Extension Id "' + vars.id + '" is not in the correct format?');
+                    ko.dialogs.alert(bundle.formatStringFromName("extensionIdIsNotTheCorrectFormat", [vars.id], 1));
                     return;
                 }
                 set_val('author-domain', arr[1]);
@@ -124,11 +131,11 @@
 
     function validate_page2() {
         if (!trim(get_val("lang"))) {
-            alert("You must define a language name");
+            alert(bundle.GetStringFromName("youMustDefineAlanguageName"));
             return false;
         }
         if (!trim(get_val("ext"))) {
-            alert("You must define a filename extension");
+            alert(bundle.GetStringFromName("youMustDefineAFilenameExtension"));
             return false;
         }
         return true;
@@ -149,7 +156,7 @@
 
     <wizardpage id="page1" pageid="page1" next="page3">
         <!--<vbox flex="1">-->
-            <caption label="Extension Information" />
+            <caption label="&setup.CaptionExtensionInformation;" />
             <grid flex="1">
                 <columns>
                     <column />
@@ -157,31 +164,31 @@
                 </columns>
                 <rows>
                     <row align="center">
-                        <label value="Name:" />
+                        <label value="&setup.LabelName;" />
                         <textbox id="name" type="search" timeout="1000" oncommand="update_id()" />
                     </row>
                     <row align="center">
-                        <label value="Version:" />
+                        <label value="&setup.LabelVersion;" />
                         <textbox id="version" />
                     </row>
                     <row align="top">
-                        <label value="Description:" />
+                        <label value="&setup.LabelDescription;" />
                         <textbox id="description" multiline="true" value="" />
                     </row>
                     <row align="center">
-                        <label value="Author:" />
+                        <label value="&setup.LabelAuthor;" />
                         <textbox id="creator" value="" />
                     </row>
                     <row align="center">
-                        <label value="Domain:" />
-                        <textbox id="author-domain" value="yourdomain.org" type="search" timeout="1000" oncommand="update_id()" />
+                        <label value="&setup.LabelDomain;" />
+                        <textbox id="author-domain" value="&setup.TextboxYourdomainOrg;" type="search" timeout="1000" oncommand="update_id()" />
                     </row>
                     <row align="center">
-                        <label value="Home Page:" />
+                        <label value="&setup.LabelHomePage;" />
                         <textbox id="homepageURL" value="" />
                     </row>
                     <row align="center">
-                        <label value="Extension Id:" />
+                        <label value="&setup.LabelExtensionId;" />
                         <label style="font-weight: bolder;" id="id" />
                     </row>
                 </rows>
@@ -195,7 +202,7 @@
                 onpageadvanced="return validate_page2();"
                 >
         <!-- For defining the Komodo language properties -->
-        <caption label="Language Settings" />
+        <caption label="&setup.CaptionLanguageSettings;" />
         <radiogroup id="lang_base_group" />
         <groupbox>
             <grid flex="1">
@@ -205,70 +212,70 @@
                 </columns>
                 <rows>
                     <row align="center">
-                        <label value="Language Name:" />
+                        <label value="&setup.LabelLanguageName;" />
                         <textbox id="lang"
                                  placeholder="Python"
-                                 tooltiptext="The language name should begin with a captial letter."
+                                 tooltiptext="&setup.TextboxTheLanguageNameShouldBeginWithCapital;"
                                  />
                     </row>
                     <row align="center">
-                        <label value="Filename Extension:" />
+                        <label value="&setup.LabelFilenameExtension;" />
                         <textbox id="ext"
                                  placeholder=".py"
-                                 tooltiptext="Files with this extension will be associated to the above language name."
+                                 tooltiptext="&setup.TextboxFilesWithThisExtensionWillBeAssociated;"
                                  />
                     </row>
                     <row align="top">
-                        <label value="HTML based language" />
+                        <label value="&setup.LabelHtmlBasedLanguage;" />
                         <checkbox id="html_based"
                                   oncommand="checkbox_validate(event);"
                                   label=" "
-                                  tooltiptext="HTML based - like PHP, Django and Smarty. If unsure - leave unchecked."
+                                  tooltiptext="&setup.CheckboxHtmlBasedLikePhpDjango;"
                                   group="lang_base_group"
                                   />
                     </row>
                     <row align="center">
-                        <label value="XML based language" />
+                        <label value="&setup.LabelXmlBasedLanguage;" />
                         <checkbox id="xml_based"
                                   oncommand="checkbox_validate(event);"
                                   label=" "
-                                  tooltiptext="XML based - like XSLT, XUL and MXML. If unsure - leave unchecked."
+                                  tooltiptext="&setup.CheckboxXmlBasedLikeXsltXulAndMxml;"
                                   group="lang_base_group"
                                   />
                     </row>
                     <row>
                         <groupbox>
-                            <caption label="Line Comments" />
+                            <caption label="&setup.CaptionLineComments;" />
                                 <checkbox id="line_comment_slashslash"
                                           label="//"
-                                          tooltiptext="C-style one-line comments."
+                                          tooltiptext="&setup.CheckboxCStyleOneLineComments;"
                                           />
                                 <checkbox id="line_comment_hash"
                                           label="#"
-                                          tooltiptext="Perl/Python one-line hash comments."
+                                          tooltiptext="&setup.CheckboxPerlPythonOneLineHashComments;"
                                           />
                                 <checkbox id="line_comment_dashdash"
                                           label="--"
-                                          tooltiptext="SQL style one-line comments."
+                                          tooltiptext="&setup.CheckboxSqlStyleOneLineComments;"
                                           />
                                 <checkbox id="line_comment_semicolan"
                                           label=";"
-                                          tooltiptext="Lisp style one-line comments."
+                                          tooltiptext="&setup.CheckboxLispStyleOneLineComments;"
                                           />
                                 <checkbox id="line_comment_percent"
                                           label="%"
-                                          tooltiptext="Erlang style one-line comments."
+                                          tooltiptext="&setup.CheckboxErlangStyleOneLineComments;"
                                           />
                         </groupbox>
                         <groupbox>
-                            <caption label="Block Comments" />
+                            <caption label="&setup.CaptionBlockComments;" />
                                 <checkbox id="block_comment_c"
                                           label="/* ... */"
-                                          tooltiptext="C-style block comments."
+                                          tooltiptext="&setup.CheckboxCStyleBlockComments;"
                                           />
                                 <checkbox id="block_comment_pascal"
                                           label="(* ... *)"
-                                          tooltiptext="Pascal-style block comments."
+                                          tooltiptext="&setup.CheckboxPascalStyleBlockComments;"
                                           />
                         </groupbox>
                     </row>
@@ -276,19 +283,19 @@
             </grid>
         </groupbox>
         <groupbox>
-            <caption label="Keywords" />
+            <caption label="&setup.CaptionKeywords;" />
             <textbox id="keywords"
                      multiline="true"
                      rows="4"
                      placeholder="Separate the keywords using spaces"
-                     tooltiptext="Keywords are special identifiers for a programming language. Examples are 'import' for Python, or 'int' for C."
+                     tooltiptext="&setup.TextboxKeywordsAreSpecialIdentifiers;"
                      />
         </groupbox>
         <groupbox>
-            <caption label="Code Intelligence" />
+            <caption label="&setup.CaptionCodeIntelligence;" />
                 <checkbox id="codeintel"
-                          label="Enable Code Intelligence"
-                          tooltiptext="Code Intelligence will be enable and provide completions for the above keywords."
+                          label="&setup.CheckboxEnableCodeIntelligence;"
+                          tooltiptext="&setup.CheckboxCodeIntelligenceWillBeEnabled;"
                           />
         </groupbox>
     </wizardpage>
@@ -296,19 +303,12 @@
     <wizardpage id="page3" pageid="page3">
         <!-- For creating the extension. -->
         <groupbox>
-            <caption label="Building it" />
-            <description>
-                After creating the extension, you can use the "Build" button in
-                the bottom of the Komodo toolbox (in the right pane) to build
-                the extension (.xpi) file.
-            </description>
+            <caption label="&setup.CaptionBuildingIt;" />
+            <description>&setup.DescriptionAfterCreatingTheExtension;</description>
         </groupbox>
         <groupbox>
-            <caption label="Installing it" />
-            <description>
-                Once the xpi file is built, you can open (double-click) it from
-                Places which will start the installation process.
-            </description>
+            <caption label="&setup.CaptionInstallingIt;" />
+            <description>&setup.DescriptionOnceTheXpiFileIsBuilt;</description>
         </groupbox>
     </wizardpage>
 
