@@ -685,7 +685,7 @@ class RubyLangIntel(CitadelLangIntel,
                     # a string.
                     suppress = True
             elif last_ch in TRIGGER_IN_STRING_CHARS:
-                supress = True
+                suppress = True
         elif last_style in styleClassifier.completion_skip_styles:
             # If the user requests code-completion and previous char is
             # in this style, suppress it.
