@@ -1747,6 +1747,25 @@ class _BaseTestCase(CodeIntelTestCase):
                              ]
         self.assertCompletionsInclude(
             markup_text(content, pos=positions[6]), pure_hash_literals)
+    
+    @tag("knownfailure", "bug94237")    
+    def test_nested_literals_3(self):
+        # lower-case names work
+        content, positions = unmark_text(dedent("""
+            a = [1,2,3]
+            puts a.<1>size
+            """))
+        self.assertCompletionsInclude(
+            markup_text(content, pos=positions[1]),
+            [("function", "size"),])
+        # but the tree walker fails to handle names starting with a capital
+        content, positions = unmark_text(dedent("""
+            Aa = [1,2,3]
+            puts Aa.<1>size
+            """))
+        self.assertCompletionsInclude(
+            markup_text(content, pos=positions[1]),
+            [("function", "size"),])
         
     def test_foo2(self):
         content, positions = unmark_text(dedent("""
