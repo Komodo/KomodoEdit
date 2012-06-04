@@ -168,6 +168,7 @@ oranges 3
                  "__FILE__",
                  "__LINE__",
                  "__PACKAGE__",
+                 "__SUB__", # Added in perl 5.16
                  "AUTOLOAD",
                  "BEGIN",
                  "CHECK",
@@ -224,6 +225,7 @@ oranges 3
                  "exists",
                  "exit",
                  "exp",
+                 "fc", # Added in perl 5.16
                  "fcntl",
                  "fileno",
                  "flock",
