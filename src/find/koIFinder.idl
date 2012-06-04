@@ -37,12 +37,14 @@
 #include "nsISupports.idl"
 #include "nsITreeView.idl"
 
+interface nsICancelable;
 interface ISciMoz;
 interface koIDocument;
 interface koIFindSession;
 interface koIFindResultsTabManager;
 interface koIFindResultsView;
 interface koIFindContext;
+interface koIFinderReplaceHit;
 
 /**
  * JS-implemented controller for driving the "Confirm Replacements"
@@ -234,6 +236,22 @@ interface koIFindOptions: nsISupports {
     AString searchDescFromPattern(in AString pattern);
 };
 
+[scriptable, uuid(e4ddc3a2-8992-4bb2-b5b3-8ba55ef93d49)]
+interface koIFindHitCallback: nsISupports {
+    /**
+     * Report that a found result has been hit
+     * @param hit The hit
+     * @returns The number of characters changed as a result (to synchronize
+     *      future hits).
+     */
+    long onHit(in koIFinderReplaceHit hit);
+    /**
+     * Report that the find has completed and no more hits are forthcoming
+     * @param result A successful value if all hits were found; a failure value
+     *      if the find was cancelled.
+     */
+    void onDone(in nsresult result);
+};
 
 [scriptable, uuid(19A373A9-77EC-4c96-B86F-1928018AB924)]
 interface koIFindService : nsISupports {
@@ -277,6 +295,21 @@ interface koIFindService : nsISupports {
                       out PRUint32 count,
                       [retval, array, size_is(count)] out PRUint32 lines);
     
+    /**
+     * Does a find all operation asynchronously
+     * @param pattern The pattern to search for
+     * @param text The text to search in
+     * @param callback The callback to invoke on a find result
+     * @param offset The offset to use when reporting results
+     * @param options Find options
+     * @returns An interface that can be used to cancel the operation
+     */
+    nsICancelable findallasync(in AString pattern,
+                               in AString text,
+                               in koIFindHitCallback callback,
+                               [optional] in unsigned long offset,
+                               [optional] in koIFindOptions options);
+
     /**
      * Hightlight all matches in the scintilla buffer.
      *

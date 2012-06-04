@@ -236,6 +236,7 @@
 <!ENTITY findFindNextSelected.desc "Find: Find Next Selected">
 <!ENTITY findFindPrevious.desc "Find: Find Previous">
 <!ENTITY findFindPreviousSelected.desc "Find: Find Previous Selected">
+<!ENTITY findHighlightVariableManual.desc "Find: Highlight Variable">
 <!ENTITY findInCurrProject.label "Find in Current Project...">
 <!ENTITY findInFiles.label "Find in Files...">
 <!ENTITY findIncrementalSearch.desc "Find: Incremental Search">

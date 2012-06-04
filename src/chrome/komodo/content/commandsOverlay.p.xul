@@ -1042,6 +1042,11 @@
             disabled="true"
             desc="&findIncrementalSearchBackwards.desc;"/>
         <command
+            id="cmd_findHighlightVariableManual" key="keycmd_findHighlightVariableManual"
+            disabled="true"
+            oncommand="ko.commands.doCommandAsync('cmd_findHighlightVariableManual', event)"
+            desc="&findHighlightVariableManual.desc;"/>
+        <command
             id="cmd_saveAs" key="key_cmd_saveAs"
             oncommand="ko.commands.doCommandAsync('cmd_saveAs', event)"
             disabled="true"

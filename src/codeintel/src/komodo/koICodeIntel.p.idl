@@ -91,6 +91,10 @@ interface koICodeIntelDefinition: nsISupports {
     readonly attribute wstring signature;  // If it's a function
     readonly attribute wstring attributes; // Any attributes, eg "local"
     readonly attribute wstring returns;    // Function return type
+    readonly attribute long scopestart;    // Start of scope the variable is defined in
+    readonly attribute long scopeend;      // End of scope the variable is defined in
+    boolean equals(in koICodeIntelDefinition other);
+    AString toString();
 };
 
 [scriptable, uuid(EC0B8148-8E12-43C2-8422-724E2478D884)]
@@ -172,6 +176,11 @@ interface koICodeIntelCompletionUIHandler : nsISupports {
      * current statement.
      */
     void triggerPrecedingCompletion(in AString path);
+
+    /**
+     * Called when the evaluation has completed.
+     */
+    void done();
 };
 
 [scriptable, uuid(5B6F1D4D-FB32-4462-A3A7-E6FA2B9FE128)]
@@ -182,9 +191,20 @@ interface koICodeIntelEvalController: nsISupports {
 
     boolean is_done();
     void abort();
+    boolean is_aborted();
 
     //XXX May need special handling for "None" timeout. Say 0?
     void wait(in long timeout);
+
+    /**
+     * If true, no errors/warnings/status will be reported
+     */
+    attribute boolean silent;
+
+    /**
+     * If set, evaluating this will not first stop existing queued evals
+     */
+    attribute boolean keep_existing;
 };
 
 [scriptable, uuid(AA6B3D1B-BB61-4FFF-A0B0-98320C3C3EE6)]

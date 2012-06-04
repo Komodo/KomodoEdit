@@ -427,6 +427,7 @@
     GotoDefinitionUIHandler.prototype.setDefinitionsInfo = function(count, ciDefns, trg) {
         _setDefinitionsInfo(count, ciDefns, trg);
     }
+    GotoDefinitionUIHandler.prototype.done = function() {};
 
 }).apply(ko.hyperlinks);
 

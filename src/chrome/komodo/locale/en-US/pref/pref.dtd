@@ -261,6 +261,13 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY hideQuickLinksPane.label "Hide Quick Links pane">
 <!ENTITY highlightCharactersBeyondEdgeLine.label "Highlight characters that extend beyond the edge line column">
 <!ENTITY highlightCurrentLine.label "Highlight current line">
+<!ENTITY highlightVariable.label "Variable Highlighting">
+<!ENTITY highlightVariableMouse.label "Automatically highlight variables when clicking">
+<!ENTITY highlightVariableKeyboard.label "Automatically highlight variables when typing">
+<!ENTITY highlightVariableMatchPrefix.label "Prefix match when typing">
+<!ENTITY highlightVariableKeyboardDelay.label "Delay in ms:">
+<!ENTITY highlightVariableMinLength.label "Minimum length for automatic highlighting:">
+<!ENTITY highlightVariableUseScope.label "Only show results that are in scope (if available)">
 <!ENTITY htmHTML.label ".htm: HTML">
 <!ENTITY htmlHTML.label ".html: HTML">
 <!ENTITY httpAspnActiveStateComASPNPHP.label "http://php.net/">

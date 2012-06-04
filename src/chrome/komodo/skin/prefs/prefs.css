@@ -28,6 +28,10 @@ description#pychecker_dangerous.pref_show {
     margin-left: 54px;
 }
 
+.textboxWrapper {
+    -moz-box-align: center;
+}
+
 groupbox#pref-languages-primary-selector-groupbox {
     visibility:visible;
 }

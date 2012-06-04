@@ -86,20 +86,20 @@ interface koILanguage : nsISupports {
     readonly attribute long styleStdout;
     readonly attribute long styleStderr;
 
-    void getSubLanguages(out unsigned long count,
+    void getSubLanguages([optional] out unsigned long count,
                           [retval, array, size_is(count)] out wstring languages);
     wstring getLanguageForFamily(in wstring family);
 
-    void getCommentStyles(out unsigned long count,
+    void getCommentStyles([optional] out unsigned long count,
                           [retval, array, size_is(count)] out long styles);
-    void getStringStyles(out unsigned long count,
+    void getStringStyles([optional] out unsigned long count,
                          [retval, array, size_is(count)] out long styles);
-    void getNumberStyles(out unsigned long count,
+    void getNumberStyles([optional] out unsigned long count,
                          [retval, array, size_is(count)] out long styles);
-    void getVariableStyles(out unsigned long count,
+    void getVariableStyles([optional] out unsigned long count,
                          [retval, array, size_is(count)] out long styles);
     void getNamedStyles(in wstring name,
-                        out unsigned long count,
+                        [optional] out unsigned long count,
                         [retval, array, size_is(count)] out long styles);
 
     // these are used by the language registry service to determine a sub

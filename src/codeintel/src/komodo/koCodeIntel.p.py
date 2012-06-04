@@ -708,24 +708,25 @@ class KoCodeIntelEvalController(EvalController):
     ui_handler = None
     ui_handler_proxy_sync = None
 
+    def __init__(self, *args, **kwargs):
+        EvalController.__init__(self, *args, **kwargs)
+        self.log = []
+        self.silent = False
+
     def close(self):
         """Done with this eval controller, clear any references"""
         EvalController.close(self)
         # Will leak JavaScript evaluators if the log is not cleared, bug 65502.
-        self.log = None
+        self.log = []
 
     def debug(self, msg, *args):
-        if self.log is None: self.log = []
         self.log.append(("debug", msg, args))
     def info(self, msg, *args):
-        if self.log is None: self.log = []
         self.log.append(("info", msg, args))
     def warn(self, msg, *args):
-        if self.log is None: self.log = []
         self.log.append(("warn", msg, args))
         self.have_warnings = True
     def error(self, msg, *args):
-        if self.log is None: self.log = []
         self.log.append(("error", msg, args))
         self.have_errors = True
 
@@ -760,18 +761,24 @@ class KoCodeIntelEvalController(EvalController):
         self.got_results = True
         self.ui_handler_proxy_sync.setDefinitionsInfo(defns, self.trg)
 
+    def abort(self):
+        EvalController.abort(self)
+        log.debug("abort: trigger=%r", self.trg)
+
     def done(self, reason):
         # This part of the spec describes what the IDE user UI should be
         # on autocomplete/calltips:
         #   http://specs.tl.activestate.com/kd/kd-0100.html#k4-completion-ui-notes
         # Currently 'reason' isn't a reliable mechanism for determining
         # state.
+        log.debug("done: trigger=%r aborted=%r",
+                  self.trg, self.is_aborted())
         if self.got_results:
             #XXX What about showing warnings even if got results?
             pass # success: show the completions, already done
         elif self.is_aborted():
             pass # aborted: we've moved on to another completion
-        else:
+        elif not self.silent:
             # We'll show a statusbar message -- highlighted if the trigger
             # was explicit (Ctrl+J). The message will mention warnings
             # and errors, if any. If explicit the whole controller log is
@@ -813,6 +820,7 @@ class KoCodeIntelEvalController(EvalController):
 
         EvalController.done(self, reason)
         self.close()
+        self.ui_handler_proxy_sync.done()
         self.ui_handler_proxy_sync = None
         self.ui_handler = None
 

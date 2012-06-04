@@ -275,6 +275,36 @@
                       prefstring="editRestoreFoldPoints" prefattribute="checked"/>
         </groupbox>
 
+        <groupbox>
+            <caption label="&highlightVariable.label;"/>
+            <checkbox label="&highlightVariableMouse.label;" pref="true"
+                      preftype="boolean"
+                      prefstring="codeintel_highlight_variables_auto_mouse"/>
+            <checkbox label="&highlightVariableKeyboard.label;" pref="true"
+                      preftype="boolean"
+                      prefstring="codeintel_highlight_variables_auto_keyboard"/>
+            <checkbox label="&highlightVariableMatchPrefix.label;" pref="true"
+                      class="indentedPref01" preftype="boolean"
+                      prefstring="codeintel_highlight_variables_match_prefix"/>
+            <hbox class="indentedPref01 textboxWrapper">
+                <label value="&highlightVariableKeyboardDelay.label;"
+                       control="editVariableHighlightAutoDelay"/>
+                <textbox pref="true" size="3" id="editVariableHighlightAutoDelay"
+                         prefstring="codeintel_highlight_variables_auto_delay"
+                         preftype="long"/>
+            </hbox>
+            <hbox class="textboxWrapper">
+                <label value="&highlightVariableMinLength.label;"
+                       control="editVariableHighlightMinLength"/>
+                <textbox pref="true" size="3" id="editVariableHighlightMinLength"
+                         prefstring="codeintel_highlight_variables_min_auto_length"
+                         preftype="long"/>
+            </hbox>
+            <checkbox label="&highlightVariableUseScope.label;" pref="true"
+                      prefstring="codeintel_highlight_variables_use_scope"
+                      preftype="boolean"/>
+        </groupbox>
+
     </vbox>
 
 </window>

@@ -51,9 +51,8 @@ ko.codeintel = {};
 
 (function() {
 
-    const Ci = Components.interfaces;
-    const Cc = Components.classes;
-    var {XPCOMUtils} = Components.utils.import("resource://gre/modules/XPCOMUtils.jsm", {});
+    const {classes: Cc, interfaces: Ci, results: Cr, utils: Cu} = Components;
+    var {XPCOMUtils} = Cu.import("resource://gre/modules/XPCOMUtils.jsm", {});
 
     var log = ko.logging.getLogger("codeintel_js");
     //log.setLevel(ko.logging.LOG_DEBUG);
@@ -183,7 +182,11 @@ ko.codeintel = {};
 
     //---- public routines
     
-    this.initialize = function CodeIntel_InitializeWindow()
+    const kObservedPrefNames = ["codeintel_highlight_variables_auto_mouse",
+                                "codeintel_highlight_variables_auto_keyboard",
+                                "codeintel_highlight_variables_auto_delay"];
+
+    this.initialize = (function CodeIntel_InitializeWindow()
     {
         log.debug("initialize()");
         try {
@@ -193,20 +196,53 @@ ko.codeintel = {};
                 _CodeIntel_DeactivateWindow();
             }
             ko.main.addWillCloseHandler(ko.codeintel.finalize);
+            ko.prefs.prefObserverService
+              .addObserverForTopics(this,
+                                    kObservedPrefNames.length,
+                                    kObservedPrefNames,
+                                    true);
+            for each (let pref in kObservedPrefNames) {
+                // hook up things if necessary
+                this.observe(null, pref, null);
+            }
         } catch(ex) {
             log.exception(ex);
         }
-    }
-    
-    this.finalize = function CodeIntel_FinalizeWindow()
+    }).bind(this);
+
+    this.finalize = (function CodeIntel_FinalizeWindow()
     {
         log.debug("finalize()");
         try {
             _CodeIntel_DeactivateWindow(true /* shutting down */);
+            let topView = ko.views.manager.topView;
+            topView.removeEventListener("click",
+                                        this._triggerHighlightVariableFromMouse,
+                                        false);
+            window.removeEventListener("editor_text_modified",
+                                       this._triggerHighlightVariableFromKeyboard,
+                                       false);
+            if ("_triggerHighlightVariableFromKeyboard_timeout" in this) {
+                clearTimeout(this._triggerHighlightVariableFromKeyboard_timeout);
+            }
+            try {
+                ko.prefs.prefObserverService
+                  .removeObserverForTopics(this,
+                                           kObservedPrefNames.length,
+                                           kObservedPrefNames);
+            } catch (ex) {
+                /* ignore - this throws if things are not registered, which is a
+                 * silly thing to be doing, since all we care is that they are
+                 * no longer registered
+                 */
+            }
+            if (this._last_highlight_async) {
+                this._last_highlight_async.cancel(Cr.NS_ERROR_ABORT);
+            }
         } catch(ex) {
             log.exception(ex);
         }
-    }
+    }).bind(this);
 
     this.is_cpln_lang = function CodeIntel_is_cpln_lang(lang)
     {
@@ -342,6 +378,8 @@ ko.codeintel = {};
         }    
     }
 
+    this.CompletionUIHandler.prototype.done = function() {};
+
     /**
      * A mapping of autocomplete type -> image url
      * Note that this is public and expected to be modified by extensions/scripts
@@ -464,7 +502,8 @@ ko.codeintel = {};
     
     }
 
-    this.CompletionUIHandler.prototype.onAutoCompleteEvent = function CUIH_onAutoCompleteEvent(controller, event) {
+    this.CompletionUIHandler.prototype.onAutoCompleteEvent = function CUIH_onAutoCompleteEvent(controller, event)
+    {
         var view = this.view;
         var scintilla = view.scintilla;
         var scimoz = view.scimoz;
@@ -999,7 +1038,426 @@ ko.codeintel = {};
         window.setTimeout(function (me, defns_, trg_) {me._setDefinitionsInfo(defns_, trg_);},
                           1, this, defns, trg);
     }
+
+
+    /**
+     * Highlight a variable
+     * @param scimoz {Components.interfaces.koIScintillaView} The view to look in
+     * @param reason {String} The reason for highlighting; one of "mouse",
+     *      "keyboard", "manual".
+     * @returns {Boolean} Whether highlight has _started_.  The actual
+     *      highlighting is asynchronous and therefore whether any results have
+     *      been found is unknown.
+     */
+    this.highlightVariable = (function CodeIntel_HighlightVariable(view, reason)
+    {
+        log.debug("ko.codeintel.highlightVariable: view=" + view + " reason=" + reason);
+        if (this._last_highlight_async) {
+            this._last_highlight_async.cancel(Cr.NS_ERROR_ABORT);
+        }
+        this._last_highlight_async = null;
+
+        const INDICATOR = Ci.koILintResult.DECORATOR_TAG_MATCH_HIGHLIGHT;
+
+        if (!view) {
+            view = ko.views.manager.currentView;
+        }
+        if (!(view instanceof Ci.koIScintillaView)) {
+            log.error("view is not a koIScintillaView");
+            throw new Error("view is not a koIScintillaView");
+        }
+        var scimoz = view.scimoz;
+        if (scimoz.selections > 1) {
+            log.info("highlightVariable: multiple selections");
+            return false;
+        }
+        if (["mouse", "keyboard", "manual"].indexOf(reason) == -1) {
+            log.info("highlightVariable: invalid reason " + reason);
+            reason = "manual";
+        }
+
+        var varStyles = view.languageObj.getVariableStyles();
+        var rangeStart = scimoz.wordStartPosition(scimoz.currentPos, true);
+        var rangeEnd = scimoz.wordEndPosition(scimoz.currentPos, true);
+        if (scimoz.selectionStart != scimoz.selectionEnd &&
+            (scimoz.selectionStart != rangeStart || scimoz.selectionEnd != rangeEnd))
+        {
+            // have selection, but it doesn't match scimoz's idea of a word
+            return false;
+        }
+        if (reason != "manual") {
+            let indicStart = scimoz.indicatorStart(INDICATOR, rangeStart);
+            let indicEnd = scimoz.indicatorEnd(INDICATOR, rangeStart);
+            if (indicStart == rangeStart && indicEnd == rangeEnd &&
+                scimoz.indicatorValueAt(INDICATOR, rangeStart))
+            {
+                log.debug("variable highlighting already active, skipping");
+                return false;
+            }
+            // check variable styles
+            let styles = scimoz.getStyledText(rangeStart, rangeEnd, {})
+                               .filter(function(c, i) i % 2);
+            if (styles.some(function(s) varStyles.indexOf(s) == -1)) {
+                log.debug("variable highlighting: found word char with non-var style")
+                return false;
+            }
+        }
+
+        var matchPrefix = reason == "keyboard" &&
+                          scimoz.selectionStart == rangeEnd &&
+                          ko.prefs.getBoolean("codeintel_highlight_variables_match_prefix", false);
+
+
+        // At this point, we have rangeStart / rangeEnd
+        if (reason != "manual") {
+            let minLength =
+                ko.prefs.getLong("codeintel_highlight_variables_min_auto_length", 3);
+            if (rangeEnd - rangeStart < minLength) {
+                log.debug("auto-highlight found too short search text");
+                return false;
+            }
+        }
+        var searchText = scimoz.getTextRange(rangeStart, rangeEnd);
+
+        let useScopes = ko.prefs.getBoolean("codeintel_highlight_variables_use_scope", true) &&
+                        ko.codeintel.isActive && ko.codeintel.is_citadel_lang(view.language);
+        // don't use scopes on manual triggers, so we can show things in comments too
+        useScopes &= (reason != "manual");
+        var findHitCallback = {
+            hasHit: false,
+            // batch up the indicator painting to avoid excessive repaints
+            ranges: [],
+            pending: 0,
+            done: false,
+            addHighlight: function(start, length)
+                this.ranges.push([start, length]),
+            doHighlight: function doHighlight() {
+                scimoz.indicatorCurrent = INDICATOR;
+                scimoz.indicatorValue = 1;
+                if (!this.hasHit) {
+                    scimoz.indicatorClearRange(0, scimoz.length);
+                    this.hasHit = true;
+                }
+                let ranges = this.ranges.splice(0);
+                for each (let [start, length] in ranges) {
+                    scimoz.indicatorFillRange(start, length);
+                }
+            },
+            onDone: function(result) {
+                this.done = true;
+                if (this.pending > 0) {
+                    return; // wait for async defns to come back
+                }
+                this.doHighlight();
+                if (Components.isSuccessCode(result)) {
+                    do_next_range();
+                }
+            }
+        };
+
+        var isIdentChar;
+        if (scimoz.wordChars) {
+            isIdentChar = function isIdentChar(c)
+                scimoz.wordChars.indexOf(c) != -1;
+        } else {
+            // No word chars known; attempt to emulate the scintilla default
+            // see scintilla/src/CharClassify.cxx - we assume:
+            // - anything over 0x80 is a word char
+            // - A-Z, a-z, 0-9, _ are word chars
+            isIdentChar = function isIdentChar(c)
+                /\w/.test(c) || c.charCodeAt(0) > 0x80;
+        }
+
+        /**
+         * Called when we have decided that a hit is good and we want to accept
+         * it.  Note that this filters for definition matches and
+         * looks-like-a-variable.
+         */
+        var acceptHit = (function acceptHit(start, end) {
+            if (!matchPrefix && useScopes && sourceVarDefns.length > 0) {
+                ++findHitCallback.pending;
+                getDefnsAsync(end, function(defns) {
+                    for each (let sourceDefn in sourceVarDefns) {
+                        for each (let destDefn in defns) {
+                            if (sourceDefn.equals(destDefn)) {
+                                // source definition matches found definition
+                                findHitCallback.addHighlight(start, end - start);
+                                return;
+                            }
+                        }
+                    }
+                }, function(count) {
+                    --findHitCallback.pending;
+                    if (findHitCallback.done && findHitCallback.pending < 1) {
+                        findHitCallback.onDone();
+                    }
+                });
+            } else {
+                if (!matchPrefix && useScopes) {
+                    let message = this._bundle.formatStringFromName(
+                        "Variable X is unknown, falling back to full text search",
+                        [searchText], 1);
+                    ko.statusBar.AddMessage(message, "variable-highlight",
+                                            3000, false, true);
+                }
+                if (start > 0) {
+                    let text = scimoz.getTextRange(scimoz.positionBefore(start),
+                                                   scimoz.positionAfter(start));
+                    if (text.split("").every(isIdentChar)) {
+                        return;
+                    }
+                }
+                if (!matchPrefix && end < scimoz.length) {
+                    let text = scimoz.getTextRange(scimoz.positionBefore(end),
+                                                   scimoz.positionAfter(end));
+                    if (text.split("").every(isIdentChar)) {
+                        return;
+                    }
+                }
+                findHitCallback.addHighlight(start, end - start);
+            }
+        }).bind(this);
+
+        var getResults;
+        if (matchPrefix) {
+            findHitCallback.onHit = (function(hit) {
+                let start = scimoz.positionAtChar(0, hit.start_pos);
+                let end = scimoz.positionAtChar(0, hit.end_pos);
+                if (start > 0) {
+                    let leadStyle = scimoz.getStyleAt(scimoz.positionBefore(start));
+                    if (varStyles.indexOf(leadStyle) != -1) {
+                        // does not _start_ a variable style run
+                        return;
+                    }
+                }
+                let styles = scimoz.getStyledText(start, end, {});
+                for (let i = 1; i < styles.length; i += 2) {
+                    if (varStyles.indexOf(styles[i]) == -1) {
+                        // text in range that isn't a variable style
+                        return;
+                    }
+                }
+                acceptHit(start, end);
+            }).bind(findHitCallback);
+        } else {
+            findHitCallback.onHit = (function(hit) {
+                let start = scimoz.positionAtChar(0, hit.start_pos);
+                let end = scimoz.positionAtChar(0, hit.end_pos);
+                if (reason != "manual") {
+                    if (start > 0) {
+                        let initialStyle = scimoz.getStyleAt(start);
+                        let leadStyle = scimoz.getStyleAt(scimoz.positionBefore(start));
+                        if (initialStyle == leadStyle) {
+                            // does not _start_ a variable style run
+                            // (we just ensure a change in style, not that the
+                            // lead style isn't in varStyles, to deal with Perl
+                            // where that's a valid variable)
+                            return;
+                        }
+                    }
+                    if (end > 0) {
+                        let endStyle = scimoz.getStyleAt(scimoz.positionBefore(end));
+                        let trailStyle = scimoz.getStyleAt(end);
+                        if (endStyle == trailStyle) {
+                            // does not _end_ a variable style run
+                            // (see above on style change vs varStyles)
+                            return;
+                        }
+                    }
+                    let styles = scimoz.getStyledText(start, end, {});
+                    for (let i = 1; i < styles.length; i += 2) {
+                        if (varStyles.indexOf(styles[i]) == -1) {
+                            // text in range that isn't a variable style
+                            return;
+                        }
+                    }
+                }
+                acceptHit(start, end);
+            }).bind(findHitCallback);
+        }
+        var do_next_range;
+        var getResults = (function getResults() {
+            // everything's set up now, ready to actually do the searches
+            let firstLine = scimoz.firstVisibleLine;
+            let lastLine = firstLine + scimoz.linesOnScreen + 1; // last may be partial
+            let startPos = Math.max(scimoz.positionFromLine(firstLine), 0);
+            let endPos = scimoz.positionFromLine(lastLine);
+            if (endPos < 0) endPos = scimoz.length; // happens if we're at end of file
+            let ranges = [];
+            if (sourceVarDefns.length > 0 && sourceVarDefns[0].scopestart > 0) {
+                // We have a variable definition, and we know its scope
+                let defn = sourceVarDefns[0];
+                let scopeStart = scimoz.positionFromLine(defn.scopestart - 1);
+                let scopeEnd = -1;
+                if (defn.scopeend != 0) {
+                    scopeEnd = scimoz.positionFromLine(defn.scopeend);
+                }
+                if (scopeEnd <= 0) {
+                    scopeEnd = scimoz.length; // if it's at the last line
+                }
+                ranges = [[Math.max(startPos, scopeStart), Math.min(endPos, scopeEnd)],
+                          [scopeStart, startPos],
+                          [endPos, scopeEnd]];
+                log.debug("Found defn for " + defn.name + " at " +
+                          defn.scopestart + "~" + defn.scopeend + ", ranges=" +
+                          JSON.stringify(ranges));
+            } else {
+                ranges = [[startPos, endPos], [0, startPos], [endPos, scimoz.length]];
+                log.debug("No defn found for " + searchText + "; ranges = " +
+                          JSON.stringify(ranges));
+            }
+            do_next_range = (function do_next_range_() {
+                if (ranges.length < 1) {
+                    this._last_highlight_async = null;
+                    return;
+                }
+                let [startPos, endPos] = ranges.shift();
+                if (startPos >= endPos) {
+                    log.debug("Skipping empty/invalid range " + startPos + "~" + endPos);
+                    do_next_range();
+                    return;
+                }
+                let text = scimoz.getTextRange(startPos, endPos);
+                var opts = Cc["@activestate.com/koFindOptions;1"].createInstance();
+                opts.patternType = Ci.koIFindOptions.FOT_SIMPLE;
+                opts.matchWord = false;
+                opts.searchBackward = false;
+                opts.caseSensitivity = Ci.koIFindOptions.FOC_SENSITIVE; // TODO: depend on language
+                opts.preferredContextType = Ci.koIFindContext.FCT_CURRENT_DOC;
+                opts.showReplaceAllResults = false;
+                opts.displayInFindResults2 = false;
+                opts.multiline = false;
+                this._last_highlight_async =
+                    Cc["@activestate.com/koFindService;1"]
+                      .getService(Ci.koIFindService)
+                      .findallasync(searchText, text, findHitCallback, startPos, opts);
+            }).bind(this);
+            do_next_range();
+            return true;
+        }).bind(this);
+
+        function getDefnsAsync(pos, onResult, onDone) {
+            let cplnHandler = {
+                count: 0,
+                setAutoCompleteInfo: function() {},
+                setCallTipInfo: function() {},
+                setDefinitionsInfo: function(count, defns, trg) {
+                    this.count += count;
+                    onResult(defns);
+                },
+                setStatusMessage: function() {},
+                updateCallTip: function() {},
+                triggerPrecedingCompletion: function() {},
+                done: function() onDone(this.count)
+            };
+            let buf = view.koDoc.ciBuf;
+            let trg = buf.defn_trg_from_pos(pos);
+            let ctlr = Cc["@activestate.com/koCodeIntelEvalController;1"]
+                .createInstance(Ci.koICodeIntelEvalController);
+            ctlr.silent = true;
+            ctlr.keep_existing = true;
+            ctlr.set_ui_handler(cplnHandler);
+            buf.async_eval_at_trg(trg, ctlr);
+        }
+
+        var sourceVarDefns = [];
+        if (useScopes && !matchPrefix) {
+            // If we want to use scopes, we must first figure out where the
+            // original variable that invoked things lived
+            getDefnsAsync(rangeEnd, function(defns) {
+                sourceVarDefns = defns.filter(function(def) def.name == searchText);
+            }, getResults);
+        } else {
+            getResults();
+        }
+        return true;
+    }).bind(this);
+
+    this._triggerHighlightVariableFromMouse = (function(event) {
+        if ("_triggerHighlightVariableFromKeyboard_timeout" in this) {
+            clearTimeout(this._triggerHighlightVariableFromKeyboard_timeout);
+        }
+        var view = ko.views.manager.currentView;
+        if (!(view instanceof Ci.koIScintillaView)) {
+            return;
+        }
+        this.highlightVariable(view, "mouse");
+    }).bind(this);
+
+    this._triggerHighlightVariableFromKeyboard = (function(event) {
+        if ("_triggerHighlightVariableFromKeyboard_timeout" in this) {
+            clearTimeout(this._triggerHighlightVariableFromKeyboard_timeout);
+        }
+        if (!("data") in event || !(event.data.view instanceof Ci.koIScintillaView)) {
+            return; // not a scintilla view, so no text modified!?
+        }
+        let view = event.data.view;
+        if (view !== ko.views.manager.currentView) {
+            return; // wrong view
+        }
+        if (!(event.data.modificationType & view.MOD_TEXT_MODIFIED)) {
+            return; // we only care about text insertion/removal events
+        }
+        if (event.data.position != view.scimoz.currentPos) {
+            return; // not a keyboard action - text somewhere else changed
+        }
+        // this needs to wait a bit, to ensure that we won't be typing more
+        this._triggerHighlightVariableFromKeyboard_timeout =
+            setTimeout((function() {
+                    if (!this.highlightVariable(view, "keyboard")) {
+                        let scimoz = view.scimoz;
+                        scimoz.indicatorCurrent =
+                            Ci.koILintResult.DECORATOR_TAG_MATCH_HIGHLIGHT;
+                        scimoz.indicatorClearRange(0, scimoz.length);
+                    }
+                }).bind(this),
+                this._triggerHighlightVariableFromKeyboard_delay);
+    }).bind(this);
     
+    this.observe = function CodeIntel_observe(subject, topic, data)
+    {
+        switch (topic) {
+            case "codeintel_highlight_variables_auto_mouse": {
+                // always remove the listener; and put it back if we want it on.
+                // this way we make sure to never accidentally hook it up twice.
+                let view = ko.views.manager.topView;
+                view.removeEventListener("click",
+                                         this._triggerHighlightVariableFromMouse,
+                                         false);
+                if (ko.prefs.getBoolean(topic, false)) {
+                    view.addEventListener("click",
+                                          this._triggerHighlightVariableFromMouse,
+                                          false);
+                }
+                break;
+            }
+            case "codeintel_highlight_variables_auto_keyboard": {
+                // always remove the listener; and put it back if we want it on.
+                // this way we make sure to never accidentally hook it up twice.
+                let view = ko.views.manager.topView;
+                window.removeEventListener("editor_text_modified",
+                                           this._triggerHighlightVariableFromKeyboard,
+                                           false);
+                if (ko.prefs.getBoolean(topic, false)) {
+                    window.addEventListener("editor_text_modified",
+                                            this._triggerHighlightVariableFromKeyboard,
+                                            false);
+                }
+                break;
+            }
+            case "codeintel_highlight_variables_auto_delay":
+                this._triggerHighlightVariableFromKeyboard_delay =
+                    Math.max(ko.prefs.getLong(topic, 250), 0);
+        }
+    };
+
+    this.QueryInterface = XPCOMUtils.generateQI([Ci.nsIObserver]);
+
+    XPCOMUtils.defineLazyGetter(this, "_bundle", function()
+        Cc["@mozilla.org/intl/stringbundle;1"]
+          .getService(Ci.nsIStringBundleService)
+          .createBundle("chrome://komodo/locale/codeintel.properties"));
+
 }).apply(ko.codeintel);
 
 window.addEventListener("load", ko.codeintel.initialize, false);

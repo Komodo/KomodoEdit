@@ -91,7 +91,8 @@ interface koILintResult : nsISupports
     const long DECORATOR_TABSTOP_BITMASK = 0x07c80000;
     const long DECORATOR_FIND_HIGHLIGHT = 27;
     const long INDICATOR_HYPERLINK = 28;
-    const long DECORATOR_TAG_MATCH_HIGHLIGHT = 29;
+    const long DECORATOR_TAG_MATCH_HIGHLIGHT = 29; // currently also used for
+            // automatic variable highlighting (kd 0277, bug 80095)
   
 };
 

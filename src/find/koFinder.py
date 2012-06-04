@@ -132,7 +132,7 @@ class KomodoRuntimeEnv(object):
 
 #---- Find/Replace in Files backend
 
-class _FindReplaceThread(threading.Thread):
+class _FindReplaceInFilesThread(threading.Thread):
     """A thread for doing find/replace operations in the background and
     reporting results to a "results manager" (a JS-implemented handlers
     for a "Find Results" tab in the Komodo UI.
@@ -454,6 +454,58 @@ class _FindReplaceThread(threading.Thread):
         self._last_report_num_paths_with_hits = self.num_paths_with_hits
         self._last_report_num_paths_searched = self.num_paths_searched
 
+class _CancelableFindThread(threading.Thread):
+    """ A thread for doing find operations in a single text string in the
+    background; results are reported to a callback.  Can be cancelled.
+    Callbacks will always be executed on the calling thread.
+    """
+
+    _com_interfaces_ = components.interfaces.nsICancelable
+
+    def __init__(self, id, text, regex, callback):
+        """ Create a find thread.
+        @param text {string} The text to search in
+        @param regex {regex} The regular expression to search for
+        @param callback {callable} The callback to invoke (on the original
+            thread) when a result is found; it has a single argument, the match
+            object.  The callback will also be invoked when the find completes
+            successfully (but not when it has been aborted), with a single
+            argument of None.
+        """
+        threading.Thread.__init__(self, name="Find Thread %s" % id)
+        self.text = text
+        self.regex = regex
+        self.callback = callback
+        self.target = components.classes["@mozilla.org/thread-manager;1"] \
+                            .getService().currentThread
+
+        self._stopped = False
+        self.result = nsError.NS_OK
+
+    def cancel(self, reason):
+        self.result = reason
+        self._stopped = True
+
+    @property
+    def cancelled(self):
+        """ Read-only property to check if cancel() has been called """
+        return self._stopped
+
+    def run(self):
+        DISPATCH_SYNC = components.interfaces.nsIEventTarget.DISPATCH_SYNC
+        try:
+            if self._stopped:
+                return
+            for match in findlib2.find_all_matches(self.regex, self.text):
+                if self._stopped:
+                    return
+                self.target.dispatch(lambda: self.callback(match), DISPATCH_SYNC)
+                if self._stopped:
+                    return
+            self.target.dispatch(lambda: self.callback(None), DISPATCH_SYNC)
+        finally:
+            self.callback = None
+            self.target = None
 
 class _ConfirmReplacerInFiles(threading.Thread, TreeView):
     _com_interfaces_ = [components.interfaces.koIConfirmReplacerInFiles]
@@ -953,14 +1005,11 @@ class _ReplaceUndoer(threading.Thread, TreeView):
 
 
 def _getKoReplaceHit(hit):
-    koHit = components.classes["@activestate.com/koFindReplaceHit;1"].\
-            createInstance(components.interfaces.koIFinderReplaceHit)
-    koHit.initialize(hit.start_pos,
-                     hit.end_pos,
-                     hit.start_line,
-                     hit.before,
-                     hit.after)
-    return koHit
+    return KoFindReplaceHit(hit.start_pos,
+                            hit.end_pos,
+                            hit.start_line,
+                            hit.before,
+                            hit.after)
 
 
 class LoadedFileTextFactory(object):
@@ -1089,6 +1138,9 @@ class KoFindReplaceHit:
     _com_interfaces_ = [components.interfaces.koIFinderReplaceHit]
     _reg_clsid_ = "{433cf3db-69b8-4627-8f6b-8f65d057fdbb}"
     _reg_contractid_ = "@activestate.com/koFindReplaceHit;1"
+
+    def __init__(self, *args, **kwargs):
+        self.initialize(*args, **kwargs)
 
     def initialize(self, start_pos, end_pos, start_line, before, after):
         self.start_pos = start_pos
@@ -1513,12 +1565,10 @@ class KoFindService(object):
         koIFindResultsView.
 
             "url" is the viewId.
-            "resultsView" is null or a koIFindResultView instance on which
-                the replace results should be logged via the Add*() methods.
-            "contextOffset" is text's offset into the scimoz buffer. This
-                is only used if resultsView is specified.
-            "scimoz" is the ISciMoz interface for current view. This is only
-                used if resultsView is specified is True.
+            "resultsView" is a koIFindResultView instance on which
+                the replace results should be logged via AddFindResult()
+            "contextOffset" is text's offset into the scimoz buffer (in chars).
+            "scimoz" is the ISciMoz interface for current view.
         
         No return value.
         """
@@ -1529,7 +1579,10 @@ class KoFindService(object):
                 self.options.caseSensitivity,
                 self.options.matchWord)
 
-            resultsView = UnwrapObject(resultsView)
+            try:
+                resultsView = UnwrapObject(resultsView)
+            except:
+                pass # will be slower, but still work
             self._lastHighlightMatches = []
             self._lastHighlightRegexTuple = None
             self._lastHighlightMd5Hexdigest = None
@@ -1568,6 +1621,46 @@ class KoFindService(object):
         except (re.error, ValueError, findlib2.FindError), ex:
             gLastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
+
+    def findallasync(self, pattern, text, callback, offset=0, options=None):
+        cancelable = None
+        try:
+            if not options:
+                options = self.options
+            regex, dummy, desc = _regex_info_from_ko_find_data(
+                pattern, None,
+                options.patternType,
+                options.caseSensitivity,
+                options.matchWord)
+
+        except (re.error, ValueError, findlib2.FindError), ex:
+            gLastErrorSvc.setLastError(0, str(ex))
+            raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
+
+        offset = [offset] # make this a mutable object so the callback can modify it
+        def matchcallback(match):
+            if cancelable.cancelled:
+                return
+            if match is None:
+                log.debug("no more matches")
+                try:
+                    callback.onDone(cancelable.result)
+                except COMException:
+                    pass
+                cancelable.cancel(nsError.NS_ERROR_FAILURE)
+                return
+            hit = KoFindReplaceHit(offset[0] + match.start(),
+                                   offset[0] + match.end(),
+                                   0, None, None)
+            try:
+                offset[0] += callback.onHit(hit)
+            except COMException, ex:
+                log.debug("failed to notify onHit: %r", ex)
+                cancelable.cancel(ex.errno)
+        cancelable = _CancelableFindThread(desc, text, regex, matchcallback)
+        cancelable.start()
+        log.debug("findallasync: started thread %r", cancelable)
+        return cancelable
 
     def findalllines(self, url, text, pattern, contextOffset, scimoz):
         """Return all lines on which "pattern" is found.
@@ -1826,8 +1919,8 @@ class KoFindService(object):
                                       "Context has invalid type %r" % (context.type,))
             paths = _paths_from_ko_info(self.options, cwd=context.cwd)
 
-        t = _FindReplaceThread(id, regex, None, desc, paths, resultsMgr,
-                               self.env)
+        t = _FindReplaceInFilesThread(id, regex, None, desc, paths, resultsMgr,
+                                      self.env)
         self._threadMap[id] = t
         resultsMgr.searchStarted()
         self._threadMap[id].start()
@@ -1868,9 +1961,9 @@ class KoFindService(object):
             assert context.type == koIFindContext.FCT_IN_FILES
             paths = _paths_from_ko_info(self.options, cwd=context.cwd)
 
-        t = _FindReplaceThread(id, regex, munged_repl, desc, paths,
-                               resultsMgr, self.env,
-                               loaded_path_accessor=_get_loaded_path_accessor())
+        t = _FindReplaceInFilesThread(id, regex, munged_repl, desc, paths,
+                                      resultsMgr, self.env,
+                                      loaded_path_accessor=_get_loaded_path_accessor())
         self._threadMap[id] = t
         resultsMgr.searchStarted()
         self._threadMap[id].start()

@@ -480,21 +480,31 @@ class Manager(threading.Thread, Queue):
         # session.
         if is_reeval and self._curr_eval_sess is not eval_sess:
             return
-        
-        # We only allow *one* eval session at a time.
-        # - Drop a possible accumulated eval session.
-        if len(self.queue):
-            self.queue.clear()
-        # - Abort the current eval session.
-        if not is_reeval and self._curr_eval_sess is not None:
-            self._curr_eval_sess.ctlr.abort()
+
+        replace = True
+        if hasattr(eval_sess, "ctlr") and eval_sess.ctlr and eval_sess.ctlr.keep_existing:
+            # Allow multiple eval sessions; currently used for variable
+            # highlighting (bug 80095), may pick up additional uses.  Note that
+            # these sessions can still get wiped out by a single replace=False
+            # caller.
+            replace = False
+
+        if replace:
+            # We only allow *one* eval session at a time.
+            # - Drop a possible accumulated eval session.
+            if len(self.queue):
+                self.queue.clear()
+            ## - Abort the current eval session.
+            if not is_reeval and self._curr_eval_sess is not None:
+                self._curr_eval_sess.ctlr.abort()
 
         # Lazily start the eval thread.
         if not self.isAlive():
             self.start()
 
         Queue._put(self, (eval_sess, is_reeval))
-        assert len(self.queue) == 1
+        if replace:
+            assert len(self.queue) == 1
 
     def _get(self):
         eval_sess, is_reeval = Queue._get(self)
