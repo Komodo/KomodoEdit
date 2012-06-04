@@ -1748,7 +1748,7 @@ class _BaseTestCase(CodeIntelTestCase):
         self.assertCompletionsInclude(
             markup_text(content, pos=positions[6]), pure_hash_literals)
     
-    @tag("knownfailure", "bug94237")    
+    @tag("bug94237")    
     def test_nested_literals_3(self):
         # lower-case names work
         content, positions = unmark_text(dedent("""
@@ -1766,6 +1766,26 @@ class _BaseTestCase(CodeIntelTestCase):
         self.assertCompletionsInclude(
             markup_text(content, pos=positions[1]),
             [("function", "size"),])
+        
+    @tag("bug94237")
+    def test_builtin_class_cplns(self):
+        content, positions = unmark_text(dedent("""
+            puts Array.<1>new
+            """))
+        self.assertCompletionsInclude(
+            markup_text(content, pos=positions[1]),
+            [("function", "new"),])
+        
+    @tag("bug94237")
+    def test_builtin_class_calltip(self):
+        content, positions = unmark_text(dedent("""
+            puts Array(<1>1337)
+            """))
+        ptn = (r'Array\(\w+\).*?Returns `?arg\'? as an Array.\s*'
+             + r'First tries to call `?arg\'?\.to_ary,\s*'
+             + r'then `?arg\'?.to_a\.')
+        self.assertCalltipMatches(markup_text(content, pos=positions[1]),
+            ptn, flags=re.DOTALL)
         
     def test_foo2(self):
         content, positions = unmark_text(dedent("""
