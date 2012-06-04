@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <codeintel version="2.0" name="Ruby 1.9.2" description="Cix data for Ruby 1.9.2">
-  <file lang="Ruby" mtime="1338578889" path="ruby-1.9.2.cix">
+  <file lang="Ruby" mtime="1338831382" path="ruby-1.9.2.cix">
     <scope ilk="blob" lang="Ruby" name="*">
-      <scope name="Object" ilk="class" classrefs="BasicObject" >
+      <scope name="Object" ilk="class" >
         <scope name="__id__" ilk="function" signature="__id__()" doc="Returns an integer identifier for obj. The same number will be returned on all calls to id for a given object, and no two active objects will share an id. Object#object_id is a different concept from the :name notation, which returns the symbol id of name. Replaces the deprecated Object#id." />
         <scope name="class" ilk="function" signature="class()" doc="Returns the class of obj. This method must always be called with an explicit receiver, as class is also a reserved word in Ruby. &#xA;    1.class      =&gt; Fixnum&#xA;   self.class   =&gt; Object" />
         <scope name="clone" ilk="function" signature="clone()" doc="Produces a shallow copy of obj---the instance variables of obj are copied, but not the objects they reference. Copies the frozen and tainted state of obj. See also the discussion under Object#dup. &#xA;    class Klass&#xA;      attr_accessor :str&#xA;   end&#xA;   s1 = Klass.new      =&gt; #&lt;Klass:0x401b3a38&gt;&#xA;   s1.str = &quot;Hello&quot;    =&gt; &quot;Hello&quot;&#xA;   s2 = s1.clone       =&gt; #&lt;Klass:0x401b3998 @str=&quot;Hello&quot;&gt;&#xA;   s2.str[1,4] = &quot;i&quot;   =&gt; &quot;i&quot;&#xA;   s1.inspect          =&gt; &quot;#&lt;Klass:0x401b3a38 @str=\&quot;Hi\&quot;&gt;&quot;&#xA;   s2.inspect          =&gt; &quot;#&lt;Klass:0x401b3998 @str=\&quot;Hi\&quot;&gt;&quot;&#xA; This method may have class-specific behavior.  If so, that behavior will be documented under the #+initialize_copy+ method of the class." />
@@ -3217,7 +3217,7 @@
           <scope name="type_id=" ilk="function" />
           <scope name="value" ilk="function" />
         </scope>
-        <scope name="Object" ilk="class" classrefs="Object" >
+        <scope name="Object" ilk="class" >
           <scope name="class=" ilk="function" />
           <scope name="ivars" ilk="function" />
           <scope name="ivars=" ilk="function" />
@@ -3544,7 +3544,7 @@
           <scope name="type_id=" ilk="function" />
           <scope name="value" ilk="function" />
         </scope>
-        <scope name="Object" ilk="class" classrefs="Object" >
+        <scope name="Object" ilk="class" >
           <scope name="class=" ilk="function" />
           <scope name="ivars" ilk="function" />
           <scope name="ivars=" ilk="function" />
