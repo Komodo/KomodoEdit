@@ -172,7 +172,8 @@ class KoObserverService:
         # thread safety here?
         observers = self._getLiveObservers(aTopic)
         if observers is None:
-            raise ServerException(nsError.NS_ERROR_FAILURE,"No Observers for Topic %r"%aTopic)
+            # No observers are listening to this topic - but that's okay.
+            return
         try:
             idx = observers.index(anObserver)
             wr_observers = self._topics.get(aTopic)
@@ -181,7 +182,8 @@ class KoObserverService:
                 # Can remove the topic as well.
                 self._topics.pop(aTopic)
         except ValueError:
-            raise ServerException(nsError.NS_ERROR_FAILURE,"Observer not in topic list %s"%aTopic)
+            # Observer is not in the topic list - but that's okay.
+            pass
 
     # void removeObserver( in nsIObserver anObserver, in string aTopic );
     def removeObserver(self, anObserver, aTopic):
