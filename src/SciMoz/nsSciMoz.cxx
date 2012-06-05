@@ -220,7 +220,7 @@ void SciMoz::Create(WinID hWnd) {
 	SendEditor(SCI_SETMOUSEDOWNCAPTURES, 0);
 }
 
-bool SciMoz::Init(const NPVariant *args, uint32_t argCount, NPVariant */*result*/) {
+bool SciMoz::Init(const NPVariant *args, uint32_t argCount, NPVariant * /*result*/) {
 	if (argCount != 1) {
 		SCIMOZ_DEBUG_PRINTF("%s: expected 1 argument, got %i\n",
 				    __FUNCTION__,
@@ -356,7 +356,7 @@ NS_IMETHODIMP SciMoz::DoBraceMatch()
 	BraceMatch();
 	return NS_OK;
 }
-bool SciMoz::DoBraceMatch(const NPVariant */*args*/, uint32_t argCount, NPVariant */*result*/) {
+bool SciMoz::DoBraceMatch(const NPVariant * /*args*/, uint32_t argCount, NPVariant * /*result*/) {
         SCIMOZ_CHECK_THREAD("DoBraceMatch", false)
         SCIMOZ_CHECK_ALIVE("DoBraceMatch", false)
 	if (argCount != 0) {
@@ -637,7 +637,7 @@ NS_IMETHODIMP SciMoz::SetIsFocused(PRBool /*focus*/) {
 }
 
 /* attribute boolean isFocused; */
-NS_IMETHODIMP SciMoz::GetIsFocused(PRBool  */*_retval*/) {
+NS_IMETHODIMP SciMoz::GetIsFocused(PRBool  * /*_retval*/) {
 	return NS_ERROR_NOT_IMPLEMENTED; /* in XPFacer.p.py as manual getter */
 }
 
@@ -649,7 +649,7 @@ NS_IMETHODIMP SciMoz::MarkClosed()
 	return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-bool SciMoz::MarkClosed(const NPVariant */*args*/, uint32_t argCount, NPVariant */*result*/) {
+bool SciMoz::MarkClosed(const NPVariant * /*args*/, uint32_t argCount, NPVariant * /*result*/) {
 	SCIMOZ_DEBUG_PRINTF("SciMoz::MarkClosed\n");
 	if (argCount != 0) {
 		SCIMOZ_DEBUG_PRINTF("%s: expected 0 argument, got %i\n",
@@ -673,7 +673,7 @@ NS_IMETHODIMP SciMoz::HookEvents(ISciMozEvents *eventListener) {
 	return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-bool SciMoz::HookEvents(const NPVariant *args, uint32_t argCount, NPVariant */*result*/) {
+bool SciMoz::HookEvents(const NPVariant *args, uint32_t argCount, NPVariant * /*result*/) {
 	SCIMOZ_DEBUG_PRINTF("SciMoz::HookEvents\n");
 	if (argCount != 1) {
 		SCIMOZ_DEBUG_PRINTF("%s: expected 1 argument, got %i\n",
@@ -736,7 +736,7 @@ NS_IMETHODIMP SciMoz::UnhookEvents(ISciMozEvents *eventListener) {
 	return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-bool SciMoz::UnhookEvents(const NPVariant *args, uint32_t argCount, NPVariant */*result*/) {
+bool SciMoz::UnhookEvents(const NPVariant *args, uint32_t argCount, NPVariant * /*result*/) {
 	SCIMOZ_DEBUG_PRINTF("SciMoz::HookEvents\n");
 	if (argCount != 1) {
 		SCIMOZ_DEBUG_PRINTF("%s: expected 1 argument, got %i\n",
@@ -997,7 +997,7 @@ NS_IMETHODIMP SciMoz::AssignCmdKey(PRInt32 key, PRInt32 modifiers, PRInt32 msg) 
 	return NS_OK;
 }
 
-bool SciMoz::AssignCmdKey(const NPVariant *args, uint32_t argCount, NPVariant */*result*/) {
+bool SciMoz::AssignCmdKey(const NPVariant *args, uint32_t argCount, NPVariant * /*result*/) {
 	if (argCount != 3) return false;
 	if (!NPVARIANT_IS_INT32(args[0])) return false;
 	if (!NPVARIANT_IS_INT32(args[1])) return false;
@@ -1020,7 +1020,7 @@ NS_IMETHODIMP SciMoz::ClearCmdKey(PRInt32 key, PRInt32 modifiers) {
 	return NS_OK;
 }
 
-bool SciMoz::ClearCmdKey(const NPVariant *args, uint32_t argCount, NPVariant */*result*/) {
+bool SciMoz::ClearCmdKey(const NPVariant *args, uint32_t argCount, NPVariant * /*result*/) {
 	if (argCount != 2) return false;
 	if (!NPVARIANT_IS_INT32(args[0])) return false;
 	if (!NPVARIANT_IS_INT32(args[1])) return false;
@@ -1262,7 +1262,7 @@ NS_IMETHODIMP SciMoz::ButtonUp(PRInt32 x, PRInt32 y, PRUint16 button, PRBool bSh
 
 
 /* void setCommandUpdateTarget( in nsISupports window); */
-NS_IMETHODIMP SciMoz::SetCommandUpdateTarget(nsISupports */*window*/) {
+NS_IMETHODIMP SciMoz::SetCommandUpdateTarget(nsISupports * /*window*/) {
 	return NS_ERROR_NOT_IMPLEMENTED;
 }
 
@@ -1350,7 +1350,7 @@ NS_IMETHODIMP SciMoz::SendUpdateCommands(const char *text) {
 	return success ? NS_OK : NS_ERROR_FAILURE;
 }
 
-bool SciMoz::SendUpdateCommands(const NPVariant *args, uint32_t argCount, NPVariant */*result*/) {
+bool SciMoz::SendUpdateCommands(const NPVariant *args, uint32_t argCount, NPVariant * /*result*/) {
 	if (argCount != 1) {
 		SCIMOZ_DEBUG_PRINTF("%s: expected 1 argument, got %i\n",
 				    __FUNCTION__,
@@ -1361,7 +1361,7 @@ bool SciMoz::SendUpdateCommands(const NPVariant *args, uint32_t argCount, NPVari
 	return NS_SUCCEEDED(rv);
 }
 
-NS_IMETHODIMP SciMoz::HandleTextEvent(nsIDOMEvent* /*aTextEvent*/, nsIBoxObject */*aBoxObject*/, nsAString & /*text*/)
+NS_IMETHODIMP SciMoz::HandleTextEvent(nsIDOMEvent* /*aTextEvent*/, nsIBoxObject * /*aBoxObject*/, nsAString & /*text*/)
 {
 	return NS_ERROR_NOT_IMPLEMENTED;
 }
@@ -1595,7 +1595,7 @@ bool SciMoz::SearchInTarget(const NPVariant *args, uint32_t argCount, NPVariant 
 }
 
 /* void addChar(in PRUint32 ch); */
-bool SciMoz::AddChar(const NPVariant *args, uint32_t argCount, NPVariant */*result*/) {
+bool SciMoz::AddChar(const NPVariant *args, uint32_t argCount, NPVariant * /*result*/) {
 	SCIMOZ_DEBUG_PRINTF("SciMoz::AddChar\n");
 	if (argCount != 1) {
 		SCIMOZ_DEBUG_PRINTF("%s: expected 1 argument, got %i\n",
@@ -1674,7 +1674,7 @@ bool SciMoz::ButtonMove(const NPVariant *args, uint32_t argCount, NPVariant *res
         NPN_ReleaseVariantValue(result);
 	return NS_SUCCEEDED(rv);
 }
-bool SciMoz::EndDrop(const NPVariant */*args*/, uint32_t argCount, NPVariant *result) {
+bool SciMoz::EndDrop(const NPVariant * /*args*/, uint32_t argCount, NPVariant *result) {
         if (argCount != 0) return false;
 	nsresult rv = EndDrop();
         /* return value of type void */
