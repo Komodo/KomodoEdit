@@ -205,6 +205,8 @@ ko.codeintel = {};
                 // hook up things if necessary
                 this.observe(null, pref, null);
             }
+            this._controller = new CodeIntelController();
+            window.controllers.appendController(this._controller);
         } catch(ex) {
             log.exception(ex);
         }
@@ -225,6 +227,7 @@ ko.codeintel = {};
             if ("_triggerHighlightVariableFromKeyboard_timeout" in this) {
                 clearTimeout(this._triggerHighlightVariableFromKeyboard_timeout);
             }
+            window.controllers.removeController(this._controller);
             try {
                 ko.prefs.prefObserverService
                   .removeObserverForTopics(this,
@@ -1457,6 +1460,23 @@ ko.codeintel = {};
         Cc["@mozilla.org/intl/stringbundle;1"]
           .getService(Ci.nsIStringBundleService)
           .createBundle("chrome://komodo/locale/codeintel.properties"));
+
+    /**
+     * nsIController implementation for codeintel commands
+     */
+    function CodeIntelController() {}
+    // The following two lines ensure proper inheritance (see Flanagan, p. 144).
+    CodeIntelController.prototype = new xtk.Controller();
+    CodeIntelController.prototype.constructor = CodeIntelController;
+
+    CodeIntelController.prototype.is_cmd_findHighlightVariableManual_enabled =
+        function() {
+            let view = ko.views.manager.currentView;
+            return view && view.getAttribute("type") == "editor";
+        };
+
+    CodeIntelController.prototype.do_cmd_findHighlightVariableManual =
+        function() ko.codeintel.highlightVariable(null, 'manual');
 
 }).apply(ko.codeintel);
 

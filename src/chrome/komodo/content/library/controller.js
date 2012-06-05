@@ -100,7 +100,6 @@ var handlers = {
     'cmd_quit': 'ko.main.quitApplication()',
     'cmd_findInFiles': 'ko.launch.findInFiles()',
     'cmd_replaceInFiles': 'ko.launch.replaceInFiles()',
-    'cmd_findHighlightVariableManual': function() ko.codeintel.highlightVariable(null, 'manual'),
     'cmd_nextLintResult': 'ko.lint.jumpToNextLintResult()',
     'cmd_lintClearResults': 'ko.lint.clearResults()',
     'cmd_lintNow': 'ko.lint.doRequest()'
