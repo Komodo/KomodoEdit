@@ -464,9 +464,9 @@ class CplnTestCase(CodeIntelTestCase):
         manifest = {
             "test.js": """
                 var http = require('http');
-                http.createServer(function(q, p) {
-                    q.<1>;
-                    p.<2>;
+                http.createServer(function(req, res) {
+                    req.<1>;
+                    res.<2>;
                 })
                 """,
         }
@@ -474,8 +474,12 @@ class CplnTestCase(CodeIntelTestCase):
         self.assertCompletionsInclude2(buf, positions[1],
             [("function", "pause"),
             ])
+        self.assertCompletionsDoNotInclude2(buf, positions[1],
+            [("function", "writeHead"),
+            ])
         self.assertCompletionsInclude2(buf, positions[2],
             [("function", "writeContinue"),
+             ("function", "writeHead"),
             ])
 
 class StdLibTestCase(CodeIntelTestCase):

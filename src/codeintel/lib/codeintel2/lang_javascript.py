@@ -59,6 +59,7 @@ from os.path import splitext, basename, exists, dirname, normpath
 import sys
 import types
 import logging
+import operator
 from cStringIO import StringIO
 import weakref
 from glob import glob
@@ -1063,7 +1064,7 @@ def sortByLine(seq):
 
 class JSObject:
     def __init__(self, name, parent, lineno, depth, type=None,
-                 doc=None, isLocal=False, isHidden=False, path=None):
+                 doc=None, isLocal=False, isHidden=False, path=None, pos=None):
         self.name = name
         self.parent = parent
         self.cixname = self.__class__.__name__[2:].lower()
@@ -1072,6 +1073,7 @@ class JSObject:
         self.depth = depth
         self.type = type
         self.path = path
+        self.pos = pos # Used for argument positions - 0 indexed.
         self._class = None  # Used when part of a class
         self.classes = {} # declared sub-classes
         self.members = {} # all private member variables used in class
@@ -1352,8 +1354,13 @@ class JSObject:
                 if baseclass not in self.classrefs:
                     addClassRef(cixobject, baseclass)
 
+        # Note that arguments must be kept in the order they were defined.
+        variables = set(self.variables.values())
+        arguments = [x for x in variables if isinstance(x, JSArgument)]
+        arguments.sort(key=operator.attrgetter("pos"))
+        variables = list(variables.difference(arguments))
         allValues = self.functions.values() + self.members.values() + \
-                    self.classes.values() + self.variables.values() + \
+                    self.classes.values() + arguments + variables + \
                     self.anonymous_functions
 
         # If this is a variable with child elements, yet has a citdl type of
@@ -1378,11 +1385,11 @@ class JSObject:
 
 class JSVariable(JSObject):
     def __init__(self, name, parent, line, depth, vartype='', doc=None,
-                 isLocal=False, path=None):
+                 isLocal=False, path=None, pos=None):
         if isinstance(vartype, list):
             vartype = ".".join(vartype)
         JSObject.__init__(self, name, parent, line, depth, type=vartype,
-                          doc=doc, isLocal=isLocal, path=path)
+                          doc=doc, isLocal=isLocal, path=path, pos=pos)
 
 class JSAlias(JSVariable):
     """An alias, which is a simple assignment from a variable (or possibly a
@@ -1457,9 +1464,9 @@ class JSFunction(JSObject):
         self._parent_assigned_vars = []
         self._callers = set()
         self.args = list(args or [])
-        for arg in self.args:
+        for pos, arg in enumerate(self.args):
             self.addVariable(arg, JSArgument(name=arg, parent=self, line=lineno,
-                                             depth=depth))
+                                             depth=depth, pos=pos))
 
     ##
     # @rtype {string or JSObject} add this possible return type
