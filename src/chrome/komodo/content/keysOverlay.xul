@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<!DOCTYPE overlay PUBLIC "-//MOZILLA//DTD XUL V1.0//EN" "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+<!-- Copyright (c) 2003-2012 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<!--
+  - Overlay to handle default keys in generic dialogs
+  -->
+<overlay id="overlay"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+    <script type="text/javascript;version=1.8"><![CDATA[
+(function(){
+    const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
+    const {Services} = Cu.import("resource://gre/modules/Services.jsm", {});
+    function listener(event) {
+        if (event.defaultPrevented) {
+            // somebody already dealt with this event, don't touch it
+            return;
+        }
+        let isCancel = false;
+        // we really just need to catch "no modifiers" and "only control"
+        let modifiers = (event.ctrlKey ? KeyEvent.DOM_VK_CONTROL : 0) +
+                        (event.altKey ? KeyEvent.DOM_VK_ALT : 0) +
+                        (event.shiftKey ? KeyEvent.DOM_VK_SHIFT : 0) +
+                        (event.metaKey ? KeyEvent.DOM_VK_META : 0);
+        if (event.keyCode == KeyEvent.DOM_VK_ESCAPE && modifiers == 0) {
+            isCancel = true; // ESC (no modifiers)
+        } else if (String.fromCharCode(event.charCode).toUpperCase() == "W" &&
+                   modifiers == Services.prefs.getIntPref("ui.key.accelKey"))
+        {
+            isCancel = true; // accel + W
+        } else {
+            let win = Services.wm.getMostRecentWindow("Komodo");
+            if (win) {
+                let keyMgr = win.ko.keybindings.manager;
+                let keylabel = keyMgr.event2keylabel(event, true, true);
+                let command = keyMgr.key2command[keylabel];
+                if (command == "cmd_cancel") {
+                    isCancel = true;
+                }
+            }
+        }
+        if (isCancel) {
+            if ("cancelDialog" in document.documentElement) {
+                // this is a dialog; try to close it nicely
+                document.documentElement.cancelDialog();
+            } else {
+                // not sure what window this is, fallback to just close
+                window.close();
+            }
+        }
+    }
+    Cc["@mozilla.org/eventlistenerservice;1"]
+      .getService(Ci.nsIEventListenerService)
+      .addSystemEventListener(window, "keypress", listener, false);
+})();
+    ]]></script>
+</overlay>
