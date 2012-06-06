@@ -2048,7 +2048,6 @@
                          id="toolbox2viewbox"
                          label="&toolbox2.label;"
                          locktip="&thisToolboxIsReadOnly.locktip;"
-                         accesskey="&toolboxTab.accesskey;"
                          src="chrome://komodo/content/toolbox/toolboxPanel.xul"/>
             </ko-pane>
         </hbox>
