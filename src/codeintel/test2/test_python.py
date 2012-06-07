@@ -901,7 +901,7 @@ class CplnTestCase(CodeintelPythonTestCase):
         # This tests a case you can't get from pythoncile'd files:
         # - a class with a docstring
         # - has a ctor with*out* a docstring or a signature
-        if self.python_version >= 2.7:
+        if self.python_version() >= 2.6:
             self.assertCalltipIs("enumerate(<|>",
                 "enumerate(iterable[, start]) -> iterator for index, value of iterable\n"
                 "Return an enumerate object.  iterable must be another object "
@@ -1326,10 +1326,11 @@ class CplnTestCase(CodeintelPythonTestCase):
             [('function', 'strip'),
              ('function', 'lower'),
              ('function', 'capitalize')])
-        if self.python_version >= 2.7:
-            self.assertCalltipIs(markup_text(content, pos=positions[2]),
-                "S.join(iterable) -> string\nReturn a string which is the "
-                "concatenation of the strings in the iterable.")
+        if self.python_version() >= 2.7:
+            self.assertCalltipMatches(markup_text(content, pos=positions[2]),
+                r"S\.join\(iterable\) -> string\nReturn a string which is the "
+                "concatenation of the strings in.*?the iterable.",
+                                      flags=re.DOTALL)
         else:
             self.assertCalltipIs(markup_text(content, pos=positions[2]),
                 "S.join(sequence) -> string\nReturn a string which is the "
