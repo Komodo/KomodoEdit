@@ -698,7 +698,7 @@ class CplnTestCase(CodeIntelTestCase):
         self.assertCompletionsAre(
             markup_text(content, pos=positions[2]),
             [('$variable', 'foobar_scalar')])
-        self.assertCompletionsAre(
+        self.assertCompletionsInclude(
             markup_text(content, pos=positions[3]),
             [('function', 'boundary'),
              ('function', 'foobar_sub'),
@@ -737,6 +737,36 @@ class CplnTestCase(CodeIntelTestCase):
                                  "foo($a, $b)")
         self.assertCalltipIs(markup_text(content, pos=positions[2]),
                              "bar($c, $d)")
+        
+    @tag("lwp")
+    def test_lwp_includes_nodebug(self):
+        content, positions = unmark_text(dedent(r"""
+            use LWP;
+            my $ua = LWP::<1>UserAgent->new;
+            #              -- should include Protocol and UserAgent only
+        """))
+        self.assertCompletionsInclude(
+            markup_text(content, pos=positions[1]), # LWP::<|>
+            [("class", "Protocol"),
+             ("class", "UserAgent")])
+        self.assertCompletionsDoNotInclude(
+            markup_text(content, pos=positions[1]), # LWP::<|>
+            [("class", "Debug")])
+        
+    @tag("lwp")
+    def test_lwp_includes_with_debug(self):
+        content, positions = unmark_text(dedent(r"""
+            use LWP;
+            use LWP::Debug;
+            $ua = LWP::<1>UserAgent->new;
+            #              -- should include Debug as well
+        """))
+        self.assertCompletionsInclude(
+            markup_text(content, pos=positions[1]), # LWP::<|>
+            [("class", "Debug"),
+             ("class", "Protocol"),
+             ("class", "UserAgent")])
+
 
     @tag("gisle")
     def test_lwp(self):
@@ -745,7 +775,7 @@ class CplnTestCase(CodeIntelTestCase):
             HTTP::<1>Response::<2>blah();
             #     |            `-- should get package members here
             #     `-- should include Request, Response, Date (and
-            #         arguably some others)
+            #         arguably some others)q
 
             my $ua = LWP::<3>UserAgent-><4>new;
             #             `-- should include Debug, Protocol, UserAgent
@@ -796,8 +826,7 @@ class CplnTestCase(CodeIntelTestCase):
              ("function", "clone")])
         self.assertCompletionsInclude(
             markup_text(content, pos=positions[3]), # LWP::<|>
-            [("class", "Debug"),
-             ("class", "Protocol"),
+            [("class", "Protocol"),
              ("class", "UserAgent")])
         self.assertCompletionsInclude(
             markup_text(content, pos=positions[4]), # LWP::UserAgent-><|>
@@ -1102,6 +1131,7 @@ class CplnTestCase(CodeIntelTestCase):
     def test_play_lwp(self):
         content, positions = unmark_text(dedent("""\
             use LWP;
+            use LWP::Debug;
             print LWP::<1>Version();
             print $LWP::<2>VERSION;
 
@@ -1530,13 +1560,13 @@ class DefnTestCase(CodeIntelTestCase):
                                ilk="class", name="RequestAgent", line=8)
         self.assertDefnMatches(markup_text(content, positions[7]),
                                ilk="function", name="new", line=11,
-                               lpath=["RequestAgent"])
+                               lpath=["RequestAgent", "new"])
         self.assertDefnMatches(markup_text(content, positions[8]),
                                ilk="variable", name="$ra", line=27,
-                               lpath=[])
+                               lpath=["$ra"])
         self.assertDefnMatches(markup_text(content, positions[9]),
                                ilk="function", name="get_basic_credentials",
-                               line=20, lpath=["RequestAgent"])
+                               line=20, lpath=["RequestAgent", "get_basic_credentials"])
 
 
 
