@@ -359,9 +359,9 @@ try:
         def handle_data(self, data):
             self._builder.data(data)
             
-        def handle_special(self, data, token_type):
+        def handle_special(self, data):
             # here's where we figure out if we've got a doctype
-            if token_type == 0x105: # from sgmlop.c
+            if data and data.startswith("DOCTYPE"):
                 # we get everything inside <!...>
                 self.parse_doctype("<!%s>" % data)
 
