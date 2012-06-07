@@ -97,22 +97,27 @@ class KoLanguageKeywordBase(KoLanguageBase):
         elif topic == "editAutoIndentStyle":
             self._editAutoIndentStyle = self._prefs.getStringPref("editAutoIndentStyle")
         
-    def _get_line_tokens(self, scimoz, start_pos, end_pos, style_info):
+    def _get_line_tokens(self, scimoz, start_pos, end_pos, style_info,
+                         additional_ignorable_styles=None):
         test_line = scimoz.lineFromPosition(start_pos)
         tokens = []
         prev_style = -1
         curr_text = ""
+        if additional_ignorable_styles:
+            ignorable_styles = additional_ignorable_styles + style_info._ignorable_styles
+        else:
+            ignorable_styles = style_info._ignorable_styles
         if chr(scimoz.getCharAt(end_pos)) in self._indent_close_chars + self._lineup_close_chars:
             end_pos -= 1
         for pos in range(start_pos, end_pos + 1):
             curr_style = self.actual_style(scimoz.getStyleAt(pos))
             curr_char = chr(scimoz.getCharAt(pos)) #XXX unichr?
-            if (curr_style in style_info._ignorable_styles
+            if (curr_style in ignorable_styles
                 or curr_style != prev_style) and len(curr_text) > 0:
                 tokens.append(Token(prev_style, curr_text, prev_pos))
                 curr_text = ""
 
-            if curr_style in style_info._ignorable_styles:
+            if curr_style in ignorable_styles:
                 pass # nothing to do
             elif curr_style in style_info._indent_styles:
                 # No reason to keep it for another round

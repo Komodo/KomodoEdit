@@ -56,8 +56,6 @@ from koLanguageKeywordBase import KoLanguageKeywordBase
 
 log = logging.getLogger("RubyLanguage")
 #log.setLevel(logging.DEBUG)
-qlog = logging.getLogger("RubyLanguage.q")
-qlog.setLevel(logging.DEBUG)
 indentlog = logging.getLogger("RubyLanguage.indent")
 #indentlog.setLevel(logging.DEBUG)
 
@@ -105,6 +103,7 @@ class KoRubyLanguage(KoLanguageKeywordBase):
     
     def __init__(self):
         KoLanguageKeywordBase.__init__(self)
+        self._keyword_dedenting_keywords = self._dedent_sliders
         self.prefService = components.classes["@activestate.com/koPrefService;1"].\
             getService(components.interfaces.koIPrefService)
         self._prefs = self.prefService.prefs
@@ -141,8 +140,7 @@ class KoRubyLanguage(KoLanguageKeywordBase):
             # These handle things like <<break if test>>
             _modified_keyword_styles = [sci_constants.SCE_RB_WORD_DEMOTED],
             _default_styles = [sci_constants.SCE_RB_DEFAULT],
-            _ignorable_styles = [sci_constants.SCE_RB_DEFAULT,
-                                 sci_constants.SCE_RB_ERROR,
+            _ignorable_styles = [sci_constants.SCE_RB_ERROR,
                                  sci_constants.SCE_RB_COMMENTLINE,
                                  sci_constants.SCE_RB_POD,
                                  sci_constants.SCE_RB_DATASECTION,
@@ -163,6 +161,8 @@ class KoRubyLanguage(KoLanguageKeywordBase):
             log.debug("**************** observer: subject %s, topic %s, data %s", subject, topic, data)
             self._indent_style = self._prefs.getStringPref("editAutoIndentStyle")
             self._handle_keypress = self._indent_style == 'smart'
+        else:
+            KoLanguageKeywordBase.observe(self, subject, topic, data)
         
     def getVariableStyles(self):
         return self._style_info._variable_styles
@@ -288,7 +288,7 @@ end section
         return False
 
     def _have_significant_ending_do(self, scimoz, style_info, lineStartPos, initialPos):
-        tokens = self._get_line_tokens(scimoz, lineStartPos, initialPos, style_info)
+        tokens = self._get_line_tokens(scimoz, lineStartPos, initialPos, style_info, additional_ignorable_styles=style_info._default_styles)
         try:
             (style, text, tok_pos) = tokens[-1].explode()
         except IndexError:
@@ -652,7 +652,6 @@ end section
 
     def _computeIndent(self, scimoz, indentStyle, continueComments, style_info):
         # Don't rely on KoLanguageKeywordBase here.
-        qlog.debug(">> _computeIndent")
         #super_indent = KoLanguageKeywordBase._computeIndent(self, scimoz, indentStyle, continueComments, style_info)
         #qlog.debug("super_indent: %r", super_indent)
         #if super_indent is not None:
@@ -693,7 +692,7 @@ end section
 
         minimumLine = max(initialLine - NUM_LINES_TO_ANALYZE, 0)
         lineStartPos = scimoz.positionFromLine(curr_line)
-        tokens = self._get_line_tokens(scimoz, lineStartPos, currentPos, style_info)
+        tokens = self._get_line_tokens(scimoz, lineStartPos, currentPos, style_info, additional_ignorable_styles=style_info._default_styles)
 
         indent_delta = 0
         indent_amount = scimoz.indent
@@ -767,7 +766,7 @@ end section
                             if new_pos <= lineStartPos:
                                 # We moved to the start of the line, so we're done
                                 break
-                            tokens = self._get_line_tokens(scimoz, lineStartPos, new_pos, style_info)
+                            tokens = self._get_line_tokens(scimoz, lineStartPos, new_pos, style_info, additional_ignorable_styles=style_info._default_styles)
                             # self._dump_tokens(tokens)
                             idx = len(tokens) - 1
                             new_idx = self._find_token(tokens, idx, new_pos)
@@ -808,7 +807,7 @@ end section
                         # We moved to the start of the line, so we're done
                         #log.debug("_calcIndentLevel: string-moved to start of line")
                         break
-                    tokens = self._get_line_tokens(scimoz, lineStartPos, new_pos, style_info)
+                    tokens = self._get_line_tokens(scimoz, lineStartPos, new_pos, style_info, additional_ignorable_styles=style_info._default_styles)
                     # self._dump_tokens(tokens)
                     idx = len(tokens) - 1
                     new_idx = self._find_token(tokens, idx, new_pos)
@@ -826,7 +825,7 @@ end section
                 curr_line -= 1
                 lineStartPos = scimoz.positionFromLine(curr_line)
                 currentPos = scimoz.getLineEndPosition(curr_line)
-                tokens = self._get_line_tokens(scimoz, lineStartPos, currentPos, style_info)
+                tokens = self._get_line_tokens(scimoz, lineStartPos, currentPos, style_info, additional_ignorable_styles=style_info._default_styles)
             else:
                 break
         # end outer while
