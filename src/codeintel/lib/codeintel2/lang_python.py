@@ -513,6 +513,7 @@ class PythonLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                 info = None, None, None, None, []
             else:
                 info = self._python_info_from_python(python, env)
+            env.cache[cache_key] = info
         return info
 
     def _buf_indep_libs_from_env(self, env):
