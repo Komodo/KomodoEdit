@@ -40,6 +40,7 @@ set PATH=%MOZILLABUILD%\make-3.81\bin;%PATH%
 set PATH=%MOZILLABUILD%\msys\local\bin;%PATH%
 set PATH=%MOZILLABUILD%\info-zip;%PATH%
 set PATH=%MOZILLABUILD%\msys\bin;%PATH%
+set PATH=%MOZILLABUILD%\wget;%PATH%
 
 
 if "%VC9DIR%"=="" (
