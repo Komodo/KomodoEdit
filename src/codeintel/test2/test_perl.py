@@ -360,9 +360,18 @@ class TrgTestCase(CodeIntelTestCase):
             "Foo::Bar2<$><|>3",
             name="perl-complete-package-members", pos=5)
 
-
-class CplnTestCase(CodeIntelTestCase):
+class CodeintelPerlTestCase(CodeIntelTestCase):
     lang = "Perl"
+    _perlVersion = None
+    def perl_version(self):
+        if self._perlVersion is None:
+            langintel = self.mgr.langintel_from_lang(self.lang)
+            ver, _, _ = langintel.perl_info_from_env(self.mgr.env)
+            # ver is a string, convert to float for comparisons to work.
+            self._perlVersion = float(self._perlVersion)
+        return self._perlVersion
+
+class CplnTestCase(CodeintelPerlTestCase):
     test_dir = join(os.getcwd(), "tmp")
 
     def test_curr_calltip_arg_range(self):
@@ -743,15 +752,20 @@ class CplnTestCase(CodeIntelTestCase):
         content, positions = unmark_text(dedent(r"""
             use LWP;
             my $ua = LWP::<1>UserAgent->new;
-            #              -- should include Protocol and UserAgent only
+            #              -- should include Protocol and UserAgent only post 5.8
         """))
         self.assertCompletionsInclude(
             markup_text(content, pos=positions[1]), # LWP::<|>
             [("class", "Protocol"),
              ("class", "UserAgent")])
-        self.assertCompletionsDoNotInclude(
-            markup_text(content, pos=positions[1]), # LWP::<|>
-            [("class", "Debug")])
+        if self.perl_version <= 5.8:
+            self.assertCompletionsInclude(
+                markup_text(content, pos=positions[1]),
+                [("class", "Debug")])
+        else:
+            self.assertCompletionsDoNotInclude(
+                markup_text(content, pos=positions[1]),
+                [("class", "Debug")])
         
     @tag("lwp")
     def test_lwp_includes_with_debug(self):
@@ -1443,7 +1457,7 @@ class CplnTestCase(CodeIntelTestCase):
 
 
 
-class DefnTestCase(CodeIntelTestCase):
+class DefnTestCase(CodeintelPerlTestCase):
     lang = "Perl"
     test_dir = join(os.getcwd(), "tmp")
 

@@ -1003,6 +1003,21 @@ class PerlLangIntel(CitadelLangIntel,
             cache[buf] = libs
         return cache[buf]
 
+    def perl_info_from_env(self, env):
+        # Return an array of [perl_ver, config_dirs, import_path]
+        cache_key = self.lang + "-info"
+        info = env.cache.get(cache_key)
+        if info is None:
+            perlInterpreter = self._perl_from_env(env)
+            if not perlInterpreter:
+                log.warn("no Perl interpreter was found from which to determine the "
+                         "codeintel information")
+                info = None, None, None
+            else:
+                info = self._perl_info_from_perl(perlInterpreter, env)
+            env.cache[cache_key] = info
+        return info
+
     def _perl_from_env(self, env):
         import which
         path = [d.strip() 
