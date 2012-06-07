@@ -363,12 +363,14 @@ class TrgTestCase(CodeIntelTestCase):
 class CodeintelPerlTestCase(CodeIntelTestCase):
     lang = "Perl"
     _perlVersion = None
+    @property
     def perl_version(self):
+        # Return a tuple of (major, minor, subminor) version numbers
         if self._perlVersion is None:
             langintel = self.mgr.langintel_from_lang(self.lang)
             ver, _, _ = langintel.perl_info_from_env(self.mgr.env)
             # ver is a string, convert to float for comparisons to work.
-            self._perlVersion = float(self._perlVersion)
+            self._perlVersion = tuple([int(x) for x in ver.split('.')])
         return self._perlVersion
 
 class CplnTestCase(CodeintelPerlTestCase):
@@ -758,7 +760,8 @@ class CplnTestCase(CodeintelPerlTestCase):
             markup_text(content, pos=positions[1]), # LWP::<|>
             [("class", "Protocol"),
              ("class", "UserAgent")])
-        if self.perl_version <= 5.8:
+        if self.perl_version < (5, 9):
+            # Accept any 5.8.x version or earlier.
             self.assertCompletionsInclude(
                 markup_text(content, pos=positions[1]),
                 [("class", "Debug")])
