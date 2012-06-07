@@ -227,7 +227,7 @@ class PHPTreeEvaluator(TreeEvaluator):
                 return self._traits_from_scope(None, global_scoperef)
             else:
                 # All available namespaces and all available/global classes.
-                return self._namespaces_from_scope(self.expr, start_scope) + \
+                return self._namespaces_from_scope(None, start_scope) + \
                        self._classes_from_scope(None, global_scoperef,
                                                 allowGlobalClasses=True)
         elif trg.type == "namespace-members" and (not self.expr or self.expr == "\\"):
@@ -255,10 +255,15 @@ class PHPTreeEvaluator(TreeEvaluator):
             else:
                 # Return global magic methods.
                 return self.php_magic_global_method_cplns
-        elif trg.type == "namespace-members":
+        elif trg.type == "namespace-members" or \
+             trg.type == "use-namespace":
             # Find the completions:
             cplns = []
-            fqn = self._fqn_for_expression(self.expr, start_scope)
+            expr = self.expr
+            if trg.type == "use-namespace" and expr and not expr.startswith("\\"):
+                # Importing a namespace, uses a FQN name - bug 88736.
+                expr = "\\" + expr
+            fqn = self._fqn_for_expression(expr, start_scope)
             hits = self._hits_from_namespace(fqn, start_scope)
             if hits:
                 #self.log("self.expr: %r", self.expr)

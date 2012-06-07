@@ -297,10 +297,16 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                     prev_text = ac.getTextBackWithStyle(style, max_text_len=15)
                     if DEBUG:
                         print "prev_text: %r" % (prev_text, )
-                    if prev_text[1] != "namespace":
+                    if prev_text[1] == "use":
+                        if DEBUG:
+                            print "Triggering use-namespace completion"
+                        return Trigger(lang, TRG_FORM_CPLN, "use-namespace",
+                                       pos, implicit)
+                    elif prev_text[1] != "namespace":
                         if DEBUG:
                             print "Triggering namespace completion"
-                        return Trigger(lang, TRG_FORM_CPLN, "namespace-members", pos, implicit)
+                        return Trigger(lang, TRG_FORM_CPLN, "namespace-members",
+                                       pos, implicit)
 
             elif last_style == self.variable_style or \
                  (not implicit and last_char == "$"):
@@ -366,7 +372,10 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                                         # For the operator styles, we must use
                                         # endswith, as it could follow a "()",
                                         # bug 90846.
-                                        and prev_text[1][-2:] not in ("->", "::",)):
+                                        and prev_text[1][-2:] not in ("->", "::",)
+                                        # Don't trigger when accessing a
+                                        # namespace - bug 88736.
+                                        and not prev_text[1].endswith("\\")):
                                 return Trigger(lang, TRG_FORM_CPLN, "functions",
                                                trig_pos, implicit)
                         # If we want implicit triggering on more than 3 chars
@@ -840,9 +849,10 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                 i = trg.pos + 1   # triggered on the $, skip over it
             elif trg.type == "array-members":
                 i = trg.extra.get("bracket_pos")   # triggered on foo['
-            elif trg.type == "use-namespace":
+            elif trg.type == "use":
                 i = trg.pos + 1
-            elif trg.type == "namespace-members":
+            elif trg.type == "namespace-members" or \
+                 trg.type == "use-namespace":
                 i = trg.pos - 1
             else:
                 i = trg.pos - 2 # skip past the trigger char

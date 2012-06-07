@@ -294,6 +294,8 @@ class TriggerTestCase(CodeIntelTestCase):
         self.assertNoTrigger(r'<?php # \<|> ?>')
         # assert no trigger after the "namespace" keyword
         self.assertNoTrigger(r'<?php namespace foo\<|> ?>')
+        # assert no trigger 3-char trigger when accessing a namespace
+        self.assertNoTrigger(r'<?php \foo<|> ?>')
         # PHP strangely allows the following to work as the current namespace.
         #self.assertTriggerMatches(php_markup(r"namespace\foo\<|>"),
         #                          name=name, pos=22)
@@ -3680,13 +3682,13 @@ class IncludeEverythingTestCase(CodeIntelTestCase):
         self.assertCalltipIs2(buf, test_positions[7],
             "classname_func2($arg)")
 
-    @tag("bug83192", "php53")
+    @tag("bug83192", "bug88736", "php53")
     def test_imported_namespace_alias(self):
         test_dir = join(self.test_dir, "test_imported_namespace_alias")
         test_content, test_positions = unmark_text(php_markup(dedent(r"""
             namespace foo {
-                use My\Full as MF;
-                use My\Full\NSname;
+                use <20>My\<21>Full as MF;
+                use My\Full\<22>NSname;
                 use My\Full\Classname;
                 use My\Full\Classname as CN;
 
@@ -3764,6 +3766,19 @@ class IncludeEverythingTestCase(CodeIntelTestCase):
         for pos in (13, 14, 15, 16):
             self.assertCompletionsAre2(buf, test_positions[pos],
                 [("function",  r"classname_func")])
+        self.assertCompletionsInclude2(buf, test_positions[20],
+            [
+                ("namespace", r"My"),
+            ])
+        self.assertCompletionsInclude2(buf, test_positions[21],
+            [
+                ("namespace", r"Full"),
+            ])
+        self.assertCompletionsInclude2(buf, test_positions[22],
+            [
+                ("namespace", r"NSname"),
+                ("class", r"Classname"),
+            ])
 
     @tag("bug85682", "php53")
     def test_imported_namespace_alias_2(self):
