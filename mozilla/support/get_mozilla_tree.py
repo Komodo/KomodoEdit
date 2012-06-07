@@ -52,9 +52,14 @@ def getTreeFromVersion(version=None):
 
     try:
         if not "." in version:
-            # assume version string like "700" which should be mapped to "7.0.0"
-            version = ("%s00" % (version))[:max(3,len(version))]
-            version = ".".join((version[:-2], version[-2], version[-1]))
+            matches = re.match(r"FIREFOX_(?P<version>(?:\d+_)*)RELEASE", version)
+            if matches:
+                # version is a tag, FIREFOX_0_0_0_RELEASE
+                version = ".".join(matches.group("version").strip("_").split("_"))
+            else:
+                # assume version string like "700" which should be mapped to "7.0.0"
+                version = ("%s00" % (version))[:max(3,len(version))]
+                version = ".".join((version[:-2], version[-2], version[-1]))
         ver = StrictVersion(version)
     except ValueError:
         ver = LooseVersion(version)
