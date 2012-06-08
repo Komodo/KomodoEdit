@@ -430,10 +430,10 @@
 
   <!-- variable highlighting preferences (see kd 0277) -->
   <boolean id="codeintel_highlight_variables_auto_mouse">1</boolean>
-  <boolean id="codeintel_highlight_variables_auto_keyboard">1</boolean>
+  <boolean id="codeintel_highlight_variables_auto_keyboard">0</boolean>
   <boolean id="codeintel_highlight_variables_match_prefix">0</boolean>
   <long id="codeintel_highlight_variables_auto_delay">250</long>
-  <long id="codeintel_highlight_variables_min_auto_length">3</long>
+  <long id="codeintel_highlight_variables_min_auto_length">2</long>
   <boolean id="codeintel_highlight_variables_use_scope">1</boolean>
 
   <long id="editWrapType">0</long>
