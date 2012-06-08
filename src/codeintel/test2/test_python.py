@@ -1327,7 +1327,7 @@ class CplnTestCase(CodeintelPythonTestCase):
             [('function', 'strip'),
              ('function', 'lower'),
              ('function', 'capitalize')])
-        if self.python_version >= (2, 7):
+        if self.python_version >= (2, 6):
             self.assertCalltipMatches(markup_text(content, pos=positions[2]),
                 r"S\.join\(iterable\) -> string\nReturn a string which is the "
                 "concatenation of the strings in.*?the iterable.",
