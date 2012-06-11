@@ -30,7 +30,7 @@
                  oncommand="gFindResultsTabManager.updateFilter();"
                  tooltiptext="&findFilter.tooltiptext;"
                  />
-        <hbox id="findtoolbar1-button-box" class="no-border solo-toolbaritem"
+        <hbox id="findtoolbar-button-box" class="no-border solo-toolbaritem"
               align="center">
             <toolbarbutton id="findresults-jumptoprev-button"
                     class="list-item-up-icon"
