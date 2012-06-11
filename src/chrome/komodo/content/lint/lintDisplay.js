@@ -156,6 +156,11 @@ this.updateDisplayedIndicators = function(scimoz, startPos, docLen,
             var offsetStart = scimoz.positionAtChar(linepos, r.columnStart - 1);
             linepos = scimoz.positionFromLine(r.lineEnd - 1);
             var offsetEnd = scimoz.positionAtChar(linepos, r.columnEnd - 1);
+            if (offsetEnd > scimoz.getLineEndPosition(r.lineEnd - 1)) {
+                // This can happen when there are high-bit characters in a line
+                // of code that a linter has flagged.
+                offsetEnd = scimoz.getLineEndPosition(r.lineEnd - 1);
+            }
 
             if (offsetEnd <= scimoz.length && offsetEnd >= offsetStart) {
                 if (r.lineEnd > scimoz.lineCount) {
