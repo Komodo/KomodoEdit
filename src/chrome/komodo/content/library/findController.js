@@ -120,6 +120,7 @@ FindController.prototype.__defineGetter__("_currentView", function FindControlle
  */
 function viewIsCurrentView() {
     var currView = this._currentView;
+    if (!(currView instanceof Ci.koIScintillaView)) return false;
     return currView && currView == ko.views.manager.currentView;
 }
 
@@ -166,6 +167,7 @@ FindController.prototype._cmd_findNextPrev = function(searchBackward) {
 FindController.prototype.is_cmd_findNext_enabled = viewIsCurrentView;
 
 FindController.prototype.do_cmd_findNext = function() {
+    if (!viewIsCurrentView.call(this)) return;
     this._cmd_findNextPrev(false);
 }
 
@@ -173,6 +175,7 @@ FindController.prototype.do_cmd_findNext = function() {
 FindController.prototype.is_cmd_findPrevious_enabled = viewIsCurrentView;
 
 FindController.prototype.do_cmd_findPrevious = function()  {
+    if (!viewIsCurrentView.call(this)) return;
     this._cmd_findNextPrev(true);
 }
 
