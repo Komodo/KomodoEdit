@@ -1803,9 +1803,17 @@ class koProject(koLiveFolderPart):
         if not sys.platform.startswith("linux"):
             url = url.lower()
             project_dir_url = project_dir_url.lower()
-            
-        return url == project_dir_url or \
-               url.startswith(self._addTrailingSlash(project_dir_url))
+        
+        if (url == project_dir_url
+            or url.startswith(self._addTrailingSlash(project_dir_url))):
+            return True
+        # Bug 93436: check all folders
+        for f in self.getChildrenByType("livefolder", True):
+            folderUrl = f.getFile().URI
+            if (url == folderUrl
+                or url.startswith(self._addTrailingSlash(folderUrl))):
+                return True
+        return False
 
     def getChildByURL(self, url):
         try:
