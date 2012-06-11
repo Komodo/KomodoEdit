@@ -57,3 +57,15 @@ state IN_CSS2H_2:
 '>' : paint(upto, M_TAGSPACE), paint(include, M_ETAGC) => IN_M_DEFAULT
 /./ : paint(upto, M_TAGSPACE), redo => IN_M_DEFAULT
 /\z/ : paint(upto, M_TAGSPACE)
+
+state IN_CSS_COMMENT_1 : 
+/<\/style>/i : paint(upto, CSS_COMMENT), redo, => IN_CSS_DEFAULT
+
+state IN_CSS_DSTRING : 
+/<\/style>/i : paint(upto, CSS_COMMENT), redo, => IN_CSS_DEFAULT
+
+state IN_CSS_SSTRING: 
+/<\/style>/i : paint(upto, CSS_COMMENT), redo, => IN_CSS_DEFAULT
+
+state IN_CSS_USTRING: 
+/<\/style>/i : paint(upto, CSS_COMMENT), redo, => IN_CSS_DEFAULT
