@@ -657,7 +657,7 @@ end section
         #if super_indent is not None:
         #    return super_indent
         if continueComments:
-            qlog.debug("continueComments: %r", continueComments)
+            #qlog.debug("continueComments: %r", continueComments)
             inBlockCommentIndent, inLineCommentIndent = self._inCommentIndent(scimoz, scimoz.currentPos, continueComments, style_info)
             if inLineCommentIndent is not None:
                 return inLineCommentIndent
@@ -668,7 +668,7 @@ end section
         try:
             try:
                 new_indent_string = self._calcIndentLevel(scimoz, scimoz.currentPos, style_info)
-                qlog.debug("new_indent_string: %r", new_indent_string)
+                #qlog.debug("new_indent_string: %r", new_indent_string)
                 return new_indent_string
             except:
                 log.warn("Got exception computing _calcIndentLevel", exc_info=1)
