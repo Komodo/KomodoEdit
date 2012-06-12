@@ -271,6 +271,8 @@
             </hbox>
             <checkbox id="editFoldLines" label="&useHorizontalLineOnFolds.label;" pref="true"
                       prefstring="editFoldLines" prefattribute="checked"/>
+            <checkbox id="foldSeparateBlockParts" label="&foldSeparateBlockParts.label;" pref="true"
+                      prefstring="foldSeparateBlockParts" prefattribute="checked"/>
             <checkbox id="editRestoreFoldPoints" label="&restoreFoldStateOnDocumentLoadSlowsDownFileOpening.label;" pref="true"
                       prefstring="editRestoreFoldPoints" prefattribute="checked"/>
         </groupbox>

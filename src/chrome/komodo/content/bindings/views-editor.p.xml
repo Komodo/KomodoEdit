@@ -95,12 +95,13 @@
         <![CDATA[
             this.log.info("view-editor:document setter");
             var hadKoDoc = false;
+            var viewPrefObserverService, obsSvc;
             if (this._koDoc) {
                 hadKoDoc = true;
                 try {
                 // We are detaching a document from the view
                 xtk.domutils.fireEvent(this, 'view_document_detaching');
-                var viewPrefObserverService = this.prefs.prefObserverService;
+                viewPrefObserverService = this.prefs.prefObserverService;
                 viewPrefObserverService.removeObserverForTopics(this,
                                                                 this._view_pref_observer_topics.length,
                                                                 this._view_pref_observer_topics);
@@ -109,7 +110,7 @@
                                                                     this._koDoc_observer_topics);
                 this._koDoc.releaseView(this);
                 this._koDoc.releaseReference();
-                var obsSvc = Components.classes["@mozilla.org/observer-service;1"].
+                obsSvc = Components.classes["@mozilla.org/observer-service;1"].
                                 getService(Components.interfaces.nsIObserverService);
                 obsSvc.removeObserver(this, 'scheme-changed');
                 obsSvc.removeObserver(this, 'primary_languages_changed');
@@ -147,13 +148,13 @@
                                                          this._koDoc_observer_topics.length,
                                                          this._koDoc_observer_topics,
                                                          0);
-                var viewPrefObserverService = this.prefs.prefObserverService;
+                viewPrefObserverService = this.prefs.prefObserverService;
                 viewPrefObserverService.addObserverForTopics(this,
                                                              this._view_pref_observer_topics.length,
                                                              this._view_pref_observer_topics,
                                                              false);
 
-                var obsSvc = Components.classes["@mozilla.org/observer-service;1"].
+                obsSvc = Components.classes["@mozilla.org/observer-service;1"].
                                 getService(Components.interfaces.nsIObserverService);
                 obsSvc.addObserver(this, 'scheme-changed', false);
                 obsSvc.addObserver(this, 'primary_languages_changed', false);
@@ -195,43 +196,20 @@
         <field name="_doc_pref_observer_topics">
             [
                 'ySlop',
+                'foldSeparateBlockParts',
                 'select_most_recent_buffer_on_buffer_close'
             ]
         </field>
-        <field name="haveDocPrefs"></field>
+        <field name="initializedGlobalPrefs">false</field>
+        <field name="initializedOwnDocPrefs">false</field>
+        <field name="initializedGlobalDocPrefs">false</field>
+        <field name="foldSeparateBlockParts"></field>
 
         <method name="init">
         <body>
         <![CDATA[
             this.parentView.setContext(this, "tabContextMenu");
-            var prefObserverService = this.__globalPrefs.prefObserverService;
-            prefObserverService.addObserverForTopics(this,
-                                                     this._global_pref_observer_topics.length,
-                                                     this._global_pref_observer_topics,
-                                                     false);
-            var docPrefsThisTime;
-            if (this.prefs) {
-                this.prefs.prefObserverService.addObserverForTopics(this,
-                                            this._doc_pref_observer_topics.length,
-                                            this._doc_pref_observer_topics,
-                                            false);
-                this.haveDocPrefs = true;
-                docPrefsThisTime = this.prefs;
-            } else {
-            prefObserverService.addObserverForTopics(this,
-                                            this._doc_pref_observer_topics.length,
-                                            this._doc_pref_observer_topics,
-                                                     false);
-                this.haveDocPrefs = false;
-                docPrefsThisTime = this.__globalPrefs;
-            }
-            this.scimoz.setYCaretPolicy(this.scimoz.CARET_SLOP |
-                                   this.scimoz.CARET_STRICT |
-                                   this.scimoz.CARET_EVEN,
-                                   docPrefsThisTime.getLongPref('ySlop'));
-            this.selectMostRecentBufferOnBufferClose =
-                docPrefsThisTime.getBooleanPref('select_most_recent_buffer_on_buffer_close');
-            
+            this.initPrefs();
             this._currentFamily = "";
             this._highlightColors = null;
             // Duplicate of koUDLLanguageBase.familyAtPosition to avoid
@@ -291,6 +269,8 @@
             // work, for reasons which escape me but probably have to do with the
             // special hack in commands.js to deal with focus on embed elements.
             // this.controllers.appendController(this._genericController);
+            
+            this.initPrefs();
 
             this._setupHighlightColors();
             xtk.domutils.fireEvent(this, 'current_view_changed');
@@ -303,7 +283,7 @@
             if (!this.prefs.getBooleanPref('colorizing_enabled')) {
                 this._turnColourizingOff();
             }
-            ko.lint.initializeGenericPrefs(this.prefs)
+            ko.lint.initializeGenericPrefs(this.prefs);
             ko.macros.eventHandler.hookPostFileOpen(this);
         } catch (e) {
             this.log.exception(e);
@@ -312,6 +292,46 @@
         this.log.debug('document code page after initWithDoc is '+this.koDoc.codePage);
         ]]>
         </body>
+        </method>
+        
+        <method name="initPrefs">
+        <body><![CDATA[
+            var prefObserverService = this.__globalPrefs.prefObserverService;
+            if (!this.initializedGlobalPrefs) {
+                this.initializedGlobalPrefs = true;
+                prefObserverService.addObserverForTopics(this,
+                                                         this._global_pref_observer_topics.length,
+                                                         this._global_pref_observer_topics,
+                                                         false);
+            }
+            if (!this.initializedGlobalDocPrefs) {
+                this.initializedGlobalDocPrefs = true;
+                prefObserverService.addObserverForTopics(this,
+                                                this._doc_pref_observer_topics.length,
+                                                this._doc_pref_observer_topics,
+                                                         false);
+            }
+            var docPrefsThisTime = this.__globalPrefs;
+            
+            if (this.prefs) {
+                if (!this.initializedOwnDocPrefs) {
+                    this.initializedOwnDocPrefs = true;
+                    this.prefs.prefObserverService.addObserverForTopics(this,
+                                                this._doc_pref_observer_topics.length,
+                                                this._doc_pref_observer_topics,
+                                                false);
+                }
+                docPrefsThisTime = this.prefs;
+            }
+            this.foldSeparateBlockParts = docPrefsThisTime.getBooleanPref('foldSeparateBlockParts');
+            this.scimoz.setProperty('fold.at.else', this.foldSeparateBlockParts ? 1 : 0);
+            this.scimoz.setYCaretPolicy(this.scimoz.CARET_SLOP |
+                                   this.scimoz.CARET_STRICT |
+                                   this.scimoz.CARET_EVEN,
+                                   docPrefsThisTime.getLongPref('ySlop'));
+            this.selectMostRecentBufferOnBufferClose =
+                docPrefsThisTime.getBooleanPref('select_most_recent_buffer_on_buffer_close');
+        ]]></body>
         </method>
 
         <method name="_turnColourizingOff">
@@ -454,6 +474,9 @@
                 this._clearFoldLevels(this.scimoz);
                 this.scimoz.setProperty('fold',
                                         doc.languageObj.foldable ? 1 : 0)
+                if (doc.languageObj.foldable) {
+                    this.scimoz.setProperty('fold.at.else', this.foldSeparateBlockParts);
+                }
                 this.scimoz.colourise(0,-1);
                 this.commandCompletionSvc = null;
                 this._languageObj = null;
@@ -503,6 +526,12 @@
                                        this.scimoz.CARET_STRICT |
                                        this.scimoz.CARET_EVEN,
                                        (this.prefs || this.__globalPrefs).getLongPref('ySlop'));
+                break;
+            case 'foldSeparateBlockParts':
+                //multi-window: this applies to all windows, as it's a pref
+                this.foldSeparateBlockParts = (this.prefs || this.__globalPrefs).getBooleanPref('foldSeparateBlockParts');
+                this.scimoz.setProperty('fold.at.else', this.foldSeparateBlockParts ? 1 : 0);
+                this.scimoz.colourise(0, -1);
                 break;
             case 'select_most_recent_buffer_on_buffer_close':
                 this.selectMostRecentBufferOnBufferClose =
@@ -648,15 +677,17 @@
                     this.preview = null;
                 }
                 var prefObserverService = this.__globalPrefs.prefObserverService;
-                prefObserverService.removeObserverForTopics(this,
-                                                            this._global_pref_observer_topics.length,
-                                                            this._global_pref_observer_topics);
-
-                if (this.haveDocPrefs) {
+                if (this.initializedGlobalPrefs) {
+                    prefObserverService.removeObserverForTopics(this,
+                                                                this._global_pref_observer_topics.length,
+                                                                this._global_pref_observer_topics);
+                }
+                if (this.initializedOwnDocPrefs && this.prefs) {
                     this.prefs.prefObserverService.removeObserverForTopics(this,
                         this._doc_pref_observer_topics.length,
                         this._doc_pref_observer_topics);
-                } else {
+                }
+                if (this.initializedGlobalDocPrefs) {
                     prefObserverService.removeObserverForTopics(this,
                         this._doc_pref_observer_topics.length,
                         this._doc_pref_observer_topics);

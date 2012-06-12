@@ -91,6 +91,7 @@
   <!--For optimization purposes, we don't restore fold points by default - it's-->
   <!--a very slow process.  Users who care can turn it on.-->
   <boolean id="editRestoreFoldPoints">0</boolean>
+  <boolean id="foldSeparateBlockParts">0</boolean>
   <boolean id="editUseLinting">1</boolean>
   <boolean id="editHomeKeyFavorsFirstNonSpace">1</boolean>
   <long id="lintDelay">1000</long>

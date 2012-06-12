@@ -129,6 +129,7 @@ int main(int argc, char *argv[])
             self._lexer.setLexer(components.interfaces.ISciMoz.SCLEX_CPP)
             self._lexer.setKeywords(0, self._keywords)
             self._lexer.setProperty("lexer.cpp.track.preprocessor", "0")
+            self._lexer.setProperty('fold.cpp.syntax.based', '1')
             self._lexer.supportsFolding = 1
         return self._lexer
 
