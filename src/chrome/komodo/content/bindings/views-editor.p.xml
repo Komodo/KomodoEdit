@@ -361,10 +361,9 @@
                 if (pos > 0 && pos < sm.length) {
                     var lineNo = sm.lineFromPosition(pos);
                     if (this.lintBuffer && this.lintBuffer.lintResults) {
-                        var column = sm.getColumn(pos);
                         var charOffset = pos - sm.positionFromLine(lineNo) + 1;
-                        var results = new Object();
-                        var numResults = new Object();
+                        var results = {};
+                        var numResults = {};
                         this.lintBuffer.lintResults.
                                 getResultsInLineRange(lineNo + 1,
                                                         lineNo + 1,
@@ -473,7 +472,7 @@
                 // otherwise the syntax colouring is not correctly updated.
                 this._clearFoldLevels(this.scimoz);
                 this.scimoz.setProperty('fold',
-                                        doc.languageObj.foldable ? 1 : 0)
+                                        doc.languageObj.foldable ? 1 : 0);
                 if (doc.languageObj.foldable) {
                     this.scimoz.setProperty('fold.at.else', this.foldSeparateBlockParts);
                 }
@@ -499,15 +498,15 @@
             case 'title_changed':
                 // XXX need a way to observer file/title changes
                 throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
-                this.parentView.updateLeafName(this);
-                break;
+                //this.parentView.updateLeafName(this);
+                //break;
             case 'buffer_dirty':
                 // Multi-window story: the check on this.isCurrent is sufficient
                 // If the same file is current in more than one window, including
                 // the topmost, we'll update its title bar and status in each window.
                 // Weirdness:
                 // this.koDoc always points to the doc argument.
-                if (this.parentView && typeof(this.parentView['updateDirtyStatus']) != 'undefined') {
+                if (this.parentView && typeof(this.parentView.updateDirtyStatus) != 'undefined') {
                     this.parentView.updateDirtyStatus(this);
                     if (this.isCurrent) {
                         ko.uilayout.updateTitlebar(this);
@@ -597,7 +596,7 @@
                     for (var i = 0; i < colorInfo.length; i++) {
                         var familyName, color;
                         [familyName, color] = colorInfo[i].split(":");
-                        this._highlightColors[familyName] = parseInt(color);
+                        this._highlightColors[familyName] = parseInt(color, 10);
                     }
                     // Force an update so the sub-highlighting gets redone.
                     // Fixes bug 84707
@@ -624,11 +623,11 @@
             }
             this._currentFamily = family;
             if (family in this._highlightColors) {
-                var pos = this.scimoz.currentPos;
-                var line = this.scimoz.lineFromPosition(pos);
+                //var pos = this.scimoz.currentPos;
+                //var line = this.scimoz.lineFromPosition(pos);
                 this.scimoz.caretLineBack = this._highlightColors[family];
             }
-	    // otherwise don't change currentLine color
+            // otherwise don't change currentLine color
             return true;
         ]]>
         </body>
@@ -840,7 +839,7 @@
                                               'zero-or-more',
                                               null,
                                              'reload_changed_files');
-            if (items != null && items.length > 0) {
+            if (items !== null && items.length > 0) {
                 this.revertUnconditionally();
             } else {
                 this.koDoc.isDirty = true;
@@ -902,8 +901,9 @@
             // Ensure that the current file can actually be saved with the
             // current encoding.
             // XXX Untested: I don't know how to force this to test it.
+            var prompt;
             if (! this.koDoc.isEncodable) {
-                var prompt = "Some of the characters in '"+baseName+
+                prompt = "Some of the characters in '"+baseName+
                          "' cannot be saved using the current encoding.  "+
                          "Komodo can force the save by "+
                          "replacing all unrepresentable "+
@@ -917,7 +917,7 @@
                 if (choice != "Force") {
                     return false;
                 } else {
-                    var prompt = "You will lose data if you proceed. Are you " +
+                    prompt = "You will lose data if you proceed. Are you " +
                              "sure that you want to continue saving?";
                     if (ko.dialogs.yesNo(prompt, "No") != "Yes") {
                         return false;
@@ -1147,8 +1147,8 @@
             // remove the filename from the invocation prefs
             if (docNew.prefs.hasPrefHere("Invocations")) {
                 var root = docNew.prefs.getPref("Invocations");
-                var ids = new Object();
-                root.getPrefIds(ids, new Object());
+                var ids = {};
+                root.getPrefIds(ids, {});
                 ids = ids.value;
                 for (var i=0; i < ids.length; i++) {
                     var storedPrefs = root.getPref(ids[i]);
@@ -1241,7 +1241,7 @@
         <parameter name="line"/>
         <body>
         <![CDATA[
-            return this.scimoz.markerGet(line)
+            return this.scimoz.markerGet(line);
         ]]>
         </body>
         </method>
@@ -1251,7 +1251,7 @@
         <parameter name="mask"/>
         <body>
         <![CDATA[
-            return this.scimoz.markerNext(line, mask)
+            return this.scimoz.markerNext(line, mask);
         ]]>
         </body>
         </method>
@@ -1338,7 +1338,7 @@
                 browserType = "";
             }
             var browserMethod = this.__globalPrefs.getStringPref("browser_preview_method");
-            var browserPath = undefined;
+            var browserPath;
             switch(browserType) {
                 case "komodo":
                     if (browserMethod == "external") {
@@ -1521,18 +1521,18 @@
                 [previewPath, browserType] = this._getPreviewPathAndBrowserType();
             }
             if (previewPath) {
-                var browserMethod, browserPath;
+                var browserMethod, browserPath, previewURI;
                 [browserMethod, browserPath] = this._browserMethodAndPathForBrowserType(browserType);
                 switch (browserMethod) {
                     case "external":
                         ko.browse.openUrlInDefaultBrowser(previewPath, browserPath);
                         break;
                     case "in-tab-other-group":
-                        var previewURI = ko.uriparse.pathToURI(previewPath);
+                        previewURI = ko.uriparse.pathToURI(previewPath);
                         this.createInternalViewPreview(previewURI, this.alternateViewList);
                         break;
                     case "in-tab-same-group":
-                        var previewURI = ko.uriparse.pathToURI(previewPath);
+                        previewURI = ko.uriparse.pathToURI(previewPath);
                         this.createInternalViewPreview(previewURI, this.parentView);
                         break;
                 }
