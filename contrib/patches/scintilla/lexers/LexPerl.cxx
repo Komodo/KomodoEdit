@@ -2401,6 +2401,7 @@ static void FoldPerlDoc(unsigned int startPos, int length, int, WordList *[],
                         Accessor &styler) {
     bool foldComment = styler.GetPropertyInt("fold.comment") != 0;
     bool foldCompact = styler.GetPropertyInt("fold.compact", 1) != 0;
+    bool foldAtElse = styler.GetPropertyInt("fold.at.else", 1) != 0;
     unsigned int endPos = startPos + length;
     int state;
     synchronizeDocStart(startPos, endPos, state, styler);
@@ -2421,6 +2422,7 @@ static void FoldPerlDoc(unsigned int startPos, int length, int, WordList *[],
             
     int levelPrev = styler.LevelAt(lineCurrent) & SC_FOLDLEVELNUMBERMASK;
     int levelCurrent = levelPrev;
+    int levelMinPrev = levelPrev;
     int lengthDoc = styler.Length();
     char chNext = styler[startPos];
     int styleNext = safeStyleAt(startPos, styler);
@@ -2434,6 +2436,9 @@ static void FoldPerlDoc(unsigned int startPos, int length, int, WordList *[],
             if ((ch == '/') && (chNext == '/')) {
                 char chNext2 = styler.SafeGetCharAt(i + 2);
                 if (chNext2 == '{') {
+                    if (levelMinPrev > levelCurrent) {
+                        levelMinPrev = levelCurrent;
+                    }
                     levelCurrent++;
                 } else if (levelCurrent > 0 && chNext2 == '}') {
                     levelCurrent--;
@@ -2441,6 +2446,9 @@ static void FoldPerlDoc(unsigned int startPos, int length, int, WordList *[],
             }
         } else if (style == SCE_PL_OPERATOR || style == SCE_PL_VARIABLE_INDEXER) {
             if (strchr("{[(", ch)) {
+                if (levelMinPrev > levelCurrent) {
+                    levelMinPrev = levelCurrent;
+                }
                 levelCurrent++;
             } else if (levelCurrent > 0 && strchr(")]}", ch)) {
                 levelCurrent--;
@@ -2459,16 +2467,20 @@ static void FoldPerlDoc(unsigned int startPos, int length, int, WordList *[],
             }
         }
         if (atEOL) {
-            int lev = levelPrev;
+            int levelUse = foldAtElse ? levelMinPrev : levelPrev;
+            if (levelUse < 0) {
+                levelUse = 0;
+            }
+            int lev = levelUse;
             if (visibleChars == 0 && foldCompact)
                 lev |= SC_FOLDLEVELWHITEFLAG;
-            if ((levelCurrent > levelPrev) && (visibleChars > 0))
+            if ((levelCurrent > levelUse) && (visibleChars > 0))
                 lev |= SC_FOLDLEVELHEADERFLAG;
             if (lev != styler.LevelAt(lineCurrent)) {
                 styler.SetLevel(lineCurrent, lev);
             }
             lineCurrent++;
-            levelPrev = levelCurrent;
+            levelMinPrev = levelPrev = levelCurrent;
             visibleChars = 0;
         }
         if (!isspacechar(ch))
