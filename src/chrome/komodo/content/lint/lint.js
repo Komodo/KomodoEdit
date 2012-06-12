@@ -362,7 +362,7 @@ this.lintBuffer.prototype.request = function(reason /* = "" */)
     try {
         _lintSvc.cancelPendingRequests(this.view.uid);
         ko.lint.displayer.cancelPendingItems(this);
-        if (this._lintClearOnTextChange) {
+        if (this._lintClearOnTextChange || reason == "language changed") {
             this._clearResults();
         }
 
