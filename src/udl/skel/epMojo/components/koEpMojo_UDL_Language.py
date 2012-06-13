@@ -114,98 +114,14 @@ class KoEpMojoLinter(object):
 
     def __init__(self):
         self._koLintService = components.classes["@activestate.com/koLintService;1"].getService(components.interfaces.koILintService)
-        self._html_linter = self._koLintService.getLinterForLanguage("HTML")
-        self._perl_linter = None
-        
-    @property
-    def perl_linter(self):
-        if self._perl_linter is None:
-            self._perl_linter = UnwrapObject(self._koLintService.getLinterForLanguage("Perl"))
-        return self._perl_linter
-    
-    epMatcher = re.compile(r'''(
-                                (?:<%(?:.|[\r\n])*?%>)   # Anything in <%...%>
-                                |(?:^\s*%.*)                # % to eol is one-line of Perl
-                                |(?:\r?\n)               # Newline
-                                |(?:(?:<(?!%)|[^<\n]+)+) # Most other non-Perl
-                                |.)''',                  # Catchall
-                                re.MULTILINE|re.VERBOSE)
+        self._html_linter = UnwrapObject(self._koLintService.getLinterForLanguage("HTML"))
 
-    _leading_name = re.compile(r'\s*(\w+)')
-    _leading_percent = re.compile(r'\s*%(.*)')
-    def _fixPerlPart(self, text):
-        parts = self.epMatcher.findall(text)
-        if not parts:
-            return "", text
-        i = 0
-        lim = len(parts)
-        perlTextParts = []
-        eols = ("\n", "\r\n")
-        neededSubs = {}
-        while i < lim:
-            part = parts[i]
-            if part in eols:
-                perlTextParts.append(part)
-            elif part.startswith("<%"):
-                # Watch out for block comments
-                perlTextParts.append(self._fixTemplateMarkup(part))
-            elif self._leading_percent.match(part) and (i == 0 or parts[i - 1].endswith("\n")):
-                m = self._leading_percent.match(part)
-                part = m.group(1)
-                m = self._leading_name.match(part)
-                if m:
-                    term = m.group(1)
-                    if term not in neededSubs:
-                        neededSubs[term] = None
-                        perlTextParts.append("sub %s; " % (term,))
-                perlTextParts.append(' ' + part + ";")
-            else:
-                perlTextParts.append(part)
-            i += 1
-        return "".join(perlTextParts)
-        
-    _nonNewlineMatcher = re.compile(r'[^\r\n]')
-    def _spaceOutNonNewlines(self, markup):
-        return self._nonNewlineMatcher.sub(' ', markup)
-
-    _markupMatcher = re.compile(r'\A<%(#|={0,2})(.*?)(=?)(?:%>)?\Z', re.DOTALL)
-    def _fixTemplateMarkup(self, markup):
-        m = self._markupMatcher.match(markup)
-        if not m:
-            return markup
-        finalText = '  '
-        leadingControlText = m.group(1)
-        payload = m.group(2)
-        trailingControlText = m.group(3)
-        if leadingControlText == '#':
-            finalText += '#' + payload.replace("\n", "\n#")
-        elif leadingControlText.startswith("="):
-            finalText += "print " + payload + ";"
-        else:
-            finalText += payload + ";"
-        return finalText
-
+    _tplPatterns = ("epMojo", re.compile('<%='), re.compile(r'%>\s*\Z', re.DOTALL))
     def lint(self, request):
-        return self._html_linter.lint(request)
+        return self._html_linter.lint(request, TPLInfo=self._tplPatterns)
 
     def lint_with_text(self, request, text):
-        perlText = self._fixPerlPart(text)
-        if not perlText.strip():
-            return
-        return self._resetLines(self.perl_linter.lint_with_text(request, perlText),
-                                text)
-
-    def _resetLines(self, lintResults, text):
-        lines = text.splitlines()
-        fixedResults = koLintResults()
-        for res in lintResults.getResults():
-            try:
-                targetLine = lines[res.lineEnd - 1]
-            except IndexError:
-                log.exception("can't index %d lines at %d", len(lines), res.lineEnd - 1)
-                pass # Keep the original lintResult
-            else:
-                if res.columnEnd > len(targetLine):
-                    res.columnEnd = len(targetLine)
-            fixedResults.addResult(res)
-        return fixedResults
+        # With revised html_linter template processing, the html linter will
+        # pull out Perl parts and dispatch them to the perl linter, so there's
+        # nothing to do here.
+        return None
