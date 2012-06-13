@@ -1152,7 +1152,7 @@ class ObjectTreeView(TreeView, ObjectTreeViewItem):
             @returns True if a row was selected; False if the item has no row
             """
         idx = item.rowIndex
-        if idx is not None:
+        if idx is not None and idx < self.rowCount:
             self.selectRowByIndex(idx)
             return True
         return False
