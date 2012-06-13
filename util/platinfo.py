@@ -854,11 +854,10 @@ int main(int argc, char **argv) { exit(0); }
 """)
         finally:
             f.close()
-        try:
-            subprocess.check_call("g++ " + cxxfile, cwd=tmpdir, shell=True)
-        except RunError, e:
-            log.debug("could not compile test C++ file with g++: %s", e)
-            return {}
+        returncode = subprocess.call("g++ " + cxxfile, cwd=tmpdir, shell=True)
+        if returncode != 0:
+            raise RunError("Failed C++ test file compilation using g++, return "
+                           "code: %r" % returncode)
         p = subprocess.Popen("ldd a.out", cwd=tmpdir, shell=True, stdout=subprocess.PIPE)
         ldd, _ = p.communicate()
 
