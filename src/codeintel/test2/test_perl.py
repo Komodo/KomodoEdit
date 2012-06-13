@@ -751,16 +751,18 @@ class CplnTestCase(CodeintelPerlTestCase):
         
     @tag("lwp")
     def test_lwp_includes_nodebug(self):
+        perl_version = self.perl_version
         content, positions = unmark_text(dedent(r"""
             use LWP;
             my $ua = LWP::<1>UserAgent->new;
             #              -- should include Protocol and UserAgent only post 5.8
-        """))
+            # perl version: %s
+        """ % (perl_version,)))
         self.assertCompletionsInclude(
             markup_text(content, pos=positions[1]), # LWP::<|>
             [("class", "Protocol"),
              ("class", "UserAgent")])
-        if self.perl_version < (5, 9):
+        if perl_version < (5, 9):
             # Accept any 5.8.x version or earlier.
             self.assertCompletionsInclude(
                 markup_text(content, pos=positions[1]),
@@ -830,7 +832,7 @@ class CplnTestCase(CodeintelPerlTestCase):
             # '_elem' is from LWP::MemberMixin (a base pkg of
             # LWP::UserAgent), i.e. testing recursive inheritance.
             $ra->_elem(<0>);
-        """))
+            # Perl version: """ + "%s" % (self.perl_version,)))
         self.assertCompletionsInclude(
             markup_text(content, pos=positions[1]), # HTTP::<|>
             [("class", "Request"),
