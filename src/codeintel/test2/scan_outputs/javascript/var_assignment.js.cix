@@ -2,19 +2,19 @@
   <file lang="JavaScript" mtime="42" path="scan_inputs/javascript/var_assignment.js">
     <scope ilk="blob" lang="JavaScript" name="var_assignment.js" src="scan_inputs/javascript/var_assignment.js">
       <scope ilk="function" line="4" lineend="26" name="test_scope" signature="test_scope()">
-        <variable attributes="__local__ private" citdl="Object" line="8" lineend="8" name="m_oVisibleMenus" />
         <variable attributes="__local__ private" citdl="Boolean" line="8" name="m_bInitializedEventHandlers" />
+        <variable attributes="__local__ private" citdl="Object" line="8" lineend="8" name="m_oVisibleMenus" />
         <variable attributes="__local__ private" citdl="Object" line="10" lineend="14" name="m_oEventTypes">
           <variable citdl="String" line="11" name="keydown" />
           <variable citdl="String" line="12" name="keyup" />
           <variable citdl="String" line="13" name="keypress" />
         </variable>
         <variable attributes="__local__ private" line="15" name="m_oFocusedMenuItem" />
+        <variable attributes="__local__ private" citdl="Boolean" line="21" name="bEmphasis" />
         <variable attributes="__local__ private" citdl="Boolean" line="21" name="bStrongEmphasis" />
         <variable attributes="__local__ private" citdl="this._getFirstElement()" line="21" name="oEmphasisNode" />
-        <variable attributes="__local__ private" citdl="Boolean" line="21" name="bEmphasis" />
-        <variable attributes="__local__ private" line="25" name="nGroupIndex" />
         <variable attributes="__local__ private" citdl="this._getItemGroup()" line="25" name="aGroup" />
+        <variable attributes="__local__ private" line="25" name="nGroupIndex" />
         <variable attributes="__local__ private" line="25" name="oGroupItem" />
       </scope>
       <variable citdl="Number" line="17" name="m_globalItem" />

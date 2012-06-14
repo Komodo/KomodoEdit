@@ -18,18 +18,18 @@
       </scope>
       <variable citdl="Object" line="13" lineend="18" name="LOCALE">
         <variable citdl="Object" line="14" lineend="14" name="en_US">
-          <variable citdl="String" line="14" name="percent" />
           <variable citdl="String" line="14" name="decimal" />
+          <variable citdl="String" line="14" name="percent" />
           <variable citdl="String" line="14" name="separator" />
         </variable>
         <variable citdl="Object" line="15" lineend="15" name="de_DE">
-          <variable citdl="String" line="15" name="percent" />
           <variable citdl="String" line="15" name="decimal" />
+          <variable citdl="String" line="15" name="percent" />
           <variable citdl="String" line="15" name="separator" />
         </variable>
         <variable citdl="Object" line="16" lineend="16" name="fr_FR">
-          <variable citdl="String" line="16" name="percent" />
           <variable citdl="String" line="16" name="decimal" />
+          <variable citdl="String" line="16" name="percent" />
           <variable citdl="String" line="16" name="separator" />
         </variable>
         <variable citdl="String" line="17" name="default" />

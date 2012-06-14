@@ -15,9 +15,9 @@
       </scope>
       <variable citdl="TestCode" line="12" name="x" />
       <variable citdl="TestCode" line="13" name="t" />
+      <variable citdl="Number" line="17" name="item1" />
       <variable citdl="String" line="17" name="item2" />
       <variable citdl="Array" line="17" name="item3" />
-      <variable citdl="Number" line="17" name="item1" />
       <variable citdl="gFastIndex" line="21" name="high" />
       <variable citdl="Number" line="21" name="low" />
     </scope>

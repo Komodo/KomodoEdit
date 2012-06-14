@@ -18,9 +18,9 @@
         <variable attributes="__local__ private" citdl="Object" line="23" lineend="25" name="willQuitListener">
           <scope ilk="function" line="24" lineend="24" name="observe" signature="observe(subject, topic, data)">
             <variable citdl="willQuitListener" name="this" />
+            <variable ilk="argument" line="24" name="subject" />
             <variable ilk="argument" line="24" name="topic" />
             <variable ilk="argument" line="24" name="data" />
-            <variable ilk="argument" line="24" name="subject" />
           </scope>
         </variable>
       </variable>

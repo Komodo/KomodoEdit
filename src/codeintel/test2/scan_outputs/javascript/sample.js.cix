@@ -33,8 +33,8 @@
         <variable citdl="treebox" line="34" name="treebox" />
         <scope ilk="function" line="35" lineend="35" name="getCellText" returns="this.table[row][this.columns[column][0]]" signature="getCellText(row, column)">
           <variable citdl="treeView" name="this" />
-          <variable ilk="argument" line="35" name="column" />
           <variable ilk="argument" line="35" name="row" />
+          <variable ilk="argument" line="35" name="column" />
         </scope>
         <scope ilk="function" line="37" lineend="37" name="setTree" signature="setTree(treebox)">
           <variable citdl="treeView" name="this" />
@@ -58,19 +58,19 @@
         </scope>
         <scope ilk="function" line="42" lineend="42" name="getImageSrc" signature="getImageSrc(row, col)">
           <variable citdl="treeView" name="this" />
-          <variable ilk="argument" line="42" name="col" />
           <variable ilk="argument" line="42" name="row" />
+          <variable ilk="argument" line="42" name="col" />
         </scope>
         <scope ilk="function" line="43" lineend="43" name="getRowProperties" signature="getRowProperties(row, props)">
           <variable citdl="treeView" name="this" />
-          <variable ilk="argument" line="43" name="props" />
           <variable ilk="argument" line="43" name="row" />
+          <variable ilk="argument" line="43" name="props" />
         </scope>
         <scope ilk="function" line="44" lineend="44" name="getCellProperties" signature="getCellProperties(row, col, props)">
           <variable citdl="treeView" name="this" />
-          <variable ilk="argument" line="44" name="props" />
-          <variable ilk="argument" line="44" name="col" />
           <variable ilk="argument" line="44" name="row" />
+          <variable ilk="argument" line="44" name="col" />
+          <variable ilk="argument" line="44" name="props" />
         </scope>
         <scope ilk="function" line="45" lineend="45" name="getColumnProperties" signature="getColumnProperties(colid, col, props)">
           <variable citdl="treeView" name="this" />
@@ -84,8 +84,8 @@
         <variable citdl="treebox" line="51" name="treebox" />
         <scope ilk="function" line="52" lineend="55" name="getCellText" returns="String" signature="getCellText(row, column)">
           <variable citdl="treeView2" name="this" />
-          <variable ilk="argument" line="52" name="column" />
           <variable ilk="argument" line="52" name="row" />
+          <variable ilk="argument" line="52" name="column" />
         </scope>
         <scope ilk="function" line="56" lineend="56" name="setTree" signature="setTree(treebox)">
           <variable citdl="treeView2" name="this" />
@@ -108,19 +108,19 @@
         </scope>
         <scope ilk="function" line="61" lineend="61" name="getImageSrc" signature="getImageSrc(row, col)">
           <variable citdl="treeView2" name="this" />
-          <variable ilk="argument" line="61" name="col" />
           <variable ilk="argument" line="61" name="row" />
+          <variable ilk="argument" line="61" name="col" />
         </scope>
         <scope ilk="function" line="62" lineend="62" name="getRowProperties" signature="getRowProperties(row, props)">
           <variable citdl="treeView2" name="this" />
-          <variable ilk="argument" line="62" name="props" />
           <variable ilk="argument" line="62" name="row" />
+          <variable ilk="argument" line="62" name="props" />
         </scope>
         <scope ilk="function" line="63" lineend="63" name="getCellProperties" signature="getCellProperties(row, col, props)">
           <variable citdl="treeView2" name="this" />
-          <variable ilk="argument" line="63" name="props" />
-          <variable ilk="argument" line="63" name="col" />
           <variable ilk="argument" line="63" name="row" />
+          <variable ilk="argument" line="63" name="col" />
+          <variable ilk="argument" line="63" name="props" />
         </scope>
         <scope ilk="function" line="64" lineend="64" name="getColumnProperties" signature="getColumnProperties(colid, col, props)">
           <variable citdl="treeView2" name="this" />

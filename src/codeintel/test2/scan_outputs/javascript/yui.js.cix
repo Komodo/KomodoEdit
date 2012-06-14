@@ -6,8 +6,8 @@
           <scope classrefs="YAHOO.widget.Node" ilk="class" line="28" lineend="35" name="TextNode">
             <scope attributes="__ctor__" doc="CONSTRUCTOR: The default node presentation.  The first parameter should be&#xA;either a string that will be used as the node&apos;s label, or an object&#xA;that has a string propery called label.  By default, the clicking the&#xA;label will toggle the expanded/collapsed state of the node.  By&#xA;changing the href property of the instance, this behavior can be&#xA;changed so that the label will go to the specified href." ilk="function" line="28" lineend="35" name="TextNode" signature="TextNode(oData, oParent, expanded)">
               <variable citdl="TextNode" name="this" />
-              <variable citdl="YAHOO.widget.Node" doc="this node&apos;s parent node" ilk="argument" line="28" name="oParent" />
               <variable citdl="Object" doc="a string or object containing the data that will&#xA;be used to render this node" ilk="argument" line="28" name="oData" />
+              <variable citdl="YAHOO.widget.Node" doc="this node&apos;s parent node" ilk="argument" line="28" name="oParent" />
               <variable citdl="Boolean" doc="the initial expanded/collapsed state" ilk="argument" line="28" name="expanded" />
             </scope>
             <variable citdl="String" line="39" name="labelStyle" />
@@ -48,9 +48,9 @@
       </variable>
       <scope attributes="__local__ private __ctor__" classrefs="YAHOO.widget.Overlay" doc="CONSTRUCTOR: The Menu class creates a container that holds a vertical list representing&#xA;a set of options or commands.  Menu is the base class for all&#xA;menu containers." ilk="function" line="81" lineend="105" name="(anonymous 1)" signature="(anonymous 1)()">
         <variable attributes="__local__ private" citdl="YAHOO.util.CustomEvent" line="86" name="CustomEvent" />
-        <variable attributes="__local__ private" citdl="YAHOO.lang" line="86" name="Lang" />
-        <variable attributes="__local__ private" citdl="YAHOO.util.Event" line="86" name="Event" />
         <variable attributes="__local__ private" citdl="YAHOO.util.Dom" line="86" name="Dom" />
+        <variable attributes="__local__ private" citdl="YAHOO.util.Event" line="86" name="Event" />
+        <variable attributes="__local__ private" citdl="YAHOO.lang" line="86" name="Lang" />
       </scope>
     </scope>
   </file>
