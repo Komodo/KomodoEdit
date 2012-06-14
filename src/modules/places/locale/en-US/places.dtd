@@ -102,6 +102,8 @@
 
 <!-- pref_places.xul -->
 <!ENTITY dblClickToRebase.label "Double-click or return makes folder root">
+<!ENTITY show_fullPath_tooltip.label "Show full-path tooltip">
+<!ENTITY places.show_fullPath_tooltip.accesskey "T">
 <!ENTITY showProjectPathExtension.label "Show project path extension">
 <!ENTITY showProjectPath.label "Show full project path">
 <!ENTITY showInPlaces.label "Show In Places">

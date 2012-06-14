@@ -67,6 +67,10 @@
                     label="&showProjectPath.label;"
                     accesskey="&pref_places_showProjectPath.accesskey;" />
           <separator class="thin"/>
+          <checkbox id="pref_places_show_fullPath_tooltip"
+                    label="&show_fullPath_tooltip.label;"
+                    accesskey="&places.show_fullPath_tooltip.accesskey;" />
+          <separator class="thin"/>
           <checkbox id="pref_places_showProjectPathExtension"
                     label="&showProjectPathExtension.label;"
                     accesskey="&pref_places_showProjectPathExtension.accesskey;" />

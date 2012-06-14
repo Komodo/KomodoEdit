@@ -2980,6 +2980,10 @@ this.onLoad_aux = function places_onLoad_aux() {
         // Default is false -- show only basename
         _placePrefs.setBooleanPref('showProjectPath', false);
     }
+    if (!_placePrefs.hasPref('show_fullPath_tooltip')) {
+        // Default is true -- show full tooltip in places treebody
+        _placePrefs.setBooleanPref('show_fullPath_tooltip', true);
+    }
     if (!_placePrefs.hasPref('showProjectPathExtension')) {
         // Default is false -- show only basename
         _placePrefs.setBooleanPref('showProjectPathExtension', false);
@@ -2987,6 +2991,9 @@ this.onLoad_aux = function places_onLoad_aux() {
     if (!_placePrefs.hasPref('syncAllFiles')) {
         _placePrefs.setBooleanPref('syncAllFiles', true);
     }
+    _placePrefs.prefObserverService.addObserverForTopics(
+        this, 1, ['show_fullPath_tooltip'], 1);
+                                                         
     if (!filterPrefs.hasPref(DEFAULT_FILTER_NAME)) {
         //dump("global/places/filters prefs has no " + DEFAULT_FILTER_NAME + "\n");
         var prefSet = Components.classes["@activestate.com/koPreferenceSet;1"].createInstance();
@@ -3121,6 +3128,15 @@ this.onLoad_aux = function places_onLoad_aux() {
         }
     }.bind(this);
     mruProjectViewerID = setInterval(launch_createProjectMRUView, 50);
+}
+
+this.observe = function(subject, topic, data) {
+    if (topic == "show_fullPath_tooltip") {
+        var show_fullPath_tooltip = _placePrefs.getBooleanPref("show_fullPath_tooltip");
+        var tooltip = show_fullPath_tooltip ? "places-files-tree-popup" : null;
+        document.getElementById("places-files-tree-body").
+            setAttribute("tooltip", tooltip);
+    }
 }
 
 this.initProjectMRUCogMenu_SPV = function() {
