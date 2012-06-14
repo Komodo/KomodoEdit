@@ -174,7 +174,7 @@ class KoObserverService:
         if observers is None:
             # No observers are listening to this topic - but that's okay.
             log.debug("_removeObserver:: no observers listening on topic %r",
-                      topic)
+                      aTopic)
             return
         try:
             idx = observers.index(anObserver)
@@ -186,7 +186,7 @@ class KoObserverService:
         except ValueError:
             # Observer is not in the topic list - but that's okay.
             log.debug("_removeObserver:: no such observer %r listening on "
-                      "topic %r", anObserver, topic)
+                      "topic %r", anObserver, aTopic)
 
     # void removeObserver( in nsIObserver anObserver, in string aTopic );
     def removeObserver(self, anObserver, aTopic):
