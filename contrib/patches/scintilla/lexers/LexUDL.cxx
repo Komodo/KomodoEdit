@@ -521,7 +521,7 @@ class LookBackTests {
     };
 
     bool StyleInRange(int style) {
-        return style >= base_style && style < (base_style + num_styles);
+        return style >= base_style && style <= (base_style + num_styles);
     };
 
     private:        
