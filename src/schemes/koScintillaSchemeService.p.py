@@ -1120,10 +1120,8 @@ class KoScintillaSchemeService:
         self._htmlStyleTags = {}
         from cStringIO import StringIO
         html = StringIO()
-        if sys.platform.startswith('win'):
-            html.write('<?xml version="1.0" encoding="UTF-8"?>\n')
-        else:
-            html.write('<?xml version="1.0" encoding="%s"?>\n' % encoding)
+        encoding = "UTF-8" if sys.platform.startswith('win') else encoding
+        html.write('<?xml version="1.0" encoding="%s"?>\n' % encoding)
         html.write('''<!DOCTYPE html\n
      PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -1133,7 +1131,15 @@ class KoScintillaSchemeService:
         # most efficiently be done simply by looking at the current scimoz's styles.
         
         css = self.createCSS(language, scheme, forceColor)
-        html.write('<head>\n<title>%s</title>\n<style type="text/css">\n%s\n</style>\n</head>\n' % (title,css))
+        # Added <meta charset=> to properly set the encoding - bug 65298.
+        html.write('''<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=%s" />
+    <title>%s</title>
+    <style type="text/css">
+    %s
+    </style>
+    </head>
+    ''' % (encoding, title, css))
         html.write("<body class=\"default\"><p>\n")
         _globalPrefs = components.classes["@activestate.com/koPrefService;1"].\
                        getService(components.interfaces.koIPrefService).prefs
