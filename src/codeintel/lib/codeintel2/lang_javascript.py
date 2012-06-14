@@ -1049,17 +1049,6 @@ class JavaScriptCILEDriver(CILEDriver):
         jscile.convertToElementTreeModule(blob_elem)
 
 
-def _sortByLineCmp(val1, val2):
-    try:
-    #if hasattr(val1, "line") and hasattr(val2, "line"):
-        return cmp(val1.line, val2.line)
-    except AttributeError:
-        return cmp(val1, val2)
-
-def sortByLine(seq):
-    seq.sort(_sortByLineCmp)
-    return seq
-
 # Everything is JS is an object.... MUMUHAHAHAHAHAHAAAA.......
 
 class JSObject:
@@ -1355,13 +1344,14 @@ class JSObject:
                     addClassRef(cixobject, baseclass)
 
         # Note that arguments must be kept in the order they were defined.
-        variables = set(self.variables.values())
+        variables = self.variables.values()
         arguments = [x for x in variables if isinstance(x, JSArgument)]
-        arguments.sort(key=operator.attrgetter("pos"))
-        variables = list(variables.difference(arguments))
-        allValues = self.functions.values() + self.members.values() + \
-                    self.classes.values() + arguments + variables + \
-                    self.anonymous_functions
+        variables = [x for x in variables if not isinstance(x, JSArgument)]
+        allValues = sorted(arguments, key=operator.attrgetter("pos", "name")) + \
+                    sorted(self.functions.values() + self.members.values() + \
+                           self.classes.values() + variables + \
+                           self.anonymous_functions,
+                            key=operator.attrgetter("line", "name"))
 
         # If this is a variable with child elements, yet has a citdl type of
         # something that is not an "Object", don't bother to adding these child
@@ -1377,7 +1367,7 @@ class JSObject:
             return None
 
         # Sort and include contents
-        for v in sortByLine(allValues):
+        for v in allValues:
             if not v.isHidden:
                 v.toElementTree(cixobject)
 
@@ -1743,7 +1733,7 @@ class JSFile:
         # Sort and include contents
         allValues = self.functions.values() + self.variables.values() + \
                     self.classes.values() + self.anonymous_functions
-        for v in sortByLine(allValues):
+        for v in sorted(allValues, key=operator.attrgetter("line", "name")):
             if not v.isHidden:
                 v.toElementTree(cixmodule)
 
