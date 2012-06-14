@@ -1120,7 +1120,9 @@ class KoScintillaSchemeService:
         self._htmlStyleTags = {}
         from cStringIO import StringIO
         html = StringIO()
-        encoding = "UTF-8" if sys.platform.startswith('win') else encoding
+        # Encoding has to be utf-8, as scimoz uses utf-8 and we use scimoz's
+        # getStyledText method to retrieve the bytes.
+        encoding = "UTF-8"
         html.write('<?xml version="1.0" encoding="%s"?>\n' % encoding)
         html.write('''<!DOCTYPE html\n
      PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
@@ -1174,7 +1176,7 @@ class KoScintillaSchemeService:
         text = text.replace('\r', '\n')
         text = text.replace('\n\n', '\n')
         try:
-            f = open(fname, 'w')
+            f = open(fname, 'wb')
             f.write(text)
             f.close()
         except Exception, ex:
