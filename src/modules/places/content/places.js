@@ -1531,7 +1531,7 @@ ManagerClass.prototype = {
                 var location = placesTreeView.getRowIndexForURI(newURI);
                 if (location == -1) {
                     log.warn("Can't find "
-                             + pieces[0]
+                             + newURI
                              + " in the tree");
                     return;
                 }
