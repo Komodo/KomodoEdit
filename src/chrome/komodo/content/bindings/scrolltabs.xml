@@ -525,7 +525,13 @@
             </handler>
             <handler event="dblclick" button="0" phase="capturing">
             <![CDATA[
-                ko.commands.doCommandAsync('cmd_togglePanels', event);
+                if (event.originalTarget.nodeName == 'xul:label') {
+                    // Don't handle clicks on the close-box or the tabs bar.
+                    // Don't handle tabs-bar clicks because we don't handle clicks
+                    // in the other panel bars. The idea is that double-clicking on
+                    // a tab focuses on the tab's associated document.
+                    ko.commands.doCommandAsync('cmd_togglePanels', event);
+                }
             ]]>
             </handler>
 
