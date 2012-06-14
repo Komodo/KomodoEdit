@@ -733,6 +733,11 @@
             oncommand="ko.commands.doCommandAsync('cmd_buffer9', event)"
             disabled="true"
             desc="&generalSwitchToTab9.desc;"/>
+        <command
+            id="cmd_togglePanels" key="key_cmd_togglePanels"
+            oncommand="ko.commands.doCommandAsync('cmd_togglePanels', event)"
+            disabled="true"
+            desc="&generalTogglePanels.desc;"/>
     </broadcasterset>
 
 <!--

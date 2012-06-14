@@ -317,6 +317,7 @@
 <!ENTITY generalSwitchToTab7.desc "General: Switch to Tab 7">
 <!ENTITY generalSwitchToTab8.desc "General: Switch to Tab 8">
 <!ENTITY generalSwitchToTab9.desc "General: Switch to Tab 9">
+<!ENTITY generalTogglePanels.desc "General: Toggle Panels">
 <!ENTITY goToDefinition.accesskey "D">
 <!ENTITY goToDefinition.label "Go to Definition">
 <!ENTITY gotoLine.accesskey "G">

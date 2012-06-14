@@ -1979,6 +1979,25 @@ viewManager.prototype.do_cmd_moveTabToNewWindow = function() {
     ko.launch.newWindow(uri);
 }
 
+// cmd_togglePanels
+
+viewManager.prototype.is_cmd_togglePanels_supported = function() {
+    return true;
+};
+viewManager.prototype.is_cmd_togglePanels_enabled =
+    viewManager.prototype.is_cmd_togglePanels_supported;
+viewManager.prototype.do_cmd_togglePanels = function() {
+    // If any are hidden show all.
+    // If all are visible hide all
+    var panels = ["workspace_left_area",
+                  "workspace_bottom_area",
+                  "workspace_right_area" ].map(
+        function(pname) document.getElementById(pname)
+    );
+    var allVisible = !panels.some(function(p) p.collapsed);
+    panels.forEach(function(p) p.collapsed = allVisible);
+};
+
 // cmd_rotateSplitter
 viewManager.prototype.is_cmd_rotateSplitter_supported = function() {
     return 1;

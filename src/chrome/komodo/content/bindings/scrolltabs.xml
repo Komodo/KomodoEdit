@@ -523,6 +523,11 @@
                 }
             ]]>
             </handler>
+            <handler event="dblclick" button="0" phase="capturing">
+            <![CDATA[
+                ko.commands.doCommandAsync('cmd_togglePanels', event);
+            ]]>
+            </handler>
 
             <handler event="dragstart">
             <![CDATA[
