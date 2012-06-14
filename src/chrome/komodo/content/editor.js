@@ -408,6 +408,21 @@ editor_editorController.prototype.rawHandler= function(event) {
     }
 };
 
+editor_editorController.prototype.is_cmd_pasteHtml_enabled = function() {
+    return xtk.clipboard.containsHtml();
+}
+
+editor_editorController.prototype.do_cmd_pasteHtml= function() {
+    var v = _getCurrentScimozView();
+    if (!v) {
+        return;
+    }
+    var scimoz = v.scimoz;
+    var html = xtk.clipboard.getHtml();
+    scimoz.replaceSel(html);
+}
+
+
 window.controllers.appendController(new editor_editorController());
 
 }).apply(); // apply into the global namespace

@@ -235,6 +235,12 @@
                 accesskey="&pasteButton.accesskey;"
                 class="menuitem-iconic native-paste-icon"
                 observes="cmd_paste"/>
+        <menuitem label="&pasteHtml.label;"
+                  id="menu_editPasteHtml"
+                  class="menuitem-iconic"
+                  accesskey="&pasteHtml.menu.accesskey;"
+                  observes="cmd_pasteHtml"
+                  />
 
         <menuseparator id="editor_context_select_separator"/>
 
@@ -709,6 +715,12 @@
                                       class="menuitem-iconic native-paste-icon"
                                       accesskey="&pasteButton.accesskey;"
                                       observes="cmd_paste"
+                                      />
+                            <menuitem label="&pasteHtml.label;"
+                                      id="menu_editPasteHtml"
+                                      class="menuitem-iconic"
+                                      accesskey="&pasteHtml.menu.accesskey;"
+                                      observes="cmd_pasteHtml"
                                       />
 
                             <menuseparator id="edit_menu_select_separator"/>

@@ -1402,6 +1402,10 @@
             disabled="true"
             desc="&editorPasteAndSelect.desc;"/>
         <command
+            id="cmd_pasteHtml" key="key_cmd_pasteHtml"
+            oncommand="ko.commands.doCommand('cmd_pasteHtml')"
+            desc="&pasteHtml.command.desc;"/>
+        <command
             id="cmd_tabAwarePaste" key="key_cmd_tabAwarePaste"
             oncommand="ko.commands.doCommandAsync('cmd_tabAwarePaste', event)"
             disabled="true"
