@@ -506,6 +506,9 @@
 <!ENTITY paste.label "Paste">
 <!ENTITY paste.tooltiptext "Paste">
 <!ENTITY pasteButton.accesskey "P">
+<!ENTITY pasteHtml.label "Paste HTML">
+<!ENTITY pasteHtml.menu.accesskey "M">
+<!ENTITY pasteHtml.command.desc "Editor: Paste HTML from the Clipboard">
 <!ENTITY pause.label "Pause">
 <!ENTITY pauseMacroRecording.tooltiptext "Pause Macro Recording">
 <!ENTITY pauseRecording.label "Pause Recording">
