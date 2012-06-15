@@ -767,7 +767,7 @@ class CplnTestCase(CodeintelPerlTestCase):
             self.assertCompletionsInclude(
                 markup_text(content, pos=positions[1]),
                 [("class", "Debug")])
-        else:
+        elif perl_version >= (5, 12):
             self.assertCompletionsDoNotInclude(
                 markup_text(content, pos=positions[1]),
                 [("class", "Debug")])
