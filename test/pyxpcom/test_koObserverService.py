@@ -73,21 +73,13 @@ class TestKoObserverService(unittest.TestCase):
 
     # test notifying non-existent observers
     def test_noObserversToNotify(self):
-        # Note: the koObserverService shouldn't raise an exception for this.
-        try:
-            self.observerSvc.notifyObservers(None,'does-not-exist','Testing')
-        except COMException, e:
-            assert 0
+        self.observerSvc.notifyObservers(None,'does-not-exist','Testing')
 
     # test removing non-existent observers
     def test_noObserversToRemove(self):
         testobserver = TestObserver()
         xpobs = WrapObject(testobserver,components.interfaces.nsIObserver)
-        try:
-            self.observerSvc.removeObserver(xpobs,'test')
-            assert 0
-        except COMException, e:
-            pass
+        self.observerSvc.removeObserver(xpobs,'test')
 
 
 #---- mainline
