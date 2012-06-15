@@ -1981,6 +1981,7 @@ class KoLanguageBase:
 
         rest = curLine[commentStart+len(commentStartMarker):]
         indentWidth =len(curLine[:commentStart].expandtabs(scimoz.tabWidth))
+        addMarkup = False
         if commentType == 'line':
             # the comment started on this line -- if the line consisted of nothing but
             # comments, then continue it (except if continueComments is false)
@@ -1991,13 +1992,20 @@ class KoLanguageBase:
             indent = scimozindent.makeIndentFromWidth(scimoz, indentWidth) + commentStartMarker
         else:
             indent = scimozindent.makeIndentFromWidth(scimoz, indentWidth) + (len(commentStartMarker)-len(markup))*' '
-
-        while rest[0:len(commentStartMarker)] and rest[0:len(commentStartMarker)] == commentStartMarker:
-            if commentType == 'line':
-                indent += commentStartMarker
-            else:
-                indent += (len(commentStartMarker) - len(markup))*' '
-            rest = rest[len(commentStartMarker):]
+            if markup and not rest.startswith(markup):
+                addMarkup = True
+                
+        if rest.startswith(commentStartMarker):
+            while rest.startswith(commentStartMarker):
+                if commentType == 'line':
+                    indent += commentStartMarker
+                else:
+                    indent += (len(commentStartMarker) - len(markup))*' '
+                rest = rest[len(commentStartMarker):]
+        elif addMarkup:
+            # bug84868 - contine /*-type comments, not just /** comments
+            indent += markup
+            
         if rest[0:1] and rest[0:1] in duplicate:
             indent += rest[0:1]
             rest = rest[1:]
@@ -2008,10 +2016,19 @@ class KoLanguageBase:
         # yields
         #      ###      foo
         #      ###     <|>
-        #  
+        #
+        ignoreMarkup = True
         for char in rest:
             if char in ' \t':
                 indent += char
+                ignoreMarkup = False
+            elif char in markup and ignoreMarkup:
+                # Ignore the markup chars in rest, we're looking for white-space
+                # This causes
+                # /***** *** <CR>
+                # =>
+                #  * <|>
+                pass
             else:
                 break
         if commentType == 'line':
