@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" 
+              "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg viewBox="0 0 400 350"
+     xmlns="http://www.w3.org/2000/svg" version="1.1">
+  <defs>
+    <filter id="greyscale" filterUnits="objectBoundingBox" x="0" y="0" width="1" height="1">
+      <feColorMatrix in="SourceGraphic" type="saturate" values="0"/>
+    </filter>
+  </defs>
+</svg>

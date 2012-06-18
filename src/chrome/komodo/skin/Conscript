@@ -51,6 +51,7 @@ Import(
 
 $cons->Preprocess('komodo.p.css', 'komodo.css');
 $cons->InstallInChrome('komodo.css');
+$cons->InstallInChrome('filters.svg');
 $cons->InstallInChrome('splitter.css');
 $cons->Preprocess('toolbar.p.css', 'toolbar.css');
 $cons->InstallInChrome('toolbar.css');
