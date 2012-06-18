@@ -1304,10 +1304,14 @@ ko.codeintel = {};
                 log.debug("Found defn for " + defn.name + " at " +
                           defn.scopestart + "~" + defn.scopeend + ", ranges=" +
                           JSON.stringify(ranges));
+                // force lex to end of scope (the other parts should already be lexed)
+                scimoz.colourise(endPos, scopeEnd);
             } else {
                 ranges = [[startPos, endPos], [0, startPos], [endPos, scimoz.length]];
                 log.debug("No defn found for " + searchText + "; ranges = " +
                           JSON.stringify(ranges));
+                // force lex to EOF (the other parts should already be lexed)
+                scimoz.colourise(endPos, -1);
             }
             do_next_range = (function do_next_range_() {
                 if (ranges.length < 1) {
