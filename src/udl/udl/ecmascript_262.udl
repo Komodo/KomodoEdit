@@ -100,6 +100,10 @@ state IN_CSL_DEFAULT:
 
 # '<' if token_check  : paint(upto, CSL_DEFAULT), => IN_CSL_XML # E4X stuff
 
+# Bug 88546 - recognize lambda expn's that start with a regex
+/function(?=\s*\((?:\s*\w+(?:\s*,\s*\w+)*)?\s*\)\s*\/(?![\*\/]))/: \
+    paint(upto, CSL_DEFAULT), paint(include, CSL_WORD), => IN_CSL_LAMBDA_REGEX_1
+
 # /$NAMESEQ/ : paint(upto, CSL_DEFAULT), paint(include, CSL_IDENTIFIER)
 /[$NMSTART][$CS]*/ : paint(upto, CSL_DEFAULT), paint(include, CSL_IDENTIFIER)
 
@@ -198,6 +202,14 @@ state IN_CSL_OP1:
 '++' : paint(include, CSL_OPERATOR), => IN_CSL_DEFAULT
 # The fallback
 /[$OP]/ : paint(include, CSL_OPERATOR), => IN_CSL_DEFAULT
+
+# Walk through the start of a js lambda expression (es3 brace-less function bodies)
+# looking for a '/' at the end.  If we're here, we matched up to the first '/'
+state IN_CSL_LAMBDA_REGEX_1:
+'/': paint(upto, CSL_DEFAULT), paint(include, CSL_REGEX), => IN_CSL_REGEX
+/[,()]/: paint(upto, CSL_DEFAULT), paint(include, CSL_OPERATOR) # stay 
+/\w+/: paint(upto, CSL_DEFAULT), paint(include, CSL_IDENTIFIER)  # stay
+/\z/: paint(upto, CSL_DEFAULT)
 
 ################ End States ################
 
