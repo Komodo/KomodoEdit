@@ -195,6 +195,7 @@ static bool lineContainsClosingBrace(int pos,
 static bool continuesComment(int pos,
 			     Accessor &styler) {
     int style;
+    styler.Flush();
     for (; pos >= 0; --pos) {
 	style = actual_style(styler.StyleAt(pos));
 	if (style == SCE_TCL_COMMENT) {
