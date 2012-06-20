@@ -745,16 +745,20 @@ class KoLanguageRegistryService:
             #print "languages are %r"%langs
 
         # Detect Django content - ensuring the add-on is enabled.
-        if (not langs or langs[0] in ("HTML", "HTML5", "XHTML")) and \
-           self.addonIsEnabled("django_language@ActiveState.com"):
+        addDjangoLikeNames = False
+        if not langs or langs[0] in ("HTML", "HTML5", "XHTML"):
             # Sniff the html contents for Django tags.
             if "{%" in head and "%}" in head:
                 if "{{" in head or "}}" in head:
                     # Multiple tag styles - it's Django.
-                    langs.insert(0, "Django")
+                    addDjangoLikeNames = True
                 elif head.count("{%") >= 2 and head.count("%}") >= 2:
                     # Multiple tag usage - it's Django.
-                    langs.insert(0, "Django")
+                    addDjangoLikeNames = True
+        if addDjangoLikeNames:
+            for langName in ["Django", "Twig", "Smarty"]:
+                if self.addonIsEnabled(langName.lower() + "_language@ActiveState.com"):
+                    langs.append(langName)
 
         # Detect the type from a possible shebang line.
         if (self._globalPrefs.getBooleanPref('shebangDetection') and

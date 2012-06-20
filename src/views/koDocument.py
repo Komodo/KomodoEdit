@@ -404,12 +404,11 @@ class koDocumentBase:
 
         #print "we got file [%s] content [%r]" % (fileNameLanguage,contentLanguages)
         # Select the appropriate language from the above guesses.
-        if not contentLanguages and not fileNameLanguage:
-            language = "Text"
-            log.info("_guessLanguage: '%s' (fallback)", language)
-        elif not contentLanguages:
+        if contentLanguages and fileNameLanguage in contentLanguages:
+            # Both agree, so use the file-name language
             language = fileNameLanguage
-            log.info("_guessLanguage: '%s' (filename)", language)
+        elif not contentLanguages:
+            language = fileNameLanguage or "Text"
         else:
             language = contentLanguages[0]
             # always defer to the extension match if our primary content match
@@ -417,8 +416,11 @@ class koDocumentBase:
             # then we want to maintain that instead of the filename match
             if fileNameLanguage and language in ["XML", "HTML", "XHTML"]:
                 language = fileNameLanguage
-            log.info("_guessLanguage: '%s' (content)", language)
-            self.prefs.setStringPref('language', language)
+            elif fileNameLanguage and fileNameLanguage != language:
+                log.warn("For file %s, favoring contents language %s over filename language %s",
+                         baseName, language, fileNameLanguage)
+        self.prefs.setStringPref('language', language)
+        log.info("_guessLanguage: '%s' (content)", language)
         if self._isConsideredLargeDocument(langRegistrySvc, language):
             self._setAsLargeDocument(language)
             language = "Text"
