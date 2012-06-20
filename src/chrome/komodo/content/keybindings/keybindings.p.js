@@ -1645,122 +1645,124 @@ function sort_commanditems(a, b) {
     return 1;
 }
 
-var cssTable = "\
-body\
-    {\
-    background: #FFFFFF;\
-    font-family: Verdana, Arial, Helvetica, sans-serif;\
-    font-weight: normal;\
-    font-size: 70%;\
-    }	\
-body.toc\
-   {\
-   background-color: #D9D5CE; \
-   background-image: url('images/watermark_AS.gif'); \
-   background-repeat: no-repeat; \
-   color: #333333;   \
-   }\
-td\
-    {\
-    font-family: Verdana, Arial, Helvetica, sans-serif;\
-    font-weight: normal;\
-    text-decoration: none;\
-    font-size: 70%;\
-    }\
-p\
-    {\
-    color: #000000;\
-    font-family: Verdana, Arial, Helvetica, sans-serif;\
-    font-weight: normal;\
-    }\
-blockquote\
-    {\
-    color: #000000;\
-    font-family: Verdana, Arial, Helvetica, sans-serif;\
-    font-weight: normal;\
-    margin-left: 15px;\
-    }\
-dl\
-    {\
-    color: #000000;\
-    font-family: Verdana, Arial, Helvetica, sans-serif;\
-    font-weight: normal;\
-    }\
-\
-dt\
-    {\
-    color: #000000;\
-    font-family: Verdana, Arial, Helvetica, sans-serif;\
-    font-weight: normal;\
-    }\
-\
-ul\
-	{\
-	margin-top: 5px;\
-	margin-bottom: 5px;\
-	}\
-   \
-ol\
-    {\
-    color: #000000;\
-    font-family: Verdana, Arial, Helvetica, sans-serif;\
-    font-weight: normal;\
-    }\
-\
-h1\
-    {\
-    color: #000000;\
-    font-weight: bold;\
-    font-size: 130%;\
-    background-color: #EEEEEE;\
-    padding: 2px;\
-    }\
-    h2 a:hover\
-        {\
-        color: #000000;\
-        text-decoration: none;\
-        }\
-h2\
-    {\
-    color: #222222;\
-    font-weight: bold;\
-    font-size: 100%;\
-    padding: 2px;  \
-    border-bottom: 1px dashed #222222; \
-    }\
-pre\
-    {\
-    font-size: 120%;\
-    }\
-tt\
-    {\
-    font-size: 120%;\
-    }\
-code\
-    {\
-    font-size: 120%;\
-    }\
-kbd\
-    {\
-    font-size: 120%;\
-    }\
-   \
-/* default links */\
-a:link\
-	{\
-	color: #0066CC;\
-	text-decoration: none;\
-	}\
-a:visited\
-	{\
-	color: #0066CC;\
-	text-decoration: none;\
-	}\
-a:hover\
-	{\
-	color: #0066CC;\
-	text-decoration: underline;\
+var cssTable = "\n\
+body\n\
+    {\n\
+    background: #FFFFFF;\n\
+    font-family: Verdana, Arial, Helvetica, sans-serif;\n\
+    font-weight: normal;\n\
+    font-size: 90%;\n\
+    }	\n\
+body.toc\n\
+   {\n\
+   background-color: #D9D5CE; \n\
+   background-image: url('images/watermark_AS.gif'); \n\
+   background-repeat: no-repeat; \n\
+   color: #333333;   \n\
+   }\n\
+td\n\
+    {\n\
+    font-family: Verdana, Arial, Helvetica, sans-serif;\n\
+    font-weight: normal;\n\
+    text-decoration: none;\n\
+    font-size: 90%;\n\
+    }\n\
+p\n\
+    {\n\
+    color: #000000;\n\
+    font-family: Verdana, Arial, Helvetica, sans-serif;\n\
+    font-weight: normal;\n\
+    }\n\
+blockquote\n\
+    {\n\
+    color: #000000;\n\
+    font-family: Verdana, Arial, Helvetica, sans-serif;\n\
+    font-weight: normal;\n\
+    margin-left: 15px;\n\
+    }\n\
+dl\n\
+    {\n\
+    color: #000000;\n\
+    font-family: Verdana, Arial, Helvetica, sans-serif;\n\
+    font-weight: normal;\n\
+    }\n\
+\n\
+dt\n\
+    {\n\
+    color: #000000;\n\
+    font-family: Verdana, Arial, Helvetica, sans-serif;\n\
+    font-weight: normal;\n\
+    }\n\
+\n\
+ul\n\
+	{\n\
+	margin-top: 5px;\n\
+	margin-bottom: 5px;\n\
+	}\n\
+   \n\
+ol\n\
+    {\n\
+    color: #000000;\n\
+    font-family: Verdana, Arial, Helvetica, sans-serif;\n\
+    font-weight: normal;\n\
+    }\n\
+\n\
+h1\n\
+    {\n\
+    color: #000000;\n\
+    font-weight: bold;\n\
+    font-size: 130%;\n\
+    background-color: #EEEEEE;\n\
+    padding: 2px;\n\
+    }\n\
+    h2 a:hover\n\
+        {\n\
+        color: #000000;\n\
+        text-decoration: none;\n\
+        }\n\
+h2\n\
+    {\n\
+    color: #222222;\n\
+    font-weight: bold;\n\
+    font-size: 100%;\n\
+    padding: 2px;  \n\
+    border-bottom: 1px dashed #222222; \n\
+    }\n\
+pre\n\
+    {\n\
+    font-size: 120%;\n\
+    }\n\
+tt\n\
+    {\n\
+    font-size: 120%;\n\
+    }\n\
+code\n\
+    {\n\
+    font-size: 120%;\n\
+    }\n\
+kbd\n\
+    {\n\
+    font-size: 120%;\n\
+    }\n\
+   \n\
+/* default links */\n\
+a:link\n\
+	{\n\
+	color: #0066CC;\n\
+	text-decoration: none;\n\
+	}\n\
+a:visited\n\
+	{\n\
+	color: #0066CC;\n\
+	text-decoration: none;\n\
+	}\n\
+a:hover\n\
+	{\n\
+	color: #0066CC;\n\
+	text-decoration: underline;\n\
 	}";
+
+
 
 this.Manager.prototype.makeCurrentKeyBindingTable = function() {
     //if (this.commanditems == null) {
@@ -1769,7 +1771,7 @@ this.Manager.prototype.makeCurrentKeyBindingTable = function() {
     var infoSvc = Components.classes["@activestate.com/koInfoService;1"].
                   getService(Components.interfaces.koIInfoService);
     var title = 'Komodo Keybindings [' + this.currentConfiguration + ']';
-    var text = "<html><HEAD><title>" + title + "</title></HEAD><STYLE TYPE=\"text/css\" MEDIA=screen><!-- " + cssTable + " --></STYLE><body size='-2'><table width=\"100%%\">";
+    var text = "<html><HEAD><title>" + title + "</title><STYLE TYPE=\"text/css\" MEDIA=screen><!-- " + cssTable + " --></STYLE></HEAD><body><table width=\"100%%\">";
     text = text.concat('<h2>' + title + '</h2>');
 // #if PLATFORM == 'darwin'
     text = text.concat('NOTE: "Meta" in this list refers to the Command Key on OS X.');
@@ -1821,8 +1823,15 @@ this.Manager.prototype.makeCommandIdTable = function() {
     var infoSvc = Components.classes["@activestate.com/koInfoService;1"].
                   getService(Components.interfaces.koIInfoService);
     var title = 'Komodo Command Id List';
-    var text = "<html><HEAD><title>" + title + "</title></HEAD><STYLE TYPE=\"text/css\" MEDIA=screen><!-- " + cssTable + " --></STYLE><body size='-2'><table width=\"100%%\">";
-    text = text.concat('<h1>' + title + '</h1>');
+    var genComment = "<!-- Generated by ko.keybindings.manager.makeCommandIdTable in keybindings.p.js -->\n";
+    var text = ("<html><HEAD><title>"
+                + title
+                + "</title><STYLE TYPE=\"text/css\" MEDIA=screen><!-- "
+                + cssTable
+                + " --></STYLE>\n</head>\n"
+                + genComment
+                + "<body><table width=\"100%%\">"
+                + '<h1>' + title + '</h1>');
     var desc;
     var category;
     var key;
