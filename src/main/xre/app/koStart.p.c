@@ -189,6 +189,21 @@
 #    define environ _environ
 #endif
 
+/**
+ * Helper function to convert a UTF-8 string to UTF-16
+ * @param str The UTF-8 string
+ * @returns The equivalent UTF-16 string; it should be free()ed.
+ */
+static wchar_t* _ToUTF16(const char* str)
+{
+    wchar_t *buffer;
+    int size;
+    size = MultiByteToWideChar(CP_UTF8, 0, str, -1, NULL, 0);
+    buffer = (wchar_t*)malloc(size * sizeof(wchar_t));
+    (void)MultiByteToWideChar(CP_UTF8, 0, str, -1, buffer, size);
+    return buffer;
+}
+
 #else /* !WIN32 */
 
 /* Bug: http://bugs.activestate.com/show_bug.cgi?id=39273 
@@ -317,18 +332,21 @@ static void _LogDebug KO_VARARGS_DEF(const char *, format)
         va_list ap;
 #if defined(WIN32) && defined(_WINDOWS)
         char consoleTitle[1000];
+        wchar_t *startLogFileNameW;
         KO_VARARGS_START(const char *, format, ap);
         if (GetConsoleTitle(consoleTitle, 1000) == 0
             && GetLastError() != ERROR_SUCCESS)
         {
             FILE* startlog;
             static int isFirstTime = 1;
-            char* mode = "a";
+            wchar_t* mode = L"a";
             if (isFirstTime) {
-                mode = "w";
+                mode = L"w";
                 isFirstTime = 0;
             }
-            startlog = fopen(_KoStart_GetStartupLogFileName(), mode);
+            startLogFileNameW = _ToUTF16(_KoStart_GetStartupLogFileName());
+            startlog = fwopen(startLogFileNameW, mode);
+            free(startLogFileNameW);
             fprintf(startlog, "%s: debug: ", _KoStart_logPrefix);
             vfprintf(startlog, format, ap);
             fclose(startlog);
@@ -391,20 +409,6 @@ static DWORD _FriendlyWaitForObject(HANDLE h)
     return E_UNEXPECTED;
 }
 
-/**
- * Helper function to convert a UTF-8 string to UTF-16
- * @param str The UTF-8 string
- * @returns The equivalent UTF-16 string; it should be free()ed.
- */
-static wchar_t* _ToUTF16(const char* str)
-{
-    wchar_t *buffer;
-    int size;
-    size = MultiByteToWideChar(CP_UTF8, 0, str, -1, NULL, 0);
-    buffer = (wchar_t*)malloc(size * sizeof(wchar_t));
-    (void)MultiByteToWideChar(CP_UTF8, 0, str, -1, buffer, size);
-    return buffer;
-}
 #endif
 
 
@@ -1591,7 +1595,14 @@ void _KoStart_SaveStartupEnvironment()
     char* envVar;
     int i;
 
-    if ((envFile = fopen(envFileName, "w")) == NULL) {
+#ifdef WIN32
+    wchar_t* envFileNameW = _ToUTF16(envFileName);
+    envFile = _wfopen(envFileNameW, L"w, ccs=UTF-8");
+    free(envFileNameW);
+#else
+    envFile = fopen(envFileName, "w");
+#endif
+    if (envFile == NULL) {
         _LogError("could not open '%s' for writing\n", envFileName);
         exit(1);
     }
@@ -1732,30 +1743,34 @@ void _KoStart_SetupEnvironment(const char* programDir)
      * Komodo.
      */
     if (_KoStart_verbose) {
+#ifdef WIN32
+        wchar_t* envVar;
+#define CHECK(s) (wcsncmp(L ## s, envVar, sizeof(s) - 1) == 0)
+#else
         char* envVar;
+#define CHECK(s) (strncmp(s, envVar, sizeof(s) - 1) == 0)
+#endif
         int i;
         for (i = 0; ; ++i) {
             envVar = environ[i];
             if (envVar == NULL) break;
-            if (strncmp("MOZILLA_FIVE_HOME=", envVar, 18) == 0
-                || strncmp("MOZ_MAXWINSDK=", envVar, 14) == 0
-                || strncmp("MOZ_PLUGIN_PATH=", envVar, 16) == 0
-                || strncmp("XRE_PROFILE_PATH=", envVar, 17) == 0
-                || strncmp("MOZ_SRC=", envVar, 8) == 0
-                || strncmp("MOZ_TOOLS=", envVar, 10) == 0
-                || strncmp("MOZ_NO_REMOTE=", envVar, 14) == 0
-                || strncmp("MOZ_MSVCVERSION=", envVar, 16) == 0
-                || strncmp("MOZ_NO_RESET_PATH=", envVar, 18) == 0
+            if (CHECK("MOZILLA_FIVE_HOME=")
+                || CHECK("MOZ_MAXWINSDK=")
+                || CHECK("MOZ_PLUGIN_PATH=")
+                || CHECK("XRE_PROFILE_PATH=")
+                || CHECK("MOZ_SRC=")
+                || CHECK("MOZ_TOOLS=")
+                || CHECK("MOZ_NO_REMOTE=")
+                || CHECK("MOZ_MSVCVERSION=")
+                || CHECK("MOZ_NO_RESET_PATH=")
                ) {
                 /* skip these, already nulled out or set these ones */
-            } else if (strncmp("MOZ_", envVar, 4) == 0
-                       || strncmp("MOZILLA_", envVar, 8) == 0
-                       || strncmp("XRE_", envVar, 8) == 0
-                      ) {
+            } else if (CHECK("MOZ_") || CHECK("MOZILLA_") || CHECK("XRE_")) {
                 _LogWarning("environment variable could possibly conflict "
                             "with Komodo operation: '%s'\n", envVar);
             }
         }
+#undef CHECK
     }
 
     /* unset PYTHONPATH:
