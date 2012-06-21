@@ -464,7 +464,10 @@ class koDocumentBase:
         """
         returnFactor = self._DOCUMENT_SIZE_NOT_LARGE
         documentByteCountThreshold = self.prefs.getLongPref("documentByteCountThreshold")
-        if len(data) > documentByteCountThreshold:
+        if documentByteCountThreshold <= 0:
+            # Ignore this metric
+            pass
+        elif len(data) > documentByteCountThreshold:
             return self._DOCUMENT_SIZE_ANY_LARGE
         elif len(data) > documentByteCountThreshold/2:
             returnFactor = self._DOCUMENT_SIZE_UDL_LARGE
@@ -472,13 +475,19 @@ class koDocumentBase:
         documentLineCountThreshold = self.prefs.getLongPref("documentLineCountThreshold")
         line_lengths = [len(line) for line in data.splitlines()]
         num_lines = len(line_lengths)
-        if num_lines > documentLineCountThreshold:
+        if documentLineCountThreshold <= 0:
+            # Ignore this metric
+            pass
+        elif num_lines > documentLineCountThreshold:
             return self._DOCUMENT_SIZE_ANY_LARGE
         elif num_lines > documentLineCountThreshold / 2:
             returnFactor = self._DOCUMENT_SIZE_UDL_LARGE
 
         
         documentLineLengthThreshold = self.prefs.getLongPref("documentLineLengthThreshold")
+        if documentLineLengthThreshold <= 0:
+            # Ignore this metric
+            return returnFactor
         documentLineLengthThreshold_Halved = documentLineLengthThreshold / 2
         if any([line_length >= documentLineLengthThreshold for line_length in line_lengths]):
             return self._DOCUMENT_SIZE_ANY_LARGE
