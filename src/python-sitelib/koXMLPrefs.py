@@ -48,14 +48,11 @@ import re, sys, os, cgi
 from eollib import newl
 import logging
 import shutil
-import timeline
 import uriparse
 import urllib2
 
 log = logging.getLogger('koXMLPrefs')
 #log.setLevel(logging.DEBUG)
-
-_timers = {} # used for timeline stuff
 
 # convert a string containing 0, 1, True, False
 def _convert_boolean(value):
@@ -218,13 +215,11 @@ class koPreferenceSetDeserializer:
     """
     def DOMDeserialize(self, rootElement, parentPref, prefFactory, basedir=None, chainNotifications=0):
         """We know how to deserialize preferent-set elements."""
-        timeline.startTimer('koPreferenceSet instance creation')
         # Create a new preference set and rig it into the preference set hierarchy.
         xpPrefSet = components.classes["@activestate.com/koPreferenceSet;1"] \
                   .createInstance(components.interfaces.koIPreferenceSet)
         newPrefSet = UnwrapObject(xpPrefSet)
         newPrefSet.chainNotifications = chainNotifications
-        timeline.stopTimer('koPreferenceSet instance creation')
         try:
             newPrefSet.id = rootElement.getAttribute('id') or ""
         except KeyError:
@@ -241,16 +236,12 @@ class koPreferenceSetDeserializer:
 
         for node in childNodes:
             if node and node.nodeType == minidom.Node.ELEMENT_NODE:
-                timeline.startTimer('_dispatch_deserializer')
                 if node.hasAttribute('validate'):
                     newPrefSet.setValidation(node.getAttribute('id'), node.getAttribute('validate'))
                 pref = _dispatch_deserializer(self, node, newPrefSet, prefFactory, basedir, chainNotifications)
-                timeline.stopTimer('_dispatch_deserializer')
                 if pref:
                     if pref.id:
-                        timeline.startTimer('setPref')
                         newPrefSet.setPref(pref.id, pref)
-                        timeline.stopTimer('setPref')
                     else:
                         log.error("Preference has no id - dumping preference:")
                         pref.dump(0)
@@ -490,9 +481,7 @@ class koXMLPreferenceSetObjectFactory:
             stream = open(filename, "r")
             #XXX need to handle exceptions from minidom to be robust
             try:
-                timeline.startTimer('minidom.parse')
                 rootNode = minidom.parse(stream)
-                timeline.stopTimer('minidom.parse')
             except (AttributeError, SAXParseException), e:
                 #XXX why would an AttributeError be raised?
                 log.exception("Couldn't deserialize file %r", filename)
@@ -503,21 +492,12 @@ class koXMLPreferenceSetObjectFactory:
             #log.debug("No prefs file %r - returning None...", filename)
             return None
 
-        global _timers
-        _timers = {}
         # Deserialize the top level preference set.
         if rootNode.hasChildNodes():
             for node in rootNode.childNodes:
                 if node.nodeType == minidom.Node.ELEMENT_NODE:
-                    timeline.startTimer('deserializeNode')
                     prefObject = self.deserializeNode(node, None)
-                    timeline.stopTimer('deserializeNode')
 
-        timeline.markTimer('minidom.parse')
-        timeline.markTimer('deserializeNode')
-        for k in _timers:
-            timeline.markTimer(k)
-            
         # If there wasn't a top level preference set, then
         # ... well... then there isn't one!
         return prefObject
@@ -526,11 +506,7 @@ class koXMLPreferenceSetObjectFactory:
         ds = self._getDeserializer(element.nodeName)
         if ds:
             deserializer_name = ds.__class__.__name__
-            timeline.startTimer(deserializer_name)
             retval = ds.DOMDeserialize(element, parentPref, self, basedir, chainNotifications)
-            timeline.stopTimer(deserializer_name)
-            global _timers
-            _timers[deserializer_name] = 1
             return retval
         else:
             log.debug("No handler for node type %s", element.nodeName)

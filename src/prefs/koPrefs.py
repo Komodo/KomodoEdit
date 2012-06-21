@@ -1124,9 +1124,6 @@ class koGlobalPrefService:
         obsvc.addObserver(self, 'profile-before-change', True)
 
     def _setupGlobalPreference(self, prefName):
-        import timeline
-        timeline.enter("Komodo global preferences loading")
-        timeline.startTimer("Komodo global preferences")
         if not self.pref_map.has_key(prefName):
             raise ServerException(nsError.NS_ERROR_UNEXPECTED, "No well-known preference set with name '%s'" % (prefName,))
 
@@ -1172,11 +1169,6 @@ class koGlobalPrefService:
             prefs = UnwrapObject(defaultPrefs)
 
         self.pref_map[prefName] = prefs, defn
-        timeline.stopTimer("Komodo global preferences")
-        timeline.leave("Komodo global preferences loading")
-        timeline.mark("Loaded prefs: " + prefName)
-        timeline.markTimer("Komodo global preferences")
-        timeline.resetTimer("Komodo global preferences")
 
     def getPrefs(self, name):
         if not self.pref_map.has_key(name):
