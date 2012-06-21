@@ -345,7 +345,7 @@ static void _LogDebug KO_VARARGS_DEF(const char *, format)
                 isFirstTime = 0;
             }
             startLogFileNameW = _ToUTF16(_KoStart_GetStartupLogFileName());
-            startlog = fwopen(startLogFileNameW, mode);
+            startlog = _wfopen(startLogFileNameW, mode);
             free(startLogFileNameW);
             fprintf(startlog, "%s: debug: ", _KoStart_logPrefix);
             vfprintf(startlog, format, ap);
