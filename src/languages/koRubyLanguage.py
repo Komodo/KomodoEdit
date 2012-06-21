@@ -664,17 +664,13 @@ end section
             elif inBlockCommentIndent is not None:
                 return inBlockCommentIndent
         
-        timeline.enter('_calcIndentLevel')
         try:
-            try:
-                new_indent_string = self._calcIndentLevel(scimoz, scimoz.currentPos, style_info)
-                #qlog.debug("new_indent_string: %r", new_indent_string)
-                return new_indent_string
-            except:
-                log.warn("Got exception computing _calcIndentLevel", exc_info=1)
-                return ''
-        finally:
-            timeline.leave('_calcIndentLevel')
+            new_indent_string = self._calcIndentLevel(scimoz, scimoz.currentPos, style_info)
+            #qlog.debug("new_indent_string: %r", new_indent_string)
+            return new_indent_string
+        except:
+            log.warn("Got exception computing _calcIndentLevel", exc_info=1)
+            return ''
 
     # This function works its way back through the buffer, to a max of
     # self._max_lines_in_calc(100) lines

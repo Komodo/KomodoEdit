@@ -44,7 +44,6 @@ import logging
 import pprint
 
 import scimozindent
-import timeline
 from xpcom import components
 from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC, getProxyForObject
 from xpcom.server import WrapObject
@@ -1126,75 +1125,71 @@ class KoLanguageBase:
         of terminology like 'indenting', 'indented'...
         XXX to DavidA - why didn't the routine use Scintilla's levels before?
         """
-        timeline.enter('guessIndentationByFoldLevels')
         comment_styles = None
-        try:
-            textLength = scimoz.length
-            if textLength == 0:
-                return 0, 0
-            # first, colourise the first 100 lines at most so we have
-            # styling information.
-            N = min(100, scimoz.lineCount)
-            end = scimoz.getLineEndPosition(N - 1)
-            if scimoz.endStyled < end:
-                scimoz.colourise(scimoz.endStyled, end)
-        
-            for lineNo in range(N):
-                # the outer loop tries to find the 'indenting' line.
-                level = scimoz.getFoldLevel(lineNo)
-                if level % scimoz.SC_FOLDLEVELHEADERFLAG == 0: # Not an indenting line
-                    indentlog.debug("line %d is white", lineNo)
-                    continue
-                indentedLineNo = self._findChildLine(scimoz, level, lineNo + 1, N)
-                if indentedLineNo is None:
-                    indentlog.debug("reject line %d", lineNo)
-                    continue
-                if comment_styles is None:
-                    # Lazily loaded.
-                    comment_styles = self.getCommentStyles()
-                indentEndPosition = scimoz.getLineIndentPosition(indentedLineNo)
-                style = scimoz.getStyleAt(indentEndPosition)
-                if style in comment_styles: # skip comments
-                    indentlog.debug("reject line %d - it's a comment", lineNo)
-                    continue
-
-                ws_info = [classifyws(scimoz.getTextRange(scimoz.positionFromLine(aLine),
-                                                       scimoz.getLineIndentPosition(aLine)), tabWidth)
-                        for aLine in [lineNo, indentedLineNo]]
-                # each entry in ws_info consists of a (raw, indent length, foundTabs bool) tuple
-                guess = ws_info[1][1] - ws_info[0][1]
-                foundTabs = ws_info[0][2] or ws_info[1][2]
-                # If the guess is reasonable, use it -- indents less than
-                # 2 don't qualify.
-                if guess >= minIndentLevel:
-                    indentlog.debug("return guess=%r, foundTabs=%r", guess, foundTabs)
-                    if not foundTabs:
-                        # Look at all lines but the first to see if any of them use leading tabs
-                        sawSufficientWhiteSpace = False
-                        for subLineNo in range(1, N):
-                            level = scimoz.getFoldLevel(subLineNo)
-                            if level % scimoz.SC_FOLDLEVELWHITEFLAG == 0: continue
-                            # Just look at the first character
-                            lineStartPos = scimoz.positionFromLine(subLineNo)
-                            lineEndPos = scimoz.getLineEndPosition(subLineNo)
-                            # lineEndPos is ok at the end of buffer, as we
-                            # don't index with it here.
-                                
-                            line = scimoz.getTextRange(lineStartPos, lineEndPos)
-                            blackPos = len(line) - len(line.lstrip())
-                            # Make sure the indentation is big enough to count
-                            if '\t' in line[:blackPos]:
-                                foundTabs = 1
-                                break
-                            elif blackPos >= tabWidth:
-                                sawSufficientWhiteSpace = True
-                    return guess, foundTabs or (not sawSufficientWhiteSpace and defaultUsesTabs)
-                else:
-                    indentlog.warn("Found non-positive guess of %r (min %r)", guess, minIndentLevel)
-                    # Try the next parent-child pair
+        textLength = scimoz.length
+        if textLength == 0:
             return 0, 0
-        finally:
-            timeline.leave('guessIndentationByFoldLevels')
+        # first, colourise the first 100 lines at most so we have
+        # styling information.
+        N = min(100, scimoz.lineCount)
+        end = scimoz.getLineEndPosition(N - 1)
+        if scimoz.endStyled < end:
+            scimoz.colourise(scimoz.endStyled, end)
+    
+        for lineNo in range(N):
+            # the outer loop tries to find the 'indenting' line.
+            level = scimoz.getFoldLevel(lineNo)
+            if level % scimoz.SC_FOLDLEVELHEADERFLAG == 0: # Not an indenting line
+                indentlog.debug("line %d is white", lineNo)
+                continue
+            indentedLineNo = self._findChildLine(scimoz, level, lineNo + 1, N)
+            if indentedLineNo is None:
+                indentlog.debug("reject line %d", lineNo)
+                continue
+            if comment_styles is None:
+                # Lazily loaded.
+                comment_styles = self.getCommentStyles()
+            indentEndPosition = scimoz.getLineIndentPosition(indentedLineNo)
+            style = scimoz.getStyleAt(indentEndPosition)
+            if style in comment_styles: # skip comments
+                indentlog.debug("reject line %d - it's a comment", lineNo)
+                continue
+
+            ws_info = [classifyws(scimoz.getTextRange(scimoz.positionFromLine(aLine),
+                                                   scimoz.getLineIndentPosition(aLine)), tabWidth)
+                    for aLine in [lineNo, indentedLineNo]]
+            # each entry in ws_info consists of a (raw, indent length, foundTabs bool) tuple
+            guess = ws_info[1][1] - ws_info[0][1]
+            foundTabs = ws_info[0][2] or ws_info[1][2]
+            # If the guess is reasonable, use it -- indents less than
+            # 2 don't qualify.
+            if guess >= minIndentLevel:
+                indentlog.debug("return guess=%r, foundTabs=%r", guess, foundTabs)
+                if not foundTabs:
+                    # Look at all lines but the first to see if any of them use leading tabs
+                    sawSufficientWhiteSpace = False
+                    for subLineNo in range(1, N):
+                        level = scimoz.getFoldLevel(subLineNo)
+                        if level % scimoz.SC_FOLDLEVELWHITEFLAG == 0: continue
+                        # Just look at the first character
+                        lineStartPos = scimoz.positionFromLine(subLineNo)
+                        lineEndPos = scimoz.getLineEndPosition(subLineNo)
+                        # lineEndPos is ok at the end of buffer, as we
+                        # don't index with it here.
+                            
+                        line = scimoz.getTextRange(lineStartPos, lineEndPos)
+                        blackPos = len(line) - len(line.lstrip())
+                        # Make sure the indentation is big enough to count
+                        if '\t' in line[:blackPos]:
+                            foundTabs = 1
+                            break
+                        elif blackPos >= tabWidth:
+                            sawSufficientWhiteSpace = True
+                return guess, foundTabs or (not sawSufficientWhiteSpace and defaultUsesTabs)
+            else:
+                indentlog.warn("Found non-positive guess of %r (min %r)", guess, minIndentLevel)
+                # Try the next parent-child pair
+        return 0, 0
     
     def _findChildLine(self, scimoz, headerLevel, startLineNo, endLineNo):
         #indentlog.debug("find an indented line for line %d", startLineNo)
@@ -1231,7 +1226,6 @@ class KoLanguageBase:
         # if that character is an indenting brace, then indent.
 
         # Note that koCoffeeScriptLanguage overrides this method.
-        timeline.enter('_shouldIndent')
         curLineNo = scimoz.lineFromPosition(pos)
         lineStart = scimoz.positionFromLine(curLineNo)
         data = scimoz.getStyledText(lineStart, pos+1)
@@ -1249,7 +1243,6 @@ class KoLanguageBase:
                   style in style_info._indent_open_styles):
                 return self._findIndentationBasedOnStartOfLogicalStatement(scimoz, pos, style_info, curLineNo)
             break
-        timeline.leave('_shouldIndent')
         return None
 
     def _findIndentationBasedOnStartOfLogicalStatement(self, scimoz, pos, style_info, curLineNo):
@@ -1263,73 +1256,64 @@ class KoLanguageBase:
         # first we look for an unmatched 'line-up' brace, going back until
         # either we've gone back 100 lines, or we get past the indent
         # of the current line
-
-        timeline.enter('_shouldLineUp')
-        try:
-            curLineNo = scimoz.lineFromPosition(pos)
-            minIndent = self._getIndentWidthForLine(scimoz, curLineNo)
-            startLineNo = max(curLineNo-100, 0)
-            startPos = scimoz.positionFromLine(startLineNo)
-            p = pos
-            timeline.enter('getStyledText')
-            data = scimoz.getStyledText(startPos, pos+1)
-            timeline.leave('getStyledText')
-            while p > startPos:
-                p = p - 1
+        curLineNo = scimoz.lineFromPosition(pos)
+        minIndent = self._getIndentWidthForLine(scimoz, curLineNo)
+        startLineNo = max(curLineNo-100, 0)
+        startPos = scimoz.positionFromLine(startLineNo)
+        p = pos
+        data = scimoz.getStyledText(startPos, pos+1)
+        while p > startPos:
+            p = p - 1
+            char = data[(p-startPos)*2]
+            indentlog.info("looking at char %r at position %d", char, p)
+            style = ord(data[(p-startPos)*2+1]) & self.stylingBitsMask
+            if char in self._lineup_close_chars and style in style_info._lineup_close_styles:
+                # skip to the match
+                braceMatch = scimoz.braceMatch(p)
+                if braceMatch == -1:
+                    break
+                p = braceMatch
                 char = data[(p-startPos)*2]
-                indentlog.info("looking at char %r at position %d", char, p)
                 style = ord(data[(p-startPos)*2+1]) & self.stylingBitsMask
-                if char in self._lineup_close_chars and style in style_info._lineup_close_styles:
-                    # skip to the match
-                    braceMatch = scimoz.braceMatch(p)
-                    if braceMatch == -1:
-                        break
-                    p = braceMatch
-                    char = data[(p-startPos)*2]
-                    style = ord(data[(p-startPos)*2+1]) & self.stylingBitsMask
-                    lineNo = scimoz.lineFromPosition(p)
-                    minIndent = self._getIndentWidthForLine(scimoz, lineNo)
-                    continue # keep looking
-                if char in self._lineup_open_chars and style in style_info._lineup_close_styles:
-                    # aha!
-                    # is there something to our right?
-                    indentlog.info("We've got a line up open char!: %r in %r", char, self._lineup_open_chars)
-                    lineNo = scimoz.lineFromPosition(p)
-                    lineEnd = scimoz.getLineEndPosition(lineNo)
-                    # Unicode: assume open-chars are not multi-byte
-                    line = scimoz.getTextRange(p+1, lineEnd)
-                    indentlog.info("Looking to what's to the right of us: %r", line)
-                    if line.strip():
-                        indentlog.info("look forward until the first non-comment non-whitespace char until EOL")
-                        for p2 in range(p, min(pos, lineEnd)):
-                            ch2 = data[(p2-startPos)*2]
-                            if ch2 in '  \t':
-                                continue
-                            style = ord(data[(p2-startPos)*2+1]) & self.stylingBitsMask
-                            if style in style_info._comment_styles:
-                                continue
-                            indentlog.info("we're here -- this is the column that we should use for indenting")
-                            column = scimoz.getColumn(p2)+1
-                            return scimozindent.makeIndentFromWidth(scimoz, column)
-                    elif p == pos - 1:
-                        # First char after bracket means we should do a brace-style indent
-                        #indentlog.info("the line-up char is the last on the line, so do brace-style indenting")
-                        column = self._getNextLineIndent(scimoz, lineNo)
+                lineNo = scimoz.lineFromPosition(p)
+                minIndent = self._getIndentWidthForLine(scimoz, lineNo)
+                continue # keep looking
+            if char in self._lineup_open_chars and style in style_info._lineup_close_styles:
+                # aha!
+                # is there something to our right?
+                indentlog.info("We've got a line up open char!: %r in %r", char, self._lineup_open_chars)
+                lineNo = scimoz.lineFromPosition(p)
+                lineEnd = scimoz.getLineEndPosition(lineNo)
+                # Unicode: assume open-chars are not multi-byte
+                line = scimoz.getTextRange(p+1, lineEnd)
+                indentlog.info("Looking to what's to the right of us: %r", line)
+                if line.strip():
+                    indentlog.info("look forward until the first non-comment non-whitespace char until EOL")
+                    for p2 in range(p, min(pos, lineEnd)):
+                        ch2 = data[(p2-startPos)*2]
+                        if ch2 in '  \t':
+                            continue
+                        style = ord(data[(p2-startPos)*2+1]) & self.stylingBitsMask
+                        if style in style_info._comment_styles:
+                            continue
+                        indentlog.info("we're here -- this is the column that we should use for indenting")
+                        column = scimoz.getColumn(p2)+1
                         return scimozindent.makeIndentFromWidth(scimoz, column)
-                    else:
-                        indentlog.info("it's a whitespace line, use the indent of the opened brace + 1")
-                        column = scimoz.getColumn(p)+1
-                        return scimozindent.makeIndentFromWidth(scimoz, column)
-                col = scimoz.getColumn(p)
-                if col <= minIndent:
-                    timeline.mark('breaking out')
-                    indentlog.debug("breaking out of looking for line-up characters" +
-                                    "because we've moved too far to the left at column %d < %d", col, minIndent)
-                    return None
-            timeline.mark("looked over %d/%d characters" % (pos-p, pos-startPos))
-            return None
-        finally:
-            timeline.leave('_shouldLineUp')
+                elif p == pos - 1:
+                    # First char after bracket means we should do a brace-style indent
+                    #indentlog.info("the line-up char is the last on the line, so do brace-style indenting")
+                    column = self._getNextLineIndent(scimoz, lineNo)
+                    return scimozindent.makeIndentFromWidth(scimoz, column)
+                else:
+                    indentlog.info("it's a whitespace line, use the indent of the opened brace + 1")
+                    column = scimoz.getColumn(p)+1
+                    return scimozindent.makeIndentFromWidth(scimoz, column)
+            col = scimoz.getColumn(p)
+            if col <= minIndent:
+                indentlog.debug("breaking out of looking for line-up characters" +
+                                "because we've moved too far to the left at column %d < %d", col, minIndent)
+                return None
+        return None
 
     def _skipOverParentheticalStatement(self, scimoz, pos, style_info):
         # we may just have finished a multi-line statement -- those involve
@@ -1447,128 +1431,124 @@ class KoLanguageBase:
           - a string which should be used as the indent otherwise.
           
         """
-        timeline.enter('_analyzeIndentNeededAtPos')
-        try:
-            if scimoz.getColumn(pos) == 0:
-                # If we're in column zero, do me no favors
-                return None
-            
-            inBlockCommentIndent, inLineCommentIndent = self._inCommentIndent(scimoz, pos, continueComments, style_info)
-
-            # see if we're in a block comment, and do 'inside-comment' indents
-            if inBlockCommentIndent is not None:
-                indentlog.info("we're in a block comment")
-                return inBlockCommentIndent
-            if continueComments and inLineCommentIndent is not None:
-                return inLineCommentIndent
-            
-            # Bug 85020 special-case indendation after [op|opener str-open-delim return]
-            if self._indentStringsAfterParens:
-                res = self._atOpeningStringDelimiter(scimoz, pos, style_info)
-                if res:
-                    return 1
-
-            curLineNo = scimoz.lineFromPosition(pos)
-            lineStart = scimoz.positionFromLine(curLineNo)
-            lineEnd = scimoz.getLineEndPosition(curLineNo)
-            shouldIndent = self._shouldIndent(scimoz, pos, style_info)
-            if shouldIndent is not None:
-                indentlog.info("detected indent")
-                return shouldIndent
-            indentlog.info("did not detect indentation")
-
-            jumped = self._skipOverParentheticalStatement(scimoz, pos, style_info)
-            log.debug("pos = %d, jumped = %d" % (pos, jumped))
-            if pos != jumped:
-                # recurse from the beginning of the statement
-                return self._analyzeIndentNeededAtPos(scimoz, jumped, continueComments, style_info)
-
-            # We're not indenting.  We may be doing a line-up,
-            # having just finished a line-up
-            # closing a comment, or doing a comment prefix
-    
-            shouldLineUp = self._shouldLineUp(scimoz, pos, style_info)
-            if shouldLineUp is not None:
-                indentlog.info("detected line-up")
-                return shouldLineUp
-    
-            indentlog.info("did not detect line-up")
-    
-                
-            ## We may just have finished a multi-line statement.  We need
-            ## to align with the line that started the statement.
-            #finishedMultiLineStatement = self._finishedMultiLineStatement(scimoz, pos)
-            #if finishedMultiLineStatement is not None:
-            #    indentlog.info("detected multi line statement")
-            #    return finishedMultiLineStatement
-            #
-            #indentlog.info("did not detect end of multi-line statement")
-
-            # See if we just closed a block comment, in which case we need to
-            # dedent by a variable amount depending on the commenting style.
-
-            if 'block' in self.commentDelimiterInfo:
-                finishedBlockCommentIndents = self._finishedBlockComment(scimoz, pos, style_info)
-                if finishedBlockCommentIndents is not None:
-                    indentlog.info("detected block comment close")
-                    return finishedBlockCommentIndents[0]
-                indentlog.info("did not detect block comment close")
-
-            # See if we just closed a block comment, in which case we need to
-            # dedent by a variable amount depending on the commenting style.
-
-            continuationLineIndent = self._continuationLineIndent(scimoz, pos)
-            if continuationLineIndent is not None:
-                indentlog.info("detected continuation line indent")
-                return continuationLineIndent
-            indentlog.info("did not detect continuationLineIndent")
-
-            # see if we're in a comment, and do 'inside-comment' indents
-            if inLineCommentIndent is not None:
-                indentlog.info("we're in a comment")
-                return inLineCommentIndent
-
-            indentingOrDedentingStatementIndent = self._indentingOrDedentingStatement(scimoz, pos, style_info)
-            if indentingOrDedentingStatementIndent is not None:
-                indentlog.info("detected indenting/dedenting statement")
-                return indentingOrDedentingStatementIndent
-            indentlog.info("did not detect indenting/dedenting statement")
-
-            # Look for a case where we're ending a list of hanging comments:
-            """
-            if 1: # start line *press shift-newline*
-                  # another line  *press shift-newline*
-                  # last line[|] (*press newline*) -- should indent based on first line containing comments
-            """
-            if 'line' in self.commentDelimiterInfo and not continueComments:
-                # If we're at ^[leading white-space][comments]<cursor>
-                # walk up lines looking for the same situtation,
-                # and do an indent at the first line that doesn't match.
-                current_line_style_runs = self._getCommentStyleRunsForLine(scimoz, curLineNo, style_info, lineStartPos=lineStart, lineEndPos=pos)
-                if current_line_style_runs:
-                    prevLineNo = curLineNo - 1
-                    while prevLineNo >= 1:
-                        prev_line_style_runs = self._getCommentStyleRunsForLine(scimoz, prevLineNo, style_info)
-                        if not prev_line_style_runs:
-                            break
-                        if prev_line_style_runs[0][1] != current_line_style_runs[0][1]:
-                            break
-                        prevLineNo = prevLineNo - 1
-                    # Find the indent based on the line we end up at.
-                    prevLine_LineEndPos = scimoz.getLineEndPosition(prevLineNo)
-                    currentPos = scimoz.currentPos
-                    scimoz.currentPos = prevLine_LineEndPos
-                    try:
-                        indent = self._getSmartBraceIndent(scimoz, continueComments, style_info)
-                    finally:
-                        scimoz.currentPos = currentPos
-                    if indent:
-                        return indent
-
-            indentlog.info("not in comment, doing plain")
+        if scimoz.getColumn(pos) == 0:
+            # If we're in column zero, do me no favors
             return None
-        finally:
-            timeline.leave('_analyzeIndentNeededAtPos')
+        
+        inBlockCommentIndent, inLineCommentIndent = self._inCommentIndent(scimoz, pos, continueComments, style_info)
+
+        # see if we're in a block comment, and do 'inside-comment' indents
+        if inBlockCommentIndent is not None:
+            indentlog.info("we're in a block comment")
+            return inBlockCommentIndent
+        if continueComments and inLineCommentIndent is not None:
+            return inLineCommentIndent
+        
+        # Bug 85020 special-case indendation after [op|opener str-open-delim return]
+        if self._indentStringsAfterParens:
+            res = self._atOpeningStringDelimiter(scimoz, pos, style_info)
+            if res:
+                return 1
+
+        curLineNo = scimoz.lineFromPosition(pos)
+        lineStart = scimoz.positionFromLine(curLineNo)
+        lineEnd = scimoz.getLineEndPosition(curLineNo)
+        shouldIndent = self._shouldIndent(scimoz, pos, style_info)
+        if shouldIndent is not None:
+            indentlog.info("detected indent")
+            return shouldIndent
+        indentlog.info("did not detect indentation")
+
+        jumped = self._skipOverParentheticalStatement(scimoz, pos, style_info)
+        log.debug("pos = %d, jumped = %d" % (pos, jumped))
+        if pos != jumped:
+            # recurse from the beginning of the statement
+            return self._analyzeIndentNeededAtPos(scimoz, jumped, continueComments, style_info)
+
+        # We're not indenting.  We may be doing a line-up,
+        # having just finished a line-up
+        # closing a comment, or doing a comment prefix
+
+        shouldLineUp = self._shouldLineUp(scimoz, pos, style_info)
+        if shouldLineUp is not None:
+            indentlog.info("detected line-up")
+            return shouldLineUp
+
+        indentlog.info("did not detect line-up")
+
+            
+        ## We may just have finished a multi-line statement.  We need
+        ## to align with the line that started the statement.
+        #finishedMultiLineStatement = self._finishedMultiLineStatement(scimoz, pos)
+        #if finishedMultiLineStatement is not None:
+        #    indentlog.info("detected multi line statement")
+        #    return finishedMultiLineStatement
+        #
+        #indentlog.info("did not detect end of multi-line statement")
+
+        # See if we just closed a block comment, in which case we need to
+        # dedent by a variable amount depending on the commenting style.
+
+        if 'block' in self.commentDelimiterInfo:
+            finishedBlockCommentIndents = self._finishedBlockComment(scimoz, pos, style_info)
+            if finishedBlockCommentIndents is not None:
+                indentlog.info("detected block comment close")
+                return finishedBlockCommentIndents[0]
+            indentlog.info("did not detect block comment close")
+
+        # See if we just closed a block comment, in which case we need to
+        # dedent by a variable amount depending on the commenting style.
+
+        continuationLineIndent = self._continuationLineIndent(scimoz, pos)
+        if continuationLineIndent is not None:
+            indentlog.info("detected continuation line indent")
+            return continuationLineIndent
+        indentlog.info("did not detect continuationLineIndent")
+
+        # see if we're in a comment, and do 'inside-comment' indents
+        if inLineCommentIndent is not None:
+            indentlog.info("we're in a comment")
+            return inLineCommentIndent
+
+        indentingOrDedentingStatementIndent = self._indentingOrDedentingStatement(scimoz, pos, style_info)
+        if indentingOrDedentingStatementIndent is not None:
+            indentlog.info("detected indenting/dedenting statement")
+            return indentingOrDedentingStatementIndent
+        indentlog.info("did not detect indenting/dedenting statement")
+
+        # Look for a case where we're ending a list of hanging comments:
+        """
+        if 1: # start line *press shift-newline*
+              # another line  *press shift-newline*
+              # last line[|] (*press newline*) -- should indent based on first line containing comments
+        """
+        if 'line' in self.commentDelimiterInfo and not continueComments:
+            # If we're at ^[leading white-space][comments]<cursor>
+            # walk up lines looking for the same situtation,
+            # and do an indent at the first line that doesn't match.
+            current_line_style_runs = self._getCommentStyleRunsForLine(scimoz, curLineNo, style_info, lineStartPos=lineStart, lineEndPos=pos)
+            if current_line_style_runs:
+                prevLineNo = curLineNo - 1
+                while prevLineNo >= 1:
+                    prev_line_style_runs = self._getCommentStyleRunsForLine(scimoz, prevLineNo, style_info)
+                    if not prev_line_style_runs:
+                        break
+                    if prev_line_style_runs[0][1] != current_line_style_runs[0][1]:
+                        break
+                    prevLineNo = prevLineNo - 1
+                # Find the indent based on the line we end up at.
+                prevLine_LineEndPos = scimoz.getLineEndPosition(prevLineNo)
+                currentPos = scimoz.currentPos
+                scimoz.currentPos = prevLine_LineEndPos
+                try:
+                    indent = self._getSmartBraceIndent(scimoz, continueComments, style_info)
+                finally:
+                    scimoz.currentPos = currentPos
+                if indent:
+                    return indent
+
+        indentlog.info("not in comment, doing plain")
+        return None
 
     def _getCommentStyleRunsForLine(self, scimoz, curLineNo, style_info, lineStartPos=None, lineEndPos=None):
         if lineStartPos is None:
@@ -2144,43 +2124,39 @@ class KoLanguageBase:
     def _getSmartBraceIndent(self, scimoz, continueComments, style_info):
         """ return the indent for the next line using the 'smart' algorithm"""
         currentPos = scimoz.currentPos
-        timeline.enter('_getSmartBraceIndent')
         if (scimoz.getColumn(currentPos) == 0):
             return None
-        try:
-            # Save the current pos in case we end up checking for an
-            # indenting/dedenting keyword
-            self._originalPos = currentPos
-            analysis = self._analyzeIndentNeededAtPos(scimoz, currentPos, continueComments, style_info)
-            #indentlog.debug("_getSmartBraceIndent: self._analyzeIndentNeededAtPos(%d,%d) => <<%s>>", currentPos, continueComments, repr(analysis))
-            if analysis == None:
-                return self._getPlainIndent(scimoz, style_info)
-            # did we get a special prefix?  If yes, use that as the indent
-            if analysis == 1: # doing an indent
-                # need to find the beginning of the logical statement.
-                lineNo = self._statementStartingLineFromPos(scimoz, currentPos-1, style_info)
-                indentlog.info("doing an INDENT to the indent of line: %d" % lineNo)
-                currentIndentWidth = self._getIndentWidthForLine(scimoz, lineNo)
-                nextIndentWidth = (divmod(currentIndentWidth, scimoz.indent)[0] + 1) * scimoz.indent
-                return scimozindent.makeIndentFromWidth(scimoz, nextIndentWidth)
-            elif analysis == -1: # doing an dedent
-                lineNo = self._statementStartingLineFromPos(scimoz, currentPos-1, style_info)
-                #lineNo = scimoz.lineFromPosition(currentPos)
-                indentlog.info("doing an DEDENT from the indent of line: %d" % lineNo)
-                currentIndentWidth = self._getIndentWidthForLine(scimoz, lineNo)
-                indent = scimoz.indent
-                if indent == 0:
-                    log.error('indent was 0, defaulting to 8')
-                    indent = 8 # XXX
-                indentLevel, extras = divmod(currentIndentWidth, indent)
-                if indentLevel and not extras:
-                    indentLevel -= 1
-                nextIndentWidth = indentLevel * scimoz.indent
-                return scimozindent.makeIndentFromWidth(scimoz, nextIndentWidth)
-            # return whatever we got
-            return analysis
-        finally:
-            timeline.leave('_getSmartBraceIndent')
+        # Save the current pos in case we end up checking for an
+        # indenting/dedenting keyword
+        self._originalPos = currentPos
+        analysis = self._analyzeIndentNeededAtPos(scimoz, currentPos, continueComments, style_info)
+        #indentlog.debug("_getSmartBraceIndent: self._analyzeIndentNeededAtPos(%d,%d) => <<%s>>", currentPos, continueComments, repr(analysis))
+        if analysis == None:
+            return self._getPlainIndent(scimoz, style_info)
+        # did we get a special prefix?  If yes, use that as the indent
+        if analysis == 1: # doing an indent
+            # need to find the beginning of the logical statement.
+            lineNo = self._statementStartingLineFromPos(scimoz, currentPos-1, style_info)
+            indentlog.info("doing an INDENT to the indent of line: %d" % lineNo)
+            currentIndentWidth = self._getIndentWidthForLine(scimoz, lineNo)
+            nextIndentWidth = (divmod(currentIndentWidth, scimoz.indent)[0] + 1) * scimoz.indent
+            return scimozindent.makeIndentFromWidth(scimoz, nextIndentWidth)
+        elif analysis == -1: # doing an dedent
+            lineNo = self._statementStartingLineFromPos(scimoz, currentPos-1, style_info)
+            #lineNo = scimoz.lineFromPosition(currentPos)
+            indentlog.info("doing an DEDENT from the indent of line: %d" % lineNo)
+            currentIndentWidth = self._getIndentWidthForLine(scimoz, lineNo)
+            indent = scimoz.indent
+            if indent == 0:
+                log.error('indent was 0, defaulting to 8')
+                indent = 8 # XXX
+            indentLevel, extras = divmod(currentIndentWidth, indent)
+            if indentLevel and not extras:
+                indentLevel -= 1
+            nextIndentWidth = indentLevel * scimoz.indent
+            return scimozindent.makeIndentFromWidth(scimoz, nextIndentWidth)
+        # return whatever we got
+        return analysis
 
     def _findXMLState(self, scimoz, pos, char, style):
         """ Return one of the following regarding the nature of
@@ -2940,97 +2916,93 @@ def _findIndent(scimoz, bitmask, chars, styles, comment_styles, tabWidth, defaul
     As a side effect, the first 100 lines of the buffer will be 'colourised' if they
     are not already.
     """
-    timeline.enter('_findIndent')
-    try:
-        textLength = scimoz.length
-        if textLength == 0:
-            return 0, 0
-        indenting = None
-        # first, colourise the first 300 lines at most so we have
-        # styling information.
-        N = min(300, scimoz.lineCount)
-        end = scimoz.getLineEndPosition(N - 1)
-        if end < textLength:
-            end = scimoz.positionFromLine(N)
-        if scimoz.endStyled < end:
-            scimoz.colourise(scimoz.endStyled, end)
-        data = scimoz.getStyledText(0, end)
-        # data is a list of (character, styleNo)
-        usesTabs = 0
-        sawSufficientWhiteSpace = False
-    
-        for lineNo in range(N):
-            # the outer loop tries to find the 'indenting' line.
-            if not scimoz.getLineIndentation(lineNo+1): # skip unindented lines
-                # check this line's indentation for leading tabs.
-                lineStartPos = scimoz.positionFromLine(lineNo)
-                if scimoz.getWCharAt(lineStartPos) in ' \t':
-                    lineEndPos = scimoz.getLineEndPosition(lineNo)
-                    if lineEndPos > lineStartPos:
-                        line = scimoz.getTextRange(lineStartPos, lineEndPos)
-                        blackPos = len(line) - len(line.lstrip())
-                        if '\t' in line[:blackPos]:
-                            usesTabs = 1
-                        elif blackPos >= tabWidth:
-                            sawSufficientWhiteSpace = True
-                continue
-            lineEndPos = scimoz.getLineEndPosition(lineNo)
-            if lineNo == N - 1 and lineEndPos == end:
-                lineEndPos = scimoz.getPositionBefore(end)
-            lineStartPos = scimoz.positionFromLine(lineNo)
-            WHITESPACE = '\t\n\x0b\x0c\r '  # don't use string.whitespace (bug 81316)
-            try:
-                # we'll look for each character in the line, going from
-                # the back, for an 'indenting' character
-                for pos in range(lineEndPos, lineStartPos-1, -1):
-                    char = data[pos*2]
-                    if char in WHITESPACE: # skip whitespace
-                        continue
-                    style = ord(data[pos*2+1]) & bitmask
-                    if style in comment_styles: # skip comments
-                        continue
-                    if (char in chars) and (style in styles):
-                        # we found that the first 'interesting'
-                        # character from the right of the line is an
-                        # indent-causing character
-                        indenting = scimoz.getTextRange(lineStartPos, lineEndPos)
-                        log.info("Found indenting line: %r" % indenting)
-                        # look for an indented line after this line
-                        guess, foundTabs = _findIndentedLine(scimoz,
-                                                             bitmask,
-                                                             N, lineNo, indenting,
-                                                             comment_styles, tabWidth, data)
-                        if guess is not None:
-                            # if the indent is a divisor of the tab width, then we should check
-                            # if there are tabs used for indentation
-                            if tabWidth % guess == 0:
-                                for lineNo in range(lineNo + 1, N):
-                                    lineStartPos = scimoz.positionFromLine(lineNo)
-                                    # skip lines that aren't indented at all
-                                    if scimoz.getWCharAt(lineStartPos) not in ' \t':
-                                        continue
-                                    lineEndPos = scimoz.getLineEndPosition(lineNo)
-                                    line = scimoz.getTextRange(lineStartPos, lineEndPos)
-                                    blackPos = len(line) - len(line.lstrip())
-                                    if '\t' in line[:blackPos]:
-                                        usesTabs = 1
-                                        break
-                                    elif blackPos >= tabWidth:
-                                        sawSufficientWhiteSpace = True
-                            return guess, usesTabs or (not sawSufficientWhiteSpace and defaultUsesTabs)
-                        else:
-                            # probably an empty block
-                            raise _NextLineException()
-                    else:
-                        # We've found a character which is not a block opener
-                        # so this can't be an indenting line.
-                        raise _NextLineException()
-            except _NextLineException:
-                continue
-        log.info("Couldn't find indentation information from the file")
+    textLength = scimoz.length
+    if textLength == 0:
         return 0, 0
-    finally:
-        timeline.leave('_findIndent')
+    indenting = None
+    # first, colourise the first 300 lines at most so we have
+    # styling information.
+    N = min(300, scimoz.lineCount)
+    end = scimoz.getLineEndPosition(N - 1)
+    if end < textLength:
+        end = scimoz.positionFromLine(N)
+    if scimoz.endStyled < end:
+        scimoz.colourise(scimoz.endStyled, end)
+    data = scimoz.getStyledText(0, end)
+    # data is a list of (character, styleNo)
+    usesTabs = 0
+    sawSufficientWhiteSpace = False
+
+    for lineNo in range(N):
+        # the outer loop tries to find the 'indenting' line.
+        if not scimoz.getLineIndentation(lineNo+1): # skip unindented lines
+            # check this line's indentation for leading tabs.
+            lineStartPos = scimoz.positionFromLine(lineNo)
+            if scimoz.getWCharAt(lineStartPos) in ' \t':
+                lineEndPos = scimoz.getLineEndPosition(lineNo)
+                if lineEndPos > lineStartPos:
+                    line = scimoz.getTextRange(lineStartPos, lineEndPos)
+                    blackPos = len(line) - len(line.lstrip())
+                    if '\t' in line[:blackPos]:
+                        usesTabs = 1
+                    elif blackPos >= tabWidth:
+                        sawSufficientWhiteSpace = True
+            continue
+        lineEndPos = scimoz.getLineEndPosition(lineNo)
+        if lineNo == N - 1 and lineEndPos == end:
+            lineEndPos = scimoz.getPositionBefore(end)
+        lineStartPos = scimoz.positionFromLine(lineNo)
+        WHITESPACE = '\t\n\x0b\x0c\r '  # don't use string.whitespace (bug 81316)
+        try:
+            # we'll look for each character in the line, going from
+            # the back, for an 'indenting' character
+            for pos in range(lineEndPos, lineStartPos-1, -1):
+                char = data[pos*2]
+                if char in WHITESPACE: # skip whitespace
+                    continue
+                style = ord(data[pos*2+1]) & bitmask
+                if style in comment_styles: # skip comments
+                    continue
+                if (char in chars) and (style in styles):
+                    # we found that the first 'interesting'
+                    # character from the right of the line is an
+                    # indent-causing character
+                    indenting = scimoz.getTextRange(lineStartPos, lineEndPos)
+                    log.info("Found indenting line: %r" % indenting)
+                    # look for an indented line after this line
+                    guess, foundTabs = _findIndentedLine(scimoz,
+                                                         bitmask,
+                                                         N, lineNo, indenting,
+                                                         comment_styles, tabWidth, data)
+                    if guess is not None:
+                        # if the indent is a divisor of the tab width, then we should check
+                        # if there are tabs used for indentation
+                        if tabWidth % guess == 0:
+                            for lineNo in range(lineNo + 1, N):
+                                lineStartPos = scimoz.positionFromLine(lineNo)
+                                # skip lines that aren't indented at all
+                                if scimoz.getWCharAt(lineStartPos) not in ' \t':
+                                    continue
+                                lineEndPos = scimoz.getLineEndPosition(lineNo)
+                                line = scimoz.getTextRange(lineStartPos, lineEndPos)
+                                blackPos = len(line) - len(line.lstrip())
+                                if '\t' in line[:blackPos]:
+                                    usesTabs = 1
+                                    break
+                                elif blackPos >= tabWidth:
+                                    sawSufficientWhiteSpace = True
+                        return guess, usesTabs or (not sawSufficientWhiteSpace and defaultUsesTabs)
+                    else:
+                        # probably an empty block
+                        raise _NextLineException()
+                else:
+                    # We've found a character which is not a block opener
+                    # so this can't be an indenting line.
+                    raise _NextLineException()
+        except _NextLineException:
+            continue
+    log.info("Couldn't find indentation information from the file")
+    return 0, 0
 
 def _findIndentedLine(scimoz, bitmask, N, lineNo, indenting, comment_styles, tabWidth, data):
     """

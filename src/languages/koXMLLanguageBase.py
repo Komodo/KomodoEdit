@@ -36,7 +36,6 @@
 
 from xpcom import components, ServerException
 from xpcom.server import UnwrapObject
-import timeline
 
 from koLanguageServiceBase import *
 from koUDLLanguageBase import KoUDLLanguage, udl_family_from_style
@@ -356,84 +355,80 @@ class koHTMLLanguageBase(koXMLLanguageBase):
 
 def _findIndent(scimoz, bitmask, chars, styles, comment_styles, opening_styles):
     indenting = None
-    timeline.enter("koXMLLanguage:_findIndent")
-    try:
-        # first, colourise the first 100 lines at most
-        N = min(100, scimoz.lineCount-1)
-        end = scimoz.getLineEndPosition(N)
-        if scimoz.endStyled < end:
-            scimoz.colourise(scimoz.endStyled, end)
-        data = scimoz.getStyledText(0, end)
-        # data is a list of (character, styleNo)
-        WHITESPACE = '\t\n\x0b\x0c\r '  # don't use string.whitespace (bug 81316)
-        
-        for lineNo in range(N):
-            if not scimoz.getLineIndentation(lineNo): # skip unindented lines
-                continue
-            lineEndPos = scimoz.getLineEndPosition(lineNo)
-            lineStartPos = scimoz.positionFromLine(lineNo)
-            line = scimoz.getTextRange(lineStartPos, lineEndPos)
-            #start = lineEndPos
-            # we're looking for the 'indenting' line
-            for pos in range(lineEndPos, lineStartPos-1, -1):
-                char = data[pos*2]
-                style = ord(data[pos*2+1]) & bitmask
-                if (char in chars) and (style in styles):
-                    # partial success - we found that the first 'interesting'
-                    # character from the right of the line is an
-                    # indent-causing character
+    # first, colourise the first 100 lines at most
+    N = min(100, scimoz.lineCount-1)
+    end = scimoz.getLineEndPosition(N)
+    if scimoz.endStyled < end:
+        scimoz.colourise(scimoz.endStyled, end)
+    data = scimoz.getStyledText(0, end)
+    # data is a list of (character, styleNo)
+    WHITESPACE = '\t\n\x0b\x0c\r '  # don't use string.whitespace (bug 81316)
     
-                    # now we need to find the line that _starts_ the XML tag.
-                    # First look back in the document until you find a "<" character
-                    # styled properly
-                    for pos in range(pos, 0, -1):
-                        char = data[pos*2]
-                        style = ord(data[pos*2+1])
-                        if char in ('<', u'<') and style in opening_styles:
-                            startLineNo = scimoz.lineFromPosition(pos)
-                            lineEndPos = scimoz.getLineEndPosition(startLineNo)
-                            lineStartPos = scimoz.positionFromLine(startLineNo)
-                            line = scimoz.getTextRange(lineStartPos, lineEndPos)
-                            indenting = line
-                            log.info("Found indenting line: %r" % line)
-                            break
-                    else:
-                        log.info("couldn't find < tag")
-                    break
-                if char in WHITESPACE:
-                    # skip whitespace
-                    continue
-                if style in comment_styles:
-                    # skip comments
-                    continue
-            if indenting: break
-        else:
-            log.info("Couldn't find an indenting line")
-            return '', ''
-        lineNo += 1
-        for lineNo in range(lineNo, N):
-            lineEndPos = scimoz.getLineEndPosition(lineNo)
-            lineStartPos = scimoz.positionFromLine(lineNo)
-            line = scimoz.getTextRange(lineStartPos, lineEndPos)
-            # we want to skip lines that are just comments or just whitespace
-            for pos in range(lineEndPos, lineStartPos-1, -1):
-                char = scimoz.getWCharAt(pos)
-                style = scimoz.getStyleAt(pos) & bitmask
-                if char in WHITESPACE:
-                    # skip whitespace
-                    continue
-                if style in comment_styles:
-                    # skip comments
-                    continue
-                # if we get here it must be a 'useful' line.
-                indented = line
-                log.info("Found indented line: %r" % line)
-                return indenting, indented
-        else:
-            log.info("Couldn't find an indented line")
-            return '', ''
-    finally:
-        timeline.leave("koXMLLanguage:_findIndent")
+    for lineNo in range(N):
+        if not scimoz.getLineIndentation(lineNo): # skip unindented lines
+            continue
+        lineEndPos = scimoz.getLineEndPosition(lineNo)
+        lineStartPos = scimoz.positionFromLine(lineNo)
+        line = scimoz.getTextRange(lineStartPos, lineEndPos)
+        #start = lineEndPos
+        # we're looking for the 'indenting' line
+        for pos in range(lineEndPos, lineStartPos-1, -1):
+            char = data[pos*2]
+            style = ord(data[pos*2+1]) & bitmask
+            if (char in chars) and (style in styles):
+                # partial success - we found that the first 'interesting'
+                # character from the right of the line is an
+                # indent-causing character
+
+                # now we need to find the line that _starts_ the XML tag.
+                # First look back in the document until you find a "<" character
+                # styled properly
+                for pos in range(pos, 0, -1):
+                    char = data[pos*2]
+                    style = ord(data[pos*2+1])
+                    if char in ('<', u'<') and style in opening_styles:
+                        startLineNo = scimoz.lineFromPosition(pos)
+                        lineEndPos = scimoz.getLineEndPosition(startLineNo)
+                        lineStartPos = scimoz.positionFromLine(startLineNo)
+                        line = scimoz.getTextRange(lineStartPos, lineEndPos)
+                        indenting = line
+                        log.info("Found indenting line: %r" % line)
+                        break
+                else:
+                    log.info("couldn't find < tag")
+                break
+            if char in WHITESPACE:
+                # skip whitespace
+                continue
+            if style in comment_styles:
+                # skip comments
+                continue
+        if indenting: break
+    else:
+        log.info("Couldn't find an indenting line")
+        return '', ''
+    lineNo += 1
+    for lineNo in range(lineNo, N):
+        lineEndPos = scimoz.getLineEndPosition(lineNo)
+        lineStartPos = scimoz.positionFromLine(lineNo)
+        line = scimoz.getTextRange(lineStartPos, lineEndPos)
+        # we want to skip lines that are just comments or just whitespace
+        for pos in range(lineEndPos, lineStartPos-1, -1):
+            char = scimoz.getWCharAt(pos)
+            style = scimoz.getStyleAt(pos) & bitmask
+            if char in WHITESPACE:
+                # skip whitespace
+                continue
+            if style in comment_styles:
+                # skip comments
+                continue
+            # if we get here it must be a 'useful' line.
+            indented = line
+            log.info("Found indented line: %r" % line)
+            return indenting, indented
+    else:
+        log.info("Couldn't find an indented line")
+        return '', ''
 
 # taken from IDLE
 # Look at the leading whitespace in s.

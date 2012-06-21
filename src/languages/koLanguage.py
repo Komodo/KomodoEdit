@@ -40,7 +40,6 @@ import os
 from os.path import join, splitext
 import glob
 import fnmatch
-import timeline
 import re
 import logging
 from pprint import pprint, pformat
@@ -146,7 +145,6 @@ class KoLanguageRegistryService:
     _modeName2LanguageName = {}
     
     def __init__(self):
-        timeline.enter('KoLanguageRegistryService.__init__')
         self.__initPrefs()
         self._globalPrefSvc = components.classes["@activestate.com/koPrefService;1"].\
                             getService(components.interfaces.koIPrefService)
@@ -186,7 +184,6 @@ class KoLanguageRegistryService:
 
         self.registerLanguages()
         self._resetFileAssociationData() # must be after .registerLanguages()
-        timeline.leave('KoLanguageRegistryService.__init__')
 
     def observe(self, aSubject, aTopic, someData):
         if aTopic == "fileAssociationDiffs":
@@ -197,8 +194,6 @@ class KoLanguageRegistryService:
             self._resetFileAssociationData()
 
     def _resetFileAssociationData(self):
-        timeline.enter('KoLanguageRegistryService._resetFileAssociationData')
-
         self.__languageNameFromPattern = {}
         self.__sortedLanguageNamePatterns = []
         self.__languageNameFromExtOrBasename = {}
@@ -251,8 +246,6 @@ class KoLanguageRegistryService:
         # We want the language patterns sorted, so it can used directly in
         # suggestLanguageForFile.
         self.__sortedLanguageNamePatterns.sort(_cmpLen)
-
-        timeline.leave('KoLanguageRegistryService._resetFileAssociationData')
 
     def _removeOneFileAssociation(self, pattern, languageName):
         if languageName == self.__languageNameFromPattern.get(pattern):
