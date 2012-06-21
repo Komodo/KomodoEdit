@@ -1597,7 +1597,7 @@ void _KoStart_SaveStartupEnvironment()
 
 #ifdef WIN32
     wchar_t* envFileNameW = _ToUTF16(envFileName);
-    envFile = _wfopen(envFileNameW, L"w, ccs=UTF-8");
+    envFile = _wfopen(envFileNameW, L"w");
     free(envFileNameW);
 #else
     envFile = fopen(envFileName, "w");
