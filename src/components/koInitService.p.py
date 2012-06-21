@@ -71,14 +71,11 @@ log = None
 
 
 
-#---- support routines
-# Always import timeline even if we don't use it - it already does nothing
-# if disabled (but you still should check use_timeline so the figures are
-# supressed if necessary.
-import timeline
+#---- Startup support routines
 
-use_timeline = os.environ.has_key("KO_TIMELINE_PYOS") and timeline.getService() is not None
-xpcom_profiler = os.environ.has_key("KO_PYXPCOM_PROFILE")
+if os.environ.has_key("KO_PYXPCOM_PROFILE"):
+    # insert the xpcom tracer
+    import pyxpcomProfiler
 
 # #if BUILD_FLAVOUR == "dev"
 if os.environ.has_key("KO_DEBUG_PORT"):
@@ -89,77 +86,6 @@ if os.environ.has_key("KO_DEBUG_PORT"):
         log.exception("trying to get env")
         pass
 # #endif
-
-if use_timeline:
-    def mktracer(callable, module, name):
-        def proxy(*args, **kw):
-            try:
-                oldstat = os.stat
-                os.stat = getattr(os, '_stat', os.stat)
-                timer_name = "%s.%s" % (module.__name__, name)
-                timeline.startTimer(timer_name)
-                try:
-                    return callable(*args, **kw)
-                finally:
-                    timeline.stopTimer(timer_name)
-                    extra = "%s, %s" % (repr(args), repr(kw))
-                    timeline.markTimer(timer_name, extra)
-            finally:
-                os.stat = oldstat
-
-        setattr(module, name, proxy)
-        setattr(module, '_'+name, callable)
-
-    mktracer(os.listdir, os, 'listdir')
-    mktracer(os.stat, os, 'stat')
-    mktracer(os.popen, os, 'popen')
-    mktracer(os.system, os, 'system')
-    mktracer(os.getcwd, os, 'getcwd')
-
-if xpcom_profiler:
-    # insert the xpcom tracer
-    import pyxpcomProfiler
-
-# The following imports, two globals and two methods are used by the import
-# timing stuff, which is enabled by uncommenting a line in the initialize()
-# call of koInitService
-import __builtin__, time
-_old_import = __builtin__.__import__
-_imported_modules = {}
-def _timed_import(name, *args, **kw):
-    t1 = time.clock()
-    mod = _old_import(name, *args, **kw)
-    dt = time.clock() - t1
-    realname = mod.__name__
-    if not _imported_modules.has_key(name):
-        _imported_modules[name] = dt
-        timeline.mark("%s\t%4.4f" % (realname, dt))
-    else:
-        _imported_modules[name] += dt
-    return mod
-
-module_tree = {}
-current_module = module_tree
-def _memory_import(name, *args, **kw):
-    global current_module
-    start = int(my_process_memory())
-    current_module[name] = {}
-    orig = current_module
-    current_module = current_module[name]
-    mod = _old_import(name, *args, **kw)
-    end = int(my_process_memory())
-    realname = mod.__name__
-    if name.startswith(realname):
-        realname = name
-    mem = end-start
-    if mem:
-        timeline.mark("%s\t%s" % (realname, memoryrepr(mem)))
-        current_module['memory'] = memoryrepr(mem)
-    current_module = orig
-    if not current_module[name]:
-        del current_module[name]
-    return mod
-
 
 #----- interal support routines
 
