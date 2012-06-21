@@ -48,7 +48,7 @@ class koTextLanguage(KoLanguageBase):
     accessKey = 'e'
     primary = 1
     defaultExtension = ".txt"
-    commentDelimiterInfo = { "line": [ "#" ]  }
+    commentDelimiterInfo = { }
     sample = "Text files only have one style."
 
     def __init__(self):
@@ -90,3 +90,22 @@ class koTextLanguage(KoLanguageBase):
             elif scimoz.getColumn(lineStartPos + blackPos) >= tabWidth:
                 sawSufficientWhiteSpace = True
         return guess, usesTabs or (not sawSufficientWhiteSpace and defaultUsesTabs)
+
+    def get_commenter(self):
+        if self._commenter is None:
+            self._commenter = KoTextCommenterLanguageService()
+        return self._commenter
+
+class KoTextCommenterLanguageService(KoCommenterLanguageService):
+    # Bug 90001 - make sure auto-comment on text files does nothing.
+    def __init__(self):
+        # Don't call the superclass
+        pass
+
+    def comment(self, scimoz):
+        # Do nothing
+        return
+    
+    def uncomment(self, scimoz):
+        # Do nothing
+        return
