@@ -47,8 +47,6 @@ from urllib import unquote as unescapeURL
 from xpcom import components
 from xpcom.server import UnwrapObject
 
-import timeline
-
 # Pref names each checker should have, will be monitored when the checker
 # is first added and gets automatically updated through a pref observer.
 monitoredPrefNames = { "enabledPrefName": types.BooleanType,
@@ -274,12 +272,10 @@ class KoDiskFileChecker(KoFileCheckerBase):
     ranking_weight = 5
 
     def __init__(self):
-        timeline.enter('KoDiskFileChecker.__init__')
         KoFileCheckerBase.__init__(self, 'disk', 'Disk')
         self.enabledPrefName = 'diskStatusEnabled'
         self.backgroundEnabledPrefName = 'diskBackgroundCheck'
         self.backgroundDurationPrefName = 'diskBackgroundMinutes'
-        timeline.leave('KoDiskFileChecker.__init__')
 
     def isBackgroundCheckingEnabled(self):
         return True

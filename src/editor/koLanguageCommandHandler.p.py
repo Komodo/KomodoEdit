@@ -48,8 +48,6 @@ indentlog = logging.getLogger('koLanguageCommandHandler.indenting')
 #indentlog.setLevel(logging.DEBUG)
 jumplog = logging.getLogger('koLanguageCommandHandler.jump')
 
-import timeline
-
 """
 The generic command handler is appropriate for all languages.
 
