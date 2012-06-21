@@ -68,11 +68,26 @@ class KoDirs:
     def __init__(self):
         self._ver_major, self._ver_minor = self._ver.split('.')
 
+    @property
+    def _userDataDir(self):
+        # Workaround for os.environ not being able to deal with Unicode on
+        # Windows; see bug 94439.
+        if sys.platform.startswith("win"):
+            import ctypes
+            _wgetenv = ctypes.cdll.msvcrt._wgetenv
+            _wgetenv.argtypes = [ctypes.c_wchar_p]
+            _wgetenv.restype = ctypes.c_wchar_p
+            result = _wgetenv("KOMODO_USERDATADIR")
+        else:
+            result = os.environ.get("KOMODO_USERDATADIR")
+        setattr(self, "_userDataDir", result)
+        return result
+
     def _userAppDataPath(self):
         # Allow a special environment variable to override the User Data
         # Dir for a Komodo run. The main motivation for this is bug
         # 32270.
-        envPath = os.environ.get("KOMODO_USERDATADIR")
+        envPath = self._userDataDir
         if envPath:
             path = os.path.expanduser(envPath)
         else:
@@ -84,7 +99,7 @@ class KoDirs:
         # Allow a special environment variable to override the User Data
         # Dir for a Komodo run. The main motivation for this is bug
         # 32270.
-        envPath = os.environ.get("KOMODO_USERDATADIR")
+        envPath = self._userDataDir
         if envPath:
             path = os.path.expanduser(envPath)
         else:
