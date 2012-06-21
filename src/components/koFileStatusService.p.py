@@ -75,7 +75,6 @@ from xpcom import components, nsError, COMException
 from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC, getProxyForObject
 from xpcom.server import UnwrapObject
 
-import timeline
 import uriparse
 from fileStatusUtils import KoDiskFileChecker
 
@@ -129,7 +128,6 @@ class KoFileStatusService:
 
     def __init__(self):
         #print "file status created"
-        timeline.enter('koFileStatusService.__init__')
         self._observerSvc = components.classes["@mozilla.org/observer-service;1"].\
             getService(components.interfaces.nsIObserverService)
         self._observerProxy = getProxyForObject(1,
@@ -174,12 +172,9 @@ class KoFileStatusService:
         self._tlock = threading.Lock()
         self._cv = threading.Condition()
         self._processing_done_event = threading.Event()
-        timeline.leave('koFileStatusService.__init__')
 
     def init(self):
         #print "file status init"
-        timeline.enter('koFileStatusService.init')
-
         # Setup notification observers
         for notification in self.monitoredFileNotifications:
             self._observerSvc.addObserver(self, notification, 0)
@@ -213,7 +208,6 @@ class KoFileStatusService:
         self._thread.setDaemon(True)
         self._thread.start()
         self._tlock.release()
-        timeline.leave('koFileStatusService.init')
 
     ##
     # Add a file status checker to the list known of in service file checkers.
