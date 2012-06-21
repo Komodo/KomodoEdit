@@ -45,6 +45,10 @@ from xpcom.server import DefaultPolicy
 from xpcom import _xpcom
 import os
 
+import warnings
+warnings.warn("'timeline_hook' module is deprecated and will soon be removed.",
+              DeprecationWarning)
+
 # A wrapper around a function - looks like a function,
 # but actually profiles the delegate.
 class TracerDelegate:

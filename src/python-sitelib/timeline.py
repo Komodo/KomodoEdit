@@ -52,6 +52,10 @@
 from xpcom import components, COMException, _xpcom
 import xpcom
 
+import warnings
+warnings.warn("'timeline' module is deprecated and will soon be removed.",
+              DeprecationWarning)
+
 enabled = None
 timeline_service = None
 
