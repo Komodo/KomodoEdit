@@ -61,7 +61,18 @@ def redirect_std_handles():
     sys.stderr_orig = sys.stderr
     sys.stdout_orig = sys.stdout
 
-    log_dir = os.environ.get("_KOMODO_VERUSERDATADIR", None)
+    if sys.platform.startswith("win"):
+        # on Windows, os.environ uses the ANSI (MBCS) APIs; that falls on its
+        # face if the environment variable we want contains Unicode.  Use ctypes
+        # to fetch what we want instead.  See bug 94439.
+        import ctypes
+        _wgetenv = ctypes.cdll.msvcrt._wgetenv
+        _wgetenv.argtypes = [ctypes.c_wchar_p]
+        _wgetenv.restype = ctypes.c_wchar_p
+        log_dir = _wgetenv("_KOMODO_VERUSERDATADIR")
+    else:
+        log_dir = os.environ.get("_KOMODO_VERUSERDATADIR", None)
+
     if log_dir is not None:
         stdout_log_path = os.path.join(log_dir, stdout_log_name)
         stderr_log_path = os.path.join(log_dir, stderr_log_name)
