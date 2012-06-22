@@ -55,30 +55,26 @@
     <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
     <script type="application/x-javascript;version=1.7">
     <![CDATA[
-    var cleanLineEndsCheckbox = null, cleanCurrentLineEndCheckbox = null;
+    var cleanLineEndsCheckbox = null, cleanCurrentLineEndCheckbox = null,
+        cleanLineEnds_ChangedLinesOnly = null;
     function prefSave_onLoad() {
-        dump(">>> ***************** prefSave_onLoad\n");
-        debugger;
         try {
         parent.initPanel();
         cleanLineEndsCheckbox = document.getElementById("cleanLineEnds");
         cleanCurrentLineEndCheckbox = document.getElementById("cleanLineEnds_CleanCurrentLine");
+        cleanLineEnds_ChangedLinesOnly = document.getElementById("cleanLineEnds_ChangedLinesOnly");
         updateCleanCurrentLineCheckbox();
         } catch(ex) {
             alert("prefSave_onLoad: " + ex)
         }
     }
     function onCleanLineEnds(event, cb) {
-        dump("onCleanLineEnds: " + cb.checked + "\n");
-        debugger;
         updateCleanCurrentLineCheckbox();
     }
     
     function updateCleanCurrentLineCheckbox() {
-        dump("updateCleanCurrentLineCheckbox: cleanLineEndsCheckbox.checked: "
-             + cleanLineEndsCheckbox.checked
-             + "\n")
         cleanCurrentLineEndCheckbox.disabled = !cleanLineEndsCheckbox.checked;
+        cleanLineEnds_ChangedLinesOnly.disabled = !cleanLineEndsCheckbox.checked;
     }
     ]]>
     </script>
@@ -98,6 +94,10 @@
                 <checkbox style="margin-left: 100px;"
                             id="cleanLineEnds_CleanCurrentLine"
                             label="&cleanWhitespaceOnCurrentLine.label;"
+                            pref="true"/>
+                <checkbox style="margin-left: 100px;"
+                            id="cleanLineEnds_ChangedLinesOnly"
+                            label="&cleanLineEnds_ChangedLinesOnly.label;"
                             pref="true"/>
                 <checkbox style="margin-left: 40px;"
                             id="ensureFinalEOL"

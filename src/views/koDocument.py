@@ -1175,9 +1175,83 @@ class koDocumentBase:
             log.error("unable to encode document as 'utf-8': %s",
                 self.encoding.python_encoding_name, ex)
             raise
+    
+    def _changedLines_ResetHunkTrackers(self):
+        self.hunkOldLines = {} # textLine => [oldLineNum, trailing S]
+        self.hunkNewLines = [] # list of [textLine, newLineNum, trailing S]
+        
+    def _changedLines_CheckHunks(self):
+        # Preserve trailing whitespace on newlines only if the corresponding
+        # oldline exists and has non-empty whitespace on it
+        for newCutLine, newLineNum, newLineWS in self.hunkNewLines:
+            if newCutLine in self.hunkOldLines:
+                oldLineWS = self.hunkOldLines[newCutLine][1]
+                if oldLineWS == newLineWS:
+                    #log.debug("  ws didn't change, so preserve it")
+                    pass
+                elif not oldLineWS:
+                    #log.debug(" old has no ws, so drop new ws")
+                    self.linesToStripByLineNum.append(newLineNum - 1) # scimoz is 0-based
+                else:
+                    pass
+                    #log.debug("old: %d, new: %d chars, assume we want this",
+                    #           len(oldLineWS), len(newLineWS))
+            else:
+                #log.debug(" newLine %d not found in oldLines, so strip trailing ws")
+                self.linesToPreserveByLineNum.append(newLineNum - 1)
+        
+    def getChangedLinesWithTrailingWhitespace(self):
+        diffText = self.getUnsavedChanges()
+        diffLines = diffText.splitlines()
+        self._changedLines_ResetHunkTrackers()
+        self.linesToStripByLineNum = []
+        
+        # nested loop processing all @@ things...
+        hunk_re = re.compile(r'\@\@\s*-(\d+),(\d+)\s*\+(\d+),(\d+)\s+\@\@')
+        ends_with_space_re = re.compile(r'[\-\+](.*?)(\s+)\Z')
+        newLineNum = oldLineNum = -1
+        for diffLine in diffLines:
+            m = hunk_re.match(diffLine)
+            if m:
+                # We only care about the line in the final file where the hunk starts.
+                self._changedLines_CheckHunks()
+                self._changedLines_ResetHunkTrackers()
+                newLineNum = oldLineNum = int(m.group(3))
+            elif newLineNum == -1:
+                # keep looking
+                pass
+            else:
+                c = diffLine[0]
+                m = ends_with_space_re.match(diffLine)
+                if c == ' ':
+                    if m:
+                        # Always preserve white-space on unchanged lines
+                        #log.debug("unchanged line %d >>%r<< ends with a space", newLineNum, diffLine)
+                        pass
+                    oldLineNum += 1
+                    newLineNum += 1
+                elif c == '-':
+                    if m:
+                        #log.debug("old line %d >>%r<< ends with a space", oldLineNum, diffLine)
+                        self.hunkOldLines[m.group(1)] = [oldLineNum, m.group(2)]
+                    else:
+                        #log.debug("old line %d >>%r<< doesn't end with a space", oldLineNum, diffLine)
+                        self.hunkOldLines[diffLine[1:]] = [oldLineNum, '']
+                    oldLineNum += 1
+                elif c == "+":
+                    if m:
+                        status = "yes"
+                        self.hunkNewLines.append((m.group(1), newLineNum, m.group(2)))
+                    else:
+                        status = "no"
+                    #log.debug("Look at newLineNum:%d, <<%s>>: %r", newLineNum, diffLine, status)
+                    newLineNum += 1
+        # end for
+        self._changedLines_CheckHunks()
+        return self.linesToStripByLineNum
 
     _cleanLineRe = re.compile("(.*?)([ \t]+?)?(\r\n|\n|\r)", re.MULTILINE)
-    def _clean(self, ensureFinalEOL, cleanLineEnds, cleanLineCurrentLineEnd):
+    def _clean(self, ensureFinalEOL, cleanLineEnds):
         """Clean the current document content.
         
             "ensureFinalEOL" is a boolean indicating if "cleaning" should
@@ -1195,6 +1269,15 @@ class koDocumentBase:
         """
         if not self._views:
             return
+        cleanLineCurrentLineEnd = self._globalPrefs.getBooleanPref("cleanLineEnds_CleanCurrentLine")
+        if cleanLineEnds:
+            cleanChangedLinesOnly = self._globalPrefs.getBooleanPref("cleanLineEnds_ChangedLinesOnly")
+            if cleanChangedLinesOnly:
+                wsLinesToStrip = self.getChangedLinesWithTrailingWhitespace()
+            else:
+                wsLinesToStrip = None
+        else:
+            cleanChangedLinesOnly = False
         scintilla = self._views[0]
         # In the case of any failure at all, we don't change the text.
         try:
@@ -1235,7 +1318,7 @@ class koDocumentBase:
                                       % (start, end, eol, eolStr)
                             scimoz.targetStart, scimoz.targetEnd = start, end
                             scimoz.replaceTarget(len(eolStr), eolStr)
-                        if trailingWS:
+                        if trailingWS and (not cleanChangedLinesOnly or i in wsLinesToStrip):
                             end = index
                             if eol: end -= len(eol)
                             start = end - len(trailingWS)
@@ -1284,6 +1367,10 @@ class koDocumentBase:
                             break
                         length, line = scimoz.getLine(i) # length is in _bytes_
                         if re.search(r'\S', line):
+                            firstLineToDelete = i + 1
+                            break
+                        if wsLinesToStrip and i not in wsLinesToStrip:
+                            #log.debug("Line i:%d not in wsLinesToStrip", i)
                             firstLineToDelete = i + 1
                             break
                     else:
@@ -1373,8 +1460,7 @@ class koDocumentBase:
                 else:
                     cleanWhiteSpace = not li.has_significant_trailing_ws
                 if cleanWhiteSpace:
-                    cleanLineCurrentLineEnd = self._globalPrefs.getBooleanPref("cleanLineEnds_CleanCurrentLine")
-                    self._clean(ensureFinalEOL, cleanLineEnds, cleanLineCurrentLineEnd)
+                    self._clean(ensureFinalEOL, cleanLineEnds)
     
             # Translate the buffer before opening the file so if it
             # fails, we haven't truncated the file.
