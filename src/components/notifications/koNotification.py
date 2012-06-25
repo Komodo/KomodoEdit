@@ -104,6 +104,8 @@ class KoNotificationBase(object):
     _com_interfaces_ = [] # see KoNotification.__new__
     _reg_desc_ = "Komodo Notification Object"
 
+    sticky = False
+
     def __init__(self, identifier, tags, context, mgr):
         self.identifier = str(identifier)
 

@@ -491,12 +491,11 @@ function _updateMessage()
         }
         _lastNotification = sm;
     } else {
-        var notifications = ko.notifications.getNotifications([ko.notifications.context, null], 2);
-        notifications =
-            notifications.filter(function (notification) !(notification instanceof(Ci.koIStatusMessage)))
-                         .filter(function (notification) notification.time > _lastNotificationTime)
-                         .sort(function(a, b) b.time - a.time)
-                         .sort(function(a, b) b.severity - a.severity);
+        var all_notifications = ko.notifications.getNotifications([ko.notifications.context, null], 2);
+        all_notifications = all_notifications.filter(function (notification) !(notification instanceof(Ci.koIStatusMessage)));
+        var notifications = all_notifications.filter(function (notification) notification.time > _lastNotificationTime)
+                                             .sort(function(a, b) b.time - a.time)
+                                             .sort(function(a, b) b.severity - a.severity);
 
         var notification = null;
 
@@ -508,6 +507,17 @@ function _updateMessage()
             if (endTime < Date.now()) {
                 // notification expired; don't show it in the status bar
                 notification = null;
+            }
+        }
+
+        if (!notification) {
+            // Sticky notifications hang around until the user has interacted
+            // with it.
+            var sticky_notifications = all_notifications.filter(function (notification) notification.sticky)
+                                                        .sort(function(a, b) b.time - a.time)
+                                                        .sort(function(a, b) b.severity - a.severity);
+            if (sticky_notifications.length > 0) {
+                notification = sticky_notifications[0];
             }
         }
 
@@ -546,6 +556,7 @@ function _updateMessage()
 function _statusBarClick(event) {
     _log.debug("click: " + _lastNotification);
     if (_lastNotification) {
+        _lastNotification.sticky = false;
         _lastNotificationTime = Date.now() * 1000; // usec_per_msc
         _lastNotification = null;
         ko.uilayout.ensureTabShown("notifications-widget");

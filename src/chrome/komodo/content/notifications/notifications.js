@@ -106,7 +106,7 @@ function KoNotificationManagerWrapper_add(aSummary, aTags, aIdentifier, aArgs) {
   for (let [key, value] in Iterator(args)) {
     switch (key) {
       case "iconURL": case "severity": case "description": case "details":
-      case "maxProgress": case "progress":
+      case "maxProgress": case "progress": case "sticky":
         notification[key] = value;
         break;
       case "actions":

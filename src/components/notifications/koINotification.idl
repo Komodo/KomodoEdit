@@ -1,6 +1,6 @@
 #include "nsISupports.idl"
 
-[scriptable, uuid(381bba2a-4cf9-4fca-8294-844082a4c5a6)]
+[scriptable, uuid(75d07497-3b5a-4aa4-ad97-dbd2911086ec)]
 interface koINotification : nsISupports {
     /**
      * A single-line user-facing summary of the notification.
@@ -48,6 +48,12 @@ interface koINotification : nsISupports {
      * added. Expect this to be changed by koINotificationManager.
      */
     attribute PRTime time;
+    /**
+     * Whether this notification persists until the user has interacted with
+     * (clicked on) it. Once interaction has occurred, sticky will be set to
+     * false.
+     */
+    attribute boolean sticky;
 };
 
 [scriptable, function, uuid(898d6ab1-2aa6-4ab1-9578-4b4d763ea569)]
