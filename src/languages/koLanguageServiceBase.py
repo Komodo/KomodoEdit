@@ -1527,6 +1527,7 @@ class KoLanguageBase:
             # walk up lines looking for the same situtation,
             # and do an indent at the first line that doesn't match.
             current_line_style_runs = self._getCommentStyleRunsForLine(scimoz, curLineNo, style_info, lineStartPos=lineStart, lineEndPos=pos)
+            checkPrevLine = curLineNo > 0
             if current_line_style_runs:
                 prevLineNo = curLineNo - 1
                 while prevLineNo >= 1:
@@ -1534,17 +1535,30 @@ class KoLanguageBase:
                     if not prev_line_style_runs:
                         break
                     if prev_line_style_runs[0][1] != current_line_style_runs[0][1]:
+                        # The curr line and prev line have different comment widths,
+                        # so go with the current one.
+                        checkPrevLine = False
                         break
                     prevLineNo = prevLineNo - 1
                 # Find the indent based on the line we end up at.
-                prevLine_LineEndPos = scimoz.getLineEndPosition(prevLineNo)
-                currentPos = scimoz.currentPos
-                scimoz.currentPos = prevLine_LineEndPos
-                try:
-                    indent = self._getSmartBraceIndent(scimoz, continueComments, style_info)
-                finally:
-                    scimoz.currentPos = currentPos
-                if indent:
+                currLineIndentLen = startingLineIndentLen = -1
+                # The current line contains only a comment, (with maybe leading whitespace),
+                # and the previous line doesn't. So base the next line's
+                # indentation on the current line's
+                indent = currLineIndent = self._getIndentForLine(scimoz, curLineNo)
+                currLineIndentLen = len(currLineIndent.expandtabs(scimoz.tabWidth))
+                if checkPrevLine:
+                    prevLine_LineEndPos = scimoz.getLineEndPosition(prevLineNo)
+                    currentPos = scimoz.currentPos
+                    scimoz.currentPos = prevLine_LineEndPos
+                    try:
+                        prevLineIndent = self._getSmartBraceIndent(scimoz, continueComments, style_info)
+                        prevLineIndentLen = len(prevLineIndent.expandtabs(scimoz.tabWidth))
+                    finally:
+                        scimoz.currentPos = currentPos
+                    if prevLineIndentLen < currLineIndentLen:
+                        indent = prevLineIndent
+                if indent is not None:
                     return indent
 
         indentlog.info("not in comment, doing plain")
