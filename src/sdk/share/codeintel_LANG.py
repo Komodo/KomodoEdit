@@ -129,7 +129,8 @@ class ${safe_lang}LangIntel(LangIntel):
                 if DEBUG:
                     print "triggered:: complete identifiers"
                 return Trigger(self.lang, TRG_FORM_CPLN, "identifiers",
-                               start, implicit)
+                               start, implicit,
+                               word_start=start, word_end=end)
         return None
 
     ##
@@ -159,7 +160,8 @@ class ${safe_lang}LangIntel(LangIntel):
             if DEBUG:
                 print "triggered:: complete identifiers"
             return Trigger(self.lang, TRG_FORM_CPLN, "identifiers",
-                           start, implicit=False)
+                           start, implicit=False,
+                           word_start=start, word_end=end)
         return None
 
     ##
@@ -175,11 +177,16 @@ class ${safe_lang}LangIntel(LangIntel):
         ctlr.start(buf, trg)
 
         if trg.id == (self.lang, TRG_FORM_CPLN, "identifiers"):
-            # Return all known keywords.
-            cplns = [("keyword", x) for x in sorted(keywords, cmp=CompareNPunctLast)]
-            ctlr.set_cplns(cplns)
-            ctlr.done("success")
-            return
+            word_start = trg.extra.get("word_start")
+            word_end = trg.extra.get("word_end")
+            if word_start is not None and word_end is not None:
+                # Only return keywords that start with the given 2-char prefix.
+                prefix = buf.accessor.text_range(word_start, word_end)[:2]
+                cplns = [x for x in keywords if x.startswith(prefix)]
+                cplns = [("keyword", x) for x in sorted(cplns, cmp=CompareNPunctLast)]
+                ctlr.set_cplns(cplns)
+                ctlr.done("success")
+                return
 
         ctlr.error("Unknown trigger type: %r" % (trg, ))
         ctlr.done("error")
@@ -225,6 +232,8 @@ class ${safe_lang}Buffer(${buffer_subclass}):
 
     cb_show_if_empty = True
 
+    # Close the completion dialog when encountering any of these chars.
+    cpln_stop_chars = " ()*-=+<>{}[]^&|;:'\",.?~`!@#%\\/"
 
 
 #---- CILE Driver class
