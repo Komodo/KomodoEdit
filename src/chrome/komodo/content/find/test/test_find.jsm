@@ -92,6 +92,8 @@ TestKoFind.prototype.setUp = function TestKoFind_setUp() {
                      .getService(Ci.koIFindService);
     this.options = this.findSvc.options;
     this.options.patternType = Ci.koIFindOptions.FOT_SIMPLE;
+    // Override any current pref setting, or file-oriented tests could fail.
+    this.options.encodedIncludeFiletypes = '';
 };
 
 TestKoFind.prototype.tearDown = function TestKoFind_tearDown() {
