@@ -286,7 +286,9 @@ static void ColouriseCoffeeScriptDoc(unsigned int startPos, int length, int init
 					sc.ForwardSetState(SCE_C_DEFAULT);
 				} else if (sc.ch == '#' && sc.chNext == '{') {
 					numOpenBraces += 1;
-					sc.ForwardSetState(SCE_C_DEFAULT);
+					sc.SetState(SCE_C_OPERATOR);
+					sc.Forward(2);
+					sc.SetState(SCE_C_DEFAULT);
 				}
 				break;
 			case SCE_C_CHARACTER:
@@ -407,7 +409,8 @@ static void ColouriseCoffeeScriptDoc(unsigned int startPos, int length, int init
 				}
 			} else if (sc.ch == '}' && numOpenBraces > 0) {
 				numOpenBraces -= 1;
-				sc.SetState(SCE_C_STRING);
+				sc.SetState(SCE_C_OPERATOR);
+				sc.ForwardSetState(SCE_C_STRING);
 			} else if (isoperator(static_cast<char>(sc.ch))) {
 				sc.SetState(SCE_C_OPERATOR);
 			}
