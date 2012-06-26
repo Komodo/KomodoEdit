@@ -532,7 +532,11 @@ for languageName in StateMap:
     addSharedStyles(StateMap[languageName])
 
 def addNewUDLLanguage(languageName):
-    if languageName not in StateMap:
-        StateMap[languageName] = StateMap['UDL'].copy()
-        addSharedStyles(StateMap[languageName])
+    if languageName in StateMap:
+        import logging
+        log = logging.getLogger("language styles")
+        log.warn("addNewUDLLanguage: overwriting statemap for lang %r",
+                 languageName)
+    StateMap[languageName] = StateMap['UDL'].copy()
+    addSharedStyles(StateMap[languageName])
 
