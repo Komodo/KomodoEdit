@@ -87,6 +87,11 @@
             if (data.extensiontype == "komodolang") {
                 // Don't skip page2.
                 document.getElementById("page1").setAttribute("next", "page2");
+                // Show the customizing groupbox on page3.
+                document.getElementById("komodolang_customizing").removeAttribute("hidden");
+            } else if (data.extensiontype == "komodo") {
+                // Show the customizing groupbox on page3.
+                document.getElementById("komodoext_customizing").removeAttribute("hidden");
             }
         } catch(e) {
             alert(e);
@@ -309,6 +314,29 @@
         <groupbox>
             <caption label="&setup.CaptionInstallingIt;" />
             <description>&setup.DescriptionOnceTheXpiFileIsBuilt;</description>
+        </groupbox>
+        <groupbox id="komodoext_customizing" hidden="true">
+            <caption label="&setup.CaptionCustomizingIt;" />
+            <description>&setup.DescriptionCustomizingIt;</description>
+
+            <label style="font-weight: bold" value="content/*_overlay.xul" />
+            <description style="margin-left: 20px">&setup.CustomizingContentFiles;</description>
+        </groupbox>
+        <groupbox id="komodolang_customizing" hidden="true">
+            <caption label="&setup.CaptionCustomizingIt;" />
+            <description>&setup.DescriptionCustomizingIt;</description>
+
+            <label style="font-weight: bold" value="components/ko*.py" />
+            <description style="margin-left: 20px">&setup.CustomizingComponentFiles;</description>
+
+            <label style="font-weight: bold"  value="pylib/codeintel_*.py" />
+            <description style="margin-left: 20px">&setup.CustomizingPylibFiles;</description>
+
+            <label style="font-weight: bold"  value="udl/*.udl" />
+            <description style="margin-left: 20px">&setup.CustomizingUdlFiles;</description>
+
+            <label style="font-weight: bold"  value="templates/*" />
+            <description style="margin-left: 20px">&setup.CustomizingTemplateFiles;</description>
         </groupbox>
     </wizardpage>
 

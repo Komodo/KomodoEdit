@@ -37,6 +37,13 @@
 <!ENTITY setup.DescriptionAfterCreatingTheExtension "After creating the extension, you can use the &quot;Build&quot; button in the bottom of the Komodo toolbox (in the right pane) to build the extension (.xpi) file.">
 <!ENTITY setup.CaptionInstallingIt "Installing it">
 <!ENTITY setup.DescriptionOnceTheXpiFileIsBuilt "Once the xpi file is built, you can open (double-click) it from Places which will start the installation process.">
+<!ENTITY setup.CaptionCustomizingIt "Customizing it">
+<!ENTITY setup.DescriptionCustomizingIt "You can customize the behaviour of your extension by modifing the project files and then re-building and re-installing the add-on.">
+<!ENTITY setup.CustomizingContentFiles "The UI elements that are loaded into the Komodo UI, as well as loading any necessary JavaScript files.">
+<!ENTITY setup.CustomizingComponentFiles "Controls the registration of the language within Komodo, provides the base information about the language.">
+<!ENTITY setup.CustomizingPylibFiles "Provides code intelligence facilities, for code completion popups, calltips and code browser information.">
+<!ENTITY setup.CustomizingUdlFiles "The UDL files provide syntax highlighting (coloring) for your language, including keyword, strings, numbers and comment styling.">
+<!ENTITY setup.CustomizingTemplateFiles "The templates folder holds the custom language templates that are availalbe in Komodo's New File from Template dialogs.">
 <!ENTITY setup.WizardNewKomodoExtension "New Komodo Extension">
 <!ENTITY setup.WizardCancel "Cancel">
 <!ENTITY setup.WizardSave "Save">
