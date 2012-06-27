@@ -220,7 +220,7 @@ def grep(regex, paths, files_with_matches=False,
             if files_with_matches:
                 yield PathHit(path)
                 break
-            hit = FindHit(path, ti.encoding, match, accessor, ti.is_loaded_path)
+            hit = FindHit(path, ti, match, accessor)
             if first_on_line:
                 line, _ = hit.line_num_range
                 if line == last_hit_line:
@@ -295,8 +295,8 @@ def replace(regex, repl, paths,
         # 'fhits' is a list of FindHits for a single path.
 
         path = fhits[0].path
-        encoding = fhits[0].encoding
-
+        encoding = fhits[0].encoding_with_bom
+        
         # Calculate the change.
         before_text = fhits[0].accessor.text
         if first_on_line:
@@ -666,12 +666,11 @@ class _HitWithAccessorMixin(object):
 
 
 class FindHit(Hit, _HitWithAccessorMixin):
-    def __init__(self, path, encoding, match, accessor, is_loaded_path=False):
+    def __init__(self, path, textInfo, match, accessor):
         self.path = path
-        self.encoding = encoding
+        self.textInfo = textInfo
         self.match = match
         self.accessor = accessor
-        self.is_loaded_path = is_loaded_path
 
     def __repr__(self):
         hit_summary = repr(self.match.group(0))
@@ -679,6 +678,26 @@ class FindHit(Hit, _HitWithAccessorMixin):
             hit_summary = hit_summary[:16] + "...'"
         return "<FindHit %s at %s#%s>"\
                % (hit_summary, self.path, self.line_num_range[0]+1)
+
+    @property
+    def encoding(self):
+        # bug 93985 -- this method currently not used, but available for
+        # any future use. Arguably we should drop this, and just
+        # return encoding_with_bom
+        return self.textInfo.encoding
+
+    @property
+    def encoding_with_bom(self):
+        _encoding = self.textInfo.encoding
+        # bug 93985 -- make sure we preserve the BOM for utf-8 files with BOM
+        if _encoding == "utf-8" and self.textInfo.has_bom:
+            return "utf-8-sig"
+        else:
+            return _encoding
+
+    @property
+    def is_loaded_path(self):
+        return self.textInfo.is_loaded_path
 
     @property
     def start_pos(self):

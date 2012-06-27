@@ -826,7 +826,7 @@ TestKoFind.prototype.test_replaceAllInFiles = function test_replaceAllInFiles() 
             findSvc.stopfindreplaceinfiles(resultsTab.id);
             this.fail("Timed out waiting for the replace to complete");
         }
-        // Spin the event loop for a bit to let the session thread shut down :(
+        // Spin the event loop for a bit to let the session thread shut down :\(
         stopTime = Date.now() + 200; // 0.2 seconds
         while (Date.now() < stopTime) {
             Services.tm.mainThread.processNextEvent(false);
@@ -859,6 +859,105 @@ TestKoFind.prototype.test_replaceAllInFiles = function test_replaceAllInFiles() 
                 file.close();
             }
         }
+    } finally {
+        fileSvc.deleteTempDir(dirName);
+    }
+};
+
+TestKoFind.prototype.test_replaceAllInFilesWithBOM = function test_replaceAllInFilesWithBOM() {
+    this.context = Cc["@activestate.com/koFindInFilesContext;1"]
+                     .createInstance(Ci.koIFindInFilesContext);
+    this.context.type = Ci.koIFindContext.FCT_IN_FILES;
+    var fileSvc = Cc["@activestate.com/koFileService;1"].getService(Ci.koIFileService);
+    var dirName = fileSvc.makeTempDir(".tmp", "komodo_test_find_replaceAllInFilesWithBOM_");
+    this.context.cwd = dirName;
+    var abort = false;
+    try {
+        var resultsTab = ko.findresults.getTab();
+        var byteArray1 = [0xef, 0xbb, 0xbf];
+        var contents1 = ("abcdef ?\n"
+            + "an acute: ");
+        var byteArray2 = [0xc2, 0x9b];
+        var contents2 = ("\n"
+                         + "that's it.\n");
+        var contents = (String.fromCharCode(byteArray1) + contents1
+                        + String.fromCharCode(byteArray2) + contents2);
+        var fname = "bom01-utf8.txt";
+        var path = dirName + "/" + fname;
+        var obj_File = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsILocalFile);
+        var obj_OutputStream = Cc["@mozilla.org/network/file-output-stream;1"].createInstance(Ci.nsIFileOutputStream);
+        var obj_BinaryOutputStream = Cc["@mozilla.org/binaryoutputstream;1"].createInstance(Ci.nsIBinaryOutputStream);
+        obj_File.initWithPath(path);
+        if (!obj_File.exists()) {
+            obj_File.create(0, 0664);
+        }
+        obj_OutputStream.init(obj_File, 0x22, 4, null);
+        obj_BinaryOutputStream.setOutputStream(obj_OutputStream);
+        obj_BinaryOutputStream.writeByteArray(byteArray1, byteArray1.length);
+        obj_BinaryOutputStream.writeBytes(contents1, contents1.length);
+        obj_BinaryOutputStream.writeByteArray(byteArray2, byteArray2.length);
+        obj_BinaryOutputStream.writeBytes(contents2, contents2.length);
+        obj_BinaryOutputStream.flush();
+        obj_BinaryOutputStream.close();
+        obj_OutputStream.close();
+        let result;
+        this.options.encodedFolders = ".";
+        result = ko.find.replaceAllInFiles(this.scope, /* editor */
+                                           this.context, /* find context */
+                                           "acute", /* pattern */
+                                           "grave", /* replacement */
+                                           false, /* confirm */
+                                           this.msgHandler.bind(this) /* message handler */);
+        this.assertTrue(result, "Failed to replace in files");
+        var findSvc = Cc["@activestate.com/koFindService;1"]
+                        .getService(Ci.koIFindService);
+        var stopTime = Date.now() + 10 * 1000; // 10 seconds
+        while (!abort && resultsTab.inProgress) {
+            abort = Date.now() > stopTime;
+            Services.tm.mainThread.processNextEvent(false);
+        }
+        if (abort) {
+            findSvc.stopfindreplaceinfiles(resultsTab.id);
+            this.fail("Timed out waiting for the replace to complete");
+        }
+        // Spin the event loop for a bit to let the session thread shut down :\(
+        stopTime = Date.now() + 200; // 0.2 seconds
+        while (Date.now() < stopTime) {
+            Services.tm.mainThread.processNextEvent(false);
+        }
+        if (findSvc.stopfindreplaceinfiles(resultsTab.id)) {
+            // Getting here means the find-in-files session was stuck on the
+            // background thread; give it a bit more time to shutdown, then
+            // report this, assuming it's a hang
+            stopTime = Date.now() + 5 * 1000; // 10 seconds
+            while (Date.now() < stopTime) {
+                Services.tm.mainThread.processNextEvent(false);
+            }
+            this.fail("Replace session was stuck in the background");
+        }
+                       
+        this.assertTrue(resultsTab.success, "Failed to find results");
+        this.assertEquals(resultsTab.numResults, 1, "Expected 1 results");
+        this.assertEquals(resultsTab.numFiles, 1, "Expected 1 files");
+        this.assertEquals(resultsTab.numFilesSearched, 1, "Expected 1 file searched");
+
+        obj_InputStream = Cc["@mozilla.org/network/file-input-stream;1"].createInstance(Ci.nsIFileInputStream);
+        obj_BinaryInputStream = Cc["@mozilla.org/binaryinputstream;1"].createInstance(Ci.nsIBinaryInputStream);
+        obj_InputStream.init(obj_File, -1, -1, false);
+        obj_BinaryInputStream.setInputStream(obj_InputStream);
+        var bytes = obj_BinaryInputStream.readBytes(obj_BinaryInputStream.available());
+        obj_BinaryInputStream.close();
+        obj_InputStream.close();
+        
+        this.assertEquals(bytes.charCodeAt(0), 0xef);
+        this.assertEquals(bytes.charCodeAt(1), 0xbb);
+        this.assertEquals(bytes.charCodeAt(2), 0xbf);
+        var contents1_fixed = contents1.replace(/acute/g, "grave");
+        this.assertEquals(bytes.substr(3, contents1_fixed.length), contents1_fixed);
+        var n = 3 + contents1.length;
+        this.assertEquals(bytes.charCodeAt(n), 0xc2);
+        this.assertEquals(bytes.charCodeAt(n + 1), 0x9b);
+        this.assertEquals(bytes.substr(n + 2), contents2);
     } finally {
         fileSvc.deleteTempDir(dirName);
     }
