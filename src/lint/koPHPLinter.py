@@ -67,15 +67,26 @@ class KoPHPCompileLinter:
          ]
 
     def __init__(self):
-        self.phpInfoEx = components.classes["@activestate.com/koAppInfoEx?app=PHP;1"].\
-                    getService(components.interfaces.koIPHPInfoEx)
-        koLintService = components.classes["@activestate.com/koLintService;1"].getService(components.interfaces.koILintService)
-        self._html_linter = UnwrapObject(koLintService.getLinterForLanguage("HTML"))
+        try:
+            self.phpInfoEx = components.classes["@activestate.com/koAppInfoEx?app=PHP;1"].\
+                             getService(components.interfaces.koIPHPInfoEx)
+            koLintService = components.classes["@activestate.com/koLintService;1"].getService(components.interfaces.koILintService)
+            self._html_linter = UnwrapObject(koLintService.getLinterForLanguage("HTML"))
+        except:
+            log.exception("Problem getting phpInfoEx")
+            raise
     
     # linting versions are different than what is required for xdebug
     # debugging, so we have our own version checking
+    _checkValidVersion_complained = {}
     def checkValidVersion(self):
-        version = self.phpInfoEx.version
+        try:
+            version = self.phpInfoEx.version
+        except:
+            if "version" not in self._checkValidVersion_complained:
+                self._checkValidVersion_complained["version"] = True
+                log.error("Error getting phpInfoEx.version.  Is a PHP interpreter defined?")
+            return False
         if not version:
             # Allow for None or empty string
             reject = True
@@ -83,15 +94,23 @@ class KoPHPCompileLinter:
             # last point can be something like 10-beta
             version = tuple([int(x) for x in re.match(r"(\d+)\.(\d+)\.(\d+)", version).groups()])
             reject = (version < (4,0,5))
-        if reject:
+        if reject and "checkValidVersion" not in self._checkValidVersion_complained:
+            self._checkValidVersion_complained["checkValidVersion"] = True
             errmsg = "Could not find a suitable PHP interpreter for "\
                      "linting, need 4.0.5 or later."
-            raise COMException(nsError.NS_ERROR_NOT_AVAILABLE, errmsg)
+            log.error("koPHPLinter.py: checkValidVersion: %s", errmsg)
+        return not reject
         
     _tplPatterns = ("PHP", re.compile('<\?(?:php\s+echo\b[^_]|=)', re.IGNORECASE|re.DOTALL), re.compile(r'\?>\s*\Z', re.DOTALL))
     def lint(self, request):
-        return self._html_linter.lint(request,
-                                      TPLInfo=self._tplPatterns)
+        try:
+            return self._html_linter.lint(request,
+                                          TPLInfo=self._tplPatterns)
+        except:
+            if "lint"  not in self._checkValidVersion_complained:
+                self._checkValidVersion_complained["lint"] = True
+                log.exception("Problem in koPHPLinter.lint")
+            return koLintResults()
     
     def lint_with_text(self, request, text):
         """Lint the given PHP content.
@@ -107,9 +126,11 @@ class KoPHPCompileLinter:
         php = self.phpInfoEx.getExecutableFromDocument(request.koDoc)
         if php is None:
             errmsg = "Could not find a suitable PHP interpreter for linting."
+            log.exception(errmsg)
             raise COMException(nsError.NS_ERROR_NOT_AVAILABLE, errmsg)
 
-        self.checkValidVersion()
+        if not self.checkValidVersion():
+            return None
 
         # save php buffer to a temporary file
         phpfilename = tempfile.mktemp()
