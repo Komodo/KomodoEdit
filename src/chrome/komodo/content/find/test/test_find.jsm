@@ -958,7 +958,51 @@ TestKoFind.prototype.test_replaceAllInFilesWithBOM = function test_replaceAllInF
         this.assertEquals(bytes.charCodeAt(n), 0xc2);
         this.assertEquals(bytes.charCodeAt(n + 1), 0x9b);
         this.assertEquals(bytes.substr(n + 2), contents2);
+
+	    // Now do an undo
+	
+    	function UndoReplaceControllerMock(owner) {
+            this.num_hits = -1;
+            this.num_paths = -1;
+            this.owner = owner;
+        };
+    	UndoReplaceControllerMock.prototype = {
+          QueryInterface: function(iid) {
+                dump("UndoReplaceControllerMock.QueryInterface(" + iid + ")\n");
+                if (!iid.equals(Components.interfaces.koIUndoReplaceController) &&
+                    !iid.equals(Components.interfaces.nsISupports)) {
+                    throw Components.results.NS_ERROR_NO_INTERFACE;
+                }
+                return this;
+            },
+          set_summary: function() {
+                dump("UndoReplaceControllerMock.set_summary()\n");
+            },
+          report: function(num_hits, num_paths) {
+                dump("UndoReplaceControllerMock.report(" + num_hits
+                     + ", " + num_paths + ")\n");
+            this.num_hits = num_hits;
+            this.num_paths = num_paths;
+            },
+          error: function(errmsg) {
+                dump("UndoReplaceControllerMock.error(" + errmsg + ")\n");
+                owner.assertFalse(1, "undo failed: " + errmsg)
+                fileSvc.deleteTempDir(dirName);
+            },
+          done: function() {
+                dump("UndoReplaceControllerMock.done()\n");
+                owner.assertTrue(1, "undo succeeded: " + errmsg)
+                fileSvc.deleteTempDir(dirName);
+            },
+        };
+
+        // Don't wire up the undo'er yet.
+        // var journalId = resultsTab.journalId;
+        // undoController = new UndoReplaceControllerMock(this);
+        // var undoer = findSvc.undoreplaceallinfiles(journalId, undoController);
+        // undoer.start();
     } finally {
+        // Nothing to do here
         fileSvc.deleteTempDir(dirName);
     }
 };
