@@ -1198,7 +1198,7 @@ class koDocumentBase:
                     #           len(oldLineWS), len(newLineWS))
             else:
                 #log.debug(" newLine %d not found in oldLines, so strip trailing ws")
-                self.linesToPreserveByLineNum.append(newLineNum - 1)
+                self.linesToStripByLineNum.append(newLineNum - 1)
         
     def getChangedLinesWithTrailingWhitespace(self):
         diffText = self.getUnsavedChanges()
@@ -1222,15 +1222,11 @@ class koDocumentBase:
                 pass
             else:
                 c = diffLine[0]
-                m = ends_with_space_re.match(diffLine)
                 if c == ' ':
-                    if m:
-                        # Always preserve white-space on unchanged lines
-                        #log.debug("unchanged line %d >>%r<< ends with a space", newLineNum, diffLine)
-                        pass
                     oldLineNum += 1
                     newLineNum += 1
                 elif c == '-':
+                    m = ends_with_space_re.match(diffLine)
                     if m:
                         #log.debug("old line %d >>%r<< ends with a space", oldLineNum, diffLine)
                         self.hunkOldLines[m.group(1)] = [oldLineNum, m.group(2)]
@@ -1239,11 +1235,13 @@ class koDocumentBase:
                         self.hunkOldLines[diffLine[1:]] = [oldLineNum, '']
                     oldLineNum += 1
                 elif c == "+":
+                    m = ends_with_space_re.match(diffLine)
                     if m:
-                        status = "yes"
+                        #status = "yes"
                         self.hunkNewLines.append((m.group(1), newLineNum, m.group(2)))
                     else:
-                        status = "no"
+                        pass
+                        #status = "no"
                     #log.debug("Look at newLineNum:%d, <<%s>>: %r", newLineNum, diffLine, status)
                     newLineNum += 1
         # end for
