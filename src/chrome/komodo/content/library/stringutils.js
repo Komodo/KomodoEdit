@@ -196,7 +196,7 @@ this.getSubAttr = function stringutils_getSubAttr(value, subattrname)
                 let index = value.indexOf(";");
                 if (index < 0) index = value.length;
                 if (found) {
-                    return value.substr(0, index);
+                    return value.substr(0, index).replace(/\s*$/, "");
                 }
                 value = value.substr(index).replace(/^\s*;\s*/, "");
                 state = STATE_NAME;
