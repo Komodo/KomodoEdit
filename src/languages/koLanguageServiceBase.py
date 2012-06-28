@@ -827,6 +827,11 @@ class koLangSvcStyleInfo(koLangSvcStyleInfo_Default):
 
 _softCharDecorator = components.interfaces.koILintResult.DECORATOR_SOFT_CHAR
 
+# Used for line-comment auto-indentation
+_COMMENT_STYLE_RUN_CODE = 1
+_COMMENT_STYLE_RUN_SPACE = 2
+_COMMENT_STYLE_RUN_SPACE_COMMENT = 3
+
 class _NextLineException(Exception):
     pass
 
@@ -1516,83 +1521,131 @@ class KoLanguageBase:
             return indentingOrDedentingStatementIndent
         indentlog.info("did not detect indenting/dedenting statement")
 
-        # Look for a case where we're ending a list of hanging comments:
-        """
-        if 1: # start line *press shift-newline*
-              # another line  *press shift-newline*
-              # last line[|] (*press newline*) -- should indent based on first line containing comments
-        """
         if 'line' in self.commentDelimiterInfo and not continueComments:
-            # If we're at ^[leading white-space][comments]<cursor>
-            # walk up lines looking for the same situtation,
-            # and do an indent at the first line that doesn't match.
-            current_line_style_runs = self._getCommentStyleRunsForLine(scimoz, curLineNo, style_info, lineStartPos=lineStart, lineEndPos=pos)
-            checkPrevLine = curLineNo > 0
-            if current_line_style_runs:
-                prevLineNo = curLineNo - 1
-                while prevLineNo >= 1:
-                    prev_line_style_runs = self._getCommentStyleRunsForLine(scimoz, prevLineNo, style_info)
-                    if not prev_line_style_runs:
-                        break
-                    if prev_line_style_runs[0][1] != current_line_style_runs[0][1]:
-                        # The curr line and prev line have different comment widths,
-                        # so go with the current one.
-                        checkPrevLine = False
-                        break
-                    prevLineNo = prevLineNo - 1
-                # Find the indent based on the line we end up at.
-                currLineIndentLen = startingLineIndentLen = -1
-                # The current line contains only a comment, (with maybe leading whitespace),
-                # and the previous line doesn't. So base the next line's
-                # indentation on the current line's
-                indent = currLineIndent = self._getIndentForLine(scimoz, curLineNo)
-                currLineIndentLen = len(currLineIndent.expandtabs(scimoz.tabWidth))
-                if checkPrevLine:
-                    prevLine_LineEndPos = scimoz.getLineEndPosition(prevLineNo)
-                    currentPos = scimoz.currentPos
-                    scimoz.currentPos = prevLine_LineEndPos
-                    try:
-                        prevLineIndent = self._getSmartBraceIndent(scimoz, continueComments, style_info)
-                        prevLineIndentLen = len(prevLineIndent.expandtabs(scimoz.tabWidth))
-                    finally:
-                        scimoz.currentPos = currentPos
-                    if prevLineIndentLen < currLineIndentLen:
-                        indent = prevLineIndent
-                if indent is not None:
-                    return indent
-
+            indent = self._analyzeLineCommentIndent(scimoz, curLineNo, lineStart, pos, style_info)
+            if indent is not None:
+                return indent
+            
         indentlog.info("not in comment, doing plain")
         return None
 
+    def _analyzeLineCommentIndent(self, scimoz, curLineNo, lineStart, pos, style_info):
+        """
+        Returns:
+        Either the string to use to indent the next line, or None, indicating
+        the caller should take an alternative approach to find the indent string,
+        or return None, and let its caller deal with it.
+        
+        See http://bugs.activestate.com/show_bug.cgi?id=94569
+        Fix r72181 for http://bugs.activestate.com/show_bug.cgi?id=94508
+        was incomplete.
+        # Look for a case where we're ending a list of hanging comments:
+        if 1: # start line *press shift-newline*
+              # another line  *press shift-newline*
+              # last line[|] (*press newline*) -- should indent based on first line containing comments
+              
+        We might have been at a situation like this:
+        ..... code    # comment <shift-return>
+        ..............# continue comment <shift-return>
+        ..............# continue comment <return>
+        
+        Or maybe it was just this:
+        .... header code:
+        ....... #comment
+        
+        So if the current line is _COMMENT_STYLE_RUN_SPACE_COMMENT, walk up
+        looking for a code line.  If the code line ends with a comment that
+        starts at the same position as the current line's comment, indent
+        based on that line. Otherwise indent based on the current line.
+        
+        So this skips any intervening empty and all-white-space lines.
+        
+        If we start with a CODE line, return None, which will end up returning
+        the simple indent.
+        """
+        current_line_style_runs = self._getCommentStyleRunsForLine(scimoz, curLineNo, style_info, lineStartPos=lineStart, lineEndPos=pos)
+        if (current_line_style_runs[0] != _COMMENT_STYLE_RUN_SPACE_COMMENT
+            or current_line_style_runs[1] == 0):
+            # We're only interested in lines that have non-empty leading
+            # white-space followed by a comment, no code.
+            return None
+        for prevLineNo in range(curLineNo - 1, -1, -1):
+            prev_line_style_runs = self._getCommentStyleRunsForLine(scimoz, prevLineNo, style_info)
+            if prev_line_style_runs[0] == _COMMENT_STYLE_RUN_SPACE:
+                # Ignore lines containing only white-space (including 0 chars)
+                continue
+            elif prev_line_style_runs[0] == _COMMENT_STYLE_RUN_SPACE_COMMENT:
+                if current_line_style_runs[1] != prev_line_style_runs[1]:
+                    # leading white-space differs, so go with the current line's indentation
+                    return None
+            elif prev_line_style_runs[3] == 0:
+                # The code line has no comment, so go with the current line's indentation
+                return None
+            elif prev_line_style_runs[1] + prev_line_style_runs[2] != current_line_style_runs[1]:
+                # The comments on the curr line and prev line start at
+                # different positions, so go with the current line.
+                return None
+            else:
+                # We hit the code line that started the current run of comments.
+                # Base the indentation on it.
+                currentPos = scimoz.currentPos
+                anchor = scimoz.anchor
+                scimoz.currentPos = scimoz.anchor = scimoz.getLineEndPosition(prevLineNo)
+                try:
+                    prevLineIndent = self._getSmartBraceIndent(scimoz, False, style_info)
+                finally:
+                    scimoz.currentPos = currentPos
+                    scimoz.anchor = anchor
+                return prevLineIndent
+
     def _getCommentStyleRunsForLine(self, scimoz, curLineNo, style_info, lineStartPos=None, lineEndPos=None):
+        """
+        Return a 4-tuple containing the line-type, followed by
+        the line type
+        len leading white-space
+        len code
+        len trailing comment
+        
+        There are only 3 line types:
+         contains code: _COMMENT_STYLE_RUN_CODE (1)
+         white-space only/empty: _COMMENT_STYLE_RUN_SPACE (2) 
+         comment, no code. Leading white-space ok: _COMMENT_STYLE_RUN_SPACE_COMMENT (3)
+        
+        """
         if lineStartPos is None:
             lineStartPos = scimoz.positionFromLine(curLineNo)
         if lineEndPos is None:
             lineEndPos = scimoz.getLineEndPosition(curLineNo)
         data = scimoz.getStyledText(lineStartPos, lineEndPos)
-        if len(data) <= 2:
-            return None
+        if not data:
+            # empty line
+            return (_COMMENT_STYLE_RUN_SPACE, 0, 0, 0)
         styles = [ord(x) for x in data[1::2]]
-        if styles[0] not in style_info._default_styles and styles[0] != 0:
-            return None
-        if styles[-1] not in style_info._comment_styles:
-            return None
-        styleRuns = [[styles[0], 0], [styles[-1], 0]]
-        currStyle = styles[0]
+        text = [x for x in data[0::2]]
+        lim = len(styles)
+        if styles[0] in style_info._comment_styles:
+            # Starts with a comment
+            return (_COMMENT_STYLE_RUN_SPACE_COMMENT, 0, 0, lim)
         currIndex = 0
-        for s in styles:
-            if s != currStyle:
-                if currIndex == 1:
-                    return None
-                if s != styles[-1]:
-                    return None
-                currStyle = s
-                currIndex += 1
-            styleRuns[currIndex][1] += 1
-        leading_chars = data[:styleRuns[0][1] * 2:2]
-        if leading_chars.strip():
-            return None
-        return styleRuns
+        # Find the end of the leading white-space.
+        # Default styles in languages with line-comments should always be white-space
+        # The language lexer is probably incomplete if this isn't the case, but check anyway
+        while (currIndex < lim
+               and (styles[currIndex] in style_info._default_styles
+                    or styles[currIndex] == 0)
+               and text[currIndex] in " \t"):
+            currIndex += 1
+        if currIndex == lim:
+            # All default/blank
+            return (_COMMENT_STYLE_RUN_SPACE, lim, 0, 0)
+        if styles[currIndex] in style_info._comment_styles:
+            # Comment follows leading white-space
+            return (_COMMENT_STYLE_RUN_SPACE_COMMENT, currIndex, 0, lim - currIndex)
+        lastCommentIdx = lim
+        while styles[lastCommentIdx - 1] in style_info._comment_styles:
+            lastCommentIdx -= 1
+        # Line contains code.
+        return (_COMMENT_STYLE_RUN_CODE, currIndex, lastCommentIdx - currIndex, lim - lastCommentIdx)
             
     def _atOpeningStringDelimiter(self, scimoz, pos, style_info):
         if pos < 3:
