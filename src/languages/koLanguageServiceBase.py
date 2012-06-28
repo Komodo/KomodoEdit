@@ -1490,10 +1490,10 @@ class KoLanguageBase:
         # dedent by a variable amount depending on the commenting style.
 
         if 'block' in self.commentDelimiterInfo:
-            finishedBlockCommentIndents = self._finishedBlockComment(scimoz, pos, style_info)
-            if finishedBlockCommentIndents is not None:
+            finishedBlockCommentIndent = self._finishedBlockComment(scimoz, pos, style_info)
+            if finishedBlockCommentIndent is not None:
                 indentlog.info("detected block comment close")
-                return finishedBlockCommentIndents[0]
+                return finishedBlockCommentIndent
             indentlog.info("did not detect block comment close")
 
         # See if we just closed a block comment, in which case we need to
@@ -1707,20 +1707,19 @@ class KoLanguageBase:
 
     def _finishedBlockComment(self, scimoz, pos, style_info):
         """ This function looks to see if we just ended a block comment.
-        If not, it returns (None, None).
-        If yes, it returns two indents -- the indent which is appropriate
-        for the next line, and the indent of the beginning of the block
-        statement, e.g.:
+        If not, it returns None
+        If yes, it returns the indent appropriate
+        for the next line -- e.g.:
         
             ....x = 3 /* this is the start
                          and so
             ..........*/
-                
-        the first is four spaces, the second ten.  the first is used
-        to process the newline, the second to shift the end of the
-        block comment if is not preceded by non-whitespace chars on
-        the same line.
+            
+        Return a four-space string to be used for indenting the next line.
         
+        This method used to return two strings, the nextLineIndent and a
+        current-line indent. But with the change in r71995, there's never a need
+        to adjust a comment-end
         """
         
         # Unicode: is pos used correctly in this function?
@@ -1728,9 +1727,9 @@ class KoLanguageBase:
         startOfLine = scimoz.positionFromLine(lineNo)
         p = pos
         data = scimoz.getStyledText(startOfLine, pos)
-        while p >= startOfLine:
+        while p > startOfLine:
             p -= 1
-            # move back until we hit a character.
+            # move back until we hit a non-whitespace character.
             char = data[(p-startOfLine)*2]
             if char in ' \t': continue
             style = ord(data[(p-startOfLine)*2+1]) & self.stylingBitsMask
@@ -1739,40 +1738,40 @@ class KoLanguageBase:
                 # end of a block comment
                 indentlog.info("we hit a non-comment character -- it can't be the end of a block comment")
                 return None
-            # see if our current position matches the ends of block comments
-            blockCommentPairs = self.commentDelimiterInfo['block']
-            for blockCommentStart, blockCommentEnd in blockCommentPairs:
-                for i in range(len(blockCommentEnd)):
-                    c = blockCommentEnd[len(blockCommentEnd)-i-1]
-                    if c != data[(p-i-startOfLine)*2]:
-                        indentlog.info("looking for %s, got %s",
-                                       data[(p-i-startOfLine)*2],
-                                       c)
-                        return None
-                # we have a comment end!
-                # find the matching comment start
-                text = scimoz.getTextRange(0, p)
-                startOfComment = text.rfind(blockCommentStart)
-                if startOfComment == -1:
-                    indentlog.info("could not find the beginning of the block comment")
-                    return None
-                nextLineIndent = self._getIndentForLine(scimoz,
-                                                scimoz.lineFromPosition(startOfComment))
-                adjustIndent = scimozindent.makeIndentFromWidth(scimoz,
-                                                   scimoz.getColumn(startOfComment))
-                
-                # is this block comment using markup?  If so, we want an
-                # additional space in the adjustment.  This allows
-                # javadoc style comments to format correctly.
-                if 'markup' in self.commentDelimiterInfo:
-                    markup = self.commentDelimiterInfo['markup']
-                    if markup:
-                        usedMarkup = text[startOfComment+len(blockCommentStart):(0-len(blockCommentEnd))].rfind('%s %s' %(adjustIndent,markup))
-                        if usedMarkup != -1:
-                            adjustIndent += ' '
-                
-                return nextLineIndent, adjustIndent
-        return None
+            # Break out of the loop. Either we're at the end of a blockCommentEnd, and can
+            # process it, or we aren't, and return None
+            break
+        
+        # see if our current position matches the ends of block comments
+        # Pascal has two sets of block-comments, so look to see if we're looking at one.
+        # Assume no language has multiple blockCommentEnds where one is a suffix of
+        # the other.
+        blockCommentPairs = self.commentDelimiterInfo['block']
+        pRel = p - startOfLine + 1
+        for blockCommentPair in blockCommentPairs:
+            blockCommentEnd = blockCommentPair[1]
+            if pRel >= len(blockCommentEnd):
+                if "".join(data[(pRel - len(blockCommentEnd))*2 : pRel *2 : 2]) == blockCommentEnd:
+                    blockCommentStart = blockCommentPair[0]
+                    break
+        else:
+            return None
+        
+        # we have a comment end!
+        # find the matching comment start
+        #XXX: Note it would be better to walk up skipping through sequences of
+        #
+        # ... */ some code /* ...
+        #                   *
+        #                   */
+        # Don't stop at the line that contains 'some code' -- keep walking upwards.
+        
+        text = scimoz.getStyledText(0, p)[0::2] # Stay with bytes, not ucs-2 chars
+        startOfComment = text.rfind(blockCommentStart)
+        if startOfComment == -1:
+            indentlog.info("could not find the beginning of the block comment")
+            return None
+        return self._getIndentForLine(scimoz, scimoz.lineFromPosition(startOfComment))
     
     def shiftRegionByDelta(self, scimoz, startLineNo, endLineNo, delta):
         for lineNo in range(startLineNo, endLineNo+1):
@@ -2586,9 +2585,8 @@ class KoLanguageBase:
             and 'block' in self.commentDelimiterInfo):
             blockCommentEndMarker = self.commentDelimiterInfo['block'][0][-1]
             if blockCommentEndMarker.endswith(ch):
-                indents = self._finishedBlockComment(scimoz, charPos+1, style_info)
-                if indents is not None:
-                    indent = indents[1]
+                nextLineIndent = self._finishedBlockComment(scimoz, charPos+1, style_info)
+                if nextLineIndent is not None:
                     charPos = charPos + 1 - len(blockCommentEndMarker)
                     # Fix bug 42792 -- do this in one place
 
