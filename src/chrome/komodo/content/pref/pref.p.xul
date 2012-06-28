@@ -527,7 +527,8 @@
                     <treecols>
                         <treecol id="categoryDynamic" primary="true"
                                  class="treecell-header outset" url="__header"
-                                 label="&category.label;" flex="1"/>
+                                 label="&category.label;" flex="1"
+                                 mousethrough="always"/>
                     </treecols>
         
                     <treechildren id="panelChildrenDynamic" flex="1" />
