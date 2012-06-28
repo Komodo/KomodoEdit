@@ -1542,10 +1542,7 @@ body {
 """).decode("utf-8")
         self._check_zero_results_show_error(code, language="Less")
 
-    @tag("bug94548")
-    def test_parsing_internal_error01(self):
-        # Full text of sample code for bug94548 (can't repro on linux/win)
-        code = dedent(u"""\
+    _bug_94548_full_code = dedent(u"""\
 /* Bug caused by non-ascii text at line 1274 */
 
 /*EM 'reset baseline' style rules*/
@@ -3912,4 +3909,27 @@ margin-left: 20px;
 #content.profile  #add_leader_name {margin: 1em 0;}
 
 """)
-        self._check_zero_results_show_error(code)
+
+    @tag("bug94548")
+    def test_bug94548_full_code(self):
+        # Full text of sample code for bug94548 (can't repro on linux/win)
+        self._check_zero_results_show_error(self._bug_94548_full_code, language="Less")
+
+    @tag("bug94548")
+    def test_bug94548_partial_code(self):
+        # Process randomly-selected initial prefixes of the document above,
+        # looking for exceptions (not finding anyway).
+        for i in range(20):
+            codeLen = len(self._bug_94548_full_code)
+            halfLen = codeLen / 2
+            pick = int(random.uniform(halfLen, codeLen))
+            #sys.stderr.write("Linting %d/%d bytes\n" % (pick, codeLen))
+            partialCode = self._bug_94548_full_code[:pick]
+            try:
+                results = self.csslinter.lint(partialCode, "CSS")
+                self.assertTrue(True, "finished linting %d bytes" % (pick,))
+                if results:
+                    # sys.stderr.write("results: %s\n" % "\n   ".join([str(x) for x in results]))
+                    pass
+            except:
+                self.assertTrue(False, "Got exception while linting %d/%d bytes" % (pick, codeLen))
