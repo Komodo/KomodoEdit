@@ -266,6 +266,7 @@ class KoTACFilePathSearch(KoTACSearch):
         """
         result = KoTACResult()
         result.init(pattern)
+        cwd = self.parseSearchParam(cwd).get("filepath", cwd)
 
         #XXX Disable this optimization because
         #    - It screws up with non-normalized paths, e.g. 'foo//bar'.
@@ -321,13 +322,18 @@ class KoTACMruSearch(KoTACSearch):
         """Synchronously complete the given string against the Komodo
         MRU pref list.
         """
-        DEBUG = False
+        DEBUG = log.getEffectiveLevel() <= logging.DEBUG
         log.debug("startSearch(searchString=%r, prefName=%r, "
                   "previousResult=%r, listener)", searchString, 
                   prefName, previousResult)
 
         result = KoTACResult()
         result.init(searchString)
+
+        # Try to parse the search param, in case we have multiple autocompleters
+        prefDict = self.parseSearchParam(prefName)
+        prefName = prefDict.get("mru", prefName)
+        if DEBUG: log.debug("prefDict: %r", prefDict)
 
         if DEBUG: allitems = []
         if self.prefSvc.hasPref(prefName):
@@ -339,7 +345,7 @@ class KoTACMruSearch(KoTACSearch):
                 if DEBUG: allitems.append(item)
                 if item.startswith(searchString):
                     result.addMatch(item, None, None, False)
-        if DEBUG: print "All '%s' items: %r" % (prefName, allitems)
+        if DEBUG: log.debug("All '%s' items: %r", prefName, allitems)
         listener.onSearchResult(self, result)
 
     def stopSearch(self):

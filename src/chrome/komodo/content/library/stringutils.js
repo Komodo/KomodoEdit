@@ -152,23 +152,63 @@ this.updateSubAttr = function stringutils_updateSubAttr(oldValue, subattrname, s
 
 this.getSubAttr = function stringutils_getSubAttr(value, subattrname)
 {
-    var parts = value.split(";");
-    var part, colon, name;
-    var i;
-    for (i = 0; i < parts.length; i++) {
-        part = parts[i];
-        colon = part.indexOf(':');
-        if (colon == -1) {
-            throw new Error("no colon in supposedly CSS-like part: '"+part+"'");
-        }
-        name = part.slice(0, colon).replace(/^\s*/, '').replace(/\s*$/, '');
-        if (name == subattrname) {
-            value = part.slice(colon+1).replace(/^\s*/, '').replace(/\s*$/, '');
-            return value;
+    const STATE_NAME = "NAME",
+          STATE_VALUE = "VALUE",
+          STATE_QUOTED = "QUOTED";
+    var found = false, state = STATE_NAME;
+    for (;;) {
+        switch (state) {
+            case STATE_NAME:
+            {
+                let i = value.indexOf(":");
+                if (i < 0) {
+                    throw new Error("no colon in supposedly CSS-like part: '"+value+"'");
+                }
+                let name = value.substr(0, i).replace(/^\s*|\s*$/g, "");
+                found = (name == subattrname);
+                value = value.substr(i).replace(/^:\s*/, "");
+                state = /^["']/.test(value) ? STATE_QUOTED : STATE_VALUE;
+                continue;
+            }
+            case STATE_QUOTED: {
+                let quoteChar = value[0];
+                let i = 1;
+                for(;;) {
+                    let escape = value.indexOf("\\", i);
+                    let quote = value.indexOf(quoteChar, i);
+                    if (escape != -1 && escape < quote) {
+                        i = escape + 2; // skip escape and the char after it
+                        continue;
+                    }
+                    if (quote < 0) {
+                        return null; // no end quote
+                    }
+                    if (found) {
+                        return value.substr(1, quote - 1).replace(/\\(.)/g, "$1");
+                    }
+                    value = value.substr(quote + 1).replace(/^\s*;\s*/, "");
+                    state = STATE_NAME;
+                    break;
+                }
+                continue;
+            }
+            case STATE_VALUE: {
+                let index = value.indexOf(";");
+                if (index < 0) index = value.length;
+                if (found) {
+                    return value.substr(0, index);
+                }
+                value = value.substr(index).replace(/^\s*;\s*/, "");
+                state = STATE_NAME;
+                continue;
+            }
+            default: {
+                return null;
+            }
         }
     }
     return null;
-}
+};
 
 /**
  * Return a copy of s with the leading and trailing whitespace removed.
