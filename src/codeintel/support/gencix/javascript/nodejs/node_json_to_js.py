@@ -10,7 +10,7 @@ import os, subprocess
 import textwrap
 from pprint import pformat
 
-DEFAULT_NODE_VERSION = "0.6.14"
+DEFAULT_NODE_VERSION = "0.8.0"
 
 logging.basicConfig()
 log = logging.getLogger()
@@ -47,7 +47,7 @@ class Processor(object):
                         self.overrides = yaml.load(f)
                     log.warning("Loaded override file %s", override_file)
                 except ImportError:
-                    pass
+                    log.error("Failed to import yaml, overrides are disabled")
                 break
 
     def _getFile(self, filename):
@@ -123,7 +123,7 @@ class Processor(object):
                     module_overrides = default_get(section_overrides, "modules", mod_name)
                     if not module_overrides:
                         module_overrides = default_get(self.overrides, section, "module")
-                    for kind in ("properties", "classes", "methods"):
+                    for kind in ("properties", "classes", "methods", "modules"):
                         for name, mapping in default_get(module_overrides, kind).items():
                             new_kind = mapping.get("kind")
                             if not new_kind:
@@ -145,6 +145,10 @@ class Processor(object):
                 f.close()
         return found_sections
 
+    @property
+    def shortVersion(self):
+        return ".".join(self.version.split(".", 2)[:2])
+
     def process(self, sections=[]):
         sections = self.getDocs(sections=sections)
         sections_written = 0
@@ -161,10 +165,14 @@ class Processor(object):
                 log.warn("Section %s appears to be empty", section.name)
                 continue
 
-            filename = os.sep.join(os.path.abspath(__file__).split(os.sep)[:-5] +
-                           ["lib", "codeintel2", "lib_srcs", "node.js",
-                            "%s.js" % (section.name,)])
+            dirname = os.sep.join(os.path.abspath(__file__).split(os.sep)[:-5] +
+                                  ["lib", "codeintel2", "lib_srcs", "node.js",
+                                   self.shortVersion])
+            filename = os.path.join(dirname, "%s.js" % (section.name,))
             log.warning("Writing section %s to %s", section.name, filename)
+
+            if not os.path.isdir(dirname):
+                os.makedirs(dirname, mode=0755)
 
             overrides = self.overrides.get(section.name, {})
 
@@ -207,6 +215,41 @@ class Node(object):
     @property
     def name(self):
         return self.data["name"]
+
+    @property
+    def validName(self):
+        """ Check whether the name is a valid JavaScript identifier
+        See ECMAScript Ed 5 section 7.6
+        """
+        import unicodedata
+        i = 0
+        while i < len(self.name):
+            try:
+                c = self.name[i]
+                u = unicodedata.category(unicode(c))
+                if u in ("Lu", "Ll", "Lt", "Lm", "Lo", "Nl"):
+                    continue
+                if c in "$_":
+                    continue
+                if c == "\\":
+                    if len(self.name) < i + 6:
+                        return False
+                    if self.name[i + 1] != "u":
+                        return False
+                    for j in range(i + 2, i + 6):
+                        if self.name[j].lower() not in "0123456789abcdef":
+                            return False
+                    i = i + 5
+                    continue
+                if i != 0:
+                    if u in ("Mn", "Mc", "Nd", "Pc"):
+                        continue
+                    if c in u"\u200c\u200d": # ZWNJ, ZWJ
+                        continue
+                return False
+            finally:
+                i = i + 1
+        return True
 
     @property
     def methods(self):
@@ -276,9 +319,14 @@ class Module(Node):
     def write(self, f, overrides={}):
         if "name" in overrides:
             self._name = overrides["name"]
+        if not self.validName:
+            log.warn("Skipping invalid identifier %s", self.name)
+            return
         f.write("/**\n")
         for line in filter(bool, self.doc.splitlines()):
             f.write(" * %s\n" % (line.rstrip(),))
+        if "__proto__" in overrides:
+            f.write(" * @base {%s}\n" % (overrides.get("__proto__")),)
         f.write(" */\n")
         f.write("var %s = {};\n" % (self.name,))
         for child in order(self.methods + self.classes + self.properties, self.name):
@@ -293,6 +341,9 @@ class Method(Node):
     def write(self, f, overrides={}):
         log.debug("Method %s: overrides=%s", self.name, pformat(overrides))
         self.overrides = overrides
+        if not self.validName:
+            log.warn("Skipping invalid identifier %s", self.name)
+            return
         f.write("\n/**\n")
         for line in filter(bool, self.doc.splitlines()):
             f.write(" * %s\n" % (line.rstrip(),))
@@ -345,11 +396,14 @@ class Method(Node):
 
         if not desc and self.doc:
             doc = " ".join(self.doc.splitlines())
+            # remove the link syntax
+            doc = re.sub(r"\[([^\]]+)\]\[\]", r"\1", doc)
             match = re.search("(?:^|\.)\s*Returns (.*)", doc, re.MULTILINE)
             if not match:
                 match = re.search("(?:^|\.)\s*Creates (.*)", doc, re.MULTILINE)
             if match:
-                desc = match.group(1).strip().rstrip(".").rstrip()
+                desc = match.group(1).split(". ")[0].strip().rstrip(".").rstrip()
+                log.debug("desc: %s", desc)
 
         if desc:
             match = re.match("(?:a )new (\S+)(?: object)?", desc)
@@ -513,6 +567,9 @@ class Event(Node):
     def write(self, f, overrides={}):
         self.overrides = overrides
         log.debug("Event %s: overrides=%r", self.name, self.overrides)
+        if not self.validName:
+            log.warn("Skipping invalid identifier %s", self.name)
+            return
         f.write("\n/**\n")
         for line in filter(bool, self.doc.splitlines()):
             f.write(" * %s\n" % (line.rstrip(),))
@@ -608,6 +665,9 @@ class Property(Node):
 
     def write(self, f, overrides={}):
         log.debug("Property %s: %r", self.name, overrides)
+        if not self.validName:
+            log.warn("Skipping invalid identifier %s", self.name)
+            return
         f.write("\n/**\n")
         for line in filter(bool, self.doc.splitlines()):
             f.write(" * %s\n" % (line.rstrip(),))

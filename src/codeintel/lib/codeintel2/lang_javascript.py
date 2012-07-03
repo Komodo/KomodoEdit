@@ -708,8 +708,7 @@ class JavaScriptLangIntel(CitadelLangIntel,
             extra_dirs = () # ensure retval is a tuple
         return extra_dirs
 
-    @property
-    def stdlibs(self):
+    def _get_stdlibs_from_env(self, env=None):
         return [self.mgr.db.get_stdlib(self.lang)]
 
     def libs_from_buf(self, buf):
@@ -763,7 +762,7 @@ class JavaScriptLangIntel(CitadelLangIntel,
             libs.append(db.get_catalog_lib(self.lang, catalog_selections))
 
             # - stdlibs
-            libs += self.stdlibs
+            libs += self._get_stdlibs_from_env(env)
 
             cache[buf] = libs
         return cache[buf]

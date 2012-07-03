@@ -63,11 +63,8 @@ class NodeJSTreeEvaluator(JavaScriptTreeEvaluator):
     @property
     def nodejslib(self):
         if not hasattr(self, "_nodejslib"):
-            libdir = os.path.join(os.path.dirname(__file__),
-                                  "lib_srcs",
-                                  "node.js")
             for lib in self.libs:
-                if libdir in getattr(lib, "dirs", []):
+                if lib.name == "node.js stdlib":
                     self._nodejslib = lib
                     break
             else:
@@ -250,9 +247,52 @@ class NodeJSLangIntel(JavaScriptLangIntel):
     interpreterPrefName = "nodejsDefaultInterpreter"
     extraPathsPrefName = "nodejsExtraPaths"
 
-    @property
-    def stdlibs(self):
+    def _get_nodejs_version_from_env(self, env=None):
+        import process
+        executable = env.get_pref("nodejsDefaultInterpreter", None)
+        if not executable:
+            import which
+            path = [d.strip()
+                    for d in env.get_envvar("PATH", "").split(os.pathsep)
+                    if d.strip()]
+            try:
+                executable = which.which("node", path=path)
+            except which.WhichError:
+                pass
+        if not executable:
+            return None
+        if not os.path.exists(executable):
+            log.info("Node.js executable %s does not exist", executable)
+            return None
+        p = process.ProcessOpen([executable, "--version"],
+                                env=env.get_all_envvars(), stdin=None)
+        stdout, stderr = p.communicate()
+        if p.returncode != 0:
+            log.info("Failed to find Node.js version: %r: %s",
+                     p.returncode, stderr)
+            return None # Failed to run
+        version = stdout.lstrip("v")
+        short_ver = ".".join(version.split(".", 2)[:2])
+        return short_ver
+
+    def _get_stdlibs_from_env(self, env=None):
         libdir = os.path.join(os.path.dirname(__file__), "lib_srcs", "node.js")
+        version = self._get_nodejs_version_from_env(env)
+        if version:
+            versioned_libdir = os.path.join(libdir, version)
+        if version and os.path.isdir(versioned_libdir):
+            # we have a lib matching the running version of Node.js
+            libdir = versioned_libdir
+        else:
+            # No valid Node.js version, or no matching lib: use highest we have
+            versions = [tuple(int(part or 0) for part in v.split("."))
+                        for v in os.listdir(libdir)
+                        if os.path.isdir(os.path.join(libdir, v))
+                            and not v.strip("0123456789.")]
+            if versions:
+                max_version = sorted(versions, reverse=True)[0]
+                version = ".".join(str(v) for v in max_version)
+                libdir = os.path.join(libdir, version)
         db = self.mgr.db
         node_sources_lib = db.get_lang_lib(lang="Node.js",
                                            name="node.js stdlib",
