@@ -19,7 +19,7 @@ timers.setInterval = function(callback, delay, arg) {}
  * @param callback
  * @param delay
  * @param arg
- * @returns a timeoutId for possible use with clearTimeout(). Optionally you can also pass arguments to the callback
+ * @returns a timeoutId for possible use with clearTimeout()
  */
 timers.setTimeout = function(callback, delay, arg) {}
 

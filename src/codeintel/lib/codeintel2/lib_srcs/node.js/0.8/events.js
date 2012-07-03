@@ -35,10 +35,9 @@ events.EventEmitter.prototype.removeAllListeners = function(event) {}
 events.EventEmitter.prototype.setMaxListeners = function(n) {}
 
 /**
- * Returns an array of listeners for the specified event. This array can be
- * manipulated, e.g. to remove listeners.
+ * Returns an array of listeners for the specified event.
  * @param event
- * @returns {Array} an array of listeners for the specified event. This array can be manipulated, e.g. to remove listeners
+ * @returns {Array} an array of listeners for the specified event
  */
 events.EventEmitter.prototype.listeners = function(event) {}
 

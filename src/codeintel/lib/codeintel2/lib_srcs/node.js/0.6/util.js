@@ -53,28 +53,28 @@ util.format = function() {}
 /**
  * Returns true if the given "object" is an Array. false otherwise.
  * @param object
- * @returns true if the given "object" is an Array. false otherwise
+ * @returns true if the given "object" is an Array
  */
 util.isArray = function(object) {}
 
 /**
  * Returns true if the given "object" is a Date. false otherwise.
  * @param object
- * @returns true if the given "object" is a Date. false otherwise
+ * @returns true if the given "object" is a Date
  */
 util.isDate = function(object) {}
 
 /**
  * Returns true if the given "object" is an Error. false otherwise.
  * @param object
- * @returns true if the given "object" is an Error. false otherwise
+ * @returns true if the given "object" is an Error
  */
 util.isError = function(object) {}
 
 /**
  * Returns true if the given "object" is a RegExp. false otherwise.
  * @param object
- * @returns true if the given "object" is a RegExp. false otherwise
+ * @returns true if the given "object" is a RegExp
  */
 util.isRegExp = function(object) {}
 

@@ -106,7 +106,7 @@ stream.WritableStream.prototype.writable = 0;
  * @param string
  * @param encoding='utf8' {String}
  * @param fd
- * @returns true if the string has been flushed to the kernel buffer. Returns false to indicate that the kernel buffer is full, and the data will be sent out in the future. The 'drain' event will indicate when the kernel buffer is empty again. The encoding defaults to 'utf8'
+ * @returns true if the string has been flushed to the kernel buffer
  */
 stream.WritableStream.prototype.write = function(string, encoding, fd) {}
 

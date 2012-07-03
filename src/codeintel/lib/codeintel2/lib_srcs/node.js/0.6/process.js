@@ -187,14 +187,6 @@ process.__events__.exit = function() {};
  */
 process.__events__.uncaughtException = function(err) {};
 
-/**
- * Emitted when the processes receives a signal. See sigaction(2) for a
- * list of standard POSIX signal names such as SIGINT, SIGUSR1, etc.
- * Example of listening for SIGINT: An easy way to send the SIGINT signal
- * is with Control-C in most terminal programs.
- */
-process.__events__.SIGINT, SIGUSR1, etc. = function() {};
-
 /* required for stdin/stdout/stderr */
 var stream = require('stream');
 

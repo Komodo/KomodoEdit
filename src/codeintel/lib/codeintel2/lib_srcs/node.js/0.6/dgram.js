@@ -90,7 +90,7 @@ dgram.Socket.prototype.setBroadcast = function(flag) {}
 /**
  * Returns an object containing the address information for a socket. For
  * UDP sockets, this object will contain address and port.
- * @returns an object containing the address information for a socket. For UDP sockets, this object will contain address and port
+ * @returns an object containing the address information for a socket
  */
 dgram.Socket.prototype.address = function() {}
 

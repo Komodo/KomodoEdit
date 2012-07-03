@@ -124,6 +124,14 @@ crypto.Cipher.prototype.update = function(data, input_encoding, output_encoding)
 crypto.Cipher.prototype.final = function(output_encoding) {}
 
 /**
+ * You can disable automatic padding of the input data to block size. If
+ * auto_padding is false, the length of the entire input data must be a
+ * multiple of the cipher's block size or final will fail.
+ * @param auto_padding
+ */
+crypto.Cipher.prototype.setAutoPadding = function(auto_padding) {}
+
+/**
  * Creates and returns a hash object, a cryptographic hash with the given
  * algorithm which can be used to generate hash digests.
  * @param algorithm
@@ -153,6 +161,16 @@ crypto.Decipher.prototype.update = function(data, input_encoding, output_encodin
  * @returns any remaining plaintext which is deciphered, with output_encoding being one of: 'binary', 'ascii' or 'utf8'
  */
 crypto.Decipher.prototype.final = function(output_encoding) {}
+
+/**
+ * You can disable auto padding if the data has been encrypted without
+ * standard block padding to prevent decipher.final from checking and
+ * removing it. Can only work if the input data's length is a multiple of
+ * the ciphers block size. You must call this before streaming data to
+ * decipher.update.
+ * @param auto_padding
+ */
+crypto.Decipher.prototype.setAutoPadding = function(auto_padding) {}
 
 /**
  * Creates and returns a decipher object, with the given algorithm and key.
@@ -254,7 +272,7 @@ crypto.DiffieHellman.prototype.computeSecret = function(other_public_key, input_
  * Returns the Diffie-Hellman prime in the specified encoding, which can be
  * 'binary', 'hex', or 'base64'. Defaults to 'binary'.
  * @param encoding='binary' {String}
- * @returns the Diffie-Hellman prime in the specified encoding, which can be 'binary', 'hex', or 'base64'. Defaults to 'binary'
+ * @returns the Diffie-Hellman prime in the specified encoding, which can be 'binary', 'hex', or 'base64'
  */
 crypto.DiffieHellman.prototype.getPrime = function(encoding) {}
 
@@ -262,7 +280,7 @@ crypto.DiffieHellman.prototype.getPrime = function(encoding) {}
  * Returns the Diffie-Hellman prime in the specified encoding, which can be
  * 'binary', 'hex', or 'base64'. Defaults to 'binary'.
  * @param encoding='binary' {String}
- * @returns the Diffie-Hellman prime in the specified encoding, which can be 'binary', 'hex', or 'base64'. Defaults to 'binary'
+ * @returns the Diffie-Hellman prime in the specified encoding, which can be 'binary', 'hex', or 'base64'
  */
 crypto.DiffieHellman.prototype.getGenerator = function(encoding) {}
 
@@ -270,7 +288,7 @@ crypto.DiffieHellman.prototype.getGenerator = function(encoding) {}
  * Returns the Diffie-Hellman public key in the specified encoding, which
  * can be 'binary', 'hex', or 'base64'. Defaults to 'binary'.
  * @param encoding='binary' {String}
- * @returns the Diffie-Hellman public key in the specified encoding, which can be 'binary', 'hex', or 'base64'. Defaults to 'binary'
+ * @returns the Diffie-Hellman public key in the specified encoding, which can be 'binary', 'hex', or 'base64'
  */
 crypto.DiffieHellman.prototype.getPublicKey = function(encoding) {}
 
@@ -278,7 +296,7 @@ crypto.DiffieHellman.prototype.getPublicKey = function(encoding) {}
  * Returns the Diffie-Hellman private key in the specified encoding, which
  * can be 'binary', 'hex', or 'base64'. Defaults to 'binary'.
  * @param encoding='binary' {String}
- * @returns the Diffie-Hellman private key in the specified encoding, which can be 'binary', 'hex', or 'base64'. Defaults to 'binary'
+ * @returns the Diffie-Hellman private key in the specified encoding, which can be 'binary', 'hex', or 'base64'
  */
 crypto.DiffieHellman.prototype.getPrivateKey = function(encoding) {}
 
@@ -297,6 +315,13 @@ crypto.DiffieHellman.prototype.setPublicKey = function(public_key, encoding) {}
  * @param encoding='binary' {String}
  */
 crypto.DiffieHellman.prototype.setPrivateKey = function(public_key, encoding) {}
+
+/**
+ * Creates a predefined Diffie-Hellman key exchange object.
+ * @param group_name
+ * @returns a predefined Diffie-Hellman key exchange object
+ */
+crypto.getDiffieHellman = function(group_name) {}
 
 /**
  * Asynchronous PBKDF2 applies pseudorandom function HMAC-SHA1 to derive a
