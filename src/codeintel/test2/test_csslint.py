@@ -39,7 +39,7 @@ class CSSLintTest(CodeIntelTestCase):
     
     def _check_one_result_check_error_on_line(self, code, startswith, expected, language="CSS"):
         results = self.csslinter.lint(code, language)
-        self.assertEqual(1, len(results))
+        self.assertEqual(1, len(results), "expected at least one error, got none")
         r = results[0]
         self.assertTrue(r.message.startswith(startswith), r.message)
         self.assertEqual(code.splitlines()[r.line_start - 1][r.col_start:r.col_end], expected)
@@ -3933,3 +3933,44 @@ margin-left: 20px;
                     pass
             except:
                 self.assertTrue(False, "Got exception while linting %d/%d bytes" % (pick, codeLen))
+
+    unsupported_unrecognized_numeric_unit="got an unsupported or unrecognized numeric unit"
+
+    @tag("bug94621")
+    def test_validate_numeric_units(self):
+        code = dedent("""\
+div {
+    margin-top: 1px;    /* ok */
+    margin-right: 2pt;  /* ok */
+    margin-bottom: 3p; /* wrong */
+    margin-left: 4khz; /* syntactically correct, semantically wrong */
+}
+""")
+        self._check_one_result_check_error_on_line(code, self.unsupported_unrecognized_numeric_unit, "p")
+
+    @tag("bug94621")
+    def test_validate_numeric_units_02(self):
+        code = dedent("""\
+div {
+    margin-top: 1px;    /* ok */
+    margin-right: 2pt;  /* ok */
+    margin-bottom: 3pta; /* wrong */
+    margin-left: 4khz; /* syntactically correct, semantically wrong */
+}
+""")
+        self._check_one_result_check_error_on_line(code, self.unsupported_unrecognized_numeric_unit, "pta")
+
+    @tag("bug94621")
+    def test_validate_numeric_units_03(self):
+        suffix = "ptasyntacticallycorrectsemanticallywrongwrong" * 100
+        code = dedent("""\
+div {
+    margin-top: 1px;    /* ok */
+    margin-right: 2pt;  /* ok */
+    margin-bottom: 3%s; /* wrong */
+    margin-left: 4khz; /* syntactically correct, semantically wrong */
+}
+""" % (suffix,))
+        self._check_one_result_check_error_on_line(code, self.unsupported_unrecognized_numeric_unit, suffix)
+
+    

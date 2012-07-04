@@ -1305,6 +1305,14 @@ class _CSSParser(object):
     def _parse_number(self, exp_num):
         tok = self._tokenizer.get_next_token()
         if self._classifier.is_number(tok):
+            # Bug 94652: Look for unrecognized units
+            nextTok = self._tokenizer.get_next_token()
+            if (nextTok.style == ScintillaConstants.SCE_CSS_VALUE
+                and nextTok.start_line == tok.end_line
+                and nextTok.start_column == tok.end_column):
+                self._add_result("got an unsupported or unrecognized numeric unit: '%s'" % nextTok.text, nextTok)
+            else:
+                self._tokenizer.put_back(nextTok)
             return True
         elif (tok.style == ScintillaConstants.SCE_CSS_UNKNOWN_PSEUDOCLASS
               and self._simple_number_re.match(tok.text)):
