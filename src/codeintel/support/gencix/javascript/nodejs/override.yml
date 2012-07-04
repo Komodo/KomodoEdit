@@ -164,6 +164,7 @@ fs:
                 open:
                     - fd: Number
         fs.FSWatcher:
+            __proto__: events.EventEmitter
             __events__:
                 change:
                     - event: String
@@ -183,6 +184,7 @@ fs:
         };
         /* required for createReadStream() / createWriteStream() */
         var stream = require('stream');
+        var events = require('events');
 
 globals:
     name: global_objects

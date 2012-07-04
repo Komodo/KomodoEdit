@@ -40,6 +40,7 @@
 import os
 import sys
 import re
+import operator
 from os.path import join, dirname, abspath, exists, basename
 from glob import glob
 import unittest
@@ -52,6 +53,7 @@ from codeintel2.environment import SimplePrefsEnvironment
 
 from testlib import TestError, TestSkipped, TestFailed, tag
 from citestsupport import CodeIntelTestCase, run, writefile
+from distutils.version import LooseVersion
 
 
 log = logging.getLogger("test")
@@ -487,6 +489,61 @@ class StdLibTestCase(CodeIntelTestCase):
     lang = "Node.js"
     test_dir = join(os.getcwd(), "tmp")
 
+    @property
+    def version(self):
+        if not hasattr(self, "_version"):
+            langintel = self.mgr.langintel_from_lang(self.lang)
+            v = langintel._get_nodejs_version_from_env(self.mgr.env) or "99999"
+            setattr(self, "_version", LooseVersion(v))
+        return self._version
+
+    def assertCompletionsInclude2(self, buf, pos, completions, implicit=True):
+        """
+        Override CodeIntelTestCase.assertCompletionsInclude2 to support versions
+        This is same as the original, except the completions can have an
+        optional third argument, a {str} that is the condition, e.g.
+        ">= 0.8" or ">= 0.6 and < 0.7"
+        (currently, only comparison operators and "and" are supported)
+        """
+        cplns = []
+        for cpln in completions:
+            if len(cpln) > 2:
+                condition = cpln[2]
+                tokens = condition.split()
+                comp = {"<":  operator.lt,
+                        "<=": operator.le,
+                        ">":  operator.gt,
+                        ">=": operator.ge,
+                        "==": operator.eq,
+                        "!=": operator.ne,
+                       }
+                i = 0
+                match = True
+                while i < len(tokens):
+                    try:
+                        if tokens[i] in comp:
+                            if not comp.get(tokens[i])(self.version, tokens[i + 1]):
+                                match = False
+                                break
+                            i += 1 # skip the version
+                            continue
+                        assert tokens[i] == "and", \
+                            "Can't parse condition %s" % (condition,)
+                    finally:
+                        i += 1
+                if not match:
+                    continue
+            cplns.append((cpln[0], cpln[1]))
+        return super(StdLibTestCase, self).assertCompletionsInclude2(
+            buf, pos, cplns, implicit)
+
+    def test__version(self):
+        """
+        This is a debugging test; it's really just used to print out the
+        Node.js version in use
+        """
+        raise TestSkipped("Using node.js version %s" % (self.version,))
+
     def test_console(self):
         """
         Test the Node.js console module
@@ -537,7 +594,7 @@ class StdLibTestCase(CodeIntelTestCase):
              ("variable", "stdin"),
              ("variable", "argv"),
              ("variable", "execPath"),
-             ("function", "abort"),
+             ("function", "abort", ">= 0.8"),
              ("function", "chdir"),
              ("function", "cwd"),
              ("variable", "env"),
@@ -548,7 +605,8 @@ class StdLibTestCase(CodeIntelTestCase):
              ("function", "setuid"),
              ("variable", "version"),
              ("variable", "versions"),
-             ("variable", "config"),
+             ("variable", "installPrefix", ">= 0.6 and < 0.7"),
+             ("variable", "config", ">= 0.8"),
              ("function", "kill"),
              ("variable", "pid"),
              ("variable", "title"),
@@ -558,21 +616,22 @@ class StdLibTestCase(CodeIntelTestCase):
              ("function", "nextTick"),
              ("function", "umask"),
              ("function", "uptime"),
-             ("function", "hrtime"),
+             ("function", "hrtime", ">= 0.8"),
             ])
+
         self.assertCompletionsInclude2(buf, positions[2],
-            [("variable", "isRaw"),        # tty.ReadStream
-             ("function", "setRawMode"),   # tty.ReadStream
-             ("function", "setKeepAlive"), # net.Socket
-             ("function", "pipe"),         # stream.ReadStream
-             ("function", "on"),           # EventEmitter
+            [("variable", "isRaw", ">= 0.8"),        # tty.ReadStream
+             ("function", "setRawMode", ">= 0.8"),   # tty.ReadStream
+             ("function", "setKeepAlive", ">= 0.8"), # net.Socket
+             ("function", "pipe"),                   # stream.ReadStream
+             ("function", "on"),                     # EventEmitter
             ])
         self.assertCompletionsInclude2(buf, positions[3],
-            [("variable", "columns"),      # tty.WriteStream
-             ("variable", "rows"),         # tty.WriteStream
-             ("function", "setKeepAlive"), # net.Socket
-             ("function", "write"),        # stream.WriteStream
-             ("function", "on"),           # EventEmitter
+            [("variable", "columns", ">= 0.8"),      # tty.WriteStream
+             ("variable", "rows", ">= 0.8"),         # tty.WriteStream
+             ("function", "setKeepAlive", ">= 0.8"), # net.Socket
+             ("function", "write"),                  # stream.WriteStream
+             ("function", "on"),                     # EventEmitter
             ])
         self.assertCompletionsInclude2(buf, positions[4],
             [("function", "write")])
@@ -586,9 +645,9 @@ class StdLibTestCase(CodeIntelTestCase):
         self.assertCompletionsInclude2(buf, positions[1],
             [("function", "format"),
              ("function", "debug"),
-             ("function", "error"),
-             ("function", "puts"),
-             ("function", "print"),
+             ("function", "error", ">= 0.8"),
+             ("function", "puts", ">= 0.8"),
+             ("function", "print", ">= 0.8"),
              ("function", "log"),
              ("function", "inspect"),
              ("function", "isArray"),
@@ -642,7 +701,7 @@ class StdLibTestCase(CodeIntelTestCase):
         self.assertCompletionsInclude2(buf, positions[2],
             [("function", "isBuffer"),
              ("function", "byteLength"),
-             ("function", "concat"),
+             ("function", "concat", ">= 0.8"),
             ])
         self.assertCompletionsInclude2(buf, positions[3],
             [("function", "write"),
@@ -706,6 +765,7 @@ class StdLibTestCase(CodeIntelTestCase):
              ("function", "pause"),
              ("function", "resume"),
              ("function", "destroy"),
+             ("function", "destroySoon", ">= 0.6 and < 0.7"),
              ("function", "pipe"),
             ])
         self.assertCompletionsInclude2(buf, positions[3],
@@ -721,6 +781,8 @@ class StdLibTestCase(CodeIntelTestCase):
         """
         Test the Node.js string_decoder module
         """
+        if self.version < "0.8":
+            raise TestSkipped("Node.js %s is not at least 0.8" % (self.version,))
         manifest = {"test.js": """
             var string_decoder = require('string_decoder');
             string_decoder.<1>;
@@ -761,7 +823,7 @@ class StdLibTestCase(CodeIntelTestCase):
              ("function", "createSign"),
              ("function", "createVerify"),
              ("function", "createDiffieHellman"),
-             ("function", "getDiffieHellman"),
+             ("function", "getDiffieHellman", ">= 0.8"),
              ("function", "pbkdf2"),
              ("function", "randomBytes"),
             ])
@@ -776,12 +838,12 @@ class StdLibTestCase(CodeIntelTestCase):
         self.assertCompletionsInclude2(buf, positions[4],
             [("function", "update"),
              ("function", "final"),
-             ("function", "setAutoPadding"),
+             ("function", "setAutoPadding", ">= 0.8"),
             ])
         self.assertCompletionsInclude2(buf, positions[5],
             [("function", "update"),
              ("function", "final"),
-             ("function", "setAutoPadding"),
+             ("function", "setAutoPadding", ">= 0.8"),
             ])
         self.assertCompletionsInclude2(buf, positions[6],
             [("function", "update"),
@@ -831,7 +893,7 @@ class StdLibTestCase(CodeIntelTestCase):
             [("variable", "authorized"),
              ("variable", "authorizationError"),
              ("function", "getPeerCertificate"),
-             ("function", "getCipher"),
+             ("function", "getCipher", ">= 0.8"),
              ("function", "address"),
              ("variable", "remoteAddress"),
              ("variable", "remotePort"),
@@ -912,13 +974,13 @@ class StdLibTestCase(CodeIntelTestCase):
              ("function", "readFileSync"),
              ("function", "writeFile"),
              ("function", "writeFileSync"),
-             ("function", "appendFile"),
-             ("function", "appendFileSync"),
+             ("function", "appendFile", ">= 0.8"),
+             ("function", "appendFileSync", ">= 0.8"),
              ("function", "watchFile"),
              ("function", "unwatchFile"),
-             ("function", "watch"),
-             ("function", "exists"),
-             ("function", "existsSync"),
+             ("function", "watch", ">= 0.8"),
+             ("function", "exists", ">= 0.8"),
+             ("function", "existsSync", ">= 0.8"),
              ("function", "createReadStream"),
              ("function", "createWriteStream"),
             ])
@@ -940,6 +1002,7 @@ class StdLibTestCase(CodeIntelTestCase):
              ("function", "pause"),
              ("function", "resume"),
              ("function", "destroy"),
+             ("function", "destroySoon", ">= 0.6 and < 0.7"),
              ("function", "pipe"),
             ])
         self.assertCompletionsInclude2(buf, positions[4],
@@ -954,6 +1017,7 @@ class StdLibTestCase(CodeIntelTestCase):
             ])
         self.assertCompletionsInclude2(buf, positions[5],
             [("function", "close"),
+             ("function", "on"), # EventEmitter
             ])
 
     def test_path(self):
@@ -973,7 +1037,9 @@ class StdLibTestCase(CodeIntelTestCase):
              ("function", "dirname"),
              ("function", "basename"),
              ("function", "extname"),
-             ("variable", "sep"),
+             ("function", "exists", ">= 0.6 and < 0.7"),
+             ("function", "existsSync", ">= 0.6 and < 0.7"),
+             ("variable", "sep", ">= 0.8"),
             ])
 
     def test_net(self):
@@ -1008,9 +1074,12 @@ class StdLibTestCase(CodeIntelTestCase):
         for pos in 3, 4:
             self.assertCompletionsInclude2(buf, positions[pos],
                 [("function", "on"), # from EventEmitter
+                 ("variable", "readable"), # from ReadableStream
+                 ("variable", "writable"), # from WritableStream
                  ("function", "connect"),
                  ("variable", "bufferSize"),
                  ("function", "setEncoding"),
+                 ("function", "setSecure", ">= 0.6 and < 0.7"),
                  ("function", "write"),
                  ("function", "end"),
                  ("function", "destroy"),
@@ -1058,6 +1127,8 @@ class StdLibTestCase(CodeIntelTestCase):
         """
         Test the Node.js domain module
         """
+        if not self.version >= "0.8":
+            raise TestSkipped("Node.js version %s not at least 0.8" % (self.version,))
         manifest = {"test.js": """
             domain = require('domain');
             domain.<1>;
@@ -1128,7 +1199,7 @@ class StdLibTestCase(CodeIntelTestCase):
             [("function", "on"), # inherited from EventEmitter
              ("function", "listen"),
              ("function", "close"),
-             ("variable", "maxHeadersCount"),
+             ("variable", "maxHeadersCount", ">= 0.8"),
             ])
         self.assertCompletionsInclude2(buf, positions[3],
             [("function", "on"), # inherited from EventEmitter
@@ -1149,7 +1220,7 @@ class StdLibTestCase(CodeIntelTestCase):
              ("function", "writeHead"),
              ("variable", "statusCode"),
              ("function", "setHeader"),
-             ("variable", "sendDate"),
+             ("variable", "sendDate", ">= 0.8"),
              ("function", "getHeader"),
              ("function", "removeHeader"),
              ("function", "write"),
@@ -1350,7 +1421,7 @@ class StdLibTestCase(CodeIntelTestCase):
              ("variable", "pid"),
              ("function", "kill"),
              ("function", "send"),
-             ("function", "disconnect"),
+             ("function", "disconnect", ">= 0.8"),
             ])
         self.assertCompletionsInclude2(buf, positions[3],
             [("function", "on"), # from EventEmitter
@@ -1433,30 +1504,30 @@ class StdLibTestCase(CodeIntelTestCase):
              ("function", "inflateRaw"),
              ("function", "unzip"),
              # constants
-             ("variable", "Z_OK"),
-             ("variable", "Z_STREAM_END"),
-             ("variable", "Z_NEED_DICT"),
-             ("variable", "Z_ERRNO"),
-             ("variable", "Z_STREAM_ERROR"),
-             ("variable", "Z_DATA_ERROR"),
-             ("variable", "Z_MEM_ERROR"),
-             ("variable", "Z_BUF_ERROR"),
-             ("variable", "Z_VERSION_ERROR"),
-             ("variable", "Z_NO_COMPRESSION"),
-             ("variable", "Z_BEST_SPEED"),
-             ("variable", "Z_BEST_COMPRESSION"),
-             ("variable", "Z_DEFAULT_COMPRESSION"),
-             ("variable", "Z_FILTERED"),
-             ("variable", "Z_HUFFMAN_ONLY"),
-             ("variable", "Z_RLE"),
-             ("variable", "Z_FIXED"),
-             ("variable", "Z_DEFAULT_STRATEGY"),
-             ("variable", "Z_BINARY"),
-             ("variable", "Z_TEXT"),
-             ("variable", "Z_ASCII"),
-             ("variable", "Z_UNKNOWN"),
-             ("variable", "Z_DEFLATED"),
-             ("variable", "Z_NULL"),
+             ("variable", "Z_OK", ">= 0.8"),
+             ("variable", "Z_STREAM_END", ">= 0.8"),
+             ("variable", "Z_NEED_DICT", ">= 0.8"),
+             ("variable", "Z_ERRNO", ">= 0.8"),
+             ("variable", "Z_STREAM_ERROR", ">= 0.8"),
+             ("variable", "Z_DATA_ERROR", ">= 0.8"),
+             ("variable", "Z_MEM_ERROR", ">= 0.8"),
+             ("variable", "Z_BUF_ERROR", ">= 0.8"),
+             ("variable", "Z_VERSION_ERROR", ">= 0.8"),
+             ("variable", "Z_NO_COMPRESSION", ">= 0.8"),
+             ("variable", "Z_BEST_SPEED", ">= 0.8"),
+             ("variable", "Z_BEST_COMPRESSION", ">= 0.8"),
+             ("variable", "Z_DEFAULT_COMPRESSION", ">= 0.8"),
+             ("variable", "Z_FILTERED", ">= 0.8"),
+             ("variable", "Z_HUFFMAN_ONLY", ">= 0.8"),
+             ("variable", "Z_RLE", ">= 0.8"),
+             ("variable", "Z_FIXED", ">= 0.8"),
+             ("variable", "Z_DEFAULT_STRATEGY", ">= 0.8"),
+             ("variable", "Z_BINARY", ">= 0.8"),
+             ("variable", "Z_TEXT", ">= 0.8"),
+             ("variable", "Z_ASCII", ">= 0.8"),
+             ("variable", "Z_UNKNOWN", ">= 0.8"),
+             ("variable", "Z_DEFLATED", ">= 0.8"),
+             ("variable", "Z_NULL", ">= 0.8"),
             ])
         for pos in range(2, 9):
             self.assertCompletionsInclude2(buf, positions[pos],
@@ -1476,7 +1547,7 @@ class StdLibTestCase(CodeIntelTestCase):
             """}
         buf, positions = write_files(self, manifest=manifest, name="os")
         self.assertCompletionsInclude2(buf, positions[1],
-            [("function", "tmpDir"),
+            [("function", "tmpDir", ">= 0.8"),
              ("function", "hostname"),
              ("function", "type"),
              ("function", "platform"),
@@ -1488,7 +1559,7 @@ class StdLibTestCase(CodeIntelTestCase):
              ("function", "freemem"),
              ("function", "cpus"),
              ("function", "networkInterfaces"),
-             ("variable", "EOL"),
+             ("variable", "EOL", ">= 0.8"),
             ])
 
     def test_cluster(self):
@@ -1501,24 +1572,25 @@ class StdLibTestCase(CodeIntelTestCase):
             """}
         buf, positions = write_files(self, manifest=manifest, name="tty")
         self.assertCompletionsInclude2(buf, positions[1],
-            [("variable", "settings"),
+            [("variable", "settings", ">= 0.8"),
              ("variable", "isMaster"),
              ("variable", "isWorker"),
-             ("function", "setupMaster"),
+             ("function", "setupMaster", ">= 0.8"),
              ("function", "fork"),
-             ("function", "disconnect"),
-             ("variable", "workers"),
+             ("function", "disconnect", ">= 0.8"),
+             ("variable", "workers", ">= 0.8"),
              #("function", "on"), # EventEmitter, broken due to bug 78596
             ])
-        self.assertCompletionsInclude2(buf, positions[2],
-            [("variable", "id"),
-             ("variable", "process"),
-             ("variable", "suicide"),
-             ("function", "send"),
-             ("function", "destroy"),
-             ("function", "disconnect"),
-             ("function", "on"), # EventEmitter
-            ])
+        if self.version >= "0.8":
+            self.assertCompletionsInclude2(buf, positions[2],
+                [("variable", "id"),
+                 ("variable", "process"),
+                 ("variable", "suicide"),
+                 ("function", "send"),
+                 ("function", "destroy"),
+                 ("function", "disconnect"),
+                 ("function", "on"), # EventEmitter
+                ])
 
 class CallTipTestCase(CodeIntelTestCase):
     lang = "Node.js"
