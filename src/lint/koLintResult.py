@@ -146,11 +146,12 @@ class KoLintResult:
         self.severity = severity
 
     def __str__(self):
-        return "%d:%d (%d-%d) %s" % (
+        return "%d:%d (%d-%d) sev:%r %s" % (
             self.lineStart,
             self.lineEnd,
             self.columnStart,
             self.columnEnd,
+            self.severity,
         self.description)
 
     def _encode_string(self, s):
