@@ -19,6 +19,7 @@ child_process.spawn = function(command, args, options) {}
  * @constructor
  */
 child_process.ChildProcess = function() {}
+child_process.ChildProcess.prototype = new events.EventEmitter();
 
 /**
  * Send a signal to the child process. If no argument is given, the process
@@ -107,6 +108,7 @@ child_process.fork = function(modulePath, args, options, callback) {}
 
 /* used for giving types to ChildProcess.std* */
 var stream = require('stream');
+var events = require('events');
 
 exports = child_process;
 

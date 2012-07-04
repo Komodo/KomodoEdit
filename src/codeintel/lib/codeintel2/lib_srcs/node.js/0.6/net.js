@@ -13,6 +13,8 @@ var net = {};
  * @constructor
  */
 net.Socket = function() {}
+net.Socket.prototype = new stream.ReadableStream();
+net.Socket.prototype = new stream.WritableStream();
 net.Socket.prototype = new events.EventEmitter();
 
 /**
@@ -336,6 +338,7 @@ net.createConnection = function(arguments) {}
  */
 net.connect = function(arguments) {}
 
+var stream = require('stream');
 var events = require('events');
 
 exports = net;

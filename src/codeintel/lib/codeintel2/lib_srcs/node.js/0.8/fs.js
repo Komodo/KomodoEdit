@@ -525,6 +525,7 @@ fs.fchownSync = function(fd, uid, gid) {}
  * @constructor
  */
 fs.FSWatcher = function() {}
+fs.FSWatcher.prototype = new events.EventEmitter();
 
 /**
  * Stop watching for changes on the given fs.FSWatcher.
@@ -651,6 +652,7 @@ fs.Stats.prototype = {
 };
 /* required for createReadStream() / createWriteStream() */
 var stream = require('stream');
+var events = require('events');
 
 exports = fs;
 

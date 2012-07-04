@@ -488,6 +488,7 @@ fs.fchownSync = function(fd, uid, gid) {}
  * @constructor
  */
 fs.FSWatcher = function() {}
+fs.FSWatcher.prototype = new events.EventEmitter();
 
 /**
  * Stop watching for changes on the given fs.FSWatcher.
@@ -598,6 +599,7 @@ fs.utimesSync = function(path, atime, mtime) {}
  * @param filename
  * @param options
  * @param listener
+ * @returns {fs.FSWatcher}
  */
 fs.watch = function(filename, options, listener) {}
 
@@ -613,6 +615,7 @@ fs.Stats.prototype = {
 };
 /* required for createReadStream() / createWriteStream() */
 var stream = require('stream');
+var events = require('events');
 
 exports = fs;
 

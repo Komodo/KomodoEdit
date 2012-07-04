@@ -18,6 +18,7 @@ dgram.createSocket = function(type, callback) {}
  * @constructor
  */
 dgram.Socket = function() {}
+dgram.Socket.prototype = new events.EventEmitter();
 
 /**
  * Tells the kernel to join a multicast group with IP_ADD_MEMBERSHIP socket
@@ -137,6 +138,8 @@ dgram.Socket.__events__.close = function() {};
  * @param exception {Error}
  */
 dgram.Socket.__events__.error = function(exception) {};
+
+var events = require("events");
 
 exports = dgram;
 
