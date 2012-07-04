@@ -3936,7 +3936,7 @@ margin-left: 20px;
 
     unsupported_unrecognized_numeric_unit="got an unsupported or unrecognized numeric unit"
 
-    @tag("bug94621")
+    @tag("bug94652")
     def test_validate_numeric_units(self):
         code = dedent("""\
 div {
@@ -3948,7 +3948,7 @@ div {
 """)
         self._check_one_result_check_error_on_line(code, self.unsupported_unrecognized_numeric_unit, "p")
 
-    @tag("bug94621")
+    @tag("bug94652")
     def test_validate_numeric_units_02(self):
         code = dedent("""\
 div {
@@ -3960,7 +3960,7 @@ div {
 """)
         self._check_one_result_check_error_on_line(code, self.unsupported_unrecognized_numeric_unit, "pta")
 
-    @tag("bug94621")
+    @tag("bug94652")
     def test_validate_numeric_units_03(self):
         suffix = "ptasyntacticallycorrectsemanticallywrongwrong" * 100
         code = dedent("""\
@@ -3973,4 +3973,41 @@ div {
 """ % (suffix,))
         self._check_one_result_check_error_on_line(code, self.unsupported_unrecognized_numeric_unit, suffix)
 
-    
+    @tag("bug94621")
+    def test_qualified_selector_internal_error_01(self):
+        code = 'input['
+        self._check_one_result_check_error_at_eof(code, "expecting an identifier")
+
+    @tag("bug94621")
+    def test_qualified_selector_internal_error_02(self):
+        code = 'input[test'
+        self._check_one_result_check_error_at_eof(code, "expecting one of ], =, ~=, |=")
+
+
+    @tag("bug94621")
+    def test_qualified_selector_internal_error_03(self):
+        code = 'input[test='
+        self._check_one_result_check_error_at_eof(code, "expecting an identifier or string")
+
+
+    @tag("bug94621")
+    def test_qualified_selector_internal_error_04(self):
+        code = 'input[test="'
+        self._check_one_result_check_error_on_line(code, "missing string close-quote", '"')
+
+
+    @tag("bug94621")
+    def test_qualified_selector_internal_error_05(self):
+        code = 'input[test="b'
+        self._check_one_result_check_error_on_line(code, "missing string close-quote", '"b')
+
+    @tag("bug94621")
+    def test_qualified_selector_internal_error_06(self):
+        code = 'input[test="b"'
+        self._check_one_result_check_error_at_eof(code, "expecting a ']'")
+
+
+    @tag("bug94621")
+    def test_qualified_selector_internal_error_07(self):
+        code = 'input[test="b"]'
+        self._check_one_result_check_error_at_eof(code, "expecting a block of declarations")

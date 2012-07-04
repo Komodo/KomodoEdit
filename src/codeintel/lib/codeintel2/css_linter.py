@@ -360,6 +360,10 @@ class _CSSParser(object):
                 self._saw_selector = True
             require_simple_selector = False
             tok = self._tokenizer.get_next_token()
+            if tok.style == EOF_STYLE:
+                # bug 94621 -- If we're on EOF while processing a selector,
+                # give up on this loop
+                break
             self._check_tag_tok(tok, 2)
             if not self._classifier.is_operator_choose(tok, ("+",">", "~")):
                 self._tokenizer.put_back(tok)
@@ -720,7 +724,7 @@ class _CSSParser(object):
             return
         tok = self._tokenizer.get_next_token()
         if not self._classifier.is_operator(tok, ']'):
-            self._add_result("expecting an ']'", tok)        
+            self._add_result("expecting a ']'", tok)        
             
         
     def _parse_assignment(self):
