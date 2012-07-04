@@ -204,6 +204,21 @@ static wchar_t* _ToUTF16(const char* str)
     return buffer;
 }
 
+/**
+ * Helper function to convert a UTF-16 string to UTF-8
+ * @param str The UTF-16 string
+ * @returns The equivalent UTF-8 string; it should be free()ed.
+ */
+static char* _ToUTF8(const wchar_t* str)
+{
+    char *buffer;
+    int size;
+    size = WideCharToMultiByte(CP_UTF8, 0, str, -1, NULL, 0, NULL, NULL);
+    buffer = (char*)malloc(size * sizeof(char));
+    (void)WideCharToMultiByte(CP_UTF8, 0, str, -1, buffer, size, NULL, NULL);
+    return buffer;
+}
+
 #else /* !WIN32 */
 
 /* Bug: http://bugs.activestate.com/show_bug.cgi?id=39273 
@@ -966,40 +981,6 @@ static char* _GetOSName(void)
     return osName; 
 }
 
-#if defined(WIN32)
-// Taken from src/license/License_V8/Runtime/Common.c
-// Convert the wide-char name to a byte-char name, resorting
-// to the short name if we can't do the conversion with the current
-// code page.
-
-static BOOL
-_wide_to_ansipath(WCHAR *wpath, char *path)
-{
-    BOOL use_default = FALSE;
-    int len = WideCharToMultiByte(CP_ACP, WC_NO_BEST_FIT_CHARS,
-                                  wpath, (int)wcslen(wpath)+1,
-                                  path, MAX_PATH, NULL, &use_default);
-    if (len == 0 || len > MAX_PATH)
-        // Utter failure to convert wide-chars to OEMchars
-        return FALSE;
-
-    if (use_default) {
-        // Some characters couldn't be converted -- get the short name
-        WCHAR shortpath[MAX_PATH+1];
-        len = GetShortPathNameW(wpath, shortpath, MAX_PATH);
-        if (len == 0 || len > MAX_PATH)
-            return FALSE;
-
-        len = WideCharToMultiByte(CP_ACP, WC_NO_BEST_FIT_CHARS,
-                                  shortpath, len+1,
-                                  path, MAX_PATH, NULL, NULL);
-        if (len == 0 || len > MAX_PATH)
-            return FALSE;
-    }
-    return TRUE;
-}
-#endif
-
 /* _GetVerUserDataDir
  *   Get a (versioned) user-specific Komodo data directory. XXX This
  *   should be kept in sync with koDirs.py. Return value is like the
@@ -1126,11 +1107,10 @@ static int _GetVerUserDataDir(
                 }
             }
             if (wideCharPath[0]) {
-                BOOL res = _wide_to_ansipath(wideCharPath, lpBuffer);
-                if (!res) {
-                    // Fall back to the old code.
-                    lpBuffer[0] = 0;
-                }
+                char *utf8Path = _ToUTF8(wideCharPath);
+                strncpy(lpBuffer, utf8Path, nBufferLength);
+                lpBuffer[nBufferLength - 1] = '\0';
+                free(utf8Path);
             }
             if (freeHandle) {
                 FreeLibrary(hShell32);
@@ -1170,19 +1150,22 @@ static int _GetVerUserDataDir(
                 return 0;
             }
             for (i = 0; i < nValues; ++i) {
-                char value[MAXPATHLEN];
+                wchar_t value[MAXPATHLEN];
                 unsigned long lenValue = MAXPATHLEN;
                 BYTE data[MAXPATHLEN];
                 unsigned long lenData = MAXPATHLEN;
 
-                retval = RegEnumValue(hKey, i,
-                                      value, &lenValue, NULL, NULL, data, &lenData);
+                retval = RegEnumValueW(hKey, i,
+                                       value, &lenValue, NULL, NULL, data, &lenData);
                 if (retval != ERROR_SUCCESS) {
                     _LogError("enumerating index %d of key: '%s'.\n", i, keyName);
                     return 0;
                 }
-                if (strncmp(value, "AppData", MAXPATHLEN) == 0) {
-                    strncpy(lpBuffer, (char*)data, nBufferLength);
+                if (wcsncmp(value, L"AppData", MAXPATHLEN) == 0) {
+                    char* utf8Path = _ToUTF8(data);
+                    strncpy(lpBuffer, utf8Path, nBufferLength);
+                    lpBuffer[nBufferLength - 1] = '\0';
+                    free(utf8Path);
                     /*XXX should check strncpy retval for error */
                     break;
                 }
