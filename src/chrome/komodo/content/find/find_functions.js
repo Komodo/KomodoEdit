@@ -1236,6 +1236,8 @@ this.highlightClearAll = function Find_HighlightClearAll(scimoz) {
  * @param {int} length - The number of affected bytes at this position.
  */
 this.highlightClearPosition = function Find_HighlightClearPosition(scimoz, position, length) {
+    findLog.deprecated("ko.find.highlightClearPosition is deprecated, " +
+                       "use <view>._clearIndicatorsNearRange instead");
     var indic = Components.interfaces.koILintResult.DECORATOR_FIND_HIGHLIGHT;
     var range_start = scimoz.indicatorValueAt(indic, position) ?
                       scimoz.indicatorStart(indic, position) : position;

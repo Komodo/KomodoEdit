@@ -1164,6 +1164,29 @@
         ]]>
         </body>
         </method>
+
+        <method name="_clearIndicatorsNearRange">
+        <!--
+          - Clear indicators within, or partially overlapping, a given range
+          - @param indicator The indicator to clear
+          - @param position The byte position of the start of the range
+          - @param length The byte length of the range
+          -->
+        <parameter name="indicator"/>
+        <parameter name="position"/>
+        <parameter name="length"/>
+        <body>
+        <![CDATA[
+            let scimoz = this.scimoz;
+            let start = scimoz.indicatorValueAt(indicator, position) ?
+                        scimoz.indicatorStart(indicator, position) : position;
+            var end = scimoz.indicatorValueAt(indicator, position + length - 1) ?
+                      scimoz.indicatorEnd(indicator, position + length - 1) : position + length;
+            scimoz.indicatorCurrent = indicator;
+            scimoz.indicatorClearRange(start, end - start);
+        ]]>
+        </body>
+        </method>
         
         <method name="_onModifiedHandler">
         <parameter name="position"/>
@@ -1190,11 +1213,10 @@
             const SC_PERFORMED_USER = Components.interfaces.ISciMoz.SC_PERFORMED_USER;
             const SC_PERFORMED_UNDO = Components.interfaces.ISciMoz.SC_PERFORMED_UNDO;
 
-            if ((modificationType & (SC_MOD_INSERTTEXT | SC_MOD_BEFOREDELETE))
-                && ko.find
-                && typeof(ko.find.highlightClearPosition) != "undefined") {
-                // Remove the find highlighting in this modification area.
-                ko.find.highlightClearPosition(this.scimoz, position, length);
+            if (modificationType & (SC_MOD_INSERTTEXT | SC_MOD_BEFOREDELETE)) {
+                let koILintResult = Components.interfaces.koILintResult;
+                this._clearIndicatorsNearRange(koILintResult.DECORATOR_FIND_HIGHLIGHT, position, length);
+                this._clearIndicatorsNearRange(koILintResult.DECORATOR_TAG_MATCH_HIGHLIGHT, position, length);
             }
 
             // if deleting or inserting text...
