@@ -263,7 +263,7 @@ def _getTypeNameFromRegistry(ext, root=None):
     # Get the type name from this key.
     try:
         typeName, typeNameType = _safeQueryValueEx(extKey, "")
-    except WinIntegError:
+    except WindowsError:
         return None
 
     return typeName
