@@ -144,6 +144,7 @@ class koLintResults:
         except AttributeError:
             other_results = UnwrapObject(other)._results
         newLintResults._results = self._results
+        newLintResults._resultMap = self._resultMap
         for result in other_results:
             newLintResults.addResult(result)
         return newLintResults
