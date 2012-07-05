@@ -18,6 +18,7 @@
 <!ENTITY changeMemory.label "Change Memory ...">
 <!ENTITY changeTarget.label "Target">
 <!ENTITY applicationsMustBeRunningInOrderToChangeTheirMemorySetting.label "Applications must be running in order to change their memory setting.">
+<!ENTITY applicationsMustBeRunningInOrderToViewTheirFiles.label "Applications must be running in order to view their files.">
 <!ENTITY createService.label "Create Service...">
 <!ENTITY deleteService.label "Delete Service...">
 <!ENTITY description.label "Description">

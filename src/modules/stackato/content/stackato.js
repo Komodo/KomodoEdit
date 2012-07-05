@@ -2083,7 +2083,7 @@ this.application_showFiles = function(event, infoName) {
     var row, appName;
     [row, appName] = this._getMainRowAndAppName(event);
     if (!row || !appName) return;
-    var numInstances = mainRow.fields.num_instances;
+    var numInstances = row.fields.num_instances;
     var results = {};
     var res = ko.windowManager.openOrFocusDialog(
         "chrome://stackatotools/content/stackatoFilesArgs.xul",
