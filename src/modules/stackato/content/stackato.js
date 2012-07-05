@@ -647,6 +647,10 @@ this.wrapCallbackFunction = function(methodName,
                 //     + ", clases: "
                 //     + toggleButtonImage.classList
                 //     + "\n");
+                if (!document) {
+                    // stackato window has been closed.
+                    return;
+                }
                 document.getElementById(toggleButtonID)
                         .classList.remove("async_operation");
             } else {
@@ -711,6 +715,11 @@ this.wrapCallbackFunction = function(methodName,
                                   + data.stdout
                                   + "'");
                     processedData = data.stdout;
+                    if (processedData.indexOf("Server refused connection") === 0) {
+                        gko.dialogs.alert("Stackato failure", processedData);
+                        this_._showLoggedOutFields("", "");
+                        return;
+                    }
                 }
                 dataHandler.setData(processedData);
                 if (nextFunc) {
