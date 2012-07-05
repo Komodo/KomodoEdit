@@ -255,8 +255,28 @@ class KoTclCompletion:
                 if event.type == "keydown":
                     selectedText = controller.selectedText
                     log.debug("will accept completion " + controller.selectedText)
+                    # Bug 94416:
+                    # Find where selectedText starts before aStartPos
+                    # and remove the existing leading characters.
+                    scimoz = self._scintilla
+                    if self._lastTriggerPos == scimoz.currentPos:
+                        aStartPos = self._lastTriggerPos
+                        earlierPos = aStartPos - len(selectedText)
+                        if earlierPos < 0:
+                            earlierPos = 0
+                        aText = scimoz.getTextRange(earlierPos, aStartPos)
+                        for i in range(len(aText)):
+                            if selectedText.startswith(aText[i:]):
+                                if i == 0:
+                                    # Have to do this because
+                                    # selectedText[-1:] gives the last letter,
+                                    # but selectedText[-0:] gives the whole string
+                                    selectedText = ""
+                                else:
+                                    selectedText = selectedText[-i:]
+                                break
                     thread.dispatch(lambda: controller.applyCompletion(self._lastTriggerPos,
-                                                                       self._scintilla.currentPos,
+                                                                       scimoz.currentPos,
                                                                        selectedText),
                                     components.interfaces.nsIEventTarget.DISPATCH_NORMAL)
                 event.stopPropagation()
