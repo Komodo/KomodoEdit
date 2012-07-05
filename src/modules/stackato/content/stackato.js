@@ -2058,11 +2058,31 @@ this.application_unbindService = function(event) {
         log.debug("unbind-service finished => " + retval);
         this_._updateApplicationsTable();
     };
-    this._clearTerminal = true;
-    var prompt = "unbind provisioned service " + serviceName;
-    this.doApplicationCommand(["unbind-service", serviceName, appName],
-                              terminationCallback,
-                              prompt, "applications_button");
+    var unbindServiceFunc = function() {
+        this._clearTerminal = true;
+        var prompt = null
+        this.doApplicationCommand(["unbind-service", serviceName, appName],
+                                  terminationCallback,
+                                  prompt, "applications_button");
+    }.bind(this);
+    if (mainRow.fields.health != "STOPPED") {
+        var prompt = bundle.formatStringFromName('Stop Application X before unbinding service X',
+                                                 [appName, serviceName], 2);
+        var response = bundle.GetStringFromName("Yes");
+        var text = null;
+        var title = bundle.GetStringFromName("Komodo Stackato Sanity Check");
+        var response = "Yes";
+        var res = ko.dialogs.yesNoCancel(prompt, response, text, title);
+        if (res == "Cancel") {
+            return;
+        } else if (res == "Yes") {
+            // stop the service before unbinding
+            this.doApplicationCommand(["stop", appName], unbindServiceFunc,
+                                      null/*prompt*/, "applications_button");
+            return;
+        }
+    }
+    unbindServiceFunc();
 };
 
 this.application_showInfo = function(event, infoName) {
