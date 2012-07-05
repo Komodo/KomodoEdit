@@ -669,6 +669,8 @@
                 label="&showFiles.label;"
                 class="menuitem-iconic"
                 disableIf="loggedOut;empty"
+                disableUnless="field:health=STARTED"
+                disabled_tooltiptext="&applicationsMustBeRunningInOrderToChangeTheirMemorySetting.label;"
                 />
         <menuitem id="mtcm_showInstances"
                 oncommand="ko.stackato.application_showInfo(event, 'instances')"
