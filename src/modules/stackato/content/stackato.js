@@ -1305,7 +1305,7 @@ this.getStackatoEnv = function(obj) {
         var defaultResponse = bundle.GetStringFromName("No");
         var response = gko.dialogs.yesNo(prompt, defaultResponse, null, title);
         if (response == bundle.GetStringFromName('Yes')) {
-            prefs_doGlobalPrefs('stackatoItem');
+            opener.prefs_doGlobalPrefs('stackatoItem');
             return;
         }
     }
