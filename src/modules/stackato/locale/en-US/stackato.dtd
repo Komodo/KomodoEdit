@@ -26,7 +26,6 @@
 <!ENTITY frameworks.label "Frameworks">
 <!ENTITY frameworksAndRuntimes.label "Frameworks and Runtimes">
 <!ENTITY health.label "Health">
-<!ENTITY health.label "Health">
 <!ENTITY logout.label "Logout">
 <!ENTITY login.label "Login...">
 <!ENTITY mapURL.label "Map URL...">

@@ -340,10 +340,14 @@ function onPage5_Show() {
     nodes.push(bundle.GetStringFromName("URL.Colon") + " " + finalDataItems.url);
     nodes.push(bundle.GetStringFromName("Num Instances.Colon") + " " + finalDataItems.numInstances);
     nodes.push(bundle.GetStringFromName("Memory Limit.Colon") + " " + finalDataItems.memoryLimit);
-               nodes.push(bundle.GetStringFromName("Runtime.Colon") + " " + (finalDataItems.runtime
-                                                                             || bundle.GetStringFromName("None")));
-    nodes.push(bundle.GetStringFromName("Provisioned Service.Colon") + " " + (finalDataItems.provisionedService
-                                                                              || bundle.GetStringFromName("None")));
+    nodes.push(bundle.GetStringFromName("Runtime.Colon")
+               + " "
+               + (finalDataItems.runtime
+                  || bundle.GetStringFromName("None")));
+    nodes.push(bundle.GetStringFromName("Provisioned Service.Colon")
+               + " "
+               + (finalDataItems.provisionedService
+                  || bundle.GetStringFromName("None")));
     nodes.push(bundle.GetStringFromName("Start immediately.Colon") + " " + finalDataItems.startImmediately);
     var d, s;
     nodes.forEach(function(item) {
