@@ -7,10 +7,10 @@
  *
  */
 
-if (typeof(ko)=='undefined') {
+if (typeof(ko)==='undefined') {
     var ko = {};
 }
-if (typeof(ko.stackato)=='undefined') {
+if (typeof(ko.stackato)==='undefined') {
     ko.stackato = {};
 }
 xtk.include("domutils");
@@ -32,12 +32,19 @@ var g_shuttingDown = false;
 var g_finishedInit = false;
 
 var firstTimeRun = false;
+const CurrentStackatoVersion = 2;
+/**
+ * Lastest stackato version known for prefs file
+ * 2: Komodo 7.1.0: s/stackato.mru/mruStackatoTargetList/
+ * 1: Komodo 7.0 : first version
+ */
+
 
 this.focus = function() {
     setTimeout(function() {
         _stackatoWindow.focus();
     }, 100);
-}
+};
 
 this.onLoad = function() {
     gWindow = window.arguments[0].window;
@@ -119,14 +126,16 @@ this.initialize = function() {
         firstTimeRun = true;
         gStackatoPrefs = Components.classes["@activestate.com/koPreferenceSet;1"].createInstance();
         gko.prefs.setPref("stackato", gStackatoPrefs);
-        gStackatoPrefs.setLongPref("version", 1);
+        gko.prefs.setLongPref("mruStackatoTargetSize", 10);
     } else {
         gStackatoPrefs = gko.prefs.getPref("stackato");
         if (!gStackatoPrefs.hasPref("notFirstTime")
             || !gStackatoPrefs.getBooleanPref("notFirstTime")) {
             firstTimeRun = true;
         }
+        this._upgradeByVersion(gStackatoPrefs);
     }
+    gStackatoPrefs.setLongPref("version", CurrentStackatoVersion);
     if (!gStackatoPrefs.hasPref("apps")) {
         gStackatoPrefs.setPref("apps", Components.classes["@activestate.com/koPreferenceSet;1"].createInstance());
     }
@@ -159,12 +168,7 @@ this.initialize = function() {
 
     terminalView.startSession(true);
     this._clearTerminal = true;
-    
-    var mruTargetNames = this.Credentials.getTargets();
-    if (mruTargetNames.length) {
-        this.targetNames = mruTargetNames;
-        this.updateTargetsMenu(this.targetNames, /*getGroups=*/false);
-    }
+    this._getTargetsUpdateTargetMenu(this.targetNames, /*getGroups=*/false);
 
     //TODO: Prevent sorting in the main tree.  The problem is that the
     // tree.xml handler handles the eventPhase = atTarget value, which
@@ -179,6 +183,31 @@ this.initialize = function() {
 
     
 };
+
+this._upgradeByVersion = function(gStackatoPrefs) {
+    try {
+        var version = (gStackatoPrefs.hasPref("version")
+                       ? gStackatoPrefs.getLongPref("version")
+                       : 1);
+        if (version == 1) {
+            // Rename pref stackato.mru to mruStackatoTargetList
+            var oldestFirstList = gko.mru.getAll("stackato.mru");
+            // This should be done by the mru module
+            gko.prefs.setLongPref("mruStackatoTargetSize", 10);
+            if (oldestFirstList.length > 10) {
+                // Drop delta oldest stackato.mru items
+                oldestFirstList.splice(0, oldestFirstList.length - 10);
+            }
+            oldestFirstList.forEach(function(target) {
+                    gko.mru.add("mruStackatoTargetList", target, true);
+                });
+            // Again ko.mru should provide a way of doing this
+            gko.prefs.deletePref("stackato.mru");
+        }
+    } catch(ex) {
+        log.exception(ex, "stackato.js: _upgradeByVersion: failed");
+    }
+}
 
 //this.handleMainTreecolClick = function(event) {
 //    // squelch sort.
@@ -235,7 +264,7 @@ this.updateTarget = function() {
                     this_._disableChangeTargetButton(true);
                     this_.addActiveTarget(newTarget);
                     this_.getUserWithCurrentTarget(newTarget);
-                    gko.mru.add("stackato.mru", newTarget, true);
+                    gko.mru.add("mruStackatoTargetList", newTarget, true);
                 }
             }
         };
@@ -993,22 +1022,39 @@ this.setupRuntimesTree = function() {
 
 this.arrayUnion = function(a1, a2) {
     // Preserve the order of the first set, then add on any new members in the second set
-    return a1.concat(a2.filter(function(x) !~a1.indexOf(x)));
+    return a1.concat(this.arrayDifference(a2, a1));
+    //return a1.concat(a2.filter(function(x) !~a1.indexOf(x)));
 }
+
+this.arrayDifference = function(a1, a2) {
+    // Return any items that are in a1 but not a2
+    return a1.filter(function(x) !~a2.indexOf(x));
+}
+
+this._getTargetsUpdateTargetMenu = function(getGroups) {
+    var view = widgets.views.targetsTree;
+    var discoveredTargetNames = view ? view.getTargetNames() : [];
+    var credentialTargetNames = this.Credentials.getTargets();
+    var mruTargetNames = gko.mru.getAll("mruStackatoTargetList");
+    mruTargetNames.reverse();
+    var targetNames = this.arrayUnion(mruTargetNames, discoveredTargetNames);
+    // remove any credential names that aren't in targetNames
+    var oldCredentialNames = this.arrayDifference(credentialTargetNames, targetNames);
+    for each (var name in oldCredentialNames) {
+            this.Credentials.removeEntry(name);
+        };
+    this.targetNames = targetNames;
+    g_finishedInit = true;
+    this._updateButtons();
+    this.updateTargetsMenu(this.targetNames, /*getGroups=*/true);
+};
 
 this.setupTargetsTree = function() {
     var view = widgets.views.targetsTree = new ko.stackato.trees.TargetsTree();
     widgets.trees.targetsTree.treeBoxObject.view = view;
-    var this_ = this;
     var callback = function() {
-        var discoveredTargetNames  = view.getTargetNames();
-        var mruTargetNames = this_.Credentials.getTargets();
-        var targetNames = this_.arrayUnion(mruTargetNames, discoveredTargetNames);
-        this_.targetNames = targetNames;
-        g_finishedInit = true;
-        this_._updateButtons();
-        this_.updateTargetsMenu(this_.targetNames, /*getGroups=*/true);
-    };
+        this._getTargetsUpdateTargetMenu(/*getGroups=*/true);
+    }.bind(this);
     this.wrapCallbackFunction("getTargets",
                               "provisioned_services_button",
                               view,
@@ -1016,22 +1062,15 @@ this.setupTargetsTree = function() {
 };
 
 this.updateTargetsMenu = function(names, getGroups) {
-    names.sort();
-    var menupopup = document.getElementById("target_textbox_menupopup");
+    var menuitem, menupopup = document.getElementById("target_textbox_menupopup");
     while (menupopup.firstChild) {
         menupopup.removeChild(menupopup.firstChild);
     }
-    var menuitem;
     for each (var name in names) {
         menuitem = document.createElement("menuitem");
         menuitem.setAttribute("label", name);
         menupopup.appendChild(menuitem);
     }
-    var menupopup = document.getElementById("target_textbox_menupopup");
-    var this_ = this;
-    gko.mru.getAll("stackato.mru").forEach(function(newName) {
-        this_._addNewItem(menupopup, newName);
-        });
     if (this.supportsGroups && getGroups) {
         this.getGroupNames();
     }
@@ -2265,7 +2304,23 @@ this.Credentials = {
         } else {
             lm.addLogin(newId);
         }
-    }
+    },
+
+    removeEntry: function removeEntry(hostname) {
+        var lm = this.loginManager;
+        var logins = lm.findLogins({}, hostname, null, this.realm);
+        for each (var login in logins) {
+                try {
+                    lm.removeLogin(login);
+                } catch(ex) {
+                    log.exception(ex, "Problem removing host "
+                                  + hostname
+                                  + " from login manager");
+                }
+            }
+    },
+
+    __EOD__: null
 }
 
 }).apply(ko.stackato);
