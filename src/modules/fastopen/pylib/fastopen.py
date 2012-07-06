@@ -683,9 +683,10 @@ class KomodoProjectGatherer(Gatherer):
 
 class CachingKomodoProjectGatherer(Gatherer):
     """A gatherer of files in a Komodo project."""
-    def __init__(self, project, gatherDirs=False):
+    def __init__(self, project, gatherDirs=False, follow_symlinks=True):
         self.project = project
         self.gatherDirs = gatherDirs
+        self.follow_symlinks = follow_symlinks
         self.name = "project '%s'" % project.get_name()
         self.base_dir = project.get_importDirectoryLocalPath()
         project_name = self.project.get_name()
@@ -702,7 +703,7 @@ class CachingKomodoProjectGatherer(Gatherer):
         
         # Then, yield and cache any remaining ones.
         if self._raw_generator is None:
-            self._raw_generator = self.project.genLocalPaths(self.gatherDirs)
+            self._raw_generator = self.project.genLocalPaths(self.gatherDirs, self.follow_symlinks)
         project_name = self.project_name
         base_dir = self.base_dir
         for path in self._raw_generator:
@@ -804,7 +805,7 @@ class MockKomodoProject(object):
             raise AttributeError("no 'liveDirectory' attribute (project "
                 "isn't a live folder)")
 
-    def genLocalPaths(self, gatherDirs=False):
+    def genLocalPaths(self, gatherDirs=False, follow_symlinks=True):
         sys.path.insert(0, join(dirname(dirname(dirname(dirname(
             abspath(__file__))))), "find"))
         try:
@@ -818,7 +819,7 @@ class MockKomodoProject(object):
             includes=self._includes,
             excludes=self._excludes,
             on_error=None,
-            follow_symlinks=True,
+            follow_symlinks=follow_symlinks,
             skip_dupe_dirs=True)
         for path in paths:
             yield path

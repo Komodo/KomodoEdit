@@ -44,6 +44,12 @@
                   style="margin-left: 22px;"
                   pref="true" prefattribute="checked"
                   preftype="boolean" />
+        <checkbox id="fastopen_follow_symlinks"
+                  label="&followSymlinks.label;"
+                  tooltiptext="&followSymlinks.tooltiptext;"
+                  style="margin-left: 22px;"
+                  pref="true" prefattribute="checked"
+                  preftype="boolean" />
         <checkbox id="fastopen_enable_cwd_gatherer"
                   label="&enableCwdGatherer.label;"
                   pref="true" prefattribute="checked"

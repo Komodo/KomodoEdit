@@ -308,6 +308,10 @@ class KoFastOpenSession(object):
         return enable
 
     @property
+    def pref_follow_symlinks(self):
+        return self._globalPrefs.getBoolean("fastopen_follow_symlinks", True)
+
+    @property
     def pref_history_num_entries(self):
         value = 50
         if self._globalPrefs.hasLongPref("fastopen_history_num_entries"):
@@ -371,7 +375,8 @@ class KoFastOpenSession(object):
             if self.pref_enable_project_gatherer and self.project:
                 g.append(fastopen.CachingKomodoProjectGatherer(
                     UnwrapObject(self.project),
-                    self.pref_enable_project_dir_gatherer))
+                    self.pref_enable_project_dir_gatherer,
+                    self.pref_follow_symlinks))
             if self.pref_enable_cwd_gatherer and cwds:
                 g.append(fastopen.DirGatherer("cwd", cwds, True,
                     self.pref_path_excludes))

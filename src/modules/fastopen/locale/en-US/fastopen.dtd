@@ -13,6 +13,8 @@
 <!ENTITY enableProjectGatherer.label "Enable 'Current Project' gatherer">
 <!ENTITY enableProjectDirectoryGatherer.label "Include project directory names">
 <!ENTITY goToolIntegration.description "go-tool is a small command-line tool for changing directories quickly.">
+<!ENTITY followSymlinks.label "Follow symlinks when recursing into directories">
+<!ENTITY followSymlinks.tooltiptext "When enabled, fast open will recursive into symlinked directories to report hits.">
 <!ENTITY invokeTool.accesskey "K">
 <!ENTITY invokeTool.menuitem "Invoke Tool">
 <!ENTITY cmd_close.commandkey "W">

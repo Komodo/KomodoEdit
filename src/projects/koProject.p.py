@@ -1020,7 +1020,7 @@ class koLiveFolderPart(koFolderPart):
     def getChildren(self):
         return self.children
 
-    def genLocalPaths(self, gatherDirs=False):
+    def genLocalPaths(self, gatherDirs=False, follow_symlinks=True):
         """Generate all contained local paths."""
         from os.path import join
         
@@ -1040,7 +1040,7 @@ class koLiveFolderPart(koFolderPart):
                 includes=includes,
                 excludes=excludes,
                 on_error=None,
-                follow_symlinks=True,
+                follow_symlinks=follow_symlinks,
                 skip_dupe_dirs=True):
             yield path
 
