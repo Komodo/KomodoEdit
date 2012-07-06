@@ -236,6 +236,12 @@ function onPage1_Next() {
         } else {
             finalDataItems.runtime = rt.selectedItem.label;
         }
+        rt = widgets.framework;
+        if (!rt.selectedItem) {
+            finalDataItems.framework = null;
+        } else {
+            finalDataItems.framework = rt.selectedItem.label;
+        }
     } catch(ex) {
         log.exception(ex, "onPage1_Next error");
     }
@@ -364,6 +370,7 @@ function doFinish() {
   // appname path url mem instances runtime startImmediately
   ["appname", "path", "url", "numInstances", "memoryLimit",
    "startImmediately", "runtime",
+   "framework",
    "provisionedService"].forEach(function(name) {
           results[name] = finalDataItems[name];
       });
