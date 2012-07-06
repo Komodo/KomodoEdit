@@ -1803,6 +1803,9 @@ this.application_add = function(event) {
     if (getNewAppFieldResults.runtime) {
         args.push("--runtime", getNewAppFieldResults.runtime);
     }
+    if (getNewAppFieldResults.framework) {
+        args.push("--framework", getNewAppFieldResults.framework);
+    }
     if (!getNewAppFieldResults.startImmediately) {
         args.push("--no-start");
     }
