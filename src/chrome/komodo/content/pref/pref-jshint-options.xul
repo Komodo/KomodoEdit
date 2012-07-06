@@ -38,6 +38,9 @@
             <button id="pref-jshint-set-good-parts-button-1"
                     label="&setRecommendedSettings.label;"
                     oncommand="ApplyGoodParts();" />
+            <button id="pref-jshint-tolerate-everything-button-1"
+                    label="&tolerateEverything.label;"
+                    oncommand="tolerateEverything();" />
             <button id="pref-jshint-clear-1"
                     label="&clear.label;"
                     oncommand="ClearSettings();" />
@@ -67,6 +70,9 @@
             <button id="pref-jshint-set-good-parts-button-2"
                     label="&setRecommendedSettings.label;"
                     oncommand="ApplyGoodParts();" />
+            <button id="pref-jshint-tolerate-everything-button-2"
+                    label="&tolerateEverything.label;"
+                    oncommand="tolerateEverything();" />
             <button id="pref-jshint-clear-2"
                     label="&clear.label;"
                     oncommand="ClearSettings();" />

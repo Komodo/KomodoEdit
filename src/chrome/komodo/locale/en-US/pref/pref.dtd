@@ -669,6 +669,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY predefinedNames.label "Predefined Globals:">
 <!ENTITY setStrictSettings.label "Set Strict Settings">
 <!ENTITY setRecommendedSettings.label "Set Recommended Settings">
+<!ENTITY tolerateEverything.label "Tolerate Everything">
 
 <!--pref-nodejs.xul-->
 <!ENTITY nodejs.label "Node.js">

@@ -12,6 +12,7 @@ var gValOptions;
 var gOptionDict = {};
 var gAllJSHintStrictSettings;
 var gAllJSHintGoodPartsSettings;
+var gAllJSHintTolerantSettings;
 var gPrefNumByName = {};
 const BOOLEAN_NAME = "boolean";
 const INT_NAME = "int";
@@ -30,7 +31,6 @@ function initJSLintData() {
       eqeq: "false",
       newcap: "false",
       nomen: "false",
-      passfail: "false",
       plusplus: "false",
       regexp: "false",
       'undef': "false",
@@ -44,7 +44,7 @@ function initJSLintData() {
       "anon":       "false", // if the space may be omitted in anonymous function declarations
       "bitwise":    "false", // if bitwise operators should be allowed
       "cap":        "false", // if upper case HTML should be allowed
-      'continue':   "false", // if the continuation statement should be tolerated
+      'continue':   "false", // http://anton.kovalyov.net/2011/02/20/why-i-forked-jslint-to-jshint/#if the continuation statement should be tolerated
       "css":        "false", // if CSS workarounds should be tolerated
       "debug":      "false", // if debugger statements should be allowed
       "devel":      "false", // if logging should be allowed (console, alert, etc.)
@@ -54,7 +54,6 @@ function initJSLintData() {
       "forin":      "false", // if for in statements need not filter
       "fragment":   "false", // if HTML fragments should be allowed
       "newcap":     "false", // if constructor names capitalization is ignored
-      "node":       "false", // if Node.js globals should be predefined
       "nomen":      "false", // if names may have dangling _
       "on":         "false", // if HTML event handlers should be allowed
       "passfail":   "false", // if the scan should stop on first error
@@ -71,6 +70,12 @@ function initJSLintData() {
       "widget":     "false"  //  if the Yahoo Widgets globals should be predefined
 
     };
+    
+    gAllJSHintTolerantSettings = {}
+    for (var k in gAllJSHintStrictSettings) {
+        gAllJSHintTolerantSettings[k] = "true";
+    }
+    delete gAllJSHintTolerantSettings.passfail;
 }
 
 function initJSHintData() {
@@ -140,6 +145,23 @@ function initJSHintData() {
       onevar: "true",
       white: "true",
     };
+    
+    gAllJSHintTolerantSettings = {}
+    var oppo = {
+        "true": "false",
+        "false": "true"
+    };
+    var keepers = [
+        "globalstript", "noempty"
+    ]
+    for (var k in gAllJSHintStrictSettings) {
+        if (keepers.indexOf(k) !== -1) {
+            gAllJSHintTolerantSettings[k] = gAllJSHintStrictSettings[k];
+        } else {
+            gAllJSHintTolerantSettings[k] = oppo[gAllJSHintStrictSettings[k]] || "false";
+        }
+    }
+    delete gAllJSHintTolerantSettings.passfail;
 }
 
 function onLoad() {
@@ -227,7 +249,6 @@ function initOptions() {
     var m1;
     var firstLinePtn;
     var nextLinePtn;
-    debugger;
     if (isJSHint) {
         m1 = /\n\s*boolOptions\s*=\s*\{\s*?\n((?:\n|.)*?)\s*\},/.exec(data);
         // Last entry before "}" won't have a comma after the 'true'
@@ -390,5 +411,10 @@ function ApplyStrictness() {
 }
 
 function ApplyGoodParts() {
+    tolerateEverything();
     ApplySuggestions(gAllJSHintGoodPartsSettings, "good parts");
+}
+
+function tolerateEverything() {
+    ApplySuggestions(gAllJSHintTolerantSettings, "tolerant settings");
 }
