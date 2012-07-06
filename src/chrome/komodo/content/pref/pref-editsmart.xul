@@ -272,7 +272,8 @@
             <checkbox id="editFoldLines" label="&useHorizontalLineOnFolds.label;" pref="true"
                       prefstring="editFoldLines" prefattribute="checked"/>
             <checkbox id="foldSeparateBlockParts" label="&foldSeparateBlockParts.label;" pref="true"
-                      prefstring="foldSeparateBlockParts" prefattribute="checked"/>
+                      prefstring="foldSeparateBlockParts" prefattribute="checked"
+                      tooltiptext="&foldSeparateBlockParts.tooltiptext;" />
             <checkbox id="editRestoreFoldPoints" label="&restoreFoldStateOnDocumentLoadSlowsDownFileOpening.label;" pref="true"
                       prefstring="editRestoreFoldPoints" prefattribute="checked"/>
         </groupbox>

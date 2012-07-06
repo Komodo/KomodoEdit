@@ -421,6 +421,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY smartEditing.label "Smart Editing">
 <!ENTITY specifyDefaultProjectFilters.label "Specify the default filters for new projects">
 <!ENTITY specifyTheProjectsActualLocation.label "Project base directory">
+<!ENTITY foldSeparateBlockParts.tooltiptext "Splits folding blocks on single-line constructs like '} ... {'">
 <!ENTITY squareTrees.label "Square trees">
 <!ENTITY startOfLine.label "Start of line">
 <!ENTITY startPage.label "Start Page">
