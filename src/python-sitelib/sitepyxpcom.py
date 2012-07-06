@@ -51,7 +51,7 @@ output is written to the console.
 
 import os
 import sys
-
+import codecs
 
 def redirect_std_handles():
     stdout_log_name = "pystdout.log"
@@ -76,8 +76,8 @@ def redirect_std_handles():
     if log_dir is not None:
         stdout_log_path = os.path.join(log_dir, stdout_log_name)
         stderr_log_path = os.path.join(log_dir, stderr_log_name)
-        sys.stdout = open(stdout_log_path, "w")
-        sys.stderr = open(stderr_log_path, "w")
+        sys.stdout = codecs.open(stdout_log_path, "w", "UTF-8")
+        sys.stderr = codecs.open(stderr_log_path, "w", "UTF-8")
     else:
         # Fallback to "writing" to /dev/null.
         class NullWriter:
