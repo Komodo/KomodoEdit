@@ -560,6 +560,9 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY filePrefProjectWhenCloseProject.label "When closing a project:">
 <!ENTITY filePrefProjectUpdateEvery.label "Update every">
 <!ENTITY filePrefProjectMinutes.label " minutes">
+<!ENTITY activeStateNotificationMessages.label "ActiveState Notification Messages">
+<!ENTITY activeStateNotificationMessagesEnabled.label "Enable notification messages from ActiveState">
+<!ENTITY activeStateNotificationMessagesEnabled.tooltiptext "ActiveState will (seldomly) send notifications about important product updates and news. When enabled, these messages will be shown in the statusbar and Notifications pane. Once the message has been seen, it will not appear again.">
 <!ENTITY fullPath.label "Full Path">
 <!ENTITY basenameOnly.label "BaseName Only">
 <!ENTITY parent1.label "Last Parent">

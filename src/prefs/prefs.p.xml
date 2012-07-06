@@ -1022,4 +1022,6 @@
        startup for Linux users. -->
   <boolean id="native_mozicons_available">1</boolean>
 
+  <!-- ActiveState auto-update notification messages -->
+  <boolean id="activestate_notification_messages_enabled">1</boolean>
 </preference-set>

@@ -125,6 +125,62 @@ var _lastNotificationTime = 0; // last time user interacted with statusbar notif
 
 //---- helper functions
 
+/**
+ * Handler for auto-update notification messages.
+ */
+function _handle_notification(data) {
+    try {
+        if (!ko.prefs.getBoolean("message_notifications_enabled")) {
+            return;
+        }
+        var notificationDetails = JSON.parse(data);
+        if (notificationDetails.type != "notification") {
+            return;
+        }
+
+        // Ensure this message hasn't been seen before - saved in local storage.
+        var msgStorage;
+        try {
+            msgStorage = localStorage;
+        } catch(ex) {
+            // LocalStorage access from chrome not available until FF13.
+            msgStorage = globalStorage['komodo.message_notifications'];
+        }
+        if (msgStorage.getItem(notificationDetails.id)) {
+            return;
+        }
+        // Remember seeing this message.
+        // TODO: It would be better if this was only set when sticky is removed.
+        msgStorage.setItem(notificationDetails.id, "1");
+
+        var options  = {
+            severity: Ci.koINotification.SEVERITY_INFO,
+            details: notificationDetails.message,
+            sticky: true,
+        };
+        if (notificationDetails.action_label) {
+            options.actions = [
+                {
+                    label: notificationDetails.action_label,
+                    identifier: notificationDetails.action_url,
+                    handler: function(notification, url) {
+                              ko.browse.openUrlInDefaultBrowser(url);
+                              notification.sticky = false;
+                           },
+                }
+            ];
+        }
+        ko.notifications.add(notificationDetails.title,
+                             ["notification"],
+                             "notification-" + notificationDetails.id,
+                             options);
+    } catch(ex) {
+        _log.exception(ex, "_handle_notification:: error with notification '" +
+                           data + "'");
+    }
+}
+
+
 function _updateEncoding(view) {
     if (typeof(view)=='undefined' || !view || !view.koDoc)
         return;
@@ -577,6 +633,7 @@ function StatusBarObserver() {
     var obsSvc = Components.classes["@mozilla.org/observer-service;1"].
                     getService(Components.interfaces.nsIObserverService);
     obsSvc.addObserver(this, 'status_message',false);
+    obsSvc.addObserver(this, 'autoupdate-notification', false);
     Cc["@activestate.com/koNotification/manager;1"]
       .getService(Ci.koINotificationManager)
       .addListener(this);
@@ -610,6 +667,7 @@ StatusBarObserver.prototype.destroy = function()
     var obsSvc = Components.classes["@mozilla.org/observer-service;1"].
                     getService(Components.interfaces.nsIObserverService);
     obsSvc.removeObserver(this, 'status_message');
+    obsSvc.removeObserver(this, 'autoupdate-notification');
 
     Cc["@activestate.com/koNotification/manager;1"]
       .getService(Ci.koINotificationManager)
@@ -641,6 +699,7 @@ StatusBarObserver.prototype.destroy = function()
     _observer = null;
     _prefObserver = null;
 }
+
 StatusBarObserver.prototype.observe = function(subject, topic, data)
 {
     // Unless otherwise specified the 'subject' is the view, and 'data'
@@ -652,6 +711,9 @@ StatusBarObserver.prototype.observe = function(subject, topic, data)
     case 'status_message':
         // "subject" is expected to be a koIStatusMessage object.
         _addMessageObject(subject);
+        break;
+    case 'autoupdate-notification':
+        setTimeout(_handle_notification, 5000, data);
         break;
     }
 }
