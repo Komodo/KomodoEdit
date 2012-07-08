@@ -16,7 +16,6 @@ log a bug:
 <http://bugs.activestate.com/enter_bug.cgi?product=Komodo>
 
 
-
 I'm lazy, just show me how to build it
 ======================================
 
