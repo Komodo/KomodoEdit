@@ -125,6 +125,6 @@ function showCertificates() {
     ko.windowManager.openDialog(
         "chrome://pippki/content/certManager.xul",
         "mozilla:certmanager",
-        "",
+        "chrome,modal,resizable,close,centerscreen",
         null);
 }
