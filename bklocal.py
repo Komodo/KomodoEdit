@@ -852,7 +852,7 @@ class PerlExe(black.configure.Datum):
         self.longopt = "perl%s%s" % self.version
         black.configure.Datum.__init__(self, "perl%s%s" % self.version,
             desc="the full path to an unsiloed Perl %s.%s executable" % self.version,
-            acceptedOptions=("", [self.longopt]))
+            acceptedOptions=("", [self.longopt + "="]))
 
     def _getVersion(self, perl):
         ver_pat = re.compile(r"\(revision (\d+)(?:\.\d+)? version (\d+) subversion \d+\)")
