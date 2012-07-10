@@ -735,6 +735,9 @@ configuration = {
     "msiVccrtMsmPath": MSIVccrtMsmPath(),
     "msiVccrtPolicyMsmPath": MSIVccrtPolicyMsmPath(),
 
+    # OSX packagig:
+    "osxCodeSigningCert": OSXCodeSigningCert(),
+
     "komodoPackageBase": KomodoPackageBase(),
     "komodoUpdateManualURL": KomodoUpdateManualURL(),
 
@@ -1340,6 +1343,18 @@ def _PackageKomodoDMG(cfg):
         _run('ditto --rsrc --arch i386 --arch x86_64 "%s" "%s"' % (original_dir, stripped_dir))
         _rmtree(original_dir)
         os.rename(stripped_dir, original_dir)
+
+    # If a code signing certificate is given, sign the binary now
+    # (after we're all done mucking with it, just before we package)
+    if hasattr(cfg, "osxCodeSigningCert"):
+        codesignDir = os.path.join(cfg.komodoDevDir, "src/install/osx-codesign")
+        try:
+            sys.path.append(codesignDir)
+            import codesign
+            codesign.codesign(os.path.join(cfg.installRelDir, cfg.macKomodoAppInstallName),
+                              cfg.osxCodeSigningCert)
+        finally:
+            sys.path.remove(codesignDir)
 
     productName = (cfg.productType == "openkomodo" and cfg.prettyProductType
                    or "Komodo-%s" % cfg.prettyProductType)

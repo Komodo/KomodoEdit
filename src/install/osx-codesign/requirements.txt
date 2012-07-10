@@ -1,0 +1,7 @@
+# designated requirements for Mac OSX code signing
+designated =>
+        identifier "com.activestate.Komodo"
+    and
+        cert leaf[subject.O] = ActiveState
+    and
+        anchor trusted
