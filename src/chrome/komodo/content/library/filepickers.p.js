@@ -253,6 +253,73 @@ function _appendFilters(fp, limitTo /* =null */) {
     return names;
 }
 
+function _get_localDirFromPossibleURIDir(uri) {
+    if (uri && uri.substr(0, 7) === "file://") {
+        var dir = ko.uriparse.URIToLocalPath(uri);
+        if (dir) {
+            return dir;
+        }
+    }
+    return null;
+}
+
+var _dispatchTable = {
+        // Some clients prefer project or place to the current view,
+        // but saveAs should prefer the current view
+    'project': function() {
+        var dir, uri;
+        if (ko.projects) {
+            var project = ko.projects.manager.currentProject;
+            if (project) {
+                return _get_localDirFromPossibleURIDir(project.importDirectoryURI);
+            }
+            return null;
+        }
+    },
+    'place': function() {
+        var dir, uri;
+        if (ko.places) {
+            return _get_localDirFromPossibleURI(ko.places.manager.currentPlace);
+        }
+        return null;
+    },
+    'view': function() {
+        var dir, uri;
+        if (ko.views) {
+            view = ko.views.manager.currentView;
+            if (view && view.getAttribute("type") === "editor") {
+                return _get_localDirFromPossibleURIDir(view.koDoc.file.dirName);
+            }
+        }
+        return null;
+    }
+};
+function _get_defaultDirectory(dirTypes) {
+    // Defaults, in this order: 
+    // current project (if has local dir)
+    // current place (if local)
+    // current file (if editor)
+    // leave null, do default.
+    var dir, project, place, uri, view, i, lookupType;
+    if (typeof(dirTypes) === "undefined") {
+        dirTypes = ["project", "place", "view"];
+    }
+    for (var i = 0; i < dirTypes.length; i++) {
+        lookupType = dirTypes[i];
+        try {
+            dir = _dispatchTable[lookupType]();
+            if (dir) {
+                return dir;
+            }
+        } catch(ex) {
+            _log.exception(ex, ("lookupType: "
+                                + lookupType
+                                + ": Problem finding current directory"));
+
+        }
+    }
+    return null;
+}
 
 // Get a file picker.
 //
@@ -365,6 +432,9 @@ function _browseForFile(pickerFn,
         try {
             defaultDirectory = ko.uriparse.dirName(defaultFilename);
         } catch (ex) { /* do nothing */ }
+    }
+    if (!defaultDirectory) {
+        defaultDirectory = _get_defaultDirectory();
     }
     if (defaultDirectory) {
         try {
@@ -519,6 +589,9 @@ this.saveFile = function filepicker_saveFile(defaultDirectory /* =null */,
             defaultDirectory = ko.uriparse.dirName(defaultFilename);
         } catch (ex) { /* do nothing */ }
     }
+    if (!defaultDirectory) {
+        defaultDirectory = _get_defaultDirectory(["view", "project", "place"]);
+    }
     if (defaultDirectory) {
         try {
             var localFile = Components.classes["@mozilla.org/file/local;1"]
@@ -647,6 +720,9 @@ this.browseForFiles = function filepicker_openFiles(defaultDirectory /* =null */
             defaultDirectory = ko.uriparse.dirName(defaultFilename);
         } catch (ex) { /* do nothing */ }
     }
+    if (!defaultDirectory) {
+        defaultDirectory = _get_defaultDirectory();
+    }
     if (defaultDirectory) {
         try {
             var localFile = Components.classes["@mozilla.org/file/local;1"]
@@ -706,6 +782,9 @@ this.getFolder = function filepicker_getFolder(defaultDirectory /* =null */,
     if (typeof(prompt) == 'undefined') prompt = null;
     var fp = _getGetFolderPicker(prompt);
 
+    if (!defaultDirectory) {
+        defaultDirectory = _get_defaultDirectory();
+    }
     if (defaultDirectory) {
         try {
             var localFile = Components.classes["@mozilla.org/file/local;1"]
