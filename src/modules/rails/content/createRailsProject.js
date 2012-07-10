@@ -287,9 +287,16 @@ this.runRailsCommand = function runRailsCommand() {
         
             append_terminal_output : function(str) {
                 try {
-                    var scimoz = document.getElementById("runoutput-scintilla").scimoz;
+                    // Before v7, runoutput-scintilla lived on the main form
+                    // With 7.0 and on, it's in its own panel.
+                    var scintillaThing =
+                        (document.getElementById("runoutput-scintilla")
+                         || document.getElementById("runoutput-desc-tabpanel").
+                                     contentDocument.
+                                     getElementById("runoutput-scintilla"));
+                    var scimoz = scintillaThing.scimoz;
                     var currNL = this._eol_strs[scimoz.eOLMode];
-                    var full_str = (scimoz.getColumn(scimoz.length) == 0) ? "" : currNL;
+                    var full_str = (scimoz.getColumn(scimoz.length) === 0) ? "" : currNL;
                     full_str = full_str.replace(/\x1b\[\d+m/, '');
                     full_str += "*************************************" + currNL + str + currNL;
                     var full_str_byte_length = ko.stringutils.bytelength(full_str);
@@ -301,7 +308,7 @@ this.runRailsCommand = function runRailsCommand() {
                         scimoz.readOnly = ro;
                     }
                 } catch(ex) {
-                    alert(str);
+                    alert(ex);
                 }
             },
             
@@ -344,6 +351,7 @@ this.runRailsCommand = function runRailsCommand() {
         };
         wrapper.append_terminal_output("The " + railsDirName + " project is built\n");
         wrapper.update_config_file();
+        ko.places.viewMgr.view.refreshFullTreeView();
     };
     ko.run.runCommand(self, cmd, dir, env, insertOutput,
                       operateOnSelection, doNotOpenOutputWindow,
