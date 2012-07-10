@@ -273,8 +273,8 @@ var _dispatchTable = {
             if (project) {
                 return _get_localDirFromPossibleURIDir(project.importDirectoryURI);
             }
-            return null;
         }
+        return null;
     },
     'place': function() {
         var dir, uri;
