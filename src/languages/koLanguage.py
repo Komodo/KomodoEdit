@@ -177,10 +177,10 @@ class KoLanguageRegistryService:
         # XXX get from prefs?
         self.defaultLanguage = "Text"
 
-        # Check if the django addon is enabled (and cache the result)
         # This is here because the addon manager is asynchronous which really
-        # cramps us later when we try to synchronously check that
-        self.addonIsEnabled("django_language@ActiveState.com")
+        # cramps us later when we try to synchronously check to see
+        # if a particular extension is available.
+        self._preloadAddonEnabledStatus()
 
         self.registerLanguages()
         self._resetFileAssociationData() # must be after .registerLanguages()
@@ -299,13 +299,26 @@ class KoLanguageRegistryService:
 
     _addonsEnabled = {}
 
-    def addonIsEnabled(self, id):
+    def _preloadAddonEnabledStatus(self):
+        # bug 94778: the addon manager is async, so it needs to be
+        # pre-populated at startup-time
+        try:
+            addonMgr = components.classes["@mozilla.org/addons/addon-manager;1"]. \
+                        getService(components.interfaces.amIAddonManager)
+            def addonListCallback(addons):
+                for addon in addons:
+                    self._addonsEnabled[addon.id] = addon.isActive
+            addonMgr.getAllAddons(addonListCallback)
+        except:
+            log.exception("Failed to work with addons")
+
+    def addonIsEnabled(self, id, default=False):
         if id in self._addonsEnabled:
             return self._addonsEnabled[id]
 
         if os.environ.has_key("KO_PYXPCOM_PROFILE"):
             # The addonMgr does not work well with the profiler, so we just
-            # let all addons be enabed when profiling is enabled.
+            # let all addons be enabled when profiling is enabled.
             self._addonsEnabled[id] = True
             return True
 
@@ -315,12 +328,14 @@ class KoLanguageRegistryService:
             def addonCallback(addon):
                 if addon is not None:
                     self._addonsEnabled[id] = addon.isActive
+                else:
+                    self._addonsEnabled[id] = default
             addonMgr.getAddonByID(id, addonCallback)
         except COMException:
             log.warn("addonIsEnabled:: unable to obtain Addon Manager")
             # Not available in the test environment.
-            self._addonsEnabled[id] = False
-        return False
+            self._addonsEnabled[id] = default
+        return default
 
     def getLanguageHierarchy(self):
         """Return the structure used to define the language name menulist

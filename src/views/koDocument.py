@@ -407,7 +407,12 @@ class koDocumentBase:
         if contentLanguages and fileNameLanguage in contentLanguages:
             # Both agree, so use the file-name language
             language = fileNameLanguage
+            # bug 94775: set pref here
+            self.prefs.setStringPref('language', language)
         elif not contentLanguages:
+            # bugs 94335 and 94775: do not set language pref here,
+            # because if there's no buffer, guessLanguage will be
+            # called again after a buffer has been assigned to the koDoc
             language = fileNameLanguage or "Text"
         else:
             language = contentLanguages[0]
@@ -419,7 +424,8 @@ class koDocumentBase:
             elif fileNameLanguage and fileNameLanguage != language:
                 log.warn("For file %s, favoring contents language %s over filename language %s",
                          baseName, language, fileNameLanguage)
-        self.prefs.setStringPref('language', language)
+            # bugs 94335 and 94775: set pref here
+            self.prefs.setStringPref('language', language)
         log.info("_guessLanguage: '%s' (content)", language)
         if self._isConsideredLargeDocument(langRegistrySvc, language):
             self._setAsLargeDocument(language)
