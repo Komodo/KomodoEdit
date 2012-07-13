@@ -769,15 +769,15 @@ class Shell(tmCmd.AugmentedListCmd):
             out.endErrorItem()
             return 1
 
-        # Currently Black has no knowledge of how to clean a project. However,
-        # it can invoke a custom clean procedure as expressed in
-        # the commandOverrides['clean'] variable in the project Blackfile.py.
+        # Currently Black has no knowledge of how to 'test' a project. However,
+        # it can invoke a custom 'test' procedure as expressed in
+        # the commandOverrides['test'] variable in the project Blackfile.py.
         if HasOverride(blackFile, "test"):
             return RunOverride(blackFile, projectConfig, "test", argv)
         else:
             out.startErrorItem()
             out.write("warning: Black currently does not know how to "\
-                      "test anything unless you override the clean command "\
+                      "test anything unless you override the 'test' command "\
                       "in your Blackfile. '%s' does not do this." %\
                       blackFileName)
             out.endErrorItem()
