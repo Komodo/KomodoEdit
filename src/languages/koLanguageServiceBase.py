@@ -2595,15 +2595,25 @@ class KoLanguageBase:
                 searchFlags = scimoz.searchFlags
                 try:
                     scimoz.targetStart = currentPos
-                    scimoz.targetEnd = 0
                     scimoz.searchFlags = 0
-                    tagStart = scimoz.searchInTarget(1, "<")
-                    if tagStart == -1:
-                        # we shouldn't get here (how did we end up in
-                        # START_TAG_CLOSE!?), but we should deal gracefully
-                        log.warning("KoLanguageBase::_keyPressed: Failed to "
-                                    "find start of tag in START_TAG_CLOSE")
-                        return
+                    while True:
+                        # Bug 94854: look for start-tag-start characters,
+                        # Skip <%= ... %> internal PHP things
+                        # Set scimoz.targetEnd before each search, not just the first.
+                        scimoz.targetEnd = 0
+                        tagStart = scimoz.searchInTarget(1, "<")
+                        if tagStart == -1:
+                            # we shouldn't get here (how did we end up in
+                            # START_TAG_CLOSE!?), but we should deal gracefully
+                            log.warning("KoLanguageBase::_keyPressed: Failed to "
+                                        "find start of tag in START_TAG_CLOSE")
+                            return
+                        tagStartStyle = scimoz.getStyleAt(tagStart) & self.stylingBitsMask
+                        if tagStartStyle == scimoz.SCE_UDL_M_STAGO:
+                            break
+                        scimoz.targetStart = scimoz.positionBefore(tagStart)
+                        # And keep looking for a true start-tag "<"
+                            
                     tagText = scimoz.getTextRange(tagStart, currentPos)
                     endTag = self.getEndTagForStartTag(tagText)
                     if endTag:
