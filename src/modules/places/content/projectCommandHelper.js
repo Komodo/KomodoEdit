@@ -225,6 +225,8 @@ this.ProjectCommandHelper.prototype.doDrop = function(event, sender) {
         [from_uris, dropEffect] = ko.places.viewMgr._getDraggedURIs(event);
         if (from_uris.length == 0) {
             return false;
+        } else if (!from_uris[0]) {
+            return false;
         } else if (from_uris.length == 1 && this._isProject(from_uris[0])) {
             // Projects don't get dropped on containers; they get dropped
             // on the tree as a whole, so we don't test for targets
@@ -316,7 +318,9 @@ this.ProjectCommandHelper.prototype._checkDrag = function(event) {
     [from_uris, dropEffect] = ko.places.viewMgr._getDraggedURIs(event);
     var this_ = this;
     if (from_uris.length == 0) {
-        retVal = false;
+        return false;
+    } else if (!from_uris[0]) {
+        return false;
     } else if (from_uris.some(function(uri) this_._isProject(uri))) {
         if (from_uris.length !== 1
             || from_uris[0].indexOf("file:/") != 0) {
