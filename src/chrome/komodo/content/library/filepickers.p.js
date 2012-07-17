@@ -279,7 +279,7 @@ var _dispatchTable = {
     'place': function() {
         var dir, uri;
         if (ko.places) {
-            return _get_localDirFromPossibleURI(ko.places.manager.currentPlace);
+            return _get_localDirFromPossibleURIDir(ko.places.manager.currentPlace);
         }
         return null;
     },
@@ -288,7 +288,10 @@ var _dispatchTable = {
         if (ko.views) {
             var view = ko.views.manager.currentView;
             if (view && view.getAttribute("type") === "editor") {
-                return _get_localDirFromPossibleURIDir(view.koDoc.file.dirName);
+                var koFileEx = view.koDoc.file;
+                if (koFileEx.isLocal) {
+                    return koFileEx.dirName;
+                }
             }
         }
         return null;
