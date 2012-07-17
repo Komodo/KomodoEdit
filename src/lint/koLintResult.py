@@ -91,7 +91,7 @@ def createAddResult(results, textlines, severity, lineNo, desc, leadingWS=None):
 _leading_ws_ptn = re.compile(r'(\s+)')
 def runGenericLinter(text, extension, cmd_start, err_ptns, warn_ptns, cwd, useStderr):
     tmpfilename = tempfile.mktemp() + extension
-    fout = open(tmpfilename, 'w')
+    fout = open(tmpfilename, 'wb')
     fout.write(text)
     fout.close()
     cmd = cmd_start + [tmpfilename]

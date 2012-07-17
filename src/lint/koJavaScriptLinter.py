@@ -50,6 +50,8 @@ import koprocessutils
 import logging
 log = logging.getLogger("koJavaScriptLinter")
 #log.setLevel(logging.DEBUG)
+qlog = logging.getLogger("koJavaScriptLinter.q")
+qlog.setLevel(logging.DEBUG)
 
 class CommonJSLinter(object):
     _is_macro_re = re.compile("macro2?://")
@@ -79,7 +81,7 @@ class CommonJSLinter(object):
             datalines = request.content.encode(request.encoding.python_encoding_name).splitlines()
         else:
             datalines = text.splitlines()
-        fout = open(jsfilename, 'w')
+        fout = open(jsfilename, 'wb')
         fout.write(textToAnalyze)
         fout.close()
         return jsfilename, isMacro, datalines
@@ -320,7 +322,7 @@ class GenericJSLinter(CommonJSLinter):
         try:
             p = process.ProcessOpen(cmd, cwd=cwd, stdin=fd)
             stdout, stderr = p.communicate()
-            #log.debug("jslint(%s): stdout: %s, stderr: %s", prefSwitchName, stdout, stderr)
+            qlog.debug("jslint(%s): stdout: %s, stderr: %s", prefSwitchName, stdout, stderr)
             warnLines = stdout.splitlines() # Don't need the newlines.
             i = 0
             outputStart = "++++JSLINT OUTPUT:"
@@ -449,7 +451,7 @@ class KoCoffeeScriptLinter(object):
             log.exception("coffee not found")
             return
         tmpfilename = tempfile.mktemp() + '.coffee'
-        fout = open(tmpfilename, 'w')
+        fout = open(tmpfilename, 'wb')
         fout.write(text)
         fout.close()
         textlines = text.splitlines()

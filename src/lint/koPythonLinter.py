@@ -102,7 +102,7 @@ class KoPythonPyLintChecker(_GenericPythonLinter):
         if not pythonExe:
             return
         tmpfilename = tempfile.mktemp() + '.py'
-        fout = open(tmpfilename, 'w')
+        fout = open(tmpfilename, 'wb')
         fout.write(text)
         fout.close()
         textlines = text.splitlines()
@@ -190,7 +190,7 @@ class KoPythonPyflakesChecker(_GenericPythonLinter):
         if not pythonExe:
             return
         tmpfilename = tempfile.mktemp() + '.py'
-        fout = open(tmpfilename, 'w')
+        fout = open(tmpfilename, 'wb')
         fout.write(text)
         fout.close()
         textlines = text.splitlines()
@@ -252,7 +252,7 @@ class KoPythonPycheckerLinter(_GenericPythonLinter):
         if not os.path.exists(pychecker):
             return
         tmpfilename = tempfile.mktemp() + '.py'
-        fout = open(tmpfilename, 'w')
+        fout = open(tmpfilename, 'wb')
         fout.write(text)
         fout.close()
         textlines = text.splitlines()
