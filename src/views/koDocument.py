@@ -419,7 +419,7 @@ class koDocumentBase:
             # always defer to the extension match if our primary content match
             # is a generic markup language.  If it is more specific (eg. XBL)
             # then we want to maintain that instead of the filename match
-            if fileNameLanguage and language in ["XML", "HTML", "XHTML"]:
+            if fileNameLanguage and language in ["HTML", "HTML5", "XML", "XHTML"]:
                 language = fileNameLanguage
             elif fileNameLanguage and fileNameLanguage != language:
                 log.warn("For file %s, favoring contents language %s over filename language %s",
