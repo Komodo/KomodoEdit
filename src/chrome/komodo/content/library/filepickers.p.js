@@ -286,7 +286,7 @@ var _dispatchTable = {
     'view': function() {
         var dir, uri;
         if (ko.views) {
-            view = ko.views.manager.currentView;
+            var view = ko.views.manager.currentView;
             if (view && view.getAttribute("type") === "editor") {
                 return _get_localDirFromPossibleURIDir(view.koDoc.file.dirName);
             }
