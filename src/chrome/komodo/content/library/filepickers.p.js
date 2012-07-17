@@ -289,7 +289,7 @@ var _dispatchTable = {
             var view = ko.views.manager.currentView;
             if (view && view.getAttribute("type") === "editor") {
                 var koFileEx = view.koDoc.file;
-                if (koFileEx.isLocal) {
+                if (koFileEx && koFileEx.isLocal) {
                     return koFileEx.dirName;
                 }
             }
