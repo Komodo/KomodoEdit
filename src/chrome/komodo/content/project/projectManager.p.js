@@ -1560,6 +1560,19 @@ this.renameProject = function ProjectRename(project)
     if (!newname || newname == project.name) {
         return;
     }
+    // bug94803: If the name matches the project file's basename, just rename
+    // the project name and return
+    var isSameBasename;
+    if (Components.classes["@activestate.com/koInfoService;1"].
+            getService(Components.interfaces.koIInfoService).platform.indexOf("linux") === 0) {
+        isSameBasename = newname == project.getFile().baseName;
+    } else {
+        isSameBasename = newname.toLowerCase() == project.getFile().baseName.toLowerCase();
+    }
+    if (isSameBasename) {
+        project.name = newname;
+        return;
+    }
     if (!this.manager.closeProject(project)) {
         return;
     }
@@ -1605,13 +1618,17 @@ this.renameProject = function ProjectRename(project)
     if (this.manager.single_project_view) {
         setTimeout(function(this_) {
                 try {
+                    // If the old file is still in the view, remove it
                     var part = ko.places.projects_SPV.projectsTreeView.getRowItem(1);
-                    var currentUrl = part.getFile().URI;
-                    if (currentUrl == oldUrl) {
-                        ko.places.projects_SPV.projectsTreeView.removeItems([part], 1);
+                    var koFile;
+                    if (part) {
+                        koFile = part.getFile();
+                        if (koFile && koFile.URI == oldUrl) {
+                            ko.places.projects_SPV.projectsTreeView.removeItems([part], 1);
+                        }
                     }
                 } catch(ex) {
-                    this.log.error("Error in renameProject post handler: " + ex + "\n");
+                    this.log.exception(ex, "Error in renameProject post handler");
                 }
             }, 1000, this);
     }

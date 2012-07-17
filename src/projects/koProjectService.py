@@ -297,11 +297,16 @@ class KoPartService(object):
                 newContents = m.group(1) + m.group(2) + newName + m.group(2) + m.group(3)
             else:
                 log.error("Can't find any name attribute in file %s", oldPath)
+        if sys.platform.startswith("linux"):
+            isSameBasename = newName == oldName
+        else:
+            isSameBasename = newName.lower() == oldName.lower()
         if newContents:
             fd = open(newPath, 'wb')
             fd.write(newContents)
             fd.close()
-            os.unlink(oldPath)
-        else:
+            if not isSameBasename:
+                os.unlink(oldPath)
+        elif not isSameBasename:
             os.rename(oldPath, newPath)
 
