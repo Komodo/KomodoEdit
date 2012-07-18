@@ -53,9 +53,9 @@ this.enableCodeIntelForLanguage = function koextgen_komodolang(projectDir, data)
 }
 
 this.generateKomodoLanguage = function koextgen_komodolang(projectDir, data) {
-    var cmd = 'startlang ' +
+    var cmd = 'startlang "' +
               data.lang +
-              ' --ext ' + data.ext +
+              '" --ext ' + data.ext +
               ' -d ' + '"' + projectDir + '"';
     if (data.is_html_based) {
         cmd += ' --is-html-based';
