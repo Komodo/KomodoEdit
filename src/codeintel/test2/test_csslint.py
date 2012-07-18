@@ -1348,7 +1348,7 @@ p {
         for lang in ("SCSS",):
             self._check_zero_results_show_error(code, language=lang)
         self._check_some_errors_on_line(code, "expecting a property name",
-                                        '', lineNo=3, language="CSS")
+                                        '&', lineNo=3, language="CSS")
         self._check_some_errors_on_line(code,
                         "expecting a selector",
                                         '>', lineNo=3, language="Less")
@@ -3981,7 +3981,7 @@ div {
     @tag("bug94621")
     def test_qualified_selector_internal_error_02(self):
         code = 'input[test'
-        self._check_one_result_check_error_at_eof(code, "expecting one of ], =, ~=, |=")
+        self._check_one_result_check_error_at_eof(code, "expecting one of ], =, ~=, |=, *, $, ^")
 
 
     @tag("bug94621")
@@ -4011,3 +4011,40 @@ div {
     def test_qualified_selector_internal_error_07(self):
         code = 'input[test="b"]'
         self._check_one_result_check_error_at_eof(code, "expecting a block of declarations")
+
+    @tag("bug91721")
+    def test_substring_matcher_caret_01(self):
+        code = 'E[foo^="bar"] {}'
+        for lang in self.langs:
+            self._check_zero_results_show_error(code, language=lang)
+
+    @tag("bug91721")
+    def test_substring_matcher_dollar_01(self):
+        code = 'E[foo$="bar"] {}'
+        for lang in ("SCSS",): #self.langs:
+            self._check_zero_results_show_error(code, language=lang)
+
+    @tag("bug91721")
+    def test_substring_matcher_star_01(self):
+        code = 'E[foo*="bar"] {}'
+        for lang in self.langs:
+            self._check_zero_results_show_error(code, language=lang)
+
+    @tag("bug91721")
+    def test_substring_matcher_caret_missing_equal_02(self):
+        code = 'E[foo^"bar"] {}'
+        for lang in self.langs:
+            self._check_one_result_check_error_on_line(code, "expecting '=' after substring operator '^'", '"bar"', language=lang)
+
+    @tag("bug91721")
+    def test_substring_matcher_star_missing_equal_02(self):
+        code = 'E[foo*"bar"] {}'
+        self._check_one_result_check_error_on_line(code, "expecting '=' after substring operator '*'", '"bar"')
+        for lang in self.langs:
+            self._check_one_result_check_error_on_line(code, "expecting '=' after substring operator '*'", '"bar"', language=lang)
+
+    @tag("bug91721")
+    def test_substring_matcher_dollar_missing_equal_02(self):
+        code = 'E[foo$"bar"] {}'
+        for lang in self.langs:
+            self._check_one_result_check_error_on_line(code, "expecting '=' after substring operator '$'", '"bar"', language=lang)

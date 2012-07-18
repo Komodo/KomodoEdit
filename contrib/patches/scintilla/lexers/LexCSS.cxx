@@ -560,7 +560,10 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 						main_substate = MAIN_SUBSTATE_SCSS_ASSIGNMENT;
 					}
 					sc.SetState(SCE_CSS_IDENTIFIER);
+					break;
 				}
+				// If we're still here, it's a CSS-3 selector, treat as operator
+				sc.SetState(SCE_CSS_OPERATOR);
 				break;
 	
 			case '.':
@@ -599,12 +602,7 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 					}
 				}
 				// else fall through
-			case '^':
-				if (isLessDocument || isScssDocument) {
-					sc.SetState(SCE_CSS_OPERATOR);
-				}
-				break;
-                
+			case '^': // Used in CSS3 selectors, and Less/SCSS
 			case '|': // Used in CSS3 Namespaces extension
 			case '%':
 			case '*':

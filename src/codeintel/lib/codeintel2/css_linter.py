@@ -708,17 +708,30 @@ class _CSSParser(object):
             self._add_result("expecting an identifier", tok)
         else:
             tok = self._tokenizer.get_next_token()
+        substring_toks = ("*", "$", "^")
         attr_toks = ("]", "=", "~=", "|=")
-        if not self._classifier.is_operator_choose(tok, attr_toks):
-            self._add_result("expecting one of %s" % (', '.join(attr_toks),), tok)
-            self._parser_putback_recover(tok)
-        if tok.text == ']':
+        if (self._classifier.is_operator_choose(tok, substring_toks)
+            or self._is_scss_variable(tok)):
+            tok2 = self._tokenizer.get_next_token()
+            if not self._classifier.is_operator_choose(tok2, "="):
+                self._add_result("expecting '=' after substring operator '%s'" % tok.text, tok2)
+                tok = tok2
+            else:
+                tok = self._tokenizer.get_next_token()
+        elif tok.text == ']':
             return
-        tok = self._tokenizer.get_next_token()
+        elif self._classifier.is_operator_choose(tok, attr_toks):
+            tok = self._tokenizer.get_next_token()
+        else:
+            self._add_result("expecting one of %s" % (', '.join(attr_toks + substring_toks),), tok)
+            self._parser_putback_recover(tok)
+        # At this point we've seen a '=' or other op, and should have a
+        # value token in hand
         if self._classifier.is_stringeol(tok):
             self._add_result("missing string close-quote", tok)
-        elif not (self._classifier.is_identifier(tok)
-                or self._classifier.is_string(tok)):
+        elif not (self._classifier.is_string(tok)
+                  or self._classifier.is_identifier(tok)
+                  or self._classifier.is_tag(tok)):
             self._add_result("expecting an identifier or string", tok)
             self._tokenizer.put_back(tok)
             return
