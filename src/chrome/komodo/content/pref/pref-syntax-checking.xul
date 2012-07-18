@@ -71,7 +71,8 @@
             </vbox>
             
             <vbox id="langSyntaxCheck-JavaScript">
-                <groupbox orient="vertical" >
+                <label value="&javaScriptNodeSyntaxSettings.label;" />
+                <groupbox orient="vertical">
                     <caption label="&basicChecking.label;"/>
                     <checkbox id="lintJavaScript_SpiderMonkey"
                               label="&lintJavaScript_SpiderMonkey.label;"

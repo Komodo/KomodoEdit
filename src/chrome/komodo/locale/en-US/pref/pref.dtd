@@ -295,6 +295,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY invisible.label "Invisible">
 <!ENTITY javaScript.label "JavaScript">
 <!ENTITY javaScriptDirectories.label "JavaScript Directories">
+<!ENTITY javaScriptNodeSyntaxSettings.label "JavaScript/Node.js Syntax-Checking Settings">
 <!ENTITY jsJavaScript.label ".js: JavaScript">
 <!ENTITY keyBindings.label "Key Bindings">
 <!ENTITY label.1px "1 pixel">
