@@ -311,15 +311,23 @@
                     var currentPosFileLine = fileLineObj.value;
                     var currentPosFileCol = fileColObj.value;
                     
-                    // Ensure can use that file path (normalized, not relative,
-                    // etc.)
-                    var resolvedFilePath = pathSvc.normpath(currentPosFilePath);
-                    if (! pathSvc.exists(currentPosFilePath)) {
-                        resolvedFilePath = this._resolvePath(diff,
-                            currentPosFilePath);
-                        if (resolvedFilePath == null) {
-                            return;
+                    // If it's a local file, ensure we can use that file path
+                    // (normalized, not relative, etc.)
+                    
+                    var koFileEx = Components.classes['@activestate.com/koFileEx;1']
+                                  .createInstance(Components.interfaces.koIFileEx);
+                    koFileEx.URI = currentPosFilePath;
+                    var resolvedFilePath;
+                    if (koFileEx.isLocal) {
+                        resolvedFilePath = pathSvc.normpath(currentPosFilePath);
+                        if (! pathSvc.exists(currentPosFilePath)) {
+                            resolvedFilePath = this._resolvePath(diff, currentPosFilePath);
+                            if (resolvedFilePath == null) {
+                                return;
+                            }
                         }
+                    } else {
+                        resolvedFilePath = currentPosFilePath;
                     }
 
                     var openFileArg = "";
@@ -488,4 +496,3 @@
 </binding>
 
 </bindings>
-
