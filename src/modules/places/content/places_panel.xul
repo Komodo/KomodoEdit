@@ -754,15 +754,18 @@
     </menupopup>
     
     <tooltip id="places-files-tree-popup"
-             onpopupshowing="ko.places.viewMgr.displayCurrentFullPath(event, this);">
+             onpopupshowing="ko.places.viewMgr.displayCurrentFullPath(event, this);"
+             crop="start" >
         <label id="places-files-tree-popup-label" value=""/>
     </tooltip>
     <tooltip id="places-projects-MPV-tree-popup"
-             onpopupshowing="ko.places.projects.displayCurrentFullPath(event, this);">
+             onpopupshowing="ko.places.projects.displayCurrentFullPath(event, this);"
+             crop="start" >
         <label id="places-projects-MPV-tree-popup-label" value=""/>
     </tooltip>
     <tooltip id="places-projects-SPV-tree-popup"
-             onpopupshowing="ko.places.projects_SPV.displayCurrentFullPath(event, this);">
+             onpopupshowing="ko.places.projects_SPV.displayCurrentFullPath(event, this);"
+             crop="start" >
         <label id="places-projects-SPV-tree-popup-label" value=""/>
     </tooltip>
   </popupset>
