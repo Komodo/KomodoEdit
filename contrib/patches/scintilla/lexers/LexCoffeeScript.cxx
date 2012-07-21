@@ -82,6 +82,30 @@ static bool followsReturnKeyword(StyleContext &sc, Accessor &styler) {
 	return !*s;
 }
 
+static bool matchesInterpolateStart(StyleContext &sc, Accessor &styler) {
+	int pos = sc.currentPos - 1;
+	int numOpenBraces = 0;
+	char ch;
+	styler.Flush();
+	for (; pos > 0; --pos) {
+		if ((ch = styler.SafeGetCharAt(pos)) == '}') {
+			if (styler.StyleAt(pos) == SCE_C_OPERATOR) {
+				numOpenBraces += 1;
+			} 
+		} else if (ch == '{') {
+			if (styler.StyleAt(pos) == SCE_C_OPERATOR) {
+				numOpenBraces -= 1;
+				if (numOpenBraces == -1) {
+					--pos;
+					return (styler.SafeGetCharAt(pos) == '#'
+						&& styler.StyleAt(pos) == SCE_C_OPERATOR);
+				}
+			}
+		}
+	}
+	return false;
+}
+
 static void ColouriseCoffeeScriptDoc(unsigned int startPos, int length, int initStyle, WordList *keywordlists[],
                             Accessor &styler) {
 
@@ -151,7 +175,7 @@ static void ColouriseCoffeeScriptDoc(unsigned int startPos, int length, int init
 			break;
 		}
 	}
-	if (lineCurrent == 0 && lineCurrent < origLineCurrent) {
+	if (lineCurrent == 0 && (unsigned int) lineCurrent < origLineCurrent) {
 	    startPos = 0;
 	    initStyle = SCE_C_DEFAULT;
 	}
@@ -408,9 +432,32 @@ static void ColouriseCoffeeScriptDoc(unsigned int startPos, int length, int init
 				    sc.SetState(SCE_C_COMMENTLINE);
 				}
 			} else if (sc.ch == '}' && numOpenBraces > 0) {
-				numOpenBraces -= 1;
 				sc.SetState(SCE_C_OPERATOR);
-				sc.ForwardSetState(SCE_C_STRING);
+				if (matchesInterpolateStart(sc, styler)) {
+					numOpenBraces -= 1;
+					// Bug 94923: Watch out if we're at the end of the string
+					// We can't assume that the next two characters are part
+					// of a string.  We have to handle 1 of 3 situations:
+					//
+					// 1: ...}"
+					//    color '}' as op, '"' as string, => DEFAULT
+					// 2: ...}#{
+					//    color all three chars as operator, => DEFAULT
+					// 3: ...}<anything else>
+					//    color '}' as op, forward into string state
+					//fprintf(stderr, "ending '}' at pos %d, ", sc.currentPos);
+					if (sc.chNext == '"') {
+						sc.ForwardSetState(SCE_C_STRING);
+						sc.SetState(SCE_C_DEFAULT);
+					} else if (sc.chNext == '#'
+						   && styler.SafeGetCharAt(sc.currentPos + 2) == '{') {
+						numOpenBraces += 1;
+						sc.Forward(2);
+					} else {
+						// It's safe to go back into a string state
+						sc.ForwardSetState(SCE_C_STRING);
+					}
+				}
 			} else if (isoperator(static_cast<char>(sc.ch))) {
 				sc.SetState(SCE_C_OPERATOR);
 			}
