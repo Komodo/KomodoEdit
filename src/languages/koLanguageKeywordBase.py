@@ -107,11 +107,16 @@ class KoLanguageKeywordBase(KoLanguageBase):
             ignorable_styles = additional_ignorable_styles + style_info._ignorable_styles
         else:
             ignorable_styles = style_info._ignorable_styles
-        if chr(scimoz.getCharAt(end_pos)) in self._indent_close_chars + self._lineup_close_chars:
+        if scimoz.getWCharAt(end_pos) in self._indent_close_chars + self._lineup_close_chars:
             end_pos -= 1
+        if end_pos >= scimoz.length:
+            end_pos = scimoz.length - 1
         for pos in range(start_pos, end_pos + 1):
             curr_style = self.actual_style(scimoz.getStyleAt(pos))
-            curr_char = chr(scimoz.getCharAt(pos)) #XXX unichr?
+            curr_char_val = scimoz.getCharAt(pos)
+            if curr_char_val < 0:
+                curr_char_val += 256
+            curr_char = chr(curr_char_val)
             if (curr_style in ignorable_styles
                 or curr_style != prev_style) and len(curr_text) > 0:
                 tokens.append(Token(prev_style, curr_text, prev_pos))
@@ -131,7 +136,6 @@ class KoLanguageKeywordBase(KoLanguageBase):
             else:
                 # Keep appending
                 curr_text += curr_char
-        # end while
         if len(curr_text) > 0:
             tokens.append(Token(prev_style, curr_text, prev_pos))
         return tokens
