@@ -395,6 +395,7 @@ paint(include, SSL_OPERATOR), => IN_SSL_PRE_NOWDOC_1
 
 /[$OP]/ : paint(upto, SSL_DEFAULT), redo, => IN_SSL_OP1
 
+/\z/ : paint(upto, SSL_DEFAULT)
 
 ################ Here-doc handling ################
 
