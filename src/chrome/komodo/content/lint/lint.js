@@ -137,6 +137,8 @@ var global_pref_observer_topics = {
     "jshint_linter_specific" : JS_NODEJS_LIST,
     "jshint_linter_chooser" : JS_NODEJS_LIST,
     "lint_coffee_script" : ["CoffeeScript"],
+    "scssLinterType" : ["SCSS"],
+    "scssDefaultInterpreter" : ["SCSS"],
 
     "lintHTMLTidy" : HTML_LIST,
     "lintHTML5Lib" : ["HTML5"],
@@ -331,7 +333,7 @@ this.lintBuffer.prototype.observe = function(subject, topic, data)
         }
         if (setupRequest) {
             if (this.view == ko.views.manager.currentView){
-                this.request();
+                this.request("language changed");
             } else {
                 // dump("Ignoring a lint pref change for doc "
                 //      + (this.view.document
@@ -467,7 +469,7 @@ this.lintBuffer.prototype._clearResults = function()
 {
     _log.debug("LintBuffer["+this.view.title+"]._clearResults()");
     try {
-        if (this.lintResults) {
+        if (this.view) {
             // .displayClear() has to be called in a timeout to avoid
             // re-entrance into scintilla: we are already mostly likely in
             // a scintilla onModified event handler (linting is most
