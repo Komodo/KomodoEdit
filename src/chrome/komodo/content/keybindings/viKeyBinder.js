@@ -3778,12 +3778,13 @@ function _vi_updateSearchField(seachObject) {
 // Has to be outside the class/object
 function vim_InputBuffer_KeyPress(event)
 {
+    var stopEvent = false;
     try {
-        var stopEvent = false;
         var keyCode = event.keyCode;
         if ((keyCode == event.DOM_VK_ENTER) ||
             (keyCode == event.DOM_VK_RETURN)) {
 
+            stopEvent = true;
             var value = gVimController.inputBufferFinish();
             var returnToMode = VimController.MODE_NORMAL;
             var scimoz = ko.views.manager.currentView.scintilla.scimoz;
@@ -3791,6 +3792,12 @@ function vim_InputBuffer_KeyPress(event)
             var orig_anchorPos = scimoz.anchor;
             if (gVimController.mode == VimController.MODE_COMMAND) {
                 gVimController.findAndRunCommand(value);
+                // Scimoz may have disappeared/changed - bug 94948.
+                if (!ko.views.manager.currentView ||
+                    !ko.views.manager.currentView.scintilla) {
+                    return;
+                }
+                scimoz = ko.views.manager.currentView.scintilla.scimoz;
             } else if (gVimController.mode == VimController.MODE_SEARCH) {
                 // Command mode "/" or "?"
                 // We have a search, set up the findSvc and perform the search
@@ -3831,38 +3838,38 @@ function vim_InputBuffer_KeyPress(event)
             gVimController.updateCursorAndSelection(scimoz, orig_currentPos,
                                                     null, orig_anchorPos, true);
             ko.views.manager.currentView.setFocus();
-            stopEvent = true;
         } else if ((keyCode == event.DOM_VK_ESCAPE) ||
             ((keyCode == event.DOM_VK_BACK_SPACE) &&
              (gVimController.inputBuffer.value.length < 1))) {
+            stopEvent = true;
             gVimController.inputBufferFinish();
             gVimController.mode = VimController.MODE_NORMAL;
-            stopEvent = true;
             ko.views.manager.currentView.setFocus();
         } else if (keyCode == event.DOM_VK_UP) {
+            stopEvent = true;
             gVimController.inputBufferPrevious();
-            stopEvent = true;
         } else if (keyCode == event.DOM_VK_DOWN) {
-            gVimController.inputBufferNext();
             stopEvent = true;
+            gVimController.inputBufferNext();
         }
 
-        if (stopEvent) {
-            event.stopPropagation();
-            event.preventDefault();
-            event.cancelBubble = true;
-        }
     } catch (e) {
-        // Error, return normal vi mode
-        gVimController.mode = VimController.MODE_NORMAL;
         if (e instanceof VimController.ViError) {
             // We handle and show this type of error to the user
             gVimController.setStatusBarMessage(e.message, 5000, true);
         } else {
             vimlog.exception(e);
         }
+        // Error, return normal vi mode
+        gVimController.mode = VimController.MODE_NORMAL;
         ko.views.manager.currentView.setFocus();
         gVimController.inputBufferFinish();
+    } finally {
+        if (stopEvent) {
+            event.stopPropagation();
+            event.preventDefault();
+            event.cancelBubble = true;
+        }
     }
 }
 
