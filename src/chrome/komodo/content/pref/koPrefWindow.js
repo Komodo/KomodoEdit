@@ -514,10 +514,12 @@ koPrefWindow.prototype =
                 return;
             }
         }
-        prefLog.error("Could not set widget '" + elt.id + "' (pref ids '" +
-                      prefIds.join(',') + "') to values '" +
-                      prefValues.join(',') + "'");
-        throw new Error("Invalid preference");
+        if (elt.getAttribute("prefLoadManually") != "true") {
+            prefLog.error("Could not set widget '" + elt.id + "' (pref ids '" +
+                          prefIds.join(',') + "') to values '" +
+                          prefValues.join(',') + "'");
+            throw new Error("Invalid preference");
+        }
         return;
     } catch (e) {
         prefLog.exception(e);
