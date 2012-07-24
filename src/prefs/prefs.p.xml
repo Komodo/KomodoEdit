@@ -212,6 +212,16 @@
   <!-- Python3 linters -->
   <boolean id="lint_python3_with_standard_python">true</boolean>
   
+  <!-- CSS/SCSS/LESS/Sass linter info -->
+  
+  <!-- one of none/path/builtin : If scssLinterPath is set, there must be
+       a ruby executable in that path as well.  If it isn't, but there's an
+       scss in %ruby, use that.  Otherwise, use builtin checking (not as good).
+    -->
+  <string id="scssLinterType">path</string>
+  <string id="scssDefaultInterpreter"></string>
+  
+  
 
 <!-- ruby start -->
   <!-- Ruby strings -->
