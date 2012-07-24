@@ -451,6 +451,40 @@
                 </groupbox>
             </vbox>
         
+            <vbox id="langSyntaxCheck-SCSS">
+                <groupbox orient="vertical">
+                    <radiogroup id="scssLinterType"
+                                pref="true"
+                                flex="1"
+                                prefattribute="value"
+                                orient="horizontal"
+                                oncommand="languageInfo.SCSS.update_SCSS_linterType(event);">
+                        <vbox flex="1">
+                            <radio group="scssLinterType"
+                                   id="scssLinterType_interpreter" value="path"
+                                   label="&scssUseInterpreter.label;" />
+                            <hbox align="center" style="margin-left: 4em;">
+                                <menulist id="scssDefaultInterpreter"
+                                          flex="1"
+                                          pref="true"
+                                          prefstring="scssDefaultInterpreter"
+                                          prefLoadManually="true"
+                                          >
+                                    <menupopup id="avail-interp-list"/>
+                                </menulist>
+                                <button label="&browse.label;" id="browse_SCSS" oncommand="languageInfo.SCSS.load_SCSS_Executable();"/>
+                            </hbox>
+                            <radio group="scssLinterType"
+                                   id="scssLinterType_builtin" value="builtin"
+                                   label="&scssKomodoChecker.label;" />
+                            <radio group="scssLinterType"
+                                   id="scssLinterType_none" value="none"
+                                   label="&none.label;" />
+                        </vbox>
+                    </radiogroup>
+                </groupbox>
+            </vbox>
+            
             <vbox id="langSyntaxCheckFallback_NoOptions">
                <description>No lang-specific prefs for $1</description>
             </vbox>

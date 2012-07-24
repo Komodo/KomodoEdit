@@ -707,3 +707,102 @@ function pythonInfo() {
         __EOD__:null
     };
 }
+
+function SCSS_setup() {
+    if (!('SCSS' in dialog)) {
+        dialog.SCSS = {};
+        [
+         "scssLinterType",
+         "scssDefaultInterpreter",
+         "browse_SCSS"].forEach(function(name) {
+            dialog.SCSS[name] = document.getElementById(name);
+        });
+        languageInfo.SCSS = SCSS_Info();
+    }
+    languageInfo.SCSS.populateInterpreters();
+    languageInfo.SCSS.updateUI((dialog.SCSS.scssLinterType.selectedItem || {value:"builtin"}).value);
+}
+
+languageSetup.SCSS = SCSS_setup;
+function SCSS_Info() {
+    return {
+      update_SCSS_linterType: function(event) {
+        if (event.originalTarget.nodeName != "radio") {
+            // Ignore these
+            return;
+        }
+        var radioButtonValue = event.originalTarget.value;
+        this.updateUI(radioButtonValue);
+      },
+      
+      updateUI: function(radioButtonValue) {
+        var disabled = radioButtonValue !== "path";
+        dialog.SCSS.scssDefaultInterpreter.disabled = disabled;
+        dialog.SCSS.browse_SCSS.disabled = disabled;
+      },
+      
+      load_SCSS_Executable: function() {
+        loadExecutableIntoInterpreterList("scssDefaultInterpreter");
+      },
+      
+      populateInterpreters: function() {
+        var availInterpList = dialog.SCSS.scssDefaultInterpreter;
+    
+        availInterpList.removeAllItems();
+        var selectedIndex = -1;
+        var findOnPathLabel = bundleLang.GetStringFromName("findOnPath.label");
+        availInterpList.appendItem(findOnPathLabel, '');
+        var preferredPath = g_prefset.getStringPref("scssDefaultInterpreter");
+        if (preferredPath && preferredPath !== findOnPathLabel) {
+            availInterpList.appendItem(preferredPath, preferredPath);
+            selectedIndex = 1;
+        }
+        
+        // get a list of installed SCSS interpreters (where Ruby is available)
+        var sysUtils = Components.classes['@activestate.com/koSysUtils;1'].
+            getService(Components.interfaces.koISysUtils);
+        var osPathSvc = Components.classes['@activestate.com/koOsPath;1'].
+            getService(Components.interfaces.koIOsPath);
+        var interpsWithRuby, availInterps = sysUtils.WhichAll("scss", {});
+        if (availInterps.length) {
+            var ext = osPathSvc.getExtension(availInterps[0]);
+            interpsWithRuby = availInterps.filter(function(scss_path) {
+                if (scss_path == preferredPath) {
+                    return false;
+                }
+                var dirName = osPathSvc.dirname(scss_path);
+                return osPathSvc.exists(osPathSvc.join(dirName, "ruby") + ext);
+            });
+            // populate the tree listing them
+            interpsWithRuby.forEach(function(path) {
+                    availInterpList.appendItem(path, path);
+            });
+        } else {
+            interpsWithRuby = [];
+        }
+        // If dirname(%ruby)/scss exists and isn't in PATH, add it too.
+        var rubyPrefExecutable = null;
+        var rubyExecutable = parent.hPrefWindow.prefset.getStringPref('rubyDefaultInterpreter');
+        if (rubyExecutable) {
+            rubyPrefExecutable = osPathSvc.join(osPathSvc.dirname(rubyExecutable), "scss") + osPathSvc.getExtension(rubyExecutable);
+            if (!osPathSvc.exists(rubyPrefExecutable)) {
+                rubyPrefExecutable = null;
+            }
+        }
+        if (rubyPrefExecutable
+            && interpsWithRuby.indexOf(rubyPrefExecutable) === -1
+            && rubyPrefExecutable != preferredPath) {
+            availInterpList.appendItem(rubyPrefExecutable, rubyPrefExecutable);
+            if (selectedIndex === -1) {
+                selectedIndex = interpsWithRuby.length + 1;
+            }
+        } else if (selectedIndex === -1) {
+            // Go with the first item, or 'find-on-path'
+            selectedIndex = interpsWithRuby.length ? 1 : 0;
+        }
+        dialog.SCSS.scssDefaultInterpreter.selectedIndex = selectedIndex;
+      }
+    };
+}
+      
+

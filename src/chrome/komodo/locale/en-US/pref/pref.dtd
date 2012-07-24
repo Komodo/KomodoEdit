@@ -401,6 +401,8 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY restoreLastWorkspace.label "Restore last workspace">
 <!ENTITY ruby.label "Ruby">
 <!ENTITY saveOptions.label "Save Options">
+<!ENTITY scssKomodoChecker.label "Use Built-In SCSS Syntax Checker:">
+<!ENTITY scssUseInterpreter.label "Use SCSS Interpreter:">
 <!ENTITY scrolling.label "Scrolling">
 <!ENTITY search.accesskey "s">
 <!ENTITY selectACommand.tooltiptext "Select a Command">
