@@ -221,7 +221,8 @@
   <string id="scssLinterType">path</string>
   <string id="scssDefaultInterpreter"></string>
   
-  
+  <string id="lessLinterType">path</string>
+  <string id="lessDefaultInterpreter"></string>  
 
 <!-- ruby start -->
   <!-- Ruby strings -->

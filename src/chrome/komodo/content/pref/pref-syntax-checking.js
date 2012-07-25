@@ -484,6 +484,70 @@ function javaScriptInfo(languageName) {
     };
 }
 
+function Less_setup() {
+    if (!('Less' in dialog)) {
+        dialog.Less = {};
+        [
+         "lessLinterType",
+         "lessDefaultInterpreter",
+         "browseLess"].forEach(function(name) {
+            dialog.Less[name] = document.getElementById(name);
+        });
+        languageInfo.Less = Less_Info();
+    }
+    languageInfo.Less.populateInterpreters();
+    languageInfo.Less.updateUI((dialog.Less.lessLinterType.selectedItem || {value:"builtin"}).value);
+}
+
+languageSetup.Less = Less_setup;
+function Less_Info() {
+    return {
+      updateLessLinterType: function(event) {
+        if (event.originalTarget.nodeName != "radio") {
+            // Ignore these
+            return;
+        }
+        var radioButtonValue = event.originalTarget.value;
+        this.updateUI(radioButtonValue);
+      },
+      
+      updateUI: function(radioButtonValue) {
+        var disabled = radioButtonValue !== "path";
+        dialog.Less.lessDefaultInterpreter.disabled = disabled;
+        dialog.Less.browseLess.disabled = disabled;
+      },
+      
+      load_Less_Executable: function() {
+        loadExecutableIntoInterpreterList("lessDefaultInterpreter");
+      },
+      
+      populateInterpreters: function() {
+        var availInterpList = dialog.Less.lessDefaultInterpreter;
+    
+        availInterpList.removeAllItems();
+        var selectedIndex = 0;
+        var findOnPathLabel = bundleLang.GetStringFromName("findOnPath.label");
+        availInterpList.appendItem(findOnPathLabel, '');
+        var preferredPath = g_prefset.getStringPref("lessDefaultInterpreter");
+        if (preferredPath && preferredPath !== findOnPathLabel) {
+            availInterpList.appendItem(preferredPath, preferredPath);
+            selectedIndex = 1;
+        }
+        
+        // get a list of installed Less interpreters
+        var sysUtils = Components.classes['@activestate.com/koSysUtils;1'].
+            getService(Components.interfaces.koISysUtils);
+        var availInterps = sysUtils.WhichAll("lessc", {});
+        availInterps = availInterps.filter(function(less_path)
+                                                less_path != preferredPath);
+        availInterps.forEach(function(less_path) {
+            availInterpList.appendItem(less_path, less_path);
+        });
+        dialog.Less.lessDefaultInterpreter.selectedIndex = selectedIndex;
+      }
+    };
+}
+
 
 function perl_setup() {
     if (!('Perl' in dialog)) {

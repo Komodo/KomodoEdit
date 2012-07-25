@@ -139,6 +139,8 @@ var global_pref_observer_topics = {
     "lint_coffee_script" : ["CoffeeScript"],
     "scssLinterType" : ["SCSS"],
     "scssDefaultInterpreter" : ["SCSS"],
+    "lessLinterType" : ["Less"],
+    "lessDefaultInterpreter" : ["Less"],
 
     "lintHTMLTidy" : HTML_LIST,
     "lintHTML5Lib" : ["HTML5"],

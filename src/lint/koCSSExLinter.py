@@ -22,7 +22,16 @@ from codeintel2.css_linter import CSSLinter
 log = logging.getLogger("koCSSLinter")
 #log.setLevel(logging.DEBUG)
 
-class KoBasicCSSLinter(object):
+class KoCSSLinter(object):
+    _com_interfaces_ = [components.interfaces.koILinter,
+                        components.interfaces.nsIConsoleListener]
+    _reg_desc_ = "Komodo CSS Linter"
+    _reg_clsid_ = "{ded22115-148a-4a2f-aef1-2ae7e12395b0}"
+    _reg_contractid_ = "@activestate.com/koLinter?language=CSS;1"
+    _reg_categories_ = [
+         ("category-komodo-linter", 'CSS'),
+         ]
+    
     def lint(self, request):
         """Lint the given CSS content.
         
@@ -32,6 +41,7 @@ class KoBasicCSSLinter(object):
         return self.lint_with_text(request, text)
         
     def lint_with_text(self, request, text): #pylint: disable=R0201
+        " Use the codeintel-based CSSLinter class to find error messages"
         textlines = text.splitlines()
         results = CSSLinter().lint(text, request.koDoc.language)
         lintResults = koLintResults()
@@ -50,20 +60,6 @@ class KoBasicCSSLinter(object):
                 lintResults.addResult(result)
         return lintResults
     
-class KoCSSLinter(KoBasicCSSLinter):
-    """
-    This class is mostly a parser.
-    """
-    _com_interfaces_ = [components.interfaces.koILinter,
-                        components.interfaces.nsIConsoleListener]
-    _reg_desc_ = "Komodo CSS Linter"
-    _reg_clsid_ = "{ded22115-148a-4a2f-aef1-2ae7e12395b0}"
-    _reg_contractid_ = "@activestate.com/koLinter?language=CSS;1"
-    _reg_categories_ = [
-         ("category-komodo-linter", 'CSS'),
-         ("category-komodo-linter", 'Less'),
-         ]
-
 class KoSCCLinter(KoCSSLinter):
     _com_interfaces_ = [components.interfaces.koILinter,
                         components.interfaces.nsIConsoleListener]
@@ -74,6 +70,8 @@ class KoSCCLinter(KoCSSLinter):
          ("category-komodo-linter", 'SCSS'),
          ]
             
+    _scss_emsg_ptn = re.compile(r'^\s*on line (\d+) of (.*)$')
+    _syntaxErrorPtn = re.compile(r'^Syntax error:\s*(.*)$')
     def lint_with_text(self, request, text):
         try:
             prefset = getProxiedEffectivePrefs(request)
@@ -112,7 +110,7 @@ class KoSCCLinter(KoCSSLinter):
             # We only need the stderr result.
             try:
                 p = process.ProcessOpen(cmd, cwd=cwd, env=koprocessutils.getUserEnv(), stdin=None)
-                _, stderr = p.communicate()
+                stderr = p.communicate()[1]
                 warnLines = stderr.splitlines(0) # Don't need the newlines.
             except:
                 warnLines = []
@@ -121,15 +119,13 @@ class KoSCCLinter(KoCSSLinter):
         except:
             log.exception("scss: lint_with_text: big fail")
             warnLines = []
-        ptn = re.compile(r'^\s*on line (\d+) of (.*)$')
-        syntaxErrorPtn = re.compile(r'^Syntax error:\s*(.*)$')
         results = koLintResults()
         prevLine = ""
         for line in warnLines:
-            m = ptn.match(line)
+            m = self._scss_emsg_ptn.match(line)
             if m:
                 lineNo = int(m.group(1))
-                m2 = syntaxErrorPtn.match(prevLine)
+                m2 = self._syntaxErrorPtn.match(prevLine)
                 if m2:
                     severity = koLintResult.SEV_ERROR
                     msg = m2.group(1)
@@ -142,4 +138,86 @@ class KoSCCLinter(KoCSSLinter):
                 prevLine = line
         return results
         
+
+class KoLessLinter(KoCSSLinter):
+    _com_interfaces_ = [components.interfaces.koILinter,
+                        components.interfaces.nsIConsoleListener]
+    _reg_desc_ = "Komodo CSS Linter"
+    _reg_clsid_ = "{e499324f-e35b-48ec-86fe-618c7f54f013}"
+    
+    _reg_contractid_ = "@activestate.com/koLinter?language=Less;1"
+    _reg_categories_ = [
+         ("category-komodo-linter", 'Less'),
+         ]
+            
+    _less_emsg_ptn = re.compile(r'^.*?Error:\s*(.*?)\s+on\s+line\s+(\d+)\s+in\s')
+    def lint_with_text(self, request, text):
+        try:
+            prefset = getProxiedEffectivePrefs(request)
+            lessLinterType = prefset.getStringPref("lessLinterType")
+            if lessLinterType == "none":
+                return
+            if lessLinterType == "builtin":
+                return KoCSSLinter.lint_with_text(self, request, text)
+            lessPath = prefset.getStringPref("lessDefaultInterpreter")
+            # The 'or' part handles any language for "Find on Path"
+            if (not lessPath) or not os.path.exists(lessPath):
+                try:
+                    lessPath = which.which("lessc")
+                    if lessPath:
+                        prefset.getStringPref("lessDefaultInterpreter")
+                except which.WhichError:
+                    pass
+                else:
+                    if not lessPath or not os.path.exists(lessPath):
+                        log.warn("Setting lessLinterType to 'default': less not found")
+                        prefset.getStringPref("lessLinterType", "builtin")
+                        return KoCSSLinter.lint_with_text(self, request, text)
+            nodePath = prefset.getStringPref("nodejsDefaultInterpreter")
+            if (not nodePath) or not os.path.exists(nodePath):
+                try:
+                    nodePath = which.which("node")
+                    if nodePath:
+                        prefset.getStringPref("nodejsDefaultInterpreter")
+                except which.WhichError:
+                    pass
+                else:
+                    if not os.path.exists(nodePath):
+                        log.warn("Setting lessLinterType to 'default': no node found to drive less")
+                        prefset.getStringPref("lessLinterType", "builtin")
+                        return KoCSSLinter.lint_with_text(self, request, text)
+            
+            # Run less
+            tmpfilename = tempfile.mktemp() + '.less'
+            fout = open(tmpfilename, 'wb')
+            fout.write(text)
+            fout.close()
+            textlines = text.splitlines()
+            cmd = [nodePath, lessPath, "--no-color", tmpfilename]
+            cwd = request.cwd or None
+            # We only need the stderr result.
+            try:
+                p = process.ProcessOpen(cmd, cwd=cwd, env=koprocessutils.getUserEnv(), stdin=None)
+                stderr = p.communicate()[1]
+                warnLines = stderr.splitlines(0) # Don't need the newlines.
+            except:
+                warnLines = []
+            finally:
+                os.unlink(tmpfilename)
+        except:
+            log.exception("less: lint_with_text: big fail")
+            warnLines = []
+        
+        # They're all errors for this checker
+        # (and they all say "Syntax Checker!")
+        # (at least version 1.3.0 of the LESS Compiler does).
+        severity = koLintResult.SEV_ERROR
+        results = koLintResults()
+        for line in warnLines:
+            m = self._less_emsg_ptn.match(line)
+            if m:
+                lineNo = int(m.group(2))
+                desc = m.group(1)
+                koLintResult.createAddResult(results, textlines, severity, lineNo, desc)
+        return results
 

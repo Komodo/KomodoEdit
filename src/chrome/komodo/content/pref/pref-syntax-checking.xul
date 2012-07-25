@@ -307,6 +307,41 @@
               </groupbox>
         
             </vbox>
+        
+            <vbox id="langSyntaxCheck-Less">
+                <groupbox orient="vertical">
+                    <radiogroup id="lessLinterType"
+                                pref="true"
+                                flex="1"
+                                prefattribute="value"
+                                orient="horizontal"
+                                oncommand="languageInfo.Less.updateLessLinterType(event);">
+                        <vbox flex="1">
+                            <radio group="lessLinterType"
+                                   id="lessLinterType_interpreter" value="path"
+                                   label="&lessUseInterpreter.label;" />
+                            <hbox align="center" style="margin-left: 4em;">
+                                <menulist id="lessDefaultInterpreter"
+                                          flex="1"
+                                          pref="true"
+                                          prefstring="lessDefaultInterpreter"
+                                          prefattribute="value"
+                                          prefLoadManually="true"
+                                          >
+                                    <menupopup id="avail-interp-list"/>
+                                </menulist>
+                                <button label="&browse.label;" id="browseLess" oncommand="languageInfo.Less.load_Less_Executable();"/>
+                            </hbox>
+                            <radio group="lessLinterType"
+                                   id="lessLinterType_builtin" value="builtin"
+                                   label="&lessKomodoChecker.label;" />
+                            <radio group="lessLinterType"
+                                   id="lessLinterType_none" value="none"
+                                   label="&none.label;" />
+                        </vbox>
+                    </radiogroup>
+                </groupbox>
+            </vbox>
             
             <vbox id="langSyntaxCheck-Perl">
               <caption label="&backgroundSyntaxChecking.label;"/>
@@ -468,6 +503,7 @@
                                           flex="1"
                                           pref="true"
                                           prefstring="scssDefaultInterpreter"
+                                          prefattribute="value"
                                           prefLoadManually="true"
                                           >
                                     <menupopup id="avail-interp-list"/>
