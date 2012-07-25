@@ -585,12 +585,14 @@ koPrefWindow.prototype =
                 return value;
             }
         }
-        prefLog.error("Could not get preference value from element '" + elt.id + "'");
-        throw new Error("Invalid preference");
+        if (elt.getAttribute("prefLoadManually") !== "true") {
+            prefLog.error("Could not get preference value from element '" + elt.id + "'");
+            throw new Error("Invalid preference");
+        }
     } catch (e) {
         prefLog.exception(e);
     }
-    return null; // shut-up strict mode.
+    return null;
     },
 
     hasPrefHere: function (aPrefString) {
@@ -736,6 +738,10 @@ koPrefWindow.prototype =
                 var widgetValues;
                 if (prefIds.length > 1) {
                     widgetValues = this._getPrefValueFromElement(element).split(',');
+                    if (widgetValues === null) {
+                        // Only way this can happen is if prefLoadManually is set?
+                        continue;
+                    }
                     if (widgetValues.length != prefIds.length) {
                         var err = "Incorrect number of values in pref data for <"+element.tagName+"> element associated with pref ids '"+prefIds.join(',')+"'. The number of pref data values must match the number of pref id: value='"+this._getPrefValueFromElement(element)+"'";
                         prefLog.error(err)
