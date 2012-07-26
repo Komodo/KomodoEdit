@@ -887,6 +887,9 @@ function _init_widgets()
     //widgets.close_btn = document.getElementById('close-btn');
     //widgets.help_btn = document.getElementById('help-btn');
     widgets.pin_btn = document.getElementById('pin-btn');
+    var pinned = _g_prefs.getBooleanPref("find-pinFindReplaceDialog");
+    widgets.pin_btn.checked = pinned;
+    pinDialog(pinned);
 }
 
 /**
@@ -1438,6 +1441,12 @@ function _enable_widget(widget) {
  * Toggle whether the window is raised
  */
 function toggle_pin() {
+    var pinned = widgets.pin_btn.checked;
+    _g_prefs.setBooleanPref("find-pinFindReplaceDialog", pinned);
+    pinDialog(pinned);
+}
+
+function pinDialog(pinned) {
     function getXULWindowForDOMWindow(win)
         win.QueryInterface(Ci.nsIInterfaceRequestor)
            .getInterface(Ci.nsIWebNavigation)
@@ -1445,15 +1454,16 @@ function toggle_pin() {
            .treeOwner
            .QueryInterface(Ci.nsIInterfaceRequestor)
            .getInterface(Ci.nsIXULWindow);
-
     let rootWin = getXULWindowForDOMWindow(window);
-    let parentWin = null;
-    if (opener && !opener.closed) {
-        parentWin = getXULWindowForDOMWindow(opener);
+    let parentWin = ((opener && !opener.closed)
+                     ? getXULWindowForDOMWindow(opener)
+                     : null);
+    try {
+        Cc["@activestate.com/koIWindowManagerUtils;1"]
+          .getService(Ci.koIWindowManagerUtils)
+          .setOnTop(rootWin, parentWin, pinned);
+    } catch(ex) {
+        dump("Can't setOnTop: " + ex + "\n");
     }
-    let pinned = widgets.pin_btn.checked;
-    Cc["@activestate.com/koIWindowManagerUtils;1"]
-      .getService(Ci.koIWindowManagerUtils)
-      .setOnTop(rootWin, parentWin, pinned);
 }
  
