@@ -680,6 +680,7 @@ FindController.prototype._keyHandler = function FindController__keyHandler(event
 
       // misc
       case KeyEvent.DOM_VK_CONTEXT_MENU:
+      case KeyEvent.DOM_VK_CAPS_LOCK:
 
       // IME / input
       case KeyEvent.DOM_VK_CONVERT:    case KeyEvent.DOM_VK_NONCONVERT:
