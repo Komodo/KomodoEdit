@@ -1206,12 +1206,16 @@ class GenericCommandHandler:
         sm.selectionEnd = selEnd
         
     def _convertCaseOfRectangularBlock(self, scimoz, converter):
-        actualSelStart = scimoz.anchor
-        actualSelEnd = scimoz.currentPos
+        actualSelStart = anchor = scimoz.anchor
+        actualSelEnd = currentPos = scimoz.currentPos
         if actualSelStart > actualSelEnd:
             (actualSelStart, actualSelEnd) = (actualSelEnd, actualSelStart)
+        rectangularSelectionCaret = scimoz.rectangularSelectionCaret
+        rectangularSelectionAnchor = scimoz.rectangularSelectionAnchor
         startLine = scimoz.lineFromPosition(actualSelStart)
         endLine = scimoz.lineFromPosition(actualSelEnd)
+        targetStart = scimoz.targetStart
+        targetEnd = scimoz.targetEnd
         scimoz.selectionMode = scimoz.SC_SEL_STREAM
         import inspect
         converter_fn = None
@@ -1238,22 +1242,16 @@ class GenericCommandHandler:
                     scimoz.targetStart = selStart
                     scimoz.targetEnd = selEnd
                     scimoz.replaceTarget(len(fixedText), fixedText) # Length in chars, not bytes
-                    # Adjust the selection position according to how many bytes
-                    # were added or removed.
-                    finalSelEnd += (self.sysUtils.byteLength(fixedText)
-                                    - self.sysUtils.byteLength(text))
         finally:
             scimoz.endUndoAction()
-            if finalSelStart is not None and finalSelEnd is not None:
-                scimoz.selectionMode = scimoz.SC_SEL_RECTANGLE
-                scimoz.rectangularSelectionCaret = finalSelStart
-                scimoz.rectangularSelectionAnchor = finalSelEnd
-            else:
-                scimoz.selectionMode = scimoz.SC_SEL_STREAM
-                if currentPos != finalSelStart:
-                    # Give up, move to start of that line
-                    currentPos = scimoz.positionFromLine(startLine)
-                scimoz.currentPos = scimoz.anchor = currentPos
+            scimoz.anchor = anchor
+            scimoz.currentPos = currentPos
+            scimoz.selectionMode = scimoz.SC_SEL_RECTANGLE
+            scimoz.rectangularSelectionCaret = rectangularSelectionCaret
+            scimoz.rectangularSelectionAnchor = rectangularSelectionAnchor
+            scimoz.targetStart = targetStart
+            scimoz.targetEnd = targetEnd
+            # Don't know what else needs to be restored.
 
 
     def _do_cmd_convertUpperCase(self):
