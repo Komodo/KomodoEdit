@@ -1463,7 +1463,7 @@ function pinDialog(pinned) {
           .getService(Ci.koIWindowManagerUtils)
           .setOnTop(rootWin, parentWin, pinned);
     } catch(ex) {
-        dump("Can't setOnTop: " + ex + "\n");
+        log.exception(ex, "pinDialog: Can't setOnTop");
     }
 }
  
