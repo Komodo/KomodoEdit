@@ -150,7 +150,6 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 	const int STRING_SUBSTATE__IN_LESS_CSS_ESCAPE = 3; // in ~"...
 	//const int STRING_SUBSTATE__IN_SASS_INTERPOLATE = 4; // in "...#{...
 	int string_substate = STRING_SUBSTATE__IN_STRING;
-	int nested_substate_count = 0;
 	
 	const int COMMENT_SUBSTATE_BLOCK = 1;
 	const int COMMENT_SUBSTATE_LINE = 2;
@@ -631,6 +630,7 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 				break;
 	
 			case '{':
+				nested_declaration_count += 1;
 				if (main_substate == MAIN_SUBSTATE_AMBIGUOUS_SELECTOR_OR_PROPERTY_NAME) {
 					// stay ambiguous, next level
 				} else if (main_substate == MAIN_SUBSTATE_TOP_LEVEL
@@ -640,13 +640,10 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 					} else {
 						main_substate = MAIN_SUBSTATE_IN_DECLARATION_NAME;
 					}
-					nested_declaration_count += 1;
 				} else if (main_substate == MAIN_SUBSTATE_IN_FONT_FACE) {
-					nested_declaration_count += 1;
 					main_substate = MAIN_SUBSTATE_IN_DECLARATION_NAME;
 				} else if (main_substate == MAIN_SUBSTATE_IN_PROPERTY_VALUE) {
 					// Happens in @page blocks
-					nested_declaration_count += 1;
 					if (isScssDocument) {
 					    // Nested property names with a common parent, like
 					    // font: {
@@ -730,24 +727,15 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 				break;
 			
 			case '}':
-				if ((isLessDocument || isScssDocument)
-				    && nested_substate_count > 0) {
-					nested_substate_count -= 1;
-					if (nested_substate_count == 0) {
-						main_substate = MAIN_SUBSTATE_TOP_LEVEL;
-					} else {
-						   main_substate = MAIN_SUBSTATE_AMBIGUOUS_SELECTOR_OR_PROPERTY_NAME;
-					}
-				} else {
+				if (nested_declaration_count > 0) {
 					nested_declaration_count -= 1;
-					if (nested_declaration_count <= 0) {
-						if (nested_declaration_count < 0) {
-							 nested_declaration_count = 0;
-						}
-					}
-					main_substate = MAIN_SUBSTATE_TOP_LEVEL;
-					sc.SetState(SCE_CSS_OPERATOR);
 				}
+				// In CSS '}' always takes us to the top-level.
+				main_substate = (((isLessDocument || isScssDocument)
+						  && nested_declaration_count > 0)
+						 ? MAIN_SUBSTATE_AMBIGUOUS_SELECTOR_OR_PROPERTY_NAME
+						 : MAIN_SUBSTATE_TOP_LEVEL);
+				sc.SetState(SCE_CSS_OPERATOR);
 				break;
 			
 			case '~':
