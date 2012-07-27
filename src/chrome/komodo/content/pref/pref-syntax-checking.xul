@@ -486,6 +486,42 @@
                 </groupbox>
             </vbox>
         
+            <vbox id="langSyntaxCheck-Sass">
+                <groupbox orient="vertical">
+                    <!-- Keep it a radio button in case we write a builtin checker,
+                    and then we can offer that choice again, and still use the
+                    scss code as well.
+                    -->
+                    <radiogroup id="sassLinterType"
+                                pref="true"
+                                flex="1"
+                                prefattribute="value"
+                                orient="horizontal"
+                                oncommand="languageInfo.Sass.updateLinterType(event);">
+                        <vbox flex="1">
+                            <radio group="sassLinterType"
+                                   id="sassLinterType_interpreter" value="path"
+                                   label="&sassUseInterpreter.label;" />
+                            <hbox align="center" style="margin-left: 4em;">
+                                <menulist id="sassDefaultInterpreter"
+                                          flex="1"
+                                          pref="true"
+                                          prefstring="sassDefaultInterpreter"
+                                          prefattribute="value"
+                                          prefLoadManually="true"
+                                          >
+                                    <menupopup id="avail-interp-list"/>
+                                </menulist>
+                                <button label="&browse.label;" id="browse_Sass" oncommand="languageInfo.Sass.loadExecutable();"/>
+                            </hbox>
+                            <radio group="sassLinterType"
+                                   id="sassLinterType_none" value="none"
+                                   label="&none.label;" />
+                        </vbox>
+                    </radiogroup>
+                </groupbox>
+            </vbox>
+        
             <vbox id="langSyntaxCheck-SCSS">
                 <groupbox orient="vertical">
                     <radiogroup id="scssLinterType"
@@ -493,7 +529,7 @@
                                 flex="1"
                                 prefattribute="value"
                                 orient="horizontal"
-                                oncommand="languageInfo.SCSS.update_SCSS_linterType(event);">
+                                oncommand="languageInfo.SCSS.updateLinterType(event);">
                         <vbox flex="1">
                             <radio group="scssLinterType"
                                    id="scssLinterType_interpreter" value="path"
@@ -508,7 +544,7 @@
                                           >
                                     <menupopup id="avail-interp-list"/>
                                 </menulist>
-                                <button label="&browse.label;" id="browse_SCSS" oncommand="languageInfo.SCSS.load_SCSS_Executable();"/>
+                                <button label="&browse.label;" id="browse_SCSS" oncommand="languageInfo.SCSS.loadExecutable();"/>
                             </hbox>
                             <radio group="scssLinterType"
                                    id="scssLinterType_builtin" value="builtin"

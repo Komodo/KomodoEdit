@@ -111,6 +111,44 @@ static bool startsArg(int pos, Accessor &styler) {
     return (c = styler[pos]) == '(' || c == ',';
 }
 
+typedef struct fields {
+	unsigned int f_main_substate: 3;
+	unsigned int f_nested_declaration_count: 8; // high, but we can spare the bits
+	unsigned int f_important_substate: 2;
+	unsigned int f_string_substate: 3;
+	unsigned int f_comment_substate: 2;
+	unsigned int f_identifier_substate: 1;
+	unsigned int f_style: 8;
+} fn_fields;
+
+typedef union fieldUnion {
+	unsigned long fn_data;
+	fn_fields css_fields;
+} fieldUnion;
+
+#define fillUnion(fn, main_substate, nested_declaration_count, \
+	important_substate, string_substate, comment_substate, \
+		      identifier_substate, style)      \
+	fn.css_fields.f_main_substate = main_substate; \
+	fn.css_fields.f_nested_declaration_count = nested_declaration_count; \
+	fn.css_fields.f_important_substate = important_substate; \
+	fn.css_fields.f_string_substate = string_substate; \
+	fn.css_fields.f_comment_substate = comment_substate; \
+	fn.css_fields.f_identifier_substate = identifier_substate; \
+	fn.css_fields.f_style = style;
+
+// 'unused' is just to give these two macros different signatures.
+#define extractFromUnion(fn, main_substate, nested_declaration_count, \
+	important_substate, string_substate, comment_substate, \
+		      identifier_substate, style, unused) \
+	main_substate = fn.css_fields.f_main_substate; \
+	nested_declaration_count = fn.css_fields.f_nested_declaration_count; \
+	important_substate = fn.css_fields.f_important_substate; \
+	string_substate = fn.css_fields.f_string_substate; \
+	comment_substate = fn.css_fields.f_comment_substate; \
+	identifier_substate = fn.css_fields.f_identifier_substate; \
+	style = fn.css_fields.f_style;
+
 static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, WordList *keywordlists[], Accessor &styler) {
 	// WordList &css1Props = *keywordlists[0];
 	WordList &pseudoClasses = *keywordlists[1];
@@ -121,7 +159,7 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 	WordList &exPseudoClasses = *keywordlists[6];
 	WordList &exPseudoElements = *keywordlists[7];
 
-	bool isLessDocument, isScssDocument;
+	bool isLessDocument, isScssDocument, isSassDocument;
 	// SCSS = "Sassy CSS"; SASS is no longer supported.
 	
 	// Main State
@@ -171,30 +209,24 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 
 	isLessDocument = styler.GetPropertyInt("lexer.css.less.language") != 0;
 	isScssDocument = styler.GetPropertyInt("lexer.css.scss.language") != 0;
+	isSassDocument = styler.GetPropertyInt("lexer.css.sass.language") != 0;
 
 	unsigned int origStartPos = startPos;
 	int lineCurrent = styler.GetLine(origStartPos);
-	while (lineCurrent > 0
-	       && (styler.GetLineState(lineCurrent) != MAIN_SUBSTATE_TOP_LEVEL
-		   || (styler.LevelAt(lineCurrent)
-		       & (SC_FOLDLEVELNUMBERMASK & ~SC_FOLDLEVELBASE)) > 0)) {
-		lineCurrent -= 1;
-	}
 	startPos = styler.LineStart(lineCurrent);
-	if (lineCurrent >= 1
-	    && styler.StyleAt(startPos) == SCE_CSS_COMMENT) {
-		if (styler.StyleAt(startPos - 1) == SCE_CSS_COMMENT) {
-			comment_substate = COMMENT_SUBSTATE_BLOCK;
-			initStyle = SCE_CSS_COMMENT;
-		} else {
-			initStyle = SCE_CSS_DEFAULT;
-		}
-	}
-	if (startPos < origStartPos) {
-		initStyle = SCE_CSS_DEFAULT;
+	fieldUnion fdata; // for line-state
+	
+	if (lineCurrent > 0) {
+		// Update the state based on whatever was going on at the end
+		// of the previous line.
+		fdata.fn_data = styler.GetLineState(lineCurrent - 1);
+		extractFromUnion(fdata, main_substate, nested_declaration_count,
+				 important_substate, string_substate,
+				 comment_substate, identifier_substate, initStyle, 1);
 	}
 
-	int finalLength = length + origStartPos - startPos;
+	int finalLength = length + origStartPos;
+	bool sass_atStartOfLine = true;
 	StyleContext sc(startPos, finalLength, initStyle, styler);
 
 	// This is now a straightforward state machine, with some
@@ -289,10 +321,15 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 		case SCE_CSS_TAG:
 			if (!IsAWordChar(ch)) {
 				if (main_substate == MAIN_SUBSTATE_AMBIGUOUS_SELECTOR_OR_PROPERTY_NAME) {
-					// If this is followed by '{', treat it as a tag.
-					// Otherwise it should be classified.
-					{
-						int i = sc.currentPos;
+					int i = sc.currentPos;
+					if (ch == ':'
+					    && styler.SafeGetCharAt(i + 1) == ' ') {
+						// Style ambiguous name followed by :-space
+						// as an identifier
+						classifyWordAndStyle(sc, styler, keywordlists, true, SCE_CSS_IDENTIFIER);
+					} else {
+						// If this is followed by '{', treat it as a tag.
+						// Otherwise it should be classified.
 						char followChar = ' ';
 						int ch;
 						for (; i < finalLength; i++) {
@@ -425,9 +462,11 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 			if (ch == '\\') {
 				if (sc.Match('\r', '\n')) {
 					if (sc.Match('\n')) {
+						fillUnion(fdata, main_substate, nested_declaration_count,
+							  important_substate, string_substate,
+							  comment_substate, identifier_substate, sc.state);
+						styler.SetLineState(lineCurrent, fdata.fn_data);
 						lineCurrent += 1;
-						styler.SetLineState(lineCurrent,
-								    main_substate);
 					}
 					sc.Forward();
 				}
@@ -497,20 +536,54 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 				   && (ch == '\n' || ch == '\r')) {
 				sc.SetState(SCE_CSS_DEFAULT);
 			} else if (ch == '\n') {
+				fillUnion(fdata, main_substate, nested_declaration_count,
+					  important_substate, string_substate,
+					  comment_substate, identifier_substate, sc.state);
+				styler.SetLineState(lineCurrent, fdata.fn_data);
 				lineCurrent += 1;
-				styler.SetLineState(lineCurrent, main_substate);
 			}
 			break;
 		}
 
 		// Now figure out where to go next.
 		if (sc.state == SCE_CSS_DEFAULT) {
+			// Be safe, and refresh this value.
+			ch = sc.ch;
+			if (isSassDocument) {
+				if (ch == '\n') {
+					sass_atStartOfLine = true;
+					// In default state \n takes place of ';'
+					if (main_substate == MAIN_SUBSTATE_SCSS_ASSIGNMENT) {
+						main_substate = MAIN_SUBSTATE_AMBIGUOUS_SELECTOR_OR_PROPERTY_NAME;
+					} else {
+						main_substate = MAIN_SUBSTATE_TOP_LEVEL;
+					}
+				} else if (sass_atStartOfLine) {
+					/**
+					 * For Sass processing we don't need to look at anything
+					 * but the current line's leading white-space.
+					 * If there is no white-space, we must be at the top-level.
+					 * Otherwise we're in an ambiguous spot.
+					 */
+					if (!strchr(" \t\r\n\f", ch)) {
+						sass_atStartOfLine = (sc.currentPos ==
+								      styler.LineStart(lineCurrent));
+						main_substate = (sass_atStartOfLine
+								 ? MAIN_SUBSTATE_TOP_LEVEL
+								 : MAIN_SUBSTATE_AMBIGUOUS_SELECTOR_OR_PROPERTY_NAME);
+						// And now we're past the leading white-space.
+						sass_atStartOfLine = false;
+					}
+				}
+			}
 			// Get all the white space recognized in one spot.
 			if (strchr(" \t\r\n\f", ch)) {
 				if (ch == '\n') {
+					fillUnion(fdata, main_substate, nested_declaration_count,
+						  important_substate, string_substate,
+						  comment_substate, identifier_substate, sc.state);
+					styler.SetLineState(lineCurrent, fdata.fn_data);
 					lineCurrent += 1;
-					styler.SetLineState(lineCurrent,
-							    main_substate);
 				}
 				continue;
 			}
@@ -621,7 +694,7 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 					comment_substate = COMMENT_SUBSTATE_BLOCK;
 					sc.SetState(SCE_CSS_COMMENT);
 					sc.Forward();
-				} else if ((isLessDocument || isScssDocument) && sc.chNext == '/') {
+				} else if ((isLessDocument || isScssDocument || isSassDocument) && sc.chNext == '/') {
 					comment_substate = COMMENT_SUBSTATE_LINE;
 					sc.SetState(SCE_CSS_COMMENT);
 				} else {
@@ -689,7 +762,7 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 				// Always change to DECL NAME
 				if (isScssDocument && main_substate == MAIN_SUBSTATE_SCSS_ASSIGNMENT) {
 					main_substate = MAIN_SUBSTATE_TOP_LEVEL;
-				} else if (isLessDocument || isScssDocument) {
+				} else if (isLessDocument || isScssDocument || isSassDocument) {
 					main_substate = MAIN_SUBSTATE_AMBIGUOUS_SELECTOR_OR_PROPERTY_NAME;
 				} else if (in_top_level_directive) {
 					main_substate = MAIN_SUBSTATE_TOP_LEVEL;

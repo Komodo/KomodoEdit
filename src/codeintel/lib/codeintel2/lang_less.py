@@ -29,10 +29,24 @@ log = logging.getLogger("codeintel.less")
 class LessLexer(CSSLexer):
     # This must be defined as "Less" in order to get autocompletion working.
     lang = "Less"
+    def __init__(self):
+        CSSLexer.__init__(self)
+        self._properties['lexer.css.less.language'] = '1'
 
 class SCSSLexer(CSSLexer):
-    # This must be defined as "Less" in order to get autocompletion working.
+    # This must be defined as "SCSS" in order to get autocompletion working.
     lang = "SCSS"
+    def __init__(self):
+        CSSLexer.__init__(self)
+        self._properties['lexer.css.scss.language'] = '1'
+
+class SassLexer(CSSLexer):
+    # This must be defined as "Sass" in order to get autocompletion working.
+    lang = "Sass"
+    def __init__(self):
+        CSSLexer.__init__(self)
+        #self._properties.setProperty('lexer.css.sass.language', '1')
+        self._properties['lexer.css.sass.language'] = '1'
 
 DebugStatus = False
 
@@ -346,6 +360,63 @@ class _NestedCSSLangIntel(CSSLangIntel):
                 print "  _async_eval_at_trg:: ** Out of range error **"
             ctlr.done("success")
 
+class _NestedSassLangIntel(_NestedCSSLangIntel):
+    """ The difference here is that we don't want to put up triggers in
+    the leading whitespace of a line.
+    """
+    def _trg_from_pos(self, buf, pos, implicit=True, DEBUG=False, ac=None, styleClassifier=None):
+        #DEBUG = True # not using 'logging' system, because want to be fast
+        if DEBUG:
+            print "\n----- %s _trg_from_pos(pos=%r, implicit=%r) -----"\
+                  % (self.lang, pos, implicit)
+        try:
+            if pos == 0:
+                return None
+
+            if ac is None:
+                ac = AccessorCache(buf.accessor, pos, fetchsize=50)
+            else:
+                ac.resetToPosition(pos)
+            # Ensure this variable is initialized as False, it is used by UDL
+            # for checking if the css style is inside of a html tag, example:
+            #   <p style="mycss: value;" />
+            # When it's found that it is such a case, this value is set True
+            ac.is_html_style_attribute = False
+
+            last_pos, last_char, last_style = ac.getPrevPosCharStyle()
+            if DEBUG:
+                print "  _trg_from_pos:: last_pos: %s" % last_pos
+                print "  last_char: %r" % last_char
+                print "  last_style: %s" % last_style
+    
+            # All we want to know with sass is if we're in the white-space on
+            # of after the start of a line.  If yes, don't trigger, because
+            # the user might want to just type more spaces.
+
+            if styleClassifier.is_default(last_style):
+                if DEBUG:
+                    print "  _trg_from_pos:: Default style: %d, ch: %r" % (last_style, last_char)
+                if last_char == '\n':
+                    # SASS: we don't want to put up a box until we start typing something.
+                    if DEBUG:
+                        print "Found \\n at current pos, don't trigger."
+                    return None
+                min_pos = max(0, pos - 200)
+                while last_pos > min_pos:
+                    last_pos, last_char, last_style = ac.getPrevPosCharStyle()
+                    if styleClassifier.is_default(last_style):
+                        if last_char == '\n':
+                            return None
+                    else:
+                        break
+            # Fallback and do SCSS/Less/CSS triggering.
+            #TODO: Support ":color blue" colon-first notation.
+            #TODO: After ",\n", offer tag-names if the above line starts with a tab.
+            #      Otherwise, indent the same level, and then offer tag-names.
+            return _NestedCSSLangIntel._trg_from_pos(self, buf, pos, implicit=implicit, DEBUG=DEBUG, ac=None, styleClassifier=styleClassifier)
+        except IndexError:
+            pass
+    
 class LessLangIntel(_NestedCSSLangIntel):
     # This must be defined as "Less" in order to get autocompletion working.
     lang = "Less"
@@ -353,11 +424,19 @@ class LessLangIntel(_NestedCSSLangIntel):
 class SCSSLangIntel(_NestedCSSLangIntel):
     lang = "SCSS"
 
+class SassLangIntel(_NestedSassLangIntel):
+    lang = "Sass"
+
 class LessBuffer(CSSBuffer):
     lang = "Less"
 
 class SCSSBuffer(CSSBuffer):
     lang = "SCSS"
+
+class SassBuffer(CSSBuffer):
+    lang = "Sass"
+    cpln_fillup_chars = CSSBuffer.cpln_fillup_chars.replace(" ", "")
+    cpln_stop_chars = CSSBuffer.cpln_stop_chars.replace(" ", "")
 
 #---- registration
 
@@ -372,5 +451,10 @@ def register(mgr):
                       silvercity_lexer=SCSSLexer(),
                       buf_class=SCSSBuffer,
                       langintel_class=SCSSLangIntel,
+                      is_cpln_lang=True)
+    mgr.set_lang_info("Sass",
+                      silvercity_lexer=SassLexer(),
+                      buf_class=SassBuffer,
+                      langintel_class=SassLangIntel,
                       is_cpln_lang=True)
 

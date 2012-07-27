@@ -73,6 +73,13 @@ class LessLangInfo(_CSSLangInfoCommon):
     name = "Less"
     exts = [".less"]
 
+class SassLangInfo(_CSSLangInfoCommon):
+    name = "Sass"
+    exts = [".sass"]
+    section_regexes = [
+        ("production", re.compile(r"^(\w\S+?),?", re.M)),
+    ]
+
 
 class CIXLangInfo(LangInfo):
     """Komodo Code Intelligence XML dialect.

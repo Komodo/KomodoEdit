@@ -22,16 +22,7 @@ from codeintel2.css_linter import CSSLinter
 log = logging.getLogger("koCSSLinter")
 #log.setLevel(logging.DEBUG)
 
-class KoCSSLinter(object):
-    _com_interfaces_ = [components.interfaces.koILinter,
-                        components.interfaces.nsIConsoleListener]
-    _reg_desc_ = "Komodo CSS Linter"
-    _reg_clsid_ = "{ded22115-148a-4a2f-aef1-2ae7e12395b0}"
-    _reg_contractid_ = "@activestate.com/koLinter?language=CSS;1"
-    _reg_categories_ = [
-         ("category-komodo-linter", 'CSS'),
-         ]
-    
+class KoCommonCSSLintCode(object):
     def lint(self, request):
         """Lint the given CSS content.
         
@@ -60,47 +51,53 @@ class KoCSSLinter(object):
                 lintResults.addResult(result)
         return lintResults
     
-class KoSCCLinter(KoCSSLinter):
+class KoCSSLinter(KoCommonCSSLintCode):
     _com_interfaces_ = [components.interfaces.koILinter,
                         components.interfaces.nsIConsoleListener]
     _reg_desc_ = "Komodo CSS Linter"
-    _reg_clsid_ = "{32b99faa-e3aa-49dc-a54f-4a7a245ff199}"
-    _reg_contractid_ = "@activestate.com/koLinter?language=SCSS;1"
+    _reg_clsid_ = "{ded22115-148a-4a2f-aef1-2ae7e12395b0}"
+    _reg_contractid_ = "@activestate.com/koLinter?language=CSS;1"
     _reg_categories_ = [
-         ("category-komodo-linter", 'SCSS'),
+         ("category-komodo-linter", 'CSS'),
          ]
-            
+    
+class KoSCSSCommonLinter(KoCommonCSSLintCode):
+    """Handle both scss and sass here. They both use ruby, and are essentially
+    using the same processor.
+    """
     _scss_emsg_ptn = re.compile(r'^\s*on line (\d+) of (.*)$')
     _syntaxErrorPtn = re.compile(r'^Syntax error:\s*(.*)$')
     def lint_with_text(self, request, text):
         try:
             prefset = getProxiedEffectivePrefs(request)
-            scssLinterType = prefset.getStringPref("scssLinterType")
+            linterPrefName = "%sLinterType" % self.cmd
+            scssLinterType = prefset.getStringPref(linterPrefName)
             if scssLinterType == "none":
                 return
             if scssLinterType == "builtin":
                 return KoCSSLinter.lint_with_text(self, request, text)
-            scssPath = prefset.getStringPref("scssDefaultInterpreter")
+            interpreterPrefName = "%sDefaultInterpreter" % self.cmd
+            scssPath = prefset.getStringPref(interpreterPrefName)
             # The 'or' part handles any language for "Find on Path"
             if (not scssPath) or not os.path.exists(scssPath):
                 try:
-                    scssPath = which.which("scss")
+                    scssPath = which.which(self.cmd)
                     if scssPath:
-                        prefset.getStringPref("scssDefaultInterpreter")
+                        prefset.getStringPref(interpreterPrefName)
                 except which.WhichError:
                     pass
             if not scssPath or not os.path.exists(scssPath):
-                log.warn("Setting scssLinterType to 'default': scss not found")
-                prefset.getStringPref("scssLinterType", "builtin")
+                log.warn("Setting %sLinterType to 'default': %s not found", self.cmd, self.cmd)
+                prefset.getStringPref(linterPrefName, "builtin")
                 return KoCSSLinter.lint_with_text(self, request, text)
             rubyPath = os.path.join(os.path.dirname(scssPath), "ruby") + os.path.splitext(scssPath)[1]
             if not os.path.exists(rubyPath):
-                log.warn("Setting scssLinterType to 'default': no ruby found to drive scss")
-                prefset.getStringPref("scssLinterType", "builtin")
+                log.warn("Setting %s to 'default': no ruby found to drive %s", linterPrefName, self.cmd)
+                prefset.getStringPref(linterPrefName, "builtin")
                 return KoCSSLinter.lint_with_text(self, request, text)
             
             # Run scss
-            tmpfilename = tempfile.mktemp() + '.scss'
+            tmpfilename = tempfile.mktemp() + '.' + self.cmd
             fout = open(tmpfilename, 'wb')
             fout.write(text)
             fout.close()
@@ -137,7 +134,28 @@ class KoSCCLinter(KoCSSLinter):
             else:
                 prevLine = line
         return results
+    
+class KoSCSSLinter(KoSCSSCommonLinter):
+    _com_interfaces_ = [components.interfaces.koILinter,
+                        components.interfaces.nsIConsoleListener]
+    _reg_desc_ = "Komodo SCSS Linter"
+    _reg_clsid_ = "{32b99faa-e3aa-49dc-a54f-4a7a245ff199}"
+    _reg_contractid_ = "@activestate.com/koLinter?language=SCSS;1"
+    _reg_categories_ = [
+         ("category-komodo-linter", 'SCSS'),
+         ]
+    cmd = "scss"
         
+class KoSassLinter(KoSCSSCommonLinter):
+    _com_interfaces_ = [components.interfaces.koILinter,
+                        components.interfaces.nsIConsoleListener]
+    _reg_desc_ = "Komodo Sass Linter"
+    _reg_clsid_ = "{03fa17fc-fab6-4573-93c5-ed82793a04a6}"
+    _reg_contractid_ = "@activestate.com/koLinter?language=Sass;1"
+    _reg_categories_ = [
+         ("category-komodo-linter", 'Sass'),
+         ]
+    cmd = "sass"
 
 class KoLessLinter(KoCSSLinter):
     _com_interfaces_ = [components.interfaces.koILinter,

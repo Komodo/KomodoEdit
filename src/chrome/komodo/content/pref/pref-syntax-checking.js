@@ -781,16 +781,34 @@ function SCSS_setup() {
          "browse_SCSS"].forEach(function(name) {
             dialog.SCSS[name] = document.getElementById(name);
         });
-        languageInfo.SCSS = SCSS_Info();
+        languageInfo.SCSS = SCSS_Info('SCSS', 'scss');
     }
     languageInfo.SCSS.populateInterpreters();
     languageInfo.SCSS.updateUI((dialog.SCSS.scssLinterType.selectedItem || {value:"builtin"}).value);
 }
-
 languageSetup.SCSS = SCSS_setup;
-function SCSS_Info() {
+
+function Sass_setup() {
+    if (!('Sass' in dialog)) {
+        dialog.Sass = {};
+        [
+         "sassLinterType",
+         "sassDefaultInterpreter",
+         "browse_Sass"].forEach(function(name) {
+            dialog.Sass[name] = document.getElementById(name);
+        });
+        languageInfo.Sass = SCSS_Info('Sass', 'sass'); // Note overload
+    }
+    languageInfo.Sass.populateInterpreters();
+    languageInfo.Sass.updateUI((dialog.Sass.sassLinterType.selectedItem || {value:"builtin"}).value);
+}
+languageSetup.Sass = Sass_setup;
+
+function SCSS_Info(key, cmd) {
+    var interpreterPref = cmd + "DefaultInterpreter";
+    var browseButtonId = 'browse_' + key;
     return {
-      update_SCSS_linterType: function(event) {
+      updateLinterType: function(event) {
         if (event.originalTarget.nodeName != "radio") {
             // Ignore these
             return;
@@ -801,22 +819,21 @@ function SCSS_Info() {
       
       updateUI: function(radioButtonValue) {
         var disabled = radioButtonValue !== "path";
-        dialog.SCSS.scssDefaultInterpreter.disabled = disabled;
-        dialog.SCSS.browse_SCSS.disabled = disabled;
+        dialog[key][browseButtonId].disabled = disabled;
       },
       
-      load_SCSS_Executable: function() {
-        loadExecutableIntoInterpreterList("scssDefaultInterpreter");
+      loadExecutable: function() {
+        loadExecutableIntoInterpreterList(interpreterPref);
       },
       
       populateInterpreters: function() {
-        var availInterpList = dialog.SCSS.scssDefaultInterpreter;
+        var availInterpList = dialog[key][interpreterPref];
     
         availInterpList.removeAllItems();
         var selectedIndex = -1;
         var findOnPathLabel = bundleLang.GetStringFromName("findOnPath.label");
         availInterpList.appendItem(findOnPathLabel, '');
-        var preferredPath = g_prefset.getStringPref("scssDefaultInterpreter");
+        var preferredPath = g_prefset.getStringPref(interpreterPref);
         if (preferredPath && preferredPath !== findOnPathLabel) {
             availInterpList.appendItem(preferredPath, preferredPath);
             selectedIndex = 1;
@@ -827,7 +844,7 @@ function SCSS_Info() {
             getService(Components.interfaces.koISysUtils);
         var osPathSvc = Components.classes['@activestate.com/koOsPath;1'].
             getService(Components.interfaces.koIOsPath);
-        var interpsWithRuby, availInterps = sysUtils.WhichAll("scss", {});
+        var interpsWithRuby, availInterps = sysUtils.WhichAll(cmd, {});
         if (availInterps.length) {
             var ext = osPathSvc.getExtension(availInterps[0]);
             interpsWithRuby = availInterps.filter(function(scss_path) {
@@ -848,7 +865,7 @@ function SCSS_Info() {
         var rubyPrefExecutable = null;
         var rubyExecutable = parent.hPrefWindow.prefset.getStringPref('rubyDefaultInterpreter');
         if (rubyExecutable) {
-            rubyPrefExecutable = osPathSvc.join(osPathSvc.dirname(rubyExecutable), "scss") + osPathSvc.getExtension(rubyExecutable);
+            rubyPrefExecutable = osPathSvc.join(osPathSvc.dirname(rubyExecutable), cmd) + osPathSvc.getExtension(rubyExecutable);
             if (!osPathSvc.exists(rubyPrefExecutable)) {
                 rubyPrefExecutable = null;
             }
@@ -864,7 +881,7 @@ function SCSS_Info() {
             // Go with the first item, or 'find-on-path'
             selectedIndex = interpsWithRuby.length ? 1 : 0;
         }
-        dialog.SCSS.scssDefaultInterpreter.selectedIndex = selectedIndex;
+        dialog[key][interpreterPref].selectedIndex = selectedIndex;
       }
     };
 }

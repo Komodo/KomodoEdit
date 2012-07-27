@@ -45,7 +45,6 @@ class koCSSCommonLanguage(KoLanguageBase):
 
     supportsSmartIndent = "brace"
     primary = 1
-    defaultExtension = ".css"
     commentDelimiterInfo = {
         "block": [ ("/*", "*/") ],
         "markup": "*",
@@ -67,6 +66,7 @@ body {
 
 .bold { text-decoration: bold; }
 """
+    _lexers_by_name = {}
 
     def __init__(self):
         KoLanguageBase.__init__(self)
@@ -80,14 +80,14 @@ body {
             )
 
     def get_lexer(self):
-        if self._lexer is None:
-            self._lexer = KoLexerLanguageService()
-            self._lexer.setLexer(components.interfaces.ISciMoz.SCLEX_CSS)
+        if self._lexers_by_name.get(self.name, None) is None:
+            self._lexers_by_name[self.name] = lexer = KoLexerLanguageService()
+            lexer.setLexer(components.interfaces.ISciMoz.SCLEX_CSS)
             from codeintel2.lang_css import raw_word_lists
             for i in range(len(raw_word_lists)):
-                self._lexer.setKeywords(i, raw_word_lists[i].split())
-            self._lexer.supportsFolding = 1
-        return self._lexer
+                lexer.setKeywords(i, raw_word_lists[i].split())
+            lexer.supportsFolding = 1
+        return self._lexers_by_name[self.name]
 
     def test_scimoz(self, scimoz):
         # Test the auto-indenter
@@ -117,13 +117,13 @@ class koLessLanguage(koCSSCommonLanguage):
     }
     
     def get_lexer(self):
-        if self._lexer is None:
+        if self._lexers_by_name.get(self.name, None) is None:
             lexer = koCSSCommonLanguage.get_lexer(self)
-            if lexer != self._lexer:
-                print("Errorin koLessLanguage: lexer:%r, self._lexer:%r" % (lexer, self._lexer))
+            if lexer != self._lexers_by_name[self.name]:
+                print("Error in koLessLanguage: lexer:%r, self._lexers_by_name[self.name:%s]:%r" % (lexer, self.name, self._lexers_by_name[self.name]))
                       
             lexer.setProperty('lexer.css.less.language', '1')
-        return self._lexer
+        return self._lexers_by_name[self.name]
 
 class koSCSSLanguage(koCSSCommonLanguage):
     name = "SCSS"
@@ -134,11 +134,33 @@ class koSCSSLanguage(koCSSCommonLanguage):
     _reg_categories_ = [("komodo-language", name)]
     
     def get_lexer(self):
-        if self._lexer is None:
+        if self._lexers_by_name.get(self.name, None) is None:
             lexer = koCSSCommonLanguage.get_lexer(self)
+            if lexer != self._lexers_by_name[self.name]:
+                print("Error in koSCSSLanguage: lexer:%r, self._lexers_by_name[self.name:%s]:%r" % (lexer, self.name, self._lexers_by_name[self.name]))
+                      
             lexer.setProperty('lexer.css.scss.language', '1')
-        return self._lexer
-        
+        return self._lexers_by_name[self.name]
+      
+class koSassLanguage(koCSSCommonLanguage):
+    name = "Sass"
+    _reg_desc_ = "%s Language" % name
+    _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
+                       % (name)
+    _reg_clsid_ = "92e12ca5-bae1-42bf-8ec4-facd4c41c097"
+    _reg_categories_ = [("komodo-language", name)]
+    supportsSmartIndent = "python"
+    
+    def get_lexer(self):
+        if self._lexers_by_name.get(self.name, None) is None:
+            lexer = koCSSCommonLanguage.get_lexer(self)
+            if lexer != self._lexers_by_name[self.name]:
+                print("Error in koSassLanguage: lexer:%r, self._lexers_by_name[self.name:%s]:%r" % (lexer, self.name, self._lexers_by_name[self.name]))
+                      
+            lexer.setProperty('lexer.css.sass.language', '1')
+            lexer.supportsFolding = 0
+        return self._lexers_by_name[self.name]
+  
 class CSSAutoIndentTestCase(sciutils.SciMozTestCase):
     """Test suite for koCSSLanguage."""
 

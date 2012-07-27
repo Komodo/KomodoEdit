@@ -137,6 +137,8 @@ var global_pref_observer_topics = {
     "jshint_linter_specific" : JS_NODEJS_LIST,
     "jshint_linter_chooser" : JS_NODEJS_LIST,
     "lint_coffee_script" : ["CoffeeScript"],
+    "sassLinterType" : ["Sass"],
+    "sassDefaultInterpreter" : ["Sass"],
     "scssLinterType" : ["SCSS"],
     "scssDefaultInterpreter" : ["SCSS"],
     "lessLinterType" : ["Less"],

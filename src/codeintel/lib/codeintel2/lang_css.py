@@ -1057,6 +1057,10 @@ class CSSLangIntel(LangIntel, ParenStyleCalltipIntelMixin):
                     value_info.append((from_pos, ac.text_range(from_pos, p)))
                     break
     
+                # Sass test
+                if ch == "\n" and self.lang == "Sass" and styleClassifier.is_default(style):
+                    value_info.append((from_pos, ac.text_range(from_pos, p)))
+                    break
                 if ch in WHITESPACE or styleClassifier.is_string(style):
                     if not prev_ch in WHITESPACE and not styleClassifier.is_string(prev_style):
                         value_info.append((from_pos, ac.text_range(from_pos, p)))

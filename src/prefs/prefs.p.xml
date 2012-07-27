@@ -218,6 +218,9 @@
        a ruby executable in that path as well.  If it isn't, but there's an
        scss in %ruby, use that.  Otherwise, use builtin checking (not as good).
     -->
+  <string id="sassLinterType">path</string>
+  <string id="sassDefaultInterpreter"></string>
+  
   <string id="scssLinterType">path</string>
   <string id="scssDefaultInterpreter"></string>
   
@@ -362,6 +365,7 @@
  '*.rb': 'Ruby',
  '*.rjs': 'Ruby',
  '*.rxml': 'Ruby',
+ '*.sass': 'Sass',
  '*.scss': 'SCSS',
  '*.sml': 'SML',
  '*.sh': 'Bash',
