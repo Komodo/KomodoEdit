@@ -149,6 +149,9 @@
                             <menuitem label="&browserConfiguredBrowser.label;"
                                       shortcut="%(browser)"
                                       oncommand="InsertCommandShortcut(this);"/>
+                            <menuitem label="&nodejsConfiguredNodeInterpreter.label;"
+                                      shortcut="%(nodejs)"
+                                      oncommand="InsertCommandShortcut(this);"/>
                             <menuitem label="&perlConfiguredPerlInterpreter.label;"
                                       shortcut="%(perl)"
                                       oncommand="InsertCommandShortcut(this);"/>
@@ -157,6 +160,9 @@
                                       oncommand="InsertCommandShortcut(this);"/>
                             <menuitem label="&pythonConfiguredPythonInterpreter.label;"
                                       shortcut="%(python)"
+                                      oncommand="InsertCommandShortcut(this);"/>
+                            <menuitem label="&pythonConfiguredPython3Interpreter.label;"
+                                      shortcut="%(python3)"
                                       oncommand="InsertCommandShortcut(this);"/>
                             <menuitem label="&rubyConfiguredRubyInterpreter.label;"
                                       shortcut="%(ruby)"
