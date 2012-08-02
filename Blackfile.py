@@ -2427,9 +2427,10 @@ def BuildQuickBuildDB(cfg, argv):
               targetSubdir=os.path.join(cfg.mozBin, 'chrome', 'komodo', 'skin'),
               extensions=['css', 'png'],
               preserveSubtrees=1)
-    _addFiles(cfg, sourceSubdir='test/jstest/mock',
-              targetSubdir=os.path.join(cfg.mozBin, 'chrome', 'komodo-jstest', 'mock'),
-              extensions=['js', 'jsm'])
+    if cfg.withTests:
+        _addFiles(cfg, sourceSubdir='test/jstest/mock',
+                  targetSubdir=os.path.join(cfg.mozBin, 'chrome', 'komodo-jstest', 'mock'),
+                  extensions=['js', 'jsm'])
 
     pickle.dump(_table, open('qbtable.pik', 'w'))
 
