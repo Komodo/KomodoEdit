@@ -16,11 +16,13 @@ let log = logging.getLogger("views.mock");
 function SciMozMock(aText) {
     this.text = aText || "";
     this.currentPos = this.anchor = 0;
+    this.firstVisibleLine = 0;
     this.eOLMode = Ci.ISciMoz.SC_EOL_LF;
     this.indicatorValue = Ci.ISciMoz.INDIC_PLAIN;
     this.indicatorCurrent = 0;
     this.tabWidth = 8;
     this.targetStart = this.targetEnd = 0;
+    this.docPointer = 1;
 
     /**
      * Indexed by indicator id, then is an array of RLE things where the index
@@ -45,25 +47,9 @@ SciMozMock.prototype._indicatorKeys =
               .map(function(n) parseInt(n, 10) + start)
               .sort(function(a, b) a - b);
 
-SciMozMock.prototype.beginUndoAction =
-    function SciMozMock_beginUndoAction()
-        /* no undo yet */ void(0);
-
 SciMozMock.prototype.charPosAtPosition =
     function SciMozMock_charPosAtPosition(pos)
         pos < 0 ? this.currentPos : pos;
-
-SciMozMock.prototype.chooseCaretX =
-    function SciMozMock_chooseCaretX()
-        void(0);
-
-SciMozMock.prototype.endUndoAction =
-    function SciMozMock_endUndoAction()
-        /* no undo yet */ void(0);
-
-SciMozMock.prototype.ensureVisibleEnforcePolicy =
-    function SciMozMock_ensureVisibleEnforcePolicy()
-        void(0);
 
 SciMozMock.prototype.getColumn =
     function SciMozMock_getColumn(aPos) {
@@ -82,6 +68,14 @@ SciMozMock.prototype.getColumn =
         return column;
     };
 
+SciMozMock.prototype.getLine =
+    function SciMozMock_getLine(aLineNum, o) {
+        var startPos = this.positionFromLine(aLineNum),
+            endPos = this.positionFromLine(aLineNum + 1);
+        o.value = this.getTextRange(startPos, endPos);
+        return endPos - startPos;
+    }
+
 SciMozMock.prototype.getLineEndPosition =
     function SciMozMock_getLineEndPosition(aLine) {
         let lines = this.text.match(new RegExp("(?:[^\n]*\n){" + (aLine + 1) + "}", "m")) || [""];
@@ -93,13 +87,11 @@ SciMozMock.prototype.getTextRange =
     function SciMozMock_getTextRange(aStart, aEnd)
         this.text.substring(aStart, aEnd);
 
+SciMozMock.prototype.textWidth = function() 12; /* pixels */
+
 SciMozMock.prototype.gotoPos =
     function SciMozMock_gotoPos(pos)
         this.currentPos = pos;
-
-SciMozMock.prototype.hideSelection =
-    function SciMozMock_hideSelection(aHide)
-        void(0);
 
 SciMozMock.prototype.indicatorAllOnFor =
     function SciMozMock_indicatorAllOnFor(pos) {
@@ -265,13 +257,32 @@ SciMozMock.prototype.indicatorValueAt =
         return 0;
     };
 
+SciMozMock.prototype.insertText =
+    function SciMozMock_insertText(aLength, aText) {
+        this.text = this.text.substr(0, this.currentPos) + aText + this.text.substr(this.currentPos);
+    }
+
 Object.defineProperty(SciMozMock.prototype, "length", {
     get: function() this.text.length,
+    enumerable: true, configurable: true});
+
+Object.defineProperty(SciMozMock.prototype, "lineCount", {
+    get: function() {
+        if (this.text === null) {
+            dump('\n\nthis.text: ' + this.text + '\n');
+            ko.logging.dumpStack();
+        }
+        return (this.text.match(/\n/g) || []).length;
+    },
     enumerable: true, configurable: true});
 
 SciMozMock.prototype.lineFromPosition =
     function SciMozMock_lineFromPosition(pos)
         (this.text.substr(0, pos).match(/\n/g) || []).length;
+
+SciMozMock.prototype.markerGet =
+    function SciMozMock_markerGet(aLineNum)
+        0;
 
 SciMozMock.prototype.markerNext =
     function SciMozMock_markerNext(lineStart, markerMask) {
@@ -346,6 +357,28 @@ SciMozMock.prototype.setSel =
         [this.anchor, this.currentPos] = [start, end];
     };
 
+/* Unimplemented stubs */
+SciMozMock.prototype.addRefDocument = function SciMozMock_addRefDocument() void(0);SciMozMock.prototype.setSavePoint = function SciMozMock_setSavePoint() void(0);
+SciMozMock.prototype.releaseDocument = function SciMozMock_releaseDocument() void(0);
+SciMozMock.prototype.indicSetFore = function SciMozMock_indicSetFore() void(0);
+SciMozMock.prototype.indicSetStyle = function SciMozMock_indicSetStyle() void(0);
+SciMozMock.prototype.setMarginWidthN = function SciMozMock_setMarginWidthN() void(0);
+SciMozMock.prototype.setProperty = function SciMozMock_setProperty() void(0);
+SciMozMock.prototype.setFoldFlags = function SciMozMock_setFoldFlags() void(0);
+SciMozMock.prototype.setYCaretPolicy = function SciMozMock_setYCaretPolicy() void(0);
+SciMozMock.prototype.setVisiblePolicy = function SciMozMock_setVisiblePolicy() void(0);
+SciMozMock.prototype.ensureVisibleEnforcePolicy = function SciMozMock_ensureVisibleEnforcePolicy() void(0);
+SciMozMock.prototype.chooseCaretX = function SciMozMock_chooseCaretX() void(0);
+SciMozMock.prototype.setKeyWords = function SciMozMock_setKeyWords() void(0);
+SciMozMock.prototype.setCharsDefault = function SciMozMock_setCharsDefault() void(0);
+SciMozMock.prototype.setSavePoint = function SciMozMock_setSavePoint() void(0);
+SciMozMock.prototype.beginUndoAction = function SciMozMock_beginUndoAction() void(0);
+SciMozMock.prototype.endUndoAction = function SciMozMock_endUndoAction() void(0);
+SciMozMock.prototype.emptyUndoBuffer = function SciMozMock_emptyUndoBuffer() void(0);
+SciMozMock.prototype.hideSelection = function SciMozMock_hideSelection(aHide) void(0);
+SciMozMock.prototype.lineScroll = function SciMozMock_lineScroll() void(0);
+
+
 (function() {
     var interfaces = [Ci.ISciMoz, Ci.ISciMozLite];
     for (let i = 0; ("ISciMoz_Part" + i) in Ci; ++i) {
@@ -390,6 +423,12 @@ Object.defineProperty(ScintillaMock.prototype, "scimoz", {
     configurable: true, enumerable: true,
 });
 
+
+XPCOMUtils.defineLazyGetter(ScintillaMock.prototype, "scheme",
+    function() Cc['@activestate.com/koScintillaSchemeService;1']
+                 .getService(Ci.koIScintillaSchemeService)
+                 .getScheme("Default"));
+
 /**
  * Create a new mock view
  * @note The parameters are all optional, and use a dictionary.
@@ -399,13 +438,12 @@ function ViewMock(aParams) {
     if (typeof(aParams) == "undefined") {
         aParams = {};
     }
-    this.scimoz = new SciMozMock(aParams.text || "");
     this.uid = Cc["@mozilla.org/uuid-generator;1"]
                  .getService(Ci.nsIUUIDGenerator)
                  .generateUUID()
                  .number;
     this.koDoc = new KoDocMock({});
-    this.scimoz = new SciMozMock();
+    this.scimoz = new SciMozMock(aParams.text || "");
     this.scintilla = new ScintillaMock(this);
 }
 this.ViewMock = ViewMock;
