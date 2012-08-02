@@ -2,6 +2,6 @@
 designated =>
         identifier "com.activestate.Komodo"
     and
-        cert leaf[subject.O] = ActiveState
+        cert leaf[subject.O] = "Todd Whiteman"
     and
         anchor trusted
