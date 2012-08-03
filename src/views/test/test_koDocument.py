@@ -149,9 +149,7 @@ class TestKoDocumentBase(_KoDocTestCase):
         path = tempfile.mktemp()
         try:
             # Init the test file with some content.
-            fout = open(path, 'w')
-            fout.write("blah\nblah\nblah")
-            fout.close()
+            _writefile(path, "blah\nblah\nblah")
 
             koDoc = self._koDocFromPath(path)
             koDoc.load()
@@ -168,9 +166,7 @@ class TestKoDocumentBase(_KoDocTestCase):
         path = tempfile.mktemp()
         try:
             # Init the test file with some content.
-            fout = open(path, 'w')
-            fout.write("blah\nblah\nblah")
-            fout.close()
+            _writefile(path, "blah\nblah\nblah")
 
             koDoc = self._koDocFromPath(path)
             koDoc.load()
@@ -189,9 +185,7 @@ class TestKoDocumentBase(_KoDocTestCase):
         path = tempfile.mktemp()
         try:
             # Init the test file with some content.
-            fout = open(path, 'w')
-            fout.write("blah\nblah\nblah")
-            fout.close()
+            _writefile(path, "blah\nblah\nblah")
 
             koDoc = self._koDocFromPath(path)
             koDoc.load()
@@ -249,9 +243,7 @@ class TestKoDocumentBase(_KoDocTestCase):
         buffer = "blah\nblah\nblah"
         try:
             # Init the test file with some content.
-            fout = open(path, 'wb')
-            fout.write(buffer)
-            fout.close()
+            _writefile(path, buffer)
 
             koDoc = self._koDocFromPath(path)
             koDoc.load()
