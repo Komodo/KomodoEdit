@@ -181,6 +181,24 @@ class TestKoDocumentBase(_KoDocTestCase):
         koDoc.load()
         assert koDoc.buffer
 
+    def test_differentOnDisk(self):
+        path = tempfile.mktemp()
+        try:
+            # Init the test file with some content.
+            _writefile(path, "blah\nblah\nblah\n")
+
+            koDoc = self._koDocFromPath(path)
+            koDoc.load()
+            oldtext = koDoc.buffer
+
+            _writefile(path, "blah\nblah\nblah\nblah\n")
+
+            self.assertEqual(oldtext, koDoc.buffer)
+            self.assertTrue(koDoc.differentOnDisk())
+        finally:
+            if os.path.exists(path):
+                os.unlink(path) # clean up
+
     def test_changeLineEndings(self):
         path = tempfile.mktemp()
         try:
