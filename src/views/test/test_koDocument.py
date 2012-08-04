@@ -195,6 +195,8 @@ class TestKoDocumentBase(_KoDocTestCase):
 
             self.assertEqual(oldtext, koDoc.buffer)
             self.assertTrue(koDoc.differentOnDisk())
+            # Next time we call it - it should be already using the latest info.
+            self.assertFalse(koDoc.differentOnDisk(), "File change detected when it shouldn't be")
         finally:
             if os.path.exists(path):
                 os.unlink(path) # clean up
@@ -290,6 +292,57 @@ class TestKoDocumentBase(_KoDocTestCase):
             if os.path.exists(path):
                 os.unlink(path) # clean up
     
+
+class TestKoDocumentRemote(_KoDocTestCase):
+    def test_differentOnDisk(self):
+        path = tempfile.mktemp()
+        try:
+            # Init the test file with some content.
+            _writefile(path, "blah\nblah\nblah\n")
+
+            koDoc = self._koDocFromPath(path)
+            # Make it look like a remote file.
+            rawFile = UnwrapObject(koDoc.file)
+            rawFile.isLocal = 0
+            rawFile.isRemoteFile = 1
+            koDoc.load()
+
+            # Wait one second, so we generate a different mtime.
+            import time
+            time.sleep(1.1)
+            _writefile(path, "blah\nblah\nblah\nblah\n")
+
+            self.assertTrue(koDoc.differentOnDisk(), "Remote file change was not detected")
+            # Next time we call it - it should be already using the latest info.
+            self.assertFalse(koDoc.differentOnDisk(), "Remote file change detected when it shouldn't be")
+        finally:
+            if os.path.exists(path):
+                os.unlink(path) # clean up
+
+    #def test_differentOnDisk_real(self):
+    #    import random
+    #    #path = "test_%06d.txt" % (random.randint(1, 1000000), )
+    #    path = "/home/test/tmp/remote_files/test_%06d.txt" % (random.randint(1, 1000000), )
+    #    try:
+    #        # Init the test file with some content.
+    #        content = "blah\nblah\nblah\n"
+    #        _writefile(path, content)
+    #
+    #        uri = "sftp://test:pass@localhost" + path
+    #        koDoc = self._koDocFromPath(path)
+    #        koDoc.load()
+    #
+    #        # Wait one second, so we generate a different mtime.
+    #        import time
+    #        time.sleep(1.1)
+    #        _writefile(path, "blah\nblah\nblah\nblah\n")
+    #
+    #        self.assertTrue(koDoc.differentOnDisk(), "Remote file change was not detected")
+    #        # Next time we call it - it should be already using the latest info.
+    #        self.assertFalse(koDoc.differentOnDisk(), "Remote file change detected when it shouldn't be")
+    #    finally:
+    #        if os.path.exists(path):
+    #            os.unlink(path) # clean up
 
 #---- internal support stuff
 

@@ -97,7 +97,10 @@ class koDocumentBase:
         # differentOnDisk.  It DOES NOT reflect the current contents of
         # the buffer in memory
         self._lastmd5 = None
-        
+        # _lastModifiedTime is the last time the file was modified, which is
+        # used for remote files in the differentOnDisk() check.
+        self._lastModifiedTime = None
+
         self._refcount = 0
         self._ciBuf = None
         self.docSettingsMgr = None
@@ -508,14 +511,20 @@ class koDocumentBase:
             self._documentSizeFactor = self._classifyDocumentBySize(data)
             # We don't know if the document is large until we know
             # whether it's a UDL-based document or has a C++ lexer.
+            if file.isRemoteFile:
+                # Ugly: Uses side-affect of hasChanged to ensure we have the
+                #       latest lastModifiedTime.
+                file.hasChanged
+            self._lastModifiedTime = file.lastModifiedTime
         else:
             data = ''
+            self._lastModifiedTime = None
         self._lastmd5 = md5(data).digest()
         self.set_buffer(data,0)
         self.setSavePoint()
         # if a file is in a project, then we have to check
         # and see if we need to update it's information
-        if file.hasChanged:
+        if file.isLocal and file.hasChanged:
             try:
                 self._obsSvc.notifyObservers(self,'file_changed',self.file.URI)
             except:
@@ -567,36 +576,52 @@ class koDocumentBase:
 
     def differentOnDisk(self):
         if self.isUntitled or \
-            not self.file.isLocal or \
             self.file.isNetworkFile or \
             not self.file.exists or \
             self.file.URI.startswith('chrome://'):
             return 0
-        # compare the md5 from the last examination of the disk file with
-        # an md5 of the current contents of the disk file.  This does not
-        # compare what is in the buffer in memory
-        try:
-            newmd5 = None
+        if self.file.isLocal:
+            # compare the md5 from the last examination of the disk file with
+            # an md5 of the current contents of the disk file.  This does not
+            # compare what is in the buffer in memory
             try:
-                self.file.open('rb')
-            except:
-                # the file is gone.
                 newmd5 = None
-                return newmd5 != self._lastmd5
-            try:
                 try:
-                    ondisk = self.file.read(-1)
-                    newmd5 = md5(ondisk).digest()
-                except Exception, ex:
-                    errmsg = "File differentOnDisk check failed: %s" % ex
-                    log.error(errmsg)
-                    self.lastErrorSvc.setLastError(nsError.NS_ERROR_FAILURE, errmsg)
-                    raise ServerException(nsError.NS_ERROR_FAILURE, errmsg)
+                    self.file.open('rb')
+                except:
+                    # the file is gone.
+                    newmd5 = None
+                    return newmd5 != self._lastmd5
+                try:
+                    try:
+                        ondisk = self.file.read(-1)
+                        newmd5 = md5(ondisk).digest()
+                    except Exception, ex:
+                        errmsg = "File differentOnDisk check failed: %s" % ex
+                        log.error(errmsg)
+                        self.lastErrorSvc.setLastError(nsError.NS_ERROR_FAILURE, errmsg)
+                        raise ServerException(nsError.NS_ERROR_FAILURE, errmsg)
+                finally:
+                    self.file.close()
+                return newmd5 != self._lastmd5
             finally:
-                self.file.close()
-            return newmd5 != self._lastmd5
-        finally:
-            self._lastmd5 = newmd5
+                self._lastmd5 = newmd5
+        elif self.file.isRemoteFile:
+            if self.file.lastModifiedTime != self._lastModifiedTime:
+                # We know the file has already changed on disk.
+                return 1
+            # hasChanged has side affect of refreshing the remote file stats
+            self.file.hasChanged
+            newModifiedTime = self.file.lastModifiedTime
+            if newModifiedTime == self._lastModifiedTime:
+                # File has the same mtime - unchanged.
+                return 0
+            self._lastModifiedTime = newModifiedTime
+            # File has recently changed.
+            return 1
+        else:
+            # For anything else we do not detect changes.
+            return 0
 
     def get_baseName(self):
         if self.isUntitled:
@@ -1493,6 +1518,7 @@ class koDocumentBase:
                 raise ServerException(nsError.NS_ERROR_FAILURE, str(ex))
 
             self._lastmd5 = md5(data).digest()
+            self._lastModifiedTime = self.file.lastModifiedTime
             self.set_isDirty(0)
             self.setSavePoint()
 
@@ -1896,6 +1922,7 @@ class koDocumentBase:
         # fix the file content md5
         data = self._get_buffer_from_file(self.file)
         self._lastmd5 = md5(data).digest()
+        self._lastModifiedTime = self.file.lastModifiedTime
 
     # Methods for maintaining the state of tabstop insertion
     # on the document.  When self._tabstopInsertionNodes is
