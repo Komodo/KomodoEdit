@@ -250,7 +250,7 @@ class KoPerlInfoEx(KoAppInfoEx):
     
     exenames = ["perl"]
     defaultInterpreterPrefName = "perlDefaultInterpreter"
-    minVersionSupported = (5, 6, 0)
+    minVersionSupported = (5, 6)
 
     _havePerlCritic = None
     _perlCriticVersion = None
@@ -489,7 +489,7 @@ class KoPythonInfoEx(KoPythonCommonInfoEx):
     _reg_desc_ = "Extended Python Information"
     exenames = ["python"]
     defaultInterpreterPrefName = "pythonDefaultInterpreter"
-    minVersionSupported = (2, 4, 0)
+    minVersionSupported = (2, 4)
     maxVersionTuple = (2, 99, 99)
 
 class KoPython3InfoEx(KoPythonCommonInfoEx):
@@ -498,7 +498,7 @@ class KoPython3InfoEx(KoPythonCommonInfoEx):
     _reg_desc_ = "Extended Python3 Information"
     exenames = ["python3"]
     defaultInterpreterPrefName = "python3DefaultInterpreter"
-    minVersionSupported = (3, 0, 0)
+    minVersionSupported = (3, 0)
     maxVersionTuple = (3, 99, 99)
 
     def get_webHelpURL(self):
@@ -552,7 +552,7 @@ class KoTclInfoEx(KoAppInfoEx):
 
     exenames = ["tclsh"]
     defaultInterpreterPrefName = "tclshDefaultInterpreter"
-    minVersionSupported = (8, 4, 0)
+    minVersionSupported = (8, 4)
 
     # koIAppInfoEx routines
     def _isInstallationLicensed(self, installationPath):
@@ -639,7 +639,7 @@ class KoPHPInfoInstance(KoAppInfoEx):
 
     exenames = ['php', 'php4', 'php-cli', 'php-cgi']
     defaultInterpreterPrefName = "phpDefaultInterpreter"
-    minVersionSupported = (4, 4, 0)
+    minVersionSupported = (4, 4)
 
     # the purpose of KoPHPInfoInstance is to be able to define
     # what executable and ini path are used without prefs getting
@@ -942,7 +942,7 @@ class KoNodeJSInfoEx(KoAppInfoEx):
 
     exenames = ["node"]
     defaultInterpreterPrefName = "nodejsDefaultInterpreter"
-    minVersionSupported = (0, 4, 0)
+    minVersionSupported = (0, 4)
 
     def getVersionForBinary(self, nodejsExe):
         if not os.path.exists(nodejsExe):
