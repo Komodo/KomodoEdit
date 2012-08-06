@@ -182,12 +182,24 @@ class _BaseAppInfoTestCase(unittest.TestCase):
         if exe:
             self.assertTrue(appInfo.valid_version)
 
-class PythonAppInfoTestCase(_BaseAppInfoTestCase):
+class _PythonAppInfoTestCase(_BaseAppInfoTestCase):
+    def setUp(self):
+        self._pyHomeOriginal = koprocessutils._gUserEnvCache.get("PYTHONHOME")
+        if self._pyHomeOriginal:
+            print "Removing PYTHONHOME"
+            koprocessutils._gUserEnvCache.pop("PYTHONHOME")
+
+    def tearDown(self):
+        if self._pyHomeOriginal:
+            koprocessutils._gUserEnvCache["PYTHONHOME"] = self._pyHomeOriginal
+            self._pyHomeOriginal = None
+
+class PythonAppInfoTestCase(_PythonAppInfoTestCase):
     lang = "Python"
     exenames = ["python"]
     defaultInterpreterPrefName = "pythonDefaultInterpreter"
 
-class Python3AppInfoTestCase(_BaseAppInfoTestCase):
+class Python3AppInfoTestCase(_PythonAppInfoTestCase):
     lang = "Python3"
     exenames = ["python3"]
     defaultInterpreterPrefName = "python3DefaultInterpreter"

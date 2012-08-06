@@ -506,7 +506,7 @@ class KoPythonInfoEx(KoPythonCommonInfoEx):
     _reg_clsid_ = "{b76bc2ee-261e-4597-b1ef-446e9bb89d7c}"
     _reg_contractid_ = "@activestate.com/koAppInfoEx?app=Python;1"
     _reg_desc_ = "Extended Python Information"
-    exenames = ["python"]
+    exenames = ["python", "python2"]
     defaultInterpreterPrefName = "pythonDefaultInterpreter"
     minVersionSupported = (2, 4)
     maxVersionTuple = (2, 99, 99)
@@ -515,7 +515,7 @@ class KoPython3InfoEx(KoPythonCommonInfoEx):
     _reg_clsid_ = "{e98c16e6-0b9f-4f11-8505-5012555a19b2}"
     _reg_contractid_ = "@activestate.com/koAppInfoEx?app=Python3;1"
     _reg_desc_ = "Extended Python3 Information"
-    exenames = ["python3"]
+    exenames = ["python3", "python"]
     defaultInterpreterPrefName = "python3DefaultInterpreter"
     minVersionSupported = (3, 0)
     maxVersionTuple = (3, 99, 99)
