@@ -98,6 +98,9 @@ interface koIAppInfoEx : nsISupports {
     
     // determines if php is 4.0.5 or later
     readonly attribute boolean valid_version;
+
+    // Determine if the given binary is a supported version.
+    boolean isSupportedBinary(in wstring binaryPath);
 };
 
 [scriptable, uuid(3E2D6B06-3488-4069-B471-2510DE0109C2)]

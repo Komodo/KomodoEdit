@@ -202,6 +202,10 @@ class KoAppInfoEx:
         exe = self.get_executablePath()
         return self._is_valid_executable(exe)
 
+    def isSupportedBinary(self, exe):
+        """Return if the given exe version is valid for Komodo usage."""
+        return self._is_valid_executable(exe)
+
     def getExecutableFromDocument(self, koDoc):
         prefset = koDoc.getEffectivePrefs()
         if prefset.hasPref(self.defaultInterpreterPrefName):
