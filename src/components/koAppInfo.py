@@ -61,8 +61,6 @@ class KoAppInfoEx:
     buildNumber = 0
     localHelpFile = ''
     webHelpURL = ''
-    installed = 0
-    _configPath = ''
     _executables = None
     # The installationPath and executablePath can be used to manually override
     # the executables found and used by the AppInfo classes. Setting these will
@@ -72,6 +70,7 @@ class KoAppInfoEx:
 
     def __init__(self):
 
+        self._executable_is_valid_cache = {}
         self._prefSvc = components.classes["@activestate.com/koPrefService;1"].\
             getService(components.interfaces.koIPrefService)
         self.prefService = getProxyForObject(1,
@@ -163,18 +162,11 @@ class KoAppInfoEx:
     def get_version(self):
         return self.getVersionForBinary(self.get_executablePath())
 
-    def get_valid_version(self):
-        """Return if the version is valid for Komodo usage."""
-        # Class may optionally set a minVersionSupported and maxVersionTuple that
-        # will be used to perform this check.
-        if not hasattr(self, "minVersionSupported"):
-            raise ServerException(nsError.NS_ERROR_NOT_IMPLEMENTED)
-        exe = self.get_executablePath()
-        if not exe:
-            return False
+    def _is_valid_executable_version(self, exe):
         try:
             ver = self.getVersionForBinary(exe)
             versionParts = split_short_ver(ver, intify=True)
+            #print '      versionParts: %r' % (versionParts, )
             if tuple(versionParts) < self.minVersionSupported:
                 return False
             if hasattr(self, "maxVersionTuple"):
@@ -182,11 +174,33 @@ class KoAppInfoEx:
                     return False
             return True
         except AttributeError:
+            log.exception("Unable to determine version for executable %r", exe)
             return False
         except ServerException, ex:
             if ex.errno != nsError.NS_ERROR_FILE_NOT_FOUND:
                 raise
         return False
+
+    def _is_valid_executable(self, exe):
+        """Return if the supplied exe is valid for Komodo usage."""
+        # Class may optionally set a minVersionSupported and maxVersionTuple that
+        # will be used to perform this check.
+        if not hasattr(self, "minVersionSupported"):
+            raise ServerException(nsError.NS_ERROR_NOT_IMPLEMENTED)
+        if not exe:
+            return False
+        #print '  exe: %r' % (exe, )
+        isvalid = self._executable_is_valid_cache.get(exe)
+        if isvalid is None:
+            isvalid = self._is_valid_executable_version(exe)
+            self._executable_is_valid_cache[exe] = isvalid
+        #print '    isvalid: %r' % (isvalid, )
+        return isvalid
+
+    def get_valid_version(self):
+        """Return if the version is valid for Komodo usage."""
+        exe = self.get_executablePath()
+        return self._is_valid_executable(exe)
 
     def getExecutableFromDocument(self, koDoc):
         prefset = koDoc.getEffectivePrefs()
@@ -203,11 +217,12 @@ class KoAppInfoEx:
         if paths is None:
             paths = self._userPath
         executables = which.whichall(exeName, exts=exts, path=paths)
+        executables = [exe for exe in executables if self._is_valid_executable(exe)]
         if interpreterPrefName:
             prefs = self.prefService.prefs
             if prefs.hasStringPref(interpreterPrefName):
                 prefexe = prefs.getStringPref(interpreterPrefName)
-                if prefexe not in executables and os.path.exists(prefexe):
+                if prefexe and prefexe not in executables and os.path.exists(prefexe):
                     # Have to also check case-insensitively for Windows.
                     if not is_windows or \
                        prefexe.lower() not in [x.lower() for x in executables]:
