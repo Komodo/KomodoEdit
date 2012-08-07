@@ -74,10 +74,10 @@ def _getUserPath():
 class _GenericPythonLinter(object):
     _com_interfaces_ = [components.interfaces.koILinter]
 
-    def __init__(self):
-        self._pythonInfo = components.classes["@activestate.com/koAppInfoEx?app=Python;1"]\
-               .createInstance(components.interfaces.koIAppInfoEx)
-        
+    def __init__(self, language="Python"):
+        self._pythonInfo = components.classes["@activestate.com/koAppInfoEx?app=%s;1" % (language, )]\
+               .getService(components.interfaces.koIAppInfoEx)
+
     def lint(self, request):
         text = request.content.encode(request.encoding.python_encoding_name)
         return self.lint_with_text(request, text)
@@ -304,56 +304,15 @@ class KoPythonPycheckerLinter(_GenericPythonLinter):
                            "pychecker: " + desc)
         return results
 
-class KoPythonCommonLinter(object):
+class KoPythonCommonLinter(_GenericPythonLinter):
     _stringType = type("")
     _simple_python3_string_encodings = ("utf-8", "ascii")
     def __init__(self):
+        _GenericPythonLinter.__init__(self, self.language_name)
         self._sysUtils = components.classes["@activestate.com/koSysUtils;1"].\
             getService(components.interfaces.koISysUtils)
         self._koDirSvc = components.classes["@activestate.com/koDirs;1"].\
             getService(components.interfaces.koIDirs)
-
-    def _getInterpreterAndPyver(self, prefset):
-        pref_name = "%sDefaultInterpreter" % (self.language_name_lc)
-        if prefset.hasStringPref(pref_name) and\
-           prefset.getStringPref(pref_name):
-            python = prefset.getStringPref(pref_name)
-        else:
-            if sys.platform.startswith('win'):
-                exts = ['.exe']
-            else:
-                exts = None
-            try:
-                python = which.which(self.language_name_lc, exts=exts, path=_getUserPath())
-            except which.WhichError:
-                python = None
-
-        if python:
-            pyver = self._pyverFromPython(python)
-            return python, pyver
-        else:
-            errmsg = ("No %s interpreter with which to check syntax."
-                      % self.language_name_lc)
-            raise ServerException(nsError.NS_ERROR_NOT_AVAILABLE, errmsg)
-
-    _pyverFromPythonCache = None
-    def _pyverFromPython(self, python):
-        if self._pyverFromPythonCache is None:
-            self._pyverFromPythonCache = {}
-        if python not in self._pyverFromPythonCache:
-            pythonInfo = components.classes["@activestate.com/koAppInfoEx?app=%s;1"
-                                             % self.language_name]\
-                .createInstance(components.interfaces.koIAppInfoEx)
-            pythonInfo.executablePath = python
-            verStr = pythonInfo.version
-            try:
-                pyver = tuple(int(v) for v in verStr.split('.'))
-            except ValueError:
-                pyver = None
-            self._pyverFromPythonCache[python] = pyver
-
-        return self._pyverFromPythonCache[python]
-
 
     def _buildResult(self, resultDict, leadingWS):
         """Convert a pycompile.py output resultDict to a KoILintResult.
@@ -433,8 +392,19 @@ class KoPythonCommonLinter(object):
         if not prefset.getBooleanPref(prefName):
             return
         try:
-            python, pyver = self._getInterpreterAndPyver(prefset)
-            if pyver and pyver >= (3, 0):
+            # Get the Python interpreter (prefs or first valid one on the path).
+            interpreter_pref_name = "%sDefaultInterpreter" % (self.language_name_lc, )
+            python = prefset.getString(interpreter_pref_name)
+            if not python:
+                python = self._pythonInfo.executablePath
+                if not python:
+                    return
+            if not self._pythonInfo.isSupportedBinary(python):
+                raise ServerException(nsError.NS_ERROR_FAILURE,
+                                      "Invalid %r executable: %r" %
+                                      (self.language_name, python))
+            # Determine the pycompile settings.
+            if self.language_name == "Python3":
                 compilePy = os.path.join(self._koDirSvc.supportDir, "python",
                                          "py3compile.py")
                 if encoding_name not in self._simple_python3_string_encodings:
