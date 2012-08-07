@@ -162,7 +162,7 @@ class KoAppInfoEx:
     def get_version(self):
         return self.getVersionForBinary(self.get_executablePath())
 
-    def _is_valid_executable_version(self, exe):
+    def _isValidExecutableVersion(self, exe):
         try:
             ver = self.getVersionForBinary(exe)
             versionParts = split_short_ver(ver, intify=True)
@@ -181,7 +181,7 @@ class KoAppInfoEx:
                 raise
         return False
 
-    def _is_valid_executable(self, exe):
+    def _isValidExecutable(self, exe):
         """Return if the supplied exe is valid for Komodo usage."""
         # Class may optionally set a minVersionSupported and maxVersionTuple that
         # will be used to perform this check.
@@ -192,7 +192,7 @@ class KoAppInfoEx:
         #print '  exe: %r' % (exe, )
         isvalid = self._executable_is_valid_cache.get(exe)
         if isvalid is None:
-            isvalid = self._is_valid_executable_version(exe)
+            isvalid = self._isValidExecutableVersion(exe)
             self._executable_is_valid_cache[exe] = isvalid
         #print '    isvalid: %r' % (isvalid, )
         return isvalid
@@ -200,11 +200,11 @@ class KoAppInfoEx:
     def get_valid_version(self):
         """Return if the version is valid for Komodo usage."""
         exe = self.get_executablePath()
-        return self._is_valid_executable(exe)
+        return self._isValidExecutable(exe)
 
     def isSupportedBinary(self, exe):
         """Return if the given exe version is valid for Komodo usage."""
-        return self._is_valid_executable(exe)
+        return self._isValidExecutable(exe)
 
     def getExecutableFromDocument(self, koDoc):
         prefset = koDoc.getEffectivePrefs()
@@ -221,7 +221,7 @@ class KoAppInfoEx:
         if paths is None:
             paths = self._userPath
         executables = which.whichall(exeName, exts=exts, path=paths)
-        executables = [exe for exe in executables if self._is_valid_executable(exe)]
+        executables = [exe for exe in executables if self._isValidExecutable(exe)]
         if interpreterPrefName:
             prefs = self.prefService.prefs
             if prefs.hasStringPref(interpreterPrefName):
