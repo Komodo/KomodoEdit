@@ -57,6 +57,9 @@ class KoAppInfoEx:
     # Class variables.
     exenames = []  # List of possible executable names.
     defaultInterpreterPrefName = ''
+    # When looking for executables, do version validation to ensure the version
+    # is a valid and supported version and only store the valid versions.
+    versionCheckExecutables = False
     haveLicense = 0
     buildNumber = 0
     localHelpFile = ''
@@ -221,7 +224,9 @@ class KoAppInfoEx:
         if paths is None:
             paths = self._userPath
         executables = which.whichall(exeName, exts=exts, path=paths)
-        executables = [exe for exe in executables if self._isValidExecutable(exe)]
+        if self.versionCheckExecutables:
+            # Only want supported versions.
+            executables = [exe for exe in executables if self._isValidExecutable(exe)]
         if interpreterPrefName:
             prefs = self.prefService.prefs
             if prefs.hasStringPref(interpreterPrefName):
@@ -385,6 +390,10 @@ class KoPerlInfoEx(KoAppInfoEx):
         
 
 class KoPythonCommonInfoEx(KoAppInfoEx):
+    # We only want valid Python executables, otherwise we end up with a mix of
+    # Python2 and Python3 executables.
+    versionCheckExecutables = True
+
     # koIAppInfoEx routines
     def get_haveLicense(self):
         return 1
