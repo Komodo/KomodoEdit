@@ -186,7 +186,6 @@ class _PythonAppInfoTestCase(_BaseAppInfoTestCase):
     def setUp(self):
         self._pyHomeOriginal = koprocessutils._gUserEnvCache.get("PYTHONHOME")
         if self._pyHomeOriginal:
-            print "Removing PYTHONHOME"
             koprocessutils._gUserEnvCache.pop("PYTHONHOME")
 
     def tearDown(self):
@@ -199,10 +198,66 @@ class PythonAppInfoTestCase(_PythonAppInfoTestCase):
     exenames = ["python"]
     defaultInterpreterPrefName = "pythonDefaultInterpreter"
 
+    def test_python2_over_python3(self):
+        self.prefs.setStringPref(self.defaultInterpreterPrefName, "")
+        cachedInfo = self.cachedAppInfo
+        py2 = self.freshAppInfo
+        py3 = Cc["@activestate.com/koAppInfoEx?app=Python3;1"].\
+                createInstance(Ci.koIAppInfoEx)
+        py2exe = py2.executablePath
+        py3exe = py3.executablePath
+        if py2exe and py3exe:
+            self.assertTrue(py2.valid_version)
+            self.assertTrue(py3.valid_version)
+            orig_path = koprocessutils._gUserEnvCache.get("PATH", "")
+            try:
+                # Stick py3 at the start of the path.
+                new_path = dirname(py3exe) + os.pathsep + orig_path
+                appInfo = self.freshAppInfo
+                self.assertEqual(appInfo.executablePath, py2exe)
+                self.assertTrue(appInfo.valid_version)
+                # Make sure nothing changed with py3.
+                py3appInfo = Cc["@activestate.com/koAppInfoEx?app=Python3;1"].\
+                        createInstance(Ci.koIAppInfoEx)
+                self.assertEqual(py3appInfo.executablePath, py3exe)
+                self.assertTrue(py3appInfo.valid_version)
+            finally:
+                koprocessutils._gUserEnvCache["PATH"] = orig_path
+            # Ensure the cached one still has the same executable.
+            self.assertEqual(cachedInfo.executablePath, py2exe)
+
 class Python3AppInfoTestCase(_PythonAppInfoTestCase):
     lang = "Python3"
     exenames = ["python3"]
     defaultInterpreterPrefName = "python3DefaultInterpreter"
+
+    def test_python3_over_python2(self):
+        self.prefs.setStringPref(self.defaultInterpreterPrefName, "")
+        cachedInfo = self.cachedAppInfo
+        py2 = Cc["@activestate.com/koAppInfoEx?app=Python;1"].\
+                createInstance(Ci.koIAppInfoEx)
+        py3 = self.freshAppInfo
+        py2exe = py2.executablePath
+        py3exe = py3.executablePath
+        if py2exe and py3exe:
+            self.assertTrue(py2.valid_version)
+            self.assertTrue(py3.valid_version)
+            orig_path = koprocessutils._gUserEnvCache.get("PATH", "")
+            try:
+                # Stick py2 at the start of the path.
+                new_path = dirname(py2exe) + os.pathsep + orig_path
+                appInfo = self.freshAppInfo
+                self.assertEqual(appInfo.executablePath, py3exe)
+                self.assertTrue(appInfo.valid_version)
+                # Make sure nothing changed with py2.
+                py2appInfo = Cc["@activestate.com/koAppInfoEx?app=Python;1"].\
+                        createInstance(Ci.koIAppInfoEx)
+                self.assertEqual(py2appInfo.executablePath, py2exe)
+                self.assertTrue(py2appInfo.valid_version)
+            finally:
+                koprocessutils._gUserEnvCache["PATH"] = orig_path
+            # Ensure the cached one still has the same executable.
+            self.assertEqual(cachedInfo.executablePath, py3exe)
 
 class PHPAppInfoTestCase(_BaseAppInfoTestCase):
     lang = "PHP"
