@@ -160,11 +160,16 @@ editor_editorController.prototype.do_cmd_bookmarkToggle = function() {
     }
     var line_no = v.scimoz.lineFromPosition(v.scimoz.selectionStart);
     var markerState = v.scimoz.markerGet(line_no);
+    var data = {
+        'line': line_no,
+    }
     if (markerState & (1 << ko.markers.MARKNUM_BOOKMARK)) {
         v.scimoz.markerDelete(line_no, ko.markers.MARKNUM_BOOKMARK);
+        xtk.domutils.fireDataEvent(window, "bookmark_deleted", data);
     } else {
         ko.history.note_curr_loc(v);
         v.scimoz.markerAdd(line_no, ko.markers.MARKNUM_BOOKMARK);
+        xtk.domutils.fireDataEvent(window, "bookmark_added", data);
     }
 }
 
@@ -174,6 +179,7 @@ editor_editorController.prototype.is_cmd_bookmarkRemoveAll_enabled = function() 
 editor_editorController.prototype.do_cmd_bookmarkRemoveAll = function() {
     var v = _getCurrentScimozView();
     if (v) v.scimoz.markerDeleteAll(ko.markers.MARKNUM_BOOKMARK);
+    xtk.domutils.fireEvent(window, "bookmark_deleted");
 }
 
 editor_editorController.prototype.is_cmd_bookmarkGotoNext_enabled = function() {
