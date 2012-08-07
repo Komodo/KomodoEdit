@@ -77,6 +77,17 @@ class _BaseAppInfoTestCase(unittest.TestCase):
                             getService(Ci.koIPrefService).prefs
         return self._prefs
 
+    def _getEncodedUserEnv(self):
+        env = koprocessutils.getUserEnv()
+        encoding = sys.getfilesystemencoding()
+        _enc_env = {}
+        for key, value in env.items():
+            try:
+                _enc_env[key.encode(encoding)] = value.encode(encoding)
+            except UnicodeEncodeError:
+                pass
+        return _enc_env
+
     def test_basics(self):
         self.prefs.setStringPref(self.defaultInterpreterPrefName, "")
 
@@ -193,9 +204,28 @@ class _PythonAppInfoTestCase(_BaseAppInfoTestCase):
             koprocessutils._gUserEnvCache["PYTHONHOME"] = self._pyHomeOriginal
             self._pyHomeOriginal = None
 
+    def _getPathsForInterpreters(self, interpNames):
+        all_executables = _BaseAppInfoTestCase._getPathsForInterpreters(self, interpNames)
+        executables = []
+        # Filter executables, getting the version.
+        import subprocess
+        env = self._getEncodedUserEnv()
+        for exe in all_executables:
+            p = subprocess.Popen([exe, "-V"], env=env,
+                                 stdout=subprocess.PIPE,
+                                 stderr=subprocess.PIPE)
+            stdout, stderr = p.communicate()
+            ver = stderr[7:] if stderr else ""
+            if self.lang == "Python3" and ver >= "3.0" and ver < "4.0":
+                executables.append(exe)
+            elif self.lang == "Python" and ver >= "2.4" and ver < "3.0":
+                # We don't support anything less than Python 2.4.
+                executables.append(exe)
+        return executables
+
 class PythonAppInfoTestCase(_PythonAppInfoTestCase):
     lang = "Python"
-    exenames = ["python"]
+    exenames = ["python", "python2"]
     defaultInterpreterPrefName = "pythonDefaultInterpreter"
 
     def test_python2_over_python3(self):
@@ -230,7 +260,7 @@ class PythonAppInfoTestCase(_PythonAppInfoTestCase):
 
 class Python3AppInfoTestCase(_PythonAppInfoTestCase):
     lang = "Python3"
-    exenames = ["python3"]
+    exenames = ["python3", "python"]
     defaultInterpreterPrefName = "python3DefaultInterpreter"
 
     def test_python3_over_python2(self):
