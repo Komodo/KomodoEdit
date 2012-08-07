@@ -225,6 +225,8 @@ class PythonAppInfoTestCase(_PythonAppInfoTestCase):
                 koprocessutils._gUserEnvCache["PATH"] = orig_path
             # Ensure the cached one still has the same executable.
             self.assertEqual(cachedInfo.executablePath, py2exe)
+        else:
+            self.skip("Could not find both Python2 and Python3 executables")
 
 class Python3AppInfoTestCase(_PythonAppInfoTestCase):
     lang = "Python3"
@@ -258,6 +260,8 @@ class Python3AppInfoTestCase(_PythonAppInfoTestCase):
                 koprocessutils._gUserEnvCache["PATH"] = orig_path
             # Ensure the cached one still has the same executable.
             self.assertEqual(cachedInfo.executablePath, py3exe)
+        else:
+            self.skip("Could not find both Python2 and Python3 executables")
 
 class PHPAppInfoTestCase(_BaseAppInfoTestCase):
     lang = "PHP"
