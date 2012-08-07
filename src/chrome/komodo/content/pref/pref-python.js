@@ -35,75 +35,30 @@
  * ***** END LICENSE BLOCK ***** */
 
 //---- globals
-var _findingInterps = false;
 var programmingLanguage = "Python";
 var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
             .getService(Components.interfaces.nsIStringBundleService)
             .createBundle("chrome://komodo/locale/pref/pref-languages.properties");
 //---- functions
 
-function OnPreferencePageOK(prefset)
-{
-    return checkValidInterpreterSetting(prefset,
-                                        "pythonDefaultInterpreter",
-                                        programmingLanguage);
-}
-
-function checkValidPythonInterpreter(menulist)
-{
-    if (menulist.value) {
-        var appInfoEx = Components.classes["@activestate.com/koAppInfoEx?app=Python;1"].
-            getService(Components.interfaces.koIAppInfoEx);
-        appInfoEx.executablePath = menulist.value;
-        if (appInfoEx.version.substr(0, 2) != "2.") {
-            ko.dialogs.alert("The chosen Python has version " + appInfoEx.version +
-                             ", which will not work as a Python 2 interpreter.",
-                             appInfoEx.executablePath, "Invalid Python 2 Interpreter")
-        }
-    }
-}
-
 // Populate the (tree) list of available Python interpreters on the current
 // system.
-function prefPython_PopulatePythonInterps(prefExecutable)
+function PrefPython_PopulatePythonInterps(prefExecutable)
 {
-    var availInterpList = document.getElementById("pythonDefaultInterpreter");
-    var infoSvc = Components.classes["@activestate.com/koInfoService;1"].
-                      getService(Components.interfaces.koIInfoService);
-
-    // remove any existing items and add a "finding..." one
-    _findingInterps = true;
-    availInterpList.removeAllItems();
-    availInterpList.appendItem(_bundle.formatStringFromName("findingInterpreters.label", [programmingLanguage], 1));
-
-    // get a list of installed Python interpreters
-    var sysUtils = Components.classes['@activestate.com/koSysUtils;1'].
-        getService(Components.interfaces.koISysUtils);
-    var availInterps = [];
-    availInterps = sysUtils.WhichAll("python", {});
-    availInterps = availInterps.concat(sysUtils.WhichAll("python2", {}));
-    if (infoSvc.platform == 'darwin') {
-        availInterps = availInterps.concat(sysUtils.WhichAll("pythonw", {}));
-    }
-    // Only include Python 2.x interpreters.
-    var availPy2Interps = [];
-    var appInfoEx = Components.classes["@activestate.com/koAppInfoEx?app=Python;1"].
+    // Get a list of installed Python3 interpreters.
+    var appInfoEx = Components.classes["@activestate.com/koAppInfoEx?app=" + programmingLanguage + ";1"].
         getService(Components.interfaces.koIAppInfoEx);
-    for (var i = 0; i < availInterps.length; i++) {
-        appInfoEx.executablePath = availInterps[i];
-        if (appInfoEx.version.substr(0, 2) == "2.") {
-            availPy2Interps.push(availInterps[i]);
-        }
-    }
-    availInterps = availPy2Interps;
+    var availInterps = appInfoEx.FindExecutables({});
 
+    // Clear menu list and add "find on path".
+    var availInterpList = document.getElementById("pythonDefaultInterpreter");
     availInterpList.removeAllItems();
     availInterpList.appendItem(_bundle.GetStringFromName("findOnPath.label"),'');
 
     var found = false;
     // populate the tree listing them
-    if (availInterps.length === 0) {
-        // tell the user no interpreter was found and direct them to
+    if (availInterps.length == 0 && !prefExecutable) {
+        // Tell the user no interpreter was found and direct them to
         // ActiveState to get one
         document.getElementById("no-avail-interps-message").removeAttribute("collapsed");
     } else {
@@ -111,15 +66,46 @@ function prefPython_PopulatePythonInterps(prefExecutable)
             availInterpList.appendItem(availInterps[i],availInterps[i]);
             if (availInterps[i] == prefExecutable) {
                 found = true;
+                availInterpList.selectedIndex = i+1;
             }
         }
     }
     if (!found && prefExecutable) {
-        availInterpList.appendItem(prefExecutable,prefExecutable);
+        availInterpList.appendItem(prefExecutable, prefExecutable);
     }
-    _findingInterps = false;
 }
 
+function checkValidPythonInterpreter(exe)
+{
+    if (exe) {
+        var appInfoEx = Components.classes["@activestate.com/koAppInfoEx?app=" + programmingLanguage + ";1"].
+            getService(Components.interfaces.koIAppInfoEx);
+        var isValid = false;
+        var version = "<unknown>";
+        try {
+            isValid = appInfoEx.isSupportedBinary(exe);
+            if (!isValid)
+                version = appInfoEx.getVersionForBinary(exe);
+        } catch(ex) {
+        }
+        if (!isValid) {
+            ko.dialogs.alert("The chosen Python has version " + version +
+                             ", which will not work as a Python interpreter.",
+                             exe, "Invalid Python Interpreter")
+            return false;
+        }
+        return true;
+    }
+    return false;
+}
+
+function loadPythonExecutable()
+{
+    if (loadExecutableIntoInterpreterList("pythonDefaultInterpreter")) {
+        var exe = document.getElementById("pythonDefaultInterpreter").value;
+        checkValidPythonInterpreter(exe);
+    }
+}
 
 function PrefPython_OnLoad()
 {
@@ -128,13 +114,9 @@ function PrefPython_OnLoad()
         parent.hPrefWindow.prefset.getStringPref('pythonDefaultInterpreter')) {
         prefExecutable = parent.hPrefWindow.prefset.getStringPref('pythonDefaultInterpreter');
     }
-    prefPython_PopulatePythonInterps(prefExecutable);
+    PrefPython_PopulatePythonInterps(prefExecutable);
     parent.hPrefWindow.onpageload();
-}
 
-var havePylint = {};
-
-function OnPreferencePageLoading() {
     var origWindow = ko.windowManager.getMainWindow();
     var extraPaths = document.getElementById("pythonExtraPaths");
     var cwd = origWindow.ko.window.getCwd();
@@ -144,10 +126,5 @@ function OnPreferencePageLoading() {
     if (file && file.dirName) {
         extraPaths.setCwd(file.dirName);
     }
-}
-
-function loadPythonExecutable()
-{
-    loadExecutableIntoInterpreterList("pythonDefaultInterpreter");
 }
 
