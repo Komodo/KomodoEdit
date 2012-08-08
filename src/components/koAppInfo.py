@@ -176,7 +176,7 @@ class KoAppInfoEx:
                 if tuple(versionParts) > self.maxVersionTuple:
                     return False
             return True
-        except AttributeError:
+        except AttributeError, ValueError:
             log.exception("Unable to determine version for executable %r", exe)
             return False
         except ServerException, ex:
