@@ -372,14 +372,14 @@ class Manager(threading.Thread, Queue):
         buf = BinaryBuffer(lang, self, env, path)
         return buf
 
-    MAX_FILESIZE = 50 * 1024 * 1024   # 50MB
+    MAX_FILESIZE = 1 * 1024 * 1024   # 1MB
 
     def buf_from_path(self, path, lang=None, env=None, encoding=None):
         # Detect and abort on large files - to avoid memory errors, bug 88487.
-        # The maximum size is 50MB - someone uses source code that big?
+        # The maximum size is 1MB - someone uses source code that big?
         filestat = os.stat(path)
         if filestat.st_size > self.MAX_FILESIZE:
-            log.warn("File %r has size greater than 50MB (%d)", path, filestat.st_size)
+            log.warn("File %r has size greater than 1MB (%d)", path, filestat.st_size)
             raise CodeIntelError('File too big. Size: %d bytes, path: %r' % (
                                  filestat.st_size, path))
 
