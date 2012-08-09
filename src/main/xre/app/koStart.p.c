@@ -633,7 +633,12 @@ static int xpsetenv(const char *name, const char *value, int overwrite)
     /* SetEnvironmentVariableW returns non-zero on success */
     failed = !SetEnvironmentVariableW(namew, valuew);
     /* _wputenv_s returns zero on success */
-    failed |= _wputenv_s(namew, valuew);
+    if (!valuew) {
+        /* Must use the empty string for _wputenv_s, NULL will cause a crash! */
+        failed |= _wputenv_s(namew, L"");
+    } else {
+        failed |= _wputenv_s(namew, valuew);
+    }
     free(namew);
     if (valuew) {
         free(valuew);
@@ -651,11 +656,7 @@ static int xpsetenv(const char *name, const char *value, int overwrite)
 static int xpunsetenv(const char *name)
 {
 #ifdef WIN32
-    BOOL success;
-    wchar_t *namew = _ToUTF16(name);
-    success = SetEnvironmentVariableW(namew, NULL);
-    free(namew);
-    return success ? 0 : -1;
+    return xpsetenv(name, NULL, 1);
 #else
     return unsetenv(name);
 #endif
