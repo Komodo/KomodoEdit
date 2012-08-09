@@ -295,7 +295,7 @@ class KoUserEnviron:
         fullname = ['_']
         startingwith = ['MOZILLA_', 'XRE_', 'MRE_', 'MOZ_', 'KOMODO_']
         dangerouspaths = ['PATH', 'LD_LIBRARY_PATH', 'DYLD_LIBRARY_PATH',
-                          'PYTHONPATH', 'LIBRARY_PATH', 'LIBPATH',
+                          'PYTHONPATH', 'PYTHONHOME', 'LIBRARY_PATH', 'LIBPATH',
                           'ADDON_PATH', 'SHLIB_PATH']
         
         for item in fullname:
