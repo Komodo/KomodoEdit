@@ -379,7 +379,11 @@ class _CommonPerlLinter(object):
 
         return perlExe
 
-_begin_to_init_re = re.compile(r'\bBEGIN(?=(?:\s|#.*$\n?)*\{)', re.MULTILINE)
+_begin_to_init_re = re.compile(r'\bBEGIN(?=(?:\s|#.*\n?)*\{)')
+# Python takes a long time matching this when it fails, so do a quicker
+# pattern when we have more than 10000 characters.
+_begin_to_init_faster_re = re.compile(r'\bBEGIN(?=\s*\{)')
+_init_matcher_cutoff = 10000
 class KoPerlCompileLinter(_CommonPerlLinter):
     _com_interfaces_ = [components.interfaces.koILinter]
     _reg_desc_ = "Komodo Perl Compile Linter"
@@ -410,7 +414,11 @@ class KoPerlCompileLinter(_CommonPerlLinter):
         else:
             text = firstLine
         if prefset.getBooleanPref("perl_lintOption_disableBeginBlocks"):
-            text = _begin_to_init_re.sub("INIT", text)
+            if len(text) > _init_matcher_cutoff:
+                # Use a faster pattern when we have lots of text.
+                text = _begin_to_init_faster_re.sub("INIT", text)
+            else:
+                text = _begin_to_init_re.sub("INIT", text)
         # Save perl buffer to a temporary file.
 
         tmpFileName = self._writeTempFile(cwd, text)
