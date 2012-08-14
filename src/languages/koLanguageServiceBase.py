@@ -2830,7 +2830,7 @@ class KoLanguageBase:
         if braceMatchPos == -1:
             if scimoz.getLineEndPosition(nextLineNo) == scimoz.textLength:
                 # The next line is the only line left in the buffer, so wrap it
-                self._insertCloseBraceAfterLine(scimoz, currLineNo, nextLineNo) # case 3.1.
+                self._insertCloseBraceAfterLine(scimoz, currLineNo, nextLineNo, charPos) # case 3.1.
                 return None
             targetLineNo = nextLineNo + 1
             targetIndentLen = self._getIndentWidthForLine(scimoz, targetLineNo)
@@ -2839,7 +2839,7 @@ class KoLanguageBase:
                 # Don't wrap more than one line, but don't insert a soft char either - case 3.2-true
                 pass
             else:
-                self._insertCloseBraceAfterLine(scimoz, currLineNo, nextLineNo) # case 3.2-false.
+                self._insertCloseBraceAfterLine(scimoz, currLineNo, nextLineNo, charPos) # case 3.2-false.
             return None
         elif braceMatchPos <= charPos: # case 4
             # Shouldn't happen?
@@ -2857,9 +2857,9 @@ class KoLanguageBase:
         if braceMatchLineNo == nextLineNo + 1 \
             or self._getIndentWidthForLine(scimoz, nextLineNo + 1) <= currIndentLen:
             # Both conditions indicate that there's exactly one line to wrap 
-            self._insertCloseBraceAfterLine(scimoz, currLineNo, nextLineNo) # case 7
+            self._insertCloseBraceAfterLine(scimoz, currLineNo, nextLineNo, charPos) # case 7
     
-    def _insertCloseBraceAfterLine(self, scimoz, useIndentOfThisLineNo, insertTextAtEndOfLineNo):
+    def _insertCloseBraceAfterLine(self, scimoz, useIndentOfThisLineNo, insertTextAtEndOfLineNo, charPos):
         # If the indent of the line before that is >= the nextLine, insert it there
         textToInsert = (eollib.eol2eolStr[eollib.scimozEOL2eol[scimoz.eOLMode]]
                         + self._getRawIndentForLine(scimoz, useIndentOfThisLineNo)
@@ -2870,6 +2870,9 @@ class KoLanguageBase:
             # No Unicode text here
             scimoz.insertText(scimoz.getLineEndPosition(insertTextAtEndOfLineNo), textToInsert)
             scimoz.gotoPos(pos)
+            matchedPos = scimoz.braceMatch(charPos)
+            if matchedPos != -1:
+                scimoz.braceHighlight(charPos, matchedPos)
         finally:
             scimoz.endUndoAction()
 
