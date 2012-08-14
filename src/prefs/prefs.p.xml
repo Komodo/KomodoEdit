@@ -362,7 +362,7 @@
  '*.ps1': 'PowerShell',
  '*.py': 'Python',
  '*.pyw': 'Python',
- '*.rake: 'Ruby',
+ '*.rake': 'Ruby',
  '*.rb': 'Ruby',
  '*.rjs': 'Ruby',
  '*.rxml': 'Ruby',
