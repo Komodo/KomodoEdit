@@ -221,7 +221,7 @@
                 ["CSS", Components.interfaces.ISciMoz.SCE_UDL_CSL_DEFAULT],
                 ["CSL", Components.interfaces.ISciMoz.SCE_UDL_SSL_DEFAULT],
                 ["SSL", Components.interfaces.ISciMoz.SCE_UDL_TPL_DEFAULT],
-                ["TPL", Components.interfaces.ISciMoz.SCE_UDL_UPPER_BOUND + 1],
+                ["TPL", Components.interfaces.ISciMoz.SCE_UDL_UPPER_BOUND + 1]
             ];
             for (var part, style = 0, i = 0; part = parts[i]; ++i) {
                 for (; style < part[1]; style++) {
