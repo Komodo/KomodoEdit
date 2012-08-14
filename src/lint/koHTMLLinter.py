@@ -491,15 +491,7 @@ class _CommonHTMLLinter(object):
                 elif name in ('HTML', 'HTML5', 'XML', 'XUL', 'XBL', 'XSLT'):
                     if name == langName:
                         if currState & ~self._IN_M:
-                            if currState & self._IN_CSS_ATTR:
-                                bytesByLang.replace_ending_white_space("CSS", "}", currLineNum)
-                                self._emittedCodeLineNumbers.add(currLineNum)
-                            elif currState & self._IN_JS_FUNCTION_DEF:
-                                bytesByLang.replace_ending_white_space("JavaScript", "}", currLineNum)
-                                self._emittedCodeLineNumbers.add(currLineNum)
-                            elif currState & self._IN_JS_FUNCTION_DEF_INVOCN:
-                                bytesByLang.replace_ending_white_space("JavaScript", "})();", currLineNum)
-                                self._emittedCodeLineNumbers.add(currLineNum)
+                            self._closeOpenBlocks(currState, bytesByLang, currLineNum)
                             currState = self._IN_M
                         if TPLInfo:
                             m = self._xml_decln_re.match(currText)
@@ -518,6 +510,7 @@ class _CommonHTMLLinter(object):
                     else:
                         bytesByLang.addWhiteSpace(name, squelchedText)
                 elif name == langName:
+                    currState = self._closeOpenBlocks(currState, bytesByLang, currLineNum)
                     # It's either TPL or SSL.  TPL has transitions, SSL would be pieces of SSL code
                     # surrounded by TPL bits.
                     if TPLInfo and name == langName and origLangName == TPLInfo[0]:
@@ -567,6 +560,7 @@ class _CommonHTMLLinter(object):
             prevText = currText
             currLineNum += numNewLinesInCurrText
         # end of main loop through the document
+        self._closeOpenBlocks(currState, bytesByLang, currLineNum)
             
         # Dump pending white-space to end so we see last-line messages on each stream.
         bytesByLang.finish()
@@ -653,6 +647,21 @@ class _CommonHTMLLinter(object):
                     lintResult.description = mLangName + ": " + lintResult.description
                 finalLintResults.addResults(lintResultSet)
             return self._check_emitted_code_lines(finalLintResults, textAsBytes)
+    
+    def _closeOpenBlocks(self, currState, bytesByLang, currLineNum):
+        if currState & self._IN_CSS_ATTR:
+            bytesByLang.replace_ending_white_space("CSS", "}", currLineNum)
+            self._emittedCodeLineNumbers.add(currLineNum)
+            currState &= ~self._IN_CSS_ATTR
+        elif currState & self._IN_JS_FUNCTION_DEF:
+            bytesByLang.replace_ending_white_space("JavaScript", "}", currLineNum)
+            self._emittedCodeLineNumbers.add(currLineNum)
+            currState &= ~self._IN_JS_FUNCTION_DEF
+        elif currState & self._IN_JS_FUNCTION_DEF_INVOCN:
+            bytesByLang.replace_ending_white_space("JavaScript", "})();", currLineNum)
+            self._emittedCodeLineNumbers.add(currLineNum)
+            currState &= ~self._IN_JS_FUNCTION_DEF_INVOCN
+        return currState
     
     def _filter_guessed_emitted_hits(self, lintResults):
         if not self._multiLanguageLineNumbers:
