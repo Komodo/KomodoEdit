@@ -350,6 +350,7 @@ class koTerminalHandler:
             self._scintilla.readOnly = ro
             self._scintilla.ensureVisible(self._scintilla.lineCount-1)
             self._scintilla.scrollCaret()
+            self._scintilla.emptyUndoBuffer();
             if self._addTextCallbackHandler is not None:
                 self._addTextCallbackHandler.callback(0, text)
           except COMException, e:
