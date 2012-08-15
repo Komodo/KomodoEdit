@@ -305,6 +305,11 @@ class KoInterpolationService:
             [[%s]] [[%(perl)]] [[%ask:Search for]]
         """
         allCharCodes = [re.escape(k) for k in codeMap.keys()]
+        # Ensure python3 is listed before python - bug 95070.
+        if "python3" in allCharCodes:
+            allCharCodes.remove("python3")
+            allCharCodes.insert(0, "python3")
+
         if bracketed:
             codeReStrs = [
                 # Parse bracketed codes _with_ parentheses:
