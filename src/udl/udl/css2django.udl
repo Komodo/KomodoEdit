@@ -1,0 +1,31 @@
+# css2django.udl
+# Transition from CSS blocks into django code blocks
+#
+# Copyright (c) 2006-2012 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+#
+# Authors: 
+#  Eric Promislow <ericp@activestate.com>
+
+family css
+
+state IN_CSS_DSTRING:
+/\{[\{%]/ : paint(upto, CSS_STRING), paint(include, TPL_OPERATOR), \
+spush_check(IN_CSS_DSTRING) => IN_TPL_DEFAULT
+'{#': paint(upto, CSS_STRING), paint(include, TPL_OPERATOR), spush_check(IN_CSS_DSTRING), => IN_TPL_COMMENT
+
+state IN_CSS_SSTRING:
+/\{[\{%]/ : paint(upto, CSS_STRING), paint(include, TPL_OPERATOR), \
+spush_check(IN_CSS_SSTRING) => IN_TPL_DEFAULT
+'{#': paint(upto, CSS_STRING), paint(include, TPL_OPERATOR), spush_check(IN_CSS_SSTRING), => IN_TPL_COMMENT
+
+state IN_CSS_DEFAULT:
+/\{[\{%]/ : paint(upto, CSS_DEFAULT), paint(include, TPL_OPERATOR), \
+spush_check(IN_CSS_DEFAULT) => IN_TPL_DEFAULT
+'{#': paint(upto, CSS_DEFAULT), paint(include, TPL_OPERATOR), spush_check(IN_CSS_DEFAULT), => IN_TPL_COMMENT
+
+state IN_CSS_COMMENT_1:
+/\{[\{%]/ : paint(upto, CSS_COMMENT), paint(include, TPL_OPERATOR), \
+spush_check(IN_CSS_COMMENT_1) => IN_TPL_DEFAULT
+'{#': paint(upto, CSS_COMMENT), paint(include, TPL_OPERATOR), spush_check(IN_CSS_COMMENT_1), => IN_TPL_COMMENT
+
