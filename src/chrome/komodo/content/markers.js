@@ -65,6 +65,8 @@ ko.markers =  function markers_module() {
     MARKNUM_STDOUT: 11, // used in terminal view
     MARKNUM_CURRENT_LINE_BACKGROUND: 10,
     MARKNUM_STDIN_PROMPT: 9, // used in terminal view
+    MARKNUM_INTERACTIVE_PROMPT_MORE: 8, // used in interactive shell
+    MARKNUM_INTERACTIVE_PROMPT: 7, // used in interactive shell
     MARKNUM_BOOKMARK: 6,
     MARKNUM_TRANSIENTMARK: 0, // used in buffer view
     
