@@ -59,42 +59,97 @@ class TestKoInterpolationService(unittest.TestCase):
             getService(components.interfaces.koIPrefService).prefs
         koDirSvc = components.classes["@activestate.com/koDirs;1"].\
             getService(components.interfaces.koIDirs)
-        self.interopateList = [
-            interpolateData(strings = ['%F', '%f', '%D', '%d'],
-                            bracketedStrings = ['[[%F]]', '[[%f]]', '[[%D]]', '[[%d]]'],
-                            expect =  ['/home/shanec/test.txt', 'test.txt',
-                                       '/home/shanec', 'shanec',
-                                       '/home/shanec/test.txt', 'test.txt',
-                                       '/home/shanec', 'shanec']),
-        
-            # string pref test
-            interpolateData(strings = ['%(pref:tidy_errorlevel)'], expect = [prefs.getStringPref('tidy_errorlevel')]),
-            # long pref test
-            interpolateData(strings = ['%(pref:tabWidth)'], expect = ['%d' % prefs.getLongPref('tabWidth')]),
-            # boolean pref test
-            interpolateData(strings = ['%(pref:cvsEnabled)'], expect = ['%d' % prefs.getBooleanPref('cvsEnabled')]),
-        
-            # koIDirs test
-            interpolateData(strings = ['%(path:userDataDir)',
-                                       '%(path:commonDataDir)',
-                                       '%(path:supportDir)'],
-                            expect =  [koDirSvc.userDataDir,
-                                       koDirSvc.commonDataDir,
-                                       koDirSvc.supportDir]),
-            
-            # test asking for the value
-            interpolateData(strings = ['%(ask:User Data Dir:)'],
-                            expect =  [koDirSvc.userDataDir],
-                            answers = {'User Data Dir': koDirSvc.userDataDir}),
-            
-            # test asking for the value and returning a default value
-            interpolateData(strings = ['%(ask:User Data Dir:'+ koDirSvc.userDataDir +')'],
-                            expect =  [koDirSvc.userDataDir]),
-        ]
 
-    def test_interpolate(self):
-        for interpolateTest in self.interopateList:
-            interpolateTest.doTest(self)
+        interpolateData(strings = ['%F', '%f', '%D', '%d'],
+                        bracketedStrings = ['[[%F]]', '[[%f]]', '[[%D]]', '[[%d]]'],
+                        expect =  ['/home/shanec/test.txt', 'test.txt',
+                                   '/home/shanec', 'shanec',
+                                   '/home/shanec/test.txt', 'test.txt',
+                                   '/home/shanec', 'shanec'])\
+                       .doTest(self)
+
+        # string pref test
+        interpolateData(strings = ['%(pref:tidy_errorlevel)'], expect = [prefs.getStringPref('tidy_errorlevel')]),
+        # long pref test
+        interpolateData(strings = ['%(pref:tabWidth)'], expect = ['%d' % prefs.getLongPref('tabWidth')]),
+        # boolean pref test
+        interpolateData(strings = ['%(pref:cvsEnabled)'], expect = ['%d' % prefs.getBooleanPref('cvsEnabled')]),
+    
+        # koIDirs test
+        interpolateData(strings = ['%(path:userDataDir)',
+                                   '%(path:commonDataDir)',
+                                   '%(path:supportDir)'],
+                        expect =  [koDirSvc.userDataDir,
+                                   koDirSvc.commonDataDir,
+                                   koDirSvc.supportDir])\
+                       .doTest(self)
+
+        # test asking for the value
+        interpolateData(strings = ['%(ask:User Data Dir:)'],
+                        expect =  [koDirSvc.userDataDir],
+                        answers = {'User Data Dir': koDirSvc.userDataDir})\
+                       .doTest(self)
+
+        # test asking for the value and returning a default value
+        interpolateData(strings = ['%(ask:User Data Dir:'+ koDirSvc.userDataDir +')'],
+                        expect =  [koDirSvc.userDataDir])\
+                       .doTest(self)
+
+    def test_interpolate_content(self):
+        template = "@ 1\n@  2\n@   3"
+        res_template = template + "\n"
+
+        # multiple selection lines
+        interpolateData(bracketedStrings = ['[[%s]]\n [[%s]]\n     [[%s]]\n'],
+                        selection = template.replace('@', ''),
+                        expect =  [
+                                   (res_template.replace('@', '')
+                                   + res_template.replace('@', ' ')
+                                   + res_template.replace('@', ' ' * 5))]
+                        ).doTest(self)
+        # Mix tabs and spaces
+        interpolateData(bracketedStrings = ['[[%s]]\n \t\t[[%s]]\n'],
+                        selection = template.replace('@', ''),
+                        expect =  [
+                                   (res_template.replace('@', '')
+                                   + res_template.replace('@', ' \t\t'))]
+                        ).doTest(self)
+        # crlf / crlf
+        interpolateData(strings = ['   %s'],
+                        bracketedStrings = ['   [[%s]]'],
+                        selection = "cashew\r\n  brazil\r\nalmonds",
+                        expect =  [
+                                   "   cashew\r\n  brazil\r\nalmonds",
+                                   "   cashew\r\n     brazil\r\n   almonds",
+                                   ]
+                        ).doTest(self)
+        # lf / lf
+        interpolateData(strings = ['   %s'],
+                        bracketedStrings = ['   [[%s]]'],
+                        selection = "cashew\n  brazil\nalmonds",
+                        expect =  [
+                                   "   cashew\n  brazil\nalmonds",
+                                   "   cashew\n     brazil\n   almonds",
+                                   ]
+                        ).doTest(self)
+        # crlf / lf
+        interpolateData(strings = ['if (1) {\r\n    %s\r\n}'],
+                        bracketedStrings = ['if (1) {\r\n    [[%s]]\r\n}'],
+                        selection = "cashew\n  brazil\nalmonds",
+                        expect =  [
+                                   'if (1) {\r\n    cashew\n  brazil\nalmonds\r\n}',
+                                   'if (1) {\r\n    cashew\n      brazil\n    almonds\r\n}',
+                                   ]
+                        ).doTest(self)
+        # lf / crlf
+        interpolateData(strings = ['if (1) {\n    %s\n}'],
+                        bracketedStrings = ['if (1) {\n    [[%s]]\n}'],
+                        selection = "cashew\r\n  brazil\r\nalmonds",
+                        expect =  [
+                                   'if (1) {\n    cashew\r\n  brazil\r\nalmonds\n}',
+                                   'if (1) {\n    cashew\r\n      brazil\r\n    almonds\n}',
+                                   ]
+                        ).doTest(self)
 
     def test_interpolate_python3(self):
         prefs = components.classes["@activestate.com/koPrefService;1"].\
