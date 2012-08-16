@@ -1293,7 +1293,7 @@ class LangZone(object):
         long running Komodo profile. Failing that we'll just use N=10.
         """
         assert isinstance(dirs, (tuple, list))
-        canon_dirs = tuple(abspath(normpath(expanduser(d))) for d in dirs)
+        canon_dirs = tuple(set(abspath(normpath(expanduser(d))) for d in dirs))
         if canon_dirs in self._dirslib_cache:
             return self._dirslib_cache[canon_dirs]
 

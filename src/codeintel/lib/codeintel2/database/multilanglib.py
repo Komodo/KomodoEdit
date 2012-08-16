@@ -124,8 +124,6 @@ class MultiLangDirsLib(LangDirsLibBase):
     def get_blob(self, blobname, ctlr=None, specific_dir=None):
         self._acquire_lock()
         try:
-            if specific_dir:
-                specific_dir = abspath(normpath(expanduser(specific_dir)))
             dbsubpath = self._dbsubpath_from_blobname(
                 blobname, ctlr=ctlr, specific_dir=specific_dir)
             if dbsubpath is not None:
@@ -978,7 +976,7 @@ class MultiLangZone(LangZone):
         assert isinstance(dirs, (tuple, list))
         assert sublang is not None, "must specify '%s' sublang" % self.lang
 
-        canon_dirs = tuple(abspath(normpath(expanduser(d))) for d in dirs)
+        canon_dirs = tuple(set(abspath(normpath(expanduser(d))) for d in dirs))
         key = (canon_dirs, sublang)
         if key in self._dirslib_cache:
             return self._dirslib_cache[key]
