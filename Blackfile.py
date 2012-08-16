@@ -2326,6 +2326,15 @@ def _addExtensionFiles(cfg, sourceSubdir, targetSubdir, extensions, preserveSubt
                   extensions=extensions,
                   preserveSubtrees=preserveSubtrees)
 
+# Excluded directory paths for _addFiles (relative to the given sourceSubdir).
+g_excluded_relpaths = [
+    join("codeintel", "play"),
+    join("codeintel", "test2"),
+    join("unittest", "examples"),
+    join("xdebug2", "build"),
+    join("xdebug2", "tmp"),
+]
+
 def _addFiles(cfg, sourceSubdir, targetSubdir, extensions, preserveSubtrees=0):
     count = 0
     sourceSubdir = os.path.normpath(os.path.abspath(sourceSubdir))
@@ -2334,11 +2343,18 @@ def _addFiles(cfg, sourceSubdir, targetSubdir, extensions, preserveSubtrees=0):
 
     # find possible files of interest
     for dirpath, dirnames, filenames in os.walk(sourceSubdir):
-        #relpath = dirpath[len(sourceSubdir)+1:]
+        relpath = dirpath[len(sourceSubdir)+1:]
+        if relpath in g_excluded_relpaths:
+            dirnames[:] = []
+            continue
+        #print "Walking %r" % (dirpath, )
         for fname in filenames:
             bname, ext = splitext(fname)
             if ext[1:].lower() in extensions:
                 srcpath = join(dirpath, fname)
+                if srcpath in _table:
+                    # Skip over entries we've already processed.
+                    continue
                 # Target names are used for pre-processed files.
                 pname = fname
                 psrcpath = srcpath
@@ -2363,6 +2379,7 @@ def _addFiles(cfg, sourceSubdir, targetSubdir, extensions, preserveSubtrees=0):
     #print 'Found %d %s files in %s' % (count, extensions, sourceSubdir)
     
 def BuildQuickBuildDB(cfg, argv):
+    starttime = time.time()
     if sys.platform == 'darwin':
         sharedSupportRelDir = "%s/Contents/SharedSupport" % cfg.macKomodoAppBuildName
     else:
@@ -2433,6 +2450,8 @@ def BuildQuickBuildDB(cfg, argv):
                   extensions=['js', 'jsm'])
 
     pickle.dump(_table, open('qbtable.pik', 'w'))
+    endtime = time.time()
+    print "Cache created successfully - %0.2f seconds" % (endtime - starttime)
 
 def DumpQuickBuildDB(cfg, argv):
     sys.stderr.write("Dumping quick build cache...\n");
