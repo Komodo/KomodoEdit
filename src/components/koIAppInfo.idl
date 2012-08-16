@@ -72,6 +72,8 @@ interface koIAppInfoEx : nsISupports {
     // The path to the executable for the interpreter e.g. "usr/bin/perl"
     attribute wstring executablePath;
 
+    wstring getExecutableFromPrefs(in koIPreferenceSet prefset);
+
     wstring getExecutableFromDocument(in koIDocument koDoc);
 
     // True if user is licensed for the current version of this app.

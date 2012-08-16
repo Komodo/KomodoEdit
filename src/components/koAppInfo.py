@@ -209,13 +209,15 @@ class KoAppInfoEx:
         """Return if the given exe version is valid for Komodo usage."""
         return self._isValidExecutable(exe)
 
-    def getExecutableFromDocument(self, koDoc):
-        prefset = koDoc.getEffectivePrefs()
+    def getExecutableFromPrefs(self, prefset):
         if prefset.hasPref(self.defaultInterpreterPrefName):
             interpPath = prefset.getStringPref(self.defaultInterpreterPrefName)
             if interpPath and os.path.exists(interpPath):
                 return interpPath
         return self.get_executablePath()
+
+    def getExecutableFromDocument(self, koDoc):
+        return self.getExecutableFromPrefs(koDoc.getEffectivePrefs())
 
     def _locateExecutables(self, exeName, interpreterPrefName=None, exts=None, paths=None):
         is_windows = sys.platform.startswith('win')
