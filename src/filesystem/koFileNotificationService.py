@@ -70,7 +70,7 @@ class koFileNotificationService:
         self.__io_service = components.classes["@mozilla.org/network/protocol;1?name=file"].\
                     getService(components.interfaces.nsIFileProtocolHandler)
         # Service enabled
-        self.__enabled = self.__prefs.getBooleanPref("fileNotificationServiceEnabled")
+        self.__enabled = self.__prefs.getBoolean("fileNotificationServiceEnabled", True)
 
         # Short names for flags
         self.available_file_flags = components.interfaces.koIFileNotificationService.FS_FILE_CREATED | \
@@ -81,16 +81,13 @@ class koFileNotificationService:
         self.__polling_service = None
         self.__os_file_service = None
         if self.__enabled:
-            if not self.__prefs.hasBooleanPref("filePollingServiceEnabled") or \
-               self.__prefs.getBooleanPref("filePollingServiceEnabled"):
+            if self.__prefs.getBoolean("filePollingServiceEnabled", True):
                 # Polling is enabled - setup the fallback polling handler.
-                poll_period = osFilePollingNotifier.DEFAULT_POLL_PERIOD
-                if self.__prefs.hasLongPref("filePollingServicePeriod"):
-                    poll_period = self.__prefs.getLongPref("filePollingServicePeriod")
+                poll_period = self.__prefs.getLong("filePollingServicePeriod",
+                                                   osFilePollingNotifier.DEFAULT_POLL_PERIOD)
                 self.__polling_service = osFilePollingNotifier.osFilePollingNotifier(poll_period)
 
-            if not self.__prefs.hasBooleanPref("osControlledFileNotificationsEnabled") or \
-               self.__prefs.getBooleanPref("osControlledFileNotificationsEnabled"):
+            if self.__prefs.getBoolean("osControlledFileNotificationsEnabled", True):
                 # OS filesystem notifications are enabled - import watchdog to
                 # do the handling.
                 from watchdogFileNotifications import WatchdogFileNotificationService
