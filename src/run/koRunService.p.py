@@ -107,7 +107,6 @@ class KoInterpolationService:
         self._prefSvc = components.classes["@activestate.com/koPrefService;1"].\
             getService(components.interfaces.koIPrefService)
         self._prefs = self._prefSvc.prefs
-        self._userPath = koprocessutils.getUserEnv()["PATH"].split(os.pathsep)
         self._koDirSvc = components.classes["@activestate.com/koDirs;1"].\
             getService(components.interfaces.koIDirs)
 
@@ -116,62 +115,21 @@ class KoInterpolationService:
             _gLastErrorSvc = components.classes["@activestate.com/koLastErrorService;1"]\
                          .getService(components.interfaces.koILastErrorService)
 
-    def _FindInterpreterOnPath(self, interp):
-        """Return a full path to the first occurence of the given interpreter
-        on the path.
-
-        Return the empty string if none is found.
-        """
-        if sys.platform.startswith("win"):
-            exts = ['.exe']
-        else:
-            exts = None
-        try:
-            return which.which(interp, exts=exts, path=self._userPath)
-        except which.WhichError:
-            return ""
-
-    def _GetInterpreter(self, interp, lang):
+    def _GetInterpreter(self, interp, lang, prefSet):
         """Return the full path to the given interpreter or raise a suitable
         ValueError.
         """
-        code = "(%s)" % interp
-        prefName = interp+"DefaultInterpreter"
-        path = None
-        if self._viewPrefs and self._viewPrefs.hasPrefHere(prefName):
-            try:
-                path = self._viewPrefs.getStringPref(prefName)
-                if path:
-                    return path
-            except:
-                pass
-        if self._effectivePrefs is None:
-            self._effectivePrefs = self._prefSvc.effectivePrefs
-        if self._effectivePrefs.hasPrefHere(prefName):
-            try:
-                path = self._effectivePrefs.getStringPref(prefName)
-                if path:
-                    return path
-            except:
-                pass
-        elif self._effectivePrefs != self._prefs and self._prefs.hasStringPref(prefName):
-            try:
-                path = self._prefs.getStringPref(prefName)
-                if path:
-                    return path
-            except:
-                pass
-        if not path:
-            path = self._FindInterpreterOnPath(interp)
-        
-        if not path:
+        appInfo = components.classes["@activestate.com/koAppInfoEx?app=%s;1" % (lang)]. \
+                             getService(components.interfaces.koIAppInfoEx)
+        exepath = appInfo.getExecutableFromPrefs(prefSet or self._prefSvc.effectivePrefs)
+        if not exepath:
             raise ValueError("This command string includes '%%(%s)', but "\
                              "no '%s' interpreter could be found. You can "\
                              "configure this by visiting the %s "\
                              "preferences panel in Edit->Preferences."\
                              % (interp, interp, lang))
         else:
-            return path
+            return exepath
 
     def _getGuid(self):
         uuidGenerator = components.classes["@mozilla.org/uuid-generator;1"].getService(components.interfaces.nsIUUIDGenerator)
@@ -211,7 +169,7 @@ class KoInterpolationService:
         return browser
         
     def _getCodeMap(self, fileName=None, lineNum=None, word=None,
-                    selection=None, projectFile=None):
+                    selection=None, projectFile=None, prefSet=None):
         # Define the interpolation mapping.
         #   This is a mapping from interpolation code to the replacement
         #   value in the command. The "replacement" may be one of the
@@ -236,17 +194,17 @@ class KoInterpolationService:
             'S': ValueError("The command string includes %S, but there is no selection"),
             'P': ValueError("The command string includes %P, but there is no active project"),
             'p': ValueError("The command string includes %p, but there is no active project"),
-            'nodejs': lambda interp='nodejs', lang='Node.js':self._GetInterpreter(interp, lang),
-            'perl':   lambda interp='perl',   lang='Perl':   self._GetInterpreter(interp, lang),
-            'php':    lambda interp='php',    lang='PHP':    self._GetInterpreter(interp, lang),
-            'python': lambda interp='python', lang='Python': self._GetInterpreter(interp, lang),
-            'python3': lambda interp='python3', lang='Python3': self._GetInterpreter(interp, lang),
+            'nodejs': lambda  interp='nodejs',  lang='Node.js': self._GetInterpreter(interp, lang, prefSet),
+            'perl':   lambda  interp='perl',    lang='Perl':    self._GetInterpreter(interp, lang, prefSet),
+            'php':    lambda  interp='php',     lang='PHP':     self._GetInterpreter(interp, lang, prefSet),
+            'python': lambda  interp='python',  lang='Python':  self._GetInterpreter(interp, lang, prefSet),
+            'python3': lambda interp='python3', lang='Python3': self._GetInterpreter(interp, lang, prefSet),
 # #if PLATFORM == 'win' or PLATFORM == 'darwin'
-            'pythonw': lambda interp='pythonw', lang='Python': self._GetInterpreter(interp, lang),
+            'pythonw': lambda interp='pythonw', lang='Python':  self._GetInterpreter(interp, lang, prefSet),
 # #endif
-            'ruby':   lambda interp='ruby',   lang='Ruby':   self._GetInterpreter(interp, lang),
-            'tclsh':  lambda interp='tclsh',  lang='Tcl':    self._GetInterpreter(interp, lang),
-            'wish':   lambda interp='wish',   lang='Tcl':    self._GetInterpreter(interp, lang),
+            'ruby':   lambda  interp='ruby',    lang='Ruby':    self._GetInterpreter(interp, lang, prefSet),
+            'tclsh':  lambda  interp='tclsh',   lang='Tcl':     self._GetInterpreter(interp, lang, prefSet),
+            'wish':   lambda  interp='wish',    lang='Tcl':     self._GetInterpreter(interp, lang, prefSet),
             'guid':   self._getGuid,
             'browser': self._getBrowser,
 
@@ -514,9 +472,7 @@ class KoInterpolationService:
                 
             elif code == "pref":
                 if prefSet is None:
-                    if self._effectivePrefs is None:
-                        self._effectivePrefs = self._prefSvc.effectivePrefs
-                    prefSet = self._effectivePrefs
+                    prefSet = self._prefSvc.effectivePrefs
                 if prefSet.hasPref(prefName):
                     prefType = prefSet.getPrefType(prefName)
                     if prefType == "string":
@@ -666,13 +622,11 @@ class KoInterpolationService:
 
     def Interpolate1(self, strings, bracketedStrings, fileName, lineNum, word, selection,
                      projectFile, prefSet):
-        self._viewPrefs = prefSet
-        self._effectivePrefs = None
         try:
             #print "Interpolate1(strings=%r, fileName=%r, lineNum=%r, word=%r, "\
             #      "selection=%r, projectFile, prefSet, bracketed=%r)"\
             #      % (strings, fileName, lineNum, word, selection, bracketed)
-            codeMap = self._getCodeMap(fileName, lineNum, word, selection, projectFile)
+            codeMap = self._getCodeMap(fileName, lineNum, word, selection, projectFile, prefSet)
             codeRes = None
             bracketedCodeRes = None
             if strings:
