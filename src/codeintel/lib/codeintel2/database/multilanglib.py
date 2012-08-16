@@ -984,12 +984,7 @@ class MultiLangZone(LangZone):
         langdirslib = MultiLangDirsLib(self, self._lock, self.lang,
                                         name, canon_dirs, sublang)
         
-        N = 10
-        while len(self._ordered_dirslib_cache_keys) >= N:
-            cache_key = self._ordered_dirslib_cache_keys.pop()
-            del self._dirslib_cache[cache_key]
         self._dirslib_cache[key] = langdirslib
-        self._ordered_dirslib_cache_keys.insert(0, key)
 
         return langdirslib
 

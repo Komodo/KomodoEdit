@@ -735,7 +735,6 @@ class LangZone(object):
 
         self._dhash_from_dir_cache = {}
         self._dirslib_cache = {}
-        self._ordered_dirslib_cache_keys = [] # most recent first
 
         # We cache the set of recent indeces and blobs in memory.
         #   {db-subpath: [index-object, <atime>]),
@@ -1302,12 +1301,7 @@ class LangZone(object):
         # Ensure that these directories are all *up-to-date*.
         langdirslib.ensure_all_dirs_scanned()
         
-        N = 10
-        while len(self._ordered_dirslib_cache_keys) >= N:
-            cache_key = self._ordered_dirslib_cache_keys.pop()
-            del self._dirslib_cache[cache_key]
         self._dirslib_cache[canon_dirs] = langdirslib
-        self._ordered_dirslib_cache_keys.insert(0, canon_dirs)
 
         return langdirslib
 
