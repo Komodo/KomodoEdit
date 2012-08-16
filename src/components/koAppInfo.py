@@ -47,6 +47,7 @@ import which
 import logging
 
 log = logging.getLogger('koAppInfo')
+#log.setLevel(logging.DEBUG)
 
 #---- components
 class KoAppInfoEx:
@@ -233,12 +234,21 @@ class KoAppInfoEx:
             prefs = self.prefService.prefs
             if prefs.hasStringPref(interpreterPrefName):
                 prefexe = prefs.getStringPref(interpreterPrefName)
-                if prefexe and prefexe not in executables and os.path.exists(prefexe):
-                    # Have to also check case-insensitively for Windows.
-                    if not is_windows or \
-                       prefexe.lower() not in [x.lower() for x in executables]:
-                        # The user chosen interpreter is always first!
+                if prefexe and os.path.exists(prefexe):
+                    if is_windows or sys.platform.startswith('darwin'):
+                        prefexe_lc = prefexe.lower()
+                        executables_lc = [x.lower() for x in executables]
+                    else:
+                        prefexe_lc = prefexe
+                        executables_lc = executables
+                    # Make sure the user-chosen interpreter is always first
+                    if prefexe_lc not in executables_lc:
                         executables.insert(0, prefexe)
+                    else:
+                        found_prefexe = executables_lc.index(prefexe_lc)
+                        if found_prefexe > 0:
+                            del executables[found_prefexe]
+                            executables.insert(0, prefexe)
         return executables
 
     def FindExecutables(self):
