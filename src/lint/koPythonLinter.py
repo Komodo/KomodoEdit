@@ -77,10 +77,29 @@ class _GenericPythonLinter(object):
     def __init__(self, language="Python"):
         self._pythonInfo = components.classes["@activestate.com/koAppInfoEx?app=%s;1" % (language, )]\
                .getService(components.interfaces.koIAppInfoEx)
+        self.language_name_lc = language.lower()
 
     def lint(self, request):
         text = request.content.encode(request.encoding.python_encoding_name)
         return self.lint_with_text(request, text)
+
+    def _get_fixed_env(self, prefset):
+        env = koprocessutils.getUserEnv()
+        prefName = "%sExtraPaths" % self.language_name_lc
+        if not prefset.hasPref(prefName):
+            # Nothing to fix up
+            return env
+        pythonPath = prefset.getStringPref(prefName)
+        if not pythonPath:
+            # Still nothing to fix up
+            return env
+        pythonPathEnv = env.get("PYTHONPATH", "")
+        if pythonPathEnv:
+            pythonPath += os.pathsep + pythonPathEnv
+        if sys.platform.startswith("win"):
+            pythonPath = pythonPath.replace('\\', '/')
+        env["PYTHONPATH"] = pythonPath
+        return env
 
 class KoPythonPyLintChecker(_GenericPythonLinter):
     _reg_desc_ = "Komodo Python PyLint Linter"
@@ -107,6 +126,7 @@ class KoPythonPyLintChecker(_GenericPythonLinter):
         fout.close()
         textlines = text.splitlines()
         cwd = request.cwd
+        env = self._get_fixed_env(prefset)
         rcfilePath = prefset.getStringPref("pylint_checking_rcfile")
         if rcfilePath and os.path.exists(rcfilePath):
             if self.nonIdentChar_RE.search(rcfilePath):
@@ -126,7 +146,7 @@ class KoPythonPyLintChecker(_GenericPythonLinter):
         cwd = request.cwd or None
         # We only need the stdout result.
         try:
-            p = process.ProcessOpen(cmd, cwd=cwd, env=koprocessutils.getUserEnv(), stdin=None)
+            p = process.ProcessOpen(cmd, cwd=cwd, env=env, stdin=None)
             stdout, _ = p.communicate()
             warnLines = stdout.splitlines(0) # Don't need the newlines.
         except:
@@ -195,6 +215,7 @@ class KoPythonPyflakesChecker(_GenericPythonLinter):
         fout.close()
         textlines = text.splitlines()
         cwd = request.cwd
+        env = self._get_fixed_env(prefset)
         try:
             checkerExe = which.which("pyflakes", path=_getUserPath())
         except which.WhichError:
@@ -205,11 +226,10 @@ class KoPythonPyflakesChecker(_GenericPythonLinter):
             return
             
         cmd = [pythonExe, checkerExe, tmpfilename]
-        cwd = request.cwd or None
         # stdout for pyflakes.checker.Checker
         # stderr for __builtin__.compile()
         try:
-            p = process.ProcessOpen(cmd, cwd=cwd, env=koprocessutils.getUserEnv(), stdin=None)
+            p = process.ProcessOpen(cmd, cwd=cwd, env=env, stdin=None)
             stdout, stderr = p.communicate()
             errorLines = stderr.splitlines(0) # Don't need the newlines.
             warnLines = stdout.splitlines() 
@@ -257,6 +277,7 @@ class KoPythonPycheckerLinter(_GenericPythonLinter):
         fout.close()
         textlines = text.splitlines()
         cwd = request.cwd
+        env = self._get_fixed_env(prefset)
         rcfilePath = prefset.getStringPref("pychecker_checking_rcfile")
         if rcfilePath and os.path.exists(rcfilePath):
             if self.nonIdentChar_RE.search(rcfilePath):
@@ -269,7 +290,7 @@ class KoPythonPycheckerLinter(_GenericPythonLinter):
         cwd = request.cwd or None
         # We only need the stdout result.
         try:
-            p = process.ProcessOpen(cmd, cwd=cwd, env=koprocessutils.getUserEnv(), stdin=None)
+            p = process.ProcessOpen(cmd, cwd=cwd, env=env, stdin=None)
             stdout, stderr = p.communicate()
             warnLines = stdout.splitlines(0) # Don't need the newlines.
             errorLines = stderr.splitlines(0)
@@ -435,8 +456,8 @@ class KoPythonCommonLinter(_GenericPythonLinter):
                 #sys.stdout.write(text)
                 #print "-"*70
     
-                env = koprocessutils.getUserEnv()
                 cwd = cwd or None
+                env = self._get_fixed_env(prefset)
                 if sys.platform.startswith("win") and cwd is not None\
                    and cwd.startswith("\\\\"):
                     # Don't try to switch to a UNC path because pycompile.py
@@ -447,20 +468,6 @@ class KoPythonCommonLinter(_GenericPythonLinter):
                     #     run via "cmd.exe /c", but don't know if that would
                     #     help either.
                     cwd = None
-                    
-                pythonPath = None
-                prefName = "%sExtraPaths" % self.language_name_lc
-                if prefset.hasPref(prefName):
-                    pythonPath = prefset.getStringPref(prefName)
-                if pythonPath:
-                    pythonPathEnv = env.get("PYTHONPATH", "")
-                    if pythonPathEnv:
-                        pythonPath += os.pathsep + pythonPathEnv
-
-                if pythonPath:
-                    if sys.platform.startswith("win"):
-                        pythonPath = pythonPath.replace('\\', '/')
-                    env["PYTHONPATH"] = pythonPath
                 
                 p = process.ProcessOpen(argv, cwd=cwd, env=env, stdin=None)
                 output, error = p.communicate()
