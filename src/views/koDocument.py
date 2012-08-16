@@ -1322,6 +1322,7 @@ class koDocumentBase:
             anchorLine = scimoz.lineFromPosition(anchorPos)
             anchorCol = scimoz.anchor - scimoz.positionFromLine(anchorLine)
             firstVisibleLine = scimoz.firstVisibleLine
+            haveNoSelection = currPos == anchorPos
 
             # Clean the document content.
             scimoz.beginUndoAction()
@@ -1386,6 +1387,10 @@ class koDocumentBase:
                     # position.  The idea is to quietly remove empty lines
                     # at the end of a file, when the user is higher up.
 
+                    # This section deliberately ignores the "cleanChangedLinesOnly"
+                    # to keep the code simpler.  The "cleanChangedLinesOnly" pref
+                    # is intended to ignore trailing white-space on existing lines.
+                    
                     if cleanLineCurrentLineEnd:
                         firstDeletableLine = 1
                     else:
@@ -1396,10 +1401,6 @@ class koDocumentBase:
                             break
                         length, line = scimoz.getLine(i) # length is in _bytes_
                         if re.search(r'\S', line):
-                            firstLineToDelete = i + 1
-                            break
-                        if wsLinesToStrip and i not in wsLinesToStrip:
-                            #log.debug("Line i:%d not in wsLinesToStrip", i)
                             firstLineToDelete = i + 1
                             break
                     else:
@@ -1419,17 +1420,31 @@ class koDocumentBase:
                 scimoz.endUndoAction()
 
             # Restore settings: selection, cursor position, etc.
-            if not cleanLineCurrentLineEnd:
-                scimoz.currentPos = scimoz.positionFromLine(currPosLine) + currPosCol
-                scimoz.anchor = scimoz.positionFromLine(anchorLine) + anchorCol
+            currLineCount = scimoz.lineCount
+            if currPosLine >= currLineCount:
+                #log.debug("Pull currPosLine back from %d to %d", currPosLine, currLineCount)
+                currPosLine = currLineCount
+                currPosCol = 0
+            if anchorLine >= currLineCount:
+                #log.debug("Pull anchorLine back from %d to %d", anchorLine, currLineCount)
+                anchorLine = currLineCount
+                anchorCol = 0
+            newPos = scimoz.positionFromLine(currPosLine) + currPosCol
+            lineEndPos = scimoz.getLineEndPosition(currPosLine)
+            if newPos > lineEndPos:
+                #log.debug("Pull new currentPos from %d to %d", newPos, lineEndPos)
+                newPos = lineEndPos
+            scimoz.currentPos = newPos
+            if haveNoSelection:
+                scimoz.anchor = scimoz.currentPos
             else:
-                lastLine = scimoz.lineCount
-                if (currPosLine > lastLine
-                    or (currPosLine == lastLine and currPos > scimoz.length)):
-                    scimoz.currentPos = scimoz.length
-                if (anchorLine > lastLine
-                    or (anchorLine == lastLine and anchorPos > scimoz.length)):
-                    scimoz.anchor = scimoz.length
+                #log.debug("Recalc new selection")
+                newPos = scimoz.positionFromLine(anchorLine) + anchorCol
+                lineEndPos = scimoz.getLineEndPosition(anchorLine)
+                if newPos > lineEndPos:
+                    #log.debug("Pull new anchor from %d to %d", newPos, lineEndPos)
+                    newPos = lineEndPos
+                scimoz.anchor = newPos
             
             scimoz.lineScroll(0, min(firstVisibleLine-scimoz.firstVisibleLine,
                                      scimoz.lineCount-scimoz.firstVisibleLine))
