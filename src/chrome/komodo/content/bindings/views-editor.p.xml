@@ -803,7 +803,7 @@
         <method name="reloadIfChanged">
         <body>
         <![CDATA[
-            if (!this.koDoc || !this.koDoc.differentOnDisk()) return;
+            if (!this.koDoc || !this.koDoc.file || this.koDoc.file.isRemoteFile || !this.koDoc.differentOnDisk()) return;
             var baseName = this.koDoc.baseName;
             var title;
             var prompt;
