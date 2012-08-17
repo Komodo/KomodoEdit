@@ -424,7 +424,7 @@ def _symlink_komodo_executable(absInstallDir):
     # Komodo executable, we often don't need the stub and can instead use
     # a symlink to the main executable. The stub is just uses as a backup
     # for when we cannot use symlinks.
-    komodoBin = join(absInstallDir, "lib", "mozilla", "komodo")
+    komodoBin = join("..", "lib", "mozilla", "komodo")  # relative path
     komodoStub = join(absInstallDir, "bin", "komodo")
     komodoStubBackup = komodoStub+".sh"
     os.rename(komodoStub, komodoStubBackup)
