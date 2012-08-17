@@ -50,8 +50,6 @@ import koprocessutils
 import logging
 log = logging.getLogger("koJavaScriptLinter")
 #log.setLevel(logging.DEBUG)
-qlog = logging.getLogger("koJavaScriptLinter.q")
-qlog.setLevel(logging.DEBUG)
 
 class CommonJSLinter(object):
     _is_macro_re = re.compile("macro2?://")
@@ -322,7 +320,7 @@ class GenericJSLinter(CommonJSLinter):
         try:
             p = process.ProcessOpen(cmd, cwd=cwd, stdin=fd)
             stdout, stderr = p.communicate()
-            qlog.debug("jslint(%s): stdout: %s, stderr: %s", prefSwitchName, stdout, stderr)
+            #log.debug("jslint(%s): stdout: %s, stderr: %s", prefSwitchName, stdout, stderr)
             warnLines = stdout.splitlines() # Don't need the newlines.
             i = 0
             outputStart = "++++JSLINT OUTPUT:"
