@@ -81,6 +81,230 @@ class KoDocInfoDetectionTestCase(_KoDocTestCase):
         for name in ("exists.py", "does not exist.py"):
             koDoc = self._koDocFromPath(join(self.data_dir, name))
             self.assertEqual(koDoc.language, "Python")
+
+    def test_recognize_perl_file(self):
+        manifest = [
+            (tempfile.mktemp(".pl"), "\n".join(["#!/usr/bin/env perl",
+                                     "",
+                                     "use strict;",
+                                     "use warnings;",
+                                     "",
+                                     r'print "no more\n";'])),
+        ]
+        for name, content in manifest:
+            path = join(self.data_dir, name)
+            _writefile(path, content)
+            koDoc = self._koDocFromPath(path)
+            self.assertEqual(koDoc.language, "Perl")
+
+    def test_recognize_xbl_file(self):
+        manifest = [
+            (tempfile.mktemp(".xml"), r"""\
+<?xml version="1.0"?>
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc. -->
+<!-- See the file LICENSE.txt for licensing information. -->
+
+<!DOCTYPE bindings PUBLIC "-//MOZILLA//DTD XBL V1.0//EN" "http://www.mozilla.org/xbl">
+
+<!--
+TODO:
+look at mozilla\xpfe\global\resources\content\bindings\button.xml
+and see if we really need *ANY* of this stuff.  I think we can
+use moz bindings with CSS to acheive everything we have here.
+-->
+
+<bindings
+    xmlns="http://www.mozilla.org/xbl"
+    xmlns:xbl="http://www.mozilla.org/xbl"
+    xmlns:html="http://www.w3.org/1999/xhtml"
+    xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+    <!-- include our css, but inherit from mozilla's button base
+         which includes access controls -->
+    <binding id="button-base" extends="chrome://global/content/bindings/button.xml#button-base">
+        <resources>
+            <stylesheet src="chrome://komodo/skin/bindings/buttons.css"/>
+        </resources>
+    </binding>
+  <!-- XUL <button>s -->
+  <!-- used for button menus in several places
+    style class: rightarrow-button -->
+  <binding id="rightarrow-button" display="xul:menu"
+    extends="chrome://komodo/content/bindings/buttons.xml#button-base">
+    <content>
+      <xul:box class="button-internal-box" align="center" pack="center" flex="1">
+        <xul:image class="button-icon" xbl:inherits="src=image"/>
+      </xul:box>
+      <children includes="menupopup"/>
+    </content>
+  </binding>""")
+        ]
+        for name, content in manifest:
+            path = join(self.data_dir, name)
+            _writefile(path, content)
+            koDoc = self._koDocFromPath(path)
+            koDoc.load()
+            self.assertEqual(koDoc.language, "XBL")
+
+    def test_recognize_html_file(self):
+        manifest = [
+            (tempfile.mktemp(".html"), """\
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd" [
+<!ENTITY % fizz SYSTEM "/no/such/file1">
+%fizz;
+<!ENTITY % fizz2 SYSTEM "/no/such/file2">
+&fizz2;
+<!ENTITY fizz2 
+]>
+<html lang="en">
+<head>
+    <title><!-- Insert your title here --></title>
+</head>
+<frameset>
+    <frame src="http:/blipfds/f1.html" />
+</frameset>
+"""),
+        ]
+        for name, content in manifest:
+            path = join(self.data_dir, name)
+            _writefile(path, content)
+            koDoc = self._koDocFromPath(path)
+            koDoc.load()
+            self.assertEqual(koDoc.language, "HTML")
+
+    def test_recognize_html5_file(self):
+        manifest = [
+            (tempfile.mktemp(".html"), """\
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" type="text/css" href="css/screen.css" />
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <link rel="shortcut icon" href="favicon.ico" type= "image/x-icon" />
+
+  <title>Abbreviations</title>
+</head>
+<body>
+<div id="content">
+  
+  <h1><a name="abbrev_top" id="abbrev_top">Abbreviations</a></h1>
+  
+  <p>The Abbreviations function lets you quickly insert code <a
+  href="snippets.html">snippets</a> by entering their name in the editor
+  buffer followed by <strong>Ctrl+T</strong>. Several useful default
+  snippets are included in Komodo. Additional ones can be added
+  easily.</p>
+   
+  <p>Komodo looks for abbreviations in a special folder in projects and
+  toolboxes called Abbreviations. Within the Abbreviations folder are
+  language specific sub-folders, and a General sub-folder for global
+  snippets.</p>
+</div>""")
+        ]
+        for name, content in manifest:
+            path = join(self.data_dir, name)
+            _writefile(path, content)
+            koDoc = self._koDocFromPath(path)
+            koDoc.load()
+            self.assertEqual(koDoc.language, "HTML5")
+
+    def test_recognize_django_file(self):
+        manifest = [
+            (tempfile.mktemp(".django.html"), """\
+{% extends 'layouts/base.html' %}
+{%block title %} Dashboard {% endblock %}
+{%block extrahead %}
+<script type="text/javascript">
+</script>
+{% endblock %}
+
+{% block header %}
+    <div id="focus_on" class="boxshadow">
+        <ul>
+            <li class="title">Focus on</li>
+            <li>
+                <a href="." class="all{% if not status %} active{% endif %}">
+                    <span class="icon"><i> </i></span>
+                    <span>All</span>
+                </a>
+            </li>
+            <li>
+                <a href="?status=1" class="thing{% if status == '1' %} active{% endif %}">
+                    <span class="icon"><i> </i></span>
+                    <span>Things</span>
+                </a>
+            </li>"""),
+        ]
+        for name, content in manifest:
+            path = join(self.data_dir, name)
+            _writefile(path, content)
+            koDoc = self._koDocFromPath(path)
+            koDoc.load()
+            self.assertEqual(koDoc.language, "Django")
+
+    def test_recognize_smarty_file_01(self):
+        manifest = [
+            (tempfile.mktemp(".tpl"), """\
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                      "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <title>Access Denied - ActiveState Bugs</title>
+    <meta name="title" content="ActiveState Bugs - Access Denied">
+
+
+<link rel="Top" href="http://bugs.activestate.com/">
+
+
+
+    
+    
+    <link href="skins/standard/global.css"
+          rel="alternate stylesheet" 
+          title="Classic"><link href="skins/standard/global.css" rel="stylesheet"
+        type="text/css" ><!--[if lte IE 7]>
+      
+
+
+
+  <link href="skins/standard/IE-fixes.css" rel="stylesheet"
+        type="text/css" >
+<![endif]-->
+"""),
+        ]
+        for name, content in manifest:
+            path = join(self.data_dir, name)
+            _writefile(path, content)
+            koDoc = self._koDocFromPath(path)
+            koDoc.load()
+            self.assertEqual(koDoc.language, "Smarty")
+
+    def test_recognize_smarty_file_02(self):
+        manifest = [
+            (tempfile.mktemp(".smarty.tpl"), """\
+{{ hello }}
+{% import 'macro/std.macro.twig' as macro_std %}"""),
+        ]
+        for name, content in manifest:
+            path = join(self.data_dir, name)
+            _writefile(path, content)
+            koDoc = self._koDocFromPath(path)
+            koDoc.load()
+            self.assertEqual(koDoc.language, "Smarty")
+
+    def test_recognize_twig_file(self):
+        manifest = [
+            (tempfile.mktemp(".twig"), """\
+{{ hello }}
+{% import 'macro/std.macro.twig' as macro_std %}"""),
+        ]
+        for name, content in manifest:
+            path = join(self.data_dir, name)
+            _writefile(path, content)
+            koDoc = self._koDocFromPath(path)
+            koDoc.load()
+            self.assertEqual(koDoc.language, "Twig")
+        
     
     def _mk_eol_test_files(self):
         """Create the EOL test files. Relying on SCC systems to result in

@@ -407,7 +407,12 @@ class koDocumentBase:
 
         #print "we got file [%s] content [%r]" % (fileNameLanguage,contentLanguages)
         # Select the appropriate language from the above guesses.
-        if contentLanguages and fileNameLanguage in contentLanguages:
+        common_markup_formats = ("XML", "HTML", "HTML5", "XHTML")
+        if (contentLanguages
+            and fileNameLanguage in contentLanguages
+            # bug 95308: failed to detect XBL
+            and (fileNameLanguage not in common_markup_formats
+                 or fileNameLanguage == contentLanguages[0])):
             # Both agree, so use the file-name language
             language = fileNameLanguage
             # bug 94775: set pref here
@@ -422,7 +427,9 @@ class koDocumentBase:
             # always defer to the extension match if our primary content match
             # is a generic markup language.  If it is more specific (eg. XBL)
             # then we want to maintain that instead of the filename match
-            if fileNameLanguage and language in ["HTML", "HTML5", "XML", "XHTML"]:
+            if (fileNameLanguage
+                and language in common_markup_formats
+                and fileNameLanguage not in common_markup_formats):
                 language = fileNameLanguage
             elif fileNameLanguage and fileNameLanguage != language:
                 log.warn("For file %s, favoring contents language %s over filename language %s",
