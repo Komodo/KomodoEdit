@@ -949,6 +949,11 @@
             oncommand="ko.commands.doCommandAsync('cmd_wordWrap', event)"
             disabled="true"
             desc="&userInterfaceWordWrapLongLines.desc;"/>
+        <command
+            id="cmd_reloadBrowserPreview" key="key_cmd_reloadBrowserPreview"
+            oncommand="ko.commands.doCommandAsync('cmd_reloadBrowserPreview', event)"
+            disabled="true"
+            desc="&reloadBrowserPreview.desc;"/>
     </commandset>
 
     <commandset

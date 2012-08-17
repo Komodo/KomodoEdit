@@ -322,6 +322,7 @@ function cloneObject(what) {
  * the keybinding files in sync as the keybinding system gets changed.
  *
  * Version history:
+ * 34: Komodo 8.0.0a1 - add Ctrl+K, Ctrl+R for reloadBrowserPreview.
  * 33: Komodo 7.0.1 - drop Cmd++ for cmd_fontZoomIn, still conflicts with cmd_replace
  * 32: Komodo 7.0.0b2 - remove Cmd+= for font zoom, conflicts with cmd_replace.
  * 30: Komodo 7.0.0a5 - added Alt+Backspace for Default keybinding scheme.
@@ -356,7 +357,7 @@ function cloneObject(what) {
  * 2: Komodo 4.2.0-beta2 and above
  * 1: Komodo 4.2.0-beta1 and before
  */
-const currentKeybindingVersionNumber = 33;
+const currentKeybindingVersionNumber = 34;
 
 /**
  * Remove this dictionary of keybinds.
@@ -864,6 +865,11 @@ this.Manager.prototype._upgradeKeybingings = function (from_version,
                 'cmd_fontZoomIn': ["Meta++"],
             });
 // #endif
+            break;
+        case 33:
+            this._add_keybinding_sequences({
+                'cmd_reloadBrowserPreview': ["Ctrl+K, Ctrl+R"],
+            });
             break;
         }
         from_version += 1;

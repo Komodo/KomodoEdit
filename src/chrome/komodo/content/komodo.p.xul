@@ -1147,6 +1147,10 @@
                                       label="&browserPreview.menu.label;"
                                       accesskey="&browserPreview.menu.accesskey;"
                                       observes="cmd_browserPreview"/>
+                            <menuitem id="menu_reloadBrowserPreview"
+                                      label="&reloadBrowserPreview.menu.label;"
+                                      accesskey="&reloadBrowserPreview.menu.accesskey;"
+                                      observes="cmd_reloadBrowserPreview"/>
 
                             <menuseparator id="view_menu_splitview_menuseparator"/>
 

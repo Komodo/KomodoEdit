@@ -561,6 +561,9 @@
 <!ENTITY reflowParagraph.label "Reflow Paragraph">
 <!ENTITY refreshStatus.label "Refresh Status">
 <!ENTITY releaseNotes.label "Release Notes">
+<!ENTITY reloadBrowserPreview.desc "Browser Preview: Reload the Current Browser Preview">
+<!ENTITY reloadBrowserPreview.menu.accesskey "P">
+<!ENTITY reloadBrowserPreview.menu.label "Reload Browser Preview">
 <!ENTITY remoteFile.label "Remote File...">
 <!ENTITY remove.label "Remove">
 <!ENTITY removeAllBookmarks.label "Remove All Bookmarks">

@@ -2218,6 +2218,26 @@ viewManager.prototype.do_cmd_fontZoomReset = function() {
     }
 }
 
+// cmd_reloadBrowserPreview - works on either a browser view, or a document
+// which has a linked browser view.
+viewManager.prototype.is_cmd_reloadBrowserPreview_enabled = function() {
+    return this.currentView && (this.currentView.getAttribute('type') == 'browser' ||
+                                (this.currentView.getAttribute('type') == 'editor' &&
+                                 this.currentView.preview));
+}
+
+viewManager.prototype.do_cmd_reloadBrowserPreview = function() {
+    if (!this.currentView)
+        return;
+    if (this.currentView.getAttribute('type') == 'browser') {
+        this.currentView.reload();
+    } else if (this.currentView.getAttribute('type') == 'editor') {
+        if (this.currentView.preview) {
+            this.currentView.preview.reload();
+        }
+    }
+}
+
 
 viewManager.prototype.notify_visited_directory = function(path) {
     var event = document.createEvent("DataContainerEvents");

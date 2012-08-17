@@ -1,4 +1,4 @@
-version 33
+version 34
 
 # Movement and selection
 binding cmd_left  Left
@@ -156,6 +156,7 @@ binding cmd_triggerPrecedingCompletion Ctrl+J
 # Focus
 binding cmd_focusEditor Ctrl+Shift+E
 binding cmd_browserPreview Ctrl+K Ctrl+V
+binding cmd_reloadBrowserPreview Ctrl+K Ctrl+R
 binding cmd_focusSource Ctrl+K Ctrl+S
 binding cmd_viewBottomPane Ctrl+Shift+M
 binding cmd_viewPlaces Ctrl+Shift+P

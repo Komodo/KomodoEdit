@@ -1,4 +1,4 @@
-version 33
+version 34
 
 # Needs a few things to be finished
 #  - ?? insert forward tab / insert backward tab
@@ -199,6 +199,7 @@ binding cmd_executeLastMacro Ctrl+X E
 binding cmd_startIncrementalSearch Ctrl+S
 binding cmd_startIncrementalSearchBackwards Ctrl+R
 binding cmd_browserPreview Ctrl+C Ctrl+V
+binding cmd_reloadBrowserPreview Ctrl+K Ctrl+R
 binding cmd_focusSource Ctrl+C Ctrl+S
 binding cmd_findNextResult Ctrl+Shift+F3
 binding cmd_join Ctrl+J

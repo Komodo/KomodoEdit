@@ -1,4 +1,4 @@
-version 33
+version 34
 
 binding cmd_back  Shift+Backspace
 binding cmd_backSmart  Backspace
@@ -8,6 +8,7 @@ binding cmd_bookmarkGotoPrevious  Shift+F2
 binding cmd_bookmarkRemoveAll  Meta+Shift+F2
 binding cmd_bookmarkToggle  Meta+F2
 binding cmd_browserPreview Ctrl+K Ctrl+V
+binding cmd_reloadBrowserPreview Ctrl+K Ctrl+R
 binding cmd_bufferClose Meta+W
 binding cmd_bufferNext  Meta+Page_Down
 binding cmd_bufferNext  Meta+Shift+}
