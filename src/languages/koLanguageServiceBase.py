@@ -691,7 +691,9 @@ class KoCommenterLanguageService:
         # then block commenting is preferred)
         #
         # Otherwise go with block commenting whenever possible.
-        if scimoz.selectionMode == scimoz.SC_SEL_LINES or selStart == selEnd:
+        if (scimoz.selectionMode == scimoz.SC_SEL_LINES
+            or selStart == selEnd
+            or scimoz.selectionMode == scimoz.SC_SEL_RECTANGLE):
             preferBlockCommenting = 0
         elif self._inOuterWhiteSpace(scimoz, selStart, selStartLine)\
               and self._inOuterWhiteSpace(scimoz, selEnd, selEndLine):
