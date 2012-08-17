@@ -886,7 +886,7 @@ class RemoteURIHandler(FileHandlerBase):
         self._fulluri = path
         self._uri = URIParser(path)
         if self._uri.scheme not in RemoteURISchemeTypes:
-            raise URILibError("Invalid File Scheme: %s" % uri.scheme)
+            raise URILibError("Invalid File Scheme: %s" % self._uri.scheme)
         self._mode = 'r'
         # Keep the stats hanging around, we don't need to update everytime the 
         # file does an open, we check before we save to be safe (in koDocument).
