@@ -205,7 +205,7 @@ class TestKoFileEx(unittest.TestCase):
         finally:
             if os.path.isfile(filename):
                 os.remove(filename) # clean up
-                assert self.__file.hasChanged
+                assert self.__file.updateStats()
                 assert not self.__file.exists
 
     def test_fileChanged(self):
@@ -216,14 +216,14 @@ class TestKoFileEx(unittest.TestCase):
             self.__file.open('w');
             self.__file.write(text)
             self.__file.close()
-            assert not self.__file.hasChanged
+            assert not self.__file.updateStats()
             self.__file.URI = filename
             self.__file.open('w')
             self.__file.write(text * 2)
             self.__file.close()
-            assert self.__file.hasChanged
-            # hasChanged will update the stats, next call will be different
-            assert not self.__file.hasChanged
+            assert self.__file.updateStats()
+            # updateStats() will update the stats, next call will be different
+            assert not self.__file.updateStats()
         finally:
             if os.path.isfile(filename):
                 os.remove(filename) # clean up

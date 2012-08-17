@@ -132,15 +132,30 @@ interface koIFileEx : nsISupports
        mark it true for the DBGP file spec */
     readonly attribute boolean isSpecial; 
 
-    // hasChanged does a stat, checks to see if our cached stat info
-    // is different than a current stat call.  If it is, then the
-    // new stat info is saved into the cache
+    /**
+     * hasChanged does a stat, checks to see if our cached stat info
+     * is different than a current stat call.  If it is, then the
+     * new stat info is saved into the cache.
+     *
+     * @deprecated since Komodo 8.0.0 - use the updateStats() method.
+     */
     readonly attribute boolean hasChanged; 
 
-    // hasChangedNoStatUpdate does a stat, checks to see if our cached stat info
-    // is different than a current stat call, but does not update the current
-    // stat info with the new one.
+    /**
+     * hasChangedNoStatUpdate does a stat, checks to see if our cached stat info
+     * is different than a current stat call, but does not update the current
+     * stat info with the new one.
+     *
+     * @deprecated since Komodo 8.0.0 - no longer used.
+     */
     readonly attribute boolean hasChangedNoStatUpdate;
+
+    /**
+     * Updates the stat information.
+     *
+     * @returns {boolean} true if the stats changed.
+     */
+    boolean updateStats();
 
     // a method to retrieve keys and values for all status attributes
     // this is an optimization for js when we need to retreive all

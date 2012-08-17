@@ -519,9 +519,7 @@ class koDocumentBase:
             # We don't know if the document is large until we know
             # whether it's a UDL-based document or has a C++ lexer.
             if file.isRemoteFile:
-                # Ugly: Uses side-affect of hasChanged to ensure we have the
-                #       latest lastModifiedTime.
-                file.hasChanged
+                file.updateStats()
             self._lastModifiedTime = file.lastModifiedTime
         else:
             data = ''
@@ -531,7 +529,7 @@ class koDocumentBase:
         self.setSavePoint()
         # if a file is in a project, then we have to check
         # and see if we need to update it's information
-        if file.isLocal and file.hasChanged:
+        if file.isLocal and file.updateStats():
             try:
                 self._obsSvc.notifyObservers(self,'file_changed',self.file.URI)
             except:
@@ -617,8 +615,7 @@ class koDocumentBase:
             if self.file.lastModifiedTime != self._lastModifiedTime:
                 # We know the file has already changed on disk.
                 return 1
-            # hasChanged has side affect of refreshing the remote file stats
-            self.file.hasChanged
+            self.file.updateStats()
             newModifiedTime = self.file.lastModifiedTime
             if newModifiedTime == self._lastModifiedTime:
                 # File has the same mtime - unchanged.
@@ -1479,12 +1476,9 @@ class koDocumentBase:
                 self.lastErrorSvc.setLastError(0, errmsg)
                 raise ServerException(nsError.NS_ERROR_FAILURE, errmsg)
                 
-            # .hasChanged has the side-effect of re-stat'ing, which is
-            # required for the subsequent check. Psychotically, this is
-            # the only way to initiate a re-stat.
-            # Don't do this for non-local files
             if self.file.isLocal and not self.file.isNetworkFile:
-                self.file.hasChanged 
+                # Must update stats for remote files.
+                self.file.updateStats()
             if not self.file.isWriteable:
                 # reset the mode
                 try:

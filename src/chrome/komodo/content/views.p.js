@@ -2671,7 +2671,7 @@ function _view_checkDiskFiles(event) {
         var removedItems = [];
         var viewsToReload;
         var conflictedItems = [];
-        var view, url, i, j, hasChanged;
+        var view, url, i, j;
         var views, file, prompt, title, item, items;
 
         // Deal with views first
@@ -2679,7 +2679,7 @@ function _view_checkDiskFiles(event) {
         for (i = 0; i < views.length; i++) {
             view = views[i];
             // browser views do not load via document, so will
-            // always be wrong when checking hasChanged
+            // always be wrong when trying to update status.
             if (view.getAttribute('type')!='editor') continue;
             if (typeof(view.koDoc) == 'undefined' ||
                 !view.koDoc ||
@@ -2692,10 +2692,10 @@ function _view_checkDiskFiles(event) {
             item.view = view;
             item.file = file;
             if (!file.exists) {
-                // Force a file stat update by calling hasChanged, this is so we
-                // get the latest information for this file, as sometimes this
-                // information is stale - bug 94121.
-                file.hasChanged;
+                // Force a file stat update by calling updateStats(), this is so
+                // we get the latest information for this file, as sometimes
+                // this information is stale - bug 94121.
+                file.updateStats();
             }
             if (!file.exists) {
                 removedItems.push(item);
@@ -2726,18 +2726,18 @@ function _view_checkDiskFiles(event) {
                     continue;
                 }
                 file = projects[i].getFile();
-                // Force a file stat update by calling hasChanged, this is so
+                // Force a file stat update by calling updateStats(), this is so
                 // the file.exists check made below will still work correctly.
-                file.hasChanged;
+                file.updateStats();
                 item = new Object;
                 item.type = 'project';
                 item.project = projects[i];
                 item.file = file;
                 if (!file.exists) {
-                    // Force a file stat update by calling hasChanged, this is
+                    // Force file stat update by calling updateStats(), this is
                     // so we get the latest information for this file, as
                     // sometimes this information is stale - bug 94121.
-                    file.hasChanged;
+                    file.updateStats();
                 }
                 if (!file.exists) {
                     removedItems.push(item);

@@ -191,13 +191,9 @@ class KoDocumentService:
         file = self._fileSvc.getFileFromURI(uri)
 
         # We need to know the latest information about this file, so refresh
-        # the file information now. We use the hasChanged property, as this
-        # has the side-effect of re-stat'ing. Psychotically, this is the only
-        # way to initiate a re-stat. Don't do this for non-local files.
-        # Fixes bug:
-        # http://bugs.activestate.com/show_bug.cgi?id=68285
+        # the file information. Don't do this for non-local files - bug 68285.
         if file.isLocal and not file.isNetworkFile:
-            file.hasChanged
+            file.updateStats()
 
         doc = components.classes["@activestate.com/koDocumentBase;1"]\
             .createInstance(components.interfaces.koIDocument)

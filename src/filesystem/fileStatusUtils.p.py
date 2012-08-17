@@ -289,8 +289,8 @@ class KoDiskFileChecker(KoFileCheckerBase):
                 (time_now - self.backgroundDuration)):
                 return 0
             self._lastChecked[cache_key] = time_now
-            return koIFile.hasChanged
+            return koIFile.updateStats()
         elif reason == self.REASON_FORCED_CHECK:
-            # Forced, hasChanged will cause a refresh from the remote server.
-            return koIFile.hasChanged
+            # Forced, updateStats() will cause a refresh from the remote server.
+            return koIFile.updateStats()
         return 0

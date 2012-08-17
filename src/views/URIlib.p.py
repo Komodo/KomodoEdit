@@ -432,6 +432,33 @@ class URIParser(object):
         return md5(self.get_encodedURI()).hexdigest()
     md5name = property(get_md5name)
 
+    def updateStats(self):
+        return 0
+
+    @property
+    def hasChanged(self):
+        import warnings
+        warnings.warn("'hasChanged' is deprecated, use updateStats() instead.",
+                      DeprecationWarning)
+        import traceback
+        traceback.print_stack()
+        print
+        import ctypes, os.path, sys
+        for d in ("mozilla", "bin"): # release or dev build layout
+            libxul = os.path.join(os.path.dirname(sys.exec_prefix), d, "libxul.so")
+            if os.path.exists(libxul):
+                ctypes.CDLL(libxul).DumpJSStack()
+                break
+        print "\n\n"
+        return self.updateStats()
+
+    @property
+    def hasChangedNoStatUpdate(self):
+        import warnings
+        warnings.warn("'hasChangedNoStatUpdate' is deprecated.",
+                      DeprecationWarning)
+        return 0
+
 class FileHandlerBase(object):
 
     isNetworkFile = False
@@ -670,7 +697,7 @@ class FileHandler(FileHandlerBase):
         return self._stats
     stats = property(get_stats)
 
-    def get_hasChanged(self):
+    def updateStats(self):
         if not self._stats:
             return 0
         tmpstats = self.__get_stats()
@@ -678,13 +705,15 @@ class FileHandler(FileHandlerBase):
             self._stats = tmpstats
             return 1
         return 0
-    hasChanged = property(get_hasChanged)
 
-    def get_hasChangedNoStatUpdate(self):
+    @property
+    def hasChangedNoStatUpdate(self):
+        import warnings
+        warnings.warn("'hasChangedNoStatUpdate' is deprecated.",
+                      DeprecationWarning)
         if not self._stats or self._stats == self.__get_stats():
             return 0
         return 1
-    hasChangedNoStatUpdate = property(get_hasChangedNoStatUpdate)
 
     def chmod(self, permissions):
         os.chmod(self._decodedPath, permissions)
@@ -740,15 +769,6 @@ class URIHandler(FileHandlerBase):
         return self._stats
     stats = property(get_stats)
 
-    def get_hasChanged(self):
-        return 0
-    hasChanged = property(get_hasChanged)
-
-    def get_hasChangedNoStatUpdate(self):
-        return 0
-    hasChangedNoStatUpdate = property(get_hasChangedNoStatUpdate)
-
-
 class StartPageHandler(FileHandlerBase):
 
     isLocal = 0
@@ -784,14 +804,6 @@ class StartPageHandler(FileHandlerBase):
             self._stats = self.__get_stats()
         return self._stats
     stats = property(get_stats)
-
-    def get_hasChanged(self):
-        return 0
-    hasChanged = property(get_hasChanged)
-
-    def get_hasChangedNoStatUpdate(self):
-        return 0
-    hasChangedNoStatUpdate = property(get_hasChangedNoStatUpdate)
 
     def get_displayPath(self):
         """A HACK to override the start page view's document.file.displayPath
@@ -866,14 +878,6 @@ class xpURIHandler(FileHandlerBase):
             self._stats = self.__get_stats()
         return self._stats
     stats = property(get_stats)
-
-    def get_hasChanged(self):
-        return 0
-    hasChanged = property(get_hasChanged)
-
-    def get_hasChangedNoStatUpdate(self):
-        return 0
-    hasChangedNoStatUpdate = property(get_hasChangedNoStatUpdate)
 
 class RemoteURIHandler(FileHandlerBase):
     isLocal = 0
@@ -959,7 +963,7 @@ class RemoteURIHandler(FileHandlerBase):
         return self._stats
     stats = property(get_stats)
 
-    def get_hasChanged(self):
+    def updateStats(self):
         if not self._stats:
             return 0
         tmpstats = self.__get_stats(refresh=1)
@@ -967,13 +971,15 @@ class RemoteURIHandler(FileHandlerBase):
             self._stats = tmpstats
             return 1
         return 0
-    hasChanged = property(get_hasChanged)
 
-    def get_hasChangedNoStatUpdate(self):
+    @property
+    def hasChangedNoStatUpdate(self):
+        import warnings
+        warnings.warn("'hasChangedNoStatUpdate' is deprecated.",
+                      DeprecationWarning)
         if not self._stats or self._stats == self.__get_stats(refresh=1):
             return 0
         return 1
-    hasChangedNoStatUpdate = property(get_hasChangedNoStatUpdate)
 
     def chmod(self, permissions):
         RFService = components.classes["@activestate.com/koRemoteConnectionService;1"].\
@@ -1084,14 +1090,6 @@ class projectURIHandler(FileHandlerBase):
             self._stats = self.__get_stats()
         return self._stats
     stats = property(get_stats)
-
-    def get_hasChanged(self):
-        return 0
-    hasChanged = property(get_hasChanged)
-
-    def get_hasChangedNoStatUpdate(self):
-        return 0
-    hasChangedNoStatUpdate = property(get_hasChangedNoStatUpdate)
 
 class projectURI2_Handler(projectURIHandler):
     def __del__(self):
