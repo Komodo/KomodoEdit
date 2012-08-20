@@ -304,8 +304,112 @@ use moz bindings with CSS to acheive everything we have here.
             koDoc = self._koDocFromPath(path)
             koDoc.load()
             self.assertEqual(koDoc.language, "Twig")
-        
-    
+
+    def test_recognize_python_file(self):
+        manifest = [
+            (tempfile.mktemp(".py"), """\
+#!/usr/bin/env python
+print('should be py2')
+"""),
+            (tempfile.mktemp(".py"), """\
+#  -*- python -*-
+print('should be py2')
+"""),
+            (tempfile.mktemp(".py"), """\
+try:
+    print('should be py2')
+except AttributeError, x:
+    print("exception: %s", x)
+"""),
+            (tempfile.mktemp(".py"), """\
+# no specific markers here, default to py
+"""),
+        ]
+        for name, content in manifest:
+            path = join(self.data_dir, name)
+            _writefile(path, content)
+            koDoc = self._koDocFromPath(path)
+            koDoc.load()
+            self.assertEqual(koDoc.language, "Python")
+
+    def test_recognize_python3_file(self):
+        manifest = [
+            (tempfile.mktemp(".py"), """\
+#!/usr/bin/env python3
+print('should be py3')
+"""),
+            (tempfile.mktemp(".py"), """\
+#  -*- python3 -*-
+print('should be py3')
+"""),
+            (tempfile.mktemp(".py"), """\
+# Not many markers for python3, but here's one:
+a = 0O456
+"""),
+            (tempfile.mktemp(".py"), """\
+# Not many markers for python3, but here's one:
+b = 0o456
+"""),
+        ]
+        for name, content in manifest:
+            path = join(self.data_dir, name)
+            _writefile(path, content)
+            koDoc = self._koDocFromPath(path)
+            koDoc.load()
+            self.assertEqual(koDoc.language, "Python3")
+
+    def test_recognize_javascript_file(self):
+        manifest = [
+            (tempfile.mktemp(".js"), """\
+#  -*- javascript -*-
+alert('should be js')
+"""),
+            (tempfile.mktemp(".js"), """\
+document.getElementById("should be js");
+"""),
+            (tempfile.mktemp(".js"), """\
+alert("should be js");
+"""),
+            (tempfile.mktemp(".js"), """\
+var x = 'no markers, default js';
+"""),
+        ]
+        for name, content in manifest:
+            path = join(self.data_dir, name)
+            _writefile(path, content)
+            koDoc = self._koDocFromPath(path)
+            koDoc.load()
+            self.assertEqual(koDoc.language, "JavaScript")
+
+    def test_recognize_nodejs_file(self):
+        manifest = [
+            (tempfile.mktemp(".js"), """\
+#  -*- mode: Node.js -*-
+console.log('should be node')
+"""),
+            (tempfile.mktemp(".js"), """\
+#!/usr/bin/env node
+console.log('should be node')
+"""),
+            (tempfile.mktemp(".js"), """\
+require('console');
+"""),
+            (tempfile.mktemp(".js"), """\
+module.exports = {};
+"""),
+            (tempfile.mktemp(".js"), """\
+foo.on('something', function(event) {
+console.log(event.name);
+});
+"""),
+        ]
+        for name, content in manifest:
+            path = join(self.data_dir, name)
+            _writefile(path, content)
+            koDoc = self._koDocFromPath(path)
+            koDoc.load()
+            self.assertEqual(koDoc.language, "Node.js")
+
     def _mk_eol_test_files(self):
         """Create the EOL test files. Relying on SCC systems to result in
         the specific EOLs we want is brittle.

@@ -113,36 +113,13 @@ def _calc_py2_py3_scores(textWrapper):
                     if token_string in pseudo_keywords:
                         curr_keyword = token_string
                         curr_line = curr_token[2][0]
-                        while True:
-                            curr_token = safe_get_next_token(tok_gen)
-                            token_type, token_string, start_tup, end_tup, line = curr_token
-                            if token_type != tokenize.N_TOKENS:
-                                break
-                        if (start_tup[0] != curr_line
-                            or not (token_type == tokenize.OP and token_string == '(')):
-                            #log.debug("2-1: print/exec at line %d", start_tup[0])
-                            sk.inc_2()
-                            if at_stmt_end(token_type, token_string):
-                                at_line_start = True
-                            continue
-                        if curr_keyword != 'print':
-                            continue
-                        # Look out for '>> fd' or arg=value
-                        # Keep using the current token
-                        while True:
-                            if at_stmt_end(token_type, token_string):
-                                at_line_start = True
-                                break
-                            elif token_type == tokenize.OP:
-                                if token_string == "<<":
-                                    sk.inc_2()
-                                    break
-                                elif token_string == '=':
-                                    sk.inc_3()
-                                    break
-                            curr_token = safe_get_next_token(tok_gen)
-                            token_type, token_string, start_tup, end_tup, line = curr_token
-                            
+                        curr_token = safe_get_next_token(tok_gen)
+                        token_type, token_string, start_tup, end_tup, line = curr_token
+                        if token_type == tokenize.OP:
+                            if token_string == '=':
+                                sk.inc_3()
+                            elif curr_keyword == "print" and token_string == "<<":
+                                sk.inc_2()
                     elif token_string == "except":
                         curr_token = safe_get_next_token(tok_gen)
                         if curr_token[0] == tokenize.OP:
