@@ -69,6 +69,12 @@ class _KoDocTestCase(unittest.TestCase):
         koDoc.initWithFile(koFile, False);
         return koDoc
 
+    def _koDocUntitled(self):
+        koDoc = components.classes["@activestate.com/koDocumentBase;1"] \
+            .createInstance(components.interfaces.koIDocument)
+        koDoc.initUntitled("blatz", "ASCII");
+        return koDoc
+
 
 class KoDocInfoDetectionTestCase(_KoDocTestCase):
     __tags__ = ["detection"]
@@ -619,6 +625,45 @@ class TestKoDocumentBase(_KoDocTestCase):
         finally:
             if os.path.exists(path):
                 os.unlink(path) # clean up
+
+    def test_saveUntitledFile(self):
+        text = "This is a test!"
+        koDoc = self._koDocUntitled()
+        koDoc.buffer = text
+        prefs = components.classes["@activestate.com/koPrefService;1"] \
+            .createInstance(components.interfaces.koIPrefService).prefs
+        cleanLineEnds = prefs.getBooleanPref("cleanLineEnds")
+        cleanLineEnds_CleanCurrentLine = prefs.getBooleanPref("cleanLineEnds_CleanCurrentLine")
+        cleanLineEnds_ChangedLinesOnly = prefs.getBooleanPref("cleanLineEnds_ChangedLinesOnly")
+        ensureFinalEOL = prefs.getBooleanPref("ensureFinalEOL")
+        prefs.setBooleanPref("cleanLineEnds", True)
+        prefs.setBooleanPref("cleanLineEnds_CleanCurrentLine", True)
+        prefs.setBooleanPref("cleanLineEnds_ChangedLinesOnly", True)
+        prefs.setBooleanPref("ensureFinalEOL", True)
+
+        try:
+            path = tempfile.mktemp()
+            import uriparse
+            uri = uriparse.localPathToURI(path)
+            newdocument = self._koDocFromPath(path)
+            newdocument.setBufferAndEncoding(koDoc.buffer, koDoc.encoding.python_encoding_name)
+            newdocument.language = koDoc.language
+            newdocument.save(True)
+            assert os.path.exists(path)
+            f = open(path)
+            t = f.read()
+            f.close()
+            assert t == text
+            os.unlink(path) # clean up
+        finally:
+            prefs.setBooleanPref("cleanLineEnds",
+                                 cleanLineEnds)
+            prefs.setBooleanPref("cleanLineEnds_CleanCurrentLine",
+                                 cleanLineEnds_CleanCurrentLine)
+            prefs.setBooleanPref("cleanLineEnds_ChangedLinesOnly",
+                                 cleanLineEnds_ChangedLinesOnly)
+            prefs.setBooleanPref("ensureFinalEOL",
+                                 ensureFinalEOL)
     
 
 class TestKoDocumentRemote(_KoDocTestCase):

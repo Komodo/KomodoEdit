@@ -1283,6 +1283,17 @@ class koDocumentBase:
         self._changedLines_CheckHunks()
         return self.linesToStripByLineNum
 
+    def _getCleanChangedLinesOnly(self):
+        if not self._globalPrefs.getBooleanPref("cleanLineEnds_ChangedLinesOnly"):
+            return False
+        try:
+            # If there's no actual backing file, we can't tell which
+            # lines are changed.
+            return self.file.exists
+        except AttributeError:
+            return False
+            
+
     _cleanLineRe = re.compile("(.*?)([ \t]+?)?(\r\n|\n|\r)", re.MULTILINE)
     def _clean(self, ensureFinalEOL, cleanLineEnds):
         """Clean the current document content.
@@ -1304,7 +1315,7 @@ class koDocumentBase:
             return
         cleanLineCurrentLineEnd = self._globalPrefs.getBooleanPref("cleanLineEnds_CleanCurrentLine")
         if cleanLineEnds:
-            cleanChangedLinesOnly = self._globalPrefs.getBooleanPref("cleanLineEnds_ChangedLinesOnly")
+            cleanChangedLinesOnly = self._getCleanChangedLinesOnly()
             if cleanChangedLinesOnly:
                 wsLinesToStrip = self.getChangedLinesWithTrailingWhitespace()
             else:
