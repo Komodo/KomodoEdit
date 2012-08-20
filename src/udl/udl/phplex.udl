@@ -379,6 +379,19 @@ state IN_SSL_DEFAULT:
 => IN_SSL_NON_KEYWORD_IDENTIFIER_1
 /\.(?=\d)/ : paint(upto, SSL_DEFAULT), => IN_SSL_NUMBER_2
 
+# Bug 95243: support Content-type directives
+/header(?=\s*\(\s*["']Content-type:\s*application\/(?:javascript|json)\b)/ : \
+    paint(upto, SSL_DEFAULT), paint(include, SSL_IDENTIFIER), \
+    sstack_set(IN_CSL_DEFAULT)
+/header(?=\s*\(\s*["']Content-type:\s*text\/css\b)/ : \
+    paint(upto, SSL_DEFAULT), paint(include, SSL_IDENTIFIER), \
+    sstack_set(IN_CSS_DEFAULT)
+# This one is obsolete according to iana, but still commonly used.
+/header(?=\s*\(\s*["']Content-type:\s*text\/javascript\b)/ : \
+    paint(upto, SSL_DEFAULT), paint(include, SSL_IDENTIFIER), \
+    sstack_set(IN_CSL_DEFAULT)
+# Ignore any others.
+
 /[$NMSTART][$CS]*/ : paint(upto, SSL_DEFAULT), paint(include, SSL_IDENTIFIER)
 
 # Now a bunch of operators
@@ -395,7 +408,7 @@ paint(include, SSL_OPERATOR), => IN_SSL_PRE_NOWDOC_1
 
 /[$OP]/ : paint(upto, SSL_DEFAULT), redo, => IN_SSL_OP1
 
-/\z/ : paint(upto, SSL_DEFAULT)
+/\z/ : paint(include, SSL_DEFAULT)
 
 ################ Here-doc handling ################
 

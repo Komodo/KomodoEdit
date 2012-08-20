@@ -286,9 +286,13 @@ static void LogEvent(bool entering, char *funcname, void *p)
 #define ASTC_TRAN_WRITER_VERSION	48
 
 #define ASTC_TRAN_CLEAR_DELIMITER	49
+#define ASTC_TRAN_REPLACE_STATE		50
 
+/*
+ * Version 1.2: Added ASTC_TRAN_REPLACE_STATE (50) 2012-08-14
+ */
 #define READER_VERSION_MAJOR	1
-#define READER_VERSION_MINOR	1
+#define READER_VERSION_MINOR	2
 #define READER_VERSION_SUBMINOR	0
 
 static char *new_strdup(const char *s) {
@@ -733,6 +737,7 @@ class Transition {
     int     new_family;          // -1: stay in same family
     int		token_check;		// 0: no check needed, !0: do a check
     int		push_pop_state;		// Used with the state-stack
+    int     replace_sstate_top;	   // Used with the state-stack
     int     eol_target_state;     // Used with the at_eol directive.
     int		target_delimiter;
     bool	keep_current_delimiter;
@@ -759,6 +764,7 @@ class Transition {
             new_state(new_state_),
             token_check(token_check_),
             push_pop_state(0),
+            replace_sstate_top(0),
             eol_target_state(0),
             target_delimiter(0),
             keep_current_delimiter(false),
@@ -806,6 +812,9 @@ class Transition {
     };
     inline void SetPopState() {
         push_pop_state = -1;
+    };
+    inline void SetReplaceStackState(int state, int family) {
+        replace_sstate_top = SF_MAKE_PAIR(state, family);
     };
     inline void SetEolTransition(int state, int family) {
         eol_target_state = SF_MAKE_PAIR(state, family);
@@ -1132,6 +1141,10 @@ public:
     };
     int PopState() {
         return p_StateStack->Pop();
+    };
+    void ReplaceState(int family_state) {
+        p_StateStack->Pop();
+        p_StateStack->Push(family_state);
     };
     int StateStackSize() {
         return p_StateStack->Size();
@@ -1638,6 +1651,13 @@ bool MainInfo::Init(const char *p_sublang_file) {
                 goto free_stuff;
             null_check(ASTC_TRAN_POP_STATE, p_Tran);
             p_Tran->SetPopState();
+            break;
+
+        case ASTC_TRAN_REPLACE_STATE:
+            if (!verifyArgs(args, arg_count, 2, "pP"))
+                goto free_stuff;
+            null_check(ASTC_TRAN_REPLACE_STATE, p_Tran);
+            p_Tran->SetReplaceStackState(args[0], args[1]);
             break;
 
         case ASTC_TBLOCK_APPEND_TRAN:
@@ -2712,6 +2732,7 @@ static void doActions(Transition     *p_TranBlock,
         oldPos = newPos;
     }
     int push_pop_state = p_TranBlock->push_pop_state;
+    int replace_sstate_top = p_TranBlock->replace_sstate_top;
 
     // Determine if we hit end-of-line, and should redo
     int eol_state = p_BufferStateInfo->curr_eol_transition;
@@ -2774,6 +2795,8 @@ static void doActions(Transition     *p_TranBlock,
         int tmp = p_MainInfo->PopState();
         new_state = SF_GET_STATE(tmp);
         new_family = SF_GET_FAMILY(tmp);
+    } else if (replace_sstate_top > 0) {
+        p_MainInfo->ReplaceState(replace_sstate_top);
     }
     if (!new_state) {
         new_state = p_TranBlock->new_state;

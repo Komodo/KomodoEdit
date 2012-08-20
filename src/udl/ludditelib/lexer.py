@@ -98,6 +98,7 @@ tokens = (
     'HT_SPOP_CHECK',
     'HT_AT_EOL',
     'LB_NL',
+    'HT_SSTACK_SET',
     )
 
 t_ARROW = r'=>'
@@ -151,6 +152,7 @@ reserved = {
     'upto' : 'HT_UPTO',
     'spush_check' : 'HT_SPUSH_CHECK',
     'spop_check' : 'HT_SPOP_CHECK',
+    'sstack_set' : 'HT_SSTACK_SET',
     }
 
 # These are right from the docs, work for Luddite

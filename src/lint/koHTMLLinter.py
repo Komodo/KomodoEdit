@@ -382,9 +382,13 @@ class _CommonHTMLLinter(object):
                         # We're in a run of CSS, could be separated by SSL blocks
                         pass
                     else:
+                        
                         if prevLanguageFamily != "M":
                             # Handle the case of <style><?php...?><?php ... ?>foo { ... }
                             prevText = self._getLastMarkupText(koDoc, transitionPoints, i, textAsBytes)
+                            prevWasMarkup = False
+                        else:
+                            prevWasMarkup = True
                         if self._ends_with_quote_re.search(prevText):
                             bytesByLang.replace_ending_white_space(name, "_x{", currLineNum)
                             self._emittedCodeLineNumbers.add(currLineNum)
@@ -392,8 +396,8 @@ class _CommonHTMLLinter(object):
                             
                         elif self._ends_with_gt.search(prevText):
                             currState |= self._IN_CSS_STYLE
-                        else:
-                            log.error("Hit weird block of CSS (%s) starting with HTML %s", currText, prevText)
+                        elif prevWasMarkup:
+                            log.error("Hit weird block of CSS <<<\n%r\n>>> preceded by HTML <<<\n%r>>>", currText, prevText)
                             currState |= self._IN_CSS_SQUELCH
                         m = self._starts_with_cdata_re.match(currText)
                         if m:

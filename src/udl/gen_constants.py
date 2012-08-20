@@ -57,7 +57,7 @@ import datetime
 
 SCINTILLA_DIR = join("..", "scintilla")
 SCINTILLA_IFACE_PATH = join(SCINTILLA_DIR, "include", "Scintilla.iface")
-LEXUDL_CXX_PATH = join(SCINTILLA_DIR, "src", "LexUDL.cxx")
+LEXUDL_CXX_PATH = join(SCINTILLA_DIR, "lexers", "LexUDL.cxx")
 
 
 

@@ -384,7 +384,8 @@ def p_cmd(p):
     | set_delimiter_cmd
     | set_opposite_delimiter_cmd
     | spush_check_cmd
-    | spop_check_cmd'''
+    | spop_check_cmd
+    | sstack_set_cmd'''
     p[0] = p[1]
 
 def p_paint_cmd(p):
@@ -427,6 +428,10 @@ def p_set_opposite_delimiter_cmd(p):
 def p_spush_check_cmd(p):
     'spush_check_cmd : HT_SPUSH_CHECK opt_paren_state_name'
     p[0] = [ 'spush_check', p[2] ]
+
+def p_sstack_set_cmd(p):
+    'sstack_set_cmd : HT_SSTACK_SET opt_paren_state_name'
+    p[0] = [ 'sstack_set', p[2] ]
 
 def p_opt_paren_state_name(p):
     '''opt_paren_state_name : opt_paren_state_name_1

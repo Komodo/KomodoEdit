@@ -148,7 +148,7 @@ package::
 Internal build maintenance
 ==========================
 
-- 'ludditelib/constants.py' is generate from 'LexUDL.cxx' and
+- 'ludditelib/constants.py' is generated from 'LexUDL.cxx' and
   'Scintilla.iface'. If those update significantly then 'gen_constants.py'
   should be run as per its docstring.
 

@@ -163,7 +163,7 @@ class MainObj:
         resDefinesPath = (resConstants and True)
         fout = open(out_file, 'w')
         WRITER_VERSION_MAJOR = 1
-        WRITER_VERSION_MINOR = 0
+        WRITER_VERSION_MINOR = 2
         WRITER_VERSION_SUBMINOR = 0
 
         if not resDefinesPath:
@@ -586,7 +586,7 @@ FamilyInfo *p_FamilyInfo;\n""" % (WRITER_VERSION_MAJOR, WRITER_VERSION_MINOR,
                     no_keyword = 'false'
                     colors = {'upto' : '-1', 'include' : '-1'}
                     cmds = stateTran.get('cmds', [])
-                    pushPopStateDirective = None
+                    pushPopStateDirective = replaceStateDirective = None
                     eolDirective = setDelimiterDirective = None
                     setOppositeDelimiterDirective = None
                     keepDelimiterDirective = None
@@ -618,6 +618,22 @@ FamilyInfo *p_FamilyInfo;\n""" % (WRITER_VERSION_MAJOR, WRITER_VERSION_MINOR,
                                             resConstants['ASTC_TRAN_PUSH_STATE'],
                                             target_state_num,
                                             self.families[new_family_name]))
+                                
+                        elif cmd[0] == 'sstack_set':
+                            target_state_name = cmd[1]
+                            die("No state name to set", target_state_name is None)
+                            target_state_num = self._state_num_from_name(nameTable, target_state_name, cmd[0])
+                            new_family_name = self.getFamilyOwner(target_state_num)
+                            if not resDefinesPath:
+                                replaceStateDirective = ("p_Tran->ReplacePushState(%d, %s);" %
+                                                         (target_state_num, self.families[new_family_name]))
+                            else:
+                                replaceStateDirective = \
+                                    ("%d:%d:%d" % (
+                                            resConstants['ASTC_TRAN_REPLACE_STATE'],
+                                            target_state_num,
+                                            self.families[new_family_name]))
+                                
                         elif cmd[0] == 'spop_check':
                             if pushPopStateDirective:
                                 die("Can't both push and pop at state " +
@@ -723,7 +739,7 @@ FamilyInfo *p_FamilyInfo;\n""" % (WRITER_VERSION_MAJOR, WRITER_VERSION_MINOR,
                                       ignore_case,
                                       no_keyword == 'true' and 1 or 0
                                       ))
-                    for directive in [pushPopStateDirective, eolDirective,
+                    for directive in [pushPopStateDirective, replaceStateDirective, eolDirective,
                                       setDelimiterDirective,
                                       setOppositeDelimiterDirective,
                                       keepDelimiterDirective]:
