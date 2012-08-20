@@ -704,7 +704,12 @@ class KoPlaceTreeView(TreeView):
                 if not self._insertNewURI(0, len(self._rows), uri, 0):
                     self.refreshFullTreeView()  # partly async
             else:
-                log.warn("**** Places: Can't find parent for created file %s", uri)
+                log.info("**** Places: Can't find parent for created file %s", uri)
+                # brute force, hope it updates correctly
+                # Doing this can't loop, because nothing here explicitly calls
+                # fileNotification()
+                self.refreshFullTreeView()
+
         elif flags & _deletedFlags:
             index = self.getRowIndexForURI(uri)
             if index != -1:
