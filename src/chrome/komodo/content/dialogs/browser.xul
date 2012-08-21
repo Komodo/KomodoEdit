@@ -1,0 +1,114 @@
+<?xml version="1.0"?>
+<!DOCTYPE window SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % dialogsDTD SYSTEM "chrome://komodo/locale/dialogs.dtd">
+  %dialogsDTD;
+]>
+
+<!--
+ * A generic browser window.
+ *
+ * Arguments to be passed into window.arguments[0]:
+ *
+ *  .uri: the url of the page to show
+ *  .title: a window title to use
+ * -->
+
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+
+<window
+    id="komodo_browser_window"
+    windowtype="Komodo:BrowerWindow"
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+    width="600"
+    height="400"
+    screenX="20"
+    screenY="20"
+    persist="screenX screenY width height"
+    orient="vertical"
+    onload="OnLoad();"
+    onunload="OnUnload();">
+
+    <script type="application/x-javascript">
+        var gProgressFilter = null;
+        var gProgressListener = null;
+        function _addProgressListener(browser) {
+            if (gProgressFilter)
+                // Already setup.
+                return;
+  
+            gProgressListener = {
+                QueryInterface : function(aIID)
+                {
+                    if (aIID.equals(Components.interfaces.nsIWebProgressListener) ||
+                        aIID.equals(Components.interfaces.nsISupportsWeakReference) ||
+                        aIID.equals(Components.interfaces.nsISupports))
+                    {
+                        return this;
+                    }
+                    throw Components.results.NS_NOINTERFACE;
+                },
+                init : function() {},
+                destroy : function() {},
+                onStateChange : function(aWebProgress, aRequest, aStateFlags, aStatus) {},
+                onProgressChange : function(aWebProgress, aRequest, aCurSelfProgress, aMaxSelfProgress, aCurTotalProgress, aMaxTotalProgress) {},
+                onLocationChange : function(aWebProgress, aRequest, aLocation)
+                {
+                    var domWindow = aWebProgress.DOMWindow;
+                    // Update only if there was a load on the root docshell.
+                    if (domWindow == domWindow.top) {
+                        // Override the "window.open" function to open a new browser
+                        // preview dialog, otherwise it will default to a new Komodo
+                        // window... which is not very useful - bug 93756.
+                        var unwrappedWindow = domWindow.wrappedJSObject;
+                        unwrappedWindow.open = function(strUrl, strWindowName, strWindowFeatures) {
+                            var obj = new Object();
+                            obj.uri = aLocation.resolve(strUrl);
+                            obj.title = strWindowName;
+                            window.openDialog("chrome://komodo/content/dialogs/browser.xul",
+                                              "_blank",
+                                              strWindowFeatures,
+                                              obj);
+                        }
+                        unwrappedWindow.openDialog = unwrappedWindow.open;
+                    }
+                },
+                onStatusChange : function(aWebProgress, aRequest, aStatus, aMessage) {},
+                onSecurityChange : function(aWebProgress, aRequest, aState) {}
+            };
+  
+            gProgressFilter = Components.classes["@mozilla.org/appshell/component/browser-status-filter;1"]
+                                     .createInstance(Components.interfaces.nsIWebProgress);
+            gProgressFilter.addProgressListener(gProgressListener, Components.interfaces.nsIWebProgress.NOTIFY_ALL);
+            browser.webProgress.addProgressListener(gProgressFilter, Components.interfaces.nsIWebProgress.NOTIFY_ALL);
+        }
+
+        function _removeProgressListener(browser) {
+            if (!gProgressFilter)
+                // Already removed.
+                return;
+            browser.webProgress.removeProgressListener(gProgressFilter);
+            gProgressFilter.removeProgressListener(gProgressListener);
+            gProgressFilter = null;
+            gProgressListener = null;
+        }
+  
+        function OnLoad() {
+            // Setup the browser preview notifications.
+            var browser = document.getElementById("content");
+            _addProgressListener(browser);
+
+            // Load the URI into the browser preview.
+            if (window.arguments[0].uri) {
+                browser.loadURI(window.arguments[0].uri, null);
+            }
+        }
+
+        function OnUnload() {
+            // Tear down the browser preview notifications.
+            var browser = document.getElementById("content");
+            _removeProgressListener(browser);
+        }
+    </script>
+    <browser id="content" anonid="content" context="context" type="content" src="about:blank" flex="1" />
+
+</window>

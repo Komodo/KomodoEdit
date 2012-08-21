@@ -277,6 +277,22 @@
                       !this.view.tempPreviewFile) {
                     this.view.koDoc = this.docSvc.createDocumentFromURI(aLocation.spec);
                   }
+
+                  // Override the "window.open" function to open a new browser
+                  // preview dialog, otherwise it will default to a new Komodo
+                  // window... which is not very useful - bug 93756.
+                  var unwrappedWindow = domWindow.wrappedJSObject;
+                  unwrappedWindow.open = function(strUrl, strWindowName, strWindowFeatures) {
+                      var obj = new Object();
+                      obj.uri = aLocation.resolve(strUrl);
+                      obj.title = strWindowName;
+                      window.openDialog("chrome://komodo/content/dialogs/browser.xul",
+                                        "_blank",
+                                        strWindowFeatures,
+                                        obj);
+                  }
+                  unwrappedWindow.openDialog = unwrappedWindow.open;
+
                 }
               },
               onStatusChange : function(aWebProgress, aRequest, aStatus, aMessage) {},
