@@ -74,8 +74,6 @@ $cons->InstallPythonUtility('koXMLPrefs.py');
 $cons->InstallPythonUtility('process.py');
 $cons->InstallPythonUtility('koprocessutils.py');
 $cons->InstallPythonUtility('which.py');
-$cons->InstallPythonUtility('timeline.py');
-$cons->InstallPythonUtility('timeline_hook.py');
 $cons->Preprocess('koTreeView.p.py', 'koTreeView.py');
 $cons->InstallPythonUtility('koTreeView.py');
 $cons->InstallPythonUtility('pyxpcomProfiler.py');
