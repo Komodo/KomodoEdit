@@ -322,6 +322,7 @@ static void exitInnerExpression(int *p_inner_string_types,
     curr_quote = p_inner_quotes[inner_string_count];
 }
 
+#if 0
 static bool isEmptyLine(int pos,
                         Accessor &styler) {
     int spaceFlags = 0;
@@ -329,6 +330,7 @@ static bool isEmptyLine(int pos,
     int indentCurrent = styler.IndentAmount(lineCurrent, &spaceFlags, NULL);
     return (indentCurrent & SC_FOLDLEVELWHITEFLAG) != 0;
 }
+#endif
 
 static bool RE_CanFollowIdentifier(const char *keyword) {
 // Members of Kernel that can precede strings or REs:
@@ -539,9 +541,11 @@ static bool sureThisIsNotHeredoc(int lt2StartPos,
     prevStyle = styler.StyleAt(firstWordPosn);
     // If we have '<<' following a keyword, it's not a heredoc
     if (prevStyle != SCE_RB_IDENTIFIER) {
+        //fprintf(stderr, "<< follows a keyword, << false\n");
         return definitely_not_a_here_doc;
     }
     int newStyle = prevStyle;
+    char ch;
     // Some compilers incorrectly warn about uninit newStyle
     for (firstWordPosn += 1; firstWordPosn <= lt2StartPos; firstWordPosn += 1) {
         // Inner loop looks at the name
@@ -553,7 +557,7 @@ static bool sureThisIsNotHeredoc(int lt2StartPos,
         }
         // Do we have '::' or '.'?
         if (firstWordPosn < lt2StartPos && newStyle == SCE_RB_OPERATOR) {
-            char ch = styler[firstWordPosn];
+            ch = styler[firstWordPosn];
             if (ch == '.') {
                 // yes
             } else if (ch == ':') {
@@ -587,17 +591,10 @@ static bool sureThisIsNotHeredoc(int lt2StartPos,
     }
     j = skipWhitespace(j + 1, nextLineStartPosn, styler);
     if (j >= lengthDoc) {
+        //fprintf(stderr, "<< hit end, << false\n");
         return definitely_not_a_here_doc;
     }
-    bool allow_indent;
-    int target_start, target_end;
     // From this point on no more styling, since we're looking ahead
-    if (styler[j] == '-') {
-        allow_indent = true;
-        j++;
-    } else {
-        allow_indent = false;
-    }
 
     // Allow for quoted targets.
     char target_quote = 0;
@@ -609,44 +606,78 @@ static bool sureThisIsNotHeredoc(int lt2StartPos,
         j += 1;
     }
     
-    if (isSafeAlnum(styler[j])) {
-        // Init target_end because some compilers think it won't
-        // be initialized by the time it's used
-        target_start = target_end = j;
-        j++;
-    } else {
-        return definitely_not_a_here_doc;
-    }
-    for (; j < lengthDoc; j++) {
-        if (!isSafeAlnum(styler[j])) {
-            if (target_quote && styler[j] != target_quote) {
+    bool allow_indent = (styler[j] == '-');
+    // Init target_end because some compilers think it won't
+    // be initialized by the time it's used
+    int target_start = j, target_end = j;
+    if (target_quote) {
+        for (; j < lengthDoc; j++) {
+            if (styler[j] == target_quote) {
+                target_end = j - 1;
+                break;
+            } else if (styler[j] == '\n') {
                 // unquoted end
                 return definitely_not_a_here_doc;
             }
-
-            // And for now make sure that it's a newline
-            // don't handle arbitrary expressions yet
-            
-            target_end = j;
-            if (target_quote) {
-                // Now we can move to the character after the string delimiter.
-                j += 1;
+        }
+        if (styler[target_end] == target_quote) {
+            //fprintf(stderr, "no target, so not a here doc\n");
+            return definitely_not_a_here_doc;
+        }
+    } else if (styler[j] != '-' && !isSafeAlnum(styler[j])) {
+        //fprintf(stderr, "no target, so not a here doc\n");
+        return definitely_not_a_here_doc;
+    } else {
+        if (styler[j] == '-') {
+            j += 1;
+        }
+        if (j == lengthDoc || !isSafeAlnum(styler[j])) {
+            //fprintf(stderr, "no target, so not a here doc\n");
+            return definitely_not_a_here_doc;
+        }
+        for(; j < lengthDoc; j++) {
+            if (!isSafeAlnum(styler[j])) {
+                target_end = j - 1;
+                break;
             }
-            j = skipWhitespace(j, lengthDoc, styler);
-            if (j >= lengthDoc) {
-                return definitely_not_a_here_doc;
+        }
+    }
+    j = skipWhitespace(j, lengthDoc, styler);
+    // At this point, if we have EOL, '#', or ';', it's definitely a heredoc
+    // Also, 'if' or 'unless' indicates a heredoc (bug 95341)
+    // Names aren't allowed syntactically, and other operators are ambiguous,
+    if (j >= lengthDoc) {
+        //fprintf(stderr, "hit eof, so yes a here doc\n");
+        return looks_like_a_here_doc;
+    }
+    ch = styler[j];
+    if (isEOLChar(ch) || ch == '#' || ch == ';') {
+        //fprintf(stderr, "hit eol/#/;, so yes a here doc\n");
+        return looks_like_a_here_doc;
+    }
+    
+    if (isSafeAlnum(styler[j])) {
+        // Could be if or unless after
+        char buf[8], *dst = buf;;
+        int endWordPos = j + 7;
+        if (endWordPos > lengthDoc) {
+            endWordPos = lengthDoc;
+        }
+        for (; j < endWordPos; j++) {
+            if (isSafeAlnum(styler[j])) {
+                *dst++ = styler[j];
             } else {
-                char ch = styler[j];
-                if (ch == '#' || isEOLChar(ch)) {
-                    // This is OK, so break and continue;
-                    break;
-                } else {
-                    return definitely_not_a_here_doc;
+                *dst = 0;
+                if (!strcmp(buf, "if")
+                    || !strcmp(buf, "unless")) {
+                    //fprintf(stderr, "hit if/unless, so yes a here doc\n");
+                    return looks_like_a_here_doc;
                 }
             }
         }
     }
 
+    // Last ditch: if we find the target at the start of a line, assume it's good.
     // Just look at the start of each line
     int last_line = styler.GetLine(lengthDoc - 1);
     // But don't go too far
@@ -662,9 +693,11 @@ static bool sureThisIsNotHeredoc(int lt2StartPos,
         // target_end is one past the end
         if (haveTargetMatch(j, lengthDoc, target_start, target_end, styler)) {
             // We got it
+            //fprintf(stderr, "haveTargetMatch at line %d\n", j);
             return looks_like_a_here_doc;
         }
     }
+    //fprintf(stderr, "<< definitely_not_a_here_doc\n");
     return definitely_not_a_here_doc;
 }
 
