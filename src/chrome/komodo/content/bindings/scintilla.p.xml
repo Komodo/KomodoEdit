@@ -556,6 +556,152 @@
             ]]></body>
             </method>
 
+            <method name="copyOrMoveRectangleToPos">
+                <parameter name="scimoz" />
+                <parameter name="pos" />
+                <parameter name="action" />
+                <body>
+                //<![CDATA[
+                var text, targetPos, targetLineEndPos, spaces, spaceDelta;
+                var selStart = scimoz.selectionStart;
+                var selEnd = scimoz.selectionEnd;
+                var lineStart = scimoz.lineFromPosition(selStart);
+                var lineStartCol = scimoz.getColumn(selStart);
+                var lineEnd = scimoz.lineFromPosition(selEnd);
+                var lineEndCol = scimoz.getColumn(selEnd);
+                var finalTargetLine = scimoz.lineFromPosition(pos);
+                var finalTargetCol = scimoz.getColumn(pos);
+                var ranges = new Array(lineEnd - lineStart + 1);
+                for (var i = lineStart; i <= lineEnd; i++) {
+                    ranges[i - lineStart] = [scimoz.getLineSelStartPosition(i),
+                                             scimoz.getLineSelEndPosition(i)];
+                }
+                if (ranges.some(function(r) r[0] <= pos && pos < r[1])) {
+                    // No move/copy if the target is in the selected block.
+                    return;
+                }
+                /** Variations:
+                 * move to before block start
+                 * copy to before block start
+                 * move to after block end
+                 * copy to after block end
+                 * move to a point before one of the lines, same line (shift block left)
+                 * copy to a point before one of the lines, same line (copy block left)
+                 * move to a point after one of the lines, same line (shift block right)
+                 * copy to a point after one of the lines, same line (copy block right)
+                 */
+                var offset = 0;
+                var lineDest = scimoz.lineFromPosition(pos);
+                var columnOffset = pos - scimoz.positionFromLine(lineDest);
+                var lim = ranges.length;
+                scimoz.beginUndoAction();
+                try {
+                    if (pos < ranges[0][0]) {
+                        // move/copy to before block start
+                        for (i = 0; i < lim; i++) {
+                            [selStart, selEnd] = ranges[i];
+                            if (selStart == -1 || selEnd == -1) {
+                                // No text in this selection.
+                                // Do nothing
+                            } else {
+                                selStart += offset;
+                                selEnd += offset;
+                                text = scimoz.getTextRange(selStart, selEnd);
+                                scimoz.targetStart = selStart;
+                                scimoz.targetEnd = selEnd;
+                                if (action === "move") {
+                                    scimoz.replaceTarget(0, "");
+                                } else {
+                                    offset += selEnd - selStart;
+                                }
+                                targetPos = scimoz.positionFromLine(lineDest) + columnOffset;
+                                targetLineEndPos = scimoz.getLineEndPosition(lineDest);
+                                if (targetPos > targetLineEndPos) {
+                                    // Add needed spaces before
+                                    spaceDelta = targetPos - targetLineEndPos;
+                                    text = ko.stringutils.padLeft('', spaceDelta) + text;
+                                    targetPos -= spaceDelta;
+                                    offset += spaceDelta;
+                                }
+                                scimoz.insertText(targetPos, text);
+                            }
+                            lineDest += 1;
+                        }
+                    } else {
+                        var shiftingDownOrLeft = (pos >= ranges[lim - 1][1]
+                            || ranges.some(function(r)
+                        pos < r[0] && pos >= scimoz.positionFromLine(scimoz.lineFromPosition(r[0]))));
+                        // move/copy to after block end or to the left and down
+                        // move/copy last line first to avoid overwriting lower lines
+                        // slight special-case for move/copy to the region to the left of the block
+                        // -- this is tracked by the shiftingDownOrLeft var
+                        //
+                        // Never a need to collect offsets when moving text downwards, as we
+                        // always start at the last line in the selection and move it to its
+                        // destination, which is always going to be out of the way.
+                        
+                        if (!shiftingDownOrLeft && action === "move") {
+                            // We're moving the block somewhere to the right, landing on a line
+                            // that also contains part of the rectangular selection.  We'll be removing
+                            // part of that line, so adjust the final target column accordingly.
+                            // As usual, high-bit utf8 chars fall out as all calculations are in
+                            // terms of utf-8, not Unicode.
+                            finalTargetCol -= (lineEndCol - lineStartCol);
+                        }
+                        // Do we need to add more lines?
+                        var currentLineCount = scimoz.lineCount;
+                        var targetLastLine = finalTargetLine + (lineEnd - lineStart + 1);
+                        var numNeededLines = targetLastLine - currentLineCount;
+                        if (numNeededLines > 0) {
+                            let oldPos = scimoz.currentPos;
+                            scimoz.gotoPos(scimoz.length);
+                            while (numNeededLines > 0) {
+                                scimoz.newLine();
+                                numNeededLines -= 1;
+                            }
+                            scimoz.gotoPos(oldPos);
+                        }
+                        lineDest += lim - 1;
+                        for (i = lim - 1; i >= 0; i--) {
+                            [selStart, selEnd] = ranges[i];
+                            if (selStart == -1 || selEnd == -1) {
+                                // No text in this selection.
+                                // Do nothing
+                            } else {
+                                text = scimoz.getTextRange(selStart, selEnd);
+                                scimoz.targetStart = selStart;
+                                scimoz.targetEnd = selEnd;
+                                if (action === "move") {
+                                    scimoz.replaceTarget(0, "");
+                                    if (!shiftingDownOrLeft) {
+                                        offset = selStart - selEnd;
+                                    }
+                                }
+                                targetPos = scimoz.positionFromLine(lineDest) + columnOffset + offset;
+                                targetLineEndPos = scimoz.getLineEndPosition(lineDest);
+                                if (targetPos > targetLineEndPos) {
+                                    // Add needed spaces before
+                                    spaceDelta = targetPos - targetLineEndPos;
+                                    text = ko.stringutils.padLeft('', spaceDelta) + text;
+                                    targetPos = targetLineEndPos;
+                                }
+                                scimoz.insertText(targetPos, text);
+                            }
+                            lineDest -= 1;
+                        }
+                    }
+                    // Make sure the copied/moved block is still selected.
+                    var newAnchor = scimoz.positionAtColumn(finalTargetLine, finalTargetCol);
+                    scimoz.rectangularSelectionAnchor = newAnchor;
+                    var newCaret = scimoz.positionAtColumn(finalTargetLine + lineEnd - lineStart, finalTargetCol + lineEndCol - lineStartCol);
+                    scimoz.rectangularSelectionCaret = newCaret;
+                } finally {
+                    scimoz.endUndoAction();
+                }
+                //]]>
+                </body>
+            </method>
+            
             <field name="autocomplete">
                 (function() {
                     var popup = document.getAnonymousElementByAttribute(this,
@@ -1209,7 +1355,7 @@
                     //   a. dropped on selection, replace selection
                     //   b. insert text
                     // 3. if from inside scimoz (startdragdrop == true)
-                    //   a. if droped on selection, cancel
+                    //   a. if dropped on selection, cancel
                     //   b. if action copy, insert text
                     //   c. if action move, remove old, insert text
 
@@ -1222,20 +1368,26 @@
                     text = text.replace(/(\r\n|\n|\r)/g, eol[scimoz.eOLMode]);
                     var endUndoAction = true;
                     scimoz.beginUndoAction();
+                    var isRectangle = scimoz.selectionMode === scimoz.SC_SEL_RECTANGLE;
                     try {
                         if (this.inDragDrop) 
                         {
                             // data from inside scimoz
-                            if (onselection) {
+                            if (onselection && !isRectangle) {
                                 event.preventDefault();
                                 event.stopPropagation();
                                 return true;
                             }
-                            var start = scimoz.selectionStart;
-                            var length = scimoz.selectionEnd - start;
-                            if (event.dataTransfer.dropEffect == "move") {
-                                scimoz.replaceSel(''); // remove the dragged text
-                                if (start < pos) pos -= length; // adjust where we insert our data
+                            if (isRectangle) {
+                                this.copyOrMoveRectangleToPos(scimoz, pos,
+                                                    event.dataTransfer.dropEffect);
+                            } else {
+                                var start = scimoz.selectionStart;
+                                var length = scimoz.selectionEnd - start;
+                                if (event.dataTransfer.dropEffect == "move") {
+                                    scimoz.replaceSel(''); // remove the dragged text
+                                    if (start < pos) pos -= length; // adjust where we insert our data
+                                }
                             }
                         } else {
                             // data from outside scimoz
@@ -1264,9 +1416,11 @@
                         // Bug 81413: This must be done after `this.focus()`.
                         // Don't know what about `this.focus()` is resetting the
                         // current position.
-                        scimoz.insertText(pos, text);
-                        scimoz.selectionStart = pos;
-                        scimoz.selectionEnd = pos+ko.stringutils.bytelength(text);
+                        if (!isRectangle) {
+                            scimoz.insertText(pos, text);
+                            scimoz.selectionStart = pos;
+                            scimoz.selectionEnd = pos+ko.stringutils.bytelength(text);
+                        }
                     } finally {
                         if (endUndoAction) {
                             scimoz.endUndoAction();

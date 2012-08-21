@@ -219,6 +219,34 @@ this.strip = function(s) {
 }
 
 /**
+ * Return a string of length fieldSize, where the left side of the
+ * string is padded with enough instances of padChar to reach the
+ * target size.  The returned size is the minimum size that exceeds fieldSize.
+ *
+ * @param {string} text -- the text to right-align in a field
+ * @param {integer} fieldSize -- minimum acceptable size of the final text
+ * @param {string} padChar -- default is a space
+
+ * Returns text if fieldSize <= 0
+ * @returns {string}
+ */
+ this.padLeft = function(text, fieldSize, padChar) {
+     if (text.length >= fieldSize) {
+         return text;
+     }
+     if (typeof(padChar) === "undefined") {
+         padChar = " ";
+     }
+     var numSpacesNeeded = fieldSize - text.length;
+     var numItemsNeeded = Math.ceil(numSpacesNeeded / padChar.length);
+     var s = [];
+     while (--numItemsNeeded >= 0) {
+         s.push(padChar);
+     }
+     return s.join("") + text;
+ };
+
+/**
  * Use koIOs.expanduser to expand a leading "~".  This contracts it.
  *
  * @param {string} path
