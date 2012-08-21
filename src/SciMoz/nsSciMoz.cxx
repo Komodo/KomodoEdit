@@ -37,11 +37,6 @@
 
 //#define SCIMOZ_DEBUG
 
-// We can enable the timeline for scimoz separately from the rest of Moz
-// But for now it is enabled (assuming timeline is!)
-// This will get undefined if MOZ_TIMELINE is not defined.
-#define SCIMOZ_TIMELINE
-
 /////////////////////////////////////////////////////
 //
 // This file implements the SciMoz object
@@ -73,11 +68,6 @@ using namespace Scintilla;
 #endif
 // -- IME support
 
-#ifdef SCIMOZ_TIMELINE
-#include "prenv.h" // run time enable of logging.
-static int gTimelineEnabled = -1;
-#endif
-
 #ifdef SCIMOZ_DEBUG
 	#define SCIMOZ_DEBUG_PRINTF(...) fprintf(stderr, __VA_ARGS__)
 #else
@@ -98,14 +88,6 @@ SciMoz::SciMoz(SciMozPluginInstance* aPlugin)
 {
 #ifdef SCIMOZ_DEBUG
     fprintf(stderr,"SciMoz::SciMoz %p\n",aPlugin);
-#endif
-#ifdef SCIMOZ_TIMELINE
-    if (gTimelineEnabled==-1) {
-        gTimelineEnabled = PR_GetEnv("KO_TIMELINE_SCIMOZ") != nsnull;
-        if (!gTimelineEnabled)
-            SCIMOZ_TIMELINE_MARK("SciMoz initializing, but not logging timeline entries (KO_TIMELINE_SCIMOZ not set)");
-        NS_ABORT_IF_FALSE(gTimelineEnabled!=-1, "We just set it!");
-    }
 #endif
 
     SciMozInitNPIdentifiers();

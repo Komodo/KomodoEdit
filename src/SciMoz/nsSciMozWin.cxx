@@ -104,7 +104,6 @@ void SciMoz::Resize() {
 	char buf[1024];
 	sprintf(buf, "Resizing scintilla to %d,%d-%d,%d\n", rc.left, rc.top,  rc.right - rc.left, rc.bottom - rc.top);
 	OutputDebugString(buf);
-	SCIMOZ_TIMELINE_MARK(buf);
 #endif
 }
 
@@ -286,64 +285,10 @@ PRInt16 SciMoz::PlatformHandleEvent(void* /*event*/) {
 	return 0;
 }
 
-#ifdef SCIMOZ_TIMELINE
-/* NOTE NOTE NOTE: You CAN NOT use this as a "timer name" - timer names must be "static"
-  (in that a pointer comparison is used for timer names, not string compares) */
-static void _MakeEntryName(char *buf, int size, SciMoz *scimoz, char *procName, HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
-{
-	char extra[128] = "";
-	switch (Msg) {
-		case WM_NOTIFY: {
-			LPNMHDR h = (LPNMHDR) lParam;
-			_snprintf(extra, sizeof(extra), " (notify:%x,%d,%d)", h->hwndFrom, h->idFrom, h->code);
-			break;
-		}
-		case WM_WINDOWPOSCHANGING:
-		case WM_WINDOWPOSCHANGED: {
-			WINDOWPOS *p = (WINDOWPOS *)lParam;
-			_snprintf(extra, sizeof(extra), " (windowpos:%x,%x,%d,%d,%d,%d,%d)", p->hwnd, p->hwndInsertAfter, p->x, p->y, p->cx, p->cy, p->flags);
-			break;
-		}
-		default:
-			break;
-	}
-	_snprintf(buf, size,
-			 "SciMoz::%sWndProc <%s@0x%p> %x %d %d %d%s",
-			 procName,
-			 scimoz ? NS_ConvertUTF16toUTF8(scimoz->name).get() : NS_LITERAL_CSTRING("no widget").get(),
-			 scimoz,
-			 hWnd, Msg, wParam, lParam, extra);
-}
-static void TimelineMarkWndProcStart(SciMoz *scimoz, char *procName, HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
-{
-	char buf[1024];
-	NS_ABORT_IF_FALSE(gTimelineEnabled!=-1, "Should have been initialized by now");
-	if (!gTimelineEnabled) return;
-	_MakeEntryName(buf, sizeof(buf), scimoz, procName, hWnd, Msg, wParam, lParam);
-	SCIMOZ_TIMELINE_ENTER(buf);
-}
-
-static void TimelineMarkWndProcEnd(SciMoz *scimoz, char *procName, HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
-{
-	char buf[1024];
-	NS_ABORT_IF_FALSE(gTimelineEnabled!=-1, "Should have been initialized by now");
-	if (!gTimelineEnabled) return;
-	_MakeEntryName(buf, sizeof(buf), scimoz, procName, hWnd, Msg, wParam, lParam);
-	SCIMOZ_TIMELINE_LEAVE(buf);
-}
-
-#define MARK_WNDPROC_START TimelineMarkWndProcStart
-#define MARK_WNDPROC_END TimelineMarkWndProcEnd
-#else
-#define MARK_WNDPROC_START(scimoz, procName, hWnd, Msg, wParam, lParam)
-#define MARK_WNDPROC_END(scimoz, procName, hWnd, Msg, wParam, lParam)
-#endif
-
 // This is the WndProc for the "parking lot"
 // (ie, the Window created by us as a temporary parent of Scintilla)
 LRESULT CALLBACK SciMoz::ParkingLotWndProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
 	SciMoz* inst = (SciMoz*) GetProp(hWnd, gInstanceLookupString);
-	MARK_WNDPROC_START(inst, "ParkingLot", hWnd, Msg, wParam, lParam);
 	switch (Msg) {
 
 	case WM_SIZE: {
@@ -363,7 +308,6 @@ LRESULT CALLBACK SciMoz::ParkingLotWndProc(HWND hWnd, UINT Msg, WPARAM wParam, L
 	}
 	NS_ABORT_IF_FALSE(::IsWindow(hWnd), "Parking lot parent window is not a window!!");
 	LRESULT rc = DefWindowProc(hWnd, Msg, wParam, lParam);
-	MARK_WNDPROC_END(inst, "ParkingLot", hWnd, Msg, wParam, lParam);
 	return rc;
 }
 
@@ -371,7 +315,6 @@ LRESULT CALLBACK SciMoz::ParkingLotWndProc(HWND hWnd, UINT Msg, WPARAM wParam, L
 // (ie, the Window created by Mozilla for us, and the parent of Scintilla)
 LRESULT CALLBACK SciMoz::WndProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
 	SciMoz* inst = (SciMoz*) GetProp(hWnd, gInstanceLookupString);
-	MARK_WNDPROC_START(inst, "Container", hWnd, Msg, wParam, lParam);
 	NS_ABORT_IF_FALSE(inst, "Null instance in plugin WndProc");
 
 	switch (Msg) {
@@ -383,7 +326,6 @@ LRESULT CALLBACK SciMoz::WndProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lPar
 		NS_ABORT_IF_FALSE(wndProcSave, "Expecting to have a default window proc!");
 		if (wndProcSave==NULL) wndProcSave = DefWindowProc;
 		inst->PlatformResetWindow();
-		MARK_WNDPROC_END(inst, "Container", hWnd, Msg, wParam, lParam);
 		return wndProcSave(hWnd, Msg, wParam, lParam);
 		}
 
@@ -416,14 +358,12 @@ LRESULT CALLBACK SciMoz::WndProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lPar
 	default:
 		CallWindowProc(inst->fPlatform.fDefaultWindowProc, hWnd, Msg, wParam, lParam);
 	}
-	MARK_WNDPROC_END(inst, "Container", hWnd, Msg, wParam, lParam);
 	return 0;
 }
 
 // This is the WndProc for the sub-classed Scintilla control.
 LRESULT CALLBACK SciMoz::ChildWndProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
 	SciMoz* inst = (SciMoz*) GetProp(hWnd, gInstanceLookupString);
-	MARK_WNDPROC_START(inst, "Scintilla", hWnd, Msg, wParam, lParam);
 	NS_ABORT_IF_FALSE(inst, "Null instance in child WndProc");
 	LRESULT rc;
 	switch (Msg) {
@@ -476,7 +416,6 @@ LRESULT CALLBACK SciMoz::ChildWndProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM
 		rc = inst->fPlatform.fDefaultChildWindowProc(hWnd, Msg, wParam, lParam);
 		break;
 	}
-	MARK_WNDPROC_END(inst, "Scintilla", hWnd, Msg, wParam, lParam);
 	return rc;
 }
 
