@@ -56,7 +56,7 @@ pref("komodo.chromeURL","chrome://komodo/content/");
 pref("komodo.hiddenWindowChromeURL", "chrome://komodo/content/hiddenWindow.xul");
 pref("toolkit.chromeURL","chrome://komodo/content/");
 pref("toolkit.hiddenWindowChromeURL", "chrome://komodo/content/hiddenWindow.xul");
-pref("browser.chromeURL","chrome://komodo/content/");
+pref("browser.chromeURL","chrome://komodo/content/dialogs/browser.xul");
 pref("browser.hiddenWindowChromeURL", "chrome://komodo/content/hiddenWindow.xul");
 pref("xpinstall.dialog.confirm", "chrome://mozapps/content/xpinstall/xpinstallConfirm.xul");
 pref("xpinstall.dialog.progress.skin", "chrome://mozapps/content/extensions/extensions.xul?view=installs");

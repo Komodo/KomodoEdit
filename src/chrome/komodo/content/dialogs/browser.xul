@@ -96,11 +96,6 @@
             // Setup the browser preview notifications.
             var browser = document.getElementById("content");
             _addProgressListener(browser);
-
-            // Load the URI into the browser preview.
-            if (window.arguments[0].uri) {
-                browser.loadURI(window.arguments[0].uri, null);
-            }
         }
 
         function OnUnload() {
@@ -109,6 +104,6 @@
             _removeProgressListener(browser);
         }
     </script>
-    <browser id="content" anonid="content" context="context" type="content" src="about:blank" flex="1" />
+    <browser id="content" anonid="content" context="context" type="content-primary" src="about:blank" flex="1" />
 
 </window>
