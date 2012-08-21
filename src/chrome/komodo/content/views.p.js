@@ -2482,6 +2482,11 @@ this.labelFromPathInfo = function(baseName, dirName, lineNo, tabId,
     return label;
 };
 
+this._gotoLine_report_error = function _gotoLine_report_error(errorBox, line) {
+    document.getElementById('gotoLine_error_label').value = _bundle.formatStringFromName("isInvalidYoumustEnterANumber.alert", [line], 1);
+    errorBox.removeAttribute("collapsed");
+};
+
 this.gotoLine_onkeypress_handler = function ko_views_gotoLine_onkeypress_handler(event)
 {
     if (event.keyCode != event.DOM_VK_ENTER &&
@@ -2494,68 +2499,128 @@ this.gotoLine_onkeypress_handler = function ko_views_gotoLine_onkeypress_handler
 
     var gotoLineTextbox = document.getElementById("gotoLine_textbox");
     var line = gotoLineTextbox.value;
-    if (!line)
+    if (!line) {
         return;
-
-    // Parse the line, creates [sign, num] variables for the given line string.
-    //   42     sign=null, num=42
-    //   +1     sign=+, num=1
-    //   a      sign=null, num=NaN
-    var stripped = line.replace(/(^\s*|\s*$)/g, '');
-    var sign = null;
-    var num;
-    if (stripped[0] == "-" || stripped[0] == "+") {
-        sign = stripped[0];
-        num = parseInt(stripped.substring(1, stripped.length));
-    } else {
-        sign = null;
-        num = parseInt(stripped);
     }
-    //dump("parseLine(line="+line+"): sign="+sign+", num="+num+"\n");
 
-    // Validate the line:
-    //   Good: 1, 42, +12, -5.
-    //   Bad: a, +1a, -, 3.14
+    // Columns are optional, follow either "," or "." (Bug 88710)
+    //   42     go to line 42 (column 0)
+    //   42,10  -- go to line 42, col 10 (1-based) (or EOL)
+
+    //   +1     sign=+, num=1 -- move down 1 line, but to column 0 (legacy behavior)
+    //   +1,+0  move down 1 line, keep same column
+    //   +1,-0  same: down 1 line, same column
+
+    //   ,+8 -- on current line, move 8 columns to the right, or EOL
+    //   ,-8 -- move 6 columns to the left, or start of line
+    //   -1,+10 move to previous line, than right 10 columns
+    //   a      invalid
+
+    // Parse the line, creates [lineSign, lineNum, columnSign, columnNum] variables for the given line string.
+    var lineParser_re = /^\s*(?:([\-\+]?)(\d*))(?:[\,\.]([\-\+]?)(\d+))?\s*$/;
     var errorBox = document.getElementById('gotoLine_error_hbox');
-    if (isNaN(num) || num < 0) {
-        var errorLabel = document.getElementById('gotoLine_error_label');
-        errorLabel.value = _bundle.formatStringFromName("isInvalidYoumustEnterANumber.alert", [line], 1);
-        errorBox.removeAttribute("collapsed");
+    var m = lineParser_re.exec(line);
+    if (!m) {
+        this._gotoLine_report_error(errorBox, line);
         return;
     }
     errorBox.setAttribute("collapsed", "true");
+    var lineSign = m[1], lineNum = m[2], columnSign = m[3], columnNum = m[4];
+    // column parts could be undefined
+    if (typeof(columnNum) === "undefined") {
+        columnSign = columnNum = null;
+    }
+    if (lineNum === "") {
+        if (lineSign) {
+            this._gotoLine_report_error(errorBox, line);
+            return;
+        }
+        lineSign = lineNum = null;
+    } else {
+        lineNum = parseInt(lineNum, 10);
+        if (lineSign === "") {
+            lineSign = null;
+        }
+    }
+    if (columnNum === null) {
+        if (columnSign) {
+            this._gotoLine_report_error(errorBox, line);
+            return;
+        }
+    } else {
+        columnNum = parseInt(columnNum, 10);
+        if (columnSign === "") {
+            columnSign = null;
+        }
+    }
+    if (lineNum === null && columnNum === null) {
+        // No input to work with.
+        this._gotoLine_report_error(errorBox, line);
+        return;
+    }
+    //dump("parseLine(line="+line+"): lineSign="+lineSign+", lineNum="+lineNum+", columnSign: " + columnSign + ", columnNum: " + columnNum + "\n");
 
     var gotoLinePanel = document.getElementById("gotoLine_panel");
     gotoLinePanel.hidePopup();
 
-    // Go to the given line.
     var view = ko.views.manager.currentView;
     var scimoz = view.scintilla.scimoz;
-    var currLine;
+    var currentPos = scimoz.currentPos;
+    var currentColumn = scimoz.getColumn(currentPos);
+    var currentLine = scimoz.lineFromPosition(currentPos);
     var targetLine;
-    switch (sign) {
-        case null:
-            scimoz.gotoLine(num-1);  // scimoz handles out of bounds
-            targetLine = num - 1;
-            break;
-        case "+":
-            currLine = scimoz.lineFromPosition(scimoz.currentPos);
-            targetLine = currLine + num;
-            break;
-        case "-":
-            currLine = scimoz.lineFromPosition(scimoz.currentPos);
-            targetLine = currLine - num;
-            break;
-        default:
-            ko.views.manager.log.error("unexpected goto line 'sign' value: '"+sign+"'")
-            targetLine = null;
-            break;
+    if (lineNum !== null) {
+        // Go to the given line.
+        switch (lineSign) {
+            // No need to do sanity-checking on out-of-bounds targetLine :
+            // Scintilla stops at either line 0 or line <lineCount - 1>
+          case null:
+           targetLine = lineNum - 1;
+           break;
+          case "+":
+           targetLine = currentLine + lineNum;
+           break;
+          case "-":
+           targetLine = currentLine - lineNum;
+           break;
+          default:
+           // This shouldn't happen, but leave it in for better maintenance.
+           ko.views.manager.log.error("unexpected goto line 'sign' value: '"+lineSign+"'");
+           targetLine = lineNum - 1;
+        }
+        if (targetLine != currentLine) {
+            scimoz.gotoLine(targetLine);
+            scimoz.ensureVisible(targetLine);
+        }
+    } else {
+        targetLine = currentLine;
     }
-    if (targetLine != null) {
-        scimoz.gotoLine(targetLine);
-        scimoz.ensureVisible(targetLine);
-        scimoz.scrollCaret();
+    if (columnNum !== null) {
+        var targetColumn, targetPos;
+        switch (columnSign) {
+            // No need to do sanity-checking on out-of-bounds targetLine :
+            // Scintilla stops at either line 0 or line <lineCount - 1>
+          case null:
+           targetColumn = columnNum;
+           break;
+          case "+":
+           targetColumn = currentColumn + columnNum;
+           break;
+          case "-":
+           targetColumn = currentColumn - columnNum;
+           break;
+          default:
+           // This shouldn't happen
+           ko.views.manager.log.error("unexpected goto line 'columnSign' value: '"+columnSign+"'");
+           targetColumn = columnNum;
+        }
+        // Again, scintilla handles negative columns by stopping at line 0,
+        // and positions past end-of-line by stopping at end-of-line
+        targetPos = scimoz.positionAtColumn(targetLine, targetColumn);
+        scimoz.gotoPos(targetPos);
     }
+    scimoz.scrollCaret();
+    scimoz.chooseCaretX();
 }
 
 var _deprecated_getters_noted = {};
