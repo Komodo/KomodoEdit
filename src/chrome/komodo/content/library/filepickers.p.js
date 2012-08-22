@@ -263,10 +263,27 @@ function _get_localDirFromPossibleURIDir(uri) {
     return null;
 }
 
+function _placesProjectsPanelVisible() {
+    // This assumes we're called from a main-window context, along with much of
+    // the other code in this module.
+    var workspaceArea = document.getElementById('workspace_left_area');
+    if (!workspaceArea || workspaceArea.collapsed) {
+        return false;
+    }
+    var placesViewbox = document.getElementById('placesViewbox');
+    if (!placesViewbox) {
+        return false;
+    }
+    return placesViewbox.parentNode.selectedPanel === placesViewbox;
+}
+
 var _dispatchTable = {
         // Some clients prefer project or place to the current view,
         // but saveAs should prefer the current view
     'project': function() {
+        if (!_placesProjectsPanelVisible()) {
+            return null;
+        }
         var dir, uri;
         if (ko.projects) {
             var project = ko.projects.manager.currentProject;
@@ -277,6 +294,9 @@ var _dispatchTable = {
         return null;
     },
     'place': function() {
+        if (!_placesProjectsPanelVisible()) {
+            return null;
+        }
         var dir, uri;
         if (ko.places) {
             return _get_localDirFromPossibleURIDir(ko.places.manager.currentPlace);
@@ -1101,4 +1121,3 @@ ko.logging.globalDeprecatedByAlternative("filepicker_openRemoteFiles", "ko.filep
 ko.logging.globalDeprecatedByAlternative("filepicker_saveAsRemoteFiles", "ko.filepicker.saveAsRemoteFiles");
 ko.logging.globalDeprecatedByAlternative("filepicker_browseForDir", "ko.filepicker.browseForDir");
 ko.logging.globalDeprecatedByAlternative("filepicker_browseForRemoteDir", "ko.filepicker.browseForRemoteDir");
-
