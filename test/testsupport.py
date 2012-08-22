@@ -39,7 +39,7 @@
 
 import os
 import sys
-from os.path import join, dirname, exists, abspath
+from os.path import join, dirname, exists, abspath, isfile
 from glob import glob
 
 from testlib import TestError, TestSkipped, TestFailed
@@ -127,7 +127,7 @@ def findPathsForInterpreters(interpNames, lang=None, env=None, allow_caching=Tru
             interpName += ".exe"
         for dirpath in possible_paths:
             exe = join(dirpath, interpName)
-            if exists(exe) and exe not in all_executables:
+            if exists(exe) and isfile(exe) and exe not in all_executables:
                 all_executables.append(exe)
         # To be compatible with which.whichall (called by koAppInfoEx), when
         # running on Windows we must also check the registry for any
