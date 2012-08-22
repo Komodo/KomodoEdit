@@ -43,23 +43,9 @@ class _BaseAppInfoTestCase(unittest.TestCase):
         return None
 
     def _getPathsForInterpreters(self, interpNames):
-        exe_paths = []
-        possible_paths = koprocessutils.getUserEnv()["PATH"].split(os.pathsep)
-        for interpName in interpNames:
-            if sys.platform.startswith("win"):
-                interpName += ".exe"
-            for dirpath in possible_paths:
-                exe = join(dirpath, interpName)
-                if exists(exe) and exe not in exe_paths:
-                    exe_paths.append(exe)
-            # To be compatible with which.whichall (called by koAppInfoEx), when
-            # running on Windows we must also check the registry for any
-            # registered executables.
-            if sys.platform.startswith('win'):
-                registry_exe = self._getExecutableFromRegistry(interpName)
-                if registry_exe and registry_exe.lower() not in [x.lower() for x in exe_paths]:
-                    exe_paths.append(registry_exe)
-        return exe_paths
+        from testsupport import findPathsForInterpreters
+        return findPathsForInterpreters(interpNames, lang=self.lang,
+                                        env=koprocessutils.getUserEnv())
 
     def _getInstallLocationsForInterpreters(self, interpNames):
         def getInstallDir(exepath):
@@ -203,25 +189,6 @@ class _PythonAppInfoTestCase(_BaseAppInfoTestCase):
         if self._pyHomeOriginal:
             koprocessutils._gUserEnvCache["PYTHONHOME"] = self._pyHomeOriginal
             self._pyHomeOriginal = None
-
-    def _getPathsForInterpreters(self, interpNames):
-        all_executables = _BaseAppInfoTestCase._getPathsForInterpreters(self, interpNames)
-        executables = []
-        # Filter executables, getting the version.
-        import subprocess
-        env = self._getEncodedUserEnv()
-        for exe in all_executables:
-            p = subprocess.Popen([exe, "-V"], env=env,
-                                 stdout=subprocess.PIPE,
-                                 stderr=subprocess.PIPE)
-            stdout, stderr = p.communicate()
-            ver = stderr[7:] if stderr else ""
-            if self.lang == "Python3" and ver >= "3.0" and ver < "4.0":
-                executables.append(exe)
-            elif self.lang == "Python" and ver >= "2.4" and ver < "3.0":
-                # We don't support anything less than Python 2.4.
-                executables.append(exe)
-        return executables
 
 class PythonAppInfoTestCase(_PythonAppInfoTestCase):
     lang = "Python"

@@ -80,6 +80,85 @@ def get_prebuilt_dir(dir):
                         % (dir, platname))
 
 
+def _getExecutableFromRegistry(exeName):
+    """Windows allow application paths to be registered in the registry."""
+    import _winreg
+    try:
+        key = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\" +\
+              exeName
+        registered = _winreg.QueryValue(_winreg.HKEY_LOCAL_MACHINE, key)
+        if registered and os.path.exists(registered):
+            return registered
+    except _winreg.error:
+        pass
+    return None
+
+_g_interpreters_from_path_cache = {}
+
+def findPathsForInterpreters(interpNames, lang=None, env=None, allow_caching=True):
+    """Shared code for finding language interpreters."""
+    if env is None:
+        env = os.environ
+    else:
+        # Sanity check the environment - taken from process.py.
+        encoding = sys.getfilesystemencoding()
+        _enc_env = {}
+        for key, value in env.items():
+            try:
+                _enc_env[key.encode(encoding)] = value.encode(encoding)
+            except UnicodeEncodeError:
+                # Could not encode it, warn we are dropping it.
+                sys.stderr.write("Could not encode environment variable %r "
+                                 "so removing it", key)
+        env = _enc_env
+
+    possible_paths = env["PATH"].split(os.pathsep)
+    # Check cached data.
+    cache_key = "%s|%s|%s" % (env["PATH"], ":".join(interpNames), lang)
+    if allow_caching:
+        cached_exes = _g_interpreters_from_path_cache.get(cache_key)
+        if cached_exes is not None:
+            return cached_exes
+
+    # Find all available executables.
+    all_executables = []
+    for interpName in interpNames:
+        if sys.platform.startswith("win"):
+            interpName += ".exe"
+        for dirpath in possible_paths:
+            exe = join(dirpath, interpName)
+            if exists(exe) and exe not in all_executables:
+                all_executables.append(exe)
+        # To be compatible with which.whichall (called by koAppInfoEx), when
+        # running on Windows we must also check the registry for any
+        # registered executables.
+        if sys.platform.startswith('win'):
+            registry_exe = _getExecutableFromRegistry(interpName)
+            if registry_exe and registry_exe.lower() not in [x.lower() for x in all_executables]:
+                all_executables.append(registry_exe)
+    # Optionally filter down to a matching version.
+    if lang in ("Python", "Python3"):
+        env = env.copy()
+        env.pop("PYTHONHOME", None)
+        # Filter to matching version.
+        valid_executables = []
+        # Filter executables, getting the version.
+        import subprocess
+        for exe in all_executables:
+            p = subprocess.Popen([exe, "-V"], env=env,
+                                 stdout=subprocess.PIPE,
+                                 stderr=subprocess.PIPE)
+            stdout, stderr = p.communicate()
+            ver = stderr[7:] if stderr else ""
+            if lang == "Python3" and ver >= "3.0" and ver < "4.0":
+                valid_executables.append(exe)
+            elif lang == "Python" and ver >= "2.4" and ver < "3.0":
+                # We don't support anything less than Python 2.4.
+                valid_executables.append(exe)
+        all_executables = valid_executables
+    _g_interpreters_from_path_cache[cache_key] = all_executables
+    return all_executables
+
 def get_php_interpreter_path(ver):
     config = get_config()
     candidates = [
