@@ -41,15 +41,18 @@ var bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
 function getDirectoryFromTextObject(textlikeObject) {
     // textlikeObject has a 'value' property -- could be a menulist or text field
     var currentFileName = textlikeObject.value;
+    if (!currentFileName) {
+        return null;
+    }
     var osPath = Components.classes["@activestate.com/koOsPath;1"].getService(Components.interfaces.koIOsPath);
-    var path =  currentFileName ? osPath.dirname(currentFileName) : null;
+    var path = osPath.dirname(currentFileName);
     return path && osPath.exists(path) ? path : null;
 }
 
 function loadExecutableIntoInterpreterList(availInterpListID) {
     var availInterpList = document.getElementById(availInterpListID);
     var currentPath = getDirectoryFromTextObject(availInterpList);
-    var path = ko.filepicker.browseForExeFile(null, currentPath);
+    var path = ko.filepicker.browseForExeFile(currentPath);
     if (path) {
         availInterpList.selectedItem = availInterpList.appendItem(path, path);
         return true;

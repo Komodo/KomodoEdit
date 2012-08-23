@@ -536,6 +536,7 @@ this.diff = function(diff, title /* ="Diff" */, message /* =null */)
  *
  */
 this.watchLocalFile = function() {
+    // Rely on default to open current project or file
     var filename = ko.filepicker.browseForFile();
     if (filename)
         return window.openDialog("chrome://komodo/content/tail/tail.xul",

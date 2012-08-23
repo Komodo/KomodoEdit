@@ -158,9 +158,12 @@ function AddPath()
     var pathsep = ":";
 // #endif
 
-    var dname = ko.filepicker.getFolder();
+    var prefName = "editEnvVar.AddPath"
+    var default_dir = ko.filepicker.internDefaultDir(prefName);
+    var dname = ko.filepicker.getFolder(default_dir);
     if (dname) {
         var valueWidget = document.getElementById("value");
+        ko.filepicker.internDefaultDir(prefName, dname);
         if (!valueWidget.value) {
             valueWidget.value = dname
         } else {

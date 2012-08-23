@@ -111,9 +111,12 @@ function loadPerlExecutable()
 
 function loadPerlLogpath()
 {
-    var perlLog = ko.filepicker.getFolder();
+    var prefName = "perlDebug.defaultDir";
+    var textbox = document.getElementById("perl_debuggerlogpath");
+    var defaultDir = ko.filepicker.getExistingDirFromPathOrPref(textbox.value, prefName);
+    var perlLog = ko.filepicker.getFolder(defaultDir);
     if (perlLog != null) {
-        var textbox = document.getElementById("perl_debuggerlogpath");
         textbox.value = perlLog;
+        ko.filepicker.internDefaultDir(prefName, perlLog);
     }
 }

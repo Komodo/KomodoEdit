@@ -64,6 +64,18 @@
 
                 ]]>
             </destructor>
+            <field name="_log">null</field>
+            <property name="log">
+                <getter>//<![CDATA[
+                if (!this._log) {
+                    var type = this.getAttribute('type');
+                    this._log = ko.logging.getLogger("widgets.langList");
+                }
+                return this._log;
+                //]]>
+                </getter>
+            </property>
+
             <method name="getHierarchy">
                 <body>
                     <![CDATA[
@@ -142,7 +154,7 @@
                             }
                             currentLanguageNames.sort()
                         } catch(ex) {
-                            log.exception("Failed to get languages: " + ex);
+                            this.log.exception("Failed to get languages: " + ex);
                             this.getHierarchy();
                             return;
                         }
@@ -245,6 +257,17 @@
             <property name="value"
                       onset="this.setData(val);"
                       onget="return this.getData();"/>
+            <field name="_log">null</field>
+            <property name="log">
+                <getter>//<![CDATA[
+                if (!this._log) {
+                    var type = this.getAttribute('type');
+                    this._log = ko.logging.getLogger("widgets.pathEditor");
+                }
+                return this._log;
+                //]]>
+                </getter>
+            </property>
 
             <method name="onpageload">
                 <parameter name="prefwindow"/>
@@ -253,7 +276,7 @@
                 try {
                     this.updateButtons();
                 } catch (e) {
-                    log.exception(e);
+                    this.log.exception(e);
                 }
                 ]]>
                 </body>
@@ -270,7 +293,7 @@
                     }
                     this.updateButtons();
                 } catch (e) {
-                    log.exception(e);
+                    this.log.exception(e);
                 }
                 ]]>
                 </body>
@@ -305,7 +328,7 @@
                             listbox.appendChild(listitem);
                         }
                     } catch (e) {
-                        log.exception(e);
+                        this.log.exception(e);
                     }
                     ]]>
                 </body>
@@ -326,7 +349,7 @@
                             listitem = prev;
                         }
                     } catch (e) {
-                        log.exception(e);
+                        this.log.exception(e);
                     }
                     ]]>
                 </body>
@@ -373,7 +396,7 @@
                             eval(this.getAttribute('oncommand'));
                         }
                     } catch (e) {
-                        log.exception(e);
+                        this.log.exception(e);
                     }
                     ]]>
                 </body>
@@ -385,23 +408,31 @@
                         var listbox = document.getAnonymousNodes(this)[1];
                         var selectedItems = listbox.selectedItems;
                         var defaultDir = "";
+                        var osPath = Components.classes["@activestate.com/koOsPath;1"].getService(Components.interfaces.koIOsPath);
+                        var os = Components.classes["@activestate.com/koOs;1"].getService(Components.interfaces.koIOs);
+                        var defaultDir;
                         if (selectedItems.length > 0) {
                             defaultDir = selectedItems[0].getAttribute('label');
-                        } else {
-                            defaultDir = '.';
-                        }
-                        var os = Components.classes["@activestate.com/koOs;1"].getService(Components.interfaces.koIOs);
-                        defaultDir = os.path.expanduser(defaultDir);
-                        if (! os.path.isabs(defaultDir)) {
-                            // Need to join with curdir
-                            if (this.cwd) {
-                                defaultDir = os.path.join(this.cwd,
-                                                          defaultDir);
-                            } else {
-                                defaultDir = '';
+                            defaultDir = osPath.expanduser(defaultDir);
+                            if (! osPath.isabs(defaultDir)) {
+                                // Need to join with curdir
+                                if (this.cwd) {
+                                    defaultDir = osPath.join(this.cwd,
+                                                             defaultDir);
+                                } else {
+                                    defaultDir = null;
+                                }
                             }
+                        } else {
+                            defaultDir = null;
+                            
                         }
-                        defaultDir = os.path.normpath(defaultDir);
+                        var prefName = "listbox.pathEditor.add"
+                        if (!defaultDir) {
+                            default_dir = ko.filepicker.internDefaultDir(prefName);
+                        } else {
+                            defaultDir = osPath.normpath(defaultDir);
+                        }
                         var path = null;
                         if (this.getAttribute('type') == 'directory') {
                             path = ko.filepicker.getFolder(defaultDir,
@@ -411,6 +442,7 @@
                                     "Select a folder to add to the list");
                         }
                         if (!path) return;
+                        ko.filepicker.internDefaultDir(prefName, path);
                         this.deleteEmptyEntries();
                         var listitem = document.createElement('listitem');
                         listitem.setAttribute('type', 'editable');
@@ -423,7 +455,7 @@
                         listbox.selectItem(listitem);
                         this.updateButtons();
                     } catch (e) {
-                        log.exception(e);
+                        this.log.exception(e);
                     }
                     ]]>
                 </body>
@@ -442,7 +474,7 @@
                         }
                         this.updateButtons();
                     } catch (e) {
-                        log.exception(e);
+                        this.log.exception(e);
                     }
                     ]]>
                 </body>
@@ -458,7 +490,7 @@
                         listbox.selectItem(curItem);
                         this.updateButtons();
                     } catch (e) {
-                        log.exception(e);
+                        this.log.exception(e);
                     }
                     ]]>
                 </body>
@@ -478,7 +510,7 @@
                         listbox.selectItem(curItem);
                         this.updateButtons();
                     } catch (e) {
-                        log.exception(e);
+                        this.log.exception(e);
                     }
                     ]]>
                 </body>
@@ -520,6 +552,17 @@
             </handler>
         </handlers>
         <implementation>
+            <field name="_log">null</field>
+            <property name="log">
+                <getter>//<![CDATA[
+                if (!this._log) {
+                    var type = this.getAttribute('type');
+                    this._log = ko.logging.getLogger("widgets.checklist");
+                }
+                return this._log;
+                //]]>
+                </getter>
+            </property>
             <method name="onpageload">
                 <parameter name="prefwindow"/>
                 <body>
@@ -527,7 +570,7 @@
                 try {
                     this.updateButtons();
                 } catch (e) {
-                    log.exception(e);
+                    this.log.exception(e);
                 }
                 ]]>
                 </body>
@@ -553,7 +596,7 @@
                     }
                     this.updateButtons();
                 } catch (e) {
-                    log.exception(e);
+                    this.log.exception(e);
                 }
                 ]]>
                 </body>
@@ -586,7 +629,7 @@
                             listbox.appendChild(listitem);
                         }
                     } catch (e) {
-                        log.exception(e);
+                        this.log.exception(e);
                     }
                     ]]>
                 </body>
@@ -606,7 +649,7 @@
                         }
                         return items.join(':');
                     } catch (e) {
-                        log.exception(e);
+                        this.log.exception(e);
                         return [];
                     }
                     ]]>
@@ -628,7 +671,7 @@
                             eval(this.getAttribute('oncommand'));
                         }
                     } catch (e) {
-                        log.exception(e);
+                        this.log.exception(e);
                     }
                     ]]>
                 </body>
@@ -652,7 +695,7 @@
                         listbox.selectItem(listitem);
                         this.updateButtons();
                     } catch (e) {
-                        log.exception(e);
+                        this.log.exception(e);
                     }
                     ]]>
                 </body>
@@ -671,7 +714,7 @@
                         }
                         this.updateButtons();
                     } catch (e) {
-                        log.exception(e);
+                        this.log.exception(e);
                     }
                     ]]>
                 </body>
@@ -733,6 +776,17 @@
                       onget="return this.tree.view;"/>
             <property name="treeChildren"
                       onget="return this.tree.lastChild;"/>
+            <field name="_log">null</field>
+            <property name="log">
+                <getter>//<![CDATA[
+                if (!this._log) {
+                    var type = this.getAttribute('type');
+                    this._log = ko.logging.getLogger("tree.mappedEditor");
+                }
+                return this._log;
+                //]]>
+                </getter>
+            </property>
 
             <method name="onpageload">
                 <parameter name="prefwindow"/>
@@ -741,7 +795,7 @@
                 try {
                     this.updateButtons();
                 } catch (e) {
-                    log.exception(e);
+                    this.log.exception(e);
                 }
                 ]]>
                 </body>
@@ -754,7 +808,7 @@
                 try {
                     this.updateButtons();
                 } catch (e) {
-                    log.exception(e);
+                    this.log.exception(e);
                 }
                 ]]>
                 </body>
@@ -815,7 +869,7 @@
                                 this.addRow(data[0],data[1]);
                         }
                     } catch (e) {
-                        log.exception(e);
+                        this.log.exception(e);
                     }
                     ]]>
                 </body>
@@ -824,7 +878,6 @@
             <method name="getData">
                 <body>
                     <![CDATA[
-                        var os = Components.classes["@activestate.com/koOs;1"].getService(Components.interfaces.koIOs);
                         var paths = []
                         for (var i = 0; i < this.treeView.rowCount; i++) {
                             var uri = this.getCellText(i, 0);
@@ -894,7 +947,7 @@
                             eval(this.getAttribute('oncommand'));
                         }
                     } catch (e) {
-                        log.exception(e);
+                        this.log.exception(e);
                     }
                     ]]>
                 </body>
@@ -927,18 +980,18 @@
                     try {
                         var defaultDir = this.getCellText(this.treeView.selection.currentIndex, 1);
                         if (defaultDir) {
-                            var os = Components.classes["@activestate.com/koOs;1"].getService(Components.interfaces.koIOs);
-                            defaultDir = os.path.expanduser(defaultDir);
-                            if (! os.path.isabs(defaultDir)) {
+                            var osPath = Components.classes["@activestate.com/koOsPath;1"].getService(Components.interfaces.koIOsPath);
+                            defaultDir = osPath.expanduser(defaultDir);
+                            if (! osPath.isabs(defaultDir)) {
                                 // Need to join with curdir
                                 if (this.cwd) {
-                                    defaultDir = os.path.join(this.cwd,
+                                    defaultDir = osPath.join(this.cwd,
                                                               defaultDir);
                                 } else {
                                     defaultDir = '';
                                 }
                             }
-                            defaultDir = os.path.normpath(defaultDir);
+                            defaultDir = osPath.normpath(defaultDir);
                         }
                         var info = {
                             uri: null,
@@ -954,7 +1007,7 @@
                         this.treeView.selection.select(this.treeView.rowCount-1);
                         this.updateButtons();
                     } catch (e) {
-                        log.exception(e);
+                        this.log.exception(e);
                     }
                     ]]>
                 </body>
@@ -972,7 +1025,7 @@
                         this.setCellText(this.treeView.selection.currentIndex, 0, info.uri);
                         this.setCellText(this.treeView.selection.currentIndex, 1, info.path);
                     } catch (e) {
-                        log.exception(e);
+                        this.log.exception(e);
                     }
                     ]]>
                 </body>
@@ -993,7 +1046,7 @@
                         }
                         this.updateButtons();
                     } catch (e) {
-                        log.exception(e);
+                        this.log.exception(e);
                     }
                     ]]>
                 </body>
@@ -1011,7 +1064,7 @@
                         }
                         this.updateButtons();
                     } catch (e) {
-                        log.exception(e);
+                        this.log.exception(e);
                     }
                     ]]>
                 </body>
@@ -1032,7 +1085,7 @@
                         }
                         this.updateButtons();
                     } catch (e) {
-                        log.exception(e);
+                        this.log.exception(e);
                     }
                     ]]>
                 </body>

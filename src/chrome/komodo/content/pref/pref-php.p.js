@@ -121,9 +121,17 @@ function PrefPhp_SelectIni() {
 
 function loadIniFile() {
     var current = document.getElementById("phpConfigFile").value;
+    if (!current) {
+        current = getDirectoryFromTextObject(document.getElementById("phpDefaultInterpreter"));
+    }
+    var prefName = "php.iniLocation";
+    if (!current) {
+        current = ko.filepicker.internDefaultDir(prefName);
+    }
     var path = ko.filepicker.browseForFile(null, current, null, "INI", ["INI", "All"]);
     if (path != null) {
         document.getElementById("phpConfigFile").value = path;
+        ko.filepicker.updateDefaultDirFromPath(prefName, path);
     }
 }
 

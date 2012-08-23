@@ -141,11 +141,13 @@ function loadRubyExecutable()
 
 function loadRubyLogpath()
 {
+    var prefName = "rubyDebug.defaultDir";
     var textbox = document.getElementById("ruby_debuggerlogpath");
-    var currentDir = getDirectoryFromTextObject(textbox);
-    var rubyLog = ko.filepicker.getFolder(currentDir);
+    var defaultDir = ko.filepicker.getExistingDirFromPathOrPref(textbox.value, prefName);
+    var rubyLog = ko.filepicker.getFolder(defaultDir);
     if (rubyLog != null) {
         textbox.value = rubyLog;
+        ko.filepicker.internDefaultDir(prefName, rubyLog);
     }
 }
 

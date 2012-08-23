@@ -180,14 +180,17 @@ function PrefCodeIntel_AddCatalog()
         //TODO: A "don't ask again" dialog explaining what catalogs are on
         //      disk, where to look for them, how to make them, etc.
 
+        var prefName = "codeintel.catalogs";
+        var default_dir = ko.filepicker.internDefaultDir(prefName);
         var cix_paths = ko.filepicker.browseForFiles(
-                null, null,
+                default_dir, null,
                 "Add API Catalog", // title
                 "Code Intelligence XML", // defaultFilterName
                 ["Code Intelligence XML", "All"]); // filterNames
         if (cix_paths == null) {
             return;
         }
+        ko.filepicker.updateDefaultDirFromPath(prefName, cix_paths);
         var adder = gCatalogsView.addPaths(cix_paths.length, cix_paths);
         ko.dialogs.progress(adder,
                         "Adding API Catalog(s).",

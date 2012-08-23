@@ -383,7 +383,18 @@ function UpdateCommand()
 function BrowseForCwd()
 {
     // from window-functions.js
-    var cwd = ko.filepicker.getFolder(dialog.cwdTextbox.value);
+    var currentValue = dialog.cwdTextbox.value;
+    if (currentValue.indexOf("%") >= 0) {
+        var env_in = [];
+        var name = null;
+        var viewData = null;
+        var istrings = ko.interpolate.interpolate(opener, [currentValue],
+                                              env_in, name, viewData);
+        if (istrings && istrings[0]) {
+            currentValue = istrings[0];
+        }
+    }
+    var cwd = ko.filepicker.getFolder(currentValue);
     if (cwd) {
         dialog.cwdTextbox.value = cwd;
     }

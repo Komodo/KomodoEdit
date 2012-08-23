@@ -68,6 +68,12 @@ var _log = ko.logging.getLogger("filepickers");
 
 const Ci = Components.interfaces;
 
+var prefs = Components.classes["@activestate.com/koPrefService;1"].
+                        getService(Ci.koIPrefService).prefs.
+                        getPref("filepickers.defaultDirs");
+
+var osPathSvc = Components.classes["@activestate.com/koOsPath;1"].
+    getService(Ci.koIOsPath);
 //---- internal support stuff
 
 /* if scimoz has focus, it will fight the native windows dialogs
@@ -255,10 +261,12 @@ function _appendFilters(fp, limitTo /* =null */) {
 
 function _get_localDirFromPossibleURIDir(uri) {
     if (uri && uri.substr(0, 7) === "file://") {
-        var dir = ko.uriparse.URIToLocalPath(uri);
-        if (dir) {
-            return dir;
-        }
+        // ko.uriparse not always available when this is called from
+        // dialog boxes, so go with xpcom.
+        var koFileEx = Components.classes["@activestate.com/koFileEx;1"]
+                             .createInstance(Components.interfaces.koIFileEx);
+        koFileEx.URI = uri;
+        return koFileEx.path;
     }
     return null;
 }
@@ -453,7 +461,7 @@ function _browseForFile(pickerFn,
 
     if (!defaultDirectory && defaultFilename) {
         try {
-            defaultDirectory = ko.uriparse.dirName(defaultFilename);
+            defaultDirectory = osPathSvc.dirname(defaultFilename);
         } catch (ex) { /* do nothing */ }
     }
     if (!defaultDirectory) {
@@ -470,15 +478,13 @@ function _browseForFile(pickerFn,
                                  "' as default directory, defaulting to home directory.");
             var localFile = Components.classes["@mozilla.org/file/local;1"]
                             .createInstance(Components.interfaces.nsILocalFile);
-            var osPathSvc = Components.classes["@activestate.com/koOsPath;1"].
-                    getService(Components.interfaces.koIOsPath);
             defaultDirectory = osPathSvc.expanduser("~");
             localFile.initWithPath(defaultDirectory);
             fp.displayDirectory = localFile;
         }
     }
     if (defaultFilename) {
-        fp.defaultString = ko.uriparse.baseName(defaultFilename);
+        fp.defaultString = osPathSvc.basename(defaultFilename);
     } else {
         fp.defaultString = null;
     }
@@ -609,7 +615,7 @@ this.saveFile = function filepicker_saveFile(defaultDirectory /* =null */,
 
     if (!defaultDirectory && defaultFilename) {
         try {
-            defaultDirectory = ko.uriparse.dirName(defaultFilename);
+            defaultDirectory = osPathSvc.dirname(defaultFilename);
         } catch (ex) { /* do nothing */ }
     }
     if (!defaultDirectory) {
@@ -627,7 +633,7 @@ this.saveFile = function filepicker_saveFile(defaultDirectory /* =null */,
         }
     }
     if (defaultFilename) {
-        fp.defaultString = ko.uriparse.baseName(defaultFilename);
+        fp.defaultString = osPathSvc.basename(defaultFilename);
     } else {
         fp.defaultString = null;
     }
@@ -645,7 +651,7 @@ this.saveFile = function filepicker_saveFile(defaultDirectory /* =null */,
         var path = fp.file.path;
         // Determine if should ask to force an extension.
         // - If path already has an extension, then no.
-        var ext = ko.uriparse.ext(path);
+        var ext = osPathSvc.getExtension(path);
         if (ext) {
             return path;
         }
@@ -653,7 +659,7 @@ this.saveFile = function filepicker_saveFile(defaultDirectory /* =null */,
         // Determine the file extension to append.
         ext = null;
         if (defaultFilename) {
-            ext = ko.uriparse.ext(defaultFilename);
+            ext = osPathSvc.getExtension(defaultFilename);
             if (!ext) ext = null;
         }
         if (ext == null && defaultFilterName) {
@@ -679,7 +685,7 @@ this.saveFile = function filepicker_saveFile(defaultDirectory /* =null */,
 
         // Ask the user
         if (ext != null) {
-            var basename = ko.uriparse.baseName(path);
+            var basename = osPathSvc.basename(path);
             var prompt = _bundle.formatStringFromName("filenameDoesNotHaveAnExtension",
                                                       [basename, ext],
                                                       2);
@@ -740,7 +746,7 @@ this.browseForFiles = function filepicker_openFiles(defaultDirectory /* =null */
 
     if (!defaultDirectory && defaultFilename) {
         try {
-            defaultDirectory = ko.uriparse.dirName(defaultFilename);
+            defaultDirectory = osPathSvc.dirname(defaultFilename);
         } catch (ex) { /* do nothing */ }
     }
     if (!defaultDirectory) {
@@ -757,15 +763,13 @@ this.browseForFiles = function filepicker_openFiles(defaultDirectory /* =null */
                                  "' as default directory, defaulting to home directory.");
             var localFile = Components.classes["@mozilla.org/file/local;1"]
                             .createInstance(Components.interfaces.nsILocalFile);
-            var osPathSvc = Components.classes["@activestate.com/koOsPath;1"].
-                    getService(Components.interfaces.koIOsPath);
             defaultDirectory = osPathSvc.expanduser("~");
             localFile.initWithPath(defaultDirectory);
             fp.displayDirectory = localFile;
         }
     }
     if (defaultFilename) {
-        fp.defaultString = ko.uriparse.baseName(defaultFilename);
+        fp.defaultString = osPathSvc.basename(defaultFilename);
     } else {
         fp.defaultString = null;
     }
@@ -1106,6 +1110,68 @@ this.openFiles = function filepicker_openFiles(defaultDirectory /* =null */,
     return ko.filepicker.browseForFiles.apply(this, arguments);
 }
 
+/**
+ * Use the prefs system to track default dirs for particular calls
+ * to the various file-pickers.  Goal: avoid defaulting to the
+ * last dir used by a different file-picker client.
+ 
+ * @param {String} label
+ * @param {String} dir
+ * @returns {String} last stored directory if dir is null, dir if dir isn't null
+ */
+this.internDefaultDir = function internDefaultDir(label, dir) {
+    if (typeof(dir) === "undefined" || !dir) {
+        if (prefs.hasStringPref(label)) {
+            dir = prefs.getStringPref(label);
+            if (osPathSvc.exists(dir) && osPathSvc.isdir(dir)) {
+                return dir;
+            }
+        }
+        return null;
+    }
+    prefs.setStringPref(label, dir);
+    return dir;
+};
+
+/**
+ * Use the prefs system to track default dirs for particular calls
+ * to the various file-pickers.  Goal: avoid defaulting to the
+ * last dir used by a different file-picker client.
+ 
+ * @param {String} label
+ * @param {String} path
+ * @returns {String} last stored directory if dir is null, dir if dir isn't null
+ */
+this.updateDefaultDirFromPath = function updateDefaultDirFromPath(label, path) {
+    if (!path) {
+        return null;
+    }
+    var osPathSvc = Components.classes["@activestate.com/koOsPath;1"].getService(Components.interfaces.koIOsPath);
+    var newDir = osPathSvc.dirname(path);
+    ko.filepicker.internDefaultDir(label, newDir);
+    return newDir;
+};
+
+this.getExistingDirFromPathOrPref = function getExistingDirFromPath(path, label) {
+    if (!path) {
+        return ko.filepicker.internDefaultDir(label);
+    }
+    var osPathSvc = Components.classes["@activestate.com/koOsPath;1"].getService(Components.interfaces.koIOsPath);
+    if (osPathSvc.exists(path)) {
+        if (osPathSvc.isdir(path)) {
+            return path;
+        }
+        return osPathSvc.dirname(path);
+    }
+    path = osPathSvc.dirname(path);
+    return osPathSvc.exists(path) ? path : ko.filepicker.internDefaultDir(label);
+};
+
+ko.main.addWillCloseHandler(function() {
+        ko.prefs.setPref("filepickers.defaultDirs", prefs);
+    });
+
+(this.onShutdown);
 }).apply(ko.filepicker);
 
 /**

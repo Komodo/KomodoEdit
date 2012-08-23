@@ -91,8 +91,23 @@ function OnLoad()
 
 function choose(which)
 {
-    var file = ko.filepicker.browseForFile(null, null, _bundle.formatStringFromName("pleaseSelectFile.message", [which], 1));
+    var textbox = document.getElementById(which);
+    var prefName = "compare.choose." + which;
+    var default_dir = textbox.value;
+    if (default_dir) {
+        var osPathSvc = Components.classes["@activestate.com/koOsPath;1"]
+            getService(Components.interfaces.koIOsPath);
+        default_dir = osPathSvc.dirname(default_dir);
+        if (!osPathSvc.isdir(default_dir) || !osPathSvc.exists(default_dir)) {
+            default_dir = null;
+        }
+    }
+    if (!default_dir) {
+        default_dir = ko.filepicker.internDefaultDir(prefName);
+    }
+    var file = ko.filepicker.browseForFile(default_dir, null, _bundle.formatStringFromName("pleaseSelectFile.message", [which], 1));
     if (!file) return;
+    ko.filepicker.updateDefaultDirFromPath(prefName, file);
     document.getElementById(which).value = file;
     updateOK();
 }

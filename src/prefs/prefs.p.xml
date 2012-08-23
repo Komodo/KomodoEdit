@@ -643,6 +643,8 @@
       <boolean id="CSS/newBOM">0</boolean>
     </preference-set>
   </preference-set>
+  
+  <preference-set id="filepickers.defaultDirs"/>
 
   <!-- Allow XML declaration tags to override file settings, except
        in the case of HTML and XSLT. -->

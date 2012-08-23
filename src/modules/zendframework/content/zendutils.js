@@ -150,8 +150,11 @@ this.toggleFwCheckbox = function() {
 
 this.browseProjDir = function() {
   try {
-    var newDir = ko.filepicker.getFolder();
+    var prefName = "zendutils.browseDir"
+    var default_dir = ko.filepicker.internDefaultDir(prefName);
+    var newDir = ko.filepicker.getFolder(default_dir);
     if(newDir) {
+      ko.filepicker.internDefaultDir(prefName, newDir);
       this.Id('zend_project_location').value = newDir;
       this.picked_proj_path = newDir;
       this.validate();
@@ -169,8 +172,11 @@ this.browseProjDir = function() {
 
 this.browseLibDir = function() {
   try {
-    var newDir = ko.filepicker.getFolder();
+    var prefName = "zendutils.browseDir"
+    var default_dir = ko.filepicker.internDefaultDir(prefName);
+    var newDir = ko.filepicker.getFolder(default_dir);
     if (newDir && this.hasZendFw(newDir)) {
+      ko.filepicker.internDefaultDir(prefName, newDir);
       this.Id('zend_framework_location').value = newDir;
       this.picked_fw_path = newDir;
       this.validate();

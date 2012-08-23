@@ -99,15 +99,19 @@ function _addBrowser(browser, browserType /* =null */) {
 }
 
 function browseForBrowser() {
-    var path = ko.filepicker.browseForExeFile();
+    var prefName = "prefWeb.browseForBrowser";
+    var gBrowserMenulist = document.getElementById("selectedbrowser");
+    var default_dir = (getDirectoryFromTextObject(gBrowserMenulist)
+                       || ko.filepicker.internDefaultDir(prefName));
+    var path = ko.filepicker.browseForExeFile(default_dir);
     if (path == null) {
         return null;
     }
+    ko.filepicker.updateDefaultDirFromPath(prefName, path);
     path = path.replace('"', '\\"', 'g');
     if (path.indexOf(' ') != -1) {
         path = '\"' + path + '\"';
     }
-    var gBrowserMenulist = document.getElementById("selectedbrowser");
     gBrowserMenulist.selectedItem = _addBrowser(path);
     return null;
 }

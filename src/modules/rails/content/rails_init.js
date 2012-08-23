@@ -111,16 +111,19 @@ this.mysqlAdminFinder = function() {
     if (this.mysqladminPath) {
         return this.mysqladminPath;
     }
-    this.mysqladminPath = this.gprefs.getStringPref("rails.mysqladminPath");
+    var prefName = "rails.mysqladminPath";
+    this.mysqladminPath = this.gprefs.getStringPref(prefName);
     if (this.mysqladminPath) {
         return this.mysqladminPath;
     }
-    var path = ko.filepicker.browseForExeFile(null, null,
+    var default_dir = ko.filepicker.internDefaultDir(prefName);
+    var path = ko.filepicker.browseForExeFile(default_dir, null,
                                               bundle.GetStringFromName("Where is mysqladmin located"),
                                               null,
                                               null
                                               );
     if (path) {
+        ko.filepicker.updateDefaultDirFromPath(prefName, path);
         return this.mysqladminPath = path;
     }
     throw new Error(bundle.GetStringFromName("Please specify the location of mysqladmin before continuing"));

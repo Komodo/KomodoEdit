@@ -157,9 +157,12 @@ function OK()
 
 function PickCustom()
 {
-    var path = ko.filepicker.browseForFile(null, null, bundle.GetStringFromName("Select an Icon File"),
+    var prefName = "iconPicker.PickCustom";
+    var default_dir = ko.filepicker.internDefaultDir(prefName);
+    var path = ko.filepicker.browseForFile(default_dir, null, bundle.GetStringFromName("Select an Icon File"),
                                    'Icon', ['Icon', 'All']);
     if (!path) return;
+    ko.filepicker.updateDefaultDirFromPath(prefName, path);
     Pick_Icon(ko.uriparse.localPathToURI(path));
 }
 
