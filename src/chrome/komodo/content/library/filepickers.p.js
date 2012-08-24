@@ -68,9 +68,9 @@ var _log = ko.logging.getLogger("filepickers");
 
 const Ci = Components.interfaces;
 
-var prefs = Components.classes["@activestate.com/koPrefService;1"].
-                        getService(Ci.koIPrefService).prefs.
-                        getPref("filepickers.defaultDirs");
+var globalPrefs = Components.classes["@activestate.com/koPrefService;1"].
+    getService(Ci.koIPrefService).prefs;
+var prefs = globalPrefs.getPref("filepickers.defaultDirs");
 
 var osPathSvc = Components.classes["@activestate.com/koOsPath;1"].
     getService(Ci.koIOsPath);
@@ -1130,6 +1130,8 @@ this.internDefaultDir = function internDefaultDir(label, dir) {
         return null;
     }
     prefs.setStringPref(label, dir);
+    // This has to be done each time to make sure new pref settings stick
+    globalPrefs.setPref("filepickers.defaultDirs", prefs);
     return dir;
 };
 
@@ -1167,11 +1169,6 @@ this.getExistingDirFromPathOrPref = function getExistingDirFromPath(path, label)
     return osPathSvc.exists(path) ? path : ko.filepicker.internDefaultDir(label);
 };
 
-ko.main.addWillCloseHandler(function() {
-        ko.prefs.setPref("filepickers.defaultDirs", prefs);
-    });
-
-(this.onShutdown);
 }).apply(ko.filepicker);
 
 /**
