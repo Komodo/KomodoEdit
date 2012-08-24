@@ -102,7 +102,7 @@ var handlers = {
     'cmd_replaceInFiles': 'ko.launch.replaceInFiles()',
     'cmd_nextLintResult': 'ko.lint.jumpToNextLintResult()',
     'cmd_lintClearResults': 'ko.lint.clearResults()',
-    'cmd_lintNow': 'ko.lint.doRequest()'
+    'cmd_lintNow': 'ko.lint.doRequest(true)'
 }
 
 // The following controller is for any <command> or <broadcaster>
