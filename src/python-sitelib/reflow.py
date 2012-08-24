@@ -204,7 +204,7 @@ def findbullet(line):
 # Match email lines that start with ">", ">>" or "> >" but not python prefixes
 # like ">>>"
 
-commentRe = re.compile("(\s*?(?:\/\*|(?:#+)|(?:>)|(?:>>)|(?:> >)|(?://+))(?!>)\s*)(.*)")
+commentRe = re.compile("(\s*?(?:\/\*|(?:#+)|(?:>)|(?:>>)|(?:> >)|(?://+)|(?:--))(?!>)\s*)(.*)")
 def findcomment(line):
     r"""Return a tuple of (iscomment, commentIndent) where 'iscomment' is true
     or false depending on whether the current line is prefixed by a comment
