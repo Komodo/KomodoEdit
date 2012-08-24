@@ -173,6 +173,7 @@ interface koILintRequest : nsISupports {
     attribute koILinter linter;
     attribute koILintResults results;
     attribute string errorString;
+    attribute boolean alwaysLint;
 
     wstring describe(); // Return a desc of this request. For debugging.
 };

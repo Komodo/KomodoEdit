@@ -427,9 +427,12 @@ this.lintBuffer.prototype.reportResults = function(request)
 
 
 // Actually issue a lint request to the linting backend.
-this.lintBuffer.prototype._issueRequest = function()
+this.lintBuffer.prototype._issueRequest = function(alwaysLint)
 {
     _log.info("LintBuffer["+this.view.title+"]._issueRequest()");
+    if (typeof(alwaysLint) === "undefined") {
+        alwaysLint = false;
+    }
     try {
         var linterLanguageName = this._getLinterLanguageName();
         if (linterLanguageName === null) {
@@ -438,6 +441,7 @@ this.lintBuffer.prototype._issueRequest = function()
         }
         var lr = this._createLintRequest(linterLanguageName);
         if (lr) {
+            lr.alwaysLint = alwaysLint;
             _lintSvc.addRequest(lr);
         }
         this._cancelDelayedRequest();
@@ -664,7 +668,7 @@ this.jumpToNextLintResult = function lint_jumpToNextLintResult()
 }
 
 
-this.doRequest = function lint_doRequest() {
+this.doRequest = function lint_doRequest(alwaysLint) {
     try {
         var view = ko.views.manager.currentView;
         if (!view || view.getAttribute("type") != "editor") {
@@ -680,7 +684,7 @@ this.doRequest = function lint_doRequest() {
             this._clearResults();
         }
         view.lintBuffer._notify();
-        view.lintBuffer._issueRequest()
+        view.lintBuffer._issueRequest(alwaysLint);
     } catch (e) {
         _log.exception(e);
     }

@@ -231,6 +231,7 @@ class KoLintRequest:
         self.linter = None
         self.results = None
         self.errorString = ''
+        self.alwaysLint = True
     
     @property
     def document(self):
@@ -591,7 +592,7 @@ class KoLintService:
                         #    be passed in, but linters don't support this yet.
                         log.debug("manager thread: call linter.lint(request)")
                         try:
-                            if self._passesGenericCheck(request):
+                            if request.alwaysLint or self._passesGenericCheck(request):
                                 results = request.linter.lint(request)
                                 #results = UnwrapObject(request.linter).lint(request)
                                 # This makes a red statusbar icon go green, but it
