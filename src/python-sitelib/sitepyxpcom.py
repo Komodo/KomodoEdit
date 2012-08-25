@@ -61,16 +61,20 @@ def redirect_std_handles():
     sys.stderr_orig = sys.stderr
     sys.stdout_orig = sys.stdout
 
+    log_dir = None
     if sys.platform.startswith("win"):
         # on Windows, os.environ uses the ANSI (MBCS) APIs; that falls on its
         # face if the environment variable we want contains Unicode.  Use ctypes
         # to fetch what we want instead.  See bug 94439.
+        # Note that sometimes this will fail; just fall back to os.environ in
+        # that case.  See bug 95367.
         import ctypes
         _wgetenv = ctypes.cdll.msvcrt._wgetenv
         _wgetenv.argtypes = [ctypes.c_wchar_p]
         _wgetenv.restype = ctypes.c_wchar_p
         log_dir = _wgetenv("_KOMODO_VERUSERDATADIR")
-    else:
+
+    if log_dir is None:
         log_dir = os.environ.get("_KOMODO_VERUSERDATADIR", None)
 
     if log_dir is not None:
