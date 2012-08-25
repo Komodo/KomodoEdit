@@ -883,11 +883,12 @@ TestKoFind.prototype.test_replaceAllInFilesWithBOM = function test_replaceAllInF
         var contents = (String.fromCharCode(byteArray1) + contents1
                         + String.fromCharCode(byteArray2) + contents2);
         var fname = "bom01-utf8.txt";
-        var path = dirName + "/" + fname;
         var obj_File = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsILocalFile);
         var obj_OutputStream = Cc["@mozilla.org/network/file-output-stream;1"].createInstance(Ci.nsIFileOutputStream);
         var obj_BinaryOutputStream = Cc["@mozilla.org/binaryoutputstream;1"].createInstance(Ci.nsIBinaryOutputStream);
-        obj_File.initWithPath(path);
+        // Need to do init with dir + append to work correctly on Windows (due to different separators)
+        obj_File.initWithPath(dirName);
+        obj_File.append(fname);
         if (!obj_File.exists()) {
             obj_File.create(0, 0664);
         }
