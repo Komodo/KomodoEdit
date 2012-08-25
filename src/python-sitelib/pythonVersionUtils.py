@@ -117,9 +117,13 @@ def _calc_py2_py3_scores(textWrapper):
                         token_type, token_string, start_tup, end_tup, line = curr_token
                         if token_type == tokenize.OP:
                             if token_string == '=':
-                                sk.inc_3()
-                            elif curr_keyword == "print" and token_string == "<<":
+                                sk.inc_3() # using print as a variable, assignment
+                            elif curr_keyword == "print" and token_string in ("<<", ">>"):
                                 sk.inc_2()
+                        else:
+                            sk.inc_2() # print/exec without open paren
+                            if at_stmt_end(token_type, token_string):
+                                at_line_start = True
                     elif token_string == "except":
                         curr_token = safe_get_next_token(tok_gen)
                         if curr_token[0] == tokenize.OP:
