@@ -36,6 +36,7 @@
 # ***** END LICENSE BLOCK *****
 
 import sys, os, re, string
+import os.path
 import tempfile
 from xpcom import components, ServerException, COMException, nsError
 from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC, getProxyForObject
@@ -249,7 +250,7 @@ class KoAppInfoEx:
                         if found_prefexe > 0:
                             del executables[found_prefexe]
                             executables.insert(0, prefexe)
-        return executables
+        return [os.path.normcase(os.path.normpath(exe)) for exe in executables]
 
     def FindExecutables(self):
         if self._executables is None:

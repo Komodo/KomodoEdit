@@ -1,5 +1,5 @@
 import os
-from os.path import abspath, basename, dirname, exists, join, split
+from os.path import abspath, basename, dirname, exists, join, split, normcase, normpath
 import sys
 import unittest
 
@@ -92,7 +92,7 @@ class _BaseAppInfoTestCase(unittest.TestCase):
         self.assertEqual(self.cachedAppInfo.installationPath, expected_installationPath)
 
         # Set the pref and then check it.
-        expected_executablePath = abspath(__file__)
+        expected_executablePath = normcase(normpath(abspath(__file__)))
         expected_installationPath = dirname(expected_executablePath)
         self.prefs.setStringPref(self.defaultInterpreterPrefName, expected_executablePath)
         self.assertEqual(self.freshAppInfo.executablePath, expected_executablePath)
@@ -109,7 +109,7 @@ class _BaseAppInfoTestCase(unittest.TestCase):
         self.assertEqual(self.cachedAppInfo.FindExecutables(), exe_paths)
 
         # Set the pref and then check it.
-        expected_executablePath = abspath(__file__)
+        expected_executablePath = normcase(normpath(abspath(__file__)))
         expected_installationPath = dirname(expected_executablePath)
         expected_exe_paths = [expected_executablePath] + exe_paths
         self.prefs.setStringPref(self.defaultInterpreterPrefName, expected_executablePath)

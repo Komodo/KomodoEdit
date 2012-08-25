@@ -126,6 +126,7 @@ def findPathsForInterpreters(interpNames, lang=None, env=None, allow_caching=Tru
         if sys.platform.startswith("win"):
             interpName += ".exe"
         for dirpath in possible_paths:
+            dirpath = os.path.normcase(os.path.normpath(dirpath))
             exe = join(dirpath, interpName)
             if exists(exe) and isfile(exe) and exe not in all_executables:
                 all_executables.append(exe)
