@@ -99,6 +99,7 @@ class TestAsynchronousCommands(unittest.TestCase):
                            op,
                            None,  # callback
                            locked_uris, # uri's locked
+                           False, # don't lock
                           )
         time.sleep(1.0)
         self.assertTrue(op.status == components.interfaces.koIAsyncOperation.STATUS_RUNNING)
@@ -115,6 +116,7 @@ class TestAsynchronousCommands(unittest.TestCase):
                            op,
                            None,  # callback
                            locked_uris, # uri's locked
+                           False, # don't lock
                           )
         time.sleep(1.0)
         self.assertTrue(op.status == components.interfaces.koIAsyncOperation.STATUS_RUNNING)
@@ -132,6 +134,7 @@ class TestAsynchronousCommands(unittest.TestCase):
                            op,
                            opCallback,  # callback
                            locked_uris, # uri's locked
+                           False, # don't lock
                           )
         time.sleep(1.0)
         self.assertTrue(op.status == components.interfaces.koIAsyncOperation.STATUS_RUNNING)
@@ -149,6 +152,7 @@ class TestAsynchronousCommands(unittest.TestCase):
                            op,
                            opCallback,  # callback
                            locked_uris, # uri's locked
+                           False, # don't lock
                           )
         time.sleep(1.0)
         self.assertTrue(op.status == components.interfaces.koIAsyncOperation.STATUS_RUNNING)
@@ -169,6 +173,7 @@ class TestAsynchronousCommands(unittest.TestCase):
                            op,
                            opCallback,  # callback
                            locked_uris, # uri's locked
+                           False, # don't lock
                           )
         time.sleep(1.0)
         self.assertTrue(op.status == components.interfaces.koIAsyncOperation.STATUS_RUNNING)
@@ -186,6 +191,7 @@ class TestAsynchronousCommands(unittest.TestCase):
                            op,
                            opCallback,  # callback
                            locked_uris, # uri's locked
+                           False, # don't lock
                           )
         opCallback.ev_callback.wait(1.5)
         self.assertTrue(op.status == components.interfaces.koIAsyncOperation.STATUS_RUNNING)
