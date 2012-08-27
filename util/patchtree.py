@@ -727,6 +727,13 @@ def patch(patchesDir, sourceDir, config=None, logDir=None, dryRun=0,
 
     # Create a clean working directory.
     workDir = _createTempDir()
+    if sys.platform.startswith("win"):
+        # Windows patching leaves around temp files, so we work around this
+        # problem by setting a different temp directory, which is later removed
+        # at the end of this patching.
+        oldTmpDir = os.environ.get("TMP")
+        tmpDir = _createTempDir()
+        os.environ["TMP"] = tmpDir
     log.debug("created patch working dir: '%s'" % workDir)
     try:
         # Create a patch image in the working dir (i.e. copy over patches and
@@ -962,6 +969,14 @@ actions = %s
         except EnvironmentError, ex:
             log.warn("could not remove temp working dir '%s': %s",
                      workDir, ex)
+        if sys.platform.startswith("win"):
+            if oldTmpDir is not None:
+                os.environ["TMP"] = oldTmpDir
+            try:
+                sh.rm(tmpDir)
+            except EnvironmentError, ex:
+                log.warn("could not remove temp patch dir '%s': %s",
+                         tmpDir, ex)
 
 
 
