@@ -195,12 +195,17 @@ class URIParser(object):
         if win32:
             uri = uri.replace('\\','/')
             # fix the uri if we get the lame pipe in place of colon uri's
-            uri = uri.replace('|',':')
+            try:
+                colon_pos = len("file:///z:") - 1
+                if uri[colon_pos] == "|":
+                    uri[colon_pos] = ":"
+            except IndexError:
+                pass # uri too short
 
         #assert uri.find("://") != -1
-        # if we got a netscape unc file uri, fix it
-        if uri.find('file://///')==0:
-            uri = 'file://'+uri[8:]
+        # If we got a Netscape UNC file uri, fix it.
+        if uri.startswith("file://///"):
+            uri = uri.replace("file://///", "file://", 1)
 
         parts = list(urlparse.urlsplit(uri,'file',0))
 
@@ -219,9 +224,14 @@ class URIParser(object):
     def _buildURI(self, parts):
         # XXX we may need to do more about quoting
         # if a windows path, fix it
-        uparts = copy.copy(parts)
+        uparts = list(parts)
         if win32:
             uparts[2] = uparts[2].replace('\\','/')
+            if uparts[0] == "file" and uparts[1] != "":
+                # Win32, scheme=file with a non-empty netloc - a UNC path
+                # Force the netloc to have 3 extra slashes, so we end up with
+                # a Netscape-style five-slash file://///netloc/share/
+                uparts[1] = "///" + uparts[1]
         prefix = ""
         if ' ' in uparts[2] or '%' in uparts[2]:
             if uparts[2].find(':') == 1:
@@ -363,7 +373,7 @@ class URIParser(object):
             if win32:
                 path2 = path.replace('\\','/')
                 if path2.startswith("//"):  # UNC path
-                    sortaURI = "file:" + path2
+                    sortaURI = "file:///" + path2
                 elif path2.find(':') == 1:  # Absolute Windows path
                     sortaURI = "file:///" + path2
                 else:

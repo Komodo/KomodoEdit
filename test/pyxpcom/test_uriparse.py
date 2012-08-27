@@ -106,7 +106,7 @@ class URIParseTestCase(unittest.TestCase):
                 ("path", "Normal windows local path",
                         r"c:\test\test.txt", "file:///c:/test/test.txt"),
                 ("path", "Windows UNC path",
-                        r"\\planer\d\trentm\tmp\foo.txt", "file://planer/d/trentm/tmp/foo.txt"),
+                        r"\\planer\d\trentm\tmp\foo.txt", "file://///planer/d/trentm/tmp/foo.txt"),
             ]
             for test in paths:
                 uri = uriparse.localPathToURI(test[2].replace("\\","/"))

@@ -42,6 +42,8 @@ import tempfile
 from URIlib import *
 win32 = sys.platform.startswith("win")
 
+from testlib import TestSkipped
+
 def _koFileSymlinkMatchesOSPath(path, koFile):
     if os.path.islink(path):
         return koFile.isSymlink
@@ -96,11 +98,17 @@ class TestURIParser(unittest.TestCase):
 
     if sys.platform.startswith('win'):
         # Windows provides support for UNC file paths.
-        filelist.append(['file://netshare/apps/Komodo/Naming%20Rules%20for%20Tarballs.txt',  # uri
+        filelist.append(['file://///netshare/apps/Komodo/Naming%20Rules%20for%20Tarballs.txt',  # uri
                          '//netshare/apps/Komodo/Naming Rules for Tarballs.txt',  # path
                          'Naming Rules for Tarballs.txt',  # baseName
                          '//netshare/apps/Komodo',  # dirName
                          'file://netshare',  # prePath
+                         ])
+        filelist.append(['file://///server/share/path/file.txt', # uri
+                         r'\\server\share\path\file.txt', # path
+                         'file.txt', # baseName
+                         '//server/share/path', # dirName
+                         'file://server', # prePath
                          ])
     else:
         # Other platforms do not use UNC file paths.
@@ -186,11 +194,12 @@ class TestURIParser(unittest.TestCase):
             self._assertTest(URI,test)
 
     def test_assignNetscapeUNC(self):
-        if sys.platform.startswith("win"):
-            URI = URIParser()
-            URI.URI = 'file://///netshare/apps/Komodo/Naming Rules for Tarballs.txt'
-            self.assertEqual(URI.URI, 'file://netshare/apps/Komodo/Naming%20Rules%20for%20Tarballs.txt')
-            self.failUnlessSamePath(URI.path, r'\\netshare\apps\Komodo\Naming Rules for Tarballs.txt')
+        if not win32:
+            raise TestSkipped("Only applicable on Windows")
+        URI = URIParser()
+        URI.URI = 'file://///netshare/apps/Komodo/Naming Rules for Tarballs.txt'
+        self.assertEqual(URI.URI, 'file://///netshare/apps/Komodo/Naming%20Rules%20for%20Tarballs.txt')
+        self.failUnlessSamePath(URI.path, r'\\netshare\apps\Komodo\Naming Rules for Tarballs.txt')
 
     def test_md5name(self):
         filename = os.path.normpath(os.path.join(tempfile.gettempdir(),'testwrite.py.txt'))
@@ -247,9 +256,11 @@ class TestFileHandler(unittest.TestCase):
         #    assert file.isExecutable
         
         file.open('rb')
-        x = file.read(-1)
-        assert len(x) > 0 and len(x)==file.fileSize
-        file.close()
+        try:
+            x = file.read(-1)
+            assert len(x) > 0 and len(x)==file.fileSize
+        finally:
+            file.close()
 
     def test_writeFile(self):
         text = "This is a test!"
@@ -268,8 +279,10 @@ class TestFileHandler(unittest.TestCase):
             assert file.isWriteable
             file = FileHandler(filename)
             file.open('r+')
-            assert file.read(-1) == text
-            file.close()
+            try:
+                assert file.read(-1) == text
+            finally:
+                file.close()
         finally:
             os.unlink(filename)
         
