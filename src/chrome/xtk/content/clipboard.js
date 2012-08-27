@@ -90,6 +90,9 @@ if (typeof(xtk.clipboard) == 'undefined') {
 
 (function() {
 
+const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
+Cu.import("resource://gre/modules/Services.jsm");
+
 var _cbSvc = Components.classes["@mozilla.org/widget/clipboard;1"]
                 .getService(Components.interfaces.nsIClipboard);
 var flavorSupportsCStringMap = {};
@@ -100,24 +103,24 @@ this.emptyClipboard = function() {
 
 this.getTextFlavor = function(textFlavor) {
     var transferable = this.createTransferable();
-    var text = null;
     if (_cbSvc && transferable) {
         transferable.addDataFlavor(textFlavor);
 
         _cbSvc.getData(transferable, _cbSvc.kGlobalClipboard);
 
-        var str       = new Object();
-        var strLength = new Object();
+        var str       = {};
+        var strLength = {};
     
         transferable.getTransferData(textFlavor, str, strLength);
-        if (str) {
-            str = str.value.QueryInterface(Components.interfaces.nsISupportsString);
+        if (str.value && str.value instanceof Ci.nsISupportsString) {
+            // Gecko returns the number of bytes, instead of number of chars...
+            return str.value.data.substr(0, strLength.value / 2);
         }
-        if (str) {
-            text = str.data.substring(0, strLength.value / 2);
+        if (str.value && str.value instanceof Ci.nsISupportsCString) {
+            return str.value.data;
         }
     }
-    return text;
+    return null;
 }
 
 /**
@@ -125,6 +128,43 @@ this.getTextFlavor = function(textFlavor) {
  * @returns {string}  The html text from the clipboard.
  */
 this.getHtml = function() {
+    if (this.containsFlavors(["text/html"])) {
+        return this.getTextFlavor("text/html");
+    }
+
+    // No normal text/html, try native HTML on Windows.
+    if (Services.appinfo.OS == "WINNT" &&
+        this.containsFlavors(["application/x-moz-nativehtml"]))
+    {
+        let data = this.getTextFlavor("application/x-moz-nativehtml");
+        // The HTML clipboard format is documented at
+        // http://msdn.microsoft.com/en-us/library/ms649015.aspx
+        // It has a header (lines ending with any of CR, CRLF, LF).
+        // The start of the content is determined by the "StartHTML" header.
+        let metadata = { StartHTML: Number.POSITIVE_INFINITY };
+        let lineMatcher = new RegExp("\r\n|\r|\n", "mg");
+        do {
+            let startIndex = lineMatcher.lastIndex;
+            if (!lineMatcher.exec(data)) {
+                break;
+            }
+            let line = data.substring(startIndex, lineMatcher.lastIndex)
+                           .replace(/[\r\n]+$/, "");
+            let [, key, value] = /([^:]+):(.*)/.exec(line);
+            if (/^(?:Start|End)(?:HTML|Fragment|Selection)$/.test(key)) {
+                value = parseInt(value, 10); // This is a decimal number
+            }
+            metadata[key] = value;
+        } while (lineMatcher.lastIndex < metadata.StartHTML);
+        if (("StartFragment" in metadata) && ("EndFragment" in metadata)) {
+            data = data.substring(metadata.StartFragment, metadata.EndFragment);
+        } else if (("StartHTML" in metadata) && ("EndHTML" in metadata)) {
+            data = data.substring(metadata.StartHTML, metadata.EndHTML);
+        }
+        return data;
+    }
+
+    // This will fail - and throw an appropriate exception
     return this.getTextFlavor("text/html");
 }
 
@@ -142,7 +182,12 @@ this.getText = function() {
  * @returns {boolean}
  */
 this.containsHtml = function() {
-    return this.containsFlavors(["text/html"]);
+    let flavours = ["text/html"];
+    if (Services.appinfo.OS == "WINNT") {
+        // Try the Windows native HTML format (CF_HTML).
+        flavours.push("application/x-moz-nativehtml");
+    }
+    return this.containsFlavors(flavours);
 }
 
 /**
