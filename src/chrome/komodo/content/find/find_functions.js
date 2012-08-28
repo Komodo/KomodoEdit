@@ -70,6 +70,8 @@ if (typeof(ko.find)!='undefined') {
 
 //---- locals
 
+const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
+
 var findLog = ko.logging.getLogger("find.functions");
 //findLog.setLevel(ko.logging.LOG_DEBUG);
 // ---------- localizing with stringbundle -------
@@ -937,7 +939,11 @@ this._uiForCompletedFindSession = function _UiForCompletedFindSession(context, m
     // Put together an appropriate message.
     var msg = "";
     if (numFinds == 0) {
-        msg = _ffBundle.GetStringFromName("The pattern was not found.");
+        let summary = Cc["@activestate.com/koTextUtils;1"]
+                        .getService(Ci.koITextUtils)
+                        .one_line_summary_from_text(_findSession.GetPattern(), 30);
+        msg = _ffBundle.formatStringFromName("The pattern X was not found.",
+                                             [summary], 1);
     } else if (numReplacements > 0) {
         msg = _ffBundle.formatStringFromName("X of Y occurrence(s) were replaced.",
                                            [numReplacements, numFinds], 2);
