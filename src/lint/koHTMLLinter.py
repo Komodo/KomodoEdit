@@ -243,6 +243,10 @@ class _CommonHTMLLinter(object):
     # Hand these SSL languages the whole document
     # Are there others beside PHP?
     
+    # This pattern is for bug 95364, support Rails-hack form of ERB to
+    # support forms like <%= form_tag ... do |f| %>...<% end %>
+    # Note mismatched <%= ... %><% %> -- this is deliberate in Rails 3
+    RERB_Block_PTN = re.compile(r'.*?\s*(?:do|\{)(?:\s*\|[^|]*\|)?\s*\Z')
     def _lint_common_html_request(self, request, udlMapping=None, linters=None,
                                   TPLInfo=None,
                                   startCheck=None):
@@ -539,9 +543,21 @@ class _CommonHTMLLinter(object):
                             self._emittedCodeLineNumbers.add(currLineNum)
                             self._multiLanguageLineNumbers.add(currLineNum)
                                 
-                    if (currState & self._IN_SSL_EMITTER) and name not in self._take_all_languages:
-                        # Don't try to evaluate snippets.  Most of them won't make sense on their own.
-                        bytesByLang.addWhiteSpace(name, squelchedText)
+                    if ((currState & self._IN_SSL_EMITTER)
+                        and name not in self._take_all_languages
+                        and ((not TPLInfo) or origLangName != TPLInfo[0])):
+                        if TPLInfo and len(TPLInfo) >= 5:
+                            thisText = TPLInfo[3] + currText + TPLInfo[4]
+                            if (len(TPLInfo) >= 6
+                                and TPLInfo[5].get("supportRERB", None)
+                                and self.RERB_Block_PTN.match(currText)):
+                                # Do not wrap the first part!
+                                # Treat as a Rails <% ... %> control-block,  not an emitter
+                                # like <% form_tag ... do|f| %>
+                                thisText = currText
+                            bytesByLang[name] = thisText
+                        else:
+                            bytesByLang.addWhiteSpace(name, squelchedText)
                     else:
                         bytesByLang[name] = currText
                     prevLanguageFamily = "SSL"

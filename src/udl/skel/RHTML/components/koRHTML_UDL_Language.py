@@ -46,6 +46,8 @@ from xpcom.server import UnwrapObject
 from koXMLLanguageBase import koHTMLLanguageBase
 from koLintResults import koLintResults
 
+from codeintel2.rubycile import rails_role_from_path
+
 import scimozindent
 
 log = logging.getLogger("koRHTMLLanguage")
@@ -141,35 +143,35 @@ class KoRHTMLLanguage(koHTMLLanguageBase):
         return self._computeIndent(scimoz, indentStyle, continueComments, self._style_info)
 
     def _computeIndent(self, scimoz, indentStyle, continueComments, style_info):
-	res = self._doIndentHere(scimoz, indentStyle, continueComments, style_info)
-	if res is None:
-	    return koHTMLLanguageBase.computeIndent(self, scimoz, indentStyle, continueComments)
-	return res
+        res = self._doIndentHere(scimoz, indentStyle, continueComments, style_info)
+        if res is None:
+            return koHTMLLanguageBase.computeIndent(self, scimoz, indentStyle, continueComments)
+        return res
 
     def _keyPressed(self, ch, scimoz, style_info):
-	res = self._doKeyPressHere(ch, scimoz, style_info)
-	if res is None:
-	    return koHTMLLanguageBase._keyPressed(self, ch, scimoz, style_info)
-	return res
+        res = self._doKeyPressHere(ch, scimoz, style_info)
+        if res is None:
+            return koHTMLLanguageBase._keyPressed(self, ch, scimoz, style_info)
+        return res
 
     _startWords = "begin case else elsif ensure for if rescue unless until while".split(" ")
 
     def _doIndentHere(self, scimoz, indentStyle, continueComments, style_info):
-	pos = scimoz.positionBefore(scimoz.currentPos)
-	startPos = scimoz.currentPos
-	style = scimoz.getStyleAt(pos)
-	if style != scimoz.SCE_UDL_TPL_OPERATOR:
-	    return None
-	if scimoz.getWCharAt(pos) != ">":
-	    return None
-	pos -= 1
-	style = scimoz.getStyleAt(pos)
-	if style != scimoz.SCE_UDL_TPL_OPERATOR:
-	    return None
-	if scimoz.getWCharAt(pos) != "%":
-	    return None
-	curLineNo = scimoz.lineFromPosition(pos)
-	lineStartPos = scimoz.positionFromLine(curLineNo)
+        pos = scimoz.positionBefore(scimoz.currentPos)
+        startPos = scimoz.currentPos
+        style = scimoz.getStyleAt(pos)
+        if style != scimoz.SCE_UDL_TPL_OPERATOR:
+            return None
+        if scimoz.getWCharAt(pos) != ">":
+            return None
+        pos -= 1
+        style = scimoz.getStyleAt(pos)
+        if style != scimoz.SCE_UDL_TPL_OPERATOR:
+            return None
+        if scimoz.getWCharAt(pos) != "%":
+            return None
+        curLineNo = scimoz.lineFromPosition(pos)
+        lineStartPos = scimoz.positionFromLine(curLineNo)
         delta, numTags = self._getTagDiffDelta(scimoz, lineStartPos, startPos)
         if delta < 0 and numTags == 1 and curLineNo > 0:
             didDedent, dedentAmt = self.dedentThisLine(scimoz, curLineNo, startPos)
@@ -179,26 +181,26 @@ class KoRHTMLLanguage(koHTMLLanguageBase):
                 # Since RHTML tags end with a ">", keep the
                 # HTML auto-indenter out of here.
                 return self._getRawIndentForLine(scimoz, curLineNo)
-	indentWidth = self._getIndentWidthForLine(scimoz, curLineNo)
-	indent = scimoz.indent
-	newIndentWidth = indentWidth + delta * indent
-	if newIndentWidth < 0:
-	    newIndentWidth = 0
-	#qlog.debug("new indent width: %d", newIndentWidth)
-	return scimozindent.makeIndentFromWidth(scimoz, newIndentWidth)
+        indentWidth = self._getIndentWidthForLine(scimoz, curLineNo)
+        indent = scimoz.indent
+        newIndentWidth = indentWidth + delta * indent
+        if newIndentWidth < 0:
+            newIndentWidth = 0
+        #qlog.debug("new indent width: %d", newIndentWidth)
+        return scimozindent.makeIndentFromWidth(scimoz, newIndentWidth)
 
     def _doKeyPressHere(self, ch, scimoz, style_info):
-	# Returns either None or an indent string
-	pos = scimoz.positionBefore(scimoz.currentPos)
-	startPos = scimoz.currentPos
-	style = scimoz.getStyleAt(pos)
-	if style != scimoz.SCE_UDL_TPL_OPERATOR:
-	    return None
-	if scimoz.getWCharAt(pos) != ">":
-	    return None
-	pos -= 1
-	curLineNo = scimoz.lineFromPosition(pos)
-	lineStartPos = scimoz.positionFromLine(curLineNo)
+        # Returns either None or an indent string
+        pos = scimoz.positionBefore(scimoz.currentPos)
+        startPos = scimoz.currentPos
+        style = scimoz.getStyleAt(pos)
+        if style != scimoz.SCE_UDL_TPL_OPERATOR:
+            return None
+        if scimoz.getWCharAt(pos) != ">":
+            return None
+        pos -= 1
+        curLineNo = scimoz.lineFromPosition(pos)
+        lineStartPos = scimoz.positionFromLine(curLineNo)
         delta, numTags = self._getTagDiffDelta(scimoz, lineStartPos, startPos)
         if delta < 0 and numTags == 1 and curLineNo > 0:
             didDedent, dedentAmt = self.dedentThisLine(scimoz, curLineNo, startPos)
@@ -209,40 +211,40 @@ class KoRHTMLLanguage(koHTMLLanguageBase):
         return self._getRawIndentForLine(scimoz, curLineNo)
 
     def _getTagDiffDelta(self, scimoz, lineStartPos, startPos):
-	data = scimoz.getStyledText(lineStartPos, startPos)
-	chars = data[0::2]
-	styles = [ord(x) for x in data[1::2]]
-	lim = len(styles)
-	delta = 0
+        data = scimoz.getStyledText(lineStartPos, startPos)
+        chars = data[0::2]
+        styles = [ord(x) for x in data[1::2]]
+        lim = len(styles)
+        delta = 0
         numTags = 0
-	i = 0
-	limSub1 = lim - 1
-	while i < limSub1:
-	    if (styles[i] == scimoz.SCE_UDL_TPL_OPERATOR
-		and styles[i + 1] == scimoz.SCE_UDL_TPL_OPERATOR
-		and chars[i] == '<'
-		and chars[i + 1] == "%"):
-		j = i + 2
-		while (j < lim
-		       and styles[j] == scimoz.SCE_UDL_SSL_DEFAULT):
-		    j += 1
-		if styles[j] != scimoz.SCE_UDL_SSL_WORD:
-		    i = j + 1
+        i = 0
+        limSub1 = lim - 1
+        while i < limSub1:
+            if (styles[i] == scimoz.SCE_UDL_TPL_OPERATOR
+                and styles[i + 1] == scimoz.SCE_UDL_TPL_OPERATOR
+                and chars[i] == '<'
+                and chars[i + 1] == "%"):
+                j = i + 2
+                while (j < lim
+                       and styles[j] == scimoz.SCE_UDL_SSL_DEFAULT):
+                    j += 1
+                if styles[j] != scimoz.SCE_UDL_SSL_WORD:
+                    i = j + 1
                     continue
-		wordStart = j
-		while (j < lim
-		       and styles[j] == scimoz.SCE_UDL_SSL_WORD):
-		    j += 1
-		word = chars[wordStart:j]
-		if word == 'end':
+                wordStart = j
+                while (j < lim
+                       and styles[j] == scimoz.SCE_UDL_SSL_WORD):
+                    j += 1
+                word = chars[wordStart:j]
+                if word == 'end':
                     numTags += 1
-		    delta -= 1
-		elif word in self._startWords:
+                    delta -= 1
+                elif word in self._startWords:
                     numTags += 1
-		    delta += 1
-		i = j
-	    else:
-		i += 1
+                    delta += 1
+                i = j
+            else:
+                i += 1
         return delta, numTags
 
 class KoRHTMLLinter(object):
@@ -301,13 +303,16 @@ class KoRHTMLLinter(object):
     def _spaceOutNonNewlines(self, markup):
         return self._nonNewlineMatcher.sub(' ', markup)
 
-    _tplPatterns = ("RHTML", re.compile('<%='), re.compile(r'%>\s*\Z', re.DOTALL))
+    _tplPatterns = ("RHTML", re.compile('<%='), re.compile(r'%>\s*\Z', re.DOTALL), 'puts(', ');')
     def lint(self, request):
         # With the "squelching" the multi-language linter does to pull
         # <% and %>-like tokens out of the lint input stream, there's no
         # need to map all Ruby code to RHTML
-        return UnwrapObject(self._html_linter).lint(request,
-                                                    TPLInfo=self._tplPatterns)
+        if rails_role_from_path(request.koDoc.displayPath):
+            TPLInfo = list(self._tplPatterns) + [{"supportRERB": True}]
+        else:
+            TPLInfo = self._tplPatterns
+        return UnwrapObject(self._html_linter).lint(request, TPLInfo=TPLInfo)
 
     def lint_with_text(self, request, text):
         log.debug("rhtml lint: %s", text)
