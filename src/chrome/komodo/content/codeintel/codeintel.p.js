@@ -1079,7 +1079,7 @@ ko.codeintel = {};
             reason = "manual";
         }
 
-        var varStyles = view.languageObj.getVariableStyles();
+        var varStyles = view.languageObj.getVariableStyles({});
         var rangeStart = scimoz.wordStartPosition(scimoz.currentPos, true);
         var rangeEnd = scimoz.wordEndPosition(scimoz.currentPos, true);
         if (scimoz.selectionStart != scimoz.selectionEnd &&
@@ -1122,8 +1122,12 @@ ko.codeintel = {};
         }
         var searchText = scimoz.getTextRange(rangeStart, rangeEnd);
 
-        let useScopes = ko.prefs.getBoolean("codeintel_highlight_variables_use_scope", true) &&
-                        ko.codeintel.isActive && ko.codeintel.is_citadel_lang(view.language);
+        // Bug 95389: Tcl isn't a true citadel language, but registers itself as one.
+        let useScopes = (view.language !== "Tcl"
+            && ko.prefs.getBoolean("codeintel_highlight_variables_use_scope",
+                                    true)
+            && ko.codeintel.isActive
+            && ko.codeintel.is_citadel_lang(view.language));
         // don't use scopes on manual triggers, so we can show things in comments too
         useScopes &= (reason != "manual");
         var findHitCallback = {
@@ -1221,7 +1225,6 @@ ko.codeintel = {};
             }
         }).bind(this);
 
-        var getResults;
         if (matchPrefix) {
             findHitCallback.onHit = (function(hit) {
                 let start = scimoz.positionAtChar(0, hit.start_pos);
@@ -1334,6 +1337,16 @@ ko.codeintel = {};
                 opts.showReplaceAllResults = false;
                 opts.displayInFindResults2 = false;
                 opts.multiline = false;
+                if (view.language === "Tcl") {
+                    // Bug 95389: Tcl is one of the few non-shell langs that
+                    // defines vars without a '$', but refers to them with one.
+                    opts.patternType = Ci.koIFindOptions.FOT_REGEX_PYTHON;
+                    if (searchText[0] === '$') {
+                        searchText = "\\$?" + searchText.substring(1);
+                    } else {
+                        searchText = "\\$?" + searchText;
+                    }
+                }
                 this._last_highlight_async =
                     Cc["@activestate.com/koFindService;1"]
                       .getService(Ci.koIFindService)

@@ -110,6 +110,11 @@ class koTclLanguage(KoLanguageBase):
         KoLanguageBase.__init__(self)
         del self.matchingSoftChars["'"]
 
+    def getVariableStyles(self):
+        # Bug 95389 - support variable highlighting for Tcl regardless of
+        # whether a variable def'n or use is clicked.
+        return self._style_info._variable_styles + [components.interfaces.ISciMoz.SCE_TCL_IDENTIFIER]
+    
     def get_lexer(self):
         if self._lexer is None:
             self._lexer = KoLexerLanguageService()
