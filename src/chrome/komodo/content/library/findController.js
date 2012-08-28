@@ -367,7 +367,6 @@ FindController.prototype._startIncrementalSearch = function(backwards) {
     this._view.findbar.notFound = false;
     this._view.findbar.collapsed = false;
     this._view.findbar.setStatus(null);
-    this._view.findbar.focus();
     // canOpenDialog must be set after collapsed=false in order for the XBL
     // binding to apply early enough.
     this._view.findbar.canOpenDialog = (this._viewManager == ko.views.manager);
@@ -407,6 +406,10 @@ FindController.prototype._startIncrementalSearch = function(backwards) {
     this._lastIncrementalSearchText = pattern;
 
     this._view.findbar.text = pattern;
+    // Set focus after setting the textbox value, otherwise the history popup
+    // can get confused with the old values.  See bug 93105.
+    this._view.findbar.focus();
+
     if (pattern) {
         this._view.findbar.selectText();
         // we have something selected; highlight the other occurrences without
