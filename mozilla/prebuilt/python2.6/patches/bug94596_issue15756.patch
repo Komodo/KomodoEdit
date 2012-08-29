@@ -1,0 +1,20 @@
+Index: /as/komodo-devel/mozilla/build/moz700-ko7.9/mozilla/ko-rel-ns/dist/python/lib/python2.6/subprocess.py
+--- lib/python2.6/subprocess.py 
++++ lib/python2.6/subprocess.py (unsaved) 
+@@ -1161,9 +1161,15 @@
+                     pid, sts = os.waitpid(self.pid, os.WNOHANG)
+                     if pid == self.pid:
+                         self._handle_exitstatus(sts)
+-                except os.error:
++                except os.error as e:
+                     if _deadstate is not None:
+                         self.returncode = _deadstate
++                    elif e.errno == errno.ECHILD:
++                        # This happens if SIGCLD is set to be ignored or waiting
++                        # for child processes has otherwise been disabled for
++                        # our process. This child is dead, we can't get the
++                        # status.
++                        self.returncode = 0
+             return self.returncode
+ 
+ 
