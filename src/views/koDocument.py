@@ -342,6 +342,10 @@ class koDocumentBase:
             
         self.prefs.parent = prefs
         prefs.parent = self._globalPrefs
+        # Reset indentation settings - bug 95329.
+        self._indentWidth = None
+        self._tabWidth = None
+        self._useTabs = None
 
     def _isUDLLanguage(self, langRegistrySvc, languageName):
         return UnwrapObject(langRegistrySvc.getLanguage(languageName)).isUDL()
