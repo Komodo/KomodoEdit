@@ -1815,6 +1815,11 @@ def target_silo_python(argv=["silo_python"]):
         if pyver >= (2,5): # when APy's activestate.py supported relocation
             activestate_py_path = join(siloDir, "lib", "python"+config.pyVer,
                                        "site-packages", "activestate.py")
+            if not exists(activestate_py_path):
+                # It might be located in the main lib directory.
+                activestate_py_path = join(siloDir, "lib",
+                                           "python"+config.pyVer,
+                                           "activestate.py")
             cmd = "%s %s --relocate" % (sys.executable, activestate_py_path)
             _run(cmd, log.info)
 
