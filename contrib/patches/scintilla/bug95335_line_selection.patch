@@ -1,0 +1,49 @@
+Index: src/Editor.cxx
+===================================================================
+--- src/Editor.cxx	(revision 73362)
++++ src/Editor.cxx	(working copy)
+@@ -6058,33 +6058,41 @@
+ Window::Cursor Editor::GetMarginCursor(Point pt) {
+ 	int x = 0;
+ 	for (int margin = 0; margin < ViewStyle::margins; margin++) {
+ 		if ((pt.x >= x) && (pt.x < x + vs.ms[margin].width))
+ 			return static_cast<Window::Cursor>(vs.ms[margin].cursor);
+ 		x += vs.ms[margin].width;
+ 	}
+ 	return Window::cursorReverseArrow;
+ }
+ 
++static int nextVisibleLine(int lineNo, ContractionState& cs) {
++	return cs.DocFromDisplay(cs.DisplayFromDoc(lineNo) + 1);
++}
++
+ void Editor::LineSelection(int lineCurrentPos_, int lineAnchorPos_, bool wholeLine) {
+ 	int selCurrentPos, selAnchorPos;
+ 	if (wholeLine) {
+ 		int lineCurrent_ = pdoc->LineFromPosition(lineCurrentPos_);
+ 		int lineAnchor_ = pdoc->LineFromPosition(lineAnchorPos_);
++		int nextLineNo;
+ 		if (lineAnchorPos_ < lineCurrentPos_) {
+-			selCurrentPos = pdoc->LineStart(lineCurrent_ + 1);
++			nextLineNo = nextVisibleLine(lineCurrent_, cs);
++			selCurrentPos = pdoc->LineStart(nextLineNo);
+ 			selAnchorPos = pdoc->LineStart(lineAnchor_);
+ 		} else if (lineAnchorPos_ > lineCurrentPos_) {
++			nextLineNo = nextVisibleLine(lineAnchor_, cs);
+ 			selCurrentPos = pdoc->LineStart(lineCurrent_);
+-			selAnchorPos = pdoc->LineStart(lineAnchor_ + 1);
++			selAnchorPos = pdoc->LineStart(nextLineNo);
+ 		} else { // Same line, select it
+-			selCurrentPos = pdoc->LineStart(lineAnchor_ + 1);
++			nextLineNo = nextVisibleLine(lineAnchor_, cs);
++			selCurrentPos = pdoc->LineStart(nextLineNo);
+ 			selAnchorPos = pdoc->LineStart(lineAnchor_);
+ 		}
+ 	} else {
+ 		if (lineAnchorPos_ < lineCurrentPos_) {
+ 			selCurrentPos = StartEndDisplayLine(lineCurrentPos_, false) + 1;
+ 			selCurrentPos = pdoc->MovePositionOutsideChar(selCurrentPos, 1);
+ 			selAnchorPos = StartEndDisplayLine(lineAnchorPos_, true);
+ 		} else if (lineAnchorPos_ > lineCurrentPos_) {
+ 			selCurrentPos = StartEndDisplayLine(lineCurrentPos_, true);
+ 			selAnchorPos = StartEndDisplayLine(lineAnchorPos_, false) + 1;
