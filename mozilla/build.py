@@ -1285,7 +1285,7 @@ def target_configure(argv):
     if config["python"] is None:
         if config["pythonVersion"] is None:
             config["pythonVersion"] = "2.6"
-        if config["pythonVersion"] in ("2.6", ):
+        if config["pythonVersion"] in ("2.6", "2.7"):
             config["pyVer"] = config["pythonVersion"]
             # Extract the prebuilt Python directory.
             if sys.platform == "win32":
