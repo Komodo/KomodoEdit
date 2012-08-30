@@ -110,6 +110,7 @@ class KoPythonPyLintChecker(_GenericPythonLinter):
          ]
         
     nonIdentChar_RE = re.compile(r'^\w_.,=')
+    invalidModuleName_RE = re.compile(r'(C0103.*?Invalid name ")(\w+)(" \(should match )(.*)(\))')
     def lint_with_text(self, request, text):
         if not text:
             return None
@@ -120,7 +121,9 @@ class KoPythonPyLintChecker(_GenericPythonLinter):
         pythonExe = self._pythonInfo.getExecutableFromDocument(request.koDoc)
         if not pythonExe:
             return
-        tmpfilename = tempfile.mktemp() + '.py'
+        tmpBaseName = tempfile.mktemp()
+        tmpfilename = tmpBaseName + '.py'
+        tmpBaseName = os.path.basename(tmpBaseName)
         fout = open(tmpfilename, 'wb')
         fout.write(text)
         fout.close()
@@ -168,12 +171,36 @@ class KoPythonPyLintChecker(_GenericPythonLinter):
                 if status in ("E", "F"):
                     severity = koLintResult.SEV_ERROR
                 elif status in ("C", "R", "W"):
+                    if statusCode == "0103":
+                        # Don't let pylint complain about the tempname, but fake
+                        # a check on the actual module name.
+                        m = self.invalidModuleName_RE.match(line)
+                        if m:
+                            complainedName = m.group(2)
+                            if complainedName != tmpBaseName:
+                                # Not a real complaint
+                                continue
+                            shouldMatch_RE = self._createShouldMatchPtn(m.group(4))
+                            koFile = request.koDoc.file
+                            actualBaseName = koFile.baseName[:-len(koFile.ext)]
+                            if shouldMatch_RE.match(actualBaseName):
+                                # The current file is actually valid
+                                continue
+                            # Fix the description
+                            desc = "pylint: " + m.group(1) + actualBaseName + m.group(3) + m.group(4) + m.group(5)
                     severity = koLintResult.SEV_WARNING
                 else:
                     #log.debug("Skip %s", line)
                     continue
                 koLintResult.createAddResult(results, textlines, severity, lineNo, desc)
         return results
+    
+    def _createShouldMatchPtn(self, pseudoPtn):
+        fixedPtn = pseudoPtn.replace("(", "(?:")
+        try:
+            return re.compile(fixedPtn)
+        except:
+            return re.compile(pseudoPtn)
 
 class KoPythonPyflakesChecker(_GenericPythonLinter):
     _reg_desc_ = "Komodo Python Pyflakes Linter"
