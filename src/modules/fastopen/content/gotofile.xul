@@ -25,7 +25,6 @@
         onkeypress="handleWindowKeyPress(event)">
 
   <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
-  <script src="chrome://komodo/content/library/windowManager.js" type="application/x-javascript;version=1.7"/>
   <script src="chrome://komodo/content/library/uriparse.js" type="application/x-javascript;version=1.7"/>
   <script src="chrome://fastopen/content/gotofile.js" type="application/x-javascript;version=1.7"/>
 

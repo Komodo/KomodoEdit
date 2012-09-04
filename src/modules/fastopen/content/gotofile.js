@@ -8,7 +8,6 @@
 var log = ko.logging.getLogger("gotofile");
 
 var gWidgets = null;
-var gUIDriver = null;  // FastOpenUIDriver instance (implements koIFastOpenUIDriver)
 var gSession = null;   // koIFastOpenSession
 var gSep = null;       // path separator for this platform
 var gOsPath = null;
