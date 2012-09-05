@@ -1851,7 +1851,7 @@ class CplnTestCase(CodeintelPythonTestCase):
              ('variable', "__name__ == '__main__':"),
              ('variable', '__package__')])
 
-    @tag("bug88419", "knownfailure")
+    @tag("bug88419")
     def test_set_literals(self):
         content, positions = unmark_text(dedent("""\
             a_set = set([3, 4, 'blab'])

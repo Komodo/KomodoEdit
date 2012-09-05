@@ -961,6 +961,8 @@ class AST2CIXVisitor:
             ts = [tuple.__name__]
         elif isinstance(expr, (ast.List, ast.ListComp)):
             ts = [list.__name__]
+        elif isinstance(expr, ast.Set):
+            ts = [set.__name__]
         elif isinstance(expr, ast.Dict):
             ts = [dict.__name__]
         elif isinstance(expr, (ast.Add, ast.Sub, ast.Mul, ast.Div, ast.Mod,
@@ -1080,6 +1082,9 @@ class AST2CIXVisitor:
         elif isinstance(node, ast.Tuple):
             items = [self._getExprRepr(c) for c in node.getChildren()]
             s = "(%s)" % ", ".join(items)
+        elif isinstance(node, ast.Set):
+            items = [self._getExprRepr(c) for c in node.getChildren()]
+            s = "{%s}" % ", ".join(items)
         elif isinstance(node, ast.Dict):
             items = ["%s: %s" % (self._getExprRepr(k), self._getExprRepr(v))
                      for (k, v) in node.items]
@@ -1244,6 +1249,8 @@ class AST2CIXVisitor:
             s = "[]"
         elif isinstance(node, ast.Tuple):
             s = "()"
+        elif isinstance(node, ast.Set):
+            s = "set()"
         elif isinstance(node, ast.Dict):
             s = "{}"
         elif isinstance(node, ast.CallFunc):
