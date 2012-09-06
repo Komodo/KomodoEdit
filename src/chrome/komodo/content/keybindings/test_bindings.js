@@ -116,16 +116,6 @@ test_keybindings_bindings.prototype.key2event = function(seq)
     return events;
 }
 
-test_keybindings_bindings.prototype.multiKeyBinding = function(event) {
-    var keys = ko.keybindings.manager.eventBindings(event);
-    for (var b in bindings) {
-        //dump("    binding "+bindings[b]+"\n");
-        var key2command = ko.keybindings.manager.key2command[bindings[b]];
-        //dump("    key "+seq+" command "+key2command+"\n");
-        this.assertEqual(key2command, command, "binding "+bindings[b]+" did not resolve to command "+command);
-    }
-}
-
 test_keybindings_bindings.prototype.test_loadConfiguration = function() {
     for (var command in ko.keybindings.manager.command2key) {
         if (command in ko.keybindings.manager._commandParams)
