@@ -123,7 +123,7 @@ test_keybindings_bindings.prototype.test_loadConfiguration = function() {
         var keys = ko.keybindings.manager.command2keysequences(command);
         
         for (var k in keys) {
-            var seq = keylabel2keysequence(keys[k])
+            var seq = ko.keybindings.keylabel2keysequence(keys[k]);
             //dump("command "+command+" = "+keys[k]+"\n");
             var events = this.key2event(seq);
             //dump("  events created :"+events.length+"\n");
