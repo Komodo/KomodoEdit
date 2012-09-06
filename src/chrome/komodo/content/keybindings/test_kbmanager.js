@@ -95,17 +95,22 @@ test_keybindings_manager.prototype.test_keysequence2keylabel = function() {
     var key = "Ctrl+K, Ctrl+L";
     var seq = ["Ctrl+K", "Ctrl+L"];
     this.assertEquals(keysequence2keylabel(seq), key, "keysequence2keylabel failed "+key);
-    this.assertEquals(keylabel2keysequence(key), seq, "keylabel2keysequence failed "+key);
+    this.assertEquals(ko.keybindings.keylabel2keysequence(key), seq, "keylabel2keysequence failed "+key);
     key = "Ctrl+C";
     seq = ["Ctrl+C"];
     this.assertEquals(keysequence2keylabel(seq), key, "keysequence2keylabel failed "+key);
-    this.assertEquals(keylabel2keysequence(key), seq, "keylabel2keysequence failed "+key);
+    this.assertEquals(ko.keybindings.keylabel2keysequence(key), seq, "keylabel2keysequence failed "+key);
+    var key = "Ctrl+K, Ctrl+L, Ctrl+M, Ctrl+N";
+    var seq = ["Ctrl+K", "Ctrl+L", "Ctrl+M", "Ctrl+N"];
+    this.assertEquals(keysequence2keylabel(seq), key, "keysequence2keylabel failed "+key);
+    var seqresult = ko.keybindings.keylabel2keysequence(key);
+    this.assertEquals(seqresult, seq, "keylabel2keysequence failed "+key+ " != "+seqresult);
 }
 
 test_keybindings_manager.prototype.test_assignKey_MultiKey = function() {
     var cmd = "cmd_copy";
     var keylabel = "Ctrl+K, Ctrl+O, Ctrl+P, Ctrl+Y";
-    var keysequence = keylabel2keysequence(keylabel);
+    var keysequence = ko.keybindings.keylabel2keysequence(keylabel);
     var seqList = this.kbm.command2keysequences(cmd)
     this.assertFalse(seqList.indexOf(keylabel) >= 0, "test key sequence already exists");
     this.kbm.assignKey(cmd, keysequence);
@@ -116,7 +121,7 @@ test_keybindings_manager.prototype.test_assignKey_MultiKey = function() {
 test_keybindings_manager.prototype.test_clearSequence_MultiKey = function() {
     var cmd = "cmd_copy";
     var keylabel = "Ctrl+K, Ctrl+O, Ctrl+P, Ctrl+Y";
-    var keysequence = keylabel2keysequence(keylabel);
+    var keysequence = ko.keybindings.keylabel2keysequence(keylabel);
     
     var seqList = this.kbm.command2keysequences(cmd)
     this.assertTrue(seqList.indexOf(keylabel) >= 0, "test key sequence does not exist yet");

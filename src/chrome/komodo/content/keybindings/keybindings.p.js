@@ -389,32 +389,35 @@ this.Manager.prototype._remove_keybinding_sequences = function (command_to_key_s
 
 /**
  * Add this dictionary of keybinds.
+ *
+ * Example map containing three commands:
+ *   {
+ *     "cmd_selectAll": ["Ctrl+Shift+A"]
+ *     "cmd_previewBrowser": ["Ctrl+K Ctrl+V"]      // Multi-key example
+ *     "cmd_dbgStepOver": ["F10", "Ctrl+K Ctrl+O"]  // 2 different keybindings
+ *   }
+ *
  * @private
  */
 this.Manager.prototype._add_keybinding_sequences = function (command_to_key_sequences) {
-    var i;
-    var j;
     var commandId;
     var seq;
-    var keysequences;
-    var foundMatch;
+    var keybindings;
+    var keybinding;
+    var keysequence;
 
     // Find a keymatch
     for (commandId in command_to_key_sequences) {
-        keysequences = command_to_key_sequences[commandId];
-        // XXX marky: remember that keysequences is an array of _independent_
-        // sequences; each sequence is a string with individual keys joined by
-        // ", " (comma followed by a space).  In order to give this.usedBy() the
-        // format it wants, we fake an array.
-        
-        for each (var keysequence in keysequences) {
+        keybindings = command_to_key_sequences[commandId];
+        for each (keybinding in keybindings) {
             // See if the keybinding we want to add is already taken
-            var usedbys = this.usedBy([keysequence]);
+            keysequence = keylabel2keysequence(keybinding);
+            var usedbys = this.usedBy(keysequence);
             if (usedbys.length > 0) {
                 // Already used
                 if (usedbys[0].command != commandId) {
                     _log.warn("_upgradeKeybingings:: could not add '" +
-                              keysequences + "' for command " + commandId +
+                              keybinding + "' for command " + commandId +
                               ", binding already in use by command: " +
                               usedbys[0].command);
                 }
@@ -428,8 +431,8 @@ this.Manager.prototype._add_keybinding_sequences = function (command_to_key_sequ
             }
             // Not found, need to add it in
             //seq.push(keymatch);
-            this.assignKey(commandId, [keysequence]);
-            this.makeKeyActive(commandId, [keysequence]);
+            this.assignKey(commandId, keysequence);
+            this.makeKeyActive(commandId, keysequence);
             _log.warn("_upgradeKeybingings:: added keybinding " +
                       keysequence + " for command " + commandId);
         }
@@ -1106,7 +1109,7 @@ this.Manager.prototype.saveCurrentConfiguration = function() {
                 //dump("saving: commandname = " + commandname + " label = " +
                 //     label + '\n');
                 lines.push('binding ' + commandname + ' ' +
-                           label.replace(', ', ' '));
+                           label.replace(', ', ' ', 'g'));
             }
         }
     }
@@ -1295,12 +1298,11 @@ function keysequence2keylabel(keysequence) {
 this.keysequence2keylabel = keysequence2keylabel;
 
 function keylabel2keysequence(keylabel) {
-    var keysequence = [];
     if (typeof(keylabel) != 'string') {
         _log.error("keylabel2keysequence should be caled with a string, not with a " + typeof(keylabel) + " such as " + keylabel)
     }
-    var parts = keylabel.split(', ');
-    return parts;
+    // Allows both "Ctrl+K, Ctrl+V" and "Ctrl+K Ctrl+V" formats.
+    return keylabel.replace(', ', ' ', 'g').split(' ');
 }
 this.keylabel2keysequence = keylabel2keysequence;
 
@@ -1535,7 +1537,7 @@ this.Manager.prototype.makeKeyActive = function(commandId, keysequence) {
         // this is necessary for multi key keybindings to get the correct thing
         // to appear in menu's. 
         var command = this.document.getElementById(commandId);
-        if (command && keysequence.length > 1) {
+        if (command) {
             var acceltext;
             acceltext = keysequence2keylabel(keysequence);
             if (acceltext[acceltext.length-1] == '+') {
