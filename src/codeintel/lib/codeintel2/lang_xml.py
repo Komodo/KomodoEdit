@@ -342,7 +342,7 @@ class XMLLangIntel(LangIntel):
         elif type == "attr-enum-values":
             cplns = self.cpln_start_attribute_value(buf, trg)
         else:
-            ctlr.error("unknown UDL-based XML completion: %r" % (id,))
+            ctlr.error("lang_xml.py: async_eval_at_trg:\n    Internal error: Unknown UDL-based XML completion type: %r" % (type,))
             ctlr.done("error")
             return
         if cplns:
