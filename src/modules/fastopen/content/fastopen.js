@@ -108,13 +108,14 @@ ko.fastopen.invoketool = {};
             var resultsTree = document.getElementById("invoketool_results");
             resultsTree.treeBoxObject.view = this._treeView;
         }
-        this.findTools();
+        this._all_commands = null;
+        this.update();
         var queryTextbox = document.getElementById("invoketool_query");
         queryTextbox.focus();
         queryTextbox.select();
     }
     
-    this.findTools = function findTools() {
+    this._findTools = function invoketool_findTools(query) {
         var tbSvc = Components.classes["@activestate.com/koToolbox2Service;1"]
             .getService(Components.interfaces.koIToolbox2Service);
         
@@ -135,12 +136,62 @@ ko.fastopen.invoketool = {};
             });
         }
         
-        var query = document.getElementById("invoketool_query").value;
-        var hits = tbSvc.findTools(query, langs.length, langs, {});
-        this._treeView.setHits(hits);
-        //TODO: move tree selection to first one
+        return tbSvc.findTools(query, langs.length, langs, {});
     }
   
+    this._findCommands = function invoketool_findCommands(query) {
+        if (!this._all_commands) {
+            this._all_commands = [];
+            var desc;
+            var category;
+            var commandname;
+            if (!ko.keybindings.manager.commanditems) {
+                // Load the keybinding description information.
+                ko.keybindings.manager.parseGlobalData();
+            }
+            var commanditems = ko.keybindings.manager.commanditems;
+            var command2key = ko.keybindings.manager.command2key;
+            for (var i=0; i < commanditems.length; i++) {
+                commandname = commanditems[i].name;
+                if (commandname in command2key) {
+                    desc = ko.keybindings.manager.commandId2tabledesc(commandname, '');
+                    category = desc.slice(0, desc.indexOf(': '));
+                    this._all_commands.push(new CommandHit(desc, commandname));
+                }
+            }
+        }
+
+        var commandHits = this._all_commands.slice();
+        query = query.toLowerCase();
+        var words = query.split(" ");
+        // Filter out empty word entries.
+        words = words.filter(function(w) { return !word; });
+        if (words) {
+            var word;
+            var matched_all = false;
+            var commandDetails;
+            commandHits = commandHits.filter(function(cmdhit) {
+                            var text = cmdhit.displayText.toLowerCase();
+                            if (words.every(function(w) text.indexOf(w) != -1)) {
+                                return true;
+                            }
+                            return false;
+                        });
+        }
+        return commandHits;
+    }
+
+    this.update = function invoketool_update() {
+        var query = document.getElementById("invoketool_query").value;
+        this._treeView.setHits([]);
+        if (ko.prefs.getBoolean("invoketool_enable_commands", true)) {
+            this._treeView.addHits(this._findCommands(query));
+        }
+        if (ko.prefs.getBoolean("invoketool_enable_toolbox", true)) {
+            this._treeView.addHits(this._findTools(query));
+        }
+    }
+
     this.onPanelKeyPress = function onPanelKeyPress(event) {
         return this.onQueryKeyPress(event);
 
@@ -200,6 +251,18 @@ ko.fastopen.invoketool = {};
         this.invokeCurrSelection();
     }
 
+    this.onOptionsPopupShown = function invoketool_onOptionsPopupShown() {
+        var commandCheckbox = document.getElementById("invoketool_enable_commands_checkbox");
+        commandCheckbox.setAttribute("checked", ko.prefs.getBoolean("invoketool_enable_commands", true));
+        var toolboxCheckbox = document.getElementById("invoketool_enable_toolbox_checkbox");
+        toolboxCheckbox.setAttribute("checked", ko.prefs.getBoolean("invoketool_enable_toolbox", true));
+    }
+
+    this.toggleOptionEnabled = function invoketool_toggleOptionEnabled(prefname) {
+        ko.prefs.setBooleanPref(prefname, !ko.prefs.getBoolean(prefname, true));
+        this.update();
+    }
+
     this.invokeCurrSelection = function invokeCurrSelection() {
         _closePanel();
         _invokeHits(this._treeView.getSelectedHits());
@@ -232,12 +295,16 @@ ko.fastopen.invoketool = {};
 
     /* Open the given hits.
      *
-     * @param hits {list of koIToolInfo} The hits to open.
+     * @param hits {array of [koIToolInfo|CommandHit]} The hits to open.
      */
     function _invokeHits(hits) {
         var hit;
         for (var i in hits) {
-            ko.toolbox2.invokeTool(hits[i].koTool);
+            if (hits[i] instanceof CommandHit) {
+                ko.commands.doCommand(hits[i].commandId);
+            } else {
+                ko.toolbox2.invokeTool(hits[i].koTool);
+            }
         }
     }
 
@@ -254,13 +321,31 @@ ko.fastopen.invoketool = {};
 
 
     //---- internal nsITreeView impl
-    
+
+    function CommandHit(name, commandId) {
+        this.name = name;
+        this.subDir = commandId;
+        this.commandId = commandId;
+        this.displayText = name + " " + commandId;
+    }
+    CommandHit.prototype = {
+        iconUrl: "chrome://fugue/skin/icons/external.png",
+    }
+
     function ToolsTreeView() {
         this._rows = [];
     }
     ToolsTreeView.prototype = new xtk.baseTreeView();
     ToolsTreeView.prototype.constructor = ToolsTreeView;
 
+    /**
+     * Hits are objects that have the following properties:
+     * {
+     *   name: The name of the item,
+     *   subDir: Additional text info - displayed after the name,
+     *   iconUrl: URL to an chrome icon to display for the hit.
+     * }
+     */
     ToolsTreeView.prototype.setHits = function(hits) {
         this._hits = hits;  
         this.mTotalRows = hits.length;
@@ -269,6 +354,17 @@ ko.fastopen.invoketool = {};
             this.mTree.invalidate();
             this.mTree.endUpdateBatch();
             if (this._hits) {
+                this.selection.select(0);
+            }
+        }
+    }
+    ToolsTreeView.prototype.addHits = function(hits) {
+        var oldlength = this._hits.length;
+        this._hits = this._hits.concat(hits);
+        this.mTotalRows = this._hits.length;
+        if (this.mTree) {
+            this.mTree.rowCountChanged(oldlength, hits.length);
+            if (!oldlength && this._hits) {
                 this.selection.select(0);
             }
         }

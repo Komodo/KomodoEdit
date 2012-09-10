@@ -48,9 +48,31 @@
       <vbox flex="1">
         <hbox style="margin: 10px;">
           <textbox id="invoketool_query" type="search" timeout="200"
-              oncommand="ko.fastopen.invoketool.findTools()"
-              onkeypress="ko.fastopen.invoketool.onQueryKeyPress(event)"
-              flex="1" />
+                   oncommand="ko.fastopen.invoketool.update()"
+                   onkeypress="ko.fastopen.invoketool.onQueryKeyPress(event)"
+                   flex="1"
+                   />
+          <toolbarbutton id="invoketool_toolbar_options"
+                         type="menu"
+                         buttonstyle="pictures"
+                         >
+            <menupopup id="invoketool_menupopup"
+                       onpopupshown="ko.fastopen.invoketool.onOptionsPopupShown();"
+                       >
+              <menuitem id="invoketool_enable_commands_checkbox"
+                        type="checkbox"
+                        label="&invokeToolEnableCommands.checkbox.label;"
+                        accesskey="&invokeToolEnableCommands.checkbox.accesskey;"
+                        oncommand="ko.fastopen.invoketool.toggleOptionEnabled('invoketool_enable_commands');"
+                        />
+              <menuitem id="invoketool_enable_toolbox_checkbox"
+                        type="checkbox"
+                        label="&invokeToolEnableToolbox.checkbox.label;"
+                        accesskey="&invokeToolEnableToolbox.checkbox.accesskey;"
+                        oncommand="ko.fastopen.invoketool.toggleOptionEnabled('invoketool_enable_toolbox');"
+                        />
+            </menupopup>
+          </toolbarbutton>
         </hbox>
     
         <tree id="invoketool_results" flex="1" hidecolumnpicker="true"

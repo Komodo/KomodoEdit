@@ -17,4 +17,8 @@
 <!ENTITY followSymlinks.tooltiptext "When enabled, fast open will recursive into symlinked directories to report hits.">
 <!ENTITY invokeTool.accesskey "K">
 <!ENTITY invokeTool.menuitem "Invoke Tool">
+<!ENTITY invokeToolEnableCommands.checkbox.accesskey "C">
+<!ENTITY invokeToolEnableCommands.checkbox.label "Include Commands">
+<!ENTITY invokeToolEnableToolbox.checkbox.accesskey "T">
+<!ENTITY invokeToolEnableToolbox.checkbox.label "Include Toolbox items">
 <!ENTITY cmd_close.commandkey "W">
