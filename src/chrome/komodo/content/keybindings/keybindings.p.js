@@ -130,7 +130,6 @@ this.Manager = function KeybindingManager() {
 
     this._commandParams = {}
     this.currentPrefixString = '';
-    this.commanditems = null;
     this.document = document;
     var observerSvc = Components.classes["@mozilla.org/observer-service;1"].
         getService(Components.interfaces.nsIObserverService);
