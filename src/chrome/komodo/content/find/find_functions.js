@@ -987,9 +987,11 @@ this._uiForFindServiceError = function _UiForFindServiceError(context, exc, msgH
     msgHandler("error", context, msg);
 }
 
-var _Find_charsToEscape_re = /([\\\'])/g;
+var _Find_charsToEscape_re = /([\\\'\"])/g;
 this.regexEscapeString = function _Find_RegexEscapeString(original) {
-    return original.replace(_Find_charsToEscape_re, '\\$1');
+    return original.replace(_Find_charsToEscape_re, '\\$1').
+           replace(/\r/g, '\\r').
+           replace(/\n/g, '\\n');
 }
 
 
