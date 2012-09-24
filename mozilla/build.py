@@ -2064,7 +2064,7 @@ def target_src(argv=["src"]):
         finally:
             sys.path.remove(supportDir)
         hgTag = config.mozSrcHgTag
-        treeName, hgTag = getTreeFromVersion(hgTag)
+        treeName, hgTag = getTreeFromVersion(hgTag or str(config.mozVer))
         repoURL = getRepoFromTree(treeName)
         hgRepo = os.path.join(buildDir, "mozilla")
         bundleFile = os.path.abspath("%s.hg" % (treeName,))
