@@ -40,7 +40,6 @@
 #include "nsISupports.idl"
 #include "nsIObserver.idl"
 #include "koIPrefs.idl"
-#include "nsIDOMWindowInternal.idl"
 #include "nsIDOMDocument.idl"
 #include "ISciMoz.idl"
 
