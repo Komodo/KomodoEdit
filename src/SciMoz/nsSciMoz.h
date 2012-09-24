@@ -85,7 +85,7 @@
 #include "nsISupports.h"
 #include "nsStringGlue.h"
 #include "nsIAllocator.h"
-#include "nsIDOMWindowInternal.h"
+#include "nsIDOMWindow.h"
 #include "nsWeakReference.h"
 #include "nsIObserverService.h"
 #include "nsILocalFile.h"
