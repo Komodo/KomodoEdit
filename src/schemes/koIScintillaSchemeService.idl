@@ -151,7 +151,7 @@ interface koIScintillaSchemeService : nsISupports {
     // Return the scimoz indicator number for the given indicator name.
     long getIndicatorNoForName(in wstring indic_name);
     void purgeUnsavedSchemes();
-    void convertToHTMLFile(in IScimoz scimoz, in wstring title,
+    void convertToHTMLFile(in ISciMoz scimoz, in wstring title,
                            in wstring language, in long style_bits,
                            in string encoding_name, in wstring fname,
                            in boolean selectionOnly,
