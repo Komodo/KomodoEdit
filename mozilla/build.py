@@ -1895,7 +1895,8 @@ def target_pyxpcom(argv=["pyxpcom"]):
             configure_flags += " CXX=%s" % (config.gxx)
     elif sys.platform == "darwin":
         configure_flags += 'PYTHON="%s"' % (config.python, )
-        configure_flags += ' CC="gcc -arch i386" CXX="g++ -arch i386"'
+        configure_flags += " CC=%s" % (config.gcc or "gcc",)
+        configure_flags += " CXX=%s" % (config.gxx or "g++",)
     # Add any custom build FLAGS using the command line args - bug 91389.
     if os.environ.get('CFLAGS'):
         configure_flags += ' CFLAGS="%s"' % (os.environ.get('CFLAGS'))
