@@ -103,7 +103,7 @@ interface ISciMozLite : nsISupports {
 	// the scimoz instance after this point.
         void markClosed();
 
-        void addChar(in PRUint32 ch);
+        void addChar(in uint32_t ch);
         long getLine(in long line, out AString text);
 	
         // Needed on linux because of the way Mozilla works...
@@ -162,13 +162,13 @@ interface ISciMoz : ISciMozLite {
 	// Other functions required due to our special event processing.
 	void buttonDown(in long x,
 			in long y,
-			in PRUint16 button,
+			in uint16_t button,
 			in boolean bShift,
 			in boolean bCtrl,
 			in boolean bAlt);
 	void buttonUp(in long x,
 		      in long y,
-		      in PRUint16 button,
+		      in uint16_t button,
 		      in boolean bShift,
 		      in boolean bCtrl,
 		      in boolean bAlt);
