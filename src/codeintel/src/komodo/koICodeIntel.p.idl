@@ -36,7 +36,6 @@
 
 #include "nsISupports.idl"
 #include "nsITreeView.idl"
-#include "nsIDOMWindowInternal.idl"
 #include "nsIDOMDocument.idl"
 
 interface ISciMoz;
