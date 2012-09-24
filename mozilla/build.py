@@ -1007,13 +1007,6 @@ def target_configure(argv):
        'disable-installer',
        # prevents a "C++ compiler has -pedantic long long bug" configure error
        'disable-pedantic',
-
-       # suggested by http://www.mozilla.org/build/distribution.html
-       'without-system-nspr',
-       'without-system-zlib',
-       'without-system-jpeg',
-       'without-system-png',
-       'without-system-mng',
     ]
     mozMakeOptions = []
     mozBuildExtensions = []
