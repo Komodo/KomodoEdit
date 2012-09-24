@@ -1637,6 +1637,32 @@ void _KoStart_SetupEnvironment(const char* programDir)
     _LogDebug("setting MOZ_NO_REMOTE=1\n");
     xpsetenv("MOZ_NO_REMOTE", "1", 1);
 
+#ifdef MACOSX
+    /* Set PYTHONHOME=$programDir/../Frameworks/Python.framework/Versions/Current
+     *
+     * Pyxpcom needs to know where it's Python lives.
+     */
+    overflow = snprintf(buffer, MAXPATHLEN, "%s/../Frameworks/Python.framework/Versions/Current", programDir);
+    if (overflow > (ssize_t)MAXPATHLEN || overflow < 0) {
+        _LogError("buffer overflow while setting PYTHONHOME\n");
+        return 0;
+    }
+    _LogDebug("setting PYTHONHOME=%s\n", buffer);
+    xpsetenv("PYTHONHOME", buffer, 1);
+#else
+    /* Set PYTHONHOME=$programDir/../python
+     *
+     * Pyxpcom needs to know where it's Python lives.
+     */
+    overflow = snprintf(buffer, MAXPATHLEN, "%s%c..%cpython", programDir, SEP, SEP);
+    if (overflow > (ssize_t)MAXPATHLEN || overflow < 0) {
+        _LogError("buffer overflow while setting PYTHONHOME\n");
+        return 0;
+    }
+    _LogDebug("setting PYTHONHOME=%s\n", buffer);
+    xpsetenv("PYTHONHOME", buffer, 1);
+#endif
+
     /* Set XRE_PROFILE_PATH and _XRE_USERAPPDATADIR to "XRE"
      * under the Komodo host user data dir. */
     if (!_GetVerUserDataDir(MAXPATHLEN, buffer)) {
