@@ -324,6 +324,7 @@ def _validatePython(config):
     If that isn't the case, this function will raise an exception with a
     description of how to set the current Python version appropriately.
     """
+    return
     if not sys.platform == "darwin":
         return
     
@@ -1195,6 +1196,10 @@ def target_configure(argv):
         mozVer = config["mozVer"]
         sdk_ver = "10.5"
         sdk = "/Developer/SDKs/MacOSX%s.sdk" % (sdk_ver, )
+        if not os.path.exists(sdk):
+            # OSX 10.8 and higher has things inside the Xcode bundle... try that?
+            sdk_ver = "10.7"
+            sdk = "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX%s.sdk" % (sdk_ver, )
         if not os.path.exists("%s/Library" % sdk):
             raise BuildError("You must symlink %s/Library to /Library:\n"
                              "\tsudo ln -s /Library %s/Library"
