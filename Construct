@@ -988,7 +988,7 @@ sub build::install::JSCheck {
         } else {
             $jsexec = "$mozDevelBin/js";
         }
-        my $cmd = "$ldLibPathPrefix $jsexec -C -w -s \"$fileName\" 2>&1";
+        my $cmd = "$ldLibPathPrefix $jsexec -c \"$fileName\" 2>&1";
         print "JSCheck: debug: running '$cmd'\n";
         my $output = `$cmd`;
         my $retval = ($?>>8) if $?;
