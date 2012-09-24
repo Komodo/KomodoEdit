@@ -68,7 +68,7 @@ interface koIFileEx : nsISupports
     const long PERM_IXOTH = 00001;  /* execute/search permission, others     */
 
     boolean open(in string mode);
-    void read(in unsigned long aCount, out unsigned long count, [array, size_is(count), retval] out octet text);
+    void read(in long aCount, out unsigned long count, [array, size_is(count), retval] out octet text);
     void write([array, size_is(count)] in octet text, in unsigned long count);
     // xpconnect does not handle 'octet' correctly, so need alternative
     // to write()
