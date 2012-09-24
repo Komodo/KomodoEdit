@@ -311,11 +311,9 @@ class AbortSearchRequest(Request):
 class Driver(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self, name="fastopen driver")
+        self.setDaemon(True)
         self._queue = Queue.Queue()  # internal queue of search requests
         self.start()
-
-    def __del__(self):
-        self.stop(False)
 
     def stop(self, wait=False):
         """Stop the driver thread.
