@@ -305,7 +305,7 @@ if __name__ == "__main__":
     assert len(sys.argv) == 3 or len(sys.argv) == 4, usage_message
     manifest = sys.argv[1]
     source_file = sys.argv[2]
-    assert exists(source_file), usage_message
+    assert exists(source_file), usage_message + ": can't find file %s" % (source_file,)
     if len(sys.argv) == 4:
         relpath = sys.argv[3]
     else:
