@@ -2180,6 +2180,16 @@ def _get_exe_path(cmd):
     else:
         return which.which(cmd)
 
+def _get_make_command(config, srcDir):
+    """Get the command to use for make
+
+    Returns a pymake command line on Windows, and make elsewhere
+    (because pymake is broken for Gecko17, fixed later)
+    """
+    if sys.platform.startswith("win"):
+        return "%s %s/build/pymake/make.py" % (config.python, srcDir)
+
+    return "make"
 
 def target_configure_mozilla(argv=["configure_mozilla"]):
     """configure the patched mozilla source tree"""
@@ -2250,8 +2260,7 @@ def target_mozilla(argv=["mozilla"]):
     if len(argv) > 1 and os.path.isdir(os.path.join(native_objdir, argv[1])):
         # Build in a specific mozilla subdirectory.
         targetDir = os.path.join(native_objdir, argv[1])
-        _run_in_dir("%s %s/build/pymake/make.py" % (config.python, buildDir),
-                    targetDir, log.info)
+        _run_in_dir(_get_make_command(config, buildDir), targetDir, log.info)
         argv = argv[2:]
 
     else:
@@ -2266,15 +2275,14 @@ def target_mozilla(argv=["mozilla"]):
             ldLibPath.append(pythonLibDir)
             os.environ["LD_LIBRARY_PATH"] = os.pathsep.join(filter(bool, ldLibPath))
 
-        _run_in_dir("%s %s/build/pymake/make.py -f client.mk build" % (config.python, buildDir),
+        _run_in_dir("%s -f client.mk build" % _get_make_command(config, buildDir),
                     buildDir, log.info)
 
         if config.mozApp == "komodo":
             # argh, komodo dir does not get entered, call make there seperately
             log.info("entering directory '%s' (to build komodo separately)",
                      koDir)
-            _run_in_dir('%s %s/build/pymake/make.py' % (config.python, buildDir),
-                        koDir, log.info)
+            _run_in_dir(_get_make_command(config, buildDir), koDir, log.info)
         argv = argv[1:]
     return argv
 
@@ -2284,7 +2292,9 @@ def target_symbols(argv=["symbols"]):
     if config.withCrashReportSymbols:
         log.info("target: symbols")
         native_objdir = _get_mozilla_objdir(convert_to_native_win_path=True)
-        _run_in_dir("make buildsymbols", native_objdir, log.info)
+        topsrcdir = os.path.join(config.buildDir, config.srcTreeName, "mozilla")
+        _run_in_dir("%s buildsymbols" % (_get_make_command(config, topsrcdir),),
+                    native_objdir, log.info)
     return argv[1:]
 
 def target_komodoapp_distclean(argv=["komodoapp_distclean"]):
@@ -2306,10 +2316,11 @@ def target_komodoapp(argv=["komodoapp"]):
     """add the komodo bits and build them"""
     config = _importConfig()
     target_patch(patch_target='komodoapp', logFilename="__patchlog_komodoapp__.py")
+    topsrcdir = os.path.join(config.buildDir, config.srcTreeName, "mozilla")
     native_objdir = _get_mozilla_objdir(convert_to_native_win_path=True)
     komodo_objdir = join(native_objdir, "komodo")
     log.info("entering directory '%s' (to build komodo app)", komodo_objdir)
-    _run_in_dir('make', komodo_objdir, log.info)
+    _run_in_dir(_get_make_command(config, topsrcdir), komodo_objdir, log.info)
     return argv[1:]
 
 def target_pluginsdk(argv=["mozilla"]):
@@ -2318,6 +2329,7 @@ def target_pluginsdk(argv=["mozilla"]):
     # make'ing in $mozObjDir\modules\plugin\tools\sdk\samples\common).
     config = _importConfig()
     _setupMozillaEnv()
+    topsrcdir = os.path.join(config.buildDir, config.srcTreeName, "mozilla")
     native_objdir = _get_mozilla_objdir(convert_to_native_win_path=True)
     if config.mozVer >= 5.0:
         # Nothing to do - Komodo uses npapi sdk from google code.
@@ -2326,7 +2338,7 @@ def target_pluginsdk(argv=["mozilla"]):
         pluginDir = os.path.join(native_objdir, 'modules', 'plugin', 'sdk')
     log.info("entering directory '%s' (to build plugin separately)",
              pluginDir)
-    _run_in_dir('make', pluginDir, log.info)
+    _run_in_dir(_get_make_command(config, topsrcdir), pluginDir, log.info)
 
     return argv[1:]
 
@@ -2342,14 +2354,12 @@ def target_mbsdiff(argv=["mozilla"]):
     topsrcdir = os.path.join(config.buildDir, config.srcTreeName, "mozilla")
     log.info("entering directory '%s' (to build libbz2 separately)",
              builddir)
-    _run_in_dir('%s %s/build/pymake/make.py' % (config.python, topsrcdir),
-                builddir, log.info)
+    _run_in_dir(_get_make_command(config, topsrcdir), builddir, log.info)
 
     bsdiffDir = os.path.join(native_objdir, 'other-licenses', 'bsdiff')
     log.info("entering directory '%s' (to build mbsdiff separately)",
              bsdiffDir)
-    _run_in_dir('%s %s/build/pymake/make.py' % (config.python, topsrcdir),
-                bsdiffDir, log.info)
+    _run_in_dir(_get_make_command(config, topsrcdir), bsdiffDir, log.info)
     return argv[1:]
 
 def target_libmar(argv=["mozilla"]):
@@ -2363,8 +2373,7 @@ def target_libmar(argv=["mozilla"]):
     topsrcdir = os.path.join(config.buildDir, config.srcTreeName, "mozilla")
     log.info("entering directory '%s' (to build libmar separately)",
              libmar_dir)
-    _run_in_dir('%s %s/build/pymake/make.py' % (config.python, topsrcdir),
-                libmar_dir, log.info)
+    _run_in_dir(_get_make_command(config, topsrcdir), libmar_dir, log.info)
     return argv[1:]
 
 
