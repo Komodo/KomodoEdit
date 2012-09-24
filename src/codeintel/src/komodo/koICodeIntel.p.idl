@@ -56,21 +56,21 @@ interface koICodeIntelCatalogsTreeView : nsITreeView {
 
     // Note: Here "select" means the state of the "selected" column
     // rather than a UI row selection.
-    void toggleSelection(in PRInt32 row_idx);
+    void toggleSelection(in long row_idx);
 
     // Note: Here "select" means the UI-selection of rows.
     boolean areUISelectedRowsRemovable();
 
     koIShowsProgress addPaths(
-        in PRUint32 count,
+        in unsigned long count,
         [array, size_is(count)] in wstring cix_paths);
     void post_add(
-        in PRUint32 count,
+        in unsigned long count,
         [array, size_is(count)] in wstring added_cix_paths);
 
     koIShowsProgress removeUISelectedPaths();
     void post_remove(
-        in PRUint32 count,
+        in unsigned long count,
         [array, size_is(count)] in wstring removed_cix_paths);
 
     readonly attribute wstring sortColId;
@@ -134,7 +134,7 @@ interface koICodeIntelCompletionUIHandler : nsISupports {
      */
     void setAutoCompleteInfo([array, size_is(count)] in wstring completions,
                              [array, size_is(count)] in string types,
-                             in PRUint32 count,
+                             in unsigned long count,
                              in koICodeIntelTrigger trg);
     /**
      * Set calltip info, as a quick reference
@@ -152,7 +152,7 @@ interface koICodeIntelCompletionUIHandler : nsISupports {
      * @param trg {koICodeIntelTrigger} the trigger that caused the definition
      *        request
      */
-    void setDefinitionsInfo(in PRUint32 count,
+    void setDefinitionsInfo(in unsigned long count,
                             [array, size_is(count)] in koICodeIntelDefinition defns,
                             in koICodeIntelTrigger trg);
     /**
@@ -269,10 +269,10 @@ interface koICodeIntelService: nsISupports {
     koICodeIntelBuffer buf_from_koIDocument(in koIDocument doc);
 
     boolean is_cpln_lang(in wstring lang);
-    void get_cpln_langs(out PRUint32 count,
+    void get_cpln_langs(out unsigned long count,
                         [array, size_is(count)] out wstring langs);
     boolean is_citadel_lang(in wstring lang);
-    void get_citadel_langs(out PRUint32 count,
+    void get_citadel_langs(out unsigned long count,
                            [array, size_is(count)] out wstring langs);
     boolean is_xml_lang(in wstring lang);
 
@@ -329,14 +329,14 @@ interface koICodeIntelService: nsISupports {
                     in wstring citdl, in boolean explicit,
                     in long scopeFileId, in string scopeTable, in long scopeRow,
                     in wstring content,
-                    out PRUint32 count,
+                    out unsigned long count,
                     [array, size_is(count)] out wstring types,
                     [array, size_is(count)] out wstring members);
     void getCallTips(in wstring language, in wstring path, in long line,
                      in wstring citdl, in boolean explicit,
                      in long scopeFileId, in string scopeTable, in long scopeRow,
                      in wstring content,
-                     out PRUint32 count,
+                     out unsigned long count,
                      [retval, array, size_is(count)] out wstring members);
     
     // Return a list of available modules to import under the given module
@@ -353,7 +353,7 @@ interface koICodeIntelService: nsISupports {
                        in wstring module_,
                        in wstring cwd,
                        in boolean explicit,
-                       out PRUint32 count,
+                       out unsigned long count,
                        [retval, array, size_is(count)] out wstring subimports);
 
 };

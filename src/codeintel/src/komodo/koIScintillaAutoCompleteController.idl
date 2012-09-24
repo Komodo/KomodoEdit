@@ -31,19 +31,19 @@ interface koIScintillaAutoCompleteController : nsISupports {
      * @note Each call to addColumn must supply the same aCount; otherwise
      *       NS_ERROR_INVALID_ARG will be thrown.  (Until reset() is called.)
      */
-    void addColumn(in PRUint32 aColumnType,
+    void addColumn(in unsigned long aColumnType,
                    [array, size_is(aCount)] in wstring aData,
-                   in PRUint32 aCount,
+                   in unsigned long aCount,
                    [optional] in boolean aPrimary);
 
     /**
      * The column is a text column (and the strings are user-visible text)
      */
-    const PRUint32 COLUMN_TYPE_TEXT = 0;
+    const unsigned long COLUMN_TYPE_TEXT = 0;
     /**
      * The column is an image; the strings are image URLs.
      */
-    const PRUint32 COLUMN_TYPE_IMAGE = 1;
+    const unsigned long COLUMN_TYPE_IMAGE = 1;
 
     /**
      * Show the autocomplete popup.
@@ -57,9 +57,9 @@ interface koIScintillaAutoCompleteController : nsISupports {
      * The popup is ideally displayed below the anchor, but may be moved if
      * there is not enough screen space.
      */
-    void show(in PRUint32 aStartPos,
-              in PRUint32 aEndPos,
-              in PRUint32 aAnchorPos,
+    void show(in unsigned long aStartPos,
+              in unsigned long aEndPos,
+              in unsigned long aAnchorPos,
               [optional] in AString aPrefix);
 
     /**
@@ -75,25 +75,25 @@ interface koIScintillaAutoCompleteController : nsISupports {
      *        currently selected completion string is used.
      * @note Will notify the listener with a "completion" event.
      */
-    void applyCompletion(in PRInt32 aStartPos,
-                         in PRInt32 aEndPos,
+    void applyCompletion(in long aStartPos,
+                         in long aEndPos,
                          [optional] in AString aCompletion);
 
     /**
      * Retrieve the text at a given index
      * This retrieves the values from set()
      */
-    AString getTextAt(in PRUint32 aIndex);
+    AString getTextAt(in unsigned long aIndex);
 
     /**
      *  The total number of autocomplete items available
      */
-    readonly attribute PRInt32 itemCount;
+    readonly attribute long itemCount;
 
     /**
      * The index of the currently selected item; -1 if nothing is selected.
      */
-    attribute PRInt32 selectedIndex;
+    attribute long selectedIndex;
 
     /**
      * The text of the currently selected item; null if nothing is selected.
