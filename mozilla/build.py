@@ -2251,8 +2251,9 @@ def target_mozilla(argv=["mozilla"]):
 
     if len(argv) > 1 and os.path.isdir(os.path.join(native_objdir, argv[1])):
         # Build in a specific mozilla subdirectory.
-        buildDir = os.path.join(native_objdir, argv[1])
-        _run_in_dir("make", buildDir, log.info)
+        targetDir = os.path.join(native_objdir, argv[1])
+        _run_in_dir("%s %s/build/pymake/make.py" % (config.python, buildDir),
+                    targetDir, log.info)
         argv = argv[2:]
 
     else:
@@ -2267,7 +2268,8 @@ def target_mozilla(argv=["mozilla"]):
             ldLibPath.append(pythonLibDir)
             os.environ["LD_LIBRARY_PATH"] = os.pathsep.join(filter(bool, ldLibPath))
 
-        _run_in_dir("make -f client.mk build", buildDir, log.info)
+        _run_in_dir("%s %s/build/pymake/make.py -f client.mk build" % (config.python, buildDir), 
+                    buildDir, log.info)
 
         if config.mozApp == "komodo":
             # argh, komodo dir does not get entered, call make there seperately
@@ -2367,7 +2369,7 @@ def target_all(argv):
     log.info("target: all")
     target_src()
     target_patch()
-    target_patch(patch_target='komodoapp', logFilename="__patchlog_komodoapp__.py")
+    target_patch_komodo()
     target_configure_mozilla()
     target_mozilla()
     target_pluginsdk()
@@ -2416,8 +2418,12 @@ def target_patch(argv=["patch"], patch_target="mozilla", logFilename=None):
                         logFilename=logFilename)
     finally:
         del config.patch_target
+
     return argv[1:]
 
+def target_patch_komodo(argv=["patch_komodo"]):
+    target_patch(patch_target='komodoapp', logFilename="__patchlog_komodoapp__.py")
+    return argv[1:]
 
 def target_packages(argv=["packages"]):
     """create required packages for this Mozilla build"""
