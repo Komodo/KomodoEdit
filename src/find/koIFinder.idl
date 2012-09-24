@@ -57,10 +57,10 @@ interface koIConfirmReplaceController : nsISupports {
     void done();
 
     // Called to report the current status of the search/replace.
-    void report(in PRUint32 num_hits,
-                in PRUint32 num_paths_with_hits,
-                in PRUint32 num_paths_searched,
-                in PRUint32 num_paths_skipped);
+    void report(in unsigned long num_hits,
+                in unsigned long num_paths_with_hits,
+                in unsigned long num_paths_searched,
+                in unsigned long num_paths_skipped);
 };
 
 
@@ -75,9 +75,9 @@ interface koIConfirmReplaceController : nsISupports {
 interface koIConfirmReplacerInFiles : nsITreeView {
     readonly attribute koIConfirmReplaceController controller;
 
-    readonly attribute PRUint32 num_hits;
-    readonly attribute PRUint32 num_paths_with_hits;
-    readonly attribute PRUint32 num_paths_searched;
+    readonly attribute unsigned long num_hits;
+    readonly attribute unsigned long num_paths_with_hits;
+    readonly attribute unsigned long num_paths_searched;
     readonly attribute wstring journal_id;  // id to use for 'undo'
 
     void start();
@@ -86,10 +86,10 @@ interface koIConfirmReplacerInFiles : nsITreeView {
 
     void filterSkippedPaths(in boolean filter);
 
-    void toggle_mark(in PRUint32 row_idx);
+    void toggle_mark(in unsigned long row_idx);
     AString diff_from_indeces(
-        in PRUint32 count,
-        [array, size_is(count)] in PRUint32 indeces);
+        in unsigned long count,
+        [array, size_is(count)] in unsigned long indeces);
     AString marked_diff();
 
     /**
@@ -116,7 +116,7 @@ interface koIUndoReplaceController : nsISupports {
     /**
      * Called to report the undo status so far.
      */
-    void report(in PRUint32 num_hits, in PRUint32 num_paths);
+    void report(in unsigned long num_hits, in unsigned long num_paths);
 
     /**
      * Called to indicate that the undo was successfully completed.
@@ -155,16 +155,16 @@ interface koIFindResult : nsISupports {
     //XXX Should change the name to viewId (or similar) at some point.
     attribute wstring url;
     // zero-based indeces into the search text demarking the find result
-    attribute PRUint32 start;
-    attribute PRUint32 end;
+    attribute unsigned long start;
+    attribute unsigned long end;
     // the string found (not sure if this is really necessary, but should
     // be useful for debugging)
     readonly attribute AString value;
 
     // Some data that can be filled in lazily. This data is not guaranteed to
     // be set.
-    attribute PRUint32 line;
-    attribute PRUint32 column;
+    attribute unsigned long line;
+    attribute unsigned long column;
     attribute AString context_;
 };
 
@@ -179,7 +179,7 @@ interface koIReplaceResult : koIFindResult {
 [scriptable, uuid(BB453BC9-FCF7-4625-A3FB-590418F48BF5)]
 interface koIFindOptions: nsISupports {
     // pattern types
-    attribute PRUint32 patternType;
+    attribute unsigned long patternType;
     const long FOT_SIMPLE = 0;       // search for a simple string
     const long FOT_WILDCARD = 1;     // use shell-like filename matching of the search pattern
     const long FOT_REGEX_PYTHON = 2; // the search pattern is a regex (Python syntax)
@@ -188,7 +188,7 @@ interface koIFindOptions: nsISupports {
     attribute boolean searchBackward;
 
     // case sensitivity options
-    attribute PRUint32 caseSensitivity;
+    attribute unsigned long caseSensitivity;
     const long FOC_INSENSITIVE = 0;  // case insensitive searching
     const long FOC_SENSITIVE = 1;    // case sensitive
     const long FOC_SMART = 2;        // case sensitive iff pattern includes any uppercase letters
@@ -215,16 +215,16 @@ interface koIFindOptions: nsISupports {
     //   native path separator. E.g. on Windows: "D:\trentm;D:\tmp". It is
     //   easier with XPCOM to just pass around the encoded string.
     attribute wstring encodedFolders;
-    void getFolders(out PRUint32 count,
+    void getFolders(out unsigned long count,
                     [retval, array, size_is(count)] out wstring folders);
     // - Whether to search in subfolders
     attribute boolean searchInSubfolders;
     // - The filetype to search (see 'encoding' note with folders)
     attribute wstring encodedIncludeFiletypes;
-    void getIncludeFiletypes(out PRUint32 count,
+    void getIncludeFiletypes(out unsigned long count,
                              [retval, array, size_is(count)] out wstring filetypes);
     attribute wstring encodedExcludeFiletypes;
-    void getExcludeFiletypes(out PRUint32 count,
+    void getExcludeFiletypes(out unsigned long count,
                              [retval, array, size_is(count)] out wstring filetypes);
 
     // Other stuff:
@@ -282,7 +282,7 @@ interface koIFindService : nsISupports {
                    in AString text,
                    in AString pattern,
                    in koIFindResultsView resultsView,
-                   in PRUint32 contextOffset,
+                   in unsigned long contextOffset,
                    in ISciMoz scimoz);
 
     // Find all lines on which the given pattern is found.
@@ -290,10 +290,10 @@ interface koIFindService : nsISupports {
     void findalllines(in wstring url,
                       in AString text,
                       in AString pattern,
-                      in PRUint32 contextOffset,
+                      in unsigned long contextOffset,
                       in ISciMoz scimoz,
-                      out PRUint32 count,
-                      [retval, array, size_is(count)] out PRUint32 lines);
+                      out unsigned long count,
+                      [retval, array, size_is(count)] out unsigned long lines);
     
     /**
      * Does a find all operation asynchronously
@@ -346,9 +346,9 @@ interface koIFindService : nsISupports {
                          in boolean firstOnLine,
                          in koIFindSession session,
                          in koIFindResultsView resultsView,
-                         in PRUint32 contextOffset,
+                         in unsigned long contextOffset,
                          in ISciMoz scimoz,
-                         out PRUint32 count); // number of replacements
+                         out unsigned long count); // number of replacements
 
     // Asynchronously find all occurrences of "pattern" and load those into
     // the "resultsView". Note: the information on which files to search are
@@ -395,15 +395,15 @@ interface koIFindService : nsISupports {
 
 [scriptable, uuid(f35485c9-a501-4d6b-98f3-f865b2ff0666)]
 interface koIFinderReplaceHit: nsISupports {
-    attribute PRUint32 start_pos;
-    attribute PRUint32 end_pos;
-    attribute PRUint32 start_line;
+    attribute unsigned long start_pos;
+    attribute unsigned long end_pos;
+    attribute unsigned long start_line;
     attribute wstring before;
     attribute wstring after;
 
-    void initialize(in PRUint32 start_pos,
-                    in PRUint32 end_pos,
-                    in PRUint32 start_line,
+    void initialize(in unsigned long start_pos,
+                    in unsigned long end_pos,
+                    in unsigned long start_line,
                     in AString before,
                     in AString after);
 };
@@ -423,7 +423,7 @@ interface koILoadedPathAccessor: nsISupports {
     // post-change.
     void applySetText(in koIDocument koDoc,
                       in AString after_text,
-                      in PRUint32 count,
+                      in unsigned long count,
                       [array, size_is(count)] in koIFinderReplaceHit hits);
 
 

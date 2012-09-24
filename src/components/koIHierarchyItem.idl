@@ -45,7 +45,7 @@ interface koIHierarchyItem : nsISupports {
     // of the various item_* attributes e.g.
     // if (item.available_types & item.ITEM_STRING)
     //     // item.item_string is usable
-    readonly attribute PRUint32 available_types;
+    readonly attribute unsigned long available_types;
     const long ITEM_HAS_STRING = 1;
     const long ITEM_HAS_OBJECT = 2; 
     

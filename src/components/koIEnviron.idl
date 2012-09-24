@@ -67,7 +67,7 @@ interface koIUserEnviron : nsISupports {
     //  - it is named after the Win32 API but no FreeEnvironmentStrings is
     //    necessary
     void GetEnvironmentStrings(
-      out PRUint32 count,
+      out unsigned long count,
       [retval, array, size_is(count)] out wstring envStrs);
 
     // Return the user environment as a string encoded as specified by
@@ -94,17 +94,17 @@ interface koIEnvironUtils : nsISupports {
     // i.e.  %FOO% to interpolate in the env. var. FOO on Windows,
     //       $FOO or $(FOO) otherwise.
     void MergeEnvironmentStrings(
-        in PRUint32 baseCount,
+        in unsigned long baseCount,
         [array, size_is(baseCount)] in wstring baseEnvStrs,
-        in PRUint32 diffCount,
+        in unsigned long diffCount,
         [array, size_is(diffCount)] in wstring diffEnvStrs,
-        out PRUint32 resultCount,
+        out unsigned long resultCount,
         [array, size_is(resultCount)] out wstring resultEnvStrs);
 
     // Return a list of available system shells from which the user can
     // select in the Environment prefs panel. (non-Windows only)
     void GetUserShells(
-        out PRUint32 count,
+        out unsigned long count,
         [retval, array, size_is(count)] out wstring shells
     );
 };

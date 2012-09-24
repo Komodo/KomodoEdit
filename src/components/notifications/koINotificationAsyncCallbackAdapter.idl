@@ -57,9 +57,9 @@ interface koINotificationAsyncCallbackAdapter : nsISupports {
     void initAsyncAdapter(in koIAsyncOperation aOperation,
                           in ACString aIdentifier,
                           [array, size_is(aTagCount)] in wstring aTags,
-                          in PRUint32 aTagCount,
+                          in unsigned long aTagCount,
                           [optional] in nsISupports aContext,
-                          [optional] in PRUint32 aTypes);
+                          [optional] in unsigned long aTypes);
 
     /**
      * The chained callback

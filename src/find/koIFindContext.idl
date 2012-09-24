@@ -51,15 +51,15 @@ interface koIFindContext : nsISupports {
     const long FCT_IN_FILES = 3;      // in files
     const long FCT_IN_COLLECTION = 4; // in a collection of search targets
 
-    attribute PRUint32 type;
+    attribute unsigned long type;
     readonly attribute wstring name;   // a human readable name
 };
 
 [scriptable, uuid(AC460813-782F-40e4-887F-B9B2BFBD5DF6)]
 interface koIRangeFindContext : koIFindContext {
     // These are *character* offsets (as opposed to *byte* offsets).
-    attribute PRUint32 startIndex;
-    attribute PRUint32 endIndex;
+    attribute unsigned long startIndex;
+    attribute unsigned long endIndex;
 };
 
 [scriptable, uuid(4F9ECE5C-D88C-46A2-B087-5E159CC3177D)]

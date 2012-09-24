@@ -11,7 +11,7 @@ interface koINotification : nsISupports {
      * The tags of the notification.  This should not be localized.
      * Examples: "scc", "sync"
      */
-    void getTags([optional] out PRUint32 aCount,
+    void getTags([optional] out unsigned long aCount,
                  [retval, array, size_is(aCount)] out string aTags);
     /**
      * Some unique identifier for this type of notification. This may be
@@ -35,10 +35,10 @@ interface koINotification : nsISupports {
      * The severity of the notification; should be one of the SEVERITY_*
      * values.
      */
-    attribute PRUint32 severity;
-    const PRUint32 SEVERITY_INFO    = 0;
-    const PRUint32 SEVERITY_WARNING = 1;
-    const PRUint32 SEVERITY_ERROR   = 2;
+    attribute unsigned long severity;
+    const unsigned long SEVERITY_INFO    = 0;
+    const unsigned long SEVERITY_WARNING = 1;
+    const unsigned long SEVERITY_ERROR   = 2;
     /**
      * Additional text next to the summary
      */
@@ -104,7 +104,7 @@ interface koINotificationActionable : koINotification {
      *                  action (of the matching id) will be returned.
      */
     void getActions([optional] in ACString aActionId,
-                    [optional] out PRUint32 aCount,
+                    [optional] out unsigned long aCount,
                     [retval, array, size_is(aCount)]
                        out koINotificationAction aActions);
     /**

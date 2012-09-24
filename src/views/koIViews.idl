@@ -64,7 +64,7 @@ interface koIViewList : nsISupports
     // in the view list. If index is -1 (or otherwise invalid), the new
     // view is appended.
     koIView createViewFromDocument(in koIDocument document, in wstring type,
-                                   in PRUint32 index);
+                                   in unsigned long index);
 
     koIView findViewForDocument(in koIDocument document);
 
@@ -79,7 +79,7 @@ interface koIViewList : nsISupports
      * must be one of the know view types, i.e. "editor", "browser", etc...
      */
     void getAllViews(in AString viewtype,
-                     out PRUint32 count,
+                     out unsigned long count,
                      [array, size_is(count), retval] out koIView views);
 
     // Getting views. The following methods return a list of views matching
@@ -104,16 +104,16 @@ interface koIViewList : nsISupports
     //       versions for simplified calling from JavaScript code.
     void getViewsX(in boolean recursive,
                    [array, size_is(count)] out koIView views,
-                   out PRUint32 count);
+                   out unsigned long count);
     void getViewsByTypeX(in boolean recursive,
                          in wstring type,
                          [array, size_is(count)] out koIView views,
-                         out PRUint32 count);
+                         out unsigned long count);
     void getViewsByTypeAndURIX(in boolean recursive,
                                in wstring type,
                                in wstring uri,
                                [array, size_is(count)] out koIView views,
-                               out PRUint32 count);
+                               out unsigned long count);
 };
 
 /*

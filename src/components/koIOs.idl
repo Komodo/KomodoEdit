@@ -43,7 +43,7 @@ interface koIOsPath : nsISupports {
     wstring basename(in wstring path);
     wstring dirname(in wstring path);
     wstring join(in wstring path1, in wstring path2);
-    wstring joinlist(in PRUint32 count,
+    wstring joinlist(in unsigned long count,
                      [array, size_is(count)] in wstring paths);
     wstring getExtension(in wstring path);
     wstring withoutExtension(in wstring path);
@@ -58,11 +58,11 @@ interface koIOsPath : nsISupports {
 
     //---- the following methods are more than Python's standard os.path funcs.
     wstring commonprefix(in wstring path1, in wstring path2);
-    wstring commonprefixlist(in PRUint32 count,
+    wstring commonprefixlist(in unsigned long count,
                              [array, size_is(count)] in wstring paths);
     wstring relpath(in wstring path, in wstring relativeTo);
     // Strip 'n' dir elements from the start of the given path.
-    wstring lstrippath(in wstring path, in PRUint32 n);
+    wstring lstrippath(in wstring path, in unsigned long n);
     boolean samepath(in wstring path1, in wstring path2);
 };
 
@@ -83,10 +83,10 @@ interface koIOs : nsISupports {
   
     // Uses the lastErrorSvc to report errors.
     void listdir(in wstring dir,
-                 out PRUint32 count,
+                 out unsigned long count,
                  [retval, array, size_is(count)] out wstring contents);
     
-    PRUint32 system(in AString command);
+    unsigned long system(in AString command);
     void startfile(in wstring command);
     void mkdir(in wstring path); /* uses lastErrorSvc to report errors */
     void rename(in wstring from, in wstring to);
@@ -94,16 +94,16 @@ interface koIOs : nsISupports {
   
     // Stat the given file. (Uses koILastErrorService to report errors.)
     void stat(in wstring filename,
-              out PRUint32 st_mode,
-              out PRUint32 st_ino,
-              out PRUint32 st_dev,
-              out PRUint32 st_nlink,
-              out PRUint32 st_uid,
-              out PRUint32 st_gid,
-              out PRUint32 st_size,
-              out PRUint32 st_atime,
-              out PRUint32 st_mtime,
-              out PRUint32 st_ctime);
+              out unsigned long st_mode,
+              out unsigned long st_ino,
+              out unsigned long st_dev,
+              out unsigned long st_nlink,
+              out unsigned long st_uid,
+              out unsigned long st_gid,
+              out unsigned long st_size,
+              out unsigned long st_atime,
+              out unsigned long st_mtime,
+              out unsigned long st_ctime);
 
     boolean access(in wstring path, in long mode);
     const long F_OK = 0;

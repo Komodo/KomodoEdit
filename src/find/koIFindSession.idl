@@ -57,9 +57,9 @@ interface koIFindSession : nsISupports {
     void StartFind(in wstring pattern,
                    in wstring url,
                    in koIFindOptions options,
-                   in PRUint32 findStartPos,
-                   in PRUint32 findSelectionStartPos,
-                   in PRUint32 findSelectionEndPos,
+                   in unsigned long findStartPos,
+                   in unsigned long findSelectionStartPos,
+                   in unsigned long findSelectionEndPos,
                    in string mode);
     void NoteFind(in koIFindResult findResult);
     void StartReplace(in wstring pattern,
@@ -67,7 +67,7 @@ interface koIFindSession : nsISupports {
                       in wstring url,
                       in koIFindOptions options);
     void NoteReplace(in koIReplaceResult replaceResult);
-    void NoteReplaces(in PRUint32 count,
+    void NoteReplaces(in unsigned long count,
                       [array, size_is(count)] in koIReplaceResult replaces);
 
     attribute boolean wrapped;
@@ -79,24 +79,24 @@ interface koIFindSession : nsISupports {
 
     // The current cursor and selection state in the current file when
     // searching began in the current file.
-    attribute PRUint32 fileStartPos;
-    attribute PRUint32 fileSelectionStartPos;
-    attribute PRUint32 fileSelectionEndPos;
+    attribute unsigned long fileStartPos;
+    attribute unsigned long fileSelectionStartPos;
+    attribute unsigned long fileSelectionEndPos;
     
     // The editor state when this find session began.
     attribute wstring firstUrl;
-    attribute PRUint32 firstFileStartPos;
-    attribute PRUint32 firstFileSelectionStartPos;
-    attribute PRUint32 firstFileSelectionEndPos;
+    attribute unsigned long firstFileStartPos;
+    attribute unsigned long firstFileSelectionStartPos;
+    attribute unsigned long firstFileSelectionEndPos;
     
     // Useful information for the UI.
     wstring GetPattern();
     wstring GetReplacement();
-    PRUint32 GetNumFinds();
-    PRUint32 GetNumReplacements();
-    void GetFinds(out PRUint32 count,
+    unsigned long GetNumFinds();
+    unsigned long GetNumReplacements();
+    void GetFinds(out unsigned long count,
                   [retval, array, size_is(count)] out koIFindResult rv);
-    void GetReplacements(out PRUint32 count,
+    void GetReplacements(out unsigned long count,
                          [retval, array, size_is(count)] out koIReplaceResult rv);
     koIFindResult GetLastFindResult();
 };

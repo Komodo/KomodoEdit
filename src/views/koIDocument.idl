@@ -204,13 +204,13 @@ interface koIDocument : nsISupports
     // insertions from snippets or templates on the current
     // document.  It needs to be on the document object, so all
     // views see the same state of tabstop processing.
-    void getTabstopInsertionTable(out PRUint32 count,
+    void getTabstopInsertionTable(out unsigned long count,
                                   [array, size_is(count), retval] out koITabstopInsertionNode value);
     void clearTabstopInsertionTable();
     readonly attribute boolean hasTabstopInsertionTable;
-    void setTabstopInsertionTable(in PRUint32 count,
+    void setTabstopInsertionTable(in unsigned long count,
                                   [array, size_is(count)] in koITabstopInsertionNode insertionNodes);
-    void removeTabstopInsertionNodeAt(in PRUint32 idx);
+    void removeTabstopInsertionNodeAt(in unsigned long idx);
 
     readonly attribute boolean isLargeDocument; // Based on time to load
     attribute koILexerLanguageService lexer;
@@ -250,7 +250,7 @@ interface koIDocumentService: nsISupports
                                            in boolean savenow);
     
     void getAllDocuments([array, size_is(count)] out koIDocument documents,
-                     out PRUint32 count);
+                     out unsigned long count);
     koIDocument findDocumentByURI(in wstring URI);
     
     //TODO: Move this to a more suitable IDL. This has nothing to do with managing koIDocuments. 
@@ -258,7 +258,7 @@ interface koIDocumentService: nsISupports
     // a parseable filepath and line number.
     void parseHotspotLine(in AString line,
                           in wstring cwd,
-                          out PRUint32 count,
+                          out unsigned long count,
                           [array, size_is(count)] out wstring results);
 };
 
@@ -298,11 +298,11 @@ interface koIDiff : nsISupports
     //
     // Raises an exception if it could not be determined. The reason is set
     // on koILastErrorService. Note also that 'filePath' could be relative.
-    void filePosFromDiffPos(in PRUint32 line,
-                            in PRUint32 column,
+    void filePosFromDiffPos(in unsigned long line,
+                            in unsigned long column,
                             out wstring filePath,
-                            out PRUint32 fileLine,
-                            out PRUint32 fileColumn);
+                            out unsigned long fileLine,
+                            out unsigned long fileColumn);
 
     // Infer, if possible, an appropriate 'cwd' and 'strip' (i.e.
     // `patch -p <val>`) given different paths in the diff and actual on disk.
@@ -311,5 +311,5 @@ interface koIDiff : nsISupports
     void inferCwdAndStripFromPath(in wstring pathInDiff,
                                   in wstring actualPath,
                                   out wstring cwd,
-                                  out PRUint32 strip);
+                                  out unsigned long strip);
 };

@@ -61,14 +61,14 @@ interface koIViewService : nsISupports
      * must be one of the know view types, i.e. "editor", "browser", etc...
      */
     void getAllViews(in AString viewtype,
-                     out PRUint32 count,
+                     out unsigned long count,
                      [array, size_is(count), retval] out koIView views);
 
     /**
      * Return all view instances for the given type. If viewtype is given, it
      * must be one of the know view types, i.e. "editor", "browser", etc...
      */
-    void getAllViewMgrs(out PRUint32 count,
+    void getAllViewMgrs(out unsigned long count,
                         [array, size_is(count), retval] out koIViewList viewMgrs);
 
     readonly attribute koIView currentView;

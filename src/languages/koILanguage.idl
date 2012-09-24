@@ -266,6 +266,6 @@ interface koILanguageStatusTreeView : nsITreeView {
     readonly attribute wstring sortColId;
     readonly attribute wstring sortDirection;
     attribute wstring filter;
-    void toggleStatus(in PRInt32 row_idx);
+    void toggleStatus(in  row_idx);
 };
 

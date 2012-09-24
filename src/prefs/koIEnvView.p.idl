@@ -48,12 +48,12 @@ interface koIEnvironmentView : nsITreeView {
     // Add a single find result.
     void AddVariable(in wstring name, in wstring value);
     long haveVariable(in wstring name);
-    void removeRow(in PRUint32 index);
+    void removeRow(in unsigned long index);
     
     // Extract part of the find result data at a specific index.
-    wstring GetVariable(in PRUint32 index); // return "NAME=Value"
-    wstring GetName(in PRUint32 index);  
-    wstring GetValue(in PRUint32 index);
+    wstring GetVariable(in unsigned long index); // return "NAME=Value"
+    wstring GetName(in unsigned long index);  
+    wstring GetValue(in unsigned long index);
 
     // Sort the find result data by a certain key (this key typically matches
     // the <treecol id=.../>  id's).

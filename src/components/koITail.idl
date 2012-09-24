@@ -56,5 +56,5 @@ interface koITail : nsISupports
        */
   [deprecated] void initFile(in ISciMoz scintilla, in koIFile file);
   void terminate();
-  void terminateSoon(in PRUint32 secs);
+  void terminateSoon(in unsigned long secs);
 };

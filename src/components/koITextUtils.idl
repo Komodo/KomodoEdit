@@ -42,9 +42,9 @@
 [scriptable, uuid(4637964c-b6bb-4685-be28-963dbb9f4f01)]
 interface koITextUtils : nsISupports {
     AString one_line_summary_from_text(in AString text,
-                                       in PRUint32 length);
-    AString break_up_words(in AString text, in PRUint32 max_word_length);
-    AString break_up_lines(in AString text, in PRUint32 max_line_width);
+                                       in unsigned long length);
+    AString break_up_words(in AString text, in unsigned long max_word_length);
+    AString break_up_lines(in AString text, in unsigned long max_line_width);
 };
 
 

@@ -97,9 +97,9 @@ interface koIToolbox2Service: nsISupports {
 
     // Find and return all tools matching the given query.
     void findTools(in wstring query,
-        in PRUint32 langCount,
+        in unsigned long langCount,
         [array, size_is(langCount)] in wstring langs,
-        out PRUint32 hitCount,
+        out unsigned long hitCount,
         [retval, array, size_is(hitCount)] out koIToolInfo hits);
 };
 

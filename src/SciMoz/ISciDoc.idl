@@ -40,15 +40,15 @@
 interface ISciDoc : nsISupports {
     attribute long docPointer;
 
-    attribute PRInt32 stylingBits;
-    attribute PRInt32 stylingBitsMask;
+    attribute  stylingBits;
+    attribute  stylingBitsMask;
 
-    attribute PRInt32 eolMode;
+    attribute  eolMode;
     /// Can also be SC_CP_UTF8 to enable UTF-8 mode
-    attribute PRInt32 dbcsCodePage;
-    attribute PRInt32 tabInChars;
-    attribute PRInt32 indentInChars;
-    attribute PRInt32 actualIndentInChars;
+    attribute  dbcsCodePage;
+    attribute  tabInChars;
+    attribute  indentInChars;
+    attribute  actualIndentInChars;
     attribute boolean useTabs;
     attribute boolean tabIndents;
     attribute boolean backspaceUnindents;
@@ -57,22 +57,22 @@ interface ISciDoc : nsISupports {
     DecorationList decorations;
     */
 
-    PRInt32 LineFromPosition(in PRInt32 pos);
-    PRInt32 ClampPositionIntoDocument(in PRInt32 pos);
-    boolean IsCrLf(in PRInt32 pos);
-    PRInt32 LenChar(in PRInt32 pos);
-    PRInt32 MovePositionOutsideChar(in PRInt32 pos, in PRInt32 moveDir, in boolean checkLineEnd);
+     LineFromPosition(in  pos);
+     ClampPositionIntoDocument(in  pos);
+    boolean IsCrLf(in  pos);
+     LenChar(in  pos);
+     MovePositionOutsideChar(in  pos, in  moveDir, in boolean checkLineEnd);
 
     // ACTIVESTATE    
-    PRInt32 GetBytePositionForCharOffset(in PRInt32 bytePos, in PRInt32 charOffset, in boolean checkLineEnd);
+     GetBytePositionForCharOffset(in  bytePos, in  charOffset, in boolean checkLineEnd);
     attribute wstring text;
     
     // Gateways to modifying document
-    void ModifiedAt(in PRInt32 pos);
-    boolean DeleteChars(in PRInt32 pos, in PRInt32 len);
-    boolean InsertString(in PRInt32 position, in wstring s);
-    PRInt32 Undo();
-    PRInt32 Redo();
+    void ModifiedAt(in  pos);
+    boolean DeleteChars(in  pos, in  len);
+    boolean InsertString(in  position, in wstring s);
+     Undo();
+     Redo();
     boolean CanUndo();
     boolean CanRedo();
     void DeleteUndoHistory();
@@ -83,90 +83,90 @@ interface ISciDoc : nsISupports {
     void SetSavePoint();
     boolean IsSavePoint();
 
-    PRInt32 GetLineIndentation(in PRInt32 line);
-    void SetLineIndentation(in PRInt32 line, in PRInt32 indent);
-    PRInt32 GetLineIndentPosition(in PRInt32 line);
-    PRInt32 GetColumn(in PRInt32 position);
-    PRInt32 FindColumn(in PRInt32 line, in PRInt32 column);
-    void Indent(in boolean forwards, in PRInt32 lineBottom, in PRInt32 lineTop);
+     GetLineIndentation(in  line);
+    void SetLineIndentation(in  line, in  indent);
+     GetLineIndentPosition(in  line);
+     GetColumn(in  position);
+     FindColumn(in  line, in  column);
+    void Indent(in boolean forwards, in  lineBottom, in  lineTop);
     /*void Indent(in boolean forwards);*/
-    wstring TransformLineEnds(in wstring s, in PRInt32 eolMode);
-    void ConvertLineEnds(in PRInt32 eolModeSet);
+    wstring TransformLineEnds(in wstring s, in  eolMode);
+    void ConvertLineEnds(in  eolModeSet);
     void SetReadOnly(in boolean set);
     boolean IsReadOnly();
 
-    boolean InsertChar(in PRInt32 pos, in wchar ch);
+    boolean InsertChar(in  pos, in wchar ch);
     /* InsertString handles this fine:
-      boolean InsertCString(in PRInt32 position, in wstring s); */
-    void ChangeChar(in PRInt32 pos, in wchar ch);
-    void DelChar(in PRInt32 pos);
-    void DelCharBack(in PRInt32 pos);
+      boolean InsertCString(in  position, in wstring s); */
+    void ChangeChar(in  pos, in wchar ch);
+    void DelChar(in  pos);
+    void DelCharBack(in  pos);
 
-    wchar CharAt(in PRInt32 position);
-    wstring GetCharRange(in PRInt32 position, in PRInt32 lengthRetrieve);
-    wchar StyleAt(in PRInt32 position);
-    PRInt32 GetMark(in PRInt32 line);
-    PRInt32 AddMark(in PRInt32 line, in PRInt32 markerNum);
-    void AddMarkSet(in PRInt32 line, in PRInt32 valueSet);
-    void DeleteMark(in PRInt32 line, in PRInt32 markerNum);
-    void DeleteMarkFromHandle(in PRInt32 markerHandle);
-    void DeleteAllMarks(in PRInt32 markerNum);
-    PRInt32 LineFromHandle(in PRInt32 markerHandle);
-    PRInt32 LineStart(in PRInt32 line);
-    PRInt32 LineEnd(in PRInt32 line);
-    PRInt32 LineEndPosition(in PRInt32 position);
-    PRInt32 VCHomePosition(in PRInt32 position);
+    wchar CharAt(in  position);
+    wstring GetCharRange(in  position, in  lengthRetrieve);
+    wchar StyleAt(in  position);
+     GetMark(in  line);
+     AddMark(in  line, in  markerNum);
+    void AddMarkSet(in  line, in  valueSet);
+    void DeleteMark(in  line, in  markerNum);
+    void DeleteMarkFromHandle(in  markerHandle);
+    void DeleteAllMarks(in  markerNum);
+     LineFromHandle(in  markerHandle);
+     LineStart(in  line);
+     LineEnd(in  line);
+     LineEndPosition(in  position);
+     VCHomePosition(in  position);
 
-    PRInt32 SetLevel(in PRInt32 line, in PRInt32 level);
-    PRInt32 GetLevel(in PRInt32 line);
+     SetLevel(in  line, in  level);
+     GetLevel(in  line);
     void ClearLevels();
-    PRInt32 GetLastChild(in PRInt32 lineParent, in PRInt32 level);
-    PRInt32 GetFoldParent(in PRInt32 line);
+     GetLastChild(in  lineParent, in  level);
+     GetFoldParent(in  line);
 
-    PRInt32 ExtendWordSelect(in PRInt32 pos, in PRInt32 delta, in boolean onlyWordCharacters);
-    PRInt32 NextWordStart(in PRInt32 pos, in PRInt32 delta);
-    PRInt32 NextWordEnd(in PRInt32 pos, in PRInt32 delta);
-    PRInt32 Length();
-    void Allocate(in PRInt32 newSize);
-    long FindText(in PRInt32 minPos, in PRInt32 maxPos, in wstring s,
+     ExtendWordSelect(in  pos, in  delta, in boolean onlyWordCharacters);
+     NextWordStart(in  pos, in  delta);
+     NextWordEnd(in  pos, in  delta);
+     Length();
+    void Allocate(in  newSize);
+    long FindText(in  minPos, in  maxPos, in wstring s,
                   in boolean caseSensitive, in boolean word, in boolean wordStart,
                   in boolean regExp, in boolean posix);
     wstring SubstituteByPosition(in wstring text);
-    PRInt32 LinesTotal();
+     LinesTotal();
 
-    void ChangeCase(in PRInt32 start, in PRInt32 end, in boolean makeUpperCase);
+    void ChangeCase(in  start, in  end, in boolean makeUpperCase);
 
     void SetDefaultCharClasses(in boolean includeWordClass);
     /* void SetCharClasses(in wstring chars, CharClassify::cc newCharClass); */
-    /* void SetStylingBits(in PRInt32 bits); */
-    void StartStyling(in PRInt32 position, in wchar mask);
-    boolean SetStyleFor(in PRInt32 length, in wchar style);
-    boolean SetStyles(in PRInt32 length, in string styles);
-    PRInt32 GetEndStyled();
-    void EnsureStyledTo(in PRInt32 pos);
-    PRInt32 GetStyleClock();
+    /* void SetStylingBits(in  bits); */
+    void StartStyling(in  position, in wchar mask);
+    boolean SetStyleFor(in  length, in wchar style);
+    boolean SetStyles(in  length, in string styles);
+     GetEndStyled();
+    void EnsureStyledTo(in  pos);
+     GetStyleClock();
     void IncrementStyleClock();
-    void DecorationFillRange(in PRInt32 position, in PRInt32 value, in PRInt32 fillLength);
+    void DecorationFillRange(in  position, in  value, in  fillLength);
 
-    PRInt32 SetLineState(in PRInt32 line, in PRInt32 state);
-    PRInt32 GetLineState(in PRInt32 line);
-    PRInt32 GetMaxLineState();
+     SetLineState(in  line, in  state);
+     GetLineState(in  line);
+     GetMaxLineState();
 
 /*
     boolean AddWatcher(DocWatcher *watcher, void *userData);
     boolean RemoveWatcher(DocWatcher *watcher, void *userData);
     const WatcherWithUserData *GetWatchers() const { return watchers; }
-    PRInt32 GetLenWatchers() const { return lenWatchers; }
+     GetLenWatchers() const { return lenWatchers; }
 */
 
     boolean IsWordPartSeparator(in wchar ch);
-    PRInt32 WordPartLeft(in PRInt32 pos);
-    PRInt32 WordPartRight(in PRInt32 pos);
-    PRInt32 ExtendStyleRange(in PRInt32 pos, in PRInt32 delta, in boolean singleLine);
-    boolean IsWhiteLine(in PRInt32 line);
-    PRInt32 ParaUp(in PRInt32 pos);
-    PRInt32 ParaDown(in PRInt32 pos);
-    PRInt32 IndentSize();
-    PRInt32 BraceMatch(in PRInt32 position, in PRInt32 maxReStyle);
+     WordPartLeft(in  pos);
+     WordPartRight(in  pos);
+     ExtendStyleRange(in  pos, in  delta, in boolean singleLine);
+    boolean IsWhiteLine(in  line);
+     ParaUp(in  pos);
+     ParaDown(in  pos);
+     IndentSize();
+     BraceMatch(in  position, in  maxReStyle);
     
 };

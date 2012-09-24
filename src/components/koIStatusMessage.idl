@@ -42,7 +42,7 @@
 interface koIStatusMessage : nsISupports {
     attribute wstring msg;
     attribute string category;
-    attribute PRUint32 timeout;
+    attribute unsigned long timeout;
     attribute boolean highlight;
     attribute boolean interactive;
     /**

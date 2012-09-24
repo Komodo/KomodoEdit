@@ -14,13 +14,13 @@ interface ISciMoz;
 interface koIHistoryLocation : nsISupports
 {
     attribute wstring uri;
-    attribute PRUint32 line;
-    attribute PRUint32 col;
+    attribute unsigned long line;
+    attribute unsigned long col;
     attribute wstring view_type;
 
     attribute PRint32  marker_handle;
-    attribute PRUint32 window_num;
-    attribute PRUint32 tabbed_view_id;
+    attribute unsigned long window_num;
+    attribute unsigned long tabbed_view_id;
     attribute wstring section_title;
     
     attribute wstring session_name;
@@ -34,10 +34,10 @@ interface koIHistoryService : nsISupports
     boolean can_go_forward(in wstring session_name);
     boolean have_recent_history(in wstring session_name);
     koIHistoryLocation go_back(in koIHistoryLocation curr_loc,
-                               in PRUint32 n,
+                               in unsigned long n,
                                in wstring session_name);
     koIHistoryLocation go_forward(in koIHistoryLocation curr_loc,
-                                  in PRUint32 n,
+                                  in unsigned long n,
                                   in wstring session_name);
     koIHistoryLocation note_loc(in koIHistoryLocation loc,
                                 in boolean check_section_change,
@@ -45,8 +45,8 @@ interface koIHistoryService : nsISupports
     koIHistoryLocation note_curr_editor_loc(in koIScintillaView view);
     koIHistoryLocation loc_from_view_info(
         in wstring view_type,
-        in PRUint32 window_num,
-        in PRUint32 tabbed_view_id,
+        in unsigned long window_num,
+        in unsigned long tabbed_view_id,
         in koIView view,
         in PRint32 pos,
         in wstring session_name);
@@ -55,12 +55,12 @@ interface koIHistoryService : nsISupports
                          out unsigned long current_idx,
                          [array, size_is(count)] out koIHistoryLocation locs,
                          out unsigned long count);
-    void recent_uris_as_array(in PRUint32 num_requested,
+    void recent_uris_as_array(in unsigned long num_requested,
                               in wstring session_name,
                               [array, size_is(count)] out wstring uris,
                               out unsigned long count);
     void obsolete_uri(in wstring uri,
-                      in PRUint32 undo_delta,
+                      in unsigned long undo_delta,
                       in boolean undo_dir_is_back,
                       in wstring session_name);
     void update_marker_handles_on_close(in wstring uri, in ISciMoz scimoz);

@@ -44,7 +44,7 @@ interface koIProgressController : nsISupports {
     void set_stage(in wstring stage);
     void set_desc(in wstring desc);
     void set_progress_mode(in wstring stage); // "determined" or "undetermined" (c.f. xul <progressmeter>)
-    void set_progress_value(in PRUint32 value); // 0 - 100
+    void set_progress_value(in unsigned long value); // 0 - 100
 
     // Called by koIShowsProgress processor to close the progress UI.
     // If successful then errmsg and errtext should be null.

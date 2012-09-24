@@ -55,7 +55,7 @@ interface koILogger: nsISupports {
 [scriptable, uuid(E4810284-E021-4FE2-B031-25C721879D21)]
 interface koILoggingService: nsISupports {
     koILogger getLogger(in wstring logger_name);
-    void getLoggerNames(out PRUint32 count,
+    void getLoggerNames(out unsigned long count,
                         [retval,
                         array,
                         size_is(count)] out wstring strs);

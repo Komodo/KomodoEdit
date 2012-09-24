@@ -49,7 +49,7 @@ interface koIFileLoggingService : nsISupports {
                         in wstring measurement);
     void LogMeasurementSet(in string category,
                            in string name,
-                           in PRUint32 count,
+                           in unsigned long count,
                            [array, size_is(count)] in wstring measurements);
 };
 

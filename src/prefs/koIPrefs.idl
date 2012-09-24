@@ -224,8 +224,8 @@ interface koIPreferenceCache : koIPreference {
     void setPref(in koIPreference pref);
     koIPreferenceSet getPref(in AString id);
     boolean hasPref(in AString id);
-    attribute PRUint32 length;
-    attribute PRUint32 max_length; // defaults to 0, meaning no max size.
+    attribute unsigned long length;
+    attribute unsigned long max_length; // defaults to 0, meaning no max size.
     nsISimpleEnumerator enumPreferences();
 };
 

@@ -43,10 +43,10 @@
 [scriptable, uuid(e2497788-70fe-11db-9e86-000d935d3368)]
 interface koIXMLCatalogService: nsISupports {
     // attributes, constants, methods, ...
-    void getPublicIDList(out PRUint32 count,
+    void getPublicIDList(out unsigned long count,
                  [retval, array, size_is(count)] out wstring publicid);
-    void getSystemIDList(out PRUint32 count,
+    void getSystemIDList(out unsigned long count,
                  [retval, array, size_is(count)] out wstring publicid);
-    void getNamespaceList(out PRUint32 count,
+    void getNamespaceList(out unsigned long count,
                  [retval, array, size_is(count)] out wstring publicid);
 };

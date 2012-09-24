@@ -47,13 +47,13 @@
 [scriptable, uuid(61a45a55-0cb0-4019-b1a7-8096ab2cca88)]
 interface koIAppInfoEx : nsISupports {
     // Query for a list of found installation executables for this application.
-    void FindExecutables(out PRUint32 count,
+    void FindExecutables(out unsigned long count,
                          [retval, array, size_is(count)] out wstring strs);
 
     // Query for a list of found installation paths for this application. These
     // are the installation directories for the paths found by
     // FindExecutables, typically the parent directories.
-    void FindInstallationPaths(out PRUint32 count,
+    void FindInstallationPaths(out unsigned long count,
                                [retval,
                                 array,
                                 size_is(count)] out wstring strs);
@@ -92,7 +92,7 @@ interface koIAppInfoEx : nsISupports {
     attribute wstring webHelpURL;
     
     // Return true if the language's current installation has the given modules.
-    boolean haveModules(in PRUint32 count,
+    boolean haveModules(in unsigned long count,
                         [array, size_is(count)] in wstring modules);
 
     // A few methods from several of the subclasses should go here:
@@ -127,7 +127,7 @@ interface koIPHPInfoEx : koIAppInfoEx {
     // Configuration items of interest.
     // where php looks for included files
     readonly attribute wstring include_path;
-    void GetIncludePathArray(out PRUint32 count,    // must use method
+    void GetIncludePathArray(out unsigned long count,    // must use method
                              [retval,               // retval to return array
                               array,
                               size_is(count)] out wstring strs);

@@ -47,12 +47,12 @@
 [scriptable, uuid(1D55BFC1-5DCA-4CE6-85A5-22B58AB2E054)]
 interface koITime : nsISupports {
     double time();
-    AString asctime(in PRUint32 count,
-                    [array, size_is(count)] in PRUint32 timetuple);
-    void localtime(in double secs, out PRUint32 count,
-                   [retval, array, size_is(count)] out PRUint32 tuple);
-    AString strftime(in wstring format, in PRUint32 count,
-                     [array, size_is(count)] in PRUint32 timetuple);
+    AString asctime(in unsigned long count,
+                    [array, size_is(count)] in unsigned long timetuple);
+    void localtime(in double secs, out unsigned long count,
+                   [retval, array, size_is(count)] out unsigned long tuple);
+    AString strftime(in wstring format, in unsigned long count,
+                     [array, size_is(count)] in unsigned long timetuple);
     
     // XXX Other possibly useful ones:
     //     .sleep()
@@ -83,7 +83,7 @@ interface koIShUtil : nsISupports {
 [scriptable, uuid(5B252430-996B-4FC5-B578-D69FF0BE470F)]
 interface koIGlob : nsISupports {
     void glob(in wstring expression,
-              out PRUint32 count,
+              out unsigned long count,
               [retval, array, size_is(count)] out wstring filenames);
 };
 

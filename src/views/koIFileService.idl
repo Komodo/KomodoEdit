@@ -57,12 +57,12 @@ interface koIFileService: nsISupports
     koIFileEx getFileFromURINoCache(in wstring URI);
 
     void getAllFiles([array, size_is(count)] out koIFileEx files,
-                     out PRUint32 count);
+                     out unsigned long count);
     koIFileEx findFileByURI(in wstring URI);
 
     void getFilesInBaseURI(in wstring path,
                      [array, size_is(count)] out koIFileEx files,
-                     out PRUint32 count);
+                     out unsigned long count);
 
     wstring makeTempName(in wstring suffix); 
     wstring makeTempNameInDir(in wstring dir, in wstring suffix); 

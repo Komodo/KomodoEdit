@@ -62,7 +62,7 @@ interface koIFindAvailableDirsView : nsITreeView {
     // be multiple items selected -- in which case you will need to use
     // getDirAt(). Raises an exception if there is nothing selected.
     wstring getSelectedDir();
-    wstring getDirAt(in PRUint32 index);
+    wstring getDirAt(in unsigned long index);
 
     // Return the index of the item with the given basename. If no such
     // basename exists return -1.

@@ -22,12 +22,12 @@ interface koINotificationListener : nsISupports {
      *       position indicated.
      */
     void onNotification(in koINotification aNotification,
-                        in PRInt32 aOldIndex,
-                        in PRInt32 aNewIndex,
-                        in PRUint32 aReason);
-    const PRUint32 REASON_ADDED   = 0;
-    const PRUint32 REASON_UPDATED = 1;
-    const PRUint32 REASON_REMOVED = 2;
+                        in  aOldIndex,
+                        in  aNewIndex,
+                        in unsigned long aReason);
+    const unsigned long REASON_ADDED   = 0;
+    const unsigned long REASON_UPDATED = 1;
+    const unsigned long REASON_REMOVED = 2;
 };
 
 [scriptable, uuid(2d399c6a-dc3f-4143-be2f-31cc481bd342)]
@@ -66,9 +66,9 @@ interface koINotificationManager : nsISupports {
      * @note It is not an error for aStart to be higher than the total number
      *       of notifications. However, it must not be greater than aEnd.
      */
-    void getAllNotifications([optional] in PRUint32 aStart,
-                             [optional] in PRUint32 aEnd,
-                             [optional] out PRUint32 aCount,
+    void getAllNotifications([optional] in unsigned long aStart,
+                             [optional] in unsigned long aEnd,
+                             [optional] out unsigned long aCount,
                              [retval, array, size_is(aCount)]
                                 out koINotification aNotifications);
 
@@ -86,16 +86,16 @@ interface koINotificationManager : nsISupports {
      */
     void getNotifications([array, size_is(aContextCount)]
                             in wstring aContexts,
-                          in PRUint32 aContextCount,
+                          in unsigned long aContextCount,
                           [optional] in ACString aIdentifier,
-                          [optional] out PRUint32 aResultCount,
+                          [optional] out unsigned long aResultCount,
                           [retval, array, size_is(aResultCount)]
                             out koINotification aResults);
 
     /**
      * The total number of notifications
      */
-    readonly attribute PRUint32 notificationCount;
+    readonly attribute unsigned long notificationCount;
 
     /**
      * Add a listener to be notified about changes
@@ -118,24 +118,24 @@ interface koINotificationManager : nsISupports {
      */
     koINotification createNotification(in ACString aIdentifier,
                                        [array, size_is(aTagCount)] in string aTags,
-                                       in PRUint32 aTagCount,
+                                       in unsigned long aTagCount,
                                        [optional] in wstring aContext,
-                                       [optional] in PRUint32 aTypes);
+                                       [optional] in unsigned long aTypes);
     /**
      * Create a koINotificationActionable notification
      */
-    const PRUint32 TYPE_ACTIONABLE = 1 << 0;
+    const unsigned long TYPE_ACTIONABLE = 1 << 0;
     /**
      * Create a koINotificationProgress notification
      */
-    const PRUint32 TYPE_PROGRESS   = 1 << 1;
+    const unsigned long TYPE_PROGRESS   = 1 << 1;
     /**
      * Create a koINotificationText notification
      */
-    const PRUint32 TYPE_TEXT       = 1 << 2;
+    const unsigned long TYPE_TEXT       = 1 << 2;
     /**
      * Create a status bar notification.
      */
-    const PRUint32 TYPE_STATUS     = 1 << 3;
+    const unsigned long TYPE_STATUS     = 1 << 3;
 
 };

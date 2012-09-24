@@ -46,7 +46,7 @@ interface koISysUtils : nsISupports {
     // Search for 'exeName' on the user's startup PATH.
     // Returns a list of fullpaths if found, the empty string if not.
     void WhichAll(in wstring exeName,
-        out PRUint32 count,
+        out unsigned long count,
         [retval, array, size_is(count)] out wstring str);
     // do a quick search if an executable with this name exists.
     // designed to be fast, but *may* rarely return false when
@@ -57,22 +57,22 @@ interface koISysUtils : nsISupports {
     boolean IsFile(in wstring filename);
     boolean IsDir(in wstring dirname);
     void Stat(in wstring filename,
-              out PRUint32 st_mode,
-              out PRUint32 st_ino,
-              out PRUint32 st_dev,
-              out PRUint32 st_nlink,
-              out PRUint32 st_uid,
-              out PRUint32 st_gid,
-              out PRUint32 st_size,
-              out PRUint32 st_atime,
-              out PRUint32 st_mtime,
-              out PRUint32 st_ctime);
+              out unsigned long st_mode,
+              out unsigned long st_ino,
+              out unsigned long st_dev,
+              out unsigned long st_nlink,
+              out unsigned long st_uid,
+              out unsigned long st_gid,
+              out unsigned long st_size,
+              out unsigned long st_atime,
+              out unsigned long st_mtime,
+              out unsigned long st_ctime);
     // e.g. Access("myfile.txt", W_OK) to see if a file is read-only
-    boolean Access(in wstring filename, in PRUint32 mode);
-    readonly attribute PRUint32 F_OK;
-    readonly attribute PRUint32 R_OK;
-    readonly attribute PRUint32 W_OK;
-    readonly attribute PRUint32 X_OK;
+    boolean Access(in wstring filename, in unsigned long mode);
+    readonly attribute unsigned long F_OK;
+    readonly attribute unsigned long R_OK;
+    readonly attribute unsigned long W_OK;
+    readonly attribute unsigned long X_OK;
 
     void Touch(in wstring filename);
 
@@ -87,7 +87,7 @@ interface koISysUtils : nsISupports {
     void ShowFileInFileManager(in wstring filename);
     void OpenFile(in wstring filename);
     
-    wstring joinargv(in PRUint32 count, [array, size_is(count)] in wstring args);
+    wstring joinargv(in unsigned long count, [array, size_is(count)] in wstring args);
 
     wstring diff_files(in wstring fname1, in wstring fname2);
  

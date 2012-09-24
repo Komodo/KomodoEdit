@@ -143,7 +143,7 @@ interface koIFileNotificationService: nsISupports {
 
     // URI's that are being polled by the file notification service
     void getAllPolledUris([array, size_is(count)] out wstring urilist,
-                           out PRUint32 count);
+                           out unsigned long count);
 
     // XXX - Not used yet, RFU.
     // Send observer notification the file has changed to all observers
