@@ -7,7 +7,6 @@
 #include "jsdbgapi.h"
 #include "prprf.h"
 #include "nsIScriptContext.h"
-#include "nsIScriptObjectOwner.h"
 #include "nsIScriptGlobalObject.h"
 #include "nsIServiceManager.h"
 #include "nsIXPConnect.h"
@@ -72,30 +71,40 @@ koContentUtils::~koContentUtils()
 nsIScriptGlobalObject *
 koContentUtils::GetStaticScriptGlobal(JSContext* aContext, JSObject* aObj)
 {
-  nsISupports* supports;
   JSClass* clazz;
-  JSObject* parent;
   JSObject* glob = aObj; // starting point for search
 
   if (!glob)
     return nullptr;
 
-  while ((parent = ::JS_GetParent(aContext, glob)))
-    glob = parent;
+  glob = JS_GetGlobalForObject(aContext, glob);
+  NS_ABORT_IF_FALSE(glob, "Infallible returns null");
 
-  clazz = JS_GET_CLASS(aContext, glob);
+  clazz = JS_GetClass(glob);
 
-  if (!clazz ||
-      !(clazz->flags & JSCLASS_HAS_PRIVATE) ||
+  // Whenever we end up with globals that are JSCLASS_IS_DOMJSCLASS
+  // and have an nsISupports DOM object, we will need to modify this
+  // check here.
+  MOZ_ASSERT(!(clazz->flags & JSCLASS_IS_DOMJSCLASS));
+  nsISupports* supports;
+  if (!(clazz->flags & JSCLASS_HAS_PRIVATE) ||
       !(clazz->flags & JSCLASS_PRIVATE_IS_NSISUPPORTS) ||
-      !(supports = (nsISupports*)::JS_GetPrivate(aContext, glob))) {
+      !(supports = (nsISupports*)::JS_GetPrivate(glob))) {
     return nullptr;
   }
 
-  nsCOMPtr<nsIXPConnectWrappedNative> wrapper(do_QueryInterface(supports));
-  NS_ENSURE_TRUE(wrapper, nullptr);
-
-  nsCOMPtr<nsIScriptGlobalObject> sgo(do_QueryWrappedNative(wrapper));
+  // We might either have a window directly (e.g. if the global is a
+  // sandbox whose script object principal pointer is a window), or an
+  // XPCWrappedNative for a window.  We could also have other
+  // sandbox-related script object principals, but we can't do much
+  // about those short of trying to walk the proto chain of |glob|
+  // looking for a window or something.
+  nsCOMPtr<nsIScriptGlobalObject> sgo(do_QueryInterface(supports));
+  if (!sgo) {
+    nsCOMPtr<nsIXPConnectWrappedNative> wrapper(do_QueryInterface(supports));
+    NS_ENSURE_TRUE(wrapper, nullptr);
+    sgo = do_QueryWrappedNative(wrapper);
+  }
 
   // We're returning a pointer to something that's about to be
   // released, but that's ok here.
