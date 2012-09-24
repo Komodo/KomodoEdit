@@ -1207,6 +1207,13 @@ def target_configure(argv):
 
         gcc = config.get("gcc") or os.environ.get("CC")
         gxx = config.get("gxx") or os.environ.get("CXX")
+        if gcc is None and osx_major_ver >= 12:
+            # try clang
+            try:
+                gcc = which.which("clang")
+                gxx = which.which("clang++")
+            except which.WhichError:
+                pass
         if gcc is None:
             try:
                 # prefer gcc/g++ 4.2
@@ -1219,22 +1226,25 @@ def target_configure(argv):
             gxx = which.which("g++")
         assert gcc
         assert gxx
+        # check if we're using gcc or clang
+        version_string = _capture_output("%s --version" % (gcc,))
+        is_gcc = ("Free Software Foundation" in version_string)
         if osx_major_ver >= 10: # aka Snow Leopard or greater
-            version = _capture_output("%s --version" % (gcc,)).split(" ")[2]
-            from distutils.version import LooseVersion
-            if LooseVersion(version) < "4.2":
-                raise BuildError("GCC 4.2 or higher is required, " \
-                                 "you have GCC %s, please install a " \
-                                 "newer version." \
-                                 % version)
-            # Komodo needs to be built as a 32-bit application.
-            # Snow Leopard specific build details from:
-            #   https://developer.mozilla.org/en/Mac_OS_X_Build_Prerequisites
-            # Mozilla 1.9.2+ must use gcc 4.2, specify that now.
-            mozRawOptions.append('CC="%s -arch i386"' % (gcc, ))
-            mozRawOptions.append('CXX="%s -arch i386"' % (gxx, ))
-            mozBuildOptions.append("target=i386-apple-darwin%i" % (osx_major_ver))
+            if is_gcc:
+                version = version_string.split(" ")[2]
+                from distutils.version import LooseVersion
+                if LooseVersion(version) < "4.2":
+                    raise BuildError("GCC 4.2 or higher is required, " \
+                                     "you have GCC %s, please install a " \
+                                     "newer version." \
+                                     % version)
+            # Force x86_64 for now
+            mozRawOptions.append('CC="%s -arch x86_64"' % (gcc,))
+            mozRawOptions.append('CXX="%s -arch x86_64"' % (gxx,))
+            mozBuildOptions.append('target=x86_64-apple-darwin10')
             mozRawOptions.append("mk_add_options AUTOCONF=autoconf213")
+        if not is_gcc and "clang" in version_string:
+            mozBuildOptions.append('enable-stdcxx-compat')
         config["gcc"] = gcc
         config["gxx"] = gxx
 
@@ -1391,8 +1401,9 @@ def target_configure(argv):
             if sys.platform == "win32":
                 mozBuildOptions.append('enable-debugger-info-modules=yes')
             elif sys.platform == "darwin":
-                mozRawOptions.append('export CFLAGS="-gdwarf-2"')
-                mozRawOptions.append('export CXXFLAGS="-gdwarf-2"')
+                pass
+                #mozRawOptions.append('export CFLAGS="-gdwarf-2"')
+                #mozRawOptions.append('export CXXFLAGS="-gdwarf-2"')
             elif sys.platform.startswith("linux"):
                 mozRawOptions.append('export CFLAGS="-gstabs+"')
                 mozRawOptions.append('export CXXFLAGS="-gstabs+"')
