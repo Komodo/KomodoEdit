@@ -1892,10 +1892,9 @@ def target_pyxpcom(argv=["pyxpcom"]):
     pyxpcom_obj_dir = join(moz_obj_dir, "extensions", "python")
     if not exists(pyxpcom_obj_dir):
         os.makedirs(pyxpcom_obj_dir)
-    configure_flags = ''
+    configure_flags = 'PYTHON="%s"' % (_msys_path_from_path(config.python), )
     configure_options = []
     if sys.platform.startswith("linux"):
-        configure_flags += 'PYTHON="%s"' % (config.python, )
         configure_flags += " ac_cv_visibility_pragma=no"
         # Need to pass in the same compiler as used in the Moz build,
         # otherwise Linux-x86_64 builds will complain about needing to
@@ -1905,7 +1904,6 @@ def target_pyxpcom(argv=["pyxpcom"]):
         if config.gxx:
             configure_flags += " CXX=%s" % (config.gxx)
     elif sys.platform == "darwin":
-        configure_flags += 'PYTHON="%s"' % (config.python, )
         configure_flags += " CC=%s" % (config.gcc or "gcc",)
         configure_flags += " CXX=%s" % (config.gxx or "g++",)
     # Add any custom build FLAGS using the command line args - bug 91389.
@@ -2268,14 +2266,15 @@ def target_mozilla(argv=["mozilla"]):
             ldLibPath.append(pythonLibDir)
             os.environ["LD_LIBRARY_PATH"] = os.pathsep.join(filter(bool, ldLibPath))
 
-        _run_in_dir("%s %s/build/pymake/make.py -f client.mk build" % (config.python, buildDir), 
+        _run_in_dir("%s %s/build/pymake/make.py -f client.mk build" % (config.python, buildDir),
                     buildDir, log.info)
 
         if config.mozApp == "komodo":
             # argh, komodo dir does not get entered, call make there seperately
             log.info("entering directory '%s' (to build komodo separately)",
                      koDir)
-            _run_in_dir('make', koDir, log.info)
+            _run_in_dir('%s %s/build/pymake/make.py' % (config.python, buildDir),
+                        koDir, log.info)
         argv = argv[1:]
     return argv
 
@@ -2340,14 +2339,17 @@ def target_mbsdiff(argv=["mozilla"]):
     _setupMozillaEnv()
     native_objdir = _get_mozilla_objdir(convert_to_native_win_path=True)
     builddir = os.path.join(native_objdir, 'modules', 'libbz2')
+    topsrcdir = os.path.join(config.buildDir, config.srcTreeName, "mozilla")
     log.info("entering directory '%s' (to build libbz2 separately)",
              builddir)
-    _run_in_dir('make', builddir, log.info)
+    _run_in_dir('%s %s/build/pymake/make.py' % (config.python, topsrcdir),
+                builddir, log.info)
 
     bsdiffDir = os.path.join(native_objdir, 'other-licenses', 'bsdiff')
     log.info("entering directory '%s' (to build mbsdiff separately)",
              bsdiffDir)
-    _run_in_dir('make', bsdiffDir, log.info)
+    _run_in_dir('%s %s/build/pymake/make.py' % (config.python, topsrcdir),
+                bsdiffDir, log.info)
     return argv[1:]
 
 def target_libmar(argv=["mozilla"]):
@@ -2358,9 +2360,11 @@ def target_libmar(argv=["mozilla"]):
     _setupMozillaEnv()
     native_objdir = _get_mozilla_objdir(convert_to_native_win_path=True)
     libmar_dir = os.path.join(native_objdir, 'modules', 'libmar')
+    topsrcdir = os.path.join(config.buildDir, config.srcTreeName, "mozilla")
     log.info("entering directory '%s' (to build libmar separately)",
              libmar_dir)
-    _run_in_dir('make', libmar_dir, log.info)
+    _run_in_dir('%s %s/build/pymake/make.py' % (config.python, topsrcdir),
+                libmar_dir, log.info)
     return argv[1:]
 
 
