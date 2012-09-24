@@ -116,6 +116,10 @@ else {
 	$consLocal{'LIBS'} .= " $mozDevelDist/lib/XUL";
         $consLocal{'LDFLAGS'} .= " -framework Carbon -bundle";
     } else {
+        # Force linking of libxul first, otherwise it will complain about
+        # missing MOZ_Z_xxx symbols - as libjs_static only has empty symbols for
+        # them.
+        $consLocal{'LIBS'} = "-lxul " . $consLocal{'LIBS'};
         $consLocal{'LDFLAGS'} .= " -lxul -fPIC -shared";
     }
     $consLocal{'CXXFLAGS'} .= " -DMOZILLA_INTERNAL_API=1 -D_IMPL_NS_LAYOUT";
