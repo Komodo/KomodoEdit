@@ -1629,6 +1629,14 @@ void _KoStart_SetupEnvironment(const char* programDir)
 
     /* ---- Setup Mozilla- and XRE-related environment variables ---- */
 
+    /* Set MOZ_NO_REMOTE=1.
+     *
+     * This is to make sure Komodo does not try to remote to another running
+     * Komodo version.
+     */
+    _LogDebug("setting MOZ_NO_REMOTE=1\n");
+    xpsetenv("MOZ_NO_REMOTE", "1", 1);
+
     /* Set XRE_PROFILE_PATH and _XRE_USERAPPDATADIR to "XRE"
      * under the Komodo host user data dir. */
     if (!_GetVerUserDataDir(MAXPATHLEN, buffer)) {
@@ -1685,30 +1693,6 @@ void _KoStart_SetupEnvironment(const char* programDir)
 #endif /* !WIN32 */
 
 #if defined(WIN32)
-    /* Unset MOZ_NO_REMOTE=1 if it is set.
-     *
-     * If this is set then running this Python code:
-     *      os.startfile(".../foo.html")
-     * on Windows with Firefox/Mozilla set as the default browser will
-     * result in an error dialog that Firefox is not responding because:
-     * - os.startfile() calls ShellExecute
-     * - this determines that .html is associated with Firefox and
-     *   starts it
-     * - FF startup sees that MOZ_NO_REMOTE is set (the child process
-     *   inherits Komodo's environment) and skips its DDE code to hand
-     *   off to the running FF.
-     *
-     * Instead of setting MOZ_NO_REMOTE to avoid cross-talk amongst
-     * Komodo's we have a moz patch (to
-     * toolkit/xre/nsNativeAppSupportWin.cpp) to disable the DDE code
-     * path.
-     */
-    envVar = xpgetenv("MOZ_NO_REMOTE");
-    if (envVar) {
-        _LogDebug("unsetting MOZ_NO_REMOTE env var\n");
-        xpunsetenv("MOZ_NO_REMOTE");
-    }
-
     /* Unset PYTHONCASEOK if it is set on Windows platforms.
      *
      * This causes *all* remote file operations to fail, due to not
