@@ -83,7 +83,7 @@ static const nsDynamicFunctionLoad kXULFuncs[] = {
 
 static int do_main(const char *exePath, int argc, char* argv[])
 {
-  nsCOMPtr<nsILocalFile> appini;
+  nsCOMPtr<nsIFile> appini;
 #ifdef XP_WIN
   // exePath comes from mozilla::BinaryPath::Get, which returns a UTF-8
   // encoded path, so it is safe to convert it
@@ -111,7 +111,7 @@ static int do_main(const char *exePath, int argc, char* argv[])
     // properly configured koStart.h|c are built in as part of the
     // *Komodo* build. After the default Mozilla build (in
     // Mozilla-devel/...) we simply start the XRE.
-    return XRE_main(argc, argv, appData);
+    return XRE_main(argc, argv, appData, 0);
 #else
     int retval = 0;
     KoStartOptions options;
@@ -150,7 +150,7 @@ static int do_main(const char *exePath, int argc, char* argv[])
         int xreArgc;
         char** xreArgv;
         KoStart_PrepareForXRE(argc, argv, &xreArgc, &xreArgv);
-        retval = XRE_main(xreArgc, xreArgv, appData);
+        retval = XRE_main(xreArgc, xreArgv, appData, 0);
     }
     goto main_exit;
 
