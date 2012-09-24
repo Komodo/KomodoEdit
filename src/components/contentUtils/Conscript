@@ -8,6 +8,7 @@ Import(
     'idlExportDir',
     'mozComponentsDir',
     'ranRegxpcomStateFileName',
+    'mozBin',
     'mozIncludePath',
     'mozIdlIncludePath',
     'mozLibPath',
