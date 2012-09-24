@@ -860,9 +860,8 @@ class KomodoInfo(object):
             return dirname(dirname(abspath(__file__)))
 
     @property
-    def xpidl_path(self):
-        exe_ext = (".exe" if sys.platform == "win32" else "")
-        return join(self.sdk_dir, "bin", "xpidl"+exe_ext)
+    def typelib_path(self):
+        return join(self.sdk_dir, "pylib", "typelib.py")
 
     @property
     def idl_dirs(self):
@@ -1292,8 +1291,8 @@ def _xpidl(idl_path, xpt_path, ko_info, logstream=None):
     idl_name = splitext(basename(idl_path))[0]
     xpt_path_sans_ext = splitext(xpt_path)[0]
     includes = ['-I "%s"' % d for d in ko_info.idl_dirs + [dirname(idl_path)]]
-    cmd = '"%s" %s -o %s -m typelib %s' \
-          % (ko_info.xpidl_path, ' '.join(includes),
+    cmd = '"%s" "%s" %s -o %s.xpt %s' \
+          % (sys.executable, ko_info.typelib_path, ' '.join(includes),
              xpt_path_sans_ext, idl_path)
     _run(cmd, logstream)
 
