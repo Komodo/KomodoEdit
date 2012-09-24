@@ -211,7 +211,7 @@ NPP_GetValue(NPP instance, NPPVariable variable, void *value) {
       return NPERR_NO_ERROR;
 #ifdef GTK2_XEMBED
     case NPPVpluginNeedsXEmbed:
-      *((PRBool *)value) = PR_TRUE;
+      *((bool *)value) = PR_TRUE;
       return NPERR_NO_ERROR;
 #endif
     case NPPVpluginScriptableNPObject:// Scriptable plugin interface (for accessing from javascript)

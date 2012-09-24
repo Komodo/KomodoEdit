@@ -88,7 +88,7 @@ void SciMoz::Resize() {
 	HIViewSetFrame(wEditor, &boundsRect);
 }
 
-NS_IMETHODIMP SciMoz::_DoButtonUpDown(PRBool up, PRInt32 x, PRInt32 y, PRUint16 button, PRBool bShift, PRBool bCtrl, PRBool bAlt) {
+NS_IMETHODIMP SciMoz::_DoButtonUpDown(bool up, PRInt32 x, PRInt32 y, PRUint16 button, bool bShift, bool bCtrl, bool bAlt) {
 	HIPoint location;
 	UInt32 keyFlags = 0;
 	EventMouseButton mb;
@@ -427,21 +427,21 @@ int16 SciMoz::PlatformHandleEvent(void *ev) {
 
 
 /* readonly attribute boolean isOwned; */
-NS_IMETHODIMP SciMoz::GetIsOwned(PRBool *_ret) {
+NS_IMETHODIMP SciMoz::GetIsOwned(bool *_ret) {
 	SCIMOZ_CHECK_THREAD("GetIsOwned", NS_ERROR_FAILURE);
 	*_ret = wEditor && wMain && !isClosed;
 	return NS_OK;
 }
 
 /* attribute boolean visible */
-NS_IMETHODIMP SciMoz::GetVisible(PRBool *_ret) {
+NS_IMETHODIMP SciMoz::GetVisible(bool *_ret) {
 	SCIMOZ_CHECK_VALID("GetVisible");
 	*_ret = wEditor != 0;
 	return NS_OK;
 }
 
 /* attribute boolean visible */
-NS_IMETHODIMP SciMoz::SetVisible(PRBool vis) {
+NS_IMETHODIMP SciMoz::SetVisible(bool vis) {
 	SCIMOZ_CHECK_VALID("SetVisible");
 	return NS_OK;
 }
@@ -454,14 +454,14 @@ NS_IMETHODIMP SciMoz::EndDrop()
 }
 
 /* readonly attribute boolean inDragSession; */
-NS_IMETHODIMP SciMoz::GetInDragSession(PRBool *_ret) {
+NS_IMETHODIMP SciMoz::GetInDragSession(bool *_ret) {
 	SCIMOZ_CHECK_VALID("GetInDragSession");
 	*_ret = scintilla->inDragSession();
 	return NS_OK;
 }
 
 /* readonly attribute boolean GetIsTracking; */
-NS_IMETHODIMP SciMoz::GetIsTracking(PRBool *_ret) {
+NS_IMETHODIMP SciMoz::GetIsTracking(bool *_ret) {
 	SCIMOZ_CHECK_VALID("GetIsTracking");
 	*_ret = scintilla->isTracking;
 	return NS_OK;

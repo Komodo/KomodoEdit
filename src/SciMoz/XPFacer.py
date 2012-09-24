@@ -88,7 +88,7 @@ manualGetterProperties = {
     "isOwned": {
         "ReturnType": "bool",
         "code": """
-            PRBool myresult;
+            bool myresult;
             GetIsOwned(&myresult);
             BOOLEAN_TO_NPVARIANT(myresult, *result);
             return true;
@@ -97,7 +97,7 @@ manualGetterProperties = {
     "visible": {
         "ReturnType": "bool",
         "code": """
-            PRBool myresult;
+            bool myresult;
             GetVisible(&myresult);
             BOOLEAN_TO_NPVARIANT(myresult, *result);
             return true;
@@ -126,7 +126,7 @@ manualGetterProperties = {
     "isTracking": {
         "ReturnType": "bool",
         "code": """
-            PRBool myresult;
+            bool myresult;
             GetIsTracking(&myresult);
             BOOLEAN_TO_NPVARIANT(myresult, *result);
             return true;
@@ -135,7 +135,7 @@ manualGetterProperties = {
     "inDragSession": {
         "ReturnType": "bool",
         "code": """
-            PRBool myresult;
+            bool myresult;
             GetInDragSession(&myresult);
             BOOLEAN_TO_NPVARIANT(myresult, *result);
             return true;
@@ -1578,8 +1578,8 @@ typeInfo = {
     "bool": {
         "idlDirection": "in",
         "idlType": "boolean",
-        "cxxParamType": "PRBool",
-        "cxxReturnType": "PRBool*",
+        "cxxParamType": "bool",
+        "cxxReturnType": "bool*",
         "checkNPVariant": "NPVARIANT_IS_BOOLEAN",
         "fromNPVariant": "NPVARIANT_TO_BOOLEAN(%(arg)s)",
         "toNPVariant": "BOOLEAN_TO_NPVARIANT(rv, %(target)s);",

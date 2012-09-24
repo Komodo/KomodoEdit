@@ -239,13 +239,13 @@ NS_IMETHODIMP SciDoc::SetActualIndentInChars(PRInt32 aActualIndentInChars)
 }
 
 /* attribute boolean useTabs; */
-NS_IMETHODIMP SciDoc::GetUseTabs(PRBool *aUseTabs)
+NS_IMETHODIMP SciDoc::GetUseTabs(bool *aUseTabs)
 {
     if (documentPointer==nullptr) return NS_ERROR_UNEXPECTED;
     *aUseTabs = documentPointer->useTabs;
     return NS_OK;
 }
-NS_IMETHODIMP SciDoc::SetUseTabs(PRBool aUseTabs)
+NS_IMETHODIMP SciDoc::SetUseTabs(bool aUseTabs)
 {
     if (documentPointer==nullptr) return NS_ERROR_UNEXPECTED;
     documentPointer->useTabs = aUseTabs;
@@ -253,13 +253,13 @@ NS_IMETHODIMP SciDoc::SetUseTabs(PRBool aUseTabs)
 }
 
 /* attribute boolean tabIndents; */
-NS_IMETHODIMP SciDoc::GetTabIndents(PRBool *aTabIndents)
+NS_IMETHODIMP SciDoc::GetTabIndents(bool *aTabIndents)
 {
     if (documentPointer==nullptr) return NS_ERROR_UNEXPECTED;
     *aTabIndents = documentPointer->tabIndents;
     return NS_OK;
 }
-NS_IMETHODIMP SciDoc::SetTabIndents(PRBool aTabIndents)
+NS_IMETHODIMP SciDoc::SetTabIndents(bool aTabIndents)
 {
     if (documentPointer==nullptr) return NS_ERROR_UNEXPECTED;
     documentPointer->tabIndents = aTabIndents;
@@ -267,13 +267,13 @@ NS_IMETHODIMP SciDoc::SetTabIndents(PRBool aTabIndents)
 }
 
 /* attribute boolean backspaceUnindents; */
-NS_IMETHODIMP SciDoc::GetBackspaceUnindents(PRBool *aBackspaceUnindents)
+NS_IMETHODIMP SciDoc::GetBackspaceUnindents(bool *aBackspaceUnindents)
 {
     if (documentPointer==nullptr) return NS_ERROR_UNEXPECTED;
     *aBackspaceUnindents = documentPointer->backspaceUnindents;
     return NS_OK;
 }
-NS_IMETHODIMP SciDoc::SetBackspaceUnindents(PRBool aBackspaceUnindents)
+NS_IMETHODIMP SciDoc::SetBackspaceUnindents(bool aBackspaceUnindents)
 {
     if (documentPointer==nullptr) return NS_ERROR_UNEXPECTED;
     documentPointer->backspaceUnindents = aBackspaceUnindents;
@@ -297,7 +297,7 @@ NS_IMETHODIMP SciDoc::ClampPositionIntoDocument(PRInt32 pos, PRInt32 *_retval)
 }
 
 /* boolean IsCrLf (in PRInt32 pos); */
-NS_IMETHODIMP SciDoc::IsCrLf(PRInt32 pos, PRBool *_retval)
+NS_IMETHODIMP SciDoc::IsCrLf(PRInt32 pos, bool *_retval)
 {
     if (documentPointer==nullptr) return NS_ERROR_UNEXPECTED;
     *_retval = documentPointer->IsCrLf(pos);
@@ -313,7 +313,7 @@ NS_IMETHODIMP SciDoc::LenChar(PRInt32 pos, PRInt32 *_retval)
 }
 
 /* PRInt32 MovePositionOutsideChar (in PRInt32 pos, in PRInt32 moveDir, in boolean checkLineEnd); */
-NS_IMETHODIMP SciDoc::MovePositionOutsideChar(PRInt32 pos, PRInt32 moveDir, PRBool checkLineEnd, PRInt32 *_retval)
+NS_IMETHODIMP SciDoc::MovePositionOutsideChar(PRInt32 pos, PRInt32 moveDir, bool checkLineEnd, PRInt32 *_retval)
 {
     if (documentPointer==nullptr) return NS_ERROR_UNEXPECTED;
     *_retval = documentPointer->MovePositionOutsideChar(pos, moveDir, checkLineEnd);
@@ -321,7 +321,7 @@ NS_IMETHODIMP SciDoc::MovePositionOutsideChar(PRInt32 pos, PRInt32 moveDir, PRBo
 }
 
 /* PRInt32 GetBytePositionForCharOffset (in PRInt32 bytePos, in PRInt32 charOffset, in boolean checkLineEnd); */
-NS_IMETHODIMP SciDoc::GetBytePositionForCharOffset(PRInt32 bytePos, PRInt32 charOffset, PRBool checkLineEnd, PRInt32 *_retval)
+NS_IMETHODIMP SciDoc::GetBytePositionForCharOffset(PRInt32 bytePos, PRInt32 charOffset, bool checkLineEnd, PRInt32 *_retval)
 {
     if (documentPointer==nullptr) return NS_ERROR_UNEXPECTED;
     *_retval = documentPointer->GetBytePositionForCharOffset(bytePos, charOffset, checkLineEnd);
@@ -337,7 +337,7 @@ NS_IMETHODIMP SciDoc::ModifiedAt(PRInt32 pos)
 }
 
 /* boolean DeleteChars (in PRInt32 pos, in PRInt32 len); */
-NS_IMETHODIMP SciDoc::DeleteChars(PRInt32 pos, PRInt32 len, PRBool *_retval)
+NS_IMETHODIMP SciDoc::DeleteChars(PRInt32 pos, PRInt32 len, bool *_retval)
 {
     if (documentPointer==nullptr) return NS_ERROR_UNEXPECTED;
     *_retval = documentPointer->DeleteChars(pos, len);
@@ -345,7 +345,7 @@ NS_IMETHODIMP SciDoc::DeleteChars(PRInt32 pos, PRInt32 len, PRBool *_retval)
 }
 
 /* boolean InsertString (in PRInt32 position, in wstring s); */
-NS_IMETHODIMP SciDoc::InsertString(PRInt32 position, const PRUnichar *s, PRBool *_retval)
+NS_IMETHODIMP SciDoc::InsertString(PRInt32 position, const PRUnichar *s, bool *_retval)
 {
     if (documentPointer==nullptr) return NS_ERROR_UNEXPECTED;
     nsCAutoString text = NS_ConvertUTF16toUTF8(s);
@@ -372,7 +372,7 @@ NS_IMETHODIMP SciDoc::Redo(PRInt32 *_retval)
 }
 
 /* boolean CanUndo (); */
-NS_IMETHODIMP SciDoc::CanUndo(PRBool *_retval)
+NS_IMETHODIMP SciDoc::CanUndo(bool *_retval)
 {
     if (documentPointer==nullptr) return NS_ERROR_UNEXPECTED;
     *_retval = documentPointer->CanUndo();
@@ -380,7 +380,7 @@ NS_IMETHODIMP SciDoc::CanUndo(PRBool *_retval)
 }
 
 /* boolean CanRedo (); */
-NS_IMETHODIMP SciDoc::CanRedo(PRBool *_retval)
+NS_IMETHODIMP SciDoc::CanRedo(bool *_retval)
 {
     if (documentPointer==nullptr) return NS_ERROR_UNEXPECTED;
     *_retval = documentPointer->CanRedo();
@@ -396,7 +396,7 @@ NS_IMETHODIMP SciDoc::DeleteUndoHistory()
 }
 
 /* boolean SetUndoCollection (in boolean collectUndo); */
-NS_IMETHODIMP SciDoc::SetUndoCollection(PRBool collectUndo, PRBool *_retval)
+NS_IMETHODIMP SciDoc::SetUndoCollection(bool collectUndo, bool *_retval)
 {
     if (documentPointer==nullptr) return NS_ERROR_UNEXPECTED;
     *_retval = documentPointer->SetUndoCollection(collectUndo);
@@ -404,7 +404,7 @@ NS_IMETHODIMP SciDoc::SetUndoCollection(PRBool collectUndo, PRBool *_retval)
 }
 
 /* boolean IsCollectingUndo (); */
-NS_IMETHODIMP SciDoc::IsCollectingUndo(PRBool *_retval)
+NS_IMETHODIMP SciDoc::IsCollectingUndo(bool *_retval)
 {
     if (documentPointer==nullptr) return NS_ERROR_UNEXPECTED;
     *_retval = documentPointer->IsCollectingUndo();
@@ -436,7 +436,7 @@ NS_IMETHODIMP SciDoc::SetSavePoint()
 }
 
 /* boolean IsSavePoint (); */
-NS_IMETHODIMP SciDoc::IsSavePoint(PRBool *_retval)
+NS_IMETHODIMP SciDoc::IsSavePoint(bool *_retval)
 {
     if (documentPointer==nullptr) return NS_ERROR_UNEXPECTED;
     *_retval = documentPointer->IsSavePoint();
@@ -484,7 +484,7 @@ NS_IMETHODIMP SciDoc::FindColumn(PRInt32 line, PRInt32 column, PRInt32 *_retval)
 }
 
 /* void Indent (in boolean forwards, in PRInt32 lineBottom, in PRInt32 lineTop); */
-NS_IMETHODIMP SciDoc::Indent(PRBool forwards, PRInt32 lineBottom, PRInt32 lineTop)
+NS_IMETHODIMP SciDoc::Indent(bool forwards, PRInt32 lineBottom, PRInt32 lineTop)
 {
     if (documentPointer==nullptr) return NS_ERROR_UNEXPECTED;
     documentPointer->Indent(forwards, lineBottom, lineTop);
@@ -518,7 +518,7 @@ NS_IMETHODIMP SciDoc::ConvertLineEnds(PRInt32 eolModeSet)
 }
 
 /* void SetReadOnly (in boolean set); */
-NS_IMETHODIMP SciDoc::SetReadOnly(PRBool set)
+NS_IMETHODIMP SciDoc::SetReadOnly(bool set)
 {
     if (documentPointer==nullptr) return NS_ERROR_UNEXPECTED;
     documentPointer->SetReadOnly(set);
@@ -526,7 +526,7 @@ NS_IMETHODIMP SciDoc::SetReadOnly(PRBool set)
 }
 
 /* boolean IsReadOnly (); */
-NS_IMETHODIMP SciDoc::IsReadOnly(PRBool *_retval)
+NS_IMETHODIMP SciDoc::IsReadOnly(bool *_retval)
 {
     if (documentPointer==nullptr) return NS_ERROR_UNEXPECTED;
     *_retval = documentPointer->IsReadOnly();
@@ -534,7 +534,7 @@ NS_IMETHODIMP SciDoc::IsReadOnly(PRBool *_retval)
 }
 
 /* boolean InsertChar (in PRInt32 pos, in wchar ch); */
-NS_IMETHODIMP SciDoc::InsertChar(PRInt32 pos, PRUnichar ch, PRBool *_retval)
+NS_IMETHODIMP SciDoc::InsertChar(PRInt32 pos, PRUnichar ch, bool *_retval)
 {
     if (documentPointer==nullptr) return NS_ERROR_UNEXPECTED;
     *_retval = documentPointer->InsertChar(pos, ch);
@@ -732,7 +732,7 @@ NS_IMETHODIMP SciDoc::GetFoldParent(PRInt32 line, PRInt32 *_retval)
 }
 
 /* PRInt32 ExtendWordSelect (in PRInt32 pos, in PRInt32 delta, in boolean onlyWordCharacters); */
-NS_IMETHODIMP SciDoc::ExtendWordSelect(PRInt32 pos, PRInt32 delta, PRBool onlyWordCharacters, PRInt32 *_retval)
+NS_IMETHODIMP SciDoc::ExtendWordSelect(PRInt32 pos, PRInt32 delta, bool onlyWordCharacters, PRInt32 *_retval)
 {
     if (documentPointer==nullptr) return NS_ERROR_UNEXPECTED;
     *_retval = documentPointer->ExtendWordSelect(pos, delta, onlyWordCharacters);
@@ -812,9 +812,9 @@ void CaseFolderTable::StandardASCII() {
 
 /* long FindText (in PRInt32 minPos, in PRInt32 maxPos, in wstring s, in boolean caseSensitive, in boolean word, in boolean wordStart, in boolean regExp, in boolean posix); */
 NS_IMETHODIMP SciDoc::FindText(PRInt32 minPos, PRInt32 maxPos,
-                               const PRUnichar *s, PRBool caseSensitive,
-                               PRBool word, PRBool wordStart, PRBool regExp, 
-                               PRBool posix, PRInt32 *_retval)
+                               const PRUnichar *s, bool caseSensitive,
+                               bool word, bool wordStart, bool regExp, 
+                               bool posix, PRInt32 *_retval)
 {
     if (documentPointer==nullptr) return NS_ERROR_UNEXPECTED;
     nsCAutoString text = NS_ConvertUTF16toUTF8(s);
@@ -849,7 +849,7 @@ NS_IMETHODIMP SciDoc::LinesTotal(PRInt32 *_retval)
 }
 
 /* void ChangeCase (in PRInt32 start, in PRInt32 end, in boolean makeUpperCase); */
-NS_IMETHODIMP SciDoc::ChangeCase(PRInt32 start, PRInt32 end, PRBool makeUpperCase)
+NS_IMETHODIMP SciDoc::ChangeCase(PRInt32 start, PRInt32 end, bool makeUpperCase)
 {
     if (documentPointer==nullptr) return NS_ERROR_UNEXPECTED;
     documentPointer->ChangeCase(Range(start, end), makeUpperCase);
@@ -857,7 +857,7 @@ NS_IMETHODIMP SciDoc::ChangeCase(PRInt32 start, PRInt32 end, PRBool makeUpperCas
 }
 
 /* void SetDefaultCharClasses (in boolean includeWordClass); */
-NS_IMETHODIMP SciDoc::SetDefaultCharClasses(PRBool includeWordClass)
+NS_IMETHODIMP SciDoc::SetDefaultCharClasses(bool includeWordClass)
 {
     if (documentPointer==nullptr) return NS_ERROR_UNEXPECTED;
     documentPointer->SetDefaultCharClasses(includeWordClass);
@@ -873,7 +873,7 @@ NS_IMETHODIMP SciDoc::StartStyling(PRInt32 position, PRUnichar mask)
 }
 
 /* boolean SetStyleFor (in PRInt32 length, in wchar style); */
-NS_IMETHODIMP SciDoc::SetStyleFor(PRInt32 length, PRUnichar style, PRBool *_retval)
+NS_IMETHODIMP SciDoc::SetStyleFor(PRInt32 length, PRUnichar style, bool *_retval)
 {
     if (documentPointer==nullptr) return NS_ERROR_UNEXPECTED;
     *_retval = documentPointer->SetStyleFor(length, style);
@@ -881,7 +881,7 @@ NS_IMETHODIMP SciDoc::SetStyleFor(PRInt32 length, PRUnichar style, PRBool *_retv
 }
 
 /* boolean SetStyles (in PRInt32 length, in wstring styles); */
-NS_IMETHODIMP SciDoc::SetStyles(PRInt32 length, const char *styles, PRBool *_retval)
+NS_IMETHODIMP SciDoc::SetStyles(PRInt32 length, const char *styles, bool *_retval)
 {
     if (documentPointer==nullptr) return NS_ERROR_UNEXPECTED;
     char *buffer = new char[length + 1];
@@ -959,7 +959,7 @@ NS_IMETHODIMP SciDoc::GetMaxLineState(PRInt32 *_retval)
 }
 
 /* boolean IsWordPartSeparator (in wchar ch); */
-NS_IMETHODIMP SciDoc::IsWordPartSeparator(PRUnichar ch, PRBool *_retval)
+NS_IMETHODIMP SciDoc::IsWordPartSeparator(PRUnichar ch, bool *_retval)
 {
     if (documentPointer==nullptr) return NS_ERROR_UNEXPECTED;
     *_retval = documentPointer->IsWordPartSeparator(ch);
@@ -983,7 +983,7 @@ NS_IMETHODIMP SciDoc::WordPartRight(PRInt32 pos, PRInt32 *_retval)
 }
 
 /* PRInt32 ExtendStyleRange (in PRInt32 pos, in PRInt32 delta, in boolean singleLine); */
-NS_IMETHODIMP SciDoc::ExtendStyleRange(PRInt32 pos, PRInt32 delta, PRBool singleLine, PRInt32 *_retval)
+NS_IMETHODIMP SciDoc::ExtendStyleRange(PRInt32 pos, PRInt32 delta, bool singleLine, PRInt32 *_retval)
 {
     if (documentPointer==nullptr) return NS_ERROR_UNEXPECTED;
     *_retval = documentPointer->ExtendStyleRange(pos, delta, singleLine);
@@ -991,7 +991,7 @@ NS_IMETHODIMP SciDoc::ExtendStyleRange(PRInt32 pos, PRInt32 delta, PRBool single
 }
 
 /* boolean IsWhiteLine (in PRInt32 line); */
-NS_IMETHODIMP SciDoc::IsWhiteLine(PRInt32 line, PRBool *_retval)
+NS_IMETHODIMP SciDoc::IsWhiteLine(PRInt32 line, bool *_retval)
 {
     if (documentPointer==nullptr) return NS_ERROR_UNEXPECTED;
     *_retval = documentPointer->WordPartRight(line);

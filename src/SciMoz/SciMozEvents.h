@@ -68,7 +68,7 @@ protected:
 // A linked-list of all event listeners.
 class EventListener {
 public:
-	EventListener(NPP instance, NPObject *listener, PRBool tryWeakRef, PRUint32 _mask) {
+	EventListener(NPP instance, NPObject *listener, bool tryWeakRef, PRUint32 _mask) {
 		npp = instance;
 		mask = _mask;
 		bIsWeak = PR_FALSE;
@@ -103,11 +103,11 @@ public:
 	}
   
 	// Does one EventListener equal another???
-	PRBool Equals(ISciMozEvents *anotherListener) {
+	bool Equals(ISciMozEvents *anotherListener) {
 		nsCOMPtr<SciMozEventsWrapper> other = do_QueryInterface(anotherListener);
 		return other->GetWrappee() == pListener;
 	}
-	PRBool Equals(NPObject *anotherListener) {
+	bool Equals(NPObject *anotherListener) {
 		return anotherListener == pListener;
 	}
 
@@ -150,7 +150,7 @@ public:
 	koNPObjectPtr pListener;
 	PRUint32 mask;
 	EventListener *pNext;
-	PRBool bIsWeak;
+	bool bIsWeak;
 	NPP npp;
 };
 
@@ -165,7 +165,7 @@ public:
 			pLook = pTemp;
 		}
 	}
-	bool Add( NPP instance, NPObject *listener, PRBool tryWeakRef, PRUint32 mask) {
+	bool Add( NPP instance, NPObject *listener, bool tryWeakRef, PRUint32 mask) {
 		EventListener *l = new EventListener(instance, listener, tryWeakRef, mask);
 		if (!l || l->pListener == NULL) {
 			delete l;

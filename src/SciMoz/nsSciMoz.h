@@ -263,8 +263,8 @@ protected:
     EventListeners listeners;
     koNPObjectPtr commandUpdateTarget;
     koNPObjectPtr mIMEHelper;
-    PRBool bCouldUndoLastTime;
-    PRBool bCouldRedoLastTime;
+    bool bCouldUndoLastTime;
+    bool bCouldRedoLastTime;
 
     long SendEditor(unsigned int Msg, unsigned long wParam = 0, long lParam = 0);
     NS_IMETHODIMP ConvertUTF16StringSendMessage(int message, PRInt32 length, const PRUnichar *text, PRInt32  *_retval);
@@ -273,7 +273,7 @@ protected:
     void PlatformCreate(WinID hWnd);
     void Notify(long lParam);
     void Resize();
-    NS_IMETHOD _DoButtonUpDown(PRBool up, PRInt32 x, PRInt32 y, PRUint16 button, PRBool bShift, PRBool bCtrl, PRBool bAlt);
+    NS_IMETHOD _DoButtonUpDown(bool up, PRInt32 x, PRInt32 y, PRUint16 button, bool bShift, bool bCtrl, bool bAlt);
 
 #ifdef XP_MACOSX
 	void SetHIViewShowHide(bool disabled);

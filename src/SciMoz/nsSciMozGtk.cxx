@@ -50,13 +50,13 @@ void SciMoz::PlatformCreate(WinID) {
 void SciMoz::Resize() {
 }
 
-NS_IMETHODIMP SciMoz::_DoButtonUpDown(PRBool up,
+NS_IMETHODIMP SciMoz::_DoButtonUpDown(bool up,
                                       PRInt32 /* x */,
                                       PRInt32 /* y */,
                                       PRUint16 button,
-                                      PRBool /* bShift */,
-                                      PRBool /* bCtrl */,
-                                      PRBool /* bAlt */) {
+                                      bool /* bShift */,
+                                      bool /* bCtrl */,
+                                      bool /* bAlt */) {
 	if (up and button == 0) {
                 SendEditor(SCI_RELEASEMOUSECAPTURE, 0, 0);
         }
@@ -267,14 +267,14 @@ int16 SciMoz::PlatformHandleEvent(void * /*event*/) {
 
 
 /* readonly attribute boolean isOwned; */
-NS_IMETHODIMP SciMoz::GetIsOwned(PRBool *_ret) {
+NS_IMETHODIMP SciMoz::GetIsOwned(bool *_ret) {
 	SCIMOZ_CHECK_THREAD("GetIsOwned", NS_ERROR_FAILURE);
 	*_ret = wEditor && wMain && !isClosed;
 	return NS_OK;
 }
 
 /* attribute boolean visible */
-NS_IMETHODIMP SciMoz::GetVisible(PRBool *_ret) {
+NS_IMETHODIMP SciMoz::GetVisible(bool *_ret) {
 	SCIMOZ_CHECK_THREAD("GetIsOwned", NS_ERROR_FAILURE);
 	SCIMOZ_CHECK_ALIVE("GetVisible", NS_ERROR_FAILURE);
 	*_ret = wEditor != 0;
@@ -282,7 +282,7 @@ NS_IMETHODIMP SciMoz::GetVisible(PRBool *_ret) {
 }
 
 /* attribute boolean visible */
-NS_IMETHODIMP SciMoz::SetVisible(PRBool /* vis */) {
+NS_IMETHODIMP SciMoz::SetVisible(bool /* vis */) {
 	SCIMOZ_CHECK_THREAD("GetIsOwned", NS_ERROR_FAILURE);
 	SCIMOZ_CHECK_ALIVE("SetVisible", NS_ERROR_FAILURE);
 	return NS_OK;
@@ -301,7 +301,7 @@ NS_IMETHODIMP SciMoz::EndDrop()
 }
 
 /* readonly attribute boolean inDragSession; */
-NS_IMETHODIMP SciMoz::GetInDragSession(PRBool *_ret) {
+NS_IMETHODIMP SciMoz::GetInDragSession(bool *_ret) {
 	SCIMOZ_CHECK_THREAD("GetIsOwned", NS_ERROR_FAILURE);
 	SCIMOZ_CHECK_ALIVE("GetInDragSession", NS_ERROR_FAILURE);
 	*_ret = 0;
@@ -309,7 +309,7 @@ NS_IMETHODIMP SciMoz::GetInDragSession(PRBool *_ret) {
 }
 
 /* readonly attribute boolean isTracking */
-NS_IMETHODIMP SciMoz::GetIsTracking(PRBool *_ret) {
+NS_IMETHODIMP SciMoz::GetIsTracking(bool *_ret) {
 	SCIMOZ_CHECK_THREAD("GetIsOwned", NS_ERROR_FAILURE);
 	SCIMOZ_CHECK_ALIVE("GetIsTracking", NS_ERROR_FAILURE);
 	*_ret = 0;

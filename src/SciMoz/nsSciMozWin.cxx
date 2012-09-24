@@ -107,7 +107,7 @@ void SciMoz::Resize() {
 #endif
 }
 
-NS_IMETHODIMP SciMoz::_DoButtonUpDown(PRBool up, PRInt32 x, PRInt32 y, PRUint16 button, PRBool bShift, PRBool bCtrl, PRBool bAlt) {
+NS_IMETHODIMP SciMoz::_DoButtonUpDown(bool up, PRInt32 x, PRInt32 y, PRUint16 button, bool bShift, bool bCtrl, bool bAlt) {
 	long lpoint = LONGFROMTWOSHORTS(x,y);
 	UINT msg;
 	switch (button) {
@@ -421,7 +421,7 @@ LRESULT CALLBACK SciMoz::ChildWndProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM
 
 
 /* readonly attribute boolean isOwned; */
-NS_IMETHODIMP SciMoz::GetIsOwned(PRBool *_ret) {
+NS_IMETHODIMP SciMoz::GetIsOwned(bool *_ret) {
 	SCIMOZ_CHECK_THREAD("GetIsOwned", NS_ERROR_FAILURE);
 	*_ret = wEditor && wMain && !isClosed
 			&& ::GetParent(wEditor) == wMain;
@@ -429,7 +429,7 @@ NS_IMETHODIMP SciMoz::GetIsOwned(PRBool *_ret) {
 }
 
 /* attribute boolean visible */
-NS_IMETHODIMP SciMoz::GetVisible(PRBool *_ret) {
+NS_IMETHODIMP SciMoz::GetVisible(bool *_ret) {
 	SCIMOZ_CHECK_VALID("GetVisible");
 	*_ret = wEditor != 0
 		&& IsWindowVisible(wEditor);
@@ -437,7 +437,7 @@ NS_IMETHODIMP SciMoz::GetVisible(PRBool *_ret) {
 }
 
 /* attribute boolean visible */
-NS_IMETHODIMP SciMoz::SetVisible(PRBool vis) {
+NS_IMETHODIMP SciMoz::SetVisible(bool vis) {
 	SCIMOZ_CHECK_VALID("SetVisible");
 	if (vis)
 		Resize();
@@ -455,14 +455,14 @@ NS_IMETHODIMP SciMoz::EndDrop()
 }
 
 /* readonly attribute boolean inDragSession; */
-NS_IMETHODIMP SciMoz::GetInDragSession(PRBool *_ret) {
+NS_IMETHODIMP SciMoz::GetInDragSession(bool *_ret) {
 	SCIMOZ_CHECK_VALID("GetInDragSession");
 	*_ret = 0;
 	return NS_OK;
 }
 
 /* readonly attribute boolean isTracking */
-NS_IMETHODIMP SciMoz::GetIsTracking(PRBool *_ret) {
+NS_IMETHODIMP SciMoz::GetIsTracking(bool *_ret) {
 	SCIMOZ_CHECK_VALID("GetIsTracking");
 	*_ret = 0;
 	return NS_OK;

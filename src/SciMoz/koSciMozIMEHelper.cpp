@@ -241,7 +241,7 @@ koSciMozIMEHelper::AbortComposing()
     if (composing) {
         // blur event, mouse click or other during composition, undo
         // the composition now
-        PRBool collectUndo;
+        bool collectUndo;
         rv = sciMoz->GetUndoCollection(&collectUndo);
         NS_ENSURE_SUCCESS(rv, rv);
         rv = sciMoz->SetUndoCollection(PR_FALSE);

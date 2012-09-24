@@ -364,8 +364,8 @@ void SciMoz::Notify(long lParam) {
 	}
 
 	if ((notification->nmhdr.code == SCN_PAINTED) && commandUpdateTarget) {
-		PRBool bCanUndoNow = SendEditor(SCI_CANUNDO, 0, 0);
-		PRBool bCanRedoNow = SendEditor(SCI_CANREDO, 0, 0);
+		bool bCanUndoNow = SendEditor(SCI_CANUNDO, 0, 0);
+		bool bCanRedoNow = SendEditor(SCI_CANREDO, 0, 0);
 		if (bCouldUndoLastTime != bCanUndoNow || bCouldRedoLastTime != bCanRedoNow) {
 #ifdef SCIMOZ_DEBUG_NOTIFY
 			fprintf(stderr,"Scintilla sending 'undo' event\n");
@@ -614,12 +614,12 @@ void SciMoz::Notify(long lParam) {
 
 
 /* attribute boolean isFocused; */
-NS_IMETHODIMP SciMoz::SetIsFocused(PRBool /*focus*/) {
+NS_IMETHODIMP SciMoz::SetIsFocused(bool /*focus*/) {
 	return NS_ERROR_NOT_IMPLEMENTED; /* in XPFacer.p.py as manual setter */
 }
 
 /* attribute boolean isFocused; */
-NS_IMETHODIMP SciMoz::GetIsFocused(PRBool  * /*_retval*/) {
+NS_IMETHODIMP SciMoz::GetIsFocused(bool  * /*_retval*/) {
 	return NS_ERROR_NOT_IMPLEMENTED; /* in XPFacer.p.py as manual getter */
 }
 
@@ -1227,7 +1227,7 @@ NS_IMETHODIMP SciMoz::GetSelText(nsAString & aSelText)
 
 
 /* void ButtonDown( in long x, in long y, in PRUint16 button, in boolean bShift, boolean bCtrl, boolean bAlt); */
-NS_IMETHODIMP SciMoz::ButtonDown(PRInt32 x, PRInt32 y, PRUint16 button, PRBool bShift, PRBool bCtrl, PRBool bAlt) {
+NS_IMETHODIMP SciMoz::ButtonDown(PRInt32 x, PRInt32 y, PRUint16 button, bool bShift, bool bCtrl, bool bAlt) {
 #ifdef SCIMOZ_DEBUG
 	fprintf(stderr,"SciMoz::ButtonDown\n");
 #endif
@@ -1235,7 +1235,7 @@ NS_IMETHODIMP SciMoz::ButtonDown(PRInt32 x, PRInt32 y, PRUint16 button, PRBool b
 }
 
 /* void ButtonUp( in long x, in long y, in PRUint16 button, in boolean bShift, boolean bCtrl, boolean bAlt); */
-NS_IMETHODIMP SciMoz::ButtonUp(PRInt32 x, PRInt32 y, PRUint16 button, PRBool bShift, PRBool bCtrl, PRBool bAlt) {
+NS_IMETHODIMP SciMoz::ButtonUp(PRInt32 x, PRInt32 y, PRUint16 button, bool bShift, bool bCtrl, bool bAlt) {
 #ifdef SCIMOZ_DEBUG
 	fprintf(stderr,"SciMoz::ButtonUp\n");
 #endif
