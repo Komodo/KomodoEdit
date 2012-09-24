@@ -866,6 +866,11 @@ class xpURIHandler(FileHandlerBase):
                 self._stats['isReadOnly'] = 0
         return self._file is not None
 
+    def read(self, nBytes):
+        bufptr = FileHandlerBase.read(self, nBytes)
+        # A bufptr is Mozilla file buffer (array) - we want the contents.
+        return ''.join(bufptr)
+
     def __get_stats(self):
         # exists must be true for an open file attempt to be made
         # we set isSpecial to true here because this class is only used for
