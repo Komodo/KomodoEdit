@@ -1425,9 +1425,6 @@ def target_configure(argv):
             # dependency so we dont build with them
             mozBuildOptions.append('enable-xsl')
 
-            # not needed
-            mozBuildOptions.append('disable-webm')
-
         elif config["mozApp"] == "xulrunner":
             mozBuildOptions.append('enable-application=xulrunner')
         else:
