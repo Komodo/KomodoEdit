@@ -47,6 +47,8 @@ function onLoad()
         var foSvc = Components.classes["@activestate.com/koFastOpenService;1"]
             .getService(Components.interfaces.koIFastOpenService);
         gSession = foSvc.getSession(new FastOpenUIDriver());
+        // Link up the tree view.
+        gWidgets.results.treeBoxObject.view = gSession;
         
         // Configure the session.
         var partSvc = Components.classes["@activestate.com/koPartService;1"]
@@ -194,11 +196,6 @@ FastOpenUIDriver.prototype.QueryInterface = function (iid) {
     }
     return this;
 }
-
-FastOpenUIDriver.prototype.setTreeView = function(view) {
-    gWidgets.results.treeBoxObject.view = view;
-}
-
 
 FastOpenUIDriver.prototype.setCurrPath = function(path) {
     gWidgets.statusbarPath.label = path;

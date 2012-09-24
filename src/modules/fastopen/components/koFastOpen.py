@@ -19,9 +19,12 @@ from glob import glob
 from pprint import pprint
 from collections import defaultdict
 
-from xpcom import components, COMException
+from xpcom import components
 from xpcom.server import UnwrapObject
+
 from koTreeView import TreeView
+
+from zope.cachedescriptors.property import Lazy as LazyProperty
 
 try:
     import fastopen
@@ -44,37 +47,11 @@ log = logging.getLogger("fastopen")
 #---- fastopen backend
 
 class KoFastOpenTreeView(TreeView):
-    _com_interfaces_ = [components.interfaces.koIFastOpenTreeView]
-    _reg_clsid_ = "{2d53a00d-9f41-634f-b702-d163e44061ee}"
-    _reg_contractid_ = "@activestate.com/koFastOpenTreeView;1"
-    _reg_desc_ = "Fast Open Results Tree View"
-
-    _tree = None
     _rows = None
 
-    def __init__(self, uiDriver):
-        # uiDriver is a JavaScript instance, so we must *always* proxy any
-        # calls made to this object through the main thread.
-        class UIDriverProxy:
-            def __init__(self, obj):
-                self.obj = obj
-            @components.ProxyToMainThreadAsync
-            def searchStarted(self, *args):
-                self.obj.searchStarted(*args)
-            @components.ProxyToMainThreadAsync
-            def searchAborted(self, *args):
-                self.obj.searchAborted(*args)
-            @components.ProxyToMainThreadAsync
-            def searchCompleted(self, *args):
-                self.obj.searchCompleted(*args)
-            @components.ProxyToMainThread
-            def setCurrPath(self, *args):
-                return self.obj.setCurrPath(*args)
-        self.uiDriver = UIDriverProxy(uiDriver)
-
+    def __init__(self):
         TreeView.__init__(self) #, debug="fastopen")
-        self._tree = None
-        self.resetHits()
+        self._rows = []
 
         ## Styling of the rows based on hit type.
         #atomSvc = components.classes["@mozilla.org/atom-service;1"].\
@@ -93,17 +70,18 @@ class KoFastOpenTreeView(TreeView):
     # Batch update the tree every n rows - bug 82962.
     def _updateTreeView(self, force=False):
         """Update tree view when forced, or num rows changed significantly."""
-
-        num_hits = len(self._rows)
         prev_num_hits = self._last_num_hits
-        if (not force and num_hits < (prev_num_hits + 1000)) or not self._tree:
+        num_hits = len(self._rows)
+        if (not force and num_hits < (prev_num_hits + 1000)):
             # Don't update the tree yet.
             return
-        self._mainthread_updateTreeView(num_hits, prev_num_hits)
+        self._doUpdateTreeView(num_hits, prev_num_hits)
 
     @components.ProxyToMainThread
-    def _mainthread_updateTreeView(self, num_hits, prev_num_hits):
+    def _doUpdateTreeView(self, num_hits, prev_num_hits):
         self._last_num_hits = num_hits
+        if not self._tree:
+            return
         try:
             self._tree.beginUpdateBatch()
             try:
@@ -116,49 +94,11 @@ class KoFastOpenTreeView(TreeView):
                     #self._tree.invalidateRange(num_hits, num_rows_changed)
             finally:
                 self._tree.endUpdateBatch()
+            if prev_num_hits == 0 and len(self._rows):  # i.e. added first row
+                self.selection.select(0)
         except AttributeError:
             pass # ignore `self._tree` going away
-        if prev_num_hits == 0 and len(self._rows):  # i.e. added first row
-            self.selection.select(0)
 
-    def resetHits(self):
-        self._rows = []
-        self._updateTreeView(force=True)
-
-    def addHit(self, hit):
-        self._rows.append(hit)
-        self._updateTreeView()
-
-    def addHits(self, hits):
-        """Batch add multiple hits."""
-        self._rows += hits
-        self._updateTreeView()
-    
-    # Dev Note: These are just on the koIFastOpenTreeView to relay to the
-    # koIFastOpenUIDriver because only the former is passed to the backend
-    # `fastopen.Driver` thread. That is kind of lame.
-    def searchStarted(self):
-        self.uiDriver.searchStarted()
-        self._timer = threading.Timer(0.5, self._updateTreeView,
-                                      kwargs={'force': True})
-        self._timer.setDaemon(True)
-        self._timer.start()
-    def searchAborted(self):
-        self._timer.cancel()
-        self.uiDriver.searchAborted()
-    def searchCompleted(self):
-        self._timer.cancel()
-        self.uiDriver.searchCompleted()
-        self._updateTreeView(force=True)
-    
-    def getSelectedHits(self): 
-        hits = []
-        for i in range(self.selection.getRangeCount()):
-            start, end = self.selection.getRangeAt(i)
-            for row_idx in range(start, end+1):
-                hits.append(self._rows[row_idx])
-        return hits
- 
     #---- nsITreeView methods
 
     def get_rowCount(self):
@@ -195,14 +135,6 @@ class KoFastOpenTreeView(TreeView):
     #        #    properties.AppendElement(self._blockStartAtom)
     #        #    last_row = self._rows[row_idx-1]
 
-    def selectionChanged(self):
-        index = self.selection.currentIndex
-        try:
-            path = self._rows[index].path
-        except IndexError:
-            path = ""
-        self.uiDriver.setCurrPath(path)
-
     def getImageSrc(self, row, column):
         try:
             hit = self._rows[row]
@@ -218,8 +150,9 @@ class KoFastOpenTreeView(TreeView):
                 return "moz-icon://%s?size=16" % (hit.ext or ".txt")
 
 
-class KoFastOpenSession(object):
-    _com_interfaces_ = [components.interfaces.koIFastOpenSession]
+class KoFastOpenSession(KoFastOpenTreeView):
+    _com_interfaces_ = [components.interfaces.koIFastOpenSession,
+                        components.interfaces.nsITreeView]
     _reg_desc_ = "Fast Open search session"
     _reg_clsid_ = "{16d03764-c4b2-5342-a091-78fe11057d43}"
     _reg_contractid_ = "@activestate.com/koFastOpenSession;1"
@@ -227,9 +160,6 @@ class KoFastOpenSession(object):
     # Number of secs to wait for previous search to stop.
     SEARCH_STOP_TIMEOUT = 90
 
-    resultsView = None
-    uiDriver = None
-    
     # Configuration attributes. These values determine the value returned
     # by `gatherers`, i.e. the sources for the list of files.
     project = None
@@ -237,18 +167,32 @@ class KoFastOpenSession(object):
     currentPlace = None
 
     def __init__(self, driver, uiDriver):
+        KoFastOpenTreeView.__init__(self)
         self.driver = driver
-        self.uiDriver = uiDriver
-        self.resultsView = KoFastOpenTreeView(uiDriver)
-        self.uiDriver.setTreeView(self.resultsView)
 
-    _globalPrefsCache = None
-    @property
+        # uiDriver is a JavaScript instance, so we must *always* proxy any
+        # calls made to this object through the main thread.
+        class UIDriverProxy:
+            def __init__(self, obj):
+                self.obj = obj
+            @components.ProxyToMainThreadAsync
+            def searchStarted(self, *args):
+                self.obj.searchStarted(*args)
+            @components.ProxyToMainThreadAsync
+            def searchAborted(self, *args):
+                self.obj.searchAborted(*args)
+            @components.ProxyToMainThreadAsync
+            def searchCompleted(self, *args):
+                self.obj.searchCompleted(*args)
+            @components.ProxyToMainThread
+            def setCurrPath(self, *args):
+                self.obj.setCurrPath(*args)
+        self.uiDriver = UIDriverProxy(uiDriver)
+
+    @LazyProperty
     def _globalPrefs(self):
-        if self._globalPrefsCache is None:
-            self._globalPrefsCache = components.classes["@activestate.com/koPrefService;1"].\
+        return components.classes["@activestate.com/koPrefService;1"].\
                 getService(components.interfaces.koIPrefService).prefs
-        return self._globalPrefsCache
 
     @property
     def pref_path_excludes(self):
@@ -349,6 +293,47 @@ class KoFastOpenSession(object):
             excludes = None
         return excludes
 
+    #---- driver callback methods
+
+    def resetHits(self):
+        self._rows = []
+        self._updateTreeView(force=True)
+
+    def addHit(self, hit):
+        self._rows.append(hit)
+        self._updateTreeView()
+
+    def addHits(self, hits):
+        """Batch add multiple hits."""
+        self._rows += hits
+        self._updateTreeView()
+
+    def searchStarted(self):
+        self.uiDriver.searchStarted()
+        self._timer = threading.Timer(0.5, self._updateTreeView,
+                                      kwargs={'force': True})
+        self._timer.setDaemon(True)
+        self._timer.start()
+    def searchAborted(self):
+        self._timer.cancel()
+        self.uiDriver.searchAborted()
+    def searchCompleted(self):
+        self._timer.cancel()
+        self.uiDriver.searchCompleted()
+        self._updateTreeView(force=True)
+    
+    #---- nsITreeView methods
+
+    def selectionChanged(self):
+        index = self.selection.currentIndex
+        try:
+            path = self._rows[index].path
+        except IndexError:
+            path = ""
+        self.uiDriver.setCurrPath(path)
+
+    #---- koIFastOpenSession methods
+
     def setCurrProject(self, project):
         self.project = project
         self._gatherers_cache = None
@@ -400,7 +385,7 @@ class KoFastOpenSession(object):
         """Asynchronously search with the given query."""
         gatherers, cwds, dirShortcuts = self.gatherersAndCwds
         self.driver.search(query, gatherers, cwds, self.pref_path_excludes,
-            dirShortcuts, self.resultsView)
+            dirShortcuts, self)
 
     def findFileSync(self, query, timeout):
         """Synchronously search with the given query and return the first hit.
@@ -446,6 +431,14 @@ class KoFastOpenSession(object):
                 bestpath = path
         return bestpath
 
+    def getSelectedHits(self): 
+        hits = []
+        for i in range(self.selection.getRangeCount()):
+            start, end = self.selection.getRangeAt(i)
+            for row_idx in range(start, end+1):
+                hits.append(self._rows[row_idx])
+        return hits
+
 class KoFastOpenService(object):
     _com_interfaces_ = [components.interfaces.koIFastOpenService,
                         components.interfaces.nsIObserver]
@@ -455,26 +448,12 @@ class KoFastOpenService(object):
 
     DEFAULT_PATH_EXCLUDES = ';'.join(fastopen.DEFAULT_PATH_EXCLUDES)
 
-    _driverCache = None
-    @property
+    @LazyProperty
     def driver(self):
-        if self._driverCache is None:
-            self._driverCache = fastopen.Driver()
-            obsSvc = components.classes["@mozilla.org/observer-service;1"].\
-                getService(components.interfaces.nsIObserverService)
-            obsSvc.addObserver(self, "xpcom-shutdown", 1)
-        return self._driverCache
+        return fastopen.Driver()
 
     def getSession(self, uiDriver):
         return KoFastOpenSession(self.driver, uiDriver)
-
-    def observe(self, subject, topic, data):
-        if topic == "xpcom-shutdown":
-            if self._driverCache:
-                self._driverCache.stop()
-            obsSvc = components.classes["@mozilla.org/observer-service;1"].\
-                getService(components.interfaces.nsIObserverService)
-            obsSvc.removeObserver(self, "xpcom-shutdown")
 
 
 
