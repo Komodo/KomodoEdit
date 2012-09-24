@@ -50,8 +50,8 @@ interface asIDialogProxy: nsISupports {
         cancelLabel should be "Cancel" by default
     */
     wstring alertEx(in wstring prompt,
-                         in PRBool okIsDefault,
-                         in PRBool hideCancel,
+                         in bool okIsDefault,
+                         in bool hideCancel,
                          in wstring okLabel,
                          in wstring cancelLabel);
     wstring prompt(in wstring prompt,
@@ -63,8 +63,8 @@ interface asIDialogProxy: nsISupports {
                                   in wstring server,
                                   in wstring prompt,
                                   in wstring loginname,
-                                  in PRBool allowAnonymous,
-                                  in PRBool allowPersist);
+                                  in bool allowAnonymous,
+                                  in bool allowPersist);
     
     wstring open(in wstring url, in wstring name, in wstring flags, in nsISupports obj);
     wstring openDialog(in wstring url, in wstring name, in wstring flags, in nsISupports obj);
