@@ -120,7 +120,7 @@ interface koIInterpolationService : nsISupports {
     //                %(ask:Search in:%D)
     //
     // 2. First interpolation pass will interpolate non-asking codes and
-    //    will generate KoIInterpolationQuery objects for asking codes. Presume
+    //    will generate koIInterpolationQuery objects for asking codes. Presume
     //    for this example that the user has C:\tmp\hello.py open with
     //    the string "Spam and Eggs" selected. After Interpolate1() you
     //    will get the following. The "%(__queryN__)" things are markers
@@ -195,14 +195,14 @@ interface koIInterpolationService : nsISupports {
                       in wstring projectFile,
                       in koIPreferenceSet prefSet,
                       out unsigned long qcount,
-                      [array, size_is(qcount)] out KoIInterpolationQuery queries,
+                      [array, size_is(qcount)] out koIInterpolationQuery queries,
                       out unsigned long i1count,
                       [array, size_is(i1count)] out wstring i1strings);
 
     void Interpolate2(in unsigned long i1count,
                       [array, size_is(i1count)] in wstring i1strings,
                       in unsigned long qcount,
-                      [array, size_is(qcount)] in KoIInterpolationQuery queries,
+                      [array, size_is(qcount)] in koIInterpolationQuery queries,
                       out unsigned long i2count,
                       [array, size_is(i2count)] out wstring i2strings);
 
