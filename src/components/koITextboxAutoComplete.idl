@@ -65,11 +65,11 @@ interface koIAutoCompleteResult : nsIAutoCompleteResult {
     void setIgnored();
     void setFailed(in wstring errorDescription);
 
-    # addMatch() is DEPRECATED, use addMatch2().
-    # (Note the similarity to nsIAutoCompleteSimpleResult.appendMatch(...))
-    void addMatch(in wstring value, in wstring comment,
-                  in wstring style, in boolean isDefault,
-                  in wstring image);
+    // addMatch() is DEPRECATED, use addMatch2().
+    // (Note the similarity to nsIAutoCompleteSimpleResult.appendMatch(...))
+    [deprecated] void addMatch(in wstring value, in wstring comment,
+                               in wstring style, in boolean isDefault,
+                               in wstring image);
 
     void addMatch2(in koIAutoCompleteMatch match);
 };
