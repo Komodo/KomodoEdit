@@ -88,7 +88,7 @@ interface ISciMozEvents : nsISupports {
     void onDoubleClick();
     void onUpdateUI();
     void onModified(in long position, in long modificationType,
-                    in AString text, in PRUint32 length,
+                    in AString text, in uint32_t length,
                     in long linesAdded, in long line,
                     in long foldLevelNow, in long foldLevelPrev);
     // void onMacroRecord(in long message, in long wParam, in long lParam);
