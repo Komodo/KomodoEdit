@@ -39,7 +39,6 @@
 
 import sys, os, operator
 from xpcom import components, nsError, ServerException, COMException
-from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC, getProxyForObject
 import which
 import logging
 import shutil
@@ -71,9 +70,6 @@ class koSysUtils:
         # XXX Should just cache the user env locally. It ain't changin'.
         self._userEnvSvc = components.classes["@activestate.com/koUserEnviron;1"].\
             getService(components.interfaces.koIUserEnviron)
-        self._userEnvProxy = getProxyForObject(1,
-            components.interfaces.koIUserEnviron, self._userEnvSvc,
-            PROXY_ALWAYS | PROXY_SYNC)
         self._manager = None
 
     def _SameFile(self, fname1, fname2):
@@ -95,7 +91,7 @@ class koSysUtils:
 
     def FastCheckIfHaveExecutable(self, exe):
         if sys.platform.startswith("win"):
-            path = self._userEnvProxy.get("PATH")
+            path = self._userEnvSvc.get("PATH")
             from ctypes import windll, create_unicode_buffer, c_wchar_p, pointer
             kernel32 = windll.kernel32
             import os
@@ -122,14 +118,14 @@ class koSysUtils:
                  <user-data-dir>/startup-env.tmp for any changes to the PATH
                  that komodo.exe might have made.
         """
-        path = self._userEnvProxy.get("PATH").split(os.pathsep)
+        path = self._userEnvSvc.get("PATH").split(os.pathsep)
         try:
             return which.which(exeName, path=path)
         except which.WhichError, ex:
             return ""
 
     def WhichAll(self, exeName):
-        path = self._userEnvProxy.get("PATH").split(os.pathsep)
+        path = self._userEnvSvc.get("PATH").split(os.pathsep)
         return which.whichall(exeName, path=path)
 
     def IsFile(self, filename):
@@ -171,11 +167,11 @@ class koSysUtils:
     def _getManager(self):
         if self._manager:
             return self._manager
-        manager = self._userEnvProxy.get("DESKTOP_SESSION")
+        manager = self._userEnvSvc.get("DESKTOP_SESSION")
         if manager in ["gnome", "kde"]:
             self._manager = manager
             return manager
-        manager = self._userEnvProxy.get("WINDOWMANAGER")
+        manager = self._userEnvSvc.get("WINDOWMANAGER")
         if manager:
             self._manager = os.path.basename(manager)
             return self._manager

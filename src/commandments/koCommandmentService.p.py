@@ -52,10 +52,7 @@ if sys.platform.startswith("win"):
 else:
     import fcntl
 
-from xpcom import components, nsError, ServerException, COMException
-from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC, getProxyForObject
-from xpcom.server import WrapObject, UnwrapObject
-
+from xpcom import components, COMException
 
 
 #---- exceptions
@@ -67,7 +64,6 @@ class CommandmentError(Exception):
 
 #---- globals
 
-_gObserverSvc = None
 if sys.platform.startswith("win"):
     # A handle to the Komodo main window for use by some of the commandments.
     _gHWnd = None
@@ -79,7 +75,10 @@ log = logging.getLogger('commandments')
 
 #---- support routines
 
+@components.ProxyToMainThreadAsync
 def _sendStatusMessage(msg, timeout=3000, highlight=1):
+    observerSvc = components.classes["@mozilla.org/observer-service;1"]\
+         .getService(components.interfaces.nsIObserverService)
     sm = components.classes["@activestate.com/koStatusMessage;1"]\
          .createInstance(components.interfaces.koIStatusMessage)
     sm.category = "commandment"
@@ -87,12 +86,17 @@ def _sendStatusMessage(msg, timeout=3000, highlight=1):
     sm.timeout = timeout     # 0 for no timeout, else a number of milliseconds
     sm.highlight = highlight # boolean, whether or not to highlight
     try:
-        _gObserverSvc.notifyObservers(sm, 'status_message', None)
+        observerSvc.notifyObservers(sm, 'status_message', None)
     except COMException, e:
         # do nothing: Notify sometimes raises an exception if (???)
         # receivers are not registered?
         pass
 
+@components.ProxyToMainThreadAsync
+def notifyObservers(subject, topic, data):
+    observerSvc = components.classes["@mozilla.org/observer-service;1"]\
+         .getService(components.interfaces.nsIObserverService)
+    observerSvc.notifyObservers(subject, topic, data)
 
 def _handleCommandment(commandment):
     # Parse the commandment string.
@@ -150,19 +154,20 @@ def _handleCommandment(commandment):
             if selection:
                 f += "\t" + selection
             try:
-                _gObserverSvc.notifyObservers(None, "open_file", f)
+                # TODO: Should send a multi-file open request.
+                notifyObservers(None, "open_file", f)
             except COMException, e:
                 log.warn("No one observing 'open_file' notification.")
 
     elif name == 'new_window':
         try:
-            _gObserverSvc.notifyObservers(None, "new_window", '')
+            notifyObservers(None, "new_window", '')
         except COMException, e:
             log.warn("No one observing 'quit' notification.")
 
     elif name == 'quit':
         try:
-            _gObserverSvc.notifyObservers(None, "quit", '')
+            notifyObservers(None, "quit", '')
         except COMException, e:
             log.warn("No one observing 'quit' notification.")
 
@@ -438,15 +443,9 @@ class KoCommandmentService(object):
     ]
 
     def __init__(self):
-        global _gObserverSvc
         observerSvc = components.classes["@mozilla.org/observer-service;1"]\
             .getService(components.interfaces.nsIObserverService)
-        _gObserverSvc = getProxyForObject(None,
-            components.interfaces.nsIObserverService,
-            observerSvc, PROXY_ALWAYS | PROXY_SYNC)
-
-        self._observer = WrapObject(self, components.interfaces.nsIObserver)
-        _gObserverSvc.addObserver(self._observer, 'xpcom-shutdown', 1)
+        observerSvc.addObserver(self, 'xpcom-shutdown', 1)
 
         # Platform-specific handle on object indicating Komodo is running.
         self._running = None
@@ -483,7 +482,6 @@ class KoCommandmentService(object):
 
     def observe(self, subject, topic, data):
         if topic == 'xpcom-shutdown':
-            _gObserverSvc.removeObserver(self._observer, 'xpcom-shutdown')
             self.finalize()
  
     def handleCommandment(self, commandment):

@@ -36,9 +36,7 @@
 # ***** END LICENSE BLOCK *****
 
 
-from xpcom import components, nsError, ServerException
-from xpcom.server import UnwrapObject
-from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC, getProxyForObject
+from xpcom import components
 import koLintResult
 from koLintResult import KoLintResult, getProxiedEffectivePrefs, getProxiedEffectivePrefsByName
 from koLintResults import koLintResults
@@ -47,16 +45,20 @@ import tempfile
 import process
 import koprocessutils
 
+from zope.cachedescriptors.property import Lazy as LazyProperty
+
 import logging
 log = logging.getLogger("koJavaScriptLinter")
 #log.setLevel(logging.DEBUG)
 
 class CommonJSLinter(object):
     _is_macro_re = re.compile("macro2?://")
-    def __init__(self):
-        self.koDirs = components.classes["@activestate.com/koDirs;1"].\
-                              getService(components.interfaces.koIDirs)
-        
+
+    @LazyProperty
+    def koDirs(self):
+        return components.classes["@activestate.com/koDirs;1"]\
+                         .getService(components.interfaces.koIDirs)
+
     def _make_tempfile_from_text(self, request, text):
         # copy file-to-lint to a temp file
         jsfilename = tempfile.mktemp() + '.js'

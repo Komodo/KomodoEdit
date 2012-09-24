@@ -11,7 +11,6 @@ import threading
 
 from xpcom import components, nsError, ServerException
 from xpcom.server import UnwrapObject
-from xpcom._xpcom import getProxyForObject, PROXY_ASYNC, PROXY_SYNC, PROXY_ALWAYS
 
 import process
 import mozutils
@@ -305,8 +304,7 @@ def _terminalProcessWaiter(runProcess, runListener):
     except process.ProcessError, ex:
         retval = ex.errno  # Use the error set in the exception.
     if runListener:
-        listenerProxy = getProxyForObject(1,
-                                components.interfaces.koIRunTerminationListener,
-                                runListener,
-                                PROXY_ALWAYS | PROXY_SYNC)
-        listenerProxy.onTerminate(retval)
+        @components.ProxyToMainThread
+        def fireCallback(listener, rval):
+            listener.onTerminate(rval)
+        fireCallback(runListener, retval)

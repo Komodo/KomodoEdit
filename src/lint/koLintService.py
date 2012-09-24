@@ -40,7 +40,6 @@ import threading
 import time
 import urllib2
 from xpcom import components, nsError, ServerException, COMException
-from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC, getProxyForObject
 from xpcom.server import WrapObject, UnwrapObject
 from koLintResult import KoLintResult, getProxiedEffectivePrefs
 from koLintResults import koLintResults
@@ -251,9 +250,7 @@ class KoLintRequest:
     def set_koDoc(self, val):
         # Access to the koDoc *must* be from the main thread, otherwise
         # Komodo may crash!
-        self._koDoc = getProxyForObject(1,
-            components.interfaces.koIDocument, val,
-            PROXY_ALWAYS | PROXY_SYNC)
+        self._koDoc = val
 
     def describe(self):
         return "<KoLintRequest: %s on uid %s>" % (self.linterType, self.uid)
@@ -656,10 +653,10 @@ class KoLintService:
                 if not self._shuttingDown:
                     try:
                         # Proxy this so the worker thread can report results on this iface.
-                        lintBufferProxy = getProxyForObject(1,
-                            components.interfaces.koILintBuffer, request.lintBuffer,
-                            PROXY_ALWAYS | PROXY_SYNC)
-                        lintBufferProxy.reportResults(request)
+                        @components.ProxyToMainThread
+                        def reportResults(rq):
+                            rq.lintBuffer.reportResults(rq)
+                        reportResults(request)
                     except COMException, ex:
                         # Ignore this error, which will happen if results
                         # are reported after the buffer has gone away (i.e.

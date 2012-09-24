@@ -43,20 +43,13 @@ import tempfile
 import koprocessutils
 import process
 from xpcom import components
-from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, getProxyForObject
 from koLintResults import koLintResults
 
 def getProxiedEffectivePrefs(request):
-    return getProxyForObject(None,
-                             components.interfaces.koIPreferenceSet,
-                             request.koDoc.getEffectivePrefs(),
-                             PROXY_ALWAYS | PROXY_SYNC)
+    return request.koDoc.getEffectivePrefs()
 
 def getProxiedEffectivePrefsByName(request, prefName):
-    return getProxyForObject(None,
-                             components.interfaces.koIPreferenceSet,
-                             request.koDoc.getEffectivePrefsByName(prefName),
-                             PROXY_ALWAYS | PROXY_SYNC)
+    return request.koDoc.getEffectivePrefsByName(prefName)
 
 SEV_ERROR = 2   # No xpcom here :(
 SEV_WARNING = 1

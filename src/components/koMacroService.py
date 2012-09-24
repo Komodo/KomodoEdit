@@ -35,9 +35,7 @@
 # 
 # ***** END LICENSE BLOCK *****
 
-import sys
-from xpcom import components, nsError, ServerException, COMException
-from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC, getProxyForObject
+from xpcom import components
 
 
 
@@ -56,14 +54,8 @@ class KoMacroService:
         self._observerSvc = components.classes["@mozilla.org/observer-service;1"]\
             .getService(components.interfaces.nsIObserverService)
 
-        # not sure why we can't create proxies -- I'm thinking that we need
-        # to because the JS notification hangs the main window.
-        #self._proxyObserverSvc = getProxyForObject(1,
-        #    components.interfaces.nsIObserverService, self._observerSvc,
-        #    PROXY_ALWAYS | PROXY_ASYNC)
-
+    @components.ProxyToMainThreadAsync
     def runString(self, language, code):
-        print "sending notification", language + '_macro'
         self._observerSvc.notifyObservers(self, language + '_macro', code)
 
     def runFile(self, language, filename):

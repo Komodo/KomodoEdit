@@ -48,6 +48,8 @@ indentlog = logging.getLogger('koLanguageCommandHandler.indenting')
 #indentlog.setLevel(logging.DEBUG)
 jumplog = logging.getLogger('koLanguageCommandHandler.jump')
 
+from zope.cachedescriptors.property import Lazy as LazyProperty
+
 """
 The generic command handler is appropriate for all languages.
 
@@ -88,14 +90,19 @@ class GenericCommandHandler:
         log.info("in __init__ for GenericCommandHandler")
         self._completeWordState = None
         self._view = None
-        self.sysUtils = components.classes["@activestate.com/koSysUtils;1"].\
-            getService(components.interfaces.koISysUtils)
-        self._koHistorySvc = components.classes["@activestate.com/koHistoryService;1"].\
-                        getService(components.interfaces.koIHistoryService)
 
     def __del__(self):
         log.info("in __del__ for GenericCommandHandler")
         
+    @LazyProperty
+    def sysUtils(self):
+        return components.classes["@activestate.com/koSysUtils;1"].\
+            getService(components.interfaces.koISysUtils)
+    @LazyProperty
+    def _koHistorySvc(self):
+        return components.classes["@activestate.com/koHistoryService;1"].\
+                        getService(components.interfaces.koIHistoryService)
+
     def set_view(self, view):
         if self._view:
             self._view.removeEventListener("codeintel_autocomplete_selected", self, False)

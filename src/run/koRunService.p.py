@@ -55,10 +55,10 @@ from koTreeView import TreeView
 import koprocessutils
 import runutils
 
+from zope.cachedescriptors.property import Lazy as LazyProperty
 
 #---- globals
 
-_gLastErrorSvc = None
 log = logging.getLogger("run")
 #log.setLevel(logging.DEBUG)
 
@@ -103,17 +103,21 @@ class KoInterpolationService:
     _reg_clsid_ = "{C94C3130-A07E-4840-877B-E03D2F4BC872}"
     _reg_contractid_ = "@activestate.com/koInterpolationService;1"
 
-    def __init__(self):
-        self._prefSvc = components.classes["@activestate.com/koPrefService;1"].\
-            getService(components.interfaces.koIPrefService)
-        self._prefs = self._prefSvc.prefs
-        self._koDirSvc = components.classes["@activestate.com/koDirs;1"].\
-            getService(components.interfaces.koIDirs)
-
-        global _gLastErrorSvc
-        if not _gLastErrorSvc:
-            _gLastErrorSvc = components.classes["@activestate.com/koLastErrorService;1"]\
+    @LazyProperty
+    def lastErrorSvc(self):
+        return components.classes["@activestate.com/koLastErrorService;1"]\
                          .getService(components.interfaces.koILastErrorService)
+    @LazyProperty
+    def _koDirSvc(self):
+        return components.classes["@activestate.com/koDirs;1"].\
+                getService(components.interfaces.koIDirs)
+    @LazyProperty
+    def _prefSvc(self):
+        return components.classes["@activestate.com/koPrefService;1"].\
+                getService(components.interfaces.koIPrefService)
+    @LazyProperty
+    def _prefs(self):
+        return self._prefSvc.prefs
 
     def _GetInterpreter(self, interp, lang, prefSet):
         """Return the full path to the given interpreter or raise a suitable
@@ -427,7 +431,7 @@ class KoInterpolationService:
                 elif alternative is not None:
                     errmsg = "Unexpected alternative '%s' in '%s'"\
                              % (alternative, s[match.start():match.end()])
-                    _gLastErrorSvc.setLastError(nsError.NS_ERROR_INVALID_ARG,
+                    self.lastErrorSvc.setLastError(nsError.NS_ERROR_INVALID_ARG,
                                                 errmsg)
                     raise ServerException(nsError.NS_ERROR_INVALID_ARG, errmsg)
 
@@ -486,7 +490,7 @@ class KoInterpolationService:
                     else:
                         errmsg = "Unable to handle pref type '%s' for '%s'"\
                                  % (prefType, prefName)
-                        _gLastErrorSvc.setLastError(nsError.NS_ERROR_INVALID_ARG,
+                        self.lastErrorSvc.setLastError(nsError.NS_ERROR_INVALID_ARG,
                                                     errmsg)
                         raise ServerException(nsError.NS_ERROR_INVALID_ARG, errmsg)
                 elif defaultValue:
@@ -494,7 +498,7 @@ class KoInterpolationService:
                 else:
                     errmsg = "Unable to get value for pref '%s'"\
                              % (prefName)
-                    _gLastErrorSvc.setLastError(nsError.NS_ERROR_INVALID_ARG,
+                    self.lastErrorSvc.setLastError(nsError.NS_ERROR_INVALID_ARG,
                                                 errmsg)
                     raise ServerException(nsError.NS_ERROR_INVALID_ARG, errmsg)
 
@@ -515,7 +519,7 @@ class KoInterpolationService:
                 else:
                     errmsg = "Unable to get path for '%s'"\
                              % (pathValue)
-                    _gLastErrorSvc.setLastError(nsError.NS_ERROR_INVALID_ARG,
+                    self.lastErrorSvc.setLastError(nsError.NS_ERROR_INVALID_ARG,
                                                 errmsg)
                     raise ServerException(nsError.NS_ERROR_INVALID_ARG, errmsg)
 
@@ -655,7 +659,7 @@ class KoInterpolationService:
                     i1strings.append(i1s) # see NOTE in koIRunService on doubling strings
             except ValueError, ex:
                 log.exception(ex)
-                _gLastErrorSvc.setLastError(nsError.NS_ERROR_INVALID_ARG,
+                self.lastErrorSvc.setLastError(nsError.NS_ERROR_INVALID_ARG,
                                             ex.args[0])
                 raise ServerException(nsError.NS_ERROR_INVALID_ARG,
                                       ex.args[0])
@@ -736,19 +740,6 @@ class KoRunService:
     _reg_contractid_ = "@activestate.com/koRunService;1"
 
     def __init__(self):
-        global _gLastErrorSvc
-        _gLastErrorSvc = components.classes["@activestate.com/koLastErrorService;1"]\
-                         .getService(components.interfaces.koILastErrorService)
-
-        # Setup for sending status bar messages in sub-threads.
-        self._observerSvc = components.classes["@mozilla.org/observer-service;1"].\
-            getService(components.interfaces.nsIObserverService)
-        self._observerSvcProxy = _xpcom.getProxyForObject(1,
-            components.interfaces.nsIObserverService, self._observerSvc,
-            _xpcom.PROXY_ALWAYS | _xpcom.PROXY_SYNC)
-        self._sm = components.classes["@activestate.com/koStatusMessage;1"]\
-            .createInstance(components.interfaces.koIStatusMessage)
-
         if sys.platform.startswith("win"):
             if os.environ.has_key("SHELL"):
                 shell = os.environ["SHELL"]
@@ -767,7 +758,15 @@ class KoRunService:
             shellArgs = ["-e", "/bin/sh"]
         self.shellArgs = [shell] + shellArgs
             
-    
+    @LazyProperty
+    def lastErrorSvc(self):
+        return components.classes["@activestate.com/koLastErrorService;1"]\
+                .getService(components.interfaces.koILastErrorService)
+    @LazyProperty
+    def _observerSvc(self):
+        return components.classes["@mozilla.org/observer-service;1"]\
+                .getService(components.interfaces.nsIObserverService)
+
     def Encode(self, command, cwd, env, insertOutput,
                operateOnSelection, doNotOpenOutputWindow, runIn,
                parseOutput, parseRegex, showParsedOutputList):
@@ -935,7 +934,7 @@ class KoRunService:
         try:
             p = runutils.KoTerminalProcess(command, cwd=cwd, env=envDict)
         except process.ProcessError, ex:
-            _gLastErrorSvc.setLastError(ex.errno, str(ex))
+            self.lastErrorSvc.setLastError(ex.errno, str(ex))
             raise ServerException(nsError.NS_ERROR_FAILURE, str(ex))
         if terminal:
             p.linkIOWithTerminal(terminal)
@@ -972,19 +971,25 @@ class KoRunService:
                            % (inputFileName, ex))
         
         # Put appropriate message on the status bar.
-        self._sm.category = "run_command"
-        self._sm.msg = "'%s' returned %s." % (command, retval)
-        self._sm.timeout = 3000
+        sm = components.classes["@activestate.com/koStatusMessage;1"]\
+                .createInstance(components.interfaces.koIStatusMessage)
+        sm.category = "run_command"
+        sm.msg = "'%s' returned %s." % (command, retval)
+        sm.timeout = 3000
         if retval == 0:
-            self._sm.highlight = 0
+            sm.highlight = 0
         else:
-            self._sm.highlight = 1
+            sm.highlight = 1
         try:
-            self._observerSvcProxy.notifyObservers(self._sm, 'status_message', None)
+            self.notifyObservers(sm, 'status_message', None)
         except COMException, e:
             # do nothing: Notify sometimes raises an exception if (???)
             # receivers are not registered?
             pass
+
+    @components.ProxyToMainThreadAsync
+    def notifyObservers(self, subject, topic, data):
+        self._observerSvc.notifyObservers(subject, topic, data)
 
     def Run(self, command, cwd, env, console, input=None):
         """Run the command string in a new (console) window
@@ -1093,7 +1098,7 @@ class KoRunService:
             output, error = child.communicate(input)
             return (child.returncode, output, error)
         except process.ProcessError, ex:
-            _gLastErrorSvc.setLastError(ex.errno, str(ex))
+            self.lastErrorSvc.setLastError(ex.errno, str(ex))
             raise ServerException(nsError.NS_ERROR_FAILURE, str(ex))
 
     def _WaitAndNotify(self, child, command, input):
@@ -1102,7 +1107,7 @@ class KoRunService:
         # Notify any listener of child termination.
         try:
             #XXX Dunno if need to pass 'child' in the notification here.
-            self._observerSvcProxy.notifyObservers(child, 'run_terminated', command)
+            self.notifyObservers(child, 'run_terminated', command)
         except COMException, e:
             # Do nothing: Notify sometimes raises an exception if (???)
             # no receiver are registered?
@@ -1135,7 +1140,7 @@ class KoRunService:
         try:
             child = runutils.KoRunProcess(command, cwd=cwd, env=envDict)
         except process.ProcessError, ex:
-            _gLastErrorSvc.setLastError(ex.errno, str(ex))
+            self.lastErrorSvc.setLastError(ex.errno, str(ex))
             raise ServerException(nsError.NS_ERROR_FAILURE, str(ex))
 
         t = threading.Thread(target=self._WaitAndNotify,

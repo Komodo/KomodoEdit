@@ -40,6 +40,8 @@ from xpcom import components, ServerException, nsError
 import koprocessutils
 import logging
 
+from zope.cachedescriptors.property import Lazy as LazyProperty
+
 
 log = logging.getLogger('koEnviron')
 #log.setLevel(logging.DEBUG)
@@ -184,9 +186,7 @@ class KoUserEnviron:
         self._userEnviron = None
         if startupEnvFileName is None:
             self._startupEnvBaseName = "startup-env.tmp"
-            koDirs = components.classes["@activestate.com/koDirs;1"].\
-                getService(components.interfaces.koIDirs)
-            self.startupEnvFileName = os.path.join(koDirs.userDataDir,
+            self.startupEnvFileName = os.path.join(self.koDirs.userDataDir,
                                                    "startup-env.tmp")
         else:
             self.startupEnvFileName = startupEnvFileName
@@ -279,15 +279,16 @@ class KoUserEnviron:
         self._origStartupEnv = self._userEnviron.copy()
         self._updateWithUserOverrides()
 
-    __isDevTreeCache = None
+    @LazyProperty
+    def koDirs(self):
+        return components.classes["@activestate.com/koDirs;1"].\
+            getService(components.interfaces.koIDirs)
+
+    @LazyProperty
     def _isDevTree(self):
         """Return true if this Komodo is running in a dev tree layout."""
-        if self.__isDevTreeCache is None:
-            koDirs = components.classes["@activestate.com/koDirs;1"].\
-                getService(components.interfaces.koIDirs)
-            landmark = os.path.join(koDirs.mozBinDir, "is_dev_tree.txt")
-            self.__isDevTreeCache = os.path.isfile(landmark)
-        return self.__isDevTreeCache
+        landmark = os.path.join(self.koDirs.mozBinDir, "is_dev_tree.txt")
+        return os.path.isfile(landmark)
 
     def _removeProtectedVars(self):
         from uriparse import UnRelativizePath
@@ -309,14 +310,12 @@ class KoUserEnviron:
                     
         # this is more touchy, remove any path from paths that contain our
         # install directory
-        koDirs = components.classes["@activestate.com/koDirs;1"].\
-            getService(components.interfaces.koIDirs)
-        if self._isDevTree():
+        if self._isDevTree:
             # get down to the mozilla src trunk
-            installDir = os.path.dirname(os.path.dirname(koDirs.installDir))
+            installDir = os.path.dirname(os.path.dirname(self.koDirs.installDir))
             installDir = installDir.upper()
         else:
-            installDir = koDirs.installDir.upper()
+            installDir = self.koDirs.installDir.upper()
         cwd = os.getcwd().upper()
         for item in dangerouspaths:
             value = self._userEnviron.get(item)

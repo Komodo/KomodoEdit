@@ -37,7 +37,6 @@
 
 
 from xpcom import components, ServerException
-from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC, getProxyForObject
 from xpcom.server import UnwrapObject
 from koLintResult import KoLintResult, getProxiedEffectivePrefs
 from koLintResults import koLintResults

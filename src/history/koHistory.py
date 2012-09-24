@@ -45,12 +45,6 @@ class KoHistoryService(History):
         History.__init__(self, db_path)
         self._observerSvc = components.classes["@mozilla.org/observer-service;1"].\
             getService(components.interfaces.nsIObserverService)
-        self._obsSvcProxy = _xpcom.getProxyForObject(1, components.interfaces.nsIObserverService,
-                                          self._observerSvc, _xpcom.PROXY_SYNC | _xpcom.PROXY_ALWAYS)
-
-        
-        self._prefSvc = components.classes["@activestate.com/koPrefService;1"].\
-            getService(components.interfaces.koIPrefService)
         self._wrapped = WrapObject(self,components.interfaces.nsIObserver)
         
         self._observerSvc.addObserver(self._wrapped, 'xpcom-shutdown', 1)
@@ -61,7 +55,11 @@ class KoHistoryService(History):
     def observe(self, subject, topic, data):
         if topic == "xpcom-shutdown":
             self.finalize()
-            
+
+    @components.ProxyToMainThreadAsync
+    def notifyObservers(self, subject, topic, data):
+        self._observerSvc.notifyObservers(subject, topic, data)
+
     def loc_from_view_info(self, view_type,
                            window_num, tabbed_view_id, view,
                            pos=-1, session_name=""):
@@ -130,7 +128,7 @@ class KoHistoryService(History):
         #XXX:TODO: Change to history_changed_significantly (you know what
         #   I mean) b/c *most* of this "history_changed" are useless.
         try:
-            self._obsSvcProxy.notifyObservers(None, 'history_changed', "")
+            self.notifyObservers(None, 'history_changed', "")
         except COMException, ex:
             log.warn("exception notifying 'history_changed': %s", ex)
             pass

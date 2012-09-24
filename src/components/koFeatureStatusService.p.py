@@ -44,8 +44,6 @@ import Queue
 import logging
 import which
 from xpcom import components, nsError, ServerException, COMException
-from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC, getProxyForObject
-from xpcom.server import WrapObject, UnwrapObject
 import koprocessutils
 
 
@@ -101,24 +99,13 @@ class KoFeatureStatusService:
         # Get a schwack of services and components and proxy them all.
         self._observerSvc = components.classes["@mozilla.org/observer-service;1"].\
             getService(components.interfaces.nsIObserverService)
-        self._observerProxy = getProxyForObject(1,
-                                components.interfaces.nsIObserverService,
-                                self._observerSvc,
-                                PROXY_ALWAYS | PROXY_ASYNC)
 
         self._lastErrorSvc = components.classes["@activestate.com/koLastErrorService;1"].\
             getService(components.interfaces.koILastErrorService)
-        self._lastErrorProxy = getProxyForObject(1,
-                                components.interfaces.koILastErrorService,
-                                self._lastErrorSvc,
-                                PROXY_ALWAYS | PROXY_SYNC)
 
-        self._prefSvc = components.classes["@activestate.com/koPrefService;1"].\
-            getService(components.interfaces.koIPrefService)
-        self._prefProxy = getProxyForObject(1,
-                                components.interfaces.koIPrefService,
-                                self._prefSvc,
-                                PROXY_ALWAYS | PROXY_SYNC)
+        self._prefs = components.classes["@activestate.com/koPrefService;1"]\
+                        .getService(components.interfaces.koIPrefService)\
+                        .prefs
 
         self._nodejsInfoEx = components.classes["@activestate.com/koAppInfoEx?app=NodeJS;1"].\
             createInstance(components.interfaces.koIAppInfoEx)
@@ -142,8 +129,8 @@ class KoFeatureStatusService:
     def finalize(self):
         log.info("finalize")
         try:
-            self._observerProxy.removeObserver(self, "feature_status_request")
-            self._observerProxy.removeObserver(self, 'xpcom-shutdown')
+            self._observerSvc.removeObserver(self, "feature_status_request")
+            self._observerSvc.removeObserver(self, 'xpcom-shutdown')
         except:
             log.error("Unable to remove observer feature_status_request")
         # Would like to .join() on the acquirer thread but that results
@@ -182,6 +169,10 @@ class KoFeatureStatusService:
             log.error(errmsg)
             raise ServerException(nsError.NS_ERROR_UNEXPECTED)
 
+    @components.ProxyToMainThreadAsync
+    def notifyObservers(self, subject, topic, data):
+        self._observerSvc.notifyObservers(subject, topic, data)
+
     def _fsAcquirer(self):
         """Acquire status for all the features named in self._fsQueue and
         send notifications with the results until the queue is empty.
@@ -207,38 +198,38 @@ class KoFeatureStatusService:
                         status = "Ready"
                     else:
                         status = "Not Functional"
-                        reason = self._lastErrorProxy.getLastErrorMessage()
+                        reason = self._lastErrorSvc.getLastErrorMessage()
                 elif featureName == "Node.js Syntax Checking":
                     if self._haveSufficientNodeJS():
                         status = "Ready"
                     else:
                         status = "Not Functional"
-                        reason = self._lastErrorProxy.getLastErrorMessage()
+                        reason = self._lastErrorSvc.getLastErrorMessage()
                         
                 elif featureName == "PHP Syntax Checking":
                     if self._haveSufficientPHP(minVersion="4.0.5"):
                         status = "Ready"
                     else:
                         status = "Not Functional"
-                        reason = self._lastErrorProxy.getLastErrorMessage()
+                        reason = self._lastErrorSvc.getLastErrorMessage()
                 elif featureName == "Python Syntax Checking":
                     if self._haveSufficientPython():
                         status = "Ready"
                     else:
                         status = "Not Functional"
-                        reason = self._lastErrorProxy.getLastErrorMessage()
+                        reason = self._lastErrorSvc.getLastErrorMessage()
                 elif featureName == "Python3 Syntax Checking":
                     if self._haveSufficientPython3():
                         status = "Ready"
                     else:
                         status = "Not Functional"
-                        reason = self._lastErrorProxy.getLastErrorMessage()
+                        reason = self._lastErrorSvc.getLastErrorMessage()
                 elif featureName == "Ruby Syntax Checking":
                     if self._haveSufficientRuby():
                         status = "Ready"
                     else:
                         status = "Not Functional"
-                        reason = self._lastErrorProxy.getLastErrorMessage()
+                        reason = self._lastErrorSvc.getLastErrorMessage()
 
                 else:
                     errmsg = "Unexpected feature name: %s" % featureName
@@ -249,8 +240,7 @@ class KoFeatureStatusService:
                          reason)
                 st = KoFeatureStatus(featureName, status, reason)
                 try:
-                    self._observerProxy.notifyObservers(st, "feature_status_ready",
-                                                        featureName)
+                    self.notifyObservers(st, "feature_status_ready", featureName)
                 except COMException, ex:
                     # do nothing: Notify sometimes raises an exception if
                     # receivers are not registered?
@@ -277,7 +267,7 @@ class KoFeatureStatusService:
 
         if not exePath or not os.path.exists(exePath):
             log.info("%s: does not exist", exePath)
-            self._lastErrorProxy.setLastError(0,
+            self._lastErrorSvc.setLastError(0,
                 "Perl installation does not exist: \"%s\"" % exePath)
             return 0
         else:
@@ -288,13 +278,13 @@ class KoFeatureStatusService:
                 version = perlInfoEx.version
             except COMException:
                 log.info("%s: couldn't get version", installDir)
-                self._lastErrorProxy.setLastError(0,
+                self._lastErrorSvc.setLastError(0,
                     "Could not determine Perl version: %s. " % installDir)
                 return 0
             else:
                 if version < minVersion:
                     log.info("%s: %s < %s", installDir, version, minVersion)
-                    self._lastErrorProxy.setLastError(0,
+                    self._lastErrorSvc.setLastError(0,
                         "Insufficient Perl version (\"%s\" is version %s). "\
                         "Require at least version %s."\
                         % (installDir, version, minVersion))
@@ -308,7 +298,7 @@ class KoFeatureStatusService:
                 buildNumber = perlInfoEx.buildNumber
             except COMException, ex:
                 log.info("%s: not ActivePerl", installDir)
-                self._lastErrorProxy.setLastError(0,
+                self._lastErrorSvc.setLastError(0,
                     "Perl installation is not ActivePerl: %s" % installDir)
                 return 0
             else:
@@ -318,14 +308,14 @@ class KoFeatureStatusService:
             if buildNumber is None:
                 log.info("%s: couldn't determine ActivePerl build number",
                          installDir)
-                self._lastErrorProxy.setLastError(0,
+                self._lastErrorSvc.setLastError(0,
                     "Could not determine ActivePerl build number: %s"\
                     % installDir)
                 return 0
             elif buildNumber < minActivePerlBuild:
                 log.info("%s: build %s < build %s", installDir, buildNumber,
                          minActivePerlBuild)
-                self._lastErrorProxy.setLastError(0,
+                self._lastErrorSvc.setLastError(0,
                     "Insufficient ActivePerl build (\"%s\" is build %s). "\
                     "Require at least version %s."\
                     % (installDir, buildNumber, minActivePerlBuild))
@@ -338,7 +328,7 @@ class KoFeatureStatusService:
             if not perlInfoEx.haveModules(haveModules):
                 log.info("%s: does not have all of the following modules: %r",
                          installDir, haveModules)
-                self._lastErrorProxy.setLastError(0,
+                self._lastErrorSvc.setLastError(0,
                     "Perl installation at '%s' does not have all of the "\
                     "following modules: %s"\
                     % (installDir, ','.join(haveModules)))
@@ -363,7 +353,7 @@ class KoFeatureStatusService:
         is set with a reason why.
         """
         # Try the user's selected perl interpreter.
-        perlDefaultInterp = self._prefProxy.prefs.getStringPref("perlDefaultInterpreter")
+        perlDefaultInterp = self._prefs.getStringPref("perlDefaultInterpreter")
         if perlDefaultInterp:
             self._perlInfoEx.installationPath =\
                 self._perlInfoEx.getInstallationPathFromBinary(perlDefaultInterp)
@@ -391,7 +381,7 @@ class KoFeatureStatusService:
                 return 0
         
         errmsg = "Could not find a suitable Perl installation."
-        self._lastErrorProxy.setLastError(0, errmsg)
+        self._lastErrorSvc.setLastError(0, errmsg)
         return 0
 
     def _isSufficientNodeJS(self, nodejsInfoEx, minVersion=None):
@@ -409,7 +399,7 @@ class KoFeatureStatusService:
 
         if not exePath or not os.path.exists(exePath):
             log.info("%s: does not exist", exePath)
-            self._lastErrorProxy.setLastError(0,
+            self._lastErrorSvc.setLastError(0,
                 "NodeJS installation does not exist: \"%s\"" % exePath)
             return 0
         else:
@@ -420,14 +410,14 @@ class KoFeatureStatusService:
                 version = nodejsInfoEx.version
             except COMException:
                 log.info("%s: couldn't get version", installDir)
-                self._lastErrorProxy.setLastError(0,
+                self._lastErrorSvc.setLastError(0,
                     "Could not determine NodeJS version: %s. " % installDir)
                 return 0
             else:
                 if (invocationutils.split_short_ver(version, intify=True)
                     < invocationutils.split_short_ver(minVersion, intify=True)):
                     log.info("%s: %s < %s", installDir, version, minVersion)
-                    self._lastErrorProxy.setLastError(0,
+                    self._lastErrorSvc.setLastError(0,
                         "Insufficient NodeJS version (\"%s\" is version %s). "\
                         "Require at least version %s."\
                         % (installDir, version, minVersion))
@@ -448,7 +438,7 @@ class KoFeatureStatusService:
         is set with a reason why.
         """
         # Try the user's selected nodejs interpreter.
-        nodejsDefaultInterp = self._prefProxy.prefs.getStringPref("nodejsDefaultInterpreter")
+        nodejsDefaultInterp = self._prefs.getStringPref("nodejsDefaultInterpreter")
         if nodejsDefaultInterp:
             log.debug("nodejsDefaultInterp")
             self._nodejsInfoEx.installationPath =\
@@ -484,7 +474,7 @@ class KoFeatureStatusService:
                 return 0
         
         errmsg = "Could not find a suitable NodeJS installation."
-        self._lastErrorProxy.setLastError(0, errmsg)
+        self._lastErrorSvc.setLastError(0, errmsg)
         return 0
 
     def _isSufficientPHP(self, phpInfoEx, minVersion=None):
@@ -502,7 +492,7 @@ class KoFeatureStatusService:
         
         if not exePath or not os.path.exists(exePath):
             log.info("%s: does not exist", exePath)
-            self._lastErrorProxy.setLastError(0,
+            self._lastErrorSvc.setLastError(0,
                 "PHP installation does not exist: \"%s\"" % exePath)
             return 0
         else:
@@ -512,7 +502,7 @@ class KoFeatureStatusService:
             version = phpInfoEx.version
             if version < minVersion:
                 log.info("%s: %s < %s", installDir, version, minVersion)
-                self._lastErrorProxy.setLastError(0,
+                self._lastErrorSvc.setLastError(0,
                     "Insufficient PHP version (\"%s\" is version %s). "\
                     "Require at least version %s."\
                     % (installDir, version, minVersion))
@@ -534,7 +524,7 @@ class KoFeatureStatusService:
         is set with a reason why.
         """
         # Try the user's selected php interpreter.
-        phpDefaultInterp = self._prefProxy.prefs.getStringPref("phpDefaultInterpreter")
+        phpDefaultInterp = self._prefs.getStringPref("phpDefaultInterpreter")
         if phpDefaultInterp:
             self._phpInfoEx.installationPath =\
                 self._phpInfoEx.getInstallationPathFromBinary(phpDefaultInterp)
@@ -561,7 +551,7 @@ class KoFeatureStatusService:
                 return 0
         
         errmsg = "Could not find a suitable PHP installation."
-        self._lastErrorProxy.setLastError(0, errmsg)
+        self._lastErrorSvc.setLastError(0, errmsg)
         return 0
 
     def _haveSufficientPython(self, stopOnFirst=1, minVersion=None):
@@ -579,7 +569,7 @@ class KoFeatureStatusService:
         if self._pythonInfoEx.executablePath:
             return 1
         errmsg = "Could not find a suitable Python installation."
-        self._lastErrorProxy.setLastError(0, errmsg)
+        self._lastErrorSvc.setLastError(0, errmsg)
         return 0
 
     def _haveSufficientPython3(self, stopOnFirst=1, minVersion=None):
@@ -593,7 +583,7 @@ class KoFeatureStatusService:
         if self._python3InfoEx.executablePath:
             return 1
         errmsg = "Could not find a suitable Python3 installation."
-        self._lastErrorProxy.setLastError(0, errmsg)
+        self._lastErrorSvc.setLastError(0, errmsg)
         return 0
 
     def _isSufficientRuby(self, rubyInfoEx, minVersion=None):
@@ -611,7 +601,7 @@ class KoFeatureStatusService:
         
         if not exePath or not os.path.exists(exePath):
             log.info("%s: does not exist", exePath)
-            self._lastErrorProxy.setLastError(0,
+            self._lastErrorSvc.setLastError(0,
                 "Ruby installation does not exist: \"%s\"" % exePath)
             return 0
         else:
@@ -633,7 +623,7 @@ class KoFeatureStatusService:
                 minVersionToCompare = minVersion
             if versionToCompare < minVersionToCompare:
                 log.info("%s: %s < %s", exePath, version, minVersion)
-                self._lastErrorProxy.setLastError(0,
+                self._lastErrorSvc.setLastError(0,
                     "Insufficient Ruby version: require version >=%s, "
                     "'%s' is %s" % (minVersion, exePath, version))
                 return 0
@@ -654,7 +644,7 @@ class KoFeatureStatusService:
         is set with a reason why.
         """
         # Try the user's selected ruby interpreter.
-        rubyDefaultInterp = self._prefProxy.prefs.getStringPref("rubyDefaultInterpreter")
+        rubyDefaultInterp = self._prefs.getStringPref("rubyDefaultInterpreter")
         if rubyDefaultInterp:
             self._rubyInfoEx.installationPath =\
                 self._rubyInfoEx.getInstallationPathFromBinary(rubyDefaultInterp)
@@ -678,6 +668,6 @@ class KoFeatureStatusService:
                 return 0
         
         errmsg = "Could not find a suitable Ruby installation."
-        self._lastErrorProxy.setLastError(0, errmsg)
+        self._lastErrorSvc.setLastError(0, errmsg)
         return 0
 

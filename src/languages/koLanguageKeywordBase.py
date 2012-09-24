@@ -40,7 +40,6 @@ import os, sys, re
 import logging
 
 from xpcom import components
-from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC, getProxyForObject
 from xpcom.server import WrapObject
 from koLanguageServiceBase import KoLanguageBase
 import scimozindent

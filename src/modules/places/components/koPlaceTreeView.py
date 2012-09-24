@@ -54,7 +54,6 @@ import uriparse
 
 from xpcom import components, COMException, ServerException, nsError
 from xpcom.server import WrapObject, UnwrapObject
-from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC, getProxyForObject
 
 from koTreeView import TreeView
 from koLanguageServiceBase import sendStatusMessage
@@ -439,10 +438,6 @@ class KoPlaceTreeView(TreeView):
         _kplBase._nodeOpenStatusFromName = self._nodeOpenStatusFromName
         self.lock = threading.RLock()
         self.dragDropUndoCommand = _UndoCommand()
-        wrapSelf = WrapObject(self, components.interfaces.koIPlaceTreeView)
-        self.proxySelf = getProxyForObject(None,
-                                      components.interfaces.koIPlaceTreeView,
-                                      wrapSelf, PROXY_ALWAYS | PROXY_SYNC)
         self.workerThread = _WorkerThread(target=_WorkerThread.run,
                                           name="Places TreeView")
         self.workerThread.daemon = True
@@ -2389,6 +2384,7 @@ class KoPlaceTreeView(TreeView):
             return values[0]
         return values
     
+    @components.ProxyToMainThreadAsync
     def handleCallback(self, callback, rv, requestID):
         #log.debug("handleCallback: callback:%s, rv:%s, requestID:%d", callback, rv, requestID)
         try:
@@ -2429,7 +2425,7 @@ class _WorkerThread(threading.Thread, Queue):
                 
             if not self._isShuttingDown:
                 treeView = args['requester']
-                treeView.proxySelf.handleCallback(callback, rv, args['requestID'])
+                treeView.handleCallback(callback, rv, args['requestID'])
 
     def refreshTreeOnOpen(self, args):
         uri = args['uri']

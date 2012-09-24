@@ -42,13 +42,13 @@ import threading
 import logging
 
 from xpcom import components, COMException, ServerException, nsError
-from xpcom.server import WrapObject, UnwrapObject
-from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC, getProxyForObject
+from xpcom.server import UnwrapObject
 
+from zope.cachedescriptors.property import Lazy as LazyProperty
 
 #---- globals
 log = logging.getLogger('koAsyncOperations')
-#log.setLevel(logging.DEBUG)
+log.setLevel(logging.DEBUG)
 
 
 class koAsyncService(object):
@@ -76,21 +76,23 @@ class koAsyncService(object):
         self._affectedUris = {}
         self._lockedUris = {}
         self._lock = threading.Lock()
-        self._observerSvc = components.classes["@mozilla.org/observer-service;1"].\
-            getService(components.interfaces.nsIObserverService)
-        self._observerProxy = getProxyForObject(1, components.interfaces.nsIObserverService,
-                                                self._observerSvc, PROXY_SYNC | PROXY_ALWAYS)
-        # The testing mode variable is used when running python tests from
-        # the command line, as the getProxyForObject results in an object
-        # that never actually calls the callback function.
-        self.__testing_mode = False
 
     ###
     # Non-XPCOM functions
     ###
 
-    def setTestingMode(self, value):
-        self.__testing_mode = value
+    @LazyProperty
+    def _observerSvc(self):
+        return components.classes["@mozilla.org/observer-service;1"].\
+                getService(components.interfaces.nsIObserverService)
+
+    @components.ProxyToMainThreadAsync
+    def notifyObservers(self, subject, topic, data):
+        self._observerSvc.notifyObservers(subject, topic, data)
+
+    @components.ProxyToMainThread
+    def notifyCallback(self, aOpCallback, result, data):
+        aOpCallback.callback(result, data)
 
     def __run(self, name, aOp, aOpCallback, affected_uris, lock_these_uris):
         # Add the operation to the list
@@ -104,17 +106,10 @@ class koAsyncService(object):
 
         # Notify the observers that these uri's have changed.
         if affected_uris:
-            self._observerProxy.notifyObservers(None, 'file_status',
-                                                "\n".join(affected_uris))
+            self.notifyObservers(None, 'file_status', "\n".join(affected_uris))
 
         try:
             # Run the operation
-            if aOpCallback:
-                try:
-                    aOpCallback = getProxyForObject(1, components.interfaces.koIAsyncCallback,
-                                                    aOpCallback, PROXY_SYNC | PROXY_ALWAYS)
-                except COMException:
-                    pass
             try:
                 aOp.status = self.STATUS_RUNNING
                 data = aOp.run()
@@ -122,11 +117,17 @@ class koAsyncService(object):
             except Exception, ex:
                 if aOpCallback:
                     log.debug("operation: %r raised exception: %r", aOp, ex)
-                    if isinstance(ex, ServerException):
-                        e = ex
+                    #################################
+                    # TODO: Gecko17: Re-look at this!!!
+                    #       The commented code causes out-of-memory errors.
+                    #################################
+                    if isinstance(ex, (ServerException, COMException)):
+                        #e = ex
+                        e = ex.msg
                     else:
-                        e = ServerException(nsError.NS_ERROR_FAILURE, repr(ex))
-                    aOpCallback.callback(self.RESULT_ERROR, e)
+                        #e = ServerException(nsError.NS_ERROR_FAILURE, repr(ex))
+                        e = repr(ex)
+                    self.notifyCallback(aOpCallback, self.RESULT_ERROR, e)
             else:
                 if aOpCallback:
                     if data is None: data = []
@@ -138,9 +139,9 @@ class koAsyncService(object):
                     try:
                         #print "\n%s: making callback\n" % (name, )
                         if aOp.status == self.STATUS_STOPPING:
-                            aOpCallback.callback(self.RESULT_STOPPED, data)
+                            self.notifyCallback(aOpCallback, self.RESULT_STOPPED, data)
                         else:
-                            aOpCallback.callback(self.RESULT_SUCCESSFUL, data)
+                            self.notifyCallback(aOpCallback, self.RESULT_SUCCESSFUL, data)
                     except Exception, ex:
                         log.debug("callback for %r failed: %r", name, ex)
         finally:
@@ -175,8 +176,7 @@ class koAsyncService(object):
 
             if affected_uris:
                 # XXX - Link with file status service?
-                self._observerProxy.notifyObservers(None, 'file_status',
-                                                    "\n".join(affected_uris))
+                self.notifyObservers(None, 'file_status', "\n".join(affected_uris))
 
     ###
     # XPCOM functions

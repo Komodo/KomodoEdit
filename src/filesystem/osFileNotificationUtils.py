@@ -53,7 +53,6 @@ try:
     from xpcom import components, COMException, ServerException, nsError
     from xpcom.server import UnwrapObject
     from xpcom.client import WeakReference
-    from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC, getProxyForObject
     WATCH_FILE = components.interfaces.koIFileNotificationService.WATCH_FILE
     WATCH_DIR = components.interfaces.koIFileNotificationService.WATCH_DIR
     WATCH_DIR_RECURSIVE = components.interfaces.koIFileNotificationService.WATCH_DIR_RECURSIVE
@@ -74,15 +73,14 @@ except ImportError, e:
     sys.stderr.write("WARNING: osFileNotificationUtils: Could not import XPCOM components, running as standalone.\n")
     from weakref import ref as WeakReference
     def UnwrapObject(obj): return obj
-    def getProxyForObject(arg1, arg2, arg3, arg4):
-        return arg3
     class ComException:
         pass
     class components:
         class interfaces:
             koIFileNotificationObserver = None
-    PROXY_ASYNC = 0
-    PROXY_ALWAYS = 1
+        @staticmethod
+        def ProxyToMainThreadAsync(klass, fn):
+            return fn
     # Type of watch to perform (used in addObserver below)
     WATCH_FILE          = 0
     WATCH_DIR           = 1
@@ -313,6 +311,12 @@ class ObserverMonitor:
         else:
             return self.notifyChanges( { self.path: FS_DIR_DELETED } )
 
+    @components.ProxyToMainThreadAsync
+    def sendObserverNotifications(self, observer, uri, change):
+        # We must proxy the observer calls to the UI thread since most instances
+        # will be modifying UI.
+        observer.fileNotification(uri, change)
+
     # Return True if this monitor is finished and should be deleted
     def notifyChanges(self, changes):
         observer = self.getAliveObserver()
@@ -337,16 +341,10 @@ class ObserverMonitor:
                     isDeleted = True
                     if self.watch_type == WATCH_FILE:
                         change = FS_FILE_DELETED
-                    # we must proxy the observer calls to the UI thread since most instances will
-                    # be modifying UI
-                    ob = getProxyForObject(1, components.interfaces.koIFileNotificationObserver,
-                                                      observer, PROXY_ASYNC | PROXY_ALWAYS)
-                    ob.fileNotification(self.uri, change)
+                    self.sendObserverNotifications(ob, self.uri, change)
                     return isDeleted
             elif change & FS_UNKNOWN:
-                ob = getProxyForObject(1, components.interfaces.koIFileNotificationObserver,
-                                                  observer, PROXY_ASYNC | PROXY_ALWAYS)
-                ob.fileNotification(self.uri, change)
+                self.sendObserverNotifications(ob, self.uri, change)
             #elif change == FS_DIR_CREATED:
             #    print "FS_DIR_CREATED, send it on? %r" % (self.flags & change)
             # Check to make sure we are watching for this change
@@ -357,12 +355,7 @@ class ObserverMonitor:
                 # Check to make sure the directory is the one were watching
                 uri = pathToUri(path)
                 self.log.info("  change: %x, uri: %s", change, uri)
-
-                # we must proxy the observer calls to the UI thread since most instances will
-                # be modifying UI
-                ob = getProxyForObject(1, components.interfaces.koIFileNotificationObserver,
-                                                  observer, PROXY_ASYNC | PROXY_ALWAYS)
-                ob.fileNotification(uri, change)
+                self.sendObserverNotifications(observer, uri, change)
         return isDeleted
 
 

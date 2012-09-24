@@ -51,7 +51,6 @@ import logging
 import operator
 
 from xpcom import components, nsError, ServerException, COMException
-from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC
 
 
 

@@ -19,8 +19,7 @@ from glob import glob
 from pprint import pprint
 from collections import defaultdict
 
-from xpcom import components, nsError, ServerException, COMException
-from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC, getProxyForObject
+from xpcom import components, COMException
 from xpcom.server import UnwrapObject
 from koTreeView import TreeView
 
@@ -56,12 +55,25 @@ class KoFastOpenTreeView(TreeView):
     def __init__(self, uiDriver):
         # uiDriver is a JavaScript instance, so we must *always* proxy any
         # calls made to this object through the main thread.
-        self.uiDriver = getProxyForObject(1, # 1 means the main thread.
-            components.interfaces.koIFastOpenUIDriver,
-            uiDriver, PROXY_ALWAYS | PROXY_SYNC)
+        class UIDriverProxy:
+            def __init__(self, obj):
+                self.obj = obj
+            @components.ProxyToMainThreadAsync
+            def searchStarted(self, *args):
+                self.obj.searchStarted(*args)
+            @components.ProxyToMainThreadAsync
+            def searchAborted(self, *args):
+                self.obj.searchAborted(*args)
+            @components.ProxyToMainThreadAsync
+            def searchCompleted(self, *args):
+                self.obj.searchCompleted(*args)
+            @components.ProxyToMainThread
+            def setCurrPath(self, *args):
+                return self.obj.setCurrPath(*args)
+        self.uiDriver = UIDriverProxy(uiDriver)
+
         TreeView.__init__(self) #, debug="fastopen")
         self._tree = None
-        self._selectionProxy = None
         self.resetHits()
 
         ## Styling of the rows based on hit type.
@@ -87,6 +99,10 @@ class KoFastOpenTreeView(TreeView):
         if (not force and num_hits < (prev_num_hits + 1000)) or not self._tree:
             # Don't update the tree yet.
             return
+        self._mainthread_updateTreeView(num_hits, prev_num_hits)
+
+    @components.ProxyToMainThread
+    def _mainthread_updateTreeView(self, num_hits, prev_num_hits):
         self._last_num_hits = num_hits
         try:
             self._tree.beginUpdateBatch()
@@ -103,7 +119,7 @@ class KoFastOpenTreeView(TreeView):
         except AttributeError:
             pass # ignore `self._tree` going away
         if prev_num_hits == 0 and len(self._rows):  # i.e. added first row
-            self._selectionProxy.select(0)
+            self.selection.select(0)
 
     def resetHits(self):
         self._rows = []
@@ -144,18 +160,6 @@ class KoFastOpenTreeView(TreeView):
         return hits
  
     #---- nsITreeView methods
-
-    def setTree(self, tree):
-        if tree is None:
-            self._rawTree = self._tree = self._selectionProxy = None
-        else:
-            self._rawTree = tree
-            self._tree = getProxyForObject(1,
-                components.interfaces.nsITreeBoxObject,
-                self._rawTree, PROXY_ALWAYS | PROXY_SYNC)
-            self._selectionProxy = getProxyForObject(1,
-                components.interfaces.nsITreeSelection,
-                self.selection, PROXY_ALWAYS | PROXY_SYNC)
 
     def get_rowCount(self):
         try:
@@ -501,9 +505,14 @@ class KomodoHistoryURIsGatherer(fastopen.Gatherer):
         except COMException:
             self._koHistorySvcProxy = None
         else:
-            self._koHistorySvcProxy = \
-                getProxyForObject(1, components.interfaces.koIHistoryService,
-                                  koHistorySvc, PROXY_SYNC|PROXY_ALWAYS)
+            # The history service must *always* proxy calls to the main thread.
+            class HistorySvcProxy:
+                def __init__(self, obj):
+                    self.obj = obj
+                @components.ProxyToMainThread
+                def recent_uris_as_array(self, *args):
+                    return self.obj.recent_uris_as_array(*args)
+            self._koHistorySvcProxy = HistorySvcProxy(koHistorySvc)
 
     _cachedHits = None
     def gather(self):

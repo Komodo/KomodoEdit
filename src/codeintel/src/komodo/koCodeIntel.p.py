@@ -56,8 +56,10 @@ import shutil
 from collections import defaultdict
 
 from xpcom import components, nsError, ServerException, COMException
-from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC, getProxyForObject
-from xpcom.server import UnwrapObject, WrapObject
+from xpcom.server import UnwrapObject
+
+from zope.cachedescriptors.property import Lazy as LazyProperty
+
 from koTreeView import TreeView
 import uriparse
 import directoryServiceUtils
@@ -121,15 +123,11 @@ class KoCodeIntelEnvironment(Environment):
             .getService(components.interfaces.koIPrefService)
         self.prefsets = [
             # global prefset
-            getProxyForObject(None, components.interfaces.koIPreference,
-                              prefSvc.prefs, PROXY_ALWAYS | PROXY_SYNC)
+            prefSvc.prefs,
         ]
         if prefset is not None:
             # Per-file preferences.
-            self.prefsets.insert(0,
-                getProxyForObject(None, components.interfaces.koIPreference,
-                                  prefset, PROXY_ALWAYS | PROXY_SYNC)
-            )
+            self.prefsets.insert(0, prefset)
 
         if proj:
             self.set_project(proj)
@@ -137,16 +135,10 @@ class KoCodeIntelEnvironment(Environment):
         # <pref-name> -> <callback-id> -> <observer-callback>
         self._pref_observer_callbacks_from_name = {}
 
-        userEnvSvc = components.classes["@activestate.com/koUserEnviron;1"]\
-            .getService()
-        self._userEnvSvc = getProxyForObject(None,
-            components.interfaces.koIUserEnviron,
-            userEnvSvc, PROXY_ALWAYS | PROXY_SYNC)
-        langRegSvc = components.classes['@activestate.com/koLanguageRegistryService;1']\
-            .getService(components.interfaces.koILanguageRegistryService)
-        self._langRegSvc = getProxyForObject(None,
-            components.interfaces.koILanguageRegistryService,
-            langRegSvc, PROXY_ALWAYS | PROXY_SYNC)
+        self._userEnvSvc = components.classes["@activestate.com/koUserEnviron;1"]\
+                            .getService()
+        self._langRegSvc = components.classes['@activestate.com/koLanguageRegistryService;1']\
+                            .getService(components.interfaces.koILanguageRegistryService)
 
 
     def __repr__(self):
@@ -168,10 +160,7 @@ class KoCodeIntelEnvironment(Environment):
                 # re-created.
                 self.cache = {}
             # This is prefset for the current Komodo project.
-            self.prefsets.insert(1,
-                getProxyForObject(None, components.interfaces.koIPreference,
-                                  proj.prefset, PROXY_ALWAYS | PROXY_SYNC)
-            )
+            self.prefsets.insert(1, proj.prefset)
 
     def has_envvar(self, name):
         return self._userEnvSvc.has(name)
@@ -356,19 +345,12 @@ class KoCodeIntelManager(Manager):
 
     def __init__(self, db_base_dir=None, extension_pylib_dirs=None,
                  db_event_reporter=None, db_catalog_dirs=None):
-        self._phpInfo = components.classes["@activestate.com/koPHPInfoInstance;1"]\
-                            .getService(components.interfaces.koIPHPInfoEx)
         Manager.__init__(self, db_base_dir,
                          on_scan_complete=self._on_scan_complete,
                          extra_module_dirs=extension_pylib_dirs,
                          env=KoCodeIntelEnvironment(),
                          db_event_reporter=db_event_reporter,
                          db_catalog_dirs=db_catalog_dirs)
-        obsSvc = components.classes["@mozilla.org/observer-service;1"]\
-                 .getService(components.interfaces.nsIObserverService)
-        self._proxiedObsSvc = getProxyForObject(1,
-            components.interfaces.nsIObserverService,
-            obsSvc, PROXY_ALWAYS | PROXY_ASYNC)
 
         # Vars for current scope (CS) smarts.
         self._csLock = threading.RLock()
@@ -384,17 +366,29 @@ class KoCodeIntelManager(Manager):
         except:
             log.exception("Failed to register codeintel manager as memory reporter")
 
+    @LazyProperty
+    def _observerSvc(self):
+        return components.classes["@mozilla.org/observer-service;1"]\
+                        .getService(components.interfaces.nsIObserverService)
+    @LazyProperty
+    def _phpInfo(self):
+        return components.classes["@activestate.com/koPHPInfoInstance;1"]\
+                        .getService(components.interfaces.koIPHPInfoEx)
+
     def finalize(self, *args, **kwargs):
         memMgr = components.classes["@mozilla.org/memory-reporter-manager;1"]. \
                     getService(components.interfaces.nsIMemoryReporterManager)
         memMgr.unregisterMultiReporter(self)
         return Manager.finalize(self, *args, **kwargs)
 
+    @components.ProxyToMainThreadAsync
+    def notifyObservers(self, subject, topic, data):
+        self._observerSvc.notifyObservers(subject, topic, data)
+
     def _on_scan_complete(self, request):
         if request.status == "changed":
             # Don't bother if no scan change.
-            self._proxiedObsSvc.notifyObservers(
-                request.buf, "codeintel_buffer_scanned", None)
+            self.notifyObservers(request.buf, "codeintel_buffer_scanned", None)
 
     def set_lang_info(self, lang, silvercity_lexer=None, buf_class=None,
                       import_handler_class=None, cile_driver_class=None,
@@ -692,7 +686,7 @@ class KoCodeIntelManager(Manager):
         if details:
             n.details = details
         try:
-            self._proxiedObsSvc.notifyObservers(n, "status_message", None)
+            self.notifyObservers(n, "status_message", None)
         except COMException, ex:
             pass
 
@@ -706,7 +700,6 @@ class KoCodeIntelEvalController(EvalController):
     have_errors = have_warnings = False
     got_results = False
     ui_handler = None
-    ui_handler_proxy_sync = None
 
     def __init__(self, *args, **kwargs):
         EvalController.__init__(self, *args, **kwargs)
@@ -731,15 +724,27 @@ class KoCodeIntelEvalController(EvalController):
         self.have_errors = True
 
     def set_ui_handler(self, ui_handler):
-        self.ui_handler = ui_handler
-        # Make a synchronous proxy for sending back CI info. The setXXX
+        # All ui_handler calls must be done sync on the main thread. The set_xxx
         # functions in the UI wrap themselves in a setTimeout() call to
         # avoid delaying this codepath. Calling setDefinitionsInfo
         # asynchronously caused hard crash, see bug:
         # http://bugs.activestate.com/show_bug.cgi?id=65188
-        self.ui_handler_proxy_sync = getProxyForObject(1,
-            components.interfaces.koICodeIntelCompletionUIHandler,
-            self.ui_handler, PROXY_ALWAYS | PROXY_SYNC)
+        class UIHandlerProxy:
+            def __init__(self, obj):
+                self.obj = obj
+            @components.ProxyToMainThread
+            def setAutoCompleteInfo(self, *args):
+                return self.obj.setAutoCompleteInfo(*args)
+            @components.ProxyToMainThread
+            def setCallTipInfo(self, *args):
+                return self.obj.setCallTipInfo(*args)
+            @components.ProxyToMainThread
+            def setDefinitionsInfo(self, *args):
+                return self.obj.setDefinitionsInfo(*args)
+            @components.ProxyToMainThread
+            def done(self, *args):
+                return self.obj.done(*args)
+        self.ui_handler = UIHandlerProxy(ui_handler)
 
     def set_cplns(self, cplns):
         if not cplns:
@@ -749,17 +754,19 @@ class KoCodeIntelEvalController(EvalController):
         #XXX Might want to include relevant string info leading up to
         #    the trigger char so the Completion Stack can decide
         #    whether the completion info is still relevant.
-        self.ui_handler_proxy_sync.setAutoCompleteInfo(strings, types, self.trg)
+        self.ui_handler.setAutoCompleteInfo(strings, types, self.trg)
 
     def set_calltips(self, calltips):
         self.got_results = True
         calltip = calltips[0]
-        self.ui_handler_proxy_sync.setCallTipInfo(calltip, self.trg,
-                                                  not self.trg.implicit)
+        self.ui_handler.setCallTipInfo(calltip, self.trg, not self.trg.implicit)
 
     def set_defns(self, defns):
         self.got_results = True
-        self.ui_handler_proxy_sync.setDefinitionsInfo(defns, self.trg)
+        self.ui_handler.setDefinitionsInfo(defns, self.trg)
+
+    def setStatusMessage(self, msg, highlight):
+        self.ui_handler.setStatusMessage(msg, highlight)
 
     def abort(self):
         EvalController.abort(self)
@@ -815,13 +822,11 @@ class KoCodeIntelEvalController(EvalController):
                 #   TypeError: not enough arguments for format string
                 log.exception("problem logging eval failure: self.log=%r", self.log)
                 msg = "error evaluating '%s'" % desc
-            self.ui_handler_proxy_sync.setStatusMessage(
-                msg, (self.trg and not self.trg.implicit or False))
+            self.setStatusMessage(msg, (self.trg and not self.trg.implicit or False))
 
         EvalController.done(self, reason)
         self.close()
-        self.ui_handler_proxy_sync.done()
-        self.ui_handler_proxy_sync = None
+        self.ui_handler.done()
         self.ui_handler = None
 
 
@@ -834,9 +839,17 @@ class KoCodeIntelDBUpgrader(threading.Thread):
 
     controller = None
     def set_controller(self, controller):
-        self.controller = getProxyForObject(1,
-            components.interfaces.koIProgressController,
-            controller, PROXY_ALWAYS | PROXY_SYNC)
+        # All controller calls must be done sync on the main thread.
+        class ControllerProxy:
+            def __init__(self, obj):
+                self.obj = obj
+            @components.ProxyToMainThread
+            def set_progress_mode(self, *args):
+                return self.obj.set_progress_mode(*args)
+            @components.ProxyToMainThread
+            def done(self, *args):
+                return self.obj.done(*args)
+        self.controller = ControllerProxy(controller)
         self.controller.set_progress_mode("undetermined")
         self.start()
 
@@ -863,11 +876,10 @@ class KoCodeIntelDBUpgrader(threading.Thread):
 
         prefs = components.classes["@activestate.com/koPrefService;1"]\
                     .getService().prefs # global prefs
-        proxiedPrefs = getProxyForObject(1, components.interfaces.koIPreference,
-                          prefs, PROXY_ALWAYS | PROXY_SYNC)
-        proxiedPrefs.setBooleanPref("codeintel_have_preloaded_database", 0)
+        prefs.setBooleanPref("codeintel_have_preloaded_database", 0)
 
         self.controller.done(errmsg, errtext)
+        self.controller = None
 
 
 class KoCodeIntelDBPreloader(threading.Thread):
@@ -886,19 +898,9 @@ class KoCodeIntelDBPreloader(threading.Thread):
                    getService(components.interfaces.koICodeIntelService)
         self._mgr = UnwrapObject(ciSvc).mgr
 
-        prefs = components.classes["@activestate.com/koPrefService;1"]\
-                    .getService(components.interfaces.koIPrefService).prefs
-        self._proxiedPrefs = getProxyForObject(None,
-            components.interfaces.koIPreferenceSet,
-            prefs, PROXY_ALWAYS | PROXY_ASYNC)
-
         nm = components.classes["@activestate.com/koNotification/manager;1"]\
                 .getService(components.interfaces.koINotificationManager)
         self._nm = UnwrapObject(nm)
-
-        threadMgr = components.classes["@mozilla.org/thread-manager;1"]\
-                        .getService(components.interfaces.nsIThreadManager)
-        self._mainThread = threadMgr.mainThread
 
     def start(self):
         if self.is_alive():
@@ -938,20 +940,16 @@ class KoCodeIntelDBPreloader(threading.Thread):
                                               "takes less than a minute.")
         return self._notification
 
+    @components.ProxyToMainThread
     def _updateStatus(self):
         """ When notifications explicitly support status messages, they must
         be updated via the status_message observer topic to get pushed into
         the status bar.  This method is a wrapper to do that on the main
         thread, since the observer service is only accessible from there.
         """
-        def runnable():
-            obs = components.classes["@mozilla.org/observer-service;1"]\
-                    .getService(components.interfaces.nsIObserverService)
-            obs.notifyObservers(self.notification, "status_message", None)
-        # must dispatch synchronously to make sure self.notification is
-        # still alive when this thread ends
-        self._mainThread.dispatch(runnable,
-                                  components.interfaces.nsIEventTarget.DISPATCH_SYNC)
+        obs = components.classes["@mozilla.org/observer-service;1"]\
+                .getService(components.interfaces.nsIObserverService)
+        obs.notifyObservers(self.notification, "status_message", None)
 
     def run(self):
         try:
@@ -1013,7 +1011,9 @@ class KoCodeIntelDBPreloader(threading.Thread):
             catalogs_zone.update(catalog_selections,
                                  progress_cb=self.progress_cb)
 
-            self._proxiedPrefs.setBooleanPref("codeintel_have_preloaded_database", 1)
+            prefs = components.classes["@activestate.com/koPrefService;1"]\
+                        .getService(components.interfaces.koIPrefService).prefs
+            prefs.setBooleanPref("codeintel_have_preloaded_database", 1)
             self.notification.summary = "Code intelligence database preloaded."
             self.progress_cb("Done.", self.value_span[-1])
             self.notification.description = ""
@@ -1048,10 +1048,6 @@ class KoCodeIntelEventReporter(object):
     """An event reporter object to report on code intel progress
     """
     def __init__(self):
-        threadMgr = components.classes["@mozilla.org/thread-manager;1"]\
-                        .getService(components.interfaces.nsIThreadManager)
-        self._mainThread = threadMgr.mainThread
-
         # hash of (unicode: dir name) ->
         #    [int: number of outstanding scans, bool: scanned]
         self._dirs = defaultdict(lambda: list([0, False]))
@@ -1101,23 +1097,21 @@ class KoCodeIntelEventReporter(object):
         setattr(self, "_nm", nm)
         return n
 
+    @components.ProxyToMainThread
     def _updateStatusMessage(self):
         """ When notifications explicitly support status messages, they must
         be updated via the status_message observer topic to get pushed into
         the status bar.  This method is a wrapper to do that on the main
         thread, since the observer service is only accessible from there.
         """
-        def runnable():
-            obs = components.classes["@mozilla.org/observer-service;1"]\
-                    .getService(components.interfaces.nsIObserverService)
-            obs.notifyObservers(self._notification, "status_message", None)
         # must dispatch synchronously to make sure self.notification is
         # still alive when this thread ends
         try:
             if self._notification.msg is not None:
                 self._nm.addNotification(self._notification)
-                self._mainThread.dispatch(runnable,
-                                          components.interfaces.nsIEventTarget.DISPATCH_SYNC)
+                obs = components.classes["@mozilla.org/observer-service;1"]\
+                        .getService(components.interfaces.nsIObserverService)
+                obs.notifyObservers(self._notification, "status_message", None)
             else:
                 self._nm.removeNotification(self._notification)
         except COMException, ex:

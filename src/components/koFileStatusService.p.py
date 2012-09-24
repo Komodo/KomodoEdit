@@ -72,7 +72,6 @@ import logging
 import threading
 
 from xpcom import components, nsError, COMException
-from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC, getProxyForObject
 from xpcom.server import UnwrapObject
 
 import uriparse
@@ -130,9 +129,6 @@ class KoFileStatusService:
         #print "file status created"
         self._observerSvc = components.classes["@mozilla.org/observer-service;1"].\
             getService(components.interfaces.nsIObserverService)
-        self._observerProxy = getProxyForObject(1,
-            components.interfaces.nsIObserverService, self._observerSvc,
-            PROXY_ALWAYS | PROXY_ASYNC)
         self._globalPrefs = components.classes["@activestate.com/koPrefService;1"].\
             getService(components.interfaces.koIPrefService).prefs
         self._fileSvc = \
@@ -141,9 +137,6 @@ class KoFileStatusService:
         self._fileNotificationSvc = \
             components.classes["@activestate.com/koFileNotificationService;1"].\
             getService(components.interfaces.koIFileNotificationService)
-        self._fileNotificationSvcAsyncProxy = getProxyForObject(None,
-            components.interfaces.koIFileNotificationService,
-            self._fileNotificationSvc, PROXY_ALWAYS | PROXY_ASYNC)
         self.FNS_WATCH_FILE = components.interfaces.koIFileNotificationService.WATCH_FILE
         self.FNS_WATCH_DIR = components.interfaces.koIFileNotificationService.WATCH_DIR
         self.FNS_NOTIFY_ALL = components.interfaces.koIFileNotificationService.FS_NOTIFY_ALL
@@ -313,6 +306,10 @@ class KoFileStatusService:
         except Exception, e:
             log.exception("Unexpected error in observe")
 
+    @components.ProxyToMainThreadAsync
+    def notifyObservers(self, subject, topic, data):
+        self._observerSvc.notifyObservers(subject, topic, data)
+
     ##
     # Stop listening to a file notification
     # @private
@@ -368,12 +365,10 @@ class KoFileStatusService:
         if callback:
             def wait_till_done(fileStatusSvc, check_items, callback):
                 self._processing_done_event.wait(60)
-                # Proxy the notification back to the UI thread.
-                uiCallbackProxy = getProxyForObject(1,
-                            components.interfaces.koIFileStatusCallback,
-                            callback,
-                            PROXY_ALWAYS | PROXY_ASYNC)
-                uiCallbackProxy.notifyDone()
+                @components.ProxyToMainThreadAsync
+                def fireCallback():
+                    callback.notifyDone()
+                fireCallback()
 
             t = threading.Thread(target=wait_till_done, args=(self, items, callback))
             t.setDaemon(True)
@@ -489,7 +484,7 @@ class KoFileStatusService:
                     # Newly added directories.
                     log.info("Adding directory observer for uri: %r", diruri)
                     try:
-                        self._fileNotificationSvcAsyncProxy.addObserver(self, diruri,
+                        self._fileNotificationSvc.addObserver(self, diruri,
                                                               self.FNS_WATCH_DIR,
                                                               self.FNS_NOTIFY_ALL)
                     except COMException, ex:
@@ -610,8 +605,7 @@ class KoFileStatusService:
                             try:
                                 if len(updated_items) % 10 == 0:
                                     tmpurllist = [file_item[1] for file_item in updated_items[-10:]]
-                                    self._observerProxy.notifyObservers(None, 'file_status',
-                                                                        '\n'.join(tmpurllist))
+                                    self.notifyObservers(None, 'file_status', '\n'.join(tmpurllist))
                                     #for uri in tmpurllist:
                                     #    print "  %r changed %r" % (checker.name, uri)
                             except COMException, e:
@@ -633,8 +627,7 @@ class KoFileStatusService:
                             if left > 0:
                                 tmpurllist = [file_item[1] for file_item in updated_items[-left:]]
                                 #print "file_status sent for:\n  %s" % ('\n  '.join(tmpurllist), )
-                                self._observerProxy.notifyObservers(None, 'file_status',
-                                                                    '\n'.join(tmpurllist))
+                                self.notifyObservers(None, 'file_status', '\n'.join(tmpurllist))
                                 #for uri in tmpurllist:
                                 #    print "  %r changed %r" % (checker.name, uri)
                         except COMException, e:

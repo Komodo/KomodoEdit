@@ -184,8 +184,7 @@ if "CODEINTEL_NO_PYXPCOM" in os.environ:
 else:
     try:
         from xpcom import components, _xpcom
-        from xpcom.server import WrapObject, UnwrapObject
-        from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC, getProxyForObject
+        from xpcom.server import WrapObject
         _xpcom_ = True
     except ImportError:
         _xpcom_ = False
@@ -201,9 +200,6 @@ if _xpcom_:
         def __init__(self):
             self._prefSvc = components.classes["@activestate.com/koPrefService;1"].\
                                     getService(components.interfaces.koIPrefService)
-            self._prefsProxy = getProxyForObject(1,
-                components.interfaces.koIPrefService, self._prefSvc,
-                PROXY_ALWAYS | PROXY_SYNC)
             
             self._wrapped = WrapObject(self, components.interfaces.nsIObserver)
             self._prefSvc.prefs.prefObserverService.addObserver(self._wrapped,'xmlCatalogPaths',0);
@@ -218,7 +214,7 @@ if _xpcom_:
             return env.get_pref("default%sNamespace" % lang)
         
         def reset(self):
-            catalogs = self._prefsProxy.prefs.getStringPref("xmlCatalogPaths") or []
+            catalogs = self._prefSvc.prefs.getStringPref("xmlCatalogPaths") or []
             if catalogs:
                 catalogs = catalogs.split(os.pathsep)
 

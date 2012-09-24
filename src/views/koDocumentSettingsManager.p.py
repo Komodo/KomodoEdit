@@ -38,6 +38,8 @@ from xpcom import components, COMException, ServerException
 import logging
 import eollib
 
+from zope.cachedescriptors.property import Lazy as LazyProperty
+
 log = logging.getLogger('koDocumentSettingsManager')
 #log.setLevel(logging.DEBUG)
 
@@ -70,16 +72,17 @@ class koDocumentSettingsManager:
                 ]
 
     def __init__(self):
-        self._languageRegistry = components.classes["@activestate.com/koLanguageRegistryService;1"].\
-                            getService(components.interfaces.koILanguageRegistryService) 
-        self._globalPrefs = components.classes["@activestate.com/koPrefService;1"].\
-                            getService(components.interfaces.koIPrefService).prefs
         self.koDoc = None
         self._observed_prefs = None
         self._foldFlags = 0
         self._scintillas = []
         self._useAlternateFaceType = None
     
+    @LazyProperty
+    def _globalPrefs(self):
+        return components.classes["@activestate.com/koPrefService;1"].\
+                            getService(components.interfaces.koIPrefService).prefs
+
     def register(self, koDoc, scintilla):
         self.koDoc = koDoc
         if scintilla in self._scintillas:

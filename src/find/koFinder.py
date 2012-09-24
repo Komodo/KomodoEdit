@@ -53,7 +53,6 @@ from hashlib import md5
 
 from xpcom import components, nsError, ServerException, COMException
 from xpcom.server import UnwrapObject
-from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC, getProxyForObject
 from koTreeView import TreeView
 import findlib2
 import textutils
@@ -96,11 +95,8 @@ class KomodoRuntimeEnv(object):
     def __init__(self):
         self.lidb = langinfo.get_default_database()
 
-        langRegSvc = components.classes['@activestate.com/koLanguageRegistryService;1']\
+        self._langRegSvc = components.classes['@activestate.com/koLanguageRegistryService;1']\
             .getService(components.interfaces.koILanguageRegistryService)
-        self._langRegSvc = getProxyForObject(None,
-            components.interfaces.koILanguageRegistryService,
-            langRegSvc, PROXY_ALWAYS | PROXY_SYNC)
 
     def langinfo_from_filename(self, filename):
         """Return a `LangInfo` appropriate for the given filename based
@@ -170,12 +166,27 @@ class _FindReplaceInFilesThread(threading.Thread):
         self.resultsMgr = resultsMgr
         self.env = env
 
-        self.resultsMgrProxy = getProxyForObject(None,
-            components.interfaces.koIFindResultsTabManager,
-            resultsMgr, PROXY_ALWAYS | PROXY_SYNC)
-        self.resultsViewProxy = getProxyForObject(None,
-            components.interfaces.koIFindResultsView,
-            resultsMgr.view, PROXY_ALWAYS | PROXY_SYNC)
+        class ResultsManagerProxy:
+            def __init__(self, obj):
+                self.obj = obj
+            @components.ProxyToMainThread
+            def searchFinished(self, *args):
+                return self.obj.searchFinished(*args)
+            @components.ProxyToMainThread
+            def setDescription(self, *args):
+                return self.obj.setDescription(*args)
+        self.resultsMgrProxy = ResultsManagerProxy(resultsMgr)
+
+        class ResultsViewProxy:
+            def __init__(self, obj):
+                self.obj = obj
+            @components.ProxyToMainThread
+            def AddFindResults(self, *args):
+                return self.obj.AddFindResults(*args)
+            @components.ProxyToMainThread
+            def AddReplaceResults(self, *args):
+                return self.obj.AddReplaceResults(*args)
+        self.resultsViewProxy = ResultsViewProxy(resultsMgr.view)
 
         self._stopped = False # when true the processing thread should terminate
         self._reset_hit_cache()
@@ -528,9 +539,16 @@ class _ConfirmReplacerInFiles(threading.Thread, TreeView):
         self.env = env
 
         self.controller = controller
-        self.controllerProxy = getProxyForObject(None,
-            components.interfaces.koIConfirmReplaceController,
-            controller, PROXY_ALWAYS | PROXY_SYNC)
+        class ControllerProxy:
+            def __init__(self, obj):
+                self.obj = obj
+            @components.ProxyToMainThread
+            def report(self, *args):
+                return self.obj.report(*args)
+            @components.ProxyToMainThread
+            def done(self, *args):
+                return self.obj.done(*args)
+        self.controllerProxy = ControllerProxy(controller)
 
         self._stopped = False # when true the processing thread should terminate
 
@@ -622,6 +640,18 @@ class _ConfirmReplacerInFiles(threading.Thread, TreeView):
                     rgroups.append(rgroup)
         return '\n'.join(rgroup.diff for rgroup in rgroups)
 
+    @components.ProxyToMainThreadAsync
+    def _treeRowCountChanged(self, rowIdx, numRows):
+        try:
+            self._tree.beginUpdateBatch()
+            self._tree.rowCountChanged(rowIdx, numRows)
+            self._tree.invalidate()
+            self._tree.endUpdateBatch()
+        except AttributeError, ex:
+            # Ignore if `self._tree` goes away on us during
+            # shutdown of the confirmation dialog.
+            pass
+
     def filterSkippedPaths(self, doFilter):
         self._filter_skipped_paths = doFilter
         with self._lock:
@@ -637,14 +667,11 @@ class _ConfirmReplacerInFiles(threading.Thread, TreeView):
             self._last_report_num_tree_rows = previous_last_report_num_tree_rows + num_rows_changed
 
         if num_rows_changed != 0:
-            self._treeProxy.beginUpdateBatch()
-            self._treeProxy.rowCountChanged(
-                # Starting at row N...
-                previous_num_events,
-                # ...for M rows.
-                num_rows_changed)
-            self._treeProxy.invalidate()
-            self._treeProxy.endUpdateBatch()
+            self._treeRowCountChanged(
+                    # Starting at row N...
+                    previous_num_events,
+                    # ...for M rows.
+                    num_rows_changed)
 
     def commit(self, resultsMgr):
         if self.isAlive():
@@ -762,19 +789,11 @@ class _ConfirmReplacerInFiles(threading.Thread, TreeView):
         with self._lock:
             num_tree_rows = len(self.events)
         if num_tree_rows > self._last_report_num_tree_rows:
-            try:
-                self._treeProxy.beginUpdateBatch()
-                self._treeProxy.rowCountChanged(
-                    # Starting at row N...
-                    self._last_report_num_tree_rows,
-                    # ...for M rows.
-                    num_tree_rows - self._last_report_num_tree_rows)
-                self._treeProxy.invalidate()
-                self._treeProxy.endUpdateBatch()
-            except AttributeError, ex:
-                # Ignore if `self._treeProxy` goes away on us during
-                # shutdown of the confirmation dialog.
-                pass
+            self._treeRowCountChanged(
+                # Starting at row N...
+                self._last_report_num_tree_rows,
+                # ...for M rows.
+                num_tree_rows - self._last_report_num_tree_rows)
             self._last_report_num_tree_rows = num_tree_rows
 
         self.controllerProxy.report(self.num_hits,
@@ -806,15 +825,6 @@ class _ConfirmReplacerInFiles(threading.Thread, TreeView):
                 self.events.append(event)
 
     #---- koITreeView methods
-    def setTree(self, tree):
-        self._tree = tree
-        if tree is not None:
-            self._treeProxy = getProxyForObject(None,
-                components.interfaces.nsITreeBoxObject,
-                self._tree, PROXY_ALWAYS | PROXY_ASYNC)
-        else:
-            self._treeProxy = None
-
     def get_rowCount(self):
         with self._lock:
             return len(self.events)
@@ -892,9 +902,22 @@ class _ReplaceUndoer(threading.Thread, TreeView):
 
         self.journal_id = journal_id
         self.controller = controller
-        self.controllerProxy = getProxyForObject(None,
-            components.interfaces.koIUndoReplaceController,
-            controller, PROXY_ALWAYS | PROXY_SYNC)
+        class ControllerProxy:
+            def __init__(self, obj):
+                self.obj = obj
+            @components.ProxyToMainThread
+            def set_summary(self, *args):
+                return self.obj.set_summary(*args)
+            @components.ProxyToMainThread
+            def report(self, *args):
+                return self.obj.report(*args)
+            @components.ProxyToMainThread
+            def error(self, *args):
+                return self.obj.error(*args)
+            @components.ProxyToMainThread
+            def done(self, *args):
+                return self.obj.done(*args)
+        self.controllerProxy = ControllerProxy(controller)
 
         self._stopped = False # when true the processing thread should terminate
         
@@ -950,6 +973,18 @@ class _ReplaceUndoer(threading.Thread, TreeView):
             fileStatusSvc.updateStatusForAllFiles(
                 components.interfaces.koIFileStatusChecker.REASON_FILE_CHANGED)
 
+    @components.ProxyToMainThreadAsync
+    def _treeRowCountChanged(self, rowIdx, numRows):
+        try:
+            self._tree.beginUpdateBatch()
+            self._tree.rowCountChanged(rowIdx, numRows)
+            self._tree.invalidate()
+            self._tree.endUpdateBatch()
+        except AttributeError, ex:
+            # Ignore if `self._tree` goes away on us during
+            # shutdown of the confirmation dialog.
+            pass
+
     _last_report_num_paths = 0
     def _report(self, flush=False):
         """Report current results to the controller.
@@ -965,34 +1000,17 @@ class _ReplaceUndoer(threading.Thread, TreeView):
             return      # skip reporting
 
         if self.num_paths > self._last_report_num_paths:
-            try:
-                self._treeProxy.beginUpdateBatch()
-                self._treeProxy.rowCountChanged(
+            self._treeRowCountChanged(
                     # Starting at row N...
                     self._last_report_num_paths,
                     # ...for M rows.
                     self.num_paths - self._last_report_num_paths)
-                self._treeProxy.invalidate()
-                self._treeProxy.endUpdateBatch()
-            except AttributeError, ex:
-                # Ignore if `self._treeProxy` goes away on us during
-                # shutdown of the confirmation dialog.
-                pass
 
         self.controllerProxy.report(self.num_hits, self.num_paths)
         self._last_report_num_paths = self.num_paths
 
 
     #---- koITreeView methods
-    def setTree(self, tree):
-        self._tree = tree
-        if tree is not None:
-            self._treeProxy = getProxyForObject(None,
-                components.interfaces.nsITreeBoxObject,
-                self._tree, PROXY_ALWAYS | PROXY_ASYNC)
-        else:
-            self._treeProxy = None
-
     def get_rowCount(self):
         with self._lock:
             return len(self.records)
@@ -1037,10 +1055,20 @@ class LoadedFileTextFactory(object):
                 }
         if loaded_path_accessor:
             if need_proxy:
+                class LoadedPathProxy:
+                    def __init__(self, obj):
+                        self.obj = obj
+                    @components.ProxyToMainThread
+                    def applyChanges(self, *args):
+                        self.obj.applyChanges(*args)
+                    @components.ProxyToMainThread
+                    def bufferHasChanged(self, *args):
+                        self.obj.bufferHasChanged(*args)
+                    @components.ProxyToMainThread
+                    def undoChanges(self, *args):
+                        self.obj.undoChanges(*args)
                 self.loaded_path_accessor = loaded_path_accessor
-                self.loadedPathAccessorProxy = getProxyForObject(None,
-                     components.interfaces.koILoadedPathAccessor,
-                     loaded_path_accessor, PROXY_ALWAYS | PROXY_SYNC)
+                self.loadedPathAccessorProxy = LoadedPathProxy(loaded_path_accessor)
             else:
                 self.loaded_path_accessor =\
                     self.loadedPathAccessorProxy = loaded_path_accessor

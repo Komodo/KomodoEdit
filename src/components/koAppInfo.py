@@ -39,8 +39,6 @@ import sys, os, re, string
 import os.path
 import tempfile
 from xpcom import components, ServerException, COMException, nsError
-from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC, getProxyForObject
-from xpcom.server import WrapObject, UnwrapObject
 
 import process
 import koprocessutils
@@ -78,9 +76,6 @@ class KoAppInfoEx:
         self._executable_is_valid_cache = {}
         self._prefSvc = components.classes["@activestate.com/koPrefService;1"].\
             getService(components.interfaces.koIPrefService)
-        self.prefService = getProxyForObject(1,
-            components.interfaces.koIPrefService, self._prefSvc,
-            PROXY_ALWAYS | PROXY_SYNC)
 
         self._userPath = koprocessutils.getUserEnv()["PATH"].split(os.pathsep)
 
@@ -232,7 +227,7 @@ class KoAppInfoEx:
             # Only want supported versions.
             executables = [exe for exe in executables if self._isValidExecutable(exe)]
         if interpreterPrefName:
-            prefs = self.prefService.prefs
+            prefs = self._prefSvc.prefs
             if prefs.hasStringPref(interpreterPrefName):
                 prefexe = prefs.getStringPref(interpreterPrefName)
                 if prefexe and os.path.exists(prefexe):
@@ -354,9 +349,9 @@ class KoPerlInfoEx(KoAppInfoEx):
     
     # koIPerlInfoEx routines
     def getExtraPaths(self):
-        if not self.prefService.effectivePrefs.hasPref("perlExtraPaths"):
+        if not self._prefSvc.effectivePrefs.hasPref("perlExtraPaths"):
             return []
-        perlExtraPaths = self.prefService.effectivePrefs.getStringPref("perlExtraPaths")
+        perlExtraPaths = self._prefSvc.effectivePrefs.getStringPref("perlExtraPaths")
         if not perlExtraPaths:
             return []
         if sys.platform.startswith("win"):
@@ -907,8 +902,8 @@ class KoPHPInfoInstance(KoAppInfoEx):
 
     def autoConfigureDebugger(self):
         # get the phpconfigurator and autoconfigure
-        if self.prefService.prefs.hasStringPref("phpConfigFile") and\
-                   self.prefService.prefs.getStringPref("phpConfigFile"):
+        if self._prefSvc.prefs.hasStringPref("phpConfigFile") and\
+                   self._prefSvc.prefs.getStringPref("phpConfigFile"):
             if not self.get_isDebuggerExtensionLoadable():
                 return "Unable to load XDebug"
             return "" 

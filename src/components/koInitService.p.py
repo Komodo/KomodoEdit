@@ -320,7 +320,6 @@ class KoInitService(object):
                       getService(components.interfaces.nsIObserverService)
         if topic == "app-startup":
             observerSvc.addObserver(self, "profile-after-change", 1)
-            observerSvc.removeObserver(self, "app-startup")
         elif topic == "profile-after-change":
             # get all komodo-startup components and instantiate them
             self.initExtensions()

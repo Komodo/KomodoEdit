@@ -45,7 +45,6 @@ import pprint
 
 import scimozindent
 from xpcom import components
-from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC, getProxyForObject
 from xpcom.server import WrapObject
 
 #---- globals

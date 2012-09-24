@@ -35,7 +35,6 @@
 # ***** END LICENSE BLOCK *****
 
 from xpcom import components
-from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, getProxyForObject
 from koLintResult import *
 from koLintResults import koLintResults
 import os, sys, re
@@ -262,9 +261,6 @@ class KoCPPCompileLinter:
             getService(components.interfaces.koILastErrorService)
         self._prefSvc = components.classes["@activestate.com/koPrefService;1"].\
             getService(components.interfaces.koIPrefService)
-        self._prefProxy = getProxyForObject(1,
-            components.interfaces.koIPrefService, self._prefSvc,
-            PROXY_ALWAYS | PROXY_SYNC)
         
     def lint(self, request):
         text = request.content.encode(request.encoding.python_encoding_name)

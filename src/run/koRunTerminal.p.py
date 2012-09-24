@@ -45,7 +45,6 @@ from pprint import pprint
 import logging
 
 from xpcom import components, nsError, ServerException, COMException
-from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC, getProxyForObject
 from koTreeView import TreeView
 
 #---- globals
@@ -137,9 +136,6 @@ class koTerminalHandler:
         registryService = components.classes['@activestate.com/koLanguageRegistryService;1'].\
                getService(components.interfaces.koILanguageRegistryService)
         self.language = registryService.getLanguage('Errors');
-        self._proxyself = getProxyForObject(1, components.interfaces.koITerminalHandler,
-                                            self,
-                                            PROXY_ALWAYS | PROXY_SYNC)
 
     #---- koIRunTerminal methods
 
@@ -244,7 +240,7 @@ class koTerminalHandler:
 
         # The stdout/stderr interaction requires a scintilla widget.
         if self.status in (self.STATUS_RUNNING, self.STATUS_STOPPING):
-            self._proxyself.proxyAddText(length, text, name)
+            self.proxyAddText(length, text, name)
 
     # this function is always called via proxy so scintilla does not need to be
     # proxied the purpose of this is to prevent other modifications to scintilla
@@ -263,6 +259,7 @@ class koTerminalHandler:
     # 
     # now lets do the funky mojo...
     #
+    @components.ProxyToMainThread
     def proxyAddText(self, length, text, name):
         # name is either <stderr> or <stdout>
         # Note, the terminal mutex should *must* be aquired before this call.
@@ -579,12 +576,9 @@ class KoRunTerminal(koTerminalHandler, TreeView):
 
     # Must proxy this tree call to the UI, as we are running in a separate
     # thread.
+    @components.ProxyToMainThreadAsync
     def _proxyRowCountChanged(self, fromIndex, rowsChanged):
-        if self._treeProxy is None:
-            self._treeProxy = getProxyForObject(1,
-                                    components.interfaces.nsITreeBoxObject,
-                                    self._tree, PROXY_ALWAYS | PROXY_ASYNC)
-        self._treeProxy.rowCountChanged(fromIndex, rowsChanged)
+        self._tree.rowCountChanged(fromIndex, rowsChanged)
 
     def parseAndAddLine(self, line):
         if not self._parseRegex:

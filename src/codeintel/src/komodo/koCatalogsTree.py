@@ -49,9 +49,8 @@ import threading
 import traceback
 import shutil
 
-from xpcom import components, nsError, ServerException, COMException
-from xpcom._xpcom import PROXY_SYNC, PROXY_ALWAYS, PROXY_ASYNC, getProxyForObject
-from xpcom.server import UnwrapObject, WrapObject
+from xpcom import components
+from xpcom.server import UnwrapObject
 
 from koTreeView import TreeView
 
@@ -149,6 +148,7 @@ class KoCodeIntelCatalogsTreeView(TreeView):
             # column object.
             self._tree.invalidateRow(row_idx)
 
+    @components.ProxyToMainThread
     def post_add(self, added_cix_paths):
         self._reload()
 
@@ -173,11 +173,9 @@ class KoCodeIntelCatalogsTreeView(TreeView):
             self.selection.rangedSelect(row_idx, row_idx, True)
 
     def addPaths(self, paths):
-        proxied_tree_view = getProxyForObject(None,
-            components.interfaces.koICodeIntelCatalogsTreeView,
-            self, PROXY_ALWAYS | PROXY_SYNC)
-        return KoCodeIntelCatalogAdder(paths, proxied_tree_view.post_add)
+        return KoCodeIntelCatalogAdder(paths, self.post_add)
 
+    @components.ProxyToMainThread
     def post_remove(self, removed_cix_paths):
         self._reload()
 
@@ -187,10 +185,7 @@ class KoCodeIntelCatalogsTreeView(TreeView):
             start, end = self.selection.getRangeAt(i)
             for row_idx in range(start, end+1):
                 paths.append(self._rows[row_idx]["cix_path"])
-        proxied_tree_view = getProxyForObject(None,
-            components.interfaces.koICodeIntelCatalogsTreeView,
-            self, PROXY_ALWAYS | PROXY_SYNC)
-        return KoCodeIntelCatalogRemover(paths, proxied_tree_view.post_remove)
+        self.post_remove()
 
     def areUISelectedRowsRemovable(self):
         num_sel_ranges = self.selection.getRangeCount()
@@ -316,9 +311,20 @@ class KoCodeIntelCatalogAdder(threading.Thread):
         self.on_complete = on_complete
 
     def set_controller(self, controller):
-        self.controller = getProxyForObject(None,
-            components.interfaces.koIProgressController,
-            controller, PROXY_ALWAYS | PROXY_SYNC)
+        # All controller calls must be done sync on the main thread.
+        class ControllerProxy:
+            def __init__(self, obj):
+                self.obj = obj
+            @components.ProxyToMainThread
+            def set_progress_mode(self, *args):
+                return self.obj.set_progress_mode(*args)
+            @components.ProxyToMainThread
+            def set_stage(self, *args):
+                return self.obj.set_stage(*args)
+            @components.ProxyToMainThread
+            def done(self, *args):
+                return self.obj.done(*args)
+        self.controller = ControllerProxy(controller)
         self.controller.set_progress_mode("undetermined")
         self.start()
     
@@ -394,9 +400,20 @@ class KoCodeIntelCatalogRemover(threading.Thread):
         self.on_complete = on_complete
 
     def set_controller(self, controller):
-        self.controller = getProxyForObject(None,
-            components.interfaces.koIProgressController,
-            controller, PROXY_ALWAYS | PROXY_SYNC)
+        # All controller calls must be done sync on the main thread.
+        class ControllerProxy:
+            def __init__(self, obj):
+                self.obj = obj
+            @components.ProxyToMainThread
+            def set_progress_mode(self, *args):
+                return self.obj.set_progress_mode(*args)
+            @components.ProxyToMainThread
+            def set_stage(self, *args):
+                return self.obj.set_stage(*args)
+            @components.ProxyToMainThread
+            def done(self, *args):
+                return self.obj.done(*args)
+        self.controller = ControllerProxy(controller)
         self.controller.set_progress_mode("undetermined")
         self.start()
     

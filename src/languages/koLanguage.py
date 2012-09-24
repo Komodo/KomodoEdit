@@ -961,12 +961,13 @@ class KoLanguageStatusTreeView(TreeView):
                         createInstance(components.interfaces.koIPreferenceSet)
                     prefSet.setBooleanPref("primary", bool(status))
                     languageSpecificPrefs.setPref(languageKey, prefSet)
+        self.notifyObservers(None, 'primary_languages_changed', '')
+
+    @components.ProxyToMainThread
+    def notifyObservers(self, subject, topic, data):
         obsSvc = components.classes["@mozilla.org/observer-service;1"].\
                  getService(components.interfaces.nsIObserverService)
-        obsSvcProxy = _xpcom.getProxyForObject(None,
-            components.interfaces.nsIObserverService, obsSvc,
-            _xpcom.PROXY_ALWAYS | _xpcom.PROXY_SYNC)
-        obsSvcProxy.notifyObservers(None, 'primary_languages_changed', '')
+        obsSvc.notifyObservers(subject, topic, data)
 
     def toggleStatus(self, row_idx):
         """Toggle selected state for the given row."""

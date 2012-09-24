@@ -40,7 +40,8 @@ import string
 import re
 import logging
 import eollib
-                
+
+from zope.cachedescriptors.property import Lazy as LazyProperty
 
 log = logging.getLogger("koScintillaController")
 #log.setLevel(logging.DEBUG)
@@ -131,12 +132,20 @@ class koScintillaController:
         # Else - key == scimoz attribute name.
         self.bool_attributes = {}
         self._loc_saving_cmds = ['cmd_documentHome', 'cmd_documentEnd']
-        self._koHistorySvc = components.classes["@activestate.com/koHistoryService;1"].\
+
+    @LazyProperty
+    def _koHistorySvc(self):
+        return components.classes["@activestate.com/koHistoryService;1"].\
                         getService(components.interfaces.koIHistoryService)
-        self._koSysUtils = components.classes["@activestate.com/koSysUtils;1"].\
+    @LazyProperty
+    def _koSysUtils(self):
+        return components.classes["@activestate.com/koSysUtils;1"].\
                             getService(components.interfaces.koISysUtils)
-        self._koPrefs = components.classes["@activestate.com/koPrefService;1"].\
+    @LazyProperty
+    def _koPrefs(self):
+        return components.classes["@activestate.com/koPrefService;1"].\
                             getService(components.interfaces.koIPrefService).prefs
+
     def test_scimoz(self, scimoz):
         self.init(scimoz)
         ScintillaControllerTestCase.controller = self

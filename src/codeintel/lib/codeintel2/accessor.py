@@ -51,7 +51,6 @@ from codeintel2 import util
 if _xpcom_:
     from xpcom import components
     from xpcom.client import WeakReference
-    from xpcom._xpcom import getProxyForObject, PROXY_SYNC, PROXY_ALWAYS
     from xpcom import COMException
 
 
@@ -341,7 +340,7 @@ class SciMozAccessor(Accessor):
     def text_range(self, start, end):
         return self.scimoz().getTextRange(start, end)
     def length(self):
-        return self.scimoz().textLength
+        return self.scimoz().length
         #raise NotImplementedError(
         #    "Calculating the *character* length of a SciMoz buffer can "
         #    "be expensive. Are you sure you want to use this method? "
@@ -481,9 +480,42 @@ class KoDocumentAccessor(SciMozAccessor):
         @components.ProxyToMainThread
         def _get_proxied_scimoz_ref(self):
             scimoz = self._get_scimoz_ref()
-            # Proxy it up and return.
-            return getProxyForObject(1, components.interfaces.ISciMoz,
-                scimoz, PROXY_SYNC | PROXY_ALWAYS)
+            class SciMozProxy:
+                def __init__(self, sm):
+                    self.sm = sm
+                @property
+                @components.ProxyToMainThread
+                def length(self):
+                    return self.sm.length
+                @property
+                @components.ProxyToMainThread
+                def text(self):
+                    return self.sm.text
+                @components.ProxyToMainThread
+                def getTextRange(self, *args):
+                    return self.sm.getTextRange(*args)
+                @components.ProxyToMainThread
+                def getStyledText(self, *args):
+                    return self.sm.getStyledText(*args)
+                @components.ProxyToMainThread
+                def getWCharAt(self, *args):
+                    return self.sm.getWCharAt(*args)
+                @components.ProxyToMainThread
+                def getStyleAt(self, *args):
+                    return self.sm.getStyleAt(*args)
+                @components.ProxyToMainThread
+                def lineFromPosition(self, *args):
+                    return self.sm.lineFromPosition(*args)
+                @components.ProxyToMainThread
+                def positionFromLine(self, *args):
+                    return self.sm.positionFromLine(*args)
+                @components.ProxyToMainThread
+                def indicatorStart(self, *args):
+                    return self.sm.indicatorStart(*args)
+                @components.ProxyToMainThread
+                def indicatorEnd(self, *args):
+                    return self.sm.indicatorEnd(*args)
+            return SciMozProxy(scimoz)
 
     def scimoz(self):
         """Re-get scimoz every time it's needed.
@@ -491,7 +523,7 @@ class KoDocumentAccessor(SciMozAccessor):
         This ensures scimoz will be properly proxied when calling off
         the main thread."""
 
-        if not _xpcom_ or threading.currentThread().name == "MainThread":
+        if not _xpcom_:
             return self._get_scimoz_ref()
         else:
             return self._get_proxied_scimoz_ref()

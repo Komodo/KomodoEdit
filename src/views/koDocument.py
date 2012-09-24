@@ -56,6 +56,16 @@ import koUnicodeEncoding, codecs, types
 log = logging.getLogger('koDocument')
 #log.setLevel(logging.DEBUG)
 
+
+################################################################################
+# Note that koDocument's scintilla/scimoz attribute is thread-protected, all
+# calls that koDocument makes using scintilla/scimoz will be proxied to the main
+# thread, as scintilla/scimoz can only be used on the main thread.
+#
+# If you obtain scimoz from a koDocument, you must ensure you proxy calls to it
+# using the main thread.
+################################################################################
+
 class koDocumentBase:
     _com_interfaces_ = [components.interfaces.koIDocument,
                         components.interfaces.nsIObserver]
@@ -120,16 +130,12 @@ class koDocumentBase:
         
         self._obsSvc = components.classes['@mozilla.org/observer-service;1'].\
                                 getService(components.interfaces.nsIObserverService);
-        self._obsSvcProxy = _xpcom.getProxyForObject(1, components.interfaces.nsIObserverService,
-                                          self._obsSvc, _xpcom.PROXY_SYNC | _xpcom.PROXY_ALWAYS)
         self.docSettingsMgr = components.classes['@activestate.com/koDocumentSettingsManager;1'].\
             createInstance(components.interfaces.koIDocumentSettingsManager);
         self._historySvc = components.classes["@activestate.com/koHistoryService;1"].\
                            getService(components.interfaces.koIHistoryService)
 
 
-        self._proxied = None
-        
         self.lidb = langinfo.get_default_database()
 
         self.init()
@@ -147,15 +153,6 @@ class koDocumentBase:
         # when we reference count upwards, we might need to recreate some components
         # this could happen if anyone keeps a reference to the document, and the document
         # is reloaded
-
-        # if we're the current view, we cannot get the text from
-        # scintilla in a thread, and must proxy.  since this shouldn't
-        # get hit often, we'll just always proxy to be on the safe
-        # side of things
-        if not self._proxied:
-            wrapSelf = xpcom.server.WrapObject(self, components.interfaces.koIDocument)
-            self._proxied = _xpcom.getProxyForObject(1, components.interfaces.koIDocument,
-                                              wrapSelf, _xpcom.PROXY_SYNC | _xpcom.PROXY_ALWAYS)
         if not self.docSettingsMgr:
             self.docSettingsMgr = components.classes['@activestate.com/koDocumentSettingsManager;1'].\
                 createInstance(components.interfaces.koIDocumentSettingsManager);
@@ -166,7 +163,6 @@ class koDocumentBase:
         if self.prefs:
             prefObserver = self.prefs.prefObserverService
             prefObserver.removeObserverForTopics(self, ['useTabs', 'indentWidth', 'tabWidth'])
-        self._proxied = None
         self._ciBuf = None
 
     def get_ciBuf(self):
@@ -636,6 +632,8 @@ class koDocumentBase:
             return self._untitledName
         else:
             return self.file.baseName
+    # Make self.baseName work for Python (non-xpcom) code.
+    baseName = property(get_baseName)
 
     def set_baseName(self, val):
         # Note: AFAICT this is never called. Not much use in it anyway. --TM (2010).
@@ -686,6 +684,7 @@ class koDocumentBase:
     #       use the koIDocument.ciBuf.lang_from_pos() code, instead of their
     #       own implementation. To be kept in mind for re-factoring work.
 
+    @components.ProxyToMainThread
     def get_subLanguage(self):
         if not self._language or not self._docPointer:
             return None
@@ -701,6 +700,7 @@ class koDocumentBase:
         family = udl_family_from_style(style)
         return self.get_languageObj().getLanguageForFamily(family)
         
+    @components.ProxyToMainThread
     def familyForPosition(self, pos):
         if not self._language or not self._docPointer:
             return None
@@ -720,6 +720,7 @@ class koDocumentBase:
 
     DECORATOR_UDL_FAMILY_TRANSITION = components.interfaces.koILintResult.DECORATOR_UDL_FAMILY_TRANSITION
 
+    @components.ProxyToMainThread
     def getLanguageTransitionPoints(self, start_pos, end_pos):
         scimoz = self._views[0].scimoz
         if not self._language or not self._docPointer:
@@ -777,6 +778,7 @@ class koDocumentBase:
             "to 65001 (unicode mode): %r ignored", codePage)
         self._codePage = 65001
 
+    @components.ProxyToMainThread
     def get_buffer(self):
         if self._docPointer:
             return self._views[0].scimoz.text
@@ -804,6 +806,7 @@ class koDocumentBase:
         self.prefs.setStringPref("encoding",
                                  self.encoding.python_encoding_name)
 
+    @components.ProxyToMainThread
     def _set_buffer_encoded(self,text,makeDirty=1):
         was_dirty = self.get_isDirty()
         if self._docPointer:
@@ -837,6 +840,7 @@ class koDocumentBase:
         except COMException, e:
             pass # no one is listening!
 
+    @components.ProxyToMainThread
     def get_bufferLength(self):
         # XXX as we add more methods, we'll need a better system
         if self._docPointer:
@@ -845,6 +849,7 @@ class koDocumentBase:
             return len(self._buffer)
         return 0
 
+    @components.ProxyToMainThread
     def set_existing_line_endings(self, le):
         if le not in (eollib.EOL_LF, eollib.EOL_CR, eollib.EOL_CRLF):
             raise ServerException(nsError.NS_ERROR_FAILURE,
@@ -875,6 +880,7 @@ class koDocumentBase:
     def get_new_line_endings(self):
         return self._eol
 
+    @components.ProxyToMainThread
     def set_new_line_endings(self, le):
         if le not in (eollib.EOL_LF, eollib.EOL_CR, eollib.EOL_CRLF):
             raise ServerException(nsError.NS_ERROR_FAILURE,
@@ -885,6 +891,7 @@ class koDocumentBase:
             if view.scimoz:
                 view.scimoz.eOLMode = eollib.eol2scimozEOL[le]
 
+    @components.ProxyToMainThread
     def cleanLineEndings(self):
         # Two cases -- either there's a selection in which case we
         # want to do the operation only on the selection, or there
@@ -1039,6 +1046,7 @@ class koDocumentBase:
             self.encoding.use_byte_order_marker = bom
         self._set_buffer_encoded(buffer)
 
+    @components.ProxyToMainThread
     def set_encoding(self, encoding, errors="strict"):
         """Convert the current buffer to the given encoding.
         
@@ -1199,7 +1207,8 @@ class koDocumentBase:
             log.exception(e)
             raise
 
-    def get_encodedText(self):
+    @property
+    def encodedText(self):
         try:
             return self._getEncodedBufferText()
         except UnicodeError, ex:
@@ -1207,14 +1216,15 @@ class koDocumentBase:
                 self.encoding.python_encoding_name, ex)
             raise
 
-    def get_utf8Text(self):
+    @property
+    def utf8Text(self):
         try:
             return self._getEncodedBufferText("utf-8")
         except UnicodeError, ex:
             log.error("unable to encode document as 'utf-8': %s",
                 self.encoding.python_encoding_name, ex)
             raise
-    
+
     def _changedLines_ResetHunkTrackers(self):
         self.hunkOldLines = {} # textLine => [oldLineNum, trailing S]
         self.hunkNewLines = [] # list of [textLine, newLineNum, trailing S]
@@ -1299,6 +1309,7 @@ class koDocumentBase:
             
 
     _cleanLineRe = re.compile("(.*?)([ \t]+?)?(\r\n|\n|\r)", re.MULTILINE)
+    @components.ProxyToMainThread
     def _clean(self, ensureFinalEOL, cleanLineEnds):
         """Clean the current document content.
         
@@ -1581,6 +1592,7 @@ class koDocumentBase:
         self.removeAutoSaveFile()
         log.info("revert done...%s", self.encoding.python_encoding_name)
 
+    @components.ProxyToMainThread
     def setSavePoint(self):
         if self._views:
             # All views share the same doc pointer.
@@ -1596,6 +1608,7 @@ class koDocumentBase:
 
     # The document manages a reference count of the views onto that
     # document. When the last view 
+    @components.ProxyToMainThread
     def addView(self, scintilla):
         self._views.append(scintilla)
         scimoz = scintilla.scimoz
@@ -1613,6 +1626,7 @@ class koDocumentBase:
         scimoz.codePage = self._codePage
         log.info("in AddView")
     
+    @components.ProxyToMainThread
     def releaseView(self, scintilla):
         try:
             #print "Releasing View"
@@ -1646,6 +1660,7 @@ class koDocumentBase:
         return len(self._views)
 
     # we want to watch for changes in the prefs we derive from
+    @components.ProxyToMainThread
     def observe(self, subject, topic, data):
         #print "observe: subject:%r, topic:%s, data:%r" % (subject, topic, data)
         if topic == 'useTabs':
@@ -1706,6 +1721,7 @@ class koDocumentBase:
         self._tabWidth = value
         self.prefs.setLongPref('tabWidth', value) # will affect _useTabs through prefs observers
 
+    @components.ProxyToMainThread
     def _guessFileIndentation(self):
         # Heuristic to determine what file indentation settings the user
         # likely wants for this file.
@@ -1782,6 +1798,7 @@ class koDocumentBase:
     #
     # This should not be believed unless it's in a reasonable range
     # (e.g., it will be 0 if no indented blocks are found).
+    @components.ProxyToMainThread
     def _guessIndentWidth(self):
         text = self.get_buffer()
         if text == '':
@@ -1819,6 +1836,7 @@ class koDocumentBase:
         self._useTabs = useTabs
         self.set_useTabs(useTabs)
 
+    @components.ProxyToMainThreadAsync
     def _statusBarMessage(self, message):
         sm = components.classes["@activestate.com/koStatusMessage;1"]\
              .createInstance(components.interfaces.koIStatusMessage)
@@ -1827,7 +1845,7 @@ class koDocumentBase:
         sm.timeout = 5000 # 0 for no timeout, else a number of milliseconds
         sm.highlight = 1  # boolean, whether or not to highlight
         try:
-            self._obsSvcProxy.notifyObservers(sm, 'status_message', None)
+            self._obsSvc.notifyObservers(sm, 'status_message', None)
         except COMException, e:
             # do nothing: Notify sometimes raises an exception if (???)
             # receivers are not registered?
@@ -1903,47 +1921,47 @@ class koDocumentBase:
         return 0
     
     def doAutoSave(self):
+        # no point in autosaving if we're not dirty
+        if self._isDirty and not self.isUntitled:
+            self._doAutoSave()
+
+    # We cannot get the text from scintilla in a thread, and must proxy.
+    @components.ProxyToMainThread
+    def _doAutoSave(self):
+        autoSaveFile = self._getAutoSaveFile()
+        log.debug("last save %d now %d", autoSaveFile.lastModifiedTime, time.time())
+        
+        # translate the buffer before opening the file so if it
+        # fails, we haven't truncated the file
         try:
-            # no point in autosaving if we're not dirty
-            if not self._isDirty or self.isUntitled or not self._proxied: return
-            
-            autoSaveFile = self._getAutoSaveFile()
-            log.debug("last save %d now %d", autoSaveFile.lastModifiedTime, time.time())
-            
-            # translate the buffer before opening the file so if it
-            # fails, we haven't truncated the file
+            data = self.encodedText
+        except Exception, e:
             try:
-                data = self._proxied.encodedText
+                # failed to get encoded text, save it using utf-8 to avoid
+                # data loss (bug 40857)
+                data = self.utf8Text;
+                self._statusBarMessage("Using UTF-8 to autosave '%s'" %
+                              self.baseName)
             except Exception, e:
-                try:
-                    # failed to get encoded text, save it using utf-8 to avoid
-                    # data loss (bug 40857)
-                    data = self._proxied.utf8Text;
-                    self._statusBarMessage("Using UTF-8 to autosave '%s'" %
-                                  self._proxied.baseName)
-                except Exception, e:
-                    log.exception(e)
-                    self._statusBarMessage("Error getting encoded text for autosave of '%s'" %
-                                  self._proxied.baseName)
-                    return
-   
-            try:
-                log.debug("autosaving [%s]", autoSaveFile.URI)
-                autoSaveFile.open('wb+')
-                try:
-                    autoSaveFile.write(data)
-                finally:
-                    autoSaveFile.close()
-            except:
-                # .open(), .write(), and .close() will setLastError on
-                # failure so don't set it again. You will just override
-                # better data.
-                self._statusBarMessage("Unable to autosave file '%s'" %
-                              self._proxied.baseName)
+                log.exception(e)
+                self._statusBarMessage("Error getting encoded text for autosave of '%s'" %
+                              self.baseName)
                 return
-        finally:
-            #log.debug("doAutoSave finally")
-            pass
+
+        try:
+            log.debug("autosaving [%s]", autoSaveFile.URI)
+            autoSaveFile.open('wb+')
+            try:
+                autoSaveFile.write(data)
+            finally:
+                autoSaveFile.close()
+        except:
+            # .open(), .write(), and .close() will setLastError on
+            # failure so don't set it again. You will just override
+            # better data.
+            self._statusBarMessage("Unable to autosave file '%s'" %
+                          self.baseName)
+            return
     
     def restoreAutoSave(self):
         if self.isUntitled: return
