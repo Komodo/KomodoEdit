@@ -37,9 +37,9 @@
 
 const winOptions = 
 // #if PLATFORM == "darwin"
-  "chrome,dialog=no,all";
+  "chrome,dialog=no,menubar,toolbar,status,all";
 // #else
-  "chrome,all";
+  "chrome,menubar,toolbar,status,all";
 // #endif
 
 const Cc = Components.classes;
