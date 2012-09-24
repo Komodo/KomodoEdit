@@ -164,6 +164,11 @@ ifeq ($(MOZ_WIDGET_TOOLKIT),photon)
 LIBS += -lphexlib
 endif
 
+ifeq ($(MOZ_WIDGET_TOOLKIT),gtk2)
+# Ensure komodo binary uses LD_LIBRAY_PATH of the binary's directory.
+LDFLAGS += -Wl,-rpath=\$$ORIGIN
+endif
+
 ifeq ($(OS_ARCH),WINNT)
 #
 # Control the default heap size.
