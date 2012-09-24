@@ -22,17 +22,17 @@ I'm lazy, just show me how to build it
 If any of these steps break, please first look at the full instructions
 below (especially the "prerequisites" sections).
 
-Build steps on Windows (creating a Komodo 7.10 version):
+Build steps on Windows (creating a Komodo 8.10 version):
 
     REM ---- Build Mozilla
     cd openkomodo\mozilla
     setenv-moz-msvc9.bat
-    python build.py configure -k 7.10 --moz-src=700 --release --no-strip --moz-objdir=koobj
+    python build.py configure -k 8.10 --moz-src=1700 --release --no-strip --moz-objdir=koobj
     python build.py distclean all
     cd ..
     REM ---- Build Komodo
     set PATH=util\black;%PATH%
-    bk configure -V 7.10.0-devel
+    bk configure -V 8.10.0-devel
     bk build
     REM ---- Run Komodo
     bk run
@@ -41,12 +41,12 @@ Build steps on Linux and Mac OS X:
 
     #---- Build Mozilla
     cd openkomodo/mozilla
-    python build.py configure -k 7.10 --moz-src=700 --release --no-strip
+    python build.py configure -k 8.10 --moz-src=1700 --release --no-strip
     python build.py distclean all
     cd ..
     #---- Build Komodo
     export PATH=`pwd`/util/black:$PATH   # Komodo's "bk" build tool
-    bk configure -V 7.10.0-devel
+    bk configure -V 8.10.0-devel
     bk build
     #---- Run Komodo
     bk run
@@ -131,7 +131,7 @@ Build Prerequisites for Mac OS X
   The failure will look like this:
 
          dyld: Library not loaded: /opt/local/lib/libIDL-2.0.dylib
-          Referenced from: /Users/trentm/as/komodo/mozilla/build/moz700-ko7.10/mozilla/ko-rel-ns/dist/Komodo.app/Contents/MacOS/xpidl
+          Referenced from: /Users/trentm/as/komodo/mozilla/build/moz700-ko8.10/mozilla/ko-rel-ns/dist/Komodo.app/Contents/MacOS/xpidl
           Reason: no suitable image found.  Did find:
                 /opt/local/lib/libIDL-2.0.dylib: mach-o, but wrong architecture 
 
@@ -253,19 +253,19 @@ for Komodo, you should only need to do this once (in a while).
 3. Configure for the mozilla build. On Windows you currently want
    something like:
 
-        python build.py configure -k 7.10 --moz-src=700 --release --no-strip --moz-objdir=koobj
+        python build.py configure -k 8.10 --moz-src=1700 --release --no-strip --moz-objdir=koobj
 
    On other platforms:
    
-        python build.py configure -k 7.10 --moz-src=700 --release --no-strip
+        python build.py configure -k 8.10 --moz-src=1700 --release --no-strip
 
    What this configure-step does is create a "config.py" file that guides
    the build step (next). This is akin to the "./configure" in the common
    "./configure; make; make install" build trinity.
    
    What this configuration is saying is:
-   - configure for a Komodo Edit 7.10.x build
-   - use the latest Mozilla 7 (700) source code
+   - configure for a Komodo Edit 8.10.x build
+   - use the latest Mozilla 17 (1700) source code
    - do a release (i.e. non-debug) build
    - don't strip symbol information from binaries (i.e. *don't* put
      --enable-strip in .mozconfig)
@@ -303,9 +303,9 @@ Step 3: Building Komodo
    If you built Mozilla above for a Komodo version other than the version
    mentioned in "src/version.txt", then you may have to specify your
    version. E.g. if you configured above with
-   "python configure.py -k 7.10 ..." then you'd want something like:
+   "python configure.py -k 8.10 ..." then you'd want something like:
    
-        bk configure -V 7.10.0-devel
+        bk configure -V 8.10.0-devel
 
    Run `bk help configure` for a (somewhat sparse) listing of available
    options.
