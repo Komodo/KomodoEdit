@@ -462,13 +462,17 @@ def generate_idl_constants_fragment(face):
             continue
         feature = face.features[name]
         if feature["FeatureType"] == "val":
+            value = feature["Value"]
             if "Comment" in feature:
                 _(map(lambda x: "// " + x, feature["Comment"]), 8, file=outputfile)
-            _("const long %(name)s = %(value)s;",
+            _("const %(unsigned)slong %(name)s = %(value)s;",
               8,
               replacements={
                 "name": name,
-                "value": feature["Value"]
+                "value": value,
+                # We must use an unsigned long large hex values, like
+                #   "SC_MASK_FOLDERS = 0xFE000000"
+                "unsigned": "unsigned " if len(value) >= 10 and value.startswith("0x") else ""
               },
               file=outputfile)
 
