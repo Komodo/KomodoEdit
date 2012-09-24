@@ -579,8 +579,9 @@ sub cons::KoExtUnpack {
 
     my $scriptExt = ($^O eq "MSWin32" ? ".py" : "");
     my $exeExt = ($^O eq "MSWin32" ? ".exe" : "");
+    my $xpiBasename = basename($xpiFile);
     $cons->Command(
-        "koext.consjunk", # fake target to make Cons happy
+        "$xpiBasename.landmark",
         "$sdkDir/bin/koext$scriptExt",
         "$sdkDir/bin/xpidl$exeExt",
         "$sdkDir/pylib/koextlib.py",
@@ -590,9 +591,10 @@ sub cons::KoExtUnpack {
         "$mozBin/is_dev_tree.txt",
         qq(
             $unsiloedPythonExe $sdkDir/bin/koext$scriptExt -v kounpack $xpiFile
+            touch %0
         )
     );
-    $cons->DependsRecursive("koext.consjunk", ".", @toSkip);
+    $cons->DependsRecursive("$xpiBasename.landmark", ".", @toSkip);
 }
 
 sub cons::KoExtSourceDevInstall {
