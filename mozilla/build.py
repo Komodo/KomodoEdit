@@ -2252,6 +2252,15 @@ def target_mozilla(argv=["mozilla"]):
     else:
         koDir = os.path.join(native_objdir, 'komodo')
 
+        # Mozilla now does a virtualenv setup of python, and it is broken on
+        # Linux due to not copying libpython*.so over... so hack around that
+        # using LD_LIBRARY_PATH
+        if config.platform.startswith("linux"):
+            pythonLibDir = join(dirname(dirname(config.python)), "lib")
+            ldLibPath = os.environ.get("LD_LIBRARAY_PATH", "").split(os.pathsep)
+            ldLibPath.append(pythonLibDir)
+            os.environ["LD_LIBRARY_PATH"] = os.pathsep.join(filter(bool, ldLibPath))
+
         _run_in_dir("make -f client.mk build", buildDir, log.info)
 
         if config.mozApp == "komodo":
