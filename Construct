@@ -561,7 +561,7 @@ sub cons::KoExt {
         )
     );
     $cons->DependsRecursive("koext.consjunk", ".", @toSkip);
-    $cons->DependsRecursive2("koext.consjunk", "$mozDevelDist/sdk/bin", "$sdkDir/pylib", ('\.svn'));
+    $cons->DependsRecursive2("koext.consjunk", "$mozDevelDist/sdk/bin", "$sdkDir/pylib", ('\.svn', '\.consign'));
 }
 
 sub cons::KoExtUnpack {
@@ -596,7 +596,7 @@ sub cons::KoExtUnpack {
         )
     );
     $cons->DependsRecursive("$xpiBasename.landmark", ".", @toSkip);
-    $cons->DependsRecursive2("$xpiBasename.landmark", "$mozDevelDist/sdk/bin", "$sdkDir/pylib", ('\.svn'));
+    $cons->DependsRecursive2("$xpiBasename.landmark", "$mozDevelDist/sdk/bin", "$sdkDir/pylib", ('\.svn', '\.consign'));
 }
 
 sub cons::KoExtSourceDevInstall {
@@ -635,7 +635,7 @@ sub cons::KoExtSourceDevInstall {
         )
     );
     $cons->DependsRecursive("koextsourcedevinstall.consjunk", ".", @toSkip);
-    $cons->DependsRecursive2("koextsourcedevinstall.consjunk", "$mozDevelDist/sdk/bin", "$sdkDir/pylib", ('\.svn'));
+    $cons->DependsRecursive2("koextsourcedevinstall.consjunk", "$mozDevelDist/sdk/bin", "$sdkDir/pylib", ('\.svn', '\.consign'));
 }
 
 
