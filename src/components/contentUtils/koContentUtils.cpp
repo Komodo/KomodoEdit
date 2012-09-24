@@ -78,7 +78,7 @@ koContentUtils::GetStaticScriptGlobal(JSContext* aContext, JSObject* aObj)
   JSObject* glob = aObj; // starting point for search
 
   if (!glob)
-    return nsnull;
+    return nullptr;
 
   while ((parent = ::JS_GetParent(aContext, glob)))
     glob = parent;
@@ -89,11 +89,11 @@ koContentUtils::GetStaticScriptGlobal(JSContext* aContext, JSObject* aObj)
       !(clazz->flags & JSCLASS_HAS_PRIVATE) ||
       !(clazz->flags & JSCLASS_PRIVATE_IS_NSISUPPORTS) ||
       !(supports = (nsISupports*)::JS_GetPrivate(aContext, glob))) {
-    return nsnull;
+    return nullptr;
   }
 
   nsCOMPtr<nsIXPConnectWrappedNative> wrapper(do_QueryInterface(supports));
-  NS_ENSURE_TRUE(wrapper, nsnull);
+  NS_ENSURE_TRUE(wrapper, nullptr);
 
   nsCOMPtr<nsIScriptGlobalObject> sgo(do_QueryWrappedNative(wrapper));
 
@@ -105,14 +105,14 @@ koContentUtils::GetStaticScriptGlobal(JSContext* aContext, JSObject* aObj)
 nsIDOMDocument *
 koContentUtils::GetDocumentFromCaller()
 {
-  JSContext *cx = nsnull;
+  JSContext *cx = nullptr;
   sThreadJSContextStack->Peek(&cx);
 
-  nsIDOMDocument *doc = nsnull;
+  nsIDOMDocument *doc = nullptr;
 
   if (cx) {
-    JSObject *callee = nsnull;
-    JSStackFrame *fp = nsnull;
+    JSObject *callee = nullptr;
+    JSStackFrame *fp = nullptr;
     while (!callee && (fp = ::JS_FrameIterator(cx, &fp))) {
       callee = ::JS_GetFrameCalleeObject(cx, fp);
     }
@@ -141,7 +141,7 @@ koContentUtils::GetDynamicScriptGlobal(JSContext* aContext)
 {
   nsIScriptContext *scriptCX = GetDynamicScriptContext(aContext);
   if (!scriptCX)
-    return nsnull;
+    return nullptr;
   return scriptCX->GetGlobalObject();
 }
 
@@ -154,7 +154,7 @@ koContentUtils::GetDynamicScriptContext(JSContext *aContext)
 nsIDocShell *
 koContentUtils::GetDocShellFromCaller()
 {
-  JSContext *cx = nsnull;
+  JSContext *cx = nullptr;
   sThreadJSContextStack->Peek(&cx);
 
   if (cx) {
@@ -166,13 +166,13 @@ koContentUtils::GetDocShellFromCaller()
     }
   }
 
-  return nsnull;
+  return nullptr;
 }
 
 nsIDOMWindow *
 koContentUtils::GetWindowFromCaller()
 {
-  JSContext *cx = nsnull;
+  JSContext *cx = nullptr;
   sThreadJSContextStack->Peek(&cx);
 
   if (cx) {
@@ -184,7 +184,7 @@ koContentUtils::GetWindowFromCaller()
     }
   }
 
-  return nsnull;
+  return nullptr;
 }
 
 NS_IMETHODIMP koContentUtils::GetDocShellFromCaller(nsIDocShell **callingDoc)
