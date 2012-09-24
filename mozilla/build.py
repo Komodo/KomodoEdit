@@ -1381,10 +1381,10 @@ def target_configure(argv):
             # help viewer was removed from normal builds, enable it for Komodo
             mozBuildOptions.append("enable-help-viewer")
 
-        if "withTests" not in config:
+        if not config.get("withTests", False):
             mozBuildOptions.append("disable-tests")
-        elif not config["withTests"]:
-            mozBuildOptions.append("disable-tests")
+        else:
+            mozBuildOptions.append("enable-tests")
 
         if buildType == "release":
             mozBuildOptions.append('enable-optimize')
@@ -1927,6 +1927,7 @@ def target_pyxpcom(argv=["pyxpcom"]):
         configure_flags += ' LDFLAGS="%s"' % (ldFlags, )
     if config.buildType == "debug":
         configure_options.append("--enable-debug")
+        configure_options.append("--disable-optimize")
     configure_path = join(pyxpcom_src_dir, "configure")
     cmds = ["%s %s --with-libxul-sdk=%s --disable-tests %s" % (configure_flags, _msys_path_from_path(configure_path), _msys_path_from_path(join(moz_obj_dir, "dist")), " ".join(configure_options)),
             "make"]
