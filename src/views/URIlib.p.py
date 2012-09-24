@@ -831,30 +831,29 @@ class xpURIHandler(FileHandlerBase):
     isRemoteFile = 0
     
     def __init__(self,path):
-        # XXX need to use URIFile
         FileHandlerBase.__init__(self)
         uri = URIParser(path)
         self._path = path
     
-    def __del__(self):
-        if self._file:
-            self.close()
-
-    def close(self):
-        if not self._file:
-            raise URILibError("file not opened: '%s'" % self._path)
-        self._file.close()
-        self._file = None
-        
     def open(self, mode):
-        from xpcom.file import URIFile
+        if "r" not in mode:
+            raise ValueError, "only 'r' mode supported'"
         self._mode = mode
-        if self._file is not None:
-            raise URILibError("Cannot open a file again without closing it first!")
+
+        io_service = components.classes["@mozilla.org/network/io-service;1"] \
+                        .getService(components.interfaces.nsIIOService)
+        url_ob = io_service.newURI(self._path, None, None)
+        # Mozilla asserts and starts saying "NULL POINTER" if this is wrong!
+        if not url_ob.scheme:
+            raise ValueError, ("The URI '%s' is invalid (no scheme)" 
+                                  % (url_ob.spec,))
+
         if self._stats and self._stats['exists']==0:
             self._stats = None
+
         try:
-            self._file = URIFile(self._path)
+            channel = io_service.newChannelFromURI(url_ob)
+            self._file = channel.open()
         except Exception, e:
             # Mozilla could not open the file, so it either does not exist
             # or some other error which we unfortunately do not get good info
@@ -882,7 +881,7 @@ class xpURIHandler(FileHandlerBase):
                     'isHidden':0}
         # XXX need to implement this stuff for ftp/http
         return _stats
-    
+
     def get_stats(self):
         if not self._stats:
             self._stats = self.__get_stats()
@@ -894,7 +893,6 @@ class RemoteURIHandler(FileHandlerBase):
     isRemoteFile = 1
     
     def __init__(self,path):
-        # XXX need to use URIFile
         import re
         FileHandlerBase.__init__(self)
         self._fulluri = path
@@ -1003,7 +1001,6 @@ class projectURIHandler(FileHandlerBase):
     isRemoteFile = 0
     
     def __init__(self,URI):
-        # XXX need to use URIFile
         FileHandlerBase.__init__(self)
         self._uri = URI
         self._path = URI.path
