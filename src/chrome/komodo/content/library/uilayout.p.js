@@ -551,9 +551,9 @@ this.togglePane = function uilayout_togglePane(paneId, force)
             var broadcaster = document.getElementById(pane.getAttribute("splitterCmdId"));
             if (broadcaster.getAttribute("box")) {
                 pane = document.getElementById(broadcaster.getAttribute("box"));
-                _log.deprecated(String(<![CDATA[Calling togglePane with the splitter ID as the
-                                                first argument is deprecated; please use the ID
-                                                of the pane instead.]]>).replace(/\s+/, " "));
+                _log.deprecated("Calling togglePane with the splitter ID as "+
+                                "the first argument is deprecated; please use "+
+                                "the ID of the pane instead.");
             }
         }
         if (!force && pane.collapsed) {
