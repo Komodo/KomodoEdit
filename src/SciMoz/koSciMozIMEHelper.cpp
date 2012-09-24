@@ -16,10 +16,9 @@
 #include <nsIDOMElement.h>
 #include <nsIDOMEvent.h>
 #include <nsIDOMEventTarget.h>
-#include <nsIDOMNSElement.h>
 #include <nsRect.h>
-#include <nsIPrivateQueryContentEvent.h>
-#include <nsIPrivateTextEvent.h>
+//#include <nsIPrivateQueryContentEvent.h>
+//#include <nsIPrivateTextEvent.h>
 #include <nsIWeakReference.h>
 #include <nsIWeakReferenceUtils.h>
 #include <nsGUIEvent.h>
@@ -93,6 +92,28 @@ koSciMozIMEHelper::Init(ISciMoz *aSciMoz, nsIDOMEventTarget *aEventTarget)
     }
     return NS_OK;
 }
+
+
+// Disabled until can figure out how IME and text events work in Gecko 17.
+
+#define DISABLE_SCIMOZ_IME 1
+
+#ifdef DISABLE_SCIMOZ_IME
+// Stubs.
+NS_IMETHODIMP koSciMozIMEHelper::HandleText           (nsIDOMEvent* aQueryContentEvent) { return NS_OK; }
+NS_IMETHODIMP koSciMozIMEHelper::HandleEvent          (nsIDOMEvent* aEvent)             { return NS_OK; }
+nsresult      koSciMozIMEHelper::StartComposing       (ISciMoz* aSciMoz)                { return NS_OK; }
+nsresult      koSciMozIMEHelper::EndComposing         (ISciMoz* aSciMoz)                { return NS_OK; }
+NS_IMETHODIMP koSciMozIMEHelper::AbortComposing       ()                                { return NS_OK; }
+NS_IMETHODIMP koSciMozIMEHelper::QuerySelectedText    (nsIDOMEvent* aQueryContentEvent) { return NS_OK; }
+NS_IMETHODIMP koSciMozIMEHelper::QueryTextContent     (nsIDOMEvent* aQueryContentEvent) { return NS_OK; }
+NS_IMETHODIMP koSciMozIMEHelper::QueryCaretRect       (nsIDOMEvent* aQueryContentEvent) { return NS_OK; }
+NS_IMETHODIMP koSciMozIMEHelper::QueryTextRect        (nsIDOMEvent* aQueryContentEvent) { return NS_OK; }
+NS_IMETHODIMP koSciMozIMEHelper::QueryCharacterAtPoint(nsIDOMEvent* aQueryContentEvent) { return NS_OK; }
+NS_IMETHODIMP koSciMozIMEHelper::QueryDOMWidgetHitTest(nsIDOMEvent* aQueryContentEvent) { return NS_OK; }
+#endif DISABLE_SCIMOZ_IME
+
+#ifndef DISABLE_SCIMOZ_IME
 
 NS_IMETHODIMP
 koSciMozIMEHelper::HandleText(nsIDOMEvent* aEvent)
@@ -685,3 +706,4 @@ koSciMozIMEHelper::ScintillaPixelsToCSSPixels(const nsIntRect& aRect,
 
     return NS_OK;
 }
+#endif DISABLE_SCIMOZ_IME

@@ -5,7 +5,8 @@
 #define __koISciMozIMEHelper_h__
 
 #include "koISciMozIMEHelper.h"
-#include <nsIDOMQueryContentListener.h>
+//#include <nsIDOMQueryContentListener.h>
+#include <nsIDOMEventListener.h>
 
 #include <nsCOMPtr.h>
 
@@ -14,7 +15,8 @@
 class nsIWeakReference;
 
 class koSciMozIMEHelper : public koISciMozIMEHelper,
-                          public nsIDOMQueryContentListener
+                          public nsIDOMEventListener
+                          //public nsIDOMQueryContentListener
 {
     NS_DECL_ISUPPORTS
     NS_DECL_KOISCIMOZIMEHELPER
