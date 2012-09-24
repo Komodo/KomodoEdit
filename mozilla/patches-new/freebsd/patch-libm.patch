@@ -1,9 +1,0 @@
---- js/Makefile.in	Sun Mar 23 14:36:00 2003
-+++ js/Makefile.in	Thu Aug  4 23:08:06 2005
-@@ -46,5 +46,5 @@
- #
- 
--DIRS		= src/fdlibm src
-+DIRS		= src
- 
- include $(topsrcdir)/config/rules.mk
