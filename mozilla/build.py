@@ -59,17 +59,17 @@ r"""
     Suggested convention for Komodo version numbers:
     * For development builds you should add 10 to the minor version
       number:
-        Komodo Edit 7.0.x development:    -k 7.10
-        Komodo IDE 7.0.x development:     -k 7.10
+        Komodo Edit 8.0.x development:    -k 8.10
+        Komodo IDE 8.0.x development:     -k 8.10
       This allows you to run a production and development build at the
       same time without them trying to hand off to each other.
     
     Suggested configurations are:
-    * Komodo 7.0.x release builds:
-        python build.py configure -k 7.0 --moz-src=700:FIREFOX_7_0_1_RELEASE \
+    * Komodo 8.0.x release builds:
+        python build.py configure -k 8.0 --moz-src=1700 \
             --release --no-strip --with-crashreport-symbols
-    * Komodo 7.0 development builds:
-        python build.py configure -k 7.10 --moz-src=700 --release --no-strip
+    * Komodo 8.0 development builds:
+        python build.py configure -k 8.10 --moz-src=1700 --release --no-strip
 """
 #
 # Development Notes:
