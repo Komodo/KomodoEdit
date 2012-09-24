@@ -544,12 +544,12 @@ sub cons::KoExt {
     defined($buildFlavour) and $pp_defines .= " --define BUILD_FLAVOUR=$buildFlavour";
     defined($mozVersion) and $pp_defines .= " --define MOZILLA_VERSION=$mozVersion";
 
+    my $mozDevelDist = $build::install::mozDevelDist;
     my $scriptExt = ($^O eq "MSWin32" ? ".py" : "");
     my $exeExt = ($^O eq "MSWin32" ? ".exe" : "");
     $cons->Command(
         "koext.consjunk", # fake target to make Cons happy
         "$sdkDir/bin/koext$scriptExt",
-        "$sdkDir/bin/xpidl$exeExt",
         "$sdkDir/pylib/koextlib.py",
         "$sdkDir/pylib/cmdln.py",
         "$sdkDir/pylib/preprocess.py",
@@ -561,6 +561,7 @@ sub cons::KoExt {
         )
     );
     $cons->DependsRecursive("koext.consjunk", ".", @toSkip);
+    $cons->DependsRecursive2("koext.consjunk", "$mozDevelDist/sdk/bin", "$sdkDir/pylib", ('\.svn'));
 }
 
 sub cons::KoExtUnpack {
@@ -572,18 +573,18 @@ sub cons::KoExtUnpack {
     }
     
     # Die if required elements are not defined.
-    defined($sdkDir) or die "*** sdkDir is not defined for KoExtSourceDevInstall\n";
-    defined($build) or die "*** build is not defined for KoExtSourceDevInstall\n";
-    defined($mozBin) or die "*** mozBin is not defined for KoExt\n";
-    defined($unsiloedPythonExe) or die "*** unsiloedPythonExe is not defined for KoExt\n";
+    defined($sdkDir) or die "*** sdkDir is not defined for KoExtUnpack\n";
+    defined($build) or die "*** build is not defined for KoExtUnpack\n";
+    defined($mozBin) or die "*** mozBin is not defined for KoExtUnpack\n";
+    defined($unsiloedPythonExe) or die "*** unsiloedPythonExe is not defined for KoExtUnpack\n";
 
+    my $mozDevelDist = $build::install::mozDevelDist;
     my $scriptExt = ($^O eq "MSWin32" ? ".py" : "");
     my $exeExt = ($^O eq "MSWin32" ? ".exe" : "");
     my $xpiBasename = basename($xpiFile);
     $cons->Command(
         "$xpiBasename.landmark",
         "$sdkDir/bin/koext$scriptExt",
-        "$sdkDir/bin/xpidl$exeExt",
         "$sdkDir/pylib/koextlib.py",
         "$sdkDir/pylib/cmdln.py",
         "$sdkDir/pylib/preprocess.py",
@@ -595,6 +596,7 @@ sub cons::KoExtUnpack {
         )
     );
     $cons->DependsRecursive("$xpiBasename.landmark", ".", @toSkip);
+    $cons->DependsRecursive2("$xpiBasename.landmark", "$mozDevelDist/sdk/bin", "$sdkDir/pylib", ('\.svn'));
 }
 
 sub cons::KoExtSourceDevInstall {
@@ -609,16 +611,16 @@ sub cons::KoExtSourceDevInstall {
     # Die if required elements are not defined.
     defined($sdkDir) or die "*** sdkDir is not defined for KoExtSourceDevInstall\n";
     defined($build) or die "*** build is not defined for KoExtSourceDevInstall\n";
-    defined($mozBin) or die "*** mozBin is not defined for KoExt\n";
-    defined($unsiloedPythonExe) or die "*** unsiloedPythonExe is not defined for KoExt\n";
+    defined($mozBin) or die "*** mozBin is not defined for KoExtSourceDevInstall\n";
+    defined($unsiloedPythonExe) or die "*** unsiloedPythonExe is not defined for KoExtSourceDevInstall\n";
 
+    my $mozDevelDist = $build::install::mozDevelDist;
     my $scriptExt = ($^O eq "MSWin32" ? ".py" : "");
     my $exeExt = ($^O eq "MSWin32" ? ".exe" : "");
     my $extSrcDir = dirname(SourcePath('install.rdf'));
     $cons->Command(
-        "koext.consjunk", # fake target to make Cons happy
+        "koextsourcedevinstall.consjunk", # fake target to make Cons happy
         "$sdkDir/bin/koext$scriptExt",
-        "$sdkDir/bin/xpidl$exeExt",
         "$sdkDir/pylib/koextlib.py",
         "$sdkDir/pylib/chromereg.py",
         "$sdkDir/pylib/chromereg.py",
@@ -632,7 +634,8 @@ sub cons::KoExtSourceDevInstall {
             touch %0
         )
     );
-    $cons->DependsRecursive("koext.consjunk", ".", @toSkip);
+    $cons->DependsRecursive("koextsourcedevinstall.consjunk", ".", @toSkip);
+    $cons->DependsRecursive2("koextsourcedevinstall.consjunk", "$mozDevelDist/sdk/bin", "$sdkDir/pylib", ('\.svn'));
 }
 
 
@@ -726,7 +729,7 @@ sub cons::PreprocessAndInstallAs {
 
 
 sub cons::BuildXpt {
-    # use xpidl (on path) to build .xpt from .idl, and
+    # use mozilla SDK xpidl.py to build .h from .idl, and
     # install it in Mozilla components directory.
     my ($env, $idlFileName) = @_;
     # die if required elements are not defined
@@ -736,18 +739,20 @@ sub cons::BuildXpt {
         die "*** mozIdlIncludePath is not defined for $idlFileName\n";
     defined($idlExportDir) or
         die "*** idlExportDir is not defined for $idlFileName\n";
+    defined($unsiloedPythonExe) or \
+	die "When building rule for $xptFileName: Unsiloed Python not found, please Import 'unsiloedPythonExe'";
     defined($ranRegxpcomStateFileName) or
         die "*** ranRegxpcomStateFileName is not ".
         "defined for $idlFileName\n";
     # die if the mozIdlIncludePath does not exist
     -d $mozIdlIncludePath or die "*** The Mozilla idl include directory ".
         "($mozIdlIncludePath) does not exist. Is your MOZ_SRC correct?\n";
+    my $mozDevelDist = $build::install::mozDevelDist;
+    my $mozSdkDir = "$mozDevelDist/sdk";
     # construct the typelib filename
     my $xptFileName = $idlFileName;
     $xptFileName =~ s/\.idl$/\.xpt/;
-    my $xptBaseName = basename($xptFileName);
-    my $xBaseName = FilePath($idlFileName);
-    $xBaseName =~ s/\.idl$//;
+    $xptPath = FilePath($xptFileName);
     my $xIdlExportDir = DirPath($idlExportDir);
     # scan for included .idl files and add dependency for each
     # I presume that QuickScan should be used like this:
@@ -760,10 +765,14 @@ sub cons::BuildXpt {
     # of alphabetically lower file work but don't for greater files: Cons bug.
     # Solution: Do my own scanning and make real deps of the results.
     my @idlDeps = $env->GenerateIdlDependencies($idlFileName, $idlExportDir, $mozIdlIncludePath);
+    # Tweak env to point PYTHONPATH at the sdk dir.
+    my %envLocal = $env->copy();
+    $envLocal{'PYTHONPATH'} = $env{'ENV'}{'PYTHONPATH'} . "$platformPathSep$mozSdkDir/bin";
+    $envLocal = new cons(ENV => \%envLocal);
     # compile the .idl file to a typelib
     # XXX handling of mozIdlIncludePath is not robust (breaks if more than one element)
-    $env->Command($xptFileName, $idlFileName, @idlDeps,
-        "xpidl -I$mozIdlIncludePath -I$xIdlExportDir -o $xBaseName -m typelib %1");
+    $envLocal->Command($xptFileName, $idlFileName, @idlDeps,
+        "$unsiloedPythonExe $mozSdkDir/bin/typelib.py -I $mozIdlIncludePath -I $xIdlExportDir -o $xptPath --cachedir $mozSdkDir/cache %1");
     return $xptFileName;
 }
 
@@ -890,27 +899,35 @@ sub cons::GenerateIdlDependencies {
 
 
 sub cons::BuildHeaderFromIdl {
-    # use xpidl (on path) to build .h from .idl
+    # use mozilla SDK xpidl.py to build .h from .idl
     my ($env, $idlFileName) = @_;
     # die if required elements are not defined
+    defined($build) or die "*** build is not defined for BuildHeaderFromIdl\n";
+    defined($mozBin) or die "*** mozBin is not defined for BuildHeaderFromIdl\n";
+    defined($unsiloedPythonExe) or die "*** unsiloedPythonExe is not defined for BuildHeaderFromIdl\n";
     defined($mozIdlIncludePath) or
         die "*** mozIdlIncludePath is not defined for $idlFileName\n";
     defined($idlExportDir) or
         die "*** idlExportDir is not defined for $idlFileName\n";
+    my $mozDevelDist = $build::install::mozDevelDist;
+    my $mozSdkDir = "$mozDevelDist/sdk";
     # construct the header filename
     my $headerFileName = $idlFileName;
     $headerFileName =~ s/\.idl$/\.h/;
-    my $xBaseName = FilePath($idlFileName);
-    $xBaseName =~ s/\.idl$//;
+    my $headerPath = FilePath($headerFileName);
     my $xIdlExportDir = DirPath($idlExportDir);
     # scan for included .idl files and add dependency for each
     my @idlDeps = $env->GenerateIdlDependencies($idlFileName, $idlExportDir,
         $mozIdlIncludePath);
+    # Tweak env to point PYTHONPATH at the sdk dir.
+    my %envLocal = $env->copy();
+    $envLocal{'PYTHONPATH'} = $env{'ENV'}{'PYTHONPATH'} . "$platformPathSep$mozSdkDir/bin";
+    $envLocal = new cons(ENV => \%envLocal);
     # compile the .idl file to a C header
     #  XXX handling of mozIdlIncludePath is not robust (breaks if
     #  XXX more than one element)
-    $env->Command($headerFileName, $idlFileName, @idlDeps,
-        "xpidl -I$mozIdlIncludePath -I$xIdlExportDir -o $xBaseName -m header %1");
+    $envLocal->Command($headerFileName, $idlFileName, @idlDeps,
+        "$unsiloedPythonExe $mozSdkDir/bin/header.py -I $mozIdlIncludePath -I $xIdlExportDir -o $headerPath --cachedir $mozSdkDir/cache %1");
 }
 
 
@@ -1456,5 +1473,44 @@ sub cons::DependsRecursive {
             print "... dep: $dep\n" if $logIt;
             $env->Depends($target, $dep);
         }
+    }
+}
+
+sub cons::DependsRecursive2 {
+    # Like DependsRecursive method except this allows us to set the dependency
+    # on a different directory from where the files originate.
+    my ($env, $target, $input, $output, @toSkip) = @_;
+    #print "InstallRecursive: $input -> $output  (skipping: ",
+    #    join(',', @toSkip), ")\n";
+
+    # find all the files to install
+    @files = ();
+    my $wanted = sub {
+        if (-d $_) {
+            # prune any directory matching any of the toSkip regexes
+            foreach my $ts (@toSkip) {
+                if (basename($File::Find::name) =~ /^$ts$/) {
+                    $File::Find::prune = 1;
+                }
+            }
+        } else {
+            # skip any file matching any of the toSkip regexes
+            foreach my $ts (@toSkip) {
+                if (basename($File::Find::name) =~ /^$ts$/) {
+                    return;
+                }
+            }
+            push @files, $File::Find::name;
+        }
+    };
+    find($wanted, $input);
+
+    $escapedInput = $input;
+    $escapedInput =~ s/\\/\\\\/g;
+    foreach $src (@files) {
+        my $file = $src;
+        $file =~ s/$escapedInput/$output/;
+        #print "Depends $src -> $target (output='$output')\n" if $output =~ /bin$/;
+        $env->Depends($target, $file);
     }
 }
