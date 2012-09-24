@@ -28,7 +28,7 @@
 
 /* XXX Mook: debugging */
 #ifdef PR_LOGGING
-static PRLogModuleInfo *gIMELog = nsnull;
+static PRLogModuleInfo *gIMELog = nullptr;
 #define LOG(...) \
     PR_LOG(gIMELog, PR_LOG_WARNING, (__VA_ARGS__))
 #define TRACE(...) \

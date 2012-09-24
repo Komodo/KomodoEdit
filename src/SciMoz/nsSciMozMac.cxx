@@ -330,7 +330,7 @@ void AbortComposing(NPP npp, NPObject* object) {
 	NPN_Invoke(npp,
 		   object,
 		   NPN_GetStringIdentifier("abortComposing"),
-		   nsnull,
+		   nullptr,
 		   0,
 		   &dummyResult);
 	NPN_ReleaseVariantValue(&dummyResult);

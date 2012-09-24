@@ -382,51 +382,51 @@ void SciMoz::Notify(long lParam) {
 #endif
 
 	PRUint32 mask;
-	void *handle = nsnull;
+	void *handle = nullptr;
 	nsCOMPtr<ISciMozEvents> eventSink;
 	switch (notification->nmhdr.code) {
 		/*
 		case SCN_STYLENEEDED:
 			mask = ISciMozEvents::SME_STYLENEEDED;
-			while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
+			while ( nullptr != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
 				eventSink->OnStyleNeeded(notification->position);
 			break;
 		*/
 		case SCN_CHARADDED:
 			mask = ISciMozEvents::SME_CHARADDED;
-			while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
+			while ( nullptr != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
 				eventSink->OnCharAdded(notification->ch);
 			break;
 		case SCN_SAVEPOINTREACHED:
 			mask = ISciMozEvents::SME_SAVEPOINTREACHED;
-			while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
+			while ( nullptr != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
 				eventSink->OnSavePointReached();
 			break;
 		case SCN_SAVEPOINTLEFT:
 			mask = ISciMozEvents::SME_SAVEPOINTLEFT;
-			while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
+			while ( nullptr != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
 				eventSink->OnSavePointLeft();
 			break;
 		/*
 		case SCN_MODIFYATTEMPTRO:
 			mask = ISciMozEvents::SME_MODIFYATTEMPTRO;
-			while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
+			while ( nullptr != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
 				eventSink->OnModifyAttemptRO();
 			break;
 		case SCN_KEY:
 			mask = ISciMozEvents::SME_KEY;
-			while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
+			while ( nullptr != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
 				eventSink->OnKey(notification->ch, notification->modifiers);
 			break;
 		*/
 		case SCN_DOUBLECLICK:
 			mask = ISciMozEvents::SME_DOUBLECLICK;
-			while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
+			while ( nullptr != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
 				eventSink->OnDoubleClick();
 			break;
 		case SCN_UPDATEUI:
 			mask = ISciMozEvents::SME_UPDATEUI;
-			while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
+			while ( nullptr != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
 				eventSink->OnUpdateUI();
 			break;
 		case SCN_MODIFIED: {
@@ -487,7 +487,7 @@ void SciMoz::Notify(long lParam) {
 			// Note: We are passing unicode text, but length is
 			//       given using bytes, so uString.Length() could be
 			//       different to notification->length.
-			while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink)))) {
+			while ( nullptr != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink)))) {
 				eventSink->OnModified(notification->position,
 						      notification->modificationType,
 						      uString,
@@ -502,27 +502,27 @@ void SciMoz::Notify(long lParam) {
 		/*
 		case SCN_MACRORECORD:
 			mask = ISciMozEvents::SME_MACRORECORD;
-			while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
+			while ( nullptr != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
 				eventSink->OnMacroRecord(
 				    notification->message, notification->wParam, notification->lParam);
 			break;
 		*/
 		case SCN_MARGINCLICK:
 			mask = ISciMozEvents::SME_MARGINCLICK;
-			while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
+			while ( nullptr != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
 				eventSink->OnMarginClick(
 					notification->modifiers, notification->position, notification->margin);
 			break;
 		case SCN_NEEDSHOWN:
 			mask = ISciMozEvents::SME_NEEDSHOWN;
-			while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
+			while ( nullptr != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
 				eventSink->OnOtherNotification(mask, notification->position, NS_LITERAL_STRING(""), notification->modifiers);
 			break;
 		/*
 		case SCN_PAINTED:
 			// No need to waste time with an event for this ATM.
 			mask = ISciMozEvents::SME_PAINTED;
-			while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
+			while ( nullptr != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
 				eventSink->OnPainted();
 			break;
 		*/
@@ -535,33 +535,33 @@ void SciMoz::Notify(long lParam) {
 					uText.Truncate();
 				}
 				mask = ISciMozEvents::SME_USERLISTSELECTION;
-				while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
+				while ( nullptr != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
 					eventSink->OnOtherNotification(mask, notification->position, uText, notification->listType);
 			}
 			break;
 		case SCN_DWELLSTART:
 			mask = ISciMozEvents::SME_DWELLSTART;
-			while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
+			while ( nullptr != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
 				eventSink->OnDwellStart(notification->position, notification->x, notification->y);
 			break;
 		case SCN_DWELLEND:
 			mask = ISciMozEvents::SME_DWELLEND;
-			while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
+			while ( nullptr != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
 				eventSink->OnDwellEnd(notification->position, notification->x, notification->y);
 			break;
 		case SCN_ZOOM:
 			mask = ISciMozEvents::SME_ZOOM;
-			while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
+			while ( nullptr != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
 				eventSink->OnZoom();
 			break;
 		case SCN_HOTSPOTDOUBLECLICK:
 			mask = ISciMozEvents::SME_HOTSPOTDOUBLECLICK;
-			while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
+			while ( nullptr != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
 				eventSink->OnHotSpotDoubleClick(notification->position, notification->modifiers);
 			break;
 		case SCN_CALLTIPCLICK:
 			mask = ISciMozEvents::SME_CALLTIPCLICK;
-			while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
+			while ( nullptr != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
 				eventSink->OnOtherNotification(mask, notification->position, NS_LITERAL_STRING(""), notification->modifiers);
 			break;
 		case SCN_AUTOCSELECTION:
@@ -573,28 +573,28 @@ void SciMoz::Notify(long lParam) {
 					uText.Truncate();
 				}
 				mask = ISciMozEvents::SME_AUTOCSELECTION;
-				while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
+				while ( nullptr != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
 					eventSink->OnOtherNotification(mask, notification->position, uText, notification->modifiers);
 			}
 			break;
 		case SCN_INDICATORCLICK:
 			mask = ISciMozEvents::SME_INDICATORCLICK;
-			while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
+			while ( nullptr != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
 				eventSink->OnOtherNotification(mask, notification->position, NS_LITERAL_STRING(""), notification->modifiers);
 			break;
 		case SCN_INDICATORRELEASE:
 			mask = ISciMozEvents::SME_INDICATORRELEASE;
-			while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
+			while ( nullptr != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
 				eventSink->OnOtherNotification(mask, notification->position, NS_LITERAL_STRING(""), notification->modifiers);
 			break;
 		case SCN_AUTOCCANCELLED:
 			mask = ISciMozEvents::SME_AUTOCCANCELLED;
-			while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
+			while ( nullptr != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
 				eventSink->OnOtherNotification(mask, notification->position, NS_LITERAL_STRING(""), notification->modifiers);
 			break;
 		case SCN_AUTOCCHARDELETED:
 			mask = ISciMozEvents::SME_AUTOCCHARDELETED;
-			while ( nsnull != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
+			while ( nullptr != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
 				eventSink->OnOtherNotification(mask, notification->position, NS_LITERAL_STRING(""), notification->modifiers);
 			break;
 		default: {
@@ -802,7 +802,7 @@ bool SciMoz::GetStyledText(const NPVariant *args, uint32_t argCount, NPVariant *
 	if (!NPVARIANT_IS_INT32(args[1])) return false;
 	if (!NPVARIANT_IS_OBJECT(args[2])) return false;
 	PRUint32 count;
-	PRUint8* buf = nsnull;
+	PRUint8* buf = nullptr;
 	nsresult rv = GetStyledText(NPVARIANT_TO_INT32(args[0]),
 				    NPVARIANT_TO_INT32(args[1]),
 						       &count,
@@ -822,7 +822,7 @@ bool SciMoz::GetStyledText(const NPVariant *args, uint32_t argCount, NPVariant *
 
 	NPN_ReleaseVariantValue(result);
 	// gah, this is an [array] octet, not a string. allocate a JS array :|
-	NPObject *win = nsnull;
+	NPObject *win = nullptr;
 	NPError err = NPN_GetValue(mPlugin->GetNPP(), NPNVWindowNPObject, &win);
 	if (err != NPERR_NO_ERROR) {
 		SCIMOZ_DEBUG_PRINTF("%s: failed to get window\n",
@@ -1315,9 +1315,9 @@ bool SciMoz::SetCommandUpdateTarget(const NPVariant *args, uint32_t argCount, NP
 
 /* void sendUpdateCommands( in string text); */
 NS_IMETHODIMP SciMoz::SendUpdateCommands(const char *text) {
-	NS_ABORT_IF_FALSE(commandUpdateTarget != nsnull,
+	NS_ABORT_IF_FALSE(commandUpdateTarget != nullptr,
 			  "Can't send a command update if you havent set the target!");
-	if (commandUpdateTarget==nsnull)
+	if (commandUpdateTarget==nullptr)
 		return NS_ERROR_UNEXPECTED;
 
 	NPVariant result = { NPVariantType_Void };

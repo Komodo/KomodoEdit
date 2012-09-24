@@ -18,16 +18,16 @@ NS_IMETHODIMP SciMozEventsWrapper::OnCharAdded(PRInt32 ch) {
 	return Invoke("onCharAdded", &arg, 1);
 }
 NS_IMETHODIMP SciMozEventsWrapper::OnSavePointReached() {
-	return Invoke("onSavePointReached", nsnull, 0);
+	return Invoke("onSavePointReached", nullptr, 0);
 }
 NS_IMETHODIMP SciMozEventsWrapper::OnSavePointLeft() {
-	return Invoke("onSavePointLeft", nsnull, 0);
+	return Invoke("onSavePointLeft", nullptr, 0);
 }
 NS_IMETHODIMP SciMozEventsWrapper::OnDoubleClick() {
-	return Invoke("onDoubleClick", nsnull, 0);
+	return Invoke("onDoubleClick", nullptr, 0);
 }
 NS_IMETHODIMP SciMozEventsWrapper::OnUpdateUI() {
-	return Invoke("onUpdateUI", nsnull, 0);
+	return Invoke("onUpdateUI", nullptr, 0);
 }
 NS_IMETHODIMP SciMozEventsWrapper::OnModified(PRInt32 position,
 					      PRInt32 modificationType,
@@ -58,7 +58,7 @@ NS_IMETHODIMP SciMozEventsWrapper::OnMarginClick(PRInt32 modifiers, PRInt32 posi
 	return Invoke("onMarginClick", args, 3);
 }
 NS_IMETHODIMP SciMozEventsWrapper::OnZoom() {
-	return Invoke("onZoom", nsnull, 0);
+	return Invoke("onZoom", nullptr, 0);
 }
 NS_IMETHODIMP SciMozEventsWrapper::OnHotSpotDoubleClick(PRInt32 position, PRInt32 modifiers) {
 	NPVariant args[2];

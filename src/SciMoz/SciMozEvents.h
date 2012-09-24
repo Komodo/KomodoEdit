@@ -121,7 +121,7 @@ public:
 					  &script,
 					  &iid))
 			{
-				return nsnull;
+				return nullptr;
 			}
 			NPVariant strongRefVar = { NPVariantType_Void };
 			if (NPN_Invoke(npp,
@@ -143,7 +143,7 @@ public:
 			CallQueryInterface(wrapper.get(), pret);
 			return (void *)this;
 		}
-		return nsnull;
+		return nullptr;
 	}
 
 
@@ -156,7 +156,7 @@ public:
 
 class EventListeners {
 public:
-	EventListeners() {pFirst = nsnull;}
+	EventListeners() {pFirst = nullptr;}
 	~EventListeners() {
 		EventListener *pLook = pFirst;
 		while (pLook) {
@@ -180,12 +180,12 @@ public:
 		// If someone added a weak-reference, then almost
 		// by definition they dont want to manage the lifetime
 		// themselves.
-		EventListener *l = pFirst, *last = nsnull;
+		EventListener *l = pFirst, *last = nullptr;
 
 		for (;l;l=l->pNext) {
 			// KenS: We check for identity using the Equals() member of EventListener
 			if (l->Equals(listener)) {
-				if (last==nsnull)
+				if (last==nullptr)
 					pFirst = l->pNext;
 				else
 					last->pNext = l->pNext;
@@ -204,7 +204,7 @@ public:
 				return l->get(pret);
 			}
 		}
-		return nsnull;
+		return nullptr;
 	}
 protected:
 	EventListener *pFirst;
