@@ -45,21 +45,17 @@ var _openPrefTreeNodes;
 function setupOpenPrefTreeNodes() {
     var prefs = Components.classes["@activestate.com/koPrefService;1"].
         getService(Components.interfaces.koIPrefService).prefs;
-    var nativeJSON = Components.classes["@mozilla.org/dom/json;1"]
-                        .createInstance(Components.interfaces.nsIJSON);
     if (!prefs.hasPref(OPEN_NODE_PREFS_NAME)) {
         _openPrefTreeNodes = {};
     } else {
-        _openPrefTreeNodes = nativeJSON.decode(prefs.getStringPref(OPEN_NODE_PREFS_NAME));
+        _openPrefTreeNodes = JSON.parse(prefs.getStringPref(OPEN_NODE_PREFS_NAME));
     }
 }
 
 function saveOpenPrefTreeNodes() {
-    var nativeJSON = Components.classes["@mozilla.org/dom/json;1"]
-                        .createInstance(Components.interfaces.nsIJSON);
     Components.classes["@activestate.com/koPrefService;1"].
         getService(Components.interfaces.koIPrefService).prefs.setStringPref(OPEN_NODE_PREFS_NAME,
-                                nativeJSON.encode(_openPrefTreeNodes));
+                                JSON.stringify(_openPrefTreeNodes));
 }
 
 var treeItemsByURI = {}; // URI => array of TreeInfoItem;

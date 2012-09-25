@@ -83,8 +83,6 @@ this.initialize = function() {
     this.stackatoService = Components.classes["@activestate.com/koStackatoServices;1"]
             .getService(Components.interfaces.koIStackatoServices);
     this.stackatoService.initialize();
-    this.jsonService = Components.classes["@mozilla.org/dom/json;1"]
-    .createInstance(Components.interfaces.nsIJSON);
     
     widgets.fields = {};
     
@@ -704,7 +702,7 @@ this.wrapCallbackFunction = function(methodName,
                 var processedData;
                 try {
                     processedData = (useJSON
-                                     ? this_.jsonService.decode(data.stdout)
+                                     ? JSON.parse(data.stdout)
                                      : data.stdout);
                 } catch(ex) {
                     log.exception(ex, "Error in callback for method: "

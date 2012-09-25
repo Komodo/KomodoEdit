@@ -827,22 +827,18 @@ this.open_rctab = function(idx) {
 this.save_prefs = function(prefs) {
     var uriPrefSet = Components.classes['@activestate.com/koPreferenceSet;1'].createInstance();
     prefs.setPref("history_rctabs", uriPrefSet);
-    var nativeJSON = Components.classes["@mozilla.org/dom/json;1"]
-        .createInstance(Components.interfaces.nsIJSON);
     uriPrefSet.setStringPref("rctabs_list",
-                             nativeJSON.encode(rctabs_list));
+                             JSON.stringify(rctabs_list));
 };
 
 this.restore_prefs = function(prefs) {
     if (! prefs.hasPref("history_rctabs")) {
         return;
     }
-    var nativeJSON = Components.classes["@mozilla.org/dom/json;1"]
-        .createInstance(Components.interfaces.nsIJSON);
     var uriPrefSet = prefs.getPref("history_rctabs");
     if (uriPrefSet.hasPref("rctabs_list")) {
         rctabs_list =
-            nativeJSON.decode(uriPrefSet.getStringPref("rctabs_list"));
+            JSON.parse(uriPrefSet.getStringPref("rctabs_list"));
     }
 };
 

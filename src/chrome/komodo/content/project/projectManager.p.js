@@ -1268,18 +1268,16 @@ projectManager.prototype.getState = function()
     pref.id = 'opened_projects_v7';
     var spv_projects = Components.classes['@activestate.com/koOrderedPreference;1'].createInstance();
     var mpv_projects = Components.classes['@activestate.com/koOrderedPreference;1'].createInstance();
-    var json = Components.classes["@mozilla.org/dom/json;1"].
-               createInstance(Components.interfaces.nsIJSON);
     if (this.single_project_view) {
         if (this.currentProject) {
-            pref.setStringPref("spv_projects", json.encode([this.currentProject.url]));
+            pref.setStringPref("spv_projects", JSON.stringify([this.currentProject.url]));
         } else {
-            pref.setStringPref("spv_projects", json.encode([]));
+            pref.setStringPref("spv_projects", JSON.stringify([]));
         }
-        pref.setStringPref("mpv_projects", json.encode(this._mpv_urls));
+        pref.setStringPref("mpv_projects", JSON.stringify(this._mpv_urls));
     } else {
-        pref.setStringPref("spv_projects", json.encode(this._spv_urls));
-        pref.setStringPref("mpv_projects", json.encode(this._projects.map(function(p) p.url)));
+        pref.setStringPref("spv_projects", JSON.stringify(this._spv_urls));
+        pref.setStringPref("mpv_projects", JSON.stringify(this._projects.map(function(p) p.url)));
         if (this.viewMgr) {
             this._projects.forEach(function(project) {
                     this.viewMgr.savePrefs(project);
@@ -1308,17 +1306,15 @@ projectManager.prototype.setState_v6 = function(pref)
 
 projectManager.prototype.setState = function(pref)
 {
-    var json = Components.classes["@mozilla.org/dom/json;1"].
-                createInstance(Components.interfaces.nsIJSON);
     try {
         try {
-            this._spv_urls = json.decode(pref.getStringPref("spv_projects"));
+            this._spv_urls = JSON.parse(pref.getStringPref("spv_projects"));
         } catch(ex) {
             log.error("Can't get pref spv_projects");
             this._spv_urls = [];
         }
         try {
-            this._mpv_urls = json.decode(pref.getStringPref("mpv_projects"));
+            this._mpv_urls = JSON.parse(pref.getStringPref("mpv_projects"));
         } catch(ex) {
             log.error("Can't get pref mpv_projects");
             this._mpv_urls = [];
