@@ -950,7 +950,7 @@ def target_configure(argv):
             build a clean unpatched mozilla or firefox
             (Note: I don't trust that this is what you get. --TM)
 
-        --compiler=<vc7|vc8|vc9>  # Windows-only
+        --compiler=<vc9|vc10|vc11>  # Windows-only
             There is *some* support for building Mozilla/Firefox with
             the non-default compiler on Windows. Currently we build with
             VC9 and this is the default.
@@ -1130,7 +1130,7 @@ def target_configure(argv):
         elif opt == "--compiler":
             assert sys.platform == "win32", \
                 "'--compiler' configure option is only supported on Windows"
-            validCompilers = ('vc7', 'vc8', 'vc9')
+            validCompilers = ('vc9', 'vc10', 'vc11')
             assert optarg in validCompilers, \
                 "invalid compiler value (%s), must be one of: %s"\
                 % (optarg, validCompilers)
