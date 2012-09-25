@@ -378,7 +378,8 @@ if ($platform eq "darwin") {
 }
 
 
-if ($platform ne "linux") { # until this can be worked on for more than darwin
+# SciDoc is disabled - as we're not using it.
+if (0 && $platform ne "linux") { # until this can be worked on for more than darwin
 # the SciDoc XPCOM component
 $cons->Install($idlExportDir, 'ISciDoc.idl');
 $cons->BuildAndInstallXpt('ISciDoc.idl');
