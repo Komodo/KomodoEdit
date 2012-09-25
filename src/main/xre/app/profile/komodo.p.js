@@ -787,3 +787,8 @@ pref("breakpad.reportURL", "http://crash-stats.activestate.com/report/index/");
 
 // base URL for web-based support pages
 pref("app.support.baseURL", "http://support.activestate.com/1/%APP%/%VERSION%/%OS%/%LOCALE%/");
+
+// Disable the extension selection UI at startup - as this mostly contains
+// ActiveState add-ons included in the base installation - which we don't want
+// the user to uninstall.
+pref("extensions.shownSelectionUI", true);
