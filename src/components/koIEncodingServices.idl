@@ -58,7 +58,7 @@ interface koIEncodingServices : nsISupports {
     string get_canonical_python_encoding_name(in string python_encoding_name);
     
     // returns -1 if the encoding cannot be found in the list of supported encodings 
-     get_encoding_index(in string python_encoding_name);
+    long get_encoding_index(in string python_encoding_name);
     readonly attribute koIHierarchyItem encoding_hierarchy;
     
     // The meaning of errors is as in the Python standard library w.r.t. dealing with 

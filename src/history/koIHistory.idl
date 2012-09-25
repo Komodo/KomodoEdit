@@ -18,7 +18,7 @@ interface koIHistoryLocation : nsISupports
     attribute unsigned long col;
     attribute wstring view_type;
 
-    attribute PRint32  marker_handle;
+    attribute long  marker_handle;
     attribute unsigned long window_num;
     attribute unsigned long tabbed_view_id;
     attribute wstring section_title;
@@ -48,7 +48,7 @@ interface koIHistoryService : nsISupports
         in unsigned long window_num,
         in unsigned long tabbed_view_id,
         in koIView view,
-        in PRint32 pos,
+        in long pos,
         in wstring session_name);
     void get_recent_locs(in koIHistoryLocation loc,
                          in wstring session_name,

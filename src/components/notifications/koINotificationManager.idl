@@ -22,8 +22,8 @@ interface koINotificationListener : nsISupports {
      *       position indicated.
      */
     void onNotification(in koINotification aNotification,
-                        in  aOldIndex,
-                        in  aNewIndex,
+                        in long aOldIndex,
+                        in long aNewIndex,
                         in unsigned long aReason);
     const unsigned long REASON_ADDED   = 0;
     const unsigned long REASON_UPDATED = 1;

@@ -48,7 +48,7 @@ interface koIExtensionsView: nsITreeView {
     void Remove(in string extension);
     // Remove the ext at the given index. Raise an error if don't have
     // this index.
-    void RemoveIndex(in  index);
+    void RemoveIndex(in long index);
     string Get(in unsigned long index);
 
     // Sort the find result data by a certain key (this key typically

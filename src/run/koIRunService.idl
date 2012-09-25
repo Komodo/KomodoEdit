@@ -305,7 +305,7 @@ interface koITreeOutputHandler : koITerminalHandler {
 // This is implemented in run's JavaScript code.
 [scriptable, uuid(CE58C7CF-DE1F-4f24-87C2-6069B6F856BF)]
 interface koIRunTerminationListener: nsISupports {
-    void onTerminate(in  result);
+    void onTerminate(in long result);
 };
 
 
@@ -319,14 +319,14 @@ interface koIRunProcess: nsISupports {
 
     // Terminate the process.
     //   "exitCode" is what the process return value is set to.
-    void kill(in  exitCode);
+    void kill(in long exitCode);
     
     // Wait for the process to terminate and return its exit value.
     //   "timeout" is a number of seconds to wait for the process to
     //             terminate. A value of -1 means to never timeout.
     // Wait will raise an exception if the method times out before the
     // process has finished executing.
-     wait(in  timeout);
+    long wait(in long timeout);
 
     /**
      * @deprecated since Komodo 4.3.0, use getStdout instead.
@@ -474,13 +474,13 @@ interface koIRunEnvView : nsITreeView {
     // XXX Should koIEnvironmentView just be used instead?
 
     void Set(in wstring variable, in wstring value);
-    void Delete(in  index);
+    void Delete(in long index);
     // Return true iff have a datum with the given variable name.
     // XXX Techinally Have() is redundant given Index().
     boolean Have(in wstring variable);
     // Return the index of the given variable name, -1 if there is no
     // such variable in the view.
-    PRint32 Index(in wstring variable);
+    long Index(in wstring variable);
 
     // Sort the find result data by a certain key (this key typically
     // matches the <treecol id=.../>  id's).
