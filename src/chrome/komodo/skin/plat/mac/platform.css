@@ -212,8 +212,8 @@ toolbar:not([mode="full"]) > toolbaritem > toolbarbutton[checked="true"],
 .solo-toolbaritem > toolbarbutton:first-child {
   margin-left: 3px;
   padding-left: 3px;
-  -moz-border-radius-topleft: 4px;
-  -moz-border-radius-bottomleft: 4px;
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
 }
 
 #toolbox_main toolbar:not([mode="full"]) > toolbarbutton:last-child,
@@ -222,12 +222,12 @@ toolbar:not([mode="full"]) > toolbaritem > toolbarbutton[checked="true"],
 .solo-toolbaritem > toolbarbutton:last-child {
   margin-right: 3px;
   padding-right: 3px;
-  -moz-border-radius-topright: 4px;
-  -moz-border-radius-bottomright: 4px;
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
 }
 
 .solo-button {
-  -moz-border-radius: 4px;
+  border-radius: 4px;
 }
 
 /**
@@ -327,7 +327,7 @@ textbox.search-box-open-icon {
   -moz-border-bottom-colors: #9F9F9F #EEE -moz-Field;
   -moz-border-right-colors: #7F7F7F #EEE -moz-Field;
   -moz-border-left-colors: #7F7F7F #EFEFEF -moz-Field;
-  -moz-border-radius: 11px;
+  border-radius: 11px;
   background-clip: border-box !important;
   padding: 0 2px 0 8px;
 }

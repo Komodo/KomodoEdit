@@ -52,7 +52,7 @@
   padding: 5px 10px 6px; 
   color: #fff !important; 
   text-decoration: none;
-  -moz-border-radius: 5px; 
+  border-radius: 5px; 
   -webkit-border-radius: 5px;
   /* Linux browsers */
   -khtml-border-radius: 5px;

@@ -23,7 +23,7 @@ ko-pane[type="vertical"] tab
 
 ko-pane[type="vertical"] tabs[rotation="270"] tab
 {
-  -moz-border-radius: 6px 0 0 6px;
+  border-radius: 6px 0 0 6px;
   border-bottom: 3px solid;
   border-top: 1px solid;
   border-right: none;
@@ -31,7 +31,7 @@ ko-pane[type="vertical"] tabs[rotation="270"] tab
 
 ko-pane[type="vertical"] tabs[rotation="90"] tab
 {
-  -moz-border-radius: 0 6px 6px 0;
+  border-radius: 0 6px 6px 0;
   border-bottom: 3px solid;
   border-top: 1px solid;
   border-left: none;

@@ -45,19 +45,19 @@ treechildren.confirmrepl::-moz-tree-image(warning) {
 }
 treechildren.confirmrepl::-moz-tree-row(warning) {
     background-color: #FFF1A8;
-    -moz-border-radius: 7px;
+    border-radius: 7px;
     border: 1px solid #bbb;
     margin: 0 3px -1px 3px;
 }
 treechildren.confirmrepl::-moz-tree-row(warning, selected) {
     background-color: threedface;
-    -moz-border-radius: inherit;
+    border-radius: inherit;
     border: inherit;
     margin: inherit;
 }
 treechildren.confirmrepl::-moz-tree-row(warning, selected, focus) {
     background-color: highlight;
-    -moz-border-radius: inherit;
+    border-radius: inherit;
     border: inherit;
     margin: inherit;
 }
@@ -69,19 +69,19 @@ treechildren.findresults::-moz-tree-image(warning) {
 }
 treechildren.findresults::-moz-tree-row(warning) {
     background-color: #FFF1A8;
-    -moz-border-radius: 7px;
+    border-radius: 7px;
     border: 1px solid #bbb;
     margin: 0 3px -1px 3px;
 }
 treechildren.findresults::-moz-tree-row(warning, selected) {
     background-color: threedface;
-    -moz-border-radius: inherit;
+    border-radius: inherit;
     border: inherit;
     margin: inherit;
 }
 treechildren.findresults::-moz-tree-row(warning, selected, focus) {
     background-color: highlight;
-    -moz-border-radius: inherit;
+    border-radius: inherit;
     border: inherit;
     margin: inherit;
 }

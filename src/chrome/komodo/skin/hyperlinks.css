@@ -1,6 +1,6 @@
 #hyperlink_gotodefinition_tooltip {
     -moz-appearance: none;
-    -moz-border-radius: 6px 6px 6px 6px;
+    border-radius: 6px 6px 6px 6px;
 }
 
 #hyperlink_gotodefinition_tooltip.light {
