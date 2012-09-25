@@ -41,6 +41,10 @@ set PATH=%MOZILLABUILD%\msys\local\bin;%PATH%
 set PATH=%MOZILLABUILD%\info-zip;%PATH%
 set PATH=%MOZILLABUILD%\msys\bin;%PATH%
 set PATH=%MOZILLABUILD%\wget;%PATH%
+rem Include NSIS, just so the mozilla configure doesn't complain about it.
+set PATH=%PATH%;%MOZILLABUILD%\nsis-2.46u
+set PATH=%PATH%;%MOZILLABUILD%\nsis-2.33u
+set PATH=%PATH%;%MOZILLABUILD%\nsis-2.22
 
 
 if "%VC9DIR%"=="" (
