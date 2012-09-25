@@ -890,11 +890,6 @@ def target_configure(argv):
         --with-crashreport-symbols
             Enable builds that contain crash reporting symbols.
 
-        --g4, --no-g4
-            (Mac OS X only) Build optimized, or not, for Altivec/7400 G4
-            Processors. By default this optimization is turned on for
-            release builds.
-
         -P <pyver>, --python-version=<pyver>
             Specify the version of the local prebuilt Python to build with
             and siloed into this Mozilla build. By default the latest
@@ -1023,7 +1018,6 @@ def target_configure(argv):
              "komodo", "xulrunner", "suite", "browser", "moz-app=",
              "with-crashreport-symbols",
              "strip", "no-strip",
-             "g4", "no-g4",
              "no-mar",
              "with-tests", "without-tests", 
              "perf", "js",
@@ -1122,11 +1116,6 @@ def target_configure(argv):
         elif opt == "--no-strip":
             config["stripBuild"] = False
             config["buildOpt"].append("ns")
-        elif opt == "--g4":
-            if os.uname()[-1] != 'i386':
-                config["optimizeForG4"] = True
-        elif opt == "--no-g4":
-            config["optimizeForG4"] = False
         elif opt == "--compiler":
             assert sys.platform == "win32", \
                 "'--compiler' configure option is only supported on Windows"
@@ -1164,11 +1153,6 @@ def target_configure(argv):
     # settings.
     buildType = config["buildType"] # shorthand
     if sys.platform == "darwin":
-        if "optimizeForG4" not in config:
-            config["optimizeForG4"] = (pi.arch != "x86"
-                                       and buildType == "release")
-        elif buildType == "release" and not config["optimizeForG4"]:
-            config["buildOpt"].append("nog4opt")
         # See http://developer.mozilla.org/en/docs/Mac_OS_X_Build_Prerequisites#.mozconfig_Options_and_Other_Tunables
         # for issues with setting:
         #   ac_add_options --with-macos-sdk=/path/to/SDK
@@ -1344,10 +1328,6 @@ def target_configure(argv):
         config["python"] = abspath(pythonExe)
 
     # Validate options: some combinations don't make sense.
-    if sys.platform == "darwin":
-        if buildType == "debug" and config["optimizeForG4"]:
-            raise BuildError("cannot optmize for G4 (--g4) in a debug "
-                             "build (--debug)")
     if config["buildTag"] is not None and config["srcTreeName"] is not None:
         raise BuildError("cannot use both --src-tree-name and "
                          "--build-tag options")
