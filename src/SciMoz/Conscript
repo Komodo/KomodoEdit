@@ -155,17 +155,6 @@ if ($platform eq "win") {
     }
     $consLocal{'CPPPATH'} = [
         "$scintillaBuildDir/include",
-        "$mozDevelDist/include/xulapp",
-        "$mozSrc/mozilla/xpcom/ds",
-        "$mozDevelDist/include/widget",
-        "$mozDevelDist/include/dom",
-        "$mozDevelDist/include/string",
-        "$mozDevelDist/include/xpcom",
-        "$mozDevelDist/include/nspr",
-        "$mozDevelDist/include/content",
-        "$mozDevelDist/include/gfx",
-        "$mozDevelDist/include/content",
-        "$mozDevelDist/include/java",
         "helper"];
     my $CXXFLAGS = $consLocal{'CXXFLAGS'} .
         " /W3 /D_WINDOWS /DWIN32 /DXP_WIN" .
@@ -523,17 +512,7 @@ $cons->BuildHeaderFromIdl('koISciMozIMEHelper.idl');
 my %consIME = $cons->copy();
 my $dllNameIME;
 $consIME{'CPPPATH'} = [
-    "$mozDevelDist/include", # for gecko 2.0
-    "$mozDevelDist/include/xpcom",
-    "$mozDevelDist/include/string", # not windows!?
-    "$mozSrc/mozilla/xpcom/ds",
-    "$mozDevelDist/include/nspr",
-    "$mozDevelDist/include/content",
-    "$mozDevelDist/include/widget",
-    "$mozDevelDist/include/dom",
-    "$mozDevelDist/include/gfx",
-    "$mozDevelDist/include/layout",
-    "$mozDevelDist/include/plugin",
+    "$mozDevelDist/include",
     "$scintillaBuildDir/include",
     "$scintillaBuildDir/lexlib",
     ".."];
