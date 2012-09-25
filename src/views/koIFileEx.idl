@@ -111,10 +111,10 @@ interface koIFileEx : nsISupports
     // file locations are to be treated as network shares.
     // Note: Network shared are automatically detected on Windows.
     readonly attribute boolean isNetworkFile;
-    readonly attribute PRInt64 lastModifiedTime;
-    readonly attribute PRInt64 createdTime;
-    readonly attribute PRInt64 lastAccessedTime;
-    readonly attribute PRInt64 fileSize;
+    readonly attribute long long lastModifiedTime;
+    readonly attribute long long createdTime;
+    readonly attribute long long lastAccessedTime;
+    readonly attribute long long fileSize;
     readonly attribute boolean exists;
     readonly attribute boolean closed;
     readonly attribute boolean isWriteable;
