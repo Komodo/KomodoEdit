@@ -2186,8 +2186,9 @@ def _get_make_command(config, srcDir):
     Returns a pymake command line on Windows, and make elsewhere
     (because pymake is broken for Gecko17, fixed later)
     """
-    if sys.platform.startswith("win"):
-        return "%s %s/build/pymake/make.py" % (config.python, srcDir)
+    # Disabled - pymake doesn't seem to work correctly on Windows either.
+    #if sys.platform.startswith("win"):
+    #    return "%s %s/build/pymake/make.py" % (config.python, srcDir)
 
     return "make"
 
