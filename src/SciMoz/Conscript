@@ -561,7 +561,7 @@ if ($platform eq "win") {
     my $LIBS = $consIME{'LIBS'};
     $LIBS .= " nspr4.lib " .
              " xpcom.lib" .
-             " xpcomglue_s.lib" .
+             " xpcomglue_staticruntime_s.lib" .
              " mozalloc.lib" .
              "";
 
