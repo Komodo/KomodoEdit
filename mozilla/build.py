@@ -1730,42 +1730,14 @@ def target_silo_python(argv=["silo_python"]):
         _run("mkdir -p %s" % dirname(dst))
         _run('cp -R %s %s' % (src, dst))
 
-        # Note: Currently don't think the relocation is necessary on Mac OS X.
-        #
-        ## Relocate the Python install.
-        #if pyver >= (2,5): # when APy's activestate.py supported relocation
-        #    activestate_py_path = join(
-        #        dst, "Versions", config.pyVer, "lib",
-        #        "python"+config.pyVer, "site-packages", "activestate.py")
-        #    cmd = "%s %s --relocate" % (sys.executable, activestate_py_path)
-        #    _run(cmd, log.info)
-
         # Tweaks so pyxpcom stuff will work when run from the command line.
         # http://bugs.activestate.com/show_bug.cgi?id=66332
-        # (a) move the main Python exe to the Komodo.app dir and
+        # (a) symlink the main Python exe to the Komodo.app dir and
         # (b) call it 'mozpython' to avoid name conflict.
-        pythonAppDir = join(siloDir, "Python.framework", "Versions",
-                            config.pyVer, "Resources", "Python.app")
-        oldPybinPath = join(pythonAppDir, "Contents", "MacOS", "Python")
-        newPybinPath = join(dirname(siloDir), "MacOS", "mozpython")
-        _run("mv -f %s %s" % (oldPybinPath, newPybinPath), log.info)
-        _run("rm -rf %s" % pythonAppDir, log.info)
-        _run("chmod +w %s" % (newPybinPath,), log.info)
-        # (c) correct the runtime dependency path.
-        try:
-            oldLibDeps = _capture_output('otool -L %s' % (newPybinPath,))
-        except OSError:
-            # failed to run otool :(
-            oldLibDeps = ""
-        for line in oldLibDeps.splitlines():
-            if not "(compatibility version" in line:
-                continue
-            oldLibDep = line.split("(compatibility version", 1)[0].strip()
-            if oldLibDep.startswith("/Library/Frameworks/Python.framework/"):
-                newLibDep = oldLibDep.replace("/Library/Frameworks/Python.framework/",
-                                              "@executable_path/../Frameworks/Python.framework/")
-                _run("install_name_tool -change %s %s %s"
-                    % (oldLibDep, newLibDep, newPybinPath), log.info)
+        relativePythonBin = join("..", "Frameworks", "Python.framework",
+                                 "Versions", config.pyVer, "bin", "python")
+        mozpythonBin = join(dirname(siloDir), "MacOS", "mozpython")
+        os.symlink(relativePythonBin, mozpythonBin)
 
         _relocatePyxpcom(config)
 
