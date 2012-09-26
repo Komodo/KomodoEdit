@@ -57,7 +57,7 @@ inline bool IsOperator(int ch) {
 }
 
 static void GetTextSegment(Accessor &styler, unsigned int start, unsigned int end, char *s, size_t len) {
-	size_t i = 0;
+	unsigned int i = 0;
 	for (; (i < end - start + 1) && (i < len-1); i++) {
 		s[i] = static_cast<char>(MakeLowerCase(styler[start + i]));
 	}
@@ -66,7 +66,7 @@ static void GetTextSegment(Accessor &styler, unsigned int start, unsigned int en
 
 static const char *GetNextWord(Accessor &styler, unsigned int start, char *s, size_t sLen) {
 
-	size_t i = 0;
+	unsigned int i = 0;
 	for (; i < sLen-1; i++) {
 		char ch = static_cast<char>(styler.SafeGetCharAt(start + i));
 		if ((i == 0) && !IsAWordStart(ch))
@@ -261,28 +261,29 @@ static void classifyAttribHTML(unsigned int start, unsigned int end, WordList &k
 static int classifyTagHTML(unsigned int start, unsigned int end,
                            WordList &keywords, Accessor &styler, bool &tagDontFold,
 			   bool caseSensitive, bool isXml, bool allowScripts) {
-	char s[30 + 2];
+	char withSpace[30 + 2] = " ";
+	const char *s = withSpace + 1;
 	// Copy after the '<'
-	unsigned int i = 0;
+	unsigned int i = 1;
 	for (unsigned int cPos = start; cPos <= end && i < 30; cPos++) {
 		char ch = styler[cPos];
 		if ((ch != '<') && (ch != '/')) {
-			s[i++] = caseSensitive ? ch : static_cast<char>(MakeLowerCase(ch));
+			withSpace[i++] = caseSensitive ? ch : static_cast<char>(MakeLowerCase(ch));
 		}
 	}
 
 	//The following is only a quick hack, to see if this whole thing would work
 	//we first need the tagname with a trailing space...
-	s[i] = ' ';
-	s[i+1] = '\0';
+	withSpace[i] = ' ';
+	withSpace[i+1] = '\0';
 
 	// if the current language is XML, I can fold any tag
 	// if the current language is HTML, I don't want to fold certain tags (input, meta, etc.)
 	//...to find it in the list of no-container-tags
-	tagDontFold = (!isXml) && (NULL != strstr("meta link img area br hr input ", s));
+	tagDontFold = (!isXml) && (NULL != strstr(" area base basefont br col command embed frame hr img input isindex keygen link meta param source track wbr ", withSpace));
 
 	//now we can remove the trailing space
-	s[i] = '\0';
+	withSpace[i] = '\0';
 
 	// No keywords -> all are known
 	char chAttr = SCE_H_TAGUNKNOWN;
@@ -597,11 +598,12 @@ static void ColouriseHyperTextDoc(unsigned int startPos, int length, int initSty
 	char djangoBlockType[2];
 	djangoBlockType[0] = '\0';
 
-	// If inside a tag, it may be a script tag, so reread from the start to ensure any language tags are seen
+	// If inside a tag, it may be a script tag, so reread from the start of line starting tag to ensure any language tags are seen
 	if (InTagState(state)) {
 		while ((startPos > 0) && (InTagState(styler.StyleAt(startPos - 1)))) {
-			startPos--;
-			length++;
+			int backLineStart = styler.LineStart(styler.GetLine(startPos-1));
+			length += startPos - backLineStart;
+			startPos = backLineStart;
 		}
 		state = SCE_H_DEFAULT;
 	}
@@ -902,7 +904,7 @@ static void ColouriseHyperTextDoc(unsigned int startPos, int length, int initSty
 		         (chNext == '?') &&
 				 !IsScriptCommentState(state)) {
  			beforeLanguage = scriptLanguage;
-			scriptLanguage = segIsScriptingIndicator(styler, i + 2, i + 6, eScriptPHP);
+			scriptLanguage = segIsScriptingIndicator(styler, i + 2, i + 6, isXml ? eScriptXML : eScriptPHP);
 			if (scriptLanguage != eScriptPHP && isStringState(state)) continue;
 			styler.ColourTo(i - 1, StateToPrint);
 			beforePreProc = state;
@@ -960,8 +962,8 @@ static void ColouriseHyperTextDoc(unsigned int startPos, int length, int initSty
 			styler.ColourTo(i, SCE_H_ASP);
 
 			if (ch != '%' && ch != '$' && ch != '/') {
-				i += strlen(makoBlockType);
-				visibleChars += strlen(makoBlockType);
+				i += static_cast<int>(strlen(makoBlockType));
+				visibleChars += static_cast<int>(strlen(makoBlockType));
 				if (keywords4.InList(makoBlockType))
 					styler.ColourTo(i, SCE_HP_WORD);
 				else
@@ -1087,7 +1089,7 @@ static void ColouriseHyperTextDoc(unsigned int startPos, int length, int initSty
 				state = SCE_H_SGML_COMMAND; // wait for a pending command
 			}
 			// fold whole tag (-- when closing the tag)
-			if (foldHTMLPreprocessor || (state == SCE_H_COMMENT))
+			if (foldHTMLPreprocessor || state == SCE_H_COMMENT || state == SCE_H_CDATA)
 				levelCurrent++;
 			continue;
 		}
@@ -1583,6 +1585,10 @@ static void ColouriseHyperTextDoc(unsigned int startPos, int length, int initSty
 					state = SCE_HJ_COMMENTDOC;
 				else
 					state = SCE_HJ_COMMENT;
+				if (chNext2 == '/') {
+					// Eat the * so it isn't used for the end of the comment
+					i++;
+				}
 			} else if (ch == '/' && chNext == '/') {
 				styler.ColourTo(i - 1, StateToPrint);
 				state = SCE_HJ_COMMENTLINE;
@@ -1983,7 +1989,7 @@ static void ColouriseHyperTextDoc(unsigned int startPos, int length, int initSty
 					styler.ColourTo(i, StateToPrint);
 					state = SCE_HPHP_DEFAULT;
 				} else if (isLineEnd(chPrev)) {
-				const int psdLength = strlen(phpStringDelimiter);
+					const int psdLength = static_cast<int>(strlen(phpStringDelimiter));
 					const char chAfterPsd = styler.SafeGetCharAt(i + psdLength);
 					const char chAfterPsd2 = styler.SafeGetCharAt(i + psdLength + 1);
 					if (isLineEnd(chAfterPsd) ||
@@ -2006,7 +2012,7 @@ static void ColouriseHyperTextDoc(unsigned int startPos, int length, int initSty
 					state = SCE_HPHP_DEFAULT;
 				}
 			} else if (isLineEnd(chPrev) && styler.Match(i, phpStringDelimiter)) {
-				const int psdLength = strlen(phpStringDelimiter);
+				const int psdLength = static_cast<int>(strlen(phpStringDelimiter));
 				const char chAfterPsd = styler.SafeGetCharAt(i + psdLength);
 				const char chAfterPsd2 = styler.SafeGetCharAt(i + psdLength + 1);
 				if (isLineEnd(chAfterPsd) ||
@@ -2128,7 +2134,8 @@ static void ColouriseHyperTextDoc(unsigned int startPos, int length, int initSty
 		break;
 	default:
 		StateToPrint = statePrintForState(state, inScriptType);
-		styler.ColourTo(lengthDoc - 1, StateToPrint);
+		if (static_cast<int>(styler.GetStartSegment()) < lengthDoc)
+			styler.ColourTo(lengthDoc - 1, StateToPrint);
 		break;
 	}
 

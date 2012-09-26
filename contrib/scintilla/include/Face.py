@@ -12,7 +12,7 @@ def decodeFunction(featureVal):
 	nameIdent, params = rest.split("(")
 	name, value = nameIdent.split("=")
 	params, rest = params.split(")")
-	param1, param2 = params.split(",")[0:2]
+	param1, param2 = params.split(",")
 	return retType, name, value, param1, param2
 	
 def decodeEvent(featureVal):
@@ -60,7 +60,11 @@ class Face:
 					currentCommentFinished = 1
 					featureType, featureVal = line.split(" ", 1)
 					if featureType in ["fun", "get", "set"]:
-						retType, name, value, param1, param2 = decodeFunction(featureVal)
+						try:
+							retType, name, value, param1, param2 = decodeFunction(featureVal)
+						except ValueError:
+							print("Failed to decode %s" % line)
+							raise
 						p1 = decodeParam(param1)
 						p2 = decodeParam(param2)
 						self.features[name] = { 
@@ -72,7 +76,7 @@ class Face:
 							"Category": currentCategory, "Comment": currentComment
 						}
 						if value in self.values:
-							raise "Duplicate value " + value + " " + name
+							raise Exception("Duplicate value " + value + " " + name)
 						self.values[value] = 1
 						self.order.append(name)
 					elif featureType == "evt":
@@ -84,7 +88,7 @@ class Face:
 							"Category": currentCategory, "Comment": currentComment
 						}
 						if value in self.events:
-							raise "Duplicate event " + value + " " + name
+							raise Exception("Duplicate event " + value + " " + name)
 						self.events[value] = 1
 						self.order.append(name)
 					elif featureType == "cat":
@@ -94,7 +98,7 @@ class Face:
 							name, value = featureVal.split("=", 1)
 						except ValueError:
 							print("Failure %s" % featureVal)
-							raise
+							raise Exception()
 						self.features[name] = { 
 							"FeatureType": featureType, 
 							"Category": currentCategory, 

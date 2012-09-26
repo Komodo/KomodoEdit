@@ -8,8 +8,11 @@
 
 .SUFFIXES: .cxx .c .o .h .a
 ifdef CLANG
-CC = clang
-CCOMP = clang
+ifdef CLANG_ANALYZE
+ANALYZE=--analyze
+endif
+CC = clang $(ANALYZE)
+CCOMP = clang $(ANALYZE)
 else
 CC = g++
 CCOMP = gcc
@@ -55,18 +58,18 @@ THREADFLAGS=
 endif
 
 ifdef DEBUG
-CXXFLAGS=-DDEBUG -g $(CXXBASEFLAGS) $(THREADFLAGS)
+CXXTFLAGS=-DDEBUG -g $(CXXFLAGS) $(CXXBASEFLAGS) $(THREADFLAGS)
 else
-CXXFLAGS=-DNDEBUG -Os $(CXXBASEFLAGS) $(THREADFLAGS)
+CXXTFLAGS=-DNDEBUG -Os $(CXXFLAGS) $(CXXBASEFLAGS) $(THREADFLAGS)
 endif
 
-CFLAGS:=$(CXXFLAGS)
+CFLAGS:=$(CXXTFLAGS)
 
 CONFIGFLAGS:=$(shell pkg-config --cflags $(GTKVERSION))
 MARSHALLER=scintilla-marshal.o
 
 .cxx.o:
-	$(CC) $(CONFIGFLAGS) $(CXXFLAGS) -c $<
+	$(CC) $(CONFIGFLAGS) $(CXXTFLAGS) -c $<
 .c.o:
 	$(CCOMP) $(CONFIGFLAGS) $(CFLAGS) -w -c $<
 
@@ -78,7 +81,7 @@ clean:
 	$(DEL) *.o $(COMPLIB)
 
 deps:
-	$(CC) -MM $(CONFIGFLAGS) $(CXXFLAGS) *.cxx ../src/*.cxx | sed -e 's/\/usr.* //' | grep [a-zA-Z] >deps.mak
+	$(CC) -MM $(CONFIGFLAGS) $(CXXTFLAGS) *.cxx ../src/*.cxx | sed -e 's/\/usr.* //' | grep [a-zA-Z] >deps.mak
 
 $(COMPLIB): Accessor.o CharacterSet.o LexerBase.o LexerModule.o LexerSimple.o StyleContext.o WordList.o \
 	CharClassify.o Decoration.o Document.o PerLine.o Catalogue.o CallTip.o \

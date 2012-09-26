@@ -294,12 +294,12 @@ static float BarFontSize = 10.0;
 - (void) setFrame: (NSRect) newFrame
 {
   [super setFrame: newFrame];
-  [self layout];
+  [self positionSubViews];
 }
 
 //--------------------------------------------------------------------------------------------------
 
-- (void) layout
+- (void) positionSubViews
 {
   NSRect currentBounds = {0, 0, 0, [self frame].size.height};
   if (mDisplayMask & IBShowZoom)
@@ -345,7 +345,7 @@ static float BarFontSize = 10.0;
   if (mDisplayMask != display)
   {
     mDisplayMask = display;
-    [self layout];
+    [self positionSubViews];
     [self needsDisplay];
   }  
 }

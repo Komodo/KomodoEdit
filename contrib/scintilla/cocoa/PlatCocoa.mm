@@ -92,48 +92,6 @@ Scintilla::Point Scintilla::Point::FromLong(long lpoint)
                           );
 }
 
-//----------------- Palette ------------------------------------------------------------------------
-
-// The Palette implementation is only here because we would get linker errors if not.
-// We don't use indexed colors in ScintillaCocoa.
-
-Scintilla::Palette::Palette()
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-
-Scintilla::Palette::~Palette()
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-
-void Scintilla::Palette::Release()
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-
-/**
- * Used to transform a given color, if needed. If the caller tries to find a color that matches the
- * desired color then we simply pass it on, as we support the full color space.
- */
-void Scintilla::Palette::WantFind(ColourPair &cp, bool want)
-{
-  if (!want)
-    cp.allocated.Set(cp.desired.AsLong());
-  
-  // Don't do anything if the caller wants the color it has already set.
-}
-
-//--------------------------------------------------------------------------------------------------
-
-void Scintilla::Palette::Allocate(Window&)
-{
-  // Nothing to allocate as we don't use palettes.
-}
-
 //----------------- Font ---------------------------------------------------------------------------
 
 Font::Font(): fid(0)
@@ -156,8 +114,7 @@ static int FontCharacterSet(Font &f) {
 /**
  * Creates a CTFontRef with the given properties.
  */
-void Font::Create(const char *faceName, int characterSet, int size, bool bold, bool italic, 
-                  int /* extraFontFlag */)
+void Font::Create(const FontParameters &fp)
 {
 	Release();
 
@@ -165,9 +122,9 @@ void Font::Create(const char *faceName, int characterSet, int size, bool bold, b
 	fid = style;
 
 	// Create the font with attributes
-	QuartzFont font(faceName, strlen(faceName), size, bold, italic);
+	QuartzFont font(fp.faceName, strlen(fp.faceName), fp.size, fp.weight, fp.italic);
 	CTFontRef fontRef = font.getFontID();
-	style->setFontRef(fontRef, characterSet);
+	style->setFontRef(fontRef, fp.characterSet);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -314,7 +271,7 @@ void SurfaceImpl::InitPixMap(int width, int height, Surface* /* surface_ */, Win
 
 //--------------------------------------------------------------------------------------------------
 
-void SurfaceImpl::PenColour(ColourAllocated fore)
+void SurfaceImpl::PenColour(ColourDesired fore)
 {
   if (gc)
   {
@@ -328,7 +285,7 @@ void SurfaceImpl::PenColour(ColourAllocated fore)
 
 //--------------------------------------------------------------------------------------------------
 
-void SurfaceImpl::FillColour(const ColourAllocated& back)
+void SurfaceImpl::FillColour(const ColourDesired& back)
 {
   if (gc)
   {
@@ -451,8 +408,8 @@ void SurfaceImpl::LineTo(int x_, int y_)
 
 //--------------------------------------------------------------------------------------------------
 
-void SurfaceImpl::Polygon(Scintilla::Point *pts, int npts, ColourAllocated fore,
-                          ColourAllocated back)
+void SurfaceImpl::Polygon(Scintilla::Point *pts, int npts, ColourDesired fore,
+                          ColourDesired back)
 {
   // Allocate memory for the array of points.
   CGPoint *points = new CGPoint[npts];
@@ -484,7 +441,7 @@ void SurfaceImpl::Polygon(Scintilla::Point *pts, int npts, ColourAllocated fore,
 
 //--------------------------------------------------------------------------------------------------
 
-void SurfaceImpl::RectangleDraw(PRectangle rc, ColourAllocated fore, ColourAllocated back)
+void SurfaceImpl::RectangleDraw(PRectangle rc, ColourDesired fore, ColourDesired back)
 {
   if (gc)
   {
@@ -502,11 +459,14 @@ void SurfaceImpl::RectangleDraw(PRectangle rc, ColourAllocated fore, ColourAlloc
 
 //--------------------------------------------------------------------------------------------------
 
-void SurfaceImpl::FillRectangle(PRectangle rc, ColourAllocated back)
+void SurfaceImpl::FillRectangle(PRectangle rc, ColourDesired back)
 {
   if (gc)
   {
     FillColour(back);
+    // Snap rectangle boundaries to nearest int
+    rc.left = lround(rc.left);
+    rc.right = lround(rc.right);
     CGRect rect = PRectangleToCGRect(rc);
     CGContextFillRect(gc, rect);
   }
@@ -521,6 +481,13 @@ void drawImageRefCallback(CGImageRef pattern, CGContextRef gc)
 
 //--------------------------------------------------------------------------------------------------
 
+void releaseImageRefCallback(CGImageRef pattern)
+{
+  CGImageRelease(pattern);
+}
+
+//--------------------------------------------------------------------------------------------------
+
 void SurfaceImpl::FillRectangle(PRectangle rc, Surface &surfacePattern)
 {
   SurfaceImpl& patternSurface = static_cast<SurfaceImpl &>(surfacePattern);
@@ -529,12 +496,13 @@ void SurfaceImpl::FillRectangle(PRectangle rc, Surface &surfacePattern)
   CGImageRef image = patternSurface.GetImage();
   if (image == NULL)
   {
-    FillRectangle(rc, ColourAllocated(0));
+    FillRectangle(rc, ColourDesired(0));
     return;
   }
   
-  const CGPatternCallbacks drawImageCallbacks = { 0, 
-    reinterpret_cast<CGPatternDrawPatternCallback>(drawImageRefCallback), NULL };
+  const CGPatternCallbacks drawImageCallbacks = { 0,
+    reinterpret_cast<CGPatternDrawPatternCallback>(drawImageRefCallback),
+    reinterpret_cast<CGPatternReleaseInfoCallback>(releaseImageRefCallback) };
   
   CGPatternRef pattern = CGPatternCreate(image,
                                          CGRectMake(0, 0, patternSurface.bitmapWidth, patternSurface.bitmapHeight),
@@ -566,12 +534,10 @@ void SurfaceImpl::FillRectangle(PRectangle rc, Surface &surfacePattern)
     colorSpace = NULL;
     CGPatternRelease( pattern );
     pattern = NULL;
-    CGImageRelease( image );
-    image = NULL;
   } /* pattern != NULL */
 }
 
-void SurfaceImpl::RoundedRectangle(PRectangle rc, ColourAllocated fore, ColourAllocated back) {
+void SurfaceImpl::RoundedRectangle(PRectangle rc, ColourDesired fore, ColourDesired back) {
   // This is only called from the margin marker drawing code for SC_MARK_ROUNDRECT
   // The Win32 version does
   //  ::RoundRect(hdc, rc.left + 1, rc.top, rc.right - 1, rc.bottom, 8, 8 );
@@ -611,11 +577,13 @@ void SurfaceImpl::RoundedRectangle(PRectangle rc, ColourAllocated fore, ColourAl
   };
   
   // Align the points in the middle of the pixels
-  for( int i = 0; i < 4*3; ++ i )
+  for( int i = 0; i < 4; ++ i )
   {
-    CGPoint* c = (CGPoint*) corners;
-    c[i].x += 0.5;
-    c[i].y += 0.5;
+    for( int j = 0; j < 3; ++ j )
+    {
+      corners[i][j].x += 0.5;
+      corners[i][j].y += 0.5;
+    }
   }
   
   PenColour( fore );
@@ -636,12 +604,15 @@ void SurfaceImpl::RoundedRectangle(PRectangle rc, ColourAllocated fore, ColourAl
   CGContextDrawPath( gc, kCGPathFillStroke );
 }
 
-void Scintilla::SurfaceImpl::AlphaRectangle(PRectangle rc, int /*cornerSize*/, ColourAllocated fill, int alphaFill,
-                                            ColourAllocated /*outline*/, int /*alphaOutline*/, int /*flags*/)
+void Scintilla::SurfaceImpl::AlphaRectangle(PRectangle rc, int /*cornerSize*/, ColourDesired fill, int alphaFill,
+                                            ColourDesired /*outline*/, int /*alphaOutline*/, int /*flags*/)
 {
   if ( gc ) {
     ColourDesired colour( fill.AsLong() );
-    
+ 
+    // Snap rectangle boundaries to nearest int
+    rc.left = lround(rc.left);
+    rc.right = lround(rc.right);
     // Set the Fill color to match
     CGContextSetRGBFillColor( gc, colour.GetRed() / 255.0, colour.GetGreen() / 255.0, colour.GetBlue() / 255.0, alphaFill / 255.0 );
     CGRect rect = PRectangleToCGRect( rc );
@@ -649,7 +620,7 @@ void Scintilla::SurfaceImpl::AlphaRectangle(PRectangle rc, int /*cornerSize*/, C
   }
 }
 
-static CGImageRef ImageFromRGBA(int width, int height, const unsigned char *pixelsImage, bool invert) {
+static CGImageRef ImageCreateFromRGBA(int width, int height, const unsigned char *pixelsImage, bool invert) {
 	CGImageRef image = 0;
 
 	// Create an RGB color space.
@@ -703,7 +674,7 @@ static CGImageRef ImageFromRGBA(int width, int height, const unsigned char *pixe
 }
 
 void SurfaceImpl::DrawRGBAImage(PRectangle /* rc */, int width, int height, const unsigned char *pixelsImage) {
-	CGImageRef image = ImageFromRGBA(width, height, pixelsImage, true);
+	CGImageRef image = ImageCreateFromRGBA(width, height, pixelsImage, true);
 	if (image) {
 		//CGContextSaveGState(gc);
 		//CGRect dst = PRectangleToCGRect(rc);
@@ -716,7 +687,7 @@ void SurfaceImpl::DrawRGBAImage(PRectangle /* rc */, int width, int height, cons
 	}
 }
 
-void SurfaceImpl::Ellipse(PRectangle rc, ColourAllocated fore, ColourAllocated back) {
+void SurfaceImpl::Ellipse(PRectangle rc, ColourDesired fore, ColourDesired back) {
   // Drawing an ellipse with bezier curves. Code modified from:
   // http://www.codeguru.com/gdi/ellipse.shtml
   // MAGICAL CONSTANT to map ellipse to beziers 2/3*(sqrt(2)-1)
@@ -813,7 +784,7 @@ void SurfaceImpl::Copy(PRectangle rc, Scintilla::Point from, Surface &surfaceSou
   // If we could not get an image reference, fill the rectangle black
   if ( image == NULL )
   {
-    FillRectangle( rc, ColourAllocated( 0 ) );
+    FillRectangle( rc, ColourDesired( 0 ) );
     return;
   }
   
@@ -836,8 +807,8 @@ void SurfaceImpl::Copy(PRectangle rc, Scintilla::Point from, Surface &surfaceSou
 
 //--------------------------------------------------------------------------------------------------
 
-void SurfaceImpl::DrawTextNoClip(PRectangle rc, Font &font_, int ybase, const char *s, int len,
-                                 ColourAllocated fore, ColourAllocated back)
+void SurfaceImpl::DrawTextNoClip(PRectangle rc, Font &font_, XYPOSITION ybase, const char *s, int len,
+                                 ColourDesired fore, ColourDesired back)
 {
   FillRectangle(rc, back);
   DrawTextTransparent(rc, font_, ybase, s, len, fore);
@@ -845,8 +816,8 @@ void SurfaceImpl::DrawTextNoClip(PRectangle rc, Font &font_, int ybase, const ch
 
 //--------------------------------------------------------------------------------------------------
 
-void SurfaceImpl::DrawTextClipped(PRectangle rc, Font &font_, int ybase, const char *s, int len,
-                                  ColourAllocated fore, ColourAllocated back)
+void SurfaceImpl::DrawTextClipped(PRectangle rc, Font &font_, XYPOSITION ybase, const char *s, int len,
+                                  ColourDesired fore, ColourDesired back)
 {
   CGContextSaveGState(gc);
   CGContextClipToRect(gc, PRectangleToCGRect(rc));
@@ -913,8 +884,8 @@ CFStringEncoding EncodingFromCharacterSet(bool unicode, int characterSet)
   }
 }
 
-void SurfaceImpl::DrawTextTransparent(PRectangle rc, Font &font_, int ybase, const char *s, int len, 
-                                      ColourAllocated fore)
+void SurfaceImpl::DrawTextTransparent(PRectangle rc, Font &font_, XYPOSITION ybase, const char *s, int len, 
+                                      ColourDesired fore)
 {
 	CFStringEncoding encoding = EncodingFromCharacterSet(unicodeMode, FontCharacterSet(font_));
 	ColourDesired colour(fore.AsLong());
@@ -943,7 +914,7 @@ static size_t utf8LengthFromLead(unsigned char uch) {
 
 //--------------------------------------------------------------------------------------------------
 
-void SurfaceImpl::MeasureWidths(Font &font_, const char *s, int len, int *positions)
+void SurfaceImpl::MeasureWidths(Font &font_, const char *s, int len, XYPOSITION *positions)
 {
 	CFStringEncoding encoding = EncodingFromCharacterSet(unicodeMode, FontCharacterSet(font_));
 	textLayout->setText (reinterpret_cast<const UInt8*>(s), len, encoding, *reinterpret_cast<QuartzTextStyle*>(font_.GetID()));
@@ -962,7 +933,7 @@ void SurfaceImpl::MeasureWidths(Font &font_, const char *s, int len, int *positi
 			size_t codeUnits = (lenChar < 4) ? 1 : 2;
 			CGFloat xPosition = CTLineGetOffsetForStringIndex(mLine, ui+1, NULL);
 			for (unsigned int bytePos=0; (bytePos<lenChar) && (i<len); bytePos++) {
-				positions[i++] = static_cast<int>(lround(xPosition));
+				positions[i++] = xPosition;
 			}
 			ui += codeUnits;
 		}
@@ -978,20 +949,20 @@ void SurfaceImpl::MeasureWidths(Font &font_, const char *s, int len, int *positi
 			size_t lenChar = Platform::IsDBCSLeadByte(codePage, s[i]) ? 2 : 1;
 			CGFloat xPosition = CTLineGetOffsetForStringIndex(mLine, ui+1, NULL);
 			for (unsigned int bytePos=0; (bytePos<lenChar) && (i<len); bytePos++) {
-				positions[i++] = static_cast<int>(lround(xPosition));
+				positions[i++] = xPosition;
 			}
 			ui++;
 		}
 	} else {	// Single byte encoding
 		for (int i=0;i<len;i++) {
 			CGFloat xPosition = CTLineGetOffsetForStringIndex(mLine, i+1, NULL);
-			positions[i] = static_cast<int>(lround(xPosition));
+			positions[i] = xPosition;
 		}
 	}
 
 }
 
-int SurfaceImpl::WidthText(Font &font_, const char *s, int len) {
+XYPOSITION SurfaceImpl::WidthText(Font &font_, const char *s, int len) {
   if (font_.GetID())
   {
     CFStringEncoding encoding = EncodingFromCharacterSet(unicodeMode, FontCharacterSet(font_));
@@ -1002,7 +973,7 @@ int SurfaceImpl::WidthText(Font &font_, const char *s, int len) {
   return 1;
 }
 
-int SurfaceImpl::WidthChar(Font &font_, char ch) {
+XYPOSITION SurfaceImpl::WidthChar(Font &font_, char ch) {
   char str[2] = { ch, '\0' };
   if (font_.GetID())
   {
@@ -1019,7 +990,7 @@ int SurfaceImpl::WidthChar(Font &font_, char ch) {
 const char sizeString[] = "`~!@#$%^&*()-_=+\\|[]{};:\"\'<,>.?/1234567890"
 "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-int SurfaceImpl::Ascent(Font &font_) {
+XYPOSITION SurfaceImpl::Ascent(Font &font_) {
   if (!font_.GetID())
     return 1;
   
@@ -1028,7 +999,7 @@ int SurfaceImpl::Ascent(Font &font_) {
 
 }
 
-int SurfaceImpl::Descent(Font &font_) {
+XYPOSITION SurfaceImpl::Descent(Font &font_) {
   if (!font_.GetID())
     return 1;
   
@@ -1037,11 +1008,11 @@ int SurfaceImpl::Descent(Font &font_) {
 
 }
 
-int SurfaceImpl::InternalLeading(Font &) {
+XYPOSITION SurfaceImpl::InternalLeading(Font &) {
   return 0;
 }
 
-int SurfaceImpl::ExternalLeading(Font &font_) {
+XYPOSITION SurfaceImpl::ExternalLeading(Font &font_) {
   if (!font_.GetID())
     return 1;
   
@@ -1050,13 +1021,13 @@ int SurfaceImpl::ExternalLeading(Font &font_) {
 
 }
 
-int SurfaceImpl::Height(Font &font_) {
+XYPOSITION SurfaceImpl::Height(Font &font_) {
 
 	int ht = Ascent(font_) + Descent(font_);
 	return ht;
 }
 
-int SurfaceImpl::AverageCharWidth(Font &font_) {
+XYPOSITION SurfaceImpl::AverageCharWidth(Font &font_) {
   
   if (!font_.GetID())
     return 1;
@@ -1065,11 +1036,6 @@ int SurfaceImpl::AverageCharWidth(Font &font_) {
   int width = WidthText( font_, sizeString, sizeStringLength  );
   
   return (int) ((width / (float) sizeStringLength) + 0.5);
-}
-
-int SurfaceImpl::SetPalette(Scintilla::Palette *, bool) {
-  // Mac OS X is always true colour (I think) so this doesn't matter
-  return 0;
 }
 
 void SurfaceImpl::SetClip(PRectangle rc) {
@@ -1089,7 +1055,7 @@ void SurfaceImpl::SetDBCSMode(int codePage_) {
     codePage = codePage_;
 }
 
-Surface *Surface::Allocate()
+Surface *Surface::Allocate(int)
 {
   return new SurfaceImpl();
 }
@@ -1368,17 +1334,18 @@ static NSImage* ImageFromXPM(XPM* pxpm)
     const int width = pxpm->GetWidth();
     const int height = pxpm->GetHeight();
     PRectangle rcxpm(0, 0, width, height);
-    Surface* surfaceXPM = Surface::Allocate();
+    Surface* surfaceXPM = Surface::Allocate(SC_TECHNOLOGY_DEFAULT);
     if (surfaceXPM)
     {
       surfaceXPM->InitPixMap(width, height, NULL, NULL);
       SurfaceImpl* surfaceIXPM = static_cast<SurfaceImpl*>(surfaceXPM);
       CGContextClearRect(surfaceIXPM->GetContext(), CGRectMake(0, 0, width, height));
       pxpm->Draw(surfaceXPM, rcxpm);
-      img = [NSImage alloc];
-      [img autorelease];
+      img = [[[NSImage alloc] initWithSize:NSZeroSize] autorelease];
       CGImageRef imageRef = surfaceIXPM->GetImage();
-      [img initWithCGImage:imageRef size:NSZeroSize];
+      NSBitmapImageRep *bitmapRep = [[NSBitmapImageRep alloc] initWithCGImage: imageRef];
+      [img addRepresentation: bitmapRep];
+      [bitmapRep release];
       CGImageRelease(imageRef);
       delete surfaceXPM;
     }
@@ -1459,7 +1426,10 @@ public:
 class ListBoxImpl;
 
 @interface AutoCompletionDataSource :
-NSObject <NSTableViewDataSource>
+NSObject
+#if MAC_OS_X_VERSION_MAX_ALLOWED > MAC_OS_X_VERSION_10_5
+<NSTableViewDataSource>
+#endif
 {
   ListBoxImpl* box;
 }
@@ -1489,7 +1459,8 @@ private:
   NSScrollView* scroller;
   NSTableColumn* colIcon;
   NSTableColumn* colText;
-
+  AutoCompletionDataSource* ds;
+	
   LinesData ld;
   CallBackAction doubleClickAction;
   void* doubleClickActionData;
@@ -1504,7 +1475,7 @@ public:
 
   // ListBox methods
   void SetFont(Font& font);
-  void Create(Window& parent, int ctrlID, Scintilla::Point pt, int lineHeight_, bool unicodeMode_);
+  void Create(Window& parent, int ctrlID, Scintilla::Point pt, int lineHeight_, bool unicodeMode_, int technology_);
   void SetAverageCharWidth(int width);
   void SetVisibleRows(int rows);
   int GetVisibleRows() const;
@@ -1589,7 +1560,7 @@ ListBox* ListBox::Allocate()
 }
 
 void ListBoxImpl::Create(Window& /*parent*/, int /*ctrlID*/, Scintilla::Point pt,
-    int lineHeight_, bool unicodeMode_)
+    int lineHeight_, bool unicodeMode_, int)
 {
   lineHeight = lineHeight_;
   unicodeMode = unicodeMode_;
@@ -1606,24 +1577,23 @@ void ListBoxImpl::Create(Window& /*parent*/, int /*ctrlID*/, Scintilla::Point pt
   NSRect scRect = NSMakeRect(0, 0, lbRect.size.width, lbRect.size.height);
   [scroller initWithFrame: scRect];
   [scroller setHasVerticalScroller:YES];
-  table = [NSTableView alloc];
-  [table initWithFrame: scRect];
+  table = [[NSTableView alloc] initWithFrame: scRect];
   [table setHeaderView:nil];
   [scroller setDocumentView: table];
   colIcon = [[NSTableColumn alloc] initWithIdentifier:@"icon"];
   [colIcon setWidth: 20];
   [colIcon setEditable:NO];
   [colIcon setHidden:YES];
-  NSImageCell* imCell = [[NSImageCell alloc] init];
+  NSImageCell* imCell = [[[NSImageCell alloc] init] autorelease];
   [colIcon setDataCell:imCell];
   [table addTableColumn:colIcon];
   colText = [[NSTableColumn alloc] initWithIdentifier:@"name"];
   [colText setResizingMask:NSTableColumnAutoresizingMask];
   [colText setEditable:NO];
   [table addTableColumn:colText];
-  AutoCompletionDataSource* ds = [[AutoCompletionDataSource alloc] init];
+  ds = [[AutoCompletionDataSource alloc] init];
   [ds setBox:this];
-  [table setDataSource: ds];
+  [table setDataSource: ds];	// Weak reference
   [scroller setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
   [[winLB contentView] addSubview: scroller];
 
@@ -1634,13 +1604,14 @@ void ListBoxImpl::Create(Window& /*parent*/, int /*ctrlID*/, Scintilla::Point pt
 
 void ListBoxImpl::SetFont(Font& font_)
 {
-  font.SetID(font_.GetID());
   // NSCell setFont takes an NSFont* rather than a CTFontRef but they
   // are the same thing toll-free bridged.
   QuartzTextStyle* style = reinterpret_cast<QuartzTextStyle*>(font_.GetID());
+  font.Release();
+  font.SetID(new QuartzTextStyle(*style));
   NSFont *pfont = (NSFont *)style->getFontRef();
   [[colText dataCell] setFont: pfont];
-  CGFloat itemHeight = lround([pfont ascender] - [pfont descender]);
+  CGFloat itemHeight = ceil([pfont boundingRectForFont].size.height);
   [table setRowHeight:itemHeight];
 }
 
@@ -1816,7 +1787,6 @@ void ListBoxImpl::GetValue(int n, char* value, int len)
 void ListBoxImpl::RegisterImage(int type, const char* xpm_data)
 {
   XPM xpm(xpm_data);
-  xpm.CopyDesiredColours();
   NSImage* img = ImageFromXPM(&xpm);
   [img retain];
   ImageMap::iterator it=images.find(type);
@@ -1832,11 +1802,12 @@ void ListBoxImpl::RegisterImage(int type, const char* xpm_data)
 }
 
 void ListBoxImpl::RegisterRGBAImage(int type, int width, int height, const unsigned char *pixelsImage) {
-	NSImage *img = [NSImage alloc];
-	[img autorelease];
-	CGImageRef imageRef = ImageFromRGBA(width, height, pixelsImage, false);
+	CGImageRef imageRef = ImageCreateFromRGBA(width, height, pixelsImage, false);
 	NSSize sz = {width, height};
-	[img initWithCGImage:imageRef size:sz];
+	NSImage *img = [[[NSImage alloc] initWithSize: sz] autorelease];
+	NSBitmapImageRep *bitmapRep = [[NSBitmapImageRep alloc] initWithCGImage: imageRef];
+	[img addRepresentation: bitmapRep];
+	[bitmapRep release];
 	CGImageRelease(imageRef);
 	[img retain];
 	ImageMap::iterator it=images.find(type);
@@ -1873,7 +1844,6 @@ NSImage* ListBoxImpl::ImageForRow(NSInteger row)
   if (it != images.end())
   {
     NSImage* img = it->second;
-    [img retain];
     return img;
   }
   else
@@ -1961,8 +1931,7 @@ void Menu::Show(Point, Window &)
 
 ElapsedTime::ElapsedTime() {
   struct timeval curTime;
-  int retVal;
-  retVal = gettimeofday( &curTime, NULL );
+  gettimeofday( &curTime, NULL );
   
   bigBit = curTime.tv_sec;
   littleBit = curTime.tv_usec;
@@ -1970,8 +1939,7 @@ ElapsedTime::ElapsedTime() {
 
 double ElapsedTime::Duration(bool reset) {
   struct timeval curTime;
-  int retVal;
-  retVal = gettimeofday( &curTime, NULL );
+  gettimeofday( &curTime, NULL );
   long endBigBit = curTime.tv_sec;
   long endLittleBit = curTime.tv_usec;
   double result = 1000000.0 * (endBigBit - bigBit);
@@ -2131,7 +2099,7 @@ int Platform::Maximum(int a, int b) {
 
 void Platform::DebugDisplay(const char *s)
 {
-  fprintf( stderr, s );
+  fprintf( stderr, "%s", s );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -16,12 +16,13 @@ class QuartzFont
 {
 public:
     /** Create a font style from a name. */
-	QuartzFont( const char* name, size_t length, float size, bool bold, bool italic )
+	QuartzFont( const char* name, size_t length, float size, int weight, bool italic )
     {
         assert( name != NULL && length > 0 && name[length] == '\0' );
 
 		CFStringRef fontName = CFStringCreateWithCString(kCFAllocatorDefault, name, kCFStringEncodingMacRoman);
 		assert(fontName != NULL);
+	        bool bold = weight > SC_WEIGHT_NORMAL;
 
 		if (bold || italic)
 		{

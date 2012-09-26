@@ -92,7 +92,7 @@ static inline bool checkStatement(
 	Accessor &styler,
 	int &curPos,
 	const char *stt, bool spaceAfter = true ) {
-	int len = strlen( stt );
+	int len = static_cast<int>(strlen( stt ));
 	int i;
 	for( i = 0; i < len; i++ ) {
 		if( styler.SafeGetCharAt( curPos + i ) != stt[i] ) {
@@ -113,7 +113,7 @@ static inline bool checkEndSemicolon(
 	int &curPos, int endPos )
 {
 	const char *stt = "END";
-	int len = strlen( stt );
+	int len = static_cast<int>(strlen( stt ));
 	int i;
 	for( i = 0; i < len; i++ ) {
 		if( styler.SafeGetCharAt( curPos + i ) != stt[i] ) {

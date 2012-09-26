@@ -638,6 +638,24 @@ NSString *SCIUpdateUINotification = @"SCIUpdateUI";
 //--------------------------------------------------------------------------------------------------
 
 /**
+ * Receives zoom messages, for example when a "pinch zoom" is performed on the trackpad.
+ */
+- (void) magnifyWithEvent: (NSEvent *) event
+{
+#if MAC_OS_X_VERSION_MAX_ALLOWED > MAC_OS_X_VERSION_10_5
+  CGFloat z = [event magnification];
+  
+  // Zoom out or in 1pt depending on sign of magnification event value (0.0 = no change)
+  if (z <= 0.0)
+    [ScintillaView directCall: self message: SCI_ZOOMOUT wParam: 0 lParam: 0];
+  else if (z >= 0.0)
+    [ScintillaView directCall: self message: SCI_ZOOMIN wParam: 0 lParam: 0];
+#endif
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
  * Sends a new notification of the given type to the default notification center.
  */
 - (void) sendNotification: (NSString*) notificationName
@@ -860,7 +878,7 @@ static void notification(intptr_t windowid, unsigned int iMessage, uintptr_t wPa
 {
   [super viewDidMoveToWindow];
   
-  [self layout];
+  [self positionSubViews];
   
   // Enable also mouse move events for our window (and so this view).
   [[self window] setAcceptsMouseMovedEvents: YES];
@@ -871,7 +889,7 @@ static void notification(intptr_t windowid, unsigned int iMessage, uintptr_t wPa
 /**
  * Used to position and size the parts of the editor (content, scrollers, info bar).
  */
-- (void) layout
+- (void) positionSubViews
 {
   int scrollerWidth = [NSScroller scrollerWidth];
 
@@ -984,7 +1002,7 @@ static void notification(intptr_t windowid, unsigned int iMessage, uintptr_t wPa
     [mVerticalScroller setHidden: hideScroller];
     if (!hideScroller)
       [mVerticalScroller setFloatValue: 0];
-    [self layout];
+    [self positionSubViews];
   }
   
   if (!hideScroller)
@@ -1034,7 +1052,7 @@ static void notification(intptr_t windowid, unsigned int iMessage, uintptr_t wPa
   {
     result = YES;
     [mHorizontalScroller setHidden: hideScroller];
-    [self layout];
+    [self positionSubViews];
   }
   
   if (!hideScroller)
@@ -1085,7 +1103,7 @@ static void notification(intptr_t windowid, unsigned int iMessage, uintptr_t wPa
 - (void) setFrame: (NSRect) newFrame
 {
   [super setFrame: newFrame];
-  [self layout];
+  [self positionSubViews];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1462,7 +1480,7 @@ static void notification(intptr_t windowid, unsigned int iMessage, uintptr_t wPa
       mInitialInfoBarWidth = [mInfoBar frame].size.width;
     }
     
-    [self layout];
+    [self positionSubViews];
   }
 }
 
