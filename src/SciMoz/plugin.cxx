@@ -51,9 +51,9 @@
  * differ between platforms.
  */
 
-#define PLUGIN_NAME        "Scintilla"
-#define PLUGIN_DESCRIPTION  PLUGIN_NAME " for Komodo" 
-#define PLUGIN_VERSION     "1.0.0.0"
+#define PLUGIN_NAME             "Komodo Editor"
+#define PLUGIN_DESCRIPTION      "The ActiveState Komodo Editor - do not disable"
+#define PLUGIN_VERSION          "1.0.0.0"
 #define MIME_TYPES_DESCRIPTION  "application/x-scimoz-plugin::Scintilla"
 
 #include "nsSciMoz.h"
@@ -163,8 +163,8 @@ NP_GetMIMEDescription()
 }
 
 NP_EXPORT(NPError)
-NP_GetValue(void* istance, NPPVariable aVariable, void* aValue) {
-  return NPERR_INVALID_PARAM;
+NP_GetValue(void* instance, NPPVariable aVariable, void* aValue) {
+  return NPP_GetValue((NPP)instance, aVariable, aValue);
 }
 
 NP_EXPORT(NPError) OSCALL 
@@ -179,7 +179,33 @@ NP_Shutdown()
  */
 
 NPError
-NPP_New(NPMIMEType pluginType, NPP instance, uint16_t mode, int16_t argc, char* argn[], char* argv[], NPSavedData* saved) {
+NPP_New(NPMIMEType /*pluginType*/, NPP instance, uint16_t /*mode*/, int16_t /*argc*/, char** /*argn[]*/, char** /*argv[]*/, NPSavedData* /*saved*/) {
+
+#if defined(USE_COCOA)
+  // Check if the browser supports the CoreGraphics drawing model
+  NPBool supportsCoreGraphics = FALSE;
+  NPBool supportsCocoaEvents = FALSE;
+  NPError err = NPN_GetValue(instance, NPNVsupportsCoreGraphicsBool,
+                             &supportsCoreGraphics);
+  if (err != NPERR_NO_ERROR || !supportsCoreGraphics) {
+    return NPERR_INCOMPATIBLE_VERSION_ERROR;
+  }
+
+  // Set the drawing model
+  err = NPN_SetValue(instance, NPPVpluginDrawingModel,
+                     (void*)NPDrawingModelCoreGraphics);
+  if (err != NPERR_NO_ERROR) {
+    return NPERR_INCOMPATIBLE_VERSION_ERROR;
+  }
+
+  // Verify the host supports the Cocoa event model
+  err = NPN_GetValue(instance, NPNVsupportsCocoaBool, &supportsCocoaEvents);
+  if (err != NPERR_NO_ERROR || !supportsCocoaEvents) {
+    return NPERR_INCOMPATIBLE_VERSION_ERROR;
+  }
+  NPN_SetValue(instance, NPPVpluginEventModel, (void *) NPEventModelCocoa);
+#endif
+
   // Create our new SciMoz plugin instance.
   SciMozPluginInstance* scimozPlugin = new SciMozPluginInstance(instance);
   if (!scimozPlugin)
@@ -190,7 +216,7 @@ NPP_New(NPMIMEType pluginType, NPP instance, uint16_t mode, int16_t argc, char* 
 }
 
 NPError
-NPP_Destroy(NPP instance, NPSavedData** save) {
+NPP_Destroy(NPP instance, NPSavedData** /*save*/) {
   SciMozPluginInstance* scimozPlugin = (SciMozPluginInstance*)(instance->pdata);
   delete scimozPlugin;
   return NPERR_NO_ERROR;
@@ -215,12 +241,14 @@ NPP_GetValue(NPP instance, NPPVariable variable, void *value) {
       return NPERR_NO_ERROR;
 #endif
     case NPPVpluginScriptableNPObject:// Scriptable plugin interface (for accessing from javascript)
+    {
       SciMozPluginInstance* scimozPlugin = (SciMozPluginInstance*)(instance->pdata);
       *(NPObject **)value = scimozPlugin->getScriptableObject();
       return NPERR_NO_ERROR;
+    }
+    default:
+      return NPERR_INVALID_PARAM;
   }
-
-  return NPERR_INVALID_PARAM;
 }
 
 NPError
@@ -242,42 +270,42 @@ NPP_HandleEvent(NPP instance, void* event) {
  */
 
 NPError
-NPP_NewStream(NPP instance, NPMIMEType type, NPStream* stream, NPBool seekable, uint16_t* stype) {
+NPP_NewStream(NPP /*instance*/, NPMIMEType /*type*/, NPStream* /*stream*/, NPBool /*seekable*/, uint16_t* /*stype*/) {
   return NPERR_GENERIC_ERROR;
 }
 
 NPError
-NPP_DestroyStream(NPP instance, NPStream* stream, NPReason reason) {
+NPP_DestroyStream(NPP /*instance*/, NPStream* /*stream*/, NPReason /*reason*/) {
   return NPERR_GENERIC_ERROR;
 }
 
 int32_t
-NPP_WriteReady(NPP instance, NPStream* stream) {
+NPP_WriteReady(NPP /*instance*/, NPStream* /*stream*/) {
   return 0;
 }
 
 int32_t
-NPP_Write(NPP instance, NPStream* stream, int32_t offset, int32_t len, void* buffer) {
+NPP_Write(NPP /*instance*/, NPStream* /*stream*/, int32_t /*offset*/, int32_t /*len*/, void* /*buffer*/) {
   return 0;
 }
 
 void
-NPP_StreamAsFile(NPP instance, NPStream* stream, const char* fname) {
+NPP_StreamAsFile(NPP /*instance*/, NPStream* /*stream*/, const char* /*fname*/) {
 
 }
 
 void
-NPP_Print(NPP instance, NPPrint* platformPrint) {
+NPP_Print(NPP /*instance*/, NPPrint* /*platformPrint*/) {
 
 }
 
 void
-NPP_URLNotify(NPP instance, const char* URL, NPReason reason, void* notifyData) {
+NPP_URLNotify(NPP /*instance*/, const char* /*URL*/, NPReason /*reason*/, void* /*notifyData*/) {
 
 }
 
 NPError
-NPP_SetValue(NPP instance, NPNVariable variable, void *value) {
+NPP_SetValue(NPP /*instance*/, NPNVariable /*variable*/, void */*value*/) {
   return NPERR_GENERIC_ERROR;
 }
 
@@ -364,7 +392,7 @@ SciMozScriptableNPObject::~SciMozScriptableNPObject()
 }
 
 // static
-NPObject* SciMozScriptableNPObject::Allocate(NPP npp, NPClass *aClass) {
+NPObject* SciMozScriptableNPObject::Allocate(NPP npp, NPClass */*aClass*/) {
     return new SciMozScriptableNPObject(npp);
 }
 
@@ -412,7 +440,7 @@ bool SciMozScriptableNPObject::Invoke(NPIdentifier name, const NPVariant *args, 
 bool SciMozScriptableNPObject::_InvokeDefault(NPObject *obj, const NPVariant *args, uint32_t argCount, NPVariant *result) {
     return ((SciMozScriptableNPObject*)obj)->InvokeDefault(args, argCount, result);
 }
-bool SciMozScriptableNPObject::InvokeDefault(const NPVariant *args, uint32_t argCount, NPVariant *result) {
+bool SciMozScriptableNPObject::InvokeDefault(const NPVariant */*args*/, uint32_t /*argCount*/, NPVariant */*result*/) {
     return false;
 }
 
@@ -451,7 +479,7 @@ bool SciMozScriptableNPObject::SetProperty(NPIdentifier name, const NPVariant *v
 bool SciMozScriptableNPObject::_RemoveProperty(NPObject *obj, NPIdentifier name) {
     return ((SciMozScriptableNPObject*)obj)->RemoveProperty(name);
 }
-bool SciMozScriptableNPObject::RemoveProperty(NPIdentifier name) {
+bool SciMozScriptableNPObject::RemoveProperty(NPIdentifier /*name*/) {
     return false;
 }
 
@@ -459,7 +487,7 @@ bool SciMozScriptableNPObject::RemoveProperty(NPIdentifier name) {
 bool SciMozScriptableNPObject::_Enumerate(NPObject *obj, NPIdentifier **identifier, uint32_t *count) {
     return ((SciMozScriptableNPObject*)obj)->Enumerate(identifier, count);
 }
-bool SciMozScriptableNPObject::Enumerate(NPIdentifier **identifier, uint32_t *count) {
+bool SciMozScriptableNPObject::Enumerate(NPIdentifier **/*identifier*/, uint32_t */*count*/) {
     return false;
 }
 
@@ -467,7 +495,7 @@ bool SciMozScriptableNPObject::Enumerate(NPIdentifier **identifier, uint32_t *co
 bool SciMozScriptableNPObject::_Construct(NPObject *obj, const NPVariant *args, uint32_t argCount, NPVariant *result) {
     return ((SciMozScriptableNPObject*)obj)->Construct(args, argCount, result);
 }
-bool SciMozScriptableNPObject::Construct(const NPVariant *args, uint32_t argCount, NPVariant *result) {
+bool SciMozScriptableNPObject::Construct(const NPVariant */*args*/, uint32_t /*argCount*/, NPVariant */*result*/) {
     return false;
 }
 
