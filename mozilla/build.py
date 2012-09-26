@@ -1171,22 +1171,21 @@ def target_configure(argv):
         #   8:  Tiger (OS X 10.4)
 
         mozVer = config["mozVer"]
-        sdk_ver = "10.5"
-        sdk = "/Developer/SDKs/MacOSX%s.sdk" % (sdk_ver, )
+
+        # Komodo 8 defaults to building with the MacOSX 10.6 SDK.
+        macosx_min_version = "10.6"
+        sdk = "/Developer/SDKs/MacOSX%s.sdk" % (macosx_min_version, )
         if not os.path.exists(sdk):
-            # OSX 10.8 and higher has things inside the Xcode bundle... try that?
-            sdk_ver = "10.7"
-            sdk = "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX%s.sdk" % (sdk_ver, )
-        if not os.path.exists("%s/Library" % sdk):
-            raise BuildError("You must symlink %s/Library to /Library:\n"
-                             "\tsudo ln -s /Library %s/Library"
-                             % (sdk, sdk))
-        if not os.path.exists("%s/Library/Frameworks/Python.framework" % sdk):
-            #TODO: Is *Active*Python actually required here? if not just say "Python".
-            raise BuildError("ActivePython is not installed to "
-                             "'/Library/Frameworks'.")
-    
-        mozBuildOptions.append("enable-macos-target=%s" % sdk_ver)
+            # Newer installs of Xcode use a different location - try that now.
+            for sdk_ver in ("10.7", "10.8"):
+                sdk = "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX%s.sdk" % (sdk_ver, )
+                if os.path.exists(sdk):
+                    break
+            else:
+                raise BuildError("Unable to locate the MacOSX sdk - you "
+                                 "probably need to install Xcode.")
+
+        mozBuildOptions.append("enable-macos-target=%s" % macosx_min_version)
         mozBuildOptions.append("with-macos-sdk=%s" % sdk)
 
         gcc = config.get("gcc") or os.environ.get("CC")
