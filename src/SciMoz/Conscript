@@ -128,7 +128,6 @@ $cons->BuildHeaderFromIdl('ISciMozEvents.idl');
 $cons->Preprocess('koScintillaController.p.py','koScintillaController.py');
 $cons->InstallXpcomComponent('koScintillaController.py');
 
-
 $cons->Command(
     'scimoz_wrapper.js',
     'scimoz_wrapper.template.js',
@@ -219,14 +218,15 @@ elsif ($platform eq "darwin") {
     $consLocal{'LDFLAGS'} = "-dynamic";
     $consLocal{'LIBS'} = "-bundle -lscintilla";
     $consLocal{'LIBS'} .= " -Wl,-dead_strip -L$mozDevelDist/bin ";
-    $consLocal{'LIBS'} .= " -Wl,-executable_path,$mozDevelDist/bin ";
+#    $consLocal{'LIBS'} .= " -Wl,-executable_path,$mozDevelDist/bin ";
+    $consLocal{'LIBS'} .= " -Wl,-executable_path,$mozBin";
     $consLocal{'LIBS'} .= " $mozDevelDist/lib/libxpcomglue_s.a -lxpcom -lnspr4 -lmozalloc ";
     # add required frameworks
     $consLocal{'LIBS'} .= "-framework Carbon -framework CoreFoundation ";
     # scintilla
     
 
-    $consLocal{'CPPPATH'} = "$scintillaBuildDir/lexlib:$scintillaBuildDir/include:$scintillaBuildDir/src:$scintillaBuildDir/macosx:$mozIncludePath";
+    $consLocal{'CPPPATH'} = "$scintillaBuildDir/include:$scintillaBuildDir/src:$scintillaBuildDir/cocoa:$scintillaBuildDir/lexlib:$mozIncludePath";
     $consLocal{'LIBPATH'} = "$mozLibPath:$mozBin";
     $consLocal{'CXXFLAGS'} = " -Wall -Wno-non-virtual-dtor -fno-exceptions -fno-rtti -fno-common -fshort-wchar";
     # Add the global FLAGS.
@@ -246,17 +246,15 @@ elsif ($platform eq "darwin") {
 
     # Ensure that these are defined for use by mozilla headers
     $consLocal{'CXXFLAGS'} .= " -include $mozObjDir/mozilla-config.h " .
-        " -I$mozDevelDist/include/string" .
         " -I$mozSrc/mozilla/xpcom/ds" .
-        " -I$mozDevelDist/include/content" .
-        " -I$mozDevelDist/include/gfx" .
 	" -I/Developer/Headers/FlatCarbon";
 
     if ($buildType eq 'debug') {
         $consLocal{'CXXFLAGS'} .= " -g";
         $consLocal{'CXXFLAGS'} .= " -DNS_DEBUG -DDEBUG "; # for debugging
     } else {
-        $consLocal{'CXXFLAGS'} .= " -Os ";
+	$consLocal{'CXXFLAGS'} .= " -g";
+        #$consLocal{'CXXFLAGS'} .= " -Os ";
     }
 
     $consLocal = new cons(%consLocal);
@@ -266,11 +264,11 @@ elsif ($platform eq "darwin") {
 
     $consLocal->Program(
 	"SciMoz",
-	"plugin.cxx",
+	"plugin.mm",
         "npn_gate.cpp",
-	"nsSciMoz.cxx",
-	"nsSciMozMac.cxx",
-	"sendscintilla.cxx",
+	"nsSciMoz.mm",
+	"nsSciMozMac.mm",
+	"sendscintilla.mm",
         "SciMozEvents.cxx",
 	);
 
@@ -337,6 +335,8 @@ else {
     $consLocal{'CXXFLAGS'} .= " -DXP_UNIX=1";
 
     if ($platform eq "solaris") {
+	# big-endian byte order indicator to license code
+	$consLocal{'CXXFLAGS'} .= " -DBYTEORDER=0x4321";
         # Solaris ships with broken X11 headers that do not specify int
         # return types.  The -fpermissive flag converts the errors g++
         # would otherwise generate into warnings.
@@ -437,9 +437,6 @@ else {
 
     $consLocal{'LIBPATH'} = "$mozLibPath:$pluginSdkObjDir/samples/common:$mozBin";
     $consLocal{'CPPPATH'} = "$mozIncludePath:$scintillaBuildDir/include:$scintillaBuildDir/src";
-    $consLocal{'CXXFLAGS'} .= " -I$mozDevelDist/include/content" .
-        " -I$mozDevelDist/include/necko" .
-        " -I$mozDevelDist/include/layout";
     $consLocal{'CXXFLAGS'} .= " -DSCI_NAMESPACE=1 -DSCI_LEXER ".
                             " -DCONTAINER_HANDLES_EVENTS=1 -DINCLUDE_DEPRECATED_FEATURES".
                             " -DUSE_SYSTEM_CONSOLE=1 ".
@@ -484,9 +481,9 @@ else {
         $consLocal{'CXXFLAGS'} .= " -g -DDEBUG -D_DEBUG";
     } else {
         $consLocal{'CXXFLAGS'} .= " -DNDEBUG -D_NDEBUG";
-        if ($withSymbols) {
+#        if ($withSymbols) {
             $consLocal{'CXXFLAGS'} .= " -g";
-        }
+#        }
     }
     if ($platform eq "darwin") {
       $consLocal{'DYLD_LIBRARY_PATH'} = "$mozSrc/mozilla/dist/bin";
@@ -560,7 +557,7 @@ else {
         $consIME{'CXXFLAGS'} .= ' -Wno-deprecated-declarations';
         $dllNameIME = "koSciMozIMEHelper.dylib";
         push @{$consIME{'CPPPATH'}}, (
-             "$scintillaBuildDir/macosx",
+             "$scintillaBuildDir/cocoa",
              "$scintillaBuildDir/src");
         $consIME{'LIBPATH'} = ["$mozBin",
                                "$mozDevelDist/bin"];
@@ -593,8 +590,14 @@ else {
         $consIME{'CXXFLAGS'} .= " -DDEBUG "; # for debugging
     }
     $consIME = new cons(%consIME);
-    $consIME->Program($dllNameIME,
-                      "koSciMozIMEHelper.cpp",
-                      "koSciMozIMEHelperModule.cpp");
+    if ($platform eq "darwin") {
+      $consIME->Program($dllNameIME,
+			"koSciMozIMEHelper.mm",
+			"koSciMozIMEHelperModule.mm");
+    } else {
+      $consIME->Program($dllNameIME,
+			"koSciMozIMEHelper.cpp",
+			"koSciMozIMEHelperModule.cpp");
+    }
 }
 $cons->InstallXpcomComponent($dllNameIME);
