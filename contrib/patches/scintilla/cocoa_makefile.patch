@@ -39,7 +39,7 @@ Index: cocoa/makefile
 -DYN_FLAGS=$(LINK_FLAGS) -framework Cocoa -framework QuartzCore -bundle
 +DYN_FLAGS=$(LINK_FLAGS) -framework Cocoa -framework QuartzCore -dynamiclib -install_name @executable_path/$(DYNAMICLIB_BASE)
 +else
-+DYN_FLAGS=$(LDFLAGS) -arch i386 -framework Cocoa -framework QuartzCore -dynamiclib -install_name @executable_path/$(DYNAMICLIB_BASE) -L/usr/local/lib -lpcre
++DYN_FLAGS=$(LDFLAGS) -arch i386 -framework Cocoa -framework QuartzCore -dynamiclib -install_name @executable_path/$(DYNAMICLIB_BASE) -L. -lpcre
  endif
 -endif
  
