@@ -1,0 +1,353 @@
+Give up trying to manage patches on this file across different patch files.
+diff -r -du src/Editor.cxx src/Editor.cxx
+Index: src/Editor.cxx
+===================================================================
+--- src/Editor.cxx	(revision 73425)
++++ src/Editor.cxx	(working copy)
+@@ -851,20 +851,25 @@
+ 			sel.Range(r).End().Position())) {
+ 			return true;
+ 		}
+ 	}
+ 	return false;
+ }
+ 
+ /**
+  * Asks document to find a good position and then moves out of any invisible positions.
+  */
++// ACTIVESTATE
++int Editor::GetBytePositionForCharOffset(int bytePos, int charOffset, bool checkLineEnd) {
++	return pdoc->GetBytePositionForCharOffset(bytePos, charOffset, checkLineEnd);
++}
++
+ int Editor::MovePositionOutsideChar(int pos, int moveDir, bool checkLineEnd) const {
+ 	return MovePositionOutsideChar(SelectionPosition(pos), moveDir, checkLineEnd).Position();
+ }
+ 
+ SelectionPosition Editor::MovePositionOutsideChar(SelectionPosition pos, int moveDir, bool checkLineEnd) const {
+ 	int posMoved = pdoc->MovePositionOutsideChar(pos.Position(), moveDir, checkLineEnd);
+ 	if (posMoved != pos.Position())
+ 		pos.SetPosition(posMoved);
+ 	if (vs.ProtectionActive()) {
+ 		int mask = pdoc->stylingBitsMask;
+@@ -882,20 +887,23 @@
+ 			}
+ 		}
+ 	}
+ 	return pos;
+ }
+ 
+ int Editor::MovePositionTo(SelectionPosition newPos, Selection::selTypes selt, bool ensureVisible) {
+ 	bool simpleCaret = (sel.Count() == 1) && sel.Empty();
+ 	SelectionPosition spCaret = sel.Last();
+ 
++	if (sel.enforceRectangular) {
++		selt = Selection::selRectangle;
++	}
+ 	int delta = newPos.Position() - sel.MainCaret();
+ 	newPos = ClampPositionIntoDocument(newPos);
+ 	newPos = MovePositionOutsideChar(newPos, delta);
+ 	if (!multipleSelection && sel.IsRectangular() && (selt == Selection::selStream)) {
+ 		// Can't turn into multiple selection so clear additional selections
+ 		InvalidateSelection(SelectionRange(newPos), true);
+ 		SelectionRange rangeMain = sel.RangeMain();
+ 		sel.SetSelection(rangeMain);
+ 	}
+ 	if (!sel.IsRectangular() && (selt == Selection::selRectangle)) {
+@@ -1719,31 +1727,31 @@
+ 			size_t end = i;
+ 			int style = st.styles[i + start];
+ 			while (end < length-1 && st.styles[start+end+1] == style)
+ 				end++;
+ 			style += styleOffset;
+ 			int width = surface->WidthText(vs.styles[style].font,
+ 				st.text + start + i, static_cast<int>(end - i + 1));
+ 			PRectangle rcSegment = rcText;
+ 			rcSegment.left = x;
+ 			rcSegment.right = x + width + 1;
+-			surface->DrawTextNoClip(rcSegment, vs.styles[style].font,
++			surface->DrawTextClipped(rcSegment, vs.styles[style].font,
+ 					ascent, st.text + start + i,
+ 					static_cast<int>(end - i + 1),
+ 					vs.styles[style].fore,
+ 					vs.styles[style].back);
+ 			x += width;
+ 			i = end + 1;
+ 		}
+ 	} else {
+ 		size_t style = st.style + styleOffset;
+-		surface->DrawTextNoClip(rcText, vs.styles[style].font,
++		surface->DrawTextClipped(rcText, vs.styles[style].font,
+ 				rcText.top + vs.maxAscent, st.text + start,
+ 				static_cast<int>(length),
+ 				vs.styles[style].fore,
+ 				vs.styles[style].back);
+ 	}
+ }
+ 
+ void Editor::PaintSelMargin(Surface *surfWindow, PRectangle &rc) {
+ 	if (vs.fixedColumnWidth == 0)
+ 		return;
+@@ -1965,22 +1973,24 @@
+ 					} else if (wrapVisualFlags & SC_WRAPVISUALFLAG_MARGIN) {
+ 						PRectangle rcWrapMarker = rcMarker;
+ 						rcWrapMarker.right -= 3;
+ 						rcWrapMarker.left = rcWrapMarker.right - vs.styles[STYLE_LINENUMBER].aveCharWidth;
+ 						DrawWrapMarker(surface, rcWrapMarker, false, vs.styles[STYLE_LINENUMBER].fore);
+ 					}
+ 				} else if (vs.ms[margin].style == SC_MARGIN_TEXT || vs.ms[margin].style == SC_MARGIN_RTEXT) {
+ 					if (firstSubLine) {
+ 						const StyledText stMargin  = pdoc->MarginStyledText(lineDoc);
+ 						if (stMargin.text && ValidStyledText(vs, vs.marginStyleOffset, stMargin)) {
+-							surface->FillRectangle(rcMarker,
+-								vs.styles[stMargin.StyleAt(0)+vs.marginStyleOffset].back);
++							if (!stMargin.multipleStyles) {
++								surface->FillRectangle(rcMarker,
++									vs.styles[stMargin.StyleAt(0)+vs.marginStyleOffset].back);
++							}
+ 							if (vs.ms[margin].style == SC_MARGIN_RTEXT) {
+ 								int width = WidestLineWidth(surface, vs, vs.marginStyleOffset, stMargin);
+ 								rcMarker.left = rcMarker.right - width - 3;
+ 							}
+ 							DrawStyledText(surface, vs, vs.marginStyleOffset, rcMarker, rcMarker.top + vs.maxAscent,
+ 								stMargin, 0, stMargin.length);
+ 						}
+ 					}
+ 				}
+ 
+@@ -5003,20 +5013,23 @@
+ 		}
+ 	}
+ 	SetLastXChosen();
+ 	SetScrollBars();
+ 	EnsureCaretVisible();
+ 	// Avoid blinking during rapid typing:
+ 	ShowCaretAtCurrentPosition();
+ }
+ 
+ void Editor::CursorUpOrDown(int direction, Selection::selTypes selt) {
++	if (sel.enforceRectangular) {
++		selt = Selection::selRectangle;
++	}
+ 	SelectionPosition caretToUse = sel.Range(sel.Main()).caret;
+ 	if (sel.IsRectangular()) {
+ 		if (selt ==  Selection::noSel) {
+ 			caretToUse = (direction > 0) ? sel.Limits().end : sel.Limits().start;
+ 		} else {
+ 			caretToUse = sel.Rectangular().caret;
+ 		}
+ 	}
+ 
+ 	Point pt = LocationFromPosition(caretToUse);
+@@ -5058,20 +5071,23 @@
+ 			posNew.Add(-1);
+ 			posNew.SetVirtualSpace(0);
+ 			ptNew = LocationFromPosition(posNew.Position());
+ 		}
+ 	}
+ 
+ 	MovePositionTo(MovePositionSoVisible(posNew, direction), selt);
+ }
+ 
+ void Editor::ParaUpOrDown(int direction, Selection::selTypes selt) {
++	if (sel.enforceRectangular) {
++		selt = Selection::selRectangle;
++	}
+ 	int lineDoc, savedPos = sel.MainCaret();
+ 	do {
+ 		MovePositionTo(SelectionPosition(direction > 0 ? pdoc->ParaDown(sel.MainCaret()) : pdoc->ParaUp(sel.MainCaret())), selt);
+ 		lineDoc = pdoc->LineFromPosition(sel.MainCaret());
+ 		if (direction > 0) {
+ 			if (sel.MainCaret() >= pdoc->Length() && !cs.GetVisible(lineDoc)) {
+ 				if (selt == Selection::noSel) {
+ 					MovePositionTo(SelectionPosition(pdoc->LineEndPosition(savedPos)));
+ 				}
+ 				break;
+@@ -6098,33 +6114,41 @@
+ 		x += vs.ms[margin].width;
+ 	}
+ 	return Window::cursorReverseArrow;
+ }
+ 
+ void Editor::TrimAndSetSelection(int currentPos_, int anchor_) {
+ 	sel.TrimSelection(SelectionRange(currentPos_, anchor_));
+ 	SetSelection(currentPos_, anchor_);
+ }
+ 
++static int nextVisibleLine(int lineNo, ContractionState& cs) {
++	return cs.DocFromDisplay(cs.DisplayFromDoc(lineNo) + 1);
++}
++
+ void Editor::LineSelection(int lineCurrentPos_, int lineAnchorPos_, bool wholeLine) {
+ 	int selCurrentPos, selAnchorPos;
+ 	if (wholeLine) {
+ 		int lineCurrent_ = pdoc->LineFromPosition(lineCurrentPos_);
+ 		int lineAnchor_ = pdoc->LineFromPosition(lineAnchorPos_);
++		int nextLineNo;
+ 		if (lineAnchorPos_ < lineCurrentPos_) {
+-			selCurrentPos = pdoc->LineStart(lineCurrent_ + 1);
++			nextLineNo = nextVisibleLine(lineCurrent_, cs);
++			selCurrentPos = pdoc->LineStart(nextLineNo);
+ 			selAnchorPos = pdoc->LineStart(lineAnchor_);
+ 		} else if (lineAnchorPos_ > lineCurrentPos_) {
++			nextLineNo = nextVisibleLine(lineAnchor_, cs);
+ 			selCurrentPos = pdoc->LineStart(lineCurrent_);
+-			selAnchorPos = pdoc->LineStart(lineAnchor_ + 1);
++			selAnchorPos = pdoc->LineStart(nextLineNo);
+ 		} else { // Same line, select it
+-			selCurrentPos = pdoc->LineStart(lineAnchor_ + 1);
++			nextLineNo = nextVisibleLine(lineAnchor_, cs);
++			selCurrentPos = pdoc->LineStart(nextLineNo);
+ 			selAnchorPos = pdoc->LineStart(lineAnchor_);
+ 		}
+ 	} else {
+ 		if (lineAnchorPos_ < lineCurrentPos_) {
+ 			selCurrentPos = StartEndDisplayLine(lineCurrentPos_, false) + 1;
+ 			selCurrentPos = pdoc->MovePositionOutsideChar(selCurrentPos, 1);
+ 			selAnchorPos = StartEndDisplayLine(lineAnchorPos_, true);
+ 		} else if (lineAnchorPos_ > lineCurrentPos_) {
+ 			selCurrentPos = StartEndDisplayLine(lineCurrentPos_, true);
+ 			selAnchorPos = StartEndDisplayLine(lineAnchorPos_, false) + 1;
+@@ -6350,21 +6374,28 @@
+ 			}
+ 		}
+ 	}
+ 	lastClickTime = curTime;
+ 	lastClick = pt;
+ 	lastXChosen = pt.x + xOffset;
+ 	ShowCaretAtCurrentPosition();
+ }
+ 
+ bool Editor::PositionIsHotspot(int position) {
+-	return vs.styles[pdoc->StyleAt(position) & pdoc->stylingBitsMask].hotspot;
++	// return vs.styles[pdoc->StyleAt(position) & pdoc->stylingBitsMask].hotspot;
++	// StyleAt returns _signed_ chars, which don't play well with array indexing
++	// for "large" style numbers like -80 =)
++	// The signature of StyleAt should probably be changed.
++	// Also, styleAt currently doesn't "filter out" indicator bits, which again points
++	// in never-never land.
++	int style = (unsigned char)(pdoc->StyleAt(position)) & pdoc->stylingBitsMask;
++	return vs.styles[style].hotspot;
+ }
+ 
+ bool Editor::PointIsHotspot(Point pt) {
+ 	int pos = PositionFromLocation(pt, true);
+ 	if (pos == INVALID_POSITION)
+ 		return false;
+ 	return PositionIsHotspot(pos);
+ }
+ 
+ void Editor::SetHotSpotRange(Point *pt) {
+@@ -8795,36 +8826,41 @@
+ 		return 0;
+ 
+ 	case SCI_SELECTIONISRECTANGLE:
+ 		return sel.selType == Selection::selRectangle ? 1 : 0;
+ 
+ 	case SCI_SETSELECTIONMODE: {
+ 			switch (wParam) {
+ 			case SC_SEL_STREAM:
+ 				sel.SetMoveExtends(!sel.MoveExtends() || (sel.selType != Selection::selStream));
+ 				sel.selType = Selection::selStream;
++				sel.enforceRectangular = false;
+ 				break;
+ 			case SC_SEL_RECTANGLE:
+ 				sel.SetMoveExtends(!sel.MoveExtends() || (sel.selType != Selection::selRectangle));
+ 				sel.selType = Selection::selRectangle;
++				sel.enforceRectangular = true;
+ 				break;
+ 			case SC_SEL_LINES:
+ 				sel.SetMoveExtends(!sel.MoveExtends() || (sel.selType != Selection::selLines));
+ 				sel.selType = Selection::selLines;
++				sel.enforceRectangular = false;
+ 				break;
+ 			case SC_SEL_THIN:
+ 				sel.SetMoveExtends(!sel.MoveExtends() || (sel.selType != Selection::selThin));
+ 				sel.selType = Selection::selThin;
++				sel.enforceRectangular = false;
+ 				break;
+ 			default:
+ 				sel.SetMoveExtends(!sel.MoveExtends() || (sel.selType != Selection::selStream));
+ 				sel.selType = Selection::selStream;
++				sel.enforceRectangular = false;
+ 			}
+ 			InvalidateSelection(sel.RangeMain(), true);
+ 		}
+ 	case SCI_GETSELECTIONMODE:
+ 		switch (sel.selType) {
+ 		case Selection::selStream:
+ 			return SC_SEL_STREAM;
+ 		case Selection::selRectangle:
+ 			return SC_SEL_RECTANGLE;
+ 		case Selection::selLines:
+@@ -8947,20 +8983,45 @@
+ 
+ 	case SCI_GETHOTSPOTSINGLELINE:
+ 		return vs.hotspotSingleLine ? 1 : 0;
+ 
+ 	case SCI_SETPASTECONVERTENDINGS:
+ 		convertPastes = wParam != 0;
+ 		break;
+ 
+ 	case SCI_GETPASTECONVERTENDINGS:
+ 		return convertPastes ? 1 : 0;
++ 
++	// ACTIVESTATE Komodo-only function.
++	case SCI_POSITIONATCHAR:
++		// The 'false' is to ensure CRLF is treated at _two_ chars
++		// instead of one, as MovePositionOutsideChar (the underlying
++		// function) would otherwise do. (E.g., for the find system
++		// which must treat CRLF as two characters).
++		return pdoc->GetBytePositionForCharOffset(wParam, lParam, false);
++
++	case SCI_POSITIONATCOLUMN:
++		return pdoc->FindColumn(wParam, lParam);
++
++	case SCI_SETDRAGPOSITION:
++		SetDragPosition(SelectionPosition(wParam));
++		break;
++
++	case SCI_GETDRAGPOSITION:
++		return posDrag.Position();
++
++	case SCI_STOPTIMERS: // This patch from stop_timers.patch
++		SetTicking(false);
++		SetIdle(false);
++
++	// END ACTIVESTATE
++
+ 
+ 	case SCI_GETCHARACTERPOINTER:
+ 		return reinterpret_cast<sptr_t>(pdoc->BufferPointer());
+ 
+ 	case SCI_GETRANGEPOINTER:
+ 		return reinterpret_cast<sptr_t>(pdoc->RangePointer(wParam, lParam));
+ 
+ 	case SCI_GETGAPPOSITION:
+ 		return pdoc->GapPosition();
+ 
+@@ -9310,20 +9371,24 @@
+ 		pdoc->ChangeLexerState(wParam, lParam);
+ 		break;
+ 	
+ 	case SCI_SETIDENTIFIER:
+ 		SetCtrlID(wParam);
+ 		break;
+ 	
+ 	case SCI_GETIDENTIFIER:
+ 		return GetCtrlID();
+ 
++	case SCI_RELEASEMOUSECAPTURE:
++		SetMouseCapture(false);
++		break;
++
+ 	case SCI_SETTECHNOLOGY:
+ 		// No action by default
+ 		break;
+ 	
+ 	case SCI_GETTECHNOLOGY:
+ 		return technology;
+ 
+ 	case SCI_COUNTCHARACTERS:
+ 		return pdoc->CountCharacters(wParam, lParam);
+ 

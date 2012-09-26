@@ -2,13 +2,16 @@ Patch to take CC, CXX, CFLAGS, LDFLAGS from the users (Cons) environment.
 ===================================================================
 --- gtk/makefile	(revision 34521)
 +++ gtk/makefile	(working copy)
-@@ -7,13 +7,6 @@
+@@ -7,16 +7,6 @@
  # Also works with ming32-make on Windows.
  
  .SUFFIXES: .cxx .c .o .h .a
 -ifdef CLANG
--CC = clang
--CCOMP = clang
+-ifdef CLANG_ANALYZE
+-ANALYZE=--analyze
+-endif
+-CC = clang $(ANALYZE)
+-CCOMP = clang $(ANALYZE)
 -else
 -CC = g++
 -CCOMP = gcc
@@ -20,23 +23,23 @@ Patch to take CC, CXX, CFLAGS, LDFLAGS from the users (Cons) environment.
  endif
  
  ifdef DEBUG
--CXXFLAGS=-DDEBUG -g $(CXXBASEFLAGS) $(THREADFLAGS)
-+CXXFLAGS += -DDEBUG -g $(CXXBASEFLAGS) $(THREADFLAGS)
+-CXXTFLAGS=-DDEBUG -g $(CXXFLAGS) $(CXXBASEFLAGS) $(THREADFLAGS)
++CXXTFLAGS +=-DDEBUG -g $(CXXFLAGS) $(CXXBASEFLAGS) $(THREADFLAGS)
 +CFLAGS += -DDEBUG -g
  else
--CXXFLAGS=-DNDEBUG -Os $(CXXBASEFLAGS) $(THREADFLAGS)
-+CXXFLAGS += -DNDEBUG -Os $(CXXBASEFLAGS) $(THREADFLAGS)
+-CXXTFLAGS=-DNDEBUG -Os $(CXXFLAGS) $(CXXBASEFLAGS) $(THREADFLAGS)
++CXXTFLAGS +=-DNDEBUG -Os $(CXXFLAGS) $(CXXBASEFLAGS) $(THREADFLAGS)
 +CFLAGS += -DNDEBUG
  endif
  
--CFLAGS:=$(CXXFLAGS)
+-CFLAGS:=$(CXXTFLAGS)
 -
  CONFIGFLAGS:=$(shell pkg-config --cflags $(GTKVERSION))
  MARSHALLER=scintilla-marshal.o
  
  .cxx.o:
--	$(CC) $(CONFIGFLAGS) $(CXXFLAGS) -c $<
-+	$(CXX) $(CONFIGFLAGS) $(CXXFLAGS) -c $<
+-	$(CC) $(CONFIGFLAGS) $(CXXTFLAGS) -c $<
++	$(CXX) $(CONFIGFLAGS) $(CXXTFLAGS) -c $<
  .c.o:
 -	$(CCOMP) $(CONFIGFLAGS) $(CFLAGS) -w -c $<
 +	$(CC) $(CONFIGFLAGS) $(CFLAGS) -w -c $<

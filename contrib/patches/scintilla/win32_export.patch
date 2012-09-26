@@ -171,8 +171,8 @@ Index: src/Document.h
  
  /**
   */
--class Document : PerLine, public IDocument {
-+class SCIAPI Document : PerLine, public IDocument {
+-class Document : PerLine, public IDocument, public ILoader {
++class SCIAPI Document : PerLine, public IDocument, public ILoader {
  
  public:
  	/** Used to pair watcher pointer with user data. */

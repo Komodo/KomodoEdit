@@ -100,10 +100,12 @@
  static bool followsReturnKeyword(StyleContext &sc, LexAccessor &styler) {
  	// Don't look at styles, so no need to flush.
  	int pos = (int) sc.currentPos;
-@@ -519,10 +605,14 @@
- 	for (; sc.More(); sc.Forward()) {
+@@ -519,12 +605,14 @@
+ 	for (; sc.More(); ) {
  
  		if (sc.atLineStart) {
+-			// Using MaskActive() is not needed in the following statement.
+-			// Inside inactive preprocessor declaration, state will be reset anyway at the end of this block.
 -			if ((sc.state == SCE_C_STRING) || (sc.state == SCE_C_CHARACTER)) {
 +			int lineStartState = sc.state;
 +			if (lineStartState == SCE_C_STRING

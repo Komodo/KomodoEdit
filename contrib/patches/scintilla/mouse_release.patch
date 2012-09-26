@@ -4,9 +4,9 @@ a blur event occurs whilst the mouse was down.
 
 Index: src/Editor.cxx
 ===================================================================
---- src/Editor.cxx	(revision 41207)
+--- src/Editor.cxx	(revision 73425)
 +++ src/Editor.cxx	(working copy)
-@@ -8411,16 +8450,19 @@
+@@ -9310,20 +9310,24 @@
  		pdoc->ChangeLexerState(wParam, lParam);
  		break;
  	
@@ -18,11 +18,16 @@ Index: src/Editor.cxx
  		return GetCtrlID();
  
 +	case SCI_RELEASEMOUSECAPTURE:
-+                SetMouseCapture(false);
++		SetMouseCapture(false);
++		break;
 +
- 	default:
- 		return DefWndProc(iMessage, wParam, lParam);
- 	}
- 	//Platform::DebugPrintf("end wnd proc\n");
- 	return 0l;
- }
+ 	case SCI_SETTECHNOLOGY:
+ 		// No action by default
+ 		break;
+ 	
+ 	case SCI_GETTECHNOLOGY:
+ 		return technology;
+ 
+ 	case SCI_COUNTCHARACTERS:
+ 		return pdoc->CountCharacters(wParam, lParam);
+ 

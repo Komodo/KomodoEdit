@@ -62,9 +62,9 @@ Scintilla buffer before shutting down, bug 81293.
  	void ReceivedDrop(GtkSelectionData *selection_data);
 +#endif
  	static void GetSelection(GtkSelectionData *selection_data, guint info, SelectionText *selected);
- #ifdef USE_GTK_CLIPBOARD
  	void StoreOnClipboard(SelectionText *clipText);
  	static void ClipboardGetSelection(GtkClipboard* clip, GtkSelectionData *selection_data, guint info, void *data);
+ 	static void ClipboardClearSelection(GtkClipboard* clip, void *data);
 @@ -273,6 +287,7 @@
  	static void SelectionGet(GtkWidget *widget, GtkSelectionData *selection_data,
  	                         guint info, guint time);
@@ -295,13 +295,13 @@ Scintilla buffer before shutting down, bug 81293.
  	//Platform::DebugPrintf("ScintillaGTK::ScrollText %d %d %0d,%0d %0d,%0d\n", linesToMove, diff,
 @@ -1339,7 +1412,7 @@
  int ScintillaGTK::KeyDefault(int key, int modifiers) {
- 	if (!(modifiers & SCI_CTRL) && !(modifiers & SCI_ALT)) {
- 		if (key < 256) {
--			NotifyKey(key, modifiers);
-+			AddChar(key);
- 			return 0;
- 		} else {
- 			// Pass up to container in case it is an accelerator
+ 	// Pass up to container in case it is an accelerator
+-	NotifyKey(key, modifiers);
++	AddChar(key);
+ 	return 0;
+ }
+ 
+ void ScintillaGTK::CopyToClipboard(const SelectionText &selectedText) {
 @@ -1470,6 +1543,118 @@
  static GdkAtom TypeOfGSD(GtkSelectionData *sd) { return sd->type; }
  static GdkAtom SelectionOfGSD(GtkSelectionData *sd) { return sd->selection; }

@@ -153,7 +153,7 @@ diff -r -du src/Document.cxx src/Document.cxx
 +	charCount = charOffset;
 +	// First synchronize on the first char
 +	unsigned char ch;
-+	if (newPos < docLength && IsTrailByte(ch = static_cast<unsigned char>(cb.CharAt(newPos)))) {
++	if (newPos < docLength && UTF8IsTrailByte(ch = static_cast<unsigned char>(cb.CharAt(newPos)))) {
 +		// If we're sitting on a non-ascii char, move to
 +		// the start of it, and process it in the main loop below.
 +		int startUTF8, endUTF8;
@@ -172,7 +172,7 @@ diff -r -du src/Document.cxx src/Document.cxx
 +		charCount *= -1;
 +		while (charCount > 0 && --newPos >= 0) {
 +			ch = static_cast<unsigned char>(cb.CharAt(newPos));
-+			if (!IsTrailByte(ch)) {
++			if (!UTF8IsTrailByte(ch)) {
 +				charCount -= 1;
 +				if ((ch & 0xf8) == 0xf0) {
 +					// We're at the start of a multi-ucs2 char character,
@@ -229,7 +229,7 @@ diff -r -du src/Document.cxx src/Document.cxx
 +				newPos, charOffset - charCount - 1, ch);
 +			while (++newPos < docLength) {
 +				ch = static_cast<unsigned char>(cb.CharAt(newPos));
-+				if (!IsTrailByte(ch)) {
++				if (!UTF8IsTrailByte(ch)) {
 +					break;
 +				}
 +			}
@@ -256,11 +256,10 @@ diff -r -du src/Document.cxx src/Document.cxx
 diff -r -du src/Document.h src/Document.h
 --- src/Document.h	2005-08-29 18:09:20.000000000 -0700
 +++ src/Document.h	2007-05-01 17:00:17.000000000 -0700
-@@ -137,8 +137,11 @@
+@@ -137,7 +137,10 @@
  	int LenChar(int pos);
  	bool InGoodUTF8(int pos, int &start, int &end) const;
  	int MovePositionOutsideChar(int pos, int moveDir, bool checkLineEnd=true);
- 
 +	// ACTIVESTATE	
 +	int GetBytePositionForCharOffset(int bytePos, int charOffset, bool checkLineEnd=true);
 +
@@ -268,95 +267,6 @@ diff -r -du src/Document.h src/Document.h
  	bool NextCharacter(int &pos, int moveDir);	// Returns true if pos changed
  	int SCI_METHOD CodePage() const;
  	bool SCI_METHOD IsDBCSLeadByte(char ch) const;
-diff -r -du src/Editor.cxx src/Editor.cxx
---- src/Editor.cxx	2005-08-29 18:09:20.000000000 -0700
-+++ src/Editor.cxx	2007-05-01 17:00:17.000000000 -0700
-@@ -806,8 +806,13 @@
- 
- /**
-  * Asks document to find a good position and then moves out of any invisible positions.
-  */
-+// ACTIVESTATE
-+int Editor::GetBytePositionForCharOffset(int bytePos, int charOffset, bool checkLineEnd) {
-+	return pdoc->GetBytePositionForCharOffset(bytePos, charOffset, checkLineEnd);
-+}
-+
- int Editor::MovePositionOutsideChar(int pos, int moveDir, bool checkLineEnd) const {
- 	return MovePositionOutsideChar(SelectionPosition(pos), moveDir, checkLineEnd).Position();
- }
- 
-@@ -1090,12 +1098,14 @@
- 	Point pt = PointMainCaret();
- 	if (pt.y < rcClient.top) {
- 		MovePositionTo(SPositionFromLocation(
--		            Point(lastXChosen - xOffset, rcClient.top)),
-+		            Point(lastXChosen - xOffset, rcClient.top),
-+                    false, false, (virtualSpaceOptions & SCVS_USERACCESSIBLE) != 0),
- 					Selection::noSel, ensureVisible);
- 	} else if ((pt.y + vs.lineHeight - 1) > rcClient.bottom) {
- 		int yOfLastLineFullyDisplayed = rcClient.top + (LinesOnScreen() - 1) * vs.lineHeight;
- 		MovePositionTo(SPositionFromLocation(
--		            Point(lastXChosen - xOffset, rcClient.top + yOfLastLineFullyDisplayed)),
-+		            Point(lastXChosen - xOffset, rcClient.top + yOfLastLineFullyDisplayed),
-+                    false, false, (virtualSpaceOptions & SCVS_USERACCESSIBLE) != 0),
- 		        Selection::noSel, ensureVisible);
- 	}
- }
-@@ -5900,12 +5909,20 @@
- 	}
- 	lastClickTime = curTime;
- 	lastXChosen = pt.x + xOffset;
-+	lastClick = pt; // ACTIVESTATE need this to make dblclicks work in scimoz
- 	ShowCaretAtCurrentPosition();
- }
- 
- bool Editor::PositionIsHotspot(int position) {
--	return vs.styles[pdoc->StyleAt(position) & pdoc->stylingBitsMask].hotspot;
-+	// return vs.styles[pdoc->StyleAt(position) & pdoc->stylingBitsMask].hotspot;
-+	// StyleAt returns _signed_ chars, which don't play well with array indexing
-+	// for "large" style numbers like -80 =)
-+	// The signature of StyleAt should probably be changed.
-+	// Also, styleAt currently doesn't "filter out" indicator bits, which again points
-+	// in never-never land.
-+	int style = (unsigned char)(pdoc->StyleAt(position)) & pdoc->stylingBitsMask;
-+	return vs.styles[style].hotspot;
- }
- 
- bool Editor::PointIsHotspot(Point pt) {
- 	int pos = PositionFromLocation(pt, true);
-@@ -8291,7 +8308,32 @@
- 		break;
- 
- 	case SCI_GETPASTECONVERTENDINGS:
- 		return convertPastes ? 1 : 0;
-+ 
-+	// ACTIVESTATE Komodo-only function.
-+	case SCI_POSITIONATCHAR:
-+		// The 'false' is to ensure CRLF is treated at _two_ chars
-+		// instead of one, as MovePositionOutsideChar (the underlying
-+		// function) would otherwise do. (E.g., for the find system
-+		// which must treat CRLF as two characters).
-+		return pdoc->GetBytePositionForCharOffset(wParam, lParam, false);
-+
-+	case SCI_POSITIONATCOLUMN:
-+		return pdoc->FindColumn(wParam, lParam);
-+
-+	case SCI_SETDRAGPOSITION:
-+		SetDragPosition(SelectionPosition(wParam));
-+		break;
-+
-+	case SCI_GETDRAGPOSITION:
-+		return posDrag.Position();
-+
-+	case SCI_STOPTIMERS: // This patch from stop_timers.patch
-+		SetTicking(false);
-+		SetIdle(false);
-+
-+	// END ACTIVESTATE
-+
- 
- 	case SCI_GETCHARACTERPOINTER:
- 		return reinterpret_cast<sptr_t>(pdoc->BufferPointer());
 diff -r -du src/Editor.h src/Editor.h
 --- src/Editor.h	2005-08-29 18:09:20.000000000 -0700
 +++ src/Editor.h	2007-05-01 17:00:17.000000000 -0700
@@ -375,25 +285,26 @@ diff -r -du src/Editor.h src/Editor.h
 diff -r -du src/Catalogue.cxx src/Catalogue.cxx
 --- src/Catalogue.cxx	2005-08-29 18:09:20.000000000 -0700
 +++ src/Catalogue.cxx	2007-05-01 17:00:17.000000000 -0700
-@@ -209,10 +213,9 @@
+@@ -209,11 +213,10 @@
  	LINK_LEXER(lmSpice);
  	LINK_LEXER(lmSQL);
  	LINK_LEXER(lmTACL);
  	LINK_LEXER(lmTADS3);
  	LINK_LEXER(lmTAL);
 -	LINK_LEXER(lmTCL);
+ 	LINK_LEXER(lmTCMD);
  	LINK_LEXER(lmTeX);
  	LINK_LEXER(lmTxt2tags);
  	LINK_LEXER(lmVB);
  	LINK_LEXER(lmVBScript);
-@@ -217,6 +220,10 @@
+@@ -217,7 +220,10 @@
  	LINK_LEXER(lmVHDL);
+ 	LINK_LEXER(lmVisualProlog);
  	LINK_LEXER(lmXML);
  	LINK_LEXER(lmYAML);
 +	LINK_LEXER(lmUDL);
 +	LINK_LEXER(lmXSLT);
 +	LINK_LEXER(lmTcl);
-+	LINK_LEXER(lmCoffeeScript);
  
  //--Autogenerated -- end of automatically generated section
  
@@ -401,17 +312,17 @@ diff -r -du src/LineMarker.cxx src/LineMarker.cxx
 --- src/LineMarker.cxx	2005-08-29 18:09:20.000000000 -0700
 +++ src/LineMarker.cxx	2007-05-01 17:00:17.000000000 -0700
 @@ -267,8 +267,12 @@
- 		int width = surface->WidthText(fontForCharacter, character, 1);
+ 		XYPOSITION width = surface->WidthText(fontForCharacter, character, 1);
  		rc.left += (rc.Width() - width) / 2;
  		rc.right = rc.left + width;
 -		surface->DrawTextClipped(rc, fontForCharacter, rc.bottom - 2,
--			character, 1, fore.allocated, back.allocated);
+-			character, 1, fore, back);
 +		// ACTIVESTATE Komodo use transparent background for margin symbols, and more
 +		// buffer under character.
 +		// XXX unfortunately, spacing at the bottom doesn't work well for all font
 +		// sizes, some kind of more complex font size calculation needs to happen
 +		surface->DrawTextTransparent(rc, fontForCharacter, rc.bottom - 4,
-+			character, 1, fore.allocated);
++			character, 1, fore);
  
  	} else if (markType == SC_MARK_DOTDOTDOT) {
  		int right = centreX - 6;
