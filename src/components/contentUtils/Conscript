@@ -114,7 +114,6 @@ else {
         $consLocal{'LDFLAGS'} .= " -framework Carbon -bundle";
     } else {
         $consLocal{'LIBS'} = "-lxul ";
-        $consLocal{'LIBS'} .= "-lpthread ";
         $consLocal{'LDFLAGS'} .= " -fPIC -shared";
     }
     $consLocal{'LIBS'} .= "-lmozalloc -lxpcomglue_s -lxpcom ";
