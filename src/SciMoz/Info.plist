@@ -50,26 +50,22 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundlePackageType</key>
-	<string>NSPL</string>
+	<string>BRPL</string>
 	<key>CFBundleSignature</key>
-	<string>MOSS</string>
+	<string>MOST</string>
 	<key>CFBundleVersion</key>
 	<string>1.0</string>
-	<key>CFPlugInDynamicRegisterFunction</key>
-	<string></string>
-	<key>CFPlugInDynamicRegistration</key>
-	<string>NO</string>
-	<key>CFPlugInFactories</key>
+	<key>WebPluginName</key>
+	<string>Komodo Editor</string>
+	<key>WebPluginDescription</key>
+	<string>The ActiveState Komodo Editor - do not disable</string>
+	<key>WebPluginMIMETypes</key>
 	<dict>
-		<key>00000000-0000-0000-0000-000000000000</key>
-		<string>MyFactoryFunction</string>
-	</dict>
-	<key>CFPlugInTypes</key>
-	<dict>
-		<key>00000000-0000-0000-0000-000000000000</key>
-		<array>
-			<string>00000000-0000-0000-0000-000000000000</string>
-		</array>
+		<key>application/x-scimoz-plugin</key>
+		<dict>
+		  <key>WebPluginTypeDescription</key>
+		  <string>The ActiveState Komodo Editor - do not disable</string>
+		</dict>
 	</dict>
 	<key>CFPlugInUnloadFunction</key>
 	<string></string>

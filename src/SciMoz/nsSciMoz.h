@@ -43,6 +43,7 @@
 #include <string.h> 
 
 //#define SCIMOZ_DEBUG
+//#define SCIMOZ_COCOA_DEBUG
 //#define SCIDEBUG_REFS
 
 #ifdef _WINDOWS
@@ -91,7 +92,6 @@
 #include "nsILocalFile.h"
 #include "nsIProgrammingLanguage.h"
 
-#include "ILexer.h"
 #include "ISciMoz.h"
 #include "ISciMozEvents.h"
 #include "nsIClassInfo.h"
@@ -106,12 +106,17 @@
 #endif
 
 #ifdef XP_MACOSX
-#include <Platform.h>
-#include <ScintillaMacOSX.h>
+#import <Cocoa/Cocoa.h>
 #endif
+
 #include <Scintilla.h>
 #include "sendscintilla.h"
 #include <SciLexer.h>
+
+#ifdef XP_MACOSX
+#include <Platform.h>
+#include <ScintillaCocoa.h>
+#endif
 
 #define SCIMAX(a, b) (a > b ? a : b)
 #define SCIMIN(a, b) (a < b ? a : b)
@@ -205,16 +210,13 @@ PlatformInstance;
 #endif 
 
 #if defined(XP_MACOSX)
-#ifndef USE_CARBON
-#include <Carbon/Carbon.h>
-#endif
+#include <Cocoa/Cocoa.h>
 typedef struct _PlatformInstance {
-	WindowPtr	container;
-#ifndef USE_CARBON //1.8 branch
-	CGrafPtr    port;
-#else
-	CGContextRef port;
-#endif
+    //not used in cocoa apps.  Use the context we get with each event
+    //CGContextRef context;
+
+    // The main window to hook the nsView into:
+	NSWindow	*container;
 }
 PlatformInstance;
 #endif
@@ -278,7 +280,7 @@ protected:
 #ifdef XP_MACOSX
 	void SetHIViewShowHide(bool disabled);
 	static void NotifySignal(intptr_t windowid, unsigned int iMessage, uintptr_t wParam, uintptr_t lParam);
-	Scintilla::ScintillaMacOSX *scintilla;
+	Scintilla::ScintillaCocoa *scintilla;
 #endif
 #ifdef XP_PC
     void LoadScintillaLibrary();

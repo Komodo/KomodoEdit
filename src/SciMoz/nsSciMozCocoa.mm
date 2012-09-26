@@ -5,8 +5,10 @@
 
   https://developer.mozilla.org/en-US/docs/Gecko_Plugin_API_Reference - general
 
-  http://colonelpanic.net/2009/03/building-a-firefox-plugin-part-one/  
+  http://colonelpanic.net/2009/03/building-a-firefox-plugin-part-one/
 
+  Don't bother with the FireBreath project -- offscreen NSViews
+  require massive proxying of events, and I'm not seeing the events.
 
  */
 #import "plugin.h"
@@ -16,87 +18,73 @@
 
 #import "ScintillaView.h"
 
-    /*
-      typedef struct _NPCocoaEvent {
-    NPCocoaEventType type;
-    uint32 version;
-    union {
-        struct {
-            uint32 modifierFlags;
-            double pluginX;
-            double pluginY;            
-            int32 buttonNumber;
-            int32 clickCount;
-            double deltaX;
-            double deltaY;
-            double deltaZ;
-        } mouse;
-        struct {
-            uint32 modifierFlags;
-            NPNSString *characters;
-            NPNSString *charactersIgnoringModifiers;
-            NPBool isARepeat;
-            uint16 keyCode;
-        } key;
-        struct {
-           CGContextRef context;
-           double x;
-           double y;
-           double width;
-           double height;
-        } draw;
-        struct {
-            NPBool hasFocus;
-        } focus;
-        struct {
-            NPNSString *text;
-        } text;
-    } data;
-} NPCocoaEvent;
-
-uint32 modifierFlags;
-
-An integer bit field indicating the modifier keys. It uses the same constants as -[NSEvent modifierFlags].
-
-int32 clickCount;
-
-The number of mouse clicks associated with the event.
-
-double deltaX;
-double deltaY;
-double deltaZ;
-
-The X, Y or Z coordinate change for a scroll wheel, mouse-move, or mouse-drag event. 
-
-See https://wiki.mozilla.org/NPAPI:CocoaEventModel for info on
-Popup menus, Text Input & IME handling
-
-    */
-
-
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;
 #endif
+
+#ifdef SCIMOZ_COCOA_DEBUG
+static char *getClipStr(NPWindow *win, char *buf) {
+  sprintf(buf, "l:%d, t:%d, r:%d, b:%d",
+	  win->clipRect.left,
+	  win->clipRect.top,
+	  win->clipRect.right,
+	  win->clipRect.bottom);
+  return buf;
+}
+#endif
+
+#ifdef SCIMOZ_COCOA_DEBUG
+static char *getRectStr(NPWindow *win, char *buf) {
+  sprintf(buf, "x:%d, y:%d w:%d, h:%d",
+	  win->x,
+	  win->y,
+	  win->width,
+	  win->height);
+  return buf;
+}
+#endif
+
+#ifdef SCIMOZ_COCOA_DEBUG
+static char *getNSRectStr(NSRect rect, char *buf) {
+  sprintf(buf, "x:%g, y:%g w:%g, h:%g",
+	  rect.origin.x,
+	  rect.origin.y,
+	  rect.size.width,
+	  rect.size.height);
+  return buf;
+}
+#endif
+
+#define WINDOW_DISABLED(a) (!a || \
+				  (a->clipRect.bottom <= a->clipRect.top && \
+				   a->clipRect.right  <= a->clipRect.left))
 
 void SciMoz::PlatformCreate(WinID) {
 }
 
 void SciMoz::Resize() {
-    // NSMakeRect(origin.x, origin.y, width, height)
-    NSRect boundsRect = NSMakeRect(fWindow->x,
-                                   fWindow->y,
-                                   fWindow->width,
-                                   fWindow->height);
-#ifdef DEBUG_PAINT
-    fprintf(stderr, "SciMoz::Resize window %d %d %d %d  clip rect %d %d %d %d\n",
-            fWindow->x, fWindow->y, fWindow->width + fWindow->x,
-            fWindow->height + fWindow->y, 
-            fWindow->clipRect.left, fWindow->clipRect.top, 
-            fWindow->clipRect.right, fWindow->clipRect.bottom);
+  // NSMakeRect(origin.x, origin.y, width, height)
+#ifdef SCIMOZ_COCOA_DEBUG
+  fprintf(stderr, ">> SciMoz::Resize, fWindow:%p\n", fPlatform.container);
 #endif
-    ScintillaView *scView = (ScintillaView *) wEditor;
-    [scView setFrame:boundsRect];
-    [scView setNeedsDisplay:YES];
+  // Get the bounds for fPlatform.container
+  NSView *parentView = [(NSWindow*)(fWindow->window) contentView];
+  NSRect parentRect = [parentView bounds];
+#ifdef SCIMOZ_COCOA_DEBUG
+  char buf[30];
+  fprintf(stderr, "SciMoz::Resize fWindow.clipRect: %s\n",
+	  getClipStr(fWindow, buf));
+  fprintf(stderr, "parent rect: (%f,%f)+(%f,%f)\n",
+          parentRect.origin.x, parentRect.origin.y,
+          parentRect.size.width, parentRect.size.height);
+#endif
+  NSRect boundsRect = NSMakeRect(fWindow->clipRect.left,
+				 parentRect.size.height - fWindow->clipRect.bottom,
+				 fWindow->clipRect.right - fWindow->clipRect.left,
+				 fWindow->clipRect.bottom - fWindow->clipRect.top);
+  ScintillaView *scView = (ScintillaView *) wEditor;
+  [scView setFrame:boundsRect];
+  SetHIViewShowHide(WINDOW_DISABLED(fWindow));
 }
 
 static NSEvent *SynthesizeEvent(PRBool up, PRInt32 x, PRInt32 y, PRUint16 button, PRBool bShift, PRBool bCtrl, PRBool bAlt, WinID wEditor) {
@@ -195,30 +183,31 @@ void SciMoz::NotifySignal(intptr_t windowid, unsigned int iMessage, uintptr_t wP
 }
 
 void SciMoz::PlatformNew(void) {
-#ifdef SCIMOZ_DEBUG
+#ifdef SCIMOZ_COCOA_DEBUG
     fprintf(stderr,">> SciMoz::PlatformNew\n");
 #endif
     fPlatform.container = NULL;
-    fPlatform.context = NULL;
-#ifdef SCIMOZ_DEBUG
+    portMain = NULL;
+    fWindow = NULL;
+    wEditor = NULL;
+    wMain = NULL;
+#ifdef SCIMOZ_COCOA_DEBUG
     fprintf(stderr,"<< SciMoz::PlatformNew\n");
 #endif
 }
 
 nsresult SciMoz::PlatformDestroy(void) {
-#ifdef SCIMOZ_DEBUG
+#ifdef SCIMOZ_COCOA_DEBUG
     fprintf(stderr,"SciMoz::PlatformDestroy wEditor %p scintilla %p\n", wEditor, scintilla);
 #endif
     if (scintilla) {
         scintilla->unregisterNotifyCallback();
-        delete scintilla;
-        scintilla = NULL;
     }
     if (wEditor) {
         PlatformResetWindow();
         // This must have reset out window.
         NS_PRECONDITION(portMain==0, "Should not be possible to destruct with a window!");
-        [wEditor release];
+        [(ScintillaView *) wEditor release];
         wEditor = NULL;
     }
     fPlatform.container = NULL;
@@ -242,200 +231,158 @@ void SciMoz::PlatformMarkClosed() {
  } NPWindow;
 #endif
 
-#define WINDOW_DISABLED(a) (!a || \
-				  (a->clipRect.bottom <= a->clipRect.top && \
-				   a->clipRect.right  <= a->clipRect.left))
 nsresult SciMoz::PlatformSetWindow(NPWindow* npwindow) {
-#ifdef SCIMOZ_DEBUG
+  char buf[160];
+#ifdef SCIMOZ_COCOA_DEBUG
   fprintf(stderr,"SciMoz::PlatformSetWindow wEditor:%p npwindow:%p, fWindow:%p\n",
 	  wEditor, npwindow, fWindow);
 #endif
-  if (npwindow) {
-    fprintf(stderr, "Show npwindow->window:\n");
-    fprintf(stderr, "npwindow->window:%p\n", npwindow->window);
-  } else {
-    fprintf(stderr, "npwindow is null:\n");
+  if (!npwindow || !npwindow->window) {
+#ifdef SCIMOZ_COCOA_DEBUG
+    fprintf(stderr, "SciMoz::PlatformSetWindow, called with %s, do nothing\n",
+	    npwindow ? "No npwindow->window" : "No npwindow???");
+#endif
+    SetHIViewShowHide(true);
+    return NS_OK;
   }
 
-    if (!npwindow || !npwindow->window) {
-        /* We can just get out of here if there is no current
-         * window and there is no new window to use. */
-#ifdef DEBUG_PAINT
-      if (!npwindow) {
-        fprintf(stderr, "!npwindow\n");
-      } else {
-        fprintf(stderr, "!npwindow->window\n");
-      }
-      fprintf(stderr, "....switching states, do not draw\n");
+  //NSView *currView = (NSView *) npwindow->window;
+  // portMain and fPlatform.container both point to the NSWindow
+  // wMain points to the parent NSView
+  // wEditor points to the current NSView
+  if (fWindow) {
+    // fWindow is set to npWindow from an earlier call.
+    // What is the plugin trying to tell us this time?
+#ifdef SCIMOZ_COCOA_DEBUG
+    fprintf(stderr, "SciMoz::PlatformSetWindow: fWindow already set\n");
+    fprintf(stderr, "portMain  == npwindow->window, \n    fWindow clip: %s, current: %s, fWindow rect:%s, current:%s\n",
+	    getClipStr(fWindow, buf),
+	    getClipStr(npwindow, &buf[40]),
+	    getRectStr(fWindow, &buf[80]),
+	    getRectStr(npwindow, &buf[120]));
+    fprintf(stderr, "portMain == npwindow->window: %d\n",
+	    portMain == npwindow->window);
 #endif
-      if (fWindow) {
-	SetHIViewShowHide(true);
-      }
-        return NS_OK;
+    if (portMain == npwindow->window) {
+      // Has the clipRect changed so we should display the window?
+#ifdef SCIMOZ_COCOA_DEBUG
+      fprintf(stderr, "....have fWindow, call show/hide (%d,%d,%d,%d)\n", 
+	      fWindow->clipRect.left, fWindow->clipRect.top, 
+	      fWindow->clipRect.right, fWindow->clipRect.bottom);
+#endif
+      SetHIViewShowHide(WINDOW_DISABLED(fWindow));
+      return NS_OK;
     }
-    if (fWindow) { /* If we already have a window, clean
-                     * it up before trying to subclass
-                     * the new window. */
-        fprintf(stderr, "We already have a window: fWindow != null\n");
-	if (portMain == npwindow->window) {
-#ifdef DEBUG_PAINT
-            fprintf(stderr, "....have fWindow, call show/hide (%d,%d,%d,%d)\n",
-                    fWindow->clipRect.left, fWindow->clipRect.top,
-                    fWindow->clipRect.right, fWindow->clipRect.bottom);
+#ifdef SCIMOZ_COCOA_DEBUG
+    fprintf(stderr, "**************** calling reset window\n");
 #endif
-            SetHIViewShowHide(WINDOW_DISABLED(fWindow));
-            return NS_OK;
-        }
-        // Otherwise, just reset the window ready for the new one.
-#ifdef DEBUG_PAINT
-        fprintf(stderr, "....calling reset window\n");
+    SetHIViewShowHide(true);
+    PlatformResetWindow();
+  }
+
+#ifdef SCIMOZ_COCOA_DEBUG
+  fprintf(stderr, "Show npwindow->window:\n");
+  fprintf(stderr, "  npwindow->window:%p\n", npwindow->window);
+  fprintf(stderr, "  clipRect: %s, window:%s\n",
+	  getClipStr(npwindow, &buf[0]),
+	  getRectStr(npwindow, &buf[80]));
 #endif
-        PlatformResetWindow();
+  if (npwindow->width && npwindow->height) {
+    NSRect winRect = NSMakeRect(npwindow->x, npwindow->y, // temp 0
+			  npwindow->width, npwindow->height);
+    ScintillaView *scView = [[[ScintillaView alloc]initWithFrame: winRect] autorelease];
+    if (!scView) {
+#ifdef SCIMOZ_COCOA_DEBUG
+      fprintf(stderr, "No memory for a ScintillaView\n");
+#endif
+      return NS_OK;
+    }
+    scintilla = [scView backend];
+    assert(scintilla != NULL);
+    if (wEditor) {
+#ifdef SCIMOZ_COCOA_DEBUG
+      fprintf(stderr, "OK, we have an unhooked scintillaView object\n");
+#endif
     }
     fWindow = npwindow;
-    portMain = wMain = (NSWindow *) npwindow->window;
-    fprintf(stderr, "portMain: npwindow->window:%p\n", npwindow->window);
-    fPlatform.container = (NSWindow *) portMain;
-    fPlatform.context = 0;
-    // Things about the NSWindow object:
-    fprintf(stderr, "NPWindow info: x:%d y:%d height:%d width:%d, type:%d\n",
-	    fWindow->x,
-	    fWindow->y,
-	    fWindow->height,
-	    fWindow->width,
-	    fWindow->type);
-
-
-    NP_CGContext *cgContext = (NP_CGContext *) npwindow->window;
-    portMain = wMain = (NSWindow *) cgContext->window;
-    fprintf(stderr, "wMain: npwindow->window->window:%p\n", wMain);
-    fPlatform.container = (NSWindow *) portMain;
-    fPlatform.context = cgContext->context;
-
-#if 0
-    fprintf(stderr, "-[fPlatform.container contentView]\n");
-    NSView *contentView = [fPlatform.container contentView];
-    fprintf(stderr, "contentView: %p\n",
-	    contentView);
-    if (contentView) {
-      NSRect frame = [contentView frame];
-      NSRect bounds = [contentView bounds];
-      
-    fprintf(stderr, "contentView: %p, frame:%f/%f/%f/%f, bounds:%f/%f/%f/%f\n",
-	    contentView,
-	    frame.origin.x ,frame.origin.y, frame.size.width, frame.size.height,
-	    bounds.origin.x ,bounds.origin.y, bounds.size.width, bounds.size.height);
-    }
-#endif
-#if 0
-    fprintf(stderr, "-[fPlatform.container contentView]\n");
-    NSView *contentView = [fPlatform.context contentView];
-    fprintf(stderr, "contentView: %p\n",
-	    contentView);
-    if (contentView) {
-      NSRect frame = [contentView frame];
-      NSRect bounds = [contentView bounds];
-      
-    fprintf(stderr, "contentView: %p, frame:%f/%f/%f/%f, bounds:%f/%f/%f/%f\n",
-	    contentView,
-	    frame.origin.x ,frame.origin.y, frame.size.width, frame.size.height,
-	    bounds.origin.x ,bounds.origin.y, bounds.size.width, bounds.size.height);
-    }
-#endif
-
-    parked = false;
-    if (fPlatform.container) {
-      // NSMakeRect(origin.x, origin.y, width, height)
-      fprintf(stderr, "clipRect dims: L:%d T:%d R:%d B:%d\n",
-	      fWindow->clipRect.left,
-	      fWindow->clipRect.top,
-	      fWindow->clipRect.right,
-	      fWindow->clipRect.bottom);
-#ifdef SCIMOZ_DEBUG
-      fprintf(stderr," -NSMakeRect, fWindow:%p\n", fWindow);
-#endif
-      NSRect newRect = NSMakeRect(fWindow->x,
-				  fWindow->y,
-				  fWindow->width,
-				  fWindow->height);
-#ifdef SCIMOZ_DEBUG
-      fprintf(stderr," -alloc ScintillaView\n");
-#endif
-      ScintillaView *scView = [[[ScintillaView alloc] initWithFrame: newRect] retain];
-      // ScintillaView.initWithFrame sets mBackEnd to new ScintillaCocoa(mContent)
-      wEditor = scView;
-#ifdef SCIMOZ_DEBUG
-      fprintf(stderr,"scView:%p\n", scView);
-      fprintf(stderr,"-scintilla = scView.backend;\n");
-#endif
-      scintilla = scView.backend;
-      assert(scintilla != NULL);
-
-      // disable scintilla's builtin context menu.
-#ifdef SCIMOZ_DEBUG
-      fprintf(stderr," -SendEditor(...)\n");
-#endif
-      SendEditor(SCI_USEPOPUP, FALSE, 0);
-      SendEditor(SCI_SETFOCUS, FALSE, 0);
-
-#ifdef SCIMOZ_DEBUG
-      fprintf(stderr," -scintilla->RegisterNotifyCallback(...)\n");
-#endif	
-      // setup the hooks that are necessary to receive notifications from scintilla
-      scintilla->RegisterNotifyCallback((intptr_t)this, (SciNotifyFunc)SciMoz::NotifySignal);
-
-      Create(wEditor);
-      // This was HIViewGetRoot
-      wMain = [scView superview];
-      SetHIViewShowHide(WINDOW_DISABLED(fWindow)); // show scintilla
-    } else {
-        PlatformResetWindow();
-    }
-#ifdef SCIMOZ_DEBUG
-    fprintf(stderr,"<< SciMoz::PlatformSetWindow \n");
-#endif
-    return NS_OK;
+    fPlatform.container = (NSWindow *) npwindow->window;
+    portMain = npwindow->window;
+    wEditor = scView;
+    wMain = [fPlatform.container contentView];
+    Create(wEditor);
+    SetHIViewShowHide(WINDOW_DISABLED(fWindow));
+    SendEditor(SCI_USEPOPUP, FALSE, 0);
+    SendEditor(SCI_SETFOCUS, FALSE, 0);
+    scintilla->RegisterNotifyCallback((intptr_t)this, (SciNotifyFunc)SciMoz::NotifySignal);
+  }
+  return NS_OK;
 }
 
 void SciMoz::SetHIViewShowHide(bool disable) {
-  fprintf(stderr, "SetHIViewShowHide: disable:%d\n", disable);
-    ScintillaView *scView = (ScintillaView *) wEditor;
-    int isInvisible = [scView isHidden];
-    disable = false;
-  fprintf(stderr, "SetHIViewShowHide: disable:%d\n", disable);
-  fprintf(stderr, "SetHIViewShowHide: isInvisible:%d\n", isInvisible);
+  ScintillaView *scView = (ScintillaView *) wEditor;
+    bool isVisible = [scView superview];
+#ifdef SCIMOZ_COCOA_DEBUG
+  fprintf(stderr, "SetHIViewShowHide: disabled:%d\n", disable);
+  fprintf(stderr, "SetHIViewShowHide: isVisible:%d\n", isVisible);
+#endif
     
-    if (disable && isInvisible) {
-#ifdef DEBUG_PAINT
-        fprintf(stderr, "......hiding editor %08X (%d,%d,%d,%d)\n", scView,
-                fWindow->clipRect.left, fWindow->clipRect.top, 
-                fWindow->width, fWindow->height);
+  if (disable) {
+    if (isVisible) {
+      scintilla->SetTicking(false);
+      [scView setNeedsDisplay:YES];
+      //gone: HIViewSetDrawingEnabled(scView, false);
+      [scView setHidden:YES];
+#ifdef SCIMOZ_COCOA_DEBUG
+      fprintf(stderr, "Remove scView from superview\n");
 #endif
-        scintilla->SetTicking(false);
-        scintilla->Resize();
-        [scView setNeedsDisplay:YES];
-        //gone: HIViewSetDrawingEnabled(scView, false);
-        [scView setHidden:YES];
-        [scView removeFromSuperview];
-
-    } else if (!disable && !isInvisible) {
-#ifdef DEBUG_PAINT
-        fprintf(stderr, "......showing editor %08X (%d,%d,%d,%d)\n", scView,
-                fWindow->clipRect.left, fWindow->clipRect.top, 
-                fWindow->clipRect.right, fWindow->clipRect.bottom);
-#endif
-        [scView setHidden:NO];
-        // gone: HIViewSetDrawingEnabled(scView, true);
-        [((NSView *) wMain) addSubview:scView];
-        Resize();
-        scintilla->Resize();
-        [scView setNeedsDisplay:YES];
-        scintilla->SetTicking(true);
+      [scView removeFromSuperview];
+      scintilla->Resize();
     }
+  } else {
+    if (!isVisible) {
+      [scView setHidden:NO];
+#ifdef SCIMOZ_COCOA_DEBUG
+      //fprintf(stderr, "-[((NSView *) wMain) addSubview:scView]\n");
+#endif
+      //[((NSView *) wMain) addSubview:scView];
+#ifdef SCIMOZ_COCOA_DEBUG
+      fprintf(stderr, "-[scView setNeedsDisplay:YES]\n");
+#endif
+      [scView setNeedsDisplay:YES];
+#ifdef SCIMOZ_COCOA_DEBUG
+      fprintf(stderr, "-scintilla->SetTicking(true)\n");
+#endif
+      scintilla->SetTicking(true);
+#ifdef SCIMOZ_COCOA_DEBUG
+      fprintf(stderr, "-wMain = [fPlatform.container contentView];\n");
+#endif
+      wMain = [fPlatform.container contentView];
+      if (wMain) {
+#ifdef SCIMOZ_COCOA_DEBUG
+	fprintf(stderr, "-[(NSView *)wMain:%p addSubview:scView];\n", wMain);
+#endif
+	[(NSView *)wMain addSubview:scView];
+	[scView setAutoresizesSubviews: YES];
+	[scView setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
+#ifdef SCIMOZ_COCOA_DEBUG
+	//fprintf(stderr, "-Resize()\n");
+#endif
+	Resize();
+#ifdef SCIMOZ_COCOA_DEBUG
+	//fprintf(stderr, "-scintilla->Resize()\n");
+#endif
+	scintilla->Resize();
+      } else {
+#ifdef SCIMOZ_COCOA_DEBUG
+	fprintf(stderr, "fPlatform.container %p has no contentView\n", fPlatform.container);
+#endif
+      }
+    }
+  }
 }
 
 nsresult SciMoz::PlatformResetWindow() {
-#ifdef SCIMOZ_DEBUG
+#ifdef SCIMOZ_COCOA_DEBUG
     fprintf(stderr,"SciMoz::PlatformResetWindow\n");
 #endif
 
@@ -501,18 +448,41 @@ static NSEvent* nsEventFromNPCocoaMouseClickEvent(NPCocoaEvent *ev,
     return event;
 }
 
+
+//#if 0
+static bool hasEmptyRect(NPCocoaEvent *event) {
+  return !event->data.draw.width && !event->data.draw.height;
+}
+//#endif
+
 int16 SciMoz::PlatformHandleEvent(void *ev) {
     NPCocoaEvent *event = (NPCocoaEvent *) ev;
     NSEvent *fixedNSEvent;
 	
     if (isClosed) {
+#ifdef SCIMOZ_COCOA_DEBUG
         fprintf(stderr, "SciMoz is getting an event after being closed.\n");
-        return false;
+#endif
+        return kNPEventNotHandled;
     }
-
+#ifdef SCIMOZ_COCOA_DEBUG
+    fprintf(stderr, "PlatformHandleEvent: event #%d\n", event->type);
+#endif
     switch (event->type) {
     case NPCocoaEventDrawRect:
-        break;
+      if (hasEmptyRect(event)) {
+	return kNPEventNotHandled;
+      } else {
+	NSView *parentView = [(NSWindow*)(fWindow->window) contentView];
+	NSRect parentRect = [parentView bounds];
+	NSRect boundsRect = NSMakeRect(fWindow->clipRect.left,
+				       parentRect.size.height - fWindow->clipRect.bottom,
+				       fWindow->clipRect.right - fWindow->clipRect.left,
+				       fWindow->clipRect.bottom - fWindow->clipRect.top);
+	ScintillaView *scView = (ScintillaView *) wEditor;
+	[scView drawRect:boundsRect];
+      }
+      break;
     case NPCocoaEventMouseDown:
         fixedNSEvent = nsEventFromNPCocoaMouseClickEvent(event,
 						 (ScintillaView *) wEditor);
@@ -534,14 +504,19 @@ int16 SciMoz::PlatformHandleEvent(void *ev) {
     case NPCocoaEventWindowFocusChanged:
         {
             bool windowFocusChanged = event->type == NPCocoaEventWindowFocusChanged;
+#ifdef SCIMOZ_COCOA_DEBUG
             fprintf(stderr, "SciMozCocoa::PlatformHandleEvent: %s %s\n",
                     (windowFocusChanged
                      ? "NPCocoaEventWindowFocusChanged"
                      : "NPCocoaEventFocusChanged"),
                     (event->data.focus.hasFocus ? "Gained" : "Lost"));
+#endif
             if (!event->data.focus.hasFocus) {
 		AbortComposing(mPlugin->GetNPP(), mIMEHelper);
-            }
+            } else {
+	      // Make the parent the first responder.
+	      // [(NSWindow *)fPlatform.container makeFirstResponder:[(ScintillaView *) wEditor superview]];
+	    }
         }
         break;
 
@@ -570,40 +545,55 @@ int16 SciMoz::PlatformHandleEvent(void *ev) {
         break;
 
     case NPCocoaEventMouseDragged:
+#ifdef SCIMOZ_COCOA_DEBUG
         fprintf(stderr, "SciMoz::PlatformHandleEvent NPCocoaEventMouseDragged\n");
+#endif
         break;
 
     case NPCocoaEventKeyDown:
+#ifdef SCIMOZ_COCOA_DEBUG
         fprintf(stderr, "SciMoz::PlatformHandleEvent NPCocoaEventKeyDown\n");
+#endif
         break;
 
     case NPCocoaEventScrollWheel:
+#ifdef SCIMOZ_COCOA_DEBUG
         fprintf(stderr, "SciMoz::PlatformHandleEvent NPCocoaEventScrollWheel\n");
+#endif
         break;
 
     case NPCocoaEventTextInput:
+#ifdef SCIMOZ_COCOA_DEBUG
         fprintf(stderr, "SciMoz::PlatformHandleEvent NPCocoaEventTextInput\n");
+#endif
         break;
 
     case NPCocoaEventKeyUp:
+#ifdef SCIMOZ_COCOA_DEBUG
         fprintf(stderr, "SciMoz::PlatformHandleEvent NPCocoaEventKeyUp\n");
+#endif
         break;
 
     case NPCocoaEventFlagsChanged:
+#ifdef SCIMOZ_COCOA_DEBUG
         fprintf(stderr, "SciMoz::PlatformHandleEvent NPCocoaEventFlagsChanged\n");
+#endif
         break;
         
     default:
+#ifdef SCIMOZ_COCOA_DEBUG
         fprintf(stderr, "SciMoz::PlatformHandleEvent event %d\n", event->type);
-        break;
+#endif
+	return kNPEventNotHandled;
     }
-    return false;
+    return kNPEventNotHandled;
+    return kNPEventHandled;
 }
 
 /* readonly attribute boolean isOwned; */
 NS_IMETHODIMP SciMoz::GetIsOwned(PRBool *_ret) {
     SCIMOZ_CHECK_THREAD("GetIsOwned", NS_ERROR_FAILURE);
-    *_ret = wEditor && wMain && !isClosed;
+    *_ret = wEditor && !isClosed;
     return NS_OK;
 }
 
