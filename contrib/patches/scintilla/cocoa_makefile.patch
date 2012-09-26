@@ -11,6 +11,15 @@ Index: cocoa/makefile
  CC = g++
  CCOMP = gcc
  LIBTOOL = libtool
+@@ -5,7 +5,7 @@
+ # This makefile assumes that Apple's version of GCC 3.1 is used and changes will be needed to use other compilers.
+ # GNU make does not like \r\n line endings so should be saved to CVS in binary form.
+ 
+-.SUFFIXES: .cxx .c .o .h .a
++.SUFFIXES: .cxx .c .o .h .a .mm
+ CC = g++
+ CCOMP = gcc
+ LIBTOOL = libtool
 @@ -16,25 +16,22 @@
  # We call it "libscintilla" so when you add it to a Project Builder project,
  # Project Builder will link it correctly.
@@ -33,9 +42,8 @@ Index: cocoa/makefile
  ifndef NATIVE
  ARCH_BASE_FLAGS=/Developer/SDKs/MacOSX10.5.sdk -arch i386
  ARCHFLAGS=-isysroot $(ARCH_BASE_FLAGS)
--LINK_FLAGS=-Wl,-syslibroot,$(ARCH_BASE_FLAGS)
+ LINK_FLAGS=-Wl,-syslibroot,$(ARCH_BASE_FLAGS)
 -DYN_FLAGS=$(LINK_FLAGS) -framework Cocoa -framework QuartzCore -bundle
-+LINK_FLAGS=-Wl,-syslibroot,$(ARCH_BASE_FLAGS) 
 +DYN_FLAGS=$(LINK_FLAGS) -framework Cocoa -framework QuartzCore -dynamiclib -install_name @executable_path/$(DYNAMICLIB_BASE)
 +else
 +DYN_FLAGS=$(LDFLAGS) -arch i386 -framework Cocoa -framework QuartzCore -dynamiclib -install_name @executable_path/$(DYNAMICLIB_BASE) -L/usr/local/lib -lpcre
@@ -44,7 +52,7 @@ Index: cocoa/makefile
  
  # See http://stackoverflow.com/questions/127426/gnu-compiler-warning-class-has-virtual-functions-but-non-virtual-destructor
  # -Wno-non-virtual-dtor 
-@@ -54,11 +51,14 @@
+@@ -54,11 +57,12 @@
  
  ifdef EXT_INPUT
  EXT_INPUT=-DEXT_INPUT
@@ -53,14 +61,12 @@ Index: cocoa/makefile
  
  .cxx.o:
  	$(CC) $(CXXFLAGS) $(OPTIONS) $(DFLAGS) $(CONTAINER) $(ARCHFLAGS) $(EXT_INPUT) $(INCLUDEDIRS) -c $<
-+
 +.mm.o:
 +	$(CC) $(CXXFLAGS) $(OPTIONS) $(DFLAGS) $(CONTAINER) $(ARCHFLAGS) $(EXT_INPUT) $(INCLUDEDIRS) -c $<
-+
  .c.o:
  	$(CCOMP) $(CXXFLAGS) $(OPTIONS) $(DFLAGS) $(CONTAINER) $(ARCHFLAGS) $(EXT_INPUT) $(INCLUDEDIRS) -w -c $<
  
-@@ -74,14 +74,14 @@
+@@ -74,14 +78,14 @@
  	rm -f *.o $(COMPLIB)
  
  deps:

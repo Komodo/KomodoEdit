@@ -11,7 +11,7 @@ Index: cocoa/ScintillaCocoa.mm
  #include "ScintillaView.h"
  #include "PlatCocoa.h"
  
-@@ -383,6 +381,7 @@
+@@ -383,6 +383,7 @@
    timerTarget = [[[TimerTarget alloc] init: this] retain];
    layerFindIndicator = NULL;
    Initialise();
@@ -19,7 +19,20 @@ Index: cocoa/ScintillaCocoa.mm
  }
  
  //--------------------------------------------------------------------------------------------------
-@@ -880,7 +879,7 @@
+@@ -712,7 +713,11 @@
+       return reinterpret_cast<sptr_t>(this);
+       
+     case SCI_GRABFOCUS:
+-	  [[ContentView() window] makeFirstResponder:ContentView()];
++      // Commenting this out makes no difference -- this code wasn't called.
++#if defined(SCINTILLA_COCOA_DEBUG)
++      fprintf(stderr, "ScintillaCocoa.mm:: WndProc: don't makeFirstResponder on SCI_GRABFOCUS\n");
++#endif
++      // [[ContentView() window] makeFirstResponder:ContentView()];
+       break;
+ 
+     case SCI_SETBUFFEREDDRAW:
+@@ -880,7 +885,7 @@
    if (selectedText.rectangular)
    {
      SelectionPosition selStart = sel.RangeMain().Start();
@@ -28,7 +41,7 @@ Index: cocoa/ScintillaCocoa.mm
    }
    else 
      if (pdoc->InsertString(sel.RangeMain().caret.Position(), selectedText.s, length))
-@@ -1083,6 +1082,10 @@
+@@ -1083,6 +1088,10 @@
   */
  void ScintillaCocoa::StartDrag()
  {
@@ -39,7 +52,7 @@ Index: cocoa/ScintillaCocoa.mm
    if (sel.Empty())
      return;
  
-@@ -1672,6 +1675,12 @@
+@@ -1672,6 +1681,12 @@
    notifyProc = callback;
  }
  

@@ -16,7 +16,16 @@ Index: cocoa/ScintillaCocoa.h
  #include "ILexer.h"
  
  #ifdef SCI_LEXER
-@@ -139,6 +139,8 @@
+@@ -53,6 +53,8 @@
+ 
+ #include "ScintillaBase.h"
+ 
++//#define SCINTILLA_COCOA_DEBUG
++
+ extern "C" NSString* ScintillaRecPboardType;
+ 
+ @class ScintillaView;
+@@ -139,6 +141,8 @@
    virtual ~ScintillaCocoa();
  
    void RegisterNotifyCallback(intptr_t windowid, SciNotifyFunc callback);
@@ -25,7 +34,7 @@ Index: cocoa/ScintillaCocoa.h
    sptr_t WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam);
  
    ScintillaView* TopContainer();
-@@ -202,6 +209,8 @@
+@@ -202,6 +206,8 @@
    void DraggingExited(id <NSDraggingInfo> info);
    bool PerformDragOperation(id <NSDraggingInfo> info);
    void DragScroll();
