@@ -72,22 +72,6 @@ if ($buildType eq 'debug') {
 }
 
 my $consLocal = $cons;
-if ($platform eq "darwin") {
-    # Various OSX contrib things don't work well with hidden visibility (causing
-    # linking errors because symbols can't be found); also, on 10.6 we want to
-    # force building i386 for now.  We'll get to x86_64 some time later.
-    my %consLocal = $cons->copy();
-    $consLocal{'CFLAGS'} =~ s/-fvisibility=hidden//g;
-    $consLocal{'CFLAGS'} =~ s/-arch\s+x86_64//;
-    $consLocal{'CFLAGS'} .= " -arch i386";
-    $consLocal{'CXXFLAGS'} =~ s/-fvisibility=hidden//g;
-    $consLocal{'CXXFLAGS'} =~ s/-arch\s+\S+//g;
-    $consLocal{'CXXFLAGS'} .= " -arch i386";
-    $consLocal{'LDFLAGS'} =~ s/-arch\s+\S+//g;
-    $consLocal{'LDFLAGS'} .= " -arch i386";
-    $consLocal = new cons(ENV => \%consLocal,
-                          CFLAGS => $consLocal{'CFLAGS'});
-}
 
 #---- Komodo's schema-based autocomplete and other parts of the
 #     codeintel system use ElementTree.
@@ -281,9 +265,6 @@ if ($platform eq "win") {
     my $scintilla_plat_dir = "gtk";
     if ($platform eq "darwin") {
         $scintilla_plat_dir = "cocoa";
-        $build_env='LDFLAGS="-mmacosx-version-min=10.5 -Wl,-syslibroot,/Developer/SDKs/MacOSX10.5.sdk -arch i386" ';
-        $build_env.= 'CFLAGS="-mmacosx-version-min=10.5 -isysroot /Developer/SDKs/MacOSX10.5.sdk -arch i386" ';
-        $build_env.= 'CXXFLAGS="-mmacosx-version-min=10.5 -isysroot /Developer/SDKs/MacOSX10.5.sdk -arch i386" ';
     }
 
     $landmark = "$scintilla_dir_for_cons/$scintilla_plat_dir/libpcre.a";
