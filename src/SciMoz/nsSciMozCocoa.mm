@@ -87,7 +87,7 @@ void SciMoz::Resize() {
   SetHIViewShowHide(WINDOW_DISABLED(fWindow));
 }
 
-static NSEvent *SynthesizeEvent(PRBool up, PRInt32 x, PRInt32 y, PRUint16 button, PRBool bShift, PRBool bCtrl, PRBool bAlt, WinID wEditor) {
+static NSEvent *SynthesizeEvent(bool up, PRInt32 x, PRInt32 y, PRUint16 button, bool bShift, bool bCtrl, bool bAlt, WinID wEditor) {
     NSEventType eventType;
 	switch (button) {
     case 0:
@@ -124,9 +124,9 @@ static NSEvent *SynthesizeEvent(PRBool up, PRInt32 x, PRInt32 y, PRUint16 button
     return event;
 }
 
-NS_IMETHODIMP SciMoz::_DoButtonUpDown(PRBool up, PRInt32 x, PRInt32 y,
-                                      PRUint16 button, PRBool bShift,
-                                      PRBool bCtrl, PRBool bAlt) {
+NS_IMETHODIMP SciMoz::_DoButtonUpDown(bool up, PRInt32 x, PRInt32 y,
+                                      PRUint16 button, bool bShift,
+                                      bool bCtrl, bool bAlt) {
     NSEvent* event = SynthesizeEvent(up, x, y, button, bShift, bCtrl, bAlt, wEditor);
     if (!event) {
         return NS_ERROR_FAILURE;
@@ -405,7 +405,7 @@ void AbortComposing(NPP npp, NPObject* object) {
 	NPN_Invoke(npp,
 		   object,
 		   NPN_GetStringIdentifier("abortComposing"),
-		   nsnull,
+		   nullptr,
 		   0,
 		   &dummyResult);
 	NPN_ReleaseVariantValue(&dummyResult);
@@ -591,21 +591,21 @@ int16 SciMoz::PlatformHandleEvent(void *ev) {
 }
 
 /* readonly attribute boolean isOwned; */
-NS_IMETHODIMP SciMoz::GetIsOwned(PRBool *_ret) {
+NS_IMETHODIMP SciMoz::GetIsOwned(bool *_ret) {
     SCIMOZ_CHECK_THREAD("GetIsOwned", NS_ERROR_FAILURE);
     *_ret = wEditor && !isClosed;
     return NS_OK;
 }
 
 /* attribute boolean visible */
-NS_IMETHODIMP SciMoz::GetVisible(PRBool *_ret) {
+NS_IMETHODIMP SciMoz::GetVisible(bool *_ret) {
     SCIMOZ_CHECK_VALID("GetVisible");
     *_ret = wEditor != 0;
     return NS_OK;
 }
 
 /* attribute boolean visible */
-NS_IMETHODIMP SciMoz::SetVisible(PRBool vis) {
+NS_IMETHODIMP SciMoz::SetVisible(bool vis) {
     SCIMOZ_CHECK_VALID("SetVisible");
     return NS_OK;
 }
@@ -617,14 +617,14 @@ NS_IMETHODIMP SciMoz::EndDrop() {
 }
 
 /* readonly attribute boolean inDragSession; */
-NS_IMETHODIMP SciMoz::GetInDragSession(PRBool *_ret) {
+NS_IMETHODIMP SciMoz::GetInDragSession(bool *_ret) {
     SCIMOZ_CHECK_VALID("GetInDragSession");
     *_ret = scintilla->inDragSession();
     return NS_OK;
 }
 
 /* readonly attribute boolean GetIsTracking; */
-NS_IMETHODIMP SciMoz::GetIsTracking(PRBool *_ret) {
+NS_IMETHODIMP SciMoz::GetIsTracking(bool *_ret) {
     SCIMOZ_CHECK_VALID("GetIsTracking");
     *_ret = scintilla->isTracking;
     return NS_OK;
