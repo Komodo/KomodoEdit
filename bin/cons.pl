@@ -193,6 +193,7 @@ sub showcom {
 	 '.cpp'=> 'build::command::cxx',
 	 '.c++'=> 'build::command::cxx',
 	 '.C++'=> 'build::command::cxx',
+	 '.mm'=> 'build::command::cxx',
      },
      'SUFOBJ'	    => '.o',
      'ENV'	    => { 'PATH' => '/bin:/usr/bin' },
@@ -1735,7 +1736,7 @@ sub scan {
 	return () unless open(SCAN, $file->rpath);
 	while (<SCAN>) {
 	    next unless /^\s*#/;
-	    if (/^\s*#\s*include\s*([<"])(.*?)[>"]/) {
+	    if (/^\s*#\s*(?:include|import)\s*([<"])(.*?)[>"]/) {
 		if ($1 eq "<") {
 		    push(@anglenames, $2);
 		} else {
@@ -2267,6 +2268,12 @@ sub linked_targets {
 
 sub accessible {
     my $path = $_[0]->path;
+    #print STDERR "accessible: $path ???\n";
+    if ($path eq "/Users/Eric/work/svn/branches/komodo-scintilla-321/mozilla/d/mz700k714/mozilla/kobj/dist/include/string"
+       || $path eq "mozilla/d/mz700k716/mozilla/kobj/dist/include/string") {
+      print STDERR "Skipping include/string problem\n";
+      return;
+    }
     my $err = "$0: you have attempted to use path \"$path\" both as a file " .
 	      "and as a directory!\n";
     die $err;
