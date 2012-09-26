@@ -233,3 +233,11 @@ Index: /home/toddw/as/komodo-devel_moz7/mozilla/build/moz700-ko7.16/mozilla/dom/
    // We need to register a scroll position listener on every scrollable
    // frame up to the top
    for (nsIFrame* f = mObjectFrame; f; f = nsLayoutUtils::GetCrossDocParentFrame(f)) {
+@@ -3177,6 +3210,7 @@
+     if (!cocoaTopLevelWindow)
+       return nsnull;
+   }
++  mPluginWindow->window = cocoaTopLevelWindow;
+ 
+   nsIntPoint pluginOrigin;
+   nsIntRect widgetClip;
