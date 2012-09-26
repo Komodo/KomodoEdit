@@ -57,6 +57,103 @@ $pluginName = '../bin/SciLexer.dll';
 %consLocal = $cons->copy();
 my $LDFLAGS = $consLocal{'LDFLAGS'};
 
+# The SciMoz build on Linux explicitly links the Lex*.o files from the
+# scintilla build AND with Cons multiple targets for a "Command" cannot be
+# specified, so have to specify a makefile call for each platform.
+# Use one entry per line for ease of maintenance.  Bits are cheap.
+my @lexers = qw(
+    A68k
+    Abaqus
+    Ada
+    APDL
+    Asm
+    Asn1
+    ASY
+    AU3
+    AVE
+    AVS
+    Baan
+    Bash
+    Basic
+    Bullant
+    Caml
+    CoffeeScript
+    CLW
+    Cmake
+    COBOL
+    CoffeeScript
+    Conf
+    CPP
+    Crontab
+    Csound
+    CSS
+    D
+    ECL
+    Eiffel
+    Erlang
+    EScript
+    Flagship
+    Forth
+    Fortran
+    GAP
+    Gui4Cli
+    Haskell
+    HTML
+    Inno
+    Kix
+    Lisp
+    Lout
+    Lua
+    Magik
+    Markdown
+    Matlab
+    Metapost
+    MMIXAL
+    Modula
+    MPT
+    MSSQL
+    MySQL
+    Nimrod
+    Nsis
+    Opal
+    OScript
+    Others
+    Pascal
+    PB
+    Perl
+    PLM
+    POV
+    PowerPro
+    PowerShell
+    Progress
+    PS
+    Python
+    R
+    Rebol
+    Ruby
+    Scriptol
+    Smalltalk
+    SML
+    Sorcus
+    Specman
+    Spice
+    SQL
+    TACL
+    TADS3
+    TAL
+    TCMD
+    Tcl
+    TeX
+    Txt2tags
+    UDL
+    VB
+    Verilog
+    VisualProlog
+    VHDL
+    XSLT
+    YAML
+);
+
 $cons->Command(
     [$pluginName],              # %0
     "scintilla_vc6.mak",        # %1
@@ -142,92 +239,7 @@ $cons->Command(
     "../src/ViewStyle.h",
     "../src/XPM.cxx",
     "../src/XPM.h",
-
-    "../lexers/LexA68k.cxx",
-    "../lexers/LexAbaqus.cxx",
-    "../lexers/LexAda.cxx",
-    "../lexers/LexAPDL.cxx",
-    "../lexers/LexAsm.cxx",
-    "../lexers/LexAsn1.cxx",
-    "../lexers/LexASY.cxx",
-    "../lexers/LexAU3.cxx",
-    "../lexers/LexAVE.cxx",
-    "../lexers/LexBaan.cxx",
-    "../lexers/LexBash.cxx",
-    "../lexers/LexBasic.cxx",
-    "../lexers/LexBullant.cxx",
-    "../lexers/LexCaml.cxx",
-    "../lexers/LexCoffeeScript.cxx",
-    "../lexers/LexCLW.cxx",
-    "../lexers/LexCmake.cxx",
-    "../lexers/LexCOBOL.cxx",
-    "../lexers/LexCoffeeScript.cxx",
-    "../lexers/LexConf.cxx",
-    "../lexers/LexCPP.cxx",
-    "../lexers/LexCrontab.cxx",
-    "../lexers/LexCsound.cxx",
-    "../lexers/LexCSS.cxx",
-    "../lexers/LexD.cxx",
-    "../lexers/LexEiffel.cxx",
-    "../lexers/LexErlang.cxx",
-    "../lexers/LexEScript.cxx",
-    "../lexers/LexFlagship.cxx",
-    "../lexers/LexForth.cxx",
-    "../lexers/LexFortran.cxx",
-    "../lexers/LexGAP.cxx",
-    "../lexers/LexGui4Cli.cxx",
-    "../lexers/LexHaskell.cxx",
-    "../lexers/LexHTML.cxx",
-    "../lexers/LexInno.cxx",
-    "../lexers/LexKix.cxx",
-    "../lexers/LexLisp.cxx",
-    "../lexers/LexLout.cxx",
-    "../lexers/LexLua.cxx",
-    "../lexers/LexMagik.cxx",
-    "../lexers/LexMarkdown.cxx",
-    "../lexers/LexMatlab.cxx",
-    "../lexers/LexMetapost.cxx",
-    "../lexers/LexMMIXAL.cxx",
-    "../lexers/LexModula.cxx",
-    "../lexers/LexMPT.cxx",
-    "../lexers/LexMSSQL.cxx",
-    "../lexers/LexMySQL.cxx",
-    "../lexers/LexNimrod.cxx",
-    "../lexers/LexNsis.cxx",
-    "../lexers/LexOpal.cxx",
-    "../lexers/LexOthers.cxx",
-    "../lexers/LexPascal.cxx",
-    "../lexers/LexPB.cxx",
-    "../lexers/LexPerl.cxx",
-    "../lexers/LexPLM.cxx",
-    "../lexers/LexPOV.cxx",
-    "../lexers/LexPowerPro.cxx",
-    "../lexers/LexPowerShell.cxx",
-    "../lexers/LexProgress.cxx",
-    "../lexers/LexPS.cxx",
-    "../lexers/LexPython.cxx",
-    "../lexers/LexR.cxx",
-    "../lexers/LexRebol.cxx",
-    "../lexers/LexRuby.cxx",
-    "../lexers/LexScriptol.cxx",
-    "../lexers/LexSmalltalk.cxx",
-    "../lexers/LexSML.cxx",
-    "../lexers/LexSorcus.cxx",
-    "../lexers/LexSpecman.cxx",
-    "../lexers/LexSpice.cxx",
-    "../lexers/LexSQL.cxx",
-    "../lexers/LexTACL.cxx",
-    "../lexers/LexTADS3.cxx",
-    "../lexers/LexTAL.cxx",
-    "../lexers/LexTcl.cxx",
-    "../lexers/LexTeX.cxx",
-    "../lexers/LexTxt2tags.cxx",
-    "../lexers/LexUDL.cxx",
-    "../lexers/LexVB.cxx",
-    "../lexers/LexVerilog.cxx",
-    "../lexers/LexVHDL.cxx",
-    "../lexers/LexXSLT.cxx",
-    "../lexers/LexYAML.cxx",
+    map { "../lexers/$_.cxx" } @lexers,
 #    "Margin.cur",
 #    "PlatformRes.h",
     "PlatWin.cxx",

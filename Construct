@@ -485,7 +485,7 @@ if ($platform eq "win") {
     );
 } elsif ($platform eq "darwin") {
     Build(
-        "$build/scintilla/macosx/Conscript",
+        "$build/scintilla/cocoa/Conscript",
     );
 } else {
     die "Unexpected platform '$platform'.\n"

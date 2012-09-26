@@ -71,6 +71,7 @@ my @lexers = qw(
     ASY
     AU3
     AVE
+    AVS
     Baan
     Bash
     Basic
@@ -87,6 +88,7 @@ my @lexers = qw(
     Csound
     CSS
     D
+    ECL
     Eiffel
     Erlang
     EScript
@@ -114,6 +116,7 @@ my @lexers = qw(
     Nimrod
     Nsis
     Opal
+    OScript
     Others
     Pascal
     PB
@@ -138,12 +141,14 @@ my @lexers = qw(
     TACL
     TADS3
     TAL
+    TCMD
     Tcl
     TeX
     Txt2tags
     UDL
     VB
     Verilog
+    VisualProlog
     VHDL
     XSLT
     YAML
