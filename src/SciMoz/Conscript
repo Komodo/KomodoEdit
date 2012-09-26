@@ -262,6 +262,14 @@ elsif ($platform eq "darwin") {
     $consLocal->Install("$mozBin", "$scintillaBuildDir/bin/libscintilla.dylib");
 
 
+    # Make ".mm" file wrappers - so C/C++ code gets treated as objective-C.
+    $cons->Command("plugin.mm", "plugin.cxx",
+		   (qq($unsiloedPythonExe util/objective_c_wrap.py %1 %0)));
+    $cons->Command("nsSciMoz.mm", "nsSciMoz.cxx",
+		   (qq($unsiloedPythonExe util/objective_c_wrap.py %1 %0)));
+    $cons->Command("sendscintilla.mm", "sendscintilla.cxx",
+		   (qq($unsiloedPythonExe util/objective_c_wrap.py %1 %0)));
+
     $consLocal->Program(
 	"SciMoz",
 	"plugin.mm",
@@ -289,7 +297,6 @@ $unsiloedPythonExe bin/run-in-dir.py %1:d mkdir -p SciMoz.plugin/Contents/Resour
 $unsiloedPythonExe bin/run-in-dir.py %1:d cp Info.plist SciMoz.plugin/Contents
 $unsiloedPythonExe bin/run-in-dir.py %1:d chmod u+w SciMoz.plugin/Contents/Info.plist
 $unsiloedPythonExe bin/run-in-dir.py %1:d cp -R English.lproj SciMoz.plugin/Contents/Resources
-$unsiloedPythonExe bin/run-in-dir.py %1:d /Developer/Tools/Rez -useDF -i /Developer/Headers/FlatCarbon /Developer/Headers/FlatCarbon/Types.r SciMoz.r -o SciMoz.plugin/Contents/Resources/SciMoz.rsrc
 $unsiloedPythonExe bin/run-in-dir.py %1:d cp SciMoz SciMoz.plugin/Contents/MacOS/SciMoz
 $unsiloedPythonExe bin/run-in-dir.py %1:d chmod -R a+r SciMoz.plugin
 $unsiloedPythonExe bin/run-in-dir.py %1:d rm -rf $mozPluginsDir/$pluginName
@@ -510,9 +517,9 @@ $cons->BuildHeaderFromIdl('koISciMozIMEHelper.idl');
 my %consIME = $cons->copy();
 my $dllNameIME;
 $consIME{'CPPPATH'} = [
-    "$mozDevelDist/include",
     "$scintillaBuildDir/include",
     "$scintillaBuildDir/lexlib",
+    "$mozDevelDist/include",
     ".."];
 $consIME{'CXXFLAGS'} .= " -DMOZ_VERSION=$mozVersionNumber";
 if ($platform eq "win") {
@@ -556,7 +563,10 @@ else {
         # lots of warnings about ATSUI. We know.
         $consIME{'CXXFLAGS'} .= ' -Wno-deprecated-declarations';
         $dllNameIME = "koSciMozIMEHelper.dylib";
-        push @{$consIME{'CPPPATH'}}, (
+        # Since both mozilla and scintilla define a "Selection.h", we need to
+        # ensure the scintilla version is picked up before the mozilla one. We
+        # do this by putting scintilla at the start of the CPPPATH.
+        unshift @{$consIME{'CPPPATH'}}, (
              "$scintillaBuildDir/cocoa",
              "$scintillaBuildDir/src");
         $consIME{'LIBPATH'} = ["$mozBin",
@@ -591,9 +601,12 @@ else {
     }
     $consIME = new cons(%consIME);
     if ($platform eq "darwin") {
+      # Make ".mm" file wrappers - so C/C++ code gets treated as objective-C.
+      $cons->Command("koSciMozIMEHelper.mm", "koSciMozIMEHelper.cpp",
+                     (qq($unsiloedPythonExe util/objective_c_wrap.py %1 %0)));
       $consIME->Program($dllNameIME,
 			"koSciMozIMEHelper.mm",
-			"koSciMozIMEHelperModule.mm");
+			"koSciMozIMEHelperModule.cpp");
     } else {
       $consIME->Program($dllNameIME,
 			"koSciMozIMEHelper.cpp",
