@@ -2,7 +2,7 @@ Index: cocoa/makefile
 ===================================================================
 --- cocoa/makefile	(revision 73437)
 +++ cocoa/makefile	(working copy)
-@@ -5,9 +5,7 @@
+@@ -5,9 +5,8 @@
  # This makefile assumes that Apple's version of GCC 3.1 is used and changes will be needed to use other compilers.
  # GNU make does not like \r\n line endings so should be saved to CVS in binary form.
  
@@ -10,6 +10,7 @@ Index: cocoa/makefile
 -CC = g++
 -CCOMP = gcc
 +.SUFFIXES: .cxx .c .o .h .a .mm
++CC = $(CXX)
  LIBTOOL = libtool
  
  GCC_MAJOR    := $(shell $(CC) -v 2>&1 | \
