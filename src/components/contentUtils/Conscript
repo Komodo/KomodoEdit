@@ -106,22 +106,18 @@ else {
     }
 
 
-    $consLocal{'LIBS'} = "-lmozalloc -lxpcomglue_s -ljs_static -lxpcom -lnspr4 -lplds4 -lplc4 -lpthread ";
+    # Force linking of libxul first, otherwise it will complain about
+    # missing MOZ_Z_xxx symbols - as libjs_static only has empty symbols for
+    # them.
     if ($platform eq "darwin") {
-	$consLocal{'LIBS'} .= " -Wl,-dead_strip -L$mozDevelDist/bin ";
-	$consLocal{'LIBS'} .= " -Wl,-executable_path,$mozDevelDist/bin ";
-	#TODO: should these two be used for Linux?
-	$consLocal{'LIBS'} .= " -L$mozDevelDist/lib";
-	$consLocal{'LIBS'} .= " $mozDevelDist/lib/libxpcomglue_s.a ";
-	$consLocal{'LIBS'} .= " $mozDevelDist/lib/XUL";
+        $consLocal{'LIBS'} = "$mozDevelDist/lib/XUL ";
         $consLocal{'LDFLAGS'} .= " -framework Carbon -bundle";
     } else {
-        # Force linking of libxul first, otherwise it will complain about
-        # missing MOZ_Z_xxx symbols - as libjs_static only has empty symbols for
-        # them.
-        $consLocal{'LIBS'} = "-lxul " . $consLocal{'LIBS'};
-        $consLocal{'LDFLAGS'} .= " -lxul -fPIC -shared";
+        $consLocal{'LIBS'} = "-lxul ";
+        $consLocal{'LIBS'} .= "-lpthread ";
+        $consLocal{'LDFLAGS'} .= " -fPIC -shared";
     }
+    $consLocal{'LIBS'} .= "-lmozalloc -lxpcomglue_s -lxpcom ";
     $consLocal{'CXXFLAGS'} .= " -DMOZILLA_INTERNAL_API=1 -D_IMPL_NS_LAYOUT";
     $consLocal{'CXXFLAGS'} .= " -include $mozObjDir/mozilla-config.h -DMOZ_VERSION=$mozVersionNumber";
 
