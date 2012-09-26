@@ -297,17 +297,14 @@ if ($platform eq "linux") {
     $environ{CXXFLAGS} .= " -fPIC";
 }
 elsif ($platform eq "darwin") {
-    $environ{CFLAGS} .= " -fvisibility=hidden";
-    $environ{CXXFLAGS} .= " -fvisibility=hidden";
+    # we only want x86_64
+    $environ{CXXFLAGS} .= " -arch x86_64";
+    $environ{LDFLAGS} .= " -arch x86_64";
 
-    # we currenly only support i386
-    $environ{CXXFLAGS} .= " -arch i386";
-    $environ{LDFLAGS} .= " -arch i386";
-
-    # Use 10.5 SDK for now
-    $environ{CFLAGS} .= ' -mmacosx-version-min=10.5';
-    $environ{CXXFLAGS} .= ' -mmacosx-version-min=10.5';
-    $environ{LDFLAGS} .= ' -isysroot /Developer/SDKs/MacOSX10.5.sdk -mmacosx-version-min=10.5';
+    # Use 10.6 as the minimum required version.
+    $environ{CFLAGS} .= ' -mmacosx-version-min=10.6';
+    $environ{CXXFLAGS} .= ' -mmacosx-version-min=10.6';
+    $environ{LDFLAGS} .= ' -mmacosx-version-min=10.6';
 }
 
 
