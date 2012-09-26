@@ -283,8 +283,8 @@ my @args = (
     "ScintillaView.mm",
     "SciTest.mk",
 
-    "libpcre.a",	       # built and installed from contrib/pcre
-    "../include/pcre.h",       # installed from contrib/pcre
+#    "libpcre.a",	       # built and installed from contrib/pcre
+#    "../include/pcre.h",       # installed from contrib/pcre
 
     );
 

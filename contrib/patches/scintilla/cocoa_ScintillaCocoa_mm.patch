@@ -1,0 +1,54 @@
+Index: cocoa/ScintillaCocoa.mm
+===================================================================
+--- cocoa/ScintillaCocoa.mm	(revision 73437)
++++ cocoa/ScintillaCocoa.mm	(working copy)
+@@ -21,8 +21,6 @@
+ #import <QuartzCore/CAAnimation.h>
+ #import <QuartzCore/CATransaction.h>
+ 
+-#import <Carbon/Carbon.h> // Temporary
+-
+ #include "ScintillaView.h"
+ #include "PlatCocoa.h"
+ 
+@@ -383,6 +381,7 @@
+   timerTarget = [[[TimerTarget alloc] init: this] retain];
+   layerFindIndicator = NULL;
+   Initialise();
++  isTracking = false; // Never set to true?
+ }
+ 
+ //--------------------------------------------------------------------------------------------------
+@@ -880,7 +879,7 @@
+   if (selectedText.rectangular)
+   {
+     SelectionPosition selStart = sel.RangeMain().Start();
+-    PasteRectangular(selStart, selectedText.s, length);
++    PasteRectangular(selStart.Position(), selectedText.s, length);
+   }
+   else 
+     if (pdoc->InsertString(sel.RangeMain().caret.Position(), selectedText.s, length))
+@@ -1083,6 +1082,10 @@
+  */
+ void ScintillaCocoa::StartDrag()
+ {
++#ifdef KOMODO_DISABLE_DRAG_DROP
++    inDragDrop = ddNone;
++    return;
++#endif
+   if (sel.Empty())
+     return;
+ 
+@@ -1672,6 +1675,12 @@
+   notifyProc = callback;
+ }
+ 
++void ScintillaCocoa::unregisterNotifyCallback()
++{
++  notifyObj = NULL;
++  notifyProc = NULL;
++}
++
+ //--------------------------------------------------------------------------------------------------
+ 
+ void ScintillaCocoa::NotifyChange()
