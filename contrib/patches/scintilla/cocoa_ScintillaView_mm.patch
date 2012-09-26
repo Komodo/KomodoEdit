@@ -1,7 +1,7 @@
-Index: cocoa/ScintillaCocoa.mm
+Index: cocoa/ScintillaView.mm
 ===================================================================
---- cocoa/ScintillaCocoa.mm	(revision 73437)
-+++ cocoa/ScintillaCocoa.mm	(working copy)
+--- cocoa/ScintillaView.mm	(revision 73437)
++++ cocoa/ScintillaView.mm	(working copy)
 @@ -159,6 +159,7 @@
  - (BOOL) acceptsFirstMouse: (NSEvent *) theEvent
  {

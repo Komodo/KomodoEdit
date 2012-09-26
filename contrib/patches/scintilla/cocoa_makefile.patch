@@ -11,15 +11,6 @@ Index: cocoa/makefile
  CC = g++
  CCOMP = gcc
  LIBTOOL = libtool
-@@ -5,7 +5,7 @@
- # This makefile assumes that Apple's version of GCC 3.1 is used and changes will be needed to use other compilers.
- # GNU make does not like \r\n line endings so should be saved to CVS in binary form.
- 
--.SUFFIXES: .cxx .c .o .h .a
-+.SUFFIXES: .cxx .c .o .h .a .mm
- CC = g++
- CCOMP = gcc
- LIBTOOL = libtool
 @@ -16,25 +16,22 @@
  # We call it "libscintilla" so when you add it to a Project Builder project,
  # Project Builder will link it correctly.
