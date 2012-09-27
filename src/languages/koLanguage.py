@@ -945,9 +945,10 @@ class KoLanguageStatusTreeView(TreeView):
         if not self._wasChanged:
             return
         langRegistry = UnwrapObject(components.classes["@activestate.com/koLanguageRegistryService;1"].getService(components.interfaces.koILanguageRegistryService))
-        languageSpecificPrefs = components.classes["@activestate.com/koPrefService;1"].\
+        prefs = components.classes["@activestate.com/koPrefService;1"].\
                             getService(components.interfaces.koIPrefService).\
-                            prefs.getPref("languages")
+                            prefs
+        languageSpecificPrefs = prefs.getPref("languages")
         for row in self._rows:
             langName, status, origStatus = row['name'], row['status'], row['origStatus']
             if status != origStatus:
@@ -961,6 +962,7 @@ class KoLanguageStatusTreeView(TreeView):
                         createInstance(components.interfaces.koIPreferenceSet)
                     prefSet.setBooleanPref("primary", bool(status))
                     languageSpecificPrefs.setPref(languageKey, prefSet)
+        prefs.setPref("languages", languageSpecificPrefs) # bug 95660
         self.notifyObservers(None, 'primary_languages_changed', '')
 
     @components.ProxyToMainThread
