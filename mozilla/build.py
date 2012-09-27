@@ -1166,6 +1166,8 @@ def target_configure(argv):
 
         osx_major_ver = int(os.uname()[2].split(".")[0])
         # The osx_major_ver has the following values:
+        #   12: Mountain Lion (OS X 10.8)
+        #   11: Lion (OS X 10.7)
         #   10: Snow Leopard (OS X 10.6)
         #   9:  Leopard (OS X 10.5)
         #   8:  Tiger (OS X 10.4)
@@ -1209,6 +1211,9 @@ def target_configure(argv):
             gxx = which.which("g++")
         assert gcc
         assert gxx
+        if "gcc" in gcc and osx_major_ver <= 10: # aka Snow Leopard or lesser
+            # Disable jemalloc, as it fails to build when using gcc.
+            mozBuildOptions.append("disable-jemalloc")
         # check if we're using gcc or clang
         version_string = _capture_output("%s --version" % (gcc,))
         is_gcc = ("Free Software Foundation" in version_string)
