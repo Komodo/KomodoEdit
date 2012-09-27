@@ -1750,6 +1750,16 @@ def target_silo_python(argv=["silo_python"]):
                         "lib", "python%s" % (config.pyVer), "site.py")
         _disablePythonUserSiteFeature(siteFile)
 
+        # We have to also fixup the Mozilla _virtualenv Python.
+        vePythonBinary = join(dirname(distDir), "_virtualenv", "bin",
+                                   "python")
+        os.remove(vePythonBinary)
+        relativeVePythonBin = join("..", "..", "dist", "Komodo.app",
+                                        "Contents", "Frameworks",
+                                        "Python.framework", "Versions",
+                                        config.pyVer, "bin", "python")
+        os.symlink(relativeVePythonBin, vePythonBinary)
+
     else:
         _run('cp -R "%s" "%s"' % (srcDir, siloDir), log.info)
 
