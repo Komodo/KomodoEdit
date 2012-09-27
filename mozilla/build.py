@@ -1778,11 +1778,6 @@ def target_silo_python(argv=["silo_python"]):
              % (libpythonSoVer, mozBinDir, libpythonSo),
              log.info)
 
-        # Need a mozpython executable in the mozBin dir for "bk start mozpython"
-        # to work with PyXPCOM -- for testing, etc.
-        _run('ln -s ../python/bin/python%s %s/mozpython' % (config.pyVer, mozBinDir, ),
-             log.info)
-
         # Relocate the Python install.
         if pyver >= (2,5): # when APy's activestate.py supported relocation
             activestate_py_path = join(siloDir, "lib", "python"+config.pyVer,
@@ -1794,6 +1789,15 @@ def target_silo_python(argv=["silo_python"]):
                                            "activestate.py")
             cmd = "%s %s --relocate" % (sys.executable, activestate_py_path)
             _run(cmd, log.info)
+
+        # Need a mozpython executable in the mozBin dir for "bk start mozpython"
+        # to work with PyXPCOM -- for testing, etc.
+
+        # Creating a symlink to mozpython needs to be done after the
+        # its sources are relocated.
+        # No bug #, r=toddw
+        _run('ln -s ../python/bin/python%s %s/mozpython' % (config.pyVer, mozBinDir, ),
+             log.info)
 
         siteFile = join(siloDir, "lib", "python%s" % (config.pyVer), "site.py")
         _disablePythonUserSiteFeature(siteFile)
