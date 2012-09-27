@@ -42,6 +42,7 @@ Import(
     'compiler',
     'platform',
     'buildFlavour',
+    'buildType',
     'idlExportDir',
     'komodoPythonUtilsDir',
     'supportDir',
