@@ -61,7 +61,7 @@ if ($platform eq "win") {
 
     $CXXFLAGS .= ' -I./include';
     $CXXFLAGS .= ' -I./include/private';
-    $LDFLAGS .= " xpcomglue_s.lib xpcom.lib nspr4.lib mozjs.lib mozalloc.lib ";
+    $LDFLAGS .= " xul.lib xpcomglue_s.lib xpcom.lib nspr4.lib mozjs.lib mozalloc.lib ";
     $LDFLAGS .= " /dll";
     $CXXFLAGS .= " -DLAYERS -W3 -D_WINDOWS -DWIN32 -DMOZILLA_INTERNAL_API=1 ";
     $CXXFLAGS .= " -D_IMPL_NS_LAYOUT -DMOZ_VERSION=$mozVersionNumber";
