@@ -1246,8 +1246,10 @@ class UnsiloedPythonBinDir(black.configure.Datum):
 
     def _Determine_Do(self):
         self.applicable = 1
-        siloedPythonExeName = black.configure.items['siloedPythonExeName'].Get()
-        pythonExe = tmShUtil.WhichFollowSymLinks(siloedPythonExeName)
+        pythonExeName = "python"
+        if sys.platform.startswith("win"):
+            pythonExeName = "python.exe"
+        pythonExe = tmShUtil.WhichFollowSymLinks(pythonExeName)
         if pythonExe:
             self.value = os.path.dirname(pythonExe)
         else:
