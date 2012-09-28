@@ -326,28 +326,3 @@ Index: src/Editor.cxx
  	case SCI_GETGAPPOSITION:
  		return pdoc->GapPosition();
  
-@@ -9310,20 +9371,24 @@
- 		pdoc->ChangeLexerState(wParam, lParam);
- 		break;
- 	
- 	case SCI_SETIDENTIFIER:
- 		SetCtrlID(wParam);
- 		break;
- 	
- 	case SCI_GETIDENTIFIER:
- 		return GetCtrlID();
- 
-+	case SCI_RELEASEMOUSECAPTURE:
-+		SetMouseCapture(false);
-+		break;
-+
- 	case SCI_SETTECHNOLOGY:
- 		// No action by default
- 		break;
- 	
- 	case SCI_GETTECHNOLOGY:
- 		return technology;
- 
- 	case SCI_COUNTCHARACTERS:
- 		return pdoc->CountCharacters(wParam, lParam);
- 
