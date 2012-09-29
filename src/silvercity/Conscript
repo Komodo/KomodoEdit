@@ -58,17 +58,7 @@ if ($platform eq "win") {
 
 my $landmark = "$komodoPythonUtilsDir/SilverCity/__init__.py";
 my $debugFlags = $buildType eq "debug" ? "--debug" : "";
-my $consLocal = $cons;
-if ($platform eq "darwin") {
-    my %consLocal = $cons->copy();
-    $consLocal{'CFLAGS'} =~ s/-fvisibility=hidden//;
-    $consLocal{'CFLAGS'} .= " -arch i386";
-    $consLocal{'CXXFLAGS'} =~ s/-fvisibility=hidden//;
-    $consLocal{'CXXFLAGS'} .= " -arch i386";
-    $consLocal{'LDFLAGS'} .= " -arch i386";
-    $consLocal = new cons(ENV => \%consLocal);
-}
-$consLocal->Command(
+$cons->Command(
     $landmark,
     "setup.py",
     # Actually we depends on most everything under:

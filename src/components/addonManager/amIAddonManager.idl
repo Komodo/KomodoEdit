@@ -1,0 +1,191 @@
+/* ***** BEGIN LICENSE BLOCK *****
+ * Version: MPL 1.1/GPL 2.0/LGPL 2.1
+ *
+ * The contents of this file are subject to the Mozilla Public License Version
+ * 1.1 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * http://www.mozilla.org/MPL/
+ *
+ * Software distributed under the License is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+ * for the specific language governing rights and limitations under the
+ * License.
+ *
+ * The Original Code is AddonManager XPCOM wrapper.
+ *
+ * The Initial Developer of the Original Code is
+ * Mook <marky+mozhg@activestate.com>.
+ * Portions created by the Initial Developer are Copyright (C) 2011
+ * the Initial Developer. All Rights Reserved.
+ *
+ * Contributor(s):
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU General Public License Version 2 or later (the "GPL"), or
+ * the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+ * in which case the provisions of the GPL or the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of either the GPL or the LGPL, and not to allow others to
+ * use your version of this file under the terms of the MPL, indicate your
+ * decision by deleting the provisions above and replace them with the notice
+ * and other provisions required by the GPL or the LGPL. If you do not delete
+ * the provisions above, a recipient may use your version of this file under
+ * the terms of any one of the MPL, the GPL or the LGPL.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+#include "nsISupports.idl"
+
+/* XPCOM wrapper for AddonManager.jsm
+ * @see resource://gre/modules/AddonManager.jsm
+ * @see https://developer.mozilla.org/en/Addons/Add-on_Manager/AddonManager
+ */
+
+interface amIAddonCallback;
+interface amIAddonListCallback;
+interface amIInstallCallback;
+interface amIInstallListCallback;
+
+interface amIAddon;
+interface amIAddonInstall;
+interface amIAddonListener;
+interface amIInstallListener;
+
+interface nsIDOMWindow;
+interface nsIFile;
+interface nsILoadGroup;
+interface nsIURI;
+
+[scriptable, uuid(40356a2f-c12e-4f71-b4f4-0b761d84b110)]
+interface amIAddonManager: nsISupports {
+    void getInstallForURL(in AUTF8String url,
+                          in amIInstallCallback callback,
+                          in ACString mimetype,
+                          [optional] in ACString hash,
+                          [optional] in AString name,
+                          [optional] in ACString iconURL,
+                          [optional] in AUTF8String version,
+                          [optional] in nsILoadGroup loadGroup);
+
+    void getInstallForFile(in nsIFile file,
+                           in amIInstallCallback callback,
+                           [optional] in ACString mimetype);
+
+    void getAllInstalls(in amIInstallListCallback callback);
+
+    void getInstallsByTypes([array, size_is(typeCount)] in string types,
+                            in amIInstallListCallback callback,
+                            in unsigned long typeCount);
+
+    void installAddonsFromWebpage(in ACString mimetype,
+                                  in nsIDOMWindow source,
+                                  in nsIURI uri,
+                                  [array, size_is(installCount)] in amIAddonInstall installs,
+                                  in unsigned long installCount);
+
+    void addInstallListener(in amIInstallListener listener);
+
+    void removeInstallListener(in amIInstallListener listener);
+
+    void getAllAddons(in amIAddonListCallback callback);
+
+    void getAddonByID(in AUTF8String id,
+                      in amIAddonCallback callback);
+
+    void getAddonsByIDs([array, size_is(idCount)] in wstring ids,
+                        in amIAddonListCallback callback,
+                        in unsigned long idCount);
+
+    void getAddonsByTypes([array, size_is(typeCount)] in string types,
+                          in amIAddonListCallback callback,
+                          in unsigned long typeCount);
+
+    void getAddonsWithOperationsByTypes([array, size_is(typeCount)] in string types,
+                                        in amIAddonListCallback callback,
+                                        in unsigned long typeCount);
+
+    void addAddonListener(in amIAddonListener listener);
+
+    void removeAddonListener(in amIAddonListener listener);
+
+    // mystery undocumented method!
+    boolean isInstallAllowed(in ACString mimetype,
+                             in nsIURI uri);
+    boolean isInstallEnabled(in ACString mimetype);
+
+    const long STATE_AVAILABLE       = 0;
+    const long STATE_DOWNLOADING     = 1;
+    const long STATE_CHECKING        = 2;
+    const long STATE_DOWNLOADED      = 3;
+    const long STATE_DOWNLOAD_FAILED = 4;
+    const long STATE_INSTALLING      = 5;
+    const long STATE_INSTALLED       = 6;
+    const long STATE_INSTALL_FAILED  = 7;
+    const long STATE_CANCELLED       = 8;
+
+    const long ERROR_NETWORK_FAILURE = -1;
+    const long ERROR_INCORRECT_HASH  = -2;
+    const long ERROR_CORRUPT_FILE    = -3;
+    const long ERROR_FILE_ACCESS     = -4;
+    
+    const long UPDATE_WHEN_USER_REQUESTED    = 1;
+    const long UPDATE_WHEN_NEW_APP_DETECTED  = 2;
+    const long UPDATE_WHEN_NEW_APP_INSTALLED = 3;
+    const long UPDATE_WHEN_PERIODIC_UPDATE   = 16;
+    const long UPDATE_WHEN_ADDON_INSTALLED   = 17;
+
+    const long AUTOUPDATE_DISABLE = 0;
+    const long AUTOUPDATE_DEFAULT = 1;
+    const long AUTOUPDATE_ENABLE  = 2;
+
+    const long PENDING_NONE      = 0;
+    const long PENDING_ENABLE    = 1;
+    const long PENDING_DISABLE   = 2;
+    const long PENDING_UNINSTALL = 4;
+    const long PENDING_INSTALL   = 8;
+    const long PENDING_UPGRADE   = 16;
+
+    const long PERM_CAN_UNINSTALL = 1;
+    const long PERM_CAN_ENABLE    = 2;
+    const long PERM_CAN_DISABLE   = 4;
+    const long PERM_CAN_UPGRADE   = 8;
+
+    const long OP_NEEDS_RESTART_NONE      = 0;
+    const long OP_NEEDS_RESTART_ENABLE    = 1;
+    const long OP_NEEDS_RESTART_DISABLE   = 2;
+    const long OP_NEEDS_RESTART_UNINSTALL = 4;
+    const long OP_NEEDS_RESTART_INSTALL   = 8;
+
+    const long SCOPE_PROFILE     = 1;
+    const long SCOPE_USER        = 2;
+    const long SCOPE_APPLICATION = 4;
+    const long SCOPE_SYSTEM      = 8;
+    const long SCOPE_ALL         = 15;
+
+    // undocumented constants
+    const long UPDATE_STATUS_NO_ERROR       =  0;
+    const long UPDATE_STATUS_TIMEOUT        = -1;
+    const long UPDATE_STATUS_DOWNLOAD_ERROR = -2;
+    const long UPDATE_STATUS_PARSE_ERROR    = -3;
+    const long UPDATE_STATUS_UNKNOWN_FORMAT = -4;
+    const long UPDATE_STATUS_SECURITY_ERROR = -5;
+};
+
+[scriptable, function, uuid(9a3c8c2e-e3a2-47b1-a8d8-0abd5963c28c)]
+interface amIAddonCallback: nsISupports {
+    void AddonCallback(in amIAddon addon);
+};
+[scriptable, function, uuid(c6afa05c-2682-4fa3-9f23-3ce6867b0e18)]
+interface amIAddonListCallback: nsISupports {
+    void AddonListCallback([array, size_is(addonCount)] in amIAddon addons,
+                           [optional] in unsigned long addonCount);
+};
+[scriptable, function, uuid(f985d564-33d0-4d2e-8a2e-35de506e2694)]
+interface amIInstallCallback: nsISupports {
+    void InstallCallback(in amIAddonInstall install);
+};
+[scriptable, function, uuid(a3d8236a-5cd4-4561-875f-8e2a9896ad01)]
+interface amIInstallListCallback: nsISupports {
+    void InstallListCallback([array, size_is(installCount)] in amIAddonInstall installs,
+                             [optional] in unsigned long installCount);
+};

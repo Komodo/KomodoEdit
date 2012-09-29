@@ -322,6 +322,16 @@ $cons->InstallXpcomComponent('koWindowManagerUtils.py');
 #$cons->Install("$supportDir/test", "test_koIndexer.py");
 #$cons->Install("$supportDir/test", "test_koObserverService.py");
 
+# amIAddonManager
+$cons->BuildAndInstallXpt('addonManager/amIAddon.idl');
+$cons->BuildAndInstallXpt('addonManager/amIAddonInstall.idl');
+$cons->BuildAndInstallXpt('addonManager/amIAddonListener.idl');
+$cons->BuildAndInstallXpt('addonManager/amIAddonManager.idl');
+$cons->BuildAndInstallXpt('addonManager/amIInstallListener.idl');
+$cons->BuildAndInstallXpt('addonManager/amIUpdateListener.idl');
+$cons->InstallXpcomComponent('addonManager/amAddonManager.js',
+                             {'@mozilla.org/addons/addon-manager;1' => '{15f8ee3a-1b7f-43c8-bdd9-6add07b52e1d}'});
+
 # XPCOM component registration (Gecko 2.0+)
 my $dllName = "libpyloader.so";
 if ($platform eq "win") {

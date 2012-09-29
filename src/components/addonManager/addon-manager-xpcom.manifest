@@ -1,0 +1,2 @@
+component {15f8ee3a-1b7f-43c8-bdd9-6add07b52e1d} amAddonManager.js
+contract @mozilla.org/addons/addon-manager;1 {15f8ee3a-1b7f-43c8-bdd9-6add07b52e1d}

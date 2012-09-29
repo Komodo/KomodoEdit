@@ -356,9 +356,6 @@ def make_elementtree(maker, log):
             debug_flags = "--debug"
         else:
             debug_flags = ""
-        if sys.platform == "darwin":
-            os.environ["CFLAGS"] = os.environ.get("CFLAGS", "").replace("-fvisibility=hidden", "") + " -arch i386"
-            os.environ["CXXFLAGS"] = os.environ.get("CXXFLAGS", "").replace("-fvisibility=hidden", "") + " -arch i386"
         _run_in_dir(" ".join([cfg.python, "setup.py", "build", debug_flags]),
                     src_dir, logstream=log.info)
         _run_in_dir(cfg.python+" setup.py install --skip-build --prefix=bitbucket "

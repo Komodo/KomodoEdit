@@ -1,0 +1,139 @@
+/* ***** BEGIN LICENSE BLOCK *****
+ * Version: MPL 1.1/GPL 2.0/LGPL 2.1
+ *
+ * The contents of this file are subject to the Mozilla Public License Version
+ * 1.1 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * http://www.mozilla.org/MPL/
+ *
+ * Software distributed under the License is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+ * for the specific language governing rights and limitations under the
+ * License.
+ *
+ * The Original Code is AddonManager XPCOM wrapper.
+ *
+ * The Initial Developer of the Original Code is
+ * Mook <marky+mozhg@activestate.com>.
+ * Portions created by the Initial Developer are Copyright (C) 2011
+ * the Initial Developer. All Rights Reserved.
+ *
+ * Contributor(s):
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU General Public License Version 2 or later (the "GPL"), or
+ * the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+ * in which case the provisions of the GPL or the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of either the GPL or the LGPL, and not to allow others to
+ * use your version of this file under the terms of the MPL, indicate your
+ * decision by deleting the provisions above and replace them with the notice
+ * and other provisions required by the GPL or the LGPL. If you do not delete
+ * the provisions above, a recipient may use your version of this file under
+ * the terms of any one of the MPL, the GPL or the LGPL.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+#include "nsISupports.idl"
+
+/* XPCOM wrapper for AddonManager Addon
+ * @see https://developer.mozilla.org/en/Addons/Add-on_Manager/Addon
+ */
+
+interface amIAddon;
+interface amIAddonAuthor;
+interface amIAddonInstall;
+interface amIAddonScreenshot;
+interface amIUpdateListener;
+
+interface nsIURI;
+
+[scriptable, uuid(35ecb02a-b7db-49bc-89ba-c4b8152d3681)]
+interface amIAddon: nsISupports {
+    boolean isCompatibleWith([optional] in AUTF8String appVersion,
+                             [optional] in AUTF8String platformVersion);
+
+    void findUpdates(in amIUpdateListener listener,
+                     in long reason,
+                     [optional] in AUTF8String appVersion,
+                     [optional] in AUTF8String platformVersion);
+    void uninstall();
+    void cancelUninstall();
+    boolean hasResource([optional] in AUTF8String path);
+    nsIURI getResourceURI([optional] in AUTF8String path);
+
+    /* required attributes */
+    attribute boolean appDisabled;
+    attribute long blocklistState;
+    attribute amIAddonAuthor creator;
+    attribute AUTF8String id;
+    attribute boolean isActive;
+    attribute boolean isCompatible;
+    attribute boolean isPlatformCompatible;
+    attribute AUTF8String name;
+    attribute long pendingOperations;
+    attribute long permissions;
+    attribute boolean providesUpdatesSecurely;
+    attribute long scope;
+    attribute ACString type;
+    attribute boolean userDisabled;
+    attribute AUTF8String version;
+
+    /* optional attributes */
+    attribute AUTF8String aboutURL;
+    attribute long applyBackgroundUpdates;
+    readonly attribute boolean hasContributors;
+    void getContributors([optional] out unsigned long contributorCount,
+                         [retval, array, size_is(contributorCount)] out amIAddonAuthor contributors);
+    attribute AString description;
+    readonly attribute boolean hasDevelopers;
+    void getDevelopers([optional] out unsigned long developerCount,
+                       [retval, array, size_is(developerCount)] out amIAddonAuthor developers);
+    attribute AUTF8String homepageURL;
+    attribute AUTF8String iconURL;
+    attribute amIAddonInstall install;
+    attribute PRTime installDate;
+    attribute AUTF8String optionsURL;
+    attribute amIAddon pendingUpgrade;
+    attribute nsIURI releaseNotesURI;
+    void getScreenshots([optional] out unsigned long screenshotCount,
+                        [retval, array, size_is(screenshotCount)] out amIAddonScreenshot screenshots);
+    attribute unsigned long size;
+    attribute nsIURI sourceURI;
+    readonly attribute boolean hasTranslators;
+    void getTranslators([optional] out unsigned long translatorCount,
+                        [retval, array, size_is(translatorCount)] out amIAddonAuthor translators);
+    attribute PRTime updateDate;
+    attribute long operationsRequiringRestart;
+    // special undocumented things being tested for!
+    attribute AString fullDescription;
+    attribute AString developerComments;
+    attribute AString eula;
+    attribute AUTF8String icon64URL;
+    attribute AUTF8String supportURL;
+    attribute AUTF8String contributionURL;
+    attribute AUTF8String contributionAmount;
+    attribute double averageRating;
+    attribute long reviewCount;
+    attribute AUTF8String reviewURL;
+    attribute long totalDownloads;
+    attribute long weeklyDownloads;
+    attribute long dailyUsers;
+    attribute long repositoryStatus;
+    attribute boolean skinnable; // for themes only?
+};
+
+[scriptable, uuid(d0f5fa06-22cd-43e7-b68d-c759fca62787)]
+interface amIAddonAuthor: nsISupports {
+    attribute AString name;
+    attribute ACString url; /* optional */
+    AString toString();
+};
+
+[scriptable, uuid(161d45d2-0ce7-44c4-a9c6-1b2149bbbf67)]
+interface amIAddonScreenshot: nsISupports {
+    attribute AUTF8String url;
+    attribute AUTF8String thumbnailURL;
+    attribute AString caption;
+    AString toString();
+};

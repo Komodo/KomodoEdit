@@ -1645,7 +1645,7 @@ void _KoStart_SetupEnvironment(const char* programDir)
     overflow = snprintf(buffer, MAXPATHLEN, "%s/../Frameworks/Python.framework/Versions/Current", programDir);
     if (overflow > (ssize_t)MAXPATHLEN || overflow < 0) {
         _LogError("buffer overflow while setting PYTHONHOME\n");
-        return 0;
+        return;
     }
     _LogDebug("setting PYTHONHOME=%s\n", buffer);
     xpsetenv("PYTHONHOME", buffer, 1);

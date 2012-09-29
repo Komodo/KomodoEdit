@@ -1,0 +1,77 @@
+/* ***** BEGIN LICENSE BLOCK *****
+ * Version: MPL 1.1/GPL 2.0/LGPL 2.1
+ *
+ * The contents of this file are subject to the Mozilla Public License Version
+ * 1.1 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * http://www.mozilla.org/MPL/
+ *
+ * Software distributed under the License is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+ * for the specific language governing rights and limitations under the
+ * License.
+ *
+ * The Original Code is AddonManager XPCOM wrapper.
+ *
+ * The Initial Developer of the Original Code is
+ * Mook <marky+mozhg@activestate.com>.
+ * Portions created by the Initial Developer are Copyright (C) 2011
+ * the Initial Developer. All Rights Reserved.
+ *
+ * Contributor(s):
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU General Public License Version 2 or later (the "GPL"), or
+ * the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+ * in which case the provisions of the GPL or the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of either the GPL or the LGPL, and not to allow others to
+ * use your version of this file under the terms of the MPL, indicate your
+ * decision by deleting the provisions above and replace them with the notice
+ * and other provisions required by the GPL or the LGPL. If you do not delete
+ * the provisions above, a recipient may use your version of this file under
+ * the terms of any one of the MPL, the GPL or the LGPL.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+#include "nsISupports.idl"
+
+/* XPCOM wrapper for AddonManager AddonInstall
+ * @see https://developer.mozilla.org/en/Addons/Add-on_Manager/AddonInstall
+ */
+
+interface amIAddon;
+interface amIInstallListener;
+
+interface nsIFile;
+interface nsIURI;
+interface nsIX509Cert;
+
+[scriptable, uuid(a70387a0-f758-40dc-95ba-eef654082952)]
+interface amIAddonInstall: nsISupports {
+    void install();
+    void cancel();
+    void addListener(in amIInstallListener listener);
+    void removeListener(in amIInstallListener listener);
+
+    attribute AString name;
+    attribute AUTF8String version;
+    attribute AUTF8String iconURL;
+    attribute nsIURI releaseNotesURI;
+    attribute ACString type;
+    attribute long state;
+    attribute long error;
+    attribute nsIURI sourceURI;
+    attribute nsIFile file;
+    attribute long progress;
+    attribute long maxProgress;
+    attribute nsIX509Cert certificate;
+    attribute AString certName;
+    attribute amIAddon existingAddon;
+    attribute amIAddon addon;
+
+    // mysterious undocumented attributes
+    /* amIAddonInstall[] linkedInstalls */
+    void getLinkedInstalls([optional] out unsigned long linkedCount,
+                           [retval, array, size_is(linkedCount)] out amIAddonInstall linkedInstalls);
+};

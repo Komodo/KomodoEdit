@@ -172,7 +172,7 @@ NS_IMETHODIMP SciMoz::AddChar(PRUint32 ch) {
 }
 
 extern "C" {
-extern NSObject scintilla_new(void);
+extern NSObject* scintilla_new(void);
 }
 
 void SciMoz::NotifySignal(intptr_t windowid, unsigned int iMessage, uintptr_t wParam, uintptr_t lParam) {

@@ -1,0 +1,54 @@
+diff -r -U3 scintilla.old/cocoa/PlatCocoa.mm scintilla/cocoa/PlatCocoa.mm
+--- cocoa/PlatCocoa.mm	2012-09-28 12:37:26.000000000 -0700
++++ cocoa/PlatCocoa.mm	2012-09-28 12:38:11.000000000 -0700
+@@ -1803,7 +1803,7 @@
+ 
+ void ListBoxImpl::RegisterRGBAImage(int type, int width, int height, const unsigned char *pixelsImage) {
+ 	CGImageRef imageRef = ImageCreateFromRGBA(width, height, pixelsImage, false);
+-	NSSize sz = {width, height};
++	NSSize sz = {static_cast<CGFloat>(width), static_cast<CGFloat>(height)};
+ 	NSImage *img = [[[NSImage alloc] initWithSize: sz] autorelease];
+ 	NSBitmapImageRep *bitmapRep = [[NSBitmapImageRep alloc] initWithCGImage: imageRef];
+ 	[img addRepresentation: bitmapRep];
+diff -r -U3 scintilla.old/cocoa/ScintillaCocoa.mm scintilla/cocoa/ScintillaCocoa.mm
+--- cocoa/ScintillaCocoa.mm	2012-09-28 12:37:26.000000000 -0700
++++ cocoa/ScintillaCocoa.mm	2012-09-28 12:39:11.000000000 -0700
+@@ -1392,7 +1392,7 @@
+     {
+       CFStringEncoding encoding = EncodingFromCharacterSet(IsUnicodeMode(),
+                                                            vs.styles[STYLE_DEFAULT].characterSet);
+-      CFRange rangeAll = {0, [data length]};
++      CFRange rangeAll = {0, static_cast<CFIndex>([data length])};
+       CFIndex usedLen = 0;
+       CFStringGetBytes((CFStringRef)data, rangeAll, encoding, '?',
+                        false, NULL, 0, &usedLen);
+@@ -1883,7 +1883,7 @@
+ {
+   CFStringEncoding encoding = EncodingFromCharacterSet(IsUnicodeMode(),
+                                                          vs.styles[STYLE_DEFAULT].characterSet);
+-  CFRange rangeAll = {0, [input length]};
++  CFRange rangeAll = {0, static_cast<CFIndex>([input length])};
+   CFIndex usedLen = 0;
+   CFStringGetBytes((CFStringRef)input, rangeAll, encoding, '?',
+                    false, NULL, 0, &usedLen);
+diff -r -U3 scintilla.old/cocoa/ScintillaView.mm scintilla/cocoa/ScintillaView.mm
+--- cocoa/ScintillaView.mm	2012-09-28 12:37:26.000000000 -0700
++++ cocoa/ScintillaView.mm	2012-09-28 12:41:29.000000000 -0700
+@@ -901,7 +901,7 @@
+  */
+ - (void) positionSubViews
+ {
+-  int scrollerWidth = [NSScroller scrollerWidth];
++  CGFloat scrollerWidth = [NSScroller scrollerWidth];
+ 
+   NSSize size = [self frame].size;
+   NSRect hScrollerRect = {0, 0, size.width, scrollerWidth};
+@@ -911,7 +911,7 @@
+   
+   // Horizontal offset of the content. Almost always 0 unless the vertical scroller
+   // is on the left side.
+-  int contentX = 0;
++  CGFloat contentX = 0;
+   
+   // Vertical scroller frame calculation.
+   if (![mVerticalScroller isHidden])

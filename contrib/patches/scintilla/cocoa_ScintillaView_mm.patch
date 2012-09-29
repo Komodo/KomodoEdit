@@ -17,8 +17,8 @@ Index: cocoa/ScintillaView.mm
 -  return YES;
 +#if defined(SCINTILLA_COCOA_DEBUG)
 +  fprintf(stderr, ">> ScintillaView.mm:: InnerView:: acceptsFirstResponder\n");
-+  return NO; // No, we want the child view to do this...
 +#endif
++  return NO; // No, we want the child view to do this...
  }
  
  //--------------------------------------------------------------------------------------------------
@@ -51,7 +51,7 @@ Index: cocoa/ScintillaView.mm
      // Establish a connection from the back end to this container so we can handle situations
      // which require our attention.
      mBackend->RegisterNotifyCallback(nil, notification);
-@@ -1583,5 +1593,36 @@
+@@ -1583,5 +1593,33 @@
  
  //--------------------------------------------------------------------------------------------------
  
@@ -85,6 +85,3 @@ Index: cocoa/ScintillaView.mm
 +
  @end
  
-+
-+@end
-+
