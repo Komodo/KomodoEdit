@@ -55,7 +55,7 @@
         <body>
         <![CDATA[
             if (event.shiftKey || event.ctrlKey || event.altKey) {
-                return;
+                return false;
             }
             ko.places.viewMgr.handleReturnKeyPress(event);
             event.stopPropagation();

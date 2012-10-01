@@ -1146,7 +1146,6 @@
                     if (val == this._lastText) return;
                     this._lastText = val;
                     this.refresh();
-                    return val;
                 </setter>
             </property>
         </implementation>

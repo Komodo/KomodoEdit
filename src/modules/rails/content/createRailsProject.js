@@ -169,7 +169,7 @@ this.runRailsCommand = function runRailsCommand() {
         // Bug 90957 -- ko.projects.manager.createNewProject not in earlier versions, so use its code guts.
         var filename = ko.projects.manager._getNewProjectPath();
         if (filename == null) {
-            return null;
+            return;
         }
         var uri = ko.uriparse.localPathToURI(filename);
         project = Components.classes["@activestate.com/koProject;1"]
@@ -177,7 +177,7 @@ this.runRailsCommand = function runRailsCommand() {
         project.create();
         project.url = uri;
         if (!ko.projects.manager._saveNewProject(project)) {
-            return null;
+            return;
         }
     } else {
         project = ko.projects.manager.createNewProject();
