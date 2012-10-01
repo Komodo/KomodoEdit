@@ -37,8 +37,6 @@
 #include "nsISupports.idl"
 #include "nsIDOMWindow.idl"
 
-interface nsIDOMWindowInternal;
-
 [scriptable, uuid(E59E34ED-7D95-4460-87E9-FDCEF7C79D62)]
 interface asIDialogProxy: nsISupports {
     /* alert is just a simplified alertEx, passing defaults for all additional parameters */

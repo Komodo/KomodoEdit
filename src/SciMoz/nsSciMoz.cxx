@@ -1274,7 +1274,7 @@ bool SciMoz::SetCommandUpdateTarget(const NPVariant *args, uint32_t argCount, NP
 
 	// we need to get a nsIDOMWindowInternal IID, wrapped in JS and then
 	// wrapped in NPAPI.  The easiest way is to ask JS to do it for us.
-	NPString script = { "Components.interfaces.nsIDOMWindowInternal" };
+	NPString script = { "Components.interfaces.nsIDOMWindow" };
 	script.UTF8Length = strlen(script.UTF8Characters);
 	NPVariant iid = { NPVariantType_Void };
 	if (!NPN_Evaluate(mPlugin->GetNPP(),
@@ -1282,7 +1282,7 @@ bool SciMoz::SetCommandUpdateTarget(const NPVariant *args, uint32_t argCount, NP
 			  &script,
 			  &iid))
 	{
-		SCIMOZ_DEBUG_PRINTF("%s: failed to get nsIDOMWindowInternal\n",
+		SCIMOZ_DEBUG_PRINTF("%s: failed to get nsIDOMWindow\n",
 				    __FUNCTION__);
 		return false;
 	}
