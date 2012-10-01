@@ -153,6 +153,7 @@ my @lexers = qw(
     XSLT
     YAML
 );
+@lexers = map { "../lexers/Lex$_.cxx" } @lexers;
 
 $cons->Command(
     [$pluginName],              # %0
@@ -239,9 +240,10 @@ $cons->Command(
     "../src/ViewStyle.h",
     "../src/XPM.cxx",
     "../src/XPM.h",
-    map { "../lexers/$_.cxx" } @lexers,
+    @lexers,
 #    "Margin.cur",
 #    "PlatformRes.h",
+    "PlatWin.h",
     "PlatWin.cxx",
     "Scintilla.def",
     "ScintillaWin.cxx",
