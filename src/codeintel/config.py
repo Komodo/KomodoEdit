@@ -84,28 +84,6 @@ def xpath(*parts):
 platinfo = PlatInfo()
 platname = platinfo.name()
 
-PYTHON_SCHEME = "first-on-path"   # "komodo" or "first-on-path"
-if PYTHON_SCHEME == "first-on-path":
-    python = which.which("python") # Python installation to use.
-elif PYTHON_SCHEME == "komodo":
-    #import p4lib, platinfo
-    #p4 = p4lib.P4()
-    #where = p4.where("//depot/main/Apps/Mozilla-devel/prebuilt/README.txt")
-    #prebuilt_path = dirname(where[0]["localFile"])
-    #platname = platinfo.platname("os", "libcpp", "arch")
-    #python = join(prebuilt_path, platinfo.platname(), "release", "python")
-    #if sys.platform == "win32":
-    #    python = join(python, "python.exe")
-    #elif sys.platform == "darwin":
-    #    python = glob(join(python, "Python.framework", "Versions", "*",
-    #                       "bin", "python"))[0]
-    #else:
-    #    python = join(python, "bin", "python")
-    raise ConfigError(r"""You need to hardcode something like this:
-    python = r"C:\trentm\as\Mozilla-devel\prebuilt\win32-x86\release\python\python.exe"
-as appropriate for your system in config.py.""")
-
-
 sqlite_version = "3.2.7"
 
 # Source repositories (for 3rd-party tarballs)
@@ -154,4 +132,8 @@ def get_komodo_cfg(komodo_src):
 komodo_cfg = get_komodo_cfg(komodo_src)
 
 
-
+PYTHON_SCHEME = "komodo"   # "komodo" or "first-on-path"
+if PYTHON_SCHEME == "first-on-path":
+    python = which.which("python") # Python installation to use.
+elif PYTHON_SCHEME == "komodo":
+    python = komodo_cfg.siloedPython
