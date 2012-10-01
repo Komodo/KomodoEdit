@@ -1445,7 +1445,7 @@ ToolboxController.prototype = {
  window.addEventListener("load", function() {
    try {
      document.getElementById("toolbox2-hierarchy-tree").controllers.insertControllerAt(0, new ToolboxController());
-     window.addEventListener("focus", this.onFocusWindow, false);
+     window.addEventListener("focus", ko.toolbox2.onFocusWindow, false);
    } catch(ex) {
      log.error("Failed to set a toolbox controller: " + ex + "\n");
    }
