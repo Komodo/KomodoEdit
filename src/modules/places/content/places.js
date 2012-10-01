@@ -123,7 +123,6 @@ viewMgrClass.prototype = {
             widgets.placesSubpanelProjectsTools_MPV = document.getElementById("placesSubpanelProjectsTools_MPV");
             widgets.placesSubpanelProjectsTools_SPV = document.getElementById("placesSubpanelProjectsTools_SPV");
         }
-        this._setupProjectView(this.single_project_view);
         ko.projects.manager.switchProjectView(this.single_project_view);
         var sortMenuPopup = document.getElementById("placeView_sortPopup");
         var childNodes = sortMenuPopup.childNodes;
