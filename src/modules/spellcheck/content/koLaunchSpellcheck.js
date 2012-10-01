@@ -102,7 +102,7 @@ SpellCheckController.prototype.do_cmd_checkSpelling = function() {
 
 this.SpellCheckController_onload = function() {
     __SpellCheckController = new SpellCheckController();
-    window.removeEventListener("load", this.SpellCheckController_onload, true);
+    window.removeEventListener("load", ko.extensions.spellchecker.SpellCheckController_onload, true);
 }
 
 }).apply(ko.extensions.spellchecker);
