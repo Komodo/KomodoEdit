@@ -709,6 +709,9 @@ this.doClick = function lint_doClick(event) {
 }
 
 this.initializeGenericPrefs = function(prefset) {
+    if (typeof(prefset) == "undefined") {
+        prefset = ko.prefs;
+    }
     var ids = {};
     prefset.getPrefIds(ids, {});
     var idNames = ids.value.filter(function(x) x.indexOf("genericLinter:") == 0);
@@ -720,18 +723,9 @@ this.initializeGenericPrefs = function(prefset) {
     });
 }
 
-    var ko_lint_observer = {
-        observe: function(subject, topic, data) {
-            if (subject == "komodo-ui-started") {
-                ko.lint.initializeGenericPrefs(ko.prefs);
-            }
-        }
-    }
-    var obsSvc = Components.classes["@mozilla.org/observer-service;1"].
-                        getService(Components.interfaces.nsIObserverService);
-    obsSvc.addObserver(ko_lint_observer, 'komodo-ui-started', false);
-
 }).apply(ko.lint);
+
+window.addEventListener('komodo-ui-started', ko.lint.initializeGenericPrefs, false);
 
 /**
  * @deprecated since 7.0
