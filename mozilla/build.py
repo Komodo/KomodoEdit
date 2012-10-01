@@ -1321,7 +1321,10 @@ def target_configure(argv):
 
         # Find the Python binary under here.
         if sys.platform == "win32":
-            pythonExe = join(prebuiltDir, "python.exe")
+            if config["buildType"] == "debug":
+                pythonExe = join(prebuiltDir, "python_d.exe")
+            else:
+                pythonExe = join(prebuiltDir, "python.exe")
         elif sys.platform == "darwin":
             # we can link against a release version of the python framework just fine
             pattern = join(prebuiltDir, "Python.framework", "Versions", 
@@ -1677,7 +1680,10 @@ def target_silo_python(argv=["silo_python"]):
 
     # Abort if it looks like it has already be siloed.
     if sys.platform == "win32":
-        landmark = join(siloDir, "python.exe")
+        if config.buildType == 'debug':
+            landmark = join(siloDir, "python_d.exe")
+        else:
+            landmark = join(siloDir, "python.exe")
     elif sys.platform == "darwin":
         pythons = glob.glob(join(siloDir, "Python.framework",
                                  "Versions", "*", "bin", "python"))
@@ -1723,7 +1729,7 @@ def target_silo_python(argv=["silo_python"]):
         
         # Need a mozpython.exe in the mozBin dir for "bk start mozpython"
         # to work with PyXPCOM -- for testing, etc.
-        _run("copy /y %s %s" % (join(siloDir, "python.exe"),
+        _run("copy /y %s %s" % (landmark,
                                 join(mozBinDir, "mozpython.exe")))
 
         siteFile = join(siloDir, "Lib", "site.py")
