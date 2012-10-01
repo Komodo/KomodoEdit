@@ -46,6 +46,8 @@ Import(
     "productType",
     "version",
     'scintillaBuildDir',
+    "buildType",
+    "siloedPython",
 );
 
 my $LIB = '.a';
@@ -76,9 +78,9 @@ $cons->Command(
     #    dir.
     qq(
         cd %1:d && $mkwriteable PySilverCity/SilverCity/ScintillaConstants.py
-        cd %1:d && python PySilverCity/Src/write_scintilla.py ../scintilla/include ../scintilla/include/Scintilla.iface PySilverCity/SilverCity/ScintillaConstants.py
-        cd %1:d && python setup.py build $debugFlags
-        cd %1:d && python setup.py install --skip-build --install-lib=$komodoPythonUtilsDir --install-scripts=bitbucket --install-data=bitbucket --prefix=bitbucket
+        cd %1:d && $siloedPython PySilverCity/Src/write_scintilla.py ../scintilla/include ../scintilla/include/Scintilla.iface PySilverCity/SilverCity/ScintillaConstants.py
+        cd %1:d && $siloedPython setup.py build $debugFlags
+        cd %1:d && $siloedPython setup.py install --skip-build --install-lib=$komodoPythonUtilsDir --install-scripts=bitbucket --install-data=bitbucket --prefix=bitbucket
     )
 );
 
