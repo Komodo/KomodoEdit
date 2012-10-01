@@ -51,7 +51,6 @@ this.boing = function() {
     _boingC = 0.8; //coefficient of energy loss on _boingA bounce
     _boingPxPerM = 200.0;
     _boingD = 0.0;
-    _boingAvail_px;
     _boingRemainder_px =0.0;
     _boingD_px = 0.0;
     _boingBouncedLastStep = 0;
