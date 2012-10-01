@@ -390,6 +390,7 @@ function onloadDelay() {
     } catch(ex) {
         /* ignore this exception, there were no listeners for the event */
     }
+    xtk.domutils.fireEvent(window, "komodo-ui-started");
 }
 
 /**
