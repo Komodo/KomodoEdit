@@ -1257,7 +1257,7 @@
                 && this == ko.window.focusedView() // focusedView: don't handle updates in other views
                ) {
                 if (modificationType & SC_PERFORMED_USER) {
-                    function runModifiedHandler(this_) {
+                    var runModifiedHandler = function(this_) {
                         ko.views.wrapScintillaChange(this_, function() {
                             ko.tabstops.updateLinkedBackrefs(modificationType,
                                                              this_,

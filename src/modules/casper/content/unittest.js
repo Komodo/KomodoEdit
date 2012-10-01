@@ -1043,7 +1043,7 @@ Casper.UnitTest.TextTestRunner.prototype.logSuiteResults = function(suite, file,
 {
     var num_tests_written = 0;
     try {
-    function _log_test_case(file, suite, testcase_name, testfunc_name,
+    var _log_test_case = function(file, suite, testcase_name, testfunc_name,
                             passed, result, message, detail, isFirstTest,
                             escapeFn) {
         if (!isFirstTest) {
@@ -1499,7 +1499,7 @@ Casper.UnitTest.updateFilesAndSettings = function(settings, uri) {
     //dump("getFilesAndSettings:: uri: " + uri + "\n");
     var fu = new FileUtils();
 
-    function loadFilesForSettings(settings, fileInfo) {
+    var loadFilesForSettings = function(settings, fileInfo) {
         if (fileInfo.isDir()) {
             var dir = new Dir(settings.path);
             var list = dir.readDir();
@@ -1536,7 +1536,7 @@ Casper.UnitTest.updateFilesAndSettings = function(settings, uri) {
 
 Casper.UnitTest.getFilesInDir = function(uri) {
     var fu = new FileUtils;
-    function LoadFilesInDir(dir) {
+    var LoadFilesInDir = function(dir) {
         var count = 0;
         var list = dir.readDir();
         var files = [];

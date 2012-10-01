@@ -162,7 +162,7 @@
         <body>
         <![CDATA[
             // Return true iff the two file paths are equal.
-            function fequal(a, b) {
+            var fequal = function(a, b) {
 <!-- #if PLATFORM == "win" -->
                 return a.toLowerCase() == b.toLowerCase();
 <!-- #else -->
@@ -420,7 +420,7 @@
             var views = [];
             try {
                 // Return true iff the two file paths are equal.
-                function fequal(a, b) {
+                var fequal = function(a, b) {
 <!-- #if PLATFORM == "win" -->
                     return a.toLowerCase() == b.toLowerCase();
 <!-- #else -->

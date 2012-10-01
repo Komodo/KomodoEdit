@@ -602,10 +602,8 @@ try {
 
     // Insert the returned output if requested and select it.
     if (insertOutput && view && output) {
-        function min(a, b) { return a <= b ? a : b; }
-        function max(a, b) { return a >= b ? a : b; }
-        scimoz.targetStart = min(scimoz.anchor, scimoz.currentPos);
-        scimoz.targetEnd = max(scimoz.anchor, scimoz.currentPos);
+        scimoz.targetStart = Math.min(scimoz.anchor, scimoz.currentPos);
+        scimoz.targetEnd = Math.max(scimoz.anchor, scimoz.currentPos);
 
         // Convert text to the target EOL chars.
         var eol = null;

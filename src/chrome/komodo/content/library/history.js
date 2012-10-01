@@ -377,7 +377,7 @@ function view_and_line_from_loc(loc,
         } else {
             return on_load_success(null, lineNo);
         }
-        function post_open_callback(view_) {
+        var post_open_callback = function(view_) {
             if (!view_)  {
                 on_load_failure();
             } else {
@@ -395,7 +395,7 @@ function view_and_line_from_loc(loc,
 
 this._go_to_location = function _go_to_location(loc, on_load_failure) {
     var this_ = this;
-    function on_load_success(view, lineNo) {
+    var on_load_success = function(view, lineNo) {
         if (!view) return;
         this_._recently_did_history = true;
         view.makeCurrent();
@@ -414,7 +414,7 @@ const _dbgp_url_stripper = new RegExp('^dbgp://[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-
 
 function _label_from_loc(loc) {
     var baseName = null;
-    function _callback(view, lineNo) {
+    var _callback = function(view, lineNo) {
         var dirName = null;
         var finalLabel, label, tooltiptext;
         switch (loc.view_type) {
