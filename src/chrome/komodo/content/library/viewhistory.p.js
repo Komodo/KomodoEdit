@@ -93,7 +93,7 @@ this.ViewHistory = function viewhistory() {
                             this.handle_view_list_closed, false);
     window.addEventListener('view_closed', this.handle_view_closed, false);
     window.addEventListener('view_opened', this.handle_view_opened, false);
-    ko.main.addWillCloseHandler(this.finalize);
+    ko.main.addWillCloseHandler(this.finalize, this);
 }
 
 this.ViewHistory.prototype.constructor = this.ViewHistory;
