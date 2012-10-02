@@ -342,6 +342,7 @@
  '*.mkd': 'Markdown',
  '*.mdml': 'Markdown',
  '*.mixal': 'MMIXAL',
+ '*.mm': 'C++',
  '*.module': 'PHP',
  '*.mp': 'Metapost',
  '*.mysql': 'MySQL',
