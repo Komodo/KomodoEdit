@@ -37,9 +37,9 @@
 
 const winOptions = 
 // #if PLATFORM == "darwin"
-  "chrome,dialog=no,menubar,toolbar,status,all";
+  "chrome,resizable=yes,menubar,toolbar,status,all,dialog=no";
 // #else
-  "chrome,menubar,toolbar,status,all";
+  "chrome,resizable=yes,menubar,toolbar,status,all";
 // #endif
 
 const Cc = Components.classes;
