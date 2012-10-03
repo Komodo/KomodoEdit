@@ -111,7 +111,7 @@ NS_IMETHODIMP koSciMozIMEHelper::QueryCaretRect       (nsIDOMEvent* aQueryConten
 NS_IMETHODIMP koSciMozIMEHelper::QueryTextRect        (nsIDOMEvent* aQueryContentEvent) { return NS_OK; }
 NS_IMETHODIMP koSciMozIMEHelper::QueryCharacterAtPoint(nsIDOMEvent* aQueryContentEvent) { return NS_OK; }
 NS_IMETHODIMP koSciMozIMEHelper::QueryDOMWidgetHitTest(nsIDOMEvent* aQueryContentEvent) { return NS_OK; }
-#endif DISABLE_SCIMOZ_IME
+#endif /* DISABLE_SCIMOZ_IME */
 
 #ifndef DISABLE_SCIMOZ_IME
 
@@ -706,4 +706,4 @@ koSciMozIMEHelper::ScintillaPixelsToCSSPixels(const nsIntRect& aRect,
 
     return NS_OK;
 }
-#endif DISABLE_SCIMOZ_IME
+#endif /* DISABLE_SCIMOZ_IME */
