@@ -230,10 +230,10 @@ NPP_GetValue(NPP instance, NPPVariable variable, void *value) {
 
   switch (variable) {
     case NPPVpluginNameString:
-      *((char**)value) = PLUGIN_NAME;
+      *((char**)value) = (char *)PLUGIN_NAME;
       return NPERR_NO_ERROR;
     case NPPVpluginDescriptionString:
-      *((char**)value) = PLUGIN_DESCRIPTION;
+      *((char**)value) = (char *)PLUGIN_DESCRIPTION;
       return NPERR_NO_ERROR;
 #ifdef GTK2_XEMBED
     case NPPVpluginNeedsXEmbed:
