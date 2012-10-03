@@ -41,9 +41,9 @@ protected:
     /**
      * The start byte position of the composition; -1 if not currently composing
      */
-    int mIMEStartPos;
     bool mIMEComposing;
     bool mIMEActive;
+    int mIMEStartPos;
 protected:
     // helper methods
     /**
