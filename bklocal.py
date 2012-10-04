@@ -1472,7 +1472,10 @@ class WithDocs(black.configure.BooleanDatum):
         self.applicable = 1
         configTokens = black.configure.items["configTokens"].Get()
         productType = black.configure.items["productType"].Get()
+        buildFlavour = black.configure.items["buildFlavour"].Get()
         self.value = True  # DO include by default
+        if buildFlavour == "dev":
+            self.value = False  # But not for dev builds
         for opt, optarg in self.chosenOptions:
             if opt == "--with-docs":
                 if not self.value: configTokens.append("docs")
@@ -1488,7 +1491,8 @@ class WithKomodoCix(black.configure.BooleanDatum):
             acceptedOptions=("", ["with-komodo-cix", "without-komodo-cix"]))
     def _Determine_Do(self):
         self.applicable = 1
-        self.value = 1 # include it by default
+        withDocs = black.configure.items["withDocs"].Get()
+        self.value = withDocs  # Only include it when we're making docs.
         for opt, optarg in self.chosenOptions:
             if opt == "--with-komodo-cix":
                 self.value = 1
