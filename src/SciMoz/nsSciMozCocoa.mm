@@ -66,6 +66,10 @@ void SciMoz::Resize() {
   // NSMakeRect(origin.x, origin.y, width, height)
 #ifdef SCIMOZ_COCOA_DEBUG
   fprintf(stderr, ">> SciMoz::Resize, fWindow:%p\n", fPlatform.container);
+  fprintf(stderr, "<< SciMoz::Resize, do nothing\n");
+  //  ScintillaView *scView = (ScintillaView *) wEditor;
+  //scintilla->Resize();
+  return;
 #endif
   // Get the bounds for fPlatform.container
   NSView *parentView = (NSView*)(fWindow->window);
@@ -299,6 +303,9 @@ nsresult SciMoz::PlatformSetWindow(NPWindow* npwindow) {
   if (npwindow->width && npwindow->height) {
     NSRect winRect = NSMakeRect(npwindow->x, npwindow->y, // temp 0
 			  npwindow->width, npwindow->height);
+    // No, position scView at its parent's origin.
+    winRect = NSMakeRect(0, 0,
+			 npwindow->width, npwindow->height);
     ScintillaView *scView = [[[ScintillaView alloc]initWithFrame: winRect] autorelease];
     if (!scView) {
 #ifdef SCIMOZ_COCOA_DEBUG
@@ -374,6 +381,8 @@ void SciMoz::SetHIViewShowHide(bool disable) {
 	fprintf(stderr, "-[(NSView *)wMain:%p addSubview:scView];\n", wMain);
 #endif
 	[(NSView *)wMain addSubview:scView];
+	[(NSView *)wMain setAutoresizesSubviews: YES];
+	[(NSView *)wMain setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
 	[scView setAutoresizesSubviews: YES];
 	[scView setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
 #ifdef SCIMOZ_COCOA_DEBUG
