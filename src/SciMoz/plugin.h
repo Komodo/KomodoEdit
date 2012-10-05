@@ -59,6 +59,10 @@ public:
   NPError SetWindow(NPWindow* window);
   uint16_t HandleEvent(void* event);
 
+#ifdef XP_MACOSX_USE_CORE_ANIMATION
+  void *GetCoreAnimationLayer();
+#endif
+
   NPObject* getScriptableObject();
 
   // XXX Mook: this needs to go somewhere better

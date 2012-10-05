@@ -182,29 +182,45 @@ NPError
 NPP_New(NPMIMEType /*pluginType*/, NPP instance, uint16_t /*mode*/, int16_t /*argc*/, char** /*argn[]*/, char** /*argv[]*/, NPSavedData* /*saved*/) {
 
 #if defined(USE_COCOA)
+
+#ifdef XP_MACOSX_USE_CORE_ANIMATION
+  // Check if the browser supports the CoreAnimation drawing model
+  NPBool supportsCoreAnimation = FALSE;
+  NPError err = NPN_GetValue(instance, NPNVsupportsCoreAnimationBool,
+                             &supportsCoreAnimation);
+  if (err != NPERR_NO_ERROR || !supportsCoreAnimation) {
+    return NPERR_INCOMPATIBLE_VERSION_ERROR;
+  }
+  // Set the drawing model
+  err = NPN_SetValue(instance, NPPVpluginDrawingModel,
+                     (void*)NPDrawingModelCoreAnimation);
+  if (err != NPERR_NO_ERROR) {
+    return NPERR_INCOMPATIBLE_VERSION_ERROR;
+  }
+#else
   // Check if the browser supports the CoreGraphics drawing model
   NPBool supportsCoreGraphics = FALSE;
-  NPBool supportsCocoaEvents = FALSE;
   NPError err = NPN_GetValue(instance, NPNVsupportsCoreGraphicsBool,
                              &supportsCoreGraphics);
   if (err != NPERR_NO_ERROR || !supportsCoreGraphics) {
     return NPERR_INCOMPATIBLE_VERSION_ERROR;
   }
-
   // Set the drawing model
   err = NPN_SetValue(instance, NPPVpluginDrawingModel,
                      (void*)NPDrawingModelCoreGraphics);
   if (err != NPERR_NO_ERROR) {
     return NPERR_INCOMPATIBLE_VERSION_ERROR;
   }
+#endif /* XP_MACOSX_USE_CORE_ANIMATION */
 
+  NPBool supportsCocoaEvents = FALSE;
   // Verify the host supports the Cocoa event model
   err = NPN_GetValue(instance, NPNVsupportsCocoaBool, &supportsCocoaEvents);
   if (err != NPERR_NO_ERROR || !supportsCocoaEvents) {
     return NPERR_INCOMPATIBLE_VERSION_ERROR;
   }
   NPN_SetValue(instance, NPPVpluginEventModel, (void *) NPEventModelCocoa);
-#endif
+#endif /* USE_COCOA */
 
   // Create our new SciMoz plugin instance.
   SciMozPluginInstance* scimozPlugin = new SciMozPluginInstance(instance);
@@ -246,6 +262,14 @@ NPP_GetValue(NPP instance, NPPVariable variable, void *value) {
       *(NPObject **)value = scimozPlugin->getScriptableObject();
       return NPERR_NO_ERROR;
     }
+#ifdef XP_MACOSX_USE_CORE_ANIMATION
+    case NPPVpluginCoreAnimationLayer:
+    {
+      SciMozPluginInstance* scimozPlugin = (SciMozPluginInstance*)(instance->pdata);
+      *((void **)value) = scimozPlugin->GetCoreAnimationLayer();
+      return NPERR_NO_ERROR;
+    }
+#endif
     default:
       return NPERR_INVALID_PARAM;
   }
@@ -356,6 +380,14 @@ SciMozPluginInstance::HandleEvent(void* event)
 {
     return scimozInstance->PlatformHandleEvent(event);
 }
+
+#ifdef XP_MACOSX_USE_CORE_ANIMATION
+void *
+SciMozPluginInstance::GetCoreAnimationLayer()
+{
+    return scimozInstance->GetCoreAnimationLayer();
+}
+#endif
 
 NPObject*
 SciMozPluginInstance::getScriptableObject()

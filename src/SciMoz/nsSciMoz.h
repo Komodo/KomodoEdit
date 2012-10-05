@@ -216,7 +216,7 @@ typedef struct _PlatformInstance {
     //CGContextRef context;
 
     // The main window to hook the nsView into:
-	NSWindow	*container;
+	NSView	*container;
 }
 PlatformInstance;
 #endif
@@ -313,6 +313,10 @@ public:
 
     // Notify that scimoz was closed.
     void PlatformMarkClosed(void);
+
+#ifdef XP_MACOSX_USE_CORE_ANIMATION
+    void *GetCoreAnimationLayer();
+#endif
 
 //    void SetMode(nsPluginMode mode) { fMode = mode; }
 

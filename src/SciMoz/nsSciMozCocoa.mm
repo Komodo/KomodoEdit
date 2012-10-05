@@ -306,6 +306,16 @@ nsresult SciMoz::PlatformSetWindow(NPWindow* npwindow) {
 #endif
       return NS_OK;
     }
+
+#ifdef XP_MACOSX_USE_CORE_ANIMATION
+#ifdef SCIMOZ_COCOA_DEBUG
+    fprintf(stderr, "\n setting wantsLayer for Core Animation\n");
+#endif
+    // Tell the NSView that we want to have a Core Animation layer. The layer
+    // will be retrieved later through GetCoreAnimationLayer.
+    [scView setWantsLayer: YES];
+#endif
+
     [scView setHidden: YES];
     scintilla = [scView backend];
     assert(scintilla != NULL);
@@ -632,6 +642,19 @@ int16 SciMoz::PlatformHandleEvent(void *ev) {
     return kNPEventNotHandled;
     return kNPEventHandled;
 }
+
+#ifdef XP_MACOSX_USE_CORE_ANIMATION
+void * SciMoz::GetCoreAnimationLayer() {
+  if (wEditor) {
+    ScintillaView *scView = (ScintillaView *) wEditor;
+#ifdef SCIMOZ_COCOA_DEBUG
+    fprintf(stderr, " GetCoreAnimationLayer:: layer: %p\n", [scView layer]);
+#endif
+    return [[scView layer] retain];
+  }
+  return nullptr;
+}
+#endif
 
 /* readonly attribute boolean isOwned; */
 NS_IMETHODIMP SciMoz::GetIsOwned(bool *_ret) {
