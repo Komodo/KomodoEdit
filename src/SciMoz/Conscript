@@ -238,6 +238,8 @@ elsif ($platform eq "darwin") {
                             " -DXP_MACOSX=1 -DNO_X11=1 -DUSE_SYSTEM_CONSOLE=1 ".
                             " -DMOZ_VERSION=$mozVersionNumber ";
     $consLocal{'CXXFLAGS'} .= " -DBUILDFLAVOUR=$buildFlavour ";
+    # Define the plugin event model to use.
+    $consLocal{'CXXFLAGS'} .= "-DUSE_COCOA ";
     # To have SciMoz use core animation, define the following:
     #$consLocal{'CXXFLAGS'} .= "-DXP_MACOSX_USE_CORE_ANIMATION ";
 
