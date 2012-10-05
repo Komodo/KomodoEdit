@@ -75,28 +75,15 @@ void SciMoz::Resize() {
   // Get the bounds for fPlatform.container
   NSView *parentView = (NSView*)wMain;
   ScintillaView *scView = (ScintillaView *) wEditor;
+#ifdef SCIMOZ_COCOA_DEBUG
   fprintf(stderr, "parent bounds: %s, child frame: %s\n",
 	  getNSRectStr([parentView bounds], buf),
 	  getNSRectStr([scView frame], &buf[40]));
-  [scView setFrame:[parentView bounds]];
-  fprintf(stderr, "<< SciMoz::Resize, manually set scView frame to parent's bounds\n");
-  return;
-  // NSView *parentView = [(NSWindow*)(fPlatform.container)];
-  NSRect parentRect = [parentView bounds];
-#ifdef SCIMOZ_COCOA_DEBUG
-  fprintf(stderr, "SciMoz::Resize fWindow.clipRect: %s\n",
-	  getClipStr(fWindow, buf));
-  fprintf(stderr, "parent bounds: %s\n",
-	  getNSRectStr(parentRect, buf));
-  fprintf(stderr, "parent frame: %s\n",
-	  getNSRectStr([parentView frame], buf));
 #endif
-  NSRect boundsRect = NSMakeRect(fWindow->clipRect.left,
-				 parentRect.size.height - fWindow->clipRect.bottom,
-				 fWindow->clipRect.right - fWindow->clipRect.left,
-				 fWindow->clipRect.bottom - fWindow->clipRect.top);
-  [scView setFrame:boundsRect];
-  SetHIViewShowHide(WINDOW_DISABLED(fWindow));
+  [scView setFrame:[parentView bounds]];
+#ifdef SCIMOZ_COCOA_DEBUG
+  fprintf(stderr, "<< SciMoz::Resize, manually set scView frame to parent's bounds\n");
+#endif
 }
 
 static NSEvent *SynthesizeEvent(bool up, PRInt32 x, PRInt32 y, PRUint16 button, bool bShift, bool bCtrl, bool bAlt, WinID wEditor) {
@@ -199,6 +186,7 @@ void SciMoz::PlatformNew(void) {
     fprintf(stderr,">> SciMoz::PlatformNew\n");
 #endif
     fPlatform.container = NULL;
+    fPlatform.holdingNSPanel = NULL;
     portMain = NULL;
     fWindow = NULL;
     wEditor = NULL;
@@ -312,15 +300,21 @@ nsresult SciMoz::PlatformSetWindow(NPWindow* npwindow) {
     // No, position scView at its parent's origin.
     winRect = NSMakeRect(0, 0,
 			 npwindow->width, npwindow->height);
-    ScintillaView *scView = [[[ScintillaView alloc]initWithFrame: winRect] autorelease];
+    ScintillaView *scView = [[[ScintillaView alloc]initWithFrame: winRect] retain];
     if (!scView) {
 #ifdef SCIMOZ_COCOA_DEBUG
       fprintf(stderr, "No memory for a ScintillaView\n");
 #endif
       return NS_OK;
     }
-
-    [scView setHidden: YES];
+    NSRect offScreenRect = NSMakeRect(-30000, -30000,
+				      npwindow->width, npwindow->height);
+    fPlatform.holdingNSPanel = [[NSPanel alloc] initWithContentRect:offScreenRect
+							  styleMask:NSTitledWindowMask|NSResizableWindowMask|NSTexturedBackgroundWindowMask
+							    backing:NSBackingStoreBuffered
+							      defer:NO];
+    [fPlatform.holdingNSPanel setContentView:scView];
+    [scView setHidden: NO];
     scintilla = [scView backend];
     assert(scintilla != NULL);
     if (wEditor) {
@@ -365,6 +359,16 @@ void SciMoz::SetHIViewShowHide(bool disable) {
     }
   } else {
     if (!isVisible) {
+      // It's time to move the scintilla view from the offscreen window to the
+      // Plugin's ChildView
+      if (fPlatform.holdingNSPanel) {
+	fprintf(stderr, "PUll the SCView out of the offscreen window...\n");
+	[fPlatform.holdingNSPanel setContentView:NULL];
+	[fPlatform.holdingNSPanel setReleasedWhenClosed: YES];
+	[fPlatform.holdingNSPanel close];
+	fPlatform.holdingNSPanel = NULL;
+	fprintf(stderr, "PUll the SCView out of the offscreen window...done\n");
+      }
       [scView setHidden:NO];
 #ifdef SCIMOZ_COCOA_DEBUG
       //fprintf(stderr, "-[((NSView *) wMain) addSubview:scView]\n");
