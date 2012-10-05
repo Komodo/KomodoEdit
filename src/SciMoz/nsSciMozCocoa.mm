@@ -65,18 +65,25 @@ void SciMoz::PlatformCreate(WinID) {
 void SciMoz::Resize() {
   // NSMakeRect(origin.x, origin.y, width, height)
 #ifdef SCIMOZ_COCOA_DEBUG
+  char buf[80];
   fprintf(stderr, ">> SciMoz::Resize, fWindow:%p\n", fPlatform.container);
-  fprintf(stderr, "<< SciMoz::Resize, do nothing\n");
+  //fprintf(stderr, "<< SciMoz::Resize, do nothing\n");
   //  ScintillaView *scView = (ScintillaView *) wEditor;
   //scintilla->Resize();
-  return;
+  //return;
 #endif
   // Get the bounds for fPlatform.container
-  NSView *parentView = (NSView*)(fWindow->window);
+  NSView *parentView = (NSView*)wMain;
+  ScintillaView *scView = (ScintillaView *) wEditor;
+  fprintf(stderr, "parent bounds: %s, child frame: %s\n",
+	  getNSRectStr([parentView bounds], buf),
+	  getNSRectStr([scView frame], &buf[40]));
+  [scView setFrame:[parentView bounds]];
+  fprintf(stderr, "<< SciMoz::Resize, manually set scView frame to parent's bounds\n");
+  return;
   // NSView *parentView = [(NSWindow*)(fPlatform.container)];
   NSRect parentRect = [parentView bounds];
 #ifdef SCIMOZ_COCOA_DEBUG
-  char buf[30];
   fprintf(stderr, "SciMoz::Resize fWindow.clipRect: %s\n",
 	  getClipStr(fWindow, buf));
   fprintf(stderr, "parent bounds: %s\n",
@@ -88,7 +95,6 @@ void SciMoz::Resize() {
 				 parentRect.size.height - fWindow->clipRect.bottom,
 				 fWindow->clipRect.right - fWindow->clipRect.left,
 				 fWindow->clipRect.bottom - fWindow->clipRect.top);
-  ScintillaView *scView = (ScintillaView *) wEditor;
   [scView setFrame:boundsRect];
   SetHIViewShowHide(WINDOW_DISABLED(fWindow));
 }
