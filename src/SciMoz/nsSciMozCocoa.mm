@@ -497,13 +497,14 @@ int16 SciMoz::PlatformHandleEvent(void *ev) {
 	  fprintf(stderr, "scView is still hidden\n");
 	  SetHIViewShowHide(false);
 	}
+	NSView *parentView = (NSView*)wEditor;
+#ifdef SCIMOZ_COCOA_DEBUG
 	fprintf(stderr, "   But not going to handle the draw event here!\n");
-	NSView *parentView = (NSView*)(fWindow->window);
 	fprintf(stderr, ("  notes on (NSView *) npwindow->window:\n"
 			 "    bounds:%s, frame:%s\n"),
 	  getNSRectStr([parentView bounds], &buf[0]),
 	  getNSRectStr([parentView frame],  &buf[80]));
-	// NSView *parentView = (NSView*)wEditor;
+#endif
 	// Is fWindow->window == wEditor ?
 	// NSView *parentView = [(NSWindow*)(fWindow->window) contentView];
 	NSRect parentRect = [parentView bounds];
