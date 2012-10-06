@@ -43,7 +43,7 @@
 #include <string.h> 
 
 //#define SCIMOZ_DEBUG
-//#define SCIMOZ_COCOA_DEBUG
+#define SCIMOZ_COCOA_DEBUG
 //#define SCIDEBUG_REFS
 
 #ifdef _WINDOWS
@@ -212,11 +212,10 @@ PlatformInstance;
 #if defined(XP_MACOSX)
 #include <Cocoa/Cocoa.h>
 typedef struct _PlatformInstance {
-    //not used in cocoa apps.  Use the context we get with each event
-    //CGContextRef context;
-
-    // The main window to hook the nsView into:
-	NSView	*container;
+    NSPanel   *holdingNSPanel; // home of SCView until the NPAPI is ready.
+	NSView	  *pluginView; // was container
+    bool       installedAsSubView;
+    bool       viewIsVisible;
 }
 PlatformInstance;
 #endif
