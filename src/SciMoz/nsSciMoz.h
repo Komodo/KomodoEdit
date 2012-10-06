@@ -43,7 +43,7 @@
 #include <string.h> 
 
 //#define SCIMOZ_DEBUG
-#define SCIMOZ_COCOA_DEBUG
+//#define SCIMOZ_COCOA_DEBUG
 //#define SCIDEBUG_REFS
 
 #ifdef _WINDOWS
