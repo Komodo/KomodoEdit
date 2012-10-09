@@ -160,7 +160,11 @@ class KoAppInfoEx:
             self._executables.insert(0, path)
 
     def get_version(self):
-        return self.getVersionForBinary(self.get_executablePath())
+        path = self.get_executablePath()
+        if not path:
+            raise ServerException(nsError.NS_ERROR_FILE_NOT_FOUND,
+                                  "Can't find executable for %s" % (getattr(self, "exenames", ["?"])[0],))
+        return self.getVersionForBinary(path)
 
     def _isValidExecutableVersion(self, exe):
         try:
