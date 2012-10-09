@@ -433,7 +433,7 @@ class KoPythonCommonInfoEx(KoAppInfoEx):
             #   2.0 (#8, Mar  7 2001, 16:04:37) [MSC 32 bit (Intel)]
             #   2.5.2 (r252:60911, Mar 27 2008, 17:57:18) [MSC v.1310 32 bit (Intel)]
             #   2.6rc2 (r26rc2:66504, Sep 26 2008, 15:20:44) [MSC v.1500 32 bit (Intel)]
-            version_re = re.compile("^(\d+\.\d+)")
+            version_re = re.compile(r"^(\d+\.\d+)")
             match = version_re.match(stdout)
             if match:
                 version = match.group(1)
