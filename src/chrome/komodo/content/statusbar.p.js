@@ -609,8 +609,8 @@ function _updateMessage()
 }
 
 
-function _statusBarClick(event) {
-    _log.debug("click: " + _lastNotification);
+function _statusBarDblClick(event) {
+    _log.debug(event.type + ": " + _lastNotification);
     if (_lastNotification) {
         _lastNotification.sticky = false;
         _lastNotificationTime = Date.now() * 1000; // usec_per_msc
@@ -653,7 +653,7 @@ function StatusBarObserver() {
                             this.handle_current_view_open_or_closed, false);
     window.addEventListener('load', function() {
         document.getElementById('statusbar-message')
-                .addEventListener("click", _statusBarClick, false);
+                .addEventListener("dblclick", _statusBarDblClick, false);
     }, false);
     ko.main.addWillCloseHandler(this.destroy, this);
 };
@@ -689,7 +689,7 @@ StatusBarObserver.prototype.destroy = function()
                                this.handle_current_view_open_or_closed, false);
 
     document.getElementById('statusbar-message')
-            .removeEventListener("click", _statusBarClick, false);
+            .removeEventListener("dblclick", _statusBarDblClick, false);
 
     if (updateMessageRequestID) {
         clearTimeout(updateMessageRequestID);
