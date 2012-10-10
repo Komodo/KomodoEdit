@@ -107,7 +107,32 @@ KoScintillaAutoCompleteController.prototype = {
    */
   _constructItems: function KSACC__constructItems() {
     if (this._itemsConstructed) {
-      // already done
+      // Already done; check that the actual height of the popup is okay.
+      // Note that we need to manually account for the padding in the popup...
+      let popup = this._popup;
+      let getComputedStyle = popup.ownerDocument.defaultView.getComputedStyle;
+      let popupHeight = popup.getBoundingClientRect().height -
+                          (parseInt(getComputedStyle(popup).paddingTop, 10) || 0) -
+                          (parseInt(getComputedStyle(popup).paddingBottom, 10) || 0);
+      if (popupHeight > 0) {
+        // popup has height; check that we don't have too many items
+        if (this._grid.getBoundingClientRect().height > popupHeight) {
+          // The grid is taller than the popup; this can happen if the desired
+          // popup height is taller than the screen.  Chop elements off until
+          // everything fits.
+          while (this._grid.getBoundingClientRect().height > popupHeight) {
+            this._rows.removeChild(this._rows.lastChild);
+          }
+          Object.defineProperty(this, "_visibleCount",
+                                { value: this._rows.children.length,
+                                  writable: true,
+                                  configurable: true,
+                                  enumerable: true, });
+          // update the scrollbar status
+          this._scrollbar.collapsed = !(this.itemCount > this._visibleCount);
+          this._scrollbar.setAttribute("pageincrement", this._visibleCount);
+        }
+      }
       return;
     }
 
@@ -374,6 +399,11 @@ KoScintillaAutoCompleteController.prototype = {
       this._popup.removeEventListener(event.type, _destroyAnchor, false);
       if (box.parentNode) {
         box.parentNode.removeChild(box);
+      }
+      if (Object.hasOwnProperty.call(this, "_visibleCount")) {
+        // Remove the static _visibleCount set in _updateDisplay(); this makes
+        // us re-calculate it next time the popup opens
+        delete this._visibleCount; // let the one on the proto show up
       }
     }).bind(this);
     this._popup.addEventListener("popuphiding", _destroyAnchor, false);
