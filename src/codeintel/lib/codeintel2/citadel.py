@@ -557,7 +557,7 @@ class ImportHandler:
             Ruby:       "bar": (None, None, True)
             PHP:        "bar": (None, None, True)
 
-        Some of these latter languages occassionally have an importable
+        Some of these latter languages occasionally have an importable
         file *and* a sub-directory of the same name.
             Perl:       LWP.pm and LWP/... in the stdlib
             Ruby:       shell.rb and shell/... in the stdlib
