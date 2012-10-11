@@ -366,7 +366,12 @@ class RubyLangIntel(CitadelLangIntel,
                      indent(stderr))
 
         ruby_ver = stdout_lines[0]
-        short_ver = '.'.join(ruby_ver.split('.', 2)[:2])
+        _ver_parts = ruby_ver.split('.', 2)
+        short_ver = '.'.join(_ver_parts[:2])
+        if len(_ver_parts) >= 3:
+            sub_minor_ver = int(_ver_parts[2])
+        else:
+            sub_minor_ver = 0
 
         prefix = dirname(dirname(ruby))
         libdir = join(prefix, "lib", "ruby", short_ver)
@@ -375,6 +380,17 @@ class RubyLangIntel(CitadelLangIntel,
         #   c:/ruby184/lib/ruby/site_ruby/1.8
         # on Windows. 
         import_path = [normpath(p) for p in stdout_lines[1:]]
+
+        def get_first_gem_dir_candidate():
+            gems_dir_part1 = join(prefix, "lib", "ruby", "gems")
+            gems_dir_version = join(gems_dir_part1, short_ver)
+            if exists(gems_dir_version):
+                return join(gems_dir_version, "gems")
+            for i in range(sub_minor_ver + 1):
+                cand_ver = "%s.%d" % (gems_dir_version, i)
+                if exists(cand_ver):
+                    return join(cand_ver, "gems")
+            return None
 
         # Get the list of relevant Gem lib dirs.
         def gem_ver_from_ver_str(ver_str):
@@ -385,20 +401,21 @@ class RubyLangIntel(CitadelLangIntel,
                 return ver_str
             else:
                 return tuple(parts)
-        gems_dir = join(prefix, "lib", "ruby", "gems", short_ver, "gems")
+        gems_dir = get_first_gem_dir_candidate()
         gem_ver_and_dir_from_name = {
             # "actionmailer": ((1,2,5), ".../actionmailer-1.2.5"),
         }
-        for dir in glob(join(gems_dir, "*-*")):
-            if not isdir(dir):
-                continue
-            name, ver_str = basename(dir).split('-', 1)
-            gem_ver = gem_ver_from_ver_str(ver_str)
-            if name in gem_ver_and_dir_from_name:
-                if gem_ver > gem_ver_and_dir_from_name[name][0]:
+        if gems_dir:
+            for dir in glob(join(gems_dir, "*-*")):
+                if not isdir(dir):
+                    continue
+                name, ver_str = basename(dir).split('-', 1)
+                gem_ver = gem_ver_from_ver_str(ver_str)
+                if name in gem_ver_and_dir_from_name:
+                    if gem_ver > gem_ver_and_dir_from_name[name][0]:
+                        gem_ver_and_dir_from_name[name] = (gem_ver, dir)
+                else:
                     gem_ver_and_dir_from_name[name] = (gem_ver, dir)
-            else:
-                gem_ver_and_dir_from_name[name] = (gem_ver, dir)
         log.debug("ruby gem dir info: %s", pformat(gem_ver_and_dir_from_name))
         gem_lib_dirs = []
         for name, (gem_ver, dir) in sorted(gem_ver_and_dir_from_name.items()):
