@@ -400,7 +400,7 @@ class LangDirsLib(LangDirsLibBase):
                     # There isn't an actual importable file here -- just
                     # a dir prefix to a multidir import.
                     log.debug("have blob '%s' in %s? no", blobname, self)
-                    return None
+                    continue
                 elif os.sep in blobfile:
                     # This is an import from a subdir. We need to get a new dbf.
                     blobdir = join(blobdir, dirname(blobfile))
