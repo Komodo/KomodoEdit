@@ -60,7 +60,15 @@ if ($platform eq "win") {
 
 my $landmark = "$komodoPythonUtilsDir/SilverCity/__init__.py";
 my $debugFlags = $buildType eq "debug" ? "--debug" : "";
-$cons->Command(
+my $consLocal = $cons;
+if ($platform eq "darwin") {
+    my %consLocal = $cons->copy();
+    $consLocal{'CFLAGS'} .= " -arch x86_64";
+    $consLocal{'CXXFLAGS'} .= " -arch x86_64";
+    $consLocal{'LDFLAGS'} .= " -arch x86_64";
+    $consLocal = new cons(ENV => \%consLocal);
+}
+$consLocal->Command(
     $landmark,
     "setup.py",
     # Actually we depends on most everything under:
