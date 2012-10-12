@@ -58,8 +58,11 @@ if sys.platform == "win32":
     # say, "import win32api" -- which will use LoadLibrary(DLLFILE) -- then
     # we are screwed: because an incompatible system one might get picked up.
     #
-    import pywintypes
-    import pythoncom
+    try:
+        import pywintypes
+        import pythoncom
+    except ImportError:
+        pass
 
 from xpcom import components, nsError, ServerException, COMException
 
