@@ -75,26 +75,33 @@ class KoSCSSCommonLinter(KoCommonCSSLintCode):
             if scssLinterType == "none":
                 return
             if scssLinterType == "builtin":
-                return KoCSSLinter.lint_with_text(self, request, text)
+                return KoCSSLinter().lint_with_text(request, text)
             interpreterPrefName = "%sDefaultInterpreter" % self.cmd
             scssPath = prefset.getStringPref(interpreterPrefName)
             # The 'or' part handles any language for "Find on Path"
             if (not scssPath) or not os.path.exists(scssPath):
                 try:
                     scssPath = which.which(self.cmd)
-                    if scssPath:
-                        prefset.getStringPref(interpreterPrefName)
                 except which.WhichError:
                     pass
             if not scssPath or not os.path.exists(scssPath):
                 log.warn("Setting %sLinterType to 'default': %s not found", self.cmd, self.cmd)
-                prefset.getStringPref(linterPrefName, "builtin")
-                return KoCSSLinter.lint_with_text(self, request, text)
-            rubyPath = os.path.join(os.path.dirname(scssPath), "ruby") + os.path.splitext(scssPath)[1]
-            if not os.path.exists(rubyPath):
-                log.warn("Setting %s to 'default': no ruby found to drive %s", linterPrefName, self.cmd)
-                prefset.getStringPref(linterPrefName, "builtin")
-                return KoCSSLinter.lint_with_text(self, request, text)
+                prefset.setStringPref(linterPrefName, "builtin")
+                return KoCSSLinter().lint_with_text(request, text)
+            else:
+                prefset.setStringPref(interpreterPrefName, scssPath)
+            rubyPath = prefset.getStringPref("rubyDefaultInterpreter")
+            if (not rubyPath) or not os.path.exists(rubyPath):
+                try:
+                    rubyPath = which.which("ruby")
+                except which.WhichError:
+                    pass
+                if (not rubyPath) or not os.path.exists(rubyPath):
+                    log.warn("Setting %s to 'default': no ruby found to drive %s", linterPrefName, self.cmd)
+                    prefset.setStringPref(linterPrefName, "builtin")
+                    return KoCSSLinter.lint_with_text(self, request, text)
+                else:
+                    prefset.setStringPref("rubyDefaultInterpreter", rubyPath)
             
             # Run scss
             tmpfilename = tempfile.mktemp() + '.' + self.cmd
@@ -103,6 +110,7 @@ class KoSCSSCommonLinter(KoCommonCSSLintCode):
             fout.close()
             textlines = text.splitlines()
             cmd = [rubyPath, scssPath, "-c", tmpfilename]
+            koLintResult.insertNiceness(cmd)
             cwd = request.cwd or None
             # We only need the stderr result.
             try:
@@ -182,28 +190,26 @@ class KoLessLinter(KoCSSLinter):
             if (not lessPath) or not os.path.exists(lessPath):
                 try:
                     lessPath = which.which("lessc")
-                    if lessPath:
-                        prefset.getStringPref("lessDefaultInterpreter")
                 except which.WhichError:
                     pass
+                if (not lessPath) or not os.path.exists(lessPath):
+                    log.warn("Setting lessLinterType to 'default': less not found")
+                    prefset.setStringPref("lessLinterType", "builtin")
+                    return KoCSSLinter.lint_with_text(self, request, text)
                 else:
-                    if not lessPath or not os.path.exists(lessPath):
-                        log.warn("Setting lessLinterType to 'default': less not found")
-                        prefset.getStringPref("lessLinterType", "builtin")
-                        return KoCSSLinter.lint_with_text(self, request, text)
+                    prefset.setStringPref("lessDefaultInterpreter", lessPath)
             nodePath = prefset.getStringPref("nodejsDefaultInterpreter")
             if (not nodePath) or not os.path.exists(nodePath):
                 try:
                     nodePath = which.which("node")
-                    if nodePath:
-                        prefset.getStringPref("nodejsDefaultInterpreter")
                 except which.WhichError:
                     pass
+                if (not nodePath) or not os.path.exists(nodePath):
+                    log.warn("Setting lessLinterType to 'default': no node found to drive less")
+                    prefset.setStringPref("lessLinterType", "builtin")
+                    return KoCSSLinter.lint_with_text(self, request, text)
                 else:
-                    if not os.path.exists(nodePath):
-                        log.warn("Setting lessLinterType to 'default': no node found to drive less")
-                        prefset.getStringPref("lessLinterType", "builtin")
-                        return KoCSSLinter.lint_with_text(self, request, text)
+                    prefset.setStringPref("nodejsDefaultInterpreter", nodePath)
             
             # Run less
             tmpfilename = tempfile.mktemp() + '.less'
@@ -212,6 +218,7 @@ class KoLessLinter(KoCSSLinter):
             fout.close()
             textlines = text.splitlines()
             cmd = [nodePath, lessPath, "--no-color", tmpfilename]
+            koLintResult.insertNiceness(cmd)
             cwd = request.cwd or None
             # We only need the stderr result.
             try:
