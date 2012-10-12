@@ -14,13 +14,12 @@
  static bool IsSpaceEquiv(int state) {
  	return (state <= SCE_C_COMMENTDOC) ||
  		// including SCE_C_DEFAULT, SCE_C_COMMENT, SCE_C_COMMENTLINE
-@@ -64,6 +71,85 @@
+@@ -64,6 +71,84 @@
  	return false;
  }
  
 +// Helpers for startsJavaScriptLambdaBody
 +static void sjslb_skipCommentsAndWhiteSpace(int &pos, LexAccessor &styler) {
-+	int style;
 +	for (; pos > 0; --pos) {
 +		if (styler.StyleAt(pos) > SCE_C_COMMENTDOC) {
 +			break;
@@ -49,7 +48,7 @@
 +}
 +
 +static bool sjslb_matchKeyword(const char *kwd, int &pos, LexAccessor &styler) {
-+	int startPos, targetLen = strlen(kwd), style;
++	int startPos, targetLen = strlen(kwd);
 +	const char *p_src = &kwd[targetLen - 1];
 +	for (startPos = pos; pos >= 0 && p_src >= kwd; --pos, --p_src) {
 +		if (styler.SafeGetCharAt(pos) != *p_src

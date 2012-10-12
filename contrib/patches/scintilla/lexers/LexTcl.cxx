@@ -121,15 +121,6 @@ static inline bool IsIOStyle(int style) {
 #define STYLE_MASK 31
 #define actual_style(style) (style & STYLE_MASK)
 
-// Null transitions when we see we've reached the end
-// and need to relex the curr char.
-
-static void redo_char(int &i, char &ch, char &chNext, int &state) {
-    i--;
-    chNext = ch;
-    state = SCE_TCL_DEFAULT;
-}
-
 static inline bool isSafeAlnum(char ch) {
     return ((unsigned int) ch >= 128) || isalnum(ch) || ch == '_';
 }
@@ -225,7 +216,6 @@ static void ColouriseTclDoc(unsigned int startPos_,
     // This means that the synchronization always starts at a block of
     // comments as well.
     int inCmtBraceCnt   = 0;
-    int lastQuoteSpot   = -1;
     // We're not always sure of the command start, but make an attempt
     bool cmdStart	= true;
     // Keep track of whether a variable is using braces or it is an array
@@ -243,7 +233,7 @@ static void ColouriseTclDoc(unsigned int startPos_,
 	    startPos++;
 	}
     } else {
-	int start_line, style, start_line_pos = 0, pos;
+	int start_line, start_line_pos = 0, pos;
 	char ch;
 	for (start_line = styler.GetLine(startPos);
 	     start_line > 0;

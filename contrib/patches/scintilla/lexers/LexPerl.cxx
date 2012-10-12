@@ -945,7 +945,7 @@ void ColourisePerlDoc(unsigned int startPos, int length, int , // initStyle
     
     int previousState = SCE_PL_DEFAULT; // Used to restore the original state after a comment.
 
-    if (startPos < 0) {
+    if ((int) startPos < 0) {
         startPos = 0;
         state = SCE_PL_DEFAULT;
     }
