@@ -91,6 +91,7 @@ class KoObserverService:
 
     # Returns list of observers that are not dead. Maintains a 1-1 match for
     # the returned observers to the "self._topics[topic]" weak references.
+    @components.ProxyToMainThread
     def _getLiveObservers(self, topic):
         wr_observers = self._topics.get(topic)
         if wr_observers is None:
