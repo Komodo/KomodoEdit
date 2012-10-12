@@ -521,11 +521,16 @@ int RE::NumberOfCapturingGroups() {
   if (re_partial_ == NULL) return -1;
 
   int result;
-  int pcre_retval = pcre_fullinfo(re_partial_,  // The regular expression object
+#ifndef NDEBUG
+  int pcre_retval = 
+#endif
+                    pcre_fullinfo(re_partial_,  // The regular expression object
                                   NULL,         // We did not study the pattern
                                   PCRE_INFO_CAPTURECOUNT,
                                   &result);
+#ifndef NDEBUG
   assert(pcre_retval == 0);
+#endif
   return result;
 }
 
