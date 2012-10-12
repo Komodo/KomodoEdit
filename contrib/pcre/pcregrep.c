@@ -359,7 +359,7 @@ if (after_context > 0 && lastmatchnumber > 0)
     if (printname != NULL) fprintf(stdout, "%s-", printname);
     if (number) fprintf(stdout, "%d-", lastmatchnumber++);
     while (*pp != '\n') pp++;
-    fprintf(stdout, "%.*s", pp - lastmatchrestart + 1, lastmatchrestart);
+    fprintf(stdout, "%.*s", (int) (pp - lastmatchrestart + 1), lastmatchrestart);
     lastmatchrestart = pp + 1;
     }
   hyphenpending = TRUE;
@@ -486,7 +486,7 @@ while (ptr < endptr)
           if (printname != NULL) fprintf(stdout, "%s-", printname);
           if (number) fprintf(stdout, "%d-", lastmatchnumber++);
           while (*pp != '\n') pp++;
-          fprintf(stdout, "%.*s", pp - lastmatchrestart + 1, lastmatchrestart);
+          fprintf(stdout, "%.*s", (int) (pp - lastmatchrestart + 1), lastmatchrestart);
           lastmatchrestart = pp + 1;
           }
         if (lastmatchrestart != ptr) hyphenpending = TRUE;
@@ -525,7 +525,7 @@ while (ptr < endptr)
           if (printname != NULL) fprintf(stdout, "%s-", printname);
           if (number) fprintf(stdout, "%d-", linenumber - linecount--);
           while (*pp != '\n') pp++;
-          fprintf(stdout, "%.*s", pp - p + 1, p);
+          fprintf(stdout, "%.*s", (int) (pp - p + 1), p);
           p = pp + 1;
           }
         }
@@ -551,7 +551,7 @@ while (ptr < endptr)
         linelength = endmatch - ptr;
         }
 
-      fprintf(stdout, "%.*s\n", linelength, ptr);
+      fprintf(stdout, "%.*s\n", (int) linelength, ptr);
       }
 
     rc = 0;    /* Had some success */
@@ -917,7 +917,7 @@ for (i = 1; i < argc; i++)
         char buff2[24];
         int baselen = opbra - op->long_name;
         sprintf(buff1, "%.*s", baselen, op->long_name);
-        sprintf(buff2, "%s%.*s", buff1, strlen(op->long_name) - baselen - 2,
+        sprintf(buff2, "%s%.*s", buff1, (int) (strlen(op->long_name) - baselen - 2),
           opbra + 1);
         if (strcmp(arg, buff1) == 0 || strcmp(arg, buff2) == 0)
           break;
