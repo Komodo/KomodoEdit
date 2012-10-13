@@ -905,12 +905,14 @@ class RubyTreeEvaluator(TreeEvaluatorHelper):
                 for imp in imports:
                     blob = self._get_imported_blob(imp)
                     if blob and first_token in blob.names:
-                        # Stop with one
-                        return [(blob.names[first_token], [])]
+                        # Collect all possible hits
+                        hits.append((blob.names[first_token], []))
                 
         return hits
     
     def _append_hits_from_name(self, hits, first_token, scoperef, elem):
+        if len(scoperef) < 2:
+            return
         blob, list = scoperef
         new_scoperef = blob, list # + [first_token]
         # Allow for multiple hits of compound things -- names() returns the last

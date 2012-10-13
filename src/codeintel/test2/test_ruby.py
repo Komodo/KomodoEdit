@@ -46,6 +46,7 @@ from os.path import join, dirname, abspath, exists, basename
 from glob import glob
 import unittest
 import subprocess
+import which
 import logging
 from pprint import pprint, pformat
 
@@ -2701,7 +2702,7 @@ class _BaseTestCase(CodeIntelTestCase):
         self.assertDefnMatches2(buf, main_positions[7],
             ilk="function", name="language", line=4)
         # path=rhino_path, 
-      
+           
     @tag("defns")  
     def test_inline_variables(self):
         test_dir = join(self.test_dir, "test_inline_variables")
@@ -2921,7 +2922,50 @@ class PureTestCase(_BaseTestCase):
             self.assertNoTrigger(hdoc)
         else:
             self.assertTriggerMatches(hdoc, name=name)
-       
+
+    def _verify_icalendar(self):
+        rubyBaseDir = dirname(dirname(which.which("ruby")))
+        gemDir1 = join(rubyBaseDir, "lib", "ruby", "gems")
+        if not exists(gemDir1):
+            raise TestSkipped("No gems dir in %s" % rubyBaseDir)
+        things = os.listdir(gemDir1)
+        if not things:
+            raise TestSkipped("Gems dir %s is empty" % gemDir1)
+        gemDir2 = join(gemDir1, things[0], "gems")
+        if not exists(gemDir2):
+            raise TestSkipped("No ver/gems dir in %s" % gemDir1)
+        things = [x for x in os.listdir(gemDir2) if x.startswith("icalendar-")]
+        if not things:
+            raise TestSkipped("icalendar not installed in %s" % gemDir2)
+        # Now that we know we have icalendar, run the test.
+        
+    @tag("cplns")
+    def test_dispersed_module_defns_01(self):
+        self._verify_icalendar()
+        content, positions = unmark_text(dedent("""\
+            require 'rubygems'
+            require 'icalendar'
+            a = Icalendar::<1>Calendar.new
+            puts a.<2>find_event
+        """))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+            [("class", "Calendar"), ("class", "Geo")])
+  
+    @tag("cplns", "knownfailure")
+    def test_dispersed_module_defns_02(self):
+        """
+        Continue walking the expression
+        """
+        self._verify_icalendar()
+        content, positions = unmark_text(dedent("""\
+            require 'rubygems'
+            require 'icalendar'
+            a = Icalendar::<1>Calendar.new
+            puts a.<2>find_event
+        """))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
+            [("function", "find_event"), ("function", "todo")])
+  
 re_cursor = re.compile(r'<[\|\d]+>')
 
 class MultiLangTestCase(_BaseTestCase):
@@ -2971,7 +3015,6 @@ class MultiLangTestCase(_BaseTestCase):
             self.assertNoTrigger(hdoc)
         else:
             self.assertTriggerMatches(hdoc, name=name)
-
 
 #---- mainline
 
