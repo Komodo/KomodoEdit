@@ -119,7 +119,11 @@ class TreeEvaluatorHelper(TreeEvaluator):
         """
         elem = scoperef[0]
         for lname in scoperef[1]:
-            elem = elem.names[lname]
+            if lname == elem.get("name", None):
+                # This is the lname
+                pass
+            else:
+                elem = elem.names[lname]
         return elem
 
     # Why is this not done specifically for Ruby?
@@ -682,40 +686,43 @@ class RubyTreeEvaluator(TreeEvaluatorHelper):
             return NO_HITS
         #sys.stderr.write("%r\n" % hits)
 
-        first_hit = hits[0]
         # If we're doing definition-lookup, we don't want to resolve
         # a standalone variable expression to its underlying type.
         # Just use the point its defined at, which is in the
         # hits variable.
-        if (self._hit_helper.is_variable(first_hit) 
-            and resolve_var
-            and (len(tokens) > 1 or self.trg.form != TRG_FORM_DEFN)):
-            hits = self._hits_from_variable_type_inference(first_hit)
-            if not hits:
-                return NO_HITS
+        hits_var = []
+        prev_tok = first_token = tokens[0]
+        if (resolve_var and (len(tokens) > 1 or self.trg.form != TRG_FORM_DEFN)):
+            # Either all the hits are possible types for the variable, or they're
+            # all just definitions (although that's unlikely).
             first_hit = hits[0]
             if self._hit_helper.is_variable(first_hit):
-                var_name = self._hit_helper.get_name(first_hit)
-                self.debug("_hit_from_citdl: failed to resolve variable '%r'",
-                           var_name)
-                return NO_HITS
-                #raise CodeIntelError("Failed to resolve variable '%r'" % var_name)
-            #sys.stderr.write("%r\n" % hits)
-            prev_tok = first_hit[0].get("name", None) or tokens[0]
-        else:
-            prev_tok = tokens[0]
-        
+                hits_var = []
+                for h in hits:
+                    hits_var += self._hits_from_variable_type_inference(h) or []
+                hits = [h for h in hits_var if not self._hit_helper.is_variable(h)]
+                if not hits:
+                    # They're all variables
+                    var_name = self._hit_helper.get_name(hits_var[0])
+                    self.debug("_hit_from_citdl: failed to resolve variable '%r'",
+                               var_name)
+                    return NO_HITS
+                prev_tok = hits[0][0].get("name", None) or tokens[0]
+                
+        hits_final = hits
         # Now walk our list, first culling complete names separated
         # by [::, name] or [., name]
         idx = 1
         lim_sub1 = len(tokens) - 1
 
         if idx <= lim_sub1:
-            if tokens[1] == "::" and not self._hit_helper.is_compound(first_hit):
-                self.debug("_hit_from_citdl: trying to do namespace resolution on %s '%r'",
-                           self._hit_helper.get_type(first_hit),
-                           self._hit_helper.get_name(first_hit))
-                return NO_HITS
+            if tokens[1] == "::":
+                hits = [h for h in hits if self._hit_helper.is_compound(h)]
+                if not hits:
+                    self.debug("_hit_from_citdl: trying to do namespace resolution on %s '%r'",
+                               self._hit_helper.get_type(hits[0]),
+                               self._hit_helper.get_name(hits[0]))
+                    return NO_HITS
 
         while idx <= lim_sub1 and hits:
             tok = tokens[idx]
@@ -735,13 +742,14 @@ class RubyTreeEvaluator(TreeEvaluatorHelper):
             for hit in hits:
                 new_hits += self._hits_from_getattr(hit, tok, filter_type) or []
             if not new_hits:
-                return []
+                break
             hits = [(x[0], (x[1][0], x[1][1] + [prev_tok])) for x in new_hits]
+            hits_final = hits
             prev_tok = tok
             #XXX Replace with:
             #hits = [x for x in [self._continue_hit(hit, tok, filter_type) for hit in hits] if x]
             idx += 1
-        return hits
+        return hits_final
 
     def _hits_from_getattr(self, hit, token, filter_type):
         self._rec_check_inc_getattr()
@@ -906,7 +914,7 @@ class RubyTreeEvaluator(TreeEvaluatorHelper):
                     blob = self._get_imported_blob(imp)
                     if blob and first_token in blob.names:
                         # Collect all possible hits
-                        hits.append((blob.names[first_token], []))
+                        hits.append((blob.names[first_token], (blob, [first_token])))
                 
         return hits
     

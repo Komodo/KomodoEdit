@@ -2951,7 +2951,7 @@ class PureTestCase(_BaseTestCase):
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
             [("class", "Calendar"), ("class", "Geo")])
   
-    @tag("cplns", "knownfailure")
+    @tag("bug72335", "cplns") #, "knownfailure")
     def test_dispersed_module_defns_02(self):
         """
         Continue walking the expression
