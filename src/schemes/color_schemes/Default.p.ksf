@@ -186,7 +186,7 @@ Colors = {
  'foldMarginColor': None,
  'selBack': 13421772,
  'selFore': 16772846,
- 'whitespaceColor': 0}
+ 'whitespaceColor': 8421504}
 
 Indicators = {
     'linter_error': {
