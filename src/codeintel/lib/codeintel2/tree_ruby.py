@@ -703,7 +703,7 @@ class RubyTreeEvaluator(TreeEvaluatorHelper):
                 hits = [h for h in hits_var if not self._hit_helper.is_variable(h)]
                 if not hits:
                     # They're all variables
-                    var_name = self._hit_helper.get_name(hits_var[0])
+                    var_name = self._hit_helper.get_name(first_hit)
                     self.debug("_hit_from_citdl: failed to resolve variable '%r'",
                                var_name)
                     return NO_HITS
