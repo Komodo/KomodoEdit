@@ -684,7 +684,6 @@ class RubyTreeEvaluator(TreeEvaluatorHelper):
         hits = self._hits_from_first_part(tokens[0], only_scoperef)
         if not hits:
             return NO_HITS
-        #sys.stderr.write("%r\n" % hits)
 
         # If we're doing definition-lookup, we don't want to resolve
         # a standalone variable expression to its underlying type.
@@ -746,8 +745,6 @@ class RubyTreeEvaluator(TreeEvaluatorHelper):
             hits = [(x[0], (x[1][0], x[1][1] + [prev_tok])) for x in new_hits]
             hits_final = hits
             prev_tok = tok
-            #XXX Replace with:
-            #hits = [x for x in [self._continue_hit(hit, tok, filter_type) for hit in hits] if x]
             idx += 1
         return hits_final
 
@@ -919,8 +916,6 @@ class RubyTreeEvaluator(TreeEvaluatorHelper):
         return hits
     
     def _append_hits_from_name(self, hits, first_token, scoperef, elem):
-        if len(scoperef) < 2:
-            return
         blob, list = scoperef
         new_scoperef = blob, list # + [first_token]
         # Allow for multiple hits of compound things -- names() returns the last

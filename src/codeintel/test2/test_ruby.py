@@ -2951,10 +2951,11 @@ class PureTestCase(_BaseTestCase):
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
             [("class", "Calendar"), ("class", "Geo")])
   
-    @tag("bug72335", "cplns") #, "knownfailure")
+    @tag("bug72335", "cplns")
     def test_dispersed_module_defns_02(self):
         """
-        Continue walking the expression
+        Verify that we can walk nodes when we have more than
+        one top-level hit.
         """
         self._verify_icalendar()
         content, positions = unmark_text(dedent("""\
