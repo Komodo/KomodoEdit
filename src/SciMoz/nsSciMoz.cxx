@@ -366,7 +366,6 @@ void SciMoz::Notify(long lParam) {
 	if ((notification->nmhdr.code == SCN_PAINTED) && commandUpdateTarget) {
 #if XP_MACOSX_USE_INVALIDATING_CORE_ANIMATION
 		if (fWindow) {
-			//printf("\nNPN_InvalidateRect\n\n");
 			NPRect r;
 			r.left = 0;
 			r.top = 0;
