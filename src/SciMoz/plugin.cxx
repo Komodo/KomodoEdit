@@ -183,7 +183,22 @@ NPP_New(NPMIMEType /*pluginType*/, NPP instance, uint16_t /*mode*/, int16_t /*ar
 
 #if defined(USE_COCOA)
 
-#ifdef XP_MACOSX_USE_CORE_ANIMATION
+#if XP_MACOSX_USE_CORE_ANIMATION
+#if XP_MACOSX_USE_INVALIDATING_CORE_ANIMATION
+  // Check if the browser supports the CoreAnimation drawing model
+  NPBool supportsCoreAnimationInvalidating = FALSE;
+  NPError err = NPN_GetValue(instance, NPNVsupportsInvalidatingCoreAnimationBool,
+                             &supportsCoreAnimationInvalidating);
+  if (err != NPERR_NO_ERROR || !supportsCoreAnimationInvalidating) {
+    return NPERR_INCOMPATIBLE_VERSION_ERROR;
+  }
+  // Set the drawing model
+  err = NPN_SetValue(instance, NPPVpluginDrawingModel,
+                     (void*)NPDrawingModelInvalidatingCoreAnimation);
+  if (err != NPERR_NO_ERROR) {
+    return NPERR_INCOMPATIBLE_VERSION_ERROR;
+  }
+#else
   // Check if the browser supports the CoreAnimation drawing model
   NPBool supportsCoreAnimation = FALSE;
   NPError err = NPN_GetValue(instance, NPNVsupportsCoreAnimationBool,
@@ -197,6 +212,7 @@ NPP_New(NPMIMEType /*pluginType*/, NPP instance, uint16_t /*mode*/, int16_t /*ar
   if (err != NPERR_NO_ERROR) {
     return NPERR_INCOMPATIBLE_VERSION_ERROR;
   }
+#endif
 #else
   // Check if the browser supports the CoreGraphics drawing model
   NPBool supportsCoreGraphics = FALSE;

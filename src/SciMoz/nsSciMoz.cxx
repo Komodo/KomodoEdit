@@ -364,6 +364,21 @@ void SciMoz::Notify(long lParam) {
 	}
 
 	if ((notification->nmhdr.code == SCN_PAINTED) && commandUpdateTarget) {
+#if XP_MACOSX_USE_INVALIDATING_CORE_ANIMATION
+		if (fWindow) {
+			printf("\nNPN_InvalidateRect\n\n");
+			NPRect r;
+			r.left = 0;
+			r.top = 0;
+			r.bottom = fWindow->clipRect.bottom - fWindow->clipRect.top;
+			r.right = fWindow->clipRect.right - fWindow->clipRect.left;
+			NPN_InvalidateRect(mPlugin->GetNPP(), &r);
+			//fprintf(stderr, "  rect: x:%d y:%d w:%d h:%d\n",
+			//	r.left, r.top,
+			//	r.right -  r.left,
+			//	r.bottom - r.top);
+		}
+#endif
 		bool bCanUndoNow = SendEditor(SCI_CANUNDO, 0, 0);
 		bool bCanRedoNow = SendEditor(SCI_CANREDO, 0, 0);
 		if (bCouldUndoLastTime != bCanUndoNow || bCouldRedoLastTime != bCanRedoNow) {

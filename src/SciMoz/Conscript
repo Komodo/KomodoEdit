@@ -242,6 +242,7 @@ elsif ($platform eq "darwin") {
     $consLocal{'CXXFLAGS'} .= "-DUSE_COCOA ";
     # To have SciMoz use core animation, define the following:
     $consLocal{'CXXFLAGS'} .= "-DXP_MACOSX_USE_CORE_ANIMATION ";
+    #$consLocal{'CXXFLAGS'} .= "-DXP_MACOSX_USE_INVALIDATING_CORE_ANIMATION ";
 
     $consLocal{'CXXFLAGS'} .= " -include Carbon/Carbon.h ";
 
