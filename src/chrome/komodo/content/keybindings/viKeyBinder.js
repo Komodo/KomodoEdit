@@ -3026,16 +3026,20 @@ function cmd_vim_right(scimoz, allowWhichWrap /* true */) {
 }
 
 function cmd_vim_scrollHalfPageDown(scimoz) {
+    var lineNo = scimoz.lineFromPosition(gVimController._currentPos);
+    var visLineNo = scimoz.visibleFromDocLine(lineNo);
     var linesToScroll = (scimoz.linesOnScreen / 2);
     scimoz.lineScroll(0, linesToScroll);
-    var lineNo = scimoz.docLineFromVisible(scimoz.firstVisibleLine + linesToScroll);
+    lineNo = scimoz.docLineFromVisible(Math.min(scimoz.lineCount, visLineNo + linesToScroll));
     gVimController._currentPos = scimoz.positionFromLine(lineNo);
 }
 
 function cmd_vim_scrollHalfPageUp(scimoz) {
+    var lineNo = scimoz.lineFromPosition(gVimController._currentPos);
+    var visLineNo = scimoz.visibleFromDocLine(lineNo);
     var linesToScroll = (scimoz.linesOnScreen / 2);
     scimoz.lineScroll(0, -linesToScroll);
-    var lineNo = scimoz.docLineFromVisible(scimoz.firstVisibleLine + linesToScroll);
+    lineNo = scimoz.docLineFromVisible(Math.max(0, visLineNo - linesToScroll));
     gVimController._currentPos = scimoz.positionFromLine(lineNo);
 }
 
