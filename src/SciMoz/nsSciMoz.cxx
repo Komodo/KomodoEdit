@@ -364,6 +364,7 @@ void SciMoz::Notify(long lParam) {
 	}
 
 	if ((notification->nmhdr.code == SCN_PAINTED) && commandUpdateTarget) {
+#if 0   /* disabled - doesn't seem to be necessary */
 #if XP_MACOSX_USE_INVALIDATING_CORE_ANIMATION
 		if (fWindow) {
 			NPRect r;
@@ -378,6 +379,7 @@ void SciMoz::Notify(long lParam) {
 			//	r.bottom - r.top);
 		}
 #endif
+#endif /* #if 0 */
 		bool bCanUndoNow = SendEditor(SCI_CANUNDO, 0, 0);
 		bool bCanRedoNow = SendEditor(SCI_CANREDO, 0, 0);
 		if (bCouldUndoLastTime != bCanUndoNow || bCouldRedoLastTime != bCanRedoNow) {
