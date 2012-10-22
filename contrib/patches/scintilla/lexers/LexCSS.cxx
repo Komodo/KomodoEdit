@@ -52,8 +52,8 @@ static void getCurrentWord(char buf[],
 	       && !IsAWordChar(styler[wordStart])) {
 		wordStart += 1;
 	}
-	if (currentPos - wordStart > capacity) {
-		currentPos = capacity - wordStart - 1;
+	if (currentPos - wordStart >= capacity) {
+		currentPos = capacity + wordStart - 1;
 	}
 	for (; wordStart < currentPos; wordStart++) {
 		*s++ = styler[wordStart];

@@ -446,6 +446,25 @@ class _BaseCSSTestCase(CodeIntelTestCase):
 
 class CSS_StraightTest(_BaseCSSTestCase):
     lang = "CSS"
+    
+    @tag("bug95929")
+    def test_buffer_overrun(self):
+        content, positions = unmark_text(dedent("""\
+            /* 101 'a's in the next line: */
+            aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+            <body> {
+                background: <1>transparent <2>url('../img/header_tab.gif') <3>100% <4>-600px <5>no-repeat;
+                font-family: <6>'Lucida Grande', <7>Verdana, <8>sans-serif;
+                float:          <9>left;
+            }
+        """))
+        name = "css-complete-property-values"
+        self.assertTriggerMatches(markup_text(content, pos=positions[1]),
+                                  name=name)
+        self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
+                                     (('value', 'repeat-x'),))
+
+
 
 class CSS_UDL_HTMLTest(_BaseCSSTestCase):
     lang = "HTML"
