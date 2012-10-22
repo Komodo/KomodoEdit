@@ -1620,6 +1620,12 @@ def _relocatePyxpcom(config):
             if line.find(landmark) == -1: continue
             old = line.strip().split(None, 1)[0]
             break
+        else:
+            # Failed to find via path; try looking for the right compat version instead
+            landmark = "/Python (compatibility version %s.0, current version %s.0)" % (config.pyVer, config.pyVer)
+            for line in linkage:
+                if line.strip().endswith(landmark):
+                    old = line.strip().split(None, 1)[0]
         if old:
             if config.mozApp == "xulrunner":
                 # xulrunner is a framework, so the path layout is
