@@ -101,21 +101,14 @@ class _GenericPythonLinter(object):
         env["PYTHONPATH"] = pythonPath
         return env
 
-class KoPythonPyLintChecker(_GenericPythonLinter):
-    _reg_desc_ = "Komodo Python PyLint Linter"
-    _reg_clsid_ = "{e9e6d883-a712-46fc-a4a5-83c827aeff44}"
-    _reg_contractid_ = "@activestate.com/koLinter?language=Python&type=pylint;1"
-    _reg_categories_ = [
-         ("category-komodo-linter", 'Python&type=pylint'),
-         ]
-        
+class KoPythonCommonPyLintChecker(_GenericPythonLinter):
     nonIdentChar_RE = re.compile(r'^\w_.,=')
     invalidModuleName_RE = re.compile(r'(C0103.*?Invalid name ")(\w+)(" \(should match )(.*)(\))')
     def lint_with_text(self, request, text):
         if not text:
             return None
         prefset = getProxiedEffectivePrefs(request)
-        if not prefset.getBooleanPref("lint_python_with_pylint"):
+        if not prefset.getBooleanPref(self.lint_prefname):
             return
         # if not prefset.getBooleanPref("lintWithPylint"): return
         pythonExe = self._pythonInfo.getExecutableFromDocument(request.koDoc)
@@ -130,7 +123,7 @@ class KoPythonPyLintChecker(_GenericPythonLinter):
         textlines = text.splitlines()
         cwd = request.cwd
         env = self._get_fixed_env(prefset)
-        rcfilePath = prefset.getStringPref("pylint_checking_rcfile")
+        rcfilePath = prefset.getStringPref(self.rcfile_prefname)
         if rcfilePath and os.path.exists(rcfilePath):
             if self.nonIdentChar_RE.search(rcfilePath):
                 rcfilePath = '"' + rcfilePath + '"'
@@ -202,14 +195,28 @@ class KoPythonPyLintChecker(_GenericPythonLinter):
         except:
             return re.compile(pseudoPtn)
 
-class KoPythonPyflakesChecker(_GenericPythonLinter):
-    _reg_desc_ = "Komodo Python Pyflakes Linter"
-    _reg_clsid_ = "{7617c1bc-0e12-4c26-9a1a-0c03f2d8c8d2}"
-    _reg_contractid_ = "@activestate.com/koLinter?language=Python&type=pyflakes;1"
+class KoPythonPyLintChecker(KoPythonCommonPyLintChecker):
+    _reg_desc_ = "Komodo Python PyLint Linter"
+    _reg_clsid_ = "{8de9b933-d32d-4c12-b73e-9bcce4fec63c}"
+    _reg_contractid_ = "@activestate.com/koLinter?language=Python&type=pylint;1"
     _reg_categories_ = [
-         ("category-komodo-linter", 'Python&type=pyflakes'),
+         ("category-komodo-linter", 'Python&type=pylint'),
          ]
-    
+    lint_prefname = "lint_python_with_pylint"
+    rcfile_prefname = "pylint_checking_rcfile"
+
+class KoPython3PyLintChecker(KoPythonCommonPyLintChecker):
+    _reg_desc_ = "Komodo Python3 PyLint Linter"
+    _reg_clsid_ = "{f1ecb86c-9fd9-4477-a40d-b8c9ee282c0f}"
+    _reg_contractid_ = "@activestate.com/koLinter?language=Python3&type=pylint;1"
+    _reg_categories_ = [
+         ("category-komodo-linter", 'Python3&type=pylint'),
+         ]
+    lint_prefname = "lint_python3_with_pylint3"
+    rcfile_prefname = "pylint3_checking_rcfile"
+
+
+class KoPythonCommonPyflakesChecker(_GenericPythonLinter):
     warnLinePtn = re.compile(r'^(.+?):(\d+):\s+(.*)')
     def _createAddResult(self, results, textlines, errorLines, severity):
         for line in errorLines:
@@ -231,7 +238,7 @@ class KoPythonPyflakesChecker(_GenericPythonLinter):
         if not text:
             return None
         prefset = getProxiedEffectivePrefs(request)
-        if not prefset.getBooleanPref("lint_python_with_pyflakes"):
+        if not prefset.getBooleanPref(self.lint_prefname):
             return
         pythonExe = self._pythonInfo.getExecutableFromDocument(request.koDoc)
         if not pythonExe:
@@ -269,26 +276,39 @@ class KoPythonPyflakesChecker(_GenericPythonLinter):
         self._createAddResult(results, textlines, warnLines, koLintResult.SEV_WARNING)
         return results
 
-class KoPythonPycheckerLinter(_GenericPythonLinter):
+class KoPythonPyflakesChecker(KoPythonCommonPyflakesChecker):
+    _reg_desc_ = "Komodo Python Pyflakes Linter"
+    _reg_clsid_ = "{5e040c73-814d-4151-b6aa-a6201e43a627}"
+    _reg_contractid_ = "@activestate.com/koLinter?language=Python&type=pyflakes;1"
+    _reg_categories_ = [
+         ("category-komodo-linter", 'Python&type=pyflakes'),
+         ]
+    lint_prefname = "lint_python_with_pyflakes"
+
+class KoPython3PyflakesChecker(KoPythonCommonPyflakesChecker):
+    _reg_desc_ = "Komodo Python3 Pyflakes Linter"
+    _reg_clsid_ = "{25ced8c6-b37e-4bc1-9efc-dc6d60696d22}"
+    _reg_contractid_ = "@activestate.com/koLinter?language=Python3&type=pyflakes;1"
+    _reg_categories_ = [
+         ("category-komodo-linter", 'Python3&type=pyflakes'),
+         ]
+    lint_prefname = "lint_python3_with_pyflakes3"
+
+
+class KoPythonCommonPycheckerLinter(_GenericPythonLinter):
     """
     Instead of checking your Python code using pylinter,
       this one lints    your Python code using pychecker.
     """
-    _reg_desc_ = "Komodo Python Pychecker Linter"
-    _reg_clsid_ = "{d3eb77c9-fb1f-4849-8e27-2e39d15c5331}"
-    _reg_contractid_ = "@activestate.com/koLinter?language=Python&type=pychecker;1"
-    _reg_categories_ = [
-         ("category-komodo-linter", 'Python&type=pychecker'),
-         ]
         
     nonIdentChar_RE = re.compile(r'^\w_.,=')
     def lint_with_text(self, request, text):
         if not text:
             return None
         prefset = getProxiedEffectivePrefs(request)
-        if not prefset.getBooleanPref("lint_python_with_pychecker"):
+        if not prefset.getBooleanPref(self.lint_prefname):
             return
-        pychecker = prefset.getStringPref("pychecker_wrapper_location")
+        pychecker = prefset.getStringPref(self.wrapper_location)
         if not pychecker:
             return
         if sys.platform.startswith("win") and not os.path.exists(pychecker):
@@ -305,7 +325,7 @@ class KoPythonPycheckerLinter(_GenericPythonLinter):
         textlines = text.splitlines()
         cwd = request.cwd
         env = self._get_fixed_env(prefset)
-        rcfilePath = prefset.getStringPref("pychecker_checking_rcfile")
+        rcfilePath = prefset.getStringPref(self.rcfile_prefname)
         if rcfilePath and os.path.exists(rcfilePath):
             if self.nonIdentChar_RE.search(rcfilePath):
                 rcfilePath = '"' + rcfilePath + '"'
@@ -351,6 +371,29 @@ class KoPythonPycheckerLinter(_GenericPythonLinter):
                 koLintResult.createAddResult(results, textlines, koLintResult.SEV_ERROR, lineNo,
                            "pychecker: " + desc)
         return results
+
+class KoPythonPycheckerLinter(KoPythonCommonPycheckerLinter):
+    _reg_desc_ = "Komodo Python Pychecker Linter"
+    _reg_clsid_ = "{93b2d525-ed2f-4b77-8312-ab784632c8b8}"
+    _reg_contractid_ = "@activestate.com/koLinter?language=Python&type=pychecker;1"
+    _reg_categories_ = [
+         ("category-komodo-linter", 'Python&type=pychecker'),
+         ]
+    lint_prefname = "lint_python_with_pychecker"
+    wrapper_location = "pychecker_wrapper_location"
+    rcfile_prefname = "pychecker_checking_rcfile"
+
+class KoPython3PycheckerLinter(KoPythonCommonPycheckerLinter):
+    _reg_desc_ = "Komodo Python3 Pychecker Linter"
+    _reg_clsid_ = "{76ba1bf9-6766-4f75-a92f-008c66652cec}"
+    _reg_contractid_ = "@activestate.com/koLinter?language=Python3&type=pychecker;1"
+    _reg_categories_ = [
+         ("category-komodo-linter", 'Python3&type=pychecker'),
+         ]
+    lint_prefname = "lint_python3_with_pychecker3"
+    wrapper_location = "pychecker3_wrapper_location"
+    rcfile_prefname = "pychecker3_checking_rcfile"
+
 
 class KoPythonCommonLinter(_GenericPythonLinter):
     _stringType = type("")

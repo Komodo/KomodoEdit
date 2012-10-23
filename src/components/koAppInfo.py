@@ -516,10 +516,19 @@ class KoPythonCommonInfoEx(KoAppInfoEx):
         return "http://docs.activestate.com/activepython/"
 
     def haveModules(self, modules):
-        argv = [self.get_executablePath(), '-c',
+        interpreter = self.get_executablePath()
+        if not interpreter:
+            log.info("%s: path not set", self.exenames[0])
+            return False
+        argv = [interpreter, '-c',
                 ' '.join(['import ' + str(mod) + ';' for mod in modules])]
         env = koprocessutils.getUserEnv()
-        p = process.ProcessOpen(argv, env=env, stdin=None)
+        try:
+            p = process.ProcessOpen(argv, env=env, stdin=None)
+        except:
+            log.error("KoPythonCommonInfoEx.haveModules: Failed to run cmd %s", argv)
+            return False
+
         retval = p.wait()
         return not retval
 

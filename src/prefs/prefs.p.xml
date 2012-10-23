@@ -211,6 +211,12 @@
 
   <!-- Python3 linters -->
   <boolean id="lint_python3_with_standard_python">true</boolean>
+  <boolean id="lint_python3_with_pyflakes3">false</boolean>
+  <boolean id="lint_python3_with_pylint3">false</boolean>
+  <string id="pylint3_checking_rcfile"></string>
+  <boolean id="lint_python3_with_pychecker3">false</boolean>
+  <string id="pychecker3_wrapper_location"></string>
+  <string id="pychecker3_checking_rcfile"></string>
   
   <!-- CSS/SCSS/LESS/Sass linter info -->
   

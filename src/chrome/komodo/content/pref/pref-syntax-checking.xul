@@ -463,6 +463,62 @@
                   <checkbox id="lint_python3_with_standard_python"
                             label="&ClassicPythonChecking.label;"
                             pref="true" />
+                  <separator class="thin"/>
+                  <checkbox id="lint_python3_with_pylint3"
+                            label="&pylintCheckingStatus.label;"
+                            pref="true"
+                            oncommand="languageInfo.Python3.onTogglePylint3Checking(this);" />
+                  <description id="pylint3_failure" class="pref_hide" />
+
+                  <vbox id="pylint3_checking_vbox_rcfile" class="indentedPref01">
+                     <label id="pylint3_checking_rcfile_label"
+                              control="pylint3_checking_rcfile"
+                              value="&pylintRCFileLocation.label;" />
+                     <hbox id="pylint3_checking_hbox_rcfile">
+                       <textbox id="pylint3_checking_rcfile" pref="true"
+                                prefstring="pylint3_checking_rcfile" flex="1"/>
+                       <button id="pylint3_browse_rcfile" label="&browse.label;" oncommand="languageInfo.Python3.loadPylintRcfile();"/>
+                    </hbox>
+                  </vbox>
+                  <separator class="thin"/>
+                  
+                  <checkbox id="lint_python3_with_pyflakes3"
+                            label="&pyflakesChecking.label;"
+                            pref="true" />
+                  <description id="pyflakes3_failure" class="pref_hide" />
+                  <separator class="thin"/>
+                  <checkbox id="lint_python3_with_pychecker3"
+                            label="&lintWithPychecker.label;"
+                            pref="true"
+                            oncommand="languageInfo.Python3.onTogglePychecker3Checking(this);" />
+                  <description id="pychecker3_dangerous" class="pref_hide" >
+                    &pycheckerWarning.descr;
+                  </description>
+                  <vbox id="pychecker3_info_vbox" class="indentedPref01">
+                     <label id="pychecker3_wrapper_location_label"
+                              control="pychecker3_wrapper_location"
+                              value="&pycheckerWrapperLocation.label;" />
+                     <hbox id="pychecker3_wrapper_location_hbox">
+                       <textbox id="pychecker3_wrapper_location" pref="true"
+                                prefstring="pychecker3_wrapper_location" flex="1"
+                                oninput="languageInfo.Python3.updatePychecker3PathStatus(this);" />
+                       <button id="pychecker3_browse_wrapper_location"
+                               label="&browse.label;"
+                               oncommand="languageInfo.Python3.loadPychecker3WrapperFile();"/>
+                    </hbox>
+                    <separator class="thin"/>
+                    <label id="pychecker3_checking_rcfile_label"
+                              control="pychecker3_checking_rcfile"
+                              value="&pycheckerRCLocation.label;" />
+                    <hbox id="pychecker3_checking_hbox_rcfile">
+                       <textbox id="pychecker3_checking_rcfile" pref="true"
+                                prefstring="pychecker3_checking_rcfile" flex="1"/>
+                       <button id="pychecker3_browse_rcfile" label="&browse.label;" oncommand="languageInfo.Python3.loadPychecker3RcFile();"/>
+                    </hbox>
+                    <description id="pychecker3_failure" class="pref_hide" >
+                    &pycheckerNeedsPath.descr;
+                    </description>
+                  </vbox>
               </groupbox>
             </vbox>
             
