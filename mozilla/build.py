@@ -610,7 +610,7 @@ def _getMozSrcInfo(scheme, mozApp):
     variables identifying the mozilla source.
         {
          'mozVer':          The Mozilla version number as a float, i.e. 9.0
-         'mozSrcType':      <'hg' or 'tarball'>,
+         'mozSrcType':      <'hg', 'git' or 'tarball'>,
          'mozSrcName':      <a short string to *loosely* describing the mozilla src>,
          # The following only if mozSrcType==hg:
          'mozSrcHgRepo':    HG repository to checkout from.
@@ -654,7 +654,22 @@ def _getMozSrcInfo(scheme, mozApp):
                 break
         else:
             config["mozSrcName"] = name
-            
+
+    elif scheme.startswith("git:"):
+        # "git:1700" for "Gecko 17", or "git:FIREFOX_16_0_1_RELEASE" for a tag
+        config.update(
+            mozSrcType="git",
+            mozSrcGitRev=scheme.split(":", 1)[-1],
+        )
+        if re.match(r"^\d+$", config["mozSrcGitRev"]):
+            config["mozVer"] = round(int(config["mozSrcGitRev"]) / 100.0, 2) # all numbers
+        else:
+            # tag
+            verString = re.search(r"\d+(?:_\d+)*", config["mozSrcGitRev"]).group(0)
+            verList = verString.split("_") + ["0", "0"]
+            config["mozVer"] = float(verList[0] + "." + "".join(verList[1:])[:2])
+        config["mozSrcName"] = "moz%s" % (int(config["mozVer"]), )
+
     elif re.match(r"^(?P<ver>(\d+?)+)(:(?P<tag>\w+))?$", scheme): # VER[:TAG]
         match = re.match(r"^(?P<ver>(\d+?)+)(:(?P<tag>\w+))?$", scheme)
         config.update(
@@ -2016,7 +2031,7 @@ def target_src(argv=["src"]):
     # If there is a tarball to use, then get a local copy of it because:
     # 1. it might be a URL and
     # 2. cygwin tar cannot handle absolute paths
-    if config.mozSrcType == "hg":
+    if config.mozSrcType != "tarball":
         tarballPath = None
     else:
         tarballPath = config.mozSrcTarball
@@ -2088,6 +2103,41 @@ def target_src(argv=["src"]):
         _run("hg --cwd %s pull" % (hgRepo,), log.info)
         if hgTag:
             _run("hg --cwd %s up --rev %s" % (hgRepo, hgTag), log.info)
+
+    elif mozSrcType == "git":
+        srcRepo = os.path.join(buildDir, "mozilla")
+        #_run("git clone --no-checkout --progress -- git://github.com/mozilla/mozilla-central.git \"%s\"" % (srcRepo,))
+        _run_in_dir("git fetch --tags", srcRepo)
+        tags = _capture_output("git --git-dir=\"%s/.git\" tag -l" % (srcRepo,)).splitlines()
+        if config.mozSrcGitRev in tags:
+            branch = config.mozSrcGitRev
+        elif config.mozSrcGitRev.translate(None, "0123456789") == "":
+            from distutils.version import LooseVersion, StrictVersion
+            versions = []
+            for tag in tags:
+                if not (tag.startswith("FIREFOX_") and tag.endswith("_RELEASE")):
+                    continue
+                version = LooseVersion(".".join(tag.split("_")[1:-1]))
+                if version.version[-2] in ("a", "b"):
+                    continue # skip alphas and betas
+                versions.append(version)
+            lastVerMajor = max(versions).version[0]
+            targetVer = LooseVersion(".".join(map(str, [int(config.mozVer),
+                                                        int(config.mozVer * 10 % 10),
+                                                        int(config.mozVer * 100 % 10)])))
+            if lastVerMajor >= targetVer.version[0]:
+                if not targetVer in versions:
+                    raise BuildError("Can't find version %s" % (config.mozVer,))
+                branch = "FIREFOX_%s_RELEASE" % (targetVer.vstring.replace(".", "_"),)
+            elif lastVerMajor == targetVer.version[0] - 1:
+                branch = "beta"
+            elif lastVerMajor == targetVer.version[0] - 2:
+                branch = "aurora"
+            else:
+                branch = "master"
+        else:
+            raise BuildError("unknown git version \"%s\"" % (config.mozSrcGitRev,))
+        _run_in_dir("git checkout %s" % (branch,), srcRepo)
 
     elif mozSrcType == "tarball":
         _extract_tarball(tarballLocalPath, buildDir)
