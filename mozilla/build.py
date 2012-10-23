@@ -2106,7 +2106,7 @@ def target_src(argv=["src"]):
 
     elif mozSrcType == "git":
         srcRepo = os.path.join(buildDir, "mozilla")
-        #_run("git clone --no-checkout --progress -- git://github.com/mozilla/mozilla-central.git \"%s\"" % (srcRepo,))
+        _run("git clone --no-checkout --progress -- git://github.com/mozilla/mozilla-central.git \"%s\"" % (srcRepo,))
         _run_in_dir("git fetch --tags", srcRepo)
         tags = _capture_output("git --git-dir=\"%s/.git\" tag -l" % (srcRepo,)).splitlines()
         if config.mozSrcGitRev in tags:
