@@ -772,6 +772,181 @@ function pythonInfo() {
     };
 }
 
+function python3_setup() {
+    if (!('Python3' in dialog)) {
+        dialog.Python3 = {};
+        [
+         "lint_python3_with_pychecker3",
+         "lint_python3_with_pylint3",
+         "lint_python3_with_pyflakes3",
+         "pychecker3_browse_rcfile",
+         "pychecker3_browse_wrapper_location",
+         "pychecker3_checking_rcfile",
+         "pychecker3_dangerous",
+         "pychecker3_info_vbox",
+         "pychecker3_failure",
+         "pychecker3_wrapper_location",
+         "pyflakes3_failure",
+         "pylint3_browse_rcfile",
+         "pylint3_checking_rcfile",
+         "pylint3_failure",
+         "pylint3_checking_vbox_rcfile",
+         "python3_lintOption"
+         ].forEach(function(name) {
+            dialog.Python3[name] = document.getElementById(name);
+        });
+        languageInfo.Python3 = python3Info();
+    }
+    var appInfoEx = Components.classes["@activestate.com/koAppInfoEx?app=Python3;1"].
+        getService(Components.interfaces.koIAppInfoEx);
+    var python3Exe = appInfoEx.executablePath;
+    var pylint3StatusByExecutable = languageInfo.Python3.pylint3StatusByExecutable;
+    var pyflakes3StatusByExecutable = languageInfo.Python3.pyflakes3StatusByExecutable;
+    if (!(python3Exe in pylint3StatusByExecutable)
+        || !(python3Exe in pyflakes3StatusByExecutable)) {
+        setTimeout(function() {
+                var res;
+                if (!(python3Exe in pylint3StatusByExecutable)) {
+                    res = appInfoEx.haveModules(1, ['pylint']);
+                    pylint3StatusByExecutable[python3Exe] = res;
+                }
+                if (!(python3Exe in pyflakes3StatusByExecutable)) {
+                    res = appInfoEx.haveModules(1, ['pyflakes3.scripts.pyflakes']);
+                    pyflakes3StatusByExecutable[python3Exe] = res;
+                }
+                languageInfo.Python3.updateUI(python3Exe);
+            }, 300);
+    } else {
+        languageInfo.Python3.updateUI(python3Exe);
+    }
+}
+languageSetup.Python3 = python3_setup;
+function python3Info() {
+    return {
+        pylint3StatusByExecutable: {},
+        pyflakes3StatusByExecutable: {},
+        
+        _updateFailureBox: function(failureNode, python3Exe, linterName) {
+            if (!python3Exe) {
+                failureNode.setAttribute("class", "pref_hide");
+            } else {
+                var text = bundleLang.formatStringFromName("The current Python3 instance X doesnt have X installed", [python3Exe, linterName], 2);
+                var textNode = document.createTextNode(text);
+                while (failureNode.firstChild) {
+                    failureNode.removeChild(failureNode.firstChild);
+                }
+                failureNode.appendChild(textNode);
+                failureNode.setAttribute("class", "pref_show");
+            }
+        },
+    
+        updateUI: function(python3Exe) {
+            // Update UI for pylint3
+            var checkbox = dialog.Python3.lint_python3_with_pylint3;
+            var failureNode = dialog.Python3.pylint3_failure;
+            if (python3Exe && this.pylint3StatusByExecutable[python3Exe]) {
+                failureNode.setAttribute("class", "pref_hide");
+                checkbox.disabled = false;
+            } else {
+                checkbox.checked = false;
+                checkbox.disabled = true;
+                this._updateFailureBox(failureNode, python3Exe, "pylint");
+            }
+            this.onTogglePylint3Checking(checkbox);
+            
+            // pyflakes3
+            checkbox = dialog.Python3.lint_python3_with_pyflakes3;
+            failureNode = dialog.Python3.pyflakes3_failure;
+            if (python3Exe && this.pyflakes3StatusByExecutable[python3Exe]) {
+                checkbox.disabled = false;
+            } else {
+                checkbox.checked = false;
+                checkbox.disabled = true;
+                this._updateFailureBox(failureNode, python3Exe, "pyflakes");
+            }
+            
+            // Update UI for pychecker3
+            checkbox = dialog.Python3.lint_python3_with_pychecker3;
+            if (checkbox.checked && !dialog.Python3.pychecker3_wrapper_location.value) {
+                
+                var sysUtils = Components.classes['@activestate.com/koSysUtils;1'].
+                    getService(Components.interfaces.koISysUtils);
+                var path = sysUtils.Which("pychecker3");
+                if (path) {
+                    dialog.Python3.pychecker3_wrapper_location.value = path;
+                }
+            }
+            this.onTogglePychecker3Checking(checkbox);
+        },
+            
+        onTogglePylint3Checking: function(checkbox) {
+            dialog.Python3.pylint3_checking_vbox_rcfile.collapsed = !checkbox.checked;
+        },
+        onTogglePychecker3Checking: function(checkbox) {
+            var pychecker3Enabled = checkbox.checked;
+            dialog.Python3.pychecker3_info_vbox.collapsed = !pychecker3Enabled;
+            this.updatePychecker3PathStatus();
+            var pychecker3_dangerous = dialog.Python3.pychecker3_dangerous;
+            if (pychecker3Enabled) {
+                pychecker3_dangerous.setAttribute("class", "pref_show");
+            } else {
+                pychecker3_dangerous.setAttribute("class", "pref_hide");
+            }
+        },
+        
+        updatePychecker3PathStatus: function() {
+            var failureNode = dialog.Python3.pychecker3_failure;
+            if (dialog.Python3.lint_python3_with_pychecker3.checked) {
+                var hasPath = dialog.Python3.pychecker3_wrapper_location.value.length > 0;
+                if (hasPath) {
+                    failureNode.setAttribute("class", "pref_hide");
+                } else {
+                    failureNode.setAttribute("class", "pref_show");
+                }
+            } else {
+                failureNode.setAttribute("class", "pref_hide");
+            }
+        },
+    
+        loadTextboxFromFilepicker: function(eltID, prompt) {
+           var textbox = dialog.Python3[eltID];
+           var currentValue = textbox.value;
+           var defaultDirectory = null, defaultFilename = null;
+           if (currentValue) {
+               var koFileEx = Components.classes["@activestate.com/koFileEx;1"]
+                   .createInstance(Components.interfaces.koIFileEx);
+               koFileEx.path = currentValue;
+               defaultDirectory = koFileEx.dirName;
+               defaultFilename = koFileEx.baseName;
+           }
+           var title = bundleLang.GetStringFromName(prompt);
+           var rcpath = ko.filepicker.browseForFile(defaultDirectory,
+                                                    defaultFilename, title);
+           if (rcpath !== null) {
+               textbox.value = rcpath;
+           }
+        },
+       
+        loadPylint3Rcfile: function() {
+            this.loadTextboxFromFilepicker("pylint3_checking_rcfile",
+                                           "Find a .pylintrc file");
+        },
+
+        loadPychecker3RcFile: function() {
+            this.loadTextboxFromFilepicker("pychecker3_checking_rcfile",
+                                           "Find a .pycheckrc file");
+        },
+        
+        loadPychecker3WrapperFile: function() {
+            this.loadTextboxFromFilepicker("pychecker3_wrapper_location",
+                                           "Find a pychecker script");
+            this.updatePychecker3PathStatus();
+        },
+
+        __EOD__:null
+    };
+}
+
 function SCSS_setup() {
     if (!('SCSS' in dialog)) {
         dialog.SCSS = {};
