@@ -925,6 +925,12 @@ this.FindResultsTabManager.prototype._doubleClick = function()
                     }
                     // bug 91224: set currentPos explicitly so following vertical cursor
                     // movement makes sense.
+                    let lineStartIndex = scimoz.lineFromPosition(start);
+                    scimoz.ensureVisible(lineStartIndex);
+                    let lineEndIndex = scimoz.lineFromPosition(end);
+                    if (lineStartIndex !== lineEndIndex) {
+                        scimoz.ensureVisible(lineEndIndex);
+                    }
                     scimoz_.setSel(start, end);
                     scimoz_.currentPos = start;
                     scimoz_.anchor = end;
