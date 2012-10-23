@@ -398,7 +398,7 @@ class koScintillaController:
         return self.scimoz().canPaste()
     def _do_cmd_pasteAndSelect(self):
         sm = self.scimoz()
-        start = sm.currentPos
+        start = sm.selectionStart
         sm.paste()
         sm.anchor = start
 
