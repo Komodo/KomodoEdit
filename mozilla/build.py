@@ -1832,8 +1832,9 @@ def target_pyxpcom_distclean(argv=["pyxpcom_distclean"]):
         shutil.rmtree(pyxpcom_src_dir)
     return argv[1:]
 
-def target_pyxpcom(argv=["pyxpcom"]):
-    log.info("target: pyxpcom")
+def target_src_pyxpcom(argv=["src_pyxpcom"]):
+    """Download PyXPCOM sources"""
+    log.info("target: src_pyxpcom")
     config = _importConfig()
     _setupMozillaEnv()
 
@@ -1852,9 +1853,22 @@ def target_pyxpcom(argv=["pyxpcom"]):
             cmd += " -r %s" % (repo_rev, )
         cmd += " %s python" % (repo_url, )
         _run_in_dir(cmd, dirname(pyxpcom_src_dir), log.info)
+    return argv[1:]
 
-        # Patch pyxpcom.
-        target_patch(patch_target='pyxpcom', logFilename="__patchlog_pyxpcom__.py")
+def target_patch_pyxpcom(argv=["patch_pyxpcom"]):
+    """Patch PyXPCOM with Komodo-specific patches"""
+    log.info("target: patch_pyxpcom")
+    target_patch(patch_target='pyxpcom', logFilename="__patchlog_pyxpcom__.py")
+    return argv[1:]
+
+def target_pyxpcom(argv=["pyxpcom"]):
+    """Build PyXPCOM and install it into the main Mozilla objdir"""
+    log.info("target: pyxpcom")
+    config = _importConfig()
+    _setupMozillaEnv()
+
+    pyxpcom_src_dir = join(config.buildDir, config.srcTreeName, "mozilla",
+                          "extensions", "python")
 
     # Run the autoconf to generate the configure script.
     cmds = []
@@ -2364,7 +2378,9 @@ def target_all(argv):
     """get the source, patch it, and build mozilla"""
     log.info("target: all")
     target_src()
+    target_src_pyxpcom()
     target_patch()
+    target_patch_pyxpcom()
     target_patch_komodo()
     target_configure_mozilla()
     target_mozilla()
@@ -2418,6 +2434,7 @@ def target_patch(argv=["patch"], patch_target="mozilla", logFilename=None):
     return argv[1:]
 
 def target_patch_komodo(argv=["patch_komodo"]):
+    """Patch Mozilla sources with Komodo parts (for startup)"""
     target_patch(patch_target='komodoapp', logFilename="__patchlog_komodoapp__.py")
     return argv[1:]
 
