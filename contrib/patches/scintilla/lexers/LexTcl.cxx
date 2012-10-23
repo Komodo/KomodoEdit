@@ -152,24 +152,30 @@ static bool testBitStateOrTopLevel(unsigned int bitState,
 }
 
 /**
- * We're in a situation like { ... " ...
- * Look at the line to the right of the '"'.  If it contains a
- * closing close-brace before we hit a '"' or eol or eof, return true
+ * '"' starts a string only if a matching '"' is found before
+ * a closing brace. This simplifies string processing.
  *
  * The caller can then color the '"' as a tcl_literal.
  */
-static bool lineContainsClosingBrace(int pos,
+static bool quotePrecedesClosingBrace(int pos,
 				     int lengthDoc,
 				     Accessor &styler) {
     char ch;
     int numBraces = 0;
+    if (lengthDoc - pos > 2000) {
+	// Just look so far.
+	lengthDoc = pos + 2000;
+    }
     for (; pos < lengthDoc; pos++) {
 	ch = styler.SafeGetCharAt(pos);
 	if (ch == '\\') {
+	    // Skip the next char.
 	    pos++;
 	} else if (ch == '"') {
-	    return false;
-	} else if (ch == '\n') {
+	    // Even if we have something like
+	    // ... { ... " ... {"
+	    // the inner string is quoted, because that's how
+	    // the tcl parser will interpret it.
 	    return false;
 	} else if (ch == '{') {
 	    numBraces++;
@@ -210,7 +216,6 @@ static void ColouriseTclDoc(unsigned int startPos_,
                                     // bdry conditions at buffer start
 
     int inEscape	= 0;
-    int inStrBraceCnt	= 0;
     // inCmtBraceCnt -- keeps track of the brace count in a block of
     // comments.  End it when we hit a different state.
     // This means that the synchronization always starts at a block of
@@ -351,9 +356,9 @@ static void ColouriseTclDoc(unsigned int startPos_,
 		    inCmtBraceCnt = 0;
 		}
 		cmdStart = false;
-	    } else if ((ch == '\"') && !inEscape) {
+	    } else if ((ch == '"') && !inEscape) {
 		if (testBitStateNotTopLevel(bitState, BITSTATE_IN_BRACE)) {
-		    if (lineContainsClosingBrace(i + 1, lengthDoc, styler)) {
+		    if (quotePrecedesClosingBrace(i + 1, lengthDoc, styler)) {
 			// Do nothing, treat it like a literal.
 			colourString(i-1, state, styler);
 			colourString(i, SCE_TCL_LITERAL, styler);
@@ -361,10 +366,6 @@ static void ColouriseTclDoc(unsigned int startPos_,
 			colourString(i-1, state, styler);
 			state = SCE_TCL_STRING;
 			pushBitState(bitState, BITSTATE_IN_STRING);
-			inStrBraceCnt = 0;
-			// Count braces in this string
-			// Note that this brace-count doesn't survive
-			// when a string is broken by a command.
 		    }
 		} else {
 		    colourString(i-1, state, styler);
@@ -539,18 +540,6 @@ static void ColouriseTclDoc(unsigned int startPos_,
 		    state = SCE_TCL_DEFAULT;
 		    ++levelCurrent;
 		    cmdStart = true;
-		} else if (ch == '{') {
-		    inStrBraceCnt++;
-		} else if (ch == '}') {
-		    inStrBraceCnt--;
-		    if (inStrBraceCnt < 0) {
-			// End the string here.
-			colourString(i - 1, state, styler);
-			popBitState(bitState);
-			colourString(i - 1, SCE_TCL_OPERATOR, styler);
-			state = SCE_TCL_DEFAULT;
-			--levelCurrent;
-		    }
 		}
 	    }
 	}
