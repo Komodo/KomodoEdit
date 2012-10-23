@@ -1187,6 +1187,8 @@
             // non-scintilla into a scintilla.
             var locationInfo = {};
             this.saveLocation(locationInfo);
+            this.saveFoldedLines(locationInfo);
+            var oldDocLanguage = this.koDoc.language;
             newdocument.setBufferAndEncoding(this.koDoc.buffer, this.koDoc.encoding.python_encoding_name);
             var codePage = this.koDoc.codePage;
             if (oldLargeDocument) {
@@ -1200,6 +1202,9 @@
             }
             this._doSave();
             this.koDoc.docSettingsMgr.applyDocumentSettingsToView(this);
+            if (oldDocLanguage == newdocument.language) {
+                this.restoreFoldedLines(locationInfo);
+            }
             this.restoreLocation(locationInfo);
             window.updateCommands('previewability_changed');
             this.lintBuffer.request("save as");
@@ -1215,6 +1220,38 @@
         </body>
         </method>
 
+        <method name="saveFoldedLines">
+        <parameter name="locationInfo" />
+        <body>
+        <![CDATA[
+            locationInfo.foldedLines = [];
+            var scimoz = this.scimoz;
+            for (let i = 0; i < scimoz.lineCount; ++i) {
+                let foldLevel = scimoz.getFoldLevel(i);
+                if ((foldLevel & scimoz.SC_FOLDLEVELHEADERFLAG) && !scimoz.getFoldExpanded(i)) {
+                    locationInfo.foldedLines.push(i);
+                }
+            }
+        ]]>
+        </body>
+        </method>
+
+        <method name="restoreFoldedLines">
+        <parameter name="locationInfo" />
+        <body>
+        <![CDATA[
+            let lines = locationInfo.foldedLines;
+            if (!lines) return;
+            let scimoz = this.scimoz;
+            lines.forEach(function(i) {
+                if (scimoz.getFoldExpanded(i)) {
+                    scimoz.toggleFold(i);
+                }
+            });
+        ]]>
+        </body>
+        </method>
+        
         <method name="getState">
         <body>
         <![CDATA[
