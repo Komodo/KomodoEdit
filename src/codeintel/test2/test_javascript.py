@@ -1110,6 +1110,28 @@ class HTMLJavaScriptTestCase(CodeIntelTestCase):
                 [("variable", "nodeName"),
                  ("function", "appendChild"),])
 
+    @tag("bug95946")
+    def test_html_onattributes(self):
+        content, positions = unmark_text(dedent("""\
+            <html>
+            <body onload="document.<1>getElementById(<2>).<3>;">
+            </body>
+            </html>
+        """))
+
+        self.assertCompletionsInclude(
+                markup_text(content, pos=positions[1]),
+                [("function", "getElementById")])
+        self.assertCalltipIs(
+                markup_text(content, pos=positions[2]),
+                dedent("""\
+                    getElementById(elementId)
+                    Returns the Element whose ID is given by elementId. If no
+                    such element exists, returns null."""))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[3]),
+                [("variable", "nodeName"),
+                 ("function", "appendChild"),])
+
 class JSDocTestCase(CodeIntelTestCase):
     lang = "JavaScript"
     def test_jsdoc_extends(self):

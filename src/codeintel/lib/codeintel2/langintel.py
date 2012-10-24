@@ -565,6 +565,14 @@ class PythonCITDLExtractorMixin(object):
         accessor = buf.accessor
         i = pos
 
+        is_udl_buffer = False
+        from codeintel2.udl import UDLBuffer
+        if isinstance(buf, UDLBuffer):
+            # We need to check for udl transition points and not go beyond the
+            # current sub-language, bug 95926.
+            is_udl_buffer = True
+            udl_lang = buf.lang_from_pos(pos)
+
         # Move ahead to include forward chars as well
         # We stop when we go out of the expression or when the expression is
         # becomes a multiple fragment, i.e.
@@ -577,6 +585,11 @@ class PythonCITDLExtractorMixin(object):
                 while i < max_look_ahead:
                     ch = accessor.char_at_pos(i)
                     style = accessor.style_at_pos(i)
+                    if is_udl_buffer and buf.lang_from_style(style) != udl_lang:
+                        if DEBUG:
+                            print "UDL boundary at pos %d, changed from %r to %r" % (
+                                    i, udl_lang, buf.lang_from_style(style))
+                        break
                     if ch in WHITESPACE:
                         lastch_was_whitespace = True
                     elif ch in ".)}]" or ch in STOPOPS:
@@ -603,6 +616,11 @@ class PythonCITDLExtractorMixin(object):
         while i >= 0:
             ch = accessor.char_at_pos(i)
             style = accessor.style_at_pos(i)
+            if is_udl_buffer and buf.lang_from_style(style) != udl_lang:
+                if DEBUG:
+                    print "UDL boundary at pos %d, changed from %r to %r" % (
+                            i, udl_lang, buf.lang_from_style(style))
+                break
             if ch in WHITESPACE:
                 # drop all whitespace
                 while i >= 0:
