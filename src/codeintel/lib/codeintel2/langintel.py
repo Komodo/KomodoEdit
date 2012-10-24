@@ -569,7 +569,7 @@ class PythonCITDLExtractorMixin(object):
         from codeintel2.udl import UDLBuffer
         if isinstance(buf, UDLBuffer):
             # We need to check for udl transition points and not go beyond the
-            # current sub-language, bug 95926.
+            # current sub-language, bug 95946.
             is_udl_buffer = True
             udl_lang = buf.lang_from_pos(pos)
 
