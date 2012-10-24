@@ -1247,7 +1247,9 @@
             // Observed: sometimes there are no fold points in the new doc,
             // So recolor the document.
             setTimeout(function(scimoz) {
-                    scimoz.colourise(0, -1);
+                    let lastLine = lines[lines.length - 1];
+                    let endPoint = lastLine >= scimoz.lineCount ? -1 : scimoz.positionFromLine(lastLine + 1);
+                    scimoz.colourise(0, endPoint);
                     lines.forEach(function(i) {
                         if (scimoz.getFoldExpanded(i)) {
                             scimoz.toggleFold(i);
