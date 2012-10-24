@@ -1241,13 +1241,19 @@
         <body>
         <![CDATA[
             let lines = locationInfo.foldedLines;
-            if (!lines) return;
-            let scimoz = this.scimoz;
-            lines.forEach(function(i) {
-                if (scimoz.getFoldExpanded(i)) {
-                    scimoz.toggleFold(i);
-                }
-            });
+            if (!lines) {
+                return;
+            }
+            // Observed: sometimes there are no fold points in the new doc,
+            // So recolor the document.
+            setTimeout(function(scimoz) {
+                    scimoz.colourise(0, -1);
+                    lines.forEach(function(i) {
+                        if (scimoz.getFoldExpanded(i)) {
+                            scimoz.toggleFold(i);
+                        }
+                    });
+            }, 1, this.scimoz);
         ]]>
         </body>
         </method>
