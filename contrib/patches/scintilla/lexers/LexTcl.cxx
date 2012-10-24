@@ -371,8 +371,6 @@ static void ColouriseTclDoc(unsigned int startPos_,
 		    colourString(i-1, state, styler);
 		    state = SCE_TCL_STRING;
 		    pushBitState(bitState, BITSTATE_IN_STRING);
-		    // Ignore braces in this string
-		    inStrBraceCnt = -1;
 		}
 		cmdStart = false;
 	    } else if (ch == '$') {
