@@ -1497,9 +1497,7 @@ def _PackageKomodoUpdates(cfg, dryRun=False):
     elif sys.platform.startswith("linux"):
         image_dir = join(cfg.installRelDir, "INSTALLDIR")
     elif sys.platform.startswith("darwin"):
-        productName = (cfg.productType == "openkomodo" and cfg.prettyProductType
-                       or "Komodo %s" % cfg.prettyProductType)
-        image_dir = join(cfg.installRelDir, productName + ".app")
+        image_dir = join(cfg.installRelDir, cfg.macKomodoAppInstallName)
     else:
         raise Error("don't know install image dir for platform %r"
                     % sys.platform)
