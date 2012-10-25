@@ -22,14 +22,6 @@
 using namespace Scintilla;
 #endif
 
-#define INIT_OFFSCREEN_WINDOW 1
-#if INIT_OFFSCREEN_WINDOW
-#define OFFSCREEN_X 0
-#define OFFSCREEN_Y 0
-//#define OFFSCREEN_X -30000
-// #define OFFSCREEN_Y -30000
-#endif
-
 #ifdef SCIMOZ_COCOA_DEBUG
 static char *getClipStr(NPWindow *win, char *buf) {
   sprintf(buf, "l:%d, t:%d, r:%d, b:%d",
@@ -81,7 +73,7 @@ void SciMoz::Resize() {
   //scintilla->Resize();
   //return;
 #endif
-  // Get the bounds for fPlatform.pluginView
+  // Get the bounds for plugin view.
   NSView *parentView = (NSView*)wMain;
   ScintillaView *scView = (ScintillaView *) wEditor;
 #ifdef SCIMOZ_COCOA_DEBUG
@@ -194,9 +186,6 @@ void SciMoz::PlatformNew(void) {
 #ifdef SCIMOZ_COCOA_DEBUG
     fprintf(stderr,">> SciMoz::PlatformNew\n");
 #endif
-    fPlatform.holdingNSPanel = NULL;
-    fPlatform.pluginView = NULL;
-    fPlatform.installedAsSubView = false;
     fPlatform.viewIsVisible = false;
     portMain = NULL;
     fWindow = NULL;
@@ -213,15 +202,23 @@ nsresult SciMoz::PlatformDestroy(void) {
 #endif
     if (scintilla) {
         scintilla->unregisterNotifyCallback();
+        scintilla->SetTicking(false);
+        scintilla = NULL;
     }
     if (wEditor) {
-        PlatformResetWindow();
+        ScintillaView *scView = (ScintillaView *) wEditor;
+        [scView setHidden:YES];
+        [scView removeFromSuperview];
         // This must have reset out window.
         NS_PRECONDITION(portMain==0, "Should not be possible to destruct with a window!");
-        [(ScintillaView *) wEditor release];
+        [scView release];
         wEditor = NULL;
     }
     isClosed = 1;
+    portMain = NULL;
+    wMain = NULL;
+    fWindow = NULL;
+    fPlatform.viewIsVisible = false;
     return NS_OK;
  }
 
@@ -278,6 +275,11 @@ nsresult SciMoz::PlatformSetWindow(NPWindow* npwindow) {
     fprintf(stderr, "fWindow == npwindow: %d\n",
 	    fWindow == npwindow);
 #endif
+    Resize();
+#ifdef SCIMOZ_COCOA_DEBUG
+	//fprintf(stderr, "-scintilla->Resize()\n");
+#endif
+    scintilla->Resize();
     SetHIViewShowHide(WINDOW_DISABLED(fWindow));
     return NS_OK;
   }
@@ -298,69 +300,41 @@ nsresult SciMoz::PlatformSetWindow(NPWindow* npwindow) {
 	  getNSRectStr([mainView bounds], &buf[0]),
 	  getNSRectStr([mainView frame],  &buf[80]));
 #endif
-  if (npwindow->width && npwindow->height) {
-    NSRect winRect = NSMakeRect(npwindow->x, npwindow->y, // temp 0
-			  npwindow->width, npwindow->height);
-    // No, position scView at its parent's origin.
-    winRect = NSMakeRect(0, 0,
-			 npwindow->width, npwindow->height);
-    ScintillaView *scView = [[[ScintillaView alloc] initWithFrame:winRect] autorelease];
-    if (!scView) {
-#ifdef SCIMOZ_COCOA_DEBUG
-      fprintf(stderr, "No memory for a ScintillaView\n");
-#endif
-      return NS_OK;
-    }
-    [scView setAutoresizesSubviews: YES];
-    [scView setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
 
-    bool buildOffscreenWindow = false;
-#if INIT_OFFSCREEN_WINDOW
-    if (WINDOW_DISABLED(fWindow)) {
-      buildOffscreenWindow = true;
-    }
-#endif
-    if (buildOffscreenWindow) {
-      NSRect offScreenRect = NSMakeRect(OFFSCREEN_X, OFFSCREEN_Y,
-					npwindow->width, npwindow->height);
-      fPlatform.holdingNSPanel = [[NSPanel alloc] initWithContentRect:offScreenRect
-							    styleMask:NSTitledWindowMask|NSResizableWindowMask|NSTexturedBackgroundWindowMask
-							      backing:NSBackingStoreBuffered
-								defer:NO];
-      if (!fPlatform.holdingNSPanel) {
-	fprintf(stderr, "No memory for an offscreen window\n");
-	return NS_OK;
-      }
-      [fPlatform.holdingNSPanel setContentView:scView];
-      fprintf(stderr, "+ Create a new ScintillaView in an offscreen panel\n");
-    }
-    scintilla = [scView backend];
-    assert(scintilla != NULL);
-    if (wEditor) {
+  // Initialize the plugin and tie it to the given window.
+  assert(fWindow != NULL);
+  assert(npwindow->window);
+  // Position scView at its parent's origin.
+  NSRect winRect = NSMakeRect(0, 0, npwindow->width, npwindow->height);
+  ScintillaView *scView = [[ScintillaView alloc] initWithFrame:winRect];
+  if (!scView) {
 #ifdef SCIMOZ_COCOA_DEBUG
-      fprintf(stderr, "OK, we have an unhooked scintillaView object\n");
+    fprintf(stderr, "No memory for a ScintillaView\n");
 #endif
-    }
-    fWindow = npwindow;
-    portMain = npwindow->window;
-    wMain = fPlatform.pluginView = (NSView *) npwindow->window;
-    wEditor = scView;
-    Create(wEditor);
-    SetHIViewShowHide(false);
-    SendEditor(SCI_USEPOPUP, FALSE, 0);
-    SendEditor(SCI_SETFOCUS, FALSE, 0);
-    scintilla->RegisterNotifyCallback((intptr_t)this, (SciNotifyFunc)SciMoz::NotifySignal);
-    //fprintf(stderr, "<< SciMoz::PlatformSetWindow\n");
+    return NS_ERROR_FAILURE;
   }
-  return NS_OK;
-}
+  fWindow = npwindow;
+  portMain = npwindow->window;
+  wMain = (NSView *)npwindow->window;
+  [(NSView *)wMain addSubview:scView];
+  wEditor = [scView retain];
+  [scView setAutoresizesSubviews: YES];
+  [scView setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
 
-static void closeOffscreenPanel(NSPanel *aHoldingPanel) {
-  fprintf(stderr, "Pull the SCView out of the offscreen window...\n");
-  [aHoldingPanel setContentView:NULL];
-  [aHoldingPanel setReleasedWhenClosed: YES];
-  [aHoldingPanel close];
-  fprintf(stderr, "Pull the SCView out of the offscreen window...done\n");
+  scintilla = [scView backend];
+  assert(scintilla != NULL);
+  if (wEditor) {
+#ifdef SCIMOZ_COCOA_DEBUG
+    fprintf(stderr, "OK, we have an unhooked scintillaView object\n");
+#endif
+  }
+  Create(wEditor);
+  SetHIViewShowHide(false);
+  SendEditor(SCI_USEPOPUP, FALSE, 0);
+  SendEditor(SCI_SETFOCUS, FALSE, 0);
+  scintilla->RegisterNotifyCallback((intptr_t)this, (SciNotifyFunc)SciMoz::NotifySignal);
+  //fprintf(stderr, "<< SciMoz::PlatformSetWindow\n");
+  return NS_OK;
 }
 
 void SciMoz::SetHIViewShowHide(bool disable) {
@@ -379,25 +353,13 @@ void SciMoz::SetHIViewShowHide(bool disable) {
 #ifdef SCIMOZ_COCOA_DEBUG
       fprintf(stderr, "Remove scView from superview\n");
 #endif
-      if (fPlatform.holdingNSPanel) {
-	closeOffscreenPanel(fPlatform.holdingNSPanel);
-	fPlatform.holdingNSPanel = NULL;
-      } else if (fPlatform.installedAsSubView) {
-	[scView removeFromSuperview];
-	[scView setNeedsDisplay:YES];
-	[scView setHidden:YES];
-	fPlatform.installedAsSubView = false;
-      }
+      [scView setHidden:YES];
       fPlatform.viewIsVisible = false;
     }
   } else {
     if (!fPlatform.viewIsVisible) {
       // It's time to move the scintilla view from the offscreen window to the
       // Plugin's ChildView
-      if (fPlatform.holdingNSPanel) {
-	closeOffscreenPanel(fPlatform.holdingNSPanel);
-	fPlatform.holdingNSPanel = NULL;
-      }
       [scView setHidden:NO];
 #ifdef SCIMOZ_COCOA_DEBUG
       //fprintf(stderr, "-[((NSView *) wMain) addSubview:scView]\n");
@@ -411,64 +373,13 @@ void SciMoz::SetHIViewShowHide(bool disable) {
       fprintf(stderr, "-scintilla->SetTicking(true)\n");
 #endif
       scintilla->SetTicking(true);
-#ifdef SCIMOZ_COCOA_DEBUG
-      fprintf(stderr, "-wMain = fPlatform.pluginView;\n");
-#endif
-      if (fPlatform.pluginView) {
-	if (!fPlatform.installedAsSubView) {
-#ifdef SCIMOZ_COCOA_DEBUG
-	  fprintf(stderr, "-[(NSView *)wMain:%p addSubview:scView];\n", wMain);
-#endif
-	  [fPlatform.pluginView addSubview:scView];
-#ifdef SCIMOZ_COCOA_DEBUG
-	  //fprintf(stderr, "-Resize()\n");
-#endif
-	  fPlatform.installedAsSubView = true;
-	} else {
-#ifdef SCIMOZ_COCOA_DEBUG
-	  fprintf(stderr, "already fPlatform.installedAsSubView\n");
-#endif
-	}
-	fPlatform.viewIsVisible = true;
-	Resize();
-#ifdef SCIMOZ_COCOA_DEBUG
-	//fprintf(stderr, "-scintilla->Resize()\n");
-#endif
-	scintilla->Resize();
-      } else {
-#ifdef SCIMOZ_COCOA_DEBUG
-	fprintf(stderr, "fPlatform.pluginView is null\n");
-#endif
-      }
+      fPlatform.viewIsVisible = true;
     }
   }
 }
 
 nsresult SciMoz::PlatformResetWindow() {
-#ifdef SCIMOZ_COCOA_DEBUG
-    fprintf(stderr,"SciMoz::PlatformResetWindow\n");
-#endif
-
-    // If our "parking lot" exists and is not already the parent,
-    // then park our editor
-    if (wEditor && !parked) {
-      if (fPlatform.holdingNSPanel) {
-	closeOffscreenPanel(fPlatform.holdingNSPanel);
-	fPlatform.holdingNSPanel = NULL;
-      } else if (fPlatform.installedAsSubView) {
-	ScintillaView *scView = (ScintillaView *) wEditor;
-	if (scView) {
-	  [scView removeFromSuperview];
-	  fPlatform.installedAsSubView = false;
-	  fPlatform.pluginView = NULL;
-	}
-      }
-      portMain = NULL;
-      wMain = NULL;
-      parked = true;
-      fWindow = NULL;
-    }
-    return NS_OK;
+  return NS_OK;
 }
 
 void AbortComposing(NPP npp, NPObject* object) {
@@ -603,10 +514,10 @@ int16 SciMoz::PlatformHandleEvent(void *ev) {
 						 (ScintillaView *) wEditor);
         if (fixedNSEvent) {
             AbortComposing(mPlugin->GetNPP(), mIMEHelper);
-	    if (fPlatform.pluginView) {
-	      fprintf(stderr, "dispatch mouseUp to fPlatform.pluginView\n");
-	      [fPlatform.pluginView mouseUp:fixedNSEvent];
-	    }
+	    //if (fPlatform.pluginView) {
+	    //  fprintf(stderr, "dispatch mouseUp to fPlatform.pluginView\n");
+	    //  [fPlatform.pluginView mouseUp:fixedNSEvent];
+	    //}
             // scintilla->MouseUp(fixedNSEvent);
         }
         break;
@@ -626,7 +537,7 @@ int16 SciMoz::PlatformHandleEvent(void *ev) {
 		AbortComposing(mPlugin->GetNPP(), mIMEHelper);
             } else {
 	      // Make the parent the first responder.
-	      [[(NSView *)fPlatform.pluginView window] makeFirstResponder:(ScintillaView *) wMain];
+	      //[[(NSView *)fPlatform.pluginView window] makeFirstResponder:(ScintillaView *) wMain];
 	    }
         }
         break;
@@ -671,7 +582,7 @@ int16 SciMoz::PlatformHandleEvent(void *ev) {
 						 (ScintillaView *) wEditor);
         if (fixedNSEvent) {
 	  fprintf(stderr, "dispatch keyDown to fPlatform.pluginView\n");
-	  [fPlatform.pluginView keyDown:fixedNSEvent];
+	  //[fPlatform.pluginView keyDown:fixedNSEvent];
         }
         break;
 

@@ -212,9 +212,6 @@ PlatformInstance;
 #if defined(XP_MACOSX)
 #include <Cocoa/Cocoa.h>
 typedef struct _PlatformInstance {
-    NSPanel   *holdingNSPanel; // home of SCView until the NPAPI is ready.
-	NSView	  *pluginView; // was container
-    bool       installedAsSubView;
     bool       viewIsVisible;
 }
 PlatformInstance;
