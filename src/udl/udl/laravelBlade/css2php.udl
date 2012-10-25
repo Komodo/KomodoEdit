@@ -1,0 +1,41 @@
+# css2php.udl
+# Transition from CSS into PHP code blocks and expressions.  Fixes bug 72699
+#
+# Copyright (c) 2007 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+#
+# Authors: 
+#  Eric Promislow <ericp@activestate.com>
+
+family css
+
+state IN_CSS_DSTRING:
+'{{' : paint(upto, CSS_STRING), paint(include, SSL_OPERATOR), \
+spush_check(IN_CSS_DSTRING) => IN_SSL_DEFAULT
+
+state IN_CSS_SSTRING:
+'{{' : paint(upto, CSS_STRING), paint(include, SSL_OPERATOR), \
+spush_check(IN_CSS_SSTRING) => IN_SSL_DEFAULT
+
+state IN_CSS_DEFAULT:
+'{{' : paint(upto, CSS_DEFAULT), paint(include, SSL_OPERATOR), \
+spush_check(IN_CSS_DEFAULT) => IN_SSL_DEFAULT
+
+state IN_CSS_COMMENT_1:
+'{{' : paint(upto, CSS_COMMENT), paint(include, SSL_OPERATOR), \
+spush_check(IN_CSS_COMMENT_1) => IN_SSL_DEFAULT
+
+# This one can be completely wrong, because we don't know how many lines of code
+# the PHP expression will return, but we have the same problem with strings, so
+# we'll do it anyway.
+
+state IN_CSS_COMMENT_LINE_1:
+'{{' : paint(upto, CSS_COMMENT), paint(include, SSL_OPERATOR), \
+spush_check(IN_CSS_COMMENT_LINE_1) => IN_SSL_DEFAULT
+
+# Bug 92805:
+# Handle PHP <?...?> transitions in HTML style attributes
+state IN_CSS_STAG_ATTR_DEFAULT:
+'{{': paint(upto, CSS_DEFAULT), \
+      spush_check(IN_CSS_STAG_ATTR_DEFAULT), \
+      paint(include, SSL_OPERATOR) => IN_SSL_DEFAULT 

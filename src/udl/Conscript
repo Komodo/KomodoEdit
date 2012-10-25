@@ -67,6 +67,13 @@ my $COPY = ($platform eq "win"? "xcopy /s/q" : "cp -R");
 my $creator = "ActiveState";
 my @lexers = (
               {
+               language_name => "LaravelBlade",
+               codename => "laravelblade_language",
+               udl_path => "laravelblade-mainlex.udl",
+               ext => ".blade.php",
+               skel => "skel/LaravelBlade",
+              },
+              {
                language_name => "Django",
                codename => "django_language",
                udl_path => "django-mainlex.udl",

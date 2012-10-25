@@ -1,0 +1,154 @@
+
+language LaravelBlade
+
+################ Boilerplate ################
+
+# Boilerplate - need to start with family set to markup and IN_M_DEFAULT state,
+# we'll later perform a null-transition change to get into the SSL state.
+
+# This udl extends the markup state, and transitions into the template state
+# when needed.
+
+family markup
+
+state IN_M_DEFAULT:
+/./ : redo, => IN_SSL_DEFAULT
+
+################ Language Start ################
+
+family ssl # server side language
+
+# Specify the min and max styles we'll be referring to.
+start_style SSL_DEFAULT
+end_style SSL_VARIABLE
+
+# If the language has keywords, specify which style needs to be transformed
+keyword_style SSL_IDENTIFIER => SSL_WORD
+keywords [
+        # Keywords
+        "include",
+        "@render",
+        "@for",
+        "@endfor",
+        "@foreach",
+        "@endforeach",
+        "@while",
+        "@endwhile",
+        "@if",
+        "@endif",
+        "@else",
+        "@elseif",
+        "@forelse",
+        "@empty",
+        "@endforelse",
+        "@unless",
+        "@endunless",
+        "@section",
+        "@yield",
+        "@yield_section",
+        "@endsection",
+        "@layout",
+        "@parent"
+
+        ]
+
+# Set the basic patterns we'll be using for styling transitions.
+# For most programming languages, names cannot start with a number, but they
+# often allow a number after the first character - e.g. "bar21a"
+pattern FIRSTNAMECHAR = '_a-zA-Z\x80-\xff' # names (identifier, keyword, variable...) only can start with these chars
+pattern NAMECHAR = '$FIRSTNAMECHAR\d'      # rest of the name, after the first char
+pattern WS = '\s\t\r\n'                    # whitespace
+pattern OP = '!#%&\(\)\*\+,-\.\/:;<=>\?@\[\]\^\{\}~|'  # operator characters - escaping special regex values
+
+################ Default Style ################
+
+# Define what happens when in default (initial) state. This is where we set up
+# the transitions to other states.
+state IN_SSL_DEFAULT:
+
+# ----------- Entering Comments ---------- #
+
+# C-style one line comments
+#'//' : paint(upto, SSL_DEFAULT),  => IN_SSL_COMMENT_TO_EOL
+
+# Hash-style one line comments
+#'#' : paint(upto, SSL_DEFAULT),  => IN_SSL_COMMENT_TO_EOL
+
+# SQL-style one line comments
+#'--' : paint(upto, SSL_DEFAULT),  => IN_SSL_COMMENT_TO_EOL
+
+# Lisp-style one line comments
+#';' : paint(upto, SSL_DEFAULT),  => IN_SSL_COMMENT_TO_EOL
+
+# Erlang-style one line comments
+#'%' : paint(upto, SSL_DEFAULT),  => IN_SSL_COMMENT_TO_EOL
+
+# C-style block comments
+#'/*' : paint(upto, SSL_DEFAULT), => IN_SSL_COMMENT_C_BLOCK
+
+# Pascal-style block comments
+#'(*' : paint(upto, SSL_DEFAULT), => IN_SSL_COMMENT_PASCAL_BLOCK
+
+# ----------- Entering Whitespace ---------- #
+
+# Just stay in whatever style we currently are using.
+/[$WS]+/  : #stay
+
+# ----------- Entering Strings ---------- #
+
+'"' : paint(upto, SSL_DEFAULT), => IN_SSL_DSTRING
+'\'' : paint(upto, SSL_DEFAULT), => IN_SSL_SSTRING
+'`' : paint(upto, SSL_DEFAULT), => IN_SSL_XSTRING
+
+# ----------- Entering Numbers ---------- #
+
+# Go process a number, try to do it in regexes octal and hex first.
+/0[Xx][0-9a-fA-F]+/ : paint(upto, SSL_DEFAULT), paint(include, SSL_NUMBER)  # Hex numbers
+/[-+]?0[0-7]*/ : paint(upto, SSL_DEFAULT), paint(include, SSL_NUMBER)       # Octal numbers
+/[-+]?[1-9]+/ : paint(upto, SSL_DEFAULT), paint(include, SSL_NUMBER)        # Regular numbers
+
+# ----------- Entering Identifiers ---------- #
+
+/[$FIRSTNAMECHAR][$NAMECHAR]*/ : paint(upto, SSL_DEFAULT), paint(include, SSL_IDENTIFIER)
+
+# ----------- Entering Operators ---------- #
+
+/[$OP]/ : paint(upto, SSL_DEFAULT), paint(include, SSL_OPERATOR)
+
+
+################ In Comments - determines how we exit a comment ################
+
+state IN_SSL_COMMENT_TO_EOL: 
+/[\r\n]/ : paint(upto, SSL_COMMENT), => IN_SSL_DEFAULT  # back to default state
+
+state IN_SSL_COMMENT_C_BLOCK: 
+'*/' : paint(include, SSL_COMMENTBLOCK), => IN_SSL_DEFAULT  # back to default state
+
+state IN_SSL_COMMENT_PASCAL_BLOCK: 
+'*)' : paint(include, SSL_COMMENTBLOCK), => IN_SSL_DEFAULT  # back to default state
+
+################ In Strings - determines how we exit a string ################
+
+state IN_SSL_DSTRING:
+'"' : paint(include, SSL_STRING), => IN_SSL_DEFAULT  # back to default state
+/\\./ : #stay, anything escaped means it's still a string
+
+state IN_SSL_SSTRING:
+'\'' : paint(include, SSL_STRING), => IN_SSL_DEFAULT  # back to default state
+/\\./ : #stay, anything escaped means it's still a string
+
+state IN_SSL_XSTRING:
+'`' : paint(include, SSL_STRING), => IN_SSL_DEFAULT  # back to default state
+/\\./ : #stay, anything escaped means it's still a string
+
+################ End of State Handling ################
+
+
+################ Fold Handling ################
+
+# Uncomment to enable folding on "{" and "}"
+
+#fold "{" SSL_OPERATOR +
+#fold "}" SSL_OPERATOR -
+
+################ End of Fold Handling ################

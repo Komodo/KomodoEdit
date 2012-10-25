@@ -1,0 +1,26 @@
+# Main udl for LaravelBlade.
+
+language LaravelBlade
+
+include "html2js.udl"
+
+include "html2css.udl"
+
+include "laravelBlade/html2php.udl"
+
+include "laravelBlade/css2php.udl"
+include "css2html.udl"
+
+include "js2html.udl"
+include "laravelBlade/js2php.udl"
+
+include "laravelBlade/php2any.udl"
+
+include "html.udl"
+include "csslex.udl"
+include "jslex.udl"
+include "phplex.udl"
+
+# State changes into laravelBlade go here.
+
+include "laravelBlade/html2laravelBlade.udl"

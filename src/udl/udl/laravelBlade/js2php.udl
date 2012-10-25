@@ -1,0 +1,56 @@
+# js2php.udl
+# Transition from JavaScript strings into PHP code blocks
+#
+# Copyright (c) 2006 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+#
+# Authors: 
+#  Eric Promislow <ericp@activestate.com>
+
+family csl
+
+state IN_CSL_DSTRING:
+'{{' : paint(upto, CSL_STRING), paint(include, SSL_OPERATOR), \
+spush_check(IN_CSL_DSTRING) => IN_SSL_DEFAULT
+
+state IN_CSL_SSTRING:
+'{{' : paint(upto, CSL_STRING), paint(include, SSL_OPERATOR), \
+spush_check(IN_CSL_SSTRING) => IN_SSL_DEFAULT
+
+state IN_CSL_DEFAULT:
+'{{' : paint(upto, CSL_DEFAULT), paint(include, SSL_OPERATOR), \
+spush_check(IN_CSL_DEFAULT) => IN_SSL_DEFAULT
+
+state IN_CSL_COMMENT_1:
+'{{' : paint(upto, CSL_COMMENTBLOCK), paint(include, SSL_OPERATOR), \
+spush_check(IN_CSL_COMMENT_1) => IN_SSL_DEFAULT
+
+# This one can be completely wrong, because we don't know how many lines of code
+# the PHP expression will return, but we have the same problem with strings, so
+# we'll do it anyway.
+
+state IN_CSL_COMMENT_LINE_1:
+'{{' : paint(upto, CSL_COMMENT), paint(include, SSL_OPERATOR), \
+spush_check(IN_CSL_COMMENT_LINE_1) => IN_SSL_DEFAULT
+
+state IN_CSL_REGEX:
+'{{' : paint(upto, CSL_REGEX), paint(include, SSL_OPERATOR), \
+spush_check(IN_CSL_REGEX) => IN_SSL_DEFAULT
+
+# Handle PHP expressions inside on* handlers
+
+state IN_CSL_STAG_ATTR_DEFAULT_DOUBLEQUOTE:
+'{{' : paint(upto, CSL_DEFAULT), paint(include, SSL_OPERATOR), \
+spush_check(IN_CSL_STAG_ATTR_DEFAULT_DOUBLEQUOTE) => IN_SSL_DEFAULT
+
+state IN_CSL_STAG_ATTR_DEFAULT_SINGLEQUOTE:
+'{{' : paint(upto, CSL_DEFAULT), paint(include, SSL_OPERATOR), \
+spush_check(IN_CSL_STAG_ATTR_DEFAULT_SINGLEQUOTE) => IN_SSL_DEFAULT
+
+state IN_CSL_STAG_ATTR_SSTRING:
+'{{' : paint(upto, CSL_DEFAULT), paint(include, SSL_OPERATOR), \
+spush_check(IN_CSL_STAG_ATTR_SSTRING) => IN_SSL_DEFAULT
+
+state IN_CSL_STAG_ATTR_DSTRING:
+'{{' : paint(upto, CSL_DEFAULT), paint(include, SSL_OPERATOR), \
+spush_check(IN_CSL_STAG_ATTR_DSTRING) => IN_SSL_DEFAULT

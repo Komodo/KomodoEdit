@@ -1,0 +1,4 @@
+family ssl
+
+state IN_SSL_DEFAULT:
+'}}' : paint(upto, SSL_DEFAULT), paint(include, TPL_OPERATOR), spop_check, => IN_M_DEFAULT

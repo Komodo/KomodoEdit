@@ -213,7 +213,7 @@ class KoLanguageKeywordBase(KoLanguageBase):
         except:
             log.exception("_keyPressed threw an exception")
         # Always have the base class do its thing
-        KoLanguageBase._keyPressed(self, ch, scimoz, style_info)
+        return KoLanguageBase._keyPressed(self, ch, scimoz, style_info)
 
     def _thisLineAlreadyDedented(self, scimoz, currLineNo, expected_indent):
         """

@@ -155,3 +155,12 @@ class CakePHPTemplate(LangInfo):
     conforms_to_bases = ["PHP"]
     exts = [".ctp"]
 
+class LaravelBladeTemplateLangInfo(LangInfo):
+    name = "Laravel Blade Template"
+    komodo_name = "LaravelBlade"
+    conforms_to_bases = ["Text"]
+    exts = [".blade.php"]
+    section_regexes = [
+        ("section", re.compile(r'@section')),
+        ]
+

@@ -1,0 +1,50 @@
+family markup
+
+# The only transition we need: when we see a "@", move to TPL, process the
+# keyword, and transition to PHP
+
+state IN_M_DEFAULT:
+'@' paint(upto, M_DEFAULT) => IN_TPL_DEFAULT
+
+family tpl
+sublanguage LaravelBlade
+
+# If the language has keywords, specify which style needs to be transformed
+keyword_style TPL_IDENTIFIER => TPL_WORD
+keywords [
+        # Keywords
+        "@include",
+        "@render",
+        "@for",
+        "@endfor",
+        "@foreach",
+        "@endforeach",
+        "@while",
+        "@endwhile",
+        "@if",
+        "@endif",
+        "@else",
+        "@elseif",
+        "@forelse",
+        "@empty",
+        "@endforelse",
+        "@unless",
+        "@endunless",
+        "@section",
+        "@yield",
+        "@yield_section",
+        "@endsection",
+        "@layout",
+        "@parent"
+        ]
+
+state IN_TPL_DEFAULT:
+/\w+/: paint(include, TPL_IDENTIFIER), at_eol(IN_M_DEFAULT) => IN_SSL_DEFAULT
+# We shouldn't see non-alpha after '@', so go back to default.
+/./: redo, => IN_M_DEFAULT
+
+# Let the Python language-service handle indentation.
+
+state IN_TPL_COMMENT:
+'--}}': paint(include, TPL_COMMENT), spop_check, => IN_M_DEFAULT
+

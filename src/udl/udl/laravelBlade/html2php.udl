@@ -1,0 +1,50 @@
+family markup
+
+state IN_M_DEFAULT:
+
+'{{--'  : paint(upto, M_DEFAULT), paint(include, TPL_COMMENT), \
+	spush_check(IN_M_DEFAULT), => IN_TPL_COMMENT
+
+'{{'  : paint(upto, M_DEFAULT), paint(include, TPL_OPERATOR), \
+	spush_check(IN_M_DEFAULT), => IN_SSL_DEFAULT
+
+# And laravel transitions can show up in attribute strings too
+
+state IN_M_STAG_EXP_TNAME:
+'{{' : paint(upto, M_STAGO), paint(include, TPL_OPERATOR), \
+	spush_check(IN_M_STAG_EXP_TNAME), \
+	=> IN_SSL_DEFAULT
+
+state IN_M_STAG_IN_TAGNAME_1:
+'{{' : paint(upto, M_TAGNAME), paint(include, TPL_OPERATOR), \
+	spush_check(IN_M_STAG_IN_TAGNAME_1), \
+	=> IN_SSL_DEFAULT
+
+state IN_M_STAG_IN_TAGNAME_2:
+'{{' : paint(upto, M_TAGNAME), paint(include, TPL_OPERATOR), \
+	spush_check(IN_M_STAG_IN_TAGNAME_2), \
+	=> IN_SSL_DEFAULT
+
+state IN_M_STAG_POST_TAGNAME:
+'{{' : paint(upto, M_TAGSPACE), paint(include, TPL_OPERATOR), \
+	spush_check(IN_M_STAG_POST_TAGNAME), \
+	=> IN_SSL_DEFAULT
+
+state IN_M_STAG_IN_ATTRNAME:
+'{{' : paint(upto, M_ATTRNAME), paint(include, TPL_OPERATOR), \
+	spush_check(IN_M_STAG_IN_ATTRNAME), \
+	=> IN_SSL_DEFAULT
+
+state IN_M_STAG_ATTR_DSTRING:
+'{{' : paint(upto, M_STRING), paint(include, TPL_OPERATOR), \
+	spush_check(IN_M_STAG_ATTR_DSTRING), \
+	=> IN_SSL_DEFAULT
+
+state IN_M_STAG_ATTR_SSTRING:
+'{{' : paint(upto, M_STRING), paint(include, TPL_OPERATOR), \
+	spush_check(IN_M_STAG_ATTR_SSTRING), \
+	=> IN_SSL_DEFAULT 
+
+state IN_M_STAG_POST_TAGNAME:
+'{{' : paint(upto, M_TAGSPACE), paint(include, TPL_OPERATOR), \
+       spush_check(IN_M_STAG_IN_ATTRNAME), => IN_SSL_DEFAULT
