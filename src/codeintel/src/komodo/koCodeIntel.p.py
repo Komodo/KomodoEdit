@@ -742,6 +742,9 @@ class KoCodeIntelEvalController(EvalController):
             def setDefinitionsInfo(self, *args):
                 return self.obj.setDefinitionsInfo(*args)
             @components.ProxyToMainThread
+            def setStatusMessage(self, *args):
+                return self.obj.setStatusMessage(*args)
+            @components.ProxyToMainThread
             def done(self, *args):
                 return self.obj.done(*args)
         self.ui_handler = UIHandlerProxy(ui_handler)
