@@ -110,10 +110,9 @@ void
 init_SilverCity(void)
 { 
     PyObject * m;
-    PyObject * moduleDict;
 
     m = Py_InitModule3(MODULE_NAME, moduleMethods, module_doc);
-    moduleDict = PyModule_GetDict(m);
+    (void) PyModule_GetDict(m);
 
     initPyLexState();
     initPyPropSet();
