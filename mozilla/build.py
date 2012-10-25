@@ -1207,8 +1207,8 @@ def target_configure(argv):
 
         gcc = config.get("gcc") or os.environ.get("CC")
         gxx = config.get("gxx") or os.environ.get("CXX")
-        if gcc is None and osx_major_ver >= 12:
-            # try clang
+        if gcc is None:
+            # Prefer clang when it's available.
             try:
                 gcc = which.which("clang")
                 gxx = which.which("clang++")
