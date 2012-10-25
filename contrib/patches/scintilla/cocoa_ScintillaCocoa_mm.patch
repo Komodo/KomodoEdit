@@ -11,7 +11,7 @@ Index: cocoa/ScintillaCocoa.mm
  #include "ScintillaView.h"
  #include "PlatCocoa.h"
  
-@@ -383,6 +383,7 @@
+@@ -383,6 +381,7 @@
    timerTarget = [[[TimerTarget alloc] init: this] retain];
    layerFindIndicator = NULL;
    Initialise();
@@ -19,7 +19,7 @@ Index: cocoa/ScintillaCocoa.mm
  }
  
  //--------------------------------------------------------------------------------------------------
-@@ -712,7 +713,11 @@
+@@ -712,7 +711,11 @@
        return reinterpret_cast<sptr_t>(this);
        
      case SCI_GRABFOCUS:
@@ -32,7 +32,7 @@ Index: cocoa/ScintillaCocoa.mm
        break;
  
      case SCI_SETBUFFEREDDRAW:
-@@ -880,7 +885,7 @@
+@@ -880,7 +883,7 @@
    if (selectedText.rectangular)
    {
      SelectionPosition selStart = sel.RangeMain().Start();
@@ -41,7 +41,7 @@ Index: cocoa/ScintillaCocoa.mm
    }
    else 
      if (pdoc->InsertString(sel.RangeMain().caret.Position(), selectedText.s, length))
-@@ -1083,6 +1088,10 @@
+@@ -1083,6 +1086,10 @@
   */
  void ScintillaCocoa::StartDrag()
  {
@@ -52,7 +52,16 @@ Index: cocoa/ScintillaCocoa.mm
    if (sel.Empty())
      return;
  
-@@ -1672,6 +1681,12 @@
+@@ -1525,7 +1532,7 @@
+   
+   // Convert absolute coordinate into the range [0..1]. Keep in mind that the visible area
+   // does *not* belong to the scroll range.
+-  float relativePosition = (float) topLine / MaxScrollPos();
++  float relativePosition = (float) topLine / MaxScrollPos() || 0;
+   [topContainer setVerticalScrollPosition: relativePosition];
+ }
+ 
+@@ -1672,6 +1679,12 @@
    notifyProc = callback;
  }
  
