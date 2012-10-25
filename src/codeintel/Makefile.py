@@ -469,7 +469,7 @@ def _run(cmd, logstream=_RUN_DEFAULT_LOGSTREAM):
         status = retval
     if status:
         #TODO: add std OSError attributes or pick more approp. exception
-        raise OSError("error running '%s': %r" % (cmd, status))
+        raise OSError("error running '%s' from %s: %r" % (cmd, os.getcwd(), status))
 
 def _run_in_dir(cmd, cwd, logstream=_RUN_DEFAULT_LOGSTREAM):
     """Run the given command in the given working directory.
