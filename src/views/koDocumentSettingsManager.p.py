@@ -216,10 +216,13 @@ class koDocumentSettingsManager:
         # restore fold points if the user has checked that pref off.
         # We don't do it by default because the colourise(.., -1) call below
         # can be quite slow.
+        prefs = koDoc.prefs
+        # Bug 93190: effectivePrefs are boolean for foldPoints,
+        # but get the actual foldPoints off the document prefs
         if effectivePrefs.getBooleanPref("editRestoreFoldPoints") and \
-           effectivePrefs.hasPref('foldPoints') and \
-           scimoz.getPropertyInt("fold"):
-            foldPoints = effectivePrefs.getPref("foldPoints")
+                prefs.hasPref('foldPoints') and \
+                scimoz.getPropertyInt("fold"):
+            foldPoints = prefs.getPref("foldPoints")
             if foldPoints.length:
                 # restyle the whole document to get folding right
                 # Fixes bug 45621
@@ -228,8 +231,9 @@ class koDocumentSettingsManager:
                     scimoz.toggleFold(foldPoints.getLongPref(i));
 
         # restore the bookmarks
-        if effectivePrefs.hasPref("bookmarks"):
-            bookmarks = effectivePrefs.getPref("bookmarks")
+        # Bug 93190: use doc prefs, stay away from project prefs here
+        if prefs.hasPref("bookmarks"):
+            bookmarks = prefs.getPref("bookmarks")
             for i in range(bookmarks.length):
                 scimoz.markerAdd(bookmarks.getLongPref(i), MARKNUM_BOOKMARK)
 
@@ -276,7 +280,8 @@ class koDocumentSettingsManager:
         # Do a quick check to see if any lines are folded - as most of the time
         # there will be zero folded lines.
         # FUTURE: This can later use "if not scimoz.allLinesVisible:".
-        if prefs.getBooleanPref("editRestoreFoldPoints") and \
+        effectivePrefs = self.koDoc.getEffectivePrefs()
+        if effectivePrefs.getBooleanPref("editRestoreFoldPoints") and \
            scimoz.visibleFromDocLine(lineCount) != lineCount:
             # TODO: Perf: This could be optimized using a bisect approach, using
             #       visibleFromDocLine to find where the folded lines are. Even
