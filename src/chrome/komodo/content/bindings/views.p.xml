@@ -420,13 +420,13 @@
             var views = [];
             try {
                 // Return true iff the two file paths are equal.
-                var fequal = function(a, b) {
+                var fequal = function(a, b) { /*
 <!-- #if PLATFORM == "win" -->
-                    return a.toLowerCase() == b.toLowerCase();
+                    */ return a.toLowerCase() == b.toLowerCase(); /*
 <!-- #else -->
-                    return a == b;
+                    */ return a == b; /*
 <!-- #endif -->
-                }
+                */ }
 
                 // Clean up the URI (this is a little hacky).
                 var koFileEx = Components.classes["@activestate.com/koFileEx;1"]
