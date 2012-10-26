@@ -1873,8 +1873,6 @@ def _PackageKomodoMozillaPatches(cfg):
     # Trim out some Komodo-specific bits.
     to_trim = [
         "komodo_app",
-        "komodo*patch",
-        join("*", "komodo*patch"),
     ]
     for subpath in to_trim:
         path_pattern = join(buildDir, subpath)
