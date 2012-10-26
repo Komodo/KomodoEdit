@@ -668,7 +668,7 @@ def _getMozSrcInfo(scheme, mozApp):
             verString = re.search(r"\d+(?:_\d+)*", config["mozSrcGitRev"]).group(0)
             verList = verString.split("_") + ["0", "0"]
             config["mozVer"] = float(verList[0] + "." + "".join(verList[1:])[:2])
-        config["mozSrcName"] = "moz%s" % (int(config["mozVer"]), )
+        config["mozSrcName"] = "moz%s" % (int(config["mozVer"] * 100), )
 
     elif re.match(r"^(?P<ver>(\d+?)+)(:(?P<tag>\w+))?$", scheme): # VER[:TAG]
         match = re.match(r"^(?P<ver>(\d+?)+)(:(?P<tag>\w+))?$", scheme)
