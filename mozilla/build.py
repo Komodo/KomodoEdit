@@ -1645,15 +1645,37 @@ def _relocatePyxpcom(config):
             if config.mozApp == "xulrunner":
                 # xulrunner is a framework, so the path layout is
                 # slightly different
-                new = "@executable_path/../../Frameworks/Python.framework/" \
+                new = "@rpath/../../Frameworks/Python.framework/" \
                       "Versions/%s/Python" % config.pyVer
             else:
-                new = "@executable_path/../Frameworks/Python.framework/" \
+                new = "@rpath/../Frameworks/Python.framework/" \
                       "Versions/%s/Python" % config.pyVer
             cmd = "chmod +w %s && install_name_tool -change %s %s %s"\
                   % (lib, old, new, lib)
             log.info("\t%s", lib)
             _run(cmd)
+
+            # Fix up rpaths so that mozpython launched via bk test can find things.
+            # install_name_tool -add_rpath fails if the rpaths already exists, so
+            # we need to go read the file first and grep the load commands.
+            rpaths = set()
+            in_rpath_command = False
+            load_commands = subprocess.check_output(["otool", "-l", lib]).splitlines()
+            for line in load_commands:
+                if line.startswith("Load command"):
+                    in_rpath_command = False # new load command
+                elif line.strip() == "cmd LC_RPATH":
+                    in_rpath_command = True # This is a LC_RPATH load command
+                elif in_rpath_command and line.strip().startswith("path "):
+                    # this is an rpath; add it to what we know
+                    rpaths.add(line.strip()[len("path "):].rsplit(" (offset ")[0])
+            for rpath_rel in [
+                        "/.",       # Running Komodo, @executable_path is mozBin
+                        "/.." * 7,  # Running tests, @executable_path is siloed python
+                    ]:
+                rpath = "@executable_path" + rpath_rel
+                if rpath not in rpaths:
+                    _run('install_name_tool -add_rpath "%s" "%s"' % (rpath, lib))
         else:
             log.error("PyXPCOM was not built correctly!\n%s", ''.join(linkage))
 
