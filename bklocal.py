@@ -1834,17 +1834,13 @@ class SetLdLibraryPath(black.configure.SetPathEnvVar):
                                                    serializeAs=["env"])
             
     def _Determine_Do(self):
-        # Don't want to set for Mac because it causes a build problem with libsqlite3
-        # conflicts between Mac OS X 10.6's sqlite and Mozilla's. See
-        # mozilla bug 513747 for more details. The symptom is this:
-        #    dyld: Library not loaded: /usr/lib/libsqlite3.dylib
-        #      Referenced from: /System/Library/Frameworks/Security.framework/Versions/A/Security
-        #      Reason: Incompatible library version: Security requires version 9.0.0 or later, but libsqlite3.dylib provides version 1.0.0
-        if sys.platform.startswith("linux"):
+        if sys.platform.startswith("linux") or sys.platform == "darwin":
             self.applicable = 1
             self.value = []
             #---- add required entries to the path
             # add the Mozilla bin directory
+            # (This is only needed on Mac to let bk test find the dependent
+            # libraries for the _xpcom Python module)
             applicable = black.configure.items["mozBin"].Determine()
             if applicable:
                 d = black.configure.items["mozBin"].Get()
