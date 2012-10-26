@@ -1791,6 +1791,8 @@ def target_silo_python(argv=["silo_python"]):
         relativePythonBin = join("..", "Frameworks", "Python.framework",
                                  "Versions", config.pyVer, "bin", "python")
         mozpythonBin = join(dirname(siloDir), "MacOS", "mozpython")
+        if os.path.islink(mozpythonBin):
+            os.unlink(mozpythonBin)
         os.symlink(relativePythonBin, mozpythonBin)
 
         _relocatePyxpcom(config)
@@ -1803,7 +1805,8 @@ def target_silo_python(argv=["silo_python"]):
         vePythonBinary = join(dirname(distDir), "_virtualenv", "bin",
                                    "python")
         os.remove(vePythonBinary)
-        relativeVePythonBin = join("..", "..", "dist", "Komodo.app",
+        appname = "KomodoDebug.app" if config.buildType == 'debug' else "Komodo.app"
+        relativeVePythonBin = join("..", "..", "dist", appname,
                                         "Contents", "Frameworks",
                                         "Python.framework", "Versions",
                                         config.pyVer, "bin", "python")
