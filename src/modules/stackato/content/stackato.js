@@ -615,6 +615,7 @@ this.visitStackatoHomePage = function() {
     gko.browse.openUrlInDefaultBrowser("http://www.activestate.com/cloud");
 };
 
+this.serverRefusedConnectionRE = /^\[?Server.*?refused connection/;
 this.wrapCallbackFunction = function(methodName,
                                      toggleButtonID,
                                      dataHandler,
@@ -699,6 +700,9 @@ this.wrapCallbackFunction = function(methodName,
                     nextFunc.call(this_);
                 }
             } else {
+                //if (args[0] == 'user') {
+                //    dump("raw data for s user: " + data.stdout + "\n");
+                //}
                 var processedData;
                 try {
                     processedData = (useJSON
@@ -713,7 +717,7 @@ this.wrapCallbackFunction = function(methodName,
                                   + data.stdout
                                   + "'");
                     processedData = data.stdout;
-                    if (processedData.indexOf("Server refused connection") === 0) {
+                    if (this_.serverRefusedConnectionRE.test(processedData)) {
                         gko.dialogs.alert("Stackato failure", processedData);
                         this_._showLoggedOutFields("", "");
                         return;
