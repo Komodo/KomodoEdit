@@ -334,6 +334,7 @@ token_check:
 SSL_OPERATOR: accept ['(', '{', '[', ';', '..', '...']
 SSL_WORD: accept [split, grep, map, print while, if unless until and or not xor]
 SSL_DEFAULT: skip all
+SSL_VARIABLE: reject all
 SSL_COMMENT: skip all
 
 ################ Fold Info ################
