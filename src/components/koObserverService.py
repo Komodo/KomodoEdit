@@ -215,7 +215,7 @@ class KoObserverService:
             self.cv.release()
 
     @components.ProxyToMainThread
-    def _notifyObservers(observers, aSubject, aTopic, someData):
+    def _notifyObservers(self, observers, aSubject, aTopic, someData):
         for observer in observers:
             try:
                 observer.observe(aSubject, aTopic, someData)
@@ -234,7 +234,12 @@ class KoObserverService:
             if aTopic:
                 topic_observers = self._getLiveObservers(aTopic)
             # A twist, the empty topic is global and recieves all notifications!
-            topic_observers += self._getLiveObservers('')
+            global_observers = self._getLiveObservers('')
+            if global_observers:
+                if topic_observers:
+                    topic_observers += global_observers
+                else:
+                    topic_observers = global_observers
         finally:
             self.cv.release()
 
