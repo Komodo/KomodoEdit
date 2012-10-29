@@ -213,7 +213,15 @@ class KoObserverService:
                 self._removeObserver(anObserver, aTopic)
         finally:
             self.cv.release()
-    
+
+    @components.ProxyToMainThread
+    def _notifyObservers(observers, aSubject, aTopic, someData):
+        for observer in observers:
+            try:
+                observer.observe(aSubject, aTopic, someData)
+            except:
+                log.exception("notifyObservers:: topic: %r, data: %r", aTopic, someData)
+
     #void notifyObservers( in nsISupports aSubject, 
     #                      in string aTopic, 
     #                      in wstring someData );
@@ -226,23 +234,14 @@ class KoObserverService:
             if aTopic:
                 topic_observers = self._getLiveObservers(aTopic)
             # A twist, the empty topic is global and recieves all notifications!
-            catchall_observers = self._getLiveObservers('')
+            topic_observers += self._getLiveObservers('')
         finally:
             self.cv.release()
 
         if topic_observers:
-            for observer in topic_observers:
-                try:
-                    observer.observe(aSubject, aTopic, someData)
-                except:
-                    log.exception("notifyObservers:: topic: %r, data: %r", aTopic, someData)
-
-        if catchall_observers:
-            for observer in catchall_observers:
-                try:
-                    observer.observe(aSubject, aTopic, someData)
-                except:
-                    log.exception("notifyObservers::all: topic: %r, data: %r", aTopic, someData)
+            # Observer notifications must occur on the main thread, as we don't
+            # know what the observer is, nor what it will do (i.e. JavaScript).
+            self._notifyObservers(topic_observers, aSubject, aTopic, someData)
 
     # nsISimpleEnumerator enumerateObservers( in string aTopic );
     def enumerateObservers(self, aTopic):
