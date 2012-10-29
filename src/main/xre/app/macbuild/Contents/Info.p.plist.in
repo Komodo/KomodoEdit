@@ -275,5 +275,7 @@
 	<string>PP_KO_VERSION</string>
 	<key>NSAppleScriptEnabled</key>
 	<true/>
+	<key>NSHighResolutionCapable</key>
+	<true/>
 </dict>
 </plist>
