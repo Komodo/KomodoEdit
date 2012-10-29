@@ -176,6 +176,15 @@ state IN_CSL_REGEX:
 #### /#[^\/]*/ : paint(upto, CSL_REGEX), paint(include, CSL_COMMENT) # stay
 #### /[\r\n]/ : #stay
 /[\r\n]/ : paint(include, CSL_REGEX), => IN_CSL_DEFAULT
+'[': => IN_CSL_REGEX_CHARSET
+
+# Auto-escape '/' in [...]  (Scintilla bug 3580632)
+state IN_CSL_REGEX_CHARSET:
+/\\./ : #stay
+']' : => IN_CSL_REGEX
+# Short-circuit
+/[\r\n]/ : paint(include, CSL_REGEX), => IN_CSL_DEFAULT
+/\z/: paint(upto, CSL_REGEX)
 
 # If we're here, we've painted the previous part, and 
 # just need to figure out which operator we have, doing
