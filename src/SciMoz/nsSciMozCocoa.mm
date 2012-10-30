@@ -210,7 +210,7 @@ nsresult SciMoz::PlatformDestroy(void) {
         [scView setHidden:YES];
         [scView removeFromSuperview];
         // This must have reset out window.
-        NS_PRECONDITION(portMain==0, "Should not be possible to destruct with a window!");
+        NS_PRECONDITION(portMain==NULL, "Should not be possible to destruct with a window!");
         [scView release];
         wEditor = NULL;
     }
@@ -302,7 +302,7 @@ nsresult SciMoz::PlatformSetWindow(NPWindow* npwindow) {
 #endif
 
   // Initialize the plugin and tie it to the given window.
-  assert(fWindow != NULL);
+  assert(fWindow == NULL);
   assert(npwindow->window);
   // Position scView at its parent's origin.
   NSRect winRect = NSMakeRect(0, 0, npwindow->width, npwindow->height);
