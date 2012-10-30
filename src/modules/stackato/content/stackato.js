@@ -1733,14 +1733,15 @@ this.application_refresh = function() {
 
 this.application_add = function(event) {
     var getNewAppFieldResults = {};
+    var argumentsObj = {gko:gko, 'window':gWindow, ko:ko,
+                        stackato: this,
+                        currentTarget: this._target,
+                        results:getNewAppFieldResults};
     var res = ko.windowManager.openOrFocusDialog(
         "chrome://stackatotools/content/stackatoNewApp.xul",
         "komodo_stackato",
         "chrome,all,close=yes,resizable,dependent=no,modal=yes",
-       {gko:gko, 'window':gWindow, ko:ko,
-        stackato: this,
-         currentTarget: this._target,
-        results:getNewAppFieldResults});
+        argumentsObj);
     if (!res) {
         // canceled out
         return;
