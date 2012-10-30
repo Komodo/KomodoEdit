@@ -116,5 +116,7 @@
 <!ENTITY currentProvisionedServicesColon.label "Current Provisioned Services:">
 <!ENTITY pushTheService.label "Push the Service">
 <!ENTITY systemServiceColon.label "System Service:">
+<!-- Mozilla doesn't handle nested entity references; they probably have to be parameter entity refs -->
+<!ENTITY newServiceText.descr 'To add an additional service simply update the above fields and press the "Add Service" button'>
 
 <!-- stackatoNewService.xul -->
