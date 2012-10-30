@@ -500,7 +500,7 @@ class _BaseTestCase(CodeIntelTestCase):
         self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
             [("class", "FTP"),
              ("function", "foo")])
-        ptn =  r'.*?\(bin\).*?Returns the Base64-encoded version of (?:str|\+bin\+)'
+        ptn =  r'.*?\(bin\).*?Returns the Base64-encoded version of (\+?)(?:str|bin)\1'
         self.assertCalltipMatches(markup_text(content, pos=positions[1]),
             ptn, flags=re.DOTALL)
         self.assertCalltipMatches(markup_text(content, pos=positions[4]),
