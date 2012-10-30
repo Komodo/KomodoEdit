@@ -284,7 +284,7 @@ function onPage2_Next() {
 // until it's defined.
 
 function onPage3_Show() {
-    widgets.getNewAppWizard.canAdvance = false;
+    widgets.getNewAppWizard.canAdvance = !!finalDataItems.provisionedService;
   widgets.new_provisioned_service_name.addEventListener("keypress",
       queueUpdateEnabledAddService, false);
 }
@@ -452,6 +452,7 @@ function generateName(serviceName) {
 }
 
 function onMenuitemChanged(menulist) {
+    hideNewServiceDescription(true);
     var textbox = widgets.new_provisioned_service_name;
     var serviceName = menulist.selectedItem.label;
     textbox.value = generateName(serviceName);
@@ -537,7 +538,16 @@ function updateEnabledOK() {
     }
 }
 
+function hideNewServiceDescription(hideIt) {
+    document.getElementById("new-service-description").setAttribute("hidden", hideIt ? "true" : "false");
+}
+
+function onNewServiceNameFocused() {
+    hideNewServiceDescription(true);
+}
+
 function addProvisionedService() {
+    hideNewServiceDescription(false);
     var textbox = widgets.new_provisioned_service_name;
     var serviceName = widgets.system_services.selectedItem.label;
     var provisionedServiceName = textbox.value;
@@ -552,11 +562,12 @@ function addProvisionedService() {
         }
     };
     var callback = function() {
-        if (widgets.getNewAppWizard.canAdvance) {
+        if (finalDataItems.provisionedService) {
+            widgets.getNewAppWizard.canAdvance = true;
             try {
-            // Update the list of service names
-            gObj.stackato._updateProvisionedServicesTable(outerCallback,
-                                                          "provisioned_services_button");
+                // Update the list of service names
+                gObj.stackato._updateProvisionedServicesTable(outerCallback,
+                                                              "provisioned_services_button");
             } catch(ex) {
                 log.exception(ex, "addProvisionedService: failed");
             }
@@ -567,8 +578,8 @@ function addProvisionedService() {
 
     var handleTarget = {
       setData: function(data) {
-            widgets.getNewAppWizard.canAdvance = true;
-        }
+        finalDataItems.provisionedService = widgets.new_provisioned_service_name.value;
+      }
     };
     // 'document' in stackato.js points to the parent, not this window.
     icon.setAttribute("class", "async_operation");
@@ -580,4 +591,3 @@ function addProvisionedService() {
                                        ["create-service", serviceName, provisionedServiceName],
                                        true);
 };
-

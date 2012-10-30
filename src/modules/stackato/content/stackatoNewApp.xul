@@ -135,7 +135,7 @@
         </row>
         <row align="center">
           <label value="&newServiceNameColon.label;" id="new_provisioned_service_label" />
-          <textbox id="new_provisioned_service_name" />
+          <textbox id="new_provisioned_service_name" onfocus="onNewServiceNameFocused();"/>
           <button id="new_provisioned_button"
                   label="&addService.label;"
                   disabled="true"
@@ -147,6 +147,9 @@
         </row>
       </rows>
     </grid>
+    <description hidden="true" id="new-service-description">
+      &newServiceText.descr;
+    </description>
 </wizardpage>
 <wizardpage id="page4_addApp_addExistingServicePage"
             pageid="page4_addApp_addExistingServicePage"

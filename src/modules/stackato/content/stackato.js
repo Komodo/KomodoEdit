@@ -860,7 +860,7 @@ this.getUserWithCurrentTarget = function() {
                 this_.tryLoggingInWithCredentials();
             } else {
                 var newUser, newPassword;
-                [newUser, newPassword] = this_.Credentials.credentialsForHostname(this._target);
+                [newUser, newPassword] = this_.Credentials.credentialsForHostname(this_._target);
                 //dump("getUserWithCurrentTarget: current user name: "
                 //     + user
                 //     + ", newUser"
