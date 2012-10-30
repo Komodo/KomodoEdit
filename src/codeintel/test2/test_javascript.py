@@ -1861,25 +1861,25 @@ class XPCOMTestCase(CodeIntelTestCase):
 
     def test_xpcom_returns(self):
         content, positions = unmark_text(dedent("""\
-            var file = Components.classes["@mozilla.org/file/local;1"]
-                        .createInstance(Components.interfaces.nsILocalFile);
-            var clonefile = file.<1>clone();
-            clonefile.<2>;
+            var url = Components.classes["@mozilla.org/network/standard-url;1"]
+                                .createInstance(Components.interfaces.nsIURL);
+            var uri = url.<1>clone();
+            uri.<2>;
         """))
         self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
-            [("variable", "followLinks"),
-             ("variable", "path"),
+            [("variable", "spec"),
+             ("variable", "scheme"),
              ("function", "clone"),
-             ("function", "exists"),
-             ("function", "initWithPath")])
-        # clone should return a nsIFile object
+             ("variable", "query"),
+             ("function", "getCommonBaseSpec")])
+        # clone should return a nsIURI object
         self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
-            [("variable", "path"),
-             ("function", "clone"),
-             ("function", "exists")])
+            [("variable", "spec"),
+             ("variable", "scheme"),
+             ("function", "clone")])
         self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[2]),
-            [("variable", "followLinks"),
-             ("function", "initWithPath")])
+            [("variable", "query"),
+             ("function", "getCommonBaseSpec")])
 
     def test_query_interface(self):
         content, positions = unmark_text(dedent("""\
