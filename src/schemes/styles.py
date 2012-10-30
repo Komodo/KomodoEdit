@@ -538,6 +538,8 @@ def addNewUDLLanguage(languageName):
         log = logging.getLogger("language styles")
         log.warn("addNewUDLLanguage: overwriting statemap for lang %r",
                  languageName)
-    StateMap[languageName].update(StateMap['UDL'])
+        StateMap[languageName].update(StateMap['UDL'])
+    else:
+        StateMap[languageName] = StateMap['UDL']
     addSharedStyles(StateMap[languageName])
 
