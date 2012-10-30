@@ -48,7 +48,7 @@ from zope.cachedescriptors.property import Lazy as LazyProperty
 
 #---- globals
 log = logging.getLogger('koAsyncOperations')
-log.setLevel(logging.DEBUG)
+#log.setLevel(logging.DEBUG)
 
 
 class koAsyncService(object):
