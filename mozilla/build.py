@@ -1660,8 +1660,11 @@ def _relocatePyxpcom(config):
             # we need to go read the file first and grep the load commands.
             rpaths = set()
             in_rpath_command = False
-            load_commands = subprocess.check_output(["otool", "-l", lib]).splitlines()
-            for line in load_commands:
+            process = subprocess.Popen(["otool", "-l", lib], stdout=subprocess.PIPE)
+            output, unused_err = process.communicate()
+            if process.poll() != 0:
+                raise BuildError("otool -l returned %s" % (process.returncode,))
+            for line in output.splitlines():
                 if line.startswith("Load command"):
                     in_rpath_command = False # new load command
                 elif line.strip() == "cmd LC_RPATH":
