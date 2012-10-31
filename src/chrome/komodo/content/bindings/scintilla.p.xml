@@ -90,7 +90,6 @@
             <!-- mouse_handler: Javascript function which gets first dibs on mouse events -->
             <field name="mouse_handler">null</field>
             <field name='_mozcontext'>null</field>
-            <field name='_contextShowing'>false</field>
 
             <field name='symbolMargin'>true</field>
 <!-- #if PLATFORM != "darwin" -->
@@ -1006,7 +1005,7 @@
                     }
                     this._mouseDownSelection = "";
                     this._inMouseDown = -1;
-                } else if (this._mozcontext && !this._contextShowing) {
+                } else if (this._mozcontext && !this._mozcontext.open) {
                     this._mozcontext.openPopup(
                         null, // anchor on the Komodo window
                         null, // ignore if anchorElement is null
@@ -1019,7 +1018,6 @@
                         event.clientX + 2,
                         event.clientY + 2,
                         true);
-                    this._contextShowing = true;
                 }
                 ]]>
             </handler>
@@ -1072,10 +1070,9 @@
 /* #endif */
                 this._mouseDownSelection = scimoz.selText;
                 this._lastMousePos = [x,y];
-                if (this._contextShowing && this._mozcontext) {
+                if (this._mozcontext && this._mozcontext.open) {
                     // XXX http://bugs.activestate.com/show_bug.cgi?id=20537
                     this._mozcontext.hidePopup();
-                    this._contextShowing = false;
                 }
 
                 if (this.mouse_handler) {
