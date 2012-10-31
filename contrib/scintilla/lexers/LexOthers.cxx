@@ -560,7 +560,7 @@ static void ColouriseDiffLine(char *lineBuffer, int endLine, Accessor &styler) {
 }
 
 static void ColouriseDiffDoc(unsigned int startPos, int length, int, WordList *[], Accessor &styler) {
-	char lineBuffer[DIFF_BUFFER_START_SIZE];
+	char lineBuffer[DIFF_BUFFER_START_SIZE] = "";
 	styler.StartAt(startPos);
 	styler.StartSegment(startPos);
 	unsigned int linePos = 0;
@@ -612,78 +612,6 @@ static void FoldDiffDoc(unsigned int startPos, int length, int, WordList *[], Ac
 
 		curLineStart = styler.LineStart(++curLine);
 	} while (static_cast<int>(startPos) + length > curLineStart);
-}
-
-static void ColourisePoLine(
-    char *lineBuffer,
-    unsigned int lengthLine,
-    unsigned int startLine,
-    unsigned int endPos,
-    Accessor &styler) {
-
-	unsigned int i = 0;
-	static unsigned int state = SCE_PO_DEFAULT;
-	unsigned int state_start = SCE_PO_DEFAULT;
-
-	while ((i < lengthLine) && isspacechar(lineBuffer[i]))	// Skip initial spaces
-		i++;
-	if (i < lengthLine) {
-		if (lineBuffer[i] == '#') {
-			// check if the comment contains any flags ("#, ") and
-			// then whether the flags contain "fuzzy"
-			if (strstart(lineBuffer, "#, ") && strstr(lineBuffer, "fuzzy"))
-				styler.ColourTo(endPos, SCE_PO_FUZZY);
-			else
-				styler.ColourTo(endPos, SCE_PO_COMMENT);
-		} else {
-			if (lineBuffer[0] == '"') {
-				// line continuation, use previous style
-				styler.ColourTo(endPos, state);
-				return;
-			// this implicitly also matches "msgid_plural"
-			} else if (strstart(lineBuffer, "msgid")) {
-				state_start = SCE_PO_MSGID;
-				state = SCE_PO_MSGID_TEXT;
-			} else if (strstart(lineBuffer, "msgstr")) {
-				state_start = SCE_PO_MSGSTR;
-				state = SCE_PO_MSGSTR_TEXT;
-			} else if (strstart(lineBuffer, "msgctxt")) {
-				state_start = SCE_PO_MSGCTXT;
-				state = SCE_PO_MSGCTXT_TEXT;
-			}
-			if (state_start != SCE_PO_DEFAULT) {
-				// find the next space
-				while ((i < lengthLine) && ! isspacechar(lineBuffer[i]))
-					i++;
-				styler.ColourTo(startLine + i - 1, state_start);
-				styler.ColourTo(startLine + i, SCE_PO_DEFAULT);
-				styler.ColourTo(endPos, state);
-			}
-		}
-	} else {
-		styler.ColourTo(endPos, SCE_PO_DEFAULT);
-	}
-}
-
-static void ColourisePoDoc(unsigned int startPos, int length, int, WordList *[], Accessor &styler) {
-	char lineBuffer[1024];
-	styler.StartAt(startPos);
-	styler.StartSegment(startPos);
-	unsigned int linePos = 0;
-	unsigned int startLine = startPos;
-	for (unsigned int i = startPos; i < startPos + length; i++) {
-		lineBuffer[linePos++] = styler[i];
-		if (AtEOL(styler, i) || (linePos >= sizeof(lineBuffer) - 1)) {
-			// End of line (or of line buffer) met, colourise it
-			lineBuffer[linePos] = '\0';
-			ColourisePoLine(lineBuffer, linePos, startLine, i, styler);
-			linePos = 0;
-			startLine = i + 1;
-		}
-	}
-	if (linePos > 0) {	// Last line does not have ending characters
-		ColourisePoLine(lineBuffer, linePos, startLine, startPos + length - 1, styler);
-	}
 }
 
 static inline bool isassignchar(unsigned char ch) {
@@ -857,17 +785,19 @@ static void ColouriseMakeLine(
 	while ((i < lengthLine) && isspacechar(lineBuffer[i])) {
 		i++;
 	}
-	if (lineBuffer[i] == '#') {	// Comment
-		styler.ColourTo(endPos, SCE_MAKE_COMMENT);
-		return;
-	}
-	if (lineBuffer[i] == '!') {	// Special directive
-		styler.ColourTo(endPos, SCE_MAKE_PREPROCESSOR);
-		return;
+	if (i < lengthLine) {
+		if (lineBuffer[i] == '#') {	// Comment
+			styler.ColourTo(endPos, SCE_MAKE_COMMENT);
+			return;
+		}
+		if (lineBuffer[i] == '!') {	// Special directive
+			styler.ColourTo(endPos, SCE_MAKE_PREPROCESSOR);
+			return;
+		}
 	}
 	int varCount = 0;
 	while (i < lengthLine) {
-		if (lineBuffer[i] == '$' && lineBuffer[i + 1] == '(') {
+		if (((i + 1) < lengthLine) && (lineBuffer[i] == '$' && lineBuffer[i + 1] == '(')) {
 			styler.ColourTo(startLine + i - 1, state);
 			state = SCE_MAKE_IDENTIFIER;
 			varCount++;
@@ -1496,7 +1426,6 @@ static void ColouriseNullDoc(unsigned int startPos, int length, int, WordList *[
 
 LexerModule lmBatch(SCLEX_BATCH, ColouriseBatchDoc, "batch", 0, batchWordListDesc);
 LexerModule lmDiff(SCLEX_DIFF, ColouriseDiffDoc, "diff", FoldDiffDoc, emptyWordListDesc);
-LexerModule lmPo(SCLEX_PO, ColourisePoDoc, "po", 0, emptyWordListDesc);
 LexerModule lmProps(SCLEX_PROPERTIES, ColourisePropsDoc, "props", FoldPropsDoc, emptyWordListDesc);
 LexerModule lmMake(SCLEX_MAKEFILE, ColouriseMakeDoc, "makefile", 0, emptyWordListDesc);
 LexerModule lmErrorList(SCLEX_ERRORLIST, ColouriseErrorListDoc, "errorlist", 0, emptyWordListDesc);

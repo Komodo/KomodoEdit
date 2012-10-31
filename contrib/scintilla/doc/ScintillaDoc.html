@@ -79,7 +79,7 @@
 
     <h1>Scintilla Documentation</h1>
 
-    <p>Last edited 27/June/2012 NH</p>
+    <p>Last edited 21/July/2012 NH</p>
 
     <p>There is <a class="jump" href="Design.html">an overview of the internal design of
     Scintilla</a>.<br />
@@ -911,8 +911,8 @@ struct Sci_TextToFind {
     pasting from the clipboard into the document, and clearing the document.
     <code>SCI_CANPASTE</code> returns non-zero if the document isn't read-only and if the selection
     doesn't contain protected text. If you need a "can copy" or "can cut", use
-    <code>SCI_GETSELECTIONSTART()-SCI_GETSELECTIONEND()</code>, which will be non-zero if you can
-    copy or cut to the clipboard.</p>
+    <code>SCI_GETSELECTIONEMPTY()</code>, which will be zero if there are any non-empty
+    selection ranges implying that a copy or cut to the clipboard should work.</p>
 
     <p>GTK+ does not really support <code>SCI_CANPASTE</code> and always returns <code>TRUE</code>
     unless the document is read-only.</p>
@@ -1504,6 +1504,7 @@ struct Sci_TextToFind {
      <br />
 
      <a class="message" href="#SCI_GETSELECTIONS">SCI_GETSELECTIONS</a><br />
+     <a class="message" href="#SCI_GETSELECTIONEMPTY">SCI_GETSELECTIONEMPTY</a><br />
      <a class="message" href="#SCI_CLEARSELECTIONS">SCI_CLEARSELECTIONS</a><br />
      <a class="message" href="#SCI_SETSELECTION">SCI_SETSELECTION(int caret, int anchor)</a><br />
      <a class="message" href="#SCI_ADDSELECTION">SCI_ADDSELECTION(int caret, int anchor)</a><br />
@@ -1613,6 +1614,10 @@ struct Sci_TextToFind {
     <p>
     <b id="SCI_GETSELECTIONS">SCI_GETSELECTIONS</b><br />
      Return the number of selections currently active.</p>
+
+    <p>
+    <b id="SCI_GETSELECTIONEMPTY">SCI_GETSELECTIONEMPTY</b><br />
+     Return 1 if every selected range is empty else 0.</p>
 
     <p>
     <b id="SCI_CLEARSELECTIONS">SCI_CLEARSELECTIONS</b><br />
@@ -3360,6 +3365,7 @@ struct Sci_TextToFind {
     const char *xpm)</a><br />
      <a class="message" href="#SCI_RGBAIMAGESETWIDTH">SCI_RGBAIMAGESETWIDTH(int width)</a><br />
      <a class="message" href="#SCI_RGBAIMAGESETHEIGHT">SCI_RGBAIMAGESETHEIGHT(int height)</a><br />
+     <a class="message" href="#SCI_RGBAIMAGESETSCALE">SCI_RGBAIMAGESETSCALE(int scalePercent)</a><br />
      <a class="message" href="#SCI_MARKERDEFINERGBAIMAGE">SCI_MARKERDEFINERGBAIMAGE(int markerNumber,
     const char *pixels)</a><br />
      <a class="message" href="#SCI_MARKERSYMBOLDEFINED">SCI_MARKERSYMBOLDEFINED(int markerNumber)
@@ -3549,12 +3555,16 @@ struct Sci_TextToFind {
     <p>
     <b id="SCI_RGBAIMAGESETWIDTH">SCI_RGBAIMAGESETWIDTH(int width)</b><br />
     <b id="SCI_RGBAIMAGESETHEIGHT">SCI_RGBAIMAGESETHEIGHT(int height)</b><br />
+    <b id="SCI_RGBAIMAGESETSCALE">SCI_RGBAIMAGESETSCALE(int scalePercent)</b><br />
     <b id="SCI_MARKERDEFINERGBAIMAGE">SCI_MARKERDEFINERGBAIMAGE(int markerNumber, const char *pixels)</b><br />
      Markers can be set to translucent pixmaps with this message. The 
      <a class="jump" href="#RGBA">RGBA format</a> is used for the pixmap.
      The width and height must previously been set with the <code>SCI_RGBAIMAGESETWIDTH</code> and 
-     <code>SCI_RGBAIMAGESETHEIGHT</code> messages.
-    Pixmaps use the <code>SC_MARK_RGBAIMAGE</code> marker symbol. </p>
+     <code>SCI_RGBAIMAGESETHEIGHT</code> messages.</p>
+     <p>A scale factor in percent may be set with <code>SCI_RGBAIMAGESETSCALE</code>. This is useful on OS X with
+     a retina display where each display unit is 2 pixels: use a factor of 200 so that each image pixel is dsplayed using a screen pixel.
+     The default scale, 100, will stretch each image pixel to cover 4 screen pixels on a retina display.</p>
+    <p>Pixmaps use the <code>SC_MARK_RGBAIMAGE</code> marker symbol. </p>
 
     <p><b id="SCI_MARKERSYMBOLDEFINED">SCI_MARKERSYMBOLDEFINED(int markerNumber)</b><br />
      Returns the symbol defined for a markerNumber with <code>SCI_MARKERDEFINE</code>
@@ -3799,6 +3809,17 @@ struct Sci_TextToFind {
               control the alpha transparency values. The default values are 30 for alpha and 50 for outline alpha.
               To avoid excessive memory allocation the maximum width of a dotted box is 4000 pixels.
               Not available for OS X Carbon.</td>
+        </tr>
+
+        <tr>
+          <td align="left"><code>INDIC_SQUIGGLEPIXMAP</code></td>
+
+          <td align="center">13</td>
+
+          <td>A version of <code>INDIC_SQUIGGLE</code> that draws using a pixmap instead of
+	  as a series of line segments for performance.
+	  Measured to be between 3 and 6 times faster than <code>INDIC_SQUIGGLE</code> on GTK+.
+	  Apperance will not be as good as <code>INDIC_SQUIGGLE</code> on OS X in HiDPI mode.</td>
         </tr>
 
       </tbody>
@@ -4397,6 +4418,10 @@ struct Sci_TextToFind {
           <td><code>SCI_VCHOMEWRAP</code></td>
 
           <td><code>SCI_VCHOMEWRAPEXTEND</code></td>
+
+          <td><code>SCI_VCHOMEDISPLAY</code></td>
+
+          <td><code>SCI_VCHOMEDISPLAYEXTEND</code></td>
         </tr>
 
         <tr>

@@ -152,7 +152,7 @@ int Scintilla_LinkLexers() {
 	LINK_LEXER(lmPerl);
 	LINK_LEXER(lmPHPSCRIPT);
 	LINK_LEXER(lmPLM);
-	LINK_LEXER(lmPo);
+	LINK_LEXER(lmPO);
 	LINK_LEXER(lmPOV);
 	LINK_LEXER(lmPowerPro);
 	LINK_LEXER(lmPowerShell);

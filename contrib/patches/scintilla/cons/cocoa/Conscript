@@ -127,6 +127,7 @@ my @lexers = qw(
     PB
     Perl
     PLM
+    PO
     POV
     PowerPro
     PowerShell

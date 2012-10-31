@@ -409,6 +409,10 @@
 	<td>Denis Shelomovskij</td>
 	<td>darmar</td>
 	<td>John Vella</td>
+	<td>Chinh Nguyen</td>
+      </tr><tr>
+	<td>Sakshi Verma</td>
+	<td>Joel B. Mohler</td>
     </tr>
     </table>
     <p>
@@ -419,6 +423,201 @@
         <a href="http://sourceforge.net/projects/icon-collection/">
         Icons</a> Copyright(C) 1998 by Dean S. Jones<br />
       </li>
+    </ul>
+    <h3>
+       <a href="http://prdownloads.sourceforge.net/scintilla/scite323.zip?download">Release 3.2.3</a>
+    </h3>
+    <ul>
+	<li>
+	Released 21 October 2012.
+	</li>
+	<li>
+	Improve speed when performing multiple searches.
+	</li>
+	<li>
+	SciTE adds definition of PLAT_UNIX for both PLAT_GTK and PLAT_MAC to allow consolidation of
+	settings valid on all Unix variants.
+	</li>
+	<li>
+	Signal autoCompleteCancelled added on Qt.
+	</li>
+	<li>
+	Bash lexer supports nested delimiter pairs.
+	<a href="https://sourceforge.net/tracker/?func=detail&atid=352439&aid=3569352&group_id=2439">Feature #3569352.</a>
+	<a href="https://sourceforge.net/tracker/?func=detail&atid=102439&aid=1515556&group_id=2439">Bug #1515556.</a>
+	<a href="https://sourceforge.net/tracker/?func=detail&atid=102439&aid=3008483&group_id=2439">Bug #3008483.</a>
+	<a href="https://sourceforge.net/tracker/?func=detail&atid=102439&aid=3512208&group_id=2439">Bug #3512208.</a>
+	<a href="https://sourceforge.net/tracker/?func=detail&atid=102439&aid=3515392&group_id=2439">Bug #3515392.</a>
+	</li>
+	<li>
+	For C/C++, recognize exponent in floating point hexadecimal literals.
+	<a href="https://sourceforge.net/tracker/?func=detail&atid=102439&aid=3576454&group_id=2439">Bug #3576454.</a>
+	</li>
+	<li>
+	For C #include statements, do not treat // in the path as a comment.
+	<a href="https://sourceforge.net/tracker/?func=detail&atid=102439&aid=3519260&group_id=2439">Bug #3519260.</a>
+	</li>
+	<li>
+	Lexer for GetText translations (PO) improved with additional styles and single instance limitation fixed.
+	</li>
+	<li>
+	Ruby for loop folding fixed.
+	<a href="https://sourceforge.net/tracker/?func=detail&atid=102439&aid=3240902&group_id=2439">Bug #3240902.</a>
+	<a href="https://sourceforge.net/tracker/?func=detail&atid=102439&aid=3567391&group_id=2439">Bug #3567391.</a>
+	</li>
+	<li>
+	Ruby recognition of here-doc after class or instance variable fixed.
+	<a href="https://sourceforge.net/tracker/?func=detail&atid=102439&aid=3567809&group_id=2439">Bug #3567809.</a>
+	</li>
+	<li>
+	SQL folding of loop and case fixed.
+	<a href="https://sourceforge.net/tracker/?func=detail&atid=102439&aid=3567905&group_id=2439">Bug #3567905.</a>
+	</li>
+	<li>
+	SQL folding of case with assignment fixed.
+	<a href="https://sourceforge.net/tracker/?func=detail&atid=102439&aid=3571820&group_id=2439">Bug #3571820.</a>
+	</li>
+	<li>
+	Fix hang when removing all characters from indicator at end of document.
+	</li>
+	<li>
+	Fix failure of \xhh in regular expression search for values greater than 0x79.
+	</li>
+	<li>
+	On Cocoa on OS X 10.8, fix inverted drawing of find indicator.
+	</li>
+	<li>
+	On Cocoa, fix double drawing when horizontal scroll range small and user swipes horizontally.
+	</li>
+	<li>
+	On Cocoa, remove incorrect setting of save point when reading information through 'string' and 'selectedString'.
+	</li>
+	<li>
+	On Cocoa, fix incorrect memory managment of infoBar.
+	</li>
+	<li>
+	On GTK+ 3 Ubuntu, fix crash when drawing margin.
+	</li>
+	<li>
+	On ncurses, fix excessive spacing with italics line end.
+	</li>
+	<li>
+	On Windows, search for D2D1.DLL and DWRITE.DLL in system directory to avoid loading from earlier
+	in path where could be planted by malware.
+	</li>
+    </ul>
+    <h3>
+       <a href="http://prdownloads.sourceforge.net/scintilla/scite322.zip?download">Release 3.2.2</a>
+    </h3>
+    <ul>
+	<li>
+	Released 31 August 2012.
+	</li>
+	<li>
+	Retina display support for Cocoa. Text size fixed.
+	Scale factor for images implemented so they can be displayed in high definition.
+	</li>
+	<li>
+	Implement INDIC_SQUIGGLEPIXMAP as a faster version of INDIC_SQUIGGLE.
+	Avoid poor drawing at right of INDIC_SQUIGGLE.
+	Align INDIC_DOTBOX to pixel grid for full intensity.
+	</li>
+	<li>
+	Implement SCI_GETSELECTIONEMPTY API.
+	<a href="https://sourceforge.net/tracker/?func=detail&atid=102439&aid=3543121&group_id=2439">Bug #3543121.</a>
+	</li>
+	<li>
+	Added SCI_VCHOMEDISPLAY and SCI_VCHOMEDISPLAYEXTEND key commands.
+	<a href="https://sourceforge.net/tracker/?func=detail&atid=352439&aid=3561433&group_id=2439">Feature #3561433.</a>
+	</li>
+	<li>
+	Allow specifying SciTE Find in Files directory with find.in.directory property.
+	<a href="https://sourceforge.net/tracker/?func=detail&atid=352439&aid=3558594&group_id=2439">Feature #3558594.</a>
+	</li>
+	<li>
+	Override SciTE global strip.trailing.spaces with strip.trailing.spaces by pattern files.
+	<a href="https://sourceforge.net/tracker/?func=detail&atid=352439&aid=3556320&group_id=2439">Feature #3556320.</a>
+	</li>
+	<li>
+	Fix long XML script tag handling in XML lexer.
+	<a href="https://sourceforge.net/tracker/?func=detail&atid=102439&aid=3534190&group_id=2439">Bug #3534190.</a>
+	</li>
+	<li>
+	Fix rectangular selection range after backspace.
+	<a href="https://sourceforge.net/tracker/?func=detail&atid=102439&aid=3543097&group_id=2439">Bug #3543097.</a>
+	</li>
+	<li>
+	Send SCN_UPDATEUI with SC_UPDATE_SELECTION for backspace in virtual space.
+	<a href="https://sourceforge.net/tracker/?func=detail&atid=102439&aid=3543121&group_id=2439">Bug #3543121.</a>
+	</li>
+	<li>
+	Avoid problems when calltip highlight range is negative.
+	<a href="https://sourceforge.net/tracker/?func=detail&atid=102439&aid=3545938&group_id=2439">Bug #3545938.</a>
+	</li>
+	<li>
+	On Cocoa, fix image drawing code so that image is not accessed after being freed
+	and is drawn in the correct location.
+	</li>
+	<li>
+	On Cocoa, limit horizontal touch scrolling to existing established width.
+	</li>
+	<li>
+	On Cocoa, decrease sensitivity of pinch-zoom.
+	</li>
+	<li>
+	Fix Cocoa drawing where style changes were not immediately visible.
+	</li>
+	<li>
+	Fix Cocoa memory leak due to reference cycle.
+	</li>
+	<li>
+	Fix Cocoa bug where notifications were sent after Scintilla was freed.
+	</li>
+	<li>
+	SciTE on OS X user shortcuts treats "Ctrl+D" as equivalent to "Ctrl+d".
+	</li>
+	<li>
+	On Windows, saving SciTE's Lua startup script causes it to run.
+	</li>
+	<li>
+	Limit time allowed to highlight current word in SciTE to 0.25 seconds to remain responsive.
+	</li>
+	<li>
+	Fixed SciTE read-only mode to stick with buffer.
+	</li>
+	<li>
+	For SciTE on Windows, enable Ctrl+Z, Ctrl+X, and Ctrl+C (Undo, Cut, and Copy) in the
+	editable fields of find and replace strips
+	</li>
+	<li>
+	Remove limit on logical line length in SciTE .properties files.
+	<a href="https://sourceforge.net/tracker/?func=detail&atid=102439&aid=3544312&group_id=2439">Bug #3544312.</a>
+	</li>
+	<li>
+	Improve performance of SciTE Save As command.
+	</li>
+	<li>
+	Fix SciTE crash with empty .properties files. Bug #3545938.
+	<a href="https://sourceforge.net/tracker/?func=detail&atid=102439&aid=3555308&group_id=2439">Bug #3555308.</a>
+	</li>
+	<li>
+	Fix repeated letter in SciTE calltips.
+	<a href="https://sourceforge.net/tracker/?func=detail&atid=102439&aid=3545938&group_id=2439">Bug #3545938.</a>
+	</li>
+	<li>
+	Refine build time checking for Direct2D and DirectWrite.
+	</li>
+	<li>
+	Avoid potential build problems on Windows with MultiMon.h by explicitly checking for multi-monitor APIs.
+	</li>
+	<li>
+	Automatically disable themed drawing in SciTE when building on Windows 2000.
+	Reenable building for Windows NT 4 on NT 4 .
+	</li>
+	<li>
+	Added ncurses platform definitions. Implementation is maintained separately as
+	<a href="http://foicica.com/scinterm/">Scinterm</a>.
+	</li>
     </ul>
     <h3>
        <a href="http://prdownloads.sourceforge.net/scintilla/scite321.zip?download">Release 3.2.1</a>

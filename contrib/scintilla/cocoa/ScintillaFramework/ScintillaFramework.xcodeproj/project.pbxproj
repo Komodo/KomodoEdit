@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		11126B8214CD3A6200803C49 /* LexAVS.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 11126B8114CD3A6200803C49 /* LexAVS.cxx */; };
+		1114D6CB1602A951001DC345 /* LexPO.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 1114D6CA1602A951001DC345 /* LexPO.cxx */; };
 		114B6F0D11FA7526004FB6AB /* LexAbaqus.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 114B6EBE11FA7526004FB6AB /* LexAbaqus.cxx */; };
 		114B6F0E11FA7526004FB6AB /* LexAda.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 114B6EBF11FA7526004FB6AB /* LexAda.cxx */; };
 		114B6F0F11FA7526004FB6AB /* LexAPDL.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 114B6EC011FA7526004FB6AB /* LexAPDL.cxx */; };
@@ -194,6 +195,7 @@
 		089C1667FE841158C02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		11126B8114CD3A6200803C49 /* LexAVS.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LexAVS.cxx; path = ../../lexers/LexAVS.cxx; sourceTree = "<group>"; };
+		1114D6CA1602A951001DC345 /* LexPO.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LexPO.cxx; path = ../../lexers/LexPO.cxx; sourceTree = "<group>"; };
 		114B6EBE11FA7526004FB6AB /* LexAbaqus.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LexAbaqus.cxx; path = ../../lexers/LexAbaqus.cxx; sourceTree = SOURCE_ROOT; };
 		114B6EBF11FA7526004FB6AB /* LexAda.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LexAda.cxx; path = ../../lexers/LexAda.cxx; sourceTree = SOURCE_ROOT; };
 		114B6EC011FA7526004FB6AB /* LexAPDL.cxx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LexAPDL.cxx; path = ../../lexers/LexAPDL.cxx; sourceTree = SOURCE_ROOT; };
@@ -529,6 +531,7 @@
 				114B6EF011FA7526004FB6AB /* LexPB.cxx */,
 				114B6EF111FA7526004FB6AB /* LexPerl.cxx */,
 				114B6EF211FA7526004FB6AB /* LexPLM.cxx */,
+				1114D6CA1602A951001DC345 /* LexPO.cxx */,
 				114B6EF311FA7526004FB6AB /* LexPOV.cxx */,
 				114B6EF411FA7526004FB6AB /* LexPowerPro.cxx */,
 				114B6EF511FA7526004FB6AB /* LexPowerShell.cxx */,
@@ -782,7 +785,7 @@
 		0867D690FE84028FC02AAC07 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0430;
+				LastUpgradeCheck = 0450;
 			};
 			buildConfigurationList = 1DEB91B108733DA50010E9CD /* Build configuration list for PBXProject "ScintillaFramework" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -946,6 +949,7 @@
 				11BEB6A214EF189600BDE92A /* LexECL.cxx in Sources */,
 				11594BE9155B91DF0099E1FA /* LexOScript.cxx in Sources */,
 				11594BEA155B91DF0099E1FA /* LexVisualProlog.cxx in Sources */,
+				1114D6CB1602A951001DC345 /* LexPO.cxx in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -990,7 +994,7 @@
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "@executable_path/../Frameworks";
 				PRODUCT_NAME = Scintilla;
-				SDKROOT = macosx10.6;
+				SDKROOT = macosx10.7;
 				WRAPPER_EXTENSION = framework;
 			};
 			name = Debug;
@@ -1019,7 +1023,7 @@
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "@executable_path/../Frameworks";
 				PRODUCT_NAME = Scintilla;
-				SDKROOT = macosx10.6;
+				SDKROOT = macosx10.7;
 				WRAPPER_EXTENSION = framework;
 			};
 			name = Release;
@@ -1038,7 +1042,7 @@
 					../../lexlib,
 				);
 				ONLY_ACTIVE_ARCH = YES;
-				SDKROOT = macosx10.6;
+				SDKROOT = macosx10.7;
 			};
 			name = Debug;
 		};
@@ -1054,7 +1058,7 @@
 					../../src,
 					../../lexlib,
 				);
-				SDKROOT = macosx10.6;
+				SDKROOT = macosx10.7;
 			};
 			name = Release;
 		};

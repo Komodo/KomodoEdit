@@ -133,6 +133,7 @@ protected:	// ScintillaBase subclass needs access to much of Editor
 	ViewStyle vs;
 	int technology;
 	Point sizeRGBAImage;
+	float scaleRGBAImage;
 
 	int printMagnification;
 	int printColourMode;
@@ -267,6 +268,10 @@ protected:	// ScintillaBase subclass needs access to much of Editor
 	int wrapIndentMode; // SC_WRAPINDENT_FIXED, _SAME, _INDENT
 
 	bool convertPastes;
+
+	int marginNumberPadding; // the right-side padding of the number margin
+	int ctrlCharPadding; // the padding around control character text blobs
+	int lastSegItalicsOffset; // the offset so as not to clip italic characters at EOLs
 
 	Document *pdoc;
 

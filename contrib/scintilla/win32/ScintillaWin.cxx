@@ -18,13 +18,15 @@
 #include <map>
 
 #undef _WIN32_WINNT
-#define _WIN32_WINNT  0x0500
+#define _WIN32_WINNT 0x0500
+#undef WINVER
+#define WINVER 0x0500
 #include <windows.h>
 #include <commctrl.h>
 #include <richedit.h>
 #include <windowsx.h>
 
-#if defined(_MSC_VER) && (_MSC_VER > 1200)
+#if defined(NTDDI_WIN7) && !defined(DISABLE_D2D)
 #define USE_D2D 1
 #endif
 
@@ -585,11 +587,6 @@ LRESULT ScintillaWin::WndPaint(uptr_t wParam) {
 			rcPaint = PRectangle(pps->rcPaint.left, pps->rcPaint.top, pps->rcPaint.right, pps->rcPaint.bottom);
 			PRectangle rcClient = GetClientRectangle();
 			paintingAllText = rcPaint.Contains(rcClient);
-			if (paintingAllText) {
-				//Platform::DebugPrintf("Performing full text paint\n");
-			} else {
-				//Platform::DebugPrintf("Performing partial paint %d .. %d\n", rcPaint.top, rcPaint.bottom);
-			}
 			Paint(surfaceWindow, rcPaint);
 			surfaceWindow->Release();
 			HRESULT hr = pRenderTarget->EndDraw();
@@ -2557,27 +2554,29 @@ STDMETHODIMP ScintillaWin::Drop(LPDATAOBJECT pIDataSource, DWORD grfKeyState,
 		HRESULT hr = pIDataSource->GetData(&fmtu, &medium);
 		if (SUCCEEDED(hr) && medium.hGlobal) {
 			wchar_t *udata = static_cast<wchar_t *>(::GlobalLock(medium.hGlobal));
-			if (IsUnicodeMode()) {
-				int tlen = ::GlobalSize(medium.hGlobal);
-				// Convert UTF-16 to UTF-8
-				int dataLen = UTF8Length(udata, tlen/2);
-				data = new char[dataLen+1];
-				UTF8FromUTF16(udata, tlen/2, data, dataLen);
-				dataAllocated = true;
-			} else {
-				// Convert UTF-16 to ANSI
-				//
-				// Default Scintilla behavior in Unicode mode
-				// CF_UNICODETEXT available, but not in Unicode mode
-				// Convert from Unicode to current Scintilla code page
-				UINT cpDest = CodePageOfDocument();
-				int tlen = ::WideCharToMultiByte(cpDest, 0, udata, -1,
-					NULL, 0, NULL, NULL) - 1; // subtract 0 terminator
-				data = new char[tlen + 1];
-				memset(data, 0, (tlen+1));
-				::WideCharToMultiByte(cpDest, 0, udata, -1,
-						data, tlen + 1, NULL, NULL);
-				dataAllocated = true;
+			if (udata) {
+				if (IsUnicodeMode()) {
+					int tlen = ::GlobalSize(medium.hGlobal);
+					// Convert UTF-16 to UTF-8
+					int dataLen = UTF8Length(udata, tlen/2);
+					data = new char[dataLen+1];
+					UTF8FromUTF16(udata, tlen/2, data, dataLen);
+					dataAllocated = true;
+				} else {
+					// Convert UTF-16 to ANSI
+					//
+					// Default Scintilla behavior in Unicode mode
+					// CF_UNICODETEXT available, but not in Unicode mode
+					// Convert from Unicode to current Scintilla code page
+					UINT cpDest = CodePageOfDocument();
+					int tlen = ::WideCharToMultiByte(cpDest, 0, udata, -1,
+						NULL, 0, NULL, NULL) - 1; // subtract 0 terminator
+					data = new char[tlen + 1];
+					memset(data, 0, (tlen+1));
+					::WideCharToMultiByte(cpDest, 0, udata, -1,
+							data, tlen + 1, NULL, NULL);
+					dataAllocated = true;
+				}
 			}
 		}
 

@@ -540,7 +540,9 @@ static bool sureThisIsNotHeredoc(int lt2StartPos,
     }
     prevStyle = styler.StyleAt(firstWordPosn);
     // If we have '<<' following a keyword, it's not a heredoc
-    if (prevStyle != SCE_RB_IDENTIFIER) {
+    if (prevStyle != SCE_RB_IDENTIFIER
+        && prevStyle != SCE_RB_INSTANCE_VAR
+        && prevStyle != SCE_RB_CLASS_VAR) {
         //fprintf(stderr, "<< follows a keyword, << false\n");
         return definitely_not_a_here_doc;
     }

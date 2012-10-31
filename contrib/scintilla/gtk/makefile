@@ -78,7 +78,7 @@ LEXOBJS:=$(addsuffix .o,$(basename $(notdir $(wildcard ../lexers/Lex*.cxx))))
 all: $(COMPLIB)
 
 clean:
-	$(DEL) *.o $(COMPLIB)
+	$(DEL) *.o $(COMPLIB) *.plist
 
 deps:
 	$(CC) -MM $(CONFIGFLAGS) $(CXXTFLAGS) *.cxx ../src/*.cxx | sed -e 's/\/usr.* //' | grep [a-zA-Z] >deps.mak
