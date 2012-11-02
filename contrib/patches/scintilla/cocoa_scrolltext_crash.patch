@@ -1,0 +1,21 @@
+Stop crash caused by lockFocus being called on a hidden view - bug 96064.
+
+Index: /Users/toddw/as/komodo-devel_12/src/scintilla/cocoa/ScintillaCocoa.mm
+===================================================================
+--- cocoa/ScintillaCocoa.mm	(revision 74680)
++++ cocoa/ScintillaCocoa.mm	(working copy)
+@@ -1476,7 +1483,13 @@
+ 		MoveFindIndicatorWithBounce(NO);
+ 		return;
+ 	}
+-    
++
++	// KOMODO: Don't scroll if the view is hidden - causes a crash trying to
++	//         lockFocus - bug 96064.
++	if ([content isHiddenOrHasHiddenAncestor]) {
++		return;
++	}
++
+ 	[content lockFocus];
+ 	int diff = vs.lineHeight * linesToMove;
+ 	PRectangle textRect = GetTextRectangle();
