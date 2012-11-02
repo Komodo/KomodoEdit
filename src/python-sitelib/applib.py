@@ -67,15 +67,8 @@ def user_data_dir(appname, owner=None, version=None, csidl=None):
         path = os.path.join(_get_win_folder(csidl or "CSIDL_LOCAL_APPDATA"),
                             owner, appname)
     elif sys.platform == 'darwin':
-        if os.uname()[-1] == 'i386':
-            #XXX Folder.FSFindFolder() fails with error -43 on x86. See 42669.
-            basepath = os.path.expanduser('~/Library/Application Support')
-        else:
-            from Carbon import Folder, Folders
-            path = Folder.FSFindFolder(Folders.kUserDomain,
-                                       Folders.kApplicationSupportFolderType,
-                                       Folders.kDontCreateFolder)
-            basepath = path.FSRefMakePath()
+        #XXX Folder.FSFindFolder() fails with error -43 on x86. See 42669.
+        basepath = os.path.expanduser('~/Library/Application Support')
         path = os.path.join(basepath, appname)
     else:
         path = os.path.expanduser("~/." + appname.lower())
@@ -112,18 +105,7 @@ def site_data_dir(appname, owner=None, version=None):
         path = os.path.join(_get_win_folder("CSIDL_COMMON_APPDATA"),
                             owner, appname)
     elif sys.platform == 'darwin':
-        if os.uname()[-1] == 'i386':
-            # Folder.FSFindFolder() **used to fail** with error -43
-            # on x86. See bug 42669.
-            #TODO: Update this to try FSFindFolder and fallback to this
-            #      hardcoding for the specific failure mode.
-            basepath = os.path.expanduser('/Library/Application Support')
-        else:
-            from Carbon import Folder, Folders
-            path = Folder.FSFindFolder(Folders.kLocalDomain,
-                                       Folders.kApplicationSupportFolderType,
-                                       Folders.kDontCreateFolder)
-            basepath = os.path.join(path.FSRefMakePath(), appname)
+        basepath = os.path.expanduser('/Library/Application Support')
         path = os.path.join(basepath, appname)
     else:
         path = "/etc/"+appname.lower()
@@ -158,15 +140,7 @@ def user_cache_dir(appname, owner=None, version=None):
         path = os.path.join(_get_win_folder("CSIDL_LOCAL_APPDATA"),
                             owner, appname)
     elif sys.platform == 'darwin':
-        if os.uname()[-1] == 'i386':
-            #XXX Folder.FSFindFolder() fails with error -43 on x86. See 42669.
-            basepath = os.path.expanduser('~/Library/Caches')
-        else:
-            from Carbon import Folder, Folders
-            path = Folder.FSFindFolder(Folders.kUserDomain,
-                                       Folders.kCachedDataFolderType,
-                                       Folders.kDontCreateFolder)
-            basepath = path.FSRefMakePath()
+        basepath = os.path.expanduser('~/Library/Caches')
         path = os.path.join(basepath, appname)
     else:
         path = os.path.expanduser("~/.%s/caches" % appname.lower())
