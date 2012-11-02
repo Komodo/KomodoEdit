@@ -1145,10 +1145,10 @@
                 else if (rows < 0)
                     this.scimoz.zoomOut();
             } else {
-                if (rows == NSUIEvent.SCROLL_PAGE_UP ||
+                if (rows == UIEvent.SCROLL_PAGE_UP ||
                     (rows < 0 && event.ctrlKey))
                     rows = -this.scimoz.linesOnScreen;
-                else if (rows == NSUIEvent.SCROLL_PAGE_DOWN ||
+                else if (rows == UIEvent.SCROLL_PAGE_DOWN ||
                     (rows > 0 && event.ctrlKey))
                     rows = this.scimoz.linesOnScreen;
 		    
