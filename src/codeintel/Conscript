@@ -49,6 +49,7 @@ Import(
     'mozVersion',
     'productType',
     'buildFlavour',
+    'buildType',
     'unsiloedPythonExe',
     'komodoDevDir',
     'siloedPython',
@@ -232,7 +233,7 @@ $cons->InstallRecursive("$komodoPythonUtilsDir/codeintel2/lib_srcs/node.js",
 # /src/codeintel/support/gencix/javascript/nodejs/node_global_cix.py
 
 # Build codeintel's custom cElementTree -> ciElementTree.
-my $PYD = ($platform eq "win") ? ".pyd" : ".so";
+my $PYD = ($platform eq "win") ? (($buildType eq "debug") ? "_d.pyd" : ".pyd") : ".so";
 my $ciElementTreeExt = "lib/ciElementTree$PYD";
 $cons->Command(
     $ciElementTreeExt,
