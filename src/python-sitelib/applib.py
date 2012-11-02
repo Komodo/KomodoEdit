@@ -54,7 +54,7 @@ def user_data_dir(appname, owner=None, version=None, csidl=None):
         Mac OS X:   ~/Library/Application Support/<appname>
         Unix:       ~/.<lowercased-appname>
     
-    From Windows Vista and onwards, the user data directory was split into the
+    From Windows NT and onwards, the user data directory was split into the
     local app data directory and the roaming app data directory. Komodo 6 uses
     the local one for it's user data directory - Komodo 5 used the roaming one.
 
@@ -218,7 +218,7 @@ def _get_win_folder_with_ctypes(csidl_name):
 
 if sys.platform == "win32":
     try:
-        import win32com.shell
+        import win32com.shell, win32api
         _get_win_folder = _get_win_folder_with_pywin32
     except ImportError:
         try:
