@@ -305,8 +305,11 @@ class KoInitService(object):
 # #if BUILD_FLAVOUR == "dev"
         if sys.platform.startswith("win") and os.environ.has_key("KOMODO_DEBUG_BREAK"):
             print "KOMODO_DEBUG_BREAK in the environment - breaking into system debugger..."
-            import win32api
-            win32api.DebugBreak()
+            try:
+                import win32api
+                win32api.DebugBreak()
+            except ImportError, e:
+                log.exception(e)
 # #endif
         self.upgradeUserSettings()
         self.installSamples(False)
@@ -393,11 +396,16 @@ class KoInitService(object):
                 # media is accessed, but not available
                 # (eg, when a file from a floppy is on the MRU,
                 # but no floppy is in the drive)
-                from ctypes import windll
-                SEM_FAILCRITICALERRORS = 1 # constant pulled from win32con to save memory
-                windll.kernel32.SetErrorMode(SEM_FAILCRITICALERRORS)
+                import ctypes
+                SetErrorMode = ctypes.windll.kernel32.SetErrorMode
+                SetErrorMode.argtypes = [ctypes.c_uint32]
+                SetErrorMode.restype = ctypes.c_uint32
+                GetErrorMode = ctypes.windll.kernel32.GetErrorMode
+                GetErrorMode.restype = ctypes.c_uint32
+                SEM_FAILCRITICALERRORS = 1
+                SetErrorMode(GetErrorMode() | SEM_FAILCRITICALERRORS)
             except ImportError:
-                log.error("Could not import win32api/win32con to set the "\
+                log.error("Could not import ctypes to set the "\
                          "Win32 Error Mode.")
 
     def _safelyReloadSys(self):
