@@ -980,11 +980,6 @@
 <!-- #if PLATFORM != "win" -->                    
                     var x,y;
                     [x,y] = this.getClientCoordinates(event);
-<!-- #if PLATFORM == "darwin" -->
-                    // Mac must inform SciMoz of mouse events - bug 89002.
-                    this.scimoz.buttonUp( x, y, event.button,
-                                         event.shiftKey, event.ctrlKey, event.metaKey);
-<!-- #endif -->
 
                     // only disable scintilla mouseup if this is a single left button
                     // click.  Otherwise selections get disabled on linux
@@ -1022,38 +1017,6 @@
                 ]]>
             </handler>
 
-<!-- #if PLATFORM == "darwin" -->
-            <handler event="mouseover" phase="capturing">
-                <![CDATA[
-                    if (this._inMouseDown == -1) return;
-                    if (this._mouseUpEvent) {
-                        window.removeEventListener("mouseup", this._mouseUpEvent, true);
-                        this._mouseUpEvent = null;
-                    }
-                ]]>
-            </handler>
-
-            <handler event="mouseout" phase="capturing">
-                <![CDATA[
-                    if (this._inMouseDown == -1) return;
-                    // for osx, handle a mouseup event that occurs outside of the
-                    // plugin.  bug 80273
-                    var self = this;
-                    this._mouseUpEvent = function(event) {
-                        var x,y;
-                        [x,y] = self.getClientCoordinates(event);
-                        self.scimoz.buttonUp(x, y,
-                                             event.button,
-                                             event.shiftKey, event.ctrlKey, event.metaKey);
-                        window.removeEventListener("mouseup", self._mouseUpEvent, true);
-                        self._mouseUpEvent = null;
-                        self._inMouseDown = -1;
-                    }
-                    window.addEventListener("mouseup", this._mouseUpEvent, true);
-                ]]>
-            </handler>
-<!-- #endif -->
-
             <handler event="mousedown" phase="bubbling">
                 <![CDATA[
                 //dump("scintilla:: mousedown\n");
@@ -1063,11 +1026,6 @@
                     this.focus();
                 }
                 var [x, y] = this.getClientCoordinates(event);
-/* #if PLATFORM == "darwin" */
-                // Mac must inform SciMoz of mouse events - bug 89902.
-                this.scimoz.buttonDown( x, y, event.button,
-                                       event.shiftKey, event.ctrlKey, event.metaKey);
-/* #endif */
                 this._mouseDownSelection = scimoz.selText;
                 this._lastMousePos = [x,y];
                 if (this._mozcontext && this._mozcontext.open) {
@@ -1125,11 +1083,6 @@
                 // Note we seem to get mousemove messages every second or so.  I
                 // think it is related to the cursor, but not sure.  It seems to originate
                 // from Windows itself, but I don't know what triggers it.  mh.
-<!-- #if PLATFORM == "darwin" -->
-                // darwin and windows handle this (somewhat differently) in
-                // scimoz now
-                this.scimoz.buttonMove( x, y );
-<!-- #endif -->
             } catch (e) {
                 this.log.exception(e);
             }
