@@ -171,6 +171,7 @@ class KoTACResult(object):
             self.defaultIndex = len(self.matches) - 1
 
     #---- nsIAutoCompleteResult implementation
+    typeAheadResult = False
     def get_matchCount(self):
         return len(self.matches)
     def getValueAt(self, index):
