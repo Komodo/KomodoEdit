@@ -436,12 +436,6 @@ static bool hasEmptyRect(NPCocoaEvent *event) {
 }
 
 int16 SciMoz::PlatformHandleEvent(void *ev) {
-    NPCocoaEvent *event = (NPCocoaEvent *) ev;
-    NSEvent *fixedNSEvent;
-#ifdef SCIMOZ_COCOA_DEBUG
-    char buf[320];
-#endif
-	
     if (isClosed) {
 #ifdef SCIMOZ_COCOA_DEBUG
         fprintf(stderr, "SciMoz is getting an event after being closed.\n");
@@ -449,175 +443,12 @@ int16 SciMoz::PlatformHandleEvent(void *ev) {
         return kNPEventNotHandled;
     }
 #ifdef SCIMOZ_COCOA_DEBUG
-    fprintf(stderr, "PlatformHandleEvent: event #%d\n", event->type);
+    NPCocoaEvent *event = (NPCocoaEvent *) ev;
+    if (event->type != NPCocoaEventMouseMoved)
+        fprintf(stderr, "PlatformHandleEvent: event #%d\n", event->type);
 #endif
-    switch (event->type) {
-    case NPCocoaEventDrawRect:
-      fprintf(stderr, "NPCocoaEventDrawRect: draw-region: x:%g, y:%g, w:%g, h:%g\n",
-	      event->data.draw.x,
-	      event->data.draw.y,
-	      event->data.draw.width,
-	      event->data.draw.height);
-      return kNPEventNotHandled;
-      // Do not call the draw event here.  The ScintillaView control
-      // should be able to draw itself.
-      if (hasEmptyRect(event)) {
-	fprintf(stderr, "Don't draw: empty rect\n");
-	return kNPEventNotHandled;
-      } else {
-	ScintillaView *scView = (ScintillaView *) wEditor;
-	if ([scView isHidden]) {
-	  fprintf(stderr, "scView is still hidden\n");
-	  SetHIViewShowHide(false);
-	}
-	NSView *parentView = (NSView*)wEditor;
-#ifdef SCIMOZ_COCOA_DEBUG
-	fprintf(stderr, "   But not going to handle the draw event here!\n");
-	fprintf(stderr, ("  notes on (NSView *) npwindow->window:\n"
-			 "    bounds:%s, frame:%s\n"),
-	  getNSRectStr([parentView bounds], &buf[0]),
-	  getNSRectStr([parentView frame],  &buf[80]));
-#endif
-	// Is fWindow->window == wEditor ?
-	// NSView *parentView = [(NSWindow*)(fWindow->window) contentView];
-	NSRect parentRect = [parentView bounds];
-	fprintf(stderr, "  fWindow clip region: x:%d, y:%d (adj:%g), w:%d, h:%d\n",
-			 fWindow->clipRect.left,
-			 fWindow->clipRect.top,
-			 parentRect.size.height - fWindow->clipRect.bottom,
-			 fWindow->clipRect.right - fWindow->clipRect.left,
-			 fWindow->clipRect.bottom - fWindow->clipRect.top);
-	NSRect boundsRect = NSMakeRect(fWindow->clipRect.left,
-				       parentRect.size.height - fWindow->clipRect.bottom,
-				       fWindow->clipRect.right - fWindow->clipRect.left,
-				       fWindow->clipRect.bottom - fWindow->clipRect.top);
-	boundsRect = NSMakeRect(event->data.draw.x,
-				event->data.draw.y,
-				event->data.draw.width,
-				event->data.draw.height);
-	[scView drawRect:boundsRect];
-	//[scView drawRect:[parentView bounds]];
-      }
-      break;
-    case NPCocoaEventMouseDown:
-        fixedNSEvent = nsEventFromNPCocoaMouseClickEvent(event,
-						 (ScintillaView *) wEditor);
-        if (fixedNSEvent) {
-            AbortComposing(mPlugin->GetNPP(), mIMEHelper);
-            scintilla->MouseDown(fixedNSEvent);
-        }
-        break;
-    case NPCocoaEventMouseUp:
-	// XXX: At startup we don't get this event, but when we do,
-	// dispatching it to the plugin childWindow doesn't accomplish anything.
-        fixedNSEvent = nsEventFromNPCocoaMouseClickEvent(event,
-						 (ScintillaView *) wEditor);
-        if (fixedNSEvent) {
-            AbortComposing(mPlugin->GetNPP(), mIMEHelper);
-	    //if (fPlatform.pluginView) {
-	    //  fprintf(stderr, "dispatch mouseUp to fPlatform.pluginView\n");
-	    //  [fPlatform.pluginView mouseUp:fixedNSEvent];
-	    //}
-            // scintilla->MouseUp(fixedNSEvent);
-        }
-        break;
 
-    case NPCocoaEventFocusChanged:
-    case NPCocoaEventWindowFocusChanged:
-        {
-#ifdef SCIMOZ_COCOA_DEBUG
-            bool windowFocusChanged = event->type == NPCocoaEventWindowFocusChanged;
-            fprintf(stderr, "SciMozCocoa::PlatformHandleEvent: %s %s\n",
-                    (windowFocusChanged
-                     ? "NPCocoaEventWindowFocusChanged"
-                     : "NPCocoaEventFocusChanged"),
-                    (event->data.focus.hasFocus ? "Gained" : "Lost"));
-#endif
-            if (!event->data.focus.hasFocus) {
-		AbortComposing(mPlugin->GetNPP(), mIMEHelper);
-            } else {
-	      // Make the parent the first responder.
-	      //[[(NSView *)fPlatform.pluginView window] makeFirstResponder:(ScintillaView *) wMain];
-	    }
-        }
-        break;
-
-    case NPCocoaEventMouseMoved:
-        fixedNSEvent = nsEventFromNPCocoaMouseClickEvent(event,
-						 (ScintillaView *) wEditor);
-        if (fixedNSEvent) {
-            scintilla->MouseMove(fixedNSEvent);
-        }
-        break;
-
-    case NPCocoaEventMouseEntered:
-        fixedNSEvent = nsEventFromNPCocoaMouseClickEvent(event,
-						 (ScintillaView *) wEditor);
-        if (fixedNSEvent) {
-            scintilla->MouseEntered(fixedNSEvent);
-        }
-        break;
-
-    case NPCocoaEventMouseExited:
-        fixedNSEvent = nsEventFromNPCocoaMouseClickEvent(event,
-						 (ScintillaView *) wEditor);
-        if (fixedNSEvent) {
-            scintilla->MouseExited(fixedNSEvent);
-        }
-        break;
-
-    case NPCocoaEventMouseDragged:
-#ifdef SCIMOZ_COCOA_DEBUG
-        fprintf(stderr, "SciMoz::PlatformHandleEvent NPCocoaEventMouseDragged\n");
-#endif
-        break;
-
-    case NPCocoaEventKeyDown:
-#ifdef SCIMOZ_COCOA_DEBUG
-        fprintf(stderr, "SciMoz::PlatformHandleEvent NPCocoaEventKeyDown\n");
-#endif
-	// XXX: At startup we don't get this event, but when we do,
-	// dispatching it to the plugin childWindow doesn't accomplish anything.
-        fixedNSEvent = nsEventFromNPCocoaMouseClickEvent(event,
-						 (ScintillaView *) wEditor);
-        if (fixedNSEvent) {
-	  fprintf(stderr, "dispatch keyDown to fPlatform.pluginView\n");
-	  //[fPlatform.pluginView keyDown:fixedNSEvent];
-        }
-        break;
-
-    case NPCocoaEventScrollWheel:
-#ifdef SCIMOZ_COCOA_DEBUG
-        fprintf(stderr, "SciMoz::PlatformHandleEvent NPCocoaEventScrollWheel\n");
-#endif
-        break;
-
-    case NPCocoaEventTextInput:
-#ifdef SCIMOZ_COCOA_DEBUG
-        fprintf(stderr, "SciMoz::PlatformHandleEvent NPCocoaEventTextInput\n");
-#endif
-        break;
-
-    case NPCocoaEventKeyUp:
-#ifdef SCIMOZ_COCOA_DEBUG
-        fprintf(stderr, "SciMoz::PlatformHandleEvent NPCocoaEventKeyUp\n");
-#endif
-        break;
-
-    case NPCocoaEventFlagsChanged:
-#ifdef SCIMOZ_COCOA_DEBUG
-        fprintf(stderr, "SciMoz::PlatformHandleEvent NPCocoaEventFlagsChanged\n");
-#endif
-        break;
-        
-    default:
-#ifdef SCIMOZ_COCOA_DEBUG
-        fprintf(stderr, "SciMoz::PlatformHandleEvent event %d\n", event->type);
-#endif
-	return kNPEventNotHandled;
-    }
     return kNPEventNotHandled;
-    return kNPEventHandled;
 }
 
 #ifdef XP_MACOSX_USE_CORE_ANIMATION
