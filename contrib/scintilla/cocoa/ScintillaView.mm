@@ -127,9 +127,7 @@ NSString *SCIUpdateUINotification = @"SCIUpdateUI";
 {
   CGContextRef context = (CGContextRef) [[NSGraphicsContext currentContext] graphicsPort];
   
-  if (!mOwner.backend->Draw(rect, context)) {
-    [self display];
-  }
+  mOwner.backend->Draw(rect, context);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -645,19 +643,14 @@ NSString *SCIUpdateUINotification = @"SCIUpdateUI";
 - (void) magnifyWithEvent: (NSEvent *) event
 {
 #if MAC_OS_X_VERSION_MAX_ALLOWED > MAC_OS_X_VERSION_10_5
-  zoomDelta += event.magnification * 10.0;
-
-  if (fabsf(zoomDelta)>=1.0) {
-    long zoomFactor = [self getGeneralProperty: SCI_GETZOOM] + zoomDelta;
-    [self setGeneralProperty: SCI_SETZOOM parameter: zoomFactor value:0];
-    zoomDelta = 0.0;
-  }     
+  CGFloat z = [event magnification];
+  
+  // Zoom out or in 1pt depending on sign of magnification event value (0.0 = no change)
+  if (z <= 0.0)
+    [ScintillaView directCall: self message: SCI_ZOOMOUT wParam: 0 lParam: 0];
+  else if (z >= 0.0)
+    [ScintillaView directCall: self message: SCI_ZOOMIN wParam: 0 lParam: 0];
 #endif
-}
-
-- (void) beginGestureWithEvent: (NSEvent *) event
-{
-  zoomDelta = 0.0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -860,7 +853,7 @@ static void notification(intptr_t windowid, unsigned int iMessage, uintptr_t wPa
 
 - (void) dealloc
 {
-  [[NSNotificationCenter defaultCenter] removeObserver:self];
+  [mInfoBar release];
   delete mBackend;
   [super dealloc];
 }
@@ -1131,6 +1124,7 @@ static void notification(intptr_t windowid, unsigned int iMessage, uintptr_t wPa
     try
     {
       mBackend->WndProc(SCI_GETSELTEXT, length + 1, (sptr_t) buffer);
+      mBackend->WndProc(SCI_SETSAVEPOINT, 0, 0);
       
       result = [NSString stringWithUTF8String: buffer];
       delete[] buffer;
@@ -1163,6 +1157,7 @@ static void notification(intptr_t windowid, unsigned int iMessage, uintptr_t wPa
     try
     {
       mBackend->WndProc(SCI_GETTEXT, length + 1, (sptr_t) buffer);
+      mBackend->WndProc(SCI_SETSAVEPOINT, 0, 0);
       
       result = [NSString stringWithUTF8String: buffer];
       delete[] buffer;

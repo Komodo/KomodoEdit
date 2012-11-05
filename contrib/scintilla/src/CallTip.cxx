@@ -18,6 +18,9 @@
 using namespace Scintilla;
 #endif
 
+static const int insetX = 5;    // text inset in x from calltip border
+static const int widthArrow = 14;
+
 CallTip::CallTip() {
 	wCallTip = 0;
 	inCallTipMode = false;
@@ -32,11 +35,6 @@ CallTip::CallTip() {
 	tabSize = 0;
 	above = false;
 	useStyleCallTip = false;    // for backwards compatibility
-
-	insetX = 5;
-	widthArrow = 14;
-	borderHeight = 2; // Extra line for border and an empty line at top and bottom.
-	verticalOffset = 1;
 
 #ifdef __APPLE__
 	// proper apple colours for the default
@@ -286,15 +284,15 @@ PRectangle CallTip::CallTipStart(int pos, Point pt, int textHeight, const char *
 	}
 	lineHeight = surfaceMeasure->Height(font);
 
-	// The returned
+	// Extra line for border and an empty line at top and bottom. The returned
 	// rectangle is aligned to the right edge of the last arrow encountered in
 	// the tip text, else to the tip text left edge.
-	int height = lineHeight * numLines - surfaceMeasure->InternalLeading(font) + borderHeight * 2;
+	int height = lineHeight * numLines - surfaceMeasure->InternalLeading(font) + 2 + 2;
 	delete surfaceMeasure;
 	if (above) {
-		return PRectangle(pt.x - offsetMain, pt.y - verticalOffset - height, pt.x + width - offsetMain, pt.y - verticalOffset);
+		return PRectangle(pt.x - offsetMain, pt.y - 1 - height, pt.x + width - offsetMain, pt.y - 1);
 	} else {
-		return PRectangle(pt.x - offsetMain, pt.y + verticalOffset + textHeight, pt.x + width - offsetMain, pt.y + verticalOffset + textHeight + height);
+		return PRectangle(pt.x - offsetMain, pt.y + 1 + textHeight, pt.x + width - offsetMain, pt.y + 1 + textHeight + height);
 	}
 }
 
@@ -309,7 +307,7 @@ void CallTip::SetHighlight(int start, int end) {
 	// Avoid flashing by checking something has really changed
 	if ((start != startHighlight) || (end != endHighlight)) {
 		startHighlight = start;
-		endHighlight = (end > start) ? end : start;
+		endHighlight = end;
 		if (wCallTip.Created()) {
 			wCallTip.InvalidateAll();
 		}

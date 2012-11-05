@@ -34,8 +34,6 @@ public:
 	bool autoHide;
 	bool dropRestOfWord;
 	unsigned int ignoreCaseBehaviour;
-	int widthLBDefault;
-	int heightLBDefault;
 
 	AutoComplete();
 	~AutoComplete();

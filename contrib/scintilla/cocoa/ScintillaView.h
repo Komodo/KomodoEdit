@@ -43,7 +43,7 @@ extern NSString *SCIUpdateUINotification;
 - (BOOL) canUndo;
 - (BOOL) canRedo;
 
-@property (assign) ScintillaView* owner;
+@property (retain) ScintillaView* owner;
 @end
 
 @interface ScintillaView : NSView <InfoBarCommunicator>
@@ -61,8 +61,6 @@ extern NSString *SCIUpdateUINotification;
   
   NSScroller* mHorizontalScroller;
   NSScroller* mVerticalScroller;
-  
-  CGFloat zoomDelta;
   
   // Area to display additional controls (e.g. zoom info, caret position, status info).
   NSView <InfoBarCommunicator>* mInfoBar;

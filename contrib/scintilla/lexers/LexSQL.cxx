@@ -122,11 +122,13 @@ public :
 
 		return sqlStatesLine;
 	}
-	unsigned short int IntoSelectStatementOrAssignment (unsigned short int sqlStatesLine, bool found) {
+
+	unsigned short int IntoSelectStatement (unsigned short int sqlStatesLine, bool found) {
 		if (found)
-			sqlStatesLine |= MASK_INTO_SELECT_STATEMENT_OR_ASSIGNEMENT;
+			sqlStatesLine |= MASK_INTO_SELECT_STATEMENT;
 		else
-			sqlStatesLine &= ~MASK_INTO_SELECT_STATEMENT_OR_ASSIGNEMENT;
+			sqlStatesLine &= ~MASK_INTO_SELECT_STATEMENT;
+
 		return sqlStatesLine;
 	}
 
@@ -159,9 +161,11 @@ public :
 	bool IsIntoExceptionBlock (unsigned short int sqlStatesLine) {
 		return (sqlStatesLine & MASK_INTO_EXCEPTION) != 0;
 	}
-	bool IsIntoSelectStatementOrAssignment (unsigned short int sqlStatesLine) {
-		return (sqlStatesLine & MASK_INTO_SELECT_STATEMENT_OR_ASSIGNEMENT) != 0;
+
+	bool IsIntoSelectStatement (unsigned short int sqlStatesLine) {
+		return (sqlStatesLine & MASK_INTO_SELECT_STATEMENT) != 0;
 	}
+
 	bool IsCaseMergeWithoutWhenFound (unsigned short int sqlStatesLine) {
 		return (sqlStatesLine & MASK_CASE_MERGE_WITHOUT_WHEN_FOUND) != 0;
 	}
@@ -184,7 +188,7 @@ private :
 	SparseState <unsigned short int> sqlStatement;
 	enum {
 		MASK_NESTED_CASES = 0x01FF,
-		MASK_INTO_SELECT_STATEMENT_OR_ASSIGNEMENT = 0x0200,
+		MASK_INTO_SELECT_STATEMENT = 0x0200,
 		MASK_CASE_MERGE_WITHOUT_WHEN_FOUND = 0x0400,
 		MASK_MERGE_STATEMENT = 0x0800,
 		MASK_INTO_DECLARE = 0x1000,
@@ -604,12 +608,9 @@ void SCI_METHOD LexerSQL::Fold(unsigned int startPos, int length, int initStyle,
 				sqlStatesCurrentLine = sqlStates.IntoMergeStatement(sqlStatesCurrentLine, false);
 				levelNext--;
 			}
-			if (sqlStates.IsIntoSelectStatementOrAssignment(sqlStatesCurrentLine))
-				sqlStatesCurrentLine = sqlStates.IntoSelectStatementOrAssignment(sqlStatesCurrentLine, false);
+			if (sqlStates.IsIntoSelectStatement(sqlStatesCurrentLine))
+				sqlStatesCurrentLine = sqlStates.IntoSelectStatement(sqlStatesCurrentLine, false);
 		}
-		if (ch == ':' && chNext == '=' && !IsCommentStyle(style))
-			sqlStatesCurrentLine = sqlStates.IntoSelectStatementOrAssignment(sqlStatesCurrentLine, true);
-
 		if (options.foldComment && IsStreamCommentStyle(style)) {
 			if (!IsStreamCommentStyle(stylePrev)) {
 				levelNext++;
@@ -665,9 +666,10 @@ void SCI_METHOD LexerSQL::Fold(unsigned int startPos, int length, int initStyle,
 			} else {
 				s[j] = '\0';
 			}
+
 			if (!options.foldOnlyBegin &&
 			        strcmp(s, "select") == 0) {
-				sqlStatesCurrentLine = sqlStates.IntoSelectStatementOrAssignment(sqlStatesCurrentLine, true);
+				sqlStatesCurrentLine = sqlStates.IntoSelectStatement(sqlStatesCurrentLine, true);
 			} else if (strcmp(s, "if") == 0) {
 				if (endFound) {
 					endFound = false;
@@ -717,10 +719,8 @@ void SCI_METHOD LexerSQL::Fold(unsigned int startPos, int length, int initStyle,
 							levelNext--; //again for the "end case;" and block when
 					}
 				} else if (!options.foldOnlyBegin) {
-					if (strcmp(s, "case") == 0) {
+					if (strcmp(s, "case") == 0)
 						sqlStatesCurrentLine = sqlStates.BeginCaseBlock(sqlStatesCurrentLine);
-						sqlStatesCurrentLine = sqlStates.CaseMergeWithoutWhenFound(sqlStatesCurrentLine, true);
-					}
 
 					if (levelCurrent > levelNext)
 						levelCurrent = levelNext;
@@ -728,6 +728,7 @@ void SCI_METHOD LexerSQL::Fold(unsigned int startPos, int length, int initStyle,
 					if (!statementFound)
 						levelNext++;
 
+					sqlStatesCurrentLine = sqlStates.CaseMergeWithoutWhenFound(sqlStatesCurrentLine, true);
 					statementFound = true;
 				} else if (levelCurrent > levelNext) {
 					// doesn't include this line into the folding block
@@ -764,7 +765,7 @@ void SCI_METHOD LexerSQL::Fold(unsigned int startPos, int length, int initStyle,
 			           (strcmp(s, "endif") == 0)) {
 				endFound = true;
 				levelNext--;
-				if (sqlStates.IsIntoSelectStatementOrAssignment(sqlStatesCurrentLine) && !sqlStates.IsCaseMergeWithoutWhenFound(sqlStatesCurrentLine))
+				if (sqlStates.IsIntoSelectStatement(sqlStatesCurrentLine) && !sqlStates.IsCaseMergeWithoutWhenFound(sqlStatesCurrentLine))
 					levelNext--;
 				if (levelNext < SC_FOLDLEVELBASE) {
 					levelNext = SC_FOLDLEVELBASE;

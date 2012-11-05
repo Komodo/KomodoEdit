@@ -465,9 +465,7 @@ static bool sureThisIsNotHeredoc(int lt2StartPos,
     }
     prevStyle = styler.StyleAt(firstWordPosn);
     // If we have '<<' following a keyword, it's not a heredoc
-    if (prevStyle != SCE_RB_IDENTIFIER
-        && prevStyle != SCE_RB_INSTANCE_VAR
-        && prevStyle != SCE_RB_CLASS_VAR) {
+    if (prevStyle != SCE_RB_IDENTIFIER) {
         return definitely_not_a_here_doc;
     }
     int newStyle = prevStyle;
@@ -497,9 +495,6 @@ static bool sureThisIsNotHeredoc(int lt2StartPos,
         } else {
             break;
         }
-        // on second and next passes, only identifiers may appear since
-        // class and instance variable are private
-        prevStyle = SCE_RB_IDENTIFIER;
     }
     // Skip next batch of white-space
     firstWordPosn = skipWhitespace(firstWordPosn, lt2StartPos, styler);
@@ -1441,8 +1436,7 @@ static bool keywordIsAmbiguous(const char *prevWord)
         || !strcmp(prevWord, "do")
         || !strcmp(prevWord, "while")
         || !strcmp(prevWord, "unless")
-        || !strcmp(prevWord, "until")
-        || !strcmp(prevWord, "for")) {
+        || !strcmp(prevWord, "until")) {
         return true;
     } else {
         return false;
@@ -1560,7 +1554,6 @@ static bool keywordIsModifier(const char *word,
 
 #define WHILE_BACKWARDS "elihw"
 #define UNTIL_BACKWARDS "litnu"
-#define FOR_BACKWARDS "rof"
 
 // Nothing fancy -- look to see if we follow a while/until somewhere
 // on the current line
@@ -1598,8 +1591,7 @@ static bool keywordDoStartsLoop(int pos,
             *dst = 0;
             // Did we see our keyword?
             if (!strcmp(prevWord, WHILE_BACKWARDS)
-                || !strcmp(prevWord, UNTIL_BACKWARDS)
-                || !strcmp(prevWord, FOR_BACKWARDS)) {
+                || !strcmp(prevWord, UNTIL_BACKWARDS)) {
                 return true;
             }
             // We can move pos to the beginning of the keyword, and then

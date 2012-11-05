@@ -205,7 +205,6 @@ void RunStyles::DeleteRange(int position, int deleteLength) {
 	if (runStart == runEnd) {
 		// Deleting from inside one run
 		starts->InsertText(runStart, -deleteLength);
-		RemoveRunIfEmpty(runStart);
 	} else {
 		runStart = SplitRun(position);
 		runEnd = SplitRun(end);

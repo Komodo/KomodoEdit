@@ -319,8 +319,8 @@ int XPMSet::GetWidth() {
 	return (width > 0) ? width : 0;
 }
 
-RGBAImage::RGBAImage(int width_, int height_, float scale_, const unsigned char *pixels_) :
-	height(height_), width(width_), scale(scale_) {
+RGBAImage::RGBAImage(int width_, int height_, const unsigned char *pixels_) :
+	height(height_), width(width_) {
 	if (pixels_) {
 		pixelBytes.assign(pixels_, pixels_ + CountBytes());
 	} else {
@@ -331,7 +331,6 @@ RGBAImage::RGBAImage(int width_, int height_, float scale_, const unsigned char 
 RGBAImage::RGBAImage(const XPM &xpm) {
 	height = xpm.GetHeight();
 	width = xpm.GetWidth();
-	scale = 1;
 	pixelBytes.resize(CountBytes());
 	for (int y=0; y<height; y++) {
 		for (int x=0; x<width; x++) {
@@ -357,10 +356,10 @@ const unsigned char *RGBAImage::Pixels() const {
 void RGBAImage::SetPixel(int x, int y, ColourDesired colour, int alpha) {
 	unsigned char *pixel = &pixelBytes[0] + (y*width+x) * 4;
 	// RGBA
-	pixel[0] = static_cast<unsigned char>(colour.GetRed());
-	pixel[1] = static_cast<unsigned char>(colour.GetGreen());
-	pixel[2] = static_cast<unsigned char>(colour.GetBlue());
-	pixel[3] = static_cast<unsigned char>(alpha);
+	pixel[0] = colour.GetRed();
+	pixel[1] = colour.GetGreen();
+	pixel[2] = colour.GetBlue();
+	pixel[3] = alpha;
 }
 
 RGBAImageSet::RGBAImageSet() : height(-1), width(-1){

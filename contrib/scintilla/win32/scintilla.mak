@@ -36,11 +36,6 @@ CXXFLAGS=$(CXXFLAGS) $(NOLOGO)
 LDFLAGS=$(LDFLAGS) $(NOLOGO)
 !ENDIF
 
-!IF [cl -c -nologo CheckD2D.cxx >NUL:]
-CXXFLAGS=$(CXXFLAGS) -DDISABLE_D2D
-!MESSAGE Direct2D is not available
-!ENDIF
-
 !IFDEF DEBUG
 CXXFLAGS=$(CXXFLAGS) $(CXXDEBUG)
 LDFLAGS=$(LDDEBUG) $(LDFLAGS)
@@ -146,7 +141,6 @@ LEXOBJS=\
 	$(DIR_O)\LexPB.obj \
 	$(DIR_O)\LexPerl.obj \
 	$(DIR_O)\LexPLM.obj \
-	$(DIR_O)\LexPO.obj \
 	$(DIR_O)\LexPOV.obj \
 	$(DIR_O)\LexPowerPro.obj \
 	$(DIR_O)\LexPowerShell.obj \
@@ -408,8 +402,6 @@ $(DIR_O)\LexPB.obj: ..\lexers\LexPB.cxx $(LEX_HEADERS)
 $(DIR_O)\LexPerl.obj: ..\lexers\LexPerl.cxx $(LEX_HEADERS)
 
 $(DIR_O)\LexPLM.obj: ..\lexers\LexPLM.cxx $(LEX_HEADERS)
-
-$(DIR_O)\LexPO.obj: ..\lexers\LexPO.cxx $(LEX_HEADERS)
 
 $(DIR_O)\LexPOV.obj: ..\lexers\LexPOV.cxx $(LEX_HEADERS)
 

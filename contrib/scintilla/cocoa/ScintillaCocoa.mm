@@ -241,15 +241,13 @@ const CGFloat paddingHighlightY = 2;
 	CGFloat width = self.widthText + paddingHighlightX * 2;
 	CGFloat height = self.heightLine + paddingHighlightY * 2;
 
-	CGFloat flipper = self.geometryFlipped ? -1.0 : 1.0;
-
 	// Adjust for padding
 	ptText.x -= paddingHighlightX;
-	ptText.y += flipper * paddingHighlightY;
+	ptText.y += paddingHighlightY;
 
 	// Shift point to centre as expanding about centre
 	ptText.x += width / 2.0;
-	ptText.y -= flipper * height / 2.0;
+	ptText.y -= height / 2.0;
 
 	[CATransaction begin];
 	[CATransaction setValue:[NSNumber numberWithFloat:0.0] forKey:kCATransactionAnimationDuration];
@@ -1441,24 +1439,29 @@ bool ScintillaCocoa::HaveMouseCapture()
 /**
  * Synchronously paint a rectangle of the window.
  */
-bool ScintillaCocoa::SyncPaint(void* gc, PRectangle rc)
+void ScintillaCocoa::SyncPaint(void* gc, PRectangle rc)
 {
   paintState = painting;
   rcPaint = rc;
   PRectangle rcText = GetTextRectangle();
   paintingAllText = rcPaint.Contains(rcText);
-  bool succeeded = true;
   Surface *sw = Surface::Allocate(SC_TECHNOLOGY_DEFAULT);
   if (sw)
   {
     sw->Init(gc, wMain.GetID());
     Paint(sw, rc);
-    succeeded = paintState != paintAbandoned;
+    if (paintState == paintAbandoned)
+    {
+      // Do a full paint.
+      rcPaint = GetClientRectangle();
+      paintState = painting;
+      paintingAllText = true;
+      Paint(sw, rcPaint);
+    }
     sw->Release();
     delete sw;
   }
   paintState = notPainting;
-  return succeeded;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1535,12 +1538,7 @@ void ScintillaCocoa::SetHorizontalScrollPos()
   
   // Convert absolute coordinate into the range [0..1]. Keep in mind that the visible area
   // does *not* belong to the scroll range.
-  int maxXOffset = scrollWidth - textRect.Width();
-  if (maxXOffset < 0)
-    maxXOffset = 0;
-  if (xOffset > maxXOffset)
-    xOffset = maxXOffset;
-  float relativePosition = (float) xOffset / maxXOffset;
+  float relativePosition = (float) xOffset / (scrollWidth - textRect.Width());
   [topContainer setHorizontalScrollPosition: relativePosition];
   MoveFindIndicatorWithBounce(NO);
 }
@@ -1768,9 +1766,9 @@ void ScintillaCocoa::IdleTimerFired()
  * @param rect The area to paint, given in the sender's coordinate system.
  * @param gc The context we can use to paint.
  */
-bool ScintillaCocoa::Draw(NSRect rect, CGContextRef gc)
+void ScintillaCocoa::Draw(NSRect rect, CGContextRef gc)
 {
-  return SyncPaint(gc, NSRectToPRectangle(rect));
+  SyncPaint(gc, NSRectToPRectangle(rect));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2054,7 +2052,6 @@ void ScintillaCocoa::ShowFindIndicatorForRange(NSRange charRange, BOOL retaining
   {
     layerFindIndicator = [[FindHighlightLayer alloc] init];
     [content setWantsLayer: YES];
-    layerFindIndicator.geometryFlipped = content.layer.geometryFlipped;
     [[content layer] addSublayer:layerFindIndicator];
   }
   [layerFindIndicator removeAnimationForKey:@"animateFound"];
@@ -2098,14 +2095,11 @@ void ScintillaCocoa::MoveFindIndicatorWithBounce(BOOL bounce)
 #if MAC_OS_X_VERSION_MAX_ALLOWED > MAC_OS_X_VERSION_10_5
   if (layerFindIndicator)
   {
-    CGPoint ptText = CGPointMake(
-      WndProc(SCI_POINTXFROMPOSITION, 0, layerFindIndicator.positionFind),
-      WndProc(SCI_POINTYFROMPOSITION, 0, layerFindIndicator.positionFind));
-    if (!layerFindIndicator.geometryFlipped)
-    {
-      NSView *content = ContentView();
-      ptText.y = content.bounds.size.height - ptText.y;
-    }
+    NSView *content = ContentView();
+    NSRect rcBounds = [content bounds];
+    CGPoint ptText;
+    ptText.x = WndProc(SCI_POINTXFROMPOSITION, 0, layerFindIndicator.positionFind);
+    ptText.y = rcBounds.size.height - WndProc(SCI_POINTYFROMPOSITION, 0, layerFindIndicator.positionFind);
     [layerFindIndicator animateMatch:ptText bounce:bounce];
   }
 #endif
