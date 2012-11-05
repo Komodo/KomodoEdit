@@ -1,0 +1,63 @@
+Allow scintilla to handle cocoa mouse events directly (for editor selection,
+movements, etc...), but also send these events through the DOM as well.
+
+Index: /Users/toddw/as/komodo-devel_12/src/scintilla/cocoa/ScintillaView.mm
+===================================================================
+--- cocoa/ScintillaView.mm	(revision 74680)
++++ cocoa/ScintillaView.mm	(working copy)
+@@ -387,6 +397,7 @@
+ - (void) mouseDown: (NSEvent *) theEvent  
+ {
+   mOwner.backend->MouseDown(theEvent);
++  [super mouseDown:theEvent];  // Send through the DOM as well.
+ }
+ 
+ //--------------------------------------------------------------------------------------------------
+@@ -394,6 +405,7 @@
+ - (void) mouseDragged: (NSEvent *) theEvent
+ {
+   mOwner.backend->MouseMove(theEvent);
++  [super mouseDragged:theEvent];  // Send through the DOM as well.
+ }
+ 
+ //--------------------------------------------------------------------------------------------------
+@@ -401,6 +413,7 @@
+ - (void) mouseUp: (NSEvent *) theEvent
+ {
+   mOwner.backend->MouseUp(theEvent);
++  [super mouseUp:theEvent];  // Send through the DOM as well.
+ }
+ 
+ //--------------------------------------------------------------------------------------------------
+@@ -408,6 +421,7 @@
+ - (void) mouseMoved: (NSEvent *) theEvent
+ {
+   mOwner.backend->MouseMove(theEvent);
++  [super mouseMoved:theEvent];  // Send through the DOM as well.
+ }
+ 
+ //--------------------------------------------------------------------------------------------------
+@@ -415,6 +429,7 @@
+ - (void) mouseEntered: (NSEvent *) theEvent
+ {
+   mOwner.backend->MouseEntered(theEvent);
++  [super mouseEntered:theEvent];  // Send through the DOM as well.
+ }
+ 
+ //--------------------------------------------------------------------------------------------------
+@@ -422,6 +437,7 @@
+ - (void) mouseExited: (NSEvent *) theEvent
+ {
+   mOwner.backend->MouseExited(theEvent);
++  [super mouseExited:theEvent];  // Send through the DOM as well.
+ }
+ 
+ //--------------------------------------------------------------------------------------------------
+@@ -429,6 +445,7 @@
+ - (void) scrollWheel: (NSEvent *) theEvent
+ {
+   mOwner.backend->MouseWheel(theEvent);
++  [super scrollWheel:theEvent];  // Send through the DOM as well.
+ }
+ 
+ //--------------------------------------------------------------------------------------------------
