@@ -1242,8 +1242,8 @@ def target_configure(argv):
                                      "newer version." \
                                      % version)
             # Force x86_64 for now
-            mozRawOptions.append('CC="%s -arch x86_64"' % (gcc,))
-            mozRawOptions.append('CXX="%s -arch x86_64"' % (gxx,))
+            mozRawOptions.append('export CC="%s -arch x86_64"' % (gcc,))
+            mozRawOptions.append('export CXX="%s -arch x86_64"' % (gxx,))
             mozBuildOptions.append('target=x86_64-apple-darwin10')
             mozRawOptions.append("mk_add_options AUTOCONF=autoconf213")
         if not is_gcc and "clang" in version_string:
@@ -1282,8 +1282,8 @@ def target_configure(argv):
                 log.warn("Using outdated gcc %s", version)
         config["gcc"] = gcc
         config["gxx"] = gxx
-        mozRawOptions.append("CC=%s\n" % gcc)
-        mozRawOptions.append("CXX=%s\n" % gxx)
+        mozRawOptions.append("export CC=%s" % gcc)
+        mozRawOptions.append("export CXX=%s" % gxx)
 
     config["changenum"] = _getChangeNum()
     if sys.platform == "win32":
