@@ -3,7 +3,7 @@
 
 var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
     .getService(Components.interfaces.nsIStringBundleService)
-    .createBundle("chrome://places/locale/places.properties");
+    .createBundle("chrome://komodo-places/locale/places.properties");
 const DEFAULT_FILTER_NAME = _bundle.GetStringFromName("default.filterName");
 var g_defaultFilterPrefs;
 var log = ko.logging.getLogger("pref_places_js");

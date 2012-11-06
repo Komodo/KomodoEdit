@@ -54,7 +54,7 @@ var gPlacesViewMgr = null;
 var _globalPrefs;
 var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
     .getService(Components.interfaces.nsIStringBundleService)
-    .createBundle("chrome://places/locale/places.properties");
+    .createBundle("chrome://komodo-places/locale/places.properties");
 const CURRENT_PROJECT_FILTER_NAME = _bundle.GetStringFromName("currentProject.filterName");
 const DEFAULT_FILTER_NAME = _bundle.GetStringFromName("default.filterName");
 const VIEW_ALL_FILTER_NAME = _bundle.GetStringFromName("viewAll.filterName");
@@ -1294,7 +1294,7 @@ viewMgrClass.prototype = {
         var resultObj = {needsChange:false,
                          currentFilterName:currentFilterName,
                          version:VERSION};
-        ko.windowManager.openOrFocusDialog("chrome://places/content/manageViewFilters.xul",
+        ko.windowManager.openOrFocusDialog("chrome://komodo-places/content/manageViewFilters.xul",
                                     "komodo_places",
                                     "chrome,modal,titlebar,resizable=yes",
                                     resultObj);

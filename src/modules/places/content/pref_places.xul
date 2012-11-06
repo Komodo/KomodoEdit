@@ -2,7 +2,7 @@
 <!DOCTYPE window SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
   <!ENTITY % prefDTD SYSTEM "chrome://komodo/locale/pref/pref.dtd">
   %prefDTD;
-   <!ENTITY % placesDTD SYSTEM "chrome://places/locale/places.dtd">
+   <!ENTITY % placesDTD SYSTEM "chrome://komodo-places/locale/places.dtd">
   %placesDTD;
 ]>
 
@@ -27,7 +27,7 @@
     <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/launch.js"/>
 -->
     <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/logging.js"/>
-    <script type="application/x-javascript;version=1.7" src="chrome://places/content/pref_places.js"/>
+    <script type="application/x-javascript;version=1.7" src="chrome://komodo-places/content/pref_places.js"/>
 
     <!-- This main vbox is to ensure *all* the pref widgets are accessible,
          as it adds a scrollbar when the contents are too long. -->

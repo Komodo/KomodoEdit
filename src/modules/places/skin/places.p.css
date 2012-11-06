@@ -165,11 +165,11 @@ treechildren#places-files-tree-body:-moz-tree-cell-text(places_file, sccConflict
 /* bindings */
 
 tree.placestree {
-  -moz-binding: url('chrome://places/content/widgets-places.xml#places_tree_b');
+  -moz-binding: url('chrome://komodo-places/content/widgets-places.xml#places_tree_b');
 }
 
 tree.projectPlacesTree {
-  -moz-binding: url('chrome://places/content/widgets-places.xml#projectPlacesTree_b');
+  -moz-binding: url('chrome://komodo-places/content/widgets-places.xml#projectPlacesTree_b');
 }
 
 /* Copied from skin/toolbar.p.css, which uses an ID */
@@ -178,7 +178,7 @@ undo-button {
 }
 
 #placesParentDirectories.folderPicker-icon {
-  list-style-image : url("chrome://places/skin/folder_explore.png");
+  list-style-image : url("chrome://komodo-places/skin/folder_explore.png");
 }
 
 

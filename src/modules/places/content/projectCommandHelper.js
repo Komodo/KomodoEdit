@@ -21,7 +21,7 @@ var log = ko.logging.getLogger("projectCommandHelper_js");
 
 var placesBundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
     .getService(Components.interfaces.nsIStringBundleService)
-    .createBundle("chrome://places/locale/places.properties");
+    .createBundle("chrome://komodo-places/locale/places.properties");
 
 this.ProjectCommandHelper = function(owner, manager) {
     this.owner = owner;   // Either the single-project or multiple-project view

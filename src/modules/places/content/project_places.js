@@ -58,7 +58,7 @@ var _placePrefs;
 var _g_showProjectPath;
 var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
     .getService(Components.interfaces.nsIStringBundleService)
-    .createBundle("chrome://places/locale/places.properties");
+    .createBundle("chrome://komodo-places/locale/places.properties");
 
 this.XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
 

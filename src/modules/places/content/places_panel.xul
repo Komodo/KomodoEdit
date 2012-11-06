@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!DOCTYPE overlay PUBLIC "-//MOZILLA//DTD XUL V1.0//EN" "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
-  <!ENTITY % placesDTD SYSTEM "chrome://places/locale/places.dtd">
+  <!ENTITY % placesDTD SYSTEM "chrome://komodo-places/locale/places.dtd">
   %placesDTD;
   <!ENTITY % komodoDTD SYSTEM "chrome://komodo/locale/komodo.dtd">
   %komodoDTD;
@@ -12,7 +12,7 @@
 <?xml-stylesheet href="chrome://komodo/skin/toolbar.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/platform.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/sidebar.css" type="text/css"?>
-<?xml-stylesheet href="chrome://places/skin/places.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo-places/skin/places.css" type="text/css"?>
 
 <page xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <vbox flex="1" id="placesViewbox_placesWrapper">
@@ -769,15 +769,15 @@
 
   <commandset id="panel-proxy-commandset"/>
 
-  <script src="chrome://places/content/projectCommandHelper.js"
+  <script src="chrome://komodo-places/content/projectCommandHelper.js"
           type="application/x-javascript"/>
-  <script src="chrome://places/content/places.js"
+  <script src="chrome://komodo-places/content/places.js"
           type="application/x-javascript"/>
-  <script src="chrome://places/content/project_places.js"
+  <script src="chrome://komodo-places/content/project_places.js"
           type="application/x-javascript"/>
-  <script src="chrome://places/content/project_places_SPV.js"
+  <script src="chrome://komodo-places/content/project_places_SPV.js"
           type="application/x-javascript"/>
-  <script src="chrome://places/content/placeController.js"
+  <script src="chrome://komodo-places/content/placeController.js"
           type="application/x-javascript"/>
   <script type="application/x-javascript">
   <![CDATA[

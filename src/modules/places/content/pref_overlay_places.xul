@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 
 <!DOCTYPE overlay SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
-  <!ENTITY % placesDTD SYSTEM "chrome://places/locale/places.dtd">
+  <!ENTITY % placesDTD SYSTEM "chrome://komodo-places/locale/places.dtd">
   %placesDTD;
   <!ENTITY % komodoDTD SYSTEM "chrome://komodo/locale/komodo.dtd">
   %komodoDTD;
@@ -15,7 +15,7 @@
         <treeitem id="placesPref" insertbefore="printItem">
             <treerow>
                 <treecell class="treecell-indent"
-                          url="chrome://places/content/pref_places.xul"
+                          url="chrome://komodo-places/content/pref_places.xul"
                           label="&Places.label;"
                           helptag="places"/>
             </treerow>

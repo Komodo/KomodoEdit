@@ -38,7 +38,7 @@
 
 
 <!DOCTYPE dialog SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
-  <!ENTITY % placesDTD SYSTEM "chrome://places/locale/places.dtd">
+  <!ENTITY % placesDTD SYSTEM "chrome://komodo-places/locale/places.dtd">
   %placesDTD;
   <!ENTITY % komodoDTD SYSTEM "chrome://komodo/locale/komodo.dtd">
   %komodoDTD;
@@ -50,7 +50,7 @@
      See the file LICENSE.txt for licensing information. -->
 
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
-<?xml-stylesheet href="chrome://places/skin/places.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo-places/skin/places.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
@@ -73,7 +73,7 @@
     <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/trace.js"/>
     <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/uriparse.js"/>
     <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/library/dialogs.js"/>
-    <script src="chrome://places/content/manageViewFilters.js"
+    <script src="chrome://komodo-places/content/manageViewFilters.js"
           type="application/x-javascript"/>
 
     <groupbox id="panelFrame" name="panelFrame" orient="vertical">

@@ -45,7 +45,7 @@ var g_ResultObj;
 var log = ko.logging.getLogger("manageViewFilters");
 var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
     .getService(Components.interfaces.nsIStringBundleService)
-    .createBundle("chrome://places/locale/places.properties");
+    .createBundle("chrome://komodo-places/locale/places.properties");
 const CURRENT_PROJECT_FILTER_NAME = _bundle.GetStringFromName("currentProject.filterName");
     
 function onLoad() {

@@ -38,12 +38,12 @@
 
 <!-- See the file LICENSE.txt for licensing information. -->
 <!DOCTYPE overlay PUBLIC "-//MOZILLA//DTD XUL V1.0//EN" "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
-  <!ENTITY % placesDTD SYSTEM "chrome://places/locale/places.dtd">
+  <!ENTITY % placesDTD SYSTEM "chrome://komodo-places/locale/places.dtd">
   %placesDTD;
   <!ENTITY % komodoDTD SYSTEM "chrome://komodo/locale/komodo.dtd">
   %komodoDTD;
 ]>
-<?xml-stylesheet href="chrome://places/skin/places.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo-places/skin/places.css" type="text/css"?>
 
 <overlay id="placesOverlay"
          xmlns:html="http://www.w3.org/1999/xhtml"
@@ -253,6 +253,6 @@
              position="1" insertbefore="codebrowserviewbox"
              tab_oncommand="ko.places.viewMgr.focus(); ko.places.viewMgr.updateView();"
              tab_onfocus="ko.places.viewMgr.focus(); ko.places.viewMgr.updateView();"
-	     src="chrome://places/content/places_panel.xul"/>
+	     src="chrome://komodo-places/content/places_panel.xul"/>
   </ko-pane>
 </overlay>
