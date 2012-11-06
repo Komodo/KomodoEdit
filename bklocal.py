@@ -616,8 +616,10 @@ class MacKomodoAppInstallName(black.configure.Datum):
         self.applicable = 1
         prettyProductType = black.configure.items["prettyProductType"].Get()
         productType = black.configure.items["productType"].Get()
+        komodoVersion = black.configure.items["komodoVersion"].Get()
+        majorVer = komodoVersion.split('.', 1)[0]
         name = (productType == "openkomodo" and prettyProductType
-                or "Komodo %s" % prettyProductType)
+                or "Komodo %s %s" % (prettyProductType, majorVer))
         self.value = name + ".app"
         self.determined = 1
 
