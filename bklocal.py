@@ -647,7 +647,7 @@ class ProductType(black.configure.Datum):
         black.configure.Datum.__init__(self, "productType",
             desc="the Komodo product type",
             acceptedOptions=("", ["product-type="]))
-        self.knownValues = ["edit", "snapdragon", "openkomodo"]
+        self.knownValues = ["edit", "openkomodo"]
 
     def _Determine_Sufficient(self):
         if self.value is None:
@@ -687,7 +687,7 @@ class PrettyProductType(black.configure.Datum):
         productType = black.configure.items["productType"].Get()
         self.value = {"openkomodo": "OpenKomodo",
                       "edit": "Edit",
-                      "snapdragon": "Snapdragon"}[productType]
+                     }[productType]
         self.determined = 1
 
 class ProductTagLine(black.configure.Datum):
@@ -3038,7 +3038,6 @@ class MSIKomodoId(black.configure.Datum):
                 #   Settings\Application Data\IconCache.db".
                 "edit": "KoEd"+XY,
                 "ide": "KoIDE"+XY,
-                "snapdragon": "KoSD"+XY,
                 "openkomodo": "OKo"+XY,
             }[productType]
         else:
@@ -3886,4 +3885,3 @@ class MozLdFlags(black.configure.Datum):
         cmd = ["make", "echo-variable-LDFLAGS"]
         self.value = _capture_stdout(cmd, cwd=mozObjDir).strip()
         self.determined = 1
-
