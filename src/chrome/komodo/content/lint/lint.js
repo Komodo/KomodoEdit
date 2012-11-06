@@ -231,6 +231,8 @@ this.lintBuffer = function LintBuffer(view) {
         this._lintTimer = null; // used to control when lint requests are issued
         
         this.pendingRequest = false; // set when a pref changes for a different buffer
+        // Used by the lintDisplayer
+        this.handleScroll = null;
     } catch(ex) {
         _log.exception(ex);
     }

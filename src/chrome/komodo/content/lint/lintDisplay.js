@@ -27,13 +27,12 @@ const DECORATOR_ERROR = Components.interfaces.koILintResult.DECORATOR_ERROR;
 const DECORATOR_WARNING = Components.interfaces.koILintResult.DECORATOR_WARNING;
 
 this._in_display = 0; // recursion protection.
-this._segmenting_updates = false;
 
 this.cancelPendingItems = function(lintBuffer) {
-    if (this._segmenting_updates) {
-        this._segmenting_updates = false;
+    if (lintBuffer.handleScroll) {
         lintBuffer.view.removeEventListener("current_view_linecol_changed", lintBuffer.handleScroll, false);
         lintBuffer.view.removeEventListener("current_view_scroll_changed", lintBuffer.handleScroll, false);
+        lintBuffer.handleScroll = null;
     }
 };
 
@@ -121,8 +120,6 @@ this._display = function(lintBuffer, lintResults) {
             this_.doConstrainedUpdate(scimoz, lintResults, lintBuffer);
         };
         lintBuffer.handleScroll = handleScroll;
-        lintBuffer.processedLines = [firstLine, endLine];
-        this._segmenting_updates = true;
         view.addEventListener("current_view_linecol_changed", handleScroll, false);
         view.addEventListener("current_view_scroll_changed", handleScroll, false);
     } else {
