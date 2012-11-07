@@ -256,11 +256,11 @@ Index: /as/komodo-devel/mozilla/build/moz1700-ko8.9/mozilla/dom/plugins/base/nsP
    {
      nsIntSize size;
 @@ -324,12 +329,16 @@
-   // Used with windowless plugins only, initialized in CreateWidget().
-   bool                        mFlash10Quirks;
- #endif
    bool                        mPluginWindowVisible;
    bool                        mPluginDocumentActiveState;
+ #if defined(XP_MACOSX) && !defined(NP_NO_CARBON)
+   bool                        mRegisteredScrollPositionListener;
+ #endif
  
 +  bool                        mPluginAllowsFocus;
 +  bool                        mPluginHandlesDomEvents;
