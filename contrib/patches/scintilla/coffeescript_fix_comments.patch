@@ -1,0 +1,240 @@
+Index: lexers/LexCoffeeScript.cxx
+===================================================================
+--- lexers/LexCoffeeScript.cxx	(revision 74826)
++++ lexers/LexCoffeeScript.cxx	(working copy)
+@@ -25,25 +25,20 @@
+ #include "StyleContext.h"
+ #include "CharacterSet.h"
+ #include "LexerModule.h"
+ 
+ #ifdef SCI_NAMESPACE
+ using namespace Scintilla;
+ #endif
+ 
+ static bool IsSpaceEquiv(int state) {
+ 	return (state <= SCE_C_COMMENTDOC
+-	    // including SCE_C_DEFAULT, SCE_C_COMMENT, SCE_C_COMMENTLINE
+-	    || state == SCE_C_COMMENTLINEDOC
+-	    || state == SCE_C_COMMENTDOCKEYWORD
+-	    || state == SCE_C_COMMENTDOCKEYWORDERROR
+-	    || state == SCE_COFFEESCRIPT_COMMENTBLOCK
+ 	    || state == SCE_COFFEESCRIPT_VERBOSE_REGEX
+ 	    || state == SCE_COFFEESCRIPT_VERBOSE_REGEX_COMMENT
+ 	    || state == SCE_C_WORD
+ 	    || state == SCE_C_REGEX);
+ }
+ 
+ // Preconditions: sc.currentPos points to a character after '+' or '-'.
+ // The test for pos reaching 0 should be redundant,
+ // and is in only for safety measures.
+ // Limitation: this code will give the incorrect answer for code like
+@@ -112,36 +107,20 @@
+ 		setWord.Add('$');
+ 	}
+ 
+ 	int chPrevNonWhite = ' ';
+ 	int visibleChars = 0;
+ 	bool lastWordWasUUID = false;
+ 	int styleBeforeDCKeyword = SCE_C_DEFAULT;
+ 	bool continuationLine = false;
+ 	bool isIncludePreprocessor = false;
+ 
+-	if (initStyle == SCE_C_PREPROCESSOR) {
+-		// Set continuationLine if last character of previous line is '\'
+-		int lineCurrent = styler.GetLine(startPos);
+-		if (lineCurrent > 0) {
+-			int chBack = styler.SafeGetCharAt(startPos-1, 0);
+-			int chBack2 = styler.SafeGetCharAt(startPos-2, 0);
+-			int lineEndChar = '!';
+-			if (chBack2 == '\r' && chBack == '\n') {
+-				lineEndChar = styler.SafeGetCharAt(startPos-3, 0);
+-			} else if (chBack == '\n' || chBack == '\r') {
+-				lineEndChar = chBack2;
+-			}
+-			continuationLine = lineEndChar == '\\';
+-		}
+-	}
+-
+ 	// look back to set chPrevNonWhite properly for better regex colouring
+ 	int endPos = startPos + length;
+ 	if (startPos > 0) {
+ 		unsigned int back = startPos;
+ 		styler.Flush();
+ 		while (back > 0 && IsSpaceEquiv(styler.StyleAt(--back)))
+ 			;
+ 		if (styler.StyleAt(back) == SCE_C_OPERATOR) {
+ 			chPrevNonWhite = styler.SafeGetCharAt(back);
+ 		}
+@@ -194,81 +173,25 @@
+ 						lastWordWasUUID = strcmp(s, "uuid") == 0;
+ 						sc.ChangeState(SCE_C_WORD);
+ 					} else if (keywords2.InList(s)) {
+ 						sc.ChangeState(SCE_C_WORD2);
+ 					} else if (keywords4.InList(s)) {
+ 						sc.ChangeState(SCE_C_GLOBALCLASS);
+ 					}
+ 					sc.SetState(SCE_C_DEFAULT);
+ 				}
+ 				break;
+-			case SCE_C_PREPROCESSOR:
+-				if (sc.atLineStart && !continuationLine) {
+-					sc.SetState(SCE_C_DEFAULT);
+-				} else if (stylingWithinPreprocessor) {
+-					if (IsASpace(sc.ch)) {
+-						sc.SetState(SCE_C_DEFAULT);
+-					}
+-				} else {
+-					if (sc.Match('/', '*') || sc.Match('/', '/')) {
+-						sc.SetState(SCE_C_DEFAULT);
+-					}
+-				}
+-				break;
+-			case SCE_C_COMMENT:
+-				if (sc.Match('*', '/')) {
+-					sc.Forward();
+-					sc.ForwardSetState(SCE_C_DEFAULT);
+-				}
+-				break;
+-			case SCE_C_COMMENTDOC:
+-				if (sc.Match('*', '/')) {
+-					sc.Forward();
+-					sc.ForwardSetState(SCE_C_DEFAULT);
+-				} else if (sc.ch == '@' || sc.ch == '\\') { // JavaDoc and Doxygen support
+-					// Verify that we have the conditions to mark a comment-doc-keyword
+-					if ((IsASpace(sc.chPrev) || sc.chPrev == '*') && (!IsASpace(sc.chNext))) {
+-						styleBeforeDCKeyword = SCE_C_COMMENTDOC;
+-						sc.SetState(SCE_C_COMMENTDOCKEYWORD);
+-					}
+-				}
+-				break;
+ 			case SCE_C_COMMENTLINE:
+ 				if (sc.atLineStart) {
+ 					sc.SetState(SCE_C_DEFAULT);
+ 				}
+ 				break;
+-			case SCE_C_COMMENTLINEDOC:
+-				if (sc.atLineStart) {
+-					sc.SetState(SCE_C_DEFAULT);
+-				} else if (sc.ch == '@' || sc.ch == '\\') { // JavaDoc and Doxygen support
+-					// Verify that we have the conditions to mark a comment-doc-keyword
+-					if ((IsASpace(sc.chPrev) || sc.chPrev == '/' || sc.chPrev == '!') && (!IsASpace(sc.chNext))) {
+-						styleBeforeDCKeyword = SCE_C_COMMENTLINEDOC;
+-						sc.SetState(SCE_C_COMMENTDOCKEYWORD);
+-					}
+-				}
+-				break;
+-			case SCE_C_COMMENTDOCKEYWORD:
+-				if ((styleBeforeDCKeyword == SCE_C_COMMENTDOC) && sc.Match('*', '/')) {
+-					sc.ChangeState(SCE_C_COMMENTDOCKEYWORDERROR);
+-					sc.Forward();
+-					sc.ForwardSetState(SCE_C_DEFAULT);
+-				} else if (!setDoxygen.Contains(sc.ch)) {
+-					char s[100];
+-					sc.GetCurrent(s, sizeof(s));
+-					if (!IsASpace(sc.ch) || !keywords3.InList(s + 1)) {
+-						sc.ChangeState(SCE_C_COMMENTDOCKEYWORDERROR);
+-					}
+-					sc.SetState(styleBeforeDCKeyword);
+-				}
+-				break;
+ 			case SCE_C_STRING:
+ 				if (isIncludePreprocessor) {
+ 					if (sc.ch == '>') {
+ 						sc.ForwardSetState(SCE_C_DEFAULT);
+ 						isIncludePreprocessor = false;
+ 					}
+ 				} else if (sc.ch == '\\') {
+ 					if (sc.chNext == '\"' || sc.chNext == '\'' || sc.chNext == '\\') {
+ 						sc.Forward();
+ 					}
+@@ -312,23 +235,22 @@
+ 					} else {
+ 						sc.ForwardSetState(SCE_C_DEFAULT);
+ 					}
+ 				}
+ 				break;
+ 			case SCE_C_UUID:
+ 				if (sc.ch == '\r' || sc.ch == '\n' || sc.ch == ')') {
+ 					sc.SetState(SCE_C_DEFAULT);
+ 				}
+ 				break;
+-			case SCE_COFFEESCRIPT_COMMENTBLOCK:
++			case SCE_C_COMMENT:
+ 				if (sc.Match("###")) {
+-					sc.ChangeState(SCE_C_COMMENT);
+ 					sc.Forward();
+ 					sc.Forward();
+ 					sc.ForwardSetState(SCE_C_DEFAULT);
+ 				} else if (sc.ch == '\\') {
+ 					sc.Forward();
+ 				}
+ 				break;
+ 			case SCE_COFFEESCRIPT_VERBOSE_REGEX:
+ 				if (sc.Match("///")) {
+ 					sc.Forward();
+@@ -362,64 +284,54 @@
+ 				} else {
+ 					sc.SetState(SCE_C_NUMBER);
+ 				}
+ 			} else if (setWordStart.Contains(sc.ch) || (sc.ch == '@') || (sc.ch == '$')) {
+ 				if (lastWordWasUUID) {
+ 					sc.SetState(SCE_C_UUID);
+ 					lastWordWasUUID = false;
+ 				} else {
+ 					sc.SetState(SCE_C_IDENTIFIER);
+ 				}
+-			} else if (sc.Match('/', '*')) {
+-				if (sc.Match("/**") || sc.Match("/*!")) {	// Support of Qt/Doxygen doc. style
+-					sc.SetState(SCE_C_COMMENTDOC);
+-				} else {
+-					sc.SetState(SCE_C_COMMENT);
+-				}
+-				sc.Forward();	// Eat the * so it isn't used for the end of the comment
+ 			} else if (sc.Match("///")) {
+ 				sc.SetState(SCE_COFFEESCRIPT_VERBOSE_REGEX);
+ 			} else if (sc.ch == '/'
+ 				   && (setOKBeforeRE.Contains(chPrevNonWhite)
+ 				       || followsReturnKeyword(sc, styler))
+ 				   && (!setCouldBePostOp.Contains(chPrevNonWhite)
+ 				       || !FollowsPostfixOperator(sc, styler))) {
+ 				sc.SetState(SCE_C_REGEX);	// JavaScript's RegEx
+ 			} else if (sc.ch == '\"') {
+ 				sc.SetState(SCE_C_STRING);
+ 				isIncludePreprocessor = false;	// ensure that '>' won't end the string
+ 			} else if (isIncludePreprocessor && sc.ch == '<') {
+ 				sc.SetState(SCE_C_STRING);
+ 			} else if (sc.ch == '\'') {
+ 				sc.SetState(SCE_C_CHARACTER);
+ 			} else if (sc.ch == '#') {
+                 if (sc.Match("###")) {
+-                    sc.SetState(SCE_COFFEESCRIPT_COMMENTBLOCK);
++                    sc.SetState(SCE_C_COMMENT);
+                 } else {
+                     sc.SetState(SCE_C_COMMENTLINE);
+                 }
+ 			} else if (isoperator(static_cast<char>(sc.ch))) {
+ 				sc.SetState(SCE_C_OPERATOR);
+ 			}
+ 		}
+ 
+ 		if (!IsASpace(sc.ch) && !IsSpaceEquiv(sc.state)) {
+ 			chPrevNonWhite = sc.ch;
+ 			visibleChars++;
+ 		}
+ 		continuationLine = false;
+ 	}
+     // Change temporary coffeescript states into standard C ones.
+     switch (sc.state) {
+-        case SCE_COFFEESCRIPT_COMMENTBLOCK:
+-            sc.ChangeState(SCE_C_COMMENT);
+-            break;
+         case SCE_COFFEESCRIPT_VERBOSE_REGEX:
+             sc.ChangeState(SCE_C_REGEX);
+             break;
+         case SCE_COFFEESCRIPT_VERBOSE_REGEX_COMMENT:
+             sc.ChangeState(SCE_C_COMMENTLINE);
+             break;
+     }
+ 	sc.Complete();
+ }
+ 
