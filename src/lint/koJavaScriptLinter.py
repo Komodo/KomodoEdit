@@ -51,6 +51,11 @@ import logging
 log = logging.getLogger("koJavaScriptLinter")
 #log.setLevel(logging.DEBUG)
 
+# States for matching standard JS/spidermonkey messages
+_JS_STATE_EXP_MESSAGE = 0
+_JS_STATE_EXP_CODE = 1
+_JS_STATE_EXP_DOTS = 2
+
 class CommonJSLinter(object):
     _is_macro_re = re.compile("macro2?://")
 
@@ -92,6 +97,14 @@ class CommonJSLinter(object):
         else:
             return os.path.join(self.koDirs.mozBinDir, "js")
 
+    def _setLDLibraryPath(self):
+        env = koprocessutils.getUserEnv()
+        ldLibPath = env.get("LD_LIBRARY_PATH", None)
+        if ldLibPath:
+            env["LD_LIBRARY_PATH"] = self.koDirs.mozBinDir + ":" + ldLibPath
+        else:
+            env["LD_LIBRARY_PATH"] = self.koDirs.mozBinDir
+        return env
 
     def lint(self, request):
         text = request.content.encode(request.encoding.python_encoding_name)
@@ -133,6 +146,9 @@ class CommonJSLinter(object):
         result.columnEnd = len(datalines[lineNo-1])+1
         results.addResult(result)
 
+    _firstLineRe = re.compile(r"^(?P<type>.*?):(?P<desc>.*?)\s*$")
+    _lastLineRe = re.compile(r"^(?P<dots>\.*?)\^\s*$")
+    _strictLineRe = re.compile(r"^(?P<type>.*?):\s*(?P<dots>\.*?)\^\s*$")
     def lint_with_text(self, request, text):
         jsfilename, isMacro, datalines = self._make_tempfile_from_text(request, text)
         cwd = request.cwd
@@ -140,7 +156,7 @@ class CommonJSLinter(object):
 
         # Lint the temp file, the jsInterp options are described here:
         # https://developer.mozilla.org/en/Introduction_to_the_JavaScript_shell
-        cmd = [jsInterp, "-C"]
+        cmd = [jsInterp, "-c"]
 
         # Set the JS linting preferences.
         prefset = getProxiedEffectivePrefsByName(request, 'lintJavaScriptEnableWarnings')
@@ -159,9 +175,11 @@ class CommonJSLinter(object):
         cwd = cwd or None
         # We only need the stderr result.
         try:
-            p = process.ProcessOpen(cmd, cwd=cwd, stdin=None)
+            p = process.ProcessOpen(cmd, cwd=cwd, env=self._setLDLibraryPath(), stdin=None)
             stdout, stderr = p.communicate()
             warnLines = stderr.splitlines(0) # Don't need the newlines.
+        except:
+            log.exception("Problem running CommonJSLinter")
         finally:
             os.unlink(jsfilename)
         
@@ -182,20 +200,35 @@ class CommonJSLinter(object):
 
         # Parse out the xpcshell lint results
         results = koLintResults()
-        counter = 0  # count index in 3 line groups
-        firstLineRe = re.compile("^%s:(?P<lineNo>\d+):\s*(?P<type>.*?):(?P<desc>.*?)\s*$" %\
-            re.escape(jsfilename))
-        lastLineRe = re.compile("^%s:(?P<lineNo>\d+):\s*(?P<dots>.*?)\^\s*$" %\
-            re.escape(jsfilename))
-        strictLineRe = re.compile("^%s:(?P<lineNo>\d+):\s*(?P<type>.*?):\s*(?P<dots>.*?)\^\s*$" %\
-            re.escape(jsfilename))
-        desc = numDots = None
-        for line in strippedWarnLines:
-            if counter == 0 and line.startswith(jsfilename):
+        state = _JS_STATE_EXP_MESSAGE  # count index in 3 line groups
+        # Mozilla 8 lines have a "0" after the line # -- ignore it
+        headerPartRe = re.compile(r"^%s:(?P<lineNo>\d+):\d*\s*(?P<rest>.*)$" % re.escape(jsfilename))
+
+        lineNo = desc = numDots = None
+        # Implement this state machine:
+        # Start => <starts with filename>
+        # Message, ends with desc =>
+        # Code, echoes code, not interesting =>
+        # Num Dots, shows where on line error starts => Start
+        i = -1
+        limSub1 = len(strippedWarnLines) - 1
+        while i < limSub1:
+            i += 1
+            line = strippedWarnLines[i]
+            if not line:
+                continue
+            headerMatch = headerPartRe.match(line)
+            if not headerMatch:
+                if state == _JS_STATE_EXP_CODE:
+                    desc += " " + line
+                continue
+            restLine = headerMatch.group("rest").strip()
+            thisLineNo = int(headerMatch.group("lineNo"))
+            if state == _JS_STATE_EXP_MESSAGE:
                 # first line: get the error description and line number
-                firstLineMatch = firstLineRe.search(line.strip())
+                firstLineMatch = self._firstLineRe.match(restLine)
                 if firstLineMatch:
-                    lineNo = int(firstLineMatch.group("lineNo"))
+                    lineNo = thisLineNo
                     if isMacro:
                         if lineNo > len(datalines) + 1:
                             lineNo = len(datalines)
@@ -203,37 +236,51 @@ class CommonJSLinter(object):
                             lineNo -= 1
                     errorType = firstLineMatch.group("type")
                     desc = firstLineMatch.group("desc")
+                    state = _JS_STATE_EXP_CODE
                 else:
                     # continue on this, it's likely just debug build output
-                    msg = "Unexpected output when parsing JS syntax check "\
+                    msg = "Unexpected output when parsing JS syntax check(1) "\
                         "output: '%s'\n" % line
                     log.debug(msg)
-                    continue
-            elif counter == 2:
-                if not desc:
-                    # if we don't have it, there is debug build lines
-                    # that have messed us up, restart at zero
-                    counter = 0
-                    continue
-                # get the column of the error
-                lastLineMatch = lastLineRe.search(line.strip())
+                    state = _JS_STATE_EXP_MESSAGE
+                continue
+            
+            if lineNo != thisLineNo:
+                # This is actually the start of a new message, so log the current one,
+                # and start fresh
+                self._createAddResult(results, datalines, errorType, lineNo, desc, 0)
+                state = _JS_STATE_EXP_MESSAGE
+                desc = None
+                i -= 1 # Redo this line
+            elif state == _JS_STATE_EXP_CODE:
+                # We don't care about this line
+                state = _JS_STATE_EXP_DOTS
+                continue
+
+            # Now we should be looking at dots
+            assert state == _JS_STATE_EXP_DOTS
+            lastLineMatch = self._lastLineRe.search(restLine)
+            if not lastLineMatch:
+                lastLineMatch = self._strictLineRe.search(restLine)
                 if not lastLineMatch:
-                    lastLineMatch = strictLineRe.search(line.strip())
-                    
-                if lastLineMatch:
-                    numDots = len(lastLineMatch.group("dots"))
-                else:
                     # continue on this, it's likely just debug build output
-                    msg = "Unexpected output when parsing JS syntax check "\
+                    msg = "Unexpected output when parsing JS syntax check(2) "\
                           "output: '%s'\n" % line
                     log.debug(msg)
                     continue
-                self._createAddResult(results, datalines, errorType, lineNo, desc, numDots)
-                desc = numDots = None
-            counter = (counter + 1) % 3
+            if not desc:
+                # if we don't have it, there are debug build lines
+                # that have messed us up, restart at zero
+                counter = _JS_STATE_EXP_MESSAGE
+                continue
+            # get the column of the error
+            numDots = len(lastLineMatch.group("dots"))
+            self._createAddResult(results, datalines, errorType, lineNo, desc, numDots)
+            state = _JS_STATE_EXP_MESSAGE
+            desc = None
 
         if desc is not None:
-            self._createAddResult(results, datalines, errorType, lineNo, desc, numDots)
+            self._createAddResult(results, datalines, errorType, lineNo, desc, 0)
         return results
 
 
@@ -320,7 +367,7 @@ class GenericJSLinter(CommonJSLinter):
         cwd = request.cwd or None
         # We only need the stderr result.
         try:
-            p = process.ProcessOpen(cmd, cwd=cwd, stdin=fd)
+            p = process.ProcessOpen(cmd, cwd=cwd, env=self._setLDLibraryPath(), stdin=fd)
             stdout, stderr = p.communicate()
             #log.debug("jslint(%s): stdout: %s, stderr: %s", prefSwitchName, stdout, stderr)
             warnLines = stdout.splitlines() # Don't need the newlines.
@@ -331,6 +378,8 @@ class GenericJSLinter(CommonJSLinter):
                     warnLines = warnLines[i + 1:]
                     break
                 i += 1
+        except:
+            log.exception("Problem running GenericJSLinter")
         finally:
             try:
                 fd.close()
@@ -462,6 +511,8 @@ class KoCoffeeScriptLinter(object):
             p = process.ProcessOpen(cmd, cwd=cwd, stdin=None)
             _, stderr = p.communicate()
             warnLines = stderr.splitlines(0) # Don't need the newlines.
+        except:
+            log.exception("Problem running %s", coffeeExe)
         finally:
             os.unlink(tmpfilename)
         ptn = re.compile(r'^Error: In (.*),\s*(.*) on line (\d+):\s*(.*)')
