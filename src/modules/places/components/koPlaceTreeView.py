@@ -398,6 +398,7 @@ class KoPlaceTreeView(TreeView):
         self._RCService = components.classes["@activestate.com/koRemoteConnectionService;1"].\
                   getService(components.interfaces.koIRemoteConnectionService)
         self._nextRequestID = 0
+        self._refreshOnUpdateCurrentPlace = set()
         
     def initialize(self):
         self.atomSvc = components.classes["@mozilla.org/atom-service;1"].\
@@ -700,10 +701,9 @@ class KoPlaceTreeView(TreeView):
                     self.refreshFullTreeView()  # partly async
             else:
                 log.info("**** Places: Can't find parent for created file %s", uri)
-                # brute force, hope it updates correctly
-                # Doing this can't loop, because nothing here explicitly calls
-                # fileNotification()
-                self.refreshFullTreeView()
+                # Bug 95132 -- handle changes and deletions that happen
+                # outside the current root
+                self._refreshOnUpdateCurrentPlace.add(self._endsWithSlash(parent_uri))
 
         elif flags & _deletedFlags:
             index = self.getRowIndexForURI(uri)
@@ -726,6 +726,17 @@ class KoPlaceTreeView(TreeView):
                 self.resetDirectoryWatches()
             elif uri == self._currentPlace_uri:
                 self._moveToExistingPlace()
+            else:
+                # Bug 95132 -- track additions and deletions that happen
+                # outside the current root, so we know which views will
+                # need to be refreshed as they're encountered.
+                # Just store directories, because we don't need to
+                # track individual files.  View will be refreshed when a new
+                # place (which is always the URI for a directory) starts with
+                # the pending uri
+                if flags & components.interfaces.koIFileNotificationService.FS_FILE_DELETED:
+                    uri = self._getURIParent(uri) or uri
+                self._refreshOnUpdateCurrentPlace.add(self._endsWithSlash(uri))
         else:
             # this is a modification change, just invalidate rows
             index = self.getRowIndexForURI(uri)
@@ -2145,6 +2156,16 @@ class KoPlaceTreeView(TreeView):
             self._tree.rowCountChanged(0, after_len - before_len)
             self.invalidateTree()
         self.resetDirectoryWatches()
+        # If the current tree could contain any pending URIs that reflect
+        # added/deleted files or directories, refresh the tree view.
+
+        # This code also removes items we no longer needed from the
+        # _refreshOnUpdateCurrentPlace set.
+        curr_pending_set_size = len(self._refreshOnUpdateCurrentPlace)
+        self._refreshOnUpdateCurrentPlace = set([uri for uri in self._refreshOnUpdateCurrentPlace
+                                       if not uri.startswith(self._currentPlace_uri)])
+        if len(self._refreshOnUpdateCurrentPlace) < curr_pending_set_size:
+            self.refreshFullTreeView()
 
     def sortRows(self):
         if not self._rows:
