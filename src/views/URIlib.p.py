@@ -198,7 +198,7 @@ class URIParser(object):
             try:
                 colon_pos = len("file:///z:") - 1
                 if uri[colon_pos] == "|":
-                    uri[colon_pos] = ":"
+                    uri = uri[:colon_pos] + ":" + uri[colon_pos + 1:]
             except IndexError:
                 pass # uri too short
 
