@@ -840,9 +840,13 @@ _GetProgramDir(char* argv0)
      *         break
      */
     if (_IsLink(progPath)) {
-        char newProgPath[MAXPATHLEN+1];
+        char dirPath[MAXPATHLEN+1], leafName[MAXPATHLEN+1], newProgPath[MAXPATHLEN+1];
+        // The link might be relative, deal with that correctly
+        // (_JoinPath deals with absolute paths correctly on *nix systems)
         readlink(progPath, newProgPath, MAXPATHLEN);
-        strncpy(progPath, newProgPath, MAXPATHLEN);
+        _SplitPath(progPath, dirPath, leafName);
+        strncpy(progPath, dirPath, MAXPATHLEN);
+        _JoinPath(progPath, newProgPath);
     }
 
     /* prefix with the current working directory if the path is relative
