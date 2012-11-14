@@ -165,8 +165,11 @@ def _getValidPlatforms(linuxDistro=False):
         uname = os.uname()
         if uname[-1] == 'i386':
             validPlats = ["macosx-x86"]
+        elif uname[-1] == 'x86_64':
+            validPlats = ["macosx-x86_64"]
         else:
-            validPlats = ["macosx-powerpc"]
+            raise ConfigureError("unexpected macosx architecture: '%s'"
+                                 % uname[4])
     return validPlats
 
 
@@ -832,8 +835,7 @@ class PrebuiltPaths(black.configure.Datum):
             candidates = [os.path.abspath(os.path.join(
                             "prebuilt", platform, buildType))]
             self.value = [c for c in candidates if os.path.exists(c)]
-        elif sys.platform.startswith("darwin") and \
-                     black.configure.items["architecture"].Get() == 'x86':
+        elif sys.platform.startswith("darwin"):
             platName = _getDefaultPlatform()
             self.value = [os.path.abspath(os.path.join(
                                  "prebuilt", "%s" % (platName), buildType))]
