@@ -183,16 +183,11 @@ class koSysUtils:
             ctypesutils.move_to_trash(filename)
             return
         if sys.platform.startswith("darwin"):
-            try:
-                import findertools
-                findertools.movetotrash(filename)
-            except Exception, e:
-                # Python OSX is pretty lame, fake it like we do with linux
-                import Carbon, Carbon.File, Carbon.Folder
-                fss = Carbon.File.FSSpec(filename)
-                trashfolder = Carbon.Folder.FSFindFolder(fss.as_tuple()[0], 'trsh', 0)
-                trash = trashfolder.as_pathname()
-                toTrash = os.path.join(trash, os.path.basename(filename))
+            import Carbon.Folder
+            kUserDomain = 0
+            trashfolder = Carbon.Folder.FSFindFolder(kUserDomain, 'trsh', 0)
+            trash = trashfolder.as_pathname()
+            toTrash = os.path.join(trashpath, os.path.basename(filename))
         else:
             # Gnome:
             #   Newer Ubuntu and gnome systems use the "gvfs-trash", storing
