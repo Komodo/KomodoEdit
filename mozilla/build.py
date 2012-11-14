@@ -1723,6 +1723,7 @@ def target_silo_python(argv=["silo_python"]):
     else:
         siloDir = join(distDir, "python")
     mozBinDir = join(distDir, "bin")
+    mozLibDir = join(distDir, "lib")
 
     # Abort if it looks like it has already be siloed.
     if sys.platform == "win32":
@@ -1828,10 +1829,12 @@ def target_silo_python(argv=["silo_python"]):
         libpythonSo = "libpython%s.so" % config.pyVer
         _run('cp -f %s/lib/%s %s' % (siloDir, libpythonSoVer, mozBinDir),
              log.info)
-        _run('rm -f %s/%s' % (mozBinDir, libpythonSo))
-        _run('ln -s %s %s/%s'
-             % (libpythonSoVer, mozBinDir, libpythonSo),
-             log.info)
+        mozbinPythonSoPath = join(mozBinDir, libpythonSo)
+        mozbinPythonSoVerPath = join(mozBinDir, libpythonSoVer)
+        os.symlink(mozbinPythonSoVerPath, mozbinPythonSoPath)
+        # Also symlink into the lib dir, to aid in linking - bug 95668.
+        mozlibPythonSoPath = join(mozLibDir, libpythonSo)
+        os.symlink(mozbinPythonSoPath, mozlibPythonSoPath)
 
         # Relocate the Python install.
         if pyver >= (2,5): # when APy's activestate.py supported relocation
