@@ -267,6 +267,7 @@
        when in Taint mode. -->
   <boolean id="perl_lintOption_includeCurrentDirForLinter">1</boolean>
   <boolean id="perl_lintOption_disableBeginBlocks">1</boolean>
+  <string id="perlcritic_checking_rcfile"></string>
 
   <!-- File associations are (roughly) determined by starting with this set
        (factoryFileAssociations, which should only exist at the factory level)

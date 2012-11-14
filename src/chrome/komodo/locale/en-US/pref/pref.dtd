@@ -344,6 +344,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY patterns.label "Patterns">
 <!ENTITY nodejs.label "Node.js">
 <!ENTITY perl.label "Perl">
+<!ENTITY perlcriticRCFileLocation.label "Location of .perlcriticrc file to use">
 <!ENTITY phpPHP.label ".php: PHP">
 <!ENTITY plPerl.label ".pl: Perl">
 <!ENTITY plainText.label "Plain text">

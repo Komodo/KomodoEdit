@@ -168,6 +168,24 @@ function changeLanguage(langList) {
     setTimeout(showLanguageNamePanel, 0, langList.selection);
 }
 
+function common_loadTextboxFromFilepicker(textbox, prompt) {
+    var currentValue = textbox.value;
+    var defaultDirectory = null, defaultFilename = null;
+    if (currentValue) {
+        var koFileEx = Components.classes["@activestate.com/koFileEx;1"]
+            .createInstance(Components.interfaces.koIFileEx);
+        koFileEx.path = currentValue;
+        defaultDirectory = koFileEx.dirName;
+        defaultFilename = koFileEx.baseName;
+    }
+    var title = bundleLang.GetStringFromName(prompt);
+    var rcpath = ko.filepicker.browseForFile(defaultDirectory,
+                                             defaultFilename, title);
+    if (rcpath !== null) {
+        textbox.value = rcpath;
+    }
+}
+
 function coffeeScript_setup() {
     if (!('CoffeeScript' in dialog)) {
         dialog.CoffeeScript = {};
@@ -555,8 +573,9 @@ function perl_setup() {
         ["perl_lintOption",
          "perl_lintOption_perlCriticLevel",
          "perl_lintOptions_perlCriticBox_label",
-         "perl_lintOption_perlCriticLevel",
-         "perl_lintOption_perlCriticEnableNote"
+         "perl_lintOption_perlCriticEnableNote",
+         "perlcritic_vbox_rcfile",
+         "perlcritic_checking_rcfile",
          ].forEach(function(name) {
             dialog.Perl[name] = document.getElementById(name);
         });
@@ -588,9 +607,21 @@ function perlInfo() {
             dialog.Perl.perl_lintOption_perlCriticLevel.disabled = !havePerlCritic;
             if (havePerlCritic) {
                 dialog.Perl.perl_lintOption_perlCriticEnableNote.setAttribute('collapsed', true);
+                this.onPerlCriticLevelChanged(dialog.Perl.perl_lintOption_perlCriticLevel);
             } else {
                 dialog.Perl.perl_lintOption_perlCriticEnableNote.removeAttribute('collapsed');
+                dialog.Perl.perlcritic_vbox_rcfile.setAttribute('collapsed', true);
             }
+        },
+        loadPerlcriticRcfile: function() {
+            var textbox = dialog.Perl.perlcritic_checking_rcfile;
+            var prompt = bundleLang.GetStringFromName("Find a .perlcriticrc file");
+            return common_loadTextboxFromFilepicker(textbox, prompt);
+        },
+        onPerlCriticLevelChanged: function(perlCriticLevelMenuList) {
+            var data = perlCriticLevelMenuList.selectedItem.getAttribute("data");
+            dialog.Perl.perlcritic_vbox_rcfile.setAttribute('collapsed', data == "off");
+            
         },
         __EOD__:null
     };
@@ -734,22 +765,7 @@ function pythonInfo() {
         },
     
         loadTextboxFromFilepicker: function(eltID, prompt) {
-           var textbox = dialog.Python[eltID];
-           var currentValue = textbox.value;
-           var defaultDirectory = null, defaultFilename = null;
-           if (currentValue) {
-               var koFileEx = Components.classes["@activestate.com/koFileEx;1"]
-                   .createInstance(Components.interfaces.koIFileEx);
-               koFileEx.path = currentValue;
-               defaultDirectory = koFileEx.dirName;
-               defaultFilename = koFileEx.baseName;
-           }
-           var title = bundleLang.GetStringFromName(prompt);
-           var rcpath = ko.filepicker.browseForFile(defaultDirectory,
-                                                    defaultFilename, title);
-           if (rcpath !== null) {
-               textbox.value = rcpath;
-           }
+           return common_loadTextboxFromFilepicker(dialog.Python[eltID], prompt);
         },
        
         loadPylintRcfile: function() {
@@ -909,22 +925,7 @@ function python3Info() {
         },
     
         loadTextboxFromFilepicker: function(eltID, prompt) {
-           var textbox = dialog.Python3[eltID];
-           var currentValue = textbox.value;
-           var defaultDirectory = null, defaultFilename = null;
-           if (currentValue) {
-               var koFileEx = Components.classes["@activestate.com/koFileEx;1"]
-                   .createInstance(Components.interfaces.koIFileEx);
-               koFileEx.path = currentValue;
-               defaultDirectory = koFileEx.dirName;
-               defaultFilename = koFileEx.baseName;
-           }
-           var title = bundleLang.GetStringFromName(prompt);
-           var rcpath = ko.filepicker.browseForFile(defaultDirectory,
-                                                    defaultFilename, title);
-           if (rcpath !== null) {
-               textbox.value = rcpath;
-           }
+           return common_loadTextboxFromFilepicker(dialog.Python3[eltID], prompt);
         },
        
         loadPylint3Rcfile: function() {

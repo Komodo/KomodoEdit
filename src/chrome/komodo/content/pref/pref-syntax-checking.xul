@@ -372,7 +372,8 @@
                          control="perl_lintOption_perlCriticLevel"
                          />
                   <menulist id="perl_lintOption_perlCriticLevel"
-                            pref="true" prefattribute="data">
+                            pref="true" prefattribute="data"
+                            oncommand="languageInfo.Perl.onPerlCriticLevelChanged(this);">
                       <menupopup>
                           <menuitem data="off" label="&prefPerl.perlCriticOption.off.label;"/>
                           <menuitem data="gentle" label="&prefPerl.perlCriticOption.gentle.label;"/>
@@ -385,6 +386,16 @@
               </hbox>
               <description id="perl_lintOption_perlCriticEnableNote"
                            collapsed="true">&prefPerl.perlCriticOptionsEnable.description;</description>
+              <vbox id="perlcritic_vbox_rcfile" class="indentedPref01">
+                 <label id="perlcritic_checking_rcfile_label"
+                          control="perlcritic_checking_rcfile"
+                          value="&perlcriticRCFileLocation.label;" />
+                 <hbox id="perlcritic_checking_hbox_rcfile">
+                   <textbox id="perlcritic_checking_rcfile" pref="true"
+                            prefstring="perlcritic_checking_rcfile" flex="1"/>
+                   <button id="perlcritic_browse_rcfile" label="&browse.label;" oncommand="languageInfo.Perl.loadPerlcriticRcfile();"/>
+                </hbox>
+              </vbox>
               
               <checkbox id="perl_lintOption_includeCurrentDirForLinter"
                         label="&filePrefPerlIncludeCurrDirForLinting.label;"

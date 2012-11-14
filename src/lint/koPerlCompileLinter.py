@@ -517,7 +517,12 @@ class KoPerlCriticLinter(_CommonPerlLinter):
             if perlCriticVersion <= 1.100 or not baseFileName:
                 pcOption = '-Mcriticism=' + criticLevel
             else:
-                pcOption = '''-Mcriticism (-severity => '%s', 'as-filename' => '%s')''' % (criticLevel, baseFileName)
+                settings = { '-severity': criticLevel,
+                             'as-filename': baseFileName }
+                perlcritic_checking_rcfile = prefset.getStringPref("perlcritic_checking_rcfile")
+                if perlcritic_checking_rcfile and os.path.exists(perlcritic_checking_rcfile):
+                    settings['-profile'] = perlcritic_checking_rcfile
+                pcOption = "-Mcriticism (" + ", ".join(["'%s' => '%s'" % (key, value) for key, value in settings.items()]) + ")"
             perlExtraPaths = prefset.getStringPref("perlExtraPaths")
             if perlExtraPaths:
                 if sys.platform.startswith("win"):
