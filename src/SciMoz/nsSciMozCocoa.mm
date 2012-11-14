@@ -313,6 +313,10 @@ nsresult SciMoz::PlatformSetWindow(NPWindow* npwindow) {
 #endif
     return NS_ERROR_FAILURE;
   }
+#ifdef XP_MACOSX_USE_CORE_ANIMATION
+  // Get Scintilla to use layer backed views (for core animation).
+  [scView setWantsLayer: YES];
+#endif
   fWindow = npwindow;
   portMain = npwindow->window;
   wMain = (NSView *)npwindow->window;
@@ -455,7 +459,6 @@ int16 SciMoz::PlatformHandleEvent(void *ev) {
 void * SciMoz::GetCoreAnimationLayer() {
   if (wEditor) {
     ScintillaView *scView = (ScintillaView *) wEditor;
-    [scView setWantsLayer: YES];
 #ifdef SCIMOZ_COCOA_DEBUG
     fprintf(stderr, " GetCoreAnimationLayer:: layer: %p\n", [scView layer]);
 #endif
