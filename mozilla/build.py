@@ -449,12 +449,10 @@ def _setupMozillaEnv():
     
     if config.withCrashReportSymbols:
         os.environ['MOZ_DEBUG_SYMBOLS'] = '1'
-        if sys.platform == "darwin":
+        if sys.platform == "darwin" or \
+           sys.platform.startswith("linux"):
             os.environ['CFLAGS'] = "-gdwarf-2"
             os.environ['CXXFLAGS'] = "-gdwarf-2"
-        elif sys.platform.startswith("linux"):
-            os.environ['CFLAGS'] = "-gstabs+"
-            os.environ['CXXFLAGS'] = "-gstabs+"
 
     # ensure the mozilla build system uses our python to build with
     if config.python:
@@ -1402,13 +1400,10 @@ def target_configure(argv):
             mozRawOptions.append('export MOZ_DEBUG_SYMBOLS=1')
             if sys.platform == "win32":
                 mozBuildOptions.append('enable-debugger-info-modules=yes')
-            elif sys.platform == "darwin":
-                pass
-                #mozRawOptions.append('export CFLAGS="-gdwarf-2"')
-                #mozRawOptions.append('export CXXFLAGS="-gdwarf-2"')
-            elif sys.platform.startswith("linux"):
-                mozRawOptions.append('export CFLAGS="-gstabs+"')
-                mozRawOptions.append('export CXXFLAGS="-gstabs+"')
+            else:
+                mozBuildOptions.append('enable-debug-symbols=-gdwarf-2')
+                mozRawOptions.append('export CFLAGS="-gdwarf-2"')
+                mozRawOptions.append('export CXXFLAGS="-gdwarf-2"')
 
         if "perf" in config["buildOpt"]:
             mozBuildOptions.append('enable-xpctools')
