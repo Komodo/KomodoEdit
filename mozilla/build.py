@@ -1011,11 +1011,16 @@ def target_configure(argv):
         "universal": False,
         "patchesDirs": ["patches-new"],
     }
+
     mozBuildOptions = [
        'disable-installer',
        # prevents a "C++ compiler has -pedantic long long bug" configure error
        'disable-pedantic',
     ]
+    if sys.platform.startswith("linux"):
+        # Avoid having a dependency on libstdc++
+        mozBuildOptions.append('enable-stdcxx-compat')
+
     mozMakeOptions = []
     mozBuildExtensions = []
     mozRawOptions = []
