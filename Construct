@@ -764,7 +764,8 @@ sub cons::BuildXpt {
     my @idlDeps = $env->GenerateIdlDependencies($idlFileName, $idlExportDir, $mozIdlIncludePath);
     # Tweak env to point PYTHONPATH at the sdk dir.
     my %envLocal = $env->copy();
-    $envLocal{'PYTHONPATH'} = $env{'ENV'}{'PYTHONPATH'} . "$platformPathSep$mozSdkDir/bin";
+    $envLocal{'PYTHONPATH'} = $ENV{'PYTHONPATH'} . "$platformPathSep$mozSdkDir/bin";
+    $envLocal{'SystemRoot'} = $ENV{'SystemRoot'}; # Needed to avoid runtime DLL problems.
     $envLocal = new cons(ENV => \%envLocal);
     # compile the .idl file to a typelib
     # XXX handling of mozIdlIncludePath is not robust (breaks if more than one element)
@@ -918,7 +919,8 @@ sub cons::BuildHeaderFromIdl {
         $mozIdlIncludePath);
     # Tweak env to point PYTHONPATH at the sdk dir.
     my %envLocal = $env->copy();
-    $envLocal{'PYTHONPATH'} = $env{'ENV'}{'PYTHONPATH'} . "$platformPathSep$mozSdkDir/bin";
+    $envLocal{'PYTHONPATH'} = $ENV{'PYTHONPATH'} . "$platformPathSep$mozSdkDir/bin";
+    $envLocal{'SystemRoot'} = $ENV{'SystemRoot'}; # Needed to avoid runtime DLL problems.
     $envLocal = new cons(ENV => \%envLocal);
     # compile the .idl file to a C header
     #  XXX handling of mozIdlIncludePath is not robust (breaks if
