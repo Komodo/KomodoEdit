@@ -750,7 +750,11 @@ this.recordPartInvocation = function macro_recordPartInvocation(part) {
         // seems more representative of what the user expects (and means
         // that the run command can be developed independently of the
         // macro.
-        var wko = ko.windowManager.getMainWindow().ko;
+        var mainWindow = ko.windowManager.getMainWindow();
+        if (!mainWindow) {
+            return;
+        }
+        var wko = mainWindow.ko;
         if (typeof(wko.macros.recorder) != 'undefined' &&
             wko.macros.recorder &&
             wko.macros.recorder.mode == 'recording') {
