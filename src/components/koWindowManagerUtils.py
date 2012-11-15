@@ -39,7 +39,13 @@ class koWindowManagerUtils(object):
         @property
         def objc(self):
             if self._objc is None:
-                self._objc = self.ctypes.CDLL(self.ctypes.util.find_library('objc'))
+                ctypes = self.ctypes
+                objc = self._objc = ctypes.CDLL(self.ctypes.util.find_library('objc'))
+                # Need to declare the functions we use, otherwise we crash on x86_64
+                objc.objc_getClass.restype = ctypes.c_void_p
+                objc.objc_msgSend.restype = ctypes.c_void_p
+                objc.objc_msgSend.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
+                objc.sel_registerName.restype = ctypes.c_void_p
             return self._objc
 
         @property
