@@ -312,6 +312,9 @@ function enableDevOptions() {
    that also needs to start late. */
 function onloadDelay() {
     try {
+        var observerSvc = Components.classes["@mozilla.org/observer-service;1"].
+                        getService(Components.interfaces.nsIObserverService);
+        observerSvc.addObserver(ko.main, "quit-application-requested", false);
         // Used by perf_timeline.perf_startup. Mark before
         // commandmentSvc.initialize() because that will immediately start
         // executing queued up commandments.
@@ -485,6 +488,20 @@ this.__deprecatedNameTest = function(deprecatedName, supportedName) {
                    + ", please use "
                    + supportedName
                    + "\n");
+    }
+};
+
+this.observe = function(subject, topic, data) {
+    if (topic == "quit-application-requested") {
+        var cancelQuit = subject;
+        if ((cancelQuit instanceof Components.interfaces.nsISupportsPRBool) && cancelQuit.data) {
+            return;
+        }
+        if (!this.runCanCloseHandlers()) {
+            // Set the cancelData thing to true
+            cancelQuit.QueryInterface(Components.interfaces.nsISupportsPRBool);
+            cancelQuit.data = true;
+        }
     }
 };
 
