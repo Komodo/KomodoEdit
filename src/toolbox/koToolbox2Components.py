@@ -435,12 +435,15 @@ class KoToolbox2Service(object):
         w = self._contentUtils.GetWindowFromCaller()
         sentinel = 100
         while sentinel:
-            if not w:
-                break
-            elif w.document.documentElement.getAttribute("windowtype") == "Komodo":
-                window = w
-                break
-            elif w.parent == w:
+            try:
+                if not w:
+                    break
+                elif w.document.documentElement.getAttribute("windowtype") == "Komodo":
+                    window = w
+                    break
+                elif w.parent == w:
+                    break
+            except AttributeError:
                 break
             w = w.parent
             sentinel -= 1
