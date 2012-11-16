@@ -764,6 +764,7 @@ sub cons::BuildXpt {
     my @idlDeps = $env->GenerateIdlDependencies($idlFileName, $idlExportDir, $mozIdlIncludePath);
     # Tweak env to point PYTHONPATH at the sdk dir.
     my %envLocal = $env->copy();
+    my $platformPathSep = ($^O eq "MSWin32" ? ";" : ":");
     $envLocal{'PYTHONPATH'} = $ENV{'PYTHONPATH'} . "$platformPathSep$mozSdkDir/bin";
     $envLocal{'SystemRoot'} = $ENV{'SystemRoot'}; # Needed to avoid runtime DLL problems.
     $envLocal = new cons(ENV => \%envLocal);
@@ -919,6 +920,7 @@ sub cons::BuildHeaderFromIdl {
         $mozIdlIncludePath);
     # Tweak env to point PYTHONPATH at the sdk dir.
     my %envLocal = $env->copy();
+    my $platformPathSep = ($^O eq "MSWin32" ? ";" : ":");
     $envLocal{'PYTHONPATH'} = $ENV{'PYTHONPATH'} . "$platformPathSep$mozSdkDir/bin";
     $envLocal{'SystemRoot'} = $ENV{'SystemRoot'}; # Needed to avoid runtime DLL problems.
     $envLocal = new cons(ENV => \%envLocal);
