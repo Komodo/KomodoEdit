@@ -1,5 +1,6 @@
-@import url("chrome://komodo/skin/tabs/nativetabs.css");
 @import url("chrome://komodo/skin/tabs/verticaltabs.css");
+@import url("chrome://komodo/skin/test.css");
+@import url("chrome://komodo/skin/_config/window.less"); 
 
 /* "workspace_splitter": A splitter used between main panes in the
  * Komodo window.
@@ -7,24 +8,30 @@
 splitter[orient="vertical"].workspace_splitter {
   min-height: 3px;
   height: 3px;
-  background-image: none !important;
-  background-color: rgba(0,0,0,0.10); /* same as '.whiteout > tabs' for bottom pane tabs */
   border: none;
-  border-top: 1px solid #404040;
   z-index: 100;
+  position: relative;
+  background: transparent;
+  margin-bottom: -2px;
+  border-top: 1px solid @main-border-color;
 }
+splitter[orient="vertical"].workspace_splitter:-moz-window-inactive
+{
+	border-color: @main-border-color-inactive;
+}
+
 splitter[orient="horizontal"].workspace_splitter {
   min-width: 3px;
   width: 3px;
-  background-color: rgba(0,0,0,0.10); /* same as '.whiteout > tabs' for bottom pane tabs */
-  background-image: none !important;
   border: none;
 }
 splitter[orient="horizontal"].workspace_splitter_left {
-  border-right: 1px solid #404040;
+	background: @sidebar-background-color;
+	border-right: 1px solid @panel-border-color;
 }
 splitter[orient="horizontal"].workspace_splitter_right {
-  border-left: 1px solid #404040;
+	background: @sidebar-background-color;
+	border-left: 1px solid @panel-border-color;
 }
 
 /* "multiview_splitter": A splitter used for splitting tab groups in the main
@@ -141,32 +148,142 @@ toolbar[mode="full"] > toolbaritem > toolbarbutton {
 /**
  * No menu icons on mac please
  */
-#toolbar-menubar menu.menu-iconic,
-#toolbar-menubar menuitem.menuitem-iconic {
-  list-style-image: none;
-}
+//#toolbar-menubar menu.menu-iconic,
+//#toolbar-menubar menuitem.menuitem-iconic {
+//  list-style-image: none;
+//}
 
 /**
  * Put toolbar buttons in a bordered box.
  */
-#toolbox_main[mode]:not([mode="full"]) :not(toolbarbutton) > toolbarbutton,
-.solo-toolbaritem > toolbarbutton,
-.solo-button {
-  border: 1px solid rgba(0,0,0,.5);
-  border-bottom: 2px groove grey;
-  background-image: -moz-linear-gradient(center top,
-                                         rgb(255, 255, 255),
-                                         rgb(204, 204, 204));
-  margin: 0px;
-  margin-right: -1px;
+//#toolbox_main[mode]:not([mode="full"]) :not(toolbarbutton) > toolbarbutton,
+//.solo-toolbaritem > toolbarbutton,
+//.solo-button {
+//  border: 1px solid rgba(0,0,0,.5);
+//  border-bottom: 2px groove grey;
+//  background-image: -moz-linear-gradient(center top,
+//                                         rgb(255, 255, 255),
+//                                         rgb(204, 204, 204));
+//  margin: 0px;
+//  margin-right: -1px;
+//}
+
+#toolbox_main toolbar > toolbaritem.no-children {
+	display: none;
 }
+
+/*
+border: 1px solid #6f6f6f;
+border-radius: 3px;
+background-image: -moz-linear-gradient(top, #ececec, #c2c2c2);
+box-shadow: 1px 1px 1px rgba(255,255,255,0.75), inset 0 1px 0 rgba(255,255,255,0.5);
+*/
+
+#toolbox_main toolbar > toolbaritem {
+	
+	border: 0;
+	height: 24px;
+
+	> toolbarbutton {
+		height: 24px;
+		padding: 0 0 0 6px !important;
+		
+		border-top-width: 1px;
+		border-bottom-width: 1px;
+		border-left-width: 0;
+		border-right-width: 0;
+		border-style: solid;
+		border-color: @menubar-group-border-color;
+		
+		box-shadow: @menubar-button-shadow, @menubar-button-shadow-inset;
+		
+		margin: 0;
+		
+		background-color: #f6f6f6;
+		background-image: @menubar-button-separator, @menubar-button-background;
+		background-position: right center;
+		background-repeat: no-repeat;
+		
+		-moz-transition: all 0.20s linear;
+		
+		image {
+			filter: ~"url(chrome://komodo/skin/filters.svg#monochrome)";
+			padding-right: 5px;
+		}
+		
+		&.last-child image {
+			padding-right: 0;
+			border-right: 0;
+		}
+		
+		&.last-child {
+			background-position: 100px, center center;
+			padding-right: 5px !important;
+			border-right-width: 1px;
+			border-top-right-radius: 3px;
+			border-bottom-right-radius: 3px;
+		}
+		
+		&.first-child {
+			border-left-width: 1px;
+			border-top-left-radius: 3px;
+			border-bottom-left-radius: 3px;
+		}
+		
+		&[open="true"], &:active {
+			box-shadow: @menubar-button-shadow;
+			background-image: @menubar-button-separator, @menubar-button-background-active;
+		}
+		
+		&:-moz-window-inactive {
+			border-color: @menubar-group-border-color-inactive;
+		}
+		
+	}
+	
+}
+
+#toolbox_main toolbar > toolbaritem > toolbarbutton.first-child {
+	
+}
+
+//#toolbox_main toolbar > toolbaritem {
+//	background-image: @menubar-group-start-image, @menubar-group-end-image;
+//	background-position: top left, top right;
+//	background-repeat: no-repeat, no-repeat;
+//	height: 27px;
+//	padding: 0;
+//	margin-right: 5px;
+//}
+//
+//#toolbox_main toolbar > toolbaritem > toolbarbutton {
+//	background: @menubar-group-background;
+//	height: 16px;
+//	padding-top: 5px;
+//	margin: 0;
+//	border-radius: 0 !important;
+//	
+//	image {
+//		padding-right: 5px;
+//		border-right: 1px solid #b2b2b2;
+//	}
+//	
+//	&.last-child image {
+//		padding-right: 0;
+//		border-right: 0;
+//	}
+//}
 
 /**
  * Want to have the main toolbar buttons a little higher than normal.
  */
 #main-toolboxrow toolbarbutton {
   min-width: 24px;
-  height: 24px;
+}
+
+#main-toolboxrow > hbox {
+	border-bottom: @menubar-border-bottom;
+	padding-bottom: 3px;
 }
 
 .solo-toolbaritem > toolbarbutton {
@@ -188,42 +305,10 @@ toolbar[mode="full"] > toolbaritem > toolbarbutton {
  */
 toolbarbutton[type="checkbox"][checked] {
   box-shadow: inset #2A2A2A 0 3px 3.5px, 0 1px rgba(255, 255, 255, .4);
-  background-image: -moz-linear-gradient(center top,
-                                         rgb(255, 255, 255),
-                                         rgb(204, 204, 204));
 }
 
 toolbarbutton[type="checkbox"][checked]:-moz-window-inactive {
   box-shadow: inset rgba(0, 0, 0, 0.5) 0 3px 3.5px, 0 1px rgba(255, 255, 255, .4);
-  background-image: -moz-linear-gradient(center top,
-                                         rgb(204, 204, 204),
-                                         rgb(135, 135, 135));
-}
-/* Also requires to override this CSS style from bordered toolbox above. */
-toolbar:not([mode="full"]) > toolbaritem > toolbarbutton[checked="true"],
-.solo-toolbaritem > toolbarbutton[checked="true"],
-.solo-button[checked="true"] {
-  background-image: url(chrome://komodo/skin/images/button-gradient-inactive.png);
-}
-
-#toolbox_main toolbar:not([mode="full"]) > toolbarbutton:first-child,
-#toolbox_main toolbar:not([mode="full"]) > toolbarbutton.first-child,
-#main-toolboxrow:not([mode="full"]) > toolbaritem > toolbarbutton:first-child,
-.solo-toolbaritem > toolbarbutton:first-child {
-  margin-left: 3px;
-  padding-left: 3px;
-  border-top-left-radius: 4px;
-  border-bottom-left-radius: 4px;
-}
-
-#toolbox_main toolbar:not([mode="full"]) > toolbarbutton:last-child,
-#toolbox_main toolbar:not([mode="full"]) > toolbarbutton.last-child,
-#main-toolboxrow:not([mode="full"]) > toolbaritem > toolbarbutton:last-child,
-.solo-toolbaritem > toolbarbutton:last-child {
-  margin-right: 3px;
-  padding-right: 3px;
-  border-top-right-radius: 4px;
-  border-bottom-right-radius: 4px;
 }
 
 .solo-button {
@@ -393,4 +478,63 @@ textbox[type="autocomplete"].search-box {
     list-style-image: none;
     -moz-appearance: treetwistyopen;
   }
+}
+
+/* Panels */
+
+#workspace_left_area, #workspace_right_area {
+	background: @sidebar-background-color;
+	
+	&:-moz-window-inactive {
+		background: @sidebar-inactive-background-color;
+	}
+}
+
+#workspace_bottom_area {
+	background: @bottom-background-color;
+	
+	&:-moz-window-inactive {
+		background: @bottom-inactive-background-color;
+	}
+}
+
+/* Statusbar */
+
+statusbar {
+	padding: 0 !important;
+	font-family: @statusbar-font;
+	font-size: 10px;
+	color: @statusbar-text-color;
+	
+	statusbarpanel {
+		padding: 2px;
+		background: @statusbar-background;
+		border-right: 1px solid transparent;
+		-moz-border-image: @statusbar-panel-border-image;
+		//less.inject('statusbar statusbarpanel { -moz-border-image: url(\'chrome://komodo/skin/images/status-separator.png\'); } ');
+		toolbarbutton[type="menu"] > dropmarker {
+			list-style-image: url("chrome://komodo/skin/images/status-menu-arrows.png");
+		}
+		
+		&:last-child, &#statusbar-line-col {
+			border-right: 0;
+		}
+	}
+	
+}
+
+/* hidden statusbar icons */
+#statusbar-language-menu > .toolbarbutton-icon,
+#statusbar-sectionlist > deck > hbox > image:first-child {
+	display: none;
+}
+
+/* Code collab sidebar */
+
+#collab-pane, #collab-panel-container {
+	background: @sidebar-background-color;
+  
+	&:-moz-window-inactive {
+		background: @sidebar-inactive-background-color;
+	}
 }

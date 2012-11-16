@@ -12,7 +12,7 @@
 <?xml-stylesheet href="chrome://komodo/skin/bindings/sidebar.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/views.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
-<?xml-stylesheet href="chrome://komodo/skin/platform.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/platform.less" type="stylesheet/less" media="less"?>
 
 <?xul-overlay href="chrome://komodo/content/bindings/scintilla-overlay.xul"?>
 
@@ -83,6 +83,9 @@
 
     <commandset id="runoutput-commandset"/>
 
-    <script src="chrome://komodo/content/run/runOutputWindow.js"          type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/run/runOutputWindow.js"	        type="application/x-javascript;version=1.7"/>
+	
+	<script src="chrome://komodo/content/contrib/lessLoader.js" 			type="application/x-javascript" id="lessLoader"/>
+	
     <hbox id="scintillaOverlayXul"/>
 </page>

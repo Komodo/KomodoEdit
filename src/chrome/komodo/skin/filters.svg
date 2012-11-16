@@ -7,5 +7,38 @@
     <filter id="greyscale" filterUnits="objectBoundingBox" x="0" y="0" width="1" height="1">
       <feColorMatrix in="SourceGraphic" type="saturate" values="0"/>
     </filter>
+    <filter id="monochrome">
+		<!-- Increase Brightness -->
+		<feComponentTransfer in="SourceAlpha" result="_SourceGraphic">
+			<feFuncR type="linear" intercept="0.30" slope="1"/>
+			<feFuncG type="linear" intercept="0.30" slope="1"/>
+			<feFuncB type="linear" intercept="0.30" slope="1"/>
+		</feComponentTransfer>
+		
+		<!-- Add Inset Gradient -->
+        <feFlood flood-color="black" flood-opacity="0.25" in="_SourceGraphic" result="InsetGradient"/> <!-- Color & Opacity -->
+        <feOffset dx="0" dy="8" in="InsetGradient" result="InsetGradient"/> <!-- Gradient Offset -->
+        <feGaussianBlur stdDeviation="2" in="InsetGradient" result="InsetGradient" /> <!-- Gaussian Blur -->
+        <feComposite operator="in" in="InsetGradient" in2="_SourceGraphic" result="InsetGradient"/> <!-- Clip color inside shadow -->
+        <feComposite operator="over" in="InsetGradient" in2="_SourceGraphic" result="_SourceGraphic"/> <!-- Put shadow over original object -->
+		
+		<!-- Add Inset -->
+		<feOffset dx="1" dy="1" in="_SourceGraphic" result="InsetShadow"/> <!-- Shadow Offset -->
+		<feGaussianBlur stdDeviation="1.5" in="InsetShadow" result="InsetShadow"/> <!-- Gaussian Blur -->
+		<feComposite operator="out" in="_SourceGraphic" in2="InsetShadow" result="inverse"/> <!-- Invert the drop shadow to create an inner shadow -->
+		<feFlood flood-color="black" flood-opacity="0.60" result="color"/> <!-- Color & Opacity -->
+		<feComposite operator="in" in="color" in2="inverse" result="shadow"/> <!-- Clip color inside shadow -->
+		<feComposite operator="over" in="shadow" in2="_SourceGraphic" result="_SourceGraphic"/> <!-- Put shadow over original object -->
+		
+		<!-- Add Shadow -->
+		<feOffset result="DropShadow" in="SourceAlpha" dx="1" dy="1" />
+		<feComponentTransfer in="DropShadow" result="DropShadow">
+			<feFuncR type="linear" intercept="1.00" slope="1"/>
+			<feFuncG type="linear" intercept="1.00" slope="1"/>
+			<feFuncB type="linear" intercept="1.00" slope="1"/>
+		</feComponentTransfer>
+		<feBlend in="_SourceGraphic" in2="DropShadow" mode="normal" />
+		
+    </filter>
   </defs>
 </svg>

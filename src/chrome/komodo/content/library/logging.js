@@ -540,6 +540,104 @@ this.dumpObject = function dumpObject(o, name)
 {
     dump(this.strObject(o, name));
 }
+
+
+/** Based on snippet by "Amos Batto", http://stackoverflow.com/a/11315561/490321 **/
+this.dumpMixed = function(v, maxRecursion, recursionLevel)
+{
+    recursionLevel = (typeof recursionLevel !== 'number') ? 0 : recursionLevel;
+    maxRecursion = maxRecursion === undefined ? 2 : maxRecursion;
+
+    var vType = typeof v;
+    var out = vType;
+
+    switch (vType)
+	{
+		case "number":
+        case "boolean":
+            out += ": " + v;
+            break;
+        case "string":
+            out += "(" + v.length + '): "' + v + '"';
+            break;
+        case "object":
+			if (v !== null && recursionLevel >= maxRecursion) return '(prototype object) ...';
+			
+            if (v == window) {
+                out = "<window>";
+            }
+            else if (v == document) {
+                out = "<document>";
+            }
+            else if (v === null) {
+                out = "null";
+            }
+            else if (Object.prototype.toString.call(v) === '[object Array]') {
+                out = 'array(' + v.length + '): {\n';
+                for (var i = 0; i < v.length; i++) {
+                    out += repeatString('   ', recursionLevel) + "   [" + i + "]:  " + 
+                        ko.logging.dumpMixed(v[i], maxRecursion, recursionLevel + 1) + "\n";
+                }
+                out += repeatString('   ', recursionLevel) + "}";
+            }
+            else { //if object
+                var sContents = "{\n";
+                var cnt = 0;
+                for (var member in v)
+				{
+                    //No way to know the original data type of member, since JS
+                    //always converts it to a string and no other way to parse objects.
+                    try {
+                        sContents += repeatString('   ', recursionLevel) + "   " + member +
+                            ":  " + ko.logging.dumpMixed(v[member], maxRecursion, recursionLevel + 1) + "\n";
+                    } catch(e) {
+                        sContents += "<error parsing value: "+e.message+">";
+                    }
+                    cnt++;
+                }
+                sContents += repeatString('   ', recursionLevel) + "}";
+                out += "(" + cnt + "): " + sContents;
+            }
+            break;
+		default:
+            out += ": " + (typeof v);
+            break;
+    }
+	
+	if (recursionLevel == 0)
+	{
+		ko.logging.dumpImportant(out, "Mixed Dump");
+	}
+	
+	return out;
+}
+
+/* repeatString() returns a string which has been repeated a set number of times */ 
+function repeatString(str, num) {
+    var out = '';
+    for (var i = 0; i < num; i++) {
+        out += str; 
+    }
+    return out;
+}
+
+this.dumpString = function(string)
+{
+	dump("\n" + string + "\n");
+}
+
+this.dumpImportant = function(string, name)
+{
+	if (name === undefined)
+	{
+		name = "IMPORTANT";
+	}
+	
+	ko.logging.dumpString("--[START "+name+"]------------------------------------");
+	dump(string);
+	ko.logging.dumpString("--[END  "+name+"]------------------------------------");
+}
+
 this.dumpView = function dumpView(view) {
     // Dump some interesting information about the current view.
     dump("\n--------------------------------------\n");

@@ -274,6 +274,11 @@ function moz_user_pref(name, value) {
 // nsIConsoleListener
 var consoleListener = {
     observe: function(/* nsIConsoleMessage */ aMessage) {
+        
+        // Filter out unwanted strict warnings
+        var regex = new RegExp('JavaScript Warning.*?(?:does not always return a value|redeclares argument|functions may be declared|test for equality|Update manifest had an unrecognised)');
+        if (aMessage.message.match(regex) != null) return;
+        
         dump(aMessage.message+"\n");
     }
 }

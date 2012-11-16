@@ -107,4 +107,5 @@ $cons->InstallAs("$mozChromeDir/komodo/content/about/img/komodo.png",
 $cons->InstallRecursive("$mozChromeDir/komodo/content/about",
     cwd()."/src/chrome/komodo/content/about",
     ('\.svn', 'about.p.xul', 'credits.p.html'));
+$cons->InstallInChrome("skinEvents.js");
 

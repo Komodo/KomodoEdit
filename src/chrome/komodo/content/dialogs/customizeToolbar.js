@@ -331,7 +331,8 @@ window.addEventListener("load", function() {
      */
     function Toolbar(toolbar) {
         if (toolbar.getAttribute("customizable") == "true") {
-            this.children = Array.slice(toolbar.childNodes)
+			var ko = window.opener.ko;
+            this.children = Array.slice(toolbar.querySelectorAll("toolbarbutton"))
                                  .filter(function(n) /^toolbar/.test(n.localName) &&
                                                      !!n.id)
                                  .sort(sortComparator)

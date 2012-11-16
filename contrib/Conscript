@@ -424,6 +424,11 @@ $consLocal->InstallRecursive($landmark,
 $consLocal->Install("$supportDir/lint/javascript", "jslint/fulljslint.js");
 $consLocal->Install("$supportDir/lint/javascript", "jslint/jshint.js");
 
+#less css
+$consLocal->Install("$supportDir/lint/javascript", "jslint/jshint.js");
+$consLocal->InstallAs("$mozChromeDir/komodo/content/contrib/less.js", "smallstuff/less.js");
+$consLocal->InstallAs("$mozChromeDir/komodo/content/contrib/lessLoader.js", "smallstuff/lessLoader.js");
+
 
 #----  Watchdog for file notifcations
 if ($withWatchdogFSNotifications) {

@@ -73,8 +73,8 @@
         xmlns:html="http://www.w3.org/1999/xhtml"
         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        width="800"
-        height="600"
+        width="960"
+        height="650"
         screenX="20"
         screenY="20"
         persist="screenX screenY width height"
@@ -82,7 +82,8 @@
         ondrop="return ko.dragdrop.onDrop(event);"
         toggletoolbar="true"
         >
-
+	
+	
     <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
     <!--Mozilla sources-->
     <!--globalOverlay.js contains application shutdown and controller code-->
@@ -170,6 +171,10 @@
     <script src="chrome://komodo/content/hyperlinks/filehandler.js"       type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/hyperlinks/csscolorpicker.js"    type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/hyperlinks/gotodefinition.js"    type="application/x-javascript;version=1.7"/>
+	
+	<script src="chrome://komodo/content/skinEvents.js" type="application/x-javascript;version=1.7"/>
+	
+	<script src="chrome://komodo/content/contrib/less.js" type="application/x-javascript;version=1.7"/>
 
     <!-- This is used by the view editor for displaying
          scintilla tooltips -->
@@ -1113,14 +1118,14 @@
                                               id="menu_viewmacrotoolbar"
                                               observes="cmd_viewmacrotoolbar"
                                               persist="checked"
-                                              checked="true"
+                                              checked="false"
                                               type="checkbox"
                                               />
                                     <menuitem label="&komodoResources.label;"
                                               id="menu_viewkomodotoolbar"
                                               observes="cmd_viewkomodotoolbar"
                                               persist="checked"
-                                              checked="true"
+                                              checked="false"
                                               type="checkbox"
                                               />
                                     <menuseparator id="popup_toolbars_custom_separator"
@@ -1618,6 +1623,7 @@
                 fullscreentoolbar="true"
 <!-- #endif -->
                 >
+					
                 <toolbar
                     id="standardToolbar"
                     class="chromeclass-toolbar"
@@ -1769,40 +1775,49 @@
                          persist="kohidden collapsed buttonstyle mode"
                          buttonstyle="pictures"
                          tooltiptext="&workspaceToolbar.tooltiptext;">
-                    <toolbarbutton id="toggleLeftPane"
-                        tooltiptext="&showHideLeftPane.tooltiptext;"
-                        persist="buttonstyle"
-                        buttonstyle="pictures"
-                        type="checkbox"
-                        observes="cmd_viewLeftPane"
-                        label="&toggleLeft.label;">
-                    </toolbarbutton>
-                    <toolbarbutton id="toggleBottomPane"
-                        tooltiptext="&showHideBottomPane.tooltiptext;"
-                        persist="buttonstyle"
-                        buttonstyle="pictures"
-                        type="checkbox"
-                        observes="cmd_viewBottomPane"
-                        label="&toggleBottom.label;">
-                    </toolbarbutton>
-                    <toolbarbutton id="toggleRightPane"
-                        tooltiptext="&showHideRightPane.tooltiptext;"
-                        persist="buttonstyle"
-                        buttonstyle="pictures"
-                        type="checkbox"
-                        observes="cmd_viewRightPane"
-                        label="&toggleRight.label;">
-                    </toolbarbutton>
-                    <toolbarbutton id="tabPicker"
-                        tooltiptext="&showSpecificTab.tooltiptext;"
-                        type="menu"
-                        orient="horizontal"
-                        persist="buttonstyle"
-                        class="tabPicker-icon"
-                        buttonstyle="pictures"
-                        label="&showTab.label;">
-                        <menupopup onpopupshowing="ko.uilayout.updateTabpickerMenu(this);"/>
-                    </toolbarbutton>
+					
+					<toolbaritem>
+					
+						<toolbarbutton id="toggleLeftPane"
+							tooltiptext="&showHideLeftPane.tooltiptext;"
+							kohidden="true"
+							persist="buttonstyle kohidden"
+							buttonstyle="pictures"
+							type="checkbox"
+							observes="cmd_viewLeftPane"
+							label="&toggleLeft.label;">
+						</toolbarbutton>
+						<toolbarbutton id="toggleBottomPane"
+							tooltiptext="&showHideBottomPane.tooltiptext;"
+							kohidden="true"
+							persist="buttonstyle kohidden"
+							buttonstyle="pictures"
+							type="checkbox"
+							observes="cmd_viewBottomPane"
+							label="&toggleBottom.label;">
+						</toolbarbutton>
+						<toolbarbutton id="toggleRightPane"
+							tooltiptext="&showHideRightPane.tooltiptext;"
+							kohidden="true"
+							persist="buttonstyle kohidden"
+							buttonstyle="pictures"
+							type="checkbox"
+							observes="cmd_viewRightPane"
+							label="&toggleRight.label;">
+						</toolbarbutton>
+						<toolbarbutton id="tabPicker"
+							tooltiptext="&showSpecificTab.tooltiptext;"
+							type="menu"
+							orient="horizontal"
+							persist="buttonstyle"
+							class="tabPicker-icon"
+							buttonstyle="pictures"
+							label="&showTab.label;">
+							<menupopup onpopupshowing="ko.uilayout.updateTabpickerMenu(this);"/>
+						</toolbarbutton>
+					
+					</toolbaritem>
+					
                 </toolbar>
                 <toolbar class="chromeclass-toolbar"
                          id="macrosToolbar"
@@ -1816,41 +1831,47 @@
                          persist="kohidden collapsed buttonstyle mode"
                          buttonstyle="pictures"
                          tooltiptext="&macroToolbar.tooltiptext;">
-                    <toolbarbutton id="macroRecord"
-                        label="&record.label;"
-                        tooltiptext="&recordMacro.tooltiptext;"
-                        persist="buttonstyle"
-                        class="macro-record-icon"
-                        buttonstyle="pictures"
-                        observes="cmd_startMacroMode"/>
-                    <toolbarbutton id="macroPause"
-                        label="&pause.label;"
-                        tooltiptext="&pauseMacroRecording.tooltiptext;"
-                        persist="buttonstyle"
-                        buttonstyle="pictures"
-                        class="macro-pause-icon"
-                        observes="cmd_pauseMacroMode"/>
-                    <toolbarbutton id="macroStop"
-                        label="&stop.label;"
-                        tooltiptext="&stopRecordingMacro.tooltiptext;"
-                        persist="buttonstyle"
-                        class="macro-stop-icon"
-                        buttonstyle="pictures"
-                        observes="cmd_stopMacroMode"/>
-                    <toolbarbutton id="macroPlay"
-                        label="&runLast.label;"
-                        tooltiptext="&playLastMacro.tooltiptext;"
-                        persist="buttonstyle"
-                        buttonstyle="pictures"
-                        class="macro-play-icon"
-                        observes="cmd_executeLastMacro"/>
-                    <toolbarbutton id="macroSave"
-                        label="&save.label;"
-                        tooltiptext="&saveLastMacroToToolbox.tooltiptext;"
-                        persist="buttonstyle"
-                        class="macro-save-icon"
-                        buttonstyle="pictures"
-                        observes="cmd_saveMacroToToolbox"/>
+					
+					<toolbaritem>
+					
+						<toolbarbutton id="macroRecord"
+							label="&record.label;"
+							tooltiptext="&recordMacro.tooltiptext;"
+							persist="buttonstyle"
+							class="macro-record-icon"
+							buttonstyle="pictures"
+							observes="cmd_startMacroMode"/>
+						<toolbarbutton id="macroPause"
+							label="&pause.label;"
+							tooltiptext="&pauseMacroRecording.tooltiptext;"
+							persist="buttonstyle"
+							buttonstyle="pictures"
+							class="macro-pause-icon"
+							observes="cmd_pauseMacroMode"/>
+						<toolbarbutton id="macroStop"
+							label="&stop.label;"
+							tooltiptext="&stopRecordingMacro.tooltiptext;"
+							persist="buttonstyle"
+							class="macro-stop-icon"
+							buttonstyle="pictures"
+							observes="cmd_stopMacroMode"/>
+						<toolbarbutton id="macroPlay"
+							label="&runLast.label;"
+							tooltiptext="&playLastMacro.tooltiptext;"
+							persist="buttonstyle"
+							buttonstyle="pictures"
+							class="macro-play-icon"
+							observes="cmd_executeLastMacro"/>
+						<toolbarbutton id="macroSave"
+							label="&save.label;"
+							tooltiptext="&saveLastMacroToToolbox.tooltiptext;"
+							persist="buttonstyle"
+							class="macro-save-icon"
+							buttonstyle="pictures"
+							observes="cmd_saveMacroToToolbox"/>
+						
+						</toolbaritem>
+						
                 </toolbar>
                 <toolbar id="komodoToolbar"
                          broadcaster="cmd_viewkomodotoolbar"
@@ -1860,30 +1881,37 @@
                          align="center"
                          class="chromeclass-toolbar"
                          mode="icons"
+						 kohidden="true"
                          persist="kohidden collapsed buttonstyle mode"
                          buttonstyle="pictures"
                          tooltiptext="&komodoResourcesToolbar.tooltiptext;">
-                    <toolbarbutton id="komodoButtonCommunity"
-                        tooltiptext="&komodoCommunity.tooltiptext;"
-                        observes="cmd_helpCommunity"
-                        persist="buttonstyle"
-                        class="komodo-button-community"
-                        buttonstyle="pictures"
-                        label="&community.label;"/>
-                    <toolbarbutton id="komodoButtonMaillist"
-                        tooltiptext="&komodoEmailLists.tooltiptext;"
-                        persist="buttonstyle"
-                        buttonstyle="pictures"
-                        observes="cmd_helpKomodoMailLists"
-                        class="komodo-button-maillist"
-                        label="&mailLists.label;"/>
-                    <toolbarbutton id="komodoButtonBugDB"
-                        tooltiptext="&komodoBugDatabase.tooltiptext;"
-                        persist="buttonstyle"
-                        buttonstyle="pictures"
-                        class="komodo-button-bugs"
-                        observes="cmd_helpViewBugs"
-                        label="&bugs.label;"/>
+					
+					<toolbaritem>
+					
+						<toolbarbutton id="komodoButtonCommunity"
+							tooltiptext="&komodoCommunity.tooltiptext;"
+							observes="cmd_helpCommunity"
+							persist="buttonstyle"
+							class="komodo-button-community"
+							buttonstyle="pictures"
+							label="&community.label;"/>
+						<toolbarbutton id="komodoButtonMaillist"
+							tooltiptext="&komodoEmailLists.tooltiptext;"
+							persist="buttonstyle"
+							buttonstyle="pictures"
+							observes="cmd_helpKomodoMailLists"
+							class="komodo-button-maillist"
+							label="&mailLists.label;"/>
+						<toolbarbutton id="komodoButtonBugDB"
+							tooltiptext="&komodoBugDatabase.tooltiptext;"
+							persist="buttonstyle"
+							buttonstyle="pictures"
+							class="komodo-button-bugs"
+							observes="cmd_helpViewBugs"
+							label="&bugs.label;"/>
+						
+					</toolbaritem>
+					
                 </toolbar>
 
             </toolboxrow>
@@ -2160,44 +2188,7 @@
                 </menupopup>
             </toolbarbutton>
         </statusbarpanel>
-        <statusbarpanel id="statusbar-encoding"
-                        tooltiptext="&fileEncoding.tooltiptext;"
-                        style="min-width: 6em;">
-            <toolbarbutton class="statusbar-label"
-                  id="statusbar-encoding-label"
-                  flex="1"
-                  orient="horizontal"
-                  type="menu"
-                  persist="buttonstyle"
-                  buttonstyle="text">
-                <menupopup id="statusbar-encoding-menupopup"
-                           onpopupshowing="ko.statusBar.setupEncodingMenu(this);" />
-            </toolbarbutton>
-        </statusbarpanel>
 
-        <statusbarpanel id="statusbar-line-col"
-                        tooltiptext="&filePosition.tooltiptext;"
-                        style="min-width: 10.5em;"/>
-        <statusbarpanel id="statusbar-selection"
-                        label="&noSelection.label;"
-                        tooltiptext="&selectionInformation.tooltiptext;"
-                        style="min-width: 8em;"/>
-        <statusbarpanel id="statusbar-language"
-                        pack="end"
-                        style="min-width: 8em; max-width: 12em;">
-            <toolbarbutton class="statusbar-label languageicon"
-                  id="statusbar-language-menu"
-                  tooltiptext="&fileType.tooltiptext;"
-                  flex="1"
-                  orient="horizontal"
-                  type="menu"
-                  persist="buttonstyle"
-                  buttonstyle="text">
-                <menupopup id="statusbar-filetype-menu"
-                           position="before_end"
-                           onpopupshowing="ko.uilayout.updateViewAsLanguageMenu(this);" />
-            </toolbarbutton>
-        </statusbarpanel>
     </statusbar>
     <commandset id="allcommands">
         <command id="cmd_CustomizeToolbars"

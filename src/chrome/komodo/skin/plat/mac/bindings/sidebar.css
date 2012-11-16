@@ -18,11 +18,11 @@ scintilla {
 
 ko-pane
 {
-  background-color: #d4dde5;
+  background-color: #D3D8E1;
 }
 
 ko-pane:-moz-window-inactive {
-  background-color: #E4E4E4;
+  background-color: #ebebeb;
 }
 
 ko-pane .tabs-vertical-label .tab-text,
@@ -32,4 +32,12 @@ ko-pane[type="sidebar"] .tab-text {
   font: menu;
   font-weight: bold;
   color: #535f6d;
+}
+
+tree {
+  background: transparent !important;
+}
+
+#dbExplorerPane > vbox > hbox > toolbarseparator {
+  display: none !important;
 }

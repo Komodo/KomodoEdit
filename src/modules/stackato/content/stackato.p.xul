@@ -18,7 +18,7 @@
 
 <?xml-stylesheet href="chrome://komodo/skin/bindings/views.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/scrolltabs.css" type="text/css"?>
-<?xml-stylesheet href="chrome://komodo/skin/platform.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/platform.less" type="stylesheet/less" media="less"?>
 
 <!--For the terminal-output-window tab-->
 <?xul-overlay href="chrome://komodo/content/bindings/scintilla-overlay.xul"?>
@@ -50,6 +50,8 @@
     
     <script src="chrome://stackatotools/content/stackato.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://stackatotools/content/stackatoTrees.js" type="application/x-javascript;version=1.7"/>
+	
+	<script src="chrome://komodo/content/contrib/lessLoader.js" 	type="application/x-javascript" id="lessLoader"/>
 
   <!-- Commands -->
     <commandset id="stackato_commandset">

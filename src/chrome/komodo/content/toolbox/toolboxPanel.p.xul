@@ -5,11 +5,12 @@
 ]>
 <?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/komodo.css" type="text/css"?>
-<?xml-stylesheet href="chrome://komodo/skin/platform.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/platform.less" type="stylesheet/less" media="less"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/sidebar.css" type="text/css"?>
 <?xml-stylesheet href="chrome://global/skin/tabbox.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/tabs/tabs.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/toolbar.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/overrides/toolbox.css" type="text/css"?>
 
 <page xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
     <vbox flex="1" id="toolbox2-hierarchy-vbox">
@@ -323,4 +324,6 @@
 
     <script src="chrome://komodo/content/toolbox/toolbox2.js"       type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/toolbox/toolbox2_command.js"       type="application/x-javascript;version=1.7"/>
+	<script src="chrome://komodo/content/contrib/lessLoader.js" 		type="application/x-javascript" id="lessLoader"/>
+	
 </page>

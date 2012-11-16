@@ -265,6 +265,18 @@ statusbarpanel > toolbarbutton[type="menu"] > dropmarker {
 }
 
 /**
+ * Statusbar spacing
+ */
+
+#statusbar-line-col, #statusbar-selection {
+    min-width: 75px !important;
+}
+
+#statusbar-encoding, #statusbar-language, #statusbar_section {
+    min-width: 150px !important;
+}
+
+/**
  * Language icons for the language menulists and tree views.
  */
 .languageicon,

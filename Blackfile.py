@@ -2382,12 +2382,12 @@ def BuildQuickBuildDB(cfg, argv):
     print "Building 'bk build quick' cache from installed copy."
     _addFiles(cfg, sourceSubdir='src/chrome/',
               targetSubdir=os.path.join(cfg.mozBin, 'chrome'),
-              extensions=['xul', 'xml', 'js', 'css', 'dtd', 'gif', 'png',
-                          'html', 'rdf', 'properties'],
+              extensions=['xul', 'xml', 'js', 'css', 'less', 'dtd', 'gif', 'png',
+                          'html', 'rdf', 'properties', 'svg'],
               preserveSubtrees=1)
     _addExtensionFiles(cfg, sourceSubdir='src/modules/',
               targetSubdir=os.path.join(cfg.mozBin, 'extensions'),
-              extensions=['xul', 'xml', 'js', 'css', 'dtd', 'gif', 'png', 'html', 'py'],
+              extensions=['xul', 'xml', 'js', 'css', 'less', 'dtd', 'gif', 'png', 'html', 'py'],
               preserveSubtrees=1,
               # These extensions use a different directory name.
               # TODO: We should fix some of these in Komodo 8.
@@ -2434,16 +2434,17 @@ def BuildQuickBuildDB(cfg, argv):
     elif cfg.platform == "win":
         skinPlat = 'win'
     else:
-        skinPlat = 'gnome'
+          skinPlat = 'gnome'
     _addFiles(cfg, sourceSubdir='src/chrome/komodo/skin/plat/'+skinPlat,
-              targetSubdir=os.path.join(cfg.mozBin, 'chrome', 'komodo', 'skin'),
-              extensions=['css', 'png'],
-              preserveSubtrees=1)
-    if cfg.withTests:
-        _addFiles(cfg, sourceSubdir='test/jstest/mock',
-                  targetSubdir=os.path.join(cfg.mozBin, 'chrome', 'komodo-jstest', 'mock'),
-                  extensions=['js', 'jsm'])
-
+               targetSubdir=os.path.join(cfg.mozBin, 'chrome', 'komodo', 'skin'),
+               extensions=['css', 'less', 'png'],
+               preserveSubtrees=1)
+     
+    _addFiles(cfg, sourceSubdir='src/images/icons/plat/'+skinPlat,
+               targetSubdir=os.path.join(cfg.mozBin, 'chrome', 'komodo', 'skin', 'images'),
+               extensions=['gif', 'png', 'xpm'],
+               preserveSubtrees=1)
+  
     pickle.dump(_table, open('qbtable.pik', 'w'))
     endtime = time.time()
     print "Cache created successfully - %0.2f seconds" % (endtime - starttime)

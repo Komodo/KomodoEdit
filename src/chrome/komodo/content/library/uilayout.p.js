@@ -295,25 +295,31 @@ this._updateToolbarClasses = (function uilayout__updateToolbarClasses(toolbox)
         // which case the argument is an Event rather than a <toolbox>...
         toolbox = document.getElementById("toolbox_main");
     }
-    var toolbars = Array.slice(toolbox.childNodes).concat(toolbox.externalToolbars);
-    for each (var toolbar in toolbars) {
-        if (toolbar.localName != "toolbar") {
-            continue;
-        }
-        var children = Array.slice(toolbar.querySelectorAll(".first-child, .last-child"));
+	
+	var buttonSets = toolbox.querySelectorAll("toolbar > toolbarbutton:first-child, toolbar > toolbaritem > toolbarbutton:first-child");
+	for (var i=0;i<buttonSets.length;i++)
+	{
+		var parentNode = buttonSets[i].parentNode;
+		
+        var children = Array.slice(parentNode.querySelectorAll(".first-child, .last-child"));
         for each (var child in children) {
-            if (child.parentNode == toolbar) {
+            if (child.parentNode == parentNode) {
                 child.classList.remove("first-child");
                 child.classList.remove("last-child");
             }
         }
-        children = Array.slice(toolbar.querySelectorAll(":not([kohidden='true']):not(toolbarseparator):not(spacer)"));
-        children = children.filter(function(child) child.parentNode === toolbar);
+		
+        children = Array.slice(parentNode.querySelectorAll(":not([kohidden='true']):not(toolbarseparator):not(spacer)"));
+        children = children.filter(function(child) child.parentNode === parentNode || child.parentNode.nodeName === 'toolbaritem');
+		
         if (children.length > 0) {
+			parentNode.classList.remove('no-children');
             children[0].classList.add("first-child");
             children[children.length - 1].classList.add("last-child");
-        }
-    }
+        } else {
+			parentNode.classList.add('no-children');
+		}
+	}
 }).bind(this);
 addEventListener("load", this._updateToolbarClasses, false);
 // #endif

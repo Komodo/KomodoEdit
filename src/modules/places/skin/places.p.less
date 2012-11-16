@@ -1,0 +1,213 @@
+/* Copyright (c) 2003-2010 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+/*
+ * CSS for Places UI
+ */
+
+@import url(chrome://komodo/skin/_config/window.less);
+@import url(chrome://komodo/skin/_config/icons.less);
+
+@icon-folder-explore: url("chrome://komodo-places/skin/folder_explore.png");
+
+/* #if PLATFORM == "darwin" */
+#placesViewbox_placesWrapper tree scrollbar
+{
+	opacity: 0.3;
+	-moz-transition: opacity 0.15s linear;
+}
+
+#placesViewbox_placesWrapper tree:hover scrollbar
+{
+	opacity: 1;
+}
+/* #endif */
+
+#placesRootButton {
+  /* #if PLATFORM == "darwin" */
+  list-style-image: url("chrome://global/skin/dirListing/folder.png");
+  /* #elif PLATFORM == "linux" */
+  list-style-image: url("moz-icon://stock/gtk-directory?size=16");
+  /* #else */
+  list-style-image: url("chrome://komodo/skin/images/folder-closed.png");
+  /* #endif */
+}
+#placesRootButton.remote {
+  list-style-image: url("chrome://famfamfamsilk/skin/icons/folder_link.png");
+}
+#placesRootButton > label {
+  /* Need to give some additional padding between the icon and the label. */
+  padding-left: 4px;
+}
+
+
+/**
+   Places tree icons, see bug 80523:
+    * we display native file icons in Places (see the Places tree view), this
+      uses the -moz-tree-image to set the cell icon.
+    * we then overlay with the native file icon with a status icon (such as
+      SCC status icon), this uses the -moz-tree-cell-text and adds the image
+      using the background-image CSS property.
+ */
+treechildren#places-files-tree-body::-moz-tree-image {
+  margin-right: 2px;
+}
+treechildren#places-files-tree-body::-moz-tree-image(places_folder_open) {
+  list-style-image: @icon-folder-open;
+}
+treechildren#places-files-tree-body::-moz-tree-image(places_folder_closed) {
+  list-style-image: @icon-folder-closed;
+}
+
+treechildren#places-files-tree-body::-moz-tree-cell-text {
+  /**
+   * These settings are used to show both a background native file image, as
+   * well as a status icon (on top of the native icon).
+   * Note: the 21px for margin-left is:
+   *    16px for width of native icon
+   *    5px for half overlap of status icon (status icons are usually 9px).
+   */
+  margin-left: -21px;
+  padding-left: 21px;
+  background-repeat: no-repeat;
+  background-position: bottom left;
+}
+treechildren#places-files-tree-body::-moz-tree-cell-text(disabled) {
+  color: grey;
+}
+treechildren#places-files-tree-body:-moz-tree-cell-text(places_file, sccOk) {
+  background-image: @icon-scc-ok;
+}
+
+treechildren#places-files-tree-body:-moz-tree-cell-text(places_file, sccSync) {
+  background-image: @icon-scc-sync;
+}
+
+treechildren#places-files-tree-body:-moz-tree-cell-text(places_file, sccConflict) {
+  background-image: @icon-scc-conflict;
+}
+
+treechildren#places-files-tree-body:-moz-tree-cell-text(places_file, sccAdd) {
+  background-image: @icon-scc-add;
+}
+
+treechildren#places-files-tree-body:-moz-tree-cell-text(places_file, sccDelete) {
+  background-image: @icon-scc-delete;
+}
+
+
+treechildren#places-files-tree-body:-moz-tree-cell-text(places_file, sccBranch) {
+  /* XXX fixme */
+  background-image: @icon-scc-branch;
+}
+
+/* XXX fixme integrate icons are needed, currently they match the edit icons */
+treechildren#places-files-tree-body:-moz-tree-cell-text(places_file, sccIntegrate) {
+  background-image: @icon-scc-integrate;
+}
+
+treechildren#places-files-tree-body:-moz-tree-cell-text(places_file, sccOk, sccIntegrate) {
+  background-image: @icon-scc-integrate-ok;
+}
+
+treechildren#places-files-tree-body:-moz-tree-cell-text(places_file, sccSync, sccIntegrate) {
+  background-image: @icon-scc-integrate-sync;
+}
+
+treechildren#places-files-tree-body:-moz-tree-cell-text(places_file, sccConflict, sccIntegrate) {
+  background-image: @icon-scc-integrate-conflict;
+}
+
+treechildren#places-files-tree-body:-moz-tree-cell-text(places_file, sccEdit) {
+  background-image: @icon-scc-edit;
+}
+
+treechildren#places-files-tree-body:-moz-tree-cell-text(places_file, sccOk, sccEdit) {
+  background-image: @icon-scc-edit-ok;
+}
+
+treechildren#places-files-tree-body:-moz-tree-cell-text(places_file, sccSync, sccEdit) {
+  background-image: @icon-scc-edit-sync;
+}
+
+treechildren#places-files-tree-body:-moz-tree-cell-text(places_file, sccConflict, sccEdit) {
+  background-image: @icon-scc-edit-conflict;
+}
+
+/* bindings */
+
+tree.placestree {
+  -moz-binding: url('chrome://komodo-places/content/widgets-places.xml#places_tree_b');
+}
+
+tree.projectPlacesTree {
+  -moz-binding: url('chrome://komodo-places/content/widgets-places.xml#projectPlacesTree_b');
+}
+
+/* Copied from skin/toolbar.p.css, which uses an ID */
+undo-button {
+  list-style-image : @icon-undo;
+}
+
+#placesParentDirectories.folderPicker-icon {
+  list-style-image : @icon-folder-explore;
+}
+
+
+/* ---- Places subpanel ---- */
+
+#placesSubpanelToggle[state="open"] {
+  list-style-image : @icon-close-subpanel;
+}
+#placesSubpanelToggle[state="collapsed"] {
+  list-style-image : @icon-open-subpanel;
+}
+
+/* No default grippy image. Splitter-like cursor as appropriate. */
+#placesSubpanelSplitter {
+  background: transparent !important;
+  border: none;
+  border-top: solid 1px ThreeDShadow;
+}
+#placesSubpanelSplitter > grippy {
+  background-image: none !important;
+}
+#placesSubpanelSplitter,
+#placesSubpanelSplitter label {
+  cursor: ns-resize;
+}
+#placesSubpanelSplitter toolbarbutton  {
+  cursor: default;
+}   
+
+
+/* ---- Places "Projects" subpanel ---- */
+
+.recentProjectsTree:-moz-tree-cell-text(projectActive) {
+  font-weight: bold;
+}
+
+#placesViewbox_placesWrapper tree,
+#placesViewbox_placesWrapper tree treechildren,
+#placesViewbox_placesWrapper tree treechildren::-moz-tree-row {
+	background-color: @sidebar-background-color;
+}
+
+#placesViewbox_placesWrapper tree {
+    &:-moz-window-inactive 
+    {
+        &, treechildren, treechildren::-moz-tree-row {
+            background-color: @sidebar-inactive-background-color;
+        }
+    }
+}
+
+#placesViewbox_placesWrapper tree treechildren::-moz-tree-row(selected, focus)
+{
+    background: @tree-item-highlight-background !important;
+}
+
+#placesSubpanelSplitter
+{
+	border-top-color: @sidebar-splitter-color;
+}

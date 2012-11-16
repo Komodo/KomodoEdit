@@ -216,7 +216,7 @@ function _updateLanguage(view) {
         var languageWidget = document.getElementById('statusbar-language-menu');
         if (view.getAttribute("type") == "startpage") {
             _clearLanguage();
-            languageWidget.setAttribute('collapsed', 'true');
+            //languageWidget.setAttribute('collapsed', 'true');
             languageWidget.removeAttribute('language');
         } else {
             var language = view.koDoc.language;

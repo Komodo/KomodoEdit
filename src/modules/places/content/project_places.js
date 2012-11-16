@@ -552,19 +552,19 @@ this._updateSubpanelFromState = function() {
     var button = document.getElementById("placesSubpanelToggle");
     var deck = document.getElementById("placesSubpanelDeck");
     var state = button.getAttribute("state");
-    switch(state) {
-    case "collapsed":
-        deck.collapsed = true;
-        button.setAttribute("tooltiptext",
-                            _bundle.GetStringFromName("Open the Projects Subpanel"));
-        break;
-    case "open":
-    default:
-        deck.collapsed = false;
-        button.setAttribute("tooltiptext",
-                            _bundle.GetStringFromName("Close the Projects Subpanel"));
-        break;
-    }
+	
+	if (state == "collapsed")
+	{
+		deck.collapsed = true;
+		button.setAttribute("tooltiptext",
+							_bundle.GetStringFromName("Open the Projects Subpanel"));
+	}
+	else
+	{
+		deck.collapsed = false;
+		button.setAttribute("tooltiptext",
+							_bundle.GetStringFromName("Close the Projects Subpanel"));
+	}
 }
 
 this.stopEvent = function(event) {
