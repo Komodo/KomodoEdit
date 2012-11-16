@@ -370,6 +370,10 @@ treechildren::-moz-tree-image(LanguageSCSS) {
 treechildren::-moz-tree-image(LanguageTcl) {
   list-style-image: url("chrome://komodo/skin/images/languages/tcl/tcl_16x16.png");
 }
+.languageicon[language="Twig"],
+treechildren::-moz-tree-image(LanguageTwig) {
+  list-style-image: url("chrome://komodo/skin/images/languages/php/twig_16x16.png");
+}
 .languageicon[language="XML"],
 treechildren::-moz-tree-image(LanguageXML) {
   list-style-image: url("chrome://komodo/skin/images/languages/xml/xml_16x16.png");
