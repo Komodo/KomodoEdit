@@ -2518,8 +2518,11 @@ def BuildCrashReportSymbols(cfg):
         py_symbol_script = join(moz_crashreporter_src_dir, "tools", "symbolstore.py")
         options = ""
         if sys.platform.startswith("win"):
+            if not cfg.compiler.startswith("vc"):
+                raise black.BlackError("unexpected compiler %r" % (cfg.compiler, ))
+            msc_ver = (int(cfg.compiler[2:], 10) + 6) * 100
             dump_symbols_exe = join(moz_crashreporter_src_dir, "tools", "win32",
-                                    "dump_syms.exe")
+                                    "dump_syms_vc%d.exe" % (msc_ver, ))
         else:
             options = "-a i386"   # the wanted architecture
             dump_symbols_exe = join(cfg.mozDist, "host", "bin", "dump_syms")
