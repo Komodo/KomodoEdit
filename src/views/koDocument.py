@@ -66,6 +66,10 @@ log = logging.getLogger('koDocument')
 # using the main thread.
 ################################################################################
 
+class DontDeleteEndLines(Exception):
+    """ Used as an intra-method return """
+    pass
+
 class koDocumentBase:
     _com_interfaces_ = [components.interfaces.koIDocument,
                         components.interfaces.nsIObserver]
@@ -1224,78 +1228,45 @@ class koDocumentBase:
             log.error("unable to encode document as 'utf-8': %s",
                 self.encoding.python_encoding_name, ex)
             raise
-
-    def _changedLines_ResetHunkTrackers(self):
-        self.hunkOldLines = {} # textLine => [oldLineNum, trailing S]
-        self.hunkNewLines = [] # list of [textLine, newLineNum, trailing S]
-        
-    def _changedLines_CheckHunks(self):
-        # Preserve trailing whitespace on newlines only if the corresponding
-        # oldline exists and has non-empty whitespace on it
-        for newCutLine, newLineNum, newLineWS in self.hunkNewLines:
-            if newCutLine in self.hunkOldLines:
-                oldLineWS = self.hunkOldLines[newCutLine][1]
-                if oldLineWS == newLineWS:
-                    #log.debug("  ws didn't change, so preserve it")
-                    pass
-                elif not oldLineWS:
-                    #log.debug(" old has no ws, so drop new ws")
-                    self.linesToStripByLineNum.append(newLineNum - 1) # scimoz is 0-based
-                else:
-                    pass
-                    #log.debug("old: %d, new: %d chars, assume we want this",
-                    #           len(oldLineWS), len(newLineWS))
-            else:
-                #log.debug(" newLine %d not found in oldLines, so strip trailing ws")
-                self.linesToStripByLineNum.append(newLineNum - 1)
         
     def getChangedLinesWithTrailingWhitespace(self):
-        diffText = self.getUnsavedChanges()
-        diffLines = diffText.splitlines()
-        self._changedLines_ResetHunkTrackers()
-        self.linesToStripByLineNum = []
+        """
+        Most straightforward way: look at the unsaved changes, and
+        remove trailing whitespace only from those lines that start with
+        a "+". End of story.
+        """
+        diffLines = self.getUnsavedChanges(joinLines=False)
+        linesToStripByLineNum = []
         
         # nested loop processing all @@ things...
         hunk_re = re.compile(r'\@\@\s*-(\d+),(\d+)\s*\+(\d+),(\d+)\s+\@\@')
         ends_with_space_re = re.compile(r'[\-\+](.*?)(\s+)\Z')
-        newLineNum = oldLineNum = -1
+        newLineNum = -1
         for diffLine in diffLines:
             m = hunk_re.match(diffLine)
             if m:
                 # We only care about the line in the final file where the hunk starts.
-                self._changedLines_CheckHunks()
-                self._changedLines_ResetHunkTrackers()
-                newLineNum = oldLineNum = int(m.group(3))
+                newLineNum = int(m.group(3))
             elif newLineNum == -1:
                 # keep looking
                 pass
             else:
                 c = diffLine[0]
-                if c == ' ':
-                    oldLineNum += 1
+                if c == '-':
+                    pass
+                elif c == ' ':
                     newLineNum += 1
-                elif c == '-':
-                    m = ends_with_space_re.match(diffLine)
-                    if m:
-                        #log.debug("old line %d >>%r<< ends with a space", oldLineNum, diffLine)
-                        self.hunkOldLines[m.group(1)] = [oldLineNum, m.group(2)]
-                    else:
-                        #log.debug("old line %d >>%r<< doesn't end with a space", oldLineNum, diffLine)
-                        self.hunkOldLines[diffLine[1:]] = [oldLineNum, '']
-                    oldLineNum += 1
                 elif c == "+":
                     m = ends_with_space_re.match(diffLine)
-                    if m:
+                    if m or len(diffLine) == 1:
                         #status = "yes"
-                        self.hunkNewLines.append((m.group(1), newLineNum, m.group(2)))
-                    else:
-                        pass
-                        #status = "no"
-                    #log.debug("Look at newLineNum:%d, <<%s>>: %r", newLineNum, diffLine, status)
+                        # lines are 0-based for scimoz, 1-based for diff
+                        linesToStripByLineNum.append(newLineNum - 1)
+                    # Increment newLineNum for all lines that don't start
+                    # with a '-'
                     newLineNum += 1
         # end for
-        self._changedLines_CheckHunks()
-        return self.linesToStripByLineNum
+        return linesToStripByLineNum
 
     def _getCleanChangedLinesOnly(self):
         if not self._globalPrefs.getBooleanPref("cleanLineEnds_ChangedLinesOnly"):
@@ -1357,7 +1328,6 @@ class koDocumentBase:
             # Clean the document content.
             scimoz.beginUndoAction()
             try:
-                import eollib
                 eolStr = eollib.eol2eolStr[eollib.scimozEOL2eol[scimoz.eOLMode]] # '\r\n' or '\n'...
                 if cleanLineEnds:
                     if DEBUG: print "LINE  POSITION  CONTENT"
@@ -1416,36 +1386,48 @@ class koDocumentBase:
                     # Same with breakpoints, bookmarks, and the current
                     # position.  The idea is to quietly remove empty lines
                     # at the end of a file, when the user is higher up.
-
-                    # This section deliberately ignores the "cleanChangedLinesOnly"
-                    # to keep the code simpler.  The "cleanChangedLinesOnly" pref
-                    # is intended to ignore trailing white-space on existing lines.
                     
                     if cleanLineCurrentLineEnd:
                         firstDeletableLine = 1
                     else:
                         firstDeletableLine = scimoz.lineFromPosition(max(currPos, scimoz.selectionEnd)) + 1
-                    for i in range(scimoz.lineCount - 1, firstDeletableLine - 1, -1):
-                        if scimoz.markerGet(i):
-                            firstLineToDelete = i + 1
-                            break
-                        length, line = scimoz.getLine(i) # length is in _bytes_
-                        if re.search(r'\S', line):
-                            firstLineToDelete = i + 1
-                            break
-                    else:
-                        firstLineToDelete = firstDeletableLine
-
-                    if firstLineToDelete < scimoz.lineCount - 1:
-                        # Delete all lines from pos(line[i][0]) to
-                        # pos(line[count - 1][0]) - 1 unless the
-                        # selection/cursor is in that range
-                        startPos = scimoz.positionFromLine(firstLineToDelete)
-                        endPos = scimoz.positionFromLine(scimoz.lineCount - 1)
-                        if endPos > startPos:
-                            scimoz.targetStart, scimoz.targetEnd = startPos, endPos
-                            scimoz.replaceTarget(0, '')
+                    try:
+                        lastDeletableLine = scimoz.lineCount - 1
+                        if '\n' not in scimoz.getTextRange(scimoz.positionFromLine(lastDeletableLine),
+                                                           scimoz.getLineEndPosition(lastDeletableLine)):
+                            lastDeletableLine -= 1
                             
+                        if cleanChangedLinesOnly:
+                            # Now we'll only delete lines that are changed
+                            for i in range(lastDeletableLine, firstDeletableLine - 1, -1):
+                                if i not in wsLinesToStrip:
+                                    if i == lastDeletableLine:
+                                        raise DontDeleteEndLines()
+                                    firstDeletableLine = i + 1
+                                    break
+                        for i in range(lastDeletableLine, firstDeletableLine - 1, -1):
+                            if scimoz.markerGet(i):
+                                firstLineToDelete = i + 1
+                                break
+                            length, line = scimoz.getLine(i) # length is in _bytes_
+                            if re.search(r'\S', line):
+                                firstLineToDelete = i + 1
+                                break
+                        else:
+                            firstLineToDelete = firstDeletableLine
+    
+                        if firstLineToDelete < lastDeletableLine:
+                            # Delete all lines from pos(line[i][0]) to
+                            # pos(line[count - 1][0]) - 1 unless the
+                            # selection/cursor is in that range
+                            startPos = scimoz.positionFromLine(firstLineToDelete)
+                            endPos = scimoz.positionFromLine(lastDeletableLine + 1)
+                            if endPos > startPos:
+                                scimoz.targetStart, scimoz.targetEnd = startPos, endPos
+                                scimoz.replaceTarget(0, '')
+
+                    except DontDeleteEndLines:
+                        pass
             finally:
                 scimoz.endUndoAction()
 
@@ -1851,7 +1833,8 @@ class koDocumentBase:
             # receivers are not registered?
             pass
         
-    def getUnsavedChanges(self):
+    _re_ending_eol = re.compile('\r?\n$')
+    def getUnsavedChanges(self, joinLines=True):
         eolStr = eollib.eol2eolStr[self._eol]
         inmemory = self.get_buffer().splitlines(1)
 
@@ -1878,7 +1861,10 @@ class koDocumentBase:
         # feature can infer the correct path (otherwise gets " (unsaved)"
         # as part of it).
         difflines.insert(0, "Index: "+self.file.displayPath+eolStr)
-        return ''.join(difflines)
+        if joinLines:
+            return ''.join(difflines)
+        else:
+            return [self._re_ending_eol.sub('', x) for x in difflines]
 
     def _getAutoSaveFileName(self):
         koDirs = components.classes["@activestate.com/koDirs;1"].\
