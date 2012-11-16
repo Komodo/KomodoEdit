@@ -1210,20 +1210,20 @@ def target_configure(argv):
 
         gcc = config.get("gcc") or os.environ.get("CC")
         gxx = config.get("gxx") or os.environ.get("CXX")
-        if gcc is None:
+        if gcc is None or gxx is None:
             # Prefer clang when it's available.
             try:
                 gcc = which.which("clang")
                 gxx = which.which("clang++")
             except which.WhichError:
-                pass
+                gcc = None
         if gcc is None:
             try:
                 # prefer gcc/g++ 4.2
                 gcc = which.which("gcc-4.2")
                 gxx = which.which("g++-4.2")
             except which.WhichError:
-                pass
+                gcc = None
         if gcc is None:
             gcc = which.which("gcc")
             gxx = which.which("g++")
