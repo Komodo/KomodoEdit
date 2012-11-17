@@ -162,14 +162,7 @@ def _getValidPlatforms(linuxDistro=False):
             raise ConfigureError("unknown Solaris architecture: '%s'"
                                  % uname[4])
     elif sys.platform == "darwin":
-        uname = os.uname()
-        if uname[-1] == 'i386':
-            validPlats = ["macosx-x86"]
-        elif uname[-1] == 'x86_64':
-            validPlats = ["macosx-x86_64"]
-        else:
-            raise ConfigureError("unexpected macosx architecture: '%s'"
-                                 % uname[4])
+        return "macosx"
     return validPlats
 
 
