@@ -18,6 +18,17 @@ class _BaseAppInfoTestCase(unittest.TestCase):
     exenames = []
     _cachedAppInfo = None
 
+    def assertFilepathsEqual(self, p1, p2):
+        if sys.platform == "win32":
+            if isinstance(p1, list):
+                p1 = [normcase(normpath(x)) for x in p1]
+                p2 = [normcase(normpath(x)) for x in p2]
+            else:
+                assert isinstance(p1, str)
+                p1 = normcase(normpath(p1))
+                p2 = normcase(normpath(p2))
+        self.assertEqual(p1, p2)
+
     @property
     def freshAppInfo(self):
         return Cc["@activestate.com/koAppInfoEx?app=%s;1" % (self.lang)].\
@@ -86,49 +97,49 @@ class _BaseAppInfoTestCase(unittest.TestCase):
             expected_installationPath = dirname(expected_executablePath)
             if basename(expected_installationPath) == "bin":
                 expected_installationPath = dirname(expected_installationPath)
-        self.assertEqual(self.freshAppInfo.executablePath, expected_executablePath)
-        self.assertEqual(self.cachedAppInfo.executablePath, expected_executablePath)
-        self.assertEqual(self.freshAppInfo.installationPath, expected_installationPath)
-        self.assertEqual(self.cachedAppInfo.installationPath, expected_installationPath)
+        self.assertFilepathsEqual(self.freshAppInfo.executablePath, expected_executablePath)
+        self.assertFilepathsEqual(self.cachedAppInfo.executablePath, expected_executablePath)
+        self.assertFilepathsEqual(self.freshAppInfo.installationPath, expected_installationPath)
+        self.assertFilepathsEqual(self.cachedAppInfo.installationPath, expected_installationPath)
 
         # Set the pref and then check it.
         expected_executablePath = normcase(normpath(abspath(__file__)))
         expected_installationPath = dirname(expected_executablePath)
         self.prefs.setStringPref(self.defaultInterpreterPrefName, expected_executablePath)
-        self.assertEqual(self.freshAppInfo.executablePath, expected_executablePath)
-        self.assertEqual(self.cachedAppInfo.executablePath, expected_executablePath)
-        self.assertEqual(self.freshAppInfo.installationPath, expected_installationPath)
-        self.assertEqual(self.cachedAppInfo.installationPath, expected_installationPath)
+        self.assertFilepathsEqual(self.freshAppInfo.executablePath, expected_executablePath)
+        self.assertFilepathsEqual(self.cachedAppInfo.executablePath, expected_executablePath)
+        self.assertFilepathsEqual(self.freshAppInfo.installationPath, expected_installationPath)
+        self.assertFilepathsEqual(self.cachedAppInfo.installationPath, expected_installationPath)
 
     def test_FindExecutables(self):
         self.prefs.setStringPref(self.defaultInterpreterPrefName, "")
 
         # Check it without a default pref.
         exe_paths = self._getPathsForInterpreters(self.exenames)
-        self.assertEqual(self.freshAppInfo.FindExecutables(), exe_paths)
-        self.assertEqual(self.cachedAppInfo.FindExecutables(), exe_paths)
+        self.assertFilepathsEqual(self.freshAppInfo.FindExecutables(), exe_paths)
+        self.assertFilepathsEqual(self.cachedAppInfo.FindExecutables(), exe_paths)
 
         # Set the pref and then check it.
         expected_executablePath = normcase(normpath(abspath(__file__)))
         expected_installationPath = dirname(expected_executablePath)
         expected_exe_paths = [expected_executablePath] + exe_paths
         self.prefs.setStringPref(self.defaultInterpreterPrefName, expected_executablePath)
-        self.assertEqual(self.freshAppInfo.FindExecutables(), expected_exe_paths)
-        self.assertEqual(self.cachedAppInfo.FindExecutables(), expected_exe_paths)
+        self.assertFilepathsEqual(self.freshAppInfo.FindExecutables(), expected_exe_paths)
+        self.assertFilepathsEqual(self.cachedAppInfo.FindExecutables(), expected_exe_paths)
 
     def test_FindInstallationPaths(self):
         self.prefs.setStringPref(self.defaultInterpreterPrefName, "")
 
         # Check it without a default pref.
         expected_install_paths = self._getInstallLocationsForInterpreters(self.exenames)
-        self.assertEqual(self.freshAppInfo.FindInstallationPaths(), expected_install_paths)
-        self.assertEqual(self.cachedAppInfo.FindInstallationPaths(), expected_install_paths)
+        self.assertFilepathsEqual(self.freshAppInfo.FindInstallationPaths(), expected_install_paths)
+        self.assertFilepathsEqual(self.cachedAppInfo.FindInstallationPaths(), expected_install_paths)
 
         # Set the pref and then check it.
         expected_install_paths = [dirname(abspath(__file__))] + expected_install_paths
         self.prefs.setStringPref(self.defaultInterpreterPrefName, abspath(__file__))
-        self.assertEqual(self.freshAppInfo.FindInstallationPaths(), expected_install_paths)
-        self.assertEqual(self.cachedAppInfo.FindInstallationPaths(), expected_install_paths)
+        self.assertFilepathsEqual(self.freshAppInfo.FindInstallationPaths(), expected_install_paths)
+        self.assertFilepathsEqual(self.cachedAppInfo.FindInstallationPaths(), expected_install_paths)
 
     def test_overiding_executables(self):
         self.prefs.setStringPref(self.defaultInterpreterPrefName, "")
@@ -141,23 +152,23 @@ class _BaseAppInfoTestCase(unittest.TestCase):
 
         # Override the exe path and then check it.
         appInfo.executablePath = expected_executablePath
-        self.assertEqual(appInfo.executablePath, expected_executablePath)
-        self.assertEqual(appInfo.installationPath, expected_installationPath)
+        self.assertFilepathsEqual(appInfo.executablePath, expected_executablePath)
+        self.assertFilepathsEqual(appInfo.installationPath, expected_installationPath)
         # Reset it
         appInfo.executablePath = ""
-        self.assertEqual(appInfo.executablePath, original_executablePath)
-        self.assertEqual(appInfo.installationPath, original_installationPath)
+        self.assertFilepathsEqual(appInfo.executablePath, original_executablePath)
+        self.assertFilepathsEqual(appInfo.installationPath, original_installationPath)
 
         # Override the install path and then check it.
         appInfo.installationPath = expected_installationPath
         # Note: The executable path will not have changed, as there will be no
         #       interpreter found in the given install path!
-        self.assertEqual(appInfo.executablePath, original_executablePath)
-        self.assertEqual(appInfo.installationPath, expected_installationPath)
+        self.assertFilepathsEqual(appInfo.executablePath, original_executablePath)
+        self.assertFilepathsEqual(appInfo.installationPath, expected_installationPath)
         # Reset it
         appInfo.executablePath = ""
-        self.assertEqual(appInfo.executablePath, original_executablePath)
-        self.assertEqual(appInfo.installationPath, original_installationPath)
+        self.assertFilepathsEqual(appInfo.executablePath, original_executablePath)
+        self.assertFilepathsEqual(appInfo.installationPath, original_installationPath)
 
     def test_getVersionForBinary(self):
         self.prefs.setStringPref(self.defaultInterpreterPrefName, "")
@@ -211,17 +222,17 @@ class PythonAppInfoTestCase(_PythonAppInfoTestCase):
                 # Stick py3 at the start of the path.
                 new_path = dirname(py3exe) + os.pathsep + orig_path
                 appInfo = self.freshAppInfo
-                self.assertEqual(appInfo.executablePath, py2exe)
+                self.assertFilepathsEqual(appInfo.executablePath, py2exe)
                 self.assertTrue(appInfo.valid_version)
                 # Make sure nothing changed with py3.
                 py3appInfo = Cc["@activestate.com/koAppInfoEx?app=Python3;1"].\
                         createInstance(Ci.koIAppInfoEx)
-                self.assertEqual(py3appInfo.executablePath, py3exe)
+                self.assertFilepathsEqual(py3appInfo.executablePath, py3exe)
                 self.assertTrue(py3appInfo.valid_version)
             finally:
                 koprocessutils._gUserEnvCache["PATH"] = orig_path
             # Ensure the cached one still has the same executable.
-            self.assertEqual(cachedInfo.executablePath, py2exe)
+            self.assertFilepathsEqual(cachedInfo.executablePath, py2exe)
         else:
             self.skip("Could not find both Python2 and Python3 executables")
 
@@ -246,17 +257,17 @@ class Python3AppInfoTestCase(_PythonAppInfoTestCase):
                 # Stick py2 at the start of the path.
                 new_path = dirname(py2exe) + os.pathsep + orig_path
                 appInfo = self.freshAppInfo
-                self.assertEqual(appInfo.executablePath, py3exe)
+                self.assertFilepathsEqual(appInfo.executablePath, py3exe)
                 self.assertTrue(appInfo.valid_version)
                 # Make sure nothing changed with py2.
                 py2appInfo = Cc["@activestate.com/koAppInfoEx?app=Python;1"].\
                         createInstance(Ci.koIAppInfoEx)
-                self.assertEqual(py2appInfo.executablePath, py2exe)
+                self.assertFilepathsEqual(py2appInfo.executablePath, py2exe)
                 self.assertTrue(py2appInfo.valid_version)
             finally:
                 koprocessutils._gUserEnvCache["PATH"] = orig_path
             # Ensure the cached one still has the same executable.
-            self.assertEqual(cachedInfo.executablePath, py3exe)
+            self.assertFilepathsEqual(cachedInfo.executablePath, py3exe)
         else:
             self.skip("Could not find both Python2 and Python3 executables")
 
