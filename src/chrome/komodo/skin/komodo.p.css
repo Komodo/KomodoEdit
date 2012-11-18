@@ -374,6 +374,8 @@ treechildren::-moz-tree-image(LanguageRHTML) {
 treechildren::-moz-tree-image(LanguageRuby) {
   list-style-image: url("chrome://komodo/skin/images/languages/ruby/ruby_16x16.png");
 }
+.languageicon[language="Sass"],
+treechildren::-moz-tree-image(LanguageSass),
 .languageicon[language="SCSS"],
 treechildren::-moz-tree-image(LanguageSCSS) {
   list-style-image: url("chrome://komodo/skin/images/languages/css/sass_16x16.png");
