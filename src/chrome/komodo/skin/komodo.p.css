@@ -338,6 +338,12 @@ treechildren::-moz-tree-image(LanguageJavaScript) {
 treechildren::-moz-tree-image(LanguageJSON) {
   list-style-image: url("chrome://fugue/skin/icons/json.png");
 }
+.languageicon[language="Laravel"],
+treechildren::-moz-tree-image(LanguageLaravel),
+.languageicon[language="LaravelBlade"],
+treechildren::-moz-tree-image(LanguageLaravelBlade) {
+  list-style-image: url("chrome://komodo/skin/images/languages/php/laravel_16x16.png");
+}
 .languageicon[language="Less"],
 treechildren::-moz-tree-image(LanguageLess) {
   list-style-image: url("chrome://komodo/skin/images/languages/css/less_16x16.png");
