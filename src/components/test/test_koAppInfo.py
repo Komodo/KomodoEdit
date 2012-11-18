@@ -20,11 +20,11 @@ class _BaseAppInfoTestCase(unittest.TestCase):
 
     def assertFilepathsEqual(self, p1, p2):
         if sys.platform == "win32":
-            if isinstance(p1, list):
+            if isinstance(p1, (list, tuple)):
                 p1 = [normcase(normpath(x)) for x in p1]
                 p2 = [normcase(normpath(x)) for x in p2]
             else:
-                assert isinstance(p1, str)
+                assert isinstance(p1, (str, unicode))
                 p1 = normcase(normpath(p1))
                 p2 = normcase(normpath(p2))
         self.assertEqual(p1, p2)
