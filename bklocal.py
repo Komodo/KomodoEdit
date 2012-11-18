@@ -3666,6 +3666,9 @@ class BuildPlatform(black.configure.Datum):
     def _Determine_Do(self):
         self.applicable = 1
         self.value = platinfo.platname("os", "arch")
+        if sys.platform == "darwin":
+            # Use universal naming on the Mac.
+            self.value = platinfo.platname("os")
         self.determined = 1
 
 class BuildTime(black.configure.Datum):
