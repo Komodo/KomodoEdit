@@ -63,15 +63,9 @@ void SciMoz::PlatformCreate(WinID) {
 }
 
 void SciMoz::Resize() {
-  // NSMakeRect(origin.x, origin.y, width, height)
 #ifdef SCIMOZ_COCOA_DEBUG
   char buf[80];
-  fprintf(stderr, ">> SciMoz::Resize, pluginView:%p, offScreeWindow:%p\n",
-	  fPlatform.pluginView, fPlatform.holdingNSPanel);
-  //fprintf(stderr, "<< SciMoz::Resize, do nothing\n");
-  //  ScintillaView *scView = (ScintillaView *) wEditor;
-  //scintilla->Resize();
-  //return;
+  fprintf(stderr, ">> SciMoz::Resize, wEditor:%p, wMain:%p\n", wEditor, wMain);
 #endif
   // Get the bounds for plugin view.
   NSView *parentView = (NSView*)wMain;
@@ -342,21 +336,18 @@ nsresult SciMoz::PlatformSetWindow(NPWindow* npwindow) {
 }
 
 void SciMoz::SetHIViewShowHide(bool disable) {
-#ifdef SCIMOZ_COCOA_DEBUG
-  fprintf(stderr, ">>SciMoz::SetHIViewShowHide(disable:%d)\n", disable);
-#endif
   ScintillaView *scView = (ScintillaView *) wEditor;
 #ifdef SCIMOZ_COCOA_DEBUG
-  fprintf(stderr, "SetHIViewShowHide: disabled:%d\n", disable);
-  fprintf(stderr, "SetHIViewShowHide: isVisible:%d\n", fPlatform.viewIsVisible);
+  fprintf(stderr, "SetHIViewShowHide: disabled:%d, isVisible:%d\n",
+	  disable, fPlatform.viewIsVisible);
 #endif
     
   if (disable) {
     if (fPlatform.viewIsVisible) {
-      scintilla->SetTicking(false);
 #ifdef SCIMOZ_COCOA_DEBUG
-      fprintf(stderr, "Remove scView from superview\n");
+      fprintf(stderr, "    -scintilla->SetTicking(false)\n");
 #endif
+      scintilla->SetTicking(false);
       [scView setHidden:YES];
       fPlatform.viewIsVisible = false;
     }
@@ -366,16 +357,9 @@ void SciMoz::SetHIViewShowHide(bool disable) {
       // Plugin's ChildView
       [scView setHidden:NO];
 #ifdef SCIMOZ_COCOA_DEBUG
-      //fprintf(stderr, "-[((NSView *) wMain) addSubview:scView]\n");
-#endif
-      //[((NSView *) wMain) addSubview:scView];
-#ifdef SCIMOZ_COCOA_DEBUG
-      fprintf(stderr, "-[scView setNeedsDisplay:YES]\n");
+      fprintf(stderr, "    -scintilla->SetTicking(true)\n");
 #endif
       [scView setNeedsDisplay:YES];
-#ifdef SCIMOZ_COCOA_DEBUG
-      fprintf(stderr, "-scintilla->SetTicking(true)\n");
-#endif
       scintilla->SetTicking(true);
       fPlatform.viewIsVisible = true;
     }
