@@ -2157,6 +2157,9 @@ def target_src(argv=["src"]):
                                                         int(config.mozVer * 10 % 10),
                                                         int(config.mozVer * 100 % 10)])))
             if lastVerMajor >= targetVer.version[0]:
+                if not targetVer in versions and targetVer.version[-1] == 0:
+                    # try without the last part, for x.0 vs x.0.0
+                    targetVer = LooseVersion(targetVer.vstring.rsplit(".", 1)[0])
                 if not targetVer in versions:
                     raise BuildError("Can't find version %s" % (config.mozVer,))
                 branch = "FIREFOX_%s_RELEASE" % (targetVer.vstring.replace(".", "_"),)
