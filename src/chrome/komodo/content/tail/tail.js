@@ -71,6 +71,11 @@ function TailOnLoad() {
         var dh = document.getElementById('dialogheader');
         dh.setAttribute('value',filepath);
         window.setInterval('CheckFile()', 200);
+        if (navigator.platform.match(/^Mac/)) {
+            // Bug 96209 - hack around scintilla display problems on the mac.
+            gView.hidden = true;
+            setTimeout(function() { gView.hidden = false; }, 10);
+        }
     } catch(e) {
         log.error(e);
     }

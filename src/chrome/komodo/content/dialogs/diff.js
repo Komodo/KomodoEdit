@@ -150,6 +150,11 @@ function loadDiffResult(result, cwd) {
         diffView.setFocus();
         // Remove the notification widget.
         diffView.notificationbox.removeAllNotifications(true /* false means to slide away */);
+        if (navigator.platform.match(/^Mac/)) {
+            // Bug 96209 - hack around scintilla display problems on the mac.
+            diffView.hidden = true;
+            setTimeout(function() { diffView.hidden = false; }, 10);
+        }
     } catch(ex) {
         _dw_log.exception(ex, "error loading diff window dialog.");
     }
