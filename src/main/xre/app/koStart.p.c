@@ -516,6 +516,9 @@ static int _IsExecutableFile(char *filename)
 
 /* Split the given path into a dirname and basename (like Python's
  * os.path.split()).
+ * @param path [in] The path to split
+ * @param head [optional, out] The dirname
+ * @param tail [optional, out] The basename
  */
 static void _SplitPath(char *path, char *head, char* tail)
 {
@@ -542,8 +545,12 @@ static void _SplitPath(char *path, char *head, char* tail)
 #endif
         strcpy(tmpTail, sep+1);
     }
-    strcpy(head, tmpHead);
-    strcpy(tail, tmpTail);
+    if (head) {
+        strcpy(head, tmpHead);
+    }
+    if (tail) {
+        strcpy(tail, tmpTail);
+    }
 }
 
 /* Create the given directory (creating each parent dir in turn, as
@@ -823,50 +830,17 @@ _GetProgramDir(char* argv0)
         progPath[0] = '\0';
     }
 
-    /* now we have to resolve a string of possible symlinks
-     *   - we'll just handle the simple case of a single level of
-     *     indirection
-     *
-     * XXX note this does not handle multiple levels of symlinks
-     *     here is pseudo-code for that (please implement it :):
-     * while 1:
-     *     if islink(progPath):
-     *         linkText = readlink(progPath)
-     *         if isabsolute(linkText):
-     *             progPath = os.path.join(dirname(progPath), linkText)
-     *         else:
-     *             progPath = linkText
-     *     else:
-     *         break
+    /* Resolve symlinks
      */
-    if (_IsLink(progPath)) {
-        char dirPath[MAXPATHLEN+1], leafName[MAXPATHLEN+1], newProgPath[MAXPATHLEN+1];
-        // The link might be relative, deal with that correctly
-        // (_JoinPath deals with absolute paths correctly on *nix systems)
-        readlink(progPath, newProgPath, MAXPATHLEN);
-        _SplitPath(progPath, dirPath, leafName);
-        strncpy(progPath, dirPath, MAXPATHLEN);
-        _JoinPath(progPath, newProgPath);
-    }
-
-    /* prefix with the current working directory if the path is relative
-     * to conform with the Windows version of this */
-    if (strlen(progPath) != 0 && progPath[0] != SEP) {
-        char cwd[MAXPATHLEN+1];
-        char tmp[MAXPATHLEN+1];
-        /*XXX should check for failure retvals */
-        getcwd(cwd, MAXPATHLEN);
-        snprintf(tmp, MAXPATHLEN, "%s%c%s", cwd, SEP, progPath);
-        strncpy(progPath, tmp, MAXPATHLEN);
+    char* pathBuf = realpath(progPath, NULL);
+    if (pathBuf) {
+        strncpy(progPath, pathBuf, MAXPATHLEN);
+        free(pathBuf);
     }
 
     /* 'progPath' now contains the full path to the program *and* the
-     * program name. The latter is not desire. */
-    pLetter = progPath + strlen(progPath);
-    for (;pLetter != progPath && *pLetter != SEP; --pLetter) {
-        /* do nothing */
-    }
-    *pLetter = '\0';
+     * program name. We only want the dirname. */
+    _SplitPath(progPath, progPath, NULL);
 
     return progPath;
 }
