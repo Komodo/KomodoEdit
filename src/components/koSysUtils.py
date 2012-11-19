@@ -187,7 +187,7 @@ class koSysUtils:
             kUserDomain = 0
             trashfolder = Carbon.Folder.FSFindFolder(kUserDomain, 'trsh', 0)
             trash = trashfolder.as_pathname()
-            toTrash = os.path.join(trashpath, os.path.basename(filename))
+            toTrash = os.path.join(trash, os.path.basename(filename))
         else:
             # Gnome:
             #   Newer Ubuntu and gnome systems use the "gvfs-trash", storing
