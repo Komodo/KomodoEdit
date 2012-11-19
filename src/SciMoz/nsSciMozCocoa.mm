@@ -247,7 +247,7 @@ nsresult SciMoz::PlatformSetWindow(NPWindow* npwindow) {
 #ifdef SCIMOZ_COCOA_DEBUG
       fprintf(stderr, "  fPlatform.viewIsVisible, time to remove\n");
 #endif
-      SetHIViewShowHide(true);
+      HideScintillaView(true);
     }
     return NS_OK;
   }
@@ -274,7 +274,7 @@ nsresult SciMoz::PlatformSetWindow(NPWindow* npwindow) {
 	//fprintf(stderr, "-scintilla->Resize()\n");
 #endif
     scintilla->Resize();
-    SetHIViewShowHide(WINDOW_DISABLED(fWindow));
+    HideScintillaView(WINDOW_DISABLED(fWindow));
     return NS_OK;
   }
 
@@ -327,7 +327,7 @@ nsresult SciMoz::PlatformSetWindow(NPWindow* npwindow) {
 #endif
   }
   Create(wEditor);
-  SetHIViewShowHide(false);
+  HideScintillaView(false);
   SendEditor(SCI_USEPOPUP, FALSE, 0);
   SendEditor(SCI_SETFOCUS, FALSE, 0);
   scintilla->RegisterNotifyCallback((intptr_t)this, (SciNotifyFunc)SciMoz::NotifySignal);
@@ -335,14 +335,14 @@ nsresult SciMoz::PlatformSetWindow(NPWindow* npwindow) {
   return NS_OK;
 }
 
-void SciMoz::SetHIViewShowHide(bool disable) {
+void SciMoz::HideScintillaView(bool hide) {
   ScintillaView *scView = (ScintillaView *) wEditor;
 #ifdef SCIMOZ_COCOA_DEBUG
-  fprintf(stderr, "SetHIViewShowHide: disabled:%d, isVisible:%d\n",
-	  disable, fPlatform.viewIsVisible);
+  fprintf(stderr, "HideScintillaView: hide:%d, isVisible:%d\n",
+	  hide, fPlatform.viewIsVisible);
 #endif
     
-  if (disable) {
+  if (hide) {
     if (fPlatform.viewIsVisible) {
 #ifdef SCIMOZ_COCOA_DEBUG
       fprintf(stderr, "    -scintilla->SetTicking(false)\n");

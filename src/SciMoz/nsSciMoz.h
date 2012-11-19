@@ -274,7 +274,7 @@ protected:
     NS_IMETHOD _DoButtonUpDown(bool up, PRInt32 x, PRInt32 y, PRUint16 button, bool bShift, bool bCtrl, bool bAlt);
 
 #ifdef XP_MACOSX
-	void SetHIViewShowHide(bool disabled);
+	void HideScintillaView(bool disabled);
 	static void NotifySignal(intptr_t windowid, unsigned int iMessage, uintptr_t wParam, uintptr_t lParam);
 	Scintilla::ScintillaCocoa *scintilla;
 #endif
