@@ -322,6 +322,7 @@ if (!$xulrunner) {
         my %rcData = (
             'PP_KO_VERSION' => "$komodoVersion-$buildNum",
             'PP_KO_COMMASEP_VERSION' => $FILEVERSION, # must all be numeric
+            'PP_CURR_YEAR' => "$currYear",
         );
         $cons->Preprocess("stub/komodo.p.rc", "stub/komodo.rc",
                           \%rcData);
