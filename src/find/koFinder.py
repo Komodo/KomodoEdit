@@ -1482,6 +1482,7 @@ class KoFindService(object):
                 repl_str = match.expand(munged_repl)
                 if eol_to_normalize_to:
                     repl_str = eol_re.sub(eol_to_normalize_to, repl_str)
+                repl_str = self._do_smart_conversion(pattern, text[match.start():match.end()], repl_str)
                 return KoReplaceResult(url, match.start(), match.end(),
                                        match.group(0), repl_str)
                 break # only want the first one
@@ -1849,6 +1850,7 @@ class KoFindService(object):
                 repl_str = match.expand(munged_repl)
                 if eol_to_normalize_to:
                     repl_str = eol_re.sub(eol_to_normalize_to, repl_str)
+                repl_str = self._do_smart_conversion(pattern, text[match.start():match.end()], repl_str)
                 new_text_bits.append(repl_str)
                 curr_pos = match.end()
                 #print "replacement %d-%d: %r -> %r"\
@@ -2058,6 +2060,27 @@ class KoFindService(object):
     def regex_escape_string(self, s):
         return re.escape(s)
 
+    def _do_smart_conversion(self, pattern, foundText, replText):
+        """
+        If pattern isn't simple, smart-case, return replText as is
+        If pattern isn't all lower-case, return replText as is
+        If found is all lower-case, return replText as is
+        If FOUND is all upper-case, return replText.upper()
+        If Found is capitalized and return replText.capitalize()
+        """
+        if self.options.caseSensitivity != FOC_SMART or self.options.patternType != FOT_SIMPLE:
+            return replText
+        if pattern.lower() != pattern:
+            return replText # as is -- there are upper-case chars in the search pattern
+        if foundText.lower() == foundText:
+            return replText # as is
+        if foundText.upper() == foundText:
+            return replText.upper()
+        if foundText[0].isupper() and replText[0].islower():
+            # Capitalize the first letter, leave the rest as is
+            return replText[0].upper() + replText[1:]
+        # There are no other templates that make sense.
+        return replText
 
 
 #---- internal support stuff
