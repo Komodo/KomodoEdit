@@ -95,6 +95,12 @@ function onLoad(event) {
 
         snippetvalue.initWithBuffer(text, language);
 
+        if (navigator.platform.match(/^Mac/)) {
+            // Bug 96209 - hack around scintilla display problems on the mac.
+            snippetvalue.hidden = true;
+            setTimeout(function() { snippetvalue.hidden = false; }, 10);
+        }
+
         scin = snippetvalue.scimoz;
 
         scin.caretFore = 0x0000ff;

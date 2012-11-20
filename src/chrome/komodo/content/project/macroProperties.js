@@ -132,6 +132,12 @@ function onLoad() {
         gScintilla = gMacroContents.scimoz;
         gScintilla.useTabs = 0;
 
+        if (navigator.platform.match(/^Mac/)) {
+            // Bug 96209 - hack around scintilla display problems on the mac.
+            gMacroContents.hidden = true;
+            setTimeout(function() { gMacroContents.hidden = false; }, 10);
+        }
+
         setupTriggers();
         gDefaultPartIconURL = window.arguments[0].imgsrc;
         update_icon(gPart.iconurl);
