@@ -233,6 +233,10 @@ class koPreferenceSet:
         else:
             self.id, self.prefs = data
             self.idref = ""
+        for [child, childType] in self.prefs.values():
+            log.debug("deserializing: child %r", child)
+            if isinstance(child, koPreferenceSet):
+                child.parent = self
 
     ###########################################################
     # The koIPreferenceSet interface:
@@ -767,7 +771,7 @@ class koOrderedPreference:
                index > -len(self._collection)
 
     def appendPref(self, pref):
-        self._collection.append((pref, "object"))
+        self._collection.append((UnwrapObject(pref), "object"))
 
     def appendStringPref(self, pref):
         self._collection.append((unicode(pref), "string"))
@@ -782,7 +786,7 @@ class koOrderedPreference:
         self._collection.append(operator.truth(pref), "boolean")
 
     def insertPref(self, index, pref):
-        self._collection.insert(index, (pref, "object"))
+        self._collection.insert(index, (UnwrapObject(pref), "object"))
 
     def insertStringPref(self, index, pref):
         self._collection.insert(index, (pref,"string"))
@@ -893,7 +897,7 @@ class koOrderedPreference:
                 val = source.getPref(i)
             else:
                 raise COMException(nsError.NS_ERROR_UNEXPECTED, "unknown type '%s'" % (typ,))
-            new_collection.append((val, typ))
+            new_collection.append((UnwrapObject(val), typ))
         self._collection = new_collection
         return True
 
