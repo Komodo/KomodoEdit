@@ -237,6 +237,7 @@ def replace(regex, repl, paths,
             skip_filesizes_larger_than=None,
             first_on_line=False,
             includes=None, excludes=None,
+            do_smart_replace=False,
             textInfoFactory=None,
             summary=None, env=None):
     """Make the given regex replacement in the given paths.
@@ -277,9 +278,12 @@ def replace(regex, repl, paths,
     @param textInfoFactory {object}
         returns either a standard textinfo.TextInfo object, or returns a
         duck-type-equivalent object based on a loaded, modified document.
+    @param do_smart_replace {boolean}
+        preserve case for initial cap match, and all-caps match
     @param summary {str} an optional summary string for the replacement
         journal.
     @param env {runtime environment}
+
     """
     journal = None
     grepper = grep(regex, paths, skip_unknown_lang_paths=True,
@@ -312,12 +316,29 @@ def replace(regex, repl, paths,
             idx = len(before_text)
             for hit in reversed(fhits):
                 bits.append(before_text[hit.end_pos:idx])
-                bits.append(hit.match.expand(repl))
+                expanded_repl = hit.match.expand(repl)
+                if do_smart_replace:
+                    bits.append(do_smart_conversion(expanded_repl, repl))
+                else:
+                    bits.append(expanded_repl)
                 idx = hit.start_pos
             bits.append(before_text[:idx])
             after_text = ''.join(reversed(bits))
         else:
-            after_text = regex.sub(repl, before_text)
+            if do_smart_replace:
+                # The pattern was plain text, not a regex or glob, so we can
+                # safely wrap it with parens. It might have \b wrappers,
+                # but we can safely add capture-parens, so the split works
+                fixed_regex = re.compile("(%s)" % regex.pattern, regex.flags)
+                pieces = fixed_regex.split(before_text)
+                final_pieces = []
+                for before_part, matched_part in zip(pieces[0::2], pieces[1::2]):
+                    final_pieces.append(before_part)
+                    final_pieces.append(do_smart_conversion(matched_part, repl))
+                final_pieces.append(pieces[-1])
+                after_text = "".join(final_pieces)
+            else:
+                after_text = regex.sub(repl, before_text)
         if before_text == after_text:
             continue
             
@@ -1712,6 +1733,23 @@ def _get_friendly_id():
     
     return ''.join([choice(v if i%2 else c) for i in range(8)])
 
+#---- If we have smart case-sensitivity, and the search-string is all
+#     lower-case, preserve all-caps and initial-caps matches
+def do_smart_conversion(foundText, replText):
+    """
+    If found is all lower-case, return replText as is
+    If FOUND is all upper-case, return replText.upper()
+    If Found is capitalized and return replText.capitalize()
+    """
+    if foundText.lower() == foundText:
+        return replText # as is
+    if foundText.upper() == foundText:
+        return replText.upper()
+    if foundText[0].isupper() and replText[0].islower():
+        # Capitalize the first letter, leave the rest as is
+        return replText[0].upper() + replText[1:]
+    # There are no other templates that make sense.
+    return replText
 
 
 #---- self-test mainline

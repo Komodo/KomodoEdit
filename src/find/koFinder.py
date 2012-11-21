@@ -141,7 +141,7 @@ class _FindReplaceInFilesThread(threading.Thread):
     MAX_XUL_TREE_CELL_LENGTH = 256
     
     def __init__(self, id, regex, repl, desc, paths, resultsMgr, env,
-                 loaded_path_accessor=None):
+                 loaded_path_accessor=None, do_smart_replace=False):
         """Create a find/replace thread.
         
         @param id {string} the ID for this find/replace session
@@ -156,6 +156,8 @@ class _FindReplaceInFilesThread(threading.Thread):
         @param resultsMgr {components.interfaces.koIFindResultsTabManager}
         @param env {runtime environment} the Komodo Runtime Environment
             to pass to findlib2.
+        @param do_smart_replace {boolean} Is the pattern all lower-case,
+            and are we matching with smart-case on?
         """
         threading.Thread.__init__(self, name="Find/Replace Thread %s" % id)
         self.id = id
@@ -165,6 +167,7 @@ class _FindReplaceInFilesThread(threading.Thread):
         self.paths = paths
         self.resultsMgr = resultsMgr
         self.env = env
+        self.do_smart_replace = do_smart_replace
 
         class ResultsManagerProxy:
             def __init__(self, obj):
@@ -298,6 +301,7 @@ class _FindReplaceInFilesThread(threading.Thread):
     def _replace_in_paths(self, regex, repl, desc, paths):
         for event in findlib2.replace(regex, repl, paths, summary=desc,
                                       skip_filesizes_larger_than=self.skip_filesizes_larger_than,
+                                      do_smart_replace=self.do_smart_replace,
                                       textInfoFactory=self.loadedFileTextFactory,
                                       env=self.env):
             if self._stopped:
@@ -528,7 +532,7 @@ class _ConfirmReplacerInFiles(threading.Thread, TreeView):
     REPORT_EVERY_N_PATHS_WITH_HITS = 5
     REPORT_EVERY_N_PATHS_SEARCHED = 100
 
-    def __init__(self, regex, repl, desc, paths, controller, env, loaded_path_accessor):
+    def __init__(self, regex, repl, desc, paths, controller, env, loaded_path_accessor, do_smart_replace=False):
         threading.Thread.__init__(self, name="ConfirmReplacerInFiles")
         TreeView.__init__(self)
 
@@ -537,6 +541,7 @@ class _ConfirmReplacerInFiles(threading.Thread, TreeView):
         self.desc = desc
         self.paths = paths
         self.env = env
+        self.do_smart_replace = do_smart_replace
 
         self.controller = controller
         class ControllerProxy:
@@ -585,6 +590,7 @@ class _ConfirmReplacerInFiles(threading.Thread, TreeView):
             for event in findlib2.replace(self.regex, self.repl,
                                           self.paths, summary=self.desc,
                                           skip_filesizes_larger_than=skip_filesizes_larger_than,
+                                          do_smart_replace=self.do_smart_replace,
                                           textInfoFactory=self.loadedFileTextFactory,
                                           env=self.env):
                 if self._stopped:
@@ -1949,8 +1955,10 @@ class KoFindService(object):
                                       "Context has invalid type %r" % (context.type,))
             paths = _paths_from_ko_info(self.options, cwd=context.cwd)
 
+        do_smart_replace = self._should_do_smart_conversion(pattern)
         t = _FindReplaceInFilesThread(id, regex, None, desc, paths, resultsMgr,
-                                      self.env)
+                                      self.env,
+                                      do_smart_replace=do_smart_replace)
         self._threadMap[id] = t
         resultsMgr.searchStarted()
         self._threadMap[id].start()
@@ -1991,9 +1999,11 @@ class KoFindService(object):
             assert context.type == koIFindContext.FCT_IN_FILES
             paths = _paths_from_ko_info(self.options, cwd=context.cwd)
 
+        do_smart_replace = self._should_do_smart_conversion(pattern)
         t = _FindReplaceInFilesThread(id, regex, munged_repl, desc, paths,
                                       resultsMgr, self.env,
-                                      loaded_path_accessor=_get_loaded_path_accessor())
+                                      loaded_path_accessor=_get_loaded_path_accessor(),
+                                      do_smart_replace=do_smart_replace)
         self._threadMap[id] = t
         resultsMgr.searchStarted()
         self._threadMap[id].start()
@@ -2034,9 +2044,11 @@ class KoFindService(object):
             assert context.type == koIFindContext.FCT_IN_FILES
             paths = _paths_from_ko_info(self.options, cwd=context.cwd)
 
+        do_smart_replace = self._should_do_smart_conversion(pattern)
         t = _ConfirmReplacerInFiles(regex, munged_repl, desc, paths,
                                     controller, self.env,
-                                    _get_loaded_path_accessor())
+                                    _get_loaded_path_accessor(),
+                                    do_smart_replace=do_smart_replace)
         return t
 
     def undoreplaceallinfiles(self, journal_id, controller):
@@ -2060,6 +2072,16 @@ class KoFindService(object):
     def regex_escape_string(self, s):
         return re.escape(s)
 
+    def _should_do_smart_conversion(self, pattern):
+        """
+        If we're doing a search/replace with a simple lower-case pattern,
+        with smart-case on, then we can preserve the upper-case-ness
+        and first-capital-letter-ness of the matches
+        """
+        return (self.options.caseSensitivity == FOC_SMART
+                and self.options.patternType == FOT_SIMPLE
+                and pattern.lower() == pattern)
+
     def _do_smart_conversion(self, pattern, foundText, replText):
         """
         If pattern isn't simple, smart-case, return replText as is
@@ -2068,19 +2090,9 @@ class KoFindService(object):
         If FOUND is all upper-case, return replText.upper()
         If Found is capitalized and return replText.capitalize()
         """
-        if self.options.caseSensitivity != FOC_SMART or self.options.patternType != FOT_SIMPLE:
+        if not self._should_do_smart_conversion(pattern):
             return replText
-        if pattern.lower() != pattern:
-            return replText # as is -- there are upper-case chars in the search pattern
-        if foundText.lower() == foundText:
-            return replText # as is
-        if foundText.upper() == foundText:
-            return replText.upper()
-        if foundText[0].isupper() and replText[0].islower():
-            # Capitalize the first letter, leave the rest as is
-            return replText[0].upper() + replText[1:]
-        # There are no other templates that make sense.
-        return replText
+        return findlib2.do_smart_conversion(foundText, replText)
 
 
 #---- internal support stuff
