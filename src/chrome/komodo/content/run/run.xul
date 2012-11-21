@@ -176,7 +176,7 @@
                                       oncommand="InsertCommandShortcut(this);"/>
                             <menuseparator/>
                             <menuitem label="&helpOnShortcuts.label;"
-                                      oncommand="ko.help.open('interpolation_shortcuts_and_tab_stops');"/>
+                                      oncommand="ko.help.open('interpolation_shortcuts');"/>
                         </menupopup>
                     </button>
                 </hbox>
