@@ -624,7 +624,6 @@ class koDocumentBase:
             if newModifiedTime == self._lastModifiedTime:
                 # File has the same mtime - unchanged.
                 return 0
-            self._lastModifiedTime = newModifiedTime
             # File has recently changed.
             return 1
         else:
