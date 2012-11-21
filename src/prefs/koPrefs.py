@@ -894,10 +894,10 @@ class koOrderedPreference:
             elif typ == "boolean":
                 val = source.getBooleanPref(i)
             elif typ == "object":
-                val = source.getPref(i)
+                val = UnwrapObject(source.getPref(i))
             else:
                 raise COMException(nsError.NS_ERROR_UNEXPECTED, "unknown type '%s'" % (typ,))
-            new_collection.append((UnwrapObject(val), typ))
+            new_collection.append((val, typ))
         self._collection = new_collection
         return True
 
