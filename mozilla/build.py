@@ -1444,9 +1444,13 @@ def target_configure(argv):
         if "parallel" in config:
             mozMakeOptions.append('MOZ_MAKE_FLAGS=-j%i' % config["parallel"])
         elif sys.platform.startswith("linux") or sys.platform == 'darwin':
-            # default -j2 for non-windows
-            # TODO: Should examine CPU info to determine a better value.
-            mozMakeOptions.append('MOZ_MAKE_FLAGS=-j2')
+            # default to parallel builds on non-Windows
+            try:
+                import multiprocessing
+                childrenCount = multiprocessing.cpu_count() + 1
+            except (ImportError, NotImplementedError):
+                childrenCount = 2
+            mozMakeOptions.append('MOZ_MAKE_FLAGS=-j%i' % (childrenCount,))
 
         # Platform options
         if sys.platform.startswith("sunos"):
