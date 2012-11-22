@@ -155,10 +155,14 @@ def _getChangeNum():
         changenum = int(changestr)
     except ValueError, ex:
         # pull off front number (good enough for our purposes)
-        changenum = int(re.match("(\d+)", changestr).group(1))
-        log.warn("simplifying complex changenum from 'svnversion': %s -> %s"
-                 " (see `svnversion --help` for details)",
-                 changestr, changenum)
+        try:
+            changenum = int(re.match("(\d+)", changestr).group(1))
+            log.warn("simplifying complex changenum from 'svnversion': %s -> %s"
+                     " (see `svnversion --help` for details)",
+                     changestr, changenum)
+        except AttributeError, ex:
+            changenum = 0
+            log.warn("Failed to get changenum, using 0 instead")
     return changenum
 
 
