@@ -988,7 +988,7 @@ viewManager.prototype.cacheCommandData = function(view)
     if (view) {
         cache.type = view.getAttribute('type');
         if (view.koDoc) {
-            cache.hasSelection = view.selection != '';
+            cache.hasSelection = view.selection !== undefined && view.selection != '';
             cache.isDirty = view.koDoc.isDirty
             if (cache.type == 'editor') {
                 cache.canUndo = view.scintilla.canUndo();
