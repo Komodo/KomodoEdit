@@ -690,8 +690,10 @@ class TestKoDocumentRemote(_KoDocTestCase):
             _writefile(path, "blah\nblah\nblah\nblah\n")
 
             self.assertTrue(koDoc.differentOnDisk(), "Remote file change was not detected")
-            # Next time we call it - it should be already using the latest info.
-            self.assertFalse(koDoc.differentOnDisk(), "Remote file change detected when it shouldn't be")
+            # Next time we call it - it should still detect the file as being changed - bug 95690.
+            self.assertTrue(koDoc.differentOnDisk(), "Remote file change was not detected a second time")
+            koDoc.save(True)
+            self.assertFalse(koDoc.differentOnDisk(), "Remote file change detected after saving the file")
         finally:
             if os.path.exists(path):
                 os.unlink(path) # clean up
