@@ -1303,7 +1303,8 @@ def target_configure(argv):
             config["pyVer"] = config["pythonVersion"]
             # Extract the prebuilt Python directory.
             if sys.platform == "win32":
-                buildName = config["platform"] + '-' + config["compiler"]
+                # bug 96253: we only support 32-bit windows for now
+                buildName = "win32-x86-%s" % (config["compiler"],)
             elif sys.platform == "darwin":
                 buildName = "macosx"
             else:
