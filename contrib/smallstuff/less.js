@@ -3859,7 +3859,7 @@ var cache = new function() {
 	less.cache = this.pointer;
 	
 	this.getItem = function(itemName) {
-		if (this.pointer[itemName] !== undefined) {
+		if (typeof this.pointer[itemName] != 'undefined') {
 			return this.pointer[itemName];
 		} else {
 			return undefined;
@@ -3886,7 +3886,7 @@ less.setContext = function(_window) {
 	log('Setting Context: ' + _window.document.location);
 	less.context = _window;
 	
-	if (less.context[_window['document'].location] === undefined) {
+	if (typeof less.context[_window['document'].location] == 'undefined') {
 		less.context[_window['document'].location] = {
 			sheets: [],
 			sheetmap: {}
