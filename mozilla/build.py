@@ -1891,7 +1891,6 @@ def target_src_pyxpcom(argv=["src_pyxpcom"]):
     """Download PyXPCOM sources"""
     log.info("target: src_pyxpcom")
     config = _importConfig()
-    _setupMozillaEnv()
 
     pyxpcom_src_dir = join(config.buildDir, config.srcTreeName, "mozilla",
                            "extensions", "python")
@@ -1901,7 +1900,6 @@ def target_src_pyxpcom(argv=["src_pyxpcom"]):
         repo_rev = None
         if config.mozVer <= 8.99:
             # Requires the matching branch.
-            import math
             repo_rev = "TAG_MOZILLA_%d_0_0" % (int(config.mozVer), )
         cmd = "hg clone"
         if repo_rev is not None:
