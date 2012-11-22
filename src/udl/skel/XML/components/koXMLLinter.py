@@ -70,8 +70,8 @@ class KoXMLCompileLinter:
         is a problem.
         """
 
+        text = encodeRequestText(request, text)
         text = eollib.convertToEOLFormat(text, eollib.EOL_LF)
-        text = text.encode(request.encoding.python_encoding_name)
         cwd = request.cwd
 
         parser = expat.ParserCreate()

@@ -116,6 +116,25 @@ def runGenericLinter(text, extension, cmd_start, err_ptns, warn_ptns, cwd, useSt
                                 m1 and m1.group(1) or None)
                 break
     return results        
+
+def encodeRequestText(request, text=None):
+    if text is None:
+        text = request.text
+    if type(text) == unicode:
+        try:
+            return text.encode(request.encoding.python_encoding_name)
+        except (UnicodeEncodeError, UnicodeDecodeError):
+            log.exception("Failed to %s-encode %s%s ",
+                          request.encoding.python_encoding_name,
+                          text[:160],
+                          len(text) >= 160 and "..." or "")
+            try:
+                return text.encode('utf-8')
+            except (UnicodeEncodeError, UnicodeDecodeError):
+                # We have to return something, so go with '?' for unreplaceable characters.
+                return text.encode('utf-8', 'replace')
+    # Otherwise assume the text is appropriately encoded
+    return text
     
 class KoLintResult:
     _com_interfaces_ = [components.interfaces.koILintResult]
