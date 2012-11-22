@@ -2566,11 +2566,14 @@ class BuildNum(black.configure.Datum):
             changenum = int(changestr)
         except ValueError, ex:
             # pull off front number (good enough for our purposes)
-            changenum = int(re.match("(\d+)", changestr).group(1))
-            sys.stderr.write("configure: simplifying complex changenum "
-                             "from 'svnversion': %s -> %s "
-                             "(see `svnversion --help` for details)\n"
-                             % (changestr, changenum))
+            try:
+                changenum = int(re.match("(\d+)", changestr).group(1))
+                sys.stderr.write("configure: simplifying complex changenum "
+                                 "from 'svnversion': %s -> %s "
+                                 "(see `svnversion --help` for details)\n"
+                                 % (changestr, changenum))
+            except AttributeError:
+                changenum = 0
         return changenum
 
     def _Determine_Do(self):
