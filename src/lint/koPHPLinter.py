@@ -107,7 +107,7 @@ class KoPHPCompileLinter:
             return self._html_linter.lint(request,
                                           TPLInfo=self._tplPatterns)
         except:
-            if "lint"  not in self._checkValidVersion_complained:
+            if "lint" not in self._checkValidVersion_complained:
                 self._checkValidVersion_complained["lint"] = True
                 log.exception("Problem in koPHPLinter.lint")
             return koLintResults()
