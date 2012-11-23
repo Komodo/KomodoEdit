@@ -85,6 +85,8 @@ def PerlWarnsToLintResults(warns, perlfilename, actualFileName, perlcode):
     warns = newwarns
 
     results = []
+    if type(perlfilename) == unicode:
+        perlfilename = perlfilename.encode('utf-8')
     escPerlName = re.escape(perlfilename)
     warnRe = re.compile(r'(?P<description>.*) at %s line (?P<lineNum>\d+)(?P<hint>.*)' % escPerlName)
     successRe = re.compile(r'%s syntax OK' % escPerlName)
