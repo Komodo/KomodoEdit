@@ -3692,6 +3692,7 @@ class BuildASCTime(black.configure.Datum):
     def _Determine_Do(self):
         self.applicable = 1
         buildTime = black.configure.items["buildTime"].Get()
+        # Use localtime, as it's more useful for us humans :)
         self.value = time.asctime(time.gmtime(buildTime))
         self.determined = 1
 
