@@ -105,18 +105,8 @@ function scintillaOverlayOnLoad(options) {
         }
         var url = "chrome://komodo/content/" + script;
         loader.loadSubScript(url);
-        if (!_log) {
-            // this works because logging is the first thing we load, and it's done
-            _log = ko.logging.getLogger("scintilla-overlay");
-            //_log.setLevel(ko.logging.LOG_DEBUG);
-        }
-        _log.warn("Loading " + url + " via subscript loader; possible performance " +
-                  "hit, consider including the script directly in " + window.location.href);
     }
-    if (!_log) {
-        // we didn't need to load any scripts at all; grab the log for later
-        _log = ko.logging.getLogger("scintilla-overlay");
-    }
+    _log = ko.logging.getLogger("scintilla-overlay");
     
     gMainWindow = ko.windowManager.getMainWindow();
 
