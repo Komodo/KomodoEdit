@@ -386,27 +386,36 @@ koPrefWindow.prototype =
         return document;
     },
 
-    _prefIdsAndTypesFromElement: function(elt) {
-        var prefIds = null;
+    _prefDataFromElement: function(elt) {
+        var data = {
+            types: [null],
+            defaults: [null],
+        };
         if (elt.hasAttribute("prefstring")) {
-            prefIds = [elt.getAttribute("prefstring")];
+            data.ids = [elt.getAttribute("prefstring")];
         } else if (elt.hasAttribute("prefstrings")) {
-            prefIds = elt.getAttribute("prefstrings").split(",");
+            data.ids = elt.getAttribute("prefstrings").split(",");
         } else {
-            prefIds = [elt.id];
+            data.ids = [elt.id];
         }
-        var prefTypes = null;
         if (elt.hasAttribute("preftype")) {
-            prefTypes = [elt.getAttribute("preftype")];
+            data.types = [elt.getAttribute("preftype")];
+            if (elt.hasAttribute("prefdefault")) {
+                data.defaults = [elt.getAttribute("prefdefault")];
+            }
         } else if (elt.hasAttribute("preftypes")) {
-            prefTypes = elt.getAttribute("preftypes").split(",");
-        } else {
-            prefTypes = [];
-            for (var i = prefIds.length; i > 0; --i) {
-                prefTypes.push(null);
+            data.types = elt.getAttribute("preftypes").split(",");
+            if (elt.hasAttribute("prefdefaults")) {
+                data.defaults = elt.getAttribute("prefdefaults").split(",");
             }
         }
-        return [prefIds, prefTypes];
+        while (data.types.length < data.ids.length) {
+            data.types.push(null);
+        }
+        while (data.defaults.length < data.ids.length) {
+            data.defaults.push(null);
+        }
+        return data;
     },
 
     _setElementFromPrefValue: function(elt) {
@@ -416,11 +425,14 @@ koPrefWindow.prototype =
         // especially for menu lists, radios, etc
         var prefHere = elt.hasAttribute("prefhere") &&
                        elt.getAttribute('prefhere') == "true";
-        var [prefIds, prefTypes] = this._prefIdsAndTypesFromElement(elt);
+        var prefData = this._prefDataFromElement(elt);
+        var prefIds = prefData.ids;
+        var prefTypes = prefData.types;
+        var prefDefaults = prefData.defaults;
         var prefValues = [];
         var i;
         for (i = 0; i < prefIds.length; ++i) {
-            prefValues.push(this.getPref(prefIds[i], prefHere, prefTypes[i]));
+            prefValues.push(this.getPref(prefIds[i], prefHere, prefTypes[i], prefDefaults[i]));
         }
 
         var prefattribute, items, item, listitem, widgetValues, prefValue;
@@ -600,9 +612,11 @@ koPrefWindow.prototype =
         return prefs.hasPrefHere(aPrefString);
     },
 
-    getPref: function (aPrefString, prefHere /* =false */, prefType /* =null */) {
+    getPref: function (aPrefString, prefHere /* =false */, prefType /* =null */,
+                       prefDefault /* =null */) {
         if (typeof(prefHere) == "undefined" || prefHere == null) prefHere = false;
         if (typeof(prefType) == "undefined") prefType = null;
+        if (typeof(prefDefault) == "undefined") prefDefault = null;
         
         var prefs = this._getCurrentPrefSet();
         if (prefHere && !prefs.hasPrefHere(aPrefString)) {
@@ -619,20 +633,23 @@ koPrefWindow.prototype =
         }
         switch ( aPrefType ) {
         case "boolean":
+            if (prefDefault)
+                return prefs.getBoolean(aPrefString, prefDefault == "false" ? false : true);
             return prefs.getBooleanPref(aPrefString);
-            break;
         case "long":
+            if (prefDefault)
+                return prefs.getLong(aPrefString, parseInt(prefDefault, 10));
             return prefs.getLongPref(aPrefString);
-            break;
         case "double":
+            if (prefDefault)
+                return prefs.getDouble(aPrefString, parseFloat(prefDefault));
             return prefs.getDoublePref(aPrefString);
-            break;
         case "string":
+            if (prefDefault)
+                return prefs.getString(aPrefString, prefDefault);
             return prefs.getStringPref(aPrefString);
-            break;
         default:
             return prefs.getPref(aPrefString);
-            break;
         }
         return null;  // shutup strict mode
     },
@@ -732,7 +749,10 @@ koPrefWindow.prototype =
         var rc = true;
         for (i = 0; i < elements.length; i++) {
             var element = elements[i];
-            var [prefIds, prefTypes] = this._prefIdsAndTypesFromElement(element);
+            var prefData = this._prefDataFromElement(element);
+            var prefIds = prefData.ids;
+            var prefTypes = prefData.types;
+            var prefDefaults = prefData.defaults;
 
             try {
                 var widgetValues;
@@ -753,7 +773,7 @@ koPrefWindow.prototype =
                 }
 
                 for (j = 0; j < prefIds.length; j++) {
-                    var prefValue = this.getPref(prefIds[j], null, prefTypes[j]);
+                    var prefValue = this.getPref(prefIds[j], null, prefTypes[j], prefDefaults[j]);
                     if (this.hasPrefHere(prefIds[j]) &&
                         (prefValue == widgetValues[j] ||
                          (widgetValues[j] == "true"  && prefValue === true) ||
