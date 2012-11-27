@@ -1881,7 +1881,7 @@ class SetMozillaFiveHome(black.configure.SetPathEnvVar):
             serializeAs=["env"])
 
     def _Determine_Do(self):
-        if sys.platform.startswith("linux"):
+        if sys.platform.startswith("linux") or sys.platform == "darwin":
             self.applicable = 1
             self.value = black.configure.items["mozBin"].Get()
         else:

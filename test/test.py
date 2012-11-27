@@ -87,21 +87,6 @@ def setup():
         del sys.path[0]
 
 def _setup_for_xpcom():
-    if "MOZILLA_FIVE_HOME" not in os.environ and sys.platform == "darwin":
-        # On OSX, we need a little help locating the Mozilla directory to run tests
-        kosrc = dirname(dirname(abspath(__file__)))
-        sys.path.insert(0, kosrc)
-        try:
-            import bkconfig
-            os.environ["MOZILLA_FIVE_HOME"] = bkconfig.mozBin
-            lib_path = os.environ.get("DYLD_LIBRARY_PATH", "").split(os.pathsep)
-            lib_path.append(bkconfig.mozBin)
-            os.environ["DYLD_LIBRARY_PATH"] = os.pathsep.join(filter(bool, lib_path))
-            print os.environ["DYLD_LIBRARY_PATH"]
-        except ImportError:
-            pass
-        finally:
-            del sys.path[0]
     # The tests are run outside of Komodo. If run with PyXPCOM up
     # parts codeintel will try to use the nsIDirectoryService and
     # will query dirs only provided by nsXREDirProvider -- which
