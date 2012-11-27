@@ -591,6 +591,8 @@ koPrefWindow.prototype =
                 //XXX is the special handling of textboxes really needed?
                 if (elt.localName == "textbox" && prefattr == "value")
                     value = elt.value;
+                else if (elt.localName == "checkbox" && prefattr == "checked")
+                    value = elt.checked ? "true" : "false";
                 else
                     value = elt.getAttribute( prefattr );
                 //dump("widget '" + elt.id + "set preference val to '" + value + "'\n");
@@ -612,6 +614,20 @@ koPrefWindow.prototype =
         return prefs.hasPrefHere(aPrefString);
     },
 
+    getDefaultValue: function(prefType, prefDefault) {
+        switch (prefType) {
+            case "boolean":
+                return prefDefault == "false" ? false : true;
+            case "long":
+                return parseInt(prefDefault, 10);
+            case "double":
+                return parseFloat(prefDefault);
+            case "string":
+                return prefDefault;
+        }
+        return null;
+    },
+
     getPref: function (aPrefString, prefHere /* =false */, prefType /* =null */,
                        prefDefault /* =null */) {
         if (typeof(prefHere) == "undefined" || prefHere == null) prefHere = false;
@@ -622,7 +638,7 @@ koPrefWindow.prototype =
         if (prefHere && !prefs.hasPrefHere(aPrefString)) {
             return null;
         }
-        if (!prefs.hasPref(aPrefString)) {
+        if (!prefDefault && !prefs.hasPref(aPrefString)) {
             return null;
         }
         var aPrefType = prefType || prefs.getPrefType(aPrefString);
@@ -634,19 +650,19 @@ koPrefWindow.prototype =
         switch ( aPrefType ) {
         case "boolean":
             if (prefDefault)
-                return prefs.getBoolean(aPrefString, prefDefault == "false" ? false : true);
+                return prefs.getBoolean(aPrefString, this.getDefaultValue(aPrefType, prefDefault));
             return prefs.getBooleanPref(aPrefString);
         case "long":
             if (prefDefault)
-                return prefs.getLong(aPrefString, parseInt(prefDefault, 10));
+                return prefs.getLong(aPrefString, this.getDefaultValue(aPrefType, prefDefault));
             return prefs.getLongPref(aPrefString);
         case "double":
             if (prefDefault)
-                return prefs.getDouble(aPrefString, parseFloat(prefDefault));
+                return prefs.getDouble(aPrefString, this.getDefaultValue(aPrefType, prefDefault));
             return prefs.getDoublePref(aPrefString);
         case "string":
             if (prefDefault)
-                return prefs.getString(aPrefString, prefDefault);
+                return prefs.getString(aPrefString, this.getDefaultValue(aPrefType, prefDefault));
             return prefs.getStringPref(aPrefString);
         default:
             return prefs.getPref(aPrefString);
@@ -747,6 +763,7 @@ koPrefWindow.prototype =
     _doSavePrefElements: function (elements) {
         var i, j;
         var rc = true;
+        var prefs = this._getCurrentPrefSet();
         for (i = 0; i < elements.length; i++) {
             var element = elements[i];
             var prefData = this._prefDataFromElement(element);
@@ -774,7 +791,12 @@ koPrefWindow.prototype =
 
                 for (j = 0; j < prefIds.length; j++) {
                     var prefValue = this.getPref(prefIds[j], null, prefTypes[j], prefDefaults[j]);
-                    if (this.hasPrefHere(prefIds[j]) &&
+                    if (prefDefaults[j] !== null &&
+                        widgetValues[j] == prefDefaults[j] &&
+                        !prefs.hasPrefHere(prefIds[j])) {
+                        // It's the default value.
+                        continue;
+                    } else if (this.hasPrefHere(prefIds[j]) &&
                         (prefValue == widgetValues[j] ||
                          (widgetValues[j] == "true"  && prefValue === true) ||
                          (widgetValues[j] == "false" && prefValue === false))){
