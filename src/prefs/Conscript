@@ -73,3 +73,11 @@ $cons->InstallPythonUtility('pref_serialization.py');
 # Install default preferences in root 
 $cons->Preprocess('prefs.p.xml', 'prefs.xml');
 $cons->Install($supportDir, 'prefs.xml');
+
+# Generate a pickled version of the prefs file - bug 96273.
+$cons->Command('pref_pickler.py',
+               'prefs.xml',
+               qq(
+                   $unsiloedPythonExe util/black/bk.py start mozpython src/prefs/%0:f
+               ));
+$cons->Depends('pref_pickler.py', $ranRegxpcomStateFileName);
