@@ -49,11 +49,17 @@ from xpcom.server import UnwrapObject
 
 # Pref names each checker should have, will be monitored when the checker
 # is first added and gets automatically updated through a pref observer.
-monitoredPrefNames = { "enabledPrefName": types.BooleanType,
-                       "executablePrefName": types.StringType,
-                       "backgroundEnabledPrefName": types.BooleanType,
-                       "backgroundDurationPrefName": types.LongType,
-                       "recursivePrefName": types.BooleanType }
+monitoredPrefNames = { "enabledPrefName": { 'type': types.BooleanType,
+                                            'default': True },
+                       "executablePrefName": { 'type': types.StringType,
+                                               'default': None },
+                       "backgroundEnabledPrefName": { 'type': types.BooleanType,
+                                                      'default': True },
+                       "backgroundDurationPrefName": { 'type': types.LongType,
+                                                       'default': 15 },
+                       "recursivePrefName": { 'type': types.BooleanType,
+                                              'default': False },
+}
 
 class KoFileCheckerBase(object):
 
@@ -159,19 +165,21 @@ class KoFileCheckerBase(object):
     #  Interface method
     def initialize(self):
         prefObserverSvc = self._globalPrefs.prefObserverService
-        for prefSetting, prefType in monitoredPrefNames.items():
+        for prefSetting, prefData in monitoredPrefNames.items():
+            prefType = prefData['type']
+            prefDefault = prefData['default']
             prefName = getattr(self, prefSetting)
             if prefName:
                 variableName = prefSetting.replace("PrefName", "")
                 # Update from the preference
                 if prefType == types.BooleanType:
                     setattr(self, variableName,
-                            self._globalPrefs.getBooleanPref(prefName))
+                            self._globalPrefs.getBoolean(prefName, prefDefault))
                 elif prefType == types.SliceType:
                     setattr(self, variableName,
-                            self._globalPrefs.getStringPref(prefName))
+                            self._globalPrefs.getString(prefName, prefDefault))
                 elif prefType == types.LongType:
-                    value = self._globalPrefs.getLongPref(prefName)
+                    value = self._globalPrefs.getLong(prefName, prefDefault)
                     if variableName == "backgroundDuration":
                         # Convert from minutes to seconds.
                         value *= 60
@@ -184,7 +192,7 @@ class KoFileCheckerBase(object):
 
     def _xpcom_shutdown(self):
         prefObserverSvc = self._globalPrefs.prefObserverService
-        for prefSetting, prefType in monitoredPrefNames.items():
+        for prefSetting in monitoredPrefNames:
             prefName = getattr(self, prefSetting)
             if prefName:
                 prefObserverSvc.removeObserver(self, prefName)
@@ -210,7 +218,7 @@ class KoFileCheckerBase(object):
                                     getService(components.interfaces.koIFileStatusService)
                 fileStatusSvc.updateStatusForAllFiles(self.REASON_ONFOCUS_CHECK)
         elif topic == self.enabledPrefName:
-            enabled = self._globalPrefs.getBooleanPref(self.enabledPrefName)
+            enabled = self._globalPrefs.getBoolean(self.enabledPrefName, True)
             if enabled != self.enabled:
                 self.enabled = enabled
                 self._invalidateAllCaches()
@@ -218,15 +226,15 @@ class KoFileCheckerBase(object):
                                     getService(components.interfaces.koIFileStatusService)
                 fileStatusSvc.updateStatusForAllFiles(self.REASON_ONFOCUS_CHECK)
         elif topic == self.backgroundEnabledPrefName:
-            backgroundEnabled = self._globalPrefs.getBooleanPref(topic)
+            backgroundEnabled = self._globalPrefs.getBoolean(topic, True)
             if backgroundEnabled != self.backgroundEnabled:
                 self.backgroundEnabled = backgroundEnabled
         elif topic == self.backgroundDurationPrefName:
-            backgroundDuration = self._globalPrefs.getLongPref(topic) * 60
+            backgroundDuration = self._globalPrefs.getLong(topic, 15) * 60
             if backgroundDuration != self.backgroundDuration:
                 self.backgroundDuration = backgroundDuration
         elif topic == self.recursivePrefName:
-            self.recursive =  self._globalPrefs.getBooleanPref(topic)
+            self.recursive =  self._globalPrefs.getBoolean(topic, False)
 
     #  Interface method
     def shutdown(self):
