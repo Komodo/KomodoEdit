@@ -52,12 +52,15 @@ Index: cocoa/ScintillaCocoa.mm
    if (sel.Empty())
      return;
  
-@@ -1525,7 +1532,7 @@
+@@ -1525,7 +1538,10 @@
    
    // Convert absolute coordinate into the range [0..1]. Keep in mind that the visible area
    // does *not* belong to the scroll range.
 -  float relativePosition = (float) topLine / MaxScrollPos();
-+  float relativePosition = (float) topLine / MaxScrollPos() || 0;
++  float relativePosition = 0;
++  if (MaxScrollPos() > 0) {
++    relativePosition = (float) topLine / MaxScrollPos();
++  }
    [topContainer setVerticalScrollPosition: relativePosition];
  }
  
