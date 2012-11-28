@@ -167,6 +167,8 @@ class KoEnviron:
         return os.environ[key]
     def set(self, key, value):
         os.environ[key] = value
+    def remove(self, key):
+        del os.environ[key]
 
 
 class KoUserEnviron:

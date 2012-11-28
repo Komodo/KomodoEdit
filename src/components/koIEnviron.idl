@@ -42,6 +42,7 @@ interface koIEnviron : nsISupports {
   boolean has(in wstring key);
   wstring get(in wstring key);
   void set(in wstring key, in wstring value);
+  void remove(in wstring key);
 };
 
 

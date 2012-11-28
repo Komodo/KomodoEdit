@@ -42,9 +42,8 @@ const winOptions =
   "chrome,resizable=yes,menubar,toolbar,status,all";
 // #endif
 
-const Cc = Components.classes;
-const Ci = Components.interfaces;
-Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
+Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 
 function shouldLoadURI(aURI) {
   if (aURI && !aURI.schemeIs("chrome"))
@@ -127,7 +126,13 @@ function _internalError(error, text)
                args);
 }
 
-function komodoCmdLineHandler() { }
+function komodoCmdLineHandler() {
+  try {
+    this._cleanupEnvironmentVariables();
+  } catch (ex) {
+    Components.utils.reportError(ex);
+  }
+}
 komodoCmdLineHandler.prototype = {
   chromeURL : "chrome://komodo/content",
 
@@ -209,6 +214,66 @@ komodoCmdLineHandler.prototype = {
     else if (!cmdLine.preventDefault && !koWin) {
       openWindow(null, this.chromeURL, "_blank", winOptions);
       cmdLine.preventDefault = true; // stop the browser from handling this also
+    }
+  },
+
+  /**
+   * Selectively remove a few environment variables so they don't leak into
+   * subprocesses (in particular, MOZ_NO_REMOTE affects Firefox if we attempt to
+   * open a web page on Windows).  Note that we use the Komodo Python service
+   * instead of the normal Mozilla one to make sure it's gone from Python's copy
+   * too.  Also, we want a very small white list, since the user might have set
+   * some of these on purpose.
+   */
+  _cleanupEnvironmentVariables: function cleanupEnvironmentVariables() {
+    const kVarNames = ["_KOMODO_VERUSERDATADIR", "_XRE_USERAPPDATADIR",
+                       "MOZ_APP_RESTART", "MOZ_CRASHREPORTER_DATA_DIRECTORY",
+                       "MOZ_CRASHREPORTER_DISABLE", "MOZ_CRASHREPORTER_NO_REPORT",
+                       "MOZ_CRASHREPORTER_RESTART_ARG_0", "MOZ_LAUNCHED_CHILD",
+                       "MOZ_NO_REMOTE", "NO_EM_RESTART",
+                       "VERSIONER_PYTHON_PREFER_32_BIT", "VERSIONER_PYTHON_VERSION",
+                       "XRE_BINARY_PATH", "XRE_PROFILE_LOCAL_PATH",
+                       "XRE_PROFILE_NAME", "XRE_PROFILE_PATH",
+                       "XRE_START_OFFLINE", "XUL_APP_FILE"];
+    let pyenv = Cc["@activestate.com/koEnviron;1"].getService(Ci.koIEnviron);
+    for (let name of kVarNames) {
+      if (pyenv.has(name)) {
+        pyenv.remove(name);
+      }
+    }
+    // Wipe out PYTHONHOME too; see bug 83693.  Note that we don't touch what
+    // Python sees here
+    let environ = Cc["@mozilla.org/process/environment;1"]
+                    .getService(Ci.nsIEnvironment);
+    let koOS = Cc["@activestate.com/koOs;1"].getService(Ci.koIOs);
+    let koDirs = Cc["@activestate.com/koDirs;1"].getService(Ci.koIDirs);
+    let installDir = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+    installDir.initWithPath(koDirs.installDir);
+    // #if PLATFORM == "darwin"
+    let binDir = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+    binDir.initWithPath(koDirs.binDir);
+    if (!installDir.contains(binDir, true)) {
+      // dev tree; look at the root of the object tree
+      installDir = installDir.parent.parent;
+    }
+    // Don't care about installDir elsewhere, .../dist/bin is all we need
+    // #endif
+    for (let key of ["LD_LIBRARY_PATH", "DYLD_LIBRARY_PATH", "PYTHONPATH",
+                     "PYTHONHOME", "LIBRARY_PATH", "LIBPATH"])
+    {
+      if (!environ.exists(key)) {
+        continue;
+      }
+      let vals = environ.get(key).split(koOS.pathsep);
+      vals = vals.filter(function(path) {
+        try {
+          let file = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+          file.initWithPath(path);
+          return !installDir.contains(file, true);
+        } catch (ex) { /* ignore exception, keep the path */ }
+        return true;
+      });
+      environ.set(key, vals.join(koOS.pathsep) || null);
     }
   },
 
