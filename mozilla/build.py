@@ -1838,12 +1838,6 @@ def target_silo_python(argv=["silo_python"]):
         libpythonSo = "libpython%s.so" % config.pyVer
         _run('cp -f %s/lib/%s %s' % (siloDir, libpythonSoVer, mozBinDir),
              log.info)
-        mozbinPythonSoPath = join(mozBinDir, libpythonSo)
-        mozbinPythonSoVerPath = join(mozBinDir, libpythonSoVer)
-        os.symlink(mozbinPythonSoVerPath, mozbinPythonSoPath)
-        # Also symlink into the lib dir, to aid in linking - bug 95668.
-        mozlibPythonSoPath = join(mozLibDir, libpythonSo)
-        os.symlink(mozbinPythonSoPath, mozlibPythonSoPath)
 
         # Relocate the Python install.
         if pyver >= (2,5): # when APy's activestate.py supported relocation
@@ -1857,12 +1851,18 @@ def target_silo_python(argv=["silo_python"]):
             cmd = "%s %s --relocate" % (sys.executable, activestate_py_path)
             _run(cmd, log.info)
 
+        # Create a bunch of symlinks.  Note that relocating will force copy
+        # everything (and they will no longer be symlinks), so do this after
+        # relocating.
+
+        mozbinPythonSoPath = join(mozBinDir, libpythonSo)
+        _run('ln -s ./%s %s' % (libpythonSoVer, mozbinPythonSoPath), log.info)
+        # Also symlink into the lib dir, to aid in linking - bug 95668.
+        mozlibPythonSoPath = join(mozLibDir, libpythonSo)
+        _run('ln -s ../bin/%s %s' % (libpythonSo, mozlibPythonSoPath), log.info)
+
         # Need a mozpython executable in the mozBin dir for "bk start mozpython"
         # to work with PyXPCOM -- for testing, etc.
-
-        # Creating a symlink to mozpython needs to be done after the
-        # its sources are relocated.
-        # No bug #, r=toddw
         _run('ln -s ../python/bin/python%s %s/mozpython' % (config.pyVer, mozBinDir, ),
              log.info)
 
