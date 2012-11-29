@@ -112,6 +112,7 @@ this.initialize = function RunOutput_Init() {
             RunOutput_Show(window);
         }
         _gTerminalView = document.getElementById("runoutput-scintilla");
+        _gTerminalView.scintilla.symbolMargin = false; // No need for margins.
         _gTerminalView.init();
         _gTerminalView.initWithTerminal(_gTerminalHandler);
         boxObject.view = _gTerminalHandler;
