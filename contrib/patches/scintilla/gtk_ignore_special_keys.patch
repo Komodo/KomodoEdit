@@ -1,0 +1,17 @@
+Stop Komodo's Scintilla widget from getting special keypress events, like
+Mouse+Ctrl generating 0xe3 text in the editor - bug 96299.
+
+Index: /home/toddw/as/komodo-devel/src/scintilla/gtk/ScintillaGTK.cxx
+--- scintilla/gtk/ScintillaGTK.cxx
++++ scintilla/gtk/ScintillaGTK.cxx
+@@ -2428,6 +2428,10 @@
+ 		if (gtk_im_context_filter_keypress(im_context, event)) {
+ 			return 1;
+ 		}
++
++		/* KOMODO: Ignore all keypress events - bug 96299 */
++		return false;
++
+ 		if (!event->keyval) {
+ 			return true;
+ 		}
