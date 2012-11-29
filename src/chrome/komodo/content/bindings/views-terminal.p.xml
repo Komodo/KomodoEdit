@@ -95,6 +95,7 @@
             this.terminalHandler.setScintilla(this.scimoz);
             this.language = "Errors"; //  Should do 'errors' language?
             this.scintilla.encoding = 'UTF-8'; // Should allow configuration XXXX
+            this.scintilla.symbolMargin = false; // No need for margins.
             this.scintilla.init();
             this._genericController = Components.classes['@activestate.com/koGenericCommandHandler;1'].createInstance();
             this._genericController.view = this;
