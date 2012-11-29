@@ -1753,7 +1753,10 @@ viewManager.prototype.is_cmd_revert_supported = function() {
 }
 
 viewManager.prototype.is_cmd_revert_enabled = function() {
-    return this.currentView && this.currentView.koDoc && this.currentView.koDoc.isDirty;
+    let view = this.currentView;
+    return view && view.koDoc && (view.koDoc.isDirty ||
+                                  // Always enable it for remote files.
+                                  (view.koDoc.file && view.koDoc.file.isRemoteFile));
 }
 
 
