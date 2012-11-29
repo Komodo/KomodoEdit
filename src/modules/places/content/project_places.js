@@ -261,7 +261,7 @@ this.createPlacesProjectView = function() {
     _globalPrefs = (Components.classes["@activestate.com/koPrefService;1"].
                    getService(Components.interfaces.koIPrefService).prefs);
     _placePrefs = _globalPrefs.getPref("places");
-    _g_showProjectPath = _globalPrefs.getPref("places").getBooleanPref('showProjectPath');
+    _g_showProjectPath = _globalPrefs.getPref("places").getBoolean('showProjectPath', false);
     this.projectsTree = document.getElementById("placesSubpanelProjects_MPV");
     this.projectsTreeView = Components.classes["@activestate.com/koKPFTreeView;1"]
                           .createInstance(Components.interfaces.koIKPFTreeView);

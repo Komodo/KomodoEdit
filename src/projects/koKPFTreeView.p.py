@@ -195,7 +195,7 @@ class KPFTreeView(TreeView):
                                                                       True)
             try:
                 self._showProjectPath = self._placePrefs.getBooleanPref('showProjectPath')
-                self._showProjectPathExtension = self._placePrefs.getBooleanPref('showProjectPathExtension')
+                self._showProjectPathExtension = self._placePrefs.getBoolean('showProjectPathExtension', False)
             except:
                 self._showProjectPath = self._showProjectPathExtension = False
                 log.exception("No pref...")
@@ -235,7 +235,7 @@ class KPFTreeView(TreeView):
             self._showProjectPath = self._placePrefs.getBooleanPref('showProjectPath')
             self._tree.invalidate()
         elif topic == "showProjectPathExtension":
-            self._showProjectPathExtension = self._placePrefs.getBooleanPref('showProjectPathExtension')
+            self._showProjectPathExtension = self._placePrefs.getBoolean('showProjectPathExtension', False)
             self._tree.invalidate()
         
 

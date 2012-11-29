@@ -26,13 +26,13 @@ function OnPreferencePageInitalize(prefset) {
         document.getElementById("places_default_exclude_matches").value =
             g_defaultFilterPrefs.getStringPref("exclude_matches");
         document.getElementById("pref_places_dblClickRebases").checked =
-            placePrefs.getBooleanPref('dblClickRebases');
+            placePrefs.getBoolean('dblClickRebases', false);
         document.getElementById("pref_places_showProjectPath").checked =
-            placePrefs.getBooleanPref('showProjectPath');
+            placePrefs.getBoolean('showProjectPath', false);
         document.getElementById("pref_places_show_fullPath_tooltip").checked =
-            placePrefs.getBooleanPref('show_fullPath_tooltip');
+            placePrefs.getBoolean('show_fullPath_tooltip', true);
         document.getElementById("pref_places_showProjectPathExtension").checked =
-            placePrefs.getBooleanPref('showProjectPathExtension');
+            placePrefs.getBoolean('showProjectPathExtension', false);
     } catch(ex) {
         alert("Places prefs: " + ex);
     }

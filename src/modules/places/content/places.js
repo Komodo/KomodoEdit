@@ -108,14 +108,8 @@ viewMgrClass.prototype = {
                         .QueryInterface(Components.interfaces.nsITreeBoxObject)
                         .view = this.view;
         this.view.initialize();
-        var sortDir;
         var placePrefs = _globalPrefs.getPref("places");
-        if (placePrefs.hasPref("sortDirection")) {
-            var sortDir = placePrefs.getStringPref("sortDirection");
-        }
-        if (!sortDir) {
-            sortDir = 'natural';
-        }
+        var sortDir = placePrefs.getString("sortDirection", "natural");
         this.single_project_view = !ko.projects.manager.initProjectViewPref(_globalPrefs);
         
         if (!widgets.placeView_treeViewDeck) {
@@ -234,7 +228,7 @@ viewMgrClass.prototype = {
             var placePrefs = (Components.classes["@activestate.com/koPrefService;1"].
                               getService(Components.interfaces.koIPrefService).prefs.
                               getPref("places"));
-            var preferDblClickRebase = placePrefs.getBooleanPref('dblClickRebases');
+            var preferDblClickRebase = placePrefs.getBoolean('dblClickRebases', false);
             if (preferDblClickRebase) {
                 ko.places.manager.toggleRebaseFolderByIndex(index);
             } else {
@@ -409,7 +403,7 @@ viewMgrClass.prototype = {
             var placePrefs = (Components.classes["@activestate.com/koPrefService;1"].
                               getService(Components.interfaces.koIPrefService).prefs.
                               getPref("places"));
-            var preferDblClickRebase = placePrefs.getBooleanPref('dblClickRebases');
+            var preferDblClickRebase = placePrefs.getBoolean('dblClickRebases', false);
             if (preferDblClickRebase) {
                 ko.places.manager.toggleRebaseFolderByIndex(index);
             } else {
@@ -1597,7 +1591,7 @@ ManagerClass.prototype = {
                 }
                 if (!parentURI) {
                     if (!forceNewPlaceDir
-                        && !_placePrefs.getBooleanPref('syncAllFiles')) {
+                        && !_placePrefs.getBoolean('syncAllFiles', true)) {
                         // Don't open anything new in places.
                         return;
                     }
@@ -2196,9 +2190,7 @@ ManagerClass.prototype = {
             var placesPrefs = _globalPrefs.getPref("places");
             var name_list = ['lastLocalDirectoryChoice', 'lastRemoteDirectoryChoice', 'lastHomePlace'];
             name_list.forEach(function(name) {
-                if (placesPrefs.hasStringPref(name)) {
-                    this[name] = placesPrefs.getStringPref(name);
-                }
+                this[name] = placesPrefs.getString(name, '');
             }, this);
                     
             this.history_prevPlaces = [];
@@ -2218,11 +2210,7 @@ ManagerClass.prototype = {
                 }
                 setTimeout(window.updateCommands, 100, 'place_history_changed');
             }
-            if (placesPrefs.hasPref('trackCurrentTab')) {
-                this.trackCurrentTab_pref = placesPrefs.getBooleanPref('trackCurrentTab');
-            } else {
-                this.trackCurrentTab_pref = false;
-            }
+            this.trackCurrentTab_pref = placesPrefs.getBoolean('trackCurrentTab', false);
             parent.document.getElementById("places_trackCurrentTab").
                    setAttribute('checked', this.trackCurrentTab_pref);
         } catch(ex) {
@@ -2250,7 +2238,7 @@ ManagerClass.prototype = {
         name_list.map(function(name) {
             if (this[name]) {
                 placesPrefs.setStringPref(name, this[name]);
-            } else {
+            } else if (placesPrefs.hasStringPref(name)) {
                 placesPrefs.deletePref(name);
             }
         }, this);
@@ -2704,8 +2692,7 @@ ManagerClass.prototype = {
                         var pref = uriPrefs.getPref(id);
                         return [id,
                                 pref.getStringPref("viewName"),
-                                (pref.hasPref("timestamp")
-                                 ? pref.getStringPref("timestamp") : "0")];
+                                pref.getString("timestamp", "0")];
                     });
                 nameValueTimeArray.sort(sorter);
                 var numToExcise = nameValueTimeArray.length - maxArraySize;
@@ -2915,11 +2902,7 @@ this.updatePrefsForPref = function(defaultPrefs) {
     // 1 => 2:
     // (VERSION == 3)
     try {
-        if (!defaultPrefs.hasPrefHere("version")) {
-            // Force an update, and get a version pref in this prefset.
-            defaultPrefs.setLongPref("version", 1);
-        }
-        var savedVersion = defaultPrefs.getLongPref("version");
+        var savedVersion = defaultPrefs.getLong("version", 1);
         if (savedVersion < 2) {
             this.updateDefaultPrefsForVersion(defaultPrefs, DEFAULT_EXCLUDE_MATCHES_PART2);
         }
@@ -2971,24 +2954,6 @@ this.onLoad_aux = function places_onLoad_aux() {
         _placePrefs.setPref("filters", filterPrefs);
     } else {
         filterPrefs = _placePrefs.getPref("filters");
-    }
-    if (!_placePrefs.hasPref('dblClickRebases')) {
-        _placePrefs.setBooleanPref('dblClickRebases', false);
-    }
-    if (!_placePrefs.hasPref('showProjectPath')) {
-        // Default is false -- show only basename
-        _placePrefs.setBooleanPref('showProjectPath', false);
-    }
-    if (!_placePrefs.hasPref('show_fullPath_tooltip')) {
-        // Default is true -- show full tooltip in places treebody
-        _placePrefs.setBooleanPref('show_fullPath_tooltip', true);
-    }
-    if (!_placePrefs.hasPref('showProjectPathExtension')) {
-        // Default is false -- show only basename
-        _placePrefs.setBooleanPref('showProjectPathExtension', false);
-    }
-    if (!_placePrefs.hasPref('syncAllFiles')) {
-        _placePrefs.setBooleanPref('syncAllFiles', true);
     }
     this.handle_show_fullPath_tooltip();
     _placePrefs.prefObserverService.addObserverForTopics(
@@ -3131,7 +3096,7 @@ this.onLoad_aux = function places_onLoad_aux() {
 }
 
 this.handle_show_fullPath_tooltip = function() {
-    var show_fullPath_tooltip = _placePrefs.getBooleanPref("show_fullPath_tooltip");
+    var show_fullPath_tooltip = _placePrefs.getBoolean("show_fullPath_tooltip", false);
     var tooltip = show_fullPath_tooltip ? "places-files-tree-popup" : null;
     document.getElementById("places-files-tree-body").
              setAttribute("tooltip", tooltip);
