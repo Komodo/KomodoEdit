@@ -1228,10 +1228,11 @@ sub cons::InstallXpcomComponent {
     defined($mozVersion) or \
         die "When building rule for $fileName: Mozilla version unknown, please Import 'mozVersion'";
     if ($mozVersion > 1.99) {
+        my $baseName = basename($fileName);
         # Some Python components explicitly define their contract information,
-	# such as the koSysUtils color picker, so contracts will be defined for
-	# those cases.
-	if (defined($contracts) or $fileName =~ /\.js$/) {
+        # such as the koSysUtils color picker, so contracts will be defined for
+        # those cases.
+        if (defined($contracts) or $fileName =~ /\.js$/) {
             use Data::Dumper;
             # JS components are hard (since we can't parse it manually)
             # expect more arguments in @_: a hash of contractid -> cid, plus
@@ -1256,7 +1257,7 @@ sub cons::InstallXpcomComponent {
                 );
             }
             my @deps = ("$fileName.manifest.landmark",
-                        "$fileName",
+                        "$mozComponentsDir/$baseName",
                         "$mozComponentsDir/komodo.manifest",
                         "$mozSrc/mozilla/config/buildlist.py");
             push @commands, "touch %>";
@@ -1269,7 +1270,7 @@ sub cons::InstallXpcomComponent {
             defined($sdkDir) or \
                 die "When building rule for $fileName: SDK directory not found, please Import 'sdkDir'";
             $env->Command("$fileName.manifest.landmark",
-                          $fileName,
+                          "$mozComponentsDir/$baseName",
                           "$mozComponentsDir/komodo.manifest",
                           "$sdkDir/pylib/chromereg.py",
                           qq(
@@ -1285,9 +1286,9 @@ sub cons::InstallXpcomComponent {
             defined($sdkDir) or \
                 die "When building rule for $fileName: SDK directory not found, please Import 'sdkDir'";
             $env->Command("$fileName.manifest.landmark",
-                          "$fileName",
+                          "$mozComponentsDir/$baseName",
                           "$mozComponentsDir/komodo.manifest",
-			  "$sdkDir/pylib/chromereg.py",
+                          "$sdkDir/pylib/chromereg.py",
                           qq(
                             $unsiloedPythonExe %3 %2 %1
                             touch %>
