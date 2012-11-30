@@ -173,7 +173,7 @@ class GenericCommandHandler:
             sm.layoutCache = sm.SC_CACHE_NONE
 
 
-    def _resolveDiffPath(self, diff, hunk_path, diff_file):
+    def _resolveDiffPath(self, diff, diff_file, paths):
         """Return a resolved absolute and existing path for the given
         file path indicated in a diff.
         
@@ -191,23 +191,24 @@ class GenericCommandHandler:
         """
         from os.path import normpath, split, dirname, join, exists, abspath, isabs
         
-        if isabs(hunk_path):
-            path = normpath(hunk_path)
-            if exists(path):
-                return path
-        elif diff_file and diff_file.isLocal:
-            # If the hunk path is relative, try using the patch/diff file's
-            # cwd with a few values for strip (aka `patch -p$strip`).
-            cwd = diff_file.dirName
-            subpath = normpath(hunk_path)
-            for i in range(4):  # -p0 ... -p3
-                p = join(cwd, subpath)
-                if exists(p):
-                    return p
-                try:
-                    subpath = subpath.split(os.sep, 1)[1]
-                except IndexError:
-                    break  # out of path segments
+        for hunk_path in paths:
+            if isabs(hunk_path):
+                path = normpath(hunk_path)
+                if exists(path):
+                    return path
+            elif diff_file and diff_file.isLocal:
+                # If the hunk path is relative, try using the patch/diff file's
+                # cwd with a few values for strip (aka `patch -p$strip`).
+                cwd = diff_file.dirName
+                subpath = normpath(hunk_path)
+                for i in range(4):  # -p0 ... -p3
+                    p = join(cwd, subpath)
+                    if exists(p):
+                        return p
+                    try:
+                        subpath = subpath.split(os.sep, 1)[1]
+                    except IndexError:
+                        break  # out of path segments
         return None
 
     def _is_cmd_jumpToCorrespondingLine_enabled(self):
@@ -234,8 +235,8 @@ class GenericCommandHandler:
         
         # Ensure can use that file path (normalized, not relative,
         # etc.)
-        resolvedFilePath = self._resolveDiffPath(
-            diff, currentPosFilePath, self._view.koDoc.file)
+        paths = diff.possible_paths_from_diff_pos(currentPosLine, currentPosCol)
+        resolvedFilePath = self._resolveDiffPath(diff, self._view.koDoc.file, paths)
         if not resolvedFilePath:
             msg = "could not jump to corresponding line: `%s' does not exist" \
                   % currentPosFilePath
