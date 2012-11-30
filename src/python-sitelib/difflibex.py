@@ -352,6 +352,18 @@ class FileDiff:
             return path
         return os.path.join(cwd, path)
 
+    def all_paths(self, cwd=None):
+        """Return a list of possible paths for this hunk."""
+        best_path = self.best_path(cwd=cwd)
+        all_paths = [best_path]
+        for path in self.paths.values():
+            if path == best_path:
+                continue
+            if path and cwd and not os.path.isabs(path):
+                path = os.path.join(cwd, path)
+            all_paths.append(path)
+        return all_paths
+
     def pprint(self, indent=' '*4):
         best_path = self.best_path()
         if best_path is None:
@@ -663,24 +675,12 @@ class Diff:
             else:
                 raise ValueError("unknown state: '%s'" % state)
 
-    def file_pos_from_diff_pos(self, diff_line, diff_col):
-        """Return a file position for the given position in the diff content.
-
-        Where to set the file position isn't always obvious. The most literal
-        result would just be a simple line count into the diff hunk offset
-        by the start line from the hunk header. Eventually this could get
-        smarter and try to account for patch-like fuzz and offsets.
-
-        All line and column values are 0-based.
-
-        Returns a 3-tuple:
-            (<file-path>, <file-line>, <file-col>)
-        If a file position could not be found, then a DiffLibExError is raised
-        giving the reason (e.g. the diff position might not be in a diff hunk).
-        """
-        # Find the file_diff and hunk that this diff_line applies to.
+    def file_diff_and_hunk_from_pos(self, diff_line, diff_col):
+        """Return the file_diff and hunk that this diff_line applies to."""
         # We are generous here, allowing a line outside of the strict diff
         # hunk area to apply to the following hunk.
+        if not self.file_diffs:
+            raise DiffLibExError("No file diffs are available")
         for file_diff in self.file_diffs:
             for hunk in file_diff.hunks:
                 if diff_line < hunk.end_line:
@@ -698,11 +698,30 @@ class Diff:
                 and diff_line == self.file_diffs[-1].hunks[-1].end_line
                ):
                 file_diff = self.file_diffs[-1]
+                hunk = file_diff.hunks[-1]
                 diff_line -= 1
                 diff_col = len(self.lines[diff_line])
             else:
                 raise DiffLibExError("(this one) line %s is not in a diff hunk"
                                      % (diff_line+1))
+        return file_diff, hunk
+
+    def file_pos_from_diff_pos(self, diff_line, diff_col):
+        """Return a file position for the given position in the diff content.
+
+        Where to set the file position isn't always obvious. The most literal
+        result would just be a simple line count into the diff hunk offset
+        by the start line from the hunk header. Eventually this could get
+        smarter and try to account for patch-like fuzz and offsets.
+
+        All line and column values are 0-based.
+
+        Returns a 3-tuple:
+            (<file-path>, <file-line>, <file-col>)
+        If a file position could not be found, then a DiffLibExError is raised
+        giving the reason (e.g. the diff position might not be in a diff hunk).
+        """
+        file_diff, hunk = self.file_diff_and_hunk_from_pos(diff_line, diff_col)
         file_path = file_diff.best_path()
         log.debug("diff pos (%d, %d) is in a '%s' hunk", diff_line, diff_col,
                   file_path)
@@ -872,6 +891,14 @@ class Diff:
 
         return (file_path, file_line, file_col)
 
+    def possible_paths_from_diff_pos(self, diff_line, diff_col):
+        """Return a list of all possible file paths for the given position.
+
+        If a file position could not be found, then a DiffLibExError is raised
+        giving the reason (e.g. the diff position might not be in a diff hunk).
+        """
+        file_diff, hunk = self.file_diff_and_hunk_from_pos(diff_line, diff_col)
+        return file_diff.all_paths()
 
 #---- internal support stuff
 
