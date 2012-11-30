@@ -184,8 +184,8 @@ class GenericCommandHandler:
         TODO: This heuristic should be added to views-diff.xml as well.
 
         @param diff {difflibex.Diff} The parsed diff.
-        @param hunk_path {str} The diff's path for this diff hunk.
         @param diff_file {koIFileEx} for the diff/patch file (used for a cwd).
+        @param paths {list} The possible path for this diff hunk.
         @returns An existing absolute path to which `hunk_path` is pointing;
             or None if it could not be found.
         """
