@@ -1225,80 +1225,73 @@ sub cons::InstallXpcomComponent {
         die "*** mozComponentsDir is not defined for $fileName\n";
     # install in the Mozilla XPCOM components dir
     $env->Install($mozComponentsDir, $fileName);
-    defined($mozVersion) or \
-        die "When building rule for $fileName: Mozilla version unknown, please Import 'mozVersion'";
-    if ($mozVersion > 1.99) {
-        my $baseName = basename($fileName);
-        # Some Python components explicitly define their contract information,
-        # such as the koSysUtils color picker, so contracts will be defined for
-        # those cases.
-        if (defined($contracts) or $fileName =~ /\.js$/) {
-            use Data::Dumper;
-            # JS components are hard (since we can't parse it manually)
-            # expect more arguments in @_: a hash of contractid -> cid, plus
-            # an arbitrary number of [category, entry, value] category entries
-            defined($unsiloedPythonExe) or \
-                die "When building rule for $fileName: Unsiloed Python not found, please Import 'unsiloedPythonExe'";
-            defined($mozSrc) or \
-                die "When building rule for $fileName: Mozilla source not found, please Import 'mozSrc'";
-            defined($contracts) or \
-                die "When building rule for $fileName: no contractid / cid defined";
-            my @commands = ();
-            while (my ($contractid, $cid) = each %$contracts) {
-                push @commands, qq(
-                    $unsiloedPythonExe %3 %2 "contract $contractid $cid"
-                    $unsiloedPythonExe %3 %2 "component $cid %1:f"
-                );
-            }
-            while (my $catEntry = shift) {
-                my ($category, $entry, $value) = @$catEntry;
-                push @commands, qq(
-                    $unsiloedPythonExe %3 %2 "category $category $entry $value"
-                );
-            }
-            my @deps = ("$fileName.manifest.landmark",
-                        "$mozComponentsDir/$baseName",
-                        "$mozComponentsDir/komodo.manifest",
-                        "$mozSrc/mozilla/config/buildlist.py");
-            push @commands, "touch %>";
-            push @deps, join("\n", @commands);
-            $env->Command(@deps);
+    my $baseName = basename($fileName);
+    # Some Python components explicitly define their contract information,
+    # such as the koSysUtils color picker, so contracts will be defined for
+    # those cases.
+    if (defined($contracts) or $fileName =~ /\.js$/) {
+        use Data::Dumper;
+        # JS components are hard (since we can't parse it manually)
+        # expect more arguments in @_: a hash of contractid -> cid, plus
+        # an arbitrary number of [category, entry, value] category entries
+        defined($unsiloedPythonExe) or \
+            die "When building rule for $fileName: Unsiloed Python not found, please Import 'unsiloedPythonExe'";
+        defined($mozSrc) or \
+            die "When building rule for $fileName: Mozilla source not found, please Import 'mozSrc'";
+        defined($contracts) or \
+            die "When building rule for $fileName: no contractid / cid defined";
+        my @commands = ();
+        while (my ($contractid, $cid) = each %$contracts) {
+            push @commands, qq(
+                $unsiloedPythonExe %3 %2 "contract $contractid $cid"
+                $unsiloedPythonExe %3 %2 "component $cid %1:f"
+            );
         }
-        elsif ($fileName =~ /\.py$/) {
-            defined($unsiloedPythonExe) or \
-                die "When building rule for $fileName: Unsiloed Python not found, please Import 'unsiloedPythonExe'";
-            defined($sdkDir) or \
-                die "When building rule for $fileName: SDK directory not found, please Import 'sdkDir'";
-            $env->Command("$fileName.manifest.landmark",
-                          "$mozComponentsDir/$baseName",
-                          "$mozComponentsDir/komodo.manifest",
-                          "$sdkDir/pylib/chromereg.py",
-                          qq(
-                            $unsiloedPythonExe %3 %2 %1
-                            touch %>
-                          ));
-            # just mark this as "required" :(
-            $env->DependsOnRegxpcom("$fileName.manifest.landmark");
+        while (my $catEntry = shift) {
+            my ($category, $entry, $value) = @$catEntry;
+            push @commands, qq(
+                $unsiloedPythonExe %3 %2 "category $category $entry $value"
+            );
         }
-        elsif ($fileName =~ /\.(dll|so|dylib)$/) {
-            defined($unsiloedPythonExe) or \
-                die "When building rule for $fileName: Unsiloed Python not found, please Import 'unsiloedPythonExe'";
-            defined($sdkDir) or \
-                die "When building rule for $fileName: SDK directory not found, please Import 'sdkDir'";
-            $env->Command("$fileName.manifest.landmark",
-                          "$mozComponentsDir/$baseName",
-                          "$mozComponentsDir/komodo.manifest",
-                          "$sdkDir/pylib/chromereg.py",
-                          qq(
-                            $unsiloedPythonExe %3 %2 %1
-                            touch %>
-                          ));
-            # just mark this as "required" :(
-            $env->DependsOnRegxpcom("$fileName.manifest.landmark");
-        }
-    } else {
-        # make the component dependent on registration with the XPCOM registry
-        $env->DependsOnRegxpcom("$mozComponentsDir/" . basename($fileName));
+        my @deps = ("$fileName.manifest.landmark",
+                    "$mozComponentsDir/$baseName",
+                    "$mozComponentsDir/komodo.manifest",
+                    "$mozSrc/mozilla/config/buildlist.py");
+        push @commands, "touch %>";
+        push @deps, join("\n", @commands);
+        $env->Command(@deps);
+    }
+    elsif ($fileName =~ /\.py$/) {
+        defined($unsiloedPythonExe) or \
+            die "When building rule for $fileName: Unsiloed Python not found, please Import 'unsiloedPythonExe'";
+        defined($sdkDir) or \
+            die "When building rule for $fileName: SDK directory not found, please Import 'sdkDir'";
+        $env->Command("$fileName.manifest.landmark",
+                      "$mozComponentsDir/$baseName",
+                      "$mozComponentsDir/komodo.manifest",
+                      "$sdkDir/pylib/chromereg.py",
+                      qq(
+                        $unsiloedPythonExe %3 %2 %1
+                        touch %>
+                      ));
+        # just mark this as "required" :(
+        $env->DependsOnRegxpcom("$fileName.manifest.landmark");
+    }
+    elsif ($fileName =~ /\.(dll|so|dylib)$/) {
+        defined($unsiloedPythonExe) or \
+            die "When building rule for $fileName: Unsiloed Python not found, please Import 'unsiloedPythonExe'";
+        defined($sdkDir) or \
+            die "When building rule for $fileName: SDK directory not found, please Import 'sdkDir'";
+        $env->Command("$fileName.manifest.landmark",
+                      "$mozComponentsDir/$baseName",
+                      "$mozComponentsDir/komodo.manifest",
+                      "$sdkDir/pylib/chromereg.py",
+                      qq(
+                        $unsiloedPythonExe %3 %2 %1
+                        touch %>
+                      ));
+        # just mark this as "required" :(
+        $env->DependsOnRegxpcom("$fileName.manifest.landmark");
     }
 }
 
