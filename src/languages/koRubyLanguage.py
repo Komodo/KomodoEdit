@@ -50,7 +50,6 @@ import scimozindent
 import which
 # import time  #for interal timing only
 
-import sciutils
 from koLanguageServiceBase import *
 from koLanguageKeywordBase import KoLanguageKeywordBase
 
@@ -275,7 +274,7 @@ end section
         # tokens ends with the token before the 'do' that triggered this
         check_for_rhtml = do_style == sci_constants.SCE_UDL_SSL_WORD
         for tok in reversed(tokens):
-            (style, text, tok_pos) = tok.explode()
+            (style, text, _) = tok.explode()
             if style in style_info._keyword_styles and text in self._loop_kwds:
                 return True
             elif style in style_info._lineup_styles and text == ";":
@@ -290,7 +289,7 @@ end section
     def _have_significant_ending_do(self, scimoz, style_info, lineStartPos, initialPos):
         tokens = self._get_line_tokens(scimoz, lineStartPos, initialPos, style_info, additional_ignorable_styles=style_info._default_styles)
         try:
-            (style, text, tok_pos) = tokens[-1].explode()
+            (style, text, _) = tokens[-1].explode()
         except IndexError:
             return False
         if not (style in style_info._keyword_styles and text == 'do'):
@@ -401,12 +400,11 @@ end section
         leading_ws, leading_kwd = wmatch.group(1, 2)
         do_smart_indenting = True
         try:
-            res, res_buf = scimoz.getProperty('smartCloseTags')
+            _, res_buf = scimoz.getProperty('smartCloseTags')
             if res_buf == "0":
                 do_smart_indenting = False
         except Exception, ex:
             log.debug("smartCloseTags: %s", ex)
-            pass
         
         if leading_kwd not in self._dedent_sliders and do_smart_indenting:
             if leading_kwd in self._limited_openers:
@@ -516,7 +514,7 @@ end section
         if self._is_special_variable(scimoz, pos,
                                      self.isUDL() and scimoz.SCE_UDL_SSL_VARIABLE or scimoz.SCE_RB_GLOBAL):
             return None
-        return KoLanguageKeywordBase.softchar_accept_matching_backquote(self, scimoz, pos, style_info, candidate);
+        return KoLanguageKeywordBase.softchar_accept_matching_backquote(self, scimoz, pos, style_info, candidate)
 
     def softchar_accept_matching_double_quote(self, scimoz, pos, style_info, candidate):
         """First verify that we aren't seeing $"
@@ -524,7 +522,7 @@ end section
         if self._is_special_variable(scimoz, pos,
                                      self.isUDL() and scimoz.SCE_UDL_SSL_VARIABLE or scimoz.SCE_RB_GLOBAL):
             return None
-        return KoLanguageKeywordBase.softchar_accept_matching_double_quote(self, scimoz, pos, style_info, candidate);
+        return KoLanguageKeywordBase.softchar_accept_matching_double_quote(self, scimoz, pos, style_info, candidate)
 
     def _softchar_accept_match_outside_strings(self, scimoz, pos, style_info, candidate):
         """
@@ -594,10 +592,10 @@ end section
         return len(space_str)
 
     # This not used yet, but hang on...
-    def _getNormalizedIndentStr(self, scimoz, len):
-        if len <= 0:
+    def _getNormalizedIndentStr(self, scimoz, slen):
+        if slen <= 0:
             return ""
-        str1 = " " * len
+        str1 = " " * slen
         if not scimoz.getUseTabs(): return str1
         tabLen = scimoz.GetTabWidth()
         if tabLen <= 0: return str1
@@ -629,21 +627,6 @@ end section
         # Adapted from koLanguageCommandHandler.py
         return scimoz.getFoldLevel(line) & scimoz.SC_FOLDLEVELNUMBERMASK
     
-    def _getFoldLevelsFromPos(self, scimoz, currentPos, curr_line=None):
-        try:
-            if curr_line is None: curr_line = scimoz.lineFromPosition(currentPos)
-            curr_fold_level = self._getFoldLevel(scimoz, curr_line)
-            if curr_line == 0: return (curr_fold_level, curr_fold_level)
-            prev_line = curr_line - 1
-            if prev_line == 0:
-                # Can't go any higher
-                parent_fold_level = self._getFoldLevel(scimoz, prev_line)
-            else:
-                parentLine = scimoz.getFoldParent(prev_line)
-                parent_fold_level = self._getFoldLevel(scimoz, parentLine)
-        except:
-            pass
-        
     # Override computeIndent
     def computeIndent(self, scimoz, indentStyle, continueComments):
         if continueComments:
@@ -717,7 +700,6 @@ end section
                         if idx == len(tokens) - 1:
                             #indentlog.debug("this is the last token(%d)", idx)
                             lineEndPos = scimoz.getLineEndPosition(scimoz.lineFromPosition(tok_pos))
-                            eolLen = len(eol2eolStr[scimozEOL2eol[scimoz.eOLMode]])
                             if tok_pos + len(text) == lineEndPos:
                                 # Do a bracketing instead
                                 bracketPos = self._getIndentWidthForLine(scimoz, curr_line) + indent_amount
@@ -793,7 +775,7 @@ end section
                     # Check to see if the line ends with this style,
                     # and if it does use the indentation based at that line
                     if new_line is None or new_line >= curr_line:
-                        log.debug("_calcIndentLevel: can't find start of token while at (%d:%d) => same line, greater pos of (%d)" % (curr_line, tok_pos))
+                        log.debug("_calcIndentLevel: can't find start of token while at (%d:%d) => same line, greater pos of (%d)" % (curr_line, tok_pos, new_pos))
                         return self._getActualIndent(scimoz, curr_line, lineStartPos)
                     
                     #log.debug("_calcIndentLevel: string-moved from (%d:%d) to (%d:%d)" % (curr_line, tok_pos, new_line, new_pos))
@@ -830,7 +812,6 @@ end section
         # current indentation level in effect at whatever line
         # we ended up at.
         
-        parent_line = None
         if indent_delta == 0:
             return self._getActualIndent(scimoz, curr_line, lineStartPos, currentPos)
         elif indent_delta > 0:
@@ -859,18 +840,18 @@ end section
             return istr
         # end if
 
-    def _dump_tokens(self, tokens, log=log):
+    def _dump_tokens(self, tokens, log2=log):
         str2 = "tokens: \n"
         for tok in tokens:
             str2 += "[%d %s %d]" % (tok.explode())
-        log.debug(str2)
+        log2.debug(str2)
         
     def _lineEndsWithStyle(self, scimoz, style, curr_line):
         # This routine has a flaw:
         # If the string ends at the very end of the buffer, and we
         # press return, the EOL hasn't been styled yet, 
         endPos = scimoz.getLineEndPosition(curr_line)
-        bufferSize = scimoz.length;
+        bufferSize = scimoz.length
         if endPos >= bufferSize:
             log.debug("_lineEndsWithStyle: endPos = %d, bufferSize = %d, end-style=%d, charNum=%d, setting..." % (endPos, bufferSize, style, scimoz.getCharAt(endPos)))
             endPos = bufferSize - 1
@@ -891,7 +872,7 @@ end section
         log.debug("_is_continuation_line(%d) over [%d:%d]" % (line_no, sol_pos, eol_pos))
 
         if eol_pos < sol_pos: # A true empty line?
-            return False;
+            return False
         style = getActualStyle(scimoz, eol_pos)
         if style not in style_info._default_styles:
             return
@@ -1138,7 +1119,7 @@ class KoRubyCompileLinter:
             return results
         if not self.warning_re:
             self._define_res()
-        datalines = re.split('\r\n|\r|\n',text)
+        datalines = re.split('\r\n|\r|\n', text)
         reported = {}
         i = 0
         numLines = len(lines)
@@ -1202,7 +1183,6 @@ class KoRubyCompileLinter:
                     result.columnEnd = col_right + 1
                 except:
                     log.warn("Got exception computing _parseRubyResults", exc_info=1)
-                    pass
                 i += 3
             else:
                 i += 1
