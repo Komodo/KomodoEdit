@@ -1143,6 +1143,10 @@ this._findCommonParent = function(currentParentDir, nextParentDir) {
     }
 }
 
+this._canonicalizeURI = function _canonicalizeURI(uri) {
+    return ko.uriparse.localPathToURI(ko.uriparse.URIToLocalPath(uri));
+};
+
 this._handleDroppedURLs = function(index, koDropDataList, copying) {
     var koDropData;
     var targetDirectory;
@@ -1154,30 +1158,44 @@ this._handleDroppedURLs = function(index, koDropDataList, copying) {
     var parent = this.getContainerFromIndex(index);
     var targetURI = this._removeTrailingSlash(ko.uriparse.localPathToURI(targetDirectory));
     var loadedSomething = false;
-    var url;
+    var sourceURI, url;
     var view = this.manager.view;
+    var msg;
+    var moduleName = "ko.toolbox2.doDrop";
     // First verify that all of the items can be dropped on the target.
     for (var i = 0; i < koDropDataList.length; i++) {
         koDropData = koDropDataList[i];
-        var sourceURI = this._removeTrailingSlash(koDropData.value);
+        // Bug 96385: because we do string-matching on URIs to test for
+        // identity, don't trust the drag-drop service to correctly escape
+        // all the characters that koIFileEx does.
+        try {
+            sourceURI = this._canonicalizeURI(this._removeTrailingSlash(koDropData.value));
+        } catch(ex) {
+            msg = peFolder_bundle.formatStringFromName("Problem trying to canonicalize the URI for X", [koDropData.value], 1);
+            this.log.exception(ex, msg);
+            ko.dialogs.alert("Internal Error: " + msg);
+            continue;
+        }
         if (targetURI == sourceURI) {
-            this.log.error("ko.toolbox2.doDrop: can't drop directory "
-                           + sourceURI
-                           + " onto itself");
+            msg = peFolder_bundle.formatStringFromName("X cant drop directory Y onto itself",
+                         [moduleName, sourceURI], 2);
+            this.log.error(msg)
+            ko.dialogs.alert(msg);
             return false;
         }
         var sourceURIParent = sourceURI.substr(0, sourceURI.lastIndexOf("/"));
         if (targetURI == sourceURIParent && !copying) {
-            this.log.error("ko.toolbox2.doDrop: can't drop the item "
-                           + sourceURI
-                           + " onto its parent.");
+            msg = peFolder_bundle.formatStringFromName("X cant drop item Y onto its parent",
+                       [moduleName, sourceURI], 2);
+            this.log.error(msg)
+            ko.dialogs.alert(msg);
             return false;
         }
         else if (targetURI.indexOf(this._addTrailingSlash(sourceURI)) == 0) {
-            this.log.error("ko.toolbox2.doDrop: can't drop the item "
-                           + sourceURI
-                           + " onto its  descendant "
-                           + targetURI);
+            msg = peFolder_bundle.formatStringFromName("X cant drop item Y onto its descendant Z",
+                       [moduleName, sourceURI, targetURI], 3);
+            this.log.error(msg)
+            ko.dialogs.alert(msg);
             return false;
         }
     }
