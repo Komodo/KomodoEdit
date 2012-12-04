@@ -60,7 +60,7 @@ testdir_from_ns = {
     "components": join("..", "src", "components", "test"),
     "jstest": "jstest",
 }
-default_tags = ["-knownfailure"]
+default_tags = ["-knownfailure", "-casper"]
 
 
 def setup():
