@@ -911,6 +911,21 @@ def StripBinaries(topdir):
         except OSError:
             pass   # Ignore errors from trying to strip binaries.
 
+def GenerateCaches(cfg):
+    """Generate various cache files for faster loading"""
+
+    # Generate a pickled version of the prefs file - bug 96273.
+    import tmShUtil
+    oldDir = os.getcwdu()
+    cmd = '"%s/mozpython" src/prefs/pref_pickler.py' % (cfg.mozBin,)
+    print("running '%s' in '%s'" % (cmd, cfg.komodoDevDir))
+    try:
+        os.chdir(cfg.komodoDevDir)
+        tmShUtil.RunInContext(cfg.envScriptName,
+                              [cmd])
+    finally:
+        os.chdir(oldDir)
+
 def ImageKomodo(cfg, argv):
     """Build the Komodo install image."""
     from os.path import join, isdir, exists, dirname, basename
@@ -1188,6 +1203,8 @@ def ImageKomodo(cfg, argv):
         # Don't need the pyxpcom manifest as we have our own komodo manifest.
         ("trim", iimozbinpath("components", "pyxpcom.manifest")),
     ]
+
+    GenerateCaches(cfg)
 
     # Start with a fresh image
     basedir = "install" #ipkgpath()
