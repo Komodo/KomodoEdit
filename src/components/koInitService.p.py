@@ -1070,9 +1070,6 @@ class KoInitService(object):
 
             import directoryServiceUtils
             pylibDirs = directoryServiceUtils.getPylibDirectories()
-            for pylibDir in pylibDirs:
-                if pylibDir not in sys.path:
-                    sys.path.append(pylibDir)
             # Prime the pump for the `langinfo' database.
             import langinfo
             langinfo.set_default_dirs(pylibDirs)

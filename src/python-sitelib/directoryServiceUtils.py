@@ -72,29 +72,21 @@ def getExtensionDirectories():
     """
     global _gExtensionDirectoriesCache
     if _gExtensionDirectoriesCache is None:
-        dirs = set()
+        dirs = [d.path for d in getFiles("XREExtDL")]
+        # Allow a custom directory service to provide additional extension
+        # directories using the special "PyxpcomExtDirList" key.
         try:
-            iniFile = getFile("ProfD")
-            iniFile.append("extensions.ini")
-            config = ConfigParser.RawConfigParser()
-            config.read(iniFile.path)
-            if config.has_section("ExtensionDirs"):
-                for name, dir in config.items("ExtensionDirs"):
-                    if os.path.exists(dir):
-                        dirs.add(dir)
+            dirs += [d.path for d in getFiles("PyxpcomExtDirList")]
         except COMException:
-            # Hopefully this means we're in a unit test and not a real app,
-            # so ask the test service for it.
-            try:
-                for d in getFiles("koTestExtDirL"):
-                    dirs.add(d.path)
-            except COMException as e:
-                # Okay, that didn't work either; perhaps we're just in early
-                # startup. _Hopefully_ this means ProfD isn't valid yet; pass
-                # an empty list back, but don't update the cache since we might
-                # have better luck next time.
-                return []
-        _gExtensionDirectoriesCache = list(dirs)
+            pass
+        if not dirs:
+            # Okay, that didn't work; perhaps we're just in early startup.
+            # _Hopefully_ this means XREExtDL isn't valid yet; pass an empty
+            # list back, but don't update the cache since we might have better
+            # luck next time.
+            return []
+        # Make them unique - ordering does not matter.
+        _gExtensionDirectoriesCache = list(set(dirs))
     return _gExtensionDirectoriesCache
 
 _gPylibDirectoriesCache = None
