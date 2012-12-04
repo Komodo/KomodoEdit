@@ -293,6 +293,14 @@ class KoInitService(object):
         log = logging.getLogger("koInitService")
         #log.setLevel(logging.DEBUG)
 
+        # Lower the Python interpreters check interval so Komodo is more
+        # responsive when there are cpu-intensive threads running, bug 96340.
+        # This will cause more thread context switches, but that's okay as we
+        # want the main UI thread to be responsive and this is the best thing
+        # we've got to make that happen.
+        # http://docs.python.org/2/library/sys.html#sys.setcheckinterval
+        sys.setcheckinterval(15)
+
         # Warn about multiple inits of init service -- possible with
         # circular usages of koIInitService (bug 81114).
         if hasattr(sys, "_komodo_initsvc_init_count_sentinel"):
