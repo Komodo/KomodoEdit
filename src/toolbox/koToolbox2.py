@@ -890,12 +890,10 @@ class Database(object):
               and cd2.type = "folder" and (%s)
               and cd1.path_id = p1.id
               and cd2.path_id = p2.id
-              and substr(p2.path, 1, length(p1.path)) = p1.path
-              and substr(p2.path, length(p1.path) + 1, 1) = "%s"
+              and substr(p2.path, 1, length(p1.path) + 1) = p1.path || "%s"
               and cd3.type = "snippet" and cd3.name like ?
               and cd3.path_id = p3.id
-              and substr(p3.path, 1, length(p2.path)) = p2.path
-              and substr(p3.path, length(p2.path) + 1, 1) = "%s"
+              and substr(p3.path, 1, length(p2.path) + 1) = p2.path || "%s"
               ;""" %  (q_subnames, os.path.sep, os.path.sep)
         value_tuple = tuple(subnames + [abbrev])
         cu.execute(stmt, value_tuple)
