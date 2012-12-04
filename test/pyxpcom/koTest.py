@@ -95,7 +95,7 @@ class KoTestDirectoryProvider:
         
     def getFiles(self, prop):
         paths = []
-        if prop == "koTestExtDirL":  # Komodo Testing extension dirs list
+        if prop == "PyxpcomExtDirList":  # Pyxpcom standalone extension dirs
             paths = self.__getExtensionDirs()
         elif prop == "ComsDL":  # extension/component dirs list
             extension_paths = self.__getExtensionDirs()
@@ -147,7 +147,7 @@ class KoTestService:
         dirSvc.registerProvider(provider)
 
         # register components from the extensions (so we can test them)
-        enum = provider.getFiles("koTestExtDirL")
+        enum = provider.getFiles("PyxpcomExtDirList")
         while enum.hasMoreElements():
             d = enum.getNext()
             if os.path.split(d.path)[-1].lower() == "publishing@activestate.com":
