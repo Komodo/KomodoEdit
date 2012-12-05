@@ -424,6 +424,9 @@ $consLocal->InstallRecursive($landmark,
 $consLocal->Install("$supportDir/lint/javascript", "jslint/fulljslint.js");
 $consLocal->Install("$supportDir/lint/javascript", "jslint/jshint.js");
 
+# ejs
+$consLocal->InstallAs("$mozChromeDir/komodo/content/library/ejs.js", "ejs/ejs_edited.js");
+
 #less css
 $consLocal->Install("$supportDir/lint/javascript", "jslint/jshint.js");
 $consLocal->InstallAs("$mozChromeDir/komodo/content/contrib/less.js", "smallstuff/less.js");

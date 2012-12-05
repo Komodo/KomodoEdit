@@ -179,6 +179,9 @@ this.snippetInsert = function Snippet_insert (snippet) { // a part
     try {
         try {
             enteredUndoableTabstop = ko.projects.snippetInsertImpl(snippet, view);
+        } catch (ex if ex instanceof ko.snippets.RejectedSnippet) {
+            var msg = _bundle.formatStringFromName("snippet X insertion deliberately suppressed", [snippet.name], 1);
+            ko.statusBar.AddMessage(msg, "Editor", 1000, true);
         } catch (ex) {
             var errno = lastErrorSvc.getLastErrorCode();
             if (errno == Components.results.NS_ERROR_ABORT) {
@@ -303,7 +306,11 @@ this.snippetInsertImpl = function snippetInsertImpl(snippet, view /* =<curr view
         eol_str = "\r";
         break;
     };
-    var text = text.replace(/\r\n|\n|\r/g, eol_str);
+    if (text.indexOf("<%") >= 0) {
+        text = text = this._textFromEJSTemplate(text, eol, eol_str);
+    } else {
+        text = text.replace(/\r\n|\n|\r/g, eol_str);
+    }
     
     // detect if there are tabstops before we interpolate the snippet text
     var hasTabStops = ko.tabstops.textHasTabstops(text);
@@ -492,6 +499,36 @@ this.snippetInsertImpl = function snippetInsertImpl(snippet, view /* =<curr view
     return enteredUndoableTabstop;
 }
 
+this._textFromEJSTemplate = function _textFromEJSTemplate(text, eol, eol_str) {
+    // ejs will convert all \r and \r\n's to \n, so we'll need to
+    // convert them back to eol_str on return
+    // But make sure the snippet metadata isn't caught inside an EJS part
+    var ptn = new RegExp('(<%)((?:(?!%>)[\\s\\S])*?)'
+                         + '(' + ANCHOR_MARKER + "|" + CURRENTPOS_MARKER + ')'
+                         + '([\\s\\S]*?)(%>)');
+    while (ptn.test(text)) {
+        text = text.replace(ptn, "$1$2$4$5$3");
+    }
+    var ejs = null;
+    try {
+        ejs = new ko.snippets.EJS(text);
+    } catch(ex) {
+        ex.fileName = ko.snippets.snippetPathShortName(snippet);
+        var msg2 = _bundle.formatStringFromName("snippet exception details 2",
+                                                [ex.fileName], 1);
+        var msg3 = _bundle.formatStringFromName("snippet exception details 3",
+                                                [ex.lineNumber + 1], 1);
+        var msg = ex + "\n" + msg2 + "\n" + msg3;
+        ko.dialogs.alert(null, msg,
+                         _bundle.GetStringFromName("Error in snippet"));
+        throw new ko.snippets.RejectedSnippet(ex);
+    }
+    var ejsOut = ejs.render();
+    text = (eol != Components.interfaces.koIDocument.EOL_LF
+            ? ejsOut.replace(/\n/g, eol_str)
+            : ejsOut);
+    return text;
+};
 
 /* Utility functions */
 
