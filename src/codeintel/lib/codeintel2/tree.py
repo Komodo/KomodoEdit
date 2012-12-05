@@ -650,6 +650,16 @@ class TreeEvaluator(CitadelEvaluator):
                           signature, attributes, returns, scopestart, scopeend)
         return defn
 
+    class _infinite_recursion_checker(object):
+        def __init__(self, evalr):
+            self.evalr = evalr
+        def __enter__(self):
+            self.evalr._eval_count_all += 1
+            if self.evalr._eval_count_all >= self.evalr._SENTINEL_MAX_ALL_COUNT:
+                raise EvalError("Too much recursion")
+        def __exit__(self, exc_type, exc_value, traceback):
+            self.evalr._eval_count_all -= 1
+
     # The SENTINEL_MAX_EXPR_COUNT could probably be *reduced*.
     # Note: This is an approximation that we are infinitely looping
     # on the same evaluation. The *actual* appropriate key would be:
@@ -658,7 +668,9 @@ class TreeEvaluator(CitadelEvaluator):
     #
     # but that is overkill for now, I think.
     _SENTINEL_MAX_EXPR_COUNT = 10
+    _SENTINEL_MAX_ALL_COUNT = 100
     _eval_count_from_expr = None
+    _eval_count_all = 0
     def _check_infinite_recursion(self, expr):
         if self._eval_count_from_expr is None:
             # Move this init into eval() when on TreeEvalutor.
@@ -669,6 +681,7 @@ class TreeEvaluator(CitadelEvaluator):
             raise EvalError("hit eval sentinel: expr '%s' eval count "
                             "is %d (abort)" % (expr, eval_count))
         self._eval_count_from_expr[expr] = eval_count
+        return TreeEvaluator._infinite_recursion_checker(self)
 
 
 #---- internal support stuff

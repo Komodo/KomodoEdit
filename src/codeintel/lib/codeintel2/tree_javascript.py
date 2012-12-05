@@ -394,78 +394,78 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
         return calltips
 
     def _hits_from_citdl(self, expr, scoperef, defn_only=False):
-        self._check_infinite_recursion(expr)
+        with self._check_infinite_recursion(expr):
 
-        if "[" in expr:
-            # TODO: We cannot resolve array type inferences yet.
-            raise CodeIntelError("no type-inference yet for arrays: %r" % expr)
+            if "[" in expr:
+                # TODO: We cannot resolve array type inferences yet.
+                raise CodeIntelError("no type-inference yet for arrays: %r" % expr)
 
-        tokens = list(self._tokenize_citdl_expr(expr))
+            tokens = list(self._tokenize_citdl_expr(expr))
 
-        #self.log("expr tokens: %r", tokens)
+            #self.log("expr tokens: %r", tokens)
 
-        # First part... we try to match as much as possible straight up
-        hits, nconsumed = self._hits_from_first_part(tokens, scoperef)
-        if not hits:
-            raise CodeIntelError("could not resolve first part of '%s'" % expr)
-        self.debug("_hits_from_citdl: first part: %r -> %r",
-                   tokens[:nconsumed], hits)
+            # First part... we try to match as much as possible straight up
+            hits, nconsumed = self._hits_from_first_part(tokens, scoperef)
+            if not hits:
+                raise CodeIntelError("could not resolve first part of '%s'" % expr)
+            self.debug("_hits_from_citdl: first part: %r -> %r",
+                       tokens[:nconsumed], hits)
 
-        # ...the remainder.
-        remaining_tokens = tokens[nconsumed:]
-        for token in tokens[nconsumed:]:
-            new_hits = []
-            for elem, scoperef in hits:
-                self.debug("_hits_from_citdl: resolve %r on %r in %r",
-                           token, elem, scoperef)
-                if token == "()":
-                    try:
-                        new_hits += self._hits_from_call(elem, scoperef)
-                    except CodeIntelError, ex:
-                        self.warn("could resolve call on %r: %s", elem, ex)
-                else:
-                    try:
-                        new_hit = self._hit_from_getattr(
-                                    elem, scoperef, token)
-                    except CodeIntelError, ex:
-                        self.warn(str(ex))
+            # ...the remainder.
+            remaining_tokens = tokens[nconsumed:]
+            for token in tokens[nconsumed:]:
+                new_hits = []
+                for elem, scoperef in hits:
+                    self.debug("_hits_from_citdl: resolve %r on %r in %r",
+                               token, elem, scoperef)
+                    if token == "()":
+                        try:
+                            new_hits += self._hits_from_call(elem, scoperef)
+                        except CodeIntelError, ex:
+                            self.warn("could resolve call on %r: %s", elem, ex)
                     else:
-                        new_hits.append(new_hit)
-            hits = new_hits 
+                        try:
+                            new_hit = self._hit_from_getattr(
+                                        elem, scoperef, token)
+                        except CodeIntelError, ex:
+                            self.warn(str(ex))
+                        else:
+                            new_hits.append(new_hit)
+                hits = new_hits
 
-        # Resolve any variable type inferences.
-        #XXX Don't we have to *recursively* resolve hits?
-        #    If that is done, then need to watch out for infinite loop
-        #    because _hits_from_variable_type_inference() for a variable
-        #    with children just returns itself. I.e. you *can't* resolve
-        #    the <variable> away.
-        resolved_hits = []
-        if self.buf:
-            curr_blob = self.buf.blob_from_lang.get(self.lang, {})
-        else:
-            curr_blob = None
-
-        for elem, scoperef in hits:
-            if scoperef[0] != curr_blob:
-                if "__file_local__" in elem.get("attributes", "").split():
-                    self.log("skipping __file_local__ %r in %r", elem, scoperef)
-                    continue
-            if elem.tag == "variable" and not defn_only:
-                try:
-                    if (not elem.get("citdl")) and elem.get("ilk") == "argument":
-                        # this is an argument, try to infer things from the caller
-                        subhits = self._hits_from_argument(elem, scoperef)
-                    else:
-                        subhits = self._hits_from_variable_type_inference(
-                                    elem, scoperef)
-                except CodeIntelError, ex:
-                    self.warn("could not resolve %r: %s", elem, ex)
-                else:
-                    resolved_hits += subhits
+            # Resolve any variable type inferences.
+            #XXX Don't we have to *recursively* resolve hits?
+            #    If that is done, then need to watch out for infinite loop
+            #    because _hits_from_variable_type_inference() for a variable
+            #    with children just returns itself. I.e. you *can't* resolve
+            #    the <variable> away.
+            resolved_hits = []
+            if self.buf:
+                curr_blob = self.buf.blob_from_lang.get(self.lang, {})
             else:
-                resolved_hits.append( (elem, scoperef) )
+                curr_blob = None
 
-        return resolved_hits
+            for elem, scoperef in hits:
+                if scoperef[0] != curr_blob:
+                    if "__file_local__" in elem.get("attributes", "").split():
+                        self.log("skipping __file_local__ %r in %r", elem, scoperef)
+                        continue
+                if elem.tag == "variable" and not defn_only:
+                    try:
+                        if (not elem.get("citdl")) and elem.get("ilk") == "argument":
+                            # this is an argument, try to infer things from the caller
+                            subhits = self._hits_from_argument(elem, scoperef)
+                        else:
+                            subhits = self._hits_from_variable_type_inference(
+                                        elem, scoperef)
+                    except CodeIntelError, ex:
+                        self.warn("could not resolve %r: %s", elem, ex)
+                    else:
+                        resolved_hits += subhits
+                else:
+                    resolved_hits.append( (elem, scoperef) )
+
+            return resolved_hits
 
     def _hits_from_argument(self, elem, scoperef):
         """
