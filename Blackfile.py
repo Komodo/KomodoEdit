@@ -923,6 +923,8 @@ def GenerateCaches(cfg):
         os.chdir(cfg.komodoDevDir)
         tmShUtil.RunInContext(cfg.envScriptName,
                               [cmd])
+        if not exists(join(cfg.supportDir, "prefs.xmlc")):
+            raise Error("Failed to generate pickled default prefs")
     finally:
         os.chdir(oldDir)
 
