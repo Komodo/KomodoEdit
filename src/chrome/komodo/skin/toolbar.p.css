@@ -66,6 +66,7 @@ toolbarbutton {
  * visible. This is so we can persist it's hidden-ness (as XUL cannot persist
  * "collapsed|hidden" attributes in a useful way).
 */
+toolboxrow[kohidden="true"],
 toolbar[kohidden="true"],
 toolbarbutton[kohidden="true"],
 toolbarseparator[kohidden="true"]

@@ -295,6 +295,15 @@ this._updateToolbarClasses = (function uilayout__updateToolbarClasses(toolbox)
         toolbox = document.getElementById("toolbox_main");
     }
 	
+	var toolboxrow 		= document.getElementById("main-toolboxrow");
+	var visibleToolbars = toolboxrow.querySelectorAll("toolbar:not([kohidden='true'])");
+	if (visibleToolbars.length == 0) {
+		toolboxrow.setAttribute('kohidden', 'true');
+		return;
+	} else {
+		toolboxrow.removeAttribute('kohidden');
+	}
+	
 	var buttonSets = toolbox.querySelectorAll("toolbar > toolbaritem > toolbarbutton:first-child");
 	for (var i=0;i<buttonSets.length;i++)
 	{
