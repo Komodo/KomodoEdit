@@ -182,12 +182,22 @@ splitter
         {
             background: @sidebar-background-color;
             border-right: @panel-border;
+            
+            &:-moz-window-inactive
+            {
+                background: @sidebar-inactive-background-color;
+            }
         }
         
         &.workspace_splitter_right
         {
             background: @sidebar-background-color;
             border-left: @panel-border;
+            
+            &:-moz-window-inactive
+            {
+                background: @sidebar-inactive-background-color;
+            }
         }
     }
 }
