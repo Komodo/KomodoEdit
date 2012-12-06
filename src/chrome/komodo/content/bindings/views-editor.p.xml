@@ -1608,89 +1608,88 @@
 
     </implementation>
     <handlers>
-            <!-- Keypress handler was explicitly added for vi keybindings -->
-	    <handler event="keypress" phase="capturing">
-                <![CDATA[
-                if (document.commandDispatcher.focusedElement != this.scintilla) {
-                    // something other than the <scintilla> is focused; ignore
-                    // key presses for the purposes of vi key binding emulation
-                    return;
-                }
+        <handler event="keypress" phase="capturing">
+            <![CDATA[
+            if (document.commandDispatcher.focusedElement != this.scintilla) {
+                // something other than the <scintilla> is focused; ignore
+                // key presses for the purposes of vi key binding emulation
+                return;
+            }
 
-                var vi_mode_enabled = (typeof(gVimController) != 'undefined' &&
-                                       gVimController.enabled);
-                // Ensure vi is enabled and no keypress catcher (like iSearch)
-                // has been set to handle keypress events.
-                if (vi_mode_enabled && !this.scintilla.key_handler) {
-                    //dump("check for vi use of binding\n");
-                    if (gVimController.handleKeypress(event)) {
-                        //dump("    yes, vi handles this, stop the event\n");
-                        event.stopPropagation();
-                        event.preventDefault();
-                        event.cancelBubble = true;
-                    } else {
-                        //dump("    no\n");
-                    }
-                  return;
+            var vi_mode_enabled = (typeof(gVimController) != 'undefined' &&
+                                   gVimController.enabled);
+            // Ensure vi is enabled and no keypress catcher (like iSearch)
+            // has been set to handle keypress events.
+            if (vi_mode_enabled && !this.scintilla.key_handler) {
+                //dump("check for vi use of binding\n");
+                if (gVimController.handleKeypress(event)) {
+                    //dump("    yes, vi handles this, stop the event\n");
+                    event.stopPropagation();
+                    event.preventDefault();
+                    event.cancelBubble = true;
+                } else {
+                    //dump("    no\n");
                 }
-                   
-               const DOM_VK_ENTER = event.DOM_VK_ENTER;
-               const DOM_VK_RETURN = event.DOM_VK_RETURN;
-               const DOM_VK_TAB = event.DOM_VK_TAB;
-               var charCode = event.charCode;
-               var charCodeChar = null;
-               var keyCode = event.keyCode;
-               if (charCode) {
-                   charCodeChar = String.fromCharCode(charCode);
-               } else if (keyCode && [DOM_VK_TAB, DOM_VK_ENTER, DOM_VK_RETURN].indexOf(keyCode) >= 0) {
-   <!-- #if PLATFORM != "darwin" -->
-                   var cmdkey = event.ctrlKey || event.altKey || event.metaKey || event.shiftKey;
-   <!-- #else -->
-                   // bug 79591, allow alt keys to get through since they
-                   // are used for special key entry on osx.  This is dependent
-                   // on our patches in nsChildView.mm, changing those patches
-                   // may change the behaviour here as well.
-                   var cmdkey = event.ctrlKey || event.metaKey || event.shiftKey;
-   <!-- #endif -->
-   		if (cmdkey) {
-   		    // Do nothing
-                   } else if (keyCode == DOM_VK_ENTER || keyCode == DOM_VK_RETURN) {
-                       var haveChNEWLINE = this.autoAbbreviationTriggerCharacters_Processed.indexOf('\n');
-                       var haveChRETURN = this.autoAbbreviationTriggerCharacters_Processed.indexOf('\r');
-                       if (keyCode == DOM_VK_ENTER) {
-                           charCodeChar = (!haveChNEWLINE && haveChRETURN) ? '\r' : '\n';
-                       } else {
-                           charCodeChar = (!haveChRETURN && haveChNEWLINE) ? '\n' : '\r';
-                       }
-                   } else {
-                       charCodeChar = '\t';
-                   }
-               }
-               if (this.enableAutoAbbreviations && charCodeChar !== null
-                   && this.autoAbbreviationTriggerCharacters_Processed.indexOf(charCodeChar) >= 0) {
-                   
-!-- #if PLATFORM != "darwin" -->
-                   var cmdkey = event.ctrlKey || event.altKey || event.metaKey;
-!-- #else -->
-                   // bug 79591, allow alt keys to get through since they
-                     // are used for special key entry on osx.  This is dependent
-                     // on our patches in nsChildView.mm, changing those patches
-                     // may change the behaviour here as well.
-                     var cmdkey = event.ctrlKey || event.metaKey;
+               return;
+            }
+                
+            const DOM_VK_ENTER = event.DOM_VK_ENTER;
+            const DOM_VK_RETURN = event.DOM_VK_RETURN;
+            const DOM_VK_TAB = event.DOM_VK_TAB;
+            var charCode = event.charCode;
+            var charCodeChar = null;
+            var keyCode = event.keyCode;
+            if (charCode) {
+                charCodeChar = String.fromCharCode(charCode);
+            } else if (keyCode && [DOM_VK_TAB, DOM_VK_ENTER, DOM_VK_RETURN].indexOf(keyCode) >= 0) {
+<!-- #if PLATFORM != "darwin" -->
+                var cmdkey = event.ctrlKey || event.altKey || event.metaKey || event.shiftKey;
+<!-- #else -->
+                // bug 79591, allow alt keys to get through since they
+                // are used for special key entry on osx.  This is dependent
+                // on our patches in nsChildView.mm, changing those patches
+                // may change the behaviour here as well.
+                var cmdkey = event.ctrlKey || event.metaKey || event.shiftKey;
 <!-- #endif -->
-                     if (!cmdkey) {
-                         if (ko.abbrev.expandAutoAbbreviation(this)) {
-                            return false;
-                        }
-                     }
-                    return true;
-                 }
-                ]]>
-            </handler>
+                if (cmdkey) {
+                    // Do nothing
+                } else if (keyCode == DOM_VK_ENTER || keyCode == DOM_VK_RETURN) {
+                    var haveChNEWLINE = this.autoAbbreviationTriggerCharacters_Processed.indexOf('\n');
+                    var haveChRETURN = this.autoAbbreviationTriggerCharacters_Processed.indexOf('\r');
+                    if (keyCode == DOM_VK_ENTER) {
+                        charCodeChar = (!haveChNEWLINE && haveChRETURN) ? '\r' : '\n';
+                    } else {
+                        charCodeChar = (!haveChRETURN && haveChNEWLINE) ? '\n' : '\r';
+                    }
+                } else {
+                    charCodeChar = '\t';
+                }
+            }
+            if (this.enableAutoAbbreviations && charCodeChar !== null
+                && this.autoAbbreviationTriggerCharacters_Processed.indexOf(charCodeChar) >= 0) {
+                
+<!-- #if PLATFORM != "darwin" -->
+                var cmdkey = event.ctrlKey || event.altKey || event.metaKey;
+<!-- #else -->
+                // bug 79591, allow alt keys to get through since they
+                // are used for special key entry on osx.  This is dependent
+                // on our patches in nsChildView.mm, changing those patches
+                // may change the behaviour here as well.
+                var cmdkey = event.ctrlKey || event.metaKey;
+<!-- #endif -->
+                if (!cmdkey) {
+                    if (ko.abbrev.expandAutoAbbreviation(this)) {
+                       return false;
+                   }
+                }
+               return true;
+            }
+            ]]>
+        </handler>
     </handlers>
 
 </binding>
 
 
 </bindings>
-
+ 
