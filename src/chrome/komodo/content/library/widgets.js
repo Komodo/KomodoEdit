@@ -351,7 +351,7 @@ if (typeof(ko.widgets)=='undefined') {
     };
 
     this.getWidgetInfo = function koWidgetMangager_getWidsgetInfo(aID) {
-        return this.modifyWidget(aId, {});
+        return this.modifyWidget(aID, {});
     };
 
     /**
