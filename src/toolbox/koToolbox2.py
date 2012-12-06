@@ -113,7 +113,9 @@ class Database(object):
     # - 1.0.9: signal change in items: removing id's
     # - 1.0.10: remove .svn folders, etc., from the toolbox database.
     # - 1.0.11: add auto_abbreviation property to snippets, default is false
-    VERSION = "1.0.11"
+    # - 1.0.12: signal change moving from 11 to 12, to update tool item versions,
+    #           and add auto_abbreviation fields to snippets
+    VERSION = "1.0.12"
     FIRST_VERSION = "1.0.5"
     
     def __init__(self, db_path, schemaFile):
@@ -284,6 +286,7 @@ class Database(object):
         "1.0.8": ('1.0.9',  _signal_item_version_change, None),
         "1.0.9": ('1.0.10', _signal_check_remove_scc_dir, None),
         "1.0.10": ('1.0.11', _add_auto_abbreviation_field_to_snippets, None),
+        "1.0.11": ('1.0.12',  _signal_item_version_change, None),
     }
 
     def get_meta(self, key, default=None, cu=None):
@@ -1520,7 +1523,7 @@ def updateToolName(path, newBaseName):
 class ToolboxLoader(object):
     # Pure Python class that manages the new Komodo Toolbox back-end
 
-    ITEM_VERSION = "1.0.7"
+    ITEM_VERSION = "1.0.11" 
     FIRST_ITEM_VERSION = "1.0.5"
 
     def __init__(self, db_path, db):
@@ -1592,12 +1595,22 @@ class ToolboxLoader(object):
         except KeyError:
             pass
         self._update_version(curr_ver, result_ver, json_data, path)
+
+    def _add_auto_abbrev_field_to_snippets(self, curr_ver, result_ver, json_data, path):
+        try:
+            if json_data['type'] == "snippet" and "auto_abbreviation" not in json_data:
+                json_data["auto_abbreviation"] = "false"
+        except KeyError:
+            pass
+        self._update_version(curr_ver, result_ver, json_data, path)
             
 
     _upgrade_item_info_from_curr_ver = {
         # <item's version>: (<resultant version>, <upgrader method>)
         '1.0.5': ('1.0.6', _update_version),
         '1.0.6': ('1.0.7', _remove_id_field),
+        # DB changes 1.0.8, 1.0.9, 1.0.10 don't affect snippets.
+        '1.0.7': ('1.0.11', _add_auto_abbrev_field_to_snippets),
      }
 
     def upgradeItem(self, json_data, path):

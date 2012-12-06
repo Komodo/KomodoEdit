@@ -330,6 +330,7 @@ class _KoTool(object):
         data['value'] = self.value.splitlines()
         data['type'] = self.typeName
         data['name'] = self.name
+        data['version'] = koToolbox2.ToolboxLoader.ITEM_VERSION
         self._saveIconCheck(data)
         data.update(self._attributes)
         fp = open(path, 'w')
