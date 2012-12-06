@@ -220,9 +220,9 @@ class KoUserEnviron:
             return None
         prefs = components.classes["@activestate.com/koPrefService;1"]\
                 .getService(components.interfaces.koIPrefService).prefs
-        prefName = "environ_userShell"
-        if prefs.hasStringPref(prefName) and prefs.getStringPref(prefName):
-            return prefs.getStringPref(prefName)
+        shell = prefs.getString("environ_userShell", "")
+        if shell:
+            return shell
         try:
             import pwd
             return pwd.getpwnam(os.environ['USER'])[6]
@@ -347,13 +347,13 @@ class KoUserEnviron:
             "@activestate.com/koEnvironUtils;1"] \
             .getService(components.interfaces.koIEnvironUtils)
         havePATHOverride = False
-        prefName = "userEnvironmentStartupOverride"
         prefArray = [prefs]
         if project:
             prefArray.append(project.prefset)
         for prefs in prefArray:
-            if prefs.hasStringPref(prefName) and prefs.getStringPref(prefName):
-                env = re.split('\r?\n|\r', prefs.getStringPref(prefName), re.U)
+            overrides = prefs.getString("userEnvironmentStartupOverride", "")
+            if overrides:
+                env = re.split('\r?\n|\r', overrides, re.U)
                 if not env: env = []
                 sysenv = self.GetEnvironmentStrings()
                 newenv = _environUtils.MergeEnvironmentStrings(sysenv, env)
@@ -377,11 +377,9 @@ class KoUserEnviron:
                        "/opt/local/bin"],  # Mac Ports
             "linux2": ["/usr/local/bin"],
         }
-        allowPrefName = "userEnvironmentAllowImplicitPATHAdditions"
         if (not havePATHOverride
             and sys.platform in implicitPathAdditionsFromPlat
-            and (not prefs.hasBooleanPref(allowPrefName)
-                 or prefs.getBooleanPref(allowPrefName))):
+            and prefs.getBoolean("userEnvironmentAllowImplicitPATHAdditions", True)):
             implicitPathAdditions = implicitPathAdditionsFromPlat[sys.platform]
             path = self._userEnviron.get("PATH", "").split(os.pathsep)
             if sys.platform in ("darwin", "win32"):
