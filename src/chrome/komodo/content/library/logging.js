@@ -561,7 +561,7 @@ this.dumpMixed = function(v, maxRecursion, recursionLevel)
             out += "(" + v.length + '): "' + v + '"';
             break;
         case "object":
-			if (v !== null && recursionLevel >= maxRecursion) return '(prototype object) ...';
+			if (v !== null && recursionLevel >= maxRecursion) return '(max recursion) ...';
 			
             if (v == window) {
                 out = "<window>";
@@ -600,7 +600,7 @@ this.dumpMixed = function(v, maxRecursion, recursionLevel)
             }
             break;
 		default:
-            out += ": " + (typeof v);
+            out += ": " + v;
             break;
     }
 	
