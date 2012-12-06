@@ -1,0 +1,19 @@
+{
+  "keyboard_shortcut": "", 
+  "name": "def", 
+  "value": [
+    "<% if (ko.snippets.rightOfFirstRubyKeyword()) {%>", 
+    "def [[%tabstop:name]][[%tabstop:([[%tabstop:args]])]]", 
+    "\t[[%tabstop:#code]]", 
+    "end", 
+    "<% } else {", 
+    "  throw new ko.snippets.RejectedSnippet(\"not at start of line\");", 
+    "   } %>", 
+    "!@#_currentPos!@#_anchor"
+  ], 
+  "auto_snippet": "true", 
+  "set_selection": "false", 
+  "version": "1.0.11", 
+  "type": "snippet", 
+  "indent_relative": "true"
+}

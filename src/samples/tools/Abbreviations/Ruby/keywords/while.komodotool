@@ -1,0 +1,17 @@
+{
+  "keyboard_shortcut": "", 
+  "name": "while", 
+  "value": [
+    "<% if (ko.snippets.rightOfFirstRubyKeyword()) {%>", 
+    "while [[%tabstop:test]]", 
+    "\t[[%tabstop:#code]]", 
+    "end<% } else {", 
+    "  throw new ko.snippets.RejectedSnippet(\"not at start of line\");", 
+    "   } %>!@#_currentPos!@#_anchor"
+  ], 
+  "auto_snippet": "true", 
+  "set_selection": "false", 
+  "version": "1.0.11", 
+  "type": "snippet", 
+  "indent_relative": "true"
+}

@@ -1,0 +1,21 @@
+{
+  "keyboard_shortcut": "", 
+  "name": "class", 
+  "value": [
+    "<% if (ko.snippets.rightOfFirstRubyKeyword()) {%>", 
+    "class [[%tabstop:name]][[%tabstop: < [[%tabstop:name]]]]", 
+    "\t[[%tabstop:#code]][[%tabstop:", 
+    "\tdef initialize([[%tabstop:args]])", 
+    "\t\t[[%tabstop:#code]]", 
+    "\tend]]", 
+    "end<% } else {", 
+    "  throw new ko.snippets.RejectedSnippet(\"not at start of line\");", 
+    "   } %>", 
+    "!@#_currentPos!@#_anchor"
+  ], 
+  "auto_snippet": "true", 
+  "set_selection": "false", 
+  "version": "1.0.11", 
+  "type": "snippet", 
+  "indent_relative": "true"
+}
