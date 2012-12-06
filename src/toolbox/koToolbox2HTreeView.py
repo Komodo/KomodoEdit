@@ -748,7 +748,7 @@ class KoToolbox2HTreeView(TreeView):
         view_before_len = len(self._rows_view)
         std_toolbox_id = self.toolbox2Svc.getStandardToolboxID()
         firstVisibleRow = self._tree.getFirstVisibleRow()
-        currentIndex = self.selection.currentIndex;
+        currentIndex = self.selection.currentIndex if self.selection is not None else -1
         i = 0
         while i < lim:
             before_len = len(self._rows_model)
@@ -767,7 +767,8 @@ class KoToolbox2HTreeView(TreeView):
             i += delta + 1
         self._filter_std_toolbox()
         self._tree.ensureRowIsVisible(firstVisibleRow)
-        self.selection.select(currentIndex)
+        if self.selection is not None:
+            self.selection.select(currentIndex)
         view_after_len = len(self._rows_view)
         self._tree.rowCountChanged(0, view_after_len - view_before_len)
         self._tree.invalidate()
