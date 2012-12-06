@@ -282,7 +282,7 @@
                              prefstring="autoAbbreviationTriggerCharacters"
                              prefattribute="value"/>
                     <button class="green-undo-icon button-toolbar-a"
-		            id="restoreAutoAbbreviationTriggerCharacters"
+                            id="restoreAutoAbbreviationTriggerCharacters"
                             tooltiptext="&restoreAutoAbbreviationTriggerCharacters.label;"
                             oncommand="pref_autoAbbreviations_restoreDefaults();"/>
                 </hbox>
