@@ -685,6 +685,13 @@ class _KoSnippetTool(_KoTool):
         _KoTool.__init__(self, *args)
         self.flavors.insert(0, 'application/x-komodo-snippet')
 
+
+    def get_url(self):
+        """
+        See _KoMacroTool.get_url for docs
+        """
+        return "snippet2://%s/%s.snippet" % (self.id, koToolbox2.slugify(self.name))
+
     def save(self):
         # Write the changed data to the file system
         self.save_handle_attributes()

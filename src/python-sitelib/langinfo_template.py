@@ -51,6 +51,10 @@ class EJSLangInfo(LangInfo):
     conforms_to_bases = ["Text"]
     exts = [".ejs"]
 
+class KomodoSnippetLangInfo(LangInfo):
+    name = "Komodo Snippet"
+    conforms_to_bases = ["Text"]
+    exts = [".snippet"]
 
 class DjangoTemplateLangInfo(LangInfo):
     name = "Django Template"

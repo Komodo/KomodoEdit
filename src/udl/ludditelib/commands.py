@@ -156,13 +156,13 @@ def deprecated_compile(udl_path, skel=False, guid=None, guid_from_lang=None,
     def raise_force_error(path):
         raise LudditeError("`%s' already exists: use "
                            "-f|--force option to allow it to be "
-                           "overwritted" % path)
+                           "overwritten" % path)
 
     # Make sure don't trounce files before generating outputs and setup
     # output dir.
     lang_name = mainObj.languageName
     safe_lang_name = mainObj.safeLangName
-    build_dir = _get_build_dir(lang_name)
+    build_dir = _get_build_dir(safe_lang_name)
     if not exists(build_dir):
         log.debug("mkdir `%s'", build_dir)
         os.makedirs(build_dir)
@@ -292,7 +292,8 @@ def deprecated_package(language_name, version=None, creator=None,
     """
     log = log or _log
 
-    build_dir = _get_build_dir(language_name)
+    safe_lang_name = gen.getSafeName(language_name)
+    build_dir = _get_build_dir(safe_lang_name)
     if not exists(build_dir):
         raise LudditeError("`%s': the build dir does not exist: you must first "
                            "build the language resources with "

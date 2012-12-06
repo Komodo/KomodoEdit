@@ -71,6 +71,7 @@ addSchemeToParser('snippet')
 
 # For toolbox2 items in v.6:
 addSchemeToParser('macro2')
+addSchemeToParser('snippet2')
 
 RemoteURISchemeTypes = [ 'ftp' ]
 
@@ -1109,6 +1110,7 @@ class projectURI2_Handler(projectURIHandler):
             self.close()
 
     def getMacroTool(self):
+        # Should get snippets as well...
         toolSvc = UnwrapObject(components.classes["@activestate.com/koToolbox2ToolManager;1"].\
                                getService(components.interfaces.koIToolbox2ToolManager))
         return toolSvc.getToolById(self._uri.server)
@@ -1151,12 +1153,18 @@ class projectURI2_Handler(projectURIHandler):
                         self.part = self.getMacroTool()
                         self._stats = None
                     text = self.part.value
+                    if self._uri.scheme == "snippet2":
+                        try:
+                            text = self._trimPositionInfo(text)
+                        except:
+                            import traceback
+                            traceback.print_exc()
                 except AttributeError:
                     log.exception("can't get content off %s", self.part)
                     raise
                 # bug89131: work with read method, which returns octets
                 # file contents should always be utf-8
-                self._file = StringIO.StringIO(self.part.value.encode('utf-8'))
+                self._file = StringIO.StringIO(text.encode('utf-8'))
             else:
                 self._file = StringIO.StringIO()
         except Exception:
@@ -1171,6 +1179,16 @@ class projectURI2_Handler(projectURIHandler):
                 self._stats['isReadable'] = 0
                 self._stats['isReadOnly'] = 0
         return self._file is not None
+    
+    def write(self, text):
+        if self._uri.scheme == "snippet2":
+            # Bogus, but we don't have access to the view selection here.
+            text += "!@#_currentPos!@#_anchor"
+        # super
+        projectURIHandler.write(self, text)
+
+    def _trimPositionInfo(self, text):
+        return text.replace("!@#_currentPos", "").replace("!@#_anchor", "")
 
 if __name__=="__main__":
     # simple quick tests, unit tests are in test_URIlib.py

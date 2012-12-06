@@ -4,3 +4,18 @@ family csl
 
 state IN_CSL_DEFAULT:
 /-?%>/ : paint(upto, CSL_DEFAULT), paint(include, TPL_OPERATOR), spop_check => IN_M_DEFAULT
+
+state IN_TPL_COMMENT:
+/-?%>/ : paint(upto, TPL_COMMENT), paint(include, TPL_OPERATOR), spop_check => IN_M_DEFAULT
+
+state IN_CSL_STRING:
+/-?%>/ : paint(upto, CSL_STRING), paint(include, TPL_OPERATOR), spop_check => IN_M_DEFAULT
+
+state IN_CSL_COMMENT_1:
+/-?%>/ : paint(upto, CSL_COMMENT), paint(include, TPL_OPERATOR), spop_check => IN_M_DEFAULT
+
+state IN_CSL_COMMENT_LINE_1:
+/-?%>/ : paint(upto, CSL_COMMENT), paint(include, TPL_OPERATOR), spop_check => IN_M_DEFAULT
+
+state IN_CSL_REGEX:
+/-?%>/ : paint(upto, CSL_REGEX), paint(include, TPL_OPERATOR), spop_check => IN_M_DEFAULT

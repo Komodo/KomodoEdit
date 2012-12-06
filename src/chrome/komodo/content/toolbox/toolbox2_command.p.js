@@ -162,6 +162,14 @@ this.invoke_insertSnippet = function(tool) {
     ko.projects.snippetInsert(tool);
 };
 
+this.invoke_editSnippet = function(tool) {
+    if (typeof(tool) == 'undefined') {
+        tool = this._getSelectedTool('snippet');
+        if (!tool) return;
+    }
+    ko.open.URI(tool.url);
+};
+
 this.editProperties_snippet = function(tool) {
     if (typeof(tool) == 'undefined') {
         tool = this._getSelectedTool('snippet');

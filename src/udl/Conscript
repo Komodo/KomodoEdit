@@ -88,6 +88,13 @@ my @lexers = (
                skel => "skel/EJS",
               },
               {
+               language_name => "Komodo Snippet",
+               codename => "komodo_snippet_language",
+               udl_path => "ko-snippet-mainlex.udl",
+               ext => ".snippet",
+               skel => "skel/KomodoSnippet",
+              },
+              {
                language_name => "HTML",
                codename => "html_language",
                udl_path => "html-mainlex.udl",
@@ -207,11 +214,13 @@ my @lexers = (
              );
 foreach my $info (@lexers) {
     my $language_name = $info->{language_name};
+    my $safe_language_name = $language_name;
+    $safe_language_name =~ s/[^\w\d-_=+]+/_/g;
     my $codename = $info->{codename};
     my $udl_path = "udl/" . $info->{udl_path};
     my $version = $info->{version} || "1.0.0";
     my $xpi_path = "$codename-$version-ko.xpi";
-    my $build_dir = "build/$language_name";
+    my $build_dir = "build/$safe_language_name";
     my $rmdir_cmd = "$RMDIR $build_dir";
     my $mkdir_cmd = "$MKDIR build";
     if ($platform eq "win") {

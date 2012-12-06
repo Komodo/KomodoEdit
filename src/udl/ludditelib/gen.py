@@ -90,6 +90,9 @@ def test_assign_entry(lst, idx, val, dft_val=None):
     elif lst[idx] is None:
         lst[idx] = val
 
+def getSafeName(languageName):
+    """Map [^-_.\w\d]+ in language name to _."""
+    return re.sub(r'[^-_.\w\d]+', '_', languageName)
 
 class MainObj:
     def __init__(self):
@@ -118,8 +121,7 @@ class MainObj:
                                          }
 
     def _get_safe_lang_name(self):
-        """Map [^-_.\w\d]+ in language name to _."""
-        return re.sub(r'[^-_.\w\d]+', '_', self.languageName)
+        return getSafeName(self.languageName)
     safeLangName = property(_get_safe_lang_name, None, None,
                             "an identifier-safe version of languageName")
 

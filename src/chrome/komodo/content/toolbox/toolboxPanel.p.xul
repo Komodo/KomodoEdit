@@ -220,6 +220,13 @@
                       testDisableIf="t:multipleSelection"
                       testDisableUnless="cmd:cmd_insertSnippet"
                       />
+            <menuitem id="toolbox2ContextMenu_editSnippet"
+                      label="&editSnippet.label;"
+                      class="menuitem-iconic"
+                      oncommand="ko.toolbox2.invoke_editSnippet()"
+                      hideUnless="snippet"
+                      testDisableIf="t:multipleSelection"
+                      />
             <menuitem id="toolbox2ContextMenu_runCommand"
                       label="&run.label;"
                       class="menuitem-iconic primary_menu_item"
