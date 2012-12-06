@@ -1,11 +1,12 @@
 @panel-border-color:                    #929293;
+@panel-border:                          1px solid @panel-border-color;
 
 @sidebar-background-color:              #D3D8E1;
 @sidebar-inactive-background-color:     #EBEBEB !important;
 @sidebar-splitter-color:                @panel-border-color;
 
 @bottom-background-color:               #EDEDED;
-@bottom-inactive-background-color:      #EDEDED;
+@bottom-inactive-background-color:      @bottom-background-color;
 
 @statusbar-background:                  #ebebeb url('chrome://komodo/skin/images/status-bg.png') top center repeat-x;
 @statusbar-text-color:                  #4f4f4f;
@@ -14,16 +15,44 @@
 
 @main-border-color:                     #abacad;
 @main-border-color-inactive:            #CCCCCC;
+@main-border:                           1px solid @main-border-color;
+@main-border-inactive:                  1px solid @main-border-color-inactive;
 
-@menubar-group-border-color:            #969696;
-@menubar-group-border-color-inactive:   #C4C4C4;
+@menubar-group-first-border-width:      inherit;
+@menubar-group-last-border-width:       inherit;
+@menubar-group-border-width:            0;
+@menubar-group-border-style:            inherit;
+@menubar-group-border-color:            inherit;
+@menubar-group-border-color-inactive:   inherit;
 
-@menubar-button-separator:              url('chrome://komodo/skin/images/menubar-button-separator.png');
-@menubar-button-background:             -moz-linear-gradient(top, #f6f6f6 0%, #f6f6f6 20%, #cfcfcf 100%);
-@menubar-button-background-active:      -moz-linear-gradient(top, #8E8E8E 0%, #b3b3b3 5%, #d8d8d8 65%);
-@menubar-button-shadow:                 1px 1px 0 rgba(255,255,255,0.30);
-@menubar-button-shadow-inset:           inset 0 1px 0 rgba(255,255,255,0.40);
+@menubar-button-first-border-width:      1px 0 1px 1px;
+@menubar-button-last-border-width:       1px 1px 1px 0;
+@menubar-button-single-border-width:     1px;
+@menubar-button-border-width:            1px 0 1px 0;
+@menubar-button-border-style:            solid;
+@menubar-button-border-color:            #969696;
+@menubar-button-border-color-inactive:   #C4C4C4;
+@menubar-button-border-radius:          0;
+
+@_menubar-button-separator:             url('chrome://komodo/skin/images/menubar-button-separator.png');
+@_menubar-button-gradient:              -moz-linear-gradient(top, #f6f6f6 0%, #f6f6f6 20%, #cfcfcf 100%);
+@_menubar-button-gradient-active:       -moz-linear-gradient(top, #8E8E8E 0%, #b3b3b3 5%, #d8d8d8 65%);
+@menubar-button-background-color:       #f6f6f6;
+@menubar-button-background-color-hover: inherit;
+@menubar-button-background-color-active:inherit;
+@menubar-button-background-image:       @_menubar-button-separator, @_menubar-button-gradient;
+@menubar-button-background-image-active:@_menubar-button-separator, @_menubar-button-gradient-active;
+@menubar-button-background-image-hover: @menubar-button-background-image;
+@menubar-button-background-position:    left center;
+@menubar-button-background-repeat:      no-repeat;
+@menubar-button-shadow:                 1px 1px 0 rgba(255,255,255,0.30), inset 0 1px 0 rgba(255,255,255,0.40);
+@menubar-button-shadow-active:          @menubar-button-shadow;
+@menubar-button-shadow-hover:           @menubar-button-shadow;
+@menubar-button-icon-filter:            ~"url(chrome://komodo/skin/filters.svg#monochrome)";
 
 @menubar-border-bottom:                 1px solid #696969;
 
+@panel-separator-shadow:                0px -1px 5px rgba(0,0,0,0.15);
+
+@tree-background-color:                 #FFF;
 @tree-item-highlight-background:        highlight;

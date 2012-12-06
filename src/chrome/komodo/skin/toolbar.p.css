@@ -106,19 +106,12 @@ toolbarbutton > .toolbarbutton-text:empty:not([value]) {
 {
   list-style-image : url("chrome://komodo/skin/images/preview_in_browser.png");
 }
-#buttonBrowserPreview[disabled="true"] {
-  list-style-image : url("chrome://komodo/skin/images/preview_in_browser_disable.png");
-}
 
 .save-all-buffers-icon {
   list-style-image : url("chrome://komodo/skin/images/saveAll.png");
 }
-.save-all-buffers-icon[disabled="true"] {
-  list-style-image : url("chrome://komodo/skin/images/saveAll_disabled.png");
-}
 
-.cut-button, /* deprecated since Komodo 7 */
-.native-cut-icon
+.cut-button, /* deprecated since Komodo 7 */.native-cut-icon
 {
   /* #if PLATFORM == "linux" */
   list-style-image : url("moz-icon://stock/gtk-cut?size=16");
@@ -126,8 +119,8 @@ toolbarbutton > .toolbarbutton-text:empty:not([value]) {
   list-style-image : url("chrome://komodo/skin/images/cut.png");
   /* #endif */
 }
-.cut-button[disabled="true"] > image, /* deprecated since Komodo 7 */
-.native-cut-icon[disabled="true"] > image {
+toolbarbutton[disabled="true"] > image,
+toolbarbutton[disabled="true"] > dropmarker {
   opacity: 0.25;
 }
 

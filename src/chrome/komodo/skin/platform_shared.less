@@ -1,0 +1,287 @@
+@import url("chrome://komodo/skin/_config/window.less");
+@import url("chrome://komodo/skin/_helpers/shortcuts.less");
+
+/* Toolbars */
+
+/* Button Group */
+#main-toolboxrow toolbar > toolbaritem {
+    
+    .border(@menubar-group-border-width, @menubar-group-border-style, @menubar-group-border-color);
+    height: 24px;
+
+    toolbarbutton
+    {
+        -moz-appearance: none;
+    }
+
+    /* Button */
+    > toolbarbutton
+    {
+        min-width: 24px;
+        height: 24px;
+        padding: 0 0 0 6px !important;
+        margin: 0;
+        
+        .border(@menubar-button-border-width, @menubar-button-border-style, @menubar-button-border-color);
+        box-shadow: @menubar-button-shadow;
+        
+        border-radius: @menubar-button-border-radius;
+        background-color: @menubar-button-background-color;
+        background-image: @menubar-button-background-image;
+        background-position: @menubar-button-background-position;
+        background-repeat: @menubar-button-background-repeat;
+        
+        -moz-transition: all 0.20s linear;
+        
+        /* Button Icon */
+        image
+        {
+            filter: @menubar-button-icon-filter;
+            padding-right: 5px;
+        }
+        
+        /* First button in group */
+        &.first-child
+        {
+            background-position: 100px, center center;
+            border-width: @menubar-button-first-border-width;
+            border-top-left-radius: 3px;
+            border-bottom-left-radius: 3px;
+        }
+        
+        /* Last button in group */
+        &.last-child
+        {
+            padding-right: 5px !important;
+            border-width: @menubar-button-last-border-width;
+            border-top-right-radius: 3px;
+            border-bottom-right-radius: 3px;
+            
+            image
+            {
+                padding-right: 0;
+                border-right: 0;
+            }   
+        }
+        
+        &.first-child.last-child
+        {
+            border-width: @menubar-button-single-border-width;
+        }
+        
+        /* Hovered Icon */
+        &:hover
+        {
+            box-shadow: @menubar-button-shadow-hover;
+            background-color: @menubar-button-background-color-hover;
+            background-image: @menubar-button-background-image-hover;
+        }
+        
+        /* Checked / Active Button */
+        &[checked], &[open="true"], &:active
+        {
+            box-shadow: @menubar-button-shadow-active;
+            background-color: @menubar-button-background-color-active;
+            background-image: @menubar-button-background-image-active;
+        }
+        
+        /* Inactive button */
+        &:-moz-window-inactive
+        {
+            border-color: @menubar-button-border-color-inactive;
+        }
+        
+        /*
+         * The recent locations button is a bit special and needs to be merged
+         * into it's previous sibling
+        */
+        &#historyRecentLocations
+        {
+            background-position: 100px, center center;
+            list-style-image : url("chrome://komodo/skin/images/firefox-Toolbar.png");
+            -moz-image-region: rect(0px, 664px, 23px, 649px);
+            padding-left: 0;
+            min-width: 0;
+            margin-left: -8px;
+           
+            /* If it has no sibling, revert the "merge" */
+            &.first-child {
+                padding-left: 6px;
+                min-width: 24px;
+                margin-left: 0;
+            }
+            
+            [disabled="true"]
+            {
+                -moz-image-region: rect(23px, 664px, 46px, 649px);
+            }   
+        }
+    }
+}
+
+#main-toolboxrow toolbar
+{
+
+    &.first-child toolbaritem.has-children:first-child
+    {
+        border-width: @menubar-group-first-border-width;
+    }
+    
+    &.last-child toolbaritem.has-children:last-child
+    {
+        border-width: @menubar-group-last-border-width;
+    }
+}
+
+#main-toolboxrow > hbox
+{
+    border-bottom: @menubar-border-bottom;
+    padding-bottom: 3px;
+}
+
+#toolbox_main toolbar > toolbaritem.no-children
+{
+    display: none;
+}
+
+/* "workspace_splitter": A splitter used between main panes in the
+ * Komodo window.
+ */
+
+splitter
+{
+    &[orient="vertical"].workspace_splitter
+    {
+        -moz-appearance: none;
+        min-height: 3px;
+        height: 3px;
+        border: none;
+        z-index: 100;
+        position: relative;
+        background: transparent;
+        margin-bottom: -2px;
+        border-top: @main-border;
+        
+        &:-moz-window-inactive
+        {
+            border-top: @main-border-inactive;
+        }
+    }
+    
+    &[orient="horizontal"]
+    {
+        &.workspace_splitter
+        {
+            -moz-appearance: none;
+            min-width: 3px;
+            width: 3px;
+            border: none;
+        }
+        
+        &.workspace_splitter_left
+        {
+            background: @sidebar-background-color;
+            border-right: @panel-border;
+        }
+        
+        &.workspace_splitter_right
+        {
+            background: @sidebar-background-color;
+            border-left: @panel-border;
+        }
+    }
+}
+
+/* Widgets & Panes */
+
+#workspace_left_area, #workspace_right_area {
+	background: @sidebar-background-color;
+	
+	&:-moz-window-inactive {
+		background: @sidebar-inactive-background-color;
+	}
+}
+
+#workspace_bottom_area {
+	background: @bottom-background-color;
+	
+	&:-moz-window-inactive {
+		background: @bottom-inactive-background-color;
+	}
+}
+
+#collab-pane, #collab-panel-container {
+	background: @sidebar-background-color;
+  
+	&:-moz-window-inactive {
+		background: @sidebar-inactive-background-color;
+	}
+}
+
+#breakpoints-tabpanel-hbox, #runoutput-button-box
+{
+    padding: 5px;
+}
+
+#breakpoints-tree, #runoutput-scintilla, #sleuthPane > .sleuth-flex,
+#notificationWidget #message-container, #klint-tree
+{
+    border-top: @main-border;
+    box-shadow: @panel-separator-shadow;
+}
+
+#breakpoints-tree, #klint-tree
+{
+    background-color: @tree-background-color !important;
+}
+
+/* Statusbar */
+
+statusbar
+{
+    padding: 0 !important;
+    font-family: @statusbar-font;
+    font-size: 10px;
+    color: @statusbar-text-color;
+    
+    statusbarpanel
+    {
+        padding: 2px;
+        background: @statusbar-background;
+        border-right: 1px solid transparent;
+        -moz-border-image: @statusbar-panel-border-image;
+        
+        toolbarbutton[type="menu"] > dropmarker
+        {
+            list-style-image: url("chrome://komodo/skin/images/status-menu-arrows.png");
+        }
+        
+        &:last-child, &#statusbar-line-col
+        {
+            border-right: 0;
+        }
+    }
+}
+
+#notificationWidget
+{
+    #toolbar
+    {
+        border-right: 0px;
+    }
+    
+    #message-container
+    {
+        margin-left: 0px;
+        margin-right: 0px;
+        margin-bottom: 0px;
+        border-left: 0px !important;
+        border-right: 0px !important;
+        
+        notification
+        {
+            padding-left: 4px;
+            padding-right: 4px;
+        }
+    }
+}

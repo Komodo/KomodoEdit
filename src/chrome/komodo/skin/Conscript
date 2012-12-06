@@ -64,6 +64,8 @@ $cons->InstallInChrome('autocomplete.css');
 $cons->InstallInChrome('find.css');
 $cons->InstallInChrome('feature_control_panel.css');
 $cons->InstallInChrome('notifications.css');
+$cons->InstallInChrome('platform_shared.less');
+$cons->InstallInChrome('_helpers/shortcuts.less');
 
 $cons->Preprocess('templates/new.p.css', 'templates/new.css');
 $cons->InstallInChrome('templates/new.css');
