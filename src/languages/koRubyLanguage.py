@@ -38,8 +38,6 @@ from xpcom import components, nsError, ServerException
 from koLintResult import *
 from koLintResults import koLintResults
 
-from eollib import eol2eolStr, scimozEOL2eol
-
 import logging
 import os, sys, re
 import tempfile
@@ -182,9 +180,6 @@ class KoRubyLanguage(KoLanguageKeywordBase):
     namedBlockDescription = 'Ruby classes and methods'
     
     leading_ws_re = re.compile(r'^(\s*)')
-    only_optws_word = re.compile(r'(\s*)(\w+)$') # for match, so no ^
-    optws_word = re.compile(r'\s*(\w+|[<%=/>])') # for match, so no ^
-    match_blank_or_comment_line = re.compile(r'(\s*)(#.*)?[\r\n]*$') # no match needed
     
     styleBits = 6      # Override KoLanguageBase.styleBits setting of 5
     indicatorBits = 2  # Currently (2004-05-25) Same as base class
@@ -286,220 +281,8 @@ end section
                 return False
         return False
 
-    def _have_significant_ending_do(self, scimoz, style_info, lineStartPos, initialPos):
-        tokens = self._get_line_tokens(scimoz, lineStartPos, initialPos, style_info, additional_ignorable_styles=style_info._default_styles)
-        try:
-            (style, text, _) = tokens[-1].explode()
-        except IndexError:
-            return False
-        if not (style in style_info._keyword_styles and text == 'do'):
-            return False
-        return not self._do_preceded_by_looper(tokens[:-1], style, style_info)
-
-    def _check_for_do(self, ch, scimoz, style_info, initialPos):
-        initialLine = scimoz.lineFromPosition(initialPos)
-        lineStartPos = scimoz.positionFromLine(initialLine)
-        if self._have_significant_ending_do(scimoz, style_info, lineStartPos, initialPos):
-            self._insert_end_keyword(scimoz, ch, initialLine, lineStartPos)
-
-    def _insert_end_keyword(self, scimoz, ch, initialLine, lineStartPos):
-        # Look to see if we need to follow it with an 'end'
-        curr_indent = self._getActualIndent(scimoz, initialLine, lineStartPos)
-        if self._startsNewBlock(scimoz, initialLine, curr_indent):
-            if ch == "\n" or ch == "\r":
-                # The character caused a newline to be inserted,
-                # so we need to insert the 'end' line below the
-                # newly inserted line.
-                if scimoz.lineFromPosition(scimoz.length) == initialLine + 1:
-                    new_pos = scimoz.length
-                    curr_indent = eol2eolStr[scimozEOL2eol[scimoz.eOLMode]] + curr_indent
-                else:
-                    new_pos = scimoz.positionFromLine(initialLine + 2)
-            elif scimoz.lineFromPosition(scimoz.length) == initialLine:
-                # Bug 41788:
-                # If the end of the buffer is on the current line
-                # prepend another newline sequence to the generated
-                # text.
-                new_pos = scimoz.length
-                curr_indent = eol2eolStr[scimozEOL2eol[scimoz.eOLMode]] + curr_indent
-            else:
-                new_pos = scimoz.positionFromLine(initialLine + 1)
-            generated_line = curr_indent + "end" + eol2eolStr[scimozEOL2eol[scimoz.eOLMode]]
-            # log.debug("Inserting [%s] at posn %d (line %d)", generated_line, new_pos, scimoz.lineFromPosition(new_pos))
-            scimoz.insertText(new_pos, generated_line)
-
-    def _lineStartIsDefault(self, scimoz, style_info, lineStartPos, currentPos):
-        style1 = getActualStyle(scimoz, lineStartPos)
-        if style1 in (list(style_info._default_styles)
-                      + list(style_info._keyword_styles)):
-            return True
-        # Are we in RHTML, and the line-start is TPL or HTML?
-        style2 = getActualStyle(scimoz, currentPos)
-        if ((style1 < sci_constants.SCE_UDL_SSL_DEFAULT
-             or style1 > sci_constants.SCE_UDL_SSL_VARIABLE)
-            and (sci_constants.SCE_UDL_SSL_DEFAULT <= style2 <= sci_constants.SCE_UDL_SSL_VARIABLE)):
-            # This breaks if we have [Ruby]%> <%= <kwd>] - tough
-            return True
-        return False
-
-
-    def _checkForSlider(self, ch, scimoz, style_info):
-        # Looking for a reason to adjust indentation on a slider or ender
-        # Successful shifting requires 14 scimoz calls
-        # Try to minimize the number of scimoz calls when shifting
-        # isn't needed
-        #
-        # Also, if the triggering character is a newline, and
-        # we need to change the indentation on the line the newline ends,
-        # we'll need to adjust the indentation on the following line as well.
-
-        initialPos = currentPos = scimoz.currentPos - 1
-        new_line_needs_adjusting = False
-        if ch == "\n" or ch == "\r":
-            at_EOL = True
-            # Do we need to deal with some added indentation?
-            currChar = scimoz.getCharAt(currentPos)
-            new_line_needs_adjusting = (currChar == ORD_SPACE or currChar == ORD_TAB)
-            while currChar == ORD_SPACE or currChar == ORD_TAB:
-                currentPos -= 1
-                currChar = scimoz.getCharAt(currentPos)
-                
-            if ch == "\n" and scimoz.getCharAt(currentPos - 1) == ORD_CR:
-                # Allow for 2-character newline sequences
-                currentPos -= 1
-            initialPos = currentPos
-        else:
-            at_EOL = False
-        if (currentPos <= 0 or
-            getActualStyle(scimoz, currentPos) in style_info._keyword_styles or
-            getActualStyle(scimoz, currentPos - 1) not in style_info._keyword_styles):
-            return
-        
-        initialLine = scimoz.lineFromPosition(currentPos)
-        lineStartPos = scimoz.positionFromLine(initialLine)
-        if currentPos == lineStartPos:
-            # At start of line, no reason to indent
-            return
-        
-        lineEndPos = scimoz.getLineEndPosition(initialLine)
-        log.debug("_checkForSlider, line-start(%d), curr-pos(%d), line-end(%d)" % (lineStartPos, currentPos, lineEndPos))
-        # 3 calls to verify we have ^[def]...[kwd]<|>[non-kwd]
-        if (currentPos == lineStartPos or
-            (not at_EOL and lineEndPos > currentPos + 1)):
-            return
-        if not self._lineStartIsDefault(scimoz, style_info, lineStartPos, currentPos):
-            return self._check_for_do(ch, scimoz, style_info, initialPos)
-        
-        # Verify we match ^\s*(\w+)$
-        # Last call to scimoz
-        line = scimoz.getTextRange(lineStartPos, currentPos)
-        wmatch = self.only_optws_word.match(line)
-        if wmatch is None:
-            return self._check_for_do(ch, scimoz, style_info, initialPos)
-
-        leading_ws, leading_kwd = wmatch.group(1, 2)
-        do_smart_indenting = True
-        try:
-            _, res_buf = scimoz.getProperty('smartCloseTags')
-            if res_buf == "0":
-                do_smart_indenting = False
-        except Exception, ex:
-            log.debug("smartCloseTags: %s", ex)
-        
-        if leading_kwd not in self._dedent_sliders and do_smart_indenting:
-            if leading_kwd in self._limited_openers:
-                self._insert_end_keyword(scimoz, ch, initialLine, lineStartPos)
-            return
-        
-        parentLine = self._getParentLine(scimoz, initialLine)
-        # Replace the indentation on the current line with
-        # the indentation on the parent.
-        if parentLine >= initialLine or parentLine < 0:
-            # Unexpected -- bail out
-            return
-        
-        parentActualWS = self._getActualIndent(scimoz, parentLine)
-        if leading_ws == parentActualWS:
-            # We aren't changing anything on the current line,
-            # so we won't have to propagate any change to the next
-            # line either.
-            return
-        
-        scimoz.targetStart = lineStartPos
-        scimoz.targetEnd = lineStartPos + len(leading_ws)
-        log.debug("Replacing chars %d:%d with %d chars(%s)" % (lineStartPos, lineStartPos + len(leading_ws), len(parentActualWS), parentActualWS))
-        scimoz.beginUndoAction()
-        try:
-            scimoz.replaceTarget(len(parentActualWS), parentActualWS)
-        finally:
-            scimoz.endUndoAction()
-
-        # We have to recalc indentation of new line as well,
-        # as its previous line's indentation changed.
-        # Refer to line i = line ended with the newline,
-        # line j = i + 1, the newline
-
-        # When we fix it, we need to base the fix on the final indent
-        # level specified by the line that the newline ended.
-
-        # Fortunately, we can use the property that the line consists of
-        # ^\s*<keyword>$
-        # and we can therefore characterize exactly what kind of adjustment
-        # is needed:
-        #
-        # _enders: indent(j) = new indentation(i)
-        # _sliders: indent(j) = new indentation(i) + 1 delta
-        
-        if new_line_needs_adjusting:
-            new_line = initialLine + 1
-            new_line_ActualWS = self._getActualIndent(scimoz, new_line)
-
-            if leading_kwd in self._enders:
-                new_indent_string = parentActualWS
-            else:
-                # Start with parentActualWS, and add one delta
-                indent_amount = scimoz.indent
-                if not indent_amount:
-                    indent_amount = 8
-                new_indent_width = indent_amount + \
-                                   len(parentActualWS.expandtabs(scimoz.tabWidth))
-                new_indent_string = scimozindent.makeIndentFromWidth(scimoz, new_indent_width)
-            if new_indent_string != new_line_ActualWS:
-                newLineStartPos = scimoz.positionFromLine(new_line)
-                scimoz.targetStart = newLineStartPos
-                scimoz.targetEnd = newLineStartPos + len(new_line_ActualWS)
-                log.debug("Replacing chars %d:%d with %d chars(%s)" % (newLineStartPos, newLineStartPos + len(new_line_ActualWS), len(new_indent_string), new_indent_string))
-                scimoz.beginUndoAction()
-                try:
-                    scimoz.replaceTarget(len(new_indent_string), new_indent_string)
-                    newPos = scimoz.getLineEndPosition(new_line)
-                    scimoz.currentPos = newPos
-                    scimoz.selectionStart = newPos
-                finally:
-                    scimoz.endUndoAction()
-        # end if we started with a newline
-                
-        return parentActualWS
-    # end _checkForSlider
-
     def guessIndentation(self, scimoz, tabWidth, defaultUsesTabs):
         return self.guessIndentationByFoldLevels(scimoz, tabWidth, defaultUsesTabs, minIndentLevel=2)
-
-    # Hook this handler and then dispatch to baseclass
-    # Don't process characters unless
-    # self._prefs.getStringPref('editAutoIndentStyle') is 'smart'
-    #
-    def keyPressed(self, ch, scimoz):
-        return self._keyPressed(ch, scimoz, self._style_info)
-
-    def _keyPressed(self, ch, scimoz, style_info):
-        if self._handle_keypress and ch not in self._keyword_letters:
-            #before_time = time.clock()
-            made_change = self._checkForSlider(ch, scimoz, style_info)
-            #after_time = time.clock()
-            #log.debug("self._checkForSlider needed %r msecs", 1000 * (after_time - before_time))
-        # Have the base class do its stuff
-        KoLanguageKeywordBase._keyPressed(self, ch, scimoz, style_info)
 
     def _is_special_variable(self, scimoz, pos, opStyle):
         if pos == 0:
@@ -543,38 +326,6 @@ end section
             return None
         return candidate
     
-    def _startsNewBlock(self, scimoz, initialLine, curr_indent):
-        # Look to see if the next non-code line indents at or
-        # before the current line
-        #
-        # Return boolean: yes: this line does start a new block; no: it doesn't
-            
-        finalLine = scimoz.lineFromPosition(scimoz.length)
-        normalized_indent_len = self._getNormalizedIndentLen(scimoz, curr_indent)
-        for i in xrange(initialLine + 1, finalLine + 1):
-            nchars_i, line_i = scimoz.getLine(i)
-            if nchars_i == 0:
-                continue
-            wmatch = self.match_blank_or_comment_line.match(line_i)
-            if wmatch:
-                # Don't bother checking indentation of blank and comment lines
-                continue
-            norm_len_i = self._getNormalizedIndentLen(scimoz, self._getActualIndent(scimoz, i))
-            if norm_len_i != normalized_indent_len:
-                # heuristic using indentation
-                # on a false positive we end up not an 'end
-                # on a false negative we'll insert an end, and
-                # they should fix the indentation
-                return norm_len_i <= normalized_indent_len
-
-            wmatch = self.optws_word.match(line_i)
-            return wmatch and wmatch.group(1) != "end"
-            
-        # If we're here, it means the current line is the last
-        # non-comment line in the buffer, and we can add something.
-        
-        return True
-    
     def _getActualIndent(self, scimoz, lineNo, lineStart=None, currentPos=None):
         if lineStart is None:
             lineStart = scimoz.positionFromLine(lineNo)
@@ -587,10 +338,6 @@ end section
             ws2 = ws            
         return ws2
 
-    def _getNormalizedIndentLen(self, scimoz, indentStr):
-        space_str = indentStr.expandtabs(scimoz.tabWidth)
-        return len(space_str)
-
     # This not used yet, but hang on...
     def _getNormalizedIndentStr(self, scimoz, slen):
         if slen <= 0:
@@ -600,28 +347,6 @@ end section
         tabLen = scimoz.GetTabWidth()
         if tabLen <= 0: return str1
         return str1.replace(' ' * tabLen, "\t")
-        
-    def _getParentLine(self, scimoz, currentLine):
-        """ Here are the cases we need to consider for closing an end block:
-        1. previous line is a header
-           - the previous line is the current line's header
-        2. the previous line has a higher folding count than the current line
-           - this means that the previous line sits at the end of a block.
-             Return the current line's own header
-        3. the previous line has the same folding count as the current line,
-           so they both have the same current line.
-        The nice part:
-        Because the lexer does most of the work calculating parents
-        based on opening and closing keywords, and braces, we can just
-        use the Scintilla API to return the parent.
-
-        We just do a sanity check to make sure the result is valid.
-        """
-        
-        parentLine = scimoz.getFoldParent(currentLine)
-        if parentLine > currentLine:
-            return 0
-        return parentLine
         
     def _getFoldLevel(self, scimoz, line):
         # Adapted from koLanguageCommandHandler.py
