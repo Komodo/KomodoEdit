@@ -47,6 +47,7 @@
 <!ENTITY askAskForUserInput.label "[[&#37;ask]]: ask for user input">
 <!ENTITY askpassAskForPassword.label "[[&#37;askpass]]: ask for password">
 <!ENTITY async.accesskey "b">
+<!ENTITY AutoAbbreviation.label "Auto-Abbreviation">
 <!ENTITY bFileBaseNameWithoutExtension.label "[[&#37;b]]: file base name without extension">
 <!ENTITY beforeFileCloseTheMacroCanReturnTrueToPreventFileClose.label "Before file close (the macro can return true to prevent file close)">
 <!ENTITY beforeFileSaveTheMacroCanReturnTrueToPreventFileSave.label "Before file save (the macro can return true to prevent file save)">

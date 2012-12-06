@@ -112,7 +112,8 @@ class Database(object):
     # - 1.0.8: remove version fields from the misc_properties table.
     # - 1.0.9: signal change in items: removing id's
     # - 1.0.10: remove .svn folders, etc., from the toolbox database.
-    VERSION = "1.0.10"
+    # - 1.0.11: add auto_abbreviation property to snippets, default is false
+    VERSION = "1.0.11"
     FIRST_VERSION = "1.0.5"
     
     def __init__(self, db_path, schemaFile):
@@ -144,7 +145,7 @@ class Database(object):
                      'parseOutput', 'runIn', 'cwd', 'env', ],
             'macro':['async', 'trigger_enabled', 'trigger',
                           'language', 'rank'],
-            'snippet':['set_selection', 'indent_relative'],
+            'snippet':['set_selection', 'indent_relative', 'auto_abbreviation'],
             'menu':['accesskey', 'priority'],
             'toolbar':['priority'],
             'folder':[],
@@ -267,6 +268,13 @@ class Database(object):
     def _signal_check_remove_scc_dir(self, curr_ver, result_ver):
         # Always pull these folders out of the database
         pass
+
+    def _add_auto_abbreviation_field_to_snippets(self, curr_ver, result_ver):
+        """
+        Add this field: auto_abbreviation bool default false
+        """
+        with self.connect(commit=True) as cu:
+            cu.execute("alter table snippet add column auto_abbreviation bool default false")
         
     _upgrade_info_from_curr_ver = {
         # <current version>: (<resultant version>, <upgrader method>, <upgrader args>)
@@ -275,6 +283,7 @@ class Database(object):
         "1.0.7": ('1.0.8',  _delete_version_field_from_misc_properties, None),
         "1.0.8": ('1.0.9',  _signal_item_version_change, None),
         "1.0.9": ('1.0.10', _signal_check_remove_scc_dir, None),
+        "1.0.10": ('1.0.11', _add_auto_abbreviation_field_to_snippets, None),
     }
 
     def get_meta(self, key, default=None, cu=None):
@@ -689,11 +698,12 @@ class Database(object):
         names_and_defaults = [
             ('set_selection', False),
             ('indent_relative', False),
+            ('auto_abbreviation', False),
             ]
         valueList = self._getValuesFromDataAndDelete(id, data, names_and_defaults)
         stmt = '''insert into snippet(
-                  path_id, set_selection, indent_relative)
-                  values(?, ?, ?)'''
+                  path_id, set_selection, indent_relative, auto_abbreviation)
+                  values(?, ?, ?, ?)'''
         cu.execute(stmt, valueList)
         if data:
             return self.addMiscProperties(id, data, cu)
@@ -926,16 +936,14 @@ class Database(object):
               and cd3.type = "snippet" and cd3.name like ?    
               and p1.id = cd1.path_id
               and p3.id = cd3.path_id 
-              and substr(p3.path, 1, length(p1.path)) = p1.path -- snippet is descendant of abbrev
-              and substr(p3.path, length(p1.path) + 1, 1) = "%s"
+              and substr(p3.path, 1, length(p1.path) + 1) = p1.path || "%s" -- snippet is descendant of abbrev
               and h3.path_id = p3.id
               and h3.parent_path_id = h4.path_id
               and h4.path_id = p4.id -- p4 is the snippet's parent
               and cd2.type = "folder" and (%s)
               and p2.id = cd2.path_id
               and p2.path != p4.path -- if snippet's parent is the folder, this is query #1
-              and substr(p2.path, 1, length(p4.path)) = p4.path
-              and substr(p2.path, length(p4.path) + 1, 1) = "%s"
+              and substr(p2.path, 1, length(p4.path) + 1) = p4.path || "%s"
               ;
     """ % (os.path.sep, q_subnames, os.path.sep)
         value_tuple = tuple([abbrev] + subnames)
@@ -950,6 +958,62 @@ class Database(object):
             #           p2_path, p4_path, len(p2_path), len(p4_path))
             isSampleAbbrev = self._sampleAbbrevRE.match(p1_path) != None
             #log.debug("_searchAbbrevSnippetFolder: got path: %s, isSampleAbbrev:%r", p1_path, isSampleAbbrev)
+            final_rows.append([p3_id, cd3_name, cd2_name, True, isSampleAbbrev])
+        return final_rows
+    
+    def _searchAbbrevSnippetInCommonFolder(self, abbrev, subnames, cu):
+        """
+        In this SQL, p1 points to the Abbreviations folder,
+        p2 points to the language folder, and
+        p3 points to the snippet, and
+        p4 points to the snippet's parent, and
+        p5 points to the "common" folder, and
+        p6 points to the common parent of p5 and p2, could be "Abbreviations"
+        """
+        q_subnames = ' or '.join(['cd2.name like ?'] * len(subnames))
+        sep = os.path.sep
+        stmt = """\
+        select p3.id, cd3.name, cd2.name, p1.path, p2.path, p4.path
+            from paths as p1, paths as p2, paths as p3, paths as p4,
+                 paths as p5, paths as p6,
+                 common_details as cd3, common_details as cd2, common_details as cd1,
+                 common_details as cd5, common_details as cd6,
+                 hierarchy as h2, hierarchy as h3, hierarchy as h4, hierarchy as h5
+            where cd1.name = "Abbreviations" and cd1.type = "folder"
+              and cd5.type = "folder" and cd5.name = "*"
+              and cd1.path_id = p1.id
+              and cd5.path_id = p5.id
+              and substr(p5.path, 1, length(p1.path) + 1) = p1.path || "%s"
+              and cd3.type = "snippet" and cd3.name like ?
+              and p3.id = cd3.path_id 
+              and substr(p3.path, 1, length(p5.path) + 1) = p5.path || "%s" -- snippet is descendant of abbrev
+              and cd2.type = "folder" and (%s)
+              and p2.id = cd2.path_id
+              and substr(p2.path, 1, length(p1.path) + 1) = p1.path || "%s"
+              and cd6.type = "folder"
+              and p6.id = cd6.path_id
+              and substr(p6.path, 1, length(p1.path) + 1) = p1.path || "%s"
+              and h2.path_id == p2.id
+              and h2.parent_path_id == p6.id
+              and h5.path_id == p5.id
+              and h5.parent_path_id == p6.id
+              and h3.path_id = p3.id
+              and h3.parent_path_id = h4.path_id
+              and h4.path_id = p4.id -- p4 is the snippet's parent
+              ;
+    """ % (sep, sep, q_subnames, sep, sep)
+        value_tuple = tuple([abbrev] + subnames)
+
+        cu.execute(stmt, value_tuple)
+        # Add True to show that these snippets were found *above* the folder
+        final_rows = []
+        rows = cu.fetchall()
+        for row in rows:
+            p3_id, cd3_name, cd2_name, p1_path, p2_path, p4_path = row
+            #log.debug("_searchAbbrevSnippetInCommonFolder: got path: %s", p1_path)
+            #log.debug("p2_path:%s, \np4_path:%s, len(p2_path):%d, len(p4_path):%d",
+            #           p2_path, p4_path, len(p2_path), len(p4_path))
+            isSampleAbbrev = self._sampleAbbrevRE.match(p1_path) != None
             final_rows.append([p3_id, cd3_name, cd2_name, True, isSampleAbbrev])
         return final_rows
     
@@ -987,6 +1051,7 @@ class Database(object):
                 if row[2] != "General" and row[1] == abbrev and not row[4]:
                     return row[0]
             rows += self._searchAbbrevSnippetFolder(abbrev, subnames, cu)
+            rows += self._searchAbbrevSnippetInCommonFolder(abbrev, subnames, cu)
         if not rows:
             return None
         elif len(rows) == 1:

@@ -60,7 +60,7 @@ var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
  *      given, then the current selection or word before the cursor is
  *      used.
  * @param {String} lang The language name to scope the search. Optional.
- * @param {String} sublang The sub-language name top scope the search.
+ * @param {String} sublang The sub-language name to scope the search.
  *      Optional.
  * @returns {Boolean} True if the snippet was found and inserted, false
  *      otherwise.
@@ -78,14 +78,13 @@ this.expandAbbrev = function expandAbbrev(abbrev /* =null */,
     
     // Determine the abbrev to look for.
     var scimoz = currView.scimoz;
-    if (abbrev != null) {
+    if (abbrev !== null) {
         // pass
     } else {
         if (scimoz.anchor == scimoz.currentPos) {
             // Only do abbreviation expansion if next to a word char,
             // i.e. valid abbrev chars.
             var pos = scimoz.currentPos;
-            var ch = scimoz.getTextRange(scimoz.positionBefore(pos), pos);
             if (pos == 0 || !is_abbrev(scimoz.getTextRange(scimoz.positionBefore(pos), pos))) {
                 ko.statusBar.AddMessage(
                     _bundle.GetStringFromName("noAbbreviationAtTheCurrentPosition"),
@@ -102,23 +101,81 @@ this.expandAbbrev = function expandAbbrev(abbrev /* =null */,
         }
         abbrev = scimoz.selText;
     }
-
+    
     // Find the snippet for this abbrev, if any, and insert it.
     var snippet = ko.abbrev.findAbbrevSnippet(abbrev, lang, sublang);
+    var msg;
     if (snippet) {
-        ko.abbrev.insertAbbrevSnippet(snippet, currView);
-        return true;
-    } else {
-        if (origPos != null) { // Restore state.
-            scimoz.currentPos = origPos;
-            scimoz.anchor = origAnchor;
+        if (ko.abbrev.insertAbbrevSnippet(snippet, currView)) {
+            return true;
+        } else {
+            msg = _bundle.formatStringFromName("snippet X insertion deliberately suppressed", [snippet.name], 1);
         }
-        var msg = _bundle.formatStringFromName("noAbbreviationWasFound", [abbrev], 1);
-        ko.statusBar.AddMessage(msg, "abbrev", 5000, true);
+    } else {
+        msg = _bundle.formatStringFromName("noAbbreviationWasFound", [abbrev], 1);
+    }
+    if (origPos !== null) { // Restore state.
+        scimoz.currentPos = origPos;
+        scimoz.anchor = origAnchor;
+    }
+    ko.statusBar.AddMessage(msg, "Editor", 5000, true);
+    return false;
+};
+
+this._allowedStylesNameSets = ['keywords', 'classes', 'functions', 'identifiers',
+                               'tags', 'classes', 'functions', 'keywords2',
+                               'variables', 'modules'];
+this._cachedAllowedStylesForLanguage = {};
+this._allowedStylesForLanguage = function(languageObj) {
+    var languageName = languageObj.name;
+    if (!(languageName in this._cachedAllowedStylesForLanguage)) {
+        var name_sets = this._allowedStylesNameSets;
+        if (languageObj.isHTMLLanguage) {
+            name_sets = name_sets.concat("default");
+        }
+        var allowedStyles = [];
+        name_sets.forEach(function(name) {
+                allowedStyles = allowedStyles.concat(languageObj.getNamedStyles(name));
+            });
+        this._cachedAllowedStylesForLanguage[languageName] = allowedStyles;
+    }
+    return this._cachedAllowedStylesForLanguage[languageName];
+};
+
+this.expandAutoAbbreviation = function(currView) {
+    var scimoz = currView.scimoz;
+    var currentPos = scimoz.currentPos;
+    var koDoc = currView.koDoc;
+    // Note that the current character hasn't been styled yet, we're just
+    // processing its keystroke event.
+    
+    var prevPos = scimoz.positionBefore(currentPos);
+    var prevStyle = scimoz.getStyleAt(prevPos);
+    var allowedStyles = this._allowedStylesForLanguage(koDoc.languageObj);
+    if (allowedStyles.indexOf(prevStyle) == -1) {
         return false;
     }
-}
-
+    var origPos = currentPos;
+    scimoz.currentPos = prevPos;
+    var origAnchor = scimoz.anchor;
+    scimoz.wordLeftExtend();
+    var abbrev = scimoz.selText;
+    
+    // Find the snippet for this abbrev, if any, and insert it.
+    var snippet = ko.abbrev.findAbbrevSnippet(abbrev, null, null); // lang, sublang);
+    if (snippet) {
+        if (snippet.getStringAttribute('auto_abbreviation') === 'true'
+            && ko.abbrev.insertAbbrevSnippet(snippet, currView)) {
+            var pathPart = ko.snippets.snippetPathShortName(snippet);
+            var msg = _bundle.formatStringFromName("inserted autoabbreviation X", [pathPart], 1);
+            ko.statusBar.AddMessage(msg, "Editor", 1000, false);
+            return true;
+        }
+    }
+    scimoz.currentPos = origPos;
+    scimoz.anchor = origAnchor;
+    return false;
+};
 
 /**
  * Find a snippet for the given abbreviation name.
@@ -181,10 +238,11 @@ this.findAbbrevSnippet = function(abbrev, lang /* =<curr buf lang> */,
  * @param view {Components.interfaces.koIView} The buffer view in which to
  *      insert the snippet. Optional. If not specified then the current
  *      view is used.
+ * @returns {boolean} true if a snippet was inserted, false if not.
  */
 this.insertAbbrevSnippet = function(snippet, view /* =<curr view> */) {
     if (!snippet) {
-        return;
+        return false;
     }
     if (typeof(view) == 'undefined' || view == null) {
         view = ko.views.manager.currentView;
@@ -196,11 +254,15 @@ this.insertAbbrevSnippet = function(snippet, view /* =<curr view> */) {
     scimoz.beginUndoAction();
     try {
         enteredUndoableTabstop = ko.projects.snippetInsertImpl(snippet, view);
+    } catch(ex) {
+        //dump("snippetInsertImpl failed: " + ex + "\n");
+        return false;
     } finally {
         if (!enteredUndoableTabstop) {
             scimoz.endUndoAction();
         }
     }
+    return true;
 }
 
 

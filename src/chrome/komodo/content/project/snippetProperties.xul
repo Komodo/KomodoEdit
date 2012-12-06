@@ -196,10 +196,12 @@
                 <checkbox id="set_selection" oncommand="updateOK();"
                           label="&maintainSelectedTextOrCursorPositionAfterInsertion.label;"
                           checked="true"/>
-                <spacer height="10"/>
                 <checkbox id="indent_relative" oncommand="updateOK();"
                           label="&maintainIndentationContextAfterInsertion.label;"
                           checked="true"/>
+                <checkbox id="auto_abbreviation"
+                          label="&AutoAbbreviation.label;"
+                          checked="false"/>
             </vbox>
             <vbox id="shortcut_tabpanel">
                 <!-- header -->

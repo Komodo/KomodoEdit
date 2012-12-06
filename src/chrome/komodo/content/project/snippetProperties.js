@@ -46,7 +46,7 @@ var log = ko.logging.getLogger("snippetProperties");
 
 var snippetname, snippetvalue, snippetnamelabel;
 var gApplyButton, gOKButton;
-var indentCheckbox, keybinding, gItem;
+var indentCheckbox, autoAbbreviation, keybinding, gItem;
 var gCaretPos;
 var gSetSelectionCheckbox;
 var scin;
@@ -80,6 +80,7 @@ function onLoad(event) {
         snippetnamelabel = document.getElementById('snippetnamelabel');
         snippetvalue = document.getElementById('snippetvalue');
         indentCheckbox = document.getElementById('indent_relative');
+        autoAbbreviation = document.getElementById('auto_abbreviation');
         gSetSelectionCheckbox = document.getElementById('set_selection');
 
 
@@ -129,6 +130,7 @@ function onLoad(event) {
         scin.anchor = scin.positionAtChar(0,anchor);
         scin.currentPos = scin.positionAtChar(0,currentPos);
         indentCheckbox.setAttribute('checked', gItem.getStringAttribute('indent_relative'));
+        autoAbbreviation.setAttribute('checked', gItem.getStringAttribute('auto_abbreviation'));
         gSetSelectionCheckbox.setAttribute('checked', gItem.getStringAttribute('set_selection'));
         keybinding.init();
         keybinding.updateCurrentKey();
@@ -279,6 +281,8 @@ function Apply() {
     } else {
         gItem.setStringAttribute('indent_relative', 'false');
     }
+    var isAutoAbbreviation = autoAbbreviation.getAttribute('checked') == 'true';
+    gItem.setStringAttribute('auto_abbreviation', isAutoAbbreviation ? 'true' : 'false');
     var setSelection = gSetSelectionCheckbox.getAttribute('checked') == 'true';
     if (setSelection) {
         gItem.setStringAttribute('set_selection', 'true');

@@ -43,6 +43,8 @@
 <?xml-stylesheet href="chrome://global/skin" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/prefs/prefs.css" type="text/css"?>
 
 <window xmlns:html="http://www.w3.org/1999/xhtml"
@@ -60,6 +62,8 @@
         var useTabCharacterToCompleteWords="&useTabCharacterToCompleteWords.message;";
         var showEdgeLine="&showEdgeLine.label;";
         var highlightCharactersBeyondEdgeLine="&highlightCharactersBeyondEdgeLine.label;";
+        var widgets = {};
+        var gMainWindow;
     </script>
     <script type="application/x-javascript;version=1.7">
     <![CDATA[
@@ -75,6 +79,10 @@
             } else {
                 edgeCheckbox.setAttribute('label', highlightCharactersBeyondEdgeLine);
             }
+            widgets.autoAbbreviationTriggerCharacters = document.getElementById("autoAbbreviationTriggerCharacters");
+            widgets.autoAbbreviationTriggerCharacters_value = widgets.autoAbbreviationTriggerCharacters.value;
+            widgets.restoreAutoAbbreviationTriggerCharacters = document.getElementById("restoreAutoAbbreviationTriggerCharacters");
+            check_trigger_characters_changed();
         } catch (ex) {
             // Ignore any errors.
         }
@@ -82,7 +90,7 @@
 
     function editsmart_OnLoad() {
         try {
-        var gMainWindow = ko.windowManager.getMainWindow();
+        gMainWindow = ko.windowManager.getMainWindow();
         // get a keybinding and set the text correctly
         var text = useTabCharacterToCompleteWords;
         var keylabel = gMainWindow.ko.keybindings.manager.command2keylabel('cmd_completeWord');
@@ -126,6 +134,25 @@
     function pref_softChars_doEnabling() {
         var enabled = document.getElementById("editSmartSoftCharacters").checked;
         _pref_setElementEnabledState("enableSmartSoftCharactersInsideLine", enabled);
+    }
+    
+    function pref_autoAbbreviations_doEnabling(checkbox) {
+        if (checkbox.checked) {
+            widgets.autoAbbreviationTriggerCharacters.disabled = false;
+            check_trigger_characters_changed();
+        } else {
+            widgets.autoAbbreviationTriggerCharacters.disabled = true;
+            widgets.restoreAutoAbbreviationTriggerCharacters.disabled  = true;
+        }
+    }
+    
+    function pref_autoAbbreviations_restoreDefaults() {
+        widgets.autoAbbreviationTriggerCharacters.value = widgets.autoAbbreviationTriggerCharacters_value;
+        check_trigger_characters_changed();
+    }
+
+    function check_trigger_characters_changed() {
+        widgets.restoreAutoAbbreviationTriggerCharacters.disabled = widgets.autoAbbreviationTriggerCharacters_value == widgets.autoAbbreviationTriggerCharacters.value;
     }
 
     ]]>
@@ -237,6 +264,28 @@
                       label="&cutCopyWithoutSelection.label;" pref="true"
                       prefstring="editSmartCutCopyWithoutSelection"
                       prefattribute="checked"/>
+            </vbox>
+        </groupbox>
+    
+        <!-- auto-abbreviations prefs are currently global
+        -->
+        <groupbox orient="vertical" class="load-context-check" showIfLoadContext="global">
+            <caption label="&autoAbbreviations.label;"/>
+            <checkbox id="enableAutoAbbreviations"
+                      label="&enableAutoAbbreviationsWithTriggerCharacters.label;"
+                      pref="true"
+                      oncommand="pref_autoAbbreviations_doEnabling(this);"/>
+            <vbox id="autoAbbreviationDetails" class="indentedPref01">
+                <hbox id="autoAbbreviationDetails.characters.hbox" align="center">
+                    <textbox oninput="check_trigger_characters_changed();"
+                            pref="true" size="32" id="autoAbbreviationTriggerCharacters"
+                             prefstring="autoAbbreviationTriggerCharacters"
+                             prefattribute="value"/>
+                    <button class="green-undo-icon button-toolbar-a"
+		            id="restoreAutoAbbreviationTriggerCharacters"
+                            tooltiptext="&restoreAutoAbbreviationTriggerCharacters.label;"
+                            oncommand="pref_autoAbbreviations_restoreDefaults();"/>
+                </hbox>
             </vbox>
         </groupbox>
     

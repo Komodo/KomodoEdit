@@ -72,7 +72,8 @@ create index hierarchy_parent_path_id_index on hierarchy(parent_path_id);
 create table snippet (
     path_id INTEGER PRIMARY KEY NOT NULL,
     set_selection bool default false,
-    indent_relative bool default false
+    indent_relative bool default false,
+    auto_abbreviation bool default false
 );
 
 create table macro (

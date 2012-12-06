@@ -858,6 +858,9 @@
   <!-- Don't ask to readjust snippet selection positions automatically so that
        they are valid positions. -->
   <boolean id="donotask_readjust_snippet_selection">0</boolean>
+  <boolean id="enableAutoAbbreviations">1</boolean>
+  <string id="autoAbbreviationTriggerCharacters_FactorySetting">! \t@#$%^&amp;*()+[]{}\\|/?:;&lt;&gt;,&quot;&apos;</string>
+  <string id="autoAbbreviationTriggerCharacters">! \t@#$%^&amp;*()+[]{}\\|/?:;&lt;&gt;,&quot;&apos;</string>
 
   <!-- Maximum size of viewstate MRU - no UI provided as of yet -->
   <long id="viewStateMRUSize">300</long>

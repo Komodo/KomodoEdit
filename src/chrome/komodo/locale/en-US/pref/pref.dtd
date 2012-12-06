@@ -34,6 +34,7 @@
 
  ***** END LICENSE BLOCK ***** -->
 
+<!ENTITY % autoAbbreviationName.name                "Auto-Abbreviation">
 <!ENTITY connection.label                "Connection">
 
 <!ENTITY connectionDesc.label            "Configure how Komodo connects to the Internet for updates, HTML Preview, etc.">
@@ -136,6 +137,8 @@
 <!ENTITY assignEmptyFilesSpecifiedEOL.label "Assign this EOL to new, empty files">
 <!ENTITY autoAdjustClosingBraces.label "Auto-adjust closing braces">
 <!ENTITY autoDetectFileEncodingWhenOpened.label "Auto-detect file encoding when opened">
+<!ENTITY restoreAutoAbbreviationTriggerCharacters.label "Restore Default %autoAbbreviationName.name; Trigger Characters">
+<!ENTITY autoAbbreviations.label "%autoAbbreviationName.name;s">
 <!ENTITY bAbbreviatedMonthName.label "&#37;b : abbreviated month name">
 <!ENTITY backgroundSyntaxChecking.label "Background Syntax Checking">
 <!ENTITY backspaceDecreasesIndentationInLeadingWhitespace.label "'Backspace' decreases indentation in leading whitespace">
@@ -221,6 +224,7 @@
 <!ENTITY editor.label "Editor">
 <!ENTITY enableAutocompleteFillUpCharacters.label "Enable autocomplete fill-up characters">
 <!ENTITY enableAutomaticAutocompleteAndCalltipTriggeringWhileYouType.label "Enable automatic autocomplete and calltip triggering while you type">
+<!ENTITY enableAutoAbbreviationsWithTriggerCharacters.label "Enable %autoAbbreviationName.name;s, with Trigger Characters:">
 <!ENTITY enableBackgroundSyntaxCheckingAfter.label "Enable background syntax checking after">
 <!ENTITY enableScrollingPastEndOfBufferOnlyAppliesToNewBuffers.label "Enable scrolling past end of buffer (only applies to new buffers)">
 <!ENTITY enableSoftCharacters.label "Enable soft characters">

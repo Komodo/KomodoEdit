@@ -85,6 +85,29 @@ this.unescapeWhitespace = function stringutils_unescapeWhitespace(text, eol) {
     return newtext;
 }
 
+// Used for managing auto-abbreviation trigger character strings.
+this._endsWithEvenNumberOfBackslashes = function(s) {
+    return /(?:^|[^\\])(?:\\\\)*$/.test(s);
+};
+this.backslashUnescape = function stringutils_backslashUnescape(text) {
+    var pieces = text.split('"');
+    var newPieces = [];
+    var piece;
+    var lim = pieces.length - 1
+    for (var i = 0; i < lim; ++i) {
+        piece = pieces[i];
+        newPieces.push(piece);
+        if (this._endsWithEvenNumberOfBackslashes(piece)) {
+            newPieces.push('\\');
+        }
+        newPieces.push('"');
+    }
+    newPieces.push(pieces[lim]);
+    var s = '"' + newPieces.join(newPieces) + '"';
+    return eval(s);
+};
+
+
 var _sysUtils = Components.classes['@activestate.com/koSysUtils;1'].
     getService(Components.interfaces.koISysUtils);
 

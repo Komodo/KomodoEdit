@@ -49,6 +49,12 @@ var CURRENTPOS_MARKER = '!@#_currentPos';
 
 var _wrapsSelectionRE = /\[\[%[sS]\]\]/;
 
+var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
+                .getService(Components.interfaces.nsIStringBundleService)
+                .createBundle("chrome://komodo/locale/library.properties");
+
+
+
 function peSnippet() {
     this.name = 'peSnippet';
 }
@@ -125,6 +131,7 @@ this.addSnippet = function peSnippet_addSnippet(/*koIPart|koITool*/ parent,
     snippet.setStringAttribute('name', 'New Snippet');
     snippet.setStringAttribute('set_selection', 'false');
     snippet.setStringAttribute('indent_relative', 'false');
+    snippet.setStringAttribute('auto_abbreviation', 'false');
     snippet.value = '';
     var obj = new Object();
     obj.item = snippet;
@@ -152,6 +159,7 @@ this.addSnippetFromText = function AddSnippetFromText(snippettext, /*koIPart*/ p
     snippet.setStringAttribute('name', snippetMakeDisplayName(snippettext));
     snippet.setStringAttribute('set_selection', 'true');
     snippet.setStringAttribute('indent_relative', 'false');
+    snippet.setStringAttribute('auto_abbreviation', 'false');
     escapedtext = ANCHOR_MARKER + escapedtext + CURRENTPOS_MARKER;
     snippet.value = escapedtext;
 
@@ -307,7 +315,7 @@ this.snippetInsertImpl = function snippetInsertImpl(snippet, view /* =<curr view
         break;
     };
     if (text.indexOf("<%") >= 0) {
-        text = text = this._textFromEJSTemplate(text, eol, eol_str);
+        text = this._textFromEJSTemplate(text, eol, eol_str);
     } else {
         text = text.replace(/\r\n|\n|\r/g, eol_str);
     }
@@ -521,7 +529,7 @@ this._textFromEJSTemplate = function _textFromEJSTemplate(text, eol, eol_str) {
         var msg = ex + "\n" + msg2 + "\n" + msg3;
         ko.dialogs.alert(null, msg,
                          _bundle.GetStringFromName("Error in snippet"));
-        throw new ko.snippets.RejectedSnippet(ex);
+        throw new ko.snippets.RejectedSnippet(_bundle.GetStringFromName("Error in snippet"), ex);
     }
     var ejsOut = ejs.render();
     text = (eol != Components.interfaces.koIDocument.EOL_LF
