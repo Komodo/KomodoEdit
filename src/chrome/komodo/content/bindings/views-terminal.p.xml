@@ -279,7 +279,7 @@
                 //dump('enter in linecount '+this.scimoz.lineCount+'\n');
                 var markerStatus = this.scimoz.markerGet(this.scimoz.lineCount - 1);
 
-                ko.commands.doCommand('cmd_newlineBare');
+                this._genericController.doCommand('cmd_newlineBare');
                 this.setPromptMarker(this.lastPrompt);
                 this.terminalHandler.lastWritePosition = this.scimoz.length;
 
@@ -292,7 +292,7 @@
                 var textTrimmed = text.replace(/(^\s+)|(\s+$)/g, '');
                 if (textTrimmed.length < 1 && markerStatus & (1 << ko.markers.MARKNUM_INTERACTIVE_PROMPT_MORE)) {
                     // dedent one level, and get the new text to send
-                    ko.commands.doCommand('cmd_dedent');
+                    this._genericController.doCommand('cmd_dedent');
                     text = this.getLineBuffer();
                 }
 
