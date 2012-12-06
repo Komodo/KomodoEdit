@@ -23,7 +23,6 @@ var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
 this.restoreInProgress = function() {
     return _restoreInProgress;
 }
-this.restoredLeftTabBoxID = null;
 
 this.saveInProgress = function() {
     return _saveInProgress;
@@ -78,7 +77,7 @@ this.restoreWorkspace = function view_restoreWorkspace(currentWindow)
 
     if (!ko.prefs.hasPref(multiWindowWorkspacePrefName)) {
         this._restoreWindowWorkspace(ko.prefs.getPref('workspace'), currentWindow, _mozPersistPositionDoesNotWork);
-        setTimeout(ko.uilayout.restoreTabSelections, 10, ko.prefs);
+        ko.widgets.restoreLayout(ko.prefs);
         return;
     }
 
@@ -261,9 +260,6 @@ const _nsIDOMChromeWindow = Components.interfaces.nsIDOMChromeWindow;
 this._restoreWindowWorkspace = function(workspace, currentWindow, checkWindowBounds)
 {
     _restoreInProgress = true;
-    if (workspace.hasPref("uilayout_leftTabBoxSelectedTabId")) {
-        this.restoredLeftTabBoxID = workspace.getStringPref("uilayout_leftTabBoxSelectedTabId");
-    }
     try {
         var wko = currentWindow.ko;
         var cnt = new Object();
@@ -337,9 +333,7 @@ this._restoreWindowWorkspace = function(workspace, currentWindow, checkWindowBou
                 elt.setState(pref);
             }
         }
-        if (workspace.hasPref('uilayout_bottomTabBoxSelectedTabId')) {
-            setTimeout(wko.uilayout.restoreTabSelections, 10, workspace);
-        }
+        ko.widgets.restoreLayout(workspace);
         if (wko.history) {
             wko.history.restore_prefs(workspace);
         }
@@ -386,7 +380,6 @@ this._restoreWindowWorkspace = function(workspace, currentWindow, checkWindowBou
         log.exception(ex, "Error restoring workspace:");
     } finally {
         _restoreInProgress = false;
-        this.restoredLeftTabBoxID = null;
     }
 };
 
@@ -456,7 +449,6 @@ this._saveWorkspaceForIdx_aux =
             workspace.setPref(id, pref);
         }
     }
-    wko.uilayout.saveTabSelections(workspace);
     workspace.setLongPref('windowNum', thisWindow._koNum);
     workspace.setBooleanPref('restoreOnRestart', restoreOnRestart);
     // Divide the # of millisec by 1000, or we'll overflow on the setLongPref

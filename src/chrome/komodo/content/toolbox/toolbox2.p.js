@@ -84,6 +84,7 @@ initialize: function() {
     this.tree.treeBoxObject
                     .QueryInterface(Components.interfaces.nsITreeBoxObject)
                     .view = this.view;
+    this.view.setTree(this.tree.treeBoxObject);
     try {
         this.toolbox2Svc.migrateVersion5Toolboxes();
         this.toolbox2Svc.initialize();

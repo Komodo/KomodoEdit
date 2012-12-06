@@ -43,6 +43,7 @@
 // "return true;".  This may already be true, but not going to
 // attempt this optimization for release.
 xtk.include("controller");
+xtk.include("clipboard");
 
 // hide this controller from our global namespace, we simply dont need to
 // touch anything in it from the outside world

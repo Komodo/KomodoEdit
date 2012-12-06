@@ -489,65 +489,10 @@ this.toggleTab = function uilayout_toggleTab(widgetId, collapseIfFocused /* =tru
  */
 this.updateTabpickerMenu = function uilayout_updateTabpickerMenu(menupopup)
 {
-    try {
-        /* first, update the menu items in the menubar (the canonical one) */
-        var canonicalPopup = document.getElementById("menu_view_tabs_popup");
-        var menuitems = canonicalPopup.getElementsByTagName("menuitem");
-        for (var i = 0; i < menuitems.length; i++) {
-            var menuitem = menuitems[i];
-            var widgetid = menuitem.getAttribute("widget");
-            var widget = widgetid ? document.getElementById(widgetid) : null;
-            if (!widget || widget.collapsed) {
-                // the pane should not be visible (nor selectabale)
-                menuitem.setAttribute("collapsed", true);
-                menuitem.setAttribute("hidden", true);
-                continue;
-            }
-            menuitem.setAttribute("label", widget.getAttribute("label"));
-            menuitem.removeAttribute('collapsed');
-            menuitem.removeAttribute('hidden');
-            var selected = !widget.tabbox.collapsed &&
-                           widget.tabbox.selectedTab == widget.tab;
-            if (selected) {
-                menuitem.setAttribute('checked', 'true');
-                menuitem.disabled = true;
-            } else {
-                menuitem.removeAttribute('checked');
-                menuitem.disabled = false;
-            }
-        }
-
-        /* next, copy the menu over if required */
-        if (canonicalPopup == menupopup) return;
-        while (menupopup.firstChild) {
-            menupopup.removeChild(menupopup.firstChild);
-        }
-        Array.slice(canonicalPopup.childNodes).forEach(function(item) {
-            var newitem = item.cloneNode(true);
-            menupopup.appendChild(newitem);
-            if (newitem.localName == "menuitem") {
-                // this is a menu item; add an event listener that makes a new
-                // event that looks close enough and dispatches it to the
-                // canonical item
-                newitem.addEventListener("command", function(event){
-                    var newevent = document.createEvent("XULCommandEvent");
-                    newevent.initCommandEvent(event.type,       // type
-                                              true,             // can bubble
-                                              false,            // can cancel
-                                              event.view,       // view
-                                              event.detail,     // detail
-                                              event.ctrlKey,    // ctrl
-                                              event.altKey,     // alt
-                                              event.shiftKey,   // shift
-                                              event.metaKey,    // meta
-                                              event);           // source
-                    item.dispatchEvent(newevent);
-                }, false);
-            }
-        });
-    } catch (e) {
-        _log.exception(e);
-    }
+    _log.deprecated("ko.uilayout.updateTabpickerMenu is no longer used; " +
+                    "popups are now handled by ko.widgets.updateMenu() and " +
+                    "ko.widgets.onMenuCommand()");
+    ko.widgets.updateMenu(menupopup);
 }
 
 this.togglePane = function uilayout_togglePane(paneId, force)
@@ -1370,22 +1315,7 @@ this.ensureTabShown = function uilayout_ensureTabShown(widgetId, focusToo) {
             }
         }
 
-        widget.tabbox.showWidget(widget);
-
-        // See if we want to focus the newly selected widget
-        if (focusToo) {
-            if (widget.contentWindow) {
-                var win = widget.contentWindow;
-                win.focus();
-                // Dispatch an event to say we're programmatically focusing the
-                // widget.
-                var event = win.document.createEvent("Events");
-                event.initEvent("ko-widget-focus", true, false);
-                win.dispatchEvent(event);
-            } else {
-                widget.focus();
-            }
-        }
+        widget.containerPane.addWidget(widget, {focus: focusToo});
     } catch (e) {
         _log.exception(e);
     }
@@ -1671,125 +1601,6 @@ _PrefObserver.prototype.destroy = function() {
     _gPrefs.prefObserverService.removeObserver(this, "ui.tabs.sidepanes.bottom.layout");
 }
 
-this.saveTabSelections = function uilayout_SaveTabSelections(prefs) {
-    if (typeof(prefs) == "undefined") prefs = _gPrefs;
-
-    function _savePanePrefs(prefs, paneID, isCollapsedPrefID, selectedPanelPrefID) {
-        var pane = document.getElementById(paneID);
-        var selectedPanelId = pane.selectedPanel.id;
-        prefs.setBooleanPref(isCollapsedPrefID,
-                             pane.getAttribute('collapsed') == 'true');
-        prefs.setStringPref(selectedPanelPrefID, selectedPanelId);
-    }
-    try {
-        _savePanePrefs(prefs, 'workspace_left_area',
-                       'uilayout_leftTabBox_collapsed',
-                       'uilayout_leftTabBoxSelectedTabId');
-        _savePanePrefs(prefs, 'workspace_right_area',
-                       'uilayout_rightTabBox_collapsed',
-                       'uilayout_rightTabBoxSelectedTabId');
-        _savePanePrefs(prefs, 'workspace_bottom_area',
-                       'uilayout_bottomTabBox_collapsed',
-                       'uilayout_bottomTabBoxSelectedTabId');
-
-        // save which pane each of the widgets are in
-        for each (var pane in ko.widgets._panes) {
-            for each (var widget in pane.widgets) {
-                prefs.setStringPref("uilayout_widget_position_" + widget.id,
-                                    pane.id);
-            }
-        }
-    } catch (e) {
-        _log.exception("Couldn't save selected tab preferences:" + e);
-    }
-}
-
-this.restoreTabSelections = function uilayout_RestoreTabSelections(prefs) {
-
-    function _restoreTabBox(prefs, tabboxID, isCollapsedPrefID, selectedTabPrefID) {
-        if (prefs.hasStringPref(selectedTabPrefID)) {
-            var selectedTabId = prefs.getStringPref(selectedTabPrefID);
-            var pane = document.getElementById(tabboxID);
-            if (prefs.hasBooleanPref(isCollapsedPrefID)) {
-                pane.collapsed = prefs.getBooleanPref(isCollapsedPrefID);
-            }
-            var panel = document.getElementById(selectedTabId);
-            if (panel && !panel.hasAttribute("collapsed")) {
-                pane.selectedTab = panel.tab;
-            }
-        }
-    }
-
-    if (typeof(prefs) == "undefined") prefs = _gPrefs;
-    try {
-        // restore which pane each of the widgets are in; this needs to be on a
-        // delay to allow the panes to be bound first
-        setTimeout(function() {
-            for each (var pane in ko.widgets._panes) {
-                for each (var widget in pane.widgets) {
-                    var prefId = "uilayout_widget_position_" + widget.id;
-                    if (!prefs.hasStringPref(prefId)) {
-                        continue;
-                    }
-                    var paneId = prefs.getStringPref(prefId, pane.id);
-                    var pane = document.getElementById(paneId);
-                    if (!pane) {
-                        // the pane went away?
-                        continue;
-                    }
-                    widget.tabbox.moveWidgetToPane(widget, pane, false);
-                }
-            }
-        }, 0);
-
-        // restore the state of the panes
-
-        _restoreTabBox(prefs, 'workspace_left_area',
-                       'uilayout_leftTabBox_collapsed',
-                       'uilayout_leftTabBoxSelectedTabId');
-        _restoreTabBox(prefs, 'workspace_right_area',
-                       'uilayout_rightTabBox_collapsed',
-                       'uilayout_rightTabBoxSelectedTabId');
-        _restoreTabBox(prefs, 'workspace_bottom_area',
-                       'uilayout_bottomTabBox_collapsed',
-                       'uilayout_bottomTabBoxSelectedTabId');
-
-    } catch (e) {
-        _log.exception("Couldn't restore selected tab: " + e);
-    }
-}
-
-this.syncTabSelections = function uilayout_syncTabSelections() {
-    // Fix bug http://bugs.activestate.com/show_bug.cgi?id=87584:
-    // This is called at startup for new additional windows that don't 
-    // have a set of workspace-specific prefs to consult.
-    //
-    // The problem is that Mozilla uses persisted and default items
-    // to determine which workspace-level tabs are collapsed, and
-    // which toolbar buttons show up checked, but these defaults
-    // aren't always in sync, even though the XUL specifies they
-    // should be persisted.
-    //
-    // If a tab is closed, the button should be in its unchecked
-    // state, and vice versa.
-    
-    function syncTabUI(paneID) {
-        var pane = document.getElementById(paneID);
-        if (pane.getAttribute("collapsed") == "true") {
-            pane.removeAttribute("checked");
-        } else {
-            pane.setAttribute("checked", true);
-        }
-    }
-    try {
-        syncTabUI('workspace_left_area');
-        syncTabUI('workspace_right_area');
-        syncTabUI('workspace_bottom_area');
-    } catch (e) {
-        _log.exception("Couldn't sync selected tab: " + e);
-    }
-}
-
 }).apply(ko.uilayout);
 
 /**
@@ -1826,5 +1637,3 @@ ko.logging.globalDeprecatedByAlternative("uilayout_updateTitlebar", "ko.uilayout
 ko.logging.globalDeprecatedByAlternative("uilayout_unload", "ko.uilayout.unload");
 ko.logging.globalDeprecatedByAlternative("uilayout_onload", "ko.uilayout.onload");
 ko.logging.globalDeprecatedByAlternative("uilayout_onloadDelayed", "ko.uilayout.onloadDelayed");
-ko.logging.globalDeprecatedByAlternative("uilayout_SaveTabSelections", "ko.uilayout.saveTabSelections");
-ko.logging.globalDeprecatedByAlternative("uilayout_RestoreTabSelections", "ko.uilayout.restoreTabSelections");

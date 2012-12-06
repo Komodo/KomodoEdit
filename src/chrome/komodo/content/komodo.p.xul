@@ -121,6 +121,7 @@
     <script src="chrome://komodo/content/library/repeatController.js"     type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/stringutils.js"          type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/treeutils.js"            type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/widgets.js"              type="application/x-javascript;version=1.7"/>
 <!-- #if BUILD_FLAVOUR == "dev" -->
     <script src="chrome://komodo/content/library/test.js"                 type="application/x-javascript;version=1.7"/>
 <!-- #endif -->
@@ -1055,19 +1056,14 @@
                             <menu label="&tabs.label;" id="menu_view_tabs">
                                 <menupopup
                                     id="menu_view_tabs_popup"
-                                    onpopupshowing="ko.uilayout.updateTabpickerMenu(this)"
+                                    onpopupshowing="ko.widgets.updateMenu(this);"
+                                    oncommand="ko.widgets.onMenuCommand(event);"
                                     type="menu"
                                     >
                                     <!--
-                                      - the three spacers here are the insertion targets for
-                                      - dynamically creating the menu items; see
-                                      - chrome://komodo/content/bindings/pane.xml#pane::addWidget
+                                      - The contents of this menu is built by
+                                      - ko.widgets.updateMenu
                                       -->
-                                    <spacer id="menu_view_tabs_stub_workspace_left_area"/>
-                                    <menuseparator id="viewtabs_rightPane2"/>
-                                    <spacer id="menu_view_tabs_stub_workspace_right_area"/>
-                                    <menuseparator id="viewtabs_bottomPane"/>
-                                    <spacer id="menu_view_tabs_stub_workspace_bottom_area"/>
                                 </menupopup>
                             </menu>
                             <menu id="menu_toolbars" label="&toolbars.label;">
@@ -1794,49 +1790,49 @@
                          persist="kohidden collapsed buttonstyle mode"
                          buttonstyle="pictures"
                          tooltiptext="&workspaceToolbar.tooltiptext;">
-					
-					<toolbaritem>
-					
-						<toolbarbutton id="toggleLeftPane"
-							tooltiptext="&showHideLeftPane.tooltiptext;"
-							kohidden="true"
-							persist="buttonstyle kohidden"
-							buttonstyle="pictures"
-							type="checkbox"
-							observes="cmd_viewLeftPane"
-							label="&toggleLeft.label;">
-						</toolbarbutton>
-						<toolbarbutton id="toggleBottomPane"
-							tooltiptext="&showHideBottomPane.tooltiptext;"
-							kohidden="true"
-							persist="buttonstyle kohidden"
-							buttonstyle="pictures"
-							type="checkbox"
-							observes="cmd_viewBottomPane"
-							label="&toggleBottom.label;">
-						</toolbarbutton>
-						<toolbarbutton id="toggleRightPane"
-							tooltiptext="&showHideRightPane.tooltiptext;"
-							kohidden="true"
-							persist="buttonstyle kohidden"
-							buttonstyle="pictures"
-							type="checkbox"
-							observes="cmd_viewRightPane"
-							label="&toggleRight.label;">
-						</toolbarbutton>
-						<toolbarbutton id="tabPicker"
-							tooltiptext="&showSpecificTab.tooltiptext;"
-							type="menu"
-							orient="horizontal"
-							persist="buttonstyle"
-							class="tabPicker-icon"
-							buttonstyle="pictures"
-							label="&showTab.label;">
-							<menupopup onpopupshowing="ko.uilayout.updateTabpickerMenu(this);"/>
-						</toolbarbutton>
-					
-					</toolbaritem>
-					
+
+                    <toolbaritem>
+
+                        <toolbarbutton id="toggleLeftPane"
+                            tooltiptext="&showHideLeftPane.tooltiptext;"
+                            kohidden="true"
+                            persist="buttonstyle kohidden"
+                            buttonstyle="pictures"
+                            type="checkbox"
+                            observes="cmd_viewLeftPane"
+                            label="&toggleLeft.label;">
+                        </toolbarbutton>
+                        <toolbarbutton id="toggleBottomPane"
+                            tooltiptext="&showHideBottomPane.tooltiptext;"
+                            kohidden="true"
+                            persist="buttonstyle kohidden"
+                            buttonstyle="pictures"
+                            type="checkbox"
+                            observes="cmd_viewBottomPane"
+                            label="&toggleBottom.label;">
+                        </toolbarbutton>
+                        <toolbarbutton id="toggleRightPane"
+                            tooltiptext="&showHideRightPane.tooltiptext;"
+                            kohidden="true"
+                            persist="buttonstyle kohidden"
+                            buttonstyle="pictures"
+                            type="checkbox"
+                            observes="cmd_viewRightPane"
+                            label="&toggleRight.label;">
+                        </toolbarbutton>
+                        <toolbarbutton id="tabPicker"
+                            tooltiptext="&showSpecificTab.tooltiptext;"
+                            type="menu"
+                            orient="horizontal"
+                            persist="buttonstyle"
+                            class="tabPicker-icon"
+                            buttonstyle="pictures"
+                            label="&showTab.label;">
+                            <menupopup onpopupshowing="ko.widgets.updateMenu(this);"
+                                       oncommand="ko.widgets.onMenuCommand(event);"/>
+                        </toolbarbutton>
+
+                    </toolbaritem>
                 </toolbar>
                 <toolbar class="chromeclass-toolbar"
                          id="macrosToolbar"
@@ -2073,7 +2069,8 @@
                      class="native"
                      pref="ui.tabs.sidepanes.left.layout"
                      label="&paneNameLeft;"
-                     persist="width type collapsed">
+                     orient="vertical"
+                     persist="width type">
             </ko-pane>
             <splitter id="workspace_left_splitter"
                       class="workspace_splitter workspace_splitter_left"
@@ -2103,9 +2100,10 @@
             <ko-pane id="workspace_right_area"
                      width="200"
                      collapsed="true"
-                     persist="width type collapsed"
+                     persist="width type"
                      class="native"
                      label="&paneNameRight;"
+                     orient="vertical"
                      rotation="90">
                 <browser type="ko-widget"
                          id="toolbox2viewbox"
@@ -2127,8 +2125,8 @@
         <!--Persisting of collapsed disabled because of http://bugs.activestate.com/show_bug.cgi?id=25918-->
         <!-- only allow drag-drop for widgets that specificly support it -->
         <ko-pane id="workspace_bottom_area" height="200" collapsed="true"
-                 persist="height type collapsed" label="&paneNameBottom;"
-                 class="native"
+                 persist="height type" label="&paneNameBottom;"
+                 class="native" orient="horizontal"
                  ondragover="event.cancelBubble=true; return false;"
                  ondrop="event.cancelBubble=true; return true;">
             <!-- Run output tab of the output pane. This pane is made

@@ -69,10 +69,7 @@
                         orient="this is here to prevent the tabs binding setting it to horizontal"
                         xbl:inherits="rotation,label=tabLabel"
                         oncontextmenu="return document.getBindingParent(this)._onTabContext(event);"
-                        onclose="var elem = this;
-                                 while (!/pane/.test(elem.localName))
-                                   elem = document.getBindingParent(elem);
-                                 elem.collapsed = true;"/>
+                        onclose="_collapsePanel();"/>
             </xul:hbox>
             <xul:vbox flex="1">
               <!-- this is here for the "vertical" case -->
@@ -84,7 +81,7 @@
                         class="tabs-closebutton"
                         tooltiptext="&closePane.tooltiptext;"
                         buttonstyle="pictures"
-                        oncommand="document.getBindingParent(this).collapsed = true;"/>
+                        oncommand="_collapsePanel();"/>
               </xul:hbox>
               <xul:tabpanels anonid="tabpanels" flex="1">
                 <children/>
@@ -97,9 +94,37 @@
       </xul:deck>
 
       <xul:menupopup anonid="tabs_popup">
-        <xul:menu label="&pane.moveTo.label;">
-          <xul:menupopup anonid="tabs_popup_moveto"/>
+        <xul:menu anonid="tabs_popup_widget"
+                  class="tab_popup_multiple_widgets" collapsed="true">
+          <xul:menupopup>
+            <xul:menu label="&pane.moveTo.tab.label;" class="tab_popup_multiple_tabs">
+              <xul:menupopup anonid="tabs_popup_moveto_tab">
+                <xul:menuitem label="&pane.moveTo.tab.new.label;"
+                              class="tab_popup_multiple_widgets"/>
+              </xul:menupopup>
+            </xul:menu>
+            <xul:menuitem anonid="tabs_popup_moveto_new_single_tab"
+                          label="&pane.moveTo.tab.new.single.label;"
+                          class="tab_popup_multiple_widgets tab_popup_single_tab"/>
+            <xul:menu label="&pane.moveTo.pane.label;">
+              <xul:menupopup anonid="tabs_popup_moveto_pane">
+                <xul:menuitem label="&pane.moveTo.pane.new.label;"/>
+              </xul:menupopup>
+            </xul:menu>
+            <xul:menuitem anonid="tabs_popup_move_widget_up"
+                          class="tab_popup_multiple_widgets"/>
+            <xul:menuitem anonid="tabs_popup_move_widget_down"
+                          class="tab_popup_multiple_widgets"/>
+          </xul:menupopup>
         </xul:menu>
+        <xul:menuitem class="tab_popup_multiple_tabs tab_popup_move_tab"
+                      anonid="tabs_popup_move_tab_up"
+                      oncommand="_moveTabUpDown(true);"/>
+        <xul:menuitem class="tab_popup_multiple_tabs tab_popup_move_tab"
+                      anonid="tabs_popup_move_tab_down"
+                      oncommand="_moveTabUpDown(false);"/>
+        <xul:menuitem label="&pane.detach.label;"
+                      oncommand="_detachAllWidgets(event);"/>
       </xul:menupopup>
     </content>
     <implementation>
@@ -108,81 +133,204 @@
           - Add the given widget to the pane
           -->
         <parameter name="widget"/>
+        <parameter name="params"/>
         <body>
         <![CDATA[
-          if (!widget.tab) {
-            this._log.debug("Widget " + widget.id + " has no tab, creating one (" + this.id + ")");
-            var tab = this.ownerDocument.createElementNS(this.namespaceURI, "tab");
-            // set label now so vertical text gets it right
-            tab.setAttribute("label", widget.getAttribute("label"));
-            if (widget.hasAttribute("short-label")) {
-              tab.setAttribute("short-label", widget.getAttribute("short-label"));
-            }
-            tab.setAttribute("observes", widget.id);
-            tab.setAttribute("linkedpanel", widget.id);
-            tab.linkedpanel = widget;
-            tab.addEventListener("contextmenu", (function(event) {
-              this._updateMoveToPopup(event);
-              var popup = document.getAnonymousElementByAttribute(this, "anonid", "tabs_popup");
-              popup.openPopup(tab, "after_pointer", 0, 0, true, false, event);
-            }).bind(this), false);
-            tab.addEventListener("dragstart", (function(event) {
-              document.documentElement.setAttribute("ko-pane-dragging", true);
-              this.setAttribute("ko-pane-dragging", true);
-              event.dataTransfer.setData("application/x-komodo-pane", widget.id);
-            }).bind(this), false);
-            tab.addEventListener("dragend", (function(event) {
-              document.documentElement.removeAttribute("ko-pane-dragging");
-              this.removeAttribute("ko-pane-dragging");
-            }).bind(this), false);
-            // copy any attributes over that start with "tab_" without the prefix
-            // so we can have things like oncommand
-            for (var [index, attr] in Iterator(widget.attributes)) {
-              if (/^tab_/.test(attr.name)) {
-                // copy the attribute over
-                tab.setAttribute(attr.name.replace(/^tab_/, ""), attr.value);
-                // add a <observes> to catch the attribute changing dynamically
-                var observes = this.ownerDocument.createElementNS(this.namespaceURI, "observes");
-                observes.setAttribute("element", widget.id);
-                observes.setAttribute("attribute", attr.name);
-                observes.addEventListener("broadcast", (function(event){
-                  var observes = event.target;
-                  var attr = observes.getAttribute("attribute");
-                  observes.parentNode.setAttribute(attr.replace(/^tab_/, ""),
-                                                   this.getAttribute(attr));
-                }).bind(widget), false);
-                tab.appendChild(observes);
-              }
-            }
-            widget.tab = tab;
+          try {
+            this._log.debug("addWidget: " + widget + ", " + JSON.stringify(params));
+          } catch (ex if ex instanceof TypeError) {
+            this._log.debug("addWidget: " + widget + ", " + Object.keys(params));
           }
-          this._log.debug("Adding tab " + widget.tab.getAttribute("label") + " for " + widget.id);
-          this.tabs.appendChild(widget.tab);
+          if (!widget) {
+            throw Components.Exception("No widget specified",
+                                       Components.results.NS_ERROR_INVALID_ARG);
+          }
+          params = params || {};
+          params = {
+            focus:        ("focus" in params)        ? !!params.focus            : true,
+            tab:          ("tab" in params)          ? params.tab                : null,
+            insertBefore: ("insertBefore" in params) ? params.insertBefore       : null,
+            flex:         ("flex" in params)         ? parseInt(params.flex, 10) : 16,
+          };
+          if (params.tab && ("_is_ko_widget" in params.tab)) {
+            // Oh wtf, got passed a widget instead of a tab
+            params.tab = params.tab.tab;
+          }
+
+          /**
+           * Helper to append the widget to this pane, possibly in a new tabpenl
+           */
+          let insertWidget = (function insertWidget(widget) {
+            let tabpanel = ("tab" in params) ? params.tab : null;
+            if (tabpanel && tabpanel.linkedpanel) {
+              tabpanel = tabpanel.linkedpanel;
+            }
+            if (!tabpanel) {
+              let tab = this._createTab();
+              tabpanel = tab.linkedpanel;
+            }
+            let insertRef = null; // Default to insert at end (append)
+            if (tabpanel.childNodes.length > 0) {
+              insertRef = params.insertBefore;
+              if (insertRef && !("_is_ko_widget" in insertRef)) {
+                // Got a string; try to get the browser if it's already loaded
+                insertRef = ko.widget.getWidget(insertRef);
+              }
+              if (insertRef && insertRef.parentNode != tabpanel) {
+                insertRef = null; // wrong tabpanel, ignore
+              }
+              if (insertRef && insertRef.previousElementSibling) {
+                // has a splitter in front of the browser
+                insertRef = insertRef.previousElementSibling;
+              }
+              let splitter = this.ownerDocument.createElementNS(this.namespaceURI, "splitter");
+              tabpanel.insertBefore(splitter, insertRef);
+              splitter.addEventListener("contextmenu",
+                                        (function(event) {
+                                          this._updateContextPopup(widget);
+                                          document.getAnonymousElementByAttribute(this, "anonid", "tabs_popup")
+                                                  .openPopup(event.target, "after_pointer", 0, 0, true, false, event);
+                                        }).bind(this),
+                                        false);
+            }
+            tabpanel.insertBefore(widget, insertRef);
+            widget.tab = tabpanel.tab;
+            // hook up the mutation observer
+            this._refreshTab(tabpanel);
+            this._mutationObserver.observe(widget, {attributes: true});
+          }).bind(this);
+
+          let createdNewWidget = false;
+          let id = String(widget);
+          if (!widget._is_ko_widget) {
+            let data = ko.widgets._get(id);
+            if (!data) {
+              // not registered
+              throw Components.Exception("Widget " + id + " not registered",
+                                         Components.results.NS_ERROR_INVALID_ARG);
+            }
+            if (data.browser) {
+              widget = data.browser;
+            } else {
+              widget =  this.ownerDocument.createElementNS(this.namespaceURI, "browser");
+              for (let [name, value] in Iterator(data.attrs)) {
+                widget.setAttribute(name, value);
+              }
+              widget.setAttribute("type", "ko-widget");
+              widget.setAttribute("label", data.label);
+              if (data.iconURL) widget.setAttribute("icon", data.iconURL);
+              if (data.inactiveIconURL) widget.setAttribute("inactiveIcon", data.inactiveIconURL);
+              insertWidget(widget);  // Do it now so the XBL binding can apply
+              widget.loadURI(data.URL, null, null);
+              data.browser = widget;
+              createdNewWidget = true;
+            }
+            widget.getBoundingClientRect(); // force flush CSS
+          } else {
+            id = ko.widgets._getIDForWidget(widget);
+            if (id === null) {
+              id = widget.getAttribute("id");
+            }
+          }
+          if (!id) {
+            this._log.exception("Failed to find id for " + widget);
+          }
+          widget.setAttribute("flex", params.flex);
+          if (!createdNewWidget && widget.containerPane) {
+            // We've moving the widget
+            widget = this._adoptWidget(widget, params); // (note that this recurses back here)
+            if (params.focus) {
+              this.showWidget(widget);
+            }
+            return widget;
+          }
+          // Tell the widget manager
+          ko.widgets._get(id).browser = widget;
+
+          if (!widget.parentNode) {
+            // This widget has no parent, make one up
+            insertWidget(widget);
+            if (!widget.tab.linkedpanel) {
+              widget.tab.linkedpanel = widget.parentNode;
+            }
+          }
+
+          // Update tab strip visibility
+          if (this.tabs.setTabVisibility) {
+            this.tabs.setTabVisibility();
+          }
+
+          // maybe focus the widget
+          if (params.focus) {
+            this.showWidget(widget);
+          }
+
+          return widget; // for callers passing in a URL
+        ]]>
+        </body>
+      </method>
+
+      <method name="_createTab">
+        <!--
+          - Helper to create a new tab
+          - @returns tab
+          -->
+        <body>
+        <![CDATA[
+          let tabpanel = this.ownerDocument.createElementNS(this.namespaceURI, "tabpanel");
+          this.tabpanels.appendChild(tabpanel);
+          tabpanel.setAttribute("orient", this.orient);
+
+          let tab = this.ownerDocument.createElementNS(this.namespaceURI, "tab");
+          this.tabs.appendChild(tab);
+          tab.linkedpanel = tabpanel;
+          tabpanel.tab = tab;
+          tab.addEventListener("contextmenu", (function(event) {
+            let tabpanel = event.target.linkedpanel;
+            let widget = Array.slice(event.target.linkedpanel.childNodes)
+                              .filter(function(e) e && ("_is_ko_widget" in e))
+                              .shift();
+            this._updateContextPopup(widget);
+            let popup = document.getAnonymousElementByAttribute(this, "anonid", "tabs_popup");
+            popup.openPopup(tab, "after_pointer", 0, 0, true, false, event);
+          }).bind(this), false);
+          tab.addEventListener("dragstart", (function(event) {
+            document.documentElement.setAttribute("ko-pane-dragging", true);
+            this.setAttribute("ko-pane-dragging", true);
+            let ids = Array.slice(event.target.linkedpanel.childNodes)
+                           .filter(function(e) e && ("_is_ko_widget" in e))
+                           .map(function(w) ko.widgets.getWidgetInfo(w).ID);
+            event.dataTransfer.setData("application/x-komodo-pane",
+                                       JSON.stringify(ids));
+          }).bind(this), false);
+          tab.addEventListener("dragend", (function(event) {
+            document.documentElement.removeAttribute("ko-pane-dragging");
+            this.removeAttribute("ko-pane-dragging");
+          }).bind(this), false);
           // we never want to have flex by the attr; remove the flex generated
           // by the tab binding. (we can do it from css if we really want to.)
-          widget.tab.removeAttribute("flex");
-          this.tabpanels.appendChild(widget);
+          tab.removeAttribute("flex");
           document.getAnonymousElementByAttribute(this, "anonid", "pane-dummy-container")
                   .selectedIndex = 1;
+          return tab;
+        ]]>
+        </body>
+      </method>
 
-          // update the menu listing the widgets to show
-          var refElem = document.getElementById("menu_view_tabs_stub_" + this.id);
-          if (refElem) {
-            var menuitem = document.createElement("menuitem");
-            menuitem.setAttribute("label", widget.getAttribute("label"));
-            menuitem.setAttribute("type", "checkbox");
-            menuitem.setAttribute("widget", widget.id);
-            refElem.parentNode.insertBefore(menuitem, refElem);
-            menuitem.addEventListener("command",
-                                      ko.uilayout.ensureTabShown.bind(ko.uilayout, widget, true),
-                                      false);
-            widget._menuitem = menuitem;
-          }
-          
-          // Update tab strip visibility
-          if (widget.tabbox.tabs.setTabVisibility) {
-            widget.tabbox.tabs.setTabVisibility();
-          }
+      <method name="_refreshTab">
+        <!--
+          - Rebuild the tab for a given tab panel
+          -->
+        <parameter name="tabpanel"/>
+        <body>
+        <![CDATA[
+          let tab = tabpanel.tab;
+          this._log.debug("_refreshTab: " + tab.getAttribute("label"));
+          // copy any attributes over that start with "tab_" without the prefix
+          // so we can have things like oncommand
+          let widget = tabpanel.firstChild;
+          this._mutationObserver.callback([{target: widget, attributeName: attr.name}
+                                           for ([,attr] in Iterator(widget.attributes))]);
         ]]>
         </body>
       </method>
@@ -192,77 +340,191 @@
           - Remove a given widget.
           - This should not be used if you just want to hide the widget
           - temporarily.
+          - @param widget {<browser type="ko-widget"/>} The widget to remove
+          - @param params {Object} Additional arguments:
+          -     _suppressEvents {Boolean} If true, don't fire any events
+          - @returns True if the widget was removed; false if it wasn't
           -->
         <parameter name="widget"/>
+        <parameter name="params"/> <!-- undocumented; -->
         <body>
         <![CDATA[
-          var tabbox = widget.tabbox;
+          this._log.debug("removeWidget: " +
+                          (ko.widgets._getIDForWidget(widget)||"(null)") +
+                          " from " + (this.id) +
+                          (params ? " " + JSON.stringify(params) : ""));
+
+          if (!widget) {
+            throw Components.Exception("No widget supplied",
+                                       Components.results.NS_ERROR_INVALID_ARG);
+          }
+          if (!widget._is_ko_widget) {
+            let real_widget = ko.widgets.getWidget(widget);
+            if (!real_widget) {
+              throw Components.Exception("Unknown widget " + widget,
+                                         Components.results.NS_ERROR_INVALID_ARG);
+            }
+            widget = real_widget;
+          }
+
+          if (widget.containerPane !== this) {
+            return false; // The widget was not found in this pane (it migt not be anywhere)
+          }
+
+          if (!params || !params._suppressEvents) {
+            let eventData = [
+              {name: "ko-widget-remove",
+               target: widget.contentDocument,
+               data: {"from-pane": this}
+              },
+              {name: "ko-widget-remove",
+               target: widget.containerPane,
+               data: {"widget": widget, "to-pane": null}
+              },
+            ]
+            for (let data of eventData) {
+              if (data.target) {
+                if (!this._dispatchEvent(data.name, data.target, data.data)) {
+                  return false;
+                }
+              }
+            }
+          }
 
           // find a tab to focus after we've moved things
           var nextTab = null;
-          if (tabbox && tabbox.selectedTab == widget.tab) {
-            for each (var dir in ["nextElementSibling", "previousElementSibling"]) {
-              if (nextTab) break; // already found
-              for (var elem = widget.tab[dir]; elem; elem = elem[dir]) {
-                if (elem.hidden || elem.collapsed) continue;
-                nextTab = elem;
-                break;
+          if (this.selectedTab == widget.tab) {
+            if (widget.nextElementSibling || widget.previousElementSibling) {
+              // Multiple widgets in this tabpanel, don't change tabs
+              nextTab = widget.tab;
+            } else {
+              for (let dir of ["nextElementSibling", "previousElementSibling"]) {
+                if (nextTab) break; // already found
+                for (var elem = widget.tab[dir]; elem; elem = elem[dir]) {
+                  if (elem.hidden || elem.collapsed) continue;
+                  nextTab = elem;
+                  break;
+                }
               }
             }
           } else {
             // we still might need to switch selected widget, if we're removing
             // a widget with a lower index (so <tabpanels>.selectedIndex will
             // be too large).
-            nextTab = tabbox ? tabbox.selectedTab : null;
+            nextTab = this.selectedTab;
           }
 
           if (nextTab) {
             // Select the new tab now, so the dying tab knows it's going to lose
             // its selected state (and clear "beforeselected" correctly).
             // See bug 92203.
-            tabbox.selectedIndex = tabbox.tabs.getIndexOfItem(nextTab);
+            if (nextTab != this.selectedTab) {
+              // Tell things that they'll be unselected
+              for (let w of Array.slice(this.selectedTab.linkedpanel.childNodes)) {
+                if ("_is_ko_widget" in w && w.contentDocument) {
+                  this._dispatchEvent("ko-widget-hidden", w.contentDocument);
+                }
+              }
+            }
+            this.selectedIndex = this.tabs.getIndexOfItem(nextTab);
           }
 
-          if (widget.tab && widget.tab.parentNode) {
+          let parent = widget.parentNode;
+          let siblings = Array.slice(parent.childNodes)
+                              .filter(function(e) e instanceof Element)
+                              .filter(function(e) e.localName === "browser");
+          if (siblings.length === 1) {
+            // widget was alone
+            if (parent.localName == "tabpanel" && parent.parentNode) {
+              // remove the now-empty tablapenl
+              parent.parentNode.removeChild(parent);
+            }
+          } else if (widget === siblings[0]) {
+            // Widget was the first (with siblings)
+            // Force update tab attributes to the new widget
+            this._log.debug("widget has " + siblings.length +
+                            " siblings, moving to " +
+                            siblings[1].getAttribute("id") ||
+                              siblings[1].getAttribute("src"));
+            let newFirst = siblings[1];
+            if (newFirst.previousElementSibling.localName === "splitter") {
+              // remove the splitter before the next sibling (which is now first)
+              parent.removeChild(newFirst.previousElementSibling);
+            }
+          } else {
+            // widget was second or later, has a splitter before it that needs to die
+            if (widget.previousElementSibling.localName !== "splitter") {
+              this._log.exception("widget " + widget.id + " had a non-splitter " +
+                                  "previous element sibling " +
+                                  widget.previousElementSibling.localName);
+            }
+            parent.removeChild(widget.previousElementSibling);
+          }
+          parent.removeChild(widget);
+
+          if (siblings.length === 1 && widget.tab && widget.tab.parentNode) {
+            // This widget was alone, and had a tab; remove the tab.
             widget.tab.parentNode.removeChild(widget.tab);
           }
           widget.tab = null;
-          if (widget.parentNode) {
-            widget.parentNode.removeChild(widget);
-          }
 
-          if (nextTab) {
-            // Select the new tab _again_, now that the old one is gone, so we
-            // don't end up with weird borders if we removed a tab to the left;
-            // bug 92203 again.  Also, need to select the panel manually too
-            // for much the same reason (avoids blank panels).
-            tabbox.selectedIndex = tabbox.tabs.getIndexOfItem(nextTab);
-            tabbox.tabpanels.selectedPanel = nextTab.linkedpanel;
-          }
+          try {
+            // By this point, the remove has succeeded; no matter what happens,
+            // we need to dispatch events and return true.
 
-          // update the menu listing the widgets
-          var refElem = document.getElementById("menu_view_tabs_stub_" + this.id);
-          var menu = refElem.parentNode;
-          var menuitem = widget._menuitem;
-          if (!menuitem) {
-            menuitem = menu.querySelector("menuitem[widget='" + widget.id + "']");
-          }
-          if (menuitem) {
-            menuitem.parentNode.removeChild(menuitem);
-          }
+            if (nextTab) {
+              // Select the new tab _again_, now that the old one is gone, so we
+              // don't end up with weird borders if we removed a tab to the left;
+              // bug 92203 again.  Also, need to select the panel manually too
+              // for much the same reason (avoids blank panels).
+              let dispatchEvents = (nextTab != this.selectedTab);
+              this.selectedIndex = this.tabs.getIndexOfItem(nextTab);
+              this.tabpanels.selectedPanel = nextTab.linkedpanel;
+              this.selectedTab = nextTab;
+              if (dispatchEvents) {
+                for (let w of Array.slice(nextTab.linkedpanel.childNodes)) {
+                  if ("_is_ko_widget" in w && w.contentDocument) {
+                    this._dispatchEvent("ko-widget-showing", w.contentDocument);
+                  }
+                }
+              }
+            } else if (this.floating) {
+              // nothing else to select, and we're a floating tab. die.
+              ko.widgets._unregisterPane(this);
+              // Need to wait a bit before we close the window, to give time
+              // for the remove-completed event to fire
+              let {Services} =
+                Components.utils.import("resource://gre/modules/Services.jsm", {});
+              Services.tm.currentThread.dispatch(
+                this.ownerDocument.defaultView.close.bind(this.ownerDocument.defaultView),
+                Services.tm.currentThread.DISPATCH_NORMAL);
+              return undefined;
+            }
 
-          // Update tab strip visibility
-          if (tabbox && tabbox.tabs.setTabVisibility) {
-            tabbox.tabs.setTabVisibility();
-          }
-          
-          // Update pane visiblity. (this has to come after updating tab strip
-          // visibility otherwise the tab strip would be unbound and we can't
-          // use its methods anymore)
-          if (tabbox && !nextTab) {
-            document.getAnonymousElementByAttribute(this, "anonid", "pane-dummy-container")
-                    .selectedIndex = 0;
-            tabbox.collapsed = true;
+            // Update tab strip visibility
+            if ("setTabVisibility" in this.tabs) {
+              this.tabs.setTabVisibility();
+            }
+
+            // Update pane visiblity. (this has to come after updating tab strip
+            // visibility otherwise the tab strip would be unbound and we can't
+            // use its methods anymore)
+            if (!this.tabpanels.firstChild) {
+              document.getAnonymousElementByAttribute(this, "anonid", "pane-dummy-container")
+                      .selectedIndex = 0;
+              this.collapsed = true;
+            } else {
+              this._refreshTab(parent);
+            }
+
+          } finally {
+            if (!params || !params._suppressEvents) {
+              this._dispatchEvent("ko-widget-remove-completed",
+                                  this,
+                                  {"widget": widget,
+                                   "to-pane": null});
+            }
+            return true;
           }
         ]]>
         </body>
@@ -281,11 +543,22 @@
             // Got a string, probably the widget id. Be nice and find it.
             widget = this.ownerDocument.getElementById(widget);
           }
-          if (!widget || !widget.tabbox || widget.tabbox != this) {
+          if (!widget || !widget.containerPane || widget.containerPane != this) {
             // Bad widget.
-            this._log.exception("showWidget got a bad widget!");
+            if (widget && ("id" in widget)) {
+              this._log.exception("showWidget got a bad widget, " + widget.getAttribute("id") +
+                                  " doesn't belong to " + this.label +
+                                  " (it blongs to " +
+                                  (widget.containerPane ? widget.containerPane.label : "(null)") +
+                                  ")!");
+            } else {
+              this._log.exception("showWidget got a bad widget in " + this.label + "!");
+            }
             throw("Widget does not exist or doesn't belong to this pane");
           }
+          this._log.debug("showWidget(" + (widget.getAttribute("id") || widget.getAttribute("src")) + ")");
+
+          let previousSelected = this.selectedTab;
 
           // First make sure that this pane is visible
           this.collapsed = false;
@@ -294,44 +567,316 @@
           // let's be very, very sure. (this is needed in the case where we're here
           // because a tab in front of us got moved away, in which case .selectedIndex
           // will not properly reflect reality)
-          this.tabpanels.selectedPanel = widget;
+          this.tabpanels.selectedPanel = widget.parentNode;
 
           // Make sure we're showing the tabpanels.  This can be needed if this
           // widget used to be hidden.
           document.getAnonymousElementByAttribute(this, "anonid", "pane-dummy-container")
                   .selectedIndex = 1;
+
+          if (previousSelected && previousSelected.linkedpanel) {
+            for (let w of Array.slice(previousSelected.linkedpanel.childNodes)) {
+              if ("_is_ko_widget" in w) {
+                this._dispatchEvent("ko-widget-hidden", widget.contentDocument);
+              }
+            }
+          }
+          for (let w of Array.slice(widget.parentNode.childNodes)) {
+            if ("_is_ko_widget" in w) {
+              this._dispatchEvent("ko-widget-showing", widget.contentDocument);
+            }
+          }
         ]]>
         </body>
       </method>
 
-      <method name="_updateMoveToPopup">
+      <method name="_detachWidget">
+        <!--
+          - Separate the given widget into a new floating pane
+          -->
+        <parameter name="widget"/>
+        <body>
+        <![CDATA[
+          if (!widget) {
+            throw new Components.Exception("No widget given to detach",
+                                           Components.results.NS_ERROR_NULL_POINTER);
+          }
+          ko.widgets.createPane((function(pane) {
+            pane._adoptWidget(widget, {focus: true});
+          }).bind(this), this);
+        ]]>
+        </body>
+      </method>
+
+      <method name="_detachAllWidgets">
+        <!--
+          - Detach all widgets in this pane to a floating pane
+          - @param event {Event} The event being handled (unused)
+          -->
+        <parameter name="event"/>
+        <body>
+          ko.widgets.createPane((function(pane) {
+            let widget = Array.slice(this.selectedPanel.childNodes)
+                              .filter(function(child) "_is_ko_widget" in child)
+                              .shift();
+            let focusedPanel = null;
+            for (let tabpanel of Array.slice(this.tabpanels.childNodes)) {
+              this._log.debug("detaching " + tabpanel.tab.label);
+              if (Array.slice(tabpanel.childNodes).indexOf(widget) != -1) {
+                focusedPanel = pane._adoptTabPanel(tabpanel);
+              } else {
+                pane._adoptTabPanel(tabpanel);
+              }
+            }
+            if (focusedPanel) {
+              let widget = Array.slice(focusedPanel.childNodes)
+                                .filter(function(child) "_is_ko_widget" in child)
+                                .shift();
+              if (widget) {
+                pane.addWidget(widget, {focus: true});
+              }
+            }
+          }).bind(this), this);
+        </body>
+      </method>
+
+      <method name="_separateWidget">
+        <!--
+          - Separate the given widget into a new tabpanel (in this pane)
+          -->
+        <parameter name="widget"/>
+        <body>
+        <![CDATA[
+          this._log.debug("_separateWidget: " + ko.widgets._getIDForWidget(widget));
+          let tab = this._createTab();
+          tab.setAttribute("label", widget.getAttribute("label"));
+          if (widget.hasAttribute("short-label")) {
+            tab.setAttribute("short-label", widget.getAttribute("short-label"));
+          }
+          // copy any attributes over that start with "tab_" without the prefix
+          // so we can have things like oncommand
+          this._mutationObserver.callback([{target: widget, attributeName: attr.name}
+                                           for ([,attr] in Iterator(widget.attributes))]);
+          this.addWidget(widget, {focus: true, tab: tab});
+        ]]>
+        </body>
+      </method>
+
+      <method name="_onFloatingPanelHidden">
         <parameter name="event"/>
         <body>
         <![CDATA[
-          var tab = event.target;
-          var popup = document.getAnonymousElementByAttribute(this, "anonid", "tabs_popup_moveto");
-          while (popup.firstChild) {
-            popup.removeChild(popup.firstChild);
+          // this is a floating pane, and somebody just closed our container.
+          if (!this._collapsePanel()) {
+            // failed to collapse - there are widgets with no usable panes
+            event.stopPropagation();
+            event.preventDefault();
+            return;
           }
-          var widget = tab.linkedpanel;
-          popup.setAttribute("_widgetToMove", widget.id);
-          for each (var paneid in Object.keys(ko.widgets._panes)) {
-            var pane = ko.widgets._panes[paneid];
-            var menuitem = document.createElementNS(this.namespaceURI, "menuitem");
-            menuitem.setAttribute("label", pane.getAttribute("label") || pane.id);
-            menuitem.setAttribute("type", "checkbox");
-            menuitem.setAttribute("_paneId", pane.id);
-            if (widget.tabbox == pane) {
-              // it's alreayd here
-              menuitem.setAttribute("disabled", true);
-              menuitem.setAttribute("checked", true);
+        ]]>
+        </body>
+      </method>
+
+      <method name="_updateContextPopup">
+        <!--
+          - Update the context menu for the pane
+          - @param widget {<browser type="ko-widget">} The widget that triggered this context menu
+          -->
+        <parameter name="widget"/>
+        <body>
+        <![CDATA[
+          let getMoveLabel = (function getMoveLabel(type, dir) {
+              let directions = {up: "up", down: "down"};
+              if (this.getAttribute("type")=== "horizontal") {
+                directions = {up: "left", down: "right"};
+              }
+              return this._strings.GetStringFromName("pane.move." + type + "." +
+                                                     directions[dir] + ".label")
+            }).bind(this);
+
+          /**
+           * Update a newly-cloned menu for a single widget to have the menu
+           * items for the existing widgets/tabs/panes.
+           * @param widgetMenu {<menu>} The menu to update.  This must not have
+           *      any event listeners hooked up already - new ones will be added.
+           * @param refWidget {<browser type="ko-widget"/>} The widget to build
+           *      the menu for.
+           */
+          let updateWidgetMenu = (function updateWidgetMenu(widgetMenu, refWidget) {
+            widgetMenu.removeAttribute("anonid");
+            widgetMenu.removeAttribute("collapsed");
+            widgetMenu.setAttribute("label", refWidget.getAttribute("label"));
+            let popup;
+
+            // Move To Tab menu
+            popup = widgetMenu.querySelector('[anonid=tabs_popup_moveto_tab]');
+            while (popup.firstChild != popup.lastChild) {
+              // keep the "New Tab" menuitem
+              popup.removeChild(popup.firstChild);
             }
-            menuitem.addEventListener("command", (function(event) {
-              this.moveWidgetToPane(popup.getAttribute("_widgetToMove"),
-                                    event.target.getAttribute("_paneId"));
-            }).bind(this), false);
-            popup.appendChild(menuitem);
+            for (let tab of tabs) {
+              let menuitem = document.createElementNS(this.namespaceURI, "menuitem");
+              menuitem.setAttribute("label", tab.getAttribute("label"));
+              menuitem.setAttribute("type", "checkbox");
+              if (tab === refWidget.tab) {
+                // it's alreayd here
+                menuitem.setAttribute("disabled", true);
+                menuitem.setAttribute("checked", true);
+              }
+              popup.insertBefore(menuitem, popup.lastChild);
+              menuitem.addEventListener("command",
+                                        this.addWidget.bind(this,
+                                                            refWidget,
+                                                            {tab: tab}),
+                                        false);
+            }
+            popup.lastChild.addEventListener("command",
+                                             this._separateWidget.bind(this,
+                                                                       refWidget),
+                                             false);
+            widgetMenu.querySelector('[anonid="tabs_popup_moveto_new_single_tab"]')
+                      .addEventListener("command",
+                                        this._separateWidget.bind(this, refWidget),
+                                        false);
+
+            // Move To Pane menu
+            popup = widgetMenu.querySelector('[anonid="tabs_popup_moveto_pane"]');
+            while (popup.firstChild != popup.lastChild) {
+              // keep the "New Floating Pane" menuitem
+              popup.removeChild(popup.firstChild);
+            }
+            for (let paneId of ko.widgets.panes) {
+              let pane = ko.widgets.getPaneAt(paneId);
+              let menuitem = document.createElementNS(this.namespaceURI, "menuitem");
+              menuitem.setAttribute("label", pane.getAttribute("label"));
+              menuitem.setAttribute("type", "checkbox");
+              if (pane === refWidget.containerPane) {
+                // it's alreayd here
+                menuitem.setAttribute("disabled", true);
+                menuitem.setAttribute("checked", true);
+              }
+              popup.insertBefore(menuitem, popup.lastChild);
+              menuitem.addEventListener("command",
+                                        pane.addWidget.bind(pane, refWidget),
+                                        false);
+            }
+            popup.lastChild.addEventListener("command",
+                                             this._detachWidget.bind(this,
+                                                                     refWidget),
+                                             false);
+
+            let menuitem;
+            menuitem = widgetMenu.querySelector('[anonid="tabs_popup_move_widget_up"]');
+            menuitem.setAttribute("label", getMoveLabel("widget", "up"));
+            if (refWidget === widgets[0]) {
+              menuitem.setAttribute("disabled", "true");
+            } else {
+              menuitem.removeAttribute("disabled");
+              menuitem.addEventListener("command", (function(){
+                  let index = widgets.indexOf(refWidget);
+                  let insertBefore = widgets[index - 1];
+                  this.addWidget(refWidget,
+                                 {tab: refWidget.tab, insertBefore: insertBefore});
+                }).bind(this), false);
+            }
+            menuitem = widgetMenu.querySelector('[anonid="tabs_popup_move_widget_down"]');
+            menuitem.setAttribute("label", getMoveLabel("widget", "down"));
+            if (refWidget === widgets.slice(-1)[0]) {
+              menuitem.setAttribute("disabled", "true");
+            } else {
+              menuitem.removeAttribute("disabled");
+              menuitem.addEventListener("command", (function(){
+                  let index = widgets.indexOf(refWidget);
+                  let insertBefore = widgets[index + 2];
+                  this.addWidget(refWidget,
+                                 {tab: refWidget.tab, insertBefore: insertBefore});
+                }).bind(this), false);
+            }
+          }).bind(this);
+
+          let id = ko.widgets.getWidgetInfo(widget).ID;
+          this._log.debug("_updateContextPopup: " + id);
+
+          let popup = document.getAnonymousElementByAttribute(this, "anonid", "tabs_popup");
+          let menuitem = null;
+          let widgets = Array.slice(widget.parentNode.childNodes)
+                             .filter(function(w) w && ("_is_ko_widget" in w));
+          let tabs = Array.slice(this.tabs.childNodes);
+          popup.setAttribute("_widgetsInPane", widgets.length);
+          popup.setAttribute("_tabsInPane", tabs.length);
+
+          for (let node of Array.slice(popup.querySelectorAll("[_generated_item_]"))) {
+            if (node.parentNode) {
+              node.parentNode.removeChild(node);
+            }
           }
+
+          let widgetMenuTemplate = popup.querySelector('[anonid="tabs_popup_widget"]');
+          if (widgets.length > 1) {
+            for (let w of widgets) {
+              let widgetMenu = widgetMenuTemplate.cloneNode(true);
+              widgetMenu.setAttribute("_generated_item_", "true");
+              popup.insertBefore(widgetMenu, widgetMenuTemplate);
+              updateWidgetMenu(widgetMenu, w);
+            }
+          } else {
+            // Need to get the <menupopup>'s children
+            let widgetMenu = widgetMenuTemplate.firstChild.cloneNode(true);
+            // Stash the cloned menu somewhere so that event listeners can hook
+            // up correctly.
+            popup.insertBefore(widgetMenu, widgetMenuTemplate);
+            popup.appendChild(widgetMenu);
+            try {
+              updateWidgetMenu(widgetMenu, widget);
+              for (let child of widgetMenu.childNodes) {
+                popup.insertBefore(child, widgetMenuTemplate);
+                child.setAttribute("_generated_item_", "true");
+              }
+            } finally {
+              popup.removeChild(widgetMenu);
+            }
+          }
+
+          let menuitem;
+          menuitem = popup.querySelector('[anonid="tabs_popup_move_tab_up"]');
+          menuitem.setAttribute("label", getMoveLabel("tab", "up"));
+          if (widget.tab === tabs[0]) {
+            menuitem.setAttribute("disabled", "true");
+          } else {
+            menuitem.removeAttribute("disabled");
+          }
+          menuitem = popup.querySelector('[anonid="tabs_popup_move_tab_down"]');
+          menuitem.setAttribute("label", getMoveLabel("tab", "down"));
+          if (widget.tab === tabs.slice(-1)[0]) {
+            menuitem.setAttribute("disabled", "true");
+          } else {
+            menuitem.removeAttribute("disabled");
+          }
+        ]]>
+        </body>
+      </method>
+
+      <method name="_moveTabUpDown">
+        <!--
+          - Handle Move Tab Up / Move Tab Down events.  This needs to be a
+          - method so we can call it from oncommand= attributes, so that we
+          - don't end up adding event listeners multiple times.
+          - @param isUp {Boolean} True if this is to move the tab up/left, false
+          -     for down/right.
+          -->
+        <parameter name="isUp"/>
+        <body>
+        <![CDATA[
+          this._log.debug("Moving tab " + (isUp ? "up" : "down"));
+          let tab = document.getAnonymousElementByAttribute(this, "anonid", "tabs_popup")
+                            .triggerNode;
+          let ref = null;
+          if (isUp) {
+            ref = tab.previousElementSibling;
+          } else {
+            ref = (tab.nextElementSibling || {}).nextElementSibling;
+          }
+          tab.parentNode.insertBefore(tab, ref);
         ]]>
         </body>
       </method>
@@ -344,6 +889,7 @@
         <body>
         <![CDATA[
           var elem = event.originalTarget;
+          this._log.debug("_onTabContext: " + (elem ? elem.localName : "(null)"));
           var tab = null;
           for (; elem && elem != event.target; elem = elem.parentNode) {
             if (elem.getAttribute("anonid") == "label-box") {
@@ -368,8 +914,15 @@
           }
           if (tab) {
             // found an interesting element
-            this._updateMoveToPopup({target: tab});
-            var popup = document.getAnonymousElementByAttribute(this, "anonid", "tabs_popup");
+            let widget = tab.linkedpanel.firstChild;
+            while (widget && !("_is_ko_widget" in widget)) {
+              widget = widget.nextElementSibling;
+            }
+            if (!widget) {
+              return; // Huh?
+            }
+            this._updateContextPopup(widget);
+            let popup = document.getAnonymousElementByAttribute(this, "anonid", "tabs_popup");
             popup.openPopup(elem, "after_pointer", 0, 0, true, false, event);
             return;
           }
@@ -381,16 +934,23 @@
         <parameter name="event"/>
         <body>
         <![CDATA[
-          var widget = this.selectedPanel;
-          if (!widget || !widget.id) {
+          if (event.dataTransfer.types.contains("application/x-komodo-pane")) {
             return;
           }
-          if (event.dataTransfer.types.contains("application/x-komodo-pane")) {
+          let panel = this.selectedPanel;
+          if (!panel) {
+            return;
+          }
+          let ids = Array.slice(panel.childNodes)
+                         .filter(function(e) "_is_ko_widget" in e)
+                         .map(function(w) ko.widgets.getWidgetInfo(w).ID);
+          if (ids.length < 1) {
             return;
           }
           document.documentElement.setAttribute("ko-pane-dragging", true);
           this.setAttribute("ko-pane-dragging", true);
-          event.dataTransfer.setData("application/x-komodo-pane", widget.id);
+          event.dataTransfer.setData("application/x-komodo-pane",
+                                     JSON.stringify(ids));
           event.dataTransfer.effectAllowed = "move";
         ]]>
         </body>
@@ -425,6 +985,7 @@
             widget = document.getElementById(widgetId);
             if (!widget) {
               var error = new Error("widget " + widgetId + " not found");
+              this._log.exception(error);
               Components.utils.reportError(error);
               throw(error);
             }
@@ -453,35 +1014,132 @@
           if (typeof(focus) == "undefined") {
             focus = true;
           }
-          var oldPane = widget.tabbox;
-          if (oldPane == pane) {
-            this._log.debug("Skipping moving widget " + widget.id +
-                            ", already in " + pane.id);
-            return;
+          this._log.deprecated("<ko-pane>.moveWidgetToPane() is deprecated; " +
+                               "you can now just use <ko-pane>.addWidget() " +
+                               "instead.", true);
+          pane.addWidget(widget, {focus: focus});
+        ]]>
+        </body>
+      </method>
+
+      <method name="_dispatchEvent">
+        <!--
+         - Helper to dispatch a DataContainerEvent at a given target
+         - @param name {String} The name of the event to disptach
+         - @param target {EventTarget} The target to dispatch the event at
+         - @param params {Object} Extra data to set on the event
+         - @returns {Boolean} True if the event was not stopped
+         -->
+        <parameter name="name"/>
+        <parameter name="target"/>
+        <parameter name="params"/>
+        <body>
+        <![CDATA[
+          if (!target) {
+            this._log.exception("No target\n" + (new Error).stack);
+            return false;
+          }
+          let doc = target.nodeType == Node.DOCUMENT_NODE ?
+            target : target.ownerDocument;
+          let event = doc.createEvent("DataContainerEvent");
+          event.initEvent(name, true /*bubble*/, true /*cancel*/);
+          for (let key of Object.getOwnPropertyNames(params||{})) {
+            event.setData(key, params[key]);
+          }
+          target.dispatchEvent(event);
+          return !event.getPreventDefault();
+        ]]>
+        </body>
+      </method>
+
+      <method name="_adoptWidget">
+        <!--
+          - Move an existing widget into this pane
+          - @param widget {<browser type="ko-widget">} The widget to adopt
+          - @returns The adopted widget
+          -->
+        <parameter name="widget"/>
+        <parameter name="params"/>
+        <body>
+        <![CDATA[
+          var oldPane = widget.containerPane;
+          if (oldPane === this) {
+            let widgetId = ko.widgets.getWidgetInfo(widget).ID;
+            // Not moving scrolls panes...
+            if (!params.tab) {
+              // And no tab specified.  There's no point in adoption.
+              this._log.debug("Skipping moving widget " + widgetId +
+                              ", already in " + this.id);
+              return widget;
+            }
+            if (params.tab == widget.tab) {
+              // Moving in the same tab; check if we're changing the order...
+              let insertBefore = params.insertBefore || null;
+              if (insertBefore && !("_is_ko_widget" in insertBefore)) {
+                insertBefore = ko.widgets.getWidget(insertBefore);
+              }
+              if (!insertBefore) {
+                // Nope, not moving either
+                this._log.debug("Skipping moving widget " + widgetId +
+                                ", already in same tab of " + this.id);
+                return widget;
+              }
+              let insertBeforeId = ko.widgets.getWidgetInfo(insertBefore).ID;
+              let widgets = Array.slice(widget.parentNode.childNodes)
+                                 .filter(function(e) "_is_ko_widget" in e);
+              let index = widgets.indexOf(widget);
+              if (index < widgets.length - 1 && widgets[index + 1] == insertBefore) {
+                // We have an insertBefore, but the widget is already there
+                this._log.debug("Skipping moving widget " + widgetId +
+                                ", already before " + insertBeforeId);
+                return widget;
+              }
+            }
           }
 
-          this._log.debug("moving widget " + widget.id + " to " + pane.id);
+          this._log.debug("moving widget " + widget.getAttribute("src") +
+                          " from " + (oldPane ? oldPane.id : "(null)") +
+                          " to " + this.id);
 
-          // dispatch an event into the widget so they can stop this if they
-          // want to veto it, or otherwise do some preparation
-          var event = widget.contentDocument.createEvent("DataContainerEvent");
-          event.initEvent("ko-widget-move", true /*bubble*/, true /*cancel*/);
-          event.setData("from-pane", oldPane);
-          event.setData("to-pane", pane);
-          widget.contentDocument.dispatchEvent(event);
-          if (event.getPreventDefault()) {
-            // the widget asked us to stop
-            return;
+          // Dispatch events so people can abort things if they want to
+          let events = [
+            { name: "ko-widget-move",
+              target: widget.contentDocument,
+              data: {"from-pane": oldPane, "to-pane": this}
+            },
+            { name: "ko-widget-remove",
+              target: oldPane,
+              data: {"widget": widget,
+                     "to-pane": this}
+            },
+            { name: "ko-widget-insert",
+              target: this,
+              data: {"widget": widget,
+                     "from-pane": oldPane}
+            },
+          ];
+          for (let eventData of events) {
+            if (!this._dispatchEvent(eventData.name, eventData.target, eventData.data)) {
+              return null;
+            }
           }
 
           // create a target ko-widget to stuff things into
           // "id", "src", and "disablehistory" are special
-          var widgetId = widget.id;
+          var widgetId = ko.widgets.getWidgetInfo(widget).ID;
+          var elemId = widget.id;
           widget.id = null;
-          var newWidget = pane.ownerDocument.createElementNS(this.namespaceURI, "browser");
+          var newWidget = this.ownerDocument.createElementNS(this.namespaceURI, "browser");
+          newWidget.setAttribute("type", "ko-widget");
           newWidget.setAttribute("disablehistory", true);
-          newWidget.setAttribute("id", widgetId);
-          var widgetSrc = widget.getAttribute("src");
+          if (elemId) {
+            newWidget.id = elemId;
+          }
+          try {
+            var widgetSrc = ko.widgets.getWidgetInfo(widget).URL;
+          } catch (ex if ex.result === Components.results.NS_ERROR_INVALID_ARG) {
+            widgetSrc = widget.getAttribute("src");
+          }
           newWidget.setAttribute("src", widgetSrc);
           var attr;
           for ([,attr] in Iterator(widget.attributes)) {
@@ -489,44 +1147,167 @@
               newWidget.setAttributeNS(attr.namespaceURI, attr.name, attr.value);
             }
           }
+          if (!oldPane.floating) {
+            // this isn't floating, therefore it must be static - and can be
+            // used as the home pane for the widget.
+            newWidget.setAttribute("home", oldPane.id);
+          }
 
           // Do the swap
-          pane.addWidget(newWidget);
+          newWidget._is_ko_widget = true;
+          ko.widgets._get(widgetId).browser = newWidget;
+          newWidget = this.addWidget(newWidget,
+                                     {focus: false,
+                                      _suppressEvents: true,
+                                      tab: params.tab,
+                                      insertBefore: params.insertBefore || null});
+          newWidget.getBoundingClientRect(); // force binding to apply
           newWidget.swapDocShells(widget);
 
           // move the observers over
-          var oldBroadcasters = document.getAnonymousElementByAttribute(widget, "anonid", "pane_broadcasterset");
+          var oldBroadcasters = widget.ownerDocument.getAnonymousElementByAttribute(widget, "anonid", "pane_broadcasterset");
           var newBroadcasters = document.getAnonymousElementByAttribute(newWidget, "anonid", "pane_broadcasterset");
           while (oldBroadcasters.firstChild) {
-            newBroadcasters.appendChild(oldBroadcasters.firstChild);
+            if (oldBroadcasters.ownerDocument != document) {
+              let node = document.adoptNode(oldBroadcasters.firstChild);
+              newBroadcasters.appendChild(node);
+            } else {
+              newBroadcasters.appendChild(oldBroadcasters.firstChild);
+            }
           }
 
           // remove the old widget
-          var attrs = [attr for ([,attr] in Iterator(widget.attributes)) if (attr)];
-          for each (attr in attrs) {
-            if (attr.name != "disablehistory")
-              widget.removeAttributeNode(attr);
+          var attrs = [attr.name for ([,attr] in Iterator(widget.attributes)) if (attr)];
+          for (let attr of attrs) {
+            if (attr != "disablehistory")
+              widget.removeAttribute(attr);
           }
-          oldPane.removeWidget(widget);
+          oldPane.removeWidget(widget, {_suppressEvents: true});
+          this._dispatchEvent("ko-widget-remove-completed",
+                              oldPane,
+                              {"widget": widget,
+                               "to-pane": null});
 
           // set the focus if requested, or if no other tabs are in the pane
-          if (focus || pane.tabs.itemCount < 2) {
-            ko.uilayout.ensureTabShown(newWidget.id, true);
+          if (params.focus || this.tabs.itemCount < 2) {
+            this.addWidget(newWidget, {focus: true});
           }
 
           // dispatch an event into the widget to notify that we've done the move
           // (this is dead last so it has a chance to do random things like,
           // say, deciding to focus a different widget...)
-          var event = newWidget.contentDocument.createEvent("DataContainerEvent");
-          event.initEvent("ko-widget-move-completed", true /*bubble*/, false /*cancel*/);
-          event.setData("from-pane", oldPane);
-          event.setData("to-pane", pane);
-          newWidget.contentDocument.dispatchEvent(event);
+          this._dispatchEvent("ko-widget-move-completed",
+                              newWidget.contentDocument,
+                              {"from-pane": oldPane,
+                               "to-pane": this});
+
+          return newWidget;
+        ]]>
+        </body>
+      </method>
+
+      <method name="_adoptTabPanel">
+        <!--
+          - Move a single tabpanel (containing one or more widgets) in an
+          - existing pane over to this pane.  (Does not cause that tabpanel to
+          - combine with any other tabpanels.)
+          - @param tabpanel {<tabpanel>, <tab>, or <browser type="ko-widget">}
+          -         The tabpanel or its tab to move.  If this is a widget, its
+          -         containing tabpanel is moved instead.
+          - @params params {Object} Parameters to pass to addWidget
+          - @returns The newly created <tabpanel>
+          -->
+        <parameter name="tabpanel"/>
+        <parameter name="params"/>
+        <body>
+        <![CDATA[
+          if (tabpanel._is_ko_widget) {
+            tabpanel = tabpanel.tab;
+          }
+          if ("linkedpanel" in tabpanel) {
+            tabpanel = tabpanel.linkedpanel;
+          }
+          if (tabpanel.parentNode === this.tabpanels) {
+            // It's already in this pane
+            let children = Array.slice(tabpanel.childNodes)
+                                .filter(function(e) "_is_ko_widget" in e);
+            this.addWidget(children.shift(), {focus: true});
+            return tabpanel;
+          }
+          let children = Array.slice(tabpanel.childNodes)
+                              .filter(function(e) !("_is_ko_widget" in e));
+          for (let child of children) {
+            // remove all non-widget children, easier to deal with
+            tabpanel.removeChild(child);
+          }
+          children = Array.slice(tabpanel.childNodes);
+          this._log.debug("_adoptTabPanel: " +
+                          [ko.widgets._getIDForWidget(w) for (w of children)] +
+                          " -> " + this.id);
+          let first = children.shift();
+          let id = ko.widgets._getIDForWidget(first);
+          let firstNewWidget = this.addWidget(first, params || {});
+          ko.widgets.getWidgetAsync(id, (function(widget) {
+            let newParams = Object.create(params || {}, {tab: {value: widget.tab}});
+            for (let child of children) {
+              this.addWidget(child, newParams);
+            }
+            if (tabpanel.tab && tabpanel.tab.parentNode) {
+              tabpanel.tab.parentNode.removeChild(tabpanel.tab);
+            }
+            if (tabpanel.parentNode) {
+              tabpanel.parentNode.removeChild(tabpanel);
+            }
+            if (widget.tab) {
+              let mutations = [{attributeName: attr.name, target: widget} for
+                               (attr of Array.slice(widget.attributes))];
+              widget.containerPane._mutationObserver.callback(mutations);
+            }
+          }).bind(this));
+          return firstNewWidget.parentNode;
+        ]]>
+        </body>
+      </method>
+
+      <method name="_collapsePanel">
+        <!-- Collapse the parent panel/sidebar; if this is in a floating panel,
+           - also returns all widgets to their home panels.
+           - @returns true on success
+           -->
+        <body>
+        <![CDATA[
+          if (this.floating) {
+            for (let widget of this.widgets) {
+              let pane = null;
+              let {defaultPane} = ko.widgets.getWidgetInfo(widget);
+              if (defaultPane) {
+                pane = ko.widgets.getPaneAt(defaultPane);
+              }
+              if (!pane) {
+                for (let paneId of ko.widgets.panes) {
+                  let candidate = ko.widget.getPaneAt(paneId);
+                  if (candidate && !candidate.floating) {
+                    pane = candidate;
+                    break;
+                  }
+                }
+              }
+              if (pane) {
+                pane.addWidget(widget, {focus: true});
+              }
+            }
+          } else {
+            this.collapsed = true;
+          }
+          return true;
         ]]>
         </body>
       </method>
 
       <property name="splitter">
+        <!-- The splitter attached to the pane.  Note that this may be null if
+           - this is a floating pane (and therefore has no splitters).
+           -->
         <getter>
         <![CDATA[
           for each (var elem in [this.previousElementSibling, this.nextElementSibling]) {
@@ -550,7 +1331,17 @@
       </property>
       <property name="widgets">
         <getter>
-          return Array.slice(this.tabpanels.childNodes);
+        <![CDATA[
+          let widgets = [];
+          for (let tabpanel of this.tabpanels.childNodes) {
+            for (let child of tabpanel.childNodes) {
+              if ("_is_ko_widget" in child) {
+                widgets.push(child);
+              }
+            }
+          }
+          return widgets;
+        ]]>
         </getter>
       </property>
       <property name="collapsed">
@@ -570,17 +1361,98 @@
           // checked attr.  Also note that we need to set it to "false" instead
           // of missing attribute or empty string due to XUL persistence bugs.
           if (val) {
+            if (this.selectedTab) {
+              for (let widget of this.selectedTab.linkedpanel.childNodes) {
+                if ("_is_ko_widget" in widget) {
+                  this._dispatchEvent("ko-widget-hidden", widget.contentDocument);
+                }
+              }
+            }
             this.setAttribute("collapsed", "true");
             this.removeAttribute("checked"); // for reflecting to toolbarbutton
+            this._lastSelectedTab = null;
           } else {
             this.setAttribute("collapsed", "false");
             this.setAttribute("checked", "true");
+            if (this.selectedTab) {
+              for (let widget of this.selectedTab.linkedpanel.childNodes) {
+                if ("_is_ko_widget" in widget) {
+                  this._dispatchEvent("ko-widget-showing", widget.contentDocument);
+                }
+              }
+            }
           }
         ]]>
         </setter>
       </property>
 
-      <field name="_log">ko.logging.getLogger("ko-pane")</field>
+      <property name="floating">
+        <getter>
+          return this.hasAttribute("floating");
+        </getter>
+      </property>
+
+      <property name="orient">
+        <getter>
+          return this.hasAttribute("orient") ?
+                 this.getAttribute("orient") :
+                 getComputedStyle(this).MozOrient;
+        </getter>
+      </property>
+
+      <field name="_log">ko.logging.getLogger("ko.widgets.pane")</field>
+      <field name="_strings">
+        (function() {
+          let global = {};
+          Components.utils.import("resource://gre/modules/Services.jsm", global);
+          return global.Services.strings.createBundle("chrome://komodo/locale/komodo.properties");
+        })();
+      </field>
+      <field name="_mutationObserver">
+      <![CDATA[
+        /**
+         * This mutation observer is used to copy the tab_* attributes from
+         * widgets to their tabs
+         */
+        (function() {
+          let callback = (function (mutations) {
+            for (let mutation of mutations) {
+              let widget = mutation.target;
+              if (!widget.tab) {
+                continue;
+              }
+              let attr = mutation.attributeName;
+              let firstWidget = Array.slice(widget.tab.linkedpanel.childNodes)
+                                     .filter(function(e) "_is_ko_widget" in e)
+                                     .shift();
+              if (widget !== firstWidget) {
+                continue; // ignore mutations from other widgets
+              }
+              if (attr == "label" || attr == "short-label") {
+                // let these through
+              } else if (!/^tab_/.test(attr)) {
+                continue;
+              }
+              let newAttr = attr.replace(/^tab_/, "");
+              if (widget.hasAttribute(attr)) {
+                widget.tab.setAttribute(newAttr, widget.getAttribute(attr));
+              } else {
+                widget.tab.removeAttribute(newAttr);
+              }
+            }
+          }).bind(this);
+          let observer = new MutationObserver(callback);
+          observer.callback = callback;
+          return observer;
+        }).call(this)
+      ]]>
+      </field>
+
+      <property name="label">
+        <getter>
+          return this.getAttribute("tabLabel");
+        </getter>
+      </property>
 
       <constructor>
       <![CDATA[
@@ -600,20 +1472,20 @@
           }
         }
         
-        // register this pane. TODO: use some sort of API for this.
-        if (!ko) window.ko = {};
-        if (!ko.widgets) ko.widgets = {};
-        if (!ko.widgets._panes) ko.widgets._panes = {};
-        ko.widgets._panes[this.id] = this;
+        // register this pane.
+        ko.widgets._registerPane(this);
         
         // re-inserting the tabpanel in the same place causes it to show up
         // in DOM inspector's tree (still as a anonymous node)...
         // (this is not strictly necessary, since things still work without it)
         this.tabpanels.parentNode.insertBefore(this.tabpanels, this.tabpanels.nextSibling);
-        // re-insert the widgets so we can properly construct tabs for them
-        var widgets = Array.slice(this.childNodes);
-        for each (var widget in widgets) {
-          this.addWidget(widget);
+        // Delete all the child widgets (we can fiddle with them after)
+        let n = 0;
+        for (let widget of Array.slice(this.childNodes)) {
+          if (!widget) continue; // WTF
+          ko.widgets._registerWidgetFromElement(widget, n, this.id);
+          this.removeChild(widget);
+          ++n;
         }
 
         // Normalize attributes here in case XUL persistence screws up
@@ -622,14 +1494,23 @@
         }
         if (this.collapsed) {
           this.removeAttribute("checked");
-          this.splitter.setAttribute("collapsed", "true");
+          if (this.splitter) {
+            this.splitter.setAttribute("collapsed", "true");
+          }
         } else {
           this.setAttribute("checked", "true");
-          this.splitter.removeAttribute("collapsed");
+          if (this.splitter) {
+            this.splitter.removeAttribute("collapsed");
+          }
         }
       } catch (e) { Components.utils.reportError(e); }
       ]]>
       </constructor>
+      <destructor>
+      <![CDATA[
+        ko.widgets._unregisterPane(this);
+      ]]>
+      </destructor>
     </implementation>
     <handlers>
       <handler event="select" phase="bubbling">
@@ -637,16 +1518,48 @@
         if (event.originalTarget == this.tabs) {
           var tab = this.tabs.selectedItem;
           this.setAttribute("tabLabel", tab.label);
-          var panel = this.ownerDocument.getElementById(tab.linkedPanel);
-          this.tabpanels.selectedPanel = panel;
+          this.selectedPanel = tab.linkedpanel;
+          if (this._lastSelectedTab && this._lastSelectedTab != tab) {
+            this._log.debug("selection change: " +
+                            this._lastSelectedTab.label + " -> " +
+                            tab.label);
+            if (!this.collapsed && this._lastSelectedTab.linkedpanel) {
+              for (let widget of this._lastSelectedTab.linkedpanel.childNodes) {
+                if ("_is_ko_widget" in widget) {
+                  this._dispatchEvent("ko-widget-hidden", widget.contentDocument);
+                }
+              }
+            }
+          }
+          this._lastSelectedTab = tab;
+          if (!this.collapsed && tab.linkedpanel) {
+            for (let widget of tab.linkedpanel.childNodes) {
+              if ("_is_ko_widget" in widget) {
+                this._dispatchEvent("ko-widget-showing", widget.contentDocument);
+              }
+            }
+          }
         }
       ]]>
       </handler>
       <handler event="dragenter" phase="bubbling">
       <![CDATA[
-        if (!event.dataTransfer.types.contains("application/x-komodo-pane")) {
+        let dataTransfer = event.dataTransfer;
+        this._log.debug("dragenter: dataTransfer=" + dataTransfer);
+        if (!dataTransfer.types.contains("application/x-komodo-pane")) {
           return;
         }
+        for (let prop of ["mozSourceNode", "sourceNode"]) {
+          if (prop in dataTransfer) {
+            if (!dataTransfer[prop] || dataTransfer[prop].ownerDocument !== document) {
+              // Dragging from the wrong window
+              dataTransfer.effectAllowed = "none";
+              return;
+            }
+            break;
+          }
+        }
+        dataTransfer.effectAllowed = "move";
         this.setAttribute("ko-pane-drag-status", "dragover");
         event.preventDefault();
       ]]>
@@ -659,11 +1572,28 @@
       <handler event="drop" phase="bubbling">
       <![CDATA[
         this.removeAttribute("ko-pane-drag-status");
-        if (!event.dataTransfer.types.contains("application/x-komodo-pane")) {
+        let dataTransfer = event.dataTransfer;
+        if (!dataTransfer.types.contains("application/x-komodo-pane")) {
           return;
         }
-        var id = event.dataTransfer.getData("application/x-komodo-pane");
-        this.moveWidgetToPane(id, this, true);
+        for (let prop of ["mozSourceNode", "sourceNode"]) {
+          if (prop in dataTransfer) {
+            if (!dataTransfer[prop] || dataTransfer[prop].ownerDocument !== document) {
+              // Dragging from the wrong window
+              return;
+            }
+            break;
+          }
+        }
+        var ids = JSON.parse(dataTransfer.getData("application/x-komodo-pane"));
+        this._log.debug("dropping ids: " + ids + " on: " + this.id);
+        for (let id of ids) {
+          ko.widgets.getWidgetAsync(id, (function(widget) {
+            if (widget) {
+              this._adoptTabPanel(widget, {focus: true});
+            }
+          }).bind(this));
+        }
         event.preventDefault();
       ]]>
       </handler>
@@ -749,15 +1679,24 @@
         ]]>
         </body>
       </method>
+
+      <field name="_log">ko.logging.getLogger("ko.widgets.widget")</field>
     </implementation>
-    
+
     <handlers>
       <handler event="DOMWindowCreated" phase="target"><![CDATA[
         // inject the bits the content window will need; this is the exposed API.
-        this.contentWindow.parent = window;
-        ["ko", "xtk", "gEditorTooltipHandler"].forEach(function(prop) {
-          this.contentWindow.__defineGetter__(prop, function()window[prop]);
-        }, this);
+        // for floating panes, we want to make the parent the owning Komodo
+        // window; grab it via window.opener.
+        let win = this.containerPane.floating ? opener : window;
+        Object.defineProperty(this.contentWindow, "parent", {
+          value: win, writable: true, configurable: true, enumerable: true,
+        });
+        for (let prop of ["ko", "xtk", "gEditorTooltipHandler"]) {
+          Object.defineProperty(this.contentWindow, prop, {
+            value: win[prop], writable: false, configurable: true, enumerable: true,
+          });
+        }
       ]]></handler>
     </handlers>
   </binding>
@@ -769,7 +1708,9 @@
       - Instantiate as <browser type="ko-widget">
       -->
     <implementation>
-      <property name="tabbox">
+      <field name="_webProgressListener">null</field>
+
+      <property name="containerPane">
         <getter>
         <![CDATA[
           /**
@@ -796,14 +1737,71 @@
         ]]>
         </getter>
       </property>
-      
+
+      <property name="tabbox">
+        <getter>
+        <![CDATA[
+          let log = ko.logging.getLogger("ko.widgets");
+          ko.logging.propertyDeprecatedByAlternative(this, "tabbox", "this.containerPane", log);
+          return this.containerPane;
+        ]]>
+        </getter>
+      </property>
+
       <!-- This is just here because instanceof isn't going to work with XBL -->
-      <field name="_is_ko_widget">true</field>
+      <property name="_is_ko_widget">
+        <getter>
+          return true;
+        </getter>
+      </property>
+
+      <property name="label">
+        <getter>
+          return this.getAttribute("label");
+        </getter>
+      </property>
+
       <constructor>
       <![CDATA[
+        const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
+        const Services = Cu.import("resource://gre/modules/Services.jsm", {}).Services;
+        const XPCOMUtils = Cu.import("resource://gre/modules/XPCOMUtils.jsm", {}).XPCOMUtils;
+
         if (!this.hasAttribute("disablehistory")) {
           this.setAttribute("disablehistory", true);
         }
+
+        this._webProgressListener = {
+          onStateChange: (function WidgetLoad_onStateChange(aWebProgress, aRequest, aStateFlags, aStatus) {
+            this._log.debug("onStateChange: " + aRequest.name + " -> " + this.contentDocument.readyState);
+            if (aStateFlags & Ci.nsIWebProgressListener.STATE_STOP) {
+              if (this.contentDocument.readyState == "uninitialized") {
+                return; // lies!
+              }
+              // the web progress from onStateChange might not be the one
+              // we're listening to; use the original instead.
+              this.removeProgressListener(this._webProgressListener);
+              ko.widgets._widgetLoadCallback(this, aStatus);
+            }
+          }).bind(this),
+          onProgressChange: function WidgetLoad_onProgressChange() {
+            throw Components.Exception("Unexpected onProgressChange", Cr.NS_ERROR_UNEXPECTED);
+          },
+          onLocationChange: function WidgetLoad_onLocationChange() {
+            throw Components.Exception("Unexpected onLocationChange", Cr.NS_ERROR_UNEXPECTED);
+          },
+          onStatusChange: function WidgetLoad_onStatusChange() {
+            throw Components.Exception("Unexpected onStatusChange", Cr.NS_ERROR_UNEXPECTED);
+          },
+          onSecurityChange: function WidgetLoad_onSecurityChange() {
+            throw Components.Exception("Unexpected onSecurityChange", Cr.NS_ERROR_UNEXPECTED);
+          },
+          QueryInterface: XPCOMUtils.generateQI([Ci.nsIWebProgressListener,
+                                                 Ci.nsISupportsWeakReference]),
+        };
+        this.addProgressListener(this._webProgressListener,
+                                 Ci.nsIWebProgress.NOTIFY_STATE_WINDOW);
+
       ]]>
       </constructor>
     </implementation>

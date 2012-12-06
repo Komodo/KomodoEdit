@@ -91,3 +91,4 @@ $cons->InstallInChrome('abbrev.js');
 $cons->InstallInChrome('snippets.js');
 $cons->InstallInChrome('tabstops.js');
 $cons->InstallInChrome('history.js');
+$cons->InstallInChrome('widgets.js');

@@ -123,6 +123,24 @@ ko-pane tabpanels {
   -moz-appearance: none;
 }
 
+ko-pane > [anonid="tabs_popup"]:not([_tabsInPane="1"]) .tab_popup_single_tab {
+  display: none;
+}
+ko-pane > [anonid="tabs_popup"][_tabsInPane="1"] .tab_popup_multiple_tabs {
+  display: none;
+}
+ko-pane > [anonid="tabs_popup"][_widgetsInPane="1"] .tab_popup_multiple_widgets {
+  display: none;
+}
+ko-pane[type="sidebar"] > [anonid="tabs_popup"] > .tab_popup_move_tab {
+  /* "Move Above X" and "Move Below X" don't make sense for single-tab view */
+  display: none;
+}
+ko-pane > [anonid="tabs_popup"] > .tab_popup_move_tab:not([label]) {
+  /* "Move Above X" and "Move Below X" when at the ends of the list */
+  display: none;
+}
+
 #workspace_left_area ko-pane[type="sidebar"] .pane-container {
 	padding-left: 5px;
 }
@@ -131,6 +149,10 @@ ko-pane tabpanels {
 	padding-right: 5px;
 }
  
+:root > panel[id^="pane-floating-panel-"] {
+  border: none;
+}
+
 ko-pane[type="sidebar"] .pane-container,
 ko-pane[type="horizontal"] .pane-container {
   -moz-box-orient: vertical;

@@ -350,6 +350,17 @@ function onloadDelay() {
         }
         if (restoreWorkspace) {
             ko.workspace.restoreWorkspace();
+            // if the prefs are set to not restore workspaces, we still should
+            // restore the widget/side pane layouts.  This relies on ko.widgets
+            // being smart enough to restore things twice.
+            let prefs = ko.prefs;
+            if (prefs.hasPref("windowWorkspace")) {
+                prefs = prefs.getPref("windowWorkspace");
+            }
+            if (prefs.hasPref("1")) {
+                prefs = prefs.getPref("1");
+            }
+            ko.widgets.restoreLayout(prefs);
         }
         // handle window.arguments spec list
         if ('arguments' in window && window.arguments && window.arguments[0]) {
@@ -376,7 +387,6 @@ function onloadDelay() {
                 for (var i in urllist) {
                     ko.open.URI(urllist[i]);
                 }
-                setTimeout(ko.uilayout.syncTabSelections, 10);
             }
         }
         // Some paths through the above block might not have called this,
@@ -443,7 +453,8 @@ window.onload = function(event) {
                 ko.mru.initialize();
 
                 ko.views.onload();
-                ko.toolbox2.onload();
+                ko.widgets.getWidgetAsync("toolbox2viewbox",
+                                          function() ko.toolbox2.onload());
                 ko.projects.onload();
 
                 ko.uilayout.onload();

@@ -2872,6 +2872,13 @@ this._instantiateRemoteConnectionService = function() {
 
 // In this function 'this' is top (window)
 this.onLoad = function places_onLoad() {
+    if (document.readyState != "complete") {
+        // still loading other things
+        log.debug("waiting for document complete");
+        window.addEventListener("load", places_onLoad, false);
+        return;
+    }
+    window.removeEventListener("load", places_onLoad, false);
     try {
         ko.places.onLoad_aux();
     } catch(ex) {
@@ -3323,4 +3330,4 @@ this.setDirectory = function(uri) {
 
 }).apply(ko.places);
 
-parent.addEventListener("workspace_restored", ko.places.onLoad, false);
+ko.places.onLoad();

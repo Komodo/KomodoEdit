@@ -1,0 +1,80 @@
+<?xml version="1.0"?>
+<!DOCTYPE dialog PUBLIC "-//MOZILLA//DTD XUL V1.0//EN" "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+<!--
+  - Template for floating widget panes.
+  - This window takes the follwing arguments:
+  -     - an initializer (run before load), taking arguments
+  -         - this window
+  -     - an onload handler, taking arguments
+  -         - the <ko-pane>
+  -->
+
+<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/komodo.css" type="text/css"?>
+
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        orient="vertical">
+    <script>
+        try {
+            window.arguments[0](window);
+        } catch (ex) {
+            Components.utils.reportError(ex);
+        }
+    </script>
+    <!-- We force the pane to not have a XBL binding now, and clear it (and pick
+       - up the right binding from widgets.css) in the load event handler, so
+       - that we can correctly set the pane's id= attribute before it gets
+       - registered with ko.widgets.
+       -->
+    <ko-pane id="pane" class="native" floating="true" flex="1"
+             style="-moz-binding: none;"/>
+    <hbox pack="end">
+        <resizer dir="bottomend"/>
+    </hbox>
+    <script type="application/x-javascript;version=1.8">
+        <![CDATA[
+            var gPane = null;
+            addEventListener("unload", function() {
+                try {
+                ko.logging.getLogger("ko.widgets.floating").debug("unload!");
+                debugger;
+                gPane._onFloatingPanelHidden();
+                gPane = null;
+                } catch (ex) {
+                    ko.logging.getLogger("ko.widgets.floating").exception(ex);
+                }
+            }, false);
+            addEventListener("load", function() {
+                const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
+                const {Services} = Cu.import("resource://gre/modules/Services.jsm", {});
+                try {
+                    gPane = document.getElementById("pane");
+                    gPane.id = "__komodo_floating_pane__" +
+                                window.QueryInterface(Ci.nsIInterfaceRequestor)
+                                      .getInterface(Ci.nsIDOMWindowUtils)
+                                      .outerWindowID;
+                    gPane.style.MozBinding = ""; // Let the XBL binding apply
+                    gPane.getBoundingClientRect(); // force XBL binding to load
+                    window.arguments[1](gPane);
+                } catch (ex) {
+                    ko.logging.getLogger("ko.widgets.floating").exception(ex);
+                }
+                /* for mac only, fake dependent windows */
+                if (Services.appinfo.widgetToolkit == "cocoa") {
+                    let getXULWin = function(win)
+                        win.QueryInterface(Ci.nsIInterfaceRequestor)
+                           .getInterface(Ci.nsIWebNavigation)
+                           .QueryInterface(Ci.nsIDocShellTreeItem)
+                           .treeOwner
+                           .QueryInterface(Ci.nsIInterfaceRequestor)
+                           .getInterface(Ci.nsIXULWindow);
+                    Cc["@activestate.com/koIWindowManagerUtils;1"]
+                      .getService(Ci.koIWindowManagerUtils)
+                      .setOnTop(getXULWin(window), getXULWin(opener), true);
+                }
+            }, false);
+        ]]>
+    </script>
+</window>
