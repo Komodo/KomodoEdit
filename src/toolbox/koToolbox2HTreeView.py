@@ -515,7 +515,7 @@ class KoToolbox2HTreeView(TreeView):
             
         targetTool = self.getToolFromModel(targetModelIndex)
         if not targetTool.isContainer:
-            raise Exception("pasteItemsIntoTarget: item at row %d isn't a container, it's a %s" %
+            raise Exception("_getTargetInfo: item at row %d isn't a container, it's a %s" %
                             (targetModelIndex, targetTool.typeName))
         targetPath = targetTool.path
         targetId = targetTool.id
