@@ -62,7 +62,7 @@
 <!-- #if BUILD_FLAVOUR == "dev" -->
 <?xul-overlay href="chrome://komodo/content/test/overlay.xul"?>
 <!-- #endif -->
-<?xml-stylesheet href="chrome://komodo/skin/platform.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/platform.less" type="stylesheet/less" media="less"?>
 
 <!-- #ifndef PP_KO_TITLE_BAR_NAME -->
 <!-- #define PP_KO_TITLE_BAR_NAME ActiveState Komodo -->
