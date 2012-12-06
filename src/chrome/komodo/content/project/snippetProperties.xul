@@ -135,6 +135,10 @@
                                       shortcut="[[%tabstop:DEFAULT]]"
                                       select="DEFAULT"
                                       oncommand="InsertShortcut(this);"/>
+                            <menuitem label="&softCharTabStopReplace.label;"
+                                      shortcut="[[%soft:SOFTCHARS]]"
+                                      select="SOFTCHARS"
+                                      oncommand="InsertShortcut(this);"/>
                             <menuitem label="&fFileBaseName.label;"
                                       shortcut="[[%f]]"
                                       oncommand="InsertShortcut(this);"/>

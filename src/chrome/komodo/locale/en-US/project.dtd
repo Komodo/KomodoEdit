@@ -89,6 +89,7 @@
 <!ENTITY shortcuts.tooltiptext "Shortcuts">
 <!ENTITY snippet.label "Snippet">
 <!ENTITY snippetTab.accesskey "n">
+<!ENTITY softCharTabStopReplace.label "[[&#37;soft]]: soft characters">
 <!ENTITY tabstopTabStopReplace.label "[[&#37;tabstop]]: Tab Stop/Replace">
 <!ENTITY triggerPostopen.accesskey "o">
 <!ENTITY triggerPreclose.accesskey "c">

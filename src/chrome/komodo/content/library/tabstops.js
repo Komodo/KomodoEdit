@@ -498,6 +498,7 @@ const TSZW = Components.interfaces.koILintResult.DECORATOR_TABSTOP_TSZW;
 const TSC = Components.interfaces.koILintResult.DECORATOR_TABSTOP_TSC;
 const TSCZW = Components.interfaces.koILintResult.DECORATOR_TABSTOP_TSCZW;
 const TS_BITMASK = Components.interfaces.koILintResult.DECORATOR_TABSTOP_BITMASK;
+const DECORATOR_SOFT_CHAR = Components.interfaces.koILintResult.DECORATOR_SOFT_CHAR;
 const LINKED_TABSTOP_BITMASK = (1 << TSC)|(1 << TSCZW);
 
 const tabstop_re = /\[\[%tabstop[\d:]/;
@@ -517,6 +518,26 @@ this.LiveTextPlain.prototype.insertLiveTextPart = function() {
 
 this.LiveTextPlain.prototype.describe = function(indent) {
     return indent + "[Text: " + this.text + "]\n"
+};
+    
+/**************** LiveTextSoftChars ****************/
+
+this.LiveTextSoftChars = function(text) {
+    this.text = text;
+    this.indicator = DECORATOR_SOFT_CHAR;
+};
+
+this.LiveTextSoftChars.prototype.insertLiveTextPart = function() {
+    var spos = pos;
+    var len = ko.stringutils.bytelength(this.text);
+    scimoz.insertText(pos, this.text);
+    scimoz.indicatorCurrent = this.indicator;
+    scimoz.indicatorFillRange(spos, len);
+    return len;
+};
+
+this.LiveTextSoftChars.prototype.describe = function(indent) {
+    return indent + "[SoftChars: " + this.text + "]\n"
 };
     
 /**************** LiveTextTabstopNested ****************/
@@ -615,6 +636,9 @@ var backrefTable, tabstopInsertionTable, tabstopTextTree;
 const TARGET_START = '[[%tabstop';
 const TARGET_END = ']]';
 
+const SOFT_CHAR_START = '[[%soft:';
+const SOFT_CHAR_START_LEN = SOFT_CHAR_START.length;
+
 function parseLiveText_clear() {
     backrefTable = {}; // sparse array
     tabstopInsertionTable = [];
@@ -702,6 +726,8 @@ this.LiveTextParser.prototype.parseNestedLiveText = function(parentNode, isInner
             return;
         } else if (this.lookingAtTabstop()) {
             node = this.parseTabstop();
+        } else if (this.lookingAtSoftChar()) {
+            node = this.parseSoftCharShortcut();
         } else {
             node = this.parseTextBlock(isInner);
             this._releaseIndicators();
@@ -757,10 +783,22 @@ this.LiveTextParser.prototype.lookingAtTabstop = function() {
     return this.subjectText.substr(this.idx, TARGET_START.length) == TARGET_START;
 };
 
+this.LiveTextParser.prototype.lookingAtSoftChar = function() {
+    return this.subjectText.substr(this.idx, SOFT_CHAR_START_LEN) == SOFT_CHAR_START;
+};
+
 this.LiveTextParser.prototype.parseTextBlock = function(isInner) {
     var targetPoint = this.subjectText.indexOf(TARGET_START, this.idx);
+    var softCharStart = this.subjectText.indexOf(SOFT_CHAR_START, this.idx);
     var endPoint = !isInner ? -1 : this.subjectText.indexOf(TARGET_END, this.idx);
     var text;
+    if ((softCharStart != -1)
+        && (targetPoint == -1 || softCharStart < targetPoint)
+        && (endPoint == -1 || softCharStart < endPoint)) {
+        text = this.subjectText.substring(this.idx, softCharStart);
+        this.idx = softCharStart;
+        return new ko.tabstops.LiveTextPlain(text);
+    }
     if (targetPoint == -1) {
         if (endPoint == -1) {
             text = this.subjectText.substring(this.idx);
@@ -825,6 +863,7 @@ this.LiveTextParser.prototype.parseTabstop = function() {
     }
     var m = subjectRemainder.match(/^(\d+)/);
     if (m) {
+        // numbered tabstops don't contain nested content
         var backrefStr = m[0];
         var backrefNum = parseInt(backrefStr);
         this.idx += backrefStr.length;
@@ -872,9 +911,11 @@ this.LiveTextParser.prototype.parseTabstop = function() {
     else if (subjectRemainder.substr(0, 1) == ':') {
         this.idx += 1;
         var targetPoint = subjectRemainder.indexOf(TARGET_START);
+        var softCharStart = subjectRemainder.indexOf(SOFT_CHAR_START);
         var endPoint = subjectRemainder.indexOf(TARGET_END);
         if (endPoint == -1) this.throwParseException(TARGET_END, "Parsing error");
-        if (targetPoint == -1 || endPoint < targetPoint) {
+        if ((targetPoint == -1 || (endPoint < targetPoint))
+            && (softCharStart == -1 || (endPoint < softCharStart))) {
             var text = this._parseTabstopNameSequence();
             if (text.length == 0) {
                 tabstopInsertionTable.push(new ko.tabstops.TabstopInsertionNode(TSZW, false));
@@ -902,6 +943,24 @@ this.LiveTextParser.prototype.parseTabstop = function() {
         this.throwParseException("a numeric sequence or ':'", "Parsing error");
     }
     return null; // languages with exceptions shouldn't complain about missing returns
+};
+
+this.LiveTextParser.prototype.parseSoftCharShortcut = function() {
+    // Precondition: we matched SOFT_CHAR_START at this.idx
+    if (this.idx + SOFT_CHAR_START_LEN >= this.subjectText.length + 1) {
+        this.throwParseException(target, 'Invalid shortcut');
+    }
+    this.idx += SOFT_CHAR_START_LEN;
+    // Add 1 to this.idx so we can emit a soft close-square-bracket:
+    // [[%soft:]]] -- emits one ]
+    // [[%soft:]]][[%soft:]>]] -- emits soft ]]>
+    var softEndIndex = this.subjectText.indexOf(']]', this.idx + 1);
+    if (softEndIndex == -1) {
+        this.throwParseException(target, "Expected ']]'");
+    }
+    var softChars = this.subjectText.substring(this.idx, softEndIndex);
+    this.idx = softEndIndex + 2;
+    return new ko.tabstops.LiveTextSoftChars(softChars);
 };
 
 // Private Insertion Functions
