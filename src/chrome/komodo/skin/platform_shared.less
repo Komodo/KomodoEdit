@@ -325,8 +325,8 @@ statusbar
             color: @tabs-color;
             font-family: @tabs-font;
             font-size: @tabs-font-size;
-            box-shadow: @tabs-box-shadow-top;
-            border-bottom: @tabs-box-border-bottom;
+            box-shadow: @tabs-box-shadow;
+            border-bottom: @tabs-box-border;
             background-color: @tabs-box-background-color;
             background-image: @tabs-box-background-image;
         }
@@ -535,9 +535,9 @@ statusbar
         background: @tab-background;
         border-radius: 0 !important;
         box-shadow: @tab-box-shadow;
-        border-left: @tab-border-left !important;
+        border-right: @tab-border !important;
         margin: 0;
-        padding: 0;
+        padding: 0 5px;
         min-width: @tab-min-width !important;
         text-align: center;
         -moz-transition: @tab-transition;
@@ -549,35 +549,37 @@ statusbar
             color: @tabs-color;
             margin: 0;
             text-shadow: @tabs-text-shadow;
+            overflow: hidden;
         }
         
-        &[type="file-tab"][selected="true"] .tab-text
+        ko-vertical-text
+        {
+            padding: 3px 0;
+        }
+        
+        &[selected="true"] .tab-text
         {
             font-weight: bold;
         }
         
-        &[selected="true"] {
+        &[selected="true"]
+        {
             -moz-user-focus: normal;
-            border-left: @tab-selected-border-left;
-            background-color: @tab-selected-background;
+            border-right: @tab-selected-border;
+            background: @tab-selected-background;
+            box-shadow: @tab-selected-box-shadow;
         }
         
         &:hover {
-            border-left: @tab-hover-border-left;
-            background-color: @tab-hover-background;
+            border-right: @tab-hover-border;
+            background: @tab-hover-background;
+            box-shadow: @tab-hover-box-shadow;
         }
         
         &:active {
-            border-left: @tab-active-border-left;
-            background-color: @tab-active-background;
-        }
-        
-        &:first-child {
-            border-left: 0px !important;
-        }
-        
-        &:last-child {
-            border-right: @tab-border-left !important;
+            border-right: @tab-active-border;
+            background: @tab-active-background;
+            box-shadow: @tab-active-box-shadow;
         }
         
         & .tab-image-left,
@@ -590,6 +592,41 @@ statusbar
         
     }
 }
+
+/*
+ * Vertical Tabs 
+ */
+ko-pane[type="vertical"] .pane-tabs-container tabs
+{
+    background: @tabs-box-background-image-vertical;
+    box-shadow: @tab-box-shadow;
+    
+    tab
+    {
+        width: 2em;
+        min-width: auto !important;
+        border: 0;
+        border-right: 0 !important;
+        border-top: @tab-border !important;
+        
+        &:last-child
+        {
+            border-bottom: @tab-border !important;
+        }
+    }
+}
+
+#workspace_left_area .pane-tabs-container tabs
+{
+    border-right: @tabs-box-border;
+}
+
+#workspace_right_area .pane-tabs-container tabs
+{
+    border-left: @tabs-box-border;
+}
+
+/* Bottom Panel Tabs */
 
 #workspace_bottom_area .tab-text
 {

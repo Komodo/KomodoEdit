@@ -59,25 +59,29 @@
 @tree-item-highlight-background:        highlight;
 
 /* Tabs */
-@tabs-box-shadow-top:                   inset 0px 1px 0px rgba(255,255,255,0.7);
-@tabs-box-border-bottom:                1px solid #bfbfbf;
+@tabs-box-shadow:                       inset 0px 1px 0px rgba(255,255,255,0.7);
+@tabs-box-border:                       1px solid #bfbfbf;
 @tabs-box-background-color:             #2EC0FE;
 @tabs-box-background-image:             -moz-linear-gradient(90deg , rgb(218,218,218) 0%, rgb(236,236,236) 100%);
+@tabs-box-background-image-vertical:    -moz-linear-gradient(180deg , rgb(218,218,218) 0%, rgb(236,236,236) 100%);
 
-@tab-box-shadow:                        inset -1px 0px 0px rgba(191,191,191,1);
-@tab-border-left:                       1px solid rgba(255,255,255,0.5);
+@tab-box-shadow:                        inset -1px 1px 0px rgba(255,255,255,0.5);
+@tab-border:                            1px solid rgb(191,191,191);
 @tab-min-width:                         110px !important;
 @tab-transition:                        all 0.20s linear;
 @tab-background:                        transparent;
 
-@tab-selected-border-left:              1px solid rgba(255,255,255,0.4);
+@tab-selected-border:                   @tab-border;
 @tab-selected-background:               rgba(0,0,0,0.05);
+@tab-selected-box-shadow:               @tab-box-shadow;
 
-@tab-hover-border-left:                 1px solid rgba(255,255,255,0.3);
+@tab-hover-border:                      @tab-border;
 @tab-hover-background:                  rgba(0,0,0,0.10);
+@tab-hover-box-shadow:                  inset -1px 1px 0px rgba(255,255,255,0.3);
 
-@tab-active-border-left:                1px solid rgba(255,255,255,0.2);
+@tab-active-border:                     @tab-border;
 @tab-active-background:                 rgba(0,0,0,0.15);
+@tab-active-box-shadow:                 @tab-box-shadow;
 
 @tabs-font:                             "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Geneva, Verdana, sans-serif;
 @tabs-font-size:                        10px;
