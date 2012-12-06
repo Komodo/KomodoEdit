@@ -4002,18 +4002,18 @@ var getYoungestChild = function(href) {
 var writeFile = function(file, data) {
 	try {
 		if ( ! file.exists()) {
-			file.create(file.NORMAL_FILE_TYPE, 0666);
+			file.create(file.NORMAL_FILE_TYPE, parseInt('0666', 8));
 		}
 		
 		// Open stream to file
 		var foStream = Components.classes["@mozilla.org/network/file-output-stream;1"].
 		createInstance(Components.interfaces.nsIFileOutputStream);
-		foStream.init(file, 0x02 | 0x08 | 0x20, 0666, 0);
+		foStream.init(file, 0x02 | 0x08 | 0x20, parseInt('0666', 8), 0);
 		
 		// Use converter to ensure UTF-8 encoding
 		var converter = Components.classes["@mozilla.org/intl/converter-output-stream;1"].
 		createInstance(Components.interfaces.nsIConverterOutputStream);
-		
+			
 		// Write to file
 		converter.init(foStream, "UTF-8", 0, 0);
 		converter.writeString(data);
