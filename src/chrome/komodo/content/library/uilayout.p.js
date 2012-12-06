@@ -301,12 +301,6 @@ this._updateToolbarClasses = (function uilayout__updateToolbarClasses(toolbox)
 		var toolbarItem 	= buttonSets[i].parentNode;
 		var toolbar 		= toolbarItem.parentNode;
 		
-		if (toolbar.getAttribute('kohidden') == 'true') {
-			toolbarItem.classList.add('no-children');
-			toolbarItem.classList.remove('has-children');
-			continue;
-		}
-		
         var children = Array.slice(toolbarItem.querySelectorAll(".first-child, .last-child"));
         for each (var child in children) {
             if (child.parentNode == toolbarItem) {
