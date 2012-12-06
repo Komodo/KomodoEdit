@@ -280,7 +280,6 @@ this.customizeToolbars = function uilayout_customizeToolbars(aToolbox) {
     return dialog;
 };
 
-// #if PLATFORM == "darwin"
 /**
  * Mac only: update the toolbar classes to add first-child and last-child
  * to the first/last toolbar items that are not hidden
@@ -296,33 +295,50 @@ this._updateToolbarClasses = (function uilayout__updateToolbarClasses(toolbox)
         toolbox = document.getElementById("toolbox_main");
     }
 	
-	var buttonSets = toolbox.querySelectorAll("toolbar > toolbarbutton:first-child, toolbar > toolbaritem > toolbarbutton:first-child");
+	var buttonSets = toolbox.querySelectorAll("toolbar > toolbaritem > toolbarbutton:first-child");
 	for (var i=0;i<buttonSets.length;i++)
 	{
-		var parentNode = buttonSets[i].parentNode;
+		var toolbarItem 	= buttonSets[i].parentNode;
+		var toolbar 		= toolbarItem.parentNode;
 		
-        var children = Array.slice(parentNode.querySelectorAll(".first-child, .last-child"));
+		if (toolbar.getAttribute('kohidden') == 'true') {
+			toolbarItem.classList.add('no-children');
+			toolbarItem.classList.remove('has-children');
+			continue;
+		}
+		
+        var children = Array.slice(toolbarItem.querySelectorAll(".first-child, .last-child"));
         for each (var child in children) {
-            if (child.parentNode == parentNode) {
+            if (child.parentNode == toolbarItem) {
                 child.classList.remove("first-child");
                 child.classList.remove("last-child");
             }
         }
 		
-        children = Array.slice(parentNode.querySelectorAll(":not([kohidden='true']):not(toolbarseparator):not(spacer)"));
-        children = children.filter(function(child) child.parentNode === parentNode || child.parentNode.nodeName === 'toolbaritem');
+        children = Array.slice(toolbarItem.querySelectorAll(":not([kohidden='true']):not(toolbarseparator):not(spacer)"));
+        children = children.filter(function(child) child.parentNode === toolbarItem);
 		
         if (children.length > 0) {
-			parentNode.classList.remove('no-children');
+			toolbarItem.classList.remove('no-children');
+			toolbarItem.classList.add('has-children');
             children[0].classList.add("first-child");
             children[children.length - 1].classList.add("last-child");
+			
+			if (i==0) {
+				toolbar.classList.add('first-child');
+			} else if (typeof previousToolbar != 'undefined') {
+				previousToolbar.classList.remove('last-child');
+			}
+			toolbar.classList.add('last-child');
         } else {
-			parentNode.classList.add('no-children');
+			toolbarItem.classList.add('no-children');
+			toolbarItem.classList.remove('has-children');
 		}
+		
+		var previousToolbar = toolbar;
 	}
 }).bind(this);
 addEventListener("load", this._updateToolbarClasses, false);
-// #endif
 
 /**
  * Show/hide toolbar separators in response to their surrounding elements being
