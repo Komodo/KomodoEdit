@@ -51,6 +51,7 @@ if ($platform eq "darwin") {
     $cons->InstallInChrome('select_sidebar_mac_hover.png');
 } elsif ($platform eq "win") {
 } else {
+    $cons->InstallInChrome('alltabs-box-bkgnd-icon.png');
     $cons->InstallInChrome('select_sidebar_gnome.png');
     $cons->InstallInChrome('tab_select.png');
 }
