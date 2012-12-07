@@ -2175,6 +2175,14 @@
                 </deck>
             </deck>
         </statusbarpanel>
+        
+        <statusbarpanel id="statusbar-line-col"
+                        tooltiptext="&filePosition.tooltiptext;"
+                        style="min-width: 10.5em;"/>
+        <statusbarpanel id="statusbar-selection"
+                        label="&noSelection.label;"
+                        tooltiptext="&selectionInformation.tooltiptext;"
+                        style="min-width: 8em;"/>
 
         <statusbarpanel id="statusbar-checker"
                         style="min-width: 36px;">
