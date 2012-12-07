@@ -58,9 +58,9 @@
 /* Tabs */
 @tab-box-shadow:                        none;
 @tab-box-border:                        1px solid rgba(0,0,0,0.3);
-@tab-box-background-color:              transparent;
-@tab-box-background-image:              -moz-linear-gradient(90deg , rgba(0,0,0,0.12) 0%, rgba(0,0,0,0.02) 100%);
-@tab-box-background-image-vertical:     -moz-linear-gradient(180deg , rgba(0,0,0,0.12) 0%, rgba(0,0,0,0.02) 100%);
+@tab-box-background-color:              Window;
+@tab-box-background-image:              inherit;
+@tab-box-background-image-vertical:     inherit;
 
 @tab-font:                              inherit;
 @tab-font-size:                         inherit;
@@ -69,22 +69,29 @@
 @tab-text-shadow:                       none;
 
 @tab-box-shadow:                        none;
-@tab-border:                            1px solid rgba(0,0,0,0.2);
-@tab-min-width:                         110px;
+@tab-border:                            inherit;
 @tab-transition:                        all 0.20s linear;
-@tab-background:                        transparent;
+@tab-background:                        inherit;
+@tab-background-vertical:               inherit;
+@tab-box-shadow-vertical:               none;
 
 @tab-selected-border:                   @tab-border;
-@tab-selected-background:               rgba(0,0,0,0.1);
-@tab-selected-box-shadow:               inset 0px -2px 5px rgba(0,0,0,0.05);
+@tab-selected-background:               @tab-background;
+@tab-selected-box-shadow:               inset 0px -2px 5px rgba(0,0,0,0.15);
 @tab-selected-color:                    inherit;
+@tab-selected-background-vertical:      @tab-background-vertical;
+@tab-selected-box-shadow-vertical:      inset -2px 0px 5px rgba(0,0,0,0.15);
 
 @tab-hover-border:                      @tab-border;
-@tab-hover-background:                  rgba(0,0,0,0.08);
+@tab-hover-background:                  inherit;
 @tab-hover-box-shadow:                  @tab-box-shadow;
 @tab-hover-color:                       inherit;
+@tab-hover-background-vertical:         inherit;
+@tab-hover-box-shadow-vertical:         @tab-hover-box-shadow;
 
 @tab-active-border:                     @tab-border;
-@tab-active-background:                 rgba(0,0,0,0.12);
+@tab-active-background:                 @tab-hover-background;
 @tab-active-box-shadow:                 @tab-box-shadow;
 @tab-active-color:                      inherit;
+@tab-active-background-vertical:        @tab-active-background;
+@tab-active-box-shadow-vertical:        @tab-active-box-shadow;

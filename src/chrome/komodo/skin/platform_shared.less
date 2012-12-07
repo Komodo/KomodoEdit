@@ -393,7 +393,7 @@ statusbar
                 outline: none !important;
             }
             
-            :hover
+            &:hover
             {
                 opacity: 1;
                 -moz-image-region: rect(0px, 32px, 16px, 16px);
@@ -542,10 +542,14 @@ statusbar
         box-shadow: @tab-box-shadow;
         border-right: @tab-border !important;
         margin: 0;
-        padding: 0 5px;
-        min-width: @tab-min-width !important;
+        padding: 0;
         text-align: center;
         -moz-transition: @tab-transition;
+        
+        & > hbox > spacer
+        {
+            width: 5px;
+        }
         
         .tab-text
         {
@@ -555,6 +559,7 @@ statusbar
             margin: 0;
             text-shadow: @tab-text-shadow;
             overflow: hidden;
+            opacity: 0.7;
         }
         
         ko-vertical-text
@@ -572,6 +577,7 @@ statusbar
             .tab-text
             {
                 color: @tab-selected-color;
+                opacity: 1.0;
             }
         }
         
@@ -624,6 +630,25 @@ ko-pane[type="vertical"] .pane-tabs-container tabs
         border-right: 0 !important;
         border-top: @tab-border !important;
         
+        background: @tab-background-vertical;
+        box-shadow: @tab-box-shadow-vertical;
+        
+        &[selected="true"]
+        {
+            background: @tab-selected-background-vertical;
+            box-shadow: @tab-selected-box-shadow-vertical;
+        }
+        
+        &:hover {
+            background: @tab-hover-background-vertical;
+            box-shadow: @tab-hover-box-shadow-vertical;
+        }
+        
+        &:active {
+            background: @tab-active-background-vertical;
+            box-shadow: @tab-active-box-shadow-vertical;
+        }
+        
         &:last-child
         {
             border-bottom: @tab-border !important;
@@ -646,4 +671,5 @@ ko-pane[type="vertical"] .pane-tabs-container tabs
 #workspace_bottom_area .tab-text
 {
     font-size: @tab-bottom-font-size;
+    padding: 0 5px;
 }

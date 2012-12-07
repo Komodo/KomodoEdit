@@ -98,6 +98,26 @@ toolbar #historyRecentLocations {
   -moz-appearance: menubar !important;
 }
 
-ko-pane[type="vertical"] tabs[anonid="tabs"] ko-vertical-text .label {
-  margin-left: 3px;
+/* Tab Tweaks */
+ko-pane[type="vertical"] tabs[anonid="tabs"] {
+  
+  tab {
+    -moz-appearance: textfield;
+  }
+  
+  ko-vertical-text .label {
+    margin-left: 3px;
+  }
+}
+
+.native tabs {
+  padding-top: 3px;
+  
+  tab {
+    -moz-appearance: tab;
+    
+    &:first-child {
+      margin-left: 3px;
+    }
+  }
 }
