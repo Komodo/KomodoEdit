@@ -1,0 +1,22 @@
+# UDL lexer for the Komodo Snippet language.
+
+language "Komodo Snippet"
+
+# Pull code out of html2ejs.udl to handle instances of non-ejs "<"
+
+include "ejs2html.udl"
+include "jslex.udl"
+
+family markup
+initial IN_M_DEFAULT
+state IN_M_DEFAULT:
+/</: paint(upto, M_DEFAULT), => IN_M_CHECK_KOMODO_SNIPPET
+
+state IN_M_CHECK_KOMODO_SNIPPET:
+'%#': paint(include, TPL_COMMENT), spush_check(IN_M_DEFAULT), => IN_TPL_COMMENT
+/%=?/: paint(include, TPL_OPERATOR), spush_check(IN_M_DEFAULT), => IN_CSL_DEFAULT
+/./: redo, => IN_M_DEFAULT
+
+state IN_M_STAG_POST_TAGNAME:
+# Defined in jslex.udl.  Just move back to default
+/./: redo, => IN_M_DEFAULT
