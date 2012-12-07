@@ -108,6 +108,16 @@ this.toggleToolbarVisibility = function uilayout_toggleToolbarVisibility(toolbar
         broadcaster.setAttribute("checked", "false");
     }
     document.persist(toolbarId, "kohidden");
+	
+	var toolboxrow 		= document.getElementById("main-toolboxrow");
+	var visibleToolbars = toolboxrow.querySelectorAll("toolbar:not([kohidden='true'])");
+	if (visibleToolbars.length == 0) {
+		toolboxrow.setAttribute('kohidden', 'true');
+		return;
+	} else {
+		toolboxrow.removeAttribute('kohidden');
+	}
+	document.persist("main-toolboxrow", "kohidden");
 }
 
 // 'toolbarId' is the id of the toolbar that should be affected
@@ -294,15 +304,6 @@ this._updateToolbarClasses = (function uilayout__updateToolbarClasses(toolbox)
         // which case the argument is an Event rather than a <toolbox>...
         toolbox = document.getElementById("toolbox_main");
     }
-	
-	var toolboxrow 		= document.getElementById("main-toolboxrow");
-	var visibleToolbars = toolboxrow.querySelectorAll("toolbar:not([kohidden='true'])");
-	if (visibleToolbars.length == 0) {
-		toolboxrow.setAttribute('kohidden', 'true');
-		return;
-	} else {
-		toolboxrow.removeAttribute('kohidden');
-	}
 	
 	var buttonSets = toolbox.querySelectorAll("toolbar > toolbaritem > toolbarbutton:first-child");
 	for (var i=0;i<buttonSets.length;i++)
