@@ -7,6 +7,18 @@
     <filter id="greyscale" filterUnits="objectBoundingBox" x="0" y="0" width="1" height="1">
       <feColorMatrix in="SourceGraphic" type="saturate" values="0"/>
     </filter>
+
+    <filter id="greyscale_bright">
+      <!-- Greyscale -->
+      <feColorMatrix type="saturate" values="0"/>
+      <!-- Increase brightness -->
+      <feComponentTransfer>
+	<feFuncR type="linear" slope="0.55" />
+	<feFuncG type="linear" slope="0.55" />
+	<feFuncB type="linear" slope="0.55" />
+      </feComponentTransfer>
+    </filter>
+
     <filter id="monochrome">
 		<!-- Increase Brightness -->
 		<feComponentTransfer in="SourceAlpha" result="_SourceGraphic">
