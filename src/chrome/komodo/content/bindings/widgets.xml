@@ -1108,6 +1108,20 @@
                 setTimeout((function() {
                     this.value = this.getAttribute("short-label") || this.getAttribute("label");
                 }).bind(this), 0);
+                (new MutationObserver((function(mutations) {
+                    for (let mutation of mutations) {
+                        switch (mutation.attributeName) {
+                            case "value":
+                                this.value = this.getAttribute("value");
+                                break;
+                            case "collapsed":
+                                // need to re-measure the text
+                                this.refresh();
+                                break;
+                        }
+                    }
+                }).bind(this))).observe(this, {attributes: true,
+                                        attributeFilter: ["value", "collapsed"]});
             </constructor>
             <method name="refresh">
                 <!--
@@ -1149,24 +1163,6 @@
                 </setter>
             </property>
         </implementation>
-
-        <handlers>
-            <handler event="DOMAttrModified" phase="target">
-            <![CDATA[
-                switch (event.attrName) {
-                    case "value": {
-                        this.value = event.newValue;
-                        break;
-                    }
-                    case "collapsed": {
-                        // need to re-measure the text
-                        this.refresh();
-                        break;
-                    }
-                }
-            ]]>
-            </handler>
-        </handlers>
 
     </binding>
 
