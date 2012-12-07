@@ -53,6 +53,24 @@ var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
                 .getService(Components.interfaces.nsIStringBundleService)
                 .createBundle("chrome://komodo/locale/library.properties");
 
+
+// Note: If we want to support the full range of TextMate-style
+// snippet tab-triggers, then 'wordLeftExtend' isn't
+// sufficient. There is the (rare) TextMate tabTrigger that
+// mixes word and non-word chars.
+this.getWordStart = function(scimoz, lastCharPos) {
+    var prevStyle = scimoz.getStyleAt(lastCharPos);
+    var prevPos, firstPos = lastCharPos;
+    while (firstPos >= 1) {
+        prevPos = scimoz.positionBefore(firstPos);
+        if (prevStyle !== scimoz.getStyleAt(prevPos)) {
+            break;
+        }
+        firstPos = prevPos;
+    }
+    return firstPos;
+}
+
 /**
  * Expands the abbreviation, if any, at the current cursor position.
  *
@@ -81,11 +99,20 @@ this.expandAbbrev = function expandAbbrev(abbrev /* =null */,
     if (abbrev !== null) {
         // pass
     } else {
+        var pos = scimoz.anchor;
+        if (pos < scimoz.currentPos) {
+            pos = scimoz.currentPos;
+        }
+        var prevPos = pos == 0 ? 0 : scimoz.positionBefore(pos);
+        if (pos < scimoz.textLength
+            && pos > 0
+            && scimoz.getStyleAt(prevPos) == scimoz.getStyleAt(pos)) {
+            return false;
+        }
         if (scimoz.anchor == scimoz.currentPos) {
             // Only do abbreviation expansion if next to a word char,
             // i.e. valid abbrev chars.
-            var pos = scimoz.currentPos;
-            if (pos == 0 || !is_abbrev(scimoz.getTextRange(scimoz.positionBefore(pos), pos))) {
+            if (pos == 0 || !is_abbrev(scimoz.getTextRange(prevPos, pos))) {
                 ko.statusBar.AddMessage(
                     _bundle.GetStringFromName("noAbbreviationAtTheCurrentPosition"),
                     "abbrev", 5000, false);
@@ -93,11 +120,9 @@ this.expandAbbrev = function expandAbbrev(abbrev /* =null */,
             }
             origPos = pos;
             origAnchor = scimoz.anchor;
-            // Note: If we want to support the full range of TextMate-style
-            // snippet tab-triggers, then 'wordLeftExtend' isn't
-            // sufficient. There is the (rare) TextMate tabTrigger that
-            // mixes word and non-word chars.
-            scimoz.wordLeftExtend();
+            var wordStartPos = this.getWordStart(scimoz, prevPos);
+            scimoz.currentPos = wordStartPos;
+            scimoz.anchor = pos;
         }
         abbrev = scimoz.selText;
     }
@@ -144,21 +169,29 @@ this._allowedStylesForLanguage = function(languageObj) {
 
 this.expandAutoAbbreviation = function(currView) {
     var scimoz = currView.scimoz;
-    var currentPos = scimoz.currentPos;
+    var currentPos = scimoz.anchor;
+    if (currentPos < scimoz.currentPos) {
+        currentPos = scimoz.currentPos;
+    }
     var koDoc = currView.koDoc;
     // Note that the current character hasn't been styled yet, we're just
     // processing its keystroke event.
-    
-    var prevPos = scimoz.positionBefore(currentPos);
+    // Also, don't expand auto-abbreviations if we aren't at the end of the line
+    var lineEndPos = scimoz.getLineEndPosition(scimoz.lineFromPosition(currentPos));
+    if (lineEndPos > currentPos) {
+        return false;
+    }
+    var prevPos = currentPos == 0 ? 0 : scimoz.positionBefore(currentPos);
     var prevStyle = scimoz.getStyleAt(prevPos);
     var allowedStyles = this._allowedStylesForLanguage(koDoc.languageObj);
     if (allowedStyles.indexOf(prevStyle) == -1) {
         return false;
     }
     var origPos = currentPos;
-    scimoz.currentPos = prevPos;
+    var wordStartPos = this.getWordStart(scimoz, prevPos);
+    scimoz.currentPos = wordStartPos;
     var origAnchor = scimoz.anchor;
-    scimoz.wordLeftExtend();
+    scimoz.anchor = currentPos;
     var abbrev = scimoz.selText;
     
     // Find the snippet for this abbrev, if any, and insert it.
