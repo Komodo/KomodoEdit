@@ -166,7 +166,7 @@ viewManager.prototype.shutdown = function()
 viewManager.prototype.canClose = function()
 {
     try {
-        this._dirtyItems = null;
+        this._dirtyItems = [];
         var dirtyItems = this.offerToSave();
         if (typeof(dirtyItems) == 'boolean')
             return dirtyItems;
@@ -1460,6 +1460,10 @@ viewManager.prototype.offerToSave = function(urls, /* default is null meaning al
         aboutToClose = true;
     }
 
+    if (!this.topView) {
+        // Most likely we're shutting down and there are no dirty views
+        return true;
+    }
     var views = this.topView.getViews(true);
     var i, view, item, k;
     var dirtyItems = [];
@@ -1515,7 +1519,7 @@ viewManager.prototype.offerToSave = function(urls, /* default is null meaning al
         for (var i = dirtyProjects.length - 1; i >= 0; i--) {
             var proj = dirtyProjects[i];
             if (!proj.isDirty) {
-                // quietly save prefDirty projects
+                // quietly save isPrefDirty projects
                 try {
                     ko.projects.manager.saveProject(proj);
                 } catch(ex) {
