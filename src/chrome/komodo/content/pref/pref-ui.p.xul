@@ -103,6 +103,10 @@
                                   label="&uiPaneHorizontalTabs.menuitem.label;"
                                   value="horizontal"
                                   />
+                        <menuitem id="ui.tabs.sidepanes.left.icons.menu"
+                                  label="&uiPaneIconTabs.menuitem.label;"
+                                  value="icons"
+                                  />
                     </menupopup>
                 </menulist>
             </hbox>
@@ -126,6 +130,10 @@
                         <menuitem id="ui.tabs.sidepanes.right.horizontal.menu"
                                   label="&uiPaneHorizontalTabs.menuitem.label;"
                                   value="horizontal"
+                                  />
+                        <menuitem id="ui.tabs.sidepanes.right.icons.menu"
+                                  label="&uiPaneIconTabs.menuitem.label;"
+                                  value="icons"
                                   />
                     </menupopup>
                 </menulist>
@@ -151,6 +159,10 @@
                         <menuitem id="ui.tabs.sidepanes.bottom.horizontal.menu"
                                   label="&uiPaneHorizontalTabs.menuitem.label;"
                                   value="horizontal"
+                                  />
+                        <menuitem id="ui.tabs.sidepanes.bottom.icons.menu"
+                                  label="&uiPaneIconTabs.menuitem.label;"
+                                  value="icons"
                                   />
                     </menupopup>
                 </menulist>

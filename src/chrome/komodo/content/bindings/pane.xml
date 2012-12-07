@@ -686,9 +686,13 @@
         <body>
         <![CDATA[
           let getMoveLabel = (function getMoveLabel(type, dir) {
-              let directions = {up: "up", down: "down"};
-              if (this.getAttribute("type")=== "horizontal") {
-                directions = {up: "left", down: "right"};
+              let directions = {};
+              switch (this.getAttribute("type")) {
+                case "vertical":
+                  directions = { up: "up", down: "down" };
+                  break;
+                default:
+                  directions = { up: "left", down: "right" };
               }
               return this._strings.GetStringFromName("pane.move." + type + "." +
                                                      directions[dir] + ".label")

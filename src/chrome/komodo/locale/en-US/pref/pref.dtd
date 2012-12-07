@@ -741,6 +741,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY uiPaneSidebars.menuitem.label "Single tab">
 <!ENTITY uiPaneHorizontalTabs.menuitem.label "Horizontal tabs">
 <!ENTITY uiPaneVerticalTabs.menuitem.label "Vertical tabs">
+<!ENTITY uiPaneIconTabs.menuitem.label "Icons in tabs">
 
 <!--pref-perl.xul-->
 <!ENTITY noPerlInterpreter.description "No Perl interpreter was found on your system. If you would like to debug and run Perl programs in Komodo you will need to install Perl. You can get Perl from ActiveState at">

@@ -154,14 +154,16 @@ ko-pane > [anonid="tabs_popup"] > .tab_popup_move_tab:not([label]) {
 }
 
 ko-pane[type="sidebar"] .pane-container,
-ko-pane[type="horizontal"] .pane-container {
+ko-pane[type="horizontal"] .pane-container,
+ko-pane[type="icons"] .pane-container {
   -moz-box-orient: vertical;
 }
 ko-pane[type="sidebar"] .pane-tabs-container tabs {
   -moz-binding: url("chrome://komodo/content/bindings/scrolltabs.xml#tabs-droplist");
   background-image: none;
 }
-ko-pane[type="horizontal"] .pane-tabs-container tabs {
+ko-pane[type="horizontal"] .pane-tabs-container tabs,
+ko-pane[type="icons"] .pane-tabs-container tabs {
   -moz-binding: url("chrome://komodo/content/bindings/scrolltabs.xml#tabs-scrollable");
 }
 ko-pane .tabs-vertical-label {
@@ -169,7 +171,8 @@ ko-pane .tabs-vertical-label {
   -moz-box-align: center;
 }
 ko-pane[type="sidebar"] .tabs-vertical-label,
-ko-pane[type="horizontal"] .tabs-vertical-label{
+ko-pane[type="horizontal"] .tabs-vertical-label,
+ko-pane[type="icons"] .tabs-vertical-label {
   visibility: collapse;
 }
 
@@ -177,7 +180,8 @@ ko-pane .tabs-vertical-label > spacer {
   -moz-box-flex: 1;
 }
 
-ko-pane[type="horizontal"] {
+ko-pane[type="horizontal"],
+ko-pane[type="icons"] {
   -moz-box-orient: vertical;
 }
 
@@ -218,6 +222,17 @@ ko-pane[type="vertical"] tabs[anonid="tabs"][rotation="270"] .vertical-button-te
 #workspace_right_area[type="vertical"] .pane-container {
   /* put the tabs on the outer edge of the window */
   -moz-box-direction: reverse;
+}
+
+ko-pane[type="icons"] .pane-container {
+  -moz-box-direction: reverse;
+}
+ko-pane[type="icons"] .pane-tabs-container tab {
+  /* default image for icons panes */
+  list-style-image: url("chrome://komodo/skin/images/existing_file.png");
+}
+ko-pane[type="icons"] .pane-tabs-container .tab-text {
+  display: none;
 }
 
 browser[type="ko-widget"] {
