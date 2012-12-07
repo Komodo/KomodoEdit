@@ -3900,7 +3900,7 @@ var cache = new function() {
 			var DirService 	= Components.classes["@mozilla.org/file/directory_service;1"]
 							.getService(Components.interfaces.nsIProperties);
 			var ProfD 		= DirService.get("ProfD", Components.interfaces.nsIFile).path
-			var file 		= getFile(ProfD + '/_cache', true);
+			var file 		= getCache(ProfD + (navigator.platform.substr(0, 3) == "Win" ? '\\' : '/') + '_cache');
 			
 			writeFile(file, JSON.stringify(pointer));
 		}, 200);
@@ -3918,12 +3918,12 @@ var getSheet = function(sheetId) {
 }
 
 var _fileCache = {};
-var getFile = function(fileUri, cache) {
-	var _fileUri = cache ? "cache_" + fileUri : fileUri;
-	
-	if (typeof _fileCache[_fileUri] !== 'undefined')  {
-		return _fileCache[_fileUri];
+var getFile = function(fileUri) {
+	if (typeof _fileCache[fileUri] !== 'undefined')  {
+		return _fileCache[fileUri];
 	}
+	
+	log('Obtaining file pointer from uri: ' + fileUri);
 	
 	if (/^[a-z]*\:\/\//.test(fileUri)) {
 		var nsIIOService = Components.classes['@mozilla.org/network/io-service;1']
@@ -3934,41 +3934,92 @@ var getFile = function(fileUri, cache) {
 							.createInstance(Components.interfaces.nsIFileProtocolHandler);
 						
 		var filePath 	= nsIIOService.newURI(fileUri, "UTF-8", null);
-		filePath		= nsIChromeReg.convertChromeURL(filePath).spec;
-		filePath 		= nsIFilePh.getFileFromURLSpec(/^file:/.test(filePath) ? filePath : 'file://' + filePath).path;
-		filePath 		= filePath.replace(/^.*\:\/\//, '');
+		filePath		= nsIChromeReg.convertChromeURL(filePath);
+		
+		if (filePath instanceof Components.interfaces.nsINestedURI) {		
+			filePath = filePath.innermostURI;
+			
+			if (filePath instanceof Components.interfaces.nsIFileURL) {
+				filePath = filePath.file.path;
+			} else {
+				log('File uri could not be resolved: ' + fileUri);
+				return false;
+			}
+		} else {
+			filePath = filePath.path;
+			
+			if (navigator.platform.substr(0, 3) == "Win") {
+				filePath = filePath.replace(/\//g, '\\');
+				filePath = filePath.substr(1);
+			}
+			
+			filePath = nsIFilePh.getFileFromURLSpec(/^file:/.test(filePath) ? filePath : 'file://' + filePath).path;
+			filePath = filePath.replace(/^.*\:\/\//, '');
+		}
 	} else {
 		filePath = fileUri;
 	}
 	
-	if (cache) {
-		var DirService = Components.classes["@mozilla.org/file/directory_service;1"]
-						.getService(Components.interfaces.nsIProperties);
-		var FileUtils = Components.utils
-						.import("resource://gre/modules/FileUtils.jsm").FileUtils;
-						
-		var ProfD = DirService.get("ProfD", Components.interfaces.nsIFile).path;
-		var AppD  = DirService.get("AChrom", Components.interfaces.nsIFile).path.replace(/\/chrome$/,'');
-			
-		filePath = filePath.replace(ProfD, '').replace(AppD,'');
-		filePath = filePath.replace(/\.less$/, '.css');
-		filePath = filePath.split('/');
-		filePath.unshift("lessCache");
-		
-		_fileCache[_fileUri] = FileUtils.getFile("ProfD", filePath, true);
-	} else {
-		var file = Components.classes["@mozilla.org/file/local;1"]
-					.createInstance(Components.interfaces.nsILocalFile);
-		file.initWithPath(filePath);
-		_fileCache[_fileUri] = file;
+	log('Resolved ' + fileUri + ' as ' + filePath);
+	
+	var file = Components.classes["@mozilla.org/file/local;1"]
+				.createInstance(Components.interfaces.nsILocalFile);
+	file.initWithPath(filePath);
+	_fileCache[fileUri] = file;
+	
+	return _fileCache[fileUri];
+}
+
+var getCache = function(fileUri) {
+	var _fileUri = "cache_" + fileUri;
+	
+	if (typeof _fileCache[_fileUri] !== 'undefined')  {
+		return _fileCache[_fileUri];
 	}
+	
+	log('Obtaining cache for file uri: ' + fileUri);
+	
+	var filePath = getFile(fileUri).path;
+	
+	if ( ! filePath) {
+		return false;
+	}
+	
+	var DirService = Components.classes["@mozilla.org/file/directory_service;1"]
+					.getService(Components.interfaces.nsIProperties);
+	var FileUtils = Components.utils
+					.import("resource://gre/modules/FileUtils.jsm").FileUtils;
+					
+	var ProfD = DirService.get("ProfD", Components.interfaces.nsIFile).path;
+	var AppD  = DirService.get("AChrom", Components.interfaces.nsIFile).path.replace(/\/chrome$/,'');
+		
+	filePath = filePath.replace(ProfD, '').replace(AppD, '');
+	filePath = filePath.replace(/\\/g, '/'); // convert backslash to forward slash (windows)
+	filePath = filePath.replace(/^\//g, ''); // strip starting forward slash
+	
+	var basename 	= function(str) { return str.replace(/\\/g,'/').replace( /.*\//, ''); };
+	var dirname 	= function(str) { return str.replace(/\\/g,'/').replace(/\/[^\/]*$/,''); };
+	
+	if (basename(fileUri) != basename(filePath)) {
+		// this is probably a jar, append real path info
+		filePath += '/' + fileUri.replace(/^.*\:\/\//, ''); 
+	}
+	
+	filePath = filePath.replace(/\.less$/, '.css');
+	
+	filePath = filePath.split('/');
+	filePath.unshift("lessCache");
+	
+	_fileCache[_fileUri] = FileUtils.getFile("ProfD", filePath, true);
+	
+	log('Resolved cache for file uri: ' + fileUri + ' as ' + _fileCache[_fileUri].path);
 	
 	return _fileCache[_fileUri];
 }
 
 var getFileFromSheetId = function(sheetId, cache) {
 	var sheet = getSheet(sheetId);
-	return getFile(sheet.href, cache);
+	return getCache(sheet.href);
 }
 
 var _youngestChild = {};
@@ -3978,7 +4029,7 @@ var getYoungestChild = function(href) {
 	
 	if (typeof _youngestChild[sheetId] != 'undefined') return _youngestChild[sheetId];
 	
-	var youngest = {file: parentFile, id: sheetId};
+	var youngest = {file: parentFile, href: href, id: sheetId};
 	if (typeof less.sheetHierarchy.children[sheetId] != 'undefined') {
 		var children = less.sheetHierarchy.children[sheetId];
 		for (var k in children) {
@@ -3994,8 +4045,8 @@ var getYoungestChild = function(href) {
 	if (youngest.id != sheetId) {
 		return getYoungestChild(getSheet(youngest.id).href);
 	} else {
-		_youngestChild[sheetId] = youngest.file;
-		return youngest.file;
+		_youngestChild[sheetId] = youngest;
+		return youngest;
 	}
 }
 
@@ -4200,7 +4251,7 @@ if (less.isMainCache === false) {
 	var DirService 	= Components.classes["@mozilla.org/file/directory_service;1"]
 					.getService(Components.interfaces.nsIProperties);
 	var ProfD 		= DirService.get("ProfD", Components.interfaces.nsIFile).path
-	var cacheFile 	= getFile(ProfD + '/_cache', true);
+	var cacheFile 	= getCache(ProfD + (navigator.platform.substr(0, 3) == "Win" ? '\\' : '/') + '_cache');
 	
 	try {
 		Components.utils.import("resource://gre/modules/NetUtil.jsm");
@@ -4233,14 +4284,17 @@ function loadStyleSheet(sheet, callback, reload, remaining, noCache) {
     var url       = window.location.href.replace(/[#?].*$/, '');
     var href      = sheet.href.replace(/\?.*$/, '');
 	
-	var file 		= getYoungestChild(href);
-	var cacheFile 	= getFile(href, true);
+	var file 		= getYoungestChild(href).file;
+	var cacheFile 	= getCache(href);
 	
-	if (noCache !== true && cacheFile.exists() && file.exists() &&
+	if (noCache !== true && cacheFile.exists() && file && file.exists() &&
 		cacheFile.lastModifiedTime > file.lastModifiedTime) {
+		log('Using cache for: ' + file.path);
 		insertCss(sheet, cacheFile.path);
 		return callback(null, null, null, sheet, { local: true, remaining: remaining });
 	}
+	
+	log('Cache expired/unavailable: ' + file.path);
 	
 	xhr(sheet.href, function (data, lastModified) {
 		// Inject dynamic variables
@@ -4330,7 +4384,7 @@ function createCSS(styles, sheet) {
     // Strip the query-string
     var href = sheet.href ? sheet.href.replace(/\?.*$/, '') : '';
 	
-	var file = getFile(href, true);
+	var file = getCache(href);
 	
 	if ( ! writeFile(file, styles)) {
 		log('Reverting to inline styling');
