@@ -15,10 +15,23 @@ if (typeof(ko.snippets)=='undefined') {
     // Throw one of these objects in any EJS snippet if the snippet
     // should be rejected, as in
     // <% throw new ko.snippets.RejectedSnippet() %>
-    this.RejectedSnippet = function ko_snippet_RejectedSnippet() {
-        Error.apply(this, arguments);
+    this.RejectedSnippet = function ko_snippet_RejectedSnippet(message, ex) {
+        if (!ex) {
+            ex = new Error();
+        }
+        this.fileName = ex.fileName;
+        this.lineNumber = ex.lineNumber;
+        this.stack = ex.stack;
+        this.name = "ko.snippets.RejectedSnippet";
+        this.message = message;
     };
-    this.RejectedSnippet.prototype = new Error();
+    this.RejectedSnippet.prototype.toString = function() {
+        return ("Exception: [" + this.message + "\n"
+                + "name: " + this.name + "\n"
+                + "fileName: " + this.fileName + "\n"
+                + "lineNumber: " + this.lineNumber + "\n"
+                + "stack: " + this.stack + "]\n");
+    };
 
     this.getTextLine = function ko_snippet_getTextLine(scimoz, currentLine) {
         if (typeof(scimoz) == "undefined") {
