@@ -197,7 +197,8 @@ interface koIToolbox2ToolManager: nsISupports {
 
     koITool getAbbreviationSnippet(in wstring abbrev,
                                 [array, size_is(count)] in wstring subnames,
-                                in unsigned long count);
+                                   in unsigned long count,
+                                   in boolean isAutoAbbrev);
 
     void getCustomMenus(in wstring path,
                         [array, size_is(count)] out koITool tools,

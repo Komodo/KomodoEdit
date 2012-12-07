@@ -128,7 +128,8 @@ this.expandAbbrev = function expandAbbrev(abbrev /* =null */,
     }
     
     // Find the snippet for this abbrev, if any, and insert it.
-    var snippet = ko.abbrev.findAbbrevSnippet(abbrev, lang, sublang);
+    var snippet = ko.abbrev.findAbbrevSnippet(abbrev, lang, sublang,
+                                              /*isAutoAbbrev=*/false);
     var msg;
     if (snippet) {
         if (ko.abbrev.insertAbbrevSnippet(snippet, currView)) {
@@ -195,7 +196,10 @@ this.expandAutoAbbreviation = function(currView) {
     var abbrev = scimoz.selText;
     
     // Find the snippet for this abbrev, if any, and insert it.
-    var snippet = ko.abbrev.findAbbrevSnippet(abbrev, null, null); // lang, sublang);
+    var snippet = ko.abbrev.findAbbrevSnippet(abbrev,
+                                              /*lang=*/ null,
+                                              /*sublang=*/ null,
+                                              /*isAutoAbbrev=*/ true);
     if (snippet) {
         if (snippet.getStringAttribute('auto_abbreviation') === 'true'
             && ko.abbrev.insertAbbrevSnippet(snippet, currView)) {
@@ -235,11 +239,14 @@ this.expandAutoAbbreviation = function(currView) {
  *      the sub-lang of the current cursor position in the current view is
  *      used. Specify "General" to *not* search for a sub-lang-specific
  *      abbreviation.
+ * @param {Boolean} isAutoAbbrev: True if we're trying to expand an
+ *      auto-abbreviation snippet.
  * @returns {Components.interfaces.koITool} the relevant snippet,
  *      or null if no snippet is found.
  */
 this.findAbbrevSnippet = function(abbrev, lang /* =<curr buf lang> */,
-                                  sublang /* =<curr pos sublang> */) {
+                                  sublang /* =<curr pos sublang> */,
+                                  isAutoAbbrev) {
     if (typeof(lang) == 'undefined') lang = null;
     if (typeof(sublang) == 'undefined') sublang = null;
     
@@ -259,7 +266,7 @@ this.findAbbrevSnippet = function(abbrev, lang /* =<curr buf lang> */,
     if (lang && subnames.indexOf(lang) == -1) subnames.push(lang);
     if (subnames.indexOf("General") == -1) subnames.push("General");
     
-    return ko.toolbox2.getAbbreviationSnippet(abbrev, subnames);
+    return ko.toolbox2.getAbbreviationSnippet(abbrev, subnames, isAutoAbbrev);
 }
 
 

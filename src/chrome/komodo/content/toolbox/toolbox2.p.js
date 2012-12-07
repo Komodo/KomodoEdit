@@ -536,9 +536,13 @@ this.findToolById = function(id) {
     return this.manager.toolsMgr.getToolById(id);
 };
 
-this.getAbbreviationSnippet = function(abbrev, subnames) {
+this.getAbbreviationSnippet = function(abbrev, subnames, isAutoAbbrev/*=false*/) {
+    if (typeof(isAutoAbbrev) == "undefined") {
+        isAutoAbbrev = false;
+    }
     return this.manager.toolsMgr.getAbbreviationSnippet(abbrev, subnames,
-                                                        subnames.length);
+                                                        subnames.length,
+                                                        isAutoAbbrev);
 };
 
 this.getToolsByTypeAndName = function(toolType, toolName) {

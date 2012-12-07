@@ -956,8 +956,8 @@ class KoToolbox2ToolManager(object):
         ids = self.toolbox_db.getToolsByTypeAndName(toolType, name)
         return [self.getToolById(id) for id in ids]
 
-    def getAbbreviationSnippet(self, abbrev, subnames):
-        id = self.toolbox_db.getAbbreviationSnippetId(abbrev, subnames)
+    def getAbbreviationSnippet(self, abbrev, subnames, isAutoAbbrev):
+        id = self.toolbox_db.getAbbreviationSnippetId(abbrev, subnames, isAutoAbbrev)
         if id is None:
             return None
         tool = self.getToolById(id)

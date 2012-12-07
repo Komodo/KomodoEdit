@@ -867,9 +867,35 @@ class Database(object):
         with self.connect() as cu:
             cu.execute(stmt, (toolType, name))
             return [x[0] for x in cu.fetchall()]
-            
-    def _searchAbbrevFolderSnippet(self, abbrev, subnames, cu):
+
+    def _completeAbbrevSearchQuery(self, select_part_s, from_parts_a, where_parts_a,
+                                   abbrev, subnames, cu, 
+                                   caller, # for debug stmts only
+                                   outside_language_folder=False):
+        #log.debug("%s: stmt: %s\n, value_tuple: %s", caller, stmt, value_tuple)
+        stmt = "select %s from %s where %s;" % (select_part_s,
+                                               ", ".join(from_parts_a),
+                                               " and ".join(where_parts_a))
+        value_tuple = tuple([abbrev] + subnames)
+        cu.execute(stmt, value_tuple)
+        final_rows = []
+        rows = cu.fetchall()
+        for row in rows:
+            p3_id, cd3_name, cd2_name, p1_path, p2_path, p3_path = row
+            #log.debug("%s: looking for abbrev %s: got path: %s",
+            #           caller, abbrev, p1_path)
+            #log.debug("p2_path:%s, \np3_path:%s, len(p2_path):%d, len(p3_path):%d",
+            #           p2_path, p3_path, len(p2_path), len(p3_path))
+            isSampleAbbrev = self._sampleAbbrevRE.match(p1_path) != None
+            final_rows.append([p3_id, cd3_name, cd2_name,
+                               outside_language_folder, isSampleAbbrev])
+        return final_rows
+
+    def _searchAbbrevFolderSnippet(self, abbrev, subnames, isAutoAbbrev, cu):
         """
+        Match snippet S in language folder L
+        Abbreviations/.../L/...S
+        
         In this SQL, p1 points to the Abbreviations folder,
         p2 points to the language folder, and
         p3 points to the snippet.
@@ -895,33 +921,41 @@ class Database(object):
         
         """
         q_subnames = ' or '.join(['cd2.name like ?'] * len(subnames))
-        stmt = """\
-        select p3.id, cd3.name, cd2.name, p1.path, p2.path, p3.path
-            from paths as p1, paths as p2, paths as p3,
-                 common_details as cd3, common_details as cd2, common_details as cd1
-            where cd1.name = "Abbreviations" and cd1.type = "folder"
-              and cd2.type = "folder" and (%s)
-              and cd1.path_id = p1.id
-              and cd2.path_id = p2.id
-              and substr(p2.path, 1, length(p1.path) + 1) = p1.path || "%s"
-              and cd3.type = "snippet" and cd3.name like ?
-              and cd3.path_id = p3.id
-              and substr(p3.path, 1, length(p2.path) + 1) = p2.path || "%s"
-              ;""" %  (q_subnames, os.path.sep, os.path.sep)
-        value_tuple = tuple(subnames + [abbrev])
-        cu.execute(stmt, value_tuple)
-        final_rows = []
-        rows = cu.fetchall()
-        for row in rows:
-            p3_id, cd3_name, cd2_name, p1_path, p2_path, p3_path = row
-            isSampleAbbrev = self._sampleAbbrevRE.match(p1_path) != None
-            #log.debug("_searchAbbrevFolderSnippet: got path: %s, isSampleAbbrev:%r", p1_path, isSampleAbbrev)
-            # Add False to show that these snippets were found *below* the folder
-            final_rows.append([p3_id, cd3_name, cd2_name, False, isSampleAbbrev])
-        return final_rows
+        sep = os.path.sep
+        select_part_s = 'p3.id, cd3.name, cd2.name, p1.path, p2.path, p3.path'
+        from_parts_a = ['paths as p1', 'paths as p2', 'paths as p3',
+                        'common_details as cd3', 'common_details as cd2',
+                        'common_details as cd1']
+        if isAutoAbbrev:
+            from_parts_a.append('snippet as s3')
+        where_parts_a = ['cd3.type = "snippet"',
+                         'cd3.name %s ?' % (isAutoAbbrev and "=" or "like"),
+                         ]
+        if isAutoAbbrev:
+            where_parts_a += ['s3.path_id = cd3.path_id',
+                              's3.auto_abbreviation = "true"']
+        where_parts_a += [
+                         'cd1.name = "Abbreviations"',
+                         'cd1.type = "folder"',
+                         'cd2.type = "folder"',
+                         '(%s)' % q_subnames,
+                         'cd1.path_id = p1.id',
+                         'cd2.path_id = p2.id',
+                         'substr(p2.path, 1, length(p1.path) + 1) = p1.path || "%s"' % sep,
+                         'cd3.path_id = p3.id',                         
+                         'substr(p3.path, 1, length(p2.path) + 1) = p2.path || "%s"' % sep,
+                         ]
+        return self._completeAbbrevSearchQuery(select_part_s, from_parts_a, where_parts_a,
+                                               abbrev, subnames, cu,
+                                               "_searchAbbrevFolderSnippet",
+                                               outside_language_folder=False)
         
-    def _searchAbbrevSnippetFolder(self, abbrev, subnames, cu):
+    def _searchAbbrevSnippetFolder(self, abbrev, subnames, isAutoAbbrev, cu):
         """
+        Match snippet S in a hierarchy that *contains* language L (a bit weird,
+        used for common sub-languages.  The "*" folder is a better idea0.)
+        Abbreviations/.../S/.../L/...
+        
         In this SQL, p1 points to the Abbreviations folder,
         p2 points to the language folder, and
         p3 points to the snippet, and
@@ -930,42 +964,48 @@ class Database(object):
         Again, case-sensitive over case-insensitive matches
         """
         q_subnames = ' or '.join(['cd2.name like ?'] * len(subnames))
-        stmt = """\
-        select p3.id, cd3.name, cd2.name, p1.path, p2.path, p4.path
-            from paths as p1, paths as p2, paths as p3, paths as p4,
-                 common_details as cd3, common_details as cd2, common_details as cd1,
-                 hierarchy as h3, hierarchy as h4
-            where cd1.name = "Abbreviations" and cd1.type = "folder"
-              and cd3.type = "snippet" and cd3.name like ?    
-              and p1.id = cd1.path_id
-              and p3.id = cd3.path_id 
-              and substr(p3.path, 1, length(p1.path) + 1) = p1.path || "%s" -- snippet is descendant of abbrev
-              and h3.path_id = p3.id
-              and h3.parent_path_id = h4.path_id
-              and h4.path_id = p4.id -- p4 is the snippet's parent
-              and cd2.type = "folder" and (%s)
-              and p2.id = cd2.path_id
-              and p2.path != p4.path -- if snippet's parent is the folder, this is query #1
-              and substr(p2.path, 1, length(p4.path) + 1) = p4.path || "%s"
-              ;
-    """ % (os.path.sep, q_subnames, os.path.sep)
-        value_tuple = tuple([abbrev] + subnames)
-        cu.execute(stmt, value_tuple)
-        # Add True to show that these snippets were found *above* the folder
-        final_rows = []
-        rows = cu.fetchall()
-        for row in rows:
-            p3_id, cd3_name, cd2_name, p1_path, p2_path, p4_path = row
-            #log.debug("_searchAbbrevSnippetFolder: got path: %s", p1_path)
-            #log.debug("p2_path:%s, \np4_path:%s, len(p2_path):%d, len(p4_path):%d",
-            #           p2_path, p4_path, len(p2_path), len(p4_path))
-            isSampleAbbrev = self._sampleAbbrevRE.match(p1_path) != None
-            #log.debug("_searchAbbrevSnippetFolder: got path: %s, isSampleAbbrev:%r", p1_path, isSampleAbbrev)
-            final_rows.append([p3_id, cd3_name, cd2_name, True, isSampleAbbrev])
-        return final_rows
+        sep = os.path.sep
+        select_part_s = 'p3.id, cd3.name, cd2.name, p1.path, p2.path, p4.path'
+        from_parts_a = ['paths as p1', 'paths as p2', 'paths as p3',
+                        'paths as p4',
+                        'common_details as cd3', 'common_details as cd2',
+                        'common_details as cd1',
+                        'hierarchy as h3', 'hierarchy as h4']
+        if isAutoAbbrev:
+            from_parts_a.append('snippet as s3')
+        where_parts_a = ['cd3.type = "snippet"',
+                         'cd3.name %s ?' % (isAutoAbbrev and "=" or "like"),
+                         ]
+        if isAutoAbbrev:
+            where_parts_a += ['s3.path_id = cd3.path_id',
+                              's3.auto_abbreviation = "true"']
+        where_parts_a += [
+                         'cd1.name = "Abbreviations"',
+                         'cd1.type = "folder"',
+                         'cd1.path_id = p1.id',
+                         'cd3.path_id = p3.id',
+                         'substr(p3.path, 1, length(p1.path) + 1) = p1.path || "%s"' % sep, # snippet is descendant of Abbreviations
+                         'h3.path_id = p3.id',
+                         'h3.parent_path_id = h4.path_id',
+                         'h4.path_id = p4.id', # p4 is the snippet's parent
+                         'cd2.type = "folder"',
+                         '(%s)' % q_subnames,
+                         'p2.id = cd2.path_id',
+                         'p2.path != p4.path', # if snippet's parent is the folder, this is query #1
+                         'substr(p2.path, 1, length(p4.path) + 1) = p4.path || "%s"' % sep,
+                         ]
+        return self._completeAbbrevSearchQuery(select_part_s, from_parts_a, where_parts_a,
+                                               abbrev, subnames, cu,
+                                               "_searchAbbrevSnippetFolder",
+                                               outside_language_folder=True)
     
-    def _searchAbbrevSnippetInCommonFolder(self, abbrev, subnames, cu):
+    def _searchAbbrevSnippetInCommonFolder(self, abbrev, subnames, isAutoAbbrev, cu):
         """
+        Match snippet S in
+        Abbreviations/.../*/...S
+        Abbreviations/.../L/...
+        where "*" is a peer to language folder "L"
+        
         In this SQL, p1 points to the Abbreviations folder,
         p2 points to the language folder, and
         p3 points to the snippet, and
@@ -975,52 +1015,58 @@ class Database(object):
         """
         q_subnames = ' or '.join(['cd2.name like ?'] * len(subnames))
         sep = os.path.sep
-        stmt = """\
-        select p3.id, cd3.name, cd2.name, p1.path, p2.path, p4.path
-            from paths as p1, paths as p2, paths as p3, paths as p4,
-                 paths as p5, paths as p6,
-                 common_details as cd3, common_details as cd2, common_details as cd1,
-                 common_details as cd5, common_details as cd6,
-                 hierarchy as h2, hierarchy as h3, hierarchy as h4, hierarchy as h5
-            where cd1.name = "Abbreviations" and cd1.type = "folder"
-              and cd5.type = "folder" and cd5.name = "*"
-              and cd1.path_id = p1.id
-              and cd5.path_id = p5.id
-              and substr(p5.path, 1, length(p1.path) + 1) = p1.path || "%s"
-              and cd3.type = "snippet" and cd3.name like ?
-              and p3.id = cd3.path_id 
-              and substr(p3.path, 1, length(p5.path) + 1) = p5.path || "%s" -- snippet is descendant of abbrev
-              and cd2.type = "folder" and (%s)
-              and p2.id = cd2.path_id
-              and substr(p2.path, 1, length(p1.path) + 1) = p1.path || "%s"
-              and cd6.type = "folder"
-              and p6.id = cd6.path_id
-              and substr(p6.path, 1, length(p1.path) + 1) = p1.path || "%s"
-              and h2.path_id == p2.id
-              and h2.parent_path_id == p6.id
-              and h5.path_id == p5.id
-              and h5.parent_path_id == p6.id
-              and h3.path_id = p3.id
-              and h3.parent_path_id = h4.path_id
-              and h4.path_id = p4.id -- p4 is the snippet's parent
-              ;
-    """ % (sep, sep, q_subnames, sep, sep)
-        value_tuple = tuple([abbrev] + subnames)
-
-        cu.execute(stmt, value_tuple)
-        # Add True to show that these snippets were found *above* the folder
-        final_rows = []
-        rows = cu.fetchall()
-        for row in rows:
-            p3_id, cd3_name, cd2_name, p1_path, p2_path, p4_path = row
-            #log.debug("_searchAbbrevSnippetInCommonFolder: got path: %s", p1_path)
-            #log.debug("p2_path:%s, \np4_path:%s, len(p2_path):%d, len(p4_path):%d",
-            #           p2_path, p4_path, len(p2_path), len(p4_path))
-            isSampleAbbrev = self._sampleAbbrevRE.match(p1_path) != None
-            final_rows.append([p3_id, cd3_name, cd2_name, True, isSampleAbbrev])
-        return final_rows
+        select_part_s = 'p3.id, cd3.name, cd2.name, p1.path, p2.path, p4.path'
+        from_parts_a = ['paths as p1', 'paths as p2', 'paths as p3',
+                        'paths as p4', 'paths as p5', 'paths as p6',
+                        'common_details as cd3', 'common_details as cd2',
+                        'common_details as cd1',
+                        'common_details as cd5', 'common_details as cd6',
+                        'hierarchy as h2',
+                        'hierarchy as h3',
+                        'hierarchy as h4',
+                        'hierarchy as h5']
+        if isAutoAbbrev:
+            from_parts_a.append('snippet as s3')
+        where_parts_a = ['cd3.type = "snippet"',
+                         'cd3.name %s ?' % (isAutoAbbrev and "=" or "like"),
+                         ]
+        if isAutoAbbrev:
+            where_parts_a += ['s3.path_id = cd3.path_id',
+                              's3.auto_abbreviation = "true"']
+        where_parts_a += [
+                         'cd1.name = "Abbreviations"',
+                         'cd1.type = "folder"',
+                         'cd5.type = "folder"',
+                         'cd5.name = "*"',
+                         'cd1.path_id = p1.id',
+                         'cd5.path_id = p5.id',
+                         'substr(p5.path, 1, length(p1.path) + 1) = p1.path || "%s"' % (sep,),
+                         '(%s)' % q_subnames,
+                         'p3.id = cd3.path_id',
+                         # snippet is descendant of abbrev
+                         'substr(p3.path, 1, length(p5.path) + 1) = p5.path || "%s"' % (sep,),
+                         'cd2.type = "folder"',
+                         'p2.id = cd2.path_id',
+                         'substr(p2.path, 1, length(p1.path) + 1) = p1.path || "%s"' % (sep,),
+                         'cd6.type = "folder"',
+                         'p6.id = cd6.path_id',
+                         # We don't need to test that p6 is in Abbreviations
+                         # because if it's a parent of p5 and p2, it must be.
+                         #'substr(p6.path, 1, length(p1.path) + 1) = p1.path || "%s"' % (sep,),
+                         'h2.path_id == p2.id',
+                         'h2.parent_path_id == p6.id',
+                         'h5.path_id == p5.id',
+                         'h5.parent_path_id == p6.id',
+                         'h3.path_id = p3.id',
+                         'h3.parent_path_id = h4.path_id',
+                         # p4 is the snippet's parent
+                         'h4.path_id = p4.id',]
+        return self._completeAbbrevSearchQuery(select_part_s, from_parts_a, where_parts_a,
+                                               abbrev, subnames, cu,
+                                               "_searchAbbrevSnippetInCommonFolder",
+                                               outside_language_folder=False)
     
-    def getAbbreviationSnippetId(self, abbrev, subnames):
+    def getAbbreviationSnippetId(self, abbrev, subnames, isAutoAbbrev):
         """
         First look for target snippets in the path
         /.../Abbreviations/.../[s in subnames]/.../<target>
@@ -1047,14 +1093,14 @@ class Database(object):
          isInsideFolder, isSampleAbbrev]
         """
         with self.connect() as cu:
-            rows = self._searchAbbrevFolderSnippet(abbrev, subnames, cu)
+            rows = self._searchAbbrevFolderSnippet(abbrev, subnames, isAutoAbbrev, cu)
             # Look for case-sensitive matches to avoid a second search
             # This should be the most common form anyway
             for row in rows:
                 if row[2] != "General" and row[1] == abbrev and not row[4]:
                     return row[0]
-            rows += self._searchAbbrevSnippetFolder(abbrev, subnames, cu)
-            rows += self._searchAbbrevSnippetInCommonFolder(abbrev, subnames, cu)
+            rows += self._searchAbbrevSnippetFolder(abbrev, subnames, isAutoAbbrev, cu)
+            rows += self._searchAbbrevSnippetInCommonFolder(abbrev, subnames, isAutoAbbrev, cu)
         if not rows:
             return None
         elif len(rows) == 1:
