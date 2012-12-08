@@ -4019,7 +4019,12 @@ var getCache = function(fileUri) {
 
 var getFileFromSheetId = function(sheetId, cache) {
 	var sheet = getSheet(sheetId);
-	return getCache(sheet.href);
+	
+	if (cache) {
+		return getCache(sheet.href);
+	} else {
+		return getFile(sheet.href);
+	}
 }
 
 var _youngestChild = {};
