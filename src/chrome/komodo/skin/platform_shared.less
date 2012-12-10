@@ -4,11 +4,12 @@
 /* Toolbars */
 
 /* Button Group */
-#main-toolboxrow toolbar > toolbaritem {
+#main-toolboxrow toolbar > toolbaritem
+{
     
     .border(@menubar-group-border-width, @menubar-group-border-style, @menubar-group-border-color);
     height: 24px;
-
+    
     toolbarbutton
     {
         -moz-appearance: none;
@@ -122,12 +123,12 @@
 #main-toolboxrow toolbar
 {
 
-    &.first-child toolbaritem.has-children:first-child
+    &:not([kohidden="true"]).first-child toolbaritem.has-children:first-child
     {
         border-width: @menubar-group-first-border-width;
     }
     
-    &.last-child toolbaritem.has-children:last-child
+    &:not([kohidden="true"]).last-child toolbaritem.has-children:last-child
     {
         border-width: @menubar-group-last-border-width;
     }

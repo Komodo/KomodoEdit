@@ -201,10 +201,9 @@ this.customizeToolbars = function uilayout_customizeToolbars(aToolbox) {
     var syncUIWithReality = (function syncUIWithReality() {
         var toolbars = Array.slice(toolbox.childNodes).concat(toolbox.externalToolbars);
 
-        // #if PLATFORM == "darwin"
-        // Update toolbar CSS classes (for the rounded buttons effect)
-        this._updateToolbarClasses(toolbox);
-        // #endif
+		// Update hidden / visible state of toolbar items
+		// and set relevant ancestry classes
+		this._updateToolbarViewStates(toolbox);
 
         // Hide separators if all elements before or after it in the toolbar
         // are hidden
@@ -224,7 +223,7 @@ this.customizeToolbars = function uilayout_customizeToolbars(aToolbox) {
                 }
             }
         }
-
+		
         // make the overflow button rebuild the next time it's open
         var toolboxRow = document.getElementById("main-toolboxrow");
         if (toolboxRow) {
@@ -297,7 +296,7 @@ this.customizeToolbars = function uilayout_customizeToolbars(aToolbox) {
  * platform does rounded toolbar buttons.
  * @param toolbox {<toolbox>} The toolbox to update
  */
-this._updateToolbarClasses = (function uilayout__updateToolbarClasses(toolbox)
+this._updateToolbarViewStates = (function uilayout__updateToolbarViewStates(toolbox)
 {
     if (!toolbox || !(toolbox instanceof Element)) {
         // not a toolbox. Note that this can be used as an event listener, in
@@ -320,9 +319,10 @@ this._updateToolbarClasses = (function uilayout__updateToolbarClasses(toolbox)
         }
 		
         children = Array.slice(toolbarItem.querySelectorAll(":not([kohidden='true']):not(toolbarseparator):not(spacer)"));
-        children = children.filter(function(child) child.parentNode === toolbarItem);
+        children = children.filter(function(child) child.parentNode === toolbarItem && child.parentNode.parentNode.getAttribute("kohidden") !== "true");
 		
         if (children.length > 0) {
+			toolbarItem.removeAttribute("kohidden");
 			toolbarItem.classList.remove('no-children');
 			toolbarItem.classList.add('has-children');
             children[0].classList.add("first-child");
@@ -335,6 +335,7 @@ this._updateToolbarClasses = (function uilayout__updateToolbarClasses(toolbox)
 			}
 			toolbar.classList.add('last-child');
         } else {
+			toolbarItem.setAttribute("kohidden", "true");
 			toolbarItem.classList.add('no-children');
 			toolbarItem.classList.remove('has-children');
 		}
@@ -342,7 +343,7 @@ this._updateToolbarClasses = (function uilayout__updateToolbarClasses(toolbox)
 		var previousToolbar = toolbar;
 	}
 }).bind(this);
-addEventListener("load", this._updateToolbarClasses, false);
+addEventListener("load", this._updateToolbarViewStates, false);
 
 /**
  * Show/hide toolbar separators in response to their surrounding elements being
@@ -1565,7 +1566,7 @@ function _updateHiddenToolbars()
                 toolbars[i].setAttribute("kohidden", "true");
             } else {
                 toolbars[i].setAttribute("kohidden", "false");
-            }
+            } 
             toolbars[i].removeAttribute("hidden");
             _log.debug("Migrating hidden toolbar " + toolbars[i].id);
         }
