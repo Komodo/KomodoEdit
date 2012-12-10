@@ -72,8 +72,8 @@
                            .QueryInterface(Ci.nsIInterfaceRequestor)
                            .getInterface(Ci.nsIXULWindow);
                     Cc["@activestate.com/koIWindowManagerUtils;1"]
-                      .getService(Ci.koIWindowManagerUtils);
-                      //.setOnTop(getXULWin(window), getXULWin(opener), true);
+                      .getService(Ci.koIWindowManagerUtils)
+                      .setOnTop(getXULWin(window), getXULWin(opener), true);
                 }
             }, false);
         ]]>
