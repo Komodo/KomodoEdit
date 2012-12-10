@@ -149,6 +149,25 @@ komodoCmdLineHandler.prototype = {
       Components.utils.reportError(e);
     }
 
+    // Logging
+    // Syntax: -L test:DEBUG -L foo:10,bar:20
+    let {logging} = Components.utils.import("chrome://komodo/content/library/logging.js");
+    while (null !== (ar = cmdLine.handleFlagWithParam("log", false))) {
+      for (let pair of ar.split(",")) {
+	let [name, level] = pair.split(":").concat("");
+	if (level.length > 0) {
+	  if (parseInt(level, 10) == level) {
+	    logging.getLogger(name).setLevel(parseInt(level, 10));
+	  } else if (("LOG_" + level) in logging) {
+	    logging.getLogger(name).setLevel(logging["LOG_" + level]);
+	  } else {
+	    logging.getLogger("asCommandLineHandler")
+	           .warn("Invalid logging level " + level + " for " + name);
+	  }
+	}
+      }
+    }
+
     var count = cmdLine.length;
 
     for (var i = 0; i < count; ++i) {
