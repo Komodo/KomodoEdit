@@ -1141,7 +1141,7 @@ static int _GetVerUserDataDir(
                     return 0;
                 }
                 if (wcsncmp(value, L"AppData", MAXPATHLEN) == 0) {
-                    char* utf8Path = _ToUTF8(data);
+                    char* utf8Path = _ToUTF8((wchar_t*)data);
                     strncpy(lpBuffer, utf8Path, nBufferLength);
                     lpBuffer[nBufferLength - 1] = '\0';
                     free(utf8Path);
@@ -1635,7 +1635,7 @@ void _KoStart_SetupEnvironment(const char* programDir)
     overflow = snprintf(buffer, MAXPATHLEN, "%s%c..%cpython", programDir, SEP, SEP);
     if (overflow > (ssize_t)MAXPATHLEN || overflow < 0) {
         _LogError("buffer overflow while setting PYTHONHOME\n");
-        return 0;
+        return;
     }
     _LogDebug("setting PYTHONHOME=%s\n", buffer);
     xpsetenv("PYTHONHOME", buffer, 1);
@@ -1718,13 +1718,15 @@ void _KoStart_SetupEnvironment(const char* programDir)
 #ifdef WIN32
         wchar_t* envVar;
 #define CHECK(s) (wcsncmp(L ## s, envVar, sizeof(s) - 1) == 0)
+#define GET() envVar = _wenviron[i]
 #else
         char* envVar;
 #define CHECK(s) (strncmp(s, envVar, sizeof(s) - 1) == 0)
+#define GET() envVar = environ[i]
 #endif
         int i;
         for (i = 0; ; ++i) {
-            envVar = environ[i];
+            GET();
             if (envVar == NULL) break;
             if (CHECK("MOZILLA_FIVE_HOME=")
                 || CHECK("MOZ_MAXWINSDK=")
@@ -1743,6 +1745,7 @@ void _KoStart_SetupEnvironment(const char* programDir)
             }
         }
 #undef CHECK
+#undef GET
     }
 
     /* unset PYTHONPATH:
