@@ -139,10 +139,17 @@ if (typeof(ko.widgets)=='undefined') {
             id = aElement.getAttribute("id");
         }
 
+        let params = { defaultPane: aId };
+        if (aElement.hasAttribute("icon")) {
+            params.iconURL = aElement.getAttribute("icon");
+        }
+        if (aElement.hasAttribute("icon-inactive")) {
+            params.iconURL = aElement.getAttribute("icon-inactive");
+        }
         let success = this.registerWidget(id,
                                           aElement.getAttribute("label"),
                                           aElement.getAttribute("src"),
-                                          {defaultPane: aId});
+                                          params);
         if (!success) return success;
         // copy attributes over
         let data = this._get(id);
@@ -293,15 +300,14 @@ if (typeof(ko.widgets)=='undefined') {
         }
     };
 
-    this.modifyWidget = function koWidgetManager_modifyWidget(aID, aParams) {
+    this.modifyWidget = (function koWidgetManager_modifyWidget(aID, aParams) {
         let id = aID;
         if (id && id._is_ko_widget) {
             id = this._getIDForWidget(id);
         }
         let data = this._get(id);
         if (!data) {
-            throw Components.Exception("Widget " + aID + " is unknown",
-                                       Cr.NS_ERROR_INVALID_ARG);
+            throw new Error("Widget " + aID + " is unknown");
         }
         if (!aParams) {
             throw Components.Exception("No parameters specified for modifyWidget",
@@ -315,10 +321,18 @@ if (typeof(ko.widgets)=='undefined') {
                                            Cr.NS_ERROR_INVALID_ARG);
             }
         }
-        for (let key of ["URL", "iconURL", "inactiveIconURL"]) {
+        if ("URL" in aParams) {
+            data.URL = aParams.URL;
+        }
+        let iconChanged = false;
+        for (let key of ["iconURL", "inactiveIconURL"]) {
             if (key in aParams) {
                 data[key] = aParams[key];
+                iconChanged = true;
             }
+        }
+        if (iconChanged && data.browser && data.browser.containerPane) {
+            data.browser.containerPane._updateTabIcon(data.browser.tab);
         }
         if ("persist" in aParams) {
             data.persist = !!aParams.persist;
@@ -348,11 +362,11 @@ if (typeof(ko.widgets)=='undefined') {
             visible: !!this.getWidget(id),
             ID: id,
         }
-    };
+    }).bind(this);
 
-    this.getWidgetInfo = function koWidgetMangager_getWidsgetInfo(aID) {
+    this.getWidgetInfo = (function koWidgetMangager_getWidgetInfo(aID) {
         return this.modifyWidget(aID, {});
-    };
+    }).bind(this);
 
     /**
      * Given a <browser type="ko-widget">, return its id.

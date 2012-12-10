@@ -220,9 +220,9 @@
               widget.setAttribute("label", data.label);
               if (data.iconURL) widget.setAttribute("icon", data.iconURL);
               if (data.inactiveIconURL) widget.setAttribute("inactiveIcon", data.inactiveIconURL);
+              data.browser = widget;
               insertWidget(widget);  // Do it now so the XBL binding can apply
               widget.loadURI(data.URL, null, null);
-              data.browser = widget;
               createdNewWidget = true;
             }
             widget.getBoundingClientRect(); // force flush CSS
@@ -1308,6 +1308,39 @@
         </body>
       </method>
 
+      <method name="_updateTabIcon">
+        <!--
+          - update the icon on a tab (for select, etc.)
+          - @param tab {ELement} the <tab> to update
+          - @param isActive [optional] {Boolean} Whether the tab is selected
+          -           if not given, the current state is used
+          -->
+        <parameter name="tab"/>
+        <parameter name="isActive"/>
+        <body>
+        <![CDATA[
+          debugger;
+          if (typeof(isActive) === "undefined") {
+            isActive = tab.selected;
+          }
+          let data = Array.slice(tab.linkedpanel.childNodes)
+                          .filter(function(e) "_is_ko_widget" in e)
+                          .map(ko.widgets.getWidgetInfo);
+          for (let datum of data) {
+            if (!isActive && !!datum.inactiveIconURL) {
+              tab.setAttribute("icon", datum.inactiveIconURL);
+              tab.setAttribute("icon-inactive", datum.inactiveIconURL);
+              return;
+            }
+            if (!!datum.iconURL) {
+              tab.setAttribute("icon", datum.iconURL);
+              return;
+            }
+          }
+          tab.removeAttribute("icon");
+        ]]>
+        </body>
+      </method>
       <property name="splitter">
         <!-- The splitter attached to the pane.  Note that this may be null if
            - this is a floating pane (and therefore has no splitters).
@@ -1420,10 +1453,14 @@
          */
         (function() {
           let callback = (function (mutations) {
+            let tabs = [];
             for (let mutation of mutations) {
               let widget = mutation.target;
               if (!widget.tab) {
                 continue;
+              }
+              if (tabs.indexOf(widget.tab) < 0) {
+                tabs.push(widget.tab);
               }
               let attr = mutation.attributeName;
               let firstWidget = Array.slice(widget.tab.linkedpanel.childNodes)
@@ -1443,6 +1480,9 @@
               } else {
                 widget.tab.removeAttribute(newAttr);
               }
+            }
+            for (let tab of tabs) {
+              this._updateTabIcon(tab);
             }
           }).bind(this);
           let observer = new MutationObserver(callback);
@@ -1528,6 +1568,7 @@
                             this._lastSelectedTab.label + " -> " +
                             tab.label);
             if (!this.collapsed && this._lastSelectedTab.linkedpanel) {
+              this._updateTabIcon(this._lastSelectedTab, false);
               for (let widget of this._lastSelectedTab.linkedpanel.childNodes) {
                 if ("_is_ko_widget" in widget) {
                   this._dispatchEvent("ko-widget-hidden", widget.contentDocument);
@@ -1537,6 +1578,7 @@
           }
           this._lastSelectedTab = tab;
           if (!this.collapsed && tab.linkedpanel) {
+            this._updateTabIcon(tab, true);
             for (let widget of tab.linkedpanel.childNodes) {
               if ("_is_ko_widget" in widget) {
                 this._dispatchEvent("ko-widget-showing", widget.contentDocument);

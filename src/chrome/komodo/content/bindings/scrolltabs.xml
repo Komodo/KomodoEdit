@@ -910,4 +910,25 @@
 
     </binding>
 
+    <binding id="tab-icons"
+             extends="chrome://global/content/bindings/tabbox.xml#tab">
+        <implementation>
+            <constructor>
+                let callback = (function() {
+                    if (this.hasAttribute("icon")) {
+                        this.style.setProperty("list-style-image",
+                                               "url(" + this.getAttribute("icon") + ")");
+                    } else {
+                        this.style.removeProperty("list-style-image");
+                    }
+                }).bind(this);
+
+                (new MutationObserver(callback)).observe(this, {
+                    attributes: true,
+                    attributeFilter: ["icon"],
+                });
+                callback();
+            </constructor>
+        </implementation>
+    </binding>
 </bindings>

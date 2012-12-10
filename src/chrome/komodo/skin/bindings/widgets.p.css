@@ -230,6 +230,7 @@ ko-pane[type="icons"] .pane-container {
 ko-pane[type="icons"] .pane-tabs-container tab {
   /* default image for icons panes */
   list-style-image: url("chrome://komodo/skin/images/existing_file.png");
+  -moz-binding: url("chrome://komodo/content/bindings/scrolltabs.xml#tab-icons");
 }
 ko-pane[type="icons"] .pane-tabs-container .tab-text {
   display: none;
