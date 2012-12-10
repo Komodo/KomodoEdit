@@ -1452,11 +1452,7 @@ def _PackageKomodoMSI(cfg):
     print "---- build the MSI"
     dirs = [os.curdir] # implied by Windows shell
     dirs.extend(os.environ.get("PATH", "").split(os.pathsep))
-    #XXX Historical hack
-    dirs.append(r"C:\Program Files\Microsoft Visual Studio\VC98\Bin")
-    nmake = which.which("nmake", dirs)
-    cmd = '"PATH=%s;%%PATH%%" && nmake -nologo clean all' % dirname(nmake)
-    _run_in_dir(cmd, wrkDir)
+    _run_in_dir('nmake -nologo clean all', wrkDir)
 
     print "---- copy MSI to packages dir"
     if not exists(dirname(cfg.komodoInstallerPackage)):
