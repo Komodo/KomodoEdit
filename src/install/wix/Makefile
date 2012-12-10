@@ -43,7 +43,7 @@
 UILIB=aswixui\aswixui_featuretree.wixlib
 
 CANDLE=candle.exe -nologo
-LIGHT=light.exe -nologo
+LIGHT=light.exe -nologo -ss -sval
 ORCA="C:\Program Files\Orca\Orca.exe"
 MAKE=nmake -nologo
 

@@ -190,7 +190,7 @@ def _autowix_one_file(in_path, product_code, force=False):
         raise AutowixError("`%s' exists: use -f|--force to allow overwrite"
                            % out_path)
 
-    wix_ns = "{http://schemas.microsoft.com/wix/2003/01/wi}"
+    wix_ns = "{http://schemas.microsoft.com/wix/2006/wi}"
     guid_marker = "$(autowix.guid)"
 
     # Use special PIParser() to preserve PIs and comments.

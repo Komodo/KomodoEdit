@@ -40,7 +40,7 @@
 
 <?include config.wxi ?>
 
-<Wix xmlns="http://schemas.microsoft.com/wix/2003/01/wi">
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <Fragment>
 
     <FeatureRef Id="desktop">
@@ -69,7 +69,7 @@
         <!-- This generates an ICE38 error, but until MS provides a *reason*
              for this particular ICE, I'm ignoring it. -->
         <Shortcut Id="DesktopKomodoShortcut" Directory="DesktopFolder"
-            Name="$(var.KomodoId)" LongName="$(var.KomodoPrettyId)"
+            Name="$(var.KomodoPrettyId)"
             Target="[INSTALLDIR]komodo.exe" WorkingDirectory="INSTALLDIR"
             Icon="$(var.KomodoId).exe" IconIndex="0" />
       </Component>
@@ -81,7 +81,7 @@
         <!-- This generates an ICE38 error, but until MS provides a *reason*
              for this particular ICE, I'm ignoring it. -->
         <Shortcut Id="QuickLaunchKomodoShortcut" Directory="QuickLaunchFolder"
-            Name="$(var.KomodoId)" LongName="$(var.KomodoPrettyId)"
+            Name="$(var.KomodoPrettyId)"
             Target="[INSTALLDIR]komodo.exe" WorkingDirectory="INSTALLDIR"
             Icon="$(var.KomodoId).exe" IconIndex="0" />
       </Component>
@@ -134,27 +134,27 @@
 
       <Component Id="FileTypes" Guid="$(autowix.guid)">
         <ProgId Id="Komodo.Project" Description="Komodo Project File"
-            Advertise="no" Icon="[!KomodoExe]" IconIndex="1">
+            Advertise="no" Icon="KomodoExe" IconIndex="1">
           <Extension Id="kpf">
-            <Verb Id="open" Command="Open" Target="[!KomodoExe]" Argument='"%1" %*' />
+            <Verb Id="open" Command="Open" TargetFile="KomodoExe" Argument='"%1" %*' />
           </Extension>
         </ProgId>
         <ProgId Id="Komodo.Package" Description="Komodo Package"
-            Advertise="no" Icon="[!KomodoExe]" IconIndex="2">
+            Advertise="no" Icon="KomodoExe" IconIndex="2">
           <Extension Id="kpz">
-            <Verb Id="open" Command="Open" Target="[!KomodoExe]" Argument='"%1" %*' />
+            <Verb Id="open" Command="Open" TargetFile="KomodoExe" Argument='"%1" %*' />
           </Extension>
         </ProgId>
         <ProgId Id="Komodo.Project2" Description="Komodo Project File"
-            Advertise="no" Icon="[!KomodoExe]" IconIndex="1">
+            Advertise="no" Icon="KomodoExe" IconIndex="1">
           <Extension Id="komodoproject">
-            <Verb Id="open" Command="Open" Target="[!KomodoExe]" Argument='"%1" %*' />
+            <Verb Id="open" Command="Open" TargetFile="KomodoExe" Argument='"%1" %*' />
           </Extension>
         </ProgId>
         <ProgId Id="Komodo.Tool" Description="Komodo Tool"
-            Advertise="no" Icon="[!KomodoExe]" IconIndex="1">
+            Advertise="no" Icon="KomodoExe" IconIndex="1">
           <Extension Id="komodotool">
-            <Verb Id="open" Command="Open" Target="[!KomodoExe]" Argument='"%1" %*' />
+            <Verb Id="open" Command="Open" TargetFile="KomodoExe" Argument='"%1" %*' />
           </Extension>
         </ProgId>
       </Component>

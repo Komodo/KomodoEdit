@@ -9,7 +9,7 @@ First-time install dialog sequence:      Maintenance dialog sequence:
                                             - WixUI_VerifyRepairDlg
 -->
 
-<Wix xmlns="http://schemas.microsoft.com/wix/2003/01/wi">
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <Fragment>
     <UI Id="WixUI">
       <TextStyle Id="WixUI_Font_Normal" FaceName="Tahoma" Size="8" />

@@ -137,7 +137,7 @@
         wax: importing project data from 'product.wxs'
         wax: generate WiX <Fragment> for feature 'core' from 'feature-core/...'
         <?xml version="1.0" encoding="utf-8"?>
-        <Wix xmlns="http://schemas.microsoft.com/wix/2003/01/wi">
+        <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
           <Fragment>
             <DirectoryRef Id="INSTALLDIR">
               <Component Id="component0" DiskId="1" Guid="$(autowix.guid)">
@@ -339,7 +339,7 @@ class Guru:
 
     def _process_project_files(self, project_files):
         """Process all the given WiX project files."""
-        ns = "http://schemas.microsoft.com/wix/2003/01/wi"
+        ns = "http://schemas.microsoft.com/wix/2006/wi"
         for project_file in project_files:
             log.info("importing project data from '%s'", project_file)
             tree = parse(project_file)
@@ -580,9 +580,9 @@ class Accumulator(list):
     def start(self):
         self.level = 0
         self.add('<?xml version="1.0" encoding="utf-8"?>')
-        self.add('<Wix xmlns="http://schemas.microsoft.com/wix/2003/01/wi">')
+        self.add('<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">')
 ##        self.focus = Element("Wix",
-##            xmlns="http://schemas.microsoft.com/wix/2003/01/wi")
+##            xmlns="http://schemas.microsoft.com/wix/2006/wi")
 ##        self.focus.tail = self.focus.text = '\n'
 ##        self.tree = ElementTree(self.focus)
         self.level += 1

@@ -4,7 +4,7 @@
 <?include config.wxi ?>
 <?include guids.wxi ?>
 
-<Wix xmlns="http://schemas.microsoft.com/wix/2003/01/wi">
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <Fragment>
 
     <FeatureRef Id="docs">
@@ -15,11 +15,7 @@
 
 
     <DirectoryRef Id="ChromeDir">
-      <Component Id="KomodoDocsManifest" DiskId="1" Guid="$(autowix.guid)">
-        <File Id="file.docs.komododoc.manifest" Name="KOMODO_1.MAN"
-              LongName="komododoc.manifest" Vital="yes"
-              src="feature-docs\INSTALLDIR\lib\mozilla\chrome\komododoc.manifest"/>
-      </Component>
+      <Component Id="KomodoDocsManifest" DiskId="1" Guid="$(autowix.guid)"/>
       <Component Id="RegistryHelp" Guid="$(autowix.guid)">
         <Registry Id="RegKomodoIdHelp" Action="write"
             Root="HKMU" Key="Software\ActiveState\Komodo\$(var.KomodoRegistryId)\Help"

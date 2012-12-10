@@ -80,40 +80,6 @@ def buildTree(files):
         directory[leaf] = f
     return result
 
-def makeShortName(parent, name, tagName):
-    """Create a 8.3 short name for a given long name
-    @param parent {minidom.Element} The parent node
-    @param name {str} The long name to adjust
-    @param tagName {str} The sibling tag name to check
-    @returns {str} The new short name, or None if the name is already short
-    """
-    # XXX TODO make this generate valid short names
-    base, ext = os.path.splitext(name)
-    trimmed = base.translate(None, r'\?|><:/*"+,;=[] ')
-    if len(base) <= 8 and len(ext) <= 4 and (trimmed == base):
-        # this is a valid short name
-        return None
-    ext = ext[:4] # extension up to 3 characters plus leading dot
-
-    siblings = set()
-    for child in parent.childNodes:
-        if not isinstance(child, minidom.Element):
-            continue
-        if child.tagName != tagName:
-            continue
-        siblings.add(child.getAttribute("Name"))
-
-    for prefixLength in range(min([6, len(base)]), 0, -1):
-        prefix = trimmed[:prefixLength]
-        for i in range(0, 9999):
-            short = "%s_%i" % (prefix, i)
-            if len(short) > 8:
-                break
-            short = ("%s%s" % (short, ext)).upper()
-            if short not in siblings:
-                return short
-    raise RuntimeError("Failed to get short name for %s" % (name,))
-
 
 def buildXML(doc, tree):
     """ Update the XML DOM tree with the new files
@@ -167,12 +133,7 @@ def buildXML(doc, tree):
                         break
                 else:
                     elem = doc.createElement("Directory")
-                    shortName = makeShortName(parent, k, "Directory")
-                    if shortName is None:
-                        elem.setAttribute("Name", k)
-                    else:
-                        elem.setAttribute("LongName", k)
-                        elem.setAttribute("Name", shortName)
+                    elem.setAttribute("Name", k)
                     elem.setAttribute("Id", genId("dir", subPath))
                     parent.appendChild(elem)
                     component = doc.createElement("Component")
@@ -202,14 +163,9 @@ def buildXML(doc, tree):
                 assert component.tagName == "Component", "<Component/> has wrong tag"
                 elem = doc.createElement("File")
                 elem.setAttribute("Id", genId("file", subPath))
-                shortName = makeShortName(component, k, "File")
-                if shortName is None:
-                    elem.setAttribute("Name", k)
-                else:
-                    elem.setAttribute("LongName", k)
-                    elem.setAttribute("Name", shortName)
+                elem.setAttribute("Name", k)
                 elem.setAttribute("Vital", "yes")
-                elem.setAttribute("src", v.replace("/", "\\"))
+                elem.setAttribute("Source", v.replace("/", "\\"))
                 component.appendChild(elem)
 
         if has_python:

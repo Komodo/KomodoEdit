@@ -41,7 +41,7 @@
 <?include config.wxi ?>
 <?include guids.wxi ?>
 
-<Wix xmlns="http://schemas.microsoft.com/wix/2003/01/wi">
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <Fragment>
 
     <FeatureRef Id="core">
@@ -66,43 +66,43 @@
             Root="HKMU" Key="Software\ActiveState\Komodo\$(var.KomodoRegistryId)" />
       </Component>
       <Component Id="KomodoWindowsExe" Guid="$(autowix.guid)">
-        <File Id="KomodoWindowsExe" Name="komodo.exe" LongName="komodo.exe"
-            DiskId="1" src="feature-core\INSTALLDIR\komodo.exe" Vital="yes">
+        <File Id="KomodoWindowsExe" Name="komodo.exe"
+            DiskId="1" Source="feature-core\INSTALLDIR\komodo.exe" Vital="yes">
           <Shortcut Id="StartMenuKomodoShortcut" Directory="StartMenuDir"
-              Name="$(var.KomodoId)" LongName="$(var.KomodoPrettyId)"
+              Name="$(var.KomodoPrettyId)"
               WorkingDirectory="INSTALLDIR"
               Icon="$(var.KomodoId).exe" IconIndex="0" />
         </File>
         <Shortcut Id="StartMenuUninstallShortcut" Directory="StartMenuDir"
-            Name="UNINST" LongName="$(var.UninstallText)"
+            Name="$(var.UninstallText)"
             Target="[SystemFolder]msiexec.exe"
             Arguments="/i{$(var.ProductCode)}"/>
       </Component>
       <Component Id="KomodoConsoleExe" Guid="$(autowix.guid)">
-        <File Id="KomodoConsoleExe" Name="ko.exe" LongName="ko.exe"
-            DiskId="1" src="feature-core\INSTALLDIR\ko.exe" Vital="yes" />
+        <File Id="KomodoConsoleExe" Name="ko.exe"
+            DiskId="1" Source="feature-core\INSTALLDIR\ko.exe" Vital="yes" />
       </Component>
       <Component Id="ReadMeFiles" DiskId="1" Guid="$(autowix.guid)">
-        <File Id="LicenseText" Name="LICENSE.txt"   src="feature-core\INSTALLDIR\LICENSE.txt"/>
+        <File Id="LicenseText" Name="LICENSE.txt" Source="feature-core\INSTALLDIR\LICENSE.txt"/>
       </Component>
 
       <Directory Id="LibDir" Name="lib">
         <Directory Id="MozillaDir" Name="mozilla">
           <Component Id="comp.KomodoExe" DiskId="1" Guid="$(autowix.guid)">
-            <File Id="KomodoExe" Name="KOMODO_0.EXE" LongName="komodo.exe"
-                Vital="yes" src="feature-core\INSTALLDIR\lib\mozilla\komodo.exe"/>
+            <File Id="KomodoExe" Name="komodo.exe"
+                Vital="yes" Source="feature-core\INSTALLDIR\lib\mozilla\komodo.exe"/>
           </Component>
           <Directory Id="ChromeDir" Name="chrome">
             <Component Id="comp.core._lib_mozilla_chrome" DiskId="1" Guid="$(autowix.guid)">
-              <RemoveFile Id="remove.appchrome.manifest" On="uninstall" Name="APPCHR_1.MAN"
-                          LongName="app-chrome.manifest" />
+              <RemoveFile Id="remove.appchrome.manifest" On="uninstall"
+                          Name="app-chrome.manifest" />
             </Component>
           </Directory> <!-- lib\mozilla\chrome -->
           <Directory Id="dir._lib_mozilla_defaults" Name="defaults">
             <Component Id="comp._lib_mozilla_defaults" DiskId="1" Guid="$(autowix.guid)"/>
             <Directory Id="dir._lib_mozilla_defaults_profile" Name="profile">
               <Component Id="comp._lib_mozilla_defaults_profile" DiskId="1" Guid="$(autowix.guid)"/>
-              <Directory Id="dir._lib_mozilla_defaults_profile_extensions" Name="EXTENS_0" LongName="extensions">
+              <Directory Id="dir._lib_mozilla_defaults_profile_extensions" Name="extensions">
                 <Component Id="comp._lib_mozilla_defaults_profile_extensions" DiskId="1" Guid="$(autowix.guid)">
                   <RemoveFolder Id="rmdir._lib_mozilla_defaults_profile_extensions" On="uninstall" />
                 </Component>

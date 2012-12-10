@@ -39,17 +39,17 @@
 <?include config.wxi ?>
 <?include guids.wxi ?>
 
-<Wix xmlns="http://schemas.microsoft.com/wix/2003/01/wi">
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <Product Name="$(var.ProductName)" Id="$(var.ProductCode)"
     Language="1033" Codepage="1252" Version="$(var.KomodoVersion)"
     Manufacturer="ActiveState Software Inc."
     UpgradeCode="$(var.UpgradeCode)">
 
-    <Package Id="????????-????-????-????-????????????" Keywords="Installer"
+    <Package Id="*" Keywords="Installer"
       Description="$(var.ProductName)"
       Comments="Komodo is a registered trademark of ActiveState Software Inc."
       Manufacturer="ActiveState Software Inc."
-      InstallerVersion="200" Languages="1033" Compressed="yes"
+      InstallerVersion="300" Languages="1033" Compressed="yes"
       SummaryCodepage="1252" />
 
     <Media Id="1" Cabinet="media.cab" EmbedCab="yes" DiskPrompt="XXX" />
@@ -79,27 +79,27 @@
       -->
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="ProgramFilesFolder" Name="PFILES">
-        <Directory Id="INSTALLDIR" Name="$(var.KomodoId)" LongName="$(var.InstallName)">
+        <Directory Id="INSTALLDIR" Name="$(var.InstallName)">
           <Component DiskId="1" Guid="$(autowix.guid)" Id="comp.INSTALLDIR">
             <RemoveFile Id="remove.pod2htmd.tmp" Name="pod2htmd.tmp" On="uninstall" />
             <RemoveFile Id="remove.pod2htmi.tmp" Name="pod2htmi.tmp" On="uninstall" />
           </Component>
 
-          <Merge Id="CRT" Language="0" src="$(var.VccrtMsmPath)" DiskId="1" />
-          <Merge Id="CRT Policy" Language="0" src="$(var.VccrtPolicyMsmPath)" DiskId="1" />
+          <Merge Id="CRT" Language="0" SourceFile="$(var.VccrtMsmPath)" DiskId="1" />
+          <Merge Id="CRT Policy" Language="0" SourceFile="$(var.VccrtPolicyMsmPath)" DiskId="1" />
         </Directory>
       </Directory>
 
-      <Directory Id="ProgramMenuFolder" Name="PMENU" LongName="Programs">
-        <Directory Id="StartMenuDir" Name="$(var.KomodoId)" LongName="$(var.InstallName)" />
+      <Directory Id="ProgramMenuFolder" Name="Programs">
+        <Directory Id="StartMenuDir" Name="$(var.InstallName)" />
       </Directory>
 
       <Directory Id="DesktopFolder" Name="DESKTOP" />
 
       <Directory Id="AppDataFolder" Name="APPDATA">
-        <Directory Id="dir.MS" Name="MS" LongName="Microsoft">
-          <Directory Id="dir.MS.IE" Name="IE" LongName="Internet Explorer">
-            <Directory Id="QuickLaunchFolder" Name="QuickDir" LongName="Quick Launch">
+        <Directory Id="dir.MS" Name="Microsoft">
+          <Directory Id="dir.MS.IE" Name="Internet Explorer">
+            <Directory Id="QuickLaunchFolder" Name="Quick Launch">
             </Directory>
           </Directory>
         </Directory>
@@ -192,9 +192,9 @@
     <UIRef Id="WixUI" />
 
     <!-- Embedded binary bits -->
-    <Icon Id="$(var.KomodoId).exe" src="feature-core\INSTALLDIR\komodo.exe" />
-    <Binary Id="startw.exe" src="startw.exe" />
-    <Binary Id="rmtreew.exe" src="rmtreew.exe" />
+    <Icon Id="$(var.KomodoId).exe" SourceFile="feature-core\INSTALLDIR\komodo.exe" />
+    <Binary Id="startw.exe" SourceFile="startw.exe" />
+    <Binary Id="rmtreew.exe" SourceFile="rmtreew.exe" />
   </Product>
 </Wix>
 

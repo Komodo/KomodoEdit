@@ -2,20 +2,20 @@
 
 <?include ..\config.wxi ?>
 
-<Wix xmlns="http://schemas.microsoft.com/wix/2003/01/wi">
-  <Fragment Id="WixUI_Common">
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Fragment>
 
-    <Binary Id="WixUI_Bmp_Banner" src="Bitmaps\bannrbmp.bmp" />
-    <Binary Id="WixUI_Bmp_Dialog" src="Bitmaps\dlgbmp.$(var.ProductType).bmp" />
+    <Binary Id="WixUI_Bmp_Banner" SourceFile="Bitmaps\bannrbmp.bmp" />
+    <Binary Id="WixUI_Bmp_Dialog" SourceFile="Bitmaps\dlgbmp.$(var.ProductType).bmp" />
 <?if $(var.ProductType) = "edit" ?>
-    <Binary Id="WixUI_Bmp_Upsell_Dialog" src="Bitmaps\dlgbmp.upsell.bmp" />
+    <Binary Id="WixUI_Bmp_Upsell_Dialog" SourceFile="Bitmaps\dlgbmp.upsell.bmp" />
 <?endif ?>
-    <Binary Id="WixUI_Ico_Exclam" src="Bitmaps\exclamic.ico" />
-    <Binary Id="WixUI_Ico_Info" src="Bitmaps\info.ico" />
-    <Binary Id="WixUI_Bmp_New" src="Bitmaps\New.ico" />
-    <Binary Id="WixUI_Bmp_Up" src="Bitmaps\Up.ico" />
+    <Binary Id="WixUI_Ico_Exclam" SourceFile="Bitmaps\exclamic.ico" />
+    <Binary Id="WixUI_Ico_Info" SourceFile="Bitmaps\info.ico" />
+    <Binary Id="WixUI_Bmp_New" SourceFile="Bitmaps\New.ico" />
+    <Binary Id="WixUI_Bmp_Up" SourceFile="Bitmaps\Up.ico" />
 
-    <UI>
+    <UI Id="WixUI_Common">
       <!-- action text -->
       <ProgressText Action="InstallValidate">Validating install</ProgressText>
       <ProgressText Action="InstallFiles" Template="File: [1],  Directory: [9],  Size: [6]">Copying new files</ProgressText>

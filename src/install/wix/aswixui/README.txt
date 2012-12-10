@@ -67,7 +67,7 @@ The way you use your WiX UI library is as follows:
 1. Refer to the exported UI id in your normal WiX project source file (.wxs):
 
         <?xml version="1.0" encoding="utf-8"?>
-        <Wix xmlns="http://schemas.microsoft.com/wix/2003/01/wi">
+        <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
           <Product ...>
           ...
             <UIRef Id="WixUI" />

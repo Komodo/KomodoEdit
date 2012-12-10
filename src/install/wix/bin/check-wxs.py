@@ -73,7 +73,7 @@ def readWxsTemplate(feature):
                         continue
                     if grandchild.tagName != "File":
                         continue
-                    files.add(grandchild.getAttribute("src").replace(os.sep, "/"))
+                    files.add(grandchild.getAttribute("Source").replace(os.sep, "/"))
 
     doDir(root)
     return files
