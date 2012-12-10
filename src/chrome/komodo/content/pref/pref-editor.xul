@@ -61,11 +61,15 @@
 
     function updateDoNotAskWidgets() {
         if (document.getElementById('checkDiskFile').getAttribute('checked') == 'true') {
+            document.getElementById('checkNetworkDiskFile')
+                    .removeAttribute('disabled');
             document.getElementById('reload_changed_files')
                     .removeAttribute('disabled');
             document.getElementById('close_deleted_files')
                     .removeAttribute('disabled');
         } else {
+            document.getElementById('checkNetworkDiskFile')
+                    .setAttribute('disabled', 'true');
             document.getElementById('reload_changed_files')
                     .setAttribute('disabled', 'true');
             document.getElementById('close_deleted_files')
@@ -188,35 +192,39 @@
                       label="&detectWhenFilesAreChangedOutsideTheEnvironment.label;"
                       pref="true"
                       oncommand="updateDoNotAskWidgets()"/>
-            <checkbox id="checkNetworkDiskFile"
-                      label="&detectWhenNetworkFilesAreChangedOutsideTheEnvironment.label;"
-                      pref="true"/>
-            <hbox align="center">
-                <label value="&fileChanged.label;"/>
-                <menulist pref="true"
-                          id="reload_changed_files"
-                          prefattribute="data"
-                          prefstrings="donotask_reload_changed_files,donotask_action_reload_changed_files">
-                    <menupopup>
-                        <menuitem data="false,"   label="&askMeWhatFilesToReload.label;"/>
-                        <menuitem data="true,All" label="&reloadAllFiles.label;"/>
-                        <menuitem data="true,None"  label="&reloadNoFiles.label;"/>
-                    </menupopup>
-                </menulist>
-            </hbox>
-            <hbox align="center">
-                <label value="&fileDeleted.label;"/>
-                <menulist pref="true"
-                          prefattribute="data"
-                          id="close_deleted_files"
-                          prefstrings="donotask_close_deleted_files,donotask_action_close_deleted_files">
-                    <menupopup>
-                        <menuitem data="false,"   label="&askMeWhatFilesToClose.label;"/>
-                        <menuitem data="true,All" label="&closeAllFiles.label;"/>
-                        <menuitem data="true,None"  label="&closeNoFiles.label;"/>
-                    </menupopup>
-                </menulist>
-            </hbox>
+            <vbox id="detect_changed_files_vbox"
+                  style="margin-left: 27px;"
+                  >
+                <checkbox id="checkNetworkDiskFile"
+                          label="&detectWhenNetworkFilesAreChangedOutsideTheEnvironment.label;"
+                          pref="true"/>
+                <hbox align="center">
+                    <label value="&fileChanged.label;"/>
+                    <menulist pref="true"
+                              id="reload_changed_files"
+                              prefattribute="data"
+                              prefstrings="donotask_reload_changed_files,donotask_action_reload_changed_files">
+                        <menupopup>
+                            <menuitem data="false,"   label="&askMeWhatFilesToReload.label;"/>
+                            <menuitem data="true,All" label="&reloadAllFiles.label;"/>
+                            <menuitem data="true,None"  label="&reloadNoFiles.label;"/>
+                        </menupopup>
+                    </menulist>
+                </hbox>
+                <hbox align="center">
+                    <label value="&fileDeleted.label;"/>
+                    <menulist pref="true"
+                              prefattribute="data"
+                              id="close_deleted_files"
+                              prefstrings="donotask_close_deleted_files,donotask_action_close_deleted_files">
+                        <menupopup>
+                            <menuitem data="false,"   label="&askMeWhatFilesToClose.label;"/>
+                            <menuitem data="true,All" label="&closeAllFiles.label;"/>
+                            <menuitem data="true,None"  label="&closeNoFiles.label;"/>
+                        </menupopup>
+                    </menulist>
+                </hbox>
+            </vbox>
             <checkbox id="showFileConflictAlertDialog"
                       label="&doNotAlertMeIfTheBufferIsUnsavedAndTheFileOnDiskChanged.label;"
                       style="padding-top: 5px;"
