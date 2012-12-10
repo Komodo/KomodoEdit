@@ -71,7 +71,10 @@
           <Shortcut Id="StartMenuKomodoShortcut" Directory="StartMenuDir"
               Name="$(var.KomodoPrettyId)"
               WorkingDirectory="INSTALLDIR"
-              Icon="$(var.KomodoId).exe" IconIndex="0" />
+              Icon="$(var.KomodoId).exe" IconIndex="0">
+            <ShortcutProperty Key="System.AppUserModel.ID"
+                              Value="Komodo-$(var.ProductType)-$(var.KomodoMajorVersion)"/>
+          </Shortcut>
         </File>
         <Shortcut Id="StartMenuUninstallShortcut" Directory="StartMenuDir"
             Name="$(var.UninstallText)"

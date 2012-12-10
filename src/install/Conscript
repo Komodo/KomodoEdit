@@ -79,6 +79,8 @@ if ($buildFlavour eq "full") {
         $komodoVersion =~ /(\d+)\.(\d+)\.(\d+)/;
         my $majorVer = $1;
         my $minorVer = $2;
+        $mozVersion =~ /(\d+)/;
+        my $mozMajorVer = $1;
         my $isPreReleaseVersion = ($komodoVersion =~ /-/ ? "yes" : "no");
         $cons->Preprocess(
             "wix/config.p.wxi",
@@ -97,7 +99,7 @@ if ($buildFlavour eq "full") {
                 "PP_MSI_VCCRT_POLICY_MSM_PATH" => $msiVccrtPolicyMsmPath,
                 "PP_VER_MAJOR" => $majorVer,
                 "PP_VER_MINOR" => $minorVer,
-                "PP_MOZ_MAJOR_VERSION" => substr($mozVersion, 0, 1),
+                "PP_MOZ_MAJOR_VERSION" => $mozMajorVer,
                 "PP_UPDATE_CHANNEL" => $updateChannel,
 
                 # Using "AVEC" instead of "WITH" to not collide with the

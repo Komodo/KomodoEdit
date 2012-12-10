@@ -43,7 +43,8 @@
   <?define IsPreReleaseVersion = "PP_MSI_IS_PRE_RELEASE_VERSION" ?>
   <?define ProductType = "PRODUCT_TYPE" ?> <!-- e.g., edit -->
   <?define ProductTagLine = "PP_PRODUCT_TAG_LINE" ?>
-  <?define MozMajorVersion = "PP_MOZ_MAJOR_VERSION" ?> <!-- string, e.g. "7" -->
+  <?define MozMajorVersion = "PP_MOZ_MAJOR_VERSION" ?> <!-- string, e.g. "17" -->
+  <?define KomodoMajorVersion = "PP_VER_MAJOR" ?> <!-- string, e.g. "8" -->
   <?define KomodoUpdateChannel = "PP_UPDATE_CHANNEL" ?> <!-- string, e.g. "nightly" -->
 
   <?define WithStackato = "PP_MSI_AVEC_STACKATO" ?> <!-- yes|no -->

@@ -70,8 +70,11 @@
              for this particular ICE, I'm ignoring it. -->
         <Shortcut Id="DesktopKomodoShortcut" Directory="DesktopFolder"
             Name="$(var.KomodoPrettyId)"
-            Target="[INSTALLDIR]komodo.exe" WorkingDirectory="INSTALLDIR"
-            Icon="$(var.KomodoId).exe" IconIndex="0" />
+            Target="[#KomodoWindowsExe]" WorkingDirectory="INSTALLDIR"
+            Icon="$(var.KomodoId).exe" IconIndex="0">
+          <ShortcutProperty Key="System.AppUserModel.ID"
+                            Value="Komodo-$(var.ProductType)-$(var.KomodoMajorVersion)"/>
+        </Shortcut>
       </Component>
     </DirectoryRef>
 
@@ -82,8 +85,11 @@
              for this particular ICE, I'm ignoring it. -->
         <Shortcut Id="QuickLaunchKomodoShortcut" Directory="QuickLaunchFolder"
             Name="$(var.KomodoPrettyId)"
-            Target="[INSTALLDIR]komodo.exe" WorkingDirectory="INSTALLDIR"
-            Icon="$(var.KomodoId).exe" IconIndex="0" />
+            Target="[#KomodoWindowsExe]" WorkingDirectory="INSTALLDIR"
+            Icon="$(var.KomodoId).exe" IconIndex="0">
+          <ShortcutProperty Key="System.AppUserModel.ID"
+                            Value="Komodo-$(var.ProductType)-$(var.KomodoMajorVersion)"/>
+        </Shortcut>
       </Component>
     </DirectoryRef>
 
