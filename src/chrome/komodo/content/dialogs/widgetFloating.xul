@@ -13,6 +13,7 @@
 <?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/komodo.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/platform.less" type="stylesheet/less" media="less"?>
 
 <window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         orient="vertical">
@@ -71,10 +72,14 @@
                            .QueryInterface(Ci.nsIInterfaceRequestor)
                            .getInterface(Ci.nsIXULWindow);
                     Cc["@activestate.com/koIWindowManagerUtils;1"]
-                      .getService(Ci.koIWindowManagerUtils)
-                      .setOnTop(getXULWin(window), getXULWin(opener), true);
+                      .getService(Ci.koIWindowManagerUtils);
+                      //.setOnTop(getXULWin(window), getXULWin(opener), true);
                 }
             }, false);
         ]]>
     </script>
+    
+    <script src="chrome://komodo/content/contrib/lessLoader.js"
+            type="application/x-javascript" id="lessLoader"/>
+    
 </window>
