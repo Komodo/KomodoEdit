@@ -200,10 +200,10 @@ this.customizeToolbars = function uilayout_customizeToolbars(aToolbox) {
      */
     var syncUIWithReality = (function syncUIWithReality() {
         var toolbars = Array.slice(toolbox.childNodes).concat(toolbox.externalToolbars);
-
-		// Update hidden / visible state of toolbar items
-		// and set relevant ancestry classes
-		this._updateToolbarViewStates(toolbox);
+        
+        // Update hidden / visible state of toolbar items
+        // and set relevant ancestry classes
+        this._updateToolbarViewStates(toolbox);
 
         // Hide separators if all elements before or after it in the toolbar
         // are hidden
