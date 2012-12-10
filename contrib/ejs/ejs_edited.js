@@ -191,7 +191,7 @@ EJS.Compiler = function(source, left) {
     }
     // Remove newlines after <% ... %> blocks, leading space before the <%
     // [ \t]*(<%(?![=\#])[\s\S]*?%>)[ \t]*(?:$|\n)
-    var ptn = new RegExp('[ \\t]*('
+    var ptn = new RegExp('('
                          + leftRegExp
                          + "%"
                          + "(?!=)"
