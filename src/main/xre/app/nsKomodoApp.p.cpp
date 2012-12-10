@@ -116,6 +116,26 @@ static const nsDynamicFunctionLoad kXULFuncs[] = {
     { nullptr, nullptr }
 };
 
+#if defined( XP_WIN )
+/**
+ * Set the application user model id; see bug 95183
+ * This is used to force the taskbar on Windows Vista/7/etc. to use the same
+ * item for various versions of Komodo (as long as the major version matches).
+ */
+static void SetAppUserModel()
+{
+  typedef HRESULT (WINAPI * SetCurrentProcessExplicitAppUserModelIDPtr)(PCWSTR AppID);
+  SetCurrentProcessExplicitAppUserModelIDPtr funcAppUserModelID = NULL;
+  HMODULE hDLL = LoadLibraryW(L"shell32.dll");
+  funcAppUserModelID = (SetCurrentProcessExplicitAppUserModelIDPtr)
+                       GetProcAddress(hDLL, "SetCurrentProcessExplicitAppUserModelID");
+  if (funcAppUserModelID) {
+      funcAppUserModelID(L"Komodo-PP_KO_PROD_TYPE-PP_KO_MAJOR");
+  }
+  FreeLibrary(hDLL);
+}
+#endif
+
 static int do_main(const char *exePath, int argc, char* argv[])
 {
   nsCOMPtr<nsIFile> appini;
@@ -185,6 +205,9 @@ static int do_main(const char *exePath, int argc, char* argv[])
         int xreArgc;
         char** xreArgv;
         KoStart_PrepareForXRE(argc, argv, &xreArgc, &xreArgv);
+        #if defined( XP_WIN )
+        SetAppUserModel();
+        #endif /* defined( XP_WIN ) */
         retval = XRE_main(xreArgc, xreArgv, appData, 0);
     }
     goto main_exit;
