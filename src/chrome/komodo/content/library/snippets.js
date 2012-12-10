@@ -52,7 +52,7 @@ if (typeof(ko.snippets)=='undefined') {
     };
 
     this.inPythonClass =  function ko_snippet_inPythonClass() {
-        // Move up, looking for a line that starts with 'class'
+        // Move up, looking for a line that starts with 'class', but not 'def'
         var view = ko.views.manager.currentView;
         var scimoz = view.scimoz;
         var currentPos = scimoz.currentPos;
@@ -73,15 +73,15 @@ if (typeof(ko.snippets)=='undefined') {
             m = indentPtn.exec(text);
             thisIndentLen = getIndentLen(m[1]);
             if (thisIndentLen < currIndentLen) {
-                if (!m[2] || m[2][0] == '#') {
+                var style = scimoz.getStyleAt(scimoz.positionFromLine(currentLine));
+                if (!m[2] || m[2][0] == '#' || style == scimoz.SCE_P_TRIPLE || style == scimoz.SCE_P_TRIPLEDOUBLE) {
                     continue;
                 } else if (/^class\b/.test(m[2])) {
-                    var style = scimoz.getStyleAt(scimoz.positionFromLine(currentLine));
                     if (style == scimoz.SCE_P_DEFAULT
                         || style == scimoz.SCE_P_WORD) {
                         return true;
                     }
-                } else if (thisIndentLen === 0) {
+                } else {
                     return false;
                 }
             }
