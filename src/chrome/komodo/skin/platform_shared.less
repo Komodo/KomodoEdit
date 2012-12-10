@@ -175,23 +175,24 @@ splitter
         
         &.workspace_splitter_left
         {
-            background: @sidebar-background-color;
-            border-right: @panel-border;
+            min-width: 3px;
+            width: 3px;
+            z-index: 100;
+            position: relative;
+            margin-left: -2px;
             
-            &:-moz-window-inactive
-            {
-                background: @sidebar-inactive-background-color;
-            }
+            background: transparent;
+            border-right: @panel-border;
         }
         
         &.workspace_splitter_right
         {
-            background: @sidebar-background-color;
+            background: @sidebar-background;
             border-left: @panel-border;
             
             &:-moz-window-inactive
             {
-                background: @sidebar-inactive-background-color;
+                background: @sidebar-inactive-background;
             }
         }
     }
@@ -200,26 +201,26 @@ splitter
 /* Widgets & Panes */
 
 #workspace_left_area, #workspace_right_area {
-	background: @sidebar-background-color;
+	background: @sidebar-background;
 	
 	&:-moz-window-inactive {
-		background: @sidebar-inactive-background-color;
+		background: @sidebar-inactive-background;
 	}
 }
 
 #workspace_bottom_area {
-	background: @bottom-background-color;
+	background: @bottom-background;
 	
 	&:-moz-window-inactive {
-		background: @bottom-inactive-background-color;
+		background: @bottom-inactive-background;
 	}
 }
 
 #collab-pane, #collab-panel-container {
-	background: @sidebar-background-color;
+	background: @sidebar-background;
   
 	&:-moz-window-inactive {
-		background: @sidebar-inactive-background-color;
+		background: @sidebar-inactive-background;
 	}
 }
 
@@ -251,9 +252,10 @@ statusbar
     
     statusbarpanel
     {
+        -moz-appearance: none;
         padding: 2px;
         background: @statusbar-background;
-        border-right: 1px solid transparent;
+        .border(@statusbar-border-width, @statusbar-border-style, @statusbar-border-color);
         -moz-border-image: @statusbar-panel-border-image;
         
         &:last-child, &#statusbar-line-col
@@ -330,7 +332,7 @@ statusbar
             color: @tab-color;
             font-family: @tab-font;
             font-size: @tab-font-size;
-            box-shadow: @tab-box-shadow;
+            box-shadow: @tab-box-box-shadow;
             border-bottom: @tab-box-border;
             background-color: @tab-box-background-color;
             background-image: @tab-box-background-image;
@@ -620,7 +622,7 @@ statusbar
 ko-pane[type="vertical"] .pane-tabs-container tabs
 {
     background: @tab-box-background-image-vertical;
-    box-shadow: @tab-box-shadow;
+    box-shadow: @tab-box-box-shadow;
     
     tab
     {
@@ -656,14 +658,57 @@ ko-pane[type="vertical"] .pane-tabs-container tabs
     }
 }
 
-#workspace_left_area .pane-tabs-container tabs
+#workspace_left_area[type="vertical"] .pane-tabs-container tabs
 {
     border-right: @tab-box-border;
 }
 
-#workspace_right_area .pane-tabs-container tabs
+#workspace_right_area[type="vertical"] .pane-tabs-container tabs
 {
     border-left: @tab-box-border;
+}
+
+/* Icon Tabs */
+ko-pane[type="icons"] .pane-tabs-container tabs .tabstrip-box
+{
+    background: @tab-box-background-image-icons;
+    border-width: 0;
+    border-top: @tab-box-border;
+    
+    box-shadow: 0px -3px 10px rgba(0,0,0,0.10);
+
+    height: 20px;
+    
+    .scrollbox-innerbox
+    {
+        -moz-box-align: center;
+        -moz-box-pack: center;
+    }
+    
+    .tabs-select-button, .tabs-closebutton
+    {
+        display: none;
+    }
+
+}
+
+ko-pane[type="icons"] tab
+{
+    background: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    min-width: 20px;
+    
+    &:not([selected]):not([icon-inactive])
+    {
+        opacity: 0.6;
+    }
+    
+    .tab-icon
+    {
+        width: 16px;
+        height: 16px;
+    }
 }
 
 /* Bottom Panel Tabs */

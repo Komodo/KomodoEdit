@@ -70,11 +70,17 @@ statusbar statusbarpanel toolbarbutton[type="menu"] > dropmarker
 }
 
 /* Fix Notification twistyImage on Mac */
-
 notification .twistyImage {
 	margin: -3px -10px 0 20px !important;
 }
 
 ko-pane[type="vertical"] tabs[anonid="tabs"] ko-vertical-text .label {
   margin-left: 2px;
+}
+
+/* Icon Tabs */
+ko-pane[type="icons"] tab {
+	&:not([selected]) {
+		filter: @menubar-button-icon-filter;
+	}
 }

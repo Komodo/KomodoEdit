@@ -1,12 +1,12 @@
 @panel-border-color:                    ThreeDShadow;
 @panel-border:                          1px solid @panel-border-color;
 
-@sidebar-background-color:              Window;
-@sidebar-inactive-background-color:     Window;
+@sidebar-background:                    Window;
+@sidebar-inactive-background:           Window;
 @sidebar-splitter-color:                rgba(0,0,0,0.2);
 
-@bottom-background-color:               Window;
-@bottom-inactive-background-color:      Window;
+@bottom-background:                     Window;
+@bottom-inactive-background:            Window;
 
 @main-border-color:                     ThreeDShadow;
 @main-border-color-inactive:            ThreeDShadow;
@@ -17,6 +17,9 @@
 @statusbar-text-color:                  inherit;
 @statusbar-font:                        inherit;
 @statusbar-font-size:                   inherit;
+@statusbar-border-width:                1px 0 0 0;
+@statusbar-border-style:                solid;
+@statusbar-border-color:                ThreeDShadow;
 @statusbar-panel-border-image:          none;
 
 @menubar-group-first-border-width:      0 1px 0 0;
@@ -56,11 +59,12 @@
 @tree-item-highlight-background:        highlight;
 
 /* Tabs */
-@tab-box-shadow:                        none;
+@tab-box-box-shadow:                    none;
 @tab-box-border:                        1px solid rgba(0,0,0,0.3);
 @tab-box-background-color:              Window;
 @tab-box-background-image:              inherit;
 @tab-box-background-image-vertical:     inherit;
+@tab-box-background-image-icons:        inherit;
 
 @tab-font:                              inherit;
 @tab-font-size:                         inherit;
@@ -82,7 +86,7 @@
 @tab-selected-box-shadow:               inset 0px -2px 5px rgba(0,0,0,0.15), 0px 0px 5px rgba(0, 0, 0, 0.35);
 @tab-selected-color:                    inherit;
 @tab-selected-background-vertical:      @tab-background-vertical;
-@tab-selected-box-shadow-vertical:      inset -2px 0px 5px rgba(0,0,0,0.15), 0px 0px 5px rgba(0, 0, 0, 0.35);
+@tab-selected-box-shadow-vertical:      none;
 
 @tab-hover-border:                      @tab-border;
 @tab-hover-background:                  inherit;
