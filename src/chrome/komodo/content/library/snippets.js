@@ -104,5 +104,46 @@ if (typeof(ko.snippets)=='undefined') {
         pieces.reverse();
         return pieces.join("/");
     };
+    
+    this.consumeLeadingNumericFactor = function(delimiter) {
+        if (typeof(delimiter) == "undefined") delimiter = ":";
+        try {
+            var currentView = ko.views.manager.currentView;
+            var scimoz = currentView.scimoz;
+            var numReps = 0;
+            var anchor = scimoz.anchor;
+            var currentPos = scimoz.currentPos;
+            if (anchor < currentPos) {
+                [currentPos, anchor] = [anchor, currentPos];
+            }
+            currentPos = scimoz.positionBefore(currentPos);
+            var p = scimoz.getWCharAt(currentPos);
+            var prevPos;
+            if (p === delimiter) {
+                var numStartPos, numEndPos;
+                numStartPos = numEndPos = currentPos;
+                while (numStartPos > 0) {
+                    prevPos = scimoz.positionBefore(numStartPos);
+                    if (prevPos < 0) break;
+                    if (!/\d/.test(scimoz.getWCharAt(prevPos))) break;
+                    numStartPos = prevPos;
+                    //dump("numStartPos now: " + numStartPos + "\n");
+                }
+                if (numStartPos < numEndPos) {
+                    numReps = parseInt(scimoz.getTextRange(numStartPos, numEndPos));
+                    var targetStart = scimoz.targetStart, targetEnd = scimoz.targetEnd;
+                    scimoz.targetStart = numStartPos;
+                    scimoz.targetEnd = scimoz.positionAfter(currentPos);
+                    scimoz.replaceTarget(0, "");
+                    scimoz.targetStart = targetStart;
+                    scimoz.targetEnd = targetEnd;
+                }
+            }
+        } catch(e) {
+            dump("ko.snippets.consumeLeadingNumericFactor exception: " + e + "\n");
+            throw e;
+        }
+        return numReps;
+    };
 
 }).apply(ko.snippets);
