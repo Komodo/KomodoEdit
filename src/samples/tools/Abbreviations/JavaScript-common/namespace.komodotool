@@ -1,6 +1,5 @@
 {
   "keyboard_shortcut": "", 
-  "set_selection": "false", 
   "name": "namespace", 
   "value": [
     "/**", 
@@ -15,6 +14,9 @@
     "\t[[%tabstop:]]", 
     "}).apply([[%tabstop1]]);!@#_currentPos!@#_anchor"
   ], 
+  "set_selection": "false", 
+  "version": "1.0.11", 
   "type": "snippet", 
-  "indent_relative": "true"
+  "indent_relative": "true", 
+  "auto_abbreviation": "false"
 }

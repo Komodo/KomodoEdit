@@ -1,0 +1,16 @@
+{
+  "keyboard_shortcut": "", 
+  "name": "while", 
+  "value": [
+    "while ([[%tabstop:test]]) {", 
+    "\t[[%tabstop://code]]", 
+    "}[[%tabstop: ]]", 
+    "!@#_currentPos!@#_anchor"
+  ], 
+  "set_selection": "false", 
+  "version": "1.0.11", 
+  "icon": "chrome://komodo/skin/images/snippet.png", 
+  "type": "snippet", 
+  "indent_relative": "true", 
+  "auto_abbreviation": "true"
+}

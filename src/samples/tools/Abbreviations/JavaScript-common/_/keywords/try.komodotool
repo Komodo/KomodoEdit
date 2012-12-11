@@ -1,8 +1,12 @@
 {
   "keyboard_shortcut": "", 
-  "name": "com", 
+  "name": "try", 
   "value": [
-    "/* [[%tabstop:comment]] [[%soft:*/]][[%tabstop:]]!@#_currentPos!@#_anchor"
+    "try {", 
+    "\t[[%tabstop:]]   ", 
+    "} catch(e) {", 
+    "\t[[%tabstop:alert(e);]]", 
+    "}[[%tabstop:]]!@#_currentPos!@#_anchor"
   ], 
   "set_selection": "false", 
   "version": "1.0.11", 

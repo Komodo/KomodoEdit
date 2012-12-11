@@ -1,8 +1,10 @@
 {
   "keyboard_shortcut": "", 
-  "name": "com", 
+  "name": "jqstart", 
   "value": [
-    "/* [[%tabstop:comment]] [[%soft:*/]][[%tabstop:]]!@#_currentPos!@#_anchor"
+    "$(document).ready(function() {", 
+    "\t[[%tabstop: ]]", 
+    "});[[%tabstop:]]!@#_currentPos!@#_anchor"
   ], 
   "set_selection": "false", 
   "version": "1.0.11", 

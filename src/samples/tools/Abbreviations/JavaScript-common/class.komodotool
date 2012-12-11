@@ -1,16 +1,22 @@
 {
   "keyboard_shortcut": "", 
-  "set_selection": "false", 
   "name": "class", 
   "value": [
-    "/**", 
+    "[[%tabstop:/*", 
     " * [[%tabstop1:className]]", 
-    " */", 
-    "", 
-    "var [[%tabstop1]] = function() {", 
+    " * @param [[%tabstop2:firstArgName]]", 
+    " */]]", 
+    "function [[%tabstop1]]([[%tabstop2]][[%soft:) {]][[%tabstop:", 
+    "\t/*", 
+    "\t * [[%tabstop:docstring]]", 
+    "\t */]]", 
     "\t[[%tabstop:]]", 
-    "};!@#_currentPos!@#_anchor"
+    "}[[%tabstop:]]", 
+    "!@#_currentPos!@#_anchor"
   ], 
+  "set_selection": "false", 
+  "version": "1.0.11", 
   "type": "snippet", 
-  "indent_relative": "true"
+  "indent_relative": "true", 
+  "auto_abbreviation": "true"
 }
