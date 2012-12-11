@@ -79,6 +79,13 @@ class KoAppInfoEx:
 
         self._userPath = koprocessutils.getUserEnv()["PATH"].split(os.pathsep)
 
+        # Listen for changes to the user environment.
+        obsSvc = components.classes["@mozilla.org/observer-service;1"]. \
+                        getService(components.interfaces.nsIObserverService)
+        # TODO: This will cause a leak - as we don't remove the observer, but
+        #       since these are mostly services, it's not a big problem.
+        obsSvc.addObserver(self, "user_environment_changed", False)
+
         try:
             self._prefSvc.prefs.prefObserverService.addObserver(self, self.defaultInterpreterPrefName, 0)
         except Exception, e:
@@ -87,6 +94,10 @@ class KoAppInfoEx:
 
     def observe(self, subject, topic, data):
         if topic == self.defaultInterpreterPrefName:
+            self.reset()
+        elif topic == "user_environment_changed":
+            # Re-create the user path and drop any caches.
+            self._userPath = koprocessutils.getUserEnv()["PATH"].split(os.pathsep)
             self.reset()
 
     def reset(self):
