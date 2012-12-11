@@ -334,10 +334,21 @@ class KoUserEnviron:
                 else:
                     del self._userEnviron[item]
 
-    def addProjectEnvironment(self, project):
-        self._updateWithUserOverrides(project)
+    _last_project_env_override = ""
 
-    def _updateWithUserOverrides(self, project=None):
+    def addProjectEnvironment(self, project):
+        project_overrides = ""
+        if project:
+            project_overrides = project.prefset.getString("userEnvironmentStartupOverride", "")
+
+        if project_overrides == self._last_project_env_override:
+            # Nothing changed, so nothing to do.
+            return
+
+        self._last_project_env_override = project_overrides
+        self._updateWithUserOverrides(project_overrides)
+
+    def _updateWithUserOverrides(self, project_overrides=None):
         self._userEnviron = self._origStartupEnv.copy()
         
         # now overwrite with the userEnvironment preference
@@ -347,11 +358,9 @@ class KoUserEnviron:
             "@activestate.com/koEnvironUtils;1"] \
             .getService(components.interfaces.koIEnvironUtils)
         havePATHOverride = False
-        prefArray = [prefs]
-        if project:
-            prefArray.append(project.prefset)
-        for prefs in prefArray:
-            overrides = prefs.getString("userEnvironmentStartupOverride", "")
+        all_overrides = [prefs.getString("userEnvironmentStartupOverride", ""),
+                         project_overrides]
+        for overrides in all_overrides:
             if overrides:
                 env = re.split('\r?\n|\r', overrides, re.U)
                 if not env: env = []
