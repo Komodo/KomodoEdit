@@ -539,7 +539,7 @@ statusbar
      */
     tab 
     {
-        -moz-appearance: none;
+        -moz-appearance: @tab-moz-appearance;
         background: @tab-background;
         border-radius: 0 !important;
         box-shadow: @tab-box-shadow;
@@ -627,6 +627,8 @@ ko-pane[type="vertical"] .pane-tabs-container tabs
     
     tab
     {
+        -moz-appearance: @tab-moz-appearance-vertical;
+        
         width: 2em;
         min-width: auto !important;
         border: 0;
@@ -695,6 +697,8 @@ ko-pane[type="icons"] .pane-tabs-container tabs .tabstrip-box
 
 ko-pane[type="icons"] tab
 {
+    -moz-appearance: @tab-moz-appearance-icons;
+    
     background: none !important;
     border: 0 !important;
     box-shadow: none !important;
@@ -702,7 +706,8 @@ ko-pane[type="icons"] tab
     
     &:not([selected]):not([icon-inactive])
     {
-        opacity: 0.6;
+        opacity: @tab-icons-unselected-opacity;
+        filter: @tab-icons-unselected-filter;
     }
     
     .tab-icon

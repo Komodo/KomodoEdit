@@ -102,27 +102,19 @@ toolbar #historyRecentLocations {
 }
 
 /* Tab Tweaks */
-ko-pane[type="vertical"] tabs[anonid="tabs"] {
-  
-  tab {
-    -moz-appearance: textfield;
-  }
-  
-  ko-vertical-text .label {
-    margin-left: 3px;
-  }
-}
-
 .native tabs {
   padding-top: 3px;
   height: auto;
   
-  tab {
-    -moz-appearance: tab;
-    
-    &:first-child {
-      margin-left: 3px;
-    }
+  tab:first-child {
+    margin-left: 3px;
+  }
+}
+
+ko-pane[type="vertical"] tabs[anonid="tabs"] {
+  
+  ko-vertical-text .label {
+    margin-left: 3px;
   }
 }
 
@@ -131,7 +123,6 @@ ko-pane[type="icons"] .tabstrip-box {
 }
 
 ko-pane[type="icons"] tab {
-  -moz-appearance: none;
   margin-right: 4px;
   
   &:last-child {
