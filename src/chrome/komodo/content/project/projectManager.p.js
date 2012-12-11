@@ -100,6 +100,9 @@ function projectManager() {
     window.addEventListener("view_document_detaching",
                             this.handle_view_document_detaching,
                             false);
+
+    // things to call upon setting this.viewMgr
+    this._callbacksPendingViewMgr = [];
 }
 
 // The following two lines ensure proper inheritance (see Flanagan, p. 144).
@@ -160,6 +163,15 @@ projectManager.prototype.switchProjectView = function(single_project_view) {
 
 projectManager.prototype.setViewMgr = function(projectViewMgr) {
     this.viewMgr = projectViewMgr;
+    if (this.viewMgr) {
+        while (this._callbacksPendingViewMgr.length > 0) {
+            try {
+                this._callbacksPendingViewMgr.shift()();
+            } catch (ex) {
+                this.log.exception(ex);
+            }
+        }
+    }
 }
 
 projectManager.prototype.hasProject = function(project) {
@@ -821,15 +833,14 @@ projectManager.prototype.loadProject = function(url) {
     this._addProject(project, false);
 }
 
-projectManager.prototype._addProject = function(project, inTimeout/*=false*/) {
-    if (typeof(inTimeout) == "undefined") inTimeout = false;
-    if (!inTimeout && !this.viewMgr) {
-        setTimeout(function(this_) {
-                this_._addProject(project, true);
-            }, 100, this);
+projectManager.prototype._addProject = function(project, delayed/*=false*/) {
+    if (typeof(delayed) == "undefined") delayed = false;
+    if (!delayed && !this.viewMgr) {
+        // Wait for things to load...
+        this._callbacksPendingViewMgr.push(this._addProject.bind(this, project, true));
         return;
-    } else if (inTimeout && !this.viewMgr) {
-        this.log.warn("_addProject: called inTimeout, this.viewMgr still null");
+    } else if (delayed && !this.viewMgr) {
+        this.log.warn("_addProject: call delayed, this.viewMgr still null");
     }
     if (!this.single_project_view) {
         this._projects.push(project);
