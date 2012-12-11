@@ -58,18 +58,28 @@ var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
 // snippet tab-triggers, then 'wordLeftExtend' isn't
 // sufficient. There is the (rare) TextMate tabTrigger that
 // mixes word and non-word chars.
-this.getWordStart = function(scimoz, lastCharPos) {
+this._isWordChar_re = /[\w\d\-_=\+\.]/;
+this.getWordStart = function(scimoz, lastCharPos, isHTMLLanguage) {
     var prevStyle = scimoz.getStyleAt(lastCharPos);
     var prevPos, firstPos = lastCharPos;
+    // Match characters, not styles, if we're in default html
+    var htmlCheck = (isHTMLLanguage && prevStyle == scimoz.SCE_UDL_M_DEFAULT);
+    var prevChar;
     while (firstPos >= 1) {
         prevPos = scimoz.positionBefore(firstPos);
         if (prevStyle !== scimoz.getStyleAt(prevPos)) {
             break;
         }
+        if (htmlCheck) {
+            prevChar = scimoz.getWCharAt(prevPos);
+            if (!this._isWordChar_re.test(prevChar)) {
+                break;
+            }
+        }
         firstPos = prevPos;
     }
     return firstPos;
-}
+};
 
 /**
  * Expands the abbreviation, if any, at the current cursor position.
@@ -104,9 +114,15 @@ this.expandAbbrev = function expandAbbrev(abbrev /* =null */,
             pos = scimoz.currentPos;
         }
         var prevPos = pos == 0 ? 0 : scimoz.positionBefore(pos);
+        var isHTMLLanguage = currView.koDoc.languageObj.isHTMLLanguage;
         if (pos < scimoz.textLength
             && pos > 0
-            && scimoz.getStyleAt(prevPos) == scimoz.getStyleAt(pos)) {
+            && (scimoz.getStyleAt(prevPos) == scimoz.getStyleAt(pos)
+                && (!isHTMLLanguage
+                    || scimoz.getStyleAt(pos) != scimoz.SCE_UDL_M_DEFAULT
+                    || this._isWordChar_re.test(scimoz.getWCharAt(pos))))) {
+            // Don't expand if the cursor is not at the right of a possible
+            // abbreviation.
             return false;
         }
         if (scimoz.anchor == scimoz.currentPos) {
@@ -120,7 +136,7 @@ this.expandAbbrev = function expandAbbrev(abbrev /* =null */,
             }
             origPos = pos;
             origAnchor = scimoz.anchor;
-            var wordStartPos = this.getWordStart(scimoz, prevPos);
+            var wordStartPos = this.getWordStart(scimoz, prevPos, isHTMLLanguage);
             scimoz.currentPos = wordStartPos;
             scimoz.anchor = pos;
         }
@@ -184,12 +200,13 @@ this.expandAutoAbbreviation = function(currView) {
     }
     var prevPos = currentPos == 0 ? 0 : scimoz.positionBefore(currentPos);
     var prevStyle = scimoz.getStyleAt(prevPos);
-    var allowedStyles = this._allowedStylesForLanguage(koDoc.languageObj);
+    var languageObj = koDoc.languageObj;
+    var allowedStyles = this._allowedStylesForLanguage(languageObj);
     if (allowedStyles.indexOf(prevStyle) == -1) {
         return false;
     }
     var origPos = currentPos;
-    var wordStartPos = this.getWordStart(scimoz, prevPos);
+    var wordStartPos = this.getWordStart(scimoz, prevPos, languageObj.isHTMLLanguage);
     scimoz.currentPos = wordStartPos;
     var origAnchor = scimoz.anchor;
     scimoz.anchor = currentPos;
