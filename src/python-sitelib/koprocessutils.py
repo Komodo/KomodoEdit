@@ -88,8 +88,13 @@ def initialize():
 def resetUserEnv():
     """Reset the user environment cache."""
     global _gUserEnvCache
-    _gUserEnvCache = None
+    first_initialization = _gUserEnvCache is None
     initialize()
+    if not first_initialization:
+        # Notify that the user environment has changed.
+        obsSvc = components.classes["@mozilla.org/observer-service;1"]. \
+                        getService(components.interfaces.nsIObserverService)
+        obsSvc.notifyObservers(None, "user_environment_changed", "")
 
 def getUserEnv():
     """Return an environment dictionary representing the user's
