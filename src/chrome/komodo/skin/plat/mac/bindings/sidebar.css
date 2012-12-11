@@ -9,35 +9,3 @@ scintilla {
   border-right: 1px solid rgba(0,0,0,0.10);
   border-bottom: 1px solid rgba(0,0,0,0.10);
 }
-
-:root:not(#komodo_main),
-:root:not(#komodo_main) .toolbar-background{
-  -moz-appearance: none;
-  background-color: transparent;
-}
-
-ko-pane
-{
-  background-color: #D3D8E1;
-}
-
-ko-pane:-moz-window-inactive {
-  background-color: #ebebeb;
-}
-
-ko-pane .tabs-vertical-label .tab-text,
-ko-pane[type="sidebar"] .tab-text {
-  /* Same style as for `sidebar-title` in Mozilla's 
-     "pinstripe/browser/browser.css". */
-  font: menu;
-  font-weight: bold;
-  color: #535f6d;
-}
-
-tree {
-  background: transparent !important;
-}
-
-#dbExplorerPane > vbox > hbox > toolbarseparator {
-  display: none !important;
-}

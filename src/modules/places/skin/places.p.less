@@ -190,24 +190,10 @@ undo-button {
 #placesViewbox_placesWrapper tree,
 #placesViewbox_placesWrapper tree treechildren,
 #placesViewbox_placesWrapper tree treechildren::-moz-tree-row {
-	background-color: transparent;
-}
-
-#placesViewbox_placesWrapper tree {
-    &:-moz-window-inactive 
-    {
-        &, treechildren, treechildren::-moz-tree-row {
-            background-color: transparent;
-        }
-    }
+	background: transparent;
 }
 
 #placesViewbox_placesWrapper tree treechildren::-moz-tree-row(selected, focus)
 {
-    background: @tree-item-highlight-background !important;
-}
-
-#placesSubpanelSplitter
-{
-	border-top-color: @sidebar-splitter-color;
+    background: highlight !important;
 }

@@ -231,15 +231,72 @@ splitter
 }
 
 #breakpoints-tree, #runoutput-scintilla, #sleuthPane > .sleuth-flex,
-#notificationWidget #message-container, #klint-tree
+#notificationWidget #message-container, #klint-tree,
+#DebuggerPanelContent
 {
     border-top: @main-border;
     box-shadow: @panel-separator-shadow;
+    background-color: -moz-field;
+    color: -moz-fieldtext;
 }
 
-#breakpoints-tree, #klint-tree
+#DebuggerPanelContent #viewer-splitter
 {
-    background-color: @tree-background-color !important;
+    position: relative;
+    z-index: 100;
+    width: 4px;
+    margin-right: -8px;
+    
+    background: transparent;
+    border-left: @main-border;
+    
+    grippy
+    {
+        background-image: none;
+    }
+}
+
+#callstack-listbox
+{
+    -moz-appearance: none;
+}
+
+#placesSubpanelSplitter
+{
+    border-top-color: @sidebar-splitter-color;
+}
+
+#toolbox2-hierarchy-vbox tree,
+#toolbox2-hierarchy-vbox tree treechildren,
+#toolbox2-hierarchy-vbox tree treechildren::-moz-tree-row {
+  background: transparent;
+}
+
+#toolbox2-hierarchy-vbox tree treechildren::-moz-tree-row(selected, focus)
+{
+  background: highlight !important;
+}
+
+.panel-label,
+#collab-sessions-label,
+#collab-friends-label,
+#placesSubpanelSplitterProjectLabel
+{
+    color: @panel-label-color;
+    font-weight: @panel-label-weight;
+    text-transform: @panel-label-transform;
+    text-shadow: @panel-label-shadow;
+    font-family: @panel-label-font;
+}
+
+tabbox.tabs-bottom
+{
+    margin: 0 !important;
+    
+    & > tabpanels
+    {
+        padding: 0 !important;
+    }
 }
 
 /* Statusbar */

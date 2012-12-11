@@ -171,8 +171,7 @@
              see bug 88126. This is unfortunate, as it makes it near
              impossible to overlay with another widget.
           -->
-        <label id="placesSubpanelSplitterProjectLabel"
-               value="&projects.label;" />
+        <label id="placesSubpanelSplitterProjectLabel">&projects.label;</label>
         <!-- Note: We intentionally do not use a child 'menupopup' element
           here because there is some interaction with the containing
           splitter such that you can't invoke the menu entries, at least
