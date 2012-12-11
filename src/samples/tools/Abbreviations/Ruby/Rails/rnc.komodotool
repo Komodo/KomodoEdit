@@ -1,0 +1,12 @@
+{
+  "keyboard_shortcut": "", 
+  "name": "rnc", 
+  "value": [
+    "rename_column [[%tabstop:table]], [[%tabstop:old_column_name]], [[%tabstop:new_column_name]]!@#_currentPos!@#_anchor"
+  ], 
+  "set_selection": "false", 
+  "version": "1.0.11", 
+  "type": "snippet", 
+  "indent_relative": "true", 
+  "auto_abbreviation": "false"
+}

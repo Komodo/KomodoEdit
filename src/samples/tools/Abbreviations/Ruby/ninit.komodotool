@@ -1,0 +1,29 @@
+{
+  "keyboard_shortcut": "", 
+  "name": "ninit", 
+  "value": [
+    "<%", 
+    "var i, numReps = ko.snippets.consumeLeadingNumericFactor(\"*\");", 
+    "%>def initialize(<%", 
+    "if (numReps === 0) {", 
+    "\t// Allow for args", 
+    "\t%>[[%tabstop:, args]]<%", 
+    "} else {", 
+    "\t%>[[%tabstop1:arg1]]<%", 
+    "\tfor (i = 2; i <= numReps; i++) {", 
+    "\t\t%>[[%soft:,]][[%soft: ]][[%tabstop<%= i %>:arg<%= i %>]]<%", 
+    "\t}", 
+    "} %>[[%soft:)]][[%tabstop:", 
+    "\t# [[%tabstop:docstring]]]]", 
+    "<% for (i = 1; i <= numReps; i++) { %>", 
+    "\t@[[%tabstop<%= i %>:arg<%= i %>]] = [[%tabstop<%= i %>:arg<%= i %>]]", 
+    "<% } %>", 
+    "\t[[%tabstop:]]", 
+    "end[[%tabstop:]]!@#_currentPos!@#_anchor"
+  ], 
+  "set_selection": "false", 
+  "version": "1.0.11", 
+  "type": "snippet", 
+  "indent_relative": "true", 
+  "auto_abbreviation": "true"
+}

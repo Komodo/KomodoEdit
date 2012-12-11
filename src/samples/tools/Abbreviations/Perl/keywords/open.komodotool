@@ -1,0 +1,13 @@
+{
+  "keyboard_shortcut": "", 
+  "name": "open", 
+  "value": [
+    "open([[%tabstop:FILEHANDLE]][[%tabstop:, [[%tabstop:MODE|EXPR]]]][[%tabstop:, [[%tabstop:LIST]]]])[[%tabstop: or die [[%tabstop:EXPR]]]][[%soft:;]][[%tabstop]]!@#_currentPos!@#_anchor"
+  ], 
+  "set_selection": "false", 
+  "version": "1.0.11", 
+  "icon": "chrome://komodo/skin/images/snippet.png", 
+  "type": "snippet", 
+  "indent_relative": "true", 
+  "auto_abbreviation": "true"
+}

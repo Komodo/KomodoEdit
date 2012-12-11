@@ -1,0 +1,15 @@
+{
+  "keyboard_shortcut": "", 
+  "name": "script", 
+  "value": [
+    "<script type=\"application/x-javascript\"><![CDATA[", 
+    "[[%tabstop:]]", 
+    "//]]>", 
+    "</script>!@#_currentPos!@#_anchor"
+  ], 
+  "set_selection": "false", 
+  "version": "1.0.11", 
+  "type": "snippet", 
+  "indent_relative": "true", 
+  "auto_abbreviation": "true"
+}

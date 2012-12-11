@@ -1,6 +1,5 @@
 {
   "keyboard_shortcut": "", 
-  "set_selection": "true", 
   "name": "block", 
   "value": [
     "<?php", 
@@ -10,6 +9,9 @@
     "?>", 
     ""
   ], 
+  "set_selection": "true", 
+  "version": "1.0.11", 
   "type": "snippet", 
-  "indent_relative": "false"
+  "indent_relative": "false", 
+  "auto_abbreviation": "false"
 }

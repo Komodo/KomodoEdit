@@ -1,6 +1,5 @@
 {
   "keyboard_shortcut": "", 
-  "set_selection": "false", 
   "name": "class", 
   "value": [
     "/*", 
@@ -8,17 +7,15 @@
     " */", 
     "", 
     "class [[%tabstop1]] [[%tabstop:extends [[%tabstop:class]]]] {", 
-    "\t", 
-    "\t/*", 
-    "\t * __construct()", 
-    "\t * @param $[[%tabstop2:arg]]", 
-    "\t */", 
-    "\t", 
     "\tfunction __construct($[[%tabstop2]]) {", 
     "\t\t[[%tabstop:parent]]", 
     "\t}", 
-    "}!@#_currentPos!@#_anchor"
+    "}[[%tabstop:]]", 
+    "!@#_currentPos!@#_anchor"
   ], 
+  "set_selection": "false", 
+  "version": "1.0.11", 
   "type": "snippet", 
-  "indent_relative": "true"
+  "indent_relative": "true", 
+  "auto_abbreviation": "true"
 }
