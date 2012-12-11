@@ -304,13 +304,16 @@ function Apply() {
                text.slice(anchor);
     }
     
-    var snippetParser = new opener.ko.tabstops.LiveTextParser();
-    try {
-        snippetParser.parse(text); // Ignore the result.
-    } catch(ex) {
-        ko.dialogs.alert(ex.message, ex.snippet);
-        log.exception(ex);
-        return false;
+    if (text.indexOf("<%") == -1) {
+        // No point checking syntax of a dynamic snippet.
+        var snippetParser = new opener.ko.tabstops.LiveTextParser();
+        try {
+            snippetParser.parse(text); // Ignore the result.
+        } catch(ex) {
+            ko.dialogs.alert(ex.message, ex.snippet);
+            log.exception(ex);
+            // Save it anyway, because snippets can be edited in a view now.
+        }
     }
     
     gItem.value = text;
