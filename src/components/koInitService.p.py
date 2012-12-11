@@ -860,10 +860,13 @@ class KoInitService(object):
                     import_exclude_matches = import_exclude_matches + ";__pycache__"
                     prefs.setStringPref("import_exclude_matches",
                                         import_exclude_matches)
-                                
             except:
                 log.exception("Error updating import_exclude_matches")
 
+        if version < 6: # Komodo 8.0.0a2
+            prefs.setStringPref("ui.tabs.sidepanes.left.layout", "icons");
+            prefs.setStringPref("ui.tabs.sidepanes.right.layout", "icons");
+                
         # Set the version so we don't have to upgrade again.
         prefs.setLongPref("version", self._current_pref_version)
 
