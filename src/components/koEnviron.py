@@ -339,7 +339,9 @@ class KoUserEnviron:
     def addProjectEnvironment(self, project):
         project_overrides = ""
         if project:
-            project_overrides = project.prefset.getString("userEnvironmentStartupOverride", "")
+            prefs = project.prefset
+            if prefs and prefs.hasPrefHere("userEnvironmentStartupOverride"):
+                project_overrides = prefs.getString("userEnvironmentStartupOverride", "")
 
         if project_overrides == self._last_project_env_override:
             # Nothing changed, so nothing to do.
