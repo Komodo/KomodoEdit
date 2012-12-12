@@ -65,31 +65,31 @@ splitter
         }
     }
 }
-
+ 
 /* Widgets & Panes */
 
 #workspace_left_area, #workspace_right_area {
-	background: @sidebar-background;
-	
-	&:-moz-window-inactive {
-		background: @sidebar-inactive-background;
-	}
+    background: @sidebar-background;
+    
+    &:-moz-window-inactive {
+        background: @sidebar-inactive-background;
+    }
 }
 
 #workspace_bottom_area {
-	background: @bottom-background;
-	
-	&:-moz-window-inactive {
-		background: @bottom-inactive-background;
-	}
+    background: @bottom-background;
+    
+    &:-moz-window-inactive {
+        background: @bottom-inactive-background;
+    }
 }
 
 #collab-pane, #collab-panel-container {
-	background: @sidebar-background;
-  
-	&:-moz-window-inactive {
-		background: @sidebar-inactive-background;
-	}
+    background: @sidebar-background;
+    
+    &:-moz-window-inactive {
+	background: @sidebar-inactive-background;
+    }
 }
 
 #breakpoints-tabpanel-hbox, #runoutput-button-box
@@ -107,12 +107,19 @@ splitter
     color: -moz-fieldtext;
 }
 
+#debuggerPanel > hbox.toolbar-background
+{
+    padding: 4px;
+}
+
 #DebuggerPanelContent #viewer-splitter
 {
+    -moz-appearance: none;
     position: relative;
     z-index: 100;
     width: 4px;
-    margin-right: -8px;
+    min-width: 4px;
+    margin-right: -4px;
     
     background: transparent;
     border-left: @main-border;

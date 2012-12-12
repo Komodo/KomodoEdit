@@ -433,3 +433,98 @@ ko-pane[type="icons"] tab
     font-size: @tab-bottom-font-size;
     padding: 0 5px;
 }
+ 
+/* Debug Output Tabs */
+
+#DebuggerPanelContent tabbox
+{
+    -moz-appearance: none;
+    
+    tabs
+    {
+        height: 25px;
+        padding: 0px;
+        margin: 0px;
+        -moz-appearance: none;
+        border: none;
+        
+        .tabstrip-box
+        {
+            margin-top: 0;
+            padding-left: 2px;
+            padding-right: 2px;
+            border: none;
+            border-top: @main-border;
+            background: @tab-debug-box-background;
+        }
+    }
+    
+    tab
+    {
+        -moz-appearance: none;
+        -moz-transition: @tab-transition;
+        height: 18px !important;
+        max-height: 18px;
+        max-width: 20em;
+        margin: 2px;
+        padding: 0;
+        
+        background: @tab-debug-background;
+        .border(@tab-debug-border-width,@tab-debug-border-style,@tab-debug-border-color);
+        border-radius: @tab-debug-border-radius;
+        font-weight: @tab-debug-font-weight;
+        color: @tab-debug-color;
+        text-shadow: @tab-debug-text-shadow;
+        box-shadow: @tab-debug-box-shadow;
+        
+        &:hover
+        {
+            background: @tab-debug-hover-background;
+            .border(@tab-debug-hover-border-width,@tab-debug-hover-border-style,@tab-debug-hover-border-color);
+            border-radius: @tab-debug-hover-border-radius;
+            font-weight: @tab-debug-hover-font-weight;
+            color: @tab-debug-hover-color;
+            text-shadow: @tab-debug-hover-text-shadow;
+            box-shadow: @tab-debug-hover-box-shadow;
+        }
+        
+        &[selected="true"]
+        {
+            background: @tab-debug-selected-background;
+            .border(@tab-debug-selected-border-width,@tab-debug-selected-border-style,@tab-debug-selected-border-color);
+            border-radius: @tab-debug-selected-border-radius;
+            font-weight: @tab-debug-selected-font-weight;
+            color: @tab-debug-selected-color;
+            text-shadow: @tab-debug-selected-text-shadow;
+            box-shadow: @tab-debug-selected-box-shadow;
+        }
+        
+        & > hbox
+        {
+            -moz-appearance: none;
+            padding: 0;
+        }
+        
+    }
+    
+    tabpanels
+    {
+        -moz-appearance: none;
+        border: None;
+        padding: 0px;
+        margin: 0px;
+    }
+    
+    tabpanels > tabpanel
+    {
+        padding: 0px;
+        margin: 0px;
+    }
+    
+    view
+    {
+        border: none;
+        margin: 0px;
+        padding: 0px;
+    }
+}

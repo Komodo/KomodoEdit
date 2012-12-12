@@ -141,9 +141,20 @@ tabs[type="sidebar"]
   padding-right: 6px;
 }
 
-tabbox#leftTabBox > tabs {
-    border-right: 1px solid ThreeDShadow;
-}
-tabbox#rightTabBox > tabs {
-    border-left: 1px solid ThreeDShadow;
+#DebuggerPanelContent tabbox
+{
+  tabs
+  {
+    height: auto;
+  }
+  
+  tab
+  {
+    padding: 2px;
+    
+    &:hover
+    {
+      cursor: pointer;
+    }
+  }
 }
