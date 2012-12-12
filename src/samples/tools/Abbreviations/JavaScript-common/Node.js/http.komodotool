@@ -1,0 +1,18 @@
+{
+  "keyboard_shortcut": "", 
+  "name": "http", 
+  "value": [
+    "var [[%tabstop1:http]] = require(\"http\");", 
+    "[[%tabstop1:http]].createServer(function([[%tabstop2:req]], [[%tabstop3:response]]) {", 
+    "\t[[%tabstop3:response]].writeHead(200, {\"Content-Type\": \"text/plain\"});", 
+    "\t[[%tabstop3:response]].end([[%tabstop:\"Hello World\\n\"]]);", 
+    "}).listen([[%tabstop4:1337]], \"[[%tabstop5:127.0.0.1]]\");", 
+    "console.log(\"Server running at http://[[%tabstop5]]:[[%tabstop4]]/\");", 
+    "[[%tabstop0:]]!@#_currentPos!@#_anchor"
+  ], 
+  "set_selection": "false", 
+  "version": "1.0.11", 
+  "type": "snippet", 
+  "indent_relative": "true", 
+  "auto_abbreviation": "true"
+}
