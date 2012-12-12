@@ -120,9 +120,9 @@ def main(features, config={}):
 
     msg = []
     if extra:
-        msg.append("Extra files:\n%s" % ("\n".join("\t%s" % (f,) for f in extra)))
+        msg.append("Extra files:\n%s" % ("\n".join("\t%s" % (f,) for f in sorted(extra))))
     if missing:
-        msg.append("Missing files:\n%s" % ("\n".join("\t%s" % (f,) for f in missing)))
+        msg.append("Missing files:\n%s" % ("\n".join("\t%s" % (f,) for f in sorted(missing))))
     if extra or missing:
         raise Exception("""\
 The Komodo install manifests are out of date; please update the appropriate
