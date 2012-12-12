@@ -164,6 +164,7 @@ my %ppData = (
     'PP_KO_UPDATE_MANUAL_URL' => "$komodoUpdateManualURL",
     'PP_KO_APP_UPDATE_ENABLED' => "$komodoAppUpdateEnabled",
     'PP_KO_BUILD_NUMBER' => "$buildNum",
+    'PP_KO_IS_DEV_BUILD' => ($buildFlavour eq "dev") ? 1 : 0,
     'PP_XULRUNNER_BUILD_ID' => "$xulrunnerBuildId",
     'PP_KO_UPDATE_CHANNEL' => "$updateChannel",
     'PP_KO_PLATNAME' => "$buildPlatform",

@@ -130,7 +130,34 @@ static void SetAppUserModel()
   funcAppUserModelID = (SetCurrentProcessExplicitAppUserModelIDPtr)
                        GetProcAddress(hDLL, "SetCurrentProcessExplicitAppUserModelID");
   if (funcAppUserModelID) {
-      funcAppUserModelID(L"Komodo-PP_KO_PROD_TYPE-PP_KO_MAJOR");
+      #if PP_KO_IS_DEV_BUILD
+        const wchar_t *appModelId = L"Komodo-PP_KO_PROD_TYPE-PP_KO_SHORT_VERSION";
+      #else
+        const wchar_t *appModelId = L"Komodo-PP_KO_PROD_TYPE-PP_KO_MAJOR";
+      #endif /* PP_KO_IS_DEV_BUILD */
+      wchar_t buf[MAXPATHLEN];
+      DWORD result = GetEnvironmentVariableW(L"KOMODO_USERDATADIR",
+                                             buf, sizeof(buf)/sizeof(buf[0]));
+      if (result) {
+        // We have a custom user data dir; use that as part of the id.
+        // Win32 doesn't have any good APIs to get a case-normalized path (which
+        // we need to work across processes); so just open the directory and
+        // use its file index (equivalent to an inode number) instead.
+        HANDLE hDir = CreateFileW(buf, FILE_READ_ATTRIBUTES,
+                                  FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+                                  NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
+        if (hDir != INVALID_HANDLE_VALUE) {
+          BY_HANDLE_FILE_INFORMATION info;
+          if (GetFileInformationByHandle(hDir, &info)) {
+            _snwprintf_s(buf, sizeof(buf)/sizeof(buf[0]), _TRUNCATE,
+                         L"%s-%08x.%08x.%08x", appModelId, info.dwVolumeSerialNumber,
+                         info.nFileIndexHigh, info.nFileIndexLow);
+            appModelId = buf;
+          }
+          CloseHandle(hDir);
+        }
+      }
+      funcAppUserModelID(appModelId);
   }
   FreeLibrary(hDLL);
 }
