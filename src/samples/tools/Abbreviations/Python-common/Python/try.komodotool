@@ -8,6 +8,8 @@
     "\t[[%tabstop:pass]]!@#_currentPos!@#_anchor"
   ], 
   "set_selection": "true", 
+  "version": "1.0.11", 
   "type": "snippet", 
-  "indent_relative": "true"
+  "indent_relative": "true", 
+  "auto_abbreviation": "true"
 }

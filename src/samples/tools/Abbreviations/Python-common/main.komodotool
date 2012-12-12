@@ -1,11 +1,13 @@
 {
   "keyboard_shortcut": "", 
-  "set_selection": "true", 
   "name": "main", 
   "value": [
     "if __name__ == '__main__':", 
     "\t!@#_anchorpass!@#_currentPos"
   ], 
+  "set_selection": "true", 
+  "version": "1.0.11", 
   "type": "snippet", 
-  "indent_relative": "true"
+  "indent_relative": "true", 
+  "auto_abbreviation": "false"
 }
