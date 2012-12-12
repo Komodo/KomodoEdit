@@ -2448,6 +2448,11 @@ def BuildQuickBuildDB(cfg, argv):
                targetSubdir=os.path.join(cfg.mozBin, 'chrome', 'komodo', 'skin'),
                extensions=['css', 'less', 'png'],
                preserveSubtrees=1)
+    
+    _addFiles(cfg, sourceSubdir='src/chrome/komodo/skin/plat/shared',
+               targetSubdir=os.path.join(cfg.mozBin, 'chrome', 'komodo', 'skin', 'plat', 'shared'),
+               extensions=['css', 'less', 'png'],
+               preserveSubtrees=1)
      
     _addFiles(cfg, sourceSubdir='src/images/icons/plat/'+skinPlat,
                targetSubdir=os.path.join(cfg.mozBin, 'chrome', 'komodo', 'skin', 'images'),

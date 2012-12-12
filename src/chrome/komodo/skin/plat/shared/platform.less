@@ -781,3 +781,22 @@ ko-pane[type="icons"] tab
     font-size: @tab-bottom-font-size;
     padding: 0 5px;
 }
+
+/* Sub Tabs (bottom of Debug Output pane) */
+
+#DebuggerPanelContent .leftTabBox,
+#DebuggerPanelContent .rightTabBox
+{
+    -moz-appearance: none;
+    
+    tabs
+    {
+        border: 0;
+        border-top: @main-border; 
+        
+        .tabstrip-box
+        {
+            margin-top: 0;
+        }
+    }
+}
