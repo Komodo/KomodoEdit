@@ -1,5 +1,19 @@
 @import url("chrome://komodo/skin/plat/shared/platform.less");
 
+:root:not(#komodo_main),
+:root:not(#komodo_main) .toolbar-background{
+  -moz-appearance: none;
+  background-color: transparent;
+}
+
+tree {
+  background: transparent !important;
+}
+ 
+#dbExplorerPane > vbox > hbox > toolbarseparator {
+  display: none !important;
+}
+
 /**
  * The Mac menu's are mis-aligned when mixing menuitems that contain an images
  * with ones that do not. We try to fix this by giving the non-image menuitems
