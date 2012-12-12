@@ -229,11 +229,12 @@ class Database(object):
                 result_ver, upgrader, upgrader_arg \
                     = self._upgrade_info_from_curr_ver[curr_ver]
             except KeyError:
-                raise Toolbox2Error(
-                    "cannot upgrade from db v%s: no upgrader for this version"
-                    % curr_ver)
-            log.info("upgrading from db v%s to db v%s ...",
-                     curr_ver, result_ver)
+                log.info("cannot upgrade from v%s - no upgrader for this version",
+                         curr_ver)
+                break
+            else:
+                log.info("upgrading from db v%s to db v%s ...",
+                         curr_ver, result_ver)
             if upgrader_arg is not None:
                 upgrader(self, curr_ver, result_ver, upgrader_arg)
             else:
@@ -1669,11 +1670,12 @@ class ToolboxLoader(object):
                 result_ver, upgrader \
                     = self._upgrade_item_info_from_curr_ver[curr_ver]
             except KeyError:
-                raise Toolbox2Error(
-                    "cannot upgrade from tool v%s: no upgrader for this version"
-                    % curr_ver)
-            log.info("upgrading from tool v%s to tool v%s ...",
-                     curr_ver, result_ver)
+                log.info("cannot upgrade tool from v%s - no upgrader for this version",
+                         curr_ver)
+                break
+            else:
+                log.info("upgrading from tool v%s to tool v%s ...",
+                         curr_ver, result_ver)
             upgrader(self, curr_ver, result_ver, json_data, path)
             curr_ver = result_ver
     
