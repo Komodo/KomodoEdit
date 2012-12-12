@@ -122,7 +122,7 @@ toolbarbutton > .toolbarbutton-text:empty:not([value]) {
 }
 toolbarbutton[disabled="true"] > image,
 toolbarbutton[disabled="true"] > dropmarker {
-  opacity: 0.25;
+  opacity: 0.7;
 }
 
 .copy-button, /* deprecated since Komodo 7 */

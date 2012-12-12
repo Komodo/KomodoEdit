@@ -129,3 +129,21 @@ ko-pane[type="icons"] tab {
     margin-right: 0;
   }
 }
+
+tabs[type="sidebar"]
+{
+  -moz-binding: url('chrome://komodo/content/bindings/scrolltabs.xml#tabs-droplist');
+}
+
+/* Ensure the buttons are vertically aligned. */
+.sidebar-buttons {
+  -moz-box-align: center;
+  padding-right: 6px;
+}
+
+tabbox#leftTabBox > tabs {
+    border-right: 1px solid ThreeDShadow;
+}
+tabbox#rightTabBox > tabs {
+    border-left: 1px solid ThreeDShadow;
+}

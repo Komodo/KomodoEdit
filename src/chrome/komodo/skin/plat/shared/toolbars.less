@@ -1,0 +1,140 @@
+/* Variables & Helpers */
+@import url("chrome://komodo/skin/_config/window.less");
+@import url("chrome://komodo/skin/_helpers/shortcuts.less");
+
+/* Button Group */
+#main-toolboxrow toolbar > toolbaritem
+{
+    
+    .border(@menubar-group-border-width, @menubar-group-border-style, @menubar-group-border-color);
+    height: 24px;
+    
+    toolbarbutton
+    {
+        -moz-appearance: none;
+    }
+
+    /* Button */
+    > toolbarbutton
+    {
+        min-width: 24px;
+        height: 24px;
+        padding: 0 0 0 6px !important;
+        margin: 0;
+        
+        .border(@menubar-button-border-width, @menubar-button-border-style, @menubar-button-border-color);
+        box-shadow: @menubar-button-shadow;
+        
+        border-radius: @menubar-button-border-radius;
+        background-color: @menubar-button-background-color;
+        background-image: @menubar-button-background-image;
+        background-position: @menubar-button-background-position;
+        background-repeat: @menubar-button-background-repeat;
+        
+        -moz-transition: all 0.20s linear;
+        
+        /* Button Icon */
+        image
+        {
+            filter: @menubar-button-icon-filter;
+            padding-right: 5px;
+        }
+        
+        /* First button in group */
+        &.first-child
+        {
+            background-position: 100px, center center;
+            border-width: @menubar-button-first-border-width;
+            border-top-left-radius: 3px;
+            border-bottom-left-radius: 3px;
+        }
+        
+        /* Last button in group */
+        &.last-child
+        {
+            padding-right: 5px !important;
+            border-width: @menubar-button-last-border-width;
+            border-top-right-radius: 3px;
+            border-bottom-right-radius: 3px;
+            
+            image
+            {
+                padding-right: 0;
+                border-right: 0;
+            }   
+        }
+        
+        &.first-child.last-child
+        {
+            border-width: @menubar-button-single-border-width;
+        }
+        
+        /* Hovered Icon */
+        &:hover
+        {
+            box-shadow: @menubar-button-shadow-hover;
+            background-color: @menubar-button-background-color-hover;
+            background-image: @menubar-button-background-image-hover;
+        }
+        
+        /* Checked / Active Button */
+        &[checked], &[open="true"], &:active
+        {
+            box-shadow: @menubar-button-shadow-active;
+            background-color: @menubar-button-background-color-active;
+            background-image: @menubar-button-background-image-active;
+        }
+        
+        /* Inactive button */
+        &:-moz-window-inactive
+        {
+            border-color: @menubar-button-border-color-inactive;
+        }
+        
+        /*
+         * The recent locations button is a bit special and needs to be merged
+         * into it's previous sibling
+        */
+        &#historyRecentLocations
+        {
+            background-position: 100px, center center;
+            list-style-image : url("chrome://komodo/skin/images/firefox-Toolbar.png");
+            -moz-image-region: rect(0px, 664px, 23px, 649px);
+            padding-left: 0;
+            min-width: 0;
+            margin-left: -8px;
+           
+            /* If it has no sibling, revert the "merge" */
+            &.first-child {
+                padding-left: 6px;
+                min-width: 24px;
+                margin-left: 0;
+            }
+            
+            [disabled="true"]
+            {
+                -moz-image-region: rect(23px, 664px, 46px, 649px);
+            }   
+        }
+    }
+}
+
+#main-toolboxrow toolbar
+{
+
+    &:not([kohidden="true"]).first-child toolbaritem.has-children:first-child
+    {
+        border-width: @menubar-group-first-border-width;
+    }
+    
+    &:not([kohidden="true"]).last-child toolbaritem.has-children:last-child
+    {
+        border-width: @menubar-group-last-border-width;
+    }
+}
+
+#main-toolboxrow > hbox
+{
+    border-bottom: @menubar-border-bottom;
+    padding-bottom: 3px;
+}
