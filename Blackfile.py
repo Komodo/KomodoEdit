@@ -1156,6 +1156,7 @@ def ImageKomodo(cfg, argv):
 
         # Trim some files.
         ("rtrim", ".consign"),
+        ("rtrim", ".mkdir.done"),
         ("rtrim", "*.pyc"),
         ("rtrim", "*.pyo"),
         ("rm",    iimozbinpath("*.txt")),
