@@ -3971,6 +3971,11 @@ var getFile = function(fileUri) {
 }
 
 var getCache = function(fileUri) {
+	const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
+	const { Services } = Cu.import("resource://gre/modules/Services.jsm", {});
+	const { FileUtils } = Cu.import("resource://gre/modules/FileUtils.jsm", {});
+	const isWindows = (Services.appinfo.OS == "WINNT");
+
 	var _fileUri = "cache_" + fileUri;
 	
 	if (typeof _fileCache[_fileUri] !== 'undefined')  {
@@ -3978,23 +3983,22 @@ var getCache = function(fileUri) {
 	}
 	
 	log('Obtaining cache for file uri: ' + fileUri);
-	
+
 	var filePath = getFile(fileUri).path;
 	
 	if ( ! filePath) {
+		log('Failed to get cache for file uri: ' + fileUri);
 		return false;
 	}
-	
-	var DirService = Components.classes["@mozilla.org/file/directory_service;1"]
-					.getService(Components.interfaces.nsIProperties);
-	var FileUtils = Components.utils
-					.import("resource://gre/modules/FileUtils.jsm").FileUtils;
-					
-	var ProfD = DirService.get("ProfD", Components.interfaces.nsIFile).path;
-	var AppD  = DirService.get("AChrom", Components.interfaces.nsIFile).path.replace(/\/chrome$/,'');
+
+	var ProfD = Services.dirsvc.get("ProfD", Ci.nsIFile).path;
+	var AppD  = Services.io.newURI("resource://app/", null, null)
+	                    .QueryInterface(Ci.nsIFileURL).file.path;
 		
 	filePath = filePath.replace(ProfD, '').replace(AppD, '');
-	filePath = filePath.replace(/\\/g, '/'); // convert backslash to forward slash (windows)
+	if (isWindows) {
+		filePath = filePath.replace(/\\/g, '/'); // convert backslash to forward slash
+	}
 	filePath = filePath.replace(/^\//g, ''); // strip starting forward slash
 	
 	var basename 	= function(str) { return str.replace(/\\/g,'/').replace( /.*\//, ''); };
@@ -4029,6 +4033,8 @@ var getFileFromSheetId = function(sheetId, cache) {
 
 var _youngestChild = {};
 var getYoungestChild = function(href) {
+	log('Finding youngest child for: ' + href);
+	
 	var parentFile = getFile(href);
 	var sheetId = extractId(href);
 	
@@ -4050,6 +4056,7 @@ var getYoungestChild = function(href) {
 	if (youngest.id != sheetId) {
 		return getYoungestChild(getSheet(youngest.id).href);
 	} else {
+		log('Found youngest child: ' + youngest.file.path);
 		_youngestChild[sheetId] = youngest;
 		return youngest;
 	}
@@ -4447,6 +4454,9 @@ function removeNode(node) {
 }
 
 function log(str) {
+	// Keep the log from being spammed.
+	// If you are debugging less in a child window you may want to disable this.
+	if (less.context != window) return;
 	if (typeof ko !== 'undefined') {
 		ko.logging.getLogger('lessCss').debug(str);
 	} else {
