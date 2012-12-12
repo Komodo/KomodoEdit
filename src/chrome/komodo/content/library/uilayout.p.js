@@ -118,6 +118,8 @@ this.toggleToolbarVisibility = function uilayout_toggleToolbarVisibility(toolbar
 		toolboxrow.removeAttribute('kohidden');
 	}
 	document.persist("main-toolboxrow", "kohidden");
+    
+    this._updateToolbarViewStates();
 }
 
 // 'toolbarId' is the id of the toolbar that should be affected
