@@ -469,7 +469,11 @@ sub buildtarget {
 		# but there's no File::Spec method for hidden files,
 		# so leave it alone until we know what cross-OS
 		# conventions make sense.
-		next if $entry =~ /^\./; # ignore hidden files
+		# KOMODO: We don't want to ignore all .* files.
+		#next if $entry =~ /^\./; # ignore hidden files
+		next if $entry =~ /^\.+$/; # ignore "." and ".." directories
+		next if $entry =~ /^\.consign$/; # ignore ".consign" files
+		# KOMODO: end
 		my($tgt) = $members->{$entry};
 		next if ref($tgt) eq "file" && !exists($tgt->{builder});
 		my($stat) = buildtarget($members->{$entry});
