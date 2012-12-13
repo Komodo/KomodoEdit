@@ -109,7 +109,7 @@ viewMgrClass.prototype = {
                         .view = this.view;
         this.view.initialize();
         var placePrefs = _globalPrefs.getPref("places");
-        var sortDir = placePrefs.getString("sortDirection", "natural");
+        var sortDir = placePrefs.getString("sortDirection", "") || "natural";
         this.single_project_view = !ko.projects.manager.initProjectViewPref(_globalPrefs);
         
         if (!widgets.placeView_treeViewDeck) {
