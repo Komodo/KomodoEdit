@@ -16,7 +16,7 @@
 <?xml-stylesheet href="chrome://komodo/skin/platform.less" type="stylesheet/less" media="less"?>
 
 <window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        orient="vertical">
+        orient="vertical" id="floating-pane">
     <script>
         try {
             window.arguments[0](window);
@@ -72,8 +72,8 @@
                            .QueryInterface(Ci.nsIInterfaceRequestor)
                            .getInterface(Ci.nsIXULWindow);
                     Cc["@activestate.com/koIWindowManagerUtils;1"]
-                      .getService(Ci.koIWindowManagerUtils)
-                      .setOnTop(getXULWin(window), getXULWin(opener), true);
+                      .getService(Ci.koIWindowManagerUtils);
+                      //.setOnTop(getXULWin(window), getXULWin(opener), true);
                 }
             }, false);
         ]]>
