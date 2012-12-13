@@ -4,12 +4,12 @@
   "value": [
     "try:", 
     "\t[[%tabstop:your code here]]", 
-    "except [[%tabstop:exceptions]][[%tabstop:as [[%tabstop:name]]]]:", 
+    "except [[%tabstop:exception_name]]:",
     "\t[[%tabstop:pass]]!@#_currentPos!@#_anchor"
   ], 
   "set_selection": "true", 
   "version": "1.0.11", 
   "type": "snippet", 
   "indent_relative": "true", 
-  "auto_abbreviation": "false"
+  "auto_abbreviation": "true"
 }
