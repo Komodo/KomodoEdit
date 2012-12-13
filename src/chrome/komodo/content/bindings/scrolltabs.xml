@@ -916,10 +916,10 @@
             <constructor>
                 let callback = (function() {
                     if (this.hasAttribute("icon")) {
-                        this.style.setProperty("list-style-image",
-                                               "url(" + this.getAttribute("icon") + ")");
+                        this.image.style.setProperty("list-style-image",
+                                                     "url(" + this.getAttribute("icon") + ")");
                     } else {
-                        this.style.removeProperty("list-style-image");
+                        this.image.style.removeProperty("list-style-image");
                     }
                 }).bind(this);
 
@@ -929,6 +929,9 @@
                 });
                 callback();
             </constructor>
+            <field name="image">
+                document.getAnonymousElementByAttribute(this, "class", "tab-icon")
+            </field>
         </implementation>
     </binding>
 </bindings>
