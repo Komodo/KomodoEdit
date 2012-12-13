@@ -1308,27 +1308,42 @@ this.isTabShown = function uilayout_isTabShown(widgetId) {
 this.ensureTabShown = function uilayout_ensureTabShown(widgetId, focusToo) {
     try {
         if (typeof(focusToo) == 'undefined') focusToo = false;
-        var widget;
+        let callback = function (widget) {
+            if (!widget) {
+                _log.error("ko.uilayout.ensureTabShown: Can't find widget: " + widgetId);
+                return;
+            }
+            // always select the widget
+            widget.containerPane.addWidget(widget, {focus: true});
+            if (focusToo) {
+                // Also focus it...
+                if (widget.contentWindow) {
+                    widget.contentWindow.focus();
+                    // Dispatch an event to say we're programmatically focusing the
+                    // widget.
+                    var event = widget.contentWindow.document.createEvent("Events");
+                    event.initEvent("ko-widget-focus", true, false);
+                    win.dispatchEvent(event);
+                } else {
+                    // This shouldn't happen... but whatever.
+                    widget.focus();
+                }
+            }
+        }
         if ((typeof(widgetId) == "object") && ("localName" in widgetId)) {
             if ("linkedpanel" in widgetId) {
                 // we literally got the <tab>.
-                widget = widgetId.linkedpanel;
+                callback(widgetId.linkedpanel);
             } else {
                 // we actually got passed the widget instead
-                widget = widgetId;
+                callback(widgetId);
             }
         } else {
             var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                             .getService(Components.interfaces.nsIWindowMediator);
             var mainWindow = wm.getMostRecentWindow('Komodo');
-            widget = mainWindow.document.getElementById(widgetId);
-            if (!widget) {
-                log.error("ko.uilayout.ensureTabShown: couldn't find tab: " + widgetId);
-                return;
-            }
+            mainWindow.ko.widgets.getWidgetAsync(widgetId, callback);
         }
-
-        widget.containerPane.addWidget(widget, {focus: focusToo});
     } catch (e) {
         _log.exception(e);
     }
