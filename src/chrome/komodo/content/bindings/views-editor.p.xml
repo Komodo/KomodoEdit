@@ -1627,12 +1627,10 @@
                     event.stopPropagation();
                     event.preventDefault();
                     event.cancelBubble = true;
-                } else {
-                    //dump("    no\n");
+                    return;
                 }
-               return;
             }
-                
+
             const DOM_VK_ENTER = event.DOM_VK_ENTER;
             const DOM_VK_RETURN = event.DOM_VK_RETURN;
             const DOM_VK_TAB = event.DOM_VK_TAB;
