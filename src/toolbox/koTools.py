@@ -831,11 +831,26 @@ class KoToolbox2ToolManager(object):
         item_name = item.name
         itemIsContainer = item.isContainer
         if itemIsContainer:
-            # Don't do anything to this name.  If there's a dup, or
+            # Bug 96486: Can't create folders named "*" on Windows
+            # Now that we're encouraging people to create folders with this name,
+            # we need to quietly change the "*"s to "_"s.  I don't
+            # remember why I decided not to do this in general.
+            system_item_name = item_name.replace("*", "_")
+            
+            # Don't do anything else to this name.  If there's a dup, or
             # it contains bad characters, give the user the actual
             # error message.  Which is why we need to try creating
             # the folder first, before adding its entry.
-            path = join(parent_path, item_name)
+            path = join(parent_path, system_item_name)
+            if system_item_name != item_name:
+                # Make sure it's new
+                if os.path.exists(path):
+                    for i in range(20):
+                        suffix = i + 1
+                        new_path = "%s-%d" % (path, suffix)
+                        if not os.path.exists(new_path):
+                            path = new_path
+                            break
             item.trailblazeForPath(path)
         else:
             path = self._prepareUniqueFileSystemName(parent_path, item_name)
