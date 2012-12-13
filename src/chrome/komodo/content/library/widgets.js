@@ -55,6 +55,7 @@ if (typeof(ko.widgets)=='undefined') {
             inactiveIconURL: String || null,
             persist: Boolean, // whether to persist widget position data
             show: Boolean, // true, false, or undefined (to use prefs)
+            forceLoad: Boolean, // if true, always load the widget somewhere
             browser: null, // or <browser type="ko-widget">
             loadCallbacks: [], // functions to call when the browser has finished loading
             autoload: Number, // or missing
@@ -99,6 +100,7 @@ if (typeof(ko.widgets)=='undefined') {
                                 inactiveIconURL: inactiveIconURL,
                                 persist:         persist,
                                 show:            show,
+                                forceLoad:       false,
                                 browser:         null,
                                 loadCallbacks:   [],
                                 attrs:           {},
@@ -131,13 +133,13 @@ if (typeof(ko.widgets)=='undefined') {
      * right after, so we don't hold references to anything but attributes
      */
     this._registerWidgetFromElement =
-    function koWidgetManager__registerWidgetFromElement(aElement, aIndex, aId) {
+    function koWidgetManager__registerWidgetFromElement(aElement, aIndex, aPane) {
         let id = "__komodo_widget__" + Date.now() + "_" + Math.random();
         if (aElement.hasAttribute("id")) {
             id = aElement.getAttribute("id");
         }
 
-        let params = { defaultPane: aId };
+        let params = { defaultPane: aPane.id };
         if (aElement.hasAttribute("icon")) {
             params.iconURL = aElement.getAttribute("icon");
         }
@@ -157,7 +159,9 @@ if (typeof(ko.widgets)=='undefined') {
             log.exception(msg);
             throw Components.Exception(msg, Cr.NS_ERROR_UNEXPECTED);
         }
+        data.forceLoad = true;
         data.attrs = {};
+        data.orient = aPane.orient;
         for (let attr of Array.slice(aElement.attributes)) {
             data.attrs[attr.name] = attr.value;
         }
@@ -552,7 +556,10 @@ if (typeof(ko.widgets)=='undefined') {
         }
         layoutRestored = true;
         let panes = {}; // the state we want to end up in
-        let extra_panes = {}; // panes that were not persisted
+
+        for (let paneId of this.panes) {
+            panes[paneId] = {children: []};
+        }
 
         // See what the registered widgets have to say... (These are the things
         // from XUL overlays)
@@ -560,7 +567,7 @@ if (typeof(ko.widgets)=='undefined') {
             if (!("autoload" in data)) continue;
             if (!this._panes.has(data.defaultPane)) continue;
             if (!(data.defaultPane in panes)) panes[data.defaultPane] = {children: []};
-            panes[data.defaultPane].children[data.autoload] = [id.substr(1)];
+            panes[data.defaultPane].children[data.autoload] = [id];
         }
         log.debug("after processing widgets: " + JSON.stringify(panes));
         // remove missing children
@@ -613,11 +620,27 @@ if (typeof(ko.widgets)=='undefined') {
                 }
             }
         }
-
+        for (let [paneId,paneData] in Iterator(this._persist_state.panes)) {
+            if (/^__komodo_floating_pane__\d+/.test(paneId)) {
+                paneData.floating = true;
+            }
+            if (!("orient" in paneData)) {
+                let elem = document.getElementById(paneId);
+                if (elem) {
+                    if ("orient" in elem) {
+                        paneData.orient = elem.orient;
+                    } else if (elem.hasAttribute("orient")) {
+                        paneData.orient = elem.getAttribute("orient");
+                    } else {
+                        paneData.orient = getComputedStyle(elem).MozBoxOrient;
+                    }
+                }
+            }
+        }
         log.debug("onload: persisted data = " + JSON.stringify(this._persist_state));
+
         let outstandingPanesToCreate = 0;
-        for (let id of Object.keys(this._persist_state.panes)) {
-            let data = this._persist_state.panes[id];
+        for (let [id, data] in Iterator(this._persist_state.panes)) {
             let doOnePane = (function(id) {
                 if (("children" in data) && (data.children instanceof Array)) {
                     panes[id].children = data.children.concat();
@@ -628,7 +651,7 @@ if (typeof(ko.widgets)=='undefined') {
                     }
                 }
             }).bind(this);
-            if (/^__komodo_floating_pane__\d+/.test(id)) {
+            if (data.floating) {
                 // FLoating pane... make it
                 if (!("children" in data) || data.children.length < 1) {
                     continue; // don't restore empty floating panes
@@ -650,6 +673,46 @@ if (typeof(ko.widgets)=='undefined') {
         }
 
         let doRestorePanes = (function doRestorePanes() {
+            // Make sure widgets that didn't opt-in to being unloaded will still
+            // load, just hidden
+            let extra_widgets = {};
+            for (let id in this._widgets.keys) {
+                extra_widgets[id] = true;
+            }
+            for (let [paneId,paneData] in Iterator(panes)) {
+                for (let [,tab] in Iterator(paneData.children || [])) {
+                    for (let [,widgetId] in Iterator(tab || [])) {
+                        delete extra_widgets[widgetId];
+                    }
+                }
+            }
+            log.debug("extra widgets: " + Object.keys(extra_widgets));
+            for (let widgetId of Object.keys(extra_widgets)) {
+                let data = this._get(widgetId);
+                if (!data || (!data.show && !data.forceLoad)) {
+                    continue; // We don't need to force load this one
+                }
+                if (data.defaultPane && data.defaultPane in panes) {
+                    panes[data.defaultPane].children.push([widgetId]);
+                } else {
+                    // Umm, can't find it anywhere.  Stuff it into any pane
+                    [p for (p in Iterator(panes))].sort(function(a, b) {
+                        if ("orient" in data) {
+                            // sort by orient
+                            if (a[1].orient != b[1].orient) {
+                                return (a[1].orient === data.orient) ? -1 : 1;
+                            }
+                        }
+                        if (a[1].floating !== b[1].floating) {
+                            // prefer not-floating panes
+                            return a[1].floating ? 1 : -1;
+                        }
+                        // Out of ideas.  By id, I guess?
+                        return a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0;
+                    }).shift()[1].children.push([widgetId]);
+                }
+            }
+
             log.debug("onload: panes = " + JSON.stringify(panes));
             for (let id of Object.keys(panes)) {
                 let pane = this._panes.get(id);
@@ -658,6 +721,7 @@ if (typeof(ko.widgets)=='undefined') {
                     for (let w_id of tabpanel) {
                         let data = this._get(w_id);
                         if (data && data.browser) {
+                            log.debug(w_id + " already loaded, moving it");
                             // Somebody called getWidget() synchronously too early! Try to move it
                             pane.addWidget(data.browser, {focus: false, tab: tab});
                         } else {
@@ -666,6 +730,7 @@ if (typeof(ko.widgets)=='undefined') {
                             }
                             if (data.show === false) {
                                 // Explicity flagged as don't restore
+                                log.debug("Not restoring don't-show widget " + w_id);
                                 continue;
                             }
                             let widget = pane.addWidget(w_id, {focus: false, tab: tab});

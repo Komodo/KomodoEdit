@@ -1532,7 +1532,7 @@
         let n = 0;
         for (let widget of Array.slice(this.childNodes)) {
           if (!widget) continue; // WTF
-          ko.widgets._registerWidgetFromElement(widget, n, this.id);
+          ko.widgets._registerWidgetFromElement(widget, n, this);
           this.removeChild(widget);
           ++n;
         }
