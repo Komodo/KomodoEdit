@@ -55,7 +55,6 @@ if (typeof(ko.widgets)=='undefined') {
             inactiveIconURL: String || null,
             persist: Boolean, // whether to persist widget position data
             show: Boolean, // true, false, or undefined (to use prefs)
-            hidden: Boolean, // true to not show widget in selection menu
             browser: null, // or <browser type="ko-widget">
             loadCallbacks: [], // functions to call when the browser has finished loading
             autoload: Number, // or missing
@@ -100,7 +99,6 @@ if (typeof(ko.widgets)=='undefined') {
                                 inactiveIconURL: inactiveIconURL,
                                 persist:         persist,
                                 show:            show,
-                                hidden:          false,
                                 browser:         null,
                                 loadCallbacks:   [],
                                 attrs:           {},
@@ -350,7 +348,6 @@ if (typeof(ko.widgets)=='undefined') {
                     });
                 }
             }
-            data.hidden = !aParams.visible;
         }
 
         return {
@@ -667,6 +664,10 @@ if (typeof(ko.widgets)=='undefined') {
                             if (!data) {
                                 log.debug("no data for " + w_id);
                             }
+                            if (data.show === false) {
+                                // Explicity flagged as don't restore
+                                continue;
+                            }
                             let widget = pane.addWidget(w_id, {focus: false, tab: tab});
                             log.debug("added " + w_id + " -> " + this._getIDForWidget(widget));
                             tab = widget.tab;
@@ -674,10 +675,45 @@ if (typeof(ko.widgets)=='undefined') {
                     }
                 }
                 if (panes[id].children.length > 0) {
-                    let children = panes[id].children;
+                    /**
+                     * Figure out if a widget can be selected.
+                     * A widget can be selected if there is at least on widget
+                     * visible in its tab.
+                     * @param widget {Element} The widget to check
+                     */
+                    let canSelectWidget = function(widget) {
+                        let widgets = Array.slice(widget.parentNode.childNodes)
+                                           .filter(function(e) "_is_ko_widget" in e)
+                                           .filter(function(e) !e.collapsed)
+                                           .filter(function(e) !e.hidden);
+                        return widgets.length > 0;
+                    };
+                    let children = panes[id].children.reduce(function(a,b) a.concat(b), []);
+                    let tabs = Array.slice(this.getPaneAt(id).tabs.children);
                     let selected = panes[id].selectedTab;
+                    // make sure what we want to select actually works..
+                    let alternate = null;
                     if (!selected || children.indexOf(selected) == -1) {
-                        selected = children[0];
+                        alternate = children[0];
+                    } else if (selected) {
+                        let widget = this._get(selected).browser;
+                        if (widget && widget.parentNode && !canSelectWidget(widget)) {
+                            let index = tabs.indexOf(widget.tab);
+                            tabs = tabs.slice(index + 1)
+                                       .concat(tabs.slice(0, index).reverse());
+                            for (let tab of tabs) {
+                                let w = tab.linkedpanel.firstChild;
+                                if (canSelectWidget(w)) {
+                                    alternate = this.getWidgetInfo(w).ID;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if (alternate) {
+                        log.debug("Can't select " + selected + " in " + id +
+                                  ", picking " + alternate + " instead");
+                        selected = alternate;
                     }
                     log.debug("onload: selecting " + selected + " in " + id);
                     pane.addWidget(selected, {focus: true});
@@ -795,7 +831,7 @@ if (typeof(ko.widgets)=='undefined') {
                 for (let id of ids) {
                     seen[id] = true;
                     let data = this._get(id);
-                    if (data.hidden || (data.browser && data.browser.collapsed)) {
+                    if (data.browser && data.browser.collapsed) {
                         continue; // this widget isn't selectable
                     }
                     let menuitem = document.createElement("menuitem");
@@ -817,7 +853,7 @@ if (typeof(ko.widgets)=='undefined') {
                     continue;
                 }
                 seen[id] = true;
-                if (data.hidden || (data.browser && data.browser.collapsed)) {
+                if (data.browser && data.browser.collapsed) {
                     continue; // don't show explicitly hidden widgets
                 }
                 extras.push(id);

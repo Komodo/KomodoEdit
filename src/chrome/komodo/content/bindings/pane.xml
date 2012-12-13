@@ -1471,6 +1471,11 @@
               }
               if (attr == "label" || attr == "short-label") {
                 // let these through
+              } else if (attr == "collapsed" || attr == "hidden") {
+                // always use "collapsed" for the tab
+                widget.tab.collapsed = widget.hasAttribute("collapsed") ||
+                                       widget.hasAttribute("hidden");
+                continue;
               } else if (!/^tab_/.test(attr)) {
                 continue;
               }

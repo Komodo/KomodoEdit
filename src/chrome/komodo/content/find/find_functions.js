@@ -1904,7 +1904,7 @@ this.findAllInFiles = function Find_FindAllInFiles(editor, context, pattern, pat
         return false;
     resultsMgr.configure(pattern, patternAlias, null, context,
                          _findSvc.options);
-    resultsMgr.show();
+    resultsMgr.show(true);
 
     try {
         _findSvc.findallinfiles(resultsMgr.id, pattern, resultsMgr);
