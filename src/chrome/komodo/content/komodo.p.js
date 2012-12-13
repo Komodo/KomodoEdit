@@ -361,6 +361,9 @@ function onloadDelay() {
                 prefs = prefs.getPref("1");
             }
             ko.widgets.restoreLayout(prefs);
+        } else {
+            // Restore the default layout (i.e. last closed window)
+            ko.widgets.restoreLayout(ko.prefs);
         }
         // handle window.arguments spec list
         if ('arguments' in window && window.arguments && window.arguments[0]) {
