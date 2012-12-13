@@ -808,7 +808,7 @@ class KoInitService(object):
             prefs.deletePref("autoSaveMinutes")
 
     # This value must be kept in sync with the value in "../prefs/prefs.p.xml"
-    _current_pref_version = 5
+    _current_pref_version = 6
 
     def _upgradeUserPrefs(self):
         """Upgrade any specific info in the user's prefs.xml.
