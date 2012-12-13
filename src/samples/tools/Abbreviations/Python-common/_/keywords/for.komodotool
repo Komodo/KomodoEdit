@@ -2,8 +2,8 @@
   "keyboard_shortcut": "", 
   "name": "for", 
   "value": [
-    "for [[%tabstop1:i]] in range(len([[%tabstop:obj]])[[%soft:)]][[%soft::]]", 
-    "\t[[%tabstop: ]]", 
+    "for [[%tabstop1:i]] in [[%tabstop:range([[%tabstop:len([[%tabstop:obj]])]])]][[%soft::]]",
+    "\t[[%tabstop:code]]",
     "[[%tabstop: ]]!@#_currentPos!@#_anchor"
   ], 
   "set_selection": "false", 
