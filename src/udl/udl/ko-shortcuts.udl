@@ -1,0 +1,26 @@
+# UDL for Komodo snippet shortcuts
+
+family css
+
+state IN_CSS_KS_SHORTCUT_START:
+/\w/: # stay
+':' paint(upto, CSS_WORD), paint(include, CSS_OPERATOR) => IN_CSS_KS_SHORTCUT_ARG
+']]': paint(upto, CSS_STRING), paint(include, CSS_OPERATOR), spop_check, => IN_M_DEFAULT
+# EJS stuff before the ":" or "]]"
+'<%#': paint(upto, CSS_STRING), paint(include, TPL_COMMENT), spush_check(IN_CSS_KS_SHORTCUT_START), => IN_TPL_COMMENT
+/<%=?/: paint(upto, CSS_STRING), paint(include, TPL_OPERATOR), spush_check(IN_CSS_KS_SHORTCUT_START), => IN_CSL_DEFAULT
+/./: paint(upto, CSS_WORD), redo, spop_check, => IN_M_DEFAULT
+
+state IN_CSS_KS_SHORTCUT_ARG:
+'<%#': paint(upto, CSS_STRING), paint(include, TPL_COMMENT), spush_check(IN_CSS_KS_SHORTCUT_ARG), => IN_TPL_COMMENT
+/<%=?/: paint(upto, CSS_STRING), paint(include, TPL_OPERATOR), spush_check(IN_CSS_KS_SHORTCUT_ARG), => IN_CSL_DEFAULT
+']]': paint(upto, CSS_STRING), paint(include, CSS_OPERATOR), spop_check, => IN_M_DEFAULT
+# EJS stuff between the ":" and the "]]"
+/\[\[%(?=\w)/: paint(upto, CSS_STRING), paint(include, CSS_OPERATOR), spush_check(IN_CSS_KS_SHORTCUT_ARG), => IN_CSS_KS_SHORTCUT_START
+
+
+
+
+
+
+

@@ -1,0 +1,6 @@
+# Handle transitions from JS to Komodo Shortcuts
+
+family csl
+
+state IN_CSL_DEFAULT:
+/\[\[%(?=\w)/: paint(upto, M_DEFAULT), spush_check(IN_CSL_DEFAULT), => IN_CSS_KS_SHORTCUT_START

@@ -5,12 +5,15 @@ language "Komodo Snippet"
 # Pull code out of html2ejs.udl to handle instances of non-ejs "<"
 
 include "ejs2html.udl"
+include "js2-ko-shortcuts.udl"
 include "jslex.udl"
+include "ko-shortcuts.udl"
 
 family markup
 initial IN_M_DEFAULT
 state IN_M_DEFAULT:
 /</: paint(upto, M_DEFAULT), => IN_M_CHECK_KOMODO_SNIPPET
+/\[\[%(?=\w)/: paint(upto, M_DEFAULT), paint(include, CSS_OPERATOR), spush_check(IN_M_DEFAULT), => IN_CSS_KS_SHORTCUT_START
 
 state IN_M_CHECK_KOMODO_SNIPPET:
 '%#': paint(include, TPL_COMMENT), spush_check(IN_M_DEFAULT), => IN_TPL_COMMENT
