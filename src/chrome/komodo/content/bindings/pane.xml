@@ -1319,7 +1319,6 @@
         <parameter name="isActive"/>
         <body>
         <![CDATA[
-          debugger;
           if (typeof(isActive) === "undefined") {
             isActive = tab.selected;
           }
