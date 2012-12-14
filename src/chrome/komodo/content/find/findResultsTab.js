@@ -265,7 +265,7 @@ this.FindResultsTabManager.prototype.show = function(focus /* =false */)
         if (focus) {
             // Give the find results tab the focus. See bug 79487 for why
             // this *isn't* the default.
-            widget.firstChild.focus();
+            document.documentElement.firstChild.focus();
         }
     } catch(ex) {
         findResultsLog.exception(ex);
