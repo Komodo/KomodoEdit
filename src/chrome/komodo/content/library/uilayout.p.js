@@ -1323,7 +1323,7 @@ this.ensureTabShown = function uilayout_ensureTabShown(widgetId, focusToo) {
                     // widget.
                     var event = widget.contentWindow.document.createEvent("Events");
                     event.initEvent("ko-widget-focus", true, false);
-                    win.dispatchEvent(event);
+                    widget.contentWindow.dispatchEvent(event);
                 } else {
                     // This shouldn't happen... but whatever.
                     widget.focus();
