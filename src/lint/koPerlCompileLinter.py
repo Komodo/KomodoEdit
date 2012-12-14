@@ -305,8 +305,19 @@ class _CommonPerlLinter(object):
         supportDir = components.classes["@activestate.com/koDirs;1"].\
                     getService(components.interfaces.koIDirs).supportDir
         self._perlTrayDir = os.path.join(supportDir, "perl", "perltray").replace('\\', '/')
-        self._appInfoEx = components.classes["@activestate.com/koAppInfoEx?app=Perl;1"].\
+        # appInfoEx has to be created on the main thread, linters run on background threads.
+
+    @components.ProxyToMainThread
+    def isPerlCriticInstalled(self, forceCheck):
+        appInfoEx = components.classes["@activestate.com/koAppInfoEx?app=Perl;1"].\
             createInstance(components.interfaces.koIPerlInfoEx)
+        return appInfoEx.isPerlCriticInstalled(False)
+    
+    @components.ProxyToMainThread
+    def getPerlCriticVersion(self):
+        appInfoEx = components.classes["@activestate.com/koAppInfoEx?app=Perl;1"].\
+            createInstance(components.interfaces.koIPerlInfoEx)
+        return appInfoEx.getPerlCriticVersion()
 
     def _writeTempFile(self, cwd, text):
         tmpFileName = None
@@ -481,7 +492,7 @@ class KoPerlCriticLinter(_CommonPerlLinter):
         if criticLevel == 'off':
             return
         
-        if not self._appInfoEx.isPerlCriticInstalled(False):
+        if not self.isPerlCriticInstalled(False):
             # This check is necessary in case Perl::Critic and/or criticism were uninstalled
             # between Komodo sessions.  appInfoEx.isPerlCriticInstalled caches the state
             # until the pref is changed.
@@ -494,7 +505,7 @@ class KoPerlCriticLinter(_CommonPerlLinter):
         # lint results.
         # This is no longer needed with Perl-Critic 1.5, which
         # goes by the filename given in any #line directives
-        perlCriticVersion = self._appInfoEx.getPerlCriticVersion()
+        perlCriticVersion = self.getPerlCriticVersion()
         currFile = request.koDoc.file
         baseFileName = None
         if currFile:
