@@ -727,8 +727,7 @@ if (typeof(ko.widgets)=='undefined') {
                         } else {
                             if (!data) {
                                 log.debug("no data for " + w_id);
-                            }
-                            if (data.show === false) {
+                            } else if (data.show === false) {
                                 // Explicity flagged as don't restore
                                 log.debug("Not restoring don't-show widget " + w_id);
                                 continue;
