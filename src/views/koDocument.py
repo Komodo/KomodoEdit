@@ -915,12 +915,12 @@ class koDocumentBase:
     #---- Encoding
     
     def _getEncodingPrefFromBaseName(self, baseName):
+        registryService = components.classes['@activestate.com/koLanguageRegistryService;1'].\
+                            getService(components.interfaces.koILanguageRegistryService)
+        language = registryService.suggestLanguageForFile(baseName)
+        if not language:
+            language = 'Text'
         try:
-            registryService = components.classes['@activestate.com/koLanguageRegistryService;1'].\
-                                getService(components.interfaces.koILanguageRegistryService)
-            language = registryService.suggestLanguageForFile(baseName)
-            if not language:
-                language = 'Text'
             encoding_name = self._getEncodingNameForNewFile(language=language)
         except Exception, e:
             log.error("Error getting newEncoding for %s", language, exc_info=1)
