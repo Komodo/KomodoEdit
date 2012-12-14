@@ -103,7 +103,7 @@ class KoFileCheckerBase(object):
         self.executable = None
         self.executablePrefName = None
 
-        self.log = logging.getLogger('Ko%sChecker::%s' % (self.type.capitalize(), self.name))
+        self.log = logging.getLogger('Ko%sChecker.%s' % (self.type.capitalize(), self.name))
         self._globalPrefs = components.classes["@activestate.com/koPrefService;1"].\
             getService(components.interfaces.koIPrefService).prefs
         # Global observer service.
