@@ -79,12 +79,16 @@ class KoAppInfoEx:
 
         self._userPath = koprocessutils.getUserEnv()["PATH"].split(os.pathsep)
 
-        # Listen for changes to the user environment.
-        obsSvc = components.classes["@mozilla.org/observer-service;1"]. \
-                        getService(components.interfaces.nsIObserverService)
-        # TODO: This will cause a leak - as we don't remove the observer, but
-        #       since these are mostly services, it's not a big problem.
-        obsSvc.addObserver(self, "user_environment_changed", False)
+        # Listen for changes to the user environment. This must be called on the
+        # main thread - bug 96530.
+        @components.ProxyToMainThread
+        def ProxyAddObserver(obj):
+            # TODO: This will cause a leak - as we don't remove the observer, but
+            #       since these are mostly services, it's not a big problem.
+            obsSvc = components.classes["@mozilla.org/observer-service;1"]. \
+                            getService(components.interfaces.nsIObserverService)
+            obsSvc.addObserver(obj, "user_environment_changed", False)
+        ProxyAddObserver(self)
 
         try:
             self._prefSvc.prefs.prefObserverService.addObserver(self, self.defaultInterpreterPrefName, 0)
