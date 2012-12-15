@@ -478,28 +478,41 @@ class KoLanguageRegistryService:
         # First try to look up the language name from the file extension or
         # plain basename: faster.  We use the longest possible extension so
         # we can match things like *.django.html
-        if basename.find('.') > 0:
-            base, ext = basename.split('.', 1)
-        else:
-            base = basename
-            ext = None
-        if ext and ext.lower() in self.__languageNameFromExtOrBasename:
-            #print "debug: suggestLanguageForFile: '%s' -> '%s'" \
-            #      % (ext, self.__languageNameFromExtOrBasename[ext.lower()])
-            return self.__languageNameFromExtOrBasename[ext.lower()]
-        elif basename.lower() in self.__languageNameFromExtOrBasename:
-            #print "debug: suggestLanguageForFile: '%s' -> '%s'" \
-            #      % (basename,
-            #         self.__languageNameFromExtOrBasename[basename.lower()])
-            return self.__languageNameFromExtOrBasename[basename.lower()]
+        basename = basename.lower()
+        base_split = basename.split('.')
+        base = base_split[0]
+        exts = ["." + x for x in base_split[1:]]
+        #print 'suggestLanguageForFile: exts %r' % (exts, )
 
+        for ext in exts:
+            lang = self.__languageNameFromExtOrBasename.get(ext)
+            if lang is not None:
+                #print "suggestLanguageForFile: '%s' -> '%s'" % (ext, lang)
+                return lang
+
+        lang = self.__languageNameFromExtOrBasename.get(basename)
+        if lang is not None:
+            #print "suggestLanguageForFile: '%s' -> '%s'" % (basename, lang)
+            return lang
+
+        #print "Unknown file %r" % (basename, )
         # Next, try each registered filename glob pattern: slower.  Use the
         # longest pattern first
         for pattern in self.__sortedLanguageNamePatterns:
             if fnmatch.fnmatch(basename, pattern):
-                #print "debug: suggestLanguageForFile: '%s' -> '%s'" \
-                #      % (pattern, self.__languageNameFromPattern[pattern])
-                return self.__languageNameFromPattern[pattern]
+                lang = self.__languageNameFromPattern.get(pattern)
+                # TODO: Should we cull these periodically, or when they get too big?
+                self.__languageNameFromExtOrBasename[basename] = lang
+                #print "suggestLanguageForFile: %r %r -> '%s'" % (basename, pattern, lang)
+                return lang
+
+        # Remember it for next time.
+        if exts:
+            #print "suggestLanguageForFile: No lang for ext: %r" % (ext.lower(), )
+            self.__languageNameFromExtOrBasename[exts[-1]] = ''
+        else:
+            #print "suggestLanguageForFile: No lang for basename: %r" % (basename, )
+            self.__languageNameFromExtOrBasename[basename] = ''
 
         return ''  # indicates that we don't know the lang name
 
