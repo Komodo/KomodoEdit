@@ -34,7 +34,26 @@ eol = None
 
 _toolsManager = None
 
+_icons = {
+    'folder'    :   'chrome://komodo/skin/images/folder-closed.png',
+    'menu'      :   'chrome://komodo/skin/images/menu_icon.png',
+    'toolbar'   :   'chrome://komodo/skin/images/toolbar_icon.png',
+    'terminal'  :   'chrome://fugue/skin/icons/application-terminal.png',
+    'macro'     :   'chrome://komodo/skin/images/macro.png',
+    'cut'       :   'chrome://komodo/skin/images/cut.png',
+    'template'  :   'chrome://komodo/skin/images/newTemplate.png',
+    'url'       :   'chrome://fugue/skin/icons/globe.png'
+}
 
+if sys.platform == 'darwin':
+    _icons.update({
+        'folder'    :   'chrome://global/skin/dirListing/folder.png'
+    })
+    
+if sys.platform.startswith('linux'):
+    _icons.update({
+        'folder'    :   'moz-icon://stock/gtk-directory?size=16'
+    })
 
 #---- `koITool` class hierarchy
 
@@ -446,7 +465,7 @@ class _KoFolder(_KoContainer):
     _com_interfaces_ = [components.interfaces.koIContainerBaseTool]
     typeName = 'folder'
     prettytype = 'Folder'
-    _iconurl = 'chrome://komodo/skin/images/folder-closed-pink.png'
+    _iconurl = _icons.get('folder')
 
     def trailblazeForPath(self, path):
         os.mkdir(path)
@@ -557,7 +576,7 @@ class _KoComplexContainer(_KoFolder):
 class _KoMenu(_KoComplexContainer):
     typeName = 'menu'
     prettytype = 'Custom Menu'
-    _iconurl = 'chrome://komodo/skin/images/menu_icon.png'
+    _iconurl = _icons.get('menu')
     
     def __init__(self, *args):
         _KoComplexContainer.__init__(self, *args)
@@ -572,7 +591,7 @@ class _KoMenu(_KoComplexContainer):
 class _KoToolbar(_KoComplexContainer):
     typeName = 'toolbar'
     prettytype = 'Custom Toolbar'
-    _iconurl = 'chrome://komodo/skin/images/toolbar_icon.png'
+    _iconurl = _icons.get('toolbar')
 
     def __init__(self, *args):
         _KoComplexContainer.__init__(self, *args)
@@ -586,7 +605,7 @@ class _KoToolbar(_KoComplexContainer):
 class _KoCommandTool(_KoTool):
     typeName = 'command'
     prettytype = 'Run Command'
-    _iconurl = 'chrome://fugue/skin/icons/application-terminal.png'
+    _iconurl = _icons.get('terminal')
     
     def save(self):
         # Write the changed data to the file system
@@ -605,7 +624,7 @@ class _KoMacroTool(_KoTool):
     _com_interfaces_ = [components.interfaces.koIMacroTool]
     typeName = 'macro'
     prettytype = 'Macro'
-    _iconurl = 'chrome://komodo/skin/images/macro.png'
+    _iconurl = _icons.get('macro')
 
     def __init__(self, *args):
         _KoTool.__init__(self, *args)
@@ -680,7 +699,7 @@ class _KoMacroTool(_KoTool):
 class _KoSnippetTool(_KoTool):
     typeName = 'snippet'
     prettytype = 'Snippet'
-    _iconurl = 'chrome://komodo/skin/images/cut.png'
+    _iconurl = _icons.get('cut')
 
     def __init__(self, *args):
         _KoTool.__init__(self, *args)
@@ -747,12 +766,12 @@ class _KoURLToolBase(_KoTool):
 class _KoTemplateTool(_KoURLToolBase):
     typeName = 'template'
     prettytype = 'Template'
-    _iconurl = 'chrome://komodo/skin/images/newTemplate.png'
+    _iconurl = _icons.get('template')
 
 class _KoURLTool(_KoURLToolBase):
     typeName = 'URL'
     prettytype = 'URL'
-    _iconurl = 'chrome://fugue/skin/icons/globe.png'
+    _iconurl = _icons.get('url')
 
 
 _koToolClassFromTypeName = {}

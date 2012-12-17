@@ -23,23 +23,17 @@
 }
 /* #endif */
 
-#placesRootButton {
-  /* #if PLATFORM == "darwin" */
-  list-style-image: url("chrome://global/skin/dirListing/folder.png");
-  /* #elif PLATFORM == "linux" */
-  list-style-image: url("moz-icon://stock/gtk-directory?size=16");
-  /* #else */
-  list-style-image: url("chrome://komodo/skin/images/folder-closed.png");
-  /* #endif */
-}
-#placesRootButton.remote {
-  list-style-image: url("chrome://famfamfamsilk/skin/icons/folder_link.png");
-}
 #placesRootButton > label {
   /* Need to give some additional padding between the icon and the label. */
   padding-left: 4px;
 }
 
+#placesRootButton {
+  list-style-image: @icon-folder-closed;
+}
+#placesRootButton.remote {
+  list-style-image: @icon-folder-remote;
+}
 
 /**
    Places tree icons, see bug 80523:
@@ -50,7 +44,7 @@
       using the background-image CSS property.
  */
 treechildren#places-files-tree-body::-moz-tree-image {
-  margin-right: 2px;
+  margin-right: 5px;
 }
 treechildren#places-files-tree-body::-moz-tree-image(places_folder_open) {
   list-style-image: @icon-folder-open;

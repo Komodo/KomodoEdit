@@ -129,7 +129,6 @@ $cons->InstallInChrome('file_icon_readonly.png');
 $cons->InstallInChrome('file_icon.png');
 
 $cons->InstallInChrome('project_icon_readonly.png');
-$cons->InstallInChrome('project_icon.png');
 
 $cons->InstallInChrome('more.gif');
 $cons->InstallInChrome('less.gif');
@@ -197,3 +196,7 @@ $cons->InstallRecursive("$mozChromeDir/komodo/skin/images/databases",
 $cons->InstallRecursive("$mozChromeDir/komodo/skin/images/languages",
                         cwd()."/src/chrome/komodo/skin/images/languages",
                         ('\.svn'));
+
+#placeholders (todo: remove or replace)
+
+$cons->InstallInChrome('codebrowser.png');

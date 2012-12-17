@@ -93,6 +93,18 @@ CURRENTPOS_MARKER = '!@#_currentPos'
 log = logging.getLogger("koProject")
 #log.setLevel(logging.DEBUG)
 
+_icons = {
+    'file'          :   'chrome://komodo/skin/images/file_icon.png',
+    'folder'        :   'chrome://komodo/skin/images/folder-closed.png',
+    'live-folder'   :   'chrome://komodo/skin/images/folder-closed-blue.png',
+    'project'       :   'chrome://komodo/skin/images/project_icon.png'
+}
+
+if sys.platform.startswith('linux'):
+    _icons.update({
+        'project'    :   'moz-icon://stock/gtk-home?size=16'
+    })
+
 #---- support routines
 
 def _iconRelpathtoURL(relpath, project_dirname):
@@ -803,7 +815,7 @@ class koFilePart(koPart):
     _com_interfaces_ = [components.interfaces.koIPart_file]
     type = 'file'
     prettytype = 'File'
-    _iconurl = 'chrome://komodo/skin/images/file_icon.png'
+    _iconurl = _icons.get('file')
     primaryInterface = 'koIPart_file'
 
     def __init__(self, project):
@@ -866,7 +878,7 @@ class koFolderPart(koContainer):
     _com_interfaces_ = [components.interfaces.koIPart_folder]
     type = 'folder'
     prettytype = 'Folder'
-    _iconurl = 'chrome://komodo/skin/images/folder-closed.png'
+    _iconurl = _icons.get('folder')
     primaryInterface = 'koIPart_folder'
 
     def __repr__(self):
@@ -925,7 +937,7 @@ class koLiveFolderPart(koFolderPart):
                         components.interfaces.koIPart_folder]
     type = 'livefolder'
     prettytype = 'Live Folder'
-    _iconurl = 'chrome://komodo/skin/images/folder-closed-blue.png'
+    _iconurl = 'live-folder'
     primaryInterface = 'koIPart_livefolder'
 
     def __init__(self, project):
@@ -1070,7 +1082,7 @@ class koProject(koLiveFolderPart):
     _reg_clsid_ = "{39EE799F-D0F5-4b2d-A5A6-34151B2AC235}"
     type = 'project'
     prettytype = 'Project'
-    _iconurl = 'chrome://komodo/skin/images/project_icon.png'
+    _iconurl = _icons.get('project')
     primaryInterface = 'koIProject'
     _partSvc = None
     # The last md5 is used for comparing between load/saves to ensure that
@@ -1876,7 +1888,7 @@ class koUnopenedProject(koProject):
     _reg_clsid_ = "{13b7604e-4113-4477-bbab-d53dc00421b7}"
     type = 'unopened_project'
     prettytype = 'Unopened Project'
-    _iconurl = 'chrome://komodo/skin/images/project_icon.png'
+    _iconurl = _icons.get('project')
     primaryInterface = 'koIUnopenedProject'
     _partSvc = None
     
