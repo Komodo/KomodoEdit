@@ -18,7 +18,7 @@
 				throw "Could not detect path of less.js as the lessPath variable is undefined and no lessLoader element id exists";
 			}
 			
-			lessPath = loader.getAttribute('src').replace(/(.*\/).*/, '$1less.js');
+			var lessPath = loader.getAttribute('src').replace(/(.*\/).*/, '$1less.js');
 		}
 		
 		Components.classes["@mozilla.org/moz/jssubscript-loader;1"]

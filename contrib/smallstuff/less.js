@@ -4032,34 +4032,33 @@ var getFileFromSheetId = function(sheetId, cache) {
 }
 
 var _youngestChild = {};
-var getYoungestChild = function(href) {
-	log('Finding youngest child for: ' + href);
-	
-	var parentFile = getFile(href);
-	var sheetId = extractId(href);
-	
-	if (typeof _youngestChild[sheetId] != 'undefined') return _youngestChild[sheetId];
-	
-	var youngest = {file: parentFile, href: href, id: sheetId};
-	if (typeof less.sheetHierarchy.children[sheetId] != 'undefined') {
-		var children = less.sheetHierarchy.children[sheetId];
-		for (var k in children) {
-			var file = getFileFromSheetId(k);
-			if (file && file.exists() && youngest.file.exists() &&
-				file.lastModifiedTime > youngest.file.lastModifiedTime) {
-				youngest.file = file;
-				youngest.id = k;
-			}
-		}
-	}
-	
-	if (youngest.id != sheetId) {
-		return getYoungestChild(getSheet(youngest.id).href);
-	} else {
-		log('Found youngest child: ' + youngest.file.path);
-		_youngestChild[sheetId] = youngest;
-		return youngest;
-	}
+var getYoungestChild = function(href, _log = true) {
+    var parentFile = getFile(href);
+    var sheetId = extractId(href);
+        
+    if (_log) log('Finding youngest child for: ' + sheetId);
+    
+    if (typeof _youngestChild[sheetId] != 'undefined') {
+        log('Found youngest child (cached): ' + sheetId);
+        return _youngestChild[sheetId];
+    }
+    
+    var youngest = {file: parentFile, href: href, id: sheetId};
+    if (less.sheetHierarchy.children[sheetId] !== undefined) {
+        var children = less.sheetHierarchy.children[sheetId];
+        for (var k in children) {
+            var child = getYoungestChild(getSheet(k).href, false);
+            if (child.file && child.file.exists() && youngest.file.exists() &&
+                child.file.lastModifiedTime > youngest.file.lastModifiedTime) {
+                youngest = child;
+            }
+        }
+    }
+    
+    if (_log) log('Found youngest child: ' + youngest.id);
+    
+    _youngestChild[sheetId] = youngest;
+    return youngest;
 }
 
 var writeFile = function(file, data) {
