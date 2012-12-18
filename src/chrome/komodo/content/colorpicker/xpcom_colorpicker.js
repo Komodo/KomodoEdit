@@ -118,11 +118,6 @@ koColorPicker.prototype = {
         if (!/^[0-9a-f]{6}$/i.test(colorString)) {
             throw Components.results.NS_ERROR_INVALID_ARG;
         }
-
-        if (aScreenX !== null && aScreenY === null) {
-            // if screenX is given, screenY must also be given
-            throw Components.results.NS_ERROR_INVALID_ARG;
-        }
         /**
          * @type {Components.interfaces.koIPreferenceSet}
          */
@@ -144,10 +139,9 @@ koColorPicker.prototype = {
                       .getService(Components.interfaces.nsIWindowMediator)
                       .getMostRecentWindow(null);
         var windowFeatures = 'chrome,modal,titlebar,resizable';
-        if (aScreenX !== null)
-            windowFeatures += ",left=" + aScreenX;
-        if (aScreenY !== null)
-            windowFeatures += ",top=" + aScreenY;
+        if (aScreenX !== 0 || aScreenY !== 0) {
+            windowFeatures += ",left=" + aScreenX + ",top=" + aScreenY;
+        }
         win.openDialog(this.chromeURL, 'Color Picker',
                        windowFeatures, args);
 

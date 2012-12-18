@@ -484,9 +484,6 @@ if sys.platform.startswith("win"):
             if not callback or not hasattr(callback, "handleResult"):
                 raise COMException(nsError.NS_ERROR_INVALID_ARG,
                                    "pickColorAsync got invalid callback %r" % (callback,))
-            if screenX is not None and screenY is None:
-                raise COMException(nsError.NS_ERROR_INVALID_ARG,
-                                   "pickColorAsync: can't have screenX without screenY")
 
             # parse the starting colors
             try:
@@ -569,13 +566,10 @@ elif sys.platform.startswith("darwin"):
                  c = "#%s%s%s" %(r,g,b)
                  return c
 
-        def pickColorAsync(self, callback, startingcolor, startingalpha, screenX=None, screenY=None):
+        def pickColorAsync(self, callback, startingcolor, startingalpha, screenX=0, screenY=0):
             if not callback or not hasattr(callback, "handleResult"):
                 raise COMException(nsError.NS_ERROR_INVALID_ARG,
                                    "pickColorAsync got invalid callback %r" % (callback,))
-            if screenX is not None and screenY is None:
-                raise COMException(nsError.NS_ERROR_INVALID_ARG,
-                                   "pickColorAsync: can't have screenX without screenY")
 
             # parse the starting colors
             try:

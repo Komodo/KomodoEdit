@@ -92,13 +92,14 @@ interface koIColorPickerAsync : nsISupports {
      *      is cyan, and #00ff00 is bright green.  Must not be null.
      * @param aStartingAlpha - The alpha value of the starting color.
      * @param aScreenX - The X screen position to open the dialog at.
-     * @param aScreenY - The Y screen position to open the dialog at.  Must be
-     *      supplied if aScreenX is supplied.
+     * @param aScreenY - The Y screen position to open the dialog at.
      * @note this may actually be implemented synchronusly depending on platform
      * @note If the color picker does _not_ support selecting alpha values, then
      *      it should attempt to maintain the input alpha.
+     * @note If aScreenX and aScreenY are both zero, the picker position is at
+     *      the descretion of the dialog.
+     * @note Not all color pickers implement positioning support.
      */
-    [optional_argc]
     void pickColorAsync(in koIColorPickerAsyncCallback aCallback,
                         in ACString aStartingColor,
                         in double aStartingAlpha,
