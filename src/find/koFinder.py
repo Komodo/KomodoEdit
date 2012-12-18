@@ -95,8 +95,10 @@ class KomodoRuntimeEnv(object):
     def __init__(self):
         self.lidb = langinfo.get_default_database()
 
-        self._langRegSvc = components.classes['@activestate.com/koLanguageRegistryService;1']\
+        langRegSvc = components.classes['@activestate.com/koLanguageRegistryService;1']\
             .getService(components.interfaces.koILanguageRegistryService)
+        # We don't need the XPCOM version.
+        self._langRegSvc = UnwrapObject(langRegSvc)
 
     def langinfo_from_filename(self, filename):
         """Return a `LangInfo` appropriate for the given filename based
