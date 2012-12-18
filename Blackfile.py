@@ -1155,6 +1155,7 @@ def ImageKomodo(cfg, argv):
         ("rm", iimozbinpath("is_dev_tree.txt")), 
 
         # Trim some files.
+        ("rtrim", ".svn"),
         ("rtrim", ".consign"),
         ("rtrim", ".mkdir.done"),
         ("rtrim", "*.pyc"),
@@ -1282,7 +1283,10 @@ def ImageKomodo(cfg, argv):
             for dirpath, dirnames, filenames in os.walk(cfg.installRelDir):
                 for path in glob.glob(join(dirpath, pattern)):
                     log.debug("image:: trim %r", path)
-                    os.unlink(path)
+                    if isfile(path):
+                        os.unlink(path)
+                    else:
+                        shutil.rmtree(path)
         elif data[0] == "rmemptydirs":
             #XXX Note that this removed a dir like:
             #     lib/mozilla/extensions/{972ce4c6-7e08-4474-a285-3208198ce6fd}
