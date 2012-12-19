@@ -18,7 +18,8 @@
         <browser type="ko-widget" id="klint_tabpanel"
                  label="&klint.tab.title;"
                  short-label="&klint.tab.title.short;"
-                 src="chrome://klint/content/klintPane.xul"/>
+                 src="chrome://klint/content/klintPane.xul"
+                 icon="chrome://fugue/skin/icons/magnifier--exclamation.png"/>
     </ko-pane>
 
 </overlay>

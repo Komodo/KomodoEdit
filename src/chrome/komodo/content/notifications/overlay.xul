@@ -12,7 +12,8 @@
     <ko-pane id="workspace_bottom_area">
         <browser type="ko-widget" id="notifications-widget"
                  label="&notifications.label;"
-                 src="chrome://komodo/content/notifications/notificationsWidget.xul"/>
+                 src="chrome://komodo/content/notifications/notificationsWidget.xul"
+                 icon="chrome://fugue/skin/icons/exclamation-white.png"/>
     </ko-pane>
 
 </overlay>
