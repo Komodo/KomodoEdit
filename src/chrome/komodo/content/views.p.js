@@ -1994,15 +1994,15 @@ viewManager.prototype.is_cmd_togglePanels_supported = function() {
 viewManager.prototype.is_cmd_togglePanels_enabled =
     viewManager.prototype.is_cmd_togglePanels_supported;
 viewManager.prototype.do_cmd_togglePanels = function() {
-    // If any are hidden show all.
-    // If all are visible hide all
+    // If any are visible hide all
+    // If all are hidden show all.
     var panels = ["workspace_left_area",
                   "workspace_bottom_area",
                   "workspace_right_area" ].map(
         function(pname) document.getElementById(pname)
     );
-    var allVisible = !panels.some(function(p) p.collapsed);
-    panels.forEach(function(p) p.collapsed = allVisible);
+    var anyVisible = panels.some(function(p) !p.collapsed);
+    panels.forEach(function(p) p.collapsed = anyVisible);
 };
 
 // cmd_rotateSplitter
