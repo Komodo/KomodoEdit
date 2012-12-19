@@ -56,18 +56,34 @@ splitter
         
         &.workspace_splitter_right
         {
+            min-width: 3px;
+            width: 3px;
+            z-index: 100;
+            position: relative;
+            margin-right: -2px;
+	    
             background: @sidebar-background;
             border-left: @panel-border;
-            
-            &:-moz-window-inactive
-            {
-                background: @sidebar-inactive-background;
-            }
         }
     }
 }
  
 /* Widgets & Panes */
+
+:root:not(#komodo_main):not(#dialog-gotofile):not(#floating-pane),
+:root:not(#komodo_main):not(#dialog-gotofile):not(#floating-pane) .toolbar-background{
+  -moz-appearance: none;
+  background-color: transparent;
+}
+
+tree {
+  background: transparent !important;
+}
+
+tabpanels {
+    background-color: transparent !important;
+}
+
 
 #workspace_left_area, #workspace_right_area {
     background: @sidebar-background;
@@ -83,6 +99,17 @@ splitter
     &:-moz-window-inactive {
         background: @bottom-inactive-background;
     }
+}
+
+#placesViewbox_placesWrapper tree scrollbar
+{
+    opacity: 0.3;
+    -moz-transition: opacity 0.15s linear;
+}
+
+#placesViewbox_placesWrapper tree:hover scrollbar
+{
+    opacity: 1;
 }
 
 #collab-pane, #collab-panel-container {
@@ -147,9 +174,19 @@ splitter
   background: transparent;
 }
 
+tree treechildren::-moz-tree-cell-text(selected)
+{
+    color: inherit;
+}
+
+tree treechildren::-moz-tree-cell-text(selected, focus)
+{
+    color: HighlightText;
+}
+
 #toolbox2-hierarchy-vbox tree treechildren::-moz-tree-row(selected, focus)
 {
-  background: highlight !important;
+    background: Highlight !important;
 }
 
 .panel-label,

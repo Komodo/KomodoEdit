@@ -1,7 +1,5 @@
-@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
-
 @import url("chrome://komodo/skin/plat/shared/platform.less");
-
+ 
 /* "workspace_splitter": A splitter used between main panes in the
  * Komodo window.
  *
@@ -119,11 +117,11 @@ ko-pane[type="vertical"] tabs[anonid="tabs"] {
 }
 
 ko-pane[type="icons"] .tabstrip-box {
-  margin-bottom: 2px;
+  height: auto !important;
 }
 
 ko-pane[type="icons"] tab {
-  margin-right: 4px;
+  margin: 4px 4px 4px 0;
   
   &:last-child {
     margin-right: 0;
