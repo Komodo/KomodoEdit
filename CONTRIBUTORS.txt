@@ -20,6 +20,7 @@ Matt Herdon
 Rob Hernandez
 Jeff Hobbs
 Neil Hodgson
+Carey Hoffman
 Mike Ivanov
 Brian King
 Martin Kreichgauer
@@ -36,6 +37,7 @@ Paul Prescod
 Eric Promislow
 Damien Prystay
 Brian Quinlan
+Nathan Rijksen
 Audrey Schumacher
 Shantel Shave
 Ken Simpson
