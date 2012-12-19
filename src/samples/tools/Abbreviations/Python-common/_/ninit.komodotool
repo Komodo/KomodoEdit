@@ -8,7 +8,7 @@
     "def __init__(self<%", 
     "if (numReps === 0) {", 
     "\t// Allow for args", 
-    "\t%>[[%tabstop:, args]]<%", 
+    "\t%>[[%tabstop:]]<%",
     "} else {", 
     "\tfor (i = 1; i <= numReps; i++) {", 
     "\t\t%>[[%soft:,]][[%soft: ]][[%tabstop<%= i %>:arg<%= i %>]]<%", 
