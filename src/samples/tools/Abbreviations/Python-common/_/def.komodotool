@@ -1,17 +1,14 @@
 {
-  "keyboard_shortcut": "", 
-  "name": "def", 
+  "keyboard_shortcut": "",
+  "name": "def",
   "value": [
-    "def [[%tabstop:name]](<%= ko.snippets.inPythonClass() ? \"self, \" : \"\" %>[[%tabstop:arg1]][[%soft:)]][[%soft::]][[%tabstop:", 
-    "\t\"\"\"", 
-    "\t[[%tabstop:docstring]]", 
-    "\t\"\"\"]]", 
-    "\t[[%tabstop:pass]]", 
+    "def [[%tabstop:name]](<%= ko.snippets.inPythonClass() ? \"self, \" : \"\" %>[[%tabstop:arg1]][[%soft:)]][[%soft::]]",
+    "\t[[%tabstop:pass]]",
     "!@#_currentPos!@#_anchor"
-  ], 
-  "set_selection": "false", 
-  "version": "1.0.11", 
-  "type": "snippet", 
-  "indent_relative": "true", 
+  ],
+  "set_selection": "false",
+  "version": "1.0.11",
+  "type": "snippet",
+  "indent_relative": "true",
   "auto_abbreviation": "true"
 }
