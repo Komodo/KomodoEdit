@@ -1779,12 +1779,12 @@ viewManager.prototype.is_cmd_saveAll_enabled = function() {
 
 viewManager.prototype.do_cmd_saveAll = function() {
     try {
-        var views = this.topView.getViews(true);
+        var views = this.topView.getDocumentViews(true);
         var i, view;
         this.log.info("length of views is: " + views.length);
         for (i = views.length-1; i >= 0; i--) {
             view = views[i];
-            if (view.koDoc && view.koDoc.isDirty) {
+            if (view.save && view.koDoc.isDirty) {
                 view.save(); // we'll ignore return values here.
             }
         }
