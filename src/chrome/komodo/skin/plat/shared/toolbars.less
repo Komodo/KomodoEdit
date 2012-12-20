@@ -17,10 +17,11 @@
     /* Button */
     > toolbarbutton
     {
-        min-width: 24px;
-        height: 24px;
+        min-width: 20px;
+        height: 20px;
+        max-height: 20px;
         padding: 0 0 0 6px !important;
-        margin: 0;
+        margin: 0 1px 0 0;
         
         .border(@menubar-button-border-width, @menubar-button-border-style, @menubar-button-border-color);
         box-shadow: @menubar-button-shadow;
@@ -75,6 +76,7 @@
             box-shadow: @menubar-button-shadow-hover;
             background-color: @menubar-button-background-color-hover;
             background-image: @menubar-button-background-image-hover;
+            .border(@menubar-button-border-width-hover, @menubar-button-border-style-hover, @menubar-button-border-color-hover);
         }
         
         /* Checked / Active Button */
@@ -83,12 +85,7 @@
             box-shadow: @menubar-button-shadow-active;
             background-color: @menubar-button-background-color-active;
             background-image: @menubar-button-background-image-active;
-        }
-        
-        /* Inactive button */
-        &:-moz-window-inactive
-        {
-            border-color: @menubar-button-border-color-inactive;
+            .border(@menubar-button-border-width-active, @menubar-button-border-style-active, @menubar-button-border-color-active);
         }
         
         /*
@@ -133,8 +130,20 @@
     }
 }
 
+/* Main toolbox (menu bar and toolbars) */
+#toolbox_main
+{
+    -moz-appearance: none;
+    background: @menubar-background;
+    border-bottom: @menubar-border-bottom;
+}
+
+#toolbar-menubar
+{
+    margin-bottom: -1px; /* so bottom border doesn't look weird if the toolbox row is hidden */
+}
+
 #main-toolboxrow > hbox
 {
-    border-bottom: @menubar-border-bottom;
     padding-bottom: 3px;
 }

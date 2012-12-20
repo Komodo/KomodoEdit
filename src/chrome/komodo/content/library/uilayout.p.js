@@ -108,16 +108,6 @@ this.toggleToolbarVisibility = function uilayout_toggleToolbarVisibility(toolbar
         broadcaster.setAttribute("checked", "false");
     }
     document.persist(toolbarId, "kohidden");
-	
-	var toolboxrow 		= document.getElementById("main-toolboxrow");
-	var visibleToolbars = toolboxrow.querySelectorAll("toolbar:not([kohidden='true'])");
-	if (visibleToolbars.length == 0) {
-		toolboxrow.setAttribute('kohidden', 'true');
-		return;
-	} else {
-		toolboxrow.removeAttribute('kohidden');
-	}
-	document.persist("main-toolboxrow", "kohidden");
     
     this._updateToolbarViewStates();
 }
@@ -305,13 +295,13 @@ this._updateToolbarViewStates = (function uilayout__updateToolbarViewStates(tool
         // which case the argument is an Event rather than a <toolbox>...
         toolbox = document.getElementById("toolbox_main");
     }
-	
-	var buttonSets = toolbox.querySelectorAll("toolbar > toolbaritem > toolbarbutton:first-child");
-	for (var i=0;i<buttonSets.length;i++)
-	{
-		var toolbarItem 	= buttonSets[i].parentNode;
-		var toolbar 		= toolbarItem.parentNode;
-		
+    
+    var buttonSets = toolbox.querySelectorAll("toolbar > toolbaritem > toolbarbutton:first-child");
+    for (var i=0;i<buttonSets.length;i++)
+    {
+        var toolbarItem     = buttonSets[i].parentNode;
+        var toolbar         = toolbarItem.parentNode;
+        
         var children = Array.slice(toolbarItem.querySelectorAll(".first-child, .last-child"));
         for each (var child in children) {
             if (child.parentNode == toolbarItem) {
@@ -319,31 +309,40 @@ this._updateToolbarViewStates = (function uilayout__updateToolbarViewStates(tool
                 child.classList.remove("last-child");
             }
         }
-		
+        
         children = Array.slice(toolbarItem.querySelectorAll(":not([kohidden='true']):not(toolbarseparator):not(spacer)"));
         children = children.filter(function(child) child.parentNode === toolbarItem && child.parentNode.parentNode.getAttribute("kohidden") !== "true");
-		
+        
         if (children.length > 0) {
-			toolbarItem.removeAttribute("kohidden");
-			toolbarItem.classList.remove('no-children');
-			toolbarItem.classList.add('has-children');
+            toolbarItem.removeAttribute("kohidden");
+            toolbarItem.classList.remove('no-children');
+            toolbarItem.classList.add('has-children');
             children[0].classList.add("first-child");
             children[children.length - 1].classList.add("last-child");
-			
-			if (i==0) {
-				toolbar.classList.add('first-child');
-			} else if (typeof previousToolbar != 'undefined') {
-				previousToolbar.classList.remove('last-child');
-			}
-			toolbar.classList.add('last-child');
+            
+            if (i==0) {
+                toolbar.classList.add('first-child');
+            } else if (typeof previousToolbar != 'undefined') {
+                previousToolbar.classList.remove('last-child');
+            }
+            toolbar.classList.add('last-child');
         } else {
-			toolbarItem.setAttribute("kohidden", "true");
-			toolbarItem.classList.add('no-children');
-			toolbarItem.classList.remove('has-children');
-		}
-		
-		var previousToolbar = toolbar;
-	}
+            toolbarItem.setAttribute("kohidden", "true");
+            toolbarItem.classList.add('no-children');
+            toolbarItem.classList.remove('has-children');
+        }
+        
+        var previousToolbar = toolbar;
+    }
+    
+    var toolboxrow         = document.getElementById("main-toolboxrow");
+    var visibleToolbars = toolboxrow.querySelectorAll("toolbar:not([kohidden='true'])");
+    if (visibleToolbars.length == 0) {
+        toolboxrow.setAttribute('kohidden', 'true');
+    } else {
+        toolboxrow.removeAttribute('kohidden');
+    }
+    document.persist("main-toolboxrow", "kohidden");
 }).bind(this);
 addEventListener("load", this._updateToolbarViewStates, false);
 

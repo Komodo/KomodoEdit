@@ -1,10 +1,156 @@
-@panel-border-color:                inherit;
+@panel-border-color:                    ThreeDShadow;
+@panel-border:                          1px solid @panel-border-color;
 
-@sidebar-background-color:          #FFF;
-@sidebar-inactive-background-color: #FFF;
-@sidebar-splitter-color:            #FFF;
+@sidebar-background:                    -moz-dialog -moz-linear-gradient(90deg , rgba(0,0,0,0.08) 0%, rgba(255,255,255,0) 100%);
+@sidebar-inactive-background:           @sidebar-background;
+@sidebar-splitter-color:                rgba(0,0,0,0.2);
 
-@bottom-background-color:           #FFF;
-@bottom-inactive-background-color:  #FFF;
+@bottom-background:                     Window;
+@bottom-inactive-background:            Window;
 
-@tree-item-highlight-background:    highlight;
+@panel-label-color:                     inherit;
+@panel-label-weight:                    bold;
+@panel-label-transform:                 none;
+@panel-label-shadow:                    none;
+@panel-label-font:                      inherit;
+
+@main-border-color:                     ThreeDShadow;
+@main-border-color-inactive:            ThreeDShadow;
+@main-border:                           1px solid @main-border-color;
+@main-border-inactive:                  1px solid @main-border-color-inactive;
+
+@statusbar-background:                  none;
+@statusbar-text-color:                  inherit;
+@statusbar-font:                        inherit;
+@statusbar-font-size:                   inherit;
+@statusbar-border-width:                1px 0 0 0;
+@statusbar-border-style:                solid;
+@statusbar-border-color:                ThreeDShadow;
+@statusbar-panel-border-image:          none;
+
+@menubar-background:                    -moz-linear-gradient(90deg , rgb(208,214,229) 0%, rgb(243,245,249) 100%);
+@menubar-border-bottom:                 1px solid rgba(0, 0, 0, 0.25);
+
+@menubar-group-first-border-width:      0 1px 0 0;
+@menubar-group-last-border-width:       0 0 0 1px;
+@menubar-group-border-width:            0 1px;
+@menubar-group-border-style:            solid;
+@menubar-group-border-color:            transparent rgba(0,0,0, 0.25) transparent rgba(255,255,255, 0.35);
+
+@menubar-button-first-border-width:     1px;
+@menubar-button-last-border-width:      1px;
+@menubar-button-single-border-width:    1px;
+
+@menubar-button-border-width:           1px !important;
+@menubar-button-border-style:           solid;
+@menubar-button-border-color:           transparent;
+@menubar-button-border-radius:          4px;
+
+@menubar-button-background-color:       inherit;
+@menubar-button-background-image:       none;
+@menubar-button-background-position:    inherit;
+@menubar-button-background-repeat:      inherit;
+@menubar-button-shadow:                 inherit;
+@menubar-button-icon-filter:            inherit;
+
+@menubar-group-border-color-inactive:   @menubar-group-border-color;
+@menubar-button-border-color-inactive:  inherit;
+
+@menubar-button-background-color-hover: transparent !important;
+@menubar-button-background-image-hover: none;
+@menubar-button-shadow-hover:           inherit;
+@menubar-button-border-width-hover:     1px;
+@menubar-button-border-style-hover:     solid;
+@menubar-button-border-color-hover:     rgba(0,0,0, 0.4);
+
+@menubar-button-background-color-active:transparent !important;
+@menubar-button-background-image-active:none;
+@menubar-button-shadow-active:          inset 0px 1px 5px rgba(0,0,0,0.15);
+@menubar-button-border-width-active:    1px;
+@menubar-button-border-style-active:    solid;
+@menubar-button-border-color-active:    rgba(0,0,0, 0.4);
+
+@panel-separator-shadow:                inherit;
+
+/* Tabs */
+@tab-box-box-shadow:                    none;
+@tab-box-border:                        1px solid rgba(0,0,0,0.3);
+@tab-box-background-color:              Window;
+@tab-box-background-image:              -moz-linear-gradient(90deg , #DEE2E4 0%, #F6F7F8 100%);
+@tab-box-background-image-vertical:     -moz-linear-gradient(180deg , #DEE2E4 0%, #f1f2f3 100%);
+@tab-box-background-icons:              -moz-linear-gradient(90deg , #DEE2E4 0%, #F6F7F8 100%);
+
+@tab-font:                              inherit;
+@tab-font-size:                         inherit;
+@tab-bottom-font-size:                  inherit;
+@tab-color:                             ThreeDDarkShadow;
+@tab-text-shadow:                       0 1px 0 rgba(255, 255, 255, 0.5);
+@tab-text-opacity:                      0.7;
+@tab-text-opacity-selected:             1.0;
+
+@tab-moz-appearance:                    none;
+@tab-moz-appearance-vertical:           none;
+@tab-moz-appearance-icons:              none;
+
+@tab-box-shadow:                        none;
+@tab-border:                            1px solid rgba(0,0,0,0.25);
+@tab-transition:                        all 0.20s linear;
+@tab-background:                        #e5e8ea;
+@tab-background-vertical:               @tab-background;
+@tab-box-shadow-vertical:               @tab-box-shadow;
+
+@tab-icons-unselected-opacity:          0.6;
+@tab-icons-unselected-filter:           ~"url(chrome://komodo/skin/filters.svg#greyscale_bright)";
+
+@tab-selected-border:                   @tab-border;
+@tab-selected-background:               rgb(255, 255, 255);
+@tab-selected-box-shadow:               inherit;
+@tab-selected-color:                    WindowText;
+@tab-selected-background-vertical:      @tab-selected-background;
+@tab-selected-box-shadow-vertical:      @tab-selected-box-shadow;
+
+@tab-hover-border:                      @tab-border;
+@tab-hover-background:                  rgba(255, 255, 255, 0.5);
+@tab-hover-box-shadow:                  @tab-box-shadow;
+@tab-hover-color:                       inherit;
+@tab-hover-background-vertical:         @tab-hover-background;
+@tab-hover-box-shadow-vertical:         @tab-hover-box-shadow;
+
+@tab-active-border:                     @tab-border;
+@tab-active-background:                 @tab-hover-background;
+@tab-active-box-shadow:                 @tab-box-shadow;
+@tab-active-color:                      inherit;
+@tab-active-background-vertical:        @tab-active-background;
+@tab-active-box-shadow-vertical:        @tab-active-box-shadow;
+
+@tab-debug-box-background:              Window;
+
+@tab-debug-color:                       inherit;
+@tab-debug-background:                  transparent;
+@tab-debug-border-width:                0;
+@tab-debug-border-style:                none;
+@tab-debug-border-color:                inherit;
+@tab-debug-border-radius:               0;
+@tab-debug-font-weight:                 normal;
+@tab-debug-text-shadow:                 none;
+@tab-debug-box-shadow:                  none;
+
+@tab-debug-hover-color:                 inherit;
+@tab-debug-hover-background:            transparent;
+@tab-debug-hover-border-width:          0;
+@tab-debug-hover-border-style:          none;
+@tab-debug-hover-border-color:          inherit;
+@tab-debug-hover-border-radius:         0;
+@tab-debug-hover-font-weight:           normal;
+@tab-debug-hover-text-shadow:           none;
+@tab-debug-hover-box-shadow:            none;
+
+@tab-debug-selected-color:              inherit;
+@tab-debug-selected-background:         transparent;
+@tab-debug-selected-border-width:       0;
+@tab-debug-selected-border-style:       none;
+@tab-debug-selected-border-color:       inherit;
+@tab-debug-selected-border-radius:      0;
+@tab-debug-selected-font-weight:        bold;
+@tab-debug-selected-text-shadow:        none;
+@tab-debug-selected-box-shadow:         none;

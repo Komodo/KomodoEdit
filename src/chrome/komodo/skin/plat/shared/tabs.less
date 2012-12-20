@@ -1,5 +1,6 @@
 /* Variables & Helpers */
 @import url("chrome://komodo/skin/_config/window.less");
+@import url("chrome://komodo/skin/_config/icons.less");
 
 .native 
 {
@@ -109,6 +110,7 @@
             {
                 opacity: 1;
                 -moz-image-region: rect(0px, 32px, 16px, 16px);
+                border-color: transparent;
                 
                 &:active
                 {
@@ -123,7 +125,7 @@
      */
     .tabs-select-button
     {
-        list-style-image: url("chrome://komodo/skin/images/alltabs-box-bkgnd-icon.png");
+        list-style-image: @icon-tab-select;
         margin: 0;
         padding-left: 0;
         padding-right: 0;
@@ -136,7 +138,7 @@
         
         &:hover > image
         {
-            list-style-image: url("chrome://komodo/skin/images/alltabs-box-bkgnd-icon.png");
+            list-style-image: @icon-tab-select;
             opacity: 1.0;
         }
         
@@ -251,6 +253,7 @@
     tab 
     {
         -moz-appearance: @tab-moz-appearance;
+        outline: none !important;
         background: @tab-background;
         border-radius: 0 !important;
         box-shadow: @tab-box-shadow;

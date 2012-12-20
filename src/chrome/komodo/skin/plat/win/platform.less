@@ -1,7 +1,5 @@
-@import url("chrome://komodo/skin/tabs/tabs.css");
-@import url("chrome://komodo/skin/tabs/verticaltabs.css");
-@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
-
+@import url("chrome://komodo/skin/plat/shared/platform.less");
+@import url("chrome://komodo/skin/_config/window.less");
 
 /* "workspace_splitter": A splitter used between main panes in the
  * Komodo window.
@@ -16,30 +14,6 @@
  * TODO: Use similar style to that for gnome when have versions of
  *       "grippy_horizontal.png" and "grippy_vertical.png" that aren't so fat.
  */
-
-
-/* Sidebar and editor tabs styling. */
-
-tabpanels
-{
-  -moz-appearance: none;
-  border: None;
-  padding: 0px;
-  padding-top: 2px;
-  margin: 0px;
-}
-/* Don't want the above padding for editor tabpanels. */
-#tabview {
-  padding-top: 0;
-}
-
-tabpanel
-{
-  -moz-appearance: none;
-  border: None;
-  padding: 0px;
-  margin: 0px;
-}
 
 /* Fix disabled autocomplete-textbox styling on Linux and Vista (bug 75996).
  * 
@@ -113,4 +87,135 @@ ko-pane[type="icons"] tab .tab-icon
 {
   width: 16px;
   height: 16px;
+}
+
+/* Tab Tweaks */
+.native tabs {
+  height: auto;
+}
+
+ko-pane[type="vertical"] tabs[anonid="tabs"] {
+  
+  ko-vertical-text .label {
+    margin-left: 3px;
+  }
+}
+
+ko-pane[type="icons"] .tabstrip-box {
+  height: auto !important;
+}
+
+ko-pane[type="icons"] tab {
+  margin: 4px 4px 4px 0;
+  
+  &:last-child {
+    margin-right: 0;
+    -moz-box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* Aero Theme Integrations */
+
+/* Menu Bar */
+
+menubar > menu {
+  -moz-appearance: none;
+  margin:          0;
+  padding:         0;
+  border-width:    0 1px 1px 1px;
+  border-style:    solid;
+  border-color:    transparent;
+
+  &:first-child {
+    padding-left: 2px;
+    border-left-width: 0;
+  }
+
+  .menubar-text {
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+  }
+
+  &:hover {
+    background:   rgba(255, 255, 255, 0.25);
+    border-color: rgba(0, 0, 0, 0.25);
+    color:        MenuText;
+
+    .menubar-text {
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.75);
+    }
+  }
+
+  &[open="true"] {
+    background:               rgba(0, 0, 0, 0.075);
+    color:                    MenuText;
+    box-shadow:               inset 0 1px 2px rgba(0, 0, 0, 0.25);
+    -moz-border-right-colors: rgba(0, 0, 0, 0.35);
+    -moz-border-left-colors:  rgba(0, 0, 0, 0.35);
+
+    .menubar-text {
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.25);
+    }
+  }
+}
+
+toolbarbutton
+{
+  padding: 0;
+}
+
+#main-toolboxrow
+{
+  margin: 4px 0 2px;
+  
+  toolbar > toolbaritem > toolbarbutton
+  {
+    padding-left: 4px !important;
+    
+    & > image
+    {
+      padding-right: 3px;
+    }
+  }
+}
+
+.native tab
+{
+  border-top:               3px solid @tab-background;
+  border-left:              none;
+  border-bottom:            none;
+  -moz-border-top-colors:   rgba(0, 0, 0, 0.10);
+  -moz-border-right-colors: rgba(0, 0, 0, 0.25) !important;
+
+  &:last-child {
+    box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
+  }
+
+  &:hover:not([selected="true"]) {
+    -moz-border-top-colors:   mix(rgba(0, 0, 0, 0.25), #ff9000, 75%);
+  }
+
+  &[selected="true"] {
+    -moz-border-top-colors:   #ff9000 !important;
+  }
+}
+
+tabbox.native tab
+{
+  /*-moz-border-top-colors:   rgba(0, 0, 0, 0.25);*/
+}
+
+.tabs-closebutton {
+  -moz-appearance: none;
+  list-style-image: url("chrome://global/skin/icons/close.png");
+  margin-right: 2px;
+  -moz-image-region: rect(0px, 16px, 16px, 0px);
+}
+
+.tabs-closebutton:hover {
+  -moz-image-region: rect(0px, 32px, 16px, 16px);
+  border-color: transparent !important;
+}
+
+.tabs-closebutton:hover:active {
+  -moz-image-region: rect(0px, 48px, 16px, 32px);
 }
