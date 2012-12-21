@@ -56,13 +56,6 @@ import koXMLTreeService
 log = logging.getLogger('koLanguage')
 #log.setLevel(logging.DEBUG)
 
-def _cmpLen(a, b):
-    al = len(a)
-    bl = len(b)
-    if al>bl: return -1
-    if al==bl: return cmp(a, b)
-    return 1
-
 class KoLanguageItem:
     _com_interfaces_ = [components.interfaces.koIHierarchyItem]
     _reg_contractid_ = "@activestate.com/koLanguageItem;1"
@@ -166,13 +159,14 @@ class KoLanguageRegistryService:
         #   (src/languages/ko*Language.py and any installed UDL-based
         #   language extensions) unless the given pattern is already used
         self.__languageNameFromPattern = {} # e.g. "*.py": "Python"
-        self.__sortedLanguageNamePatterns = [] # e.g. "*.py"
         # Used for creating user assocs diff.
         self.__factoryLanguageNameFromPattern = {}
         self.__patternsFromLanguageName = None  # e.g. "Python": ["*.py", "*.pyw"]
         # E.g. ".py": "Python", "Makefile": "Makefile", "Conscript": "Perl";
         # for faster lookup.
         self.__languageNameFromExtOrBasename = None
+        # Other file associations that don't fit the ExtOrBasename style.
+        self.__languageNameFromOther = None
 
         # XXX get from prefs?
         self.defaultLanguage = "Text"
@@ -188,15 +182,15 @@ class KoLanguageRegistryService:
     def observe(self, aSubject, aTopic, someData):
         if aTopic == "fileAssociationDiffs":
             self.__languageNameFromPattern = None
-            self.__sortedLanguageNamePatterns = []
             self.__languageNameFromExtOrBasename = None
+            self.__languageNameFromOther = {}
             self.__patternsFromLanguageName = None
             self._resetFileAssociationData()
 
     def _resetFileAssociationData(self):
         self.__languageNameFromPattern = {}
-        self.__sortedLanguageNamePatterns = []
         self.__languageNameFromExtOrBasename = {}
+        self.__languageNameFromOther = {}
         self.__factoryLanguageNameFromPattern = {}
         self.__patternsFromLanguageName = {}
 
@@ -243,16 +237,12 @@ class KoLanguageRegistryService:
                 log.exception("error loading 'fileAssociationDiffs' "
                               "(skipping): %s", fileAssociationDiffsRepr)
 
-        # We want the language patterns sorted, so it can used directly in
-        # suggestLanguageForFile.
-        self.__sortedLanguageNamePatterns.sort(_cmpLen)
-
     def _removeOneFileAssociation(self, pattern, languageName):
         if languageName == self.__languageNameFromPattern.get(pattern):
             log.debug("remove '%s' -> '%s' file association", pattern,
                       languageName)
-            del self.__languageNameFromPattern[pattern]
-            self.__sortedLanguageNamePatterns.remove(pattern)
+            self.__languageNameFromPattern.pop(pattern)
+            self.__languageNameFromOther.pop(pattern, None)
             self.__patternsFromLanguageName[languageName].remove(pattern)
 
             base, ext = splitext(pattern)
@@ -285,17 +275,19 @@ class KoLanguageRegistryService:
         #          % (pattern, languageName)
 
         self.__languageNameFromPattern[pattern] = languageName
-        self.__sortedLanguageNamePatterns.append(pattern)
 
         if languageName not in self.__patternsFromLanguageName:
             self.__patternsFromLanguageName[languageName] = []
         self.__patternsFromLanguageName[languageName].append(pattern)
 
         base, ext = splitext(pattern)
-        if base == '*':  # i.e. pattern == "*.FOO"
+        if base == '*' and '*' not in ext:  # i.e. pattern == "*.FOO"
             self.__languageNameFromExtOrBasename[ext.lower()] = languageName
         elif '*' not in pattern:  # e.g. "Conscript", "Makefile"
             self.__languageNameFromExtOrBasename[pattern.lower()] = languageName
+        else:
+            # Everything else that doesn't fit into the above two cases.
+            self.__languageNameFromOther[pattern] = languageName
 
     _addonsEnabled = {}
 
@@ -498,10 +490,8 @@ class KoLanguageRegistryService:
         #print "Unknown file %r" % (basename, )
         # Next, try each registered filename glob pattern: slower.  Use the
         # longest pattern first
-        for pattern in self.__sortedLanguageNamePatterns:
+        for pattern, lang in self.__languageNameFromOther.items():
             if fnmatch.fnmatch(basename, pattern):
-                lang = self.__languageNameFromPattern.get(pattern)
-                # TODO: Should we cull these periodically, or when they get too big?
                 self.__languageNameFromExtOrBasename[basename] = lang
                 #print "suggestLanguageForFile: %r %r -> '%s'" % (basename, pattern, lang)
                 return lang
