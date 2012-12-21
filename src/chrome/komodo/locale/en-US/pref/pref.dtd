@@ -367,6 +367,7 @@ For example, when entering '(', automatically add a closing ')' after the cursor
 <!ENTITY previewInExternalBrowserSpecifiedAbove.label "Preview in external browser (specified above)">
 <!ENTITY previewInKomodoTabOtherTabGroup.label "Preview in Komodo tab, other Split View">
 <!ENTITY previewInKomodoTabSameTabGroup.label "Preview in Komodo tab, same Split View">
+<!ENTITY previewInKomodoDialog.label "Preview in a separate Komodo dialog">
 <!ENTITY printInColorAlwaysTrueWhenPrintingToFile.label "Print in color (always true when printing to file)">
 <!ENTITY printLineNumbers.label "Print line numbers">
 <!ENTITY printHeaderFilepath.label "Print the file path in the page header">

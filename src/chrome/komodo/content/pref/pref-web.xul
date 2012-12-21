@@ -89,6 +89,9 @@
                        selected="true"/>
                 <radio value="in-tab-same-group"
                        label="&previewInKomodoTabSameTabGroup.label;"/>
+                <radio value="in-separate-dialog"
+                       label="&previewInKomodoDialog.label;"
+                       selected="true"/>
                 <radio value="external"
                        label="&previewInExternalBrowserSpecifiedAbove.label;"/>
             </radiogroup>

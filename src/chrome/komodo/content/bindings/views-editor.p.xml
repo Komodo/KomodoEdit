@@ -690,7 +690,11 @@
                 this.saveState();
                 this.koDoc = null;
                 if (this.preview) {
-                    this.preview.sourceView = null;
+                    try {
+                        this.preview.sourceView = null;
+                    } catch(ex) {
+                        // It's likely already gone.
+                    }
                     this.preview = null;
                 }
                 var prefObserverService = this.__globalPrefs.prefObserverService;
@@ -895,13 +899,18 @@
             // reset those items that are buffer dependent
             // new objects will be recreated on request
             this.item = null;
-            if (this.preview && this.preview.reload) {
-                try {
-                    this.preview.reload();
-                } catch(ex) {
-                    // Bug 92875: We don't care about this exception, no point in
-                    // displaying it to user.
-                    this.log.debug("this.preview.reload: " + ex);
+            if (this.preview) {
+                if (this.preview.reload) {
+                    try {
+                        this.preview.reload();
+                    } catch(ex) {
+                        // Bug 92875: We don't care about this exception, no point in
+                        // displaying it to user.
+                        this.log.debug("this.preview.reload: " + ex);
+                    }
+                } else if (this.preview.document) {
+                    // Reload in a separate window.
+                    this.preview.document.location = this.preview.document.location;
                 }
             }
 
@@ -1561,13 +1570,19 @@
                 [previewPath, browserType] = this._getPreviewPathAndBrowserType(browserType);
             } else if (this.preview) {
                 // When the view already has an open browser preview, switch to it.
-                this.preview.makeCurrent();
-                try {
-                    this.preview.reload();
-                } catch(ex) {
-                    // Bug 92875: We don't care about this exception, no point in
-                    // displaying it to user.
-                    this.log.debug("this.preview.reload: " + ex);
+                if (this.preview.makeCurrent) {
+                    this.preview.makeCurrent();
+                    try {
+                        this.preview.reload();
+                    } catch(ex) {
+                        // Bug 92875: We don't care about this exception, no point in
+                        // displaying it to user.
+                        this.log.debug("this.preview.reload: " + ex);
+                    }
+                } else if (this.preview.document) {
+                    this.preview.focus();
+                    // Reload in a separate window.
+                    this.preview.document.location = this.preview.document.location;
                 }
             } else {
                 // Open the browser preview as specified by the user's prefs.
@@ -1587,6 +1602,12 @@
                     case "in-tab-same-group":
                         previewURI = ko.uriparse.pathToURI(previewPath);
                         this.createInternalViewPreview(previewURI, this.parentView);
+                        break;
+                    case "in-separate-dialog":
+                        previewURI = ko.uriparse.pathToURI(previewPath);
+                        this.preview = window.openDialog(previewURI,
+                                          "_blank",
+                                          "chrome,titlebar,all,close=yes,resizable,scrollbars");
                         break;
                 }
             }
