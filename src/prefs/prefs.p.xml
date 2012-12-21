@@ -406,9 +406,7 @@
  'Conscript': 'Perl',
  'Construct': 'Perl',
  'Gemfile': 'Ruby',
- 'Makefile': 'Makefile',
  'makefile': 'Makefile',
- 'Rakefile': 'Ruby',
  'rakefile': 'Ruby'
 }</string>
 
