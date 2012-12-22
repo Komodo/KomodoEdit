@@ -213,7 +213,7 @@ class KoLanguageRegistryService:
                 self._addOneFileAssociation('*'+defaultExtension, languageName,
                                             override=False)
 
-            for pattern in language.getFileAssociations():
+            for pattern in language.getExtraFileAssociations():
                 self._addOneFileAssociation(pattern, languageName,
                                             override=False)
 

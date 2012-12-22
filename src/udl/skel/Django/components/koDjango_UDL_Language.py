@@ -69,7 +69,7 @@ class KoDjangoLanguage(KoDjangoTemplateFamilyBase):
     _reg_clsid_ = "{5c36e354-525e-11db-82d8-000d935d3368}"
     _reg_categories_ = [("komodo-language", name)]
     defaultExtension = '.django.html'
-    fileAssociations = ['*.django']
+    extraFileAssociations = ['*.django']
     searchURL = "http://docs.djangoproject.com/en"
 
     lang_from_udl_family = {'CSL': 'JavaScript', 'TPL': 'Django', 'M': 'HTML', 'CSS': 'CSS'}

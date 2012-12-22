@@ -88,7 +88,7 @@ class KoRubyLanguage(KoLanguageKeywordBase):
     accessKey = 'r'
     primary = 1
     defaultExtension = ".rb"
-    fileAssociations = ["*.mab"] # .mab is Markaby
+    extraFileAssociations = ["*.mab"] # .mab is Markaby
     shebangPatterns = [ re.compile(ur'\A#!.*ruby.*$', re.IGNORECASE | re.MULTILINE),]
 
     _lineup_chars = u"()[]"

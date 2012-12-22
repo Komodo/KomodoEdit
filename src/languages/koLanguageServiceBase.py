@@ -861,8 +861,8 @@ class KoLanguageBase:
     defaultExtension = None
 
     # Override in subclass to provide additional file associations (on top of
-    # the defaultExtension above). e.g. ["*.py", "*.python"]
-    fileAssociations = []
+    # the defaultExtension above). e.g. ["*.python"]
+    extraFileAssociations = []
 
     # use something as a default.  Not the best, but the most we can do until
     # all scintilla lexers have io styles
@@ -1014,8 +1014,8 @@ class KoLanguageBase:
             setattr(self, "_" + topic,
                     self.prefset.getBooleanPref(topic))
 
-    def getFileAssociations(self):
-        return self.fileAssociations
+    def getExtraFileAssociations(self):
+        return self.extraFileAssociations
     def getSubLanguages(self):
         return [self.name]
     def getLanguageForFamily(self, family):
