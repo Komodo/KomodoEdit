@@ -213,6 +213,10 @@ class KoLanguageRegistryService:
                 self._addOneFileAssociation('*'+defaultExtension, languageName,
                                             override=False)
 
+            for pattern in language.getFileAssociations():
+                self._addOneFileAssociation(pattern, languageName,
+                                            override=False)
+
         # Make a copy of the current association set before applying
         # user/site-level changes so we can compare against it latter to know
         # what changes (if any) the user made.

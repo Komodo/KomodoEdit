@@ -86,6 +86,16 @@ interface koILanguage : nsISupports {
     readonly attribute long styleStdout;
     readonly attribute long styleStderr;
 
+    // Additional file associations, on top of the defaultExtension. Must be in
+    // basename glob format: ['*.py', 'Makefile', 'Perl.*']
+    //
+    //readonly attribute nsIArray fileAssociations
+    // Python classes may just want to add these using the fileAssociations
+    // list.
+    //
+    void getFileAssociations([optional] out unsigned long count,
+                             [retval, array, size_is(count)] out wstring associations);
+
     void getSubLanguages([optional] out unsigned long count,
                           [retval, array, size_is(count)] out wstring languages);
     wstring getLanguageForFamily(in wstring family);

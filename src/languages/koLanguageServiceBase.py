@@ -859,7 +859,11 @@ class KoLanguageBase:
     # file association for the language. The extension string must include the
     # leading period, e.g. ".py".
     defaultExtension = None
-    
+
+    # Override in subclass to provide additional file associations (on top of
+    # the defaultExtension above). e.g. ["*.py", "*.python"]
+    fileAssociations = []
+
     # use something as a default.  Not the best, but the most we can do until
     # all scintilla lexers have io styles
     styleStdin = 0
@@ -1010,6 +1014,8 @@ class KoLanguageBase:
             setattr(self, "_" + topic,
                     self.prefset.getBooleanPref(topic))
 
+    def getFileAssociations(self):
+        return self.fileAssociations
     def getSubLanguages(self):
         return [self.name]
     def getLanguageForFamily(self, family):
