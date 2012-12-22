@@ -456,7 +456,7 @@ class Fortran95LangInfo(LangInfo):
 class JavaLangInfo(LangInfo):
     name = "Java"
     conforms_to_bases = ["Text"]
-    exts = [".java", ".jav"]
+    exts = [".java", ".jav", '.groovy']
 
 class LispLangInfo(LangInfo):
     name = "Lisp"

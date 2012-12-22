@@ -48,6 +48,7 @@ class koJavaLanguage(KoLanguageBase, KoLanguageBaseDedentMixin):
 
     accessKey = 'a'
     defaultExtension = ".java"
+    extraFileAssociations = ['*.groovy']
 
     commentDelimiterInfo = {
         "line": [ "//" ],

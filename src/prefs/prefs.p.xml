@@ -313,6 +313,7 @@
  '*.forth': 'Forth',
  '*.fx': 'HLSL',
  '*.gc': 'Gui4Cli',
+ '*.gsp': 'HTML',
  '*.h': 'C++',
  '*.h++': 'C++',
  '*.hpp': 'C++',

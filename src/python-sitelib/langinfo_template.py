@@ -168,3 +168,8 @@ class LaravelBladeTemplateLangInfo(LangInfo):
         ("section", re.compile(r'@section')),
         ]
 
+class GroovyServerPagesLangInfo(LangInfo):
+    name = "Groovy Server Pages"
+    conforms_to_bases = ["HTML"]
+    exts = [".gsp"]
+    komodo_name = "HTML"
