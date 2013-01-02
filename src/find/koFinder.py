@@ -2228,7 +2228,11 @@ def _regex_info_from_ko_find_data(pattern, repl=None,
         # if there is NOT a word character to either immediate side of the
         # pattern.
         desc_flag_bits.append("match word")
-        pattern = r"(?<!\w)" + pattern + r"(?!\w)"
+        # Bug 96542: Shows that the fix for bug 33698 didn't work correctly,
+        # because it wasn't allowing for low-precedence operators in the
+        # wrapped pattern (namely '|').  Also, it's simpler to just use '\b'
+        # rather than look-not-behind for \w and lookahead for \w
+        pattern = r'\b(?:' + pattern + r')\b'
     if '$' in pattern:
         # Modifies the pattern such that the '$' anchor will match at
         # '\r\n' and '\r'-style EOLs. To do this we replace occurrences
