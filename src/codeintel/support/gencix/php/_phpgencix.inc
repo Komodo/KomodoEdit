@@ -254,7 +254,41 @@ class phpSrcParser {
             array('name' => '_GET' , 'citdl'=>'array', ),
             array('name' => '_POST' , 'citdl'=>'array', ),
             array('name' => '_REQUEST' , 'citdl'=>'array', ),
-            array('name' => '_SERVER' , 'citdl'=>'array', ),
+            array('name' => '_SERVER' , 'citdl'=>'array',
+                  'variables' => array(
+                    array('name' => "HTTP_HOST", 'citdl' => 'string', ),
+                    array('name' => "HTTP_USER_AGENT", 'citdl' => 'string', ),
+                    array('name' => "HTTP_ACCEPT", 'citdl' => 'string', ),
+                    array('name' => "HTTP_ACCEPT_LANGUAGE", 'citdl' => 'string', ),
+                    array('name' => "HTTP_ACCEPT_ENCODING", 'citdl' => 'string', ),
+                    array('name' => "HTTP_ACCEPT_CHARSET", 'citdl' => 'string', ),
+                    array('name' => "HTTP_KEEP_ALIVE", 'citdl' => 'string', ),
+                    array('name' => "HTTP_CONNECTION", 'citdl' => 'string', ),
+                    array('name' => "HTTP_COOKIE", 'citdl' => 'string', ),
+                    array('name' => "HTTP_CACHE_CONTROL", 'citdl' => 'string', ),
+                    array('name' => "PATH", 'citdl' => 'string', ),
+                    array('name' => "SERVER_SIGNATURE", 'citdl' => 'string', ),
+                    array('name' => "SERVER_SOFTWARE", 'citdl' => 'string', ),
+                    array('name' => "SERVER_NAME", 'citdl' => 'string', ),
+                    array('name' => "SERVER_ADDR", 'citdl' => 'string', ),
+                    array('name' => "SERVER_PORT", 'citdl' => 'string', ),
+                    array('name' => "REMOTE_ADDR", 'citdl' => 'string', ),
+                    array('name' => "DOCUMENT_ROOT", 'citdl' => 'string', ),
+                    array('name' => "SERVER_ADMIN", 'citdl' => 'string', ),
+                    array('name' => "SCRIPT_FILENAME", 'citdl' => 'string', ),
+                    array('name' => "REMOTE_PORT", 'citdl' => 'string', ),
+                    array('name' => "GATEWAY_INTERFACE", 'citdl' => 'string', ),
+                    array('name' => "SERVER_PROTOCOL", 'citdl' => 'string', ),
+                    array('name' => "REQUEST_METHOD", 'citdl' => 'string', ),
+                    array('name' => "QUERY_STRING", 'citdl' => 'string', ),
+                    array('name' => "REQUEST_URI", 'citdl' => 'string', ),
+                    array('name' => "SCRIPT_NAME", 'citdl' => 'string', ),
+                    array('name' => "PHP_SELF", 'citdl' => 'string', ),
+                    array('name' => "REQUEST_TIME", 'citdl' => 'string', ),
+                    array('name' => "argv", 'citdl' => 'string', ),
+                    array('name' => "argc", 'citdl' => 'string', ),
+                  ),
+            ),
             array('name' => '_SESSION' , 'citdl'=>'array', ),
             array('name' => 'HTTP_COOKIE_VARS' , 'citdl'=>'array', ),
             array('name' => 'HTTP_ENV_VARS' , 'citdl'=>'array', ),
@@ -624,7 +658,15 @@ class phpCixGenerator {
         if($this->data['variables']) {
             foreach($this->data['variables'] as $var) {
                 //$fnode = $this->_gen_scope($var, $cix);
+                $cvars = $var['variables'];
+                unset($var['variables']);
                 $vnode = $this->_new_domnode($cix, 'variable', $var);
+                if($cvars) {
+                    foreach($cvars as $cvar) {
+                        $cnode = $this->_new_domnode($cix, 'variable', $cvar);
+                        $vnode->appendChild($cnode);
+                    }
+                }
                 $global->appendChild($vnode);
             }
         }
