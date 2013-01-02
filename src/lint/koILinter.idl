@@ -94,6 +94,8 @@ interface koILintResult : nsISupports
     const long DECORATOR_TAG_MATCH_HIGHLIGHT = 29; // currently also used for
             // automatic variable highlighting (kd 0277, bug 80095)
   
+    // Note: We can go up to 63 indicators, though any indicator above 31 will
+    //       not work with the scimoz.indicatorAllOnFor() method.
 };
 
 [scriptable, uuid(D990E18E-807F-47f9-8C9D-5D2AC5D9A4CF)]

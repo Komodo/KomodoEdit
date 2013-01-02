@@ -1,0 +1,44 @@
+Increase the number of indicators. Note that some indicator APIs will not past
+31 - notably SCI_INDICATORALLONFOR.
+
+https://groups.google.com/d/topic/scintilla-interest/_nSLVMc2ctg/discussion
+
+Index: /as/komodo-devel/src/scintilla/include/Scintilla.iface
+===================================================================
+--- include/Scintilla.iface    (revision 75338)
++++ include/Scintilla.iface    (working copy)
+@@ -578,7 +579,7 @@
+ val INDIC_DOTS=10
+ val INDIC_SQUIGGLELOW=11
+ val INDIC_DOTBOX=12
+-val INDIC_MAX=31
++val INDIC_MAX=63
+ val INDIC_CONTAINER=8
+ val INDIC0_MASK=0x20
+ val INDIC1_MASK=0x40
+--- include/Scintilla.h    (revision 75338)
++++ include/Scintilla.h    (working copy)
+@@ -262,7 +262,7 @@
+ #define INDIC_DOTS 10
+ #define INDIC_SQUIGGLELOW 11
+ #define INDIC_DOTBOX 12
+-#define INDIC_MAX 31
++#define INDIC_MAX 63
+ #define INDIC_CONTAINER 8
+ #define INDIC0_MASK 0x20
+ #define INDIC1_MASK 0x40
+--- src/Decoration.cxx	(revision 76026)
++++ src/Decoration.cxx	(working copy)
+@@ -161,7 +161,10 @@
+ 	int mask = 0;
+ 	for (Decoration *deco=root; deco; deco = deco->next) {
+ 		if (deco->rs.ValueAt(position)) {
+-			mask |= 1 << deco->indicator;
++			// Indicators above 31 will not work with this API.
++			if (deco->indicator < 32) {
++				mask |= 1 << deco->indicator;
++			}
+ 		}
+ 	}
+ 	return mask;
+
