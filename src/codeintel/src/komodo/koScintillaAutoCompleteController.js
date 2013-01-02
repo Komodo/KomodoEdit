@@ -76,6 +76,31 @@ KoScintillaAutoCompleteController.prototype = {
     this._popupHasHeight = false;
     this._selectedItem = null;
     this._focusedItem = null;
+    this._fontString = "";
+  },
+
+  get fontString() {
+    // Lazily compute the fontString - it should be calculated everytime the
+    // completion popup is shown.
+    if (!this._fontString) {
+      // Try to figure out what the default font style is
+      let scimoz = this._scimoz;
+      if (scimoz) {
+        const STYLE_DEFAULT = Components.interfaces.ISciMoz.STYLE_DEFAULT;
+        let sizeUnit = "pt";
+        if (Cc["@mozilla.org/xre/app-info;1"].getService(Ci.nsIXULRuntime).OS == "Darwin") {
+          // on Max OSX, use px instead of pt due to odd sizing issues
+          sizeUnit = "px";
+        }
+        let buf = {};
+        scimoz.styleGetFont(STYLE_DEFAULT, buf);
+        let fontSize = scimoz.styleGetSize(STYLE_DEFAULT) + scimoz.zoom;
+        // On GTK, a ! prefix indicates Pango fonts. Strip that.
+        this._fontString = fontSize + sizeUnit + " " +
+                           '"' + buf.value.replace(/^!/, "") + '", monospace';
+      }
+    }
+    return this._fontString;
   },
 
   addColumn: function KSACC_addColumn(aColumnType, aStrings, aCount, aPrimary) {
@@ -140,24 +165,6 @@ KoScintillaAutoCompleteController.prototype = {
       this._grid.removeChild(this._grid.firstChild);
     }
 
-    // Try to figure out what the default font style is
-    var fontString = "";
-    var scimoz = this._scimoz;
-    if (scimoz) {
-      const STYLE_DEFAULT = Components.interfaces.ISciMoz.STYLE_DEFAULT;
-      var sizeUnit = "pt";
-      if (Cc["@mozilla.org/xre/app-info;1"].getService(Ci.nsIXULRuntime).OS == "Darwin") {
-        // on Max OSX, use px instead of pt due to odd sizing issues
-        sizeUnit = "px";
-      }
-      var buf = {};
-      scimoz.styleGetFont(STYLE_DEFAULT, buf);
-      var fontSize = scimoz.styleGetSize(STYLE_DEFAULT) + scimoz.zoom;
-      // On GTK, a ! prefix indicates Pango fonts. Strip that.
-      fontString = fontSize + sizeUnit + " " +
-                   '"' + buf.value.replace(/^!/, "") + '", monospace';
-    }
-
     var document = this._grid.ownerDocument;
     var columns = document.createElement("columns");
     for each (let column in this._columns) {
@@ -173,11 +180,11 @@ KoScintillaAutoCompleteController.prototype = {
     for (var i = 0; i < this._visibleCount; ++i) {
       var item = document.createElement("row");
       item.setAttribute("class", "ko-autocomplete-item");
-      if (fontString) {
+      if (this.fontString) {
         // We have the scintilla default font style; use it.
         // (This is set on the row so that it's still possible to override the
         // font choice from CSS by being more specific.)
-        item.style.font = fontString;
+        item.style.font = this.fontString;
       }
       for each (var column in this._columns) {
         switch (column.type) {
