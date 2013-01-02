@@ -461,10 +461,6 @@ void SciMoz::Notify(long lParam) {
 						SendEditor(SCI_TOGGLEFOLD, lineAnchors[i], 0);
 					}
 				}
-				// dont go on for beforeInsert
-				if (notification->modificationType & SC_MOD_BEFOREINSERT) {
-				    break;
-				}
 			}
 			if (!(notification->modificationType & (SC_MOD_INSERTTEXT | SC_MOD_DELETETEXT | SC_MOD_BEFOREDELETE))) {
 				// we currently only want these events, break otherwise
