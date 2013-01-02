@@ -435,7 +435,9 @@ void SciMoz::Notify(long lParam) {
 #ifdef FAST_CODE
 			// if we are deleting or inserting on a fold, expand
 			// the fold first
-			if (notification->modificationType & (SC_MOD_BEFOREDELETE | SC_MOD_BEFOREINSERT))
+			if ((notification->modificationType & (SC_MOD_BEFOREDELETE | SC_MOD_BEFOREINSERT)) &&
+			    // Quick check to see if there are any folded lines.
+			    !SendEditor(SCI_GETALLLINESVISIBLE, 0, 0))
 			{
 				// If there's a selection, test both ends of it
 				int positions[2];
