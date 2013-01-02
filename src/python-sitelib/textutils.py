@@ -138,12 +138,18 @@ def break_up_words(text, max_word_length=50):
     import re
     bit_is_word = True
     bits = []
-    for bit in re.split("(\s+)", text):
+    splitter = u"\u200b" # zero-width space
+    if isinstance(text, str):
+        try:
+            text = unicode(text)
+        except UnicodeDecodeError:
+            splitter = " " # ASCII space
+    for bit in re.split(r"(\s+)", text, re.UNICODE):
         if bit_is_word:
             while len(bit) > max_word_length:
                 head, bit = bit[:max_word_length], bit[max_word_length:]
                 bits.append(head)
-                bits.append(' ')
+                bits.append(splitter)
             bits.append(bit)
         else:
             bits.append(bit)
