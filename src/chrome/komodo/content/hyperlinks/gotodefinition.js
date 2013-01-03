@@ -398,8 +398,7 @@
                 }
 
                 // Ensure the tooltip colors match the editor colors.
-                var backColor = view.scheme.getBack(view.languageObj.name, "default");
-                if (xtk.color.isDark(backColor)) {
+                if (view.scheme.isDarkBackground) {
                     tooltip.setAttribute("class", "dark");
                 } else {
                     tooltip.setAttribute("class", "light");
