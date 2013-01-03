@@ -351,7 +351,6 @@ bool SciMoz::DoBraceMatch(const NPVariant * /*args*/, uint32_t argCount, NPVaria
 	return true;
 }
 
-#define FAST_CODE
 //#define SCIMOZ_DEBUG_NOTIFY
 void SciMoz::Notify(long lParam) {
 	SCNotification *notification = reinterpret_cast<SCNotification *>(lParam);
@@ -430,9 +429,6 @@ void SciMoz::Notify(long lParam) {
 				eventSink->OnUpdateUI();
 			break;
 		case SCN_MODIFIED: {
-			// perf modification, do some early checks to see if
-			// we really want to call into js
-#ifdef FAST_CODE
 			// if we are deleting or inserting on a fold, expand
 			// the fold first
 			if ((notification->modificationType & (SC_MOD_BEFOREDELETE | SC_MOD_BEFOREINSERT)) &&
@@ -462,12 +458,12 @@ void SciMoz::Notify(long lParam) {
 					}
 				}
 			}
+
 			if (!(notification->modificationType & (SC_MOD_INSERTTEXT | SC_MOD_DELETETEXT | SC_MOD_BEFOREDELETE))) {
 				// we currently only want these events, break otherwise
 				//fprintf(stderr ,"bail on calling onModified\n");
 				break;
 			}
-#endif
 
 			bool isInsertOrDeleteText = notification->modificationType & (SC_MOD_INSERTTEXT | SC_MOD_DELETETEXT);
 			if (isInsertOrDeleteText) {
