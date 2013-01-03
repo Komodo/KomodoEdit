@@ -356,6 +356,9 @@ function setupSchemes()
             scheme = schemes.value[i];
             menuitem = document.createElement('menuitem');
             s = gDialog.schemeService.getScheme(scheme);
+            if (!s) {
+                continue;
+            }
             if (! s.writeable) {
                 menuitem.setAttribute('class','primary_menu_item');
             }

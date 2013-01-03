@@ -951,49 +951,58 @@ class KoScintillaSchemeService:
         self.reloadAvailableSchemes()
 
         currentScheme = self._globalPrefs.getStringPref('editor-scheme')
-        if currentScheme not in self._schemes:
+        if currentScheme not in self._scheme_details:
             log.error("The scheme specified in prefs (%s) is unknown -- reverting to default", currentScheme)
             self._globalPrefs.setStringPref('editor-scheme', 'Default')
 
     def reloadAvailableSchemes(self):
+        # _scheme_details contains the list of all available schemes, whilst
+        # _schemes contains the lazily loaded schemes.
+        self._scheme_details = {}
         self._schemes = {}
 
         #print self._systemSchemeDir, os.path.exists(self._systemSchemeDir)
         if os.path.isdir(self._systemSchemeDir):
-            schemes = self._loadSchemesFromDirectory(self._systemSchemeDir, 0)
+            self._addSchemeDetailsFromDirectory(self._systemSchemeDir, 0)
         self._userSchemeDir = os.path.join(self._koDirSvc.userDataDir, 'schemes')
         #print self._userSchemeDir
         if not os.path.isdir(self._userSchemeDir):
             os.mkdir(self._userSchemeDir)
         else:
-            schemes += self._loadSchemesFromDirectory(self._userSchemeDir, 1)
+            self._addSchemeDetailsFromDirectory(self._userSchemeDir, 1)
 
-        #print schemes
-        for scheme in schemes:
-            self.addScheme(scheme)
-        assert len(self._schemes) != 0 # We should always have Komodo schemes.
+        assert len(self._scheme_details) != 0 # We should always have Komodo schemes.
 
     def addScheme(self, scheme):
         #print "ADDING ", scheme.name
+        self._scheme_details[scheme.name] = {'filepath': scheme.fname,
+                                             'userDefined': scheme.writeable}
         self._schemes[scheme.name] = scheme
 
     def removeScheme(self, scheme):
         if scheme.name not in self._schemes:
             log.error("Couldn't remove scheme named %r, as we don't know about it", scheme.name)
             return
-        del self._schemes[scheme.name]
+        self._schemes.pop(scheme.name)
+        self._scheme_details.pop(scheme.name)
 
     def getSchemeNames(self):
-        names = self._schemes.keys()
-        names.sort()
-        return names
+        return sorted(self._scheme_details.keys())
     
     def getScheme(self, name):
-        if name not in self._schemes:
+        if name not in self._scheme_details:
             log.error("asked for scheme by the name of %r, but there isn't one", name)
-            return self._schemes['Default']
-        return self._schemes[name]
-    
+            name = 'Default'
+        scheme = self._schemes.get(name)
+        if scheme is None:
+            details = self._scheme_details[name]
+            scheme = _makeScheme(details['filepath'], details['userDefined'])
+            if scheme is None:
+                # This is primarily for tech support, to help answer the question
+                # "why is my Komodo color scheme file not loading?"
+                log.error("Unable to load Komodo color scheme: %r", details)
+        return scheme
+
     def getCommonStyles(self):
         names = CommonStates[:]
         names.sort()
@@ -1012,9 +1021,9 @@ class KoScintillaSchemeService:
         return IndicatorName2ScimozNo.get(indic_name, -1)
 
     def purgeUnsavedSchemes(self):
-        for name in self._schemes.keys():
-            if self._schemes[name].unsaved:
-                del self._schemes[name]
+        for scheme in list(self._schemes.values()):
+            if scheme.unsaved:
+                self.removeScheme(scheme)
 
     def createCSS(self, language, scheme, forceColor):
         css = []
@@ -1249,25 +1258,14 @@ class KoScintillaSchemeService:
         self.addScheme(newScheme)
         return newScheme.name
 
-    def _loadSchemesFromDirectory(self, dirName, userDefined):
-        finalSchemes = []
-        badSchemeFiles = []
-        candidates = [ x for x in os.listdir(dirName)
-                       if os.path.splitext(x)[1] == '.ksf']
-        for candidate in candidates:
-            scheme = _makeScheme(os.path.join(dirName, candidate), userDefined)
-            if scheme is None:
-                badSchemeFiles.append(candidate)
-            else:
-                finalSchemes.append(scheme)
-        if badSchemeFiles:
-            # This is primarily for tech support, to help answer the question
-            # "why is my Komodo color scheme file not loading?"
-            log.error("The following Komodo color scheme file(s) in %s weren't processed: %s",
-                      dirName,
-                      ", ".join(badSchemeFiles))
-        return finalSchemes
-    
+    def _addSchemeDetailsFromDirectory(self, dirName, userDefined):
+        for candidate in os.listdir(dirName):
+            name, ext = os.path.splitext(candidate)
+            if ext == '.ksf':
+                filepath = os.path.join(dirName, candidate)
+                self._scheme_details[name] = {'filepath': filepath,
+                                              'userDefined': userDefined}
+
     def activateScheme(self, newSchemeName):
         globalPrefs = components.classes["@activestate.com/koPrefService;1"].\
                             getService(components.interfaces.koIPrefService).prefs
