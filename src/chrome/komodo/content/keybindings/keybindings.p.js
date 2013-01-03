@@ -2519,11 +2519,6 @@ var VKCodes = {
 0x39: '9',
 0x3b: ";",
 0x3d: "=",
-// #if PLATFORM == 'darwin'
-0x43: "Enter", // Ctrl Enter KeyCode on OSX
-0x4d: "Return", // Ctrl Return KeyCode on OSX
-0x50: "F16", // on OSX
-// #endif
 0x60: "NumPad-0",
 0x61: "NumPad-1",
 0x62: "NumPad-2",
