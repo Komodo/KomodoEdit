@@ -63,6 +63,7 @@ monitoredPrefNames = { "enabledPrefName": { 'type': types.BooleanType,
 
 class KoFileCheckerBase(object):
 
+    name = 'unknown'
     _com_interfaces_ = [components.interfaces.nsIObserver,
                         components.interfaces.koIFileStatusChecker,
                         components.interfaces.nsIMemoryMultiReporter]
@@ -70,9 +71,8 @@ class KoFileCheckerBase(object):
     # Save have to look this up all over the status checker code.
     _is_windows = sys.platform.startswith("win")
 
-    def __init__(self, type, name):
+    def __init__(self, type):
         self.type = type
-        self.name = name
 
         # Dictionary of when a URI was last checked.
         # Note: On Windows, the URI must be lowered, because it's a case
@@ -270,6 +270,7 @@ class KoFileCheckerBase(object):
 
 class KoDiskFileChecker(KoFileCheckerBase):
 
+    name = 'disk'
     _reg_clsid_ = "{4871ae1f-edb2-4e2b-b35f-85109aea68ef}"
     _reg_contractid_ = "@activestate.com/koFileStatusChecker?type=disk;1"
     _reg_desc_ = "Komodo Disk Status Checker"
@@ -280,7 +281,7 @@ class KoDiskFileChecker(KoFileCheckerBase):
     ranking_weight = 5
 
     def __init__(self):
-        KoFileCheckerBase.__init__(self, 'disk', 'Disk')
+        KoFileCheckerBase.__init__(self, 'disk')
         self.enabledPrefName = 'diskStatusEnabled'
         self.backgroundEnabledPrefName = 'diskBackgroundCheck'
         self.backgroundDurationPrefName = 'diskBackgroundMinutes'
