@@ -482,15 +482,6 @@ function filebrowserLoad() {
   treeView = new filebrowseview();
   treeView.selectionCallback = onSelect;
 
-  // Move this file dialog over the Komodo window one if this is the first
-  // time we have opened it. Bug #43403
-  window.sizeToContent();
-  if (!opener || opener.innerHeight == 0) { // indicator that opener hasn't loaded yet
-    window.centerWindowOnScreen();
-  } else {
-    window.moveToAlertPosition(); // requires a loaded opener
-  }
-
   if (window.arguments) {
     var o = window.arguments[0];
     retvals = o.retvals; /* set this to a global var so we can set return values */
