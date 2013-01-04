@@ -197,6 +197,3 @@ $cons->InstallRecursive("$mozChromeDir/komodo/skin/images/languages",
                         cwd()."/src/chrome/komodo/skin/images/languages",
                         ('\.svn'));
 
-#placeholders (todo: remove or replace)
-
-$cons->InstallInChrome('codebrowser.png');
