@@ -258,7 +258,7 @@ class StdLib(object):
                           components.interfaces.nsIMemoryReporter.KIND_HEAP,
                           components.interfaces.nsIMemoryReporter.UNITS_BYTES,
                           getMemoryUsage(self._blob_from_blobname),
-                          "The number of bytes of %s codeintel stdlib %s blobs" % (self.lang, self.name),
+                          "The number of bytes of %s codeintel stdlib %s blobs." % (self.lang, self.name),
                           closure)
 
 

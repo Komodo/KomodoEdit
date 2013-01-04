@@ -125,6 +125,10 @@ class KoFileCheckerBase(object):
         except:
             self.log.warn("Unable to register self as a memory reporter")
 
+    ##
+    # nsIMemoryMultiReporter
+    explicitNonHeap = 0
+
     def collectReports(self, reportHandler, closure):
         self.log.info("collectReports")
 
@@ -139,7 +143,7 @@ class KoFileCheckerBase(object):
                                    kind_other,
                                    units_count,
                                    amount, # amount
-                                   "The number of directories this checker was asked to check", # tooltip description
+                                   "The number of directories this checker was asked to check.", # tooltip description
                                    closure)
 
     ##

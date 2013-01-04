@@ -275,7 +275,7 @@ class CatalogsZone(object):
                                   components.interfaces.nsIMemoryReporter.KIND_HEAP,
                                   components.interfaces.nsIMemoryReporter.UNITS_BYTES,
                                   getMemoryUsage(blob),
-                                  "The number of bytes of %s codeintel %s catalog blobs" % (lang, blobname),
+                                  "The number of bytes of %s codeintel %s catalog blobs." % (lang, blobname),
                                   closure)
 
     def avail_catalogs(self, selections=None):

@@ -30,6 +30,11 @@ class KoMemoryReporter:
     def observe(self, subject, topic, data):
         pass
 
+    ##
+    # nsIMemoryMultiReporter
+    name = "Komodo"
+    explicitNonHeap = 0
+
     def collectReports(self, reportHandler, closure):
         log.info("collectReports")
 
@@ -42,7 +47,7 @@ class KoMemoryReporter:
                                kind_other,
                                units_count,
                                threading.activeCount(), # amount
-                               "The number of active Python threads that are currently running", # tooltip description
+                               "The number of active Python threads that are currently running.", # tooltip description
                                closure)
 
         import gc
@@ -52,7 +57,7 @@ class KoMemoryReporter:
                                kind_other,
                                units_count,
                                len(gc.get_objects()), # amount
-                               "Total number of referenced Python objects",
+                               "Total number of referenced Python objects.",
                                closure)
 
         koViewSvc = components.classes["@activestate.com/koViewService;1"] \
@@ -62,7 +67,7 @@ class KoMemoryReporter:
                                kind_other,
                                units_count,
                                koViewSvc.getReferencedViewCount(), # amount
-                               "The number of koIView instances being referenced", # tooltip description
+                               "The number of koIView instances being referenced.", # tooltip description
                                closure)
 
         koDocumentSvc = components.classes["@activestate.com/koDocumentService;1"] \
@@ -72,7 +77,7 @@ class KoMemoryReporter:
                                kind_other,
                                units_count,
                                len(koDocumentSvc.getAllDocuments()), # amount
-                               "The number of koIDocument instances being referenced", # tooltip description
+                               "The number of koIDocument instances being referenced.", # tooltip description
                                closure)
 
         koFileSvc = components.classes["@activestate.com/koFileService;1"] \
@@ -82,6 +87,6 @@ class KoMemoryReporter:
                                kind_other,
                                units_count,
                                len(koFileSvc.getAllFiles()), # amount
-                               "The number of koIFileEx instances being referenced", # tooltip description
+                               "The number of koIFileEx instances being referenced.", # tooltip description
                                closure)
 

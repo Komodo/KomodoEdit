@@ -659,6 +659,11 @@ class KoCodeIntelManager(Manager):
         finally:
             self._csLock.release()
 
+    ##
+    # nsIMemoryMultiReporter
+    name = "Komodo Code Intelligence"
+    explicitNonHeap = 0
+
     def collectReports(self, callback, closure):
         """ nsIMemoryMultiReporter implementation """
         log.debug("collecting memory reports")

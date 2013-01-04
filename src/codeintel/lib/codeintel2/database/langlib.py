@@ -1320,7 +1320,7 @@ class LangZone(object):
                           kind_other,
                           units_count,
                           len(self._index_and_atime_from_dbsubpath),
-                          "Number of cached indices",
+                          "Number of cached indices.",
                           closure)
 
         # also calculate the size in bytes
@@ -1329,6 +1329,6 @@ class LangZone(object):
                           components.interfaces.nsIMemoryReporter.KIND_HEAP,
                           components.interfaces.nsIMemoryReporter.UNITS_BYTES,
                           util.getMemoryUsage(self._index_and_atime_from_dbsubpath),
-                          "The number of bytes of %s codeintel index caches" % (self.lang,),
+                          "The number of bytes of %s codeintel index caches." % (self.lang,),
                           closure)
 
