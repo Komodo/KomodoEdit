@@ -75,8 +75,10 @@ interface ISciMozEvents : nsISupports {
     const long SME_INDICATORRELEASE  = (1 << 24);
     const long SME_AUTOCCANCELLED    = (1 << 25);
     const long SME_AUTOCCHARDELETED  = (1 << 26);
+    // Komodo specific
+    const long SME_COMMANDUPDATE     = (1 << 27);
 
-    const long SME_ALL               = (1 << 27) - 1;
+    const long SME_ALL               = (1 << 28) - 1;
 
     // void onStyleNeeded(in long position);
     void onCharAdded(in long ch);
@@ -100,9 +102,12 @@ interface ISciMozEvents : nsISupports {
     void onDwellStart(in long position, in long x, in long y);
     void onDwellEnd(in long position, in long x, in long y);
 
+    // Komodo additions
+    void onCommandUpdate(in string commandset);
     // Any other events (like SME_AUTOCSELECTION, SME_INDICATORCLICK, etc...).
     // Note: Not all fields will be useful for all events, some will be NULL or
     //       0 if they are unused - consult the Scintilla docs for details.
     void onOtherNotification(in long notificationType, in long position,
                              in AString text, in long modifiers);
+
 };

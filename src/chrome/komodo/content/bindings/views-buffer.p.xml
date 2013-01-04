@@ -1403,6 +1403,16 @@
         </body>
         </method>
 
+        <method name="onCommandUpdate">
+        <parameter name="commandset"/>
+        <body>
+        <![CDATA[
+            //dump("onCommandUpdate\n  commandset: " + commandset + "\n");
+            window.updateCommands(commandset);
+        ]]>
+        </body>
+        </method>
+
         <method name="_flashMatchingTag">
         <body>
         <![CDATA[

@@ -92,6 +92,11 @@ NS_IMETHODIMP SciMozEventsWrapper::OnOtherNotification(PRInt32 notificationType,
 	INT32_TO_NPVARIANT(modifiers, args[3]);
 	return Invoke("onOtherNotification", args, 4);
 }
+NS_IMETHODIMP SciMozEventsWrapper::OnCommandUpdate(const char *commandset) {
+	NPVariant arg;
+	STRINGN_TO_NPVARIANT(commandset, strlen(commandset), arg);
+	return Invoke("onCommandUpdate", &arg, 1);
+}
 NS_IMPL_THREADSAFE_ISUPPORTS2(SciMozEventsWrapper,
 			      SciMozEventsWrapper,
 			      ISciMozEvents)

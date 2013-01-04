@@ -362,7 +362,7 @@ void SciMoz::Notify(long lParam) {
 		return;
 	}
 
-	if ((notification->nmhdr.code == SCN_PAINTED) && commandUpdateTarget) {
+	if (notification->nmhdr.code == SCN_PAINTED) {
 		bool bCanUndoNow = SendEditor(SCI_CANUNDO, 0, 0);
 		bool bCanRedoNow = SendEditor(SCI_CANREDO, 0, 0);
 		if (bCouldUndoLastTime != bCanUndoNow || bCouldRedoLastTime != bCanRedoNow) {
@@ -1236,94 +1236,21 @@ NS_IMETHODIMP SciMoz::ButtonUp(PRInt32 x, PRInt32 y, PRUint16 button, bool bShif
 	return _DoButtonUpDown(PR_TRUE, x, y, button, bShift, bCtrl, bAlt);
 }
 
-
-/* void setCommandUpdateTarget( in nsISupports window); */
-NS_IMETHODIMP SciMoz::SetCommandUpdateTarget(nsISupports * /*window*/) {
-	return NS_ERROR_NOT_IMPLEMENTED;
-}
-
-bool SciMoz::SetCommandUpdateTarget(const NPVariant *args, uint32_t argCount, NPVariant *result) {
-	if (argCount != 1) {
-		SCIMOZ_DEBUG_PRINTF("%s: expected 1 argument, got %i\n",
-				    __FUNCTION__,
-				    argCount);
-		return false;
-	}
-	if (NPVARIANT_IS_VOID(args[0]) || NPVARIANT_IS_NULL(args[0])) {
-		commandUpdateTarget = 0;
-		return true;
-	}
-	if (!NPVARIANT_IS_OBJECT(args[0])) {
-		SCIMOZ_DEBUG_PRINTF("%s: arg is not an object\n", __FUNCTION__);
-		return false;
-	}
-	if (!NPN_HasMethod(mPlugin->GetNPP(),
-			   NPVARIANT_TO_OBJECT(args[0]),
-			   NPN_GetStringIdentifier("QueryInterface")))
-	{
-		SCIMOZ_DEBUG_PRINTF("%s: object has no QueryInterface method\n",
-				    __FUNCTION__);
-		return false;
-	}
-
-	// we need to get a nsIDOMWindowInternal IID, wrapped in JS and then
-	// wrapped in NPAPI.  The easiest way is to ask JS to do it for us.
-	NPString script = { "Components.interfaces.nsIDOMWindow" };
-	script.UTF8Length = strlen(script.UTF8Characters);
-	NPVariant iid = { NPVariantType_Void };
-	if (!NPN_Evaluate(mPlugin->GetNPP(),
-			  NPVARIANT_TO_OBJECT(args[0]),
-			  &script,
-			  &iid))
-	{
-		SCIMOZ_DEBUG_PRINTF("%s: failed to get nsIDOMWindow\n",
-				    __FUNCTION__);
-		return false;
-	}
-
-	NPVariant domWindowInternal;
-	if (!NPN_Invoke(mPlugin->GetNPP(),
-			NPVARIANT_TO_OBJECT(args[0]),
-			NPN_GetStringIdentifier("QueryInterface"),
-			&iid,
-			1,
-			&domWindowInternal))
-	{
-		SCIMOZ_DEBUG_PRINTF("%s: QI failed\n", __FUNCTION__);
-		return false;
-	}
-
-	// sanity check the nsIDOMWindowInternal we got
-	if (!NPN_HasMethod(mPlugin->GetNPP(),
-			   NPVARIANT_TO_OBJECT(domWindowInternal),
-			   NPN_GetStringIdentifier("updateCommands")))
-	{
-		SCIMOZ_DEBUG_PRINTF("%s: nsIDOMWindowInternal does not have an updateCommands method!\n",
-				    __FUNCTION__);
-		return false;
-	}
-	commandUpdateTarget = NPVARIANT_TO_OBJECT(domWindowInternal);
-
-	return true;
-}
-
-/* void sendUpdateCommands( in string text); */
-NS_IMETHODIMP SciMoz::SendUpdateCommands(const char *text) {
-	NS_ABORT_IF_FALSE(commandUpdateTarget != nullptr,
-			  "Can't send a command update if you havent set the target!");
-	if (commandUpdateTarget==nullptr)
-		return NS_ERROR_UNEXPECTED;
-
-	NPVariant result = { NPVariantType_Void };
-	NPVariant varText;
-	STRINGZ_TO_NPVARIANT(text, varText);
-	bool success = NPN_Invoke(mPlugin->GetNPP(),
-				  commandUpdateTarget,
-				  NPN_GetStringIdentifier("updateCommands"),
-				  &varText,
-				  1,
-				  &result);
-	return success ? NS_OK : NS_ERROR_FAILURE;
+/* void sendUpdateCommands( in AString commandset); */
+NS_IMETHODIMP SciMoz::SendUpdateCommands(const char *commandset) {
+    if (isClosed) {
+        fprintf(stderr,"SciMoz::SendUpdateCommands '%s' used when closed!\n", commandset);
+	return NS_ERROR_FAILURE;
+    }
+#ifdef SCIMOZ_DEBUG
+	fprintf(stderr, "SciMoz::SendUpdateCommands '%s'\n", commandset);
+#endif
+	void *handle = nullptr;
+	nsCOMPtr<ISciMozEvents> eventSink;
+	int mask = ISciMozEvents::SME_COMMANDUPDATE;
+	while (nullptr != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
+		eventSink->OnCommandUpdate(commandset);
+	return NS_OK;
 }
 
 bool SciMoz::SendUpdateCommands(const NPVariant *args, uint32_t argCount, NPVariant * /*result*/) {

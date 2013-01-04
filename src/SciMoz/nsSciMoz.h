@@ -259,7 +259,6 @@ protected:
     int width;
     int height;
     EventListeners listeners;
-    koNPObjectPtr commandUpdateTarget;
     koNPObjectPtr mIMEHelper;
     bool bCouldUndoLastTime;
     bool bCouldRedoLastTime;
@@ -348,7 +347,6 @@ public:
     bool ClearCmdKey(const NPVariant *args, uint32_t argCount, NPVariant *result);
     bool GetTextRange(const NPVariant *args, uint32_t argCount, NPVariant *result);
     bool CharPosAtPosition(const NPVariant *args, uint32_t argCount, NPVariant *result);
-    bool SetCommandUpdateTarget(const NPVariant *args, uint32_t argCount, NPVariant *result);
     bool SendUpdateCommands(const NPVariant *args, uint32_t argCount, NPVariant *result);
     bool GetWCharAt(const NPVariant *args, uint32_t argCount, NPVariant *result);
     bool ReplaceTarget(const NPVariant *args, uint32_t argCount, NPVariant *result);

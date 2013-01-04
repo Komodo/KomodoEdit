@@ -282,7 +282,6 @@
                     controller.init( scimoz );
                     controller = controller.QueryInterface(Components.interfaces.nsIController);
                     this.controllers.appendController(controller);
-                    scimoz.setCommandUpdateTarget(window);
                 } catch(e) {
                     this.log.exception(e);
                 }
@@ -398,11 +397,6 @@
                     obsvc.removeObserver(this, "scheme-changed");
                 } catch (e) {
                     this.log.debug('observer service gone already');
-                }
-                try {
-                    this.scimoz.setCommandUpdateTarget(null);
-                } catch (e) {
-                    this.log.warn("Scintilla ["+this.id+"] was gone before we unloaded!");
                 }
                 this.inited = false;
                 // Force blur so we don't try to do things after we close scimoz

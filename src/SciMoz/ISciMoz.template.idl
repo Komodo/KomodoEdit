@@ -60,10 +60,9 @@ interface ISciMozLite : nsISupports {
 	attribute DOMString name; // a "name" for debugging/diagnostic purposes.
 	void hookEvents(in ISciMozEvents eventListener);
 	void unhookEvents(in ISciMozEvents eventListener);
-	void setCommandUpdateTarget( in nsISupports window);
 	// this one is more of a hack to avoid exposing the
 	// non-scriptable nsIDOMWindow to Python!
-	void sendUpdateCommands( in string text);
+	void sendUpdateCommands(in string commandset);
 	void getStyledText(in long min, in long max, out unsigned long count, 
 		[array, size_is(count), retval] out octet str);
 	long getCurLine(out AString text);
