@@ -61,7 +61,7 @@ import Queue
 import ciElementTree as ET
 from codeintel2.common import *
 from codeintel2.buffer import Buffer
-from codeintel2.util import dedent, safe_lang_from_lang, banner, getMemoryUsage
+from codeintel2.util import dedent, safe_lang_from_lang, banner
 from codeintel2.tree import tree_from_cix_path
 from codeintel2.database.resource import AreaResource
 from codeintel2.database.util import (rmdir, filter_blobnames_for_prefix)
@@ -252,12 +252,15 @@ class StdLib(object):
         Report on memory usage from this StdLib. See nsIMemoryMultiReporter
         """
         log.debug("%s StdLib %s: reporting memory", self.lang, self.name)
+        import memutils
         from xpcom import components
+        total = memutils.memusage(self._blob_from_blobname)
+        total += memutils.memusage(self._blob_imports_from_prefix_cache)
         reporter.callback("", # process id
-                          "explicit/komodo/codeintel/%s/stdlib/%s" % (self.lang, self.name),
+                          "explicit/python/codeintel/%s/stdlib/%s" % (self.lang, self.name),
                           components.interfaces.nsIMemoryReporter.KIND_HEAP,
                           components.interfaces.nsIMemoryReporter.UNITS_BYTES,
-                          getMemoryUsage(self._blob_from_blobname),
+                          total,
                           "The number of bytes of %s codeintel stdlib %s blobs." % (self.lang, self.name),
                           closure)
 

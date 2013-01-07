@@ -39,7 +39,9 @@ class KoMemoryReporter:
         log.info("collectReports")
 
         process = ""
+        kind_heap = components.interfaces.nsIMemoryReporter.KIND_HEAP
         kind_other = components.interfaces.nsIMemoryReporter.KIND_OTHER
+        units_bytes = components.interfaces.nsIMemoryReporter.UNITS_BYTES
         units_count = components.interfaces.nsIMemoryReporter.UNITS_COUNT
 
         reportHandler.callback(process,
@@ -52,6 +54,17 @@ class KoMemoryReporter:
 
         import gc
         gc.collect()
+
+        import memutils
+        total = memutils.memusage(gc.get_objects())
+        reportHandler.callback(process,
+                               "explicit/python/objects",
+                               kind_heap,
+                               units_bytes,
+                               total, # amount
+                               "Total bytes used by Python objects.",
+                               closure)
+
         reportHandler.callback(process,
                                "komodo python objects",
                                kind_other,
