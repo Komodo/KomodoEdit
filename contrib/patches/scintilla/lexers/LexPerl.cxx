@@ -27,6 +27,15 @@
 using namespace Scintilla;
 #endif
 
+inline bool safeIswordchar(int ch) {
+    return ch < 0 || iswordchar(ch);
+}
+
+inline bool safeIswordstart(int ch) {
+    return ch < 0 || iswordchar(ch);
+}
+    
+
 static inline void advanceOneChar(unsigned int& i, char&ch, char& chNext, char chNext2) {
     i++;
     ch = chNext;
@@ -156,8 +165,7 @@ static int classifyWordPerl(unsigned int start, unsigned int end, unsigned int l
 static bool RE_CanFollowKeyword(unsigned int start, unsigned int end,
                                 Accessor &styler)
 {
-    char ch, s[53];
-    ch = styler[start];
+    char s[53];
     unsigned int i;
     // Copy the word into a local buffer.
     s[0] = '|';
@@ -628,12 +636,12 @@ static bool wordEndsHere(char chNext, char chNext2, bool no_namespace_op)
         return true;
     } else if (chNext == ':' && chNext2 == ':' && no_namespace_op) {
         return false;
-    } else if (iswordchar(chNext)) {
+    } else if (safeIswordchar(chNext)) {
         return false;
     } else if (chNext != '\'') {
         return true;
     } else {
-        return !iswordstart(chNext2);  // ada-like $pkg'member
+        return !safeIswordstart(chNext2);  // ada-like $pkg'member
     }
 }
 
@@ -1136,7 +1144,7 @@ void ColourisePerlDoc(unsigned int startPos, int length, int , // initStyle
                     numExponents = 0;
                     numBase = 10;
                 }
-            } else if (iswordstart(ch)) {
+            } else if (safeIswordstart(ch)) {
                 binaryOperatorExpected = false;
                 styler.ColourTo(i - 1, state);
                 styler.Flush();
@@ -1146,7 +1154,7 @@ void ColourisePerlDoc(unsigned int startPos, int length, int , // initStyle
                     // Watch out for single-char barewords
                     // And also watch out for q-strings in this context
                     if (ch == 'q') {
-                        if (!iswordchar(chNext)) {
+                        if (!safeIswordchar(chNext)) {
                             if (precedesIndexer(styler, i + 1, lengthDoc)) {
                                 // color preceding string,
                                 // go to default
@@ -1156,7 +1164,7 @@ void ColourisePerlDoc(unsigned int startPos, int length, int , // initStyle
                                 state = SCE_PL_STRING_Q;
                                 Quote.New(1);
                             }
-                        } else if (strchr(q_chars, chNext) && !iswordchar(chNext2)) {
+                        } else if (strchr(q_chars, chNext) && !safeIswordchar(chNext2)) {
                              if (precedesIndexer(styler, i + 2, lengthDoc)) {
                                  // color preceding string,
                                  // go to default
@@ -1175,7 +1183,7 @@ void ColourisePerlDoc(unsigned int startPos, int length, int , // initStyle
                         } else {
                             state = SCE_PL_WORD;
                         }
-                    } else if (!iswordchar(chNext)) {
+                    } else if (!safeIswordchar(chNext)) {
                         styler.ColourTo(i, SCE_PL_STRING);
                         braceStartsBlock = true;
                     } else {
@@ -1648,7 +1656,7 @@ void ColourisePerlDoc(unsigned int startPos, int length, int , // initStyle
                 binaryOperatorExpected = true;
                 braceStartsBlock = true;
                 styler.ColourTo(i - 1, state);
-                if (iswordstart(chNext2)) {
+                if (safeIswordstart(chNext2)) {
                     state = SCE_PL_WORD;
                 } else {
                     styler.ColourTo(i + 1, SCE_PL_IDENTIFIER);
@@ -1819,7 +1827,7 @@ void ColourisePerlDoc(unsigned int startPos, int length, int , // initStyle
         } else if (state == SCE_PL_WORD) {
             if (ch == ':' && chNext == ':' && no_namespace_op) {
                 // Skip over the namespace separator
-                if (!iswordstart(chNext2)) {
+                if (!safeIswordstart(chNext2)) {
                     // The word ends here
                     preferRE = true;
                     binaryOperatorExpected = true;
@@ -2120,11 +2128,11 @@ void ColourisePerlDoc(unsigned int startPos, int length, int , // initStyle
                 state = SCE_PL_DEFAULT;
                 braceStartsBlock = false;
                 levelCurrent++;
-            } else if (iswordstart(ch)) {
+            } else if (safeIswordstart(ch)) {
                 // It's a function name
                 styler.ColourTo(i - 1, state);
                 binaryOperatorExpected = true;
-                if (!iswordchar(chNext)) {
+                if (!safeIswordchar(chNext)) {
                     state = SCE_PL_DEFAULT;
                 } else {
                     state = SCE_PL_WORD;
