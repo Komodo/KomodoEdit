@@ -873,11 +873,11 @@ class Database(object):
                                    abbrev, subnames, cu, 
                                    caller, # for debug stmts only
                                    outside_language_folder=False):
-        #log.debug("%s: stmt: %s\n, value_tuple: %s", caller, stmt, value_tuple)
         stmt = "select %s from %s where %s;" % (select_part_s,
                                                ", ".join(from_parts_a),
                                                " and ".join(where_parts_a))
         value_tuple = tuple([abbrev] + subnames)
+        #log.debug("%s: stmt: %s\n, value_tuple: %s", caller, stmt, value_tuple)
         cu.execute(stmt, value_tuple)
         final_rows = []
         rows = cu.fetchall()
