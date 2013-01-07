@@ -115,12 +115,14 @@ def collate_directories_from_uris(uris):
 class KoFileStatusService:
     _com_interfaces_ = [components.interfaces.koIFileStatusService,
                         components.interfaces.nsIObserver,
-                        components.interfaces.koIFileNotificationObserver]
+                        components.interfaces.koIFileNotificationObserver,
+                        components.interfaces.koIPythonMemoryReporter]
     _reg_clsid_ = "{20732408-43DA-4ca2-BC9F-B82437A3CB2B}"
     _reg_contractid_ = "@activestate.com/koFileStatusService;1"
     _reg_desc_ = "Komodo File Status Service"
     _reg_categories_ = [
          ("komodo-startup-service", "koFileStatusService", True),
+         ("python-memory-reporter", "file_status"),
          ]
 
     monitoredFileNotifications = ("file_update_now", "file_status_now")
@@ -241,6 +243,18 @@ class KoFileStatusService:
                 checkerInstance.shutdown()
         finally:
             self._tlock.release()
+
+    ##
+    # koIPythonMemoryReporter - tie's into koIMemoryReporter.
+    def reportMemory(self, callback, closure):
+        """Report memory usage - returns total number of bytes used."""
+        total = 0
+        for checkerInstance in self._statusCheckers:
+            try:
+                total += checkerInstance.reportMemory(callback, closure)
+            except:
+                log.exception("Unable to report memory for %r", checkerInstance)
+        return total
 
     ##
     # koIFileNotificationObserver interface: called on file change events.

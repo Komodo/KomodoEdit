@@ -1325,12 +1325,13 @@ class LangZone(object):
 
         # also calculate the size in bytes
         import memutils
-        total = memutils.memusage(self._index_and_atime_from_dbsubpath)
+        total_mem_usage = memutils.memusage(self._index_and_atime_from_dbsubpath)
         reporter.callback(process,
                           "explicit/python/codeintel/%s/index-cache" % (self.lang,),
                           components.interfaces.nsIMemoryReporter.KIND_HEAP,
                           components.interfaces.nsIMemoryReporter.UNITS_BYTES,
-                          total,
+                          total_mem_usage,
                           "The number of bytes of %s codeintel index caches." % (self.lang,),
                           closure)
+        return total_mem_usage
 

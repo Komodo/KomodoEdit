@@ -254,15 +254,16 @@ class StdLib(object):
         log.debug("%s StdLib %s: reporting memory", self.lang, self.name)
         import memutils
         from xpcom import components
-        total = memutils.memusage(self._blob_from_blobname)
-        total += memutils.memusage(self._blob_imports_from_prefix_cache)
+        total_mem_usage = memutils.memusage(self._blob_from_blobname)
+        total_mem_usage += memutils.memusage(self._blob_imports_from_prefix_cache)
         reporter.callback("", # process id
                           "explicit/python/codeintel/%s/stdlib/%s" % (self.lang, self.name),
                           components.interfaces.nsIMemoryReporter.KIND_HEAP,
                           components.interfaces.nsIMemoryReporter.UNITS_BYTES,
-                          total,
+                          total_mem_usage,
                           "The number of bytes of %s codeintel stdlib %s blobs." % (self.lang, self.name),
                           closure)
+        return total_mem_usage
 
 
 class StdLibsZone(object):
@@ -343,8 +344,10 @@ class StdLibsZone(object):
         Report on memory usage from this StdLibZone. See nsIMemoryMultiReporter
         """
         log.debug("StdLibZone: reporting memory")
+        total_mem_usage = 0
         for stdlib in self._stdlib_from_stdlib_ver_and_name.values():
-            stdlib.reportMemory(reporter, closure)
+            total_mem_usage += stdlib.reportMemory(reporter, closure)
+        return total_mem_usage
 
     def get_lib(self, lang, ver_str=None):
         """Return a view into the stdlibs zone for a particular language

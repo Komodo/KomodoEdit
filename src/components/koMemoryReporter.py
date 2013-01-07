@@ -54,11 +54,32 @@ class KoMemoryReporter:
 
         import gc
         gc.collect()
+        gc_objects = gc.get_objects()
 
         import memutils
-        total = memutils.memusage(gc.get_objects())
+        total = memutils.memusage(gc_objects)
+
+        # Get the Python memory reporters, generate reports and find out how
+        # much memory they are using - and deduct it from the total.
+        catman = components.classes["@mozilla.org/categorymanager;1"].\
+                        getService(components.interfaces.nsICategoryManager)
+        category = 'python-memory-reporter'
+        names = catman.enumerateCategory(category)
+        while names.hasMoreElements():
+            nameObj = names.getNext()
+            nameObj.QueryInterface(components.interfaces.nsISupportsCString)
+            name = nameObj.data
+            cid = catman.getCategoryEntry(category, name)
+            log.info("Generating report for %r: %r", name, cid)
+            try:
+                reporter = components.classes[cid].\
+                    getService(components.interfaces.koIPythonMemoryReporter)
+                total -= reporter.reportMemory(reportHandler, closure)
+            except Exception, e:
+                log.exception("Unable to report memory for %r: %r", name, cid)
+
         reportHandler.callback(process,
-                               "explicit/python/objects",
+                               "explicit/python/unclassified-objects",
                                kind_heap,
                                units_bytes,
                                total, # amount
@@ -69,7 +90,7 @@ class KoMemoryReporter:
                                "komodo python objects",
                                kind_other,
                                units_count,
-                               len(gc.get_objects()), # amount
+                               len(gc_objects), # amount
                                "Total number of referenced Python objects.",
                                closure)
 

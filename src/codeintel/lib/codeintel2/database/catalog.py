@@ -268,16 +268,20 @@ class CatalogsZone(object):
         from xpcom import components
         process = ""
 
+        total_mem_usage = 0
         for lang, blob_and_atime_from_blobname in self._blob_and_atime_from_blobname_from_lang_cache.items():
             for blobname, blob_and_atime in blob_and_atime_from_blobname.items():
                 blob, atime = blob_and_atime
+                blob_mem_usage = memutils.memusage(blob)
+                total_mem_usage += blob_mem_usage
                 reporter.callback(process,
                                   "explicit/python/codeintel/%s/catalog/%s" % (lang, blobname),
                                   components.interfaces.nsIMemoryReporter.KIND_HEAP,
                                   components.interfaces.nsIMemoryReporter.UNITS_BYTES,
-                                  memutils.memusage(blob),
+                                  blob_mem_usage,
                                   "The number of bytes of %s codeintel %s catalog blobs." % (lang, blobname),
                                   closure)
+        return total_mem_usage
 
     def avail_catalogs(self, selections=None):
         """Generate a list of available catalogs.

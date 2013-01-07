@@ -311,6 +311,7 @@ $cons->InstallXpcomComponent('koLoggingService.py');
 $cons->BuildAndInstallXpt('koIColorPicker.idl');
 
 # Komodo memory reporter.
+$cons->BuildAndInstallXpt('koIMemoryReporter.idl');
 $cons->InstallXpcomComponent('koMemoryReporter.py');
 
 # koIWindowManagerUtils - things to do with platform-native windows

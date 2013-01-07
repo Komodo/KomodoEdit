@@ -66,7 +66,7 @@ class KoFileCheckerBase(object):
     name = 'unknown'
     _com_interfaces_ = [components.interfaces.nsIObserver,
                         components.interfaces.koIFileStatusChecker,
-                        components.interfaces.nsIMemoryMultiReporter]
+                        components.interfaces.koIPythonMemoryReporter]
 
     # Save have to look this up all over the status checker code.
     _is_windows = sys.platform.startswith("win")
@@ -116,21 +116,8 @@ class KoFileCheckerBase(object):
         self.REASON_FILE_CHANGED = components.interfaces.koIFileStatusChecker.REASON_FILE_CHANGED
         self.REASON_FORCED_CHECK = components.interfaces.koIFileStatusChecker.REASON_FORCED_CHECK
 
-        # Register ourself with the memory manager.
-        try:
-            # bk test often dies here, so run in a try/except
-            memMgr = components.classes["@mozilla.org/memory-reporter-manager;1"]. \
-                getService(components.interfaces.nsIMemoryReporterManager)
-            memMgr.registerMultiReporter(self)
-        except:
-            self.log.warn("Unable to register self as a memory reporter")
-
-    ##
-    # nsIMemoryMultiReporter
-    explicitNonHeap = 0
-
-    def collectReports(self, reportHandler, closure):
-        self.log.info("collectReports")
+    def reportMemory(self, reportHandler, closure):
+        self.log.info("reportMemory")
 
         process = ""
         kind_other = components.interfaces.nsIMemoryReporter.KIND_OTHER
@@ -145,6 +132,7 @@ class KoFileCheckerBase(object):
                                    amount, # amount
                                    "The number of directories this checker was asked to check.", # tooltip description
                                    closure)
+        return 0
 
     ##
     # Helper function to ensure the cache key "uri" is consistently the same,

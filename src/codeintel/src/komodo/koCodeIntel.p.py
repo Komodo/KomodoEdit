@@ -340,8 +340,7 @@ class KoCodeIntelManager(Manager):
       (hopefully) -- by caching CIDB data on the current file -- and more
       correctly -- given recent edits and language-specific smarts.
     """
-    _com_interfaces_ = [components.interfaces.koICodeIntelManager,
-                        components.interfaces.nsIMemoryMultiReporter]
+    _com_interfaces_ = [components.interfaces.koICodeIntelManager]
 
     def __init__(self, db_base_dir=None, extension_pylib_dirs=None,
                  db_event_reporter=None, db_catalog_dirs=None):
@@ -359,13 +358,6 @@ class KoCodeIntelManager(Manager):
         #self._flushCSCache()
         self._batchUpdateProgressUIHandler = None
 
-        try:
-            memMgr = components.classes["@mozilla.org/memory-reporter-manager;1"]. \
-                        getService(components.interfaces.nsIMemoryReporterManager)
-            memMgr.registerMultiReporter(self)
-        except:
-            log.exception("Failed to register codeintel manager as memory reporter")
-
     @LazyProperty
     def _observerSvc(self):
         return components.classes["@mozilla.org/observer-service;1"]\
@@ -374,12 +366,6 @@ class KoCodeIntelManager(Manager):
     def _phpInfo(self):
         return components.classes["@activestate.com/koPHPInfoInstance;1"]\
                         .getService(components.interfaces.koIPHPInfoEx)
-
-    def finalize(self, *args, **kwargs):
-        memMgr = components.classes["@mozilla.org/memory-reporter-manager;1"]. \
-                    getService(components.interfaces.nsIMemoryReporterManager)
-        memMgr.unregisterMultiReporter(self)
-        return Manager.finalize(self, *args, **kwargs)
 
     @components.ProxyToMainThreadAsync
     def notifyObservers(self, subject, topic, data):
@@ -659,19 +645,16 @@ class KoCodeIntelManager(Manager):
         finally:
             self._csLock.release()
 
-    ##
-    # nsIMemoryMultiReporter
-    name = "Komodo Code Intelligence"
-    explicitNonHeap = 0
-
-    def collectReports(self, callback, closure):
-        """ nsIMemoryMultiReporter implementation """
+    def reportMemory(self, callback, closure):
+        """Report memory usage - returns total number of bytes used."""
         log.debug("collecting memory reports")
+        total_mem_usage = 0
         for zone in self.db.get_all_zones():
             try:
-                zone.reportMemory(callback, closure)
+                total_mem_usage += zone.reportMemory(callback, closure)
             except:
                 log.exception("Failed to report memory for zone %r", zone)
+        return total_mem_usage
 
     def report_message(self, msg, details=None, notification_name="codeintel-message"):
         """Reports a unique codeintel notification message."""
@@ -1209,10 +1192,14 @@ class KoCodeIntelEventReporter(object):
 
 class KoCodeIntelService:
     _com_interfaces_ = [components.interfaces.koICodeIntelService,
-                        components.interfaces.nsIObserver]
+                        components.interfaces.nsIObserver,
+                        components.interfaces.koIPythonMemoryReporter]
     _reg_clsid_ = "{CF1F65B6-25EC-4FB3-A2CB-241CB436E377}"
     _reg_contractid_ = "@activestate.com/koCodeIntelService;1"
     _reg_desc_ = "Komodo Code Intelligence Service"
+    _reg_categories_ = [
+        ("python-memory-reporter", "codeintel"),
+    ]
 
     enabled = False
     isBackEndActive = False
@@ -1414,6 +1401,12 @@ class KoCodeIntelService:
         return self.mgr.getAdjustedCurrentScope(scimoz, position)[:3]
     def getAdjustedCurrentScopeInfo(self, scimoz, position):
         return self.mgr.getAdjustedCurrentScopeInfo(scimoz, position)
+
+    ##
+    # koIPythonMemoryReporter - tie's into koIMemoryReporter.
+    def reportMemory(self, callback, closure):
+        """Report memory usage - returns total number of bytes used."""
+        return self.mgr.reportMemory(callback, closure)
 
 #XXX Obsolete
 #    def getMembers(self, language, path, line, citdl, explicit,
