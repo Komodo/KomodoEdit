@@ -53,6 +53,78 @@ var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
                 .getService(Components.interfaces.nsIStringBundleService)
                 .createBundle("chrome://komodo/locale/library.properties");
 
+var observerSvc = Components.classes["@mozilla.org/observer-service;1"].
+                getService(Components.interfaces.nsIObserverService);
+
+var handle_toolbox_updates = false;
+var toolbox_notification_names = [
+    "toolbox-reload-view",
+    "toolbox-loaded-global",
+    "toolbox-loaded-local",
+    "toolbox-unloaded-global",
+    "toolbox-unloaded-local",
+    "toolbox-tree-changed",
+    "tool-deleted",
+    "tool-appearance-changed"
+];
+
+this.initialize = function initialize() {
+    observerSvc.addObserver(this, "komodo-ui-started", false);
+};
+
+this._finish_initialize = function _finish_initialize() {
+    this.log = ko.logging.getLogger('abbrev.js');
+    ko.main.addWillCloseHandler(this.postCanClose, this);
+    
+    // Bug 96693: Watch for changes in the toolbox in order to track
+    // all auto-abbreviation snippets, but after startup
+    for each (var name in toolbox_notification_names) {
+        observerSvc.addObserver(this, name, false);
+    }
+    handle_toolbox_updates = true;
+    this.updateAutoAbbreviations();
+};
+
+this.postCanClose = function postCanClose() {
+    handle_toolbox_updates = false;
+    observerSvc.removeObserver(this, "komodo-ui-started");
+    for each (var name in toolbox_notification_names) {
+        observerSvc.removeObserver(this, name);
+    }
+};
+
+this.observe = function(subject, topic, data) {
+    if (topic == "komodo-ui-started") {
+        this._finish_initialize();
+    } else if (toolbox_notification_names.indexOf(topic) >= 0) {
+        this.updateAutoAbbreviations();
+    }
+};
+
+this.updateAutoAbbreviations = function updateAutoAbbreviations(event) {
+    // Bug 96693: cache all auto_abbreviations to avoid looking up every
+    // term.  On linux this query takes < 25% more of the time a lookup on
+    // a single word takes, but is only done at startup and when the
+    // toolbox or a snippet changes.
+    if (!handle_toolbox_updates) {
+        // We're shutting down, so don't bother processing.
+        return;
+    }
+    try {
+        var activeAutoAbbreviations;
+        activeAutoAbbreviations = this.activeAutoAbbreviations = {};
+    
+        var tbSvc = Components.classes["@activestate.com/koToolbox2Service;1"]
+            .getService(Components.interfaces.koIToolbox2Service);
+        var names = tbSvc.getAutoAbbreviationNames({});
+        names.forEach(function(name) {
+                // Map abbrev-name => { language => snippet|null }, lazily set
+                activeAutoAbbreviations[name] = {};
+            });
+    } catch(ex) {
+        this.log.exception(ex, "Failed to get abbreviations");
+    }
+}
 
 // Note: If we want to support the full range of TextMate-style
 // snippet tab-triggers, then 'wordLeftExtend' isn't
@@ -205,29 +277,64 @@ this.expandAutoAbbreviation = function(currView) {
     if (allowedStyles.indexOf(prevStyle) == -1) {
         return false;
     }
-    var origPos = currentPos;
     var wordStartPos = this.getWordStart(scimoz, prevPos, languageObj.isHTMLLanguage);
-    scimoz.currentPos = wordStartPos;
-    var origAnchor = scimoz.anchor;
-    scimoz.anchor = currentPos;
-    var abbrev = scimoz.selText;
+    var abbrev = scimoz.getTextRange(wordStartPos, currentPos);
+    try {
+        if (!(abbrev in this.activeAutoAbbreviations)) {
+            // Bug 96693: avoid database lookups when the term on the right
+            // is known not to be an auto-abbreviation (for any language)
+            return false;
+        }
+    } catch(ex) {
+        if (ex instanceof TypeError) {
+            this.log.warn("Never got a komodo-ui-started notification, do it now");
+            this._finish_initialize();
+            // And retry.
+            if (!(abbrev in this.activeAutoAbbreviations)) {
+                return false;
+            }
+        } else {
+            this.log.exception(ex, "Unexpected problem checking for abbrev in this.activeAutoAbbreviations");
+            return false;
+        }
+    }
     
-    // Find the snippet for this abbrev, if any, and insert it.
-    var snippet = ko.abbrev.findAbbrevSnippet(abbrev,
+    
+    var abbrevInfo = this.activeAutoAbbreviations[abbrev];
+    var snippet = abbrevInfo[koDoc.language];
+    if (typeof(snippet) === "undefined") {
+        // Find the snippet for this abbrev, if any, and insert it.
+        // We know that the current abbrev is an auto-abbreviation for
+        // *some* language, here we check to see if it's valid for
+        // the current language.  If so, cache it.  If not, mark it as
+        // null, so subsequent occurrences of this word don't cause
+        // database lookups.
+        snippet = ko.abbrev.findAbbrevSnippet(abbrev,
                                               /*lang=*/ null,
                                               /*sublang=*/ null,
                                               /*isAutoAbbrev=*/ true);
+        if (snippet) {
+            // Cache the snippet until the next time anything in the
+            // toolbox changes.
+            abbrevInfo[koDoc.language] = snippet;
+        } else {
+            abbrevInfo[koDoc.language] = null;
+        }
+    }
     if (snippet) {
-        if (snippet.getStringAttribute('auto_abbreviation') === 'true'
-            && ko.abbrev.insertAbbrevSnippet(snippet, currView)) {
+        var origPos = currentPos;
+        var origAnchor = scimoz.anchor;
+        scimoz.currentPos = wordStartPos;
+        scimoz.anchor = currentPos;
+        if (ko.abbrev.insertAbbrevSnippet(snippet, currView)) {
             var pathPart = ko.snippets.snippetPathShortName(snippet);
             var msg = _bundle.formatStringFromName("inserted autoabbreviation X", [pathPart], 1);
             ko.statusBar.AddMessage(msg, "Editor", 1000, false);
             return true;
         }
+        scimoz.currentPos = origPos;
+        scimoz.anchor = origAnchor;
     }
-    scimoz.currentPos = origPos;
-    scimoz.anchor = origAnchor;
     return false;
 };
 
@@ -329,3 +436,4 @@ function is_abbrev(s) {
 }
 
 }).apply(ko.abbrev);
+ko.abbrev.initialize();

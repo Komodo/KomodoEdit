@@ -153,7 +153,7 @@ class KoToolbox2Service(object):
         self._standardToolbox = None  # Stores the top-level folder's ID
         self._loadedToolboxes = {}    # Map project uri to top-level folder's id
         self._tbFromExtension = {}    # Map folder ID to a boolean
-        self._db = None
+        self.db = None
         self._inited = False
         
         self._wrapped = WrapObject(self, components.interfaces.nsIObserver)
@@ -719,6 +719,22 @@ class KoToolbox2Service(object):
 
         return [KoToolInfo(self._toolsMgrSvc, *hit[:-1]) for hit in hits]
     
+    def getAutoAbbreviationNames(self):
+        query = ("select cd1.name"
+                 + " from common_details as cd1, snippet as s1"
+                 + " where s1.auto_abbreviation = 'true'"
+                 + " and s1.path_id = cd1.path_id")
+        try:
+            with self.db.connect() as cu:
+                cu.execute(query)
+                # Use a set to remove duplicate names
+                return list(set([hit[0] for hit in cu.fetchall()]))
+        except:
+            if self.db is not None:
+                log.exception("Failed to run query %s", query)
+            # otherwise we're probably running this too early, don't beak
+            return []
+
     def observe(self, subject, topic, data):
         #log.debug("observe: subject:%r, topic:%r, data:%r", subject, topic, data)
         if not subject:
