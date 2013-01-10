@@ -11,8 +11,12 @@ Index: cocoa/ScintillaCocoa.mm
  #include "ScintillaView.h"
  #include "PlatCocoa.h"
  
-@@ -383,6 +381,7 @@
-   timerTarget = [[[TimerTarget alloc] init: this] retain];
+@@ -380,9 +378,10 @@
+ ScintillaCocoa::ScintillaCocoa(NSView* view)
+ {
+   wMain= [view retain];
+-  timerTarget = [[[TimerTarget alloc] init: this] retain];
++  timerTarget = [[TimerTarget alloc] init: this];
    layerFindIndicator = NULL;
    Initialise();
 +  isTracking = false; // Never set to true?
