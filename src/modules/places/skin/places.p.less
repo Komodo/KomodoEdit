@@ -5,8 +5,9 @@
  * CSS for Places UI
  */
 
-@import url(chrome://komodo/skin/_config/window.less);
-@import url(chrome://komodo/skin/_config/icons.less);
+@import url("chrome://komodo/skin/plat/shared/_config/icons.less");
+@import url("chrome://komodo/skin/_config/window.less");
+@import url("chrome://komodo/skin/_config/icons.less");
 
 @icon-folder-explore: url("chrome://komodo-places/skin/folder_explore.png");
 
@@ -165,4 +166,9 @@ undo-button {
 #placesViewbox_placesWrapper tree treechildren::-moz-tree-row(selected, focus)
 {
     background: highlight !important;
+}
+
+#placesRootButton > image
+{
+	display: none;
 }

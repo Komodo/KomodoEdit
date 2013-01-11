@@ -2111,7 +2111,7 @@
                          label="&toolbox2.label;"
                          locktip="&thisToolboxIsReadOnly.locktip;"
                          src="chrome://komodo/content/toolbox/toolboxPanel.xul"
-			 icon="chrome://fugue/skin/icons/toolbox.png"/>
+			 icon="chrome://icomoon/skin/icons/svg/briefcase3.svg"/>
             </ko-pane>
         </hbox>
 
@@ -2142,19 +2142,19 @@
                      src="chrome://komodo/content/run/runOutputPane.xul"
                      tab_onmousedown="document.getElementById('runoutput-desc-tabpanel').focus();"
                      tab_onfocus="document.getElementById('runoutput-desc-tabpanel').focus();"
-                     icon="chrome://fugue/skin/icons/application-terminal.png"/>
+                     icon="chrome://icomoon/skin/icons/svg/console.svg"/>
 
             <!-- The two Find Results tabs of the output pane -->
             <browser type="ko-widget"
                      id="findresults1_tabpanel"
                      collapsed="true" label="&findResults1.label;"
                      src="chrome://komodo/content/find/findResultsTab.xul"
-                     icon="chrome://fugue/skin/icons/application-search-result.png"/>
+                     icon="chrome://icomoon/skin/icons/svg/binoculars.svg"/>
             <browser type="ko-widget"
                      id="findresults2_tabpanel"
                      collapsed="true" label="&findResults2.label;"
                      src="chrome://komodo/content/find/findResultsTab.xul"
-                     icon="chrome://fugue/skin/icons/application-search-result.png"/>
+                     icon="chrome://icomoon/skin/icons/svg/binoculars.svg"/>
         </ko-pane>
     </vbox> <!-- main window box -->
     <!-- we need a browser widget to do our printing for us, unfortunatly

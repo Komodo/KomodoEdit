@@ -56,11 +56,6 @@ toolbar {
     min-width: 0; /* deal with empty toolbars */
 }
   
-toolbarbutton {
-    padding-top: 4px;
-    padding-bottom: 4px;
-}
-
 /*
  * We use our custom attribute for controlling whether a toolbar/button is
  * visible. This is so we can persist it's hidden-ness (as XUL cannot persist
@@ -152,7 +147,6 @@ menuitem.history-nav-current {
 #toolbox_main toolbar:not([mode="full"]) > toolbaritem > toolbarbutton.first-child
 {
   margin-left: 3px;
-  padding-left: 3px;
   border-top-left-radius: 4px;
   border-bottom-left-radius: 4px;
 }
@@ -161,7 +155,6 @@ menuitem.history-nav-current {
 #toolbox_main toolbar:not([mode="full"]) > toolbaritem > toolbarbutton.last-child
 {
   margin-right: 3px;
-  padding-right: 3px;
   border-top-right-radius: 4px;
   border-bottom-right-radius: 4px;
 } 

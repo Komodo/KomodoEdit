@@ -9,15 +9,15 @@
  * why), so this styling is applied to context menus, toolbar menus, etc...
  */
 menupopup.has-iconic-menuitems .menu-text {
-  padding-left: 20px;
+    padding-left: 20px;
 }
 
 menupopup.has-iconic-menuitems menuitem[type="checkbox"] .menu-iconic-text {
-  padding-left: 20px;
+    padding-left: 20px;
 }
 
 menupopup.has-iconic-menuitems menuitem[type="radio"] .menu-iconic-text {
-  padding-left: 20px;
+    padding-left: 20px;
 }
 
 /* Inactive button */
@@ -27,15 +27,20 @@ menupopup.has-iconic-menuitems menuitem[type="radio"] .menu-iconic-text {
     
     toolbar > toolbaritem > toolbarbutton
     {
-      min-width: 24px;
-      height: 24px;
-      max-height: 24px;
-      padding: 0 0 0 6px !important;
-      margin-right: 0;
+        min-width: 24px;
+        height: 24px;
+        max-height: 24px;
+        margin-right: 0;
       
-      &:-moz-window-inactive {
-        border-color: @menubar-button-border-color-inactive;
-      }
+        &:-moz-window-inactive {
+            border-color: @menubar-button-border-color-inactive;
+        }
+    }
+
+    & > hbox
+    {
+	padding-bottom: 3px;
+	padding-top: 0;
     }
 }
 
@@ -43,71 +48,71 @@ menupopup.has-iconic-menuitems menuitem[type="radio"] .menu-iconic-text {
  * File status icons for the editor tabs.
  */
 .file-status-icons {
-  padding-right: 0; /* remove 2px padding set in komodo.css */
-  /*margin-bottom: -4px;*/
-  margin-left: -4px; /* move icons closer to the left side of the tab */
+    padding-right: 0; /* remove 2px padding set in komodo.css */
+    /*margin-bottom: -4px;*/
+    margin-left: -4px; /* move icons closer to the left side of the tab */
 }
 .file-readonly-icon[file_readonly="readonly"] {
-  /* Crop the image region, otherwise there's too much space between the icon
-     and the tab label. */
-  -moz-image-region: rect(0px, 9px, 9px, 0px);
+    /* Crop the image region, otherwise there's too much space between the icon
+       and the tab label. */
+    -moz-image-region: rect(0px, 9px, 9px, 0px);
 }
 /**
  * File Status within menu items.
  */
 .menu-file-status-image-box {
-  padding-left: 0; /* remove 2px padding set in widgets.css */
-  /* Ensure these is enough room to display all icons evenly - keeps the
-     list of menuitems a uniform width (16px for image, 4px for padding). */
-  min-width: 20px;
+    padding-left: 0; /* remove 2px padding set in widgets.css */
+    /* Ensure these is enough room to display all icons evenly - keeps the
+       list of menuitems a uniform width (16px for image, 4px for padding). */
+    min-width: 20px;
 }
 
 @-moz-document url(chrome://komodo/content/notifications/notificationsWidget.xul) {
-  notification .twisty > .twistyImageWrapper {
-    padding-left: 0;
-    padding-bottom: 0;
-  }
-  notification .twistyImage {
-    list-style-image: none;
-    -moz-appearance: treetwisty;
-  }
-  notification[open] .twistyImage {
-    list-style-image: none;
-    -moz-appearance: treetwistyopen;
-  }
+    notification .twisty > .twistyImageWrapper {
+        padding-left: 0;
+        padding-bottom: 0;
+    }
+    notification .twistyImage {
+        list-style-image: none;
+        -moz-appearance: treetwisty;
+    }
+    notification[open] .twistyImage {
+        list-style-image: none;
+        -moz-appearance: treetwistyopen;
+    }
 }
 
 statusbar statusbarpanel toolbarbutton[type="menu"] > dropmarker
 {
-	list-style-image: url("chrome://komodo/skin/images/status-menu-arrows.png");
+    list-style-image: url("chrome://komodo/skin/images/status-menu-arrows.png");
 }
 
 /* hidden statusbar icons */
 #statusbar-language-menu > .toolbarbutton-icon,
 #statusbar-sectionlist > deck > hbox > image:first-child {
-	display: none;
+    display: none;
 }
 
 /* Fix Notification twistyImage on Mac */
 notification .twistyImage {
-	margin: -3px -10px 0 20px !important;
+    margin: -3px -10px 0 20px !important;
 }
 
 ko-pane[type="vertical"] tabs[anonid="tabs"] ko-vertical-text .label {
-  margin-left: 2px;
+    margin-left: 2px;
 }
 
 scintilla {
-  /* Bug 80756: These borders are necessary on Mac OS X so that the "mouseenter"
-   * event makes it to the sidebar/bottom-pane splitters when moving the mouse
-   * from the scintilla plugin to the splitter. Without this the cursor isn't
-   * changed to that for the splitter making it very difficult to grab it.
-   */
-  border-left: 1px solid rgba(0,0,0,0.10);
-  border-right: 1px solid rgba(0,0,0,0.10);
-  border-bottom: 1px solid rgba(0,0,0,0.10);
+    /* Bug 80756: These borders are necessary on Mac OS X so that the "mouseenter"
+     * event makes it to the sidebar/bottom-pane splitters when moving the mouse
+     * from the scintilla plugin to the splitter. Without this the cursor isn't
+     * changed to that for the splitter making it very difficult to grab it.
+     */
+    border-left: 1px solid rgba(0,0,0,0.10);
+    border-right: 1px solid rgba(0,0,0,0.10);
+    border-bottom: 1px solid rgba(0,0,0,0.10);
 }
 
 #dbExplorerPane > vbox > hbox > toolbarseparator {
-  display: none !important;
+    display: none !important;
 }

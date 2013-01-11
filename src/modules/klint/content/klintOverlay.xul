@@ -19,7 +19,7 @@
                  label="&klint.tab.title;"
                  short-label="&klint.tab.title.short;"
                  src="chrome://klint/content/klintPane.xul"
-                 icon="chrome://fugue/skin/icons/magnifier--exclamation.png"/>
+                 icon="chrome://icomoon/skin/icons/svg/waning2.svg"/>
     </ko-pane>
 
 </overlay>

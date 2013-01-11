@@ -34,6 +34,17 @@
         
         -moz-transition: all 0.20s linear;
         
+        & > toolbarbutton
+        {
+            margin: 0;
+            padding: 0;
+        }
+        
+        & > dropmarker
+        {
+            margin-right: -3px;
+        }
+        
         /* Button Icon */
         image
         {
@@ -114,6 +125,7 @@
                 -moz-image-region: rect(23px, 664px, 46px, 649px);
             }   
         }
+        
     }
 }
 
@@ -147,4 +159,5 @@
 #main-toolboxrow > hbox
 {
     padding-bottom: 3px;
+    padding-top: 3px;
 }

@@ -1,4 +1,5 @@
-@import url(chrome://komodo/skin/_config/icons.less);
+@import url("chrome://komodo/skin/plat/shared/_config/icons.less");
+@import url("chrome://komodo/skin/_config/icons.less");
 
 /* Icon Tweaks */
 treechildren::-moz-tree-image(project-icon),
@@ -262,56 +263,6 @@ treechildren::-moz-tree-image
 .find-lock-icon[locked="true"]
 {
     list-style-image: @icon-find-lock-locked;
-}
-
-.macro-play-icon
-{
-    list-style-image: @icon-macro-play;
-}
-
-.macro-play-icon[disabled="true"]
-{
-    list-style-image: @icon-macro-play-disabled;
-}
-
-.macro-pause-icon
-{
-    list-style-image: @icon-macro-pause;
-}
-
-.macro-pause-icon[disabled="true"]
-{
-    list-style-image: @icon-macro-pause-disabled;
-}
-
-.macro-record-icon
-{
-    list-style-image: @icon-macro-record;
-}
-
-.macro-record-icon[disabled="true"]
-{
-    list-style-image: @icon-macro-record-disabled;
-}
-
-.macro-stop-icon
-{
-    list-style-image: @icon-macro-stop;
-}
-
-.macro-stop-icon[disabled="true"]
-{
-    list-style-image: @icon-macro-stop-disabled;
-}
-
-.macro-save-icon
-{
-    list-style-image: @icon-macro-save;
-}
-
-.macro-save-icon[disabled="true"]
-{
-    list-style-image: @icon-macro-save-disabled;
 }
 
 .new-project-icon
@@ -687,4 +638,130 @@ toolbarbutton[disabled="true"] > dropmarker
 .ishell-icon
 {
     list-style-image: @icon-addon-ishell !important;
+}
+
+#tb_tdkTclMenu
+{
+    list-style-image: @icon-addon-tcldevkit !important;
+}
+
+#tb_pdkPerlMenu
+{
+    list-style-image: @icon-addon-perldevkit !important;
+}
+
+/* SCC Icons */
+
+.scc-button-menu
+{
+    list-style-image: @icon-addon-scc !important;
+}
+
+.scc-button-checkout
+{
+    list-style-image: @icon-addon-scc-checkout !important;
+}
+
+.scc-button-add
+{
+    list-style-image: @icon-addon-scc-add !important;
+}
+
+.scc-button-edit
+{
+    list-style-image: @icon-addon-scc-edit !important;
+}
+
+.scc-button-revert
+{
+    list-style-image: @icon-addon-scc-revert !important;
+}
+
+.scc-button-remove
+{
+    list-style-image: @icon-addon-scc-remove !important;
+}
+
+.scc-button-update
+{
+    list-style-image: @icon-addon-scc-update !important;
+}
+
+.scc-button-diff
+{
+    list-style-image: @icon-addon-scc-diff !important;
+}
+
+.scc-button-history
+{
+    list-style-image: @icon-addon-scc-history !important;
+}
+
+.scc-button-commit
+{
+    list-style-image: @icon-addon-scc-commit !important;
+}
+
+.scc-button-push
+{
+    list-style-image: @icon-addon-scc-push !important;
+}
+
+/* Debug Icons */
+
+.debug-stepin-icon
+{
+    list-style-image: @icon-addon-debug-stepin !important;
+}
+
+.debug-stepover-icon
+{
+    list-style-image: @icon-addon-debug-stepover !important;
+}
+
+.debug-stepout-icon
+{
+    list-style-image: @icon-addon-debug-stepout !important;
+}
+
+.debug-continue-icon
+{
+    list-style-image: @icon-addon-debug-continue !important;
+}
+
+.debug-break-icon
+{
+    list-style-image: @icon-addon-debug-break !important;
+}
+
+.debug-stop-icon
+{
+    list-style-image: @icon-addon-debug-stop !important;
+}
+
+/* Macro Icons */
+
+.macro-play-icon
+{
+    list-style-image: @icon-macro-play;
+}
+
+.macro-pause-icon
+{
+    list-style-image: @icon-macro-pause;
+}
+
+.macro-record-icon
+{
+    list-style-image: @icon-macro-record;
+}
+
+.macro-stop-icon
+{
+    list-style-image: @icon-macro-stop;
+}
+
+.macro-save-icon
+{
+    list-style-image: @icon-macro-save;
 }

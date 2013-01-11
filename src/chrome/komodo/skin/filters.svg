@@ -1,56 +1,244 @@
 <?xml version="1.0"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" 
-              "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg viewBox="0 0 400 350"
-     xmlns="http://www.w3.org/2000/svg" version="1.1">
-  <defs>
-    <filter id="greyscale" filterUnits="objectBoundingBox" x="0" y="0" width="1" height="1">
-      <feColorMatrix in="SourceGraphic" type="saturate" values="0"/>
-    </filter>
-
-    <filter id="greyscale_bright">
-      <!-- Greyscale -->
-      <feColorMatrix type="saturate" values="0"/>
-      <!-- Increase brightness -->
-      <feComponentTransfer>
-	<feFuncR type="linear" slope="0.55" />
-	<feFuncG type="linear" slope="0.55" />
-	<feFuncB type="linear" slope="0.55" />
-      </feComponentTransfer>
-    </filter>
-
-    <filter id="monochrome">
-		<!-- Increase Brightness -->
-		<feComponentTransfer in="SourceAlpha" result="_SourceGraphic">
-			<feFuncR type="linear" intercept="0.30" slope="1"/>
-			<feFuncG type="linear" intercept="0.30" slope="1"/>
-			<feFuncB type="linear" intercept="0.30" slope="1"/>
-		</feComponentTransfer>
-		
-		<!-- Add Inset Gradient -->
-        <feFlood flood-color="black" flood-opacity="0.25" in="_SourceGraphic" result="InsetGradient"/> <!-- Color & Opacity -->
-        <feOffset dx="0" dy="8" in="InsetGradient" result="InsetGradient"/> <!-- Gradient Offset -->
-        <feGaussianBlur stdDeviation="2" in="InsetGradient" result="InsetGradient" /> <!-- Gaussian Blur -->
-        <feComposite operator="in" in="InsetGradient" in2="_SourceGraphic" result="InsetGradient"/> <!-- Clip color inside shadow -->
-        <feComposite operator="over" in="InsetGradient" in2="_SourceGraphic" result="_SourceGraphic"/> <!-- Put shadow over original object -->
-		
-		<!-- Add Inset -->
-		<feOffset dx="1" dy="1" in="_SourceGraphic" result="InsetShadow"/> <!-- Shadow Offset -->
-		<feGaussianBlur stdDeviation="1.5" in="InsetShadow" result="InsetShadow"/> <!-- Gaussian Blur -->
-		<feComposite operator="out" in="_SourceGraphic" in2="InsetShadow" result="inverse"/> <!-- Invert the drop shadow to create an inner shadow -->
-		<feFlood flood-color="black" flood-opacity="0.60" result="color"/> <!-- Color & Opacity -->
-		<feComposite operator="in" in="color" in2="inverse" result="shadow"/> <!-- Clip color inside shadow -->
-		<feComposite operator="over" in="shadow" in2="_SourceGraphic" result="_SourceGraphic"/> <!-- Put shadow over original object -->
-		
-		<!-- Add Shadow -->
-		<feOffset result="DropShadow" in="SourceAlpha" dx="1" dy="1" />
-		<feComponentTransfer in="DropShadow" result="DropShadow">
-			<feFuncR type="linear" intercept="1.00" slope="1"/>
-			<feFuncG type="linear" intercept="1.00" slope="1"/>
-			<feFuncB type="linear" intercept="1.00" slope="1"/>
-		</feComponentTransfer>
-		<feBlend in="_SourceGraphic" in2="DropShadow" mode="normal" />
-		
-    </filter>
-  </defs>
+<svg viewBox="0 0 400 350" xmlns="http://www.w3.org/2000/svg" version="1.1">
+    <defs>
+        
+        <filter id="greyscale" filterUnits="objectBoundingBox" x="0" y="0" width="1" height="1">
+            <feColorMatrix in="SourceGraphic" type="saturate" values="0" />
+        </filter>
+        
+        <filter id="greyscale_bright">
+            <!-- Greyscale -->
+            <feColorMatrix type="saturate" values="0" />
+            <!-- Increase brightness -->
+            <feComponentTransfer>
+                <feFuncR type="linear" slope="0.55" />
+                <feFuncG type="linear" slope="0.55" />
+                <feFuncB type="linear" slope="0.55" />
+            </feComponentTransfer>
+        </filter>
+        
+        <!-- ========== MAC ========== -->
+        <filter id="monochrome-mac">
+            <!-- Change Color to Dark Gray -->
+            <feFlood
+               flood-color="rgb(120,120,120)"
+               in="SourceAlpha"
+               result="result1" />
+            <feComposite
+               id="feComposite4062"
+               in2="SourceGraphic"
+               in="result1"
+               operator="in"
+               result="result2" />
+            
+            <!-- Add Inset Shadow -->
+            <feOffset
+               dx="1"
+               dy="1"
+               in="SourceAlpha" />
+            <feGaussianBlur
+               stdDeviation="1.5"
+               result="result3" />
+            <feComposite
+               in2="result3"
+               operator="out"
+               in="SourceAlpha"
+               result="result4" />
+            <feFlood
+               flood-opacity="0.8"
+               flood-color="rgb(0,0,0)" />
+            <feComposite
+               in2="result4"
+               result="result6"
+               operator="in" />
+            <feComposite
+               in2="result2"
+               in="result6"
+               result="result5" />
+            
+            <!-- Add Outer White Stroke -->
+            <feFlood
+               in="SourceAlpha"
+               flood-color="rgb(255,255,255)"
+               flood-opacity="0.90"
+               result="result7" />
+            <feComposite
+               in2="SourceAlpha"
+               operator="in" />
+            <feOffset
+               dx="1"
+               dy="1"
+               result="result8" />
+            <feComposite
+               in2="result8"
+               in="result5" />
+        </filter>
+        
+        <!-- ========== MAC SELECTED ========== -->
+        <filter id="monochrome-mac-selected">
+            <!-- Change Color to Light Blue -->
+            <feFlood
+               flood-color="rgb(89,152,196)"
+               in="SourceAlpha"
+               result="result1" />
+            <feComposite
+               id="feComposite4062"
+               in2="SourceGraphic"
+               in="result1"
+               operator="in"
+               result="result2" />
+            
+            <!-- Add Blue Shadow -->
+            <feFlood
+               id="feFlood3007"
+               in="SourceAlpha"
+               flood-color="rgb(39,131,195)"
+               flood-opacity="0.40"
+               result="result9" />
+            <feComposite
+               id="feComposite3009"
+               operator="in"
+               in="result9"
+               in2="SourceGraphic"
+               result="result10" />
+            <feGaussianBlur
+               stdDeviation="3"
+               id="feGaussianBlur3003"
+               in="result10"
+               result="result7" />
+            <feComposite
+               id="feComposite3005"
+               in2="result7"
+               in="result2"
+               result="result8"
+               stdDeviation="3" />    
+        </filter>
+        
+        <!-- ========== WINDOWS ========== -->
+        <filter id="monochrome-windows">
+            <!-- Change Color to Dark Gray -->
+            <feFlood
+               flood-color="rgb(120,120,120)"
+               in="SourceAlpha"
+               result="result1" />
+            <feComposite
+               id="feComposite4062"
+               in2="SourceGraphic"
+               in="result1"
+               operator="in"
+               result="result2" />
+            
+            <!-- Add Inset Shadow -->
+            <feOffset
+               dx="1"
+               dy="1"
+               in="SourceAlpha" />
+            <feGaussianBlur
+               stdDeviation="1.5"
+               result="result3" />
+            <feComposite
+               in2="result3"
+               operator="out"
+               in="SourceAlpha"
+               result="result4" />
+            <feFlood
+               flood-opacity="0.8"
+               flood-color="rgb(0,0,0)" />
+            <feComposite
+               in2="result4"
+               result="result6"
+               operator="in" />
+            <feComposite
+               in2="result2"
+               in="result6"
+               result="result5" />
+            
+            <!-- Add Outer White Stroke -->
+            <feFlood
+               in="SourceAlpha"
+               flood-color="rgb(255,255,255)"
+               flood-opacity="0.60"
+               result="result7" />
+            <feComposite
+               in2="SourceAlpha"
+               operator="in" />
+            <feOffset
+               dx="1"
+               dy="1"
+               result="result8" />
+            <feComposite
+               in2="result8"
+               in="result5" />
+        </filter>
+        
+        <!-- ========== Fill Dark Gray ========== -->
+        <filter id="fill-darkgray">
+            <feFlood
+               flood-color="rgb(120,120,120)"
+               in="SourceAlpha"
+               result="result1" />
+            <feComposite
+               id="feComposite4062"
+               in2="SourceGraphic"
+               in="result1"
+               operator="in"
+               result="result2" />
+        </filter>
+        
+        <!-- ========== Fill Light Gray ========== -->
+        <filter id="fill-lightgray">
+            <feFlood
+               flood-color="rgb(200,200,200)"
+               in="SourceAlpha"
+               result="result1" />
+            <feComposite
+               id="feComposite4062"
+               in2="SourceGraphic"
+               in="result1"
+               operator="in"
+               result="result2" />
+        </filter>
+        
+        <!-- ========== Fill Orange ========== -->
+        <filter id="fill-orange">
+            <feFlood
+               flood-color="rgb(231,124,1)"
+               in="SourceAlpha"
+               result="result1" />
+            <feComposite
+               id="feComposite4062"
+               in2="SourceGraphic"
+               in="result1"
+               operator="in"
+               result="result2" />
+        </filter>
+        
+        <!-- ========== Fill Blue ========== -->
+        <filter id="fill-blue">
+            <feFlood
+               flood-color="rgb(34,88,245)"
+               in="SourceAlpha"
+               result="result1" />
+            <feComposite
+               id="feComposite4062"
+               in2="SourceGraphic"
+               in="result1"
+               operator="in"
+               result="result2" />
+        </filter>
+        
+        <!-- ========== Fill Light Blue ========== -->
+        <filter id="fill-lightblue">
+            <feFlood
+               flood-color="rgb(46,156,221)"
+               in="SourceAlpha"
+               result="result1" />
+            <feComposite
+               id="feComposite4062"
+               in2="SourceGraphic"
+               in="result1"
+               operator="in"
+               result="result2" />
+        </filter>
+    </defs>
 </svg>

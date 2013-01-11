@@ -1,8 +1,8 @@
 @panel-border-color:                    ThreeDShadow;
 @panel-border:                          1px solid @panel-border-color;
 
-@sidebar-background:                    rgba(255,255,255,0.2) -moz-linear-gradient(90deg , rgba(0,0,0,0.1) 0%, rgba(255,255,255,0) 100%);
-@sidebar-inactive-background:           -moz-linear-gradient(90deg , rgba(0,0,0,0.1) 0%, rgba(255,255,255,0) 100%);
+@sidebar-background:                    -moz-linear-gradient(90deg , rgba(0,0,0,0.07) 0%, rgba(255,255,255,0) 100%);
+@sidebar-inactive-background:           -moz-linear-gradient(90deg , rgba(0,0,0,0.07) 0%, rgba(255,255,255,0) 100%);
 @sidebar-splitter-color:                rgba(0,0,0,0.2);
 
 @bottom-background:                     Window;
@@ -29,7 +29,7 @@
 @statusbar-panel-border-image:          none;
 
 @menubar-background:                    inherit;
-@menubar-border-bottom:                 inherit;
+@menubar-border-bottom:                 1px solid @main-border-color;
 
 @menubar-group-first-border-width:      0 1px 0 0;
 @menubar-group-last-border-width:       0;
@@ -51,12 +51,12 @@
 @menubar-button-background-position:    inherit;
 @menubar-button-background-repeat:      inherit;
 @menubar-button-shadow:                 inherit;
-@menubar-button-icon-filter:            inherit;
+@menubar-button-icon-filter:            ~"url(chrome://komodo/skin/filters.svg#fill-darkgray)";
 
 @menubar-group-border-color-inactive:   rgba(0,0,0, 0.15);
 @menubar-button-border-color-inactive:  inherit;
 
-@menubar-button-background-color-hover: rgba(0,0,0, 0.10) !important;
+@menubar-button-background-color-hover: rgba(0,0,0, 0.07) !important;
 @menubar-button-background-image-hover: none;
 @menubar-button-shadow-hover:           inherit;
 @menubar-button-border-width-hover:     @menubar-button-border-width;
@@ -65,7 +65,7 @@
 
 @menubar-button-background-color-active:rgba(0,0,0, 0.10) !important;
 @menubar-button-background-image-active:none;
-@menubar-button-shadow-active:          inset 0px 4px 5px rgba(0,0,0,0.15);
+@menubar-button-shadow-active:          none;
 @menubar-button-border-width-active:    @menubar-button-border-width;
 @menubar-button-border-style-active:    @menubar-button-border-style;
 @menubar-button-border-color-active:    @menubar-button-border-color;
@@ -99,8 +99,9 @@
 @tab-background-vertical:               inherit;
 @tab-box-shadow-vertical:               none;
 
-@tab-icons-unselected-opacity:          0.6;
-@tab-icons-unselected-filter:           ~"url(chrome://komodo/skin/filters.svg#greyscale_bright)";
+@tab-icons-selected-filter:             ~"url(chrome://komodo/skin/filters.svg#fill-darkgray)";
+@tab-icons-unselected-opacity:          0.4;
+@tab-icons-unselected-filter:           ~"url(chrome://komodo/skin/filters.svg#fill-darkgray)";
 
 @tab-selected-border:                   @tab-border;
 @tab-selected-background:               @tab-background;

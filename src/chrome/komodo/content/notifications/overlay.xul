@@ -13,7 +13,7 @@
         <browser type="ko-widget" id="notifications-widget"
                  label="&notifications.label;"
                  src="chrome://komodo/content/notifications/notificationsWidget.xul"
-                 icon="chrome://fugue/skin/icons/exclamation-white.png"/>
+                 icon="chrome://icomoon/skin/icons/svg/info2.svg"/>
     </ko-pane>
 
 </overlay>
