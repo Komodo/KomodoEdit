@@ -178,7 +178,6 @@
                in="SourceAlpha"
                result="result1" />
             <feComposite
-               id="feComposite4062"
                in2="SourceGraphic"
                in="result1"
                operator="in"
@@ -192,7 +191,6 @@
                in="SourceAlpha"
                result="result1" />
             <feComposite
-               id="feComposite4062"
                in2="SourceGraphic"
                in="result1"
                operator="in"
@@ -206,7 +204,6 @@
                in="SourceAlpha"
                result="result1" />
             <feComposite
-               id="feComposite4062"
                in2="SourceGraphic"
                in="result1"
                operator="in"
@@ -220,21 +217,19 @@
                in="SourceAlpha"
                result="result1" />
             <feComposite
-               id="feComposite4062"
                in2="SourceGraphic"
                in="result1"
                operator="in"
                result="result2" />
         </filter>
         
-        <!-- ========== Fill Light Blue ========== -->
-        <filter id="fill-lightblue">
+        <!-- ========== Fill Gray/Blue ========== -->
+        <filter id="fill-grayblue">
             <feFlood
-               flood-color="rgb(46,156,221)"
+               flood-color="rgb(93,151,185)"
                in="SourceAlpha"
                result="result1" />
             <feComposite
-               id="feComposite4062"
                in2="SourceGraphic"
                in="result1"
                operator="in"
