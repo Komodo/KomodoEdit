@@ -74,10 +74,10 @@ def _getUserPath():
 class _GenericPythonLinter(object):
     _com_interfaces_ = [components.interfaces.koILinter]
 
-    def __init__(self, language="Python"):
-        self._pythonInfo = components.classes["@activestate.com/koAppInfoEx?app=%s;1" % (language, )]\
+    def __init__(self):
+        self._pythonInfo = components.classes["@activestate.com/koAppInfoEx?app=%s;1" % (self.language_name, )]\
                .getService(components.interfaces.koIAppInfoEx)
-        self.language_name_lc = language.lower()
+        self.language_name_lc = self.language_name.lower()
 
     def lint(self, request):
         text = request.content.encode(request.encoding.python_encoding_name)
@@ -143,7 +143,10 @@ class KoPythonCommonPyLintChecker(_GenericPythonLinter):
         # We only need the stdout result.
         try:
             p = process.ProcessOpen(cmd, cwd=cwd, env=env, stdin=None)
-            stdout, _ = p.communicate()
+            stdout, stderr = p.communicate()
+            if stderr:
+                log.error("Error in pylint: %s", stderr)
+                return
             warnLines = stdout.splitlines(0) # Don't need the newlines.
         except:
             log.exception("Failed to run %s", cmd)
@@ -196,6 +199,7 @@ class KoPythonCommonPyLintChecker(_GenericPythonLinter):
             return re.compile(pseudoPtn)
 
 class KoPythonPyLintChecker(KoPythonCommonPyLintChecker):
+    language_name = "Python"
     _reg_desc_ = "Komodo Python PyLint Linter"
     _reg_clsid_ = "{8de9b933-d32d-4c12-b73e-9bcce4fec63c}"
     _reg_contractid_ = "@activestate.com/koLinter?language=Python&type=pylint;1"
@@ -206,6 +210,7 @@ class KoPythonPyLintChecker(KoPythonCommonPyLintChecker):
     rcfile_prefname = "pylint_checking_rcfile"
 
 class KoPython3PyLintChecker(KoPythonCommonPyLintChecker):
+    language_name = "Python3"
     _reg_desc_ = "Komodo Python3 PyLint Linter"
     _reg_clsid_ = "{f1ecb86c-9fd9-4477-a40d-b8c9ee282c0f}"
     _reg_contractid_ = "@activestate.com/koLinter?language=Python3&type=pylint;1"
@@ -277,6 +282,7 @@ class KoPythonCommonPyflakesChecker(_GenericPythonLinter):
         return results
 
 class KoPythonPyflakesChecker(KoPythonCommonPyflakesChecker):
+    language_name = "Python3"
     _reg_desc_ = "Komodo Python Pyflakes Linter"
     _reg_clsid_ = "{5e040c73-814d-4151-b6aa-a6201e43a627}"
     _reg_contractid_ = "@activestate.com/koLinter?language=Python&type=pyflakes;1"
@@ -286,6 +292,7 @@ class KoPythonPyflakesChecker(KoPythonCommonPyflakesChecker):
     lint_prefname = "lint_python_with_pyflakes"
 
 class KoPython3PyflakesChecker(KoPythonCommonPyflakesChecker):
+    language_name = "Python3"
     _reg_desc_ = "Komodo Python3 Pyflakes Linter"
     _reg_clsid_ = "{25ced8c6-b37e-4bc1-9efc-dc6d60696d22}"
     _reg_contractid_ = "@activestate.com/koLinter?language=Python3&type=pyflakes;1"
@@ -373,6 +380,7 @@ class KoPythonCommonPycheckerLinter(_GenericPythonLinter):
         return results
 
 class KoPythonPycheckerLinter(KoPythonCommonPycheckerLinter):
+    language_name = "Python"
     _reg_desc_ = "Komodo Python Pychecker Linter"
     _reg_clsid_ = "{93b2d525-ed2f-4b77-8312-ab784632c8b8}"
     _reg_contractid_ = "@activestate.com/koLinter?language=Python&type=pychecker;1"
@@ -384,6 +392,7 @@ class KoPythonPycheckerLinter(KoPythonCommonPycheckerLinter):
     rcfile_prefname = "pychecker_checking_rcfile"
 
 class KoPython3PycheckerLinter(KoPythonCommonPycheckerLinter):
+    language_name = "Python3"
     _reg_desc_ = "Komodo Python3 Pychecker Linter"
     _reg_clsid_ = "{76ba1bf9-6766-4f75-a92f-008c66652cec}"
     _reg_contractid_ = "@activestate.com/koLinter?language=Python3&type=pychecker;1"
@@ -399,7 +408,7 @@ class KoPythonCommonLinter(_GenericPythonLinter):
     _stringType = type("")
     _simple_python3_string_encodings = ("utf-8", "ascii")
     def __init__(self):
-        _GenericPythonLinter.__init__(self, self.language_name)
+        _GenericPythonLinter.__init__(self)
         self._sysUtils = components.classes["@activestate.com/koSysUtils;1"].\
             getService(components.interfaces.koISysUtils)
         self._koDirSvc = components.classes["@activestate.com/koDirs;1"].\
