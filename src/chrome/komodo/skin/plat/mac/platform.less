@@ -21,16 +21,22 @@ menupopup.has-iconic-menuitems menuitem[type="radio"] .menu-iconic-text {
 }
 
 /* Inactive button */
-#main-toolboxrow toolbar > toolbaritem > toolbarbutton
+#main-toolboxrow
 {
-  min-width: 24px;
-  height: 24px;
-  max-height: 24px;
-  padding: 0 0 0 6px !important;
-  
-  &:-moz-window-inactive {
-    border-color: @menubar-button-border-color-inactive;
-  }
+    padding: 4px 0;
+    
+    toolbar > toolbaritem > toolbarbutton
+    {
+      min-width: 24px;
+      height: 24px;
+      max-height: 24px;
+      padding: 0 0 0 6px !important;
+      margin-right: 0;
+      
+      &:-moz-window-inactive {
+        border-color: @menubar-button-border-color-inactive;
+      }
+    }
 }
 
 /**

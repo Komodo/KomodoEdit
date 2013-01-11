@@ -1716,7 +1716,7 @@ ManagerClass.prototype = {
         var this_ = this;
         var callback = {    // koIAsyncCallback
             callback: function(result, data) {
-                statusNode.setAttribute('image', widgets.defaultFolderIconSrc);
+                statusNode.removeAttribute('image');
                 if (result != Components.interfaces.koIAsyncCallback.RESULT_SUCCESSFUL) {
                     widgets.rootButton.label = "";
                     widgets.rootButton.tooltipText = "";
