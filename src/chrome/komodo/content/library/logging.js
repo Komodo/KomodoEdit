@@ -543,17 +543,18 @@ this.dumpObject = function dumpObject(o, name)
 
 
 /** Based on snippet by "Amos Batto", http://stackoverflow.com/a/11315561/490321 **/
-this.dumpMixed = function(v, maxRecursion, recursionLevel)
+this.dumpMixed = function(v, maxRecursion /* 2 */, parentProperties /* true */, recursionLevel)
 {
     recursionLevel = (typeof recursionLevel !== 'number') ? 0 : recursionLevel;
     maxRecursion = maxRecursion === undefined ? 2 : maxRecursion;
+    parentProperties = parentProperties === undefined ? true : parentProperties;
 
     var vType = typeof v;
     var out = vType;
 
     switch (vType)
-	{
-		case "number":
+    {
+	case "number":
         case "boolean":
             out += ": " + v;
             break;
@@ -561,8 +562,8 @@ this.dumpMixed = function(v, maxRecursion, recursionLevel)
             out += "(" + v.length + '): "' + v + '"';
             break;
         case "object":
-			if (v !== null && recursionLevel >= maxRecursion) return '(max recursion) ...';
-			
+            if (v !== null && recursionLevel >= maxRecursion) return '(max recursion) ...';
+            
             if (v == window) {
                 out = "<window>";
             }
@@ -576,7 +577,7 @@ this.dumpMixed = function(v, maxRecursion, recursionLevel)
                 out = 'array(' + v.length + '): {\n';
                 for (var i = 0; i < v.length; i++) {
                     out += repeatString('   ', recursionLevel) + "   [" + i + "]:  " + 
-                        ko.logging.dumpMixed(v[i], maxRecursion, recursionLevel + 1) + "\n";
+                        ko.logging.dumpMixed(v[i], maxRecursion, parentProperties, recursionLevel + 1) + "\n";
                 }
                 out += repeatString('   ', recursionLevel) + "}";
             }
@@ -584,32 +585,34 @@ this.dumpMixed = function(v, maxRecursion, recursionLevel)
                 var sContents = "{\n";
                 var cnt = 0;
                 for (var member in v)
-				{
-                    //No way to know the original data type of member, since JS
-                    //always converts it to a string and no other way to parse objects.
-                    try {
-                        sContents += repeatString('   ', recursionLevel) + "   " + member +
-                            ":  " + ko.logging.dumpMixed(v[member], maxRecursion, recursionLevel + 1) + "\n";
-                    } catch(e) {
-                        sContents += "<error parsing value: "+e.message+">";
+                {
+                    if (parentProperties || v.hasOwnProperty(member)) {
+                        //No way to know the original data type of member, since JS
+                        //always converts it to a string and no other way to parse objects.
+                        try {
+                            sContents += repeatString('   ', recursionLevel) + "   " + member +
+                                ":  " + ko.logging.dumpMixed(v[member], maxRecursion, parentProperties, recursionLevel + 1) + "\n";
+                        } catch(e) {
+                            sContents += "<error parsing value: "+e.message+">";
+                        }
+                        cnt++;
                     }
-                    cnt++;
                 }
                 sContents += repeatString('   ', recursionLevel) + "}";
                 out += "(" + cnt + "): " + sContents;
             }
             break;
-		default:
-            out += ": " + v;
+	default:
+            out += ": " + vType;
             break;
     }
 	
-	if (recursionLevel == 0)
-	{
-		ko.logging.dumpImportant(out, "Mixed Dump");
-	}
-	
-	return out;
+    if (recursionLevel == 0)
+    {
+            ko.logging.dumpImportant(out, "Mixed Dump");
+    }
+    
+    return out;
 }
 
 /* repeatString() returns a string which has been repeated a set number of times */ 
