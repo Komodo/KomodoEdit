@@ -122,6 +122,11 @@ window.addEventListener("load", function() {
             // properties, see getCellProperties above)
             return null;
         }
+        
+        var parseImageSrc = function(img) {
+            return img.replace(/\/icons\/svg\/(.*)\.svg$/, '/icons/png/16px/$1.png');
+        }
+        
         if ("imagesrc" in this._rows[row]) {
             // we have a cached value
             return this._rows[row].imagesrc;
@@ -144,8 +149,7 @@ window.addEventListener("load", function() {
         var rect = /^rect\((\d+)px, (\d+)px, (\d+)px, (\d+)px\)/.exec(style.MozImageRegion);
         if (!rect) {
             // no cropping, do the easy thing
-            this._rows[row].imagesrc = url[1];
-            return url[1];
+            return this._rows[row].imagesrc = parseImageSrc(url[1]);
         }
 
         // We would rather not get here, but we need to figure out what image
@@ -184,7 +188,7 @@ window.addEventListener("load", function() {
                       dest.left, dest.top, dest.width, dest.height,
                       0, 0, dest.width, dest.height);
         // Everything's good; cache the result and return the url.
-        return this._rows[row].imagesrc = this._canvas.toDataURL();
+        return this._rows[row].imagesrc = parseImageSrc(this._canvas.toDataURL());
     };
     
     ToolboxTreeView.prototype.cycleCell = function(row, col) {

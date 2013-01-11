@@ -103,71 +103,6 @@ toolbarbutton > .toolbarbutton-text:empty:not([value]) {
     padding: 2px 2px;
 }
 
-#buttonBrowserPreview
-{
-  list-style-image : url("chrome://komodo/skin/images/preview_in_browser.png");
-}
-
-.save-all-buffers-icon {
-  list-style-image : url("chrome://komodo/skin/images/saveAll.png");
-}
-
-.cut-button, /* deprecated since Komodo 7 */.native-cut-icon
-{
-  /* #if PLATFORM == "linux" */
-  list-style-image : url("moz-icon://stock/gtk-cut?size=16");
-  /* #else */
-  list-style-image : url("chrome://komodo/skin/images/cut.png");
-  /* #endif */
-}
-toolbarbutton[disabled="true"] > image,
-toolbarbutton[disabled="true"] > dropmarker {
-  opacity: 0.7;
-}
-
-.copy-button, /* deprecated since Komodo 7 */
-.native-copy-icon
-{
-  /* #if PLATFORM == "linux" */
-  list-style-image : url("moz-icon://stock/gtk-copy?size=16");
-  /* #else */
-  list-style-image : url("chrome://komodo/skin/images/copy.png");
-  /* #endif */
-}
-.copy-button[disabled="true"] > image, /* deprecated since Komodo 7 */
-.native-copy-icon[disabled="true"] > image {
-  opacity: 0.25;
-}
-
-.paste-button, /* deprecated since Komodo 7 */
-.native-paste-icon
-{
-  /* #if PLATFORM == "linux" */
-  list-style-image : url("moz-icon://stock/gtk-paste?size=16");
-  /* #else */
-  list-style-image : url("chrome://komodo/skin/images/paste.png");
-  /* #endif */
-}
-.paste-button[disabled="true"] > image, /* deprecated since Komodo 7 */
-.native-paste-icon[disabled="true"] > image {
-  opacity: 0.25;
-}
-
-.print-button, /* deprecated since Komodo 7 */
-.native-print-icon
-{
-  /* #if PLATFORM == "linux" */
-  list-style-image : url("moz-icon://stock/gtk-print?size=16");
-  /* #else */
-  list-style-image : url("chrome://komodo/skin/images/print_button.png");
-  /* #endif */
-}
-.print-button[disabled="true"] > image, /* deprecated since Komodo 7 */
-.native-print-icon[disabled="true"] > image {
-  opacity: 0.25;
-}
-
-
 /* remove grippies on menubar and toolbars */
 #kombo-menubar > toolbargrippy,
 #editorToolbar > toolbargrippy,
@@ -176,75 +111,6 @@ toolbarbutton[disabled="true"] > dropmarker {
 #findToolbar > toolbargrippy,
 #fileOpenToolbar > toolbargrippy {
 	visibility: collapse;
-}
-
-.komodo-button-community
-{
-  list-style-image : url("chrome://komodo/skin/images/icon-community.png");
-}
-.komodo-button-maillist
-{
-  list-style-image : url("chrome://komodo/skin/images/icon-mailing-list.png");
-}
-.komodo-button-bugs
-{
-  list-style-image : url("chrome://komodo/skin/images/icon-bugs.png");
-}
-
-#tabs-closebutton
-{
-  list-style-image : url("chrome://komodo/skin/images/small-x.png");
-}
-
-
-#toggleLeftPane {
-  list-style-image : url("chrome://komodo/skin/images/show_left_pane.png");
-}
-#toggleLeftPane[checked="true"] {
-  list-style-image : url("chrome://komodo/skin/images/hide_left_pane.png");
-}
-
-#toggleRightPane {
-  list-style-image : url("chrome://komodo/skin/images/show_right_pane.png");
-}
-#toggleRightPane[checked="true"] {
-  list-style-image : url("chrome://komodo/skin/images/hide_right_pane.png");
-}
-
-#toggleBottomPane {
-  list-style-image : url("chrome://komodo/skin/images/show_bottom_pane.png");
-}
-#toggleBottomPane[checked="true"] {
-  list-style-image : url("chrome://komodo/skin/images/hide_bottom_pane.png");
-}
-
-
-.tabPicker-icon {
-  list-style-image : url("chrome://komodo/skin/images/tab_picker.png");
-}
-
-#findButton.find
-{
-  list-style-image : url("chrome://komodo/skin/images/find.png");
-}
-
-#findButton.findInFiles {
-  list-style-image : url("chrome://komodo/skin/images/find_in_files.png");
-}
-
-
-/* Images for the Diff Toolbar  */
-.previous-diff-icon {
-  list-style-image : url("chrome://komodo/skin/images/famfamfam/arrow_up.png");
-}
-.next-diff-icon {
-  list-style-image : url("chrome://komodo/skin/images/famfamfam/arrow_down.png");
-}
-.reveal-in-editor-icon {
-  list-style-image : url("chrome://komodo/skin/images/famfamfam/page_white_go.png");
-}
-.move-to-editor-icon {
-  list-style-image : url("chrome://fugue/skin/icons/arrow-curve-000-double.png");
 }
 
 menuitem.history-nav-item {
@@ -266,22 +132,14 @@ menuitem.history-nav-current {
   display : none;
 }
 
-.history-back-icon {
-  list-style-image: url("chrome://komodo/skin/images/browser_buttons.png");
-  -moz-image-region: rect(0px 16px 16px 0px);
-}
 /* rect(top,right,bottom,left) */
-.history-back-icon[disabled="true"] {
+/*.history-back-icon[disabled="true"] {
   -moz-image-region: rect(32px 16px 48px 0px) !important;
-}
+}*/
 
-.history-forward-icon {
-  list-style-image: url("chrome://komodo/skin/images/browser_buttons.png");
-  -moz-image-region: rect(0px 32px 16px 16px);
-}
-.history-forward-icon[disabled="true"] {
+/*.history-forward-icon[disabled="true"] {
   -moz-image-region: rect(32px 32px 48px 16px) !important;
-}
+}*/
 
 /* Button Grouping */
 

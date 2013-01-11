@@ -221,3 +221,9 @@ $cons->InstallAs("$mozExtensionDir/silk\@famfamfam.com/chrome.manifest", 'famfam
 $cons->InstallAs("$mozExtensionDir/industrial\@openoffice.org/industrial.jar", 'openoffice/industrial.jar');
 $cons->InstallAs("$mozExtensionDir/industrial\@openoffice.org/install.rdf", 'openoffice/install.rdf');
 $cons->InstallAs("$mozExtensionDir/industrial\@openoffice.org/chrome.manifest", 'openoffice/chrome.manifest');
+
+# install icomoon extension
+$cons->InstallAs("$mozExtensionDir/icomoon\@icomoon.io/icomoon.jar", 'icomoon/icomoon.jar');
+$cons->InstallAs("$mozExtensionDir/icomoon\@icomoon.io/install.rdf", 'icomoon/install.rdf');
+$cons->InstallAs("$mozExtensionDir/icomoon\@icomoon.io/chrome.manifest", 'icomoon/chrome.manifest');
+$cons->InstallAs("$mozExtensionDir/icomoon\@icomoon.io/License.txt", 'icomoon/License.txt');

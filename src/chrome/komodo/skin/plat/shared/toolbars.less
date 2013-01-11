@@ -20,7 +20,7 @@
         min-width: 20px;
         height: 20px;
         max-height: 20px;
-        padding: 0 0 0 6px !important;
+        padding: 0 5px 0 5px !important;
         margin: 0 1px 0 0;
         
         .border(@menubar-button-border-width, @menubar-button-border-style, @menubar-button-border-color);
@@ -38,7 +38,6 @@
         image
         {
             filter: @menubar-button-icon-filter;
-            padding-right: 5px;
         }
         
         /* First button in group */
@@ -57,10 +56,10 @@
             border-width: @menubar-button-last-border-width;
             border-top-right-radius: 3px;
             border-bottom-right-radius: 3px;
+            padding-right: 0;
             
             image
             {
-                padding-right: 0;
                 border-right: 0;
             }   
         }
@@ -76,7 +75,8 @@
             box-shadow: @menubar-button-shadow-hover;
             background-color: @menubar-button-background-color-hover;
             background-image: @menubar-button-background-image-hover;
-            .border(@menubar-button-border-width-hover, @menubar-button-border-style-hover, @menubar-button-border-color-hover);
+            border-style: @menubar-button-border-style-hover;
+            border-color: @menubar-button-border-color-hover;
         }
         
         /* Checked / Active Button */
@@ -85,7 +85,8 @@
             box-shadow: @menubar-button-shadow-active;
             background-color: @menubar-button-background-color-active;
             background-image: @menubar-button-background-image-active;
-            .border(@menubar-button-border-width-active, @menubar-button-border-style-active, @menubar-button-border-color-active);
+            border-style: @menubar-button-border-style-active;
+            border-color: @menubar-button-border-color-active;
         }
         
         /*
