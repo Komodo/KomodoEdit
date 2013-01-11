@@ -282,7 +282,7 @@ class KoPythonCommonPyflakesChecker(_GenericPythonLinter):
         return results
 
 class KoPythonPyflakesChecker(KoPythonCommonPyflakesChecker):
-    language_name = "Python3"
+    language_name = "Python"
     _reg_desc_ = "Komodo Python Pyflakes Linter"
     _reg_clsid_ = "{5e040c73-814d-4151-b6aa-a6201e43a627}"
     _reg_contractid_ = "@activestate.com/koLinter?language=Python&type=pyflakes;1"
