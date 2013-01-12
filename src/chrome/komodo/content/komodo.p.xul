@@ -1796,7 +1796,6 @@
 
                         <toolbarbutton id="toggleLeftPane"
                             tooltiptext="&showHideLeftPane.tooltiptext;"
-                            kohidden="true"
                             persist="buttonstyle kohidden"
                             buttonstyle="pictures"
                             type="checkbox"
@@ -1805,7 +1804,6 @@
                         </toolbarbutton>
                         <toolbarbutton id="toggleBottomPane"
                             tooltiptext="&showHideBottomPane.tooltiptext;"
-                            kohidden="true"
                             persist="buttonstyle kohidden"
                             buttonstyle="pictures"
                             type="checkbox"
@@ -1814,7 +1812,6 @@
                         </toolbarbutton>
                         <toolbarbutton id="toggleRightPane"
                             tooltiptext="&showHideRightPane.tooltiptext;"
-                            kohidden="true"
                             persist="buttonstyle kohidden"
                             buttonstyle="pictures"
                             type="checkbox"
