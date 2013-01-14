@@ -201,8 +201,8 @@ static int do_main(const char *exePath, int argc, char* argv[])
     KoStartHandle theMan = KS_BAD_HANDLE;
 
     // Handle command line arguments.
-    rv = KoStart_HandleArgV(argc, argv, &options);
-    switch (rv) {
+    retval = KoStart_HandleArgV(argc, argv, &options);
+    switch (retval) {
     case KS_ERROR:
         goto main_error;
     case KS_EXIT:
