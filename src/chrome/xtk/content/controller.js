@@ -120,7 +120,7 @@ xtk.ForwardingController = function ForwardingController(aControllers) {
         aControllers = [aControllers];
     }
     this._controllers = [];
-    for each (let controller in aControllers) {
+    for (let controller of aControllers) {
         if (controller instanceof Components.interfaces.nsIDOMXULElement) {
             this._controllers.push(controller.controllers);
         } else if (controller instanceof Components.interfaces.nsIController ||
@@ -191,10 +191,21 @@ function ForwardingController__getControllerForCommand(aCommand) {
             return [defaultController, null];
         }
     }
-    for each (let controller in this._controllers) {
+    let flattendControllers = []
+    for (let controller of this._controllers) {
         if (controller instanceof Components.interfaces.nsIControllers) {
-            controller = controller.getControllerForCommand(aCommand);
+            for (let i = 0; i < controller.getControllerCount(); ++i) {
+                let subcontroller = controller.getControllerAt(i);
+                if (subcontroller.wrappedJSObecjt === this) {
+                    continue;
+                }
+                flattendControllers.push(subcontroller);
+            }
+        } else {
+            flattendControllers.push(controller);
         }
+    }
+    for (let controller of flattendControllers) {
         if (controller && controller.supportsCommand(aCommand)) {
             return [controller, aCommand];
         }
