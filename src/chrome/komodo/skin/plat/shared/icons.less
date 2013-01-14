@@ -34,6 +34,7 @@ button[type="moreinfo"] > .button-box > .button-icon
 
 [class*='-icon '] > image,
 [class$='-icon'] > image,
+toolbaritem > image,
 .toolbarbutton-icon,
 .button-icon,
 treechildren::-moz-tree-image
@@ -290,6 +291,11 @@ toolbaritem .native-new-file-icon
 .open-file-icon
 {
     list-style-image: @icon-open-file;
+}
+
+#findToolbar .native_open_icon
+{
+    list-style-image: @icon-open-file-toolbar;
 }
 
 .native_folder_icon
@@ -584,6 +590,11 @@ toolbarbutton[disabled="true"] > dropmarker
 #findButton.find
 {
     list-style-image: @icon-find;
+}
+
+#findToolbar #findButton.find
+{
+    list-style-image: @icon-find-toolbar;
 }
 
 #findButton.findInFiles
