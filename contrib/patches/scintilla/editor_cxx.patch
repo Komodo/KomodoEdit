@@ -115,6 +115,34 @@ Index: src/Editor.cxx
  					}
  				}
  
+@@ -2635,21 +2645,27 @@
+ 			int startPos = posLineStart + lineStart;
+ 			if (!deco->rs.ValueAt(startPos)) {
+ 				startPos = deco->rs.EndRun(startPos);
+ 			}
+ 			while ((startPos < posLineEnd) && (deco->rs.ValueAt(startPos))) {
+ 				int endPos = deco->rs.EndRun(startPos);
+ 				if (endPos > posLineEnd)
+ 					endPos = posLineEnd;
+ 				DrawIndicator(deco->indicator, startPos - posLineStart, endPos - posLineStart,
+ 					surface, vsDraw, xStart, rcLine, ll, subLine);
++				// Fix bug 96771: make sure we keep advancing startPos
++				int lastStartPos = startPos;
+ 				startPos = deco->rs.EndRun(endPos);
++				if (startPos <= lastStartPos) {
++					// fprintf(stderr, "Bailing out of drawing indicators, startPos stuck at %d\n", startPos);
++					break;
++				}
+ 			}
+ 		}
+ 	}
+ 
+ 	// Use indicators to highlight matching braces
+ 	if ((vs.braceHighlightIndicatorSet && (bracesMatchStyle == STYLE_BRACELIGHT)) ||
+ 		(vs.braceBadLightIndicatorSet && (bracesMatchStyle == STYLE_BRACEBAD))) {
+ 		int braceIndicator = (bracesMatchStyle == STYLE_BRACELIGHT) ? vs.braceHighlightIndicator : vs.braceBadLightIndicator;
+ 		if (under == vsDraw.indicators[braceIndicator].under) {
+ 			Range rangeLine(posLineStart + lineStart, posLineEnd);
 @@ -5003,20 +5013,23 @@
  		}
  	}
