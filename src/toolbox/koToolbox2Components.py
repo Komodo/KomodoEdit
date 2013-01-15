@@ -86,7 +86,7 @@ class KoToolboxDatabaseService(object):
 
 # Taken from koProjectService.py
 
-class KomodoWindowData(object):
+class RunningMacros(object):
     """A class to hold info about a particular top-level Komodo window."""
     
     def __init__(self):
@@ -146,10 +146,7 @@ class KoToolbox2Service(object):
     def __init__(self):
         self.wrapped = WrapObject(self, components.interfaces.nsIObserver)
 
-        self._contentUtils = components.classes["@activestate.com/koContentUtils;1"].\
-                    getService(components.interfaces.koIContentUtils)
-
-        self._data = {} # Komodo nsIDOMWindow -> KomodoWindowData instance
+        self._macros = RunningMacros()
         self._standardToolbox = None  # Stores the top-level folder's ID
         self._loadedToolboxes = {}    # Map project uri to top-level folder's id
         self._tbFromExtension = {}    # Map folder ID to a boolean
@@ -425,58 +422,11 @@ class KoToolbox2Service(object):
         zf.close()
         return basedir, None        
 
-    @property
-    def toolbox_window_data(self):
-        """Returns window-specific toolbox data for the current call stack."""
-        window = None
-
-        # Try to use koIContentUtils, which can find the nsIDOMWindow for
-        # the calling JavaScript context.
-        w = self._contentUtils.GetWindowFromCaller()
-        sentinel = 100
-        while sentinel:
-            try:
-                if not w:
-                    break
-                elif w.document.documentElement.getAttribute("windowtype") == "Komodo":
-                    window = w
-                    break
-                elif w.parent == w:
-                    break
-            except AttributeError:
-                break
-            w = w.parent
-            sentinel -= 1
-        else:
-            log.warn("hit sentinel in KoPartService.toolbox_window_data()!")
-        
-        # If we do not have a window from caller, then get the most recent
-        # window and live with it.
-        if not window:
-            # Window here is nsIDOMWindowInternal, change it.
-            wm = components.classes["@mozilla.org/appshell/window-mediator;1"].\
-                            getService(components.interfaces.nsIWindowMediator)
-            window = wm.getMostRecentWindow('Komodo')
-        if window:
-            window_id = window.QueryInterface(components.interfaces.nsIInterfaceRequestor) \
-                            .getInterface(components.interfaces.nsIDOMWindowUtils) \
-                            .outerWindowID
-        else:
-            # This is common when running Komodo standalone tests via
-            # xpcshell, but should not occur when running Komodo normally.
-            log.error("project_window_data:: getMostRecentWindow did not return a window")
-            window_id = 1
-        data = self._data.get(window_id)
-        if data is None:
-            data = KomodoWindowData()
-            self._data[window_id] = data
-        return data
-
     def get_runningMacro(self):
-        return self.toolbox_window_data.runningMacro
+        return self._macros.runningMacro
 
     def set_runningMacro(self, macro):
-        self.toolbox_window_data.runningMacro = macro
+        self._macros.runningMacro = macro
     runningMacro = property(get_runningMacro, set_runningMacro)
     
     def _checkMigrate(self, dataDir, label, targetDirectory, kpfName="toolbox.kpf"):
