@@ -256,50 +256,52 @@ if (typeof(ko.widgets)=='undefined') {
                           " / " + uneval(this._panes));
             }
             if (!data.browser) {
-                data.browser = pane.addWidget(aID);
+                data.browser = pane.addWidget(aID, {focus: false});
             }
         }
         return data.browser;
     };
 
     this.getWidgetAsync = function koWidgetManager_getWidgetAsync(aID, aCallback) {
-        log.debug("getWidgetAsync: " + aID + (aCallback ? " (with callback)" : ""));
-        let callbackArgs = null;
-        try {
-            let data = this._get(aID);
-            if (!data) {
-                log.debug("getWidgetAsync: Widget " + aID + " is not registered");
-                return;
-            }
-            let browser = data.browser;
-            if (browser && browser.contentDocument &&
-                (browser.contentDocument.readyState == "complete"))
-            {
-                callbackArgs = browser;
-                return;
-            }
-            if (aCallback) {
-                log.debug("getWidgetAsync: delaying callback for " + aID);
-                data.loadCallbacks.push(aCallback);
-                aCallback = null; // don't call synchronously
-            }
-            if (!browser || browser.currentURI.spec == "about:blank") {
-                log.debug("getWidgetAsync: forcing a load");
-                this.getWidget(aID, true); // cause a load
-            }
-        } catch (ex) {
-            log.exception(ex);
-            callbackArgs = null;
-        } finally {
-            if (aCallback) {
-                log.debug("getWidgetAsync: calling callback for " + aID + " now");
-                try {
-                    aCallback(callbackArgs);
-                } catch (ex) {
-                    log.exception(ex);
+        Services.tm.currentThread.dispatch((function() {
+            log.debug("getWidgetAsync: " + aID + (aCallback ? " (with callback)" : ""));
+            let callbackArgs = null;
+            try {
+                let data = this._get(aID);
+                if (!data) {
+                    log.debug("getWidgetAsync: Widget " + aID + " is not registered");
+                    return;
+                }
+                let browser = data.browser;
+                if (browser && browser.contentDocument &&
+                    (browser.contentDocument.readyState == "complete"))
+                {
+                    callbackArgs = browser;
+                    return;
+                }
+                if (aCallback) {
+                    log.debug("getWidgetAsync: delaying callback for " + aID);
+                    data.loadCallbacks.push(aCallback);
+                    aCallback = null; // don't call synchronously
+                }
+                if (!browser || browser.currentURI.spec == "about:blank") {
+                    log.debug("getWidgetAsync: forcing a load");
+                    this.getWidget(aID, true); // cause a load
+                }
+            } catch (ex) {
+                log.exception(ex);
+                callbackArgs = null;
+            } finally {
+                if (aCallback) {
+                    log.debug("getWidgetAsync: calling callback for " + aID + " now");
+                    try {
+                        aCallback(callbackArgs);
+                    } catch (ex) {
+                        log.exception(ex);
+                    }
                 }
             }
-        }
+        }).bind(this), Ci.nsIEventTarget.DISPATCH_NORMAL);
     };
 
     this.modifyWidget = (function koWidgetManager_modifyWidget(aID, aParams) {
