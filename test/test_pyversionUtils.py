@@ -57,7 +57,7 @@ print(1, 2, sep=' ')
         #    self.assertEqual(scores, exp_scores,
         #        "Expected score of %r for code '%s', got %s" % (exp_scores, line, scores))
         scores = pythonVersionUtils.getScores(code)
-        exp_scores = (0, 2)
+        exp_scores = (0, 0)
         self.assertEqual(scores, exp_scores,
             "Expected score of %r for code %s, got %s" % (exp_scores, code, scores))
         
