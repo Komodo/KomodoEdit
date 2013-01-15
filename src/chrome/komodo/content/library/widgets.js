@@ -50,6 +50,7 @@ if (typeof(ko.widgets)=='undefined') {
         ({   /* this._widgets value type: */
             URL: String,
             label: String,
+            shortLabel: String,
             defaultPane: String, // pane id
             iconURL: String,
             inactiveIconURL: String || null,
@@ -284,7 +285,9 @@ if (typeof(ko.widgets)=='undefined') {
                     data.loadCallbacks.push(aCallback);
                     aCallback = null; // don't call synchronously
                 }
-                if (!browser || browser.currentURI.spec == "about:blank") {
+                if (!browser || !browser.currentURI ||
+                    browser.currentURI.spec == "about:blank")
+                {
                     log.debug("getWidgetAsync: forcing a load");
                     this.getWidget(aID, true); // cause a load
                 }
@@ -355,6 +358,18 @@ if (typeof(ko.widgets)=='undefined') {
                 }
             }
         }
+        if ("label" in aParams) {
+            data.label = aParams.label;
+            if (data.browser && data.browser.tab) {
+                data.browser.tab.label = aParams.label;
+            }
+        }
+        if ("shortLabel" in aParams) {
+            data.shortLabel = aParams.shortLabel;
+            if (data.browser && data.browser.tab) {
+                data.browser.tab.setAttribute("short-label", aParams.shortLabel);
+            }
+        }
 
         return {
             defaultPane: data.defaultPane,
@@ -364,6 +379,8 @@ if (typeof(ko.widgets)=='undefined') {
             persist: data.persist,
             visible: !!this.getWidget(id),
             ID: id,
+            label: data.label,
+            shortLabel: data.shortLabel,
         }
     }).bind(this);
 

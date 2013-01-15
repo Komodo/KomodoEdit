@@ -612,6 +612,10 @@
 <!ENTITY pane.moveTo.pane.label "Move To Pane">
 <!ENTITY pane.moveTo.pane.new.label "New Floating Pane">
 <!ENTITY pane.detach.label "Detach Pane">
+<!ENTITY pane.customize.label "Customize...">
+<!ENTITY pane.customize.placeholder.label
+    "Please use the mouse to drag panes into the desired configuration and press Done.">
+<!ENTITY pane.customize.done.label "Done">
 
 <!ENTITY pane.empty.label "This pane has no content. Please right click on a widget tab to move it here.">
 <!ENTITY paneNameLeft "Left Pane">

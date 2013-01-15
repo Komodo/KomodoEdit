@@ -282,6 +282,36 @@ this.customizeToolbars = function uilayout_customizeToolbars(aToolbox) {
 };
 
 /**
+ * Enter panes/widgets customization mode
+ * Eventually, toolbar customization should be moved here as well.
+ */
+this.customize = (function uilayout_customize() {
+    let dialogStrings = Services.strings.createBundle("chrome://global/locale/dialog.properties");
+    document.documentElement.setAttribute("customizing", "true");
+    let placeholder = document.getElementById("customizingPlaceHolder");
+    document.getElementById("editorviewbox").selectedPanel = placeholder;
+    for (let paneId of ko.widgets.panes) {
+        ko.widgets.getPaneAt(paneId).customizing = true;
+    }
+    let toolbox = document.getElementById("toolbox_main");
+    let hoverBox = document.getAnonymousElementByAttribute(toolbox, "anonid", "hover-box");
+    hoverBox.removeAttribute("bottom");
+}).bind(this);
+
+this._customizeComplete = (function uilayout__customizeComplete() {
+    // Get us out of customize mode
+    document.documentElement.removeAttribute("customizing");
+    document.getElementById("editorviewbox").selectedPanel =
+        document.getElementById("topview");
+    for (let pane of document.querySelectorAll("ko-pane")) {
+        pane.customizing = false;
+    }
+    let toolbox = document.getElementById("toolbox_main");
+    let hoverBox = document.getAnonymousElementByAttribute(toolbox, "anonid", "hover-box");
+    hoverBox.setAttribute("bottom", "0");
+}).bind(this);
+
+/**
  * Mac only: update the toolbar classes to add first-child and last-child
  * to the first/last toolbar items that are not hidden
  * This is used to get the rounded corner effect; only on Mac because only that

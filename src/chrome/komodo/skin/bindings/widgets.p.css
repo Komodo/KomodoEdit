@@ -87,6 +87,9 @@ menu.menulist-subLevel > menupopup  > menuitem {
   list-style-image: none;
 }
 
+:root[customizing] > #toolbox_main {
+  opacity: 0.25;
+}
 
 /* A pane to hold widgets, as in kd 272 */
 ko-pane {
@@ -98,22 +101,31 @@ ko-pane .pane-empty-container description {
   margin: 2em;
   text-align: center;
 }
-ko-pane .pane-drop-target {
+ko-pane:not([customizing]) .pane-drop-target {
   display: none;
 }
-:root[ko-pane-dragging] ko-pane:not([ko-pane-dragging]) .pane-drop-target {
-  /* Show the drop target (but invisible) once we _start_ dragging, so that we
-   * trap mouse events, so that dragenter works correctly over <browser>s.
-   * This means you can't click things while dragging... but that's impossible.
+ko-pane .pane-drop-target {
+  /**
+   * Having a non-transparent background makes sure we catch the mouse events,
+   * rather than the plugin getting it and giving us non-sensical data
    */
-  display: -moz-box;
-  opacity: 0;
+  background-color: rgba(255, 255, 255, 0.01);
 }
-:root[ko-pane-dragging] ko-pane[ko-pane-drag-status] .pane-drop-target {
-  /* ko-pane elements that are being mouse-overed while dragging a pane around
+ko-pane .pane-drop-placeholders > :not(splitter) {
+  background-color: rgb(0, 255, 0);
+  background-image: url("chrome://icomoon/skin/icons/svg/move.svg");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 24px;
+  opacity: 0.25;
+}
+ko-pane[ko-pane-drag-status] .pane-drop-placeholders {
+  display: none;
+}
+ko-pane[ko-pane-drag-status="dragover"] .pane-drop-feedback {
+  /* While customizing, display the drag-over effect on panes
    */
   background-color: rgba(0, 0, 255, 0.25);
-  opacity: 1;
 }
 ko-pane .pane-tabs-container tabs {
   -moz-box-flex: 1;
@@ -301,4 +313,15 @@ menuitem.menuitem-file-status {
   /* Ensure these is enough room to display all icons evenly - keeps the
      list of menuitems a uniform width. */
   min-width: 26px;
+}
+
+#customizingPlaceHolder {
+  margin: 3em 2em 1em;
+}
+:root[customizing] #toolbox_main {
+  display: -moz-stack;
+}
+:root[customizing] #toolbox_main > [anonid="hover-box"] {
+  visibility: visible;
+  background-color: rgba(255, 255, 255, 0.25);
 }

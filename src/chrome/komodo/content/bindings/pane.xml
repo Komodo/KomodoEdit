@@ -58,19 +58,17 @@
         <xul:vbox class="pane-empty-container" align="stretch" pack="center">
           <xul:description>&pane.empty.label;</xul:description>
         </xul:vbox>
-        <xul:stack>
-          <xul:box class="pane-container">
-            <xul:hbox class="pane-tabs-container"
-                      ondragstart="_onTabsDragStart(event);"
-                      ondragend="_onTabsDragEnd(event);">
-              <!-- this is for the "sidebar" and "horzontal" modes -->
-              <xul:tabs anonid="tabs"
-                        closecollapsed="false"
-                        orient="this is here to prevent the tabs binding setting it to horizontal"
-                        xbl:inherits="rotation,label=tabLabel"
-                        oncontextmenu="return document.getBindingParent(this)._onTabContext(event);"
-                        onclose="_collapsePanel();"/>
-            </xul:hbox>
+        <xul:box class="pane-container">
+          <xul:hbox class="pane-tabs-container">
+            <!-- this is for the "sidebar" and "horzontal" modes -->
+            <xul:tabs anonid="tabs"
+                      closecollapsed="false"
+                      orient="this is here to prevent the tabs binding setting it to horizontal"
+                      xbl:inherits="rotation,label=tabLabel"
+                      oncontextmenu="return document.getBindingParent(this)._onTabContext(event);"
+                      onclose="_collapsePanel();"/>
+          </xul:hbox>
+          <xul:stack flex="1">
             <xul:vbox flex="1">
               <!-- this is here for the "vertical" case -->
               <xul:hbox class="tabs-vertical-label"
@@ -87,10 +85,12 @@
                 <children/>
               </xul:tabpanels>
             </xul:vbox>
-          </xul:box>
-          <xul:box class="pane-drop-target">
-          </xul:box>
-        </xul:stack>
+            <xul:stack class="pane-drop-target" inherits="orient">
+              <xul:box class="pane-drop-feedback"/>
+              <xul:box class="pane-drop-placeholders"/>
+            </xul:stack>
+          </xul:stack>
+        </xul:box>
       </xul:deck>
 
       <xul:menupopup anonid="tabs_popup">
@@ -125,8 +125,19 @@
                       oncommand="_moveTabUpDown(false);"/>
         <xul:menuitem label="&pane.detach.label;"
                       oncommand="_detachAllWidgets(event);"/>
+        <xul:menuseparator/>
+        <xul:menuitem label="&pane.customize.label;"
+                      oncommand="ko.uilayout.customize();"/>
       </xul:menupopup>
     </content>
+
+    <!--
+      - NOTES:
+      - [ko-pane-drag-status] attribute on the <ko-pane> element states:
+      -   (missing): Normal.
+      -   "waiting": A widget drag has started, but not necessarily near this pane
+      -   "dragover": A widget is being dragged over this pane.
+      -->
     <implementation>
       <method name="addWidget">
         <!--
@@ -137,135 +148,145 @@
         <body>
         <![CDATA[
           try {
-            this._log.debug("addWidget: " + widget + ", " + JSON.stringify(params));
-          } catch (ex if ex instanceof TypeError) {
-            this._log.debug("addWidget: " + widget + ", " + Object.keys(params));
-          }
-          if (!widget) {
-            throw Components.Exception("No widget specified",
-                                       Components.results.NS_ERROR_INVALID_ARG);
-          }
-          params = params || {};
-          params = {
-            focus:        ("focus" in params)        ? !!params.focus            : true,
-            tab:          ("tab" in params)          ? params.tab                : null,
-            insertBefore: ("insertBefore" in params) ? params.insertBefore       : null,
-            flex:         ("flex" in params)         ? parseInt(params.flex, 10) : 16,
-          };
-          if (params.tab && ("_is_ko_widget" in params.tab)) {
-            // Oh wtf, got passed a widget instead of a tab
-            params.tab = params.tab.tab;
-          }
-
-          /**
-           * Helper to append the widget to this pane, possibly in a new tabpenl
-           */
-          let insertWidget = (function insertWidget(widget) {
-            let tabpanel = ("tab" in params) ? params.tab : null;
-            if (tabpanel && tabpanel.linkedpanel) {
-              tabpanel = tabpanel.linkedpanel;
+            try {
+              this._log.debug("addWidget: " + widget + ", " + JSON.stringify(params));
+            } catch (ex if ex instanceof TypeError) {
+              this._log.debug("addWidget: " + widget + ", " + Object.keys(params));
             }
-            if (!tabpanel) {
-              let tab = this._createTab();
-              tabpanel = tab.linkedpanel;
-            }
-            let insertRef = null; // Default to insert at end (append)
-            if (tabpanel.childNodes.length > 0) {
-              insertRef = params.insertBefore;
-              if (insertRef && !("_is_ko_widget" in insertRef)) {
-                // Got a string; try to get the browser if it's already loaded
-                insertRef = ko.widget.getWidget(insertRef);
-              }
-              if (insertRef && insertRef.parentNode != tabpanel) {
-                insertRef = null; // wrong tabpanel, ignore
-              }
-              if (insertRef && insertRef.previousElementSibling) {
-                // has a splitter in front of the browser
-                insertRef = insertRef.previousElementSibling;
-              }
-              let splitter = this.ownerDocument.createElementNS(this.namespaceURI, "splitter");
-              tabpanel.insertBefore(splitter, insertRef);
-              splitter.addEventListener("contextmenu",
-                                        (function(event) {
-                                          this._updateContextPopup(widget);
-                                          document.getAnonymousElementByAttribute(this, "anonid", "tabs_popup")
-                                                  .openPopup(event.target, "after_pointer", 0, 0, true, false, event);
-                                        }).bind(this),
-                                        false);
-            }
-            tabpanel.insertBefore(widget, insertRef);
-            widget.tab = tabpanel.tab;
-            // hook up the mutation observer
-            this._refreshTab(tabpanel);
-            this._mutationObserver.observe(widget, {attributes: true});
-          }).bind(this);
-
-          let createdNewWidget = false;
-          let id = String(widget);
-          if (!widget._is_ko_widget) {
-            let data = ko.widgets._get(id);
-            if (!data) {
-              // not registered
-              throw Components.Exception("Widget " + id + " not registered",
+            if (!widget) {
+              throw Components.Exception("No widget specified",
                                          Components.results.NS_ERROR_INVALID_ARG);
             }
-            if (data.browser) {
-              widget = data.browser;
-            } else {
-              widget =  this.ownerDocument.createElementNS(this.namespaceURI, "browser");
-              for (let [name, value] in Iterator(data.attrs)) {
-                widget.setAttribute(name, value);
+            params = params || {};
+            params = {
+              focus:        ("focus" in params)        ? !!params.focus            : true,
+              tab:          ("tab" in params)          ? params.tab                : null,
+              insertBefore: ("insertBefore" in params) ? params.insertBefore       : null,
+              flex:         ("flex" in params)         ? parseInt(params.flex, 10) : 16,
+            };
+            if (params.tab && ("_is_ko_widget" in params.tab)) {
+              // Oh wtf, got passed a widget instead of a tab
+              params.tab = params.tab.tab;
+            }
+
+            /**
+             * Helper to append the widget to this pane, possibly in a new tabpanel
+             */
+            let insertWidget = (function insertWidget(widget) {
+              let tabpanel = ("tab" in params) ? params.tab : null;
+              if (tabpanel && tabpanel.linkedpanel) {
+                tabpanel = tabpanel.linkedpanel;
               }
-              widget.setAttribute("type", "ko-widget");
-              widget.setAttribute("label", data.label);
-              if (data.iconURL) widget.setAttribute("icon", data.iconURL);
-              if (data.inactiveIconURL) widget.setAttribute("inactiveIcon", data.inactiveIconURL);
-              data.browser = widget;
-              insertWidget(widget);  // Do it now so the XBL binding can apply
-              widget.loadURI(data.URL, null, null);
-              createdNewWidget = true;
+              if (!tabpanel) {
+                let tab = this._createTab();
+                tabpanel = tab.linkedpanel;
+              }
+              // Things are easier to deal with if we just destroy all splitters
+              for (let splitter of tabpanel.querySelectorAll("splitter")) {
+                tabpanel.removeChild(splitter);
+              }
+              let insertRef = null; // Default to insert at end (append)
+              if (tabpanel.childNodes.length > 0) {
+                insertRef = params.insertBefore;
+                if (insertRef && !("_is_ko_widget" in insertRef)) {
+                  // Got a string; try to get the browser if it's already loaded
+                  insertRef = ko.widget.getWidget(insertRef);
+                }
+                if (insertRef && insertRef.parentNode != tabpanel) {
+                  insertRef = null; // wrong tabpanel, ignore
+                }
+              }
+              tabpanel.insertBefore(widget, insertRef);
+              for (let widget of tabpanel.querySelectorAll("browser")) {
+                if (!widget.previousElementSibling) {
+                  continue; // skip first widget
+                }
+                let splitter = this.ownerDocument.createElementNS(this.namespaceURI, "splitter");
+                tabpanel.insertBefore(splitter, widget);
+                splitter.addEventListener("contextmenu",
+                                          (function(event) {
+                                            this._updateContextPopup(widget);
+                                            document.getAnonymousElementByAttribute(this, "anonid", "tabs_popup")
+                                                    .openPopup(event.target, "after_pointer", 0, 0, true, false, event);
+                                          }).bind(this),
+                                          false);
+              }
+              widget.tab = tabpanel.tab;
+              // hook up the mutation observer
+              this._refreshTab(tabpanel);
+              this._mutationObserver.observe(widget, {attributes: true});
+            }).bind(this);
+
+            let createdNewWidget = false;
+            let id = String(widget);
+            if (!widget._is_ko_widget) {
+              let data = ko.widgets._get(id);
+              if (!data) {
+                // not registered
+                throw Components.Exception("Widget " + id + " not registered",
+                                           Components.results.NS_ERROR_INVALID_ARG);
+              }
+              if (data.browser) {
+                widget = data.browser;
+              } else {
+                widget =  this.ownerDocument.createElementNS(this.namespaceURI, "browser");
+                for (let [name, value] in Iterator(data.attrs)) {
+                  widget.setAttribute(name, value);
+                }
+                widget.setAttribute("type", "ko-widget");
+                widget.setAttribute("label", data.label);
+                if (data.iconURL) widget.setAttribute("icon", data.iconURL);
+                if (data.inactiveIconURL) widget.setAttribute("inactiveIcon", data.inactiveIconURL);
+                data.browser = widget;
+                insertWidget(widget);  // Do it now so the XBL binding can apply
+                widget.loadURI(data.URL, null, null);
+                createdNewWidget = true;
+              }
+              widget.getBoundingClientRect(); // force flush CSS
+            } else {
+              id = ko.widgets._getIDForWidget(widget);
+              if (id === null) {
+                id = widget.getAttribute("id");
+              }
             }
-            widget.getBoundingClientRect(); // force flush CSS
-          } else {
-            id = ko.widgets._getIDForWidget(widget);
-            if (id === null) {
-              id = widget.getAttribute("id");
+            if (!id) {
+              this._log.exception("Failed to find id for " + widget);
             }
-          }
-          if (!id) {
-            this._log.exception("Failed to find id for " + widget);
-          }
-          widget.setAttribute("flex", params.flex);
-          if (!createdNewWidget && widget.containerPane) {
-            // We've moving the widget
-            widget = this._adoptWidget(widget, params); // (note that this recurses back here)
+            widget.setAttribute("flex", params.flex);
+            if (!createdNewWidget && widget.containerPane) {
+              // We've moving the widget
+              widget = this._adoptWidget(widget, params); // (note that this recurses back here)
+              if (params.focus) {
+                this.showWidget(widget);
+              }
+              return widget;
+            }
+            // Tell the widget manager
+            ko.widgets._get(id).browser = widget;
+
+            if (!widget.parentNode) {
+              // This widget has no parent, make one up
+              insertWidget(widget);
+              if (!widget.tab.linkedpanel) {
+                widget.tab.linkedpanel = widget.parentNode;
+              }
+            }
+
+            // Update tab strip visibility
+            if (this.tabs.setTabVisibility) {
+              this.tabs.setTabVisibility();
+            }
+
+            // maybe focus the widget
             if (params.focus) {
               this.showWidget(widget);
             }
-            return widget;
-          }
-          // Tell the widget manager
-          ko.widgets._get(id).browser = widget;
 
-          if (!widget.parentNode) {
-            // This widget has no parent, make one up
-            insertWidget(widget);
-            if (!widget.tab.linkedpanel) {
-              widget.tab.linkedpanel = widget.parentNode;
-            }
+            return widget; // for callers passing in a URL
+          } finally {
+            // We may need to update the placeholder for drag-and-drop
+            this._dragCreatePlaceHolders();
           }
-
-          // Update tab strip visibility
-          if (this.tabs.setTabVisibility) {
-            this.tabs.setTabVisibility();
-          }
-
-          // maybe focus the widget
-          if (params.focus) {
-            this.showWidget(widget);
-          }
-
-          return widget; // for callers passing in a URL
         ]]>
         </body>
       </method>
@@ -280,6 +301,10 @@
           let tabpanel = this.ownerDocument.createElementNS(this.namespaceURI, "tabpanel");
           this.tabpanels.appendChild(tabpanel);
           tabpanel.setAttribute("orient", this.orient);
+          Object.defineProperty(tabpanel, "widgets", {
+            get: function() Array.slice(tabpanel.childNodes)
+                                 .filter(function(n) n && "_is_ko_widget" in n),
+          });
 
           let tab = this.ownerDocument.createElementNS(this.namespaceURI, "tab");
           this.tabs.appendChild(tab);
@@ -293,19 +318,6 @@
             this._updateContextPopup(widget);
             let popup = document.getAnonymousElementByAttribute(this, "anonid", "tabs_popup");
             popup.openPopup(tab, "after_pointer", 0, 0, true, false, event);
-          }).bind(this), false);
-          tab.addEventListener("dragstart", (function(event) {
-            document.documentElement.setAttribute("ko-pane-dragging", true);
-            this.setAttribute("ko-pane-dragging", true);
-            let ids = Array.slice(event.target.linkedpanel.childNodes)
-                           .filter(function(e) e && ("_is_ko_widget" in e))
-                           .map(function(w) ko.widgets.getWidgetInfo(w).ID);
-            event.dataTransfer.setData("application/x-komodo-pane",
-                                       JSON.stringify(ids));
-          }).bind(this), false);
-          tab.addEventListener("dragend", (function(event) {
-            document.documentElement.removeAttribute("ko-pane-dragging");
-            this.removeAttribute("ko-pane-dragging");
           }).bind(this), false);
           // we never want to have flex by the attr; remove the flex generated
           // by the tab binding. (we can do it from css if we really want to.)
@@ -354,177 +366,179 @@
                           " from " + (this.id) +
                           (params ? " " + JSON.stringify(params) : ""));
 
-          if (!widget) {
-            throw Components.Exception("No widget supplied",
-                                       Components.results.NS_ERROR_INVALID_ARG);
-          }
-          if (!widget._is_ko_widget) {
-            let real_widget = ko.widgets.getWidget(widget);
-            if (!real_widget) {
-              throw Components.Exception("Unknown widget " + widget,
+          try {
+            if (!widget) {
+              throw Components.Exception("No widget supplied",
                                          Components.results.NS_ERROR_INVALID_ARG);
             }
-            widget = real_widget;
-          }
+            if (!widget._is_ko_widget) {
+              let real_widget = ko.widgets.getWidget(widget);
+              if (!real_widget) {
+                throw Components.Exception("Unknown widget " + widget,
+                                           Components.results.NS_ERROR_INVALID_ARG);
+              }
+              widget = real_widget;
+            }
 
-          if (widget.containerPane !== this) {
-            return false; // The widget was not found in this pane (it migt not be anywhere)
-          }
+            if (widget.containerPane !== this) {
+              return false; // The widget was not found in this pane (it migt not be anywhere)
+            }
 
-          if (!params || !params._suppressEvents) {
-            let eventData = [
-              {name: "ko-widget-remove",
-               target: widget.contentDocument,
-               data: {"from-pane": this}
-              },
-              {name: "ko-widget-remove",
-               target: widget.containerPane,
-               data: {"widget": widget, "to-pane": null}
-              },
-            ]
-            for (let data of eventData) {
-              if (data.target) {
-                if (!this._dispatchEvent(data.name, data.target, data.data)) {
+            if (!params || !params._suppressEvents) {
+              let eventData = [
+                {name: "ko-widget-remove",
+                 target: widget.contentDocument,
+                 data: {"from-pane": this}
+                },
+                {name: "ko-widget-remove",
+                 target: widget.containerPane,
+                 data: {"widget": widget, "to-pane": null}
+                },
+              ]
+              for (let data of eventData) {
+                if (data.target&& !this._dispatchEvent(data.name, data.target, data.data)) {
                   return false;
                 }
               }
             }
-          }
 
-          // find a tab to focus after we've moved things
-          var nextTab = null;
-          if (this.selectedTab == widget.tab) {
-            if (widget.nextElementSibling || widget.previousElementSibling) {
-              // Multiple widgets in this tabpanel, don't change tabs
-              nextTab = widget.tab;
-            } else {
-              for (let dir of ["nextElementSibling", "previousElementSibling"]) {
-                if (nextTab) break; // already found
-                for (var elem = widget.tab[dir]; elem; elem = elem[dir]) {
-                  if (elem.hidden || elem.collapsed) continue;
-                  nextTab = elem;
-                  break;
-                }
-              }
-            }
-          } else {
-            // we still might need to switch selected widget, if we're removing
-            // a widget with a lower index (so <tabpanels>.selectedIndex will
-            // be too large).
-            nextTab = this.selectedTab;
-          }
-
-          if (nextTab) {
-            // Select the new tab now, so the dying tab knows it's going to lose
-            // its selected state (and clear "beforeselected" correctly).
-            // See bug 92203.
-            if (nextTab != this.selectedTab) {
-              // Tell things that they'll be unselected
-              for (let w of Array.slice(this.selectedTab.linkedpanel.childNodes)) {
-                if ("_is_ko_widget" in w && w.contentDocument) {
-                  this._dispatchEvent("ko-widget-hidden", w.contentDocument);
-                }
-              }
-            }
-            this.selectedIndex = this.tabs.getIndexOfItem(nextTab);
-          }
-
-          let parent = widget.parentNode;
-          let siblings = Array.slice(parent.childNodes)
-                              .filter(function(e) e instanceof Element)
-                              .filter(function(e) e.localName === "browser");
-          if (siblings.length === 1) {
-            // widget was alone
-            if (parent.localName == "tabpanel" && parent.parentNode) {
-              // remove the now-empty tablapenl
-              parent.parentNode.removeChild(parent);
-            }
-          } else if (widget === siblings[0]) {
-            // Widget was the first (with siblings)
-            // Force update tab attributes to the new widget
-            this._log.debug("widget has " + siblings.length +
-                            " siblings, moving to " +
-                            siblings[1].getAttribute("id") ||
-                              siblings[1].getAttribute("src"));
-            let newFirst = siblings[1];
-            if (newFirst.previousElementSibling.localName === "splitter") {
-              // remove the splitter before the next sibling (which is now first)
-              parent.removeChild(newFirst.previousElementSibling);
-            }
-          } else {
-            // widget was second or later, has a splitter before it that needs to die
-            if (widget.previousElementSibling.localName !== "splitter") {
-              this._log.exception("widget " + widget.id + " had a non-splitter " +
-                                  "previous element sibling " +
-                                  widget.previousElementSibling.localName);
-            }
-            parent.removeChild(widget.previousElementSibling);
-          }
-          parent.removeChild(widget);
-
-          if (siblings.length === 1 && widget.tab && widget.tab.parentNode) {
-            // This widget was alone, and had a tab; remove the tab.
-            widget.tab.parentNode.removeChild(widget.tab);
-          }
-          widget.tab = null;
-
-          try {
-            // By this point, the remove has succeeded; no matter what happens,
-            // we need to dispatch events and return true.
-
-            if (nextTab) {
-              // Select the new tab _again_, now that the old one is gone, so we
-              // don't end up with weird borders if we removed a tab to the left;
-              // bug 92203 again.  Also, need to select the panel manually too
-              // for much the same reason (avoids blank panels).
-              let dispatchEvents = (nextTab != this.selectedTab);
-              this.selectedIndex = this.tabs.getIndexOfItem(nextTab);
-              this.tabpanels.selectedPanel = nextTab.linkedpanel;
-              this.selectedTab = nextTab;
-              if (dispatchEvents) {
-                for (let w of Array.slice(nextTab.linkedpanel.childNodes)) {
-                  if ("_is_ko_widget" in w && w.contentDocument) {
-                    this._dispatchEvent("ko-widget-showing", w.contentDocument);
+            // find a tab to focus after we've moved things
+            var nextTab = null;
+            if (this.selectedTab == widget.tab) {
+              if (widget.nextElementSibling || widget.previousElementSibling) {
+                // Multiple widgets in this tabpanel, don't change tabs
+                nextTab = widget.tab;
+              } else {
+                for (let dir of ["nextElementSibling", "previousElementSibling"]) {
+                  if (nextTab) break; // already found
+                  for (var elem = widget.tab[dir]; elem; elem = elem[dir]) {
+                    if (elem.hidden || elem.collapsed) continue;
+                    nextTab = elem;
+                    break;
                   }
                 }
               }
-            } else if (this.floating) {
-              // nothing else to select, and we're a floating tab. die.
-              ko.widgets._unregisterPane(this);
-              // Need to wait a bit before we close the window, to give time
-              // for the remove-completed event to fire
-              let {Services} =
-                Components.utils.import("resource://gre/modules/Services.jsm", {});
-              Services.tm.currentThread.dispatch(
-                this.ownerDocument.defaultView.close.bind(this.ownerDocument.defaultView),
-                Services.tm.currentThread.DISPATCH_NORMAL);
-              return undefined;
-            }
-
-            // Update tab strip visibility
-            if ("setTabVisibility" in this.tabs) {
-              this.tabs.setTabVisibility();
-            }
-
-            // Update pane visiblity. (this has to come after updating tab strip
-            // visibility otherwise the tab strip would be unbound and we can't
-            // use its methods anymore)
-            if (!this.tabpanels.firstChild) {
-              document.getAnonymousElementByAttribute(this, "anonid", "pane-dummy-container")
-                      .selectedIndex = 0;
-              this.collapsed = true;
             } else {
-              this._refreshTab(parent);
+              // we still might need to switch selected widget, if we're removing
+              // a widget with a lower index (so <tabpanels>.selectedIndex will
+              // be too large).
+              nextTab = this.selectedTab;
             }
 
-          } finally {
-            if (!params || !params._suppressEvents) {
-              this._dispatchEvent("ko-widget-remove-completed",
-                                  this,
-                                  {"widget": widget,
-                                   "to-pane": null});
+            if (nextTab) {
+              // Select the new tab now, so the dying tab knows it's going to lose
+              // its selected state (and clear "beforeselected" correctly).
+              // See bug 92203.
+              if (nextTab != this.selectedTab) {
+                // Tell things that they'll be unselected
+                for (let w of Array.slice(this.selectedTab.linkedpanel.childNodes)) {
+                  if ("_is_ko_widget" in w && w.contentDocument) {
+                    this._dispatchEvent("ko-widget-hidden", w.contentDocument);
+                  }
+                }
+              }
+              this.selectedIndex = this.tabs.getIndexOfItem(nextTab);
             }
-            return true;
+
+            let parent = widget.parentNode;
+            let siblings = Array.slice(parent.childNodes)
+                                .filter(function(e) e instanceof Element)
+                                .filter(function(e) e.localName === "browser");
+            if (siblings.length === 1) {
+              // widget was alone
+              if (parent.localName == "tabpanel" && parent.parentNode) {
+                // remove the now-empty tablapenl
+                parent.parentNode.removeChild(parent);
+              }
+            } else if (widget === siblings[0]) {
+              // Widget was the first (with siblings)
+              // Force update tab attributes to the new widget
+              this._log.debug("widget has " + siblings.length +
+                              " siblings, moving to " +
+                              siblings[1].getAttribute("id") ||
+                                siblings[1].getAttribute("src"));
+              let newFirst = siblings[1];
+              if (newFirst.previousElementSibling.localName === "splitter") {
+                // remove the splitter before the next sibling (which is now first)
+                parent.removeChild(newFirst.previousElementSibling);
+              }
+            } else {
+              // widget was second or later, has a splitter before it that needs to die
+              if (widget.previousElementSibling.localName !== "splitter") {
+                this._log.exception("widget " + widget.id + " had a non-splitter " +
+                                    "previous element sibling " +
+                                    widget.previousElementSibling.localName);
+              }
+              parent.removeChild(widget.previousElementSibling);
+            }
+            parent.removeChild(widget);
+
+            if (siblings.length === 1 && widget.tab && widget.tab.parentNode) {
+              // This widget was alone, and had a tab; remove the tab.
+              widget.tab.parentNode.removeChild(widget.tab);
+            }
+            widget.tab = null;
+
+            try {
+              // By this point, the remove has succeeded; no matter what happens,
+              // we need to dispatch events and return true.
+
+              if (nextTab) {
+                // Select the new tab _again_, now that the old one is gone, so we
+                // don't end up with weird borders if we removed a tab to the left;
+                // bug 92203 again.  Also, need to select the panel manually too
+                // for much the same reason (avoids blank panels).
+                let dispatchEvents = (nextTab != this.selectedTab);
+                this.selectedIndex = this.tabs.getIndexOfItem(nextTab);
+                this.tabpanels.selectedPanel = nextTab.linkedpanel;
+                this.selectedTab = nextTab;
+                if (dispatchEvents) {
+                  for (let w of Array.slice(nextTab.linkedpanel.childNodes)) {
+                    if ("_is_ko_widget" in w && w.contentDocument) {
+                      this._dispatchEvent("ko-widget-showing", w.contentDocument);
+                    }
+                  }
+                }
+              } else if (this.floating) {
+                // nothing else to select, and we're a floating tab. die.
+                ko.widgets._unregisterPane(this);
+                // Need to wait a bit before we close the window, to give time
+                // for the remove-completed event to fire
+                let {Services} =
+                  Components.utils.import("resource://gre/modules/Services.jsm", {});
+                Services.tm.currentThread.dispatch(
+                  this.ownerDocument.defaultView.close.bind(this.ownerDocument.defaultView),
+                  Services.tm.currentThread.DISPATCH_NORMAL);
+                return undefined;
+              }
+
+              // Update tab strip visibility
+              if ("setTabVisibility" in this.tabs) {
+                this.tabs.setTabVisibility();
+              }
+
+              // Update pane visiblity. (this has to come after updating tab strip
+              // visibility otherwise the tab strip would be unbound and we can't
+              // use its methods anymore)
+              if (!this.tabpanels.firstChild) {
+                document.getAnonymousElementByAttribute(this, "anonid", "pane-dummy-container")
+                        .selectedIndex = 0;
+                this.collapsed = true;
+              } else {
+                this._refreshTab(parent);
+              }
+
+            } finally {
+              if (!params || !params._suppressEvents) {
+                this._dispatchEvent("ko-widget-remove-completed",
+                                    this,
+                                    {"widget": widget,
+                                     "to-pane": null});
+              }
+              return true;
+            }
+          } finally {
+            this._dragCreatePlaceHolders();
           }
         ]]>
         </body>
@@ -934,41 +948,6 @@
         </body>
       </method>
 
-      <method name="_onTabsDragStart">
-        <parameter name="event"/>
-        <body>
-        <![CDATA[
-          if (event.dataTransfer.types.contains("application/x-komodo-pane")) {
-            return;
-          }
-          let panel = this.selectedPanel;
-          if (!panel) {
-            return;
-          }
-          let ids = Array.slice(panel.childNodes)
-                         .filter(function(e) "_is_ko_widget" in e)
-                         .map(function(w) ko.widgets.getWidgetInfo(w).ID);
-          if (ids.length < 1) {
-            return;
-          }
-          document.documentElement.setAttribute("ko-pane-dragging", true);
-          this.setAttribute("ko-pane-dragging", true);
-          event.dataTransfer.setData("application/x-komodo-pane",
-                                     JSON.stringify(ids));
-          event.dataTransfer.effectAllowed = "move";
-        ]]>
-        </body>
-      </method>
-      <method name="_onTabsDragEnd">
-        <parameter name="event"/>
-        <body>
-        <![CDATA[
-          document.documentElement.removeAttribute("ko-pane-dragging");
-          this.removeAttribute("ko-pane-dragging");
-        ]]>
-        </body>
-      </method>
-
       <method name="moveWidgetToPane">
         <!--
           - Move a widget to a given pane
@@ -1340,6 +1319,235 @@
         ]]>
         </body>
       </method>
+
+      <method name="_rectContainsPoint">
+        <!--
+          - Helper method to determine if a point is inside a rectangle.
+          - @param rect {TextRect or Element} The rectangle to check.
+          - @param x {Number} The X co-ordinate of the point to check.
+          - @param y {Number} The Y co-ordinate of the point to check.
+          - @returns {Boolean} True if the point is inside the rectangle.
+          -->
+        <parameter name="rect"/>
+        <parameter name="x"/>
+        <parameter name="y"/>
+        <body>
+        <![CDATA[
+          if (!rect) {
+            this._log.exception("Invalid rectangle passed to _rectContainsPoint: " + rect);
+            return false;
+          }
+          if (rect instanceof Element) {
+            rect = rect.getBoundingClientRect();
+          }
+          return (rect.left <= x && rect.right >= x &&
+                  rect.top <= y && rect.bottom >= y);
+        ]]>
+        </body>
+      </method>
+
+      <method name="_clientPointFromEvent">
+        <parameter name="event"/>
+        <body>
+        <![CDATA[
+          const {nsIDOMWindowUtils, nsIInterfaceRequestor} = Components.interfaces;
+          const scale = window.QueryInterface(nsIInterfaceRequestor)
+                              .getInterface(nsIDOMWindowUtils)
+                              .screenPixelsPerCSSPixel;
+          return { x: (event.screenX - window.mozInnerScreenX) / scale,
+                   y: (event.screenY - window.mozInnerScreenY) / scale };
+        ]]>
+        </body>
+      </method>
+
+      <method name="_getInsertionPointFromEvent">
+        <!--
+          - Given a point (as x, y in CSS pixel client co-ordinates), find the
+          - desired insertion point.
+          - @param event {Event} The event to get the points from
+          - @returns An object with the following properties:
+          -   targetWidgets {Array of ko-widget} The widgets in the destination
+          -     panel, sorted by position.
+          -   before {Number} The index of the widget before the insertion
+          -     point.  In the case of inserting before the first widget, this
+          -     is -1.
+          -   after {Number} The index of the widget after the insertion point.
+          -     In the case of appending, this is widgets.length.
+          -   style {String} How to do the insert; may be one of the following:
+          -     "index": Insert according to before/after.
+          -     "tab": Insert as a new tab (ignore before/after).
+          -     null: Don't insert (invalid drop).
+          -->
+        <parameter name="event"/>
+        <body>
+        <![CDATA[
+          let d = (function d(widget, style) {
+            let rect = widget.getBoundingClientRect();
+            let {left, right, top, bottom, width, height} = rect;
+            this._log.debug("pos: (" + x + "," + y + ") panel rect: (" +
+                              left + "," + top +
+                              ")-(" + right + "," + bottom +
+                              ")+(" + width + "," + height + ") type: " + style);
+          }).bind(this);
+          // Sometimes we get events in the wrong co-ordinates.  To make things
+          // consistent, we always reconstruct the clientX/clientY values from
+          // screen co-ordinates.
+          let {x, y} = this._clientPointFromEvent(event);
+          let panel = this.tabpanels.selectedPanel;
+          if (!panel) {
+            this._log.debug("No panel available, opening in new tab");
+            return {targetWidgets: [], before: null, after: null, style: "tab"};
+          }
+          let widgets = panel.widgets;
+          {
+            let rect = panel.getBoundingClientRect();
+            let {left, right, top, bottom, width, height} = rect;
+            this._log.debug("pos: (" + x + "," + y + ") panel rect: (" +
+                              left + "," + top +
+                              ")-(" + right + "," + bottom +
+                              ")+(" + width + "," + height + ")");
+          }
+          if (!this._rectContainsPoint(panel, x, y)) {
+            // Dropping outside the tabpanels... Assume we want a new tab
+            this._log.debug("point " + x + ", " + y + " not in rect");
+            return {targetWidgets: widgets, before: null, after: null, style: "tab"};
+          }
+          // Decide what variables to use based on the orientation of the pane
+          let {pos, start, span, end} = {
+            horizontal: {
+              pos: x,
+              start: "left",
+              span: "width",
+              end: "right",
+            },
+            vertical: {
+              pos: y,
+              start: "top",
+              span: "height",
+              end: "bottom",
+            },
+          }[this.orient];
+          widgets.sort(function(a, b) a[start] - b[start]);
+          for (let [index, widget] in Iterator(widgets)) {
+            let rect = widget.getBoundingClientRect();
+            let endPos = widget[start] + widget[span];
+            if (pos >= rect[end]) {
+              this._log.debug("Skipping widget #" + index + "=" +
+                              ko.widgets.getWidgetInfo(widget).ID +
+                              ", pos=" + pos + " start=" + rect[start] +
+                              " end=" + rect[end]);
+              continue;
+            }
+            let relativeSpan = rect[span] / 4;
+            if (pos <= rect[start] + relativeSpan) {
+              // insert before this widget
+              d(widget, "before");
+              return {targetWidgets: widgets,
+                      before: index - 1,
+                      after: index,
+                      style: "index"};
+            }
+            if (pos >= rect[end] - relativeSpan) {
+              // insert after this widget
+              d(widget, "end");
+              this._log.debug("Near end of widget " +
+                              ko.widgets.getWidgetInfo(widget).ID + ":" +
+                              " start: " + rect[start] +
+                              " end: " + rect[end] +
+                              " span: " + rect[span] +
+                              " pos: " + pos +
+                              " relativeSpan: " + relativeSpan);
+              return {targetWidgets: widgets,
+                      before: index,
+                      after: index + 1,
+                      style: "index"};
+            }
+            // insert "over" this widget, i.e. as a new tab
+            d(widget, "over (tab)");
+            return {targetWidgets: widgets, before: null, after: null, style: "tab"};
+          }
+          // Shouldn't get here, but just in case... say we want to append.
+          this._log.debug("In bad position");
+          return {targetWidgets: widgets,
+                  before: widgets.length - 1,
+                  after: widgets.length,
+                  style: "index"};
+        ]]>
+        </body>
+      </method>
+
+      <method name="_dragEventHasValidWidgetSource">
+        <!--
+          - Check if we can accept a drag/drop event; this is true if this is
+          - dragging a widget that belongs to this window.
+          - @param event {Event} The triggering event
+          - @returns {Boolean} True if this is a valid drag of a widget.
+          -->
+        <parameter name="event"/>
+        <body>
+        <![CDATA[
+          let dataTransfer = event.dataTransfer;
+          this._log.debug("drag event: dataTransfer=" + dataTransfer);
+          if (!dataTransfer.types.contains("application/x-komodo-widget")) {
+            this._log.debug("Drag event: no widgets to trasfer, ignoring");
+            return false;
+          }
+          let sourceNode = null;
+          for (let prop of ["mozSourceNode", "sourceNode"]) {
+            if (prop in dataTransfer) {
+              sourceNode = dataTransfer[prop];
+              break;
+            }
+          }
+          if (!sourceNode) {
+            this._log.debug("drag event: no source node");
+            return false;
+          }
+          if (!ko.widgets.panes.some(function(id) ko.widgets.getPaneAt(id) === sourceNode)) {
+            // The source has a binding parent, but it's not a known pane
+            this._log.debug("drag event: not from a known pane " + sourceNode.id);
+            return false;
+          }
+          this._log.debug("drag event: looks like a valid drag source");
+          return true;
+        ]]>
+        </body>
+      </method>
+
+      <method name="_dragCreatePlaceHolders">
+        <!--
+          - Create the placeholder elements for drag-and-drop, to hint to the
+          - users the things that can be moved
+          -->
+        <body>
+        <![CDATA[
+          for (let child of Array.slice(this._drop_placeholders.childNodes)) {
+            this._drop_placeholders.removeChild(child);
+          }
+          if (!this.customizing) {
+            return;
+          }
+          let elem = null;
+          for (let child of this.selectedPanel.childNodes) {
+            if ((child instanceof Element) && child.localName == "splitter") {
+              elem = document.createElement("splitter");
+              elem.setAttribute("mousethrough", "always");
+              elem.setAttribute("orient", this.orient);
+            } else {
+              elem = document.createElement("box");
+              if (this.orient == "vertical") {
+                elem.setAttribute("height", child.getBoundingClientRect().height);
+              } else {
+                elem.setAttribute("width", child.getBoundingClientRect().width);
+              }
+              elem.setAttribute("flex", "0");
+            }
+            this._drop_placeholders.appendChild(elem);
+          }
+        ]]>
+        </body>
+      </method>
+
       <property name="splitter">
         <!-- The splitter attached to the pane.  Note that this may be null if
            - this is a floating pane (and therefore has no splitters).
@@ -1436,6 +1644,45 @@
         </getter>
       </property>
 
+      <property name="customizing">
+        <getter>
+          return this.hasAttribute("customizing");
+        </getter>
+        <setter>
+          if (val == this.hasAttribute("customizing")) {
+            return; // no change
+          }
+          if (val) {
+            this.setAttribute("customizing", "true");
+            this._dragCreatePlaceHolders();
+            for (let splitter of this.tabpanels.querySelectorAll("splitter")) {
+              splitter.addEventListener("command", this._dragCreatePlaceHolders, false);
+            }
+            this.splitter.addEventListener("command", this._dragCreatePlaceHolders, false);
+            this._drop_placeholders.setAttribute("orient", this.orient);
+          } else {
+            this.removeAttribute("customizing");
+            // Force quit customizing mode
+            this.removeAttribute("ko-pane-drag-status");
+            for (let child of this._drop_placeholders.childNodes) {
+              this._drop_placeholders.removeChild(child);
+            }
+            for (let splitter of this.tabpanels.querySelectorAll("splitter")) {
+              splitter.removeEventListener("command", this._dragCreatePlaceHolders, false);
+            }
+            this.splitter.removeEventListener("command", this._dragCreatePlaceHolders, false);
+          }
+        </setter>
+      </property>
+      <field name="_drop_target">
+        document.getAnonymousElementByAttribute(this, "class", "pane-drop-target")
+      </field>
+      <field name="_drop_feedback">
+        document.getAnonymousElementByAttribute(this, "class", "pane-drop-feedback")
+      </field>
+      <field name="_drop_placeholders">
+        document.getAnonymousElementByAttribute(this, "class", "pane-drop-placeholders")
+      </field>
       <field name="_log">ko.logging.getLogger("ko.widgets.pane")</field>
       <field name="_strings">
         (function() {
@@ -1468,8 +1715,10 @@
               if (widget !== firstWidget) {
                 continue; // ignore mutations from other widgets
               }
-              if (attr == "label" || attr == "short-label") {
-                // let these through
+              if (attr == "label") {
+                ko.widgets.modifyWidget(widget, {label: widget.getAttribute(attr)});
+              } else if (attr == "short-label"){
+                ko.widgets.modifyWidget(widget, {shortLabel: widget.getAttribute(attr)});
               } else if (attr == "collapsed" || attr == "hidden") {
                 // always use "collapsed" for the tab
                 widget.tab.collapsed = widget.hasAttribute("collapsed") ||
@@ -1494,6 +1743,11 @@
           return observer;
         }).call(this)
       ]]>
+      </field>
+
+      <field name="_notification">
+        /* This is used for the status messages on drag-and-drop */
+        ko.statusBar.AddMessage(null, "panes", 500, false, true, false)
       </field>
 
       <property name="label">
@@ -1551,6 +1805,9 @@
             this.splitter.removeAttribute("collapsed");
           }
         }
+
+        // Statically bind methods so the can be used in callbacks
+        this._dragCreatePlaceHolders = this._dragCreatePlaceHolders.bind(this);
       } catch (e) { Components.utils.reportError(e); }
       ]]>
       </constructor>
@@ -1589,62 +1846,335 @@
               }
             }
           }
+          this._dragCreatePlaceHolders();
         }
+      ]]>
+      </handler>
+      <handler event="dragstart" phase="bubbling">
+      <![CDATA[
+        function rectContainsPoint(rect, x, y) {
+          return (rect.left <= x && rect.right >= x &&
+                  rect.top <= y && rect.bottom >= y);
+        }
+        if (!this.customizing) {
+          return;
+        }
+        this._log.debug(">>> drag start: dropEffect = " +
+                        event.dataTransfer.dropEffect +
+                        " effectAllowed = " +
+                        event.dataTransfer.effectAllowed);
+        event.stopPropagation();
+        const {interfaces: Ci} = Components;
+        let widgets = []; // widgets to drop
+        if (this._rectContainsPoint(this.selectedPanel,
+                                    event.clientX, event.clientY))
+        {
+          // Dragging somewhere in the pane; assume this means a single widget
+          for (let widget of this.selectedPanel.widgets) {
+            if (this._rectContainsPoint(widget.getBoundingClientRect(),
+                                        event.clientX, event.clientY))
+            {
+              widgets.push(widget);
+            }
+          }
+        } else {
+          // Dragging the tab; pretend we're dragging every widget
+          widgets = this.selectedPanel.widgets;
+        }
+        if (!widgets.length) {
+          // No widgets found for dragging...
+          event.dataTransfer.effectAllowed = "none";
+        } else {
+          let ids = widgets.map(function(w) ko.widgets.getWidgetInfo(w).ID);
+          this._log.debug("Starting to drag widgets: " + ids);
+          event.dataTransfer.setData("application/x-komodo-widget",
+                                     JSON.stringify(ids));
+          event.dataTransfer.addElement(this);
+          if (widgets.length == 1) {
+            // If we're dragging a single widget, use that as the drag image -
+            // it's more accurate than the default, which is the whole <ko-pane>
+            try {
+              // Drag images don't go inside <browser>s properly, so use the
+              // content document's root element instead.
+              let rootElem = widgets[0].contentDocument.documentElement;
+              event.dataTransfer.setDragImage(rootElem, 0, 0);
+            } catch (ex) {
+              // Ignore failures to set drag image (probably means there's no
+              // content document or something along those lines).
+            }
+          }
+          event.dataTransfer.effectAllowed = "move";
+          for (let id of ko.widgets.panes) {
+            ko.widgets.getPaneAt(id).setAttribute("ko-pane-drag-status", "waiting");
+          }
+        }
+        this._log.debug("<<< drag start: dropEffect = " +
+                        event.dataTransfer.dropEffect +
+                        " effectAllowed = " +
+                        event.dataTransfer.effectAllowed);
       ]]>
       </handler>
       <handler event="dragenter" phase="bubbling">
       <![CDATA[
-        let dataTransfer = event.dataTransfer;
-        this._log.debug("dragenter: dataTransfer=" + dataTransfer);
-        if (!dataTransfer.types.contains("application/x-komodo-pane")) {
+        if (!this.customizing) {
           return;
         }
-        for (let prop of ["mozSourceNode", "sourceNode"]) {
-          if (prop in dataTransfer) {
-            if (!dataTransfer[prop] || dataTransfer[prop].ownerDocument !== document) {
-              // Dragging from the wrong window
-              dataTransfer.effectAllowed = "none";
-              return;
+        this._log.debug(">>> drag enter " + this.id +
+                        ": dropEffect = " +
+                        event.dataTransfer.dropEffect +
+                        " effectAllowed = " +
+                        event.dataTransfer.effectAllowed);
+        if (!this._dragEventHasValidWidgetSource(event)) {
+          // Dragging from the wrong window
+          this._log.debug("Drag enter: invalid source node, ignoring");
+          event.dataTransfer.effectAllowed = "none";
+        } else {
+          this._log.debug("Drag enter: looks good");
+          event.dataTransfer.effectAllowed = "move";
+        }
+        this._log.debug("<<< drag enter: " + this.id +
+                        ": dropEffect = " +
+                        event.dataTransfer.dropEffect +
+                        " effectAllowed = " +
+                        event.dataTransfer.effectAllowed);
+      ]]>
+      </handler>
+      <handler event="dragover" phase="bubbling">
+      <![CDATA[
+        if (!this.customizing) {
+          return;
+        }
+        this._log.debug(">>> drag over " + this.id +
+                        ": dropEffect = " +
+                        event.dataTransfer.dropEffect +
+                        " effectAllowed = " +
+                        event.dataTransfer.effectAllowed);
+        let target = this._drop_feedback;
+        let {x, y} = this._clientPointFromEvent(event);
+        if (this._rectContainsPoint(this.tabs, x, y)) {
+          for (let tab of this.tabs.childNodes) {
+            if (this._rectContainsPoint(tab, x, y)) {
+              this.selectedTab = tab;
+              for (let attr of ["top", "left", "bottom", "right"]) {
+                target.removeAttribute(attr);
+              }
+              break;
             }
-            break;
           }
         }
-        dataTransfer.effectAllowed = "move";
-        this.setAttribute("ko-pane-drag-status", "dragover");
+        let {style, targetWidgets, before, after} =
+          this._getInsertionPointFromEvent(event);
+        let beforeId = "<N/A>", afterId = "<N/A>";
+        if (before in targetWidgets) {
+          beforeId = ko.widgets.getWidgetInfo(targetWidgets[before]).ID;
+        }
+        if (after in targetWidgets) {
+          afterId = ko.widgets.getWidgetInfo(targetWidgets[after]).ID;
+        }
+        this._log.debug("style: " + style +
+                        ", before: " + before + "=" + beforeId +
+                        ", after=" + after + "=" + afterId);
+        let sourceWidgets = [];
+        let widgetNames = [];
+        try {
+          let ids = JSON.parse(event.dataTransfer.getData("application/x-komodo-widget"));
+          sourceWidgets = [ko.widgets.getWidget(id) for (id of ids)];
+          widgetNames = [ko.widgets.getWidgetInfo(w).label for (w of sourceWidgets)];
+        } catch (ex) {
+          this._log.exception(ex);
+        }
+        let status = null;
+        switch (style) {
+          case null: {
+            // no drop
+            // fall through
+          }
+          case "tab": {
+            // drop as new tab
+            for (let attr of ["top", "left", "bottom", "right"]) {
+              target.removeAttribute(attr);
+            }
+            status = this._strings.formatStringFromName("pane.dragdrop.status.newtab",
+                                                        [widgetNames.join(", "),
+                                                         this.getAttribute("label")],
+                                                        2);
+            break;
+          }
+          case "index": {
+            // Drop befor the reference node
+            let {start, end, span} = {
+              horizontal: {
+                start: "left",
+                end: "right",
+                span: "width",
+              },
+              vertical: {
+                start: "top",
+                end: "bottom",
+                span: "height",
+              }
+            }[this.orient];
+            let pRect = target.parentNode.getBoundingClientRect();
+            // Set attributes only after everything is cacluated to prevent
+            // reflow from messing things up
+            let startAttrib, endAttrib;
+            if (before in targetWidgets) {
+              let rect = targetWidgets[before].getBoundingClientRect();
+              startAttrib = rect[end] - rect[span] / 4 - pRect[start];
+              this._log.debug("before: span=" + rect[span]);
+              status = this._strings.formatStringFromName(
+                  "pane.dragdrop.status.after",
+                  [widgetNames.join(", "),
+                   ko.widgets.getWidgetInfo(targetWidgets[before]).label],
+                  2);
+            } else {
+              startAttrib = "0";
+            }
+            if (after in targetWidgets) {
+              let rect = targetWidgets[after].getBoundingClientRect();
+              endAttrib = pRect[end] - rect[start] - rect[span] / 4;
+              if (!status) {
+                status = this._strings.formatStringFromName(
+                    "pane.dragdrop.status.before",
+                    [widgetNames.join(", "),
+                     ko.widgets.getWidgetInfo(targetWidgets[after]).label],
+                    2);
+              }
+            } else {
+              endAttrib = "0";
+            }
+            target.setAttribute(start, startAttrib);
+            target.setAttribute(end, endAttrib);
+          }
+        }
+        this._log.debug([prop + ": " + target.getAttribute(prop) for
+                         (prop of ["top", "left", "bottom", "right"])].join(", ") +
+                        " status: " + JSON.stringify(status) +
+                        " attrib: " + this.getAttribute("ko-pane-drag-status"));
+        this.setAttribute("ko-pane-drag-status", status ? "dragover" : "waiting");
+        this._notification.summary = status;
+        ko.statusBar.AddMessage(this._notification);
+        // Need to preventDefault, otherwise we always get a no-drop
         event.preventDefault();
+        this._log.debug("<<< drag over " + this.id +
+                        ": dropEffect = " +
+                        event.dataTransfer.dropEffect +
+                        " effectAllowed = " +
+                        event.dataTransfer.effectAllowed);
       ]]>
       </handler>
       <handler event="dragleave" phase="bubbling">
       <![CDATA[
-        this.removeAttribute("ko-pane-drag-status");
+        if (!this.customizing) {
+          return;
+        }
+        this._log.debug(">>> drag leave " + this.id +
+                        ": dropEffect = " +
+                        event.dataTransfer.dropEffect +
+                        " effectAllowed = " +
+                        event.dataTransfer.effectAllowed);
+        let {x, y} = this._clientPointFromEvent(event);
+        this._log.debug("dragleave " + this.id);
+        // Reset bounds so it covers the whole pane again
+        for (let attr of ["top", "left", "bottom", "right"]) {
+          this._drop_feedback.removeAttribute(attr);
+        }
+        let relatedTarget = event.relatedTarget;
+        this._log.debug("related target: " + relatedTarget);
+        if (!relatedTarget) {
+          let {nsIInterfaceRequestor, nsIDOMWindowUtils} = Components.interfaces;
+          let {x, y} = this._clientPointFromEvent(event);
+          this._log.debug("mouse at " + x + "," + y);
+          relatedTarget = window.QueryInterface(nsIInterfaceRequestor)
+                                .getInterface(nsIDOMWindowUtils)
+                                .elementFromPoint(x, y, true, false);
+          this._log.debug("new related target: " + relatedTarget);
+        }
+        if (relatedTarget && relatedTarget != this) {
+          this._log.debug("is a " + relatedTarget.localName +
+                          " in " + relatedTarget.ownerDocument.location.href);
+          if (this.contains(event.relatedTarget)) {
+            return;  // We're "leaving" into a child...
+          }
+        }
+        this.setAttribute("ko-pane-drag-status", "waiting");
+        ko.notifications.remove(this._notification);
+        this._log.debug("<<< drag leave " + this.id +
+                        ": dropEffect = " +
+                        event.dataTransfer.dropEffect +
+                        " effectAllowed = " +
+                        event.dataTransfer.effectAllowed);
       ]]>
       </handler>
       <handler event="drop" phase="bubbling">
       <![CDATA[
-        this.removeAttribute("ko-pane-drag-status");
-        let dataTransfer = event.dataTransfer;
-        if (!dataTransfer.types.contains("application/x-komodo-pane")) {
+        if (!this.customizing) {
           return;
         }
-        for (let prop of ["mozSourceNode", "sourceNode"]) {
-          if (prop in dataTransfer) {
-            if (!dataTransfer[prop] || dataTransfer[prop].ownerDocument !== document) {
-              // Dragging from the wrong window
-              return;
+        this._log.debug(">>> drop " + this.id +
+                        ": dropEffect = " +
+                        event.dataTransfer.dropEffect +
+                        " effectAllowed = " +
+                        event.dataTransfer.effectAllowed);
+        for (let attr of ["top", "left", "bottom", "right"]) {
+          this._drop_feedback.removeAttribute(attr);
+        }
+        if (!this._dragEventHasValidWidgetSource(event)) {
+          this._log.debug("drop: no valid source");
+          return;
+        }
+
+        let dataTransfer = event.dataTransfer;
+        var ids = JSON.parse(dataTransfer.getData("application/x-komodo-widget"));
+        this._log.debug("dropping ids: " + ids + " on: " + this.id);
+        let {style, targetWidgets, before, after} =
+          this._getInsertionPointFromEvent(event);
+
+        switch(style) {
+          case null: {
+            return;
+          }
+          case "tab": {
+            // put widgets in a new tab
+            this._log.debug("dropping " + ids + "into new tab in " + this.id);
+            let tab = this._createTab();
+            for (let id of ids) {
+              this.addWidget(id, {focus: true, tab: tab});
+            }
+            break;
+          }
+          case "index": {
+            // put widgets in an existing tab
+            this._log.debug("dropping " + ids + " into existing tab with " +
+                            ko.widgets.getWidgetInfo(targetWidgets[0]).ID);
+            let widget = targetWidgets[after] || null;
+            let tab = targetWidgets[0].tab;
+            for (let id of ids) {
+              this.addWidget(id, {focus: true, insertBefore: widget, tab: tab});
             }
             break;
           }
         }
-        var ids = JSON.parse(dataTransfer.getData("application/x-komodo-pane"));
-        this._log.debug("dropping ids: " + ids + " on: " + this.id);
-        for (let id of ids) {
-          ko.widgets.getWidgetAsync(id, (function(widget) {
-            if (widget) {
-              this._adoptTabPanel(widget, {focus: true});
-            }
-          }).bind(this));
-        }
         event.preventDefault();
+        if (this.floating) {
+          // On Win32, unfocused floating widget windows end up not redrawing
+          // after the insert.  Force focus here to make sure we repaint.
+          // Sadly, getBoundingClientRect is not enough to force this redraw.
+          window.focus();
+        }
+        this.removeAttribute("ko-pane-drag-status");
+        ko.notifications.remove(this._notification);
+      ]]>
+      </handler>
+      <handler event="dragend" phase="bubbling">
+      <![CDATA[
+        if (!this.customizing) {
+          return;
+        }
+        ko.notifications.remove(this._notification);
+        for (let id of ko.widgets.panes) {
+          ko.widgets.getPaneAt(id).removeAttribute("ko-pane-drag-status");
+        }
       ]]>
       </handler>
     </handlers>
@@ -1823,8 +2353,13 @@
 
         this._webProgressListener = {
           onStateChange: (function WidgetLoad_onStateChange(aWebProgress, aRequest, aStateFlags, aStatus) {
-            this._log.debug("onStateChange: " + aRequest.name + " -> " + this.contentDocument.readyState);
+            if (this._log) {
+              this._log.debug("onStateChange: " + aRequest.name + " -> " + this.contentDocument.readyState);
+            }
             if (aStateFlags & Ci.nsIWebProgressListener.STATE_STOP) {
+              if (!this.contentDocument) {
+                return; // we don't even have a content document... huh?
+              }
               if (this.contentDocument.readyState == "uninitialized") {
                 return; // lies!
               }

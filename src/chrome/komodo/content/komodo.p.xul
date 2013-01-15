@@ -2077,7 +2077,7 @@
                       splitterCmdId="cmd_viewLeftPane">
                 <observes element="workspace_left_area" attribute="collapsed"/>
             </splitter>
-            <vbox id="editorviewbox" flex="1" class="blank-workspace">
+            <deck id="editorviewbox" flex="1" class="blank-workspace">
                 <view id="topview"
                       type="multiview"
                       orient="vertical"
@@ -2087,7 +2087,20 @@
                 (e.g. the find dialog) load. -->
                 <textbox id="hidden-input-buffer" collapsed="true"
                      onfocus="InputBuffer_OnFocus(event);"/>
-            </vbox>
+                <vbox id="customizingPlaceHolder">
+                    <!-- This box is used in the widget/pane customization mode
+                       - (hiding the main text editing area).
+                       -->
+                    <vbox flex="1">
+                        <desciption>&pane.customize.placeholder.label;</desciption>
+                    </vbox>
+                    <hbox pack="end">
+                        <!-- buttons -->
+                        <button label="&pane.customize.done.label;"
+                                oncommand="ko.uilayout._customizeComplete(true);"/>
+                    </hbox>
+                </vbox>
+            </deck>
             <splitter id="workspace_right_splitter"
                       orient="horizontal"
                       class="workspace_splitter workspace_splitter_right"
@@ -2122,12 +2135,9 @@
 
         <!-- Output Area -->
         <!--Persisting of collapsed disabled because of http://bugs.activestate.com/show_bug.cgi?id=25918-->
-        <!-- only allow drag-drop for widgets that specificly support it -->
         <ko-pane id="workspace_bottom_area" height="200" collapsed="true"
                  persist="height type" label="&paneNameBottom;"
-                 class="native" orient="horizontal"
-                 ondragover="event.cancelBubble=true; return false;"
-                 ondrop="event.cancelBubble=true; return true;">
+                 class="native" orient="horizontal">
             <!-- Run output tab of the output pane. This pane is made
                 of two levels: (1) a scintilla terminal to show
                 unparsed output and (2) an tree to show parsed

@@ -491,7 +491,6 @@ try {
 
 function _addMessageObject(sm)
 {
-    var result = undefined;
     if (sm.log && sm.msg) {
         ko.notifications.addNotification(sm);
     }
@@ -510,7 +509,7 @@ function _addMessageObject(sm)
         updateMessageRequestID = setTimeout(_updateMessage, sm.timeout+epsilon);
     }
 
-    return result;
+    return sm;
 }
 
 function _updateMessage()
