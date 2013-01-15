@@ -356,7 +356,7 @@ function cloneObject(what) {
  * 2: Komodo 4.2.0-beta2 and above
  * 1: Komodo 4.2.0-beta1 and before
  */
-const currentKeybindingVersionNumber = 34;
+const currentKeybindingVersionNumber = 35;
 
 /**
  * Remove this dictionary of keybinds.
@@ -873,6 +873,24 @@ this.Manager.prototype._upgradeKeybingings = function (from_version,
                 'cmd_reloadBrowserPreview': ["Ctrl+K, Ctrl+R"],
             });
             break;
+        case 34:
+            if ( ! vi_enabled) {
+// #if PLATFORM == 'darwin'
+                this._remove_keybinding_sequences({
+                    'cmd_wordRight': ["Alt+Right"],
+                });
+                this._remove_keybinding_sequences({
+                    'cmd_selectWordRight': ["Alt+Shift+Right"],
+                });
+                this._add_keybinding_sequences({
+                    'cmd_endOfWord': ["Alt+Right"],
+                });
+                this._add_keybinding_sequences({
+                    'cmd_endOfWordExtend': ["Alt+Shift+Right"],
+                }); 
+// #endif
+            }
+            break;        
         }
         from_version += 1;
     }
