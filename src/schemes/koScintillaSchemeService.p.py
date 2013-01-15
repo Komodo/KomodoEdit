@@ -1140,7 +1140,7 @@ class KoScintillaSchemeService:
 
         schemeName = self._globalPrefs.getStringPref('editor-scheme')
         self.screenToCSS = self._globalPrefs.getDoublePref('print_scalingRatio')
-        scheme = self._schemes[schemeName]
+        scheme = self.getScheme(schemeName)
         scheme.applyScheme(scimoz, language, encoding, 0);
         self._htmlStyleTags = {}
         from cStringIO import StringIO
