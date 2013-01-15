@@ -40,8 +40,10 @@ class KoLaravelBladeLanguage(koHTMLLanguageBase, KoLanguageKeywordBase):
                 """.split()
 
     def __init__(self):
-        KoLanguageKeywordBase.__init__(self)
         koHTMLLanguageBase.__init__(self)
+        # koHTMLLanguageBase already called the language superclass,
+        # so KoLanguageKeywordBase doesn't need to.
+        KoLanguageKeywordBase.__init__(self, call_super=False)
         self._dedent_style_info = \
             koLanguageServiceBase.koLangSvcStyleInfo(_default_styles=[_sci_constants.SCE_UDL_M_DEFAULT,
                                               _sci_constants.SCE_UDL_TPL_DEFAULT],

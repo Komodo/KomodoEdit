@@ -75,8 +75,9 @@ class KoLanguageKeywordBase(KoLanguageBase):
     _lineup_open_chars = "([{"
     _lineup_close_chars = ")]}"
     
-    def __init__(self):
-        KoLanguageBase.__init__(self)
+    def __init__(self, call_super=True):
+        if call_super:
+            KoLanguageBase.__init__(self)
         if not self._style_info._default_styles:
             self._style_info._default_styles = [0]
         self.prefService = components.classes["@activestate.com/koPrefService;1"].\
