@@ -1015,6 +1015,8 @@ class KoScintillaSchemeService:
                 # This is primarily for tech support, to help answer the question
                 # "why is my Komodo color scheme file not loading?"
                 log.error("Unable to load Komodo color scheme: %r", details)
+            else:
+                self._schemes[name] = scheme
         return scheme
 
     def getCommonStyles(self):
