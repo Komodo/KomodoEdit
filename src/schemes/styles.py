@@ -488,10 +488,44 @@ StateMap = {
         'stdout': ('SCE_RB_STDOUT',),
         'stderr' : ('SCE_RB_STDERR',),
     },
+    'CoffeeScript': {
+        'default': ('SCE_COFFEESCRIPT_DEFAULT',),
+        'comments': ('SCE_COFFEESCRIPT_COMMENT',
+                     'SCE_COFFEESCRIPT_COMMENTLINE',
+                     'SCE_COFFEESCRIPT_COMMENTDOC',
+                     'SCE_COFFEESCRIPT_COMMENTLINEDOC',
+                     'SCE_COFFEESCRIPT_COMMENTDOCKEYWORD',
+                     'SCE_COFFEESCRIPT_COMMENTDOCKEYWORDERROR',
+                     'SCE_COFFEESCRIPT_COMMENTBLOCK',
+                     'SCE_COFFEESCRIPT_VERBOSE_REGEX_COMMENT',
+                     ),
+        'numbers': ('SCE_COFFEESCRIPT_NUMBER',),
+        'strings': ('SCE_COFFEESCRIPT_STRING',
+                    'SCE_COFFEESCRIPT_CHARACTER',
+                    'SCE_COFFEESCRIPT_STRINGRAW',
+                    'SCE_COFFEESCRIPT_HASHQUOTEDSTRING',
+                    ),
+        'keywords': ('SCE_COFFEESCRIPT_WORD',),
+        'keywords2': ('SCE_COFFEESCRIPT_WORD2',),
+        'operators': ('SCE_COFFEESCRIPT_OPERATOR',),
+        'identifiers': ('SCE_COFFEESCRIPT_IDENTIFIER',),
+        'stringeol': ('SCE_COFFEESCRIPT_STRINGEOL',),
+        'preprocessor': ('SCE_COFFEESCRIPT_PREPROCESSOR',),
+        # these are specific to this lexer
+        'UUIDs': ('SCE_COFFEESCRIPT_UUID',),
+        'verbatim': ('SCE_COFFEESCRIPT_VERBATIM',
+                     'SCE_COFFEESCRIPT_TRIPLEVERBATIM'),
+        'regex': ('SCE_COFFEESCRIPT_REGEX',
+                  'SCE_COFFEESCRIPT_VERBOSE_REGEX'),
+        'commentdockeyword': ('SCE_COFFEESCRIPT_COMMENTDOCKEYWORD',),
+        'commentdockeyworderror': ('SCE_COFFEESCRIPT_COMMENTDOCKEYWORDERROR',),
+        'globalclass': ('SCE_COFFEESCRIPT_GLOBALCLASS',),
+        'stringeol' : ('SCE_COFFEESCRIPT_STRINGEOL',),
+    }
 }
 
 #Derivatives (Shared lexers)
-StateMap['CoffeeScript'] = StateMap['JavaScript'] = StateMap['C++'].copy()
+StateMap['JavaScript'] = StateMap['C++'].copy()
 StateMap['Node.js'] = StateMap['JavaScript'].copy()
 StateMap['JSON'] = StateMap['C++'].copy()
 StateMap['Java'] = StateMap['C++'].copy()

@@ -164,6 +164,7 @@ LanguageStyles = {'ActionScript': {
          'xpath tags': {'fore': 11}},
 }
 
+LanguageStyles['CoffeeScript'] = LanguageStyles['C++'].copy()
 MiscLanguageSettings = {}
 
 Colors = {'activeBreakpointColor': 9474246,

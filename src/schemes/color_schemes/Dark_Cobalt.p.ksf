@@ -161,6 +161,7 @@ LanguageStyles = {'Apache': {'directives': {'fore': 9145088},
                       'operator': {'fore': 9109504},
                       'regex': {'bold': 1}}}
 
+LanguageStyles['CoffeeScript'] = LanguageStyles['C++'].copy()
 MiscLanguageSettings = {'Django': {'globalSubLanguageBackgroundEnabled': True},
  'HTML': {'globalSubLanguageBackgroundEnabled': False},
  'Mason': {'globalSubLanguageBackgroundEnabled': True},

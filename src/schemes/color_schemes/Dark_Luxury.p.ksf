@@ -409,6 +409,7 @@ LanguageStyles = {'ActionScript': {'attribute name': {'fore': 8940945},
          'tags': {'fore': 10052914},
          'variables': {'fore': 16777215}}}
 
+LanguageStyles['CoffeeScript'] = LanguageStyles['C++'].copy()
 MiscLanguageSettings = {}
 
 Colors = {'activeBreakpointColor': 526573,

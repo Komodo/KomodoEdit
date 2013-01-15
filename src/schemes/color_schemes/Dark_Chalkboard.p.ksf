@@ -170,6 +170,7 @@ LanguageStyles = {'C#': {'UUIDs': {'fore': 16777215},
           'attribute value': {'fore': 6596863},
           'tags': {'fore': 16751001}}}
 
+LanguageStyles['CoffeeScript'] = LanguageStyles['C++'].copy()
 MiscLanguageSettings = {}
 
 Colors = {'activeBreakpointColor': 526573,

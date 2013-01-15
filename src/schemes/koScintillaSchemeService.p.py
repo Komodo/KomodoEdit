@@ -111,7 +111,7 @@ class Scheme:
         self._loadSchemeSettings(namespace, upgradeSettings=(not unsaved))
         return True
 
-    _current_scheme_version = 7
+    _current_scheme_version = 8
 
     def _execfile(self, fname, namespace):
         try:
@@ -235,6 +235,20 @@ class Scheme:
                                 check_item(value)
                         for language in self._languageStyles.values() + [self._commonStyles]:
                             check_item(language)
+                version += 1
+
+            if version == 7:
+                if self.writeable:
+                    # update the CoffeeScript scheme based on C++ for
+                    # user-defined schemes.
+                    if "CoffeeScript" not in self._languageStyles:
+                        self._languageStyles["CoffeeScript"] = self._languageStyles.get("C++", {}).copy()
+                    else:
+                        # The user must have defined some CoffeeScript styles.  Use C++ as a base, and then
+                        # update it based on those settings.
+                        tmp_styles = self._languageStyles.get("C++", {}).copy()
+                        tmp_styles.update(self._languageStyles["CoffeeScript"])
+                        self._languageStyles["CoffeeScript"] = tmp_styles
                 version += 1
 
             try:

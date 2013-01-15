@@ -143,6 +143,7 @@ LanguageStyles = {'C#': {'UUIDs': {},
          'xpath content': {'fore': 16741120},
          'xpath tags': {'fore': 16777204}}}
 
+LanguageStyles['CoffeeScript'] = LanguageStyles['C++'].copy()
 MiscLanguageSettings = {'Django': {'globalSubLanguageBackgroundEnabled': True},
  'HTML': {'globalSubLanguageBackgroundEnabled': False},
  'Mason': {'globalSubLanguageBackgroundEnabled': True},
