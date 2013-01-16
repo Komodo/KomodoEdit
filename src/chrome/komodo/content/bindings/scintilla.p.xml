@@ -138,7 +138,7 @@
                         // XXX this doesn't seem to work right
                         this.scimoz.endAtLastLine = prefs.getBooleanPref('scrollEndAtLastLine');
                         break;
-                };
+                }
             } catch (e) {
                 this.log.exception(e);
             }
