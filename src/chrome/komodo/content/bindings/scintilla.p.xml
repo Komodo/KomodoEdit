@@ -763,7 +763,7 @@
 
             <handler event="keypress">
                 <![CDATA[
-                //dump("scintilla: keypress\n");
+                //dump("scintilla: keypress, event.keyCode: " + event.keyCode + "\n");
                 if (event.getPreventDefault()) {
                     // somebody else already tried to cancel this event
                     return;
@@ -821,6 +821,16 @@
                                     scimoz_.indicatorClearRange(softPosition, clearEndPos - softPosition);
                                 }
                             }, 0, this, currentPos, this.DECORATOR_SOFT_CHAR);
+                        }
+                    }
+                    // Also allow for a soft-character to the left, during tabstop walking
+                    if (currentPos > 0) {
+                        var prevPos = scimoz.positionBefore(currentPos);
+                        // remove the soft-char indicator to the left unless the char is an unmodified left-arrow
+                        if (scimoz.indicatorValueAt(this.DECORATOR_SOFT_CHAR, prevPos)
+                            && (cmdkey || event.keyCode != event.DOM_VK_LEFT)) {
+                            scimoz.indicatorCurrent = this.DECORATOR_SOFT_CHAR;
+                            scimoz.indicatorClearRange(prevPos, currentPos - prevPos);
                         }
                     }
                 }
@@ -916,20 +926,48 @@
                 if (scimoz.isFocused) {
                     //dump("event.charCode: " + event.charCode + ", pos " + scimoz.currentPos + "\n");
                     var currentPos = scimoz.currentPos;
-                    if (scimoz.indicatorValueAt(this.DECORATOR_SOFT_CHAR, currentPos)
-                        && event.charCode == scimoz.getCharAt(currentPos)) {
-                        scimoz.indicatorCurrent = this.DECORATOR_SOFT_CHAR;
-                        scimoz.indicatorClearRange(currentPos, 1);
-                        if (scimoz.autoCActive()) {
-                            // Do this to remove an interaction between
-                            // the auto-complete mechanism and the soft-character mechanism
-                            // when the trigger character is also a soft character.
-                            // Only current case (2007-07) is for Ruby require statements.
-                            scimoz.autoCCancel();
+                    var addChar = true;
+                    if (scimoz.indicatorEnd(this.DECORATOR_SOFT_CHAR, 0) > 0) {
+                        // Do this only if there's at least one soft char in the document.
+                        
+                        // Bug 96751: If there are soft chars on both sides of the cursor
+                        // (currentPos and prevPos), handle the soft char on the left only.
+                        
+                        var anchor = scimoz.anchor;
+                        if (anchor > currentPos) {
+                            // Allow for a non-empty selection, and get the start point.
+                            anchor = currentPos;
                         }
-                        scimoz.gotoPos(currentPos + 1);
-                    } else {
+                        if (anchor > 0) {
+                            var prevPos = scimoz.positionBefore(anchor);
+                            if (scimoz.indicatorValueAt(this.DECORATOR_SOFT_CHAR, prevPos)) {
+                                // We're immediately after a soft-char
+                                if (event.charCode == scimoz.getCharAt(prevPos)) {
+                                    addChar = false;
+                                }
+                                scimoz.indicatorCurrent = this.DECORATOR_SOFT_CHAR;
+                                var indicatorStartPos = scimoz.indicatorStart(this.DECORATOR_SOFT_CHAR, prevPos);
+                                scimoz.indicatorClearRange(indicatorStartPos, anchor - indicatorStartPos);
+                            }
+                        }
+                        if (addChar
+                                && scimoz.indicatorValueAt(this.DECORATOR_SOFT_CHAR, currentPos)
+                                && event.charCode == scimoz.getCharAt(currentPos)) {
+                            // We're immediately before a soft-char, and we match it.
+                            scimoz.indicatorCurrent = this.DECORATOR_SOFT_CHAR;
+                            scimoz.indicatorClearRange(currentPos, 1);
+                            scimoz.gotoPos(scimoz.positionAfter(currentPos));
+                            addChar = false;
+                        }
+                    }
+                    if (addChar) {
                         scimoz.addChar(event.charCode);
+                    } else if (scimoz.autoCActive()) {
+                        // Do this to remove an interaction between
+                        // the auto-complete mechanism and the soft-character mechanism
+                        // when the trigger character is also a soft character.
+                        // Only current case (2007-07) is for Ruby require statements.
+                        scimoz.autoCCancel();
                     }
                     event.stopPropagation();
                     event.preventDefault();

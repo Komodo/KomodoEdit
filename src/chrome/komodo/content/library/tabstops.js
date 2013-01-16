@@ -1026,6 +1026,21 @@ this.findByIndicator = function(scimoz, indicator, startingPos)  {
 
 this._useIndicator = function(view, scimoz, indicator, spos, epos, isBackref) {
     if (typeof(isBackref) == 'undefined') isBackref = false;
+    var currentPos = scimoz.currentPos;
+    var anchor = scimoz.anchor;
+    if (currentPos > anchor) {
+        // Clear indicators from the start of the selection
+        currentPos = anchor;
+    }
+    if (spos > currentPos) {
+        // Clear any soft-characters between one before the currentPos and 1
+        // position before the new spos -- allow for the previous
+        // char to be soft.
+        var prevPos = scimoz.positionBefore(currentPos);
+        var prevSpos = scimoz.positionBefore(spos);
+        scimoz.indicatorCurrent = DECORATOR_SOFT_CHAR;
+        scimoz.indicatorClearRange(prevPos, prevSpos - prevPos);
+    }
     scimoz.indicatorCurrent = indicator;
     scimoz.indicatorClearRange(spos, epos - spos);
     if (isBackref) {
