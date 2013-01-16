@@ -2,8 +2,13 @@
   "keyboard_shortcut": "", 
   "name": "div", 
   "value": [
-    "<div id=\"[[%tabstop:id]]\">", 
-    "\t[[%tabstop:]]", 
+    "<% if (ko.snippets.checkIsLessThanPresent()) {%>",
+    "div id=\"[[%tabstop:id]]\">",
+    "\t[[%tabstop:]]",
+    "<%} else { %>",
+    "<div id=\"[[%tabstop:id]]\">",
+    "\t[[%tabstop:]]",
+    "<% } %>",
     "</div>[[%tabstop0:]]!@#_currentPos!@#_anchor"
   ], 
   "set_selection": "false", 

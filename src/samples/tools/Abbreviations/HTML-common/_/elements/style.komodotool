@@ -2,7 +2,11 @@
   "keyboard_shortcut": "", 
   "name": "style", 
   "value": [
-    "<style type=\"text/css\">", 
+    "<% if (ko.snippets.checkIsLessThanPresent()) {%>",
+    "style type=\"text/css\">",
+    "<%} else { %>",
+    "<style type=\"text/css\">",
+    "<% } %>",
     "[[%tabstop:]]", 
     "</style>!@#_currentPos!@#_anchor"
   ], 

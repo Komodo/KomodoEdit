@@ -2,7 +2,11 @@
   "keyboard_shortcut": "", 
   "name": "ol", 
   "value": [
-    "<ol id=\"[[%tabstop:id]]\">", 
+    "<% if (ko.snippets.checkIsLessThanPresent()) {%>",
+    "ol id=\"[[%tabstop:id]]\">",
+    "<%} else { %>",
+    "<ol id=\"[[%tabstop:id]]\">",
+    "<% } %>",
     "\t<li>[[%tabstop:text]]</li>[[%tabstop:]]", 
     "</ol>[[%tabstop:]]!@#_currentPos!@#_anchor"
   ], 

@@ -2,7 +2,11 @@
   "keyboard_shortcut": "", 
   "name": "textarea", 
   "value": [
-    "<textarea id=\"[[%tabstop:id]]\" cols=\"[[%tabstop:45]]\" rows=\"[[%tabstop:15]]\">", 
+    "<% if (ko.snippets.checkIsLessThanPresent()) {%>",
+    "textarea id=\"[[%tabstop:id]]\" cols=\"[[%tabstop:45]]\" rows=\"[[%tabstop:15]]\">",
+    "<%} else { %>",
+    "<textarea id=\"[[%tabstop:id]]\" cols=\"[[%tabstop:45]]\" rows=\"[[%tabstop:15]]\">",
+    "<% } %>",
     "[[%tabstop:]]", 
     "</textarea>!@#_currentPos!@#_anchor"
   ], 
