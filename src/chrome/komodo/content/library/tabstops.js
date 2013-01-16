@@ -38,12 +38,12 @@ ko.tabstops =  {};
 this.parseLiveText = function parseLiveText(liveText) {
     var parser = new this.LiveTextParser();
     return parser.parse(liveText);
-}
+};
 
 /**
  * Exception object.  The message field gives a specific message.
  */
-this.LiveTextParserException = function(msg, snippet) { this.message = msg; this.snippet = snippet; }
+this.LiveTextParserException = function(msg, snippet) { this.message = msg; this.snippet = snippet; };
 this.LiveTextParserException.prototype = Error.prototype;
 this.LiveTextParserException.constructor = Error.constructor;
 
@@ -88,7 +88,7 @@ this.moveToNextTabstop = function(view) {
     if (containsLinks) {
         this.clearLinkedTabstops(scimoz, view);
     }
-    if (lim == 0) {
+    if (lim === 0) {
         view.koDoc.clearTabstopInsertionTable();
         // Assume the last selected region was due to hitting a tabstop,
         // and move off it.  Otherwise we're stuck selecting it forever.
@@ -100,14 +100,13 @@ this.moveToNextTabstop = function(view) {
     var tsInfo, spos = startingPos, epos, finalSPos = -1, finalEPos, idx = 0;
     // Look for an entry we can use
     var sawBackref0 = false;
-    var sawBackrefOther = false;
     for (idx = 0; idx < lim; idx++) {
         tsInfo = tabstopInsertionTable[idx];
         // Backref #0 is visited last.  If it floats to the top, ignore it.
         if (tsInfo.isBackref) {
-            if (tsInfo.backrefNumber == 0) {
+            if (tsInfo.backrefNumber === 0) {
                 sawBackref0 = true;
-                if (idx == 0) {
+                if (idx === 0) {
                     startingPos = 0; // gotta move to the start
                 }
                 [spos, epos] = this.findByIndicator(scimoz, tsInfo.indicator, startingPos);
@@ -208,7 +207,7 @@ this._hasOtherLinks = function(tabstopInsertionTable, backrefNumber, idx) {
         }
     }
     return false;
-}
+};
 
 /**
  * Watches for backspace at the start of a tabstop.  Further
@@ -282,7 +281,7 @@ this.handleDeleteByUndo = function(view, scimoz, position, length) {
         // This has to be done in a timeout because it modifies the undo-stack.
         setTimeout(this.clearLinkedTabstops, 0, scimoz, view);
     }
-}
+};
     
 
 /**
@@ -315,7 +314,7 @@ this.updateLinkedBackrefs = function updateLinkedBackrefs(
      *    there's a TSCZW region to the right, copy the current text to the
      *    left of each TSCZW, and set each copy to a TSC.
     */
-    var spos, epos, scimoz = view.scimoz;
+    var spos, epos, newUnicodeText, prevPosition, finalByteCount, scimoz = view.scimoz;
     switch (modificationType & 0x0c03) {
         case SC_MOD_BEFOREDELETE:
             // Remove any indicators from the tabstop table that we're
@@ -324,18 +323,18 @@ this.updateLinkedBackrefs = function updateLinkedBackrefs(
             return;
         case SC_MOD_DELETETEXT:
             if (position > 0 && scimoz.indicatorValueAt(TSC, position - 1)) {
-                var prevPosition = scimoz.positionBefore(position);
+                prevPosition = scimoz.positionBefore(position);
                 spos = scimoz.indicatorStart(TSC, prevPosition);
                 epos = scimoz.indicatorEnd(TSC, prevPosition);
-                var newUnicodeText = scimoz.getTextRange(spos, epos);
-                var finalByteCount = epos - spos;
+                newUnicodeText = scimoz.getTextRange(spos, epos);
+                finalByteCount = epos - spos;
                 this._updateAllHits(scimoz, position + finalByteCount, TSC,
                                     newUnicodeText, finalByteCount);
             } else if (scimoz.indicatorValueAt(TSC, position)
                        && ((spos = scimoz.indicatorStart(TSC, position))
                             == position)) {
                 epos = scimoz.indicatorEnd(TSC, position);
-                var newUnicodeText = scimoz.getTextRange(spos, epos);
+                newUnicodeText = scimoz.getTextRange(spos, epos);
                 this._updateAllHits(scimoz, epos, TSC, newUnicodeText, epos - spos);
             } else if (scimoz.indicatorValueAt(TSCZW, position)) {
                 // Need to delete all the other TSCs
@@ -343,7 +342,7 @@ this.updateLinkedBackrefs = function updateLinkedBackrefs(
             }
             return;
         case SC_MOD_INSERTTEXT:
-            var currentUnicodeText, finalByteCount, prevPosition;
+            var currentUnicodeText;
             if (position > 0 && scimoz.indicatorValueAt(TSC, (prevPosition =
                                                               scimoz.positionBefore(position)))) {
                 spos = scimoz.indicatorStart(TSC, prevPosition);
@@ -441,7 +440,7 @@ this.forceUpdateAllZeroWidthLinks = function(view,
         this._updateAllZeroWidthHits(scimoz, scimoz.indicatorEnd(TSCZW, tcszw_posn),
                                      newText, ko.stringutils.bytelength(newText));
     }    
-}
+};
 
 /**
  * Remove linked tabstops from the document.
@@ -482,7 +481,7 @@ this.clearTabstopInfo = function(view) {
 
 this.textHasTabstops = function(text) {
     return tabstop_re.test(text);
-}
+};
 
 /**************** Private: ****************/
 
@@ -517,7 +516,7 @@ this.LiveTextPlain.prototype.insertLiveTextPart = function() {
 };
 
 this.LiveTextPlain.prototype.describe = function(indent) {
-    return indent + "[Text: " + this.text + "]\n"
+    return indent + "[Text: " + this.text + "]\n";
 };
     
 /**************** LiveTextSoftChars ****************/
@@ -537,7 +536,7 @@ this.LiveTextSoftChars.prototype.insertLiveTextPart = function() {
 };
 
 this.LiveTextSoftChars.prototype.describe = function(indent) {
-    return indent + "[SoftChars: " + this.text + "]\n"
+    return indent + "[SoftChars: " + this.text + "]\n";
 };
     
 /**************** LiveTextTabstopNested ****************/
@@ -565,7 +564,7 @@ this.LiveTextTabstopNested.prototype.describe = function(indent) {
         parts.push(indent + "[/Nested: " + this.indicator + "]\n");
     }
     return parts.join("\n");
-}
+};
 /**************** LiveTextTabstopEmpty ****************/
 this.LiveTextTabstopEmpty = function() {
     this.indicator = TSZW;
@@ -575,7 +574,7 @@ this.LiveTextTabstopEmpty.prototype.insertLiveTextPart = function() {
 };
 
 this.LiveTextTabstopEmpty.prototype.describe = function(indent) {
-    return indent + "[Empty: " + this.indicator + "]\n"
+    return indent + "[Empty: " + this.indicator + "]\n";
 };
 
 /**************** LiveTextTabstopText ****************/
@@ -589,7 +588,7 @@ this.LiveTextTabstopText.prototype.insertLiveTextPart = function() {
 };
 
 this.LiveTextTabstopText.prototype.describe = function(indent) {
-    return indent + "[TextTabstop: " + this.indicator + ", " + this.text + "]\n"
+    return indent + "[TextTabstop: " + this.indicator + ", " + this.text + "]\n";
 };
 
 /**************** LiveTextTabstopBackrefDef ****************/
@@ -604,7 +603,7 @@ this.LiveTextTabstopBackrefDef.prototype.insertLiveTextPart = function() {
 };
 
 this.LiveTextTabstopBackrefDef.prototype.describe = function(indent) {
-    return indent + "[BackrefDef: " + this.backrefNum + ", " + this.indicator + ", " + (this.text || '<none>') + "]\n"
+    return indent + "[BackrefDef: " + this.backrefNum + ", " + this.indicator + ", " + (this.text || '<none>') + "]\n";
 };
 
 /**************** LiveTextTabstopBackrefUse ****************/
@@ -619,7 +618,7 @@ this.LiveTextTabstopBackrefUse.prototype.insertLiveTextPart = function() {
 };
 
 this.LiveTextTabstopBackrefUse.prototype.describe = function(indent) {
-    return indent + "[BackrefUse: " + this.backrefNum + ", " + this.indicator + ", " + (this.text || '<none>') + "]\n"
+    return indent + "[BackrefUse: " + this.backrefNum + ", " + this.indicator + ", " + (this.text || '<none>') + "]\n";
 };
 
 /**************** LiveText Parser ****************/
@@ -762,7 +761,7 @@ this.LiveTextParser.prototype._availableIndicatorCheck = function() {
     if (!this.availIndicators.length) {
         throw new ko.tabstops.LiveTextParserException("The snippet is too complex: ", this.subjectText);
     }
-}
+};
 
 this.LiveTextParser.prototype._releaseIndicators = function() {
     if (this.lastIndicatorInUse) {
@@ -777,7 +776,7 @@ this.LiveTextParser.prototype._releaseIndicators = function() {
 this.LiveTextParser.prototype._shuffleIndicators = function(indicator) {
     this._releaseIndicators();
     this.lastIndicatorInUse = indicator;
-}
+};
 
 this.LiveTextParser.prototype.lookingAtTabstop = function() {
     return this.subjectText.substr(this.idx, TARGET_START.length) == TARGET_START;
@@ -861,13 +860,12 @@ this.LiveTextParser.prototype.parseTabstop = function() {
         tabstopInsertionTable.push(new ko.tabstops.TabstopInsertionNode(TSZW, false));
         return new ko.tabstops.LiveTextTabstopEmpty();
     }
-    var m = subjectRemainder.match(/^(\d+)/);
+    var text, m = subjectRemainder.match(/^(\d+)/);
     if (m) {
         // numbered tabstops don't contain nested content
         var backrefStr = m[0];
-        var backrefNum = parseInt(backrefStr);
+        var backrefNum = parseInt(backrefStr, 10);
         this.idx += backrefStr.length;
-        var text;
         var nodeClass = ko.tabstops.LiveTextTabstopBackrefUse;
         var haveBackref = (backrefNum in backrefTable);
         if (this.subjectText.substr(this.idx, 1) == ':') {
@@ -898,7 +896,7 @@ this.LiveTextParser.prototype.parseTabstop = function() {
             }
             this.idx += TARGET_END.length;
         }
-        if (text != null && text.length) {
+        if (text !== null && text.length) {
             this._availableIndicatorCheck();
             indicator = this.availIndicators.pop();
             this._shuffleIndicators(indicator);
@@ -916,8 +914,8 @@ this.LiveTextParser.prototype.parseTabstop = function() {
         if (endPoint == -1) this.throwParseException(TARGET_END, "Parsing error");
         if ((targetPoint == -1 || (endPoint < targetPoint))
             && (softCharStart == -1 || (endPoint < softCharStart))) {
-            var text = this._parseTabstopNameSequence();
-            if (text.length == 0) {
+            text = this._parseTabstopNameSequence();
+            if (text.length === 0) {
                 tabstopInsertionTable.push(new ko.tabstops.TabstopInsertionNode(TSZW, false));
                 return new ko.tabstops.LiveTextTabstopEmpty();
             }
@@ -967,7 +965,7 @@ this.LiveTextParser.prototype.parseSoftCharShortcut = function() {
 
 function insertLiveTextPartHelper(s, indicator) {
     //if (s is empty ... set the indicator to a following early one)
-    if (s == null || s.length == 0) {
+    if (s === null || s.length === 0) {
         return ko.tabstops.insertEmptyIndicator(scimoz, pos, indicator);
     }
     scimoz.insertText(pos, s);
@@ -985,7 +983,7 @@ function insertLiveTextParts(nodes) {
         len += nodes[i].insertLiveTextPart();
     }
     return len;
-};
+}
 
 
 this.insertEmptyIndicator = function(scimoz, startingPos, indicator)  {
@@ -1049,11 +1047,11 @@ this._ensureInsertMode = function() {
             gVimController.mode = VimController.MODE_INSERT;
         }, 100);
     }
-}
+};
 
 this._containsActiveLink = function(scimoz, indicator) {
     var indicatorEnd = scimoz.indicatorEnd(indicator, 0);
-    return indicatorEnd != 0 && indicatorEnd != scimoz.textLength;
+    return indicatorEnd !== 0 && indicatorEnd != scimoz.textLength;
 };
 
 const SC_MOD_BEFOREDELETE = Components.interfaces.ISciMoz.SC_MOD_BEFOREDELETE;
@@ -1065,6 +1063,7 @@ this._updateAllHits = function(scimoz, position, indicator,
     var spos = position;
     var epos;
     var textLength = scimoz.length;
+    var prevSet = null, followingSet = 0;
     while (spos < textLength) {
         [spos, epos] = this.findByIndicator(scimoz, indicator, spos);
         if (spos == -1) {
@@ -1077,8 +1076,8 @@ this._updateAllHits = function(scimoz, position, indicator,
             break;
         }
         if (spos > 0) {
-            var followingSet = scimoz.indicatorAllOnFor(spos);
-            var prevSet = scimoz.indicatorAllOnFor(scimoz.positionBefore(spos));
+            followingSet = scimoz.indicatorAllOnFor(spos);
+            prevSet = scimoz.indicatorAllOnFor(scimoz.positionBefore(spos));
         }
         scimoz.targetStart = spos;
         scimoz.targetEnd = epos;
@@ -1166,7 +1165,7 @@ this._removeIndicatorsBeforeDelete = function(view, targetRangeStart, targetRang
             scimoz.indicatorClearRange(spos, epos - spos);
             this._deleteTabstopItem(view, tabstopInsertionTable, idx);
             lim -= 1;
-            if (lim == 0) {
+            if (lim === 0) {
                 view.tabstopInsertionTable = null;
                 break;
             }
