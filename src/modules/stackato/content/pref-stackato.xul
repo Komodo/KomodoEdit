@@ -17,6 +17,8 @@
 <?xml-stylesheet href="chrome://komodo/skin/prefs/prefs.css" type="text/css"?>
 <?xml-stylesheet href="chrome://stackatotools/skin/stackato.css" type="text/css"?>
 
+<?xml-stylesheet href="chrome://komodo/skin/platform.less" type="stylesheet/less" media="less"?>
+
 <window xmlns:html="http://www.w3.org/1999/xhtml"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         class="kodialog"
@@ -31,6 +33,8 @@
   <script src="chrome://komodo/content/pref/koPrefUtils.js" type="application/x-javascript;version=1.7" />
   <script src="chrome://komodo/content/library/filepickers.js" type="application/x-javascript;version=1.7" />
   <script src="chrome://stackatotools/content/pref-stackato.js" type="application/x-javascript"/>
+  
+  <script src="chrome://komodo/content/contrib/lessLoader.js" type="application/x-javascript" id="lessLoader"/>
 
   <vbox id="stackato-prefs-vbox" flex="1" class="autoscroll">
 

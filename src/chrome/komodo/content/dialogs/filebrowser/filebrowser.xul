@@ -44,6 +44,7 @@
 <?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/platform.less" type="stylesheet/less" media="less"?>
 
 <?xul-overlay href="chrome://global/content/dialogOverlay.xul"?>
 
@@ -64,6 +65,7 @@
 <script src="chrome://komodo/content/pref/prefs.js"   type="application/x-javascript;version=1.7"/>
 <script src="chrome://komodo/content/dialogs/filebrowser/filebrowseview.js" type="application/x-javascript;version=1.7"/>
 <script src="chrome://komodo/content/dialogs/filebrowser/filebrowser.js" type="application/x-javascript;version=1.7"/>
+<script src="chrome://komodo/content/contrib/lessLoader.js" type="application/x-javascript" id="lessLoader"/>
 
 <keyset id="filebrowserKeys">
     <!-- Fix bug #42250, close window when escape key is pressed -->

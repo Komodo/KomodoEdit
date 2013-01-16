@@ -17,6 +17,8 @@
 <?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
 <?xml-stylesheet href="chrome://stackatotools/skin/stackato.css" type="text/css"?>
 
+<?xml-stylesheet href="chrome://komodo/skin/platform.less" type="stylesheet/less" media="less"?>
+
 <wizard id="getNewAppWizard"
         title="&newStackatoAppWizard.label;"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
@@ -28,6 +30,7 @@
         onwizardfinish="return doFinish();"
         onwizardcancel="return onCancel();">
 <script type="application/x-javascript;version=1.7" src="chrome://stackatotools/content/stackatoNewApp.js" />
+<script src="chrome://komodo/content/contrib/lessLoader.js" type="application/x-javascript" id="lessLoader"/>
 
 <wizardpage id="page1_addApp_define"
             pageid="page1_addApp_define"

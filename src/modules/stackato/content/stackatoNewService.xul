@@ -12,6 +12,7 @@
 <?xml-stylesheet href="chrome://komodo/skin/toolbar.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/platform.less" type="stylesheet/less" media="less"?>
 
 <!-- Copyright (c) 2000-2011 ActiveState Software Inc.
      See the file LICENSE.txt for licensing information.
@@ -27,6 +28,7 @@
         ondialogaccept="return onOK();"
         ondialogcancel="return onCancel();">
 <script type="application/x-javascript;version=1.7" src="chrome://stackatotools/content/stackatoNewService.js" />
+<script src="chrome://komodo/content/contrib/lessLoader.js" type="application/x-javascript" id="lessLoader"/>
 
 <vbox flex="1">
   <groupbox id="new-service-groupbox">
