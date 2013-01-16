@@ -52,6 +52,7 @@ from cStringIO import StringIO
 import logging
 import time
 import re
+from collections import defaultdict
 import optparse
 import traceback
 from pprint import pprint
@@ -732,6 +733,69 @@ class Shell(cmdln.Cmdln):
         ${cmd_option_list}
         """
         cix2html.cix2html(opts, path)
+
+    @cmdln.option("-o", "--output",
+                  help="path to which to write JSON output (instead of "
+                       "PATH.json, use '-' for stdout)")
+    @cmdln.option("-f", "--force", action="store_true",
+                  help="allow overwrite of existing file")
+    def do_json(self, subcmd, opts, path):
+        """Convert cix XML file into json format.
+
+        ${cmd_usage}
+        ${cmd_option_list}
+        """
+        import json
+
+        if opts.output == '-':
+            output_path = None
+            output_file = sys.stdout
+        else:
+            if opts.output:
+                output_path = opts.output
+            else:
+                output_path = splitext(path)[0]+".json"
+            if exists(output_path):
+                if opts.force:
+                    os.remove(output_path)
+                else:
+                    raise Error("`%s' exists: use -f|--force option to "
+                                "allow overwrite" % output_path)
+            output_file = open(output_path, 'w')
+
+        mgr = Manager()
+        mgr.upgrade()
+        mgr.initialize()
+
+        try:
+            if path.endswith(".cix"):
+                tree = tree_from_cix(open(path, 'r').read())
+            else:
+                buf = mgr.buf_from_path(path, lang=opts.lang)
+                tree = buf.tree
+
+            result = {}
+            ci = result["codeintel"] = defaultdict(list)
+
+            def _elemToDict(parent, elem):
+                data = defaultdict(list)
+                name = elem.get("name")
+                if name is not None:
+                    data["name"] = name
+                data["tag"] = elem.tag
+                for attr_name, attr in elem.attrib.items():
+                    data[attr_name] = attr
+                parent["children"].append(data)
+                for child in elem:
+                    _elemToDict(data, child)
+
+            for child in tree:
+                _elemToDict(ci, child)
+
+            json.dump(result, output_file, indent=2)
+
+        finally:
+            mgr.finalize()
 
 # Recipe: paths_from_path_patterns (0.3.4) in /home/trentm/tm/recipes/cookbook
 def _should_include_path(path, includes, excludes):
