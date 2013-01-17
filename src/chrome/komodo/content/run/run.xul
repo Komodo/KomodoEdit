@@ -44,7 +44,6 @@
 <?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/autocomplete.css" type="text/css"?>
-<?xml-stylesheet href="chrome://komodo/skin/platform.less" type="stylesheet/less" media="less"?>
 
 <window id="run-window"
         xmlns:html="http://www.w3.org/1999/xhtml"
@@ -73,8 +72,6 @@
     <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/run/interpolate.js"/>
     <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/run/run_functions.js"/>
     <script type="application/x-javascript;version=1.7" src="chrome://komodo/content/run/run.js"/>
-    
-    <script src="chrome://komodo/content/contrib/lessLoader.js" type="application/x-javascript" id="lessLoader"/>
 
     <keyset id="runKeys">
         <key keycode="VK_ESCAPE" modifiers="" oncommand="window.close();"/>
