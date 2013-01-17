@@ -78,27 +78,38 @@ asDialogProxy.prototype = {
   
   alertEx: function(prompt, okIsDefault, hideCancel, okLabel, cancelLabel) {
     var parent = this._getParentWindow();
+    var bundle = (Components.classes["@mozilla.org/intl/stringbundle;1"]
+                       .getService(Components.interfaces.nsIStringBundleService)
+                       .createBundle("chrome://komodo/locale/views.properties")
+                       .GetStringFromName("OK.prompt"));
     try {
         if (typeof(prompt) == 'undefined') prompt = null;
-        if (typeof(response) == 'undefined') response = null;
-        if (typeof(text) == 'undefined') text = null;
-        if (typeof(title) == 'undefined') title = null;
-        if (typeof(doNotAskPref) == 'undefined') doNotAskPref = null;
-    
+        if (typeof(okIsDefault) == 'undefined') okIsDefault = true;
+        if (typeof(hideCancel) == 'undefined') hideCancel = true;
+        if (typeof(okLabel) == 'undefined') {
+            okLabel = bundle.GetStringFromName("OK.prompt");
+        }
+        if (typeof(cancelLabel) == 'undefined') {
+            cancelLabel = bundle.GetStringFromName("cancel.prompt");
+        }
+        if (hideCancel && !okIsDefault) {
+            okIsDefault = true;
+        }
         // Show the dialog.
         var obj = new Object();
         obj.prompt = prompt;
-        obj.response = response;
-        obj.text = text;
-        obj.title = title;
+        obj.response = okIsDefault ? okLabel : cancelLabel;
+        obj.buttons = [okLabel];
+        if (!hideCancel) {
+            obj.buttons.push(cancelLabel);
+        }
         obj.doNotAskUI = false;
-        parent.openDialog("chrome://komodo/content/dialogs/okCancel.xul",
+        parent.openDialog("chrome://komodo/content/dialogs/customButtons.xul",
                           "_blank",
                           "chrome,modal,titlebar",
                           obj);
-    
         return obj.response;      
-    } catch(ex) { dump("unable to open alert dialog\n" + ex + "\n"); }
+    } catch(ex) { dump("unable to open customButtons dialog\n" + ex + "\n"); }
 
     return "";
   },
