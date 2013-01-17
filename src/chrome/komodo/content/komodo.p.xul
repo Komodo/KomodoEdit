@@ -2092,7 +2092,7 @@
                        - (hiding the main text editing area).
                        -->
                     <vbox flex="1">
-                        <desciption>&pane.customize.placeholder.label;</desciption>
+                        <description>&pane.customize.placeholder.label;</description>
                     </vbox>
                     <hbox pack="end">
                         <!-- buttons -->
