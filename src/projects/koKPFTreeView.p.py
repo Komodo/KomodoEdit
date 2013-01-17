@@ -193,12 +193,8 @@ class KPFTreeView(TreeView):
                              ["showProjectPath",
                               "showProjectPathExtension"],
                                                                       True)
-            try:
-                self._showProjectPath = self._placePrefs.getBooleanPref('showProjectPath')
-                self._showProjectPathExtension = self._placePrefs.getBoolean('showProjectPathExtension', False)
-            except:
-                self._showProjectPath = self._showProjectPathExtension = False
-                log.exception("No pref...")
+            self._showProjectPath = self._placePrefs.getBoolean('showProjectPath', False)
+            self._showProjectPathExtension = self._placePrefs.getBoolean('showProjectPathExtension', False)
         except:
             self._placePrefs = None
 
