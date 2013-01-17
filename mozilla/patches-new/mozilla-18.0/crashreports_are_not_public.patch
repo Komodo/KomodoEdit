@@ -1,0 +1,46 @@
+Index: /as/komodo-devel/mozilla/build/moz1700-ko8.9/mozilla/toolkit/locales/en-US/crashreporter/crashreporter.ini
+--- a/toolkit/locales/en-US/crashreporter/crashreporter.ini
++++ b/toolkit/locales/en-US/crashreporter/crashreporter.ini
+@@ -17,17 +17,17 @@
+ # LOCALIZATION NOTE (CrashReporterProductErrorText2): The first %s is replaced with the product name (i.e. "Firefox"), the second is replaced with another string containing detailed information.  These two substitutions can not be reordered!
+ CrashReporterProductErrorText2=%s had a problem and crashed.\n\nUnfortunately, the crash reporter is unable to submit a crash report.\n\nDetails: %s
+ CrashReporterSorry=We're Sorry
+ # LOCALIZATION NOTE (CrashReporterDescriptionText2): The %s is replaced with the product name.
+ CrashReporterDescriptionText2=%s had a problem and crashed.\n\nTo help us diagnose and fix the problem, you can send us a crash report.
+ CrashReporterDefault=This application is run after a crash to report the problem to the application vendor.  It should not be run directly.
+ Details=Details…
+ ViewReportTitle=Report Contents
+-CommentGrayText=Add a comment (comments are publicly visible)
++CommentGrayText=Add any relevant comments
+ ExtraReportInfo=This report also contains technical information about the state of the application when it crashed.
+ # LOCALIZATION NOTE (CheckSendReport): The %s is replaced with the vendor name.
+ CheckSendReport=Tell %s about this crash so they can fix it
+ CheckIncludeURL=Include the address of the page I was on
+ CheckAllowEmail=Allow %s to contact me about this report
+ EmailGrayText=Enter your email address here
+ ReportPreSubmit2=Your crash report will be submitted before you quit or restart.
+ ReportDuringSubmit2=Submitting your report…
+Index: /as/komodo-devel/mozilla/build/moz1700-ko8.9/mozilla/toolkit/crashreporter/content/crashes.js
+--- a/toolkit/crashreporter/content/crashes.js
++++ b/toolkit/crashreporter/content/crashes.js
+@@ -159,16 +159,20 @@
+     var link = document.createElement("a");
+     if (reports[i].pending) {
+       link.setAttribute("href", aboutThrottling.spec);
+       link.addEventListener("click", submitPendingReport, true);
+     }
+     else {
+       link.setAttribute("href", reportURL + reports[i].id);
+     }
++
++    // ACTIVESTATE - don't show submissions as links - they are not public.
++    link.removeAttribute("href");
++
+     link.setAttribute("id", reports[i].id);
+     link.appendChild(document.createTextNode(reports[i].id));
+     cell.appendChild(link);
+ 
+     var date = new Date(reports[i].date);
+     cell = document.createElement("td");
+     var datestr = formatter.FormatDate("",
+                                        Ci.nsIScriptableDateFormat.dateFormatShort,
