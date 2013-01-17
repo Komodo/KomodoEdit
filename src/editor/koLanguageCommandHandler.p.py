@@ -90,6 +90,7 @@ class GenericCommandHandler:
         log.info("in __init__ for GenericCommandHandler")
         self._completeWordState = None
         self._view = None
+        self._complaints = {}
 
     def __del__(self):
         log.info("in __del__ for GenericCommandHandler")
@@ -1008,8 +1009,14 @@ class GenericCommandHandler:
         # if the lexer doesn't support folding, select all and get out of here fast.
         lexer = view.languageObj.getLanguageService(
             components.interfaces.koILexerLanguageService)
-        if not lexer.supportsFolding:
-            sm.selectAll()
+        if not sm.getPropertyInt("fold"):
+            dialogproxy = components.classes['@activestate.com/asDialogProxy;1'].\
+                          getService(components.interfaces.asIDialogProxy)
+            bundle = components.classes["@mozilla.org/intl/stringbundle;1"].\
+                     getService(components.interfaces.nsIStringBundleService).\
+                     createBundle("chrome://komodo/locale/editor.properties")
+            msg = bundle.GetStringFromName("block selection requires folding")
+            dialogproxy.alert(msg)
             return
 
         # since we need all the fold data, ensure the entire document is styled
