@@ -1254,7 +1254,8 @@ def target_configure(argv):
             mozBuildOptions.append('target=x86_64-apple-darwin10')
             mozRawOptions.append("mk_add_options AUTOCONF=autoconf213")
         if not is_gcc and "clang" in version_string:
-            mozBuildOptions.append('enable-stdcxx-compat')
+            if mozVer < 18:  # dropped mac support of this feature in moz 18
+                mozBuildOptions.append('enable-stdcxx-compat')
         config["gcc"] = gcc
         config["gxx"] = gxx
 
