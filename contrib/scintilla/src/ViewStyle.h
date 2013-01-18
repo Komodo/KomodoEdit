@@ -115,6 +115,7 @@ public:
 	ColourDesired caretcolour;
 	ColourDesired additionalCaretColour;
 	bool showCaretLineBackground;
+	bool alwaysShowCaretLineBackground;
 	ColourDesired caretLineBackground;
 	int caretLineAlpha;
 	ColourDesired edgecolour;

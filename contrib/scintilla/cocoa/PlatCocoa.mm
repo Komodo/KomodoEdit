@@ -357,27 +357,23 @@ CGImageRef SurfaceImpl::GetImage()
 
 /**
  * Returns the vertical logical device resolution of the main monitor.
+ * This is no longer called.
+ * For Cocoa, all screens are treated as 72 DPI, even retina displays.
  */
 int SurfaceImpl::LogPixelsY()
 {
-  if (verticalDeviceResolution == 0)
-  {
-    NSSize deviceResolution = [[[[NSScreen mainScreen] deviceDescription]
-    objectForKey: NSDeviceResolution] sizeValue];
-    verticalDeviceResolution = (int) deviceResolution.height;
-  }
-  return verticalDeviceResolution;
+  return 72;
 }
 
 //--------------------------------------------------------------------------------------------------
 
 /**
- * Converts the logical font height (in dpi) into a pixel height for the current main screen.
+ * Converts the logical font height in points into a device height.
+ * For Cocoa, points are always used for the result even on retina displays.
  */
 int SurfaceImpl::DeviceHeightFont(int points)
 {
-  int logPix = LogPixelsY();
-  return (points * logPix + logPix / 2) / 72;
+  return points;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -620,6 +616,11 @@ void Scintilla::SurfaceImpl::AlphaRectangle(PRectangle rc, int /*cornerSize*/, C
   }
 }
 
+static void ProviderReleaseData(void *, const void *data, size_t) {
+	const unsigned char *pixels = reinterpret_cast<const unsigned char *>(data);
+	delete []pixels;
+}
+
 static CGImageRef ImageCreateFromRGBA(int width, int height, const unsigned char *pixelsImage, bool invert) {
 	CGImageRef image = 0;
 
@@ -631,9 +632,8 @@ static CGImageRef ImageCreateFromRGBA(int width, int height, const unsigned char
 		
 		// Create a data provider.
 		CGDataProviderRef dataProvider = 0;
-		unsigned char *pixelsUpsideDown = 0;
 		if (invert) {
-			pixelsUpsideDown = new unsigned char[bitmapByteCount];
+			unsigned char *pixelsUpsideDown = new unsigned char[bitmapByteCount];
 		
 			for (int y=0; y<height; y++) {
 				int yInverse = height - y - 1;
@@ -643,7 +643,7 @@ static CGImageRef ImageCreateFromRGBA(int width, int height, const unsigned char
 			}
 			
 			dataProvider = CGDataProviderCreateWithData(
-								NULL, pixelsUpsideDown, bitmapByteCount, NULL);
+								NULL, pixelsUpsideDown, bitmapByteCount, ProviderReleaseData);
 		} else {
 			dataProvider = CGDataProviderCreateWithData(
 								NULL, pixelsImage, bitmapByteCount, NULL);
@@ -665,7 +665,6 @@ static CGImageRef ImageCreateFromRGBA(int width, int height, const unsigned char
 
 			CGDataProviderRelease(dataProvider);
 		}
-		delete []pixelsUpsideDown;
 		
 		// The image retains the color space, so we can release it.
 		CGColorSpaceRelease(colorSpace);
@@ -673,16 +672,11 @@ static CGImageRef ImageCreateFromRGBA(int width, int height, const unsigned char
 	return image;
 }
 
-void SurfaceImpl::DrawRGBAImage(PRectangle /* rc */, int width, int height, const unsigned char *pixelsImage) {
+void SurfaceImpl::DrawRGBAImage(PRectangle rc, int width, int height, const unsigned char *pixelsImage) {
 	CGImageRef image = ImageCreateFromRGBA(width, height, pixelsImage, true);
 	if (image) {
-		//CGContextSaveGState(gc);
-		//CGRect dst = PRectangleToCGRect(rc);
-		//CGContextClipToRect(gc, dst);
-		CGRect drawRect = CGRectMake (0, 0, width, height);
+		CGRect drawRect = CGRectMake(rc.left, rc.top, rc.Width(), rc.Height());
 		CGContextDrawImage(gc, drawRect, image);
-		//CGContextRestoreGState (gc);
-		
 		CGImageRelease(image);
 	}
 }
@@ -1115,8 +1109,7 @@ PRectangle Window::GetPosition()
       // NSView
       NSView* view = reinterpret_cast<NSView*>(idWin);
       win = [view window];
-      rect = [view bounds];
-      rect = [view convertRectToBase: rect];
+      rect = [view convertRect: [view bounds] toView: nil];
       rect.origin = [win convertBaseToScreen:rect.origin];
     }
     else
@@ -1353,19 +1346,85 @@ static NSImage* ImageFromXPM(XPM* pxpm)
   return img;
 }
 
-//----------------- ListBox ------------------------------------------------------------------------
+//----------------- ListBox and related classes ----------------------------------------------------
 
-ListBox::ListBox()
+namespace {
+
+// unnamed namespace hides IListBox interface
+
+class IListBox {
+public:
+  virtual int Rows() = 0;
+  virtual NSImage* ImageForRow(NSInteger row) = 0;
+  virtual NSString* TextForRow(NSInteger row) = 0;
+  virtual void DoubleClick() = 0;
+};
+
+} // unnamed namespace
+
+//----------------- AutoCompletionDataSource -------------------------------------------------------
+
+@interface AutoCompletionDataSource :
+NSObject
+#if MAC_OS_X_VERSION_MAX_ALLOWED > MAC_OS_X_VERSION_10_5
+<NSTableViewDataSource>
+#endif
 {
+  IListBox* box;
 }
 
-//--------------------------------------------------------------------------------------------------
+@property IListBox* box;
 
-ListBox::~ListBox()
+@end
+
+@implementation AutoCompletionDataSource
+
+@synthesize box;
+
+- (void) doubleClick: (id) sender
 {
+#pragma unused(sender)
+	if (box)
+	{
+		box->DoubleClick();
+	}
 }
 
-//--------------------------------------------------------------------------------------------------
+- (id)tableView: (NSTableView*)aTableView objectValueForTableColumn: (NSTableColumn*)aTableColumn row: (NSInteger)rowIndex
+{
+#pragma unused(aTableView)
+	if (!box)
+		return nil;
+	if ([(NSString*)[aTableColumn identifier] isEqualToString: @"icon"])
+	{
+		return box->ImageForRow(rowIndex);
+	}
+	else {
+		return box->TextForRow(rowIndex);
+	}
+}
+
+- (void)tableView: (NSTableView*)aTableView setObjectValue: anObject forTableColumn: (NSTableColumn*)aTableColumn row: (NSInteger)rowIndex
+{
+#pragma unused(aTableView)
+#pragma unused(anObject)
+#pragma unused(aTableColumn)
+#pragma unused(rowIndex)
+}
+
+- (NSInteger)numberOfRowsInTableView: (NSTableView*)aTableView
+{
+#pragma unused(aTableView)
+	if (!box)
+		return 0;
+	return box->Rows();
+}
+
+@end
+
+//----------------- ListBoxImpl --------------------------------------------------------------------
+
+namespace {	// unnamed namespace hides ListBoxImpl and associated classes
 
 struct RowData
 {
@@ -1423,25 +1482,10 @@ public:
   }
 };
 
-class ListBoxImpl;
-
-@interface AutoCompletionDataSource :
-NSObject
-#if MAC_OS_X_VERSION_MAX_ALLOWED > MAC_OS_X_VERSION_10_5
-<NSTableViewDataSource>
-#endif
-{
-  ListBoxImpl* box;
-}
-
-@end
-
-//----------------- ListBoxImpl --------------------------------------------------------------------
-
 // Map from icon type to an NSImage*
 typedef std::map<NSInteger, NSImage*> ImageMap;
 
-class ListBoxImpl : public ListBox
+class ListBoxImpl : public ListBox, IListBox
 {
 private:
   ControlRef lb;
@@ -1498,66 +1542,12 @@ public:
   }
   void SetList(const char* list, char separator, char typesep);
 
-  // For access from AutoCompletionDataSource
+  // For access from AutoCompletionDataSource implement IListBox
   int Rows();
   NSImage* ImageForRow(NSInteger row);
   NSString* TextForRow(NSInteger row);
   void DoubleClick();
 };
-
-@implementation AutoCompletionDataSource
-
-- (void)setBox: (ListBoxImpl*)box_
-{
-  box = box_;
-}
-
-- (void) doubleClick: (id) sender
-{
-#pragma unused(sender)
-  if (box)
-  {
-    box->DoubleClick();
-  }
-}
-
-- (id)tableView: (NSTableView*)aTableView objectValueForTableColumn: (NSTableColumn*)aTableColumn row: (NSInteger)rowIndex
-{
-#pragma unused(aTableView)
-  if (!box)
-    return nil;
-  if ([(NSString*)[aTableColumn identifier] isEqualToString: @"icon"])
-  {
-    return box->ImageForRow(rowIndex);
-  }
-  else {
-    return box->TextForRow(rowIndex);
-  }
-}
-
-- (void)tableView: (NSTableView*)aTableView setObjectValue: anObject forTableColumn: (NSTableColumn*)aTableColumn row: (NSInteger)rowIndex
-{
-#pragma unused(aTableView)
-#pragma unused(anObject)
-#pragma unused(aTableColumn)
-#pragma unused(rowIndex)
-}
-
-- (NSInteger)numberOfRowsInTableView: (NSTableView*)aTableView
-{
-#pragma unused(aTableView)
-  if (!box)
-    return 0;
-  return box->Rows();
-}
-
-@end
-
-ListBox* ListBox::Allocate()
-{
-  ListBoxImpl* lb = new ListBoxImpl();
-  return lb;
-}
 
 void ListBoxImpl::Create(Window& /*parent*/, int /*ctrlID*/, Scintilla::Point pt,
     int lineHeight_, bool unicodeMode_, int)
@@ -1869,6 +1859,24 @@ void ListBoxImpl::DoubleClick()
   {
     doubleClickAction(doubleClickActionData);
   }
+}
+
+} // unnamed namespace
+
+//----------------- ListBox ------------------------------------------------------------------------
+
+ListBox::ListBox()
+{
+}
+
+ListBox::~ListBox()
+{
+}
+
+ListBox* ListBox::Allocate()
+{
+	ListBoxImpl* lb = new ListBoxImpl();
+	return lb;
 }
 
 //----------------- ScintillaContextMenu -----------------------------------------------------------

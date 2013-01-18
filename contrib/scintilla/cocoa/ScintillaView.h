@@ -4,7 +4,8 @@
  *
  * Created by Mike Lischke.
  *
- * Copyright 2009 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 2011, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright 2009, 2011 Sun Microsystems, Inc. All rights reserved.
  * This file is dual licensed under LGPL v2.1 and the Scintilla license (http://www.scintilla.org/License.txt).
  */
 
@@ -21,6 +22,10 @@
 
 extern NSString *SCIUpdateUINotification;
 
+@protocol ScintillaNotificationProtocol
+- (void)notification: (Scintilla::SCNotification*)notification;
+@end
+
 /**
  * InnerView is the Cocoa interface to the Scintilla backend. It handles text input and
  * provides a canvas for painting the output.
@@ -34,7 +39,10 @@ extern NSString *SCIUpdateUINotification;
 
   // Set when we are in composition mode and partial input is displayed.
   NSRange mMarkedTextRange;
+  BOOL undoCollectionWasActive;
 }
+
+@property (nonatomic, assign) ScintillaView* owner;
 
 - (void) dealloc;
 - (void) removeMarkedText;
@@ -43,7 +51,6 @@ extern NSString *SCIUpdateUINotification;
 - (BOOL) canUndo;
 - (BOOL) canRedo;
 
-@property (retain) ScintillaView* owner;
 @end
 
 @interface ScintillaView : NSView <InfoBarCommunicator>
@@ -62,11 +69,19 @@ extern NSString *SCIUpdateUINotification;
   NSScroller* mHorizontalScroller;
   NSScroller* mVerticalScroller;
   
+  CGFloat zoomDelta;
+  
   // Area to display additional controls (e.g. zoom info, caret position, status info).
   NSView <InfoBarCommunicator>* mInfoBar;
   BOOL mInfoBarAtTop;
   int mInitialInfoBarWidth;
+
+  id<ScintillaNotificationProtocol> mDelegate;
 }
+
+@property (nonatomic, assign) Scintilla::ScintillaCocoa* backend;
+@property (nonatomic, assign) NSObject* owner;
+@property (nonatomic, assign) id<ScintillaNotificationProtocol> delegate;
 
 - (void) dealloc;
 - (void) positionSubViews;
@@ -129,12 +144,23 @@ extern NSString *SCIUpdateUINotification;
 - (void) setInfoBar: (NSView <InfoBarCommunicator>*) aView top: (BOOL) top;
 - (void) setStatusText: (NSString*) text;
 
-- (void) findAndHighlightText: (NSString*) searchText
+- (BOOL) findAndHighlightText: (NSString*) searchText
                     matchCase: (BOOL) matchCase
                     wholeWord: (BOOL) wholeWord
                      scrollTo: (BOOL) scrollTo
                          wrap: (BOOL) wrap;
 
-@property Scintilla::ScintillaCocoa* backend;
-@property (retain) NSObject* owner;
+- (BOOL) findAndHighlightText: (NSString*) searchText
+                    matchCase: (BOOL) matchCase
+                    wholeWord: (BOOL) wholeWord
+                     scrollTo: (BOOL) scrollTo
+                         wrap: (BOOL) wrap
+                    backwards: (BOOL) backwards;
+
+- (int) findAndReplaceText: (NSString*) searchText
+                    byText: (NSString*) newText
+                 matchCase: (BOOL) matchCase
+                 wholeWord: (BOOL) wholeWord
+                     doAll: (BOOL) doAll;
+
 @end

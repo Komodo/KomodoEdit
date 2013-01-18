@@ -18,13 +18,15 @@
 #include <map>
 
 #undef _WIN32_WINNT
-#define _WIN32_WINNT  0x0500
+#define _WIN32_WINNT 0x0500
+#undef WINVER
+#define WINVER 0x0500
 #include <windows.h>
 #include <commctrl.h>
 #include <richedit.h>
 #include <windowsx.h>
 
-#if defined(_MSC_VER) && (_MSC_VER > 1200)
+#if defined(NTDDI_WIN7) && !defined(DISABLE_D2D)
 #define USE_D2D 1
 #endif
 
@@ -37,13 +39,6 @@
 #include "UniConversion.h"
 #include "XPM.h"
 #include "FontQuality.h"
-
-// We want to use multi monitor functions, but via LoadLibrary etc
-// Luckily microsoft has done the heavy lifting for us, so we'll just use their stub functions!
-#if defined(_MSC_VER) && (_MSC_VER > 1200)
-#define COMPILE_MULTIMON_STUBS
-#include <MultiMon.h>
-#endif
 
 #ifndef IDC_HAND
 #define IDC_HAND MAKEINTRESOURCE(32649)
@@ -86,13 +81,24 @@ static LONG_PTR GetWindowLongPtr(HWND hWnd, int nIndex) {
 }
 #endif
 
+// Declarations needed for functions dynamically loaded as not available on all Windows versions.
 typedef BOOL (WINAPI *AlphaBlendSig)(HDC, int, int, int, int, HDC, int, int, int, int, BLENDFUNCTION);
+typedef HMONITOR (WINAPI *MonitorFromPointSig)(POINT, DWORD);
+typedef HMONITOR (WINAPI *MonitorFromRectSig)(LPCRECT, DWORD);
+typedef BOOL (WINAPI *GetMonitorInfoSig)(HMONITOR, LPMONITORINFO);
 
 static CRITICAL_SECTION crPlatformLock;
 static HINSTANCE hinstPlatformRes = 0;
 static bool onNT = false;
+
 static HMODULE hDLLImage = 0;
 static AlphaBlendSig AlphaBlendFn = 0;
+
+static HMODULE hDLLUser32 = 0;
+static HMONITOR (WINAPI *MonitorFromPointFn)(POINT, DWORD) = 0;
+static HMONITOR (WINAPI *MonitorFromRectFn)(LPCRECT, DWORD) = 0;
+static BOOL (WINAPI *GetMonitorInfoFn)(HMONITOR, LPMONITORINFO) = 0;
+
 static HCURSOR reverseArrowCursor = NULL;
 
 bool IsNT() {
@@ -127,7 +133,7 @@ bool LoadD2D() {
 		typedef HRESULT (WINAPI *DWriteCFSig)(DWRITE_FACTORY_TYPE factoryType, REFIID iid,
 			IUnknown **factory);
 
-		hDLLD2D = ::LoadLibrary(TEXT("D2D1.DLL"));
+		hDLLD2D = ::LoadLibraryEx(TEXT("D2D1.DLL"), 0, 0x00000800 /*LOAD_LIBRARY_SEARCH_SYSTEM32*/);
 		if (hDLLD2D) {
 			D2D1CFSig fnD2DCF = (D2D1CFSig)::GetProcAddress(hDLLD2D, "D2D1CreateFactory");
 			if (fnD2DCF) {
@@ -138,7 +144,7 @@ bool LoadD2D() {
 					reinterpret_cast<IUnknown**>(&pD2DFactory));
 			}
 		}
-		hDLLDWrite = ::LoadLibrary(TEXT("DWRITE.DLL"));
+		hDLLDWrite = ::LoadLibraryEx(TEXT("DWRITE.DLL"), 0, 0x00000800 /*LOAD_LIBRARY_SEARCH_SYSTEM32*/);
 		if (hDLLDWrite) {
 			DWriteCFSig fnDWCF = (DWriteCFSig)::GetProcAddress(hDLLDWrite, "DWriteCreateFactory");
 			if (fnDWCF) {
@@ -842,10 +848,10 @@ void SurfaceGDI::DrawRGBAImage(PRectangle rc, int width, int height, const unsig
 					unsigned char *pixel = image + (y*width+x) * 4;
 					unsigned char alpha = pixelsImage[3];
 					// Input is RGBA, output is BGRA with premultiplied alpha
-					pixel[2] = (*pixelsImage++) * alpha / 255;
-					pixel[1] = (*pixelsImage++) * alpha / 255;
-					pixel[0] = (*pixelsImage++) * alpha / 255;
-					pixel[3] = *pixelsImage++;
+					pixel[2] = static_cast<unsigned char>((*pixelsImage++) * alpha / 255);
+					pixel[1] = static_cast<unsigned char>((*pixelsImage++) * alpha / 255);
+					pixel[0] = static_cast<unsigned char>((*pixelsImage++) * alpha / 255);
+					pixel[3] = static_cast<unsigned char>(*pixelsImage++);
 				}
 			}
 		
@@ -1849,6 +1855,19 @@ void Window::SetPosition(PRectangle rc) {
 		0, rc.left, rc.top, rc.Width(), rc.Height(), SWP_NOZORDER|SWP_NOACTIVATE);
 }
 
+static RECT RectFromMonitor(HMONITOR hMonitor) {
+	if (GetMonitorInfoFn) {
+		MONITORINFO mi = {0};
+		mi.cbSize = sizeof(mi);
+		if (GetMonitorInfoFn(hMonitor, &mi)) {
+			return mi.rcWork;
+		}
+	}
+	RECT rc = {0, 0, 0, 0};
+	::SystemParametersInfoA(SPI_GETWORKAREA, 0, &rc, 0);
+	return rc;
+}
+
 void Window::SetPositionRelative(PRectangle rc, Window w) {
 	LONG style = ::GetWindowLong(reinterpret_cast<HWND>(wid), GWL_STYLE);
 	if (style & WS_POPUP) {
@@ -1856,31 +1875,29 @@ void Window::SetPositionRelative(PRectangle rc, Window w) {
 		::ClientToScreen(reinterpret_cast<HWND>(w.GetID()), &ptOther);
 		rc.Move(ptOther.x, ptOther.y);
 
-		// This #ifdef is for VC 98 which has problems with MultiMon.h under some conditions.
-#ifdef MONITOR_DEFAULTTONULL
-		// We're using the stub functionality of MultiMon.h to decay gracefully on machines
-		// (ie, pre Win2000, Win95) that do not support the newer functions.
 		RECT rcMonitor = RectFromPRectangle(rc);
-		MONITORINFO mi = {0};
-		mi.cbSize = sizeof(mi);
 
-		HMONITOR hMonitor = ::MonitorFromRect(&rcMonitor, MONITOR_DEFAULTTONEAREST);
+		HMONITOR hMonitor = NULL;
+		if (MonitorFromRectFn)
+			hMonitor = MonitorFromRectFn(&rcMonitor, MONITOR_DEFAULTTONEAREST);
 		// If hMonitor is NULL, that's just the main screen anyways.
-		::GetMonitorInfo(hMonitor, &mi);
-
-		// Now clamp our desired rectangle to fit inside the work area
-		// This way, the menu will fit wholly on one screen. An improvement even
-		// if you don't have a second monitor on the left... Menu's appears half on
-		// one screen and half on the other are just U.G.L.Y.!
-		if (rc.right > mi.rcWork.right)
-			rc.Move(mi.rcWork.right - rc.right, 0);
-		if (rc.bottom > mi.rcWork.bottom)
-			rc.Move(0, mi.rcWork.bottom - rc.bottom);
-		if (rc.left < mi.rcWork.left)
-			rc.Move(mi.rcWork.left - rc.left, 0);
-		if (rc.top < mi.rcWork.top)
-			rc.Move(0, mi.rcWork.top - rc.top);
-#endif
+		//::GetMonitorInfo(hMonitor, &mi);
+		RECT rcWork = RectFromMonitor(hMonitor);
+		
+		if (rcWork.left < rcWork.right) {
+			// Now clamp our desired rectangle to fit inside the work area
+			// This way, the menu will fit wholly on one screen. An improvement even
+			// if you don't have a second monitor on the left... Menu's appears half on
+			// one screen and half on the other are just U.G.L.Y.!
+			if (rc.right > rcWork.right)
+				rc.Move(rcWork.right - rc.right, 0);
+			if (rc.bottom > rcWork.bottom)
+				rc.Move(0, rcWork.bottom - rc.bottom);
+			if (rc.left < rcWork.left)
+				rc.Move(rcWork.left - rc.left, 0);
+			if (rc.top < rcWork.top)
+				rc.Move(0, rcWork.top - rc.top);
+		}
 	}
 	SetPosition(rc);
 }
@@ -1995,30 +2012,25 @@ void Window::SetTitle(const char *s) {
 /* Returns rectangle of monitor pt is on, both rect and pt are in Window's
    coordinates */
 PRectangle Window::GetMonitorRect(Point pt) {
-#ifdef MONITOR_DEFAULTTONULL
-	// MonitorFromPoint and GetMonitorInfo are not available on Windows 95 so are not used.
-	// There could be conditional code and dynamic loading in a future version
-	// so this would work on those platforms where they are available.
+	// MonitorFromPoint and GetMonitorInfo are not available on Windows 95 and NT 4.
 	PRectangle rcPosition = GetPosition();
 	POINT ptDesktop = {static_cast<LONG>(pt.x + rcPosition.left),
 		static_cast<LONG>(pt.y + rcPosition.top)};
-	HMONITOR hMonitor = ::MonitorFromPoint(ptDesktop, MONITOR_DEFAULTTONEAREST);
-	MONITORINFO mi = {0};
-	memset(&mi, 0, sizeof(mi));
-	mi.cbSize = sizeof(mi);
-	if (::GetMonitorInfo(hMonitor, &mi)) {
+	HMONITOR hMonitor = NULL;
+	if (MonitorFromPointFn)
+		hMonitor = MonitorFromPointFn(ptDesktop, MONITOR_DEFAULTTONEAREST);
+
+	RECT rcWork = RectFromMonitor(hMonitor);
+	if (rcWork.left < rcWork.right) {
 		PRectangle rcMonitor(
-			mi.rcWork.left - rcPosition.left,
-			mi.rcWork.top - rcPosition.top,
-			mi.rcWork.right - rcPosition.left,
-			mi.rcWork.bottom - rcPosition.top);
+			rcWork.left - rcPosition.left,
+			rcWork.top - rcPosition.top,
+			rcWork.right - rcPosition.left,
+			rcWork.bottom - rcPosition.top);
 		return rcMonitor;
 	} else {
 		return PRectangle();
 	}
-#else
-	return PRectangle();
-#endif
 }
 
 struct ListItemData {
@@ -2376,7 +2388,7 @@ void ListBoxX::RegisterImage(int type, const char *xpm_data) {
 }
 
 void ListBoxX::RegisterRGBAImage(int type, int width, int height, const unsigned char *pixelsImage) {
-	images.Add(type, new RGBAImage(width, height, pixelsImage));
+	images.Add(type, new RGBAImage(width, height, 1.0, pixelsImage));
 }
 
 void ListBoxX::ClearRegisteredImages() {
@@ -3220,6 +3232,15 @@ void Platform_Initialise(void *hInstance) {
 	if (hDLLImage) {
 		AlphaBlendFn = (AlphaBlendSig)::GetProcAddress(hDLLImage, "AlphaBlend");
 	}
+	if (!hDLLUser32) {
+		hDLLUser32 = ::LoadLibrary(TEXT("User32"));
+	}
+	if (hDLLUser32) {
+		MonitorFromPointFn = (MonitorFromPointSig)::GetProcAddress(hDLLUser32, "MonitorFromPoint");
+		MonitorFromRectFn = (MonitorFromRectSig)::GetProcAddress(hDLLUser32, "MonitorFromRect");
+		GetMonitorInfoFn = (GetMonitorInfoSig)::GetProcAddress(hDLLUser32, "GetMonitorInfoA");
+	}
+
 	ListBoxX_Register();
 }
 

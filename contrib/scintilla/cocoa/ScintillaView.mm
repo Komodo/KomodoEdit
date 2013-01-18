@@ -4,7 +4,8 @@
  *
  * Created by Mike Lischke.
  *
- * Copyright 2009 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 2011, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright 2009, 2011 Sun Microsystems, Inc. All rights reserved.
  * This file is dual licensed under LGPL v2.1 and the Scintilla license (http://www.scintilla.org/License.txt).
  */
 
@@ -127,7 +128,9 @@ NSString *SCIUpdateUINotification = @"SCIUpdateUI";
 {
   CGContextRef context = (CGContextRef) [[NSGraphicsContext currentContext] graphicsPort];
   
-  mOwner.backend->Draw(rect, context);
+  if (!mOwner.backend->Draw(rect, context)) {
+    [self display];
+  }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -278,20 +281,18 @@ NSString *SCIUpdateUINotification = @"SCIUpdateUI";
  */
 - (void) setMarkedText: (id) aString selectedRange: (NSRange) range
 {
-  // Since we did not return any valid attribute for marked text (see validAttributesForMarkedText)
-  // we can safely assume the passed in text is an NSString instance.
-	NSString* newText = @"";
-	if ([aString isKindOfClass:[NSString class]])
-		newText = (NSString*) aString;
-	else if ([aString isKindOfClass:[NSAttributedString class]])
-		newText = (NSString*) [aString string];
-
+  NSString* newText = @"";
+  if ([aString isKindOfClass:[NSString class]])
+    newText = (NSString*) aString;
+  else
+    if ([aString isKindOfClass:[NSAttributedString class]])
+      newText = (NSString*) [aString string];
+  
   long currentPosition = [mOwner getGeneralProperty: SCI_GETCURRENTPOS parameter: 0];
 
   // Replace marked text if there is one.
   if (mMarkedTextRange.length > 0)
   {
-    // We have already marked text. Replace that.
     [mOwner setGeneralProperty: SCI_SETSELECTIONSTART
                          value: mMarkedTextRange.location];
     [mOwner setGeneralProperty: SCI_SETSELECTIONEND 
@@ -299,6 +300,10 @@ NSString *SCIUpdateUINotification = @"SCIUpdateUI";
     currentPosition = mMarkedTextRange.location;
   }
 
+  // Keep Scintilla from collecting undo actions for the composition task.
+  undoCollectionWasActive = [mOwner getGeneralProperty: SCI_GETUNDOCOLLECTION] != 0;
+  [mOwner setGeneralProperty: SCI_SETUNDOCOLLECTION value: 0];
+  
   // Note: Scintilla internally works almost always with bytes instead chars, so we need to take
   //       this into account when determining selection ranges and such.
   std::string raw_text = [newText UTF8String];
@@ -307,12 +312,21 @@ NSString *SCIUpdateUINotification = @"SCIUpdateUI";
   mMarkedTextRange.location = currentPosition;
   mMarkedTextRange.length = lengthInserted;
     
-  // Mark the just inserted text. Keep the marked range for later reset.
-  [mOwner setGeneralProperty: SCI_SETINDICATORCURRENT value: INPUT_INDICATOR];
-  [mOwner setGeneralProperty: SCI_INDICATORFILLRANGE
-                   parameter: mMarkedTextRange.location
-                       value: mMarkedTextRange.length];
-  
+  if (lengthInserted > 0)
+  {
+    // Mark the just inserted text. Keep the marked range for later reset.
+    [mOwner setGeneralProperty: SCI_SETINDICATORCURRENT value: INPUT_INDICATOR];
+    [mOwner setGeneralProperty: SCI_INDICATORFILLRANGE
+                     parameter: mMarkedTextRange.location
+                         value: mMarkedTextRange.length];
+  }
+  else
+  {
+    // Re-enable undo action collection if composition ended (indicated by an empty mark string).
+    if (undoCollectionWasActive)
+      [mOwner setGeneralProperty: SCI_SETUNDOCOLLECTION value: range.length == 0];
+  }
+
   // Select the part which is indicated in the given range. It does not scroll the caret into view.
   if (range.length > 0)
   {
@@ -334,6 +348,10 @@ NSString *SCIUpdateUINotification = @"SCIUpdateUI";
                      parameter: mMarkedTextRange.location
                          value: mMarkedTextRange.length];
     mMarkedTextRange = NSMakeRange(NSNotFound, 0);
+
+    // Reenable undo action collection, after we are done with text composition.    
+    if (undoCollectionWasActive)
+      [mOwner setGeneralProperty: SCI_SETUNDOCOLLECTION value: 1];
   }
 }
 
@@ -353,6 +371,10 @@ NSString *SCIUpdateUINotification = @"SCIUpdateUI";
                      value: mMarkedTextRange.location + mMarkedTextRange.length];
     mOwner.backend->InsertText(@"");
     mMarkedTextRange = NSMakeRange(NSNotFound, 0);
+
+    // Reenable undo action collection, after we are done with text composition.    
+    if (undoCollectionWasActive)
+      [mOwner setGeneralProperty: SCI_SETUNDOCOLLECTION value: 1];
   }
 }
 
@@ -607,6 +629,7 @@ NSString *SCIUpdateUINotification = @"SCIUpdateUI";
 
 @synthesize backend = mBackend;
 @synthesize owner   = mOwner;
+@synthesize delegate = mDelegate;
 
 /**
  * ScintiallView is a composite control made from an NSView and an embedded NSView that is
@@ -643,14 +666,19 @@ NSString *SCIUpdateUINotification = @"SCIUpdateUI";
 - (void) magnifyWithEvent: (NSEvent *) event
 {
 #if MAC_OS_X_VERSION_MAX_ALLOWED > MAC_OS_X_VERSION_10_5
-  CGFloat z = [event magnification];
-  
-  // Zoom out or in 1pt depending on sign of magnification event value (0.0 = no change)
-  if (z <= 0.0)
-    [ScintillaView directCall: self message: SCI_ZOOMOUT wParam: 0 lParam: 0];
-  else if (z >= 0.0)
-    [ScintillaView directCall: self message: SCI_ZOOMIN wParam: 0 lParam: 0];
+  zoomDelta += event.magnification * 10.0;
+
+  if (fabsf(zoomDelta)>=1.0) {
+    long zoomFactor = [self getGeneralProperty: SCI_GETZOOM] + zoomDelta;
+    [self setGeneralProperty: SCI_SETZOOM parameter: zoomFactor value:0];
+    zoomDelta = 0.0;
+  }     
 #endif
+}
+
+- (void) beginGestureWithEvent: (NSEvent *) event
+{
+  zoomDelta = 0.0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -718,6 +746,8 @@ NSString *SCIUpdateUINotification = @"SCIUpdateUI";
 /**
  * Notification function used by Scintilla to call us back (e.g. for handling clicks on the 
  * folder margin or changes in the editor).
+ * A delegate can be set to receive all notifications. If set no handling takes place here, except
+ * for action pertaining to internal stuff (like the info bar).
  */
 static void notification(intptr_t windowid, unsigned int iMessage, uintptr_t wParam, uintptr_t lParam)
 {
@@ -732,6 +762,14 @@ static void notification(intptr_t windowid, unsigned int iMessage, uintptr_t wPa
       SCNotification* scn = reinterpret_cast<SCNotification*>(lParam);
       ScintillaCocoa *psc = reinterpret_cast<ScintillaCocoa*>(scn->nmhdr.hwndFrom);
       editor = reinterpret_cast<InnerView*>(psc->ContentView()).owner;
+
+      if (editor.delegate != nil)
+      {
+        [editor.delegate notification: scn];
+        if (scn->nmhdr.code != SCN_ZOOM && scn->nmhdr.code != SCN_UPDATEUI)
+          return;
+      }
+      
       switch (scn->nmhdr.code)
       {
         case SCN_MARGINCLICK:
@@ -853,7 +891,7 @@ static void notification(intptr_t windowid, unsigned int iMessage, uintptr_t wPa
 
 - (void) dealloc
 {
-  [mInfoBar release];
+  [[NSNotificationCenter defaultCenter] removeObserver:self];
   delete mBackend;
   [super dealloc];
 }
@@ -1124,7 +1162,6 @@ static void notification(intptr_t windowid, unsigned int iMessage, uintptr_t wPa
     try
     {
       mBackend->WndProc(SCI_GETSELTEXT, length + 1, (sptr_t) buffer);
-      mBackend->WndProc(SCI_SETSAVEPOINT, 0, 0);
       
       result = [NSString stringWithUTF8String: buffer];
       delete[] buffer;
@@ -1157,7 +1194,6 @@ static void notification(intptr_t windowid, unsigned int iMessage, uintptr_t wPa
     try
     {
       mBackend->WndProc(SCI_GETTEXT, length + 1, (sptr_t) buffer);
-      mBackend->WndProc(SCI_SETSAVEPOINT, 0, 0);
       
       result = [NSString stringWithUTF8String: buffer];
       delete[] buffer;
@@ -1512,49 +1548,192 @@ static void notification(intptr_t windowid, unsigned int iMessage, uintptr_t wPa
 //--------------------------------------------------------------------------------------------------
 
 /**
- * Searches and marks the first occurance of the given text and optionally scrolls it into view.
+ * For backwards compatibility.
  */
-- (void) findAndHighlightText: (NSString*) searchText
+- (BOOL) findAndHighlightText: (NSString*) searchText
                     matchCase: (BOOL) matchCase
                     wholeWord: (BOOL) wholeWord
                      scrollTo: (BOOL) scrollTo
                          wrap: (BOOL) wrap
 {
-  // The current position is where we start searching. That is either the end of the current
-  // (main) selection or the caret position. That ensures we do proper "search next" too.
-  long currentPosition = [self getGeneralProperty: SCI_GETCURRENTPOS parameter: 0];
-  long length = [self getGeneralProperty: SCI_GETTEXTLENGTH parameter: 0];
+  return [self findAndHighlightText: searchText
+                          matchCase: matchCase
+                          wholeWord: wholeWord
+                           scrollTo: scrollTo
+                               wrap: wrap
+                          backwards: NO];
+}
 
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Searches and marks the first occurance of the given text and optionally scrolls it into view.
+ *
+ * @result YES if something was found, NO otherwise.
+ */
+- (BOOL) findAndHighlightText: (NSString*) searchText
+                    matchCase: (BOOL) matchCase
+                    wholeWord: (BOOL) wholeWord
+                     scrollTo: (BOOL) scrollTo
+                         wrap: (BOOL) wrap
+                    backwards: (BOOL) backwards
+{
   int searchFlags= 0;
   if (matchCase)
     searchFlags |= SCFIND_MATCHCASE;
   if (wholeWord)
     searchFlags |= SCFIND_WHOLEWORD;
 
-  Sci_TextToFind ttf;
-  ttf.chrg.cpMin = currentPosition;
-  ttf.chrg.cpMax = length;
-  ttf.lpstrText = (char*) [searchText UTF8String];
-  long position = mBackend->WndProc(SCI_FINDTEXT, searchFlags, (sptr_t) &ttf);
+  int selectionStart = [self getGeneralProperty: SCI_GETSELECTIONSTART parameter: 0];
+  int selectionEnd = [self getGeneralProperty: SCI_GETSELECTIONEND parameter: 0];
   
-  if (position < 0 && wrap)
+  // Sets the start point for the comming search to the begin of the current selection.
+  // For forward searches we have therefore to set the selection start to the current selection end
+  // for proper incremental search. This does not harm as we either get a new selection if something
+  // is found or the previous selection is restored.
+  if (!backwards)
+    [self getGeneralProperty: SCI_SETSELECTIONSTART parameter: selectionEnd];
+  [self setGeneralProperty: SCI_SEARCHANCHOR value: 0];
+  sptr_t result;
+  const char* textToSearch = [searchText UTF8String];
+
+  // The following call will also set the selection if something was found.
+  if (backwards)
   {
-    ttf.chrg.cpMin = 0;
-    ttf.chrg.cpMax = currentPosition;
-    position = mBackend->WndProc(SCI_FINDTEXT, searchFlags, (sptr_t) &ttf);
+    result = [ScintillaView directCall: self
+                               message: SCI_SEARCHPREV
+                                wParam: searchFlags
+                                lParam: (sptr_t) textToSearch];
+    if (result < 0 && wrap)
+    {
+      // Try again from the end of the document if nothing could be found so far and
+      // wrapped search is set.
+      [self getGeneralProperty: SCI_SETSELECTIONSTART parameter: [self getGeneralProperty: SCI_GETTEXTLENGTH parameter: 0]];
+      [self setGeneralProperty: SCI_SEARCHANCHOR value: 0];
+      result = [ScintillaView directCall: self
+                                 message: SCI_SEARCHNEXT
+                                  wParam: searchFlags
+                                  lParam: (sptr_t) textToSearch];
+    }
   }
-  
-  if (position >= 0)
+  else
   {
-    // Highlight the found text.
-    [self setGeneralProperty: SCI_SETSELECTIONSTART
-                       value: position];
-    [self setGeneralProperty: SCI_SETSELECTIONEND
-                       value: position + [searchText length]];
-    
+    result = [ScintillaView directCall: self
+                               message: SCI_SEARCHNEXT
+                                wParam: searchFlags
+                                lParam: (sptr_t) textToSearch];
+    if (result < 0 && wrap)
+    {
+      // Try again from the start of the document if nothing could be found so far and
+      // wrapped search is set.
+      [self getGeneralProperty: SCI_SETSELECTIONSTART parameter: 0];
+      [self setGeneralProperty: SCI_SEARCHANCHOR value: 0];
+      result = [ScintillaView directCall: self
+                                 message: SCI_SEARCHNEXT
+                                  wParam: searchFlags
+                                  lParam: (sptr_t) textToSearch];
+    }
+  }
+
+  if (result >= 0)
+  {
     if (scrollTo)
       [self setGeneralProperty: SCI_SCROLLCARET value: 0];
   }
+  else
+  {
+    // Restore the former selection if we did not find anything.
+    [self setGeneralProperty: SCI_SETSELECTIONSTART value: selectionStart];
+    [self setGeneralProperty: SCI_SETSELECTIONEND value: selectionEnd];
+  }
+  return (result >= 0) ? YES : NO;
+}
+
+//--------------------------------------------------------------------------------------------------
+
+/**
+ * Searches the given text and replaces
+ *
+ * @result Number of entries replaced, 0 if none.
+ */
+- (int) findAndReplaceText: (NSString*) searchText
+                    byText: (NSString*) newText
+                 matchCase: (BOOL) matchCase
+                 wholeWord: (BOOL) wholeWord
+                     doAll: (BOOL) doAll
+{
+  // The current position is where we start searching for single occurences. Otherwise we start at
+  // the beginning of the document.
+  int startPosition;
+  if (doAll)
+    startPosition = 0; // Start at the beginning of the text if we replace all occurrences.
+  else
+    // For a signle replacement we start at the current caret position.
+    startPosition = [self getGeneralProperty: SCI_GETCURRENTPOS];
+  int endPosition = [self getGeneralProperty: SCI_GETTEXTLENGTH];
+
+  int searchFlags= 0;
+  if (matchCase)
+    searchFlags |= SCFIND_MATCHCASE;
+  if (wholeWord)
+    searchFlags |= SCFIND_WHOLEWORD;
+  [self setGeneralProperty: SCI_SETSEARCHFLAGS value: searchFlags];
+  [self setGeneralProperty: SCI_SETTARGETSTART value: startPosition];
+  [self setGeneralProperty: SCI_SETTARGETEND value: endPosition];
+
+  const char* textToSearch = [searchText UTF8String];
+  int sourceLength = strlen(textToSearch); // Length in bytes.
+  const char* replacement = [newText UTF8String];
+  int targetLength = strlen(replacement);  // Length in bytes.
+  sptr_t result;
+  
+  int replaceCount = 0;
+  if (doAll)
+  {
+    while (true)
+    {
+      result = [ScintillaView directCall: self
+                                 message: SCI_SEARCHINTARGET
+                                  wParam: sourceLength
+                                  lParam: (sptr_t) textToSearch];
+      if (result < 0)
+        break;
+
+      replaceCount++;
+      [ScintillaView directCall: self
+                                 message: SCI_REPLACETARGET
+                                  wParam: targetLength
+                                  lParam: (sptr_t) replacement];
+
+      // The replacement changes the target range to the replaced text. Continue after that til the end.
+      // The text length might be changed by the replacement so make sure the target end is the actual
+      // text end.
+      [self setGeneralProperty: SCI_SETTARGETSTART value: [self getGeneralProperty: SCI_GETTARGETEND]];
+      [self setGeneralProperty: SCI_SETTARGETEND value: [self getGeneralProperty: SCI_GETTEXTLENGTH]];
+    }
+  }
+  else
+  {
+    result = [ScintillaView directCall: self
+                               message: SCI_SEARCHINTARGET
+                                wParam: sourceLength
+                                lParam: (sptr_t) textToSearch];
+    replaceCount = (result < 0) ? 0 : 1;
+
+    if (replaceCount > 0)
+    {
+      [ScintillaView directCall: self
+                                 message: SCI_REPLACETARGET
+                                  wParam: targetLength
+                                  lParam: (sptr_t) replacement];
+
+    // For a single replace we set the new selection to the replaced text.
+    [self setGeneralProperty: SCI_SETSELECTIONSTART value: [self getGeneralProperty: SCI_GETTARGETSTART]];
+    [self setGeneralProperty: SCI_SETSELECTIONEND value: [self getGeneralProperty: SCI_GETTARGETEND]];
+    }
+  }
+  
+  return replaceCount;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1564,7 +1743,7 @@ static void notification(intptr_t windowid, unsigned int iMessage, uintptr_t wPa
                 bold: (BOOL) bold
                 italic: (BOOL) italic
 {
-  for (int i = 0; i < 32; i++)
+  for (int i = 0; i < 128; i++)
   {
     [self setGeneralProperty: SCI_STYLESETFONT
                    parameter: i

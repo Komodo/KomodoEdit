@@ -42,15 +42,6 @@ Index: cocoa/ScintillaView.mm
    if (mMarkedTextRange.length == 0)
  	mOwner.backend->KeyboardInput(theEvent);
    NSArray* events = [NSArray arrayWithObject: theEvent];
-@@ -823,7 +833,7 @@
-     [mVerticalScroller setTarget: self];
-     [mVerticalScroller setAction: @selector(scrollerAction:)];
-     [self addSubview: mVerticalScroller];
--    
-+
-     // Establish a connection from the back end to this container so we can handle situations
-     // which require our attention.
-     mBackend->RegisterNotifyCallback(nil, notification);
 @@ -1583,5 +1593,33 @@
  
  //--------------------------------------------------------------------------------------------------

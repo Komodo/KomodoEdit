@@ -7,10 +7,11 @@ Index: /as/komodo-devel/src/scintilla/include/Scintilla.iface
 ===================================================================
 --- include/Scintilla.iface    (revision 75338)
 +++ include/Scintilla.iface    (working copy)
-@@ -578,7 +579,7 @@
+@@ -578,8 +579,8 @@
  val INDIC_DOTS=10
  val INDIC_SQUIGGLELOW=11
  val INDIC_DOTBOX=12
+ val INDIC_SQUIGGLEPIXMAP=13
 -val INDIC_MAX=31
 +val INDIC_MAX=63
  val INDIC_CONTAINER=8
@@ -18,10 +19,11 @@ Index: /as/komodo-devel/src/scintilla/include/Scintilla.iface
  val INDIC1_MASK=0x40
 --- include/Scintilla.h    (revision 75338)
 +++ include/Scintilla.h    (working copy)
-@@ -262,7 +262,7 @@
+@@ -262,8 +262,8 @@
  #define INDIC_DOTS 10
  #define INDIC_SQUIGGLELOW 11
  #define INDIC_DOTBOX 12
+ #define INDIC_SQUIGGLEPIXMAP 13
 -#define INDIC_MAX 31
 +#define INDIC_MAX 63
  #define INDIC_CONTAINER 8

@@ -11,18 +11,18 @@ Index: cocoa/ScintillaCocoa.mm
  #include "ScintillaView.h"
  #include "PlatCocoa.h"
  
-@@ -380,9 +378,10 @@
+@@ -384,10 +382,11 @@
  ScintillaCocoa::ScintillaCocoa(NSView* view)
  {
-   wMain= [view retain];
--  timerTarget = [[[TimerTarget alloc] init: this] retain];
-+  timerTarget = [[TimerTarget alloc] init: this];
+   wMain = view; // Don't retain since we're owned by view, which would cause a cycle
+   timerTarget = [[TimerTarget alloc] init: this];
    layerFindIndicator = NULL;
    Initialise();
 +  isTracking = false; // Never set to true?
  }
  
  //--------------------------------------------------------------------------------------------------
+ 
 @@ -712,7 +711,11 @@
        return reinterpret_cast<sptr_t>(this);
        
@@ -55,18 +55,6 @@ Index: cocoa/ScintillaCocoa.mm
 +#endif
    if (sel.Empty())
      return;
- 
-@@ -1525,7 +1538,10 @@
-   
-   // Convert absolute coordinate into the range [0..1]. Keep in mind that the visible area
-   // does *not* belong to the scroll range.
--  float relativePosition = (float) topLine / MaxScrollPos();
-+  float relativePosition = 0;
-+  if (MaxScrollPos() > 0) {
-+    relativePosition = (float) topLine / MaxScrollPos();
-+  }
-   [topContainer setVerticalScrollPosition: relativePosition];
- }
  
 @@ -1672,6 +1679,12 @@
    notifyProc = callback;

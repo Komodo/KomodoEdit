@@ -143,8 +143,8 @@ public:
 
   ScintillaView* TopContainer();
 
-  void SyncPaint(void* gc, PRectangle rc);
-  void Draw(NSRect rect, CGContextRef gc);
+  bool SyncPaint(void* gc, PRectangle rc);
+  bool Draw(NSRect rect, CGContextRef gc);
 
   virtual sptr_t DefWndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam);
   void SetTicking(bool on);

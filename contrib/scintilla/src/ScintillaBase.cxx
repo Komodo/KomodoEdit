@@ -202,6 +202,7 @@ void ScintillaBase::AutoCompleteStart(int lenEntered, const char *list) {
 			const char *typeSep = strchr(list, ac.GetTypesep());
 			int lenInsert = typeSep ? 
 				static_cast<int>(typeSep-list) : static_cast<int>(strlen(list));
+			UndoGroup ug(pdoc);
 			if (ac.ignoreCase) {
 				SetEmptySelection(sel.MainCaret() - lenEntered);
 				pdoc->DeleteChars(sel.MainCaret(), lenEntered);
@@ -226,8 +227,8 @@ void ScintillaBase::AutoCompleteStart(int lenEntered, const char *list) {
 	if (rcPopupBounds.Height() == 0)
 		rcPopupBounds = rcClient;
 
-	int heightLB = 100;
-	int widthLB = 100;
+	int heightLB = ac.heightLBDefault;
+	int widthLB = ac.widthLBDefault;
 	if (pt.x >= rcClient.right - widthLB) {
 		HorizontalScrollTo(xOffset + pt.x - rcClient.right + widthLB);
 		Redraw();

@@ -106,6 +106,7 @@ my @lexers = qw(
     HTML
     Inno
     Kix
+    LaTex
     Lisp
     Lout
     Lua
@@ -127,6 +128,7 @@ my @lexers = qw(
     PB
     Perl
     PLM
+    PO
     POV
     PowerPro
     PowerShell

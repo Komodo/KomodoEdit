@@ -36,6 +36,11 @@ CXXFLAGS=$(CXXFLAGS) $(NOLOGO)
 LDFLAGS=$(LDFLAGS) $(NOLOGO)
 !ENDIF
 
+!IF [cl -c -nologo CheckD2D.cxx >NUL:]
+CXXFLAGS=$(CXXFLAGS) -DDISABLE_D2D
+!MESSAGE Direct2D is not available
+!ENDIF
+
 !IFDEF DEBUG
 CXXFLAGS=$(CXXFLAGS) $(CXXDEBUG)
 LDFLAGS=$(LDDEBUG) $(LDFLAGS)
@@ -120,6 +125,7 @@ LEXOBJS=\
 	$(DIR_O)\LexHTML.obj \
 	$(DIR_O)\LexInno.obj \
 	$(DIR_O)\LexKix.obj \
+	$(DIR_O)\LexLaTeX.obj \
 	$(DIR_O)\LexLisp.obj \
 	$(DIR_O)\LexLout.obj \
 	$(DIR_O)\LexLua.obj \
@@ -141,6 +147,7 @@ LEXOBJS=\
 	$(DIR_O)\LexPB.obj \
 	$(DIR_O)\LexPerl.obj \
 	$(DIR_O)\LexPLM.obj \
+	$(DIR_O)\LexPO.obj \
 	$(DIR_O)\LexPOV.obj \
 	$(DIR_O)\LexPowerPro.obj \
 	$(DIR_O)\LexPowerShell.obj \
@@ -361,6 +368,8 @@ $(DIR_O)\LexInno.obj: ..\lexers\LexInno.cxx $(LEX_HEADERS)
 
 $(DIR_O)\LexKix.obj: ..\lexers\LexKix.cxx $(LEX_HEADERS)
 
+$(DIR_O)\LexLaTeX.obj: ..\lexers\LexLaTeX.cxx $(LEX_HEADERS)
+
 $(DIR_O)\LexLisp.obj: ..\lexers\LexLisp.cxx $(LEX_HEADERS)
 
 $(DIR_O)\LexLout.obj: ..\lexers\LexLout.cxx $(LEX_HEADERS)
@@ -402,6 +411,8 @@ $(DIR_O)\LexPB.obj: ..\lexers\LexPB.cxx $(LEX_HEADERS)
 $(DIR_O)\LexPerl.obj: ..\lexers\LexPerl.cxx $(LEX_HEADERS)
 
 $(DIR_O)\LexPLM.obj: ..\lexers\LexPLM.cxx $(LEX_HEADERS)
+
+$(DIR_O)\LexPO.obj: ..\lexers\LexPO.cxx $(LEX_HEADERS)
 
 $(DIR_O)\LexPOV.obj: ..\lexers\LexPOV.cxx $(LEX_HEADERS)
 

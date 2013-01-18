@@ -104,6 +104,7 @@ Editor::Editor() {
 
 	stylesValid = false;
 	technology = SC_TECHNOLOGY_DEFAULT;
+	scaleRGBAImage = 100;
 	
 	printMagnification = 0;
 	printColourMode = SC_PRINT_NORMAL;
@@ -216,6 +217,10 @@ Editor::Editor() {
 	wrapIndentMode = SC_WRAPINDENT_FIXED;
 
 	convertPastes = true;
+
+	marginNumberPadding = 3;
+	ctrlCharPadding = 3; // +3 For a blank on front and rounded edge each side
+	lastSegItalicsOffset = 2;
 
 	hsStart = -1;
 	hsEnd = -1;
@@ -1956,7 +1961,7 @@ void Editor::PaintSelMargin(Surface *surfWindow, PRectangle &rc) {
 						PRectangle rcNumber = rcMarker;
 						// Right justify
 						XYPOSITION width = surface->WidthText(vs.styles[STYLE_LINENUMBER].font, number, istrlen(number));
-						XYPOSITION xpos = rcNumber.right - width - 3;
+						XYPOSITION xpos = rcNumber.right - width - marginNumberPadding;
 						rcNumber.left = xpos;
 						surface->DrawTextNoClip(rcNumber, vs.styles[STYLE_LINENUMBER].font,
 								rcNumber.top + vs.maxAscent, number, istrlen(number),
@@ -2198,9 +2203,8 @@ void Editor::LayoutLine(int line, Surface *surface, ViewStyle &vstyle, LineLayou
 						} else if (controlCharSymbol < 32) {
 							if (ctrlCharWidth[ll->chars[charInLine]] == 0) {
 								const char *ctrlChar = ControlCharacterString(ll->chars[charInLine]);
-								// +3 For a blank on front and rounded edge each side:
 								ctrlCharWidth[ll->chars[charInLine]] =
-								    surface->WidthText(ctrlCharsFont, ctrlChar, istrlen(ctrlChar)) + 3;
+								    surface->WidthText(ctrlCharsFont, ctrlChar, istrlen(ctrlChar)) + ctrlCharPadding;
 							}
 							ll->positions[charInLine + 1] = ctrlCharWidth[ll->chars[charInLine]];
 						} else {
@@ -2240,7 +2244,7 @@ void Editor::LayoutLine(int line, Surface *surface, ViewStyle &vstyle, LineLayou
 		}
 		// Small hack to make lines that end with italics not cut off the edge of the last character
 		if ((startseg > 0) && lastSegItalics) {
-			ll->positions[startseg] += 2;
+			ll->positions[startseg] += lastSegItalicsOffset;
 		}
 		ll->numCharsInLine = numCharsInLine;
 		ll->numCharsBeforeEOL = numCharsBeforeEOL;
@@ -2739,7 +2743,7 @@ void Editor::DrawLine(Surface *surface, ViewStyle &vsDraw, int line, int lineVis
 	// the color for the highest numbered one is used.
 	bool overrideBackground = false;
 	ColourDesired background;
-	if (caret.active && vsDraw.showCaretLineBackground && (vsDraw.caretLineAlpha == SC_ALPHA_NOALPHA) && ll->containsCaret) {
+	if ((caret.active || vsDraw.alwaysShowCaretLineBackground) && vsDraw.showCaretLineBackground && (vsDraw.caretLineAlpha == SC_ALPHA_NOALPHA) && ll->containsCaret) {
 		overrideBackground = true;
 		background = vsDraw.caretLineBackground;
 	}
@@ -3189,7 +3193,7 @@ void Editor::DrawLine(Surface *surface, ViewStyle &vsDraw, int line, int lineVis
 
 	// Draw any translucent whole line states
 	rcSegment = rcLine;
-	if (caret.active && vsDraw.showCaretLineBackground && ll->containsCaret) {
+	if ((caret.active || vsDraw.alwaysShowCaretLineBackground) && vsDraw.showCaretLineBackground && ll->containsCaret) {
 		SimpleAlphaRectangle(surface, rcSegment, vsDraw.caretLineBackground, vsDraw.caretLineAlpha);
 	}
 	marks = pdoc->GetMark(line);
@@ -3435,6 +3439,8 @@ void Editor::Paint(Surface *surfaceWindow, PRectangle rcArea) {
 	AllocateGraphics();
 
 	RefreshStyleData();
+	if (paintState == paintAbandoned)
+		return;	// Scroll bars may have changed so need redraw
 	RefreshPixMaps(surfaceWindow);
 
 	StyleToPositionInView(PositionAfterArea(rcArea));
@@ -3732,6 +3738,7 @@ long Editor::FormatRange(bool draw, Sci_RangeToFormat *pfr) {
 	vsPrint.whitespaceBackgroundSet = false;
 	vsPrint.whitespaceForegroundSet = false;
 	vsPrint.showCaretLineBackground = false;
+	vsPrint.alwaysShowCaretLineBackground = false;
 	// Don't highlight matching braces using indicators
 	vsPrint.braceHighlightIndicatorSet = false;
 	vsPrint.braceBadLightIndicatorSet = false;
@@ -3807,7 +3814,7 @@ long Editor::FormatRange(bool draw, Sci_RangeToFormat *pfr) {
 
 		// Copy this line and its styles from the document into local arrays
 		// and determine the x position at which each character starts.
-		LineLayout ll(8000);
+		LineLayout ll(pdoc->LineStart(lineDoc+1)-pdoc->LineStart(lineDoc)+1);
 		LayoutLine(lineDoc, surfaceMeasure, vsPrint, &ll, widthPrint);
 
 		ll.containsCaret = false;
@@ -4317,10 +4324,12 @@ void Editor::DelCharBack(bool allowLineStartDeletion) {
 				sel.Range(r).ClearVirtualSpace();
 			}
 		}
+		ThinRectangularRange();
 	} else {
 		ClearSelection();
 	}
 	sel.RemoveDuplicates();
+	ContainerNeedsUpdate(SC_UPDATE_SELECTION);
 	// Avoid blinking during rapid typing:
 	ShowCaretAtCurrentPosition();
 }
@@ -4759,6 +4768,8 @@ void Editor::NotifyMacroRecord(unsigned int iMessage, uptr_t wParam, sptr_t lPar
 	case SCI_VCHOMEEXTEND:
 	case SCI_VCHOMEWRAP:
 	case SCI_VCHOMEWRAPEXTEND:
+	case SCI_VCHOMEDISPLAY:
+	case SCI_VCHOMEDISPLAYEXTEND:
 	case SCI_DELWORDLEFT:
 	case SCI_DELWORDRIGHT:
 	case SCI_DELWORDRIGHTEND:
@@ -5158,6 +5169,8 @@ int Editor::KeyCommand(unsigned int iMessage) {
 				SelectionPosition spCaret = sel.RangeMain().caret;
 				spCaret.SetVirtualSpace(spCaret.VirtualSpace() - 1);
 				MovePositionTo(spCaret);
+			} else if (sel.MoveExtends() && sel.selType == Selection::selStream) {
+				MovePositionTo(MovePositionSoVisible(SelectionPosition(sel.MainCaret() - 1), -1));
 			} else {
 				MovePositionTo(MovePositionSoVisible(
 					SelectionPosition((sel.LimitsForRectangularElseMain().start).Position() - 1), -1));
@@ -5193,6 +5206,8 @@ int Editor::KeyCommand(unsigned int iMessage) {
 				SelectionPosition spCaret = sel.RangeMain().caret;
 				spCaret.SetVirtualSpace(spCaret.VirtualSpace() + 1);
 				MovePositionTo(spCaret);
+			} else if (sel.MoveExtends() && sel.selType == Selection::selStream) {
+				MovePositionTo(MovePositionSoVisible(SelectionPosition(sel.MainCaret() + 1), 1));
 			} else {
 				MovePositionTo(MovePositionSoVisible(
 					SelectionPosition((sel.LimitsForRectangularElseMain().end).Position() + 1), 1));
@@ -5553,10 +5568,30 @@ int Editor::KeyCommand(unsigned int iMessage) {
 		            StartEndDisplayLine(sel.MainCaret(), true), -1));
 		SetLastXChosen();
 		break;
+	case SCI_VCHOMEDISPLAY: {
+			SelectionPosition homePos = SelectionPosition(pdoc->VCHomePosition(sel.MainCaret()));
+			SelectionPosition viewLineStart = MovePositionSoVisible(StartEndDisplayLine(sel.MainCaret(), true), -1);
+			if (viewLineStart > homePos)
+				homePos = viewLineStart;
+
+			MovePositionTo(homePos);
+			SetLastXChosen();
+		}
+		break;
 	case SCI_HOMEDISPLAYEXTEND:
 		MovePositionTo(MovePositionSoVisible(
 		            StartEndDisplayLine(sel.MainCaret(), true), -1), Selection::selStream);
 		SetLastXChosen();
+		break;
+	case SCI_VCHOMEDISPLAYEXTEND: {
+			SelectionPosition homePos = SelectionPosition(pdoc->VCHomePosition(sel.MainCaret()));
+			SelectionPosition viewLineStart = MovePositionSoVisible(StartEndDisplayLine(sel.MainCaret(), true), -1);
+			if (viewLineStart > homePos)
+				homePos = viewLineStart;
+
+			MovePositionTo(homePos, Selection::selStream);
+			SetLastXChosen();
+		}
 		break;
 	case SCI_LINEENDDISPLAY:
 		MovePositionTo(MovePositionSoVisible(
@@ -5705,15 +5740,15 @@ long Editor::FindText(
 
 	Sci_TextToFind *ft = reinterpret_cast<Sci_TextToFind *>(lParam);
 	int lengthFound = istrlen(ft->lpstrText);
-	std::auto_ptr<CaseFolder> pcf(CaseFolderForEncoding());
+	if (!pdoc->HasCaseFolder())
+		pdoc->SetCaseFolder(CaseFolderForEncoding());
 	int pos = pdoc->FindText(ft->chrg.cpMin, ft->chrg.cpMax, ft->lpstrText,
 	        (wParam & SCFIND_MATCHCASE) != 0,
 	        (wParam & SCFIND_WHOLEWORD) != 0,
 	        (wParam & SCFIND_WORDSTART) != 0,
 	        (wParam & SCFIND_REGEXP) != 0,
 	        wParam,
-	        &lengthFound,
-			pcf.get());
+	        &lengthFound);
 	if (pos != -1) {
 		ft->chrgText.cpMin = pos;
 		ft->chrgText.cpMax = pos + lengthFound;
@@ -5736,19 +5771,6 @@ void Editor::SearchAnchor() {
 	searchAnchor = SelectionStart().Position();
 }
 
-// Simple RAII wrapper for CaseFolder as std::auto_ptr is now deprecated
-class ScopedCaseFolder {
-	CaseFolder *pcf;
-public:
-	ScopedCaseFolder(CaseFolder *pcf_) : pcf(pcf_) {
-	}
-	~ScopedCaseFolder() {
-		delete pcf;
-		pcf = 0;
-	}
-	CaseFolder *get() const { return pcf; }
-};
-
 /**
  * Find text from current search anchor: Must call @c SearchAnchor first.
  * Used for next text and previous text requests.
@@ -5763,7 +5785,8 @@ long Editor::SearchText(
 	const char *txt = reinterpret_cast<char *>(lParam);
 	int pos;
 	int lengthFound = istrlen(txt);
-	ScopedCaseFolder pcf(CaseFolderForEncoding());
+	if (!pdoc->HasCaseFolder())
+		pdoc->SetCaseFolder(CaseFolderForEncoding());
 	if (iMessage == SCI_SEARCHNEXT) {
 		pos = pdoc->FindText(searchAnchor, pdoc->Length(), txt,
 		        (wParam & SCFIND_MATCHCASE) != 0,
@@ -5771,8 +5794,7 @@ long Editor::SearchText(
 		        (wParam & SCFIND_WORDSTART) != 0,
 		        (wParam & SCFIND_REGEXP) != 0,
 		        wParam,
-		        &lengthFound,
-				pcf.get());
+		        &lengthFound);
 	} else {
 		pos = pdoc->FindText(searchAnchor, 0, txt,
 		        (wParam & SCFIND_MATCHCASE) != 0,
@@ -5780,8 +5802,7 @@ long Editor::SearchText(
 		        (wParam & SCFIND_WORDSTART) != 0,
 		        (wParam & SCFIND_REGEXP) != 0,
 		        wParam,
-		        &lengthFound,
-				pcf.get());
+		        &lengthFound);
 	}
 	if (pos != -1) {
 		SetSelection(pos, pos + lengthFound);
@@ -5814,15 +5835,15 @@ std::string Editor::CaseMapString(const std::string &s, int caseMapping) {
 long Editor::SearchInTarget(const char *text, int length) {
 	int lengthFound = length;
 
-	ScopedCaseFolder pcf(CaseFolderForEncoding());
+	if (!pdoc->HasCaseFolder())
+		pdoc->SetCaseFolder(CaseFolderForEncoding());
 	int pos = pdoc->FindText(targetStart, targetEnd, text,
 	        (searchFlags & SCFIND_MATCHCASE) != 0,
 	        (searchFlags & SCFIND_WHOLEWORD) != 0,
 	        (searchFlags & SCFIND_WORDSTART) != 0,
 	        (searchFlags & SCFIND_REGEXP) != 0,
 	        searchFlags,
-	        &lengthFound,
-			pcf.get());
+	        &lengthFound);
 	if (pos != -1) {
 		targetStart = pos;
 		targetEnd = pos + lengthFound;
@@ -5887,11 +5908,11 @@ void Editor::CopySelectionRange(SelectionText *ss, bool allowLineCopy) {
 			char *textWithEndl = new char[textLen];
 			textWithEndl[0] = '\0';
 			if (text)
-				strncat(textWithEndl, text, textLen);
+				strcat(textWithEndl, text);
 			if (pdoc->eolMode != SC_EOL_LF)
-				strncat(textWithEndl, "\r", textLen);
+				strcat(textWithEndl, "\r");
 			if (pdoc->eolMode != SC_EOL_CR)
-				strncat(textWithEndl, "\n", textLen);
+				strcat(textWithEndl, "\n");
 			ss->Set(textWithEndl, static_cast<int>(strlen(textWithEndl) + 1),
 				pdoc->dbcsCodePage, vs.styles[STYLE_DEFAULT].characterSet, false, true);
 			delete []text;
@@ -7071,6 +7092,7 @@ void Editor::StyleSetMessage(unsigned int iMessage, uptr_t wParam, sptr_t lParam
 		break;
 	case SCI_STYLESETCHARACTERSET:
 		vs.styles[wParam].characterSet = lParam;
+		pdoc->SetCaseFolder(NULL);
 		break;
 	case SCI_STYLESETVISIBLE:
 		vs.styles[wParam].visible = lParam != 0;
@@ -8049,8 +8071,9 @@ sptr_t Editor::WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam) {
 
 	case SCI_SETCODEPAGE:
 		if (ValidCodePage(wParam)) {
-			pdoc->dbcsCodePage = wParam;
-			InvalidateStyleRedraw();
+			if (pdoc->SetDBCSCodePage(wParam)) {
+				InvalidateStyleRedraw();
+			}
 		}
 		break;
 
@@ -8157,9 +8180,13 @@ sptr_t Editor::WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam) {
 		sizeRGBAImage.y = wParam;
 		break;
 
+	case SCI_RGBAIMAGESETSCALE:
+		scaleRGBAImage = wParam;
+		break;
+
 	case SCI_MARKERDEFINERGBAIMAGE:
 		if (wParam <= MARKER_MAX) {
-			vs.markers[wParam].SetRGBAImage(sizeRGBAImage, reinterpret_cast<unsigned char *>(lParam));
+			vs.markers[wParam].SetRGBAImage(sizeRGBAImage, scaleRGBAImage / 100.0, reinterpret_cast<unsigned char *>(lParam));
 			vs.CalcLargestMarkerHeight();
 		};
 		InvalidateStyleData();
@@ -8299,6 +8326,13 @@ sptr_t Editor::WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam) {
 		vs.showCaretLineBackground = wParam != 0;
 		InvalidateStyleRedraw();
 		break;
+	case SCI_GETCARETLINEVISIBLEALWAYS:
+		return vs.alwaysShowCaretLineBackground;
+	case SCI_SETCARETLINEVISIBLEALWAYS:
+		vs.alwaysShowCaretLineBackground = wParam != 0;
+		InvalidateStyleRedraw();
+		break;
+
 	case SCI_GETCARETLINEBACK:
 		return vs.caretLineBackground.AsLong();
 	case SCI_SETCARETLINEBACK:
@@ -8639,6 +8673,8 @@ sptr_t Editor::WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam) {
 	case SCI_VCHOMEEXTEND:
 	case SCI_VCHOMEWRAP:
 	case SCI_VCHOMEWRAPEXTEND:
+	case SCI_VCHOMEDISPLAY:
+	case SCI_VCHOMEDISPLAYEXTEND:
 	case SCI_ZOOMIN:
 	case SCI_ZOOMOUT:
 	case SCI_DELWORDLEFT:
@@ -9144,6 +9180,9 @@ sptr_t Editor::WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam) {
 
 	case SCI_GETSELECTIONS:
 		return sel.Count();
+
+	case SCI_GETSELECTIONEMPTY:
+		return sel.Empty();
 
 	case SCI_CLEARSELECTIONS:
 		sel.Clear();

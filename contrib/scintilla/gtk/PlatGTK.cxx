@@ -105,9 +105,11 @@ struct LOGFONT {
 static GMutex *fontMutex = NULL;
 
 static void InitializeGLIBThreads() {
+#if !GLIB_CHECK_VERSION(2,31,0)
 	if (!g_thread_supported()) {
 		g_thread_init(NULL);
 	}
+#endif
 }
 #endif
 
@@ -115,7 +117,12 @@ static void FontMutexAllocate() {
 #if USE_LOCK
 	if (!fontMutex) {
 		InitializeGLIBThreads();
+#if GLIB_CHECK_VERSION(2,31,0)
+		fontMutex = g_new(GMutex, 1);
+		g_mutex_init(fontMutex);
+#else
 		fontMutex = g_mutex_new();
+#endif
 	}
 #endif
 }
@@ -123,7 +130,12 @@ static void FontMutexAllocate() {
 static void FontMutexFree() {
 #if USE_LOCK
 	if (fontMutex) {
+#if GLIB_CHECK_VERSION(2,31,0)
+		g_mutex_clear(fontMutex);
+		g_free(fontMutex);
+#else
 		g_mutex_free(fontMutex);
+#endif
 		fontMutex = NULL;
 	}
 #endif
@@ -541,6 +553,8 @@ void SurfaceImpl::Init(SurfaceID sid, WindowID wid) {
 	PLATFORM_ASSERT(wid);
 	context = cairo_reference(reinterpret_cast<cairo_t *>(sid));
 	pcontext = gtk_widget_create_pango_context(PWidget(wid));
+	// update the Pango context in case sid isn't the widget's surface
+	pango_cairo_update_context(context, pcontext);
 	layout = pango_layout_new(pcontext);
 	cairo_set_line_width(context, 1);
 	createdGC = true;
@@ -554,6 +568,8 @@ void SurfaceImpl::InitPixMap(int width, int height, Surface *surface_, WindowID 
 	PLATFORM_ASSERT(wid);
 	context = cairo_reference(surfImpl->context);
 	pcontext = gtk_widget_create_pango_context(PWidget(wid));
+	// update the Pango context in case surface_ isn't the widget's surface
+	pango_cairo_update_context(context, pcontext);
 	PLATFORM_ASSERT(pcontext);
 	layout = pango_layout_new(pcontext);
 	PLATFORM_ASSERT(layout);
@@ -1858,7 +1874,7 @@ void ListBoxX::RegisterImage(int type, const char *xpm_data) {
 }
 
 void ListBoxX::RegisterRGBAImage(int type, int width, int height, const unsigned char *pixelsImage) {
-	RegisterRGBA(type, new RGBAImage(width, height, pixelsImage));
+	RegisterRGBA(type, new RGBAImage(width, height, 1.0, pixelsImage));
 }
 
 void ListBoxX::ClearRegisteredImages() {
