@@ -173,20 +173,18 @@ this.expandAbbrev = function expandAbbrev(abbrev /* =null */,
     if (typeof(sublang) == 'undefined') sublang = null;
 
     var currView = ko.views.manager.currentView;
-    var origPos = null;
-    var origAnchor = null;
     
     // Determine the abbrev to look for.
     var scimoz = currView.scimoz;
-    if (abbrev !== null) {
-        // pass
-    } else {
+    var koDoc = currView.koDoc;
+    var languageObj = koDoc.languageObj;
+    if (!abbrev) {
         var pos = scimoz.anchor;
         if (pos < scimoz.currentPos) {
             pos = scimoz.currentPos;
         }
         var prevPos = pos == 0 ? 0 : scimoz.positionBefore(pos);
-        var isHTMLLanguage = currView.koDoc.languageObj.isHTMLLanguage;
+        var isHTMLLanguage = languageObj.isHTMLLanguage;
         if (pos < scimoz.textLength
             && pos > 0
             && (scimoz.getStyleAt(prevPos) == scimoz.getStyleAt(pos)
@@ -206,20 +204,29 @@ this.expandAbbrev = function expandAbbrev(abbrev /* =null */,
                     "abbrev", 5000, false);
                 return false;
             }
-            origPos = pos;
-            origAnchor = scimoz.anchor;
-            var wordStartPos = this.getWordStart(scimoz, prevPos, isHTMLLanguage);
-            scimoz.currentPos = wordStartPos;
-            scimoz.anchor = pos;
         }
-        abbrev = scimoz.selText;
+        var wordStartPos = this.getWordStart(scimoz, prevPos, isHTMLLanguage);
+        abbrev = scimoz.getTextRange(wordStartPos, pos);
     }
-    
-    // Find the snippet for this abbrev, if any, and insert it.
-    var snippet = ko.abbrev.findAbbrevSnippet(abbrev, lang, sublang,
-                                              /*isAutoAbbrev=*/false);
+    if (!this._checkPossibleAbbreviation(abbrev)) {
+        return false;
+    }
+    if (!lang || !sublang) {
+        [lang, sublang, languageObj] = this._getLangAndSublangNames(koDoc, languageObj, prevPos);
+    }
+    if (!this._checkOpenTag(languageObj, scimoz, wordStartPos)) {
+        return false;
+    }
+    var snippet = this._getCachedSnippet(abbrev, lang, sublang,
+                                         /*isAutoAbbrev=*/false);
     var msg;
+    var origPos = null;
+    var origAnchor = null;
     if (snippet) {
+        origPos = pos;
+        origAnchor = scimoz.anchor;
+        scimoz.currentPos = wordStartPos;
+        scimoz.anchor = pos;
         if (ko.abbrev.insertAbbrevSnippet(snippet, currView)) {
             return true;
         } else {
@@ -279,48 +286,21 @@ this.expandAutoAbbreviation = function(currView) {
     }
     var wordStartPos = this.getWordStart(scimoz, prevPos, languageObj.isHTMLLanguage);
     var abbrev = scimoz.getTextRange(wordStartPos, currentPos);
-    try {
-        if (!(abbrev in this.activeAutoAbbreviations)) {
-            // Bug 96693: avoid database lookups when the term on the right
-            // is known not to be an auto-abbreviation (for any language)
-            return false;
-        }
-    } catch(ex) {
-        if (ex instanceof TypeError) {
-            this.log.warn("Never got a komodo-ui-started notification, do it now");
-            this._finish_initialize();
-            // And retry.
-            if (!(abbrev in this.activeAutoAbbreviations)) {
-                return false;
-            }
-        } else {
-            this.log.exception(ex, "Unexpected problem checking for abbrev in this.activeAutoAbbreviations");
-            return false;
-        }
+    if (!this._checkPossibleAbbreviation(abbrev)) {
+        return false;
     }
-    
-    
-    var abbrevInfo = this.activeAutoAbbreviations[abbrev];
-    var snippet = abbrevInfo[koDoc.language];
-    if (typeof(snippet) === "undefined") {
-        // Find the snippet for this abbrev, if any, and insert it.
-        // We know that the current abbrev is an auto-abbreviation for
-        // *some* language, here we check to see if it's valid for
-        // the current language.  If so, cache it.  If not, mark it as
-        // null, so subsequent occurrences of this word don't cause
-        // database lookups.
-        snippet = ko.abbrev.findAbbrevSnippet(abbrev,
-                                              /*lang=*/ null,
-                                              /*sublang=*/ null,
-                                              /*isAutoAbbrev=*/ true);
-        if (snippet) {
-            // Cache the snippet until the next time anything in the
-            // toolbox changes.
-            abbrevInfo[koDoc.language] = snippet;
-        } else {
-            abbrevInfo[koDoc.language] = null;
-        }
+    // At this point we might need to shift from the global doc language
+    // to the sub-language at the current point.
+    var languageName, subLanguageName;
+    [languageName, subLanguageName, languageObj] = this._getLangAndSublangNames(koDoc, languageObj, prevPos)
+    if (!this._checkOpenTag(languageObj, scimoz, wordStartPos)) {
+        return false;
     }
+    if (!this._checkPossibleAbbreviation(abbrev)) {
+        return false;
+    }
+    var snippet = this._getCachedSnippet(abbrev, languageName, subLanguageName,
+                                         /*isAutoAbbrev=*/true);
     if (snippet) {
         var origPos = currentPos;
         var origAnchor = scimoz.anchor;
@@ -429,6 +409,89 @@ this.insertAbbrevSnippet = function(snippet, view /* =<curr view> */) {
     return true;
 }
 
+this._checkPossibleAbbreviation = function _checkPossibleAbbreviation(abbrev) {
+    try {
+        if (!(abbrev in this.activeAutoAbbreviations)) {
+            // Bug 96693: avoid database lookups when the term on the right
+            // is known not to be an auto-abbreviation (for any language)
+            return false;
+        }
+    } catch(ex) {
+        if (ex instanceof TypeError) {
+            this.log.warn("Never got a komodo-ui-started notification, do it now");
+            this._finish_initialize();
+            // And retry.
+            if (!(abbrev in this.activeAutoAbbreviations)) {
+                return false;
+            }
+        } else {
+            this.log.exception(ex, "Unexpected problem checking for abbrev in this.activeAutoAbbreviations");
+            return false;
+        }
+    }
+    return true;
+};
+
+this._getLangAndSublangNames = function _getLangAndSublangNames(koDoc, languageObj, prevPos) {
+/**
+ * Given the current view, language, and position, determine whether we're
+ * at the top-level language, or are looking at a sublanguage.
+ * @returns @array [ languageName {String}, subLanguageName {String},
+ *                   languageObj { koILanguage }]
+ * If the actual subLanguageName is the same as languageName,
+ * the returned subLanguageName is nulil.
+ */
+    var languageName = koDoc.language;
+    var subLanguageName = null;
+    if (koDoc.subLanguage != languageName) {
+        subLanguageName = koDoc.languageForPosition(prevPos);
+        languageObj = Components.classes["@activestate.com/koLanguageRegistryService;1"]
+            .getService(Components.interfaces.koILanguageRegistryService).getLanguage(subLanguageName);
+    }
+    return [languageName, subLanguageName, languageObj];
+};
+
+this._checkOpenTag = function _checkOpenTag(languageObj, scimoz, wordStartPos) {
+    if (languageObj.supportsSmartIndent != "XML") {
+        return true; // it's ok
+    }
+    var wordStartStyle = scimoz.getStyleAt(wordStartPos);
+    if (wordStartStyle != scimoz.SCE_UDL_M_TAGNAME) {
+        // Must be a plain style, so it's expandable.
+        return true; // it's ok
+    }
+    // Verify that it starts with a start-tag-open ("<").
+    var prevPrevPos = scimoz.positionBefore(wordStartPos);
+    return scimoz.getStyleAt(prevPrevPos) == scimoz.SCE_UDL_M_STAGO;
+};
+
+this._getCachedSnippet = function _getCachedSnippet(abbrev, lang, sublang,
+                                                    isAutoAbbrev) {
+    var abbrevInfo = this.activeAutoAbbreviations[abbrev];
+    var langKey = (sublang || lang) + ":" + (isAutoAbbrev ? "1" : "0");
+    var snippet = abbrevInfo[langKey];
+    if (typeof(snippet) !== "undefined") {
+        return snippet;
+    }
+    // Find the snippet for this abbrev, if any, and insert it.
+    // We know that the current abbrev is an auto-abbreviation for
+    // *some* language, here we check to see if it's valid for
+    // the current language.  If so, cache it.  If not, mark it as
+    // null, so subsequent occurrences of this word don't cause
+    // database lookups.
+    snippet = ko.abbrev.findAbbrevSnippet(abbrev,
+                                          lang,
+                                          sublang,
+                                          isAutoAbbrev);
+    if (snippet) {
+        // Cache the snippet until the next time anything in the
+        // toolbox changes.
+        abbrevInfo[langKey] = snippet;
+    } else {
+        abbrevInfo[langKey] = null;
+    }
+    return snippet;
+};
 
 // Currently don't allow triggering at a whitespace char.
 function is_abbrev(s) {
