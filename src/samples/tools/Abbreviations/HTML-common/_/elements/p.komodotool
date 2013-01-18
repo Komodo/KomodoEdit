@@ -2,13 +2,8 @@
   "keyboard_shortcut": "", 
   "name": "p", 
   "value": [
-    "<% if (ko.snippets.checkIsLessThanPresent()) {%>",
-    "p class=\"[[%tabstop:classname]]\">[[%tabstop:]]</p>[[%tabstop:]]!@#_currentPos!@#_anchor",
-    "<%} else { %>",
-    "<p class=\"[[%tabstop:classname]]\">[[%tabstop:]]</p>[[%tabstop:]]!@#_currentPos!@#_anchor",
-    "<% } %>"
-
-
+    "<%= ko.snippets.HTML_emitLessThanIfNeeded()", 
+    "%>p class=\"[[%tabstop:classname]]\">[[%tabstop:]]</p>[[%tabstop:]]!@#_currentPos!@#_anchor"
   ], 
   "set_selection": "false", 
   "version": "1.0.11", 

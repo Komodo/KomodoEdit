@@ -2,11 +2,8 @@
   "keyboard_shortcut": "", 
   "name": "li", 
   "value": [
-    "<% if (ko.snippets.checkIsLessThanPresent()) {%>",
-    "li>[[%tabstop:]]</li>[[%tabstop:]]!@#_currentPos!@#_anchor",
-    "<%} else { %>",
-    "<li>[[%tabstop:]]</li>[[%tabstop:]]!@#_currentPos!@#_anchor",
-    "<% } %>"
+    "<%= ko.snippets.HTML_emitLessThanIfNeeded()", 
+    "%>li>[[%tabstop:]]</li>[[%tabstop:]]!@#_currentPos!@#_anchor"
   ], 
   "set_selection": "false", 
   "version": "1.0.11", 

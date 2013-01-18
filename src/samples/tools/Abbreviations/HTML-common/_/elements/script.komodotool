@@ -2,11 +2,8 @@
   "keyboard_shortcut": "", 
   "name": "script", 
   "value": [
-    "<% if (ko.snippets.checkIsLessThanPresent()) {%>",
-    "script type=\"application/x-javascript\"><![CDATA[",
-    "<%} else { %>",
-    "<script type=\"application/x-javascript\"><![CDATA[",
-    "<% } %>",
+    "<%= ko.snippets.HTML_emitLessThanIfNeeded()", 
+    "%>script type=\"application/x-javascript\"><![CDATA[", 
     "[[%tabstop:]]", 
     "//]]>", 
     "</script>!@#_currentPos!@#_anchor"

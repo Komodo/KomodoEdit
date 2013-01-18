@@ -50,6 +50,11 @@ if (typeof(ko.snippets)=='undefined') {
         var text = this.getTextLine();
         return this._leadingKeywordRE.test(text);
     };
+    this.verifyAtRightOfFirstRubyKeyword = function ko_snippet_verifyAtRightOfFirstRubyKeyword() {
+        if (!this.rightOfFirstRubyKeyword()) {
+            throw new ko.snippets.RejectedSnippet("not at start of line");
+        }
+    };
 
     this.inPythonClass =  function ko_snippet_inPythonClass() {
         // Move up, looking for a line that starts with 'class', but not 'def'
@@ -144,6 +149,20 @@ if (typeof(ko.snippets)=='undefined') {
             throw e;
         }
         return numReps;
+    };
+
+    this.HTML_checkIsLessThanPresent = function () {
+        // In abbrev.js, ko.abbrev._checkOpenTag verifies that if we're
+        // in an HTML/XML document, the char to the left of the
+        // cursor is either plain-text (SCE_UDL_M_DEFAULT),
+        // or that it's SCE_UDL_M_TAGNAME preceded by a "<"
+        var scimoz = ko.views.manager.currentView.scimoz;
+        var lastPos = scimoz.positionBefore(scimoz.selectionEnd);
+        return scimoz.getStyleAt(lastPos) === scimoz.SCE_UDL_M_TAGNAME;
+    };
+
+    this.HTML_emitLessThanIfNeeded = function () {
+        return this.HTML_checkIsLessThanPresent() ? "" : "<";
     };
 
 }).apply(ko.snippets);
