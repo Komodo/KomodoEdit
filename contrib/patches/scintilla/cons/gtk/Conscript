@@ -101,7 +101,7 @@ my @lexers = qw(
     HTML
     Inno
     Kix
-    LaTex
+    LaTeX
     Lisp
     Lout
     Lua
