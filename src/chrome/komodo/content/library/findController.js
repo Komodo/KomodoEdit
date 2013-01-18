@@ -380,6 +380,9 @@ FindController.prototype._startIncrementalSearch = function(backwards) {
     this._incrementalSearchContext = Cc["@activestate.com/koFindContext;1"]
                                        .createInstance(Ci.koIFindContext);
 
+    // bug 93040: If the pattern is empty, use the last search text
+    pattern = pattern || this._lastIncrementalSearchText;
+
     // Save original find settings
     this._origFindOptions = {
         "searchBackward":  this._findSvc.options.searchBackward,
