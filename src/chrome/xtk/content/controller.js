@@ -196,7 +196,9 @@ function ForwardingController__getControllerForCommand(aCommand) {
         if (controller instanceof Components.interfaces.nsIControllers) {
             for (let i = 0; i < controller.getControllerCount(); ++i) {
                 let subcontroller = controller.getControllerAt(i);
-                if (subcontroller.wrappedJSObject === this) {
+                if ("wrappedJSObject" in subcontroller &&
+                    subcontroller.wrappedJSObject === this)
+                {
                     continue;
                 }
                 flattendControllers.push(subcontroller);

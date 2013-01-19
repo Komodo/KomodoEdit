@@ -231,7 +231,7 @@ this.doCommand = function command_doCommand(command, options) {
     try {
         var controller = top.document.commandDispatcher.getControllerForCommand(command);
         if (controller) {
-            if (controller.wrappedJSObject) {
+            if ("wrappedJSObject" in controller) {
                 // unwrapping allows us to pass in extra arguments
                 controller = controller.wrappedJSObject;
             }

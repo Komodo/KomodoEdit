@@ -1273,6 +1273,10 @@ this.highlightAllMatches = function Find_HighlightAllMatches(scimoz, context, pa
     if (timeout <= 0) {
         timeout = 500;  /* When set to zero, use minimum of 1/2 a second. */
     }
+    if (!(context instanceof Components.interfaces.koIRangeFindContext)) {
+        // We don't have a range context; search the whole document
+        context = {startIndex: 0, endIndex: 0};
+    }
     return _findSvc.highlightall(scimoz,
                                  pattern,
                                  context.startIndex,
