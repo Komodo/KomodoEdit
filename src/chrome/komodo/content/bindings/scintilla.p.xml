@@ -961,6 +961,13 @@
                         }
                     }
                     if (addChar) {
+                        // fire an event about the character being added
+                        if (xtk && xtk.domutils) {
+                            xtk.domutils.fireDataEvent(this, "scintilla-add-char", {
+                                "pos": scimoz.currentPos,
+                                "charCode": event.charCode
+                            });
+                        }
                         scimoz.addChar(event.charCode);
                     } else if (scimoz.autoCActive()) {
                         // Do this to remove an interaction between
