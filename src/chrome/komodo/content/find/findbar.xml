@@ -181,9 +181,9 @@
           // Put our controller after the textbox's default controllers, so that
           // it can handle things like cursor movement, and we can handle things
           // it doesn't, like editor commands
-          this._textbox.controllers.appendController(new xtk.ForwardingController([this._textbox,
-                                                                                   this]));
-          controller.commandAliases.merge(xtk.ForwardingController.aliases_textEntry);
+          let forwarder = new xtk.ForwardingController([this._textbox, this]);
+          forwarder.commandAliases.merge(xtk.ForwardingController.aliases_textEntry);
+          this._textbox.controllers.appendController(forwarder);
           // Map newline-related commands to actually do find prev/next; this is
           // somewhat of a hack, but works close enough.
           controller.commandAliases.merge({
