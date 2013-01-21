@@ -475,6 +475,8 @@ class KoPythonCommonInfoEx(KoAppInfoEx):
             preferred_result = None
             # Versions will be a list of (version, regkey)
             versions = []
+            docKeys = ("Main Python Documentation",
+                       "Pythonwin Reference")
             for regkey in ("SOFTWARE\\Python\\PythonCore",
                            "SOFTWARE\\Wow6432Node\\Python\\PythonCore"):
                 try:
@@ -505,12 +507,20 @@ class KoPythonCommonInfoEx(KoAppInfoEx):
             versions.reverse()
             for version, regkey in versions:
                 try:
+                    helpFileKeyStr = "%s\\%s\\Help" % (regkey, version)
                     helpFileKey = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE,
-                        "%s\\%s\\Help\\Main Python Documentation" %
-                        (regkey, version))
-                    helpFile, keyType = _winreg.QueryValueEx(helpFileKey, "")
-                    if os.path.isfile(helpFile):
-                        return helpFile
+                                                  helpFileKeyStr)
+                    for docKeyStr in docKeys:
+                        try:
+                            docKey = _winreg.OpenKey(helpFileKey, docKeyStr)
+                        except WindowsError:
+                            continue
+                        try:
+                            helpFile, keyType = _winreg.QueryValueEx(docKey, "")
+                        except WindowsError:
+                            continue
+                        if os.path.isfile(helpFile):
+                            return helpFile
                 except EnvironmentError:
                     pass
             return None

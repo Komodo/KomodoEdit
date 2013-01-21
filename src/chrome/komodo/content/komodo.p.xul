@@ -1464,6 +1464,17 @@
                                     />
                                     <menuseparator/>
                                     <menuitem
+                                        id="menu_helpPython3Ref_Local"
+                                        label="&python3ReferenceLocal.label;"
+                                        observes="cmd_helpPython3Ref_Local"
+                                    />
+                                    <menuitem
+                                        id="menu_helpPython3Ref_Web"
+                                        label="&python3ReferenceWeb.label;"
+                                        observes="cmd_helpPython3Ref_Web"
+                                    />
+                                    <menuseparator/>
+                                    <menuitem
                                         id="menu_helpPHPRef_Web"
                                         label="&PHPReferenceWeb.label;"
                                         observes="cmd_helpPHPRef_Web"

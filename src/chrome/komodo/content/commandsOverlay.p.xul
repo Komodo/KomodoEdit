@@ -216,6 +216,14 @@
             oncommand="ko.commands.doCommandAsync('cmd_helpPythonMailingLists', event);"
             desc="&helpPythonMailingLists.desc;"/>
         <command
+            id="cmd_helpPython3Ref_Local" key="key_cmd_helpPython3Ref_Local"
+            oncommand="ko.commands.doCommandAsync('cmd_helpPython3Ref_Local', event);"
+            desc="&helpPython3ReferenceLocal.desc;"/>
+        <command
+            id="cmd_helpPython3Ref_Web" key="key_cmd_helpPython3Ref_Web"
+            oncommand="ko.commands.doCommandAsync('cmd_helpPython3Ref_Web', event);"
+            desc="&helpPython3ReferenceWeb.desc;"/>
+        <command
             id="cmd_helpPHPRef_Web" key="key_cmd_helpPHPRef_Web"
             oncommand="ko.commands.doCommandAsync('cmd_helpPHPRef_Web', event);"
             desc="&helpPHPReferenceWeb.desc;"/>

@@ -750,6 +750,8 @@
 <!ENTITY helpPythonMailingLists.desc "Help: Python Mailing Lists">
 <!ENTITY helpPythonReferenceLocal.desc "Help: Python Reference (Local)">
 <!ENTITY helpPythonReferenceWeb.desc "Help: Python Reference (Web)">
+<!ENTITY helpPython3ReferenceLocal.desc "Help: Python3 Reference (Local)">
+<!ENTITY helpPython3ReferenceWeb.desc "Help: Python3 Reference (Web)">
 <!ENTITY helpPHPMailingLists.desc "Help: PHP Mailing Lists">
 <!ENTITY helpPHPReferenceWeb.desc "Help: PHP Reference (Web)">
 <!ENTITY helpRubyMailingLists.desc "Help: Ruby Mailing Lists">
@@ -766,6 +768,8 @@
 <!ENTITY pythonMailingLists.label "Python Mailing Lists">
 <!ENTITY pythonReferenceLocal.label "Python Reference (local)">
 <!ENTITY pythonReferenceWeb.label "Python Reference (web)">
+<!ENTITY python3ReferenceLocal.label "Python3 Reference (local)">
+<!ENTITY python3ReferenceWeb.label "Python3 Reference (web)">
 <!ENTITY PHPMailingLists.label "PHP Mailing Lists">
 <!ENTITY PHPReferenceWeb.label "PHP Reference (web)">
 <!ENTITY rubyMailingLists.label "Ruby Mailing Lists">

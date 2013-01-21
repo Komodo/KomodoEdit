@@ -70,6 +70,9 @@ var handlers = {
     'cmd_helpPythonRef_Local': 'ko.browse.localHelp("Python")',
     'cmd_helpPythonRef_Web': 'ko.browse.webHelp("Python")',
     'cmd_helpPythonMailingLists': 'ko.browse.aspnMailingList("Python")',
+    'cmd_helpPython3Ref_Local': 'ko.browse.localHelp("Python3")',
+    'cmd_helpPython3Ref_Web': 'ko.browse.webHelp("Python3")',
+    // No mailing lists for python3
     'cmd_helpPHPRef_Web': 'ko.browse.webHelp("PHP")',
     'cmd_helpPHPMailingLists': 'ko.browse.aspnMailingList("PHP")',
     'cmd_helpRubyRef_Web': 'ko.browse.webHelp("Ruby")',
