@@ -209,6 +209,18 @@ this.updateHelpLanguagesPopup = function browse_UpdateHelpLanguagesPopup() {
     } else {
         pythonWidget.setAttribute("hidden", true);
         pythonWidget.setAttribute("collapsed", true);
+    }    
+
+    pythonInfoSvc = Components.classes['@activestate.com/koAppInfoEx?app=Python3;1'].
+                        getService(Components.interfaces.koIAppInfoEx);
+    pythonWidget = document.getElementById("menu_helpPython3Ref_Local");
+    pythonHelpFile = pythonInfoSvc.localHelpFile;
+    if (pythonHelpFile) {
+        pythonWidget.removeAttribute("hidden");
+        pythonWidget.removeAttribute("collapsed");
+    } else {
+        pythonWidget.setAttribute("hidden", true);
+        pythonWidget.setAttribute("collapsed", true);
     }
 
     var tclInfoSvc = Components.classes['@activestate.com/koAppInfoEx?app=Tcl;1'].
