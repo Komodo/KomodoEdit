@@ -31,9 +31,7 @@ static char *getClipStr(NPWindow *win, char *buf) {
 	  win->clipRect.bottom);
   return buf;
 }
-#endif
 
-#ifdef SCIMOZ_COCOA_DEBUG
 static char *getRectStr(NPWindow *win, char *buf) {
   sprintf(buf, "x:%d, y:%d w:%d, h:%d",
 	  win->x,
@@ -42,9 +40,7 @@ static char *getRectStr(NPWindow *win, char *buf) {
 	  win->height);
   return buf;
 }
-#endif
 
-#ifdef SCIMOZ_COCOA_DEBUG
 static char *getNSRectStr(NSRect rect, char *buf) {
   sprintf(buf, "x:%g, y:%g w:%g, h:%g",
 	  rect.origin.x,
