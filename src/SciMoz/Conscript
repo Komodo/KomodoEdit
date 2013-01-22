@@ -50,6 +50,7 @@
 Import(
     'cons',
     'platform',
+    'platformPathSep',
     'build',
     'buildType',
     'ranRegxpcomStateFileName',
@@ -521,8 +522,9 @@ my $dllNameIME;
 $consIME{'CPPPATH'} = [
     "$scintillaBuildDir/include",
     "$scintillaBuildDir/lexlib",
-    "$mozDevelDist/include",
+    split($platformPathSep, $mozIncludePath),
     ".."];
+
 $consIME{'CXXFLAGS'} .= " -DMOZ_VERSION=$mozVersionNumber";
 if ($platform eq "win") {
     $dllNameIME = 'koSciMozIMEHelper.dll';
