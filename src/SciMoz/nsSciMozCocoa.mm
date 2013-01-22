@@ -56,6 +56,9 @@ static char *getNSRectStr(NSRect rect, char *buf) {
 				   a->clipRect.right  <= a->clipRect.left))
 
 void SciMoz::PlatformCreate(WinID) {
+  SendEditor(SCI_USEPOPUP, FALSE, 0);
+  SendEditor(SCI_SETFOCUS, FALSE, 0);
+  scintilla->RegisterNotifyCallback((intptr_t)this, (SciNotifyFunc)SciMoz::NotifySignal);
 }
 
 void SciMoz::Resize() {
@@ -80,6 +83,7 @@ void SciMoz::Resize() {
 	  getNSRectStr([scView frame], &buf[40]));
 #endif
   [scView setFrame:[parentView bounds]];
+  scintilla->Resize();
 #ifdef SCIMOZ_COCOA_DEBUG
   fprintf(stderr, "<< SciMoz::Resize, manually set scView frame to parent's bounds\n");
 #endif
@@ -244,12 +248,25 @@ nsresult SciMoz::PlatformSetWindow(NPWindow* npwindow) {
 #endif
   if (!npwindow || !npwindow->window) {
 #ifdef SCIMOZ_COCOA_DEBUG
-    fprintf(stderr, "SciMoz::PlatformSetWindow, called with %s, do nothing\n",
-	    npwindow ? "No npwindow->window" : "No npwindow???");
+    fprintf(stderr, "  %s\n", npwindow ? "No npwindow->window" : "No npwindow???");
 #endif
-    if (fPlatform.viewIsVisible) {
+    if (!wEditor) {
+      // Initialization of the plugin - no npwindow->window available yet.
 #ifdef SCIMOZ_COCOA_DEBUG
-      fprintf(stderr, "  fPlatform.viewIsVisible, time to remove\n");
+      fprintf(stderr, "    creating new scintilla view\n");
+#endif
+      NSRect winRect = NSMakeRect(0, 0, 200, 200); /* temporary size */
+      ScintillaView *scView = [[ScintillaView alloc] initWithFrame:winRect];
+      wEditor = [scView retain];
+      scintilla = [scView backend];
+#ifdef XP_MACOSX_USE_CORE_ANIMATION
+      // Get Scintilla to use layer backed views (for core animation).
+      [scView setWantsLayer: YES];
+#endif
+      Create(wEditor);
+    } else if (fPlatform.viewIsVisible) {
+#ifdef SCIMOZ_COCOA_DEBUG
+      fprintf(stderr, "    fPlatform.viewIsVisible, time to hide it\n");
 #endif
       HideScintillaView(true);
     }
@@ -273,12 +290,8 @@ nsresult SciMoz::PlatformSetWindow(NPWindow* npwindow) {
     fprintf(stderr, "fWindow == npwindow: %d\n",
 	    fWindow == npwindow);
 #endif
-    Resize();
-#ifdef SCIMOZ_COCOA_DEBUG
-	//fprintf(stderr, "-scintilla->Resize()\n");
-#endif
-    scintilla->Resize();
     HideScintillaView(WINDOW_DISABLED(fWindow));
+    Resize();
     return NS_OK;
   }
 
@@ -299,42 +312,29 @@ nsresult SciMoz::PlatformSetWindow(NPWindow* npwindow) {
 	  getNSRectStr([mainView frame],  &buf[80]));
 #endif
 
-  // Initialize the plugin and tie it to the given window.
+  // Tie the plugin to the given window and make it visible.
   assert(fWindow == NULL);
   assert(npwindow->window);
+  assert(scintilla != NULL);
   // Position scView at its parent's origin.
-  NSRect winRect = NSMakeRect(0, 0, npwindow->width, npwindow->height);
-  ScintillaView *scView = [[ScintillaView alloc] initWithFrame:winRect];
+  ScintillaView *scView = wEditor;
   if (!scView) {
 #ifdef SCIMOZ_COCOA_DEBUG
     fprintf(stderr, "No memory for a ScintillaView\n");
 #endif
     return NS_ERROR_FAILURE;
   }
-#ifdef XP_MACOSX_USE_CORE_ANIMATION
-  // Get Scintilla to use layer backed views (for core animation).
-  [scView setWantsLayer: YES];
-#endif
   fWindow = npwindow;
   portMain = npwindow->window;
   wMain = (NSView *)npwindow->window;
   [(NSView *)wMain addSubview:scView];
-  wEditor = [scView retain];
+
   [scView setAutoresizesSubviews: YES];
   [scView setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
 
-  scintilla = [scView backend];
-  assert(scintilla != NULL);
-  if (wEditor) {
-#ifdef SCIMOZ_COCOA_DEBUG
-    fprintf(stderr, "OK, we have an unhooked scintillaView object\n");
-#endif
-  }
-  Create(wEditor);
   HideScintillaView(false);
-  SendEditor(SCI_USEPOPUP, FALSE, 0);
-  SendEditor(SCI_SETFOCUS, FALSE, 0);
-  scintilla->RegisterNotifyCallback((intptr_t)this, (SciNotifyFunc)SciMoz::NotifySignal);
+  Resize();
+
   //fprintf(stderr, "<< SciMoz::PlatformSetWindow\n");
   return NS_OK;
 }
