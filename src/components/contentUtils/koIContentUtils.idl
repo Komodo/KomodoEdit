@@ -20,5 +20,4 @@ interface koIContentUtils: nsISupports
 {
     nsIDocShell GetDocShellFromCaller();
     nsIDOMWindow GetWindowFromCaller();
-    nsIDOMDocument GetDocumentFromCaller();
 };

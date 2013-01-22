@@ -111,40 +111,6 @@ koContentUtils::GetStaticScriptGlobal(JSContext* aContext, JSObject* aObj)
   return sgo;
 }
 
-nsIDOMDocument *
-koContentUtils::GetDocumentFromCaller()
-{
-  JSContext *cx = nullptr;
-  sThreadJSContextStack->Peek(&cx);
-
-  nsIDOMDocument *doc = nullptr;
-
-  if (cx) {
-    JSObject *callee = nullptr;
-    JSStackFrame *fp = nullptr;
-    while (!callee && (fp = ::JS_FrameIterator(cx, &fp))) {
-      callee = ::JS_GetFrameCalleeObject(cx, fp);
-    }
-
-    nsCOMPtr<nsPIDOMWindow> win =
-      do_QueryInterface(GetStaticScriptGlobal(cx, callee));
-    if (win) {
-      doc = win->GetExtantDocument();
-    }
-  }
-
-  return doc;
-}
-
-NS_IMETHODIMP koContentUtils::GetDocumentFromCaller(nsIDOMDocument **callingDoc)
-{
-    NS_ENSURE_ARG_POINTER(callingDoc);
-  
-    *callingDoc = GetDocumentFromCaller();
-    NS_IF_ADDREF(*callingDoc);
-    return NS_OK;
-}
-
 nsIScriptGlobalObject *
 koContentUtils::GetDynamicScriptGlobal(JSContext* aContext)
 {
