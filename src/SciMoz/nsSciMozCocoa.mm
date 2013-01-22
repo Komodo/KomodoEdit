@@ -63,6 +63,14 @@ void SciMoz::Resize() {
   char buf[80];
   fprintf(stderr, ">> SciMoz::Resize, wEditor:%p, wMain:%p\n", wEditor, wMain);
 #endif
+
+  if (!fPlatform.viewIsVisible) {
+#ifdef SCIMOZ_COCOA_DEBUG
+    fprintf(stderr, "SciMoz::Resize: not visible - ignoring\n");
+#endif
+    return;
+  }
+
   // Get the bounds for plugin view.
   NSView *parentView = (NSView*)wMain;
   ScintillaView *scView = (ScintillaView *) wEditor;
