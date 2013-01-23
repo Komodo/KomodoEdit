@@ -2,7 +2,7 @@
 # User: nautilebleu
 # Link: http://www.kolormodo.com/scheme/preview/56001/nautilusunderwater
 
-Version = 7
+Version = 8
 
 Booleans = {'caretLineVisible': True, 'preferFixed': True, 'useSelFore': False}
 

@@ -2,7 +2,7 @@
 # User: lajevardi
 # Link: http://www.kolormodo.com/scheme/preview/122001/obliv
 
-Version = 7
+Version = 8
 
 Booleans = {'caretLineVisible': True, 'preferFixed': True, 'useSelFore': False}
 
