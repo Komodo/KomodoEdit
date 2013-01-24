@@ -71,6 +71,26 @@ _leading_ws_re = re.compile(r'(\s*)')
 def _getUserPath():
     return koprocessutils.getUserEnv()["PATH"].split(os.pathsep)
 
+def _localTmpFileName(cwd):
+    """
+    Try to find a temporary filename that doesn't exist.
+    Note that there is a race condition here (testing for 
+    file's non-existence succeeds, then the file is created
+    by an external event or another thread, and then this
+    routine returns the file's name.
+    """
+    for i in range(100):
+        # Allow for collisions
+        baseName = os.path.basename(tempfile.mktemp() + '.py')
+        if cwd:
+            finalName = os.path.join(cwd, baseName)
+        else:
+            finalName =  baseName
+        if not os.path.exists(finalName):
+            return finalName
+    # Give up, return whatever name we last saw
+    return finalName
+
 class _GenericPythonLinter(object):
     _com_interfaces_ = [components.interfaces.koILinter]
 
@@ -114,14 +134,13 @@ class KoPythonCommonPyLintChecker(_GenericPythonLinter):
         pythonExe = self._pythonInfo.getExecutableFromDocument(request.koDoc)
         if not pythonExe:
             return
-        tmpBaseName = tempfile.mktemp()
-        tmpfilename = tmpBaseName + '.py'
-        tmpBaseName = os.path.basename(tmpBaseName)
+        cwd = request.cwd
+        tmpfilename = _localTmpFileName(cwd)
+        tmpBaseName = os.path.basename(tmpfilename)
         fout = open(tmpfilename, 'wb')
         fout.write(text)
         fout.close()
         textlines = text.splitlines()
-        cwd = request.cwd
         env = self._get_fixed_env(prefset)
         rcfilePath = prefset.getStringPref(self.rcfile_prefname)
         if rcfilePath and os.path.exists(rcfilePath):
@@ -248,12 +267,12 @@ class KoPythonCommonPyflakesChecker(_GenericPythonLinter):
         pythonExe = self._pythonInfo.getExecutableFromDocument(request.koDoc)
         if not pythonExe:
             return
-        tmpfilename = tempfile.mktemp() + '.py'
+        cwd = request.cwd
+        tmpfilename = _localTmpFileName(cwd)
         fout = open(tmpfilename, 'wb')
         fout.write(text)
         fout.close()
         textlines = text.splitlines()
-        cwd = request.cwd
         env = self._get_fixed_env(prefset)
         try:
             checkerExe = which.which("pyflakes", path=_getUserPath())
@@ -325,12 +344,12 @@ class KoPythonCommonPycheckerLinter(_GenericPythonLinter):
                 pychecker = pychecker + ".exe"
         if not os.path.exists(pychecker):
             return
-        tmpfilename = tempfile.mktemp() + '.py'
+        cwd = request.cwd
+        tmpfilename = _localTmpFileName(cwd)
         fout = open(tmpfilename, 'wb')
         fout.write(text)
         fout.close()
         textlines = text.splitlines()
-        cwd = request.cwd
         env = self._get_fixed_env(prefset)
         rcfilePath = prefset.getStringPref(self.rcfile_prefname)
         if rcfilePath and os.path.exists(rcfilePath):
@@ -523,7 +542,8 @@ class KoPythonCommonLinter(_GenericPythonLinter):
                 leadingWS = None
 
             # Save the current buffer to a temporary file.
-            tmpFileName = tempfile.mktemp()
+            cwd = cwd or None
+            tmpFileName = _localTmpFileName(cwd)
             fout = open(tmpFileName, 'wb')
             fout.write(text)
             fout.close()
@@ -535,7 +555,6 @@ class KoPythonCommonLinter(_GenericPythonLinter):
                 #sys.stdout.write(text)
                 #print "-"*70
     
-                cwd = cwd or None
                 env = self._get_fixed_env(prefset)
                 if sys.platform.startswith("win") and cwd is not None\
                    and cwd.startswith("\\\\"):
