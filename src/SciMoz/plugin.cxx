@@ -345,7 +345,7 @@ NPP_URLNotify(NPP /*instance*/, const char* /*URL*/, NPReason /*reason*/, void* 
 }
 
 NPError
-NPP_SetValue(NPP /*instance*/, NPNVariable /*variable*/, void */*value*/) {
+NPP_SetValue(NPP /*instance*/, NPNVariable /*variable*/, void * /*value*/) {
   return NPERR_GENERIC_ERROR;
 }
 
@@ -440,7 +440,7 @@ SciMozScriptableNPObject::~SciMozScriptableNPObject()
 }
 
 // static
-NPObject* SciMozScriptableNPObject::Allocate(NPP npp, NPClass */*aClass*/) {
+NPObject* SciMozScriptableNPObject::Allocate(NPP npp, NPClass * /*aClass*/) {
     return new SciMozScriptableNPObject(npp);
 }
 
@@ -488,7 +488,7 @@ bool SciMozScriptableNPObject::Invoke(NPIdentifier name, const NPVariant *args, 
 bool SciMozScriptableNPObject::_InvokeDefault(NPObject *obj, const NPVariant *args, uint32_t argCount, NPVariant *result) {
     return ((SciMozScriptableNPObject*)obj)->InvokeDefault(args, argCount, result);
 }
-bool SciMozScriptableNPObject::InvokeDefault(const NPVariant */*args*/, uint32_t /*argCount*/, NPVariant */*result*/) {
+bool SciMozScriptableNPObject::InvokeDefault(const NPVariant * /*args*/, uint32_t /*argCount*/, NPVariant * /*result*/) {
     return false;
 }
 
@@ -535,7 +535,7 @@ bool SciMozScriptableNPObject::RemoveProperty(NPIdentifier /*name*/) {
 bool SciMozScriptableNPObject::_Enumerate(NPObject *obj, NPIdentifier **identifier, uint32_t *count) {
     return ((SciMozScriptableNPObject*)obj)->Enumerate(identifier, count);
 }
-bool SciMozScriptableNPObject::Enumerate(NPIdentifier **/*identifier*/, uint32_t */*count*/) {
+bool SciMozScriptableNPObject::Enumerate(NPIdentifier ** /*identifier*/, uint32_t * /*count*/) {
     return false;
 }
 
@@ -543,7 +543,7 @@ bool SciMozScriptableNPObject::Enumerate(NPIdentifier **/*identifier*/, uint32_t
 bool SciMozScriptableNPObject::_Construct(NPObject *obj, const NPVariant *args, uint32_t argCount, NPVariant *result) {
     return ((SciMozScriptableNPObject*)obj)->Construct(args, argCount, result);
 }
-bool SciMozScriptableNPObject::Construct(const NPVariant */*args*/, uint32_t /*argCount*/, NPVariant */*result*/) {
+bool SciMozScriptableNPObject::Construct(const NPVariant * /*args*/, uint32_t /*argCount*/, NPVariant * /*result*/) {
     return false;
 }
 
