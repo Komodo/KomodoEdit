@@ -50,17 +50,11 @@ try:
     icons = os.path.normpath(os.path.join(os.getcwd(), sys.argv[2]))
     os.chdir(icons)
     print "icons are in ",icons
-    for f in sorted(os.listdir(icons)):
-        extension = os.path.splitext(f)[-1].lower()
+    for fname in sorted(os.listdir(icons)):
+        extension = os.path.splitext(fname)[-1].lower()
         if extension in extensions:
-            fname = re.sub("[^a-zA-Z0-9\s\.-]","",f)
-            fname = re.sub("\s+", "-", fname)
-            
             content.append(imgtemplate % {'fname': fname})
             
-            if f != fname:
-                os.rename(f, fname)
-                
             file = open(fname)
             fileContents = file.read()
             file.close()
