@@ -348,6 +348,21 @@ interface koIRunProcess: nsISupports {
     readonly attribute wstring uuid;
 };
 
+[function, scriptable, uuid(b12cafa0-1d80-40d2-aace-8769bae616f6)]
+interface koIRunAsyncCallback: nsISupports {
+        /**
+         * Callback handler for the RunAsync command - called when the process
+         * finishes.
+         *
+         * @param command - The original command that was run.
+         * @param returncode - The exitcode of the finished process.
+         * @param stdout - The stdout output from the process.
+         * @param stderr - The stderr output from the process.
+         */
+    void callback(in wstring command, in long returncode,
+                  in AString stdout, in AString stderr);
+};
+
 [scriptable, uuid(6D22AC55-BD4F-455e-9A80-A820FD8190EE)]
 interface koIRunService : nsISupports {
     // Encode/decode a command (and all options) into a string for use
@@ -465,6 +480,32 @@ interface koIRunService : nsISupports {
          */
     koIRunProcess RunAndNotify(in wstring command, in wstring cwd,
                                in wstring env, in AString input);
+
+
+        /**
+         * Starts running the given command and then returns immediately. If a
+         * callback object is given, it will be called when the process has
+         * finished.
+         *
+         * @param command {string}  The command string to run.
+         * @param callback {koIRunAsyncCallback}  The callback handler to be
+         *                      called at process completion.
+         * @param cwd {string}  The dir in which to run the command ('' or null
+         *                      to inherit from parent).
+         * @param env {string}  A string representing environment changes to
+         *                      make for the child process, these are to be
+         *                      merged in with the parent environment. The
+         *                      format is: VAR1=value1\nVAR2=value2\n...
+         * @param input {string}  If supplied, then the command is run via
+         *                        "command < input", where the input is placed
+         *                        in a temporary file and redirected to stdin.
+         * @returns {Components.interfaces.koIRunProcess}  The process handle.
+         */
+    koIRunProcess RunAsync(in wstring command,
+                           [optional] in koIRunAsyncCallback callback,
+                           [optional] in wstring cwd,
+                           [optional] in wstring env,
+                           [optional] in AString input);
 };
 
 

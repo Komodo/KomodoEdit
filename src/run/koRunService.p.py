@@ -1151,6 +1151,56 @@ class KoRunService:
         t.start()
         return child
 
+    def _WaitAndCallback(self, child, command, callbackHandler, input):
+        stdout, stderr = child.communicate(input)
+        returncode = child.wait()
+
+        # Notify callback of process termination.
+        if callbackHandler is not None:
+            try:
+                callbackHandler.callback(command, returncode, stdout, stderr)
+            except COMException, e:
+                log.warn("RunAsync: callback failed: %s, command %r",
+                         str(e), command)
+
+    def RunAsync(self, command, callbackHandler=None, cwd=None, env=None, input=None):
+        """Run the given command, returning the process object immediately, and
+        later call the callback object when the process terminates.
+        """
+        #print "KoRunService.RunAsync(command=%r, callback=%r, cwd=%r, "\
+        #      "env=%r, input=%r)" % (command, callback, cwd, env, input)
+        if not cwd: # Allow cwd="".
+            cwd = None
+        elif cwd.startswith('~'):
+            cwd = os.path.expanduser(cwd)
+        if not env:
+            env = ""
+        envDict = self._getEnvDictFromString(env)
+        envDict = self._mergeEnvWithParent(envDict)
+        # The process library requires that all env strings be ASCII
+        # or all Unicode. We'll just make them all Unicode for now.
+        #XXX This unicode conversion may not be necessary since
+        #    _SaferCreateProcess in process.py.
+        uEnvDict = {}
+        for key, val in envDict.items():
+            uEnvDict[unicode(key)] = unicode(val)
+        envDict = uEnvDict
+
+        try:
+            child = runutils.KoRunProcess(command, cwd=cwd, env=envDict)
+        except process.ProcessError, ex:
+            self.lastErrorSvc.setLastError(ex.errno, str(ex))
+            raise ServerException(nsError.NS_ERROR_FAILURE, str(ex))
+
+        t = threading.Thread(target=self._WaitAndCallback,
+                             kwargs={'child': child,
+                                     'command': command,
+                                     'callbackHandler': callbackHandler,
+                                     'input': input})
+        t.setDaemon(True)
+        t.start()
+        return child
+
 
 class KoRunEnvView(TreeView):
     _com_interfaces_ = [components.interfaces.koIRunEnvView,
