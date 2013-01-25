@@ -85,7 +85,8 @@ keywords [
                 "FLOAT", "STRING",  "OBJECT", "BOOL", "BOOLEAN",
                 "THIS", "VIRTUAL", "PARENT", "NULL",
                 # general keywords
-                "and", "or", "xor", "__file__", "__line__",
+                "and", "or", "xor",
+                "__file__", "__line__", "__function__", "__class__",
                 "array", "as", "break", "case", "cfunction",
                 "class", "const", "continue", "declare"
                 "default", "die", "do", "echo", "else",
@@ -95,12 +96,13 @@ keywords [
                 "if", "include", "include_once", "isset", "list",
                 "new", "old_function", "print", "require", "require_once",
                 "return", "static", "switch", "unset", "use",
-                "var", "while", "_function_", "_class_",
+                "var", "while",
                 # Hack to work around UDL's case sensitivity v's PHP's
                 # case-insensitivy.
                 "TRUE", "FALSE", "NULL",
                 # Uppercased general keywords
-                "AND", "OR", "XOR", "__FILE__", "__LINE__",
+                "AND", "OR", "XOR",
+                "__FILE__", "__LINE__", "__FUNCTION__", "__CLASS__",
                 "ARRAY", "AS", "BREAK", "CASE", "CFUNCTION",
                 "CLASS", "CONST", "CONTINUE", "DECLARE"
                 "DEFAULT", "DIE", "DO", "ECHO", "ELSE",
@@ -110,7 +112,7 @@ keywords [
                 "IF", "INCLUDE", "INCLUDE_ONCE", "ISSET", "LIST",
                 "NEW", "OLD_FUNCTION", "PRINT", "REQUIRE", "REQUIRE_ONCE",
                 "RETURN", "STATIC", "SWITCH", "UNSET", "USE",
-                "VAR", "WHILE", "_FUNCTION_", "_CLASS_",
+                "VAR", "WHILE",
                 # http://www.php.net/manual/en/reserved.constants.php
                 # Note: These constants should only be upper-case.
                 "PHP_VERSION",
