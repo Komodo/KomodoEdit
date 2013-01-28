@@ -155,4 +155,6 @@ interface koIOs : nsISupports {
     
     // Raises an exception and sets error on koILastErrorService on failure.
     void setWriteability(in wstring path, in boolean writeable);
+
+    void unsetenv(in wstring varname);
 };

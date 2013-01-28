@@ -396,3 +396,10 @@ class koOs(object):
             lastErrorSvc.setLastError(ex.errno, str(ex))
             raise
 
+    def unsetenv(self, varname):
+        try:
+            return os.unsetenv(varname)
+        except OSError, ex:
+            lastErrorSvc.setLastError(ex.errno, str(ex))
+            raise
+

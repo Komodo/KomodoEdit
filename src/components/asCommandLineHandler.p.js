@@ -292,7 +292,15 @@ komodoCmdLineHandler.prototype = {
         } catch (ex) { /* ignore exception, keep the path */ }
         return true;
       });
-      environ.set(key, vals.join(koOS.pathsep) || null);
+      let value = vals.join(koOS.pathsep) || null;
+      environ.set(key, value);
+      if (!value) {
+        // On Unix, setting they key to null does not remove it - bug 96589, so
+        // we must remove it using a specific unsetenv call. Note that
+        // os.unsetenv() will not affect os.environ, it's just a wrapper around
+        // C's unsetenv (if it's available).
+        koOS.unsetenv(key);
+      }
     }
   },
 
