@@ -1151,14 +1151,29 @@ class KoRunService:
         t.start()
         return child
 
-    def _WaitAndCallback(self, child, command, callbackHandler, input):
+    def _WaitAndCallback(self, child, command, callbackHandler, thread, input):
         stdout, stderr = child.communicate(input)
         returncode = child.wait()
 
         # Notify callback of process termination.
         if callbackHandler is not None:
+            class CallbackRunnable(object):
+                """Used to fire callback on the original thread."""
+                _com_interfaces_ = [components.interfaces.nsIRunnable]
+                def __init__(self, handler, command, returncode, stdout, stderr):
+                    self.handler = handler
+                    self.args = (command, returncode, stdout, stderr)
+                    self.result = None
+                def run(self, *args):
+                    self.result = self.handler.callback(*self.args)
+                    # Null out values.
+                    self.handler = None
+                    self.args = None
+            threadMgr = components.classes["@mozilla.org/thread-manager;1"]\
+                            .getService(components.interfaces.nsIThreadManager)
+            runnable = CallbackRunnable(callbackHandler, command, returncode, stdout, stderr)
             try:
-                callbackHandler.callback(command, returncode, stdout, stderr)
+                thread.dispatch(runnable, components.interfaces.nsIThread.DISPATCH_SYNC)
             except COMException, e:
                 log.warn("RunAsync: callback failed: %s, command %r",
                          str(e), command)
@@ -1192,10 +1207,13 @@ class KoRunService:
             self.lastErrorSvc.setLastError(ex.errno, str(ex))
             raise ServerException(nsError.NS_ERROR_FAILURE, str(ex))
 
+        threadMgr = components.classes["@mozilla.org/thread-manager;1"]\
+                        .getService(components.interfaces.nsIThreadManager)
         t = threading.Thread(target=self._WaitAndCallback,
                              kwargs={'child': child,
                                      'command': command,
                                      'callbackHandler': callbackHandler,
+                                     'thread': threadMgr.currentThread,
                                      'input': input})
         t.setDaemon(True)
         t.start()

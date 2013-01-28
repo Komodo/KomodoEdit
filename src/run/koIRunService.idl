@@ -487,6 +487,9 @@ interface koIRunService : nsISupports {
          * callback object is given, it will be called when the process has
          * finished.
          *
+         * Note: The callback will be fired on the same thread that RunAsync was
+         *       called (started) from.
+         *
          * @param command {string}  The command string to run.
          * @param callback {koIRunAsyncCallback}  The callback handler to be
          *                      called at process completion.
