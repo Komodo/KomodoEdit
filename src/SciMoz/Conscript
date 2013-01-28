@@ -278,7 +278,7 @@ elsif ($platform eq "darwin") {
 	"plugin.mm",
         "npn_gate.cpp",
 	"nsSciMoz.mm",
-	"nsSciMozMac.mm",
+	"nsSciMozCocoa.mm",
 	"sendscintilla.mm",
         "SciMozEvents.cxx",
 	);
