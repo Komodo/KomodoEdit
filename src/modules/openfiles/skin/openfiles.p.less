@@ -1,0 +1,131 @@
+@import url("chrome://komodo/skin/_config/window.less");
+
+#openfilesListbox
+{
+    -moz-appearance: none;
+    background: none;
+    margin: 5px 0 0;
+    
+    richlistitem
+    {
+        -moz-appearance: none;
+        background-color: inherit;
+        padding: 2px;
+    }
+    
+    richlistitem.file-item
+    {
+        label.file-title
+        {
+            font-size: 9pt;
+            margin-left: 3px;
+            margin-top: 0px;
+        }
+        
+        label.file-path
+        {
+            visibility: hidden;
+            opacity: 0.7;
+            font-size: 9pt;
+            margin-top: 0px;
+        }
+        
+        &.duplicate-name label.file-path
+        {
+            visibility: visible;
+        }
+        
+        image.file-icon
+        {
+            margin-left: 2px;
+            height: 16px;
+            max-height: 16px;
+        }
+        
+        toolbarbutton.file-close-button
+        {
+            -moz-appearance: none;
+            opacity: 0;
+            margin: 0 5px 0 0;
+            padding: 0;
+            list-style-image: url("chrome://global/skin/icons/close.png");
+            -moz-image-region: rect(0px, 16px, 16px, 0px);
+            -moz-transition: opacity 0.15s ease;
+            
+            &:hover
+            {
+                opacity: 1;
+                -moz-image-region: rect(0px, 32px, 16px, 16px);
+                border-color: transparent;
+            }
+            
+            &:focus
+            {
+                outline: none !important;
+            }
+            
+            &:active
+            {
+                -moz-image-region: rect(0px, 48px, 16px, 32px);
+            }
+        }
+        
+        &:hover
+        {
+            -moz-transition: background-color 0.15s ease;
+            -moz-transition: color 0.15s ease;
+            
+            background: rgba(0,0,0,0.05);
+            
+            toolbarbutton.file-close-button
+            {
+                opacity: 0.8;
+            }
+        }
+        
+        &[selected]
+        {
+            background: Highlight;
+            color: HighlightText;
+        }
+    }
+    
+    richlistitem.group-item
+    {
+        border-bottom: 1px solid rgba(0,0,0,0.1);
+        padding: 0;
+        margin: 0 5px;
+        
+        &.languageicon
+        {
+            //display: list-item;
+            //list-style-position: inside;
+        }
+        
+        &:not(:first-child)
+        {
+            margin-top: 5px;
+        }
+        
+        label
+        {
+            font-size: 8pt;
+            font-weight: bold;
+            color: @panel-label-color;
+            margin-left: 0;
+        }
+    }
+    
+    richlistitem.split-item
+    {
+        height: 1px;
+        border-top: 1px dashed rgba(0,0,0,0.3);
+        margin: 10px 10px 0;
+        padding: 0 0 5px;
+        
+        &:first-child, & > *
+        {
+            display: none;
+        }
+    }
+}

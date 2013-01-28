@@ -1,0 +1,9 @@
+#topview tabbox tabs
+{
+    visibility: collapse;
+}
+
+#topview.showTabs tabbox tabs
+{
+    visibility: visible;
+}

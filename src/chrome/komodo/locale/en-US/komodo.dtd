@@ -460,7 +460,7 @@
 <!ENTITY menuWatchThread.accesskey "W">
 <!ENTITY move.label "Move">
 <!ENTITY moveToOtherTabGroup.label "Move to Split View">
-<!ENTITY moveTabToNewWindow.label "Move Tab to a New Window">
+<!ENTITY moveTabToNewWindow.label "Move to a New Window">
 <!ENTITY navigation.menu.accesskey "N">
 <!ENTITY navigation.menu.label "Navigation">
 <!ENTITY new.label "New">
@@ -500,7 +500,7 @@
 <!ENTITY openThisProject.label "Open Project">
 <!ENTITY openThisProjectInNewWindow.label "Open Project In New Window">
 <!ENTITY openRemoteProject.label "Open Remote Project...">
-<!ENTITY openTabInNewWindow.label "Open Tab in a New Window">
+<!ENTITY openTabInNewWindow.label "Open in a New Window">
 <!ENTITY openURLInBrowser.label "Open URL In Browser">
 <!ENTITY openURLInTab.label "Open URL In Tab">
 <!ENTITY pageSetup.label "Page Setup">

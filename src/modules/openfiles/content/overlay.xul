@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<!-- Copyright (c) 2000-2012 ActiveState Software Inc. -->
+<!-- See the file LICENSE.txt for licensing information. -->
+<!DOCTYPE overlay PUBLIC "-//MOZILLA//DTD XUL V1.0//EN" "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % openfilesDTD SYSTEM "chrome://openfiles/locale/openfiles.dtd">
+  %openfilesDTD;
+  <!ENTITY % komodoDTD SYSTEM "chrome://komodo/locale/komodo.dtd">
+  %komodoDTD;
+]>
+
+<?xml-stylesheet href="chrome://openfiles/skin/komodo.css" type="text/css"?>
+ 
+<overlay id="openfilesOverlay"
+         xmlns:html="http://www.w3.org/1999/xhtml"
+         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  
+  <!-- ****************    Content    ****************** -->
+ 
+  <ko-pane id="workspace_left_area">
+    <browser type="ko-widget" id="openfilesViewbox" label="&openFiles.label;"
+             position="1" insertbefore="placesViewbox"
+             icon="chrome://icomoon/skin/icons/svg/files.svg"
+             src="chrome://openfiles/content/panel.xul"/>
+  </ko-pane>
+  
+  <broadcasterset id="broadcasterset_global">
+    <broadcaster id="cmd_toggleTabBar"
+                 key="key_cmd_toggleTabBar"
+                 desc="&toggleEditorTabs.label;"
+                 oncommand="ko.openfiles.toggleTabBar()"/>
+  </broadcasterset>
+  
+  <menupopup id="popup_view">
+    <menuitem
+        id="menu_toggleTabBar"
+        label="&toggleEditorTabs.label;"
+        observes="cmd_toggleTabBar"
+        position="3"
+        />
+  </menupopup>
+</overlay>

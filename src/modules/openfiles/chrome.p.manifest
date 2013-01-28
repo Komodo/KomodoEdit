@@ -1,0 +1,10 @@
+# #if MODE == "dev"
+content openfiles content/
+skin openfiles classic/1.0 skin/
+locale openfiles en-US locale/en-US/
+# #else
+content openfiles jar:openfiles.jar!/content/
+skin openfiles classic/1.0 jar:openfiles.jar!/skin/
+locale openfiles en-US jar:openfiles.jar!/locale/en-US/
+# #endif
+overlay chrome://komodo/content/komodo.xul chrome://openfiles/content/overlay.xul
