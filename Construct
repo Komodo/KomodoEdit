@@ -215,30 +215,10 @@ if ($platform eq "win") {
 $mozIncludeDir = "$mozDevelDist/include";
 $mozIncludePath = join($platformPathSep, 
                        ("$mozIncludeDir",
-                        "$mozIncludeDir/xulapp",
-                        "$mozIncludeDir/dom",
                         "$mozIncludeDir/nspr",
-                        "$mozIncludeDir/plugin",
-                        "$mozIncludeDir/widget",
-                        "$mozIncludeDir/xpcom"));
-
-if ($platform eq "win") {
-    # HACK $mozIncludeDir/string should be added to $mozIncludePath, but
-    # there is a bug in cons, such that directories with the same base
-    # name as #included files cause cons to stop with the error message:
-    #
-    # cons.pl: you have attempted to use path "d:\depot\main\Apps\Mozilla\moz.02oct.for_ko_12.winnt.debug\mozilla\dist\include\string" both as a file and as a directory!
-    #
-    # This fires because several files in Rx #include <string>.  We can
-    # work around this by adding $mozIncludeDir/string to the INCLUDE
-    # environment variable instead.
-    $ENV{INCLUDE} = join($platformPathSep, ($ENV{INCLUDE}, 
-					    "$mozIncludeDir/string"));
-} else {
-    $mozIncludePath = join($platformPathSep, 
-			   ("$mozIncludePath",
-        		    "$mozIncludeDir/string"));
-}
+                        "$mozIncludeDir/mozilla",
+                        "$mozIncludeDir/mozilla/dom",
+                        "$mozIncludeDir/mozilla/plugins"));
 
 $mozLibPath = "$mozDevelDist/lib";
 $mozIdlIncludePath = "$mozDevelDist/idl"; 
