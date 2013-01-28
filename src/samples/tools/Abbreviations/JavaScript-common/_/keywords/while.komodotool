@@ -2,10 +2,9 @@
   "keyboard_shortcut": "", 
   "name": "while", 
   "value": [
-    "while ([[%tabstop:test]]) {", 
+    "while [[%soft:(]][[%tabstop:test]][[%soft:) {]]", 
     "\t[[%tabstop://code]]", 
-    "}[[%tabstop: ]]", 
-    "!@#_currentPos!@#_anchor"
+    "}"
   ], 
   "set_selection": "false", 
   "version": "1.0.11", 

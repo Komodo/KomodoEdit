@@ -2,11 +2,11 @@
   "keyboard_shortcut": "", 
   "name": "try", 
   "value": [
-    "try {", 
-    "\t[[%tabstop:]]   ", 
+    "try [[%soft:{]]", 
+    "\t[[%tabstop:]]", 
     "} catch(e) {", 
     "\t[[%tabstop:alert(e);]]", 
-    "}[[%tabstop:]]!@#_currentPos!@#_anchor"
+    "}"
   ], 
   "set_selection": "false", 
   "version": "1.0.11", 

@@ -2,9 +2,9 @@
   "keyboard_shortcut": "", 
   "name": "function", 
   "value": [
-    "function [[%tabstop:name]]([[%tabstop:args]]) {", 
+    "function [[%tabstop:name]][[%soft:(]][[%tabstop:args]][[%soft:) {]]", 
     "\t[[%tabstop://code]]", 
-    "}[[%tabstop: ]]!@#_currentPos!@#_anchor"
+    "}"
   ], 
   "set_selection": "false", 
   "version": "1.0.11", 

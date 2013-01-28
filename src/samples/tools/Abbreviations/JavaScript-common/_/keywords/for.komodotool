@@ -2,9 +2,9 @@
   "keyboard_shortcut": "", 
   "name": "for", 
   "value": [
-    "for ([[%tabstop:init]]; [[%tabstop:test]]; [[%tabstop:incr]]) {", 
-    "\t[[%tabstop:// code]]", 
-    "}[[%tabstop: ]]!@#_currentPos!@#_anchor"
+    "for [[%soft:(]][[%tabstop:init]][[%soft:; ]][[%tabstop:test]][[%soft:; ]][[%tabstop:incr]][[%soft:) {]]", 
+    "\t[[%tabstop://code]]", 
+    "}"
   ], 
   "set_selection": "false", 
   "version": "1.0.11", 

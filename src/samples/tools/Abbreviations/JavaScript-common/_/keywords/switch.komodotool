@@ -2,9 +2,9 @@
   "keyboard_shortcut": "", 
   "name": "switch", 
   "value": [
-    "switch ([[%tabstop:expression]]) {", 
+    "switch [[%soft:(]][[%tabstop:expression]][[%soft:) {]]", 
     "\t[[%tabstop://case]]", 
-    "}[[%tabstop: ]]!@#_currentPos!@#_anchor"
+    "}"
   ], 
   "set_selection": "false", 
   "version": "1.0.11", 
