@@ -120,14 +120,21 @@ if (typeof ko.openfiles == 'undefined')
         setTabBarVisibility: function openfiles_setTabBarVisibility(show /* false */)
         {
             var classList = koWindow.document.getElementById('topview').classList;
+            var menuEntry = koWindow.document.getElementById('menu_toggleTabBar');
             
             if (show)
             {
+                
                 classList.add('showTabs');
+                ko.logging.dumpImportant(menuEntry.nodeName);
+                menuEntry.setAttribute('checked', 'true');
+                menuEntry.setAttribute('toggled', 'true');
             }
             else
             {
                 classList.remove('showTabs');
+                menuEntry.removeAttribute('checked');
+                menuEntry.removeAttribute('toggled');
             }
             
             ko.prefs.setBooleanPref(PREF_SHOW_TAB_BAR, show);

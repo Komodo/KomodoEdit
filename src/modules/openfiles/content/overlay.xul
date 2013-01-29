@@ -27,16 +27,17 @@
   <broadcasterset id="broadcasterset_global">
     <broadcaster id="cmd_toggleTabBar"
                  key="key_cmd_toggleTabBar"
-                 desc="&toggleEditorTabs.label;"
+                 type="checkbox"
+                 desc="&viewEditorTabs.label;"
                  oncommand="ko.openfiles.toggleTabBar()"/>
   </broadcasterset>
   
   <menupopup id="popup_view">
     <menuitem
         id="menu_toggleTabBar"
-        label="&toggleEditorTabs.label;"
+        label="&viewEditorTabs.label;"
         observes="cmd_toggleTabBar"
-        position="3"
+        insertafter="view_menu_editor_settings_menuseparator"
         />
   </menupopup>
 </overlay>
