@@ -86,6 +86,7 @@
             box-shadow: @menubar-button-shadow-hover;
             background-color: @menubar-button-background-color-hover;
             background-image: @menubar-button-background-image-hover;
+            border-width: @menubar-button-border-width-hover;
             border-style: @menubar-button-border-style-hover;
             border-color: @menubar-button-border-color-hover;
         }
@@ -96,6 +97,7 @@
             box-shadow: @menubar-button-shadow-active;
             background-color: @menubar-button-background-color-active;
             background-image: @menubar-button-background-image-active;
+            border-width: @menubar-button-border-width-active;
             border-style: @menubar-button-border-style-active;
             border-color: @menubar-button-border-color-active;
         }
@@ -177,7 +179,6 @@
 {
     -moz-appearance: none;
     background: @menubar-background;
-    border-bottom: @menubar-border-bottom;
 }
 
 #toolbar-menubar
@@ -185,10 +186,11 @@
     margin-bottom: -1px; /* so bottom border doesn't look weird if the toolbox row is hidden */
 }
 
-#main-toolboxrow > hbox
+#main-toolboxrow
 {
     padding-bottom: 3px;
     padding-top: 3px;
+    border-bottom: @menubar-border-bottom !important;
 }
 
 /* Generic Toolbars */
@@ -197,4 +199,11 @@ toolbarbutton[disabled="true"] > label,
 toolbarbutton[disabled="true"] > dropmarker
 {
     opacity: 0.6;
+    border-bottom: none !important;
+    
+    & > hbox
+    {
+        padding-bottom: 3px;
+        padding-top: 3px;
+    }
 }

@@ -3936,7 +3936,7 @@ var getFile = function(fileUri) {
 		var filePath 	= nsIIOService.newURI(fileUri, "UTF-8", null);
 		filePath		= nsIChromeReg.convertChromeURL(filePath);
 		
-		if (filePath instanceof Components.interfaces.nsINestedURI) {		
+		if (filePath instanceof Components.interfaces.nsINestedURI) {
 			filePath = filePath.innermostURI;
 			
 			if (filePath instanceof Components.interfaces.nsIFileURL) {
@@ -3945,6 +3945,8 @@ var getFile = function(fileUri) {
 				log('File uri could not be resolved: ' + fileUri);
 				return false;
 			}
+		} else if (filePath.scheme == 'chrome') {
+		    return getFile(filePath.prePath + filePath.path);
 		} else {
 			filePath = filePath.path;
 			
@@ -4032,14 +4034,19 @@ var getFileFromSheetId = function(sheetId, cache) {
 }
 
 var _youngestChild = {};
-var getYoungestChild = function(href, _log = true) {
+var getYoungestChild = function(href, depth = 0) {
     var parentFile = getFile(href);
     var sheetId = extractId(href);
         
-    if (_log) log('Finding youngest child for: ' + sheetId);
+    var prefix = ' ';
+    for (let x=0; x<depth; x++) {
+	prefix = '--' + prefix;
+    }
+	
+    log(prefix + 'Finding youngest child for: ' + sheetId + ' (' + (parentFile.exists() ? parentFile.lastModifiedTime : 0) + ')');
     
     if (typeof _youngestChild[sheetId] != 'undefined') {
-        log('Found youngest child (cached): ' + sheetId);
+        log(prefix + 'Found youngest child (cached): ' + sheetId + ', for: ' + href);
         return _youngestChild[sheetId];
     }
     
@@ -4047,7 +4054,7 @@ var getYoungestChild = function(href, _log = true) {
     if (less.sheetHierarchy.children[sheetId] !== undefined) {
         var children = less.sheetHierarchy.children[sheetId];
         for (var k in children) {
-            var child = getYoungestChild(getSheet(k).href, false);
+            var child = getYoungestChild(getSheet(k).href, depth+1);
             if (child.file && child.file.exists() && youngest.file.exists() &&
                 child.file.lastModifiedTime > youngest.file.lastModifiedTime) {
                 youngest = child;
@@ -4055,7 +4062,7 @@ var getYoungestChild = function(href, _log = true) {
         }
     }
     
-    if (_log) log('Found youngest child: ' + youngest.id);
+    log(prefix + 'Found youngest child: ' + youngest.id + ', for: ' + href);
     
     _youngestChild[sheetId] = youngest;
     return youngest;
@@ -4147,6 +4154,16 @@ less.detectStyleSheets = function() {
 		less.contextStorage.sheetmap[extractIdFromSheet(sheet)] = sheet;
 	}
 }
+
+less.clearFileCache = function() {
+    try {
+	Components.utils.import("resource://gre/modules/FileUtils.jsm");
+	FileUtils.getFile("ProfD", ["lessCache"], true).remove(true);
+	_fileCache = {};
+    } catch(e) {
+	error(e);
+    }
+};
 
 less.refresh = function (reload) {
     var startTime, endTime;
@@ -4247,6 +4264,11 @@ less.updateVariables = function(variables, sheetUrl) {
 }
 
 var _init = function() {
+	if (less.isMainCache == true && less._clearFileCache === true)
+	{
+	    less.clearFileCache();
+	}
+	
 	less.variables = extend(less.variables, cache.getItem('lessVariables'));
 	less.sheetHierarchy = extend(less.sheetHierarchy, cache.getItem('lessSheetHierarchy'));
 	_sheetIdMap = extend(_sheetIdMap, cache.getItem('lessSheetIdMap'));
@@ -4422,8 +4444,8 @@ function createCSS(styles, sheet) {
 function insertCss(sheet, fileUri) {
 	if ( sheet.nodeName === undefined || ! sheet.nodeName.match(/link|xml-stylesheet/i)) return;
 	
-    // If there is no title set, use the filename, minus the extension
-    var id = extractIdFromSheet(sheet);
+	// If there is no title set, use the filename, minus the extension
+	var id = extractIdFromSheet(sheet);
 	var sibling = sheet.previousSibling || {};
 	
 	if (sibling.nodeValue !== undefined && sibling.nodeValue.indexOf(id) !== -1) {
@@ -4452,7 +4474,7 @@ function removeNode(node) {
     return node && node.parentNode.removeChild(node);
 }
 
-function log(str) {
+function log(str, level) {
 	// Keep the log from being spammed.
 	// If you are debugging less in a child window you may want to disable this.
 	if (less.context != window) return;
@@ -4465,16 +4487,20 @@ function log(str) {
 }
 
 function error(e, href) {
-    var id = 'less-error-message:' + extractId(href);
-    var template = ' - {line}: {content}' + "\n";
-	var errorString = ' - LESS ERROR - ' + "\n";
-    var filename = e.filename || href;
-    var filenameNoPath = filename.match(/([^\/]+)$/)[1];
-	var error = [];
+    var id = 'less-error-message:' + (extractId(href) || e.name);
+    var errorString = ' - LESS ERROR - ' + "\n";
+    var error = [];
+    
+    if ( ! e.message)
+    {
+	var filename = e.filename || href;
+	var filenameNoPath = filename.match(/([^\/]+)$/)[1];
+    }
 
     errorString += (e.message || 'There is an error in your .less file') + ' (' + filenameNoPath + ")\n";
 
     var errorline = function (e, i, classname) {
+	var template = ' - {line}: {content}' + "\n";
         if (e.extract[i]) {
             error.push(template.replace(/\{line\}/, parseInt(e.line) + (i - 1))
                                .replace(/\{class\}/, classname)
@@ -4491,8 +4517,16 @@ function error(e, href) {
         errorString += 'on line ' + e.line + ', column ' + (e.column + 1) + ':' + "\n" +
                     error.join('');
     }
-	
+    
+    if (typeof ko != 'undefined')
+    {
+	var _log = ko.logging.getLogger('less');
+	_log.error(errorString);
+    }
+    else
+    {
 	dump(errorString);
+    }
 }
 
 /*
