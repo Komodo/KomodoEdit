@@ -84,8 +84,10 @@ tabpanels {
     background-color: transparent !important;
 }
 
-
-#workspace_left_area, #workspace_right_area {
+#workspace_left_area browser[type="ko-widget"],
+#workspace_right_area browser[type="ko-widget"],
+#workspace_left_area, #workspace_right_area
+{
     background: @sidebar-background;
     
     &:-moz-window-inactive {
