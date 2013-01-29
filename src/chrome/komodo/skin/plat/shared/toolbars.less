@@ -17,9 +17,9 @@
     /* Button */
     > toolbarbutton
     {
-        min-width: 20px;
-        height: 20px;
-        max-height: 20px;
+        min-width: 24px;
+        height: 24px;
+        max-height: 24px;
         padding: 0 5px 0 5px !important;
         margin: 0 1px 0 0;
         
@@ -106,12 +106,13 @@
         */
         &#historyRecentLocations
         {
-            background-position: 100px, center center;
-            list-style-image : url("chrome://komodo/skin/images/firefox-Toolbar.png");
-            -moz-image-region: rect(0px, 664px, 23px, 649px);
             padding-left: 0;
             min-width: 0;
+            max-width: 8px;
+            border-left: 0 !important;
             margin-left: -8px;
+            
+            & > hbox > vbox { visibility: collapse; }
            
             /* If it has no sibling, revert the "merge" */
             &.first-child {
@@ -119,13 +120,36 @@
                 min-width: 24px;
                 margin-left: 0;
             }
-            
-            [disabled="true"]
-            {
-                -moz-image-region: rect(23px, 664px, 46px, 649px);
-            }   
         }
         
+        
+        &[type=menu]
+        {
+            -moz-binding: url("chrome://global/content/bindings/toolbarbutton.xml#menu-vertical");
+        }
+        
+        &#tabPicker .toolbarbutton-menu-dropmarker
+        {
+            visibility: collapse;
+        }
+        
+    }
+}
+
+#main-toolboxrow toolbar[mode="full"]
+{
+    toolbaritem
+    {
+        margin-right: 5px;
+    
+        & > toolbarbutton
+        {
+            height: auto !important;
+            max-height: inherit !important;
+            
+            padding-top: 4px !important;
+            padding-bottom: 4px !important;
+        }
     }
 }
 
@@ -160,4 +184,12 @@
 {
     padding-bottom: 3px;
     padding-top: 3px;
+}
+
+/* Generic Toolbars */
+toolbarbutton[disabled="true"] > image,
+toolbarbutton[disabled="true"] > label,
+toolbarbutton[disabled="true"] > dropmarker
+{
+    opacity: 0.6;
 }

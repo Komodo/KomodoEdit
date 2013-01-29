@@ -17,15 +17,6 @@ treechildren::-moz-tree-image(project-icon),
 }
 
 /* GLOBAL */
-
-.clear-text-icon[disabled="true"] > image {
-    opacity: 0.25;
-}
-
-.native_folder_icon[disabled="true"] > image {
-    opacity: 0.25;
-}
-
 button[type="moreinfo"] > .button-box > .button-icon
 {
     margin-right: 0px;
@@ -52,9 +43,11 @@ button > hbox.button-box > image.button-icon
 }
 
 [class*='-icon '][disabled="true"] > image,
-[class$='-icon'][disabled="true"] > image
+[class$='-icon'][disabled="true"] > image,
+[class*='_icon '][disabled="true"] > image,
+[class$='_icon'][disabled="true"] > image
 {
-    opacity: 0.25;
+    opacity: 0.6;
 }
 
 /* Folder Icons */
@@ -513,22 +506,10 @@ treechildren::-moz-tree-image(remotefile)
     list-style-image: @icon-cut;
 }
 
-toolbarbutton[disabled="true"] > image,
-toolbarbutton[disabled="true"] > dropmarker
-{
-    opacity: 0.6;
-}
-
 .copy-button, /* deprecated since Komodo 7 */
 .native-copy-icon
 {
     list-style-image: @icon-copy;
-}
-
-.copy-button[disabled="true"] > image, /* deprecated since Komodo 7 */
-.native-copy-icon[disabled="true"] > image
-{
-    opacity: 0.25;
 }
 
 .paste-button, /* deprecated since Komodo 7 */
@@ -537,22 +518,10 @@ toolbarbutton[disabled="true"] > dropmarker
     list-style-image: @icon-paste;
 }
 
-.paste-button[disabled="true"] > image, /* deprecated since Komodo 7 */
-.native-paste-icon[disabled="true"] > image
-{
-    opacity: 0.25;
-}
-
 .print-button, /* deprecated since Komodo 7 */
 .native-print-icon
 {
     list-style-image: @icon-print;
-}
-
-.print-button[disabled="true"] > image, /* deprecated since Komodo 7 */
-.native-print-icon[disabled="true"] > image
-{
-    opacity: 0.25;
 }
 
 .komodo-button-community

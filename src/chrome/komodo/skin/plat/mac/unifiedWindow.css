@@ -22,7 +22,7 @@
 {
   border-style: none;
   /* height same as background image */
-  height: 31px;
+  height: auto;
 }
 
 #main-toolboxrow[mode="full"],
