@@ -312,9 +312,16 @@ this.addToolbarFromPart = function peMenu_addToolbarFromPart(part) {
             // dump("peMenu.js -- Already have toolbox " + part.name + "\n");
             return;
         }
+        
         var toolbar = document.createElement('toolbar');
         toolbar.setAttribute('id', id);
-        toolbar.setAttribute('class', "chromeclass-toolbar");
+        toolbar.setAttribute('class', "chromeclass-toolbar custom-toolbar");
+        
+        if (ko.prefs.getBoolean('custom_toolbar_svg_filters', false))
+        {
+            toolbar.classList.add("enable-svg-filters");
+        }
+        
         // We need the last custom toolbox to have a flex of one
         toolbar.setAttribute('buttonstyle', "pictures");
         toolbar.setAttribute('grippyhidden', "true");
@@ -328,6 +335,9 @@ this.addToolbarFromPart = function peMenu_addToolbarFromPart(part) {
         toolbar.setAttribute('mode', toolbox.getAttribute('mode'));
         var ordinal = base_ordinal + part.getLongAttribute('priority');
         toolbar.ordinal = ordinal;
+        
+        var toolbaritem = document.createElement('toolbaritem');
+        toolbar.appendChild(toolbaritem);
 
         toolbox.appendChild(toolbar);
 
@@ -372,6 +382,8 @@ this.addToolbarFromPart = function peMenu_addToolbarFromPart(part) {
         menuitem.setAttribute('observes', cmd_id);
         menuitem.ordinal = ordinal;
         menu.insertBefore(menuitem, separator.nextSibling);
+        
+        ko.uilayout._updateToolbarViewStates();
 
     } catch (e) {
         log.exception(e);
@@ -595,7 +607,7 @@ function _fillToolbarFromPart(toolbar, part)
     for (i = 0; i < children.length; i++) {
         part = children[i];
         button = _createToolbaritemFromPart(toolbar, part);
-        toolbar.appendChild(button);
+        toolbar.firstChild.appendChild(button);
     }
 }
 
