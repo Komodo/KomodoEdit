@@ -47,15 +47,13 @@ CommonStyles = {'attribute name': {'fore': 7872391},
         'useFixed': 0,
         'hotspot': 0,
         },
- 'fold markers': {'fore': 0x555555, 'back': 0xFFFFFF},
+ 'fold markers': {'fore': 0xB9B9B9, 'back': 0xFFFFFF},
  'functions': {'fore': 9145088},
  'identifiers': {'fore': 0},
  'indent guides': {'fore': 8421504},
  'keywords': {'fore': 7872391},
  'keywords2': {'fore': 7872391},
-  # Line numbers use a back style of None, which means the color
-  # used will be left to Scintilla's default styling colors (system color).
- 'linenumbers': {'fore': 5592405, 'back': None},
+ 'linenumbers': {'fore': 0x989898, 'back': 0xFFFFFF},
  'numbers': {'fore': 139},
  'operators': {'fore': 8855416},
  'preprocessor': {'fore': 6908265},
@@ -182,9 +180,7 @@ Colors = {
  'caretLineBack': 16119285,
  'currentLineColor': 16764108,
  'edgeColor': 15658734,
- # Fold margin uses a color of None, which means Scintilla's default styling
- # colors will be used instead (using the system colors on Windows).
- 'foldMarginColor': None,
+ 'foldMarginColor': 0xFFFFFF,
  'selBack': 13421772,
  'selFore': 16772846,
  'whitespaceColor': 8421504}
