@@ -14,10 +14,6 @@ Import(
     'unsiloedPythonExe',
     'buildFlavour',
     'mozVersion',
-    'withHTTPInspector',
-    'withSCC',
-    'withSleuth',
-    'withDebugging',
 );
 
 $cons->InstallAs("$mozBin/chrome/iconsets/classic/chrome.manifest",
