@@ -14,6 +14,25 @@
     list-style-image: url("chrome://global/skin/icons/loading_16.png");
 }
 
+#shortcut-show {
+    list-style-image: url("chrome://icomoon/skin/icons/svg/enter.svg");
+}
+#shortcut-panel > * {
+    margin: 0.5em;
+}
+#shortcut-panel > toolbarbutton {
+    width: 16px;
+    height: 16px;
+}
+#shortcut-textbox {
+    min-width: 20em;
+}
+#shortcut-commit {
+    list-style-image: url("chrome://icomoon/skin/icons/svg/checkmark.svg");
+}
+#shortcut-remove {
+    list-style-image: url("chrome://icomoon/skin/icons/svg/close.svg");
+}
 
 treechildren::-moz-tree-image {
     margin-right: 2px;

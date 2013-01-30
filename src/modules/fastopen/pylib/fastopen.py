@@ -58,12 +58,18 @@ try:
 except ImportError:
     _xpcom_ = False
 
+try:
+    from zope.cachedescriptors.property import Lazy as LazyProperty
+except ImportError:
+    # no LazyProperty implementation, not lazy
+    LazyProperty = lambda f: f
+
 
 
 #---- globals
 
 log = logging.getLogger("fastopen")
-log.setLevel(logging.INFO)
+#log.setLevel(logging.INFO)
 #log.setLevel(logging.DEBUG)
 
 MDASH = u"\u2014"
@@ -97,8 +103,12 @@ class Hit(object):
         _com_interfaces_ = [components.interfaces.koIFastOpenHit]
     type = None  # all base classes must set this to some short string
     isdir = False
+    shortcut = None # for use with gogatherer
     
 class PathHit(Hit):
+    if _xpcom_:
+        _com_interfaces_ = [components.interfaces.koIFastOpenHit,
+                            components.interfaces.koIFastOpenPathHit]
     type = "path"
     
     # Whether to filter out duplicate hits based on the `path` attribute.
@@ -185,24 +195,45 @@ class PathHit(Hit):
                 return False
         return True
 
-class GoHit(PathHit):
+class GoPathHit(PathHit):
     type = "go"
-    isdir = True
-    def __init__(self, shortcut, dir):
+    def __init__(self, shortcut, path):
         self.shortcut = shortcut
-        self.dir = dir
-        # Setup attributes expected by the inherited PathHit methods.
-        self.path = dir
-        self.dir_normcase = normcase(dir)
-        self.base = shortcut
-        self.ibase = shortcut.lower()
+        PathHit.__init__(self, path)
+
+    @LazyProperty
+    def label(self):
+        return u"%s %s %s%s%s" % (
+            self.shortcut, MDASH, self.nicedir, os.sep, self.base)
+
+
+class GoURLHit(PathHit):
+    """
+    A Go hit, referring to a non-local file
+    """
+    filterDupePaths = True
+    if _xpcom_:
+        _com_interfaces_ = [components.interfaces.koIFastOpenHit,
+                            components.interfaces.koIFastOpenURLHit]
+    type="go-url"
+    isdir = False
+
+    def __init__(self, shortcut, url):
+        self.shortcut = shortcut
+        PathHit.__init__(self, url)
+        self.url = url
+
+    @LazyProperty
+    def label(self):
+        return u"%s %s %s" % (self.shortcut, MDASH, self.url)
+
 
 class ProjectHit(PathHit):
     type = "project-path"
     def __init__(self, path, project_name, project_base_dir):
         self.project_name = project_name
         self.project_base_dir = project_base_dir
-        super(ProjectHit, self).__init__(path)
+        PathHit.__init__(self, path)
 
     _labelCache = None
     @property
@@ -427,6 +458,9 @@ class Driver(threading.Thread):
 
             # See if this is a path query, i.e. a search for an absolute or
             # relative path.
+
+            # Determine the first bit in front of any path separators
+
             dirQueries = []
             if isabs(query):
                 dirQueries.append(query)
@@ -438,16 +472,14 @@ class Driver(threading.Thread):
                 expandedQuery = request.expandProjectPath(query)
                 if expandedQuery != query:
                     dirQueries.append(expandedQuery)
-            elif '/' in query:
-                dirQueries += [join(d, query) for d in request.cwds]
-                shortcut, subpath = query.split('/', 1)
-                if request.dirShortcuts and shortcut in request.dirShortcuts:
-                    dirQueries.append(join(request.dirShortcuts[shortcut], subpath))
-            elif sys.platform == "win32" and '\\' in query:
-                dirQueries += [join(d, query) for d in request.cwds]
-                shortcut, subpath = query.split('\\', 1)
-                if request.dirShortcuts and shortcut in request.dirShortcuts:
-                    dirQueries.append(join(request.dirShortcuts[shortcut], subpath))
+            else:
+                shortcut, subpath = (query.split('/', 1) + [None])[:2]
+                if subpath is None and os.sep != '/':
+                    shortcut, subpath = (query.split(os.sep, 1) + [None])[:2]
+                if subpath is not None:
+                    dirQueries += [join(d, query) for d in request.cwds]
+                    dirShortcuts = request.dirShortcuts or {}
+                    dirQueries.append(join(dirShortcuts[shortcut], subpath))
 
             hitPaths = set()
             pathExcludes = request.pathExcludes
@@ -661,7 +693,56 @@ class GoGatherer(Gatherer):
     def gather(self):
         shortcuts = self.getShortcuts()
         for name, value in shortcuts.items():
-            yield GoHit(name, value)
+            if isdir(value):
+                yield GoPathHit(name, value)
+            else:
+                if not "://" in value and not exists(value):
+                    # doesn't look like a URL, and also not a local file
+                    continue # skip, probably deleted
+                yield GoURLHit(name, value)
+
+    def setShortcut(self, hit, shortcut):
+        if not shortcut and not hit.shortcut:
+            # nothing to do
+            return
+
+        from xml.etree import ElementTree as ET
+        path = self.getShortcutsFile()
+
+        # throw away cache
+        self._shortcutsCache = None
+
+        # write to disk
+        tree = None
+        shortcuts_elem = None
+        if exists(path):
+            try:
+                with open(path) as fin:
+                    tree = ET.parse(fin)
+                    shortcuts_elem = tree.getroot()
+            except Exception as ex:
+                log.exception(ex)
+        if shortcuts_elem is None:
+            shortcuts_elem = ET.Element("shortcuts", version="1.0")
+            tree = ET.ElementTree(element=shortcuts_elem)
+        if hit.shortcut:
+            for child in shortcuts_elem:
+                if child.get("name") == hit.shortcut:
+                    log.debug("removing child %s", ET.tostring(child))
+                    shortcuts_elem.remove(child)
+                    break
+        if shortcut:
+            if isinstance(hit, PathHit):
+                child = ET.SubElement(shortcuts_elem, "shortcut",
+                                      name=shortcut, value=hit.path)
+            else:
+                child = ET.SubElement(shortcuts_elem, "shortcut",
+                                      name=shortcut, url=hit.url)
+            log.debug("added child: %s", ET.tostring(child))
+        log.debug("about to write: %s", ET.tostring(shortcuts_elem))
+        with open(path, "wb") as fout:
+            tree.write(fout, encoding="utf-8")
+
 
 class KomodoProjectGatherer(Gatherer):
     """A gatherer of files in a Komodo project."""

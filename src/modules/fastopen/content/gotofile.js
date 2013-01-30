@@ -5,6 +5,7 @@
 
 //---- globals
 
+const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 var log = ko.logging.getLogger("gotofile");
 
 var gWidgets = null;
@@ -33,7 +34,10 @@ function onLoad()
             throbber: document.getElementById("throbber"),
             results: document.getElementById("results"),
             statusbarPath: document.getElementById("statusbar-path"),
-            statusbarNote: document.getElementById("statusbar-note")
+            statusbarNote: document.getElementById("statusbar-note"),
+            shortcutText: document.getElementById("shortcut-textbox"),
+            shortcutRemoveButton: document.getElementById("shortcut-remove"),
+            shortcutShowButton: document.getElementById("shortcut-show"),
         }
         gWidgets.statusbarNote.label = ("(" + (_gIsMac ? "Cmd" : "Ctrl")
             + "+Enter to open in Places)");
@@ -65,6 +69,12 @@ function onLoad()
         }
         gSession.setOpenViews(openViews.length, openViews);
         gSession.setCurrHistorySession(gOpenerKo.history.curr_session_name());
+
+        gWidgets.results.addEventListener("DOMMenuItemActive",
+                                          handleTreeFocusChange, false);
+        gWidgets.shortcutText.addEventListener("keypress",
+                                               handleShortcutEditorKey,
+                                               false);
 
         gWidgets.query.focus();
         findFiles(gWidgets.query.value);
@@ -173,6 +183,32 @@ function handleQueryKeyPress(event) {
     //TODO: page up/down
 }
 
+/**
+ * This is called when the focus within the tree changes, to update the shortcut
+ * editor UI
+ */
+var _lastShortcut = null;
+function handleTreeFocusChange() {
+    _lastShortcut = null;
+    let hit = gWidgets.results.view.focusedHit;
+    if (hit instanceof Ci.koIFastOpenViewHit) {
+        // Figure out if this is actually bookmarkable
+        let view = hit.view;
+        if (!view || !view.koDoc || !view.koDoc.file) {
+            hit = null;
+        } else {
+            let file = view.koDoc.file;
+            if (!(file.isLocal || file.isRemoteFile)) {
+                // FIle is neither local nor remote, not an actual file...
+                hit = null;
+            }
+        }
+    }
+    _lastShortcut = hit;
+    gWidgets.shortcutShowButton.disabled = !hit;
+    return hit;
+}
+
 function findFiles(query) {
     if (!_gIgnoreNextFindFiles) {
         _gCurrQuery = query;
@@ -180,7 +216,62 @@ function findFiles(query) {
     }
 }
 
+/**
+ * Update the shortcut editing UI; this is called when the shortcut editing
+ * function is shown
+ */
+function refreshShortcutEditor() {
+    if (!_lastShortcut) {
+        return;
+    }
+    gWidgets.shortcutText.value = _lastShortcut.shortcut || "";
+    gWidgets.shortcutRemoveButton.collapsed = !_lastShortcut.shortcut;
+    return;
+}
 
+/**
+ * Focus the text in the shortcut editor
+ */
+function focusShortcutEditor() {
+    gWidgets.shortcutText.select();
+    gWidgets.shortcutText.focus();
+}
+
+/**
+ * Key handler for the shortcut editor text box
+ */
+function handleShortcutEditorKey(event) {
+    switch (event.keyCode) {
+        case KeyEvent.DOM_VK_ENTER:
+        case KeyEvent.DOM_VK_RETURN:
+            event.stopPropagation();
+            commitShortcut();
+            gWidgets.shortcutShowButton.open = false;
+            break;
+    }
+}
+
+/**
+ * Commit the edited shortcut from the shortcut editing UI
+ */
+function commitShortcut() {
+    if (!_lastShortcut) {
+        return; // WTF?
+    }
+    gWidgets.results.view.setShortcut(_lastShortcut,
+                                      gWidgets.shortcutText.value || null);
+    gWidgets.shortcutShowButton.open = false;
+}
+
+function removeShortcut() {
+        if (!_lastShortcut) {
+        return; // WTF?
+    }
+    gWidgets.results.view.setShortcut(_lastShortcut, null);
+    gWidgets.shortcutShowButton.open = false;
+    // Force update the results
+    findFiles(gWidgets.query.value);
+}
 
 
 //---- UI driver class
@@ -295,7 +386,7 @@ function _openFirstSelectedHitInPlaces() {
  * @param {koIFastOpenHit} hit The hit to open.
  */
 function _openHitInPlaces(hit) {
-    if (!gOpenerKo.places) {
+    if (!gOpenerKo.places || !(hit instanceof Ci.koIFastOpenPathHit)) {
         return;
     }
     var dir, baseName;
@@ -326,19 +417,22 @@ function _openSelectedHits() {
  *      but set into the query box.
  */
 function _openHits(hits) {
-    var hit, viewType, tabGroup;
     var fileUrlsToOpen = [];
     var dirsToOpen = [];
-    for (var i in hits) {
-        var hit = hits[i];
-        if (hit.isdir) {
-            dirsToOpen.push(gSession.relavatizePath(hit.path));
-        } else if (hit.type == "open-view") {
+    for (let i in hits) {
+        let hit = hits[i];
+        if (hit instanceof Ci.koIFastOpenViewHit) {
             hit.view.makeCurrent();
-        } else {
-            //TODO: For history hits could perhaps restore viewType. Would need
-            // changes to the back end for that.
-            fileUrlsToOpen.push(ko.uriparse.pathToURI(hit.path));
+        } else if (hit instanceof Ci.koIFastOpenURLHit) {
+            fileUrlsToOpen.push(hit.url);
+        } else if (hit instanceof Ci.koIFastOpenPathHit) {
+            if (hit.isdir) {
+                dirsToOpen.push(gSession.relavatizePath(hit.path));
+            } else {
+                //TODO: For history hits could perhaps restore viewType. Would need
+                // changes to the back end for that.
+                fileUrlsToOpen.push(ko.uriparse.pathToURI(hit.path));
+            }
         }
     }
     if (fileUrlsToOpen.length) {
@@ -365,7 +459,7 @@ function _openHits(hits) {
  * @param {Boolean} allowAdvance Whether to allow advancing.
  */
 function _completeSelectionOrMove(moveForward, allowAdvance) {
-    var hits = gWidgets.results.view.getSelectedHits(new Object());
+    var hits = gWidgets.results.view.getSelectedHits();
     if (hits.length != 1) {
         return null;
     }
@@ -373,8 +467,7 @@ function _completeSelectionOrMove(moveForward, allowAdvance) {
     
     // Determine the new value to which to complete.
     var currValue = gWidgets.query.value;
-    var newValue = gOsPath.join(
-            gOsPath.dirname(gWidgets.query.value), hit.base);
+    var newValue = hit.path;
     if (hit.isdir) {
         // Selecting a dir should just enter that dir into the filter box.
         newValue = gSession.relavatizePath(hit.path) + gSep;

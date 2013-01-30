@@ -347,6 +347,10 @@ class KoFastOpenSession(KoFastOpenTreeView):
         self.historySessionName = sessionName
         self._gatherers_cache = None
 
+    @LazyProperty
+    def _go_gatherer(self):
+        return fastopen.GoGatherer()
+
     #TODO: rename to gathererInfo, the current name is already inaccurate
     @property
     def gatherersAndCwds(self):
@@ -370,9 +374,8 @@ class KoFastOpenSession(KoFastOpenTreeView):
                 g.append(fastopen.DirGatherer("cwd", cwds, True,
                     self.pref_path_excludes))
             if self.pref_enable_go_tool:
-                gog = fastopen.GoGatherer()
-                g.append(gog)
-                dirShortcuts = gog.getShortcuts()
+                g.append(self._go_gatherer)
+                dirShortcuts = self._go_gatherer.getShortcuts()
             else:
                 dirShortcuts = None
             if self.pref_enable_history_gatherer:
@@ -414,7 +417,7 @@ class KoFastOpenSession(KoFastOpenTreeView):
                 possibile_paths.append("~" + path[len(home):])
         if dirShortcuts:
             for alias, dirpath in dirShortcuts.items():
-                if path.startswith(dirpath):
+                if dirpath and path.startswith(dirpath):
                     # Ensure the path matches against a directory boundary,
                     # bug 89371.
                     if len(path) == len(dirpath) or path[len(dirpath)] in "/\\":
@@ -439,6 +442,22 @@ class KoFastOpenSession(KoFastOpenTreeView):
                 hits.append(self._rows[row_idx])
         return hits
 
+    @property
+    def focusedHit(self):
+        row_idx = self.selection.currentIndex
+        if 0 <= row_idx < len(self._rows):
+            return self._rows[row_idx]
+        return None
+
+    def setShortcut(self, hit, shortcut):
+        # Delete existing shortcuts with that name
+        try:
+            hit = UnwrapObject(hit)
+        except:
+            pass # not a wrapped Python object
+        self._go_gatherer.setShortcut(hit, shortcut)
+
+
 class KoFastOpenService(object):
     _com_interfaces_ = [components.interfaces.koIFastOpenService,
                         components.interfaces.nsIObserver]
@@ -461,11 +480,11 @@ class KoFastOpenService(object):
 
 class KomodoHistoryURIHit(fastopen.PathHit):
     type = "history-uri"
-    def __init__(self, uri):
+    def __init__(self, url):
         from uriparse import URIToLocalPath
-        self.uri = uri
-        path = URIToLocalPath(uri)
-        super(KomodoHistoryURIHit, self).__init__(path)
+        path = URIToLocalPath(url)
+        self.url = url
+        fastopen.PathHit.__init__(self, path)
     @property
     def label(self):
         return u"%s (history) %s %s" % (self.base, fastopen.MDASH, self.nicedir)
@@ -510,10 +529,12 @@ class KomodoHistoryURIsGatherer(fastopen.Gatherer):
                 yield hit
 
 class KomodoOpenViewHit(fastopen.PathHit):
+    _com_interfaces_ = [components.interfaces.koIFastOpenHit,
+                        components.interfaces.koIFastOpenViewHit]
     type = "open-view"
     filterDupePaths = False
     def __init__(self, view, path, viewType, windowNum, tabGroupId, multi, **kwargs):
-        super(KomodoOpenViewHit, self).__init__(path)
+        fastopen.PathHit.__init__(self, path)
         self.view = view
         self.viewType = viewType
         self.windowNum = windowNum

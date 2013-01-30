@@ -12,16 +12,34 @@
 [scriptable, uuid(0dd87bd7-8df3-5d4b-b417-c2067a45d214)]
 interface koIFastOpenHit: nsISupports {
     readonly attribute wstring type;  // The type of hit
-    readonly attribute wstring path;
+    readonly attribute AString path;  // might not actually be a path
+    attribute AString shortcut;       // This hit's shortcut, if any
+};
+/**
+ * A hit that refers to a local file; currently only defined for type "path" and
+ * "go" hits.
+ */
+[scriptable, uuid(d6d96259-968f-4194-ab8c-fccfc589b184)]
+interface koIFastOpenPathHit: koIFastOpenHit {
     readonly attribute boolean isdir;
-    
-    // Only defined for type "path" and "go" hits.
-    readonly attribute wstring dir;     // dirname(path)
-    readonly attribute wstring base;    // basename(path)
-    
-    // These are currently only set for `type == "open-view"` hits.
+    readonly attribute AString dir;     // dirname(path)
+    readonly attribute AString base;    // basename(path)
+};
+/**
+ * A hit that refers to a non-local file.
+ */
+[scriptable, uuid(bb0164df-e77c-40e4-bac7-c3ab0d63a65d)]
+interface koIFastOpenURLHit: koIFastOpenHit {
+    readonly attribute AUTF8String url;
+};
+/**
+ * A hit that deals with a view; currently only set for `type == "open-view"`
+ * hits.
+ */
+[scriptable, uuid(1f5d5214-2d32-4489-a13e-9c6d01713050)]
+interface koIFastOpenViewHit: koIFastOpenHit {
     readonly attribute koIView view;
-    readonly attribute wstring viewType;
+    readonly attribute AString viewType;
     readonly attribute long windowNum;
     readonly attribute long tabGroupId;
 };
@@ -67,8 +85,16 @@ interface koIFastOpenSession: nsISupports {
     AString relavatizePath(in AString path);
 
     // Return the selected treeview hits.
-    void getSelectedHits(out unsigned long count,
+    void getSelectedHits([optional] out unsigned long count,
         [retval, array, size_is(count)] out koIFastOpenHit hits);
+
+    // The currently focused hit, or null
+    readonly attribute koIFastOpenHit focusedHit;
+
+    /**
+     * Set a shortcut
+     */
+    void setShortcut(in koIFastOpenHit hit, in AString shortcut);
 };
 
 [scriptable, uuid(6c8c66cb-f1c3-834e-86ac-905cb155d595)]

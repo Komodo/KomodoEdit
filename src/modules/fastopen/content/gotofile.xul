@@ -38,15 +38,27 @@
   </keyset>
 
   <vbox flex="1">
-    <hbox style="margin: 10px;">
+    <hbox style="margin: 10px;" align="center">
       <textbox id="query" type="search" timeout="50"
           oncommand="findFiles(this.value)"
           onkeypress="handleQueryKeyPress(event)"
           flex="1" />
-      <!-- This hbox is used to stop the throbber image from stretching. -->
-      <hbox align="center">
-        <image id="throbber" class="throbber" busy="true" />
-      </hbox>
+      <image id="throbber" class="throbber" busy="true" />
+      <toolbarbutton id="shortcut-show" type="menu"
+                     tooltiptext="&goToFile.shortcut.show.tooltipText;">
+        <panel orient="horizontal" position="after_end" id="shortcut-panel"
+               onpopupshowing="refreshShortcutEditor()"
+               onpopupshown="focusShortcutEditor()">
+          <textbox flex="1" id="shortcut-textbox"
+                   emptytext="&goToFile.shortcut.textbox.emptyText;"/>
+          <toolbarbutton id="shortcut-commit"
+                         oncommand="commitShortcut()"
+                         tooltiptext="&goToFile.shortcut.set.tooltipText;"/>
+          <toolbarbutton id="shortcut-remove"
+                         oncommand="removeShortcut()"
+                         tooltiptext="&goToFile.shortcut.delete.tooltipText;"/>
+        </panel>
+      </toolbarbutton>
     </hbox>
 
     <tree id="results" flex="1" hidecolumnpicker="true"
