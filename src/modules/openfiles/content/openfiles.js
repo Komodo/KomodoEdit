@@ -91,7 +91,7 @@ if (typeof ko.openfiles == 'undefined')
             );
             
             // Set the tab bar visibility 
-            this.setTabBarVisibility(ko.prefs.getBoolean(PREF_SHOW_TAB_BAR, false));
+            this.setTabBarVisibility(ko.prefs.getBoolean(PREF_SHOW_TAB_BAR, true));
             
             // Bind listeners and reload (initialize) the list of open files 
             this.bindListeners();
@@ -126,7 +126,6 @@ if (typeof ko.openfiles == 'undefined')
             {
                 
                 classList.add('showTabs');
-                //ko.logging.dumpImportant(menuEntry.nodeName);
                 menuEntry.setAttribute('checked', 'true');
                 menuEntry.setAttribute('toggled', 'true');
             }
