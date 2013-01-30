@@ -27,9 +27,19 @@ if (ko.skin == undefined)
     var log = ko.logging.getLogger('koSkin');
     
     // Preference constants
-    const PREF_CUSTOM_SKIN      = 'koSkin_custom_skin',
-          PREF_USE_GTK_DETECT   = 'koSkin_use_gtk_detection';
-          
+    const   PREF_CUSTOM_ICONS     = 'koSkin_custom_icons',
+            PREF_CUSTOM_SKIN      = 'koSkin_custom_skin',
+            PREF_USE_GTK_DETECT   = 'koSkin_use_gtk_detection';
+            
+    // Old preference value reference
+    var prefOld = {};
+    prefOld[PREF_CUSTOM_ICONS]      = prefs.getString(PREF_CUSTOM_ICONS, '');
+    prefOld[PREF_CUSTOM_SKIN]       = prefs.getString(PREF_CUSTOM_SKIN, '');
+    prefOld[PREF_USE_GTK_DETECT]    = prefs.getBoolean(PREF_USE_GTK_DETECT, true);
+    
+    // Self pointer for use in observer, as .bind() doesn't work with xpcom
+    var self;
+    
     ko.skin.prototype  =
     {
         
@@ -43,13 +53,126 @@ if (ko.skin == undefined)
          */
         init: function()
         {
+            self = this;
+            
             this.loadPreferredSkin();
+            this.loadPreferredIcons();
             
             // Check whether we need to load a custom skin manually
             if (this.gtk.init(this) && prefs.getBoolean(PREF_USE_GTK_DETECT, true))
             {
                 this.gtk.loadDetectedTheme();
             }
+            
+            for (let pref in prefOld)
+            {
+                prefs.prefObserverService.addObserver(this, pref, false);
+            }
+        },
+        
+        /**
+         * Preference Observer
+         * 
+         * @param   {Object} subject 
+         * @param   {String} topic   
+         * @param   {String} data    
+         * 
+         * @returns {Void} 
+         */
+        observe: function(subject, topic, data)
+        {
+            switch (topic)
+            {
+                // Handle skin changes
+                case PREF_CUSTOM_ICONS:
+                case PREF_CUSTOM_SKIN:
+                    
+                    // Skip if the value hasn't changed
+                    let value = prefs.getString(topic, '');
+                    if (value == prefOld[topic])
+                    {
+                        return;
+                    }
+                    
+                    // Unload the previous skin
+                    try {
+                        var file = self._getFile(prefOld[topic], true);
+                        self.unloadCustomSkin(file, true);
+                    } catch (e) {}
+                    
+                    // Store new value for future updates
+                    prefOld[topic] = value;
+                    
+                    // Reload relevant skin
+                    if (topic == PREF_CUSTOM_SKIN)
+                    {
+                        self.loadPreferredSkin();
+                    }
+                    else if (topic == PREF_CUSTOM_ICONS)
+                    {
+                        self.loadPreferredIcons();
+                    }
+                    
+                    break;
+                
+                // Handle GTK detection toggle
+                case PREF_USE_GTK_DETECT:
+                    
+                    // Skip if value hasn't really changed or if gtk is not enabled
+                    let enabled = prefs.getBoolean(topic, true);
+                    if ( ! self.gtk.enabled || enabled == prefOld[topic])
+                    {
+                        return;
+                    }
+                    
+                    // Unload current skin
+                    try {
+                        var file = self._getFile(prefOld[PREF_CUSTOM_SKIN], true);
+                        this.unloadCustomSkin(file, true);
+                    } catch (e) {}
+                    
+                    // Store new value for future updates
+                    prefOld[topic] = enabled;
+                    
+                    self.gtk.koSkin = null;
+                    
+                    // Detect new skin info
+                    if (enabled)
+                    {
+                        self.gtk.loadDetectedTheme();
+                    }
+                    
+                    break;
+                default:
+                    return;
+                    break;
+            }
+            
+        },
+        
+        /**
+         * Get nsILocalFile from path
+         * 
+         * @param   {String} path
+         * @param   {Boolean} silent    whether to log exceptions
+         * 
+         * @returns {nsILocalFile|Boolean} 
+         */
+        _getFile: function(path, silent = false)
+        {
+            try
+            {
+                var file = Components.classes["@mozilla.org/file/local;1"]
+                            .createInstance(Components.interfaces.nsILocalFile);
+                file.initWithPath(path);
+            }
+            catch(e)
+            {
+               	silent || ko.logging.getLogger('koSkin').error(file.path + ": " + e.message);
+                return false;
+            }
+            
+            return file;
         },
         
         /**
@@ -57,37 +180,53 @@ if (ko.skin == undefined)
          * 
          * @returns {Void} 
          */
-        loadPreferredSkin: function()
+        loadPreferredSkin: function(pref)
         {
-            var preferredSkin = prefs.getString(PREF_CUSTOM_SKIN, '');
-            
+            this._loadPreferred(PREF_CUSTOM_SKIN);
+        },
+        
+        /**
+         * Load the skin the user has stored as his preference (if any)
+         * 
+         * @returns {Void} 
+         */
+        loadPreferredIcons: function()
+        {
+            this._loadPreferred(PREF_CUSTOM_ICONS);
+        },
+        
+        /**
+         * Load skin based on preference
+         * 
+         * @param   {String} pref 
+         * 
+         * @returns {Void} 
+         */
+        _loadPreferred: function(pref)
+        {
+            var preferredSkin = prefs.getString(pref, '');
             if (preferredSkin == '')
             {
                 return;
             }
             
-            try
+            var file = this._getFile(preferredSkin);
+            if ( ! file || ! file.exists())
             {
-                var file = Components.classes["@mozilla.org/file/local;1"]
-                            .createInstance(Components.interfaces.nsILocalFile);
-                file.initWithPath(preferredSkin);
-            }
-            catch(e)
-            {
-               	ko.logging.getLogger('koSkin').error(e.name + ": " + e.message);
+                return;
             }
             
-            this.loadCustomSkin(file, true);
+            this.loadCustomSkin(file);
         },
         
         /**
-         * Load a custom skin
+         * Validate if file is valid as a skin file
          * 
-         * @param   {nsIFile} file       File pointer of chrome.manifest
+         * @param   {nsIFile} file 
          * 
-         * @returns {Void}
+         * @returns {Void} 
          */
-        loadCustomSkin: function(file, internal = false)
+        _validateSkinFile: function(file)
         {
             if ( ! file instanceof Components.interfaces.nsIFile)
             {
@@ -103,6 +242,18 @@ if (ko.skin == undefined)
             {
                 throw new Error("Filename should be 'chrome.manifest'");
             }
+        },
+        
+        /**
+         * Load a custom skin
+         * 
+         * @param   {nsIFile} file       File pointer of chrome.manifest
+         * 
+         * @returns {Void}
+         */
+        loadCustomSkin: function(file)
+        {
+            this._validateSkinFile(file);
             
             try
             {
@@ -113,14 +264,30 @@ if (ko.skin == undefined)
                log.error("Failed loading manifest: '" + file.path + "'. " + e.message);
             }
             
+            this.clearCache();
+        },
+        
+        /**
+         * Unload a custom skin
+         * 
+         * @param   {NsIFile} file 
+         * 
+         * @returns {Void} 
+         */
+        unloadCustomSkin: function(file)
+        {
+            this._validateSkinFile(file);
             
-            // If this is not an internal call, save the new theme
-            // as the preferred theme and disable automatic theme detection
-            if ( ! internal)
+            try
             {
-                prefs.setBooleanPref(PREF_USE_GTK_DETECT, false);
-                prefs.setStringPref(PREF_CUSTOM_SKIN, file.path);
+                Components.manager.removeBootstrappedManifestLocation(file.parent);
             }
+            catch (e)
+            {
+               log.error("Failed unloading manifest: '" + file.path + "'. " + e.message);
+            }
+            
+            this.clearCache();
         },
         
         /**
@@ -132,11 +299,17 @@ if (ko.skin == undefined)
          */
         clearCache: function()
         {
-            if (typeof less != 'undefined')
+            try
             {
-                less.clearFileCache();
-                less.refresh();
-                return;
+                if (typeof less !== 'undefined' && less.clearFileCache != undefined)
+                {
+                    less.clearFileCache();
+                    less.refresh();
+                    return;
+                }
+            }
+            catch (e) {
+                log.error(e.message);
             }
             
             if (typeof window.less == 'undefined')
@@ -151,6 +324,7 @@ if (ko.skin == undefined)
          */
         gtk: {
             
+            enabled: false,
             koSkin: null,
             _themeInfo: null,
             
@@ -163,14 +337,15 @@ if (ko.skin == undefined)
              */
             init: function(koSkin)
             {
-                this.koSkin = koSkin;
-                
                 var koInfoService = Components.classes["@activestate.com/koInfoService;1"].
                         getService(Components.interfaces.koIInfoService);
                 if (window.navigator.platform.toLowerCase().indexOf("linux") == -1)
                 {
                     return false;
                 }
+                
+                this.enabled = true;
+                this.koSkin = koSkin;
                 
                 return true;
             },
@@ -229,7 +404,6 @@ if (ko.skin == undefined)
                 {
                     if (typeof file == 'undefined' || prefs.getString(PREF_CUSTOM_SKIN, '') == file.path)
                     {
-                        this.koSkin.clearCache();
                         prefs.setStringPref(PREF_CUSTOM_SKIN,'');
                         return;
                     }
@@ -237,8 +411,6 @@ if (ko.skin == undefined)
                 
                 if (prefs.getString(PREF_CUSTOM_SKIN, '') != file.path)
                 {
-                    this.koSkin.loadCustomSkin(file, true);
-                    this.koSkin.clearCache();
                     prefs.setStringPref(PREF_CUSTOM_SKIN, file.path);
                 }
             },
@@ -305,7 +477,7 @@ if (ko.skin == undefined)
                 
             }
             
-        },
+        }
         
     };
     

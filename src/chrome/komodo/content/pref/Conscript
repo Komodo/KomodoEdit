@@ -108,6 +108,8 @@ $cons->InstallInChrome('pref-intl.js');
 $cons->Preprocess('pref-ui.p.xul', 'pref-ui.xul');
 $cons->InstallInChrome('pref-ui.xul');
 
+$cons->InstallInChrome('pref-ui.js');
+
 $cons->InstallInChrome('pref-printing.xul');
 
 $cons->InstallInChrome('pref-proxies.xul');
