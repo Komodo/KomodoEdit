@@ -94,6 +94,8 @@ $cons->Preprocess('color_schemes/BlueWater.p.ksf', 'color_schemes/BlueWater.ksf'
 $cons->InstallAs("$supportDir/schemes/BlueWater.ksf", 'color_schemes/BlueWater.ksf');
 $cons->Preprocess('color_schemes/Solarized.p.ksf', 'color_schemes/Solarized.ksf');
 $cons->InstallAs("$supportDir/schemes/Solarized.ksf", 'color_schemes/Solarized.ksf');
+$cons->Preprocess('color_schemes/Komodo_Experimental.p.ksf', 'color_schemes/Komodo_Experimental.ksf');
+$cons->InstallAs("$supportDir/schemes/Komodo_Experimental.ksf", 'color_schemes/Komodo_Experimental.ksf');
 
 $cons->BuildAndInstallXpt('koIKeybindingSchemeService.idl');
 $cons->InstallXpcomComponent('koKeybindingSchemeService.py');
