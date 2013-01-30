@@ -126,7 +126,7 @@ if (typeof ko.openfiles == 'undefined')
             {
                 
                 classList.add('showTabs');
-                ko.logging.dumpImportant(menuEntry.nodeName);
+                //ko.logging.dumpImportant(menuEntry.nodeName);
                 menuEntry.setAttribute('checked', 'true');
                 menuEntry.setAttribute('toggled', 'true');
             }
