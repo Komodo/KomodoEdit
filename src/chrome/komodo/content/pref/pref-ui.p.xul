@@ -89,6 +89,8 @@
                        value="&iconset.label;" />
                 <menulist id="koSkin_custom_icons"
                           pref="true"
+                          preftype="string"
+                          prefdefault=""
                           prefattribute="value">
                     <menupopup>
                         <menuitem id="pref_appearance_iconset_default"
