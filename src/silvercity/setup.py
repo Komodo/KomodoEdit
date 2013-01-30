@@ -1,9 +1,25 @@
 #!/usr/bin/env python 
  
 from distutils.core import setup, Extension 
+from distutils.command.build_ext import build_ext
 from distutils.command.install_data import install_data
 import sys 
 import os
+
+class komodo_build_ext(build_ext):
+    def build_extensions(self):
+        if sys.platform.startswith("linux"):
+            # Allow a custom C compiler through the environment variables. This
+            # allows Komodo to build using a gcc compiler that's not first on
+            # the path.
+            compiler = os.environ.get('CC')
+            if compiler is not None:
+                import sysconfig
+                (ccshared,cflags) = sysconfig.get_config_vars('CCSHARED','CFLAGS')
+                args = {}
+                args['compiler_so'] = compiler + ' ' + ccshared + ' ' + cflags
+                self.compiler.set_executables(**args)
+        build_ext.build_extensions(self)
 
 class fixed_install_data(install_data):
     """Sets install_dir to be install directory of extension
@@ -129,7 +145,8 @@ are modules to convert source code to syntax-styled HTML.""",
         url = "http://silvercity.sourceforge.net",
         licence = "BSD-style",
         ext_package = "SilverCity",
-        cmdclass = {'install_data': fixed_install_data},
+        cmdclass = {'install_data': fixed_install_data,
+                    'build_ext': komodo_build_ext},
         ext_modules = [Extension("_SilverCity", src_files,   
                         define_macros = defines, 
                         include_dirs = include_dirs,
