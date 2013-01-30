@@ -42,7 +42,7 @@
 // Implemented by Neil Hodgson
 
 #if defined(__APPLE__)
-typedef HIViewRef WinID;
+typedef NSObject *WinID;
 #else
 #if defined(GTK) || !defined(_WIN32)
 #include <gtk/gtk.h> 
