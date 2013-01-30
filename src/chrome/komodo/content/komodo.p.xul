@@ -1067,6 +1067,13 @@
                             </menu>
                             <menu id="menu_toolbars" label="&toolbars.label;">
                                 <menupopup id="popup_toolbars">
+                                    <menuitem label="&showToolbars.label;"
+                                              id="menu_toggleToolbars"
+                                              observes="cmd_toggleToolbars"
+                                              checked="true"
+                                              persist="checked"
+                                              type="checkbox"
+                                              />
                                     <menuitem label="&showButtonText.label;"
                                               id="menu_toggleButtonText"
                                               observes="cmd_toggleButtonText"
@@ -1627,7 +1634,7 @@
         </toolbar>
 
         <hbox>
-            <toolboxrow id="main-toolboxrow" flex="1" align="start" persist="hidden mode" mode="icons"
+            <toolboxrow id="main-toolboxrow" flex="1" align="start" persist="hidden mode collapsed" mode="icons"
 <!-- #if PLATFORM == "darwin" -->
                 fullscreentoolbar="true"
 <!-- #endif -->

@@ -51,6 +51,7 @@ var handlers = {
     'cmd_focusBottomPane': function() ko.uilayout.focusPane("workspace_bottom_area"),
     'cmd_focusEditor': 'ko.views.manager.currentView.setFocus()',
     'cmd_focusSource': 'ko.views.manager.currentView.viewSource()',
+    'cmd_toggleToolbars': 'ko.uilayout.toggleToolbars()',
     'cmd_toggleButtonText': 'ko.uilayout.toggleButtons()',
     'cmd_viewedittoolbar': 'ko.uilayout.toggleToolbarVisibility(\'standardToolbar\')',
     'cmd_viewtoolstoolbar': 'ko.uilayout.toggleToolbarVisibility(\'toolsToolbar\')',

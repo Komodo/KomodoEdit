@@ -602,6 +602,7 @@
 <!ENTITY selection.label "selection">
 <!ENTITY selectionInformation.tooltiptext "Selection Information">
 <!ENTITY showButtonText.label "Show Button Text">
+<!ENTITY showToolbars.label "Show Toolbars">
 <!ENTITY showHideBottomPane.tooltiptext "Show/Hide Bottom Pane">
 <!ENTITY showHideLeftPane.tooltiptext "Show/Hide Left Pane">
 <!ENTITY showHideRightPane.tooltiptext "Show/Hide Right Pane">
@@ -712,6 +713,7 @@
 <!ENTITY userInterfaceShowHideBottomPane.desc "User Interface: Show/Hide Bottom Pane">
 <!ENTITY userInterfaceShowHideLeftPane.desc "User Interface: Show/Hide Left Pane">
 <!ENTITY userInterfaceShowHideStandardToolbar.desc "User Interface: Show/Hide Standard Toolbar">
+<!ENTITY userInterfaceShowHideToolbars.desc "User Interface: Show/Hide All Toolbars">
 <!ENTITY userInterfaceShowHideToolbarButtonText.desc "User Interface: Show/Hide Toolbar Button Text">
 <!ENTITY userInterfaceShowHideRightPane.desc "User Interface: Show/Hide Right Pane">
 <!ENTITY userInterfaceShowHideToolboxTab.desc "User Interface: Show/Hide Toolbox Tab">

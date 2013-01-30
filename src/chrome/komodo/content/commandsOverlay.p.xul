@@ -86,6 +86,13 @@
             autoCheck="false"
             oncommand="ko.commands.doCommandAsync('cmd_viewFullScreen', event)"/>
         <broadcaster
+            id="cmd_toggleToolbars" key="key_cmd_toggleToolbars"
+            desc="&userInterfaceShowHideToolbars.desc;"
+            oncommand="ko.commands.doCommandAsync('cmd_toggleToolbars', event)"
+            persist="checked"
+            checked="false"
+            autoCheck="false" />
+        <broadcaster
             id="cmd_toggleButtonText" key="key_cmd_toggleButtonText"
             desc="&userInterfaceShowHideToolbarButtonText.desc;"
             oncommand="ko.commands.doCommandAsync('cmd_toggleButtonText', event)"

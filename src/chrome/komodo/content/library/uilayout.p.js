@@ -128,10 +128,43 @@ function _setToolbarButtonText(toolbarId, buttonTextShowing)
     }
 }
 
+var _toolbarsShowing = false;
+this.isToolbarsShowing = function() {
+    return _toolbarsShowing;
+}
+
+// Toggle all toolbars
+this.toggleToolbars = function uilayout_toggleToolbars()
+{
+    var toolbarsShowing;
+    var broadcaster = document.getElementById('cmd_toggleToolbars');
+    if (broadcaster.hasAttribute('checked') && broadcaster.getAttribute('checked') == 'true') {
+        broadcaster.setAttribute("checked", "false");
+        toolbarsShowing = false;
+    } else {
+        broadcaster.setAttribute("checked", "true");
+        toolbarsShowing = true;
+    }
+    
+    _toolbarsShowing = toolbarsShowing;
+    var toolboxrow = document.getElementById('main-toolboxrow');
+    if (toolbarsShowing)
+    {
+	toolboxrow.removeAttribute('collapsed');
+    }
+    else
+    {
+	toolboxrow.setAttribute('collapsed', 'true');
+    }
+
+    document.persist('cmd_toggleToolbars', 'checked');
+}
+
 var _buttonTextShowing = false;
 this.isButtonTextShowing = function() {
     return _buttonTextShowing;
 }
+
 // Toggle whether text is shown on toolbar buttons
 this.toggleButtons = function uilayout_toggleButtons()
 {
