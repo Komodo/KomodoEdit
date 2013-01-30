@@ -39,6 +39,7 @@ Be sure to stop the driver thread when done:
     d.stop()
 """
 
+import errno
 import os
 from os.path import (exists, expanduser, join, isdir, dirname, abspath,
     splitext, split, isabs, normcase, normpath)
@@ -740,6 +741,11 @@ class GoGatherer(Gatherer):
                                       name=shortcut, url=hit.url)
             log.debug("added child: %s", ET.tostring(child))
         log.debug("about to write: %s", ET.tostring(shortcuts_elem))
+        try:
+            os.makedirs(os.path.dirname(path))
+        except OSError as ex:
+            if ex.errno != errno.EEXIST:
+                raise
         with open(path, "wb") as fout:
             tree.write(fout, encoding="utf-8")
 
