@@ -875,6 +875,34 @@
         ]]>
         </body>
         </method>
+        
+        <!--<field name="firstDocLine">-1</field>-->
+        <!--<field name="lastDocLine">-1</field>-->
+        
+        <!-- These two methods used by subclasses to track editor/view boundaries.-->
+        <method name="getEditorViewBoundaries">
+        <body>
+        <![CDATA[
+        var scimoz = this.scimoz;
+        var firstDocLine, lastDocLineOnScreen;
+        var firstVisibleLine = scimoz.firstVisibleLine;
+        var firstDocLine = scimoz.docLineFromVisible(firstVisibleLine);
+        var lastDocLineOnScreen = scimoz.docLineFromVisible(firstVisibleLine + scimoz.linesOnScreen);
+        return [firstDocLine, lastDocLineOnScreen];
+        ]]>
+        </body>
+        </method>
+        
+        <method name="updateEditorViewBoundaries">
+        <parameter name="firstDocLine" />
+        <parameter name="lastDocLineOnScreen" />
+        <body>
+        <![CDATA[
+        this.firstDocLine = firstDocLine;
+        this.lastDocLine = lastDocLineOnScreen;
+        ]]>
+        </body>
+        </method>
 
         <field name="_lastPosLineAndCol">[-1, -1, -1, -1]</field>
 
@@ -907,17 +935,17 @@
                 xtk.domutils.fireDataEvent(this, 'current_view_linecol_changed', data);
 
             } else {
-	        if (this._lastPosLineAndCol[3] != newPosLineAndCol[3]) {
+                if (this._lastPosLineAndCol[3] != newPosLineAndCol[3]) {
                     this._lastPosLineAndCol = newPosLineAndCol;
-		    if (this.lintBuffer) {
+                    if (this.lintBuffer) {
                         xtk.domutils.fireDataEvent(this, 'current_view_scroll_changed', data);
-		    }
-		}
-	        if (!this.textChangeUndoPending && !this.lastCharAdded) {
+                    }
+                }
+                if (!this.textChangeUndoPending && !this.lastCharAdded) {
                     // Position hasn't changed, no chars were added and no text
                     // was modified - we've got nothing to do.
                     return;
-		}
+                }
             }
 
             scimoz.doBraceMatch();
@@ -1527,19 +1555,26 @@
 
         <method name="restoreLocation">
         <parameter name="obj"/>
+        <parameter name="doTimeout"/>
         <body>
         <![CDATA[
+            if (typeof(doTimeout) == "undefined") doTimeout = true;
             var scimoz = this.scimoz;
             scimoz.currentPos = obj.currentPos;
             scimoz.anchor = obj.anchor;
             scimoz.selectionStart = obj.selectionStart;
             scimoz.selectionEnd = obj.selectionEnd;
-            setTimeout(function() {
-                // Do this in a timeout because for saveAs, some other code will try
-                // to update the horiz and vert locations, and get it wrong.
+            var f = function() {
                 scimoz.firstVisibleLine = obj.firstVisibleLine;
                 scimoz.xOffset = obj.xOffset;
-            }, 300);
+            };
+            if (doTimeout) {
+                // Do this in a timeout because for saveAs, some other code will try
+                // to update the horiz and vert locations, and get it wrong.
+                setTimeout(f, 300);
+            } else {
+                f();
+            }
         ]]>
         </body>
         </method>

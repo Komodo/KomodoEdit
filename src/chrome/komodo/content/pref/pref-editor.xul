@@ -277,6 +277,13 @@
                           prefattribute="checked"/>
                 <description></description>
             </vbox>
+            <hbox id="editShowMinimap_hbox" align="center">
+                <checkbox id="editShowMinimap"
+                          label="&useMinimapScrollbar.label;"
+                          pref="true"
+                          prefstring="editShowMinimap"
+                          prefattribute="checked" />
+            </hbox>
         </groupbox>
 
         <groupbox orient="vertical">

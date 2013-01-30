@@ -72,6 +72,18 @@ view[type='xul']  {
   -moz-binding: url('chrome://komodo/content/bindings/views-xul.xml#view-xul');
 }
 
+view[type='minimap']  {
+  -moz-binding: url('chrome://komodo/content/bindings/views-minimap.xml#view-minimap');
+  width: 150px;
+  max-width: 150px;
+  visibility: collapse;
+  padding-left: 1px;
+  background-color: -moz-default-color;
+}
+view[type='minimap'].showMinimap  {
+  visibility: visible;
+}
+
 menupopup[type='buffercontext']  {
   -moz-binding: url('chrome://komodo/content/bindings/views-buffer.xml#popup-buffer');
 }

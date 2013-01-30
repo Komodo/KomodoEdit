@@ -1607,6 +1607,22 @@ class koDocumentBase:
         scimoz.codePage = self._codePage
         log.info("in AddView")
     
+    def addScimoz(self, scimoz):
+        #TODO: Pull out commented-out code
+        #xpself = WrapObject(self, components.interfaces.koIDocument)
+        scimoz.addRefDocument(self._docPointer)
+        scimoz.docPointer = self._docPointer
+        #self.docSettingsMgr.register(xpself, scintilla)
+    
+    def releaseScimoz(self, scimoz):
+        #xpself = WrapObject(self, components.interfaces.koIDocument)
+        # We could have done this in JavaScript, but it makes more sense
+        # to do it here.
+        try:
+            scimoz.releaseDocument(scimoz.docPointer);
+        except:
+            log.exception("releaseScimoz failed")
+
     @components.ProxyToMainThread
     def releaseView(self, scintilla):
         try:

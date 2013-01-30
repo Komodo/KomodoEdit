@@ -168,6 +168,14 @@ interface koIScintillaView : koIView
      * otherwise the text is inserted at the current position.
      */
     void insertText(in AString text);
+    
+    /**
+     * onFoldChanged
+     *
+     * Used by the minimap handler, so when the fold-changes programmatically,
+     * there's a notification to update the minimap.
+     */
+    void onFoldChanged(in long lineNo);
 };
 
 [scriptable, uuid(D10DFEB9-D312-49B9-A180-20A89EF47DE6)]

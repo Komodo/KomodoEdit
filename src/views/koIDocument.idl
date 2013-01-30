@@ -175,7 +175,9 @@ interface koIDocument : nsISupports
     // Maintain a list of editor views that are using this document.
     // XXX we will want to revisit this and make it less scintilla-specific
     void addView(in koIScintillaView scintilla);
+    void addScimoz(in ISciMoz scimoz);
     void releaseView(in koIScintillaView scintilla);
+    void releaseScimoz(in ISciMoz scimoz);
     koIScintillaView getView(); // return first view
     readonly attribute long numScintillas; // the number of scintillas for this view.
     

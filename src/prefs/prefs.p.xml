@@ -101,6 +101,9 @@
   <boolean id="editUseAlternateFaceType">0</boolean>
   <!-- editFoldStyle: none, box, plusminus, curvytree, squaretree -->
   <string id="editFoldStyle">squaretree</string>
+  
+  <!-- editShowMinimap: whether to show a minimap scrollbar -->
+  <boolean id="editShowMinimap">true</boolean>
 
   <!-- editFoldLines: whether to show horizontal lines on fold marks -->
   <boolean id="editFoldLines">1</boolean>

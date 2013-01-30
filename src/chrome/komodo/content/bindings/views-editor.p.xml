@@ -45,15 +45,26 @@
 
 <binding id="view-editor"
     extends="chrome://komodo/content/bindings/views-buffer.xml#view-buffer-base">
-    <content orient="vertical">
+    <content orient="vertical" flex="6">
+    <!--<xul:vbox anonid="scintilla-vbox" flex="6">-->
         <xul:scintilla xbl:inherits="flex,focused,context,mozcontext" flex="1"
                        anonid="scintilla"
                        allowIME="true"
                        mozcontext="editorContextMenu"/>
         <xul:ko-findbar anonid="findbar"/>
+    <!--</xul:vbox>-->
+        <!--
+    <content orient="vertical" style="border: green solid 1px;" flex="6">
+        <xul:vbox anonid="scintilla-vbox" flex="1">
+            <xul:scintilla xbl:inherits="flex,focused,context,mozcontext" flex="1"
+                           anonid="scintilla"
+                           allowIME="true"
+                           mozcontext="editorContextMenu"/>
+            <xul:ko-findbar anonid="findbar"/>
+        </xul:vbox>
+        -->
     </content>
     <implementation name="vieweditor" implements="koIScintillaView, koIBookmarkableView, ISciMozEvents, nsIObserver">
-
         <property name="cwd">
              <getter><![CDATA[
                 if (this.koDoc && ! this.koDoc.isUntitled) {
@@ -96,6 +107,7 @@
             this.log.info("view-editor:document setter");
             var hadKoDoc = false;
             var viewPrefObserverService, obsSvc;
+            var minimap = this.minimap;
             if (this._koDoc) {
                 hadKoDoc = true;
                 try {
@@ -109,6 +121,9 @@
                                                                     this._koDoc_observer_topics.length,
                                                                     this._koDoc_observer_topics);
                 this._koDoc.releaseView(this);
+                if (minimap) {
+                    minimap.releaseKoDoc();
+                }
                 this._koDoc.releaseReference();
                 obsSvc = Components.classes["@mozilla.org/observer-service;1"].
                                 getService(Components.interfaces.nsIObserverService);
@@ -143,6 +158,11 @@
                 // We are attaching a document to this view
                 val.addReference();
                 val.addView(this);
+                // Bind a minimap view to the koDoc?
+                if (minimap) {
+                    //val.addView(minimap);
+                    minimap.attachKoDoc(val);
+                }                
                 // we want to listen for any changes in the document
                 val.observerService.addObserverForTopics(this,
                                                          this._koDoc_observer_topics.length,
@@ -199,13 +219,17 @@
             [
                 'ySlop',
                 'foldSeparateBlockParts',
-                'select_most_recent_buffer_on_buffer_close'
+                'select_most_recent_buffer_on_buffer_close',
+                'editShowMinimap'
             ]
         </field>
         <field name="initializedGlobalPrefs">false</field>
         <field name="initializedOwnDocPrefs">false</field>
         <field name="initializedGlobalDocPrefs">false</field>
         <field name="foldSeparateBlockParts"></field>
+    
+        <field name="firstDocLine">-1</field>
+        <field name="lastDocLine">-1</field>
 
         <method name="init">
         <body>
@@ -274,7 +298,7 @@
             
             this.initPrefs();
 
-            this._setupHighlightColors();
+            this._setupHighlightColors(this.scintilla);
             xtk.domutils.fireEvent(this, 'current_view_changed');
             this.addEventListener('current_view_linecol_changed',
                                     this.handle_current_view_linecol_changed, false);
@@ -286,6 +310,9 @@
                 this._turnColourizingOff();
             }
             ko.lint.initializeGenericPrefs(this.prefs);
+            this.minimap.initMinimap(doc);
+            var editShowMinimap = this.prefs.getBooleanPref("editShowMinimap");
+            this.updateMinimapDisplay(editShowMinimap);
             ko.macros.eventHandler.hookPostFileOpen(this);
         } catch (e) {
             this.log.exception(e);
@@ -358,6 +385,7 @@
             scimoz.startStyling(0, 0x3f);
             scimoz.setStyling(scimoz.length, 0);
             this.koDoc.docSettingsMgr.applyDocumentSettingsToView(this);
+            this.updateMinimapFromViewFoldpoints();
             scimoz.tabWidth = scimoz.tabWidth;
         ]]>
         </body>
@@ -501,12 +529,13 @@
                     }
                     xtk.domutils.fireEvent(this, 'current_view_language_changed');
                     this.koDoc.docSettingsMgr.applyDocumentSettingsToView(this);
+                    this.updateMinimapFromViewFoldpoints();
 
                     // The change in language may affect controllers
                     window.setTimeout("window.updateCommands('language_changed');", 1);
                     window.setTimeout("window.updateCommands('foldability_changed');", 1);
                 }
-                this._setupHighlightColors();
+                this._setupHighlightColors(this.scintilla);
                 break;
             case 'title_changed':
                 // XXX need a way to observer file/title changes
@@ -538,6 +567,10 @@
                                        this.scimoz.CARET_STRICT |
                                        this.scimoz.CARET_EVEN,
                                        (this.prefs || this.__globalPrefs).getLongPref('ySlop'));
+                break;
+            case 'editShowMinimap':
+                var editShowMinimap = this.prefs.getBooleanPref("editShowMinimap");
+                this.updateMinimapDisplay(editShowMinimap);
                 break;
             case 'foldSeparateBlockParts':
                 //multi-window: this applies to all windows, as it's a pref
@@ -573,6 +606,7 @@
                     this.koDoc.docSettingsMgr.applyDocumentSettingsToView(this);
                     var stylingPos = this.scimoz.endStyled;
                     scimoz.colourise(0, -1);
+                    this.updateMinimapFromViewFoldpoints();
                 }
                 // This forces a repaint.
                 scimoz.tabWidth = scimoz.tabWidth;
@@ -584,7 +618,7 @@
             case 'scheme-changed': // Modified the current scheme
                 setTimeout(function(this_) {
                     // view.scintilla is still using the old scheme.
-                    this_._setupHighlightColors();
+                    this_._setupHighlightColors(this_.scintilla);
                 }, 1, this);
                 break;
 
@@ -599,11 +633,41 @@
         </body>
         </method>
 
+        <method name="updateMinimapDisplay">
+        <parameter name="editShowMinimap"/>
+        <body>
+        <![CDATA[
+        var minimap = this.minimap;
+        this.showMinimap = editShowMinimap;
+        if (editShowMinimap) {
+            minimap.classList.add("showMinimap");
+            this.scimoz.vScrollBar = false;
+            var obj = {};
+            this.saveLocation(obj);
+            var bounds = this.getEditorViewBoundaries();
+            this.updateEditorViewBoundaries.apply(this, bounds);
+            
+            this.updateMinimapFromViewFoldpoints();
+            minimap.syncMinimapFromBuffer();
+            setTimeout(function() {
+                this.restoreLocation(obj, false/*inner doTimeout */);
+                //this.scimoz.gotoPos(currentPos);
+                //this.scintilla.focus();
+            }.bind(this), 1);
+        } else {
+            minimap.classList.remove("showMinimap");
+            this.scimoz.vScrollBar = true;
+        }
+        ]]>
+        </body>
+        </method>
+
         <method name="_setupHighlightColors">
+        <parameter name="scintilla"/>
         <body>
         <![CDATA[
             var colorInfo = {};
-            var scheme = this.scintilla.scheme;
+            var scheme = scintilla.scheme;
             this._highlightColors = {};
             if (scheme) {
                 scheme.getHighlightColorInfo(this.languageObj,
@@ -1231,6 +1295,8 @@
             this.koDoc.docSettingsMgr.applyDocumentSettingsToView(this);
             if (oldDocLanguage == newdocument.language) {
                 this.restoreFoldedLines(locationInfo);
+            } else {
+                this.updateMinimapFromViewFoldpoints();
             }
             this.restoreLocation(locationInfo);
             window.updateCommands('previewability_changed');
@@ -1243,6 +1309,34 @@
             this.log.exception(ex, "Error in editor view .saveAs()");
         }
         return false;
+        ]]>
+        </body>
+        </method>
+
+        <method name="updateMinimapFromViewFoldpoints">
+        <parameter name="" />
+        <body>
+        <![CDATA[
+        var minimap = this.minimap;
+        if (!minimap || !this.showMinimap) {
+            return;
+        }
+        // Make sure the fold points of both buffers are in sync.
+        var vs = this.scimoz;
+        var mms = minimap.scimoz;
+        var numLines = vs.lineCount;
+        var madeChange = false;
+        for (var i = numLines - 1; i >= 0; i--) {
+            if ((vs.getFoldLevel(i) & vs.SC_FOLDLEVELHEADERFLAG)
+                && (vs.getFoldExpanded(i) !== mms.getFoldExpanded(i))) {
+                //dump("Toggle minimap line :" + i + "\n");
+                mms.toggleFold(i);
+                madeChange = true;
+            }
+        }
+        if (madeChange) {
+            minimap.syncMinimapFromBuffer();
+        }
         ]]>
         </body>
         </method>
@@ -1282,7 +1376,8 @@
                             scimoz.toggleFold(i);
                         }
                     });
-            }, 1, this.scimoz);
+                    this.updateMinimapFromViewFoldpoints();
+            }.bind(this), 1, this.scimoz);
         ]]>
         </body>
         </method>
@@ -1296,6 +1391,127 @@
             myState.setStringPref('URI', this._koDoc.file.URI);
             return myState;
         ]]>
+        </body>
+        </method>
+        
+        <method name="updateFirstVisibleLineAndUpdateBoundaries">
+        <parameter name="firstVisibleLine" />
+        <body>
+        <![CDATA[
+        var scimoz = this.scimoz;
+        scimoz.firstVisibleLine = firstVisibleLine;
+        var firstDocLine, lastDocLineOnScreen;
+        [firstDocLine, lastDocLineOnScreen] = this.getEditorViewBoundaries();
+        this.updateEditorViewBoundaries(firstDocLine, lastDocLineOnScreen);
+        ]]>
+        </body>
+        </method>
+        
+        <method name="onUpdateUI">
+        <body>
+        <![CDATA[
+        //TODO: Minimap pref
+        //dump(">> views-editor.p.xml: onUpdateUI\n");
+        if (this.minimap && this.showMinimap) {
+            var firstDocLine, lastDocLineOnScreen;
+            [firstDocLine, lastDocLineOnScreen] = this.getEditorViewBoundaries();
+            var updateMinimap = (this.firstDocLine !== firstDocLine
+                                 || this.lastDocLine !== lastDocLineOnScreen);
+            if (updateMinimap) {
+                //dump("* -updateEditorViewBoundaries " + [firstDocLine, lastDocLineOnScreen] + "\n");
+                this.updateEditorViewBoundaries(firstDocLine, lastDocLineOnScreen);
+                this.minimap.syncMinimapFromBuffer();
+            }
+        }
+        return this.__proto__.__proto__.onUpdateUI.call(this);
+
+        //return this.onUpdateUI_2();
+        ]]>
+        </body>
+        </method>
+        
+        <method name="onMarginClick">
+        <parameter name="modifiers"/>
+        <parameter name="position"/>
+        <parameter name="margin"/>
+        <body>
+        <![CDATA[
+        var res = this.__proto__.__proto__.onMarginClick.call(this, modifiers, position, margin);
+            var scimoz = this.scimoz;
+        var lineClicked = scimoz.lineFromPosition(position);
+        // do minimap stuff here
+        if (this.minimap
+            && margin === 1
+            && this.showMinimap
+            && (scimoz.getFoldLevel(lineClicked) & scimoz.SC_FOLDLEVELHEADERFLAG)) {
+            this.minimap.scimoz.toggleFold(lineClicked);
+            this.minimap.syncMinimapFromBuffer();
+        }
+        ]]>
+        </body>
+        </method>
+
+        <method name="onFoldChanged">
+        <parameter name="lineNo"/>
+        <body>
+        <![CDATA[
+            if (this.minimap && this.showMinimap) {
+                this.minimap.scimoz.toggleFold(lineNo);
+                this.minimap.syncMinimapFromBuffer();
+            }
+        ]]>
+        </body>
+        </method>
+        
+        <method name="syncBufferFromMinimap">
+        <parameter name="minimap" />
+        <parameter name="syncMinimap" />
+        <body><![CDATA[
+            if (!this.showMinimap) {
+                return;
+            }
+            var scimoz = this.scimoz;
+            if (typeof(syncMinimap) == "undefined") syncMinimap = false;
+            var docCoordsStart, docCoordsEnd;
+            docCoordsStart = this.getEditorViewBoundaries();
+            var msz = minimap.scimoz;
+            var numLines = scimoz.lineCount;
+            var linesOnScreen = scimoz.linesOnScreen;
+            var firstMSZVisibleLine = msz.firstVisibleLine;
+            var numMSZVisibleLines = msz.visibleFromDocLine(msz.lineCount);
+            var lastTopMSZVisibleLine = numMSZVisibleLines - msz.linesOnScreen;
+            var msz_portion_covered = firstMSZVisibleLine / lastTopMSZVisibleLine;
+
+            var numVisibleLines = scimoz.visibleFromDocLine(numLines);
+            var lastTopVisibleLine = numVisibleLines - linesOnScreen;
+            var firstVisibleLine = Math.round(lastTopVisibleLine * msz_portion_covered);
+            //dump("views-editor.p.xml: sync: set firstVisibleLine to "
+            //     + firstVisibleLine
+            //     + "\n");
+            scimoz.firstVisibleLine = firstVisibleLine;
+            // And make sure the updateUI routine doesn't do anything.
+            var currentPos = scimoz.currentPos;
+            this._lastPosLineAndCol = [currentPos, scimoz.lineFromPosition(currentPos),
+                                       scimoz.getColumn(currentPos), firstVisibleLine];
+            // And update the selection (???)
+            
+            // Update the boundary checkers so we don't ask the minimap to update in
+            // the onUpdateUI method that will get called next.
+            [firstDocLine, lastDocLineOnScreen] = this.getEditorViewBoundaries();
+            docCoordsEnd = this.getEditorViewBoundaries();
+            this.updateEditorViewBoundaries(docCoordsEnd[0], docCoordsEnd[1]);
+            
+            if (!syncMinimap) {
+                //dump("Don't sync the minimap\n");
+            } else if (docCoordsStart[0] != docCoordsEnd[0]
+                || docCoordsStart[1] != docCoordsEnd[1]) {
+                minimap.syncMinimapFromBuffer();
+            } else {
+                //dump("In view: syncBufferFromMinimap: nothing changed, don't update minimap\n");
+            }
+            this.ignoreNextUIUpdate = true;
+            minimap.ignoreNextUIUpdate = true;
+            ]]>
         </body>
         </method>
 
@@ -1709,6 +1925,33 @@
             }
             ]]>
         </handler>
+        
+        <handler event="codeintel_autocomplete_selected" phase="bubbling">
+        <![CDATA[
+            var startPos = event.getData("position");
+            var insertedText = event.getData("text");
+            var triggerChar = event.getData("triggerChar");      
+            //TODO: Store and observe these prefs
+            try {
+                if (triggerChar === null) {
+                    //dump("No trigger char\n");
+                } else if (!this.enableAutoAbbreviations) {
+                    //dump("enableAutoAbbreviations off\n");
+                } else if (this.autoAbbreviationTriggerCharacters_Processed.indexOf(triggerChar) == -1) {
+                    //TODO: Handle \r <=> \n thing
+                    //dump("Not processing trigger-char " + triggerChar + "\n");
+                } else if (ko.abbrev.checkExpandCodeintelText(this, this.scimoz, insertedText)) {
+                    // No further codeintel needed.
+                    // Squelch processing of the trigger character
+                    this.scintilla.squelchTriggerCharacter = triggerChar;
+                } else {
+                    //dump("checkExpandCodeintelText => false\n");
+                }
+            } catch(ex) {
+                this.log.exception("codeintel_autocomplete_selected handler failed");
+            }
+        ]]>
+            </handler>
     </handlers>
 
 </binding>

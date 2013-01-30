@@ -335,7 +335,7 @@
                     // Skip comment nodes.
                     if (nodes[i].nodeType == nodes[i].COMMENT_NODE) continue;
 
-                    views = nodes[i].getElementsByTagNameNS(XUL_NS, "view");
+                    views = Array.slice(nodes[i].getElementsByTagNameNS(XUL_NS, "view")).filter(function(v) v.getAttribute("type") != "minimap");
                     for (var j = 0; j < views.length; ++j) {
                         view = views[j];
                         allViews = allViews.concat(view);
@@ -487,6 +487,12 @@
                 } catch (ex) {
                     this.log.error("Unable to register view: " + v);
                 }
+                var minimap = document.createElementNS(XUL_NS, 'view');
+                minimap.setAttribute('type', 'minimap');
+                minimap.setAttribute('flex','1');
+                box.appendChild(minimap);
+                v.minimap = minimap;
+                minimap.init(v);
                 return v;
             } catch(e) {
                 this.log.exception(e);
