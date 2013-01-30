@@ -4,7 +4,7 @@
   "value": [
     "<% if (ko.snippets.rightOfFirstRubyKeyword()) {%>", 
     "class [[%tabstop:name]][[%tabstop: < [[%tabstop:name]]]]", 
-    "\t[[%tabstop:#code]][[%tabstop:", 
+    "\t[[%tabstop:#code]]",
     "end<% } else {", 
     "  throw new ko.snippets.RejectedSnippet(\"not at start of line\");", 
     "   } %>", 
