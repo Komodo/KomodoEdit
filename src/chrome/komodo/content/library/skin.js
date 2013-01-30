@@ -306,8 +306,13 @@ if (ko.skin == undefined)
                     less.clearFileCache();
                     less.refresh();
                     
-                    for (let k of Object.keys(less.contextAware))
+                    for (let k in less.contextAware)
                     {
+                        if ( ! less.contextAware.hasOwnProperty(k))
+                        {
+                            continue;
+                        }
+                        
                         less.setContext(less.contextAware[k].window);
                         less.refresh();
                     }
