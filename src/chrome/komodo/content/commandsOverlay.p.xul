@@ -90,7 +90,7 @@
             desc="&userInterfaceShowHideToolbars.desc;"
             oncommand="ko.commands.doCommandAsync('cmd_toggleToolbars', event)"
             persist="checked"
-            checked="false"
+            checked="true"
             autoCheck="false" />
         <broadcaster
             id="cmd_toggleButtonText" key="key_cmd_toggleButtonText"

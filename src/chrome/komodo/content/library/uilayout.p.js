@@ -128,11 +128,6 @@ function _setToolbarButtonText(toolbarId, buttonTextShowing)
     }
 }
 
-var _toolbarsShowing = false;
-this.isToolbarsShowing = function() {
-    return _toolbarsShowing;
-}
-
 // Toggle all toolbars
 this.toggleToolbars = function uilayout_toggleToolbars()
 {
@@ -146,7 +141,6 @@ this.toggleToolbars = function uilayout_toggleToolbars()
         toolbarsShowing = true;
     }
     
-    _toolbarsShowing = toolbarsShowing;
     var toolboxrow = document.getElementById('main-toolboxrow');
     if (toolbarsShowing)
     {
