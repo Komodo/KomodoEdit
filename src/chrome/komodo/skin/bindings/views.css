@@ -78,7 +78,7 @@ view[type='minimap']  {
   max-width: 150px;
   visibility: collapse;
   padding-left: 1px;
-  background-color: -moz-default-color;
+  background-color: transparent;
 }
 view[type='minimap'].showMinimap  {
   visibility: visible;
