@@ -15,6 +15,15 @@
         <!-- #if 1 -->
         <hbox id="toolbox2-hierarchy-toolbar-a" >
             <!-- the cog -->
+            <textbox id="toolbox2-filter-textbox"
+                       style="min-width:40px;"
+                       flex="1"
+                       type="search"
+                       timeout="500"
+                       onfocus="this.select();"
+                       onkeypress="ko.toolbox2.onFilterKeypress(event)"
+                       oncommand="ko.toolbox2.updateFilter()"
+                       tooltiptext="&findFilter.tooltiptext;"/>
             <toolbarbutton    id="toolbox2_tools-a"
                     tooltiptext="&tools.label;"
                     buttonstyle="pictures"
@@ -48,15 +57,6 @@
                     <!-- put items for inserting here -->
                 </menupopup>
             </toolbarbutton>
-            <textbox id="toolbox2-filter-textbox"
-                       style="min-width:40px;"
-                       flex="1"
-                       type="search"
-                       timeout="500"
-                       onfocus="this.select();"
-                       onkeypress="ko.toolbox2.onFilterKeypress(event)"
-                       oncommand="ko.toolbox2.updateFilter()"
-                       tooltiptext="&findFilter.tooltiptext;"/>
         </hbox >
         <!-- #endif -->
         <tree flex="1" id="toolbox2-hierarchy-tree"

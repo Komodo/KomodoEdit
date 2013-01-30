@@ -304,10 +304,16 @@ toolbaritem .native-new-file-icon
     list-style-image: @icon-native-folder;
 }
 
-/* TODO: A disabled version of this icon. */
+.collab-sessions-menu-icon,
+.codeintel-settings-button,
 .project-tools-icon
 {
-    list-style-image: @icon-project-tools;
+    list-style-image: @icon-gear !important;
+    
+    image
+    {
+        filter: @panel-toolbar-icon-filter;
+    }
 }
 
 .new-template-icon
@@ -429,6 +435,13 @@ treechildren::-moz-tree-image(remotefile)
 .small-cut-icon
 {
     list-style-image: @icon-cut-small;
+}
+
+.textbox-search-icon
+{
+    list-style-image: @icon-textbox-search;
+    max-width: 12px;
+    max-height: 12px;
 }
 
 /* Komodo icons */
@@ -742,6 +755,16 @@ treechildren::-moz-tree-image(remotefile)
     list-style-image: @icon-addon-debug-stop !important;
 }
 
+.debug-detach-icon
+{
+    list-style-image: @icon-addon-debug-detach !important;
+}
+
+.debug-inspect-icon
+{
+    list-style-image: @icon-addon-debug-inspect !important;
+}
+
 /* Macro Icons */
 
 .macro-play-icon
@@ -767,4 +790,191 @@ treechildren::-moz-tree-image(remotefile)
 .macro-save-icon
 {
     list-style-image: @icon-macro-save !important;
+}
+
+/* Notification Widget */
+
+#notificationWidget
+{
+    #filter-error
+    {
+        list-style-image: @icon-filter-error !important;
+    }
+    
+    #filter-warning
+    {
+        list-style-image: @icon-filter-warning !important;
+    }
+    
+    #filter-info
+    {
+        list-style-image: @icon-filter-info !important;
+    }
+    
+    #filter-progress
+    {
+        list-style-image: @icon-filter-progress !important;
+    }
+}
+
+/* Syntax checking widget */
+
+#klint-disable-syntax-checking
+{
+    list-style-image: @icon-klint-disable-syntax;
+}
+
+#klint-refresh
+{
+    list-style-image: @icon-klint-refresh;
+}
+
+/* Code Browser Widget */
+
+#codeBrowserPane
+{
+    .codeintel-locate
+    {
+        list-style-image: @icon-codebrowser-locate !important;
+    }
+    
+    toolbarbutton image
+    {
+        filter: @panel-toolbar-icon-filter;
+    }
+}
+
+/* Dom Browser Widget */
+
+#domviewerPane
+{
+    .show-attributes-icon
+    {
+        list-style-image: @icon-dombrowser-show-attributes !important;
+    }
+    
+    .locate-node
+    {
+        list-style-image: @icon-dombrowser-locate !important;
+    }
+    
+    toolbarbutton image
+    {
+        filter: @panel-toolbar-icon-filter;
+    }
+}
+
+/* Database Widget */
+
+#dbExplorerPane
+{
+    .show-databaseAdd-icon
+    {
+        list-style-image: @icon-database-add !important;
+    }
+    
+    toolbarbutton image
+    {
+        filter: @panel-toolbar-icon-filter;
+    }
+}
+
+/* Collaboration Widget */
+
+#collab-pane
+{
+    .collab-sessions-add-icon
+    {
+        list-style-image: @icon-collab-add !important;
+    }
+    
+    .collab-sessions-refresh-icon
+    {
+        list-style-image: @icon-collab-refresh !important;
+    }
+    
+    toolbarbutton image
+    {
+        filter: @panel-toolbar-icon-filter;
+    }    
+}
+
+/* Places Widget */
+
+#placesViewbox_placesWrapper
+{
+    
+    #placesSubpanelToggle
+    {
+        list-style-image: @icon-places-panel-toggle !important;
+        
+        &[state="collapsed"]
+        {
+            list-style-image: @icon-places-panel-toggle-collapsed !important;
+        }
+    }
+    
+    toolbarbutton image
+    {
+        filter: @panel-toolbar-icon-filter;
+    }    
+    
+}
+
+/* Find Results Widget */
+
+#findresults_tabpanel-toolbarbox
+{
+    
+    .list-item-up-icon
+    {
+        list-style-image: @icon-findresult-up;
+    }
+    
+    .list-item-down-icon
+    {
+        list-style-image: @icon-findresult-down;
+    }
+    
+    .find-stop-icon
+    {
+        list-style-image: @icon-findresult-stop;
+    }
+    
+    .find-undo-icon
+    {
+        list-style-image: @icon-findresult-undo;
+    }
+    
+    .find-lock-icon
+    {
+        list-style-image: @icon-findresult-lock;
+        
+        &[locked="true"]
+        {
+            list-style-image: @icon-findresult-locked;
+        }
+    }
+    
+    toolbarbutton image
+    {
+        filter: @panel-toolbar-icon-filter;
+    }    
+    
+}
+
+/* Panel widget icons */
+
+.panel-toolbar-buttons
+{
+ 
+    toolbarbutton, button
+    {
+        /* Button Icon */
+        image
+        {
+            filter: @panel-toolbar-icon-filter;
+        }
+    }
+    
 }

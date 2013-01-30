@@ -21,7 +21,7 @@
             src="chrome://klint/content/klintPane.js" />
 
     <vbox flex="1">
-        <hbox align="center">
+        <hbox align="center" class="panel-toolbar-buttons">
             <label flex="1" id="klint-count" value=""/>
             <separator flex="1"/>
             <hbox align="center">
@@ -54,12 +54,12 @@
                         oncommand="gKlint.filterVisibleItems(KlintTreeView.NONE)"/>
                 </menupopup>
             </menulist>
-            <button id="klint-disable-syntax-checking"
-                    class="button-klint-disable-syntax-checking button-toolbar-a"
+            <toolbarbutton id="klint-disable-syntax-checking"
+                    class="button-klint-disable-syntax-checking"
                     tooltiptext="&klint.disable.syntax.checking.by.file.pattern.label;"
                     oncommand="gKlint.onOpenLintFiltersDialog();"/>
-            <button id="klint-refresh"
-                    class="button-klint-refresh button-toolbar-a"
+            <toolbarbutton id="klint-refresh"
+                    class="button-klint-refresh"
                     tooltiptext="&klint.refresh.label;"
                     oncommand="ko.lint.doRequest();"/>
         </hbox>

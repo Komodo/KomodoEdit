@@ -230,6 +230,19 @@
                result="result2" />
         </filter>
         
+        <!-- ========== Fill Darker Gray ========== -->
+        <filter id="fill-darkergray">
+            <feFlood
+               flood-color="rgb(80,80,80)"
+               in="SourceAlpha"
+               result="result1" />
+            <feComposite
+               in2="SourceGraphic"
+               in="result1"
+               operator="in"
+               result="result2" />
+        </filter>
+        
         <!-- ========== Fill Light Gray ========== -->
         <filter id="fill-lightgray">
             <feFlood
@@ -273,6 +286,32 @@
         <filter id="fill-grayblue">
             <feFlood
                flood-color="rgb(93,151,185)"
+               in="SourceAlpha"
+               result="result1" />
+            <feComposite
+               in2="SourceGraphic"
+               in="result1"
+               operator="in"
+               result="result2" />
+        </filter>
+        
+        <!-- ========== Fill Red ========== -->
+        <filter id="fill-red">
+            <feFlood
+               flood-color="rgb(255,0,0)"
+               in="SourceAlpha"
+               result="result1" />
+            <feComposite
+               in2="SourceGraphic"
+               in="result1"
+               operator="in"
+               result="result2" />
+        </filter>
+        
+        <!-- ========== Fill Yellow ========== -->
+        <filter id="fill-yellow">
+            <feFlood
+               flood-color="rgb(255,255,0)"
                in="SourceAlpha"
                result="result1" />
             <feComposite
