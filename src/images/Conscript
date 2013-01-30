@@ -197,17 +197,6 @@ foreach my $src (keys %images) {
 
 
 
-# Install the about box images.
-my $aboutSrc;
-if ($komodoVersion =~ /alpha/) {
-    $aboutSrc = "other/about_edit_alpha.png";
-} elsif ($komodoVersion =~ /beta/) {
-    $aboutSrc = "other/about_edit_beta.png";
-} else {
-    $aboutSrc = "other/about_edit.png";
-}
-$cons->InstallAs("$imagesDir/about.png", $aboutSrc);
-
 # Bordered checkbox icons.
 $cons->Install($imagesDir, "icons/checkbox_bordered_checked.png");
 $cons->Install($imagesDir, "icons/checkbox_bordered_unchecked.png");
