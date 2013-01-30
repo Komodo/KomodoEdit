@@ -4108,20 +4108,22 @@ less.sheetHierarchy = {parents: {}, children: {}};
 
 less.context = null;
 less.contextStorage = null;
+less.contextAware = {};
 
 less.setContext = function(_window) {
 	log('Setting Context: ' + _window.document.location);
 	less.context = _window;
 	
-	if (typeof less.context[_window['document'].location] == 'undefined') {
-		less.context[_window['document'].location] = {
+	if (typeof less.contextAware[_window['document'].location] == 'undefined') {
+		less.contextAware[_window['document'].location] = {
+			window: _window,
 			sheets: [],
 			sheetmap: {}
 		};
 		var _n = true;
 	}
 	
-	less.contextStorage = less.context[_window['document'].location];
+	less.contextStorage = less.contextAware[_window['document'].location];
 	
 	if (typeof _n !== 'undefined') less.detectStyleSheets();
 };
@@ -4180,9 +4182,9 @@ less.refresh = function (reload) {
         (env.remaining === 0) && log("css generated in " + (new(Date) - startTime) + 'ms');
         endTime = new(Date);
 		
-		if (env.remaining === 0) {
-			less.context = window;
-		}
+	if (env.remaining === 0) {
+	    less.context = window;
+	}
 		
     }, reload);
 };
