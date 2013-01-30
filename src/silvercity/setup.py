@@ -122,7 +122,8 @@ elif sys.platform.startswith("sunos"):
     extra_objects = ['libpcre.a']
 else:
     if sys.platform.startswith("linux"):
-        os.environ['CC'] = 'g++'
+        if not os.environ.get('CC'):
+            os.environ['CC'] = 'g++'
         defines.append(('GTK',None)) 
     extra_objects = ['libpcre.a']
 
