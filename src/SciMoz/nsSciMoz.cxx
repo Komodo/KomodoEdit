@@ -713,7 +713,7 @@ NS_IMETHODIMP SciMoz::UnhookEvents(ISciMozEvents *eventListener) {
 }
 
 bool SciMoz::UnhookEvents(const NPVariant *args, uint32_t argCount, NPVariant * /*result*/) {
-	SCIMOZ_DEBUG_PRINTF("SciMoz::HookEvents\n");
+	SCIMOZ_DEBUG_PRINTF("SciMoz::UnhookEvents\n");
 	if (argCount != 1) {
 		SCIMOZ_DEBUG_PRINTF("%s: expected 1 argument, got %i\n",
 				    __FUNCTION__,
