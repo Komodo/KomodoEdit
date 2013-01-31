@@ -44,6 +44,8 @@ if (typeof ko.openfiles == 'undefined')
         PREF_GROUPING_TYPE  = 'openfiles_grouping_type',
         PREF_SORTING_TYPE   = 'openfiles_sorting_type',
         PREF_SHOW_TAB_BAR   = 'openfiles_show_tab_bar';
+        
+    var self;
     
     ko.openfiles.prototype  =
     {
@@ -58,6 +60,8 @@ if (typeof ko.openfiles == 'undefined')
          */
         init: function openfiles_init()
         {
+            self = this;
+            
             // Create references to frequently used DOM elements 
             koWindow    = window.parent;
             listbox     = document.getElementById('openfilesListbox');
@@ -95,7 +99,18 @@ if (typeof ko.openfiles == 'undefined')
             
             // Bind listeners and reload (initialize) the list of open files 
             this.bindListeners();
+            this.bindKeys();
             this.reload();
+        },
+        
+        /**
+         * Check if tab bar is visible
+         * 
+         * @returns {Boolean} 
+         */
+        isTabBarVisible: function openfiles_isTabBarVisible()
+        {
+            return koWindow.document.getElementById('topview').classList.contains('showTabs');
         },
         
         /**
@@ -106,7 +121,7 @@ if (typeof ko.openfiles == 'undefined')
         toggleTabBar: function openfiles_toggleTabBar()
         {
             this.setTabBarVisibility(
-                ! koWindow.document.getElementById('topview').classList.contains('showTabs')
+                ! this.isTabBarVisible()
             );
         },
         
@@ -172,7 +187,8 @@ if (typeof ko.openfiles == 'undefined')
             
             /**** OpenFiles Events ******/
             listbox.addEventListener('select', function(e) {
-                this.onSelectListItem(e.target.selectedItem);
+                this.selectItem(e.target.selectedItem);
+                ko.commands.doCommandAsync('cmd_focusEditor')
             }.bind(this), true);
             
             listbox.addEventListener('contextmenu', this.onContextMenu.bind(this));
@@ -191,19 +207,58 @@ if (typeof ko.openfiles == 'undefined')
         },
         
         /**
-         * Event triggered when an item has been selected from the list
+         * Bind keyboard shortcuts
          * 
-         * @param   {Object} item Item element
-         * 
-         * @returns {Void}
+         * @returns {Void} 
          */
-        onSelectListItem: function openfiles_onSelectListItem(item)
+        bindKeys: function openfiles_bindKeys()
         {
-            var id = item.getAttribute('id');
-            xtk.domutils.fireEvent(
-                openViews[id].parentNode._tab,
-                'click'
-            );
+            // Store original handlers
+            var do_cmd_bufferPrevious = ko.views.manager.do_cmd_bufferPrevious;
+            var do_cmd_bufferNext = ko.views.manager.do_cmd_bufferNext;
+            
+            /**
+             * Handle buffer next keyboard shortcut (default: Ctrl+PageDown)
+             * 
+             * @returns {Void} 
+             */
+            ko.views.manager.do_cmd_bufferNext = function openfiles_do_cmd_bufferNext()
+            {
+                if (self.isTabBarVisible())
+                {
+                    return do_cmd_bufferNext.call(this);
+                }
+                    
+                var selItem = self.getSelectedItem();
+                var next    = self.getNextItem(selItem);
+                
+                if (next)
+                {
+                    self.selectItem(next);
+                }
+            }
+            
+            /**
+             * Handle buffer previous keyboard shortcut (default: Ctrl+PageUp)
+             * 
+             * @returns {Void} 
+             */
+            ko.views.manager.do_cmd_bufferPrevious = function openfiles_do_cmd_bufferPrevious()
+            {
+                if (self.isTabBarVisible())
+                {
+                    return do_cmd_bufferPrevious.call(this);
+                }
+                
+                var selItem = self.getSelectedItem();
+                var prev    = self.getPreviousItem(selItem);
+                
+                if (prev)
+                {
+                    self.selectItem(prev);
+                }
+            }
+            
         },
         
         /**
@@ -213,7 +268,7 @@ if (typeof ko.openfiles == 'undefined')
          * 
          * @returns {Void}
          */
-        onContextMenu: function openfiles_onSelectListItem(e)
+        onContextMenu: function openfiles_onContextMenu(e)
         {
             var item    = e.currentTarget.selectedItem;
             
@@ -704,6 +759,24 @@ if (typeof ko.openfiles == 'undefined')
          */
         selectItem: function openfiles_selectItem(editorView)
         {
+            // If a richlistitem is passed, simply forward the call
+            // to the relevant tab and let it come back around
+            if (editorView.nodeName == 'richlistitem')
+            {
+                var id = editorView.getAttribute('id');
+                
+                if (openViews[id] == undefined)
+                {
+                    return false;
+                }
+                
+                xtk.domutils.fireEvent(
+                    openViews[id].parentNode._tab,
+                    'click'
+                );
+                return true;
+            }
+            
             // Validate if the item exists
             var listItem = listbox.querySelector('richlistitem[id="'+editorView.uid.number+'"]');
             if ( ! listItem)
@@ -732,7 +805,47 @@ if (typeof ko.openfiles == 'undefined')
          */
         getSelectedItem: function openfiles_getSelectedItem()
         {
-            return listbox.selectedItem;
+            return listbox.querySelector("richlistitem[selected]");
+        },
+        
+        /**
+         * Retrieve the previous file item (skip groups and splits)
+         * 
+         * @param   {Object} var Item DOM element
+         * 
+         * @returns {Object|Boolean} Previous Item DOM element
+         */
+        getPreviousItem: function openfiles_getPreviousItem(item)
+        {
+            var prev = item.previousSibling;
+            
+            // If previous sibling doesnt exist or is a file item, return it
+            if ( ! prev || prev.classList.contains('file-item'))
+            {
+                return prev;
+            }
+            
+            return this.getPreviousItem(prev);
+        },
+        
+        /**
+         * Retrieve the next file item (skip groups and splits)
+         * 
+         * @param   {Object} var Item DOM element
+         * 
+         * @returns {Object|Boolean} Next Item DOM element
+         */
+        getNextItem: function openfiles_getNextItem(item)
+        {
+            var next = item.nextSibling;
+            
+            // If previous sibling doesnt exist or is a file item, return it
+            if ( ! next || next.classList.contains('file-item'))
+            {
+                return next;
+            }
+            
+            return this.getNextItem(next);
         },
         
         /**
@@ -768,32 +881,12 @@ if (typeof ko.openfiles == 'undefined')
             var editorView  = openViews[item.getAttribute('id')];
             var groupOption = this.getActiveGroupOption();
             
-            /**
-             * Retrieve the previous file item (skip groups and splits)
-             * 
-             * @param   {Object} var Item DOM element
-             * 
-             * @returns {Object|Boolean} Previous Item DOM element
-             */
-            var getPreviousItem = function(item)
-            {
-                var prev = item.previousSibling;
-                
-                // If previous sibling doesnt exist or is a file item, return it
-                if ( ! prev || prev.classList.contains('file-item'))
-                {
-                    return prev;
-                }
-                
-                return getPreviousItem(prev);
-            }
-            
             // Loop until this item is positioned at its highest possible
             // position
             while (true)
             {
                 // Retrieve and validate the previous item
-                var prevItem = getPreviousItem(item);
+                var prevItem = this.getPreviousItem(item);
                 if ( ! prevItem ||
                     item.getAttribute('id') == prevItem.getAttribute('id'))
                 {
