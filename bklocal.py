@@ -162,7 +162,7 @@ def _getValidPlatforms(linuxDistro=False):
             raise ConfigureError("unknown Solaris architecture: '%s'"
                                  % uname[4])
     elif sys.platform == "darwin":
-        return "macosx"
+        validPlats = ["macosx"]
     return validPlats
 
 
