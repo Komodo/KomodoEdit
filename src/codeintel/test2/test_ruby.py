@@ -2035,11 +2035,11 @@ class _BaseTestCase(CodeIntelTestCase):
     def test_loadable_module_completions_3(self):
         content, positions = unmark_text(dedent("""
             require "fileutils"
-            FileUtils.<1>chdir
+            FileUtils.<1>xxx
         """))
         self.assertCompletionsInclude(
             markup_text(content, pos=positions[1]),
-            [("function", "chdir")])
+            [("function", "mkdir")])
         
     @tag("bug56218")
     # rubycile doesn't grok aliases yet.
