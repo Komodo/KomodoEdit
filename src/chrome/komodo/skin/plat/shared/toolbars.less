@@ -51,6 +51,28 @@
             margin-right: -3px;
         }
         
+        /* Hovered Icon */
+        &:hover
+        {
+            box-shadow: @menubar-button-shadow-hover;
+            background-color: @menubar-button-background-color-hover;
+            background-image: @menubar-button-background-image-hover;
+            border-width: @menubar-button-border-width-hover;
+            border-style: @menubar-button-border-style-hover;
+            border-color: @menubar-button-border-color-hover;
+        }
+        
+        /* Checked / Active Button */
+        &[checked], &[open="true"], &:active
+        {
+            box-shadow: @menubar-button-shadow-active;
+            background-color: @menubar-button-background-color-active;
+            background-image: @menubar-button-background-image-active;
+            border-width: @menubar-button-border-width-active;
+            border-style: @menubar-button-border-style-active;
+            border-color: @menubar-button-border-color-active;
+        }
+        
         /* First button in group */
         &.first-child
         {
@@ -78,28 +100,6 @@
         &.first-child.last-child
         {
             border-width: @menubar-button-single-border-width;
-        }
-        
-        /* Hovered Icon */
-        &:hover
-        {
-            box-shadow: @menubar-button-shadow-hover;
-            background-color: @menubar-button-background-color-hover;
-            background-image: @menubar-button-background-image-hover;
-            border-width: @menubar-button-border-width-hover;
-            border-style: @menubar-button-border-style-hover;
-            border-color: @menubar-button-border-color-hover;
-        }
-        
-        /* Checked / Active Button */
-        &[checked], &[open="true"], &:active
-        {
-            box-shadow: @menubar-button-shadow-active;
-            background-color: @menubar-button-background-color-active;
-            background-image: @menubar-button-background-image-active;
-            border-width: @menubar-button-border-width-active;
-            border-style: @menubar-button-border-style-active;
-            border-color: @menubar-button-border-color-active;
         }
         
         /*
