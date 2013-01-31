@@ -1671,8 +1671,6 @@
 							label="&historyForward.label;"/>
 						<toolbarbutton id="historyRecentLocations"
 							type="menu"
-							kohidden="true"
-							persist="kohidden"
 							tooltiptext="&historyRecentLocations.tooltiptext;">
 							<menupopup id="historyRecentLocationsMenu"
 									   position="after_start"
