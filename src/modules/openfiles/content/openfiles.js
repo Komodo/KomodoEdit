@@ -235,6 +235,23 @@ if (typeof ko.openfiles == 'undefined')
             editorView.close();
         },
         
+        onUpdateDirtyStatus: function openfiles_onUpdateDirtyStatus(e)
+        {
+            var editorView      = e.originalTarget;
+            var dirtyIndicator  = listbox.querySelector(
+                'richlistitem[id="'+editorView.uid.number+'"] .file-dirty'
+            );
+            
+            if (editorView.koDoc.isDirty)
+            {
+                dirtyIndicator.removeAttribute('collapsed');
+            }
+            else
+            {
+                dirtyIndicator.setAttribute('collapsed', 'true');
+            }
+        },
+        
         /*
          * Reloads (or initializes) the open files list. This retreives the list 
          * of editor views and calls addItem() for each.
@@ -466,14 +483,16 @@ if (typeof ko.openfiles == 'undefined')
             // Clone the template
             var listItem = template.fileItem.cloneNode(true);
             
+            var dirName = editorView.koDoc.file ? editorView.koDoc.file.dirName : '';
+            var tooltip = dirName == '' ? editorView.title : dirName;
+            
             // Set ID, tooltip, title and path
             listItem.setAttribute('id', editorView.uid.number);
-            listItem.setAttribute('tooltiptext', editorView.title);
+            listItem.setAttribute('tooltiptext', tooltip);
             listItem.querySelector('.file-title')
                         .setAttribute('value', editorView.title);
             listItem.querySelector('.file-path')
-                        .setAttribute('value', editorView.koDoc.file ?
-                                                editorView.koDoc.file.dirName : '');
+                        .setAttribute('value', dirName);
             
             // Check for duplicate names, if so we'll mark them all with a css class
             var duplicates = listbox.querySelectorAll(
@@ -507,6 +526,15 @@ if (typeof ko.openfiles == 'undefined')
                     this.onClickItemClose(editorView);
                 }.bind(this)
             );
+            
+            if (editorView._openfilesListeners == undefined) // prevent duplicate listeners
+            {
+                editorView._openfilesListeners = true;
+                editorView.addEventListener(
+                    'dirty_status_changed',
+                    this.onUpdateDirtyStatus.bind(this)
+                );
+            }
             
             return listItem;
         },

@@ -288,8 +288,13 @@
         <body>
         <![CDATA[
             if (view.koDoc) {
+                var clean = view.parentNode._tab.getAttribute('clean');
                 view.parentNode._tab.setAttribute('clean',!view.koDoc.isDirty);
                 this.tabbox.firstChild.scrollBoxObject.ensureElementIsVisible(this.tabbox.firstChild.selectedItem);
+                
+                if (clean != !view.koDoc.isDirty) {
+                    xtk.domutils.fireEvent(view, 'dirty_status_changed');
+                }
             }
 
             // this needs to be present to properly update komodoFileSaveItems

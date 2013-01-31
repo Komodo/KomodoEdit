@@ -29,6 +29,11 @@
                     class="file-title"/>
                 
                 <label
+                    class="file-dirty"
+                    collapsed="true"
+                    value="*"/>
+                
+                <label
                     class="file-path"
                     crop="start"
                     flex="99"/>
