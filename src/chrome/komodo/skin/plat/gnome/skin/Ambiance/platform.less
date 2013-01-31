@@ -9,3 +9,14 @@
 {
     padding: 4px !important;
 }
+
+#main-toolboxrow
+{
+    [class*='-icon '][disabled="true"] > image,
+    [class$='-icon'][disabled="true"] > image,
+    [class*='_icon '][disabled="true"] > image,
+    [class$='_icon'][disabled="true"] > image
+    {
+        opacity: 0.3;
+    }
+}
