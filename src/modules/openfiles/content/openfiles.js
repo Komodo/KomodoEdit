@@ -99,7 +99,6 @@ if (typeof ko.openfiles == 'undefined')
             
             // Bind listeners and reload (initialize) the list of open files 
             this.bindListeners();
-            this.bindKeys();
             this.reload();
         },
         
@@ -207,61 +206,6 @@ if (typeof ko.openfiles == 'undefined')
         },
         
         /**
-         * Bind keyboard shortcuts
-         * 
-         * @returns {Void} 
-         */
-        bindKeys: function openfiles_bindKeys()
-        {
-            // Store original handlers
-            var do_cmd_bufferPrevious = ko.views.manager.do_cmd_bufferPrevious;
-            var do_cmd_bufferNext = ko.views.manager.do_cmd_bufferNext;
-            
-            /**
-             * Handle buffer next keyboard shortcut (default: Ctrl+PageDown)
-             * 
-             * @returns {Void} 
-             */
-            ko.views.manager.do_cmd_bufferNext = function openfiles_do_cmd_bufferNext()
-            {
-                if (self.isTabBarVisible())
-                {
-                    return do_cmd_bufferNext.call(this);
-                }
-                    
-                var selItem = self.getSelectedItem();
-                var next    = self.getNextItem(selItem);
-                
-                if (next)
-                {
-                    self.selectItem(next);
-                }
-            }
-            
-            /**
-             * Handle buffer previous keyboard shortcut (default: Ctrl+PageUp)
-             * 
-             * @returns {Void} 
-             */
-            ko.views.manager.do_cmd_bufferPrevious = function openfiles_do_cmd_bufferPrevious()
-            {
-                if (self.isTabBarVisible())
-                {
-                    return do_cmd_bufferPrevious.call(this);
-                }
-                
-                var selItem = self.getSelectedItem();
-                var prev    = self.getPreviousItem(selItem);
-                
-                if (prev)
-                {
-                    self.selectItem(prev);
-                }
-            }
-            
-        },
-        
-        /**
          * Event triggered when a context menu has been triggered on an item
          * 
          * @param   {Object} e  Event Object
@@ -290,6 +234,13 @@ if (typeof ko.openfiles == 'undefined')
             editorView.close();
         },
         
+        /**
+         * Event triggered when file dirty status has been changed
+         * 
+         * @param   {Object} e Event
+         * 
+         * @returns {Void} 
+         */
         onUpdateDirtyStatus: function openfiles_onUpdateDirtyStatus(e)
         {
             var editorView      = e.originalTarget;
@@ -784,15 +735,8 @@ if (typeof ko.openfiles == 'undefined')
                 return false;
             }
             
-            // Unselect the previously selected item
-            let selected = listbox.querySelectorAll('richlistitem[selected]');
-            for (let sel of selected)
-            {
-                sel.removeAttribute('selected');
-            }
-            
-            // Select the relevant item
-            listItem.selected = true;
+            listbox.clearSelection();
+            listbox.addItemToSelection(listItem);
             
             return true;
         },
