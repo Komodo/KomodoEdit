@@ -553,6 +553,7 @@
                     if (this.isCurrent) {
                         ko.uilayout.updateTitlebar(this);
                     }
+                    xtk.domutils.fireEvent(this, 'view_dirty_status_changed');
                 }
                 break;
             case 'encoding_changed':

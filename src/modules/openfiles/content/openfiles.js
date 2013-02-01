@@ -537,7 +537,7 @@ if (typeof ko.openfiles == 'undefined')
             {
                 editorView._openfilesListeners = true;
                 editorView.addEventListener(
-                    'dirty_status_changed',
+                    'view_dirty_status_changed',
                     this.onUpdateDirtyStatus.bind(this)
                 );
             }
