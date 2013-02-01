@@ -17,7 +17,6 @@
             <xul:scintilla xbl:inherits="flex,focused,context,mozcontext" flex="1"
                            anonid="minimap"
                            allowIME="false"
-                           onblur="leaveMinimap();"
                            mozcontext="minimapContextMenu"/>
         <!--</xul:vbox>-->
     </content>
@@ -320,7 +319,7 @@
             ]]>
         </handler>
         
-        <handler event="focus">
+        <handler event="mouseover">
         <![CDATA[
         var scimoz = this.scimoz;
         this._scimoz_readOnly = scimoz.readOnly;
@@ -330,7 +329,7 @@
         ]]>
         </handler>
         
-        <handler name="blur" phase="capturing">
+        <handler name="mouseout" phase="capturing">
         <![CDATA[
                  this.leaveMinimap();
         ]]>
