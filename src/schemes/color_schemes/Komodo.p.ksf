@@ -18,7 +18,7 @@ CommonStyles = {'attribute name': {'fore': 7872391},
                    'size': 12,
 # #else
                    'face': 'DejaVu Sans Mono',
-                   'size': 11,
+                   'size': 10,
 # #endif
                    'back': 16777215,
                    'bold': 0,
@@ -36,7 +36,7 @@ CommonStyles = {'attribute name': {'fore': 7872391},
                           'size': 12,
 # #else
                           'face': 'DejaVu Sans Mono',
-                          'size': 11,
+                          'size': 10,
 # #endif
                           'back': 16777215,
                           'bold': 0,
