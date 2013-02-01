@@ -329,7 +329,7 @@ class SearchRequest(Request):
         m = re.match("^\{(.*?)\}(.*)$", path)
         if m is not None:
             project_name, relpath = m.groups()
-            relpath = relpath.lstrip(os.sep)
+            relpath = relpath.lstrip(os.sep).lstrip('/')
             for gather in self.gatherers:
                 if isinstance(gather, CachingKomodoProjectGatherer):
                     if gather.project_name == project_name:
