@@ -135,3 +135,8 @@ notification button[action-id="stop"],
 notification button[action-id="abort"] {
   list-style-image: url("chrome://global/skin/icons/error-16.png");
 }
+
+#notificationWidget toolbar
+{
+    border-bottom: 0;
+}

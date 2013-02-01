@@ -517,3 +517,21 @@ treechildren::-moz-tree-image(remotefile)
 .browser-googlechrome-icon {
     list-style-image: url("chrome://famfamfamsilk/skin/icons/browser_chrome.png");
 }
+
+
+menulist {
+    min-height: 1.8em;
+}
+
+textbox {
+    min-height: 1.8em;
+}
+
+description {
+    line-height: 1.2;
+}
+description[disabled="true"] {
+    /* XXX Why do I have to specify this? Shouldn't Moz default styles
+      do this? */
+    color: GrayText;
+}
