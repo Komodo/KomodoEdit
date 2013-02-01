@@ -103,11 +103,11 @@ class koDocumentSettingsManager:
             scimoz.text = buffer
             scimoz.undoCollection = 1
             scimoz.setSavePoint()
-            scimoz.eOLMode = eollib.eol2scimozEOL[koDoc.new_line_endings]
             scimoz.emptyUndoBuffer()
         else:
             scimoz.docPointer = self._scintillas[0].scimoz.docPointer
             
+        scimoz.eOLMode = eollib.eol2scimozEOL[koDoc.new_line_endings]
         self.applyDocumentSettingsToView(scintilla)
         # Watch for preference set changes from these pref sets.
         if self._observed_prefs is None:
