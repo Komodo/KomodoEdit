@@ -644,8 +644,7 @@
             this.scimoz.vScrollBar = false;
             var obj = {};
             this.saveLocation(obj);
-            var bounds = this.getEditorViewBoundaries();
-            this.updateEditorViewBoundaries.apply(this, bounds);
+            this.updateEditorViewBoundaries();
             
             this.updateMinimapFromViewFoldpoints();
             minimap.syncMinimapFromBuffer();
@@ -1400,9 +1399,7 @@
         <![CDATA[
         var scimoz = this.scimoz;
         scimoz.firstVisibleLine = firstVisibleLine;
-        var firstDocLine, lastDocLineOnScreen;
-        [firstDocLine, lastDocLineOnScreen] = this.getEditorViewBoundaries();
-        this.updateEditorViewBoundaries(firstDocLine, lastDocLineOnScreen);
+        this.updateEditorViewBoundaries();
         ]]>
         </body>
         </method>
@@ -1418,9 +1415,9 @@
             var updateMinimap = (this.firstDocLine !== firstDocLine
                                  || this.lastDocLine !== lastDocLineOnScreen);
             if (updateMinimap) {
-                //dump("* -updateEditorViewBoundaries " + [firstDocLine, lastDocLineOnScreen] + "\n");
-                this.updateEditorViewBoundaries(firstDocLine, lastDocLineOnScreen);
                 this.minimap.syncMinimapFromBuffer();
+                this.updateEditorViewBoundaries(firstDocLine, lastDocLineOnScreen);
+                this.minimap.updateEditorViewBoundaries();
             }
         }
         return this.__proto__.__proto__.onUpdateUI.call(this);

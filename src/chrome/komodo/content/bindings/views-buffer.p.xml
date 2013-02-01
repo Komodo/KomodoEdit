@@ -898,6 +898,10 @@
         <parameter name="lastDocLineOnScreen" />
         <body>
         <![CDATA[
+            // If no arguments are supplied, use the current settings
+        if (typeof(firstDocLine) == "undefined") {
+            [firstDocLine, lastDocLineOnScreen] = this.getEditorViewBoundaries();
+        }
         this.firstDocLine = firstDocLine;
         this.lastDocLine = lastDocLineOnScreen;
         ]]>
