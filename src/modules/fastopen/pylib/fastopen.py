@@ -480,7 +480,8 @@ class Driver(threading.Thread):
                 if subpath is not None:
                     dirQueries += [join(d, query) for d in request.cwds]
                     dirShortcuts = request.dirShortcuts or {}
-                    dirQueries.append(join(dirShortcuts[shortcut], subpath))
+                    if shortcut in dirShortcuts:
+                        dirQueries.append(join(dirShortcuts[shortcut], subpath))
 
             hitPaths = set()
             pathExcludes = request.pathExcludes
