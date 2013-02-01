@@ -519,6 +519,10 @@ treechildren::-moz-tree-image(remotefile)
 }
 
 
+/**
+ * Force min-height and line height so as to maintain a decent height at all times
+ * Bug #97079
+ */
 menulist {
     min-height: 1.8em;
 }
