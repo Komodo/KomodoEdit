@@ -1227,9 +1227,17 @@ viewManager.prototype.updateCommands = function() {
 }
 
 viewManager.prototype.handle_view_closed = function() {
-    this._viewCount--;
-    this.log.info("_viewcount is " + this._viewCount);
-    if (this._viewCount == 0) {
+    // Don't trust _viewCount, it's probably bogus :(
+    let viewCount = Array.slice(this.topView.getViews(true))
+                         .filter(function(e) e.koDoc).length;
+    this.log.info("_viewcount is " + viewCount);
+    if (this._viewCount == viewCount) {
+        // Duplicate notification
+        this.log.warn("Inconsistent view count in view_closed event");
+        return;
+    }
+    this._viewCount = viewCount;
+    if (this._viewCount === 0) {
         this.log.info("sending event: 'some_files_open'");
         window.setTimeout(window.updateCommands, 1, 'some_files_open');
     } else if (this._viewCount == 1) {
@@ -1245,8 +1253,16 @@ viewManager.prototype.handle_view_closed = function() {
 
 viewManager.prototype.handle_view_opened = function() {
     this.log.info("got 'view opened' notification");
-    this._viewCount++;
-    this.log.info("_viewcount is " + this._viewCount);
+    // Don't trust _viewCount, it's probably bogus :(
+    let viewCount = Array.slice(this.topView.getViews(true))
+                         .filter(function(e) e.koDoc).length;
+    this.log.info("_viewcount is " + viewCount);
+    if (this._viewCount === viewCount) {
+        // Duplicate notification
+        this.log.warn("Inconsistent view count in view_opened event");
+        return;
+    }
+    this._viewCount = viewCount;
     if (this._viewCount == 1) {
         this.log.info("sending event: 'some_files_open'");
         window.setTimeout(window.updateCommands, 1, 'some_files_open');
