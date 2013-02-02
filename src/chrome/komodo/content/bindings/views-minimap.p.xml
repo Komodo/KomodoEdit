@@ -13,12 +13,13 @@
 <binding id="view-minimap"
     extends="chrome://komodo/content/bindings/views-buffer.xml#view-buffer-base">
     <content flex="1">
-        <!--<xul:vbox anonid="minimap-vbox" flex="1">-->
-            <xul:scintilla xbl:inherits="flex,focused,context,mozcontext" flex="1"
-                           anonid="minimap"
-                           allowIME="false"
-                           mozcontext="minimapContextMenu"/>
-        <!--</xul:vbox>-->
+        <!-- mouseout & blur handlers don't fire, but these do -->
+        <xul:scintilla xbl:inherits="flex,focused,context,mozcontext" flex="1"
+                       anonid="minimap"
+                       allowIME="false"
+                       onblur="leaveView();"
+                       onmouseout="leaveView();"
+                       mozcontext="minimapContextMenu"/>
     </content>
     <implementation name="viewminimap" implements="koIScintillaView, koIBookmarkableView, ISciMozEvents, nsIObserver">
 
@@ -258,6 +259,38 @@
         ]]>
         </body>
         </method>
+
+        <method name="enterView">
+        <parameter name="event" />
+        <body>
+        <![CDATA[
+        // Make the scimoz readonly when the minimap is entered, but
+        // only if needed.
+        var scimoz = this.scimoz;
+        if (!("_scimoz_readOnly" in this) && !scimoz.readOnly) {
+            this._scimoz_readOnly = scimoz.readOnly;
+            this._scimoz_cursor = scimoz.cursor;
+            scimoz.readOnly = true;
+            scimoz.cursor = scimoz.SC_CURSORARROW;
+        }
+        ]]>
+        </body>
+        </method>
+
+        <method name="leaveView">
+        <parameter name="event" />
+        <body>
+        <![CDATA[
+        if ('_scimoz_readOnly' in this) {
+            var scimoz = this.scimoz;
+            scimoz.readOnly = this._scimoz_readOnly;
+            scimoz.cursor = this._scimoz_cursor;
+            delete this._scimoz_readOnly;
+            delete this._scimoz_cursor;
+        }
+        ]]>
+        </body>
+        </method>
     </implementation>
     <handlers>
 <!--  phase="capturing" -->
@@ -285,28 +318,13 @@
         
         <handler event="mouseover">
         <![CDATA[
-        var scimoz = this.scimoz;
-        this._scimoz_readOnly = scimoz.readOnly;
-        this._scimoz_cursor = scimoz.cursor;
-        scimoz.readOnly = true;
-        scimoz.cursor = scimoz.SC_CURSORARROW;
+        this.enterView();
         ]]>
         </handler>
         
         <handler name="mouseout" phase="capturing">
         <![CDATA[
-        try {
-            var scimoz = this.scimoz;
-            if ('_scimoz_readOnly' in this) {
-                scimoz.readOnly = this._scimoz_readOnly;
-                scimoz.cursor = this._scimoz_cursor;
-            } else {
-                scimoz.readOnly = false;
-                scimoz.cursor = scimoz.SC_CURSORNORMAL;
-            }
-        } catch(ex) {
-            //dump("blur problem: " + ex + "\n");
-        }
+        this.leaveView();
         ]]>
         </handler>
         
