@@ -4,6 +4,8 @@
     list-style-image: none;
     width: 16px;
     height: 16px;
+    min-width: 16px;
+    min-height: 16px;
     margin-top: 5px;
     margin-bottom: 5px;
     -moz-margin-start: 5px;

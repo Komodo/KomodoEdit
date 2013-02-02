@@ -76,6 +76,14 @@ function onLoad()
                                                handleShortcutEditorKey,
                                                false);
 
+        // Don't show the shortcut button if the go-tool isn't going to be used;
+        // that just confuses the user
+        gWidgets.shortcutShowButton.collapsed =
+            !Cc["@activestate.com/koPrefService;1"]
+               .getService(Ci.koIPrefService)
+               .prefs
+               .getBoolean("fastopen_enable_go_tool", false);
+
         gWidgets.query.focus();
         findFiles(gWidgets.query.value);
     } catch(ex) {
