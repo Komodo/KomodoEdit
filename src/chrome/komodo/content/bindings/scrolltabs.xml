@@ -921,11 +921,16 @@
                     } else {
                         this.image.style.removeProperty("list-style-image");
                     }
+                    if (this.hasAttribute("label")) {
+                        this.setAttribute("tooltiptext", this.getAttribute("label"));
+                    } else {
+                        this.removeAttribute("tooltiptext");
+                    }
                 }).bind(this);
 
                 (new MutationObserver(callback)).observe(this, {
                     attributes: true,
-                    attributeFilter: ["icon"],
+                    attributeFilter: ["icon", "label"],
                 });
                 callback();
             </constructor>
