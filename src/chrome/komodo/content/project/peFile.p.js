@@ -128,7 +128,7 @@ peFile.prototype.supportsCommand = function(command, item) {
     case 'cmd_refreshStatus':
         // if a toolbox has focus, get the currently selected item and refresh it
         // otherwise, always refresh the currentView if there is one.
-        if (ko.places && ko.places.getFocusedPlacesView()) {
+        if (ko.projects.safeGetFocusedPlacesView()) {
             item = ko.projects.active.getSelectedItem();
             // item must be a file
             if (item && item.url) return true;
@@ -208,7 +208,7 @@ peFile.prototype.doCommand = function(command) {
         ko.projects.refreshStatus();
         break;
     case 'cmd_editProperties':
-        if (!ko.places || !ko.places.getFocusedPlacesView()) {
+        if (!ko.projects.safeGetFocusedPlacesView()) {
             return;
         }
         if (!items) return;
@@ -271,7 +271,7 @@ peFile.prototype.ondblclick = function(item,event) {
 
 peFile.prototype.doCut = function(items)
 {
-    var pview = ko.places && ko.places.getFocusedPlacesView();
+    var pview = ko.projects.safeGetFocusedPlacesView();
     if (pview) {
         items = pview.manager.doCutPlaceItem();
     }
@@ -279,7 +279,7 @@ peFile.prototype.doCut = function(items)
 
 peFile.prototype.doCopy = function(items)
 {
-    var pview = ko.places && ko.places.getFocusedPlacesView();
+    var pview = ko.projects.safeGetFocusedPlacesView();
     if (pview) {
         items = pview.manager.doCopyPlaceItem();
     }
@@ -287,7 +287,7 @@ peFile.prototype.doCopy = function(items)
 
 peFile.prototype.doPaste = function()
 {
-    var pview = ko.places && ko.places.getFocusedPlacesView();
+    var pview = ko.projects.safeGetFocusedPlacesView();
     if (pview) {
         items = pview.manager.doPastePlaceItem();
     }
@@ -309,7 +309,7 @@ this.refreshStatus = function doRefreshStatus(/*koIPart []*/ items) {
     var urls = [];
 
     if (!items) {
-        var pview = ko.places && ko.places.getFocusedPlacesView();
+        var pview = ko.projects.safeGetFocusedPlacesView();
         if (pview) {
             items = pview.manager.getSelectedItems();
         }

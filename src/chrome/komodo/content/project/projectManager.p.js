@@ -1658,4 +1658,15 @@ this.handle_parts_reload = function() {
     this.manager.applyPartKeybindings();
 };
 
+this.safeGetFocusedPlacesView = function() {
+    if (ko.places) {
+        try {
+            return ko.places.getFocusedPlacesView();
+        } catch(ex) {
+            log.warn("Can't call ko.places.getFocusedPlacesView:\n" + ex + "\n");
+        }
+    }
+    return false;
+};
+
 }).apply(ko.projects);
