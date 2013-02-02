@@ -157,6 +157,9 @@
         
         <!--ISciMozEvents implementation-->
         
+        <field name="ignoreUpdateUIStartTime">0</field>
+        <!-- wait 500 msec after handling a click before responding to UI updates -->
+	<field name="ignoreUpdateUIPeriod">500</field> 
         <method name="onUpdateUI">
         <body>
         <![CDATA[
@@ -164,12 +167,12 @@
                 return;
             }
             var now = new Date().valueOf();
-            var firstDocLine, lastDocLineOnScreen;
-            [firstDocLine, lastDocLineOnScreen] = this.getEditorViewBoundaries();
             if (now - this.ignoreUpdateUIStartTime < this.ignoreUpdateUIPeriod) {
                 this.updateEditorViewBoundaries();
                 return;
             }
+            var firstDocLine, lastDocLineOnScreen;
+            [firstDocLine, lastDocLineOnScreen] = this.getEditorViewBoundaries();
             
             var updateMinimap = (this.firstDocLine !== firstDocLine
                                  || this.lastDocLine !== lastDocLineOnScreen);
