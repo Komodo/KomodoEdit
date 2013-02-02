@@ -82,7 +82,7 @@ function onLoad()
             !Cc["@activestate.com/koPrefService;1"]
                .getService(Ci.koIPrefService)
                .prefs
-               .getBoolean("fastopen_enable_go_tool", false);
+               .getBoolean("fastopen_enable_go_tool", true);
 
         gWidgets.query.focus();
         findFiles(gWidgets.query.value);
