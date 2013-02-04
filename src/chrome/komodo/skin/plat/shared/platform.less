@@ -1,15 +1,18 @@
-/* Larger Style Groups */
-@import url("chrome://komodo/skin/plat/shared/icons.less");
-@import url("chrome://komodo/skin/plat/shared/scrolltabs.less");
-@import url("chrome://komodo/skin/plat/shared/tabs.less");
-@import url("chrome://komodo/skin/plat/shared/toolbars.less");
-
 /* Variables & Helpers */
-@import url("chrome://komodo/skin/_config/window.less");
-@import url("chrome://komodo/skin/_helpers/shortcuts.less");
+@import-once url("chrome://komodo/skin/_config/window.less");
+@import-once url("chrome://komodo/skin/_helpers/shortcuts.less");
 
-/* Skinning */
-@import url("chrome://komodo/skin/iconset.less");
+/* Skinning Variables */
+@import-once url("chrome://komodo/skin/iconset/config.less");
+
+/* Larger Style Groups */
+@import-once url("chrome://komodo/skin/plat/shared/icons.less");
+@import-once url("chrome://komodo/skin/plat/shared/scrolltabs.less");
+@import-once url("chrome://komodo/skin/plat/shared/tabs.less");
+@import-once url("chrome://komodo/skin/plat/shared/toolbars.less");
+
+/* Skinning Rules */
+@import-once url("chrome://komodo/skin/iconset/rules.less");
 
 /* "workspace_splitter": A splitter used between main panes in the
  * Komodo window.

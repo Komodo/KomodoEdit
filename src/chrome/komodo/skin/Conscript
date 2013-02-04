@@ -77,8 +77,6 @@ $cons->InstallInChrome('codeintel/autocomplete-popup.css');
 $cons->InstallInChrome('dialogs/customizeToolbar.css');
 $cons->InstallInChrome('dialogs/find2.css');
 
-$cons->InstallInChrome('iconset.less');
-
 if ($platform eq "darwin") {
     $cons->InstallRecursive("$mozChromeDir/komodo/skin/",
                             cwd()."/src/chrome/komodo/skin/plat/mac/",
@@ -97,6 +95,6 @@ $cons->InstallRecursive("$mozChromeDir/komodo/skin/plat/",
                         cwd()."/src/chrome/komodo/skin/plat/",
                         ('\.svn', 'chrome\.manifest'));
 
-$cons->InstallRecursive("$mozChromeDir/komodo/skin/iconsets/",
-                        cwd()."/src/chrome/komodo/skin/iconsets/",
+$cons->InstallRecursive("$mozChromeDir/komodo/skin/iconset/",
+                        cwd()."/src/chrome/komodo/skin/iconset/",
                         ('\.svn', 'chrome\.manifest'));
