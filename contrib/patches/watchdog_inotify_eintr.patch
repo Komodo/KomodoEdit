@@ -1,0 +1,82 @@
+Watchdog: Deal with "interrupted system call" exceptions.
+http://bugs.activestate.com/show_bug.cgi?id=91918
+
+Index: contrib/watchdog/src/watchdog/observers/inotify.py
+===================================================================
+--- contrib/watchdog/src/watchdog/observers/inotify.py	(revision 76787)
++++ contrib/watchdog/src/watchdog/observers/inotify.py	(working copy)
+@@ -65,20 +65,21 @@
+ .. _inotify FAQ: http://inotify.aiken.cz/?section=inotify&page=faq&lang=en
+ .. _intro to inotify: http://www.linuxjournal.com/article/8478
+ 
+ """
+ 
+ from __future__ import with_statement
+ from watchdog.utils import platform
+ 
+ if platform.is_linux():
+     import os
++    import errno
+     import struct
+     import threading
+     import ctypes
+     from ctypes import\
+         c_int,\
+         c_char_p,\
+         c_uint32
+ 
+     from pathtools.path import absolute_path
+ 
+@@ -231,20 +232,29 @@
+             InotifyConstants.IN_CLOSE_NOWRITE,
+             InotifyConstants.IN_CLOSE_WRITE,
+             InotifyConstants.IN_ATTRIB,
+             InotifyConstants.IN_MOVED_FROM,
+             InotifyConstants.IN_MOVED_TO,
+             InotifyConstants.IN_CREATE,
+             InotifyConstants.IN_DELETE,
+             InotifyConstants.IN_DELETE_SELF,
+             ])
+ 
++    def _eintr_retry_call(func, *args):
++        while True:
++            try:
++                return func(*args)
++            except (OSError, IOError) as e:
++                if e.errno == errno.EINTR:
++                    continue
++                raise
++
+     class InotifyEvent(object):
+         """
+         Inotify event struct wrapper.
+ 
+         :param wd:
+             Watch descriptor
+         :param mask:
+             Event mask
+         :param cookie:
+             Event cookie
+@@ -522,21 +532,21 @@
+             """
+             with self._lock:
+                 self._remove_all_watches()
+                 os.close(self._inotify_fd)
+ 
+         def read_events(self, event_buffer_size=DEFAULT_EVENT_BUFFER_SIZE):
+             """
+             Reads events from inotify and yields them.
+             """
+             with self._lock:
+-                event_buffer = os.read(self._inotify_fd, event_buffer_size)
++                event_buffer = _eintr_retry_call(os.read, self._inotify_fd, event_buffer_size)
+                 event_list = []
+                 for wd, mask, cookie, name in Inotify._parse_event_buffer(
+                         event_buffer):
+                     wd_path = self._path_for_wd[wd]
+                     src_path = absolute_path(os.path.join(wd_path, name))
+                     inotify_event = InotifyEvent(wd, mask, cookie, name,
+                                                  src_path)
+ 
+ 
+                     if inotify_event.is_moved_from:

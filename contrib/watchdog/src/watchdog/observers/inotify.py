@@ -72,6 +72,7 @@ from watchdog.utils import platform
 
 if platform.is_linux():
     import os
+    import errno
     import struct
     import threading
     import ctypes
@@ -237,6 +238,15 @@ if platform.is_linux():
             InotifyConstants.IN_DELETE,
             InotifyConstants.IN_DELETE_SELF,
             ])
+
+    def _eintr_retry_call(func, *args):
+        while True:
+            try:
+                return func(*args)
+            except (OSError, IOError) as e:
+                if e.errno == errno.EINTR:
+                    continue
+                raise
 
     class InotifyEvent(object):
         """
@@ -529,7 +539,7 @@ if platform.is_linux():
             Reads events from inotify and yields them.
             """
             with self._lock:
-                event_buffer = os.read(self._inotify_fd, event_buffer_size)
+                event_buffer = _eintr_retry_call(os.read, self._inotify_fd, event_buffer_size)
                 event_list = []
                 for wd, mask, cookie, name in Inotify._parse_event_buffer(
                         event_buffer):
