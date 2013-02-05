@@ -1,3 +1,6 @@
+@import url("chrome://komodo/skin/plat/shared/_config/icons.less");
+@import url("chrome://komodo/skin/_config/window.less");
+@import url("chrome://komodo/skin/_helpers/shortcuts.less");
 
 /* Spinning busy throbber. */
 .throbber {
@@ -16,11 +19,23 @@
     list-style-image: url("chrome://global/skin/icons/loading_16.png");
 }
 
+toolbarbutton {
+    -moz-appearance: none;
+    min-width: 24px;
+    height: 24px;
+    max-height: 24px;
+    padding: 0 5px;
+}
+
+toolbarbutton image {
+    filter: @menubar-button-icon-filter;
+}
+
 #shortcut-show {
     list-style-image: url("chrome://icomoon/skin/icons/svg/enter.svg");
 }
-#shortcut-panel > * {
-    margin: 0.5em;
+#shortcut-panel {
+    padding: 0.2em;
 }
 #shortcut-panel > toolbarbutton {
     width: 16px;
@@ -30,10 +45,10 @@
     min-width: 20em;
 }
 #shortcut-commit {
-    list-style-image: url("chrome://icomoon/skin/icons/svg/checkmark.svg");
+    list-style-image: @icon-accept;
 }
 #shortcut-remove {
-    list-style-image: url("chrome://icomoon/skin/icons/svg/close.svg");
+    list-style-image: @icon-cancel;
 }
 
 treechildren::-moz-tree-image {

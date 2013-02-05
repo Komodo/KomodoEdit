@@ -9,7 +9,7 @@
 
 <?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/platform.less" type="stylesheet/less" media="less"?>
-<?xml-stylesheet href="chrome://fastopen/skin/gotofile.css" type="text/css"?>
+<?xml-stylesheet href="chrome://fastopen/skin/gotofile.less" type="stylesheet/less" media="less"?>
 
 <window id="dialog-gotofile"
         windowtype="komodo_gotofile"
@@ -47,6 +47,7 @@
       <toolbarbutton id="shortcut-show" type="menu"
                      tooltiptext="&goToFile.shortcut.show.tooltipText;">
         <panel orient="horizontal" position="after_end" id="shortcut-panel"
+               class="panel-toolbar-buttons"
                onpopupshowing="refreshShortcutEditor()"
                onpopupshown="focusShortcutEditor()">
           <textbox flex="1" id="shortcut-textbox"
