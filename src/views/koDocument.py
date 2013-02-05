@@ -86,11 +86,19 @@ class koDocumentBase:
     _DOCUMENT_SIZE_UDL_LARGE = 1
     _DOCUMENT_SIZE_ANY_LARGE = 2
 
+    # Cached services - saved on the class.
+    _globalPrefSvc = None
+    _globalPrefs = None
+    _partSvc = None
+
     def __init__(self):
-        # Grab a reference to the global preference service.
-        self._globalPrefSvc = components.classes["@activestate.com/koPrefService;1"].\
-                            getService(components.interfaces.koIPrefService)
-        self._globalPrefs = self._globalPrefSvc.prefs
+        if koDocumentBase._globalPrefs is None:
+            # Grab a reference to the global preference service - just the once.
+            koDocumentBase._globalPrefSvc = components.classes["@activestate.com/koPrefService;1"].\
+                                getService(components.interfaces.koIPrefService)
+            koDocumentBase._globalPrefs = self._globalPrefSvc.prefs
+            koDocumentBase._partSvc = components.classes["@activestate.com/koPartService;1"].\
+                                getService(components.interfaces.koIPartService)
 
         self._buffer = None # string The contents of the document
         self._codePage = 65001 # Komodo always uses 65001 (i.e. scintilla UTF-8 mode)
@@ -307,9 +315,7 @@ class koDocumentBase:
     def getEffectivePrefs(self):
         # this returns either a prefset from a project, or my own prefset
         if self.file and self.file.URI:
-            partSvc = components.classes["@activestate.com/koPartService;1"]\
-                .getService(components.interfaces.koIPartService)
-            prefset = partSvc.getEffectivePrefsForURL(self.file.URI)
+            prefset = self._partSvc.getEffectivePrefsForURL(self.file.URI)
             if prefset:
                 return prefset
         return self.prefs
@@ -324,9 +330,7 @@ class koDocumentBase:
         if docPrefset.hasPrefHere(prefName):
             return docPrefset
         if self.file and self.file.URI:
-            partSvc = components.classes["@activestate.com/koPartService;1"]\
-                .getService(components.interfaces.koIPartService)
-            projPrefset = partSvc.getEffectivePrefsForURL(self.file.URI)
+            projPrefset = self._partSvc.getEffectivePrefsForURL(self.file.URI)
             if projPrefset:
                 return projPrefset
         return docPrefset
