@@ -234,6 +234,9 @@ function OnPreferencePageClosing(prefset, ok) {
                     }
                     if (eolpref) {
                         parent.view.prefs.setStringPref('endOfLine', eolpref);
+                        if (parent.view.minimap) {
+                            parent.view.minimap.prefs.setStringPref('endOfLine', eolpref);
+                        }
                     }
                 }
                 // Make the change even if 'le' is unchanged to allow a
