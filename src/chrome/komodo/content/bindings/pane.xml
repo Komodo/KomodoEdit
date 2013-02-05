@@ -214,6 +214,7 @@
                                           false);
               }
               widget.tab = tabpanel.tab;
+              widget.tab.setAttribute("widget", id);
               // hook up the mutation observer
               this._refreshTab(tabpanel);
               this._mutationObserver.observe(widget, {attributes: true});

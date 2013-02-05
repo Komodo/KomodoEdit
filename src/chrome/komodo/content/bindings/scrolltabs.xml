@@ -914,12 +914,22 @@
              extends="chrome://global/content/bindings/tabbox.xml#tab">
         <implementation>
             <constructor>
+                <![CDATA[
                 let callback = (function() {
+                    if (!("box" in this)) {
+                        // XBL has been unbound, but the mutation observer is
+                        // still alive.  Clean up after the mutation observer.
+                        // (This usually happens when the user chooses a
+                        // different layout for an associated pane.)
+                        this.__tab_icons_mutation_observer.disconnect();
+                        delete this.__tab_icons_mutation_observer;
+                        return;
+                    }
                     if (this.hasAttribute("icon")) {
-                        this.image.style.setProperty("list-style-image",
-                                                     "url(" + this.getAttribute("icon") + ")");
+                        this.box.style.setProperty("list-style-image",
+                                                   "url(" + this.getAttribute("icon") + ")");
                     } else {
-                        this.image.style.removeProperty("list-style-image");
+                        this.box.style.removeProperty("list-style-image");
                     }
                     if (this.hasAttribute("label")) {
                         this.setAttribute("tooltiptext", this.getAttribute("label"));
@@ -928,14 +938,18 @@
                     }
                 }).bind(this);
 
-                (new MutationObserver(callback)).observe(this, {
+                // This is _not_ a <field>; those get wiped out without calling
+                // any XBL destructors when a new binding is applied.
+                this.__tab_icons_mutation_observer = new MutationObserver(callback);
+                this.__tab_icons_mutation_observer.observe(this, {
                     attributes: true,
                     attributeFilter: ["icon", "label"],
                 });
                 callback();
+                ]]>
             </constructor>
-            <field name="image">
-                document.getAnonymousElementByAttribute(this, "class", "tab-icon")
+            <field name="box">
+                document.getAnonymousNodes(this)[0]
             </field>
         </implementation>
     </binding>
