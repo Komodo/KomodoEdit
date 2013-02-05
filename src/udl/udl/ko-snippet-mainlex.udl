@@ -13,7 +13,8 @@ family markup
 initial IN_M_DEFAULT
 state IN_M_DEFAULT:
 /</: paint(upto, M_DEFAULT), => IN_M_CHECK_KOMODO_SNIPPET
-/\[\[%(?=\w)/: paint(upto, M_DEFAULT), paint(include, CSS_OPERATOR), spush_check(IN_M_DEFAULT), => IN_CSS_KS_SHORTCUT_START
+/\[\[%(?=\w/: paint(upto, M_DEFAULT), paint(include, CSS_OPERATOR), spush_check(IN_M_DEFAULT), => IN_CSS_KS_SHORTCUT_START
+/\[\[%(?=\()/: paint(upto, M_DEFAULT), paint(include, CSS_OPERATOR), spush_check(IN_M_DEFAULT), => IN_CSS_KS_PARENED_SHORTCUT_START
 
 state IN_M_CHECK_KOMODO_SNIPPET:
 '%#': paint(include, TPL_COMMENT), spush_check(IN_M_DEFAULT), => IN_TPL_COMMENT
