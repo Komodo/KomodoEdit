@@ -336,6 +336,8 @@ this.addToolbarFromPart = function peMenu_addToolbarFromPart(part) {
         var ordinal = base_ordinal + part.getLongAttribute('priority');
         toolbar.ordinal = ordinal;
         
+        // Append toolbaritem wrapper to which all children are appended
+        // The toolbaritem wrapper is used primarily for styling
         var toolbaritem = document.createElement('toolbaritem');
         toolbar.appendChild(toolbaritem);
 
@@ -425,8 +427,8 @@ this.updateToolbarForPart = function(part) {
         return;
     }
     // remove the children
-    while (toolbar.lastChild) {
-        toolbar.removeChild(toolbar.lastChild);
+    while (toolbar.firstChild.lastChild) { // First child is always toolbaritem wrapper
+        toolbar.firstChild.removeChild(toolbar.firstChild.lastChild);
     }
     _fillToolbarFromPart(toolbar, part);
 }
