@@ -362,25 +362,31 @@ class KoFastOpenSession(KoFastOpenTreeView):
                 if self.pref_enable_open_views_gatherer:
                     g.append(kovg)
                 cwds = list(kovg.cwds)
-            if self.currentPlace and self.currentPlace.startswith("file://"):
-                from uriparse import URIToLocalPath
-                cwds.append(URIToLocalPath(self.currentPlace))
-            if self.pref_enable_project_gatherer and self.project:
-                g.append(fastopen.CachingKomodoProjectGatherer(
-                    UnwrapObject(self.project),
-                    self.pref_enable_project_dir_gatherer,
-                    self.pref_follow_symlinks))
-            if self.pref_enable_cwd_gatherer and cwds:
-                g.append(fastopen.DirGatherer("cwd", cwds, True,
-                    self.pref_path_excludes))
+
             if self.pref_enable_go_tool:
                 g.append(self._go_gatherer)
                 dirShortcuts = self._go_gatherer.getShortcuts()
             else:
                 dirShortcuts = None
+
             if self.pref_enable_history_gatherer:
                 g.append(KomodoHistoryURIsGatherer(self.historySessionName,
                     self.pref_history_num_entries))
+
+            if self.currentPlace and self.currentPlace.startswith("file://"):
+                from uriparse import URIToLocalPath
+                cwds.append(URIToLocalPath(self.currentPlace))
+
+            if self.pref_enable_cwd_gatherer and cwds:
+                g.append(fastopen.DirGatherer("cwd", cwds, True,
+                    self.pref_path_excludes))
+
+            if self.pref_enable_project_gatherer and self.project:
+                g.append(fastopen.CachingKomodoProjectGatherer(
+                    UnwrapObject(self.project),
+                    self.pref_enable_project_dir_gatherer,
+                    self.pref_follow_symlinks))
+
             self._gatherers_cache = (g, cwds, dirShortcuts)
         return self._gatherers_cache
 
