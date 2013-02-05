@@ -163,6 +163,8 @@
               tab:          ("tab" in params)          ? params.tab                : null,
               insertBefore: ("insertBefore" in params) ? params.insertBefore       : null,
               flex:         ("flex" in params)         ? parseInt(params.flex, 10) : 16,
+              width:        ("width" in params)        ? parseInt(params.width, 10): undefined,
+              height:       ("height" in params)       ? parseInt(params.height, 10): undefined,
             };
             if (params.tab && ("_is_ko_widget" in params.tab)) {
               // Oh wtf, got passed a widget instead of a tab
@@ -253,6 +255,14 @@
               this._log.exception("Failed to find id for " + widget);
             }
             widget.setAttribute("flex", params.flex);
+            if (!isNaN(params.width)) {
+                this._log.debug("addWidget: " + id + " set width to " + params.width);
+                widget.setAttribute("width", params.width);
+            }
+            if (!isNaN(params.height)) {
+                this._log.debug("addWidget: " + id + " set height to " + params.height);
+                widget.setAttribute("height", params.height);
+            }
             if (!createdNewWidget && widget.containerPane) {
               // We've moving the widget
               widget = this._adoptWidget(widget, params); // (note that this recurses back here)

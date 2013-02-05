@@ -586,7 +586,7 @@ if (typeof(ko.widgets)=='undefined') {
             if (!("autoload" in data)) continue;
             if (!this._panes.has(data.defaultPane)) continue;
             if (!(data.defaultPane in panes)) panes[data.defaultPane] = {children: []};
-            panes[data.defaultPane].children[data.autoload] = [id];
+            panes[data.defaultPane].children[data.autoload] = [{id: id}];
         }
         log.debug("after processing widgets: " + JSON.stringify(panes));
         // remove missing children
@@ -635,7 +635,7 @@ if (typeof(ko.widgets)=='undefined') {
                     }
                     // Push it in the the pane, as a new tabpanel
                     let d = this._persist_state.panes[pos];
-                    d.children.push([id]);
+                    d.children.push([{id: id}]);
                 }
             }
         }
@@ -655,13 +655,27 @@ if (typeof(ko.widgets)=='undefined') {
                     }
                 }
             }
+            if ("children" in paneData) {
+                log.debug("before fixup: " + JSON.stringify(paneData.children));
+                for (let tabData of paneData.children) {
+                    for (let [idx, w_info] in Iterator(tabData)) {
+                        if (typeof(w_info) == "string") {
+                            tabData[idx] = {id: w_info};
+                        }
+                    }
+                }
+                log.debug("after fixup: " + JSON.stringify(paneData.children));
+            }
         }
         log.debug("onload: persisted data = " + JSON.stringify(this._persist_state));
+        log.debug("onload: panes = " + JSON.stringify(panes));
 
         let outstandingPanesToCreate = 0;
         for (let [id, data] in Iterator(this._persist_state.panes)) {
             let doOnePane = (function(id) {
                 if (("children" in data) && (data.children instanceof Array)) {
+                    log.debug(id + ": " + JSON.stringify(panes[id].children) +
+                              " -> " + JSON.stringify(data.children));
                     panes[id].children = data.children.concat();
                 }
                 for (let key of ["selectedTab", "collapsed"]) {
@@ -694,14 +708,15 @@ if (typeof(ko.widgets)=='undefined') {
         let doRestorePanes = (function doRestorePanes() {
             // Make sure widgets that didn't opt-in to being unloaded will still
             // load, just hidden
+            log.debug("panes: " + JSON.stringify(panes));
             let extra_widgets = {};
             for (let id in this._widgets.keys) {
                 extra_widgets[id] = true;
             }
             for (let [paneId,paneData] in Iterator(panes)) {
                 for (let [,tab] in Iterator(paneData.children || [])) {
-                    for (let [,widgetId] in Iterator(tab || [])) {
-                        delete extra_widgets[widgetId];
+                    for (let [,widgetInfo] in Iterator(tab || [])) {
+                        delete extra_widgets[widgetInfo.id];
                     }
                 }
             }
@@ -712,7 +727,7 @@ if (typeof(ko.widgets)=='undefined') {
                     continue; // We don't need to force load this one
                 }
                 if (data.defaultPane && data.defaultPane in panes) {
-                    panes[data.defaultPane].children.push([widgetId]);
+                    panes[data.defaultPane].children.push([{id:widgetId}]);
                 } else {
                     // Umm, can't find it anywhere.  Stuff it into any pane
                     [p for (p in Iterator(panes))].sort(function(a, b) {
@@ -728,7 +743,7 @@ if (typeof(ko.widgets)=='undefined') {
                         }
                         // Out of ideas.  By id, I guess?
                         return a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0;
-                    }).shift()[1].children.push([widgetId]);
+                    }).shift()[1].children.push([{id:widgetId}]);
                 }
             }
 
@@ -737,22 +752,43 @@ if (typeof(ko.widgets)=='undefined') {
                 let pane = this._panes.get(id);
                 for (let tabpanel of panes[id].children) {
                     let tab = null; // Used to put further widgets in the same tabpanel
-                    for (let w_id of tabpanel) {
-                        let data = this._get(w_id);
+                    for (let w_info of tabpanel) {
+                        if (typeof(w_info) == "string" || (w_info instanceof String)) {
+                            // name-only widget info (bug 96876)
+                            w_info = {id: w_info};
+                        }
+                        if (!("id" in w_info)) {
+                            log.warning("Found a widget with no id, ignoring");
+                            continue;
+                        }
+                        let data = this._get(w_info.id);
                         if (data && data.browser) {
-                            log.debug(w_id + " already loaded, moving it");
+                            log.debug(w_info.id +
+                                      " already loaded, moving it to be with " +
+                                      (tab ? tab.label : "(null)"));
                             // Somebody called getWidget() synchronously too early! Try to move it
-                            pane.addWidget(data.browser, {focus: false, tab: tab});
+                            pane.addWidget(data.browser,
+                                           {focus: false,
+                                            tab: tab,
+                                            width: w_info.width,
+                                            height: w_info.height});
+                            if (!tab) {
+                                tab = data.browser.tab;
+                            }
                         } else {
                             if (!data) {
-                                log.debug("no data for " + w_id);
+                                log.debug("no data for " + w_info.id);
                             } else if (data.show === false) {
                                 // Explicity flagged as don't restore
-                                log.debug("Not restoring don't-show widget " + w_id);
+                                log.debug("Not restoring don't-show widget " + w_info.id);
                                 continue;
                             }
-                            let widget = pane.addWidget(w_id, {focus: false, tab: tab});
-                            log.debug("added " + w_id + " -> " + this._getIDForWidget(widget));
+                            let widget = pane.addWidget(w_info.id,
+                                                        {focus: false,
+                                                         tab: tab,
+                                                         width: w_info.width,
+                                                         height: w_info.height});
+                            log.debug("added " + w_info.id + " -> " + this._getIDForWidget(widget));
                             tab = widget.tab;
                         }
                     }
@@ -771,7 +807,9 @@ if (typeof(ko.widgets)=='undefined') {
                                            .filter(function(e) !e.hidden);
                         return widgets.length > 0;
                     };
-                    let children = panes[id].children.reduce(function(a,b) a.concat(b), []);
+                    let children = panes[id].children
+                                            .reduce(function(a,b) a.concat(b), [])
+                                            .map(function (info) info.id);
                     let tabs = Array.slice(this.getPaneAt(id).tabs.children);
                     let selected = panes[id].selectedTab;
                     // make sure what we want to select actually works..
@@ -840,7 +878,16 @@ if (typeof(ko.widgets)=='undefined') {
                     }
                     let w_id = this._getIDForWidget(widget);
                     if (w_id && this._get(w_id).persist) {
-                        children.push(w_id);
+                        let w_info = {id: w_id};
+                        for (let prop of ["width", "height"]) {
+                            if (widget.hasAttribute(prop)) {
+                                let val = parseInt(widget.getAttribute(prop), 10);
+                                if (!isNaN(val)) {
+                                    w_info[prop] = val;
+                                }
+                            }
+                        }
+                        children.push(w_info);
                     }
                 }
                 if (children.length) {
@@ -848,7 +895,7 @@ if (typeof(ko.widgets)=='undefined') {
                     panes[id].children.push(children);
                 }
             }
-            if (pane.widgets.length > 0) {
+            if (pane.widgets.length > 0 && pane.selectedPanel) {
                 let selectedWidget = Array.slice(pane.selectedPanel.childNodes)
                                           .filter(function(e) "_is_ko_widget" in e)
                                           .shift();
