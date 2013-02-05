@@ -24,20 +24,13 @@
     <implementation name="viewminimap" implements="koIScintillaView, koIBookmarkableView, ISciMozEvents, nsIObserver">
 
         <property name="scintilla" onget="return document.getAnonymousElementByAttribute(this, 'anonid', 'minimap');"/>
-
-        <method name="init">
-        <parameter name="view" />
-        <body>
-        <![CDATA[
-            this.view = view;
-        ]]>
-        </body>
-        </method>
         
-        <method name="initMinimap">
-        <parameter name="koDoc"/>
+        <method name="initWithView">
+        <parameter name="view" />
         <body><![CDATA[
         try {
+            this.view = view;
+	    var koDoc = view.koDoc;
             this.koDoc = koDoc;
             var scintilla = this.scintilla;
             scintilla.language = koDoc.language;

@@ -310,9 +310,10 @@
                 this._turnColourizingOff();
             }
             ko.lint.initializeGenericPrefs(this.prefs);
-            this.minimap.initMinimap(doc);
             var editShowMinimap = this.prefs.getBooleanPref("editShowMinimap");
-            this.updateMinimapDisplay(editShowMinimap);
+            if (editShowMinimap) {
+                this.createMinimap();
+            }
             ko.macros.eventHandler.hookPostFileOpen(this);
         } catch (e) {
             this.log.exception(e);
@@ -320,6 +321,29 @@
         this.log.debug('scimoz code page after initWithDoc is '+this.scimoz.codePage);
         this.log.debug('document code page after initWithDoc is '+this.koDoc.codePage);
         this.enableAutoAbbreviations = ko.prefs.getBooleanPref("enableAutoAbbreviations");
+        ]]>
+        </body>
+        </method>
+        
+        <method name="createMinimap">
+        <body><![CDATA[
+            var minimap = document.createElementNS(this.namespaceURI, 'view');
+            minimap.setAttribute('type', 'minimap');
+            minimap.setAttribute('flex','1');
+            this.parentNode.appendChild(minimap); // this.parentNode is the tabbox container
+            this.minimap = minimap;
+            minimap.initWithView(this);
+            minimap.attachKoDoc(this.koDoc);
+            this.updateMinimapDisplay(true);
+        ]]>
+        </body>
+        </method>
+        
+        <method name="destroyMinimap">
+        <body><![CDATA[
+            this.minimap.releaseKoDoc();
+            this.parentNode.removeChild(this.minimap);
+            this.minimap = null;
         ]]>
         </body>
         </method>
@@ -571,7 +595,22 @@
                 break;
             case 'editShowMinimap':
                 var editShowMinimap = this.prefs.getBooleanPref("editShowMinimap");
-                this.updateMinimapDisplay(editShowMinimap);
+                if (editShowMinimap) {
+                    if (!this.minimap) {
+                        this.createMinimap();
+                    } else if (this.showMinimap) {
+                        // Nothing to do, we're already showing the minimap
+                    } else {
+                        // It's created, but not being displayed (unexpected)
+                        this.updateMinimapDisplay(true);
+                    }
+                } else if (this.minimap) {
+                    this.updateMinimapDisplay(false);
+                    this.destroyMinimap();
+                }
+                // else:
+                    // There is no minimap, and the pref is to not show it, so
+                    // there's nothing to do (unexpected)
                 break;
             case 'foldSeparateBlockParts':
                 //multi-window: this applies to all windows, as it's a pref
