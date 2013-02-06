@@ -487,6 +487,7 @@ if (ko.skin == undefined)
                 // Possible commands to retrieve gtk theme name
                 var commands = [
                     'dconf read /org/gnome/desktop/interface/gtk-theme',
+                    'gsettings get org.gnome.desktop.interface gtk-theme',
                     'gconftool-2 -g /desktop/gnome/interface/gtk_theme'
                 ];
                 
