@@ -1,0 +1,4 @@
+override chrome://komodo/skin/iconset/config.less resource://app/chrome/iconsets/ambiance/config.less
+skin icomoon ambiance jar:../dark/dark.jar!/skin/
+skin icomoon-light ambiance jar:../light/light.jar!/skin/
+skin icomoon-orange ambiance jar:../orange/orange.jar!/skin/

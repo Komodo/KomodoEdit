@@ -1,0 +1,2 @@
+override chrome://komodo/skin/_config/window.less resource://app/chrome/skins/gtk-Ambiance/_config/window.less
+override chrome://komodo/skin/platform.less resource://app/chrome/skins/gtk-Ambiance/platform.less

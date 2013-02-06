@@ -38,3 +38,9 @@ groupbox#pref-languages-primary-selector-groupbox {
 groupbox#pref-languages-primary-selector-groupbox.collapse {
     visibility:collapse;
 }
+
+.legend {
+    font-size: 90%;
+    font-style: italic;
+    padding-left: 10px;
+}

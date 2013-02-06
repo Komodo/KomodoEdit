@@ -113,7 +113,7 @@ ko-pane .pane-drop-target {
 }
 ko-pane .pane-drop-placeholders > :not(splitter) {
   background-color: rgb(0, 255, 0);
-  background-image: url("chrome://icomoon/skin/icons/svg/move.svg");
+  background-image: url("chrome://icomoon/skin/icons/move.png");
   background-position: center;
   background-repeat: no-repeat;
   background-size: 24px;

@@ -2458,9 +2458,9 @@ def BuildQuickBuildDB(cfg, argv):
                extensions=['css', 'less', 'png', 'manifest'],
                preserveSubtrees=1)
 
-    _addFiles(cfg, sourceSubdir='src/chrome/komodo/skin/iconsets',
-               targetSubdir=os.path.join(cfg.mozBin, 'chrome', 'komodo', 'skin', 'iconsets'),
-               extensions=['css', 'less', 'png', 'svg'],
+     _addFiles(cfg, sourceSubdir='src/chrome/iconsets',
+               targetSubdir=os.path.join(cfg.mozBin, 'chrome', 'iconsets'),
+               extensions=['css', 'less', 'png', 'svg', 'manifest', 'jar'],
                preserveSubtrees=1)
      
     _addFiles(cfg, sourceSubdir='src/images/icons/plat/'+skinPlat,

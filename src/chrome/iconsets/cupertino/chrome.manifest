@@ -1,0 +1,4 @@
+# Jar is automatically created at build time, see Conscript
+override chrome://komodo/skin/iconset/config.less resource://app/chrome/iconsets/cupertino/config.less
+skin icomoon cupertino jar:cupertino.jar!/skin/
+skin icomoon-blue cupertino jar:../cupertino-blue/cupertino-blue.jar!/skin/

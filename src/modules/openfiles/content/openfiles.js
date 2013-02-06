@@ -186,8 +186,11 @@ if (typeof ko.openfiles == 'undefined')
             
             /**** OpenFiles Events ******/
             listbox.addEventListener('select', function(e) {
-                this.selectItem(e.target.selectedItem);
-                ko.commands.doCommandAsync('cmd_focusEditor')
+                if (e.target == listbox && e.target.selectedItem)
+                {
+                    this.selectItem(e.target.selectedItem);
+                    ko.commands.doCommandAsync('cmd_focusEditor')
+                }
             }.bind(this), true);
             
             listbox.addEventListener('contextmenu', this.onContextMenu.bind(this));
@@ -730,7 +733,7 @@ if (typeof ko.openfiles == 'undefined')
             
             // Validate if the item exists
             var listItem = listbox.querySelector('richlistitem[id="'+editorView.uid.number+'"]');
-            if ( ! listItem)
+            if ( ! listItem || listItem == listbox.selectedItem)
             {
                 return false;
             }

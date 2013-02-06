@@ -90,19 +90,48 @@
                 <menulist id="koSkin_custom_icons"
                           pref="true"
                           preftype="string"
-                          prefdefault=""
+                          prefdefault="dark"
                           prefattribute="value">
                     <menupopup>
-                        <menuitem id="pref_appearance_iconset_default"
-                                  label="&iconsetDefault.label;"
-                                  value=""
-                                  />
                         <menuitem id="pref_appearance_iconset_classic"
                                   label="&iconsetClassic.label;"
                                   value="classic"
                                   />
+                        <menuitem id="pref_appearance_iconset_ambiance"
+                                  label="&iconsetAmbiance.label;"
+                                  value="ambiance"
+                                  />
+                        <menuitem id="pref_appearance_iconset_blue"
+                                  label="&iconsetBlue.label;"
+                                  value="blue"
+                                  />
+                        <menuitem id="pref_appearance_iconset_cupertino"
+                                  label="&iconsetCupertino.label;"
+                                  value="cupertino"
+                                  />
+                        <menuitem id="pref_appearance_iconset_cupertino_blue"
+                                  label="&iconsetCupertinoBlue.label;"
+                                  value="cupertino-blue"
+                                  />
+                        <menuitem id="pref_appearance_iconset_dark"
+                                  label="&iconsetDark.label;"
+                                  value="dark"
+                                  />
+                        <menuitem id="pref_appearance_iconset_light"
+                                  label="&iconsetLight.label;"
+                                  value="light"
+                                  />
+                        <menuitem id="pref_appearance_iconset_orange"
+                                  label="&iconsetOrange.label;"
+                                  value="orange"
+                                  />
                     </menupopup>
                 </menulist>
+            </hbox>
+            <hbox align="center">
+                <label value="&iconset.label;"
+                       style="visibility: hidden;"/>
+                <span class="legend">&restartRequired.span;</span>
             </hbox>
         </groupbox>
 

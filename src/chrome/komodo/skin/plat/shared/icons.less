@@ -26,25 +26,6 @@ button[type="moreinfo"] > .button-box > .button-icon
     margin-left: 2px;
 }
 
-[class*='-icon '] > image,
-[class$='-icon'] > image,
-toolbaritem > image,
-.toolbarbutton-icon,
-.button-icon,
-treechildren::-moz-tree-image
-{
-    width: 16px;
-    height: 16px;
-}
-
-.scrollbutton-down > image,
-.scrollbutton-up > image,
-button > hbox.button-box > image.button-icon
-{
-    width: auto;
-    height: auto;
-}
-
 [class*='-icon '][disabled="true"] > image,
 [class$='-icon'][disabled="true"] > image,
 [class*='_icon '][disabled="true"] > image,
@@ -80,23 +61,17 @@ button > hbox.button-box > image.button-icon
 .warning-icon
 {
     list-style-image: @icon-warning;
-    height: 32px;
-    width: 32px;
 }
 
 .small-warning-icon
 {
     list-style-image: @icon-small-warning;
     min-height: 16px;
-    height: 16px;
-    width: 16px;
 }
 
 .question-icon
 {
     list-style-image: @icon-question;
-    height: 32px;
-    width: 32px;
 }
 
 .native-help-icon,
@@ -317,11 +292,6 @@ toolbaritem .native-new-file-icon
 .project-tools-icon
 {
     list-style-image: @icon-gear !important;
-    
-    image
-    {
-        filter: @panel-toolbar-icon-filter;
-    }
 }
 
 .new-template-icon
@@ -454,7 +424,6 @@ treechildren::-moz-tree-image(remotefile)
 .textbox-search-icon
 {
     list-style-image: @icon-textbox-search;
-    filter: @panel-toolbar-icon-filter;
     width: 16px;
     height: 16px;
 }
@@ -780,6 +749,49 @@ treechildren::-moz-tree-image(remotefile)
     list-style-image: @icon-addon-debug-inspect !important;
 }
 
+#main-toolboxrow
+{
+    .debug-stepin-icon
+    {
+        list-style-image: @icon-addon-debug-stepin-toolbox !important;
+    }
+    
+    .debug-stepover-icon
+    {
+        list-style-image: @icon-addon-debug-stepover-toolbox !important;
+    }
+    
+    .debug-stepout-icon
+    {
+        list-style-image: @icon-addon-debug-stepout-toolbox !important;
+    }
+    
+    .debug-continue-icon
+    {
+        list-style-image: @icon-addon-debug-continue-toolbox !important;
+    }
+    
+    .debug-break-icon
+    {
+        list-style-image: @icon-addon-debug-break-toolbox !important;
+    }
+    
+    .debug-stop-icon
+    {
+        list-style-image: @icon-addon-debug-stop-toolbox !important;
+    }
+    
+    .debug-detach-icon
+    {
+        list-style-image: @icon-addon-debug-detach-toolbox !important;
+    }
+    
+    .debug-inspect-icon
+    {
+        list-style-image: @icon-addon-debug-inspect-toolbox !important;
+    }
+}
+
 /* Macro Icons */
 
 .macro-play-icon
@@ -805,6 +817,195 @@ treechildren::-moz-tree-image(remotefile)
 .macro-save-icon
 {
     list-style-image: @icon-macro-save !important;
+}
+
+/* Widget Icons */
+
+ko-pane[type="icons"]
+{
+    tab 
+    {
+        .tab-icon
+        {
+            list-style-image: @icon-widget-default !important;
+        }
+        
+        &[selected] .tab-icon
+        {
+            list-style-image: @icon-widget-default-selected !important;
+        }
+    }
+    
+    tab[widget="openfilesViewbox"] 
+    {
+        .tab-icon
+        {
+            list-style-image: @icon-widget-openfiles !important;
+        }
+        
+        &[selected] .tab-icon
+        {
+            list-style-image: @icon-widget-openfiles-selected !important;
+        }
+    }
+    
+    tab[widget="placesViewbox"] 
+    {
+        .tab-icon
+        {
+            list-style-image: @icon-widget-places !important;
+        }
+        
+        &[selected] .tab-icon
+        {
+            list-style-image: @icon-widget-places-selected !important;
+        }
+    }
+    
+    tab[widget="codebrowserviewbox"] 
+    {
+        .tab-icon
+        {
+            list-style-image: @icon-widget-codebrowser !important;
+        }
+        
+        &[selected] .tab-icon
+        {
+            list-style-image: @icon-widget-codebrowser-selected !important;
+        }
+    }
+    
+    tab[widget="dbexplorer_viewbox"] 
+    {
+        .tab-icon
+        {
+            list-style-image: @icon-widget-dbexplorer !important;
+        }
+        
+        &[selected] .tab-icon
+        {
+            list-style-image: @icon-widget-dbexplorer-selected !important;
+        }
+    }
+    
+    tab[widget="DOMviewbox"] 
+    {
+        .tab-icon
+        {
+            list-style-image: @icon-widget-dom !important;
+        }
+        
+        &[selected] .tab-icon
+        {
+            list-style-image: @icon-widget-dom-selected !important;
+        }
+    }
+    
+    tab[widget="collab-panel"] 
+    {
+        .tab-icon
+        {
+            list-style-image: @icon-widget-collab !important;
+        }
+        
+        &[selected] .tab-icon
+        {
+            list-style-image: @icon-widget-collab-selected !important;
+        }
+    }
+    
+    tab[widget="toolbox2viewbox"] 
+    {
+        .tab-icon
+        {
+            list-style-image: @icon-widget-toolbox !important;
+        }
+        
+        &[selected] .tab-icon
+        {
+            list-style-image: @icon-widget-toolbox-selected !important;
+        }
+    }
+    
+    tab[widget="breakpoints-tabpanel"] 
+    {
+        .tab-icon
+        {
+            list-style-image: @icon-widget-breakpoints !important;
+        }
+        
+        &[selected] .tab-icon
+        {
+            list-style-image: @icon-widget-breakpoints-selected !important;
+        }
+    }
+    
+    tab[widget="runoutput-desc-tabpanel"] 
+    {
+        .tab-icon
+        {
+            list-style-image: @icon-widget-command-output !important;
+        }
+        
+        &[selected] .tab-icon
+        {
+            list-style-image: @icon-widget-command-output-selected !important;
+        }
+    }
+    
+    tab[widget="findresults1_tabpanel"],
+    tab[widget="findresults2_tabpanel"]
+    {
+        .tab-icon
+        {
+            list-style-image: @icon-widget-find-results !important;
+        }
+        
+        &[selected] .tab-icon
+        {
+            list-style-image: @icon-widget-find-results-selected !important;
+        }
+    }
+    
+    tab[widget="projectUnitTestsResults_tabpanel"] 
+    {
+        .tab-icon
+        {
+            list-style-image: @icon-widget-unit-tests !important;
+        }
+        
+        &[selected] .tab-icon
+        {
+            list-style-image: @icon-widget-unit-tests-selected !important;
+        }
+    }
+    
+    tab[widget="notifications-widget"] 
+    {
+        .tab-icon
+        {
+            list-style-image: @icon-widget-notifications !important;
+        }
+        
+        &[selected] .tab-icon
+        {
+            list-style-image: @icon-widget-notifications-selected !important;
+        }
+    }
+    
+    tab[widget="klint_tabpanel"] 
+    {
+        .tab-icon
+        {
+            list-style-image: @icon-widget-klint !important;
+        }
+        
+        &[selected] .tab-icon
+        {
+            list-style-image: @icon-widget-klint-selected !important;
+        }
+    }
+
 }
 
 /* Notification Widget */
@@ -855,8 +1056,6 @@ treechildren::-moz-tree-image(remotefile)
     
     toolbarbutton image
     {
-        filter: @panel-toolbar-icon-filter;
-        
         &.toolbarbutton-icon
         {
             width: 14px;
@@ -881,8 +1080,6 @@ treechildren::-moz-tree-image(remotefile)
     
     toolbarbutton image
     {
-        filter: @panel-toolbar-icon-filter;
-        
         &.toolbarbutton-icon
         {
             width: 14px;
@@ -902,8 +1099,6 @@ treechildren::-moz-tree-image(remotefile)
     
     toolbarbutton image
     {
-        filter: @panel-toolbar-icon-filter;
-        
         &.toolbarbutton-icon
         {
             width: 14px;
@@ -928,8 +1123,6 @@ treechildren::-moz-tree-image(remotefile)
     
     toolbarbutton image
     {
-        filter: @panel-toolbar-icon-filter;
-        
         &.toolbarbutton-icon
         {
             width: 14px;
@@ -955,8 +1148,6 @@ treechildren::-moz-tree-image(remotefile)
     
     toolbarbutton image
     {
-        filter: @panel-toolbar-icon-filter;
-        
         &.toolbarbutton-icon
         {
             width: 14px;
@@ -1003,8 +1194,6 @@ treechildren::-moz-tree-image(remotefile)
     
     toolbarbutton image
     {
-        filter: @panel-toolbar-icon-filter;
-        
         &.toolbarbutton-icon
         {
             width: 14px;
@@ -1024,8 +1213,6 @@ treechildren::-moz-tree-image(remotefile)
         /* Button Icon */
         image
         {
-            filter: @panel-toolbar-icon-filter;
-        
             &.toolbarbutton-icon
             {
                 width: 14px;

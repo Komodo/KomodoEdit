@@ -1,7 +1,7 @@
 /* Action Icons */
 @icon-undo:                     url("chrome://komodo/skin/images/undo.png");
-@icon-accept:                   url("chrome://icomoon/skin/icons/svg/checkmark.svg");
-@icon-cancel:                   url("chrome://icomoon/skin/icons/svg/close.svg");
+@icon-accept:                   url("chrome://icomoon/skin/icons/checkmark.png");
+@icon-cancel:                   url("chrome://icomoon/skin/icons/close.png");
 
 /* Folder Icons */
 @icon-folder-open:              url("chrome://komodo/skin/images/folder-open.png");
@@ -68,17 +68,17 @@
 @icon-italictext-disabled:      url("chrome://komodo/skin/images/italicButton_disable.png");
 @icon-find-stop:                url("chrome://komodo/skin/images/find_stop.png");
 @icon-find-stop-disabled:       url("chrome://komodo/skin/images/find_stop_disable.png");
-@icon-native-undo:              url("chrome://icomoon/skin/icons/svg/undo2.svg");
-@icon-native-redo:              url("chrome://icomoon/skin/icons/svg/redo2.svg");
+@icon-native-undo:              url("chrome://icomoon/skin/icons/undo2.png");
+@icon-native-redo:              url("chrome://icomoon/skin/icons/redo2.png");
 @icon-find-lock:                url("chrome://fugue/skin/icons/lock-unlock.png");
 @icon-find-lock-locked:         url("chrome://fugue/skin/icons/lock.png");
 @icon-new-project:              url("chrome://komodo/skin/images/project_icon.png");
 @icon-new-file:                 url("chrome://komodo/skin/images/existing_file.png");
 @icon-new-window:               url("chrome://komodo/skin/images/komodo_16x16.png");
-@icon-open-file:                url("chrome://icomoon/skin/icons/svg/folder-open.svg");
+@icon-open-file:                url("chrome://icomoon/skin/icons/folder-open.png");
 @icon-open-file-toolbar:        url("chrome://global/skin/dirListing/folder.png");
 @icon-native-folder:            url("chrome://global/skin/dirListing/folder.png");
-@icon-gear:                     url("chrome://icomoon/skin/icons/svg/cog2.svg");
+@icon-gear:                     url("chrome://icomoon/skin/icons/cog2.png");
 @icon-new-template:             url("chrome://komodo/skin/images/newTemplate.png");
 @icon-native-save:              url("chrome://komodo/skin/images/save.png");
 @icon-run-command:              url("chrome://komodo/skin/images/run_commands.png");
@@ -114,75 +114,115 @@
 @icon-browser-opera:            url("chrome://famfamfamsilk/skin/icons/browser_opera.png");
 @icon-browser-safari:           url("chrome://famfamfamsilk/skin/icons/browser_safari.png");
 @icon-browser-chrome:           url("chrome://famfamfamsilk/skin/icons/browser_chrome.png");
-@icon-textbox-search:           url("chrome://icomoon/skin/icons/svg/search3.svg");
+@icon-textbox-search:           url("chrome://icomoon/skin/icons/search3.png");
 
 /* Toolbars */
-@icon-browser-preview:          url("chrome://icomoon/skin/icons/svg/earth.svg");
-@icon-save-toolbar:             url("chrome://icomoon/skin/icons/svg/ko_save.svg");
-@icon-save-all-buffers:         url("chrome://icomoon/skin/icons/svg/ko_save-all.svg");
-@icon-cut:                      url("chrome://icomoon/skin/icons/svg/scissors.svg");
-@icon-copy:                     url("chrome://icomoon/skin/icons/svg/files.svg");
-@icon-paste:                    url("chrome://icomoon/skin/icons/svg/paste2.svg");
-@icon-print:                    url("chrome://icomoon/skin/icons/svg/print.svg");
-@icon-community:                url("chrome://icomoon/skin/icons/svg/users4.svg");
-@icon-maillist:                 url("chrome://icomoon/skin/icons/svg/envelop.svg");
-@icon-bugs:                     url("chrome://icomoon/skin/icons/svg/bug.svg");
-@icon-close:                    url("chrome://icomoon/skin/icons/svg/close2.svg");
-@icon-toggle-left-pane:         url("chrome://icomoon/skin/icons/svg/ko_layout-left3.svg");
-@icon-toggle-right-pane:        url("chrome://icomoon/skin/icons/svg/ko_layout-right3.svg");
-@icon-toggle-bottom-pane:       url("chrome://icomoon/skin/icons/svg/ko_layout-bottom3.svg");
-@icon-toggle-left-pane-checked: url("chrome://icomoon/skin/icons/svg/ko_layout-left4.svg");
-@icon-toggle-right-pane-checked:url("chrome://icomoon/skin/icons/svg/ko_layout-right4.svg");
-@icon-toggle-bottom-pane-checked:url("chrome://icomoon/skin/icons/svg/ko_layout-bottom4.svg");
-@icon-tabpicker:                url("chrome://icomoon/skin/icons/svg/ko_tab-down.svg");
-@icon-find:                     url("chrome://icomoon/skin/icons/svg/binoculars.svg");
-@icon-find-in-files:            url("chrome://icomoon/skin/icons/svg/binoculars.svg");
+@icon-browser-preview:          url("chrome://icomoon/skin/icons/earth.png");
+@icon-save-toolbar:             url("chrome://icomoon/skin/icons/ko_save.png");
+@icon-save-all-buffers:         url("chrome://icomoon/skin/icons/ko_save-all.png");
+@icon-cut:                      url("chrome://icomoon/skin/icons/scissors.png");
+@icon-copy:                     url("chrome://icomoon/skin/icons/files.png");
+@icon-paste:                    url("chrome://icomoon/skin/icons/paste2.png");
+@icon-print:                    url("chrome://icomoon/skin/icons/print.png");
+@icon-community:                url("chrome://icomoon/skin/icons/users4.png");
+@icon-maillist:                 url("chrome://icomoon/skin/icons/envelop.png");
+@icon-bugs:                     url("chrome://icomoon/skin/icons/bug.png");
+@icon-close:                    url("chrome://icomoon/skin/icons/close2.png");
+@icon-toggle-left-pane:         url("chrome://icomoon/skin/icons/ko_layout-left3.png");
+@icon-toggle-right-pane:        url("chrome://icomoon/skin/icons/ko_layout-right3.png");
+@icon-toggle-bottom-pane:       url("chrome://icomoon/skin/icons/ko_layout-bottom3.png");
+@icon-toggle-left-pane-checked: url("chrome://icomoon/skin/icons/ko_layout-left4.png");
+@icon-toggle-right-pane-checked:url("chrome://icomoon/skin/icons/ko_layout-right4.png");
+@icon-toggle-bottom-pane-checked:url("chrome://icomoon/skin/icons/ko_layout-bottom4.png");
+@icon-tabpicker:                url("chrome://icomoon/skin/icons/ko_tab-down.png");
+@icon-find:                     url("chrome://icomoon/skin/icons/binoculars.png");
+@icon-find-in-files:            url("chrome://icomoon/skin/icons/binoculars.png");
 @icon-find-toolbar:             url("chrome://komodo/skin/images/find.png");
-@icon-previous-diff:            url("chrome://icomoon/skin/icons/svg/arrow-up16.svg");
-@icon-next-diff:                url("chrome://icomoon/skin/icons/svg/arrow-down16.svg");
-@icon-reveal-in-editor:         url("chrome://icomoon/skin/icons/svg/file.svg");
-@icon-move-to-editor:           url("chrome://icomoon/skin/icons/svg/file-upload2.svg");
-@icon-history-back:             url("chrome://icomoon/skin/icons/svg/arrow-left3.svg");
-@icon-history-forward:          url("chrome://icomoon/skin/icons/svg/arrow-right4.svg");
-@icon-new-file-toolbar:         url("chrome://icomoon/skin/icons/svg/file-plus.svg");
-@icon-help-toolbar:             url("chrome://icomoon/skin/icons/svg/question2.svg");
+@icon-previous-diff:            url("chrome://icomoon/skin/icons/arrow-up16.png");
+@icon-next-diff:                url("chrome://icomoon/skin/icons/arrow-down16.png");
+@icon-reveal-in-editor:         url("chrome://icomoon/skin/icons/file.png");
+@icon-move-to-editor:           url("chrome://icomoon/skin/icons/file-upload2.png");
+@icon-history-back:             url("chrome://icomoon/skin/icons/arrow-left3.png");
+@icon-history-forward:          url("chrome://icomoon/skin/icons/arrow-right4.png");
+@icon-new-file-toolbar:         url("chrome://icomoon/skin/icons/file-plus.png");
+@icon-help-toolbar:             url("chrome://icomoon/skin/icons/question2.png");
 
 /* Addon Icons */
-@icon-addon-rx:                 url("chrome://icomoon/skin/icons/svg/ko_regexp.svg");
-@icon-addon-http-inspector:     url("chrome://icomoon/skin/icons/svg/direction.svg");
-@icon-addon-ishell:             url("chrome://icomoon/skin/icons/svg/console.svg");
-@icon-addon-tcldevkit:          url("chrome://icomoon/skin/icons/svg/quill3.svg");
-@icon-addon-perldevkit:         url("chrome://icomoon/skin/icons/svg/ko_perl.svg");
+@icon-addon-rx:                 url("chrome://icomoon/skin/icons/ko_regexp.png");
+@icon-addon-http-inspector:     url("chrome://icomoon/skin/icons/direction.png");
+@icon-addon-ishell:             url("chrome://icomoon/skin/icons/console.png");
+@icon-addon-tcldevkit:          url("chrome://icomoon/skin/icons/quill3.png");
+@icon-addon-perldevkit:         url("chrome://icomoon/skin/icons/ko_perl.png");
 
 /* SCC Icons */
-@icon-addon-scc:                url("chrome://icomoon/skin/icons/svg/ko_scc_menu2.svg");
-@icon-addon-scc-checkout:       url("chrome://icomoon/skin/icons/svg/ko_scc_checkout.svg");
-@icon-addon-scc-add:            url("chrome://icomoon/skin/icons/svg/ko_scc_add.svg");
-@icon-addon-scc-edit:           url("chrome://icomoon/skin/icons/svg/ko_scc_edit2.svg");
-@icon-addon-scc-revert:         url("chrome://icomoon/skin/icons/svg/ko_scc_revert.svg");
-@icon-addon-scc-remove:         url("chrome://icomoon/skin/icons/svg/ko_scc_remove.svg");
-@icon-addon-scc-update:         url("chrome://icomoon/skin/icons/svg/ko_scc_update.svg");
-@icon-addon-scc-diff:           url("chrome://icomoon/skin/icons/svg/ko_scc_diff.svg");
-@icon-addon-scc-history:        url("chrome://icomoon/skin/icons/svg/ko_scc_history.svg");
-@icon-addon-scc-commit:         url("chrome://icomoon/skin/icons/svg/ko_scc_commit.svg");
-@icon-addon-scc-push:           url("chrome://icomoon/skin/icons/svg/ko_scc_push.svg");
+@icon-addon-scc:                url("chrome://icomoon/skin/icons/ko_scc_menu2.png");
+@icon-addon-scc-checkout:       url("chrome://icomoon/skin/icons/ko_scc_checkout.png");
+@icon-addon-scc-add:            url("chrome://icomoon/skin/icons/ko_scc_add.png");
+@icon-addon-scc-edit:           url("chrome://icomoon/skin/icons/ko_scc_edit2.png");
+@icon-addon-scc-revert:         url("chrome://icomoon/skin/icons/ko_scc_revert.png");
+@icon-addon-scc-remove:         url("chrome://icomoon/skin/icons/ko_scc_remove.png");
+@icon-addon-scc-update:         url("chrome://icomoon/skin/icons/ko_scc_update.png");
+@icon-addon-scc-diff:           url("chrome://icomoon/skin/icons/ko_scc_diff.png");
+@icon-addon-scc-history:        url("chrome://icomoon/skin/icons/ko_scc_history.png");
+@icon-addon-scc-commit:         url("chrome://icomoon/skin/icons/ko_scc_commit.png");
+@icon-addon-scc-push:           url("chrome://icomoon/skin/icons/ko_scc_push.png");
 
 /* Debug Icons */
-@icon-addon-debug-stepin:       url("chrome://icomoon/skin/icons/svg/ko_step-into.svg");
-@icon-addon-debug-stepover:     url("chrome://icomoon/skin/icons/svg/ko_step-out.svg");
-@icon-addon-debug-stepout:      url("chrome://icomoon/skin/icons/svg/ko_step-over.svg");
-@icon-addon-debug-continue:     url("chrome://icomoon/skin/icons/svg/play4.svg");
-@icon-addon-debug-break:        url("chrome://icomoon/skin/icons/svg/pause2.svg");
-@icon-addon-debug-stop:         url("chrome://icomoon/skin/icons/svg/stop2.svg");
-@icon-addon-debug-detach:       url("chrome://icomoon/skin/icons/svg/forward3.svg");
-@icon-addon-debug-inspect:      url("chrome://icomoon/skin/icons/svg/ko_forward3.svg");
+@icon-addon-debug-stepin:       url("chrome://icomoon/skin/icons/ko_step-into.png");
+@icon-addon-debug-stepover:     url("chrome://icomoon/skin/icons/ko_step-out.png");
+@icon-addon-debug-stepout:      url("chrome://icomoon/skin/icons/ko_step-over.png");
+@icon-addon-debug-continue:     url("chrome://icomoon/skin/icons/play4.png");
+@icon-addon-debug-break:        url("chrome://icomoon/skin/icons/pause2.png");
+@icon-addon-debug-stop:         url("chrome://icomoon/skin/icons/stop2.png");
+@icon-addon-debug-detach:       url("chrome://icomoon/skin/icons/forward3.png");
+@icon-addon-debug-inspect:      url("chrome://icomoon/skin/icons/ko_forward3.png");
+
+/* Debug Toolbox Icons */
+@icon-addon-debug-stepin-toolbox:       url("chrome://icomoon/skin/icons/ko_step-into.png");
+@icon-addon-debug-stepover-toolbox:     url("chrome://icomoon/skin/icons/ko_step-over.png");
+@icon-addon-debug-stepout-toolbox:      url("chrome://icomoon/skin/icons/ko_step-out.png");
+@icon-addon-debug-continue-toolbox:     url("chrome://icomoon/skin/icons/play4.png");
+@icon-addon-debug-break-toolbox:        url("chrome://icomoon/skin/icons/pause2.png");
+@icon-addon-debug-stop-toolbox:         url("chrome://icomoon/skin/icons/stop2.png");
+@icon-addon-debug-detach-toolbox:       url("chrome://icomoon/skin/icons/forward3.png");
+@icon-addon-debug-inspect-toolbox:      url("chrome://icomoon/skin/icons/ko_forward3.png");
 
 /* Macro Icons */
-@icon-macro-play:               url("chrome://icomoon/skin/icons/svg/play3.svg");
-@icon-macro-pause:              url("chrome://icomoon/skin/icons/svg/pause.svg");
-@icon-macro-record:             url("chrome://icomoon/skin/icons/svg/ko_record.svg");
-@icon-macro-stop:               url("chrome://icomoon/skin/icons/svg/stop.svg");
-@icon-macro-save:               url("chrome://icomoon/skin/icons/svg/ko_save-circle.svg");
+@icon-macro-play:               url("chrome://icomoon/skin/icons/play3.png");
+@icon-macro-pause:              url("chrome://icomoon/skin/icons/pause.png");
+@icon-macro-record:             url("chrome://icomoon/skin/icons/ko_record.png");
+@icon-macro-stop:               url("chrome://icomoon/skin/icons/stop.png");
+@icon-macro-save:               url("chrome://icomoon/skin/icons/ko_save-circle.png");
+
+/* Widget Icons */
+@icon-widget-default:               url("chrome://icomoon/skin/icons/file5.png");
+@icon-widget-default-selected:      url("chrome://icomoon/skin/icons/file5.png");
+@icon-widget-openfiles:             url("chrome://icomoon/skin/icons/files.png");
+@icon-widget-openfiles-selected:    url("chrome://icomoon/skin/icons/files.png");
+@icon-widget-places:                url("chrome://icomoon/skin/icons/folder5.png");
+@icon-widget-places-selected:       url("chrome://icomoon/skin/icons/folder5.png");
+@icon-widget-codebrowser:           url("chrome://icomoon/skin/icons/ko_code2.png");
+@icon-widget-codebrowser-selected:  url("chrome://icomoon/skin/icons/ko_code2.png");
+@icon-widget-dbexplorer:            url("chrome://icomoon/skin/icons/ko_database.png");
+@icon-widget-dbexplorer-selected:   url("chrome://icomoon/skin/icons/ko_database.png");
+@icon-widget-dom:                   url("chrome://icomoon/skin/icons/ko_markup.png");
+@icon-widget-dom-selected:          url("chrome://icomoon/skin/icons/ko_markup.png");
+@icon-widget-collab:                url("chrome://icomoon/skin/icons/users.png");
+@icon-widget-collab-selected:       url("chrome://icomoon/skin/icons/users.png");
+@icon-widget-toolbox:               url("chrome://icomoon/skin/icons/briefcase3.png");
+@icon-widget-toolbox-selected:      url("chrome://icomoon/skin/icons/briefcase3.png");
+@icon-widget-breakpoints:           url("chrome://icomoon/skin/icons/bug.png");
+@icon-widget-breakpoints-selected:  url("chrome://icomoon/skin/icons/bug.png");
+@icon-widget-command-output:        url("chrome://icomoon/skin/icons/console.png");
+@icon-widget-command-output-selected:url("chrome://icomoon/skin/icons/console.png");
+@icon-widget-find-results:          url("chrome://icomoon/skin/icons/binoculars.png");
+@icon-widget-find-results-selected: url("chrome://icomoon/skin/icons/binoculars.png");
+@icon-widget-unit-tests:            url("chrome://icomoon/skin/icons/lab.png");
+@icon-widget-unit-tests-selected:   url("chrome://icomoon/skin/icons/lab.png");
+@icon-widget-notifications:         url("chrome://icomoon/skin/icons/info2.png");
+@icon-widget-notifications-selected:url("chrome://icomoon/skin/icons/info2.png");
+@icon-widget-klint:                 url("chrome://icomoon/skin/icons/warning2.png");
+@icon-widget-klint-selected:        url("chrome://icomoon/skin/icons/warning2.png");
 
 /* Notification Widget */
 @icon-filter-error:             url("chrome://global/skin/icons/error-16.png");
@@ -191,31 +231,31 @@
 @icon-filter-progress:          url("chrome://fugue/skin/icons/clock-history.png");
 
 /* Code Browser Widget */
-@icon-codebrowser-locate:       url("chrome://icomoon/skin/icons/svg/enter4.svg");
+@icon-codebrowser-locate:       url("chrome://icomoon/skin/icons/enter4.png");
 
 /* DOM Browser Widget */
-@icon-dombrowser-show-attributes: url("chrome://icomoon/skin/icons/svg/embed.svg");
-@icon-dombrowser-locate:        url("chrome://icomoon/skin/icons/svg/enter4.svg");
+@icon-dombrowser-show-attributes: url("chrome://icomoon/skin/icons/embed.png");
+@icon-dombrowser-locate:        url("chrome://icomoon/skin/icons/enter4.png");
 
 /* Database Widget */
-@icon-database-add:             url("chrome://icomoon/skin/icons/svg/plus.svg");
+@icon-database-add:             url("chrome://icomoon/skin/icons/plus.png");
 
 /* Collaboration Widget */
-@icon-collab-add:               url("chrome://icomoon/skin/icons/svg/plus.svg");
-@icon-collab-refresh:           url("chrome://icomoon/skin/icons/svg/loop.svg");
+@icon-collab-add:               url("chrome://icomoon/skin/icons/plus.png");
+@icon-collab-refresh:           url("chrome://icomoon/skin/icons/loop.png");
 
 /* Collaboration Widget */
-@icon-places-panel-toggle:      url("chrome://icomoon/skin/icons/svg/arrow-down2.svg");
-@icon-places-panel-toggle-collapsed: url("chrome://icomoon/skin/icons/svg/arrow-up2.svg");
+@icon-places-panel-toggle:      url("chrome://icomoon/skin/icons/arrow-down2.png");
+@icon-places-panel-toggle-collapsed: url("chrome://icomoon/skin/icons/arrow-up2.png");
 
 /* Syntax checking widget */
-@icon-klint-disable-syntax:     url("chrome://icomoon/skin/icons/svg/blocked.svg");
-@icon-klint-refresh:            url("chrome://icomoon/skin/icons/svg/loop4.svg");
+@icon-klint-disable-syntax:     url("chrome://icomoon/skin/icons/blocked.png");
+@icon-klint-refresh:            url("chrome://icomoon/skin/icons/loop4.png");
 
 /* Find Results Widget */
-@icon-findresult-up:            url("chrome://icomoon/skin/icons/svg/arrow-up4.svg");
-@icon-findresult-down:          url("chrome://icomoon/skin/icons/svg/arrow-down4.svg");
-@icon-findresult-stop:          url("chrome://icomoon/skin/icons/svg/stop2.svg");
-@icon-findresult-undo:          url("chrome://icomoon/skin/icons/svg/undo2.svg");
-@icon-findresult-lock:          url("chrome://icomoon/skin/icons/svg/lock.svg");
-@icon-findresult-locked:        url("chrome://icomoon/skin/icons/svg/lock.svg");
+@icon-findresult-up:            url("chrome://icomoon/skin/icons/arrow-up4.png");
+@icon-findresult-down:          url("chrome://icomoon/skin/icons/arrow-down4.png");
+@icon-findresult-stop:          url("chrome://icomoon/skin/icons/stop2.png");
+@icon-findresult-undo:          url("chrome://icomoon/skin/icons/undo2.png");
+@icon-findresult-lock:          url("chrome://icomoon/skin/icons/lock.png");
+@icon-findresult-locked:        url("chrome://icomoon/skin/icons/lock.png");

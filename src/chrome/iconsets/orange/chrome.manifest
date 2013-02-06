@@ -1,0 +1,3 @@
+# Jar is automatically created at build time, see Conscript
+override chrome://komodo/skin/iconset/config.less resource://app/chrome/iconsets/orange/config.less
+skin icomoon orange jar:orange.jar!/skin/

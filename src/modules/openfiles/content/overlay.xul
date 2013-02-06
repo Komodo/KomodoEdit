@@ -20,7 +20,7 @@
   <ko-pane id="workspace_left_area">
     <browser type="ko-widget" id="openfilesViewbox" label="&openFiles.label;"
              position="1" insertbefore="placesViewbox"
-             icon="chrome://icomoon/skin/icons/svg/files.svg"
+             icon="chrome://icomoon/skin/icons/files.png"
              src="chrome://openfiles/content/panel.xul"/>
   </ko-pane>
   

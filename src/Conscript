@@ -131,3 +131,5 @@ if ($platform eq "win") {
     # Need to document how to get those.
 }
 
+$cons->InstallRecursive("$mozBin/chrome/iconsets", cwd()."/src/chrome/iconsets", ('\.svn', '\.consign'));
+$cons->InstallRecursive("$mozBin/chrome/skins", cwd()."/src/chrome/skins", ('\.svn', '\.consign'));

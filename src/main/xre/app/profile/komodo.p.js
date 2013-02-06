@@ -166,3 +166,6 @@ pref("app.support.baseURL", "http://support.activestate.com/1/%APP%/%VERSION%/%O
 // ActiveState add-ons included in the base installation - which we don't want
 // the user to uninstall.
 pref("extensions.shownSelectionUI", true);
+
+// Allow for skin switching during runtime
+pref("extensions.dss.enabled", true);

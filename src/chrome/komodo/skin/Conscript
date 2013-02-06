@@ -51,7 +51,6 @@ Import(
 
 $cons->Preprocess('komodo.p.css', 'komodo.css');
 $cons->InstallInChrome('komodo.css');
-$cons->InstallInChrome('filters.svg');
 $cons->InstallInChrome('splitter.css');
 $cons->Preprocess('toolbar.p.css', 'toolbar.css');
 $cons->InstallInChrome('toolbar.css');
@@ -95,6 +94,5 @@ $cons->InstallRecursive("$mozChromeDir/komodo/skin/plat/",
                         cwd()."/src/chrome/komodo/skin/plat/",
                         ('\.svn', 'chrome\.manifest'));
 
-$cons->InstallRecursive("$mozChromeDir/komodo/skin/iconset/",
-                        cwd()."/src/chrome/komodo/skin/iconset/",
-                        ('\.svn', 'chrome\.manifest'));
+$cons->InstallInChrome('iconset/config.less');
+$cons->InstallInChrome('iconset/rules.less');

@@ -174,8 +174,6 @@
             list-style-image: url("chrome://komodo/skin/tabs/tab-arrow-start.png");
             -moz-image-region: rect(0px, 7px, 11px, 0px);
             padding: 0;
-            width: 16px;
-            height: 16px;
             margin: 0;
         }
         
@@ -218,8 +216,6 @@
             -moz-image-region: rect(0px, 44px, 11px, 37px);
             -moz-padding-start: 2px;
             -moz-padding-end: 0;
-            width: 16px;
-            height: 16px;
             margin: 0;
         }
         
@@ -416,12 +412,10 @@ ko-pane[type="icons"] tab
     border: 0 !important;
     box-shadow: none !important;
     min-width: 20px;
-    filter: @tab-icons-selected-filter;
     
     &:not([selected]):not([icon-inactive])
     {
         opacity: @tab-icons-unselected-opacity;
-        filter: @tab-icons-unselected-filter;
     }
     
     .tab-icon

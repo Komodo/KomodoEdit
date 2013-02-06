@@ -92,4 +92,5 @@ $cons->InstallInChrome('snippets.js');
 $cons->InstallInChrome('tabstops.js');
 $cons->InstallInChrome('history.js');
 $cons->InstallInChrome('widgets.js');
-$cons->InstallInChrome("skin.js");
+$cons->Preprocess('skin.p.js', 'skin.js');
+$cons->InstallInChrome('skin.js');
