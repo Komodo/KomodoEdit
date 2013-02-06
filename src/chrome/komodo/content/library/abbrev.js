@@ -470,10 +470,8 @@ this._getCachedSnippet = function _getCachedSnippet(abbrev, lang, sublang,
     var langKey = (sublang || lang) + ":" + (isAutoAbbrev ? "1" : "0");
     if (abbrev in collection) {
         abbrevInfo = collection[abbrev];
-        if (abbrevInfo) {
-            if (langKey in abbrevInfo) {
-                return abbrevInfo[langKey];
-            }
+        if (abbrevInfo && langKey in abbrevInfo) {
+            return abbrevInfo[langKey];
         }
     } else {
         abbrevInfo = null;
